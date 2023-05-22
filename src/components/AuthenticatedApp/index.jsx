@@ -1,13 +1,14 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Landing } from '../Landing';
-import { ChatRoom } from '../ChatRoom';
+import { Room } from '../Room';
+import { GameSettings } from '../GameSettings';
 
 function AuthenticatedApp() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/room/:id" element={<ChatRoom />} />
+                <Route exact path="/" element={<Room />} />
+                <Route path="/room/:id" element={<Room />} />
+                <Route path="/settings" element={<GameSettings />} />
             </Routes>
         </BrowserRouter>
     );

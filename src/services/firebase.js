@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
 import {
     getFirestore,
+    getDocs,
     collection,
     addDoc,
     serverTimestamp,
@@ -23,7 +23,6 @@ const firebaseConfig = {
   
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const analytics = getAnalytics(app);
 
 async function loginWithGoogle() {
     try {
@@ -71,4 +70,13 @@ function getMessages(roomId, callback) {
     );
 }
 
-export { loginWithGoogle, sendMessage, getMessages };
+function getRooms(callback) {
+    const querySnapshot = getDocs(collection(db, 'chat-rooms'));
+    const rooms = [];
+    querySnapshot.then(data => {
+        data.forEach((doc) => rooms.push(doc.id));
+        callback(rooms)
+    });
+}
+
+export { loginWithGoogle, getRooms, sendMessage, getMessages };
