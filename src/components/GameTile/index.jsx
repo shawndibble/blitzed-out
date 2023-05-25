@@ -1,4 +1,4 @@
-function GameTile({ title, description }) {
+export default function GameTile({ title, description }) {
     return (
         <li>
             <p class="event-date">{title}</p>
@@ -6,5 +6,3 @@ function GameTile({ title, description }) {
         </li>
     )
 }
-
-export { GameTile };

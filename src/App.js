@@ -1,16 +1,23 @@
-import { AuthenticatedApp } from './components/AuthenticatedApp';
-import { UnauthenticatedApp } from './components/UnauthenticatedApp';
+import AuthenticatedApp from './components/AuthenticatedApp';
+import UnauthenticatedApp from './components/UnauthenticatedApp';
 import { useAuth } from './hooks/useAuth';
 import './App.css';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+
+const darkTheme = createTheme({
+    palette: {
+      mode: 'dark',
+    },
+  });
 
 function App() {
     const { user } = useAuth();
 
     return (
-        <div className="container">
-            <h1>Blitz Out</h1>
-            {user ? <AuthenticatedApp /> : <UnauthenticatedApp />}
-        </div>
+        <ThemeProvider theme={darkTheme}>
+            <CssBaseline />
+            {user ? <AuthenticatedApp /> : <UnauthenticatedApp />};
+        </ThemeProvider>
     );
 }
 

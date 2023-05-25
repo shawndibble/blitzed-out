@@ -17,6 +17,7 @@
     background: var(--color-gray);
     border-radius: var(--border-radius);
     text-align: left;
+    width: auto;
 }
 
 .own-message {

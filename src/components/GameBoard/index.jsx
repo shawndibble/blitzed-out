@@ -1,13 +1,15 @@
-import { GameTile } from '../GameTile';
+import GameTile from '../GameTile';
 import './styles.css';
 
-function GameBoard() {
-    const total = 40;
+export default function GameBoard() {
+    const total = 40 ;
+    const gameTiles = [...Array(total).keys()];
+
     return (
-        <ol>
-            {[...Array(total).keys()].map((entry) => <GameTile key={entry} title={`${entry+1} of ${total}`} description={entry} />)}
-        </ol>
+        <div className='gameboard'>
+            <ol>
+                {gameTiles.map((entry, index) => <GameTile key={entry} title={`${index+1} of ${total}`} description={entry} />)}
+            </ol>
+        </div>
     );
 }
-
-export { GameBoard };

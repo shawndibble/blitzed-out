@@ -1,3 +1,9 @@
+.gameboard {
+  display: block;
+  height: calc(100vh - 125px);
+  overflow-y: auto;
+}
+
   ol {
     margin: 0;
     list-style: none;

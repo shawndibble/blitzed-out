@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useMessages } from '../../hooks/useMessages';
 import './styles.css';
 
-function MessageList({ roomId }) {
+export default function MessageList({ roomId }) {
     const containerRef = React.useRef(null);
     const { user } = useAuth();
     const messages = useMessages(roomId);
@@ -38,5 +38,3 @@ function Message({ message, isOwnMessage }) {
         </li>
     );
 }
-
-export { MessageList };

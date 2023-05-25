@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { sendMessage } from '../../services/firebase';
 import './styles.css';
 
-function MessageInput({ roomId }) {
+export default function MessageInput({ roomId }) {
     const { user } = useAuth();
     const [value, setValue] = React.useState('');
 
@@ -34,4 +34,3 @@ function MessageInput({ roomId }) {
         </form>
     );
 }
-export { MessageInput };

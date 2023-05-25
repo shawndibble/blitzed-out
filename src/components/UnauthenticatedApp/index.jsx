@@ -2,7 +2,7 @@ import { redirect } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import './styles.css';
 
-function UnauthenticatedApp() {
+export default function UnauthenticatedApp() {
     const { login } = useAuth();
 
     async function handleSubmit(event) {
@@ -32,5 +32,3 @@ function UnauthenticatedApp() {
         </>
     );
 }
-
-export { UnauthenticatedApp };
