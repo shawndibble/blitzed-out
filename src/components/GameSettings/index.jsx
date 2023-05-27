@@ -7,7 +7,6 @@ import { createRoom } from '../../services/firebase';
 
 export default function GameSettings({ submitText }) {
     const { login, user } = useAuth();
-    console.log(user.displayName);
 
     const nanoidAlphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
@@ -40,7 +39,7 @@ export default function GameSettings({ submitText }) {
                 method="post"
                 onSubmit={handleSubmit}
             >
-                <TextField id="displayName" label="Display Name" defaultValue={user.displayName} required autoFocus margin='normal' />
+                <TextField id="displayName" label="Display Name" defaultValue={user?.displayName} required autoFocus margin='normal' />
 
                 <Stack direction="row" spacing={1} alignItems="center">
                     <Typography>Public Room</Typography>

@@ -32,10 +32,11 @@ export default function MessageList({ roomId }) {
 }
 
 function Message({ message, isOwnMessage }) {
-    const { displayName, text } = message;
+    console.log(message);
+    const { displayName, text, uid } = message;
     return (
         <li className={['message', isOwnMessage && 'own-message'].join(' ')}>
-            <h4 className="sender">{displayName}</h4>
+            <h4 className="sender">{displayName} <small>#{uid.slice(-3)}</small></h4>
             <div><Linkify componentDecorator={(decoratedHref, decoratedText, key) => (
                 <Link href={decoratedHref} key={key} color="inherit" underline="always" target="_blank" rel="noreferrer">{decoratedText}</Link>
             )}>

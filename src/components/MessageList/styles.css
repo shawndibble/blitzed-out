@@ -1,7 +1,7 @@
 .message-list-container {
     margin-bottom: 16px;
     flex: 1;
-    overflow: scroll;
+    overflow-y: auto;
     min-height: calc(100vh - 220px);
     max-height: calc(100vh - 220px);
 }
@@ -30,4 +30,8 @@
 
 .sender {
     margin-bottom: 8px;
+}
+
+.sender small {
+    font-weight: normal;
 }
