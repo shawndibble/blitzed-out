@@ -23,9 +23,7 @@ export default function GameSettings({ submitText }) {
     async function handleSubmit(event) {
         event.preventDefault();
         const displayName = event.target.displayName.value;
-
         const privateRoom = event.target.privateRoom?.value;
-
         const privatePath = privateRoom ? `/rooms/${privateRoom}` : null;
 
         if (displayName !== undefined && displayName.length > 0) {
