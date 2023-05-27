@@ -13,7 +13,7 @@ export default function Navigation({ room }) {
 
     return (
         <>
-            <div class="nav">
+            <div className="nav">
                 <h1>Blitz Out</h1>
                 <h2>{room === 'public' ? 'Public Room' : `Room code: ${room}`}</h2>
                 <div>

@@ -3,12 +3,10 @@
 }
 
 html {
-  --color-background: hsl(216, 8%, 12%);
   --color-blue: hsl(208, 100%, 50%);
   --color-gray: hsl(210, 3%, 25%);
   --color-white: white;
   --border-radius: 5px;
-  background-color: var(--color-background);
   color: var(--color-white);
 }
 

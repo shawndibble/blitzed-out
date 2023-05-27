@@ -16,7 +16,7 @@ function App() {
     return (
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
-            {user ? <AuthenticatedApp /> : <UnauthenticatedApp />};
+            {user ? <AuthenticatedApp /> : <UnauthenticatedApp />}
         </ThemeProvider>
     );
 }

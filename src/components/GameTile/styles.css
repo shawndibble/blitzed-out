@@ -1,0 +1,4 @@
+.tile-title {
+    display: flex;
+    justify-content: space-between;
+}
