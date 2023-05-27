@@ -6,7 +6,7 @@ export default function AuthenticatedApp() {
         <BrowserRouter>
             <Routes>
                 <Route exact path="/" element={<Room />} />
-                <Route path="/room/:id" element={<Room />} />
+                <Route path="/rooms/:id" element={<Room />} />
             </Routes>
         </BrowserRouter>
     );

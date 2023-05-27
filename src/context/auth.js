@@ -1,13 +1,13 @@
 import React from 'react';
-import { loginWithGoogle } from '../services/firebase';
+import { loginAnonymously } from '../services/firebase';
 
 const AuthContext = React.createContext();
 
 const AuthProvider = (props) => {
     const [user, setUser] = React.useState(null);
 
-    const login = async () => {
-        const user = await loginWithGoogle();
+    const login = async (displayName = '') => {
+        const user = await loginAnonymously(displayName);
 
         if (!user) {
             // TODO: Handle failed login

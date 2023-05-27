@@ -6,7 +6,10 @@ function useAuth() {
 
     const authUser = localStorage.getItem('authUser');
 
-    if (authUser && JSON.parse(authUser).user) return JSON.parse(authUser);
+    if (authUser && JSON.parse(authUser).user) {
+        const user = JSON.parse(authUser);
+        return { ...user, login: value.login }
+    } 
 
     if (!value) {
         throw new Error("AuthContext's value is undefined.");

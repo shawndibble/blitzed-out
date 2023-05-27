@@ -1,34 +1,22 @@
-import { redirect } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import './styles.css';
+import Navigation from '../Navigation';
+import { Container} from '@mui/material';
+import { useEffect } from 'react';
+import GameSettings from '../GameSettings';
 
 export default function UnauthenticatedApp() {
-    const { login } = useAuth();
 
-    async function handleSubmit(event) {
-        event.preventDefault();
-
-        await login();
-
-        redirect("/");
-    }
+    useEffect(() => {
+        document.title = 'Blitz Out'
+    }, []);
 
     return (
         <>
-            <h2>Game Setup</h2>
-            <div>
-                <form method="post" onSubmit={handleSubmit}>
-                    <label>
-                        Display Name: <input type="text" name="displayName" required />
-                    </label>
-
-                    <hr />
-                    
-                    <button type="submit">
-                        Access Game
-                    </button>
-                </form>
-            </div>
+            <Navigation />
+            <Container maxWidth={'xs'}>
+                <h2 className="setup">Game Setup</h2>
+                <GameSettings submitText="Access Game" />
+            </Container>
         </>
     );
 }

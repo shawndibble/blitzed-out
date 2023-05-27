@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
+import { GoogleAuthProvider, signInAnonymously, signInWithPopup, getAuth, updateProfile } from 'firebase/auth';
 import {
     getFirestore,
     getDocs,
@@ -9,6 +9,8 @@ import {
     onSnapshot,
     query,
     orderBy,
+    setDoc,
+    doc,
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -38,6 +40,29 @@ async function loginWithGoogle() {
         }
 
         return null;
+    }
+}
+
+async function loginAnonymously(displayName = '') {
+    try {
+        const auth = getAuth();
+        await signInAnonymously(auth);
+
+        await updateProfile(auth.currentUser, {
+            displayName
+        });
+        console.log('user', auth.currentUser);
+        return auth.currentUser; 
+    } catch (error) {
+         console.error(error);
+    }
+}
+
+async function createRoom(roomId) {
+    try {
+        await setDoc(doc(db, 'chat-rooms', roomId), {}, {merge: true});
+    } catch (error) {
+        console.error(error);
     }
 }
 
@@ -79,4 +104,4 @@ function getRooms(callback) {
     });
 }
 
-export { loginWithGoogle, getRooms, sendMessage, getMessages };
+export { loginWithGoogle, loginAnonymously, createRoom, getRooms, sendMessage, getMessages };
