@@ -1,11 +1,11 @@
 import useAuth from '../../hooks/useAuth';
-import './styles.css';
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, Switch, TextField, Typography } from '@mui/material';
+import { Box, Button, Stack, Switch, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import { createRoom } from '../../services/firebase';
 import { dataFolder, getSettings, setSettings } from '../../hooks/useCustomize';
 import { useNavigate } from 'react-router-dom';
+import SelectKink from '../SelectKink';
 
 export default function GameSettings({ submitText, closeDialog }) {
     const { login, user } = useAuth();
@@ -42,45 +42,9 @@ export default function GameSettings({ submitText, closeDialog }) {
         if (typeof closeDialog === 'function') closeDialog();
     }
 
-    function getOptions(category) {
-        let optionArray = [<MenuItem value={0} key={`${category}-0`}><em>None</em></MenuItem>];
-        Object.keys(dataFolder[category]).forEach((option, index) => {
-            let value = index + 1;
-            optionArray.push(<MenuItem value={value} key={`${category}-${value}`}>{option}</MenuItem>);
-        });
-        return optionArray;
-    }
-
-    function handleChange(event, kink) {
-        let data = kinks;
-        data[kink] = event.target.value;
-        setKinks({...data });
-    }
-
-    const selectKinks = () => {
-        return Object.keys(dataFolder).map(option => {
-            const labelId = option + 'label'; 
-            const word = option.replace(/([A-Z])/g, ' $1').trim();
-            const label = word.charAt(0).toUpperCase() + word.slice(1)
-            return (
-                <div key={option}>
-                    <FormControl fullWidth margin="normal">
-                        <InputLabel id={labelId}>{label}</InputLabel>
-                        <Select
-                            labelId={labelId}
-                            id={option}
-                            label={label}
-                            value={kinks[option]}
-                            onChange={(event) => handleChange(event, option)}
-                        >
-                            {getOptions(option)}
-                        </Select>
-                    </FormControl>
-                </div>
-            )
-        });
-    }
-
+    const selectKinks = Object.keys(dataFolder).map(option => (
+        <SelectKink option={option} kinks={kinks} setKinks={setKinks} />
+    ));
 
     return (
         <Box
@@ -114,7 +78,7 @@ export default function GameSettings({ submitText, closeDialog }) {
                 />
             )}
 
-            {selectKinks()}
+            {selectKinks}
 
             <br />
             <Button fullWidth variant="contained" type="submit">

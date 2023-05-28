@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CloseIcon from '@mui/icons-material/Close';
 import { Dialog, DialogContent, DialogTitle, IconButton, Tooltip } from '@mui/material';
 import GameSettings from '../GameSettings';
 import './styles.css';
@@ -28,7 +29,23 @@ export default function Navigation({ room }) {
                 </div>
             </div>
             <Dialog open={open} onClose={closeSettings}>
-                <DialogTitle>Customize Game Settings</DialogTitle>
+                <DialogTitle>
+                    Customize Game
+                    {!!closeSettings && (
+                        <IconButton
+                        aria-label="close"
+                        onClick={closeSettings}
+                        sx={{
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                            color: (theme) => theme.palette.grey[500],
+                        }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    )}
+                </DialogTitle>
                 <DialogContent><GameSettings submitText="Update Game" closeDialog={closeSettings} /></DialogContent>
             </Dialog>
         </>
