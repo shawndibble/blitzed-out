@@ -4,7 +4,7 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack, Switch, 
 import { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import { createRoom } from '../../services/firebase';
-import { dataFolder } from '../../hooks/useCustomize';
+import { dataFolder, getSettings, setSettings } from '../../hooks/useCustomize';
 import { useNavigate } from 'react-router-dom';
 
 export default function GameSettings({ submitText, closeDialog }) {
@@ -17,13 +17,8 @@ export default function GameSettings({ submitText, closeDialog }) {
     const roomId = urlElements.pop() || urlElements.pop(); // in the event we have a trailing / or not.
 
     const [showPrivate, setPrivateToggle] = useState(!!roomId);
-    const [kinks, setKinks] = useState({
-        'alcohol': 0,
-        'throatTraining': 0,
-        'ballBusting': 0,
-        'buttPlay': 0,
-        'titTorture': 0,
-    })
+
+    const [kinks, setKinks] = useState(getSettings());
 
     function togglePrivateRoomField(event) {
         setPrivateToggle(event.target.checked);
@@ -38,16 +33,18 @@ export default function GameSettings({ submitText, closeDialog }) {
         if (displayName !== undefined && displayName.length > 0) {
             await login(displayName);
         }
+        
+        setSettings(kinks);
 
         if (showPrivate) await createRoom(privateRoom);
         navigate(showPrivate ? privatePath : '/');
+
         if (typeof closeDialog === 'function') closeDialog();
     }
 
     function getOptions(category) {
-        const options = dataFolder();
         let optionArray = [<MenuItem value={0} key={`${category}-0`}><em>None</em></MenuItem>];
-        Object.keys(options[category]).forEach((option, index) => {
+        Object.keys(dataFolder[category]).forEach((option, index) => {
             let value = index + 1;
             optionArray.push(<MenuItem value={value} key={`${category}-${value}`}>{option}</MenuItem>);
         });
@@ -61,8 +58,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     }
 
     const selectKinks = () => {
-        const options = dataFolder();
-        return Object.keys(options).map(option => {
+        return Object.keys(dataFolder).map(option => {
             const labelId = option + 'label'; 
             const word = option.replace(/([A-Z])/g, ' $1').trim();
             const label = word.charAt(0).toUpperCase() + word.slice(1)

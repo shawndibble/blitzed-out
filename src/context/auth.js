@@ -8,11 +8,6 @@ const AuthProvider = (props) => {
 
     const login = async (displayName = '') => {
         const user = await loginAnonymously(displayName);
-
-        if (!user) {
-            // TODO: Handle failed login
-        }
-
         setUser(user);
     };
 
