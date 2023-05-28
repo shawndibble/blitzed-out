@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import { createRoom } from '../../services/firebase';
 import { dataFolder } from '../../hooks/useCustomize';
-import { redirect } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-export default function GameSettings({ submitText }) {
+export default function GameSettings({ submitText, closeDialog }) {
     const { login, user } = useAuth();
+    const navigate = useNavigate();
 
     const nanoidAlphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
@@ -39,7 +40,8 @@ export default function GameSettings({ submitText }) {
         }
 
         if (showPrivate) await createRoom(privateRoom);
-        redirect(showPrivate ? privatePath : '/');
+        navigate(showPrivate ? privatePath : '/');
+        if (typeof closeDialog === 'function') closeDialog();
     }
 
     function getOptions(category) {

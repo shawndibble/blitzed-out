@@ -29,7 +29,7 @@ export default function Navigation({ room }) {
             </div>
             <Dialog open={open} onClose={closeSettings}>
                 <DialogTitle>Customize Game Settings</DialogTitle>
-                <DialogContent><GameSettings submitText="Update Game" /></DialogContent>
+                <DialogContent><GameSettings submitText="Update Game" closeDialog={closeSettings} /></DialogContent>
             </Dialog>
         </>
     );

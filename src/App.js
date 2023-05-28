@@ -15,14 +15,14 @@ function App() {
     const { user } = useAuth();
 
     const router = createBrowserRouter([
-      { path: "/", Component: Room },
-      { path: "/rooms/:id", Component: Room },
+      { path: "/", Component: user ? Room : UnauthenticatedApp },
+      { path: "/rooms/:id", Component: user ? Room : UnauthenticatedApp },
     ]);
 
     return (
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
-            {user ? <RouterProvider router={router} /> : <UnauthenticatedApp />}
+            <RouterProvider router={router} />
         </ThemeProvider>
     );
 }
