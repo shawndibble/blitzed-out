@@ -1,7 +1,7 @@
 import React from 'react';
 import { AuthContext } from '../context/auth';
 
-function useAuth() {
+export default function useAuth() {
     const value = React.useContext(AuthContext);
 
     const authUser = localStorage.getItem('authUser');
@@ -19,5 +19,3 @@ function useAuth() {
 
     return value;
 }
-
-export { useAuth };

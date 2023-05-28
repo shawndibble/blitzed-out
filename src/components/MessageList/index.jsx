@@ -1,6 +1,6 @@
 import React from 'react';
 import Linkify from 'react-linkify';
-import { useAuth } from '../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
 import { useMessages } from '../../hooks/useMessages';
 import './styles.css';
 import { Link } from '@mui/material';
@@ -32,16 +32,15 @@ export default function MessageList({ roomId }) {
 }
 
 function Message({ message, isOwnMessage }) {
-    console.log(message);
     const { displayName, text, uid } = message;
     return (
         <li className={['message', isOwnMessage && 'own-message'].join(' ')}>
             <h4 className="sender">{displayName} <small>#{uid.slice(-3)}</small></h4>
-            <div><Linkify componentDecorator={(decoratedHref, decoratedText, key) => (
+            <Linkify componentDecorator={(decoratedHref, decoratedText, key) => (
                 <Link href={decoratedHref} key={key} color="inherit" underline="always" target="_blank" rel="noreferrer">{decoratedText}</Link>
             )}>
-                {text}
-            </Linkify></div>
+                <div>{text}</div>
+            </Linkify>
         </li>
     );
 }

@@ -1,6 +1,6 @@
 import AuthenticatedApp from './components/AuthenticatedApp';
 import UnauthenticatedApp from './components/UnauthenticatedApp';
-import { useAuth } from './hooks/useAuth';
+import useAuth from './hooks/useAuth';
 import './App.css';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 

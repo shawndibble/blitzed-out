@@ -3,7 +3,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Dialog, DialogContent, DialogTitle, IconButton, Tooltip } from '@mui/material';
 import GameSettings from '../GameSettings';
 import './styles.css';
-import { useAuth } from '../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
 
 export default function Navigation({ room }) {
     const { user } = useAuth();
