@@ -13,3 +13,7 @@ export function dataFolder() {
         titTorture
     };
 }
+
+export function customBoard() {
+    
+}

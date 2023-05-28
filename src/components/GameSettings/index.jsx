@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import { createRoom } from '../../services/firebase';
 import { dataFolder } from '../../hooks/useCustomize';
+import { redirect } from 'react-router-dom';
 
 export default function GameSettings({ submitText }) {
     const { login, user } = useAuth();
@@ -14,7 +15,7 @@ export default function GameSettings({ submitText }) {
     const urlElements = window.location.pathname.split('/');
     const roomId = urlElements.pop() || urlElements.pop(); // in the event we have a trailing / or not.
 
-    const [showPrivate, setPrivate] = useState(!!roomId);
+    const [showPrivate, setPrivateToggle] = useState(!!roomId);
     const [kinks, setKinks] = useState({
         'alcohol': 0,
         'throatTraining': 0,
@@ -24,20 +25,21 @@ export default function GameSettings({ submitText }) {
     })
 
     function togglePrivateRoomField(event) {
-        setPrivate(event.target.checked);
+        setPrivateToggle(event.target.checked);
     }
 
     async function handleSubmit(event) {
         event.preventDefault();
-        const displayName = event.target.displayName.value;
+        const displayName = event.target.displayName?.value;
         const privateRoom = event.target.privateRoom?.value;
         const privatePath = privateRoom ? `/rooms/${privateRoom}` : null;
 
         if (displayName !== undefined && displayName.length > 0) {
-            if (showPrivate) await createRoom(privateRoom);
             await login(displayName);
-            document.location = showPrivate ? privatePath : '/';
         }
+
+        if (showPrivate) await createRoom(privateRoom);
+        redirect(showPrivate ? privatePath : '/');
     }
 
     function getOptions(category) {
@@ -88,7 +90,7 @@ export default function GameSettings({ submitText }) {
             method="post"
             onSubmit={handleSubmit}
         >
-            <TextField
+            {!user && (<TextField
                 fullWidth
                 id="displayName"
                 label="Display Name"
@@ -96,7 +98,7 @@ export default function GameSettings({ submitText }) {
                 required
                 autoFocus
                 margin='normal'
-            />
+            />)}
 
             <Stack direction="row" spacing={1} alignItems="center">
                 <Typography>Public Room</Typography>

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { GoogleAuthProvider, signInAnonymously, signInWithPopup, getAuth, updateProfile } from 'firebase/auth';
+import { signInAnonymously, getAuth, updateProfile } from 'firebase/auth';
 import {
     getFirestore,
     getDocs,
@@ -26,39 +26,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function loginWithGoogle() {
-    try {
-        const provider = new GoogleAuthProvider();
-        const auth = getAuth();
-
-        const { user } = await signInWithPopup(auth, provider);
-
-        return { uid: user.uid, displayName: user.displayName };
-    } catch (error) {
-        if (error.code !== 'auth/cancelled-popup-request') {
-            console.error(error);
-        }
-
-        return null;
-    }
-}
-
-async function loginAnonymously(displayName = '') {
+export async function loginAnonymously(displayName = '') {
     try {
         const auth = getAuth();
         await signInAnonymously(auth);
-
-        await updateProfile(auth.currentUser, {
-            displayName
-        });
-        console.log('user', auth.currentUser);
+        await updateProfile(auth.currentUser, { displayName });
         return auth.currentUser; 
     } catch (error) {
          console.error(error);
     }
 }
 
-async function createRoom(roomId) {
+export async function createRoom(roomId) {
     try {
         await setDoc(doc(db, 'chat-rooms', roomId), {}, {merge: true});
     } catch (error) {
@@ -66,7 +45,7 @@ async function createRoom(roomId) {
     }
 }
 
-async function sendMessage(roomId, user, text) {
+export async function sendMessage(roomId, user, text) {
     try {
         await addDoc(collection(db, 'chat-rooms', roomId, 'messages'), {
             uid: user.uid,
@@ -79,7 +58,7 @@ async function sendMessage(roomId, user, text) {
     }
 }
 
-function getMessages(roomId, callback) {
+export function getMessages(roomId, callback) {
     return onSnapshot(
         query(
             collection(db, 'chat-rooms', roomId, 'messages'),
@@ -95,7 +74,7 @@ function getMessages(roomId, callback) {
     );
 }
 
-function getRooms(callback) {
+export function getRooms(callback) {
     const querySnapshot = getDocs(collection(db, 'chat-rooms'));
     const rooms = [];
     querySnapshot.then(data => {
@@ -103,5 +82,3 @@ function getRooms(callback) {
         callback(rooms)
     });
 }
-
-export { loginWithGoogle, loginAnonymously, createRoom, getRooms, sendMessage, getMessages };
