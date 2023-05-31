@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/blized-out/static/css/main.cf5150bb.css",
+    "main.js": "/blized-out/static/js/main.a7c0e29f.js",
+    "static/js/787.676cf0d3.chunk.js": "/blized-out/static/js/787.676cf0d3.chunk.js",
+    "index.html": "/blized-out/index.html",
+    "main.cf5150bb.css.map": "/blized-out/static/css/main.cf5150bb.css.map",
+    "main.a7c0e29f.js.map": "/blized-out/static/js/main.a7c0e29f.js.map",
+    "787.676cf0d3.chunk.js.map": "/blized-out/static/js/787.676cf0d3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cf5150bb.css",
+    "static/js/main.a7c0e29f.js"
+  ]
+}
