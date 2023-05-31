@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import GameTile from '../GameTile';
 import './styles.css';
 import useAuth from '../../hooks/useAuth';
-import { restoreCustomBoard } from '../../hooks/useCustomize';
+import useLocalStorage from '../../hooks/useLocalStorage';
 
 export default function GameBoard({ roll }) {
     const { user } = useAuth();
     const total = 40 ;
-    const gameTiles = restoreCustomBoard();
+    const gameBoard = useLocalStorage('gameStorage', 'customBoard')[0];
+
     const players = [
         {
             ...user,
@@ -52,7 +53,7 @@ export default function GameBoard({ roll }) {
     return (
         <div className='gameboard'>
             <ol>
-                {gameTiles.map((entry, index) => <GameTile
+                {gameBoard?.map((entry, index) => <GameTile
                         key={`${index}+${total}`}
                         title={`#${index+1}: ${entry.title}`}
                         description={entry.description}

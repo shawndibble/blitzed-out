@@ -14,27 +14,8 @@ export const dataFolder = {
     titTorture
 }
 
-export function getSettings() {
-    return localStorage.getItem('gameSettings')
-    ? JSON.parse(localStorage.getItem('gameSettings'))
-    : Object.keys(dataFolder).reduce((obj, entry) => ({...obj, [entry]: 0}), {});
-}
-
-export function setSettings(settings) {
-    return localStorage.setItem('gameSettings', JSON.stringify(settings));
-}
-
-
-export function setCustomBoard(boardTiles) {
-    return localStorage.setItem('customBoard', JSON.stringify(boardTiles));
-}
-
-export function restoreCustomBoard() {
-    return JSON.parse(localStorage.getItem('customBoard'));
-}
-
-export function customizeBoard(size = 40) {
-    const { ...tileOptions } = getSettings();
+export function customizeBoard(settings, size = 40) {
+    const { ...tileOptions } = settings;
 
     // remove 2 tiles for start/finish
     const tiles = [...Array(size - 2).keys()];
@@ -48,6 +29,9 @@ export function customizeBoard(size = 40) {
         cycleList(selectedOptions);
 
         const currentOption = selectedOptions[0];
+
+        if (!currentOption) return {};
+
         const currentList = Object.values(dataFolder[currentOption]);
         const currentLevel = getCurrentLevel(tileIndex, levelBrackets);
         const intensity = getIntensity(tileOptions[currentOption], currentLevel);
@@ -68,7 +52,7 @@ export function customizeBoard(size = 40) {
     shuffledTiles.unshift({ title: '', description: 'START' });
     shuffledTiles.push({ title: '', description: 'FINISH' });
 
-    setCustomBoard(shuffledTiles);
+    return shuffledTiles;
 }
 
 function cycleList(list) {
