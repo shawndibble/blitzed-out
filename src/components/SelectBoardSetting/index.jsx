@@ -2,7 +2,7 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { dataFolder } from "../../hooks/useCustomize";
 import { camelToPascal } from "../../helpers/strings";
 
-export default function SelectKink({ option, kinks, setKinks }) {
+export default function SelectBoardSetting({ option, settings, setSettings }) {
     const labelId = option + 'label'; 
     const label = camelToPascal(option);
 
@@ -12,9 +12,9 @@ export default function SelectKink({ option, kinks, setKinks }) {
         ));
     }
     
-    function handleChange(event, kink) {
-        kinks[kink] = event.target.value;
-        setKinks({ ...kinks });
+    function handleChange(event, option) {
+        settings[option] = event.target.value;
+        setSettings({ ...settings });
     }
     
     return (
@@ -25,7 +25,7 @@ export default function SelectKink({ option, kinks, setKinks }) {
                     labelId={labelId}
                     id={option}
                     label={label}
-                    value={kinks[option]}
+                    value={settings[option] || 0}
                     onChange={(event) => handleChange(event, option)}
                 >
                     {getOptions(option)}

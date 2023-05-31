@@ -5,7 +5,7 @@ import { customAlphabet } from 'nanoid';
 import { createRoom } from '../../services/firebase';
 import { customizeBoard, dataFolder } from '../../hooks/useCustomize';
 import { useNavigate } from 'react-router-dom';
-import SelectKink from '../SelectKink';
+import SelectBoardSetting from '../SelectBoardSetting';
 import useLocalStorage from '../../hooks/useLocalStorage';
 
 export default function GameSettings({ submitText, closeDialog }) {
@@ -44,8 +44,8 @@ export default function GameSettings({ submitText, closeDialog }) {
         if (typeof closeDialog === 'function') closeDialog();
     }
 
-    const selectKinks = Object.keys(dataFolder).map(option => (
-        <SelectKink key={option} option={option} kinks={settings} setKinks={updateSettings} />
+    const settingSelectLists = Object.keys(dataFolder).map(option => (
+        <SelectBoardSetting key={option} option={option} settings={settings} setSettings={updateSettings} />
     ));
 
     return (
@@ -80,7 +80,7 @@ export default function GameSettings({ submitText, closeDialog }) {
                 />
             )}
 
-            {selectKinks}
+            {settingSelectLists}
 
             <br />
             <Button fullWidth variant="contained" type="submit">
