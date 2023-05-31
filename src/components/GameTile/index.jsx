@@ -1,4 +1,4 @@
-import { Avatar, Stack, Tooltip } from "@mui/material";
+import { Avatar, Divider, Stack, Tooltip } from "@mui/material";
 import './styles.css';
 
 export default function GameTile({ title, description, players }) {
@@ -6,14 +6,15 @@ export default function GameTile({ title, description, players }) {
 
     return (
         <li>
-            <div className="tile-title">
-                <div className="tile-number">{title}</div>
+            <div className="tile-title-row">
+                <div className="tile-title">{title}</div>
                 <div className="player-indicator">
                     <Stack direction="row" spacing={2}>
                         {playerIndicators}
                     </Stack>
                 </div>
             </div>
+            <Divider sx={{margin: "0.5rem 0" }} />
             <div className="tile-description">{description}</div>
         </li>
     )

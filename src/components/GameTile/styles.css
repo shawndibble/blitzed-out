@@ -1,4 +1,11 @@
 .tile-title {
-    display: flex;
-    justify-content: space-between;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-indicator {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
 }

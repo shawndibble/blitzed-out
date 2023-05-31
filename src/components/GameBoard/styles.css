@@ -11,12 +11,12 @@
   --unit: 1rem;
 }
 .gameboard li {
-  --height: 5rem;
+  --height: 6rem;
   position: relative;
   display: block;
   background-color: hsl(calc(var(--hue)*360/20),90%,35%);
   border-color: hsl(calc(var(--hue)*360/20),90%,35%);
-  padding: 1rem;
+  padding: 0.75rem;
   margin: 2rem 1rem;
 
 }
@@ -108,7 +108,7 @@
     margin: 1rem;
     width: calc(50% - 2rem);
     float: left;
-    min-height: var(--height);
+    min-height: 8rem;
   }
   .gameboard li:nth-child(4n+3),
   .gameboard li:nth-child(4n+4) {
@@ -140,7 +140,7 @@
     margin: 1rem;
     width: calc(33% - 2rem);
     float: left;
-    min-height: 7rem;
+    min-height: 9rem
   }
   .gameboard li:nth-child(6n+4),
   .gameboard li:nth-child(6n+5),
@@ -178,7 +178,7 @@
     margin: 1rem;
     width: calc(25% - 2rem);
     float: left;
-    min-height: 7rem;
+    min-height: 9rem
   }
   .gameboard li:nth-child(8n+5),
   .gameboard li:nth-child(8n+6),
@@ -224,7 +224,7 @@
     margin: 1rem;
     width: calc(100%/6 - 2rem);
     float: left;
-    min-height: 7rem;
+    min-height: 9rem
   }
   .gameboard li:nth-child(12n+7),
   .gameboard li:nth-child(12n+8),
