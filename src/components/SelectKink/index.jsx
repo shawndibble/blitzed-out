@@ -1,24 +1,20 @@
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { dataFolder } from "../../hooks/useCustomize";
+import { camelToPascal } from "../../helpers/strings";
 
 export default function SelectKink({ option, kinks, setKinks }) {
     const labelId = option + 'label'; 
-    const word = option.replace(/([A-Z])/g, ' $1').trim();
-    const label = word.charAt(0).toUpperCase() + word.slice(1)
+    const label = camelToPascal(option);
 
     function getOptions(category) {
-        let optionArray = [<MenuItem value={0} key={`${category}-0`}><em>None</em></MenuItem>];
-        Object.keys(dataFolder[category]).forEach((option, index) => {
-            let value = index + 1;
-            optionArray.push(<MenuItem value={value} key={`${category}-${value}`}>{option}</MenuItem>);
-        });
-        return optionArray;
+        return Object.keys(dataFolder[category]).map((option, index) => (
+            <MenuItem value={index} key={`${category}-${index}`}>{option}</MenuItem>
+        ));
     }
     
     function handleChange(event, kink) {
-        let data = kinks;
-        data[kink] = event.target.value;
-        setKinks({...data });
+        kinks[kink] = event.target.value;
+        setKinks({ ...kinks });
     }
     
     return (

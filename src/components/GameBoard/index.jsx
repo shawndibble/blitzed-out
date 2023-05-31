@@ -1,21 +1,18 @@
 import { useEffect, useState } from 'react';
 import GameTile from '../GameTile';
 import './styles.css';
+import useAuth from '../../hooks/useAuth';
+import { restoreCustomBoard } from '../../hooks/useCustomize';
 
 export default function GameBoard({ roll }) {
-    const total = 30 ;
-    const gameTiles = [...Array(total).keys()];
-
+    const { user } = useAuth();
+    const total = 40 ;
+    const gameTiles = restoreCustomBoard();
     const players = [
         {
-            name: 'krish',
+            ...user,
             location: 0,
             isSelf: true
-        },
-        {
-            name: 'bobby',
-            location: 4,
-            isSelf: false,
         }
     ];
 
@@ -57,8 +54,8 @@ export default function GameBoard({ roll }) {
             <ol>
                 {gameTiles.map((entry, index) => <GameTile
                         key={`${index}+${total}`}
-                        title={`#${index+1}:`}
-                        description={'Lorem ipsum text for demo purposes only.'}
+                        title={`#${index+1}: ${entry.title}`}
+                        description={entry.description}
                         players={playerList.filter(player => player.location === index)}
                     />
                 )}

@@ -2,7 +2,7 @@ import { Avatar, Stack, Tooltip } from "@mui/material";
 import './styles.css';
 
 export default function GameTile({ title, description, players }) {
-    const playerIndicators = players.map(p => <Tooltip key={p.name} title={p.name}><Avatar {...stringAvatar(p.name)} /></Tooltip>);
+    const playerIndicators = players.map(p => <Tooltip key={p.uid} title={p.displayName}><Avatar {...stringAvatar(p.displayName, p.uid)} /></Tooltip>);
 
     return (
         <li>
@@ -38,15 +38,28 @@ function stringToColor(string) {
     }
 
     return color;
-    }
+}
+
+function contrastBgColor(bgColor, lightColor, darkColor) {
+    var color = (bgColor.charAt(0) === '#') ? bgColor.substring(1, 7) : bgColor;
+    var r = parseInt(color.substring(0, 2), 16); // hexToR
+    var g = parseInt(color.substring(2, 4), 16); // hexToG
+    var b = parseInt(color.substring(4, 6), 16); // hexToB
+    return (((r * 0.299) + (g * 0.587) + (b * 0.114)) > 186) ?
+      darkColor : lightColor;
+  }
   
-function stringAvatar(name) {
+function stringAvatar(name, uid) {
+    const bgcolor = stringToColor(uid);
     return {
         sx: {
-            bgcolor: stringToColor(name),
+            bgcolor,
             width: 24,
-            height: 24
+            height: 24,
+            fontSize: 12,
+            color: contrastBgColor(bgcolor, '#FFFFFF', '#000000')
         },
-        children: name.split(' ')[0][0] + `${name.split(' ')?.[1]?.[0] ?? ''}`,
+        children: name?.split(' ')[0][0] + `${name?.split(' ')?.[1]?.[0] ?? ''}`,
     };
 }
+

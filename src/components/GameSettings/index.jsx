@@ -3,12 +3,12 @@ import { Box, Button, Stack, Switch, TextField, Typography } from '@mui/material
 import { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 import { createRoom } from '../../services/firebase';
-import { dataFolder, getSettings, setSettings } from '../../hooks/useCustomize';
+import { customizeBoard, dataFolder, getSettings, setSettings } from '../../hooks/useCustomize';
 import { useNavigate } from 'react-router-dom';
 import SelectKink from '../SelectKink';
 
 export default function GameSettings({ submitText, closeDialog }) {
-    const { login, user } = useAuth();
+    const { login, user, updateUser } = useAuth();
     const navigate = useNavigate();
 
     const nanoidAlphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -31,7 +31,7 @@ export default function GameSettings({ submitText, closeDialog }) {
         const privatePath = privateRoom ? `/rooms/${privateRoom}` : null;
 
         if (displayName !== undefined && displayName.length > 0) {
-            await login(displayName);
+            user ? await updateUser(displayName) : await login(displayName);
         }
         
         setSettings(kinks);
@@ -39,11 +39,13 @@ export default function GameSettings({ submitText, closeDialog }) {
         if (showPrivate) await createRoom(privateRoom);
         navigate(showPrivate ? privatePath : '/');
 
+        customizeBoard();
+
         if (typeof closeDialog === 'function') closeDialog();
     }
 
     const selectKinks = Object.keys(dataFolder).map(option => (
-        <SelectKink option={option} kinks={kinks} setKinks={setKinks} />
+        <SelectKink key={option} option={option} kinks={kinks} setKinks={setKinks} />
     ));
 
     return (
@@ -52,7 +54,7 @@ export default function GameSettings({ submitText, closeDialog }) {
             method="post"
             onSubmit={handleSubmit}
         >
-            {!user && (<TextField
+            <TextField
                 fullWidth
                 id="displayName"
                 label="Display Name"
@@ -60,7 +62,7 @@ export default function GameSettings({ submitText, closeDialog }) {
                 required
                 autoFocus
                 margin='normal'
-            />)}
+            />
 
             <Stack direction="row" spacing={1} alignItems="center">
                 <Typography>Public Room</Typography>

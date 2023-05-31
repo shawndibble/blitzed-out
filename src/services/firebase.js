@@ -37,6 +37,16 @@ export async function loginAnonymously(displayName = '') {
     }
 }
 
+export async function updateDisplayName(displayName = '') {
+    try {
+        const auth = getAuth();
+        await updateProfile(auth.currentUser, { displayName });
+        return auth.currentUser;
+    } catch(error) {
+        console.error(error);
+    }
+}
+
 export async function createRoom(roomId) {
     try {
         await setDoc(doc(db, 'chat-rooms', roomId), {}, {merge: true});
