@@ -16,7 +16,6 @@ export default function SelectBoardSetting({ option, settings, setSettings }) {
     
     function handleChange(event, option) {
         settings[option] = event.target.value;
-        console.log('handleChange', settings);
         setSettings({ ...settings });
     }
     

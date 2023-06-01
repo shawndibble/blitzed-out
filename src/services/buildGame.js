@@ -48,8 +48,6 @@ export function customizeBoard(settings, size = 40) {
         const currentActivityList = currentList[intensity];
         const appendItem = getAppendItem(appendList, currentAppend, currentLevel);
 
-        console.log('cal', currentActivityList);
-
         const description = ['poppers', 'alcohol'].includes(currentOption) ? currentActivityList[0] : appendItem + currentActivityList[0];
         cycleList(currentActivityList);
 

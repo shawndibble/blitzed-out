@@ -39,7 +39,7 @@ function Message({ message, isOwnMessage }) {
             <Linkify componentDecorator={(decoratedHref, decoratedText, key) => (
                 <Link href={decoratedHref} key={key} color="inherit" underline="always" target="_blank" rel="noreferrer">{decoratedText}</Link>
             )}>
-                <div>{text}</div>
+                <div style={{whiteSpace: 'pre-wrap'}}>{text}</div>
             </Linkify>
         </li>
     );

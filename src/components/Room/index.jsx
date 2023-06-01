@@ -20,7 +20,7 @@ export default function Room() {
         <>
             <Navigation room={room} />
             <div className="container">
-                <GameBoard roll={rollValue} />
+                <GameBoard roll={rollValue} roomId={room} />
             
                 <div className="messages-container">
                     <MessageList roomId={room} />
