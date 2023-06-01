@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import GameTile from '../GameTile';
+import GameTile from './GameTile';
 import './styles.css';
 import useAuth from '../../hooks/useAuth';
 import useLocalStorage from '../../hooks/useLocalStorage';

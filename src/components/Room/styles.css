@@ -1,8 +1,14 @@
-.container {
+.desktop-container {
     display: flex;
     justify-content: center;
-    margin: 32px 16px 0;
-    height: calc(100vh - 140px);
+    margin: 50px 16px 0;
+    height: calc(100vh - 80px);
+}
+
+.mobile-container {
+    margin: 40px 0;
+    padding-bottom: 100px;
+    height: calc(100vh - 80px);
 }
 
 .messages-container {
@@ -14,10 +20,25 @@
     border-radius: var(--border-radius);
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
 }
 
-.dice {
-    position: absolute;
+@media screen and (max-width: 600px) {
+    .messages-container {
+        margin-top: 10px;
+        min-width: 100%;
+        max-width: 100%;
+    }
+}
+
+.dice-roller {
+    position: fixed !important;
     bottom: 50px;
     left: 50px;
+}
+
+@media screen and (max-width: 600px) {
+    .dice-roller {
+        right: 50px;
+    }
 }

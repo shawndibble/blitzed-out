@@ -6,3 +6,9 @@
     background: var(--color-blue);
     justify-content: space-between;
 }
+
+@media screen and (max-width: 600px) {
+    .nav {
+        font-size: 80%;
+    }
+}

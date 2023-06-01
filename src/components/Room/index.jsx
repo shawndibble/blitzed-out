@@ -4,9 +4,10 @@ import MessageList from '../MessageList';
 import GameBoard from '../GameBoard';
 import './styles.css';
 import Navigation from '../Navigation';
-import { Fab } from '@mui/material';
+import { Box, Fab } from '@mui/material';
 import { Casino } from '@mui/icons-material';
 import { useState } from 'react';
+import FullWidthTabs from '../FullWidthTabs';
 
 export default function Room() {
     const params = useParams();
@@ -19,15 +20,39 @@ export default function Room() {
     return (
         <>
             <Navigation room={room} />
-            <div className="container">
+
+            <Fab
+                variant="extended"
+                size="medium"
+                aria-label="roll"
+                onClick={roll} 
+                className="dice-roller"
+            >
+                <Casino /> Roll
+            </Fab>
+            
+            <Box sx={{ display: { xs: 'none', sm: 'flex' } }} className="desktop-container">
                 <GameBoard roll={rollValue} roomId={room} />
             
                 <div className="messages-container">
                     <MessageList roomId={room} />
                     <MessageInput roomId={room} />
                 </div>
-            </div>
-            <Fab variant="extended" size="medium" aria-label="roll" onClick={roll} className="dice"><Casino /> Roll</Fab>
+            </Box>
+
+            <Box sx={{ display: { xs: 'block', sm: 'none' } }} className="mobile-container">
+                <FullWidthTabs
+                    tab1={<>
+                        <GameBoard roll={rollValue} roomId={room} />
+                    </>}
+                    tab2={
+                        <div className="messages-container">
+                            <MessageList roomId={room} />
+                            <MessageInput roomId={room} />
+                        </div>
+                    }
+                />
+            </Box>
         </>
     );
 }

@@ -3,9 +3,9 @@ import { Box, Button, TextField } from '@mui/material';
 import { createRoom } from '../../services/firebase';
 import { customizeBoard, dataFolder } from '../../services/buildGame';
 import { useNavigate } from 'react-router-dom';
-import SelectBoardSetting from '../SelectBoardSetting';
+import SelectBoardSetting from './SelectBoardSetting';
 import useLocalStorage from '../../hooks/useLocalStorage';
-import PrivateRoomToggle from '../PrivateRoomToggle';
+import PrivateRoomToggle from './PrivateRoomToggle';
 
 export default function GameSettings({ submitText, closeDialog }) {
     const { login, user, updateUser } = useAuth();
