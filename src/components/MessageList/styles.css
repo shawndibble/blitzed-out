@@ -25,13 +25,18 @@
     background: var(--color-gray);
     border-radius: var(--border-radius);
     text-align: left;
-    width: auto;
+    width: 100%;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 80%;
 }
 
 .own-message {
     background: var(--color-blue);
     align-self: flex-end;
-    text-align: right;
 }
 
 .sender {

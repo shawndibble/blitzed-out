@@ -67,7 +67,7 @@ export default function GameBoard({ roll, roomId }) {
             setModalOpen(true);
         }
 
-        let message = `Tile: #${newLocation + 1} \r\n Roll: ${rollNumber} \r\n Action: ${tlock.description}`;
+        let message = `Tile: #${newLocation + 1}  |  Dice Roll: ${rollNumber} \r\nAction: ${tlock.description}`;
         sendMessage(roomId, user, message);
         //eslint-disable-next-line
     }, [roll]);
