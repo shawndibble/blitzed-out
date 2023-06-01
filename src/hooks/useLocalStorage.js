@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 
-export default function useLocalStorage(eventName, localKey) {
-    const initialValue = localStorage.getItem(localKey) ? JSON.parse(localStorage.getItem(localKey)) : [''];
+export default function useLocalStorage(localStorageKey) {
+    const eventName = localStorageKey + 'Storage'
+    const initialValue = localStorage.getItem(localStorageKey) ? JSON.parse(localStorage.getItem(localStorageKey)) : [''];
     const [storage, setStorage] = useState(initialValue);
 
     useEffect(() => {
@@ -12,7 +13,7 @@ export default function useLocalStorage(eventName, localKey) {
     }, [storage]);
 
     const updateLocalStorage = (newValue) => {
-        localStorage.setItem(localKey, JSON.stringify(newValue));
+        localStorage.setItem(localStorageKey, JSON.stringify(newValue));
 
         let event = new Event(eventName);
         event.newValue = newValue;

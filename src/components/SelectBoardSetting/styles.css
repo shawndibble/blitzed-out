@@ -1,0 +1,12 @@
+.dualWidth {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dualWidth:first-child {
+    min-width: 40%;
+}
+
+.dualWidth:last-child {
+    min-width: 60%;
+}

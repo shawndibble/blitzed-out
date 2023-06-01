@@ -1,42 +1,43 @@
 import useAuth from '../../hooks/useAuth';
-import { Box, Button, Stack, Switch, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
-import { customAlphabet } from 'nanoid';
+import { Box, Button, TextField } from '@mui/material';
 import { createRoom } from '../../services/firebase';
-import { customizeBoard, dataFolder } from '../../hooks/useCustomize';
+import { customizeBoard, dataFolder } from '../../services/buildGame';
 import { useNavigate } from 'react-router-dom';
 import SelectBoardSetting from '../SelectBoardSetting';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import PrivateRoomToggle from '../PrivateRoomToggle';
 
 export default function GameSettings({ submitText, closeDialog }) {
     const { login, user, updateUser } = useAuth();
-    const updateBoard = useLocalStorage('gameStorage', 'customBoard')[1];
-    const [settings, updateSettings ] = useLocalStorage('settingsStorage', 'gameSettings');
+    const updateBoard = useLocalStorage('customBoard')[1];
+    const [settings, updateSettings] = useLocalStorage('gameSettings');
     const navigate = useNavigate();
-
-    const nanoidAlphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-
-    const urlElements = window.location.pathname.split('/');
-    const roomId = urlElements.pop() || urlElements.pop(); // in the event we have a trailing / or not.
-
-    const [showPrivate, setPrivateToggle] = useState(!!roomId);
-
-    function togglePrivateRoomField(event) {
-        setPrivateToggle(event.target.checked);
-    }
 
     async function handleSubmit(event) {
         event.preventDefault();
-        const displayName = event.target.displayName?.value;
         const privateRoom = event.target.privateRoom?.value;
+        const showPrivate = event.target.showPrivate?.checked;
         const privatePath = privateRoom ? `/rooms/${privateRoom}` : null;
+
+        const {displayName, ...gameOptions} = settings;
 
         if (displayName !== undefined && displayName.length > 0) {
             user ? await updateUser(displayName) : await login(displayName);
         }
-        
-        updateSettings(settings);
-        updateBoard(customizeBoard(settings));
+
+        if (!hasSomethingPicked(gameOptions)) {
+            return alert('you need to pick at lease something');
+        }
+
+        const { poppers, alcohol, ...actionItems } = { ...gameOptions };
+
+        if ((isAppending(poppers, gameOptions.poppersVariation) || isAppending(alcohol, gameOptions.alcoholVariation))
+            && !hasSomethingPicked(actionItems)) {
+            return alert('If you are going to append, you need an action.');
+        }
+
+        updateSettings(gameOptions);
+        updateBoard(customizeBoard(gameOptions));
 
         if (showPrivate) await createRoom(privateRoom);
         navigate(showPrivate ? privatePath : '/');
@@ -53,7 +54,9 @@ export default function GameSettings({ submitText, closeDialog }) {
             component="form"
             method="post"
             onSubmit={handleSubmit}
+            sx={{ minWidth: '300px' }}
         >
+
             <TextField
                 fullWidth
                 id="displayName"
@@ -61,24 +64,11 @@ export default function GameSettings({ submitText, closeDialog }) {
                 defaultValue={user?.displayName}
                 required
                 autoFocus
+                onBlur={event => updateSettings({ ...settings, displayName: event.target.value })}
                 margin='normal'
             />
 
-            <Stack direction="row" spacing={1} alignItems="center">
-                <Typography>Public Room</Typography>
-                <Switch defaultChecked={!!roomId} onChange={togglePrivateRoomField} inputProps={{ 'aria-label': 'Room Type' }} />
-                <Typography>Private Room</Typography>
-            </Stack>
-
-            {showPrivate && (
-                <TextField
-                    fullWidth
-                    id="privateRoom"
-                    label="Private Room"
-                    defaultValue={roomId || customAlphabet(nanoidAlphabet, 5)()}
-                    margin="normal"
-                />
-            )}
+            <PrivateRoomToggle />
 
             {settingSelectLists}
 
@@ -88,4 +78,12 @@ export default function GameSettings({ submitText, closeDialog }) {
             </Button>
         </Box>
     )
+}
+
+function hasSomethingPicked(object) {
+    return Object.values(object).some(selection => [1, 2, 3, 4].includes(selection));
+}
+
+function isAppending(option, variationOption) {
+    return option > 0 && variationOption?.startsWith('append');
 }

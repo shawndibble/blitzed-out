@@ -1,6 +1,7 @@
 import alcohol from '../data/alcohol.json';
 import ballBusting from '../data/ballBusting.json';
 import buttPlay from '../data/buttPlay.json';
+import poppers from '../data/poppers.json';
 import throatTraining from '../data/throatTraining.json';
 import titTorture from '../data/titTorture.json';
 import { shuffleArrayBy } from '../helpers/arrays';
@@ -8,6 +9,7 @@ import { camelToPascal } from '../helpers/strings';
 
 export const dataFolder = {
     alcohol,
+    poppers,
     ballBusting,
     buttPlay,
     throatTraining,
@@ -15,7 +17,12 @@ export const dataFolder = {
 }
 
 export function customizeBoard(settings, size = 40) {
-    const { ...tileOptions } = settings;
+    const { alcoholVariation, poppersVariation, displayName, alcohol, poppers, ...tileOptions } = settings;
+
+    // If they are standalone tiles, then put them back in the rotation, otherwise add them to the append list
+    let appendList = {};
+    !alcoholVariation?.startsWith('append') ? tileOptions['alcohol'] = alcohol : appendList['alcohol'] = alcohol + '|' + alcoholVariation;
+    !poppersVariation?.startsWith('append') ? tileOptions['poppers'] = poppers : appendList['poppers'] = poppers + '|' + poppersVariation;
 
     // remove 2 tiles for start/finish
     const tiles = [...Array(size - 2).keys()];
@@ -24,9 +31,12 @@ export function customizeBoard(settings, size = 40) {
     
     // all the options where the user picked higher than 0.
     const selectedOptions = Object.keys(dataFolder).filter( type => tileOptions[type] > 0 );
+    const appendOptions = Object.keys(appendList);
 
     const customTiles = tiles.map((_, tileIndex) => {
         cycleList(selectedOptions);
+        cycleList(appendOptions);
+        const currentAppend = appendOptions[0];
 
         const currentOption = selectedOptions[0];
 
@@ -36,8 +46,11 @@ export function customizeBoard(settings, size = 40) {
         const currentLevel = getCurrentLevel(tileIndex, levelBrackets);
         const intensity = getIntensity(tileOptions[currentOption], currentLevel);
         const currentActivityList = currentList[intensity];
+        const appendItem = getAppendItem(appendList, currentAppend, currentLevel);
 
-        const description = currentActivityList[0];
+        console.log('cal', currentActivityList);
+
+        const description = ['poppers', 'alcohol'].includes(currentOption) ? currentActivityList[0] : appendItem + currentActivityList[0];
         cycleList(currentActivityList);
 
         return {
@@ -80,4 +93,23 @@ function getCurrentLevel(currentTile, brackets) {
     let level = 1;
     brackets.forEach(bracketMax => currentTile > bracketMax ? level++ : null );
     return level;
+}
+
+function getAppendItem(appendList, currentOption, currentLevel) {
+    if (!Object.keys(appendList).length) return '';
+    
+    const [maxLevel, appendType] = appendList[currentOption].split('|');
+
+    const chance = Math.random();
+
+    // have a chance of not appending. Some = 50/50. Most = 85/15.
+    if (appendType.endsWith('Some') && chance < 0.5) return '';
+    if (appendType.endsWith('Most') && chance < 0.15) return '';
+
+    const intensity = getIntensity(maxLevel, currentLevel)
+    const currentAppendList = Object.values(dataFolder[currentOption])[intensity];
+
+    cycleList(currentAppendList);
+
+    return currentAppendList[0] + ' ';
 }

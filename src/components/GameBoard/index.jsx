@@ -6,12 +6,14 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 
 export default function GameBoard({ roll }) {
     const { user } = useAuth();
-    const total = 40 ;
-    const gameBoard = useLocalStorage('gameStorage', 'customBoard')[0];
+    const total = 40;
+    const gameBoard = useLocalStorage('customBoard')[0];
+    const { displayName } = useLocalStorage('gameSettings')[0];
 
     const players = [
         {
             ...user,
+            displayName,
             location: 0,
             isSelf: true
         }
@@ -22,8 +24,8 @@ export default function GameBoard({ roll }) {
     function movePlayer(i) {
         setTimeout(() => {
             playerList.forEach(p => {
-                if(p.isSelf) {
-                    if (total >= p.location) return p.location++ 
+                if (p.isSelf) {
+                    if (total >= p.location) return p.location++
                     p.location = total - 1;
                 }
             });
@@ -35,8 +37,8 @@ export default function GameBoard({ roll }) {
         const rollNumber = roll[0];
         console.log('roll', rollNumber);
         const currentLocation = playerList.find(p => p.isSelf).location;
- 
-        for(let i = 0; i < rollNumber && rollNumber + currentLocation < total ; i++) {
+
+        for (let i = 0; i < rollNumber && rollNumber + currentLocation < total; i++) {
             movePlayer(i);
         }
 
@@ -46,7 +48,7 @@ export default function GameBoard({ roll }) {
                 movePlayer(i);
             }
         }
-    //eslint-disable-next-line
+        //eslint-disable-next-line
     }, [roll]);
 
 
@@ -54,11 +56,11 @@ export default function GameBoard({ roll }) {
         <div className='gameboard'>
             <ol>
                 {gameBoard?.map((entry, index) => <GameTile
-                        key={`${index}+${total}`}
-                        title={`#${index+1}: ${entry.title}`}
-                        description={entry.description}
-                        players={playerList.filter(player => player.location === index)}
-                    />
+                    key={`${index}+${total}`}
+                    title={`#${index + 1}: ${entry.title}`}
+                    description={entry.description}
+                    players={playerList.filter(player => player.location === index)}
+                />
                 )}
             </ol>
         </div>

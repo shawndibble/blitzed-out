@@ -21,12 +21,5 @@
         "Take 2 shots.",
         "Have someone chug their drink.",
         "Give a drink"
-    ],
-    "Everyone": [
-        "All drink",
-        "All Chug your drink",
-        "All take a shot",
-        "All finish their drinks.",
-        "All take 2 shots."
     ]
 }
