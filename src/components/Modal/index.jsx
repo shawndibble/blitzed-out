@@ -4,18 +4,20 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 
-const style = {
+const style = theme => ({
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   maxWidth: 800,
-  width: '90%',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
-};
+  [theme.breakpoints.down('sm')]: {
+    width: '90%'
+  }
+});
 
 export default function TransitionModal({open, setOpen, title, description}) {
   const handleClose = () => setOpen(false);
