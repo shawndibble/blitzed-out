@@ -21,10 +21,6 @@ export default function GameSettings({ submitText, closeDialog }) {
 
         const {displayName, ...gameOptions} = settings;
 
-        if (displayName !== undefined && displayName.length > 0) {
-            user ? await updateUser(displayName) : await login(displayName);
-        }
-
         if (!hasSomethingPicked(gameOptions)) {
             return alert('you need to pick at lease something');
         }
@@ -34,6 +30,10 @@ export default function GameSettings({ submitText, closeDialog }) {
         if ((isAppending(poppers, gameOptions.poppersVariation) || isAppending(alcohol, gameOptions.alcoholVariation))
             && !hasSomethingPicked(actionItems)) {
             return alert('If you are going to append, you need an action.');
+        }
+
+        if (displayName !== undefined && displayName.length > 0) {
+            user ? await updateUser(displayName) : await login(displayName);
         }
 
         updateSettings(gameOptions);
