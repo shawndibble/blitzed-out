@@ -10,6 +10,7 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   maxWidth: 800,
+  width: '90%',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -45,7 +46,7 @@ export default function TransitionModal({open, setOpen, title, description}) {
               {description}
             </Typography>
             <br />
-            <Typography variant="subtitle1">This modal will automatically close after 8 seconds.</Typography>
+            <Typography variant="caption">This modal will automatically close after 8 seconds.</Typography>
           </Box>
         </Fade>
       </Modal>
