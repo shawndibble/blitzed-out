@@ -26,7 +26,6 @@ export default function MessageInput({ roomId }) {
                 fullWidth
                 value={value}
                 onChange={handleChange}
-                multiline
                 required
                 minLength={1}
                 InputProps={{
