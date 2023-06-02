@@ -21,7 +21,7 @@ export default function usePlayerMove(roomId, setModalOpen, rollValue) {
     const [playerList, setPlayerList] = useState(players);
     const [tile, setTile] = useState(gameBoard[0]);
 
-    function movePlayer(i) {
+    function animateMovePlayer(i) {
         setTimeout(() => {
             playerList.forEach(p => {
                 if (p.isSelf) {
@@ -33,13 +33,13 @@ export default function usePlayerMove(roomId, setModalOpen, rollValue) {
         }, i * 250);
     }
 
-    function handleTextOutput(tile, rollNumber, newLocation) {
+    function handleTextOutput(tile, rollNumber, newLocation, preMessage) {
         if (tile?.description !== 'START' && tile?.description !== 'FINISH') {
             setModalOpen(true);
         }
     
         let message = `Tile: #${newLocation + 1}  |  Dice Roll: ${rollNumber} \r\nAction: ${tile?.description}`;
-        sendMessage(roomId, user, message);
+        sendMessage(roomId, user, preMessage + message);
     }
 
     useEffect(() => {
@@ -53,13 +53,19 @@ export default function usePlayerMove(roomId, setModalOpen, rollValue) {
         if (rollNumber === 0) return;
 
         const lastTile = total - 1;
-
         const currentLocation = playerList.find(p => p.isSelf).location;
         let newLocation = rollNumber + currentLocation;
+        let preMessage = '';
+
+        // restart game.
+        if (currentLocation === lastTile) {
+            preMessage = 'You already finished. Starting over.\r\n';
+            newLocation = rollNumber;
+        }
 
         // animate to next tile.
         for (let i = 0; i < rollNumber && newLocation < total; i++) {
-            movePlayer(i);
+            animateMovePlayer(i);
         }
 
         // animate to final tile.
@@ -67,12 +73,12 @@ export default function usePlayerMove(roomId, setModalOpen, rollValue) {
             newLocation = lastTile;
             const remainingSpaces = lastTile - currentLocation;
             for (let i = 0; i < remainingSpaces; i++) {
-                movePlayer(i);
+                animateMovePlayer(i);
             }
         }
 
         setTile(gameBoard[newLocation]);
-        handleTextOutput(gameBoard[newLocation], rollNumber, newLocation)
+        handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage)
         //eslint-disable-next-line
     }, [rollValue]);
 
