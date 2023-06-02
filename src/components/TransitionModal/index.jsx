@@ -20,9 +20,13 @@ const style = theme => ({
 });
 
 export default function TransitionModal({open, setOpen, title, description}) {
-  const handleClose = () => setOpen(false);
+  let timeoutId;
+  if (open) timeoutId = setTimeout(() => setOpen(false), 8000)
 
-  if (open) setTimeout(() => handleClose(), 8000)
+  function handleClose() {
+    clearTimeout(timeoutId);
+    setOpen(false);
+  }
 
   return (
     <div>
