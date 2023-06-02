@@ -2,6 +2,8 @@ import React from 'react';
 import useAuth from '../../hooks/useAuth';
 import { sendMessage } from '../../services/firebase';
 import './styles.css';
+import { IconButton, InputAdornment, TextField } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 
 export default function MessageInput({ roomId }) {
     const { user } = useAuth();
@@ -19,18 +21,23 @@ export default function MessageInput({ roomId }) {
 
     return (
         <form onSubmit={handleSubmit} className="message-input-container">
-            <input
-                type="text"
+            <TextField
                 placeholder="Enter a message"
+                fullWidth
                 value={value}
                 onChange={handleChange}
-                className="message-input"
+                multiline
                 required
                 minLength={1}
+                InputProps={{
+                    endAdornment: <InputAdornment position="end">
+                        <IconButton type="submit" color="primary" disabled={value < 1}>
+                            <SendIcon />
+                        </IconButton>
+                    </InputAdornment>
+                }}
             />
-            <button type="submit" disabled={value < 1} className="send-message">
-                Send
-            </button>
+            
         </form>
     );
 }

@@ -38,8 +38,10 @@ export default function usePlayerMove(roomId, setModalOpen, rollValue) {
             setModalOpen(true);
         }
     
-        let message = `Tile: #${newLocation + 1}  |  Dice Roll: ${rollNumber} \r\nAction: ${tile?.description}`;
-        sendMessage(roomId, user, preMessage + message);
+        let message = `Roll: ${rollNumber}\r\n`;
+        message += `#${newLocation + 1}: ${tile?.title}\r\n`;
+        message += `Action: ${tile?.description}`;
+        sendMessage(roomId, user, preMessage + message, true);
     }
 
     useEffect(() => {

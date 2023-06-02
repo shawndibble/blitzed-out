@@ -45,13 +45,14 @@ export async function updateDisplayName(displayName = '') {
     }
 }
 
-export async function sendMessage(roomId, user, text) {
+export async function sendMessage(roomId, user, text, isGameAction = false) {
     try {
         await addDoc(collection(db, 'chat-rooms', roomId, 'messages'), {
             uid: user.uid,
             displayName: user.displayName,
             text: text.trim(),
             timestamp: serverTimestamp(),
+            isGameAction
         });
     } catch (error) {
         console.error(error);

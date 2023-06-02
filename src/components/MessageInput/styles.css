@@ -2,17 +2,3 @@
     display: flex;
     gap: 4px;
 }
-
-.message-input {
-    padding: 12px 8px;
-    flex: 1;
-    background: var(--color-gray);
-    border-radius: var(--border-radius);
-}
-
-.send-message {
-    padding: 12px 14px;
-    background: var(--color-blue);
-    border-radius: var(--border-radius);
-    cursor: pointer;
-}

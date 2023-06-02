@@ -1,7 +1,7 @@
 import React from 'react';
 import { getMessages } from '../services/firebase';
 
-function useMessages(roomId) {
+export default function useMessages(roomId) {
     const [messages, setMessages] = React.useState([]);
 
     React.useEffect(() => {
@@ -11,5 +11,3 @@ function useMessages(roomId) {
 
     return messages;
 }
-
-export { useMessages };
