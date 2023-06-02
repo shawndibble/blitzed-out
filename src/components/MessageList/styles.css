@@ -8,7 +8,7 @@
 @media screen and (max-width: 600px) {
     .message-list-container {
         min-height: auto;
-        max-height: calc(100vh - 260px);
+        max-height: calc(100vh - 290px);
     }
 }
 
@@ -17,6 +17,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    padding-top: 0.5em;
 }
 
 .message {

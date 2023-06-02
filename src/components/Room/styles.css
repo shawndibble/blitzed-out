@@ -12,8 +12,8 @@
 }
 
 .messages-container {
-    min-width: 350px;
-    max-width: 400px;
+    min-width: 375px;
+    max-width: 375px;
     padding: 16px;
     flex-grow: 1;
     border: 1px solid var(--color-gray);
