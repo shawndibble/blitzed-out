@@ -1,6 +1,5 @@
 import useAuth from '../../hooks/useAuth';
 import { Box, Button, TextField } from '@mui/material';
-import { createRoom } from '../../services/firebase';
 import { customizeBoard, dataFolder } from '../../services/buildGame';
 import { useNavigate } from 'react-router-dom';
 import SelectBoardSetting from './SelectBoardSetting';
@@ -39,7 +38,6 @@ export default function GameSettings({ submitText, closeDialog }) {
         updateSettings(gameOptions);
         updateBoard(customizeBoard(gameOptions));
 
-        if (showPrivate) await createRoom(privateRoom);
         navigate(showPrivate ? privatePath : '/');
 
         if (typeof closeDialog === 'function') closeDialog();

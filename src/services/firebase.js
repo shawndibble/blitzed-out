@@ -9,8 +9,6 @@ import {
     onSnapshot,
     query,
     orderBy,
-    setDoc,
-    doc,
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -43,14 +41,6 @@ export async function updateDisplayName(displayName = '') {
         await updateProfile(auth.currentUser, { displayName });
         return auth.currentUser;
     } catch(error) {
-        console.error(error);
-    }
-}
-
-export async function createRoom(roomId) {
-    try {
-        await setDoc(doc(db, 'chat-rooms', roomId), {}, {merge: true});
-    } catch (error) {
         console.error(error);
     }
 }
