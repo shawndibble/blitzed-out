@@ -39,6 +39,7 @@
 
 @media screen and (max-width: 600px) {
     .dice-roller {
+        bottom: 70px;
         right: 50px;
     }
 }
