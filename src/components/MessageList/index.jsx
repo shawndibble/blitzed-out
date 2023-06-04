@@ -11,6 +11,7 @@ import TransitionModal from '../TransitionModal';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useSound from 'use-sound';
 import diceSound from '../../sounds/roll-dice.mp3';
+import messageSound from '../../sounds/message.mp3'
 
 export default function MessageList({ roomId }) {
     const containerRef = React.useRef(null);
@@ -20,7 +21,8 @@ export default function MessageList({ roomId }) {
     const [currentTab, setTab] = useState(0);
     const [updatedMessages, setMessages] = useState(messages);
     const [popupMessage, setPopupMessage] = useState(false);
-    const [play] = useSound(diceSound);
+    const [playDiceSound] = useSound(diceSound);
+    const [playMessageSound] = useSound(messageSound);
 
     useEffect(() => {
         const latestMessage = [...messages].pop();
@@ -33,8 +35,8 @@ export default function MessageList({ roomId }) {
             setPopupMessage(latestMessage);
         }
 
-        if (newMessage && sound) {
-            play();
+        if (newMessage && latestMessage && sound) {
+            latestMessage?.isGameAction ? playDiceSound() : playMessageSound();
         }
         
         filterMessages(currentTab);
