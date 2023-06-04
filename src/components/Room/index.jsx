@@ -31,7 +31,7 @@ export default function Room() {
 
     return (
         <>
-            <Navigation room={room} />
+            <Navigation room={room} playerList={playerList} />
 
             <Fab
                 variant="extended"

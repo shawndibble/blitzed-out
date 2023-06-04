@@ -12,3 +12,12 @@
         font-size: 80%;
     }
 }
+
+.nav-room-name {
+    display: flex;
+    align-items: center;
+}
+
+.nav-room-name h2 {
+    margin-right: 0.5rem;
+}

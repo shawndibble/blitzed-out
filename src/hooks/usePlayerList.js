@@ -11,11 +11,11 @@ export default function usePlayerList(roomId) {
 
     getUserList(roomId, setOnlineUsers, onlineUsers);
 
-    const uniqueUserMessages = filteredMessages([...messages]);
+    const uniqueGameActions = filteredGameMessages([...messages]);
 
     const players = Object.entries(onlineUsers).map(([onlineUid, value]) => {
         const displayName = Object.values(value)[0];
-        const userGameMessage = uniqueUserMessages.find(message => message.uid === onlineUid)?.text;
+        const userGameMessage = uniqueGameActions.find(message => message.uid === onlineUid)?.text;
         const location = userGameMessage ? Number(userGameMessage.match(/(?<=#)[\d]*(?=:)/gs)) - 1 : 0;
 
         return {
@@ -36,7 +36,7 @@ export default function usePlayerList(roomId) {
     return [playerList, setPlayerList];
 }
 
-function filteredMessages(messages) {
+function filteredGameMessages(messages) {
     const filteredMessages = messages.filter(m => m.isGameAction);
     return [...new Map(filteredMessages.map(m => [m['uid'], m])).values()];
 }
