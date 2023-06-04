@@ -11,10 +11,13 @@ import FullWidthTabs from '../FullWidthTabs';
 import useWindowDimensions from '../../hooks/useWindowDimensions';
 import usePlayerMove from '../../hooks/usePlayerMove';
 import { useState } from 'react';
+import usePresence from '../../hooks/usePresence';
 
 export default function Room() {
     const params = useParams();
     const room = params.id ?? 'public';
+
+    usePresence(room);
 
     const { width } = useWindowDimensions();
     const [isModalOpen, setModalOpen] = useState(false);

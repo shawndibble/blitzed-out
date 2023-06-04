@@ -6,6 +6,7 @@ import { AppBar, Divider, Tab, Tabs } from '@mui/material';
 import moment from 'moment/moment';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkGfm from 'remark-gfm';
+import TextAvatar from '../TextAvatar';
 
 export default function MessageList({ roomId }) {
     const containerRef = React.useRef(null);
@@ -69,7 +70,10 @@ function Message({ message, isOwnMessage }) {
     return (
         <li className={['message', isOwnMessage && 'own-message'].join(' ')}>
             <div className="message-header">
-                <div className="sender">{displayName} <small>#{uid.slice(-3)}</small></div>
+                <div className="sender">
+                    <TextAvatar uid={uid} displayName={displayName} size="small" />
+                    {displayName}#{uid.slice(-3)}
+                </div>
                 <div className="timestampe">{ago}</div>
             </div>
             <Divider />

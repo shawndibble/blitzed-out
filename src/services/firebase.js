@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { signInAnonymously, getAuth, updateProfile } from 'firebase/auth';
+import { getDatabase, onDisconnect, onValue, push, ref, set, remove } from 'firebase/database';
 import {
     getFirestore,
     getDocs,
@@ -10,7 +11,6 @@ import {
     query,
     orderBy,
     where,
-    Timestamp,
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -19,10 +19,10 @@ const firebaseConfig = {
     projectId: "blitzout-49b39",
     storageBucket: "blitzout-49b39.appspot.com",
     messagingSenderId: "852428606926",
-    appId: "1:852428606926:web:17444e6f8dbc2f95f0ef9f", 
+    appId: "1:852428606926:web:17444e6f8dbc2f95f0ef9f",
     measurementId: "G-93YN1YMTQ7"
-  };
-  
+};
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -31,10 +31,53 @@ export async function loginAnonymously(displayName = '') {
         const auth = getAuth();
         await signInAnonymously(auth);
         await updateProfile(auth.currentUser, { displayName });
-        return auth.currentUser; 
+        return auth.currentUser;
     } catch (error) {
-         console.error(error);
+        console.error(error);
     }
+}
+
+export function setMyPresence({ newRoom, oldRoom, newDisplayName, oldDisplayName }) {
+    const database = getDatabase();
+    const auth = getAuth();
+    const uid = auth.currentUser?.uid;
+    const newRoomConnectionsRef = ref(database, `rooms/${newRoom}/uids/${uid}`);
+    const oldRoomConnectionsRef = ref(database, `rooms/${oldRoom}/uids/${uid}`);
+    const connectedRef = ref(database, '.info/connected');
+
+    onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+            // We're connected (or reconnected)! Do anything here that should happen only if online (or on reconnect)
+            const newRef = push(newRoomConnectionsRef);
+
+            if (oldRoom !== newRoom || oldDisplayName !== newDisplayName) {
+                remove(oldRoomConnectionsRef);
+            }
+
+            // When I disconnect, remove this device
+            onDisconnect(newRef).remove();
+
+            // Add this device to my connections list
+            // this value could contain info about the device or a timestamp too
+            set(newRef, newDisplayName);
+        }
+    });
+}
+
+export function getUserList(roomId, callback, existingData) {
+    const database = getDatabase();
+    const roomRef = ref(database, `rooms/${roomId}/uids`);
+    onValue(roomRef, snap => {
+        let data = snap.val();
+
+        if (!data) return;
+
+        // to prevent an endless loop, see if our new data matches the existing stuff.
+        // can't compare two arrays directly, but we can compare two strings.
+        let dataString = Object.keys(data).sort().join(',');
+        let existingString = Object.keys(existingData).sort().join(',')
+        if (dataString !== existingString) callback(data);
+    });
 }
 
 export async function updateDisplayName(displayName = '') {
@@ -42,7 +85,7 @@ export async function updateDisplayName(displayName = '') {
         const auth = getAuth();
         await updateProfile(auth.currentUser, { displayName });
         return auth.currentUser;
-    } catch(error) {
+    } catch (error) {
         console.error(error);
     }
 }

@@ -35,7 +35,7 @@ export default function GameSettings({ submitText, closeDialog }) {
             user ? await updateUser(displayName) : await login(displayName);
         }
 
-        updateSettings(gameOptions);
+        updateSettings(settings);
         updateBoard(customizeBoard(gameOptions));
 
         navigate(showPrivate ? privatePath : '/');
