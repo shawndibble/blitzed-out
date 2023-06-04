@@ -9,6 +9,8 @@ import {
     onSnapshot,
     query,
     orderBy,
+    where,
+    Timestamp,
 } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -60,9 +62,12 @@ export async function sendMessage(roomId, user, text, isGameAction = false) {
 }
 
 export function getMessages(roomId, callback) {
+    var twoHoursBefore = new Date();
+    twoHoursBefore.setHours(twoHoursBefore.getHours() - 2);
     return onSnapshot(
         query(
             collection(db, 'chat-rooms', roomId, 'messages'),
+            where('timestamp', '>', twoHoursBefore),
             orderBy('timestamp', 'asc')
         ),
         (querySnapshot) => {
