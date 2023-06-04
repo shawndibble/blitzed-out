@@ -24,7 +24,7 @@
   border-color: hsl(calc(var(--hue)*360/20),90%,35%);
   padding: 0.75rem;
   margin: 2rem 1rem;
-
+  border-radius: 0.2rem;
 }
 .gameboard li::before {
   content: "";
