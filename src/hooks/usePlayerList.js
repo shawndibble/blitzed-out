@@ -8,12 +8,24 @@ export default function usePlayerList(roomId) {
     const messages = useMessages(roomId);
 
     const [onlineUsers, setOnlineUsers] = useState({});
-
     getUserList(roomId, setOnlineUsers, onlineUsers);
 
-    const uniqueGameActions = filteredGameMessages([...messages]);
+    const players = getCurrentPlayers(onlineUsers, user, [...messages])
 
-    const players = Object.entries(onlineUsers).map(([onlineUid, value]) => {
+    const [playerList, setPlayerList] = useState(players);
+
+    useEffect(() => {
+        if ( JSON.stringify(playerList) !== JSON.stringify(players)) setPlayerList(players);
+    // eslint-disable-next-line
+    }, [players]);
+
+    return [playerList, setPlayerList];
+}
+
+function getCurrentPlayers(onlineUsers, user, messages) {
+    const uniqueGameActions = filteredGameMessages(messages);
+
+    return Object.entries(onlineUsers).map(([onlineUid, value]) => {
         const displayName = Object.values(value)[0];
         const userGameMessage = uniqueGameActions.find(message => message.uid === onlineUid)?.text;
         const currentLocation = userGameMessage ? Number(userGameMessage.match(/(?:#)[\d]*(?=:)/gs)[0].replace("#", '')) : 0;
@@ -26,15 +38,6 @@ export default function usePlayerList(roomId) {
             location
         };
     });
-
-    const [playerList, setPlayerList] = useState(players);
-
-    useEffect(() => {
-        if ( JSON.stringify(playerList) !== JSON.stringify(players)) setPlayerList(players);
-    // eslint-disable-next-line
-    }, [players]);
-
-    return [playerList, setPlayerList];
 }
 
 function filteredGameMessages(messages) {
