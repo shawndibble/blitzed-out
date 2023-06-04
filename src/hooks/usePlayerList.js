@@ -16,7 +16,8 @@ export default function usePlayerList(roomId) {
     const players = Object.entries(onlineUsers).map(([onlineUid, value]) => {
         const displayName = Object.values(value)[0];
         const userGameMessage = uniqueGameActions.find(message => message.uid === onlineUid)?.text;
-        const location = userGameMessage ? Number(userGameMessage.match(/(:=#)[\d]*(?=:)/gs)) - 1 : 0;
+        const currentLocation = userGameMessage ? Number(userGameMessage.match(/(?:#)[\d]*(?=:)/gs)[0].replace("#", '')) : 0;
+        const location =  currentLocation > 0 ? currentLocation - 1 : currentLocation;
 
         return {
             displayName,
