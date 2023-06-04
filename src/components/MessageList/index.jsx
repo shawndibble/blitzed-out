@@ -7,15 +7,36 @@ import moment from 'moment/moment';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkGfm from 'remark-gfm';
 import TextAvatar from '../TextAvatar';
+import TransitionModal from '../TransitionModal';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import useSound from 'use-sound';
+import diceSound from '../../sounds/roll-dice.mp3';
 
 export default function MessageList({ roomId }) {
     const containerRef = React.useRef(null);
     const { user } = useAuth();
     const messages = useMessages(roomId);
+    const { playerDialog, othersDialog, sound } = useLocalStorage('gameSettings')[0];
     const [currentTab, setTab] = useState(0);
     const [updatedMessages, setMessages] = useState(messages);
+    const [popupMessage, setPopupMessage] = useState(false);
+    const [play] = useSound(diceSound);
 
     useEffect(() => {
+        const latestMessage = [...messages].pop();
+
+        // prevent dialog from showing on reload/page change.
+        const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1
+        const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
+        const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
+        if (newMessage && ( showPlayerDialog || showOthersDialog)) {
+            setPopupMessage(latestMessage);
+        }
+
+        if (newMessage && sound) {
+            play();
+        }
+        
         filterMessages(currentTab);
     // eslint-disable-next-line
     }, [messages]);
@@ -57,6 +78,12 @@ export default function MessageList({ roomId }) {
                     />
                 ))}
             </ul>
+            <TransitionModal
+                text={popupMessage?.text}
+                displayName={popupMessage?.displayName}
+                setOpen={setPopupMessage}
+                open={!!popupMessage || !!popupMessage?.text}
+            />
         </div>
     );
 }
@@ -72,7 +99,7 @@ function Message({ message, isOwnMessage }) {
             <div className="message-header">
                 <div className="sender">
                     <TextAvatar uid={uid} displayName={displayName} size="small" />
-                    {displayName}#{uid.slice(-3)}
+                    {displayName}
                 </div>
                 <div className="timestampe">{ago}</div>
             </div>

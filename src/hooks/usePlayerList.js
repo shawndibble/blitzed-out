@@ -21,7 +21,7 @@ export default function usePlayerList(roomId) {
         return {
             displayName,
             uid: onlineUid,
-            isSelf: onlineUid === user.uid,
+            isSelf: onlineUid === user?.uid,
             location
         };
     });

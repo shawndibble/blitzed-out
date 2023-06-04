@@ -5,6 +5,7 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 export default function GameBoard({ playerList, tile }) {
     const gameBoard = useLocalStorage('customBoard')[0];
     
+    if (!Array.isArray(gameBoard)) return null;
 
     return (
         <>

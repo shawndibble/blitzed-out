@@ -1,4 +1,4 @@
-import { Stack, Switch, TextField, Typography } from "@mui/material"
+import { Box, Stack, Switch, TextField, Typography } from "@mui/material"
 import { customAlphabet } from "nanoid";
 import { useState } from "react";
 
@@ -14,8 +14,8 @@ export default function PrivateRoomToggle()
     }
 
     return (
-        <>
-            <Stack direction="row" spacing={1} alignItems="center">
+        <Box sx={{ margin: "0 0.5rem 0.5rem" }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ width: '100%' }}>
                 <Typography>Public Room</Typography>
                 <Switch
                     id="showPrivate"
@@ -35,6 +35,6 @@ export default function PrivateRoomToggle()
                     margin="normal"
                 />
             )}
-        </>
+        </Box>
     );
 }

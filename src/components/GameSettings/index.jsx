@@ -1,16 +1,24 @@
 import useAuth from '../../hooks/useAuth';
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField} from '@mui/material';
 import { customizeBoard, dataFolder } from '../../services/buildGame';
 import { useNavigate } from 'react-router-dom';
 import SelectBoardSetting from './SelectBoardSetting';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import PrivateRoomToggle from './PrivateRoomToggle';
+import { useState } from 'react';
+import './styles.css';
 
 export default function GameSettings({ submitText, closeDialog }) {
     const { login, user, updateUser } = useAuth();
     const updateBoard = useLocalStorage('customBoard')[1];
-    const [settings, updateSettings] = useLocalStorage('gameSettings');
+    const [settings, updateSettings] = useLocalStorage('gameSettings', { playerDialog: true, sound: true });
     const navigate = useNavigate();
+
+    const [value, setValue] = useState(0);
+
+    const handleChange = (event, newValue) => {
+      setValue(newValue);
+    };
 
     async function handleSubmit(event) {
         event.preventDefault();
@@ -52,7 +60,7 @@ export default function GameSettings({ submitText, closeDialog }) {
             component="form"
             method="post"
             onSubmit={handleSubmit}
-            sx={{ minWidth: '300px' }}
+            className="settings-box"
         >
 
             <TextField
@@ -66,9 +74,51 @@ export default function GameSettings({ submitText, closeDialog }) {
                 margin='normal'
             />
 
-            <PrivateRoomToggle />
-
-            {settingSelectLists}
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={value} onChange={handleChange} aria-label="Game Settings" centered>
+                    <Tab label="Gameboard" {...a11yProps(0)} />
+                    <Tab label="Application" {...a11yProps(1)} />
+                </Tabs>
+            </Box>
+            <TabPanel value={value} index={0}>
+                {settingSelectLists}
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+                <div>
+                    <PrivateRoomToggle />
+                    <Divider />
+                    <FormControlLabel
+                        control={<Switch
+                            checked={settings.playerDialog}
+                            onChange={event => updateSettings({ ...settings, playerDialog: event.target.checked})}
+                        />}
+                        label="Show my roll dialog"
+                        labelPlacement="start"
+                        className="settings-switch"
+                    />
+                    <Divider />
+                    <FormControlLabel
+                        control={<Switch
+                            checked={settings.otherDialog}
+                            onChange={event => updateSettings({ ...settings, othersDialog: event.target.checked})}
+                        />}
+                        label="Show other's roll dialog"
+                        labelPlacement="start"
+                        className="settings-switch"
+                    />
+                    <Divider />
+                    <FormControlLabel
+                        control={<Switch
+                            checked={settings.sound}
+                            onChange={event => updateSettings({ ...settings, sound: event.target.checked})}
+                        />}
+                        label="Play sound on roll"
+                        labelPlacement="start"
+                        className="settings-switch"
+                    />
+                    <Divider />
+                </div>
+            </TabPanel>
 
             <br />
             <Button fullWidth variant="contained" type="submit">
@@ -85,3 +135,30 @@ function hasSomethingPicked(object) {
 function isAppending(option, variationOption) {
     return option > 0 && variationOption?.startsWith('append');
 }
+
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+  
+    return (
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+      >
+        {value === index && (
+          <Box sx={{ pt: 2 }}>
+            {children}
+          </Box>
+        )}
+      </div>
+    );
+  }
+  
+  function a11yProps(index) {
+    return {
+      id: `simple-tab-${index}`,
+      'aria-controls': `simple-tabpanel-${index}`,
+    };
+  }

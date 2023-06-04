@@ -19,11 +19,13 @@ export default function Navigation({ room, playerList = [] }) {
     const playersOnlineTooltip = (
         <>
             <Typography variant="h6">Players Online</Typography>
-            <Typography variant="body1">
-                <ul>
-                    {playerList.map(player => (<li>{player.displayName}</li>))}
-                </ul>
-            </Typography>
+            <ul>
+                {playerList.map(player => (
+                    <li key={player.uid}>
+                        <Typography variant="body1">{player.displayName}</Typography>
+                    </li>
+                ))}
+            </ul>
         </>
     )
 
@@ -49,7 +51,7 @@ export default function Navigation({ room, playerList = [] }) {
             </AppBar>
             <Dialog open={open} onClose={closeSettings}>
                 <DialogTitle>
-                    Customize Game
+                    Game Settings
                     {!!closeSettings && (
                         <IconButton
                         aria-label="close"

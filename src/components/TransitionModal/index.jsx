@@ -19,9 +19,12 @@ const style = theme => ({
   }
 });
 
-export default function TransitionModal({open, setOpen, title, description}) {
+export default function TransitionModal({ open, setOpen, text, displayName }) {
   let timeoutId;
   if (open) timeoutId = setTimeout(() => setOpen(false), 8000)
+
+  const title = text?.match(/(?<=#[\d]*:).*(?=\r)/gs);
+  const description = text?.match(/(?<=Action: ).*/gs);
 
   function handleClose() {
     clearTimeout(timeoutId);
@@ -46,7 +49,7 @@ export default function TransitionModal({open, setOpen, title, description}) {
         <Fade in={open}>
           <Box sx={style}>
             <Typography id="transition-modal-title" variant="h6" component="h2">
-              {title}
+              {title} for {displayName}
             </Typography>
             <Typography id="transition-modal-description" variant="h4" sx={{ mt: 2 }}>
               {description}

@@ -34,7 +34,7 @@ function a11yProps(index) {
   };
 }
 
-export default function FullWidthTabs({ tab1, tab2 }) {
+export default function BottomTabs({ tab1, tab2 }) {
   const theme = useTheme();
   const [value, setValue] = React.useState(0);
 

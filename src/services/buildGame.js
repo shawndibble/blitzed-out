@@ -17,7 +17,15 @@ export const dataFolder = {
 }
 
 export function customizeBoard(settings, size = 40) {
-    const { alcoholVariation, poppersVariation, displayName, alcohol, poppers, ...tileOptions } = settings;
+    const { alcoholVariation, poppersVariation, alcohol, poppers, ...otherSettings } = settings;
+
+    // grab tile options but limit them to the dataFolder options. (ignore all other settings)
+    let tileOptions = {}; 
+    Object.entries(otherSettings).forEach(([key, value]) => {
+        if (Object.keys(dataFolder).includes(key)) {
+            tileOptions[key] = value;
+        }
+    });
 
     // If they are standalone tiles, then put them back in the rotation, otherwise add them to the append list
     let appendList = {};

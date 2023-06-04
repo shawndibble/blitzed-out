@@ -4,10 +4,9 @@ import MessageList from '../MessageList';
 import GameBoard from '../GameBoard';
 import './styles.css';
 import Navigation from '../Navigation';
-import TransitionModal from '../TransitionModal';
 import { Box, Fab } from '@mui/material';
 import { Casino } from '@mui/icons-material';
-import FullWidthTabs from '../FullWidthTabs';
+import BottomTabs from './BottomTabs';
 import useWindowDimensions from '../../hooks/useWindowDimensions';
 import usePlayerMove from '../../hooks/usePlayerMove';
 import { useState } from 'react';
@@ -20,14 +19,13 @@ export default function Room() {
     usePresence(room);
 
     const { width } = useWindowDimensions();
-    const [isModalOpen, setModalOpen] = useState(false);
     const [rollValue, setRollValue] = useState([0])
 
     function roll() {
         setRollValue([Math.floor(Math.random() * 4) + 1]);
     }
 
-    const {playerList, tile} = usePlayerMove(room, setModalOpen, rollValue);
+    const {playerList, tile} = usePlayerMove(room, rollValue);
 
     return (
         <>
@@ -54,7 +52,7 @@ export default function Room() {
                 </Box>
             ): (
                 <Box className="mobile-container">
-                    <FullWidthTabs
+                    <BottomTabs
                         tab1={<>
                             <GameBoard playerList={playerList} tile={tile} />
                         </>}
@@ -67,13 +65,6 @@ export default function Room() {
                     />
                 </Box>
             )}
-
-            <TransitionModal
-                title={tile?.title}
-                description={tile?.description}
-                setOpen={setModalOpen}
-                open={isModalOpen}
-            />
         </>
     );
 }
