@@ -11,8 +11,6 @@ export default function usePlayerMove(roomId, setModalOpen, rollValue) {
     const total = gameBoard.length;
     const [tile, setTile] = useState(gameBoard[0]);
 
-    console.log('playerList', playerList);
-
     useEffect(() => {
         const rollNumber = rollValue[0];
         if (rollNumber === 0) return;
