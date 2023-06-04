@@ -19,10 +19,13 @@ export default function Room() {
     usePresence(room);
 
     const { width } = useWindowDimensions();
-    const [rollValue, setRollValue] = useState([0])
+    const [rollValue, setRollValue] = useState([0]);
+    const [isDisabled, setDisabled] = useState(false);
 
     function roll() {
         setRollValue([Math.floor(Math.random() * 4) + 1]);
+        setDisabled(true);
+        setTimeout(() => setDisabled(false), 2000);
     }
 
     const {playerList, tile} = usePlayerMove(room, rollValue);
@@ -37,6 +40,7 @@ export default function Room() {
                 aria-label="roll"
                 onClick={roll} 
                 className="dice-roller"
+                disabled={isDisabled}
             >
                 <Casino /> Roll
             </Fab>
