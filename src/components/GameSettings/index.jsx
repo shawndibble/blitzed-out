@@ -99,7 +99,7 @@ export default function GameSettings({ submitText, closeDialog }) {
                     <Divider />
                     <FormControlLabel
                         control={<Switch
-                            checked={settings.otherDialog}
+                            checked={settings.othersDialog}
                             onChange={event => updateSettings({ ...settings, othersDialog: event.target.checked})}
                         />}
                         label="Show other's roll dialog"
