@@ -43,9 +43,9 @@ export default function SelectBoardSetting({ option, settings, setSettings }) {
                        value={settings[option + 'Variation'] || 'standalone'}
                        onChange={(event) => handleChange(event, option + 'Variation')}
                    >
-                       <MenuItem value="standalone">Standalone</MenuItem>
-                       <MenuItem value="appendSome">Append Some</MenuItem>
-                       <MenuItem value="appendMost">Append Most</MenuItem>
+                       <MenuItem value="standalone">Standalone Tile</MenuItem>
+                       <MenuItem value="appendSome">Append Some Tiles</MenuItem>
+                       <MenuItem value="appendMost">Append Most Tiles</MenuItem>
                    </Select>
                </FormControl> 
             )}
