@@ -11,7 +11,11 @@ import './styles.css';
 export default function GameSettings({ submitText, closeDialog }) {
     const { login, user, updateUser } = useAuth();
     const updateBoard = useLocalStorage('customBoard')[1];
-    const [settings, updateSettings] = useLocalStorage('gameSettings', { playerDialog: true, sound: true });
+    const [settings, updateSettings] = useLocalStorage('gameSettings', {
+        boardUpdated: false,
+        playerDialog: true,
+        sound: true
+    });
     const navigate = useNavigate();
 
     const [value, setValue] = useState(0);
@@ -43,8 +47,10 @@ export default function GameSettings({ submitText, closeDialog }) {
             user ? await updateUser(displayName) : await login(displayName);
         }
 
-        updateSettings(settings);
-        updateBoard(customizeBoard(gameOptions));
+        if (settings.boardUpdated) {
+            updateBoard(customizeBoard(gameOptions));
+            updateSettings({ ...settings, boardUpdated: false});
+        }
 
         navigate(showPrivate ? privatePath : '/');
 
@@ -154,11 +160,11 @@ function TabPanel(props) {
         )}
       </div>
     );
-  }
-  
-  function a11yProps(index) {
+}
+
+function a11yProps(index) {
     return {
-      id: `simple-tab-${index}`,
-      'aria-controls': `simple-tabpanel-${index}`,
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
     };
-  }
+}
