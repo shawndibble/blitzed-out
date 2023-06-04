@@ -23,8 +23,8 @@ export default function TransitionModal({ open, setOpen, text, displayName }) {
   let timeoutId;
   if (open) timeoutId = setTimeout(() => setOpen(false), 8000)
 
-  const title = text?.match(/(?<=#[\d]*:).*(?=\r)/gs);
-  const description = text?.match(/(?<=Action: ).*/gs);
+  const title = text?.match(/(?:#[\d]*:).*(?=\r)/gs);
+  const description = text?.match(/(?:Action: ).*/gs);
 
   function handleClose() {
     clearTimeout(timeoutId);
