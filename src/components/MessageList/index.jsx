@@ -29,7 +29,7 @@ export default function MessageList({ roomId }) {
         const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1
         const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
         const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
-        if (newMessage && ( showPlayerDialog || showOthersDialog)) {
+        if (newMessage && latestMessage?.isGameAction && ( showPlayerDialog || showOthersDialog)) {
             setPopupMessage(latestMessage);
         }
 
