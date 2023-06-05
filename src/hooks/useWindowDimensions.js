@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 export default function useWindowDimensions() {
-
   const hasWindow = typeof window !== 'undefined';
 
   function getWindowDimensions() {
@@ -15,15 +14,16 @@ export default function useWindowDimensions() {
 
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
 
+  function handleResize() {
+    setWindowDimensions(getWindowDimensions());
+  }
+
   useEffect(() => {
     if (hasWindow) {
-      function handleResize() {
-        setWindowDimensions(getWindowDimensions());
-      }
-
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
+    return null;
   // eslint-disable-next-line
   }, [hasWindow]);
 
