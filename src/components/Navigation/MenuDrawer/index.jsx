@@ -25,6 +25,44 @@ export default function MenuDrawer() {
   const [openDialog, setDialog] = useState(false);
   const toggleSettings = (isOpen) => setDialog(isOpen);
 
+  const menuItems = [
+    {title: 'Settings', icon: <SettingsIcon />, onClick: () => toggleSettings(true)}
+  ];
+
+  const settingsDialog = (
+    <Dialog open={openDialog} onClose={() => toggleSettings(false)}>
+      <DialogTitle>
+        Game Settings
+          <IconButton
+            aria-label="close"
+            onClick={() => toggleSettings(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        <GameSettings submitText="Update Game" closeDialog={() => toggleSettings(false)} />
+      </DialogContent>
+    </Dialog>
+  );
+
+  const menuList = menuItems.map(({title, icon, onClick}) => (
+    <ListItem key={title} disablePadding onClick={onClick}>
+      <ListItemButton>
+        <ListItemIcon>                        
+            {icon}
+        </ListItemIcon>
+        <ListItemText primary={title} />
+      </ListItemButton>
+    </ListItem>
+  ));
+
   return (
     <>
       <IconButton onClick={() => toggleDrawer(true)} aria-label="open menu">
@@ -37,37 +75,11 @@ export default function MenuDrawer() {
       >
         <Box role="presentation" onClick={() => toggleDrawer(false)} sx={{ width: 250 }}>
           <List>
-            <ListItem disablePadding onClick={() => toggleSettings(true)}>
-              <ListItemButton>
-                <ListItemIcon>                        
-                    <SettingsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Settings" />
-              </ListItemButton>
-            </ListItem>
+            {menuList}
           </List>
         </Box>
       </Drawer>
-      <Dialog open={openDialog} onClose={() => toggleSettings(false)}>
-        <DialogTitle>
-          Game Settings
-            <IconButton
-              aria-label="close"
-              onClick={() => toggleSettings(false)}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <GameSettings submitText="Update Game" closeDialog={() => toggleSettings(false)} />
-        </DialogContent>
-      </Dialog>
+      {settingsDialog}
     </>
   );
 }
