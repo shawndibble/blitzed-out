@@ -1,3 +1,12 @@
+.site-name {
+    display: flex;
+    align-items: center;
+}
+
+.site-name img {
+    margin-right: 0.5rem;
+}
+
 .nav {
     display: flex;
     width: 100%;
@@ -7,12 +16,6 @@
     justify-content: space-between;
 }
 
-@media screen and (max-width: 600px) {
-    .nav {
-        font-size: 80%;
-    }
-}
-
 .nav-room-name {
     display: flex;
     align-items: center;
@@ -20,4 +23,20 @@
 
 .nav-room-name h2 {
     margin-right: 0.5rem;
+}
+
+@media screen and (max-width: 600px) {
+    .nav {
+        font-size: 80%;
+    }
+
+    .site-name img {
+        margin-right: 0.3rem;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .nav-room-name h2 {
+        display: none;
+    }
 }

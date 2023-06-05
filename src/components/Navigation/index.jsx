@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloseIcon from '@mui/icons-material/Close';
-
-import { AppBar, Dialog, DialogContent, DialogTitle, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
+import Logo from "../../images/blitzed-out.webp";
+import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
 import GameSettings from '../GameSettings';
 import './styles.css';
 import useAuth from '../../hooks/useAuth';
@@ -33,9 +33,12 @@ export default function Navigation({ room, playerList = [] }) {
         <>
             <AppBar position="fixed">
                 <Toolbar disableGutters variant="dense" component="nav" className="nav">
-                    <h1>Blitzed Out</h1>
+                    <div className='site-name'>
+                        <Box component="img" sx={{ height: 32 }} alt="Blitzed Out Logo" src={Logo} />
+                        <h1>Blitzed Out</h1>
+                    </div>
                     <div className="nav-room-name">
-                        <h2>{room === 'public' || room === undefined ? 'Public Room' : `Room code: ${room}`}</h2>
+                        <h2>{room === 'public' || room === undefined ? 'Public Room' : `Room: ${room}`}</h2>
                         <Tooltip title={playersOnlineTooltip}>
                             <WrappedPlayersOnline playerList={playerList} />
                         </Tooltip>
