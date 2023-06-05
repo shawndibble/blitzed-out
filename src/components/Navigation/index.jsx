@@ -1,20 +1,14 @@
-import React, { useState } from 'react';
-import SettingsIcon from '@mui/icons-material/Settings';
-import CloseIcon from '@mui/icons-material/Close';
+import React from 'react';
 import Logo from "../../images/blitzed-out.webp";
-import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
-import GameSettings from '../GameSettings';
+import { AppBar, Box, Toolbar, Tooltip, Typography } from '@mui/material';
 import './styles.css';
 import useAuth from '../../hooks/useAuth';
 import { forwardRef } from 'react';
 import PlayersOnline from './PlayersOnline';
+import MenuDrawer from './MenuDrawer';
 
 export default function Navigation({ room, playerList = [] }) {
     const { user } = useAuth();
-    const [open, setOpen] = useState(false);
-
-    const openSettings = () => setOpen(true);
-    const closeSettings = () => setOpen(false);
 
     const playersOnlineTooltip = (
         <>
@@ -43,35 +37,12 @@ export default function Navigation({ room, playerList = [] }) {
                             <WrappedPlayersOnline playerList={playerList} />
                         </Tooltip>
                     </div>
+                    
                     <div>
-                    {!!user && (
-                        <Tooltip title="Game Settings">
-                            <IconButton onClick={ openSettings }><SettingsIcon /></IconButton>
-                        </Tooltip>
-                    )}
+                    {!!user && (<MenuDrawer />)}
                     </div>
                 </Toolbar>
-            </AppBar>
-            <Dialog open={open} onClose={closeSettings}>
-                <DialogTitle>
-                    Game Settings
-                    {!!closeSettings && (
-                        <IconButton
-                        aria-label="close"
-                        onClick={closeSettings}
-                        sx={{
-                            position: 'absolute',
-                            right: 8,
-                            top: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                    )}
-                </DialogTitle>
-                <DialogContent><GameSettings submitText="Update Game" closeDialog={closeSettings} /></DialogContent>
-            </Dialog>
+            </AppBar> 
         </>
     );
 }
