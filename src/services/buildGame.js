@@ -5,7 +5,7 @@ import poppers from '../data/poppers.json';
 import throatTraining from '../data/throatTraining.json';
 import titTorture from '../data/titTorture.json';
 import shuffleArrayBy from '../helpers/arrays';
-import camelToPascal from '../helpers/strings';
+import { camelToPascal } from '../helpers/strings';
 
 export const dataFolder = {
   alcohol,

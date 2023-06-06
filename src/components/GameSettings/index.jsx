@@ -1,5 +1,5 @@
 import useAuth from '../../hooks/useAuth';
-import { Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField} from '@mui/material';
+import { Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField } from '@mui/material';
 import { customizeBoard, dataFolder } from '../../services/buildGame';
 import { useNavigate } from 'react-router-dom';
 import SelectBoardSetting from './SelectBoardSetting';
@@ -7,6 +7,8 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 import PrivateRoomToggle from './PrivateRoomToggle';
 import { useState } from 'react';
 import './styles.css';
+import TabPanel from '../TabPanel';
+import { a11yProps } from '../../helpers/strings';
 
 export default function GameSettings({ submitText, closeDialog }) {
     const { login, user, updateUser } = useAuth();
@@ -21,7 +23,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     const [value, setValue] = useState(0);
 
     const handleChange = (event, newValue) => {
-      setValue(newValue);
+        setValue(newValue);
     };
 
     async function handleSubmit(event) {
@@ -30,7 +32,7 @@ export default function GameSettings({ submitText, closeDialog }) {
         const showPrivate = event.target.showPrivate?.checked;
         const privatePath = privateRoom ? `/rooms/${privateRoom}` : null;
 
-        const {displayName, ...gameOptions} = settings;
+        const { displayName, ...gameOptions } = settings;
 
         if (!hasSomethingPicked(gameOptions)) {
             return alert('you need to pick at lease something');
@@ -49,7 +51,7 @@ export default function GameSettings({ submitText, closeDialog }) {
 
         if (settings.boardUpdated) {
             updateBoard(customizeBoard(gameOptions));
-            updateSettings({ ...settings, boardUpdated: false});
+            updateSettings({ ...settings, boardUpdated: false });
         }
 
         navigate(showPrivate ? privatePath : '/');
@@ -68,7 +70,6 @@ export default function GameSettings({ submitText, closeDialog }) {
             onSubmit={handleSubmit}
             className="settings-box"
         >
-
             <TextField
                 fullWidth
                 id="displayName"
@@ -86,44 +87,42 @@ export default function GameSettings({ submitText, closeDialog }) {
                     <Tab label="Application" {...a11yProps(1)} />
                 </Tabs>
             </Box>
-            <TabPanel value={value} index={0}>
+            <TabPanel value={value} index={0} style={{ p: 0 }}>
                 {settingSelectLists}
             </TabPanel>
-            <TabPanel value={value} index={1}>
-                <div>
-                    <PrivateRoomToggle />
-                    <Divider />
-                    <FormControlLabel
-                        control={<Switch
-                            checked={settings.playerDialog}
-                            onChange={event => updateSettings({ ...settings, playerDialog: event.target.checked})}
-                        />}
-                        label="Show my roll dialog"
-                        labelPlacement="start"
-                        className="settings-switch"
-                    />
-                    <Divider />
-                    <FormControlLabel
-                        control={<Switch
-                            checked={settings.othersDialog}
-                            onChange={event => updateSettings({ ...settings, othersDialog: event.target.checked})}
-                        />}
-                        label="Show other's roll dialog"
-                        labelPlacement="start"
-                        className="settings-switch"
-                    />
-                    <Divider />
-                    <FormControlLabel
-                        control={<Switch
-                            checked={settings.sound}
-                            onChange={event => updateSettings({ ...settings, sound: event.target.checked})}
-                        />}
-                        label="Play sound on roll"
-                        labelPlacement="start"
-                        className="settings-switch"
-                    />
-                    <Divider />
-                </div>
+            <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
+                <PrivateRoomToggle />
+                <Divider />
+                <FormControlLabel
+                    control={<Switch
+                        checked={settings.playerDialog}
+                        onChange={event => updateSettings({ ...settings, playerDialog: event.target.checked })}
+                    />}
+                    label="Show my roll dialog"
+                    labelPlacement="start"
+                    className="settings-switch"
+                />
+                <Divider />
+                <FormControlLabel
+                    control={<Switch
+                        checked={settings.othersDialog}
+                        onChange={event => updateSettings({ ...settings, othersDialog: event.target.checked })}
+                    />}
+                    label="Show other's roll dialog"
+                    labelPlacement="start"
+                    className="settings-switch"
+                />
+                <Divider />
+                <FormControlLabel
+                    control={<Switch
+                        checked={settings.sound}
+                        onChange={event => updateSettings({ ...settings, sound: event.target.checked })}
+                    />}
+                    label="Play sound on roll"
+                    labelPlacement="start"
+                    className="settings-switch"
+                />
+                <Divider />
             </TabPanel>
 
             <br />
@@ -140,31 +139,4 @@ function hasSomethingPicked(object) {
 
 function isAppending(option, variationOption) {
     return option > 0 && variationOption?.startsWith('append');
-}
-
-function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-  
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-      >
-        {value === index && (
-          <Box sx={{ pt: 2 }}>
-            {children}
-          </Box>
-        )}
-      </div>
-    );
-}
-
-function a11yProps(index) {
-    return {
-        id: `simple-tab-${index}`,
-        'aria-controls': `simple-tabpanel-${index}`,
-    };
 }

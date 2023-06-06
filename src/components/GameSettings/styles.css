@@ -1,6 +1,7 @@
 .settings-box {
     min-width: 100%;
     max-width: 300px;
+    
 }
 
 label.settings-switch {
@@ -8,3 +9,4 @@ label.settings-switch {
     justify-content: space-between;
     margin: 0.5rem
 }
+

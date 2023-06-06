@@ -12,6 +12,7 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 import useSound from 'use-sound';
 import diceSound from '../../sounds/roll-dice.mp3';
 import messageSound from '../../sounds/message.mp3'
+import { a11yProps } from '../../helpers/strings';
 
 export default function MessageList({ roomId }) {
     const containerRef = React.useRef(null);
@@ -109,11 +110,4 @@ function Message({ message, isOwnMessage }) {
             <div style={{whiteSpace: 'pre-wrap'}}><ReactMarkdown children={text} remarkPlugins={[remarkGfm]} /></div>
         </li>
     );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }
