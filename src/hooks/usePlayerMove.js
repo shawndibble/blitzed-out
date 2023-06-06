@@ -12,8 +12,8 @@ export default function usePlayerMove(roomId, rollValue) {
   const [tile, setTile] = useState(gameBoard[0]);
 
   function handleTextOutput(newTile, rollNumber, newLocation, preMessage) {
-    let message = `Roll: ${rollNumber}\r\n`;
-    message += `#${newLocation + 1}: ${newTile?.title}\r\n`;
+    let message = `Roll: ${rollNumber}  \r\n`;
+    message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;
     message += `Action: ${newTile?.description}`;
     sendMessage(roomId, user, preMessage + message, true);
   }
@@ -29,7 +29,7 @@ export default function usePlayerMove(roomId, rollValue) {
 
     // restart game.
     if (currentLocation === lastTile) {
-      preMessage = 'You already finished. Starting over.\r\n';
+      preMessage = 'You already finished. Starting over. \r\n';
       newLocation = rollNumber;
     }
 

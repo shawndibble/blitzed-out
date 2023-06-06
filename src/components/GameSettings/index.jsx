@@ -10,9 +10,9 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 import PrivateRoomToggle from './PrivateRoomToggle';
 import './styles.css';
 import TabPanel from '../TabPanel';
-import { a11yProps } from '../../helpers/strings';
+import { a11yProps, camelToPascal } from '../../helpers/strings';
 import ToastAlert from '../ToastAlert';
-// import { sendMessage } from '../../services/firebase';
+import { sendMessage } from '../../services/firebase';
 
 function hasSomethingPicked(object) {
   return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
@@ -23,8 +23,22 @@ function isAppending(option, variationOption) {
 }
 
 function getSettingsMessage(settings) {
-  const message = '## Game Settings\n\r';
-  console.log(settings);
+  let message = '### Game Settings\r\n';
+  const { poppersVariation, alcoholVariation } = settings;
+  Object.keys(dataFolder).map((val) => {
+    if (settings[val] > 0) {
+      const intensity = settings[val];
+      message += `* ${camelToPascal(val)}: ${Object.keys(dataFolder[val])?.[intensity]}`;
+      if (val === 'poppers') {
+        message += ` (${camelToPascal(poppersVariation)})`;
+      }
+      if (val === 'alcohol') {
+        message += ` (${camelToPascal(alcoholVariation)})`;
+      }
+      message += '\r\n';
+    }
+    return undefined;
+  });
   return message;
 }
 
@@ -73,10 +87,11 @@ export default function GameSettings({ submitText, closeDialog }) {
     }
 
     if (settings.boardUpdated) {
+      console.log(settings);
       updateBoard(customizeBoard(gameOptions));
       updateSettings({ ...settings, boardUpdated: false });
-      getSettingsMessage(settings);
-      // sendMessage(privateRoom || 'public', user, getSettingsMessage(settings));
+      // console.log(getSettingsMessage(settings));
+      sendMessage(privateRoom || 'public', user, getSettingsMessage(settings));
     }
 
     navigate(showPrivate ? privatePath : '/');

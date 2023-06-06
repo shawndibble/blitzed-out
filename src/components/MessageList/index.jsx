@@ -113,7 +113,7 @@ function Message({ message, isOwnMessage }) {
         <div className="timestampe">{ago}</div>
       </div>
       <Divider />
-      <div style={{ whiteSpace: 'pre-wrap' }}>
+      <div>
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {text}
         </ReactMarkdown>
