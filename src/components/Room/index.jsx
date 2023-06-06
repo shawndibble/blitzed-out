@@ -1,15 +1,15 @@
 import { useParams } from 'react-router-dom';
+import { Box, Fab } from '@mui/material';
+import { Casino } from '@mui/icons-material';
+import { useState } from 'react';
 import MessageInput from '../MessageInput';
 import MessageList from '../MessageList';
 import GameBoard from '../GameBoard';
 import './styles.css';
 import Navigation from '../Navigation';
-import { Box, Fab } from '@mui/material';
-import { Casino } from '@mui/icons-material';
 import BottomTabs from './BottomTabs';
 import useWindowDimensions from '../../hooks/useWindowDimensions';
 import usePlayerMove from '../../hooks/usePlayerMove';
-import { useState } from 'react';
 import usePresence from '../../hooks/usePresence';
 
 export default function Room() {
@@ -38,11 +38,13 @@ export default function Room() {
         variant="extended"
         size="medium"
         aria-label="roll"
-        onClick={roll}
+        onClick={() => roll()}
         className="dice-roller"
         disabled={isDisabled}
       >
-        <Casino /> Roll
+        <Casino />
+        {' '}
+        Roll
       </Fab>
 
       {width > 600 ? (
@@ -57,15 +59,15 @@ export default function Room() {
       ) : (
         <Box className="mobile-container">
           <BottomTabs
-            tab1={<>
+            tab1={(
               <GameBoard playerList={playerList} tile={tile} />
-            </>}
-            tab2={
+            )}
+            tab2={(
               <div className="messages-container">
                 <MessageList roomId={room} />
                 <MessageInput roomId={room} />
               </div>
-            }
+            )}
           />
         </Box>
       )}

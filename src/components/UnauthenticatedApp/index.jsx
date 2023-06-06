@@ -1,8 +1,8 @@
 import './styles.css';
-import Navigation from '../Navigation';
 import { Container } from '@mui/material';
-import GameSettings from '../GameSettings';
 import { useParams } from 'react-router-dom';
+import Navigation from '../Navigation';
+import GameSettings from '../GameSettings';
 import usePlayerList from '../../hooks/usePlayerList';
 
 export default function UnauthenticatedApp() {
@@ -13,7 +13,7 @@ export default function UnauthenticatedApp() {
   return (
     <>
       <Navigation room={room} playerList={playerList} />
-      <Container maxWidth={'xs'}>
+      <Container maxWidth="xs">
         <h2 className="setup">Game Setup</h2>
         <GameSettings submitText="Access Game" />
       </Container>

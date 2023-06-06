@@ -16,13 +16,13 @@ import {
   ListItemText,
   Tab,
   Tabs,
-  Typography
+  Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import GameSettings from '../../GameSettings';
 import { a11yProps } from '../../../helpers/strings';
 import TabPanel from '../../TabPanel';
-import { Link } from 'react-router-dom';
 import Venmo from '../../../images/venmo.png';
 import CashApp from '../../../images/cashapp.png';
 
@@ -35,29 +35,29 @@ export default function MenuDrawer() {
 
   const [open, setOpen] = useState({
     settings: false,
-    donate: false
+    donate: false,
   });
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
 
   const menuItems = [
     { title: 'Settings', icon: <SettingsIcon />, onClick: () => toggleDialog('settings', true) },
-    { title: 'Donate', icon: <PaidIcon />, onClick: () => toggleDialog('donate', true) }
+    { title: 'Donate', icon: <PaidIcon />, onClick: () => toggleDialog('donate', true) },
   ];
 
   const closeIcon = (openType) => (
     <IconButton
-    aria-label="close"
-    onClick={() => toggleDialog(openType, false)}
-    sx={{
-      position: 'absolute',
-      right: 8,
-      top: 8,
-      color: (theme) => theme.palette.grey[500],
-    }}
-  >
-    <CloseIcon />
-  </IconButton>
-  )
+      aria-label="close"
+      onClick={() => toggleDialog(openType, false)}
+      sx={{
+        position: 'absolute',
+        right: 8,
+        top: 8,
+        color: (theme) => theme.palette.grey[500],
+      }}
+    >
+      <CloseIcon />
+    </IconButton>
+  );
 
   const settingsDialog = (
     <Dialog open={open.settings} onClose={() => toggleDialog('settings', false)}>
@@ -83,33 +83,35 @@ export default function MenuDrawer() {
       </Tabs>
       <TabPanel value={tabVal} index={0}>
         <Box sx={{ textAlign: 'center' }}>
-          <Link to="https://venmo.com/code?user_id=3818104727537125276" >
-            <Typography variant='h4'>@blitzedout</Typography>
+          <Link to="https://venmo.com/code?user_id=3818104727537125276">
+            <Typography variant="h4">@blitzedout</Typography>
           </Link>
         </Box>
         <Box component="img" sx={{ maxWidth: 550 }} alt="Venmo QR code" src={Venmo} />
       </TabPanel>
       <TabPanel value={tabVal} index={1}>
         <Box sx={{ textAlign: 'center' }}>
-          <Link to="https://cash.app/$krishmero" >
-            <Typography variant='h4'>$KrishMero</Typography>
+          <Link to="https://cash.app/$krishmero">
+            <Typography variant="h4">$KrishMero</Typography>
           </Link>
         </Box>
         <Box
           component="img"
-          sx={{ padding: 4, background: 'white', maxWidth: 500, borderRadius: 5, margin: 3 }}
+          sx={{
+            padding: 4, background: 'white', maxWidth: 500, borderRadius: 5, margin: 3,
+          }}
           alt="Venmo QR code"
           src={CashApp}
         />
       </TabPanel>
     </Dialog>
-  )
+  );
 
-  const menuList = menuItems.map(({title, icon, onClick}) => (
+  const menuList = menuItems.map(({ title, icon, onClick }) => (
     <ListItem key={title} disablePadding onClick={onClick}>
       <ListItemButton>
-        <ListItemIcon>                        
-            {icon}
+        <ListItemIcon>
+          {icon}
         </ListItemIcon>
         <ListItemText primary={title} />
       </ListItemButton>

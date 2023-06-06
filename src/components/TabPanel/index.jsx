@@ -1,6 +1,8 @@
-import { Box } from "@mui/material";
+import { Box } from '@mui/material';
 
-export default function TabPanel({ children, value, index, style, ...other }) {
+export default function TabPanel({
+  children, value, index, style, ...other
+}) {
   return (
     <div
       role="tabpanel"

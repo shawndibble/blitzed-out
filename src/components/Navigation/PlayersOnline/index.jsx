@@ -7,4 +7,4 @@ export default function PlayersOnline({ playerList, innerRef, ...props }) {
       {playerList.length}
     </div>
   );
-};
+}

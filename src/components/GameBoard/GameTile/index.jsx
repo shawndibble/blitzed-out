@@ -1,22 +1,26 @@
-import { AvatarGroup, Divider } from "@mui/material";
+import { AvatarGroup, Divider } from '@mui/material';
 import './styles.css';
-import TextAvatar from "../../TextAvatar";
-import { useEffect } from "react";
-import { useRef } from "react";
+import { useEffect, useRef } from 'react';
 
-export default function GameTile({ title, description, players, current }) {
-  const playerIndicators = players.map(p => <TextAvatar key={p.uid} displayName={p.displayName} uid={p.uid} />);
+import TextAvatar from '../../TextAvatar';
+
+export default function GameTile({
+  title, description, players, current,
+}) {
+  const playerIndicators = players.map((p) => (
+    <TextAvatar key={p.uid} displayName={p.displayName} uid={p.uid} />
+  ));
   const tileRef = useRef(null);
   const scrollToTile = () => tileRef.current.scrollIntoView();
 
   useEffect(() => {
     if (tileRef.current && current) {
-      scrollToTile({ behavior: "smooth" });
+      scrollToTile({ behavior: 'smooth' });
     }
   }, [tileRef, current]);
 
   return (
-    <li className={!!current ? "pulse-animation" : ""} ref={tileRef}>
+    <li className={current ? 'pulse-animation' : ''} ref={tileRef}>
       <div className="tile-title-row">
         <div className="tile-title">{title}</div>
         <div className="player-indicator">
@@ -25,8 +29,8 @@ export default function GameTile({ title, description, players, current }) {
           </AvatarGroup>
         </div>
       </div>
-      <Divider sx={{ margin: "0.5rem 0" }} />
+      <Divider sx={{ margin: '0.5rem 0' }} />
       <div className="tile-description">{description}</div>
     </li>
-  )
+  );
 }

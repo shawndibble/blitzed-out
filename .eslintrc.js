@@ -9,17 +9,19 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    'quotes': ['error', 'single'],
+    quotes: ['error', 'single'],
     // we want to force semicolons
-    'semi': ['error', 'always'],
+    semi: ['error', 'always'],
     // we use 2 spaces to indent our code
-    'indent': ['error', 2],
+    indent: ['error', 2],
     // we want to avoid extraneous spaces
     'no-multi-spaces': ['error'],
     'react/react-in-jsx-scope': 'off',
     'react/jsx-uses-react': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/jsx-filename-extension': 'off',
-    'linebreak-style': 0
+    'react/prop-types': 'off',
+    'linebreak-style': 0,
+    'no-unused-expressions': ['error', { allowTernary: true }],
   },
 };

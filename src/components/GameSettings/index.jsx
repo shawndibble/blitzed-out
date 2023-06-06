@@ -1,14 +1,25 @@
-import useAuth from '../../hooks/useAuth';
-import { Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField } from '@mui/material';
-import { customizeBoard, dataFolder } from '../../services/buildGame';
+import {
+  Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import useAuth from '../../hooks/useAuth';
+import { customizeBoard, dataFolder } from '../../services/buildGame';
 import SelectBoardSetting from './SelectBoardSetting';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import PrivateRoomToggle from './PrivateRoomToggle';
-import { useState } from 'react';
 import './styles.css';
 import TabPanel from '../TabPanel';
 import { a11yProps } from '../../helpers/strings';
+import ToastAlert from '../ToastAlert';
+
+function hasSomethingPicked(object) {
+  return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
+}
+
+function isAppending(option, variationOption) {
+  return option > 0 && variationOption?.startsWith('append');
+}
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
@@ -16,11 +27,12 @@ export default function GameSettings({ submitText, closeDialog }) {
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
     boardUpdated: false,
     playerDialog: true,
-    sound: true
+    sound: true,
   });
   const navigate = useNavigate();
 
   const [value, setValue] = useState(0);
+  const [alert, setAlert] = useState(null);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -35,14 +47,18 @@ export default function GameSettings({ submitText, closeDialog }) {
     const { displayName, ...gameOptions } = settings;
 
     if (!hasSomethingPicked(gameOptions)) {
-      return alert('you need to pick at lease something');
+      return setAlert('you need to pick at lease something');
     }
 
     const { poppers, alcohol, ...actionItems } = { ...gameOptions };
 
-    if ((isAppending(poppers, gameOptions.poppersVariation) || isAppending(alcohol, gameOptions.alcoholVariation))
+    if (
+      (
+        isAppending(poppers, gameOptions.poppersVariation)
+        || isAppending(alcohol, gameOptions.alcoholVariation)
+      )
       && !hasSomethingPicked(actionItems)) {
-      return alert('If you are going to append, you need an action.');
+      return setAlert('If you are going to append, you need an action.');
     }
 
     if (displayName !== undefined && displayName.length > 0) {
@@ -57,17 +73,24 @@ export default function GameSettings({ submitText, closeDialog }) {
     navigate(showPrivate ? privatePath : '/');
 
     if (typeof closeDialog === 'function') closeDialog();
+
+    return null;
   }
 
-  const settingSelectLists = Object.keys(dataFolder).map(option => (
-    <SelectBoardSetting key={option} option={option} settings={settings} setSettings={updateSettings} />
+  const settingSelectLists = Object.keys(dataFolder).map((option) => (
+    <SelectBoardSetting
+      key={option}
+      option={option}
+      settings={settings}
+      setSettings={updateSettings}
+    />
   ));
 
   return (
     <Box
       component="form"
       method="post"
-      onSubmit={handleSubmit}
+      onSubmit={() => handleSubmit()}
       className="settings-box"
     >
       <TextField
@@ -77,8 +100,8 @@ export default function GameSettings({ submitText, closeDialog }) {
         defaultValue={user?.displayName}
         required
         autoFocus
-        onBlur={event => updateSettings({ ...settings, displayName: event.target.value })}
-        margin='normal'
+        onBlur={(event) => updateSettings({ ...settings, displayName: event.target.value })}
+        margin="normal"
       />
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -94,30 +117,40 @@ export default function GameSettings({ submitText, closeDialog }) {
         <PrivateRoomToggle />
         <Divider />
         <FormControlLabel
-          control={<Switch
-            checked={settings.playerDialog}
-            onChange={event => updateSettings({ ...settings, playerDialog: event.target.checked })}
-          />}
+          control={(
+            <Switch
+              checked={settings.playerDialog}
+              onChange={(event) => updateSettings({
+                ...settings, playerDialog: event.target.checked,
+              })}
+            />
+          )}
           label="Show my roll dialog"
           labelPlacement="start"
           className="settings-switch"
         />
         <Divider />
         <FormControlLabel
-          control={<Switch
-            checked={settings.othersDialog}
-            onChange={event => updateSettings({ ...settings, othersDialog: event.target.checked })}
-          />}
+          control={(
+            <Switch
+              checked={settings.othersDialog}
+              onChange={(event) => updateSettings({
+                ...settings, othersDialog: event.target.checked,
+              })}
+            />
+          )}
           label="Show other's roll dialog"
           labelPlacement="start"
           className="settings-switch"
         />
         <Divider />
         <FormControlLabel
-          control={<Switch
-            checked={settings.sound}
-            onChange={event => updateSettings({ ...settings, sound: event.target.checked })}
-          />}
+          control={(
+            <Switch
+              checked={settings.sound}
+              onChange={(event) => updateSettings({ ...settings, sound: event.target.checked })}
+            />
+          )}
           label="Play sound on roll"
           labelPlacement="start"
           className="settings-switch"
@@ -129,14 +162,9 @@ export default function GameSettings({ submitText, closeDialog }) {
       <Button fullWidth variant="contained" type="submit">
         {submitText}
       </Button>
+      <ToastAlert open={!!alert} setOpen={setAlert}>
+        {alert}
+      </ToastAlert>
     </Box>
-  )
-}
-
-function hasSomethingPicked(object) {
-  return Object.values(object).some(selection => [1, 2, 3, 4].includes(selection));
-}
-
-function isAppending(option, variationOption) {
-  return option > 0 && variationOption?.startsWith('append');
+  );
 }

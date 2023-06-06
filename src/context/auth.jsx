@@ -21,6 +21,7 @@ function AuthProvider(props) {
     getAuth().onAuthStateChanged(async (userData) => setUser(userData || null));
   }, []);
 
+  // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value = { user, login, updateUser };
 
   return <AuthContext.Provider value={value} {...props} />;

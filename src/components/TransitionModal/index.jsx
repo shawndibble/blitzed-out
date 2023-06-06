@@ -4,7 +4,7 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 
-const style = theme => ({
+const style = (theme) => ({
   position: 'absolute',
   top: '50%',
   left: '50%',
@@ -15,13 +15,15 @@ const style = theme => ({
   boxShadow: 24,
   p: 4,
   [theme.breakpoints.down('sm')]: {
-    width: '90%'
-  }
+    width: '90%',
+  },
 });
 
-export default function TransitionModal({ open, setOpen, text, displayName }) {
+export default function TransitionModal({
+  open, setOpen, text, displayName,
+}) {
   let timeoutId;
-  if (open) timeoutId = setTimeout(() => setOpen(false), 8000)
+  if (open) timeoutId = setTimeout(() => setOpen(false), 8000);
 
   const title = text?.match(/(?:#[\d]*:).*(?=\r)/gs);
   const description = text?.match(/(?:Action: ).*/gs);
@@ -37,7 +39,7 @@ export default function TransitionModal({ open, setOpen, text, displayName }) {
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
         open={open}
-        onClose={handleClose}
+        onClose={() => handleClose()}
         closeAfterTransition
         slots={{ backdrop: Backdrop }}
         slotProps={{
@@ -49,7 +51,11 @@ export default function TransitionModal({ open, setOpen, text, displayName }) {
         <Fade in={open}>
           <Box sx={style}>
             <Typography id="transition-modal-title" variant="h6" component="h2">
-              {title} for {displayName}
+              {title}
+              {' '}
+              for
+              {' '}
+              {displayName}
             </Typography>
             <Typography id="transition-modal-description" variant="h4" sx={{ mt: 2 }}>
               {description}

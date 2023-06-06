@@ -1,9 +1,9 @@
 import React from 'react';
+import { IconButton, InputAdornment, TextField } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import useAuth from '../../hooks/useAuth';
 import { sendMessage } from '../../services/firebase';
 import './styles.css';
-import { IconButton, InputAdornment, TextField } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
 
 export default function MessageInput({ roomId }) {
   const { user } = useAuth();
@@ -29,11 +29,12 @@ export default function MessageInput({ roomId }) {
         required
         minLength={1}
         InputProps={{
-          endAdornment: <InputAdornment position="end">
-            <IconButton type="submit" color="primary" disabled={value < 1}>
-              <SendIcon />
-            </IconButton>
-          </InputAdornment>
+          endAdornment:
+  <InputAdornment position="end">
+    <IconButton type="submit" color="primary" disabled={value < 1}>
+      <SendIcon />
+    </IconButton>
+  </InputAdornment>,
         }}
       />
 

@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import useAuth from '../../hooks/useAuth';
-import useMessages from '../../hooks/useMessages';
-import './styles.css';
-import { AppBar, Divider, Tab, Tabs } from '@mui/material';
+import useSound from 'use-sound';
+import {
+  AppBar, Divider, Tab, Tabs,
+} from '@mui/material';
 import moment from 'moment/moment';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkGfm from 'remark-gfm';
 import TextAvatar from '../TextAvatar';
 import TransitionModal from '../TransitionModal';
 import useLocalStorage from '../../hooks/useLocalStorage';
-import useSound from 'use-sound';
+import useAuth from '../../hooks/useAuth';
+import useMessages from '../../hooks/useMessages';
+import './styles.css';
 import diceSound from '../../sounds/roll-dice.mp3';
-import messageSound from '../../sounds/message.mp3'
+import messageSound from '../../sounds/message.mp3';
 import { a11yProps } from '../../helpers/strings';
 
 export default function MessageList({ roomId }) {
@@ -25,11 +27,17 @@ export default function MessageList({ roomId }) {
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
 
+  const filterMessages = (tabId) => setMessages(messages.filter((m) => {
+    if (tabId === 1) return !m.isGameAction;
+    if (tabId === 2) return m.isGameAction;
+    return m;
+  }));
+
   useEffect(() => {
     const latestMessage = [...messages].pop();
 
     // prevent dialog from showing on reload/page change.
-    const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1
+    const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1;
     const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
     const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
     if (newMessage && latestMessage?.isGameAction && (showPlayerDialog || showOthersDialog)) {
@@ -37,7 +45,11 @@ export default function MessageList({ roomId }) {
     }
 
     if (newMessage && latestMessage && sound) {
-      latestMessage?.isGameAction ? playDiceSound() : playMessageSound();
+      if (latestMessage?.isGameAction) {
+        playDiceSound();
+      } else {
+        playMessageSound();
+      }
     }
 
     filterMessages(currentTab);
@@ -54,14 +66,6 @@ export default function MessageList({ roomId }) {
     setTab(newValue);
     filterMessages(newValue);
   };
-
-  const filterMessages = tabId => {
-    return setMessages(messages.filter(m => {
-      if (tabId === 1) return !m.isGameAction;
-      if (tabId === 2) return m.isGameAction;
-      return m;
-    }));
-  }
 
   return (
     <div className="message-list-container" ref={containerRef}>
@@ -92,9 +96,11 @@ export default function MessageList({ roomId }) {
 }
 
 function Message({ message, isOwnMessage }) {
-  const { displayName, text, uid, timestamp } = message;
+  const {
+    displayName, text, uid, timestamp,
+  } = message;
 
-  let ago = moment(timestamp?.toDate()).fromNow()
+  let ago = moment(timestamp?.toDate()).fromNow();
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
 
   return (
@@ -107,7 +113,11 @@ function Message({ message, isOwnMessage }) {
         <div className="timestampe">{ago}</div>
       </div>
       <Divider />
-      <div style={{ whiteSpace: 'pre-wrap' }}><ReactMarkdown children={text} remarkPlugins={[remarkGfm]} /></div>
+      <div style={{ whiteSpace: 'pre-wrap' }}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {text}
+        </ReactMarkdown>
+      </div>
     </li>
   );
 }
