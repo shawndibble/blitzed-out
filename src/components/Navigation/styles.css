@@ -1,42 +1,42 @@
 .site-name {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .site-name img {
-    margin-right: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .nav {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    padding: 10px 32px;
-    background: var(--color-blue);
-    justify-content: space-between;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 10px 32px;
+  background: var(--color-blue);
+  justify-content: space-between;
 }
 
 .nav-room-name {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .nav-room-name h2 {
-    margin-right: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 @media screen and (max-width: 600px) {
-    .nav {
-        font-size: 80%;
-    }
+  .nav {
+    font-size: 80%;
+  }
 
-    .site-name img {
-        margin-right: 0.3rem;
-    }
+  .site-name img {
+    margin-right: 0.3rem;
+  }
 }
 
 @media screen and (max-width: 400px) {
-    .nav-room-name h2 {
-        display: none;
-    }
+  .nav-room-name h2 {
+    display: none;
+  }
 }

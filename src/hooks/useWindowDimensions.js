@@ -24,7 +24,7 @@ export default function useWindowDimensions() {
       return () => window.removeEventListener('resize', handleResize);
     }
     return null;
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [hasWindow]);
 
   return windowDimensions;

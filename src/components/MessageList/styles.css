@@ -1,80 +1,82 @@
 .message-list-container {
-    margin-bottom: 16px;
-    flex: 1;
-    overflow-y: auto;
-    height: calc(100vh - 260px);
+  margin-bottom: 16px;
+  flex: 1;
+  overflow-y: auto;
+  height: calc(100vh - 260px);
 }
 
 @media screen and (max-width: 600px) {
-    .message-list-container {
-        min-height: auto;
-        max-height: calc(100vh - 290px);
-    }
+  .message-list-container {
+    min-height: auto;
+    max-height: calc(100vh - 290px);
+  }
 }
 
 .message-list {
-    max-height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding-top: 0.5em;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 0.5em;
 }
 
 .message {
-    padding: 8px 16px;
-    margin-bottom: 8px;
-    background: var(--color-gray);
-    border-radius: var(--border-radius);
-    text-align: left;
-    width: 100%;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+  background: var(--color-gray);
+  border-radius: var(--border-radius);
+  text-align: left;
+  width: 100%;
 }
 
-.message td, .message th {
-    padding: 0.4em;
-    border-right: dashed 1px gray
+.message td,
+.message th {
+  padding: 0.4em;
+  border-right: dashed 1px gray
 }
 
-.message td:last-child, .message th:last-child {
-    border-right: none;
+.message td:last-child,
+.message th:last-child {
+  border-right: none;
 }
 
 .message th {
-    border-bottom: dashed 1px gray;
+  border-bottom: dashed 1px gray;
 }
 
 .message tr:not(:last-child) {
-    border-bottom: solid 1px gray;
+  border-bottom: solid 1px gray;
 }
 
 .message a {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .message a:hover {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .message-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 80%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 80%;
 }
 
 .own-message {
-    background: var(--color-blue);
-    align-self: flex-end;
+  background: var(--color-blue);
+  align-self: flex-end;
 }
 
 .sender {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
 .sender>div {
-    margin-right: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .sender small {
-    font-weight: normal;
+  font-weight: normal;
 }

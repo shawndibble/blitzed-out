@@ -13,62 +13,62 @@ import { useState } from 'react';
 import usePresence from '../../hooks/usePresence';
 
 export default function Room() {
-    const params = useParams();
-    const room = params.id ?? 'public';
+  const params = useParams();
+  const room = params.id ?? 'public';
 
-    usePresence(room);
+  usePresence(room);
 
-    const { width } = useWindowDimensions();
-    const [rollValue, setRollValue] = useState([0]);
-    const [isDisabled, setDisabled] = useState(false);
+  const { width } = useWindowDimensions();
+  const [rollValue, setRollValue] = useState([0]);
+  const [isDisabled, setDisabled] = useState(false);
 
-    function roll() {
-        setRollValue([Math.floor(Math.random() * 4) + 1]);
-        setDisabled(true);
-        setTimeout(() => setDisabled(false), 2000);
-    }
+  function roll() {
+    setRollValue([Math.floor(Math.random() * 4) + 1]);
+    setDisabled(true);
+    setTimeout(() => setDisabled(false), 2000);
+  }
 
-    const {playerList, tile} = usePlayerMove(room, rollValue);
+  const { playerList, tile } = usePlayerMove(room, rollValue);
 
-    return (
-        <>
-            <Navigation room={room} playerList={playerList} />
+  return (
+    <>
+      <Navigation room={room} playerList={playerList} />
 
-            <Fab
-                variant="extended"
-                size="medium"
-                aria-label="roll"
-                onClick={roll} 
-                className="dice-roller"
-                disabled={isDisabled}
-            >
-                <Casino /> Roll
-            </Fab>
-            
-            {width > 600 ? (
-                <Box className="desktop-container">
-                    <GameBoard playerList={playerList} tile={tile} />
-                
-                    <div className="messages-container">
-                        <MessageList roomId={room} />
-                        <MessageInput roomId={room} />
-                    </div>
-                </Box>
-            ): (
-                <Box className="mobile-container">
-                    <BottomTabs
-                        tab1={<>
-                            <GameBoard playerList={playerList} tile={tile} />
-                        </>}
-                        tab2={
-                            <div className="messages-container">
-                                <MessageList roomId={room} />
-                                <MessageInput roomId={room} />
-                            </div>
-                        }
-                    />
-                </Box>
-            )}
-        </>
-    );
+      <Fab
+        variant="extended"
+        size="medium"
+        aria-label="roll"
+        onClick={roll}
+        className="dice-roller"
+        disabled={isDisabled}
+      >
+        <Casino /> Roll
+      </Fab>
+
+      {width > 600 ? (
+        <Box className="desktop-container">
+          <GameBoard playerList={playerList} tile={tile} />
+
+          <div className="messages-container">
+            <MessageList roomId={room} />
+            <MessageInput roomId={room} />
+          </div>
+        </Box>
+      ) : (
+        <Box className="mobile-container">
+          <BottomTabs
+            tab1={<>
+              <GameBoard playerList={playerList} tile={tile} />
+            </>}
+            tab2={
+              <div className="messages-container">
+                <MessageList roomId={room} />
+                <MessageInput roomId={room} />
+              </div>
+            }
+          />
+        </Box>
+      )}
+    </>
+  );
 }

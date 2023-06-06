@@ -1,12 +1,11 @@
 .settings-box {
-    min-width: 100%;
-    max-width: 300px;
-    
+  min-width: 100%;
+  max-width: 300px;
+
 }
 
 label.settings-switch {
-    display: flex;
-    justify-content: space-between;
-    margin: 0.5rem
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem
 }
-

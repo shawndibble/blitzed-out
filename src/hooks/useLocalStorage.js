@@ -13,7 +13,7 @@ export default function useLocalStorage(localStorageKey, defaultVal = {}) {
 
     return () => window.removeEventListener(eventName, (e) => setStorage(e.newValue));
     // eslint-disable-next-line
-    }, [storage]);
+  }, [storage]);
 
   const updateLocalStorage = (newValue) => {
     localStorage.setItem(localStorageKey, JSON.stringify(newValue));

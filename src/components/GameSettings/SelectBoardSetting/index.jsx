@@ -4,53 +4,53 @@ import { camelToPascal } from "../../../helpers/strings";
 import './styles.css';
 
 export default function SelectBoardSetting({ option, settings, setSettings }) {
-    const labelId = option + 'label';
-    const label = camelToPascal(option);
-    const isDualSelect = ['alcohol', 'poppers'].includes(option);
+  const labelId = option + 'label';
+  const label = camelToPascal(option);
+  const isDualSelect = ['alcohol', 'poppers'].includes(option);
 
-    function getOptions(category) {
-        return Object.keys(dataFolder[category]).map((option, index) => (
-            <MenuItem value={index} key={`${category}-${index}`}>{option}</MenuItem>
-        ));
-    }
+  function getOptions(category) {
+    return Object.keys(dataFolder[category]).map((option, index) => (
+      <MenuItem value={index} key={`${category}-${index}`}>{option}</MenuItem>
+    ));
+  }
 
-    function handleChange(event, option) {
-        settings[option] = event.target.value;
-        settings['boardUpdated'] = true;
-        setSettings({ ...settings });
-    }
+  function handleChange(event, option) {
+    settings[option] = event.target.value;
+    settings['boardUpdated'] = true;
+    setSettings({ ...settings });
+  }
 
-    return (
-        <div key={option} className={isDualSelect ? 'dualWidth' : ''}>
-            <FormControl fullWidth margin="normal">
-                <InputLabel id={labelId}>{label}</InputLabel>
-                <Select
-                    labelId={labelId}
-                    id={option}
-                    label={label}
-                    value={settings[option] || 0}
-                    onChange={(event) => handleChange(event, option)}
-                >
-                    {getOptions(option)}
-                </Select>
-            </FormControl>
-            {!!isDualSelect && (
-                <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
-                    <InputLabel id={labelId + 'Variation'}>{label + ' Variation'}</InputLabel>
-                    <Select
-                        labelId={labelId + 'Variation'}
-                        id={option + 'Variation'}
-                        label={label + ' Variation'}
-                        value={settings[option + 'Variation'] || 'standalone'}
-                        onChange={(event) => handleChange(event, option + 'Variation')}
-                    >
-                        <MenuItem value="standalone">Standalone Tile</MenuItem>
-                        <MenuItem value="appendSome">Append Some Tiles</MenuItem>
-                        <MenuItem value="appendMost">Append Most Tiles</MenuItem>
-                    </Select>
-                </FormControl>
-            )}
-        </div>
-    );
+  return (
+    <div key={option} className={isDualSelect ? 'dualWidth' : ''}>
+      <FormControl fullWidth margin="normal">
+        <InputLabel id={labelId}>{label}</InputLabel>
+        <Select
+          labelId={labelId}
+          id={option}
+          label={label}
+          value={settings[option] || 0}
+          onChange={(event) => handleChange(event, option)}
+        >
+          {getOptions(option)}
+        </Select>
+      </FormControl>
+      {!!isDualSelect && (
+        <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
+          <InputLabel id={labelId + 'Variation'}>{label + ' Variation'}</InputLabel>
+          <Select
+            labelId={labelId + 'Variation'}
+            id={option + 'Variation'}
+            label={label + ' Variation'}
+            value={settings[option + 'Variation'] || 'standalone'}
+            onChange={(event) => handleChange(event, option + 'Variation')}
+          >
+            <MenuItem value="standalone">Standalone Tile</MenuItem>
+            <MenuItem value="appendSome">Append Some Tiles</MenuItem>
+            <MenuItem value="appendMost">Append Most Tiles</MenuItem>
+          </Select>
+        </FormControl>
+      )}
+    </div>
+  );
 }
 

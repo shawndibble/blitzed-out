@@ -15,99 +15,99 @@ import messageSound from '../../sounds/message.mp3'
 import { a11yProps } from '../../helpers/strings';
 
 export default function MessageList({ roomId }) {
-    const containerRef = React.useRef(null);
-    const { user } = useAuth();
-    const messages = useMessages(roomId);
-    const { playerDialog, othersDialog, sound } = useLocalStorage('gameSettings')[0];
-    const [currentTab, setTab] = useState(0);
-    const [updatedMessages, setMessages] = useState(messages);
-    const [popupMessage, setPopupMessage] = useState(false);
-    const [playDiceSound] = useSound(diceSound);
-    const [playMessageSound] = useSound(messageSound);
+  const containerRef = React.useRef(null);
+  const { user } = useAuth();
+  const messages = useMessages(roomId);
+  const { playerDialog, othersDialog, sound } = useLocalStorage('gameSettings')[0];
+  const [currentTab, setTab] = useState(0);
+  const [updatedMessages, setMessages] = useState(messages);
+  const [popupMessage, setPopupMessage] = useState(false);
+  const [playDiceSound] = useSound(diceSound);
+  const [playMessageSound] = useSound(messageSound);
 
-    useEffect(() => {
-        const latestMessage = [...messages].pop();
+  useEffect(() => {
+    const latestMessage = [...messages].pop();
 
-        // prevent dialog from showing on reload/page change.
-        const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1
-        const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
-        const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
-        if (newMessage && latestMessage?.isGameAction && ( showPlayerDialog || showOthersDialog)) {
-            setPopupMessage(latestMessage);
-        }
-
-        if (newMessage && latestMessage && sound) {
-            latestMessage?.isGameAction ? playDiceSound() : playMessageSound();
-        }
-        
-        filterMessages(currentTab);
-    // eslint-disable-next-line
-    }, [messages]);
-
-    React.useLayoutEffect(() => {
-        if (containerRef.current) {
-            containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
-    });
-
-    const handleChange = (_, newValue) => {
-        setTab(newValue);
-        filterMessages(newValue);
-    };
-
-    const filterMessages = tabId => {
-        return setMessages(messages.filter(m => {
-            if (tabId === 1) return !m.isGameAction;
-            if (tabId === 2) return m.isGameAction;
-            return m;
-        }));
+    // prevent dialog from showing on reload/page change.
+    const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1
+    const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
+    const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
+    if (newMessage && latestMessage?.isGameAction && (showPlayerDialog || showOthersDialog)) {
+      setPopupMessage(latestMessage);
     }
 
-    return (
-        <div className="message-list-container" ref={containerRef}>
-            <AppBar position="sticky">
-                <Tabs variant="fullWidth" value={currentTab} onChange={handleChange} aria-label="chat filter">
-                    <Tab label="All" {...a11yProps(0)} />
-                    <Tab label="Chat" {...a11yProps(1)} />
-                    <Tab label="Actions" {...a11yProps(2)} />
-                </Tabs>
-            </AppBar>
-            <ul className="message-list">
-                {updatedMessages.map((x) => (
-                    <Message
-                        key={x.id}
-                        message={x}
-                        isOwnMessage={x.uid === user.uid}
-                    />
-                ))}
-            </ul>
-            <TransitionModal
-                text={popupMessage?.text}
-                displayName={popupMessage?.displayName}
-                setOpen={setPopupMessage}
-                open={!!popupMessage || !!popupMessage?.text}
-            />
-        </div>
-    );
+    if (newMessage && latestMessage && sound) {
+      latestMessage?.isGameAction ? playDiceSound() : playMessageSound();
+    }
+
+    filterMessages(currentTab);
+    // eslint-disable-next-line
+  }, [messages]);
+
+  React.useLayoutEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  });
+
+  const handleChange = (_, newValue) => {
+    setTab(newValue);
+    filterMessages(newValue);
+  };
+
+  const filterMessages = tabId => {
+    return setMessages(messages.filter(m => {
+      if (tabId === 1) return !m.isGameAction;
+      if (tabId === 2) return m.isGameAction;
+      return m;
+    }));
+  }
+
+  return (
+    <div className="message-list-container" ref={containerRef}>
+      <AppBar position="sticky">
+        <Tabs variant="fullWidth" value={currentTab} onChange={handleChange} aria-label="chat filter">
+          <Tab label="All" {...a11yProps(0)} />
+          <Tab label="Chat" {...a11yProps(1)} />
+          <Tab label="Actions" {...a11yProps(2)} />
+        </Tabs>
+      </AppBar>
+      <ul className="message-list">
+        {updatedMessages.map((x) => (
+          <Message
+            key={x.id}
+            message={x}
+            isOwnMessage={x.uid === user.uid}
+          />
+        ))}
+      </ul>
+      <TransitionModal
+        text={popupMessage?.text}
+        displayName={popupMessage?.displayName}
+        setOpen={setPopupMessage}
+        open={!!popupMessage || !!popupMessage?.text}
+      />
+    </div>
+  );
 }
 
 function Message({ message, isOwnMessage }) {
-    const { displayName, text, uid, timestamp } = message;
+  const { displayName, text, uid, timestamp } = message;
 
-    let ago = moment(timestamp?.toDate()).fromNow()
-    if (ago === 'in a few seconds') ago = 'a few seconds ago';
+  let ago = moment(timestamp?.toDate()).fromNow()
+  if (ago === 'in a few seconds') ago = 'a few seconds ago';
 
-    return (
-        <li className={['message', isOwnMessage && 'own-message'].join(' ')}>
-            <div className="message-header">
-                <div className="sender">
-                    <TextAvatar uid={uid} displayName={displayName} size="small" />
-                    {displayName}
-                </div>
-                <div className="timestampe">{ago}</div>
-            </div>
-            <Divider />
-            <div style={{whiteSpace: 'pre-wrap'}}><ReactMarkdown children={text} remarkPlugins={[remarkGfm]} /></div>
-        </li>
-    );
+  return (
+    <li className={['message', isOwnMessage && 'own-message'].join(' ')}>
+      <div className="message-header">
+        <div className="sender">
+          <TextAvatar uid={uid} displayName={displayName} size="small" />
+          {displayName}
+        </div>
+        <div className="timestampe">{ago}</div>
+      </div>
+      <Divider />
+      <div style={{ whiteSpace: 'pre-wrap' }}><ReactMarkdown children={text} remarkPlugins={[remarkGfm]} /></div>
+    </li>
+  );
 }

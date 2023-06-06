@@ -44,7 +44,7 @@ export default function usePlayerMove(roomId, rollValue) {
     handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);
 
     // eslint-disable-next-line
-    }, [rollValue]);
+  }, [rollValue]);
 
   return { tile, playerList };
 }

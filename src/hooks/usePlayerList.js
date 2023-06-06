@@ -40,7 +40,7 @@ export default function usePlayerList(roomId) {
   useEffect(() => {
     if (JSON.stringify(playerList) !== JSON.stringify(players)) setPlayerList(players);
     // eslint-disable-next-line
-    }, [players]);
+  }, [players]);
 
   return [playerList, setPlayerList];
 }
