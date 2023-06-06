@@ -12,6 +12,7 @@ import './styles.css';
 import TabPanel from '../TabPanel';
 import { a11yProps } from '../../helpers/strings';
 import ToastAlert from '../ToastAlert';
+// import { sendMessage } from '../../services/firebase';
 
 function hasSomethingPicked(object) {
   return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
@@ -19,6 +20,12 @@ function hasSomethingPicked(object) {
 
 function isAppending(option, variationOption) {
   return option > 0 && variationOption?.startsWith('append');
+}
+
+function getSettingsMessage(settings) {
+  const message = '## Game Settings\n\r';
+  console.log(settings);
+  return message;
 }
 
 export default function GameSettings({ submitText, closeDialog }) {
@@ -68,6 +75,8 @@ export default function GameSettings({ submitText, closeDialog }) {
     if (settings.boardUpdated) {
       updateBoard(customizeBoard(gameOptions));
       updateSettings({ ...settings, boardUpdated: false });
+      getSettingsMessage(settings);
+      // sendMessage(privateRoom || 'public', user, getSettingsMessage(settings));
     }
 
     navigate(showPrivate ? privatePath : '/');
@@ -90,7 +99,8 @@ export default function GameSettings({ submitText, closeDialog }) {
     <Box
       component="form"
       method="post"
-      onSubmit={() => handleSubmit()}
+      // eslint-disable-next-line react/jsx-no-bind
+      onSubmit={handleSubmit}
       className="settings-box"
     >
       <TextField
