@@ -16,8 +16,8 @@ export default function SelectBoardSetting({ option, settings, setSettings }) {
     ));
   }
 
-  function handleChange(event) {
-    setSettings({ ...settings, [option]: event.target.value, boardUpdated: true });
+  function handleChange(event, key) {
+    setSettings({ ...settings, [key]: event.target.value, boardUpdated: true });
   }
 
   return (
