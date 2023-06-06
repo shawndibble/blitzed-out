@@ -11,9 +11,7 @@ export default function PrivateRoomToggle() {
 
   const [showPrivate, setPrivateToggle] = useState(!!roomId);
 
-  function togglePrivateRoomField(event) {
-    setPrivateToggle(event.target.checked);
-  }
+  const togglePrivateRoomField = (event) => setPrivateToggle(event?.target.checked);
 
   return (
     <Box sx={{ margin: '0 0.5rem 0.5rem' }}>
@@ -22,7 +20,7 @@ export default function PrivateRoomToggle() {
         <Switch
           id="showPrivate"
           defaultChecked={!!roomId}
-          onChange={() => togglePrivateRoomField}
+          onChange={(event) => togglePrivateRoomField(event)}
           inputProps={{ 'aria-label': 'Room Type' }}
         />
         <Typography>Private Room</Typography>
