@@ -38,7 +38,7 @@ export default function usePlayerMove(roomId, rollValue) {
       newLocation = lastTile;
     }
 
-    if (tile.description !== gameBoard[newLocation]) setTile(gameBoard[newLocation]);
+    if (tile?.description !== gameBoard[newLocation]) setTile(gameBoard[newLocation]);
 
     // send our message.
     handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);
