@@ -48,7 +48,7 @@ function getCurrentLevel(currentTile, brackets) {
 }
 
 function getAppendItem(appendList, currentOption, currentLevel) {
-  if (!Object.keys(appendList).length || !dataFolder[currentOption].length) return '';
+  if (!Object.keys(appendList).length) return '';
 
   const [maxLevel, appendType] = appendList[currentOption].split('|');
 
@@ -60,6 +60,8 @@ function getAppendItem(appendList, currentOption, currentLevel) {
 
   const intensity = getIntensity(maxLevel, currentLevel);
   const currentAppendList = Object.values(dataFolder[currentOption])[intensity];
+
+  if (!currentAppendList.length) return '';
 
   cycleList(dataFolder[currentOption]);
 
