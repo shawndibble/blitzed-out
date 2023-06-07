@@ -24,6 +24,7 @@ export default function GameBoard({ playerList }) {
     if (Array.isArray(importMessage?.gameBoard)) setLocalGameBoard(boardToUse);
     // remove the import from the URL
     setParams({});
+  // eslint-disable-next-line
   }, [messages, importBoard, localGameBoard]);
 
   if (!Array.isArray(gameBoard)) return null;
