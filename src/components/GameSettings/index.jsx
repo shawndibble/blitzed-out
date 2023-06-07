@@ -1,8 +1,8 @@
 import {
   Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { customizeBoard, dataFolder } from '../../services/buildGame';
 import SelectBoardSetting from './SelectBoardSetting';
@@ -44,7 +44,10 @@ function getSettingsMessage(settings) {
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
+  const { id: room } = useParams();
   const updateBoard = useLocalStorage('customBoard')[1];
+
+  // set default settings for first time users. Local Storage will take over after this.
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
     boardUpdated: false,
     playerDialog: true,
@@ -54,18 +57,25 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   const [value, setValue] = useState(0);
   const [alert, setAlert] = useState(null);
+  const [formData, setFormData] = useState({});
 
-  const handleChange = (event, newValue) => {
+  const handleTabChange = (_, newValue) => {
     setValue(newValue);
   };
 
+  // once our data from localstorage updates, push them to the formData.
+  useEffect(() => setFormData({
+    ...settings,
+    room,
+    ...formData,
+  }), [settings]);
+
   async function handleSubmit(event) {
     event.preventDefault();
-    const privateRoom = event.target.privateRoom?.value;
-    const showPrivate = event.target.showPrivate?.checked;
-    const privatePath = privateRoom ? `/rooms/${privateRoom}` : null;
 
-    const { displayName, ...gameOptions } = settings;
+    console.log(formData);
+
+    const { displayName, ...gameOptions } = formData;
 
     if (!hasSomethingPicked(gameOptions)) {
       return setAlert('you need to pick at lease something');
@@ -86,27 +96,33 @@ export default function GameSettings({ submitText, closeDialog }) {
       user ? await updateUser(displayName) : await login(displayName);
     }
 
-    if (settings.boardUpdated) {
-      console.log(settings);
+    if (formData.boardUpdated) {
       updateBoard(customizeBoard(gameOptions));
-      updateSettings({ ...settings, boardUpdated: false });
-      // console.log(getSettingsMessage(settings));
-      sendMessage(privateRoom || 'public', user, getSettingsMessage(settings));
+      sendMessage(formData.room || 'public', user, getSettingsMessage(formData));
     }
+    updateSettings({ ...formData, boardUpdated: false });
 
-    navigate(showPrivate ? privatePath : '/');
+    const privatePath = formData.room ? `/rooms/${formData.room}` : '/';
+    navigate(privatePath);
 
     if (typeof closeDialog === 'function') closeDialog();
 
     return null;
   }
 
+  const onEnterKey = (event) => {
+    if (event.key === 'Enter') {
+      setFormData({ ...formData, displayName: event.target.value });
+      handleSubmit(event);
+    }
+  };
+
   const settingSelectLists = Object.keys(dataFolder).map((option) => (
     <SelectBoardSetting
       key={option}
       option={option}
-      settings={settings}
-      setSettings={updateSettings}
+      settings={formData}
+      setSettings={setFormData}
     />
   ));
 
@@ -125,12 +141,13 @@ export default function GameSettings({ submitText, closeDialog }) {
         defaultValue={user?.displayName}
         required
         autoFocus
-        onBlur={(event) => updateSettings({ ...settings, displayName: event.target.value })}
+        onBlur={(event) => setFormData({ ...formData, displayName: event.target.value })}
+        onKeyDown={(event) => onEnterKey(event)}
         margin="normal"
       />
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="Game Settings" centered>
+        <Tabs value={value} onChange={handleTabChange} aria-label="Game Settings" centered>
           <Tab label="Gameboard" {...a11yProps(0)} />
           <Tab label="Application" {...a11yProps(1)} />
         </Tabs>
@@ -139,14 +156,14 @@ export default function GameSettings({ submitText, closeDialog }) {
         {settingSelectLists}
       </TabPanel>
       <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
-        <PrivateRoomToggle />
+        <PrivateRoomToggle formData={formData} setFormData={setFormData} />
         <Divider />
         <FormControlLabel
           control={(
             <Switch
-              checked={settings.playerDialog}
-              onChange={(event) => updateSettings({
-                ...settings, playerDialog: event.target.checked,
+              checked={formData.playerDialog}
+              onChange={(event) => setFormData({
+                ...formData, playerDialog: event.target.checked,
               })}
             />
           )}
@@ -158,9 +175,9 @@ export default function GameSettings({ submitText, closeDialog }) {
         <FormControlLabel
           control={(
             <Switch
-              checked={settings.othersDialog}
-              onChange={(event) => updateSettings({
-                ...settings, othersDialog: event.target.checked,
+              checked={formData.othersDialog}
+              onChange={(event) => setFormData({
+                ...formData, othersDialog: event.target.checked,
               })}
             />
           )}
@@ -172,8 +189,8 @@ export default function GameSettings({ submitText, closeDialog }) {
         <FormControlLabel
           control={(
             <Switch
-              checked={settings.sound}
-              onChange={(event) => updateSettings({ ...settings, sound: event.target.checked })}
+              checked={formData.sound}
+              onChange={(event) => setFormData({ ...formData, sound: event.target.checked })}
             />
           )}
           label="Play sound on roll"
