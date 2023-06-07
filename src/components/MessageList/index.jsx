@@ -42,12 +42,12 @@ export default function MessageList({ roomId }) {
     const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1;
     const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
     const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
-    if (newMessage && latestMessage?.type === 'action' && (showPlayerDialog || showOthersDialog)) {
+    if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
       setPopupMessage(latestMessage);
     }
 
     if (newMessage && latestMessage && sound) {
-      if (latestMessage?.type === 'action') {
+      if (latestMessage?.type === 'actions') {
         playDiceSound();
       } else {
         playMessageSound();
