@@ -10,11 +10,13 @@ function AuthProvider(props) {
   async function login(displayName = '') {
     const loggedInUser = await loginAnonymously(displayName);
     setUser(loggedInUser);
+    return loggedInUser;
   }
 
   async function updateUser(displayName = '') {
     const updatedUser = await updateDisplayName(displayName);
     setUser(updatedUser);
+    return updatedUser;
   }
 
   useEffect(() => {

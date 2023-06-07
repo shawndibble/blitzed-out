@@ -45,7 +45,7 @@ function getSettingsMessage(settings) {
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
   const { id: room } = useParams();
-  const [gameBoard, updateBoard] = useLocalStorage('customBoard');
+  const updateBoard = useLocalStorage('customBoard')[1];
 
   // set default settings for first time users. Local Storage will take over after this.
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
@@ -91,13 +91,15 @@ export default function GameSettings({ submitText, closeDialog }) {
       return setAlert('If you are going to append, you need an action.');
     }
 
+    let updatedUser;
     if (displayName !== undefined && displayName.length > 0) {
-      user ? await updateUser(displayName) : await login(displayName);
+      updatedUser = user ? await updateUser(displayName) : await login(displayName);
     }
 
     if (formData.boardUpdated) {
-      await updateBoard(customizeBoard(gameOptions));
-      sendMessage(formData.room || 'public', user, getSettingsMessage(formData), 'settings', gameBoard);
+      const newBoard = customizeBoard(gameOptions);
+      await updateBoard(newBoard);
+      sendMessage(formData.room || 'public', updatedUser, getSettingsMessage(formData), 'settings', newBoard);
     }
     updateSettings({ ...formData, boardUpdated: false });
 

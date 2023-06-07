@@ -99,8 +99,12 @@ export default function MessageList({ roomId }) {
 
 function Message({ message, isOwnMessage }) {
   const {
-    displayName, text, uid, timestamp,
+    id, displayName, text, uid, timestamp, type,
   } = message;
+
+  const newText = type === 'settings'
+    ? `${text} \r\n \r\n [Import this board](?importBoard=${id})`
+    : text;
 
   let ago = moment(timestamp?.toDate()).fromNow();
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
@@ -117,7 +121,7 @@ function Message({ message, isOwnMessage }) {
       <Divider />
       <div>
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {text}
+          {newText}
         </ReactMarkdown>
       </div>
     </li>
