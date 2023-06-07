@@ -32,7 +32,7 @@ export default function BottomTabs({ tab1, tab2 }) {
           aria-label="full width tabs example"
         >
           <Tab label="Game" {...a11yProps(0)} />
-          <Tab label="Chat" {...a11yProps(1)} />
+          <Tab label="Messages" {...a11yProps(1)} />
         </Tabs>
       </AppBar>
       <SwipeableViews
