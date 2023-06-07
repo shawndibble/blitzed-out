@@ -15,7 +15,7 @@ export default function MessageInput({ roomId }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    sendMessage(roomId, user, value);
+    sendMessage(roomId, user, value, 'chat');
     setValue('');
   };
 

@@ -15,7 +15,7 @@ export default function usePlayerMove(roomId, rollValue) {
     let message = `Roll: ${rollNumber}  \r\n`;
     message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;
     message += `Action: ${newTile?.description}`;
-    sendMessage(roomId, user, preMessage + message, true);
+    sendMessage(roomId, user, preMessage + message, 'actions');
   }
 
   useEffect(() => {

@@ -98,14 +98,24 @@ export async function updateDisplayName(displayName = '') {
   }
 }
 
-export async function sendMessage(roomId, user, text, isGameAction = false) {
+export async function sendMessage(roomId, user, text, type = 'chat', gameBoard = {}) {
+  const allowedTypes = ['chat', 'actions', 'settings'];
+  if (!allowedTypes.includes(type)) {
+    let message = 'Invalid message type. Was expecting';
+    message += allowedTypes.join(', ');
+    message += ` but got ${type}`;
+    // eslint-disable-next-line
+    console.error(message);
+  }
+
   try {
     await addDoc(collection(db, 'chat-rooms', roomId, 'messages'), {
       uid: user.uid,
       displayName: user.displayName,
       text: text.trim(),
       timestamp: serverTimestamp(),
-      isGameAction,
+      type,
+      gameBoard,
     });
   } catch (error) {
     // eslint-disable-next-line

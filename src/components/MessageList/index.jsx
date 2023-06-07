@@ -28,8 +28,9 @@ export default function MessageList({ roomId }) {
   const [playMessageSound] = useSound(messageSound);
 
   const filterMessages = (tabId) => setMessages(messages.filter((m) => {
-    if (tabId === 1) return !m.isGameAction;
-    if (tabId === 2) return m.isGameAction;
+    if (tabId === 1) return m.type === 'settings';
+    if (tabId === 2) return m.type === 'chat';
+    if (tabId === 3) return m.type === 'actions';
     return m;
   }));
 
@@ -40,12 +41,12 @@ export default function MessageList({ roomId }) {
     const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1;
     const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
     const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
-    if (newMessage && latestMessage?.isGameAction && (showPlayerDialog || showOthersDialog)) {
+    if (newMessage && latestMessage?.type === 'action' && (showPlayerDialog || showOthersDialog)) {
       setPopupMessage(latestMessage);
     }
 
     if (newMessage && latestMessage && sound) {
-      if (latestMessage?.isGameAction) {
+      if (latestMessage?.type === 'action') {
         playDiceSound();
       } else {
         playMessageSound();
@@ -70,10 +71,11 @@ export default function MessageList({ roomId }) {
   return (
     <div className="message-list-container" ref={containerRef}>
       <AppBar position="sticky">
-        <Tabs variant="fullWidth" value={currentTab} onChange={handleChange} aria-label="chat filter">
-          <Tab label="All" {...a11yProps(0)} />
-          <Tab label="Chat" {...a11yProps(1)} />
-          <Tab label="Actions" {...a11yProps(2)} />
+        <Tabs variant="fullWidth" value={currentTab} onChange={handleChange} aria-label="chat filter" className="message-tabs">
+          <Tab label="All" {...a11yProps('all')} />
+          <Tab label="Setting" {...a11yProps('settings')} />
+          <Tab label="Chat" {...a11yProps('chat')} />
+          <Tab label="Actions" {...a11yProps('actions')} />
         </Tabs>
       </AppBar>
       <ul className="message-list">

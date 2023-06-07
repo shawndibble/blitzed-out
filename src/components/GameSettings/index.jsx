@@ -45,7 +45,7 @@ function getSettingsMessage(settings) {
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
   const { id: room } = useParams();
-  const updateBoard = useLocalStorage('customBoard')[1];
+  const [gameBoard, updateBoard] = useLocalStorage('customBoard');
 
   // set default settings for first time users. Local Storage will take over after this.
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
@@ -74,8 +74,6 @@ export default function GameSettings({ submitText, closeDialog }) {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    console.log(formData);
-
     const { displayName, ...gameOptions } = formData;
 
     if (!hasSomethingPicked(gameOptions)) {
@@ -98,8 +96,8 @@ export default function GameSettings({ submitText, closeDialog }) {
     }
 
     if (formData.boardUpdated) {
-      updateBoard(customizeBoard(gameOptions));
-      sendMessage(formData.room || 'public', user, getSettingsMessage(formData));
+      await updateBoard(customizeBoard(gameOptions));
+      sendMessage(formData.room || 'public', user, getSettingsMessage(formData), 'settings', gameBoard);
     }
     updateSettings({ ...formData, boardUpdated: false });
 
