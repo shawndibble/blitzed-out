@@ -11,7 +11,6 @@ export default function GameBoard({ playerList }) {
   const localGameBoard = useLocalStorage('customBoard')[0];
   const [gameBoard, setGameBoard] = useState();
   const messages = useMessages(room || 'public');
-
   const importBoard = queryParams.get('importBoard');
 
   useEffect(() => {
@@ -20,7 +19,7 @@ export default function GameBoard({ playerList }) {
       ? importMessage.gameBoard
       : localGameBoard;
     setGameBoard(boardToUse);
-  }, [messages]);
+  }, [messages, importBoard, localGameBoard]);
 
   if (!Array.isArray(gameBoard)) return null;
 
