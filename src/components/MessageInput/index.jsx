@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import useAuth from '../../hooks/useAuth';
@@ -36,6 +37,15 @@ export default function MessageInput({ roomId }) {
     </IconButton>
   </InputAdornment>,
         }}
+        helperText={(
+          <Link
+            to="https://www.markdownguide.org/cheat-sheet/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Markdown cheatsheet (white page)
+          </Link>
+        )}
       />
 
     </form>
