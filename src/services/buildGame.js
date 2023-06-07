@@ -62,7 +62,6 @@ function getAppendItem(appendList, currentOption, currentLevel) {
   const currentAppendList = Object.values(dataFolder[currentOption])[intensity];
 
   cycleList(dataFolder[currentOption]);
-  console.log('currentAppendList', currentAppendList);
 
   return `${currentAppendList[0]} `;
 }
