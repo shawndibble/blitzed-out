@@ -4,7 +4,7 @@ import useMessages from './useMessages';
 import { getUserList } from '../services/firebase';
 
 function filteredGameMessages(messages) {
-  const filteredMessages = messages.filter((m) => m.isGameAction);
+  const filteredMessages = messages.filter((m) => m.type === 'actions');
   return [...new Map(filteredMessages.map((m) => [m.uid, m])).values()];
 }
 

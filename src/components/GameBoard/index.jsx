@@ -7,8 +7,8 @@ import useMessages from '../../hooks/useMessages';
 
 export default function GameBoard({ playerList }) {
   const { id: room } = useParams();
-  const queryParams = useSearchParams()[0];
-  const localGameBoard = useLocalStorage('customBoard')[0];
+  const [queryParams, setParams] = useSearchParams();
+  const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
   const [gameBoard, setGameBoard] = useState();
   const messages = useMessages(room || 'public');
   const importBoard = queryParams.get('importBoard');
@@ -18,7 +18,12 @@ export default function GameBoard({ playerList }) {
     const boardToUse = Array.isArray(importMessage?.gameBoard)
       ? importMessage.gameBoard
       : localGameBoard;
+    // quickly update the game board.
     setGameBoard(boardToUse);
+    // ensure when we roll, we get the right board tile.
+    if (Array.isArray(importMessage?.gameBoard)) setLocalGameBoard(boardToUse);
+    // remove the import from the URL
+    setParams({});
   }, [messages, importBoard, localGameBoard]);
 
   if (!Array.isArray(gameBoard)) return null;
