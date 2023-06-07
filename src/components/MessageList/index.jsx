@@ -6,6 +6,7 @@ import {
 import moment from 'moment/moment';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Link } from 'react-router-dom';
 import TextAvatar from '../TextAvatar';
 import TransitionModal from '../TransitionModal';
 import useLocalStorage from '../../hooks/useLocalStorage';
@@ -102,10 +103,6 @@ function Message({ message, isOwnMessage }) {
     id, displayName, text, uid, timestamp, type,
   } = message;
 
-  const newText = type === 'settings'
-    ? `${text} \r\n \r\n [Import this board](?importBoard=${id})`
-    : text;
-
   let ago = moment(timestamp?.toDate()).fromNow();
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
 
@@ -121,8 +118,9 @@ function Message({ message, isOwnMessage }) {
       <Divider />
       <div>
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {newText}
+          {text}
         </ReactMarkdown>
+        {type === 'settings' && (<Link to={`?importBoard=${id}`}>Import this board</Link>)}
       </div>
     </li>
   );
