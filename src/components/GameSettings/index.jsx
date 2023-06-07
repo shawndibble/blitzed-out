@@ -51,13 +51,20 @@ export default function GameSettings({ submitText, closeDialog }) {
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
     boardUpdated: false,
     playerDialog: true,
+    othersDialog: false,
     sound: true,
   });
   const navigate = useNavigate();
 
   const [value, setValue] = useState(0);
   const [alert, setAlert] = useState(null);
-  const [formData, setFormData] = useState({});
+
+  // set the variations to standalone by default.
+  // useEffect will override this if needed.
+  const [formData, setFormData] = useState({
+    poppersVariation: 'standalone',
+    alcoholVariation: 'standalone',
+  });
 
   const handleTabChange = (_, newValue) => {
     setValue(newValue);
@@ -65,9 +72,9 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   // once our data from localstorage updates, push them to the formData.
   useEffect(() => setFormData({
+    ...formData,
     ...settings,
     room,
-    ...formData,
   // eslint-disable-next-line
   }), [settings]);
 
