@@ -66,6 +66,11 @@
   text-decoration: none;
 }
 
+.message code {
+  background-color: #222;
+  padding: 0.25rem;
+}
+
 .message-header {
   display: flex;
   justify-content: space-between;
