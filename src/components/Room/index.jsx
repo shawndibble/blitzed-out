@@ -25,7 +25,7 @@ export default function Room() {
   function roll() {
     setRollValue([Math.floor(Math.random() * 4) + 1]);
     setDisabled(true);
-    setTimeout(() => setDisabled(false), 2000);
+    setTimeout(() => setDisabled(false), 4000);
   }
 
   const { playerList, tile } = usePlayerMove(room, rollValue);
