@@ -44,7 +44,7 @@ export default function Room() {
       >
         <Casino />
         {' '}
-        Roll
+        {isDisabled ? 'Wait' : 'Roll'}
       </Fab>
 
       {width > 600 ? (
