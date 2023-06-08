@@ -42,6 +42,15 @@ function getSettingsMessage(settings) {
   return message;
 }
 
+function exportSettings(formData) {
+  const newSettings = {};
+  Object.entries(formData).forEach(([settingKey, settingValue]) => {
+    const personalSettings = ['boardUpdated', 'playerDialog', 'sound', 'displayName', 'othersDialog', 'room'];
+    if (!personalSettings.includes(settingKey)) newSettings[settingKey] = settingValue;
+  });
+  return newSettings;
+}
+
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
   const { id: room } = useParams();
@@ -78,6 +87,8 @@ export default function GameSettings({ submitText, closeDialog }) {
   // eslint-disable-next-line
   }), [settings]);
 
+  console.log('setting', settings);
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -103,11 +114,22 @@ export default function GameSettings({ submitText, closeDialog }) {
       updatedUser = user ? await updateUser(displayName) : await login(displayName);
     }
 
-    if (formData.boardUpdated) {
-      const newBoard = customizeBoard(gameOptions);
-      await updateBoard(newBoard);
-      sendMessage(formData.room || 'public', updatedUser, getSettingsMessage(formData), 'settings', newBoard);
+    const newBoard = customizeBoard(gameOptions);
+    // if our board updated, then push those changes out.
+    if (formData.boardUpdated) await updateBoard(newBoard);
+
+    // if our board updated or we changed rooms, send out that message.
+    if (formData.boardUpdated || room !== formData.room) {
+      sendMessage({
+        room: formData.room || 'public',
+        user: updatedUser,
+        text: getSettingsMessage(formData),
+        type: 'settings',
+        gameBoard: JSON.stringify(newBoard),
+        settings: JSON.stringify(exportSettings(formData)),
+      });
     }
+
     updateSettings({ ...formData, boardUpdated: false });
 
     const privatePath = formData.room ? `/rooms/${formData.room}` : '/';

@@ -17,10 +17,10 @@ import diceSound from '../../sounds/roll-dice.mp3';
 import messageSound from '../../sounds/message.mp3';
 import { a11yProps } from '../../helpers/strings';
 
-export default function MessageList({ roomId }) {
+export default function MessageList({ room }) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
-  const messages = useMessages(roomId);
+  const messages = useMessages(room);
   const { playerDialog, othersDialog, sound } = useLocalStorage('gameSettings')[0];
   const [currentTab, setTab] = useState(0);
   const [updatedMessages, setMessages] = useState(messages);

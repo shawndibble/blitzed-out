@@ -52,8 +52,8 @@ export default function Room() {
           <GameBoard playerList={playerList} tile={tile} />
 
           <div className="messages-container">
-            <MessageList roomId={room} />
-            <MessageInput roomId={room} />
+            <MessageList room={room} />
+            <MessageInput room={room} />
           </div>
         </Box>
       ) : (
@@ -64,8 +64,8 @@ export default function Room() {
             )}
             tab2={(
               <div className="messages-container">
-                <MessageList roomId={room} />
-                <MessageInput roomId={room} />
+                <MessageList room={room} />
+                <MessageInput room={room} />
               </div>
             )}
           />

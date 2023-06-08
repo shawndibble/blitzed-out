@@ -4,9 +4,9 @@ import useAuth from './useAuth';
 import useLocalStorage from './useLocalStorage';
 import usePlayerList from './usePlayerList';
 
-export default function usePlayerMove(roomId, rollValue) {
+export default function usePlayerMove(room, rollValue) {
   const { user } = useAuth();
-  const playerList = usePlayerList(roomId)[0];
+  const playerList = usePlayerList(room)[0];
   const gameBoard = useLocalStorage('customBoard')[0];
   const total = gameBoard.length;
   const [tile, setTile] = useState(gameBoard[0]);
@@ -15,7 +15,9 @@ export default function usePlayerMove(roomId, rollValue) {
     let message = `Roll: ${rollNumber}  \r\n`;
     message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;
     message += `Action: ${newTile?.description}`;
-    sendMessage(roomId, user, preMessage + message, 'actions');
+    sendMessage({
+      room, user, text: preMessage + message, type: 'actions',
+    });
   }
 
   useEffect(() => {

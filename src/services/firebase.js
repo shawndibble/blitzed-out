@@ -98,7 +98,9 @@ export async function updateDisplayName(displayName = '') {
   }
 }
 
-export async function sendMessage(roomId, user, text, type = 'chat', gameBoard = {}) {
+export async function sendMessage({
+  room, user, text, type = 'chat', ...rest
+}) {
   const allowedTypes = ['chat', 'actions', 'settings'];
   if (!allowedTypes.includes(type)) {
     let message = 'Invalid message type. Was expecting';
@@ -109,13 +111,13 @@ export async function sendMessage(roomId, user, text, type = 'chat', gameBoard =
   }
 
   try {
-    await addDoc(collection(db, 'chat-rooms', roomId, 'messages'), {
+    await addDoc(collection(db, 'chat-rooms', room, 'messages'), {
       uid: user.uid,
       displayName: user.displayName,
       text: text.trim(),
       timestamp: serverTimestamp(),
       type,
-      gameBoard,
+      ...rest,
     });
   } catch (error) {
     // eslint-disable-next-line

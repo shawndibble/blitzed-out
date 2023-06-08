@@ -6,7 +6,7 @@ import useAuth from '../../hooks/useAuth';
 import { sendMessage } from '../../services/firebase';
 import './styles.css';
 
-export default function MessageInput({ roomId }) {
+export default function MessageInput({ room }) {
   const { user } = useAuth();
   const [value, setValue] = React.useState('');
 
@@ -16,7 +16,9 @@ export default function MessageInput({ roomId }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    sendMessage(roomId, user, value, 'chat');
+    sendMessage({
+      room, user, text: value, type: 'chat',
+    });
     setValue('');
   };
 

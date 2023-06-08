@@ -9,23 +9,34 @@ export default function GameBoard({ playerList }) {
   const { id: room } = useParams();
   const [queryParams, setParams] = useSearchParams();
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
-  const [gameBoard, setGameBoard] = useState();
+  const [settings, setSettings] = useLocalStorage('gameSettings');
+  const [gameBoard, setGameBoard] = useState(localGameBoard);
   const messages = useMessages(room || 'public');
   const importBoard = queryParams.get('importBoard');
 
-  useEffect(() => {
+  function importGameBoard() {
+    // if we aren't importing, then just load the local gameboard.
+    if (!importBoard) setGameBoard(localGameBoard);
+    // grab the message by its id (importboard value)
     const importMessage = messages.find((m) => m.id === importBoard);
-    const boardToUse = Array.isArray(importMessage?.gameBoard)
-      ? importMessage.gameBoard
-      : localGameBoard;
-    // quickly update the game board.
-    setGameBoard(boardToUse);
+    // no gameboard? we are done.
+    if (!importMessage?.gameBoard) return;
+    // convert that string to JSON (array of objects)
+    const importedGameBoard = JSON.parse(importMessage.gameBoard);
+    // not an array of objects? we are done.
+    if (!Array.isArray(importedGameBoard)) return;
+    // quickly update the game board, so the player isn't waiting for local storage.
+    setGameBoard(importedGameBoard);
     // ensure when we roll, we get the right board tile.
-    if (Array.isArray(importMessage?.gameBoard)) setLocalGameBoard(boardToUse);
+    setLocalGameBoard(importedGameBoard);
+    // set setting for changing the board and outputing it when changing rooms.
+    setSettings({ ...settings, ...JSON.parse(importMessage?.settings) });
     // remove the import from the URL
     setParams({});
+  }
+
   // eslint-disable-next-line
-  }, [messages, importBoard, localGameBoard]);
+  useEffect(() => importGameBoard(), [messages, importBoard]);
 
   if (!Array.isArray(gameBoard)) return null;
 
