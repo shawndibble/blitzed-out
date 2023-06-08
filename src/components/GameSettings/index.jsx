@@ -87,8 +87,6 @@ export default function GameSettings({ submitText, closeDialog }) {
   // eslint-disable-next-line
   }), [settings]);
 
-  console.log('setting', settings);
-
   async function handleSubmit(event) {
     event.preventDefault();
 
