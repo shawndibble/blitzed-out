@@ -26,8 +26,10 @@ import { a11yProps } from '../../../helpers/strings';
 import TabPanel from '../../TabPanel';
 import Venmo from '../../../images/venmo.png';
 import CashApp from '../../../images/cashapp.png';
+import useAuth from '../../../hooks/useAuth';
 
 export default function MenuDrawer() {
+  const { user } = useAuth();
   const [menuOpen, setMenu] = useState(false);
   const toggleDrawer = (isOpen) => setMenu(isOpen);
 
@@ -49,10 +51,11 @@ export default function MenuDrawer() {
   );
 
   const menuItems = [
-    { title: 'Settings', icon: <SettingsIcon />, onClick: () => toggleDialog('settings', true) },
     { title: 'Discord', icon: discordIcon, onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef') },
     { title: 'Donate', icon: <PaidIcon />, onClick: () => toggleDialog('donate', true) },
   ];
+
+  if (user) menuItems.unshift({ title: 'Settings', icon: <SettingsIcon />, onClick: () => toggleDialog('settings', true) });
 
   const closeIcon = (openType) => (
     <IconButton

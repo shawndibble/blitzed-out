@@ -6,3 +6,13 @@
 h2.setup {
     padding: 1rem 0;
 }
+
+.unauthenticated-card {
+  margin: 0.25rem;
+}
+
+@media screen and (max-width: 400px) {
+  .unauthenticated-card {
+    margin: 0.25rem 0;
+  }
+}

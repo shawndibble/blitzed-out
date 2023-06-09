@@ -16,6 +16,11 @@
   justify-content: space-between;
 }
 
+.nav > div {
+  flex: 1;
+  display: flex;
+}
+
 .nav-room-name {
   display: flex;
   align-items: center;
@@ -25,9 +30,21 @@
   margin-right: 0.5rem;
 }
 
+.nav-room-name {
+  margin: auto;
+}
+
+.menu-drawer {
+  justify-content: flex-end;
+}
+
 @media screen and (max-width: 600px) {
   .nav {
     font-size: 80%;
+  }
+
+  .nav > div {
+    flex: auto;
   }
 
   .site-name img {

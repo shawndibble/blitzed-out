@@ -1,0 +1,7 @@
+.discord-link {
+  text-decoration: underline;
+}
+
+.discord-link:hover {
+  text-decoration: none;
+}
