@@ -110,12 +110,15 @@ export async function sendMessage({
     console.error(message);
   }
 
+  const now = Date.now();
+
   try {
     await addDoc(collection(db, 'chat-rooms', room, 'messages'), {
       uid: user.uid,
       displayName: user.displayName,
       text: text.trim(),
       timestamp: serverTimestamp(),
+      ttl: new Date(now + 2 * 60 * 60 * 1000), // 2 hours
       type,
       ...rest,
     });
