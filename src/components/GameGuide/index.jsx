@@ -16,7 +16,7 @@ export default function GameGuide() {
       </Typography>
       <Typography variant="h5" mt={3}>Getting Started</Typography>
       <ol>
-        <li><Typography variant="body1" mt={2}>Pick a display name</Typography></li>
+        <li><Typography variant="body1">Pick a display name</Typography></li>
         <li><Typography variant="body1">Select your options. (append will add that option to other tiles).</Typography></li>
         <li><Typography variant="body1">Save changes/Access game.</Typography></li>
         <li><Typography variant="body1">When it is your turn, click the roll button and follow the prompts.</Typography></li>

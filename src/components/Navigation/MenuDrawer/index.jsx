@@ -2,6 +2,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
 import PaidIcon from '@mui/icons-material/Paid';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InfoIcon from '@mui/icons-material/Info';
 import {
   Box,
   Dialog,
@@ -21,15 +22,18 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import useWindowDimensions from '../../../hooks/useWindowDimensions';
 import GameSettings from '../../GameSettings';
 import { a11yProps } from '../../../helpers/strings';
 import TabPanel from '../../TabPanel';
 import Venmo from '../../../images/venmo.png';
 import CashApp from '../../../images/cashapp.png';
 import useAuth from '../../../hooks/useAuth';
+import GameGuide from '../../GameGuide';
 
 export default function MenuDrawer() {
   const { user } = useAuth();
+  const { isMobile } = useWindowDimensions();
   const [menuOpen, setMenu] = useState(false);
   const toggleDrawer = (isOpen) => setMenu(isOpen);
 
@@ -39,6 +43,7 @@ export default function MenuDrawer() {
   const [open, setOpen] = useState({
     settings: false,
     donate: false,
+    about: false,
   });
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
 
@@ -53,6 +58,8 @@ export default function MenuDrawer() {
   const menuItems = [
     { title: 'Discord', icon: discordIcon, onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef') },
     { title: 'Donate', icon: <PaidIcon />, onClick: () => toggleDialog('donate', true) },
+    { title: 'About', icon: <InfoIcon />, onClick: () => toggleDialog('about', true) },
+
   ];
 
   if (user) menuItems.unshift({ title: 'Settings', icon: <SettingsIcon />, onClick: () => toggleDialog('settings', true) });
@@ -73,7 +80,11 @@ export default function MenuDrawer() {
   );
 
   const settingsDialog = (
-    <Dialog open={open.settings} onClose={() => toggleDialog('settings', false)}>
+    <Dialog
+      fullScreen={isMobile}
+      open={open.settings}
+      onClose={() => toggleDialog('settings', false)}
+    >
       <DialogTitle>
         Game Settings
         {closeIcon('settings')}
@@ -84,8 +95,27 @@ export default function MenuDrawer() {
     </Dialog>
   );
 
+  const aboutDialog = (
+    <Dialog
+      fullScreen={isMobile}
+      open={open.about}
+      onClose={() => toggleDialog('about', false)}
+    >
+      <DialogTitle>
+        {closeIcon('about')}
+      </DialogTitle>
+      <DialogContent>
+        <GameGuide />
+      </DialogContent>
+    </Dialog>
+  );
+
   const donateDialog = (
-    <Dialog open={open.donate} onClose={() => toggleDialog('donate', false)}>
+    <Dialog
+      fullScreen={isMobile}
+      open={open.donate}
+      onClose={() => toggleDialog('donate', false)}
+    >
       <DialogTitle>
         Donate to help support the site
         {closeIcon('donate')}
@@ -100,7 +130,7 @@ export default function MenuDrawer() {
             <Typography variant="h4">@blitzedout</Typography>
           </Link>
         </Box>
-        <Box component="img" sx={{ maxWidth: 550 }} alt="Venmo QR code" src={Venmo} />
+        <Box component="img" sx={{ maxWidth: 550, width: 'calc(100vw - 45px)' }} alt="Venmo QR code" src={Venmo} />
       </TabPanel>
       <TabPanel value={tabVal} index={1}>
         <Box sx={{ textAlign: 'center' }}>
@@ -111,7 +141,7 @@ export default function MenuDrawer() {
         <Box
           component="img"
           sx={{
-            padding: 4, background: 'white', maxWidth: 500, borderRadius: 5, margin: 3,
+            padding: 4, background: 'white', maxWidth: 500, borderRadius: 5, margin: 3, width: 'calc(100vw - 100px)',
           }}
           alt="Venmo QR code"
           src={CashApp}
@@ -149,6 +179,7 @@ export default function MenuDrawer() {
       </Drawer>
       {settingsDialog}
       {donateDialog}
+      {aboutDialog}
     </>
   );
 }

@@ -18,7 +18,7 @@ export default function Room() {
 
   usePresence(room);
 
-  const { width } = useWindowDimensions();
+  const { isMobile } = useWindowDimensions();
   const [rollValue, setRollValue] = useState([0]);
   const [isDisabled, setDisabled] = useState(false);
 
@@ -47,7 +47,7 @@ export default function Room() {
         {isDisabled ? 'Wait' : 'Roll'}
       </Fab>
 
-      {width > 600 ? (
+      {!isMobile ? (
         <Box className="desktop-container">
           <GameBoard playerList={playerList} tile={tile} />
 
