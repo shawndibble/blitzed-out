@@ -38,8 +38,9 @@
 }
 
 @media screen and (max-width: 600px) {
-  .dice-roller {
-    bottom: 70px;
+  button.dice-roller {
+    bottom: 65px;
     right: 50px;
+    width: calc(100% - 6rem);
   }
 }
