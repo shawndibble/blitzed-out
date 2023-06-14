@@ -15,14 +15,12 @@ export default function GameGuide() {
         find your own room and play with other people online.
       </Typography>
       <Typography variant="h5" mt={3}>Getting Started</Typography>
-      <Typography variant="body1" mt={2}>
-        <ol>
-          <li>Pick a display name</li>
-          <li>Select your options. (append will add that option to other tiles).</li>
-          <li>Save changes/Access game.</li>
-          <li>When it is your turn, click the roll button and follow the prompts.</li>
-        </ol>
-      </Typography>
+      <ol>
+        <li><Typography variant="body1" mt={2}>Pick a display name</Typography></li>
+        <li><Typography variant="body1">Select your options. (append will add that option to other tiles).</Typography></li>
+        <li><Typography variant="body1">Save changes/Access game.</Typography></li>
+        <li><Typography variant="body1">When it is your turn, click the roll button and follow the prompts.</Typography></li>
+      </ol>
       <Typography variant="body1" mt={2}>
         Don&apos;t like your current board or some aspect of the game?
         Go to Menu, then Settings and change it.
