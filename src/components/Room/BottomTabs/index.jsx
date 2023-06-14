@@ -40,10 +40,10 @@ export default function BottomTabs({ tab1, tab2 }) {
         index={value}
         onChangeIndex={handleChangeIndex}
       >
-        <TabPanel value={value} index={0} dir={theme.direction}>
+        <TabPanel value={value} index={0} dir={theme.direction} style={{ p: 0 }}>
           {tab1}
         </TabPanel>
-        <TabPanel value={value} index={1} dir={theme.direction}>
+        <TabPanel value={value} index={1} dir={theme.direction} style={{ p: 0 }}>
           {tab2}
         </TabPanel>
       </SwipeableViews>
