@@ -63,7 +63,7 @@ function getAppendItem(appendList, currentOption, currentLevel) {
 
   if (!currentAppendList.length) return '';
 
-  cycleList(dataFolder[currentOption]);
+  cycleList(currentAppendList);
 
   return `${currentAppendList[0]} `;
 }
