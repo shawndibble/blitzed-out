@@ -98,6 +98,19 @@ export async function updateDisplayName(displayName = '') {
   }
 }
 
+export async function submitSuggestion(grouping, suggestion) {
+  try {
+    await addDoc(collection(db, 'suggestions'), {
+      grouping,
+      suggestion,
+      ttl: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days
+    });
+  } catch (error) {
+    // eslint-disable-next-line
+    console.error(error);
+  }
+}
+
 export async function sendMessage({
   room, user, text, type = 'chat', ...rest
 }) {
