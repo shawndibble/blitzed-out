@@ -1,6 +1,7 @@
 import alcohol from '../data/alcohol.json';
 import ballBusting from '../data/ballBusting.json';
 import buttPlay from '../data/buttPlay.json';
+import gooning from '../data/gooning.json';
 import poppers from '../data/poppers.json';
 import throatTraining from '../data/throatTraining.json';
 import titTorture from '../data/titTorture.json';
@@ -10,6 +11,7 @@ import { camelToPascal } from '../helpers/strings';
 export const dataFolder = {
   alcohol,
   poppers,
+  gooning,
   ballBusting,
   buttPlay,
   throatTraining,
