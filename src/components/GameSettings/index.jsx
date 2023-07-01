@@ -83,7 +83,7 @@ export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
   const { id: room } = useParams();
   const updateBoard = useLocalStorage('customBoard')[1];
-  const customTiles = useLocalStorage('customTiles')[0];
+  const customTiles = useLocalStorage('customTiles', [])[0];
 
   // set default settings for first time users. Local Storage will take over after this.
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
