@@ -1,5 +1,4 @@
 import CloseIcon from '@mui/icons-material/Close';
-import CreateIcon from '@mui/icons-material/Create';
 import MenuIcon from '@mui/icons-material/Menu';
 import PaidIcon from '@mui/icons-material/Paid';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -19,27 +18,24 @@ import {
   SvgIcon,
 } from '@mui/material';
 import { useState } from 'react';
-import useWindowDimensions from '../../../hooks/useWindowDimensions';
-import GameSettings from '../../GameSettings';
-import useAuth from '../../../hooks/useAuth';
-import GameGuide from '../../GameGuide';
-import CustomTile from '../../CustomTile';
-import ToastAlert from '../../ToastAlert';
+import useWindowDimensions from 'hooks/useWindowDimensions';
+import GameSettings from 'components/GameSettings';
+import useAuth from 'hooks/useAuth';
+import GameGuide from 'components/GameGuide';
 import DonateDialog from './DonateDialog';
 
 export default function MenuDrawer() {
   const { user } = useAuth();
   const { isMobile } = useWindowDimensions();
   const [menuOpen, setMenu] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState(null);
   const toggleDrawer = (isOpen) => setMenu(isOpen);
 
   const [open, setOpen] = useState({
     settings: false,
     donate: false,
     about: false,
-    newTile: false,
   });
+
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
 
   const openInNewTab = (url) => window.open(url, '_blank', 'noreferrer');
@@ -51,7 +47,6 @@ export default function MenuDrawer() {
   );
 
   const menuItems = [
-    { title: 'Suggest Tile', icon: <CreateIcon />, onClick: () => toggleDialog('newTile', true) },
     { title: 'Discord', icon: discordIcon, onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef') },
     { title: 'Donate', icon: <PaidIcon />, onClick: () => toggleDialog('donate', true) },
     { title: 'About', icon: <InfoIcon />, onClick: () => toggleDialog('about', true) },
@@ -78,7 +73,6 @@ export default function MenuDrawer() {
     <Dialog
       fullScreen={isMobile}
       open={open.settings}
-      onClose={() => toggleDialog('settings', false)}
     >
       <DialogTitle>
         Game Settings
@@ -119,24 +113,6 @@ export default function MenuDrawer() {
     </Dialog>
   );
 
-  const newTileDialog = (
-    <Dialog
-      fullScreen={isMobile}
-      open={open.newTile}
-      onClose={() => toggleDialog('newTile', false)}
-    >
-      <DialogTitle>
-        {closeIcon('newTile')}
-      </DialogTitle>
-      <DialogContent>
-        <CustomTile
-          closeDialog={() => toggleDialog('newTile', false)}
-          setSubmitMessage={setSubmitMessage}
-        />
-      </DialogContent>
-    </Dialog>
-  );
-
   const menuList = menuItems.map(({ title, icon, onClick }) => (
     <ListItem key={title} disablePadding onClick={onClick}>
       <ListItemButton>
@@ -167,11 +143,6 @@ export default function MenuDrawer() {
       {settingsDialog}
       {donateDialog}
       {aboutDialog}
-      {newTileDialog}
-
-      <ToastAlert open={!!submitMessage} setOpen={setSubmitMessage} type="success">
-        {submitMessage}
-      </ToastAlert>
     </>
   );
 }

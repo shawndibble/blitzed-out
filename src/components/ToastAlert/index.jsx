@@ -1,17 +1,17 @@
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert } from '@mui/material';
+import { Alert, Portal } from '@mui/material';
 
 export default function ToastAlert({
-  children, open, setOpen, type = 'error',
+  children, open, close, type = 'error',
 }) {
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
 
-    setOpen(null);
+    close();
   };
 
   const action = (
@@ -26,7 +26,7 @@ export default function ToastAlert({
   );
 
   return (
-    <div>
+    <Portal>
       <Snackbar
         open={open}
         autoHideDuration={5000}
@@ -37,6 +37,6 @@ export default function ToastAlert({
           {children}
         </Alert>
       </Snackbar>
-    </div>
+    </Portal>
   );
 }

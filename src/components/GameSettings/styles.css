@@ -9,3 +9,9 @@ label.settings-switch {
   justify-content: space-between;
   margin: 0.5rem
 }
+
+.flex-buttons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}

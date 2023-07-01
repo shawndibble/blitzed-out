@@ -3,16 +3,17 @@ import {
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import useAuth from '../../hooks/useAuth';
-import { customizeBoard, dataFolder } from '../../services/buildGame';
+import useAuth from 'hooks/useAuth';
+import { customizeBoard, dataFolder } from 'services/buildGame';
+import useLocalStorage from 'hooks/useLocalStorage';
+import TabPanel from 'components/TabPanel';
+import { a11yProps, camelToPascal, pascalToCamel } from 'helpers/strings';
+import ToastAlert from 'components/ToastAlert';
+import { sendMessage } from 'services/firebase';
+import CustomTileDialog from 'components/CustomTileDialog';
 import SelectBoardSetting from './SelectBoardSetting';
-import useLocalStorage from '../../hooks/useLocalStorage';
 import PrivateRoomToggle from './PrivateRoomToggle';
 import './styles.css';
-import TabPanel from '../TabPanel';
-import { a11yProps, camelToPascal } from '../../helpers/strings';
-import ToastAlert from '../ToastAlert';
-import { sendMessage } from '../../services/firebase';
 
 function hasSomethingPicked(object) {
   return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
@@ -22,7 +23,28 @@ function isAppending(option, variationOption) {
   return option > 0 && variationOption?.startsWith('append');
 }
 
-function getSettingsMessage(settings) {
+function getCustomTileCount(settings, customTiles) {
+  const usedCustomTiles = [];
+  const settingsDataFolder = {};
+  // restrict our datafolder to just those the user selected.
+  Object.entries(dataFolder).forEach(([key, value]) => {
+    if (settings[key]) settingsDataFolder[key] = Object.keys(value).slice(1, settings[key] + 1);
+  });
+
+  // copy over any custom tiles that fall within our limited datafolder.
+  Object.entries(settingsDataFolder).forEach(([settingGroup, intensityArray]) => {
+    customTiles.forEach((entry) => {
+      if (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity)) {
+        usedCustomTiles.push(entry);
+      }
+    });
+  });
+
+  // return the count of custom tiles that were actually used in the game board.
+  return usedCustomTiles.length;
+}
+
+function getSettingsMessage(settings, customTiles) {
   let message = '### Game Settings\r\n';
   const { poppersVariation, alcoholVariation } = settings;
   Object.keys(dataFolder).map((val) => {
@@ -39,6 +61,12 @@ function getSettingsMessage(settings) {
     }
     return undefined;
   });
+
+  const customTileCount = getCustomTileCount(settings, customTiles);
+  if (customTileCount) {
+    message += `* Custom Tiles: ${customTileCount} \r\n`;
+  }
+
   return message;
 }
 
@@ -55,6 +83,7 @@ export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
   const { id: room } = useParams();
   const updateBoard = useLocalStorage('customBoard')[1];
+  const customTiles = useLocalStorage('customTiles')[0];
 
   // set default settings for first time users. Local Storage will take over after this.
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
@@ -67,6 +96,7 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   const [value, setValue] = useState(0);
   const [alert, setAlert] = useState(null);
+  const [openCustomTile, setOpenCustomTile] = useState(false);
 
   // set the variations to standalone by default.
   // useEffect will override this if needed.
@@ -112,7 +142,7 @@ export default function GameSettings({ submitText, closeDialog }) {
       updatedUser = user ? await updateUser(displayName) : await login(displayName);
     }
 
-    const newBoard = customizeBoard(gameOptions);
+    const newBoard = customizeBoard(gameOptions, customTiles);
     // if our board updated, then push those changes out.
     if (formData.boardUpdated) await updateBoard(newBoard);
 
@@ -121,7 +151,7 @@ export default function GameSettings({ submitText, closeDialog }) {
       sendMessage({
         room: formData.room || 'public',
         user: updatedUser,
-        text: getSettingsMessage(formData),
+        text: getSettingsMessage(formData, customTiles),
         type: 'settings',
         gameBoard: JSON.stringify(newBoard),
         settings: JSON.stringify(exportSettings(formData)),
@@ -228,10 +258,15 @@ export default function GameSettings({ submitText, closeDialog }) {
         <Divider />
       </TabPanel>
 
-      <br />
-      <Button fullWidth variant="contained" type="submit">
-        {submitText}
-      </Button>
+      <div className="flex-buttons">
+        <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
+          Custom Tiles
+        </Button>
+        <Button variant="contained" type="submit">
+          {submitText}
+        </Button>
+      </div>
+      <CustomTileDialog open={openCustomTile} setOpen={setOpenCustomTile} />
       <ToastAlert open={!!alert} setOpen={setAlert}>
         {alert}
       </ToastAlert>

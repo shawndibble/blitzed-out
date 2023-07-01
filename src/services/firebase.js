@@ -98,11 +98,11 @@ export async function updateDisplayName(displayName = '') {
   }
 }
 
-export async function submitSuggestion(grouping, suggestion) {
+export async function submitCustomAction(grouping, customAction) {
   try {
-    await addDoc(collection(db, 'suggestions'), {
+    await addDoc(collection(db, 'custom-actions'), {
       grouping,
-      suggestion,
+      customAction,
       ttl: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days
     });
   } catch (error) {

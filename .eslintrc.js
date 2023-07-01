@@ -8,6 +8,14 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
+  settings: {
+    'import/resolver' : {
+      'node': {
+        'paths': ['src'],
+        'extensions': ['.js', '.jsx']
+      },
+    },
+  },
   rules: {
     quotes: ['error', 'single'],
     // we want to force semicolons

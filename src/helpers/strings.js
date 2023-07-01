@@ -4,6 +4,13 @@ export function camelToPascal(text) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
+export function pascalToCamel(text) {
+  return text.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
+    if (+match === 0) return ''; // or if (/\s+/.test(match)) for white spaces
+    return index === 0 ? match.toLowerCase() : match.toUpperCase();
+  });
+}
+
 export function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,

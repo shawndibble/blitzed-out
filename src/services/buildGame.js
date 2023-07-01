@@ -6,7 +6,7 @@ import poppers from '../data/poppers.json';
 import throatTraining from '../data/throatTraining.json';
 import titTorture from '../data/titTorture.json';
 import shuffleArrayBy from '../helpers/arrays';
-import { camelToPascal } from '../helpers/strings';
+import { camelToPascal, pascalToCamel } from '../helpers/strings';
 
 export const dataFolder = {
   alcohol,
@@ -49,11 +49,10 @@ function getCurrentLevel(currentTile, brackets) {
   return level;
 }
 
-function getAppendItem(appendList, currentOption, currentLevel) {
+function getAppendItem(appendList, currentOption, currentLevel, customDataFolder) {
   if (!Object.keys(appendList).length) return '';
 
   const [maxLevel, appendType] = appendList[currentOption].split('|');
-
   const chance = Math.random();
 
   // have a chance of not appending. Some = 50/50. Most = 85/15.
@@ -61,7 +60,7 @@ function getAppendItem(appendList, currentOption, currentLevel) {
   if (appendType.endsWith('Most') && chance < 0.15) return '';
 
   const intensity = getIntensity(maxLevel, currentLevel);
-  const currentAppendList = Object.values(dataFolder[currentOption])[intensity];
+  const currentAppendList = Object.values(customDataFolder[currentOption])[intensity];
 
   if (!currentAppendList.length) return '';
 
@@ -70,7 +69,7 @@ function getAppendItem(appendList, currentOption, currentLevel) {
   return `${currentAppendList[0]} `;
 }
 
-export function customizeBoard(settings, size = 40) {
+export function customizeBoard(settings, userCustomTiles = [], size = 40) {
   const {
     alcoholVariation,
     poppersVariation,
@@ -79,10 +78,17 @@ export function customizeBoard(settings, size = 40) {
     ...otherSettings
   } = settings;
 
-  // grab tile options but limit them to the dataFolder options. (ignore all other settings)
+  // clone the dataFolder then add our custom tiles.
+  const customDataFolder = { ...dataFolder };
+  userCustomTiles.forEach(({ group, intensity, action }) => {
+    const camelGroup = pascalToCamel(group);
+    customDataFolder[camelGroup][intensity].push(action);
+  });
+
+  // grab tile options but limit them to the customDataFolder options. (ignore all other settings)
   const tileOptions = {};
   Object.entries(otherSettings).forEach(([key, value]) => {
-    if (Object.keys(dataFolder).includes(key)) {
+    if (Object.keys(customDataFolder).includes(key)) {
       tileOptions[key] = value;
     }
   });
@@ -109,7 +115,7 @@ export function customizeBoard(settings, size = 40) {
   const levelBrackets = [...Array(4).keys()].map((val) => (val + 1) * tilesPerLevel);
 
   // all the options where the user picked higher than 0.
-  const selectedOptions = Object.keys(dataFolder).filter((type) => tileOptions[type] > 0);
+  const selectedOptions = Object.keys(customDataFolder).filter((type) => tileOptions[type] > 0);
   const appendOptions = Object.keys(appendList);
 
   const customTiles = tiles.map((_, tileIndex) => {
@@ -121,11 +127,11 @@ export function customizeBoard(settings, size = 40) {
 
     if (!currentOption) return {};
 
-    const currentList = Object.values(dataFolder[currentOption]);
+    const currentList = Object.values(customDataFolder[currentOption]);
     const currentLevel = getCurrentLevel(tileIndex, levelBrackets);
     const intensity = getIntensity(tileOptions[currentOption], currentLevel);
     const currentActivityList = currentList[intensity];
-    const appendItem = getAppendItem(appendList, currentAppend, currentLevel);
+    const appendItem = getAppendItem(appendList, currentAppend, currentLevel, customDataFolder);
 
     const description = ['poppers', 'alcohol'].includes(currentOption)
       ? currentActivityList[0]
