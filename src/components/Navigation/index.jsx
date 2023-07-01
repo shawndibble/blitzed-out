@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import {
   AppBar, Box, Toolbar, Tooltip, Typography,
 } from '@mui/material';
-import Logo from '../../images/blitzed-out.webp';
+import Logo from 'images/blitzed-out.webp';
 import './styles.css';
 import PlayersOnline from './PlayersOnline';
 import MenuDrawer from './MenuDrawer';

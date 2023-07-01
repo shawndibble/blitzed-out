@@ -1,15 +1,15 @@
-import './styles.css';
+import { useParams } from 'react-router-dom';
 import {
   Card,
   CardContent,
   Container,
   Grid,
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
-import Navigation from '../Navigation';
-import GameSettings from '../GameSettings';
-import usePlayerList from '../../hooks/usePlayerList';
-import GameGuide from '../GameGuide';
+import Navigation from 'components/Navigation';
+import GameSettings from 'components/GameSettings';
+import usePlayerList from 'hooks/usePlayerList';
+import GameGuide from 'components/GameGuide';
+import './styles.css';
 
 export default function UnauthenticatedApp() {
   const params = useParams();

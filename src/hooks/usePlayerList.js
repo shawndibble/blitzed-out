@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { getUserList } from 'services/firebase';
 import useAuth from './useAuth';
 import useMessages from './useMessages';
-import { getUserList } from '../services/firebase';
 
 function filteredGameMessages(messages) {
   const filteredMessages = messages.filter((m) => m.type === 'actions');

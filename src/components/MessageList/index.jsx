@@ -7,15 +7,15 @@ import moment from 'moment/moment';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom';
-import TextAvatar from '../TextAvatar';
-import TransitionModal from '../TransitionModal';
-import useLocalStorage from '../../hooks/useLocalStorage';
-import useAuth from '../../hooks/useAuth';
-import useMessages from '../../hooks/useMessages';
+import TextAvatar from 'components/TextAvatar';
+import TransitionModal from 'components/TransitionModal';
+import useLocalStorage from 'hooks/useLocalStorage';
+import useAuth from 'hooks/useAuth';
+import useMessages from 'hooks/useMessages';
+import diceSound from 'sounds/roll-dice.mp3';
+import messageSound from 'sounds/message.mp3';
+import { a11yProps } from 'helpers/strings';
 import './styles.css';
-import diceSound from '../../sounds/roll-dice.mp3';
-import messageSound from '../../sounds/message.mp3';
-import { a11yProps } from '../../helpers/strings';
 
 export default function MessageList({ room }) {
   const containerRef = React.useRef(null);

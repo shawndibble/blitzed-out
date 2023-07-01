@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import useLocalStorage from 'hooks/useLocalStorage';
+import useMessages from 'hooks/useMessages';
 import GameTile from './GameTile';
 import './styles.css';
-import useLocalStorage from '../../hooks/useLocalStorage';
-import useMessages from '../../hooks/useMessages';
 
 export default function GameBoard({ playerList }) {
   const { id: room } = useParams();

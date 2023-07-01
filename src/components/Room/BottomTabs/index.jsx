@@ -5,8 +5,8 @@ import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import { a11yProps } from '../../../helpers/strings';
-import TabPanel from '../../TabPanel';
+import { a11yProps } from 'helpers/strings';
+import TabPanel from 'components/TabPanel';
 
 export default function BottomTabs({ tab1, tab2 }) {
   const theme = useTheme();

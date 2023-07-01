@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { setMyPresence } from '../services/firebase';
+import { setMyPresence } from 'services/firebase';
 import useAuth from './useAuth';
 
 export default function usePresence(roomId) {

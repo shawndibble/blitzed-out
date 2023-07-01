@@ -2,15 +2,15 @@ import { useParams } from 'react-router-dom';
 import { Box, Fab } from '@mui/material';
 import { Casino } from '@mui/icons-material';
 import { useState } from 'react';
-import MessageInput from '../MessageInput';
-import MessageList from '../MessageList';
-import GameBoard from '../GameBoard';
-import './styles.css';
-import Navigation from '../Navigation';
+import MessageInput from 'components/MessageInput';
+import MessageList from 'components/MessageList';
+import GameBoard from 'components/GameBoard';
+import Navigation from 'components/Navigation';
+import useWindowDimensions from 'hooks/useWindowDimensions';
+import usePlayerMove from 'hooks/usePlayerMove';
+import usePresence from 'hooks/usePresence';
 import BottomTabs from './BottomTabs';
-import useWindowDimensions from '../../hooks/useWindowDimensions';
-import usePlayerMove from '../../hooks/usePlayerMove';
-import usePresence from '../../hooks/usePresence';
+import './styles.css';
 
 export default function Room() {
   const params = useParams();
