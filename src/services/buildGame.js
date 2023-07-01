@@ -82,7 +82,7 @@ export function customizeBoard(settings, userCustomTiles = [], size = 40) {
   const customDataFolder = { ...dataFolder };
   userCustomTiles.forEach(({ group, intensity, action }) => {
     const camelGroup = pascalToCamel(group);
-    customDataFolder[camelGroup][intensity].push(action);
+    customDataFolder[camelGroup][intensity].unshift(action);
   });
 
   // grab tile options but limit them to the customDataFolder options. (ignore all other settings)
