@@ -53,7 +53,7 @@ export default function CustomTileDialog({ setOpen, open = false }) {
             addCustomTile={addCustomTile}
             customTiles={customTiles}
           />
-          <Divider light sx={{ my: 2 }} />
+          {!!customTiles.length && (<Divider light sx={{ my: 2 }} />)}
           <ViewCustomTiles customTiles={customTiles} setCustomTiles={setCustomTiles} />
         </DialogContent>
       </Dialog>
