@@ -139,7 +139,7 @@
     margin: 1rem;
     width: calc(50% - 2rem);
     float: left;
-    min-height: 8rem;
+    min-height: 10rem;
   }
 
   .gameboard li:nth-child(4n+3),
@@ -177,7 +177,7 @@
     margin: 1rem;
     width: calc(33% - 2rem);
     float: left;
-    min-height: 9rem
+    min-height: 10rem
   }
 
   .gameboard li:nth-child(6n+4),
@@ -220,7 +220,7 @@
     margin: 1rem;
     width: calc(25% - 2rem);
     float: left;
-    min-height: 9rem
+    min-height: 10rem
   }
 
   .gameboard li:nth-child(8n+5),
@@ -273,7 +273,7 @@
     margin: 1rem;
     width: calc(100%/6 - 2rem);
     float: left;
-    min-height: 9rem
+    min-height: 10rem
   }
 
   .gameboard li:nth-child(12n+7),
