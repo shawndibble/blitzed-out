@@ -1,5 +1,5 @@
 import React from 'react';
-import { getMessages } from '../services/firebase';
+import { getMessages } from 'services/firebase';
 
 export default function useMessages(roomId) {
   const [messages, setMessages] = React.useState([]);

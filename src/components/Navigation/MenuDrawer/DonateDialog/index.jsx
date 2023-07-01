@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import {
   Box, Tab, Tabs, Typography,
 } from '@mui/material';
-import TabPanel from '../../../TabPanel';
-import { a11yProps } from '../../../../helpers/strings';
-import Venmo from '../../../../images/venmo.png';
-import CashApp from '../../../../images/cashapp.png';
+import TabPanel from 'components/TabPanel';
+import { a11yProps } from 'helpers/strings';
+import Venmo from 'images/venmo.png';
+import CashApp from 'images/cashapp.png';
 
 export default function DonateDialog() {
   const [tabVal, setTab] = useState(0);

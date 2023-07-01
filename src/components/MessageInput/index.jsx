@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import useAuth from '../../hooks/useAuth';
-import { sendMessage } from '../../services/firebase';
+import useAuth from 'hooks/useAuth';
+import { sendMessage } from 'services/firebase';
 import './styles.css';
 
 export default function MessageInput({ room }) {

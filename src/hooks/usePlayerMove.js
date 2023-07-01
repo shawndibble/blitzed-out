@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { sendMessage } from '../services/firebase';
+import { sendMessage } from 'services/firebase';
 import useAuth from './useAuth';
 import useLocalStorage from './useLocalStorage';
 import usePlayerList from './usePlayerList';

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import { loginAnonymously, updateDisplayName } from '../services/firebase';
+import { loginAnonymously, updateDisplayName } from 'services/firebase';
 
 const AuthContext = React.createContext();
 

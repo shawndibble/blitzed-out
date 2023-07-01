@@ -1,8 +1,8 @@
 import {
   FormControl, InputLabel, MenuItem, Select,
 } from '@mui/material';
-import { dataFolder } from '../../../services/buildGame';
-import { camelToPascal } from '../../../helpers/strings';
+import { dataFolder } from 'services/buildGame';
+import { camelToPascal } from 'helpers/strings';
 import './styles.css';
 
 export default function SelectBoardSetting({ option, settings, setSettings }) {
