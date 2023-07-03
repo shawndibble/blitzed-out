@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import {
-  Dialog, DialogContent, DialogContentText, DialogTitle, Divider, IconButton,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Dialog, DialogContent, DialogTitle, Divider, IconButton, Typography,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Close, ExpandMore } from '@mui/icons-material';
 import useWindowDimensions from 'hooks/useWindowDimensions';
 import useLocalStorage from 'hooks/useLocalStorage';
 import ToastAlert from 'components/ToastAlert';
@@ -39,15 +42,30 @@ export default function CustomTileDialog({ setOpen, open = false }) {
               color: (theme) => theme.palette.grey[500],
             }}
           >
-            <CloseIcon />
+            <Close />
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Manage your custom tiles here.
-            Note:
-            You still need to have the coresponding setting enable for your custom tiles to show.
-          </DialogContentText>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMore />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <Typography>Custom Tiles Explained</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography sx={{ mb: 2 }}>
+                Custom tiles let you add your own variations to the game board.
+                Utilize this dialog to add and remove tiles as you see fit.
+              </Typography>
+              <Typography sx={{ mb: 2 }}>
+                Custom tiles are added based on the kink and intensity you pick from
+                the drop down. As such, you need to have that kink and intensity
+                (or a higher intensity) selected for your custom tiles to show on the board.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
           <AddCustomTile
             setSubmitMessage={setSubmitMessage}
             addCustomTile={addCustomTile}
