@@ -55,8 +55,8 @@ function getAppendItem(appendList, currentOption, currentLevel, customDataFolder
   const [maxLevel, appendType] = appendList[currentOption].split('|');
   const chance = Math.random();
 
-  // have a chance of not appending. Some = 50/50. Most = 85/15.
-  if (appendType.endsWith('Some') && chance < 0.5) return '';
+  // have a chance of not appending. Some = 60/40. Most = 85/15.
+  if (appendType.endsWith('Some') && chance < 0.4) return '';
   if (appendType.endsWith('Most') && chance < 0.15) return '';
 
   const intensity = getIntensity(maxLevel, currentLevel);
