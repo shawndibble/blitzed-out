@@ -49,8 +49,8 @@ export default function CustomTileDialog({ setOpen, open = false }) {
           <Accordion>
             <AccordionSummary
               expandIcon={<ExpandMore />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
+              aria-controls="panel1-content"
+              id="panel1-header"
             >
               <Typography>Custom Tiles Explained</Typography>
             </AccordionSummary>
@@ -63,6 +63,42 @@ export default function CustomTileDialog({ setOpen, open = false }) {
                 Custom tiles are added based on the kink and intensity you pick from
                 the drop down. As such, you need to have that kink and intensity
                 (or a higher intensity) selected for your custom tiles to show on the board.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMore />}
+              aria-controls="panel2-content"
+              id="panel2-header"
+            >
+              <Typography>Ideas & Suggestions</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography variant="h6">Add new Activities</Typography>
+              <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                Come up with new activities that are not part of
+                the existing list
+              </Typography>
+
+              <Typography variant="h6">Add harder tiles to easier intensities</Typography>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                When you pick higher
+                intensity levels, the game will use the earlier intensity level and gradual move
+                to whatyou picked. If you want harder tiles early on, add several to lower
+                intensities.
+              </Typography>
+              <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                Example: You play Poppers - Advanced. Add advanced tiles to Poppers - Beginner
+              </Typography>
+
+              <Typography variant="h6">Combine activities into a single tile</Typography>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Combine multiple activites together in a single tile that normally would not
+                go together.
+              </Typography>
+              <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                Example: Spit roast. Use a toy in your throat and ass at the same time.
               </Typography>
             </AccordionDetails>
           </Accordion>
