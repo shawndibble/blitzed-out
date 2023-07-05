@@ -10,12 +10,10 @@ export default function ViewCustomTiles({ customTiles, setCustomTiles, boardUpda
     boardUpdated();
   }
 
-  /* eslint-disable */
-
   const tileList = customTiles
     .sort((a, b) => `${b.group} - ${b.intensity}` - `${a.group} - ${a.intensity}`)
     .map(({ group, intensity, action }, index) => (
-      <Card sx={{ my: 2 }} key={`${group}${intensity}${action}${index}`}>
+      <Card sx={{ my: 2 }} key={`${group}${intensity}${action}`}>
         <CardHeader
           title={action}
           titleTypographyProps={{ variant: 'body1' }}
