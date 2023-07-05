@@ -64,6 +64,11 @@ export default function CustomTileHelp() {
             the drop down. As such, you need to have that kink and intensity
             (or a higher intensity) selected for your custom tiles to show on the board.
           </Typography>
+          <Typography>
+            Miscellaneous tiles are the only exception to the above. Regardless of what
+            other options you pick, Miscellaneous tiles will show as their own group.
+            If you use this option, ensure that you add multiple tiles to minimize repeats.
+          </Typography>
         </AccordionDetails>
       </Accordion>
       <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
@@ -93,8 +98,14 @@ export default function CustomTileHelp() {
             Combine multiple activites together in a single tile that normally would not
             go together.
           </Typography>
-          <Typography variant="subtitle2">
+          <Typography variant="subtitle2" sx={{ mb: 2 }}>
             Example: Spit roast. Use a toy in your throat and ass at the same time.
+          </Typography>
+
+          <Typography variant="h6">Miscellaneous custom tiles</Typography>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Miscellaneous tiles allow you to add your own tiles without including other groups.
+            Be aware, you will want to add several options to this group to minimize repeats.
           </Typography>
         </AccordionDetails>
       </Accordion>

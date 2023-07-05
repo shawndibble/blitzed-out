@@ -36,8 +36,13 @@ export default function CustomTile({
 
   const options = Object.entries(dataFolder).map(([key, value]) => {
     const intensities = Object.keys(value).filter((entry) => entry !== 'None');
-    return intensities.map((intensity) => ({ title: intensity, group: camelToPascal(key) }));
+    return intensities.map((intensity) => ({
+      group: camelToPascal(key),
+      value: `${camelToPascal(key)} - ${intensity}`,
+    }));
   }).flat();
+
+  options.push({ group: 'Miscellaneous', value: 'Miscellaneous - All' });
 
   return (
     <Box
@@ -50,10 +55,10 @@ export default function CustomTile({
         id="tileOption"
         name="tileOption"
         options={options}
-        getOptionLabel={(option) => `${option.group} - ${option.title}`}
+        getOptionLabel={(option) => option.value}
         groupBy={(option) => option.group}
         renderInput={(params) => <TextField {...params} label="Group" required />}
-        isOptionEqualToValue={(option) => `${option.group} - ${option.title}`}
+        isOptionEqualToValue={(option) => option.value}
         sx={{ py: 2 }}
       />
 

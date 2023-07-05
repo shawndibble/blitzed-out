@@ -18,6 +18,8 @@ export const dataFolder = {
   titTorture,
 };
 
+const MISC = 'miscellaneous';
+
 function cycleList(list) {
   if (list.length > 1) list.push(list.shift());
 }
@@ -79,19 +81,26 @@ export function customizeBoard(settings, userCustomTiles = [], size = 40) {
   } = settings;
 
   // clone the dataFolder then add our custom tiles.
-  const customDataFolder = { ...dataFolder };
+  const customDataFolder = { ...dataFolder, [MISC]: { None: [], All: [] } };
   userCustomTiles.forEach(({ group, intensity, action }) => {
     const camelGroup = pascalToCamel(group);
     customDataFolder[camelGroup][intensity].unshift(action);
   });
 
-  // grab tile options but limit them to the customDataFolder options. (ignore all other settings)
+  const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
+
+  // grab user tile options but limit them to the customDataFolder options.
+  // (ignore all other settings)
   const tileOptions = {};
   Object.entries(otherSettings).forEach(([key, value]) => {
     if (Object.keys(customDataFolder).includes(key)) {
       tileOptions[key] = value;
     }
   });
+
+  if (hasMiscTiles) {
+    tileOptions[MISC] = 1;
+  }
 
   // If they are standalone tiles, then put them back in the rotation,
   // otherwise add them to the append list
@@ -117,6 +126,11 @@ export function customizeBoard(settings, userCustomTiles = [], size = 40) {
   // all the options where the user picked higher than 0.
   const selectedOptions = Object.keys(customDataFolder).filter((type) => tileOptions[type] > 0);
   const appendOptions = Object.keys(appendList);
+
+  // if we have a misc custom tile, add that to the selected options.
+  if (Object.keys(customDataFolder).find((key) => key === MISC)) {
+    selectedOptions.push(MISC);
+  }
 
   const customTiles = tiles.map((_, tileIndex) => {
     cycleList(selectedOptions);

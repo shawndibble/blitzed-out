@@ -10,7 +10,7 @@ import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
 
-export default function CustomTileDialog({ setOpen, open = false }) {
+export default function CustomTileDialog({ boardUpdated, setOpen, open = false }) {
   const { isMobile } = useWindowDimensions();
   const [submitMessage, setSubmitMessage] = useState({ message: '', type: 'info' });
   const [customTiles, setCustomTiles] = useLocalStorage('customTiles', []);
@@ -19,6 +19,7 @@ export default function CustomTileDialog({ setOpen, open = false }) {
     // split at dash and trim whitespace
     const [group, intensity] = category.split(/[-]+/).map((s) => s.trim());
     setCustomTiles([...customTiles, { group, intensity, action }]);
+    boardUpdated();
   };
 
   return (
@@ -55,7 +56,11 @@ export default function CustomTileDialog({ setOpen, open = false }) {
           {!!customTiles.length && (
             <>
               <Divider light sx={{ my: 2 }} />
-              <ViewCustomTiles customTiles={customTiles} setCustomTiles={setCustomTiles} />
+              <ViewCustomTiles
+                customTiles={customTiles}
+                setCustomTiles={setCustomTiles}
+                boardUpdated={boardUpdated}
+              />
             </>
           )}
         </DialogContent>

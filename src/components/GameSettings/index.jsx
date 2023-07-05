@@ -34,7 +34,10 @@ function getCustomTileCount(settings, customTiles) {
   // copy over any custom tiles that fall within our limited datafolder.
   Object.entries(settingsDataFolder).forEach(([settingGroup, intensityArray]) => {
     customTiles.forEach((entry) => {
-      if (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity)) {
+      if (
+        (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity))
+        || entry.group === 'Miscellaneous'
+      ) {
         usedCustomTiles.push(entry);
       }
     });
@@ -108,6 +111,8 @@ export default function GameSettings({ submitText, closeDialog }) {
   const handleTabChange = (_, newValue) => {
     setValue(newValue);
   };
+
+  const boardUpdated = () => updateSettings({ ...settings, boardUpdated: true });
 
   // once our data from localstorage updates, push them to the formData.
   useEffect(() => setFormData({
@@ -266,7 +271,11 @@ export default function GameSettings({ submitText, closeDialog }) {
           {submitText}
         </Button>
       </div>
-      <CustomTileDialog open={openCustomTile} setOpen={setOpenCustomTile} />
+      <CustomTileDialog
+        open={openCustomTile}
+        setOpen={setOpenCustomTile}
+        boardUpdated={boardUpdated}
+      />
       <ToastAlert open={!!alert} setOpen={setAlert}>
         {alert}
       </ToastAlert>

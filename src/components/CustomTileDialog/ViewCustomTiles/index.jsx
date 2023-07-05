@@ -1,18 +1,21 @@
 import { Delete } from '@mui/icons-material';
 import { Card, CardHeader, IconButton } from '@mui/material';
 
-export default function ViewCustomTiles({ customTiles, setCustomTiles }) {
+export default function ViewCustomTiles({ customTiles, setCustomTiles, boardUpdated }) {
   function deleteTile(index) {
     setCustomTiles([
       ...customTiles.slice(0, index),
       ...customTiles.slice(index + 1, customTiles.length),
     ]);
+    boardUpdated();
   }
+
+  /* eslint-disable */
 
   const tileList = customTiles
     .sort((a, b) => `${b.group} - ${b.intensity}` - `${a.group} - ${a.intensity}`)
     .map(({ group, intensity, action }, index) => (
-      <Card sx={{ my: 2 }} key={`${group}${intensity}${action}`}>
+      <Card sx={{ my: 2 }} key={`${group}${intensity}${action}${index}`}>
         <CardHeader
           title={action}
           titleTypographyProps={{ variant: 'body1' }}
