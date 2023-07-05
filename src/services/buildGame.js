@@ -132,9 +132,6 @@ export function customizeBoard(settings, userCustomTiles = [], size = 40) {
     selectedOptions.push(MISC);
   }
 
-  console.log(customDataFolder);
-  console.log('selected', selectedOptions);
-
   const customTiles = tiles.map((_, tileIndex) => {
     cycleList(selectedOptions);
     cycleList(appendOptions);
