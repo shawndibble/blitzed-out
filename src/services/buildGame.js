@@ -128,9 +128,12 @@ export function customizeBoard(settings, userCustomTiles = [], size = 40) {
   const appendOptions = Object.keys(appendList);
 
   // if we have a misc custom tile, add that to the selected options.
-  if (Object.keys(customDataFolder).find((key) => key === MISC)) {
+  if (hasMiscTiles) {
     selectedOptions.push(MISC);
   }
+
+  console.log(customDataFolder);
+  console.log('selected', selectedOptions);
 
   const customTiles = tiles.map((_, tileIndex) => {
     cycleList(selectedOptions);
