@@ -4,13 +4,14 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useAuth from 'hooks/useAuth';
-import { customizeBoard, dataFolder } from 'services/buildGame';
+import customizeBoard from 'services/buildGame';
 import useLocalStorage from 'hooks/useLocalStorage';
 import TabPanel from 'components/TabPanel';
 import { a11yProps, camelToPascal, pascalToCamel } from 'helpers/strings';
 import ToastAlert from 'components/ToastAlert';
 import { sendMessage } from 'services/firebase';
 import CustomTileDialog from 'components/CustomTileDialog';
+import importData from '../../helpers/json';
 import SelectBoardSetting from './SelectBoardSetting';
 import PrivateRoomToggle from './PrivateRoomToggle';
 import './styles.css';
@@ -27,6 +28,7 @@ function getCustomTileCount(settings, customTiles) {
   const usedCustomTiles = [];
   const settingsDataFolder = {};
   // restrict our datafolder to just those the user selected.
+  const dataFolder = importData('en-US', 'online');
   Object.entries(dataFolder).forEach(([key, value]) => {
     if (settings[key]) settingsDataFolder[key] = Object.keys(value).slice(1, settings[key] + 1);
   });
@@ -50,6 +52,7 @@ function getCustomTileCount(settings, customTiles) {
 function getSettingsMessage(settings, customTiles) {
   let message = '### Game Settings\r\n';
   const { poppersVariation, alcoholVariation } = settings;
+  const dataFolder = importData('en-US', 'online');
   Object.keys(dataFolder).map((val) => {
     if (settings[val] > 0) {
       const intensity = settings[val];
@@ -180,6 +183,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     }
   };
 
+  const dataFolder = importData('en-US', 'online');
   const settingSelectLists = Object.keys(dataFolder).map((option) => (
     <SelectBoardSetting
       key={option}

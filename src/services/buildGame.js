@@ -1,22 +1,6 @@
-import alcohol from '../data/alcohol.json';
-import ballBusting from '../data/ballBusting.json';
-import buttPlay from '../data/buttPlay.json';
-import gooning from '../data/gooning.json';
-import poppers from '../data/poppers.json';
-import throatTraining from '../data/throatTraining.json';
-import titTorture from '../data/titTorture.json';
 import shuffleArrayBy from '../helpers/arrays';
+import importData from '../helpers/json';
 import { camelToPascal, pascalToCamel } from '../helpers/strings';
-
-export const dataFolder = {
-  alcohol,
-  poppers,
-  gooning,
-  ballBusting,
-  buttPlay,
-  throatTraining,
-  titTorture,
-};
 
 const MISC = 'miscellaneous';
 
@@ -71,7 +55,7 @@ function getAppendItem(appendList, currentOption, currentLevel, customDataFolder
   return `${currentAppendList[0]} `;
 }
 
-export function customizeBoard(settings, userCustomTiles = [], size = 40) {
+export default function customizeBoard(settings, userCustomTiles = [], size = 40) {
   const {
     alcoholVariation,
     poppersVariation,
@@ -81,6 +65,7 @@ export function customizeBoard(settings, userCustomTiles = [], size = 40) {
   } = settings;
 
   // clone the dataFolder then add our custom tiles.
+  const dataFolder = importData('en-US', 'online');
   const customDataFolder = { ...dataFolder, [MISC]: { None: [], All: [] } };
   userCustomTiles.forEach(({ group, intensity, action }) => {
     const camelGroup = pascalToCamel(group);

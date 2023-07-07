@@ -1,9 +1,9 @@
 import {
   FormControl, InputLabel, MenuItem, Select,
 } from '@mui/material';
-import { dataFolder } from 'services/buildGame';
 import { camelToPascal } from 'helpers/strings';
 import './styles.css';
+import importData from '../../../helpers/json';
 
 export default function SelectBoardSetting({ option, settings, setSettings }) {
   const labelId = `${option}label`;
@@ -11,6 +11,7 @@ export default function SelectBoardSetting({ option, settings, setSettings }) {
   const isDualSelect = ['alcohol', 'poppers'].includes(option);
 
   function getOptions(category) {
+    const dataFolder = importData('en-US', 'online');
     return Object.keys(dataFolder[category]).map((optionVal, index) => (
       <MenuItem value={index} key={`${category}-${optionVal}`}>{optionVal}</MenuItem>
     ));
