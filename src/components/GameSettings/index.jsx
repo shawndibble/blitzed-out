@@ -51,14 +51,14 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
 function getSettingsMessage(settings, customTiles, dataFolder) {
   let message = '### Game Settings\r\n';
   const { poppersVariation, alcoholVariation } = settings;
-  Object.keys(dataFolder).map((val) => {
-    if (settings[val] > 0) {
-      const intensity = settings[val];
-      message += `* ${camelToPascal(val)}: ${Object.keys(dataFolder[val])?.[intensity]}`;
-      if (val === 'poppers') {
+  Object.entries(dataFolder).map(([key, val]) => {
+    if (settings[key] > 0) {
+      const intensity = settings[key];
+      message += `* ${val?.label}: ${Object.keys(val?.actions)?.[intensity]}`;
+      if (key === 'poppers') {
         message += ` (${camelToPascal(poppersVariation)})`;
       }
-      if (val === 'alcohol') {
+      if (key === 'alcohol') {
         message += ` (${camelToPascal(alcoholVariation)})`;
       }
       message += '\r\n';
@@ -95,7 +95,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     playerDialog: true,
     othersDialog: false,
     sound: true,
-    locale: 'en-US',
+    locale: 'en',
     gameMode: 'online',
   });
   const navigate = useNavigate();
@@ -112,7 +112,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     alcoholVariation: 'standalone',
   });
 
-  const dataFolder = importData(formData.locale, formData.gameMode);
+  const dataFolder = importData(formData?.locale, formData?.gameMode);
 
   const handleTabChange = (_, newValue) => {
     setValue(newValue);

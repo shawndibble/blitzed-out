@@ -2,18 +2,17 @@ import {
   FormControl, InputLabel, MenuItem, Select, Tooltip,
 } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import { camelToPascal } from 'helpers/strings';
 import './styles.css';
 
 export default function SelectBoardSetting({
   option, settings, setSettings, dataFolder,
 }) {
   const labelId = `${option}label`;
-  const label = camelToPascal(option);
+  const label = dataFolder[option]?.label;
   const isDualSelect = ['alcohol', 'poppers'].includes(option);
 
   function getOptions(category) {
-    return Object.keys(dataFolder[category]).map((optionVal, index) => (
+    return Object.keys(dataFolder[category]?.actions).map((optionVal, index) => (
       <MenuItem value={index} key={`${category}-${optionVal}`}>{optionVal}</MenuItem>
     ));
   }

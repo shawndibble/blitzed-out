@@ -1,5 +1,5 @@
 import shuffleArrayBy from '../helpers/arrays';
-import { camelToPascal, pascalToCamel } from '../helpers/strings';
+import { pascalToCamel } from '../helpers/strings';
 
 const MISC = 'miscellaneous';
 
@@ -64,10 +64,15 @@ export default function customizeBoard(settings, dataFolder, userCustomTiles = [
   } = settings;
 
   // clone the dataFolder then add our custom tiles.
-  const customDataFolder = { ...dataFolder, [MISC]: { None: [], All: [] } };
+  const misc = {
+    label: MISC.charAt(0).toUpperCase()
+    + MISC.slice(1),
+    actions: { None: [], All: [] },
+  };
+  const customDataFolder = { ...dataFolder, [MISC]: misc };
   userCustomTiles.forEach(({ group, intensity, action }) => {
     const camelGroup = pascalToCamel(group);
-    customDataFolder[camelGroup][intensity].unshift(action);
+    customDataFolder[camelGroup]?.actions?.[intensity].unshift(action);
   });
 
   const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
@@ -124,7 +129,7 @@ export default function customizeBoard(settings, dataFolder, userCustomTiles = [
 
     if (!currentOption) return {};
 
-    const currentList = Object.values(customDataFolder[currentOption]);
+    const currentList = Object.values(customDataFolder[currentOption]?.actions);
     const currentLevel = getCurrentLevel(tileIndex, levelBrackets);
     const intensity = getIntensity(tileOptions[currentOption], currentLevel);
     const currentActivityList = currentList[intensity];
@@ -136,7 +141,7 @@ export default function customizeBoard(settings, dataFolder, userCustomTiles = [
     cycleList(currentActivityList);
 
     return {
-      title: camelToPascal(currentOption),
+      title: customDataFolder[currentOption].label,
       description,
       currentLevel,
     };

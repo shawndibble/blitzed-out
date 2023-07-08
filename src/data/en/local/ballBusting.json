@@ -1,0 +1,52 @@
+{   
+    "label": "Ball Busting",
+    "actions": {
+        "None": [],
+        "Slap/Squeeze": [
+            "Massage balls.",
+            "2 ball slaps to yourself.",
+            "10 light ball pats from another player.",
+            "squeeze your balls for 15s.",
+            "3 ball slaps from another player.",
+            "Stretch your balls for 15s.",
+            "Have your balls flicked for 10s.",
+            "Squeeze balls until next turn.",
+            "Squeeze balls for 10s.",
+            "Quickly slap your balls for 15 seconds.",
+            "Light slap after anyone rolls.",
+            "5 ball slaps from another player.",
+            "Hold breath 10s while receiving ball slaps.",
+            "Receive ball massages for 15s."
+        ],
+        "Punch/Crush": [
+            "Receive 2 ball punches.",
+            "Crush your balls.",
+            "4 ball punches.",
+            "Ball punches for 10 seconds.",
+            "Get 1 hard ball slap.",
+            "Receive 5 ball slaps",
+            "Give yourself 1 hard ball slap.",
+            "Crush your balls until next turn.",
+            "Receive 4 hard ball slaps.",
+            "Get kneed in the balls."
+        ],
+        "Use Item": [
+            "Punch balls.",
+            "Crush balls with item.",
+            "Ball slaps for 15s.",
+            "5 hard ball slaps",
+            "Ball punch after anyone rolls",
+            "2 ball slaps with item",
+            "20s ball hits.",
+            "Crush balls with item",
+            "15s quick ball hits with item"
+        ],
+        "As Hard As Possible": [
+            "Receive 5 hardest ball hits with an item.",
+            "Give yourself 5 hardest ball punches",
+            "Crush balls as hard as you can.",
+            "Receive 20s hard ball hits with item.",
+            "Have someone pull your balls hard for 20s."
+        ]
+    }
+}
