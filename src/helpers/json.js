@@ -7,7 +7,7 @@ export default function importData(lang = 'en-US', type = 'online') {
 
   context.keys().forEach((key) => {
     if ([lang, type, 'data'].every((entry) => key.includes(entry))) {
-      // get the filename without the extension
+      // get the filename without the extension nor the path.
       const fileName = key.replace(/^.*([\\/:])/, '').replace('.json', '');
       obj[fileName] = context(key);
     }
