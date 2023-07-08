@@ -1,5 +1,6 @@
+import { Help } from '@mui/icons-material';
 import {
-  Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField,
+  Box, Button, Divider, FormControlLabel, Stack, Switch, Tab, Tabs, TextField, Tooltip, Typography,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -221,6 +222,38 @@ export default function GameSettings({ submitText, closeDialog }) {
           <Tab label="Application" {...a11yProps(1)} />
         </Tabs>
       </Box>
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        justifyContent="center"
+        sx={{ mt: 1 }}
+      >
+        <Typography>Solo</Typography>
+        <Tooltip
+          title={<Typography variant="subtitle2">Playing online alone</Typography>}
+          arrow
+        >
+          <Help sx={{ fontSize: 15 }} />
+        </Tooltip>
+        <Switch
+          id="gameMode"
+          checked={formData.gameMode === 'local'}
+          onChange={(event) => setFormData({
+            ...formData, gameMode: event.target.checked ? 'local' : 'online',
+          })}
+          inputProps={{ 'aria-label': 'Game Type' }}
+        />
+        <Typography>
+          Local Party
+        </Typography>
+        <Tooltip
+          title={<Typography variant="subtitle2">Playing with other people in person</Typography>}
+          arrow
+        >
+          <Help sx={{ fontSize: 15 }} />
+        </Tooltip>
+      </Stack>
       <TabPanel value={value} index={0} style={{ p: 0 }}>
         {settingSelectLists}
       </TabPanel>

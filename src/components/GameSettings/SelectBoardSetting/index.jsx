@@ -1,6 +1,7 @@
 import {
-  FormControl, InputLabel, MenuItem, Select,
+  FormControl, InputLabel, MenuItem, Select, Tooltip,
 } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import { camelToPascal } from 'helpers/strings';
 import './styles.css';
 
@@ -36,20 +37,32 @@ export default function SelectBoardSetting({
         </Select>
       </FormControl>
       {!!isDualSelect && (
-        <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
-          <InputLabel id={`${labelId}Variation`}>{`${label} Variation`}</InputLabel>
-          <Select
-            labelId={`${labelId}Variation`}
-            id={`${option}Variation`}
-            label={`${label} Variation`}
-            value={settings[`${option}Variation`] || 'standalone'}
-            onChange={(event) => handleChange(event, `${option}Variation`)}
-          >
-            <MenuItem value="standalone">Standalone Tile</MenuItem>
-            <MenuItem value="appendSome">Append Some Tiles</MenuItem>
-            <MenuItem value="appendMost">Append Most Tiles</MenuItem>
-          </Select>
-        </FormControl>
+        <Tooltip
+          placement="top"
+          title={(
+            <>
+              <Typography variant="subtitle2">Standalone = Its own tile. </Typography>
+              <Typography variant="subtitle2">Append Some = Add to 50% of the tiles.</Typography>
+              <Typography variant="subtitle2">Append Most = Add to 90% of the tiles.</Typography>
+            </>
+          )}
+          arrow
+        >
+          <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
+            <InputLabel id={`${labelId}Variation`}>{`${label} Variation`}</InputLabel>
+            <Select
+              labelId={`${labelId}Variation`}
+              id={`${option}Variation`}
+              label={`${label} Variation`}
+              value={settings[`${option}Variation`] || 'standalone'}
+              onChange={(event) => handleChange(event, `${option}Variation`)}
+            >
+              <MenuItem value="standalone">Standalone Tile</MenuItem>
+              <MenuItem value="appendSome">Append Some Tiles</MenuItem>
+              <MenuItem value="appendMost">Append Most Tiles</MenuItem>
+            </Select>
+          </FormControl>
+        </Tooltip>
       )}
     </div>
   );
