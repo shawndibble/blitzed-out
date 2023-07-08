@@ -17,9 +17,9 @@ export default function GameBoard({ playerList }) {
   function importGameBoard() {
     // if we aren't importing, then just load the local gameboard.
     if (!importBoard) setGameBoard(localGameBoard);
-    // grab the message by its id (importboard value)
+    // grab the message by its id (import board value)
     const importMessage = messages.find((m) => m.id === importBoard);
-    // no gameboard? we are done.
+    // no game board? we are done.
     if (!importMessage?.gameBoard) return;
     // convert that string to JSON (array of objects)
     const importedGameBoard = JSON.parse(importMessage.gameBoard);

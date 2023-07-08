@@ -4,10 +4,9 @@ import {
 import { camelToPascal } from 'helpers/strings';
 import { submitCustomAction } from 'services/firebase';
 import { useRef } from 'react';
-import importData from '../../../helpers/json';
 
 export default function CustomTile({
-  setSubmitMessage, addCustomTile, customTiles,
+  setSubmitMessage, addCustomTile, customTiles, dataFolder,
 }) {
   const formData = useRef();
 
@@ -34,7 +33,6 @@ export default function CustomTile({
     return setSubmitMessage({ message: 'Custom tile added to your local game.', type: 'success' });
   }
 
-  const dataFolder = importData('en-US', 'online');
   const options = Object.entries(dataFolder).map(([key, value]) => {
     const intensities = Object.keys(value).filter((entry) => entry !== 'None');
     return intensities.map((intensity) => ({

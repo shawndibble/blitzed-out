@@ -10,7 +10,9 @@ import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
 
-export default function CustomTileDialog({ boardUpdated, setOpen, open = false }) {
+export default function CustomTileDialog({
+  boardUpdated, dataFolder, setOpen, open = false,
+}) {
   const { isMobile } = useWindowDimensions();
   const [submitMessage, setSubmitMessage] = useState({ message: '', type: 'info' });
   const [customTiles, setCustomTiles] = useLocalStorage('customTiles', []);
@@ -51,6 +53,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
             setSubmitMessage={setSubmitMessage}
             addCustomTile={addCustomTile}
             customTiles={customTiles}
+            dataFolder={dataFolder}
           />
 
           {!!customTiles.length && (

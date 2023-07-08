@@ -24,11 +24,10 @@ function isAppending(option, variationOption) {
   return option > 0 && variationOption?.startsWith('append');
 }
 
-function getCustomTileCount(settings, customTiles) {
+function getCustomTileCount(settings, customTiles, dataFolder) {
   const usedCustomTiles = [];
   const settingsDataFolder = {};
   // restrict our datafolder to just those the user selected.
-  const dataFolder = importData('en-US', 'online');
   Object.entries(dataFolder).forEach(([key, value]) => {
     if (settings[key]) settingsDataFolder[key] = Object.keys(value).slice(1, settings[key] + 1);
   });
@@ -49,10 +48,9 @@ function getCustomTileCount(settings, customTiles) {
   return usedCustomTiles.length;
 }
 
-function getSettingsMessage(settings, customTiles) {
+function getSettingsMessage(settings, customTiles, dataFolder) {
   let message = '### Game Settings\r\n';
   const { poppersVariation, alcoholVariation } = settings;
-  const dataFolder = importData('en-US', 'online');
   Object.keys(dataFolder).map((val) => {
     if (settings[val] > 0) {
       const intensity = settings[val];
@@ -68,7 +66,7 @@ function getSettingsMessage(settings, customTiles) {
     return undefined;
   });
 
-  const customTileCount = getCustomTileCount(settings, customTiles);
+  const customTileCount = getCustomTileCount(settings, customTiles, dataFolder);
   if (customTileCount) {
     message += `* Custom Tiles: ${customTileCount} \r\n`;
   }
@@ -97,6 +95,8 @@ export default function GameSettings({ submitText, closeDialog }) {
     playerDialog: true,
     othersDialog: false,
     sound: true,
+    locale: 'en-US',
+    gameMode: 'online',
   });
   const navigate = useNavigate();
 
@@ -110,6 +110,8 @@ export default function GameSettings({ submitText, closeDialog }) {
     poppersVariation: 'standalone',
     alcoholVariation: 'standalone',
   });
+
+  const dataFolder = importData(formData.locale, formData.gameMode);
 
   const handleTabChange = (_, newValue) => {
     setValue(newValue);
@@ -150,16 +152,16 @@ export default function GameSettings({ submitText, closeDialog }) {
       updatedUser = user ? await updateUser(displayName) : await login(displayName);
     }
 
-    const newBoard = customizeBoard(gameOptions, customTiles);
+    const newBoard = customizeBoard(gameOptions, dataFolder, customTiles);
     // if our board updated, then push those changes out.
     if (formData.boardUpdated) await updateBoard(newBoard);
 
-    // if our board updated or we changed rooms, send out that message.
+    // if our board updated, or we changed rooms, send out that message.
     if (formData.boardUpdated || room !== formData.room) {
       sendMessage({
         room: formData.room || 'public',
         user: updatedUser,
-        text: getSettingsMessage(formData, customTiles),
+        text: getSettingsMessage(formData, customTiles, dataFolder),
         type: 'settings',
         gameBoard: JSON.stringify(newBoard),
         settings: JSON.stringify(exportSettings(formData)),
@@ -183,13 +185,13 @@ export default function GameSettings({ submitText, closeDialog }) {
     }
   };
 
-  const dataFolder = importData('en-US', 'online');
   const settingSelectLists = Object.keys(dataFolder).map((option) => (
     <SelectBoardSetting
       key={option}
       option={option}
       settings={formData}
       setSettings={setFormData}
+      dataFolder={dataFolder}
     />
   ));
 
@@ -279,6 +281,7 @@ export default function GameSettings({ submitText, closeDialog }) {
         open={openCustomTile}
         setOpen={setOpenCustomTile}
         boardUpdated={boardUpdated}
+        dataFolder={dataFolder}
       />
       <ToastAlert open={!!alert} setOpen={setAlert}>
         {alert}
