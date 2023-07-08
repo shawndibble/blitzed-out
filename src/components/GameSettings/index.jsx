@@ -4,84 +4,19 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useAuth from 'hooks/useAuth';
-import customizeBoard from 'services/buildGame';
 import useLocalStorage from 'hooks/useLocalStorage';
 import TabPanel from 'components/TabPanel';
-import { a11yProps, camelToPascal, pascalToCamel } from 'helpers/strings';
+import { a11yProps } from 'helpers/strings';
 import ToastAlert from 'components/ToastAlert';
-import { sendMessage } from 'services/firebase';
 import CustomTileDialog from 'components/CustomTileDialog';
-import importData from '../../helpers/json';
+import importData from 'helpers/json';
+import { sendMessage } from 'services/firebase';
 import SelectBoardSetting from './SelectBoardSetting';
 import PrivateRoomToggle from './PrivateRoomToggle';
+import {
+  handleUser, handleBoardUpdate, validateFormData, getSettingsMessage, exportSettings,
+} from './submitForm';
 import './styles.css';
-
-function hasSomethingPicked(object) {
-  return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
-}
-
-function isAppending(option, variationOption) {
-  return option > 0 && variationOption?.startsWith('append');
-}
-
-function getCustomTileCount(settings, customTiles, dataFolder) {
-  const usedCustomTiles = [];
-  const settingsDataFolder = {};
-  // restrict our datafolder to just those the user selected.
-  Object.entries(dataFolder).forEach(([key, value]) => {
-    if (settings[key]) settingsDataFolder[key] = Object.keys(value).slice(1, settings[key] + 1);
-  });
-
-  // copy over any custom tiles that fall within our limited datafolder.
-  Object.entries(settingsDataFolder).forEach(([settingGroup, intensityArray]) => {
-    customTiles.forEach((entry) => {
-      if (
-        (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity))
-        || entry.group === 'Miscellaneous'
-      ) {
-        usedCustomTiles.push(entry);
-      }
-    });
-  });
-
-  // return the count of custom tiles that were actually used in the game board.
-  return usedCustomTiles.length;
-}
-
-function getSettingsMessage(settings, customTiles, dataFolder) {
-  let message = '### Game Settings\r\n';
-  const { poppersVariation, alcoholVariation } = settings;
-  Object.entries(dataFolder).map(([key, val]) => {
-    if (settings[key] > 0) {
-      const intensity = settings[key];
-      message += `* ${val?.label}: ${Object.keys(val?.actions)?.[intensity]}`;
-      if (key === 'poppers') {
-        message += ` (${camelToPascal(poppersVariation)})`;
-      }
-      if (key === 'alcohol') {
-        message += ` (${camelToPascal(alcoholVariation)})`;
-      }
-      message += '\r\n';
-    }
-    return undefined;
-  });
-
-  const customTileCount = getCustomTileCount(settings, customTiles, dataFolder);
-  if (customTileCount) {
-    message += `* Custom Tiles: ${customTileCount} \r\n`;
-  }
-
-  return message;
-}
-
-function exportSettings(formData) {
-  const newSettings = {};
-  Object.entries(formData).forEach(([settingKey, settingValue]) => {
-    const personalSettings = ['boardUpdated', 'playerDialog', 'sound', 'displayName', 'othersDialog', 'room'];
-    if (!personalSettings.includes(settingKey)) newSettings[settingKey] = settingValue;
-  });
-  return newSettings;
-}
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
@@ -133,53 +68,28 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     const { displayName, ...gameOptions } = formData;
 
-    if (!hasSomethingPicked(gameOptions)) {
-      return setAlert('you need to pick at lease something');
-    }
+    validateFormData(gameOptions, setAlert);
+    const updatedUser = await handleUser(user, displayName, updateUser, login);
 
-    const { poppers, alcohol, ...actionItems } = { ...gameOptions };
-
-    if (
-      (
-        isAppending(poppers, gameOptions.poppersVariation)
-        || isAppending(alcohol, gameOptions.alcoholVariation)
-      )
-      && !hasSomethingPicked(actionItems)) {
-      return setAlert('If you are going to append, you need an action.');
-    }
-
-    let updatedUser;
-    if (displayName !== undefined && displayName.length > 0) {
-      updatedUser = user ? await updateUser(displayName) : await login(displayName);
-    }
-
-    let updatedDataFolder = { ...dataFolder };
-    let settingsBoardUpdated = formData.boardUpdated;
-    let { gameMode } = formData;
-    if ((!formData.room || formData.room === 'public') && formData.gameMode === 'local') {
-      gameMode = 'online';
-      // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
-      updatedDataFolder = importData(formData.locale, gameMode);
-      settingsBoardUpdated = true;
-    }
-
-    const newBoard = customizeBoard(gameOptions, updatedDataFolder, customTiles);
-    // if our board updated, then push those changes out.
-    if (settingsBoardUpdated) await updateBoard(newBoard);
+    const { settingsBoardUpdated, newBoard } = await handleBoardUpdate({
+      formData,
+      dataFolder,
+      updateBoard,
+      customTiles,
+      updateSettings,
+    });
 
     // if our board updated, or we changed rooms, send out that message.
     if (settingsBoardUpdated || room !== formData.room) {
       sendMessage({
         room: formData.room || 'public',
         user: updatedUser,
-        text: getSettingsMessage(formData, customTiles, updatedDataFolder),
+        text: getSettingsMessage(formData, customTiles, dataFolder),
         type: 'settings',
         gameBoard: JSON.stringify(newBoard),
         settings: JSON.stringify(exportSettings(formData)),
       });
     }
-
-    updateSettings({ ...formData, boardUpdated: false, gameMode });
 
     const privatePath = formData.room ? `/rooms/${formData.room}` : '/';
     navigate(privatePath);
