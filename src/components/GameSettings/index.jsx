@@ -1,6 +1,5 @@
-import { Help } from '@mui/icons-material';
 import {
-  Box, Button, Divider, FormControlLabel, Stack, Switch, Tab, Tabs, TextField, Tooltip, Typography,
+  Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -107,6 +106,7 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   // set the variations to standalone by default.
   // useEffect will override this if needed.
+  // separate from updateSettings as we don't write to localStorage here.
   const [formData, setFormData] = useState({
     poppersVariation: 'standalone',
     alcoholVariation: 'standalone',
@@ -153,23 +153,33 @@ export default function GameSettings({ submitText, closeDialog }) {
       updatedUser = user ? await updateUser(displayName) : await login(displayName);
     }
 
-    const newBoard = customizeBoard(gameOptions, dataFolder, customTiles);
+    let updatedDataFolder = { ...dataFolder };
+    let settingsBoardUpdated = formData.boardUpdated;
+    let { gameMode } = formData;
+    if ((!formData.room || formData.room === 'public') && formData.gameMode === 'local') {
+      gameMode = 'online';
+      // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
+      updatedDataFolder = importData(formData.locale, gameMode);
+      settingsBoardUpdated = true;
+    }
+
+    const newBoard = customizeBoard(gameOptions, updatedDataFolder, customTiles);
     // if our board updated, then push those changes out.
-    if (formData.boardUpdated) await updateBoard(newBoard);
+    if (settingsBoardUpdated) await updateBoard(newBoard);
 
     // if our board updated, or we changed rooms, send out that message.
-    if (formData.boardUpdated || room !== formData.room) {
+    if (settingsBoardUpdated || room !== formData.room) {
       sendMessage({
         room: formData.room || 'public',
         user: updatedUser,
-        text: getSettingsMessage(formData, customTiles, dataFolder),
+        text: getSettingsMessage(formData, customTiles, updatedDataFolder),
         type: 'settings',
         gameBoard: JSON.stringify(newBoard),
         settings: JSON.stringify(exportSettings(formData)),
       });
     }
 
-    updateSettings({ ...formData, boardUpdated: false });
+    updateSettings({ ...formData, boardUpdated: false, gameMode });
 
     const privatePath = formData.room ? `/rooms/${formData.room}` : '/';
     navigate(privatePath);
@@ -222,38 +232,6 @@ export default function GameSettings({ submitText, closeDialog }) {
           <Tab label="Application" {...a11yProps(1)} />
         </Tabs>
       </Box>
-      <Stack
-        direction="row"
-        spacing={1}
-        alignItems="center"
-        justifyContent="center"
-        sx={{ mt: 1 }}
-      >
-        <Typography>Solo</Typography>
-        <Tooltip
-          title={<Typography variant="subtitle2">Playing online alone</Typography>}
-          arrow
-        >
-          <Help sx={{ fontSize: 15 }} />
-        </Tooltip>
-        <Switch
-          id="gameMode"
-          checked={formData.gameMode === 'local'}
-          onChange={(event) => setFormData({
-            ...formData, gameMode: event.target.checked ? 'local' : 'online',
-          })}
-          inputProps={{ 'aria-label': 'Game Type' }}
-        />
-        <Typography>
-          Local Party
-        </Typography>
-        <Tooltip
-          title={<Typography variant="subtitle2">Playing with other people in person</Typography>}
-          arrow
-        >
-          <Help sx={{ fontSize: 15 }} />
-        </Tooltip>
-      </Stack>
       <TabPanel value={value} index={0} style={{ p: 0 }}>
         {settingSelectLists}
       </TabPanel>

@@ -27,6 +27,12 @@ export default function GameGuide() {
         Utilize custom tiles to make make the game even more your own.
       </Typography>
 
+      <Typography variant="body1" mt={2}>
+        Playing in the same room with a partner or friends?
+        Go to a private room and enable Local Party mode.
+        Note: If you do not want to interact with those in the room, choose Solo.
+      </Typography>
+
       <Typography variant="body1" mt={4}>
         See a Bug or have feedback/suggestions? Share it on our
         {' '}

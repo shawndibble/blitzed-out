@@ -1,5 +1,6 @@
+import { Help } from '@mui/icons-material';
 import {
-  Box, Stack, Switch, TextField, Typography,
+  Box, Stack, Switch, TextField, Tooltip, Typography,
 } from '@mui/material';
 import { customAlphabet } from 'nanoid';
 import { useParams } from 'react-router-dom';
@@ -19,12 +20,9 @@ export default function PrivateRoomToggle({ formData, setFormData }) {
   };
 
   const togglePrivateRoomField = (event) => {
-    const toggleVal = event.target.checked;
-    let roomId = formData?.room;
-
     // toggleVal === true, we want a private room, so get the one in the URL or generate one.
     // toggleVal === false, we want the public room.
-    roomId = toggleVal
+    const roomId = event.target.checked
       ? room || customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)()
       : null;
 
@@ -45,15 +43,49 @@ export default function PrivateRoomToggle({ formData, setFormData }) {
       </Stack>
 
       {!!formData.room && (
-        <TextField
-          fullWidth
-          id="privateRoom"
-          label="Private Room"
-          defaultValue={formData.room}
-          margin="normal"
-          onBlur={(event) => handleChange(event)}
-          onKeyDown={(event) => handleKeyDown(event)}
-        />
+        <>
+          <TextField
+            fullWidth
+            id="privateRoom"
+            label="Private Room"
+            defaultValue={formData.room}
+            margin="normal"
+            onBlur={(event) => handleChange(event)}
+            onKeyDown={(event) => handleKeyDown(event)}
+          />
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            justifyContent="center"
+            sx={{ mt: 1 }}
+          >
+            <Typography>Solo</Typography>
+            <Tooltip
+              title={<Typography variant="subtitle2">Play with yourself</Typography>}
+              arrow
+            >
+              <Help sx={{ fontSize: 15 }} />
+            </Tooltip>
+            <Switch
+              id="gameMode"
+              checked={formData.gameMode === 'local'}
+              onChange={(event) => setFormData({
+                ...formData, gameMode: event.target.checked ? 'local' : 'online',
+              })}
+              inputProps={{ 'aria-label': 'Game Type' }}
+            />
+            <Typography>
+              Local Party
+            </Typography>
+            <Tooltip
+              title={<Typography variant="subtitle2">Playing with other people in person</Typography>}
+              arrow
+            >
+              <Help sx={{ fontSize: 15 }} />
+            </Tooltip>
+          </Stack>
+        </>
       )}
     </Box>
   );
