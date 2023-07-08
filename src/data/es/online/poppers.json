@@ -1,0 +1,38 @@
+{   
+    "label": "Poppers",
+    "actions": {
+        "None": [],
+        "Principiante": [
+            "1 inhalación.",
+            "2 inhalaciones.",
+            "1 inhalación profunda.",
+            "2 inhalaciones.",
+            "3 inhalaciones.",
+            "1 inhalación en cada fosa nasal.",
+            "2 inhalaciones profundas.",
+            "1 inhalación.",
+            "2 inhalaciones rápidas."
+        ],
+        "Intermedio": [
+            "3 inhalaciones.",
+            "4 inhalaciones.",
+            "2 inhalaciones por fosa nasal.",
+            "1 inhalación en la boca.",
+            "Inhalación en la boca durante 5 segundos.",
+            "4 inhalaciones.",
+            "Inhala durante 5 segundos. Sostén durante 5 segundos.",
+            "5 inhalaciones rápidas."
+        ],
+        "Avanzado": [
+            "Inhalación de 10 segundos y retén el aire.",
+            "4 inhalaciones en la boca.",
+            "Inhala y retén el aire todo el tiempo que puedas.",
+            "Respira con un pañuelo/máscara de poppers durante 15 segundos.",
+            "8 inhalaciones.",
+            "4 inhalaciones en la boca.",
+            "6 inhalaciones profundas.",
+            "5 inhalaciones en cada lado.",
+            "Inhalación de 8 segundos y retén el aire."
+        ]
+    }
+}

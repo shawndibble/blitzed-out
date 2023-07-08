@@ -1,0 +1,51 @@
+{
+    "label": "Golpe en los testículos",
+    "actions": {
+        "None": [],
+        "Golpear/Apresar": [
+            "Masajear los testículos.",
+            "2 golpes en los testículos.",
+            "10 palmaditas suaves en los testículos.",
+            "apretar los testículos durante 15 segundos.",
+            "3 golpes en los testículos.",
+            "Estirar los testículos durante 15 segundos.",
+            "Golpear los testículos con los dedos durante 10 segundos.",
+            "Apretar los testículos hasta el próximo turno.",
+            "Apretar los testículos durante 10 segundos.",
+            "Golpes rápidos en los testículos durante 15 segundos.",
+            "Golpe suave después de que alguien tire los dados.",
+            "5 golpes en los testículos.",
+            "Mantener la respiración durante 10 segundos mientras se golpean los testículos.",
+            "Golpes en los testículos.",
+            "Masajear los testículos durante 15 segundos."
+        ],
+        "Puñetazo/Aplastar": [
+            "2 puñetazos en los testículos.",
+            "Aplastar los testículos.",
+            "4 puñetazos en los testículos.",
+            "Puñetazos en los testículos durante 10 segundos.",
+            "1 fuerte golpe en los testículos.",
+            "5 golpes en los testículos.",
+            "Aplastar los testículos hasta el próximo turno.",
+            "4 fuertes golpes en los testículos."
+        ],
+        "Usar objeto": [
+            "Golpear los testículos.",
+            "Aplastar los testículos con un objeto.",
+            "Golpes en los testículos durante 15 segundos.",
+            "5 golpes fuertes en los testículos.",
+            "Golpear los testículos después de que alguien tire los dados.",
+            "2 golpes en los testículos con un objeto.",
+            "Golpes en los testículos durante 20 segundos.",
+            "Aplastar los testículos con un objeto.",
+            "Golpes rápidos en los testículos durante 15 segundos con un objeto."
+        ],
+        "Lo más fuerte posible": [
+            "5 golpes más fuertes en los testículos con un objeto.",
+            "5 puñetazos más fuertes en los testículos.",
+            "Aplastar los testículos con toda tu fuerza.",
+            "Golpes fuertes en los testículos durante 20 segundos con un objeto.",
+            "Tirar fuertemente de los testículos durante 20 segundos."
+        ]
+    }
+}

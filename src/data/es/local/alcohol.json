@@ -1,0 +1,28 @@
+{   
+    "label": "Alcohol",
+    "actions": {
+        "None": [],
+        "Beber": [
+            "Toma un sorbo de tu bebida.",
+            "Toma una copa.",
+            "Toma 2 sorbos.",
+            "Da un sorbo.",
+            "Toma una copa."
+        ],
+        "Tiros": [
+            "1 chupito.",
+            "Toma 2 copas.",
+            "Da 1 chupito.",
+            "Todos beben.",
+            "Toma una copa."
+        ],
+        "Resoplar": [
+            "Bebe la mitad de tu bebida.",
+            "Bebe de un solo trago tu bebida.",
+            "Toma una copa.",
+            "Toma 2 chupitos.",
+            "Haz que alguien se beba su bebida de un trago.",
+            "Da una bebida."
+        ]
+    }
+}
