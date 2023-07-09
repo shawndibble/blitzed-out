@@ -3,13 +3,14 @@ import {
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import useAuth from 'hooks/useAuth';
-import useLocalStorage from 'hooks/useLocalStorage';
+import { Trans, useTranslation } from 'react-i18next';
 import TabPanel from 'components/TabPanel';
-import { a11yProps } from 'helpers/strings';
 import ToastAlert from 'components/ToastAlert';
 import CustomTileDialog from 'components/CustomTileDialog';
-import importData from 'helpers/json';
+import { a11yProps } from 'helpers/strings';
+import useAuth from 'hooks/useAuth';
+import useLocalStorage from 'hooks/useLocalStorage';
+import { importActions } from 'services/importLocales';
 import { sendMessage } from 'services/firebase';
 import SelectBoardSetting from './SelectBoardSetting';
 import PrivateRoomToggle from './PrivateRoomToggle';
@@ -17,10 +18,12 @@ import {
   handleUser, handleBoardUpdate, validateFormData, getSettingsMessage, exportSettings,
 } from './submitForm';
 import './styles.css';
+import LanguageSelect from './LanguageSelect';
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
   const { id: room } = useParams();
+  const { t, i18n } = useTranslation();
   const updateBoard = useLocalStorage('customBoard')[1];
   const customTiles = useLocalStorage('customTiles', [])[0];
 
@@ -37,6 +40,7 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   const [value, setValue] = useState(0);
   const [alert, setAlert] = useState(null);
+  const [dataFolder, setDataFolder] = useState({});
   const [openCustomTile, setOpenCustomTile] = useState(false);
 
   // set the variations to standalone by default.
@@ -47,7 +51,9 @@ export default function GameSettings({ submitText, closeDialog }) {
     alcoholVariation: 'standalone',
   });
 
-  const dataFolder = importData(formData?.locale, formData?.gameMode);
+  useEffect(() => {
+    setDataFolder(importActions(i18n.resolvedLanguage, formData?.gameMode));
+  }, [i18n.resolvedLanguage, formData?.gameMode]);
 
   const handleTabChange = (_, newValue) => {
     setValue(newValue);
@@ -127,7 +133,7 @@ export default function GameSettings({ submitText, closeDialog }) {
       <TextField
         fullWidth
         id="displayName"
-        label="Display Name"
+        label={t('displayName')}
         defaultValue={user?.displayName}
         required
         autoFocus
@@ -138,14 +144,17 @@ export default function GameSettings({ submitText, closeDialog }) {
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleTabChange} aria-label="Game Settings" centered>
-          <Tab label="Gameboard" {...a11yProps(0)} />
-          <Tab label="Application" {...a11yProps(1)} />
+          <Tab label={t('gameboard')} {...a11yProps(0)} />
+          <Tab label={t('application')} {...a11yProps(1)} />
         </Tabs>
       </Box>
+
       <TabPanel value={value} index={0} style={{ p: 0 }}>
         {settingSelectLists}
       </TabPanel>
+
       <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
+        <LanguageSelect boardUpdated={boardUpdated} />
         <PrivateRoomToggle formData={formData} setFormData={setFormData} />
         <Divider />
         <FormControlLabel
@@ -157,7 +166,7 @@ export default function GameSettings({ submitText, closeDialog }) {
               })}
             />
           )}
-          label="Show my roll dialog"
+          label={t('myRollDialog')}
           labelPlacement="start"
           className="settings-switch"
         />
@@ -171,7 +180,7 @@ export default function GameSettings({ submitText, closeDialog }) {
               })}
             />
           )}
-          label="Show other's roll dialog"
+          label={t('othersRollDialog')}
           labelPlacement="start"
           className="settings-switch"
         />
@@ -183,7 +192,7 @@ export default function GameSettings({ submitText, closeDialog }) {
               onChange={(event) => setFormData({ ...formData, sound: event.target.checked })}
             />
           )}
-          label="Play sound on roll"
+          label={t('sound')}
           labelPlacement="start"
           className="settings-switch"
         />
@@ -192,7 +201,9 @@ export default function GameSettings({ submitText, closeDialog }) {
 
       <div className="flex-buttons">
         <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
-          Custom Tiles
+          <Trans i18nKey="customTiles">
+            Custom Tiles
+          </Trans>
         </Button>
         <Button variant="contained" type="submit">
           {submitText}
