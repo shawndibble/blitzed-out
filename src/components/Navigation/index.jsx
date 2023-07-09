@@ -2,15 +2,18 @@ import { forwardRef } from 'react';
 import {
   AppBar, Box, Toolbar, Tooltip, Typography,
 } from '@mui/material';
+import { Trans, useTranslation } from 'react-i18next';
 import Logo from 'images/blitzed-out.webp';
 import './styles.css';
 import PlayersOnline from './PlayersOnline';
 import MenuDrawer from './MenuDrawer';
 
 export default function Navigation({ room, playerList = [] }) {
+  const { t } = useTranslation();
+
   const playersOnlineTooltip = (
     <>
-      <Typography variant="h6">Players Online</Typography>
+      <Typography variant="h6"><Trans i18nKey="online" /></Typography>
       <ul>
         {playerList.map((player) => (
           <li key={player.uid}>
@@ -30,7 +33,7 @@ export default function Navigation({ room, playerList = [] }) {
         </div>
         <div>
           <div className="nav-room-name">
-            <h2>{room === 'public' || room === undefined ? 'Public Room' : `Room: ${room}`}</h2>
+            <h2>{room === 'public' || room === undefined ? t('public') : t('room', { room })}</h2>
             <Tooltip title={playersOnlineTooltip}>
               <WrapPlayersOnline playerList={playerList} />
             </Tooltip>

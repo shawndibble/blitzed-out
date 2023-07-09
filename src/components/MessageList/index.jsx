@@ -16,6 +16,7 @@ import diceSound from 'sounds/roll-dice.mp3';
 import messageSound from 'sounds/message.mp3';
 import { a11yProps } from 'helpers/strings';
 import './styles.css';
+import { Trans, useTranslation } from 'react-i18next';
 
 export default function MessageList({ room }) {
   const containerRef = React.useRef(null);
@@ -27,6 +28,7 @@ export default function MessageList({ room }) {
   const [popupMessage, setPopupMessage] = useState(false);
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
+  const { t } = useTranslation();
 
   const filterMessages = (tabId) => setMessages(messages.filter((m) => {
     if (tabId === 1) return m.type === 'settings';
@@ -73,10 +75,10 @@ export default function MessageList({ room }) {
     <div className="message-list-container" ref={containerRef}>
       <AppBar position="sticky">
         <Tabs variant="fullWidth" value={currentTab} onChange={handleChange} aria-label="chat filter" className="message-tabs">
-          <Tab label="All" {...a11yProps('all')} />
-          <Tab label="Setting" {...a11yProps('settings')} />
-          <Tab label="Chat" {...a11yProps('chat')} />
-          <Tab label="Actions" {...a11yProps('actions')} />
+          <Tab label={t('all')} {...a11yProps('all')} />
+          <Tab label={t('setting')} {...a11yProps('settings')} />
+          <Tab label={t('chat')} {...a11yProps('chat')} />
+          <Tab label={t('actions')} {...a11yProps('actions')} />
         </Tabs>
       </AppBar>
       <ul className="message-list">
@@ -120,7 +122,7 @@ function Message({ message, isOwnMessage }) {
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {text}
         </ReactMarkdown>
-        {type === 'settings' && (<Link to={`?importBoard=${id}`}>Import this board</Link>)}
+        {type === 'settings' && (<Link to={`?importBoard=${id}`}><Trans i18nKey="importBoard" /></Link>)}
       </div>
     </li>
   );

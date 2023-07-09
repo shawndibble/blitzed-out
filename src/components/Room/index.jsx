@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Box, Fab } from '@mui/material';
 import { Casino } from '@mui/icons-material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import MessageInput from 'components/MessageInput';
 import MessageList from 'components/MessageList';
 import GameBoard from 'components/GameBoard';
@@ -13,6 +14,7 @@ import BottomTabs from './BottomTabs';
 import './styles.css';
 
 export default function Room() {
+  const { t } = useTranslation();
   const params = useParams();
   const room = params.id ?? 'public';
 
@@ -37,14 +39,14 @@ export default function Room() {
       <Fab
         variant="extended"
         size="medium"
-        aria-label="roll"
+        aria-label={t('roll')}
         onClick={() => roll()}
         className="dice-roller"
         disabled={isDisabled}
       >
         <Casino />
         {' '}
-        {isDisabled ? 'Wait' : 'Roll'}
+        {isDisabled ? t('wait') : t('roll')}
       </Fab>
 
       {!isMobile ? (

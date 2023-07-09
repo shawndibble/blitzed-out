@@ -1,6 +1,6 @@
 import { camelToPascal, pascalToCamel } from 'helpers/strings';
 import customizeBoard from 'services/buildGame';
-import importData from 'helpers/json';
+import { importActions, getTranslation } from 'services/importLocales';
 
 function hasSomethingPicked(object) {
   return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
@@ -23,7 +23,7 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
     customTiles.forEach((entry) => {
       if (
         (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity))
-        || entry.group === 'Miscellaneous'
+        || entry.group === getTranslation('misc', settings.locale)
       ) {
         usedCustomTiles.push(entry);
       }
@@ -105,11 +105,12 @@ export async function handleBoardUpdate({
   if ((!formData.room || formData.room === 'public') && formData.gameMode === 'local') {
     gameMode = 'online';
     // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
-    updatedDataFolder = importData(formData.locale, gameMode);
+    updatedDataFolder = importActions(formData.locale, gameMode);
     settingsBoardUpdated = true;
   }
 
   const newBoard = customizeBoard(formData, updatedDataFolder, customTiles);
+
   // if our board updated, then push those changes out.
   if (settingsBoardUpdated) await updateBoard(newBoard);
 

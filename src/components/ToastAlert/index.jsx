@@ -2,10 +2,12 @@ import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { Alert, Portal } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export default function ToastAlert({
   children, open, close, type = 'error',
 }) {
+  const { t } = useTranslation();
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -17,7 +19,7 @@ export default function ToastAlert({
   const action = (
     <IconButton
       size="small"
-      aria-label="close"
+      aria-label={t('close')}
       color="inherit"
       onClick={handleClose}
     >

@@ -4,11 +4,13 @@ import {
 import { camelToPascal } from 'helpers/strings';
 import { submitCustomAction } from 'services/firebase';
 import { useRef } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 export default function CustomTile({
   setSubmitMessage, addCustomTile, customTiles, dataFolder,
 }) {
   const formData = useRef();
+  const { t } = useTranslation();
 
   function tileExists(newGroup, newAction) {
     return customTiles.find(({ group, intensity, action }) => `${group} - ${intensity}` === newGroup && action === newAction);
@@ -18,11 +20,11 @@ export default function CustomTile({
     const { tileOption, action } = formData.current;
 
     if (!tileOption.value || !action.value) {
-      return setSubmitMessage({ message: 'Both fields are required', type: 'error' });
+      return setSubmitMessage({ message: t('bothRequired'), type: 'error' });
     }
 
     if (tileExists(tileOption.value, action.value)) {
-      return setSubmitMessage({ message: 'That action already exist', type: 'error' });
+      return setSubmitMessage({ message: t('actionExists'), type: 'error' });
     }
 
     // send action to firebase for review
@@ -30,7 +32,7 @@ export default function CustomTile({
     // store locally for user's board
     addCustomTile(tileOption.value, action.value);
 
-    return setSubmitMessage({ message: 'Custom tile added to your local game.', type: 'success' });
+    return setSubmitMessage({ message: t('customAdded'), type: 'success' });
   }
 
   const options = Object.entries(dataFolder).map(([key, value]) => {
@@ -41,7 +43,7 @@ export default function CustomTile({
     }));
   }).flat();
 
-  options.push({ group: 'Miscellaneous', value: 'Miscellaneous - All' });
+  options.push({ group: t('misc'), value: `${t('misc')} - ${t('all')}` });
 
   return (
     <Box
@@ -71,7 +73,7 @@ export default function CustomTile({
       />
 
       <Button fullWidth variant="contained" type="button" onClick={(event) => submitNewTile(event)}>
-        Add Custom Tile
+        <Trans i18nKey="addCustom" />
       </Button>
     </Box>
   );

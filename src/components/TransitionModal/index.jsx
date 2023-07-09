@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
+import { Trans, useTranslation } from 'react-i18next';
 
 const style = (theme) => ({
   position: 'absolute',
@@ -22,6 +23,7 @@ const style = (theme) => ({
 export default function TransitionModal({
   open, setOpen, text, displayName,
 }) {
+  const { t } = useTranslation();
   let timeoutId;
   if (open) timeoutId = setTimeout(() => setOpen(false), 8000);
 
@@ -51,17 +53,13 @@ export default function TransitionModal({
         <Fade in={open}>
           <Box sx={style}>
             <Typography id="transition-modal-title" variant="h6" component="h2">
-              {title}
-              {' '}
-              for
-              {' '}
-              {displayName}
+              {`${title} ${t('for')} ${displayName}`}
             </Typography>
             <Typography id="transition-modal-description" variant="h4" sx={{ mt: 2 }}>
               {description}
             </Typography>
             <br />
-            <Typography variant="caption">This modal will automatically close after 8 seconds.</Typography>
+            <Typography variant="caption"><Trans i18nKey="autoCloseModal" /></Typography>
           </Box>
         </Fade>
       </Modal>

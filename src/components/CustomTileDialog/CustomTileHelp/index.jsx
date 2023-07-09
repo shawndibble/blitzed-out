@@ -5,6 +5,7 @@ import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import { useState } from 'react';
+import { Trans } from 'react-i18next';
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -49,7 +50,7 @@ export default function CustomTileHelp() {
   };
 
   return (
-    <>
+    <Trans i18nKey="customTileGuide">
       <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
         <AccordionSummary aria-controls="panel1-content" id="panel1-header">
           <Typography>Custom Tiles Explained</Typography>
@@ -109,6 +110,6 @@ export default function CustomTileHelp() {
           </Typography>
         </AccordionDetails>
       </Accordion>
-    </>
+    </Trans>
   );
 }

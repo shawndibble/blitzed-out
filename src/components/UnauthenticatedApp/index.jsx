@@ -10,6 +10,7 @@ import GameSettings from 'components/GameSettings';
 import usePlayerList from 'hooks/usePlayerList';
 import GameGuide from 'components/GameGuide';
 import './styles.css';
+import { Trans } from 'react-i18next';
 
 export default function UnauthenticatedApp() {
   const params = useParams();
@@ -24,8 +25,8 @@ export default function UnauthenticatedApp() {
           <Grid item xs={12} sm={6}>
             <Card className="unauthenticated-card">
               <CardContent>
-                <h2 className="setup">Game Setup</h2>
-                <GameSettings submitText="Access Game" />
+                <h2 className="setup"><Trans i18nKey="setup" /></h2>
+                <GameSettings submitText={(<Trans i18nKey="access" />)} />
               </CardContent>
             </Card>
           </Grid>

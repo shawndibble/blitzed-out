@@ -3,6 +3,7 @@ import {
   Dialog, DialogContent, DialogTitle, Divider, IconButton,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import { Trans, useTranslation } from 'react-i18next';
 import useWindowDimensions from 'hooks/useWindowDimensions';
 import useLocalStorage from 'hooks/useLocalStorage';
 import ToastAlert from 'components/ToastAlert';
@@ -13,6 +14,7 @@ import ViewCustomTiles from './ViewCustomTiles';
 export default function CustomTileDialog({
   boardUpdated, dataFolder, setOpen, open = false,
 }) {
+  const { t } = useTranslation();
   const { isMobile } = useWindowDimensions();
   const [submitMessage, setSubmitMessage] = useState({ message: '', type: 'info' });
   const [customTiles, setCustomTiles] = useLocalStorage('customTiles', []);
@@ -32,9 +34,9 @@ export default function CustomTileDialog({
         onClose={() => setOpen(false)}
       >
         <DialogTitle>
-          Manage Custom Tiles
+          <Trans i18nKey="manageTiles" />
           <IconButton
-            aria-label="close"
+            aria-label={t('close')}
             onClick={() => setOpen(false)}
             sx={{
               position: 'absolute',

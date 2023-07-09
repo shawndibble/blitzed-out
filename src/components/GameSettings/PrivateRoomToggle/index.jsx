@@ -3,6 +3,7 @@ import {
   Box, Stack, Switch, TextField, Tooltip, Typography,
 } from '@mui/material';
 import { customAlphabet } from 'nanoid';
+import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 
 export default function PrivateRoomToggle({ formData, setFormData }) {
@@ -30,16 +31,22 @@ export default function PrivateRoomToggle({ formData, setFormData }) {
   };
 
   return (
-    <Box sx={{ margin: '0 0.5rem 0.5rem' }}>
-      <Stack direction="row" spacing={1} alignItems="center" sx={{ width: '100%' }}>
-        <Typography>Public Room</Typography>
+    <Box sx={{ margin: '0.5rem' }}>
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        justifyContent="center"
+        sx={{ width: '100%' }}
+      >
+        <Typography><Trans i18nKey="public" /></Typography>
         <Switch
           id="showPrivate"
           checked={!!formData.room}
           onChange={togglePrivateRoomField}
-          inputProps={{ 'aria-label': 'Room Type' }}
+          inputProps={{ 'aria-label': <Trans i18nKey="private" /> }}
         />
-        <Typography>Private Room</Typography>
+        <Typography><Trans i18nKey="private" /></Typography>
       </Stack>
 
       {!!formData.room && (
@@ -60,9 +67,9 @@ export default function PrivateRoomToggle({ formData, setFormData }) {
             justifyContent="center"
             sx={{ mt: 1 }}
           >
-            <Typography>Solo</Typography>
+            <Typography><Trans i18nKey="solo" /></Typography>
             <Tooltip
-              title={<Typography variant="subtitle2">Play with yourself</Typography>}
+              title={<Typography variant="subtitle2"><Trans i18nKey="soloTooltip" /></Typography>}
               arrow
             >
               <Help sx={{ fontSize: 15 }} />
@@ -76,10 +83,10 @@ export default function PrivateRoomToggle({ formData, setFormData }) {
               inputProps={{ 'aria-label': 'Game Type' }}
             />
             <Typography>
-              Local Party
+              <Trans i18nKey="local" />
             </Typography>
             <Tooltip
-              title={<Typography variant="subtitle2">Playing with other people in person</Typography>}
+              title={<Typography variant="subtitle2"><Trans i18nKey="localTooltip" /></Typography>}
               arrow
             >
               <Help sx={{ fontSize: 15 }} />

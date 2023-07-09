@@ -1,10 +1,11 @@
 import { Divider, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './styles.css';
+import { Trans } from 'react-i18next';
 
 export default function GameGuide() {
   return (
-    <>
+    <Trans i18nKey="gameGuide">
       <Typography variant="h4" sx={{ textAlign: 'center' }}>Blitzed Out</Typography>
       <Divider />
       <Typography variant="body1" mt={2}>
@@ -38,6 +39,6 @@ export default function GameGuide() {
         {' '}
         <Link className="discord-link" to="https://discord.gg/5dCH2WVsmX" target="_blank">Discord server</Link>
       </Typography>
-    </>
+    </Trans>
   );
 }

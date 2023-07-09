@@ -22,6 +22,7 @@ import useWindowDimensions from 'hooks/useWindowDimensions';
 import GameSettings from 'components/GameSettings';
 import useAuth from 'hooks/useAuth';
 import GameGuide from 'components/GameGuide';
+import { Trans } from 'react-i18next';
 import DonateDialog from './DonateDialog';
 
 export default function MenuDrawer() {
@@ -47,12 +48,32 @@ export default function MenuDrawer() {
   );
 
   const menuItems = [
-    { title: 'Discord', icon: discordIcon, onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef') },
-    { title: 'Donate', icon: <PaidIcon />, onClick: () => toggleDialog('donate', true) },
-    { title: 'About', icon: <InfoIcon />, onClick: () => toggleDialog('about', true) },
+    {
+      key: 'discord',
+      title: 'Discord',
+      icon: discordIcon,
+      onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef'),
+    }, {
+      key: 'donate',
+      title: <Trans i18nKey="donate" />,
+      icon: <PaidIcon />,
+      onClick: () => toggleDialog('donate', true),
+    }, {
+      key: 'about',
+      title: <Trans i18nKey="about" />,
+      icon: <InfoIcon />,
+      onClick: () => toggleDialog('about', true),
+    },
   ];
 
-  if (user) menuItems.unshift({ title: 'Settings', icon: <SettingsIcon />, onClick: () => toggleDialog('settings', true) });
+  if (user) {
+    menuItems.unshift({
+      key: 'settings',
+      title: <Trans i18nKey="settings" />,
+      icon: <SettingsIcon />,
+      onClick: () => toggleDialog('settings', true),
+    });
+  }
 
   const closeIcon = (openType) => (
     <IconButton
@@ -75,11 +96,11 @@ export default function MenuDrawer() {
       open={open.settings}
     >
       <DialogTitle>
-        Game Settings
+        <Trans i18nKey="gameSettings" />
         {closeIcon('settings')}
       </DialogTitle>
       <DialogContent>
-        <GameSettings submitText="Update Game" closeDialog={() => toggleDialog('settings', false)} />
+        <GameSettings submitText={(<Trans i18nKey="update" />)} closeDialog={() => toggleDialog('settings', false)} />
       </DialogContent>
     </Dialog>
   );
@@ -106,15 +127,17 @@ export default function MenuDrawer() {
       onClose={() => toggleDialog('donate', false)}
     >
       <DialogTitle>
-        Donate to help support the site
+        <Trans i18nKey="donateToHelp" />
         {closeIcon('donate')}
       </DialogTitle>
       <DonateDialog />
     </Dialog>
   );
 
-  const menuList = menuItems.map(({ title, icon, onClick }) => (
-    <ListItem key={title} disablePadding onClick={onClick}>
+  const menuList = menuItems.map(({
+    key, title, icon, onClick,
+  }) => (
+    <ListItem key={key} disablePadding onClick={onClick}>
       <ListItemButton>
         <ListItemIcon>
           {icon}
