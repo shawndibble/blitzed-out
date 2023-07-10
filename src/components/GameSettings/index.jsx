@@ -74,7 +74,9 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     const { displayName, ...gameOptions } = formData;
 
-    validateFormData(gameOptions, setAlert);
+    const validationMessage = validateFormData(gameOptions);
+    if (validationMessage) return setAlert(t(validationMessage));
+
     const updatedUser = await handleUser(user, displayName, updateUser, login);
 
     const { settingsBoardUpdated, newBoard } = await handleBoardUpdate({
@@ -90,7 +92,7 @@ export default function GameSettings({ submitText, closeDialog }) {
       sendMessage({
         room: formData.room || 'public',
         user: updatedUser,
-        text: getSettingsMessage(formData, customTiles, dataFolder),
+        text: getSettingsMessage(formData, customTiles, dataFolder, i18n.resolvedLanguage),
         type: 'settings',
         gameBoard: JSON.stringify(newBoard),
         settings: JSON.stringify(exportSettings(formData)),
@@ -215,7 +217,7 @@ export default function GameSettings({ submitText, closeDialog }) {
         boardUpdated={boardUpdated}
         dataFolder={dataFolder}
       />
-      <ToastAlert open={!!alert} setOpen={setAlert}>
+      <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
         {alert}
       </ToastAlert>
     </Box>

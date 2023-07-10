@@ -34,8 +34,10 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
   return usedCustomTiles.length;
 }
 
-export function getSettingsMessage(settings, customTiles, dataFolder) {
-  let message = '### Game Settings\r\n';
+export function getSettingsMessage(settings, customTiles, dataFolder, locale = 'en') {
+  const gameSettings = getTranslation('gameSettings', locale);
+  const customTilesText = getTranslation('customTiles', locale);
+  let message = `### ${gameSettings}\r\n`;
   const { poppersVariation, alcoholVariation } = settings;
   Object.entries(dataFolder).map(([key, val]) => {
     if (settings[key] > 0) {
@@ -54,7 +56,7 @@ export function getSettingsMessage(settings, customTiles, dataFolder) {
 
   const customTileCount = getCustomTileCount(settings, customTiles, dataFolder);
   if (customTileCount) {
-    message += `* Custom Tiles: ${customTileCount} \r\n`;
+    message += `* ${customTilesText}: ${customTileCount} \r\n`;
   }
 
   return message;
@@ -77,9 +79,10 @@ export async function handleUser(user, displayName, updateUser, login) {
   return updatedUser;
 }
 
-export function validateFormData(gameOptions, setAlert) {
+// returns a translation key for an alert if fails.
+export function validateFormData(gameOptions) {
   if (!hasSomethingPicked(gameOptions)) {
-    return setAlert('you need to pick at lease something');
+    return 'pickSomething';
   }
 
   const { poppers, alcohol, ...actionItems } = { ...gameOptions };
@@ -90,7 +93,7 @@ export function validateFormData(gameOptions, setAlert) {
         || isAppending(alcohol, gameOptions.alcoholVariation)
     )
       && !hasSomethingPicked(actionItems)) {
-    return setAlert('If you are going to append, you need an action.');
+    return 'appendWithAction';
   }
 
   return null;
