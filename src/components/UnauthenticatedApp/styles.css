@@ -9,6 +9,17 @@ h2.setup {
 
 .unauthenticated-card {
   margin: 0.25rem;
+  height: 100%;
+}
+
+.language {
+  width: 100%;
+}
+
+.translation-card-content {
+  display: flex;
+  padding-bottom: 10px !important;
+  align-items: center;
 }
 
 @media screen and (max-width: 400px) {

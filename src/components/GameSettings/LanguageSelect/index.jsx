@@ -4,15 +4,11 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import languages from 'locales/languages.json';
 
 export default function LanguageSelect({ boardUpdated }) {
   const { i18n } = useTranslation();
   const [language, setLanguage] = useState(i18n.resolvedLanguage);
-
-  const languages = {
-    en: 'English',
-    es: 'Español',
-  };
 
   function changeLanguage(value) {
     setLanguage(value);
