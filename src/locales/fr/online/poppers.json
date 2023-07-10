@@ -1,0 +1,38 @@
+{
+    "label": "Poppers",
+    "actions": {
+      "Aucun": [],
+      "Débutant": [
+        "1 inhalation.",
+        "2 inhalations.",
+        "1 inhalation profonde.",
+        "2 inhalations.",
+        "3 inhalations.",
+        "1 inhalation par narine.",
+        "2 inhalations profondes.",
+        "1 inhalation.",
+        "2 inhalations rapides."
+      ],
+      "Intermédiaire": [
+        "3 inhalations.",
+        "4 inhalations.",
+        "2 inhalations par narine.",
+        "1 inhalation par la bouche.",
+        "Inhalation buccale de 5 secondes.",
+        "4 inhalations.",
+        "Inhalation de 5 secondes. Maintien de 5 secondes.",
+        "5 inhalations rapides."
+      ],
+      "Avancé": [
+        "Inhalation de 10 secondes avec maintien.",
+        "4 inhalations par la bouche.",
+        "Inhalation et maintien aussi longtemps que possible.",
+        "Respiration avec un masque à poppers pendant 15 secondes.",
+        "8 inhalations.",
+        "4 inhalations par la bouche.",
+        "6 inhalations profondes.",
+        "5 inhalations de chaque côté.",
+        "Inhalation de 8 secondes avec maintien."
+      ]
+    }
+  }

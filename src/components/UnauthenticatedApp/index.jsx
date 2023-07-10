@@ -24,6 +24,7 @@ export default function UnauthenticatedApp() {
 
   const languageLinks = Object.entries(languages).map(([key, label]) => (
     <Button
+      key={key}
       onClick={() => i18n.changeLanguage(key)}
       disabled={i18n.resolvedLanguage === key}
     >

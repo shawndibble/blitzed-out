@@ -1,0 +1,52 @@
+{
+    "label": "Écrasement de testicules",
+    "actions": {
+      "Aucun": [],
+      "Claque/Pression": [
+        "Masser les testicules.",
+        "2 claques sur vos propres testicules.",
+        "10 petites tapes légères sur les testicules d'un autre joueur.",
+        "Presser vos testicules pendant 15 secondes.",
+        "3 claques sur les testicules d'un autre joueur.",
+        "Étirer vos testicules pendant 15 secondes.",
+        "Se faire pincer les testicules pendant 10 secondes.",
+        "Presser les testicules jusqu'au prochain tour.",
+        "Presser les testicules pendant 10 secondes.",
+        "Claquer rapidement vos testicules pendant 15 secondes.",
+        "Petite claque après que quelqu'un ait lancé les dés.",
+        "5 claques sur les testicules d'un autre joueur.",
+        "Retenir votre souffle pendant 10 secondes tout en recevant des claques sur les testicules.",
+        "Recevoir des massages des testicules pendant 15 secondes."
+      ],
+      "Coup/Écrasement": [
+        "Recevoir 2 coups sur les testicules.",
+        "Écraser vos testicules.",
+        "4 coups sur les testicules.",
+        "Claques sur les testicules pendant 10 secondes.",
+        "Recevoir 1 claque forte sur les testicules.",
+        "Recevoir 5 claques sur les testicules.",
+        "Vous donner une claque forte sur les testicules.",
+        "Écraser vos testicules jusqu'au prochain tour.",
+        "Recevoir 4 claques fortes sur les testicules.",
+        "Se faire donner un coup de genou dans les testicules."
+      ],
+      "Utiliser un objet": [
+        "Donner des coups aux testicules.",
+        "Écraser les testicules avec un objet.",
+        "Claques sur les testicules pendant 15 secondes.",
+        "5 claques fortes sur les testicules.",
+        "Claque sur les testicules après que quelqu'un ait lancé les dés.",
+        "2 claques sur les testicules avec un objet.",
+        "Coups sur les testicules pendant 20 secondes.",
+        "Écraser les testicules avec un objet.",
+        "Claques rapides sur les testicules pendant 15 secondes avec un objet."
+      ],
+      "Aussi fort que possible": [
+        "Recevoir 5 coups les plus forts possibles sur les testicules avec un objet.",
+        "Vous donner 5 coups les plus forts possibles sur les testicules.",
+        "Écraser les testicules aussi fort que possible.",
+        "Recevoir des coups forts sur les testicules pendant 20 secondes avec un objet.",
+        "Se faire tirer les testicules fort pendant 20 secondes par quelqu'un."
+      ]
+    }
+  }
