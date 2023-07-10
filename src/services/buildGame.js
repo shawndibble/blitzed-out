@@ -44,8 +44,6 @@ function getAppendItem(appendList, currentOption, currentLevel, customDataFolder
   if (appendType.endsWith('Some') && chance < 0.4) return '';
   if (appendType.endsWith('Most') && chance < 0.15) return '';
 
-  console.log(customDataFolder[currentOption]);
-
   const intensity = getIntensity(maxLevel, currentLevel);
   const currentAppendList = Object.values(customDataFolder[currentOption]?.actions)[intensity];
 
