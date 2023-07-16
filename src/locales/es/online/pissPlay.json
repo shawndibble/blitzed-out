@@ -1,0 +1,28 @@
+{
+    "label": "Juego de Orina",
+    "actions": {
+        "None": [],
+        "Orinar en un Vaso": [
+            "Beber agua",
+            "Orinar en un recipiente",
+            "Beber agua de un sorbo",
+            "Oler tu propia orina",
+            "Orinar en un recipiente",
+            "Tomar un sorbo de agua"
+        ],
+        "Orinar sobre ti mismo": [
+            "Orinar sobre ti mismo",
+            "Orinar en tu cara",
+            "Colocar el pene y los testículos en un recipiente con orina",
+            "Beber agua de un sorbo",
+            "Verter el contenido del recipiente con orina sobre ti mismo",
+            "Beber agua"
+        ],
+        "Beber": [
+            "Beber tu propia orina",
+            "Beber agua",
+            "Beber agua de un sorbo",
+            "Intentar orinar en tu boca. Tragar."
+        ]
+    }
+}

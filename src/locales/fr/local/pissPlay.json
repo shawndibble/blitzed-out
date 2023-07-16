@@ -1,0 +1,35 @@
+{
+    "label": "Jeux d'urine",
+    "actions": {
+        "Aucun": [],
+        "Uriner dans un verre": [
+            "Boire de l'eau",
+            "Faire boire de l'eau à quelqu'un d'autre",
+            "Uriner dans un récipient",
+            "Boire de l'eau à petites gorgées",
+            "Faire boire de l'eau à quelqu'un d'autre à petites gorgées",
+            "Sentir votre propre urine",
+            "Sentir l'urine de quelqu'un d'autre",
+            "Uriner dans un récipient",
+            "Prendre une gorgée d'eau",
+            "Faire en sorte que quelqu'un vous donne un récipient contenant son urine"
+        ],
+        "Être aspergé d'urine": [
+            "Faire uriner quelqu'un sur votre corps",
+            "Uriner sur vous-même",
+            "Mettre votre sexe et vos testicules dans un récipient d'urine",
+            "Boire de l'eau à petites gorgées",
+            "Faire uriner quelqu'un sur votre visage",
+            "Uriner sur votre propre visage",
+            "Boire de l'eau"
+        ],
+        "Boire": [
+            "Boire votre propre urine",
+            "Boire l'urine de quelqu'un d'autre à distance",
+            "Boire l'urine directement à la source avec la bouche",
+            "Boire de l'eau",
+            "Boire de l'eau à petites gorgées",
+            "Essayer d'uriner dans votre bouche. Avaler."
+        ]
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "label": "Jeux d'urine",
+    "actions": {
+        "Aucun": [],
+        "Uriner dans un verre": [
+            "Boire de l'eau",
+            "Uriner dans un récipient",
+            "Boire de l'eau à petites gorgées",
+            "Sentir votre propre urine",
+            "Uriner dans un récipient",
+            "Prendre une gorgée d'eau"
+        ],
+        "Uriner sur soi-même": [
+            "Uriner sur vous-même",
+            "Uriner sur votre visage",
+            "Placer le sexe et les testicules dans un récipient d'urine",
+            "Boire de l'eau à petites gorgées",
+            "Verser le contenu du récipient d'urine sur vous-même",
+            "Boire de l'eau"
+        ],
+        "Boire": [
+            "Boire votre propre urine",
+            "Boire de l'eau",
+            "Boire de l'eau à petites gorgées",
+            "Essayer d'uriner dans votre bouche. Avaler."
+        ]
+    }
+}
