@@ -16,7 +16,7 @@ export function importActions(lang = 'en', type = 'online') {
   }
 
   context.keys().forEach((key) => {
-    if ([setLang, type, 'locales'].every((entry) => key.includes(entry))) {
+    if (key.startsWith(`locales/${setLang}/${type}/`)) {
       // get the filename without the extension nor the path.
       addToObj(key);
     }
