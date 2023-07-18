@@ -1,35 +1,35 @@
-{
+﻿{
     "label": "Juego de Orina",
     "actions": {
-        "None": [],
-        "Orinar en un Vaso": [
-            "Beber agua",
-            "Hacer que alguien más beba agua",
-            "Orinar en un recipiente",
-            "Beber agua de un sorbo",
-            "Hacer que alguien más beba agua de un sorbo",
-            "Oler tu propia orina",
-            "Oler la orina de alguien más",
-            "Orinar en un recipiente",
-            "Tomar un sorbo de agua",
+        "Ninguna": [],
+        "Orinar en un vaso": [
+            "Bebe agua",
+            "Haz que alguien más beba agua",
+            "Orina en un recipiente",
+            "Bebe mucha agua",
+            "Haz que alguien más beba agua de un trago",
+            "Huele tu propia orina",
+            "Huele la orina de alguien más",
+            "Orina en un recipiente",
+            "Toma un sorbo de agua",
             "Que alguien te dé un recipiente con su orina"
         ],
-        "Orinado encima": [
-            "Hacer que alguien orine en tu cuerpo",
-            "Orinar sobre ti mismo",
-            "Colocar el pene y los testículos en un recipiente con orina",
-            "Beber agua de un sorbo",
-            "Hacer que alguien orine en tu cara",
-            "Orinar en tu propia cara",
-            "Beber agua"
+        "Lluvia dorada": [
+            "Deja que alguien orine en tu cuerpo",
+            "Orina sobre ti mismo",
+            "Coloca el pene y los testículos en un recipiente con orina",
+            "Bebe mucha agua",
+            "Deja que alguien orine en tu cara",
+            "Orina en tu propia cara",
+            "Bebe agua"
         ],
         "Beber": [
-            "Beber tu propia orina",
-            "Beber la orina de alguien más desde la distancia",
-            "Beber orina directamente con la boca en la fuente",
-            "Beber agua",
-            "Beber agua de un sorbo",
-            "Intentar orinar en tu boca. Tragar."
+            "Bébete tu propia orina",
+            "Bébete la orina de alguien más desde la distancia",
+            "Bebe orina con la boca pegada a la fuente",
+            "Bebe agua",
+            "Bebe mucha agua",
+            "Intenta orinar en tu boca. Trágatelo."
         ]
     }
 }

@@ -1,38 +1,38 @@
-{
+﻿{
     "label": "Poppers",
     "actions": {
-        "None": [],
+        "Ninguna": [],
         "Principiante": [
-            "1 inhalación.",
-            "2 inhalaciones.",
-            "1 inhalación profunda.",
-            "2 inhalaciones.",
-            "3 inhalaciones.",
-            "1 inhalación en cada fosa nasal.",
-            "2 inhalaciones profundas.",
-            "1 inhalación.",
-            "2 inhalaciones rápidas."
+            "Inhala 1 vez.",
+            "Inhala 2 veces.",
+            "Inhala 1 vez profundamente.",
+            "Inhala 2 veces.",
+            "Inhala 3 veces.",
+            "Inhala 1 vez con cada fosa nasal.",
+            "Inhala 2 veces profundamente.",
+            "Inhala 1 vez.",
+            "Inhala 2 veces rápidamente."
         ],
         "Intermedio": [
-            "3 inhalaciones.",
-            "4 inhalaciones.",
-            "2 inhalaciones por fosa nasal.",
-            "1 inhalación en la boca.",
-            "Inhalación en la boca durante 5 segundos.",
-            "4 inhalaciones.",
-            "Inhala durante 5 segundos. Sostén durante 5 segundos.",
-            "5 inhalaciones rápidas."
+            "Inhala 3 veces.",
+            "Inhala 4 veces.",
+            "Inhala 2 veces con cada fosa nasal.",
+            "Inhala 1 vez por la boca.",
+            "Inhala por la boca durante 5 segundos.",
+            "Inhala 4 veces.",
+            "Inhala durante 5 segundos. Aguanta durante 5 segundos.",
+            "Inhala 5 veces rápidamente."
         ],
         "Avanzado": [
-            "Inhalación de 10 segundos y retén el aire.",
-            "4 inhalaciones en la boca.",
-            "Inhala y retén el aire todo el tiempo que puedas.",
-            "Respira con una tela o máscara de popper durante 15 segundos.",
-            "8 inhalaciones.",
-            "4 inhalaciones en la boca.",
-            "6 inhalaciones profundas.",
-            "5 inhalaciones en cada lado.",
-            "Inhalación de 8 segundos y retén el aire."
+            "Inhala 10 segundos y aguanta el aire.",
+            "Inhala 4 veces por la boca.",
+            "Inhala y aguanta el aire todo el tiempo que puedas.",
+            "Respira con un calcetín o máscara de popper durante 15 segundos.",
+            "Inhala 8 veces.",
+            "Inhala 4 veces por la boca.",
+            "Inhala 6 veces profundamente.",
+            "Inhala 5 veces con cada fosa nasal.",
+            "Inhala durante 8 segundos y aguanta la respiración."
         ]
     }
 }

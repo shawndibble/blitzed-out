@@ -1,28 +1,28 @@
 {   
     "label": "Alcohol",
     "actions": {
-        "None": [],
-        "Beber": [
-            "Toma un sorbo de tu bebida.",
-            "Toma una copa.",
+        "Ninguna": [],
+        "Bebe": [
+            "Dale un sorbo a tu bebida.",
+            "Tómate un trago.",
             "Toma 2 sorbos.",
-            "Da un sorbo.",
-            "Toma una copa."
+            "Haz que otro jugador de un sorbo.",
+            "Tómate un trago."
         ],
-        "Tiros": [
-            "1 chupito.",
-            "Toma 2 copas.",
-            "Da 1 chupito.",
+        "Shots": [
+            "1 shot.",
+            "Tómate 2 tragos.",
+            "Haz que otro jugador se tome 1 shot.",
             "Todos beben.",
-            "Toma una copa."
+            "Tómate un trago."
         ],
-        "Resoplar": [
-            "Bebe la mitad de tu bebida.",
-            "Bebe de un solo trago tu bebida.",
-            "Toma una copa.",
-            "Toma 2 chupitos.",
-            "Haz que alguien se beba su bebida de un trago.",
-            "Da una bebida."
+        "De un trago": [
+            "Bébete la mitad de tu bebida.",
+            "Bebe tu copa de un trago.",
+            "Tómate un trago.",
+            "2 shots.",
+            "Haz que alguien se beba su copa de un trago.",
+            "Haz que otro jugador se tome un trago."
         ]
     }
 }
