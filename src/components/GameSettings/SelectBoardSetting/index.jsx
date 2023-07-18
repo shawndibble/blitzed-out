@@ -4,6 +4,7 @@ import {
 import Typography from '@mui/material/Typography';
 import './styles.css';
 import { Trans, useTranslation } from 'react-i18next';
+import { Help } from '@mui/icons-material';
 
 export default function SelectBoardSetting({
   option, settings, setSettings, dataFolder,
@@ -50,11 +51,21 @@ export default function SelectBoardSetting({
           arrow
         >
           <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
-            <InputLabel id={`${labelId}Variation`}>{`${label} ${t('variation')}`}</InputLabel>
+            <InputLabel id={`${labelId}Variation`}>
+              {`${label} ${t('variation')}`}
+              <Help sx={{ ml: 1, fontSize: 16 }} />
+            </InputLabel>
             <Select
               labelId={`${labelId}Variation`}
               id={`${option}Variation`}
-              label={`${label} ${t('variation')}`}
+              label={(
+                <>
+                  {label}
+                  {' '}
+                  {t('variation')}
+                  <Help sx={{ ml: 1, fontSize: 16 }} />
+                </>
+              )}
               value={settings[`${option}Variation`] || 'standalone'}
               onChange={(event) => handleChange(event, `${option}Variation`)}
             >
