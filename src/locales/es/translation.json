@@ -43,6 +43,8 @@
   "close": "Cerrar",
   "for": "para",
   "manageTiles": "Administrar mis casillas",
+  "group": "Groupo",
+  "action": "Acción",
   "bothRequired": "Ambos campos son obligatorios.",
   "actionExists": "Esa acción ya existe.",
   "customAdded": "Casilla personalizada añadida a tu juego.",

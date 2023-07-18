@@ -43,6 +43,8 @@
   "close": "Fermer",
   "for": "pour",
   "manageTiles": "Gérer les tuiles personnalisées",
+  "group": "Groupe",
+  "action": "Action",
   "bothRequired": "Les deux champs sont obligatoires.",
   "actionExists": "Cette action existe déjà.",
   "customAdded": "Tuile personnalisée ajoutée à votre jeu.",

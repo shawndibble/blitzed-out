@@ -35,11 +35,12 @@ export default function CustomTile({
     return setSubmitMessage({ message: t('customAdded'), type: 'success' });
   }
 
-  const options = Object.entries(dataFolder).map(([key, value]) => {
-    const intensities = Object.keys(value).filter((entry) => entry !== 'None');
+  const options = Object.entries(dataFolder).map(([key, { label, actions }]) => {
+    const intensities = Object.keys(actions).filter((entry) => entry !== 'None');
     return intensities.map((intensity) => ({
       group: camelToPascal(key),
-      value: `${camelToPascal(key)} - ${intensity}`,
+      value: `${label} - ${intensity}`,
+      label: `${t(label)} - ${t(intensity)}`,
     }));
   }).flat();
 
@@ -58,7 +59,7 @@ export default function CustomTile({
         options={options}
         getOptionLabel={(option) => option.value}
         groupBy={(option) => option.group}
-        renderInput={(params) => <TextField {...params} label="Group" required />}
+        renderInput={(params) => <TextField {...params} label={t('group')} required />}
         isOptionEqualToValue={(option) => option.value}
         sx={{ py: 2 }}
       />
@@ -68,7 +69,7 @@ export default function CustomTile({
         name="action"
         required
         fullWidth
-        label="Action Tile"
+        label={t('action')}
         sx={{ pb: 2 }}
       />
 

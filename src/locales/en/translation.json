@@ -43,6 +43,8 @@
   "close": "Close",
   "for": "for",
   "manageTiles": "Manage Custom Tiles",
+  "group": "Group",
+  "action": "Action",
   "bothRequired": "Both fields are required.",
   "actionExists": "That action already exists.",
   "customAdded": "Custom tile added to your game.",
