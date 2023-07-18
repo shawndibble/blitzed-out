@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
 import { sendMessage } from 'services/firebase';
+import { useTranslation } from 'react-i18next';
 import useAuth from './useAuth';
 import useLocalStorage from './useLocalStorage';
 import usePlayerList from './usePlayerList';
 
 export default function usePlayerMove(room, rollValue) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const playerList = usePlayerList(room)[0];
   const gameBoard = useLocalStorage('customBoard')[0];
   const total = gameBoard.length;
   const [tile, setTile] = useState(gameBoard[0]);
 
   function handleTextOutput(newTile, rollNumber, newLocation, preMessage) {
-    let message = `Roll: ${rollNumber}  \r\n`;
+    let message = `${t('roll')}: ${rollNumber}  \r\n`;
     message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;
-    message += `Action: ${newTile?.description}`;
+    message += `${t('action')}: ${newTile?.description}`;
     sendMessage({
       room, user, text: preMessage + message, type: 'actions',
     });
@@ -31,7 +33,7 @@ export default function usePlayerMove(room, rollValue) {
 
     // restart game.
     if (currentLocation === lastTile) {
-      preMessage = 'You already finished. Starting over. \r\n';
+      preMessage = `${t('alreadyFinished')}\r\n`;
       newLocation = rollNumber;
     }
 

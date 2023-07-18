@@ -30,6 +30,7 @@
   "sound": "Sonido",
   "roll": "Tirar",
   "wait": "Esperar",
+  "alreadyFinished": "Ya terminaste. Empezar de nuevo.",
   "messageInput": "Escribe un mensaje",
   "markdown": "Hoja de trucos de Markdown (página en blanco)",
   "all": "Todos",

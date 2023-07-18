@@ -3,7 +3,6 @@ import useSound from 'use-sound';
 import {
   AppBar, Divider, Tab, Tabs,
 } from '@mui/material';
-import moment from 'moment/moment';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom';
@@ -15,8 +14,11 @@ import useMessages from 'hooks/useMessages';
 import diceSound from 'sounds/roll-dice.mp3';
 import messageSound from 'sounds/message.mp3';
 import { a11yProps } from 'helpers/strings';
-import './styles.css';
 import { Trans, useTranslation } from 'react-i18next';
+import moment from 'moment/moment';
+import 'moment/locale/es';
+import 'moment/locale/fr';
+import './styles.css';
 
 export default function MessageList({ room }) {
   const containerRef = React.useRef(null);
@@ -28,7 +30,7 @@ export default function MessageList({ room }) {
   const [popupMessage, setPopupMessage] = useState(false);
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const filterMessages = (tabId) => setMessages(messages.filter((m) => {
     if (tabId === 1) return m.type === 'settings';
@@ -38,6 +40,7 @@ export default function MessageList({ room }) {
   }));
 
   useEffect(() => {
+    moment.locale(i18n.resolvedLanguage);
     const latestMessage = [...messages].pop();
 
     // prevent dialog from showing on reload/page change.
@@ -58,7 +61,7 @@ export default function MessageList({ room }) {
 
     filterMessages(currentTab);
     // eslint-disable-next-line
-  }, [messages]);
+  }, [messages, i18n.resolvedLanguage]);
 
   React.useLayoutEffect(() => {
     if (containerRef.current) {
@@ -87,6 +90,7 @@ export default function MessageList({ room }) {
             key={x.id}
             message={x}
             isOwnMessage={x.uid === user.uid}
+            locale={i18n.resolvedLanguage}
           />
         ))}
       </ul>

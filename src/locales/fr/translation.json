@@ -30,6 +30,7 @@
   "sound": "Son",
   "roll": "Lancer",
   "wait": "Attendre",
+  "alreadyFinished": "Vous avez déjà terminé. Recommencement.",
   "messageInput": "Saisir un message",
   "markdown": "Aide-mémoire Markdown (page blanche)",
   "all": "Tout",
