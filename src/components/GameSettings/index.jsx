@@ -157,6 +157,7 @@ export default function GameSettings({ submitText, closeDialog }) {
 
       <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
         <LanguageSelect boardUpdated={boardUpdated} />
+        <Divider />
         <PrivateRoomToggle formData={formData} setFormData={setFormData} />
         <Divider />
         <FormControlLabel

@@ -20,7 +20,7 @@ export default function LanguageSelect({ boardUpdated }) {
     .map(([key, label]) => <MenuItem value={key} key={key}>{label}</MenuItem>);
 
   return (
-    <Box sx={{ minWidth: 120 }}>
+    <Box sx={{ minWidth: 120, mt: 1, mb: 2 }}>
       <FormControl fullWidth>
         <InputLabel id="language-label" sx={{ display: 'flex', alignItems: 'center' }}>
           <Language sx={{ mr: 1 }} />
