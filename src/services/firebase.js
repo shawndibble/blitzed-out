@@ -131,7 +131,7 @@ export async function sendMessage({
       displayName: user.displayName,
       text: text.trim(),
       timestamp: serverTimestamp(),
-      ttl: new Date(now + 2 * 60 * 60 * 1000), // 2 hours
+      ttl: new Date(now + 24 * 60 * 60 * 1000), // 24 hours
       type,
       ...rest,
     });
