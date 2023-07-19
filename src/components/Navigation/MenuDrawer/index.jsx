@@ -23,6 +23,8 @@ import GameSettings from 'components/GameSettings';
 import useAuth from 'hooks/useAuth';
 import GameGuide from 'components/GameGuide';
 import { Trans } from 'react-i18next';
+import { Logout } from '@mui/icons-material';
+import { logout } from 'services/firebase';
 import DonateDialog from './DonateDialog';
 
 export default function MenuDrawer() {
@@ -72,6 +74,12 @@ export default function MenuDrawer() {
       title: <Trans i18nKey="settings" />,
       icon: <SettingsIcon />,
       onClick: () => toggleDialog('settings', true),
+    });
+    menuItems.push({
+      key: 'logout',
+      title: <Trans i18nKey="logout" />,
+      icon: <Logout />,
+      onClick: () => logout(),
     });
   }
 

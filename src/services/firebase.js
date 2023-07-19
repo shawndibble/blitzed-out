@@ -1,5 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { signInAnonymously, getAuth, updateProfile } from 'firebase/auth';
+import {
+  signInAnonymously, getAuth, updateProfile, signOut,
+} from 'firebase/auth';
 import {
   getDatabase, onDisconnect, onValue, push, ref, set, remove,
 } from 'firebase/database';
@@ -38,6 +40,16 @@ export async function loginAnonymously(displayName = '') {
     // eslint-disable-next-line
     console.error(error);
     return null;
+  }
+}
+
+export async function logout() {
+  try {
+    const auth = getAuth();
+    await signOut(auth);
+  } catch (error) {
+    // eslint-disable-next-line
+    console.error(error);
   }
 }
 
