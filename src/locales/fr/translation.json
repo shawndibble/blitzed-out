@@ -41,6 +41,8 @@
   "importBoard": "Importer ce plateau",
   "donateToHelp": "Faire un don pour soutenir le site",
   "game": "Jeu",
+  "start": "COMMENCER",
+  "finish": "FINIR",
   "messages": "Messages",
   "close": "Fermer",
   "for": "pour",

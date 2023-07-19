@@ -79,12 +79,17 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     const updatedUser = await handleUser(user, displayName, updateUser, login);
 
+    const translations = {
+      start: t('start'),
+      finish: t('finish'),
+    };
     const { settingsBoardUpdated, newBoard } = await handleBoardUpdate({
       formData,
       dataFolder,
       updateBoard,
       customTiles,
       updateSettings,
+      translations,
     });
 
     // if our board updated, or we changed rooms, send out that message.

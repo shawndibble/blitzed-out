@@ -100,7 +100,7 @@ export function validateFormData(gameOptions) {
 }
 
 export async function handleBoardUpdate({
-  formData, dataFolder, updateBoard, customTiles, updateSettings,
+  formData, dataFolder, updateBoard, customTiles, updateSettings, translations,
 }) {
   let updatedDataFolder = { ...dataFolder };
   let settingsBoardUpdated = formData.boardUpdated;
@@ -112,7 +112,7 @@ export async function handleBoardUpdate({
     settingsBoardUpdated = true;
   }
 
-  const newBoard = customizeBoard(formData, updatedDataFolder, customTiles);
+  const newBoard = customizeBoard(formData, updatedDataFolder, translations, customTiles);
 
   // if our board updated, then push those changes out.
   if (settingsBoardUpdated) await updateBoard(newBoard);

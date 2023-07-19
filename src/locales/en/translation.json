@@ -41,6 +41,8 @@
   "importBoard": "Import this board",
   "donateToHelp": "Donate to help support the site",
   "game": "Game",
+  "start": "START",
+  "finish": "FINISH",
   "messages": "Messages",
   "close": "Close",
   "for": "for",

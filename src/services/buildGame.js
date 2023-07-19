@@ -54,7 +54,7 @@ function getAppendItem(appendList, currentOption, currentLevel, customDataFolder
   return `${currentAppendList[0]} `;
 }
 
-export default function customizeBoard(settings, dataFolder, userCustomTiles = [], size = 40) {
+function separateUserLists(customDataFolder, hasMiscTiles, settings) {
   const {
     alcoholVariation,
     poppersVariation,
@@ -62,20 +62,6 @@ export default function customizeBoard(settings, dataFolder, userCustomTiles = [
     poppers: poppersSetting,
     ...otherSettings
   } = settings;
-
-  // clone the dataFolder then add our custom tiles.
-  const misc = {
-    label: MISC.charAt(0).toUpperCase()
-    + MISC.slice(1),
-    actions: { None: [], All: [] },
-  };
-  const customDataFolder = { ...dataFolder, [MISC]: misc };
-  userCustomTiles.forEach(({ group, intensity, action }) => {
-    const camelGroup = pascalToCamel(group);
-    customDataFolder[camelGroup]?.actions?.[intensity].unshift(action);
-  });
-
-  const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
 
   // grab user tile options but limit them to the customDataFolder options.
   // (ignore all other settings)
@@ -106,8 +92,37 @@ export default function customizeBoard(settings, dataFolder, userCustomTiles = [
     appendList.poppers = `${poppersSetting}|${poppersVariation}`;
   }
 
+  return { tileOptions, appendList };
+}
+
+export default function customizeBoard(
+  settings,
+  dataFolder,
+  translations,
+  userCustomTiles = [],
+  size = 40,
+) {
+  const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
+
+  // clone the dataFolder then add our custom tiles.
+  const customDataFolder = {
+    ...dataFolder,
+    [MISC]: {
+      label: MISC.charAt(0).toUpperCase() + MISC.slice(1),
+      actions: { None: [], All: [] },
+    },
+  };
+  userCustomTiles.forEach(({ group, intensity, action }) => {
+    const camelGroup = pascalToCamel(group);
+    customDataFolder[camelGroup]?.actions?.[intensity].unshift(action);
+  });
+
+  const { tileOptions, appendList } = separateUserLists(customDataFolder, hasMiscTiles, settings);
+
   // remove 2 tiles for start/finish
   const tiles = [...Array(size - 2).keys()];
+
+  // Set our brackets for when we use different intensities
   const tilesPerLevel = (size - 2) / 4;
   const levelBrackets = [...Array(4).keys()].map((val) => (val + 1) * tilesPerLevel);
 
@@ -124,7 +139,6 @@ export default function customizeBoard(settings, dataFolder, userCustomTiles = [
     cycleList(selectedOptions);
     cycleList(appendOptions);
     const currentAppend = appendOptions[0];
-
     const currentOption = selectedOptions[0];
 
     if (!currentOption) return {};
@@ -149,8 +163,8 @@ export default function customizeBoard(settings, dataFolder, userCustomTiles = [
 
   const shuffledTiles = shuffleArrayBy(customTiles, 'currentLevel') || [];
 
-  shuffledTiles.unshift({ title: '', description: 'START' });
-  shuffledTiles.push({ title: '', description: 'FINISH' });
+  shuffledTiles.unshift({ title: '', description: translations.start });
+  shuffledTiles.push({ title: '', description: translations.finish });
 
   return shuffledTiles;
 }
