@@ -28,7 +28,10 @@ export default function TransitionModal({
   if (open) timeoutId = setTimeout(() => setOpen(false), 8000);
 
   const title = text?.match(/(?:#[\d]*:).*(?=\r)/gs);
-  const description = text?.match(/(?:Action: ).*/gs);
+
+  // Since "action" can be different for other languages, grab the last line after the : instead.
+  const textLines = text?.split(/\r?\n/) || [];
+  const description = textLines[textLines.length - 1]?.split(':')[1];
 
   function handleClose() {
     clearTimeout(timeoutId);
