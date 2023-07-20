@@ -41,10 +41,3 @@ export function importi18nResources() {
 
   return obj;
 }
-
-export function getTranslation(key, locale = 'en') {
-  const context = require.context('../locales/', true, /translation\.json$/);
-  const langFile = context.keys().find((path) => path.includes(locale));
-  const jsonObj = context(langFile);
-  return jsonObj[key];
-}

@@ -79,25 +79,35 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     const updatedUser = await handleUser(user, displayName, updateUser, login);
 
-    const translations = {
+    const boardTranslations = {
       start: t('start'),
       finish: t('finish'),
     };
+
     const { settingsBoardUpdated, newBoard } = await handleBoardUpdate({
       formData,
       dataFolder,
       updateBoard,
       customTiles,
       updateSettings,
-      translations,
+      translations: boardTranslations,
     });
 
     // if our board updated, or we changed rooms, send out that message.
     if (settingsBoardUpdated || room !== formData.room) {
+      const messageTranslations = {
+        standalone: t('standalone'),
+        appendSome: t('appendSome'),
+        appendMost: t('asppendMost'),
+        gameSettings: t('gameSettings'),
+        customTiles: t('customTiles'),
+        misc: t('misc'),
+      };
+
       sendMessage({
         room: formData.room || 'public',
         user: updatedUser,
-        text: getSettingsMessage(formData, customTiles, dataFolder, i18n.resolvedLanguage),
+        text: getSettingsMessage(formData, customTiles, dataFolder, messageTranslations),
         type: 'settings',
         gameBoard: JSON.stringify(newBoard),
         settings: JSON.stringify(exportSettings(formData)),

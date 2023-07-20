@@ -1,6 +1,6 @@
-import { camelToPascal, pascalToCamel } from 'helpers/strings';
+import { pascalToCamel } from 'helpers/strings';
 import customizeBoard from 'services/buildGame';
-import { importActions, getTranslation } from 'services/importLocales';
+import { importActions } from 'services/importLocales';
 
 function hasSomethingPicked(object) {
   return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
@@ -10,7 +10,7 @@ function isAppending(option, variationOption) {
   return option > 0 && variationOption?.startsWith('append');
 }
 
-function getCustomTileCount(settings, customTiles, dataFolder) {
+function getCustomTileCount(settings, customTiles, dataFolder, translations) {
   const usedCustomTiles = [];
   const settingsDataFolder = {};
   // restrict our datafolder to just those the user selected.
@@ -23,7 +23,7 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
     customTiles.forEach((entry) => {
       if (
         (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity))
-        || entry.group === getTranslation('misc', settings.locale)
+        || entry.group === translations.misc
       ) {
         usedCustomTiles.push(entry);
       }
@@ -34,29 +34,27 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
   return usedCustomTiles.length;
 }
 
-export function getSettingsMessage(settings, customTiles, dataFolder, locale = 'en') {
-  const gameSettings = getTranslation('gameSettings', locale);
-  const customTilesText = getTranslation('customTiles', locale);
-  let message = `### ${gameSettings}\r\n`;
+export function getSettingsMessage(settings, customTiles, dataFolder, translations) {
+  let message = `### ${translations.gameSettings}\r\n`;
   const { poppersVariation, alcoholVariation } = settings;
   Object.entries(dataFolder).map(([key, val]) => {
     if (settings[key] > 0) {
       const intensity = settings[key];
       message += `* ${val?.label}: ${Object.keys(val?.actions)?.[intensity]}`;
       if (key === 'poppers') {
-        message += ` (${camelToPascal(poppersVariation)})`;
+        message += ` (${translations[poppersVariation]})`;
       }
       if (key === 'alcohol') {
-        message += ` (${camelToPascal(alcoholVariation)})`;
+        message += ` (${translations[alcoholVariation]})`;
       }
       message += '\r\n';
     }
     return undefined;
   });
 
-  const customTileCount = getCustomTileCount(settings, customTiles, dataFolder);
+  const customTileCount = getCustomTileCount(settings, customTiles, dataFolder, translations);
   if (customTileCount) {
-    message += `* ${customTilesText}: ${customTileCount} \r\n`;
+    message += `* ${translations.customTilesText}: ${customTileCount} \r\n`;
   }
 
   return message;
