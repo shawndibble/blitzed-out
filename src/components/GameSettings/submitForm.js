@@ -1,4 +1,5 @@
 import { pascalToCamel } from 'helpers/strings';
+import i18next from 'i18next';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
 
@@ -10,7 +11,7 @@ function isAppending(option, variationOption) {
   return option > 0 && variationOption?.startsWith('append');
 }
 
-function getCustomTileCount(settings, customTiles, dataFolder, translations) {
+function getCustomTileCount(settings, customTiles, dataFolder) {
   const usedCustomTiles = [];
   const settingsDataFolder = {};
   // restrict our datafolder to just those the user selected.
@@ -23,7 +24,7 @@ function getCustomTileCount(settings, customTiles, dataFolder, translations) {
     customTiles.forEach((entry) => {
       if (
         (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity))
-        || entry.group === translations.misc
+        || entry.group === i18next.t('misc')
       ) {
         usedCustomTiles.push(entry);
       }
@@ -34,27 +35,27 @@ function getCustomTileCount(settings, customTiles, dataFolder, translations) {
   return usedCustomTiles.length;
 }
 
-export function getSettingsMessage(settings, customTiles, dataFolder, translations) {
-  let message = `### ${translations.gameSettings}\r\n`;
+export function getSettingsMessage(settings, customTiles, dataFolder) {
+  let message = `### ${i18next.t('gameSettings')}\r\n`;
   const { poppersVariation, alcoholVariation } = settings;
   Object.entries(dataFolder).map(([key, val]) => {
     if (settings[key] > 0) {
       const intensity = settings[key];
       message += `* ${val?.label}: ${Object.keys(val?.actions)?.[intensity]}`;
       if (key === 'poppers') {
-        message += ` (${translations[poppersVariation]})`;
+        message += ` (${i18next.t(poppersVariation)})`;
       }
       if (key === 'alcohol') {
-        message += ` (${translations[alcoholVariation]})`;
+        message += ` (${i18next.t(alcoholVariation)})`;
       }
       message += '\r\n';
     }
     return undefined;
   });
 
-  const customTileCount = getCustomTileCount(settings, customTiles, dataFolder, translations);
+  const customTileCount = getCustomTileCount(settings, customTiles, dataFolder);
   if (customTileCount) {
-    message += `* ${translations.customTilesText}: ${customTileCount} \r\n`;
+    message += `* ${i18next.t('customTilesText')}: ${customTileCount} \r\n`;
   }
 
   return message;
@@ -98,7 +99,7 @@ export function validateFormData(gameOptions) {
 }
 
 export async function handleBoardUpdate({
-  formData, dataFolder, updateBoard, customTiles, updateSettings, translations,
+  formData, dataFolder, updateBoard, customTiles, updateSettings,
 }) {
   let updatedDataFolder = { ...dataFolder };
   let settingsBoardUpdated = formData.boardUpdated;
@@ -110,7 +111,7 @@ export async function handleBoardUpdate({
     settingsBoardUpdated = true;
   }
 
-  const newBoard = customizeBoard(formData, updatedDataFolder, translations, customTiles);
+  const newBoard = customizeBoard(formData, updatedDataFolder, customTiles);
 
   // if our board updated, then push those changes out.
   if (settingsBoardUpdated) await updateBoard(newBoard);

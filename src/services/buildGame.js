@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import shuffleArrayBy from '../helpers/arrays';
 import { pascalToCamel } from '../helpers/strings';
 
@@ -163,8 +164,8 @@ export default function customizeBoard(
 
   const shuffledTiles = shuffleArrayBy(customTiles, 'currentLevel') || [];
 
-  shuffledTiles.unshift({ title: '', description: translations.start });
-  shuffledTiles.push({ title: '', description: translations.finish });
+  shuffledTiles.unshift({ title: '', description: i18next.t('start') });
+  shuffledTiles.push({ title: '', description: i18next.t('finish') });
 
   return shuffledTiles;
 }
