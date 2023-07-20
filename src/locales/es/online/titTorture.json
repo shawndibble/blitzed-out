@@ -1,36 +1,36 @@
-{   
+﻿{   
     "label": "Tortura de pezones",
     "actions": {
-        "None": [],
-        "Aprieta/Frota": [
-            "Frota tus pezones.",
+        "Ninguna": [],
+        "Apretar/Acariciar": [
+            "Acaricia los pezones.",
             "Juega con los pezones.",
-            "Golpea tus pezones.",
-            "Aprieta tus pezones.",
-            "Moja tus pezones.",
-            "Frota tus pezones durante 15 segundos.",
-            "Golpea tus pezones 10 veces.",
-            "Aprieta tus pezones durante 15 segundos."
+            "Golpea suavemente los pezones.",
+            "Aprieta los pezones.",
+            "Moja los pezones.",
+            "Acaricia los pezones 15 segundos.",
+            "Golpea los pezones con el dedo 10 veces.",
+            "Aprieta los pezones 15 segundos."
         ],
-        "Pellizca/Tira": [
-            "Pellizca tus pezones con fuerza.",
-            "Tira de tus pezones.",
-            "Frota tus pezones durante 15 segundos.",
-            "Gira tus pezones en ambas direcciones.",
-            "Gira tus pezones como un helicóptero mientras los tiras.",
+        "Pellizcar/Tirar": [
+            "Pellizca los pezones con fuerza.",
+            "Tira de los pezones.",
+            "Frota los pezones durante 15 segundos.",
+            "Gira los pezones en ambas direcciones.",
+            "Retuerce los pezones mientras los estiras.",
             "Sé duro con tus pezones durante 20 segundos."
         ],
         "Pinzas/Juguetes": [
-            "Coloca un juguete en tus pezones durante 10 segundos.",
+            "Pon un juguete en tus pezones 10 segundos.",
             "Con el juguete en los pezones, tira de ellos.",
             "Gira tus pezones con fuerza.",
             "Golpea tu juguete para pezones 10 veces.",
             "Sé duro con tus pezones."
         ],
         "Lo más fuerte posible": [
-            "Pellizca tus pezones con la mayor fuerza posible.",
-            "Tira de esos pezones lo más lejos que puedas.",
-            "Gira tus pezones hasta que llores.",
+            "Pellizca los pezones con la mayor fuerza posible.",
+            "Tira de los pezones lo más lejos que puedas.",
+            "Retuerce tus pezones hasta que llores.",
             "Masajea tus pezones.",
             "Golpea tu pecho/pezones."
         ]

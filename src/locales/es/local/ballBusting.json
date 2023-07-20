@@ -2,20 +2,20 @@
     "label": "Golpear los testículos",
     "actions": {
         "Ninguna": [],
-        "Bofetada/apretón": [
+        "Bofetada/Apretón": [
             "Masajea los testículos.",
-            "Date 2 golpes en los testículos.",
-            "Deja que otro jugador te dé 10 palmadas suaves en los testículos.",
-            "Aprieta tus testículos durante 15 segundos.",
-            "Deja que otro jugador te dé 3 golpes en los testículos.",
-            "Estira tus testículos durante 15 segundos.",
-            "Deja que te den golpes con los dedos en los testículos durante 10 segundos.",
+            "Date 2 palmadas en los testículos.",
+            "Deja que otro jugador te dé 10 palmaditas en los testículos.",
+            "Apriétate los testículos 15 segundos.",
+            "Deja que otro jugador te dé 3 palmadas en los testículos.",
+            "Estira tus testículos 15 segundos.",
+            "Deja que te den golpes con los dedos en los testículos 10 segundos.",
             "Aprieta los testículos hasta el próximo turno.",
-            "Aprieta los testículos durante 10 segundos.",
-            "Golpea rápidamente tus testículos durante 15 segundos.",
+            "Aprieta los testículos 10 segundos.",
+            "Golpea rápidamente tus testículos 15 segundos.",
             "Golpe suave después de que alguien tire los dados.",
             "Deja que otro jugador te dé 5 golpes en los testículos.",
-            "Mantén la respiración durante 10 segundos mientras te golpean los testículos.",
+            "Mantén la respiración 10 segundos mientras te golpean los testículos.",
             "Recibe un masaje en los testículos durante 15 segundos."
         ],
         "Golpear/Aplastar": [
@@ -30,23 +30,23 @@
             "Recibe 4 golpes fuertes en los testículos.",
             "Recibe una patada en los testículos."
         ],
-        "Utilizar artículo": [
+        "Utiliza un objeto": [
             "Golpea los testículos.",
             "Aplasta los testículos con un objeto.",
-            "Golpes en los testículos durante 15 segundos.",
+            "Golpea los testículos 15 segundos.",
             "5 golpes fuertes en los testículos.",
             "Golpe en los testículos después de que alguien tire los dados.",
             "2 golpes en los testículos con un objeto.",
-            "Golpes en los testículos durante 20 segundos.",
+            "Golpea los testículos 20 segundos.",
             "Aplasta los testículos con un objeto.",
-            "Golpes rápidos en los testículos durante 15 segundos con un objeto."
+            "Golpes rápidos en los testículos 15 segundos con un objeto."
         ],
         "Tan duro como sea posible": [
             "Recibe 5 golpes muy fuertes en los testículos con un objeto.",
             "Date 5 puñetazos muy fuertes en los testículos.",
             "Aplasta los testículos con toda tu fuerza.",
-            "Recibe golpes fuertes en los testículos durante 20 segundos con un objeto.",
-            "Deja que alguien te tire fuertemente de los testículos durante 20 segundos."
+            "Recibe golpes fuertes en los testículos 20 segundos con un objeto.",
+            "Deja que alguien te tire fuertemente de los testículos 20 segundos."
         ]
     }
 }
