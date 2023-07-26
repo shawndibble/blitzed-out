@@ -8,16 +8,35 @@ function filteredGameMessages(messages) {
   return [...new Map(filteredMessages.map((m) => [m.uid, m])).values()];
 }
 
+// see if the realtime db connection is recent.
+function isRecentlyConnected(userObj) {
+  const FIVE_MINUTES = 5 * 60 * 1000;
+  const mostRecentEntry = Object.values(userObj).sort((a, b) => b.lastActive - a.lastActive)[0];
+  return (Date.now() - mostRecentEntry.lastActive) < FIVE_MINUTES;
+}
+
+// Check if the user sent a message recently.
+function isRecentlyActive(messages, onlineUid) {
+  const TEN_MINUTES = 10 * 60 * 1000;
+  const lastActivity = messages
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .find((m) => m.uid === onlineUid)?.timestamp.toMillis();
+  return (Date.now() - lastActivity) < TEN_MINUTES;
+}
+
 function getCurrentPlayers(onlineUsers, user, messages) {
   const uniqueGameActions = filteredGameMessages(messages);
 
   return Object.entries(onlineUsers)
-    .filter((data) => {
-      // The realtime database will have values within the last few seconds,
-      // but for those with a bad connection, we will give them a minute.
-      const ONE_MINUTE = 60 * 1000;
-      const mostRecentEntry = Object.values(data[1]).sort((a, b) => b.lastActive - a.lastActive)[0];
-      return (new Date() - new Date(Date(mostRecentEntry.lastActive))) < ONE_MINUTE;
+    .filter(([onlineUid, data]) => {
+      // realtime database will remove users when they close their browser,
+      // but we need to handle inactive users and those with connection problems.
+      // For those who have been left behind:
+      // * Check if the user recently connected in the last 5 minutes, but haven't sent a message
+      // * Check if the user has done anything in the last 10 minutes.
+      // * Check if the user is himself (should always list yourself)
+      const isSelf = onlineUid === user?.uid;
+      return isRecentlyConnected(data) || isRecentlyActive(messages, onlineUid) || isSelf;
     })
     .map(([onlineUid, data]) => {
       const mostRecentEntry = Object.values(data).sort((a, b) => b.lastActive - a.lastActive)[0];
