@@ -13,8 +13,6 @@ export default function usePlayerMove(room, rollValue) {
   const total = gameBoard.length;
   const [tile, setTile] = useState(gameBoard[0]);
 
-  console.log(playerList);
-
   function handleTextOutput(newTile, rollNumber, newLocation, preMessage) {
     let message = `${t('roll')}: ${rollNumber}  \r\n`;
     message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;

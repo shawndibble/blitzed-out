@@ -11,21 +11,31 @@ function filteredGameMessages(messages) {
 function getCurrentPlayers(onlineUsers, user, messages) {
   const uniqueGameActions = filteredGameMessages(messages);
 
-  return Object.entries(onlineUsers).map(([onlineUid, value]) => {
-    const displayName = Object.values(value)[0];
-    const userGameMessage = uniqueGameActions.find((message) => message.uid === onlineUid)?.text;
-    const currentLocation = userGameMessage && userGameMessage.match(/(?:#)[\d]*(?=:)/gs)
-      ? Number(userGameMessage.match(/(?:#)[\d]*(?=:)/gs)[0].replace('#', ''))
-      : 0;
-    const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
+  return Object.entries(onlineUsers)
+    .filter((data) => {
+      // The realtime database will have values within the last few seconds,
+      // but for those with a bad connection, we will give them a minute.
+      const ONE_MINUTE = 60 * 1000;
+      const mostRecentEntry = Object.values(data[1]).sort((a, b) => b.lastActive - a.lastActive)[0];
+      return new Date() - new Date(Date(mostRecentEntry)) < ONE_MINUTE;
+    })
+    .map(([onlineUid, data]) => {
+      const mostRecentEntry = Object.values(data).sort((a, b) => b.lastActive - a.lastActive)[0];
+      const { displayName } = mostRecentEntry;
+      console.log(displayName, Date(mostRecentEntry.lastActive));
+      const userGameMessage = uniqueGameActions.find((message) => message.uid === onlineUid)?.text;
+      const currentLocation = userGameMessage && userGameMessage.match(/(?:#)[\d]*(?=:)/gs)
+        ? Number(userGameMessage.match(/(?:#)[\d]*(?=:)/gs)[0].replace('#', ''))
+        : 0;
+      const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
 
-    return {
-      displayName: displayName.displayName ?? displayName,
-      uid: onlineUid,
-      isSelf: onlineUid === user?.uid,
-      location,
-    };
-  });
+      return {
+        displayName,
+        uid: onlineUid,
+        isSelf: onlineUid === user?.uid,
+        location,
+      };
+    });
 }
 
 export default function usePlayerList(roomId) {
