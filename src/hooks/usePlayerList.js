@@ -22,7 +22,6 @@ function getCurrentPlayers(onlineUsers, user, messages) {
     .map(([onlineUid, data]) => {
       const mostRecentEntry = Object.values(data).sort((a, b) => b.lastActive - a.lastActive)[0];
       const { displayName } = mostRecentEntry;
-      console.log(displayName, Date(mostRecentEntry.lastActive));
       const userGameMessage = uniqueGameActions.find((message) => message.uid === onlineUid)?.text;
       const currentLocation = userGameMessage && userGameMessage.match(/(?:#)[\d]*(?=:)/gs)
         ? Number(userGameMessage.match(/(?:#)[\d]*(?=:)/gs)[0].replace('#', ''))
