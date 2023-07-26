@@ -17,7 +17,7 @@ function getCurrentPlayers(onlineUsers, user, messages) {
       // but for those with a bad connection, we will give them a minute.
       const ONE_MINUTE = 60 * 1000;
       const mostRecentEntry = Object.values(data[1]).sort((a, b) => b.lastActive - a.lastActive)[0];
-      return new Date() - new Date(Date(mostRecentEntry)) < ONE_MINUTE;
+      return (new Date() - new Date(Date(mostRecentEntry.lastActive))) < ONE_MINUTE;
     })
     .map(([onlineUid, data]) => {
       const mostRecentEntry = Object.values(data).sort((a, b) => b.lastActive - a.lastActive)[0];
