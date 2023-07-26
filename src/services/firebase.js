@@ -77,7 +77,7 @@ export function setMyPresence({
 
       // Add this device to my connections list
       // this value could contain info about the device or a timestamp too
-      set(newRef, newDisplayName);
+      set(newRef, { displayName: newDisplayName, lastActive: Date.now() });
     }
   });
 }

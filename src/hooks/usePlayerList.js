@@ -20,7 +20,7 @@ function getCurrentPlayers(onlineUsers, user, messages) {
     const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
 
     return {
-      displayName,
+      displayName: displayName.displayName ?? displayName,
       uid: onlineUid,
       isSelf: onlineUid === user?.uid,
       location,
