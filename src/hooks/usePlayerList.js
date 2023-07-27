@@ -3,6 +3,8 @@ import { getUserList } from 'services/firebase';
 import useAuth from './useAuth';
 import useMessages from './useMessages';
 
+const FIVE_MINUTES = 5 * 60 * 1000;
+
 function filteredGameMessages(messages) {
   const filteredMessages = messages.filter((m) => m.type === 'actions');
   return [...new Map(filteredMessages.map((m) => [m.uid, m])).values()];
@@ -10,18 +12,16 @@ function filteredGameMessages(messages) {
 
 // see if the realtime db connection is recent.
 function isRecentlyConnected(userObj) {
-  const FIVE_MINUTES = 5 * 60 * 1000;
   const mostRecentEntry = Object.values(userObj).sort((a, b) => b.lastActive - a.lastActive)[0];
   return (Date.now() - mostRecentEntry.lastActive) < FIVE_MINUTES;
 }
 
 // Check if the user sent a message recently.
 function isRecentlyActive(messages, onlineUid) {
-  const TEN_MINUTES = 10 * 60 * 1000;
   const lastActivity = messages
     .sort((a, b) => b.timestamp - a.timestamp)
     .find((m) => m.uid === onlineUid)?.timestamp.toMillis();
-  return (Date.now() - lastActivity) < TEN_MINUTES;
+  return (Date.now() - lastActivity) < FIVE_MINUTES;
 }
 
 function getCurrentPlayers(onlineUsers, user, messages) {
