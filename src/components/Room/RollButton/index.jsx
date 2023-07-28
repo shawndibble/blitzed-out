@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from 'hooks/useCountdown';
 
-export default function RollButton({ setRollValue }) {
+export default function RollButton({ setRollValue, playerTile }) {
   const { t } = useTranslation();
   const [isDisabled, setDisabled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -21,14 +21,19 @@ export default function RollButton({ setRollValue }) {
 
   const options = [t('manual'), t('auto30'), t('auto60'), t('auto90')];
 
+  const rollDice = () => setRollValue([Math.floor(Math.random() * 4) + 1]);
+
   const handleClick = () => {
     if (selectedIndex === 0) {
-      setRollValue([Math.floor(Math.random() * 4) + 1]);
+      rollDice();
       setDisabled(true);
       setTimeout(() => setDisabled(false), 4000);
       return null;
     }
 
+    if (isPaused && timeLeft === autoTime) {
+      rollDice();
+    }
     togglePause();
     return null;
   };
@@ -38,6 +43,7 @@ export default function RollButton({ setRollValue }) {
     setOpen(false);
     const autoArray = options[index].split(' ');
     const time = Number(autoArray[1].slice(0, -1));
+    if (!isPaused) togglePause();
     setAutoTime(time);
     setTimeLeft(time);
   };
@@ -55,6 +61,12 @@ export default function RollButton({ setRollValue }) {
   };
 
   useEffect(() => {
+    if (playerTile.description === t('finish')) {
+      togglePause();
+    }
+  }, [playerTile]);
+
+  useEffect(() => {
     if (isDisabled) return setRollText(t('wait'));
     if (selectedIndex === 0) {
       return setRollText(t('roll'));
@@ -66,7 +78,7 @@ export default function RollButton({ setRollValue }) {
       return setRollText(`${t('pause')} (${timeLeft})`);
     }
 
-    setRollValue([Math.floor(Math.random() * 4) + 1]);
+    rollDice();
     return setTimeLeft(autoTime);
   }, [isDisabled, selectedIndex, timeLeft, autoTime, isPaused]);
 

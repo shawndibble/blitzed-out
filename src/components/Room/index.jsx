@@ -41,7 +41,7 @@ export default function Room() {
     <>
       <Navigation room={room} playerList={playerList} />
 
-      <RollButton setRollValue={setRollValue} />
+      <RollButton setRollValue={setRollValue} playerTile={tile} />
 
       {!isMobile ? (
         <Box className="desktop-container">
