@@ -11,7 +11,7 @@
 }
 
 .pulse-animation {
-  scroll-margin-top: 3rem;
+  scroll-margin-top: 5rem;
   animation: pulse-white 1.5s 1;
   box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.7);
 }
