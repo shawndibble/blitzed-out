@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { Box, Fab } from '@mui/material';
 import { Casino } from '@mui/icons-material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MessageInput from 'components/MessageInput';
 import MessageList from 'components/MessageList';
@@ -33,6 +33,19 @@ export default function Room() {
   }
 
   const { playerList, tile } = usePlayerMove(room, rollValue);
+
+  // handle timeout of dialog
+  let timeoutId;
+  useEffect(() => {
+    if (popupMessage) timeoutId = setTimeout(() => setPopupMessage(false), 8000);
+    return () => clearTimeout(timeoutId);
+  }, [popupMessage]);
+
+  const closeTransitionModal = () => {
+    clearTimeout(timeoutId);
+    setPopupMessage(false);
+  };
+  // end handle timeout of dialog.
 
   return (
     <>
@@ -75,12 +88,15 @@ export default function Room() {
           />
         </Box>
       )}
-      <TransitionModal
-        text={popupMessage?.text}
-        displayName={popupMessage?.displayName}
-        setOpen={setPopupMessage}
-        open={!!popupMessage || !!popupMessage?.text}
-      />
+      {popupMessage?.text && (
+        <TransitionModal
+          text={popupMessage?.text}
+          displayName={popupMessage?.displayName}
+          setOpen={setPopupMessage}
+          open={!!popupMessage || !!popupMessage?.text}
+          handleClose={closeTransitionModal}
+        />
+      )}
     </>
   );
 }

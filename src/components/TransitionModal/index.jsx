@@ -22,19 +22,12 @@ const style = (theme) => ({
 });
 
 export default function TransitionModal({
-  open, setOpen, text, displayName,
+  open, text, displayName, handleClose,
 }) {
   const { t } = useTranslation();
-  let timeoutId;
-  if (open) timeoutId = setTimeout(() => setOpen(false), 8000);
 
   const title = text?.match(/(?:#[\d]*:).*(?=\r)/gs);
   const description = extractAction(text);
-
-  function handleClose() {
-    clearTimeout(timeoutId);
-    setOpen(false);
-  }
 
   return (
     <div>
@@ -42,8 +35,7 @@ export default function TransitionModal({
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
         open={open}
-        onClose={() => handleClose()}
-        closeAfterTransition
+        onClose={handleClose}
         slots={{ backdrop: Backdrop }}
         slotProps={{
           backdrop: {
