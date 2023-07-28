@@ -71,6 +71,10 @@
   padding: 0.25rem;
 }
 
+.message img {
+  max-width: 100%;
+}
+
 .message-header {
   display: flex;
   justify-content: space-between;
