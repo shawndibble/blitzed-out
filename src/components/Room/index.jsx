@@ -10,6 +10,8 @@ import Navigation from 'components/Navigation';
 import useWindowDimensions from 'hooks/useWindowDimensions';
 import usePlayerMove from 'hooks/usePlayerMove';
 import usePresence from 'hooks/usePresence';
+import TransitionModal from 'components/TransitionModal';
+import useSoundAndDialog from 'hooks/useSoundAndDialog';
 import BottomTabs from './BottomTabs';
 import './styles.css';
 
@@ -19,7 +21,7 @@ export default function Room() {
   const room = params.id ?? 'public';
 
   usePresence(room);
-
+  const [popupMessage, setPopupMessage] = useSoundAndDialog(room);
   const { isMobile } = useWindowDimensions();
   const [rollValue, setRollValue] = useState([0]);
   const [isDisabled, setDisabled] = useState(false);
@@ -73,6 +75,12 @@ export default function Room() {
           />
         </Box>
       )}
+      <TransitionModal
+        text={popupMessage?.text}
+        displayName={popupMessage?.displayName}
+        setOpen={setPopupMessage}
+        open={!!popupMessage || !!popupMessage?.text}
+      />
     </>
   );
 }
