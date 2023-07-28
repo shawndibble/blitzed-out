@@ -30,6 +30,7 @@
   "mySound": "Mi config/tareas suena",
   "otherSound": "Sonidos de config/tareas de otros",
   "chatSound": "Sonido del chat",
+  "readRoll": "Di mis rollos",
   "roll": "Tirar",
   "wait": "Espera",
   "alreadyFinished": "Ya terminaste. Empezar de nuevo.",

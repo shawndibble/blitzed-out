@@ -17,7 +17,7 @@ export default function LanguageSelect({ boardUpdated }) {
   }
 
   const menuItems = Object.entries(languages)
-    .map(([key, label]) => <MenuItem value={key} key={key}>{label}</MenuItem>);
+    .map(([key, obj]) => <MenuItem value={key} key={key}>{obj.label}</MenuItem>);
 
   return (
     <Box sx={{ minWidth: 120, mt: 1, mb: 2 }}>

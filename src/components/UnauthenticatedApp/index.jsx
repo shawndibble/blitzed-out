@@ -22,13 +22,13 @@ export default function UnauthenticatedApp() {
   const room = params.id ?? 'public';
   const playerList = usePlayerList(room)[0];
 
-  const languageLinks = Object.entries(languages).map(([key, label]) => (
+  const languageLinks = Object.entries(languages).map(([key, obj]) => (
     <Button
       key={key}
       onClick={() => i18n.changeLanguage(key)}
       disabled={i18n.resolvedLanguage === key}
     >
-      {label}
+      {obj.label}
     </Button>
   ));
 

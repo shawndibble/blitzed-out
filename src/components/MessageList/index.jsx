@@ -13,19 +13,20 @@ import useAuth from 'hooks/useAuth';
 import useMessages from 'hooks/useMessages';
 import diceSound from 'sounds/roll-dice.mp3';
 import messageSound from 'sounds/message.mp3';
-import { a11yProps } from 'helpers/strings';
+import { a11yProps, extractAction } from 'helpers/strings';
 import { Trans, useTranslation } from 'react-i18next';
 import moment from 'moment/moment';
 import 'moment/locale/es';
 import 'moment/locale/fr';
 import './styles.css';
+import speak from 'services/textToSpeech';
 
 export default function MessageList({ room }) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
   const messages = useMessages(room);
   const {
-    playerDialog, othersDialog, mySound, otherSound, chatSound,
+    playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll,
   } = useLocalStorage('gameSettings')[0];
   const [currentTab, setTab] = useState(0);
   const [updatedMessages, setMessages] = useState(messages);
@@ -57,6 +58,11 @@ export default function MessageList({ room }) {
       const myMessage = latestMessage?.uid === user?.uid;
       if (((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions') {
         playDiceSound();
+      }
+
+      if (myMessage && readRoll && latestMessage?.type === 'actions') {
+        const text = extractAction(latestMessage?.text);
+        speak(text, i18n.resolvedLanguage);
       }
 
       if (chatSound && latestMessage?.type === 'chat') {

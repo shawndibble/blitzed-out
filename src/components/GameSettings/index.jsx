@@ -225,6 +225,18 @@ export default function GameSettings({ submitText, closeDialog }) {
           className="settings-switch"
         />
         <Divider />
+        <FormControlLabel
+          control={(
+            <Switch
+              checked={formData.readRoll}
+              onChange={(event) => setFormData({ ...formData, readRoll: event.target.checked })}
+            />
+          )}
+          label={t('readRoll')}
+          labelPlacement="start"
+          className="settings-switch"
+        />
+        <Divider />
       </TabPanel>
 
       <div className="flex-buttons">

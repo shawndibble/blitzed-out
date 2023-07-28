@@ -17,3 +17,8 @@ export function a11yProps(index) {
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
+
+export function extractAction(message) {
+  const textLines = message.split(/\r?\n/) || [];
+  return textLines[textLines.length - 1]?.split(':')[1];
+}
