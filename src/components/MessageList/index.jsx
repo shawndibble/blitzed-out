@@ -24,7 +24,9 @@ export default function MessageList({ room }) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
   const messages = useMessages(room);
-  const { playerDialog, othersDialog, sound } = useLocalStorage('gameSettings')[0];
+  const {
+    playerDialog, othersDialog, mySound, otherSound, chatSound,
+  } = useLocalStorage('gameSettings')[0];
   const [currentTab, setTab] = useState(0);
   const [updatedMessages, setMessages] = useState(messages);
   const [popupMessage, setPopupMessage] = useState(false);
@@ -51,10 +53,13 @@ export default function MessageList({ room }) {
       setPopupMessage(latestMessage);
     }
 
-    if (newMessage && latestMessage && sound) {
-      if (latestMessage?.type === 'actions') {
+    if (newMessage && latestMessage) {
+      const myMessage = latestMessage?.uid === user?.uid;
+      if (((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions') {
         playDiceSound();
-      } else {
+      }
+
+      if (chatSound && latestMessage?.type === 'chat') {
         playMessageSound();
       }
     }

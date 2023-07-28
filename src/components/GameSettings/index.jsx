@@ -32,7 +32,8 @@ export default function GameSettings({ submitText, closeDialog }) {
     boardUpdated: false,
     playerDialog: true,
     othersDialog: false,
-    sound: true,
+    mySound: true,
+    chatSound: true,
     locale: 'en',
     gameMode: 'online',
   });
@@ -191,11 +192,35 @@ export default function GameSettings({ submitText, closeDialog }) {
         <FormControlLabel
           control={(
             <Switch
-              checked={formData.sound}
-              onChange={(event) => setFormData({ ...formData, sound: event.target.checked })}
+              checked={formData.mySound}
+              onChange={(event) => setFormData({ ...formData, mySound: event.target.checked })}
             />
           )}
-          label={t('sound')}
+          label={t('mySound')}
+          labelPlacement="start"
+          className="settings-switch"
+        />
+        <Divider />
+        <FormControlLabel
+          control={(
+            <Switch
+              checked={formData.otherSound}
+              onChange={(event) => setFormData({ ...formData, otherSound: event.target.checked })}
+            />
+          )}
+          label={t('otherSound')}
+          labelPlacement="start"
+          className="settings-switch"
+        />
+        <Divider />
+        <FormControlLabel
+          control={(
+            <Switch
+              checked={formData.chatSound}
+              onChange={(event) => setFormData({ ...formData, chatSound: event.target.checked })}
+            />
+          )}
+          label={t('chatSound')}
           labelPlacement="start"
           className="settings-switch"
         />
