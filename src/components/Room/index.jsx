@@ -1,8 +1,6 @@
 import { useParams } from 'react-router-dom';
-import { Box, Fab } from '@mui/material';
-import { Casino } from '@mui/icons-material';
+import { Box } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import MessageInput from 'components/MessageInput';
 import MessageList from 'components/MessageList';
 import GameBoard from 'components/GameBoard';
@@ -14,9 +12,9 @@ import TransitionModal from 'components/TransitionModal';
 import useSoundAndDialog from 'hooks/useSoundAndDialog';
 import BottomTabs from './BottomTabs';
 import './styles.css';
+import RollButton from './RollButton';
 
 export default function Room() {
-  const { t } = useTranslation();
   const params = useParams();
   const room = params.id ?? 'public';
 
@@ -24,14 +22,6 @@ export default function Room() {
   const [popupMessage, setPopupMessage] = useSoundAndDialog(room);
   const { isMobile } = useWindowDimensions();
   const [rollValue, setRollValue] = useState([0]);
-  const [isDisabled, setDisabled] = useState(false);
-
-  function roll() {
-    setRollValue([Math.floor(Math.random() * 4) + 1]);
-    setDisabled(true);
-    setTimeout(() => setDisabled(false), 4000);
-  }
-
   const { playerList, tile } = usePlayerMove(room, rollValue);
 
   // handle timeout of dialog
@@ -51,18 +41,7 @@ export default function Room() {
     <>
       <Navigation room={room} playerList={playerList} />
 
-      <Fab
-        variant="extended"
-        size="medium"
-        aria-label={t('roll')}
-        onClick={() => roll()}
-        className="dice-roller"
-        disabled={isDisabled}
-      >
-        <Casino />
-        {' '}
-        {isDisabled ? t('wait') : t('roll')}
-      </Fab>
+      <RollButton setRollValue={setRollValue} />
 
       {!isMobile ? (
         <Box className="desktop-container">
