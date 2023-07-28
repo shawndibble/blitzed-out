@@ -6,18 +6,18 @@
             "Massage balls.",
             "2 ball slaps",
             "10 light ball pats",
-            "squeeze balls for 15s.",
+            "squeeze balls for 15 seconds.",
             "3 ball slaps",
-            "Stretch balls for 15s.",
-            "Flick balls for 10s",
+            "Stretch balls for 15 seconds.",
+            "Flick balls for 10 seconds",
             "Squeeze balls until next turn",
-            "Squeeze balls for 10s",
+            "Squeeze balls for 10 seconds",
             "Quick ball slaps for 15 seconds",
             "Light slap after anyone rolls.",
             "5 ball slaps.",
-            "Hold breath 10s while slapping balls",
+            "Hold breath 10 seconds while slapping balls",
             "Ball slaps.",
-            "Massage balls for 15s."
+            "Massage balls for 15 seconds."
         ],
         "Punch/Crush": [
             "2 ball punches",
@@ -32,20 +32,20 @@
         "Use Item": [
             "Punch balls.",
             "Crush balls with item.",
-            "Ball slaps for 15s.",
+            "Ball slaps for 15 seconds.",
             "5 hard ball slaps",
             "Ball punch after anyone rolls",
             "2 ball slaps with item",
-            "20s ball hits.",
+            "20 seconds ball hits.",
             "Crush balls with item",
-            "15s quick ball hits with item"
+            "15 seconds quick ball hits with item"
         ],
         "As Hard As Possible": [
             "5 hardest ball hits with an item.",
             "5 hardest ball punches",
             "Crush balls as hard as you can.",
-            "20s hard ball hits with item.",
-            "Pull balls hard for 20s."
+            "20 seconds hard ball hits with item.",
+            "Pull balls hard for 20 seconds."
         ]
     }
 }

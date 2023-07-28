@@ -6,17 +6,17 @@
             "Massage balls.",
             "2 ball slaps to yourself.",
             "10 light ball pats from another player.",
-            "squeeze your balls for 15s.",
+            "squeeze your balls for 15 seconds.",
             "3 ball slaps from another player.",
-            "Stretch your balls for 15s.",
-            "Have your balls flicked for 10s.",
+            "Stretch your balls for 15 seconds.",
+            "Have your balls flicked for 10 seconds.",
             "Squeeze balls until next turn.",
-            "Squeeze balls for 10s.",
+            "Squeeze balls for 10 seconds.",
             "Quickly slap your balls for 15 seconds.",
             "Light slap after anyone rolls.",
             "5 ball slaps from another player.",
-            "Hold breath 10s while receiving ball slaps.",
-            "Receive ball massages for 15s."
+            "Hold breath 10 seconds while receiving ball slaps.",
+            "Receive ball massages for 15 seconds."
         ],
         "Punch/Crush": [
             "Receive 2 ball punches.",
@@ -33,20 +33,20 @@
         "Use Item": [
             "Punch balls.",
             "Crush balls with item.",
-            "Ball slaps for 15s.",
+            "Ball slaps for 15 seconds.",
             "5 hard ball slaps",
             "Ball punch after anyone rolls",
             "2 ball slaps with item",
-            "20s ball hits.",
+            "20 seconds ball hits.",
             "Crush balls with item",
-            "15s quick ball hits with item"
+            "15 seconds quick ball hits with item"
         ],
         "As Hard As Possible": [
             "Receive 5 hardest ball hits with an item.",
             "Give yourself 5 hardest ball punches",
             "Crush balls as hard as you can.",
-            "Receive 20s hard ball hits with item.",
-            "Have someone pull your balls hard for 20s."
+            "Receive 20 seconds hard ball hits with item.",
+            "Have someone pull your balls hard for 20 seconds."
         ]
     }
 }
