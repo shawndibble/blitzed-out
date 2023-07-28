@@ -4,6 +4,7 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
+import { extractAction } from 'helpers/strings';
 
 const style = (theme) => ({
   position: 'absolute',
@@ -28,10 +29,7 @@ export default function TransitionModal({
   if (open) timeoutId = setTimeout(() => setOpen(false), 8000);
 
   const title = text?.match(/(?:#[\d]*:).*(?=\r)/gs);
-
-  // Since "action" can be different for other languages, grab the last line after the : instead.
-  const textLines = text?.split(/\r?\n/) || [];
-  const description = textLines[textLines.length - 1]?.split(':')[1];
+  const description = extractAction(text);
 
   function handleClose() {
     clearTimeout(timeoutId);
