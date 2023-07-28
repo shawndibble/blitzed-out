@@ -29,7 +29,7 @@ export default function TransitionModal({
   const title = text?.match(/(?:#[\d]*:).*(?=\r)/gs);
   const description = extractAction(text);
 
-  const { timeLeft } = useCountdown(8);
+  const { timeLeft } = useCountdown(8, false);
 
   return (
     <div>

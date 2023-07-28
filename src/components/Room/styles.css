@@ -30,17 +30,3 @@
     max-width: 100%;
   }
 }
-
-.dice-roller {
-  position: fixed !important;
-  bottom: 50px;
-  left: 50px;
-}
-
-@media screen and (max-width: 600px) {
-  button.dice-roller {
-    bottom: 65px;
-    right: 50px;
-    width: calc(100% - 6rem);
-  }
-}

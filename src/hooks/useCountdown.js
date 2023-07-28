@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 
-export default function useCountdown(startSeconds) {
+export default function useCountdown(startSeconds, startPaused = true) {
   const [timeLeft, setTimeLeft] = useState(startSeconds);
+  const [isPaused, setPause] = useState(startPaused);
+
+  const togglePause = () => setPause(!isPaused);
 
   useEffect(() => {
-    if (timeLeft === 0) {
-      setTimeLeft(null);
+    if (timeLeft === -1) {
+      setTimeLeft(0);
     }
 
     // exit early when we reach 0
-    if (!timeLeft) return;
+    if (timeLeft < 0 || isPaused) return;
 
     // save intervalId to clear the interval when the
     // component re-renders
@@ -20,7 +23,9 @@ export default function useCountdown(startSeconds) {
     // clear interval on re-render to avoid memory leaks
     // eslint-disable-next-line consistent-return
     return () => clearInterval(intervalId);
-  }, [timeLeft]);
+  }, [timeLeft, isPaused]);
 
-  return { timeLeft };
+  return {
+    timeLeft, setTimeLeft, togglePause, isPaused,
+  };
 }
