@@ -47,7 +47,7 @@ export default function MessageList({ room }) {
     const latestMessage = [...messages].pop();
 
     // prevent dialog from showing on reload/page change.
-    const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') > -1;
+    const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') >= -2;
     const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
     const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
     if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
