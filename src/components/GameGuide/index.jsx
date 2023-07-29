@@ -9,7 +9,7 @@ export default function GameGuide() {
       <Typography variant="h4" sx={{ textAlign: 'center' }}>Blitzed Out</Typography>
       <Divider />
       <Typography variant="body1" mt={2}>
-        An online adult sex board game for kinky people.
+        An online adult sex board game for kinky people. Designed for solo play, couples or parties.
       </Typography>
       <Typography variant="body1" mt={2}>
         Customize your own board or import someone else&apos;s,
