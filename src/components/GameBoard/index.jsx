@@ -5,11 +5,10 @@ import useMessages from 'hooks/useMessages';
 import GameTile from './GameTile';
 import './styles.css';
 
-export default function GameBoard({ playerList }) {
+export default function GameBoard({ playerList, settings, setSettings }) {
   const { id: room } = useParams();
   const [queryParams, setParams] = useSearchParams();
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
-  const [settings, setSettings] = useLocalStorage('gameSettings');
   const [gameBoard, setGameBoard] = useState(localGameBoard);
   const messages = useMessages(room || 'public');
   const importBoard = queryParams.get('importBoard');
@@ -53,6 +52,7 @@ export default function GameBoard({ playerList }) {
             players={playerList.filter((player) => player.location === index)}
             current={playerList
               .find((player) => player.isSelf && player.location === index && index !== 0)}
+            background={settings.background}
           />
         ))}
       </ol>

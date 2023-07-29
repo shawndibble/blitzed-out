@@ -1,14 +1,32 @@
+.main-container {
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  z-index: -10;
+}
+
 .desktop-container {
   display: flex;
   justify-content: center;
-  margin: 50px 16px 0;
-  height: calc(100vh - 80px);
+  padding: 50px 16px 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .mobile-container {
   margin: 40px 0;
   padding-bottom: 100px;
   height: calc(100vh - 80px);
+}
+
+.metronome {
+  background-image: url(images/metronome.gif);
+}
+
+.pinkSpiral {
+  background-image: url(images/pink-spiral.gif);
 }
 
 .messages-container {

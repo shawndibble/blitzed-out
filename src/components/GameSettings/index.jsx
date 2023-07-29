@@ -19,6 +19,7 @@ import {
 } from './submitForm';
 import './styles.css';
 import LanguageSelect from './LanguageSelect';
+import BackgroundSelect from './BackgroundSelect';
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
@@ -36,6 +37,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     chatSound: true,
     locale: 'en',
     gameMode: 'online',
+    background: 'color',
   });
   const navigate = useNavigate();
 
@@ -236,6 +238,8 @@ export default function GameSettings({ submitText, closeDialog }) {
           labelPlacement="start"
           className="settings-switch"
         />
+        <Divider />
+        <BackgroundSelect settings={settings} setFormData={setFormData} />
         <Divider />
       </TabPanel>
 

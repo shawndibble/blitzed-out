@@ -7,7 +7,7 @@ import { sendMessage } from 'services/firebase';
 import './styles.css';
 import { Trans, useTranslation } from 'react-i18next';
 
-export default function MessageInput({ room }) {
+export default function MessageInput({ room, isTransparent }) {
   const { user } = useAuth();
   const [value, setValue] = React.useState('');
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ export default function MessageInput({ room }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="message-input-container">
+    <form onSubmit={handleSubmit} className={`message-input-container ${isTransparent && 'transparent'}`}>
       <TextField
         placeholder={t('messageInput')}
         fullWidth

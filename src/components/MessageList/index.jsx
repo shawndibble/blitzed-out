@@ -16,7 +16,7 @@ import 'moment/locale/es';
 import 'moment/locale/fr';
 import './styles.css';
 
-export default function MessageList({ room }) {
+export default function MessageList({ room, isTransparent }) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
   const messages = useMessages(room);
@@ -65,6 +65,7 @@ export default function MessageList({ room }) {
             message={x}
             isOwnMessage={x.uid === user.uid}
             locale={i18n.resolvedLanguage}
+            isTransparent={isTransparent}
           />
         ))}
       </ul>
@@ -72,7 +73,7 @@ export default function MessageList({ room }) {
   );
 }
 
-function Message({ message, isOwnMessage }) {
+function Message({ message, isOwnMessage, isTransparent }) {
   const {
     id, displayName, text, uid, timestamp, type,
   } = message;
@@ -81,7 +82,7 @@ function Message({ message, isOwnMessage }) {
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
 
   return (
-    <li className={['message', isOwnMessage && 'own-message'].join(' ')}>
+    <li className={['message', isOwnMessage && 'own-message', isTransparent && 'transparent'].join(' ')}>
       <div className="message-header">
         <div className="sender">
           <TextAvatar uid={uid} displayName={displayName} size="small" />

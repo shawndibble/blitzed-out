@@ -23,7 +23,7 @@ export default function BottomTabs({ tab1, tab2 }) {
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.paper' }}>
+    <Box>
       <AppBar position="fixed" sx={{ top: 'auto', bottom: 0 }}>
         <Tabs
           value={value}
@@ -31,7 +31,6 @@ export default function BottomTabs({ tab1, tab2 }) {
           indicatorColor="secondary"
           textColor="inherit"
           variant="fullWidth"
-          aria-label="full width tabs example"
         >
           <Tab label={t('game')} {...a11yProps(0)} />
           <Tab label={t('messages')} {...a11yProps(1)} />
