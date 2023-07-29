@@ -40,7 +40,7 @@ export default function Room() {
   // end handle timeout of dialog.
   const getExtention = (filename) => {
     const parts = filename.split('.');
-    return parts[parts.length - 1];
+    return parts?.[parts.length - 1];
   };
 
   const { background } = settings;
@@ -52,7 +52,7 @@ export default function Room() {
       <Navigation room={room} playerList={playerList} />
 
       <RollButton setRollValue={setRollValue} playerTile={tile} />
-      <Box className="main-container" sx={!isVideo && { backgroundImage: `url(images/${background})` }}>
+      <Box className="main-container" sx={!!bgExtension && !isVideo && { backgroundImage: `url(images/${background})` }}>
         {isVideo && (
           <video autoPlay loop muted>
             <source src={`images/${background}`} type={`video/${bgExtension}`} />
