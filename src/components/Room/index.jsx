@@ -39,7 +39,7 @@ export default function Room() {
   };
   // end handle timeout of dialog.
   const getExtention = (filename) => {
-    const parts = filename.split('.');
+    const parts = filename?.split('.');
     return parts?.[parts.length - 1];
   };
 
