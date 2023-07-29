@@ -1,3 +1,8 @@
+.MuiAccordionDetails-root ul {
+  list-style: disc;
+  padding-left: 1rem;
+}
+
 .discord-link {
   text-decoration: underline;
 }
