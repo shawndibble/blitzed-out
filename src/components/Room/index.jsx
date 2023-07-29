@@ -52,7 +52,7 @@ export default function Room() {
       <Navigation room={room} playerList={playerList} />
 
       <RollButton setRollValue={setRollValue} playerTile={tile} />
-      <Box className="main-container" sx={!!bgExtension && !isVideo && { backgroundImage: `url(images/${background})` }}>
+      <Box className="main-container" sx={{ backgroundImage: !!bgExtension && !isVideo && `url(images/${background})` }}>
         {isVideo && (
           <video autoPlay loop muted>
             <source src={`images/${background}`} type={`video/${bgExtension}`} />
