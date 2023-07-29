@@ -9,9 +9,9 @@ export default function BackgroundSelect({ settings, setFormData }) {
   const backgrounds = {
     color: t('color'),
     gray: t('gray'),
-    metronome: t('hypnoDick'),
-    pinkSpiral: t('pinkSpiral'),
-    bwSpiral: t('bwSpiral'),
+    'metronome.gif': t('hypnoDick'),
+    'pink-spiral.gif': t('pinkSpiral'),
+    'bw-spiral.mp4': t('bwSpiral'),
   };
 
   const options = () => Object.entries(backgrounds).map(([file, label]) => (

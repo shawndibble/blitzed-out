@@ -38,14 +38,27 @@ export default function Room() {
     setPopupMessage(false);
   };
   // end handle timeout of dialog.
+  const getExtention = (filename) => {
+    const parts = filename.split('.');
+    return parts[parts.length - 1];
+  };
+
+  const { background } = settings;
+  const bgExtension = getExtention(background);
+  const isVideo = ['mp4', 'webm'].includes(bgExtension);
 
   return (
     <>
       <Navigation room={room} playerList={playerList} />
 
       <RollButton setRollValue={setRollValue} playerTile={tile} />
-
-      <div className={`main-container ${settings.background}`} />
+      <Box className="main-container" sx={!isVideo && { backgroundImage: `url(images/${background})` }}>
+        {isVideo && (
+          <video autoPlay loop muted>
+            <source src={`images/${background}`} type={`video/${bgExtension}`} />
+          </video>
+        )}
+      </Box>
       {!isMobile ? (
         <Box className="desktop-container">
           <GameBoard
@@ -56,8 +69,8 @@ export default function Room() {
           />
 
           <div className="messages-container">
-            <MessageList room={room} isTransparent={settings.background !== 'color'} />
-            <MessageInput room={room} isTransparent={settings.background !== 'color'} />
+            <MessageList room={room} isTransparent={background !== 'color'} />
+            <MessageInput room={room} isTransparent={background !== 'color'} />
           </div>
         </Box>
       ) : (
@@ -73,8 +86,8 @@ export default function Room() {
             )}
             tab2={(
               <div className="messages-container">
-                <MessageList room={room} isTransparent={settings.background !== 'color'} />
-                <MessageInput room={room} isTransparent={settings.background !== 'color'} />
+                <MessageList room={room} isTransparent={background !== 'color'} />
+                <MessageInput room={room} isTransparent={background !== 'color'} />
               </div>
             )}
           />

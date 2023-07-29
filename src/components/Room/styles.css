@@ -7,6 +7,12 @@
   z-index: -10;
 }
 
+.main-container video {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
 .desktop-container {
   display: flex;
   justify-content: center;
@@ -19,18 +25,6 @@
   margin: 40px 0;
   padding-bottom: 100px;
   height: calc(100vh - 80px);
-}
-
-.metronome {
-  background-image: url(images/metronome.gif);
-}
-
-.pinkSpiral {
-  background-image: url(images/pink-spiral.gif);
-}
-
-.bwSpiral {
-  background-image: url(images/bw-spiral.webp);
 }
 
 .messages-container {
