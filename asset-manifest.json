@@ -1,24 +1,22 @@
 {
   "files": {
-    "main.css": "/static/css/main.b76fe1e2.css",
-    "main.js": "/static/js/main.394664d8.js",
+    "main.css": "/static/css/main.9d518b47.css",
+    "main.js": "/static/js/main.08bddf2a.js",
     "static/js/845.4043c305.chunk.js": "/static/js/845.4043c305.chunk.js",
     "static/js/787.676cf0d3.chunk.js": "/static/js/787.676cf0d3.chunk.js",
-    "static/media/pink-spiral.gif": "/static/media/pink-spiral.44dc02a20497f3220df8.gif",
-    "static/media/metronome.gif": "/static/media/metronome.1fb21e5e6dfbcbae66d9.gif",
     "static/media/venmo.png": "/static/media/venmo.ebe983ca9d6089e53c1b.png",
     "static/media/message.mp3": "/static/media/message.8ebaf7ada0f153c25666.mp3",
     "static/media/blitzed-out.webp": "/static/media/blitzed-out.c2d109683076264d0a1a.webp",
     "static/media/roll-dice.mp3": "/static/media/roll-dice.c108f8021f432fc3cf39.mp3",
     "static/media/cashapp.png": "/static/media/cashapp.57eb4df86fd6c2bc68b9.png",
     "index.html": "/index.html",
-    "main.b76fe1e2.css.map": "/static/css/main.b76fe1e2.css.map",
-    "main.394664d8.js.map": "/static/js/main.394664d8.js.map",
+    "main.9d518b47.css.map": "/static/css/main.9d518b47.css.map",
+    "main.08bddf2a.js.map": "/static/js/main.08bddf2a.js.map",
     "845.4043c305.chunk.js.map": "/static/js/845.4043c305.chunk.js.map",
     "787.676cf0d3.chunk.js.map": "/static/js/787.676cf0d3.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b76fe1e2.css",
-    "static/js/main.394664d8.js"
+    "static/css/main.9d518b47.css",
+    "static/js/main.08bddf2a.js"
   ]
 }
