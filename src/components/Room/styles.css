@@ -29,6 +29,10 @@
   background-image: url(images/pink-spiral.gif);
 }
 
+.bwSpiral {
+  background-image: url(images/bw-spiral.webp);
+}
+
 .messages-container {
   min-width: 375px;
   max-width: 375px;
