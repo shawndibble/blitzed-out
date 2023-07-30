@@ -69,7 +69,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     ...formData,
     ...settings,
     room,
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }), [settings]);
 
   async function handleSubmit(event) {

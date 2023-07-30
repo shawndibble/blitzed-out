@@ -99,7 +99,6 @@ function separateUserLists(customDataFolder, hasMiscTiles, settings) {
 export default function customizeBoard(
   settings,
   dataFolder,
-  translations,
   userCustomTiles = [],
   size = 40,
 ) {
