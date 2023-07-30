@@ -47,8 +47,6 @@ export default function Room() {
   const bgExtension = getExtention(background);
   const isVideo = ['mp4', 'webm'].includes(bgExtension);
 
-  console.log(isVideo);
-
   return (
     <>
       <Navigation room={room} playerList={playerList} />
