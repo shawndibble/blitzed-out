@@ -3,6 +3,8 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
 import ToastAlert from 'components/ToastAlert';
+import { importActions } from 'services/importLocales';
+import { useTranslation } from 'react-i18next';
 import GameTile from './GameTile';
 import './styles.css';
 
@@ -13,6 +15,7 @@ export default function GameBoard({ playerList, settings, setSettings }) {
   const [gameBoard, setGameBoard] = useState(localGameBoard);
   const messages = useMessages(room || 'public');
   const importBoard = queryParams.get('importBoard');
+  const { i18n } = useTranslation();
   const [alert, setAlert] = useState('');
 
   function importGameBoard() {
@@ -28,8 +31,15 @@ export default function GameBoard({ playerList, settings, setSettings }) {
     if (!Array.isArray(importedGameBoard)) return;
     // ensure when we roll, we get the right board tile.
     setLocalGameBoard(importedGameBoard);
-    // set setting for changing the board and outputing it when changing rooms.
-    setSettings({ ...settings, ...JSON.parse(importMessage?.settings) });
+    // When we import the board, also import the gameboard settings (not application settings).
+    const importSettings = JSON.parse(importMessage?.settings);
+    const dataFolder = importActions(i18n.resolvedLanguage, importMessage?.settings?.gameMode);
+    Object.keys(importSettings).forEach((setting) => {
+      if (!dataFolder[setting] && !setting.endsWith('Variation')) {
+        delete importSettings[setting];
+      }
+    });
+    setSettings({ ...settings, ...importSettings });
     // remove the import from the URL
     setParams({});
   }
