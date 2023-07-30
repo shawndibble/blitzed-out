@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.a6dab2f0.css",
-    "main.js": "/static/js/main.eb76413b.js",
+    "main.js": "/static/js/main.f80f9fdd.js",
     "static/js/845.4043c305.chunk.js": "/static/js/845.4043c305.chunk.js",
     "static/js/787.676cf0d3.chunk.js": "/static/js/787.676cf0d3.chunk.js",
     "static/media/venmo.png": "/static/media/venmo.ebe983ca9d6089e53c1b.png",
@@ -11,12 +11,12 @@
     "static/media/cashapp.png": "/static/media/cashapp.57eb4df86fd6c2bc68b9.png",
     "index.html": "/index.html",
     "main.a6dab2f0.css.map": "/static/css/main.a6dab2f0.css.map",
-    "main.eb76413b.js.map": "/static/js/main.eb76413b.js.map",
+    "main.f80f9fdd.js.map": "/static/js/main.f80f9fdd.js.map",
     "845.4043c305.chunk.js.map": "/static/js/845.4043c305.chunk.js.map",
     "787.676cf0d3.chunk.js.map": "/static/js/787.676cf0d3.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.a6dab2f0.css",
-    "static/js/main.eb76413b.js"
+    "static/js/main.f80f9fdd.js"
   ]
 }
