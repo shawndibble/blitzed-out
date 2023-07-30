@@ -1,7 +1,9 @@
 import { Delete } from '@mui/icons-material';
 import { Card, CardHeader, IconButton } from '@mui/material';
 
-export default function ViewCustomTiles({ customTiles, setCustomTiles, boardUpdated }) {
+export default function ViewCustomTiles({
+  customTiles, setCustomTiles, boardUpdated, mappedGroups,
+}) {
   function deleteTile(index) {
     setCustomTiles([
       ...customTiles.slice(0, index),
@@ -17,7 +19,11 @@ export default function ViewCustomTiles({ customTiles, setCustomTiles, boardUpda
         <CardHeader
           title={action}
           titleTypographyProps={{ variant: 'body1' }}
-          subheader={`${group} - ${intensity}`}
+          subheader={
+            mappedGroups
+              .find(({ value, intensity: inten }) => value === group && inten === Number(intensity))
+              ?.label
+          }
           subheaderTypographyProps={{ variant: 'body2' }}
           action={(
             <IconButton aria-label="delete" onClick={(event) => deleteTile(index, event)}>

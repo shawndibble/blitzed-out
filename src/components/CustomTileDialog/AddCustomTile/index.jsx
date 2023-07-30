@@ -1,13 +1,12 @@
 import {
   Autocomplete, Box, Button, TextField,
 } from '@mui/material';
-import { camelToPascal } from 'helpers/strings';
 import { submitCustomAction } from 'services/firebase';
 import { useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 export default function CustomTile({
-  setSubmitMessage, addCustomTile, customTiles, dataFolder,
+  setSubmitMessage, addCustomTile, customTiles, mappedGroups,
 }) {
   const formData = useRef();
   const { t } = useTranslation();
@@ -27,24 +26,15 @@ export default function CustomTile({
       return setSubmitMessage({ message: t('actionExists'), type: 'error' });
     }
 
+    const option = mappedGroups.find(({ label }) => label === tileOption.value);
+
     // send action to firebase for review
-    submitCustomAction(tileOption.value, action.value);
+    submitCustomAction(option.label, action.value);
     // store locally for user's board
-    addCustomTile(tileOption.value, action.value);
+    addCustomTile(option.value, option.intensity, action.value);
 
     return setSubmitMessage({ message: t('customAdded'), type: 'success' });
   }
-
-  const options = Object.entries(dataFolder).map(([key, { label, actions }]) => {
-    const intensities = Object.keys(actions).filter((entry) => entry !== 'None');
-    return intensities.map((intensity) => ({
-      group: camelToPascal(key),
-      value: `${label} - ${intensity}`,
-      label: `${t(label)} - ${t(intensity)}`,
-    }));
-  }).flat();
-
-  options.push({ group: t('misc'), value: `${t('misc')} - ${t('all')}` });
 
   return (
     <Box
@@ -56,11 +46,11 @@ export default function CustomTile({
       <Autocomplete
         id="tileOption"
         name="tileOption"
-        options={options}
-        getOptionLabel={(option) => option.value}
+        options={mappedGroups}
+        getOptionLabel={(option) => option.label}
         groupBy={(option) => option.group}
         renderInput={(params) => <TextField {...params} label={t('group')} required />}
-        isOptionEqualToValue={(option) => option.value}
+        isOptionEqualToValue={(option) => option.label}
         sx={{ py: 2 }}
       />
 

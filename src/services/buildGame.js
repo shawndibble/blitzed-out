@@ -1,6 +1,7 @@
 import i18next from 'i18next';
-import shuffleArrayBy from '../helpers/arrays';
-import { pascalToCamel } from '../helpers/strings';
+import shuffleArrayBy from 'helpers/arrays';
+import { pascalToCamel } from 'helpers/strings';
+import groupDataFolder from 'helpers/datafolder';
 
 const MISC = 'miscellaneous';
 
@@ -112,9 +113,14 @@ export default function customizeBoard(
       actions: { None: [], All: [] },
     },
   };
+
+  const mappedDataFolder = groupDataFolder(dataFolder);
+
   userCustomTiles.forEach(({ group, intensity, action }) => {
-    const camelGroup = pascalToCamel(group);
-    customDataFolder[camelGroup]?.actions?.[intensity]?.unshift(action);
+    const tranIntensity = mappedDataFolder
+      .find((data) => data.value === group && data.intensity === Number(intensity))
+      ?.translatedIntensity;
+    customDataFolder[group]?.actions?.[tranIntensity]?.unshift(action);
   });
 
   const { tileOptions, appendList } = separateUserLists(customDataFolder, hasMiscTiles, settings);

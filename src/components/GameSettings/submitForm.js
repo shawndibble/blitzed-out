@@ -1,4 +1,3 @@
-import { pascalToCamel } from 'helpers/strings';
 import i18next from 'i18next';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
@@ -22,19 +21,17 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
     }
   });
 
-  // console.log('settingsDataFolder', settingsDataFolder);
   // copy over any custom tiles that fall within our limited datafolder.
   Object.entries(settingsDataFolder).forEach(([settingGroup, intensityArray]) => {
     customTiles.forEach((entry) => {
-      // console.log('check entry', entry, settingGroup, intensityArray);
-      if (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity)) {
+      if (entry.group === settingGroup && intensityArray.length >= Number(entry.intensity)) {
         usedCustomTiles.push(entry);
       }
     });
   });
 
   // cycle through misc tiles separate from the double nesting above.
-  customTiles.forEach((entry) => entry.group === i18next.t('misc') && usedCustomTiles.push(entry));
+  customTiles.forEach((entry) => entry.group === 'misc' && usedCustomTiles.push(entry));
 
   // return the count of custom tiles that were actually used in the game board.
   return usedCustomTiles.length;

@@ -7,6 +7,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import useWindowDimensions from 'hooks/useWindowDimensions';
 import useLocalStorage from 'hooks/useLocalStorage';
 import ToastAlert from 'components/ToastAlert';
+import groupDataFolder from 'helpers/datafolder';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
@@ -19,12 +20,12 @@ export default function CustomTileDialog({
   const [submitMessage, setSubmitMessage] = useState({ message: '', type: 'info' });
   const [customTiles, setCustomTiles] = useLocalStorage('customTiles', []);
 
-  const addCustomTile = (category, action) => {
-    // split at dash and trim whitespace
-    const [group, intensity] = category.split(/[-]+/).map((s) => s.trim());
+  const addCustomTile = (group, intensity, action) => {
     setCustomTiles([...customTiles, { group, intensity, action }]);
     boardUpdated();
   };
+
+  const mappedGroups = groupDataFolder(dataFolder);
 
   return (
     <>
@@ -55,7 +56,7 @@ export default function CustomTileDialog({
             setSubmitMessage={setSubmitMessage}
             addCustomTile={addCustomTile}
             customTiles={customTiles}
-            dataFolder={dataFolder}
+            mappedGroups={mappedGroups}
           />
 
           {!!customTiles.length && (
@@ -65,6 +66,7 @@ export default function CustomTileDialog({
                 customTiles={customTiles}
                 setCustomTiles={setCustomTiles}
                 boardUpdated={boardUpdated}
+                mappedGroups={mappedGroups}
               />
             </>
           )}
