@@ -16,20 +16,25 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
   const settingsDataFolder = {};
   // restrict our datafolder to just those the user selected.
   Object.entries(dataFolder).forEach(([key, value]) => {
-    if (settings[key]) settingsDataFolder[key] = Object.keys(value).slice(1, settings[key] + 1);
+    const intensity = settings[key];
+    if (intensity) {
+      settingsDataFolder[key] = Object.keys(value.actions).slice(1, intensity + 1);
+    }
   });
 
+  // console.log('settingsDataFolder', settingsDataFolder);
   // copy over any custom tiles that fall within our limited datafolder.
   Object.entries(settingsDataFolder).forEach(([settingGroup, intensityArray]) => {
     customTiles.forEach((entry) => {
-      if (
-        (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity))
-        || entry.group === i18next.t('misc')
-      ) {
+      // console.log('check entry', entry, settingGroup, intensityArray);
+      if (pascalToCamel(entry.group) === settingGroup && intensityArray.includes(entry.intensity)) {
         usedCustomTiles.push(entry);
       }
     });
   });
+
+  // cycle through misc tiles separate from the double nesting above.
+  customTiles.forEach((entry) => entry.group === i18next.t('misc') && usedCustomTiles.push(entry));
 
   // return the count of custom tiles that were actually used in the game board.
   return usedCustomTiles.length;
@@ -55,7 +60,7 @@ export function getSettingsMessage(settings, customTiles, dataFolder) {
 
   const customTileCount = getCustomTileCount(settings, customTiles, dataFolder);
   if (customTileCount) {
-    message += `* ${i18next.t('customTilesText')}: ${customTileCount} \r\n`;
+    message += `* ${i18next.t('customTiles')}: ${customTileCount} \r\n`;
   }
 
   return message;
