@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
+import ToastAlert from 'components/ToastAlert';
 import GameTile from './GameTile';
 import './styles.css';
 
@@ -12,6 +13,7 @@ export default function GameBoard({ playerList, settings, setSettings }) {
   const [gameBoard, setGameBoard] = useState(localGameBoard);
   const messages = useMessages(room || 'public');
   const importBoard = queryParams.get('importBoard');
+  const [alert, setAlert] = useState('');
 
   function importGameBoard() {
     // if we aren't importing, then just load the local gameboard.
@@ -24,8 +26,6 @@ export default function GameBoard({ playerList, settings, setSettings }) {
     const importedGameBoard = JSON.parse(importMessage.gameBoard);
     // not an array of objects? we are done.
     if (!Array.isArray(importedGameBoard)) return;
-    // quickly update the game board, so the player isn't waiting for local storage.
-    setGameBoard(importedGameBoard);
     // ensure when we roll, we get the right board tile.
     setLocalGameBoard(importedGameBoard);
     // set setting for changing the board and outputing it when changing rooms.
@@ -34,8 +34,14 @@ export default function GameBoard({ playerList, settings, setSettings }) {
     setParams({});
   }
 
-  // eslint-disable-next-line
   useEffect(() => importGameBoard(), [messages, importBoard]);
+
+  useEffect(() => {
+    if (gameBoard !== localGameBoard) {
+      setGameBoard(localGameBoard);
+      setAlert('Import Complete');
+    }
+  }, [localGameBoard]);
 
   if (!Array.isArray(gameBoard)) return null;
 
@@ -56,6 +62,9 @@ export default function GameBoard({ playerList, settings, setSettings }) {
           />
         ))}
       </ol>
+      <ToastAlert type="success" open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
+        {alert}
+      </ToastAlert>
     </div>
   );
 }

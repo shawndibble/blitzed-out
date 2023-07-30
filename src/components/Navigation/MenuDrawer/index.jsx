@@ -1,8 +1,8 @@
-import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
 import PaidIcon from '@mui/icons-material/Paid';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
 import {
   Box,
   Dialog,
@@ -25,6 +25,8 @@ import GameGuide from 'components/GameGuide';
 import { Trans } from 'react-i18next';
 import { Logout } from '@mui/icons-material';
 import { logout } from 'services/firebase';
+import ImportExport from 'components/ImportExport';
+import CloseIcon from 'components/CloseIcon';
 import DonateDialog from './DonateDialog';
 
 export default function MenuDrawer() {
@@ -35,6 +37,7 @@ export default function MenuDrawer() {
 
   const [open, setOpen] = useState({
     settings: false,
+    importExport: false,
     donate: false,
     about: false,
   });
@@ -50,6 +53,12 @@ export default function MenuDrawer() {
   );
 
   const menuItems = [
+    {
+      key: 'importExport',
+      title: <Trans i18nKey="importExport" />,
+      icon: <ImportExportIcon />,
+      onClick: () => toggleDialog('importExport', true),
+    },
     {
       key: 'discord',
       title: 'Discord',
@@ -83,21 +92,6 @@ export default function MenuDrawer() {
     });
   }
 
-  const closeIcon = (openType) => (
-    <IconButton
-      aria-label="close"
-      onClick={() => toggleDialog(openType, false)}
-      sx={{
-        position: 'absolute',
-        right: 8,
-        top: 8,
-        color: (theme) => theme.palette.grey[500],
-      }}
-    >
-      <CloseIcon />
-    </IconButton>
-  );
-
   const settingsDialog = (
     <Dialog
       fullScreen={isMobile}
@@ -105,7 +99,7 @@ export default function MenuDrawer() {
     >
       <DialogTitle>
         <Trans i18nKey="gameSettings" />
-        {closeIcon('settings')}
+        <CloseIcon close={() => toggleDialog('settings', false)} />
       </DialogTitle>
       <DialogContent>
         <GameSettings submitText={(<Trans i18nKey="update" />)} closeDialog={() => toggleDialog('settings', false)} />
@@ -120,25 +114,11 @@ export default function MenuDrawer() {
       onClose={() => toggleDialog('about', false)}
     >
       <DialogTitle>
-        {closeIcon('about')}
+        <CloseIcon close={() => toggleDialog('about', false)} />
       </DialogTitle>
       <DialogContent>
         <GameGuide />
       </DialogContent>
-    </Dialog>
-  );
-
-  const donateDialog = (
-    <Dialog
-      fullScreen={isMobile}
-      open={open.donate}
-      onClose={() => toggleDialog('donate', false)}
-    >
-      <DialogTitle>
-        <Trans i18nKey="donateToHelp" />
-        {closeIcon('donate')}
-      </DialogTitle>
-      <DonateDialog />
     </Dialog>
   );
 
@@ -172,8 +152,9 @@ export default function MenuDrawer() {
         </Box>
       </Drawer>
       {settingsDialog}
-      {donateDialog}
       {aboutDialog}
+      <ImportExport open={open.importExport} close={() => toggleDialog('importExport', false)} isMobile={isMobile} />
+      <DonateDialog open={open.donate} close={() => toggleDialog('donate', false)} isMobile={isMobile} />
     </>
   );
 }
