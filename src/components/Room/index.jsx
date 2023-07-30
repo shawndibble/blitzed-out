@@ -47,15 +47,17 @@ export default function Room() {
   const bgExtension = getExtention(background);
   const isVideo = ['mp4', 'webm'].includes(bgExtension);
 
+  console.log(isVideo);
+
   return (
     <>
       <Navigation room={room} playerList={playerList} />
 
       <RollButton setRollValue={setRollValue} playerTile={tile} />
-      <Box className="main-container" sx={{ backgroundImage: !!bgExtension && !isVideo && `url(images/${background})` }}>
+      <Box className="main-container" sx={{ backgroundImage: !!bgExtension && !isVideo && `url(/images/${background})` }}>
         {isVideo && (
           <video autoPlay loop muted>
-            <source src={`images/${background}`} type={`video/${bgExtension}`} />
+            <source src={`/videos/${background}`} type={`video/${bgExtension}`} />
           </video>
         )}
       </Box>
