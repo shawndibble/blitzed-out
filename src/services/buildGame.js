@@ -114,7 +114,7 @@ export default function customizeBoard(
   };
   userCustomTiles.forEach(({ group, intensity, action }) => {
     const camelGroup = pascalToCamel(group);
-    customDataFolder[camelGroup]?.actions?.[intensity].unshift(action);
+    customDataFolder[camelGroup]?.actions?.[intensity]?.unshift(action);
   });
 
   const { tileOptions, appendList } = separateUserLists(customDataFolder, hasMiscTiles, settings);
