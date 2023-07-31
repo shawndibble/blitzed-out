@@ -12,19 +12,29 @@ export default function RollButton({ setRollValue, playerTile }) {
   const [isDisabled, setDisabled] = useState(false);
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedRoll, setSelectedRoll] = useState('manual');
   const [autoTime, setAutoTime] = useState(0);
   const [rollText, setRollText] = useState(t('roll'));
   const {
     timeLeft, setTimeLeft, togglePause, isPaused,
   } = useCountdown(autoTime);
 
-  const options = [t('manual'), t('auto30'), t('auto60'), t('auto90')];
+  const options = new Map();
+  options
+    .set('restart', t('restart'))
+    .set('manual', t('manual'))
+    .set(30, t('auto30'))
+    .set(60, t('auto60'))
+    .set(90, t('auto90'));
+
+  function isNumeric(value) {
+    return /^-?\d+$/.test(value);
+  }
 
   const rollDice = () => setRollValue([Math.floor(Math.random() * 4) + 1]);
 
   const handleClick = () => {
-    if (selectedIndex === 0) {
+    if (selectedRoll === 'manual') {
       rollDice();
       setDisabled(true);
       setTimeout(() => setDisabled(false), 4000);
@@ -38,14 +48,20 @@ export default function RollButton({ setRollValue, playerTile }) {
     return null;
   };
 
-  const handleMenuItemClick = (event, index) => {
-    setSelectedIndex(index);
+  const handleMenuItemClick = (key) => {
     setOpen(false);
-    const autoArray = options[index].split(' ');
-    const time = Number(autoArray[1].slice(0, -1));
-    if (!isPaused) togglePause();
-    setAutoTime(time);
-    setTimeLeft(time);
+    if (key === 'restart') {
+      return setRollValue(-1);
+    }
+
+    setSelectedRoll(key);
+
+    if (isNumeric(key)) {
+      if (!isPaused) togglePause();
+      setAutoTime(key);
+      setTimeLeft(key);
+    }
+    return null;
   };
 
   const handleToggle = () => {
@@ -68,7 +84,7 @@ export default function RollButton({ setRollValue, playerTile }) {
 
   useEffect(() => {
     if (isDisabled) return setRollText(t('wait'));
-    if (selectedIndex === 0) {
+    if (selectedRoll === 'manual') {
       return setRollText(t('roll'));
     }
 
@@ -80,7 +96,7 @@ export default function RollButton({ setRollValue, playerTile }) {
 
     rollDice();
     return setTimeLeft(autoTime);
-  }, [isDisabled, selectedIndex, timeLeft, autoTime, isPaused]);
+  }, [isDisabled, selectedRoll, timeLeft, autoTime, isPaused]);
 
   return (
     <>
@@ -128,11 +144,11 @@ export default function RollButton({ setRollValue, playerTile }) {
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
-                  {options.map((option, index) => (
+                  {Array.from(options).map(([key, option]) => (
                     <MenuItem
-                      key={option}
-                      selected={index === selectedIndex}
-                      onClick={(event) => handleMenuItemClick(event, index)}
+                      key={key}
+                      selected={key === selectedRoll}
+                      onClick={() => handleMenuItemClick(key)}
                     >
                       {option}
                     </MenuItem>

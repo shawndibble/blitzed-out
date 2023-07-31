@@ -14,7 +14,10 @@ export default function usePlayerMove(room, rollValue) {
   const [tile, setTile] = useState(gameBoard[0]);
 
   function handleTextOutput(newTile, rollNumber, newLocation, preMessage) {
-    let message = `${t('roll')}: ${rollNumber}  \r\n`;
+    let message = '';
+    if (rollNumber !== -1) {
+      message += `${t('roll')}: ${rollNumber}  \r\n`;
+    }
     message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;
     message += `${t('action')}: ${newTile?.description}`;
     sendMessage({
@@ -23,23 +26,30 @@ export default function usePlayerMove(room, rollValue) {
   }
 
   useEffect(() => {
-    const rollNumber = rollValue[0];
+    const rollNumber = rollValue[0] ?? rollValue;
     if (rollNumber === 0) return;
 
-    const lastTile = total - 1;
-    const currentLocation = playerList.find((p) => p.isSelf).location;
-    let newLocation = rollNumber + currentLocation;
+    let newLocation = 0;
     let preMessage = '';
 
-    // restart game.
-    if (currentLocation === lastTile) {
-      preMessage = `${t('alreadyFinished')}\r\n`;
-      newLocation = rollNumber;
-    }
+    if (rollNumber === -1) {
+      preMessage = `${t('restartingGame')}  \r\n`;
+      newLocation = 0;
+    } else {
+      const lastTile = total - 1;
+      const currentLocation = playerList.find((p) => p.isSelf).location;
+      newLocation = rollNumber + currentLocation;
 
-    // move to final tile
-    if (newLocation >= lastTile) {
-      newLocation = lastTile;
+      // restart game.
+      if (currentLocation === lastTile) {
+        preMessage = `${t('alreadyFinished')}  \r\n`;
+        newLocation = rollNumber;
+      }
+
+      // move to final tile
+      if (newLocation >= lastTile) {
+        newLocation = lastTile;
+      }
     }
 
     if (tile?.description !== gameBoard[newLocation]) setTile(gameBoard[newLocation]);

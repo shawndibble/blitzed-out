@@ -41,6 +41,8 @@
   "customURL": "Custom URL",
   "url": "URL",
   "fileExtension": "URL must end with a file extension",
+  "restart": "Restart Game",
+  "restartingGame": "Returning player to start",
   "roll": "Roll",
   "wait": "Wait",
   "play": "Play",
