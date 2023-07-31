@@ -77,6 +77,5 @@ export default function CustomTile({
         </Box>
       </AccordionDetails>
     </Accordion>
-
   );
 }

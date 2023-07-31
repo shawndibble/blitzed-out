@@ -7,7 +7,7 @@ export default function groupDataFolder(dataFolder) {
     return intensities.map((intensity, index) => ({
       group: camelToPascal(key),
       value: key,
-      intensity: index + 1,
+      intensity: Number(index + 1),
       translatedIntensity: intensity,
       label: `${label} - ${intensity}`,
     }));

@@ -8,6 +8,7 @@ import useWindowDimensions from 'hooks/useWindowDimensions';
 import useLocalStorage from 'hooks/useLocalStorage';
 import ToastAlert from 'components/ToastAlert';
 import groupDataFolder from 'helpers/datafolder';
+import ImportExport from 'components/CustomTileDialog/ImportExport';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
@@ -26,6 +27,11 @@ export default function CustomTileDialog({
 
   const addCustomTile = (group, intensity, action) => {
     setCustomTiles([...customTiles, { group, intensity, action }]);
+    boardUpdated();
+  };
+
+  const bulkImport = (records) => {
+    setCustomTiles([...customTiles, ...records]);
     boardUpdated();
   };
 
@@ -63,6 +69,15 @@ export default function CustomTileDialog({
             mappedGroups={mappedGroups}
             expanded={expanded}
             handleChange={handleChange}
+          />
+
+          <ImportExport
+            expanded={expanded}
+            handleChange={handleChange}
+            customTiles={customTiles}
+            mappedGroups={mappedGroups}
+            setSubmitMessage={setSubmitMessage}
+            bulkImport={bulkImport}
           />
 
           {!!customTiles.length && (
