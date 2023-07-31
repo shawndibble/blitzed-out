@@ -22,3 +22,26 @@ export function extractAction(message) {
   const textLines = message?.split(/\r?\n/) || [];
   return textLines[textLines.length - 1]?.split(':')[1];
 }
+
+export function getExtention(filename) {
+  const parts = filename?.split('.');
+  if (parts.length < 2) return false;
+  return parts?.[parts.length - 1];
+}
+
+export function isVideo(file) {
+  const bgExtension = getExtention(file);
+  return ['mp4', 'webm', 'mkv', 'flv', 'avi', 'mov', 'wmv', 'mpg', 'mv4'].includes(bgExtension);
+}
+
+export function getURLPath(string) {
+  if (string.startsWith('http')) {
+    return string;
+  }
+
+  if (isVideo(string)) {
+    return `/videos/${string}`;
+  }
+
+  return `/images/${string}`;
+}

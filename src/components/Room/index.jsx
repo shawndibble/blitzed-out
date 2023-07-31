@@ -11,6 +11,7 @@ import usePresence from 'hooks/usePresence';
 import TransitionModal from 'components/TransitionModal';
 import useSoundAndDialog from 'hooks/useSoundAndDialog';
 import useLocalStorage from 'hooks/useLocalStorage';
+import { getExtention, getURLPath, isVideo } from 'helpers/strings';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import './styles.css';
@@ -38,25 +39,22 @@ export default function Room() {
     setPopupMessage(false);
   };
   // end handle timeout of dialog.
-  const getExtention = (filename) => {
-    const parts = filename?.split('.');
-    if (parts.length < 2) return false;
-    return parts?.[parts.length - 1];
-  };
 
-  const { background } = settings;
-  const bgExtension = getExtention(background);
-  const isVideo = ['mp4', 'webm'].includes(bgExtension);
+  const { background, backgroundURL } = settings;
+  const backgroundSource = background !== 'custom' ? background : backgroundURL;
+  const video = isVideo(backgroundSource);
+  const bgExtension = getExtention(backgroundSource);
+  const sourcePath = getURLPath(backgroundSource);
 
   return (
     <>
       <Navigation room={room} playerList={playerList} />
 
       <RollButton setRollValue={setRollValue} playerTile={tile} />
-      <Box className="main-container" sx={{ backgroundImage: !!bgExtension && !isVideo && `url(/images/${background})` }}>
+      <Box className="main-container" sx={{ backgroundImage: !!bgExtension && !video && `url(${sourcePath})` }}>
         {isVideo && (
           <video autoPlay loop muted>
-            <source src={`/videos/${background}`} type={`video/${bgExtension}`} />
+            <source src={sourcePath} type={`video/${bgExtension}`} />
           </video>
         )}
       </Box>
