@@ -1,0 +1,30 @@
+{
+  "label": "Humiliation",
+  "actions": {
+    "Aucun": [],
+    "Verbal": [
+      "Inventez un mantra. Répétez-le à chaque tour.",
+      "Votre partenaire vous donne un titre dérogatoire (esclave, animal de compagnie, etc.). Répétez 'Je suis un <terme>' 30 fois.",
+      "Écrivez des lignes ou une courte histoire axée sur votre rôle soumis. Lisez-le à voix haute.",
+      "Recevez un surnom dégradant auquel vous devez répondre pour le reste du jeu.",
+      "Vous devez vous adresser aux autres joueurs n'utilisant pas l'option d'humiliation par 'monsieur/madame/maître/maîtresse'",
+      "Partagez une fantaisie ou un désir lié à l'humiliation.",
+      "Recevez des compliments ou des éloges tout en essayant de conserver une attitude calme.",
+      "Discutez et analysez une expérience passée qui vous a fait vous sentir humilié.",
+      "Faites le tour et complimentez chaque joueur.",
+      "Parmi les joueurs n'utilisant pas l'option d'humiliation, dites en quoi ils vous sont supérieurs."
+    ],
+    "Physique": [
+      "Écrivez des mots dérogatoires sur votre corps.",
+      "Mettez-vous à genoux, la tête baissée jusqu'à votre prochain tour.",
+      "Vous êtes le mobilier d'un autre joueur jusqu'à votre prochain tour.",
+      "Jusqu'à ce que quelqu'un d'autre prenne votre place, vous êtes le garçon/fille de courses pour le reste du jeu.",
+      "Recevez une petite claque, une fessée ou une flagellation légère.",
+      "Vénérez les aisselles d'un autre joueur.",
+      "Portez un vêtement qui vous fait vous sentir humilié pendant le reste du jeu.",
+      "À genoux. Faites-vous étrangler et dégrader verbalement.",
+      "Offrez un massage des pieds à un autre joueur.",
+      "Rampez autour de la pièce deux fois."
+    ]
+  }
+}
