@@ -40,6 +40,7 @@ export default function Room() {
   // end handle timeout of dialog.
   const getExtention = (filename) => {
     const parts = filename?.split('.');
+    if (parts.length < 2) return false;
     return parts?.[parts.length - 1];
   };
 
