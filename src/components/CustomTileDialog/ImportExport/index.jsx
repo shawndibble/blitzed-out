@@ -70,6 +70,7 @@ export default function ImportExport({
         return { group: appGroup.value, intensity: appGroup.intensity, action };
       });
     } catch (error) {
+      // eslint-disable-next-line
       return console.error(error);
     }
 
