@@ -21,36 +21,50 @@ export default function usePlayerMove(room, rollValue) {
     message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;
     message += `${t('action')}: ${newTile?.description}`;
     sendMessage({
-      room, user, text: preMessage + message, type: 'actions',
+      room,
+      user,
+      text: preMessage + message,
+      type: 'actions',
     });
+  }
+
+  // Grab the new location.
+  // In some instances, we also want to add a message with said location.
+  function getNewLocation(rollNumber) {
+    // -1 is used to resart the game.
+    if (rollNumber === -1) {
+      return {
+        preMessage: `${t('restartingGame')}  \r\n`,
+        newLocation: 0,
+      };
+    }
+
+    const lastTile = total - 1;
+    const currentLocation = playerList.find((p) => p.isSelf).location;
+
+    // restart game if we roll and are on the last tile..
+    if (currentLocation === lastTile) {
+      return {
+        preMessage: `${t('alreadyFinished')}  \r\n`,
+        newLocation: rollNumber,
+      };
+    }
+
+    const newLocation = rollNumber + currentLocation;
+    // If we would move past finish, move to finish instead.
+    if (newLocation >= lastTile) {
+      return { newLocation: lastTile };
+    }
+    return { newLocation };
   }
 
   useEffect(() => {
     const rollNumber = rollValue[0] ?? rollValue;
+
+    // a 0 means something went wrong. Give up.
     if (rollNumber === 0) return;
 
-    let newLocation = 0;
-    let preMessage = '';
-
-    if (rollNumber === -1) {
-      preMessage = `${t('restartingGame')}  \r\n`;
-      newLocation = 0;
-    } else {
-      const lastTile = total - 1;
-      const currentLocation = playerList.find((p) => p.isSelf).location;
-      newLocation = rollNumber + currentLocation;
-
-      // restart game.
-      if (currentLocation === lastTile) {
-        preMessage = `${t('alreadyFinished')}  \r\n`;
-        newLocation = rollNumber;
-      }
-
-      // move to final tile
-      if (newLocation >= lastTile) {
-        newLocation = lastTile;
-      }
-    }
+    const { preMessage, newLocation } = getNewLocation(rollNumber);
 
     if (tile?.description !== gameBoard[newLocation]) setTile(gameBoard[newLocation]);
 
