@@ -1,12 +1,15 @@
 import {
-  Autocomplete, Box, Button, TextField,
+  Autocomplete, Box, Button, TextField, Typography,
 } from '@mui/material';
 import { submitCustomAction } from 'services/firebase';
 import { useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import Accordion from 'components/Accordion';
+import AccordionSummary from 'components/Accordion/Summary';
+import AccordionDetails from 'components/Accordion/Details';
 
 export default function CustomTile({
-  setSubmitMessage, addCustomTile, customTiles, mappedGroups,
+  setSubmitMessage, addCustomTile, customTiles, mappedGroups, expanded, handleChange,
 }) {
   const formData = useRef();
   const { t } = useTranslation();
@@ -37,35 +40,43 @@ export default function CustomTile({
   }
 
   return (
-    <Box
-      component="form"
-      method="post"
-      className="settings-box"
-      ref={formData}
-    >
-      <Autocomplete
-        id="tileOption"
-        name="tileOption"
-        options={mappedGroups}
-        getOptionLabel={(option) => option.label}
-        groupBy={(option) => option.group}
-        renderInput={(params) => <TextField {...params} label={t('group')} required />}
-        isOptionEqualToValue={(option) => option.label}
-        sx={{ py: 2 }}
-      />
+    <Accordion expanded={expanded === 'ctAdd'} onChange={handleChange('ctAdd')}>
+      <AccordionSummary aria-controls="ctAdd-content" id="ctAdd-header">
+        <Typography><Trans i18nKey="ctAdd" /></Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <Box
+          component="form"
+          method="post"
+          className="settings-box"
+          ref={formData}
+        >
+          <Autocomplete
+            id="tileOption"
+            name="tileOption"
+            options={mappedGroups}
+            getOptionLabel={(option) => option.label}
+            groupBy={(option) => option.group}
+            renderInput={(params) => <TextField {...params} label={t('group')} required />}
+            isOptionEqualToValue={(option) => option.label}
+            sx={{ py: 2 }}
+          />
 
-      <TextField
-        id="action"
-        name="action"
-        required
-        fullWidth
-        label={t('action')}
-        sx={{ pb: 2 }}
-      />
+          <TextField
+            id="action"
+            name="action"
+            required
+            fullWidth
+            label={t('action')}
+            sx={{ pb: 2 }}
+          />
 
-      <Button fullWidth variant="contained" type="button" onClick={(event) => submitNewTile(event)}>
-        <Trans i18nKey="addCustom" />
-      </Button>
-    </Box>
+          <Button fullWidth variant="contained" type="button" onClick={(event) => submitNewTile(event)}>
+            <Trans i18nKey="addCustom" />
+          </Button>
+        </Box>
+      </AccordionDetails>
+    </Accordion>
+
   );
 }

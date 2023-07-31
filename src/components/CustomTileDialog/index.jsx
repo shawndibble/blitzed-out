@@ -19,6 +19,10 @@ export default function CustomTileDialog({
   const { isMobile } = useWindowDimensions();
   const [submitMessage, setSubmitMessage] = useState({ message: '', type: 'info' });
   const [customTiles, setCustomTiles] = useLocalStorage('customTiles', []);
+  const [expanded, setExpanded] = useState('ctAdd');
+  const handleChange = (panel) => (_event, newExpanded) => {
+    setExpanded(newExpanded ? panel : false);
+  };
 
   const addCustomTile = (group, intensity, action) => {
     setCustomTiles([...customTiles, { group, intensity, action }]);
@@ -50,13 +54,15 @@ export default function CustomTileDialog({
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <CustomTileHelp />
+          <CustomTileHelp expanded={expanded} handleChange={handleChange} />
 
           <AddCustomTile
             setSubmitMessage={setSubmitMessage}
             addCustomTile={addCustomTile}
             customTiles={customTiles}
             mappedGroups={mappedGroups}
+            expanded={expanded}
+            handleChange={handleChange}
           />
 
           {!!customTiles.length && (

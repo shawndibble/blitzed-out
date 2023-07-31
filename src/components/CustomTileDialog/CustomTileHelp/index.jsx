@@ -2,19 +2,13 @@ import Typography from '@mui/material/Typography';
 import Accordion from 'components/Accordion';
 import AccordionDetails from 'components/Accordion/Details';
 import AccordionSummary from 'components/Accordion/Summary';
-import { useState } from 'react';
 import { Trans } from 'react-i18next';
 
-export default function CustomTileHelp() {
-  const [expanded, setExpanded] = useState(false);
-  const handleChange = (panel) => (_event, newExpanded) => {
-    setExpanded(newExpanded ? panel : false);
-  };
-
+export default function CustomTileHelp({ expanded, handleChange }) {
   return (
     <>
-      <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
-        <AccordionSummary aria-controls="panel1-content" id="panel1-header">
+      <Accordion expanded={expanded === 'help1'} onChange={handleChange('help1')}>
+        <AccordionSummary aria-controls="help1-content" id="help1-header">
           <Typography><Trans i18nKey="ctExplained" /></Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -36,8 +30,8 @@ export default function CustomTileHelp() {
           </Trans>
         </AccordionDetails>
       </Accordion>
-      <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
-        <AccordionSummary aria-controls="panel2-content" id="panel2-header">
+      <Accordion expanded={expanded === 'help2'} onChange={handleChange('help2')}>
+        <AccordionSummary aria-controls="help2-content" id="help2-header">
           <Typography><Trans i18nKey="ctIdeas" /></Typography>
         </AccordionSummary>
         <AccordionDetails>
