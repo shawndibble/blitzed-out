@@ -25,7 +25,7 @@ export function extractAction(message) {
 
 export function getExtention(filename) {
   const parts = filename?.split('.');
-  if (parts.length < 2) return false;
+  if (!parts || parts?.length < 2) return false;
   return parts?.[parts.length - 1];
 }
 
