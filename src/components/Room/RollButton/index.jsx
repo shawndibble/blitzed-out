@@ -77,7 +77,7 @@ export default function RollButton({ setRollValue, playerTile }) {
   };
 
   useEffect(() => {
-    if (playerTile.description === t('finish')) {
+    if (playerTile?.description === t('finish')) {
       togglePause();
     }
   }, [playerTile]);
