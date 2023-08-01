@@ -23,7 +23,7 @@ export default function usePlayerMove(room, rollValue) {
     sendMessage({
       room,
       user,
-      text: preMessage + message,
+      text: preMessage ? preMessage + message : message,
       type: 'actions',
     });
   }
