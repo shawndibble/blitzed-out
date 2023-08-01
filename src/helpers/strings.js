@@ -35,13 +35,11 @@ export function isVideo(file) {
 }
 
 export function getURLPath(string) {
-  if (string.startsWith('http')) {
-    return string;
-  }
+  if (!string) return false;
 
-  if (isVideo(string)) {
-    return `/videos/${string}`;
-  }
+  if (string?.startsWith('http')) return string;
+
+  if (isVideo(string)) return `/videos/${string}`;
 
   return `/images/${string}`;
 }
