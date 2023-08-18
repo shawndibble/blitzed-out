@@ -42,7 +42,7 @@ export default function Room() {
 
   const { background, backgroundURL } = settings;
   const backgroundSource = background !== 'custom' ? background : backgroundURL;
-  const video = isVideo(backgroundSource);
+  const isVideoFile = isVideo(backgroundSource);
   const bgExtension = getExtention(backgroundSource);
   const sourcePath = getURLPath(backgroundSource);
 
@@ -51,8 +51,8 @@ export default function Room() {
       <Navigation room={room} playerList={playerList} />
 
       <RollButton setRollValue={setRollValue} playerTile={tile} />
-      <Box className="main-container" sx={{ backgroundImage: !!bgExtension && !video && `url(${sourcePath})` }}>
-        {isVideo && (
+      <Box className="main-container" sx={{ backgroundImage: !!bgExtension && !isVideoFile && `url(${sourcePath})` }}>
+        {!!isVideoFile && (
           <video autoPlay loop muted>
             <source src={sourcePath} type={`video/${bgExtension}`} />
           </video>
