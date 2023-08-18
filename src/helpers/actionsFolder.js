@@ -1,8 +1,8 @@
 import { camelToPascal } from 'helpers/strings';
 import i18next from 'i18next';
 
-export default function groupDataFolder(dataFolder) {
-  const mappedGroups = Object.entries(dataFolder).map(([key, { label, actions }]) => {
+export default function groupActionsFolder(actionsFolder) {
+  const mappedGroups = Object.entries(actionsFolder).map(([key, { label, actions }]) => {
     const intensities = Object.keys(actions).filter((entry) => entry !== 'None');
     return intensities.map((intensity, index) => ({
       group: camelToPascal(key),

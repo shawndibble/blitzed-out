@@ -7,15 +7,15 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Help } from '@mui/icons-material';
 
 export default function SelectBoardSetting({
-  option, settings, setSettings, dataFolder,
+  option, settings, setSettings, actionsFolder,
 }) {
   const { t } = useTranslation();
   const labelId = `${option}label`;
-  const label = dataFolder[option]?.label;
+  const label = actionsFolder[option]?.label;
   const isDualSelect = ['alcohol', 'poppers'].includes(option);
 
   function getOptions(category) {
-    return Object.keys(dataFolder[category]?.actions).map((optionVal, index) => (
+    return Object.keys(actionsFolder[category]?.actions).map((optionVal, index) => (
       <MenuItem value={index} key={`${category}-${optionVal}`}>{optionVal}</MenuItem>
     ));
   }

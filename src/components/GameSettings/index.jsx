@@ -43,7 +43,7 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   const [value, setValue] = useState(0);
   const [alert, setAlert] = useState(null);
-  const [dataFolder, setDataFolder] = useState({});
+  const [actionsList, setActionsList] = useState({});
   const [openCustomTile, setOpenCustomTile] = useState(false);
 
   // set the variations to standalone by default.
@@ -55,7 +55,7 @@ export default function GameSettings({ submitText, closeDialog }) {
   });
 
   useEffect(() => {
-    setDataFolder(importActions(i18n.resolvedLanguage, formData?.gameMode));
+    setActionsList(importActions(i18n.resolvedLanguage, formData?.gameMode));
   }, [i18n.resolvedLanguage, formData?.gameMode]);
 
   const handleTabChange = (_, newValue) => {
@@ -84,7 +84,7 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     const { settingsBoardUpdated, newBoard } = await handleBoardUpdate({
       formData,
-      dataFolder,
+      actionsList,
       updateBoard,
       customTiles,
       updateSettings,
@@ -95,7 +95,7 @@ export default function GameSettings({ submitText, closeDialog }) {
       sendMessage({
         room: formData.room || 'public',
         user: updatedUser,
-        text: getSettingsMessage(formData, customTiles, dataFolder),
+        text: getSettingsMessage(formData, customTiles, actionsList),
         type: 'settings',
         gameBoard: JSON.stringify(newBoard),
         settings: JSON.stringify(exportSettings(formData)),
@@ -148,7 +148,7 @@ export default function GameSettings({ submitText, closeDialog }) {
       </Box>
 
       <TabPanel value={value} index={0} style={{ p: 0 }}>
-        <BoardSettings formData={formData} setFormData={setFormData} dataFolder={dataFolder} />
+        <BoardSettings formData={formData} setFormData={setFormData} actionsList={actionsList} />
       </TabPanel>
 
       <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
@@ -178,7 +178,7 @@ export default function GameSettings({ submitText, closeDialog }) {
         open={openCustomTile}
         setOpen={setOpenCustomTile}
         boardUpdated={boardUpdated}
-        dataFolder={dataFolder}
+        actionsList={actionsList}
       />
       <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
         {alert}

@@ -33,9 +33,9 @@ export default function GameBoard({ playerList, settings, setSettings }) {
     setLocalGameBoard(importedGameBoard);
     // When we import the board, also import the gameboard settings (not application settings).
     const importSettings = JSON.parse(importMessage?.settings);
-    const dataFolder = importActions(i18n.resolvedLanguage, importMessage?.settings?.gameMode);
+    const actionsFolder = importActions(i18n.resolvedLanguage, importMessage?.settings?.gameMode);
     Object.keys(importSettings).forEach((setting) => {
-      if (!dataFolder[setting] && !setting.endsWith('Variation')) {
+      if (!actionsFolder[setting] && !setting.endsWith('Variation')) {
         delete importSettings[setting];
       }
     });

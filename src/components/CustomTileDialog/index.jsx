@@ -7,14 +7,14 @@ import { Trans, useTranslation } from 'react-i18next';
 import useWindowDimensions from 'hooks/useWindowDimensions';
 import useLocalStorage from 'hooks/useLocalStorage';
 import ToastAlert from 'components/ToastAlert';
-import groupDataFolder from 'helpers/datafolder';
+import groupActionsFolder from 'helpers/actionsFolder';
 import ImportExport from 'components/CustomTileDialog/ImportExport';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
 
 export default function CustomTileDialog({
-  boardUpdated, dataFolder, setOpen, open = false,
+  boardUpdated, actionsList, setOpen, open = false,
 }) {
   const { t } = useTranslation();
   const { isMobile } = useWindowDimensions();
@@ -35,7 +35,7 @@ export default function CustomTileDialog({
     boardUpdated();
   };
 
-  const mappedGroups = groupDataFolder(dataFolder);
+  const mappedGroups = groupActionsFolder(actionsList);
 
   return (
     <>

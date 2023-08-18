@@ -6,14 +6,14 @@ import { Trans } from 'react-i18next';
 import SelectBoardSetting from './SelectBoardSetting';
 import FinishSlider from './FinishSlider';
 
-export default function BoardSettings({ formData, setFormData, dataFolder }) {
-  const settingSelectLists = Object.keys(dataFolder).map((option) => (
+export default function BoardSettings({ formData, setFormData, actionsList }) {
+  const settingSelectLists = Object.keys(actionsList).map((option) => (
     <SelectBoardSetting
       key={option}
       option={option}
       settings={formData}
       setSettings={setFormData}
-      dataFolder={dataFolder}
+      actionsFolder={actionsList}
     />
   ));
 
