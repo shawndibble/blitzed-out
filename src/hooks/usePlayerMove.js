@@ -12,14 +12,37 @@ export default function usePlayerMove(room, rollValue) {
   const gameBoard = useLocalStorage('customBoard')[0];
   const total = gameBoard.length;
   const [tile, setTile] = useState(gameBoard[0]);
+  const lastTile = total - 1;
+
+  function parseDescription(text) {
+    const textArray = text?.split('%');
+    // if we have %, we are on the finish tile. Let's get a random result.
+    if (textArray?.length > 1) {
+      const finishVals = textArray.filter((n) => n).map((line) => line.split(': '));
+
+      // process weighted random finish result.
+      const weightedArray = [];
+      finishVals.forEach((val, index) => {
+        const clone = Array(val[1]).fill(index);
+        weightedArray.push(...clone);
+      });
+
+      const result = weightedArray[Math.floor(Math.random() * weightedArray.length)];
+
+      return finishVals.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '');
+    }
+
+    return text;
+  }
 
   function handleTextOutput(newTile, rollNumber, newLocation, preMessage) {
     let message = '';
+    const description = parseDescription(newTile?.description);
     if (rollNumber !== -1) {
       message += `${t('roll')}: ${rollNumber}  \r\n`;
     }
     message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;
-    message += `${t('action')}: ${newTile?.description}`;
+    message += `${t('action')}: ${description}`;
     sendMessage({
       room,
       user,
@@ -39,7 +62,6 @@ export default function usePlayerMove(room, rollValue) {
       };
     }
 
-    const lastTile = total - 1;
     const currentLocation = playerList.find((p) => p.isSelf).location;
 
     // restart game if we roll and are on the last tile..
@@ -66,6 +88,7 @@ export default function usePlayerMove(room, rollValue) {
 
     const { preMessage, newLocation } = getNewLocation(rollNumber);
 
+    // update our tile that we will return.
     if (tile?.description !== gameBoard[newLocation]) setTile(gameBoard[newLocation]);
 
     // send our message.

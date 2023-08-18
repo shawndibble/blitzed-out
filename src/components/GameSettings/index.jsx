@@ -37,6 +37,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     locale: 'en',
     gameMode: 'online',
     background: 'color',
+    finishRange: [30, 70],
   });
   const navigate = useNavigate();
 
@@ -115,6 +116,8 @@ export default function GameSettings({ submitText, closeDialog }) {
       handleSubmit(event);
     }
   };
+
+  if (!formData.locale) return null;
 
   return (
     <Box

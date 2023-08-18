@@ -40,6 +40,7 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
 export function getSettingsMessage(settings, customTiles, dataFolder) {
   let message = `### ${i18next.t('gameSettings')}\r\n`;
   const { poppersVariation, alcoholVariation } = settings;
+  // output only settings that have a corresponding dataFolder entry.
   Object.entries(dataFolder).map(([key, val]) => {
     if (settings[key] > 0) {
       const intensity = settings[key];

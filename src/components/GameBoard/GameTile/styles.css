@@ -4,6 +4,10 @@
   text-overflow: ellipsis;
 }
 
+.tile-description {
+  white-space: pre-wrap;
+}
+
 .player-indicator {
   position: absolute;
   top: 0.5em;

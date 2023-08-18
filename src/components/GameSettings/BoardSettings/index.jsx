@@ -4,6 +4,7 @@ import {
 } from '@mui/material';
 import { Trans } from 'react-i18next';
 import SelectBoardSetting from './SelectBoardSetting';
+import FinishSlider from './FinishSlider';
 
 export default function BoardSettings({ formData, setFormData, dataFolder }) {
   const settingSelectLists = Object.keys(dataFolder).map((option) => (
@@ -53,6 +54,7 @@ export default function BoardSettings({ formData, setFormData, dataFolder }) {
         </Stack>
       )}
       {settingSelectLists}
+      <FinishSlider setFormData={setFormData} formData={formData} />
     </>
   );
 }

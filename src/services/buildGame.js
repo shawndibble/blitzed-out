@@ -101,7 +101,7 @@ export default function customizeBoard(
   settings,
   dataFolder,
   userCustomTiles = [],
-  size = 40,
+  size = 5,
 ) {
   const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
 
@@ -169,8 +169,12 @@ export default function customizeBoard(
 
   const shuffledTiles = shuffleArrayBy(customTiles, 'currentLevel') || [];
 
-  shuffledTiles.unshift({ title: '', description: i18next.t('start') });
-  shuffledTiles.push({ title: '', description: i18next.t('finish') });
+  const { t } = i18next;
+  shuffledTiles.unshift({ title: t('start'), description: t('start') });
+
+  const { finishRange } = settings;
+  const finishDescription = `${t('noCum')} ${finishRange[0]}% \r\n${t('ruined')} ${finishRange[1] - finishRange[0]}% \r\n${t('cum')} ${100 - finishRange[1]}%`;
+  shuffledTiles.push({ title: t('finish'), description: finishDescription });
 
   return shuffledTiles;
 }

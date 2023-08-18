@@ -15,7 +15,7 @@ export default function GameBoard({ playerList, settings, setSettings }) {
   const [gameBoard, setGameBoard] = useState(localGameBoard);
   const messages = useMessages(room || 'public');
   const importBoard = queryParams.get('importBoard');
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [alert, setAlert] = useState('');
 
   function importGameBoard() {
@@ -49,7 +49,7 @@ export default function GameBoard({ playerList, settings, setSettings }) {
   useEffect(() => {
     if (gameBoard !== localGameBoard) {
       setGameBoard(localGameBoard);
-      setAlert('Import Complete');
+      setAlert(t('updated'));
     }
   }, [localGameBoard]);
 
