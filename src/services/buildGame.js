@@ -101,7 +101,7 @@ export default function customizeBoard(
   settings,
   dataFolder,
   userCustomTiles = [],
-  size = 5,
+  size = 40,
 ) {
   const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
 
