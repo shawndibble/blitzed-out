@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.2091e51e.css",
-    "main.js": "/static/js/main.e88ff119.js",
+    "main.css": "/static/css/main.35039cce.css",
+    "main.js": "/static/js/main.9e801d61.js",
     "static/js/845.4043c305.chunk.js": "/static/js/845.4043c305.chunk.js",
     "static/js/787.676cf0d3.chunk.js": "/static/js/787.676cf0d3.chunk.js",
     "static/media/venmo.png": "/static/media/venmo.ebe983ca9d6089e53c1b.png",
@@ -10,13 +10,13 @@
     "static/media/roll-dice.mp3": "/static/media/roll-dice.c108f8021f432fc3cf39.mp3",
     "static/media/cashapp.png": "/static/media/cashapp.57eb4df86fd6c2bc68b9.png",
     "index.html": "/index.html",
-    "main.2091e51e.css.map": "/static/css/main.2091e51e.css.map",
-    "main.e88ff119.js.map": "/static/js/main.e88ff119.js.map",
+    "main.35039cce.css.map": "/static/css/main.35039cce.css.map",
+    "main.9e801d61.js.map": "/static/js/main.9e801d61.js.map",
     "845.4043c305.chunk.js.map": "/static/js/845.4043c305.chunk.js.map",
     "787.676cf0d3.chunk.js.map": "/static/js/787.676cf0d3.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.2091e51e.css",
-    "static/js/main.e88ff119.js"
+    "static/css/main.35039cce.css",
+    "static/js/main.9e801d61.js"
   ]
 }
