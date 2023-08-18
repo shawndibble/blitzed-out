@@ -38,6 +38,7 @@ function getCustomTileCount(settings, customTiles, dataFolder) {
 }
 
 export function getSettingsMessage(settings, customTiles, dataFolder) {
+  const { t } = i18next;
   let message = `### ${i18next.t('gameSettings')}\r\n`;
   const { poppersVariation, alcoholVariation } = settings;
   // output only settings that have a corresponding dataFolder entry.
@@ -46,19 +47,23 @@ export function getSettingsMessage(settings, customTiles, dataFolder) {
       const intensity = settings[key];
       message += `* ${val?.label}: ${Object.keys(val?.actions)?.[intensity]}`;
       if (key === 'poppers') {
-        message += ` (${i18next.t(poppersVariation)})`;
+        message += ` (${t(poppersVariation)})`;
       }
       if (key === 'alcohol') {
-        message += ` (${i18next.t(alcoholVariation)})`;
+        message += ` (${t(alcoholVariation)})`;
       }
       message += '\r\n';
     }
     return undefined;
   });
 
+  const { finishRange } = settings;
+
+  message += `* ${t('finishSlider')} ${finishRange[0]}%  | ${finishRange[1] - finishRange[0]}% | ${100 - finishRange[1]}%`;
+
   const customTileCount = getCustomTileCount(settings, customTiles, dataFolder);
   if (customTileCount) {
-    message += `* ${i18next.t('customTiles')}: ${customTileCount} \r\n`;
+    message += `* ${t('customTiles')}: ${customTileCount} \r\n`;
   }
 
   return message;
