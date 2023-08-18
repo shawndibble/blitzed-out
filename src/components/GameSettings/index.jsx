@@ -1,5 +1,5 @@
 import {
-  Box, Button, Divider, FormControlLabel, Switch, Tab, Tabs, TextField,
+  Box, Button, Tab, Tabs, TextField,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -12,14 +12,13 @@ import useAuth from 'hooks/useAuth';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { importActions } from 'services/importLocales';
 import { sendMessage } from 'services/firebase';
-import SelectBoardSetting from './SelectBoardSetting';
-import PrivateRoomToggle from './PrivateRoomToggle';
 import {
   handleUser, handleBoardUpdate, validateFormData, getSettingsMessage, exportSettings,
 } from './submitForm';
 import './styles.css';
-import LanguageSelect from './LanguageSelect';
-import BackgroundSelect from './BackgroundSelect';
+import AppSettings from './AppSettings';
+import RoomSettings from './RoomSettings';
+import BoardSettings from './BoardSettings';
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
@@ -117,16 +116,6 @@ export default function GameSettings({ submitText, closeDialog }) {
     }
   };
 
-  const settingSelectLists = Object.keys(dataFolder).map((option) => (
-    <SelectBoardSetting
-      key={option}
-      option={option}
-      settings={formData}
-      setSettings={setFormData}
-      dataFolder={dataFolder}
-    />
-  ));
-
   return (
     <Box
       component="form"
@@ -150,97 +139,26 @@ export default function GameSettings({ submitText, closeDialog }) {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleTabChange} aria-label="Game Settings" centered>
           <Tab label={t('gameboard')} {...a11yProps(0)} />
-          <Tab label={t('application')} {...a11yProps(1)} />
+          <Tab label={t('roomTab')} {...a11yProps(1)} />
+          <Tab label={t('application')} {...a11yProps(2)} />
         </Tabs>
       </Box>
 
       <TabPanel value={value} index={0} style={{ p: 0 }}>
-        {settingSelectLists}
+        <BoardSettings formData={formData} setFormData={setFormData} dataFolder={dataFolder} />
       </TabPanel>
 
       <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
-        <LanguageSelect boardUpdated={boardUpdated} />
-        <Divider />
-        <PrivateRoomToggle formData={formData} setFormData={setFormData} />
-        <Divider />
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={formData.playerDialog}
-              onChange={(event) => setFormData({
-                ...formData, playerDialog: event.target.checked,
-              })}
-            />
-          )}
-          label={t('myRollDialog')}
-          labelPlacement="start"
-          className="settings-switch"
+        <RoomSettings formData={formData} setFormData={setFormData} />
+      </TabPanel>
+
+      <TabPanel value={value} index={2} style={{ p: 0, pt: 1 }}>
+        <AppSettings
+          settings={formData}
+          formData={formData}
+          setFormData={setFormData}
+          boardUpdated={boardUpdated}
         />
-        <Divider />
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={formData.othersDialog}
-              onChange={(event) => setFormData({
-                ...formData, othersDialog: event.target.checked,
-              })}
-            />
-          )}
-          label={t('othersRollDialog')}
-          labelPlacement="start"
-          className="settings-switch"
-        />
-        <Divider />
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={formData.mySound}
-              onChange={(event) => setFormData({ ...formData, mySound: event.target.checked })}
-            />
-          )}
-          label={t('mySound')}
-          labelPlacement="start"
-          className="settings-switch"
-        />
-        <Divider />
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={formData.otherSound}
-              onChange={(event) => setFormData({ ...formData, otherSound: event.target.checked })}
-            />
-          )}
-          label={t('otherSound')}
-          labelPlacement="start"
-          className="settings-switch"
-        />
-        <Divider />
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={formData.chatSound}
-              onChange={(event) => setFormData({ ...formData, chatSound: event.target.checked })}
-            />
-          )}
-          label={t('chatSound')}
-          labelPlacement="start"
-          className="settings-switch"
-        />
-        <Divider />
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={formData.readRoll}
-              onChange={(event) => setFormData({ ...formData, readRoll: event.target.checked })}
-            />
-          )}
-          label={t('readRoll')}
-          labelPlacement="start"
-          className="settings-switch"
-        />
-        <Divider />
-        <BackgroundSelect settings={settings} setFormData={setFormData} />
-        <Divider />
       </TabPanel>
 
       <div className="flex-buttons">
