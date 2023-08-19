@@ -7,6 +7,8 @@
   "donate": "Donner",
   "about": "À propos",
   "gameSettings": "Paramètres du jeu",
+  "loading": "Chargement",
+  "clearStorage": "Si cela fait plus de 2 secondes. Essayez de vider votre cache/stockage local.",
   "displayName": "Nom d'affichage",
   "gameboard": "Plateau",
   "room": "Salle",

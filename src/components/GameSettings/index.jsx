@@ -1,5 +1,5 @@
 import {
-  Box, Button, Tab, Tabs, TextField,
+  Box, Button, Tab, Tabs, TextField, Typography,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -133,7 +133,17 @@ export default function GameSettings({ submitText, closeDialog }) {
     }
   };
 
-  if (!formData.locale) return null;
+  if (!formData.locale) {
+    return (
+      <Box>
+        <Typography variant="h2">
+          <Trans i18nKey="Loading" />
+          ...
+        </Typography>
+        <Typography variant="body1"><Trans i18nKey="clearStorage" /></Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box

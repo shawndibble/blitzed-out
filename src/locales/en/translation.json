@@ -7,6 +7,8 @@
   "donate": "Donate",
   "about": "About",
   "gameSettings": "Game Settings",
+  "loading": "Loading",
+  "clearStorage": "If it has been more than 2 seconds. Try clearing your cache/local storage.",
   "displayName": "DisplayName",
   "gameboard": "Board",
   "room": "Room",
