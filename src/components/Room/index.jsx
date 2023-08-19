@@ -40,11 +40,15 @@ export default function Room() {
   };
   // end handle timeout of dialog.
 
-  const { background, backgroundURL } = settings;
+  const {
+    background, backgroundURL, roomBackground, roomBackgroundURL,
+  } = settings;
   const backgroundSource = background !== 'custom' ? background : backgroundURL;
-  const isVideoFile = isVideo(backgroundSource);
-  const bgExtension = getExtention(backgroundSource);
-  const sourcePath = getURLPath(backgroundSource);
+  const roomBackgroundSource = roomBackground !== 'custom' ? roomBackground : roomBackgroundURL;
+  const bgSource = room !== 'public' && roomBackground === 'custom' ? roomBackgroundSource : backgroundSource;
+  const isVideoFile = isVideo(bgSource);
+  const bgExtension = getExtention(bgSource);
+  const sourcePath = getURLPath(bgSource);
 
   return (
     <>

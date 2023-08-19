@@ -1,10 +1,11 @@
 import { Help } from '@mui/icons-material';
 import {
-  Box, Stack, Switch, TextField, Tooltip, Typography,
+  Box, Divider, Stack, Switch, TextField, Tooltip, Typography,
 } from '@mui/material';
 import { customAlphabet } from 'nanoid';
 import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import BackgroundSelect from 'components/BackgroundSelect';
 
 export default function RoomSettings({ formData, setFormData }) {
   const { id: room } = useParams();
@@ -56,15 +57,24 @@ export default function RoomSettings({ formData, setFormData }) {
       </Stack>
 
       {!!formData.room && (
-        <TextField
-          fullWidth
-          id="privateRoom"
-          label="Private Room"
-          defaultValue={formData.room}
-          margin="normal"
-          onBlur={(event) => handleChange(event)}
-          onKeyDown={(event) => handleKeyDown(event)}
-        />
+        <>
+          <TextField
+            fullWidth
+            id="privateRoom"
+            label="Private Room"
+            defaultValue={formData.room}
+            margin="normal"
+            onBlur={(event) => handleChange(event)}
+            onKeyDown={(event) => handleKeyDown(event)}
+          />
+          <Divider sx={{ my: 1 }} />
+          <BackgroundSelect
+            formData={formData}
+            setFormData={setFormData}
+            backgroundKey="roomBackground"
+            backgroundURLKey="roomBackgroundURL"
+          />
+        </>
       )}
     </Box>
   );

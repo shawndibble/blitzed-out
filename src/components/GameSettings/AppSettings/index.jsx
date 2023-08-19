@@ -1,10 +1,10 @@
 import { Divider, FormControlLabel, Switch } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import LanguageSelect from './LanguageSelect';
-import BackgroundSelect from './BackgroundSelect';
+import BackgroundSelect from '../../BackgroundSelect';
 
 export default function AppSettings({
-  formData, setFormData, settings, boardUpdated,
+  formData, setFormData, boardUpdated,
 }) {
   const { t } = useTranslation();
 
@@ -89,7 +89,7 @@ export default function AppSettings({
         className="settings-switch"
       />
       <Divider />
-      <BackgroundSelect settings={settings} setFormData={setFormData} />
+      <BackgroundSelect formData={formData} setFormData={setFormData} />
       <Divider />
     </>
   );

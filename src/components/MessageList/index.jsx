@@ -91,7 +91,7 @@ function Message({ message, isOwnMessage, isTransparent }) {
         <div className="timestampe">{ago}</div>
       </div>
       <Divider />
-      <div>
+      <div className="message-message">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {text}
         </ReactMarkdown>

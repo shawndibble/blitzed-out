@@ -34,6 +34,10 @@
   width: 100%;
 }
 
+.message-message {
+  word-break: break-word;
+}
+
 .message.transparent {
   background: rgba(75, 75, 75, 0.75);
   text-shadow:

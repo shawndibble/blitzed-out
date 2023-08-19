@@ -37,6 +37,26 @@ function getCustomTileCount(settings, customTiles, actionsList) {
   return usedCustomTiles.length;
 }
 
+function validRoomSetting(key) {
+  return key.startsWith('room') && !['roomBackground', 'roomBackgroundURL'].includes(key);
+}
+
+function hasCustomBackgroundURL(key, settings) {
+  return key === 'roomBackgroundURL' && settings.roomBackground === 'custom';
+}
+
+export function getRoomSettingsMessage(settings) {
+  const { t } = i18next;
+  let message = `### ${t('roomSettings')}\r\n`;
+  Object.entries(settings)
+    .forEach(([key, val]) => {
+      if (validRoomSetting(key) || hasCustomBackgroundURL(key, settings)) {
+        message += `* ${t(key)}: ${val}\r\n`;
+      }
+    });
+  return message;
+}
+
 export function getSettingsMessage(settings, customTiles, actionsList) {
   const { t } = i18next;
   let message = `### ${i18next.t('gameSettings')}\r\n`;
@@ -74,6 +94,14 @@ export function exportSettings(formData) {
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     const personalSettings = ['boardUpdated', 'playerDialog', 'sound', 'displayName', 'othersDialog', 'room'];
     if (!personalSettings.includes(settingKey)) newSettings[settingKey] = settingValue;
+  });
+  return newSettings;
+}
+
+export function exportRoomSettings(formData) {
+  const newSettings = {};
+  Object.entries(formData).forEach(([settingKey, settingValue]) => {
+    if (settingKey.startsWith('room')) newSettings[settingKey] = settingValue;
   });
   return newSettings;
 }

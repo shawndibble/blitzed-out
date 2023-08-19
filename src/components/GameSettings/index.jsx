@@ -13,7 +13,8 @@ import useLocalStorage from 'hooks/useLocalStorage';
 import { importActions } from 'services/importLocales';
 import { sendMessage } from 'services/firebase';
 import {
-  handleUser, handleBoardUpdate, validateFormData, getSettingsMessage, exportSettings,
+  handleUser, handleBoardUpdate, validateFormData, getSettingsMessage,
+  exportSettings, getRoomSettingsMessage, exportRoomSettings,
 } from './submitForm';
 import './styles.css';
 import AppSettings from './AppSettings';
@@ -90,8 +91,10 @@ export default function GameSettings({ submitText, closeDialog }) {
       updateSettings,
     });
 
-    // if our board updated, or we changed rooms, send out that message.
-    if (settingsBoardUpdated || room !== formData.room) {
+    const roomChanged = room !== formData.room;
+
+    // if our board updated, or we changed rooms, send out game settings message.
+    if (settingsBoardUpdated || roomChanged) {
       sendMessage({
         room: formData.room || 'public',
         user: updatedUser,
@@ -102,8 +105,21 @@ export default function GameSettings({ submitText, closeDialog }) {
       });
     }
 
-    const privatePath = formData.room ? `/rooms/${formData.room}` : '/';
-    navigate(privatePath);
+    // send out room specific settings if we are in a private room.
+    if (room !== 'public') {
+      sendMessage({
+        room,
+        user: updatedUser,
+        text: getRoomSettingsMessage(formData),
+        type: 'room',
+        settings: JSON.stringify(exportRoomSettings(formData)),
+      });
+    }
+
+    if (roomChanged) {
+      const privatePath = formData.room ? `/rooms/${formData.room}` : '/';
+      navigate(privatePath);
+    }
 
     if (typeof closeDialog === 'function') closeDialog();
 
@@ -142,7 +158,7 @@ export default function GameSettings({ submitText, closeDialog }) {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleTabChange} aria-label="Game Settings" centered>
           <Tab label={t('gameboard')} {...a11yProps(0)} />
-          <Tab label={t('roomTab')} {...a11yProps(1)} />
+          <Tab label={t('room')} {...a11yProps(1)} />
           <Tab label={t('application')} {...a11yProps(2)} />
         </Tabs>
       </Box>

@@ -4,9 +4,13 @@ import {
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export default function BackgroundSelect({ settings, setFormData }) {
+export default function BackgroundSelect({
+  formData, setFormData, backgroundKey = 'background', backgroundURLKey = 'backgroundURL',
+}) {
   const { t } = useTranslation();
-  const [background, setBackground] = useState(settings.background);
+  const [background, setBackground] = useState(
+    formData?.[backgroundKey] || formData?.background || 'color',
+  );
 
   const backgrounds = {
     color: t('color'),
@@ -22,7 +26,7 @@ export default function BackgroundSelect({ settings, setFormData }) {
   ));
 
   const backgroundSelection = (event) => {
-    setFormData({ ...settings, background: event.target.value });
+    setFormData({ ...formData, [backgroundKey]: event.target.value });
     setBackground(event.target.value);
   };
 
@@ -44,12 +48,12 @@ export default function BackgroundSelect({ settings, setFormData }) {
         <TextField
           sx={{ mt: 2 }}
           label={t('url')}
-          value={settings.backgroundURL}
+          value={formData?.[backgroundURLKey]}
           fullWidth
           onChange={(event) => setFormData({
-            ...settings,
-            background: 'custom',
-            backgroundURL: event.target.value,
+            ...formData,
+            [backgroundKey]: 'custom',
+            [backgroundURLKey]: event.target.value,
           })}
           helperText={t('fileExtension')}
         />

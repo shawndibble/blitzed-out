@@ -33,7 +33,7 @@ export default function Navigation({ room, playerList = [] }) {
         </div>
         <div>
           <div className="nav-room-name">
-            <h2>{room === 'public' || room === undefined ? t('public') : t('room', { room })}</h2>
+            <h2>{room === 'public' || room === undefined ? t('public') : t('roomTitle', { room })}</h2>
             <Tooltip title={playersOnlineTooltip}>
               <WrapPlayersOnline playerList={playerList} />
             </Tooltip>
