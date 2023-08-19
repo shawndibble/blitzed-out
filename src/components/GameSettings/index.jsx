@@ -106,9 +106,9 @@ export default function GameSettings({ submitText, closeDialog }) {
     }
 
     // send out room specific settings if we are in a private room.
-    if (room !== 'public') {
+    if (formData.room !== 'public') {
       sendMessage({
-        room,
+        room: formData.room,
         user: updatedUser,
         text: getRoomSettingsMessage(formData),
         type: 'room',
