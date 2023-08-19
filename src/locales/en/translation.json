@@ -13,6 +13,7 @@
   "displayName": "DisplayName",
   "gameboard": "Board",
   "room": "Room",
+  "appBackground": "App Settings Background",
   "application": "App",
   "variation": "Variation",
   "variationTooltip": "<0>Standalone = Its own tile. </0><1>Append Some = Add to 50% of the tiles.</1><2>Append Most = Add to 90% of the tiles.</2>",

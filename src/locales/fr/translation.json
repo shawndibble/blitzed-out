@@ -13,6 +13,7 @@
   "displayName": "Nom d'affichage",
   "gameboard": "Plateau",
   "room": "Salle",
+  "appBackground": "Arrière-plan des paramètres de l'application",
   "application": "App",
   "variation": "Variation",
   "variationTooltip": "<0>Autonome = Sa propre tuile. </0><1>Ajouter certaines = Ajouter à 50 % des tuiles.</1><2>Ajouter la plupart = Ajouter à 90 % des tuiles.</2>",

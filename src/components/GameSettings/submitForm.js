@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import customizeBoard from 'services/buildGame';
+import { sendMessage } from 'services/firebase';
 import { importActions } from 'services/importLocales';
 
 function hasSomethingPicked(object) {
@@ -45,7 +46,7 @@ function hasCustomBackgroundURL(key, settings) {
   return key === 'roomBackgroundURL' && settings.roomBackground === 'custom';
 }
 
-export function getRoomSettingsMessage(settings) {
+function getRoomSettingsMessage(settings) {
   const { t } = i18next;
   let message = `### ${t('roomSettings')}\r\n`;
   Object.entries(settings)
@@ -57,7 +58,7 @@ export function getRoomSettingsMessage(settings) {
   return message;
 }
 
-export function getSettingsMessage(settings, customTiles, actionsList) {
+function getSettingsMessage(settings, customTiles, actionsList) {
   const { t } = i18next;
   let message = `### ${i18next.t('gameSettings')}\r\n`;
   const { poppersVariation, alcoholVariation } = settings;
@@ -89,7 +90,7 @@ export function getSettingsMessage(settings, customTiles, actionsList) {
   return message;
 }
 
-export function exportSettings(formData) {
+function exportSettings(formData) {
   const newSettings = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     const personalSettings = ['boardUpdated', 'playerDialog', 'sound', 'displayName', 'othersDialog', 'room'];
@@ -98,7 +99,7 @@ export function exportSettings(formData) {
   return newSettings;
 }
 
-export function exportRoomSettings(formData) {
+function exportRoomSettings(formData) {
   const newSettings = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     if (settingKey.startsWith('room')) newSettings[settingKey] = settingValue;
@@ -112,6 +113,27 @@ export async function handleUser(user, displayName, updateUser, login) {
     updatedUser = user ? await updateUser(displayName) : await login(displayName);
   }
   return updatedUser;
+}
+
+export function sendRoomSettingsMessage(formData, updatedUser) {
+  return sendMessage({
+    room: formData.room,
+    user: updatedUser,
+    text: getRoomSettingsMessage(formData),
+    type: 'room',
+    settings: JSON.stringify(exportRoomSettings(formData)),
+  });
+}
+
+export function sendGameSettingsMessage(formData, updatedUser, customTiles, actionsList, newBoard) {
+  return sendMessage({
+    room: formData.room || 'public',
+    user: updatedUser,
+    text: getSettingsMessage(formData, customTiles, actionsList),
+    type: 'settings',
+    gameBoard: JSON.stringify(newBoard),
+    settings: JSON.stringify(exportSettings(formData)),
+  });
 }
 
 // returns a translation key for an alert if fails.

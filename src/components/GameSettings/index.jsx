@@ -11,10 +11,8 @@ import { a11yProps } from 'helpers/strings';
 import useAuth from 'hooks/useAuth';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { importActions } from 'services/importLocales';
-import { sendMessage } from 'services/firebase';
 import {
-  handleUser, handleBoardUpdate, validateFormData, getSettingsMessage,
-  exportSettings, getRoomSettingsMessage, exportRoomSettings,
+  handleUser, handleBoardUpdate, validateFormData, sendGameSettingsMessage, sendRoomSettingsMessage,
 } from './submitForm';
 import './styles.css';
 import AppSettings from './AppSettings';
@@ -95,25 +93,12 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     // if our board updated, or we changed rooms, send out game settings message.
     if (settingsBoardUpdated || roomChanged) {
-      sendMessage({
-        room: formData.room || 'public',
-        user: updatedUser,
-        text: getSettingsMessage(formData, customTiles, actionsList),
-        type: 'settings',
-        gameBoard: JSON.stringify(newBoard),
-        settings: JSON.stringify(exportSettings(formData)),
-      });
+      sendGameSettingsMessage(formData, updatedUser, customTiles, actionsList, newBoard);
     }
 
     // send out room specific settings if we are in a private room.
     if (formData.room !== 'public') {
-      sendMessage({
-        room: formData.room,
-        user: updatedUser,
-        text: getRoomSettingsMessage(formData),
-        type: 'room',
-        settings: JSON.stringify(exportRoomSettings(formData)),
-      });
+      sendRoomSettingsMessage(formData, updatedUser);
     }
 
     if (roomChanged) {
@@ -183,7 +168,6 @@ export default function GameSettings({ submitText, closeDialog }) {
 
       <TabPanel value={value} index={2} style={{ p: 0, pt: 1 }}>
         <AppSettings
-          settings={formData}
           formData={formData}
           setFormData={setFormData}
           boardUpdated={boardUpdated}

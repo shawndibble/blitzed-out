@@ -7,6 +7,14 @@ export default function AppSettings({
   formData, setFormData, boardUpdated,
 }) {
   const { t } = useTranslation();
+  const backgrounds = {
+    color: t('color'),
+    gray: t('gray'),
+    'metronome.gif': t('hypnoDick'),
+    'pink-spiral.gif': t('pinkSpiral'),
+    'bw-spiral.mp4': t('bwSpiral'),
+    custom: t('customURL'),
+  };
 
   return (
     <>
@@ -89,7 +97,7 @@ export default function AppSettings({
         className="settings-switch"
       />
       <Divider />
-      <BackgroundSelect formData={formData} setFormData={setFormData} />
+      <BackgroundSelect formData={formData} setFormData={setFormData} backgrounds={backgrounds} />
       <Divider />
     </>
   );

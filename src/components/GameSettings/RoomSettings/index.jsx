@@ -3,12 +3,19 @@ import {
   Box, Divider, Stack, Switch, TextField, Tooltip, Typography,
 } from '@mui/material';
 import { customAlphabet } from 'nanoid';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import BackgroundSelect from 'components/BackgroundSelect';
 
 export default function RoomSettings({ formData, setFormData }) {
   const { id: room } = useParams();
+  const { t } = useTranslation();
+
+  const backgrounds = {
+    app: t('appBackground'),
+    custom: t('customURL'),
+  };
+
   const handleChange = (event) => setFormData({
     ...formData,
     room: event.target.value,
@@ -73,6 +80,7 @@ export default function RoomSettings({ formData, setFormData }) {
             setFormData={setFormData}
             backgroundKey="roomBackground"
             backgroundURLKey="roomBackgroundURL"
+            backgrounds={backgrounds}
           />
         </>
       )}

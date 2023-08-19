@@ -5,21 +5,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function BackgroundSelect({
-  formData, setFormData, backgroundKey = 'background', backgroundURLKey = 'backgroundURL',
+  formData, setFormData, backgrounds, backgroundKey = 'background', backgroundURLKey = 'backgroundURL',
 }) {
   const { t } = useTranslation();
   const [background, setBackground] = useState(
-    formData?.[backgroundKey] || formData?.background || 'color',
+    formData?.[backgroundKey] || Object.keys(backgrounds)[0],
   );
-
-  const backgrounds = {
-    color: t('color'),
-    gray: t('gray'),
-    'metronome.gif': t('hypnoDick'),
-    'pink-spiral.gif': t('pinkSpiral'),
-    'bw-spiral.mp4': t('bwSpiral'),
-    custom: t('customURL'),
-  };
 
   const options = () => Object.entries(backgrounds).map(([file, label]) => (
     <MenuItem value={file} key={file}>{label}</MenuItem>
