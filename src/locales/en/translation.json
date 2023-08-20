@@ -110,6 +110,7 @@
   "importNoEmpty": "No empty entries allowed.",
   "importInvalidTitle": "Invalid title for entry {{entry}}. Ensure it is wrapped in brackets and on its own line.",
   "importMissingDescription": "Entry {{entry}} is missing a description. All entries must have a description on its own line.",
+  "imported": "Imported:",
   "importedGameboard": "Imported gameboard",
   "title": "Title",
   "boardIncludesFollowing": "Board includes the following categories:",

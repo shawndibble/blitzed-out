@@ -26,7 +26,7 @@ export default function TransitionModal({
   open, text, displayName, handleClose,
 }) {
   const { t } = useTranslation();
-  const title = text?.match(/(?:#[\d]*:).*(?=\r)/gs);
+  const title = text?.match(/(?:#[\d]*:).*(?=\n)/gs);
   const description = extractAction(text);
 
   const { timeLeft } = useCountdown(8, false);

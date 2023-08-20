@@ -110,6 +110,7 @@
   "importNoEmpty": "No se permiten entradas vacías.",
   "importInvalidTitle": "Título inválido para la entrada {{entry}}. Asegúrate de que esté entre corchetes y en su propia línea.",
   "importMissingDescription": "Falta la descripción de la entrada {{entry}}. Todas las entradas deben tener una descripción en su propia línea.",
+  "imported": "Importado:",
   "importedGameboard": "Tablero de juego importado",
   "title": "Título",
   "boardIncludesFollowing": "El tablero incluye las siguientes categorías:",

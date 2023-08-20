@@ -38,6 +38,10 @@
   word-break: break-word;
 }
 
+.message-message p {
+  white-space: pre-wrap;
+}
+
 .message.transparent {
   background: rgba(75, 75, 75, 0.75);
   text-shadow:

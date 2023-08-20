@@ -31,17 +31,18 @@ export default function ImportExport({ open, close, isMobile }) {
   const requiredTiles = !room || room === 'public' ? 40 : roomTileCount;
 
   async function createGameMessage(gameTiles, importLabel) {
-    const gameTileTitles = gameTiles.map(({ title }) => `* ${title}`);
+    const gameTileTitles = gameTiles.map(({ title }) => `* ${title} \n`);
     // remove our start and finish tiles from the list.
     gameTileTitles.pop();
     gameTileTitles.shift();
 
-    let message = `### ${t('importedGameboard')}\n\n`;
+    let message = `### ${t('importedGameboard')}\r`;
     if (importLabel) {
-      message += `${t('title')}: ${importLabel.join('\n')}\n\n`;
+      message = `### ${t('imported')} ${importLabel.shift()}\n\n`;
+      message += `${importLabel.join('\n')}\n\n`;
     }
     message += `${t('boardIncludesFollowing')}\n`;
-    message += [...new Set(gameTileTitles)].join('\n');
+    message += [...new Set(gameTileTitles)].join(' ');
 
     await sendMessage({
       room: room || 'public',
@@ -87,12 +88,12 @@ export default function ImportExport({ open, close, isMobile }) {
 
   // eslint-disable-next-line consistent-return
   const importBoard = async () => {
-    const importLabel = textValue.match(/#.*/g).map((e) => e.replace('#', '').trim());
+    const importLabel = textValue.match(/\/\/.*/g).map((e) => e.replace('//', '').trim());
     const entries = textValue
       .split('\n')
-      .filter((line) => !line.startsWith('#')) // remove all label rows.
+      .filter((line) => !line.startsWith('//')) // remove all label rows.
       .join('\n')
-      .split('---')
+      .split('~~') // ~~~ separates each tile.
       .filter((e) => e);
 
     const gameTiles = getGameTiles(entries);
@@ -109,8 +110,8 @@ export default function ImportExport({ open, close, isMobile }) {
 
   const exportBoard = () => {
     const arrayExport = localGameBoard.map(({ title, description }) => `[${title}]\n${description}`);
-    const boardString = arrayExport.join('\n---\n');
-    const stringExport = `# ${t('userCustomBoard', { displayName: user.displayName })}\n\n${boardString}`;
+    const boardString = arrayExport.join('\n~~\n');
+    const stringExport = `// ${t('userCustomBoard', { displayName: user.displayName })}\n\n${boardString}`;
 
     setTextField(stringExport);
   };

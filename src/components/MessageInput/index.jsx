@@ -27,10 +27,17 @@ export default function MessageInput({ room, isTransparent }) {
   return (
     <form onSubmit={handleSubmit} className={`message-input-container ${isTransparent && 'transparent'}`}>
       <TextField
+        multiline
         placeholder={t('messageInput')}
         fullWidth
         value={value}
         onChange={handleChange}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit(e);
+          }
+        }}
         required
         minLength={1}
         InputProps={{

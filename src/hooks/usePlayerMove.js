@@ -39,9 +39,9 @@ export default function usePlayerMove(room, rollValue) {
     let message = '';
     const description = parseDescription(newTile?.description);
     if (rollNumber !== -1) {
-      message += `${t('roll')}: ${rollNumber}  \r\n`;
+      message += `${t('roll')}: ${rollNumber}\n`;
     }
-    message += `#${newLocation + 1}: ${newTile?.title}  \r\n`;
+    message += `#${newLocation + 1}: ${newTile?.title}\n`;
     message += `${t('action')}: ${description}`;
     sendMessage({
       room,
@@ -57,7 +57,7 @@ export default function usePlayerMove(room, rollValue) {
     // -1 is used to resart the game.
     if (rollNumber === -1) {
       return {
-        preMessage: `${t('restartingGame')}  \r\n`,
+        preMessage: `${t('restartingGame')}\n`,
         newLocation: 0,
       };
     }
@@ -67,7 +67,7 @@ export default function usePlayerMove(room, rollValue) {
     // restart game if we roll and are on the last tile..
     if (currentLocation === lastTile) {
       return {
-        preMessage: `${t('alreadyFinished')}  \r\n`,
+        preMessage: `${t('alreadyFinished')}\n`,
         newLocation: rollNumber,
       };
     }
