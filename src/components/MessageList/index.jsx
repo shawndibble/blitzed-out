@@ -95,7 +95,12 @@ function Message({ message, isOwnMessage, isTransparent }) {
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {text}
         </ReactMarkdown>
-        {type === 'settings' && (<Link to={`?importBoard=${id}`}><Trans i18nKey="importBoard" /></Link>)}
+        {type === 'settings' && (
+          <>
+            <Divider sx={{ my: 0.5 }} />
+            <Link to={`?importBoard=${id}`}><Trans i18nKey="importBoard" /></Link>
+          </>
+        )}
       </div>
     </li>
   );
