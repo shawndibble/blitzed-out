@@ -36,11 +36,11 @@ export default function ImportExport({ open, close, isMobile }) {
     gameTileTitles.pop();
     gameTileTitles.shift();
 
-    let message = '### Imported a custom board.\n\n';
+    let message = `### ${t('importedGameboard')}\n\n`;
     if (importLabel) {
-      message += `Title: ${importLabel.join('\n')}\n\n`;
+      message += `${t('title')}: ${importLabel.join('\n')}\n\n`;
     }
-    message += 'Board includes the following categories:\n';
+    message += `${t('boardIncludesFollowing')}\n`;
     message += [...new Set(gameTileTitles)].join('\n');
 
     await sendMessage({
@@ -107,7 +107,7 @@ export default function ImportExport({ open, close, isMobile }) {
   const exportBoard = () => {
     const arrayExport = localGameBoard.map(({ title, description }) => `[${title}]\n${description}`);
     const boardString = arrayExport.join('\n---\n');
-    const stringExport = `# ${user.displayName}'s custom board\n\n${boardString}`;
+    const stringExport = `# ${t('userCustomBoard', { displayName: user.displayName })}\n\n${boardString}`;
 
     setTextField(stringExport);
   };

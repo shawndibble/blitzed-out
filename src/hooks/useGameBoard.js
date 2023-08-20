@@ -2,6 +2,10 @@ import useLocalStorage from 'hooks/useLocalStorage';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
 
+/**
+ * Builds a game board based on the settings provided.
+ * @returns {function} - A function that takes in a form data object and returns an object.
+ */
 export default function useGameBoard() {
   const customTiles = useLocalStorage('customTiles', [])[0];
   const [gameBoard, updateBoard] = useLocalStorage('customBoard');
