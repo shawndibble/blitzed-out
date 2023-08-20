@@ -1,8 +1,8 @@
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import UnauthenticatedApp from './components/UnauthenticatedApp';
-import useAuth from './hooks/useAuth';
-import Room from './components/Room';
+import UnauthenticatedApp from 'views/UnauthenticatedApp';
+import useAuth from 'hooks/useAuth';
+import Room from 'views/Room';
 import './App.css';
 
 const darkTheme = createTheme({

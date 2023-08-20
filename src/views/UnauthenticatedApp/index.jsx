@@ -9,10 +9,10 @@ import {
 } from '@mui/material';
 import { Language } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
-import Navigation from 'components/Navigation';
-import GameSettings from 'components/GameSettings';
+import Navigation from 'views/Navigation';
+import GameSettings from 'views/GameSettings';
 import usePlayerList from 'hooks/usePlayerList';
-import GameGuide from 'components/GameGuide';
+import GameGuide from 'views/GameGuide';
 import languages from 'locales/languages.json';
 import './styles.css';
 

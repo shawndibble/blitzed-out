@@ -19,13 +19,13 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import useWindowDimensions from 'hooks/useWindowDimensions';
-import GameSettings from 'components/GameSettings';
+import GameSettings from 'views/GameSettings';
 import useAuth from 'hooks/useAuth';
-import GameGuide from 'components/GameGuide';
+import GameGuide from 'views/GameGuide';
 import { Trans } from 'react-i18next';
 import { Logout } from '@mui/icons-material';
 import { logout } from 'services/firebase';
-import ImportExport from 'components/ImportExport';
+import ImportExport from 'views/ImportExport';
 import CloseIcon from 'components/CloseIcon';
 import DonateDialog from './DonateDialog';
 

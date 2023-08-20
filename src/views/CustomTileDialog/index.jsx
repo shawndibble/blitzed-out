@@ -8,7 +8,7 @@ import useWindowDimensions from 'hooks/useWindowDimensions';
 import useLocalStorage from 'hooks/useLocalStorage';
 import ToastAlert from 'components/ToastAlert';
 import groupActionsFolder from 'helpers/actionsFolder';
-import ImportExport from 'components/CustomTileDialog/ImportExport';
+import ImportExport from 'views/CustomTileDialog/ImportExport';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';

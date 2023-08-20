@@ -1,7 +1,7 @@
 import { Divider, FormControlLabel, Switch } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import LanguageSelect from './LanguageSelect';
-import BackgroundSelect from '../../BackgroundSelect';
+import BackgroundSelect from '../../../components/BackgroundSelect';
 
 export default function AppSettings({
   formData, setFormData, boardUpdated,

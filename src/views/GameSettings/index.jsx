@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import TabPanel from 'components/TabPanel';
 import ToastAlert from 'components/ToastAlert';
-import CustomTileDialog from 'components/CustomTileDialog';
+import CustomTileDialog from 'views/CustomTileDialog';
 import { a11yProps } from 'helpers/strings';
 import useAuth from 'hooks/useAuth';
 import latestMessageByType from 'helpers/messages';
