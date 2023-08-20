@@ -11,6 +11,7 @@ import usePresence from 'hooks/usePresence';
 import TransitionModal from 'components/TransitionModal';
 import useSoundAndDialog from 'hooks/useSoundAndDialog';
 import useLocalStorage from 'hooks/useLocalStorage';
+import useMessages from 'hooks/useMessages';
 import { getExtention, getURLPath, isVideo } from 'helpers/strings';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
@@ -26,8 +27,10 @@ export default function Room() {
   const [rollValue, setRollValue] = useState([0]);
   const { playerList, tile } = usePlayerMove(room, rollValue);
   const [settings, setSettings] = useLocalStorage('gameSettings');
+  const messages = useMessages(room);
+  const [roomBgUrl, setRoomBackground] = useState('');
 
-  // handle timeout of dialog
+  // handle timeout of TransitionModal
   let timeoutId;
   useEffect(() => {
     if (popupMessage) timeoutId = setTimeout(() => setPopupMessage(false), 8000);
@@ -38,13 +41,25 @@ export default function Room() {
     clearTimeout(timeoutId);
     setPopupMessage(false);
   };
-  // end handle timeout of dialog.
+  // end handle timeout of TransitionModal.
+
+  useEffect(() => {
+    const roomMessage = messages.sort((a, b) => b.timestamp - a.timestamp).find((m) => m.type === 'room');
+    if (roomMessage) {
+      const messageSettings = JSON.parse(roomMessage.settings);
+      return setRoomBackground(messageSettings.roomBackgroundURL);
+    }
+    if (settings?.roomBackgroundURL?.length) {
+      return setRoomBackground(settings.roomBackgroundURL);
+    }
+    return null;
+  }, [messages, settings]);
 
   const {
-    background, backgroundURL, roomBackground, roomBackgroundURL,
+    background, backgroundURL, roomBackground,
   } = settings;
   const backgroundSource = background !== 'custom' ? background : backgroundURL;
-  const roomBackgroundSource = roomBackground !== 'custom' ? roomBackground : roomBackgroundURL;
+  const roomBackgroundSource = roomBackground !== 'custom' ? roomBackground : roomBgUrl;
   const bgSource = room !== 'public' && roomBackground === 'custom' ? roomBackgroundSource : backgroundSource;
   const isVideoFile = isVideo(bgSource);
   const bgExtension = getExtention(bgSource);
