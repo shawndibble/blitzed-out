@@ -108,7 +108,7 @@
   "importNoEmpty": "Aucune entrée vide autorisée.",
   "importInvalidTitle": "Titre invalide pour l'entrée {{entry}}. Assurez-vous qu'il est entre crochets et sur sa propre ligne.",
   "importMissingDescription": "L'entrée {{entry}} n'a pas de description. Toutes les entrées doivent avoir une description sur leur propre ligne.",
-  "importedGameBoard": "Plateau de jeu importé",
+  "importedGameboard": "Plateau de jeu importé",
   "title": "Titre",
   "boardIncludesFollowing": "Le tableau comprend les catégories suivantes:",
   "userCustomBoard": "Le tableau personnalisé de {{displayName}}",
