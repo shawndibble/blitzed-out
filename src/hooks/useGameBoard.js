@@ -12,8 +12,12 @@ export default function useGameBoard() {
   const updateTiles = async (data = {}) => {
     const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
     let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
-    const { locale, roomTileCount } = formData;
+    const { locale, roomTileCount, finishRange } = formData;
 
+    if (!finishRange) {
+      // still loading data.
+      return {};
+    }
     // If we are in a public room,
     // then gamemode should update to online and we need to re-import actions.
     if (!isPrivateRoom(formData) && gameMode === 'local') {

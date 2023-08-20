@@ -8,7 +8,9 @@ import { useTranslation } from 'react-i18next';
 import GameTile from './GameTile';
 import './styles.css';
 
-export default function GameBoard({ playerList, settings, setSettings }) {
+export default function GameBoard({
+  playerList, settings, setSettings, isTransparent,
+}) {
   const { id: room } = useParams();
   const [queryParams, setParams] = useSearchParams();
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
@@ -68,7 +70,7 @@ export default function GameBoard({ playerList, settings, setSettings }) {
             players={playerList.filter((player) => player.location === index)}
             current={playerList
               .find((player) => player.isSelf && player.location === index && index !== 0)}
-            background={settings.background}
+            isTransparent={isTransparent}
           />
         ))}
       </ol>

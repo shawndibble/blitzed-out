@@ -36,20 +36,12 @@ function getCustomTileCount(settings, customTiles, actionsList) {
   return usedCustomTiles.length;
 }
 
-function validRoomSetting(key) {
-  return key.startsWith('room') && !['roomBackground', 'roomBackgroundURL'].includes(key);
-}
-
-function hasCustomBackgroundURL(key, settings) {
-  return key === 'roomBackgroundURL' && settings.roomBackground === 'custom';
-}
-
 function getRoomSettingsMessage(settings) {
   const { t } = i18next;
   let message = `### ${t('roomSettings')}\r\n`;
   Object.entries(settings)
     .forEach(([key, val]) => {
-      if (val !== '' && (validRoomSetting(key) || hasCustomBackgroundURL(key, settings))) {
+      if (val !== '') {
         message += `* ${t(key)}: ${val}\r\n`;
       }
     });
@@ -100,7 +92,9 @@ function exportSettings(formData) {
 function exportRoomSettings(formData) {
   const newSettings = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
-    if (settingKey.startsWith('room') && settingKey !== 'roomUpdated') newSettings[settingKey] = settingValue;
+    if (settingKey.startsWith('room') && !['roomUpdated', 'roomBackground'].some((key) => key === settingKey)) {
+      newSettings[settingKey] = settingValue;
+    }
   });
   return newSettings;
 }

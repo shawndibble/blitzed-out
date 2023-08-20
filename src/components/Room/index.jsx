@@ -100,6 +100,7 @@ export default function Room() {
             tile={tile}
             settings={settings}
             setSettings={setSettings}
+            isTransparent={isTransparent}
           />
 
           <div className="messages-container">
@@ -116,6 +117,7 @@ export default function Room() {
                 tile={tile}
                 settings={settings}
                 setSettings={setSettings}
+                isTransparent={isTransparent}
               />
             )}
             tab2={(
