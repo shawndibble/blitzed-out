@@ -32,34 +32,30 @@ export default function ImportExport({ open, close, isMobile }) {
     let gameTiles = [];
     const entries = textValue.split('---').filter((e) => e);
 
-    try {
-      if (entries.length < requiredTiles) {
-        throw setAlert(t('importTooShort', { entries: requiredTiles - entries.length }));
-      }
-      if (entries.length > requiredTiles) {
-        throw setAlert(t('importTooLong', { entries: entries.length - requiredTiles }));
-      }
-      gameTiles = entries.map((entry, index) => {
-        const [title, description] = entry.split('\n').filter((e) => e);
-
-        if (title === undefined) {
-          throw setAlert(t('importNoEmpty'));
-        }
-
-        const surroundedInBrackets = /^\[.+\]$/;
-        if (!surroundedInBrackets.test(title)) {
-          throw setAlert(t('importInvalidTitle', { entry: index + 1 }));
-        }
-
-        if (!description) {
-          throw setAlert(t('importMissingDescription', { entry: index + 1 }));
-        }
-
-        return { title: title?.replace(/\[|\]/g, ''), description };
-      });
-    } catch (error) {
-      return {};
+    if (entries.length < requiredTiles) {
+      return setAlert(t('importTooShort', { entries: requiredTiles - entries.length }));
     }
+    if (entries.length > requiredTiles) {
+      return setAlert(t('importTooLong', { entries: entries.length - requiredTiles }));
+    }
+    gameTiles = entries.map((entry, index) => {
+      const [title, description] = entry.split('\n').filter((e) => e);
+
+      if (title === undefined) {
+        return setAlert(t('importNoEmpty'));
+      }
+
+      const surroundedInBrackets = /^\[.+\]$/;
+      if (!surroundedInBrackets.test(title)) {
+        return setAlert(t('importInvalidTitle', { entry: index + 1 }));
+      }
+
+      if (!description) {
+        return setAlert(t('importMissingDescription', { entry: index + 1 }));
+      }
+
+      return { title: title?.replace(/\[|\]/g, ''), description };
+    });
 
     if (alert) return null;
 

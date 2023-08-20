@@ -2,13 +2,13 @@
   margin-bottom: 16px;
   flex: 1;
   overflow-y: auto;
-  height: calc(100vh - 260px);
+  height: calc(100vh - 260);
 }
 
 @media screen and (max-width: 600px) {
   .message-list-container {
     min-height: auto;
-    max-height: calc(100vh - 290px);
+    max-height: calc(100vh - 290);
   }
 }
 
@@ -41,10 +41,10 @@
 .message.transparent {
   background: rgba(75, 75, 75, 0.75);
   text-shadow:
-  -1px 0px 0px black,
-  1px 0px 0px black,
-  0px -1px 0px black,
-  0px 1px 0px black;
+  -1px 0 0 black,
+  1px 0 0 black,
+  0 -1px 0 black,
+  0 1px 0 black;
 }
 
 .message.transparent .MuiAvatar-root {

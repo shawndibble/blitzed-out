@@ -1,26 +1,25 @@
 import {
   Box, Button, Tab, Tabs, TextField, Typography,
 } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
 import TabPanel from 'components/TabPanel';
 import ToastAlert from 'components/ToastAlert';
-import CustomTileDialog from 'views/CustomTileDialog';
+import latestMessageByType from 'helpers/messages';
 import { a11yProps } from 'helpers/strings';
 import useAuth from 'hooks/useAuth';
-import latestMessageByType from 'helpers/messages';
-import useMessages from 'hooks/useMessages';
-import useLocalStorage from 'hooks/useLocalStorage';
 import useGameBoard from 'hooks/useGameBoard';
+import useLocalStorage from 'hooks/useLocalStorage';
+import useMessages from 'hooks/useMessages';
+import { useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
+import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { importActions } from 'services/importLocales';
-import {
-  handleUser, validateFormData, sendGameSettingsMessage, sendRoomSettingsMessage,
-} from './submitForm';
-import './styles.css';
+import CustomTileDialog from 'views/CustomTileDialog';
 import AppSettings from './AppSettings';
-import RoomSettings from './RoomSettings';
 import BoardSettings from './BoardSettings';
+import RoomSettings from './RoomSettings';
+import './styles.css';
+import { handleUser, sendRoomSettingsMessage, validateFormData } from './submitForm';
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
@@ -111,12 +110,14 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     // send out room specific settings if we are in a private room.
     if (formData.room && formData.room !== 'public' && (formData.roomUpdated || !messages.find((m) => m.type === 'room'))) {
-      sendRoomSettingsMessage(formData, updatedUser);
+      await sendRoomSettingsMessage(formData, updatedUser);
     }
 
     // if our board updated, or we changed rooms, send out game settings message.
     if (settingsBoardUpdated || roomChanged) {
-      sendGameSettingsMessage(formData, updatedUser, customTiles, actionsList, newBoard);
+      await sendGameSettingsMessage({
+        formData, user: updatedUser, customTiles, actionsList, board: newBoard,
+      });
     }
 
     updateSettings({

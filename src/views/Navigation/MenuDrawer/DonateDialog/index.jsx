@@ -45,7 +45,7 @@ export default function DonateDialog({ open, close, isMobile }) {
         <Box
           component="img"
           sx={{
-            padding: 4, background: 'white', maxWidth: 500, borderRadius: 5, margin: 3, width: 'calc(100vw - 100px)',
+            padding: 4, background: 'white', maxWidth: 500, borderRadius: 5, margin: 3, width: 'calc(100vw - 100)',
           }}
           alt="Venmo QR code"
           src={CashApp}
