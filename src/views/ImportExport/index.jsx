@@ -28,7 +28,7 @@ export default function ImportExport({ open, close, isMobile }) {
 
   // default is 40 tiles. If room is private, use roomTileCount.
   const { room, roomTileCount } = settings;
-  const requiredTiles = room === 'public' ? 40 : roomTileCount;
+  const requiredTiles = !room || room === 'public' ? 40 : roomTileCount;
 
   async function createGameMessage(gameTiles, importLabel) {
     const gameTileTitles = gameTiles.map(({ title }) => `* ${title}`);
@@ -53,17 +53,7 @@ export default function ImportExport({ open, close, isMobile }) {
     });
   }
 
-  // eslint-disable-next-line consistent-return
-  const importBoard = async () => {
-    let gameTiles = [];
-    const importLabel = textValue.match(/#.*/g).map((e) => e.replace('#', '').trim());
-    const entries = textValue
-      .split('\n')
-      .filter((line) => !line.startsWith('#')) // remove all comments.
-      .join('\n')
-      .split('---')
-      .filter((e) => e);
-
+  function getGameTiles(entries) {
     try {
       if (entries.length < requiredTiles) {
         throw setAlert(t('importTooShort', { entries: requiredTiles - entries.length }));
@@ -71,7 +61,7 @@ export default function ImportExport({ open, close, isMobile }) {
       if (entries.length > requiredTiles) {
         throw setAlert(t('importTooLong', { entries: entries.length - requiredTiles }));
       }
-      gameTiles = entries.map((entry, index) => {
+      return entries.map((entry, index) => {
         const [title, ...description] = entry.split('\n').filter((e) => e);
 
         if (title === undefined) {
@@ -93,9 +83,22 @@ export default function ImportExport({ open, close, isMobile }) {
       // return nothing. Just wait for setAlert to output the error message.
       return null;
     }
+  }
 
-    // if we have an alert that wasn't caught by our try-catch. Should still stop importing.
-    if (alert) return null;
+  // eslint-disable-next-line consistent-return
+  const importBoard = async () => {
+    const importLabel = textValue.match(/#.*/g).map((e) => e.replace('#', '').trim());
+    const entries = textValue
+      .split('\n')
+      .filter((line) => !line.startsWith('#')) // remove all label rows.
+      .join('\n')
+      .split('---')
+      .filter((e) => e);
+
+    const gameTiles = getGameTiles(entries);
+
+    // if we got nothing from getGameTiles, then we have an error message and should stop.
+    if (!gameTiles) return null;
 
     setLocalGameBoard(gameTiles);
 
