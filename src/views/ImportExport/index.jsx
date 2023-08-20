@@ -24,7 +24,7 @@ export default function ImportExport({ open, close, isMobile }) {
   const [alert, setAlert] = useState('');
 
   // default is 40 tiles, but we don't count the start and finish tiles.
-  // Also why we sub 2 from roomTileCount.
+  // Also, why we sub 2 from roomTileCount.
   const requiredTiles = room === 'public' ? 38 : roomTileCount - 2;
 
   // eslint-disable-next-line consistent-return
