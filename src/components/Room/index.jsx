@@ -70,9 +70,9 @@ export default function Room() {
     background, backgroundURL, roomBackground,
   } = settings;
   const backgroundSource = background !== 'custom' ? background : backgroundURL;
-  const roomBackgroundSource = roomBackground !== 'custom' ? roomBackground : roomBgUrl;
-  const isTransparent = (room !== 'public' && roomBackground === 'custom') || background !== 'color';
-  const bgSource = room !== 'public' && roomBackground === 'custom' ? roomBackgroundSource : backgroundSource;
+  const roomBackgroundSource = roomBackground === 'app' ? roomBackground : roomBgUrl;
+  const isTransparent = (room !== 'public' && roomBackground !== 'app') || background !== 'color';
+  const bgSource = room !== 'public' && roomBackground !== 'app' ? roomBackgroundSource : backgroundSource;
   const isVideoFile = isVideo(bgSource);
   const bgExtension = getExtention(bgSource);
   const sourcePath = getURLPath(bgSource);
