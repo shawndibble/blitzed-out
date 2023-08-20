@@ -1,6 +1,6 @@
-import { importActions } from 'services/importLocales';
 import useLocalStorage from 'hooks/useLocalStorage';
 import customizeBoard from 'services/buildGame';
+import { importActions } from 'services/importLocales';
 
 export default function useGameBoard() {
   const customTiles = useLocalStorage('customTiles', [])[0];
@@ -9,7 +9,7 @@ export default function useGameBoard() {
 
   const isPrivateRoom = (formData) => formData.room && formData.room !== 'public';
 
-  const updateTiles = async (data = {}) => {
+  return async (data = {}) => {
     const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
     let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
     const { locale, roomTileCount, finishRange } = formData;
@@ -19,7 +19,7 @@ export default function useGameBoard() {
       return {};
     }
     // If we are in a public room,
-    // then gamemode should update to online and we need to re-import actions.
+    // then gameMode should update to online and we need to re-import actions.
     if (!isPrivateRoom(formData) && gameMode === 'local') {
       gameMode = 'online';
       // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
@@ -37,6 +37,4 @@ export default function useGameBoard() {
 
     return { settingsBoardUpdated, gameMode, newBoard };
   };
-
-  return updateTiles;
 }

@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function useLocalStorage(localStorageKey, defaultVal = {}) {
   const eventName = `${localStorageKey}Storage`;
   const initialValue = localStorage.getItem(localStorageKey)
-    ? JSON.parse(localStorage.getItem(localStorageKey))
+    ? { ...defaultVal, ...JSON.parse(localStorage.getItem(localStorageKey)) }
     : defaultVal;
 
   const [storage, setStorage] = useState(initialValue);

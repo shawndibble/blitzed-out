@@ -1,19 +1,19 @@
 import { initializeApp } from 'firebase/app';
 import {
-  signInAnonymously, getAuth, updateProfile, signOut,
+  getAuth, signInAnonymously, signOut, updateProfile,
 } from 'firebase/auth';
 import {
-  getDatabase, onDisconnect, onValue, push, ref, set, remove,
+  getDatabase, onDisconnect, onValue, push, ref, remove, set,
 } from 'firebase/database';
 import {
-  getFirestore,
-  getDocs,
-  collection,
   addDoc,
-  serverTimestamp,
+  collection,
+  getDocs,
+  getFirestore,
   onSnapshot,
-  query,
   orderBy,
+  query,
+  serverTimestamp,
   where,
 } from 'firebase/firestore';
 
