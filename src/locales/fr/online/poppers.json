@@ -3,36 +3,36 @@
     "actions": {
       "Aucun": [],
       "Débutant": [
-        "1 inhalation.",
-        "2 inhalations.",
-        "1 inhalation profonde.",
-        "2 inhalations.",
-        "3 inhalations.",
-        "1 inhalation par narine.",
-        "2 inhalations profondes.",
-        "1 inhalation.",
-        "2 inhalations rapides."
+        "1 hit.",
+        "2 hits.",
+        "1 hit long.",
+        "2 hits.",
+        "3 hits.",
+        "1 hit pour chaque narine.",
+        "2 hits longs.",
+        "1 hit.",
+        "2 hits rapides."
       ],
       "Intermédiaire": [
-        "3 inhalations.",
-        "4 inhalations.",
-        "2 inhalations par narine.",
-        "1 inhalation par la bouche.",
-        "Inhalation buccale de 5 secondes.",
-        "4 inhalations.",
-        "Inhalation de 5 secondes. Maintien de 5 secondes.",
-        "5 inhalations rapides."
+        "3 hits.",
+        "4 hits.",
+        "2 hits pour chaque narine.",
+        "1 hit bucal.",
+        "Hit bucal de 5 secondes.",
+        "4 hits.",
+        "Sniffes pendant 5 secondes. Bloques ta respiration 5 secondes.",
+        "5 hits rapides."
       ],
       "Avancé": [
-        "Inhalation de 10 secondes avec maintien.",
-        "4 inhalations par la bouche.",
-        "Inhalation et maintien aussi longtemps que possible.",
-        "Respiration avec un masque à poppers pendant 15 secondes.",
-        "8 inhalations.",
-        "4 inhalations par la bouche.",
-        "6 inhalations profondes.",
-        "5 inhalations de chaque côté.",
-        "Inhalation de 8 secondes avec maintien."
+        "Sniffes 10 secondes. Bloques 1O secondes.",
+        "4 hits buccaux.",
+        "Sniffes et bloques aussi longtemps que possible.",
+        "Respires avec un masque à poppers ou un chaussette pendant 15 secondes.",
+        "8 hits.",
+        "4 hits buccaux.",
+        "6 hits longs.",
+        "5 hits de chaque côté.",
+        "Sniffes 8 secondes. Bloques 8 secondes."
       ]
     }
   }

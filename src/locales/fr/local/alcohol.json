@@ -5,24 +5,24 @@
       "Boire": [
         "Prendre une gorgée de votre boisson.",
         "Boire une gorgée.",
-        "Prendre 2 gorgées.",
-        "Donner une gorgée.",
+        "Boire 2 gorgées.",
+        "Fait boire une gorgée à quelqu'un.",
         "Boire une gorgée."
       ],
       "Shots": [
         "1 shot.",
-        "Prendre 2 gorgées.",
-        "Donner 1 shot.",
-        "Tous boire.",
+        "Prendre 2 shots.",
+        "Fait boire 1 shot à quelqu'un.",
+        "Tout le monde boit son shot.",
         "Boire une gorgée."
       ],
-      "Boire cul sec": [
+      "Cul sec": [
         "Boire la moitié de votre boisson.",
         "Boire cul sec.",
-        "Prendre une gorgée",
+        "Prendre une gorgée.",
         "Prendre 2 shots.",
         "Faire boire quelqu'un cul sec.",
-        "Donner une boisson"
+        "Fait boire une gorgée à quelqu'un."
       ]
     }
   }
