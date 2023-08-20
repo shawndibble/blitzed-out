@@ -1,4 +1,5 @@
 import useLocalStorage from 'hooks/useLocalStorage';
+import { useTranslation } from 'react-i18next';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
 
@@ -10,13 +11,14 @@ export default function useGameBoard() {
   const customTiles = useLocalStorage('customTiles', [])[0];
   const [gameBoard, updateBoard] = useLocalStorage('customBoard');
   const settings = useLocalStorage('gameSettings')[0];
+  const { i18n } = useTranslation();
 
   const isPrivateRoom = (formData) => formData.room && formData.room !== 'public';
 
   return async (data = {}) => {
     const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
     let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
-    const { locale, roomTileCount, finishRange } = formData;
+    const { roomTileCount, finishRange } = formData;
 
     if (!finishRange) {
       // still loading data.
@@ -30,7 +32,7 @@ export default function useGameBoard() {
       settingsBoardUpdated = true;
     }
 
-    const tileActionList = importActions(locale, gameMode);
+    const tileActionList = importActions(i18n.resolvedLanguage, gameMode);
 
     const tileCount = isPrivateRoom(formData) ? (roomTileCount || 40) : 40;
 
