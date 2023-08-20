@@ -8,13 +8,15 @@ export default function FinishSlider({ formData, setFormData }) {
     setFormData({ ...formData, finishRange: newValue, boardUpdated: true });
   };
 
+  const finishRange = formData?.finishRange || [30, 70];
+
   return (
     <Box>
       <Divider />
       <Typography id="finish-slider" sx={{ my: 1 }}><Trans i18nKey="finishSlider" /></Typography>
       <Slider
         aria-labelledby="finish-slider"
-        value={formData.finishRange}
+        value={finishRange}
         onChange={handleChange}
         valueLabelDisplay="off"
       />
@@ -22,21 +24,21 @@ export default function FinishSlider({ formData, setFormData }) {
         <Typography whiteSpace="nowrap">
           <Trans i18nKey="noCum" />
           {' '}
-          { formData.finishRange[0] }
+          { finishRange[0] }
           %
         </Typography>
         <Typography>|</Typography>
         <Typography whiteSpace="nowrap">
           <Trans i18nKey="ruined" />
           {' '}
-          {formData.finishRange[1] - formData.finishRange[0]}
+          {finishRange[1] - finishRange[0]}
           %
         </Typography>
         <Typography>|</Typography>
         <Typography whiteSpace="nowrap">
           <Trans i18nKey="cum" />
           {' '}
-          {100 - formData.finishRange[1]}
+          {100 - finishRange[1]}
           %
         </Typography>
       </Box>
