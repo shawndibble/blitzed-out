@@ -102,7 +102,7 @@ function exportSettings(formData) {
 function exportRoomSettings(formData) {
   const newSettings = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
-    if (settingKey.startsWith('room')) newSettings[settingKey] = settingValue;
+    if (settingKey.startsWith('room') && settingKey !== 'roomUpdated') newSettings[settingKey] = settingValue;
   });
   return newSettings;
 }
@@ -116,12 +116,13 @@ export async function handleUser(user, displayName, updateUser, login) {
 }
 
 export function sendRoomSettingsMessage(formData, updatedUser) {
+  const roomSettings = exportRoomSettings(formData);
   return sendMessage({
     room: formData.room,
     user: updatedUser,
-    text: getRoomSettingsMessage(formData),
+    text: getRoomSettingsMessage(roomSettings),
     type: 'room',
-    settings: JSON.stringify(exportRoomSettings(formData)),
+    settings: JSON.stringify(roomSettings),
   });
 }
 

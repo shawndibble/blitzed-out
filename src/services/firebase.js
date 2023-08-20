@@ -126,19 +126,19 @@ export async function submitCustomAction(grouping, customAction) {
 export async function sendMessage({
   room, user, text, type = 'chat', ...rest
 }) {
-  const allowedTypes = ['chat', 'actions', 'settings'];
+  const allowedTypes = ['chat', 'actions', 'settings', 'room'];
   if (!allowedTypes.includes(type)) {
     let message = 'Invalid message type. Was expecting';
     message += allowedTypes.join(', ');
     message += ` but got ${type}`;
     // eslint-disable-next-line
-    console.error(message);
+    return console.error(message);
   }
 
   const now = Date.now();
 
   try {
-    await addDoc(collection(db, 'chat-rooms', room, 'messages'), {
+    return await addDoc(collection(db, 'chat-rooms', room, 'messages'), {
       uid: user.uid,
       displayName: user.displayName,
       text: text.trim(),
@@ -149,11 +149,12 @@ export async function sendMessage({
     });
   } catch (error) {
     // eslint-disable-next-line
-    console.error(error);
+    return console.error(error);
   }
 }
 
 export function getMessages(roomId, callback) {
+  if (!roomId) return undefined;
   const twoHoursBefore = new Date();
   twoHoursBefore.setHours(twoHoursBefore.getHours() - 2);
   return onSnapshot(

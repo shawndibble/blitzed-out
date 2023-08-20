@@ -1,13 +1,15 @@
 import {
   FormControl, InputLabel, MenuItem, Select, TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function BackgroundSelect({
-  formData, setFormData, backgrounds, backgroundKey = 'background', backgroundURLKey = 'backgroundURL',
+  formData, setFormData, backgrounds, isRoom = false,
 }) {
   const { t } = useTranslation();
+  const backgroundKey = !isRoom ? 'background' : 'roomBackground';
+  const backgroundURLKey = !isRoom ? 'backgroundURL' : 'roomBackgroundURL';
   const [background, setBackground] = useState(
     formData?.[backgroundKey] || Object.keys(backgrounds)[0],
   );
@@ -19,6 +21,24 @@ export default function BackgroundSelect({
   const backgroundSelection = (event) => {
     setFormData({ ...formData, [backgroundKey]: event.target.value });
     setBackground(event.target.value);
+  };
+
+  useEffect(() => {
+    if (background !== formData?.[backgroundKey]) {
+      setBackground(formData?.[backgroundKey]);
+    }
+  }, [formData?.[backgroundKey]]);
+
+  const handleURLChange = (event) => {
+    const data = {
+      ...formData,
+      [backgroundKey]: 'custom',
+      [backgroundURLKey]: event.target.value,
+    };
+    if (isRoom) {
+      data.roomUpdated = true;
+    }
+    setFormData(data);
   };
 
   return (
@@ -41,11 +61,7 @@ export default function BackgroundSelect({
           label={t('url')}
           value={formData?.[backgroundURLKey]}
           fullWidth
-          onChange={(event) => setFormData({
-            ...formData,
-            [backgroundKey]: 'custom',
-            [backgroundURLKey]: event.target.value,
-          })}
+          onChange={handleURLChange}
           helperText={t('fileExtension')}
         />
       )}

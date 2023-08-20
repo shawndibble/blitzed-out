@@ -9,6 +9,7 @@ import ToastAlert from 'components/ToastAlert';
 import CustomTileDialog from 'components/CustomTileDialog';
 import { a11yProps } from 'helpers/strings';
 import useAuth from 'hooks/useAuth';
+import useMessages from 'hooks/useMessages';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { importActions } from 'services/importLocales';
 import {
@@ -29,6 +30,7 @@ export default function GameSettings({ submitText, closeDialog }) {
   // set default settings for first time users. Local Storage will take over after this.
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
     boardUpdated: false,
+    roomUpdated: false,
     playerDialog: true,
     othersDialog: false,
     mySound: true,
@@ -53,6 +55,9 @@ export default function GameSettings({ submitText, closeDialog }) {
     alcoholVariation: 'standalone',
   });
 
+  const messages = useMessages(formData.room);
+
+  // Update our actions list when the language changes.
   useEffect(() => {
     setActionsList(importActions(i18n.resolvedLanguage, formData?.gameMode));
   }, [i18n.resolvedLanguage, formData?.gameMode]);
@@ -71,9 +76,21 @@ export default function GameSettings({ submitText, closeDialog }) {
     // eslint-disable-next-line
   }), [settings]);
 
+  // Import our private room settings into the form data.
+  useEffect(() => {
+    if (room === 'public') return;
+
+    const message = messages
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .find((m) => m?.type === 'room');
+
+    if (message?.settings) {
+      setFormData({ ...formData, ...JSON.parse(message.settings) });
+    }
+  }, [messages]);
+
   async function handleSubmit(event) {
     event.preventDefault();
-
     const { displayName, ...gameOptions } = formData;
 
     const validationMessage = validateFormData(gameOptions);
@@ -91,20 +108,22 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     const roomChanged = room !== formData.room;
 
+    // send out room specific settings if we are in a private room.
+    if (formData.roomUpdated || (formData.room !== 'public' && !messages.find((m) => m.type === 'room'))) {
+      sendRoomSettingsMessage(formData, updatedUser);
+    }
+
     // if our board updated, or we changed rooms, send out game settings message.
     if (settingsBoardUpdated || roomChanged) {
       sendGameSettingsMessage(formData, updatedUser, customTiles, actionsList, newBoard);
-    }
-
-    // send out room specific settings if we are in a private room.
-    if (formData.room !== 'public') {
-      sendRoomSettingsMessage(formData, updatedUser);
     }
 
     if (roomChanged) {
       const privatePath = formData.room ? `/rooms/${formData.room}` : '/';
       navigate(privatePath);
     }
+
+    updateSettings({ ...formData, boardUpdated: false, roomUpdated: false });
 
     if (typeof closeDialog === 'function') closeDialog();
 

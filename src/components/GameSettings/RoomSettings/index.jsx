@@ -78,9 +78,8 @@ export default function RoomSettings({ formData, setFormData }) {
           <BackgroundSelect
             formData={formData}
             setFormData={setFormData}
-            backgroundKey="roomBackground"
-            backgroundURLKey="roomBackgroundURL"
             backgrounds={backgrounds}
+            isRoom="true"
           />
         </>
       )}
