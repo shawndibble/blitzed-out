@@ -107,14 +107,17 @@ export default function GameSettings({ submitText, closeDialog }) {
     const { settingsBoardUpdated, gameMode, newBoard } = await updateGameBoardTiles(formData);
 
     const roomChanged = room !== formData.room;
+    const isPrivateRoom = formData.room && formData.room !== 'public';
+    const privateBoardSizeChanged = isPrivateRoom
+      && formData.roomTileCount !== settings.roomTileCount;
 
     // send out room specific settings if we are in a private room.
-    if (formData.room && formData.room !== 'public' && (formData.roomUpdated || !messages.find((m) => m.type === 'room'))) {
+    if (isPrivateRoom && (formData.roomUpdated || !messages.find((m) => m.type === 'room'))) {
       await sendRoomSettingsMessage(formData, updatedUser);
     }
 
     // if our board updated, or we changed rooms, send out game settings message.
-    if (settingsBoardUpdated || roomChanged) {
+    if (settingsBoardUpdated || roomChanged || privateBoardSizeChanged) {
       await sendGameSettingsMessage({
         formData, user: updatedUser, customTiles, actionsList, board: newBoard,
       });

@@ -28,9 +28,12 @@ function getCustomTileCount(settings, customTiles, actionsList) {
   return usedCustomTiles.length;
 }
 
-function getSettingsMessage(settings, customTiles, actionsList) {
+function getSettingsMessage(settings, customTiles, actionsList, reason) {
   const { t } = i18next;
   let message = `### ${i18next.t('gameSettings')}\r\n`;
+  if (reason) {
+    message += `##### ${reason}\r\n`;
+  }
   const { poppersVariation, alcoholVariation } = settings;
   // output only settings that have a corresponding actionsList entry.
   Object.entries(actionsList).map(([key, val]) => {
@@ -70,12 +73,12 @@ function exportSettings(formData) {
 }
 
 export default function sendGameSettingsMessage({
-  formData, user, actionsList, board, customTiles = {},
+  formData, user, actionsList, board, customTiles = {}, reason = '',
 }) {
   return sendMessage({
     room: formData.room || 'public',
     user,
-    text: getSettingsMessage(formData, customTiles, actionsList),
+    text: getSettingsMessage(formData, customTiles, actionsList, reason),
     type: 'settings',
     gameBoard: JSON.stringify(board),
     settings: JSON.stringify(exportSettings(formData)),

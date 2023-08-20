@@ -16,6 +16,9 @@ import useGameBoard from 'hooks/useGameBoard';
 import useAuth from 'hooks/useAuth';
 import latestMessageByType from 'helpers/messages';
 import { getExtention, getURLPath, isVideo } from 'helpers/strings';
+import sendGameSettingsMessage from 'services/gameSettingsMessage';
+import { importActions } from 'services/importLocales';
+import { useTranslation } from 'react-i18next';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import './styles.css';
@@ -24,6 +27,7 @@ export default function Room() {
   const params = useParams();
   const room = params.id ?? 'public';
   const { user } = useAuth();
+  const { i18n } = useTranslation();
 
   usePresence(room);
   const [popupMessage, setPopupMessage] = useSoundAndDialog(room);
@@ -31,6 +35,8 @@ export default function Room() {
   const [rollValue, setRollValue] = useState([0]);
   const { playerList, tile } = usePlayerMove(room, rollValue);
   const [settings, setSettings] = useLocalStorage('gameSettings');
+  const gameBoard = useLocalStorage('customBoard')[0];
+  const customTiles = useLocalStorage('customTiles', [])[0];
   const messages = useMessages(room);
   const [roller, setRoller] = useState('1d6');
   const [roomBgUrl, setRoomBackground] = useState('');
@@ -49,16 +55,32 @@ export default function Room() {
   };
   // end handle timeout of TransitionModal.
 
+  async function rebuildGameBoard(messageSettings, messageUser) {
+    const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
+
+    await sendGameSettingsMessage({
+      formData: { ...settings, ...messageSettings },
+      user,
+      customTiles,
+      actionsList: importActions(i18n.resolvedLanguage, gameMode),
+      board: newBoard,
+      reason: `Rebuilt game board due to room size changes by ${messageUser}.`,
+    });
+  }
+
   // Watch the message list.
   // If the private room settings change, update the game.
   useEffect(() => {
     const roomMessage = latestMessageByType(messages, 'room');
     if (roomMessage) {
       const messageSettings = JSON.parse(roomMessage.settings);
-      setRoller(messageSettings?.roomDice || '1d6');
-      setRoomBackground(messageSettings.roomBackgroundURL);
+      const { roomDice, roomBackgroundURL, roomTileCount } = messageSettings;
+      setRoller(roomDice || '1d6');
+      setRoomBackground(roomBackgroundURL);
       // settings form updates for us. However we also need to update for other players.
-      if (roomMessage.uid !== user.uid) updateGameBoardTiles(messageSettings);
+      if (roomMessage.uid !== user.uid && roomTileCount !== gameBoard.length) {
+        rebuildGameBoard(messageSettings, roomMessage.displayName);
+      }
       return;
     }
     if (settings?.roomBackgroundURL?.length) {
@@ -104,7 +126,11 @@ export default function Room() {
           />
 
           <div className="messages-container">
-            <MessageList room={room} isTransparent={isTransparent} />
+            <MessageList
+              room={room}
+              isTransparent={isTransparent}
+              currentGameBoardSize={gameBoard.length}
+            />
             <MessageInput room={room} isTransparent={isTransparent} />
           </div>
         </Box>
@@ -122,7 +148,11 @@ export default function Room() {
             )}
             tab2={(
               <div className="messages-container">
-                <MessageList room={room} isTransparent={isTransparent} />
+                <MessageList
+                  room={room}
+                  isTransparent={isTransparent}
+                  currentGameBoardSize={gameBoard.length}
+                />
                 <MessageInput room={room} isTransparent={isTransparent} />
               </div>
             )}

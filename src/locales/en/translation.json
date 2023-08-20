@@ -73,6 +73,7 @@
   "chat": "Chat",
   "actions": "Tasks",
   "importBoard": "Import this board",
+  "incompatibleBoard": "Incompatible board",
   "donateToHelp": "Donate to help support the site",
   "game": "Game",
   "start": "START",

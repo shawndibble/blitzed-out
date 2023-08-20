@@ -16,7 +16,7 @@ import 'moment/locale/es';
 import 'moment/locale/fr';
 import './styles.css';
 
-export default function MessageList({ room, isTransparent }) {
+export default function MessageList({ room, isTransparent, currentGameBoardSize = 40 }) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
   const messages = useMessages(room);
@@ -66,6 +66,7 @@ export default function MessageList({ room, isTransparent }) {
             isOwnMessage={x.uid === user.uid}
             locale={i18n.resolvedLanguage}
             isTransparent={isTransparent}
+            currentGameBoardSize={currentGameBoardSize}
           />
         ))}
       </ul>
@@ -73,10 +74,14 @@ export default function MessageList({ room, isTransparent }) {
   );
 }
 
-function Message({ message, isOwnMessage, isTransparent }) {
+function Message({
+  message, isOwnMessage, isTransparent, currentGameBoardSize,
+}) {
   const {
-    id, displayName, text, uid, timestamp, type,
+    id, displayName, text, uid, timestamp, type, gameBoard,
   } = message;
+
+  const isImportable = type === 'settings' && gameBoard && JSON.parse(gameBoard).length === currentGameBoardSize;
 
   let ago = moment(timestamp?.toDate()).fromNow();
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
@@ -98,7 +103,11 @@ function Message({ message, isOwnMessage, isTransparent }) {
         {type === 'settings' && (
           <>
             <Divider sx={{ my: 0.5 }} />
-            <Link to={`?importBoard=${id}`}><Trans i18nKey="importBoard" /></Link>
+            {isImportable ? (
+              <Link to={`?importBoard=${id}`}><Trans i18nKey="importBoard" /></Link>
+            ) : (
+              <Trans i18nKey="incompatibleBoard" />
+            )}
           </>
         )}
       </div>

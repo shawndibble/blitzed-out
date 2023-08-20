@@ -73,6 +73,7 @@
   "chat": "Chat",
   "actions": "Tareas",
   "importBoard": "Importar este tablero",
+  "incompatibleBoard": "Tablero incompatible",
   "donateToHelp": "Dona para ayudar a mantener el sitio",
   "game": "Juego",
   "start": "COMENZAR",
