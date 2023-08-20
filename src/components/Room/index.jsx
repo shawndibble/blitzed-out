@@ -5,13 +5,14 @@ import MessageInput from 'components/MessageInput';
 import MessageList from 'components/MessageList';
 import GameBoard from 'components/GameBoard';
 import Navigation from 'components/Navigation';
+import TransitionModal from 'components/TransitionModal';
 import useWindowDimensions from 'hooks/useWindowDimensions';
 import usePlayerMove from 'hooks/usePlayerMove';
 import usePresence from 'hooks/usePresence';
-import TransitionModal from 'components/TransitionModal';
 import useSoundAndDialog from 'hooks/useSoundAndDialog';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
+import latestMessageByType from 'helpers/messages';
 import { getExtention, getURLPath, isVideo } from 'helpers/strings';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
@@ -44,7 +45,7 @@ export default function Room() {
   // end handle timeout of TransitionModal.
 
   useEffect(() => {
-    const roomMessage = messages.sort((a, b) => b.timestamp - a.timestamp).find((m) => m.type === 'room');
+    const roomMessage = latestMessageByType(messages, 'room');
     if (roomMessage) {
       const messageSettings = JSON.parse(roomMessage.settings);
       return setRoomBackground(messageSettings.roomBackgroundURL);

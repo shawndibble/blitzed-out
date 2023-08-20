@@ -9,6 +9,7 @@ import ToastAlert from 'components/ToastAlert';
 import CustomTileDialog from 'components/CustomTileDialog';
 import { a11yProps } from 'helpers/strings';
 import useAuth from 'hooks/useAuth';
+import latestMessageByType from 'helpers/messages';
 import useMessages from 'hooks/useMessages';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { importActions } from 'services/importLocales';
@@ -80,9 +81,7 @@ export default function GameSettings({ submitText, closeDialog }) {
   useEffect(() => {
     if (room === 'public') return;
 
-    const message = messages
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .find((m) => m?.type === 'room');
+    const message = latestMessageByType(messages, 'room');
 
     if (message?.settings) {
       setFormData({ ...formData, ...JSON.parse(message.settings) });
