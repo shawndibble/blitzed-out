@@ -12,6 +12,8 @@ import usePresence from 'hooks/usePresence';
 import useSoundAndDialog from 'hooks/useSoundAndDialog';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
+import useGameBoard from 'hooks/useGameBoard';
+import useAuth from 'hooks/useAuth';
 import latestMessageByType from 'helpers/messages';
 import { getExtention, getURLPath, isVideo } from 'helpers/strings';
 import BottomTabs from './BottomTabs';
@@ -21,6 +23,7 @@ import './styles.css';
 export default function Room() {
   const params = useParams();
   const room = params.id ?? 'public';
+  const { user } = useAuth();
 
   usePresence(room);
   const [popupMessage, setPopupMessage] = useSoundAndDialog(room);
@@ -29,7 +32,9 @@ export default function Room() {
   const { playerList, tile } = usePlayerMove(room, rollValue);
   const [settings, setSettings] = useLocalStorage('gameSettings');
   const messages = useMessages(room);
+  const [roller, setRoller] = useState('1d6');
   const [roomBgUrl, setRoomBackground] = useState('');
+  const updateGameBoardTiles = useGameBoard();
 
   // handle timeout of TransitionModal
   let timeoutId;
@@ -44,16 +49,21 @@ export default function Room() {
   };
   // end handle timeout of TransitionModal.
 
+  // Watch the message list.
+  // If the private room settings change, update the game.
   useEffect(() => {
     const roomMessage = latestMessageByType(messages, 'room');
     if (roomMessage) {
       const messageSettings = JSON.parse(roomMessage.settings);
-      return setRoomBackground(messageSettings.roomBackgroundURL);
+      setRoller(messageSettings?.roomDice || '1d6');
+      setRoomBackground(messageSettings.roomBackgroundURL);
+      // settings form updates for us. However we also need to update for other players.
+      if (roomMessage.uid !== user.uid) updateGameBoardTiles(messageSettings);
+      return;
     }
     if (settings?.roomBackgroundURL?.length) {
-      return setRoomBackground(settings.roomBackgroundURL);
+      setRoomBackground(settings.roomBackgroundURL);
     }
-    return null;
   }, [messages, settings]);
 
   const {
@@ -61,6 +71,7 @@ export default function Room() {
   } = settings;
   const backgroundSource = background !== 'custom' ? background : backgroundURL;
   const roomBackgroundSource = roomBackground !== 'custom' ? roomBackground : roomBgUrl;
+  const isTransparent = (room !== 'public' && roomBackground === 'custom') || background !== 'color';
   const bgSource = room !== 'public' && roomBackground === 'custom' ? roomBackgroundSource : backgroundSource;
   const isVideoFile = isVideo(bgSource);
   const bgExtension = getExtention(bgSource);
@@ -70,7 +81,11 @@ export default function Room() {
     <>
       <Navigation room={room} playerList={playerList} />
 
-      <RollButton setRollValue={setRollValue} playerTile={tile} />
+      <RollButton
+        setRollValue={setRollValue}
+        dice={roller}
+        playerTile={tile}
+      />
       <Box className="main-container" sx={{ backgroundImage: !!bgExtension && !isVideoFile && `url(${sourcePath})` }}>
         {!!isVideoFile && (
           <video autoPlay loop muted>
@@ -88,8 +103,8 @@ export default function Room() {
           />
 
           <div className="messages-container">
-            <MessageList room={room} isTransparent={background !== 'color'} />
-            <MessageInput room={room} isTransparent={background !== 'color'} />
+            <MessageList room={room} isTransparent={isTransparent} />
+            <MessageInput room={room} isTransparent={isTransparent} />
           </div>
         </Box>
       ) : (
@@ -105,8 +120,8 @@ export default function Room() {
             )}
             tab2={(
               <div className="messages-container">
-                <MessageList room={room} isTransparent={background !== 'color'} />
-                <MessageInput room={room} isTransparent={background !== 'color'} />
+                <MessageList room={room} isTransparent={isTransparent} />
+                <MessageInput room={room} isTransparent={isTransparent} />
               </div>
             )}
           />

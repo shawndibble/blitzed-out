@@ -1,7 +1,5 @@
 import i18next from 'i18next';
-import customizeBoard from 'services/buildGame';
 import { sendMessage } from 'services/firebase';
-import { importActions } from 'services/importLocales';
 
 function hasSomethingPicked(object) {
   return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
@@ -51,7 +49,7 @@ function getRoomSettingsMessage(settings) {
   let message = `### ${t('roomSettings')}\r\n`;
   Object.entries(settings)
     .forEach(([key, val]) => {
-      if (validRoomSetting(key) || hasCustomBackgroundURL(key, settings)) {
+      if (val !== '' && (validRoomSetting(key) || hasCustomBackgroundURL(key, settings))) {
         message += `* ${t(key)}: ${val}\r\n`;
       }
     });
@@ -155,27 +153,4 @@ export function validateFormData(gameOptions) {
   }
 
   return null;
-}
-
-export async function handleBoardUpdate({
-  formData, actionsList, updateBoard, customTiles, updateSettings,
-}) {
-  let updatedDataFolder = { ...actionsList };
-  let settingsBoardUpdated = formData.boardUpdated;
-  let { gameMode } = formData;
-  if ((!formData.room || formData.room === 'public') && formData.gameMode === 'local') {
-    gameMode = 'online';
-    // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
-    updatedDataFolder = importActions(formData.locale, gameMode);
-    settingsBoardUpdated = true;
-  }
-
-  const newBoard = customizeBoard(formData, updatedDataFolder, customTiles);
-
-  // if our board updated, then push those changes out.
-  if (settingsBoardUpdated) await updateBoard(newBoard);
-
-  updateSettings({ ...formData, boardUpdated: false, gameMode });
-
-  return { settingsBoardUpdated, newBoard };
 }

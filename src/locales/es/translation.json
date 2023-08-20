@@ -34,6 +34,8 @@
   "local": "Partida local",
   "localTooltip": "Juega con otros en persona",
   "roomBackgroundURL": "URL de fondo",
+  "roomDice": "Dados",
+  "roomTileCount": "Tamaño del tablero",
   "finishSlider": "Opciones de finalizar:",
   "noCum": "Sin semen:",
   "ruined": "Arruinado:",

@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from 'hooks/useCountdown';
 
-export default function RollButton({ setRollValue, playerTile }) {
+export default function RollButton({ setRollValue, playerTile, dice }) {
   const { t } = useTranslation();
   const [isDisabled, setDisabled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -31,7 +31,16 @@ export default function RollButton({ setRollValue, playerTile }) {
     return /^-?\d+$/.test(value);
   }
 
-  const rollDice = () => setRollValue([Math.floor(Math.random() * 4) + 1]);
+  const [rollCount, diceSide] = dice.split('d');
+
+  const rollDice = () => {
+    let total = 0;
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < Number(rollCount); i++) {
+      total += Number([Math.floor(Math.random() * Number(diceSide)) + 1]);
+    }
+    setRollValue(total);
+  };
 
   const handleClick = () => {
     if (selectedRoll === 'manual') {

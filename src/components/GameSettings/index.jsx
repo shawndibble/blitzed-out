@@ -12,9 +12,10 @@ import useAuth from 'hooks/useAuth';
 import latestMessageByType from 'helpers/messages';
 import useMessages from 'hooks/useMessages';
 import useLocalStorage from 'hooks/useLocalStorage';
+import useGameBoard from 'hooks/useGameBoard';
 import { importActions } from 'services/importLocales';
 import {
-  handleUser, handleBoardUpdate, validateFormData, sendGameSettingsMessage, sendRoomSettingsMessage,
+  handleUser, validateFormData, sendGameSettingsMessage, sendRoomSettingsMessage,
 } from './submitForm';
 import './styles.css';
 import AppSettings from './AppSettings';
@@ -25,8 +26,9 @@ export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
   const { id: room } = useParams();
   const { t, i18n } = useTranslation();
-  const updateBoard = useLocalStorage('customBoard')[1];
+  // const updateBoard = useLocalStorage('customBoard')[1];
   const customTiles = useLocalStorage('customTiles', [])[0];
+  const updateGameBoardTiles = useGameBoard();
 
   // set default settings for first time users. Local Storage will take over after this.
   const [settings, updateSettings] = useLocalStorage('gameSettings', {
@@ -40,6 +42,8 @@ export default function GameSettings({ submitText, closeDialog }) {
     gameMode: 'online',
     background: 'color',
     finishRange: [30, 70],
+    roomTileCount: 40,
+    roomDice: '1d6',
   });
   const navigate = useNavigate();
 
@@ -97,18 +101,16 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     const updatedUser = await handleUser(user, displayName, updateUser, login);
 
-    const { settingsBoardUpdated, newBoard } = await handleBoardUpdate({
-      formData,
-      actionsList,
-      updateBoard,
-      customTiles,
-      updateSettings,
-    });
+    if (!formData.roomBackgroundURL || !formData.roomBackgroundURL.match(/^https?:\/\/.+\/.+$/)) {
+      formData.roomBackground = 'app';
+    }
+
+    const { settingsBoardUpdated, gameMode, newBoard } = await updateGameBoardTiles(formData);
 
     const roomChanged = room !== formData.room;
 
     // send out room specific settings if we are in a private room.
-    if (formData.roomUpdated || (formData.room !== 'public' && !messages.find((m) => m.type === 'room'))) {
+    if (formData.room && formData.room !== 'public' && (formData.roomUpdated || !messages.find((m) => m.type === 'room'))) {
       sendRoomSettingsMessage(formData, updatedUser);
     }
 
@@ -117,12 +119,14 @@ export default function GameSettings({ submitText, closeDialog }) {
       sendGameSettingsMessage(formData, updatedUser, customTiles, actionsList, newBoard);
     }
 
+    updateSettings({
+      ...formData, boardUpdated: false, roomUpdated: false, gameMode,
+    });
+
     if (roomChanged) {
       const privatePath = formData.room ? `/rooms/${formData.room}` : '/';
       navigate(privatePath);
     }
-
-    updateSettings({ ...formData, boardUpdated: false, roomUpdated: false });
 
     if (typeof closeDialog === 'function') closeDialog();
 

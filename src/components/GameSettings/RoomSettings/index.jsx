@@ -6,6 +6,7 @@ import { customAlphabet } from 'nanoid';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import BackgroundSelect from 'components/BackgroundSelect';
+import GameSpeed from './GameSpeed';
 
 export default function RoomSettings({ formData, setFormData }) {
   const { id: room } = useParams();
@@ -74,6 +75,8 @@ export default function RoomSettings({ formData, setFormData }) {
             onBlur={(event) => handleChange(event)}
             onKeyDown={(event) => handleKeyDown(event)}
           />
+          <Divider sx={{ my: 1 }} />
+          <GameSpeed formData={formData} setFormData={setFormData} />
           <Divider sx={{ my: 1 }} />
           <BackgroundSelect
             formData={formData}
