@@ -20,21 +20,19 @@ export default function FinishSlider({ formData, setFormData }) {
         onChange={handleChange}
         valueLabelDisplay="off"
       />
-      <Box display="flex" justifyContent="space-between">
+      <Box display="flex" flexDirection="column" justifyContent="space-between" textAlign="center">
         <Typography whiteSpace="nowrap">
           <Trans i18nKey="noCum" />
           {' '}
           { finishRange[0] }
           %
         </Typography>
-        <Typography>|</Typography>
         <Typography whiteSpace="nowrap">
           <Trans i18nKey="ruined" />
           {' '}
           {finishRange[1] - finishRange[0]}
           %
         </Typography>
-        <Typography>|</Typography>
         <Typography whiteSpace="nowrap">
           <Trans i18nKey="cum" />
           {' '}
