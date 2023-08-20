@@ -19,8 +19,13 @@ import { Trans, useTranslation } from 'react-i18next';
 export default function ImportExport({ open, close, isMobile }) {
   const { t } = useTranslation();
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
+  const { room, roomTileCount } = useLocalStorage('gameSettings')[0];
   const [textValue, setTextField] = useState('');
   const [alert, setAlert] = useState('');
+
+  // default is 40 tiles, but we don't count the start and finish tiles.
+  // Also why we sub 2 from roomTileCount.
+  const requiredTiles = room === 'public' ? 38 : roomTileCount - 2;
 
   // eslint-disable-next-line consistent-return
   const importBoard = () => {
@@ -28,11 +33,11 @@ export default function ImportExport({ open, close, isMobile }) {
     const entries = textValue.split('---').filter((e) => e);
 
     try {
-      if (entries.length < 38) {
-        throw setAlert(t('importTooShort', { entries: 38 - entries.length }));
+      if (entries.length < requiredTiles) {
+        throw setAlert(t('importTooShort', { entries: requiredTiles - entries.length }));
       }
-      if (entries.length > 38) {
-        throw setAlert(t('importTooLong', { entries: entries.length - 38 }));
+      if (entries.length > requiredTiles) {
+        throw setAlert(t('importTooLong', { entries: entries.length - requiredTiles }));
       }
       gameTiles = entries.map((entry, index) => {
         const [title, description] = entry.split('\n').filter((e) => e);
