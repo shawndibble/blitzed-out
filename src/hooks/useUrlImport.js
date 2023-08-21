@@ -3,7 +3,6 @@ import useMessages from 'hooks/useMessages';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { importActions } from 'services/importLocales';
 
 export default function useUrlImport(room, settings, setSettings) {
   const [alert, setAlert] = useState(null);
@@ -12,7 +11,7 @@ export default function useUrlImport(room, settings, setSettings) {
   const importBoard = queryParams.get('importBoard');
   const [gameBoard, setGameBoard] = useState(localGameBoard);
   const messages = useMessages(room || 'public');
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
 
   function clearAlert() {
     setAlert(null);
@@ -36,12 +35,7 @@ export default function useUrlImport(room, settings, setSettings) {
     setLocalGameBoard(importedGameBoard);
     // When we import the board, also import the game board settings (not application settings).
     const importSettings = JSON.parse(importMessage?.settings);
-    const actionsFolder = importActions(i18n.resolvedLanguage, importMessage?.settings?.gameMode);
-    Object.keys(importSettings).forEach((setting) => {
-      if (!actionsFolder[setting] && !setting.endsWith('Variation')) {
-        delete importSettings[setting];
-      }
-    });
+    // update the settings with the imported settings.
     setSettings({ ...settings, ...importSettings });
     // remove the import from the URL
     setParams({});
