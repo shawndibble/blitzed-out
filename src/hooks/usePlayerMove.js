@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
-import { sendMessage } from 'services/firebase';
 import { useTranslation } from 'react-i18next';
+import { sendMessage } from 'services/firebase';
 import useAuth from './useAuth';
-import useLocalStorage from './useLocalStorage';
 import usePlayerList from './usePlayerList';
 
-export default function usePlayerMove(room, rollValue) {
+export default function usePlayerMove(room, rollValue, gameBoard) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const playerList = usePlayerList(room)[0];
-  const gameBoard = useLocalStorage('customBoard')[0];
   const total = gameBoard.length;
   const [tile, setTile] = useState(gameBoard[0]);
   const lastTile = total - 1;
@@ -18,18 +16,18 @@ export default function usePlayerMove(room, rollValue) {
     const textArray = text?.split('%');
     // if we have %, we are on the finish tile. Let's get a random result.
     if (textArray?.length > 1) {
-      const finishVals = textArray.filter((n) => n).map((line) => line.split(': '));
+      const finishValues = textArray.filter((n) => n).map((line) => line.split(': '));
 
       // process weighted random finish result.
       const weightedArray = [];
-      finishVals.forEach((val, index) => {
+      finishValues.forEach((val, index) => {
         const clone = Array(val[1]).fill(index);
         weightedArray.push(...clone);
       });
 
       const result = weightedArray[Math.floor(Math.random() * weightedArray.length)];
 
-      return finishVals.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '');
+      return finishValues.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '');
     }
 
     return text;
@@ -54,7 +52,7 @@ export default function usePlayerMove(room, rollValue) {
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
   function getNewLocation(rollNumber) {
-    // -1 is used to resart the game.
+    // -1 is used to restart the game.
     if (rollNumber === -1) {
       return {
         preMessage: `${t('restartingGame')}\n`,
@@ -64,7 +62,7 @@ export default function usePlayerMove(room, rollValue) {
 
     const currentLocation = playerList.find((p) => p.isSelf).location;
 
-    // restart game if we roll and are on the last tile..
+    // restart game if we roll and are on the last tile.
     if (currentLocation === lastTile) {
       return {
         preMessage: `${t('alreadyFinished')}\n`,
@@ -73,7 +71,7 @@ export default function usePlayerMove(room, rollValue) {
     }
 
     const newLocation = rollNumber + currentLocation;
-    // If we would move past finish, move to finish instead.
+    // If we move past finish, move to finish instead.
     if (newLocation >= lastTile) {
       return { newLocation: lastTile };
     }

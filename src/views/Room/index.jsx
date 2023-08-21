@@ -7,11 +7,13 @@ import usePlayerMove from 'hooks/usePlayerMove';
 import usePresence from 'hooks/usePresence';
 import usePrivateRoomMonitor from 'hooks/usePrivateRoomMonitor';
 import useSoundAndDialog from 'hooks/useSoundAndDialog';
+import useUrlImport from 'hooks/useUrlImport';
 import useWindowDimensions from 'hooks/useWindowDimensions';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import GameBoard from 'views/GameBoard';
 import Navigation from 'views/Navigation';
+import GameBoard from 'views/Room/GameBoard';
+import ToastAlert from '../../components/ToastAlert';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import RoomBackground from './RoomBackground';
@@ -20,15 +22,19 @@ import './styles.css';
 export default function Room() {
   const params = useParams();
   const room = params.id ?? 'public';
+  const { isMobile } = useWindowDimensions();
 
   usePresence(room);
-  const [popupMessage, setPopupMessage] = useSoundAndDialog(room);
-  const { isMobile } = useWindowDimensions();
+
   const [rollValue, setRollValue] = useState([0]);
-  const { playerList, tile } = usePlayerMove(room, rollValue);
-  const [settings, setSettings] = useLocalStorage('gameSettings');
   const gameBoard = useLocalStorage('customBoard')[0];
+  const [settings, setSettings] = useLocalStorage('gameSettings');
+
+  const [popupMessage, setPopupMessage] = useSoundAndDialog(room);
+
+  const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, settings, gameBoard);
+  const [importResult, clearImportResult] = useUrlImport(room, settings, setSettings);
 
   // handle timeout of TransitionModal
   let timeoutId;
@@ -64,6 +70,7 @@ export default function Room() {
             settings={settings}
             setSettings={setSettings}
             isTransparent={isTransparent}
+            gameBoard={gameBoard}
           />
           <div className="messages-container">
             <MessageList
@@ -84,6 +91,7 @@ export default function Room() {
                 settings={settings}
                 setSettings={setSettings}
                 isTransparent={isTransparent}
+                gameBoard={gameBoard}
               />
             )}
             tab2={(
@@ -108,6 +116,9 @@ export default function Room() {
           handleClose={closeTransitionModal}
         />
       )}
+      <ToastAlert type="success" open={!!importResult} close={clearImportResult}>
+        {importResult}
+      </ToastAlert>
     </>
   );
 }
