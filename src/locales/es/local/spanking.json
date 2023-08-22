@@ -1,0 +1,49 @@
+{
+  "label": "Azotes",
+  "actions": {
+    "Ninguna": [],
+    "Azote Suave": [
+      "Recibe un azote suave en cada mejilla.",
+      "Recibe un azote mientras estás sobre la rodilla de otro jugador.",
+      "Cuenta 10 azotes suaves.",
+      "Recibe un azote suave de cada jugador.",
+      "Permite que alguien acaricie su mano por tu espalda y luego te dé un azote suave.",
+      "Recibe un azote suave mientras estás en posición de cuatro patas.",
+      "Recibe azotes rápidos y suaves durante 15 segundos.",
+      "Recibe un azote suave mientras estás boca arriba.",
+      "Recibe 6 azotes suaves, 3 en cada mejilla.",
+      "Ponte de rodillas y suplica a otro jugador por un azote.",
+      "Suplica a cada jugador, uno por uno, por un azote suave."
+    ],
+    "Azotes Fuertes": [
+      "Recibe un azote fuerte en cada mejilla.",
+      "Recibe azotes intensos mientras estás sobre la rodilla de otro jugador.",
+      "Cuenta 10 azotes fuertes.",
+      "Recibe 2 azotes fuertes de cada jugador.",
+      "Recibe tantos azotes fuertes como puedas durante 20 segundos.",
+      "Recibe 4 azotes fuertes mientras estás en posición de cuatro patas.",
+      "Recibe azotes fuertes durante 15 segundos.",
+      "Suplica y recibe 10 azotes fuertes.",
+      "Mientras estás inclinado, recibe 6 azotes fuertes.",
+      "Recibe azotes fuertes hasta que supliques por clemencia."
+    ],
+    "Fuetes y Paletas": [
+      "Recibe azotes con un implemento de tu elección.",
+      "Cuenta 20 azotes con un implemento.",
+      "Recibe azotes con un implemento mientras estás sobre la rodilla de otro jugador.",
+      "Recibe azotes con un implemento mientras estás en posición de cuatro patas.",
+      "Recibe azotes con un implemento mientras estás boca arriba.",
+      "Encuentra un implemento de tu elección y pide que alguien te azote con él.",
+      "Suplica por una cantidad de azotes con un implemento.",
+      "Recibe azotes con un implemento durante 30 segundos.",
+      "Recibe azotes con un implemento de cada jugador."
+    ],
+    "Magulladuras": [
+      "Recibe 5 azotes en cada mejilla lo suficientemente fuertes como para dejar una marca.",
+      "Cuenta 10 azotes que provoquen magulladuras.",
+      "Aguanta tantos azotes dolorosos como puedas durante 30 segundos.",
+      "Recibe 10 azotes utilizando una vara u otro implemento duro.",
+      "Permite que otro jugador deje una marca de mano."
+    ]
+  }
+}
