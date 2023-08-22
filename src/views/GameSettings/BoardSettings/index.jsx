@@ -3,8 +3,8 @@ import {
   Stack, Switch, Tooltip, Typography,
 } from '@mui/material';
 import { Trans } from 'react-i18next';
-import SelectBoardSetting from './SelectBoardSetting';
 import FinishSlider from './FinishSlider';
+import SelectBoardSetting from './SelectBoardSetting';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const settingSelectLists = Object.keys(actionsList).map((option) => (
@@ -38,7 +38,9 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
             id="gameMode"
             checked={formData.gameMode === 'local'}
             onChange={(event) => setFormData({
-              ...formData, gameMode: event.target.checked ? 'local' : 'online',
+              ...formData,
+              gameMode: event.target.checked ? 'local' : 'online',
+              boardUpdated: true,
             })}
             inputProps={{ 'aria-label': 'Game Type' }}
           />
