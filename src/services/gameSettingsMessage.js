@@ -68,7 +68,7 @@ function exportSettings(formData) {
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     // list of settings to not export and thus not import.
     const personalSettings = [
-      'boardUpdated', 'chatSound', 'displayName', 'mySound', 'othersDialog', 'playerDialog',
+      'background', 'boardUpdated', 'chatSound', 'displayName', 'mySound', 'othersDialog', 'playerDialog',
     ];
     // don't export personal settings nor room specific settings.
     if (!personalSettings.includes(settingKey) && !settingKey.startsWith('room')) {

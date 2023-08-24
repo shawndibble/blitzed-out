@@ -23,6 +23,9 @@ export default function useUrlImport(room, settings, setSettings) {
       setGameBoard(localGameBoard);
       return;
     }
+
+    // remove the import from the URL
+    setParams({});
     // grab the message by its id (import board value)
     const importMessage = messages.find((m) => m.id === importBoard);
     // no game board? we are done.
@@ -37,8 +40,6 @@ export default function useUrlImport(room, settings, setSettings) {
     const importSettings = JSON.parse(importMessage?.settings);
     // update the settings with the imported settings.
     setSettings({ ...settings, ...importSettings });
-    // remove the import from the URL
-    setParams({});
   }
 
   useEffect(() => importGameBoard(), [importBoard]);
