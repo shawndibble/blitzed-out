@@ -13,7 +13,7 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
   const { user } = useAuth();
   const customTiles = useLocalStorage('customTiles', [])[0];
   const messages = useMessages(room);
-  const [roller, setRoller] = useState('1d6');
+  const [roller, setRoller] = useState('1d4');
   const [roomBgUrl, setRoomBackground] = useState('');
   const updateGameBoardTiles = useGameBoard();
   async function rebuildGameBoard(messageSettings, messageUser) {
