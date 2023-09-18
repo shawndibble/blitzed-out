@@ -2,13 +2,13 @@
   margin-bottom: 16px;
   flex: 1;
   overflow-y: auto;
-  height: calc(100vh - 260);
+  height: calc(100vh - 15rem);
 }
 
 @media screen and (max-width: 600px) {
   .message-list-container {
     min-height: auto;
-    max-height: calc(100vh - 290);
+    max-height: calc(100vh - 20rem);
   }
 }
 
