@@ -8,6 +8,8 @@ import {
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   getFirestore,
   onSnapshot,
@@ -157,6 +159,10 @@ export async function sendMessage({
   }
 }
 
+export async function deleteMessage(room, messageId) {
+  return deleteDoc(doc(db, `/chat-rooms/${room}/messages/${messageId}`));
+}
+
 export async function uploadImage({ image, room, user }) {
   const storage = getStorage();
   const imageUrl = image.base64String;
@@ -194,9 +200,9 @@ export function getMessages(roomId, callback) {
       orderBy('timestamp', 'asc'),
     ),
     (querySnapshot) => {
-      const messages = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
+      const messages = querySnapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data(),
       }));
       callback(messages);
     },
@@ -207,7 +213,7 @@ export function getRooms(callback) {
   const querySnapshot = getDocs(collection(db, 'chat-rooms'));
   const rooms = [];
   querySnapshot.then((data) => {
-    data.forEach((doc) => rooms.push(doc.id));
+    data.forEach((document) => rooms.push(document.id));
     callback(rooms);
   });
 }

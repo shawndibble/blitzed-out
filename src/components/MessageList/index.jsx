@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  AppBar, Divider, Tab, Tabs,
+  AppBar, Divider, IconButton, Tab, Tabs, Tooltip,
 } from '@mui/material';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -15,6 +15,8 @@ import moment from 'moment/moment';
 import 'moment/locale/es';
 import 'moment/locale/fr';
 import './styles.css';
+import { deleteMessage } from 'services/firebase';
+import { Delete } from '@mui/icons-material';
 
 export default function MessageList({ room, isTransparent, currentGameBoardSize = 40 }) {
   const containerRef = React.useRef(null);
@@ -67,6 +69,7 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
             locale={i18n.resolvedLanguage}
             isTransparent={isTransparent}
             currentGameBoardSize={currentGameBoardSize}
+            room={room}
           />
         ))}
       </ul>
@@ -75,7 +78,7 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
 }
 
 function Message({
-  message, isOwnMessage, isTransparent, currentGameBoardSize,
+  message, isOwnMessage, isTransparent, currentGameBoardSize, room,
 }) {
   const {
     id, displayName, text, uid, timestamp, type, gameBoard, image,
@@ -98,7 +101,17 @@ function Message({
           <TextAvatar uid={uid} displayName={displayName} size="small" />
           {displayName}
         </div>
-        <div className="timestampe">{ago}</div>
+        <div className="timestamp">
+          {ago}
+          {!!isOwnMessage && ['media', 'chat'].includes(type) && (
+            <Tooltip title={<Trans i18nKey="delete" />}>
+              <IconButton onClick={() => deleteMessage(room, id)} aria-label="delete" color="error" size="small" sx={{ p: 0, ml: 1 }}>
+                <Delete fontSize="inherit" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </div>
+
       </div>
       <Divider />
       <div className="message-message">
