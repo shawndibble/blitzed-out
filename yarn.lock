@@ -1169,6 +1169,18 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@capacitor/camera@^5.0.7":
+  version "5.0.7"
+  resolved "https://registry.yarnpkg.com/@capacitor/camera/-/camera-5.0.7.tgz#42f60168d731fc521df797aacc7cda703b7ac2b1"
+  integrity sha512-1Wk3Dk0UhhNHdBB07UrPvUOSL7Wi5gFZRyLY1LZL2awt34iqy2cnajtfJplFmEZHk8lD0i7NAl3HbkWm4td4OQ==
+
+"@capacitor/core@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-5.4.0.tgz#66d34223f67b2d95314cf5c1b265f11579a67a9e"
+  integrity sha512-lBWMbhPtvtcPoICdvqOaTsS9GDFlw1QHgkHZ5rxQF4Nvahikllvcud1fEu4ta28pykMUSlpCX2iDXYustYaATg==
+  dependencies:
+    tslib "^2.1.0"
+
 "@csstools/normalize.css@*":
   version "12.0.0"
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-12.0.0.tgz#a9583a75c3f150667771f30b60d9f059473e62c4"
@@ -1865,6 +1877,11 @@
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
+
+"@ionic/pwa-elements@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@ionic/pwa-elements/-/pwa-elements-3.2.2.tgz#a757b22d7054e718b20e722f1a936f7deff09a01"
+  integrity sha512-gCQsHdvkaWa83T3ToKsr6FOtzSmLIYFWy+zZisXVDqU3ry4Hv581dFSxDUgokgoWSxIERe/nvYnhoN8zIIEKQQ==
 
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"

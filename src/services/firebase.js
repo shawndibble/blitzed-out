@@ -17,6 +17,10 @@ import {
   where,
 } from 'firebase/firestore';
 
+import {
+  getDownloadURL, getStorage, ref as storageRef, uploadString,
+} from 'firebase/storage';
+
 const firebaseConfig = {
   apiKey: 'AIzaSyCKS7tWQRYRWHsawNfN42uAmISdUbJHJJw',
   authDomain: 'blitzout-49b39.firebaseapp.com',
@@ -124,11 +128,11 @@ export async function submitCustomAction(grouping, customAction) {
 }
 
 export async function sendMessage({
-  room, user, text, type = 'chat', ...rest
+  room, user, text = '', type = 'chat', ...rest
 }) {
-  const allowedTypes = ['chat', 'actions', 'settings', 'room'];
+  const allowedTypes = ['chat', 'actions', 'settings', 'room', 'media'];
   if (!allowedTypes.includes(type)) {
-    let message = 'Invalid message type. Was expecting';
+    let message = 'Invalid message type. Was expecting ';
     message += allowedTypes.join(', ');
     message += ` but got ${type}`;
     // eslint-disable-next-line
@@ -151,6 +155,32 @@ export async function sendMessage({
     // eslint-disable-next-line
     return console.error(error);
   }
+}
+
+export async function uploadImage({ image, room, user }) {
+  const storage = getStorage();
+  const imageUrl = image.base64String;
+  const imageLoc = `/images/${Math.random()}.${image.format}`;
+  const imageRef = storageRef(storage, imageLoc);
+  const uploadTask = uploadString(imageRef, imageUrl, 'base64');
+
+  uploadTask.on(
+    'state_changed',
+    // eslint-disable-next-line no-unused-vars
+    (snapshot) => { },
+    // eslint-disable-next-line no-console
+    (error) => console.error(error),
+    () => {
+      getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
+        await sendMessage({
+          room,
+          user,
+          text: url,
+          type: 'media',
+        });
+      });
+    },
+  );
 }
 
 export function getMessages(roomId, callback) {

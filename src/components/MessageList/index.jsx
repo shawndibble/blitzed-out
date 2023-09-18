@@ -27,7 +27,7 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
 
   const filterMessages = (tabId) => setMessages(messages.filter((m) => {
     if (tabId === 1) return m.type === 'settings';
-    if (tabId === 2) return m.type === 'chat';
+    if (tabId === 2) return ['chat', 'media'].includes(m.type);
     if (tabId === 3) return m.type === 'actions';
     return m;
   }));
@@ -78,13 +78,18 @@ function Message({
   message, isOwnMessage, isTransparent, currentGameBoardSize,
 }) {
   const {
-    id, displayName, text, uid, timestamp, type, gameBoard,
+    id, displayName, text, uid, timestamp, type, gameBoard, image,
   } = message;
 
   const isImportable = type === 'settings' && gameBoard && JSON.parse(gameBoard).length === currentGameBoardSize;
 
   let ago = moment(timestamp?.toDate()).fromNow();
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
+
+  let imageSrc = false;
+  if (type === 'media') {
+    imageSrc = `data:image/${image.format};base64,${image.base64String}`;
+  }
 
   return (
     <li className={['message', isOwnMessage && 'own-message', isTransparent && 'transparent'].join(' ')}>
@@ -100,6 +105,9 @@ function Message({
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {text}
         </ReactMarkdown>
+        {!!imageSrc && (
+          <img src={imageSrc} alt="uploaded by user" />
+        )}
         {type === 'settings' && (
           <>
             <Divider sx={{ my: 0.5 }} />

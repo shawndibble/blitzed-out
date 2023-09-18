@@ -3,6 +3,10 @@
   gap: 4px;
 }
 
+.message-input-container .MuiInputBase-root {
+  padding: 16.5px 5px;
+}
+
 .transparent .MuiOutlinedInput-root{
   background-color: rgba(75, 75, 75, 0.75);
   text-shadow:
