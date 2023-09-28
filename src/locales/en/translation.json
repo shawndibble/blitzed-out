@@ -92,7 +92,7 @@
   "misc": "Miscellaneous",
   "addCustom": "Add Custom Tile",
   "autoCloseModal": "This modal will automatically close after {{timeLeft}} seconds.",
-  "pickSomething": "You need to pick at lease something.",
+  "pickSomething": "You need to pick at least something.",
   "appendWithAction": "If you are going to append, you need an action.",
   "gameDesc": "<0>Blitzed Out</0><1></1><2>An online adult sex board game for kinky people. Designed for solo play, couples or parties.</2><3>Customize your own board or import someone else's, find your own room and play with other people online.</3>",
   "gettingStartedTitle": "Getting Started",
