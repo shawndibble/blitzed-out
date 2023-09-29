@@ -16,7 +16,7 @@
     "@testing-library/user-event": "^14.0.0",
     "eslint": "^7.32.0 || ^8.2.0",
     "firebase": "^9.22.0",
-    "gh-pages": "^5.0.0",
+    "gh-pages": "^6.0.0",
     "i18next": "^23.2.8",
     "i18next-browser-languagedetector": "^7.1.0",
     "moment": "^2.29.4",
