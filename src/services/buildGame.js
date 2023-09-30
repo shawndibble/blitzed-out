@@ -10,7 +10,7 @@ function cycleList(list) {
 }
 
 function getIntensity(userSelection, currentLevel) {
-  // If the user picked intensity 2, then split intensity 1 on the first 2 rows
+  // If the user picked intensity 2, then split intensity half and half
   // and intensity 2 on the last 2 rows.
   if ([1, 2].includes(currentLevel) && userSelection === 2) {
     return 1;
@@ -30,10 +30,13 @@ function getIntensity(userSelection, currentLevel) {
 }
 
 function getCurrentLevel(currentTile, brackets) {
-  let level = 1;
-  // eslint-disable-next-line
-  brackets.forEach((bracketMax) => (currentTile > bracketMax ? level++ : null));
-  return level;
+  let total = 0;
+  let bracketLevel = 0;
+  while (total < currentTile) {
+    total += brackets[bracketLevel];
+    bracketLevel += 1;
+  }
+  return bracketLevel;
 }
 
 function getAppendItem(appendList, currentOption, currentLevel, customDataFolder) {
@@ -97,6 +100,20 @@ function separateUserLists(customDataFolder, hasMiscTiles, settings) {
   return { tileOptions, appendList };
 }
 
+function calculateLevelBrackets(size, difficulty) {
+  const availableTiles = size - 2; // remove start and finish.
+  if (difficulty === 'accelerated') {
+    return [
+      Math.ceil(availableTiles * 0.1),
+      Math.ceil(availableTiles * 0.1),
+      Math.ceil(availableTiles * 0.1),
+      Math.ceil(availableTiles * 0.7),
+    ];
+  }
+  // normal, split the tiles evenly.
+  return [...Array(4)].map(() => Math.ceil(availableTiles / 4));
+}
+
 export default function customizeBoard(
   settings,
   actionsFolder,
@@ -129,8 +146,7 @@ export default function customizeBoard(
   const tiles = [...Array(size - 2).keys()];
 
   // Set our brackets for when we use different intensities
-  const tilesPerLevel = (size - 2) / 4;
-  const levelBrackets = [...Array(4).keys()].map((val) => (val + 1) * tilesPerLevel);
+  const levelBrackets = calculateLevelBrackets(size, settings.difficulty);
 
   // all the options where the user picked higher than 0.
   const selectedOptions = Object.keys(customDataFolder).filter((type) => tileOptions[type] > 0);
