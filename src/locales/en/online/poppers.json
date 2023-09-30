@@ -33,6 +33,14 @@
             "6 deep hits.",
             "5 hits each side.",
             "8s hit & hold."
+        ],
+        "Expert": [
+            "10 normal hits. No holding.",
+            "15s hit. 10s hold.",
+            "Breathe with popper sock for as long as you can",
+            "Empty your lungs. Biggest and deepest hit you can do.",
+            "Empty lungs. 10s deep hit. 10s hold. Repeat.",
+            "10s sock/mask hit. 10s hold."
         ]
     }
 }

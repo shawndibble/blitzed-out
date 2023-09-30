@@ -24,15 +24,23 @@
             "5 quick hits."
         ],
         "Advance": [
-            "10 seconds hit & hold.",
+            "10 seconds hit. 10s hold.",
             "4 mouth hits.",
             "Hit and hold as long as you can.",
             "Breathe with popper sock/mask 15 seconds.",
             "8 hits.",
             "4 mouth hits.",
             "6 deep hits.",
-            "5 hits each side.",
-            "8s hit & hold."
+            "3 hits each side.",
+            "8s hit. 8s hold."
+        ],
+        "Expert": [
+            "10 normal hits. No holding.",
+            "15s hit. 10s hold.",
+            "Breathe with popper sock for as long as you can",
+            "Empty your lungs. Biggest and deepest hit you can do.",
+            "Empty lungs. 10s deep hit. 10s hold. Repeat.",
+            "10s sock/mask hit. 10s hold."
         ]
     }
 }
