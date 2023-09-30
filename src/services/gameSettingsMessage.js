@@ -34,6 +34,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
   if (reason) {
     message += `##### ${reason}\r\n`;
   }
+  message += '--- \r\n';
   const { poppersVariation, alcoholVariation } = settings;
   // output only settings that have a corresponding actionsList entry.
   Object.entries(actionsList).map(([key, val]) => {
@@ -51,7 +52,11 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
     return undefined;
   });
 
-  const { finishRange } = settings;
+  const { finishRange, difficulty } = settings;
+
+  message += '--- \r\n';
+
+  message += `* ${t('difficulty')}: ${t(difficulty)} \r\n`;
 
   message += `* ${t('finishSlider')} ${finishRange[0]}%  | ${finishRange[1] - finishRange[0]}% | ${100 - finishRange[1]}%`;
 
