@@ -56,7 +56,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
 
   message += '--- \r\n';
 
-  message += `* ${t('difficulty')}: ${t(difficulty)} \r\n`;
+  message += `* ${t('difficulty')}: ${t(difficulty ?? 'normal')} \r\n`;
 
   message += `* ${t('finishSlider')} ${finishRange[0]}%  | ${finishRange[1] - finishRange[0]}% | ${100 - finishRange[1]}%`;
 
