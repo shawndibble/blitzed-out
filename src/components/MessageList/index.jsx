@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   AppBar, Divider, IconButton, Tab, Tabs, Tooltip,
 } from '@mui/material';
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
+import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Link } from 'react-router-dom';
 import TextAvatar from 'components/TextAvatar';
@@ -115,9 +115,9 @@ function Message({
       </div>
       <Divider />
       <div className="message-message">
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        <Markdown remarkPlugins={[remarkGfm]}>
           {text}
-        </ReactMarkdown>
+        </Markdown>
         {!!imageSrc && (
           <img src={imageSrc} alt="uploaded by user" />
         )}
