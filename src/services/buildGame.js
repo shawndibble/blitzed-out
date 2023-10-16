@@ -32,7 +32,7 @@ function getIntensity(userSelection, currentLevel) {
 function getCurrentLevel(currentTile, brackets) {
   let total = 0;
   let bracketLevel = 0;
-  while (total < currentTile) {
+  while (total <= currentTile) {
     total += brackets[bracketLevel];
     bracketLevel += 1;
   }
@@ -182,6 +182,8 @@ export default function customizeBoard(
       currentLevel,
     };
   });
+
+  console.log(customTiles);
 
   const shuffledTiles = shuffleArrayBy(customTiles, 'currentLevel') || [];
 
