@@ -73,7 +73,7 @@ export default function TransitionModal({
                 : <Trans i18nKey="autoCloseStopped" />}
             </Typography>
             <br />
-            {numbers.length && (
+            {numbers?.length && (
               <>
                 <Trans i18nKey="timers" />
                 {numbers.map((textString) => (
