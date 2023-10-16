@@ -39,7 +39,7 @@ export default function Room() {
   // handle timeout of TransitionModal
   let timeoutId;
   useEffect(() => {
-    if (popupMessage) timeoutId = setTimeout(() => setPopupMessage(false), 8000);
+    if (popupMessage) timeoutId = setTimeout(() => setPopupMessage(false), 12000);
     return () => clearTimeout(timeoutId);
   }, [popupMessage]);
 
@@ -47,6 +47,8 @@ export default function Room() {
     clearTimeout(timeoutId);
     setPopupMessage(false);
   };
+
+  const stopAutoClose = () => clearTimeout(timeoutId);
   // end handle timeout of TransitionModal.
 
   const { background, roomBackground } = settings;
@@ -114,6 +116,7 @@ export default function Room() {
           setOpen={setPopupMessage}
           open={!!popupMessage || !!popupMessage?.text}
           handleClose={closeTransitionModal}
+          stopAutoClose={stopAutoClose}
         />
       )}
       <ToastAlert type="success" open={!!importResult} close={clearImportResult}>

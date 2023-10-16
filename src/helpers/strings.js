@@ -23,6 +23,13 @@ export function extractAction(message) {
   return textLines[textLines.length - 1]?.split(':')[1];
 }
 
+export function extractTime(string, timeValue) {
+  const reg = new RegExp(`\\d+\\s${timeValue}`, 'g');
+  return string
+    .match(reg)
+    ?.filter((value, index, array) => array.indexOf(value) === index);
+}
+
 export function getExtention(filename) {
   const parts = filename?.split('.');
   if (!parts || parts?.length < 2) return false;
