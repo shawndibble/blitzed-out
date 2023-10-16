@@ -183,8 +183,6 @@ export default function customizeBoard(
     };
   });
 
-  console.log(customTiles);
-
   const shuffledTiles = shuffleArrayBy(customTiles, 'currentLevel') || [];
 
   const { t } = i18next;
