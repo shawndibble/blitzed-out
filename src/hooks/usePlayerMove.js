@@ -17,14 +17,14 @@ export default function usePlayerMove(room, rollValue, gameBoard) {
     if (textArray?.length <= 1) {
       return text;
     }
-    
+
     // if we have %, we are on the finish tile. Let's get a random result.
     const finishValues = textArray.filter((n) => n).map((line) => line.split(': '));
 
     // process weighted random finish result.
     const weightedArray = [];
     finishValues.forEach((val, index) => {
-    	if (val[1] == 0) return;
+      if (Number(val[1]) === 0) return;
       const clone = Array(Number(val[1])).fill(index);
       weightedArray.push(...clone);
     });
