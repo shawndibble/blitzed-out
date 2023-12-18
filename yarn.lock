@@ -1177,14 +1177,14 @@
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
 "@capacitor/camera@^5.0.7":
-  version "5.0.7"
-  resolved "https://registry.yarnpkg.com/@capacitor/camera/-/camera-5.0.7.tgz#42f60168d731fc521df797aacc7cda703b7ac2b1"
-  integrity sha512-1Wk3Dk0UhhNHdBB07UrPvUOSL7Wi5gFZRyLY1LZL2awt34iqy2cnajtfJplFmEZHk8lD0i7NAl3HbkWm4td4OQ==
+  version "5.0.8"
+  resolved "https://registry.yarnpkg.com/@capacitor/camera/-/camera-5.0.8.tgz#e427cf8d189619d4c3ee1b491e8cf3d2469972ad"
+  integrity sha512-V9kuBJV4s2AEFMiUiB5vpPD1qdfKRq/iFQ9euntuUYP+bOHQwGnwuERsQd48PoLUPV1up/08J8tJwGxMkDvPTQ==
 
 "@capacitor/core@^5.4.0":
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-5.5.1.tgz#bd2a969a1149a480aed3483d8867677e85606058"
-  integrity sha512-VG6Iv8Q7ZAbvjodxpvjcSe0jfxUwZXnvjbi93ehuJ6eYP8U926qLSXyrT/DToZq+F6v/HyGyVgn3mrE/9jW2Tg==
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-5.6.0.tgz#09f766f65d156cda6a0c86bed3b1cc6e4e1184cb"
+  integrity sha512-xJhCOUGPHw0QYDA3YH+CmL6qiV9DH4Ij3yPxSenymjrtLuXI197u9ddCZwGEwgVIkh9kGZBBKzsNkn89SZ2gdQ==
   dependencies:
     tslib "^2.1.0"
 
