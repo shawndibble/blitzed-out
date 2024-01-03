@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { getUserList } from 'services/firebase';
 import useAuth from './useAuth';
 import useMessages from './useMessages';
@@ -61,19 +63,20 @@ export default function usePlayerList(roomId) {
   const messages = useMessages(roomId);
 
   const [onlineUsers, setOnlineUsers] = useState({});
-  getUserList(roomId, setOnlineUsers, onlineUsers);
+
+  const getUserListCallback = useCallback(
+    () => getUserList(roomId, setOnlineUsers, onlineUsers),
+    [roomId, onlineUsers],
+  );
+
+  useEffect(() => {
+    getUserListCallback();
+  }, [getUserListCallback]);
 
   const players = useMemo(
     () => getCurrentPlayers(onlineUsers, user, [...messages]),
     [onlineUsers, user, messages],
   );
 
-  const [playerList, setPlayerList] = useState(players);
-
-  useEffect(() => {
-    if (JSON.stringify(playerList) !== JSON.stringify(players)) setPlayerList(players);
-    // eslint-disable-next-line
-  }, [players]);
-
-  return [playerList, setPlayerList];
+  return players;
 }

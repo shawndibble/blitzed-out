@@ -3,7 +3,7 @@ import useAuth from 'hooks/useAuth';
 import useGameBoard from 'hooks/useGameBoard';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { importActions } from 'services/importLocales';
@@ -16,7 +16,8 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
   const [roller, setRoller] = useState('1d4');
   const [roomBgUrl, setRoomBackground] = useState('');
   const updateGameBoardTiles = useGameBoard();
-  async function rebuildGameBoard(messageSettings, messageUser) {
+
+  const rebuildGameBoard = useCallback(async (messageSettings, messageUser) => {
     const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
 
     await sendGameSettingsMessage({
@@ -27,10 +28,8 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
       board: newBoard,
       reason: `Rebuilt game board due to room size changes by ${messageUser}.`,
     });
-  }
+  }, [settings, user, customTiles, i18n.resolvedLanguage, updateGameBoardTiles]);
 
-  // Watch the message list.
-  // If the private room settings change, update the game.
   useEffect(() => {
     const roomMessage = latestMessageByType(messages, 'room');
     if (roomMessage) {
@@ -38,8 +37,11 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
       const { roomDice, roomBackgroundURL, roomTileCount } = messageSettings;
       setRoller(roomDice || '1d6');
       setRoomBackground(roomBackgroundURL);
-      // settings form updates for us. However, we also need to update for other players.
-      if (roomMessage.uid !== user.uid && roomTileCount !== gameBoard.length) {
+
+      const shouldRebuildGameBoard = roomMessage.uid !== user.uid
+        && roomTileCount !== gameBoard.length;
+
+      if (shouldRebuildGameBoard) {
         rebuildGameBoard(messageSettings, roomMessage.displayName);
       }
       return;
@@ -47,7 +49,7 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
     if (settings?.roomBackgroundURL?.length) {
       setRoomBackground(settings.roomBackgroundURL);
     }
-  }, [messages, settings]);
+  }, [messages, settings, user.uid, gameBoard.length, rebuildGameBoard]);
 
   return { roller, roomBgUrl };
 }

@@ -20,7 +20,7 @@ export default function UnauthenticatedApp() {
   const { i18n } = useTranslation();
   const params = useParams();
   const room = params.id ?? 'public';
-  const playerList = usePlayerList(room)[0];
+  const playerList = usePlayerList(room);
 
   const languageLinks = Object.entries(languages).map(([key, obj]) => (
     <Button

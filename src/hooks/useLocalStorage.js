@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 function getInitialValue(key, defaultVal) {
   const storedValue = localStorage.getItem(key);
@@ -15,24 +15,22 @@ function getInitialValue(key, defaultVal) {
 export default function useLocalStorage(localStorageKey, defaultVal = {}) {
   const eventName = `${localStorageKey}Storage`;
 
-  const initialValue = getInitialValue(localStorageKey, defaultVal);
-
-  const [storage, setStorage] = useState(initialValue);
+  const [storage, setStorage] = useState(() => getInitialValue(localStorageKey, defaultVal));
 
   useEffect(() => {
     const listener = (e) => setStorage(e.newValue);
     window.addEventListener(eventName, listener);
 
     return () => window.removeEventListener(eventName, listener);
-    // eslint-disable-next-line
-  }, [storage]);
+  }, [eventName]);
 
-  const updateLocalStorage = (newValue) => {
+  const updateLocalStorage = useCallback((newValue) => {
     localStorage.setItem(localStorageKey, JSON.stringify(newValue));
 
     const event = new Event(eventName);
     event.newValue = newValue;
     window.dispatchEvent(event);
-  };
+  }, [localStorageKey, eventName]);
+
   return [storage, updateLocalStorage];
 }

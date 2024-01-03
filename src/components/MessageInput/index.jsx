@@ -10,7 +10,7 @@ import { Camera, CameraResultType } from '@capacitor/camera';
 import ToastAlert from 'components/ToastAlert';
 import { Photo } from '@mui/icons-material';
 
-const caculateFileSizeInMB = (base64String) => {
+const calculateFileSizeInMB = (base64String) => {
   const stringLength = base64String.length - 'data:image/png;base64,'.length;
 
   const sizeInBytes = 4 * Math.ceil((stringLength / 3)) * 0.5624896334383812;
@@ -48,7 +48,7 @@ export default function MessageInput({ room, isTransparent }) {
     }
 
     // prevent any files larger than 5MB
-    if (caculateFileSizeInMB(image.base64String) > 5) {
+    if (calculateFileSizeInMB(image.base64String) > 5) {
       return setAlert('File too large! Max size is 5MB. If you need to send a larger file, please use a link from another site.');
     }
 

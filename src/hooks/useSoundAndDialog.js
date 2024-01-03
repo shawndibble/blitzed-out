@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect, useState, useMemo, useCallback,
+} from 'react';
 import useLocalStorage from 'hooks/useLocalStorage';
 import diceSound from 'sounds/roll-dice.mp3';
 import messageSound from 'sounds/message.mp3';
@@ -21,35 +23,52 @@ export default function useSoundAndDialog(room) {
     playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll,
   } = useLocalStorage('gameSettings')[0];
 
+  const latestMessage = useMemo(() => [...messages].pop(), [messages]);
+
+  const speakText = useCallback((text, language) => {
+    speak(text, language);
+  }, []);
+
+  const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') >= -2;
+  const myMessage = latestMessage?.uid === user?.uid;
+  const showPlayerDialog = playerDialog && myMessage;
+  const showOthersDialog = othersDialog && !myMessage;
+  const playDiceSoundCondition = ((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions';
+  const speakTextCondition = myMessage && readRoll && latestMessage?.type === 'actions';
+  const playMessageSoundCondition = chatSound && latestMessage?.type === 'chat';
+
   useEffect(() => {
     moment.locale(i18n.resolvedLanguage);
-    const latestMessage = [...messages].pop();
 
-    // prevent dialog from showing on reload/page change.
-    const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') >= -2;
-    const showPlayerDialog = playerDialog && latestMessage?.uid === user?.uid;
-    const showOthersDialog = othersDialog && latestMessage?.uid !== user?.uid;
     if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
       setPopupMessage(latestMessage);
     }
 
     if (newMessage && latestMessage) {
-      const myMessage = latestMessage?.uid === user?.uid;
-      if (((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions') {
+      if (playDiceSoundCondition) {
         playDiceSound();
       }
 
-      if (myMessage && readRoll && latestMessage?.type === 'actions') {
+      if (speakTextCondition) {
         const text = extractAction(latestMessage?.text);
-        speak(text, i18n.resolvedLanguage);
+        speakText(text, i18n.resolvedLanguage);
       }
 
-      if (chatSound && latestMessage?.type === 'chat') {
+      if (playMessageSoundCondition) {
         playMessageSound();
       }
     }
-    // eslint-disable-next-line
-  }, [messages, i18n.resolvedLanguage]);
+  }, [
+    messages,
+    i18n.resolvedLanguage,
+    latestMessage,
+    myMessage,
+    showPlayerDialog,
+    showOthersDialog,
+    playDiceSoundCondition,
+    speakTextCondition,
+    playMessageSoundCondition,
+  ]);
 
   return [popupMessage, setPopupMessage];
 }

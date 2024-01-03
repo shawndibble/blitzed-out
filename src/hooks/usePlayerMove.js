@@ -7,7 +7,7 @@ import usePlayerList from './usePlayerList';
 export default function usePlayerMove(room, rollValue, gameBoard) {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const playerList = usePlayerList(room)[0];
+  const playerList = usePlayerList(room);
   const total = gameBoard.length;
   const [tile, setTile] = useState(gameBoard[0]);
   const lastTile = total - 1;
@@ -88,7 +88,7 @@ export default function usePlayerMove(room, rollValue, gameBoard) {
     const { preMessage, newLocation } = getNewLocation(rollNumber);
 
     // update our tile that we will return.
-    if (tile?.description !== gameBoard[newLocation]) setTile(gameBoard[newLocation]);
+    setTile(gameBoard[newLocation]);
 
     // send our message.
     handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);

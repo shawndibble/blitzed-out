@@ -17,7 +17,7 @@ export default function useCountdown(startSeconds, startPaused = true) {
     // save intervalId to clear the interval when the
     // component re-renders
     const intervalId = setInterval(() => {
-      setTimeLeft(timeLeft - 1);
+      setTimeLeft((currentTime) => currentTime - 1);
     }, 1000);
 
     // clear interval on re-render to avoid memory leaks
