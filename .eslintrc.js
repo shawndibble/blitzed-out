@@ -9,10 +9,10 @@ module.exports = {
     sourceType: 'module',
   },
   settings: {
-    'import/resolver' : {
-      'node': {
-        'paths': ['src'],
-        'extensions': ['.js', '.jsx']
+    'import/resolver': {
+      node: {
+        paths: ['src'],
+        extensions: ['.js', '.jsx'],
       },
     },
   },

@@ -14,23 +14,24 @@ export default function usePlayerMove(room, rollValue, gameBoard) {
 
   function parseDescription(text) {
     const textArray = text?.split('%');
-    // if we have %, we are on the finish tile. Let's get a random result.
-    if (textArray?.length > 1) {
-      const finishValues = textArray.filter((n) => n).map((line) => line.split(': '));
-
-      // process weighted random finish result.
-      const weightedArray = [];
-      finishValues.forEach((val, index) => {
-        const clone = Array(val[1]).fill(index);
-        weightedArray.push(...clone);
-      });
-
-      const result = weightedArray[Math.floor(Math.random() * weightedArray.length)];
-
-      return finishValues.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '');
+    if (textArray?.length <= 1) {
+      return text;
     }
 
-    return text;
+    // if we have %, we are on the finish tile. Let's get a random result.
+    const finishValues = textArray.filter((n) => n).map((line) => line.split(': '));
+
+    // process weighted random finish result.
+    const weightedArray = [];
+    finishValues.forEach((val, index) => {
+      if (Number(val[1]) === 0) return;
+      const clone = Array(Number(val[1])).fill(index);
+      weightedArray.push(...clone);
+    });
+
+    const result = weightedArray[Math.floor(Math.random() * weightedArray.length)];
+
+    return finishValues.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '');
   }
 
   function handleTextOutput(newTile, rollNumber, newLocation, preMessage) {
