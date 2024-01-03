@@ -12,6 +12,7 @@
             "Have your balls flicked for 10 seconds.",
             "Squeeze balls until next turn.",
             "Squeeze balls for 10 seconds.",
+            "Have another player tug your balls.",
             "Quickly slap your balls for 15 seconds.",
             "Light slap after anyone rolls.",
             "5 ball slaps from another player.",
@@ -28,7 +29,8 @@
             "Give yourself 1 hard ball slap.",
             "Crush your balls until next turn.",
             "Receive 4 hard ball slaps.",
-            "Get kneed in the balls."
+            "Get kneed in the balls.",
+            "Have a player insert both balls into their mouth and suck."
         ],
         "Use Item": [
             "Punch balls.",
@@ -39,6 +41,7 @@
             "2 ball slaps with item",
             "20 seconds ball hits.",
             "Crush balls with item",
+            "Wear ball weights until someone else lands on this tile.",
             "15 seconds quick ball hits with item"
         ],
         "As Hard As Possible": [
