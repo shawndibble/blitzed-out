@@ -1,5 +1,7 @@
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import {
+  BrowserRouter as Router, Route, Routes,
+} from 'react-router-dom';
 import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import useAuth from 'hooks/useAuth';
 import Room from 'views/Room';
@@ -14,15 +16,17 @@ const darkTheme = createTheme({
 function App() {
   const { user } = useAuth();
 
-  const router = createBrowserRouter([
-    { path: '/', Component: user ? Room : UnauthenticatedApp },
-    { path: '/rooms/:id', Component: user ? Room : UnauthenticatedApp },
-  ]);
+  const component = user ? <Room /> : <UnauthenticatedApp />;
 
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <RouterProvider router={router} />
+      <Router>
+        <Routes>
+          <Route exact path="/" element={component} />
+          <Route path="/rooms/:id" element={component} />
+        </Routes>
+      </Router>
     </ThemeProvider>
   );
 }

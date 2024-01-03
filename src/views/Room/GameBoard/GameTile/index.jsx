@@ -1,23 +1,22 @@
 import { AvatarGroup, Divider } from '@mui/material';
 import './styles.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import TextAvatar from 'components/TextAvatar';
 
 export default function GameTile({
   title, description, players, current, isTransparent,
 }) {
-  const playerIndicators = players.map((p) => (
+  const playerIndicators = useMemo(() => players.map((p) => (
     <TextAvatar key={p.uid} displayName={p.displayName} uid={p.uid} />
-  ));
-  const tileRef = useRef(null);
-  const scrollToTile = () => tileRef.current.scrollIntoView();
+  )), [players]);
 
+  const tileRef = useRef(null);
   useEffect(() => {
     if (tileRef.current && current) {
-      scrollToTile({ behavior: 'smooth' });
+      tileRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [tileRef, current]);
+  }, [current]);
 
   const liClass = [current && 'pulse-animation', isTransparent && 'gray-tiles'].join(' ').trim();
 

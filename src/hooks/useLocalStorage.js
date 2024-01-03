@@ -1,24 +1,29 @@
 import { useEffect, useState } from 'react';
 
+function getInitialValue(key, defaultVal) {
+  const storedValue = localStorage.getItem(key);
+  if (!storedValue) {
+    return defaultVal;
+  }
+  const parsedValue = JSON.parse(storedValue);
+  if (typeof defaultVal === 'object' && Object.keys(defaultVal).length) {
+    return { ...defaultVal, ...parsedValue };
+  }
+  return parsedValue;
+}
+
 export default function useLocalStorage(localStorageKey, defaultVal = {}) {
   const eventName = `${localStorageKey}Storage`;
 
-  let initialValue = defaultVal;
-
-  if (localStorage.getItem(localStorageKey)) {
-    if (typeof defaultVal === 'object' && Object.keys(defaultVal).length) {
-      initialValue = { ...defaultVal, ...JSON.parse(localStorage.getItem(localStorageKey)) };
-    } else {
-      initialValue = JSON.parse(localStorage.getItem(localStorageKey));
-    }
-  }
+  const initialValue = getInitialValue(localStorageKey, defaultVal);
 
   const [storage, setStorage] = useState(initialValue);
 
   useEffect(() => {
-    window.addEventListener(eventName, (e) => setStorage(e.newValue));
+    const listener = (e) => setStorage(e.newValue);
+    window.addEventListener(eventName, listener);
 
-    return () => window.removeEventListener(eventName, (e) => setStorage(e.newValue));
+    return () => window.removeEventListener(eventName, listener);
     // eslint-disable-next-line
   }, [storage]);
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getUserList } from 'services/firebase';
 import useAuth from './useAuth';
 import useMessages from './useMessages';
@@ -63,7 +63,10 @@ export default function usePlayerList(roomId) {
   const [onlineUsers, setOnlineUsers] = useState({});
   getUserList(roomId, setOnlineUsers, onlineUsers);
 
-  const players = getCurrentPlayers(onlineUsers, user, [...messages]);
+  const players = useMemo(
+    () => getCurrentPlayers(onlineUsers, user, [...messages]),
+    [onlineUsers, user, messages],
+  );
 
   const [playerList, setPlayerList] = useState(players);
 
