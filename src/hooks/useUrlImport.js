@@ -1,6 +1,6 @@
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
@@ -9,7 +9,6 @@ export default function useUrlImport(room, settings, setSettings) {
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
-  const [gameBoard, setGameBoard] = useState(localGameBoard);
   const messages = useMessages(room || 'public');
   const { t } = useTranslation();
 
@@ -17,39 +16,45 @@ export default function useUrlImport(room, settings, setSettings) {
     setAlert(null);
   }
 
-  function importGameBoard() {
-    // if we aren't importing, then just load the local game board.
-    if (!importBoard) {
-      setGameBoard(localGameBoard);
-      return;
+  function parseGameBoard(gameBoardString) {
+    try {
+      const gameBoard = JSON.parse(gameBoardString);
+      return Array.isArray(gameBoard) ? gameBoard : null;
+    } catch {
+      return null;
     }
-
-    // remove the import from the URL
-    setParams({});
-    // grab the message by its id (import board value)
-    const importMessage = messages.find((m) => m.id === importBoard);
-    // no game board? we are done.
-    if (!importMessage?.gameBoard) return;
-    // convert that string to JSON (array of objects)
-    const importedGameBoard = JSON.parse(importMessage.gameBoard);
-    // not an array of objects? we are done.
-    if (!Array.isArray(importedGameBoard)) return;
-    // ensure when we roll, we get the right board tile.
-    setLocalGameBoard(importedGameBoard);
-    // When we import the board, also import the game board settings (not application settings).
-    const importSettings = JSON.parse(importMessage?.settings);
-    // update the settings with the imported settings.
-    setSettings({ ...settings, ...importSettings });
   }
 
-  useEffect(() => importGameBoard(), [importBoard]);
+  function parseSettings(settingsString) {
+    try {
+      return JSON.parse(settingsString);
+    } catch {
+      return {};
+    }
+  }
+
+  const importGameBoard = useCallback(() => {
+    if (!importBoard) return;
+
+    setParams({});
+    const importMessage = messages.find((m) => m.id === importBoard);
+    if (!importMessage?.gameBoard) return;
+
+    const importedGameBoard = parseGameBoard(importMessage.gameBoard);
+    if (!importedGameBoard) return;
+
+    setLocalGameBoard(importedGameBoard);
+    const importSettings = parseSettings(importMessage?.settings);
+    setSettings({ ...settings, ...importSettings });
+  }, [importBoard, messages, settings, setSettings]);
+
+  useEffect(() => importGameBoard(), [importGameBoard]);
 
   useEffect(() => {
-    if (gameBoard !== localGameBoard) {
-      setGameBoard(localGameBoard);
+    if (alert !== t('updated')) {
       setAlert(t('updated'));
     }
-  }, [localGameBoard]);
+  }, [localGameBoard, t]);
 
   return [alert, clearAlert];
 }

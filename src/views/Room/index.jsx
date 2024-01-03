@@ -1,5 +1,4 @@
 import { Box } from '@mui/material';
-import { isEqual } from 'lodash';
 import MessageInput from 'components/MessageInput';
 import MessageList from 'components/MessageList';
 import TransitionModal from 'components/TransitionModal';
@@ -33,7 +32,7 @@ const GameBoardComponent = memo(({
     isTransparent={isTransparent}
     gameBoard={gameBoard}
   />
-), (prevProps, nextProps) => isEqual(prevProps.playerList, nextProps.playerList));
+));
 
 export default function Room() {
   const params = useParams();
