@@ -114,15 +114,7 @@ function calculateLevelBrackets(size, difficulty) {
   return [...Array(4)].map(() => Math.ceil(availableTiles / 4));
 }
 
-export default function customizeBoard(
-  settings,
-  actionsFolder,
-  userCustomTiles = [],
-  size = 40,
-) {
-  const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
-
-  // clone the actionsFolder then add our custom tiles.
+function createCustomDataFolder(actionsFolder, userCustomTiles) {
   const customDataFolder = {
     ...actionsFolder,
     [MISC]: {
@@ -140,24 +132,31 @@ export default function customizeBoard(
     customDataFolder[group]?.actions?.[tranIntensity]?.unshift(action);
   });
 
-  const { tileOptions, appendList } = separateUserLists(customDataFolder, hasMiscTiles, settings);
+  return customDataFolder;
+}
 
-  // remove 2 tiles for start/finish
-  const tiles = [...Array(size - 2).keys()];
-
-  // Set our brackets for when we use different intensities
-  const levelBrackets = calculateLevelBrackets(size, settings.difficulty);
-
-  // all the options where the user picked higher than 0.
+function getSelectedOptions(customDataFolder, tileOptions, hasMiscTiles) {
   const selectedOptions = Object.keys(customDataFolder).filter((type) => tileOptions[type] > 0);
-  const appendOptions = Object.keys(appendList);
 
-  // if we have a misc custom tile, add that to the selected options.
   if (hasMiscTiles) {
     selectedOptions.push(MISC);
   }
 
-  const customTiles = tiles.map((_, tileIndex) => {
+  return selectedOptions;
+}
+
+function createCustomTiles(
+  size,
+  selectedOptions,
+  appendOptions,
+  customDataFolder,
+  tileOptions,
+  levelBrackets,
+  appendList,
+) {
+  const tiles = [...Array(size - 2).keys()];
+
+  return tiles.map((_, tileIndex) => {
     cycleList(selectedOptions);
     cycleList(appendOptions);
     const currentAppend = appendOptions[0];
@@ -182,15 +181,46 @@ export default function customizeBoard(
       currentLevel,
     };
   });
+}
 
-  const shuffledTiles = shuffleArrayBy(customTiles, 'currentLevel') || [];
-
+function addStartAndFinishTiles(shuffledTiles, settings) {
   const { t } = i18next;
   shuffledTiles.unshift({ title: t('start'), description: t('start') });
 
   const { finishRange } = settings;
   const finishDescription = `${t('noCum')} ${finishRange[0]}% \r\n${t('ruined')} ${finishRange[1] - finishRange[0]}% \r\n${t('cum')} ${100 - finishRange[1]}%`;
   shuffledTiles.push({ title: t('finish'), description: finishDescription });
+}
+
+export default function customizeBoard(
+  settings,
+  actionsFolder,
+  userCustomTiles = [],
+  size = 40,
+) {
+  const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
+
+  const customDataFolder = createCustomDataFolder(actionsFolder, userCustomTiles);
+  const { tileOptions, appendList } = separateUserLists(customDataFolder, hasMiscTiles, settings);
+
+  const selectedOptions = getSelectedOptions(customDataFolder, tileOptions, hasMiscTiles);
+  const appendOptions = Object.keys(appendList);
+
+  const levelBrackets = calculateLevelBrackets(size, settings.difficulty);
+
+  const customTiles = createCustomTiles(
+    size,
+    selectedOptions,
+    appendOptions,
+    customDataFolder,
+    tileOptions,
+    levelBrackets,
+    appendList,
+  );
+
+  const shuffledTiles = shuffleArrayBy(customTiles, 'currentLevel') || [];
+
+  addStartAndFinishTiles(shuffledTiles, settings);
 
   return shuffledTiles;
 }

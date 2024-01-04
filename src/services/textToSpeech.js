@@ -1,11 +1,18 @@
 import languages from 'locales/languages.json';
 
 export default function speak(message, language) {
-  setTimeout(() => {
-    const utterance = new SpeechSynthesisUtterance();
+  const utterance = new SpeechSynthesisUtterance();
+  utterance.text = message;
+
+  const setVoiceAndSpeak = () => {
     utterance.voice = window.speechSynthesis.getVoices()
       .find((v) => v.name === languages[language].voice);
-    utterance.text = message;
     window.speechSynthesis.speak(utterance);
-  }, 700);
+  };
+
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = setVoiceAndSpeak;
+  } else {
+    setVoiceAndSpeak();
+  }
 }

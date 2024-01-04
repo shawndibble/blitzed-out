@@ -2,29 +2,19 @@ import i18next from 'i18next';
 import { sendMessage } from './firebase';
 
 function getCustomTileCount(settings, customTiles, actionsList) {
-  const usedCustomTiles = [];
-  const settingsDataFolder = {};
-  // restrict our actionsList to just those the user selected.
-  Object.entries(actionsList).forEach(([key, value]) => {
-    const intensity = settings[key];
-    if (intensity) {
-      settingsDataFolder[key] = Object.keys(value.actions).slice(1, intensity + 1);
-    }
+  const settingsDataFolder = Object.entries(actionsList)
+    .filter(([key]) => settings[key])
+    .reduce((acc, [key, value]) => {
+      acc[key] = Object.keys(value.actions).slice(1, settings[key] + 1);
+      return acc;
+    }, {});
+
+  const usedCustomTiles = customTiles.filter((entry) => {
+    if (entry.group === 'misc') return true;
+    const intensityArray = settingsDataFolder[entry.group];
+    return intensityArray && intensityArray.length >= Number(entry.intensity);
   });
 
-  // copy over any custom tiles that fall within our limited actionsList.
-  Object.entries(settingsDataFolder).forEach(([settingGroup, intensityArray]) => {
-    customTiles.forEach((entry) => {
-      if (entry.group === settingGroup && intensityArray.length >= Number(entry.intensity)) {
-        usedCustomTiles.push(entry);
-      }
-    });
-  });
-
-  // cycle through misc tiles separate from the double nesting above.
-  customTiles.forEach((entry) => entry.group === 'misc' && usedCustomTiles.push(entry));
-
-  // return the count of custom tiles that were actually used in the game board.
   return usedCustomTiles.length;
 }
 
@@ -37,7 +27,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
   message += '--- \r\n';
   const { poppersVariation, alcoholVariation } = settings;
   // output only settings that have a corresponding actionsList entry.
-  Object.entries(actionsList).map(([key, val]) => {
+  Object.entries(actionsList).forEach(([key, val]) => {
     if (settings[key] > 0) {
       const intensity = settings[key];
       message += `* ${val?.label}: ${Object.keys(val?.actions)?.[intensity]}`;
@@ -49,7 +39,6 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
       }
       message += '\r\n';
     }
-    return undefined;
   });
 
   const { finishRange, difficulty } = settings;
