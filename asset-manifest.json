@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.d54f45de.css",
-    "main.js": "/static/js/main.2656f160.js",
+    "main.css": "/static/css/main.4642f7ab.css",
+    "main.js": "/static/js/main.999f48c2.js",
     "static/js/908.1ac62985.chunk.js": "/static/js/908.1ac62985.chunk.js",
     "static/js/55.3e783933.chunk.js": "/static/js/55.3e783933.chunk.js",
     "static/js/868.89420630.chunk.js": "/static/js/868.89420630.chunk.js",
@@ -18,8 +18,8 @@
     "static/media/roll-dice.mp3": "/static/media/roll-dice.c108f8021f432fc3cf39.mp3",
     "static/media/cashapp.png": "/static/media/cashapp.57eb4df86fd6c2bc68b9.png",
     "index.html": "/index.html",
-    "main.d54f45de.css.map": "/static/css/main.d54f45de.css.map",
-    "main.2656f160.js.map": "/static/js/main.2656f160.js.map",
+    "main.4642f7ab.css.map": "/static/css/main.4642f7ab.css.map",
+    "main.999f48c2.js.map": "/static/js/main.999f48c2.js.map",
     "908.1ac62985.chunk.js.map": "/static/js/908.1ac62985.chunk.js.map",
     "55.3e783933.chunk.js.map": "/static/js/55.3e783933.chunk.js.map",
     "868.89420630.chunk.js.map": "/static/js/868.89420630.chunk.js.map",
@@ -31,7 +31,7 @@
     "496.771204ad.chunk.js.map": "/static/js/496.771204ad.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.d54f45de.css",
-    "static/js/main.2656f160.js"
+    "static/css/main.4642f7ab.css",
+    "static/js/main.999f48c2.js"
   ]
 }
