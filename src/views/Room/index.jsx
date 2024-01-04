@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import MessageInput from 'components/MessageInput';
 import MessageList from 'components/MessageList';
+import ToastAlert from 'components/ToastAlert';
 import TransitionModal from 'components/TransitionModal';
 import useLocalStorage from 'hooks/useLocalStorage';
 import usePlayerMove from 'hooks/usePlayerMove';
@@ -12,10 +13,10 @@ import useWindowDimensions from 'hooks/useWindowDimensions';
 import {
   memo, useCallback, useEffect, useRef, useState,
 } from 'react';
+import getBackgroundSource from 'services/getBackgroundSource';
 import { useParams } from 'react-router-dom';
 import Navigation from 'views/Navigation';
 import GameBoard from 'views/Room/GameBoard';
-import ToastAlert from '../../components/ToastAlert';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import RoomBackground from './RoomBackground';
@@ -50,6 +51,9 @@ export default function Room() {
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, settings, gameBoard);
   const [importResult, clearImportResult] = useUrlImport(room, settings, setSettings);
+
+  const backgroundSource = getBackgroundSource(settings, room, roomBgUrl);
+  const videoAdjust = backgroundSource.isVideo ? 'video-adjust' : '';
 
   // handle timeout of TransitionModal
   const timeoutId = useRef();
@@ -105,7 +109,10 @@ export default function Room() {
         dice={roller}
         playerTile={tile}
       />
-      <RoomBackground settings={settings} room={room} roomBackgroundUrl={roomBgUrl} />
+      <RoomBackground
+        isVideo={backgroundSource.isVideo}
+        url={backgroundSource.url}
+      />
       {isMobile ? (
         <Box className="mobile-container">
           <BottomTabs
@@ -114,7 +121,7 @@ export default function Room() {
           />
         </Box>
       ) : (
-        <Box className="desktop-container">
+        <Box className={`desktop-container ${videoAdjust}`}>
           {memoizedGameBoardComponent}
           {messagesComponent}
         </Box>

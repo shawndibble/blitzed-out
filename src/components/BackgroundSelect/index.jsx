@@ -62,7 +62,13 @@ export default function BackgroundSelect({
           value={formData?.[backgroundURLKey]}
           fullWidth
           onChange={handleURLChange}
-          helperText={t('fileExtension')}
+          helperText={(
+            <>
+              {t('supportedSites')}
+              <br />
+              {t('requiresEmbeddedUrl')}
+            </>
+          )}
         />
       )}
     </>

@@ -30,14 +30,14 @@ export function extractTime(string, timeValue) {
     ?.filter((value, index, array) => array.indexOf(value) === index);
 }
 
-export function getExtention(filename) {
+export function getExtension(filename) {
   const parts = filename?.split('.');
   if (!parts || parts?.length < 2) return false;
   return parts?.[parts.length - 1];
 }
 
 export function isVideo(file) {
-  const bgExtension = getExtention(file);
+  const bgExtension = getExtension(file);
   return ['mp4', 'webm', 'mkv', 'flv', 'avi', 'mov', 'wmv', 'mpg', 'mv4'].includes(bgExtension);
 }
 

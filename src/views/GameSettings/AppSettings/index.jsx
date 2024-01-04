@@ -1,7 +1,7 @@
 import { Divider, FormControlLabel, Switch } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import BackgroundSelect from 'components/BackgroundSelect';
 import LanguageSelect from './LanguageSelect';
-import BackgroundSelect from '../../../components/BackgroundSelect';
 
 export default function AppSettings({
   formData, setFormData, boardUpdated,
@@ -12,7 +12,6 @@ export default function AppSettings({
     gray: t('gray'),
     'metronome.gif': t('hypnoDick'),
     'pink-spiral.gif': t('pinkSpiral'),
-    'bw-spiral.mp4': t('bwSpiral'),
     custom: t('customURL'),
   };
 

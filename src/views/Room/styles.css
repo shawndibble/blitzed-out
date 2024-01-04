@@ -46,3 +46,7 @@
     max-width: 100%;
   }
 }
+
+.video-adjust {
+  height: calc(100vh - 4rem);
+}
