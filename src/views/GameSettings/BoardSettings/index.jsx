@@ -24,7 +24,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
 
   return (
     <>
-      {!!formData.room && (
+      {formData.room !== 'public' && (
         <Stack
           direction="row"
           spacing={1}

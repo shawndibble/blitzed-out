@@ -30,11 +30,15 @@ export default function RoomSettings({ formData, setFormData }) {
   };
 
   const togglePrivateRoomField = (event) => {
-    // toggleVal === true, we want a private room, so get the one in the URL or generate one.
-    // toggleVal === false, we want the public room.
-    const roomId = event.target.checked
-      ? room || customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)()
-      : null;
+    let roomId;
+
+    if (event.target.checked && room === 'public') {
+      roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
+    } else if (event.target.checked && room !== 'public') {
+      roomId = room;
+    } else {
+      roomId = 'public';
+    }
 
     setFormData({ ...formData, room: roomId });
   };
@@ -51,7 +55,7 @@ export default function RoomSettings({ formData, setFormData }) {
         <Typography><Trans i18nKey="public" /></Typography>
         <Switch
           id="showPrivate"
-          checked={!!formData.room}
+          checked={formData.room !== 'public'}
           onChange={togglePrivateRoomField}
           inputProps={{ 'aria-label': <Trans i18nKey="private" /> }}
         />
@@ -64,7 +68,7 @@ export default function RoomSettings({ formData, setFormData }) {
         </Tooltip>
       </Stack>
 
-      {!!formData.room && (
+      {formData.room !== 'public' && (
         <>
           <TextField
             fullWidth

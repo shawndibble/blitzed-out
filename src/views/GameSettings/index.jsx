@@ -130,7 +130,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     });
 
     if (roomChanged) {
-      const privatePath = formData.room ? `/rooms/${formData.room}` : '/';
+      const privatePath = `/rooms/${formData?.room || 'public'}`;
       navigate(privatePath);
     }
 
