@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import GameTile from './GameTile';
 import './styles.css';
 
-export default function GameBoard({ playerList, isTransparent, gameBoard }) {
+export function GameBoard({ playerList, isTransparent, gameBoard }) {
   if (!Array.isArray(gameBoard)) return null;
 
   const gameTiles = useMemo(() => gameBoard.map((entry, index) => {
@@ -33,3 +33,18 @@ export default function GameBoard({ playerList, isTransparent, gameBoard }) {
     </div>
   );
 }
+
+const MemoizedGameBoard = memo(({
+  playerList, tile, settings, setSettings, isTransparent, gameBoard,
+}) => (
+  <GameBoard
+    playerList={playerList}
+    tile={tile}
+    settings={settings}
+    setSettings={setSettings}
+    isTransparent={isTransparent}
+    gameBoard={gameBoard}
+  />
+));
+
+export default MemoizedGameBoard;

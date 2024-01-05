@@ -2,10 +2,24 @@ import { ArrowDropUp, Casino } from '@mui/icons-material';
 import {
   Button, ButtonGroup, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper,
 } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import {
+  useCallback, useEffect, useMemo, useRef, useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from 'hooks/useCountdown';
+
+function isNumeric(value) {
+  return /^-?\d+$/.test(value);
+}
+
+function rollDice(rollCount, diceSide, setRollValue) {
+  let total = 0;
+  for (let i = 0; i < Number(rollCount); i += 1) {
+    total += Number([Math.floor(Math.random() * Number(diceSide)) + 1]);
+  }
+  setRollValue(total);
+}
 
 export default function RollButton({ setRollValue, playerTile, dice }) {
   const { t } = useTranslation();
@@ -19,45 +33,39 @@ export default function RollButton({ setRollValue, playerTile, dice }) {
     timeLeft, setTimeLeft, togglePause, isPaused,
   } = useCountdown(autoTime);
 
-  const options = new Map();
-  options
-    .set('restart', t('restart'))
-    .set('manual', t('manual'))
-    .set(30, t('auto30'))
-    .set(60, t('auto60'))
-    .set(90, t('auto90'));
-
-  function isNumeric(value) {
-    return /^-?\d+$/.test(value);
-  }
+  const options = useMemo(() => {
+    const opts = new Map();
+    opts
+      .set('restart', t('restart'))
+      .set('manual', t('manual'))
+      .set(30, t('auto30'))
+      .set(60, t('auto60'))
+      .set(90, t('auto90'));
+    return opts;
+  }, []);
 
   const [rollCount, diceSide] = dice.split('d');
 
-  const rollDice = () => {
-    let total = 0;
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < Number(rollCount); i++) {
-      total += Number([Math.floor(Math.random() * Number(diceSide)) + 1]);
-    }
-    setRollValue(total);
-  };
-
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (selectedRoll === 'manual') {
-      rollDice();
       setDisabled(true);
-      setTimeout(() => setDisabled(false), 4000);
+      // timeout of 0 because of the nature of setState.
+      // Otherwise sometimes clicking the roll button doesn't actually roll.
+      setTimeout(() => {
+        rollDice(rollCount, diceSide, setRollValue);
+        setTimeout(() => setDisabled(false), 4000);
+      }, 0);
       return null;
     }
 
     if (isPaused && timeLeft === autoTime) {
-      rollDice();
+      rollDice(rollCount, diceSide, setRollValue);
     }
     togglePause();
     return null;
-  };
+  }, [selectedRoll, isPaused, timeLeft, autoTime, rollCount, diceSide, setRollValue, togglePause]);
 
-  const handleMenuItemClick = (key) => {
+  const handleMenuItemClick = useCallback((key) => {
     setOpen(false);
     if (key === 'restart') {
       return setRollValue(-1);
@@ -71,7 +79,7 @@ export default function RollButton({ setRollValue, playerTile, dice }) {
       setTimeLeft(key);
     }
     return null;
-  };
+  }, [isPaused, setTimeLeft, togglePause, setRollValue]);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -103,7 +111,7 @@ export default function RollButton({ setRollValue, playerTile, dice }) {
       return setRollText(`${t('pause')} (${timeLeft})`);
     }
 
-    rollDice();
+    rollDice(rollCount, diceSide, setRollValue);
     return setTimeLeft(autoTime);
   }, [isDisabled, selectedRoll, timeLeft, autoTime, isPaused]);
 

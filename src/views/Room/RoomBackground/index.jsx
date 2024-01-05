@@ -7,7 +7,7 @@ export default function RoomBackground({ url, isVideo }) {
       sx={{ backgroundImage: !isVideo && `url(${url})` }}
     >
       {isVideo && (
-        <iframe width="100%" height="100%" src={url} title="video" allowFullScreen="true" allow="autoplay" />
+        <iframe width="100%" height="100%" src={url} title="video" allowFullScreen allow="autoplay" />
       )}
     </Box>
   );
