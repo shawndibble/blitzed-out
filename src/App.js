@@ -1,18 +1,24 @@
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import {
-  BrowserRouter as Router, Route, Routes, Navigate,
-} from 'react-router-dom';
-import UnauthenticatedApp from 'views/UnauthenticatedApp';
+  CssBaseline, ThemeProvider, createTheme, responsiveFontSizes,
+} from '@mui/material';
 import useAuth from 'hooks/useAuth';
-import Room from 'views/Room';
-import './App.css';
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from 'react-router-dom';
 import Cast from 'views/Cast';
+import Room from 'views/Room';
+import UnauthenticatedApp from 'views/UnauthenticatedApp';
+import './App.css';
 
-const darkTheme = createTheme({
+let darkTheme = createTheme({
   palette: {
     mode: 'dark',
   },
 });
+darkTheme = responsiveFontSizes(darkTheme);
 
 function App() {
   const { user } = useAuth();
