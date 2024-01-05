@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export default function useUrlImport(room, settings, setSettings) {
   const [alert, setAlert] = useState(null);
+  const [hasCompletedImport, setHasCompletedImport] = useState(false);
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
@@ -46,15 +47,17 @@ export default function useUrlImport(room, settings, setSettings) {
     setLocalGameBoard(importedGameBoard);
     const importSettings = parseSettings(importMessage?.settings);
     setSettings({ ...settings, ...importSettings });
+    setHasCompletedImport(true);
   }, [importBoard, messages, settings, setSettings]);
 
   useEffect(() => importGameBoard(), [importGameBoard]);
 
   useEffect(() => {
-    if (alert !== t('updated')) {
+    if (hasCompletedImport && alert !== t('updated')) {
       setAlert(t('updated'));
+      setHasCompletedImport(false);
     }
-  }, [localGameBoard, t]);
+  }, [localGameBoard]);
 
   return [alert, clearAlert];
 }

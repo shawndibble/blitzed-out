@@ -9,7 +9,7 @@ import useAuth from 'hooks/useAuth';
 import useGameBoard from 'hooks/useGameBoard';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import sendGameSettingsMessage from 'services/gameSettingsMessage';
@@ -68,9 +68,9 @@ export default function GameSettings({ submitText, closeDialog }) {
     setActionsList(importActions(i18n.resolvedLanguage, formData?.gameMode));
   }, [i18n.resolvedLanguage, formData?.gameMode]);
 
-  const handleTabChange = (_, newValue) => {
+  const handleTabChange = useCallback((_, newValue) => {
     setValue(newValue);
-  };
+  }, []);
 
   const boardUpdated = () => updateSettings({ ...settings, boardUpdated: true });
 
@@ -139,12 +139,16 @@ export default function GameSettings({ submitText, closeDialog }) {
     return null;
   }
 
-  const onEnterKey = (event) => {
+  const handleBlur = useCallback((event) => {
+    setFormData({ ...formData, displayName: event.target.value });
+  }, [formData]);
+
+  const onEnterKey = useCallback((event) => {
     if (event.key === 'Enter') {
       setFormData({ ...formData, displayName: event.target.value });
       handleSubmit(event);
     }
-  };
+  }, [formData, handleSubmit]);
 
   if (!formData.locale) {
     return (
@@ -173,7 +177,7 @@ export default function GameSettings({ submitText, closeDialog }) {
         defaultValue={user?.displayName}
         required
         autoFocus
-        onBlur={(event) => setFormData({ ...formData, displayName: event.target.value })}
+        onBlur={handleBlur}
         onKeyDown={(event) => onEnterKey(event)}
         margin="normal"
       />
