@@ -13,23 +13,24 @@ const ACTION_TYPE = 'actions';
 
 export default function Cast() {
   const { id: room } = useParams();
-  const { messages } = useMessages(room);
+  const { messages, isLoading } = useMessages(room);
   const settings = useLocalStorage('gameSettings')[0];
   const [alertMessage, setAlertMessage] = useState('');
   const [openAlert, setOpenAlert] = useState(false);
 
   const { isVideo, url } = usePrivateRoomBackground(messages, settings, room);
 
-  const sortedMessages = useMemo(() => messages
-    .sort((a, b) => a.timestamp.seconds - b.timestamp.seconds), [messages]);
-  const latestMessage = sortedMessages[sortedMessages.length - 1];
-
   useEffect(() => {
+    if (isLoading) return;
+
+    messages.sort((a, b) => a.timestamp.seconds - b.timestamp.seconds);
+    const latestMessage = messages[messages.length - 1];
+
     if (latestMessage?.type === 'settings') {
       setOpenAlert(true);
       setAlertMessage(`${latestMessage.displayName} ${t('changedSettings')}`);
     }
-  }, [latestMessage]);
+  }, [messages, isLoading]);
 
   const lastAction = useMemo(() => latestMessageByType(messages, ACTION_TYPE), [messages]);
 
