@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import {
-  BrowserRouter as Router, Route, Routes,
+  BrowserRouter as Router, Route, Routes, Navigate,
 } from 'react-router-dom';
 import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import useAuth from 'hooks/useAuth';
@@ -23,7 +23,7 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route exact path="/" element={component} />
+          <Route exact path="/" element={<Navigate replace to="/rooms/public" />} />
           <Route path="/rooms/:id" element={component} />
         </Routes>
       </Router>
