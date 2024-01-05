@@ -1,7 +1,7 @@
 import Snackbar from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert, Portal } from '@mui/material';
+import { Alert, Portal, Slide } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 export default function ToastAlert({
@@ -31,9 +31,11 @@ export default function ToastAlert({
     <Portal>
       <Snackbar
         open={open}
-        autoHideDuration={5000}
+        autoHideDuration={4000}
         onClose={handleClose}
         action={action}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        TransitionComponent={Slide}
       >
         <Alert onClose={handleClose} severity={type} sx={{ width: '100%' }}>
           {children}
