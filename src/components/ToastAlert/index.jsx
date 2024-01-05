@@ -5,7 +5,7 @@ import { Alert, Portal, Slide } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 export default function ToastAlert({
-  children, open, close, type = 'error',
+  children, open, close, type = 'error', hideCloseButton = false,
 }) {
   const { t } = useTranslation();
   const handleClose = (event, reason) => {
@@ -16,7 +16,7 @@ export default function ToastAlert({
     close();
   };
 
-  const action = (
+  const action = !hideCloseButton && (
     <IconButton
       size="small"
       aria-label={t('close')}
@@ -37,7 +37,7 @@ export default function ToastAlert({
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         TransitionComponent={Slide}
       >
-        <Alert onClose={handleClose} severity={type} sx={{ width: '100%' }}>
+        <Alert onClose={!hideCloseButton && handleClose} severity={type} sx={{ width: '100%' }}>
           {children}
         </Alert>
       </Snackbar>

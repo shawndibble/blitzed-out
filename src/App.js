@@ -6,6 +6,7 @@ import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import useAuth from 'hooks/useAuth';
 import Room from 'views/Room';
 import './App.css';
+import Cast from 'views/Cast';
 
 const darkTheme = createTheme({
   palette: {
@@ -16,7 +17,7 @@ const darkTheme = createTheme({
 function App() {
   const { user } = useAuth();
 
-  const component = user ? <Room /> : <UnauthenticatedApp />;
+  const room = user ? <Room /> : <UnauthenticatedApp />;
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -24,7 +25,8 @@ function App() {
       <Router>
         <Routes>
           <Route exact path="/" element={<Navigate replace to="/rooms/public" />} />
-          <Route path="/rooms/:id" element={component} />
+          <Route path="/rooms/:id/cast" element={<Cast />} />
+          <Route path="/rooms/:id" element={room} />
         </Routes>
       </Router>
     </ThemeProvider>

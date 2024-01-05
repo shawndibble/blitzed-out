@@ -34,8 +34,8 @@ export default function Room() {
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, settings, gameBoard);
   const [importResult, clearImportResult] = useUrlImport(room, settings, setSettings);
 
-  const backgroundSource = getBackgroundSource(settings, room, roomBgUrl);
-  const videoAdjust = backgroundSource.isVideo ? 'video-adjust' : '';
+  const { isVideo, url } = getBackgroundSource(settings, room, roomBgUrl);
+  const videoAdjust = isVideo ? 'video-adjust' : '';
 
   const { background, roomBackground } = settings;
   const isTransparent = (room !== 'public' && roomBackground !== 'app') || background !== 'color';
@@ -73,10 +73,7 @@ export default function Room() {
         dice={roller}
         playerTile={tile}
       />
-      <RoomBackground
-        isVideo={backgroundSource.isVideo}
-        url={backgroundSource.url}
-      />
+      <RoomBackground isVideo={isVideo} url={url} />
       {isMobile ? (
         <Box className="mobile-container">
           <BottomTabs

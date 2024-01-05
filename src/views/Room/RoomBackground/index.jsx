@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 
-export default function RoomBackground({ url, isVideo }) {
+export default function RoomBackground({ url = null, isVideo = null }) {
   return (
     <Box
       className="main-container"
