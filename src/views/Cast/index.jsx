@@ -37,7 +37,9 @@ export default function Cast() {
 
   const { text, displayName } = lastAction;
   const splitText = text.split('\n');
-  const [type, activity] = splitText.slice(1);
+  const [typeString, activityString] = splitText.slice(1);
+  const type = typeString.split(':')[1].trim();
+  const activity = activityString.split(':')[1].trim();
 
   return (
     <>
