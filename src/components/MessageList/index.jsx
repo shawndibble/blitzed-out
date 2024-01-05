@@ -12,12 +12,14 @@ import { useTranslation } from 'react-i18next';
 import 'moment/locale/es';
 import 'moment/locale/fr';
 import './styles.css';
+import useSendSettings from 'hooks/useSendSettings';
 import Message from './Message';
 
 export default function MessageList({ room, isTransparent, currentGameBoardSize = 40 }) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
-  const messages = useMessages(room);
+  const { messages, isLoading } = useMessages(room);
+  useSendSettings(room, user, messages, isLoading);
 
   const [currentTab, setTab] = useState(0);
   const { t, i18n } = useTranslation();
@@ -32,9 +34,10 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
   const updatedMessages = useMemo(() => filterMessages(currentTab), [filterMessages, currentTab]);
 
   useEffect(() => {
+    if (isLoading) return;
     filterMessages(currentTab);
     // eslint-disable-next-line
-  }, [messages, i18n.resolvedLanguage]);
+  }, [messages, isLoading, i18n.resolvedLanguage]);
 
   React.useLayoutEffect(() => {
     if (containerRef.current) {

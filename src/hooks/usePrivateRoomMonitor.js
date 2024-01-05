@@ -12,7 +12,7 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
   const { i18n } = useTranslation();
   const { user } = useAuth();
   const customTiles = useLocalStorage('customTiles', [])[0];
-  const messages = useMessages(room);
+  const { messages, isLoading } = useMessages(room);
   const [roller, setRoller] = useState('1d4');
   const [roomBgUrl, setRoomBackground] = useState('');
   const updateGameBoardTiles = useGameBoard();
@@ -31,6 +31,8 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
   }, [settings, user, customTiles, i18n.resolvedLanguage, updateGameBoardTiles]);
 
   useEffect(() => {
+    if (isLoading) return;
+
     const roomMessage = latestMessageByType(messages, 'room');
     if (roomMessage) {
       const messageSettings = JSON.parse(roomMessage.settings);
@@ -49,7 +51,7 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
     if (settings?.roomBackgroundURL?.length) {
       setRoomBackground(settings.roomBackgroundURL);
     }
-  }, [messages, settings, user.uid, gameBoard.length, rebuildGameBoard]);
+  }, [messages, isLoading, settings, user.uid, gameBoard.length, rebuildGameBoard]);
 
   return { roller, roomBgUrl };
 }

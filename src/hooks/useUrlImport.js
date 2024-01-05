@@ -10,7 +10,7 @@ export default function useUrlImport(room, settings, setSettings) {
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
-  const messages = useMessages(room || 'public');
+  const { messages, isLoading } = useMessages(room || 'public');
   const { t } = useTranslation();
 
   function clearAlert() {
@@ -35,7 +35,7 @@ export default function useUrlImport(room, settings, setSettings) {
   }
 
   const importGameBoard = useCallback(() => {
-    if (!importBoard) return;
+    if (!importBoard || isLoading) return;
 
     setParams({});
     const importMessage = messages.find((m) => m.id === importBoard);
@@ -48,7 +48,7 @@ export default function useUrlImport(room, settings, setSettings) {
     const importSettings = parseSettings(importMessage?.settings);
     setSettings({ ...settings, ...importSettings });
     setHasCompletedImport(true);
-  }, [importBoard, messages, settings, setSettings]);
+  }, [importBoard, messages, isLoading, settings, setSettings]);
 
   useEffect(() => importGameBoard(), [importGameBoard]);
 

@@ -1,13 +1,18 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { getMessages } from 'services/firebase';
 
 export default function useMessages(roomId) {
-  const [messages, setMessages] = React.useState([]);
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  React.useEffect(() => {
-    const unsubscribe = getMessages(roomId, setMessages);
+  useEffect(() => {
+    const unsubscribe = getMessages(roomId, (newMessages) => {
+      setMessages(newMessages);
+      setIsLoading(false);
+    });
+
     return unsubscribe;
   }, [roomId]);
 
-  return messages;
+  return { messages, isLoading };
 }

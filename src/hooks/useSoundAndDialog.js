@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 export default function useSoundAndDialog(room) {
   const { i18n } = useTranslation();
   const { user } = useAuth();
-  const messages = useMessages(room);
+  const { messages } = useMessages(room);
   const [popupMessage, setPopupMessage] = useState(false);
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);

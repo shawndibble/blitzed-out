@@ -76,7 +76,7 @@ export default function sendGameSettingsMessage({
   formData, user, actionsList, board, customTiles = {}, reason = '',
 }) {
   return sendMessage({
-    room: formData.room || 'public',
+    room: formData?.room || 'public',
     user,
     text: getSettingsMessage(formData, customTiles, actionsList, reason),
     type: 'settings',

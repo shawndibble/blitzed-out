@@ -13,7 +13,7 @@ const ACTION_TYPE = 'actions';
 
 export default function Cast() {
   const { id: room } = useParams();
-  const messages = useMessages(room);
+  const { messages } = useMessages(room);
   const settings = useLocalStorage('gameSettings')[0];
   const [alertMessage, setAlertMessage] = useState('');
   const [openAlert, setOpenAlert] = useState(false);

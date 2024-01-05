@@ -61,7 +61,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     alcoholVariation: 'standalone',
   });
 
-  const messages = useMessages(formData.room);
+  const { messages } = useMessages(formData.room);
 
   // Update our actions list when the language changes.
   useEffect(() => {

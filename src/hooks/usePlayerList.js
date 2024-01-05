@@ -26,7 +26,8 @@ function isRecentlyActive(messages, onlineUid) {
   return (Date.now() - lastActivity) < TEN_MINUTES;
 }
 
-function getCurrentPlayers(onlineUsers, user, messages) {
+function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
+  if (isLoading) return [];
   const uniqueGameActions = filteredGameMessages(messages);
 
   return Object.entries(onlineUsers)
@@ -60,7 +61,7 @@ function getCurrentPlayers(onlineUsers, user, messages) {
 
 export default function usePlayerList(roomId) {
   const { user } = useAuth();
-  const messages = useMessages(roomId);
+  const { messages, isLoading } = useMessages(roomId);
 
   const [onlineUsers, setOnlineUsers] = useState({});
 
@@ -74,8 +75,8 @@ export default function usePlayerList(roomId) {
   }, [getUserListCallback]);
 
   const players = useMemo(
-    () => getCurrentPlayers(onlineUsers, user, [...messages]),
-    [onlineUsers, user, messages],
+    () => getCurrentPlayers(onlineUsers, user, [...messages], isLoading),
+    [onlineUsers, user, messages, isLoading],
   );
 
   return players;
