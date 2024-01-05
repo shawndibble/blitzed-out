@@ -19,7 +19,7 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
   const containerRef = React.useRef(null);
   const { user } = useAuth();
   const { messages, isLoading } = useMessages(room);
-  useSendSettings(room, user, messages, isLoading);
+  useSendSettings(user, messages, isLoading);
 
   const [currentTab, setTab] = useState(0);
   const { t, i18n } = useTranslation();

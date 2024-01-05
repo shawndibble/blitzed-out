@@ -4,8 +4,25 @@ import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { useTranslation } from 'react-i18next';
 import { importActions } from 'services/importLocales';
+import latestMessageByType, { latestMessageBy } from 'helpers/messages';
+import { useParams } from 'react-router-dom';
 
-export default function useSendSettings(room, user, messages, isLoading) {
+function isCompatibleBoard(isPrivateRoom, latestRoomMessage, boardSize, roomTileCount) {
+  if (!isPrivateRoom && boardSize === 40) return true;
+
+  if (!latestRoomMessage) return false;
+
+  const { roomTileCount: latestRoomTileCount } = latestRoomMessage;
+
+  if (boardSize !== latestRoomTileCount) return false;
+
+  if (boardSize !== roomTileCount) return false;
+
+  return true;
+}
+
+export default function useSendSettings(user, messages, isLoading) {
+  const { id: room } = useParams();
   const [settingsSent, setSettingsSent] = useState(false);
   const { i18n } = useTranslation();
   const settings = useLocalStorage('gameSettings')[0];
@@ -21,12 +38,22 @@ export default function useSendSettings(room, user, messages, isLoading) {
     const isPrivateRoom = room !== 'public';
     const formData = { ...settings, room };
     // send out room specific settings if we are in a private room.
-    if (isPrivateRoom && !messages.find((m) => m.type === 'room')) {
+    const latestRoomMessage = latestMessageByType(messages, 'room');
+    if (isPrivateRoom && !latestRoomMessage) {
       sendRoomSettingsMessage(formData, user);
     }
 
     // if our board updated, or we changed rooms, send out game settings message.
-    if (!messages.find((m) => m.type === 'settings' && m.uid === user.uid)) {
+    // if our settings board is incompatible with the room, let PrivateRoomMonitor handle it.
+    const isCompatible = isCompatibleBoard(
+      isPrivateRoom,
+      latestRoomMessage,
+      board.length,
+      settings.roomTileCount,
+    );
+
+    const alreadySentSettings = latestMessageBy(messages, (m) => m.type === 'settings' && m.uid === user.uid);
+    if (!alreadySentSettings && isCompatible) {
       const actionsList = importActions(i18n.resolvedLanguage, settings.gameMode);
 
       sendGameSettingsMessage({
