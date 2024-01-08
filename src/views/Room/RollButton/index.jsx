@@ -48,13 +48,9 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
 
   const handleClick = useCallback(() => {
     if (selectedRoll === 'manual') {
+      rollDice(rollCount, diceSide, setRollValue);
       setDisabled(true);
-      // timeout of 0 because of the nature of setState.
-      // Otherwise sometimes clicking the roll button doesn't actually roll.
-      setTimeout(() => {
-        rollDice(rollCount, diceSide, setRollValue);
-        setTimeout(() => setDisabled(false), 4000);
-      }, 0);
+      setTimeout(() => setDisabled(false), 4000);
       return null;
     }
 
