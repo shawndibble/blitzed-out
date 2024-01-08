@@ -99,7 +99,7 @@
   "addCustom": "Añadir mi casilla.",
   "autoCloseModal": "Este cuadro de diálogo se cerrará automáticamente después de {{timeLeft}} segundos.",
   "autoCloseStopped": "Este cuadro de diálogo ya no se cerrará automáticamente.",
-  "nextPlayersTurn": "Turno del siguiente jugador: {{nextPlayer}}",
+  "nextPlayersTurn": "Próximo jugador: {{nextPlayer}}",
   "playersTurn": "Turno de {{player}}",
   "yourTurn": "¡¡¡TU TURNO!!!",
   "you": "¡¡¡TÚ!!!",

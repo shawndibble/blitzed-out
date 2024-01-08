@@ -4,8 +4,10 @@ import latestMessageByType from 'helpers/messages';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
 import usePrivateRoomBackground from 'hooks/usePrivateRoomBackground';
+import useTurnIndicator from 'hooks/useTurnIndicator';
 import { t } from 'i18next';
 import { useEffect, useState, useMemo } from 'react';
+import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import RoomBackground from 'views/Room/RoomBackground';
 
@@ -20,6 +22,9 @@ export default function Cast() {
 
   const { isVideo, url } = usePrivateRoomBackground(messages, settings, room);
 
+  const lastAction = useMemo(() => latestMessageByType(messages, ACTION_TYPE), [messages]);
+  const nextPlayer = useTurnIndicator(room, lastAction);
+
   useEffect(() => {
     if (isLoading) return;
 
@@ -32,8 +37,6 @@ export default function Cast() {
     }
   }, [messages, isLoading]);
 
-  const lastAction = useMemo(() => latestMessageByType(messages, ACTION_TYPE), [messages]);
-
   if (!messages.length || !lastAction) return null;
 
   const { text, displayName } = lastAction;
@@ -45,6 +48,13 @@ export default function Cast() {
   return (
     <>
       {!!url && (<RoomBackground url={url} isVideo={isVideo} />)}
+      {!!nextPlayer && (
+        <Box sx={{ mt: 2, mb: -2, textAlign: 'center' }}>
+          <Typography variant="h5">
+            <Trans i18nKey="nextPlayersTurn" values={{ nextPlayer }} />
+          </Typography>
+        </Box>
+      )}
       <Grid
         container
         spacing={0}
