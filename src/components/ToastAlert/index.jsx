@@ -5,7 +5,14 @@ import { Alert, Portal, Slide } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 export default function ToastAlert({
-  children, open, close, type = 'error', hideCloseButton = false, vertical = 'bottom', horizontal = 'center',
+  children,
+  open,
+  close,
+  type = 'error',
+  hideCloseButton = false,
+  vertical = 'bottom',
+  horizontal = 'center',
+  disableAutoHide = false,
 }) {
   const { t } = useTranslation();
   const handleClose = (event, reason) => {
@@ -31,7 +38,7 @@ export default function ToastAlert({
     <Portal>
       <Snackbar
         open={open}
-        autoHideDuration={4000}
+        autoHideDuration={disableAutoHide ? 4000 : 20000}
         onClose={handleClose}
         action={action}
         anchorOrigin={{ vertical, horizontal }}

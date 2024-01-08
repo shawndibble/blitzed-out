@@ -16,15 +16,25 @@ export default function TurnIndicator({ room }) {
   useEffect(() => {
     if (!player) return;
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 5000);
   }, [player]);
 
   if (!message || !player) return null;
 
-  if (!playerDialog || !othersDialog) {
+  const isYourTurn = player === 'YOU!!!';
+  const showOnMyTurn = !playerDialog && isYourTurn;
+  const showOnOthersTurn = !othersDialog && !isYourTurn;
+
+  if (showOnMyTurn || showOnOthersTurn) {
     return (
-      <ToastAlert open={showToast} close={() => setShowToast(false)} type="info" vertical="top" horizontal="center">
-        {player === 'YOU!!!'
+      <ToastAlert
+        open={showToast}
+        close={() => setShowToast(false)}
+        type={isYourTurn ? 'error' : 'info'}
+        vertical="top"
+        horizontal="center"
+        disableAutoHide
+      >
+        {isYourTurn
           ? (<Trans i18nKey="yourTurn" />)
           : (<Trans i18nKey="playersTurn" values={{ player }} />)}
       </ToastAlert>

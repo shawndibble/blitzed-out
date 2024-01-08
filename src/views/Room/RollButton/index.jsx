@@ -21,7 +21,7 @@ function rollDice(rollCount, diceSide, setRollValue) {
   setRollValue(total);
 }
 
-export default function RollButton({ setRollValue, playerTile, dice }) {
+const RollButton = function memo({ setRollValue, playerTile, dice }) {
   const { t } = useTranslation();
   const [isDisabled, setDisabled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -178,4 +178,6 @@ export default function RollButton({ setRollValue, playerTile, dice }) {
       </Popper>
     </>
   );
-}
+};
+
+export default RollButton;
