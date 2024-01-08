@@ -90,5 +90,7 @@ export default function getBackgroundSource(settings, room, roomBackgroundUrl) {
   const roomBackgroundSource = roomBackground === 'app' ? roomBackground : roomBackgroundUrl;
 
   const bgSource = room !== 'public' && roomBackground !== 'app' ? roomBackgroundSource : backgroundSource;
+
+  if (!bgSource) return { url: null, isVideo: false };
   return processBackground(bgSource);
 }

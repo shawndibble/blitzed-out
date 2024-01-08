@@ -15,6 +15,7 @@ import { useParams } from 'react-router-dom';
 import getBackgroundSource from 'services/getBackgroundSource';
 import Navigation from 'views/Navigation';
 import MemoizedGameBoard from 'views/Room/GameBoard';
+import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import RoomBackground from './RoomBackground';
@@ -41,7 +42,9 @@ export default function Room() {
   const { background, roomBackground } = settings;
   const isTransparent = (room !== 'public' && roomBackground !== 'app') || background !== 'color';
 
-  if (!gameBoard.length || !Object.keys(settings).length) return null;
+  if (!gameBoard.length || !Object.keys(settings).length) {
+    return <UnauthenticatedApp />;
+  }
 
   const memoizedGameBoardComponent = (
     <MemoizedGameBoard
