@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import usePlayerList from './usePlayerList';
 
-function getNextPlayer(players, current) {
-  const index = players.findIndex((player) => player.displayName === current);
+function getNextPlayer(players, currentUid) {
+  const index = players.findIndex((player) => player.uid === currentUid);
   const nextIndex = index + 1 >= players.length ? 0 : index + 1;
   return players[nextIndex];
 }
 
 export default function useTurnIndicator(room, message) {
-  const { t } = useTranslation();
   const [turnIndicator, setTurnIndicator] = useState(null);
   const players = usePlayerList(room);
 
@@ -21,8 +19,8 @@ export default function useTurnIndicator(room, message) {
       return;
     }
 
-    const player = getNextPlayer(players, message?.displayName);
-    setTurnIndicator(player.isSelf ? t('you') : player.displayName);
+    const player = getNextPlayer(players, message.uid);
+    setTurnIndicator(player);
   }, [message]);
 
   return turnIndicator;

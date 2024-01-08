@@ -20,7 +20,7 @@ export default function TurnIndicator({ room }) {
 
   if (!message || !player) return null;
 
-  const isYourTurn = player === 'YOU!!!';
+  const isYourTurn = player?.isSelf;
   const showOnMyTurn = !othersDialog && isYourTurn;
   const showOnOthersTurn = !playerDialog && !isYourTurn;
 

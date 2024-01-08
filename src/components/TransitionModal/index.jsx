@@ -1,15 +1,15 @@
+import { Divider } from '@mui/material';
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
+import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
-import { Trans, useTranslation } from 'react-i18next';
+import CloseIcon from 'components/CloseIcon';
+import CountDownButtonModal from 'components/CountDownButtonModal';
 import { extractAction, extractTime } from 'helpers/strings';
 import useCountdown from 'hooks/useCountdown';
 import { useState } from 'react';
-import CloseIcon from 'components/CloseIcon';
-import CountDownButtonModal from 'components/CountDownButtonMobal';
-import { Divider } from '@mui/material';
+import { Trans, useTranslation } from 'react-i18next';
 
 const style = (theme) => ({
   position: 'absolute',
@@ -36,6 +36,8 @@ export default function TransitionModal({
 
   const { timeLeft, togglePause } = useCountdown(12, false);
   const [showAutoCloseText, setAutoCloseText] = useState(true);
+
+  const player = nextPlayer?.displayName;
 
   const preventClose = () => {
     togglePause();
@@ -90,7 +92,9 @@ export default function TransitionModal({
               <>
                 <Divider style={{ margin: '1rem 0 0.5rem' }} />
                 <Typography variant="body1">
-                  <Trans i18nKey="nextPlayersTurn" values={{ nextPlayer }} />
+                  {nextPlayer.isSelf
+                    ? (<Trans i18nKey="yourTurn" />)
+                    : (<Trans i18nKey="nextPlayersTurn" values={{ player }} />)}
                 </Typography>
               </>
             )}

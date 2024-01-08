@@ -102,7 +102,6 @@
   "nextPlayersTurn": "Próximo jugador: {{nextPlayer}}",
   "playersTurn": "Turno de {{player}}",
   "yourTurn": "¡¡¡TU TURNO!!!",
-  "you": "¡¡¡TÚ!!!",
   "timers": "Temporizadores: ",
   "seconds": "segundos",
   "changedSettings": "cambió su configuración.",

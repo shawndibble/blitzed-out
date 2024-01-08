@@ -102,7 +102,6 @@
   "nextPlayersTurn": "Prochain joueur: {{nextPlayer}}",
   "playersTurn": "Tour de {{player}}",
   "yourTurn": "C'EST VOTRE TOUR!!!",
-  "you": "VOUS!!!",
   "timers": "Minuteries: ",
   "seconds": "secondes",
   "changedSettings": "a modifié ses paramètres.",
