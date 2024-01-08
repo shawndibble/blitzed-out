@@ -28,7 +28,7 @@ export default function Room() {
 
   usePresence(room);
 
-  const [rollValue, setRollValue] = useState([0]);
+  const [rollValue, setRollValue] = useState({ value: 0, time: Date.now() });
   const gameBoard = useLocalStorage('customBoard')[0];
   const [settings, setSettings] = useLocalStorage('gameSettings');
 
@@ -41,6 +41,8 @@ export default function Room() {
 
   const { background, roomBackground } = settings;
   const isTransparent = (room !== 'public' && roomBackground !== 'app') || background !== 'color';
+
+  console.log('rollValue', rollValue);
 
   if (!gameBoard.length || !Object.keys(settings).length) {
     return <UnauthenticatedApp />;

@@ -13,12 +13,13 @@ function isNumeric(value) {
   return /^-?\d+$/.test(value);
 }
 
-function rollDice(rollCount, diceSide, setRollValue) {
+function rollDice(rollCount, diceSide, updateRollValue) {
   let total = 0;
   for (let i = 0; i < Number(rollCount); i += 1) {
     total += Number([Math.floor(Math.random() * Number(diceSide)) + 1]);
   }
-  setRollValue(total);
+  console.log('rollDice total', total);
+  updateRollValue(total);
 }
 
 const RollButton = function memo({ setRollValue, playerTile, dice }) {
@@ -32,6 +33,10 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
   const {
     timeLeft, setTimeLeft, togglePause, isPaused,
   } = useCountdown(autoTime);
+
+  const updateRollValue = useCallback((value) => {
+    setRollValue({ value, time: Date.now() });
+  }, []);
 
   const options = useMemo(() => {
     const opts = new Map();
@@ -48,23 +53,23 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
 
   const handleClick = useCallback(() => {
     if (selectedRoll === 'manual') {
-      rollDice(rollCount, diceSide, setRollValue);
+      rollDice(rollCount, diceSide, updateRollValue);
       setDisabled(true);
       setTimeout(() => setDisabled(false), 4000);
       return null;
     }
 
     if (isPaused && timeLeft === autoTime) {
-      rollDice(rollCount, diceSide, setRollValue);
+      rollDice(rollCount, diceSide, updateRollValue);
     }
     togglePause();
     return null;
-  }, [selectedRoll, isPaused, timeLeft, autoTime, rollCount, diceSide, setRollValue, togglePause]);
+  }, [selectedRoll, isPaused, timeLeft, autoTime, rollCount, diceSide, togglePause]);
 
   const handleMenuItemClick = useCallback((key) => {
     setOpen(false);
     if (key === 'restart') {
-      return setRollValue(-1);
+      return updateRollValue(-1);
     }
 
     setSelectedRoll(key);
@@ -75,7 +80,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
       setTimeLeft(key);
     }
     return null;
-  }, [isPaused, setTimeLeft, togglePause, setRollValue]);
+  }, [isPaused, setTimeLeft, togglePause]);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -107,7 +112,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
       return setRollText(`${t('pause')} (${timeLeft})`);
     }
 
-    rollDice(rollCount, diceSide, setRollValue);
+    rollDice(rollCount, diceSide, updateRollValue);
     return setTimeLeft(autoTime);
   }, [isDisabled, selectedRoll, timeLeft, autoTime, isPaused]);
 

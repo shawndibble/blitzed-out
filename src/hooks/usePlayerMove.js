@@ -80,7 +80,7 @@ export default function usePlayerMove(room, rollValue, gameBoard) {
   }
 
   useEffect(() => {
-    const rollNumber = rollValue[0] ?? rollValue;
+    const rollNumber = rollValue.value[0] ?? rollValue.value;
 
     // a 0 means something went wrong. Give up.
     if (rollNumber === 0) return;
@@ -92,8 +92,6 @@ export default function usePlayerMove(room, rollValue, gameBoard) {
 
     // send our message.
     handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);
-
-    // eslint-disable-next-line
   }, [rollValue]);
 
   return { tile, playerList };
