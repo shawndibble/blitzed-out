@@ -18,7 +18,6 @@ function rollDice(rollCount, diceSide, updateRollValue) {
   for (let i = 0; i < Number(rollCount); i += 1) {
     total += Number([Math.floor(Math.random() * Number(diceSide)) + 1]);
   }
-  console.log('rollDice total', total);
   updateRollValue(total);
 }
 

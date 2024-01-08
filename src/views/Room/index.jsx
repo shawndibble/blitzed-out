@@ -42,8 +42,6 @@ export default function Room() {
   const { background, roomBackground } = settings;
   const isTransparent = (room !== 'public' && roomBackground !== 'app') || background !== 'color';
 
-  console.log('rollValue', rollValue);
-
   if (!gameBoard.length || !Object.keys(settings).length) {
     return <UnauthenticatedApp />;
   }
