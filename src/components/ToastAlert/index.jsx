@@ -38,7 +38,7 @@ export default function ToastAlert({
     <Portal>
       <Snackbar
         open={open}
-        autoHideDuration={disableAutoHide ? 4000 : 20000}
+        autoHideDuration={disableAutoHide ? 20000 : 4000}
         onClose={handleClose}
         action={action}
         anchorOrigin={{ vertical, horizontal }}
