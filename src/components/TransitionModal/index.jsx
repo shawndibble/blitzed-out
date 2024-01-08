@@ -9,6 +9,7 @@ import useCountdown from 'hooks/useCountdown';
 import { useState } from 'react';
 import CloseIcon from 'components/CloseIcon';
 import CountDownButtonModal from 'components/CountDownButtonMobal';
+import { Divider } from '@mui/material';
 
 const style = (theme) => ({
   position: 'absolute',
@@ -26,7 +27,7 @@ const style = (theme) => ({
 });
 
 export default function TransitionModal({
-  open, text, displayName, handleClose, stopAutoClose = () => null,
+  open, text, displayName, handleClose, stopAutoClose = () => null, nextPlayer = '',
 }) {
   const { t } = useTranslation();
   const title = text?.match(/(?:#[\d]*:).*(?=\n)/gs);
@@ -83,6 +84,14 @@ export default function TransitionModal({
                     preventParentClose={preventClose}
                   />
                 ))}
+              </>
+            )}
+            {!!nextPlayer && (
+              <>
+                <Divider style={{ margin: '1rem 0 0.5rem' }} />
+                <Typography variant="body1">
+                  <Trans i18nKey="nextPlayersTurn" values={{ nextPlayer }} />
+                </Typography>
               </>
             )}
           </Box>

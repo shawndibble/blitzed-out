@@ -1,38 +1,45 @@
-import { useEffect, useRef } from 'react';
+import {
+  memo, useCallback, useEffect, useRef,
+} from 'react';
 import TransitionModal from 'components/TransitionModal';
 import useSoundAndDialog from 'hooks/useSoundAndDialog';
+import useTurnIndicator from 'hooks/useTurnIndicator';
 
-export default function PopupMessage({ room }) {
-  const [popupMessage, setPopupMessage] = useSoundAndDialog(room);
+const PopupMessage = memo(({ room }) => {
+  const [message, setMessage] = useSoundAndDialog(room);
+  const nextPlayer = useTurnIndicator(room, message);
 
   // handle timeout of TransitionModal
   const timeoutId = useRef();
 
   useEffect(() => {
-    if (popupMessage) {
-      timeoutId.current = setTimeout(() => setPopupMessage(false), 12000);
+    if (message) {
+      timeoutId.current = setTimeout(() => setMessage(false), 12000);
     }
     return () => clearTimeout(timeoutId.current);
-  }, [popupMessage]);
+  }, [message]);
 
-  const closeTransitionModal = () => {
+  const closeTransitionModal = useCallback(() => {
     clearTimeout(timeoutId.current);
-    setPopupMessage(false);
-  };
+    setMessage(false);
+  }, []);
 
-  const stopAutoClose = () => clearTimeout(timeoutId.current);
+  const stopAutoClose = useCallback(() => clearTimeout(timeoutId.current), []);
   // end handle timeout of TransitionModal.
 
   return (
-    popupMessage?.text && (
+    message?.text && (
       <TransitionModal
-        text={popupMessage?.text}
-        displayName={popupMessage?.displayName}
-        setOpen={setPopupMessage}
-        open={!!popupMessage || !!popupMessage?.text}
+        text={message?.text}
+        displayName={message?.displayName}
+        setOpen={setMessage}
+        open={!!message || !!message?.text}
         handleClose={closeTransitionModal}
         stopAutoClose={stopAutoClose}
+        nextPlayer={nextPlayer}
       />
     )
   );
-}
+});
+
+export default PopupMessage;

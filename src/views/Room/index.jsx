@@ -3,6 +3,7 @@ import MessageInput from 'components/MessageInput';
 import MessageList from 'components/MessageList';
 import PopupMessage from 'components/PopupMessage';
 import ToastAlert from 'components/ToastAlert';
+import TurnIndicator from 'components/TurnIndicator';
 import useLocalStorage from 'hooks/useLocalStorage';
 import usePlayerMove from 'hooks/usePlayerMove';
 import usePresence from 'hooks/usePresence';
@@ -74,6 +75,7 @@ export default function Room() {
         playerTile={tile}
       />
       <RoomBackground isVideo={isVideo} url={url} />
+      <TurnIndicator room={room} />
       {isMobile ? (
         <Box className="mobile-container">
           <BottomTabs
