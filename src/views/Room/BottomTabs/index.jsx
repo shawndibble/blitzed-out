@@ -1,5 +1,4 @@
 import * as React from 'react';
-import SwipeableViews from 'react-swipeable-views';
 import { useTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
@@ -18,10 +17,6 @@ export default function BottomTabs({ tab1, tab2 }) {
     setValue(newValue);
   };
 
-  const handleChangeIndex = (index) => {
-    setValue(index);
-  };
-
   return (
     <Box>
       <AppBar position="fixed" sx={{ top: 'auto', bottom: 0 }}>
@@ -36,18 +31,12 @@ export default function BottomTabs({ tab1, tab2 }) {
           <Tab label={t('messages')} {...a11yProps(1)} />
         </Tabs>
       </AppBar>
-      <SwipeableViews
-        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-        index={value}
-        onChangeIndex={handleChangeIndex}
-      >
-        <TabPanel value={value} index={0} dir={theme.direction} style={{ p: 0 }}>
-          {tab1}
-        </TabPanel>
-        <TabPanel value={value} index={1} dir={theme.direction} style={{ p: 0 }}>
-          {tab2}
-        </TabPanel>
-      </SwipeableViews>
+      <TabPanel value={value} index={0} dir={theme.direction} style={{ p: 0 }}>
+        {tab1}
+      </TabPanel>
+      <TabPanel value={value} index={1} dir={theme.direction} style={{ p: 0 }}>
+        {tab2}
+      </TabPanel>
     </Box>
   );
 }
