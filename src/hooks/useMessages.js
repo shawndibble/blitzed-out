@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getMessages } from 'services/firebase';
 
 export default function useMessages(roomId) {
@@ -14,5 +14,7 @@ export default function useMessages(roomId) {
     return unsubscribe;
   }, [roomId]);
 
-  return { messages, isLoading };
+  const memoizedMessages = useMemo(() => messages, [messages]);
+
+  return { messages: memoizedMessages, isLoading };
 }
