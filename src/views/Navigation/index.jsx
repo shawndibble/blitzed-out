@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useState } from 'react';
 import {
-  AppBar, Box, IconButton, Toolbar, Tooltip, Typography,
+  AppBar, Badge, Box, IconButton, Toolbar, Tooltip, Typography,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from 'images/blitzed-out.webp';
@@ -14,6 +14,7 @@ export default function Navigation({ room, playerList = [] }) {
   const { t } = useTranslation();
   const [events, setEvents] = useState(null);
   const [openSchedule, setOpenSchedule] = useState(false);
+  const [seen, setSeen] = useState(false);
 
   useEffect(() => {
     getSchedule(setEvents);
@@ -21,6 +22,7 @@ export default function Navigation({ room, playerList = [] }) {
 
   const handleScheduleClick = () => {
     setOpenSchedule(true);
+    setSeen(true);
   };
 
   const playersOnlineTooltip = (
@@ -51,7 +53,9 @@ export default function Navigation({ room, playerList = [] }) {
             </Tooltip>
             {!!events && (
               <IconButton onClick={handleScheduleClick} aria-label="schedule game" sx={{ ml: 2 }}>
-                <CalendarMonth />
+                <Badge color="primary" badgeContent={!seen ? events.length : null}>
+                  <CalendarMonth />
+                </Badge>
               </IconButton>
             )}
           </div>
