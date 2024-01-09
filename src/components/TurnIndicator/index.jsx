@@ -1,5 +1,5 @@
 import ToastAlert from 'components/ToastAlert';
-import latestMessageByType from 'helpers/messages';
+import latestMessageByType, { latestMessage } from 'helpers/messages';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
 import useTurnIndicator from 'hooks/useTurnIndicator';
@@ -10,11 +10,12 @@ export default function TurnIndicator({ room }) {
   const { messages } = useMessages(room);
   const [showToast, setShowToast] = useState(false);
   const message = latestMessageByType(messages, 'actions');
+  const lastMessage = latestMessage(messages);
   const player = useTurnIndicator(room, message);
   const { playerDialog, othersDialog } = useLocalStorage('gameSettings')[0];
 
   useEffect(() => {
-    if (!player) return;
+    if (!player || lastMessage !== message) return;
     setShowToast(true);
   }, [player]);
 
