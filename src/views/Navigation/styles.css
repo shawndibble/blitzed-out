@@ -16,6 +16,12 @@
   justify-content: space-between;
 }
 
+@media screen and (max-width: 600px) {
+  .nav {
+    padding: 5px 8px;
+  }
+}
+
 .nav > div {
   flex: 1;
   display: flex;

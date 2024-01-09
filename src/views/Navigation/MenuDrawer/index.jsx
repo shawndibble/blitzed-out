@@ -17,20 +17,21 @@ import {
   ListItemText,
   SvgIcon,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useWindowDimensions from 'hooks/useWindowDimensions';
 import GameSettings from 'views/GameSettings';
 import useAuth from 'hooks/useAuth';
 import GameGuide from 'views/GameGuide';
 import { Trans } from 'react-i18next';
-import { Logout, Tv } from '@mui/icons-material';
+import { CalendarMonth, Logout, Tv } from '@mui/icons-material';
 import { logout } from 'services/firebase';
 import ImportExport from 'views/ImportExport';
 import CloseIcon from 'components/CloseIcon';
 import { useParams } from 'react-router-dom';
+import Schedule from 'views/Schedule';
 import DonateDialog from './DonateDialog';
 
-export default function MenuDrawer() {
+export default function MenuDrawer({ openSchedule, setCloseSchedule }) {
   const { id: room } = useParams();
   const { user } = useAuth();
   const { isMobile } = useWindowDimensions();
@@ -42,7 +43,12 @@ export default function MenuDrawer() {
     importExport: false,
     donate: false,
     about: false,
+    schedule: false,
   });
+
+  useEffect(() => {
+    setOpen({ ...open, schedule: openSchedule });
+  }, [openSchedule]);
 
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
 
@@ -54,50 +60,63 @@ export default function MenuDrawer() {
     </SvgIcon>
   );
 
-  const menuItems = [
-    {
-      key: 'importExport',
-      title: <Trans i18nKey="importExport" />,
-      icon: <ImportExportIcon />,
-      onClick: () => toggleDialog('importExport', true),
-    },
-    {
-      key: 'discord',
-      title: 'Discord',
-      icon: discordIcon,
-      onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef'),
-    }, {
-      key: 'donate',
-      title: <Trans i18nKey="donate" />,
-      icon: <PaidIcon />,
-      onClick: () => toggleDialog('donate', true),
-    }, {
-      key: 'about',
-      title: <Trans i18nKey="about" />,
-      icon: <InfoIcon />,
-      onClick: () => toggleDialog('about', true),
-    }, {
-      key: 'cast',
-      title: <Trans i18nKey="cast" />,
-      icon: <Tv />,
-      onClick: () => openInNewTab(`/rooms/${room}/cast`),
-    },
-  ];
+  const closeSchedule = () => {
+    setOpen({ ...open, schedule: false });
+    setCloseSchedule(false);
+  };
 
-  if (user) {
-    menuItems.unshift({
-      key: 'settings',
-      title: <Trans i18nKey="settings" />,
-      icon: <SettingsIcon />,
-      onClick: () => toggleDialog('settings', true),
-    });
-    menuItems.push({
-      key: 'logout',
-      title: <Trans i18nKey="logout" />,
-      icon: <Logout />,
-      onClick: () => logout(),
-    });
-  }
+  const menuItems = useMemo(() => {
+    const items = [
+      {
+        key: 'importExport',
+        title: <Trans i18nKey="importExport" />,
+        icon: <ImportExportIcon />,
+        onClick: () => toggleDialog('importExport', true),
+      }, {
+        key: 'cast',
+        title: <Trans i18nKey="cast" />,
+        icon: <Tv />,
+        onClick: () => openInNewTab(`/rooms/${room}/cast`),
+      }, {
+        key: 'schedule',
+        title: <Trans i18nKey="schedule" />,
+        icon: <CalendarMonth />,
+        onClick: () => toggleDialog('schedule', true),
+      },
+      {
+        key: 'discord',
+        title: 'Discord',
+        icon: discordIcon,
+        onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef'),
+      }, {
+        key: 'donate',
+        title: <Trans i18nKey="donate" />,
+        icon: <PaidIcon />,
+        onClick: () => toggleDialog('donate', true),
+      }, {
+        key: 'about',
+        title: <Trans i18nKey="about" />,
+        icon: <InfoIcon />,
+        onClick: () => toggleDialog('about', true),
+      },
+    ];
+
+    if (user) {
+      items.unshift({
+        key: 'settings',
+        title: <Trans i18nKey="settings" />,
+        icon: <SettingsIcon />,
+        onClick: () => toggleDialog('settings', true),
+      });
+      items.push({
+        key: 'logout',
+        title: <Trans i18nKey="logout" />,
+        icon: <Logout />,
+        onClick: () => logout(),
+      });
+    }
+    return items;
+  }, [user]);
 
   const settingsDialog = (
     <Dialog
@@ -160,8 +179,15 @@ export default function MenuDrawer() {
       </Drawer>
       {settingsDialog}
       {aboutDialog}
-      <ImportExport open={open.importExport} close={() => toggleDialog('importExport', false)} isMobile={isMobile} />
-      <DonateDialog open={open.donate} close={() => toggleDialog('donate', false)} isMobile={isMobile} />
+      {!!open.importExport && (
+        <ImportExport open={open.importExport} close={() => toggleDialog('importExport', false)} isMobile={isMobile} />
+      )}
+      {!!open.donate && (
+        <DonateDialog open={open.donate} close={() => toggleDialog('donate', false)} isMobile={isMobile} />
+      )}
+      {!!open.schedule && (
+        <Schedule open={open.schedule} close={closeSchedule} isMobile={isMobile} />
+      )}
     </>
   );
 }

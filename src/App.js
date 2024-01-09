@@ -1,6 +1,8 @@
 import {
   CssBaseline, ThemeProvider, createTheme, responsiveFontSizes,
 } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import useAuth from 'hooks/useAuth';
 import {
   Navigate,
@@ -27,14 +29,16 @@ function App() {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          <Route exact path="/" element={<Navigate replace to="/rooms/public" />} />
-          <Route path="/rooms/:id/cast" element={<Cast />} />
-          <Route path="/rooms/:id" element={room} />
-        </Routes>
-      </Router>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <CssBaseline />
+        <Router>
+          <Routes>
+            <Route exact path="/" element={<Navigate replace to="/rooms/public" />} />
+            <Route path="/rooms/:id/cast" element={<Cast />} />
+            <Route path="/rooms/:id" element={room} />
+          </Routes>
+        </Router>
+      </LocalizationProvider>
     </ThemeProvider>
   );
 }

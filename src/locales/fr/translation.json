@@ -62,7 +62,7 @@
   "customURL": "URL personnalisée",
   "url": "URL",
   "supportedSites": "Sites pris en charge: vimeo, youtube, google drive, pornhub, xhamster, dropbox.",
-  "requiresEmbeddedUrl": "Nécessite une URL d'intégration publique (<iframe src='url'>): thisvid, boyfriendtv",
+  "requiresEmbeddedUrl": "Nécessite une URL d'intégration publique: thisvid, boyfriendtv",
   "restart": "Recommencer Le Jeu",
   "restartingGame": "Retourner à la case de départ",
   "roll": "Lancer",

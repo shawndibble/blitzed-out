@@ -209,6 +209,36 @@ export function getMessages(roomId, callback) {
   );
 }
 
+export function getSchedule(callback) {
+  return onSnapshot(
+    query(
+      collection(db, 'schedule'),
+      where('dateTime', '>', new Date().toUTCString()),
+      orderBy('dateTime', 'asc'),
+    ),
+    (querySnapshot) => {
+      const schedule = querySnapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data(),
+      }));
+      callback(schedule);
+    },
+  );
+}
+
+export async function addSchedule(dateTime, url, room = 'public') {
+  try {
+    return await addDoc(collection(db, 'schedule'), {
+      dateTime: dateTime.toUTCString(),
+      url,
+      room,
+    });
+  } catch (error) {
+    // eslint-disable-next-line
+    return console.error(error);
+  }
+}
+
 export function getRooms(callback) {
   const querySnapshot = getDocs(collection(db, 'chat-rooms'));
   const rooms = [];

@@ -1,15 +1,27 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import {
-  AppBar, Box, Toolbar, Tooltip, Typography,
+  AppBar, Box, IconButton, Toolbar, Tooltip, Typography,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import Logo from 'images/blitzed-out.webp';
 import './styles.css';
+import { CalendarMonth } from '@mui/icons-material';
+import { getSchedule } from 'services/firebase';
 import PlayersOnline from './PlayersOnline';
 import MenuDrawer from './MenuDrawer';
 
 export default function Navigation({ room, playerList = [] }) {
   const { t } = useTranslation();
+  const [events, setEvents] = useState(null);
+  const [openSchedule, setOpenSchedule] = useState(false);
+
+  useEffect(() => {
+    getSchedule(setEvents);
+  }, []);
+
+  const handleScheduleClick = () => {
+    setOpenSchedule(true);
+  };
 
   const playersOnlineTooltip = (
     <>
@@ -37,11 +49,16 @@ export default function Navigation({ room, playerList = [] }) {
             <Tooltip title={playersOnlineTooltip}>
               <WrapPlayersOnline playerList={playerList} />
             </Tooltip>
+            {!!events && (
+              <IconButton onClick={handleScheduleClick} aria-label="schedule game" sx={{ ml: 2 }}>
+                <CalendarMonth />
+              </IconButton>
+            )}
           </div>
         </div>
 
         <div className="menu-drawer">
-          <MenuDrawer />
+          <MenuDrawer openSchedule={openSchedule} setCloseSchedule={setOpenSchedule} />
         </div>
       </Toolbar>
     </AppBar>

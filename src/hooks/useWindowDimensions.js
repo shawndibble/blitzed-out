@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import {
+  useState, useRef, useCallback, useLayoutEffect,
+} from 'react';
 
 export default function useWindowDimensions() {
   const hasWindow = typeof window !== 'undefined';
@@ -17,28 +19,24 @@ export default function useWindowDimensions() {
 
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
 
-  function handleResize() {
+  const handleResize = useCallback(() => {
     if (resizeTimeout.current) {
       clearTimeout(resizeTimeout.current);
     }
     resizeTimeout.current = setTimeout(() => {
       setWindowDimensions(getWindowDimensions());
     }, 200); // delay of 200ms
-  }
+  });
 
-  useEffect(() => {
-    if (hasWindow) {
-      window.addEventListener('resize', handleResize);
-      return () => {
-        window.removeEventListener('resize', handleResize);
-        if (resizeTimeout.current) {
-          clearTimeout(resizeTimeout.current);
-        }
-      };
-    }
-    return null;
-    // eslint-disable-next-line
-  }, [hasWindow]);
+  useLayoutEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeout.current) {
+        clearTimeout(resizeTimeout.current);
+      }
+    };
+  }, []);
 
   return windowDimensions;
 }
