@@ -6,6 +6,7 @@ import {
   getDatabase, onDisconnect, onValue, push, ref, remove, set,
 } from 'firebase/database';
 import {
+  Timestamp,
   addDoc,
   collection,
   deleteDoc,
@@ -213,7 +214,7 @@ export function getSchedule(callback) {
   return onSnapshot(
     query(
       collection(db, 'schedule'),
-      where('dateTime', '>', new Date().toUTCString()),
+      where('dateTime', '>', new Date()),
       orderBy('dateTime', 'asc'),
     ),
     (querySnapshot) => {
@@ -229,7 +230,7 @@ export function getSchedule(callback) {
 export async function addSchedule(dateTime, url, room = 'public') {
   try {
     return await addDoc(collection(db, 'schedule'), {
-      dateTime: dateTime.toUTCString(),
+      dateTime: Timestamp.fromDate(dateTime),
       url,
       room,
     });
