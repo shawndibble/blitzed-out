@@ -94,6 +94,7 @@ export default function Schedule({ open, close, isMobile }) {
                 disablePast
                 maxDate={twoWeeksFromNow}
                 timeSteps={{ minutes: 30 }}
+                sx={{ width: '100%' }}
               />
             </Box>
             <Box>
