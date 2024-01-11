@@ -17,7 +17,7 @@ import dayjs from 'dayjs';
 import { useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { addSchedule, getSchedule } from 'services/firebase';
-import ScheduleList from './ScheduleList';
+import ScheduleItem from './ScheduleItem';
 
 export default function Schedule({ open, close, isMobile }) {
   const { t } = useTranslation();
@@ -80,7 +80,7 @@ export default function Schedule({ open, close, isMobile }) {
           <DialogContent>
             <Box>
               {schedule.length
-                ? <ScheduleList schedule={schedule} />
+                ? schedule?.map((game) => <ScheduleItem key={game.id} game={game} />)
                 : <Typography variant="body1">No Planned Games</Typography>}
             </Box>
             <Divider sx={{ my: 2 }} />
