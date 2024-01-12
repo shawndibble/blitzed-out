@@ -17,6 +17,7 @@
     "@testing-library/user-event": "^14.0.0",
     "clsx": "^2.1.0",
     "dayjs": "^1.11.10",
+    "dotenv": "^16.3.1",
     "eslint": "^7.32.0 || ^8.2.0",
     "firebase": "^10.0.0",
     "gh-pages": "^6.0.0",

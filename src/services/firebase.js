@@ -25,13 +25,13 @@ import {
 } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCKS7tWQRYRWHsawNfN42uAmISdUbJHJJw',
-  authDomain: 'blitzout-49b39.firebaseapp.com',
-  projectId: 'blitzout-49b39',
-  storageBucket: 'blitzout-49b39.appspot.com',
-  messagingSenderId: '852428606926',
-  appId: '1:852428606926:web:17444e6f8dbc2f95f0ef9f',
-  measurementId: 'G-93YN1YMTQ7',
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
