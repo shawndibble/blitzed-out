@@ -8,6 +8,7 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
+  plugins: ['react', 'import', 'react-hooks'],
   settings: {
     'import/resolver': {
       node: {
