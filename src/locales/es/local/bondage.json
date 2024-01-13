@@ -1,0 +1,25 @@
+{
+  "label": "Esclavitud",
+  "actions": {
+    "Ninguna": [],
+    "Cuerdas y Puños": [
+      "Átate las muñecas",
+      "Quédate atado a un mueble hasta tu próxima acción.",
+      "Ten tus muñecas atadas alrededor del cuerpo de otro jugador hasta que una acción requiera que uno de ustedes sea liberado.",
+      "Déjate atar por otro jugador como quiera.",
+      "Quédate atado hasta tu próxima acción.",
+      "Ten tus brazos atados detrás de tu espalda hasta tu próxima acción.",
+      "Ten tus brazos atados a tus piernas hasta que una acción requiera tu liberación.",
+      "Ser atado a un mueble hasta que una acción requiera su liberación"
+    ],
+    "Añadir vendas y mordazas": [
+      "Ten los ojos vendados hasta tu próxima acción.",
+      "Quedate amordazado hasta tu próxima acción.",
+      "Que te vendan los ojos y te amordacen hasta tu próxima acción.",
+      "Que te vendan los ojos y te amordacen hasta que una acción requiera tu liberación.",
+      "Estar con los ojos vendados, amordazado y atado de muñecas hasta su próxima acción.",
+      "Ser amordazado con una prenda de vestir hasta la próxima acción que requiera su boca.",
+      "Ten los ojos vendados con una prenda de vestir hasta tu próxima acción"
+    ]
+  }
+}

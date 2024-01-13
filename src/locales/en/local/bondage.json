@@ -1,0 +1,25 @@
+{
+  "label": "Bondage",
+  "actions": {
+    "None": [],
+    "Ropes and Cuffs": [
+      "Tie your wrists together",
+      "Get bound to a piece of furniture until your next action.",
+      "Have your wrists bound around another player's body until an action requires one of you to be freed.",
+      "Get tied up by another player however they wish.",
+      "Get hog tied until your next action.",
+      "Have your arms bound behind your back until your next action.",
+      "Have your arms bound to your legs until an action requires you to be freed.",
+      "Be restrained to a piece of furniture until an action requires you to be freed."
+    ],
+    "Add Blindfolds and Gags": [
+      "Get blindfolded until your next action.",
+      "Get gagged until your next action.",
+      "Get blindfolded and gagged until your next action.",
+      "Get blindfolded and gagged until an action requires you to be freed.",
+      "Be blindfolded, gagged and wrist bound until your next action.",
+      "Be gagged with a piece of clothing until your next action that requires your mouth.",
+      "Be blindfolded with a piece of clothing until your next action."
+    ]
+  }
+}
