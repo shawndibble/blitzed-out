@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import MessageInput from 'components/MessageInput';
 import MessageList from 'components/MessageList';
 import PopupMessage from 'components/PopupMessage';
+import RoomBackground from 'components/RoomBackground';
 import ToastAlert from 'components/ToastAlert';
 import TurnIndicator from 'components/TurnIndicator';
 import useLocalStorage from 'hooks/useLocalStorage';
@@ -18,7 +19,6 @@ import MemoizedGameBoard from 'views/Room/GameBoard';
 import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
-import RoomBackground from './RoomBackground';
 import './styles.css';
 
 export default function Room() {

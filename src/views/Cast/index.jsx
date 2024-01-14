@@ -11,7 +11,7 @@ import { t } from 'i18next';
 import { useEffect, useState, useMemo } from 'react';
 import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import RoomBackground from 'views/Room/RoomBackground';
+import RoomBackground from 'components/RoomBackground';
 import './styles.css';
 
 const ACTION_TYPE = 'actions';
