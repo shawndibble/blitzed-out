@@ -32,7 +32,7 @@
   "roomType": "Tipo de sala",
   "solo": "Individual",
   "soloTooltip": "Juega solo",
-  "local": "Partida local",
+  "local": "Interacción real",
   "localTooltip": "Juega con otros en persona",
   "gameSpeed": "Velocidad del juego",
   "averageRolls": "Rollos promedio por juego: ",
