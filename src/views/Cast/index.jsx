@@ -49,10 +49,10 @@ export default function Cast() {
   const activity = activityString.split(':')[1].trim();
 
   return (
-    <Box className="text-stroke">
+    <Box className="text-stroke flex-column">
       {!!url && (<RoomBackground url={url} isVideo={isVideo} />)}
       {!!nextPlayer?.displayName && (
-        <Box sx={{ mt: 2, mb: -2, textAlign: 'center' }}>
+        <Box sx={{ textAlign: 'center' }}>
           <Typography variant="h5">
             <Trans i18nKey="nextPlayersTurn" values={{ player: nextPlayer.displayName }} />
           </Typography>
@@ -64,19 +64,15 @@ export default function Cast() {
         direction="column"
         alignItems="center"
         justifyContent="center"
-        sx={{ minHeight: '100vh' }}
+        className="cast-container"
       >
         <Grid item xs={3}>
-          <Box className="cast-container">
-            <div className="title">
-              <Typography variant="h3">
-                {`${type} ${t('for')} ${displayName}`}
-              </Typography>
-            </div>
-            <Divider className="divider" />
-            <div className="description">
-              <Typography variant="h1">{activity}</Typography>
-            </div>
+          <Box className="action-box">
+            <Typography variant="h3">
+              {`${type} ${t('for')} ${displayName}`}
+            </Typography>
+            <Box className="divider"><Divider /></Box>
+            <Typography variant="h1">{activity}</Typography>
           </Box>
         </Grid>
       </Grid>

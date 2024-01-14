@@ -14,7 +14,16 @@
   black 1.92034px -0.558831px 0px;
 }
 
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
 .cast-container {
+  height: calc(100vh - 32px);
+}
+
+.action-box {
   background-color: rgba(0, 0, 0, 0.5);
   padding: 2rem;
   border-radius: 0.5rem;
