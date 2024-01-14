@@ -10,6 +10,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import RoomBackground from 'views/Room/RoomBackground';
+import './styles.css';
 
 const ACTION_TYPE = 'actions';
 
@@ -46,7 +47,7 @@ export default function Cast() {
   const activity = activityString.split(':')[1].trim();
 
   return (
-    <Box sx={{ textShadow: '1px 1px 2px #000000' }}>
+    <Box className="text-stroke">
       {!!url && (<RoomBackground url={url} isVideo={isVideo} />)}
       {!!nextPlayer?.displayName && (
         <Box sx={{ mt: 2, mb: -2, textAlign: 'center' }}>
