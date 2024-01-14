@@ -46,12 +46,12 @@ export default function Cast() {
   const activity = activityString.split(':')[1].trim();
 
   return (
-    <>
+    <Box sx={{ textShadow: '1px 1px 2px #000000' }}>
       {!!url && (<RoomBackground url={url} isVideo={isVideo} />)}
-      {!!nextPlayer && (
+      {!!nextPlayer?.displayName && (
         <Box sx={{ mt: 2, mb: -2, textAlign: 'center' }}>
           <Typography variant="h5">
-            <Trans i18nKey="nextPlayersTurn" values={{ nextPlayer }} />
+            <Trans i18nKey="nextPlayersTurn" values={{ player: nextPlayer.displayName }} />
           </Typography>
         </Box>
       )}
@@ -84,6 +84,6 @@ export default function Cast() {
       >
         <Typography variant="h5">{alertMessage}</Typography>
       </ToastAlert>
-    </>
+    </Box>
   );
 }
