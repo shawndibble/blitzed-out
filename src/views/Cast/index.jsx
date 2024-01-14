@@ -1,4 +1,6 @@
-import { Box, Grid, Typography } from '@mui/material';
+import {
+  Box, Divider, Grid, Typography,
+} from '@mui/material';
 import ToastAlert from 'components/ToastAlert';
 import latestMessageByType from 'helpers/messages';
 import useLocalStorage from 'hooks/useLocalStorage';
@@ -64,13 +66,14 @@ export default function Cast() {
         justifyContent="center"
         sx={{ minHeight: '100vh' }}
       >
-        <Grid item xs={3} padding="5%">
+        <Grid item xs={3}>
           <Box className="cast-container">
             <div className="title">
               <Typography variant="h3">
                 {`${type} ${t('for')} ${displayName}`}
               </Typography>
             </div>
+            <Divider className="divider" />
             <div className="description">
               <Typography variant="h1">{activity}</Typography>
             </div>

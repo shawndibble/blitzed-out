@@ -13,3 +13,17 @@
   black 1.41734px -1.41108px 0px,
   black 1.92034px -0.558831px 0px;
 }
+
+.cast-container {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 1px 1px 3px black;
+}
+
+.divider {
+  margin-top: -0.5rem;
+  height: 0.5rem;
+  background-color: white;
+  border: 2px solid black;
+}
