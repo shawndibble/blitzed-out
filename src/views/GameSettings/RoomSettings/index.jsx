@@ -21,7 +21,6 @@ export default function RoomSettings({ formData, setFormData }) {
   };
 
   const handleChange = useCallback((event) => {
-    if (event.key !== 'Enter') return;
     setFormData({
       ...formData,
       room: event.target.value,
