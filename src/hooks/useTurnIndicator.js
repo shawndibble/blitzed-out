@@ -19,8 +19,10 @@ export default function useTurnIndicator(room, message) {
       return;
     }
 
-    const player = getNextPlayer(players, message.uid);
-    setTurnIndicator(player);
+    const stillPlaying = players.filter((player) => !player.isFinished);
+
+    const nextPlayer = getNextPlayer(stillPlaying, message.uid);
+    setTurnIndicator(nextPlayer);
   }, [message]);
 
   return turnIndicator;

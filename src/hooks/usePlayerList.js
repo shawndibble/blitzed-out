@@ -1,12 +1,14 @@
+import { t } from 'i18next';
 import {
   useCallback, useEffect, useMemo, useState,
 } from 'react';
 import { getUserList } from 'services/firebase';
+import { orderedMessagesByType } from 'helpers/messages';
 import useAuth from './useAuth';
 import useMessages from './useMessages';
 
 function filteredGameMessages(messages) {
-  const filteredMessages = messages.filter((m) => m.type === 'actions');
+  const filteredMessages = orderedMessagesByType(messages, 'actions', 'DESC');
   return [...new Map(filteredMessages.map((m) => [m.uid, m])).values()];
 }
 
@@ -44,17 +46,20 @@ function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
     .map(([onlineUid, data]) => {
       const mostRecentEntry = Object.values(data).sort((a, b) => b.lastActive - a.lastActive)[0];
       const { displayName } = mostRecentEntry;
+
       const userGameMessage = uniqueGameActions.find((message) => message.uid === onlineUid)?.text;
       const currentLocation = userGameMessage && userGameMessage.match(/(?:#)[\d]*(?=:)/gs)
         ? Number(userGameMessage.match(/(?:#)[\d]*(?=:)/gs)[0].replace('#', ''))
         : 0;
       const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
+      const isFinished = userGameMessage?.includes(t('finish'));
 
       return {
         displayName,
         uid: onlineUid,
         isSelf: onlineUid === user?.uid,
         location,
+        isFinished, // only the last tile has multiple percent values
       };
     });
 }
