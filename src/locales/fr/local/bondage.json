@@ -10,7 +10,10 @@
       " Attachez-vous jusqu'à votre prochaine action. ",
       "Ayez les bras liés derrière le dos jusqu'à votre prochaine action.",
       "Ayez vos bras attachés à vos jambes jusqu'à ce qu'une action nécessite votre libération.",
-      "Soyez attaché à un meuble jusqu'à ce qu'une action nécessite votre libération."
+      "Soyez attaché à un meuble jusqu'à ce qu'une action nécessite votre libération.",
+      "Faites lier vos chevilles ensemble",
+      "Demandez à un autre joueur de vous mettre dans une position difficile jusqu'à votre prochaine action",
+      "Soyez lié, écartez l'aigle jusqu'à ce qu'une action exige le contraire."
     ],
     "Ajouter des bandeaux et des gags": [
       "Ayez les yeux bandés jusqu'à votre prochaine action.",
@@ -19,7 +22,9 @@
       "Ayez les yeux bandés et bâillonnez-vous jusqu'à ce qu'une action nécessite votre libération.",
       "Ayez les yeux bandés, bâillonnés et les poignets liés jusqu'à votre prochaine action.",
       "Soyez bâillonné avec un vêtement jusqu'à votre prochaine action qui nécessite votre bouche.",
-      "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action."
+      "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action.",
+      "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action.",
+      "Un autre joueur peut choisir quoi utiliser comme bandeau et/ou bâillon jusqu'à votre prochaine action."
     ]
   }
 }

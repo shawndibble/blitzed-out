@@ -10,7 +10,10 @@
       "Get hog tied until your next action.",
       "Have your arms bound behind your back until your next action.",
       "Have your arms bound to your legs until an action requires you to be freed.",
-      "Be restrained to a piece of furniture until an action requires you to be freed."
+      "Be restrained to a piece of furniture until an action requires you to be freed.",
+      "Have your ankles bound together",
+      "Have another player put you in a predicament position until your next action",
+      "Be bound spread eagle until an action requires otherwise."
     ],
     "Add Blindfolds and Gags": [
       "Get blindfolded until your next action.",
@@ -20,7 +23,8 @@
       "Be blindfolded, gagged and wrist bound until your next turn.",
       "Be blindfolded, gagged and wrist bound until your next action",
       "Be gagged with a piece of clothing until your next action that requires your mouth.",
-      "Be blindfolded with a piece of clothing until your next action."
+      "Be blindfolded with a piece of clothing until your next action.",
+      "Another player can pick what to use for a blindfold and/or gag until your next action."
     ]
   }
 }
