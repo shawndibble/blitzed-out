@@ -3,28 +3,33 @@
   "actions": {
     "Ninguna": [],
     "Verbal": [
-      "Inventa un mantra. Repítelo en tu turno cada ronda.",
-      "Un jugador te pondrá un título despectivo (esclavo, mascota, etc.). Repite 'Soy un <término>' 30 veces.",
-      "Escribe unas líneas o una breve historia centrada en tu papel de sumiso. Léelo en voz alta.",
-      "Recibe un apodo humillante al que deberás responder durante el resto del juego.",
-      "Debes referirte a quienes no elijan la opción de humillación como señor / señora / amo / ama.",
+      "Inventa un mantra. Repítelo en tu turno en cada ronda.",
+      "Un jugador te da un título despectivo (esclavo, mascota, etc.). Repite 'Soy un <término>' 30 veces.",
+      "Escribe líneas o un cuento corto centrado en tu papel sumiso. Léelo en voz alta.",
+      "Te asignan un apodo humillante al que debes responder por el resto del juego.",
+      "Debes referirte a aquellos que no usan la opción de humillación como señor/señora/amo/ama.",
       "Comparte una fantasía o deseo relacionado con la humillación.",
-      "Recibe cumplidos o elogios mientras intentas mantener la compostura.",
-      "Cuenta una experiencia pasada que te haya hecho sentir humillado.",
-      "Haz un cumplido a cada jugador, uno por uno.",
-      "Describe cómo los jugadores que no elijan la opción de humillación son superiores a ti."
+      "Discute y procesa una experiencia pasada que te hizo sentir humillado/a.",
+      "De los jugadores que no usan la opción de humillación, di cómo son superiores a ti.",
+      "Repite afirmaciones degradantes elegidas por otro jugador."
     ],
     "Físico": [
       "Escribe palabras despectivas en tu cuerpo.",
-      "Ponte de rodillas, con la cabeza hacia abajo hasta el próximo turno.",
-      "Eres un mueble para otro jugador hasta tu próximo turno.",
-      "Hasta que te reemplacen, serás el chico/chica de los recados durante el resto del juego.",
-      "Recibe una bofetada, un azote o un latigazo suaves.",
+      "Arrodíllate con la cabeza baja hasta tu próximo turno.",
+      "Eres mueble para otro jugador hasta tu próximo turno.",
+      "Hasta que te reemplacen, eres el chico/chica de los recados durante el resto del juego.",
+      "Recibe una palmada suave, una nalgada o un azote.",
       "Adora las axilas de otro jugador.",
-      "Ponte una prenda que te haga sentir humillado durante el resto del juego.",
-      "De rodillas. Déjate estrangular y ser degradado verbalmente.",
-      "Dale un masaje en los pies a otro jugador.",
-      "Da dos vueltas a la habitación gateando."
+      "Usa una prenda de vestir que te haga sentir humillado/a durante el resto del juego.",
+      "De rodillas. Recibe estrangulamiento verbal y físico.",
+      "Da un masaje de pies a otro jugador.",
+      "Arrástrate por la habitación.",
+      "Arrástrate hacia otro jugador y luego espera en posición baja y enfrente de ellos hasta tu próximo turno.",
+      "Usa un collar y una correa durante el resto del juego. Improvisa si es necesario.",
+      "Otro jugador puede elegir qué parte del cuerpo debes besar o adorar.",
+      "Completa tareas o actos sexuales designados por otros jugadores, enfatizando sumisión y obediencia.",
+      "Realiza tareas o actos sexuales asignados por otros jugadores que enfaticen tu sumisión y obediencia.",
+      "Permite que otro jugador te escupa."
     ]
   }
 }
