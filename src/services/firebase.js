@@ -11,7 +11,6 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDocs,
   getFirestore,
   onSnapshot,
   orderBy,
@@ -66,8 +65,8 @@ export function setMyPresence({
   const database = getDatabase();
   const auth = getAuth();
   const uid = auth.currentUser?.uid;
-  const newRoomConnectionsRef = ref(database, `rooms/${newRoom}/uids/${uid}`);
-  const oldRoomConnectionsRef = ref(database, `rooms/${oldRoom}/uids/${uid}`);
+  const newRoomConnectionsRef = ref(database, `rooms/${newRoom?.toUpperCase()}/uids/${uid}`);
+  const oldRoomConnectionsRef = ref(database, `rooms/${oldRoom?.toUpperCase()}/uids/${uid}`);
   const connectedRef = ref(database, '.info/connected');
 
   onValue(connectedRef, (snap) => {
@@ -75,7 +74,7 @@ export function setMyPresence({
       // We're connected (or reconnected)!
       const newRef = push(newRoomConnectionsRef);
 
-      if (oldRoom !== newRoom || oldDisplayName !== newDisplayName) {
+      if (oldRoom?.toUpperCase() !== newRoom?.toUpperCase() || oldDisplayName !== newDisplayName) {
         remove(oldRoomConnectionsRef);
       }
 
@@ -91,7 +90,7 @@ export function setMyPresence({
 
 export function getUserList(roomId, callback, existingData) {
   const database = getDatabase();
-  const roomRef = ref(database, `rooms/${roomId}/uids`);
+  const roomRef = ref(database, `rooms/${roomId?.toUpperCase()}/uids`);
   onValue(roomRef, (snap) => {
     const data = snap.val();
 
@@ -145,7 +144,7 @@ export async function sendMessage({
   const now = Date.now();
 
   try {
-    return await addDoc(collection(db, 'chat-rooms', room, 'messages'), {
+    return await addDoc(collection(db, 'chat-rooms', room?.toUpperCase(), 'messages'), {
       uid: user.uid,
       displayName: user.displayName,
       text: text.trim(),
@@ -196,7 +195,7 @@ export function getMessages(roomId, callback) {
   twoHoursBefore.setHours(twoHoursBefore.getHours() - 2);
   return onSnapshot(
     query(
-      collection(db, 'chat-rooms', roomId, 'messages'),
+      collection(db, 'chat-rooms', roomId?.toUpperCase(), 'messages'),
       where('timestamp', '>', twoHoursBefore),
       orderBy('timestamp', 'asc'),
     ),
@@ -239,13 +238,4 @@ export async function addSchedule(dateTime, url, room = 'public') {
     // eslint-disable-next-line
     return console.error(error);
   }
-}
-
-export function getRooms(callback) {
-  const querySnapshot = getDocs(collection(db, 'chat-rooms'));
-  const rooms = [];
-  querySnapshot.then((data) => {
-    data.forEach((document) => rooms.push(document.id));
-    callback(rooms);
-  });
 }
