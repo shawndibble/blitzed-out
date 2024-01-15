@@ -66,14 +66,14 @@ export default function Cast() {
         justifyContent="center"
         className="cast-container"
       >
-        <Grid item xs={3}>
-          <Box className="action-box">
+        <Grid item container justifyContent="center">
+          <Grid item xl={8} lg={10} md={10} className="action-box">
             <Typography variant="h3">
               {`${type} ${t('for')} ${displayName}`}
             </Typography>
             <Box className="divider"><Divider /></Box>
             <Typography variant="h1">{activity}</Typography>
-          </Box>
+          </Grid>
         </Grid>
       </Grid>
       <ToastAlert

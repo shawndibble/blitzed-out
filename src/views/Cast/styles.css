@@ -21,6 +21,7 @@
 
 .cast-container {
   height: calc(100vh - 5rem);
+  padding-top: 5rem;
 }
 
 .action-box {
@@ -28,7 +29,7 @@
   padding: 2rem;
   border-radius: 0.5rem;
   box-shadow: 1px 1px 3px black;
-  margin-top: 1rem;
+  margin-top: 3rem;
 }
 
 .divider {
