@@ -4,7 +4,7 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
-import useWindowDimensions from 'hooks/useWindowDimensions';
+import useBreakpoint from 'hooks/useBreakpoint';
 import useLocalStorage from 'hooks/useLocalStorage';
 import ToastAlert from 'components/ToastAlert';
 import groupActionsFolder from 'helpers/actionsFolder';
@@ -17,7 +17,7 @@ export default function CustomTileDialog({
   boardUpdated, actionsList, setOpen, open = false,
 }) {
   const { t } = useTranslation();
-  const { isMobile } = useWindowDimensions();
+  const { isMobile } = useBreakpoint();
   const [submitMessage, setSubmitMessage] = useState({ message: '', type: 'info' });
   const [customTiles, setCustomTiles] = useLocalStorage('customTiles', []);
   const [expanded, setExpanded] = useState('ctAdd');

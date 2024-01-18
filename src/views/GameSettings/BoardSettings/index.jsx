@@ -6,16 +6,16 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Stack, Switch, Tooltip, Typography, useMediaQuery, useTheme,
+  Stack, Switch, Tooltip, Typography,
 } from '@mui/material';
+import useBreakpoint from 'hooks/useBreakpoint';
 import { Trans } from 'react-i18next';
 import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { alcohol, poppers, ...remainingActions } = actionsList;
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useBreakpoint('md');
 
   const settingSelectLists = Object.keys(remainingActions).map((option) => (
     <Grid item xs={12} sm={6} md={4} key={option}>

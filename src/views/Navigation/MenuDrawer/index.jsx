@@ -1,8 +1,9 @@
+import { CalendarMonth, Logout, Tv } from '@mui/icons-material';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
+import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import PaidIcon from '@mui/icons-material/Paid';
 import SettingsIcon from '@mui/icons-material/Settings';
-import InfoIcon from '@mui/icons-material/Info';
-import ImportExportIcon from '@mui/icons-material/ImportExport';
 import {
   Box,
   Dialog,
@@ -16,28 +17,24 @@ import {
   ListItemIcon,
   ListItemText,
   SvgIcon,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
-import GameSettings from 'views/GameSettings';
-import useAuth from 'hooks/useAuth';
-import GameGuide from 'views/GameGuide';
-import { Trans } from 'react-i18next';
-import { CalendarMonth, Logout, Tv } from '@mui/icons-material';
-import { logout } from 'services/firebase';
-import ImportExport from 'views/ImportExport';
 import CloseIcon from 'components/CloseIcon';
+import useAuth from 'hooks/useAuth';
+import useBreakpoint from 'hooks/useBreakpoint';
+import { useEffect, useMemo, useState } from 'react';
+import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import { logout } from 'services/firebase';
+import GameGuide from 'views/GameGuide';
+import GameSettings from 'views/GameSettings';
+import ImportExport from 'views/ImportExport';
 import Schedule from 'views/Schedule';
 import DonateDialog from './DonateDialog';
 
 export default function MenuDrawer({ openSchedule, setCloseSchedule }) {
   const { id: room } = useParams();
   const { user } = useAuth();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  // const { isMobile } = useWindowDimensions();
+  const isMobile = useBreakpoint();
   const [menuOpen, setMenu] = useState(false);
   const toggleDrawer = (isOpen) => setMenu(isOpen);
 

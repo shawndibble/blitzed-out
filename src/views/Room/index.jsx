@@ -10,7 +10,7 @@ import usePlayerMove from 'hooks/usePlayerMove';
 import usePresence from 'hooks/usePresence';
 import usePrivateRoomMonitor from 'hooks/usePrivateRoomMonitor';
 import useUrlImport from 'hooks/useUrlImport';
-import useWindowDimensions from 'hooks/useWindowDimensions';
+import useBreakpoint from 'hooks/useBreakpoint';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import getBackgroundSource from 'services/getBackgroundSource';
@@ -24,7 +24,7 @@ import './styles.css';
 export default function Room() {
   const params = useParams();
   const room = params.id;
-  const { isMobile } = useWindowDimensions();
+  const { isMobile } = useBreakpoint();
 
   usePresence(room);
 
