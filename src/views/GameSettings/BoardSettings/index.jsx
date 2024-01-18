@@ -2,6 +2,7 @@ import { Help } from '@mui/icons-material';
 import {
   Divider,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -12,18 +13,40 @@ import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
-  const settingSelectLists = Object.keys(actionsList).map((option) => (
-    <SelectBoardSetting
-      key={option}
-      option={option}
-      settings={formData}
-      setSettings={setFormData}
-      actionsFolder={actionsList}
-    />
+  const { alcohol, poppers, ...remainingActions } = actionsList;
+
+  const settingSelectLists = Object.keys(remainingActions).map((option) => (
+    <Grid item xs={12} sm={6} md={4} key={option}>
+      <SelectBoardSetting
+        option={option}
+        settings={formData}
+        setSettings={setFormData}
+        actionsFolder={remainingActions}
+      />
+    </Grid>
   ));
 
   return (
     <>
+      <Grid container columnSpacing={2} justifyContent="center">
+        <Grid item xs={12} sm={8} md={5}>
+          <SelectBoardSetting
+            option="alcohol"
+            settings={formData}
+            setSettings={setFormData}
+            actionsFolder={actionsList}
+          />
+        </Grid>
+        <Divider orientation="vertical" />
+        <Grid item xs={12} sm={8} md={5}>
+          <SelectBoardSetting
+            option="poppers"
+            settings={formData}
+            setSettings={setFormData}
+            actionsFolder={actionsList}
+          />
+        </Grid>
+      </Grid>
       {formData.room !== 'public' && (
         <Stack
           direction="row"
@@ -60,7 +83,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
           </Tooltip>
         </Stack>
       )}
-      {settingSelectLists}
+      <Grid container columnSpacing={2}>{settingSelectLists}</Grid>
       <Divider />
       <FormControl fullWidth margin="normal">
         <InputLabel id="difficultyLabel"><Trans i18nKey="difficulty" /></InputLabel>

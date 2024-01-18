@@ -12,37 +12,29 @@ function cycleList(list) {
 function getIntensity(userSelection, currentLevel) {
   // If the user picked intensity 2, then split intensity half and half
   // and intensity 2 on the last 2 rows.
-  if ([1, 2].includes(currentLevel) && userSelection === 2) {
-    return 1;
-  } if ([3, 4].includes(currentLevel) && userSelection === 2) {
-    return 2;
+  if (userSelection === 2) {
+    if ([1, 2].includes(currentLevel)) return 1;
+    if ([3, 4].includes(currentLevel)) return 2;
   }
 
-  // as long as our gameRow hasn't reached the user selection,
-  // we will go off the row intensity first.
-  if (currentLevel <= userSelection) {
-    return currentLevel;
-  }
-
-  // We have a selection lower than the row we are on (1 or 3 selected but row is higher),
-  // return selection difficulty.
-  return userSelection;
+  return Math.min(currentLevel, userSelection);
 }
 
 function getCurrentLevel(currentTile, brackets) {
   let total = 0;
-  let bracketLevel = 0;
-  while (total <= currentTile) {
+  for (let bracketLevel = 0; bracketLevel < brackets.length; bracketLevel += 1) {
     total += brackets[bracketLevel];
-    bracketLevel += 1;
+    if (total > currentTile) {
+      return bracketLevel + 1;
+    }
   }
-  return bracketLevel;
+  return brackets.length;
 }
 
 function getAppendItem(appendList, currentOption, currentLevel, customDataFolder) {
-  if (!Object.keys(appendList).length) return '';
-
-  const [maxLevel, appendType] = appendList[currentOption].split('|');
+  const appendData = appendList[currentOption];
+  if (!appendData) return '';
+  const [maxLevel, appendType] = appendData.split('|');
   const chance = Math.random();
 
   // have a chance of not appending. Some = 60/40. Most = 85/15.
@@ -145,7 +137,7 @@ function getSelectedOptions(customDataFolder, tileOptions, hasMiscTiles) {
   return selectedOptions;
 }
 
-function createCustomTiles(
+function createCustomBoard(
   size,
   selectedOptions,
   appendOptions,
@@ -201,6 +193,7 @@ export default function customizeBoard(
   const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
 
   const customDataFolder = createCustomDataFolder(actionsFolder, userCustomTiles);
+
   const { tileOptions, appendList } = separateUserLists(customDataFolder, hasMiscTiles, settings);
 
   const selectedOptions = getSelectedOptions(customDataFolder, tileOptions, hasMiscTiles);
@@ -208,7 +201,7 @@ export default function customizeBoard(
 
   const levelBrackets = calculateLevelBrackets(size, settings.difficulty);
 
-  const customTiles = createCustomTiles(
+  const customTiles = createCustomBoard(
     size,
     selectedOptions,
     appendOptions,

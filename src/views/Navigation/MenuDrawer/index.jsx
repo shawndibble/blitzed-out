@@ -16,9 +16,10 @@ import {
   ListItemIcon,
   ListItemText,
   SvgIcon,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import useWindowDimensions from 'hooks/useWindowDimensions';
 import GameSettings from 'views/GameSettings';
 import useAuth from 'hooks/useAuth';
 import GameGuide from 'views/GameGuide';
@@ -34,7 +35,9 @@ import DonateDialog from './DonateDialog';
 export default function MenuDrawer({ openSchedule, setCloseSchedule }) {
   const { id: room } = useParams();
   const { user } = useAuth();
-  const { isMobile } = useWindowDimensions();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // const { isMobile } = useWindowDimensions();
   const [menuOpen, setMenu] = useState(false);
   const toggleDrawer = (isOpen) => setMenu(isOpen);
 
@@ -122,6 +125,7 @@ export default function MenuDrawer({ openSchedule, setCloseSchedule }) {
     <Dialog
       fullScreen={isMobile}
       open={open.settings}
+      maxWidth="md"
     >
       <DialogTitle>
         <Trans i18nKey="gameSettings" />
