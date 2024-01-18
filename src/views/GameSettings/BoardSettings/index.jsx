@@ -6,7 +6,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Stack, Switch, Tooltip, Typography,
+  Stack, Switch, Tooltip, Typography, useMediaQuery, useTheme,
 } from '@mui/material';
 import { Trans } from 'react-i18next';
 import FinishSlider from './FinishSlider';
@@ -14,6 +14,8 @@ import SelectBoardSetting from './SelectBoardSetting';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { alcohol, poppers, ...remainingActions } = actionsList;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const settingSelectLists = Object.keys(remainingActions).map((option) => (
     <Grid item xs={12} sm={6} md={4} key={option}>
@@ -37,7 +39,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
             actionsFolder={actionsList}
           />
         </Grid>
-        <Divider orientation="vertical" />
+        {!isMobile && (<Divider orientation="vertical" flexItem sx={{ pl: 1, pr: 2 }} variant="middle" />)}
         <Grid item xs={12} sm={8} md={5}>
           <SelectBoardSetting
             option="poppers"
