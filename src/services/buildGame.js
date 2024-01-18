@@ -1,6 +1,5 @@
 import i18next from 'i18next';
 import shuffleArrayBy from 'helpers/arrays';
-import { pascalToCamel } from 'helpers/strings';
 import groupActionsFolder from 'helpers/actionsFolder';
 
 const MISC = 'miscellaneous';
@@ -95,12 +94,7 @@ function separateUserLists(customDataFolder, hasMiscTiles, settings) {
 function calculateLevelBrackets(size, difficulty) {
   const availableTiles = size - 2; // remove start and finish.
   if (difficulty === 'accelerated') {
-    return [
-      Math.ceil(availableTiles * 0.1),
-      Math.ceil(availableTiles * 0.1),
-      Math.ceil(availableTiles * 0.1),
-      Math.ceil(availableTiles * 0.7),
-    ];
+    return [0, 0, 0, availableTiles];
   }
   // normal, split the tiles evenly.
   return [...Array(4)].map(() => Math.ceil(availableTiles / 4));
@@ -190,7 +184,7 @@ export default function customizeBoard(
   userCustomTiles = [],
   size = 40,
 ) {
-  const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
+  const hasMiscTiles = userCustomTiles.some(({ group }) => group.toUpperCase() === 'MISC');
 
   const customDataFolder = createCustomDataFolder(actionsFolder, userCustomTiles);
 
