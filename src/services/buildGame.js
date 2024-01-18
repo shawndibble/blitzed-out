@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import shuffleArrayBy from 'helpers/arrays';
+import { pascalToCamel } from 'helpers/strings';
 import groupActionsFolder from 'helpers/actionsFolder';
 
 const MISC = 'miscellaneous';
@@ -184,7 +185,7 @@ export default function customizeBoard(
   userCustomTiles = [],
   size = 40,
 ) {
-  const hasMiscTiles = userCustomTiles.some(({ group }) => group.toUpperCase() === 'MISC');
+  const hasMiscTiles = userCustomTiles.find(({ group }) => pascalToCamel(group) === MISC);
 
   const customDataFolder = createCustomDataFolder(actionsFolder, userCustomTiles);
 
