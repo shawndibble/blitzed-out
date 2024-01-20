@@ -92,8 +92,17 @@ function separateAppendOptions(appendOptions, listWithMisc) {
   return { appendList, listWithoutAppend };
 }
 
+function calculateIntensity(gameSize, userSelectionMax, currentTile, difficulty) {
+  if (difficulty === 'accelerated') {
+    return userSelectionMax;
+  }
+
+  const divider = gameSize / userSelectionMax;
+  return Math.floor(currentTile / divider);
+}
+
 // Gets the current tile for the board
-function getCurrentTile(listWithMisc, size, currentTile) {
+function getCurrentTile(listWithMisc, size, currentTile, settings) {
   cycleArray(listWithMisc);
 
   const {
@@ -109,8 +118,10 @@ function getCurrentTile(listWithMisc, size, currentTile) {
 
   const catKeys = Object.keys(actions);
   const catActions = Object.values(actions);
-  const divider = size / catKeys.length;
-  let intensity = Math.floor(currentTile / divider);
+
+  let intensity = calculateIntensity(size, catKeys.length, currentTile, settings?.difficulty);
+
+  // if we go too high with our math, back down 1.
   if (!catActions[intensity]) {
     intensity -= 1;
   }
@@ -127,11 +138,17 @@ function buildBoard(listWithMisc, settings, size) {
   const board = [];
 
   for (let currentTile = 1; currentTile <= size; currentTile += 1) {
-    const { title, description, standalone } = getCurrentTile(listWithoutAppend, size, currentTile);
+    const {
+      title,
+      description,
+      standalone,
+    } = getCurrentTile(listWithoutAppend, size, currentTile, settings);
     let finalDescription = '';
 
     if (!standalone && appendList.length) {
-      const { description: appendDescription } = getCurrentTile(appendList, size, currentTile);
+      const {
+        description: appendDescription,
+      } = getCurrentTile(appendList, size, currentTile, settings);
       finalDescription = `${appendDescription} ${description}`;
     } else {
       finalDescription = description;
