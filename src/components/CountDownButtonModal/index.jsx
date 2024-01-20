@@ -1,7 +1,4 @@
-import {
-  Backdrop,
-  Box, Button, Modal, Typography,
-} from '@mui/material';
+import { Backdrop, Box, Button, Modal, Typography } from '@mui/material';
 import CloseIcon from 'components/CloseIcon';
 import useCountdown from 'hooks/useCountdown';
 import { useEffect, useState } from 'react';
@@ -19,13 +16,18 @@ const style = () => ({
   textAlign: 'right',
 });
 
-export default function CountDownButtonModal({ textString, preventParentClose }) {
+export default function CountDownButtonModal({
+  textString,
+  preventParentClose,
+  noPadding = false,
+}) {
   const [open, setOpen] = useState(false);
 
   const [time, seconds] = textString.split(' ');
-  const {
-    timeLeft, setTimeLeft, togglePause, isPaused,
-  } = useCountdown(time, true);
+  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(
+    time,
+    true
+  );
 
   useEffect(() => togglePause(), []);
 
@@ -52,7 +54,9 @@ export default function CountDownButtonModal({ textString, preventParentClose })
 
   return (
     <>
-      <Button onClick={clickedButton}>{textString}</Button>
+      <Button onClick={clickedButton} sx={{ p: noPadding ? 0 : 1 }}>
+        {textString}
+      </Button>
       <Modal
         open={open}
         onClose={handleClose}
@@ -65,8 +69,12 @@ export default function CountDownButtonModal({ textString, preventParentClose })
       >
         <Box sx={style}>
           <CloseIcon close={handleClose} />
-          <Typography variant="h2" sx={{ display: 'inline-block' }}>{timeLeft}</Typography>
-          <Typography sx={{ ml: 2, display: 'inline-block' }}>{seconds}</Typography>
+          <Typography variant='h2' sx={{ display: 'inline-block' }}>
+            {timeLeft}
+          </Typography>
+          <Typography sx={{ ml: 2, display: 'inline-block' }}>
+            {seconds}
+          </Typography>
         </Box>
       </Modal>
     </>
