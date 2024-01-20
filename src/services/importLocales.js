@@ -6,7 +6,8 @@ export function importActions(lang = 'en', type = 'online') {
 
   const context = require.context('../locales/', true, /\.json$/);
 
-  context.keys()
+  context
+    .keys()
     .filter((key) => key.startsWith(`./${lang}/${type}/`))
     .forEach((key) => {
       const fileName = key.split('/').pop().replace('.json', '');

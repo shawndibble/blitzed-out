@@ -13,10 +13,12 @@ export default function useGameBoard() {
   const settings = useLocalStorage('gameSettings')[0];
   const { i18n } = useTranslation();
 
-  const isPrivateRoom = (formData) => formData.room && formData.room !== 'public';
+  const isPrivateRoom = (formData) =>
+    formData.room && formData.room !== 'public';
 
   return async (data = {}) => {
-    const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
+    const formData =
+      data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
     let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
     const { roomTileCount, finishRange } = formData;
 
@@ -32,14 +34,22 @@ export default function useGameBoard() {
       settingsBoardUpdated = true;
     }
 
-    const tileActionList = importActions(i18n.resolvedLanguage, gameMode);
+    const tileActionList = structuredClone(
+      importActions(i18n.resolvedLanguage, gameMode)
+    );
 
-    const tileCount = isPrivateRoom(formData) ? (roomTileCount || 40) : 40;
+    const tileCount = isPrivateRoom(formData) ? roomTileCount || 40 : 40;
 
-    const newBoard = customizeBoard(formData, tileActionList, customTiles, tileCount);
+    const newBoard = customizeBoard(
+      formData,
+      tileActionList,
+      customTiles,
+      tileCount
+    );
 
     // if our board updated, then push those changes out.
-    if (settingsBoardUpdated || gameBoard.length !== newBoard.length) await updateBoard(newBoard);
+    if (settingsBoardUpdated || gameBoard.length !== newBoard.length)
+      await updateBoard(newBoard);
 
     return { settingsBoardUpdated, gameMode, newBoard };
   };

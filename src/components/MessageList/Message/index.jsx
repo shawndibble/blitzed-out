@@ -46,7 +46,7 @@ function transformActionText(textString, secondsString) {
     }
   });
 
-  return reactStringReplace(fixedText, '\n', () => <br />);
+  return reactStringReplace(fixedText, '\n', (_, i) => <br key={`br${i}`} />);
 }
 
 export default function Message({
@@ -98,9 +98,7 @@ export default function Message({
       <Divider />
       <div className='message-message'>
         {type === 'actions' ? (
-          <>
-            {transformActionText(text, secondsString).map((output) => output)}
-          </>
+          <>{transformActionText(text, secondsString)}</>
         ) : (
           <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
         )}
