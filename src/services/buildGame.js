@@ -5,25 +5,18 @@ const { t } = i18next;
 
 // sometimes our category subset has a role subset, need to merge those.
 function flattenActionsByRole(actions, role) {
-  let flattenedActions;
-
-  if (Array.isArray(actions))
-    flattenedActions = [...actions]; // no need to flatten
-  else if (role === 'sub') flattenedActions = [...actions.sub];
-  else if (role === 'dom') flattenedActions = [...actions.dom];
-  else if (role === 'vers') flattenedActions = [...actions.sub, ...actions.dom];
-
-  return shuffleArray(flattenedActions);
+  if (role === 'sub' && actions.sub) return actions.sub;
+  if (role === 'dom' && actions.dom) return actions.dom;
+  if (role === 'vers' && actions.sub && actions.dom)
+    return [...actions.sub, ...actions.dom];
+  return actions;
 }
 
-// Restricts the subset of actions by dropping none and intensities too high
 function restrictSubsetActions(settings, settingsKey, actionObject) {
   const { role = 'sub' } = settings;
-
-  return Object.entries(actionObject).reduce((acc, [key, arr], index) => {
-    // Get the values between none and the user select max intensity.
+  return Object.keys(actionObject).reduce((acc, key, index) => {
     if (index > 0 && index <= settings[settingsKey]) {
-      acc[key] = flattenActionsByRole(arr, role);
+      acc[key] = shuffleArray(flattenActionsByRole(actionObject[key], role));
     }
     return acc;
   }, {});
@@ -51,27 +44,21 @@ function addInCustomTiles(newActionList, userCustomTiles) {
     return newActionList;
   }
 
-  // Add an empty array of misc actions.
-  newActionList.push({
-    label: t('misc'),
-    actions: { All: [] },
-    key: 'misc',
-    standalone: false, // Determines if it will append to another category or stand on its own.
-  });
+  if (userCustomTiles.some(({ group }) => group === 'misc')) {
+    // Add an empty array of misc actions.
+    newActionList.push({
+      label: t('misc'),
+      actions: { All: [] },
+      key: 'misc',
+      standalone: false, // Determines if it will append to another category or stand on its own.
+    });
+  }
 
   // Push custom tiles to the front of the list if applicable
   userCustomTiles.forEach(({ group, intensity, action }) => {
-    // Check if we want to use the custom tile.
-    const actionListIndex = newActionList.findIndex(
-      (object) => object.key === group
-    );
-    if (actionListIndex >= 0) {
-      const { actions } = newActionList[actionListIndex];
-
-      // If we want to use it and the intensity is within our desired range, add it to the list.
-      if (Object.keys(actions).length >= intensity) {
-        Object.entries(actions)[intensity - 1][1].unshift(action);
-      }
+    const actionList = newActionList.find((object) => object.key === group);
+    if (actionList && Object.keys(actionList.actions).length >= intensity) {
+      Object.values(actionList.actions)[intensity - 1].unshift(action);
     }
   });
 
