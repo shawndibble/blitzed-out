@@ -7,7 +7,8 @@ const { t } = i18next;
 function flattenActionsByRole(actions, role) {
   let flattenedActions;
 
-  if (Array.isArray(actions)) flattenedActions = [...actions]; // no need to flatten
+  if (Array.isArray(actions))
+    flattenedActions = [...actions]; // no need to flatten
   else if (role === 'sub') flattenedActions = [...actions.sub];
   else if (role === 'dom') flattenedActions = [...actions.dom];
   else if (role === 'vers') flattenedActions = [...actions.sub, ...actions.dom];
@@ -34,7 +35,11 @@ function restrictActionsToUserSelections(actionsFolder, settings) {
     .filter(([actionKey]) => settings[actionKey] > 0)
     .map(([actionKey, actionObject]) => ({
       label: actionObject.label,
-      actions: restrictSubsetActions(settings, actionKey, actionObject?.actions),
+      actions: restrictSubsetActions(
+        settings,
+        actionKey,
+        actionObject?.actions
+      ),
       key: actionKey, // Key value used for categories prior to translation.
       standalone: false, // Determines if it will append to another category or stand on its own.
     }));
@@ -57,7 +62,9 @@ function addInCustomTiles(newActionList, userCustomTiles) {
   // Push custom tiles to the front of the list if applicable
   userCustomTiles.forEach(({ group, intensity, action }) => {
     // Check if we want to use the custom tile.
-    const actionListIndex = newActionList.findIndex((object) => object.key === group);
+    const actionListIndex = newActionList.findIndex(
+      (object) => object.key === group
+    );
     if (actionListIndex >= 0) {
       const { actions } = newActionList[actionListIndex];
 
@@ -106,22 +113,35 @@ function separateAppendOptions(appendOptions, listWithMisc) {
   return { appendList, listWithoutAppend };
 }
 
-function calculateIntensity(gameSize, userSelectionMax, currentTile, difficulty) {
-  if (difficulty === 'accelerated') {
-    return userSelectionMax;
+function calculateIntensity(
+  gameSize,
+  userSelectionMax,
+  currentTile,
+  difficulty
+) {
+  // for normal, we break the game up evenly, based on user's max intensity level.
+  if (difficulty === 'normal') {
+    const divider = gameSize / userSelectionMax;
+    return Math.floor(currentTile / divider);
   }
 
-  const divider = gameSize / userSelectionMax;
-  return Math.floor(currentTile / divider);
+  // Accelerated difficulty:
+
+  // We don't have enough options for accelerated at 3+, so mix it up.
+  if (userSelectionMax >= 3) {
+    // give it a 40% chance of picking a lower intensity.
+    if (Math.random() >= 0.6) {
+      return userSelectionMax - 2;
+    }
+  }
+  return userSelectionMax - 1;
 }
 
 // Gets the current tile for the board
 function getCurrentTile(listWithMisc, size, currentTile, settings) {
   cycleArray(listWithMisc);
 
-  const {
-    actions, label, standalone, frequency,
-  } = listWithMisc[0];
+  const { actions, label, standalone, frequency } = listWithMisc[0];
 
   // If we have a frequency percentage, then we are appending.
   // Use that number to determine if we append or not.
@@ -133,7 +153,12 @@ function getCurrentTile(listWithMisc, size, currentTile, settings) {
   const catKeys = Object.keys(actions);
   const catActions = Object.values(actions);
 
-  let intensity = calculateIntensity(size, catKeys.length, currentTile, settings?.difficulty);
+  let intensity = calculateIntensity(
+    size,
+    catKeys.length,
+    currentTile,
+    settings?.difficulty
+  );
 
   // if we go too high with our math, back down 1.
   if (!catActions[intensity]) {
@@ -148,21 +173,28 @@ function getCurrentTile(listWithMisc, size, currentTile, settings) {
 // Builds the board based on user settings
 function buildBoard(listWithMisc, settings, size) {
   const appendOptions = getUserAppendSelections(settings);
-  const { listWithoutAppend, appendList } = separateAppendOptions(appendOptions, listWithMisc);
+  const { listWithoutAppend, appendList } = separateAppendOptions(
+    appendOptions,
+    listWithMisc
+  );
   const board = [];
 
   for (let currentTile = 1; currentTile <= size; currentTile += 1) {
-    const {
-      title,
-      description,
-      standalone,
-    } = getCurrentTile(listWithoutAppend, size, currentTile, settings);
+    const { title, description, standalone } = getCurrentTile(
+      listWithoutAppend,
+      size,
+      currentTile,
+      settings
+    );
     let finalDescription = '';
 
     if (!standalone && appendList.length) {
-      const {
-        description: appendDescription,
-      } = getCurrentTile(appendList, size, currentTile, settings);
+      const { description: appendDescription } = getCurrentTile(
+        appendList,
+        size,
+        currentTile,
+        settings
+      );
       finalDescription = `${appendDescription} ${description}`;
     } else {
       finalDescription = description;
@@ -178,9 +210,10 @@ function addStartAndFinishTiles(shuffledTiles, settings) {
   const startTile = { title: t('start'), description: t('start') };
 
   const { finishRange } = settings;
-  const finishDescription = `${t('noCum')} ${finishRange[0]}%`
-    + `\r\n${t('ruined')} ${finishRange[1] - finishRange[0]}%`
-    + `\r\n${t('cum')} ${100 - finishRange[1]}%`;
+  const finishDescription =
+    `${t('noCum')} ${finishRange[0]}%` +
+    `\r\n${t('ruined')} ${finishRange[1] - finishRange[0]}%` +
+    `\r\n${t('cum')} ${100 - finishRange[1]}%`;
   const finishTile = { title: t('finish'), description: finishDescription };
 
   return [startTile, ...shuffledTiles, finishTile];
@@ -188,8 +221,16 @@ function addStartAndFinishTiles(shuffledTiles, settings) {
 
 // Customizes the board based on user settings
 // Starts here as this is the only export.
-export default function customizeBoard(settings, actionsFolder, userCustomTiles = [], size = 40) {
-  const newActionList = restrictActionsToUserSelections(actionsFolder, settings);
+export default function customizeBoard(
+  settings,
+  actionsFolder,
+  userCustomTiles = [],
+  size = 40
+) {
+  const newActionList = restrictActionsToUserSelections(
+    actionsFolder,
+    settings
+  );
   const listWithMisc = addInCustomTiles(newActionList, userCustomTiles);
   const usersBoard = buildBoard(listWithMisc, settings, size - 2);
 
