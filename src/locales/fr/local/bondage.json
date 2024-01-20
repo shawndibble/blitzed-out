@@ -1,30 +1,58 @@
 {
-  "label": "Esclavage",
-  "actions": {
-    "Aucun": [],
-    "Cordes et menottes": [
-      "Attachez vos poignets ensemble",
-      "Liez-vous à un meuble jusqu'à votre prochaine action.",
-      "Ayez vos poignets liés autour du corps d'un autre joueur jusqu'à ce qu'une action nécessite la libération de l'un de vous.",
-      "Laissez-vous attacher par un autre joueur comme il le souhaite.",
-      " Attachez-vous jusqu'à votre prochaine action. ",
-      "Ayez les bras liés derrière le dos jusqu'à votre prochaine action.",
-      "Ayez vos bras attachés à vos jambes jusqu'à ce qu'une action nécessite votre libération.",
-      "Soyez attaché à un meuble jusqu'à ce qu'une action nécessite votre libération.",
-      "Faites lier vos chevilles ensemble",
-      "Demandez à un autre joueur de vous mettre dans une position difficile jusqu'à votre prochaine action",
-      "Soyez lié, écartez l'aigle jusqu'à ce qu'une action exige le contraire."
-    ],
-    "Ajouter des bandeaux et des gags": [
-      "Ayez les yeux bandés jusqu'à votre prochaine action.",
-      "Soyez bâillonné jusqu'à votre prochaine action.",
-      "Ayez les yeux bandés et bâillonnez-vous jusqu'à votre prochaine action.",
-      "Ayez les yeux bandés et bâillonnez-vous jusqu'à ce qu'une action nécessite votre libération.",
-      "Ayez les yeux bandés, bâillonnés et les poignets liés jusqu'à votre prochaine action.",
-      "Soyez bâillonné avec un vêtement jusqu'à votre prochaine action qui nécessite votre bouche.",
-      "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action.",
-      "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action.",
-      "Un autre joueur peut choisir quoi utiliser comme bandeau et/ou bâillon jusqu'à votre prochaine action."
-    ]
-  }
+    "label": "Esclavage",
+    "actions": {
+        "Aucun": [],
+        "Cordes et menottes": {
+            "sub": [
+                "Attachez vos poignets ensemble",
+                "Liez-vous à un meuble jusqu'à votre prochaine action.",
+                "Ayez vos poignets liés autour du corps d'un autre joueur jusqu'à ce qu'une action nécessite la libération de l'un de vous.",
+                "Laissez-vous attacher par un autre joueur comme il le souhaite.",
+                "Attachez-vous jusqu'à votre prochaine action. ",
+                "Ayez les bras liés derrière le dos jusqu'à votre prochaine action.",
+                "Ayez vos bras attachés à vos jambes jusqu'à ce qu'une action nécessite votre libération.",
+                "Soyez attaché à un meuble jusqu'à ce qu'une action nécessite votre libération.",
+                "Faites lier vos chevilles ensemble",
+                "Demandez à un autre joueur de vous mettre dans une position difficile jusqu'à votre prochaine action",
+                "Soyez lié, écartez l'aigle jusqu'à ce qu'une action exige le contraire."
+            ],
+            "dom": [
+                "Attachez les poignets d'un autre joueur ensemble",
+                "Liez un autre joueur à un meuble jusqu'à sa prochaine action.",
+                "Ayez les poignets d'un autre joueur liés autour de votre corps jusqu'à ce qu'une action nécessite la libération de l'un de vous.",
+                "Attachez un autre joueur comme vous le souhaitez.",
+                "Laissez un autre joueur vous attacher jusqu'à sa prochaine action. ",
+                "Ayez les bras d'un autre joueur liés derrière le dos jusqu'à sa prochaine action.",
+                "Ayez les bras d'un autre joueur attachés à ses jambes jusqu'à ce qu'une action nécessite sa libération.",
+                "Liez un autre joueur à un meuble jusqu'à ce qu'une action nécessite sa libération.",
+                "Faites lier les chevilles d'un autre joueur ensemble",
+                "Mettez un autre joueur dans une position difficile jusqu'à sa prochaine action",
+                "Liez un autre joueur, écartez l'aigle jusqu'à ce qu'une action exige le contraire."
+            ]
+        },
+        "Ajouter des bandeaux et des gags": {
+            "sub": [
+                "Ayez les yeux bandés jusqu'à votre prochaine action.",
+                "Soyez bâillonné jusqu'à votre prochaine action.",
+                "Ayez les yeux bandés et bâillonnez-vous jusqu'à votre prochaine action.",
+                "Ayez les yeux bandés et bâillonnez-vous jusqu'à ce qu'une action nécessite votre libération.",
+                "Ayez les yeux bandés, bâillonnés et les poignets liés jusqu'à votre prochaine action.",
+                "Soyez bâillonné avec un vêtement jusqu'à votre prochaine action qui nécessite votre bouche.",
+                "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action.",
+                "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action.",
+                "Un autre joueur peut choisir quoi utiliser comme bandeau et/ou bâillon jusqu'à votre prochaine action."
+            ],
+            "dom": [
+                "Bandez les yeux d'un autre joueur jusqu'à sa prochaine action.",
+                "Bâillonnez un autre joueur jusqu'à sa prochaine action.",
+                "Bandez les yeux et bâillonnez un autre joueur jusqu'à sa prochaine action.",
+                "Bandez les yeux et bâillonnez un autre joueur jusqu'à ce qu'une action nécessite sa libération.",
+                "Bandez les yeux, bâillonnez et liez les poignets d'un autre joueur jusqu'à sa prochaine action.",
+                "Bâillonnez un autre joueur avec un vêtement jusqu'à sa prochaine action qui nécessite sa bouche.",
+                "Bandez les yeux d'un autre joueur avec un vêtement jusqu'à sa prochaine action.",
+                "Bandez les yeux d'un autre joueur avec un vêtement jusqu'à sa prochaine action.",
+                "Choisissez quoi utiliser comme bandeau et/ou bâillon pour un autre joueur jusqu'à sa prochaine action."
+            ]
+        }
+    }
 }

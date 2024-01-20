@@ -1,59 +1,120 @@
-{   
+{
     "label": "Ball Busting",
     "actions": {
         "None": [],
-        "Slap/Squeeze": [
-            "Massage balls.",
-            "2 ball slaps to yourself.",
-            "10 light ball pats from another player.",
-            "squeeze your balls for 15 seconds.",
-            "3 ball slaps from another player.",
-            "Stretch your balls for 15 seconds.",
-            "Have your balls flicked for 10 seconds.",
-            "Squeeze balls until next turn.",
-            "Squeeze balls for 10 seconds.",
-            "Have another player tug your balls.",
-            "Quickly slap your balls for 15 seconds.",
-            "Light slap after anyone rolls.",
-            "5 ball slaps from another player.",
-            "Hold breath 10 seconds while receiving ball slaps.",
-            "Receive ball massages for 15 seconds."
-        ],
-        "Punch/Crush": [
-            "Receive 2 ball punches.",
-            "Crush your balls.",
-            "4 ball punches.",
-            "Ball punches for 10 seconds.",
-            "Get 1 hard ball slap.",
-            "Receive 5 ball slaps",
-            "Give yourself 1 hard ball slap.",
-            "Crush your balls until next turn.",
-            "Receive 4 hard ball slaps.",
-            "Get kneed in the balls.",
-            "Have a player insert both balls into their mouth and suck.",
-            "Get kneed in the balls"
-        ],
-        "Use Item": [
-            "Punch balls.",
-            "Crush balls with item.",
-            "Ball slaps for 15 seconds.",
-            "5 hard ball slaps",
-            "Ball punch after anyone rolls",
-            "2 ball slaps with item",
-            "20 seconds ball hits.",
-            "Crush balls with item",
-            "Wear ball weights until someone else lands on this tile.",
-            "15 seconds quick ball hits with item"
-        ],
-        "As Hard As Possible": [
-            "Receive 5 hardest ball hits with an item.",
-            "Give yourself 5 hardest ball punches",
-            "Crush balls as hard as you can.",
-            "Receive 20 seconds hard ball hits with item.",
-            "Have someone pull your balls hard for 20 seconds.",
-            "Get kicked in the balls",
-            "Get kicked in the balls for 15 seconds.",
-            "Have someone squeeze your balls with their foot."
-        ]
+        "Slap/Squeeze": {
+            "sub": [
+                "Massage your balls.",
+                "2 ball slaps to yourself.",
+                "10 light ball pats from another player.",
+                "squeeze your balls for 15 seconds.",
+                "3 ball slaps from another player.",
+                "Stretch your balls for 15 seconds.",
+                "Have your balls flicked for 10 seconds.",
+                "Squeeze balls until next turn.",
+                "Squeeze balls for 10 seconds.",
+                "Have another player tug your balls.",
+                "Quickly slap your balls for 15 seconds.",
+                "Light slap after anyone rolls.",
+                "5 ball slaps from another player.",
+                "Hold breath 10 seconds while receiving ball slaps.",
+                "Receive ball massages for 15 seconds."
+            ],
+            "dom": [
+                "Massage another player's balls.",
+                "Give 2 ball slaps to another player.",
+                "Give 10 light ball pats to another player.",
+                "Squeeze another player's balls for 15 seconds.",
+                "Give 3 ball slaps to another player.",
+                "Stretch another player's balls for 15 seconds.",
+                "Flick another player's balls for 10 seconds.",
+                "Squeeze another player's balls until next turn.",
+                "Squeeze another player's balls for 10 seconds.",
+                "Tug another player's balls.",
+                "Give another player 2 quick ball slaps.",
+                "For a full round, give another player a light slap after they roll.",
+                "Give another player 5 ball slaps.",
+                "Make another player hold their breath for 10 seconds while you give them ball slaps.",
+                "Give another player ball massages for 15 seconds."
+            ]
+        },
+        "Punch/Crush": {
+            "sub": [
+                "Receive 2 ball punches.",
+                "Crush your balls.",
+                "4 ball punches.",
+                "Ball punches for 10 seconds.",
+                "Get 1 hard ball slap.",
+                "Receive 5 ball slaps",
+                "Give yourself 1 hard ball slap.",
+                "Crush your balls until next turn.",
+                "Receive 4 hard ball slaps.",
+                "Get kneed in the balls.",
+                "Have a player insert both balls into their mouth and suck.",
+                "Get kneed in the balls"
+            ],
+            "dom": [
+                "Give 2 ball punches to another player.",
+                "Crush another player's balls.",
+                "Give 4 ball punches to another player.",
+                "Give ball punches to another player for 10 seconds.",
+                "Give 1 hard ball slap to another player.",
+                "Give another player 5 ball slaps.",
+                "Give another player 1 hard ball slap.",
+                "Crush another player's balls until next turn.",
+                "Give another player 4 hard ball slaps.",
+                "Knee another player in the balls.",
+                "Make another player insert both of your balls into their mouth and suck.",
+                "Knee another player in the balls."
+            ]
+        },
+        "Use Item": {
+            "sub": [
+                "Punch balls.",
+                "Crush balls with item.",
+                "Ball slaps for 15 seconds.",
+                "5 hard ball slaps",
+                "Ball punch after anyone rolls",
+                "2 ball slaps with item",
+                "20 seconds ball hits.",
+                "Crush balls with item",
+                "Wear ball weights until someone else lands on this tile.",
+                "15 seconds quick ball hits with item"
+            ],
+            "dom": [
+                "Punch another player's balls with an item.",
+                "Crush another player's balls with an item.",
+                "Give another player ball slaps for 15 seconds with an item.",
+                "Give another player 5 hard ball slaps with an item.",
+                "Punch another player's balls with an item after they roll.",
+                "Give another player 2 ball slaps with an item.",
+                "Hit another player's balls for 20 seconds with an item.",
+                "Crush another player's balls with an item.",
+                "Make another player wear ball weights until someone else lands on this tile.",
+                "Give another player 15 quick ball hits with an item."
+            ]
+        },
+        "As Hard As Possible": {
+            "sub": [
+                "Receive 5 hardest ball hits with an item.",
+                "Give yourself 5 hardest ball punches",
+                "Crush balls as hard as you can.",
+                "Receive 20 seconds hard ball hits with item.",
+                "Have someone pull your balls hard for 20 seconds.",
+                "Get kicked in the balls",
+                "Get kicked in the balls for 15 seconds.",
+                "Have someone squeeze your balls with their foot."
+            ],
+            "dom": [
+                "Give another player 5 hardest ball hits with an item.",
+                "Give yourself 5 hardest ball punches.",
+                "Crush another player's balls as hard as you can.",
+                "Give another player 20 seconds of hard ball hits with an item.",
+                "Pull another player's balls hard for 20 seconds.",
+                "Kick another player in the balls.",
+                "Kick another player in the balls for 15 seconds.",
+                "Squeeze another player's balls with your foot."
+            ]
+        }
     }
 }

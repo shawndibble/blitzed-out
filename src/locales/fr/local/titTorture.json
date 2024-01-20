@@ -1,42 +1,86 @@
 {
     "label": "Torture des tétons",
     "actions": {
-      "Aucun": [],
-      "Pression/Frottement": [
-        "Frottes tes tétons.",
-        "Joues avec tes tétons.",
-        "Tapotes tes tétons.",
-        "Pinces tes tétons.",
-        "Fais sucer tes tétons.",
-        "Frottes tes tétons pendant 15 secondes.",
-        "Fais claquer tes tétons 10 fois.",
-        "Presses/frottes tes tétons pendant 15 secondes."
-      ],
-      "Pincement/Tirage": [
-        "Pinces fort tes tétons.",
-        "Fais sucer fort tes tétons.",
-        "Tires sur tes tétons.",
-        "Fais mordiller tes tétons.",
-        "Fais tirer tes tétons par quelqu'un d'autre.",
-        "Frottes tes tétons pendant 15 secondes.",
-        "Fais tourner tes tétons dans les deux directions.",
-        "Fais tourner tes tétons en faisant des mouvements circulaires.",
-        "Joues violemment avec tes tétons pendant 20 secondes.",
-        "Fais mordre tes tétons par un autre joueur."
-      ],
-      "Pinces/Jouets": [
-        "Attaches des pinces à tes tétons pendant 10 secondes.",
-        "Avec des pinces sur tes tétons, tires dessus.",
-        "Torsades tes tétons fort.",
-        "Fais claquer ton jouet sur tes tétons 10 fois.",
-        "Sois violent avec tes tétons."
-      ],
-      "Aussi fort que possible": [
-        "Fais pincer tes tétons aussi fort que possible.",
-        "Fais tirer tes tétons aussi loin que tu peux supporter.",
-        "Fais tourner tes tétons jusqu'à ce que tu cries.",
-        "Pause. Fais-toi sucer/masser les tétons.",
-        "Frappes ta poitrine/tétons."
-      ]
+        "Aucun": [],
+        "Pression/Frottement": {
+            "sub": [
+                "Frottes tes tétons.",
+                "Joues avec tes tétons.",
+                "Tapotes tes tétons.",
+                "Pinces tes tétons.",
+                "Fais sucer tes tétons.",
+                "Frottes tes tétons pendant 15 secondes.",
+                "Fais claquer tes tétons 10 fois.",
+                "Presses/frottes tes tétons pendant 15 secondes."
+            ],
+            "dom": [
+                "Demande à quelqu'un de frotter tes tétons.",
+                "Demande à quelqu'un de jouer avec tes tétons.",
+                "Demande à quelqu'un de tapoter tes tétons.",
+                "Demande à quelqu'un de pincer tes tétons.",
+                "Permets à quelqu'un de sucer tes tétons.",
+                "Demande à quelqu'un de frotter tes tétons pendant 15 secondes.",
+                "Demande à quelqu'un de faire claquer tes tétons 10 fois.",
+                "Demande à quelqu'un de presser/frotter tes tétons pendant 15 secondes."
+            ]
+        },
+        "Pincement/Tirage": {
+            "sub": [
+                "Pinces fort tes tétons.",
+                "Fais sucer fort tes tétons.",
+                "Tires sur tes tétons.",
+                "Fais mordiller tes tétons.",
+                "Fais tirer tes tétons par quelqu'un d'autre.",
+                "Frottes tes tétons pendant 15 secondes.",
+                "Fais tourner tes tétons dans les deux directions.",
+                "Fais tourner tes tétons en faisant des mouvements circulaires.",
+                "Joues violemment avec tes tétons pendant 20 secondes.",
+                "Fais mordre tes tétons par un autre joueur."
+            ],
+            "dom": [
+                "Demande à quelqu'un de pincer fort tes tétons.",
+                "Demande à quelqu'un de sucer fort tes tétons.",
+                "Demande à quelqu'un de tirer sur tes tétons.",
+                "Demande à quelqu'un de mordiller tes tétons.",
+                "Tires sur les tétons de quelqu'un d'autre.",
+                "Demande à quelqu'un de frotter tes tétons pendant 15 secondes.",
+                "Demande à quelqu'un de faire tourner tes tétons dans les deux directions.",
+                "Demande à quelqu'un de faire tourner tes tétons en faisant des mouvements circulaires.",
+                "Demande à quelqu'un de jouer violemment avec tes tétons pendant 20 secondes.",
+                "Demande à quelqu'un de mordre tes tétons."
+            ]
+        },
+        "Pinces/Jouets": {
+            "sub": [
+                "Attaches des pinces à tes tétons pendant 10 secondes.",
+                "Avec des pinces sur tes tétons, tires dessus.",
+                "Torsades tes tétons fort.",
+                "Fais claquer ton jouet sur tes tétons 10 fois.",
+                "Sois violent avec tes tétons."
+            ],
+            "dom": [
+                "Demande à quelqu'un d'attacher des pinces à tes tétons pendant 10 secondes.",
+                "Demande à quelqu'un de tirer sur tes tétons avec des pinces.",
+                "Demande à quelqu'un de tordre fort tes tétons.",
+                "Fais claquer ton jouet sur les tétons de quelqu'un d'autre 10 fois.",
+                "Sois violent avec les tétons de quelqu'un d'autre."
+            ]
+        },
+        "Aussi fort que possible": {
+            "sub": [
+                "Fais pincer tes tétons aussi fort que possible.",
+                "Fais tirer tes tétons aussi loin que tu peux supporter.",
+                "Fais tourner tes tétons jusqu'à ce que tu cries.",
+                "Pause. Fais-toi sucer/masser les tétons.",
+                "Frappes ta poitrine/tétons."
+            ],
+            "dom": [
+                "Demande à quelqu'un de pincer tes tétons aussi fort que possible.",
+                "Demande à quelqu'un de tirer tes tétons aussi loin que tu peux supporter.",
+                "Demande à quelqu'un de faire tourner tes tétons jusqu'à ce que tu cries.",
+                "Pause. Permets à quelqu'un de te sucer/masser les tétons.",
+                "Frappes la poitrine/les tétons de quelqu'un d'autre."
+            ]
+        }
     }
-  }
+}

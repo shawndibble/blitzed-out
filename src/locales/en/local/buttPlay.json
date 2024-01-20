@@ -1,62 +1,124 @@
-{   
+{
     "label": "Butt Play",
     "actions": {
         "None": [],
-        "Finger(s)/Rimmed": [
-            "Have your butt rubbed by all other players.",
-            "Massage your hole.",
-            "Get fingered.",
-            "Get rimmed.",
-            "Spread your ass for another player.",
-            "Finger your hole.",
-            "Rub around hole.",
-            "Get 2 finger fucked.",
-            "Rim another player",
-            "Flick your hole for 15 seconds",
-            "Get 20 seconds of quick finger fucking.",
-            "Multi-finger hole.",
-            "Each player fingers your hole.",
-            "Get tongue-fucked.",
-            "Get fingered while also receiving oral from another player."
-        ],
-        "Toys/Fucking": [
-            "Have someone rub their dick around your hole.",
-            "Insert toy into hole.",
-            "Get fucked for 30 seconds.",
-            "Have another player insert just the tip.",
-            "Sit on someone's dick.",
-            "Get 10 slow, deep fucks from another player.",
-            "Get 20 fucks from a player.",
-            "Get fucked doggy style.",
-            "Plug yourself until your next Butt Play activity.",
-            "Get fucked while straddling someone.",
-            "Show off fucking yourself with a toy for 15 seconds.",
-            "15 fast toy fucks.",
-            "Get deep fast fucked.",
-            "Ride on another players dick until another action (for either)."
-        ],
-        "Stretch": [
-            "Get fucked while also getting fingered",
-            "Fuck yourself with larger toy.",
-            "Bottom out your large toy 15x.",
-            "Tease your hole with the tip of a large toy",
-            "Work up to 4 fingers in you.",
-            "All other players fucks you for 10 thrusts.",
-            "Insert max fingers within 30 seconds.",
-            "Spin toy inside you 3x.",
-            "30 seconds kegels while large toy in you.",
-            "Sit on another player's dick. Perform 10 kegels.",
-            "Have your hole destroyed by another player",
-            "Insert largest toy until next Butt Play activity.",
-            "Multiple full in and out fucks as fast and as hard as you can",
-            "Have someone insert max fingers, then flick your prostate."
-        ],
-        "Fist": [
-            "Get fisted.",
-            "Try to lock someone's fist in you for 30 seconds.",
-            "5 slow fist fucks.",
-            "Masterbate while getting fisted",
-            "10 rapid fist fucks."
-        ]
+        "Finger(s)/Rimmed": {
+            "sub": [
+                "Have your butt rubbed by all other players.",
+                "Massage your hole.",
+                "Get fingered.",
+                "Get rimmed.",
+                "Spread your ass for another player.",
+                "Finger your hole.",
+                "Rub around hole.",
+                "Get 2 finger fucked.",
+                "Rim another player",
+                "Flick your hole for 15 seconds",
+                "Get 20 seconds of quick finger fucking.",
+                "Multi-finger hole.",
+                "Each player fingers your hole.",
+                "Get tongue-fucked.",
+                "Get fingered while also receiving oral from another player."
+            ],
+            "dom": [
+                "Rub a player's butt.",
+                "Massage a player's hole.",
+                "Finger a player.",
+                "Rim a player.",
+                "Assign a player to spread their ass for you.",
+                "Finger a player's hole.",
+                "Rub around a player's hole.",
+                "Finger fuck a player with two fingers.",
+                "Rim a player.",
+                "Flick a player's hole for 15 seconds.",
+                "Give a player 20 seconds of quick finger fucking.",
+                "Multi-finger a player's hole.",
+                "Tongue-fuck a player.",
+                "Finger a player while also giving them oral."
+            ]
+        },
+        "Toys/Fucking": {
+            "sub": [
+                "Have someone rub their dick around your hole.",
+                "Insert toy into hole.",
+                "Get fucked for 30 seconds.",
+                "Have a player insert just the tip.",
+                "Sit on someone's dick.",
+                "Get 10 slow, deep fucks from a player.",
+                "Get 20 fucks from a player.",
+                "Get fucked doggy style.",
+                "Plug yourself until your next Butt Play activity.",
+                "Get fucked while straddling someone.",
+                "Show off fucking yourself with a toy for 15 seconds.",
+                "15 fast toy fucks.",
+                "Get deep fast fucked.",
+                "Ride on a player's dick until another action (for either)."
+            ],
+            "dom": [
+                "Rub your dick around a player's hole.",
+                "Insert a toy into a player's hole.",
+                "Fuck a player for 30 seconds.",
+                "Insert just the tip of your dick into a player's hole.",
+                "Assign a player to sit on your dick.",
+                "Give a player 10 slow, deep fucks.",
+                "Give a player 20 fucks.",
+                "Fuck a player doggy style.",
+                "Assign a player to plug themselves until their next Butt Play activity.",
+                "Fuck a player while they straddle you.",
+                "Assign a player to fuck themselves with a toy for 15 seconds.",
+                "Give a player 15 fast toy fucks.",
+                "Give a player a deep fast fuck.",
+                "Assign a player to ride your dick until another action (for either)."
+            ]
+        },
+        "Stretch": {
+            "sub": [
+                "Get fucked while also getting fingered",
+                "Fuck yourself with larger toy.",
+                "Bottom out your large toy 15x.",
+                "Tease your hole with the tip of a large toy",
+                "Work up to 4 fingers in you.",
+                "All other players fucks you for 10 thrusts.",
+                "Insert max fingers within 30 seconds.",
+                "Spin toy inside you 3x.",
+                "30 seconds kegels while large toy in you.",
+                "Sit on a player's dick. Perform 10 kegels.",
+                "Have your hole destroyed by a player",
+                "Insert largest toy until next Butt Play activity.",
+                "Multiple full in and out fucks as fast and as hard as you can",
+                "Have someone insert max fingers, then flick your prostate."
+            ],
+            "dom": [
+                "Fuck a player while also fingering them.",
+                "Watch a player fuck themselves with a larger toy.",
+                "Assign a player to bottom out their large toy 15x.",
+                "Tease a player's hole with the tip of a large toy.",
+                "Work up to 4 fingers in a player.",
+                "Fuck a player for 10 thrusts.",
+                "Insert the maximum number of fingers into a player within 30 seconds.",
+                "Spin a toy inside a player 3x.",
+                "Assign a player to do 30 seconds of kegels while a large toy is in them.",
+                "Assign a player to sit on your dick and perform 10 kegels.",
+                "Destroy a player's hole.",
+                "Assign a player to insert their largest toy until the next Butt Play activity.",
+                "Give a player multiple full in and out fucks as fast and as hard as you can.",
+                "Insert the maximum number of fingers in a player and then flick their prostate."
+            ]
+        },
+        "Fist": {
+            "sub": [
+                "Get fisted.",
+                "Try to lock someone's fist in you for 30 seconds.",
+                "5 slow fist fucks.",
+                "Masturbate while getting fisted",
+                "10 rapid fist fucks."
+            ],
+            "dom": [
+                "Fist a player.",
+                "Give a player 5 slow fist fucks.",
+                "Have a player masturbate while you fist them.",
+                "Give a player 10 rapid fist fucks."
+            ]
+        }
     }
 }

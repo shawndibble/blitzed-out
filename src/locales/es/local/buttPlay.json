@@ -2,46 +2,95 @@
     "label": "Juego anal",
     "actions": {
         "Ninguna": [],
-        "Dedo(s)": [
-            "Deja que todos los demás jugadores te acaricien el trasero.",
-            "Masajea tu ano.",
-            "Déjate penetrar con los dedos.",
-            "Abre tu trasero para otro jugador.",
-            "Penetra tu ano con un dedo.",
-            "Acaricia alrededor del ano.",
-            "Déjate penetrar con 2 dedos.",
-            "Golpea el ano con el dedo durante 15 segundos.",
-            "Deja que te follen rápidamente 20 segundos con los dedos.",
-            "Fóllate con varios dedos."
-        ],
-        "Juguetes/Follar": [
-            "Deja que alguien roce su pene alrededor de tu ano.",
-            "Métete un juguete.",
-            "Déjate follar durante 30 segundos.",
-            "Siéntate en el pene de alguien.",
-            "Recibe 10 penetraciones lentas y profundas de otro jugador.",
-            "Recibe 20 penetraciones de un jugador.",
-            "Muéstrate penetrándote con un juguete durante 15 segundos.",
-            "15 penetraciones rápidas con un juguete.",
-            "Déjate follar profundo y rápido.",
-            "Cabalga el pene de otro jugador hasta la siguiente acción (para ambos)."
-        ],
-        "Estiramiento": [
-            "Déjate follar mientras te penetran con los dedos.",
-            "Penétrate con un juguete más grande.",
-            "Hasta el fondo con tu juguete grande 15 veces.",
-            "Aumenta a 4 dedos dentro de ti.",
-            "Inserta el máximo de dedos en 30 segundos.",
-            "Gira el juguete dentro de ti 3 veces.",
-            "Haz Kegels 30 segundos con el juguete grande metido.",
-            "Que alguien inserte la máxima cantidad de dedos y luego estimule tu próstata con movimientos rápidos."
-        ],
-        "Puño": [
-            "Recibe una penetración con el puño.",
-            "Intenta mantener el puño de alguien dentro de ti durante 30 segundos.",
-            "5 penetraciones lentas con el puño.",
-            "Mastúrbate mientras te penetran con el puño.",
-            "10 penetraciones rápidas con el puño."
-        ]
+        "Dedo(s)": {
+            "sub": [
+                "Deja que todos los demás jugadores te acaricien el trasero.",
+                "Masajea tu ano.",
+                "Déjate penetrar con los dedos.",
+                "Abre tu trasero para otro jugador.",
+                "Penetra tu ano con un dedo.",
+                "Acaricia alrededor del ano.",
+                "Déjate penetrar con 2 dedos.",
+                "Golpea el ano con el dedo durante 15 segundos.",
+                "Deja que te follen rápidamente 20 segundos con los dedos.",
+                "Fóllate con varios dedos."
+            ],
+            "dom": [
+                "Acaricia el trasero de otro jugador",
+                "Haz que otro jugador se masajee el ano",
+                "Haz que otro jugador se deje penetrar con los dedos",
+                "Haz que otro jugador abra su trasero para ti",
+                "Penetra el ano de otro jugador con un dedo",
+                "Acaricia alrededor del ano de otro jugador",
+                "Haz que otro jugador se deje penetrar con 2 dedos",
+                "Golpea el ano de otro jugador con el dedo durante 15 segundos",
+                "Haz que otro jugador se deje follar rápidamente 20 segundos con los dedos",
+                "Haz que otro jugador se folle con varios dedos"
+            ]
+        },
+        "Juguetes/Follar": {
+            "sub": [
+                "Deja que alguien roce su pene alrededor de tu ano.",
+                "Métete un juguete.",
+                "Déjate follar durante 30 segundos.",
+                "Siéntate en el pene de alguien.",
+                "Recibe 10 penetraciones lentas y profundas de otro jugador.",
+                "Recibe 20 penetraciones de un jugador.",
+                "Muéstrate penetrándote con un juguete durante 15 segundos.",
+                "15 penetraciones rápidas con un juguete.",
+                "Déjate follar profundo y rápido.",
+                "Cabalga el pene de otro jugador hasta la siguiente acción (para ambos)."
+            ],
+            "dom": [
+                "Haz que otro jugador deje que alguien roce su pene alrededor de su ano",
+                "Haz que otro jugador se meta un juguete",
+                "Haz que otro jugador se deje follar durante 30 segundos",
+                "Haz que otro jugador se siente en tu pene",
+                "Haz que otro jugador reciba 10 penetraciones lentas y profundas",
+                "Haz que otro jugador reciba 20 penetraciones",
+                "Haz que otro jugador se muestre penetrándose con un juguete durante 15 segundos",
+                "Haz que otro jugador reciba 15 penetraciones rápidas con un juguete",
+                "Haz que otro jugador se deje follar profundo y rápido",
+                "Cabalga el pene de otro jugador hasta la siguiente acción (para ambos)"
+            ]
+        },
+        "Estiramiento": {
+            "sub": [
+                "Déjate follar mientras te penetran con los dedos.",
+                "Penétrate con un juguete más grande.",
+                "Hasta el fondo con tu juguete grande 15 veces.",
+                "Aumenta a 4 dedos dentro de ti.",
+                "Inserta el máximo de dedos en 30 segundos.",
+                "Gira el juguete dentro de ti 3 veces.",
+                "Haz Kegels 30 segundos con el juguete grande metido.",
+                "Que alguien inserte la máxima cantidad de dedos y luego estimule tu próstata con movimientos rápidos."
+            ],
+            "dom": [
+                "Haz que otro jugador se deje follar mientras se penetran con los dedos",
+                "Haz que otro jugador se penetre con un juguete más grande",
+                "Haz que otro jugador meta su juguete grande hasta el fondo 15 veces",
+                "Haz que otro jugador aumente a 4 dedos dentro de él/ella",
+                "Haz que otro jugador inserte el máximo de dedos en 30 segundos",
+                "Haz que otro jugador gire el juguete dentro de él/ella 3 veces",
+                "Haz que otro jugador haga Kegels 30 segundos con el juguete grande metido",
+                "Haz que alguien inserte la máxima cantidad de dedos en otro jugador y luego estimule su próstata con movimientos rápidos"
+            ]
+        },
+        "Puño": {
+            "sub": [
+                "Recibe una penetración con el puño.",
+                "Intenta mantener el puño de alguien dentro de ti durante 30 segundos.",
+                "5 penetraciones lentas con el puño.",
+                "Mastúrbate mientras te penetran con el puño.",
+                "10 penetraciones rápidas con el puño."
+            ],
+            "dom": [
+                "Haz que otro jugador reciba una penetración con el puño",
+                "Haz que otro jugador intente mantener tu puño dentro de él/ella durante 30 segundos",
+                "Haz que otro jugador reciba 5 penetraciones lentas con el puño",
+                "Haz que otro jugador se masturbe mientras se penetra con el puño",
+                "Haz que otro jugador reciba 10 penetraciones rápidas con el puño"
+            ]
+        }
     }
 }

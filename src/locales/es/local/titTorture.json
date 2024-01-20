@@ -2,41 +2,84 @@
     "label": "Tortura de pezones",
     "actions": {
         "Ninguna": [],
-        "Apretar/Acariciar": [
-            "Acaricia tus pezones.",
-            "Deja que jueguen con tus pezones.",
-            "Golpea suavemente tus pezones.",
-            "Aprieta tus pezones.",
-            "Deja que te chupen los pezones.",
-            "Acaricia tus pezones durante 15 segundos.",
-            "Deja que te golpeen los pezones con los dedos 10 veces.",
-            "Deja que te aprieten/acaricien los pezones durante 15 segundos."
-        ],
-        "Pellizcar/Tirar": [
-            "Pellizca tus pezones fuertemente.",
-            "Deja que te chupen los pezones fuertemente.",
-            "Tira de tus pezones.",
-            "Deja que mordisqueen tus pezones.",
-            "Deja que alguien te estire de los pezones.",
-            "Acaricia tus pezones durante 15 segundos.",
-            "Deja que te retuerzan los pezones en ambas direcciones.",
-            "Retuerce tus pezones mientras los estiras.",
-            "Sé duro con tus pezones durante 20 segundos.",
-            "Deja que otro jugador te muerda los pezones."
-        ],
-        "Pinzas/Juguetes": [
-            "Pon un juguete en tus pezones 10 segundos.",
-            "Con el juguete en los pezones, tira de ellos.",
-            "Gira tus pezones fuertemente.",
-            "Golpea el juguete para pezones 10 veces.",
-            "Sé duro con tus pezones."
-        ],
-        "Lo más fuerte posible": [
-            "Deja que te pellizquen los pezones lo más fuerte posible.",
-            "Tira de tus pezones lo más lejos que puedas soportar.",
-            "Deja que te retuerzan los pezones hasta que llores.",
-            "Descansa. Recibe un buen chupeteo/masaje en los pezones.",
-            "Golpea tu pecho/pezones."
-        ]
+        "Apretar/Acariciar": {
+            "sub": [
+                "Acaricia tus pezones.",
+                "Deja que jueguen con tus pezones.",
+                "Golpea suavemente tus pezones.",
+                "Aprieta tus pezones.",
+                "Deja que te chupen los pezones.",
+                "Acaricia tus pezones durante 15 segundos.",
+                "Deja que te golpeen los pezones con los dedos 10 veces.",
+                "Deja que te aprieten/acaricien los pezones durante 15 segundos."
+            ],
+            "dom": [
+                "Haz que otro jugador acaricie tus pezones.",
+                "Haz que otro jugador juegue con tus pezones.",
+                "Haz que otro jugador golpee suavemente tus pezones.",
+                "Haz que otro jugador apriete tus pezones.",
+                "Haz que otro jugador te chupe los pezones.",
+                "Haz que otro jugador acaricie tus pezones durante 15 segundos.",
+                "Haz que otro jugador te golpee los pezones con los dedos 10 veces.",
+                "Haz que otro jugador te apriete/acaricie los pezones durante 15 segundos."
+            ]
+        },
+        "Pellizcar/Tirar": {
+            "sub": [
+                "Pellizca tus pezones fuertemente.",
+                "Deja que te chupen los pezones fuertemente.",
+                "Tira de tus pezones.",
+                "Deja que mordisqueen tus pezones.",
+                "Deja que alguien te estire de los pezones.",
+                "Acaricia tus pezones durante 15 segundos.",
+                "Deja que te retuerzan los pezones en ambas direcciones.",
+                "Retuerce tus pezones mientras los estiras.",
+                "Sé duro con tus pezones durante 20 segundos.",
+                "Deja que otro jugador te muerda los pezones."
+            ],
+            "dom": [
+                "Haz que otro jugador se pellizque los pezones fuertemente.",
+                "Haz que otro jugador se deje chupar los pezones fuertemente.",
+                "Haz que otro jugador tire de tus pezones.",
+                "Haz que otro jugador se deje mordisquear los pezones.",
+                "Haz que otro jugador te estire de los pezones.",
+                "Haz que otro jugador acaricie tus pezones durante 15 segundos.",
+                "Haz que otro jugador te retuerza los pezones en ambas direcciones.",
+                "Haz que otro jugador retuerza tus pezones mientras los estiras.",
+                "Haz que otro jugador sea duro con tus pezones durante 20 segundos.",
+                "Haz que otro jugador te muerda los pezones."
+            ]
+        },
+        "Pinzas/Juguetes": {
+            "sub": [
+                "Pon un juguete en tus pezones 10 segundos.",
+                "Con el juguete en los pezones, tira de ellos.",
+                "Gira tus pezones fuertemente.",
+                "Golpea el juguete para pezones 10 veces.",
+                "Sé duro con tus pezones."
+            ],
+            "dom": [
+                "Haz que otro jugador ponga un juguete en tus pezones durante 10 segundos.",
+                "Haz que otro jugador tire de los pezones con el juguete.",
+                "Haz que otro jugador gire tus pezones fuertemente.",
+                "Haz que otro jugador golpee el juguete para pezones 10 veces.",
+                "Haz que otro jugador sea duro con tus pezones."
+            ]
+        },
+        "Lo más fuerte posible": {
+            "sub": [
+                "Deja que te pellizquen los pezones lo más fuerte posible.",
+                "Tira de tus pezones lo más lejos que puedas soportar.",
+                "Deja que te retuerzan los pezones hasta que llores.",
+                "Descansa. Recibe un buen chupeteo/masaje en los pezones.",
+                "Golpea tu pecho/pezones."
+            ],
+            "dom": [
+                "Haz que otro jugador te pellizque los pezones lo más fuerte posible.",
+                "Haz que otro jugador tire de tus pezones lo más lejos que puedas soportar.",
+                "Haz que otro jugador te retuerza los pezones hasta que llores.",
+                "Haz que otro jugador descanse y reciba un buen chupeteo/masaje en los pezones."
+            ]
+        }
     }
 }

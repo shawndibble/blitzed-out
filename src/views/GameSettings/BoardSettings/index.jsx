@@ -87,21 +87,49 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
       )}
       <Grid container columnSpacing={2}>{settingSelectLists}</Grid>
       <Divider />
-      <FormControl fullWidth margin="normal">
-        <InputLabel id="difficultyLabel"><Trans i18nKey="difficulty" /></InputLabel>
-        <Select
-          labelId="difficultyLabel"
-          id="difficulty"
-          label={<Trans i18nKey="difficulty" />}
-          value={formData.difficulty || 'normal'}
-          onChange={(event) => setFormData({
-            ...formData, difficulty: event.target.value, boardUpdated: true,
-          })}
-        >
-          <MenuItem value="normal"><Trans i18nKey="normal" /></MenuItem>
-          <MenuItem value="accelerated"><Trans i18nKey="accelerated" /></MenuItem>
-        </Select>
-      </FormControl>
+      <Grid container columnSpacing={2} justifyContent="center">
+        {formData.gameMode === 'local' && (
+          <Grid item xs={12} sm={6} md={5}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="roleLabel"><Trans i18nKey="role" /></InputLabel>
+              <Select
+                labelId="roleLabel"
+                id="role"
+                label={<Trans i18nKey="role" />}
+                value={formData.role || 'sub'}
+                onChange={(event) => setFormData({
+                  ...formData, role: event.target.value, boardUpdated: true,
+                })}
+              >
+                <MenuItem value="sub"><Trans i18nKey="submissive" /></MenuItem>
+                <MenuItem value="vers"><Trans i18nKey="versatile" /></MenuItem>
+                <MenuItem value="dom"><Trans i18nKey="dominant" /></MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
+        {formData.gameMode === 'local' && !isMobile && (
+          <Divider orientation="vertical" flexItem sx={{ pl: 1, pr: 2 }} variant="middle" />
+        )}
+
+        <Grid item xs={12} sm={6} md={5}>
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="difficultyLabel"><Trans i18nKey="difficulty" /></InputLabel>
+            <Select
+              labelId="difficultyLabel"
+              id="difficulty"
+              label={<Trans i18nKey="difficulty" />}
+              value={formData.difficulty || 'normal'}
+              onChange={(event) => setFormData({
+                ...formData, difficulty: event.target.value, boardUpdated: true,
+              })}
+            >
+              <MenuItem value="normal"><Trans i18nKey="normal" /></MenuItem>
+              <MenuItem value="accelerated"><Trans i18nKey="accelerated" /></MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
       <FinishSlider setFormData={setFormData} formData={formData} />
     </>
   );

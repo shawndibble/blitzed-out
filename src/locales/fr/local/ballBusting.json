@@ -1,52 +1,91 @@
 {
     "label": "Torture des couilles",
     "actions": {
-      "Aucun": [],
-      "Claques/Pression": [
-        "Masses tes couilles.",
-        "2 claques sur tes propres couilles.",
-        "10 petites tapes sur les couilles d'un autre joueur.",
-        "Comprimes tes couilles pendant 15 secondes.",
-        "3 claques sur les couilles d'un autre joueur.",
-        "Tires sur tes couilles pendant 15 secondes.",
-        "Fais claquer tes couilles pendant 10 secondes.",
-        "Tires sur tes couilles jusqu'au prochain tour.",
-        "Tires sur tes couilles pendant 10 secondes.",
-        "Claques rapidement tes couilles pendant 15 secondes.",
-        "Petite claque à chaque fois que quelqu'un ait lancé les dés.",
-        "5 claques sur les couilles d'un autre joueur.",
-        "Bloques ta respiration pendant 10 secondes tout en recevant des claques sur les couilles.",
-        "Fais toi masser les couilles pendant 15 secondes."
-      ],
-      "Coups/Écrasement": [
-        "Reçois 2 coups sur les couilles.",
-        "Écrases tes couilles.",
-        "4 coups sur tes couilles.",
-        "Claques sur les couilles pendant 10 secondes.",
-        "Reçois 1 claque forte sur tes couilles.",
-        "Reçois 5 claques sur tes couilles.",
-        "Donnes-toi une claque forte sur tes propres couilles.",
-        "Écrases tes couilles jusqu'au prochain tour.",
-        "Reçois 4 claques fortes sur tes couilles.",
-        "Reçois un coup de genou dans les couilles."
-      ],
-      "Utiliser un objet": [
-        "Coup de poing sur les couilles.",
-        "Écrases les couilles avec un objet.",
-        "Claques sur les couilles pendant 15 secondes.",
-        "5 claques fortes sur les couilles.",
-        "Frappes tes couilles à chaque fois que quelqu'un lance le dés.",
-        "2 claques sur les couilles avec un objet.",
-        "Coups sur les couilles pendant 20 secondes.",
-        "Écraser les couilles avec un objet.",
-        "Claques rapides sur les couilles pendant 15 secondes avec un objet."
-      ],
-      "Aussi fort que possible": [
-        "Reçois 5 coups les plus forts possibles sur les couilles avec un objet.",
-        "Frappes 5 coups les plus forts possibles sur tes propres couilles.",
-        "Écrases tes couilles aussi fort que possible.",
-        "Reçois des coups forts sur tes couilles pendant 20 secondes avec un objet.",
-        "Fais-toi tirer les couilles très fort pendant 20 secondes."
-      ]
+        "Aucun": [],
+        "Claques/Pression": {
+            "sub": [
+                "Masses tes couilles.",
+                "2 claques sur tes propres couilles.",
+                "Comprimes tes couilles pendant 15 secondes.",
+                "Tires sur tes couilles pendant 15 secondes.",
+                "Fais claquer tes couilles pendant 10 secondes.",
+                "Tires sur tes couilles jusqu'au prochain tour.",
+                "Tires sur tes couilles pendant 10 secondes.",
+                "Claques rapidement tes couilles pendant 15 secondes.",
+                "Petite claque à chaque fois que quelqu'un ait lancé les dés.",
+                "Bloques ta respiration pendant 10 secondes tout en recevant des claques sur les couilles.",
+                "Fais toi masser les couilles pendant 15 secondes."
+            ],
+            "dom": [
+                "Masse les couilles d'un autre joueur.",
+                "Donner 2 claques sur les couilles d'un autre joueur.",
+                "Comprime les couilles d'un autre joueur pendant 15 secondes.",
+                "Tire sur les couilles d'un autre joueur pendant 15 secondes.",
+                "Fais claquer les couilles d'un autre joueur pendant 10 secondes.",
+                "Tire sur les couilles d'un autre joueur jusqu'à son prochain tour.",
+                "Tire sur les couilles d'un autre joueur pendant 10 secondes.",
+                "Claque rapidement les couilles d'un autre joueur pendant 15 secondes.",
+                "Donne une petite claque aux couilles d'un autre joueur chaque fois que quelqu'un lance les dés.",
+                "Donne à un autre joueur 5 claques sur les couilles.",
+                "Bloque la respiration d'un autre joueur pendant 10 secondes tout en lui donnant des claques sur les couilles.",
+                "Fais masser les couilles d'un autre joueur pendant 15 secondes."
+            ]
+        },
+        "Coups/Écrasement": {
+            "sub": [
+                "Reçois 2 coups sur les couilles.",
+                "Écrases tes couilles.",
+                "Reçois 4 coups sur tes couilles.",
+                "Reçois 1 claque forte sur tes couilles.",
+                "Reçois 5 claques sur tes couilles.",
+                "Donner une claque forte sur tes propres couilles.",
+                "Écrase tes couilles jusqu'au prochain tour.",
+                "Reçois 4 claques fortes sur tes couilles.",
+                "Reçois un coup de genou dans les couilles."
+            ],
+            "dom": [
+                "Donne 2 coups sur les couilles d'un autre joueur.",
+                "Écrase les couilles d'un autre joueur.",
+                "Donne 4 coups sur les couilles d'un autre joueur.",
+                "Donne 1 claque forte sur les couilles d'un autre joueur.",
+                "Donne 5 claques sur les couilles d'un autre joueur.",
+                "Fais te donner une claque forte sur les couilles par un autre joueur.",
+                "Écrase les couilles d'un autre joueur jusqu'à son prochain tour.",
+                "Donne 4 claques fortes sur les couilles d'un autre joueur.",
+                "Donne un coup de genou dans les couilles d'un autre joueur."
+            ]
+        },
+        "Utiliser un objet": {
+            "sub": [
+                "Reçois un coup de poing sur les couilles.",
+                "Reçois un coup avec un objet sur les couilles.",
+                "Reçois 5 claques fortes sur les couilles.",
+                "Frappes tes couilles à chaque fois que quelqu'un lance le dés.",
+                "Reçois 2 claques sur les couilles avec un objet.",
+                "Reçois des coups sur les couilles pendant 20 secondes.",
+                "Reçois un coup avec un objet sur les couilles.",
+                "Reçois des claques rapides sur les couilles pendant 15 secondes avec un objet."
+            ],
+            "dom": [
+                "Donne un coup de poing aux couilles d'un autre joueur.",
+                "Donne un coup avec un objet aux couilles d'un autre joueur.",
+                "Donne 5 claques fortes sur les couilles d'un autre joueur.",
+                "Fais frapper les couilles d'un autre joueur à chaque fois que quelqu'un lance le dés.",
+                "Donne 2 claques avec un objet aux couilles d'un autre joueur.",
+                "Donne des coups sur les couilles d'un autre joueur pendant 20 secondes.",
+                "Donne un coup avec un objet aux couilles d'un autre joueur.",
+                "Donne des claques rapides sur les couilles d'un autre joueur pendant 15 secondes avec un objet."
+            ]
+        },
+        "Aussi fort que possible": {
+            "sub": [
+                "Reçois 5 coups les plus forts possibles sur les couilles avec un objet.",
+                "Fais-toi tirer les couilles très fort pendant 20 secondes."
+            ],
+            "dom": [
+                "Donne 5 coups les plus forts possibles sur les couilles d'un autre joueur avec un objet.",
+                "Fais tirer les couilles d'un autre joueur très fort pendant 20 secondes."
+            ]
+        }
     }
-  }
+}

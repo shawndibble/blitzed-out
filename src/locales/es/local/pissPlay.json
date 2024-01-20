@@ -2,34 +2,69 @@
     "label": "Juegos con Orina",
     "actions": {
         "Ninguna": [],
-        "Orinar en un vaso": [
-            "Bebe agua",
-            "Haz que alguien más beba agua",
-            "Orina en un recipiente",
-            "Bebe mucha agua",
-            "Haz que alguien más beba mucha agua",
-            "Huele tu propia orina",
-            "Huele la orina de alguien más",
-            "Orina en un recipiente",
-            "Toma un sorbo de agua",
-            "Que alguien te dé un recipiente con su orina"
-        ],
-        "Lluvia dorada": [
-            "Deja que alguien orine en tu cuerpo",
-            "Orina sobre ti mismo",
-            "Pon el pene y los testículos en un recipiente con orina",
-            "Bebe mucha agua",
-            "Deja que alguien orine en tu cara",
-            "Orina en tu propia cara",
-            "Bebe agua"
-        ],
-        "Bebe": [
-            "Bébete tu propia orina",
-            "Bébete la orina de alguien más desde la distancia",
-            "Bebe orina con la boca pegada a la fuente",
-            "Bebe agua",
-            "Bebe mucha agua",
-            "Intenta orinar en tu boca. Trágatelo."
-        ]
+        "Orinar en un vaso": {
+            "sub": [
+                "Bebe agua",
+                "Haz que alguien más beba agua",
+                "Orina en un recipiente",
+                "Bebe mucha agua",
+                "Haz que alguien más beba mucha agua",
+                "Huele tu propia orina",
+                "Huele la orina de alguien más",
+                "Orina en un recipiente",
+                "Toma un sorbo de agua",
+                "Que alguien te dé un recipiente con su orina"
+            ],
+            "dom": [
+                "Haz que otro jugador beba agua",
+                "Haz que otro jugador beba mucha agua",
+                "Haz que otro jugador orine en un recipiente",
+                "Haz que otro jugador beba mucha agua",
+                "Haz que otro jugador orine en un recipiente",
+                "Haz que otro jugador huela tu propia orina",
+                "Haz que otro jugador huela la orina de otro jugador",
+                "Haz que otro jugador orine en un recipiente",
+                "Haz que otro jugador tome un sorbo de agua",
+                "Dale a otro jugador un recipiente con tu orina"
+            ]
+        },
+        "Lluvia dorada": {
+            "sub": [
+                "Deja que alguien orine en tu cuerpo",
+                "Orina sobre ti mismo",
+                "Pon el pene y los testículos en un recipiente con orina",
+                "Bebe mucha agua",
+                "Deja que alguien orine en tu cara",
+                "Orina en tu propia cara",
+                "Bebe agua"
+            ],
+            "dom": [
+                "Haz que otro jugador se deje orinar encima",
+                "Haz que otro jugador se orine encima",
+                "Haz que otro jugador ponga su pene y sus testículos en un recipiente con tu orina",
+                "Haz que otro jugador beba mucha agua",
+                "Haz que otro jugador se deje orinar en la cara",
+                "Haz que otro jugador se orine en la cara",
+                "Haz que otro jugador beba agua"
+            ]
+        },
+        "Bebe": {
+            "sub": [
+                "Bébete tu propia orina",
+                "Bébete la orina de alguien más desde la distancia",
+                "Bebe orina con la boca pegada a la fuente",
+                "Bebe agua",
+                "Bebe mucha agua",
+                "Intenta orinar en tu boca. Trágatelo."
+            ],
+            "dom": [
+                "Haz que otro jugador beba su propia orina",
+                "Haz que otro jugador beba tu orina desde la distancia",
+                "Haz que otro jugador beba tu orina con la boca pegada a la fuente",
+                "Haz que otro jugador beba agua",
+                "Haz que otro jugador beba mucha agua",
+                "Haz que otro jugador intente orinar en su boca y se lo trague."
+            ]
+        }
     }
 }

@@ -3,12 +3,26 @@ import i18next from 'i18next';
 
 const { t } = i18next;
 
+// sometimes our category subset has a role subset, need to merge those.
+function flattenActionsByRole(actions, role) {
+  let flattenedActions;
+
+  if (Array.isArray(actions)) flattenedActions = [...actions]; // no need to flatten
+  else if (role === 'sub') flattenedActions = [...actions.sub];
+  else if (role === 'dom') flattenedActions = [...actions.dom];
+  else if (role === 'vers') flattenedActions = [...actions.sub, ...actions.dom];
+
+  return shuffleArray(flattenedActions);
+}
+
 // Restricts the subset of actions by dropping none and intensities too high
 function restrictSubsetActions(settings, settingsKey, actionObject) {
+  const { role = 'sub' } = settings;
+
   return Object.entries(actionObject).reduce((acc, [key, arr], index) => {
     // Get the values between none and the user select max intensity.
     if (index > 0 && index <= settings[settingsKey]) {
-      acc[key] = shuffleArray(arr);
+      acc[key] = flattenActionsByRole(arr, role);
     }
     return acc;
   }, {});

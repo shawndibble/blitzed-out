@@ -1,30 +1,57 @@
 {
-  "label": "Bondage",
-  "actions": {
-    "None": [],
-    "Ropes and Cuffs": [
-      "Tie your wrists together",
-      "Get bound to a piece of furniture until your next action.",
-      "Have your wrists bound around another player's body until an action requires one of you to be freed.",
-      "Get tied up by another player however they wish.",
-      "Get hog tied until your next action.",
-      "Have your arms bound behind your back until your next action.",
-      "Have your arms bound to your legs until an action requires you to be freed.",
-      "Be restrained to a piece of furniture until an action requires you to be freed.",
-      "Have your ankles bound together",
-      "Have another player put you in a predicament position until your next action",
-      "Be bound spread eagle until an action requires otherwise."
-    ],
-    "Add Blindfolds and Gags": [
-      "Get blindfolded until your next action.",
-      "Get gagged until your next action.",
-      "Get blindfolded and gagged until your next action.",
-      "Get blindfolded and gagged until an action requires you to be freed.",
-      "Be blindfolded, gagged and wrist bound until your next turn.",
-      "Be blindfolded, gagged and wrist bound until your next action",
-      "Be gagged with a piece of clothing until your next action that requires your mouth.",
-      "Be blindfolded with a piece of clothing until your next action.",
-      "Another player can pick what to use for a blindfold and/or gag until your next action."
-    ]
-  }
+    "label": "Bondage",
+    "actions": {
+        "None": [],
+        "Ropes and Cuffs": {
+            "sub": [
+                "Tie your wrists together",
+                "Get bound to a piece of furniture until your next action.",
+                "Have your wrists bound around another player's body until an action requires one of you to be freed.",
+                "Get tied up by another player however they wish.",
+                "Get hog tied until your next action.",
+                "Have your arms bound behind your back until your next action.",
+                "Have your arms bound to your legs until an action requires you to be freed.",
+                "Be restrained to a piece of furniture until an action requires you to be freed.",
+                "Have your ankles bound together",
+                "Have another player put you in a predicament position until your next action",
+                "Be bound spread eagle until an action requires otherwise."
+            ],
+            "dom": [
+                "Tie another player's wrists together",
+                "Bind another player to a piece of furniture until their next action.",
+                "Bind another player's wrists around your body until an action requires one of you to be freed.",
+                "Tie up another player however you wish.",
+                "Hog tie another player until their next action.",
+                "Bind another player's arms behind their back until their next action.",
+                "Bind another player's arms to their legs until an action requires them to be freed.",
+                "Restrain another player to a piece of furniture until an action requires them to be freed.",
+                "Bind another player's ankles together",
+                "Put another player in a predicament position until their next action",
+                "Bind another player spread eagle until an action requires otherwise."
+            ]
+        },
+        "Add Blindfolds and Gags": {
+            "sub": [
+                "Get blindfolded until your next action.",
+                "Get gagged until your next action.",
+                "Get blindfolded and gagged until your next action.",
+                "Get blindfolded and gagged until an action requires you to be freed.",
+                "Be blindfolded, gagged and wrist bound until your next turn.",
+                "Be blindfolded, gagged and wrist bound until your next action",
+                "Be gagged with a piece of clothing until your next action that requires your mouth.",
+                "Be blindfolded with a piece of clothing until your next action.",
+                "Another player can pick what to use for a blindfold and/or gag until your next action."
+            ],
+            "dom": [
+                "Blindfold another player until their next action.",
+                "Gag another player until their next action.",
+                "Blindfold and gag another player until their next action.",
+                "Blindfold and gag another player until an action requires them to be freed.",
+                "Blindfold, gag, and wrist bind another player until an action requires them to be freed.",
+                "Gag another player with a piece of clothing until their next action that requires their mouth.",
+                "Blindfold another player with a piece of clothing until their next action.",
+                "Pick what to use for another player's blindfold and/or gag until their next action."
+            ]
+        }
+    }
 }

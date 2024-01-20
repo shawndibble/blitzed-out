@@ -26,7 +26,7 @@ export default function SelectBoardSetting({
 
   return (
     <Grid container key={option}>
-      <Grid item xs={isDualSelect ? 7 : 12} sm={isDualSelect ? 6 : 12}>
+      <Grid item xs={isDualSelect ? 6 : 12} sm={isDualSelect ? 6 : 12}>
         <FormControl fullWidth margin="normal">
           <InputLabel id={labelId}>{label}</InputLabel>
           <Select

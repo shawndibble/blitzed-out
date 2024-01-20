@@ -1,52 +1,104 @@
 {
-  "label": "Azotes",
-  "actions": {
-    "Ninguna": [],
-    "Azotes Suaves": [
-      "Recibe un azote suave en cada nalga.",
-      "Recibe un azote mientras estás sobre las rodillas de otro jugador.",
-      "Cuenta en alto 10 azotes suaves.",
-      "Recibe un azote suave de cada jugador.",
-      "Permite que alguien acaricie tu espalda y luego te dé un azote suave.",
-      "Recibe un azote suave mientras estás en cuatro patas.",
-      "Recibe azotes rápidos y suaves durante 15 segundos.",
-      "Recibe un azote suave mientras estás boca arriba.",
-      "Recibe 6 azotes suaves, 3 en cada mejilla.",
-      "Ponte de rodillas y suplica a otro jugador que te azote.",
-      "Suplica a cada jugador, uno por uno, un azote suave."
-    ],
-    "Azotes Fuertes": [
-      "Recibe un azote fuerte en cada nalga.",
-      "Recibe azotes fuertes mientras estás sobre las rodillas de otro jugador.",
-      "Cuenta en alto 10 azotes fuertes.",
-      "Recibe 2 azotes fuertes de cada jugador.",
-      "Recibe tantos azotes fuertes como puedas durante 20 segundos.",
-      "Recibe 4 azotes fuertes mientras estás en posición de cuatro patas.",
-      "Recibe azotes fuertes durante 15 segundos.",
-      "Suplica y recibe 10 azotes fuertes.",
-      "Mientras estás inclinado, recibe 6 azotes fuertes.",
-      "Recibe azotes fuertes hasta que supliques por clemencia."
-    ],
-    "Varas y Paletas": [
-      "Recibe azotes con el juguete que elijas.",
-      "Cuenta 20 azotes con un juguete.",
-      "Recibe azotes con un juguete mientras estás sobre las rodillas de otro jugador.",
-      "Recibe azotes con un juguete mientras estás en cuatro patas.",
-      "Recibe azotes con un juguete mientras estás boca arriba.",
-      "Ofrece el juguete que elijas a otro jugador y pide que te azote con él.",
-      "Suplica por una cantidad de azotes con un juguete.",
-      "Recibe azotes con un juguete durante 30 segundos.",
-      "Recibe azotes con un juguete de cada jugador.",
-      "Recibe un azote con una vara en las palmas de las manos.",
-      "Recibe un azote con una vara en las plantas de los pies."
-    ],
-    "Magulladuras": [
-      "Recibe 5 azotes en cada nalga lo suficientemente fuertes como para dejar una marca.",
-      "Cuenta 10 azotes que provoquen magulladuras.",
-      "Aguanta tantos azotes dolorosos como puedas durante 30 segundos.",
-      "Recibe 10 azotes utilizando una vara u otro juguete duro.",
-      "Permite que otro jugador te deje la mano marcada."
-    ]
-  }
+    "label": "Azotes",
+    "actions": {
+        "Ninguna": [],
+        "Azotes Suaves": {
+            "sub": [
+                "Recibe un azote suave en cada nalga.",
+                "Recibe un azote mientras estás sobre las rodillas de otro jugador.",
+                "Cuenta en alto 10 azotes suaves.",
+                "Recibe un azote suave de cada jugador.",
+                "Permite que alguien acaricie tu espalda y luego te dé un azote suave.",
+                "Recibe un azote suave mientras estás en cuatro patas.",
+                "Recibe azotes rápidos y suaves durante 15 segundos.",
+                "Recibe un azote suave mientras estás boca arriba.",
+                "Recibe 6 azotes suaves, 3 en cada mejilla.",
+                "Ponte de rodillas y suplica a otro jugador que te azote.",
+                "Suplica a cada jugador, uno por uno, un azote suave."
+            ],
+            "dom": [
+                "Haz que otro jugador reciba un azote suave en cada nalga.",
+                "Haz que otro jugador se ponga sobre tus rodillas y le des un azote.",
+                "Haz que otro jugador cuente en alto 10 azotes suaves.",
+                "Haz que cada jugador le dé un azote suave a otro jugador.",
+                "Acaricia la espalda de otro jugador y luego dale un azote suave.",
+                "Haz que otro jugador rece un azote suave mientras está en cuatro patas.",
+                "Haz que otro jugador reciba azotes rápidos y suaves durante 15 segundos.",
+                "Haz que otro jugador reciba un azote suave mientras está boca arriba.",
+                "Haz que otro jugador reciba 6 azotes suaves, 3 en cada mejilla.",
+                "Haz que otro jugador se arrodille y pida un azote.",
+                "Haz que cada jugador le dé un azote suave a otro jugador, uno por uno."
+            ]
+        },
+        "Azotes Fuertes": {
+            "sub": [
+                "Recibe un azote fuerte en cada nalga.",
+                "Recibe azotes fuertes mientras estás sobre las rodillas de otro jugador.",
+                "Cuenta en alto 10 azotes fuertes.",
+                "Recibe 2 azotes fuertes de cada jugador.",
+                "Recibe tantos azotes fuertes como puedas durante 20 segundos.",
+                "Recibe 4 azotes fuertes mientras estás en posición de cuatro patas.",
+                "Recibe azotes fuertes durante 15 segundos.",
+                "Suplica y recibe 10 azotes fuertes.",
+                "Mientras estás inclinado, recibe 6 azotes fuertes.",
+                "Recibe azotes fuertes hasta que supliques por clemencia."
+            ],
+            "dom": [
+                "Haz que otro jugador reciba un azote fuerte en cada nalga.",
+                "Haz que otro jugador se ponga sobre tus rodillas y le des azotes fuertes.",
+                "Haz que otro jugador cuente en alto 10 azotes fuertes.",
+                "Haz que cada jugador le dé 2 azotes fuertes a otro jugador.",
+                "Haz que otro jugador reciba tantos azotes fuertes como pueda durante 20 segundos.",
+                "Haz que otro jugador reciba 4 azotes fuertes mientras está en posición de cuatro patas.",
+                "Haz que otro jugador reciba azotes fuertes durante 15 segundos.",
+                "Haz que otro jugador pida 10 azotes fuertes y se los des.",
+                "Haz que otro jugador se incline y reciba 6 azotes fuertes.",
+                "Haz que otro jugador reciba azotes fuertes hasta que suplique por clemencia."
+            ]
+        },
+        "Varas y Paletas": {
+            "sub": [
+                "Recibe azotes con el juguete que elijas.",
+                "Cuenta 20 azotes con un juguete.",
+                "Recibe azotes con un juguete mientras estás sobre las rodillas de otro jugador.",
+                "Recibe azotes con un juguete mientras estás en cuatro patas.",
+                "Recibe azotes con un juguete mientras estás boca arriba.",
+                "Ofrece el juguete que elijas a otro jugador y pide que te azote con él.",
+                "Suplica por una cantidad de azotes con un juguete.",
+                "Recibe azotes con un juguete durante 30 segundos.",
+                "Recibe azotes con un juguete de cada jugador.",
+                "Recibe un azote con una vara en las palmas de las manos.",
+                "Recibe un azote con una vara en las plantas de los pies."
+            ],
+            "dom": [
+                "Haz que otro jugador elija un juguete y le des azotes con él.",
+                "Haz que otro jugador cuente 20 azotes con un juguete.",
+                "Haz que otro jugador se ponga sobre tus rodillas y le des azotes con un juguete.",
+                "Haz que otro jugador reciba azotes con un juguete mientras está en cuatro patas.",
+                "Haz que otro jugador reciba azotes con un juguete mientras está boca arriba.",
+                "Elige un juguete y pide a otro jugador que le des azotes con él.",
+                "Haz que otro jugador pida una cantidad de azotes con un juguete y se los des.",
+                "Haz que otro jugador reciba azotes con un juguete durante 30 segundos.",
+                "Haz que cada jugador le dé azotes con un juguete a otro jugador.",
+                "Haz que otro jugador reciba un azote con una vara en las palmas de las manos.",
+                "Haz que otro jugador reciba un azote con una vara en las plantas de los pies."
+            ]
+        },
+        "Magulladuras": {
+            "sub": [
+                "Recibe 5 azotes en cada nalga lo suficientemente fuertes como para dejar una marca.",
+                "Cuenta 10 azotes que provoquen magulladuras.",
+                "Aguanta tantos azotes dolorosos como puedas durante 30 segundos.",
+                "Recibe 10 azotes utilizando una vara u otro juguete duro.",
+                "Permite que otro jugador te deje la mano marcada."
+            ],
+            "dom": [
+                "Haz que otro jugador reciba 5 azotes en cada nalga lo suficientemente fuertes como para dejar una marca.",
+                "Haz que otro jugador cuente 10 azotes que provoquen magulladuras.",
+                "Haz que otro jugador aguante tantos azotes dolorosos como pueda durante 30 segundos.",
+                "Haz que otro jugador reciba 10 azotes utilizando una vara u otro juguete duro.",
+                "Deja la mano de otro jugador marcada."
+            ]
+        }
+    }
 }
-

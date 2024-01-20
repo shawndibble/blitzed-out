@@ -2,43 +2,89 @@
     "label": "Entrenamiento de garganta",
     "actions": {
         "Ninguna": [],
-        "Lamer": [
-            "Lame un pene.",
-            "Juega con la punta del pene.",
-            "Baña el pene de otro jugador con tu lengua.",
-            "Chupa la punta del pene.",
-            "Haz círculos en la cabeza del pene con tu lengua.",
-            "Obtener dick abofeteado varias veces",
-            "Lame el tronco del pene.",
-            "Juega con la punta del pene durante 15 segundos.",
-            "Humedece todo el pene con tu lengua."
-        ],
-        "Chupar": [
-            "Chupa el pene durante 10 segundos.",
-            "Mantén el pene en tu boca.",
-            "Fóllate la boca.",
-            "Chupa el pene durante 20 segundos.",
-            "Chupa el pene entre respiraciones cortas.",
-            "Haz un espectáculo chupando el pene.",
-            "Recibe una follada de boca.",
-            "Mueve rápidamente la lengua en la punta de la cabeza mientras chupas.",
-            "Chupa la cabeza del pene durante 30 segundos."
-        ],
-        "Garganta profunda": [
-            "Mantén el pene en tu garganta durante 5 segundos.",
-            "Haz garganta profunda entre respiraciones.",
-            "Lame los testículos mientras haces garganta profunda.",
-            "Haz garganta profunda durante 10 segundos. Luego, para.",
-            "Haz 10 gargantas profundas.",
-            "Chupa el pene.",
-            "Recibe una follada en la garganta."
-        ],
-        "Juego de respiración": [
-            "Haz garganta profunda durante 20 segundos.",
-            "Haz garganta profunda todo el tiempo que puedas.",
-            "Haz garganta duro durante 30 segundos.",
-            "Haz garganta duro durante 15 segundos.",
-            "Haz garganta profunda lentamente 5 veces hasta los testículos."
-        ]
+        "Lamer": {
+            "sub": [
+                "Lame un pene.",
+                "Juega con la punta del pene.",
+                "Baña el pene de otro jugador con tu lengua.",
+                "Chupa la punta del pene.",
+                "Haz círculos en la cabeza del pene con tu lengua.",
+                "Obtener dick abofeteado varias veces",
+                "Lame el tronco del pene.",
+                "Juega con la punta del pene durante 15 segundos.",
+                "Humedece todo el pene con tu lengua."
+            ],
+            "dom": [
+                "Haz que otro jugador lame un pene.",
+                "Haz que otro jugador juegue con la punta del pene.",
+                "Haz que otro jugador bañe el pene de otro jugador con su lengua.",
+                "Haz que otro jugador chupe la punta del pene.",
+                "Haz que otro jugador haga círculos en la cabeza del pene con su lengua.",
+                "Haz que otro jugador reciba varios abofeteados en el pene",
+                "Haz que otro jugador lama el tronco del pene.",
+                "Haz que otro jugador juegue con la punta del pene durante 15 segundos.",
+                "Haz que otro jugador humedezca todo el pene con su lengua."
+            ]
+        },
+        "Chupar": {
+            "sub": [
+                "Chupa el pene durante 10 segundos.",
+                "Mantén el pene en tu boca.",
+                "Fóllate la boca.",
+                "Chupa el pene durante 20 segundos.",
+                "Chupa el pene entre respiraciones cortas.",
+                "Haz un espectáculo chupando el pene.",
+                "Recibe una follada de boca.",
+                "Mueve rápidamente la lengua en la punta de la cabeza mientras chupas.",
+                "Chupa la cabeza del pene durante 30 segundos."
+            ],
+            "dom": [
+                "Haz que otro jugador chupe el pene durante 10 segundos.",
+                "Haz que otro jugador mantenga el pene en su boca.",
+                "Haz que otro jugador folle su boca.",
+                "Haz que otro jugador chupe el pene durante 20 segundos.",
+                "Haz que otro jugador chupe el pene entre respiraciones cortas.",
+                "Haz que otro jugador haga un espectáculo chupando el pene.",
+                "Haz que otro jugador reciba una follada de boca.",
+                "Haz que otro jugador mueva rápidamente la lengua en la punta de la cabeza mientras chupa.",
+                "Haz que otro jugador chupe la cabeza del pene durante 30 segundos."
+            ]
+        },
+        "Garganta profunda": {
+            "sub": [
+                "Mantén el pene en tu garganta durante 5 segundos.",
+                "Haz garganta profunda entre respiraciones.",
+                "Lame los testículos mientras haces garganta profunda.",
+                "Haz garganta profunda durante 10 segundos. Luego, para.",
+                "Haz 10 gargantas profundas.",
+                "Chupa el pene.",
+                "Recibe una follada en la garganta."
+            ],
+            "dom": [
+                "Haz que otro jugador mantenga el pene en su garganta durante 5 segundos.",
+                "Haz que otro jugador haga garganta profunda entre respiraciones.",
+                "Haz que otro jugador lame los testículos mientras hace garganta profunda.",
+                "Haz que otro jugador haga garganta profunda durante 10 segundos y luego pare.",
+                "Haz que otro jugador haga 10 gargantas profundas.",
+                "Haz que otro jugador chupe el pene.",
+                "Haz que otro jugador reciba una follada en la garganta."
+            ]
+        },
+        "Juego de respiración": {
+            "sub": [
+                "Haz garganta profunda durante 20 segundos.",
+                "Haz garganta profunda todo el tiempo que puedas.",
+                "Haz garganta duro durante 30 segundos.",
+                "Haz garganta duro durante 15 segundos.",
+                "Haz garganta profunda lentamente 5 veces hasta los testículos."
+            ],
+            "dom": [
+                "Haz que otro jugador haga garganta profunda durante 20 segundos.",
+                "Haz que otro jugador haga garganta profunda todo el tiempo que pueda.",
+                "Haz que otro jugador haga garganta duro durante 30 segundos.",
+                "Haz que otro jugador haga garganta duro durante 15 segundos.",
+                "Haz que otro jugador haga garganta profunda lentamente 5 veces hasta los testículos."
+            ]
+        }
     }
 }

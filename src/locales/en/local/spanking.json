@@ -1,51 +1,104 @@
 {
-  "label": "Spanking",
-  "actions": {
-    "None": [],
-    "Light Hand": [
-      "Receive a light spanking on each cheek.",
-      "Get a spanking while over another player's knee.",
-      "Count 10 light spankings.",
-      "Get a light spanking from each player.",
-      "Have someone rub their hand down your back and then lightly spank you.",
-      "Receive a light spanking while on all fours.",
-      "Get fast, light spankings for 15 seconds.",
-      "Receive a light spanking while on your back.",
-      "Receive 6 light spankings, 3 on each cheek.",
-      "Get on your knees and beg another player for a spanking.",
-      "Beg each player, one at a time, for a light spanking."
-    ],
-    "Hard Spankings": [
-      "Receive a hard spanking on each cheek.",
-      "Get heavily spanked while over another player's knee.",
-      "Count 10 hard spankings.",
-      "Get 2 hard spankings from each player.",
-      "Receive as many hard spankings as you can for 20 seconds.",
-      "Receive 4 hard spanking while on all fours.",
-      "Get hard spankings for 15 seconds.",
-      "Beg and receive 10 hard spankings.",
-      "While bent over, receive 6 hard spankings.",
-      "Receive hard spankings until you beg for mercy."
-    ],
-    "Canes & Paddles": [
-      "Get spanked with an implement of your choice.",
-      "Count 20 spankings with an implement.",
-      "Get spanked with an implement while over another player's knee.",
-      "Get spanked with an implement while on all fours.",
-      "Get spanked with an implement while on your back.",
-      "Find an implement of your choice and ask for someone to spank you with it.",
-      "Beg for a number of spankings with an implement.",
-      "Get spanked with an implement for 30 seconds.",
-      "Get spanked with an implement by each player.",
-      "Receive a lash with an implement on the palms of the hands.",
-      "Receive a lash with an implement on the soles of your feet."
-    ],
-    "Bruising": [
-      "Get 5 spankings on each cheek hard enough to leave a mark.",
-      "Count 10 bruise inducing spankings.",
-      "Take as many painful spankings as you can handle for 30 seconds.",
-      "Get 10 spankings using a can or other thing hard implement.",
-      "Have another player leave a hand print"
-    ]
-  }
+    "label": "Spanking",
+    "actions": {
+        "None": [],
+        "Light Hand": {
+            "sub": [
+                "Receive a light spanking on each cheek.",
+                "Get a spanking while over a player's knee.",
+                "Count 10 light spankings.",
+                "Get a light spanking from each player.",
+                "Have someone rub their hand down your back and then lightly spank you.",
+                "Receive a light spanking while on all fours.",
+                "Get fast, light spankings for 15 seconds.",
+                "Receive a light spanking while on your back.",
+                "Receive 6 light spankings, 3 on each cheek.",
+                "Get on your knees and beg a player for a spanking.",
+                "Beg each player, one at a time, for a light spanking."
+            ],
+            "dom": [
+                "Give a player a light spanking on each cheek.",
+                "Spank a player while they are over your knee.",
+                "Give 10 light spankings while the player counts them.",
+                "Give each player a light spanking.",
+                "Rub your hand down a player's back and then lightly spank them.",
+                "Spank a player while they are on all fours.",
+                "Give fast, light spankings to a player for 15 seconds.",
+                "Spank a player while they are on their back.",
+                "Give a player 6 light spankings, 3 on each cheek.",
+                "Pick a player to get on their knees and beg you for a spanking.",
+                "Have each player beg you, one at a time, for a light spanking."
+            ]
+        },
+        "Hard Spankings": {
+            "sub": [
+                "Receive a hard spanking on each cheek.",
+                "Get heavily spanked while over a player's knee.",
+                "Count 10 hard spankings.",
+                "Get 2 hard spankings from each player.",
+                "Receive as many hard spankings as you can for 20 seconds.",
+                "Receive 4 hard spanking while on all fours.",
+                "Get hard spankings for 15 seconds.",
+                "Beg and receive 10 hard spankings.",
+                "While bent over, receive 6 hard spankings.",
+                "Receive hard spankings until you beg for mercy."
+            ],
+            "dom": [
+                "Give a player a hard spanking on each cheek.",
+                "Heavily spank a player while they are over your knee.",
+                "Give 10 hard spankings to a player while they count the hits.",
+                "Give 2 hard spankings to each player.",
+                "Give a player as many hard spankings as they can handle for 20 seconds.",
+                "Give a player 4 hard spankings while they are on all fours.",
+                "Give a player hard spankings for 15 seconds.",
+                "Have a player beg for 10 hard spankings and then give them.",
+                "Give a player 6 hard spankings while they are bent over.",
+                "Give a player hard spankings until they beg for mercy."
+            ]
+        },
+        "Canes & Paddles": {
+            "sub": [
+                "Get spanked with an implement of your choice.",
+                "Count 20 spankings with an implement.",
+                "Get spanked with an implement while over a player's knee.",
+                "Get spanked with an implement while on all fours.",
+                "Get spanked with an implement while on your back.",
+                "Find an implement of your choice and ask for someone to spank you with it.",
+                "Beg for a number of spankings with an implement.",
+                "Get spanked with an implement for 30 seconds.",
+                "Get spanked with an implement by each player.",
+                "Receive a lash with an implement on the palms of the hands.",
+                "Receive a lash with an implement on the soles of your feet."
+            ],
+            "dom": [
+                "Spank a player with an implement of your choice.",
+                "Give 20 spankings with an item while they count.",
+                "Spank a player with an implement while they are over your knee.",
+                "Spank a player with an implement while they are on all fours.",
+                "Spank a player with an implement while they are on their back.",
+                "Have a player find an implement of their choice and then spank them with it.",
+                "Have a player beg for a number of spankings with an implement and then give them.",
+                "Spank a player with an implement for 30 seconds.",
+                "Have each player spank a single player with an implement.",
+                "Lash a player with an implement on the palms of their hands.",
+                "Lash a player with an implement on the soles of their feet."
+            ]
+        },
+        "Bruising": {
+            "sub": [
+                "Get 5 spankings on each cheek hard enough to leave a mark.",
+                "Count 10 bruise inducing spankings.",
+                "Take as many painful spankings as you can handle for 30 seconds.",
+                "Get 10 spankings using a can or other thing hard implement.",
+                "Have a player leave a hand print"
+            ],
+            "dom": [
+                "Give a player 5 spankings on each cheek hard enough to leave a mark.",
+                "Give 10 bruise inducing spankings.",
+                "Give a player as many painful spankings as they can handle for 30 seconds.",
+                "Give a player 10 spankings using a can or other hard implement.",
+                "Leave a hand print on a player."
+            ]
+        }
+    }
 }

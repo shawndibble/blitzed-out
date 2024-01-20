@@ -1,35 +1,68 @@
 {
-  "label": "Humillación",
-  "actions": {
-    "Ninguna": [],
-    "Verbal": [
-      "Inventa un mantra. Repítelo en tu turno en cada ronda.",
-      "Un jugador te da un título despectivo (esclavo, mascota, etc.). Repite 'Soy un <término>' 30 veces.",
-      "Escribe líneas o un cuento corto centrado en tu papel sumiso. Léelo en voz alta.",
-      "Te asignan un apodo humillante al que debes responder por el resto del juego.",
-      "Debes referirte a aquellos que no usan la opción de humillación como señor/señora/amo/ama.",
-      "Comparte una fantasía o deseo relacionado con la humillación.",
-      "Discute y procesa una experiencia pasada que te hizo sentir humillado/a.",
-      "De los jugadores que no usan la opción de humillación, di cómo son superiores a ti.",
-      "Repite afirmaciones degradantes elegidas por otro jugador."
-    ],
-    "Físico": [
-      "Escribe palabras despectivas en tu cuerpo.",
-      "Arrodíllate con la cabeza baja hasta tu próximo turno.",
-      "Eres mueble para otro jugador hasta tu próximo turno.",
-      "Hasta que te reemplacen, eres el chico/chica de los recados durante el resto del juego.",
-      "Recibe una palmada suave, una nalgada o un azote.",
-      "Adora las axilas de otro jugador.",
-      "Usa una prenda de vestir que te haga sentir humillado/a durante el resto del juego.",
-      "De rodillas. Recibe estrangulamiento verbal y físico.",
-      "Da un masaje de pies a otro jugador.",
-      "Arrástrate por la habitación.",
-      "Arrástrate hacia otro jugador y luego espera en posición baja y enfrente de ellos hasta tu próximo turno.",
-      "Usa un collar y una correa durante el resto del juego. Improvisa si es necesario.",
-      "Otro jugador puede elegir qué parte del cuerpo debes besar o adorar.",
-      "Completa tareas o actos sexuales designados por otros jugadores, enfatizando sumisión y obediencia.",
-      "Realiza tareas o actos sexuales asignados por otros jugadores que enfaticen tu sumisión y obediencia.",
-      "Permite que otro jugador te escupa."
-    ]
-  }
+    "label": "Humillación",
+    "actions": {
+        "Ninguna": [],
+        "Verbal": {
+            "sub": [
+                "Inventa un mantra. Repítelo en tu turno en cada ronda.",
+                "Un jugador te da un título despectivo (esclavo, mascota, etc.). Repite 'Soy un <término>' 30 veces.",
+                "Escribe líneas o un cuento corto centrado en tu papel sumiso. Léelo en voz alta.",
+                "Te asignan un apodo humillante al que debes responder por el resto del juego.",
+                "Debes referirte a aquellos que no usan la opción de humillación como señor/señora/amo/ama.",
+                "Comparte una fantasía o deseo relacionado con la humillación.",
+                "Discute y procesa una experiencia pasada que te hizo sentir humillado/a.",
+                "De los jugadores que no usan la opción de humillación, di cómo son superiores a ti.",
+                "Repite afirmaciones degradantes elegidas por otro jugador."
+            ],
+            "dom": [
+                "Elije un mantra para otro jugador. Haz que lo repita en su turno en cada ronda.",
+                "Dale un título despectivo a otro jugador y haz que repita 'Soy un <término>' 30 veces.",
+                "Haz que otro jugador escriba líneas o un cuento corto centrado en su papel sumiso y lo lea en voz alta.",
+                "Asigna un apodo humillante a otro jugador y haz que responda a él durante el resto del juego.",
+                "Haz que otro jugador se refiera a aquellos que no usan la opción de humillación como señor/señora/amo/ama.",
+                "Haz que otro jugador comparta una fantasía o deseo relacionado con la humillación.",
+                "Haz que otro jugador discuta y procese una experiencia pasada que lo hizo sentir humillado/a.",
+                "Haz que otro jugador diga cómo los jugadores que no usan la opción de humillación son superiores a él/ella.",
+                "Elije afirmaciones degradantes para otro jugador y haz que las repita."
+            ]
+        },
+        "Físico": {
+            "sub": [
+                "Escribe palabras despectivas en tu cuerpo.",
+                "Arrodíllate con la cabeza baja hasta tu próximo turno.",
+                "Eres mueble para otro jugador hasta tu próximo turno.",
+                "Hasta que te reemplacen, eres el chico/chica de los recados durante el resto del juego.",
+                "Recibe una palmada suave, una nalgada o un azote.",
+                "Adora las axilas de otro jugador.",
+                "Usa una prenda de vestir que te haga sentir humillado/a durante el resto del juego.",
+                "De rodillas. Recibe estrangulamiento verbal y físico.",
+                "Da un masaje de pies a otro jugador.",
+                "Arrástrate por la habitación.",
+                "Arrástrate hacia otro jugador y luego espera en posición baja y enfrente de ellos hasta tu próximo turno.",
+                "Usa un collar y una correa durante el resto del juego. Improvisa si es necesario.",
+                "Otro jugador puede elegir qué parte del cuerpo debes besar o adorar.",
+                "Completa tareas o actos sexuales designados por otros jugadores, enfatizando sumisión y obediencia.",
+                "Realiza tareas o actos sexuales asignados por otros jugadores que enfaticen tu sumisión y obediencia.",
+                "Permite que otro jugador te escupa."
+            ],
+            "dom": [
+                "Haz que otro jugador escriba palabras despectivas en su cuerpo.",
+                "Haz que otro jugador se arrodille con la cabeza baja hasta su próximo turno.",
+                "Haz que otro jugador sea mueble para ti hasta su próximo turno.",
+                "Haz que otro jugador sea el chico/chica de los recados durante el resto del juego.",
+                "Haz que otro jugador reciba una palmada suave, una nalgada o un azote.",
+                "Haz que otro jugador adore las axilas de un jugador designado.",
+                "Haz que otro jugador use una prenda de vestir que lo haga sentir humillado/a durante el resto del juego.",
+                "Haz que otro jugador reciba estrangulamiento verbal y físico.",
+                "Haz que otro jugador te dé un masaje de pies.",
+                "Haz que otro jugador se arrastre por la habitación.",
+                "Haz que otro jugador se arrastre hacia ti y luego espere en posición baja y enfrente de ti hasta su próximo turno.",
+                "Haz que otro jugador use un collar y una correa durante el resto del juego. Improvisa si es necesario.",
+                "Elije qué parte del cuerpo otro jugador debe besar o adorar.",
+                "Haz que otro jugador complete tareas o actos sexuales designados por ti, enfatizando sumisión y obediencia.",
+                "Haz que otro jugador realice tareas o actos sexuales asignados por ti que enfaticen su sumisión y obediencia.",
+                "Haz que otro jugador te escupa."
+            ]
+        }
+    }
 }

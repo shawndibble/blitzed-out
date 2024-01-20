@@ -1,51 +1,104 @@
 {
-  "label": "Fessées",
-  "actions": {
-    "Aucun": [],
-    "Fessées légères": [
-      "Reçois une tape légère sur chaque fesse.",
-      "Allonges-toi sur les genoux d'un autre joueur pour recevoir une fessée de sa part.",
-      "10 fessées légères.",
-      "Chaque joueur te donne une fessée légère.",
-      "Laisse quelqu'un te caresser le long de ton dos puis te donner une fessée légère.",
-      "Mets-toi à quatre pattes et reçois une fessée légère.",
-      "Fessées légères et rapides pendant 15 secondes.",
-      "Fessée légère allongé sur le dos.",
-      "Reçois 6 fessées légères, 3 sur chaque fesse.",
-      "Mets-toi à genoux et supplies un autre joueur de te donner une fessée.",
-      "Supplies chaque joueur, un par un, de te donner une fessée légère."
-    ],
-    "Fessées Fortes": [
-      "Reçois une fessée forte sur chaque fesse.",
-      "Allonges-toi sur les genoux d'un autre joueur pour être fessé violemment.",
-      "10 fessées fortes.",
-      "2 fessées fortes données par chaque joueur.",
-      "Autant de fessées fortes que possible pendant 20 secondes.",
-      "Mets-toi à quatre pattes et reçois quatre fessées fortes.",
-      "Fessées fortes pendant 15 secondes.",
-      "Supplies les autres joueurs de te donner 10 fessées fortes.",
-      "Penches-toi en avant pour recevoir 6 fessées fortes.",
-      "Fessées fortes jusqu'à ce que tu supplies pour arrêter."
-    ],
-    "Bâton, fouet et Paddle": [
-      "Reçois une fessée avec l'instrument de ton choix (bâton, fouet, paddle,...).",
-      "20 fessées avec un instrument.",
-      "Allonges-toi sur les genoux d'un autre joueur pour être fessé avec un instrument.",
-      "Mets-toi à quatre pattes et reçois une fessée.",
-      "Une fessée avec un instrument, allongé sur le dos.",
-      "Choisis un instrument (bâton, fouet, paddle,....) et demandes à quelqu'un de te fesser avec.",
-      "Supplies pour plusieurs fessées avec un instrument.",
-      "Fessée avec un instrument pendant 30 secondes.",
-      "Chaque joueur te donne une fessée avec un instrument.",
-      "Recevoir un fouet avec un instrument sur la paume des mains.",
-      "Recevez un fouet avec un outil sur la plante de vos pieds."
-    ],
-    "Marques et Ecchymoses": [
-      "Reçois 5 fessées sur chaque fesse suffisamment fortes pour laisser une marque.",
-      "10 fessées provoquant des ecchymoses.",
-      "Fessées douloureuses (autant que tu peux supporter) pendant 30 secondes.",
-      "10 fessées en utilisant un bâton ou un autre instrument dur.",
-      "Laisses un autre joueur te marquer les fesses de sa main."
-    ]
-  }
+    "label": "Fessées",
+    "actions": {
+        "Aucun": [],
+        "Fessées légères": {
+            "sub": [
+                "Reçois une tape légère sur chaque fesse.",
+                "Allonges-toi sur les genoux d'un autre joueur pour recevoir une fessée de sa part.",
+                "10 fessées légères.",
+                "Chaque joueur te donne une fessée légère.",
+                "Laisse quelqu'un te caresser le long de ton dos puis te donner une fessée légère.",
+                "Mets-toi à quatre pattes et reçois une fessée légère.",
+                "Fessées légères et rapides pendant 15 secondes.",
+                "Fessée légère allongé sur le dos.",
+                "Reçois 6 fessées légères, 3 sur chaque fesse.",
+                "Mets-toi à genoux et supplies un autre joueur de te donner une fessée.",
+                "Supplies chaque joueur, un par un, de te donner une fessée légère."
+            ],
+            "dom": [
+                "Donne une tape légère sur chaque fesse à quelqu'un d'autre.",
+                "Fais t'allonger sur tes genoux pour donner une fessée.",
+                "Donne 10 fessées légères.",
+                "Donne une fessée légère à chaque joueur.",
+                "Caresse le long du dos de quelqu'un puis donne-lui une fessée légère.",
+                "Fais mettre à quatre pattes quelqu'un pour lui donner une fessée légère.",
+                "Donne des fessées légères et rapides pendant 15 secondes.",
+                "Donne une fessée légère allongé sur le dos.",
+                "Donne 6 fessées légères, 3 sur chaque fesse.",
+                "Accepte les supplications de quelqu'un pour lui donner une fessée.",
+                "Accepte les supplications de chaque joueur, un par un, pour leur donner une fessée légère."
+            ]
+        },
+        "Fessées Fortes": {
+            "sub": [
+                "Reçois une fessée forte sur chaque fesse.",
+                "Allonges-toi sur les genoux d'un autre joueur pour être fessé violemment.",
+                "10 fessées fortes.",
+                "2 fessées fortes données par chaque joueur.",
+                "Autant de fessées fortes que possible pendant 20 secondes.",
+                "Mets-toi à quatre pattes et reçois quatre fessées fortes.",
+                "Fessées fortes pendant 15 secondes.",
+                "Supplies les autres joueurs de te donner 10 fessées fortes.",
+                "Penches-toi en avant pour recevoir 6 fessées fortes.",
+                "Fessées fortes jusqu'à ce que tu supplies pour arrêter."
+            ],
+            "dom": [
+                "Donne une fessée forte sur chaque fesse à quelqu'un d'autre.",
+                "Fais t'allonger sur tes genoux pour donner une fessée violemment.",
+                "Donne 10 fessées fortes.",
+                "Donne 2 fessées fortes à chaque joueur.",
+                "Donne autant de fessées fortes que possible pendant 20 secondes.",
+                "Fais mettre à quatre pattes quelqu'un pour lui donner quatre fessées fortes.",
+                "Donne des fessées fortes pendant 15 secondes.",
+                "Accepte les supplications de quelqu'un pour lui donner 10 fessées fortes.",
+                "Fais pencher en avant quelqu'un pour lui donner 6 fessées fortes.",
+                "Donne des fessées fortes jusqu'à ce que l'autre joueur supplies pour arrêter."
+            ]
+        },
+        "Bâton, fouet et Paddle": {
+            "sub": [
+                "Reçois une fessée avec l'instrument de ton choix (bâton, fouet, paddle,...).",
+                "20 fessées avec un instrument.",
+                "Allonges-toi sur les genoux d'un autre joueur pour être fessé avec un instrument.",
+                "Mets-toi à quatre pattes et reçois une fessée.",
+                "Une fessée avec un instrument, allongé sur le dos.",
+                "Choisis un instrument (bâton, fouet, paddle,....) et demandes à quelqu'un de te fesser avec.",
+                "Supplies pour plusieurs fessées avec un instrument.",
+                "Fessée avec un instrument pendant 30 secondes.",
+                "Chaque joueur te donne une fessée avec un instrument.",
+                "Recevoir un fouet avec un instrument sur la paume des mains.",
+                "Recevez un fouet avec un outil sur la plante de vos pieds."
+            ],
+            "dom": [
+                "Choisis un instrument (bâton, fouet, paddle,...) et donne une fessée avec.",
+                "Donne 20 fessées avec un instrument.",
+                "Fais t'allonger sur tes genoux pour donner une fessée avec un instrument.",
+                "Fais mettre à quatre pattes quelqu'un pour lui donner une fessée.",
+                "Donne une fessée avec un instrument allongé sur le dos.",
+                "Choisis un instrument (bâton, fouet, paddle,....) et donne des fessées avec.",
+                "Accepte les supplications de quelqu'un pour lui donner plusieurs fessées avec un instrument.",
+                "Donne une fessée avec un instrument pendant 30 secondes.",
+                "Donne une fessée avec un instrument à chaque joueur.",
+                "Donne un fouet avec un instrument sur la paume des mains de quelqu'un.",
+                "Donne un fouet avec un outil sur la plante des pieds de quelqu'un."
+            ]
+        },
+        "Marques et Ecchymoses": {
+            "sub": [
+                "Reçois 5 fessées sur chaque fesse suffisamment fortes pour laisser une marque.",
+                "10 fessées provoquant des ecchymoses.",
+                "Fessées douloureuses (autant que tu peux supporter) pendant 30 secondes.",
+                "10 fessées en utilisant un bâton ou un autre instrument dur.",
+                "Laisses un autre joueur te marquer les fesses de sa main."
+            ],
+            "dom": [
+                "Donne 5 fessées sur chaque fesse suffisamment fortes pour laisser une marque.",
+                "Donne 10 fessées provoquant des ecchymoses.",
+                "Donne des fessées douloureuses pendant 30 secondes (autant que l'autre joueur peut supporter).",
+                "Donne 10 fessées en utilisant un bâton ou un autre instrument dur.",
+                "Marque les fesses de quelqu'un avec ta main."
+            ]
+        }
+    }
 }
