@@ -3,12 +3,12 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  extends: 'airbnb',
+  extends: ['airbnb', 'prettier', 'plugin:node/recommended'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['react', 'import', 'react-hooks'],
+  plugins: ['react', 'import', 'react-hooks', 'prettier'],
   settings: {
     'import/resolver': {
       node: {

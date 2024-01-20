@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import {
-  Dialog, DialogContent, DialogTitle, Divider, IconButton,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
@@ -14,11 +18,17 @@ import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
 
 export default function CustomTileDialog({
-  boardUpdated, actionsList, setOpen, open = false,
+  boardUpdated,
+  actionsList,
+  setOpen,
+  open = false,
 }) {
   const { t } = useTranslation();
-  const { isMobile } = useBreakpoint();
-  const [submitMessage, setSubmitMessage] = useState({ message: '', type: 'info' });
+  const isMobile = useBreakpoint();
+  const [submitMessage, setSubmitMessage] = useState({
+    message: '',
+    type: 'info',
+  });
   const [customTiles, setCustomTiles] = useLocalStorage('customTiles', []);
   const [expanded, setExpanded] = useState('ctAdd');
   const handleChange = (panel) => (_event, newExpanded) => {
@@ -39,13 +49,9 @@ export default function CustomTileDialog({
 
   return (
     <>
-      <Dialog
-        fullScreen={isMobile}
-        open={open}
-        onClose={() => setOpen(false)}
-      >
+      <Dialog fullScreen={isMobile} open={open} onClose={() => setOpen(false)}>
         <DialogTitle>
-          <Trans i18nKey="manageTiles" />
+          <Trans i18nKey='manageTiles' />
           <IconButton
             aria-label={t('close')}
             onClick={() => setOpen(false)}

@@ -24,7 +24,7 @@ import './styles.css';
 export default function Room() {
   const params = useParams();
   const room = params.id;
-  const { isMobile } = useBreakpoint();
+  const isMobile = useBreakpoint();
 
   usePresence(room);
 
@@ -33,14 +33,23 @@ export default function Room() {
   const [settings, setSettings] = useLocalStorage('gameSettings');
 
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
-  const { roller, roomBgUrl } = usePrivateRoomMonitor(room, settings, gameBoard);
-  const [importResult, clearImportResult] = useUrlImport(room, settings, setSettings);
+  const { roller, roomBgUrl } = usePrivateRoomMonitor(
+    room,
+    settings,
+    gameBoard
+  );
+  const [importResult, clearImportResult] = useUrlImport(
+    room,
+    settings,
+    setSettings
+  );
 
   const { isVideo, url } = getBackgroundSource(settings, room, roomBgUrl);
   const videoAdjust = isVideo ? 'video-adjust' : '';
 
   const { background, roomBackground } = settings;
-  const isTransparent = (room !== 'public' && roomBackground !== 'app') || background !== 'color';
+  const isTransparent =
+    (room !== 'public' && roomBackground !== 'app') || background !== 'color';
 
   if (!gameBoard.length || !Object.keys(settings).length) {
     return <UnauthenticatedApp />;
@@ -58,7 +67,7 @@ export default function Room() {
   );
 
   const messagesComponent = (
-    <div className="messages-container">
+    <div className='messages-container'>
       <MessageList
         room={room}
         isTransparent={isTransparent}
@@ -72,15 +81,11 @@ export default function Room() {
     <>
       <Navigation room={room} playerList={playerList} />
 
-      <RollButton
-        setRollValue={setRollValue}
-        dice={roller}
-        playerTile={tile}
-      />
+      <RollButton setRollValue={setRollValue} dice={roller} playerTile={tile} />
       <RoomBackground isVideo={isVideo} url={url} />
       <TurnIndicator room={room} />
       {isMobile ? (
-        <Box className="mobile-container">
+        <Box className='mobile-container'>
           <BottomTabs
             tab1={memoizedGameBoardComponent}
             tab2={messagesComponent}
@@ -93,7 +98,11 @@ export default function Room() {
         </Box>
       )}
       <PopupMessage room={room} />
-      <ToastAlert type="success" open={!!importResult} close={clearImportResult}>
+      <ToastAlert
+        type='success'
+        open={!!importResult}
+        close={clearImportResult}
+      >
         {importResult}
       </ToastAlert>
     </>
