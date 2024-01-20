@@ -47,8 +47,8 @@ export default function SelectBoardSetting({
             title={(
               <Trans i18nKey="variationTooltip">
                 <Typography variant="subtitle2">Standalone = Its own tile. </Typography>
-                <Typography variant="subtitle2">Append Some = Add to 50% of the tiles.</Typography>
-                <Typography variant="subtitle2">Append Most = Add to 90% of the tiles.</Typography>
+                <Typography variant="subtitle2">Append Some = 50% chance.</Typography>
+                <Typography variant="subtitle2">Append Most = 90% chance.</Typography>
               </Trans>
             )}
             arrow
