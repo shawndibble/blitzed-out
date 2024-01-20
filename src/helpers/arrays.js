@@ -1,11 +1,12 @@
-export default function shuffleArrayBy(array, key) {
-  const groupedTiles = array.reduce((obj, entry) => ({
-    ...obj,
-    [entry[key]]: [...(obj[entry[key]] || []), entry],
-  }), {});
+export function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    // eslint-disable-next-line
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
-  return Object.values(groupedTiles).flatMap((unshuffled) => unshuffled
-    .map((entry) => ({ entry, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ entry }) => entry));
+export function cycleArray(array) {
+  if (array.length > 1) array.push(array.shift());
 }
