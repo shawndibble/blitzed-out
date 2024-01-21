@@ -37,7 +37,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
   return (
     <>
       <Grid container columnSpacing={2} justifyContent='center'>
-        <Grid item xs={12} md={5}>
+        <GridItem>
           <SelectBoardSetting
             option='alcohol'
             settings={formData}
@@ -45,7 +45,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
             actionsFolder={actionsList}
             showVariation
           />
-        </Grid>
+        </GridItem>
         {!isMobile && (
           <Divider
             orientation='vertical'
@@ -54,7 +54,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
             variant='middle'
           />
         )}
-        <Grid item xs={12} md={5}>
+        <GridItem>
           <SelectBoardSetting
             option='poppers'
             settings={formData}
@@ -62,7 +62,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
             actionsFolder={actionsList}
             showVariation
           />
-        </Grid>
+        </GridItem>
       </Grid>
       {formData.room !== 'public' && (
         <SoloSwitch formData={formData} setFormData={setFormData} />
