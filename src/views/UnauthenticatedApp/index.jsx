@@ -35,18 +35,20 @@ export default function UnauthenticatedApp() {
   return (
     <>
       <Navigation room={room} playerList={playerList} />
-      <Container maxWidth="md" sx={{ mt: 8 }}>
+      <Container maxWidth='lg' sx={{ mt: 8 }}>
         <Grid container>
-          <Grid item xs={12} sm={6}>
-            <Card className="unauthenticated-card">
+          <Grid item xs={12} sm={6} md={8}>
+            <Card className='unauthenticated-card'>
               <CardContent>
-                <h2 className="setup"><Trans i18nKey="setup" /></h2>
-                <GameSettings submitText={(<Trans i18nKey="access" />)} />
+                <h2 className='setup'>
+                  <Trans i18nKey='setup' />
+                </h2>
+                <GameSettings submitText={<Trans i18nKey='access' />} />
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Card className="unauthenticated-card">
+          <Grid item xs={12} sm={6} md={4}>
+            <Card className='unauthenticated-card'>
               <CardContent>
                 <GameGuide />
               </CardContent>
@@ -54,13 +56,12 @@ export default function UnauthenticatedApp() {
           </Grid>
         </Grid>
         <Grid container sx={{ mt: 1 }}>
-          <Grid item className="language">
-            <Card className="unauthenticated-card">
-              <CardContent className="translation-card-content">
+          <Grid item className='language'>
+            <Card className='unauthenticated-card'>
+              <CardContent className='translation-card-content'>
                 <Language sx={{ mr: 1 }} />
                 <Typography sx={{ mr: 1 }}>
-                  <Trans i18nKey="language" />
-                  :
+                  <Trans i18nKey='language' />:
                 </Typography>
                 {languageLinks}
               </CardContent>
