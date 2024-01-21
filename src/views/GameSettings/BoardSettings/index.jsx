@@ -12,7 +12,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
   const isLocal = formData.room !== 'public' && formData.gameMode === 'local';
 
   const settingSelectLists = Object.keys(remainingActions).map((option) => (
-    <Grid item xs={12} md={5} key={option}>
+    <Grid item xs={12} sm={isMobile && !isLocal ? 6 : 12} md={5} key={option}>
       <SelectBoardSetting
         option={option}
         settings={formData}
