@@ -157,8 +157,6 @@ function getCurrentTile(listWithMisc, size, currentTile, settings) {
 
   cycleArray(catActions[intensity]);
 
-  console.log(catActions, intensity);
-
   return { title: label, description: catActions[intensity][0], standalone };
 }
 

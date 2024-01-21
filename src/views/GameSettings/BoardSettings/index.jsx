@@ -78,7 +78,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
                   boardUpdated: true,
                 })
               }
-              label='role'
+              label='mainRole'
               options={['sub', 'vers', 'dom']}
               defaultValue='sub'
             />

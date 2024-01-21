@@ -40,6 +40,7 @@
   "roomDice": "Dice",
   "roomTileCount": "Board Size",
   "roomBackgroundURL": "Background URL",
+  "mainRole": "Primary Role",
   "role": "Role",
   "sub": "Submissive",
   "vers": "Switch",
