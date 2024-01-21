@@ -1,135 +1,112 @@
-import { Help } from '@mui/icons-material';
-import {
-  Divider,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack, Switch, Tooltip, Typography,
-} from '@mui/material';
+import { Divider, Grid } from '@mui/material';
 import useBreakpoint from 'hooks/useBreakpoint';
-import { Trans } from 'react-i18next';
+import GridItem from 'components/GridItem';
+import SettingsSelect from 'components/SettingsSelect';
 import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
+import SoloSwitch from './SoloSwitch';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { alcohol, poppers, ...remainingActions } = actionsList;
   const isMobile = useBreakpoint('md');
+  const isLocal = formData.room !== 'public' && formData.gameMode === 'local';
 
   const settingSelectLists = Object.keys(remainingActions).map((option) => (
-    <Grid item xs={12} sm={6} md={4} key={option}>
+    <Grid item xs={12} md={5} key={option}>
       <SelectBoardSetting
         option={option}
         settings={formData}
         setSettings={setFormData}
         actionsFolder={remainingActions}
+        showRole={isLocal}
       />
     </Grid>
   ));
 
+  // go through all entries in formData and update the vale if the key contains the word role
+  const updateAllRoles = (value) => {
+    const newFormData = structuredClone(formData);
+    Object.keys(newFormData).forEach((key) => {
+      if (key.includes('role')) {
+        newFormData[key] = value;
+      }
+    });
+    return newFormData;
+  };
+
   return (
     <>
-      <Grid container columnSpacing={2} justifyContent="center">
-        <Grid item xs={12} sm={8} md={5}>
+      <Grid container columnSpacing={2} justifyContent='center'>
+        <Grid item xs={12} md={5}>
           <SelectBoardSetting
-            option="alcohol"
+            option='alcohol'
             settings={formData}
             setSettings={setFormData}
             actionsFolder={actionsList}
+            showVariation
           />
         </Grid>
-        {!isMobile && (<Divider orientation="vertical" flexItem sx={{ pl: 1, pr: 2 }} variant="middle" />)}
-        <Grid item xs={12} sm={8} md={5}>
+        {!isMobile && (
+          <Divider
+            orientation='vertical'
+            flexItem
+            sx={{ pl: 1, pr: 2 }}
+            variant='middle'
+          />
+        )}
+        <Grid item xs={12} md={5}>
           <SelectBoardSetting
-            option="poppers"
+            option='poppers'
             settings={formData}
             setSettings={setFormData}
             actionsFolder={actionsList}
+            showVariation
           />
         </Grid>
       </Grid>
       {formData.room !== 'public' && (
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          justifyContent="center"
-          sx={{ mt: 1 }}
-        >
-          <Typography><Trans i18nKey="solo" /></Typography>
-          <Tooltip
-            title={<Typography variant="subtitle2"><Trans i18nKey="soloTooltip" /></Typography>}
-            arrow
-          >
-            <Help sx={{ fontSize: 15 }} />
-          </Tooltip>
-          <Switch
-            id="gameMode"
-            checked={formData.gameMode === 'local'}
-            onChange={(event) => setFormData({
-              ...formData,
-              gameMode: event.target.checked ? 'local' : 'online',
-              boardUpdated: true,
-            })}
-            inputProps={{ 'aria-label': 'Game Type' }}
-          />
-          <Typography>
-            <Trans i18nKey="local" />
-          </Typography>
-          <Tooltip
-            title={<Typography variant="subtitle2"><Trans i18nKey="localTooltip" /></Typography>}
-            arrow
-          >
-            <Help sx={{ fontSize: 15 }} />
-          </Tooltip>
-        </Stack>
+        <SoloSwitch formData={formData} setFormData={setFormData} />
       )}
-      <Grid container columnSpacing={2}>{settingSelectLists}</Grid>
-      <Divider />
-      <Grid container columnSpacing={2} justifyContent="center">
-        {formData.gameMode === 'local' && (
-          <Grid item xs={12} sm={6} md={5}>
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="roleLabel"><Trans i18nKey="role" /></InputLabel>
-              <Select
-                labelId="roleLabel"
-                id="role"
-                label={<Trans i18nKey="role" />}
-                value={formData.role || 'sub'}
-                onChange={(event) => setFormData({
-                  ...formData, role: event.target.value, boardUpdated: true,
-                })}
-              >
-                <MenuItem value="sub"><Trans i18nKey="submissive" /></MenuItem>
-                <MenuItem value="vers"><Trans i18nKey="versatile" /></MenuItem>
-                <MenuItem value="dom"><Trans i18nKey="dominant" /></MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+      <Grid container columnSpacing={2} justifyContent='center'>
+        {isLocal && (
+          <GridItem>
+            <SettingsSelect
+              value={formData.role}
+              onChange={(event) =>
+                setFormData({
+                  ...updateAllRoles(event.target.value),
+                  boardUpdated: true,
+                })
+              }
+              label='role'
+              options={['sub', 'vers', 'dom']}
+              defaultValue='sub'
+            />
+          </GridItem>
         )}
-        {formData.gameMode === 'local' && !isMobile && (
-          <Divider orientation="vertical" flexItem sx={{ pl: 1, pr: 2 }} variant="middle" />
-        )}
-
-        <Grid item xs={12} sm={6} md={5}>
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="difficultyLabel"><Trans i18nKey="difficulty" /></InputLabel>
-            <Select
-              labelId="difficultyLabel"
-              id="difficulty"
-              label={<Trans i18nKey="difficulty" />}
-              value={formData.difficulty || 'normal'}
-              onChange={(event) => setFormData({
-                ...formData, difficulty: event.target.value, boardUpdated: true,
-              })}
-            >
-              <MenuItem value="normal"><Trans i18nKey="normal" /></MenuItem>
-              <MenuItem value="accelerated"><Trans i18nKey="accelerated" /></MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
       </Grid>
+
+      <Divider />
+
+      <Grid container columnSpacing={2} justifyContent='space-evenly'>
+        {settingSelectLists}
+        <GridItem>
+          <SettingsSelect
+            value={formData.difficulty}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                difficulty: event.target.value,
+                boardUpdated: true,
+              })
+            }
+            label='difficulty'
+            options={['normal', 'accelerated']}
+            defaultValue='normal'
+          />
+        </GridItem>
+      </Grid>
+
       <FinishSlider setFormData={setFormData} formData={formData} />
     </>
   );

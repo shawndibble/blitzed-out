@@ -7,19 +7,22 @@ const { t } = i18next;
 function flattenActionsByRole(actions, role) {
   if (role === 'sub' && actions.sub) return actions.sub;
   if (role === 'dom' && actions.dom) return actions.dom;
-  if (role === 'vers' && actions.sub && actions.dom)
+  if (role === 'vers' && actions.sub && actions.dom) {
     return [...actions.sub, ...actions.dom];
+  }
   return actions;
 }
 
 function restrictSubsetActions(settings, settingsKey, actionObject) {
-  const { role = 'sub' } = settings;
-  return Object.keys(actionObject).reduce((acc, key, index) => {
+  const role = settings[`${settingsKey}role`] ?? settings.role ?? 'sub';
+
+  const newList = Object.keys(actionObject).reduce((acc, key, index) => {
     if (index > 0 && index <= settings[settingsKey]) {
       acc[key] = shuffleArray(flattenActionsByRole(actionObject[key], role));
     }
     return acc;
   }, {});
+  return newList;
 }
 
 // Restricts the categories/major actions based on user selections
@@ -154,6 +157,8 @@ function getCurrentTile(listWithMisc, size, currentTile, settings) {
 
   cycleArray(catActions[intensity]);
 
+  console.log(catActions, intensity);
+
   return { title: label, description: catActions[intensity][0], standalone };
 }
 
@@ -218,6 +223,7 @@ export default function customizeBoard(
     actionsFolder,
     settings
   );
+
   const listWithMisc = addInCustomTiles(newActionList, userCustomTiles);
   const usersBoard = buildBoard(listWithMisc, settings, size - 2);
 
