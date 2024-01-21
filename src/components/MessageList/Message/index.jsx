@@ -1,10 +1,19 @@
 import { Delete } from '@mui/icons-material';
-import { Divider, IconButton, Tooltip } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import clsx from 'clsx';
 import CountDownButtonModal from 'components/CountDownButtonModal';
+import GameOverDialog from 'components/GameOverDialog';
 import TextAvatar from 'components/TextAvatar';
 import { extractTime } from 'helpers/strings';
 import moment from 'moment';
+import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
@@ -59,6 +68,11 @@ export default function Message({
   const { t } = useTranslation();
   const secondsString = t('seconds');
 
+  const [isOpenDialog, setDialog] = useState(false);
+  const closeDialog = useCallback(() => {
+    setDialog(false);
+  }, []);
+
   const { id, displayName, text, uid, timestamp, type, gameBoard, image } =
     message;
 
@@ -95,7 +109,7 @@ export default function Message({
           )}
         </div>
       </div>
-      <Divider />
+      <Divider sx={{ mb: 1 }} />
       <div className='message-message'>
         {type === 'actions' ? (
           <>{transformActionText(text, secondsString)}</>
@@ -114,6 +128,15 @@ export default function Message({
               <Trans i18nKey='incompatibleBoard' />
             )}
           </>
+        )}
+        {text.includes(t('finish')) && isOwnMessage && (
+          <Box textAlign='center'>
+            <Divider sx={{ mt: 1 }} />
+            <Button onClick={() => setDialog(true)}>
+              <Typography>{t('playAgain')}</Typography>
+            </Button>
+            <GameOverDialog isOpen={isOpenDialog} close={closeDialog} />
+          </Box>
         )}
       </div>
     </li>

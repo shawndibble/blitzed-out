@@ -48,8 +48,13 @@ export default function useGameBoard() {
     );
 
     // if our board updated, then push those changes out.
-    if (settingsBoardUpdated || gameBoard.length !== newBoard.length)
+    if (
+      data?.boardUpdated ||
+      settingsBoardUpdated ||
+      gameBoard.length !== newBoard.length
+    ) {
       await updateBoard(newBoard);
+    }
 
     return { settingsBoardUpdated, gameMode, newBoard };
   };

@@ -4,7 +4,7 @@ import { IconButton } from '@mui/material';
 export default function CloseIcon({ close }) {
   return (
     <IconButton
-      aria-label="close"
+      aria-label='close'
       onClick={close}
       sx={{
         position: 'absolute',

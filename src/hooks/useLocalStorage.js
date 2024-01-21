@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 function getInitialValue(key, defaultVal) {
   const storedValue = localStorage.getItem(key);
@@ -15,7 +15,9 @@ function getInitialValue(key, defaultVal) {
 export default function useLocalStorage(localStorageKey, defaultVal = {}) {
   const eventName = `${localStorageKey}Storage`;
 
-  const [storage, setStorage] = useState(() => getInitialValue(localStorageKey, defaultVal));
+  const [storage, setStorage] = useState(() =>
+    getInitialValue(localStorageKey, defaultVal)
+  );
 
   useEffect(() => {
     const listener = (e) => setStorage(e.newValue);
@@ -24,13 +26,16 @@ export default function useLocalStorage(localStorageKey, defaultVal = {}) {
     return () => window.removeEventListener(eventName, listener);
   }, [eventName]);
 
-  const updateLocalStorage = useCallback((newValue) => {
-    localStorage.setItem(localStorageKey, JSON.stringify(newValue));
+  const updateLocalStorage = useCallback(
+    (newValue) => {
+      localStorage.setItem(localStorageKey, JSON.stringify(newValue));
 
-    const event = new Event(eventName);
-    event.newValue = newValue;
-    window.dispatchEvent(event);
-  }, [localStorageKey, eventName]);
+      const event = new Event(eventName);
+      event.newValue = newValue;
+      window.dispatchEvent(event);
+    },
+    [localStorageKey, eventName]
+  );
 
-  return [storage, updateLocalStorage];
+  return [useMemo(() => storage, [storage]), updateLocalStorage];
 }

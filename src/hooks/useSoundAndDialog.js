@@ -1,6 +1,4 @@
-import {
-  useEffect, useState, useMemo, useCallback,
-} from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import useLocalStorage from 'hooks/useLocalStorage';
 import diceSound from 'sounds/roll-dice.mp3';
 import messageSound from 'sounds/message.mp3';
@@ -20,7 +18,12 @@ export default function useSoundAndDialog(room) {
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
   const {
-    playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll,
+    playerDialog,
+    othersDialog,
+    mySound,
+    otherSound,
+    chatSound,
+    readRoll,
   } = useLocalStorage('gameSettings')[0];
 
   const latestMessage = useMemo(() => [...messages].pop(), [messages]);
@@ -29,18 +32,26 @@ export default function useSoundAndDialog(room) {
     speak(text, language);
   }, []);
 
-  const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') >= -2;
+  const newMessage =
+    moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') >= -2;
   const myMessage = latestMessage?.uid === user?.uid;
   const showPlayerDialog = playerDialog && myMessage;
   const showOthersDialog = othersDialog && !myMessage;
-  const playDiceSoundCondition = ((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions';
-  const speakTextCondition = myMessage && readRoll && latestMessage?.type === 'actions';
+  const playDiceSoundCondition =
+    ((myMessage && mySound) || (!myMessage && otherSound)) &&
+    latestMessage?.type === 'actions';
+  const speakTextCondition =
+    myMessage && readRoll && latestMessage?.type === 'actions';
   const playMessageSoundCondition = chatSound && latestMessage?.type === 'chat';
 
   useEffect(() => {
     moment.locale(i18n.resolvedLanguage);
 
-    if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
+    if (
+      newMessage &&
+      latestMessage?.type === 'actions' &&
+      (showPlayerDialog || showOthersDialog)
+    ) {
       setPopupMessage(latestMessage);
     }
 
@@ -70,5 +81,9 @@ export default function useSoundAndDialog(room) {
     playMessageSoundCondition,
   ]);
 
-  return [popupMessage, setPopupMessage];
+  return {
+    message: popupMessage,
+    setMessage: setPopupMessage,
+    isMyMessage: myMessage,
+  };
 }
