@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { getAuth } from 'firebase/auth';
 import { loginAnonymously, updateDisplayName } from 'services/firebase';
 
@@ -23,8 +23,7 @@ function AuthProvider(props) {
     getAuth().onAuthStateChanged(async (userData) => setUser(userData || null));
   }, []);
 
-  // eslint-disable-next-line react/jsx-no-constructed-context-values
-  const value = { user, login, updateUser };
+  const value = useMemo(() => ({ user, login, updateUser }), [user]);
 
   return <AuthContext.Provider value={value} {...props} />;
 }

@@ -1,9 +1,5 @@
-import React, {
-  useCallback, useEffect, useMemo, useState,
-} from 'react';
-import {
-  AppBar, Tab, Tabs,
-} from '@mui/material';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { AppBar, Tab, Tabs } from '@mui/material';
 
 import useAuth from 'hooks/useAuth';
 import useMessages from 'hooks/useMessages';
@@ -15,7 +11,11 @@ import './styles.css';
 import useSendSettings from 'hooks/useSendSettings';
 import Message from './Message';
 
-export default function MessageList({ room, isTransparent, currentGameBoardSize = 40 }) {
+export default function MessageList({
+  room,
+  isTransparent,
+  currentGameBoardSize = 40,
+}) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
   const { messages, isLoading } = useMessages(room);
@@ -24,19 +24,25 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
   const [currentTab, setTab] = useState(0);
   const { t, i18n } = useTranslation();
 
-  const filterMessages = useCallback((tabId) => messages.filter((m) => {
-    if (tabId === 1) return m.type === 'settings';
-    if (tabId === 2) return ['chat', 'media'].includes(m.type);
-    if (tabId === 3) return m.type === 'actions';
-    return m;
-  }), [messages]);
+  const filterMessages = useCallback(
+    (tabId) =>
+      messages.filter((m) => {
+        if (tabId === 1) return m.type === 'settings';
+        if (tabId === 2) return ['chat', 'media'].includes(m.type);
+        if (tabId === 3) return m.type === 'actions';
+        return m;
+      }),
+    [messages]
+  );
 
-  const updatedMessages = useMemo(() => filterMessages(currentTab), [filterMessages, currentTab]);
+  const updatedMessages = useMemo(
+    () => filterMessages(currentTab),
+    [filterMessages, currentTab]
+  );
 
   useEffect(() => {
     if (isLoading) return;
     filterMessages(currentTab);
-    // eslint-disable-next-line
   }, [messages, isLoading, i18n.resolvedLanguage]);
 
   React.useLayoutEffect(() => {
@@ -51,16 +57,22 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
   };
 
   return (
-    <div className="message-list-container" ref={containerRef}>
-      <AppBar position="sticky">
-        <Tabs variant="fullWidth" value={currentTab} onChange={handleChange} aria-label="chat filter" className="message-tabs">
+    <div className='message-list-container' ref={containerRef}>
+      <AppBar position='sticky'>
+        <Tabs
+          variant='fullWidth'
+          value={currentTab}
+          onChange={handleChange}
+          aria-label='chat filter'
+          className='message-tabs'
+        >
           <Tab label={t('all')} {...a11yProps('all')} />
           <Tab label={t('setting')} {...a11yProps('settings')} />
           <Tab label={t('chat')} {...a11yProps('chat')} />
           <Tab label={t('actions')} {...a11yProps('actions')} />
         </Tabs>
       </AppBar>
-      <ul className="message-list">
+      <ul className='message-list'>
         {updatedMessages.map((x) => (
           <Message
             key={x.id}

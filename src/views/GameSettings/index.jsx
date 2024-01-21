@@ -1,6 +1,4 @@
-import {
-  Box, Button, Tab, Tabs, TextField, Typography,
-} from '@mui/material';
+import { Box, Button, Tab, Tabs, TextField, Typography } from '@mui/material';
 import TabPanel from 'components/TabPanel';
 import ToastAlert from 'components/ToastAlert';
 import latestMessageByType from 'helpers/messages';
@@ -19,13 +17,16 @@ import AppSettings from './AppSettings';
 import BoardSettings from './BoardSettings';
 import RoomSettings from './RoomSettings';
 import './styles.css';
-import { handleUser, sendRoomSettingsMessage, validateFormData } from './submitForm';
+import {
+  handleUser,
+  sendRoomSettingsMessage,
+  validateFormData,
+} from './submitForm';
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();
   const { id: room } = useParams();
   const { t, i18n } = useTranslation();
-  // const updateBoard = useLocalStorage('customBoard')[1];
   const customTiles = useLocalStorage('customTiles', [])[0];
   const updateGameBoardTiles = useGameBoard();
 
@@ -72,15 +73,19 @@ export default function GameSettings({ submitText, closeDialog }) {
     setValue(newValue);
   }, []);
 
-  const boardUpdated = () => updateSettings({ ...settings, boardUpdated: true });
+  const boardUpdated = () =>
+    updateSettings({ ...settings, boardUpdated: true });
 
   // once our data from localstorage updates, push them to the formData.
-  useEffect(() => setFormData({
-    ...formData,
-    ...settings,
-    room,
-    // eslint-disable-next-line
-  }), [settings]);
+  useEffect(
+    () =>
+      setFormData({
+        ...formData,
+        ...settings,
+        room,
+      }),
+    [settings]
+  );
 
   // Import our private room settings into the form data.
   useEffect(() => {
@@ -102,31 +107,45 @@ export default function GameSettings({ submitText, closeDialog }) {
 
     const updatedUser = await handleUser(user, displayName, updateUser, login);
 
-    if (!formData.roomBackgroundURL || !formData.roomBackgroundURL.match(/^https?:\/\/.+\/.+$/)) {
+    if (
+      !formData.roomBackgroundURL ||
+      !formData.roomBackgroundURL.match(/^https?:\/\/.+\/.+$/)
+    ) {
       formData.roomBackground = 'app';
     }
 
-    const { settingsBoardUpdated, gameMode, newBoard } = await updateGameBoardTiles(formData);
+    const { settingsBoardUpdated, gameMode, newBoard } =
+      await updateGameBoardTiles(formData);
 
     const roomChanged = room !== formData.room;
     const isPrivateRoom = formData.room && formData.room !== 'public';
-    const privateBoardSizeChanged = isPrivateRoom
-      && formData.roomTileCount !== settings.roomTileCount;
+    const privateBoardSizeChanged =
+      isPrivateRoom && formData.roomTileCount !== settings.roomTileCount;
 
     // send out room specific settings if we are in a private room.
-    if (isPrivateRoom && (formData.roomUpdated || !messages.find((m) => m.type === 'room'))) {
+    if (
+      isPrivateRoom &&
+      (formData.roomUpdated || !messages.find((m) => m.type === 'room'))
+    ) {
       await sendRoomSettingsMessage(formData, updatedUser);
     }
 
     // if our board updated, or we changed rooms, send out game settings message.
     if (settingsBoardUpdated || roomChanged || privateBoardSizeChanged) {
       await sendGameSettingsMessage({
-        formData, user: updatedUser, customTiles, actionsList, board: newBoard,
+        formData,
+        user: updatedUser,
+        customTiles,
+        actionsList,
+        board: newBoard,
       });
     }
 
     updateSettings({
-      ...formData, boardUpdated: false, roomUpdated: false, gameMode,
+      ...formData,
+      boardUpdated: false,
+      roomUpdated: false,
+      gameMode,
     });
 
     if (roomChanged) {
@@ -139,51 +158,64 @@ export default function GameSettings({ submitText, closeDialog }) {
     return null;
   }
 
-  const handleBlur = useCallback((event) => {
-    setFormData({ ...formData, displayName: event.target.value });
-  }, [formData]);
-
-  const onEnterKey = useCallback((event) => {
-    if (event.key === 'Enter') {
+  const handleBlur = useCallback(
+    (event) => {
       setFormData({ ...formData, displayName: event.target.value });
-      handleSubmit(event);
-    }
-  }, [formData, handleSubmit]);
+    },
+    [formData]
+  );
+
+  const onEnterKey = useCallback(
+    (event) => {
+      if (event.key === 'Enter') {
+        setFormData({ ...formData, displayName: event.target.value });
+        handleSubmit(event);
+      }
+    },
+    [formData, handleSubmit]
+  );
 
   if (!formData.locale) {
     return (
       <Box>
-        <Typography variant="h2">
-          <Trans i18nKey="Loading" />
+        <Typography variant='h2'>
+          <Trans i18nKey='Loading' />
           ...
         </Typography>
-        <Typography variant="body1"><Trans i18nKey="clearStorage" /></Typography>
+        <Typography variant='body1'>
+          <Trans i18nKey='clearStorage' />
+        </Typography>
       </Box>
     );
   }
 
   return (
     <Box
-      component="form"
-      method="post"
+      component='form'
+      method='post'
       // eslint-disable-next-line react/jsx-no-bind
       onSubmit={handleSubmit}
-      className="settings-box"
+      className='settings-box'
     >
       <TextField
         fullWidth
-        id="displayName"
+        id='displayName'
         label={t('displayName')}
         defaultValue={user?.displayName}
         required
         autoFocus
         onBlur={handleBlur}
         onKeyDown={(event) => onEnterKey(event)}
-        margin="normal"
+        margin='normal'
       />
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleTabChange} aria-label="Game Settings" centered>
+        <Tabs
+          value={value}
+          onChange={handleTabChange}
+          aria-label='Game Settings'
+          centered
+        >
           <Tab label={t('gameboard')} {...a11yProps(0)} />
           <Tab label={t('room')} {...a11yProps(1)} />
           <Tab label={t('application')} {...a11yProps(2)} />
@@ -191,7 +223,11 @@ export default function GameSettings({ submitText, closeDialog }) {
       </Box>
 
       <TabPanel value={value} index={0} style={{ p: 0 }}>
-        <BoardSettings formData={formData} setFormData={setFormData} actionsList={actionsList} />
+        <BoardSettings
+          formData={formData}
+          setFormData={setFormData}
+          actionsList={actionsList}
+        />
       </TabPanel>
 
       <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
@@ -206,13 +242,15 @@ export default function GameSettings({ submitText, closeDialog }) {
         />
       </TabPanel>
 
-      <div className="flex-buttons">
-        <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
-          <Trans i18nKey="customTiles">
-            Custom Tiles
-          </Trans>
+      <div className='flex-buttons'>
+        <Button
+          variant='outlined'
+          type='button'
+          onClick={() => setOpenCustomTile(true)}
+        >
+          <Trans i18nKey='customTiles'>Custom Tiles</Trans>
         </Button>
-        <Button variant="contained" type="submit">
+        <Button variant='contained' type='submit'>
           {submitText}
         </Button>
       </div>
@@ -222,7 +260,11 @@ export default function GameSettings({ submitText, closeDialog }) {
         boardUpdated={boardUpdated}
         actionsList={actionsList}
       />
-      <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
+      <ToastAlert
+        open={!!alert}
+        setOpen={setAlert}
+        close={() => setAlert(null)}
+      >
         {alert}
       </ToastAlert>
     </Box>

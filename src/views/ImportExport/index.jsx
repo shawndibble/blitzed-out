@@ -57,10 +57,14 @@ export default function ImportExport({ open, close, isMobile }) {
   function getGameTiles(entries) {
     try {
       if (entries.length < requiredTiles) {
-        throw setAlert(t('importTooShort', { entries: requiredTiles - entries.length }));
+        throw setAlert(
+          t('importTooShort', { entries: requiredTiles - entries.length })
+        );
       }
       if (entries.length > requiredTiles) {
-        throw setAlert(t('importTooLong', { entries: entries.length - requiredTiles }));
+        throw setAlert(
+          t('importTooLong', { entries: entries.length - requiredTiles })
+        );
       }
       return entries.map((entry, index) => {
         const [title, ...description] = entry.split('\n').filter((e) => e);
@@ -78,7 +82,10 @@ export default function ImportExport({ open, close, isMobile }) {
           throw setAlert(t('importMissingDescription', { entry: index + 1 }));
         }
 
-        return { title: title?.replace(/\[|\]/g, ''), description: description.join('\n') };
+        return {
+          title: title?.replace(/\[|\]/g, ''),
+          description: description.join('\n'),
+        };
       });
     } catch (error) {
       // return nothing. Just wait for setAlert to output the error message.
@@ -86,9 +93,10 @@ export default function ImportExport({ open, close, isMobile }) {
     }
   }
 
-  // eslint-disable-next-line consistent-return
   const importBoard = async () => {
-    const importLabel = textValue.match(/\/\/.*/g).map((e) => e.replace('//', '').trim());
+    const importLabel = textValue
+      .match(/\/\/.*/g)
+      .map((e) => e.replace('//', '').trim());
     const entries = textValue
       .split('\n')
       .filter((line) => !line.startsWith('//')) // remove all label rows.
@@ -105,11 +113,13 @@ export default function ImportExport({ open, close, isMobile }) {
 
     await createGameMessage(gameTiles, importLabel);
 
-    close();
+    return close();
   };
 
   const exportBoard = () => {
-    const arrayExport = localGameBoard.map(({ title, description }) => `[${title}]\n${description}`);
+    const arrayExport = localGameBoard.map(
+      ({ title, description }) => `[${title}]\n${description}`
+    );
     const boardString = arrayExport.join('\n~~\n');
     const stringExport = `// ${t('userCustomBoard', { displayName: user.displayName })}\n\n${boardString}`;
 
@@ -126,17 +136,15 @@ export default function ImportExport({ open, close, isMobile }) {
 
   return (
     <>
-      <Dialog
-        fullScreen={isMobile}
-        open={open}
-        onClose={close}
-      >
+      <Dialog fullScreen={isMobile} open={open} onClose={close}>
         <DialogTitle>
-          <Trans i18nKey="importExport" />
+          <Trans i18nKey='importExport' />
           <CloseIcon close={close} />
         </DialogTitle>
         <DialogContent sx={{ width: '30rem' }}>
-          <Typography variant="body1"><Trans i18nKey="importExportDesc" /></Typography>
+          <Typography variant='body1'>
+            <Trans i18nKey='importExportDesc' />
+          </Typography>
           <TextField
             sx={{ mt: 2 }}
             multiline
@@ -156,10 +164,16 @@ export default function ImportExport({ open, close, isMobile }) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={importBoard}><Trans i18nKey="import" /></Button>
+          <Button onClick={importBoard}>
+            <Trans i18nKey='import' />
+          </Button>
         </DialogActions>
       </Dialog>
-      <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
+      <ToastAlert
+        open={!!alert}
+        setOpen={setAlert}
+        close={() => setAlert(null)}
+      >
         {alert}
       </ToastAlert>
     </>

@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import './index.css';
 import App from './App';
@@ -12,11 +11,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <AuthProvider>
-      <React.Suspense fallback="loading">
+      <React.Suspense fallback='loading'>
         <App />
       </React.Suspense>
     </AuthProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -49,7 +49,11 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
 
   message += `* ${t('finishSlider')} ${finishRange[0]}%  | ${finishRange[1] - finishRange[0]}% | ${100 - finishRange[1]}%`;
 
-  const customTileCount = getCustomTileCount(settings, customTiles, actionsList);
+  const customTileCount = getCustomTileCount(
+    settings,
+    customTiles,
+    actionsList
+  );
   if (customTileCount) {
     message += `* ${t('customTiles')}: ${customTileCount} \r\n`;
   }
@@ -62,10 +66,19 @@ function exportSettings(formData) {
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     // list of settings to not export and thus not import.
     const personalSettings = [
-      'background', 'boardUpdated', 'chatSound', 'displayName', 'mySound', 'othersDialog', 'playerDialog',
+      'background',
+      'boardUpdated',
+      'chatSound',
+      'displayName',
+      'mySound',
+      'othersDialog',
+      'playerDialog',
     ];
     // don't export personal settings nor room specific settings.
-    if (!personalSettings.includes(settingKey) && !settingKey.startsWith('room')) {
+    if (
+      !personalSettings.includes(settingKey) &&
+      !settingKey.startsWith('room')
+    ) {
       newSettings[settingKey] = settingValue;
     }
   });
@@ -73,7 +86,12 @@ function exportSettings(formData) {
 }
 
 export default function sendGameSettingsMessage({
-  formData, user, actionsList, board, customTiles = {}, reason = '',
+  formData,
+  user,
+  actionsList,
+  board,
+  customTiles = {},
+  reason = '',
 }) {
   return sendMessage({
     room: formData?.room || 'public',

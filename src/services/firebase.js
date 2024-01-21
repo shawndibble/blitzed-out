@@ -1,9 +1,18 @@
 import { initializeApp } from 'firebase/app';
 import {
-  getAuth, signInAnonymously, signOut, updateProfile,
+  getAuth,
+  signInAnonymously,
+  signOut,
+  updateProfile,
 } from 'firebase/auth';
 import {
-  getDatabase, onDisconnect, onValue, push, ref, remove, set,
+  getDatabase,
+  onDisconnect,
+  onValue,
+  push,
+  ref,
+  remove,
+  set,
 } from 'firebase/database';
 import {
   Timestamp,
@@ -20,7 +29,10 @@ import {
 } from 'firebase/firestore';
 
 import {
-  getDownloadURL, getStorage, ref as storageRef, uploadString,
+  getDownloadURL,
+  getStorage,
+  ref as storageRef,
+  uploadString,
 } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -60,13 +72,22 @@ export async function logout() {
 }
 
 export function setMyPresence({
-  newRoom, oldRoom, newDisplayName, oldDisplayName,
+  newRoom,
+  oldRoom,
+  newDisplayName,
+  oldDisplayName,
 }) {
   const database = getDatabase();
   const auth = getAuth();
   const uid = auth.currentUser?.uid;
-  const newRoomConnectionsRef = ref(database, `rooms/${newRoom?.toUpperCase()}/uids/${uid}`);
-  const oldRoomConnectionsRef = ref(database, `rooms/${oldRoom?.toUpperCase()}/uids/${uid}`);
+  const newRoomConnectionsRef = ref(
+    database,
+    `rooms/${newRoom?.toUpperCase()}/uids/${uid}`
+  );
+  const oldRoomConnectionsRef = ref(
+    database,
+    `rooms/${oldRoom?.toUpperCase()}/uids/${uid}`
+  );
   const connectedRef = ref(database, '.info/connected');
 
   onValue(connectedRef, (snap) => {
@@ -74,7 +95,10 @@ export function setMyPresence({
       // We're connected (or reconnected)!
       const newRef = push(newRoomConnectionsRef);
 
-      if (oldRoom?.toUpperCase() !== newRoom?.toUpperCase() || oldDisplayName !== newDisplayName) {
+      if (
+        oldRoom?.toUpperCase() !== newRoom?.toUpperCase() ||
+        oldDisplayName !== newDisplayName
+      ) {
         remove(oldRoomConnectionsRef);
       }
 
@@ -130,7 +154,11 @@ export async function submitCustomAction(grouping, customAction) {
 }
 
 export async function sendMessage({
-  room, user, text = '', type = 'chat', ...rest
+  room,
+  user,
+  text = '',
+  type = 'chat',
+  ...rest
 }) {
   const allowedTypes = ['chat', 'actions', 'settings', 'room', 'media'];
   if (!allowedTypes.includes(type)) {
@@ -144,15 +172,18 @@ export async function sendMessage({
   const now = Date.now();
 
   try {
-    return await addDoc(collection(db, 'chat-rooms', room?.toUpperCase(), 'messages'), {
-      uid: user.uid,
-      displayName: user.displayName,
-      text: text.trim(),
-      timestamp: serverTimestamp(),
-      ttl: new Date(now + 24 * 60 * 60 * 1000), // 24 hours
-      type,
-      ...rest,
-    });
+    return await addDoc(
+      collection(db, 'chat-rooms', room?.toUpperCase(), 'messages'),
+      {
+        uid: user.uid,
+        displayName: user.displayName,
+        text: text.trim(),
+        timestamp: serverTimestamp(),
+        ttl: new Date(now + 24 * 60 * 60 * 1000), // 24 hours
+        type,
+        ...rest,
+      }
+    );
   } catch (error) {
     // eslint-disable-next-line
     return console.error(error);
@@ -172,8 +203,7 @@ export async function uploadImage({ image, room, user }) {
 
   uploadTask.on(
     'state_changed',
-    // eslint-disable-next-line no-unused-vars
-    (snapshot) => { },
+    () => {},
     // eslint-disable-next-line no-console
     (error) => console.error(error),
     () => {
@@ -185,7 +215,7 @@ export async function uploadImage({ image, room, user }) {
           type: 'media',
         });
       });
-    },
+    }
   );
 }
 
@@ -197,7 +227,7 @@ export function getMessages(roomId, callback) {
     query(
       collection(db, 'chat-rooms', roomId?.toUpperCase(), 'messages'),
       where('timestamp', '>', twoHoursBefore),
-      orderBy('timestamp', 'asc'),
+      orderBy('timestamp', 'asc')
     ),
     (querySnapshot) => {
       const messages = querySnapshot.docs.map((document) => ({
@@ -205,7 +235,7 @@ export function getMessages(roomId, callback) {
         ...document.data(),
       }));
       callback(messages);
-    },
+    }
   );
 }
 
@@ -215,7 +245,7 @@ export function getSchedule(callback) {
       collection(db, 'schedule'),
       // get all future events (minus 5 minutes for current games)
       where('dateTime', '>', new Date() - 5 * 60 * 1000),
-      orderBy('dateTime', 'asc'),
+      orderBy('dateTime', 'asc')
     ),
     (querySnapshot) => {
       const schedule = querySnapshot.docs.map((document) => ({
@@ -223,7 +253,7 @@ export function getSchedule(callback) {
         ...document.data(),
       }));
       callback(schedule);
-    },
+    }
   );
 }
 

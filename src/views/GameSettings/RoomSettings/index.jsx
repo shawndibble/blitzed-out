@@ -1,6 +1,12 @@
 import { Help } from '@mui/icons-material';
 import {
-  Box, Divider, Stack, Switch, TextField, Tooltip, Typography,
+  Box,
+  Divider,
+  Stack,
+  Switch,
+  TextField,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import BackgroundSelect from 'components/BackgroundSelect';
 import { customAlphabet } from 'nanoid';
@@ -20,47 +26,65 @@ export default function RoomSettings({ formData, setFormData }) {
     custom: t('customURL'),
   };
 
-  const handleChange = useCallback((event) => {
-    setFormData({
-      ...formData,
-      room: event.target.value,
-      boardUpdated: true,
-    });
-  }, [formData, setFormData]);
+  const handleChange = useCallback(
+    (event) => {
+      setFormData({
+        ...formData,
+        room: event.target.value,
+        boardUpdated: true,
+      });
+    },
+    [formData, setFormData]
+  );
 
-  const togglePrivateRoomField = useCallback((event) => {
-    let roomId;
+  const togglePrivateRoomField = useCallback(
+    (event) => {
+      let roomId;
 
-    if (event.target.checked && room === PUBLIC_ROOM) {
-      roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-    } else if (event.target.checked && room !== PUBLIC_ROOM) {
-      roomId = room;
-    } else {
-      roomId = PUBLIC_ROOM;
-    }
+      if (event.target.checked && room === PUBLIC_ROOM) {
+        roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
+      } else if (event.target.checked && room !== PUBLIC_ROOM) {
+        roomId = room;
+      } else {
+        roomId = PUBLIC_ROOM;
+      }
 
-    setFormData({ ...formData, room: roomId });
-  }, [room, formData, setFormData]);
+      setFormData({
+        ...formData,
+        room: roomId,
+        gameMode: roomId === PUBLIC_ROOM ? 'online' : formData.gameMode,
+      });
+    },
+    [room, formData, setFormData]
+  );
 
   return (
     <Box sx={{ margin: '0.5rem' }}>
       <Stack
-        direction="row"
+        direction='row'
         spacing={1}
-        alignItems="center"
-        justifyContent="center"
+        alignItems='center'
+        justifyContent='center'
         sx={{ width: '100%' }}
       >
-        <Typography><Trans i18nKey="public" /></Typography>
+        <Typography>
+          <Trans i18nKey='public' />
+        </Typography>
         <Switch
-          id="showPrivate"
+          id='showPrivate'
           checked={formData.room !== PUBLIC_ROOM}
           onChange={togglePrivateRoomField}
-          inputProps={{ 'aria-label': <Trans i18nKey="private" /> }}
+          inputProps={{ 'aria-label': <Trans i18nKey='private' /> }}
         />
-        <Typography><Trans i18nKey="private" /></Typography>
+        <Typography>
+          <Trans i18nKey='private' />
+        </Typography>
         <Tooltip
-          title={<Typography variant="subtitle2"><Trans i18nKey="privateOptions" /></Typography>}
+          title={
+            <Typography variant='subtitle2'>
+              <Trans i18nKey='privateOptions' />
+            </Typography>
+          }
           arrow
         >
           <Help sx={{ fontSize: 15 }} />
@@ -71,10 +95,10 @@ export default function RoomSettings({ formData, setFormData }) {
         <>
           <TextField
             fullWidth
-            id="privateRoom"
-            label="Private Room"
+            id='privateRoom'
+            label='Private Room'
             defaultValue={formData.room}
-            margin="normal"
+            margin='normal'
             onBlur={handleChange}
             onKeyDown={handleChange}
           />
@@ -85,7 +109,7 @@ export default function RoomSettings({ formData, setFormData }) {
             formData={formData}
             setFormData={setFormData}
             backgrounds={backgrounds}
-            isRoom="true"
+            isRoom='true'
           />
         </>
       )}

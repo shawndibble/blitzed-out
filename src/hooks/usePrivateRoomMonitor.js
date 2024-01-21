@@ -21,18 +21,22 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
   const updateGameBoardTiles = useGameBoard();
 
   const rebuildGameBoard = useCallback(
-    async (messageSettings, messageUser) => {
+    async (messageSettings, messageUser = null) => {
       const { gameMode, newBoard } =
         await updateGameBoardTiles(messageSettings);
 
-      await sendGameSettingsMessage({
+      const message = {
         formData: { ...settings, ...messageSettings },
         user,
         customTiles,
         actionsList: importActions(i18n.resolvedLanguage, gameMode),
         board: newBoard,
-        reason: `Rebuilt game board due to room size changes by ${messageUser}.`,
-      });
+      };
+      if (messageUser) {
+        message.reason = `Rebuilt game board due to room size changes by ${messageUser}.`;
+      }
+
+      await sendGameSettingsMessage(message);
     },
     [settings, user, customTiles, i18n.resolvedLanguage, updateGameBoardTiles]
   );
@@ -59,6 +63,10 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
       if (shouldRebuildGameBoard) {
         rebuildGameBoard(messageSettings, roomMessage.displayName);
       }
+      return;
+    }
+    if (room !== settings.room) {
+      rebuildGameBoard({ ...settings, roomUpdated: true, room });
       return;
     }
 
