@@ -1,9 +1,15 @@
 import { forwardRef, useEffect, useState } from 'react';
 import {
-  AppBar, Badge, Box, IconButton, Toolbar, Tooltip, Typography,
+  AppBar,
+  Badge,
+  Box,
+  IconButton,
+  Toolbar,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import Logo from 'images/blitzed-out.webp';
+import Logo from 'images/blitzed-out.png';
 import './styles.css';
 import { CalendarMonth } from '@mui/icons-material';
 import { getSchedule } from 'services/firebase';
@@ -27,11 +33,13 @@ export default function Navigation({ room, playerList = [] }) {
 
   const playersOnlineTooltip = (
     <>
-      <Typography variant="h6"><Trans i18nKey="online" /></Typography>
+      <Typography variant='h6'>
+        <Trans i18nKey='online' />
+      </Typography>
       <ul>
         {playerList.map((player) => (
           <li key={player.uid}>
-            <Typography variant="body1">{player.displayName}</Typography>
+            <Typography variant='body1'>{player.displayName}</Typography>
           </li>
         ))}
       </ul>
@@ -39,21 +47,37 @@ export default function Navigation({ room, playerList = [] }) {
   );
 
   return (
-    <AppBar position="fixed">
-      <Toolbar disableGutters variant="dense" component="nav" className="nav">
-        <div className="site-name">
-          <Box component="img" sx={{ height: 32 }} alt="Blitzed Out Logo" src={Logo} />
+    <AppBar position='fixed'>
+      <Toolbar disableGutters variant='dense' component='nav' className='nav'>
+        <div className='site-name'>
+          <Box
+            component='img'
+            sx={{ height: 32 }}
+            alt='Blitzed Out Logo'
+            src={Logo}
+          />
           <h1>Blitzed Out</h1>
         </div>
         <div>
-          <div className="nav-room-name">
-            <h2>{room === 'public' || room === undefined ? t('public') : t('roomTitle', { room })}</h2>
+          <div className='nav-room-name'>
+            <h2>
+              {room === 'public' || room === undefined
+                ? t('public')
+                : t('roomTitle', { room })}
+            </h2>
             <Tooltip title={playersOnlineTooltip}>
               <WrapPlayersOnline playerList={playerList} />
             </Tooltip>
             {!!events && (
-              <IconButton onClick={handleScheduleClick} aria-label="schedule game" sx={{ ml: 2 }}>
-                <Badge color="primary" badgeContent={!seen ? events.length : null}>
+              <IconButton
+                onClick={handleScheduleClick}
+                aria-label='schedule game'
+                sx={{ ml: 2 }}
+              >
+                <Badge
+                  color='primary'
+                  badgeContent={!seen ? events.length : null}
+                >
                   <CalendarMonth />
                 </Badge>
               </IconButton>
@@ -61,12 +85,17 @@ export default function Navigation({ room, playerList = [] }) {
           </div>
         </div>
 
-        <div className="menu-drawer">
-          <MenuDrawer openSchedule={openSchedule} setCloseSchedule={setOpenSchedule} />
+        <div className='menu-drawer'>
+          <MenuDrawer
+            openSchedule={openSchedule}
+            setCloseSchedule={setOpenSchedule}
+          />
         </div>
       </Toolbar>
     </AppBar>
   );
 }
 
-const WrapPlayersOnline = forwardRef((props, ref) => <PlayersOnline {...props} innerRef={ref} />);
+const WrapPlayersOnline = forwardRef((props, ref) => (
+  <PlayersOnline {...props} innerRef={ref} />
+));
