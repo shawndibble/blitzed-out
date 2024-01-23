@@ -16,8 +16,8 @@
   --height: 6rem;
   position: relative;
   display: block;
-  background-color: hsl(calc(var(--hue)*360/20), 90%, 35%);
-  border-color: hsl(calc(var(--hue)*360/20), 90%, 35%);
+  background-color: hsl(calc(var(--hue)*360/20), 90%, 25%);
+  border-color: hsl(calc(var(--hue)*360/20), 90%, 25%);
   padding: 0.75rem;
   margin: 2rem 1rem;
   border-radius: 0.2rem;
