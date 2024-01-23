@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.0a1a1e1b.css",
-    "main.js": "/static/js/main.83c5ba7a.js",
+    "main.js": "/static/js/main.64773403.js",
     "static/js/908.421aaccb.chunk.js": "/static/js/908.421aaccb.chunk.js",
     "static/js/55.6b810155.chunk.js": "/static/js/55.6b810155.chunk.js",
     "static/js/868.7f97224f.chunk.js": "/static/js/868.7f97224f.chunk.js",
@@ -13,13 +13,13 @@
     "static/js/845.abee11fc.chunk.js": "/static/js/845.abee11fc.chunk.js",
     "static/js/496.78355d82.chunk.js": "/static/js/496.78355d82.chunk.js",
     "static/media/venmo.png": "/static/media/venmo.ebe983ca9d6089e53c1b.png",
+    "static/media/blitzed-out.png": "/static/media/blitzed-out.3aa888699566e1b38094.png",
     "static/media/message.mp3": "/static/media/message.8ebaf7ada0f153c25666.mp3",
-    "static/media/blitzed-out.webp": "/static/media/blitzed-out.c2d109683076264d0a1a.webp",
     "static/media/roll-dice.mp3": "/static/media/roll-dice.c108f8021f432fc3cf39.mp3",
     "static/media/cashapp.png": "/static/media/cashapp.57eb4df86fd6c2bc68b9.png",
     "index.html": "/index.html",
     "main.0a1a1e1b.css.map": "/static/css/main.0a1a1e1b.css.map",
-    "main.83c5ba7a.js.map": "/static/js/main.83c5ba7a.js.map",
+    "main.64773403.js.map": "/static/js/main.64773403.js.map",
     "908.421aaccb.chunk.js.map": "/static/js/908.421aaccb.chunk.js.map",
     "55.6b810155.chunk.js.map": "/static/js/55.6b810155.chunk.js.map",
     "868.7f97224f.chunk.js.map": "/static/js/868.7f97224f.chunk.js.map",
@@ -32,6 +32,6 @@
   },
   "entrypoints": [
     "static/css/main.0a1a1e1b.css",
-    "static/js/main.83c5ba7a.js"
+    "static/js/main.64773403.js"
   ]
 }
