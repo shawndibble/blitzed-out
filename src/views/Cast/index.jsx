@@ -1,7 +1,6 @@
 import { Box, Divider, Grid, Typography } from '@mui/material';
 import ToastAlert from 'components/ToastAlert';
 import latestMessageByType from 'helpers/messages';
-import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'hooks/useMessages';
 import usePrivateRoomBackground from 'hooks/usePrivateRoomBackground';
 import useTurnIndicator from 'hooks/useTurnIndicator';
@@ -14,19 +13,31 @@ import './styles.css';
 
 const ACTION_TYPE = 'actions';
 
+const actionCard = (lastAction) => {
+  const { text, displayName } = lastAction;
+  if (!displayName) return {};
+
+  const splitText = text?.split('\n');
+  const [typeString, activityString] = splitText?.slice(1) || [];
+  const type = typeString?.split(':')[1].trim();
+  const activity = activityString?.split(':')[1].trim();
+
+  return { displayName, type, activity };
+};
+
 export default function Cast() {
   const { id: room } = useParams();
   const { messages, isLoading } = useMessages(room);
-  const settings = useLocalStorage('gameSettings')[0];
   const [alertMessage, setAlertMessage] = useState('');
   const [openAlert, setOpenAlert] = useState(false);
 
-  const { isVideo, url } = usePrivateRoomBackground(messages, settings, room);
+  const { isVideo, url } = usePrivateRoomBackground(messages);
 
-  const lastAction = useMemo(
-    () => latestMessageByType(messages, ACTION_TYPE),
-    [messages.length]
-  );
+  const lastAction =
+    useMemo(
+      () => latestMessageByType(messages, ACTION_TYPE),
+      [messages.length]
+    ) || {};
   const nextPlayer = useTurnIndicator(room, lastAction);
 
   useEffect(() => {
@@ -41,13 +52,7 @@ export default function Cast() {
     }
   }, [messages, isLoading]);
 
-  if (!messages.length || !lastAction) return null;
-
-  const { text, displayName } = lastAction;
-  const splitText = text.split('\n');
-  const [typeString, activityString] = splitText.slice(1);
-  const type = typeString.split(':')[1].trim();
-  const activity = activityString.split(':')[1].trim();
+  const { displayName, type, activity } = actionCard(lastAction);
 
   return (
     <Box className='text-stroke flex-column'>
@@ -62,26 +67,28 @@ export default function Cast() {
           </Typography>
         </Box>
       )}
-      <Grid
-        container
-        spacing={0}
-        direction='column'
-        alignItems='center'
-        justifyContent='center'
-        className='cast-container'
-      >
-        <Grid item container justifyContent='center'>
-          <Grid item xl={8} lg={10} md={10} className='action-box'>
-            <Typography variant='h3'>
-              {`${type} ${t('for')} ${displayName}`}
-            </Typography>
-            <Box className='divider'>
-              <Divider />
-            </Box>
-            <Typography variant='h1'>{activity}</Typography>
+      {!!activity && (
+        <Grid
+          container
+          spacing={0}
+          direction='column'
+          alignItems='center'
+          justifyContent='center'
+          className='cast-container'
+        >
+          <Grid item container justifyContent='center'>
+            <Grid item xl={8} lg={10} md={10} className='action-box'>
+              <Typography variant='h3'>
+                {`${type} ${t('for')} ${displayName}`}
+              </Typography>
+              <Box className='divider'>
+                <Divider />
+              </Box>
+              <Typography variant='h1'>{activity}</Typography>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      )}
       <ToastAlert
         open={!!openAlert}
         setOpen={setOpenAlert}
