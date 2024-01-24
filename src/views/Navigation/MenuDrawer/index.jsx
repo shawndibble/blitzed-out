@@ -77,7 +77,7 @@ export default function MenuDrawer({ openSchedule, setCloseSchedule }) {
         key: 'cast',
         title: <Trans i18nKey='cast' />,
         icon: <Tv />,
-        onClick: () => openInNewTab(`/rooms/${room}/cast`),
+        onClick: () => openInNewTab(`/rooms/${room.toUpperCase()}/cast`),
       },
       {
         key: 'schedule',
