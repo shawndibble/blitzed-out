@@ -1,10 +1,15 @@
 import { ArrowDropUp, Casino } from '@mui/icons-material';
 import {
-  Button, ButtonGroup, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper,
+  Button,
+  ButtonGroup,
+  ClickAwayListener,
+  Grow,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
 } from '@mui/material';
-import {
-  useCallback, useEffect, useMemo, useRef, useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from 'hooks/useCountdown';
@@ -29,9 +34,8 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
   const [selectedRoll, setSelectedRoll] = useState('manual');
   const [autoTime, setAutoTime] = useState(0);
   const [rollText, setRollText] = useState(t('roll'));
-  const {
-    timeLeft, setTimeLeft, togglePause, isPaused,
-  } = useCountdown(autoTime);
+  const { timeLeft, setTimeLeft, togglePause, isPaused } =
+    useCountdown(autoTime);
 
   const updateRollValue = useCallback((value) => {
     setRollValue({ value, time: Date.now() });
@@ -63,23 +67,34 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
     }
     togglePause();
     return null;
-  }, [selectedRoll, isPaused, timeLeft, autoTime, rollCount, diceSide, togglePause]);
+  }, [
+    selectedRoll,
+    isPaused,
+    timeLeft,
+    autoTime,
+    rollCount,
+    diceSide,
+    togglePause,
+  ]);
 
-  const handleMenuItemClick = useCallback((key) => {
-    setOpen(false);
-    if (key === 'restart') {
-      return updateRollValue(-1);
-    }
+  const handleMenuItemClick = useCallback(
+    (key) => {
+      setOpen(false);
+      if (key === 'restart') {
+        return updateRollValue(-1);
+      }
 
-    setSelectedRoll(key);
+      setSelectedRoll(key);
 
-    if (isNumeric(key)) {
-      if (!isPaused) togglePause();
-      setAutoTime(key);
-      setTimeLeft(key);
-    }
-    return null;
-  }, [isPaused, setTimeLeft, togglePause]);
+      if (isNumeric(key)) {
+        if (!isPaused) togglePause();
+        setAutoTime(key);
+        setTimeLeft(key);
+      }
+      return null;
+    },
+    [isPaused, setTimeLeft, togglePause]
+  );
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -117,26 +132,22 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
 
   return (
     <>
-      <ButtonGroup
-        variant="contained"
-        ref={anchorRef}
-        className="dice-roller"
-      >
+      <ButtonGroup variant='contained' ref={anchorRef} className='dice-roller'>
         <Button
           aria-label={t('roll')}
           onClick={handleClick}
           disabled={isDisabled}
-          size="large"
+          size='large'
         >
           <Casino sx={{ mr: 1 }} />
           {rollText}
         </Button>
         <Button
-          size="small"
+          size='small'
           aria-controls={open ? 'split-button-menu' : undefined}
           aria-expanded={open ? 'true' : undefined}
-          aria-label="select roll options"
-          aria-haspopup="menu"
+          aria-label='select roll options'
+          aria-haspopup='menu'
           onClick={handleToggle}
         >
           <ArrowDropUp />
@@ -151,7 +162,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
         role={undefined}
         transition
         disablePortal
-        placement="top-end"
+        placement='top-end'
       >
         {({ TransitionProps }) => (
           <Grow
@@ -160,7 +171,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
           >
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
-                <MenuList id="split-button-menu" autoFocusItem>
+                <MenuList id='split-button-menu' autoFocusItem>
                   {Array.from(options).map(([key, option]) => (
                     <MenuItem
                       key={key}

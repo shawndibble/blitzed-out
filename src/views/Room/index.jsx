@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import getBackgroundSource from 'services/getBackgroundSource';
 import Navigation from 'views/Navigation';
-import MemoizedGameBoard from 'views/Room/GameBoard';
+import GameBoard from 'views/Room/GameBoard';
 import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
@@ -55,8 +55,8 @@ export default function Room() {
     return <UnauthenticatedApp />;
   }
 
-  const memoizedGameBoardComponent = (
-    <MemoizedGameBoard
+  const GameBoardComponent = (
+    <GameBoard
       playerList={playerList}
       tile={tile}
       settings={settings}
@@ -86,14 +86,11 @@ export default function Room() {
       <TurnIndicator room={room} />
       {isMobile ? (
         <Box className='mobile-container'>
-          <BottomTabs
-            tab1={memoizedGameBoardComponent}
-            tab2={messagesComponent}
-          />
+          <BottomTabs tab1={GameBoardComponent} tab2={messagesComponent} />
         </Box>
       ) : (
         <Box className={`desktop-container ${videoAdjust}`}>
-          {memoizedGameBoardComponent}
+          {GameBoardComponent}
           {messagesComponent}
         </Box>
       )}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 function getInitialValue(key, defaultVal) {
   const storedValue = localStorage.getItem(key);
@@ -37,5 +37,5 @@ export default function useLocalStorage(localStorageKey, defaultVal = {}) {
     [localStorageKey, eventName]
   );
 
-  return [useMemo(() => storage, [storage]), updateLocalStorage];
+  return [storage, updateLocalStorage];
 }

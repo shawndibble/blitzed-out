@@ -26,7 +26,7 @@ export default function useSoundAndDialog(room) {
     readRoll,
   } = useLocalStorage('gameSettings')[0];
 
-  const latestMessage = useMemo(() => [...messages].pop(), [messages]);
+  const latestMessage = useMemo(() => [...messages].pop(), [messages.length]);
 
   const speakText = useCallback((text, language) => {
     speak(text, language);
