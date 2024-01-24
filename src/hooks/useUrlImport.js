@@ -10,7 +10,7 @@ export default function useUrlImport(room, settings, setSettings) {
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
-  const { messages, isLoading } = useMessages(room || 'public');
+  const { messages, isLoading } = useMessages(room || 'PUBLIC');
   const { t } = useTranslation();
 
   function clearAlert() {

@@ -56,7 +56,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       const { roomDice, roomBackgroundURL, roomTileCount } = messageSettings;
 
       let dice = DEFAULT_DIEM;
-      if (room.toLowerCase() !== 'public' && roomDice) {
+      if (room.toUpperCase() !== 'PUBLIC' && roomDice) {
         dice = roomDice;
       }
 

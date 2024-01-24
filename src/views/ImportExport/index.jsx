@@ -29,7 +29,7 @@ export default function ImportExport({ open, close, isMobile }) {
   // default is 40 tiles. If room is private, use roomTileCount.
   const { room, roomTileCount } = settings;
   const requiredTiles =
-    !room || room.toLowerCase() === 'public' ? 40 : roomTileCount;
+    !room || room.toUpperCase() === 'PUBLIC' ? 40 : roomTileCount;
 
   async function createGameMessage(gameTiles, importLabel) {
     const gameTileTitles = gameTiles.map(({ title }) => `* ${title} \n`);
@@ -46,7 +46,7 @@ export default function ImportExport({ open, close, isMobile }) {
     message += [...new Set(gameTileTitles)].join(' ');
 
     await sendMessage({
-      room: room || 'public',
+      room: room || 'PUBLIC',
       user,
       text: message,
       type: 'settings',

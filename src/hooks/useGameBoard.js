@@ -15,7 +15,7 @@ export default function useGameBoard() {
   const settings = useLocalStorage('gameSettings')[0];
   const { i18n } = useTranslation();
 
-  const isPrivateRoom = room?.toLowerCase() !== 'public';
+  const isPrivateRoom = room?.toUpperCase() !== 'PUBLIC';
 
   return async (data = {}) => {
     const formData =

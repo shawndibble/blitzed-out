@@ -61,7 +61,7 @@ export default function Navigation({ room, playerList = [] }) {
         <div>
           <div className='nav-room-name'>
             <h2>
-              {room.toLowerCase() === 'public' || room === undefined
+              {room.toUpperCase() === 'PUBLIC' || room === undefined
                 ? t('public')
                 : t('roomTitle', { room })}
             </h2>

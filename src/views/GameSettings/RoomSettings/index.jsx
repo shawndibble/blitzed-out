@@ -15,7 +15,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import GameSpeed from './GameSpeed';
 
-const PUBLIC_ROOM = 'public';
+const PUBLIC_ROOM = 'PUBLIC';
 
 export default function RoomSettings({ formData, setFormData }) {
   const { id: room } = useParams();
@@ -41,9 +41,9 @@ export default function RoomSettings({ formData, setFormData }) {
     (event) => {
       let roomId;
 
-      if (event.target.checked && room.toLowerCase() === PUBLIC_ROOM) {
+      if (event.target.checked && room.toUpperCase() === PUBLIC_ROOM) {
         roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-      } else if (event.target.checked && room.toLowerCase() !== PUBLIC_ROOM) {
+      } else if (event.target.checked && room.toUpperCase() !== PUBLIC_ROOM) {
         roomId = room;
       } else {
         roomId = PUBLIC_ROOM;
@@ -53,7 +53,7 @@ export default function RoomSettings({ formData, setFormData }) {
         ...formData,
         room: roomId,
         gameMode:
-          roomId.toLowerCase() === PUBLIC_ROOM ? 'online' : formData.gameMode,
+          roomId.toUpperCase() === PUBLIC_ROOM ? 'online' : formData.gameMode,
       });
     },
     [room, formData, setFormData]
@@ -73,7 +73,7 @@ export default function RoomSettings({ formData, setFormData }) {
         </Typography>
         <Switch
           id='showPrivate'
-          checked={formData.room.toLowerCase() !== PUBLIC_ROOM}
+          checked={formData.room.toUpperCase() !== PUBLIC_ROOM}
           onChange={togglePrivateRoomField}
           inputProps={{ 'aria-label': <Trans i18nKey='private' /> }}
         />
@@ -92,7 +92,7 @@ export default function RoomSettings({ formData, setFormData }) {
         </Tooltip>
       </Stack>
 
-      {formData.room.toLowerCase() !== PUBLIC_ROOM && (
+      {formData.room.toUpperCase() !== PUBLIC_ROOM && (
         <>
           <TextField
             fullWidth

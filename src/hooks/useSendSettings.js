@@ -40,7 +40,7 @@ export default function useSendSettings(user, messages, isLoading) {
 
     setSettingsSent(true);
 
-    const isPrivateRoom = room.toLowerCase() !== 'public';
+    const isPrivateRoom = room.toUpperCase() !== 'PUBLIC';
     const formData = { ...settings, room };
     // send out room specific settings if we are in a private room.
     const latestRoomMessage = latestMessageByType(messages, 'room');

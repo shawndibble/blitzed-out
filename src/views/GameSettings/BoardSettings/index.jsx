@@ -10,7 +10,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { alcohol, poppers, ...remainingActions } = actionsList;
   const isMobile = useBreakpoint('md');
   const isLocal =
-    formData?.room.toLowerCase() !== 'public' && formData.gameMode === 'local';
+    formData?.room.toUpperCase() !== 'PUBLIC' && formData.gameMode === 'local';
 
   const settingSelectLists = Object.keys(remainingActions).map((option) => (
     <Grid item xs={12} sm={isMobile && !isLocal ? 6 : 12} md={5} key={option}>
@@ -65,7 +65,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
           />
         </GridItem>
       </Grid>
-      {formData?.room.toLowerCase() !== 'public' && (
+      {formData?.room.toUpperCase() !== 'PUBLIC' && (
         <SoloSwitch formData={formData} setFormData={setFormData} />
       )}
       <Grid container columnSpacing={2} justifyContent='center'>

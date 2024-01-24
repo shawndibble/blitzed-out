@@ -49,7 +49,7 @@ export default function Room() {
 
   const { background, roomBackground } = settings;
   const isTransparent =
-    (room.toLowerCase() !== 'public' && roomBackground !== 'app') ||
+    (room.toUpperCase() !== 'PUBLIC' && roomBackground !== 'app') ||
     background !== 'color';
 
   if (!gameBoard.length || !Object.keys(settings).length) {

@@ -19,7 +19,7 @@ import './styles.css';
 export default function UnauthenticatedApp() {
   const { i18n } = useTranslation();
   const params = useParams();
-  const room = params.id ?? 'public';
+  const room = params.id ?? 'PUBLIC';
   const playerList = usePlayerList(room);
 
   const languageLinks = Object.entries(languages).map(([key, obj]) => (

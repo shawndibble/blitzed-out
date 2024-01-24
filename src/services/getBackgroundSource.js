@@ -43,7 +43,7 @@ function xhamster(url) {
   return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true`;
 }
 
-function processBackground(url) {
+export function processBackground(url) {
   let embedUrl;
   let isVideo = true;
 
@@ -92,7 +92,7 @@ export default function getBackgroundSource(settings, room, roomBackgroundUrl) {
     roomBackground === 'app' ? roomBackground : roomBackgroundUrl;
 
   const bgSource =
-    room.toLowerCase() !== 'public' && roomBackground !== 'app'
+    room.toUpperCase() !== 'PUBLIC' && roomBackground !== 'app'
       ? roomBackgroundSource
       : backgroundSource;
 
