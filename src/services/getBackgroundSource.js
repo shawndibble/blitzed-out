@@ -8,7 +8,8 @@ function vimeo(url) {
 }
 
 function youtube(url) {
-  const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|[^#]*[?&]v=|youtu\.be\/)([^"&?/ ]{11})|^(?:[^"&?/ ]{11})$)/;
+  const youtubeRegex =
+    /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|[^#]*[?&]v=|youtu\.be\/)([^"&?/ ]{11})|^(?:[^"&?/ ]{11})$)/;
   const videoId = url.match(youtubeRegex)[1];
 
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&autostart=true`;
@@ -46,35 +47,37 @@ function processBackground(url) {
   let embedUrl;
   let isVideo = true;
 
+  /* eslint-disable indent */
   switch (true) {
-  case url.includes('vimeo.com'):
-    embedUrl = vimeo(url);
-    break;
-  case url.includes('youtube.com'):
-  case url.includes('youtu.be'):
-    embedUrl = youtube(url);
-    break;
-  case url.includes('drive.google.com'):
-    embedUrl = googleDrive(url);
-    break;
-  case url.includes('pornhub.com'):
-    embedUrl = pornhub(url);
-    break;
-  case url.includes('xhamster.com'):
-    embedUrl = xhamster(url);
-    break;
-  case url.includes('dropbox.com'):
-    embedUrl = dropBox(url);
-    break;
-  case url.includes('thisvid.com'):
-  case url.includes('boyfriendtv.com'):
-    embedUrl = url;
-    break;
-  default:
-    embedUrl = getURLPath(url);
-    isVideo = false;
-    break;
+    case url.includes('vimeo.com'):
+      embedUrl = vimeo(url);
+      break;
+    case url.includes('youtube.com'):
+    case url.includes('youtu.be'):
+      embedUrl = youtube(url);
+      break;
+    case url.includes('drive.google.com'):
+      embedUrl = googleDrive(url);
+      break;
+    case url.includes('pornhub.com'):
+      embedUrl = pornhub(url);
+      break;
+    case url.includes('xhamster.com'):
+      embedUrl = xhamster(url);
+      break;
+    case url.includes('dropbox.com'):
+      embedUrl = dropBox(url);
+      break;
+    case url.includes('thisvid.com'):
+    case url.includes('boyfriendtv.com'):
+      embedUrl = url;
+      break;
+    default:
+      embedUrl = getURLPath(url);
+      isVideo = false;
+      break;
   }
+  /* eslint-enable indent */
 
   return {
     url: embedUrl,
@@ -83,13 +86,15 @@ function processBackground(url) {
 }
 
 export default function getBackgroundSource(settings, room, roomBackgroundUrl) {
-  const {
-    background, backgroundURL, roomBackground,
-  } = settings;
+  const { background, backgroundURL, roomBackground } = settings;
   const backgroundSource = background !== 'custom' ? background : backgroundURL;
-  const roomBackgroundSource = roomBackground === 'app' ? roomBackground : roomBackgroundUrl;
+  const roomBackgroundSource =
+    roomBackground === 'app' ? roomBackground : roomBackgroundUrl;
 
-  const bgSource = room !== 'public' && roomBackground !== 'app' ? roomBackgroundSource : backgroundSource;
+  const bgSource =
+    room.toLowerCase() !== 'public' && roomBackground !== 'app'
+      ? roomBackgroundSource
+      : backgroundSource;
 
   if (!bgSource) return { url: null, isVideo: false };
   return processBackground(bgSource);

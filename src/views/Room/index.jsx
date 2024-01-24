@@ -49,7 +49,8 @@ export default function Room() {
 
   const { background, roomBackground } = settings;
   const isTransparent =
-    (room !== 'public' && roomBackground !== 'app') || background !== 'color';
+    (room.toLowerCase() !== 'public' && roomBackground !== 'app') ||
+    background !== 'color';
 
   if (!gameBoard.length || !Object.keys(settings).length) {
     return <UnauthenticatedApp />;

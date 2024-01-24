@@ -9,7 +9,8 @@ import SoloSwitch from './SoloSwitch';
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { alcohol, poppers, ...remainingActions } = actionsList;
   const isMobile = useBreakpoint('md');
-  const isLocal = formData.room !== 'public' && formData.gameMode === 'local';
+  const isLocal =
+    formData?.room.toLowerCase() !== 'public' && formData.gameMode === 'local';
 
   const settingSelectLists = Object.keys(remainingActions).map((option) => (
     <Grid item xs={12} sm={isMobile && !isLocal ? 6 : 12} md={5} key={option}>
@@ -64,7 +65,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
           />
         </GridItem>
       </Grid>
-      {formData.room !== 'public' && (
+      {formData?.room.toLowerCase() !== 'public' && (
         <SoloSwitch formData={formData} setFormData={setFormData} />
       )}
       <Grid container columnSpacing={2} justifyContent='center'>

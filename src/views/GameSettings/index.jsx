@@ -89,7 +89,7 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   // Import our private room settings into the form data.
   useEffect(() => {
-    if (room === 'public') return;
+    if (room.toLowerCase() === 'public') return;
 
     const message = latestMessageByType(messages, 'room');
 
@@ -118,7 +118,8 @@ export default function GameSettings({ submitText, closeDialog }) {
       await updateGameBoardTiles(formData);
 
     const roomChanged = room !== formData.room;
-    const isPrivateRoom = formData.room && formData.room !== 'public';
+    const isPrivateRoom =
+      formData.room && formData?.room.toLowerCase() !== 'public';
     const privateBoardSizeChanged =
       isPrivateRoom && formData.roomTileCount !== settings.roomTileCount;
 
