@@ -41,9 +41,9 @@ export default function RoomSettings({ formData, setFormData }) {
     (event) => {
       let roomId;
 
-      if (event.target.checked && room === PUBLIC_ROOM) {
+      if (event.target.checked && room.toLowerCase() === PUBLIC_ROOM) {
         roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-      } else if (event.target.checked && room !== PUBLIC_ROOM) {
+      } else if (event.target.checked && room.toLowerCase() !== PUBLIC_ROOM) {
         roomId = room;
       } else {
         roomId = PUBLIC_ROOM;
@@ -52,7 +52,8 @@ export default function RoomSettings({ formData, setFormData }) {
       setFormData({
         ...formData,
         room: roomId,
-        gameMode: roomId === PUBLIC_ROOM ? 'online' : formData.gameMode,
+        gameMode:
+          roomId.toLowerCase() === PUBLIC_ROOM ? 'online' : formData.gameMode,
       });
     },
     [room, formData, setFormData]
@@ -72,7 +73,7 @@ export default function RoomSettings({ formData, setFormData }) {
         </Typography>
         <Switch
           id='showPrivate'
-          checked={formData.room !== PUBLIC_ROOM}
+          checked={formData.room.toLowerCase() !== PUBLIC_ROOM}
           onChange={togglePrivateRoomField}
           inputProps={{ 'aria-label': <Trans i18nKey='private' /> }}
         />
