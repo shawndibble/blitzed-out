@@ -7,7 +7,12 @@ import { importActions } from 'services/importLocales';
 import latestMessageByType, { latestMessageBy } from 'helpers/messages';
 import { useParams } from 'react-router-dom';
 
-function isCompatibleBoard(isPrivateRoom, latestRoomMessage, boardSize, roomTileCount) {
+function isCompatibleBoard(
+  isPrivateRoom,
+  latestRoomMessage,
+  boardSize,
+  roomTileCount
+) {
   if (!isPrivateRoom && boardSize === 40) return true;
 
   if (!latestRoomMessage) return false;
@@ -35,7 +40,7 @@ export default function useSendSettings(user, messages, isLoading) {
 
     setSettingsSent(true);
 
-    const isPrivateRoom = room !== 'public';
+    const isPrivateRoom = room.toLowerCase() !== 'public';
     const formData = { ...settings, room };
     // send out room specific settings if we are in a private room.
     const latestRoomMessage = latestMessageByType(messages, 'room');
@@ -49,15 +54,25 @@ export default function useSendSettings(user, messages, isLoading) {
       isPrivateRoom,
       latestRoomMessage,
       board.length,
-      settings.roomTileCount,
+      settings.roomTileCount
     );
 
-    const alreadySentSettings = latestMessageBy(messages, (m) => m.type === 'settings' && m.uid === user.uid);
+    const alreadySentSettings = latestMessageBy(
+      messages,
+      (m) => m.type === 'settings' && m.uid === user.uid
+    );
     if (!alreadySentSettings && isCompatible) {
-      const actionsList = importActions(i18n.resolvedLanguage, settings.gameMode);
+      const actionsList = importActions(
+        i18n.resolvedLanguage,
+        settings.gameMode
+      );
 
       sendGameSettingsMessage({
-        formData, user, customTiles, actionsList, board,
+        formData,
+        user,
+        customTiles,
+        actionsList,
+        board,
       });
     }
   }, [messages, isLoading, settingsSent]);

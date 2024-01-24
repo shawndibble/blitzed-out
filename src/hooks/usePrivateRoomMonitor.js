@@ -8,13 +8,14 @@ import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { importActions } from 'services/importLocales';
 
-export default function usePrivateRoomMonitor(room, settings, gameBoard) {
+export default function usePrivateRoomMonitor(room, gameBoard) {
   const DEFAULT_DIEM = '1d6';
 
   const { i18n } = useTranslation();
   const { user } = useAuth();
 
   const customTiles = useLocalStorage('customTiles', [])[0];
+  const [settings, updateSettings] = useLocalStorage('gameSettings');
   const { messages, isLoading } = useMessages(room);
   const [roller, setRoller] = useState(DEFAULT_DIEM);
   const [roomBgUrl, setRoomBackground] = useState('');
@@ -38,8 +39,13 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
 
       await sendGameSettingsMessage(message);
     },
-    [settings, user, customTiles, i18n.resolvedLanguage, updateGameBoardTiles]
+    [settings, i18n.resolvedLanguage]
   );
+
+  const roomChanged = useCallback(() => {
+    updateSettings({ ...settings, room });
+    rebuildGameBoard({ ...settings, roomUpdated: true, room });
+  }, [room]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -65,8 +71,9 @@ export default function usePrivateRoomMonitor(room, settings, gameBoard) {
       }
       return;
     }
+
     if (room !== settings.room) {
-      rebuildGameBoard({ ...settings, roomUpdated: true, room });
+      roomChanged();
       return;
     }
 

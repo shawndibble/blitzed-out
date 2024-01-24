@@ -1,5 +1,6 @@
 import useLocalStorage from 'hooks/useLocalStorage';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
 
@@ -8,13 +9,13 @@ import { importActions } from 'services/importLocales';
  * @returns {function} - A function that takes in a form data object and returns an object.
  */
 export default function useGameBoard() {
+  const { id: room } = useParams();
   const customTiles = useLocalStorage('customTiles', [])[0];
   const [gameBoard, updateBoard] = useLocalStorage('customBoard');
   const settings = useLocalStorage('gameSettings')[0];
   const { i18n } = useTranslation();
 
-  const isPrivateRoom = (formData) =>
-    formData.room && formData.room !== 'public';
+  const isPrivateRoom = room?.toLowerCase() !== 'public';
 
   return async (data = {}) => {
     const formData =
@@ -28,7 +29,7 @@ export default function useGameBoard() {
     }
     // If we are in a public room,
     // then gameMode should update to online and we need to re-import actions.
-    if (!isPrivateRoom(formData) && gameMode === 'local') {
+    if (!isPrivateRoom && gameMode === 'local') {
       gameMode = 'online';
       // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
       settingsBoardUpdated = true;
@@ -38,7 +39,7 @@ export default function useGameBoard() {
       importActions(i18n.resolvedLanguage, gameMode)
     );
 
-    const tileCount = isPrivateRoom(formData) ? roomTileCount || 40 : 40;
+    const tileCount = isPrivateRoom ? roomTileCount || 40 : 40;
 
     const newBoard = customizeBoard(
       formData,
