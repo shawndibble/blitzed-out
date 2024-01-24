@@ -54,7 +54,11 @@ export default function CountDownButtonModal({
 
   return (
     <>
-      <Button onClick={clickedButton} sx={{ p: noPadding ? 0 : 1 }}>
+      <Button
+        onClick={clickedButton}
+        sx={{ p: noPadding ? 0 : 1 }}
+        color='secondary'
+      >
         {textString}
       </Button>
       <Modal
