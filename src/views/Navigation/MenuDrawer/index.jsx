@@ -120,7 +120,7 @@ export default function MenuDrawer({ openSchedule, setCloseSchedule }) {
       });
     }
     return items;
-  }, [user]);
+  }, [user, room]);
 
   const settingsDialog = (
     <Dialog fullScreen={isMobile} open={open.settings} maxWidth='md'>
