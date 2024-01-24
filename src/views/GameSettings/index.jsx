@@ -117,7 +117,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     const { settingsBoardUpdated, gameMode, newBoard } =
       await updateGameBoardTiles(formData);
 
-    const roomChanged = room !== formData.room;
+    const roomChanged = room.toLowerCase() !== formData.room.toLowerCase();
     const isPrivateRoom =
       formData.room && formData?.room.toLowerCase() !== 'public';
     const privateBoardSizeChanged =
