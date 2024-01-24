@@ -82,11 +82,11 @@ export function setMyPresence({
   const uid = auth.currentUser?.uid;
   const newRoomConnectionsRef = ref(
     database,
-    `rooms/${newRoom?.toUpperCase()}/uids/${uid}`
+    `rooms/${newRoom?.toLowerCase()}/uids/${uid}`
   );
   const oldRoomConnectionsRef = ref(
     database,
-    `rooms/${oldRoom?.toUpperCase()}/uids/${uid}`
+    `rooms/${oldRoom?.toLowerCase()}/uids/${uid}`
   );
   const connectedRef = ref(database, '.info/connected');
 
@@ -96,7 +96,7 @@ export function setMyPresence({
       const newRef = push(newRoomConnectionsRef);
 
       if (
-        oldRoom?.toUpperCase() !== newRoom?.toUpperCase() ||
+        oldRoom?.toLowerCase() !== newRoom?.toLowerCase() ||
         oldDisplayName !== newDisplayName
       ) {
         remove(oldRoomConnectionsRef);
@@ -114,7 +114,7 @@ export function setMyPresence({
 
 export function getUserList(roomId, callback, existingData) {
   const database = getDatabase();
-  const roomRef = ref(database, `rooms/${roomId?.toUpperCase()}/uids`);
+  const roomRef = ref(database, `rooms/${roomId?.toLowerCase()}/uids`);
   onValue(roomRef, (snap) => {
     const data = snap.val();
 
@@ -173,7 +173,7 @@ export async function sendMessage({
 
   try {
     return await addDoc(
-      collection(db, 'chat-rooms', room?.toUpperCase(), 'messages'),
+      collection(db, 'chat-rooms', room?.toLowerCase(), 'messages'),
       {
         uid: user.uid,
         displayName: user.displayName,
@@ -191,7 +191,9 @@ export async function sendMessage({
 }
 
 export async function deleteMessage(room, messageId) {
-  return deleteDoc(doc(db, `/chat-rooms/${room}/messages/${messageId}`));
+  return deleteDoc(
+    doc(db, `/chat-rooms/${room.toLowerCase()}/messages/${messageId}`)
+  );
 }
 
 export async function uploadImage({ image, room, user }) {
@@ -225,7 +227,7 @@ export function getMessages(roomId, callback) {
   twoHoursBefore.setHours(twoHoursBefore.getHours() - 2);
   return onSnapshot(
     query(
-      collection(db, 'chat-rooms', roomId?.toUpperCase(), 'messages'),
+      collection(db, 'chat-rooms', roomId?.toLowerCase(), 'messages'),
       where('timestamp', '>', twoHoursBefore),
       orderBy('timestamp', 'asc')
     ),
