@@ -91,7 +91,7 @@ export default function RoomSettings({ formData, setFormData }) {
         </Tooltip>
       </Stack>
 
-      {formData.room !== PUBLIC_ROOM && (
+      {formData.room.toLowerCase() !== PUBLIC_ROOM && (
         <>
           <TextField
             fullWidth
