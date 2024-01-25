@@ -33,11 +33,7 @@ export default function Room() {
   const [settings, setSettings] = useLocalStorage('gameSettings');
 
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
-  const { roller, roomBgUrl } = usePrivateRoomMonitor(
-    room,
-    settings,
-    gameBoard
-  );
+  const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult] = useUrlImport(
     room,
     settings,

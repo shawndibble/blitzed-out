@@ -21,26 +21,22 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
   const [roomBgUrl, setRoomBackground] = useState('');
   const updateGameBoardTiles = useGameBoard();
 
-  const rebuildGameBoard = useCallback(
-    async (messageSettings, messageUser = null) => {
-      const { gameMode, newBoard } =
-        await updateGameBoardTiles(messageSettings);
+  const rebuildGameBoard = async (messageSettings, messageUser = null) => {
+    const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
 
-      const message = {
-        formData: { ...settings, ...messageSettings },
-        user,
-        customTiles,
-        actionsList: importActions(i18n.resolvedLanguage, gameMode),
-        board: newBoard,
-      };
-      if (messageUser) {
-        message.reason = `Rebuilt game board due to room size changes by ${messageUser}.`;
-      }
+    const message = {
+      formData: { ...settings, ...messageSettings },
+      user,
+      customTiles,
+      actionsList: importActions(i18n.resolvedLanguage, gameMode),
+      board: newBoard,
+    };
+    if (messageUser) {
+      message.reason = `Rebuilt game board due to room size changes by ${messageUser}.`;
+    }
 
-      await sendGameSettingsMessage(message);
-    },
-    [settings, i18n.resolvedLanguage]
-  );
+    await sendGameSettingsMessage(message);
+  };
 
   const roomChanged = useCallback(() => {
     updateSettings({ ...settings, room });
@@ -80,7 +76,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
     if (settings?.roomBackgroundURL?.length) {
       setRoomBackground(settings.roomBackgroundURL);
     }
-  }, [room, messages, isLoading, settings]);
+  }, [room, messages, isLoading]);
 
   return { roller, roomBgUrl };
 }

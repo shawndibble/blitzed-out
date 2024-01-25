@@ -12,7 +12,7 @@ export default function useGameBoard() {
   const { id: room } = useParams();
   const customTiles = useLocalStorage('customTiles', [])[0];
   const [gameBoard, updateBoard] = useLocalStorage('customBoard');
-  const settings = useLocalStorage('gameSettings')[0];
+  const [settings, updateSettings] = useLocalStorage('gameSettings');
   const { i18n } = useTranslation();
 
   const isPrivateRoom = room?.toUpperCase() !== 'PUBLIC';
@@ -54,6 +54,7 @@ export default function useGameBoard() {
       settingsBoardUpdated ||
       gameBoard.length !== newBoard.length
     ) {
+      await updateSettings(formData);
       await updateBoard(newBoard);
     }
 
