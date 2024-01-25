@@ -76,9 +76,21 @@ export default function Message({
           <>
             <Divider sx={{ my: 0.5 }} />
             {isImportable ? (
-              <Link to={`?importBoard=${id}`}>
-                <Trans i18nKey='importBoard' />
-              </Link>
+              <Box
+                display='flex'
+                justifyContent='space-between'
+                alignItems='center'
+              >
+                <Link to={`?importBoard=${id}`}>
+                  <Trans i18nKey='importBoard' />
+                </Link>
+
+                <CopyToClipboard
+                  text={`${window.location.href}?importBoard=${id}`}
+                  copiedText={t('copiedLink')}
+                  icon={<Share />}
+                />
+              </Box>
             ) : (
               <Trans i18nKey='incompatibleBoard' />
             )}
@@ -96,7 +108,7 @@ export default function Message({
 
             <CopyToClipboard
               text={window.location.href}
-              copiedText='Copied Link to Clipboard'
+              copiedText={t('copiedLink')}
               icon={<Share />}
             />
           </Box>
