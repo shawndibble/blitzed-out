@@ -1,20 +1,16 @@
-import {
-  Box,
-  Button,
-  Grid,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
+import { getSiteName } from 'helpers/strings';
 
 const getSiteButton = (url) => {
   try {
     const { href } = new URL(url);
-    const name = new URL(url).hostname
-      .replace('www.', '')
-      .replace('.com', '')
-      .replace('.net', '')
-      .replace('.gg', '');
+    const name = getSiteName(url);
 
-    return <Button href={href} target="_blank" rel="noreferrer">{name}</Button>;
+    return (
+      <Button href={href} target='_blank' rel='noreferrer'>
+        {name}
+      </Button>
+    );
   } catch (e) {
     return null;
   }
@@ -23,11 +19,15 @@ const getSiteButton = (url) => {
 export default function ScheduleItem({ game }) {
   return (
     <Box sx={{ width: '100%' }} key={game.id}>
-      <Grid container alignItems="center" spacing={1}>
+      <Grid container alignItems='center' spacing={1}>
         <Grid item xs={7}>
-          <Typography variant="body2">
+          <Typography variant='body2'>
             {game.dateTime.toDate().toLocaleString([], {
-              year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit',
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
             })}
           </Typography>
         </Grid>

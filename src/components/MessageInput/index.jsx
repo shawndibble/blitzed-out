@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import useAuth from 'hooks/useAuth';
@@ -13,7 +12,7 @@ import { Photo } from '@mui/icons-material';
 const calculateFileSizeInMB = (base64String) => {
   const stringLength = base64String.length - 'data:image/png;base64,'.length;
 
-  const sizeInBytes = 4 * Math.ceil((stringLength / 3)) * 0.5624896334383812;
+  const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
   return sizeInBytes / 1000000;
 };
 
@@ -30,7 +29,10 @@ export default function MessageInput({ room, isTransparent }) {
   const handleSubmit = (event) => {
     event.preventDefault();
     sendMessage({
-      room, user, text: value, type: 'chat',
+      room,
+      user,
+      text: value,
+      type: 'chat',
     });
     setValue('');
   };
@@ -49,17 +51,25 @@ export default function MessageInput({ room, isTransparent }) {
 
     // prevent any files larger than 5MB
     if (calculateFileSizeInMB(image.base64String) > 5) {
-      return setAlert('File too large! Max size is 5MB. If you need to send a larger file, please use a link from another site.');
+      return setAlert(
+        'File too large! Max size is 5MB. If you need to send a larger file, please use a link from another site.'
+      );
     }
 
     return sendMessage({
-      room, user, type: 'media', image,
+      room,
+      user,
+      type: 'media',
+      image,
     });
   };
 
   return (
     <>
-      <form onSubmit={handleSubmit} className={`message-input-container ${isTransparent && 'transparent'}`}>
+      <form
+        onSubmit={handleSubmit}
+        className={`message-input-container ${isTransparent && 'transparent'}`}
+      >
         <TextField
           multiline
           placeholder={t('messageInput')}
@@ -75,31 +85,29 @@ export default function MessageInput({ room, isTransparent }) {
           required
           minLength={1}
           InputProps={{
-            startAdornment:
-  <InputAdornment position="start">
-    <IconButton type="button" color="primary" onClick={attachFile}>
-      <Photo />
-    </IconButton>
-  </InputAdornment>,
-            endAdornment:
-  <InputAdornment position="end">
-    <IconButton type="submit" color="primary" disabled={value < 1}>
-      <SendIcon />
-    </IconButton>
-  </InputAdornment>,
+            startAdornment: (
+              <InputAdornment position='start'>
+                <IconButton type='button' color='primary' onClick={attachFile}>
+                  <Photo />
+                </IconButton>
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position='end'>
+                <IconButton type='submit' color='primary' disabled={value < 1}>
+                  <SendIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
           }}
-          helperText={(
-            <Link
-              to="https://www.markdownguide.org/cheat-sheet/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Trans i18nKey="markdown" />
-            </Link>
-          )}
+          helperText={<Trans i18nKey='markdown' />}
         />
       </form>
-      <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
+      <ToastAlert
+        open={!!alert}
+        setOpen={setAlert}
+        close={() => setAlert(null)}
+      >
         {alert}
       </ToastAlert>
     </>

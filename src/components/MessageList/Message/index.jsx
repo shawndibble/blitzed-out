@@ -1,62 +1,18 @@
-import { Delete } from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  Divider,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Divider, Typography } from '@mui/material';
 import clsx from 'clsx';
-import CountDownButtonModal from 'components/CountDownButtonModal';
+import DeleteMessageButton from 'components/DeleteMessageButton';
 import GameOverDialog from 'components/GameOverDialog';
 import TextAvatar from 'components/TextAvatar';
-import { extractTime } from 'helpers/strings';
 import moment from 'moment';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
-import reactStringReplace from 'react-string-replace';
 import remarkGfm from 'remark-gfm';
-import { deleteMessage } from 'services/firebase';
-
-function DeleteMessageButton({ room, id }) {
-  return (
-    <Tooltip title={<Trans i18nKey='delete' />}>
-      <IconButton
-        onClick={() => deleteMessage(room, id)}
-        aria-label='delete'
-        color='error'
-        size='small'
-        sx={{ p: 0, ml: 1 }}
-      >
-        <Delete fontSize='inherit' />
-      </IconButton>
-    </Tooltip>
-  );
-}
-
-function transformActionText(textString, secondsString) {
-  const seconds = extractTime(textString, secondsString);
-
-  let fixedText = textString;
-
-  seconds?.forEach((secondString) => {
-    if (secondString) {
-      fixedText = reactStringReplace(fixedText, secondString, (match, i) => (
-        <CountDownButtonModal
-          key={match + i}
-          textString={secondString}
-          preventParentClose={() => null}
-          noPadding
-        />
-      ));
-    }
-  });
-
-  return reactStringReplace(fixedText, '\n', (_, i) => <br key={`br${i}`} />);
-}
+import remarkGemoji from 'remark-gemoji';
+import CopyToClipboard from 'components/CopyToClipboard';
+import { Share } from '@mui/icons-material';
+import ActionText from './actionText';
 
 export default function Message({
   message,
@@ -66,7 +22,6 @@ export default function Message({
   room,
 }) {
   const { t } = useTranslation();
-  const secondsString = t('seconds');
 
   const [isOpenDialog, setDialog] = useState(false);
   const closeDialog = useCallback(() => {
@@ -112,9 +67,9 @@ export default function Message({
       <Divider sx={{ mb: 1 }} />
       <div className='message-message'>
         {type === 'actions' ? (
-          <>{transformActionText(text, secondsString)}</>
+          <ActionText text={text} />
         ) : (
-          <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm, remarkGemoji]}>{text}</Markdown>
         )}
         {!!imageSrc && <img src={imageSrc} alt='uploaded by user' />}
         {type === 'settings' && (
@@ -128,6 +83,23 @@ export default function Message({
               <Trans i18nKey='incompatibleBoard' />
             )}
           </>
+        )}
+        {type === 'room' && (
+          <Box
+            display='flex'
+            justifyContent='space-between'
+            alignItems='center'
+          >
+            <Typography variant='subtitle1'>
+              {t('room')}: <a href={window.location.href}>{room}</a>
+            </Typography>
+
+            <CopyToClipboard
+              text={window.location.href}
+              copiedText='Copied Link to Clipboard'
+              icon={<Share />}
+            />
+          </Box>
         )}
         {text.includes(t('finish')) && isOwnMessage && (
           <Box textAlign='center'>

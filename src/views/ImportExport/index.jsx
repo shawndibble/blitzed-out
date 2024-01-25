@@ -1,16 +1,14 @@
-import { ContentCopy } from '@mui/icons-material';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import CloseIcon from 'components/CloseIcon';
+import CopyToClipboard from 'components/CopyToClipboard';
 import ToastAlert from 'components/ToastAlert';
 import useAuth from 'hooks/useAuth';
 import useLocalStorage from 'hooks/useLocalStorage';
@@ -127,8 +125,6 @@ export default function ImportExport({ open, close, isMobile }) {
     setTextField(stringExport);
   };
 
-  const copyToClipboard = () => navigator.clipboard.writeText(textValue);
-
   useEffect(() => {
     if (open) {
       exportBoard();
@@ -153,13 +149,7 @@ export default function ImportExport({ open, close, isMobile }) {
             value={textValue}
             onChange={(event) => setTextField(event.target.value)}
             InputProps={{
-              endAdornment: (
-                <Tooltip title={t('copyToClipboard')}>
-                  <IconButton onClick={copyToClipboard}>
-                    <ContentCopy />
-                  </IconButton>
-                </Tooltip>
-              ),
+              endAdornment: <CopyToClipboard text={textValue} />,
               sx: { alignItems: 'flex-start' },
             }}
           />

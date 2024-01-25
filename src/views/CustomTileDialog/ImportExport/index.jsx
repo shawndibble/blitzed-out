@@ -1,16 +1,19 @@
-import {
-  Box, Button, IconButton, TextField, Tooltip, Typography,
-} from '@mui/material';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import { submitCustomAction } from 'services/firebase';
 import { useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Accordion from 'components/Accordion';
 import AccordionSummary from 'components/Accordion/Summary';
 import AccordionDetails from 'components/Accordion/Details';
-import { ContentCopy } from '@mui/icons-material';
+import CopyToClipboard from 'components/CopyToClipboard';
 
 export default function ImportExport({
-  expanded, handleChange, customTiles, mappedGroups, setSubmitMessage, bulkImport,
+  expanded,
+  handleChange,
+  customTiles,
+  mappedGroups,
+  setSubmitMessage,
+  bulkImport,
 }) {
   const formData = useRef();
   const { t } = useTranslation();
@@ -18,8 +21,10 @@ export default function ImportExport({
 
   const exportData = () => {
     const customString = customTiles.map(({ group, intensity, action }) => {
-      const userData = mappedGroups
-        .find((entry) => entry?.intensity === Number(intensity) && entry?.value === group);
+      const userData = mappedGroups.find(
+        (entry) =>
+          entry?.intensity === Number(intensity) && entry?.value === group
+      );
       return `[${userData?.group} - ${userData?.translatedIntensity}]\n${action}`;
     });
 
@@ -50,8 +55,10 @@ export default function ImportExport({
           return null;
         }
         const [group, intensity] = withoutBrackets.split(' - ');
-        const appGroup = mappedGroups
-          .find((mapped) => mapped.translatedIntensity === intensity && mapped.group === group);
+        const appGroup = mappedGroups.find(
+          (mapped) =>
+            mapped.translatedIntensity === intensity && mapped.group === group
+        );
 
         if (appGroup === undefined) {
           throw setSubmitMessage({
@@ -77,17 +84,25 @@ export default function ImportExport({
     const uniqueRecords = [];
     result
       // filter new records
-      .filter((entry) => !customTiles
-        .some((existing) => existing.group === entry?.group
-        && existing.intensity === entry?.intensity
-        && existing.action === entry?.action))
+      .filter(
+        (entry) =>
+          !customTiles.some(
+            (existing) =>
+              existing.group === entry?.group &&
+              existing.intensity === entry?.intensity &&
+              existing.action === entry?.action
+          )
+      )
       // drop empty records
       .filter((n) => n)
       // filter unique records
       .filter((entry) => {
-        const index = uniqueRecords.findIndex((existing) => existing.group === entry.group
-          && existing.intensity === entry.intensity
-          && existing.action === entry.action);
+        const index = uniqueRecords.findIndex(
+          (existing) =>
+            existing.group === entry.group &&
+            existing.intensity === entry.intensity &&
+            existing.action === entry.action
+        );
         if (index <= -1) {
           uniqueRecords.push(entry);
         }
@@ -96,7 +111,10 @@ export default function ImportExport({
 
     if (uniqueRecords.length) {
       uniqueRecords.forEach(async (record) => {
-        submitCustomAction(`${record.group} - ${record.intensity}`, record.action);
+        submitCustomAction(
+          `${record.group} - ${record.intensity}`,
+          record.action
+        );
       });
       bulkImport(uniqueRecords);
     } else {
@@ -109,8 +127,6 @@ export default function ImportExport({
     return exportData();
   }
 
-  const copyToClipboard = () => navigator.clipboard.writeText(inputValue);
-
   useEffect(() => {
     if (expanded === 'ctImport') {
       exportData();
@@ -118,20 +134,23 @@ export default function ImportExport({
   }, [expanded, customTiles]);
 
   return (
-    <Accordion expanded={expanded === 'ctImport'} onChange={handleChange('ctImport')}>
-      <AccordionSummary aria-controls="ctImport-content" id="ctImport-header">
-        <Typography><Trans i18nKey="importExport" /></Typography>
+    <Accordion
+      expanded={expanded === 'ctImport'}
+      onChange={handleChange('ctImport')}
+    >
+      <AccordionSummary aria-controls='ctImport-content' id='ctImport-header'>
+        <Typography>
+          <Trans i18nKey='importExport' />
+        </Typography>
       </AccordionSummary>
       <AccordionDetails>
-        <Typography variant="body1" sx={{ mb: 2 }}><Trans i18nKey="ctImportDescription" /></Typography>
-        <Box
-          component="form"
-          method="post"
-          ref={formData}
-        >
+        <Typography variant='body1' sx={{ mb: 2 }}>
+          <Trans i18nKey='ctImportDescription' />
+        </Typography>
+        <Box component='form' method='post' ref={formData}>
           <TextField
-            id="importData"
-            name="importData"
+            id='importData'
+            name='importData'
             multiline
             required
             fullWidth
@@ -139,19 +158,17 @@ export default function ImportExport({
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
             InputProps={{
-              endAdornment: (
-                <Tooltip title={t('copyToClipboard')}>
-                  <IconButton onClick={copyToClipboard}>
-                    <ContentCopy />
-                  </IconButton>
-                </Tooltip>
-              ),
+              endAdornment: <CopyToClipboard text={inputValue} />,
               sx: { alignItems: 'flex-start' },
             }}
           />
-
-          <Button fullWidth variant="contained" type="button" onClick={(event) => importTiles(event)}>
-            <Trans i18nKey="import" />
+          <Button
+            fullWidth
+            variant='contained'
+            type='button'
+            onClick={(event) => importTiles(event)}
+          >
+            <Trans i18nKey='import' />
           </Button>
         </Box>
       </AccordionDetails>

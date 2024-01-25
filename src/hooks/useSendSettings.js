@@ -75,5 +75,5 @@ export default function useSendSettings(user, messages, isLoading) {
         board,
       });
     }
-  }, [messages, isLoading, settingsSent]);
+  }, [isLoading]);
 }

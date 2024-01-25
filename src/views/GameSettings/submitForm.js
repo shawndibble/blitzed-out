@@ -1,8 +1,11 @@
+import { getSiteName } from 'helpers/strings';
 import i18next from 'i18next';
 import { sendMessage } from 'services/firebase';
 
 function hasSomethingPicked(object) {
-  return Object.values(object).some((selection) => [1, 2, 3, 4].includes(selection));
+  return Object.values(object).some((selection) =>
+    [1, 2, 3, 4].includes(selection)
+  );
 }
 
 function isAppending(option, variationOption) {
@@ -12,19 +15,27 @@ function isAppending(option, variationOption) {
 function getRoomSettingsMessage(settings) {
   const { t } = i18next;
   let message = `### ${t('roomSettings')}\r\n`;
-  Object.entries(settings)
-    .forEach(([key, val]) => {
-      if (val !== '') {
-        message += `* ${t(key)}: ${val}\r\n`;
-      }
-    });
+
+  Object.entries(settings).forEach(([key, val]) => {
+    if (key === 'room') return; // we handle the room separately.
+    if (key === 'roomBackgroundURL') {
+      message += `* ${t(key)}: [${getSiteName(val)}:link:](${val})\r\n`;
+      return;
+    }
+    if (val !== '') {
+      message += `* ${t(key)}: ${val}\r\n`;
+    }
+  });
   return message;
 }
 
 function exportRoomSettings(formData) {
   const newSettings = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
-    if (settingKey.startsWith('room') && !['roomUpdated', 'roomBackground'].some((key) => key === settingKey)) {
+    if (
+      settingKey.startsWith('room') &&
+      !['roomUpdated', 'roomBackground'].some((key) => key === settingKey)
+    ) {
       newSettings[settingKey] = settingValue;
     }
   });
@@ -34,7 +45,9 @@ function exportRoomSettings(formData) {
 export async function handleUser(user, displayName, updateUser, login) {
   let updatedUser = { ...user };
   if (displayName !== undefined && displayName.length > 0) {
-    updatedUser = user ? await updateUser(displayName) : await login(displayName);
+    updatedUser = user
+      ? await updateUser(displayName)
+      : await login(displayName);
   }
   return updatedUser;
 }
@@ -59,11 +72,10 @@ export function validateFormData(gameOptions) {
   const { poppers, alcohol, ...actionItems } = { ...gameOptions };
 
   if (
-    (
-      isAppending(poppers, gameOptions.poppersVariation)
-      || isAppending(alcohol, gameOptions.alcoholVariation)
-    )
-    && !hasSomethingPicked(actionItems)) {
+    (isAppending(poppers, gameOptions.poppersVariation) ||
+      isAppending(alcohol, gameOptions.alcoholVariation)) &&
+    !hasSomethingPicked(actionItems)
+  ) {
     return 'appendWithAction';
   }
 

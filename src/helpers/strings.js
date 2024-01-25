@@ -38,7 +38,17 @@ export function getExtension(filename) {
 
 export function isVideo(file) {
   const bgExtension = getExtension(file);
-  return ['mp4', 'webm', 'mkv', 'flv', 'avi', 'mov', 'wmv', 'mpg', 'mv4'].includes(bgExtension);
+  return [
+    'mp4',
+    'webm',
+    'mkv',
+    'flv',
+    'avi',
+    'mov',
+    'wmv',
+    'mpg',
+    'mv4',
+  ].includes(bgExtension);
 }
 
 export function getURLPath(string) {
@@ -49,4 +59,12 @@ export function getURLPath(string) {
   if (isVideo(string)) return `/videos/${string}`;
 
   return `/images/${string}`;
+}
+
+export function getSiteName(urlString) {
+  return new URL(urlString).hostname
+    .replace('www.', '')
+    .replace('.com', '')
+    .replace('.net', '')
+    .replace('.gg', '');
 }
