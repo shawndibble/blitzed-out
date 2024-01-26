@@ -1,57 +1,57 @@
-{
+﻿{
     "label": "Esclavitud",
     "actions": {
         "Ninguna": [],
-        "Cuerdas y Puños": {
+        "Cuerdas y Muñequeras": {
             "sub": [
                 "Átate las muñecas",
                 "Quédate atado a un mueble hasta tu próxima acción.",
-                "Ten tus muñecas atadas alrededor del cuerpo de otro jugador hasta que una acción requiera que uno de ustedes sea liberado.",
-                "Déjate atar por otro jugador como quiera.",
+                "Ten tus muñecas atadas alrededor del cuerpo de otro jugador hasta que una acción requiera que uno de los dos se libere.",
+                "Déjate atar por otro jugador como él quiera.",
                 "Quédate atado hasta tu próxima acción.",
-                "Ten tus brazos atados detrás de tu espalda hasta tu próxima acción.",
-                "Ten tus brazos atados a tus piernas hasta que una acción requiera tu liberación.",
-                "Ser atado a un mueble hasta que una acción requiera su liberación",
-                "Ten tus tobillos atados",
-                "Haz que otro jugador te ponga en una situación difícil hasta tu próxima acción",
-                "Estar obligado a extender el águila hasta que una acción requiera lo contrario"
+                "Ten los brazos atados detrás de la espalda hasta tu próxima acción.",
+                "Ten los brazos atados a las piernas hasta que una acción requiera que te liberes.",
+                "Déjate atar a un mueble hasta que una acción requiera que te liberes",
+                "Átate los tobillos",
+                "Haz que otro jugador te ponga en una posición incómoda hasta tu próxima acción",
+                "Mantén la posición del “águila extendida” hasta que otra acción lo requiera"
             ],
             "dom": [
-                "Haz que otro jugador se aten las muñecas",
-                "Atar a otro jugador a un mueble hasta su próxima acción",
-                "Haz que otro jugador aten sus muñecas alrededor de tu cuerpo hasta que una acción requiera que uno de ustedes sea liberado",
-                "Atar a otro jugador como quieras",
-                "Haz que otro jugador permanezca atado hasta su próxima acción",
-                "Atar los brazos de otro jugador detrás de su espalda hasta su próxima acción",
-                "Haz que otro jugador tenga los brazos atados a sus piernas hasta que una acción requiera su liberación",
-                "Atar a otro jugador a un mueble hasta que una acción requiera su liberación",
-                "Haz que otro jugador tenga los tobillos atados",
-                "Pon a otro jugador en una situación difícil hasta su próxima acción",
-                "Haz que otro jugador permanezca obligado a extender el águila hasta que una acción requiera lo contrario"
+                "Ata las muñecas a otro jugador",
+                "Ata a otro jugador a un mueble hasta su próxima acción",
+                "Ata las muñecas de otro jugador alrededor de tu cuerpo hasta que una acción requiera que uno de ustedes se libere",
+                "Ata a otro jugador como quieras",
+                "Ata las muñecas de otro jugador a sus tobillos hasta su próxima acción",
+                "Ata los brazos de otro jugador detrás de su espalda hasta su próxima acción",
+                "Ata los brazos de otro jugador a sus piernas hasta que una acción requiera que se libere",
+                "Ata a otro jugador a un mueble hasta que una acción requiera que se libere",
+                "Ata los tobillos de otro jugador",
+                "Pon a otro jugador en una posición incómoda hasta su próxima acción",
+                "Ata a otro jugador en la posición del “águila extendida” hasta que otra acción lo requiera"
             ]
         },
-        "Añadir vendas y mordazas": {
+        "Añade vendas y mordazas": {
             "sub": [
                 "Ten los ojos vendados hasta tu próxima acción.",
-                "Quedate amordazado hasta tu próxima acción.",
-                "Que te vendan los ojos y te amordacen hasta tu próxima acción.",
-                "Que te vendan los ojos y te amordacen hasta que una acción requiera tu liberación.",
-                "Estar con los ojos vendados, amordazado y atado de muñecas hasta su próxima acción.",
-                "Ser amordazado con una prenda de vestir hasta la próxima acción que requiera su boca.",
-                "Ten los ojos vendados con una prenda de vestir hasta tu próxima acción",
-                "Tener los ojos vendados con una prenda de vestir hasta tu próxima acción.",
-                "Otro jugador puede elegir qué usar como venda en los ojos y/o mordaza hasta tu próxima acción"
+                "Quédate amordazado hasta tu próxima acción.",
+                "Deja que te venden los ojos y te amordacen hasta tu próxima acción.",
+                "Deja que te venden los ojos y te amordacen hasta que una acción requiera que te liberes.",
+                "Mantente con los ojos vendados, amordazado y atado de muñecas hasta tu próxima acción.",
+                "Deja que te amordacen con una prenda de vestir hasta la próxima acción que requiera usar la boca.",
+                "Ten los ojos vendados con una prenda de vestir hasta tu próximo turno",
+                "Ten los ojos vendados con una prenda de vestir hasta tu próxima acción.",
+                "Otro jugador puede elegir qué usarás como venda para los ojos y/o mordaza hasta tu próxima acción"
             ],
             "dom": [
-                "Haz que otro jugador tenga los ojos vendados hasta su próxima acción",
-                "Haz que otro jugador permanezca amordazado hasta su próxima acción",
-                "Haz que otro jugador tenga los ojos vendados y permanezca amordazado hasta su próxima acción",
-                "Haz que otro jugador permanezca con los ojos vendados y amordazado hasta que una acción requiera su liberación",
-                "Haz que otro jugador permanezca con los ojos vendados, amordazado y atado de muñecas hasta su próxima acción",
-                "Haz que otro jugador sea amordazado con una prenda de vestir hasta la próxima acción que requiera su boca",
-                "Haz que otro jugador tenga los ojos vendados con una prenda de vestir hasta su próxima acción",
-                "Haz que otro jugador permanezca con los ojos vendados con una prenda de vestir hasta su próxima acción",
-                "Elige qué usar como venda en los ojos y/o mordaza para otro jugador hasta su próxima acción"
+                "Venda los ojos de otro jugador hasta su próxima acción",
+                "Amordaza a otro jugador hasta su próxima acción",
+                "Venda los ojos de otro jugador y amordázalo hasta su próxima acción",
+                "Venda los ojos de otro jugador y amordázalo hasta que una acción requiera su liberación",
+                "Venda los ojos de otro jugador, amordázalo y ata sus muñecas hasta su próxima acción",
+                "Amordaza a otro jugador con una prenda de vestir hasta la próxima acción que requiera su boca",
+                "Venda los ojos de otro jugador con una prenda de vestir hasta su próxima acción",
+                "Venda los ojos de otro jugador con una prenda de vestir hasta su próxima acción",
+                "Elige qué usar como venda para los ojos y/o mordaza para otro jugador hasta su próxima acción"
             ]
         }
     }

@@ -5,15 +5,15 @@
         "Orinar en un vaso": {
             "sub": [
                 "Bebe agua",
-                "Haz que alguien más beba agua",
+                "Haz que otro jugador beba agua",
                 "Orina en un recipiente",
                 "Bebe mucha agua",
-                "Haz que alguien más beba mucha agua",
+                "Haz que otro jugador beba mucha agua",
                 "Huele tu propia orina",
-                "Huele la orina de alguien más",
+                "Huele la orina de otro jugador",
                 "Orina en un recipiente",
                 "Toma un sorbo de agua",
-                "Que alguien te dé un recipiente con su orina"
+                "Pídele a alguien que te dé un recipiente con su orina"
             ],
             "dom": [
                 "Haz que otro jugador beba agua",
@@ -39,13 +39,13 @@
                 "Bebe agua"
             ],
             "dom": [
-                "Haz que otro jugador se deje orinar encima",
-                "Haz que otro jugador se orine encima",
-                "Haz que otro jugador ponga su pene y sus testículos en un recipiente con tu orina",
-                "Haz que otro jugador beba mucha agua",
-                "Haz que otro jugador se deje orinar en la cara",
-                "Haz que otro jugador se orine en la cara",
-                "Haz que otro jugador beba agua"
+                "Orina sobre el cuerpo de otro jugador",
+                "Ordena a otro jugador que se orine encima",
+                "Ordena a otro jugador que ponga su pene y sus testículos en un recipiente con tu orina",
+                "Ordena a otro jugador que beba mucha agua",
+                "Orina en la cara de otro jugador",
+                "Ordena a otro jugador que se orine en la cara",
+                "Ordena a otro jugador que beba agua"
             ]
         },
         "Bebe": {
@@ -58,12 +58,12 @@
                 "Intenta orinar en tu boca. Trágatelo."
             ],
             "dom": [
-                "Haz que otro jugador beba su propia orina",
-                "Haz que otro jugador beba tu orina desde la distancia",
-                "Haz que otro jugador beba tu orina con la boca pegada a la fuente",
-                "Haz que otro jugador beba agua",
-                "Haz que otro jugador beba mucha agua",
-                "Haz que otro jugador intente orinar en su boca y se lo trague."
+                "Ordnea a otro jugador que beba su propia orina",
+                "Ordena a otro jugador que beba tu orina desde la distancia",
+                "Ordena a otro jugador que beba tu orina con la boca pegada a la fuente",
+                "Ordena a otro jugador que beba agua",
+                "Ordena a otro jugador que beba mucha agua",
+                "Ordena a otro jugador que intente orinar en su boca y se lo trague."
             ]
         }
     }
