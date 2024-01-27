@@ -59,9 +59,14 @@ export default function GameOverDialog({ isOpen = false, close }) {
 
   return (
     <>
-      <Dialog open={isOpen} onClose={close} aria-labelledby='modal-game-over'>
+      <Dialog
+        open={isOpen}
+        onClose={close}
+        fullScreen={isMobile}
+        aria-labelledby='modal-game-over'
+      >
         <DialogContent>
-          <Typography variant='h4' textAlign='center' sx={{ mb: 2 }}>
+          <Typography variant='h4' textAlign='center' sx={{ mb: 2, px: 2 }}>
             <Trans i18nKey='gameOverPlayAgain' />
           </Typography>
           <CloseIcon close={close} />
