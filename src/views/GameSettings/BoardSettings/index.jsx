@@ -28,6 +28,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
   const updateAllRoles = (value) => {
     const newFormData = structuredClone(formData);
     Object.keys(newFormData).forEach((key) => {
+      newFormData.role = value;
       if (key.includes('role')) {
         newFormData[key] = value;
       }
