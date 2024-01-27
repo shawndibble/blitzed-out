@@ -62,17 +62,17 @@ export default function GameOverDialog({ isOpen = false, close }) {
       <Dialog open={isOpen} onClose={close} aria-labelledby='modal-game-over'>
         <DialogContent>
           <Typography variant='h4' textAlign='center' sx={{ mb: 2 }}>
-            <Trans i18n='gameOverPlayAgain' />
+            <Trans i18nKey='gameOverPlayAgain' />
           </Typography>
           <CloseIcon close={close} />
 
           <Grid container spacing={2} alignItems='stretch'>
             <GridItemActionCard title={t('sameBoard')} onClick={returnToStart}>
-              <Trans i18n='sameBoardDescription' />
+              <Trans i18nKey='sameBoardDescription' />
             </GridItemActionCard>
 
             <GridItemActionCard title={t('rebuildBoard')} onClick={rebuild}>
-              <Trans i18n='rebuildBoardDescription' />
+              <Trans i18nKey='rebuildBoardDescription' />
             </GridItemActionCard>
 
             <GridItemActionCard
@@ -80,14 +80,14 @@ export default function GameOverDialog({ isOpen = false, close }) {
               onClick={acceleratedDifficulty}
               disabled={settings.difficulty === 'accelerated'}
             >
-              <Trans i18n='finalDifficultyDescription' />
+              <Trans i18nKey='finalDifficultyDescription' />
             </GridItemActionCard>
 
             <GridItemActionCard
               title={t('changeSettings')}
               onClick={openSettings}
             >
-              <Trans i18n='changeSettingsDescription' />
+              <Trans i18nKey='changeSettingsDescription' />
             </GridItemActionCard>
           </Grid>
         </DialogContent>
