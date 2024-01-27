@@ -38,6 +38,7 @@
 
 .nav-room-name {
   margin: auto;
+  white-space: nowrap;
 }
 
 .menu-drawer {
@@ -55,6 +56,12 @@
 
   .site-name img {
     margin-right: 0.3rem;
+  }
+}
+
+@media screen and (min-width: 600px) and (max-width: 750px) {
+  .nav > div.menu-drawer {
+    flex: 0.5;
   }
 }
 
