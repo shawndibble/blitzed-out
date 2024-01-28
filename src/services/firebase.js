@@ -246,7 +246,7 @@ export function getSchedule(callback) {
     query(
       collection(db, 'schedule'),
       // get all future events (minus 5 minutes for current games)
-      where('dateTime', '>', new Date() - 5 * 60 * 1000),
+      where('dateTime', '>', new Date()),
       orderBy('dateTime', 'asc')
     ),
     (querySnapshot) => {
