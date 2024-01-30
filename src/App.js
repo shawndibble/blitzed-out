@@ -1,5 +1,8 @@
 import {
-  CssBaseline, ThemeProvider, createTheme, responsiveFontSizes,
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+  responsiveFontSizes,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -14,6 +17,7 @@ import Cast from 'views/Cast';
 import Room from 'views/Room';
 import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import './App.css';
+import { MessagesProvider } from 'context/messages';
 
 let darkTheme = createTheme({
   palette: {
@@ -33,9 +37,23 @@ function App() {
         <CssBaseline />
         <Router>
           <Routes>
-            <Route exact path="/" element={<Navigate replace to="/rooms/public" />} />
-            <Route path="/rooms/:id/cast" element={<Cast />} />
-            <Route path="/rooms/:id" element={room} />
+            <Route
+              exact
+              path='/'
+              element={<Navigate replace to='/rooms/public' />}
+            />
+            <Route
+              path='/rooms/:id/cast'
+              element={
+                <MessagesProvider>
+                  <Cast />
+                </MessagesProvider>
+              }
+            />
+            <Route
+              path='/rooms/:id'
+              element={<MessagesProvider>{room}</MessagesProvider>}
+            />
           </Routes>
         </Router>
       </LocalizationProvider>

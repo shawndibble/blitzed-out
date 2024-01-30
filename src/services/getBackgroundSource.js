@@ -47,6 +47,10 @@ export function processBackground(url) {
   let embedUrl;
   let isVideo = true;
 
+  if (!url) {
+    return { ur: '', isVideo: false };
+  }
+
   /* eslint-disable indent */
   switch (true) {
     case url.includes('vimeo.com'):

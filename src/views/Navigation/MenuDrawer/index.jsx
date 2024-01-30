@@ -179,7 +179,7 @@ export default function MenuDrawer({ openSchedule, setCloseSchedule }) {
           <List>{menuList}</List>
         </Box>
       </Drawer>
-      {settingsDialog}
+      {!!open.settings && settingsDialog}
       {aboutDialog}
       {!!open.importExport && (
         <ImportExport

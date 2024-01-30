@@ -8,8 +8,8 @@ export default function usePrivateRoomBackground(messages) {
   if (roomMessage) {
     const { roomBackgroundURL } = JSON.parse(roomMessage.settings);
     const backgroundSource = processBackground(roomBackgroundURL);
-    isVideo = backgroundSource.isVideo;
-    url = backgroundSource.url;
+    if (backgroundSource?.isVideo) isVideo = backgroundSource.isVideo;
+    if (backgroundSource?.url) url = backgroundSource.url;
   }
   return { isVideo, url };
 }

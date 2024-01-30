@@ -46,6 +46,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     roomDice: '1d6',
     poppers: 2,
     poppersVariation: 'standalone',
+    alcoholVariation: 'standalone',
   });
   const navigate = useNavigate();
 
@@ -57,12 +58,9 @@ export default function GameSettings({ submitText, closeDialog }) {
   // set the variations to standalone by default.
   // useEffect will override this if needed.
   // separate from updateSettings as we don't write to localStorage here.
-  const [formData, setFormData] = useState({
-    poppersVariation: 'standalone',
-    alcoholVariation: 'standalone',
-  });
+  const [formData, setFormData] = useState({});
 
-  const { messages } = useMessages(formData.room);
+  const { messages } = useMessages();
 
   // Update our actions list when the language changes.
   useEffect(() => {
@@ -77,15 +75,14 @@ export default function GameSettings({ submitText, closeDialog }) {
     updateSettings({ ...settings, boardUpdated: true });
 
   // once our data from localstorage updates, push them to the formData.
-  useEffect(
-    () =>
-      setFormData({
-        ...formData,
-        ...settings,
-        room,
-      }),
-    [settings]
-  );
+  useEffect(() => {
+    if (!settings.locale) return;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      ...settings,
+      room,
+    }));
+  }, []);
 
   // Import our private room settings into the form data.
   useEffect(() => {
@@ -94,7 +91,10 @@ export default function GameSettings({ submitText, closeDialog }) {
     const message = latestMessageByType(messages, 'room');
 
     if (message?.settings) {
-      setFormData({ ...formData, ...JSON.parse(message.settings) });
+      setFormData((previousFormData) => ({
+        ...previousFormData,
+        ...JSON.parse(message.settings),
+      }));
     }
   }, [messages]);
 
@@ -161,7 +161,10 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   const handleBlur = useCallback(
     (event) => {
-      setFormData({ ...formData, displayName: event.target.value });
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        displayName: event.target.value,
+      }));
     },
     [formData]
   );
@@ -169,7 +172,10 @@ export default function GameSettings({ submitText, closeDialog }) {
   const onEnterKey = useCallback(
     (event) => {
       if (event.key === 'Enter') {
-        setFormData({ ...formData, displayName: event.target.value });
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          displayName: event.target.value,
+        }));
         handleSubmit(event);
       }
     },

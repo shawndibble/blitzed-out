@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppBar, Tab, Tabs } from '@mui/material';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { a11yProps } from 'helpers/strings';
 import useAuth from 'hooks/useAuth';
 import useMessages from 'hooks/useMessages';
-import { a11yProps } from 'helpers/strings';
-import { useTranslation } from 'react-i18next';
+import useSendSettings from 'hooks/useSendSettings';
 import 'moment/locale/es';
 import 'moment/locale/fr';
-import './styles.css';
-import useSendSettings from 'hooks/useSendSettings';
+import { useTranslation } from 'react-i18next';
 import Message from './Message';
+import './styles.css';
 
 export default function MessageList({
   room,
@@ -27,7 +27,7 @@ export default function MessageList({
   const filterMessages = useCallback(
     (tabId) =>
       messages.filter((m) => {
-        if (tabId === 1) return m.type === 'settings';
+        if (tabId === 1) return ['settings', 'room'].includes(m.type);
         if (tabId === 2) return ['chat', 'media'].includes(m.type);
         if (tabId === 3) return m.type === 'actions';
         return m;

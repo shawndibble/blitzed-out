@@ -1,20 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
-import { getMessages } from 'services/firebase';
+import React from 'react';
+import { MessagesContext } from '../context/messages';
 
-export default function useMessages(roomId) {
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default function useAuth() {
+  const value = React.useContext(MessagesContext);
 
-  useEffect(() => {
-    const unsubscribe = getMessages(roomId, (newMessages) => {
-      setMessages(newMessages);
-      setIsLoading(false);
-    });
+  if (!value) {
+    // eslint-disable-next-line quotes
+    throw new Error("MessagesContext's value is undefined.");
+  }
 
-    return unsubscribe;
-  }, [roomId]);
-
-  const memoizedMessages = useMemo(() => messages, [messages]);
-
-  return { messages: memoizedMessages, isLoading };
+  return value;
 }

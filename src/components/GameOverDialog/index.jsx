@@ -98,18 +98,20 @@ export default function GameOverDialog({ isOpen = false, close }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog fullScreen={isMobile} open={openSettingsDialog} maxWidth='md'>
-        <DialogTitle>
-          <Trans i18nKey='gameSettings' />
-          <CloseIcon close={closeSettings} />
-        </DialogTitle>
-        <DialogContent>
-          <GameSettings
-            submitText={<Trans i18nKey='update' />}
-            closeDialog={closeSettings}
-          />
-        </DialogContent>
-      </Dialog>
+      {!!openSettingsDialog && (
+        <Dialog fullScreen={isMobile} open={openSettingsDialog} maxWidth='md'>
+          <DialogTitle>
+            <Trans i18nKey='gameSettings' />
+            <CloseIcon close={closeSettings} />
+          </DialogTitle>
+          <DialogContent>
+            <GameSettings
+              submitText={<Trans i18nKey='update' />}
+              closeDialog={closeSettings}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }

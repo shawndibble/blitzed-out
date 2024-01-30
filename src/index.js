@@ -1,11 +1,11 @@
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { defineCustomElements } from '@ionic/pwa-elements/loader';
-import './index.css';
 import App from './App';
 import { AuthProvider } from './context/auth';
-import reportWebVitals from './reportWebVitals';
 import './i18n';
+import './index.css';
+import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

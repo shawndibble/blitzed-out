@@ -38,8 +38,6 @@ export default function useSendSettings(user, messages, isLoading) {
   useEffect(() => {
     if (!settings || isLoading || settingsSent) return;
 
-    setSettingsSent(true);
-
     const isPrivateRoom = room.toUpperCase() !== 'PUBLIC';
     const formData = { ...settings, room };
     // send out room specific settings if we are in a private room.
@@ -47,6 +45,8 @@ export default function useSendSettings(user, messages, isLoading) {
     if (isPrivateRoom && !latestRoomMessage) {
       sendRoomSettingsMessage(formData, user);
     }
+
+    setSettingsSent(true);
 
     // if our board updated, or we changed rooms, send out game settings message.
     // if our settings board is incompatible with the room, let PrivateRoomMonitor handle it.
@@ -61,6 +61,7 @@ export default function useSendSettings(user, messages, isLoading) {
       messages,
       (m) => m.type === 'settings' && m.uid === user.uid
     );
+
     if (!alreadySentSettings && isCompatible) {
       const actionsList = importActions(
         i18n.resolvedLanguage,

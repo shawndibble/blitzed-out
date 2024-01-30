@@ -5,7 +5,7 @@ import useMessages from 'hooks/useMessages';
 import usePrivateRoomBackground from 'hooks/usePrivateRoomBackground';
 import useTurnIndicator from 'hooks/useTurnIndicator';
 import { t } from 'i18next';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import RoomBackground from 'components/RoomBackground';
@@ -33,17 +33,13 @@ export default function Cast() {
 
   const { isVideo, url } = usePrivateRoomBackground(messages);
 
-  const lastAction =
-    useMemo(
-      () => latestMessageByType(messages, ACTION_TYPE),
-      [messages.length]
-    ) || {};
+  console.log(messages);
+  const lastAction = latestMessageByType(messages, ACTION_TYPE) || {};
   const nextPlayer = useTurnIndicator(room, lastAction);
 
   useEffect(() => {
     if (isLoading) return;
 
-    messages.sort((a, b) => a.timestamp.seconds - b.timestamp.seconds);
     const latestMessage = messages[messages.length - 1];
 
     if (latestMessage?.type === 'settings') {

@@ -113,6 +113,7 @@ export function setMyPresence({
 }
 
 export function getUserList(roomId, callback, existingData) {
+  console.log('getUserList');
   const database = getDatabase();
   const roomRef = ref(database, `rooms/${roomId?.toUpperCase()}/uids`);
   onValue(roomRef, (snap) => {
@@ -242,6 +243,7 @@ export function getMessages(roomId, callback) {
 }
 
 export function getSchedule(callback) {
+  console.log('getSchedule');
   return onSnapshot(
     query(
       collection(db, 'schedule'),
@@ -249,8 +251,8 @@ export function getSchedule(callback) {
       where('dateTime', '>', new Date()),
       orderBy('dateTime', 'asc')
     ),
-    (querySnapshot) => {
-      const schedule = querySnapshot.docs.map((document) => ({
+    async (querySnapshot) => {
+      const schedule = await querySnapshot.docs.map((document) => ({
         id: document.id,
         ...document.data(),
       }));
