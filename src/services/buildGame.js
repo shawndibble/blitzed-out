@@ -222,6 +222,12 @@ export default function customizeBoard(
     settings
   );
 
+  if (!newActionList.length) {
+    // if we have no action list, then clear local storage and reload.
+    localStorage.clear();
+    window.location.reload();
+  }
+
   const listWithMisc = addInCustomTiles(newActionList, userCustomTiles);
   const usersBoard = buildBoard(listWithMisc, settings, size - 2);
 
