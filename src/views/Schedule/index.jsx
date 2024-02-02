@@ -66,6 +66,7 @@ export default function Schedule({ open, close, isMobile }) {
         fullScreen={isMobile}
         open={open}
         onClose={close}
+        maxWidth="md"
       >
         <form onSubmit={scheduleEvent}>
           <DialogTitle>
