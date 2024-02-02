@@ -23,10 +23,10 @@ export default function ScheduleItem({ game }) {
         <Grid item xs={7}>
           <Typography variant='body2'>
             {game.dateTime.toDate().toLocaleString([], {
-              year: 'numeric',
-              month: 'numeric',
+              weekday: 'short',
+              month: 'short',
               day: 'numeric',
-              hour: '2-digit',
+              hour: 'numeric',
               minute: '2-digit',
             })}
           </Typography>

@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
@@ -94,13 +93,12 @@ export default function Schedule({ open, close, isMobile }) {
                 sx={{ width: '100%' }}
               />
             </Box>
-            <Box>
+            <Box sx={{ mb: 2 }}>
               <TextField label={t('camUrl')} variant="outlined" name="link" fullWidth />
             </Box>
+          
+            <Button variant="contained" type="submit" fullWidth><Trans i18nKey="schedule" /></Button>
           </DialogContent>
-          <DialogActions>
-            <Button variant="contained" type="submit"><Trans i18nKey="schedule" /></Button>
-          </DialogActions>
         </form>
       </Dialog>
       <ToastAlert open={!!alert} setOpen={setAlert} close={handleCloseAlert}>
