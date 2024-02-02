@@ -19,6 +19,7 @@ import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import './App.css';
 import { MessagesProvider } from 'context/messages';
 import { UserListProvider } from 'context/userList';
+import { ScheduleProvider } from 'context/schedule';
 
 let darkTheme = createTheme({
   palette: {
@@ -29,11 +30,13 @@ darkTheme = responsiveFontSizes(darkTheme);
 
 function Providers({ children }) {
   return (
-    <UserListProvider>
-      <MessagesProvider>
-        {children}
-      </MessagesProvider>
-    </UserListProvider>
+    <ScheduleProvider>
+      <UserListProvider>
+        <MessagesProvider>
+          {children}
+        </MessagesProvider>
+      </UserListProvider>
+    </ScheduleProvider>
   );
 }
 

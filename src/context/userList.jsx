@@ -6,7 +6,7 @@ const UserListContext = createContext();
 
 function UserListProvider(props) {
   const { id: room } = useParams();
-  const [onlineUsers, setOnlineUsers] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState({});
 
   useEffect(() => {
     getUserList(room, (newUsers) => setOnlineUsers(newUsers), onlineUsers);

@@ -33,7 +33,6 @@ export default function Cast() {
 
   const { isVideo, url } = usePrivateRoomBackground(messages);
 
-  console.log(messages);
   const lastAction = latestMessageByType(messages, ACTION_TYPE) || {};
   const nextPlayer = useTurnIndicator(room, lastAction);
 

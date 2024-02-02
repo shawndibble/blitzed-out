@@ -14,20 +14,16 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import CloseIcon from 'components/CloseIcon';
 import ToastAlert from 'components/ToastAlert';
 import dayjs from 'dayjs';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { addSchedule, getSchedule } from 'services/firebase';
+import useSchedule from 'context/hooks/useSchedule';
 import ScheduleItem from './ScheduleItem';
 
 export default function Schedule({ open, close, isMobile }) {
   const { t } = useTranslation();
   const [alert, setAlert] = useState('');
-  const [schedule, setSchedule] = useState([]);
+  const { schedule, addToSchedule } = useSchedule();
   const twoWeeksFromNow = dayjs().add(2, 'week');
-
-  useEffect(() => {
-    getSchedule(setSchedule);
-  }, []);
 
   const handleCloseAlert = useCallback(() => {
     setAlert(null);
@@ -48,7 +44,7 @@ export default function Schedule({ open, close, isMobile }) {
       return;
     }
 
-    if (schedule.find((s) => s.dateTime === dateTime.toUTCString())) {
+    if (schedule.find((s) => s.dateTime.toDate().toUTCString() === dateTime.toUTCString())) {
       setAlert('A game is already scheduled for this date and time');
       return;
     }
@@ -62,7 +58,7 @@ export default function Schedule({ open, close, isMobile }) {
       setAlert('Please enter a valid URL');
     }
 
-    addSchedule(dateTime, url);
+    addToSchedule(dateTime, url);
   }, [schedule]);
 
   return (
@@ -91,6 +87,7 @@ export default function Schedule({ open, close, isMobile }) {
               <DateTimePicker
                 name="date-time"
                 label={t('dateTime')}
+                closeOnSelect={false}
                 disablePast
                 maxDate={twoWeeksFromNow}
                 timeSteps={{ minutes: 30 }}

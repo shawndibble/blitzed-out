@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from 'react';
+import { CalendarMonth } from '@mui/icons-material';
 import {
   AppBar,
   Badge,
@@ -8,23 +8,19 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { Trans, useTranslation } from 'react-i18next';
+import useSchedule from 'context/hooks/useSchedule';
 import Logo from 'images/blitzed-out.png';
-import './styles.css';
-import { CalendarMonth } from '@mui/icons-material';
-import { getSchedule } from 'services/firebase';
-import PlayersOnline from './PlayersOnline';
+import { forwardRef, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import MenuDrawer from './MenuDrawer';
+import PlayersOnline from './PlayersOnline';
+import './styles.css';
 
 export default function Navigation({ room, playerList = [] }) {
   const { t } = useTranslation();
-  const [events, setEvents] = useState(null);
   const [openSchedule, setOpenSchedule] = useState(false);
   const [seen, setSeen] = useState(false);
-
-  useEffect(() => {
-    getSchedule(setEvents);
-  }, []);
+  const {schedule} = useSchedule();
 
   const handleScheduleClick = () => {
     setOpenSchedule(true);
@@ -68,7 +64,7 @@ export default function Navigation({ room, playerList = [] }) {
             <Tooltip title={playersOnlineTooltip}>
               <WrapPlayersOnline playerList={playerList} />
             </Tooltip>
-            {!!events && (
+            {!!schedule && (
               <IconButton
                 onClick={handleScheduleClick}
                 aria-label='schedule game'
@@ -76,7 +72,7 @@ export default function Navigation({ room, playerList = [] }) {
               >
                 <Badge
                   color='primary'
-                  badgeContent={!seen ? events.length : null}
+                  badgeContent={!seen ? schedule.length : null}
                 >
                   <CalendarMonth />
                 </Badge>
