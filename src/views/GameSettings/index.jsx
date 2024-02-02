@@ -44,7 +44,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     finishRange: [30, 70],
     roomTileCount: 40,
     roomDice: '1d6',
-    poppers: 2,
+    bating: 1,
     poppersVariation: 'standalone',
     alcoholVariation: 'standalone',
   });
