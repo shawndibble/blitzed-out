@@ -95,7 +95,6 @@ export default function sendGameSettingsMessage({
   customTiles = {},
   reason = '',
 }) {
-  console.log('sendGameSettingsMessage');
   return sendMessage({
     room: formData?.room || 'PUBLIC',
     user,
