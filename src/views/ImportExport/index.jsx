@@ -10,7 +10,7 @@ import {
 import CloseIcon from 'components/CloseIcon';
 import CopyToClipboard from 'components/CopyToClipboard';
 import ToastAlert from 'components/ToastAlert';
-import useAuth from 'hooks/useAuth';
+import useAuth from 'context/hooks/useAuth';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';

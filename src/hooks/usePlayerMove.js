@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sendMessage } from 'services/firebase';
-import useAuth from './useAuth';
+import useAuth from 'context/hooks/useAuth';
 import usePlayerList from './usePlayerList';
 
 function parseDescription(text) {

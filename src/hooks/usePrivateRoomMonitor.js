@@ -1,8 +1,8 @@
 import latestMessageByType from 'helpers/messages';
-import useAuth from 'hooks/useAuth';
+import useAuth from 'context/hooks/useAuth';
 import useGameBoard from 'hooks/useGameBoard';
 import useLocalStorage from 'hooks/useLocalStorage';
-import useMessages from 'hooks/useMessages';
+import useMessages from 'context/hooks/useMessages';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from 'services/gameSettingsMessage';

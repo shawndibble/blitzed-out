@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import useAuth from 'hooks/useAuth';
+import useAuth from 'context/hooks/useAuth';
 import {
   Navigate,
   Route,
@@ -18,6 +18,7 @@ import Room from 'views/Room';
 import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import './App.css';
 import { MessagesProvider } from 'context/messages';
+import { UserListProvider } from 'context/userList';
 
 let darkTheme = createTheme({
   palette: {
@@ -25,6 +26,16 @@ let darkTheme = createTheme({
   },
 });
 darkTheme = responsiveFontSizes(darkTheme);
+
+function Providers({ children }) {
+  return (
+    <UserListProvider>
+      <MessagesProvider>
+        {children}
+      </MessagesProvider>
+    </UserListProvider>
+  );
+}
 
 function App() {
   const { user } = useAuth();
@@ -45,14 +56,14 @@ function App() {
             <Route
               path='/rooms/:id/cast'
               element={
-                <MessagesProvider>
+                <Providers>
                   <Cast />
-                </MessagesProvider>
+                </Providers>
               }
             />
             <Route
               path='/rooms/:id'
-              element={<MessagesProvider>{room}</MessagesProvider>}
+              element={<Providers>{room}</Providers>}
             />
           </Routes>
         </Router>

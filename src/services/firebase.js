@@ -112,7 +112,7 @@ export function setMyPresence({
   });
 }
 
-export function getUserList(roomId, callback, existingData) {
+export function getUserList(roomId, callback, existingData = {}) {
   console.log('getUserList');
   const database = getDatabase();
   const roomRef = ref(database, `rooms/${roomId?.toUpperCase()}/uids`);
@@ -124,7 +124,7 @@ export function getUserList(roomId, callback, existingData) {
     // to prevent an endless loop, see if our new data matches the existing stuff.
     // can't compare two arrays directly, but we can compare two strings.
     const dataString = Object.keys(data).sort().join(',');
-    const existingString = Object.keys(existingData).sort().join(',');
+    const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
     if (dataString !== existingString) callback(data);
   });
 }

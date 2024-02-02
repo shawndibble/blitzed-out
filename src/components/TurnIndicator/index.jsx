@@ -1,7 +1,7 @@
 import ToastAlert from 'components/ToastAlert';
 import latestMessageByType, { latestMessage } from 'helpers/messages';
 import useLocalStorage from 'hooks/useLocalStorage';
-import useMessages from 'hooks/useMessages';
+import useMessages from 'context/hooks/useMessages';
 import useTurnIndicator from 'hooks/useTurnIndicator';
 import { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';

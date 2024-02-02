@@ -1,11 +1,9 @@
 import { t } from 'i18next';
-import {
-  useCallback, useEffect, useMemo, useState,
-} from 'react';
-import { getUserList } from 'services/firebase';
+import { useMemo } from 'react';
 import { orderedMessagesByType } from 'helpers/messages';
-import useAuth from './useAuth';
-import useMessages from './useMessages';
+import useAuth from 'context/hooks/useAuth';
+import useMessages from 'context/hooks/useMessages';
+import useUserList from 'context/hooks/useUserList';
 
 function filteredGameMessages(messages) {
   const filteredMessages = orderedMessagesByType(messages, 'actions', 'DESC');
@@ -15,8 +13,10 @@ function filteredGameMessages(messages) {
 // see if the realtime db connection is recent.
 function isRecentlyConnected(userObj) {
   const FIVE_MINUTES = 5 * 60 * 1000;
-  const mostRecentEntry = Object.values(userObj).sort((a, b) => b.lastActive - a.lastActive)[0];
-  return (Date.now() - mostRecentEntry.lastActive) < FIVE_MINUTES;
+  const mostRecentEntry = Object.values(userObj).sort(
+    (a, b) => b.lastActive - a.lastActive
+  )[0];
+  return Date.now() - mostRecentEntry.lastActive < FIVE_MINUTES;
 }
 
 // Check if the user sent a message recently.
@@ -24,12 +24,13 @@ function isRecentlyActive(messages, onlineUid) {
   const TEN_MINUTES = 10 * 60 * 1000;
   const lastActivity = messages
     .sort((a, b) => b.timestamp - a.timestamp)
-    .find((m) => m.uid === onlineUid)?.timestamp.toMillis();
-  return (Date.now() - lastActivity) < TEN_MINUTES;
+    .find((m) => m.uid === onlineUid)
+    ?.timestamp.toMillis();
+  return Date.now() - lastActivity < TEN_MINUTES;
 }
 
 function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
-  if (isLoading) return [];
+  if (isLoading || !onlineUsers) return [];
   const uniqueGameActions = filteredGameMessages(messages);
 
   return Object.entries(onlineUsers)
@@ -41,17 +42,29 @@ function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
       // * Check if the user has done anything in the last 10 minutes.
       // * Check if the user is himself (should always list)
       const isSelf = onlineUid === user?.uid;
-      return isRecentlyConnected(data) || isRecentlyActive(messages, onlineUid) || isSelf;
+      return (
+        isRecentlyConnected(data) ||
+        isRecentlyActive(messages, onlineUid) ||
+        isSelf
+      );
     })
     .map(([onlineUid, data]) => {
-      const mostRecentEntry = Object.values(data).sort((a, b) => b.lastActive - a.lastActive)[0];
+      const mostRecentEntry = Object.values(data).sort(
+        (a, b) => b.lastActive - a.lastActive
+      )[0];
       const { displayName } = mostRecentEntry;
 
-      const userGameMessage = uniqueGameActions.find((message) => message.uid === onlineUid)?.text;
-      const currentLocation = userGameMessage && userGameMessage.match(/(?:#)[\d]*(?=:)/gs)
-        ? Number(userGameMessage.match(/(?:#)[\d]*(?=:)/gs)[0].replace('#', ''))
-        : 0;
-      const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
+      const userGameMessage = uniqueGameActions.find(
+        (message) => message.uid === onlineUid
+      )?.text;
+      const currentLocation =
+        userGameMessage && userGameMessage.match(/(?:#)[\d]*(?=:)/gs)
+          ? Number(
+            userGameMessage.match(/(?:#)[\d]*(?=:)/gs)[0].replace('#', '')
+          )
+          : 0;
+      const location =
+        currentLocation > 0 ? currentLocation - 1 : currentLocation;
       const isFinished = userGameMessage?.includes(t('finish'));
 
       return {
@@ -64,24 +77,14 @@ function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
     });
 }
 
-export default function usePlayerList(roomId) {
+export default function usePlayerList() {
   const { user } = useAuth();
-  const { messages, isLoading } = useMessages(roomId);
-
-  const [onlineUsers, setOnlineUsers] = useState({});
-
-  const getUserListCallback = useCallback(
-    () => getUserList(roomId, setOnlineUsers, onlineUsers),
-    [roomId, onlineUsers],
-  );
-
-  useEffect(() => {
-    getUserListCallback();
-  }, [getUserListCallback]);
+  const { messages, isLoading } = useMessages();
+  const { onlineUsers } = useUserList();
 
   const players = useMemo(
     () => getCurrentPlayers(onlineUsers, user, [...messages], isLoading),
-    [onlineUsers, user, messages, isLoading],
+    [onlineUsers, user, messages, isLoading]
   );
 
   return players;

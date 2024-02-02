@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import useAuth from 'hooks/useAuth';
+import useAuth from 'context/hooks/useAuth';
 import { sendMessage } from 'services/firebase';
 import './styles.css';
 import { Trans, useTranslation } from 'react-i18next';

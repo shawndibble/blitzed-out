@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { sendMessage } from 'services/firebase';
 import { useCallback } from 'react';
-import useAuth from './useAuth';
+import useAuth from 'context/hooks/useAuth';
 
 export default function useReturnToStart() {
   const { t } = useTranslation();

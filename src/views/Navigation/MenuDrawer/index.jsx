@@ -19,7 +19,7 @@ import {
   SvgIcon,
 } from '@mui/material';
 import CloseIcon from 'components/CloseIcon';
-import useAuth from 'hooks/useAuth';
+import useAuth from 'context/hooks/useAuth';
 import useBreakpoint from 'hooks/useBreakpoint';
 import { useEffect, useMemo, useState } from 'react';
 import { Trans } from 'react-i18next';

@@ -6,8 +6,8 @@ import moment from 'moment';
 import useSound from 'use-sound';
 import speak from 'services/textToSpeech';
 import { extractAction } from 'helpers/strings';
-import useAuth from 'hooks/useAuth';
-import useMessages from 'hooks/useMessages';
+import useAuth from 'context/hooks/useAuth';
+import useMessages from 'context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 
 export default function useSoundAndDialog(room) {

@@ -1,7 +1,7 @@
 import React from 'react';
-import { MessagesContext } from '../context/messages';
+import { MessagesContext } from '../messages';
 
-export default function useAuth() {
+export default function useMessages() {
   const value = React.useContext(MessagesContext);
 
   if (!value) {

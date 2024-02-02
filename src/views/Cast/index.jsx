@@ -1,7 +1,7 @@
 import { Box, Divider, Grid, Typography } from '@mui/material';
 import ToastAlert from 'components/ToastAlert';
 import latestMessageByType from 'helpers/messages';
-import useMessages from 'hooks/useMessages';
+import useMessages from 'context/hooks/useMessages';
 import usePrivateRoomBackground from 'hooks/usePrivateRoomBackground';
 import useTurnIndicator from 'hooks/useTurnIndicator';
 import { t } from 'i18next';

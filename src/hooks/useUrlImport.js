@@ -1,5 +1,5 @@
 import useLocalStorage from 'hooks/useLocalStorage';
-import useMessages from 'hooks/useMessages';
+import useMessages from 'context/hooks/useMessages';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { setMyPresence } from 'services/firebase';
-import useAuth from './useAuth';
+import useAuth from 'context/hooks/useAuth';
 
 export default function usePresence(roomId) {
-  const { user: { displayName } } = useAuth();
+  const {
+    user: { displayName },
+  } = useAuth();
 
   const [currentRoom, setCurrentRoom] = useState(null);
   const [currentDisplayName, setCurrentDisplayName] = useState(displayName);
