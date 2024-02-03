@@ -47,6 +47,7 @@
   "dom": "Dominant",
   "difficulty": "Difficulty Curve",
   "difficultyHint": "How fast we ramp up to the higher activity options",
+  "difficultyTooltip": "<0>Normal: Gradually increase to your highest chosen option. <br /><br />Accelerated: Jump directly to your maximum chosen option + 1 level below. </0>",
   "normal": "Normal",
   "accelerated": "Accelerated",
   "finishSlider": "Finish options:",

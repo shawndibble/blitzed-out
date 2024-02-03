@@ -1,14 +1,18 @@
+import { Help } from '@mui/icons-material';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { forwardRef } from 'react';
 import { Trans } from 'react-i18next';
 
-export default function SettingsSelect({
+const SettingsSelect = forwardRef(({
   value,
   onChange,
   label,
   options,
   defaultValue = null,
   sx,
-}) {
+  helpIcon = false,
+  ...rest
+}, ref) => {
   const items = options.map((option) => (
     <MenuItem key={option} value={option}>
       <Trans i18nKey={option} />
@@ -16,14 +20,20 @@ export default function SettingsSelect({
   ));
 
   return (
-    <FormControl fullWidth margin='normal' sx={sx}>
+    <FormControl fullWidth margin='normal' sx={sx} {...rest} ref={ref}>
       <InputLabel id={`${label}Label`}>
         <Trans i18nKey={label} />
+        {!!helpIcon && <Help sx={{ ml: 1, fontSize: 16 }} />}
       </InputLabel>
       <Select
         labelId={`${label}Label`}
         id={label}
-        label={<Trans i18nKey={label} />}
+        label={
+          <>
+            <Trans i18nKey={label} />
+            {!!helpIcon && <Help sx={{ ml: 1, fontSize: 16 }} />}
+          </>
+        }
         value={value || defaultValue}
         onChange={onChange}
       >
@@ -31,4 +41,6 @@ export default function SettingsSelect({
       </Select>
     </FormControl>
   );
-}
+});
+
+export default SettingsSelect;

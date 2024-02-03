@@ -1,7 +1,8 @@
-import { Divider, Grid } from '@mui/material';
+import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import useBreakpoint from 'hooks/useBreakpoint';
 import GridItem from 'components/GridItem';
 import SettingsSelect from 'components/SettingsSelect';
+import { Trans } from 'react-i18next';
 import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
 import SoloSwitch from './SoloSwitch';
@@ -92,20 +93,35 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
 
       <Grid container columnSpacing={2} justifyContent='space-evenly'>
         {settingSelectLists}
+
         <GridItem>
-          <SettingsSelect
-            value={formData.difficulty}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                difficulty: event.target.value,
-                boardUpdated: true,
-              })
+          <Tooltip
+            placement='top'
+            title={
+              <Trans i18nKey='difficultyTooltip'>
+                <Typography variant="body2">
+                Normal = Slow ramp up. <br /><br />
+                Accelerated = Straight to max level + the level prior to it.
+                </Typography>
+              </Trans>
             }
-            label='difficulty'
-            options={['normal', 'accelerated']}
-            defaultValue='normal'
-          />
+            arrow
+          >
+            <SettingsSelect
+              value={formData.difficulty}
+              onChange={(event) =>
+                setFormData({
+                  ...formData,
+                  difficulty: event.target.value,
+                  boardUpdated: true,
+                })
+              }
+              label='difficulty'
+              options={['normal', 'accelerated']}
+              defaultValue='normal'
+              helpIcon
+            />
+          </Tooltip>
         </GridItem>
       </Grid>
 
