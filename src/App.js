@@ -68,7 +68,7 @@ function App() {
               path='/:id'
               element={<Providers>{room}</Providers>}
             />
-            <Route path='/rooms/:id' element={<Navigate to={`/${room}`} replace />}/>
+            <Route path='/rooms/:id' element={<Providers>{room}</Providers>} />
           </Routes>
         </Router>
       </LocalizationProvider>
