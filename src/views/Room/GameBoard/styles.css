@@ -16,8 +16,8 @@
   --height: 6rem;
   position: relative;
   display: block;
-  background-color: hsl(calc(var(--hue)*360/20), 90%, 25%);
-  border-color: hsl(calc(var(--hue)*360/20), 90%, 25%);
+  background-color: hsl(calc(var(--hue)*360/10), 90%, 30%);
+  border-color: hsl(calc(var(--hue)*360/10), 90%, 30%);
   padding: 0.75rem;
   margin: 2rem 1rem;
   border-radius: 0.2rem;
@@ -62,84 +62,48 @@
   content: none;
 }
 
-.gameboard li:nth-child(20n+1) {
-  --hue: 1;
+.gameboard .hue0 {
+  --hue: 0;
 }
 
-.gameboard li:nth-child(20n+2) {
-  --hue: 2;
-}
-
-.gameboard li:nth-child(20n+3) {
+.gameboard .hue1 {
   --hue: 3;
 }
 
-.gameboard li:nth-child(20n+4) {
-  --hue: 4;
-}
-
-.gameboard li:nth-child(20n+5) {
-  --hue: 5;
-}
-
-.gameboard li:nth-child(20n+6) {
+.gameboard .hue2 {
   --hue: 6;
 }
 
-.gameboard li:nth-child(20n+7) {
-  --hue: 7;
-}
-
-.gameboard li:nth-child(20n+8) {
-  --hue: 8;
-}
-
-.gameboard li:nth-child(20n+9) {
+.gameboard .hue3 {
   --hue: 9;
 }
 
-.gameboard li:nth-child(20n+10) {
+.gameboard .hue4 {
+  --hue: 2;
+}
+
+.gameboard .hue5 {
+  --hue: 5;
+}
+
+.gameboard .hue6 {
+  --hue: 8;
+}
+
+.gameboard .hue7 {
+  --hue: 1;
+}
+
+.gameboard .hue8 {
+  --hue: 4;
+}
+
+.gameboard .hue9 {
+  --hue: 7;
+}
+
+.gameboard .hue10 {
   --hue: 10;
-}
-
-.gameboard li:nth-child(20n+11) {
-  --hue: 11;
-}
-
-.gameboard li:nth-child(20n+12) {
-  --hue: 12;
-}
-
-.gameboard li:nth-child(20n+13) {
-  --hue: 13;
-}
-
-.gameboard li:nth-child(20n+14) {
-  --hue: 14;
-}
-
-.gameboard li:nth-child(20n+15) {
-  --hue: 15;
-}
-
-.gameboard li:nth-child(20n+16) {
-  --hue: 16;
-}
-
-.gameboard li:nth-child(20n+17) {
-  --hue: 17;
-}
-
-.gameboard li:nth-child(20n+18) {
-  --hue: 18;
-}
-
-.gameboard li:nth-child(20n+19) {
-  --hue: 19;
-}
-
-.gameboard li:nth-child(20n+20) {
-  --hue: 20;
 }
 
 @media (min-width: 820px) and (max-width: 1019px) {

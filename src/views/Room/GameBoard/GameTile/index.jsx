@@ -10,6 +10,7 @@ export default function GameTile({
   players,
   current,
   isTransparent,
+  className,
 }) {
   const playerIndicators = useMemo(
     () =>
@@ -26,7 +27,7 @@ export default function GameTile({
     }
   }, [current]);
 
-  const liClass = [current && 'pulse-animation', isTransparent && 'gray-tiles']
+  const liClass = [current && 'pulse-animation', isTransparent && 'gray-tiles', className]
     .join(' ')
     .trim();
 
