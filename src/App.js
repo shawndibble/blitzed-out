@@ -54,10 +54,10 @@ function App() {
             <Route
               exact
               path='/'
-              element={<Navigate replace to='/rooms/public' />}
+              element={<Navigate replace to='/public' />}
             />
             <Route
-              path='/rooms/:id/cast'
+              path='/:id/cast'
               element={
                 <Providers>
                   <Cast />
@@ -65,9 +65,10 @@ function App() {
               }
             />
             <Route
-              path='/rooms/:id'
+              path='/:id'
               element={<Providers>{room}</Providers>}
             />
+            <Route path='/rooms/:id' element={<Navigate to='/:id' replace />}/>
           </Routes>
         </Router>
       </LocalizationProvider>

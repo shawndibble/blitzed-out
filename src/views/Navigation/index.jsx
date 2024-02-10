@@ -4,14 +4,17 @@ import {
   Badge,
   Box,
   IconButton,
+  Portal,
   Toolbar,
   Tooltip,
   Typography,
 } from '@mui/material';
 import useSchedule from 'context/hooks/useSchedule';
+import useBreakpoint from 'hooks/useBreakpoint';
 import Logo from 'images/blitzed-out.png';
 import { forwardRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import Schedule from 'views/Schedule';
 import MenuDrawer from './MenuDrawer';
 import PlayersOnline from './PlayersOnline';
 import './styles.css';
@@ -21,6 +24,7 @@ export default function Navigation({ room, playerList = [] }) {
   const [openSchedule, setOpenSchedule] = useState(false);
   const [seen, setSeen] = useState(false);
   const {schedule} = useSchedule();
+  const {isMobile} = useBreakpoint();
 
   const handleScheduleClick = () => {
     setOpenSchedule(true);
@@ -64,28 +68,32 @@ export default function Navigation({ room, playerList = [] }) {
             <Tooltip title={playersOnlineTooltip}>
               <WrapPlayersOnline playerList={playerList} />
             </Tooltip>
-            {!!schedule && (
-              <IconButton
-                onClick={handleScheduleClick}
-                aria-label='schedule game'
-                sx={{ ml: 2 }}
+            <IconButton
+              onClick={handleScheduleClick}
+              aria-label='schedule game'
+              sx={{ ml: 2 }}
+            >
+              <Badge
+                color='primary'
+                badgeContent={!seen ? schedule.length : null}
               >
-                <Badge
-                  color='primary'
-                  badgeContent={!seen ? schedule.length : null}
-                >
-                  <CalendarMonth />
-                </Badge>
-              </IconButton>
+                <CalendarMonth />
+              </Badge>
+            </IconButton>
+            {openSchedule && (
+              <Portal>
+                <Schedule
+                  open={openSchedule}
+                  close={() => setOpenSchedule(false)}
+                  isMobile={isMobile}
+                />
+              </Portal>
             )}
           </div>
         </div>
 
         <div className='menu-drawer'>
-          <MenuDrawer
-            openSchedule={openSchedule}
-            setCloseSchedule={setOpenSchedule}
-          />
+          <MenuDrawer />
         </div>
       </Toolbar>
     </AppBar>
