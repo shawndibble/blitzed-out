@@ -12,6 +12,7 @@ import {
   Route,
   BrowserRouter as Router,
   Routes,
+  useParams,
 } from 'react-router-dom';
 import Cast from 'views/Cast';
 import Room from 'views/Room';
@@ -38,6 +39,12 @@ function Providers({ children }) {
       </UserListProvider>
     </ScheduleProvider>
   );
+}
+
+// Code to handle old room URLs. Delete after 04/01/2024.
+function OldRedirect() {
+  const { id } = useParams();
+  return <Navigate replace to={`/${id}`} />;
 }
 
 function App() {
@@ -68,7 +75,7 @@ function App() {
               path='/:id'
               element={<Providers>{room}</Providers>}
             />
-            <Route path='/rooms/:id' element={<Providers>{room}</Providers>} />
+            <Route path='/rooms/:id' element={<OldRedirect />} />
           </Routes>
         </Router>
       </LocalizationProvider>
