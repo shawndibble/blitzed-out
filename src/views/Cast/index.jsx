@@ -52,26 +52,38 @@ export default function Cast() {
   return (
     <Box className='text-stroke flex-column'>
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
-      {!!nextPlayer?.displayName && (
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant='h5'>
-            <Trans
-              i18nKey='nextPlayersTurn'
-              values={{ player: nextPlayer.displayName }}
-            />
-          </Typography>
+      <Box display="flex" justifyContent="space-between" sx={{ mx: 2, mt: 2, mb: -2 }}>
+        <Box flex="1" />
+        
+        <Box textAlign="center" flex="1">
+          {!!nextPlayer?.displayName && (
+            <Typography variant='h5'>
+              <Trans
+                i18nKey='nextPlayersTurn'
+                values={{ player: nextPlayer.displayName }}
+              />
+            </Typography>
+          )}
         </Box>
-      )}
-      {!!activity && (
-        <Grid
-          container
-          spacing={0}
-          direction='column'
-          alignItems='center'
-          justifyContent='center'
-          className='cast-container'
-        >
-          <Grid item container justifyContent='center'>
+        
+        <Box flex="1" textAlign="right">
+          {activity && (
+            <Typography variant='h5'>blitzedout.com/{room}</Typography>
+          )}
+        </Box>
+        
+      </Box>
+      
+      <Grid
+        container
+        spacing={0}
+        direction='column'
+        alignItems='center'
+        justifyContent='center'
+        className='cast-container'
+      >
+        <Grid item container justifyContent='center'>
+          {activity ? (
             <Grid item xl={8} lg={10} md={10} className='action-box'>
               <Typography variant='h3'>
                 {`${type} ${t('for')} ${displayName}`}
@@ -81,9 +93,14 @@ export default function Cast() {
               </Box>
               <Typography variant='h1'>{activity}</Typography>
             </Grid>
-          </Grid>
+          ) : (
+            <div className='action-box'>
+              <Typography variant='h1'>blitzedout.com/{room}</Typography>
+            </div>
+          )}
         </Grid>
-      )}
+      </Grid>
+      
       <ToastAlert
         open={!!openAlert}
         setOpen={setOpenAlert}
