@@ -1,0 +1,61 @@
+{
+  "label": "Juego de pies",
+  "type": "foreplay",
+  "actions": {
+    "Ninguno": [],
+    "Beso": {
+      "sub": [
+        "Besa la parte superior de los pies de otro jugador durante 30 segundos.",
+        "Besa la planta de los pies de otro jugador durante 30 segundos.",
+        "Besa cada uno de los dedos de los pies de otro jugador durante 15 segundos.",
+        "Besa los arcos de los pies de otro jugador durante 30 segundos.",
+        "Besa los talones de los pies de otro jugador durante 30 segundos.",
+        "Besar los tobillos de los pies de otro jugador durante 30 segundos."
+      ],
+      "dom": [
+        "Pide a alguien que te bese la parte superior de los pies durante 30 segundos.",
+        "Pídele a alguien que te bese la planta de los pies durante 30 segundos.",
+        "Asigna a alguien a cada uno de tus dedos de los pies durante 15 segundos.",
+        "Pídele a alguien que te bese los arcos de los pies durante 30 segundos.",
+        "Pídele a alguien que te bese los talones de los pies durante 30 segundos.",
+        "Pídele a alguien que te bese los tobillos de los pies durante 30 segundos."
+      ]
+    },
+    "Chupar": {
+      "sub": [
+        "Chupa los dedos de los pies de otro jugador durante 30 segundos.",
+        "Lame los arcos de los pies de otro jugador durante 30 segundos.",
+        "Chupa los talones de los pies de otro jugador durante 30 segundos.",
+        "Chupa los tobillos de los pies de otro jugador durante 30 segundos.",
+        "Chupa las plantas de los pies de otro jugador durante 30 segundos.",
+        "Chupa las puntas de los dedos de los pies de otro jugador durante 15 segundos."
+      ],
+      "dom": [
+        "Asigna a alguien que esté alerta durante 30 segundos.",
+        "Pídele a alguien que te lama los arcos de los pies durante 30 segundos.",
+        "Pídele a alguien que te chupe los talones de los pies durante 30 segundos.",
+        "Pídele a alguien que te chupe los tobillos durante 30 segundos.",
+        "Pídele a alguien que te chupe las plantas de los pies durante 30 segundos.",
+        "Pídele a alguien que te chupe la punta de los dedos de los pies durante 15 segundos."
+      ]
+    },
+    "Culto": {
+      "sub": [
+        "Adora los pies de otro jugador durante 60 segundos (1 m)",
+        "Dale a otro jugador un masaje en los pies durante 120 segundos (2m)",
+        "Besar y lamer las plantas de los pies de otro jugador durante 60 segundos (1m)",
+        "Chupa los dedos de los pies de otro jugador mientras le masajeas los pies durante 120 segundos (2 m)",
+        "Masajea los pies de otro jugador con aceite/loción durante 120 segundos (2 m)",
+        "Usa tus manos y boca para adorar los pies de otro jugador durante 180 segundos (3 m)."
+      ],
+      "dom": [
+        "Asigna a alguien para que adore tus pies durante 60 segundos (1 m)",
+        "Pide a alguien que te dé un masaje en los pies durante 120 segundos (2m).",
+        "Pídele a alguien que te bese y lama las plantas de los pies durante 60 segundos (1 m)",
+        "Pide a alguien que te chupe los dedos de los pies mientras te masajea los pies durante 120 segundos (2 m)",
+        "Pídele a alguien que te masajee los pies con aceite/loción durante 120 segundos (2 m)",
+        "Pídele a alguien que use sus manos y su boca para adorar tus pies durante 180 segundos (3 m)."
+      ]
+    }
+  }
+}

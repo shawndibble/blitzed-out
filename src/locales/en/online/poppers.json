@@ -1,6 +1,7 @@
 {   
     "label": "Poppers",
-        "actions": {
+    "type": "consumption",
+    "actions": {
         "None": [],
         "Beginner": [
             "1 hit.",

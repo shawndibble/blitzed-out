@@ -13,11 +13,21 @@ const SettingsSelect = forwardRef(({
   helpIcon = false,
   ...rest
 }, ref) => {
-  const items = options.map((option) => (
-    <MenuItem key={option} value={option}>
-      <Trans i18nKey={option} />
-    </MenuItem>
-  ));
+  const items = options.map((option) => {
+    if (typeof option === 'string') {
+      return (
+        <MenuItem key={option} value={option}>
+          <Trans i18nKey={option} />
+        </MenuItem>
+      );
+    }
+    
+    return (
+      <MenuItem key={option.value} value={option.value}>
+        {option.label}
+      </MenuItem>
+    );
+  });
 
   return (
     <FormControl fullWidth margin='normal' sx={sx} {...rest} ref={ref}>

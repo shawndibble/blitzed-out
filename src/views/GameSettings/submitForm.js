@@ -4,7 +4,7 @@ import { sendMessage } from 'services/firebase';
 
 function hasSomethingPicked(object) {
   return Object.values(object).some((selection) =>
-    [1, 2, 3, 4].includes(selection)
+    selection > 0
   );
 }
 
@@ -69,14 +69,19 @@ export function validateFormData(gameOptions) {
     return 'pickSomething';
   }
 
-  const { poppers, alcohol, ...actionItems } = { ...gameOptions };
+  const { poppers, alcohol, vaping, ...actionItems } = { ...gameOptions };
 
   if (
     (isAppending(poppers, gameOptions.poppersVariation) ||
+      isAppending(vaping, gameOptions.vapingVariation) ||
       isAppending(alcohol, gameOptions.alcoholVariation)) &&
     !hasSomethingPicked(actionItems)
   ) {
     return 'appendWithAction';
+  }
+
+  if (gameOptions.room.toUpperCase() === 'PUBLIC' && gameOptions.gameMode === 'local') {
+    return 'privateRequired';
   }
 
   return null;

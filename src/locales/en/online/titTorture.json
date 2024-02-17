@@ -1,5 +1,6 @@
 {   
     "label": "Tit Torture",
+    "type": "solo",
     "actions": {
         "None": [],
         "Squeeze/Rub": [

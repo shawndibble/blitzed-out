@@ -1,0 +1,115 @@
+{
+  "label": "Tickling",
+  "type": "foreplay",
+  "actions": {
+    "None": [],
+    "Lumière": {
+      "sous": [
+        "Demandez à quelqu'un de se frotter légèrement le doigt dans une zone chatouilleuse.",
+        "Demandez à quelqu'un d'utiliser un objet pour vous chatouiller pendant 15 secondes.",
+        "Faites-vous effleurer légèrement les aisselles pendant 10 secondes.",
+        "Faites-vous légèrement gratter la plante des pieds.",
+        "Recevez de légers baisers ou coups sur une zone sensible pendant 15 secondes.",
+        "Demandez à quelqu'un de tracer 3 formes avec son doigt dans une zone sensible.",
+        "Demandez à quelqu'un de vous chatouiller légèrement pendant 10 secondes.",
+        "Gardez un visage impassible pendant que quelqu'un frotte légèrement une zone sensible pendant 10 secondes.",
+        "Demandez à quelqu'un de donner de légers bisous à 3 zones différentes pour voir si vous y êtes chatouilleux.",
+        "Demandez à quelqu'un de vous chatouiller le nombril pendant 15 secondes.",
+        "Demandez à quelqu'un un objet légèrement doux (comme une plume) sur votre cou.",
+        "Demandez à quelqu'un de vous chatouiller les lobes d'oreilles pendant 10 secondes.",
+        "Demandez à quelqu'un de tracer un cercle autour de votre nombril pendant 15 secondes."
+      ],
+      "dom": [
+        "Frottez légèrement votre doigt dans une zone chatouilleuse d'un autre joueur.",
+        "Utilisez un objet pour chatouiller un autre joueur pendant 15 secondes.",
+        "Effleurez légèrement les aisselles d'un autre joueur pendant 10 secondes.",
+        "Grattez légèrement la plante des pieds d'un autre joueur.",
+        "Donner de légers baisers ou coups sur une zone sensible d'un autre joueur pendant 15 secondes.",
+        "Tracez 3 formes avec votre doigt dans une zone sensible d'un autre joueur.",
+        "Chatouillez légèrement un autre joueur pendant 10 secondes.",
+        "Demandez à un autre joueur de garder un visage impassible pendant que vous frottez légèrement une zone sensible pendant 10 secondes.",
+        "Donnez de légers bisous à 3 zones différentes d'un autre joueur pour voir s'il y est chatouilleux.",
+        "Chatouillez le nombril d'un autre joueur pendant 15 secondes.",
+        "Objet légèrement mou (comme une plume) le cou d'un autre joueur.",
+        "Chatouillez les lobes des oreilles d'un autre joueur pendant 10 secondes.",
+        "Tracez un cercle autour du nombril d'un autre joueur pendant 15 secondes."
+      ]
+    },
+    "Normale": {
+      "sous": [
+        "Laissez-vous chatouiller pendant 30 secondes.",
+        "Laissez-vous piquer de manière ludique par tous les joueurs.",
+        "Demandez à quelqu'un d'utiliser un objet pour vous chatouiller pendant 30 secondes.",
+        "Fermez les yeux/les yeux bandés. Démarrez un chronomètre de 30 secondes. Faites-vous chatouiller en un seul endroit.",
+        "Demandez à un joueur d'embrasser/souffler une zone sensible.",
+        "Demandez à quelqu'un de trouver autant de zones chatouilleuses que possible en 15 secondes.",
+        "Gardez un visage impassible pendant que quelqu'un frotte légèrement une zone sensible pendant 30 secondes.",
+        "Demandez à quelqu'un de vous chatouiller les côtés pendant 30 secondes.",
+        "Demandez à quelqu'un de vous chatouiller l'arrière de vos genoux pendant 30 secondes.",
+        "Demandez à quelqu'un de vous chatouiller les pieds avec ses doigts pendant 30 secondes.",
+        "Demandez à quelqu'un de vous chatouiller les côtes pendant 30 secondes."
+      ],
+      "dom": [
+        "Chatouillez un autre joueur pendant 30 secondes.",
+        "Piquez un autre joueur de manière ludique.",
+        "Utilisez un objet pour chatouiller un autre joueur pendant 30 secondes.",
+        "Démarrez un chronomètre de 30 secondes et chatouillez un autre joueur au même endroit pendant qu'il a les yeux bandés.",
+        "Embrasser/souffler une zone sensible d'un autre joueur.",
+        "Trouvez autant de zones chatouilleuses que possible sur un autre joueur en 15 secondes.",
+        "Demandez à un autre joueur de garder un visage impassible pendant que vous frottez légèrement une zone sensible pendant 30 secondes.",
+        "Chatouillez les côtés d'un autre joueur pendant 30 secondes.",
+        "Chatouillez l'arrière des genoux d'un autre joueur pendant 30 secondes.",
+        "Chatouillez les pieds d'un autre joueur avec vos doigts pendant 30 secondes.",
+        "Chatouillez les côtes d'un autre joueur pendant 30 secondes."
+      ]
+    },
+    "Intense": {
+      "sous": [
+        "Donnez-vous une phrase pour arrêter. Soyez chatouillé par tout le monde jusqu'à ce que vous prononciez la phrase.",
+        "Demandez à un joueur de vous chatouiller environ pendant 45 secondes.",
+        "Demandez à quelqu'un de vous embrasser/sucer agressivement une zone chatouilleuse.",
+        "Faire frotter une zone chatouilleuse pendant 45 secondes.",
+        "Demandez à chaque joueur de vous chatouiller séparément pendant 20 secondes.",
+        "Demandez à quelqu'un de vous chatouiller les pieds avec un objet doux (comme une plume) pendant 45 secondes.",
+        "Demandez à quelqu'un de vous chatouiller les aisselles avec ses doigts pendant 45 secondes.",
+        "Demandez à quelqu'un de vous chatouiller le cou avec sa langue pendant 45 secondes.",
+        "Demandez à quelqu'un de vous chatouiller l'intérieur des cuisses pendant 45 secondes."
+      ],
+      "dom": [
+        "Donnez une phrase à un autre joueur pour qu'il s'arrête. Chatouillez-le jusqu'à ce qu'il prononce la phrase.",
+        "Chatouillez un autre joueur pendant environ 45 secondes.",
+        "Embrasser/sucer agressivement une zone chatouilleuse sur un autre joueur.",
+        "Frottez une zone chatouilleuse d'un autre joueur pendant 45 secondes.",
+        "Chatouillez un autre joueur pendant 20 secondes.",
+        "Chatouillez les pieds d'un autre joueur avec un objet mou (comme une plume) pendant 45 secondes.",
+        "Chatouillez les aisselles d'un autre joueur avec vos doigts pendant 45 secondes.",
+        "Chatouillez le cou d'un autre joueur avec votre langue pendant 45 secondes.",
+        "Chatouillez l'intérieur des cuisses d'un autre joueur pendant 45 secondes."
+      ]
+    },
+    "Surcharge sensorielle": {
+      "sous": [
+        "Laissez-vous chatouiller par tous les joueurs pendant 60 secondes.",
+        "Posez un aigle écarté (lié si nécessaire). Un autre joueur peut vous chatouiller comme bon lui semble pendant 60 secondes.",
+        "Fermez les yeux. Demandez à autant de mains/objets de vous chatouiller pendant 60 secondes.",
+        "Demandez à quelqu'un de vous chatouiller rapidement dans vos 3 zones les plus chatouilleuses pendant 60 secondes.",
+        "Donnez-vous une phrase pour arrêter. Soyez chatouillé par tout le monde jusqu'à ce que vous prononciez la phrase 3 fois.",
+        "Jusqu'à votre prochain tour, chaque joueur peut vous chatouiller à sa guise (minimum 15 secondes chacun).",
+        "Demandez à quelqu'un de vous chatouiller les pieds avec une brosse à dents électrique pendant 60 secondes.",
+        "Demandez à quelqu'un de vous chatouiller les aisselles avec un objet doux (comme une plume) pendant 60 secondes.",
+        "Demandez à quelqu'un de vous chatouiller le cou avec des glaçons pendant 60 secondes.",
+        "Demandez à quelqu'un de vous chatouiller avec plusieurs objets mous (comme une plume) à la fois pendant 60 secondes."
+      ],
+      "dom": [
+        "Chatouillez un autre joueur pendant 60 secondes.",
+        "Demandez à un autre joueur de poser l'aigle écarté (lié si nécessaire) et de le chatouiller comme bon vous semble pendant 60 secondes.",
+        "Fermez les yeux d'un autre joueur et demandez à autant de mains/objets que possible de le chatouiller pendant 60 secondes.",
+        "Chatouillez rapidement un autre joueur dans ses 3 zones les plus chatouilleuses pendant 60 secondes.",
+        "Donnez une phrase à un autre joueur pour qu'il s'arrête. Chatouillez-le jusqu'à ce qu'il prononce la phrase 3 fois.",
+        "Chatouillez un autre joueur comme vous le souhaitez (minimum 15 secondes chacun) jusqu'à son prochain tour.",
+        "Chatouillez les aisselles d'un autre joueur avec un objet mou (comme une plume) pendant 60 secondes.",
+        "Chatouillez un autre joueur avec plusieurs objets mous (comme une plume) à la fois pendant 60 secondes."
+      ]
+    }
+  }
+}

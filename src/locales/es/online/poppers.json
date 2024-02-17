@@ -1,5 +1,6 @@
 ﻿{   
     "label": "Poppers",
+    "type": "consumption",
     "actions": {
         "Ninguna": [],
         "Principiante": [

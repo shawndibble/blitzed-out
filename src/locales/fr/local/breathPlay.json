@@ -1,0 +1,57 @@
+{
+  "label": "Jeu de souffle",
+  "type": "foreplay",
+  "actions": {
+    "None": [],
+    "Lumière": {
+      "sous": [
+        "Demandez à quelqu'un de vous couvrir le nez et la bouche avec sa main pendant 10 secondes.",
+        "Demandez à quelqu'un de vous serrer légèrement la gorge pendant 10 secondes.",
+        "Demandez à quelqu'un de vous étouffer légèrement avec la main pendant 10 secondes.",
+        "Demandez à quelqu'un de tenir légèrement sa main sur votre bouche pendant 10 secondes.",
+        "Demandez à quelqu'un de vous serrer légèrement le cou avec ses doigts pendant 10 secondes."
+      ],
+      "dom": [
+        "Couvrez le nez et la bouche d'un autre joueur avec votre main pendant 10 secondes.",
+        "Pressez légèrement la gorge d'un autre joueur pendant 10 secondes.",
+        "Étouffez légèrement un autre joueur avec votre main pendant 10 secondes.",
+        "Maintenez votre main devant la bouche d'un autre joueur pendant 10 secondes.",
+        "Pressez le cou d'un autre joueur avec vos doigts pendant 10 secondes."
+      ]
+    },
+    "Normale": {
+      "sous": [
+        "Demandez à quelqu'un de vous couvrir le nez et la bouche avec sa main pendant 15 secondes.",
+        "Demandez à quelqu'un de vous serrer la gorge pendant 15 secondes.",
+        "Demandez à quelqu'un de vous étouffer avec la main pendant 15 secondes.",
+        "Demandez à quelqu'un de vous mettre la main sur la bouche pendant 15 secondes.",
+        "Demandez à quelqu'un de vous serrer le cou avec ses doigts pendant 15 secondes."
+      ],
+      "dom": [
+        "Couvrez le nez et la bouche d'un autre joueur avec votre main pendant 15 secondes.",
+        "Pressez la gorge d'un autre joueur pendant 15 secondes.",
+        "Étouffez un autre joueur avec votre main pendant 15 secondes.",
+        "Maintenez votre main devant la bouche d'un autre joueur pendant 15 secondes.",
+        "Pressez le cou d'un autre joueur avec vos doigts pendant 15 secondes."
+      ]
+    },
+    "Intense": {
+      "sous": [
+        "Demandez à quelqu'un de vous couvrir le nez et la bouche avec sa main pendant 30 secondes.",
+        "Demandez à quelqu'un de vous serrer la gorge pendant 30 secondes.",
+        "Demandez à quelqu'un de vous étouffer avec sa main pendant 30 secondes.",
+        "Demandez à quelqu'un de vous mettre la main sur la bouche pendant 30 secondes.",
+        "Demandez à quelqu'un de vous serrer le cou avec ses doigts pendant 30 secondes.",
+        "Demandez à quelqu'un d'utiliser un foulard ou une ceinture pour vous étouffer pendant 30 secondes."
+      ],
+      "dom": [
+        "Couvrez le nez et la bouche d'un autre joueur avec votre main pendant 30 secondes.",
+        "Pressez la gorge d'un autre joueur pendant 30 secondes.",
+        "Étouffez un autre joueur avec votre main pendant 30 secondes.",
+        "Maintenez votre main devant la bouche d'un autre joueur pendant 30 secondes.",
+        "Pressez le cou d'un autre joueur avec vos doigts pendant 30 secondes.",
+        "Utilisez un foulard ou une ceinture pour étouffer un autre joueur pendant 30 secondes."
+      ]
+    }
+  }
+}

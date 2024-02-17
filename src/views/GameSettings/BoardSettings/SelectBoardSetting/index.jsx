@@ -41,6 +41,21 @@ export default function SelectBoardSetting({
   if (showVariation) gridSize = 6;
   if (showRole) gridSize = 6;
 
+  let roleOptions = ['dom', 'vers', 'sub'];
+  if (actionsFolder[option]?.dom) {
+    roleOptions = [{
+      label: actionsFolder[option].dom,
+      value: 'dom'
+    },
+    {
+      label: t('vers'),
+      value: 'vers'
+    },{
+      label: actionsFolder[option].sub,
+      value: 'sub'
+    }];
+  }
+
   return (
     <Grid container key={option} justifyContent='center'>
       <Grid item xs={gridSize}>
@@ -64,7 +79,7 @@ export default function SelectBoardSetting({
             value={settings[`${option}role`]}
             onChange={(event) => handleChange(event, `${option}role`)}
             label={`${t('role')}: ${label}`}
-            options={['sub', 'vers', 'dom']}
+            options={roleOptions}
             defaultValue={settings.role || 'sub'}
           />
         </Grid>

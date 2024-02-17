@@ -1,0 +1,61 @@
+{
+  "label": "Jeu de pieds",
+  "type": "foreplay",
+  "actions": {
+    "Aucun": [],
+    "Baiser": {
+      "sous": [
+        "Embrasse le dessus des pieds d'un autre joueur pendant 30 secondes.",
+        "Embrasse la plante des pieds d'un autre joueur pendant 30 secondes.",
+        "Embrasse chacun des orteils d'un autre joueur pendant 15 secondes.",
+        "Embrasse la voûte plantaire d'un autre joueur pendant 30 secondes.",
+        "Embrasse les talons des pieds d'un autre joueur pendant 30 secondes.",
+        "Embrasse les chevilles des pieds d'un autre joueur pendant 30 secondes."
+      ],
+      "dom": [
+        "Demandez à quelqu'un d'embrasser le dessus de vos pieds pendant 30 secondes.",
+        "Demandez à quelqu'un d'embrasser la plante de vos pieds pendant 30 secondes.",
+        "Assignez quelqu'un à chacun de vos orteils pendant 15 secondes.",
+        "Demandez à quelqu'un d'embrasser la voûte plantaire pendant 30 secondes.",
+        "Demandez à quelqu'un d'embrasser vos talons pendant 30 secondes.",
+        "Demandez à quelqu'un d'embrasser vos chevilles pendant 30 secondes."
+      ]
+    },
+    "Sucer": {
+      "sous": [
+        "Sucer les orteils d'un autre joueur pendant 30 secondes.",
+        "Lèche la voûte plantaire d'un autre joueur pendant 30 secondes.",
+        "Suce les talons des pieds d'un autre joueur pendant 30 secondes.",
+        "Sucer les chevilles des pieds d'un autre joueur pendant 30 secondes.",
+        "Sucer la plante des pieds d'un autre joueur pendant 30 secondes.",
+        "Sucez le bout des orteils d'un autre joueur pendant 15 secondes."
+      ],
+      "dom": [
+        "Assignez quelqu'un sur vos gardes pendant 30 secondes.",
+        "Demandez à quelqu'un de vous lécher la voûte plantaire pendant 30 secondes.",
+        "Demandez à quelqu'un de vous sucer les talons pendant 30 secondes.",
+        "Demandez à quelqu'un de vous sucer les chevilles pendant 30 secondes.",
+        "Demandez à quelqu'un de vous sucer la plante des pieds pendant 30 secondes.",
+        "Demandez à quelqu'un de vous sucer le bout des orteils pendant 15 secondes."
+      ]
+    },
+    "Culte": {
+      "sous": [
+        "Adorez les pieds d'un autre joueur pendant 60 secondes (1 m).",
+        "Faites un massage des pieds à un autre joueur pendant 120 secondes (2 m).",
+        "Embrasser et lécher la plante des pieds d'un autre joueur pendant 60 secondes (1 m).",
+        "Sucez les orteils d'un autre joueur tout en lui massant les pieds pendant 120 secondes (2 m).",
+        "Masser les pieds d'un autre joueur avec de l'huile/lotion pendant 120 secondes (2 m).",
+        "Utilisez vos mains et votre bouche pour vénérer les pieds d'un autre joueur pendant 180 secondes (3 min)."
+      ],
+      "dom": [
+        "Demandez à quelqu'un d'adorer vos pieds pendant 60 secondes (1 m).",
+        "Désignez quelqu'un pour vous faire un massage des pieds pendant 120 secondes (2 m).",
+        "Demandez à quelqu'un d'embrasser et de lécher la plante de vos pieds pendant 60 secondes (1 m).",
+        "Demandez à quelqu'un de vous sucer les orteils tout en massant vos pieds pendant 120 secondes (2 m).",
+        "Demandez à quelqu'un de vous masser les pieds avec de l'huile/lotion pendant 120 secondes (2 min).",
+        "Demandez à quelqu'un d'utiliser ses mains et sa bouche pour adorer vos pieds pendant 180 secondes (3 minutes)."
+      ]
+    }
+  }
+}

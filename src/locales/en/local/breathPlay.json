@@ -1,0 +1,57 @@
+{
+  "label": "Breath Play",
+  "type": "foreplay",
+  "actions": {
+    "None": [],
+    "Light": {
+      "sub": [
+        "Have someone cover your nose and mouth with their hand for 10 seconds.",
+        "Have someone lightly squeeze your throat for 10 seconds.",
+        "Have someone lightly choke you with their hand for 10 seconds.",
+        "Have someone lightly hold their hand over your mouth for 10 seconds.",
+        "Have someone lightly squeeze your neck with their fingers for 10 seconds."
+      ],
+      "dom": [
+        "Cover another player's nose and mouth with your hand for 10 seconds.",
+        "Lightly squeeze another player's throat for 10 seconds.",
+        "Lightly choke another player with your hand for 10 seconds.",
+        "Hold your hand over another player's mouth for 10 seconds.",
+        "Squeeze another player's neck with your fingers for 10 seconds."
+      ]
+    },
+    "Normal": {
+      "sub": [
+        "Have someone cover your nose and mouth with their hand for 15 seconds.",
+        "Have someone squeeze your throat for 15 seconds.",
+        "Have someone choke you with their hand for 15 seconds.",
+        "Have someone hold their hand over your mouth for 15 seconds.",
+        "Have someone squeeze your neck with their fingers for 15 seconds."
+      ],
+      "dom": [
+        "Cover another player's nose and mouth with your hand for 15 seconds.",
+        "Squeeze another player's throat for 15 seconds.",
+        "Choke another player with your hand for 15 seconds.",
+        "Hold your hand over another player's mouth for 15 seconds.",
+        "Squeeze another player's neck with your fingers for 15 seconds."
+      ]
+    },
+    "Intense": {
+      "sub": [
+        "Have someone cover your nose and mouth with their hand for 30 seconds.",
+        "Have someone squeeze your throat for 30 seconds.",
+        "Have someone choke you with their hand for 30 seconds.",
+        "Have someone hold their hand over your mouth for 30 seconds.",
+        "Have someone squeeze your neck with their fingers for 30 seconds.",
+        "Have someone use a scarf or belt to choke you for 30 seconds."
+      ],
+      "dom": [
+        "Cover another player's nose and mouth with your hand for 30 seconds.",
+        "Squeeze another player's throat for 30 seconds.",
+        "Choke another player with your hand for 30 seconds.",
+        "Hold your hand over another player's mouth for 30 seconds.",
+        "Squeeze another player's neck with your fingers for 30 seconds.",
+        "Use a scarf or belt to choke another player for 30 seconds."
+      ]
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "label": "Baiser",
+  "type": "foreplay",
+  "actions": {
+    "Aucun": [],
+    "Doux baisers": {
+      "sous": [
+        "Recevez un baiser sur la joue d'un autre joueur.",
+        "Recevez un baiser sur le front d'un autre joueur.",
+        "Recevez un doux bisou sur les lèvres d'un autre joueur.",
+        "Recevez une série de légers baisers sur le visage d'un autre joueur.",
+        "Recevez un baiser dans le cou d'un autre joueur.",
+        "Embrasse la main d'un autre joueur.",
+        "Faites embrasser vos lobes d'oreilles.",
+        "Demandez à un autre joueur de vous embrasser sur le visage.",
+        "Enfourchez un autre joueur et embrassez-le sur les lèvres.",
+        "Recevez un doux baiser sur l'épaule d'un autre joueur.",
+        "Embrasse chaque joueur sur la joue avant ton prochain tour."
+      ],
+      "soleil": [
+        "Embrasse un autre joueur sur la joue.",
+        "Donne un bisou sur le front à un autre joueur.",
+        "Donnez un léger bisou à un autre joueur sur les lèvres.",
+        "Demandez à un autre joueur de vous embrasser la main.",
+        "Donne un bisou dans le cou à un autre joueur.",
+        "Donnez à un autre joueur une série de légers baisers sur le visage.",
+        "Donne à un autre joueur un doux baiser sur l'épaule.",
+        "Dites à un joueur de vous chevaucher et de vous embrasser sur les lèvres."
+      ]
+    },
+    "Bisous profonds": {
+      "sous": [
+        "Partagez un baiser profond avec un autre joueur.",
+        "Recevez un profond baiser d'un autre joueur avec la langue.",
+        "Mettez-vous à genoux et suppliez un autre joueur de vous embrasser profondément.",
+        "Embrasse profondément un autre joueur en position couchée.",
+        "Un français embrasse un autre joueur assis sur ses genoux.",
+        "Recevez un baiser pendant que vos mains sont au-dessus de votre tête.",
+        "Faites-vous embrasser les yeux bandés.",
+        "Demandez et embrassez autant de joueurs que possible avant votre prochain tour."
+      ],
+      "soleil": [
+        "Partagez un baiser profond avec un autre joueur.",
+        "Donne à un autre joueur un profond baiser avec la langue.",
+        "Embrasse profondément un autre joueur tout en lui tenant le visage.",
+        "Recevez un profond baiser d'un autre joueur assis sur vos genoux.",
+        "Embrasse profondément un autre joueur pendant que vous êtes tous les deux debout.",
+        "Embrasser un autre joueur en lui tenant les mains au-dessus de sa tête.",
+        "Désignez un joueur pour vous chevaucher et vous embrasser.",
+        "Attrapez un joueur par les cheveux et embrassez-le profondément."
+      ]
+    }
+  }
+}

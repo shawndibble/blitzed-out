@@ -2,28 +2,35 @@ import { Divider, Grid, Tooltip, Typography } from '@mui/material';
 import useBreakpoint from 'hooks/useBreakpoint';
 import GridItem from 'components/GridItem';
 import SettingsSelect from 'components/SettingsSelect';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import InvisibleAccordionGrid from 'components/InvisibleAccordionGrid';
 import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
 import SoloSwitch from './SoloSwitch';
 
+
 export default function BoardSettings({ formData, setFormData, actionsList }) {
-  const { alcohol, poppers, ...remainingActions } = actionsList;
+  const { t } = useTranslation();
   const isMobile = useBreakpoint('md');
   const isLocal =
     formData?.room.toUpperCase() !== 'PUBLIC' && formData.gameMode === 'local';
 
-  const settingSelectLists = Object.keys(remainingActions).map((option) => (
-    <Grid item xs={12} sm={isMobile && !isLocal ? 6 : 12} md={5} key={option}>
-      <SelectBoardSetting
-        option={option}
-        settings={formData}
-        setSettings={setFormData}
-        actionsFolder={remainingActions}
-        showRole={isLocal}
-      />
-    </Grid>
-  ));
+  function settingSelectLists(type, extraProps = {}) {
+    return Object.keys(actionsList)
+      .filter((option) => actionsList[option]?.type === type)
+      .map((option) => (
+        <GridItem sm={isMobile && !isLocal ? 6 : 12} key={option}>
+          <SelectBoardSetting
+            option={option}
+            settings={formData}
+            setSettings={setFormData}
+            actionsFolder={actionsList}
+            {...extraProps}
+          />
+        </GridItem>
+          
+      ));
+  }
 
   // go through all entries in formData and update the vale if the key contains the word role
   const updateAllRoles = (value) => {
@@ -40,60 +47,19 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
   return (
     <>
       <Grid container columnSpacing={2} justifyContent='center'>
-        <GridItem>
-          <SelectBoardSetting
-            option='alcohol'
-            settings={formData}
-            setSettings={setFormData}
-            actionsFolder={actionsList}
-            showVariation
-          />
-        </GridItem>
-        {!isMobile && (
-          <Divider
-            orientation='vertical'
-            flexItem
-            sx={{ pl: 1, pr: 2 }}
-            variant='middle'
-          />
-        )}
-        <GridItem>
-          <SelectBoardSetting
-            option='poppers'
-            settings={formData}
-            setSettings={setFormData}
-            actionsFolder={actionsList}
-            showVariation
-          />
-        </GridItem>
+        {settingSelectLists('consumption', {showVariation: true})}
       </Grid>
-      {formData?.room.toUpperCase() !== 'PUBLIC' && (
-        <SoloSwitch formData={formData} setFormData={setFormData} />
+      <SoloSwitch formData={formData} setFormData={setFormData} />
+
+      {formData?.room.toUpperCase() === 'PUBLIC' && formData.gameMode === 'local' && (
+        <Grid container alignContent="center" justifyContent="center">
+          <Grid item sx={{ py: 3 }}>
+            <Typography variant="h5"><Trans i18nKey="privateRequired" /></Typography>
+          </Grid>
+        </Grid>
       )}
+
       <Grid container columnSpacing={2} justifyContent='center'>
-        {isLocal && (
-          <GridItem>
-            <SettingsSelect
-              value={formData.role}
-              onChange={(event) =>
-                setFormData({
-                  ...updateAllRoles(event.target.value),
-                  boardUpdated: true,
-                })
-              }
-              label='mainRole'
-              options={['sub', 'vers', 'dom']}
-              defaultValue='sub'
-            />
-          </GridItem>
-        )}
-      </Grid>
-
-      <Divider />
-
-      <Grid container columnSpacing={2} justifyContent='space-evenly'>
-        {settingSelectLists}
-
         <GridItem>
           <Tooltip
             placement='top'
@@ -123,7 +89,41 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
             />
           </Tooltip>
         </GridItem>
+        {isLocal && (
+          <GridItem>
+            <SettingsSelect
+              value={formData.role}
+              onChange={(event) =>
+                setFormData({
+                  ...updateAllRoles(event.target.value),
+                  boardUpdated: true,
+                })
+              }
+              label='mainRole'
+              options={['dom', 'vers', 'sub']}
+              defaultValue='sub'
+            />
+          </GridItem>
+        )}
       </Grid>
+
+      {isLocal ? (
+        <>
+          <InvisibleAccordionGrid title={t('foreplay')} subtitle={t('foreplaySubtitle')}>
+            {settingSelectLists('foreplay', {showRole: isLocal})}
+          </InvisibleAccordionGrid>
+          <InvisibleAccordionGrid title={t('sex')} subtitle={t('sexSubtitle')}>
+            {settingSelectLists('sex', {showRole: isLocal})}
+          </InvisibleAccordionGrid>
+        </>
+      ) : (
+        <>
+          <Divider />
+          <Grid container columnSpacing={2} justifyContent='center'>
+            {settingSelectLists('solo')}
+          </Grid>
+        </>
+      )}
 
       <FinishSlider setFormData={setFormData} formData={formData} />
     </>

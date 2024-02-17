@@ -47,6 +47,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     bating: 1,
     poppersVariation: 'standalone',
     alcoholVariation: 'standalone',
+    vapingVariation: 'standalone',
   });
   const navigate = useNavigate();
 

@@ -1,0 +1,57 @@
+{
+  "label": "Juego de respiración",
+  "type": "foreplay",
+  "actions": {
+    "None": [],
+    "Luz": {
+      "sub": [
+        "Pídele a alguien que te cubra la nariz y la boca con la mano durante 10 segundos.",
+        "Pídele a alguien que te apriete ligeramente la garganta durante 10 segundos.",
+        "Pídele a alguien que te estrangule ligeramente con la mano durante 10 segundos.",
+        "Pídele a alguien que te cubra la boca con la mano durante 10 segundos.",
+        "Pídele a alguien que te apriete ligeramente el cuello con los dedos durante 10 segundos"
+      ],
+      "dom": [
+        "Cubre la nariz y la boca de otro jugador con tu mano durante 10 segundos.",
+        "Aprieta ligeramente la garganta de otro jugador durante 10 segundos.",
+        "Ahoga ligeramente a otro jugador con tu mano durante 10 segundos.",
+        "Mantén tu mano sobre la boca de otro jugador durante 10 segundos.",
+        "Aprieta el cuello de otro jugador con los dedos durante 10 segundos"
+      ]
+    },
+    "Normal": {
+      "sub": [
+        "Pídele a alguien que te cubra la nariz y la boca con la mano durante 15 segundos.",
+        "Pídele a alguien que te apriete la garganta durante 15 segundos.",
+        "Haz que alguien te estrangule con la mano durante 15 segundos.",
+        "Pídele a alguien que te tape la boca con la mano durante 15 segundos.",
+        "Pídele a alguien que te apriete el cuello con los dedos durante 15 segundos"
+      ],
+      "dom": [
+        "Cubre la nariz y la boca de otro jugador con tu mano durante 15 segundos.",
+        "Aprieta la garganta de otro jugador durante 15 segundos.",
+        "Ahoga a otro jugador con tu mano durante 15 segundos.",
+        "Mantén tu mano sobre la boca de otro jugador durante 15 segundos.",
+        "Aprieta el cuello de otro jugador con los dedos durante 15 segundos"
+      ]
+    },
+    "Intenso": {
+      "sub": [
+        "Pídele a alguien que te cubra la nariz y la boca con la mano durante 30 segundos.",
+        "Pídele a alguien que te apriete la garganta durante 30 segundos.",
+        "Haz que alguien te estrangule con la mano durante 30 segundos.",
+        "Pídele a alguien que te tape la boca con la mano durante 30 segundos.",
+        "Pídele a alguien que te apriete el cuello con los dedos durante 30 segundos.",
+        "Pídele a alguien que use una bufanda o un cinturón para estrangularte durante 30 segundos"
+      ],
+      "dom": [
+        "Cubre la nariz y la boca de otro jugador con tu mano durante 30 segundos.",
+        "Aprieta la garganta de otro jugador durante 30 segundos.",
+        "Ahoga a otro jugador con tu mano durante 30 segundos.",
+        "Mantén tu mano sobre la boca de otro jugador durante 30 segundos.",
+        "Aprieta el cuello de otro jugador con tus dedos durante 30 segundos.",
+        "Usa una bufanda o un cinturón para estrangular a otro jugador durante 30 segundos"
+      ]
+    }
+  }
+}

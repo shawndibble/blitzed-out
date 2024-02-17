@@ -1,5 +1,6 @@
 {
     "label": "Fessées",
+    "type": "sex",
     "actions": {
         "Aucun": [],
         "Fessées légères": {

@@ -1,0 +1,36 @@
+{
+    "label": "Vapear",
+    "type": "consumption",
+    "actions": {
+        "Ninguna": [],
+        "Principiante": [
+            "Da una calada.",
+            "Da una calada larga.",
+            "Crea la nube más grande que puedas.",
+            "Da una calada durante 3 segundos.",
+            "Mantén el vapor dentro durante 3 segundos antes de exhalarlo.",
+            "Intenta exhalar el vapor por la nariz.",
+            "Da una calada e intenta hacer una forma de 'O' con el vapor.",
+            "Encuentra una superficie y haz el truco del vapeo en cascada."
+        ],
+        "Intermedio": [
+            "Haz un anillo de humo.",
+            "Exhala lentamente, formando una fina nube.",
+            "Da una calada durante 5 segundos.",
+            "Toma 4-6 caladas.",
+            "Intenta expulsar vapor a través de una pajita.",
+            "Mantén el vapor dentro durante 5 segundos antes de exhalarlo.",
+            "Haz una nube de vaporizador y luego gírala con la mano para hacer el truco del tornado."
+        ],
+        "Experto": [
+            "Da una calada, exhala e intenta volver a inhalar el humo.",
+            "Da la calada más larga que puedas.",
+            "Da una calada durante 10 segundos.",
+            "Da 8 o más caladas.",
+            "Intenta exhalar el vapor con los labios fruncidos.",
+            "Mantén el vapor dentro durante 10 segundos antes de exhalarlo.",
+            "Realiza el truco francés de inhalar vapor.",
+            "Realiza el truco del vapor Bane"
+        ]
+    }
+}

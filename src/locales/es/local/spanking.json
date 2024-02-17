@@ -1,5 +1,6 @@
 ﻿{
     "label": "Azotes",
+    "type": "sex",
     "actions": {
         "Ninguna": [],
         "Azotes Suaves": {

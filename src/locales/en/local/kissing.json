@@ -1,0 +1,54 @@
+{
+  "label": "Kissing",
+  "type": "foreplay",
+  "actions": {
+    "None": [],
+    "Gentle Kisses": {
+      "sub": [
+        "Receive a kiss on the cheek from another player.",
+        "Receive a kiss on the forehead from another player.",
+        "Receive a gentle peck on the lips from another player.",
+        "Receive a series of light kisses on the face from another player.",
+        "Receive a kiss on the neck from another player.",
+        "Kiss another player's hand.",
+        "Have your earlobes kissed.",
+        "Ask another player to kiss you on the face.",
+        "Straddle another player and kiss them on the lips.",
+        "Receive a gentle kiss on the shoulder from another player.",
+        "Kiss each player on the cheek before your next turn."
+      ],
+      "dom": [
+        "Kiss another player on the cheek.",
+        "Give another player a kiss on the forehead.",
+        "Give another player a gentle peck on the lips.",
+        "Have another player kiss your hand.",
+        "Give another player a kiss on the neck.",
+        "Give another player a series of light kisses on the face.",
+        "Give another player a gentle kiss on the shoulder.",
+        "Tell a player to straddle and kiss you on the lips." 
+      ]
+    },
+    "Deep Kisses": {
+      "sub": [
+        "Share a deep kiss with another player.",
+        "Receive a deep kiss from another player with tongue.",
+        "Get on your knees and beg another player for a deep kiss.",
+        "Kiss another player deeply while lying down.",
+        "French kiss another player while sitting on their lap.",
+        "Receive a kiss while your hands are held over your head.",
+        "Get kissed while blindfolded.",
+        "Ask and french kiss as many players as possible before your next turn."
+      ],
+      "dom": [
+        "Share a deep kiss with another player.",
+        "Give another player a deep kiss with tongue.",
+        "Give another player a deep kiss while holding their face.",
+        "Receive a deep kiss from another player they sit on your lap.",
+        "Give another player a deep kiss while you're both standing.",
+        "Kiss another player while holding their hands above their head.",
+        "Assign a player to straddle you and french kiss you.",
+        "Grab a player by the hair and kiss them deeply."
+      ]
+    }
+  }
+}
