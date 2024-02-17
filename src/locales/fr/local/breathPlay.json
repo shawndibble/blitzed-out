@@ -1,9 +1,9 @@
 {
-  "label": "Jeu de souffle",
+  "label": "Jeux de respiration",
   "type": "foreplay",
   "actions": {
     "None": [],
-    "Lumière": {
+    "Léger": {
       "sous": [
         "Demandez à quelqu'un de vous couvrir le nez et la bouche avec sa main pendant 10 secondes.",
         "Demandez à quelqu'un de vous serrer légèrement la gorge pendant 10 secondes.",
