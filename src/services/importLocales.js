@@ -14,10 +14,7 @@ export function importActions(lang = 'en', type = 'online') {
       obj[fileName] = context(key);
     });
 
-  const { poppers, alcohol, ...rest } = obj;
-
-  // ensure these are at the top of our list
-  return { alcohol, poppers, ...rest };
+  return obj;
 }
 
 export function importi18nResources() {

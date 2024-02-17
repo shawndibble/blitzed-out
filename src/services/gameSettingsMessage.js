@@ -25,7 +25,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
     message += `##### ${reason}\r\n`;
   }
   message += '--- \r\n';
-  const { poppersVariation, alcoholVariation } = settings;
+  const { poppersVariation, alcoholVariation, vapingVariation } = settings;
   // output only settings that have a corresponding actionsList entry.
   Object.entries(actionsList).forEach(([key, val]) => {
     if (settings[key] > 0) {
@@ -36,6 +36,9 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
       }
       if (key === 'alcohol') {
         message += ` (${t(alcoholVariation)})`;
+      }
+      if (key === 'vaping') {
+        message += ` (${t(vapingVariation)})`;
       }
       message += '\r\n';
     }
