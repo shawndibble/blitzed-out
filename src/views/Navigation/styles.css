@@ -3,10 +3,6 @@
   align-items: center;
 }
 
-.site-name img {
-  margin-right: 0.5rem;
-}
-
 @media screen and (max-width: 270px) {
   .site-name > h1 {
     display: none;
@@ -58,10 +54,6 @@
 
   .nav > div {
     flex: auto;
-  }
-
-  .site-name img {
-    margin-right: 0.3rem;
   }
 }
 
