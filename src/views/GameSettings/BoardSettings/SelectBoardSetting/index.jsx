@@ -33,8 +33,15 @@ export default function SelectBoardSetting({
     );
   }
 
-  function handleChange(event, key) {
-    setSettings({ ...settings, [key]: event.target.value, boardUpdated: true });
+  function handleChange(event, key, nestedKey) {
+    setSettings(prevSettings => ({
+      ...prevSettings,
+      [key]: {
+        ...prevSettings[key],
+        [nestedKey]: event.target.value
+      },
+      boardUpdated: true
+    }));
   }
 
   let gridSize = 12;
@@ -65,8 +72,8 @@ export default function SelectBoardSetting({
             labelId={labelId}
             id={option}
             label={label}
-            value={settings[option] || 0}
-            onChange={(event) => handleChange(event, option)}
+            value={settings[option]?.level || 0}
+            onChange={(event) => handleChange(event, option, 'level') }
           >
             {getOptions(option)}
           </Select>
@@ -76,8 +83,8 @@ export default function SelectBoardSetting({
         <Grid item xs={6}>
           <SettingsSelect
             sx={{ ml: 1 }}
-            value={settings[`${option}role`]}
-            onChange={(event) => handleChange(event, `${option}role`)}
+            value={settings[option]?.role}
+            onChange={(event) => handleChange(event, option, 'role')}
             label={`${t('role')}: ${label}`}
             options={roleOptions}
             defaultValue={settings.role || 'sub'}
@@ -117,8 +124,8 @@ export default function SelectBoardSetting({
                     <Help sx={{ ml: 1, fontSize: 16 }} />
                   </>
                 }
-                value={settings[`${option}Variation`] || 'standalone'}
-                onChange={(event) => handleChange(event, `${option}Variation`)}
+                value={settings[option]?.variation || 'standalone'}
+                onChange={(event) => handleChange(event, option, 'variation')}
               >
                 <MenuItem value='standalone'>
                   <Trans i18nKey='standalone' />

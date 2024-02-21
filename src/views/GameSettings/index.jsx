@@ -45,9 +45,6 @@ export default function GameSettings({ submitText, closeDialog }) {
     roomTileCount: 40,
     roomDice: '1d6',
     bating: 1,
-    poppersVariation: 'standalone',
-    alcoholVariation: 'standalone',
-    vapingVariation: 'standalone',
   });
   const navigate = useNavigate();
 
@@ -103,7 +100,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     event.preventDefault();
     const { displayName, ...gameOptions } = formData;
 
-    const validationMessage = validateFormData(gameOptions);
+    const validationMessage = validateFormData(gameOptions, actionsList);
     if (validationMessage) return setAlert(t(validationMessage));
 
     const updatedUser = await handleUser(user, displayName, updateUser, login);

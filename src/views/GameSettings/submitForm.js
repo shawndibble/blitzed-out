@@ -43,7 +43,7 @@ function exportRoomSettings(formData) {
 }
 
 export async function handleUser(user, displayName, updateUser, login) {
-  let updatedUser = { ...user };
+  let updatedUser = user;
   if (displayName !== undefined && displayName.length > 0) {
     updatedUser = user
       ? await updateUser(displayName)
@@ -64,13 +64,16 @@ export function sendRoomSettingsMessage(formData, updatedUser) {
 }
 
 // returns a translation key for an alert if fails.
-export function validateFormData(gameOptions) {
+export function validateFormData(gameOptions, actionsList) {
   if (!hasSomethingPicked(gameOptions)) {
     return 'pickSomething';
   }
 
-  const { poppers, alcohol, vaping, ...actionItems } = { ...gameOptions };
+  const { poppers, alcohol, vaping, ...actionItems } = gameOptions;
 
+
+  console.log(gameOptions);
+  console.log(actionsList);
   if (
     (isAppending(poppers, gameOptions.poppersVariation) ||
       isAppending(vaping, gameOptions.vapingVariation) ||
@@ -83,6 +86,8 @@ export function validateFormData(gameOptions) {
   if (gameOptions.room.toUpperCase() === 'PUBLIC' && gameOptions.gameMode === 'local') {
     return 'privateRequired';
   }
+
+  // return 'Some String';
 
   return null;
 }

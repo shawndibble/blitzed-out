@@ -25,20 +25,22 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
     message += `##### ${reason}\r\n`;
   }
   message += '--- \r\n';
-  const { poppersVariation, alcoholVariation, vapingVariation } = settings;
+
   // output only settings that have a corresponding actionsList entry.
   Object.entries(actionsList).forEach(([key, val]) => {
-    if (settings[key] > 0) {
-      const intensity = settings[key];
-      message += `* ${val?.label}: ${Object.keys(val?.actions)?.[intensity]}`;
-      if (key === 'poppers') {
-        message += ` (${t(poppersVariation)})`;
+    if (!settings[key]) return;
+
+    const { role = 'sub', variation, level } = settings[key];
+    if (level > 0) {
+      message += `* ${val?.label}: ${Object.keys(val?.actions)?.[level]}`;
+      
+      if (variation) {
+        message += ` (${t(variation)})`;
       }
-      if (key === 'alcohol') {
-        message += ` (${t(alcoholVariation)})`;
-      }
-      if (key === 'vaping') {
-        message += ` (${t(vapingVariation)})`;
+
+      if (settings.gameMode === 'local') {
+        const roleText = val[role] ?? t(role);
+        message += ` (${roleText})`;
       }
       message += '\r\n';
     }

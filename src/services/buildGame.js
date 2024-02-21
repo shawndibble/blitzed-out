@@ -14,10 +14,10 @@ function flattenActionsByRole(actions, role) {
 }
 
 function restrictSubsetActions(settings, settingsKey, actionObject) {
-  const role = settings[`${settingsKey}role`] ?? settings.role ?? 'sub';
+  const role = settings[settingsKey]?.role ?? settings.role ?? 'sub';
 
   const newList = Object.keys(actionObject).reduce((acc, key, index) => {
-    if (index > 0 && index <= settings[settingsKey]) {
+    if (index > 0 && index <= settings[settingsKey]?.level) {
       acc[key] = shuffleArray(flattenActionsByRole(actionObject[key], role));
     }
     return acc;
@@ -28,7 +28,7 @@ function restrictSubsetActions(settings, settingsKey, actionObject) {
 // Restricts the categories/major actions based on user selections
 function restrictActionsToUserSelections(actionsFolder, settings) {
   return Object.entries(actionsFolder)
-    .filter(([actionKey]) => settings[actionKey] > 0)
+    .filter(([actionKey]) => settings[actionKey]?.level > 0)
     .map(([actionKey, actionObject]) => ({
       label: actionObject.label,
       actions: restrictSubsetActions(
@@ -70,17 +70,12 @@ function addInCustomTiles(newActionList, userCustomTiles) {
 
 // From settings, grab the options the user selected for appending.
 function getUserAppendSelections(settings) {
-  // If the setting key contains the string 'Variation', grab the key and value.
-  return Object.entries(settings)
-    .filter(([key]) => key.includes('Variation'))
-    .reduce((acc, [key, value]) => {
-      // Remove the Variation value, so we can use that to check the corresponding intensity
-      const correspondingKey = key.replace('Variation', '');
-      if (settings[correspondingKey] > 0) {
-        acc.push({ key: correspondingKey, value });
-      }
-      return acc;
-    }, []);
+  return Object.entries(settings).reduce((acc, [key, value]) => {
+    if (value?.variation) {
+      acc[key] = value; 
+    }
+    return acc;
+  }, {}); 
 }
 
 // Separates the append options from rest of our categories/action items
@@ -88,14 +83,16 @@ function separateAppendOptions(appendOptions, listWithMisc) {
   const appendList = [];
   const listWithoutAppend = [...listWithMisc];
 
-  appendOptions.forEach(({ key, value }) => {
+  Object.entries(appendOptions).forEach(([key, { level, variation }]) => {
+    if (level <= 0) return;
+
     const categoryIndex = listWithMisc.findIndex((item) => item.key === key);
-    if (value === 'standalone') {
+    if (variation === 'standalone') {
       listWithoutAppend[categoryIndex].standalone = true;
       return;
     }
 
-    const frequency = value === 'appendSome' ? 0.4 : 0.9;
+    const frequency = variation === 'appendSome' ? 0.4 : 0.9;
     appendList.push({ ...listWithMisc[categoryIndex], frequency });
     listWithoutAppend.splice(categoryIndex, 1);
   });
@@ -185,11 +182,11 @@ function buildBoard(listWithMisc, settings, size) {
         currentTile,
         settings
       );
-      finalDescription = `${appendDescription} ${description}`;
+      const ensurePunctuation = appendDescription.trim().replace(/([^.,!?])$/, '$1.');
+      finalDescription = `${ensurePunctuation} ${description}`;
     } else {
       finalDescription = description;
     }
-
     board.push({ title, description: finalDescription.trim() });
   }
 
