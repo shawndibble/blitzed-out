@@ -20,8 +20,8 @@ import './styles.css';
 import {
   handleUser,
   sendRoomSettingsMessage,
-  validateFormData,
 } from './submitForm';
+import validateFormData from './validateForm';
 
 export default function GameSettings({ submitText, closeDialog }) {
   const { login, user, updateUser } = useAuth();

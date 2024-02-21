@@ -2,16 +2,6 @@ import { getSiteName } from 'helpers/strings';
 import i18next from 'i18next';
 import { sendMessage } from 'services/firebase';
 
-function hasSomethingPicked(object) {
-  return Object.values(object).some((selection) =>
-    selection > 0
-  );
-}
-
-function isAppending(option, variationOption) {
-  return option > 0 && variationOption?.startsWith('append');
-}
-
 function getRoomSettingsMessage(settings) {
   const { t } = i18next;
   let message = `### ${t('roomSettings')}\r\n`;
@@ -61,33 +51,4 @@ export function sendRoomSettingsMessage(formData, updatedUser) {
     type: 'room',
     settings: JSON.stringify(roomSettings),
   });
-}
-
-// returns a translation key for an alert if fails.
-export function validateFormData(gameOptions, actionsList) {
-  if (!hasSomethingPicked(gameOptions)) {
-    return 'pickSomething';
-  }
-
-  const { poppers, alcohol, vaping, ...actionItems } = gameOptions;
-
-
-  console.log(gameOptions);
-  console.log(actionsList);
-  if (
-    (isAppending(poppers, gameOptions.poppersVariation) ||
-      isAppending(vaping, gameOptions.vapingVariation) ||
-      isAppending(alcohol, gameOptions.alcoholVariation)) &&
-    !hasSomethingPicked(actionItems)
-  ) {
-    return 'appendWithAction';
-  }
-
-  if (gameOptions.room.toUpperCase() === 'PUBLIC' && gameOptions.gameMode === 'local') {
-    return 'privateRequired';
-  }
-
-  // return 'Some String';
-
-  return null;
 }
