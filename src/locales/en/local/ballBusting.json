@@ -7,6 +7,10 @@
         "None": [],
         "Slap/Squeeze": {
             "sub": [
+                "Light slap after anyone rolls.",
+                "5 ball slaps from another player.",
+                "Hold breath 10 seconds while receiving ball slaps.",
+                "Receive ball massages for 15 seconds.",
                 "Massage your balls.",
                 "2 ball slaps to yourself.",
                 "10 light ball pats from another player.",
@@ -15,13 +19,9 @@
                 "Stretch your balls for 15 seconds.",
                 "Have your balls flicked for 10 seconds.",
                 "Squeeze balls until next turn.",
-                "Squeeze balls for 10 seconds.",
+                "Have another player squeeze your balls for 10 seconds.",
                 "Have another player tug your balls.",
-                "Quickly slap your balls for 15 seconds.",
-                "Light slap after anyone rolls.",
-                "5 ball slaps from another player.",
-                "Hold breath 10 seconds while receiving ball slaps.",
-                "Receive ball massages for 15 seconds."
+                "Quickly slap your balls for 15 seconds."
             ],
             "dom": [
                 "Massage another player's balls.",
@@ -45,7 +45,7 @@
             "sub": [
                 "Receive 2 ball punches.",
                 "Crush your balls.",
-                "4 ball punches.",
+                "Receive 4 ball punches.",
                 "Ball punches for 10 seconds.",
                 "Get 1 hard ball slap.",
                 "Receive 5 ball slaps",
