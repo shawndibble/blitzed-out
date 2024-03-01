@@ -1,88 +1,89 @@
-{
-  "label": "Tickling",
-  "type": "foreplay",
+﻿{
+  "label": "Cosquillas",
+  "type": "Preliminares",
   "actions": {
-    "None": [],
-    "Luz": {
+    "Ninguno": [],
+    "Ligero": {
       "sub": [
-        "Pídale a alguien que se frote ligeramente el dedo en una zona donde le hacen cosquillas.",
-        "Pídele a alguien que use un objeto para hacerte cosquillas durante 15 segundos.",
-        "Haz que te rocen ligeramente las axilas durante 10 segundos.",
-        "Haz que te rasquen ligeramente las plantas de los pies.",
-        "Recibe besos ligeros o golpes en una zona sensible durante 15 segundos.",
-        "Pídale a alguien que trace 3 formas con el dedo en un área sensible.",
-        "Pídele a alguien que te haga cosquillas ligeramente durante 10 segundos.",
-        "Mantén la cara seria mientras alguien frota ligeramente un área sensible durante 10 segundos.",
-        "Pídele a alguien que te dé besos ligeros en 3 áreas diferentes para ver si tienes cosquillas allí.",
-        "Pídele a alguien que te haga cosquillas en el ombligo durante 15 segundos.",
-        "Pone a alguien ligeramente suave (como una pluma) en tu cuello.",
-        "Pídele a alguien que te haga cosquillas en los lóbulos de las orejas durante 10 segundos.",
-        "Pídele a alguien que trace un círculo alrededor de tu ombligo durante 15 segundos."
+        "Deja que otro jugador roce ligeramente el dedo en una zona donde tengas cosquillas.",
+        "Deja que otro jugador use un objeto para hacerte cosquillas durante 15 segundos.",
+        "Deja que te rocen ligeramente las axilas durante 10 segundos.",
+        "Deja que te rocen las plantas de los pies.",
+        "Deja que otro jugador te dé besos suaves o golpes en una zona sensible durante 15 segundos.",
+        "Deja que otro jugador trace 3 formas con el dedo en una zona sensible.",
+        "Deja que otro jugador te haga cosquillas suaves durante 10 segundos.",
+        "No te rías mientras alguien roza ligeramente un área sensible durante 10 segundos.",
+        "Deja que otro jugador te dé besos suaves en 3 sitios diferentes para ver si tienes cosquillas.",
+        "Deja que otro jugador te haga cosquillas en el ombligo durante 15 segundos.",
+        "Deja que otro jugador te haga cosquillas con un objeto suave (como una pluma) en el cuello.",
+        "Deja que otro jugador te haga cosquillas en los lóbulos de las orejas durante 10 segundos.",
+        "Deja que otro jugador trace un círculo alrededor de tu ombligo durante 15 segundos."
       ],
       "dom": [
-        "Frota ligeramente con el dedo la zona que le hace cosquillas a otro jugador.",
+        "Roza ligeramente con el dedo una zona donde otro jugador tenga cosquillas.",
         "Usa un objeto para hacerle cosquillas a otro jugador durante 15 segundos.",
-        "Roza ligeramente las axilas de otro jugador durante 10 segundos.",
-        "Rasca ligeramente las plantas de los pies de otro jugador.",
+        "Roza suavemente las axilas de otro jugador durante 10 segundos.",
+        "Roza suavemente las plantas de los pies de otro jugador.",
         "Da ligeros besos o golpes en una zona sensible de otro jugador durante 15 segundos.",
         "Traza 3 formas con el dedo en una zona sensible de otro jugador.",
-        "Hazle cosquillas ligeramente a otro jugador durante 10 segundos.",
-        "Haz que otro jugador mantenga la cara seria mientras frotas ligeramente un área sensible durante 10 segundos.",
-        "Dale besos ligeros a 3 áreas diferentes de otro jugador para ver si tiene cosquillas allí.",
+        "Hazle cosquillas suaves a otro jugador durante 10 segundos.",
+        "Ordena a otro jugador que no se ría mientras rozas ligeramente un área sensible durante 10 segundos.",
+        "Dale besos suaves en 3 sitios distintos otro jugador para ver si tiene cosquillas.",
         "Hazle cosquillas en el ombligo a otro jugador durante 15 segundos.",
-        "Objeto ligeramente blando (como una pluma) en el cuello de otro jugador.",
+        "Usa un objeto suave (como una pluma) para hacer cosquillas en el cuello a otro jugador.",
         "Hazle cosquillas en los lóbulos de las orejas a otro jugador durante 10 segundos.",
-        "Traza un círculo alrededor del ombligo de otro jugador durante 15 segundos."
+        "Traza círculos alrededor del ombligo de otro jugador durante 15 segundos."
       ]
     },
     "Normal": {
       "sub": [
         "Hazte cosquillas durante 30 segundos.",
         "Deja que todos los jugadores te empujen juguetonamente.",
-        "Haz que alguien use un objeto para hacerte cosquillas durante 30 segundos.",
-        "Cierra los ojos/con los ojos vendados. Inicia un cronómetro de 30 segundos. Recibe cosquillas en un solo lugar.",
-        "Haz que un jugador bese/sople una zona sensible.",
-        "Pídale a alguien que encuentre tantas zonas con cosquillas como pueda en 15 segundos.",
-        "Mantén la cara seria mientras alguien frota ligeramente un área sensible durante 30 segundos.",
-        "Pídele a alguien que te haga cosquillas en los costados durante 30 segundos.",
-        "Pídele a alguien que te haga cosquillas en la parte posterior de las rodillas durante 30 segundos.",
-        "Pídele a alguien que te haga cosquillas en los pies con los dedos durante 30 segundos.",
-        "Pídele a alguien que te haga cosquillas en las costillas durante 30 segundos."
+        "Deja otro jugador use un objeto para hacerte cosquillas durante 30 segundos.",
+        "Cierra los ojos/véndatelos. Inicia un cronómetro de 30 segundos. Recibe cosquillas en una sola zona.",
+        "Deja que otro jugador bese/sople una zona sensible.",
+        "Deja que otro jugador encuentre tantas zonas con cosquillas como pueda en 15 segundos.",
+        "No te rías mientras otro jugador te frota suavemente un área sensible durante 30 segundos.",
+        "Deja que otro jugador te haga cosquillas en los costados durante 30 segundos.",
+        "Deja que otro jugador te haga cosquillas en la parte posterior de las rodillas durante 30 segundos.",
+        "Deja que otro jugador te haga cosquillas en los pies durante 30 segundos.",
+        "Deja que otro jugador te haga cosquillas en las axilas durante 30 segundos."
       ],
       "dom": [
         "Hazle cosquillas a otro jugador durante 30 segundos.",
         "Empuja juguetonamente a otro jugador.",
         "Usa un objeto para hacerle cosquillas a otro jugador durante 30 segundos.",
-        "Inicia un cronómetro de 30 segundos y hazle cosquillas a otro jugador en un solo lugar mientras tiene los ojos vendados.",
-        "Besar/soplar una zona sensible de otro jugador.",
-        "Encuentra tantas zonas delicadas como puedas en otro jugador en 15 segundos.",
-        "Haz que otro jugador mantenga la cara seria mientras frotas ligeramente un área sensible durante 30 segundos.",
+        "Inicia un cronómetro de 30 segundos y hazle cosquillas a otro jugador en un solo lugar mientras tiene los ojos cerrados/vendados.",
+        "Besa/sopla una zona sensible de otro jugador.",
+        "Encuentra tantas zonas con cosquillas como puedas en otro jugador en 15 segundos.",
+        "Ordena a otro jugador que no se ría mientras frotas suavemente una zona sensible durante 30 segundos.",
         "Hazle cosquillas a otro jugador durante 30 segundos.",
+        "Hazle cosquillas en los costados a otro jugador durante 30 segundos.",
         "Hazle cosquillas en la parte posterior de las rodillas a otro jugador durante 30 segundos.",
-        "Hazle cosquillas en los pies a otro jugador con los dedos durante 30 segundos.",
-        "Hazle cosquillas en las costillas a otro jugador durante 30 segundos."
+        "Hazle cosquillas en los pies a otro jugador durante 30 segundos.",
+        "Hazle cosquillas en las axilas a otro jugador durante 30 segundos."
       ]
     },
     "Intenso": {
       "sub": [
-        "Recibe una frase para parar. Recibe cosquillas por parte de todos hasta que digas la frase.",
-        "Haz que un jugador te haga cosquillas durante 45 segundos.",
-        "Pídele a alguien que te bese o chupe agresivamente una zona que te haga cosquillas.",
-        "Haz que te froten una zona con cosquillas durante 45 segundos.",
-        "Haz que cada jugador te haga cosquillas por separado durante 20 segundos.",
-        "Pídele a alguien que te haga cosquillas en los pies con un objeto suave (como una pluma) durante 45 segundos.",
-        "Pídele a alguien que te haga cosquillas en las axilas con los dedos durante 45 segundos.",
-        "Pídele a alguien que te haga cosquillas en el cuello con la lengua durante 45 segundos.",
-        "Pídele a alguien que te haga cosquillas en la parte interna de los muslos durante 45 segundos."
+        "Elige una palabra. Deja que los demás jugadores te hagan cosquillas hasta que digas la palabra.",
+        "Deja que otro jugador te haga cosquillas durante 45 segundos.",
+        "Deja que otro jugador te bese o chupe agresivamente una zona que te haga cosquillas.",
+        "Deja que otro jugador te roce una zona con cosquillas durante 45 segundos.",
+        "Deja que cada jugador te haga cosquillas por separado durante 20 segundos.",
+        "Deja que otro jugador te haga cosquillas en los pies con un objeto suave (como una pluma) durante 45 segundos.",
+        "Deja que otro jugador te haga cosquillas en las axilas durante 45 segundos.",
+        "Deja que otro jugador que te haga cosquillas en el cuello con la lengua durante 45 segundos.",
+        " Deja que otro jugador te haga cosquillas en la parte interna de los muslos durante 45 segundos."
       ],
       "dom": [
-        "Dale a otro jugador una frase para que pare. Hazle cosquillas hasta que diga la frase.",
+        "Escoge una palabra. Haz cosquillas a otro jugador hasta que diga la palabra.",
         "Hazle cosquillas a otro jugador durante 45 segundos.",
-        "Besar/chupar agresivamente una zona de cosquillas en otro jugador.",
-        "Frota la zona de cosquillas de otro jugador durante 45 segundos.",
+        "Besa/chupa agresivamente una zona con cosquillas de otro jugador.",
+        "Roza una zona con cosquillas de otro jugador durante 45 segundos.",
         "Hazle cosquillas a otro jugador durante 20 segundos.",
         "Hazle cosquillas en los pies a otro jugador con un objeto suave (como una pluma) durante 45 segundos.",
-        "Hazle cosquillas en las axilas a otro jugador con los dedos durante 45 segundos.",
+        "Hazle cosquillas en las axilas a otro jugador durante 45 segundos.",
         "Hazle cosquillas en el cuello a otro jugador con la lengua durante 45 segundos.",
         "Hazle cosquillas en la parte interna de los muslos a otro jugador durante 45 segundos."
       ]
@@ -90,25 +91,25 @@
     "Sobrecarga sensorial": {
       "sub": [
         "Todos los jugadores te harán cosquillas durante 60 segundos.",
-        "Acuéstate con el águila extendida (atado si es necesario). Otro jugador puede hacerte cosquillas como mejor le parezca durante 60 segundos.",
-        "Cierra los ojos. Haz que te hagan cosquillas tantas manos/objetos durante 60 segundos.",
-        "Pídele a alguien que te haga cosquillas rápidamente en tus 3 zonas con más cosquillas durante 60 segundos.",
-        "Recibe una frase para parar. Todos te harán cosquillas hasta que digas la frase 3 veces.",
+        "Acuéstate con brazos y piernas abiertos (atado si es necesario). Otro jugador puede hacerte cosquillas como mejor le parezca durante 60 segundos.",
+        "Cierra los ojos. Deja que los otros jugadores te hagan cosquillas con las manos/objetos durante 60 segundos.",
+        "Deja que otro jugador te haga cosquillas en 3 zonas con más cosquillas durante 60 segundos.",
+        "Escoge una palabra. Todos te harán cosquillas hasta que digas la palabra 3 veces.",
         "Hasta tu próximo turno, cada jugador podrá hacerte cosquillas como desee (mínimo 15 segundos cada uno)",
-        "Pídele a alguien que te haga cosquillas en los pies con un cepillo de dientes eléctrico durante 60 segundos.",
-        "Pídele a alguien que te haga cosquillas en las axilas con un objeto suave (como una pluma) durante 60 segundos.",
-        "Pídele a alguien que te haga cosquillas en el cuello con cubitos de hielo durante 60 segundos.",
-        "Pídele a alguien que te haga cosquillas con varios objetos suaves (como una pluma) a la vez durante 60 segundos."
+        "Deja que otro jugador te haga cosquillas en los pies con un cepillo de dientes eléctrico durante 60 segundos.",
+        "Deja que otro jugador te haga cosquillas en las axilas con un objeto suave (como una pluma) durante 60 segundos.",
+        "Deja que otro jugador te haga cosquillas en el cuello con un cubito de hielo durante 60 segundos.",
+        "Deja que otro jugador te haga cosquillas con varios objetos suaves (como una pluma) a la vez durante 60 segundos."
       ],
       "dom": [
         "Hazle cosquillas a otro jugador durante 60 segundos.",
-        "Haz que otro jugador se recueste con el águila extendida (atado si es necesario) y hazle cosquillas como mejor te parezca durante 60 segundos.",
+        "Ordena a otro jugador que se acueste con los brazos y piernas abiertas (atado si es necesario) y hazle cosquillas como mejor te parezca durante 60 segundos.",
         "Cierra los ojos de otro jugador y haz que tantas manos/objetos como sea posible le hagan cosquillas durante 60 segundos.",
-        "Hazle cosquillas rápidamente a otro jugador en sus 3 zonas con más cosquillas durante 60 segundos.",
-        "Dale a otro jugador una frase para que pare. Hazle cosquillas hasta que diga la frase 3 veces.",
-        "Hazle cosquillas a otro jugador como quieras (mínimo 15 segundos cada uno) hasta su próximo turno.",
+        "Hazle cosquillas a otro jugador en sus 3 zonas con más cosquillas durante 60 segundos.",
+        "Escoge una palabra. Hazle cosquillas a otro jugador hasta que diga la palabra 3 veces.",
+        "Ordena a todos los jugadores hacer cosquillas a otro jugador como quieran (mínimo 15 segundos cada uno) hasta su próximo turno.",
         "Hazle cosquillas en las axilas a otro jugador con un objeto suave (como una pluma) durante 60 segundos.",
-        "Hazle cosquillas a otro jugador con varios objetos blandos (como una pluma) a la vez durante 60 segundos."
+        "Hazle cosquillas a otro jugador con varios objetos suaves (como una pluma) a la vez durante 60 segundos."
       ]
     }
   }

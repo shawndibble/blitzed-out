@@ -1,53 +1,53 @@
-{
+﻿{
   "label": "Besos",
-  "type": "foreplay",
+  "type": "Preliminares",
   "actions": {
     "Ninguno": [],
     "Besos tiernos": {
       "sub": [
-        "Recibe un beso en la mejilla de otro jugador.",
-        "Recibir un beso en la frente de otro jugador.",
-        "Recibe un suave beso en los labios de otro jugador.",
-        "Recibe una serie de ligeros besos en la cara de otro jugador.",
-        "Recibir un beso en el cuello de otro jugador.",
+        "Deja que otro jugador te bese en la mejilla.",
+        "Deja que otro jugador te bese en la frente.",
+        "Deja que otro jugador te bese suave en los labios.",
+        "Deja que otro jugador te bese por toda la cara.",
+        "Deja que otro jugador te bese el cuello.",
         "Besa la mano de otro jugador.",
-        "Que te besen los lóbulos de las orejas.",
+        "Deja que otro jugador te bese el lóbulo de la oreja.",
         "Pídele a otro jugador que te bese en la cara.",
         "Monta a otro jugador y bésalo en los labios.",
-        "Recibe un suave beso en el hombro de otro jugador.",
+        "Deja que otro jugador te bese el hombro.",
         "Besa a cada jugador en la mejilla antes de tu próximo turno."
       ],
       "dom": [
-        "Besa a otro jugador en la mejilla.",
-        "Dale un beso en la frente a otro jugador.",
-        "Dale a otro jugador un suave beso en los labios.",
+        "Besa en la mejilla a otro jugador.",
+        "Besa en la frente a otro jugador.",
+        "Besa suavemente en los labios a otro jugador.",
         "Haz que otro jugador te bese la mano.",
-        "Dale un beso en el cuello a otro jugador.",
-        "Dale a otro jugador una serie de besos ligeros en la cara.",
-        "Dale a otro jugador un suave beso en el hombro.",
-        "Dile a un jugador que se ponga a horcajadas y te bese en los labios."
+        "Besa en el cuello a otro jugador.",
+        "Besa por toda la cara a otro jugador.",
+        "Besa el hombro a otro jugador.",
+        "Ordena a otro jugador que te monte y te de un beso en los labios."
       ]
     },
-    "Besos profundos": {
+    "Besos con lengua": {
       "sub": [
-        "Comparte un beso profundo con otro jugador.",
-        "Recibe un beso profundo de otro jugador con lengua.",
-        "Ponte de rodillas y pídele a otro jugador un beso profundo",
-        "Besa profundamente a otro jugador mientras estás acostado.",
-        "Beso francés a otro jugador mientras está sentado en su regazo.",
-        "Recibe un beso mientras tus manos están sobre tu cabeza.",
-        "Que te besen con los ojos vendados.",
+        "Comparte un beso con lengua con otro jugador.",
+        "Deja que otro jugador te dé un beso con lengua.",
+        "Ponte de rodillas y pídele a otro jugador un beso con lengua",
+        "Túmbate y pide a otro jugador que te dé un beso con lengua.",
+        "Dale un beso con lengua a otro jugador mientras estás sentado en su regazo.",
+        "Recibe un beso con lengua mientras tienes las manos sobre la cabeza.",
+        "Deja que te besen con los ojos vendados.",
         "Pregunta y besa a tantos jugadores como puedas antes de tu próximo turno."
       ],
       "dom": [
-        "Comparte un beso profundo con otro jugador.",
-        "Dale a otro jugador un beso profundo con lengua.",
-        "Dale un beso profundo a otro jugador mientras le sostienes la cara.",
-        "Recibe un beso profundo de otro jugador que se sienta en tu regazo.",
-        "Dale un beso profundo a otro jugador mientras ambos estáis de pie.",
-        "Besa a otro jugador mientras sostiene sus manos por encima de su cabeza.",
-        "Asigna un jugador para que se siente a horcajadas sobre ti y te dé un beso francés.",
-        "Agarra a un jugador por el pelo y bésalo profundamente."
+        "Comparte un beso con lengua con otro jugador.",
+        "Dale un beso con lengua a otro jugador.",
+        "Dale un beso con lengua a otro jugador mientras le sujetas la cara.",
+        "Ordena a otro jugador que te dé un beso con lengua mientras se sienta en tu regazo.",
+        "Dale un beso con lengua a otro jugador mientras ambos estáis de pie.",
+        "Dale un beso con lengua a otro jugador mientras sujetas sus manos por encima de su cabeza.",
+        "Ordena a otro jugador que se siente sobre ti y te dé un beso con lengua.",
+        "Agarra a un jugador por el pelo y bésalo con lengua."
       ]
     }
   }
