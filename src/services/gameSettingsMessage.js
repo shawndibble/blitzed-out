@@ -39,6 +39,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
       }
 
       if (settings.gameMode === 'local') {
+        // if we have a role from the translation files, use them first.
         const roleText = val[role] ?? t(role);
         message += ` (${roleText})`;
       }
