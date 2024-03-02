@@ -8,8 +8,10 @@ import {
 } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
-import { Help } from '@mui/icons-material';
+import { CheckBox, CheckBoxOutlineBlank, Help } from '@mui/icons-material';
 import SettingsSelect from 'components/SettingsSelect';
+import { useState } from 'react';
+import './style.css';
 
 export default function SelectBoardSetting({
   option,
@@ -23,10 +25,28 @@ export default function SelectBoardSetting({
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
+  const [hoveredOption, setHoveredOption] = useState(settings[option]?.level || 0);
+
+  const handleMouseOver = (index) => {
+    setHoveredOption(index);
+  };
+
+  const showCheckbox = (index) => {
+    if (hoveredOption > 0 && index === 0) {
+      return false;
+    }
+    if (settings.difficulty === 'accelerated') {
+      if (hoveredOption <= 2) return hoveredOption === index; 
+      return hoveredOption === index || hoveredOption - 1 === index;
+    }
+    return hoveredOption >= index;
+  };
+
   function getOptions(category) {
     return Object.keys(actionsFolder[category]?.actions).map(
       (optionVal, index) => (
-        <MenuItem value={index} key={`${category}-${optionVal}`}>
+        <MenuItem value={index} key={`${category}-${optionVal}`} onMouseOver={() => handleMouseOver(index)}>
+          <span className="menu-item-icon">{showCheckbox(index) ? <CheckBox /> : <CheckBoxOutlineBlank /> }</span>
           {optionVal}
         </MenuItem>
       )
@@ -38,7 +58,7 @@ export default function SelectBoardSetting({
       ...prevSettings,
       [key]: {
         ...prevSettings[key],
-        [nestedKey]: event.target.value
+        [nestedKey]: event?.target?.value
       },
       boardUpdated: true
     }));
@@ -73,7 +93,9 @@ export default function SelectBoardSetting({
             id={option}
             label={label}
             value={settings[option]?.level || 0}
-            onChange={(event) => handleChange(event, option, 'level') }
+            onChange={(event) => handleChange(event, option, 'level')}
+            onOpen={() => setHoveredOption(settings[option]?.level || 0)}
+            onClose={() => setHoveredOption(settings[option]?.level || 0)}
           >
             {getOptions(option)}
           </Select>

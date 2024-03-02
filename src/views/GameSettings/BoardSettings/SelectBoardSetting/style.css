@@ -1,0 +1,8 @@
+.MuiSelect-select > .menu-item-icon {
+  display: none;
+}
+
+.menu-item-icon {
+  margin-right: 8px;
+  vertical-align: middle;
+}
