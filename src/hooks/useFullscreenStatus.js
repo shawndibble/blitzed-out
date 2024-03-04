@@ -15,7 +15,14 @@ export default function useFullscreenStatus() {
     };
   }, []);
 
-  const setFullScreen = () => document.requestFullscreen();
+  // open fullscreen
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement == null) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
-  return { isFullscreen, setFullScreen };
+  return { isFullscreen, toggleFullscreen };
 }
