@@ -1,4 +1,4 @@
-import { Box, Divider, Grid, Typography } from '@mui/material';
+import { Box, Button, Divider, Grid, Typography } from '@mui/material';
 import ToastAlert from 'components/ToastAlert';
 import latestMessageByType from 'helpers/messages';
 import useMessages from 'context/hooks/useMessages';
@@ -10,6 +10,7 @@ import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import RoomBackground from 'components/RoomBackground';
 import './styles.css';
+import useFullscreenStatus from 'hooks/useFullscreenStatus';
 
 const ACTION_TYPE = 'actions';
 
@@ -35,6 +36,7 @@ export default function Cast() {
 
   const lastAction = latestMessageByType(messages, ACTION_TYPE) || {};
   const nextPlayer = useTurnIndicator(room, lastAction);
+  const {isFullscreen, setFullScreen} = useFullscreenStatus();
 
   useEffect(() => {
     if (isLoading) return;
@@ -53,7 +55,9 @@ export default function Cast() {
     <Box className='text-stroke flex-column'>
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
       <Box display="flex" justifyContent="space-between" sx={{ mx: 2, mt: 2, mb: -2 }}>
-        <Box flex="1" />
+        <Box flex="1">
+          {!isFullscreen && <Button variant='text' onClick={setFullScreen}>Fullscreen</Button>}
+        </Box>
         
         <Box textAlign="center" flex="1">
           {!!nextPlayer?.displayName && (
