@@ -14,6 +14,7 @@ export default function RoomBackground({ url = null, isVideo = null }) {
           title='video'
           allowFullScreen
           allow='autoplay'
+          style={{ border: 'none' }}
         />
       )}
     </Box>
