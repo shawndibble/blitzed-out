@@ -45,7 +45,7 @@ export default function TransitionModal({
 
   const numbers = extractTime(text, t('seconds'));
 
-  const { timeLeft, togglePause } = useCountdown(12, false);
+  const { timeLeft, togglePause } = useCountdown(20, false);
   const [showAutoCloseText, setAutoCloseText] = useState(true);
 
   const player = nextPlayer?.displayName;

@@ -14,7 +14,7 @@ const PopupMessage = memo(({ room }) => {
 
   useEffect(() => {
     if (message) {
-      timeoutId.current = setTimeout(() => setMessage(false), 12000);
+      timeoutId.current = setTimeout(() => setMessage(false), 21000);
     }
     return () => clearTimeout(timeoutId.current);
   }, [message]);
