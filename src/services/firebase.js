@@ -80,13 +80,15 @@ export function setMyPresence({
   const database = getDatabase();
   const auth = getAuth();
   const uid = auth.currentUser?.uid;
+  const newRoomName = newRoom?.toUpperCase();
+  const oldRoomName = oldRoom?.toUpperCase();
   const newRoomConnectionsRef = ref(
     database,
-    `rooms/${newRoom?.toUpperCase()}/uids/${uid}`
+    `rooms/${newRoomName}/uids/${uid}`
   );
   const oldRoomConnectionsRef = ref(
     database,
-    `rooms/${oldRoom?.toUpperCase()}/uids/${uid}`
+    `rooms/${oldRoomName}/uids/${uid}`
   );
   const connectedRef = ref(database, '.info/connected');
 
@@ -94,16 +96,22 @@ export function setMyPresence({
     if (snap.val() === true) {
       // We're connected (or reconnected)!
       const newRef = push(newRoomConnectionsRef);
+      const oldRef = push(oldRoomConnectionsRef);
 
       if (
-        oldRoom?.toUpperCase() !== newRoom?.toUpperCase() ||
+        oldRoomName !== newRoomName ||
         oldDisplayName !== newDisplayName
       ) {
         remove(oldRoomConnectionsRef);
       }
 
       // When I disconnect, remove this device
-      onDisconnect(newRef).remove();
+      if (oldRoomName === 'PUBLIC') {
+        onDisconnect(oldRef).remove();
+      }
+      if (newRoomName === 'PUBLIC') {
+        onDisconnect(newRef).remove();
+      }
 
       // Add this device to my connections list
       // this value could contain info about the device or a timestamp too
