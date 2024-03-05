@@ -136,7 +136,7 @@
   "appendWithAction": "If you are going to append, you need an action.",
   "gameDesc": "<0>Blitzed Out</0><1></1><2>An online adult sex board game for kinky people. Designed for solo play, couples or parties.</2><3>Customize your own board or import someone else's, find your own room and play with other people online.</3>",
   "gettingStartedTitle": "Getting Started",
-  "gettingStartedDescription": "<0><0><0>Pick a display name</0></0><1><0>Select your options. (append will add that option to other tiles).</0></1><2><0>Save changes/Access game.</0></2><3><0>When it is your turn, click the roll button and follow the prompts.</0></3></0><1>Don't like your current board or some aspect of the game? Go to Menu, then Settings and change it. Utilize custom tiles to make make the game even more your own.</1>",
+  "gettingStartedDescription": "<0><0><0>Pick a display name</0></0><1><0>Select your options. (append will add that option to other tiles).</0></1><2><0>Save changes/Access game.</0></2><3><0>When it is your turn, click the roll button and follow the prompts.</0></3></0><1>Don't like your current board or some aspect of the game? Go to Menu, then Settings and change it. Utilize custom tiles to make make the game even more your own.</1><2>New player suggestion: Limit your selections to less than 4 total options.</2>",
   "couplesTitle": "Couples & Parties",
   "couplesDescription": "<0>Playing in the same room with a partner or friends?</0><1>Settings > Application > Private Room > Local Party.</1><2>Note: If you do not want to interact with those in the room, choose Solo.</2>",
   "coachTitle": "Robo Coaching",

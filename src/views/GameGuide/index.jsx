@@ -42,6 +42,10 @@ export default function GameGuide() {
             </ul>
 
             <Typography variant="body1" mt={2}>
+              New player suggestion: Limit your selections to less than 4 total options.
+            </Typography>
+
+            <Typography variant="body1" mt={2}>
               Don&apos;t like your current board or some aspect of the game?
               Go to Menu, then Settings and change it.
               Utilize custom tiles to make make the game even more your own.
