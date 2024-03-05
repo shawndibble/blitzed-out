@@ -18,6 +18,7 @@ export default function SelectBoardSetting({
   settings,
   setSettings,
   actionsFolder,
+  type,
   showVariation = false,
   showRole = false,
 }) {
@@ -58,6 +59,7 @@ export default function SelectBoardSetting({
       ...prevSettings,
       [key]: {
         ...prevSettings[key],
+        type,
         [nestedKey]: event?.target?.value
       },
       boardUpdated: true

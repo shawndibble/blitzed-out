@@ -7,7 +7,7 @@ import InvisibleAccordionGrid from 'components/InvisibleAccordionGrid';
 import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
 import SoloSwitch from './SoloSwitch';
-
+import WarningAlert from './WarningAlert';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { t } = useTranslation();
@@ -25,6 +25,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
             settings={formData}
             setSettings={setFormData}
             actionsFolder={actionsList}
+            type={type}
             {...extraProps}
           />
         </GridItem>
@@ -126,6 +127,8 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
       )}
 
       <FinishSlider setFormData={setFormData} formData={formData} />
+
+      <WarningAlert formData={formData} />
     </>
   );
 }
