@@ -3,66 +3,32 @@
     "type": "foreplay",
     "actions": {
         "Aucun": [],
-        "Verbal": {
-            "sub": [
-                "Inventez un mantra. Répétez-le à chaque tour de jeu.",
-                "Un joueur vous donne un titre dégradant (esclave, animal de compagnie, etc.). Répétez 'Je suis un(e) <terme>' 30 fois.",
-                "Écrivez des lignes ou une courte histoire centrée sur votre rôle soumis. Lisez-la à voix haute.",
-                "On vous attribue un surnom humiliant auquel vous devez répondre pour le reste du jeu.",
-                "Vous devez vous adresser aux joueurs qui n'utilisent pas l'option d'humiliation en tant que monsieur/madame/maître/maîtresse.",
-                "Partagez une fantaisie ou un désir lié à l'humiliation.",
-                "Discutez et analysez une expérience passée qui vous a fait vous sentir humilié(e).",
-                "Des joueurs qui n'utilisent pas l'option d'humiliation, dites en quoi ils sont supérieurs à vous.",
-                "Répétez les affirmations dégradantes choisies par un autre joueur."
-            ],
-            "dom": [
-                "Choisissez un titre dégradant (esclave, animal de compagnie, etc.) pour un autre joueur. Faites-lui répéter 'Je suis un(e) <terme>' 30 fois.",
-                "Attribuez un surnom humiliant à un autre joueur auquel il doit répondre pour le reste du jeu.",
-                "Exigez qu'un autre joueur écrive des lignes ou une courte histoire centrée sur son rôle soumis. Faites-lui lire à voix haute.",
-                "Exigez qu'un autre joueur se réfère à vous en tant que monsieur/madame/maître/maîtresse.",
-                "Demandez à un autre joueur de partager une fantaisie ou un désir lié à l'humiliation.",
-                "Demandez à un autre joueur de discuter et d'analyser une expérience passée qui l'a fait se sentir humilié(e).",
-                "Exigez qu'un autre joueur vous dise en quoi vous êtes supérieur à eux.",
-                "Choisissez des affirmations dégradantes que l'autre joueur doit répéter."
-            ]
-        },
-        "Physique": {
-            "sub": [
-                "Écrivez des mots dégradants sur votre corps.",
-                "Mettez-vous à genoux, la tête baissée jusqu'à votre prochain tour.",
-                "Servez de meuble à un autre joueur jusqu'à votre prochain tour.",
-                "Jusqu'à ce que vous soyez remplacé(e), vous êtes le garçon/la fille à tout faire pour le reste du jeu.",
-                "Recevez une claque légère, une fessée ou une flagellation.",
-                "Adorez les aisselles d'un autre joueur.",
-                "Portez un vêtement qui vous fait vous sentir humilié(e) pour le reste du jeu.",
-                "À genoux. Subissez l'étranglement verbal et physique.",
-                "Offrez un massage des pieds à un autre joueur.",
-                "Rampez dans la pièce.",
-                "Rampez vers un autre joueur, puis attendez en position basse et face à eux jusqu'à votre prochain tour.",
-                "Portez un collier et une laisse pour le reste du jeu. Improvisez si nécessaire.",
-                "Embrassez ou adorez la partie du corps choisie par un autre joueur.",
-                "Effectuez des tâches ou des actes sexuels désignés par d'autres joueurs, en mettant l'accent sur la soumission et l'obéissance.",
-                "Effectuez des tâches ou des actes sexuels assignés par d'autres joueurs, mettant l'accent sur votre soumission et votre obéissance.",
-                "Laissez un autre joueur vous cracher dessus."
-            ],
-            "dom": [
-                "Demandez à un autre joueur d'écrire des mots dégradants sur son corps.",
-                "Exigez qu'un autre joueur se mette à genoux, la tête baissée jusqu'à son prochain tour.",
-                "Utilisez un autre joueur comme meuble jusqu'à votre prochain tour.",
-                "Assignez un autre joueur comme garçon/fille à tout faire pour le reste du jeu.",
-                "Donnez une claque légère, une fessée ou une flagellation à un autre joueur.",
-                "Exigez qu'un autre joueur vous adore les aisselles.",
-                "Choisissez un vêtement qui fait se sentir humilié(e) à un autre joueur et demandez-lui de le porter pour le reste du jeu.",
-                "Exigez qu'un autre joueur se mette à genoux et subisse l'étranglement verbal et physique.",
-                "Demandez un massage des pieds à un autre joueur.",
-                "Exigez qu'un autre joueur rampe dans la pièce.",
-                "Exigez qu'un autre joueur rampe vers vous, puis attendez en position basse et face à vous jusqu'à son prochain tour.",
-                "Assignez un collier et une laisse à un autre joueur pour le reste du jeu.",
-                "Choisissez quelle partie du corps un autre joueur doit embrasser ou adorer.",
-                "Désignez des tâches ou des actes sexuels que l'autre joueur doit effectuer, en mettant l'accent sur la soumission et l'obéissance.",
-                "Assignez des tâches ou des actes sexuels que l'autre joueur doit effectuer, en mettant l'accent sur sa soumission et son obéissance.",
-                "Crachez sur un autre joueur."
-            ]
-        }
+        "Verbal": [
+            "{dom} attribue un titre péjoratif à {sub} et lui fait répéter 'Je suis un(e) <terme>' 10 fois.",
+            "{dom} attribue un surnom dégradant à {sub} qu'il doit utiliser pour le reste de la partie.",
+            "{dom} fait en sorte que tous les {sub} l'appellent monsieur / madame / maître / maîtresse pour le reste de la partie.",
+            "{sub} partage un fantasme ou un désir lié à l'humiliation.",
+            "{sub} discute et traite une expérience passée qui l'a fait se sentir humilié.",
+            "{sub} explique pourquoi {dom} est supérieur à lui/elle.",
+            "{dom} choisit des affirmations dégradantes que {sub} doit répéter."
+        ],
+        "Physique": [
+            "{dom} écrit des mots péjoratifs sur le corps de {sub}.",
+            "{sub} s'agenouille, tête baissée devant {dom} jusqu'à son prochain tour.",
+            "{dom} utilise {sub} comme meuble jusqu'à son prochain tour.",
+            "{sub} est le larbin de {dom} pour le reste de la partie.",
+            "{dom} donne une gifle, une fessée ou une flagellation à {sub}.",
+            "{sub} vénère/renifle les aisselles de {dom}.",
+            "{dom} fait en sorte que {sub} porte quelque chose qui le/la fait se sentir humilié(e) pour le reste de la partie.",
+            "{sub} s'agenouille. {dom} l'étrangle tout en le/la dégradant verbalement.",
+            "{dom} reçoit un massage des pieds de la part de {sub}.",
+            "{sub} rampe dans la pièce.",
+            "{sub} rampe vers {dom}, puis reste courbé(e) devant lui/elle jusqu'à son prochain tour.",
+            "{sub} porte un collier/laisse choisi par {dom} pour le reste de la partie.",
+            "{dom} choisit une partie du corps que {sub} doit embrasser/vénérer.",
+            "{dom} désigne des tâches ou actes sexuels que {sub} doit accomplir pour souligner sa soumission et son obéissance.",
+            "{sub} porte les sous-vêtements de {dom} sur son visage jusqu'à ce qu'une action l'oblige à les enlever.",
+            "{dom} crache sur {sub}."
+        ]
     }
 }

@@ -3,59 +3,29 @@
   "type": "foreplay",
   "actions": {
     "None": [],
-    "Kiss": {
-      "sub": [
-        "Kiss the tops of another player's feet for 30 seconds.",
-        "Kiss the bottoms of another player's feet for 30 seconds.",
-        "Kiss each of another player's toes for 15 seconds.",
-        "Kiss the arches of another player's feet for 30 seconds.",
-        "Kiss the heels of another player's feet for 30 seconds.",
-        "Kiss the ankles of another player's feet for 30 seconds."
-      ],
-      "dom": [
-        "Assign someone to kiss the tops of your feet for 30 seconds.",
-        "Have someone kiss the bottoms of your feet for 30 seconds.",
-        "Assign someone to each of your toes for 15 seconds.",
-        "Have someone kiss the arches of your feet for 30 seconds.",
-        "Have someone kiss the heels of your feet for 30 seconds.",
-        "Have someone kiss the ankles of your feet for 30 seconds."
-      ]
-    },
-    "Suck": {
-      "sub": [
-        "Suck on another player's toes for 30 seconds.",
-        "Lick the arches of another player's feet for 30 seconds.",
-        "Suck on the heels of another player's feet for 30 seconds.",
-        "Suck on the ankles of another player's feet for 30 seconds.",
-        "Suck on the soles of another player's feet for 30 seconds.",
-        "Suck on the tips of another player's toes for 15 seconds."
-      ],
-      "dom": [
-        "Assign someone to on your toes for 30 seconds.",
-        "Have someone lick the arches of your feet for 30 seconds.",
-        "Have someone suck on the heels of your feet for 30 seconds.",
-        "Have someone suck on your ankles for 30 seconds.",
-        "Have someone suck on the soles of your feet for 30 seconds.",
-        "Have someone suck on the tips of your toes for 15 seconds."
-      ]
-    },
-    "Worship": {
-      "sub": [
-        "Worship another player's feet for 60 seconds (1m).",
-        "Give another player a foot massage for 120 seconds (2m).",
-        "Kiss and lick the soles of another player's feet for 60 seconds (1m).",
-        "Suck on another player's toes while massaging their feet for 120 seconds (2m).",
-        "Massage another player's feet with oil/lotion for 120 seconds (2m).",
-        "Use your hands and mouth to worship another player's feet for 180 seconds (3m)."
-      ],
-      "dom": [
-        "Assign someone to worship your feet for 60 seconds (1m).",
-        "Assign someone to give you a foot massage for 120 seconds (2m).",
-        "Have someone kiss and lick the soles of your feet for 60 seconds (1m).",
-        "Assign someone to suck on your toes while massaging your feet for 120 seconds (2m).",
-        "Have someone massage your feet with oil/lotion for 120 seconds (2m).",
-        "Have someone use their hands and mouth to worship your feet for 180 seconds (3m)."
-      ]
-    }
+    "Kiss": [
+      "{sub} kisses the tops of {dom}'s feet for 30 seconds.",
+      "{sub} kisses the bottoms of {dom}'s feet for 30 seconds.",
+      "{sub} kisses each of {dom}'s toes for 15 seconds.",
+      "{sub} kisses the arches of {dom}'s feet for 30 seconds.",
+      "{sub} kisses the heels of {dom}'s feet for 30 seconds.",
+      "{sub} kisses the ankles of {dom}'s feet for 30 seconds."
+    ],
+    "Suck": [
+      "{sub} sucks on {dom}'s toes for 30 seconds.",
+      "{sub} licks the arches of {dom}'s feet for 30 seconds.",
+      "{sub} sucks on the heels of {dom}'s feet for 30 seconds.",
+      "{sub} sucks on the ankles of {dom}'s feet for 30 seconds.",
+      "{sub} sucks on the soles of {dom}'s feet for 30 seconds.",
+      "{sub} sucks on the tips of {dom}'s toes for 15 seconds."
+    ],
+    "Worship": [
+      "{sub} worships {dom}'s feet for 60 seconds (1m).",
+      "{sub} gives {dom} a foot massage for 120 seconds (2m).",
+      "{sub} kisses and licks the soles of {dom}'s feet for 60 seconds (1m).",
+      "{sub} sucks on {dom}'s toes while massaging their feet for 120 seconds (2m).",
+      "{sub} massages {dom}'s feet with oil/lotion for 120 seconds (2m).",
+      "{sub} uses their hands and mouth to worship {dom}'s feet for 180 seconds (3m)."
+    ]
   }
 }

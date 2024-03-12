@@ -5,113 +5,54 @@
   "sub": "Ticklee",
   "actions": {
     "None": [],
-    "Light": {
-      "sub": [
-        "Have someone lightly rub their finger in a ticklish zone.",
-        "Have someone use an item to tickle you for 15 seconds.",
-        "Have your armpits lightly grazed for 10 seconds.",
-        "Have the soles of your feet lightly scratched.",
-        "Get light kisses or blows on a sensitive area for 15 seconds.",
-        "Have someone trace 3 shapes with their finger in a sensitive area.",
-        "Have someone lightly tickle you for 10 seconds.",
-        "Keep a straight face as someone lightly rubs a sensitive area for 10 seconds.",
-        "Have someone give light kisses to 3 different areas to see if you are ticklish there.",
-        "Have someone tickle your belly button for 15 seconds.",
-        "Have someone lightly soft item (like a feather) your neck.",
-        "Have someone tickle your earlobes for 10 seconds.",
-        "Have someone trace a circle around your navel for 15 seconds."
-      ],
-      "dom": [
-        "Lightly rub your finger in a ticklish zone of another player.",
-        "Use an item to tickle another player for 15 seconds.",
-        "Lightly graze the armpits of another player for 10 seconds.",
-        "Lightly scratch the soles of the feet of another player.",
-        "Give light kisses or blows on a sensitive area of another player for 15 seconds.",
-        "Trace 3 shapes with your finger in a sensitive area of another player.",
-        "Lightly tickle another player for 10 seconds.",
-        "Have another player keep a straight face as you lightly rub a sensitive area for 10 seconds.",
-        "Give light kisses to 3 different areas of another player to see if they are ticklish there.",
-        "Tickle the belly button of another player for 15 seconds.",
-        "Lightly soft item (like a feather) the neck of another player.",
-        "Tickle the earlobes of another player for 10 seconds.",
-        "Trace a circle around the navel of another player for 15 seconds."
-      ]
-    },
-    "Normal": {
-      "sub": [
-        "Get tickled for 30 seconds.",
-        "Get playfully poked by all players.",
-        "Get have someone use an item to tickle you for 30 seconds.",
-        "Close your eyes/blindfolded. Start a 30 second timer. Get tickled in a single spot.",
-        "Have a player kiss/blow a sensitive zone.",
-        "Have someone find as many ticklish zones as they can in 15 seconds.",
-        "Keep a straight face as someone lightly rubs a sensitive area for 30 seconds.",
-        "Have someone tickle your sides for 30 seconds.",
-        "Have someone tickle the back of your knees for 30 seconds.",
-        "Have someone tickle your feet with their fingers for 30 seconds.",
-        "Have someone tickle your ribs for 30 seconds."
-      ],
-      "dom": [
-        "Tickle another player for 30 seconds.",
-        "Playfully poke another player.",
-        "Use an item to tickle another player for 30 seconds.",
-        "Start a 30 second timer and tickle another player in a single spot while they are blindfolded.",
-        "Kiss/blow a sensitive zone of another player.",
-        "Find as many ticklish zones as you can on another player in 15 seconds.",
-        "Have another player keep a straight face as you lightly rub a sensitive area for 30 seconds.",
-        "Tickle the sides of another player for 30 seconds.",
-        "Tickle the back of the knees of another player for 30 seconds.",
-        "Tickle the feet of another player with your fingers for 30 seconds.",
-        "Tickle the ribs of another player for 30 seconds."
-      ]
-    },
-    "Intense": {
-      "sub": [
-        "Be given a phrase to stop. Be tickled by everyone until you say the phrase.",
-        "Have a player tickle you roughly for 45 seconds.",
-        "Have someone aggressively kiss/suck a ticklish zone on you.",
-        "Have a ticklish zone rubbed for 45 seconds.",
-        "Have each player separately tickle you for 20 seconds.",
-        "Have someone tickle your feet with a soft item (like a feather) for 45 seconds.",
-        "Have someone tickle your armpits with their fingers for 45 seconds.",
-        "Have someone tickle your neck with their tongue for 45 seconds.",
-        "Have someone tickle your inner thighs for 45 seconds."
-      ],
-      "dom": [
-        "Give another player a phrase to stop. Tickle them until they say the phrase.",
-        "Tickle another player roughly for 45 seconds.",
-        "Aggressively kiss/suck a ticklish zone on another player.",
-        "Rub a ticklish zone of another player for 45 seconds.",
-        "Tickle another player for 20 seconds.",
-        "Tickle the feet of another player with a soft item (like a feather) for 45 seconds.",
-        "Tickle the armpits of another player with your fingers for 45 seconds.",
-        "Tickle the neck of another player with your tongue for 45 seconds.",
-        "Tickle the inner thighs of another player for 45 seconds."
-      ]
-    },
-    "Sensory Overload": {
-      "sub": [
-        "Get tickled by all players for 60 seconds.",
-        "Lay spread eagle (bound if needed). Another player may tickle you as they see fit for 60 seconds.",
-        "Close your eyes. Have as many hands/items tickle you for 60 seconds.",
-        "Have someone rapidly tickle you in your 3 most ticklish zones for 60 seconds.",
-        "Be given a phrase to stop. Be tickled by everyone until you say the phrase 3 times.",
-        "Until your next turn, each player may tickle you as they wish (minimum of 15 seconds each).",
-        "Have someone tickle your feet with an electric toothbrush for 60 seconds.",
-        "Have someone tickle your armpits with a soft item (like a feather) for 60 seconds.",
-        "Have someone tickle your neck with ice cubes for 60 seconds.",
-        "Have someone tickle you with multiple soft items (like a feather) at once for 60 seconds."
-      ],
-      "dom": [
-        "Tickle another player for 60 seconds.",
-        "Have another player lay spread eagle (bound if needed) and tickle them as you see fit for 60 seconds.",
-        "Close the eyes of another player and have as many hands/items as possible tickle them for 60 seconds.",
-        "Rapidly tickle another player in their 3 most ticklish zones for 60 seconds.",
-        "Give another player a phrase to stop. Tickle them until they say the phrase 3 times.",
-        "Tickle another player as you wish (minimum of 15 seconds each) until their next turn.",
-        "Tickle the armpits of another player with a soft item (like a feather) for 60 seconds.",
-        "Tickle another player with multiple soft items (like a feather) at once for 60 seconds."
-      ]
-    }
+    "Light": [
+      "{dom} lightly rubs their finger in a ticklish zone of {sub}.",
+      "{dom} uses an item to tickle {sub} for 15 seconds.",
+      "{dom} lightly grazes the armpits of {sub} for 10 seconds.",
+      "{dom} lightly scratches the soles of {sub}'s feet.",
+      "{dom} gives light kisses or blows on a sensitive area of {sub} for 15 seconds.",
+      "{dom} traces 3 shapes with their finger in a sensitive area of {sub}.",
+      "{dom} lightly tickles {sub} for 10 seconds.",
+      "{sub} keep a straight face as {dom} lightly rub a sensitive area for 10 seconds.",
+      "{dom} gives light kisses to 3 different areas of {sub} to see if they are ticklish there.",
+      "{dom} tickles the belly button of {sub} for 15 seconds.",
+      "{dom} lightly soft item (like a feather) the neck of {sub}.",
+      "{dom} tickles the earlobes of {sub} for 10 seconds.",
+      "{dom} traces a circle around the navel of {sub} for 15 seconds."
+    ],
+    "Normal": [
+      "{dom} tickles {sub} for 30 seconds.",
+      "{dom} playfully pokes {sub}.",
+      "{dom} uses an item to tickle {sub} for 30 seconds.",
+      "{dom} tickles {sub} in a single spot while {sub} is blindfolded for 30 seconds.",
+      "{dom} kisses/blows a sensitive zone of {sub}.",
+      "{dom} finds as many ticklish zones as they can on {sub} within 15 seconds.",
+      "{sub} keep a straight face as {dom} lightly rub a sensitive area for 30 seconds.",
+      "{dom} tickles the sides of {sub} for 30 seconds.",
+      "{dom} tickles the back of the knees of {sub} for 30 seconds.",
+      "{dom} tickles the feet of {sub} with their fingers for 30 seconds.",
+      "{dom} tickles the ribs of {sub} for 30 seconds."
+    ],
+    "Intense": [
+      "{dom} gives {sub} a phrase to stop and then tickles that player until they say the phrase.",
+      "{dom} tickles {sub} roughly for 45 seconds.",
+      "{dom} aggressively kisses/sucks a ticklish zone on {sub}.",
+      "{dom} rubs a ticklish zone of {sub} for 45 seconds.",
+      "{dom} tickles {sub} for 20 seconds.",
+      "{dom} tickles the feet of {sub} with a soft item (like a feather) for 45 seconds.",
+      "{dom} tickles the armpits of {sub} with their fingers for 45 seconds.",
+      "{dom} tickles the neck of {sub} with their tongue for 45 seconds.",
+      "{dom} tickles the inner thighs of {sub} for 45 seconds."
+    ],
+    "Sensory Overload": [
+      "{dom} tickles {sub} for 60 seconds.",
+      "{sub} lay spread eagle (bound if needed) and {dom} tickles them any way for 60 seconds.",
+      "{sub} closes their eyes and has as many hands/items as possible tickle them for 60 seconds.",
+      "{dom} rapidly tickles {sub} in their 3 most ticklish zones for 60 seconds.",
+      "{dom} gives {sub} a phrase to stop and then tickles until the phrase is said 3 times",
+      "{dom} tickles {sub} as they wish (minimum of 15 seconds) until the ticklee's next turn.",
+      "{dom} tickles the armpits of {sub} with a soft item (like a feather) for 60 seconds.",
+      "{dom} tickles {sub} with multiple soft items (like a feather) at once for 60 seconds."
+    ]
   }
 }

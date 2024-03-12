@@ -1,10 +1,14 @@
+import useAuth from 'context/hooks/useAuth';
+import { useMemo } from 'react';
+import actionStringReplacement from 'services/actionStringReplacement';
 import GameTile from './GameTile';
 import './styles.css';
 
 export default function GameBoard({ playerList, isTransparent, gameBoard }) {
+  const { user } = useAuth();
+
   if (!Array.isArray(gameBoard)) return null;
 
-  
   const tileTypeArray = new Set();
   
   gameBoard.forEach(({ title }, index) => {
@@ -20,13 +24,18 @@ export default function GameBoard({ playerList, isTransparent, gameBoard }) {
     );
     const hueIndex = Array.from(tileTypeArray).indexOf(entry.title) % 10 + 1;
 
+    const newDescription = useMemo(
+      () => actionStringReplacement(entry.description, entry.role, user.displayName),
+      [entry.description, entry.role, user.displayName]
+    );
+
     return (
       <GameTile
         // eslint-disable-next-line react/no-array-index-key
         key={index}
         id={`tile-${index}`}
         title={`#${index + 1}: ${entry.title}`}
-        description={entry.description}
+        description={newDescription}
         players={players}
         current={current}
         isTransparent={isTransparent}

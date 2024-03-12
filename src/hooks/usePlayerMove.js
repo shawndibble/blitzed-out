@@ -2,14 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sendMessage } from 'services/firebase';
 import useAuth from 'context/hooks/useAuth';
+import actionStringReplacement from 'services/actionStringReplacement';
 import usePlayerList from './usePlayerList';
 
-function parseDescription(text) {
-  const textArray = text?.split('%');
-  if (textArray?.length <= 1) {
-    return text;
-  }
-
+function getFinishResult(textArray) {
   // if we have %, we are on the finish tile. Let's get a random result.
   const finishValues = textArray
     .filter((n) => n)
@@ -31,6 +27,16 @@ function parseDescription(text) {
     [result]?.replace(/(\r\n|\n|\r)/gm, '');
 }
 
+function parseDescription(text, role, displayName) {
+  // our finish tile has %, so if we have it, figure out the result.
+  const textArray = text?.split('%');
+  if (textArray?.length <= 1) {
+    return actionStringReplacement(text, role, displayName);
+  }
+
+  return getFinishResult(textArray);
+}
+
 export default function usePlayerMove(room, rollValue, gameBoard) {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -42,7 +48,7 @@ export default function usePlayerMove(room, rollValue, gameBoard) {
   const handleTextOutput = useCallback(
     (newTile, rollNumber, newLocation, preMessage) => {
       let message = '';
-      const description = parseDescription(newTile?.description);
+      const description = parseDescription(newTile?.description, newTile.role, user.displayName);
       if (rollNumber !== -1) {
         message += `${t('roll')}: ${rollNumber}\n`;
       }

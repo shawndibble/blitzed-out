@@ -1,92 +1,59 @@
 {
     "label": "Torture des couilles",
     "type": "sex",
+    "dom": "Dominateur",
+    "sub": "Soumis",
     "actions": {
         "Aucun": [],
-        "Claques/Pression": {
-            "sub": [
-                "Masses tes couilles.",
-                "2 claques sur tes propres couilles.",
-                "Comprimes tes couilles pendant 15 secondes.",
-                "Tires sur tes couilles pendant 15 secondes.",
-                "Fais claquer tes couilles pendant 10 secondes.",
-                "Tires sur tes couilles jusqu'au prochain tour.",
-                "Tires sur tes couilles pendant 10 secondes.",
-                "Claques rapidement tes couilles pendant 15 secondes.",
-                "Petite claque à chaque fois que quelqu'un ait lancé les dés.",
-                "Bloques ta respiration pendant 10 secondes tout en recevant des claques sur les couilles.",
-                "Fais toi masser les couilles pendant 15 secondes."
-            ],
-            "dom": [
-                "Masse les couilles d'un autre joueur.",
-                "Donner 2 claques sur les couilles d'un autre joueur.",
-                "Comprime les couilles d'un autre joueur pendant 15 secondes.",
-                "Tire sur les couilles d'un autre joueur pendant 15 secondes.",
-                "Fais claquer les couilles d'un autre joueur pendant 10 secondes.",
-                "Tire sur les couilles d'un autre joueur jusqu'à son prochain tour.",
-                "Tire sur les couilles d'un autre joueur pendant 10 secondes.",
-                "Claque rapidement les couilles d'un autre joueur pendant 15 secondes.",
-                "Donne une petite claque aux couilles d'un autre joueur chaque fois que quelqu'un lance les dés.",
-                "Donne à un autre joueur 5 claques sur les couilles.",
-                "Bloque la respiration d'un autre joueur pendant 10 secondes tout en lui donnant des claques sur les couilles.",
-                "Fais masser les couilles d'un autre joueur pendant 15 secondes."
-            ]
-        },
-        "Coups/Écrasement": {
-            "sub": [
-                "Reçois 2 coups sur les couilles.",
-                "Écrases tes couilles.",
-                "Reçois 4 coups sur tes couilles.",
-                "Reçois 1 claque forte sur tes couilles.",
-                "Reçois 5 claques sur tes couilles.",
-                "Donner une claque forte sur tes propres couilles.",
-                "Écrase tes couilles jusqu'au prochain tour.",
-                "Reçois 4 claques fortes sur tes couilles.",
-                "Reçois un coup de genou dans les couilles."
-            ],
-            "dom": [
-                "Donne 2 coups sur les couilles d'un autre joueur.",
-                "Écrase les couilles d'un autre joueur.",
-                "Donne 4 coups sur les couilles d'un autre joueur.",
-                "Donne 1 claque forte sur les couilles d'un autre joueur.",
-                "Donne 5 claques sur les couilles d'un autre joueur.",
-                "Fais te donner une claque forte sur les couilles par un autre joueur.",
-                "Écrase les couilles d'un autre joueur jusqu'à son prochain tour.",
-                "Donne 4 claques fortes sur les couilles d'un autre joueur.",
-                "Donne un coup de genou dans les couilles d'un autre joueur."
-            ]
-        },
-        "Utiliser un objet": {
-            "sub": [
-                "Reçois un coup de poing sur les couilles.",
-                "Reçois un coup avec un objet sur les couilles.",
-                "Reçois 5 claques fortes sur les couilles.",
-                "Frappes tes couilles à chaque fois que quelqu'un lance le dés.",
-                "Reçois 2 claques sur les couilles avec un objet.",
-                "Reçois des coups sur les couilles pendant 20 secondes.",
-                "Reçois un coup avec un objet sur les couilles.",
-                "Reçois des claques rapides sur les couilles pendant 15 secondes avec un objet."
-            ],
-            "dom": [
-                "Donne un coup de poing aux couilles d'un autre joueur.",
-                "Donne un coup avec un objet aux couilles d'un autre joueur.",
-                "Donne 5 claques fortes sur les couilles d'un autre joueur.",
-                "Fais frapper les couilles d'un autre joueur à chaque fois que quelqu'un lance le dés.",
-                "Donne 2 claques avec un objet aux couilles d'un autre joueur.",
-                "Donne des coups sur les couilles d'un autre joueur pendant 20 secondes.",
-                "Donne un coup avec un objet aux couilles d'un autre joueur.",
-                "Donne des claques rapides sur les couilles d'un autre joueur pendant 15 secondes avec un objet."
-            ]
-        },
-        "Aussi fort que possible": {
-            "sub": [
-                "Reçois 5 coups les plus forts possibles sur les couilles avec un objet.",
-                "Fais-toi tirer les couilles très fort pendant 20 secondes."
-            ],
-            "dom": [
-                "Donne 5 coups les plus forts possibles sur les couilles d'un autre joueur avec un objet.",
-                "Fais tirer les couilles d'un autre joueur très fort pendant 20 secondes."
-            ]
-        }
+        "Claques/Pression": [
+            "{dom} donne une petite claque à {sub} après que quelqu'un ait lancé les dés.",
+            "{dom} donne 5 claques sur les testicules à {sub}.",
+            "{dom} masse les testicules de {sub} pendant 15 secondes.",
+            "{dom} donne 10 petites tapes sur les testicules à {sub}.",
+            "{dom} donne 3 claques sur les testicules à {sub}.",
+            "{dom} étire les testicules de {sub} pendant 15 secondes.",
+            "{dom} donne des coups sur les testicules de {sub} pendant 10 secondes.",
+            "{dom} serre les testicules de {sub} jusqu'au prochain tour.",
+            "{dom} serre les testicules de {sub} pendant 10 secondes.",
+            "{dom} tire les testicules de {sub}.",
+            "{dom} donne 2 claques sur les testicules à {sub}.",
+            "{dom} donne 2 claques rapides sur les testicules à {sub}.",
+            "{dom} donne une petite claque à {sub} après qu'il ait joué un tour complet.",
+            "{sub} retient son souffle pendant 10 secondes tout en recevant des claques sur les testicules de {dom}.",
+            "{dom} masse les testicules de {sub} pendant 15 secondes."
+        ],
+        "Coups/Écrasement": [
+            "{dom} donne 2 coups de poing sur les testicules de {sub}.",
+            "{dom} donne 4 coups de poing sur les testicules de {sub}.",
+            "{dom} donne des coups de poing sur les testicules de {sub} pendant 10 secondes.",
+            "{dom} donne une claque forte sur les testicules de {sub}.",
+            "{dom} donne 5 claques sur les testicules de {sub}.",
+            "{dom} donne un coup de genou dans les testicules de {sub}.",
+            "{dom} écrase les testicules de {sub} jusqu'au prochain tour.",
+            "{dom} donne 4 claques fortes sur les testicules de {sub}.",
+            "{dom} écrase les testicules de {sub}.",
+            "{dom} donne à {sub} une claque forte sur les testicules.",
+            "{dom} donne à {sub} 5 claques sur les testicules."
+        ],
+        "Utiliser un objet": [
+            "{dom} frappe les testicules de {sub} avec un objet.",
+            "{dom} écrase les testicules de {sub} avec un objet.",
+            "{sub} se fait frapper les testicules avec un objet pendant 15 secondes par {dom}.",
+            "{dom} donne à {sub} 5 claques fortes sur les testicules avec un objet.",
+            "{dom} frappe les testicules de {sub} avec un objet après que {sub} ait lancé les dés pour le reste du jeu.",
+            "{dom} donne à {sub} 2 claques sur les testicules avec un objet.",
+            "{dom} frappe les testicules de {sub} pendant 20 secondes avec un objet.",
+            "{sub} porte des poids sur les testicules jusqu'à la prochaine action de Ball Busting.",
+            "{dom} donne à {sub} 15 coups rapides sur les testicules avec un objet."
+        ],
+        "Aussi fort que possible": [
+            "{dom} donne à {sub} 5 des coups les plus forts sur les testicules avec un objet.",
+            "{dom} écrase les testicules de {sub} aussi fort que possible.",
+            "{dom} donne à {sub} 20 secondes de coups forts sur les testicules avec un objet.",
+            "{dom} tire fort sur les testicules de {sub} pendant 20 secondes.",
+            "{dom} donne un coup de pied dans les testicules de {sub}.",
+            "{dom} donne un coup de pied dans les testicules de {sub} pendant 15 secondes.",
+            "{dom} serre les testicules de {sub} avec son pied."
+        ]
     }
 }

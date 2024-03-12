@@ -5,84 +5,38 @@
     "sub": "Receiver",
     "actions": {
         "None": [],
-        "Squeeze/Rub": {
-            "sub": [
-                "Rub your nipples.",
-                "Have your nipples played with.",
-                "Flick your nipples.",
-                "Squeeze your nipples.",
-                "Have your nipples sucked.",
-                "Rub your nipples for 15 seconds.",
-                "Have your nipples flicked 10x",
-                "Have your nipples squeezed/rubbed for 15 seconds."
-            ],
-            "dom": [
-                "Play with someone's nipples.",
-                "Flick someone's nipples.",
-                "Squeeze someone's nipples.",
-                "Suck someone's nipples.",
-                "Rub someone's nipples for 15 seconds.",
-                "Flick someone's nipples 10 times.",
-                "Squeeze/rub someone's nipples for 15 seconds."
-            ]
-        },
-        "Pinch/Pull": {
-            "sub": [
-                "Pinch your nipples hard.",
-                "Have your nipples sucked hard.",
-                "Pull your nipples",
-                "Have your nipples nibbled on.",
-                "Have someone pull your nipples.",
-                "Rub your nipples for 15 seconds.",
-                "Have your nipples twisted in both directions.",
-                "Do a helicopter with your nipples while pulling them.",
-                "Get rough with your nipples for 20 seconds.",
-                "Have a player bite your nipples."
-            ],
-            "dom": [
-                "Pinch someone's nipples hard.",
-                "Suck someone's nipples hard.",
-                "Pull someone's nipples.",
-                "Nibble on someone's nipples.",
-                "Pull someone's nipples.",
-                "Rub someone's nipples for 15 seconds.",
-                "Twist someone's nipples in both directions.",
-                "Do a helicopter with someone's nipples while pulling them.",
-                "Get rough with someone's nipples for 20 seconds.",
-                "Bite someone's nipples."
-            ]
-        },
-        "Clips/Toys": {
-            "sub": [
-                "Toy to your nips for 10 seconds.",
-                "With toy on nipples, pull them.",
-                "Twist your nipples hard.",
-                "Flick your tit toy 10x.",
-                "Get rough with your nipples."
-            ],
-            "dom": [
-                "Use a toy on someone's nipples for 10 seconds.",
-                "Pull someone's nipples with a toy attached.",
-                "Twist someone's nipples hard.",
-                "Flick someone's tit toy 10 times.",
-                "Get rough with someone's nipples."
-            ]
-        },
-        "As Hard As Possible": {
-            "sub": [
-                "Have your nipples pinched as hard as possible.",
-                "Have your nipples pulled as far as you can handle.",
-                "Get your nipples twisted until you cry out.",
-                "Break. Get a nice nipple suck/massage.",
-                "Beat your chest/nipples."
-            ],
-            "dom": [
-                "Pinch someone's nipples as hard as possible.",
-                "Pull someone's nipples as far as they can handle.",
-                "Twist someone's nipples until they cry out.",
-                "Give someone a nice nipple suck/massage.",
-                "Beat someone's chest/nipples."
-            ]
-        }
+        "Squeeze/Rub": [
+            "{dom} plays with {sub}'s nipples.",
+            "{dom} flicks {sub}'s nipples.",
+            "{dom} squeezes {sub}'s nipples.",
+            "{dom} sucks {sub}'s nipples.",
+            "{dom} rubs {sub}'s nipples for 15 seconds.",
+            "{dom} flicks {sub}'s nipples 10 times.",
+            "{dom} squeezes/rubs {sub}'s nipples for 15 seconds."
+        ],
+        "Pinch/Pull": [
+            "{dom} pinches {sub}'s nipples hard.",
+            "{dom} sucks {sub}'s nipples hard.",
+            "{dom} pulls {sub}'s nipples.",
+            "{dom} nibbles on {sub}'s nipples.",
+            "{dom} twists {sub}'s nipples in both directions.",
+            "{dom} does a helicopter with {sub}'s nipples while pulling them.",
+            "{dom} gets rough with {sub}'s nipples for 20 seconds.",
+            "{dom} bites {sub}'s nipples."
+        ],
+        "Clips/Toys": [
+            "{dom} uses a toy on {sub}'s nipples for 10 seconds.",
+            "{dom} pulls {sub}'s nipples with a toy attached.",
+            "{dom} twists {sub}'s nipples hard.",
+            "{dom} flicks {sub}'s tit toy 10 times.",
+            "{dom} gets rough with {sub}'s nipples."
+        ],
+        "As Hard As Possible": [
+            "{dom} pinches {sub}'s nipples as hard as possible.",
+            "{dom} pulls {sub}'s nipples as far as they can handle.",
+            "{dom} twists {sub}'s nipples until they cry out.",
+            "{dom} gives {sub} a nice nipple suck/massage.",
+            "{dom} beats {sub}'s chest/nipples."
+        ]
     }
 }

@@ -1,71 +1,36 @@
 {
     "label": "Plan pisse",
     "type": "sex",
+    "dom": "Pisseur",
+    "sub": "Pissé(e)",
     "actions": {
         "Aucun": [],
-        "Pisser dans un verre": {
-            "sub": [
-                "Bois de l'eau",
-                "Fais boire de l'eau à quelqu'un d'autre",
-                "Pisses dans un récipient",
-                "Bois de l'eau à petites gorgées",
-                "Fais boire de l'eau à quelqu'un d'autre à petites gorgées",
-                "Renifles ta propre pisse",
-                "Renifles la pisse de quelqu'un d'autre",
-                "Pisses dans un récipient",
-                "Prends une gorgée d'eau",
-                "Demandes à quelqu'un de te donner un récipient avec sa pisse"
-            ],
-            "dom": [
-                "Fais boire de l'eau à quelqu'un",
-                "Demande à quelqu'un de pisser dans un récipient",
-                "Regardes quelqu'un boire de l'eau à petites gorgées",
-                "Fais boire de l'eau à quelqu'un d'autre à petites gorgées",
-                "Fais renifler ta pisse à quelqu'un d'autre",
-                "Fais renifler ta pisse à quelqu'un d'autre",
-                "Demande à quelqu'un de pisser dans un récipient",
-                "Fais boire de l'eau à quelqu'un d'autre",
-                "Regardes quelqu'un renifler ta pisse",
-                "Demande à quelqu'un de remplir un récipient avec sa pisse"
-            ]
-        },
-        "Douche dorée": {
-            "sub": [
-                "Fais-toi pisser dessus",
-                "Pisses-toi dessus",
-                "Mets ta bite et tes couilles dans un récipient plein de pisse",
-                "Bois de l'eau à petites gorgées",
-                "Fais uriner quelqu'un sur ta gueule",
-                "Pisses en visant ton propre visage",
-                "Bois de l'eau"
-            ],
-            "dom": [
-                "Pisse sur quelqu'un",
-                "Regardes quelqu'un se pisser dessus",
-                "Fais tremper la bite et les couilles de quelqu'un dans un récipient plein de pisse",
-                "Regardes quelqu'un boire de l'eau à petites gorgées",
-                "Urine sur la gueule de quelqu'un",
-                "Regardes quelqu'un pisser sur son propre visage",
-                "Fais boire de l'eau à quelqu'un d'autre"
-            ]
-        },
-        "Boire": {
-            "sub": [
-                "Bois ta propre pisse",
-                "Bois la pisse de quelqu'un d'autre à distance",
-                "Bois la pisse directement à la source avec la bouche",
-                "Bois de l'eau",
-                "Bois de l'eau à petites gorgées",
-                "Essayer de pisser dans ta bouche. Avales."
-            ],
-            "dom": [
-                "Fais boire ta propre pisse à quelqu'un d'autre",
-                "Fais boire la pisse de quelqu'un d'autre à distance à quelqu'un d'autre",
-                "Fais boire la pisse directement à la source avec la bouche à quelqu'un d'autre",
-                "Fais boire de l'eau à quelqu'un d'autre",
-                "Fais boire de l'eau à petites gorgées à quelqu'un d'autre",
-                "Fais boire l'urine de quelqu'un d'autre à quelqu'un d'autre en visant sa bouche"
-            ]
-        }
+        "Pisser dans un verre":[
+            "{sub} boit de l'eau",
+            "{sub} avale de l'eau",
+            "{dom} pisse dans un récipient",
+            "{sub} sent sa propre urine",
+            "{sub} sent l'urine de {dom}",
+            "{dom} pisse dans un récipient et fait tenir {sub} le récipient",
+            "{sub} prend une gorgée d'eau",
+            "{dom} donne à {sub} un récipient de leur urine"
+        ],
+        "Douche dorée": [
+            "{dom} pisse sur le corps de {sub}",
+            "{sub} pisse sur eux-mêmes",
+            "{sub} met leur bite et leurs couilles dans un récipient d'urine",
+            "{sub} avale de l'eau",
+            "{dom} pisse sur le visage de {sub}",
+            "{sub} pisse sur leur propre visage",
+            "{sub} boit de l'eau"
+        ],
+        "Boire": [
+            "{sub} boit sa propre urine",
+            "{sub} boit l'urine de {dom} à distance",
+            "{sub} boit l'urine de {dom} directement avec leur bouche sur la source",
+            "{sub} boit de l'eau",
+            "{dom} avale de l'eau pendant que {sub} regarde",
+            "{sub} essaye de pisser dans leur propre bouche et d'avaler."
+        ]
     }
 }

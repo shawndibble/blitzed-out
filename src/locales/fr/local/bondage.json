@@ -3,57 +3,33 @@
     "type": "foreplay",
     "actions": {
         "Aucun": [],
-        "Cordes et menottes": {
-            "sub": [
-                "Attachez vos poignets ensemble",
-                "Liez-vous à un meuble jusqu'à votre prochaine action.",
-                "Ayez vos poignets liés autour du corps d'un autre joueur jusqu'à ce qu'une action nécessite la libération de l'un de vous.",
-                "Laissez-vous attacher par un autre joueur comme il le souhaite.",
-                "Attachez-vous jusqu'à votre prochaine action. ",
-                "Ayez les bras liés derrière le dos jusqu'à votre prochaine action.",
-                "Ayez vos bras attachés à vos jambes jusqu'à ce qu'une action nécessite votre libération.",
-                "Soyez attaché à un meuble jusqu'à ce qu'une action nécessite votre libération.",
-                "Faites lier vos chevilles ensemble",
-                "Demandez à un autre joueur de vous mettre dans une position difficile jusqu'à votre prochaine action",
-                "Soyez lié, écartez l'aigle jusqu'à ce qu'une action exige le contraire."
-            ],
-            "dom": [
-                "Attachez les poignets d'un autre joueur ensemble",
-                "Liez un autre joueur à un meuble jusqu'à sa prochaine action.",
-                "Ayez les poignets d'un autre joueur liés autour de votre corps jusqu'à ce qu'une action nécessite la libération de l'un de vous.",
-                "Attachez un autre joueur comme vous le souhaitez.",
-                "Laissez un autre joueur vous attacher jusqu'à sa prochaine action. ",
-                "Ayez les bras d'un autre joueur liés derrière le dos jusqu'à sa prochaine action.",
-                "Ayez les bras d'un autre joueur attachés à ses jambes jusqu'à ce qu'une action nécessite sa libération.",
-                "Liez un autre joueur à un meuble jusqu'à ce qu'une action nécessite sa libération.",
-                "Faites lier les chevilles d'un autre joueur ensemble",
-                "Mettez un autre joueur dans une position difficile jusqu'à sa prochaine action",
-                "Liez un autre joueur, écartez l'aigle jusqu'à ce qu'une action exige le contraire."
-            ]
-        },
-        "Ajouter des bandeaux et des gags": {
-            "sub": [
-                "Ayez les yeux bandés jusqu'à votre prochaine action.",
-                "Soyez bâillonné jusqu'à votre prochaine action.",
-                "Ayez les yeux bandés et bâillonnez-vous jusqu'à votre prochaine action.",
-                "Ayez les yeux bandés et bâillonnez-vous jusqu'à ce qu'une action nécessite votre libération.",
-                "Ayez les yeux bandés, bâillonnés et les poignets liés jusqu'à votre prochaine action.",
-                "Soyez bâillonné avec un vêtement jusqu'à votre prochaine action qui nécessite votre bouche.",
-                "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action.",
-                "Ayez les yeux bandés avec un vêtement jusqu'à votre prochaine action.",
-                "Un autre joueur peut choisir quoi utiliser comme bandeau et/ou bâillon jusqu'à votre prochaine action."
-            ],
-            "dom": [
-                "Bandez les yeux d'un autre joueur jusqu'à sa prochaine action.",
-                "Bâillonnez un autre joueur jusqu'à sa prochaine action.",
-                "Bandez les yeux et bâillonnez un autre joueur jusqu'à sa prochaine action.",
-                "Bandez les yeux et bâillonnez un autre joueur jusqu'à ce qu'une action nécessite sa libération.",
-                "Bandez les yeux, bâillonnez et liez les poignets d'un autre joueur jusqu'à sa prochaine action.",
-                "Bâillonnez un autre joueur avec un vêtement jusqu'à sa prochaine action qui nécessite sa bouche.",
-                "Bandez les yeux d'un autre joueur avec un vêtement jusqu'à sa prochaine action.",
-                "Bandez les yeux d'un autre joueur avec un vêtement jusqu'à sa prochaine action.",
-                "Choisissez quoi utiliser comme bandeau et/ou bâillon pour un autre joueur jusqu'à sa prochaine action."
-            ]
-        }
+        "Attacher": [
+            "{dom} attache les poignets de {sub} ensemble.",
+            "{dom} attache {sub} à un meuble jusqu'à l'action suivante du receveur.",
+            "{dom} attache les poignets de {sub} autour du corps d'un autre joueur jusqu'à ce qu'une action nécessite qu'ils soient libérés.",
+            "{dom} attache {sub} à un meuble jusqu'à ce qu'une action nécessite qu'ils soient libérés.",
+            "{dom} attache {sub} en position de hogtie jusqu'à l'action suivante du receveur.",
+            "{dom} attache les bras de {sub} dans leur dos jusqu'à l'action suivante du receveur.",
+            "{dom} attache les bras de {sub} à leurs jambes jusqu'à ce qu'une action nécessite qu'ils soient libérés.",
+            "{sub} s'attache les poignets et donne la clé/mécanisme de libération à un autre joueur.",
+            "{sub} attache leurs jambes ensemble et demande à un autre joueur de restreindre davantage leurs mouvements."
+        ],
+        "Privation sensorielle": [
+            "{dom} bande les yeux de {sub} jusqu'à l'action suivante du receveur.",
+            "{dom} baillonne {sub} jusqu'à l'action suivante du receveur.",
+            "{dom} bande les yeux et baillonne {sub} jusqu'à l'action suivante du receveur.",
+            "{dom} prive {sub} d'un sens tout en stimulant un autre.",
+            "{sub} se bande les yeux et demande à un autre joueur de guider leurs mouvements.",
+            "{sub} se baillonne et communique de manière non verbale pour le reste de la partie.",
+            "{sub} utilise des écouteurs pour bloquer leur ouïe et se fie au toucher pour la communication."
+        ],
+        "Tension": [
+            "{dom} applique une corde de tension à {sub}.",
+            "{dom} utilise une barre d'écartement ou un autre dispositif sur {sub}.",
+            "{dom} attache {sub} dans une position de stress jusqu'à l'action suivante du receveur.",
+            "{sub} applique une corde de tension à eux-mêmes et demande à un autre joueur de la resserrer.",
+            "{sub} porte une barre d'écartement ou un autre dispositif et demande à un autre joueur de contrôler leurs mouvements pendant le tour.",
+            "{sub} s'attache dans une position de stress et attend qu'un autre joueur les libère."
+        ]
     }
-}
+    }

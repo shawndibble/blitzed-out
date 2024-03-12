@@ -1,89 +1,42 @@
 ﻿{
     "label": "Tortura de pezones",
     "type": "sex",
+    "dom": "Torturador",
+    "sub": "Receptor",
     "actions": {
-        "Ninguna": [],
-        "Apretar/Acariciar": {
-            "sub": [
-                "Acaricia tus pezones.",
-                "Deja que jueguen con tus pezones.",
-                "Golpea suavemente tus pezones.",
-                "Aprieta tus pezones.",
-                "Deja que te chupen los pezones.",
-                "Acaricia tus pezones durante 15 segundos.",
-                "Chupa los pezones a otro jugador.",
-                "Deja que te golpeen los pezones con los dedos 10 veces.",
-                "Deja que te aprieten/acaricien los pezones durante 15 segundos."
-            ],
-            "dom": [
-                "Juega con los pezones de otro jugador.",
-                "Dale golpes con los dedos en los pezones a otro jugador.",
-                "Ordena a otro jugador que te acaricie los pezones.",
-                "Aprieta los pezones de otor jugador.",
-                "Ordena a otro jugador que te chupe los pezones.",
-                "Acaricia los pezones de otro jugador durante 15 segundos.",
-                "Aprieta/acaricia los pezones de otro jugador durante 15 segundos.",
-                "Ordena a otro jugador te apriete/acaricie los pezones durante 15 segundos."
-            ]
-        },
-        "Pellizcar/Tirar": {
-            "sub": [
-                "Pellizca tus pezones fuertemente.",
-                "Deja que te chupen los pezones fuertemente.",
-                "Tira de tus pezones.",
-                "Deja que mordisqueen tus pezones.",
-                "Deja que alguien te estire de los pezones.",
-                "Acaricia tus pezones durante 15 segundos.",
-                "Deja que te retuerzan los pezones en ambas direcciones.",
-                "Retuerce tus pezones mientras los estiras.",
-                "Sé duro con tus pezones durante 20 segundos.",
-                "Deja que otro jugador te muerda los pezones."
-            ],
-            "dom": [
-                "Aprieta fuertemente los pezones de otro jugador.",
-                "Chupa los pezones de otro jugador.",
-                "Ordena a otro jugador que te chupe los pezones.",
-                "Ordena a otro jugador que te tire de los pezones.",
-                "Mordisquea los pezones de otro jugador.",
-                "Estira los pezones de otro jugador.",
-                "Ordena a otro jugador que te acaricie los pezones durante 15 segundos.",
-                "Retuerce los pezones de otro jugador en ambas direcciones.",
-                "Retuerce los pezones de otro jugador mientras giras a ambos lados.",
-                "Sé duro con los pezones de otro jugador durante 20 segundos.",
-                "Muerde los pezones de otro jugador."
-            ]
-        },
-        "Pinzas/Juguetes": {
-            "sub": [
-                "Pon un juguete en tus pezones 10 segundos.",
-                "Con el juguete en los pezones, tira de ellos.",
-                "Gira tus pezones fuertemente.",
-                "Golpea el juguete para pezones 10 veces.",
-                "Sé duro con tus pezones."
-            ],
-            "dom": [
-                "Utiliza un juguete en los pezones de otro jugador durante 10 segundos.",
-                "Tira de los pezones de otro jugador con un juguete.",
-                "Retuerce los pezones de otro jugador con un juguete.",
-                "Golpea los pezones de otro jugador con un juguete 10 veces.",
-                "Sé duro con los pezones de otro jugador."
-            ]
-        },
-        "Lo más fuerte posible": {
-            "sub": [
-                "Deja que te pellizquen los pezones lo más fuerte posible.",
-                "Tira de tus pezones lo máximo que puedas soportar.",
-                "Deja que te retuerzan los pezones hasta que grites.",
-                "Descansa. Recibe un buen chupeteo/masaje en los pezones.",
-                "Golpea tu pecho/pezones."
-            ],
-            "dom": [
-                "Pellizca los pezones de otro jugador lo más fuerte posible.",
-                "Tira de los pezones de otro jugador lo máximo que pueda soportar.",
-                "Retuerce los pezones de otro jugador hasta que grite.",
-                "Golpea el pecho/los pezones de otro jugador.",
-                "Dale a otro jugador una chupada/masaje de pezones."
-            ]
-        }
+        "Ninguno": [],
+        "Apretar/Frotar": [
+            "{dom} juega con los pezones de {sub}.",
+            "{dom} flicknea los pezones de {sub}.",
+            "{dom} aprieta los pezones de {sub}.",
+            "{dom} chupa los pezones de {sub}.",
+            "{dom} frota los pezones de {sub} durante 15 segundos.",
+            "{dom} flicknea los pezones de {sub} 10 veces.",
+            "{dom} aprieta/frota los pezones de {sub} durante 15 segundos."
+        ],
+        "Pellizar/Jalar": [
+            "{dom} pellizca los pezones de {sub} fuerte.",
+            "{dom} chupa los pezones de {sub} fuerte.",
+            "{dom} jala los pezones de {sub}.",
+            "{dom} roe los pezones de {sub}.",
+            "{dom} retuerce los pezones de {sub} en ambas direcciones.",
+            "{dom} hace un helicóptero con los pezones de {sub} mientras los jala.",
+            "{dom} se pone rudo con los pezones de {sub} durante 20 segundos.",
+            "{dom} muerde los pezones de {sub}."
+        ],
+        "Pinzas/Juguetes": [
+            "{dom} usa un juguete en los pezones de {sub} durante 10 segundos.",
+            "{dom} jala los pezones de {sub} con un juguete adjunto.",
+            "{dom} retuerce los pezones de {sub} fuerte.",
+            "{dom} flicknea el juguete de {sub} 10 veces.",
+            "{dom} se pone rudo con los pezones de {sub}."
+        ],
+        "Lo más duro posible": [
+            "{dom} pellizca los pezones de {sub} lo más fuerte posible.",
+            "{dom} jala los pezones de {sub} lo más lejos que pueden soportar.",
+            "{dom} retuerce los pezones de {sub} hasta que griten.",
+            "{dom} da a {sub} una agradable chupada/masaje en los pezones.",
+            "{dom} golpea el pecho/los pezones de {sub}."
+        ]
     }
 }

@@ -3,68 +3,32 @@
     "type": "foreplay",
     "actions": {
         "Ninguna": [],
-        "Verbal": {
-            "sub": [
-                "Inventa un mantra. Repítelo en tu turno en cada ronda.",
-                "Un jugador te da un título despectivo (esclavo, mascota, etc.). Repite 'Soy un <término>' 15 veces.",
-                "Escribe líneas o un cuento corto centrado en tu papel sumiso. Léelo en voz alta.",
-                "Los demás jugadores te asignarán un apodo humillante al que debes responder el resto del juego.",
-                "Debes referirte a aquellos que no usan la opción de humillación como señor/señora/amo/ama.",
-                "Comparte una fantasía o deseo relacionado con la humillación.",
-                "Cuenta en alto una experiencia pasada que te hizo sentir humillado/a.",
-                "Diles a los jugadores que no usan la opción de humillación por qué son superiores a ti.",
-                "Repite afirmaciones degradantes elegidas por otro jugador."
-            ],
-            "dom": [
-                "Elije un mantra para otro jugador y haz que lo repita en su turno en cada ronda.",
-                "Asígnale un título despectivo a otro jugador y haz que repita 'Soy un <término>' 15 veces.",
-                "Ordena a otro jugador que escriba algunas frases o una breve historia centrada en su papel de sumiso y lo lea en voz alta.",
-                "Asigna un apodo humillante a otro jugador y haz que responda a él durante el resto del juego.",
-                "Ordena a otro jugador que se refiera a aquellos que no usan la opción de humillación como señor/señora/amo/ama.",
-                "Ordena a otro jugador que comparta una fantasía o deseo relacionado con la humillación.",
-                "ordena a otro jugador que cuente en alto una experiencia pasada que lo hizo sentir humillado/a.",
-                "Ordena a otro jugador que diga por qué los jugadores que no usan la opción de humillación son superiores a él/ella.",
-                "Elije frases degradantes para otro jugador y haz que las repita."
-            ]
-        },
-        "Físico": {
-            "sub": [
-                "Escribe palabras despectivas en tu cuerpo.",
-                "Arrodíllate con la cabeza agachada hasta tu próximo turno.",
-                "Sé un mueble para otro jugador hasta tu próximo turno.",
-                "Hasta que te reemplacen, eres el chico/chica de los recados durante el resto del juego.",
-                "Recibe una bofetada suave en la cara, una nalgada o un latigazo suaves.",
-                "Adora/huele las axilas de otro jugador.",
-                "Usa una prenda de vestir que te haga sentir humillado/a durante el resto del juego.",
-                "Ponte de rodillas. Deja que te ahoguen y te humillen verbalmente.",
-                "Da un masaje de pies a otro jugador.",
-                "Gatea por la habitación.",
-                "Gatea hacia otro jugador y luego espera agachado y enfrente de ellos hasta tu próximo turno.",
-                "Usa un collar y una correa durante el resto del juego. Usa otra cosa si no tienes.",
-                "Otro jugador puede elegir qué parte del cuerpo debes besar o adorar.",
-                "Completa tareas o actos sexuales designados por otros jugadores, enfatizando la sumisión y obediencia.",
-                "Realiza tareas o actos sexuales elegidos por otros jugadores que enfaticen tu sumisión y obediencia.",
-                "Ponte la ropa interior de otro jugador en la cara hasta tu próximo turno.",
-                "Besa los pies de los jugadores que no usen la opción de humillación.",
-                "Permite que otro jugador te escupa."
-            ],
-            "dom": [
-                "Ordena a otro jugador que escriba palabras despectivas en su cuerpo.",
-                "Ordena a otro jugador que se arrodille con la cabeza agachada hasta su próximo turno.",
-                "Ordena a otro jugador que sea un mueble para ti hasta su próximo turno.",
-                "Ordena a otro jugador que sea el chico/chica de los recados durante el resto del juego.",
-                "Ordena a otro jugador que reciba una bofetada suave, una nalgada o un latigazo suaves.",
-                "Ordena a otro jugador que adore/huela las axilas de un jugador.",
-                "Ordena a otro jugador que use una prenda de vestir que lo haga sentir humillado/a durante el resto del juego.",
-                "Ordena a otro jugador que se arrodille, ahógalo y humíllalo verbal y físicamente.",
-                "Ordena a otro jugador que te dé un masaje de pies.",
-                "Ordena a otro jugador que gatee por la habitación.",
-                "Ordena a otro jugador que se gatee hacia ti y luego espere agachado y enfrente de ti hasta su próximo turno.",
-                "Ordena a otro jugador que use un collar y una correa durante el resto del juego. Usa otra cosa si no tienes.",
-                "Elije qué parte de tu cuerpo otro jugador debe besar o adorar.",
-                "Ordena a otro jugador que realice tareas o actos sexuales designados por ti, enfatizando la sumisión y la obediencia.",
-                "Escupe a otro jugador."
-            ]
-        }
+        "Verbal": [
+            "{dom} asigna un título despectivo a {sub} y les hace repetir 'Soy un <término>' 10 veces.",
+            "{dom} asigna un apodo degradante a {sub} que deben responder durante el resto del juego.",
+            "{dom} hace que {todos los subs} se refieran a ellos como señor / señora / amo / ama durante el resto del juego.",
+            "{sub} comparte una fantasía o deseo relacionado con la humillación.",
+            "{sub} discute y procesa una experiencia pasada que les hizo sentir humillados.",
+            "{sub} dice cómo {dom} es superior a ellos.",
+            "{dom} elige afirmaciones degradantes para que {sub} las repita."
+        ],
+        "Física": [
+            "{dom} escribe palabras despectivas en el cuerpo de {sub}.",
+            "{sub} se arrodilla, cabeza abajo delante de {dom} hasta el siguiente turno de {player}.",
+            "{dom} usa a {sub} como mueble hasta el siguiente turno de {player}.",
+            "{sub} es el mandadero/a de {dom} durante el resto del juego.",
+            "{dom} da una bofetada, azote o flagelación a {sub}.",
+            "{sub} adora/huele las axilas de {dom}.",
+            "{dom} hace que {sub} lleve algo que les haga sentir humillados durante el resto del juego.",
+            "{sub} se arrodilla. {dom} lo ahoga mientras lo degrada verbalmente.",
+            "{dom} recibe un masaje en los pies de {sub}.",
+            "{sub} se arrastra por la habitación.",
+            "{sub} se arrastra hasta {dom}, luego se queda inclinado frente a ellos hasta el siguiente turno de {player}.",
+            "{sub} lleva un collar/correa de la elección de {dom} durante el resto del juego.",
+            "{dom} elige una parte del cuerpo para que {sub} la bese/adore.",
+            "{dom} designa tareas o actos sexuales para que {sub} los complete que enfaticen su sumisión y obediencia.",
+            "{sub} se pone la ropa interior de {dom} en la cara hasta que una acción requiera que se la quiten.",
+            "{dom} escupe a {sub}."
+        ]
     }
 }

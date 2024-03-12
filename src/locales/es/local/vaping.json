@@ -1,6 +1,6 @@
 ﻿{
     "label": "Vapeo",
-    "type": "Consumición",
+    "type": "consumption",
     "actions": {
         "Ninguna": [],
         "Principiante": [

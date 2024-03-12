@@ -1,60 +1,31 @@
 ﻿{
   "label": "Pies",
-  "type": "Preliminares",
+  "type": "foreplay",
   "actions": {
     "Ninguno": [],
-    "Beso": {
-      "sub": [
-        "Besa el empeine de los pies de otro jugador durante 30 segundos.",
-        "Besa la planta de los pies de otro jugador durante 30 segundos.",
-        "Besa los dedos de los pies de otro jugador durante 15 segundos.",
-        "Besa los laterales de los pies de otro jugador durante 30 segundos.",
-        "Besa los talones de otro jugador durante 30 segundos.",
-        "Besar los tobillos de otro jugador durante 30 segundos."
-      ],
-      "dom": [
-        "Ordena a otro jugador que te bese el empeine de los pies durante 30 segundos.",
-        "Ordena a otro jugador que te bese la planta de los pies durante 30 segundos.",
-        "Ordena a otro jugador que te bese los laterales de los pies durante 30 segundos.",
-        "Ordena a otro jugador que te bese los talones durante 30 segundos.",
-        "Ordena a otro jugador que te bese los tobillos durante 30 segundos."
-      ]
-    },
-    "Chupar": {
-      "sub": [
-        "Chupa los dedos de los pies de otro jugador durante 30 segundos.",
-        "Chupa los laterales de los pies de otro jugador durante 30 segundos.",
-        "Chupa los talones de otro jugador durante 30 segundos.",
-        "Chupa los tobillos de otro jugador durante 30 segundos.",
-        "Chupa las plantas de los pies de otro jugador durante 30 segundos.",
-        "Chupa las puntas de los dedos de los pies de otro jugador durante 15 segundos."
-      ],
-      "dom": [
-        "Ordena a otro jugador que te lama los pies durante 30 segundos.",
-        "Ordena a otro jugador que te lama los laterales de los pies durante 30 segundos.",
-        "Ordena a otro jugador que te chupe los talones durante 30 segundos.",
-        "Ordena a otro jugador que te chupe los tobillos durante 30 segundos.",
-        "Ordena a otro jugador que te chupe las plantas de los pies durante 30 segundos.",
-        "Ordena a otro jugador que te chupe la punta de los dedos de los pies durante 15 segundos."
-      ]
-    },
-    "Adoración": {
-      "sub": [
-        "Adora los pies de otro jugador durante 60 segundos (1 m)",
-        "Dale a otro jugador un masaje en los pies durante 120 segundos (2m)",
-        "Besa y lame las plantas de los pies de otro jugador durante 60 segundos (1m)",
-        "Chupa los dedos de los pies de otro jugador mientras se los masajeas durante 120 segundos (2 m)",
-        "Masajea los pies de otro jugador con aceite/loción durante 120 segundos (2 m)",
-        "Usa tus manos y boca para adorar los pies de otro jugador durante 180 segundos (3 m)."
-      ],
-      "dom": [
-        "Ordena a otro jugador que adore tus pies durante 60 segundos (1 m)",
-        "Ordena a otro jugador que te dé un masaje en los pies durante 120 segundos (2m).",
-        "Ordena a otro jugador que te bese y lama las plantas de los pies durante 60 segundos (1 m)",
-        "Ordena a otro jugador que te chupe los dedos de los pies mientras te los masajea durante 120 segundos (2 m)",
-        "Ordena a otro jugador que te masajee los pies con aceite/loción durante 120 segundos (2 m)",
-        "Ordena a otro jugador que use sus manos y su boca para adorar tus pies durante 180 segundos (3 m)."
-      ]
-    }
+    "Beso": [
+      "{sub} besa la parte superior de los pies de {dom} durante 30 segundos.",
+      "{sub} besa la planta de los pies de {dom} durante 30 segundos.",
+      "{sub} besa cada uno de los dedos de los pies de {dom} durante 15 segundos.",
+      "{sub} besa los arcos de los pies de {dom} durante 30 segundos.",
+      "{sub} besa los talones de los pies de {dom} durante 30 segundos.",
+      "{sub} besa los tobillos de los pies de {dom} durante 30 segundos."
+    ],
+    "Chupar": [
+      "{sub} chupa los dedos de los pies de {dom} durante 30 segundos.",
+      "{sub} lame los arcos de los pies de {dom} durante 30 segundos.",
+      "{sub} chupa los talones de los pies de {dom} durante 30 segundos.",
+      "{sub} chupa los tobillos de los pies de {dom} durante 30 segundos.",
+      "{sub} chupa las plantas de los pies de {dom} durante 30 segundos.",
+      "{sub} chupa las puntas de los dedos de los pies de {dom} durante 15 segundos."
+    ],
+    "Adoración": [
+      "{sub} adora los pies de {dom} durante 60 segundos (1m).",
+      "{sub} da a {dom} un masaje en los pies durante 120 segundos (2m).",
+      "{sub} besa y lame las plantas de los pies de {dom} durante 60 segundos (1m).",
+      "{sub} chupa los dedos de los pies de {dom} mientras les da un masaje en los pies durante 120 segundos (2m).",
+      "{sub} masajea los pies de {dom} con aceite/loción durante 120 segundos (2m).",
+      "{sub} usa sus manos y boca para adorar los pies de {dom} durante 180 segundos (3m)."
+    ]
   }
 }

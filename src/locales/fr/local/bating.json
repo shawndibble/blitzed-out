@@ -1,47 +1,54 @@
 {
-    "label": "Se masturber",
-    "type": "sex",
-    "actions": {
-      "Aucun": [],
-      "Masturbation/Branle": [
-        "Branles un autre joueur par 30 caresses lentes.",
-        "Branles un autre joueur aussi rapidement que possible pendant 30 secondes.",
-        "Branles-toi en synchronisation avec ta respiration jusqu'à votre prochain tour.",
-        "Mets du lubrifiant sur tous les autres joueurs.",
-        "Passes 30 secondes à branler jusqu'à 2 joueurs.",
-        "30 mouvements de branle associés chacun à une inspration profonde.",
-        "Frottes ton doigt légèrement sur la bite d'un autre joueur.",
-        "Masturbes-toi avec ta main non dominante.",
-        "Contractes ton cul (Kegel) à chaque mouvement de branle jusqu'à ton prochain tour.",
-        "30 mouvements de branle fermes sur toi.",
-        "Craches sur ta bite.",
-        "Masturbes-toi jusqu'à ton prochain tour tout en utilisant ton autre main sur une zone érogène.",
-        "Masturbes-toi et un autre joueur en même temps.",
-        "Joues avec les parties génitales d'un autre joueur avec tes deux mains.",
-        "Branlez-vous avec un mouvement de torsion de la main. ",
-        "Utilisez votre paume pour frotter la tête pendant 60 secondes.",
-        "Utilisez deux doigts et concentrez-vous uniquement sur le frein.",
-        "Alternez entre des coups rapides et lents jusqu'à une autre action Gooning."
-      ],
-      "Edging": [
-        "Amènes-toi au bord de l'orgasme (edging).",
-        "Branles-toi aussi rapidement que possible jusqu'à ton prochain tour.",
-        "Amènes-toi au bord de l'orgasme (edging) deux fois.",
-        "Amènes-toi au bord de l'orgasme (edging) en te branlant avec ta main non dominante.",
-        "Amenès un autre joueur au bord de l'orgasme (edging).",
-        "Amènes-toi au bord de l'orgasme (edging) en utilisant seulement quelques doigts.",
-        "Amènes un autre joueur au bord de l'orgasme (edging) en utilisant toute ta main.",
-        "Amènes-toi rapidement au bord de l'orgasme (edging), puis contracte ton cul (Kegel) aussi longtemps que possible.",
-        "Frottes ton périnée tout en te branlant.",
-        "Amènes un autre joueur au bord de l'orgasme (edging) d'une main tout lui caressant une zone érogène de l'autre main."
-      ],
-      "Jouets": [
-        "Utilises un jouet sur tes parties génitales.",
-        "Utilises un jouet sur les parties génitales d'un autre joueur.",
-        "Caresses ta bite lentement avec un jouet jusqu'à ton prochain tour.",
-        "Utilises le jouet sur quelqu'un tout en te branlant.",
-        "Utilises un jouet sur ta bite pendant 30 secondes les yeux fermés.",
-        "Utilises un jouet sur ton périnée."
-      ]
-    }
+  "label": "Se masturber",
+  "type": "sex",
+  "actions": {
+    "None": [],
+    "Masturbation": [
+      "{sub} donne à {dom} 30 coups lents",
+      "{sub} branle {dom} aussi vite qu'il peut pendant 30 secondes.",
+      "{player} synchronise ses coups avec sa respiration jusqu'à son prochain tour.",
+      "{sub} applique du lubrifiant/de la salive sur les organes génitaux de tous les joueurs.",
+      "{sub} passe 30 secondes à branler jusqu'à 2 joueurs.",
+      "{player} effectue 30 coups en se masturbant, chacun associé à une respiration profonde.",
+      "{sub} frotte légèrement son doigt sur le pénis de {dom}.",
+      "{player} se branle avec sa main non dominante.",
+      "{sub} effectue un kegel à chaque coup qu'il donne à {dom} jusqu'à son prochain tour.",
+      "{player} effectue 30 coups de pression durs en se masturbant.",
+      "{sub} se branle tout en utilisant son autre main sur la zone érogène de {dom}.",
+      "{player} se branle et branle {dom} en même temps.",
+      "{sub} joue avec les organes génitaux de {dom} avec les deux mains.",
+      "{player} se branle avec un mouvement de torsion de la main.",
+      "{player} utilise sa paume pour frotter la tête de son pénis pendant 60 secondes.",
+      "{player} utilise deux doigts et se concentre uniquement sur le frein.",
+      "{player} alterne entre des coups rapides et lents jusqu'à la prochaine action de Gooning.",
+      "{player} expérimente différentes prises et pressions en se masturbant."
+    ],
+    "Edging": [
+      "{player} se rapproche de l'orgasme.",
+      "{player} se branle aussi vite qu'il peut jusqu'à son prochain tour.",
+      "{player} se rapproche deux fois de l'orgasme.",
+      "{player} se rapproche de l'orgasme avec sa main non dominante.",
+      "{sub} rapproche {dom} de l'orgasme.",
+      "{player} se rapproche de l'orgasme en utilisant seulement quelques doigts.",
+      "{sub} rapproche {dom} de l'orgasme en utilisant toute sa main.",
+      "{player} se branle rapidement jusqu'à l'orgasme, puis maintient un kegel aussi longtemps que possible.",
+      "{player} frotte son périnée en se branlant",
+      "{sub} rapproche rapidement {dom} de l'orgasme avec une main tout en frottant une zone érogène avec l'autre.",
+      "{sub} se met à quatre pattes. {dom} le traite comme une vache jusqu'à ce qu'il se rapproche de l'orgasme.",
+      "{player} pratique le contrôle de la respiration en retenant sa respiration pendant qu'il se rapproche de l'orgasme.",
+      "{player} change de position (debout, à genoux, assis) tout en se rapprochant de l'orgasme"
+    ],
+    "Jouets": [
+      "{player} utilise un jouet sur son organe génital.",
+      "{sub} utilise un jouet sur l'organe génital de {dom}.",
+      "{player} utilise lentement un jouet sur tout son pénis jusqu'à son prochain tour.",
+      "{sub} utilise le jouet sur {dom} tout en se masturbant.",
+      "{player} utilise un jouet sur son pénis pendant 30 secondes les yeux fermés.",
+      "{player} utilise un jouet sur son périnée",
+      "{sub} se masturbe en reniflant les vêtements de {dom} (chaussure/sous-vêtements/etc...).",
+      "{sub} se masturbe en utilisant un tissu (sous-vêtement/chiffon/etc...).",
+      "{player} utilise un jouet vibrant sur ses organes génitaux.",
+      "{dom} ferme les yeux tandis qu'un joueur aléatoire caresse son pénis jusqu'à ce qu'une action interrompe l'un d'entre eux."
+    ]
   }
+}

@@ -1,93 +1,52 @@
 {
-    "label": "Entraînement de la gorge",
+    "label": "Entraînement de gorge",
     "type": "sex",
-    "sub": "Suceur",
-    "dom": "Sucé",
+    "dom": "Reçoit la tête",
+    "sub": "Suceur de bite",
     "actions": {
         "Aucun": [],
-        "Lécher la bite": {
-            "sub": [
-                "Lèches une bite.",
-                "Joues avec le gland.",
-                "Baignes la bite d'un joueur dans ta salive et stimules-le avec la langue.",
-                "Suces le gland.",
-                "Titilles le gland avec la langue.",
-                "Fais-toi biffler plusieurs fois",
-                "Lèches le corps de la bite.",
-                "Joues avec le gland pendant 15 secondes.",
-                "Mouilles toute la bite avec la langue."
-            ],
-            "dom": [
-                "Fais lécher ta bite.",
-                "Laisse quelqu'un jouer avec ton gland.",
-                "Permets à quelqu'un de baigner ta bite dans sa salive et de te stimuler avec sa langue.",
-                "Laisse quelqu'un sucer ton gland.",
-                "Permets à quelqu'un de titiller ton gland avec sa langue.",
-                "Fais-toi lécher plusieurs fois.",
-                "Laisse quelqu'un lécher ton corps de bite.",
-                "Permets à quelqu'un de jouer avec ton gland pendant 15 secondes.",
-                "Laisse quelqu'un mouiller toute ta bite avec sa langue."
-            ]
-        },
-        "Sucer la bite": {
-            "sub": [
-                "Suces la bite pendant 10 secondes.",
-                "Garde la bite dans la bouche.",
-                "Fais une gorge profonde.",
-                "Suces la bite pendant 20 secondes.",
-                "Suces la bite entre deux respirations.",
-                "Fais un spectacle de suce.",
-                "Fais-toi baiser la bouche.",
-                "Donnes des coups de langue sur le gland tout en suçant.",
-                "Suces le gland pendant 30 secondes."
-            ],
-            "dom": [
-                "Demande à quelqu'un de sucer ta bite pendant 10 secondes.",
-                "Fais garder ta bite dans la bouche de quelqu'un.",
-                "Demande à quelqu'un de faire une gorge profonde sur ta bite.",
-                "Demande à quelqu'un de sucer ta bite pendant 20 secondes.",
-                "Demande à quelqu'un de sucer ta bite entre deux respirations.",
-                "Demande à quelqu'un de faire un spectacle de suce avec ta bite.",
-                "Fais-toi sucer la bouche par quelqu'un.",
-                "Demande à quelqu'un de donner des coups de langue sur ton gland tout en suçant.",
-                "Demande à quelqu'un de sucer ton gland pendant 30 secondes."
-            ]
-        },
-        "Gorge profonde": {
-            "sub": [
-                "Gardes la bite dans la gorge pendant 5 secondes.",
-                "Fais une gorge profonde entre deux respirations.",
-                "Lèches les couilles tout en faisant une gorge profonde.",
-                "Fais une gorge profonde pendant 10 secondes. Relâches.",
-                "10 gorges profondes.",
-                "Suces la bite.",
-                "Fais-toi baiser la gorge."
-            ],
-            "dom": [
-                "Demande à quelqu'un de garder ta bite dans sa gorge pendant 5 secondes.",
-                "Demande à quelqu'un de faire une gorge profonde entre deux respirations.",
-                "Demande à quelqu'un de lécher tes couilles tout en faisant une gorge profonde.",
-                "Demande à quelqu'un de faire une gorge profonde pendant 10 secondes et de relâcher.",
-                "Demande à quelqu'un de faire 10 gorges profondes.",
-                "Permets à quelqu'un de sucer ta bite.",
-                "Baises la gorge de quelqu'un."
-            ]
-        },
-        "Jeux de respiration": {
-            "sub": [
-                "Gorge profonde pendant 20 secondes.",
-                "Fais une gorge profonde aussi longtemps que possible.",
-                "Gorge profonde pendant 30 secondes.",
-                "Fais une gorge profonde pendant 15 secondes.",
-                "Cinq gorges profondes lentes jusqu'aux couilles."
-            ],
-            "dom": [
-                "Demande à quelqu'un de faire une gorge profonde pendant 20 secondes.",
-                "Demande à quelqu'un de faire une gorge profonde aussi longtemps que possible.",
-                "Demande à quelqu'un de faire une gorge profonde pendant 30 secondes.",
-                "Demande à quelqu'un de faire une gorge profonde pendant 15 secondes.",
-                "Demande à quelqu'un de faire cinq gorges profondes lentes jusqu'aux couilles."
-            ]
-        }
+        "Lécher la bite": [
+            "{sub} lèche la bite de {dom}.",
+            "{sub} joue avec le gland de la bite de {dom}.",
+            "{sub} lave la bite de {dom} avec sa langue.",
+            "{sub} suce le gland de la bite de {dom}.",
+            "{sub} trace le gland de la bite de {dom} avec sa langue.",
+            "{dom} claque sa bite contre le visage de {sub} plusieurs fois.",
+            "{sub} lèche la tige de la bite de {dom}.",
+            "{sub} joue avec le gland de la bite de {dom} pendant 15 secondes.",
+            "{sub} mouille toute la bite de {dom} avec sa langue."
+        ],
+        "Sucer la bite": [
+            "{sub} suce la bite de {dom} pendant 10 secondes.",
+            "{sub} garde la bite de {dom} dans sa bouche jusqu'au prochain tour de {sub}.",
+            "{dom} baise la bouche de {sub}.",
+            "{sub} suce la bite de {dom} pendant 20 secondes.",
+            "{sub} suce la bite de {dom} entre des respirations courtes. x10. | Descendre, remonter, respirer. Répéter.",
+            "{sub} fait un spectacle en suçant la bite de {dom}.",
+            "{dom} baise le visage de {sub}.",
+            "{sub} flick le gland de la bite de {dom} avec sa langue tout en suçant.",
+            "{sub} suce le gland de la bite de {dom} pendant 30 secondes.",
+            "{sub} suce la bite de chaque joueur avant leur prochain tour.",
+            "{dom} baise le visage de chaque joueur pendant 30 secondes.",
+            "{sub} fait un 69 avec un joueur."
+        ],
+        "Gorge profonde": [
+            "{sub} garde la bite de {dom} dans sa gorge pendant 5 secondes.",
+            "{sub} fait une gorge profonde à {dom} entre les respirations. x10. | Descendre, remonter, respirer. Répéter.",
+            "{sub} lèche les couilles de {dom} tout en faisant une gorge profonde à {dom}.",
+            "{sub} fait une gorge profonde à {dom} pendant 10 secondes.",
+            "{sub} donne 10 gorges profondes à {dom}.",
+            "{sub} suce la bite de {dom}.",
+            "{dom} baise la gorge de {sub}.",
+            "{sub} fait une gorge profonde à chaque joueur une fois le plus longtemps possible."
+        ],
+        "Jeu de souffle": [
+            "{sub} fait une gorge profonde à {dom} pendant 20 secondes.",
+            "{sub} fait une gorge profonde à {dom} aussi longtemps que possible.",
+            "{sub} fait au moins 4 gorges profondes à {dom} aussi longtemps que possible.",
+            "{dom} baise la gorge de {sub} pendant 30 secondes.",
+            "{dom} baise la gorge profonde de {sub} pendant 15 secondes.",
+            "{sub} donne à {dom} une gorge profonde lente et agréable jusqu'aux couilles 5 fois."
+        ]
     }
 }

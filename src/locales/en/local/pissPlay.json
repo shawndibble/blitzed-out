@@ -5,69 +5,32 @@
     "sub": "Pissee",
     "actions": {
         "None": [],
-        "Pee in a Cup": {
-            "sub": [
-                "Drink water",
-                "Have someone else drink water",
-                "Pee in a container",
-                "Gulp water",
-                "Have someone else gulp water",
-                "Smell your own pee",
-                "Smell someone else's pee",
-                "Pee in container",
-                "Take a sip of water",
-                "Have someone give you a container of their pee"
-            ],
-            "dom": [
-                "Have another player drink water",
-                "Drink water while another player watches",
-                "Pee in a container and have another player hold it",
-                "Have another player gulp water",
-                "Gulp water while another player watches",
-                "Have another player smell your pee",
-                "Smell another player's pee",
-                "Pee in a container and have another player watch",
-                "Have another player take a sip of water",
-                "Give another player a container of your pee"
-            ]
-        },
-        "Peed on": {
-            "sub": [
-                "Have someone pee on your body",
-                "Pee on yourself",
-                "Put cock and ball in piss container",
-                "Gulp water",
-                "Have someone pee on your face",
-                "Pee on your own face",
-                "Drink water"
-            ],
-            "dom": [
-                "Pee on another player's body",
-                "Watch another player pee on themselves",
-                "Have another player put their cock and ball in your piss container",
-                "Gulp water while another player watches",
-                "Pee on another player's face",
-                "Watch another player pee on their own face",
-                "Have another player drink water"
-            ]
-        },
-        "Drink": {
-            "sub": [
-                "Drink your piss",
-                "Drink someone else's piss from a distance",
-                "Drink piss directly with mouth on source",
-                "Drink water",
-                "Gulp water",
-                "Try to pee in your mouth. Swallow."
-            ],
-            "dom": [
-                "Watch another player drink their piss",
-                "Have another player drink your piss from a distance",
-                "Have another player drink your piss directly with their mouth on the source",
-                "Have another player drink water",
-                "Gulp water while another player watches",
-                "Have another player try to pee in their mouth and swallow."
-            ]
-        }
+        "Pee in a Cup": [
+            "{sub} drinks water",
+            "{sub} gulps water",
+            "{dom} pees in a container",
+            "{sub} smells their own pee",
+            "{sub} smells {dom}'s pee",
+            "{dom} pees in a container and has {sub} hold it",
+            "{sub} takes a sip of water",
+            "{dom} gives {sub} a container of their pee"
+        ],
+        "Peed on": [
+            "{dom} pees on {sub}'s body",
+            "{sub} pees on themselves",
+            "{sub} puts their cock and ball in a piss container",
+            "{sub} gulps water",
+            "{dom} pees on {sub}'s face",
+            "{sub} pees on their own face",
+            "{sub} drink water"
+        ],
+        "Drink": [
+            "{sub} drinks their own piss",
+            "{sub} drinks {dom}'s piss from a distance",
+            "{sub} drinks {dom}'s piss directly with their mouth on the source",
+            "{sub} drinks water",
+            "{dom} gulps water while {sub} watches",
+            "{sub} try to pee in their own mouth and swallow."
+        ]
     }
 }

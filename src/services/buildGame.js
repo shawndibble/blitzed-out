@@ -3,14 +3,15 @@ import i18next from 'i18next';
 
 const { t } = i18next;
 
-// sometimes our category subset has a role subset, need to merge those.
-function flattenActionsByRole(actions, role) {
-  if (role === 'sub' && actions.sub) return actions.sub;
-  if (role === 'dom' && actions.dom) return actions.dom;
-  if (role === 'vers' && actions.sub && actions.dom) {
-    return [...actions.sub, ...actions.dom];
-  }
-  return actions;
+// Some actions are only for a dom or sub. Ensure we don't get the wrong role action.
+function playerRoleFiltering(actions, role) {
+  return actions.filter((action) => !(
+    action.includes('{')
+    && action.includes('}')
+    && ['dom', 'sub'].includes(role)
+    && !action.includes(`{${role}}`)
+    && !action.includes('{player}'))
+  );
 }
 
 function restrictSubsetActions(settings, settingsKey, actionObject) {
@@ -18,7 +19,7 @@ function restrictSubsetActions(settings, settingsKey, actionObject) {
 
   const newList = Object.keys(actionObject).reduce((acc, key, index) => {
     if (index > 0 && index <= settings[settingsKey]?.level) {
-      acc[key] = shuffleArray(flattenActionsByRole(actionObject[key], role));
+      acc[key] = shuffleArray(playerRoleFiltering(actionObject[key], role, settings.displayName));
     }
     return acc;
   }, {});
@@ -38,6 +39,7 @@ function restrictActionsToUserSelections(actionsFolder, settings) {
       ),
       key: actionKey, // Key value used for categories prior to translation.
       standalone: false, // Determines if it will append to another category or stand on its own.
+      role: settings[actionKey]?.role ?? settings.role ?? 'sub',
     }));
 }
 
@@ -107,7 +109,7 @@ function calculateIntensity(
   difficulty
 ) {
   // for normal, we break the game up evenly, based on user's max intensity level.
-  if (difficulty === 'normal') {
+  if ([undefined, 'normal'].includes(difficulty)) {
     const divider = gameSize / userSelectionMax;
     return Math.floor(currentTile / divider);
   }
@@ -128,7 +130,7 @@ function calculateIntensity(
 function getCurrentTile(listWithMisc, size, currentTile, settings) {
   cycleArray(listWithMisc);
 
-  const { actions, label, standalone, frequency } = listWithMisc[0];
+  const { actions, label, standalone, frequency, role } = listWithMisc[0];
 
   // If we have a frequency percentage, then we are appending.
   // Use that number to determine if we append or not.
@@ -154,7 +156,7 @@ function getCurrentTile(listWithMisc, size, currentTile, settings) {
 
   cycleArray(catActions[intensity]);
 
-  return { title: label, description: catActions[intensity][0], standalone };
+  return { title: label, description: catActions[intensity][0], standalone, role };
 }
 
 // Builds the board based on user settings
@@ -167,7 +169,7 @@ function buildBoard(listWithMisc, settings, size) {
   const board = [];
 
   for (let currentTile = 1; currentTile <= size; currentTile += 1) {
-    const { title, description, standalone } = getCurrentTile(
+    const { title, description, standalone, role } = getCurrentTile(
       listWithoutAppend,
       size,
       currentTile,
@@ -187,7 +189,8 @@ function buildBoard(listWithMisc, settings, size) {
     } else {
       finalDescription = description;
     }
-    board.push({ title, description: finalDescription.trim() });
+
+    board.push({ title, description: finalDescription.trim(), role });
   }
 
   return board;

@@ -1,53 +1,54 @@
 ﻿{
-    "label": "Masturbándose",
-    "type": "sex",
-    "actions": {
-        "Ninguna": [],
-        "Masturbación": [
-            "Pajea lentamente 30 veces a otro jugador.",
-            "Masturba a otro jugador tan rápido como puedas 30 segundos.",
-            "Sincroniza los movimientos de tu mano al pajearte con la respiración hasta tu próximo turno.",
-            "Pon lubricante en el pene a todos los jugadores.",
-            "Masturba hasta a 2 jugadores durante 30 segundos.",
-            "Haz 30 movimientos en tu pene acompañándolos con una respiración profunda.",
-            "Roza suavemente con tu dedo el pene de otro jugador.",
-            "Mastúrbate con la mano no dominante.",
-            "Realiza un Kegel con cada movimiento de tu mano hasta tu próximo turno.",
-            "Haz 30 movimientos apretando con la mano.",
-            "Escúpete el pene.",
-            "Mastúrbate hasta tu próximo turno mientras usas tu otra mano en una zona erógena.",
-            "Mastúrbate a ti mismo y a otro jugador al mismo tiempo.",
-            "Juega con los genitales de otro jugador con ambas manos.",
-            "Mastúrbate haciendo girar la mano.",
-            "Usa la palma de tu mano para frotar el glande durante 60 segundos.",
-            "Usa dos dedos y concéntrate sólo en el frenillo.",
-            "Experimenta con diferentes velocidades y presión mientras te masturbas hasta el siguiente turno.",
-            "Alterna entre movimientos rápidos y lentos hasta otra acción de Gooning"
-        ],
-        "Al límite": [
-            "Llega al borde del orgasmo.",
-            "Mastúrbate tan rápido como puedas hasta tu próximo turno.",
-            "Llega al borde del orgasmo dos veces.",
-            "Llega al borde del orgasmo con la mano no dominante.",
-            "Lleva a otro jugador al borde del orgasmo.",
-            "Llega al borde del orgasmo usando solo algunos dedos.",
-            "Lleva a otro jugador al borde del orgasmo usando toda tu mano.",
-            "Mastúrbate rápidamente hasta el borde y luego mantén un Kegel durante el mayor tiempo posible.",
-            "Frota el perineo mientras te masturbas.",
-            "Ponte a 4 patas y pide a otro jugador que te ordeñe como una vaca hasta que estés al borde del orgasmo.",
-            "Mantén la respiración mientras llegas al borde del orgasmo.",
-            "Llega al borde del orgasmo pajeando únicamente la punta del pene.",
-            "Lleva a otro jugador al límite rápidamente con una mano mientras acaricias una zona erógena con la otra."
-        ],
-        "Juguetes": [
-            "Usa un juguete en tus genitales.",
-            "Usa un juguete en los genitales de otro jugador.",
-            "Pon lubricante en el pene a todos los jugadores.",
-            "Mastúrbate con un juguete mientras hueles una prenda (ropa interior, zapatilla, etc.).",
-            "Usa un juguete en los genitales de otro jugador mientras te masturbas.",
-            "Usa el juguete lentamente sobre todo el pene hasta tu próximo turno.",
-            "Usa el juguete en tu pene durante 30 segundos con los ojos cerrados.",
-            "Usa el juguete en tu perineo."
-        ]
+    "etiqueta": "Bating",
+    "tipo": "sexo",
+    "acciones": {
+      "Ninguna": [],
+      "Masturbación": [
+        "{sub} da a {dom} 30 caricias lentas",
+        "{sub} masturba a {dom} lo más rápido que pueden durante 30 segundos.",
+        "{player} sincroniza sus caricias con su respiración hasta su próximo turno.",
+        "{sub} aplica lubricante/saliva a los genitales de todos los jugadores.",
+        "{sub} pasa 30 segundos acariciando hasta 2 jugadores.",
+        "{player} realiza 30 caricias propias cada una emparejada con una respiración profunda.",
+        "{sub} frota suavemente su dedo sobre el pene de {dom}.",
+        "{player} se masturba con su mano no dominante.",
+        "{sub} realiza un kegal cada vez que acaricia a {dom} hasta su próximo turno.",
+        "{player} realiza 30 caricias fuertes y apretadas en sí mismo.",
+        "{sub} se masturba mientras usa su otra mano en la zona erógena de {dom}.",
+        "{player} se masturba a sí mismo y a {dom} al mismo tiempo.",
+        "{sub} juega con los genitales de {dom} con ambas manos.",
+        "{player} se masturba con un movimiento de torsión de la mano.",
+        "{player} usa la palma de su mano para frotar la cabeza de su pene durante 60 segundos.",
+        "{player} usa dos dedos y se enfoca solo en el frenillo.",
+        "{player} alterna entre caricias rápidas y lentas hasta otra acción de Gooning.",
+        "{player} experimenta con diferentes agarres y presiones mientras se masturba."
+      ],
+      "Edging": [
+        "{player} se lleva a sí mismo al límite.",
+        "{player} se masturba lo más rápido que pueden hasta su próximo turno.",
+        "{player} se lleva a sí mismo al límite dos veces.",
+        "{player} se lleva al límite con su mano no dominante.",
+        "{sub} lleva a {dom} al límite.",
+        "{player} se lleva al límite usando solo unos pocos dedos.",
+        "{sub} lleva a {dom} al límite usando toda su mano.",
+        "{player} se masturba rápidamente hasta el límite, luego mantiene un kegal lo más tiempo posible.",
+        "{player} se frota el perineo mientras se masturba",
+        "{sub} lleva rápidamente a {dom} al límite con una mano mientras frota una zona erógena con la otra.",
+        "{sub} se pone a cuatro patas. {dom} lo ordeña como una vaca hasta que se acerque a su límite.",
+        "{player} practica el control de la respiración manteniendo la respiración mientras se lleva al límite.",
+        "{player} cambia de posición (de pie, de rodillas, sentado) mientras se lleva al límite"
+      ],
+      "Juguetes": [
+        "{player} usa un juguete en su genital.",
+        "{sub} usa un juguete en el genital de {dom}.",
+        "{player} usa lentamente un juguete en todo su pene hasta su próximo turno.",
+        "{sub} usa el juguete en {dom} mientras también se masturba.",
+        "{player} usa un juguete en su pene durante 30 segundos con los ojos cerrados.",
+        "{player} usa un juguete en su perineo",
+        "{sub} se masturba mientras huele la ropa de {dom} (zapato/ropa interior/etc...).",
+        "{sub} se masturba mientras utiliza alguna tela (ropa interior/trapo/etc...).",
+        "{player} usa un juguete vibrador en sus genitales.",
+        "{dom} cierra los ojos mientras un jugador al azar acaricia su pene hasta que una acción interrumpe a uno de ellos."
+      ]
     }
-}
+  }

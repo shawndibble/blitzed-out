@@ -1,54 +1,30 @@
 ﻿{
   "label": "Besos",
-  "type": "Preliminares",
+  "type": "foreplay",
   "actions": {
     "Ninguno": [],
-    "Besos tiernos": {
-      "sub": [
-        "Deja que otro jugador te bese en la mejilla.",
-        "Deja que otro jugador te bese en la frente.",
-        "Deja que otro jugador te bese suave en los labios.",
-        "Deja que otro jugador te bese por toda la cara.",
-        "Deja que otro jugador te bese el cuello.",
-        "Besa la mano de otro jugador.",
-        "Deja que otro jugador te bese el lóbulo de la oreja.",
-        "Pídele a otro jugador que te bese en la cara.",
-        "Monta a otro jugador y bésalo en los labios.",
-        "Deja que otro jugador te bese el hombro.",
-        "Besa a cada jugador en la mejilla antes de tu próximo turno."
-      ],
-      "dom": [
-        "Besa en la mejilla a otro jugador.",
-        "Besa en la frente a otro jugador.",
-        "Besa suavemente en los labios a otro jugador.",
-        "Haz que otro jugador te bese la mano.",
-        "Besa en el cuello a otro jugador.",
-        "Besa por toda la cara a otro jugador.",
-        "Besa el hombro a otro jugador.",
-        "Ordena a otro jugador que te monte y te de un beso en los labios."
-      ]
-    },
-    "Besos con lengua": {
-      "sub": [
-        "Comparte un beso con lengua con otro jugador.",
-        "Deja que otro jugador te dé un beso con lengua.",
-        "Ponte de rodillas y pídele a otro jugador un beso con lengua",
-        "Túmbate y pide a otro jugador que te dé un beso con lengua.",
-        "Dale un beso con lengua a otro jugador mientras estás sentado en su regazo.",
-        "Recibe un beso con lengua mientras tienes las manos sobre la cabeza.",
-        "Deja que te besen con los ojos vendados.",
-        "Pregunta y besa a tantos jugadores como puedas antes de tu próximo turno."
-      ],
-      "dom": [
-        "Comparte un beso con lengua con otro jugador.",
-        "Dale un beso con lengua a otro jugador.",
-        "Dale un beso con lengua a otro jugador mientras le sujetas la cara.",
-        "Ordena a otro jugador que te dé un beso con lengua mientras se sienta en tu regazo.",
-        "Dale un beso con lengua a otro jugador mientras ambos estáis de pie.",
-        "Dale un beso con lengua a otro jugador mientras sujetas sus manos por encima de su cabeza.",
-        "Ordena a otro jugador que se siente sobre ti y te dé un beso con lengua.",
-        "Agarra a un jugador por el pelo y bésalo con lengua."
-      ]
-    }
+    "Besos tiernos": [
+      "{dom} besa a {sub} en la mejilla.",
+      "{dom} le da a {sub} un beso en la frente.",
+      "{dom} le da a {sub} un suave pico en los labios.",
+      "{dom} hace que {sub} bese su mano.",
+      "{dom} le da a {sub} un beso en el cuello.",
+      "{dom} le da a {sub} una serie de besos ligeros en la cara.",
+      "{dom} le da a {sub} un beso suave en el hombro.",
+      "{dom} le dice a {sub} que se monte y lo bese en los labios.",
+      "{dom} besa los lóbulos de las orejas de {sub}."
+    ],
+    "Besos con lengua": [
+      "{dom} comparte un beso profundo con {sub}.",
+      "{dom} le da a {sub} un beso profundo con lengua.",
+      "{dom} le da a {sub} un beso profundo mientras le sostiene la cara.",
+      "{sub} se sienta en el regazo de {dom} y comparten un beso profundo.",
+      "{dom} le da a {sub} un beso profundo mientras están de pie.",
+      "{dom} besa a {sub} mientras les sostiene las manos por encima de la cabeza.",
+      "{dom} asigna a {sub} que se monte encima y lo bese con lengua.",
+      "{dom} agarra a {sub} por el cabello y lo besa profundamente.",
+      "{dom} le dice a {sub} que se arrodille y suplique por un beso profundo.",
+      "{sub} pide y besa con lengua a tantos jugadores como sea posible antes de su próximo turno."
+    ]
   }
 }

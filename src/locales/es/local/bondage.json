@@ -3,57 +3,33 @@
     "type": "foreplay",
     "actions": {
         "Ninguna": [],
-        "Cuerdas y Muñequeras": {
-            "sub": [
-                "Átate las muñecas",
-                "Quédate atado a un mueble hasta tu próxima acción.",
-                "Ten tus muñecas atadas alrededor del cuerpo de otro jugador hasta que una acción requiera que uno de los dos se libere.",
-                "Déjate atar por otro jugador como él quiera.",
-                "Quédate atado hasta tu próxima acción.",
-                "Ten los brazos atados detrás de la espalda hasta tu próxima acción.",
-                "Ten los brazos atados a las piernas hasta que una acción requiera que te liberes.",
-                "Déjate atar a un mueble hasta que una acción requiera que te liberes",
-                "Átate los tobillos",
-                "Haz que otro jugador te ponga en una posición incómoda hasta tu próxima acción",
-                "Mantén la posición del “águila extendida” hasta que otra acción lo requiera"
-            ],
-            "dom": [
-                "Ata las muñecas a otro jugador",
-                "Ata a otro jugador a un mueble hasta su próxima acción",
-                "Ata las muñecas de otro jugador alrededor de tu cuerpo hasta que una acción requiera que uno de ustedes se libere",
-                "Ata a otro jugador como quieras",
-                "Ata las muñecas de otro jugador a sus tobillos hasta su próxima acción",
-                "Ata los brazos de otro jugador detrás de su espalda hasta su próxima acción",
-                "Ata los brazos de otro jugador a sus piernas hasta que una acción requiera que se libere",
-                "Ata a otro jugador a un mueble hasta que una acción requiera que se libere",
-                "Ata los tobillos de otro jugador",
-                "Pon a otro jugador en una posición incómoda hasta su próxima acción",
-                "Ata a otro jugador en la posición del “águila extendida” hasta que otra acción lo requiera"
-            ]
-        },
-        "Añade vendas y mordazas": {
-            "sub": [
-                "Ten los ojos vendados hasta tu próxima acción.",
-                "Quédate amordazado hasta tu próxima acción.",
-                "Deja que te venden los ojos y te amordacen hasta tu próxima acción.",
-                "Deja que te venden los ojos y te amordacen hasta que una acción requiera que te liberes.",
-                "Mantente con los ojos vendados, amordazado y atado de muñecas hasta tu próxima acción.",
-                "Deja que te amordacen con una prenda de vestir hasta la próxima acción que requiera usar la boca.",
-                "Ten los ojos vendados con una prenda de vestir hasta tu próximo turno",
-                "Ten los ojos vendados con una prenda de vestir hasta tu próxima acción.",
-                "Otro jugador puede elegir qué usarás como venda para los ojos y/o mordaza hasta tu próxima acción"
-            ],
-            "dom": [
-                "Venda los ojos de otro jugador hasta su próxima acción",
-                "Amordaza a otro jugador hasta su próxima acción",
-                "Venda los ojos de otro jugador y amordázalo hasta su próxima acción",
-                "Venda los ojos de otro jugador y amordázalo hasta que una acción requiera su liberación",
-                "Venda los ojos de otro jugador, amordázalo y ata sus muñecas hasta su próxima acción",
-                "Amordaza a otro jugador con una prenda de vestir hasta la próxima acción que requiera su boca",
-                "Venda los ojos de otro jugador con una prenda de vestir hasta su próxima acción",
-                "Venda los ojos de otro jugador con una prenda de vestir hasta su próxima acción",
-                "Elige qué usar como venda para los ojos y/o mordaza para otro jugador hasta su próxima acción"
-            ]
-        }
+        "Restringir": [
+            "{dom} sujeta las muñecas de {sub} juntas.",
+            "{dom} ata a {sub} a una pieza de mueble hasta la próxima acción del receptor.",
+            "{dom} ata las muñecas de {sub} alrededor del cuerpo de otro jugador hasta que una acción requiera que uno de ellos sea liberado.",
+            "{dom} restringe a {sub} a una pieza de mueble hasta que una acción requiera que sean liberados.",
+            "{dom} ata a {sub} en forma de cerdo hasta la próxima acción del receptor.",
+            "{dom} ata los brazos de {sub} detrás de su espalda hasta la próxima acción del receptor.",
+            "{dom} ata los brazos de {sub} a sus piernas hasta que una acción requiera que sean liberados.",
+            "{sub} se ata las propias muñecas y entrega la llave/mecanismo de liberación a otro jugador.",
+            "{sub} se ata las propias piernas y tiene a otro jugador restringir su movimiento aún más."
+        ],
+        "Privación sensorial": [
+            "{dom} venda los ojos de {sub} hasta la próxima acción del receptor.",
+            "{dom} amordaza a {sub} hasta la próxima acción del receptor.",
+            "{dom} venda los ojos y amordaza a {sub} hasta la próxima acción del receptor.",
+            "{dom} priva a {sub} de un sentido mientras estimula otro.",
+            "{sub} se venda los ojos y tiene a otro jugador guiar sus movimientos.",
+            "{sub} se amordaza y se comunica de forma no verbal por el resto del juego.",
+            "{sub} usa auriculares para bloquear su audición y se basa en el tacto para la comunicación."
+        ],
+        "Tensión": [
+            "{dom} aplica una cuerda de tensión a {sub}.",
+            "{dom} utiliza una barra separadora o un dispositivo de mejora en {sub}.",
+            "{dom} ata a {sub} en una posición de estrés hasta la próxima acción del receptor.",
+            "{sub} aplica una cuerda de tensión a sí mismo y tiene a otro jugador apretarla.",
+            "{sub} usa una barra separadora o otro dispositivo y tiene a otro jugador controlar sus movimientos durante la ronda.",
+            "{sub} se ata a sí mismo en una posición de estrés y espera a que otro jugador lo libere."
+        ]
     }
 }

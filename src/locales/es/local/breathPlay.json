@@ -1,57 +1,37 @@
 ﻿{
   "label": "Juegos de respiración",
-  "type": "Preliminares",
+  "type": "foreplay",
   "actions": {
     "Ninguna": [],
-    "Luz": {
-      "sub": [
-        "Deja que otro jugador te cubra la nariz y la boca con la mano durante 10 segundos.",
-        "Deja que otro jugador te apriete suavemente la garganta durante 10 segundos.",
-        "Deja que otro jugador te estrangule sin apretar con la mano durante 10 segundos.",
-        "Deja que otro jugador te cubra la boca con la mano durante 10 segundos.",
-        "Deja que otro jugador te apriete suavemente el cuello con los dedos durante 10 segundos"
-      ],
-      "dom": [
-        "Cubre la nariz y la boca de otro jugador con tu mano durante 10 segundos.",
-        "Aprieta suavemente la garganta de otro jugador durante 10 segundos.",
-        "Ahoga sin apretar mucho a otro jugador con tu mano durante 10 segundos.",
-        "Mantén tu mano sobre la boca de otro jugador durante 10 segundos.",
-        "Aprieta el cuello de otro jugador con los dedos durante 10 segundos"
-      ]
-    },
-    "Normal": {
-      "sub": [
-        "Deja que otro jugador te cubra la nariz y la boca con la mano durante 15 segundos.",
-        "Deja que otro jugador te apriete la garganta durante 15 segundos.",
-        "Deja que otro jugador te estrangule con la mano durante 15 segundos.",
-        "Deja que otro jugador te tape la boca con la mano durante 15 segundos.",
-        "Deja que otro jugador te apriete el cuello con los dedos durante 15 segundos"
-      ],
-      "dom": [
-        "Cubre la nariz y la boca de otro jugador con tu mano durante 15 segundos.",
-        "Aprieta la garganta de otro jugador durante 15 segundos.",
-        "Ahoga a otro jugador con tu mano durante 15 segundos.",
-        "Mantén tu mano sobre la boca de otro jugador durante 15 segundos.",
-        "Aprieta el cuello de otro jugador con los dedos durante 15 segundos"
-      ]
-    },
-    "Intenso": {
-      "sub": [
-        "Deja que otro jugador te cubra la nariz y la boca con la mano durante 30 segundos.",
-        "Deja que otro jugador te apriete la garganta durante 30 segundos.",
-        "Deja que otro jugador te estrangule con la mano durante 30 segundos.",
-        "Deja que otro jugador te tape la boca con la mano durante 30 segundos.",
-        "Deja que otro jugador te apriete el cuello con los dedos durante 30 segundos.",
-        "Deja que otro jugador use una bufanda o un cinturón para estrangularte durante 30 segundos"
-      ],
-      "dom": [
-        "Cubre la nariz y la boca de otro jugador con tu mano durante 30 segundos.",
-        "Aprieta la garganta de otro jugador durante 30 segundos.",
-        "Ahoga a otro jugador con tu mano durante 30 segundos.",
-        "Mantén tu mano sobre la boca de otro jugador durante 30 segundos.",
-        "Aprieta el cuello de otro jugador con tus dedos durante 30 segundos.",
-        "Usa una bufanda o un cinturón para estrangular a otro jugador durante 30 segundos"
-      ]
-    }
+    "Luz/15 segundos":[
+      "{dom} cubre la nariz y la boca de {sub} con su mano durante 15 segundos.",
+      "{dom} aprieta suavemente el cuello de {sub} durante 15 segundos.",
+      "{dom} ahoga suavemente a {sub} con su mano durante 15 segundos.",
+      "{dom} mantiene su mano sobre la boca de {sub} durante 15 segundos.",
+      "{dom} aprieta suavemente el cuello de {sub} con sus dedos durante 15 segundos.",
+      "{dom} presiona suavemente una almohada contra el rostro de {sub} durante 15 segundos.",
+      "{dom} presiona suavamente su antebrazo contra el cuello de {sub} durante 15 segundos."
+    ],
+    "Normal/30 segundos": [
+      "{dom} cubre la nariz y la boca de {sub} con su mano durante 30 segundos.",
+      "{dom} aprieta el cuello de {sub} durante 30 segundos.",
+      "{dom} ahoga a {sub} con su mano durante 30 segundos.",
+      "{dom} mantiene su mano sobre la boca de {sub} durante 30 segundos.",
+      "{dom} aprieta el cuello de {sub} con sus dedos durante 30 segundos.",
+      "{dom} presiona una almohada contra el rostro de {sub} durante 30 segundos.",
+      "{dom} presiona su antebrazo contra el cuello de {sub} durante 30 segundos."
+    ],
+    "Intenso/60 segundos": [
+      "{dom} cubre la nariz y la boca de {sub} con su mano durante 60 segundos.",
+      "{dom} aprieta el cuello de {sub} durante 60 segundos.",
+      "{dom} ahoga a {sub} con su mano durante 60 segundos.",
+      "{dom} mantiene su mano sobre la boca de {sub} durante 60 segundos.",
+      "{dom} aprieta el cuello de {sub} con sus dedos durante 60 segundos.",
+      "{dom} presiona una almohada contra el rostro de {sub} durante 60 segundos.",
+      "{dom} restringe la respiración de {sub} con un cinturón o un objeto firme durante 60 segundos.",
+      "{dom} presiona su antebrazo contra el cuello de {sub} durante 60 segundos.",
+      "{dom} utiliza una máscara de gas para controlar la respiración de {sub} durante 60 segundos.",
+      "{dom} utiliza una bolsa de plástico para restringir la respiración de {sub} durante unos segundos con las debidas precauciones de seguridad y tiempo de recuperación entre medias."
+    ]
   }
 }

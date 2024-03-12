@@ -5,96 +5,48 @@
     "sub": "Cock Sucker",
     "actions": {
         "None": [],
-        "Lick dick": {
-            "sub": [
-                "Lick a dick.",
-                "Play with the dick tip.",
-                "Tongue bathe a player's dick.",
-                "Suck a dick tip.",
-                "Trace dick head with tongue.",
-                "Get dick slapped several times.",
-                "Lick a dick shaft.",
-                "Play with tip of dick for 15 seconds.",
-                "Wet whole dick with tongue."
-            ],
-            "dom": [
-                "Have your dick licked.",
-                "Have the tip of your dick played with.",
-                "Have your dick tongue bathed.",
-                "Have the tip of your dick sucked.",
-                "Have your dick head traced.",
-                "Slap your dick against someone's face several times.",
-                "Have your dick shaft licked.",
-                "Have the tip of your dick played with for 15 seconds.",
-                "Have your whole dick wet with a tongue."
-            ]
-        },
-        "Suck dick": {
-            "sub": [
-                "Suck dick for 10 seconds.",
-                "Hold a dick in your mouth until your next turn.",
-                "Get mouth fucked.",
-                "Suck a dick for 20 seconds.",
-                "Suck a dick between short breaths. x10. | Down, Up, Breathe. Repeat.",
-                "Put on a show sucking dick.",
-                "Get face fucked.",
-                "Flick head tip with tongue while sucking.",
-                "Suck head of dick for 30 seconds.",
-                "Suck each player before your next turn.",
-                "Get face fucked by each player for 30 seconds each.",
-                "69 with a player"
-            ],
-            "dom": [
-                "Have your dick sucked for 10 seconds.",
-                "Have your dick held in someone's mouth until their next turn.",
-                "Fuck someone's mouth.",
-                "Have your dick sucked for 20 seconds.",
-                "Pick someone to put on a show sucking dick.",
-                "Face fuck someone.",
-                "While getting sucked, have the player flick the tip of your dick with their tongue.",
-                "Have the head of your dick sucked for 30 seconds.",
-                "Have each player suck your dick before your next turn.",
-                "Face fuck each player for 30 seconds.",
-                "69 with a player."
-            ]
-        },
-        "Deepthroat": {
-            "sub": [
-                "Hold a dick in your throat for 5 seconds.",
-                "Deepthroat a player between breaths. x10. | Down, Up, Breathe. Repeat.",
-                "Lick balls while deep throating another player.",
-                "Deepthroat a player 10 seconds. Release.",
-                "Give 10 deep throats.",
-                "Suck a dick",
-                "Get throat fucked.",
-                "Deep throat each player once for as long as possible."
-            ],
-            "dom": [
-                "Have a player deepthroat you for 5 seconds.",
-                "Assign a player to deep throat you until their next turn.",
-                "Have your balls licked while your dick is being deep throated.",
-                "Have your dick deepthroated for 10 seconds.",
-                "Have your dick deepthroated 10 times.",
-                "Have your dick sucked.",
-                "Throat fuck someone.",
-                "Have each player deep throat your dick once for as long as possible."
-            ]
-        },
-        "Breath Play": {
-            "sub": [
-                "Deepthroat for 20 seconds.",
-                "Deep throat as long as you can.",
-                "Deepthroat fucking for 30 seconds.",
-                "Get Deepthroat fucked for 15 seconds.",
-                "Slow deepthroat 5 times down to balls."
-            ],
-            "dom": [
-                "Have your dick deepthroated for 20 seconds.",
-                "Have your dick deep throated as long as possible",
-                "Throat fuck someone for 30 seconds.",
-                "Deep throat fuck someone for 15 seconds.",
-                "Get a nice slow deep throat to the balls 5 times."
-            ]
-        }
+        "Lick dick": [
+            "{sub} licks {dom}'s dick.",
+            "{sub} plays with the tip of {dom}'s dick.",
+            "{sub} tongue bathes {dom}'s dick.",
+            "{sub} sucks {dom}'s dick tip.",
+            "{sub} traces {dom}'s dick head with their tongue.",
+            "{dom} slaps their dick against {sub}'s face several times.",
+            "{sub} licks {dom}'s dick shaft.",
+            "{sub} plays with the tip of {dom}'s dick for 15 seconds.",
+            "{sub} wets {dom}'s whole dick with their tongue."
+        ],
+        "Suck dick": [
+            "{sub} sucks {dom}'s dick for 10 seconds.",
+            "{sub} holds {dom}'s dick in their mouth until {sub}'s next turn.",
+            "{dom} fucks {sub}'s mouth.",
+            "{sub} sucks {dom}'s dick for 20 seconds.",
+            "{sub} sucks {dom}'s dick between short breaths. x10. | Down, Up, Breathe. Repeat.",
+            "{sub} puts on a show sucking {dom}'s dick.",
+            "{dom} face fucks {sub}.",
+            "{sub} flicks the head tip of {dom}'s dick with their tongue while sucking.",
+            "{sub} sucks the head of {dom}'s dick for 30 seconds.",
+            "{sub} sucks each player's dick before their next turn.",
+            "{dom} face fucks each player for 30 seconds.",
+            "{sub} 69s with a player."
+        ],
+        "Deepthroat": [
+            "{sub} holds {dom}'s dick in their throat for 5 seconds.",
+            "{sub} deepthroats {dom} between breaths. x10. | Down, Up, Breathe. Repeat.",
+            "{sub} licks {dom}'s balls while deep throating {dom}.",
+            "{sub} deepthroats {dom} for 10 seconds.",
+            "{sub} gives {dom} 10 deep throats.",
+            "{sub} sucks {dom}'s dick.",
+            "{dom} throat fucks {sub}.",
+            "{sub} deep throats each player once for as long as possible."
+        ],
+        "Breath Play": [
+            "{sub} deepthroats {dom} for 20 seconds.",
+            "{sub} deepthroats {dom} as long as possible.",
+            "{sub} deepthroats {dom} at least 4 times for as long as possible.",
+            "{dom} throat fucks {sub} for 30 seconds.",
+            "{dom} deepthroat fucks {sub} for 15 seconds.",
+            "{sub} gives {dom} a nice slow deep throat to the balls 5 times."
+        ]
     }
 }
