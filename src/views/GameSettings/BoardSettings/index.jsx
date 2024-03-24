@@ -108,7 +108,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
       {isLocal ? (
         <>
           <InvisibleAccordionGrid title={t('consumption')} subtitle={t('consumptionSubtitle')}>
-            {settingSelectLists('consumption')}
+            {settingSelectLists('consumption', { showVariation: true })}
           </InvisibleAccordionGrid>
           <InvisibleAccordionGrid title={t('foreplay')} subtitle={t('foreplaySubtitle')}>
             {settingSelectLists('foreplay', { showRole: isLocal })}
