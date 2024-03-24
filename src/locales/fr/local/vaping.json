@@ -1,36 +1,36 @@
 {
-    "label": "Vapoter",
+    "label": "Vapoter/Narguilé",
     "type": "consumption",
     "actions": {
         "Aucun": [],
         "Débutant": [
             "Prends une bouffée.",
-            "Prenez une longue bouffée.",
-            "Créez le plus gros nuage possible.",
-            "Tirez une bouffée pendant 3 secondes.",
-            "Retenez la vapeur pendant 3 secondes avant d'expirer.",
-            "Essayez d'expirer la vapeur par le nez.",
-            "Prenez une bouffée et essayez de créer une forme de 'O' avec la vapeur.",
-            "Trouvez une surface et faites le tour de la vape en cascade."
+            "Prends une longue bouffée.",
+            "Crées le plus gros nuage possible.",
+            "Tires une bouffée pendant 3 secondes.",
+            "Retiens la vapeur pendant 3 secondes avant d'expirer.",
+            "Essayes d'expirer la vapeur par le nez.",
+            "Prends une bouffée et essayez de créer une forme de 'O' avec la vapeur.",
+            "Prends une bouffée et fais une cascade avec la vapeur (waterfall)."
         ],
         "Intermédiaire": [
-            "Faire un rond de fumée.",
-            "Expirez lentement, en formant un mince nuage.",
-            "Tirez une bouffée pendant 5 secondes.",
-            "Prenez 4 à 6 bouffées.",
-            "Essayez de souffler de la vapeur à travers une paille.",
-            "Retenez la vapeur pendant 5 secondes avant d'expirer.",
-            "Créez un nuage de vape, puis faites-le tourner avec votre main pour réaliser le tour de la tornade."
+            "Fais un rond de fumée.",
+            "Expires lentement, en formant un mince nuage.",
+            "Tires une bouffée pendant 5 secondes.",
+            "Prends 4 à 6 bouffées.",
+            "Essayes de souffler de la vapeur à travers une paille.",
+            "Retiens la vapeur pendant 5 secondes avant d'expirer.",
+            "Crées un nuage de vape, puis faites-le tourner avec ta main pour réaliser une tornade."
         ],
         "Expert": [
-            "Tirez une bouffée, expirez et essayez de réinspirer la fumée.",
-            "Prenez la plus longue traînée possible.",
-            "Tirez une bouffée pendant 10 secondes.",
-            "Prenez 8 bouffées ou plus.",
-            "Essayez d'expirer la vapeur par les lèvres pincées.",
-            "Retenez la vapeur pendant 10 secondes avant d'expirer.",
-            "Effectuez l'astuce française d'inhalation de vapeur.",
-            "Effectuez le tour de vapeur Bane"
+            "Tires une bouffée, expires et essayes de ré-inspirer la fumée.",
+            "Prends la plus longue traînée possible.",
+            "Tires une bouffée pendant 10 secondes.",
+            "Prends 8 bouffées ou plus.",
+            "Essayes d'expirer la vapeur par les lèvres pincées.",
+            "Retiens la vapeur pendant 10 secondes avant d'expirer.",
+            "Effectues un 'French inhale' (inhaler par le nez la vapeur qui sort de la bouche).",
+            "Effectues un 'Bane vapor trick' (inhaler par le nez la vapeur qui sort de la bouche, en serrant les dents pour faire un masque) "
         ]
     }
 }

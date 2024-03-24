@@ -4,26 +4,34 @@
     "actions": {
       "Aucune": [],
       "Boire": [
-        "Prendre une gorgée de votre boisson.",
-        "Boire une gorgée.",
-        "Boire 2 gorgées.",
-        "Fait boire une gorgée à quelqu'un.",
-        "Boire une gorgée."
+        "Bois un petit coup de ton verre.",
+        "Bois une gorgée.",
+        "Bois 2 petits coups.",
+        "Fais boire un petit coup à quelqu'un.",
+        "Bois une gorgée.",
+        "Bois une gorgée du verre de ton voisin.",
+        "Echanges ton verre avec ton voisin."
       ],
       "Shots": [
         "1 shot.",
-        "Prendre 2 shots.",
+        "Prends 2 shots.",
         "Fait boire 1 shot à quelqu'un.",
         "Tout le monde boit son shot.",
-        "Boire une gorgée."
+        "Bois un shot.",
+        "Bois un shot mystère.",
+        "Bois un shot sans utiliser tes mains."
+
+
       ],
       "Cul sec": [
-        "Boire la moitié de votre boisson.",
-        "Boire cul sec.",
-        "Prendre une gorgée.",
-        "Prendre 2 shots.",
-        "Faire boire quelqu'un cul sec.",
-        "Fait boire une gorgée à quelqu'un."
+        "Bois la moitié de ton verre.",
+        "Bois cul sec.",
+        "Prends une gorgée.",
+        "Prends 2 shots.",
+        "Fais boire quelqu'un cul sec.",
+        "Fais boire une gorgée à quelqu'un."
+        "Bois cul sec un verre choisi par le groupe.",
+        "Bois cul sec sans respirer."
       ]
     }
   }

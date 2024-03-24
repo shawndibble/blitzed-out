@@ -1,8 +1,8 @@
 {
     "label": "Torture des tétons",
     "type": "sex",
-    "dom": "Tortionnaire",
-    "sub": "Récepteur",
+    "dom": "Donneur",
+    "sub": "Receveur",
     "actions": {
         "None": [],
         "Pincer/Frotter": [
@@ -28,7 +28,7 @@
             "{dom} utilise un jouet sur les tétons de {sub} pendant 10 secondes.",
             "{dom} tire les tétons de {sub} avec un jouet attaché.",
             "{dom} tord les tétons de {sub} fort.",
-            "{dom} claque le jouet de {sub} sur les tétons 10 fois.",
+            "{dom} claque le jouet de {sub} sur ses tétons 10 fois.",
             "{dom} se montre brutal avec les tétons de {sub}."
         ],
         "Aussi fort que possible": [

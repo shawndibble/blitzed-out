@@ -1,30 +1,30 @@
 {
-  "label": "Baiser",
+  "label": "Embrasser",
   "type": "foreplay",
   "actions": {
     "Aucun": [],
     "Baisers doux": [
         "{dom} embrasse {sub} sur la joue.",
-        "{dom} donne un baiser à {sub} sur le front.",
+        "{dom} donne un baiser sur le front de {sub}.",
         "{dom} donne un baiser léger sur les lèvres de {sub}.",
-        "{dom} fait embrasser leur main à {sub}.",
-        "{dom} donne un baiser à {sub} sur le cou.",
+        "{dom} fait embrasser sa main par {sub}.",
+        "{dom} donne un baiser dans le cou de {sub}.",
         "{dom} donne à {sub} une série de baisers légers sur le visage.",
-        "{dom} donne un baiser doux à {sub} sur l'épaule.",
-        "{dom} demande à {sub} de s'asseoir sur eux et de les embrasser sur les lèvres.",
+        "{dom} donne un baiser doux sur l'épaule de {sub}.",
+        "{dom} demande à {sub} de s'asseoir sur ses genoux et de l'embrasser sur les lèvres.",
         "{dom} embrasse les lobes d'oreilles de {sub}."
     ],
     "Baisers profonds": [
-        "{dom} partage un baiser profond avec {sub}.",
-        "{dom} donne un baiser profond avec la langue à {sub}.",
-        "{dom} donne un baiser profond à {sub} tout en tenant leur visage.",
+        "{dom} partage un long baiser avec {sub}.",
+        "{dom} donne un baiser avec la langue à {sub}.",
+        "{dom} donne un long baiser à {sub} tout en lui tenant le visage.",
         "{sub} s'assoit sur les genoux de {dom} et ils partagent un baiser profond.",
         "{dom} donne un baiser profond à {sub} tandis qu'ils sont tous les deux debout.",
-        "{dom} embrasse {sub} tout en tenant leurs mains au-dessus de leur tête.",
-        "{dom} demande à {sub} de s'asseoir sur eux et de les embrasser avec la langue.",
-        "{dom} attrape {sub} par les cheveux et les embrasse profondément.",
-        "{dom} demande à {sub} de s'agenouiller et de supplier pour un baiser profond.",
-        "{sub} demande et embrasse avec la langue autant de joueurs que possible avant leur prochain tour."
+        "{dom} embrasse {sub} tout en tenant leurs mains au-dessus de leurs têtes.",
+        "{dom} demande à {sub} de s'asseoir sur ses genoux et de l'embrasser avec la langue.",
+        "{dom} attrape {sub} par les cheveux et l'embrasse profondément.",
+        "{dom} demande à {sub} de s'agenouiller et de le supplier pour un baiser profond.",
+        "{sub} embrasse avec la langue autant de joueurs que possible avant leur prochain tour."
     ]
   }
 }

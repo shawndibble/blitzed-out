@@ -1,6 +1,6 @@
 ﻿{
   "label": "Besos",
-  "type": "foreplay",
+  "type": "Preliminares",
   "actions": {
     "Ninguno": [],
     "Besos tiernos": [
@@ -9,21 +9,21 @@
       "{dom} le da a {sub} un suave pico en los labios.",
       "{dom} hace que {sub} bese su mano.",
       "{dom} le da a {sub} un beso en el cuello.",
-      "{dom} le da a {sub} una serie de besos ligeros en la cara.",
+      "{dom} le da a {sub} una serie de besos suaves en la cara.",
       "{dom} le da a {sub} un beso suave en el hombro.",
-      "{dom} le dice a {sub} que se monte y lo bese en los labios.",
+      "{dom} le ordena a {sub} que se monte y lo bese en los labios.",
       "{dom} besa los lóbulos de las orejas de {sub}."
     ],
     "Besos con lengua": [
-      "{dom} comparte un beso profundo con {sub}.",
-      "{dom} le da a {sub} un beso profundo con lengua.",
-      "{dom} le da a {sub} un beso profundo mientras le sostiene la cara.",
-      "{sub} se sienta en el regazo de {dom} y comparten un beso profundo.",
-      "{dom} le da a {sub} un beso profundo mientras están de pie.",
-      "{dom} besa a {sub} mientras les sostiene las manos por encima de la cabeza.",
-      "{dom} asigna a {sub} que se monte encima y lo bese con lengua.",
-      "{dom} agarra a {sub} por el cabello y lo besa profundamente.",
-      "{dom} le dice a {sub} que se arrodille y suplique por un beso profundo.",
+      "{dom} comparte un beso con lengua con {sub}.",
+      "{dom} le da a {sub} un beso con lengua.",
+      "{dom} le da a {sub} un beso con lengua mientras le sujeta la cara.",
+      "{sub} se sienta en el regazo de {dom} y comparten un beso.",
+      "{dom} le da a {sub} un beso con lengua mientras están de pie.",
+      "{dom} besa a {sub} mientras le sostiene las manos por encima de la cabeza.",
+      "{dom} ordena a {sub} que se monte encima y lo bese con lengua.",
+      "{dom} agarra a {sub} por el cabello y lo besa con lengua.",
+      "{dom} le dice a {sub} que se arrodille y suplique un beso.",
       "{sub} pide y besa con lengua a tantos jugadores como sea posible antes de su próximo turno."
     ]
   }

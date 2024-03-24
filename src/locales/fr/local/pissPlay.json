@@ -1,8 +1,8 @@
 {
     "label": "Plan pisse",
     "type": "sex",
-    "dom": "Pisseur",
-    "sub": "Pissé(e)",
+    "dom": "Donneur",
+    "sub": "Receveur",
     "actions": {
         "Aucun": [],
         "Pisser dans un verre":[
@@ -13,24 +13,24 @@
             "{sub} sent l'urine de {dom}",
             "{dom} pisse dans un récipient et fait tenir {sub} le récipient",
             "{sub} prend une gorgée d'eau",
-            "{dom} donne à {sub} un récipient de leur urine"
+            "{dom} donne à {sub} un récipient de son urine"
         ],
         "Douche dorée": [
             "{dom} pisse sur le corps de {sub}",
-            "{sub} pisse sur eux-mêmes",
-            "{sub} met leur bite et leurs couilles dans un récipient d'urine",
+            "{sub} pisse sur soi-même",
+            "{sub} met sa bite et ses couilles dans un récipient d'urine",
             "{sub} avale de l'eau",
             "{dom} pisse sur le visage de {sub}",
-            "{sub} pisse sur leur propre visage",
+            "{sub} pisse sur son propre visage",
             "{sub} boit de l'eau"
         ],
         "Boire": [
             "{sub} boit sa propre urine",
             "{sub} boit l'urine de {dom} à distance",
-            "{sub} boit l'urine de {dom} directement avec leur bouche sur la source",
+            "{sub} boit l'urine de {dom} directement avec à la source",
             "{sub} boit de l'eau",
             "{dom} avale de l'eau pendant que {sub} regarde",
-            "{sub} essaye de pisser dans leur propre bouche et d'avaler."
+            "{sub} essaye de pisser dans sa propre bouche et d'avaler."
         ]
     }
 }

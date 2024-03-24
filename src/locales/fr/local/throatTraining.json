@@ -1,22 +1,22 @@
 {
     "label": "Entraînement de gorge",
     "type": "sex",
-    "dom": "Reçoit la tête",
-    "sub": "Suceur de bite",
+    "dom": "Sucé",
+    "sub": "Suceur",
     "actions": {
         "Aucun": [],
-        "Lécher la bite": [
+        "Lécher": [
             "{sub} lèche la bite de {dom}.",
-            "{sub} joue avec le gland de la bite de {dom}.",
-            "{sub} lave la bite de {dom} avec sa langue.",
-            "{sub} suce le gland de la bite de {dom}.",
-            "{sub} trace le gland de la bite de {dom} avec sa langue.",
-            "{dom} claque sa bite contre le visage de {sub} plusieurs fois.",
-            "{sub} lèche la tige de la bite de {dom}.",
-            "{sub} joue avec le gland de la bite de {dom} pendant 15 secondes.",
+            "{sub} joue avec le gland de {dom}.",
+            "{sub} salive abondamment sur la bite de {dom} et lèche avec sa langue.",
+            "{sub} suce le gland de {dom}.",
+            "{sub} effleure le bord du gland de {dom} avec sa langue.",
+            "{dom} bifle le visage de {sub} plusieurs fois.",
+            "{sub} lèche la hampe de la bite de {dom}.",
+            "{sub} joue avec le gland de {dom} pendant 15 secondes.",
             "{sub} mouille toute la bite de {dom} avec sa langue."
         ],
-        "Sucer la bite": [
+        "Sucer": [
             "{sub} suce la bite de {dom} pendant 10 secondes.",
             "{sub} garde la bite de {dom} dans sa bouche jusqu'au prochain tour de {sub}.",
             "{dom} baise la bouche de {sub}.",
@@ -24,23 +24,23 @@
             "{sub} suce la bite de {dom} entre des respirations courtes. x10. | Descendre, remonter, respirer. Répéter.",
             "{sub} fait un spectacle en suçant la bite de {dom}.",
             "{dom} baise le visage de {sub}.",
-            "{sub} flick le gland de la bite de {dom} avec sa langue tout en suçant.",
-            "{sub} suce le gland de la bite de {dom} pendant 30 secondes.",
+            "{sub} donne des petits coup de langue sur le gland de {dom} tout en suçant.",
+            "{sub} suce le gland de {dom} pendant 30 secondes.",
             "{sub} suce la bite de chaque joueur avant leur prochain tour.",
-            "{dom} baise le visage de chaque joueur pendant 30 secondes.",
-            "{sub} fait un 69 avec un joueur."
+            "{dom} baise la bouche de chaque joueur pendant 30 secondes.",
+            "{sub} fait un 69 avec un autre joueur."
         ],
         "Gorge profonde": [
             "{sub} garde la bite de {dom} dans sa gorge pendant 5 secondes.",
-            "{sub} fait une gorge profonde à {dom} entre les respirations. x10. | Descendre, remonter, respirer. Répéter.",
-            "{sub} lèche les couilles de {dom} tout en faisant une gorge profonde à {dom}.",
+            "{sub} fait une gorge profonde à {dom} entre des respirations courtes. x10. | Descendre, remonter, respirer. Répéter.",
+            "{sub} fait une gorge profonde à {dom} tout sortant la langue pour lui lécher les couilles.",
             "{sub} fait une gorge profonde à {dom} pendant 10 secondes.",
             "{sub} donne 10 gorges profondes à {dom}.",
             "{sub} suce la bite de {dom}.",
             "{dom} baise la gorge de {sub}.",
             "{sub} fait une gorge profonde à chaque joueur une fois le plus longtemps possible."
         ],
-        "Jeu de souffle": [
+        "Jeu de respiration": [
             "{sub} fait une gorge profonde à {dom} pendant 20 secondes.",
             "{sub} fait une gorge profonde à {dom} aussi longtemps que possible.",
             "{sub} fait au moins 4 gorges profondes à {dom} aussi longtemps que possible.",

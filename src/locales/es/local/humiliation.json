@@ -1,33 +1,33 @@
 ﻿{
     "label": "Humillación",
-    "type": "foreplay",
+    "type": "Preliminares",
     "actions": {
         "Ninguna": [],
         "Verbal": [
-            "{dom} asigna un título despectivo a {sub} y les hace repetir 'Soy un <término>' 10 veces.",
-            "{dom} asigna un apodo degradante a {sub} que deben responder durante el resto del juego.",
-            "{dom} hace que {todos los subs} se refieran a ellos como señor / señora / amo / ama durante el resto del juego.",
+            "{dom} asigna un término despectivo a {sub} y le hace repetir 'Soy un <término>' 10 veces.",
+            "{dom} asigna un apodo degradante a {sub} al que debe responder durante el resto del juego.",
+            "{dom} hace que {todos los subs} se refieran a ellos como señor/a o amo/a durante el resto del juego.",
             "{sub} comparte una fantasía o deseo relacionado con la humillación.",
-            "{sub} discute y procesa una experiencia pasada que les hizo sentir humillados.",
-            "{sub} dice cómo {dom} es superior a ellos.",
+            "{sub} cuenta en alto una experiencia pasada que le hizo sentir humillado.",
+            "{sub} dice por qué {dom} es superior a él.",
             "{dom} elige afirmaciones degradantes para que {sub} las repita."
         ],
-        "Física": [
+        "Físico": [
             "{dom} escribe palabras despectivas en el cuerpo de {sub}.",
-            "{sub} se arrodilla, cabeza abajo delante de {dom} hasta el siguiente turno de {player}.",
+            "{sub} se arrodilla, cabeza agachada delante de {dom} hasta el siguiente turno de {player}.",
             "{dom} usa a {sub} como mueble hasta el siguiente turno de {player}.",
-            "{sub} es el mandadero/a de {dom} durante el resto del juego.",
-            "{dom} da una bofetada, azote o flagelación a {sub}.",
+            "{sub} hace de recadero de {dom} el resto del juego.",
+            "{dom} da una bofetada, azote o latigazo a {sub}.",
             "{sub} adora/huele las axilas de {dom}.",
-            "{dom} hace que {sub} lleve algo que les haga sentir humillados durante el resto del juego.",
-            "{sub} se arrodilla. {dom} lo ahoga mientras lo degrada verbalmente.",
+            "{dom} hace que {sub} lleve algo que le haga sentir humillado durante el resto del juego.",
+            "{sub} se arrodilla. {dom} lo agarra por el cuello mientras lo degrada verbalmente.",
             "{dom} recibe un masaje en los pies de {sub}.",
-            "{sub} se arrastra por la habitación.",
-            "{sub} se arrastra hasta {dom}, luego se queda inclinado frente a ellos hasta el siguiente turno de {player}.",
-            "{sub} lleva un collar/correa de la elección de {dom} durante el resto del juego.",
-            "{dom} elige una parte del cuerpo para que {sub} la bese/adore.",
-            "{dom} designa tareas o actos sexuales para que {sub} los complete que enfaticen su sumisión y obediencia.",
-            "{sub} se pone la ropa interior de {dom} en la cara hasta que una acción requiera que se la quiten.",
+            "{sub} gatea por la habitación.",
+            "{sub} gatea hasta {dom}, luego se queda inclinado frente a él hasta el siguiente turno de {player}.",
+            "{sub} lleva un collar/correa a elección de {dom} durante el resto del juego.",
+            "{dom} elige una parte de su cuerpo para que {sub} la bese/adore.",
+            "{dom} designa tareas o actos sexuales que enfaticen su sumisión y obediencia para que {sub} los complete.",
+            "{sub} se pone la ropa interior de {dom} en la cara hasta que una acción requiera que se la quite.",
             "{dom} escupe a {sub}."
         ]
     }

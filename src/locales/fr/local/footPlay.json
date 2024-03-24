@@ -3,23 +3,23 @@
   "type": "foreplay",
   "actions": {
     "Aucun": [],
-    "Baiser": [
-      "{sub} embrasse le dessus des pieds de {dom} pendant 30 secondes.",
-      "{sub} embrasse le dessous des pieds de {dom} pendant 30 secondes.",
+    "Embrasser": [
+      "{sub} embrasse le haut des pieds de {dom} pendant 30 secondes.",
+      "{sub} embrasse la plante du pied droit de {dom} pendant 30 secondes.",
       "{sub} embrasse chaque orteil de {dom} pendant 15 secondes.",
-      "{sub} embrasse la voute plantaire des pieds de {dom} pendant 30 secondes.",
+      "{sub} embrasse la plante du pied gauche de {dom} pendant 30 secondes.",
       "{sub} embrasse les talons des pieds de {dom} pendant 30 secondes.",
-      "{sub} embrasse les chevilles des pieds de {dom} pendant 30 secondes."
+      "{sub} embrasse les chevilles de {dom} pendant 30 secondes."
   ],
   "Sucer": [
       "{sub} suce les orteils de {dom} pendant 30 secondes.",
-      "{sub} lèche la voute plantaire des pieds de {dom} pendant 30 secondes.",
-      "{sub} suce les talons des pieds de {dom} pendant 30 secondes.",
-      "{sub} suce les chevilles des pieds de {dom} pendant 30 secondes.",
-      "{sub} suce la plante des pieds de {dom} pendant 30 secondes.",
+      "{sub} lèche la plante du pied droit de {dom} pendant 30 secondes.",
+      "{sub} suce les talons de {dom} pendant 30 secondes.",
+      "{sub} suce les chevilles de {dom} pendant 30 secondes.",
+      "{sub} suce la plante du pied gauche de {dom} pendant 30 secondes.",
       "{sub} suce le bout des orteils de {dom} pendant 15 secondes."
   ],
-    "Culte": [
+    "Vénération": [
       "{sub} vénère les pieds de {dom} pendant 60 secondes (1m).",
       "{sub} masse les pieds de {dom} pendant 120 secondes (2m).",
       "{sub} embrasse et lèche la plante des pieds de {dom} pendant 60 secondes (1m).",

@@ -7,29 +7,29 @@
         "Ninguna": [],
         "Orinar en un vaso": [
             "{sub} bebe agua",
-            "{sub} traga agua",
+            "{sub} da un trago grande de agua",
             "{dom} orina en un recipiente",
-            "{sub} huele su propia orina",
+            "{sub} huele tu propia orina",
             "{sub} huele la orina de {dom}",
-            "{dom} orina en un recipiente y hace que {sub} lo sostenga",
+            "{dom} orina en un recipiente y hace que {sub} sujete su pene mientras",
             "{sub} toma un sorbo de agua",
             "{dom} le da a {sub} un recipiente con su orina"
         ],
         "Lluvia dorada": [
-            "{dom} orina en el cuerpo de {sub}",
+            "{dom} orina encima de {sub}",
             "{sub} se orina encima",
-            "{sub} pone su pene y testículos en un recipiente de orina",
-            "{sub} traga agua",
+            "{sub} pone su pene y testículos en un recipiente con orina",
+            "{sub} bebe agua",
             "{dom} orina en la cara de {sub}",
             "{sub} se orina en su propia cara",
-            "{sub} bebe agua"
+            "{sub} da un trago grande de agua"
         ],
         "Bebe": [
             "{sub} bebe su propia orina",
             "{sub} bebe la orina de {dom} desde la distancia",
-            "{sub} bebe la orina de {dom} directamente con la boca en la fuente",
+            "{sub} bebe la orina de {dom} directamente del pene",
             "{sub} bebe agua",
-            "{dom} traga agua mientras {sub} mira",
+            "{dom} bebe agua mientras {sub} mira",
             "{sub} intenta orinar en su propia boca y tragar."
         ]
     }

@@ -1,13 +1,13 @@
 {
     "label": "Fessées",
     "type": "sex",
-    "dom": "Fesseur",
-    "sub": "Fessé",
+    "dom": "Donneur",
+    "sub": "Receveur",
     "actions": {
         "Aucun": [],
         "Fessées légères": [
             "{dom} donne une fessée légère à {sub} sur chaque fesse.",
-            "{dom} fesse {sub} sur les genoux.",
+            "{dom} fesse {sub} sur ses genoux.",
             "{dom} donne une fessée légère à {sub} 10 fois tout en comptant les coups.",
             "{dom} donne une fessée légère à chaque joueur.",
             "{dom} frotte sa main sur le dos de {sub} puis lui donne une fessée légère.",
@@ -30,14 +30,14 @@
             "{dom} donne 6 fessées sévères à {sub} alors qu'il est penché en avant.",
             "{dom} donne des fessées sévères à {sub} jusqu'à ce qu'il supplie pour qu'on lui fasse grâce."
         ],
-        "Bâton, fouet et Paddle": [
+        "Bâton, fouet et paddle": [
             "{dom} fesse {sub} avec un instrument de son choix.",
             "{dom} donne 20 fessées à {sub} avec un instrument tout en comptant les coups.",
             "{dom} fesse {sub} avec un instrument alors qu'il est sur les genoux.",
             "{dom} fesse {sub} avec un instrument alors qu'il est à quatre pattes.",
             "{dom} fesse {sub} avec un instrument alors qu'il est allongé sur le dos.",
             "{sub} trouve un instrument de son choix et ensuite {dom} le fesse avec.",
-            "{sub} supplie pour un certain nombre de fessées avec un instrument et ensuite {dom} les lui donne.",
+            "{sub} supplie pour un nombre de fessées avec un instrument et ensuite {dom} les lui donne.",
             "{dom} fesse {sub} avec un instrument pendant 30 secondes.",
             "Chaque joueur fesse {sub} avec un instrument.",
             "{dom} fouette {sub} avec un instrument sur les paumes de ses mains.",
