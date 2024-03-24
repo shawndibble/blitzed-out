@@ -5,16 +5,18 @@
     "sub": "Receiver",
     "actions": {
         "None": [],
-        "Squeeze/Rub": [
+        "Squeeze/Rub/Lick": [
             "{dom} plays with {sub}'s nipples.",
             "{dom} flicks {sub}'s nipples.",
             "{dom} squeezes {sub}'s nipples.",
             "{dom} sucks {sub}'s nipples.",
             "{dom} rubs {sub}'s nipples for 15 seconds.",
             "{dom} flicks {sub}'s nipples 10 times.",
-            "{dom} squeezes/rubs {sub}'s nipples for 15 seconds."
+            "{dom} squeezes/rubs {sub}'s nipples for 15 seconds.",
+            "{sub} has their nipples played with gently by each Torturer/Switch.",
+            "{dom} may play with each receiver/switch's nipples until their next turn."
         ],
-        "Pinch/Pull": [
+        "Pinch/Pull/Suck": [
             "{dom} pinches {sub}'s nipples hard.",
             "{dom} sucks {sub}'s nipples hard.",
             "{dom} pulls {sub}'s nipples.",
@@ -22,7 +24,8 @@
             "{dom} twists {sub}'s nipples in both directions.",
             "{dom} does a helicopter with {sub}'s nipples while pulling them.",
             "{dom} gets rough with {sub}'s nipples for 20 seconds.",
-            "{dom} bites {sub}'s nipples."
+            "{dom} bites {sub}'s nipples.",
+            "All torturer/switch players may get rough with {sub}'s nipples for 30 seconds each."
         ],
         "Clips/Toys": [
             "{dom} uses a toy on {sub}'s nipples for 10 seconds.",

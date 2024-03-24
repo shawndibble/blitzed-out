@@ -12,7 +12,9 @@
       "{dom} binds {sub}'s arms behind their back until recipient's next action.",
       "{dom} binds {sub}'s arms to their legs until an action requires them to be freed.",
       "{sub} self-binds their own wrists and gives the key/release mechanism to another player.",
-      "{sub} ties their own legs together and has another player restrict their movement further."
+      "{sub} ties their own legs together and has another player restrict their movement further.",
+      "{sub} is restrained by every dominant/switch at once for at least 60 seconds.",
+      "{dom} may restrain as many submissive/switch players as desired can until an action requires them to be freed."
     ],
     "Sensory Deprivation": [
       "{dom} blindfolds {sub} until recipient's next action.",
@@ -21,7 +23,8 @@
       "{dom} deprives {sub} of one sense while stimulating another.",
       "{sub} blindfolds themselves and has another player guide their movements.",
       "{sub} gags themselves and communicates non-verbally for the rest of the game.",
-      "{sub} uses headphones to block their hearing and relies on touch for communication."
+      "{sub} uses headphones to block their hearing and relies on touch for communication.",
+      "All dominant/switch player may blindfold/gag/restrain {sub} as desired."
     ],
     "Tension": [
       "{dom} applies a tension rope to {sub}.",
@@ -29,7 +32,8 @@
       "{dom} ties {sub} in a stress position until recipient's next action.",
       "{sub} applies a tension rope to themselves and has another player tighten it.",
       "{sub} wears a spreader bar or other device and has another player control their movements for the round.",
-      "{sub} ties themselves in a stress position and waits for another player to release them."
+      "{sub} ties themselves in a stress position and waits for another player to release them.",
+      "All dominant/switch player may bind {sub} in a precarious position until their next turn."
     ]
   }
 }

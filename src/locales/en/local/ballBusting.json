@@ -20,7 +20,10 @@
             "{dom} gives {sub} 2 quick ball slaps.",
             "{dom} gives {sub} a light slap after they roll for a full round.",
             "{sub} hold their breath for 10 seconds while receiving them ball slaps from {dom}.",
-            "{dom} gives {sub} ball massages for 15 seconds."
+            "{dom} gives {sub} ball massages for 15 seconds.",
+            "{dom} gives a ball slap to every bustee/switch.",
+            "{sub} receives a ball slap from every buster/switch.",
+            "{sub} has their ball squeezed by every buster/switch."
         ],
         "Punch/Crush": [
             "{dom} gives 2 ball punches to {sub}.",
@@ -33,7 +36,11 @@
             "{dom} gives 4 hard ball slaps to {sub}.",
             "{dom} crushes {sub}'s balls.",
             "{dom} gives {sub} 1 hard ball slap.",
-            "{dom} gives {sub} 5 ball slaps."
+            "{dom} gives {sub} 5 ball slaps.",
+            "{dom} punches the balls of every bustee/switch.",
+            "{dom} crushes the balls of every bustee/switch.",
+            "{sub} receives a ball punch from every buster/switch.",
+            "{sub} has their balls crushed by every buster/switch."
         ],
         "Use Item": [
             "{dom} hits {sub}'s balls with an item.",
@@ -44,7 +51,9 @@
             "{dom} gives {sub} 2 ball slaps with an item.",
             "{dom} hits {sub}'s balls for 20 seconds with an item.",
             "{sub} wear ball weights until the next Ball Busting action.",
-            "{dom} gives {sub} 15 quick ball hits with an item."
+            "{dom} gives {sub} 15 quick ball hits with an item.",
+            "{dom} uses an item to hit the balls of every bustee/switch.",
+            "{sub} receives a ball hit from every buster/switch with an item."
         ],
         "As Hard As Possible": [
             "{dom} gives {sub} 5 of the hardest ball hits with an item.",
@@ -53,7 +62,8 @@
             "{dom} pulls {sub}'s balls hard for 20 seconds.",
             "{dom} kicks {sub} in the balls.",
             "{dom} kicks {sub} in the balls for 15 seconds.",
-            "{dom} squeezes {sub}'s balls with their foot."
+            "{dom} squeezes {sub}'s balls with their foot.",
+            "{sub} has their balls kicked by every buster/switch."
         ]
     }
 }
