@@ -76,7 +76,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
     if (settings?.roomBackgroundURL?.length) {
       setRoomBackground(settings.roomBackgroundURL);
     }
-  }, [room, messages, isLoading]);
+  }, [room, messages, isLoading, settings.room]);
 
   return { roller, roomBgUrl };
 }
