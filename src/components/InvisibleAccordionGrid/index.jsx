@@ -1,11 +1,12 @@
 import { ExpandMore } from '@mui/icons-material';
 import { Accordion, AccordionDetails, AccordionSummary, Grid, Typography } from '@mui/material';
 
-export default function InvisibleAccordionGrid({ children, title, subtitle, ...rest })
-{
+export default function InvisibleAccordionGrid({
+  children, title, subtitle, defaultExpanded = false, ...rest
+}) {
   return (
     <Accordion
-      defaultExpanded
+      defaultExpanded={defaultExpanded}
       {...rest}
       sx={{ backgroundColor: 'inherit', backgroundImage: 'none', boxShadow: 'none' }}
     >
@@ -13,10 +14,10 @@ export default function InvisibleAccordionGrid({ children, title, subtitle, ...r
         expandIcon={<ExpandMore />}
       >
         <Typography variant='h6' sx={{ width: '33%' }}>{title}:</Typography>
-        <Typography sx={{ pt: 0.5}}>{subtitle}</Typography>
+        <Typography sx={{ pt: 0.5 }}>{subtitle}</Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ px: 0 }}>
-        <Grid container columnSpacing={2} justifyContent='center' className="columned-grid">
+        <Grid container columnSpacing={2} justifyContent='space-evenly' className="columned-grid">
           {children}
         </Grid>
       </AccordionDetails>
