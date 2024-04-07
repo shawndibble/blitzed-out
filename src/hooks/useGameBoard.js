@@ -35,9 +35,7 @@ export default function useGameBoard() {
       settingsBoardUpdated = true;
     }
 
-    const tileActionList = structuredClone(
-      importActions(i18n.resolvedLanguage, gameMode)
-    );
+    const tileActionList = importActions(i18n.resolvedLanguage, gameMode);
 
     const tileCount = isPrivateRoom ? roomTileCount || 40 : 40;
 
