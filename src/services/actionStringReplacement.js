@@ -3,7 +3,7 @@ import i18next from 'i18next';
 const { t } = i18next;
 
 function capitalizeFirstLetterInCurlyBraces(string) {
-  return string.replace(/(?<=^|\.\s|!\s)(\w)/g, (match) => match.toUpperCase());
+  return string.replace(/(?:^|\.\s|!\s)(\w)/g, (match) => match.toUpperCase());
 }
 
 function replaceWithPlayerName(string, role, displayName) {
