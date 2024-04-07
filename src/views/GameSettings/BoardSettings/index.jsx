@@ -35,7 +35,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
 
   // go through all entries in formData and update the vale if the key contains the word role
   const updateAllRoles = (value) => {
-    const newFormData = structuredClone(formData);
+    const newFormData = JSON.parse(JSON.stringify(formData));
     Object.keys(newFormData).forEach((key) => {
       newFormData.role = value;
       if (key.includes('role')) {

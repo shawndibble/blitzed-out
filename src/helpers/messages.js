@@ -5,7 +5,7 @@ export function normalSortedMessages(messages) {
 
 // latest on top
 export function sortedMessages(messages) {
-  const newMessage = structuredClone(messages);
+  const newMessage = JSON.parse(JSON.stringify(messages));
   return newMessage.reverse();
 }
 
