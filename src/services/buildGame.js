@@ -6,9 +6,7 @@ const { t } = i18next;
 // Some actions are only for a dom or sub. Ensure we don't get the wrong role action.
 function playerRoleFiltering(actions, role) {
   return actions.filter((action) => !(
-    action.includes('{')
-    && action.includes('}')
-    && ['dom', 'sub'].includes(role)
+    ['{dom}', '{sub}'].includes(role)
     && !action.includes(`{${role}}`)
     && !action.includes('{player}'))
   );
@@ -19,7 +17,7 @@ function restrictSubsetActions(settings, settingsKey, actionObject) {
 
   const newList = Object.keys(actionObject).reduce((acc, key, index) => {
     if (index > 0 && index <= settings[settingsKey]?.level) {
-      acc[key] = shuffleArray(playerRoleFiltering(actionObject[key], role, settings.displayName));
+      acc[key] = shuffleArray(playerRoleFiltering(actionObject[key], role));
     }
     return acc;
   }, {});
@@ -63,7 +61,9 @@ function addInCustomTiles(newActionList, userCustomTiles) {
   userCustomTiles.forEach(({ group, intensity, action }) => {
     const actionList = newActionList.find((object) => object.key === group);
     if (actionList && Object.keys(actionList.actions).length >= intensity) {
-      Object.values(actionList.actions)[intensity - 1].unshift(action);
+      const actions = Object.values(actionList.actions)[intensity - 1];
+      const randomIndex = Math.floor(Math.random() * (actions.length + 1));
+      actions.splice(randomIndex, 0, action);
     }
   });
 
