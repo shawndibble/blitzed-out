@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@capacitor/camera": "^5.0.7",
+    "@capacitor/camera": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
