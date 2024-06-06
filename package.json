@@ -70,11 +70,11 @@
     }
   },
   "lint-staged": {
-    "*.ts": [
+    "*.js": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.tsx": [
+    "*.jsx": [
       "eslint --fix",
       "prettier --write"
     ]
