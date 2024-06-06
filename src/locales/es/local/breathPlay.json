@@ -3,7 +3,7 @@
   "type": "Preliminares",
   "actions": {
     "Ninguna": [],
-    "Suave":[
+    "Suave": [
       "{dom} cubre la nariz y la boca de {sub} con su mano durante 15 segundos.",
       "{dom} aprieta suavemente el cuello de {sub} durante 15 segundos.",
       "{dom} ahoga sin apretar a {sub} con su mano durante 15 segundos.",

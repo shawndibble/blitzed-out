@@ -28,46 +28,48 @@ export default function Schedule({ open, close, isMobile }) {
     setAlert(null);
   }, []);
 
-  const scheduleEvent = useCallback((event) => {
-    event.preventDefault();
-    const dateTime = new Date(event.target.elements['date-time'].value);
-    const url = event.target.elements.link.value;
+  const scheduleEvent = useCallback(
+    (event) => {
+      event.preventDefault();
+      const dateTime = new Date(event.target.elements['date-time'].value);
+      const url = event.target.elements.link.value;
 
-    if (!dateTime || !(dateTime instanceof Date)) {
-      setAlert('Please select a date and time');
-      return;
-    }
+      if (!dateTime || !(dateTime instanceof Date)) {
+        setAlert('Please select a date and time');
+        return;
+      }
 
-    if (dateTime < dayjs()) {
-      setAlert('Please select a date and time in the future');
-      return;
-    }
+      if (dateTime < dayjs()) {
+        setAlert('Please select a date and time in the future');
+        return;
+      }
 
-    if (schedule.find((s) => s.dateTime.toDate().toUTCString() === dateTime.toUTCString())) {
-      setAlert('A game is already scheduled for this date and time');
-      return;
-    }
+      if (
+        schedule.find(
+          (s) => s.dateTime.toDate().toUTCString() === dateTime.toUTCString()
+        )
+      ) {
+        setAlert('A game is already scheduled for this date and time');
+        return;
+      }
 
-    if (dateTime > twoWeeksFromNow) {
-      setAlert('Please select a date and time within the next two weeks');
-      return;
-    }
+      if (dateTime > twoWeeksFromNow) {
+        setAlert('Please select a date and time within the next two weeks');
+        return;
+      }
 
-    if (url && !url.startsWith('http')) {
-      setAlert('Please enter a valid URL');
-    }
+      if (url && !url.startsWith('http')) {
+        setAlert('Please enter a valid URL');
+      }
 
-    addToSchedule(dateTime, url);
-  }, [schedule]);
+      addToSchedule(dateTime, url);
+    },
+    [schedule]
+  );
 
   return (
     <>
-      <Dialog
-        fullScreen={isMobile}
-        open={open}
-        onClose={close}
-        maxWidth="md"
-      >
+      <Dialog fullScreen={isMobile} open={open} onClose={close} maxWidth="md">
         <form onSubmit={scheduleEvent}>
           <DialogTitle>
             <Trans i18nKey="schedule" />
@@ -75,13 +77,19 @@ export default function Schedule({ open, close, isMobile }) {
           </DialogTitle>
           <DialogContent>
             <Box>
-              {schedule.length
-                ? schedule?.map((game) => <ScheduleItem key={game.id} game={game} />)
-                : <Typography variant="body1">No Planned Games</Typography>}
+              {schedule.length ? (
+                schedule?.map((game) => (
+                  <ScheduleItem key={game.id} game={game} />
+                ))
+              ) : (
+                <Typography variant="body1">No Planned Games</Typography>
+              )}
             </Box>
             <Divider sx={{ my: 2 }} />
             <Box>
-              <Typography variant="body1"><Trans i18nKey="scheduleGame" /></Typography>
+              <Typography variant="body1">
+                <Trans i18nKey="scheduleGame" />
+              </Typography>
             </Box>
             <Box sx={{ my: 2 }}>
               <DateTimePicker
@@ -95,10 +103,17 @@ export default function Schedule({ open, close, isMobile }) {
               />
             </Box>
             <Box sx={{ mb: 2 }}>
-              <TextField label={t('camUrl')} variant="outlined" name="link" fullWidth />
+              <TextField
+                label={t('camUrl')}
+                variant="outlined"
+                name="link"
+                fullWidth
+              />
             </Box>
-          
-            <Button variant="contained" type="submit" fullWidth><Trans i18nKey="schedule" /></Button>
+
+            <Button variant="contained" type="submit" fullWidth>
+              <Trans i18nKey="schedule" />
+            </Button>
           </DialogContent>
         </form>
       </Dialog>

@@ -23,7 +23,7 @@ export default function CopyToClipboard({ text, copiedText = null, icon }) {
       <Tooltip title={t('copyToClipboard')}>
         <IconButton onClick={handleCopy}>{buttonIcon}</IconButton>
       </Tooltip>
-      <ToastAlert open={open} close={handleClose} type='success'>
+      <ToastAlert open={open} close={handleClose} type="success">
         {copyText}
       </ToastAlert>
     </>

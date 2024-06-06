@@ -33,7 +33,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
     const { role = 'sub', variation, level } = settings[key];
     if (level > 0) {
       message += `* ${val?.label}: ${Object.keys(val?.actions)?.[level]}`;
-      
+
       if (variation) {
         message += ` (${t(variation)})`;
       }

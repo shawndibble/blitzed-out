@@ -64,7 +64,7 @@ export default function Room() {
   );
 
   const messagesComponent = (
-    <div className='messages-container'>
+    <div className="messages-container">
       <MessageList
         room={room}
         isTransparent={isTransparent}
@@ -82,7 +82,7 @@ export default function Room() {
       <RoomBackground isVideo={isVideo} url={url} />
       <TurnIndicator room={room} />
       {isMobile ? (
-        <Box className='mobile-container'>
+        <Box className="mobile-container">
           <BottomTabs tab1={GameBoardComponent} tab2={messagesComponent} />
         </Box>
       ) : (
@@ -93,7 +93,7 @@ export default function Room() {
       )}
       <PopupMessage room={room} />
       <ToastAlert
-        type='success'
+        type="success"
         open={!!importResult}
         close={clearImportResult}
       >

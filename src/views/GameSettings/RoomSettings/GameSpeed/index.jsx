@@ -1,5 +1,10 @@
 import {
-  Box, FormControl, InputLabel, MenuItem, Select, Typography,
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -15,24 +20,36 @@ export default function GameSpeed({ formData, setFormData }) {
     ? Math.floor(formData.roomTileCount / diceRollAverage[formData.roomDice])
     : 16;
 
-  const tileMenuItem = Array.from({ length: 7 }, (_, i) => (i + 2) * 10).map((tileCount) => (
-    <MenuItem key={tileCount} value={tileCount}>{tileCount}</MenuItem>
-  ));
+  const tileMenuItem = Array.from({ length: 7 }, (_, i) => (i + 2) * 10).map(
+    (tileCount) => (
+      <MenuItem key={tileCount} value={tileCount}>
+        {tileCount}
+      </MenuItem>
+    )
+  );
 
   return (
     <>
-      <Typography><Trans i18nKey="gameSpeed" /></Typography>
+      <Typography>
+        <Trans i18nKey="gameSpeed" />
+      </Typography>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <FormControl sx={{ m: 1 }} fullWidth>
-          <InputLabel id="diceRole-label"><Trans i18nKey="roomDice" /></InputLabel>
+          <InputLabel id="diceRole-label">
+            <Trans i18nKey="roomDice" />
+          </InputLabel>
           <Select
             labelId="diceRole-label"
             id="diceRole-select"
             value={formData?.roomDice || '1d4'}
             label={t('roomDice')}
-            onChange={(event) => setFormData({
-              ...formData, roomDice: event.target.value, roomUpdated: true,
-            })}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                roomDice: event.target.value,
+                roomUpdated: true,
+              })
+            }
           >
             <MenuItem value="1d4">1d4</MenuItem>
             <MenuItem value="1d6">1d6</MenuItem>
@@ -40,15 +57,21 @@ export default function GameSpeed({ formData, setFormData }) {
           </Select>
         </FormControl>
         <FormControl sx={{ m: 1 }} fullWidth>
-          <InputLabel id="tile-count-label"><Trans i18nKey="roomTileCount" /></InputLabel>
+          <InputLabel id="tile-count-label">
+            <Trans i18nKey="roomTileCount" />
+          </InputLabel>
           <Select
             labelId="tile-count-label"
             id="tile-count-select"
             value={formData?.roomTileCount || 40}
             label={t('roomTileCount')}
-            onChange={(event) => setFormData({
-              ...formData, roomTileCount: event.target.value, roomUpdated: true,
-            })}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                roomTileCount: event.target.value,
+                roomUpdated: true,
+              })
+            }
           >
             {tileMenuItem}
           </Select>

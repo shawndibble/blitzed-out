@@ -48,7 +48,11 @@ export default function usePlayerMove(room, rollValue, gameBoard) {
   const handleTextOutput = useCallback(
     (newTile, rollNumber, newLocation, preMessage) => {
       let message = '';
-      const description = parseDescription(newTile?.description, newTile.role, user.displayName);
+      const description = parseDescription(
+        newTile?.description,
+        newTile.role,
+        user.displayName
+      );
       if (rollNumber !== -1) {
         message += `${t('roll')}: ${rollNumber}\n`;
       }

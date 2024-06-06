@@ -7,7 +7,7 @@ const getSiteButton = (url) => {
     const name = getSiteName(url);
 
     return (
-      <Button href={href} target='_blank' rel='noreferrer'>
+      <Button href={href} target="_blank" rel="noreferrer">
         {name}
       </Button>
     );
@@ -18,9 +18,9 @@ const getSiteButton = (url) => {
 
 export default function ScheduleItem({ game }) {
   return (
-    <Grid container alignItems='center' spacing={1}>
+    <Grid container alignItems="center" spacing={1}>
       <Grid item sx={{ whiteSpace: 'nowrap' }}>
-        <Typography variant='body2'>
+        <Typography variant="body2">
           {game.dateTime.toDate().toLocaleString([], {
             weekday: 'short',
             month: 'short',
@@ -30,9 +30,7 @@ export default function ScheduleItem({ game }) {
           })}
         </Typography>
       </Grid>
-      <Grid item>
-        {getSiteButton(game.url)}
-      </Grid>
+      <Grid item>{getSiteButton(game.url)}</Grid>
     </Grid>
   );
 }

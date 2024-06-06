@@ -1,14 +1,22 @@
 module.exports = {
-  env: {
-    browser: true,
-    es2021: true,
-  },
-  extends: ['airbnb', 'prettier'],
   parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['import', 'react-hooks', 'prettier'],
+  env: {
+    browser: true,
+    node: true,
+    es6: true,
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:prettier/recommended',
+  ],
+  plugins: ['react', 'react-hooks'],
   settings: {
     'import/resolver': {
       node: {
@@ -16,13 +24,14 @@ module.exports = {
         extensions: ['.js', '.jsx'],
       },
     },
+    react: {
+      version: 'detect',
+    },
   },
+  ignorePatterns: ['build/*', 'node_modules/*', '.eslintrc.js'],
   rules: {
-    quotes: ['error', 'single'],
     // we want to force semicolons
     semi: ['error', 'always'],
-    // we use 2 spaces to indent our code
-    indent: ['error', 2],
     // we want to avoid extraneous spaces
     'no-multi-spaces': ['error'],
     'react/react-in-jsx-scope': 'off',
@@ -32,5 +41,6 @@ module.exports = {
     'react/prop-types': 'off',
     'linebreak-style': 0,
     'no-unused-expressions': ['error', { allowTernary: true }],
+    'react/display-name': 'off',
   },
 };

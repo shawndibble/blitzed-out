@@ -5,19 +5,19 @@ import { Trans } from 'react-i18next';
 export default function SoloSwitch({ formData, setFormData }) {
   return (
     <Stack
-      direction='row'
+      direction="row"
       spacing={1}
-      alignItems='center'
-      justifyContent='center'
+      alignItems="center"
+      justifyContent="center"
       sx={{ mt: 1 }}
     >
       <Typography>
-        <Trans i18nKey='solo' />
+        <Trans i18nKey="solo" />
       </Typography>
       <Tooltip
         title={
-          <Typography variant='subtitle2'>
-            <Trans i18nKey='soloTooltip' />
+          <Typography variant="subtitle2">
+            <Trans i18nKey="soloTooltip" />
           </Typography>
         }
         arrow
@@ -25,7 +25,7 @@ export default function SoloSwitch({ formData, setFormData }) {
         <Help sx={{ fontSize: 15 }} />
       </Tooltip>
       <Switch
-        id='gameMode'
+        id="gameMode"
         checked={formData.gameMode === 'local'}
         onChange={(event) =>
           setFormData({
@@ -37,12 +37,12 @@ export default function SoloSwitch({ formData, setFormData }) {
         inputProps={{ 'aria-label': 'Game Type' }}
       />
       <Typography>
-        <Trans i18nKey='local' />
+        <Trans i18nKey="local" />
       </Typography>
       <Tooltip
         title={
-          <Typography variant='subtitle2'>
-            <Trans i18nKey='localTooltip' />
+          <Typography variant="subtitle2">
+            <Trans i18nKey="localTooltip" />
           </Typography>
         }
         arrow

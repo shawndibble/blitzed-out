@@ -16,47 +16,76 @@ export default function GameGuide() {
   return (
     <>
       <Trans i18nKey="gameDesc">
-        <Typography variant="h4" sx={{ textAlign: 'center' }}>Blitzed Out</Typography>
+        <Typography variant="h4" sx={{ textAlign: 'center' }}>
+          Blitzed Out
+        </Typography>
         <Divider />
         <Typography variant="body1" mt={2}>
-          An online adult sex board game for kinky people.
-          Designed for solo play, couples or parties.
+          An online adult sex board game for kinky people. Designed for solo
+          play, couples or parties.
         </Typography>
         <Typography variant="body1" my={2}>
-          Customize your own board or import someone else&apos;s,
-          find your own room and play with other people online.
+          Customize your own board or import someone else&apos;s, find your own
+          room and play with other people online.
         </Typography>
       </Trans>
 
-      <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+      <Accordion
+        expanded={expanded === 'panel1'}
+        onChange={handleChange('panel1')}
+      >
         <AccordionSummary aria-controls="panel1-content" id="panel1-header">
-          <Typography><Trans i18nKey="gettingStartedTitle" /></Typography>
+          <Typography>
+            <Trans i18nKey="gettingStartedTitle" />
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Trans i18nKey="gettingStartedDescription">
             <ul>
-              <li><Typography variant="body1">Pick a display name</Typography></li>
-              <li><Typography variant="body1">Select your options. (append will add that option to other tiles).</Typography></li>
-              <li><Typography variant="body1">Save changes/Access game.</Typography></li>
-              <li><Typography variant="body1">When it is your turn, click the roll button and follow the prompts.</Typography></li>
+              <li>
+                <Typography variant="body1">Pick a display name</Typography>
+              </li>
+              <li>
+                <Typography variant="body1">
+                  Select your options. (append will add that option to other
+                  tiles).
+                </Typography>
+              </li>
+              <li>
+                <Typography variant="body1">
+                  Save changes/Access game.
+                </Typography>
+              </li>
+              <li>
+                <Typography variant="body1">
+                  When it is your turn, click the roll button and follow the
+                  prompts.
+                </Typography>
+              </li>
             </ul>
 
             <Typography variant="body1" mt={2}>
-              New player suggestion: Limit your selections to less than 4 total options.
+              New player suggestion: Limit your selections to less than 4 total
+              options.
             </Typography>
 
             <Typography variant="body1" mt={2}>
-              Don&apos;t like your current board or some aspect of the game?
-              Go to Menu, then Settings and change it.
-              Utilize custom tiles to make make the game even more your own.
+              Don&apos;t like your current board or some aspect of the game? Go
+              to Menu, then Settings and change it. Utilize custom tiles to make
+              make the game even more your own.
             </Typography>
           </Trans>
         </AccordionDetails>
       </Accordion>
 
-      <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
+      <Accordion
+        expanded={expanded === 'panel2'}
+        onChange={handleChange('panel2')}
+      >
         <AccordionSummary aria-controls="panel2-content" id="panel2-header">
-          <Typography><Trans i18nKey="couplesTitle" /></Typography>
+          <Typography>
+            <Trans i18nKey="couplesTitle" />
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Trans i18nKey="couplesDescription">
@@ -67,9 +96,14 @@ export default function GameGuide() {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
+      <Accordion
+        expanded={expanded === 'panel3'}
+        onChange={handleChange('panel3')}
+      >
         <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-          <Typography><Trans i18nKey="coachTitle" /></Typography>
+          <Typography>
+            <Trans i18nKey="coachTitle" />
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Trans i18nKey="coachDescription">
@@ -79,14 +113,25 @@ export default function GameGuide() {
         </AccordionDetails>
       </Accordion>
 
-      <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')}>
+      <Accordion
+        expanded={expanded === 'panel4'}
+        onChange={handleChange('panel4')}
+      >
         <AccordionSummary aria-controls="panel4-content" id="panel4-header">
-          <Typography><Trans i18nKey="bugsTitle" /></Typography>
+          <Typography>
+            <Trans i18nKey="bugsTitle" />
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Typography variant="body1">
             <Trans i18nKey="bugsDescription">
-              <Link className="discord-link" to="https://discord.gg/5dCH2WVsmX" target="_blank">Discord server</Link>
+              <Link
+                className="discord-link"
+                to="https://discord.gg/5dCH2WVsmX"
+                target="_blank"
+              >
+                Discord server
+              </Link>
             </Trans>
           </Typography>
         </AccordionDetails>

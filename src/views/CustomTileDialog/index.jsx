@@ -51,7 +51,7 @@ export default function CustomTileDialog({
     <>
       <Dialog fullScreen={isMobile} open={open} onClose={() => setOpen(false)}>
         <DialogTitle>
-          <Trans i18nKey='manageTiles' />
+          <Trans i18nKey="manageTiles" />
           <IconButton
             aria-label={t('close')}
             onClick={() => setOpen(false)}

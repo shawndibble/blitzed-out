@@ -57,7 +57,7 @@ export default function CountDownButtonModal({
       <Button
         onClick={clickedButton}
         sx={{ p: noPadding ? 0 : 1 }}
-        color='secondary'
+        color="secondary"
       >
         {textString}
       </Button>
@@ -73,7 +73,7 @@ export default function CountDownButtonModal({
       >
         <Box sx={style}>
           <CloseIcon close={handleClose} />
-          <Typography variant='h2' sx={{ display: 'inline-block' }}>
+          <Typography variant="h2" sx={{ display: 'inline-block' }}>
             {timeLeft}
           </Typography>
           <Typography sx={{ ml: 2, display: 'inline-block' }}>

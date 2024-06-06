@@ -63,21 +63,21 @@ export default function GameOverDialog({ isOpen = false, close }) {
         open={isOpen}
         onClose={close}
         fullScreen={isMobile}
-        aria-labelledby='modal-game-over'
+        aria-labelledby="modal-game-over"
       >
         <DialogContent>
-          <Typography variant='h4' textAlign='center' sx={{ mb: 2, px: 2 }}>
-            <Trans i18nKey='gameOverPlayAgain' />
+          <Typography variant="h4" textAlign="center" sx={{ mb: 2, px: 2 }}>
+            <Trans i18nKey="gameOverPlayAgain" />
           </Typography>
           <CloseIcon close={close} />
 
-          <Grid container spacing={2} alignItems='stretch'>
+          <Grid container spacing={2} alignItems="stretch">
             <GridItemActionCard title={t('sameBoard')} onClick={returnToStart}>
-              <Trans i18nKey='sameBoardDescription' />
+              <Trans i18nKey="sameBoardDescription" />
             </GridItemActionCard>
 
             <GridItemActionCard title={t('rebuildBoard')} onClick={rebuild}>
-              <Trans i18nKey='rebuildBoardDescription' />
+              <Trans i18nKey="rebuildBoardDescription" />
             </GridItemActionCard>
 
             <GridItemActionCard
@@ -85,28 +85,28 @@ export default function GameOverDialog({ isOpen = false, close }) {
               onClick={acceleratedDifficulty}
               disabled={settings.difficulty === 'accelerated'}
             >
-              <Trans i18nKey='finalDifficultyDescription' />
+              <Trans i18nKey="finalDifficultyDescription" />
             </GridItemActionCard>
 
             <GridItemActionCard
               title={t('changeSettings')}
               onClick={openSettings}
             >
-              <Trans i18nKey='changeSettingsDescription' />
+              <Trans i18nKey="changeSettingsDescription" />
             </GridItemActionCard>
           </Grid>
         </DialogContent>
       </Dialog>
 
       {!!openSettingsDialog && (
-        <Dialog fullScreen={isMobile} open={openSettingsDialog} maxWidth='md'>
+        <Dialog fullScreen={isMobile} open={openSettingsDialog} maxWidth="md">
           <DialogTitle>
-            <Trans i18nKey='gameSettings' />
+            <Trans i18nKey="gameSettings" />
             <CloseIcon close={closeSettings} />
           </DialogTitle>
           <DialogContent>
             <GameSettings
-              submitText={<Trans i18nKey='update' />}
+              submitText={<Trans i18nKey="update" />}
               closeDialog={closeSettings}
             />
           </DialogContent>

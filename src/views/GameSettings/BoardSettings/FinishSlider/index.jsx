@@ -1,6 +1,4 @@
-import {
-  Box, Divider, Slider, Typography,
-} from '@mui/material';
+import { Box, Divider, Slider, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
 
 export default function FinishSlider({ formData, setFormData }) {
@@ -13,31 +11,29 @@ export default function FinishSlider({ formData, setFormData }) {
   return (
     <Box>
       <Divider />
-      <Typography id="finish-slider" sx={{ my: 1 }}><Trans i18nKey="finishSlider" /></Typography>
+      <Typography id="finish-slider" sx={{ my: 1 }}>
+        <Trans i18nKey="finishSlider" />
+      </Typography>
       <Slider
         aria-labelledby="finish-slider"
         value={finishRange}
         onChange={handleChange}
         valueLabelDisplay="off"
       />
-      <Box display="flex" flexDirection="column" justifyContent="space-between" textAlign="center">
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+        textAlign="center"
+      >
         <Typography whiteSpace="nowrap">
-          <Trans i18nKey="noCum" />
-          {' '}
-          { finishRange[0] }
-          %
+          <Trans i18nKey="noCum" /> {finishRange[0]}%
         </Typography>
         <Typography whiteSpace="nowrap">
-          <Trans i18nKey="ruined" />
-          {' '}
-          {finishRange[1] - finishRange[0]}
-          %
+          <Trans i18nKey="ruined" /> {finishRange[1] - finishRange[0]}%
         </Typography>
         <Typography whiteSpace="nowrap">
-          <Trans i18nKey="cum" />
-          {' '}
-          {100 - finishRange[1]}
-          %
+          <Trans i18nKey="cum" /> {100 - finishRange[1]}%
         </Typography>
       </Box>
       <Divider sx={{ my: 1 }} />

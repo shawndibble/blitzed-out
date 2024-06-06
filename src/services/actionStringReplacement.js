@@ -12,22 +12,27 @@ function replaceWithPlayerName(string, role, displayName) {
     if (match === '{player}') {
       return displayName;
     }
-    if ((match === '{dom}' && role === 'dom') || (match === '{sub}' && role === 'sub')) {
+    if (
+      (match === '{dom}' && role === 'dom') ||
+      (match === '{sub}' && role === 'sub')
+    ) {
       return displayName;
     }
     if (match === '{dom}' && role === 'vers' && chance < 0.5) {
       return displayName;
-    } if (match === '{sub}' && role === 'vers' && chance >= 0.5) {
+    }
+    if (match === '{sub}' && role === 'vers' && chance >= 0.5) {
       return displayName;
     }
     return match;
   });
-
 }
 
 export default function actionStringReplacement(action, role, displayName) {
-  const newAction = replaceWithPlayerName(action, role, displayName)
-    .replace(/{(dom|sub)}/g, t('anotherPlayer'));
+  const newAction = replaceWithPlayerName(action, role, displayName).replace(
+    /{(dom|sub)}/g,
+    t('anotherPlayer')
+  );
 
   // capitalize the first letter or the first letter after a period if immediately proceeded by a curly brace.
   return capitalizeFirstLetterInCurlyBraces(newAction);

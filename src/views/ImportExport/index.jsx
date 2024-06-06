@@ -135,12 +135,12 @@ export default function ImportExport({ open, close, isMobile }) {
     <>
       <Dialog fullScreen={isMobile} open={open} onClose={close}>
         <DialogTitle>
-          <Trans i18nKey='importExport' />
+          <Trans i18nKey="importExport" />
           <CloseIcon close={close} />
         </DialogTitle>
         <DialogContent sx={{ width: '30rem' }}>
-          <Typography variant='body1'>
-            <Trans i18nKey='importExportDesc' />
+          <Typography variant="body1">
+            <Trans i18nKey="importExportDesc" />
           </Typography>
           <TextField
             sx={{ mt: 2 }}
@@ -156,7 +156,7 @@ export default function ImportExport({ open, close, isMobile }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={importBoard}>
-            <Trans i18nKey='import' />
+            <Trans i18nKey="import" />
           </Button>
         </DialogActions>
       </Dialog>

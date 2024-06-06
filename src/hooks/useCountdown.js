@@ -26,6 +26,9 @@ export default function useCountdown(startSeconds, startPaused = true) {
   }, [timeLeft, isPaused]);
 
   return {
-    timeLeft, setTimeLeft, togglePause, isPaused,
+    timeLeft,
+    setTimeLeft,
+    togglePause,
+    isPaused,
   };
 }

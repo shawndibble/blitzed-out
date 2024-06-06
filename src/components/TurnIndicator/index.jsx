@@ -35,9 +35,14 @@ export default function TurnIndicator({ room }) {
         horizontal="center"
         disableAutoHide
       >
-        {isYourTurn
-          ? (<Trans i18nKey="yourTurn" />)
-          : (<Trans i18nKey="playersTurn" values={{ player: player.displayName }} />)}
+        {isYourTurn ? (
+          <Trans i18nKey="yourTurn" />
+        ) : (
+          <Trans
+            i18nKey="playersTurn"
+            values={{ player: player.displayName }}
+          />
+        )}
       </ToastAlert>
     );
   }

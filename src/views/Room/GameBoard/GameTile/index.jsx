@@ -27,17 +27,21 @@ export default function GameTile({
     }
   }, [current]);
 
-  const liClass = [current && 'pulse-animation', isTransparent && 'gray-tiles', className]
+  const liClass = [
+    current && 'pulse-animation',
+    isTransparent && 'gray-tiles',
+    className,
+  ]
     .join(' ')
     .trim();
 
   return (
     <li className={liClass} ref={tileRef}>
-      <div className='tile-title-row'>
+      <div className="tile-title-row">
         <div className={`tile-title ${isTransparent && 'pop-text'}`}>
           {title}
         </div>
-        <div className='player-indicator'>
+        <div className="player-indicator">
           <AvatarGroup max={4}>{playerIndicators}</AvatarGroup>
         </div>
       </div>

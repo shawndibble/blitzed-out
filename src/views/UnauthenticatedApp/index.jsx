@@ -40,20 +40,20 @@ export default function UnauthenticatedApp() {
   return (
     <>
       <Navigation room={room} playerList={playerList} />
-      <Container maxWidth='lg' sx={{ mt: 8 }}>
+      <Container maxWidth="lg" sx={{ mt: 8 }}>
         <Grid container>
           <Grid item xs={12} sm={6} md={4} sx={{ mx: isMobile && 0.5 }}>
             {isMobile ? (
               <Accordion>
-                <AccordionSummary expandIcon={<ExpandMore />} >
-                  <Typography variant='h6'>Game Guide:</Typography>
+                <AccordionSummary expandIcon={<ExpandMore />}>
+                  <Typography variant="h6">Game Guide:</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                   <GameGuide />
                 </AccordionDetails>
               </Accordion>
             ) : (
-              <Card className='unauthenticated-card'>
+              <Card className="unauthenticated-card">
                 <CardContent>
                   <GameGuide />
                 </CardContent>
@@ -61,23 +61,23 @@ export default function UnauthenticatedApp() {
             )}
           </Grid>
           <Grid item xs={12} sm={6} md={8}>
-            <Card className='unauthenticated-card'>
+            <Card className="unauthenticated-card">
               <CardContent>
-                <h2 className='setup'>
-                  <Trans i18nKey='setup' />
+                <h2 className="setup">
+                  <Trans i18nKey="setup" />
                 </h2>
-                <GameSettings submitText={<Trans i18nKey='access' />} />
+                <GameSettings submitText={<Trans i18nKey="access" />} />
               </CardContent>
             </Card>
           </Grid>
         </Grid>
         <Grid container sx={{ mt: 1 }}>
-          <Grid item className='language'>
-            <Card className='unauthenticated-card'>
-              <CardContent className='translation-card-content'>
+          <Grid item className="language">
+            <Card className="unauthenticated-card">
+              <CardContent className="translation-card-content">
                 {!isMobile && <Language sx={{ mr: 1 }} />}
                 <Typography sx={{ mr: 1 }}>
-                  <Trans i18nKey='language' />:
+                  <Trans i18nKey="language" />:
                 </Typography>
                 {languageLinks}
               </CardContent>

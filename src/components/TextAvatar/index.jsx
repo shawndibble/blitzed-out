@@ -49,7 +49,7 @@ export default function TextAvatar({ uid, displayName, size }) {
     <Tooltip title={displayName}>
       <Avatar
         {...stringAvatar(displayName, uid, size)}
-        className='player-online'
+        className="player-online"
       />
     </Tooltip>
   );

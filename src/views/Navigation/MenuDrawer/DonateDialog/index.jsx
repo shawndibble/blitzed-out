@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Box, Dialog, DialogTitle, Tab, Tabs, Typography,
-} from '@mui/material';
+import { Box, Dialog, DialogTitle, Tab, Tabs, Typography } from '@mui/material';
 import TabPanel from 'components/TabPanel';
 import { a11yProps } from 'helpers/strings';
 import Venmo from 'images/venmo.png';
@@ -15,11 +13,7 @@ export default function DonateDialog({ open, close, isMobile }) {
   const changeTab = (_, newVal) => setTab(newVal);
 
   return (
-    <Dialog
-      fullScreen={isMobile}
-      open={open}
-      onClose={close}
-    >
+    <Dialog fullScreen={isMobile} open={open} onClose={close}>
       <DialogTitle>
         <Trans i18nKey="donateToHelp" />
         <CloseIcon close={close} />
@@ -34,7 +28,12 @@ export default function DonateDialog({ open, close, isMobile }) {
             <Typography variant="h4">@blitzedout</Typography>
           </Link>
         </Box>
-        <Box component="img" sx={{ maxWidth: 550, width: 'calc(100vw - 45px)' }} alt="Venmo QR code" src={Venmo} />
+        <Box
+          component="img"
+          sx={{ maxWidth: 550, width: 'calc(100vw - 45px)' }}
+          alt="Venmo QR code"
+          src={Venmo}
+        />
       </TabPanel>
       <TabPanel value={tabVal} index={1}>
         <Box sx={{ textAlign: 'center' }}>
@@ -45,7 +44,12 @@ export default function DonateDialog({ open, close, isMobile }) {
         <Box
           component="img"
           sx={{
-            padding: 4, background: 'white', maxWidth: 500, borderRadius: 5, margin: 3, width: 'calc(100vw - 100)',
+            padding: 4,
+            background: 'white',
+            maxWidth: 500,
+            borderRadius: 5,
+            margin: 3,
+            width: 'calc(100vw - 100)',
           }}
           alt="Venmo QR code"
           src={CashApp}

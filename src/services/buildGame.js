@@ -5,10 +5,13 @@ const { t } = i18next;
 
 // Some actions are only for a dom or sub. Ensure we don't get the wrong role action.
 function playerRoleFiltering(actions, role) {
-  return actions.filter((action) => !(
-    ['{dom}', '{sub}'].includes(role)
-    && !action.includes(`{${role}}`)
-    && !action.includes('{player}'))
+  return actions.filter(
+    (action) =>
+      !(
+        ['{dom}', '{sub}'].includes(role) &&
+        !action.includes(`{${role}}`) &&
+        !action.includes('{player}')
+      )
   );
 }
 
@@ -74,10 +77,10 @@ function addInCustomTiles(newActionList, userCustomTiles) {
 function getUserAppendSelections(settings) {
   return Object.entries(settings).reduce((acc, [key, value]) => {
     if (value?.variation) {
-      acc[key] = value; 
+      acc[key] = value;
     }
     return acc;
-  }, {}); 
+  }, {});
 }
 
 // Separates the append options from rest of our categories/action items
@@ -156,7 +159,12 @@ function getCurrentTile(listWithMisc, size, currentTile, settings) {
 
   cycleArray(catActions[intensity]);
 
-  return { title: label, description: catActions[intensity][0], standalone, role };
+  return {
+    title: label,
+    description: catActions[intensity][0],
+    standalone,
+    role,
+  };
 }
 
 // Builds the board based on user settings
@@ -184,7 +192,9 @@ function buildBoard(listWithMisc, settings, size) {
         currentTile,
         settings
       );
-      const ensurePunctuation = appendDescription.trim().replace(/([^.,!?])$/, '$1.');
+      const ensurePunctuation = appendDescription
+        .trim()
+        .replace(/([^.,!?])$/, '$1.');
       finalDescription = `${ensurePunctuation} ${description}`;
     } else {
       finalDescription = description;

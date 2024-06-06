@@ -57,14 +57,14 @@ export default function MessageList({
   };
 
   return (
-    <div className='message-list-container' ref={containerRef}>
-      <AppBar position='sticky'>
+    <div className="message-list-container" ref={containerRef}>
+      <AppBar position="sticky">
         <Tabs
-          variant='fullWidth'
+          variant="fullWidth"
           value={currentTab}
           onChange={handleChange}
-          aria-label='chat filter'
-          className='message-tabs'
+          aria-label="chat filter"
+          className="message-tabs"
         >
           <Tab label={t('all')} {...a11yProps('all')} />
           <Tab label={t('setting')} {...a11yProps('settings')} />
@@ -72,7 +72,7 @@ export default function MessageList({
           <Tab label={t('actions')} {...a11yProps('actions')} />
         </Tabs>
       </AppBar>
-      <ul className='message-list'>
+      <ul className="message-list">
         {updatedMessages.map((x) => (
           <Message
             key={x.id}

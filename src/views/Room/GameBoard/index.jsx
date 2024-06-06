@@ -21,7 +21,7 @@ export default function GameBoard({ playerList, isTransparent, gameBoard }) {
     const current = playerList.find(
       (player) => player.isSelf && player.location === index && index !== 0
     );
-    const hueIndex = Array.from(tileTypeArray).indexOf(entry.title) % 10 + 1;
+    const hueIndex = (Array.from(tileTypeArray).indexOf(entry.title) % 10) + 1;
 
     return (
       <GameTile
@@ -29,7 +29,11 @@ export default function GameBoard({ playerList, isTransparent, gameBoard }) {
         key={index}
         id={`tile-${index}`}
         title={`#${index + 1}: ${entry.title}`}
-        description={actionStringReplacement(entry.description, entry.role, user.displayName)}
+        description={actionStringReplacement(
+          entry.description,
+          entry.role,
+          user.displayName
+        )}
         players={players}
         current={current}
         isTransparent={isTransparent}
@@ -39,7 +43,7 @@ export default function GameBoard({ playerList, isTransparent, gameBoard }) {
   });
 
   return (
-    <div className='gameboard'>
+    <div className="gameboard">
       <ol>{gameTiles}</ol>
     </div>
   );

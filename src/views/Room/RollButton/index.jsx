@@ -132,22 +132,22 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
 
   return (
     <>
-      <ButtonGroup variant='contained' ref={anchorRef} className='dice-roller'>
+      <ButtonGroup variant="contained" ref={anchorRef} className="dice-roller">
         <Button
           aria-label={t('roll')}
           onClick={handleClick}
           disabled={isDisabled}
-          size='large'
+          size="large"
         >
           <Casino sx={{ mr: 1 }} />
           {rollText}
         </Button>
         <Button
-          size='small'
+          size="small"
           aria-controls={open ? 'split-button-menu' : undefined}
           aria-expanded={open ? 'true' : undefined}
-          aria-label='select roll options'
-          aria-haspopup='menu'
+          aria-label="select roll options"
+          aria-haspopup="menu"
           onClick={handleToggle}
         >
           <ArrowDropUp />
@@ -162,7 +162,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
         role={undefined}
         transition
         disablePortal
-        placement='top-end'
+        placement="top-end"
       >
         {({ TransitionProps }) => (
           <Grow
@@ -171,7 +171,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
           >
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
-                <MenuList id='split-button-menu' autoFocusItem>
+                <MenuList id="split-button-menu" autoFocusItem>
                   {Array.from(options).map(([key, option]) => (
                     <MenuItem
                       key={key}

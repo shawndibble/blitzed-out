@@ -36,7 +36,7 @@ export default function Cast() {
 
   const lastAction = latestMessageByType(messages, ACTION_TYPE) || {};
   const nextPlayer = useTurnIndicator(room, lastAction);
-  const {isFullscreen, toggleFullscreen} = useFullscreenStatus();
+  const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
 
   useEffect(() => {
     if (isLoading) return;
@@ -52,66 +52,73 @@ export default function Cast() {
   const { displayName, type, activity } = actionCard(lastAction);
 
   return (
-    <Box className='text-stroke flex-column'>
+    <Box className="text-stroke flex-column">
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
-      <Box display="flex" justifyContent="space-between" sx={{ mx: 2, mt: 2, mb: -2 }}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        sx={{ mx: 2, mt: 2, mb: -2 }}
+      >
         <Box flex="1">
-          {!isFullscreen && <Button variant='text' onClick={toggleFullscreen}>Fullscreen</Button>}
+          {!isFullscreen && (
+            <Button variant="text" onClick={toggleFullscreen}>
+              Fullscreen
+            </Button>
+          )}
         </Box>
-        
+
         <Box textAlign="center" flex="1">
           {!!nextPlayer?.displayName && (
-            <Typography variant='h4'>
+            <Typography variant="h4">
               <Trans
-                i18nKey='nextPlayersTurn'
+                i18nKey="nextPlayersTurn"
                 values={{ player: nextPlayer.displayName }}
               />
             </Typography>
           )}
         </Box>
-        
+
         <Box flex="1" textAlign="right">
           {activity && (
-            <Typography variant='h4'>blitzedout.com/{room}</Typography>
+            <Typography variant="h4">blitzedout.com/{room}</Typography>
           )}
         </Box>
-        
       </Box>
-      
+
       <Grid
         container
         spacing={0}
-        direction='column'
-        alignItems='center'
-        justifyContent='center'
-        className='cast-container'
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        className="cast-container"
       >
-        <Grid item container justifyContent='center'>
+        <Grid item container justifyContent="center">
           {activity ? (
-            <Grid item xl={8} lg={10} md={10} className='action-box'>
-              <Typography variant='h3'>
+            <Grid item xl={8} lg={10} md={10} className="action-box">
+              <Typography variant="h3">
                 {`${type} ${t('for')} ${displayName}`}
               </Typography>
-              <Box className='divider'>
+              <Box className="divider">
                 <Divider />
               </Box>
-              <Typography variant='h1'>{activity}</Typography>
+              <Typography variant="h1">{activity}</Typography>
             </Grid>
           ) : (
-            <div className='action-box'>
-              <Typography variant='h1'>blitzedout.com/{room}</Typography>
+            <div className="action-box">
+              <Typography variant="h1">blitzedout.com/{room}</Typography>
             </div>
           )}
         </Grid>
       </Grid>
-      
+
       <ToastAlert
         open={!!openAlert}
         setOpen={setOpenAlert}
         close={() => setOpenAlert(false)}
         hideCloseButton
       >
-        <Typography variant='h5'>{alertMessage}</Typography>
+        <Typography variant="h5">{alertMessage}</Typography>
       </ToastAlert>
     </Box>
   );

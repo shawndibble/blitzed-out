@@ -98,10 +98,7 @@ export function setMyPresence({
       const newRef = push(newRoomConnectionsRef);
       const oldRef = push(oldRoomConnectionsRef);
 
-      if (
-        oldRoomName !== newRoomName ||
-        oldDisplayName !== newDisplayName
-      ) {
+      if (oldRoomName !== newRoomName || oldDisplayName !== newDisplayName) {
         remove(oldRoomConnectionsRef);
       }
 
@@ -131,7 +128,9 @@ export function getUserList(roomId, callback, existingData = {}) {
     // to prevent an endless loop, see if our new data matches the existing stuff.
     // can't compare two arrays directly, but we can compare two strings.
     const dataString = Object.keys(data).sort().join(',');
-    const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
+    const existingString = existingData
+      ? Object.keys(existingData).sort().join(',')
+      : '';
     if (dataString !== existingString) callback(data);
   });
 }

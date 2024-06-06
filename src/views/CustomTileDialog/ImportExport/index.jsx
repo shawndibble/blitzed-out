@@ -138,19 +138,19 @@ export default function ImportExport({
       expanded={expanded === 'ctImport'}
       onChange={handleChange('ctImport')}
     >
-      <AccordionSummary aria-controls='ctImport-content' id='ctImport-header'>
+      <AccordionSummary aria-controls="ctImport-content" id="ctImport-header">
         <Typography>
-          <Trans i18nKey='importExport' />
+          <Trans i18nKey="importExport" />
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
-        <Typography variant='body1' sx={{ mb: 2 }}>
-          <Trans i18nKey='ctImportDescription' />
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          <Trans i18nKey="ctImportDescription" />
         </Typography>
-        <Box component='form' method='post' ref={formData}>
+        <Box component="form" method="post" ref={formData}>
           <TextField
-            id='importData'
-            name='importData'
+            id="importData"
+            name="importData"
             multiline
             required
             fullWidth
@@ -164,11 +164,11 @@ export default function ImportExport({
           />
           <Button
             fullWidth
-            variant='contained'
-            type='button'
+            variant="contained"
+            type="button"
             onClick={(event) => importTiles(event)}
           >
-            <Trans i18nKey='import' />
+            <Trans i18nKey="import" />
           </Button>
         </Box>
       </AccordionDetails>

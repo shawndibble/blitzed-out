@@ -10,7 +10,10 @@ function ScheduleProvider(props) {
     getSchedule((newSchedule) => setSchedule(newSchedule));
   }, []);
 
-  const value = useMemo(() => ({ schedule, addToSchedule: addSchedule }), [schedule]);
+  const value = useMemo(
+    () => ({ schedule, addToSchedule: addSchedule }),
+    [schedule]
+  );
 
   return <ScheduleContext.Provider value={value} {...props} />;
 }

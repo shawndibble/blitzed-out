@@ -1,5 +1,9 @@
 import {
-  Autocomplete, Box, Button, TextField, Typography,
+  Autocomplete,
+  Box,
+  Button,
+  TextField,
+  Typography,
 } from '@mui/material';
 import { submitCustomAction } from 'services/firebase';
 import { useRef } from 'react';
@@ -9,13 +13,21 @@ import AccordionSummary from 'components/Accordion/Summary';
 import AccordionDetails from 'components/Accordion/Details';
 
 export default function CustomTile({
-  setSubmitMessage, addCustomTile, customTiles, mappedGroups, expanded, handleChange,
+  setSubmitMessage,
+  addCustomTile,
+  customTiles,
+  mappedGroups,
+  expanded,
+  handleChange,
 }) {
   const formData = useRef();
   const { t } = useTranslation();
 
   function tileExists(newGroup, newAction) {
-    return customTiles.find(({ group, intensity, action }) => `${group} - ${intensity}` === newGroup && action === newAction);
+    return customTiles.find(
+      ({ group, intensity, action }) =>
+        `${group} - ${intensity}` === newGroup && action === newAction
+    );
   }
 
   async function submitNewTile() {
@@ -42,7 +54,9 @@ export default function CustomTile({
   return (
     <Accordion expanded={expanded === 'ctAdd'} onChange={handleChange('ctAdd')}>
       <AccordionSummary aria-controls="ctAdd-content" id="ctAdd-header">
-        <Typography><Trans i18nKey="ctAdd" /></Typography>
+        <Typography>
+          <Trans i18nKey="ctAdd" />
+        </Typography>
       </AccordionSummary>
       <AccordionDetails>
         <Box
@@ -57,7 +71,9 @@ export default function CustomTile({
             options={mappedGroups}
             getOptionLabel={(option) => option.label}
             groupBy={(option) => option.group}
-            renderInput={(params) => <TextField {...params} label={t('group')} required />}
+            renderInput={(params) => (
+              <TextField {...params} label={t('group')} required />
+            )}
             isOptionEqualToValue={(option) => option.label}
             sx={{ py: 2 }}
           />
@@ -71,7 +87,12 @@ export default function CustomTile({
             sx={{ pb: 2 }}
           />
 
-          <Button fullWidth variant="contained" type="button" onClick={(event) => submitNewTile(event)}>
+          <Button
+            fullWidth
+            variant="contained"
+            type="button"
+            onClick={(event) => submitNewTile(event)}
+          >
             <Trans i18nKey="addCustom" />
           </Button>
         </Box>

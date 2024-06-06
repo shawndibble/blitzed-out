@@ -1,22 +1,32 @@
 import {
-  FormControl, InputLabel, MenuItem, Select, TextField,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function BackgroundSelect({
-  formData, setFormData, backgrounds, isRoom = false,
+  formData,
+  setFormData,
+  backgrounds,
+  isRoom = false,
 }) {
   const { t } = useTranslation();
   const backgroundKey = !isRoom ? 'background' : 'roomBackground';
   const backgroundURLKey = !isRoom ? 'backgroundURL' : 'roomBackgroundURL';
   const [background, setBackground] = useState(
-    formData?.[backgroundKey] || Object.keys(backgrounds)[0],
+    formData?.[backgroundKey] || Object.keys(backgrounds)[0]
   );
 
-  const options = () => Object.entries(backgrounds).map(([file, label]) => (
-    <MenuItem value={file} key={file}>{label}</MenuItem>
-  ));
+  const options = () =>
+    Object.entries(backgrounds).map(([file, label]) => (
+      <MenuItem value={file} key={file}>
+        {label}
+      </MenuItem>
+    ));
 
   const backgroundSelection = (event) => {
     setFormData({ ...formData, [backgroundKey]: event.target.value });
@@ -62,13 +72,13 @@ export default function BackgroundSelect({
           value={formData?.[backgroundURLKey]}
           fullWidth
           onChange={handleURLChange}
-          helperText={(
+          helperText={
             <>
               {t('supportedSites')}
               <br />
               {t('requiresEmbeddedUrl')}
             </>
-          )}
+          }
         />
       )}
     </>

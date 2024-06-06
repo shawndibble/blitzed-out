@@ -1,29 +1,29 @@
 ﻿{
-    "label": "Juegos con Orina",
-    "type": "solo",
-    "actions": {
-        "Ninguna": [],
-        "Orinar en un Vaso": [
-            "Bebe agua",
-            "Orina en un recipiente",
-            "Bebe mucha agua",
-            "Huele tu propia orina",
-            "Orina en un recipiente",
-            "Toma un sorbo de agua"
-        ],
-        "Lluvia dorada": [
-            "Orina sobre ti mismo",
-            "Orina en tu cara",
-            "Pon el pene y los testículos en un recipiente con orina",
-            "Bebe mucha agua",
-            "Vierte el contenido del recipiente con orina encima de ti",
-            "Bebe agua"
-        ],
-        "Bebe": [
-            "Bébete tu propia orina",
-            "Bebe agua",
-            "Bebe mucha agua",
-            "Intentar orinar en tu boca. Trágatelo."
-        ]
-    }
+  "label": "Juegos con Orina",
+  "type": "solo",
+  "actions": {
+    "Ninguna": [],
+    "Orinar en un Vaso": [
+      "Bebe agua",
+      "Orina en un recipiente",
+      "Bebe mucha agua",
+      "Huele tu propia orina",
+      "Orina en un recipiente",
+      "Toma un sorbo de agua"
+    ],
+    "Lluvia dorada": [
+      "Orina sobre ti mismo",
+      "Orina en tu cara",
+      "Pon el pene y los testículos en un recipiente con orina",
+      "Bebe mucha agua",
+      "Vierte el contenido del recipiente con orina encima de ti",
+      "Bebe agua"
+    ],
+    "Bebe": [
+      "Bébete tu propia orina",
+      "Bebe agua",
+      "Bebe mucha agua",
+      "Intentar orinar en tu boca. Trágatelo."
+    ]
+  }
 }

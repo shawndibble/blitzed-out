@@ -6,7 +6,7 @@
 label.settings-switch {
   display: flex;
   justify-content: space-between;
-  margin: 0.5rem
+  margin: 0.5rem;
 }
 
 .flex-buttons {

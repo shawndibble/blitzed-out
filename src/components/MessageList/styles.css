@@ -45,10 +45,10 @@
 .message.transparent {
   background: rgba(75, 75, 75, 0.75);
   text-shadow:
-  -1px 0 0 black,
-  1px 0 0 black,
-  0 -1px 0 black,
-  0 1px 0 black;
+    -1px 0 0 black,
+    1px 0 0 black,
+    0 -1px 0 black,
+    0 1px 0 black;
 }
 
 .message.transparent .MuiAvatar-root {
@@ -58,7 +58,7 @@
 .message td,
 .message th {
   padding: 0.4em;
-  border-right: dashed 1px gray
+  border-right: dashed 1px gray;
 }
 
 .message td:last-child,
@@ -113,7 +113,7 @@
   margin-bottom: 8px;
 }
 
-.sender>div {
+.sender > div {
   margin-right: 0.5rem;
 }
 

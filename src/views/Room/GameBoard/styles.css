@@ -16,8 +16,8 @@
   --height: 6rem;
   position: relative;
   display: block;
-  background-color: hsl(calc(var(--hue)*360/10), 70%, 30%);
-  border-color: hsl(calc(var(--hue)*360/10), 70%, 30%);
+  background-color: hsl(calc(var(--hue) * 360 / 10), 70%, 30%);
+  border-color: hsl(calc(var(--hue) * 360 / 10), 70%, 30%);
   padding: 0.75rem;
   margin: 2rem 1rem;
   border-radius: 0.2rem;
@@ -30,25 +30,25 @@
 
 .gameboard li .pop-text {
   text-shadow:
-  -1px 0 0 black,
-  1px 0 0 black,
-  0 -1px 0 black,
-  0 1px 0 black;
+    -1px 0 0 black,
+    1px 0 0 black,
+    0 -1px 0 black,
+    0 1px 0 black;
 }
 
 .gameboard li::before {
-  content: "";
+  content: '';
   background-color: inherit;
   position: absolute;
   display: block;
   width: var(--unit);
   height: var(--unit);
   top: 100%;
-  left: calc(50% - (var(--unit)/2));
+  left: calc(50% - (var(--unit) / 2));
 }
 
 .gameboard li::after {
-  content: "";
+  content: '';
   position: absolute;
   display: block;
   top: calc(100% + var(--unit));
@@ -114,30 +114,30 @@
     min-height: 11rem;
   }
 
-  .gameboard li:nth-child(4n+3),
-  .gameboard li:nth-child(4n+4) {
+  .gameboard li:nth-child(4n + 3),
+  .gameboard li:nth-child(4n + 4) {
     float: right;
   }
 
-  .gameboard li:nth-child(4n+1)::before {
-    top: calc(var(--height)/2 + var(--unit)/2);
+  .gameboard li:nth-child(4n + 1)::before {
+    top: calc(var(--height) / 2 + var(--unit) / 2);
     left: 100%;
   }
 
-  .gameboard li:nth-child(4n+1)::after {
-    top: calc(var(--height)/2);
+  .gameboard li:nth-child(4n + 1)::after {
+    top: calc(var(--height) / 2);
     left: calc(100% + (var(--unit)));
     border: var(--unit) solid transparent;
     border-left-color: inherit;
   }
 
-  .gameboard li:nth-child(4n+3)::before {
-    top: calc(var(--height)/2 + var(--unit)/2);
+  .gameboard li:nth-child(4n + 3)::before {
+    top: calc(var(--height) / 2 + var(--unit) / 2);
     left: -1rem;
   }
 
-  .gameboard li:nth-child(4n+3)::after {
-    top: calc(var(--height)/2);
+  .gameboard li:nth-child(4n + 3)::after {
+    top: calc(var(--height) / 2);
     left: -3rem;
     border: var(--unit) solid transparent;
     border-right-color: inherit;
@@ -149,38 +149,38 @@
     margin: 1rem;
     width: calc(33% - 2rem);
     float: left;
-    min-height: 12rem
+    min-height: 12rem;
   }
 
-  .gameboard li:nth-child(6n+4),
-  .gameboard li:nth-child(6n+5),
-  .gameboard li:nth-child(6n+6) {
+  .gameboard li:nth-child(6n + 4),
+  .gameboard li:nth-child(6n + 5),
+  .gameboard li:nth-child(6n + 6) {
     float: right;
   }
 
-  .gameboard li:nth-child(6n+1)::before,
-  .gameboard li:nth-child(6n+2)::before {
-    top: calc(var(--height)/2 + var(--unit)/2);
+  .gameboard li:nth-child(6n + 1)::before,
+  .gameboard li:nth-child(6n + 2)::before {
+    top: calc(var(--height) / 2 + var(--unit) / 2);
     left: 100%;
   }
 
-  .gameboard li:nth-child(6n+1)::after,
-  .gameboard li:nth-child(6n+2)::after {
-    top: calc(var(--height)/2);
+  .gameboard li:nth-child(6n + 1)::after,
+  .gameboard li:nth-child(6n + 2)::after {
+    top: calc(var(--height) / 2);
     left: calc(100% + (var(--unit)));
     border: var(--unit) solid transparent;
     border-left-color: inherit;
   }
 
-  .gameboard li:nth-child(6n+4)::before,
-  .gameboard li:nth-child(6n+5)::before {
-    top: calc(var(--height)/2 + var(--unit)/2);
+  .gameboard li:nth-child(6n + 4)::before,
+  .gameboard li:nth-child(6n + 5)::before {
+    top: calc(var(--height) / 2 + var(--unit) / 2);
     left: -1rem;
   }
 
-  .gameboard li:nth-child(6n+4)::after,
-  .gameboard li:nth-child(6n+5)::after {
-    top: calc(var(--height)/2);
+  .gameboard li:nth-child(6n + 4)::after,
+  .gameboard li:nth-child(6n + 5)::after {
+    top: calc(var(--height) / 2);
     left: -3rem;
     border: var(--unit) solid transparent;
     border-right-color: inherit;
@@ -192,43 +192,43 @@
     margin: 1rem;
     width: calc(25% - 2rem);
     float: left;
-    min-height: 12rem
+    min-height: 12rem;
   }
 
-  .gameboard li:nth-child(8n+5),
-  .gameboard li:nth-child(8n+6),
-  .gameboard li:nth-child(8n+7),
-  .gameboard li:nth-child(8n+8) {
+  .gameboard li:nth-child(8n + 5),
+  .gameboard li:nth-child(8n + 6),
+  .gameboard li:nth-child(8n + 7),
+  .gameboard li:nth-child(8n + 8) {
     float: right;
   }
 
-  .gameboard li:nth-child(8n+1)::before,
-  .gameboard li:nth-child(8n+2)::before,
-  .gameboard li:nth-child(8n+3)::before {
-    top: calc(var(--height)/2 + var(--unit)/2);
+  .gameboard li:nth-child(8n + 1)::before,
+  .gameboard li:nth-child(8n + 2)::before,
+  .gameboard li:nth-child(8n + 3)::before {
+    top: calc(var(--height) / 2 + var(--unit) / 2);
     left: 100%;
   }
 
-  .gameboard li:nth-child(8n+1)::after,
-  .gameboard li:nth-child(8n+2)::after,
-  .gameboard li:nth-child(8n+3)::after {
-    top: calc(var(--height)/2);
+  .gameboard li:nth-child(8n + 1)::after,
+  .gameboard li:nth-child(8n + 2)::after,
+  .gameboard li:nth-child(8n + 3)::after {
+    top: calc(var(--height) / 2);
     left: calc(100% + (var(--unit)));
     border: var(--unit) solid transparent;
     border-left-color: inherit;
   }
 
-  .gameboard li:nth-child(8n+5)::before,
-  .gameboard li:nth-child(8n+6)::before,
-  .gameboard li:nth-child(8n+7)::before {
-    top: calc(var(--height)/2 + var(--unit)/2);
+  .gameboard li:nth-child(8n + 5)::before,
+  .gameboard li:nth-child(8n + 6)::before,
+  .gameboard li:nth-child(8n + 7)::before {
+    top: calc(var(--height) / 2 + var(--unit) / 2);
     left: -1rem;
   }
 
-  .gameboard li:nth-child(8n+5)::after,
-  .gameboard li:nth-child(8n+6)::after,
-  .gameboard li:nth-child(8n+7)::after {
-    top: calc(var(--height)/2);
+  .gameboard li:nth-child(8n + 5)::after,
+  .gameboard li:nth-child(8n + 6)::after,
+  .gameboard li:nth-child(8n + 7)::after {
+    top: calc(var(--height) / 2);
     left: -3rem;
     border: var(--unit) solid transparent;
     border-right-color: inherit;
@@ -243,55 +243,55 @@
 
   .gameboard li {
     margin: 1rem;
-    width: calc(100%/6 - 2rem);
+    width: calc(100% / 6 - 2rem);
     float: left;
-    min-height: 12rem
+    min-height: 12rem;
   }
 
-  .gameboard li:nth-child(12n+7),
-  .gameboard li:nth-child(12n+8),
-  .gameboard li:nth-child(12n+9),
-  .gameboard li:nth-child(12n+10),
-  .gameboard li:nth-child(12n+11),
-  .gameboard li:nth-child(12n+12) {
+  .gameboard li:nth-child(12n + 7),
+  .gameboard li:nth-child(12n + 8),
+  .gameboard li:nth-child(12n + 9),
+  .gameboard li:nth-child(12n + 10),
+  .gameboard li:nth-child(12n + 11),
+  .gameboard li:nth-child(12n + 12) {
     float: right;
   }
 
-  .gameboard li:nth-child(12n+1)::before,
-  .gameboard li:nth-child(12n+2)::before,
-  .gameboard li:nth-child(12n+3)::before,
-  .gameboard li:nth-child(12n+4)::before,
-  .gameboard li:nth-child(12n+5)::before {
-    top: calc(var(--height)/2 + var(--unit)/2);
+  .gameboard li:nth-child(12n + 1)::before,
+  .gameboard li:nth-child(12n + 2)::before,
+  .gameboard li:nth-child(12n + 3)::before,
+  .gameboard li:nth-child(12n + 4)::before,
+  .gameboard li:nth-child(12n + 5)::before {
+    top: calc(var(--height) / 2 + var(--unit) / 2);
     left: 100%;
   }
 
-  .gameboard li:nth-child(12n+1)::after,
-  .gameboard li:nth-child(12n+2)::after,
-  .gameboard li:nth-child(12n+3)::after,
-  .gameboard li:nth-child(12n+4)::after,
-  .gameboard li:nth-child(12n+5)::after {
-    top: calc(var(--height)/2);
+  .gameboard li:nth-child(12n + 1)::after,
+  .gameboard li:nth-child(12n + 2)::after,
+  .gameboard li:nth-child(12n + 3)::after,
+  .gameboard li:nth-child(12n + 4)::after,
+  .gameboard li:nth-child(12n + 5)::after {
+    top: calc(var(--height) / 2);
     left: calc(100% + (var(--unit)));
     border: var(--unit) solid transparent;
     border-left-color: inherit;
   }
 
-  .gameboard li:nth-child(12n+7)::before,
-  .gameboard li:nth-child(12n+8)::before,
-  .gameboard li:nth-child(12n+9)::before,
-  .gameboard li:nth-child(12n+10)::before,
-  .gameboard li:nth-child(12n+11)::before {
-    top: calc(var(--height)/2 + var(--unit)/2);
+  .gameboard li:nth-child(12n + 7)::before,
+  .gameboard li:nth-child(12n + 8)::before,
+  .gameboard li:nth-child(12n + 9)::before,
+  .gameboard li:nth-child(12n + 10)::before,
+  .gameboard li:nth-child(12n + 11)::before {
+    top: calc(var(--height) / 2 + var(--unit) / 2);
     left: -1rem;
   }
 
-  .gameboard li:nth-child(12n+7)::after,
-  .gameboard li:nth-child(12n+8)::after,
-  .gameboard li:nth-child(12n+9)::after,
-  .gameboard li:nth-child(12n+10)::after,
-  .gameboard li:nth-child(12n+11)::after {
-    top: calc(var(--height)/2);
+  .gameboard li:nth-child(12n + 7)::after,
+  .gameboard li:nth-child(12n + 8)::after,
+  .gameboard li:nth-child(12n + 9)::after,
+  .gameboard li:nth-child(12n + 10)::after,
+  .gameboard li:nth-child(12n + 11)::after {
+    top: calc(var(--height) / 2);
     left: -3rem;
     border: var(--unit) solid transparent;
     border-right-color: inherit;

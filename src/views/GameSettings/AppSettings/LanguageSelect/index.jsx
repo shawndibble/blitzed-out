@@ -1,7 +1,5 @@
 import { Language } from '@mui/icons-material';
-import {
-  Box, FormControl, InputLabel, MenuItem, Select,
-} from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import languages from 'locales/languages.json';
@@ -16,13 +14,19 @@ export default function LanguageSelect({ boardUpdated }) {
     boardUpdated();
   }
 
-  const menuItems = Object.entries(languages)
-    .map(([key, obj]) => <MenuItem value={key} key={key}>{obj.label}</MenuItem>);
+  const menuItems = Object.entries(languages).map(([key, obj]) => (
+    <MenuItem value={key} key={key}>
+      {obj.label}
+    </MenuItem>
+  ));
 
   return (
     <Box sx={{ minWidth: 120, mt: 1, mb: 2 }}>
       <FormControl fullWidth>
-        <InputLabel id="language-label" sx={{ display: 'flex', alignItems: 'center' }}>
+        <InputLabel
+          id="language-label"
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
           <Language sx={{ mr: 1 }} />
           <Trans i18nKey="language" />
         </InputLabel>
@@ -30,12 +34,12 @@ export default function LanguageSelect({ boardUpdated }) {
           labelId="language-label"
           id="language-select"
           value={language}
-          label={(
+          label={
             <>
               <Language />
               <Trans i18nKey="language" />
             </>
-          )}
+          }
           onChange={(event) => changeLanguage(event.target.value)}
         >
           {menuItems}

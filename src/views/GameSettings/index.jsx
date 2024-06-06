@@ -17,10 +17,7 @@ import AppSettings from './AppSettings';
 import BoardSettings from './BoardSettings';
 import RoomSettings from './RoomSettings';
 import './styles.css';
-import {
-  handleUser,
-  sendRoomSettingsMessage,
-} from './submitForm';
+import { handleUser, sendRoomSettingsMessage } from './submitForm';
 import validateFormData from './validateForm';
 
 export default function GameSettings({ submitText, closeDialog }) {
@@ -182,12 +179,12 @@ export default function GameSettings({ submitText, closeDialog }) {
   if (!formData.locale) {
     return (
       <Box>
-        <Typography variant='h2'>
-          <Trans i18nKey='Loading' />
+        <Typography variant="h2">
+          <Trans i18nKey="Loading" />
           ...
         </Typography>
-        <Typography variant='body1'>
-          <Trans i18nKey='clearStorage' />
+        <Typography variant="body1">
+          <Trans i18nKey="clearStorage" />
         </Typography>
       </Box>
     );
@@ -195,29 +192,29 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   return (
     <Box
-      component='form'
-      method='post'
+      component="form"
+      method="post"
       // eslint-disable-next-line react/jsx-no-bind
       onSubmit={handleSubmit}
-      className='settings-box'
+      className="settings-box"
     >
       <TextField
         fullWidth
-        id='displayName'
+        id="displayName"
         label={t('displayName')}
         defaultValue={user?.displayName}
         required
         autoFocus
         onBlur={handleBlur}
         onKeyDown={(event) => onEnterKey(event)}
-        margin='normal'
+        margin="normal"
       />
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
           value={value}
           onChange={handleTabChange}
-          aria-label='Game Settings'
+          aria-label="Game Settings"
           centered
         >
           <Tab label={t('gameboard')} {...a11yProps(0)} />
@@ -246,15 +243,15 @@ export default function GameSettings({ submitText, closeDialog }) {
         />
       </TabPanel>
 
-      <div className='flex-buttons'>
+      <div className="flex-buttons">
         <Button
-          variant='outlined'
-          type='button'
+          variant="outlined"
+          type="button"
           onClick={() => setOpenCustomTile(true)}
         >
-          <Trans i18nKey='customTiles'>Custom Tiles</Trans>
+          <Trans i18nKey="customTiles">Custom Tiles</Trans>
         </Button>
-        <Button variant='contained' type='submit'>
+        <Button variant="contained" type="submit">
           {submitText}
         </Button>
       </div>

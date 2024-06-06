@@ -29,7 +29,7 @@ export default function GridItemActionCard({
           <CardContent
             sx={{ width: '100%', color: disabled ? 'gray' : 'white' }}
           >
-            <Typography variant='h5'>{title}</Typography>
+            <Typography variant="h5">{title}</Typography>
             <Divider sx={{ mb: 2 }} />
             {children}
           </CardContent>

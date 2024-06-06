@@ -68,8 +68,8 @@ export default function TransitionModal({
   return (
     <div>
       <Modal
-        aria-labelledby='transition-modal-title'
-        aria-describedby='transition-modal-description'
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
         open={open}
         onClose={handleClose}
         slots={{ backdrop: Backdrop }}
@@ -81,30 +81,30 @@ export default function TransitionModal({
       >
         <Fade in={open}>
           <Box sx={style}>
-            <Typography id='transition-modal-title' variant='h6' component='h2'>
+            <Typography id="transition-modal-title" variant="h6" component="h2">
               {`${title} ${t('for')} ${displayName}`}
             </Typography>
             <CloseIcon close={handleClose} />
 
             <Typography
-              id='transition-modal-description'
-              variant='h4'
+              id="transition-modal-description"
+              variant="h4"
               sx={{ mt: 2 }}
             >
               {description}
             </Typography>
             <br />
-            <Typography variant='caption'>
+            <Typography variant="caption">
               {showAutoCloseText ? (
-                <Trans i18nKey='autoCloseModal' values={{ timeLeft }} />
+                <Trans i18nKey="autoCloseModal" values={{ timeLeft }} />
               ) : (
-                <Trans i18nKey='autoCloseStopped' />
+                <Trans i18nKey="autoCloseStopped" />
               )}
             </Typography>
             <br />
             {numbers?.length && (
               <>
-                <Trans i18nKey='timers' />
+                <Trans i18nKey="timers" />
                 {numbers.map((textString) => (
                   <CountDownButtonModal
                     key={textString}
@@ -115,19 +115,19 @@ export default function TransitionModal({
               </>
             )}
             {!!nextPlayer && (
-              <Box textAlign='center'>
+              <Box textAlign="center">
                 <Divider style={{ margin: '1rem 0 0.5rem' }} />
-                <Typography variant='body1'>
+                <Typography variant="body1">
                   {nextPlayer.isSelf ? (
-                    <Trans i18nKey='yourTurn' />
+                    <Trans i18nKey="yourTurn" />
                   ) : (
-                    <Trans i18nKey='nextPlayersTurn' values={{ player }} />
+                    <Trans i18nKey="nextPlayersTurn" values={{ player }} />
                   )}
                 </Typography>
               </Box>
             )}
             {!!isMyMessage && text.includes(t('finish')) && (
-              <Box textAlign='center'>
+              <Box textAlign="center">
                 <Divider style={{ margin: '1rem 0 0.5rem' }} />
                 <Button onClick={openGameOver}>
                   <Typography>{t('playAgain')}</Typography>

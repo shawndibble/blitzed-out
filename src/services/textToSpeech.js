@@ -5,7 +5,8 @@ export default function speak(message, language) {
   utterance.text = message;
 
   const setVoiceAndSpeak = () => {
-    utterance.voice = window.speechSynthesis.getVoices()
+    utterance.voice = window.speechSynthesis
+      .getVoices()
       .find((v) => v.name === languages[language].voice);
     window.speechSynthesis.speak(utterance);
   };

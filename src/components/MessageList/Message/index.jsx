@@ -52,12 +52,12 @@ export default function Message({
         isTransparent && 'transparent'
       )}
     >
-      <div className='message-header'>
-        <div className='sender'>
-          <TextAvatar uid={uid} displayName={displayName} size='small' />
+      <div className="message-header">
+        <div className="sender">
+          <TextAvatar uid={uid} displayName={displayName} size="small" />
           {displayName}
         </div>
-        <div className='timestamp'>
+        <div className="timestamp">
           {ago}
           {!!isOwnMessage && ['media', 'chat'].includes(type) && (
             <DeleteMessageButton room={room} id={id} />
@@ -65,24 +65,24 @@ export default function Message({
         </div>
       </div>
       <Divider sx={{ mb: 1 }} />
-      <div className='message-message'>
+      <div className="message-message">
         {type === 'actions' ? (
           <ActionText text={text} />
         ) : (
           <Markdown remarkPlugins={[remarkGfm, remarkGemoji]}>{text}</Markdown>
         )}
-        {!!imageSrc && <img src={imageSrc} alt='uploaded by user' />}
+        {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
         {type === 'settings' && (
           <>
             <Divider sx={{ my: 0.5 }} />
             {isImportable ? (
               <Box
-                display='flex'
-                justifyContent='space-between'
-                alignItems='center'
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
               >
                 <Link to={`?importBoard=${id}`}>
-                  <Trans i18nKey='importBoard' />
+                  <Trans i18nKey="importBoard" />
                 </Link>
 
                 <CopyToClipboard
@@ -92,17 +92,17 @@ export default function Message({
                 />
               </Box>
             ) : (
-              <Trans i18nKey='incompatibleBoard' />
+              <Trans i18nKey="incompatibleBoard" />
             )}
           </>
         )}
         {type === 'room' && (
           <Box
-            display='flex'
-            justifyContent='space-between'
-            alignItems='center'
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
           >
-            <Typography variant='subtitle1'>
+            <Typography variant="subtitle1">
               {t('room')}: <a href={window.location.href}>{room}</a>
             </Typography>
 
@@ -114,7 +114,7 @@ export default function Message({
           </Box>
         )}
         {text.includes(t('finish')) && isOwnMessage && (
-          <Box textAlign='center'>
+          <Box textAlign="center">
             <Divider sx={{ mt: 1 }} />
             <Button onClick={() => setDialog(true)}>
               <Typography>{t('playAgain')}</Typography>

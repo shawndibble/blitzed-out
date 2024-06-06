@@ -26,7 +26,9 @@ export default function SelectBoardSetting({
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
-  const [hoveredOption, setHoveredOption] = useState(settings[option]?.level || 0);
+  const [hoveredOption, setHoveredOption] = useState(
+    settings[option]?.level || 0
+  );
 
   const handleMouseOver = (index) => {
     setHoveredOption(index);
@@ -37,7 +39,7 @@ export default function SelectBoardSetting({
       return false;
     }
     if (settings.difficulty === 'accelerated') {
-      if (hoveredOption <= 2) return hoveredOption === index; 
+      if (hoveredOption <= 2) return hoveredOption === index;
       return hoveredOption === index || hoveredOption - 1 === index;
     }
     return hoveredOption >= index;
@@ -46,8 +48,14 @@ export default function SelectBoardSetting({
   function getOptions(category) {
     return Object.keys(actionsFolder[category]?.actions).map(
       (optionVal, index) => (
-        <MenuItem value={index} key={`${category}-${optionVal}`} onMouseOver={() => handleMouseOver(index)}>
-          <span className="menu-item-icon">{showCheckbox(index) ? <CheckBox /> : <CheckBoxOutlineBlank /> }</span>
+        <MenuItem
+          value={index}
+          key={`${category}-${optionVal}`}
+          onMouseOver={() => handleMouseOver(index)}
+        >
+          <span className="menu-item-icon">
+            {showCheckbox(index) ? <CheckBox /> : <CheckBoxOutlineBlank />}
+          </span>
           {optionVal}
         </MenuItem>
       )
@@ -55,14 +63,14 @@ export default function SelectBoardSetting({
   }
 
   function handleChange(event, key, nestedKey) {
-    setSettings(prevSettings => ({
+    setSettings((prevSettings) => ({
       ...prevSettings,
       [key]: {
         ...prevSettings[key],
         type,
-        [nestedKey]: event?.target?.value
+        [nestedKey]: event?.target?.value,
       },
-      boardUpdated: true
+      boardUpdated: true,
     }));
   }
 
@@ -72,23 +80,26 @@ export default function SelectBoardSetting({
 
   let roleOptions = ['dom', 'vers', 'sub'];
   if (actionsFolder[option]?.dom) {
-    roleOptions = [{
-      label: actionsFolder[option].dom,
-      value: 'dom'
-    },
-    {
-      label: t('vers'),
-      value: 'vers'
-    },{
-      label: actionsFolder[option].sub,
-      value: 'sub'
-    }];
+    roleOptions = [
+      {
+        label: actionsFolder[option].dom,
+        value: 'dom',
+      },
+      {
+        label: t('vers'),
+        value: 'vers',
+      },
+      {
+        label: actionsFolder[option].sub,
+        value: 'sub',
+      },
+    ];
   }
 
   return (
-    <Grid container key={option} justifyContent='center'>
+    <Grid container key={option} justifyContent="center">
       <Grid item xs={gridSize}>
-        <FormControl fullWidth margin='normal'>
+        <FormControl fullWidth margin="normal">
           <InputLabel id={labelId}>{label}</InputLabel>
           <Select
             labelId={labelId}
@@ -118,23 +129,23 @@ export default function SelectBoardSetting({
       {!!showVariation && (
         <Grid item xs={6}>
           <Tooltip
-            placement='top'
+            placement="top"
             title={
-              <Trans i18nKey='variationTooltip'>
-                <Typography variant='subtitle2'>
+              <Trans i18nKey="variationTooltip">
+                <Typography variant="subtitle2">
                   Standalone = Its own tile.{' '}
                 </Typography>
-                <Typography variant='subtitle2'>
+                <Typography variant="subtitle2">
                   Append Some = 50% chance.
                 </Typography>
-                <Typography variant='subtitle2'>
+                <Typography variant="subtitle2">
                   Append Most = 90% chance.
                 </Typography>
               </Trans>
             }
             arrow
           >
-            <FormControl fullWidth margin='normal' sx={{ ml: 1 }}>
+            <FormControl fullWidth margin="normal" sx={{ ml: 1 }}>
               <InputLabel id={`${labelId}Variation`}>
                 {`${label} ${t('variation')}`}
                 <Help sx={{ ml: 1, fontSize: 16 }} />
@@ -151,14 +162,14 @@ export default function SelectBoardSetting({
                 value={settings[option]?.variation || 'standalone'}
                 onChange={(event) => handleChange(event, option, 'variation')}
               >
-                <MenuItem value='standalone'>
-                  <Trans i18nKey='standalone' />
+                <MenuItem value="standalone">
+                  <Trans i18nKey="standalone" />
                 </MenuItem>
-                <MenuItem value='appendSome'>
-                  <Trans i18nKey='appendSome' />
+                <MenuItem value="appendSome">
+                  <Trans i18nKey="appendSome" />
                 </MenuItem>
-                <MenuItem value='appendMost'>
-                  <Trans i18nKey='appendMost' />
+                <MenuItem value="appendMost">
+                  <Trans i18nKey="appendMost" />
                 </MenuItem>
               </Select>
             </FormControl>

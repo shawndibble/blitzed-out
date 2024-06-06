@@ -23,8 +23,8 @@ export default function Navigation({ room, playerList = [] }) {
   const { t } = useTranslation();
   const [openSchedule, setOpenSchedule] = useState(false);
   const [seen, setSeen] = useState(false);
-  const {schedule} = useSchedule();
-  const {isMobile} = useBreakpoint();
+  const { schedule } = useSchedule();
+  const { isMobile } = useBreakpoint();
 
   const handleScheduleClick = () => {
     setOpenSchedule(true);
@@ -33,13 +33,13 @@ export default function Navigation({ room, playerList = [] }) {
 
   const playersOnlineTooltip = (
     <>
-      <Typography variant='h6'>
-        <Trans i18nKey='online' />
+      <Typography variant="h6">
+        <Trans i18nKey="online" />
       </Typography>
       <ul>
         {playerList.map((player) => (
           <li key={player.uid}>
-            <Typography variant='body1'>{player.displayName}</Typography>
+            <Typography variant="body1">{player.displayName}</Typography>
           </li>
         ))}
       </ul>
@@ -47,19 +47,19 @@ export default function Navigation({ room, playerList = [] }) {
   );
 
   return (
-    <AppBar position='fixed'>
-      <Toolbar disableGutters variant='dense' component='nav' className='nav'>
-        <div className='site-name'>
+    <AppBar position="fixed">
+      <Toolbar disableGutters variant="dense" component="nav" className="nav">
+        <div className="site-name">
           <Box
-            component='img'
+            component="img"
             sx={{ height: 32 }}
-            alt='Blitzed Out Logo'
+            alt="Blitzed Out Logo"
             src={Logo}
           />
           <h1>Blitzed Out</h1>
         </div>
         <div>
-          <div className='nav-room-name'>
+          <div className="nav-room-name">
             <h2>
               {room.toUpperCase() === 'PUBLIC' || room === undefined
                 ? t('public')
@@ -70,11 +70,11 @@ export default function Navigation({ room, playerList = [] }) {
             </Tooltip>
             <IconButton
               onClick={handleScheduleClick}
-              aria-label='schedule game'
+              aria-label="schedule game"
               sx={{ ml: 2 }}
             >
               <Badge
-                color='primary'
+                color="primary"
                 badgeContent={!seen ? schedule.length : null}
               >
                 <CalendarMonth />
@@ -92,7 +92,7 @@ export default function Navigation({ room, playerList = [] }) {
           </div>
         </div>
 
-        <div className='menu-drawer'>
+        <div className="menu-drawer">
           <MenuDrawer />
         </div>
       </Toolbar>

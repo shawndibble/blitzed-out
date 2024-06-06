@@ -86,21 +86,21 @@ export default function MessageInput({ room, isTransparent }) {
           minLength={1}
           InputProps={{
             startAdornment: (
-              <InputAdornment position='start'>
-                <IconButton type='button' color='primary' onClick={attachFile}>
+              <InputAdornment position="start">
+                <IconButton type="button" color="primary" onClick={attachFile}>
                   <Photo />
                 </IconButton>
               </InputAdornment>
             ),
             endAdornment: (
-              <InputAdornment position='end'>
-                <IconButton type='submit' color='primary' disabled={value < 1}>
+              <InputAdornment position="end">
+                <IconButton type="submit" color="primary" disabled={value < 1}>
                   <SendIcon />
                 </IconButton>
               </InputAdornment>
             ),
           }}
-          helperText={<Trans i18nKey='markdown' />}
+          helperText={<Trans i18nKey="markdown" />}
         />
       </form>
       <ToastAlert

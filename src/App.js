@@ -33,9 +33,7 @@ function Providers({ children }) {
   return (
     <ScheduleProvider>
       <UserListProvider>
-        <MessagesProvider>
-          {children}
-        </MessagesProvider>
+        <MessagesProvider>{children}</MessagesProvider>
       </UserListProvider>
     </ScheduleProvider>
   );
@@ -58,24 +56,17 @@ function App() {
         <CssBaseline />
         <Router>
           <Routes>
+            <Route exact path="/" element={<Navigate replace to="/public" />} />
             <Route
-              exact
-              path='/'
-              element={<Navigate replace to='/public' />}
-            />
-            <Route
-              path='/:id/cast'
+              path="/:id/cast"
               element={
                 <Providers>
                   <Cast />
                 </Providers>
               }
             />
-            <Route
-              path='/:id'
-              element={<Providers>{room}</Providers>}
-            />
-            <Route path='/rooms/:id' element={<OldRedirect />} />
+            <Route path="/:id" element={<Providers>{room}</Providers>} />
+            <Route path="/rooms/:id" element={<OldRedirect />} />
           </Routes>
         </Router>
       </LocalizationProvider>
