@@ -105,10 +105,7 @@ export default function GameOverDialog({ isOpen = false, close }) {
             <CloseIcon close={closeSettings} />
           </DialogTitle>
           <DialogContent>
-            <GameSettings
-              submitText={<Trans i18nKey="update" />}
-              closeDialog={closeSettings}
-            />
+            <GameSettings closeDialog={closeSettings} />
           </DialogContent>
         </Dialog>
       )}

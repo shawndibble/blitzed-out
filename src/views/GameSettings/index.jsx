@@ -20,28 +20,16 @@ import './styles.css';
 import { handleUser, sendRoomSettingsMessage } from './submitForm';
 import validateFormData from './validateForm';
 
-export default function GameSettings({ submitText, closeDialog }) {
-  const { login, user, updateUser } = useAuth();
+export default function GameSettings({ closeDialog }) {
+  const { user, updateUser } = useAuth();
   const { id: room } = useParams();
   const { t, i18n } = useTranslation();
   const customTiles = useLocalStorage('customTiles', [])[0];
   const updateGameBoardTiles = useGameBoard();
 
   // set default settings for first time users. Local Storage will take over after this.
-  const [settings, updateSettings] = useLocalStorage('gameSettings', {
-    boardUpdated: false,
-    roomUpdated: false,
-    playerDialog: true,
-    othersDialog: false,
-    mySound: true,
-    chatSound: true,
-    locale: 'en',
-    gameMode: 'online',
-    background: 'color',
-    finishRange: [30, 70],
-    roomTileCount: 40,
-    roomDice: '1d6',
-  });
+  const [settings, updateSettings] = useLocalStorage('gameSettings');
+  const [gameBoard, updateGameBoard] = useLocalStorage('customBoard');
   const navigate = useNavigate();
 
   const [value, setValue] = useState(0);
@@ -70,7 +58,6 @@ export default function GameSettings({ submitText, closeDialog }) {
 
   // once our data from localstorage updates, push them to the formData.
   useEffect(() => {
-    if (!settings.locale) return;
     setFormData((prevFormData) => ({
       ...prevFormData,
       ...settings,
@@ -99,7 +86,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     const validationMessage = validateFormData(gameOptions, actionsList);
     if (validationMessage) return setAlert(t(validationMessage));
 
-    const updatedUser = await handleUser(user, displayName, updateUser, login);
+    const updatedUser = await handleUser(user, displayName, updateUser);
 
     if (
       !formData.roomBackgroundURL ||
@@ -123,6 +110,10 @@ export default function GameSettings({ submitText, closeDialog }) {
       (formData.roomUpdated || !messages.find((m) => m.type === 'room'))
     ) {
       await sendRoomSettingsMessage(formData, updatedUser);
+    }
+
+    if (newBoard && gameBoard !== newBoard) {
+      updateGameBoard(newBoard);
     }
 
     // if our board updated, or we changed rooms, send out game settings message.
@@ -176,7 +167,7 @@ export default function GameSettings({ submitText, closeDialog }) {
     [formData, handleSubmit]
   );
 
-  if (!formData.locale) {
+  if (!formData.room) {
     return (
       <Box>
         <Typography variant="h2">
@@ -202,7 +193,7 @@ export default function GameSettings({ submitText, closeDialog }) {
         fullWidth
         id="displayName"
         label={t('displayName')}
-        defaultValue={user?.displayName}
+        defaultValue={user?.displayName || formData.displayName || ''}
         required
         autoFocus
         onBlur={handleBlur}
@@ -252,7 +243,7 @@ export default function GameSettings({ submitText, closeDialog }) {
           <Trans i18nKey="customTiles">Custom Tiles</Trans>
         </Button>
         <Button variant="contained" type="submit">
-          {submitText}
+          <Trans i18nKey="update" />
         </Button>
       </div>
       <CustomTileDialog

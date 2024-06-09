@@ -22,13 +22,13 @@ export default function useGameBoard() {
       data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
     let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
     const { roomTileCount, finishRange } = formData;
-
     if (!finishRange) {
       // still loading data.
       return {};
     }
+
     // If we are in a public room,
-    // then gameMode should update to online and we need to re-import actions.
+    // then gameMode should update to online, and we need to re-import actions.
     if (!isPrivateRoom && gameMode === 'local') {
       gameMode = 'online';
       // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.

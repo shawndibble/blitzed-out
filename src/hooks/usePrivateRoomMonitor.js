@@ -3,7 +3,7 @@ import useAuth from 'context/hooks/useAuth';
 import useGameBoard from 'hooks/useGameBoard';
 import useLocalStorage from 'hooks/useLocalStorage';
 import useMessages from 'context/hooks/useMessages';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { importActions } from 'services/importLocales';
@@ -38,10 +38,10 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
     await sendGameSettingsMessage(message);
   };
 
-  const roomChanged = useCallback(() => {
-    updateSettings({ ...settings, room });
-    rebuildGameBoard({ ...settings, roomUpdated: true, room });
-  }, [room]);
+  const roomChanged = async () => {
+    await updateSettings({ ...settings, room });
+    await rebuildGameBoard({ ...settings, roomUpdated: true, room });
+  };
 
   useEffect(() => {
     if (isLoading) return;
@@ -60,7 +60,10 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       setRoomBackground(roomBackgroundURL);
 
       const shouldRebuildGameBoard =
-        roomMessage.uid !== user.uid && roomTileCount !== gameBoard.length;
+        roomMessage.uid !== user.uid &&
+        roomTileCount &&
+        gameBoard.length &&
+        roomTileCount !== gameBoard.length;
 
       if (shouldRebuildGameBoard) {
         rebuildGameBoard(messageSettings, roomMessage.displayName);
@@ -68,7 +71,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       return;
     }
 
-    if (room !== settings.room) {
+    if (room !== settings.room && gameBoard.length) {
       roomChanged();
       return;
     }

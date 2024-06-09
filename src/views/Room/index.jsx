@@ -5,6 +5,7 @@ import PopupMessage from 'components/PopupMessage';
 import RoomBackground from 'components/RoomBackground';
 import ToastAlert from 'components/ToastAlert';
 import TurnIndicator from 'components/TurnIndicator';
+import GameSettingsDialog from 'components/GameSettingsDialog';
 import useLocalStorage from 'hooks/useLocalStorage';
 import usePlayerMove from 'hooks/usePlayerMove';
 import usePresence from 'hooks/usePresence';
@@ -16,7 +17,6 @@ import { useParams } from 'react-router-dom';
 import getBackgroundSource from 'services/getBackgroundSource';
 import Navigation from 'views/Navigation';
 import GameBoard from 'views/Room/GameBoard';
-import UnauthenticatedApp from 'views/UnauthenticatedApp';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import './styles.css';
@@ -31,7 +31,6 @@ export default function Room() {
   const [rollValue, setRollValue] = useState({ value: 0, time: Date.now() });
   const gameBoard = useLocalStorage('customBoard')[0];
   const [settings, setSettings] = useLocalStorage('gameSettings');
-
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult] = useUrlImport(
@@ -40,6 +39,15 @@ export default function Room() {
     setSettings
   );
 
+  if (!gameBoard.length || !Object.keys(settings).length) {
+    return (
+      <>
+        <Navigation room={room} playerList={playerList} />
+        <GameSettingsDialog openSettingsDialog={true} />
+      </>
+    );
+  }
+
   const { isVideo, url } = getBackgroundSource(settings, room, roomBgUrl);
   const videoAdjust = isVideo ? 'video-adjust' : '';
 
@@ -47,10 +55,6 @@ export default function Room() {
   const isTransparent =
     (room.toUpperCase() !== 'PUBLIC' && roomBackground !== 'app') ||
     background !== 'color';
-
-  if (!gameBoard.length || !Object.keys(settings).length) {
-    return <UnauthenticatedApp />;
-  }
 
   const GameBoardComponent = (
     <GameBoard

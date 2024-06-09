@@ -32,12 +32,10 @@ function exportRoomSettings(formData) {
   return newSettings;
 }
 
-export async function handleUser(user, displayName, updateUser, login) {
+export async function handleUser(user, displayName, updateUser) {
   let updatedUser = user;
   if (displayName !== undefined && displayName.length > 0) {
-    updatedUser = user
-      ? await updateUser(displayName)
-      : await login(displayName);
+    updatedUser = await updateUser(displayName);
   }
   return updatedUser;
 }

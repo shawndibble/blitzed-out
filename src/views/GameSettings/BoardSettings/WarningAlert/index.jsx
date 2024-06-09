@@ -7,7 +7,7 @@ export default function ConsumptionWarning({ formData }) {
 
   useEffect(() => {
     const consumptionCount = Object.values(formData).filter(
-      (setting) => setting.type === 'consumption' && setting.level > 0
+      (setting) => setting?.type === 'consumption' && setting?.level > 0
     ).length;
     const totalCount = Object.values(formData).filter(
       (setting) => setting.level > 0

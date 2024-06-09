@@ -21,9 +21,7 @@ function isCompatibleBoard(
 
   if (boardSize !== latestRoomTileCount) return false;
 
-  if (boardSize !== roomTileCount) return false;
-
-  return true;
+  return boardSize === roomTileCount;
 }
 
 export default function useSendSettings(user, messages, isLoading) {

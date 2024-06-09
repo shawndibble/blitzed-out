@@ -1,31 +1,62 @@
 import { useParams } from 'react-router-dom';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
+  Box,
   Button,
   Card,
   CardContent,
   Container,
   Grid,
+  TextField,
   Typography,
 } from '@mui/material';
-import { ExpandMore, Language } from '@mui/icons-material';
+import { Language } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import Navigation from 'views/Navigation';
-import GameSettings from 'views/GameSettings';
 import usePlayerList from 'hooks/usePlayerList';
-import GameGuide from 'views/GameGuide';
 import languages from 'locales/languages.json';
-import './styles.css';
 import useBreakpoint from 'hooks/useBreakpoint';
+import useAuth from 'context/hooks/useAuth';
+import './styles.css';
+import useLocalStorage from 'hooks/useLocalStorage';
+import { useState } from 'react';
 
 export default function UnauthenticatedApp() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const { login, user } = useAuth();
   const params = useParams();
   const room = params.id ?? 'PUBLIC';
   const playerList = usePlayerList(room);
   const isMobile = useBreakpoint('sm');
+  const [displayName, setDisplayName] = useState(user?.displayName || '');
+
+  const [settings, updateSettings] = useLocalStorage('gameSettings', {
+    boardUpdated: false,
+    roomUpdated: false,
+    playerDialog: true,
+    othersDialog: false,
+    mySound: true,
+    chatSound: true,
+    roomBackground: 'app',
+    locale: 'en',
+    gameMode: 'online',
+    background: 'color',
+    finishRange: [30, 70],
+    roomTileCount: 40,
+    roomDice: '1d6',
+  });
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    await updateSettings({ ...settings, displayName, room });
+    await login(displayName);
+  };
+
+  const onEnterKey = async (event) => {
+    if (event.key === 'Enter') {
+      await handleSubmit(event);
+    }
+  };
 
   const languageLinks = Object.entries(languages).map(([key, obj]) => (
     <Button
@@ -40,36 +71,38 @@ export default function UnauthenticatedApp() {
   return (
     <>
       <Navigation room={room} playerList={playerList} />
-      <Container maxWidth="lg" sx={{ mt: 8 }}>
-        <Grid container>
-          <Grid item xs={12} sm={6} md={4} sx={{ mx: isMobile && 0.5 }}>
-            {isMobile ? (
-              <Accordion>
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                  <Typography variant="h6">Game Guide:</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <GameGuide />
-                </AccordionDetails>
-              </Accordion>
-            ) : (
-              <Card className="unauthenticated-card">
-                <CardContent>
-                  <GameGuide />
-                </CardContent>
-              </Card>
-            )}
-          </Grid>
-          <Grid item xs={12} sm={6} md={8}>
-            <Card className="unauthenticated-card">
-              <CardContent>
-                <h2 className="setup">
-                  <Trans i18nKey="setup" />
-                </h2>
-                <GameSettings submitText={<Trans i18nKey="access" />} />
-              </CardContent>
-            </Card>
-          </Grid>
+      <Container maxWidth="sm" sx={{ mt: 8 }}>
+        <Grid container flexDirection="column">
+          <Card className="unauthenticated-card">
+            <CardContent>
+              <h2 className="setup">
+                <Trans i18nKey="setup" />
+              </h2>
+              <Box
+                component="form"
+                method="post"
+                onSubmit={handleSubmit}
+                className="settings-box"
+              >
+                <TextField
+                  fullWidth
+                  id="displayName"
+                  label={t('displayName')}
+                  value={displayName}
+                  onChange={(event) => setDisplayName(event.target.value)}
+                  required
+                  autoFocus
+                  onKeyDown={(event) => onEnterKey(event)}
+                  margin="normal"
+                />
+                <div className="flex-buttons">
+                  <Button variant="contained" type="submit">
+                    <Trans i18nKey="access" />
+                  </Button>
+                </div>
+              </Box>
+            </CardContent>
+          </Card>
         </Grid>
         <Grid container sx={{ mt: 1 }}>
           <Grid item className="language">

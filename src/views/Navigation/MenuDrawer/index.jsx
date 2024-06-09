@@ -120,10 +120,7 @@ export default function MenuDrawer() {
         <CloseIcon close={() => toggleDialog('settings', false)} />
       </DialogTitle>
       <DialogContent>
-        <GameSettings
-          submitText={<Trans i18nKey="update" />}
-          closeDialog={() => toggleDialog('settings', false)}
-        />
+        <GameSettings closeDialog={() => toggleDialog('settings', false)} />
       </DialogContent>
     </Dialog>
   );
