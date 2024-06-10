@@ -106,8 +106,6 @@ export function setMyPresence({
         remove(oldRoomConnectionsRef);
       }
 
-      console.log('remove 2', removeOnDisconnect);
-
       // When I disconnect, remove this device
       if (removeOnDisconnect) {
         onDisconnect(oldRef).remove();
