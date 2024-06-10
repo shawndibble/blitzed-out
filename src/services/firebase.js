@@ -93,11 +93,16 @@ export function setMyPresence({
   );
   const connectedRef = ref(database, '.info/connected');
 
+  let newRef;
+  let oldRef;
+
+  console.log('remove', removeOnDisconnect);
+
   onValue(connectedRef, (snap) => {
     if (snap.val() === true) {
       // We're connected (or reconnected)!
-      const newRef = push(newRoomConnectionsRef);
-      const oldRef = push(oldRoomConnectionsRef);
+      newRef = push(newRoomConnectionsRef);
+      oldRef = push(oldRoomConnectionsRef);
 
       if (oldRoomName !== newRoomName || oldDisplayName !== newDisplayName) {
         remove(oldRoomConnectionsRef);
@@ -112,6 +117,14 @@ export function setMyPresence({
       // Add this device to my connections list
       // this value could contain info about the device or a timestamp too
       set(newRef, { displayName: newDisplayName, lastActive: Date.now() });
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && removeOnDisconnect) {
+      // Tab is not in focus, manually trigger disconnect
+      if (oldRef) remove(oldRef);
+      if (newRef) remove(newRef);
     }
   });
 }
