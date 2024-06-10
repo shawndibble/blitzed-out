@@ -20,17 +20,19 @@ import GameBoard from 'views/Room/GameBoard';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import './styles.css';
+import React from 'react';
 
 export default function Room() {
   const params = useParams();
   const room = params.id;
   const isMobile = useBreakpoint();
 
-  usePresence(room);
+  const [settings, setSettings] = useLocalStorage('gameSettings');
+
+  usePresence(room, settings.roomRealtime);
 
   const [rollValue, setRollValue] = useState({ value: 0, time: Date.now() });
   const gameBoard = useLocalStorage('customBoard')[0];
-  const [settings, setSettings] = useLocalStorage('gameSettings');
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult] = useUrlImport(
@@ -42,7 +44,7 @@ export default function Room() {
   if (!gameBoard.length || !Object.keys(settings).length) {
     return (
       <>
-        <Navigation room={room} playerList={playerList} />
+        <Navigation room={params.id} playerList={playerList} />
         <GameSettingsDialog openSettingsDialog={true} />
       </>
     );
@@ -59,9 +61,6 @@ export default function Room() {
   const GameBoardComponent = (
     <GameBoard
       playerList={playerList}
-      tile={tile}
-      settings={settings}
-      setSettings={setSettings}
       isTransparent={isTransparent}
       gameBoard={gameBoard}
     />

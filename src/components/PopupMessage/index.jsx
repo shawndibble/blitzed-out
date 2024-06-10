@@ -1,10 +1,11 @@
-import { memo, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import TransitionModal from 'components/TransitionModal';
 import useSoundAndDialog from 'hooks/useSoundAndDialog';
 import useTurnIndicator from 'hooks/useTurnIndicator';
 import { useTranslation } from 'react-i18next';
+import React from 'react';
 
-const PopupMessage = memo(({ room }) => {
+const PopupMessage = ({ room }) => {
   const { t } = useTranslation();
   const { message, setMessage, isMyMessage } = useSoundAndDialog(room);
   const nextPlayer = useTurnIndicator(room, message);
@@ -43,6 +44,6 @@ const PopupMessage = memo(({ room }) => {
       isMyMessage={isMyMessage}
     />
   );
-});
+};
 
 export default PopupMessage;

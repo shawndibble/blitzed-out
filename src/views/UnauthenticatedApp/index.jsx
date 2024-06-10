@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Language } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -9,23 +9,23 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { Language } from '@mui/icons-material';
-import { Trans, useTranslation } from 'react-i18next';
-import Navigation from 'views/Navigation';
+import useAuth from 'context/hooks/useAuth';
+import useBreakpoint from 'hooks/useBreakpoint';
+import useLocalStorage from 'hooks/useLocalStorage';
 import usePlayerList from 'hooks/usePlayerList';
 import languages from 'locales/languages.json';
-import useBreakpoint from 'hooks/useBreakpoint';
-import useAuth from 'context/hooks/useAuth';
+import React, { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import Navigation from 'views/Navigation';
 import './styles.css';
-import useLocalStorage from 'hooks/useLocalStorage';
-import { useState } from 'react';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
   const { login, user } = useAuth();
   const params = useParams();
   const room = params.id ?? 'PUBLIC';
-  const playerList = usePlayerList(room);
+  const playerList = usePlayerList();
   const isMobile = useBreakpoint('sm');
   const [displayName, setDisplayName] = useState(user?.displayName || '');
 

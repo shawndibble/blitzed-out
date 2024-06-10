@@ -10,10 +10,11 @@ import {
 } from '@mui/material';
 import BackgroundSelect from 'components/BackgroundSelect';
 import { customAlphabet } from 'nanoid';
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import GameSpeed from './GameSpeed';
+import PlayerListOption from './PlayerListOption';
 
 const PUBLIC_ROOM = 'PUBLIC';
 
@@ -75,7 +76,7 @@ export default function RoomSettings({ formData, setFormData }) {
           id="showPrivate"
           checked={formData.room.toUpperCase() !== PUBLIC_ROOM}
           onChange={togglePrivateRoomField}
-          inputProps={{ 'aria-label': <Trans i18nKey="private" /> }}
+          inputProps={{ 'aria-label': t('room') }}
         />
         <Typography>
           <Trans i18nKey="private" />
@@ -106,11 +107,13 @@ export default function RoomSettings({ formData, setFormData }) {
           <Divider sx={{ my: 1 }} />
           <GameSpeed formData={formData} setFormData={setFormData} />
           <Divider sx={{ my: 1 }} />
+          <PlayerListOption formData={formData} setFormData={setFormData} />
+          <Divider sx={{ my: 1 }} />
           <BackgroundSelect
             formData={formData}
             setFormData={setFormData}
             backgrounds={backgrounds}
-            isRoom="true"
+            isRoom={true}
           />
         </>
       )}

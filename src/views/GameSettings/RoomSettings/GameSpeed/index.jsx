@@ -6,6 +6,7 @@ import {
   Select,
   Typography,
 } from '@mui/material';
+import React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 export default function GameSpeed({ formData, setFormData }) {

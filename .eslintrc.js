@@ -21,7 +21,7 @@ module.exports = {
     'import/resolver': {
       node: {
         paths: ['src'],
-        extensions: ['.js', '.jsx'],
+        extensions: ['.js', '.jsx', '.json'],
       },
     },
     react: {
@@ -35,7 +35,7 @@ module.exports = {
     // we want to avoid extraneous spaces
     'no-multi-spaces': ['error'],
     'react/react-in-jsx-scope': 'off',
-    'react/jsx-uses-react': 'off',
+    'react/jsx-uses-react': 'error',
     'react/jsx-props-no-spreading': 'off',
     'react/jsx-filename-extension': 'off',
     'react/prop-types': 'off',

@@ -76,6 +76,7 @@ export function setMyPresence({
   oldRoom,
   newDisplayName,
   oldDisplayName,
+  removeOnDisconnect = true,
 }) {
   const database = getDatabase();
   const auth = getAuth();
@@ -103,10 +104,8 @@ export function setMyPresence({
       }
 
       // When I disconnect, remove this device
-      if (oldRoomName === 'PUBLIC') {
+      if (removeOnDisconnect) {
         onDisconnect(oldRef).remove();
-      }
-      if (newRoomName === 'PUBLIC') {
         onDisconnect(newRef).remove();
       }
 
@@ -210,12 +209,14 @@ export async function uploadImage({ image, room, user }) {
   const imageRef = storageRef(storage, imageLoc);
   const uploadTask = uploadString(imageRef, imageUrl, 'base64');
 
+  // @ts-ignore
   uploadTask.on(
     'state_changed',
     () => {},
     // eslint-disable-next-line no-console
     (error) => console.error(error),
     () => {
+      // @ts-ignore
       getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
         await sendMessage({
           room,

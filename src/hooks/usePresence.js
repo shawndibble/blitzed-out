@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { setMyPresence } from 'services/firebase';
 import useAuth from 'context/hooks/useAuth';
 
-export default function usePresence(roomId) {
+export default function usePresence(roomId, roomRealtime) {
   const {
     user: { displayName },
   } = useAuth();
@@ -17,6 +17,7 @@ export default function usePresence(roomId) {
         oldRoom: currentRoom,
         newDisplayName: displayName,
         oldDisplayName: currentDisplayName,
+        removeOnDisconnect: roomRealtime,
       });
       setCurrentRoom(roomId);
       setCurrentDisplayName(displayName);

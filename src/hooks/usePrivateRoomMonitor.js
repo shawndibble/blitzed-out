@@ -16,7 +16,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
 
   const customTiles = useLocalStorage('customTiles', [])[0];
   const [settings, updateSettings] = useLocalStorage('gameSettings');
-  const { messages, isLoading } = useMessages(room);
+  const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState(DEFAULT_DIEM);
   const [roomBgUrl, setRoomBackground] = useState('');
   const updateGameBoardTiles = useGameBoard();

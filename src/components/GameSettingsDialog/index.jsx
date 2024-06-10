@@ -3,10 +3,11 @@ import { Trans } from 'react-i18next';
 import CloseIcon from 'components/CloseIcon';
 import GameSettings from 'views/GameSettings';
 import useBreakpoint from 'hooks/useBreakpoint';
+import React from 'react';
 
 export default function GameSettingsDialog({
   openSettingsDialog,
-  closeSettings,
+  closeSettings = () => null,
 }) {
   const isMobile = useBreakpoint();
 
