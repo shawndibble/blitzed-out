@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 import RoomBackground from 'components/RoomBackground';
 import './styles.css';
 import useFullscreenStatus from 'hooks/useFullscreenStatus';
+import React from 'react';
 
 const ACTION_TYPE = 'actions';
 
@@ -28,7 +29,7 @@ const actionCard = (lastAction) => {
 
 export default function Cast() {
   const { id: room } = useParams();
-  const { messages, isLoading } = useMessages(room);
+  const { messages, isLoading } = useMessages();
   const [alertMessage, setAlertMessage] = useState('');
   const [openAlert, setOpenAlert] = useState(false);
 

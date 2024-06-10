@@ -36,7 +36,6 @@ export default function UnauthenticatedApp() {
     othersDialog: false,
     mySound: true,
     chatSound: true,
-    roomBackground: 'app',
     locale: 'en',
     gameMode: 'online',
     background: 'color',
