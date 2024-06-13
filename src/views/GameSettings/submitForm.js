@@ -12,6 +12,10 @@ function getRoomSettingsMessage(settings) {
       message += `* ${t(key)}: [${getSiteName(val)}:link:](${val})\r\n`;
       return;
     }
+    if (key === 'roomRealtime') {
+      message += `* ${t('playerList')}: ${val ? t('delayed') : t('realtime')}\r\n`;
+      return;
+    }
     if (val !== '') {
       message += `* ${t(key)}: ${val}\r\n`;
     }
