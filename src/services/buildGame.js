@@ -5,14 +5,18 @@ const { t } = i18next;
 
 // Some actions are only for a dom or sub. Ensure we don't get the wrong role action.
 function playerRoleFiltering(actions, role) {
-  return actions.filter(
-    (action) =>
-      !(
-        ['{dom}', '{sub}'].includes(role) &&
-        !action.includes(`{${role}}`) &&
-        !action.includes('{player}')
-      )
-  );
+  // filter should remove an action if it has only a single role in curly braces and that role doesn't match the user's role.
+  // Filter should keep action if it has both {dom} and {sub} regardless of role. It should keep the action if it has {player}, regardless of role.
+  return actions.filter((action) => {
+    if (role === 'vers') {
+      return (
+        (action.includes('{sub}') && action.includes('{dom}')) ||
+        action.includes('{player}')
+      );
+    }
+
+    return !action.match(/{(dom|sub)}/) || action.includes(`{${role}}`);
+  });
 }
 
 function restrictSubsetActions(settings, settingsKey, actionObject) {
