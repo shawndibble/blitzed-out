@@ -23,7 +23,6 @@
   "appendSome": "Append Some Tiles",
   "appendMost": "Append Most Tiles",
   "language": "Language",
-  "roomTitle": "Room: {{room}}",
   "customTiles": "Custom Tiles",
   "update": "Update Game",
   "updated": "Board Updated",

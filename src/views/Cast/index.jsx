@@ -115,7 +115,6 @@ export default function Cast() {
 
       <ToastAlert
         open={!!openAlert}
-        setOpen={setOpenAlert}
         close={() => setOpenAlert(false)}
         hideCloseButton
       >

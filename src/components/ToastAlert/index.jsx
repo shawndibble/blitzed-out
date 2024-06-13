@@ -3,6 +3,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { Alert, Portal, Slide } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import React from 'react';
 
 export default function ToastAlert({
   children,

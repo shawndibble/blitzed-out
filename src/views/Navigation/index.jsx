@@ -63,7 +63,7 @@ export default function Navigation({ room, playerList = [] }) {
             <h2>
               {room.toUpperCase() === 'PUBLIC' || room === undefined
                 ? t('public')
-                : t('roomTitle', { room })}
+                : room}
             </h2>
             <Tooltip title={playersOnlineTooltip}>
               <WrapPlayersOnline playerList={playerList} />
