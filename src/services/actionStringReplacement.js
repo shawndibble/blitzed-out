@@ -8,24 +8,28 @@ function capitalizeFirstLetterInCurlyBraces(string) {
 
 function replaceWithPlayerName(string, role, displayName) {
   const chance = Math.random();
-  return string.replace(/{(player|dom|sub)}/g, (match) => {
-    if (match === '{player}') {
-      return displayName;
+  const hasBothDomAndSub = string.includes('{dom}') && string.includes('{sub}');
+  const isVers = role === 'vers';
+
+  function shouldReplace(match) {
+    if (match === '{player}') return true;
+
+    const isDomOrSub = match === '{dom}' || match === '{sub}';
+    if (!isVers && match === `{${role}}`) return true;
+    if (!hasBothDomAndSub && isVers && isDomOrSub) return true;
+
+    if (hasBothDomAndSub && isVers) {
+      const isDomMatchWithChance = match === '{dom}' && chance < 0.5;
+      const isSubMatchWithChance = match === '{sub}' && chance >= 0.5;
+      return isDomMatchWithChance || isSubMatchWithChance;
     }
-    if (
-      (match === '{dom}' && role === 'dom') ||
-      (match === '{sub}' && role === 'sub')
-    ) {
-      return displayName;
-    }
-    if (match === '{dom}' && role === 'vers' && chance < 0.5) {
-      return displayName;
-    }
-    if (match === '{sub}' && role === 'vers' && chance >= 0.5) {
-      return displayName;
-    }
-    return match;
-  });
+
+    return false;
+  }
+
+  return string.replace(/{(player|dom|sub)}/g, (match) =>
+    shouldReplace(match) ? displayName : match
+  );
 }
 
 export default function actionStringReplacement(action, role, displayName) {
