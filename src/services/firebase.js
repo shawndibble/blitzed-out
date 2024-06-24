@@ -168,6 +168,8 @@ export async function submitCustomAction(grouping, customAction) {
   }
 }
 
+let lastMessage = {};
+
 export async function sendMessage({
   room,
   user,
@@ -183,6 +185,13 @@ export async function sendMessage({
     // eslint-disable-next-line
     return console.error(message);
   }
+
+  const newMessage = { room, user: user.uid, text, type, ...rest };
+  console.error(lastMessage, newMessage);
+  if (JSON.stringify(newMessage) === JSON.stringify(lastMessage)) {
+    return; // Duplicate message detected. Not sending.
+  }
+  lastMessage = newMessage;
 
   const now = Date.now();
 
