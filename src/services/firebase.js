@@ -187,7 +187,6 @@ export async function sendMessage({
   }
 
   const newMessage = { room, user: user.uid, text, type, ...rest };
-  console.error(lastMessage, newMessage);
   if (JSON.stringify(newMessage) === JSON.stringify(lastMessage)) {
     return; // Duplicate message detected. Not sending.
   }
