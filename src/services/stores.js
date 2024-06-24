@@ -6,11 +6,8 @@ db.version(1).stores({
 });
 
 export const importCustomTiles = async (record) => {
-  const { isEnabled = 1, ...recordData } = record;
-  return await db.customTiles.bulkAdd({
-    ...recordData,
-    isEnabled,
-  });
+  const recordData = record.map((tile) => ({ ...tile, isEnabled: 1 }));
+  return await db.customTiles.bulkAdd(recordData);
 };
 
 export const getCustomTiles = () => {
