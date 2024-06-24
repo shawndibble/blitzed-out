@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { importActions } from 'services/importLocales';
 import latestMessageByType, { latestMessageBy } from 'helpers/messages';
 import { useParams } from 'react-router-dom';
+import { getActiveTiles } from 'services/stores';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 function isCompatibleBoard(
   isPrivateRoom,
@@ -29,7 +31,7 @@ export default function useSendSettings(user, messages, isLoading) {
   const [settingsSent, setSettingsSent] = useState(false);
   const { i18n } = useTranslation();
   const settings = useLocalStorage('gameSettings')[0];
-  const customTiles = useLocalStorage('customTiles', [])[0];
+  const customTiles = useLiveQuery(() => getActiveTiles());
   const board = useLocalStorage('customBoard', [])[0];
 
   // populate the room and game settings if they are not part of the message list.

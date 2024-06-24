@@ -19,12 +19,14 @@ import RoomSettings from './RoomSettings';
 import './styles.css';
 import { handleUser, sendRoomSettingsMessage } from './submitForm';
 import validateFormData from './validateForm';
+import { getActiveTiles } from 'services/stores';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 export default function GameSettings({ closeDialog }) {
   const { user, updateUser } = useAuth();
   const { id: room } = useParams();
   const { t, i18n } = useTranslation();
-  const customTiles = useLocalStorage('customTiles', [])[0];
+  const customTiles = useLiveQuery(() => getActiveTiles());
   const updateGameBoardTiles = useGameBoard();
 
   // set default settings for first time users. Local Storage will take over after this.
@@ -246,12 +248,14 @@ export default function GameSettings({ closeDialog }) {
           <Trans i18nKey="update" />
         </Button>
       </div>
-      <CustomTileDialog
-        open={openCustomTile}
-        setOpen={setOpenCustomTile}
-        boardUpdated={boardUpdated}
-        actionsList={actionsList}
-      />
+      {!!openCustomTile && (
+        <CustomTileDialog
+          open={openCustomTile}
+          setOpen={setOpenCustomTile}
+          boardUpdated={boardUpdated}
+          actionsList={actionsList}
+        />
+      )}
       <ToastAlert
         open={!!alert}
         setOpen={setAlert}

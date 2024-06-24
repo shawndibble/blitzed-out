@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { importActions } from 'services/importLocales';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { getActiveTiles } from 'services/stores';
 
 export default function usePrivateRoomMonitor(room, gameBoard) {
   const DEFAULT_DIEM = '1d6';
@@ -14,7 +16,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
   const { i18n } = useTranslation();
   const { user } = useAuth();
 
-  const customTiles = useLocalStorage('customTiles', [])[0];
+  const customTiles = useLiveQuery(() => getActiveTiles());
   const [settings, updateSettings] = useLocalStorage('gameSettings');
   const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState(DEFAULT_DIEM);

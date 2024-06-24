@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
 import {
   Dialog,
   DialogContent,
@@ -8,8 +9,8 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
+import { importCustomTiles, getCustomTiles } from 'services/stores';
 import useBreakpoint from 'hooks/useBreakpoint';
-import useLocalStorage from 'hooks/useLocalStorage';
 import ToastAlert from 'components/ToastAlert';
 import groupActionsFolder from 'helpers/actionsFolder';
 import ImportExport from 'views/CustomTileDialog/ImportExport';
@@ -29,19 +30,24 @@ export default function CustomTileDialog({
     message: '',
     type: 'info',
   });
-  const [customTiles, setCustomTiles] = useLocalStorage('customTiles', []);
   const [expanded, setExpanded] = useState('ctAdd');
+  const [tileId, updateTile] = useState(null);
+
   const handleChange = (panel) => (_event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);
   };
 
-  const addCustomTile = (group, intensity, action) => {
-    setCustomTiles([...customTiles, { group, intensity, action }]);
-    boardUpdated();
-  };
+  const allTiles = useLiveQuery(() => getCustomTiles());
+  if (!allTiles) return null;
 
-  const bulkImport = (records) => {
-    setCustomTiles([...customTiles, ...records]);
+  const tagList = allTiles
+    ?.map(({ tags }) => tags)
+    ?.flat()
+    ?.filter((tag, index, self) => tag && self.indexOf(tag) === index)
+    ?.sort();
+
+  const bulkImport = async (records) => {
+    await importCustomTiles(records);
     boardUpdated();
   };
 
@@ -70,30 +76,34 @@ export default function CustomTileDialog({
 
           <AddCustomTile
             setSubmitMessage={setSubmitMessage}
-            addCustomTile={addCustomTile}
-            customTiles={customTiles}
+            boardUpdated={boardUpdated}
+            customTiles={allTiles}
             mappedGroups={mappedGroups}
             expanded={expanded}
             handleChange={handleChange}
+            tagList={tagList}
+            updateTileId={tileId}
+            setUpdateTileId={updateTile}
           />
 
           <ImportExport
             expanded={expanded}
             handleChange={handleChange}
-            customTiles={customTiles}
+            customTiles={allTiles}
             mappedGroups={mappedGroups}
             setSubmitMessage={setSubmitMessage}
             bulkImport={bulkImport}
           />
 
-          {!!customTiles.length && (
+          {!!allTiles?.length && (
             <>
-              <Divider light sx={{ my: 2 }} />
+              <Divider sx={{ my: 2 }} />
               <ViewCustomTiles
-                customTiles={customTiles}
-                setCustomTiles={setCustomTiles}
+                tagList={tagList}
+                customTiles={allTiles}
                 boardUpdated={boardUpdated}
                 mappedGroups={mappedGroups}
+                updateTile={updateTile}
               />
             </>
           )}

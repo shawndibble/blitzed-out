@@ -21,6 +21,7 @@ import './App.css';
 import { MessagesProvider } from 'context/messages';
 import { UserListProvider } from 'context/userList';
 import { ScheduleProvider } from 'context/schedule';
+import useLegacyUpdate from 'hooks/useLegacyUpdate';
 
 let darkTheme = createTheme({
   palette: {
@@ -47,6 +48,8 @@ function OldRedirect() {
 
 function App() {
   const { user } = useAuth();
+
+  useLegacyUpdate();
 
   const room = user ? <Room /> : <UnauthenticatedApp />;
 

@@ -1,8 +1,10 @@
+import { useLiveQuery } from 'dexie-react-hooks';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
+import { getActiveTiles } from 'services/stores';
 
 /**
  * Builds a game board based on the settings provided.
@@ -10,7 +12,7 @@ import { importActions } from 'services/importLocales';
  */
 export default function useGameBoard() {
   const { id: room } = useParams();
-  const customTiles = useLocalStorage('customTiles', [])[0];
+  const customTiles = useLiveQuery(() => getActiveTiles());
   const [gameBoard, updateBoard] = useLocalStorage('customBoard');
   const [settings, updateSettings] = useLocalStorage('gameSettings');
   const { i18n } = useTranslation();

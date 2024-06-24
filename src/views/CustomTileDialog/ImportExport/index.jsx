@@ -6,6 +6,8 @@ import Accordion from 'components/Accordion';
 import AccordionSummary from 'components/Accordion/Summary';
 import AccordionDetails from 'components/Accordion/Details';
 import CopyToClipboard from 'components/CopyToClipboard';
+import getUniqueImportRecords from './getUniqueImportRecords';
+import { updateCustomTile } from 'services/stores';
 
 export default function ImportExport({
   expanded,
@@ -20,94 +22,50 @@ export default function ImportExport({
   const [inputValue, setInputValue] = useState('');
 
   const exportData = () => {
-    const customString = customTiles.map(({ group, intensity, action }) => {
-      const userData = mappedGroups.find(
-        (entry) =>
-          entry?.intensity === Number(intensity) && entry?.value === group
-      );
-      return `[${userData?.group} - ${userData?.translatedIntensity}]\n${action}`;
-    });
+    const customString = customTiles.map(
+      ({ group, intensity, action, tags }) => {
+        const userData = mappedGroups.find(
+          (entry) =>
+            entry?.intensity === Number(intensity) && entry?.value === group
+        );
+        let actionText = '';
+        actionText += `[${userData?.group} - ${userData?.translatedIntensity}]\n`;
+        actionText += action;
+        actionText += tags?.length ? `\nTags: ` + tags?.join(', ') : '';
+
+        return actionText;
+      }
+    );
 
     setInputValue(customString.join('\n---\n'));
   };
 
-  function importTiles() {
+  async function importTiles(formData) {
     const { importData } = formData.current;
-    let result = [];
-
-    const preArray = importData?.value?.split('---');
+    let uniqueRecords = [];
+    let changedRecords = [];
 
     try {
-      preArray.forEach((e) => {
-        const groupMatch = e.match(/\[|\]/g)?.length;
-        if (groupMatch > 2 || groupMatch < 2) {
-          throw setSubmitMessage({
-            type: 'error',
-            message: t('ctSeparatorError'),
-          });
-        }
-      });
-
-      result = preArray.map((tile) => {
-        const [preGrouping, action] = tile.split('\n').filter((n) => n);
-        const withoutBrackets = preGrouping?.replace(/\[|\]/g, '');
-        if (withoutBrackets === undefined) {
-          return null;
-        }
-        const [group, intensity] = withoutBrackets.split(' - ');
-        const appGroup = mappedGroups.find(
-          (mapped) =>
-            mapped.translatedIntensity === intensity && mapped.group === group
-        );
-
-        if (appGroup === undefined) {
-          throw setSubmitMessage({
-            type: 'error',
-            message: t('ctGroupError'),
-          });
-        }
-
-        if (!action) {
-          throw setSubmitMessage({
-            type: 'error',
-            message: t('ctActionError'),
-          });
-        }
-
-        return { group: appGroup.value, intensity: appGroup.intensity, action };
-      });
+      const { newUniqueRecords, changedTagRecords } = getUniqueImportRecords(
+        importData.value,
+        customTiles,
+        mappedGroups
+      );
+      uniqueRecords = newUniqueRecords;
+      changedRecords = changedTagRecords;
     } catch (error) {
-      // eslint-disable-next-line
-      return console.error(error);
+      return setSubmitMessage({
+        type: 'error',
+        message: t(error.message),
+      });
     }
 
-    const uniqueRecords = [];
-    result
-      // filter new records
-      .filter(
-        (entry) =>
-          !customTiles.some(
-            (existing) =>
-              existing.group === entry?.group &&
-              existing.intensity === entry?.intensity &&
-              existing.action === entry?.action
-          )
-      )
-      // drop empty records
-      .filter((n) => n)
-      // filter unique records
-      .filter((entry) => {
-        const index = uniqueRecords.findIndex(
-          (existing) =>
-            existing.group === entry.group &&
-            existing.intensity === entry.intensity &&
-            existing.action === entry.action
-        );
-        if (index <= -1) {
-          uniqueRecords.push(entry);
-        }
-        return false;
+    if (!uniqueRecords.length && !changedRecords.length) {
+      return setSubmitMessage({
+        type: 'error',
+        message: t('ctNoNewError'),
       });
+    }
 
     if (uniqueRecords.length) {
       uniqueRecords.forEach(async (record) => {
@@ -117,10 +75,11 @@ export default function ImportExport({
         );
       });
       bulkImport(uniqueRecords);
-    } else {
-      return setSubmitMessage({
-        type: 'error',
-        message: t('ctNoNewError'),
+    }
+
+    if (changedRecords.length) {
+      await changedRecords.forEach(async (record) => {
+        await updateCustomTile(record.id, record);
       });
     }
 
@@ -166,7 +125,7 @@ export default function ImportExport({
             fullWidth
             variant="contained"
             type="button"
-            onClick={(event) => importTiles(event)}
+            onClick={() => importTiles(formData)}
           >
             <Trans i18nKey="import" />
           </Button>

@@ -11,6 +11,7 @@ function MessagesProvider(props) {
   const { id: room } = useParams();
 
   useEffect(() => {
+    setIsLoading(true);
     const unsubscribe = getMessages(room, (newMessages) => {
       const sorted = normalSortedMessages(newMessages);
       setMessages(sorted);
