@@ -9,7 +9,8 @@ function getCustomTileCount(settings, customTiles, actionsList) {
       return acc;
     }, {});
 
-  const usedCustomTiles = customTiles.filter((entry) => {
+  console.log(customTiles);
+  const usedCustomTiles = customTiles?.filter((entry) => {
     if (entry.group === 'misc') return true;
     const intensityArray = settingsDataFolder[entry.group];
     return intensityArray && intensityArray.length >= Number(entry.intensity);
@@ -98,7 +99,7 @@ export default function sendGameSettingsMessage({
   user,
   actionsList,
   board,
-  customTiles = {},
+  customTiles = [],
   reason = '',
 }) {
   return sendMessage({
