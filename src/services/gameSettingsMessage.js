@@ -9,7 +9,6 @@ function getCustomTileCount(settings, customTiles, actionsList) {
       return acc;
     }, {});
 
-  console.log(customTiles);
   const usedCustomTiles = customTiles?.filter((entry) => {
     if (entry.group === 'misc') return true;
     const intensityArray = settingsDataFolder[entry.group];
