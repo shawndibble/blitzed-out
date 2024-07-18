@@ -21,11 +21,13 @@ import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import './styles.css';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function Room() {
   const params = useParams();
   const room = params.id;
   const isMobile = useBreakpoint();
+  const { t } = useTranslation();
 
   const [settings, setSettings] = useLocalStorage('gameSettings');
 
@@ -35,11 +37,7 @@ export default function Room() {
   const gameBoard = useLocalStorage('customBoard')[0];
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
-  const [importResult, clearImportResult] = useUrlImport(
-    room,
-    settings,
-    setSettings
-  );
+  const [importResult, clearImportResult] = useUrlImport(settings, setSettings);
 
   if (!gameBoard.length || !Object.keys(settings).length) {
     return (
@@ -96,7 +94,7 @@ export default function Room() {
       )}
       <PopupMessage room={room} />
       <ToastAlert
-        type="success"
+        type={importResult === t('updated') ? 'success' : 'error'}
         open={!!importResult}
         close={clearImportResult}
       >

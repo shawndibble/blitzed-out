@@ -26,6 +26,7 @@
   "customTiles": "Mis Casillas",
   "update": "Actualizar",
   "updated": "Tablero actualizado",
+  "failedBoardImport": "Error al importar el tablero.",
   "public": "Pública",
   "private": "Privada",
   "privateOptions": "Las habitaciones privadas tienen configuraciones de tablero adicionales.",

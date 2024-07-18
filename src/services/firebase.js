@@ -20,6 +20,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getFirestore,
   onSnapshot,
   orderBy,
@@ -162,6 +163,32 @@ export async function submitCustomAction(grouping, customAction) {
       customAction,
       ttl: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days
     });
+  } catch (error) {
+    // eslint-disable-next-line
+    console.error(error);
+  }
+}
+
+export async function storeBoard({ gameBoard, settings }) {
+  try {
+    return await addDoc(collection(db, 'game-boards'), {
+      gameBoard,
+      settings,
+      ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    });
+  } catch (error) {
+    // eslint-disable-next-line
+    console.error(error);
+  }
+}
+
+export async function getBoard(id) {
+  try {
+    const docRef = doc(db, 'game-boards', id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
   } catch (error) {
     // eslint-disable-next-line
     console.error(error);

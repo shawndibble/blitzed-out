@@ -28,13 +28,20 @@ export default function Message({
     setDialog(false);
   }, []);
 
-  const { id, displayName, text, uid, timestamp, type, gameBoard, image } =
-    message;
+  const {
+    id,
+    displayName,
+    text,
+    uid,
+    timestamp,
+    type,
+    boardSize,
+    image,
+    gameBoardId,
+  } = message;
 
   const isImportable =
-    type === 'settings' &&
-    gameBoard &&
-    JSON.parse(gameBoard).length === currentGameBoardSize;
+    type === 'settings' && boardSize === currentGameBoardSize;
 
   let ago = moment(timestamp?.toDate()).fromNow();
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
@@ -81,12 +88,12 @@ export default function Message({
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <Link to={`?importBoard=${id}`}>
+                <Link to={`?importBoard=${gameBoardId}`}>
                   <Trans i18nKey="importBoard" />
                 </Link>
 
                 <CopyToClipboard
-                  text={`${window.location.href}?importBoard=${id}`}
+                  text={`${window.location.href}?importBoard=${gameBoardId}`}
                   copiedText={t('copiedLink')}
                   icon={<Share />}
                 />

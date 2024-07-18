@@ -10,7 +10,7 @@ export default function ConsumptionWarning({ formData }) {
       (setting) => setting?.type === 'consumption' && setting?.level > 0
     ).length;
     const totalCount = Object.values(formData).filter(
-      (setting) => setting.level > 0
+      (setting) => setting?.level > 0
     ).length;
 
     setShowWarning(

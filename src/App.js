@@ -12,7 +12,6 @@ import {
   Route,
   BrowserRouter as Router,
   Routes,
-  useParams,
 } from 'react-router-dom';
 import Cast from 'views/Cast';
 import Room from 'views/Room';
