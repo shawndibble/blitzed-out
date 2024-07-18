@@ -1,16 +1,15 @@
 import useLocalStorage from 'hooks/useLocalStorage';
-import useMessages from 'context/hooks/useMessages';
-import { useEffect, useState, useCallback } from 'react';
+import { getBoard } from 'services/firebase';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
-export default function useUrlImport(room, settings, setSettings) {
+export default function useUrlImport(settings, setSettings) {
   const [alert, setAlert] = useState(null);
   const [hasCompletedImport, setHasCompletedImport] = useState(false);
   const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
-  const { messages, isLoading } = useMessages(room || 'PUBLIC');
   const { t } = useTranslation();
 
   function clearAlert() {
@@ -34,23 +33,25 @@ export default function useUrlImport(room, settings, setSettings) {
     }
   }
 
-  const importGameBoard = useCallback(() => {
-    if (!importBoard || isLoading) return;
+  useEffect(() => {
+    const importGameBoard = async () => {
+      if (!importBoard) return;
 
-    setParams({});
-    const importMessage = messages.find((m) => m.id === importBoard);
-    if (!importMessage?.gameBoard) return;
+      setParams({});
+      const board = await getBoard(importBoard);
+      if (!board?.gameBoard) return setAlert(t('failedBoardImport'));
 
-    const importedGameBoard = parseGameBoard(importMessage.gameBoard);
-    if (!importedGameBoard) return;
+      const importedGameBoard = parseGameBoard(board.gameBoard);
+      if (!importedGameBoard) return setAlert(t('failedBoardImport'));
 
-    setLocalGameBoard(importedGameBoard);
-    const importSettings = parseSettings(importMessage?.settings);
-    setSettings({ ...settings, ...importSettings });
-    setHasCompletedImport(true);
-  }, [importBoard, messages, isLoading, settings, setSettings]);
+      setLocalGameBoard(importedGameBoard);
+      const importSettings = parseSettings(board?.settings);
+      setSettings({ ...settings, ...importSettings });
+      setHasCompletedImport(true);
+    };
 
-  useEffect(() => importGameBoard(), [importGameBoard]);
+    importGameBoard();
+  }, [importBoard]);
 
   useEffect(() => {
     if (hasCompletedImport && alert !== t('updated')) {

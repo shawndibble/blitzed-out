@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { sendMessage } from './firebase';
+import { sendMessage, storeBoard } from './firebase';
 
 function getCustomTileCount(settings, customTiles, actionsList) {
   const settingsDataFolder = Object.entries(actionsList)
@@ -93,7 +93,7 @@ function exportSettings(formData) {
   return newSettings;
 }
 
-export default function sendGameSettingsMessage({
+export default async function sendGameSettingsMessage({
   formData,
   user,
   actionsList,
@@ -101,12 +101,18 @@ export default function sendGameSettingsMessage({
   customTiles = [],
   reason = '',
 }) {
+  const settings = JSON.stringify(exportSettings(formData));
+  const gameBoard = await storeBoard({
+    gameBoard: JSON.stringify(board),
+    settings,
+  });
   return sendMessage({
     room: formData?.room || 'PUBLIC',
     user,
     text: getSettingsMessage(formData, customTiles, actionsList, reason),
     type: 'settings',
-    gameBoard: JSON.stringify(board),
-    settings: JSON.stringify(exportSettings(formData)),
+    gameBoardId: gameBoard.id,
+    boardSize: board.length,
+    gameMode: formData.gameMode,
   });
 }

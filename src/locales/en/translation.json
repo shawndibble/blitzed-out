@@ -26,6 +26,7 @@
   "customTiles": "Custom Tiles",
   "update": "Update Game",
   "updated": "Board Updated",
+  "failedBoardImport": "Failed to import board.",
   "public": "Public",
   "private": "Private",
   "privateOptions": "Private rooms also have additional board settings.",

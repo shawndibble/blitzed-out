@@ -26,6 +26,7 @@
   "customTiles": "Tuiles personnalisées",
   "update": "Mettre à jour le jeu",
   "updated": "Mis à jour le jeu",
+  "failedBoardImport": "Échec de l'importation du tableau",
   "public": "Salle publique",
   "private": "Salle privée",
   "privateOptions": "Les salles privées ont des paramètres de plateau supplémentaires.",

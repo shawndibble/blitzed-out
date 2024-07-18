@@ -14,7 +14,7 @@ import useAuth from 'context/hooks/useAuth';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { sendMessage } from 'services/firebase';
+import { sendMessage, storeBoard } from 'services/firebase';
 
 export default function ImportExport({ open, close, isMobile }) {
   const { t } = useTranslation();
@@ -43,13 +43,18 @@ export default function ImportExport({ open, close, isMobile }) {
     message += `${t('boardIncludesFollowing')}\n`;
     message += [...new Set(gameTileTitles)].join(' ');
 
+    const gameBoard = await storeBoard({
+      gameBoard: JSON.stringify(gameTiles),
+      settings: JSON.stringify(settings),
+    });
     await sendMessage({
       room: room || 'PUBLIC',
       user,
       text: message,
       type: 'settings',
-      gameBoard: JSON.stringify(gameTiles),
-      settings: JSON.stringify(settings),
+      gameBoardId: gameBoard.id,
+      boardSize: gameTiles.length,
+      gameMode: settings.gameMode,
     });
   }
 
