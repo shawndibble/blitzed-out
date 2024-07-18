@@ -9,7 +9,7 @@ import {
   Switch,
 } from '@mui/material';
 import { useState } from 'react';
-import { deleteCustomTile, toggleCustomTile } from 'services/stores';
+import { deleteCustomTile, toggleCustomTile } from 'stores/customTiles';
 
 export default function ViewCustomTiles({
   tagList,

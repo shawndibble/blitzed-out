@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
-import { getActiveTiles } from 'services/stores';
+import { getActiveTiles } from 'stores/customTiles';
 
 /**
  * Builds a game board based on the settings provided.

@@ -11,7 +11,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import Accordion from 'components/Accordion';
 import AccordionSummary from 'components/Accordion/Summary';
 import AccordionDetails from 'components/Accordion/Details';
-import { addCustomTile, updateCustomTile } from 'services/stores';
+import { addCustomTile, updateCustomTile } from 'stores/customTiles';
 
 export default function AddCustomTile({
   setSubmitMessage,

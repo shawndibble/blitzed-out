@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { importActions } from 'services/importLocales';
 import latestMessageByType, { latestMessageBy } from 'helpers/messages';
 import { useParams } from 'react-router-dom';
-import { getActiveTiles } from 'services/stores';
+import { getActiveTiles } from 'stores/customTiles';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 function isCompatibleBoard(
