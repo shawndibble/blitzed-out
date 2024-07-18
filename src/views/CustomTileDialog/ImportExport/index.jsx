@@ -7,7 +7,7 @@ import AccordionSummary from 'components/Accordion/Summary';
 import AccordionDetails from 'components/Accordion/Details';
 import CopyToClipboard from 'components/CopyToClipboard';
 import getUniqueImportRecords from './getUniqueImportRecords';
-import { updateCustomTile } from 'services/stores';
+import { updateCustomTile } from 'stores/customTiles';
 
 export default function ImportExport({
   expanded,

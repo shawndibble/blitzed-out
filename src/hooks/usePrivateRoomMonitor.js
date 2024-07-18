@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { importActions } from 'services/importLocales';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getActiveTiles } from 'services/stores';
+import { getActiveTiles } from 'stores/customTiles';
 
 export default function usePrivateRoomMonitor(room, gameBoard) {
   const DEFAULT_DIEM = '1d6';

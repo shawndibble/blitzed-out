@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
-import { importCustomTiles, getCustomTiles } from 'services/stores';
+import { importCustomTiles, getCustomTiles } from 'stores/customTiles';
 import useBreakpoint from 'hooks/useBreakpoint';
 import ToastAlert from 'components/ToastAlert';
 import groupActionsFolder from 'helpers/actionsFolder';

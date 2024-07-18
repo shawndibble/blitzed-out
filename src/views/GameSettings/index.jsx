@@ -19,7 +19,7 @@ import RoomSettings from './RoomSettings';
 import './styles.css';
 import { handleUser, sendRoomSettingsMessage } from './submitForm';
 import validateFormData from './validateForm';
-import { getActiveTiles } from 'services/stores';
+import { getActiveTiles } from 'stores/customTiles';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 export default function GameSettings({ closeDialog }) {
