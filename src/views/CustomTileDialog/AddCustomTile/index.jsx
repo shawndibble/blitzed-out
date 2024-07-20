@@ -90,6 +90,24 @@ export default function AddCustomTile({
     return setSubmitMessage({ message: t('customAdded'), type: 'success' });
   }
 
+  const handleKeyDown = (event) => {
+    switch (event.key) {
+      case ',':
+      case ' ': {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.target.value.length > 0) {
+          setFormData({
+            ...formData,
+            tags: [...formData.tags, event.target.value],
+          });
+        }
+        break;
+      }
+      default:
+    }
+  };
+
   return (
     <Accordion expanded={expanded === 'ctAdd'} onChange={handleChange('ctAdd')}>
       <AccordionSummary aria-controls="ctAdd-content" id="ctAdd-header">
@@ -139,9 +157,10 @@ export default function AddCustomTile({
             onChange={(_event, newValues) => {
               setFormData({ ...formData, tags: newValues });
             }}
-            renderInput={(params) => (
-              <TextField {...params} label={t('tags')} />
-            )}
+            renderInput={(params) => {
+              params.inputProps.onKeyDown = handleKeyDown;
+              return <TextField {...params} label={t('tags')} />;
+            }}
             sx={{ pb: 2 }}
             clearOnBlur
           />
