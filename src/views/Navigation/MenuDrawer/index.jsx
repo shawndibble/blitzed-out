@@ -2,7 +2,6 @@ import { CalendarMonth, Logout, Tv } from '@mui/icons-material';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
-import PaidIcon from '@mui/icons-material/Paid';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Box,
@@ -29,7 +28,6 @@ import GameGuide from 'views/GameGuide';
 import GameSettings from 'views/GameSettings';
 import ImportExport from 'views/ImportExport';
 import Schedule from 'views/Schedule';
-import DonateDialog from './DonateDialog';
 
 export default function MenuDrawer() {
   const { id: room } = useParams();
@@ -41,7 +39,6 @@ export default function MenuDrawer() {
   const [open, setOpen] = useState({
     settings: false,
     importExport: false,
-    donate: false,
     about: false,
     schedule: false,
   });
@@ -81,12 +78,6 @@ export default function MenuDrawer() {
         title: 'Discord',
         icon: discordIcon,
         onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef'),
-      },
-      {
-        key: 'donate',
-        title: <Trans i18nKey="donate" />,
-        icon: <PaidIcon />,
-        onClick: () => toggleDialog('donate', true),
       },
       {
         key: 'about',
@@ -173,13 +164,6 @@ export default function MenuDrawer() {
         <ImportExport
           open={open.importExport}
           close={() => toggleDialog('importExport', false)}
-          isMobile={isMobile}
-        />
-      )}
-      {!!open.donate && (
-        <DonateDialog
-          open={open.donate}
-          close={() => toggleDialog('donate', false)}
           isMobile={isMobile}
         />
       )}
