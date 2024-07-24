@@ -5,8 +5,7 @@ import './styles.css';
 
 export default function GameBoard({ playerList, isTransparent, gameBoard }) {
   const { user } = useAuth();
-
-  if (!Array.isArray(gameBoard)) return null;
+  if (!Array.isArray(gameBoard) || !gameBoard.length) return null;
 
   const tileTypeArray = new Set();
 

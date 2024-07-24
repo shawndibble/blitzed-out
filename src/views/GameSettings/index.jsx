@@ -21,6 +21,7 @@ import { handleUser, sendRoomSettingsMessage } from './submitForm';
 import validateFormData from './validateForm';
 import { getActiveTiles } from 'stores/customTiles';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { getActiveBoard, upsertBoard } from 'stores/gameBoard';
 
 export default function GameSettings({ closeDialog }) {
   const { user, updateUser } = useAuth();
@@ -31,7 +32,7 @@ export default function GameSettings({ closeDialog }) {
 
   // set default settings for first time users. Local Storage will take over after this.
   const [settings, updateSettings] = useLocalStorage('gameSettings');
-  const [gameBoard, updateGameBoard] = useLocalStorage('customBoard');
+  const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useNavigate();
 
   const [value, setValue] = useState(0);
@@ -114,8 +115,13 @@ export default function GameSettings({ closeDialog }) {
       await sendRoomSettingsMessage(formData, updatedUser);
     }
 
-    if (newBoard && gameBoard !== newBoard) {
-      updateGameBoard(newBoard);
+    if (newBoard && gameBoard.tiles !== newBoard) {
+      upsertBoard({
+        title: 'Settings Generated Board',
+        tiles: newBoard,
+        isActive: 1,
+        gameMode,
+      });
     }
 
     // if our board updated, or we changed rooms, send out game settings message.

@@ -64,8 +64,8 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       const shouldRebuildGameBoard =
         roomMessage.uid !== user.uid &&
         roomTileCount &&
-        gameBoard.length &&
-        roomTileCount !== gameBoard.length;
+        gameBoard?.tile?.length &&
+        roomTileCount !== gameBoard?.tile?.length;
 
       if (shouldRebuildGameBoard) {
         rebuildGameBoard(messageSettings, roomMessage.displayName);

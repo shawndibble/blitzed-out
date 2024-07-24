@@ -1,5 +1,9 @@
-import { CalendarMonth, Logout, Tv } from '@mui/icons-material';
-import ImportExportIcon from '@mui/icons-material/ImportExport';
+import {
+  CalendarMonth,
+  DashboardCustomize,
+  Logout,
+  Tv,
+} from '@mui/icons-material';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -26,7 +30,7 @@ import { useParams } from 'react-router-dom';
 import { logout } from 'services/firebase';
 import GameGuide from 'views/GameGuide';
 import GameSettings from 'views/GameSettings';
-import ImportExport from 'views/ImportExport';
+import ManageGameBoards from 'views/ManageGameBoards';
 import Schedule from 'views/Schedule';
 
 export default function MenuDrawer() {
@@ -38,7 +42,7 @@ export default function MenuDrawer() {
 
   const [open, setOpen] = useState({
     settings: false,
-    importExport: false,
+    gameBoard: false,
     about: false,
     schedule: false,
   });
@@ -56,10 +60,10 @@ export default function MenuDrawer() {
   const menuItems = useMemo(() => {
     const items = [
       {
-        key: 'importExport',
-        title: <Trans i18nKey="importExport" />,
-        icon: <ImportExportIcon />,
-        onClick: () => toggleDialog('importExport', true),
+        key: 'gameBoard',
+        title: <Trans i18nKey="gameBoard" />,
+        icon: <DashboardCustomize />,
+        onClick: () => toggleDialog('gameBoard', true),
       },
       {
         key: 'cast',
@@ -160,10 +164,10 @@ export default function MenuDrawer() {
       </Drawer>
       {!!open.settings && settingsDialog}
       {aboutDialog}
-      {!!open.importExport && (
-        <ImportExport
-          open={open.importExport}
-          close={() => toggleDialog('importExport', false)}
+      {!!open.gameBoard && (
+        <ManageGameBoards
+          open={open.gameBoard}
+          close={() => toggleDialog('gameBoard', false)}
           isMobile={isMobile}
         />
       )}
