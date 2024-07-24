@@ -35,7 +35,7 @@ export const upsertBoard = async (record) => {
 
   return db.transaction('rw', db.gameBoard, async () => {
     if (newData.isActive) {
-      deactivateAllBoards();
+      await deactivateAllBoards();
     }
 
     if (board) {

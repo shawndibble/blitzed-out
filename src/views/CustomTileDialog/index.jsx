@@ -37,7 +37,7 @@ export default function CustomTileDialog({
     setExpanded(newExpanded ? panel : false);
   };
 
-  const allTiles = useLiveQuery(() => getCustomTiles());
+  const allTiles = useLiveQuery(getCustomTiles);
   if (!allTiles) return null;
 
   const tagList = allTiles
