@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import { sendMessage, storeBoard } from './firebase';
+import { getOrCreateBoard, sendMessage } from './firebase';
 
 function getCustomTileCount(settings, customTiles, actionsList) {
   const settingsDataFolder = Object.entries(actionsList)
@@ -102,7 +102,7 @@ export default async function sendGameSettingsMessage({
   reason = '',
 }) {
   const settings = JSON.stringify(exportSettings(formData));
-  const gameBoard = await storeBoard({
+  const gameBoard = await getOrCreateBoard({
     gameBoard: JSON.stringify(board),
     settings,
   });

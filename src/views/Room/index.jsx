@@ -22,6 +22,8 @@ import RollButton from './RollButton';
 import './styles.css';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { getActiveBoard } from 'stores/gameBoard';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 export default function Room() {
   const params = useParams();
@@ -34,12 +36,12 @@ export default function Room() {
   usePresence(room, settings.roomRealtime);
 
   const [rollValue, setRollValue] = useState({ value: 0, time: Date.now() });
-  const gameBoard = useLocalStorage('customBoard')[0];
+  const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult] = useUrlImport(settings, setSettings);
 
-  if (!gameBoard.length || !Object.keys(settings).length) {
+  if (!gameBoard || !gameBoard.length || !Object.keys(settings).length) {
     return (
       <>
         <Navigation room={params.id} playerList={playerList} />

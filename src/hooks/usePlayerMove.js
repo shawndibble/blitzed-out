@@ -37,7 +37,7 @@ function parseDescription(text, role, displayName) {
   return getFinishResult(textArray);
 }
 
-export default function usePlayerMove(room, rollValue, gameBoard) {
+export default function usePlayerMove(room, rollValue, gameBoard = []) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const playerList = usePlayerList(room);

@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
 import { getActiveTiles } from 'stores/customTiles';
+import { getActiveBoard, upsertBoard } from 'stores/gameBoard';
 
 /**
  * Builds a game board based on the settings provided.
@@ -12,8 +13,8 @@ import { getActiveTiles } from 'stores/customTiles';
  */
 export default function useGameBoard() {
   const { id: room } = useParams();
-  const customTiles = useLiveQuery(() => getActiveTiles());
-  const [gameBoard, updateBoard] = useLocalStorage('customBoard');
+  const customTiles = useLiveQuery(getActiveTiles);
+  const gameBoard = useLiveQuery(getActiveBoard);
   const [settings, updateSettings] = useLocalStorage('gameSettings');
   const { i18n } = useTranslation();
 
@@ -52,10 +53,10 @@ export default function useGameBoard() {
     if (
       data?.boardUpdated ||
       settingsBoardUpdated ||
-      gameBoard.length !== newBoard.length
+      gameBoard?.tiles?.length !== newBoard.length
     ) {
       await updateSettings(formData);
-      await updateBoard(newBoard);
+      await upsertBoard({ title: gameBoard?.title || '', tiles: newBoard });
     }
 
     return { settingsBoardUpdated, gameMode, newBoard };

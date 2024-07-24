@@ -1,13 +1,14 @@
-import useLocalStorage from 'hooks/useLocalStorage';
 import { getBoard } from 'services/firebase';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
+import { upsertBoard, getActiveBoard } from 'stores/gameBoard';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 export default function useUrlImport(settings, setSettings) {
   const [alert, setAlert] = useState(null);
   const [hasCompletedImport, setHasCompletedImport] = useState(false);
-  const [localGameBoard, setLocalGameBoard] = useLocalStorage('customBoard');
+  const localGameBoard = useLiveQuery(getActiveBoard)?.tiles;
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
   const { t } = useTranslation();
@@ -44,7 +45,7 @@ export default function useUrlImport(settings, setSettings) {
       const importedGameBoard = parseGameBoard(board.gameBoard);
       if (!importedGameBoard) return setAlert(t('failedBoardImport'));
 
-      setLocalGameBoard(importedGameBoard);
+      upsertBoard({ ...board, tiles: importedGameBoard });
       const importSettings = parseSettings(board?.settings);
       setSettings({ ...settings, ...importSettings });
       setHasCompletedImport(true);

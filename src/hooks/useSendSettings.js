@@ -8,6 +8,7 @@ import latestMessageByType, { latestMessageBy } from 'helpers/messages';
 import { useParams } from 'react-router-dom';
 import { getActiveTiles } from 'stores/customTiles';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { getActiveBoard } from 'stores/gameBoard';
 
 function isCompatibleBoard(
   isPrivateRoom,
@@ -32,11 +33,11 @@ export default function useSendSettings(user, messages, isLoading) {
   const { i18n } = useTranslation();
   const settings = useLocalStorage('gameSettings')[0];
   const customTiles = useLiveQuery(() => getActiveTiles());
-  const board = useLocalStorage('customBoard', [])[0];
+  const board = useLiveQuery(getActiveBoard);
 
   // populate the room and game settings if they are not part of the message list.
   useEffect(() => {
-    if (!settings || isLoading || settingsSent) return;
+    if (!settings || isLoading || settingsSent || !board?.tiles?.length) return;
 
     const isPrivateRoom = room.toUpperCase() !== 'PUBLIC';
     const formData = { ...settings, room };
@@ -53,7 +54,7 @@ export default function useSendSettings(user, messages, isLoading) {
     const isCompatible = isCompatibleBoard(
       isPrivateRoom,
       latestRoomMessage,
-      board.length,
+      board.tiles.length,
       settings.roomTileCount
     );
 
@@ -73,8 +74,8 @@ export default function useSendSettings(user, messages, isLoading) {
         user,
         customTiles,
         actionsList,
-        board,
+        board: board.tiles,
       });
     }
-  }, [isLoading]);
+  }, [isLoading, board?.tiles]);
 }

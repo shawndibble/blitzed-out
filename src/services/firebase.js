@@ -21,11 +21,13 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   getFirestore,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 
@@ -35,6 +37,7 @@ import {
   ref as storageRef,
   uploadString,
 } from 'firebase/storage';
+import { sha256 } from 'js-sha256';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -169,11 +172,44 @@ export async function submitCustomAction(grouping, customAction) {
   }
 }
 
-export async function storeBoard({ gameBoard, settings }) {
+async function getBoardByContent(checksum) {
+  const q = query(
+    collection(db, 'game-boards'),
+    where('checksum', '==', checksum)
+  );
+  const snapshot = await getDocs(q);
+  if (snapshot.size) {
+    return snapshot.docs[0];
+  }
+  return null;
+}
+
+export async function getOrCreateBoard({ gameBoard, settings }) {
+  try {
+    const checksum = sha256(gameBoard);
+    const board = await getBoardByContent(checksum);
+    if (board) {
+      // update the ttl for another 30 days.
+      updateDoc(board.ref, {
+        ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      }); // 30 days
+
+      return board;
+    }
+    // console.log('no board found', settings);
+    return await storeBoard({ gameBoard, settings, checksum });
+  } catch (error) {
+    // eslint-disable-next-line
+    console.error(error);
+  }
+}
+
+async function storeBoard({ gameBoard, settings, checksum }) {
   try {
     return await addDoc(collection(db, 'game-boards'), {
       gameBoard,
       settings,
+      checksum,
       ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     });
   } catch (error) {
