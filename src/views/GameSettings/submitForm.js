@@ -8,7 +8,7 @@ function getRoomSettingsMessage(settings) {
 
   Object.entries(settings).forEach(([key, val]) => {
     if (key === 'room') return; // we handle the room separately.
-    if (key === 'roomBackgroundURL') {
+    if (key === 'roomBackgroundURL' && val !== '') {
       message += `* ${t(key)}: [${getSiteName(val)}:link:](${val})\r\n`;
       return;
     }

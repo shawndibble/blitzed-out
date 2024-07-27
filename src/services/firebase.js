@@ -184,7 +184,11 @@ async function getBoardByContent(checksum) {
   return null;
 }
 
-export async function getOrCreateBoard({ gameBoard, settings }) {
+export async function getOrCreateBoard({ title, gameBoard, settings }) {
+  if (!title) {
+    return;
+  }
+
   try {
     const checksum = sha256(gameBoard);
     const board = await getBoardByContent(checksum);
@@ -196,17 +200,17 @@ export async function getOrCreateBoard({ gameBoard, settings }) {
 
       return board;
     }
-    // console.log('no board found', settings);
-    return await storeBoard({ gameBoard, settings, checksum });
+    return await storeBoard({ title, gameBoard, settings, checksum });
   } catch (error) {
     // eslint-disable-next-line
     console.error(error);
   }
 }
 
-async function storeBoard({ gameBoard, settings, checksum }) {
+async function storeBoard({ title, gameBoard, settings, checksum }) {
   try {
     return await addDoc(collection(db, 'game-boards'), {
+      title,
       gameBoard,
       settings,
       checksum,

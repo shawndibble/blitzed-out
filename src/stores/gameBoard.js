@@ -31,6 +31,11 @@ export const upsertBoard = async (record) => {
     gameMode: record.gameMode || 'online',
   };
 
+  // if we have tiles, we should have a title to go with it.
+  if (!newData?.title?.length && newData?.tiles?.length) {
+    return;
+  }
+
   const board = await gameBoard.where('title').equals(newData.title).first();
 
   return db.transaction('rw', db.gameBoard, async () => {
