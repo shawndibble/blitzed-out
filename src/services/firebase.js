@@ -185,7 +185,7 @@ async function getBoardByContent(checksum) {
 }
 
 export async function getOrCreateBoard({ gameBoard, settings }) {
-  if (!gameBoard.title.length) {
+  if (!gameBoard?.title?.length) {
     return null;
   }
 
