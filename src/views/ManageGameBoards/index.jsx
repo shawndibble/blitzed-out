@@ -133,7 +133,7 @@ export default function GameBoard({ open, close, isMobile }) {
         }}
       >
         <DialogTitle>
-          <Trans i18nKey="gameBoard" />
+          <Trans i18nKey="manageGameBoards" />
           <CloseIcon close={close} />
         </DialogTitle>
         <DialogContent style={{ overflowY: 'scroll' }}>

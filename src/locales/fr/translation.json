@@ -156,6 +156,8 @@
   "save": "Enregistrer",
   "saved": "Enregistré",
   "gameBoard": "Plateau de jeu",
+  "gameBoards": "Plateaux de jeu",
+  "manageGameBoards": "Gérer les plateaux de jeu",
   "gameBoardDescription": "Gérez vos plateaux de jeu ici. <br /><br /> Note : 'Paramètres du plateau généré' seront écrasés à moins d'être renommés.",
   "activated": "Activé",
   "enableBoard": "Activer le plateau",
