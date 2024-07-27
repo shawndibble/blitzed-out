@@ -117,7 +117,7 @@ export default function GameSettings({ closeDialog }) {
 
     if (newBoard && gameBoard.tiles !== newBoard) {
       await upsertBoard({
-        title: 'Settings Generated Board',
+        title: t('settingsGenerated'),
         tiles: newBoard,
         isActive: 1,
         gameMode,

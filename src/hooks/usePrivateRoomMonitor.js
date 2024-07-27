@@ -13,7 +13,7 @@ import { getActiveTiles } from 'stores/customTiles';
 export default function usePrivateRoomMonitor(room, gameBoard) {
   const DEFAULT_DIEM = '1d6';
 
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { user } = useAuth();
 
   const customTiles = useLiveQuery(getActiveTiles);
@@ -32,10 +32,10 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       customTiles,
       actionsList: importActions(i18n.resolvedLanguage, gameMode),
       tiles: newBoard,
-      title: 'Settings Generated',
+      title: t('settingsGenerated'),
     };
     if (messageUser) {
-      message.reason = `Rebuilt game board due to room size changes by ${messageUser}.`;
+      message.reason = t('rebuiltBoard', { messageUser });
     }
 
     await sendGameSettingsMessage(message);
