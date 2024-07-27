@@ -73,7 +73,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       return;
     }
 
-    if (room !== settings.room && gameBoard.length) {
+    if (room !== settings.room && gameBoard?.length) {
       roomChanged();
       return;
     }

@@ -1,6 +1,6 @@
 import {
+  AppRegistration,
   CalendarMonth,
-  DashboardCustomize,
   Logout,
   Tv,
 } from '@mui/icons-material';
@@ -61,8 +61,8 @@ export default function MenuDrawer() {
     const items = [
       {
         key: 'gameBoard',
-        title: <Trans i18nKey="gameBoard" />,
-        icon: <DashboardCustomize />,
+        title: <Trans i18nKey="gameBoards" />,
+        icon: <AppRegistration />,
         onClick: () => toggleDialog('gameBoard', true),
       },
       {

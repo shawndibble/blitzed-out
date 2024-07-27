@@ -155,6 +155,8 @@
   "save": "Save",
   "saved": "Saved",
   "gameBoard": "Game Board",
+  "gameBoards": "Game Boards",
+  "manageGameBoards": "Manage Game Boards",
   "gameBoardDescription": "Manage your game boards here. <br /><br /> Note: 'Settings Generated Board' will be overwritten unless renamed.",
   "activated": "Activated",
   "enableBoard": "Enable Board",

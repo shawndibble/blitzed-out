@@ -156,6 +156,8 @@
   "save": "Guardar",
   "saved": "Guardado",
   "gameBoard": "Tablero de Juego",
+  "gameBoards": "Tableros de Juego",
+  "manageGameBoards": "Administrar Tableros de Juego",
   "gameBoardDescription": "Gestiona tus tableros de juego aquí. <br /><br /> Nota: 'Configuración del Tablero Generado' será sobrescrita a menos que sea renombrada.",
   "enableBoard": "Activar Tablero",
   "boardEnabled": "Tablero activado.",
