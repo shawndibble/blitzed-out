@@ -185,6 +185,10 @@ async function getBoardByContent(checksum) {
 }
 
 export async function getOrCreateBoard({ gameBoard, settings }) {
+  if (!gameBoard.title.length) {
+    return null;
+  }
+
   try {
     const checksum = sha256(gameBoard);
     const board = await getBoardByContent(checksum);

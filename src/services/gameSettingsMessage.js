@@ -106,6 +106,11 @@ export default async function sendGameSettingsMessage({
     gameBoard: JSON.stringify(board),
     settings,
   });
+
+  if (!gameBoard?.id) {
+    return;
+  }
+
   return sendMessage({
     room: formData?.room || 'PUBLIC',
     user,

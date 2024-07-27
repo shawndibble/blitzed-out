@@ -71,6 +71,11 @@ export default function GameBoard({ open, close, isMobile }) {
       gameBoard: JSON.stringify(tiles),
       settings: JSON.stringify(settings),
     });
+
+    if (!gameBoard?.id) {
+      return;
+    }
+
     await sendMessage({
       room: settings.room || 'PUBLIC',
       user,
