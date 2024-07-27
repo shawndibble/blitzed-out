@@ -32,7 +32,7 @@ export const upsertBoard = async (record) => {
   };
 
   // if we have tiles, we should have a title to go with it.
-  if (!newData.tiles && newData.tiles.length !== 0) {
+  if (!newData?.title?.length && newData?.tiles?.length) {
     return;
   }
 

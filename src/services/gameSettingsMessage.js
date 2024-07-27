@@ -94,16 +94,19 @@ function exportSettings(formData) {
 }
 
 export default async function sendGameSettingsMessage({
+  title,
   formData,
   user,
   actionsList,
-  board,
+  tiles,
   customTiles = [],
   reason = '',
 }) {
   const settings = JSON.stringify(exportSettings(formData));
+
   const gameBoard = await getOrCreateBoard({
-    gameBoard: JSON.stringify(board),
+    title,
+    gameBoard: JSON.stringify(tiles),
     settings,
   });
 
@@ -117,7 +120,7 @@ export default async function sendGameSettingsMessage({
     text: getSettingsMessage(formData, customTiles, actionsList, reason),
     type: 'settings',
     gameBoardId: gameBoard.id,
-    boardSize: board.length,
+    boardSize: tiles.length,
     gameMode: formData.gameMode,
   });
 }

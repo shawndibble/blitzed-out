@@ -74,7 +74,8 @@ export default function useSendSettings(user, messages, isLoading) {
         user,
         customTiles,
         actionsList,
-        board: board.tiles,
+        tiles: board.tiles,
+        title: board.title,
       });
     }
   }, [isLoading, board?.tiles]);

@@ -116,7 +116,7 @@ export default function GameSettings({ closeDialog }) {
     }
 
     if (newBoard && gameBoard.tiles !== newBoard) {
-      upsertBoard({
+      await upsertBoard({
         title: 'Settings Generated Board',
         tiles: newBoard,
         isActive: 1,
@@ -131,7 +131,8 @@ export default function GameSettings({ closeDialog }) {
         user: updatedUser,
         customTiles,
         actionsList,
-        board: newBoard,
+        title: 'Settings Generated Board',
+        tiles: newBoard,
       });
     }
 

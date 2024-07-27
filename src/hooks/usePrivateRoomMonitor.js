@@ -31,7 +31,8 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       user,
       customTiles,
       actionsList: importActions(i18n.resolvedLanguage, gameMode),
-      board: newBoard,
+      tiles: newBoard,
+      title: 'Settings Generated',
     };
     if (messageUser) {
       message.reason = `Rebuilt game board due to room size changes by ${messageUser}.`;
