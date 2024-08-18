@@ -6,8 +6,8 @@ export const getBoards = () => {
   return gameBoard.orderBy('title').toArray();
 };
 
-export const getActiveBoard = async () => {
-  return (await gameBoard.where('isActive').equals(1).first()) || {};
+export const getActiveBoard = () => {
+  return gameBoard.where('isActive').equals(1).first() || {};
 };
 
 export const getBoard = (id) => {

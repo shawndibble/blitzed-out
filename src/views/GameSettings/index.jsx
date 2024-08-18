@@ -115,7 +115,7 @@ export default function GameSettings({ closeDialog }) {
       await sendRoomSettingsMessage(formData, updatedUser);
     }
 
-    if (newBoard && gameBoard.tiles !== newBoard) {
+    if (gameBoard?.tiles !== newBoard) {
       await upsertBoard({
         title: t('settingsGenerated'),
         tiles: newBoard,

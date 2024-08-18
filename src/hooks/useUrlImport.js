@@ -35,37 +35,35 @@ export default function useUrlImport(settings, setSettings) {
   }
 
   useEffect(() => {
-    const importGameBoard = async () => {
-      if (!importBoard) return;
-
-      setParams({});
-      const board = await getBoard(importBoard);
-      if (!board?.gameBoard) return setAlert(t('failedBoardImport'));
-
-      const importedGameBoard = parseGameBoard(board.gameBoard);
-      if (!importedGameBoard) return setAlert(t('failedBoardImport'));
-
-      const title =
-        board?.title !== t('settingsGenerated')
-          ? board.title
-          : t('importedBoard');
-
-      upsertBoard({ ...board, title, tiles: importedGameBoard });
-      const importSettings = parseSettings(board?.settings);
-
-      setSettings({ ...settings, ...importSettings });
-      setHasCompletedImport(true);
-    };
-
-    importGameBoard();
-  }, [importBoard]);
-
-  useEffect(() => {
     if (hasCompletedImport && alert !== t('updated')) {
       setAlert(t('updated'));
       setHasCompletedImport(false);
     }
   }, [localGameBoard]);
+
+  const importGameBoard = async () => {
+    setParams({});
+    const board = await getBoard(importBoard);
+    if (!board?.gameBoard) return setAlert(t('failedBoardImport'));
+
+    const importedGameBoard = parseGameBoard(board.gameBoard);
+    if (!importedGameBoard) return setAlert(t('failedBoardImport'));
+
+    const title =
+      board?.title !== t('settingsGenerated')
+        ? board.title
+        : t('importedBoard');
+
+    upsertBoard({ ...board, title, tiles: importedGameBoard, isActive: 1 });
+    const importSettings = parseSettings(board?.settings);
+
+    setSettings({ ...settings, ...importSettings });
+    setHasCompletedImport(true);
+  };
+
+  if (importBoard) {
+    importGameBoard();
+  }
 
   return [alert, clearAlert];
 }
