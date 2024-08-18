@@ -78,7 +78,7 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
       };
     }
 
-    const currentLocation = playerList.find((p) => p.isSelf).location;
+    const currentLocation = playerList.find((p) => p.isSelf)?.location;
 
     // restart game if we roll and are on the last tile.
     if (currentLocation === lastTile) {
