@@ -1,7 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
 import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
 import { getActiveTiles } from 'stores/customTiles';
@@ -12,19 +11,18 @@ import { getActiveBoard, upsertBoard } from 'stores/gameBoard';
  * @returns {function} - A function that takes in a form data object and returns an object.
  */
 export default function useGameBoard() {
-  const { id: room } = useParams();
   const customTiles = useLiveQuery(getActiveTiles);
   const gameBoard = useLiveQuery(getActiveBoard);
   const [settings, updateSettings] = useLocalStorage('gameSettings');
   const { i18n } = useTranslation();
 
-  const isPrivateRoom = room?.toUpperCase() !== 'PUBLIC';
-
   return async (data = {}) => {
     const formData =
       data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
     let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
-    const { roomTileCount, finishRange } = formData;
+    const { roomTileCount = 40, finishRange, room } = formData;
+    const isPublicRoom = room?.toUpperCase() === 'PUBLIC';
+
     if (!finishRange) {
       // still loading data.
       return {};
@@ -32,15 +30,16 @@ export default function useGameBoard() {
 
     // If we are in a public room,
     // then gameMode should update to online, and we need to re-import actions.
-    if (!isPrivateRoom && gameMode === 'local') {
+    if (isPublicRoom && gameMode === 'local') {
       gameMode = 'online';
+      console.log('changed to online', formData, settings);
       // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
       settingsBoardUpdated = true;
     }
 
     const tileActionList = importActions(i18n.resolvedLanguage, gameMode);
 
-    const tileCount = isPrivateRoom ? roomTileCount || 40 : 40;
+    const tileCount = isPublicRoom ? 40 : roomTileCount;
 
     const newBoard = customizeBoard(
       formData,
