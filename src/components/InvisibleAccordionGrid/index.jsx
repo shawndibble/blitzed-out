@@ -24,7 +24,7 @@ export default function InvisibleAccordionGrid({
         boxShadow: 'none',
       }}
     >
-      <AccordionSummary expandIcon={<ExpandMore />}>
+      <AccordionSummary expandIcon={<ExpandMore />} sx={{ px: 0 }}>
         <Typography variant="h6" sx={{ width: '33%' }}>
           {title}:
         </Typography>
