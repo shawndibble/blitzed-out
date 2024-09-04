@@ -16,14 +16,17 @@ import usePlayerList from 'hooks/usePlayerList';
 import languages from 'locales/languages.json';
 import React, { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from 'views/Navigation';
 import './styles.css';
+import GameGuide from 'views/GameGuide';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
   const { login, user } = useAuth();
   const params = useParams();
+  const [queryParams] = useSearchParams();
+  const hasImport = !!queryParams.get('importBoard');
   const room = params.id ?? 'PUBLIC';
   const playerList = usePlayerList();
   const isMobile = useBreakpoint('sm');
@@ -96,7 +99,11 @@ export default function UnauthenticatedApp() {
                 />
                 <div className="flex-buttons">
                   <Button variant="contained" type="submit">
-                    <Trans i18nKey="access" />
+                    {hasImport ? (
+                      <Trans i18nKey="import" />
+                    ) : (
+                      <Trans i18nKey="access" />
+                    )}
                   </Button>
                 </div>
               </Box>
@@ -112,6 +119,15 @@ export default function UnauthenticatedApp() {
                   <Trans i18nKey="language" />:
                 </Typography>
                 {languageLinks}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+        <Grid container sx={{ mt: 1 }}>
+          <Grid item className="language">
+            <Card className="unauthenticated-card">
+              <CardContent>
+                <GameGuide />
               </CardContent>
             </Card>
           </Grid>

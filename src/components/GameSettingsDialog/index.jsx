@@ -4,12 +4,19 @@ import CloseIcon from 'components/CloseIcon';
 import GameSettings from 'views/GameSettings';
 import useBreakpoint from 'hooks/useBreakpoint';
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export default function GameSettingsDialog({
   openSettingsDialog,
   closeSettings = () => null,
 }) {
   const isMobile = useBreakpoint();
+  const [queryParams] = useSearchParams();
+  const hasImport = !!queryParams.get('importBoard');
+
+  if (hasImport) {
+    return null;
+  }
 
   return (
     <Dialog fullScreen={isMobile} open={openSettingsDialog} maxWidth="md">

@@ -2,13 +2,10 @@ import { getBoard } from 'services/firebase';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { upsertBoard, getActiveBoard } from 'stores/gameBoard';
-import { useLiveQuery } from 'dexie-react-hooks';
+import { upsertBoard } from 'stores/gameBoard';
 
 export default function useUrlImport(settings, setSettings) {
   const [alert, setAlert] = useState(null);
-  const [hasCompletedImport, setHasCompletedImport] = useState(false);
-  const localGameBoard = useLiveQuery(getActiveBoard)?.tiles;
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
   const { t } = useTranslation();
@@ -34,13 +31,6 @@ export default function useUrlImport(settings, setSettings) {
     }
   }
 
-  useEffect(() => {
-    if (hasCompletedImport && alert !== t('updated')) {
-      setAlert(t('updated'));
-      setHasCompletedImport(false);
-    }
-  }, [localGameBoard]);
-
   const importGameBoard = async () => {
     setParams({});
     const board = await getBoard(importBoard);
@@ -58,12 +48,17 @@ export default function useUrlImport(settings, setSettings) {
     const importSettings = parseSettings(board?.settings);
 
     setSettings({ ...settings, ...importSettings });
-    setHasCompletedImport(true);
+
+    if (alert !== t('updated')) {
+      setAlert(t('updated'));
+    }
   };
 
-  if (importBoard) {
-    importGameBoard();
-  }
+  useEffect(() => {
+    if (importBoard) {
+      importGameBoard();
+    }
+  }, [importBoard]);
 
   return [alert, clearAlert];
 }
