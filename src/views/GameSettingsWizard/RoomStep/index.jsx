@@ -14,8 +14,11 @@ export default function RoomStep({ formData, setFormData, nextStep }) {
         <RoomSwitch formData={formData} setFormData={setFormData} />
       </Box>
       <ButtonRow>
-        <Button variant="contained" onClick={() => nextStep(formData.room === 'PUBLIC' ? 2 : 1)}>
-          <Trans i18nKey={formData.room === 'PUBLIC' ? 'nextSkip' : 'next'} />
+        <Button
+          variant="contained"
+          onClick={() => nextStep(formData.room.toUpperCase() === 'PUBLIC' ? 2 : 1)}
+        >
+          <Trans i18nKey={formData.room.toUpperCase() === 'PUBLIC' ? 'nextSkip' : 'next'} />
         </Button>
       </ButtonRow>
     </Box>
