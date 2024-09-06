@@ -1,25 +1,12 @@
-import { Help } from '@mui/icons-material';
-import {
-  Box,
-  Divider,
-  Stack,
-  Switch,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, Divider } from '@mui/material';
 import BackgroundSelect from 'components/BackgroundSelect';
-import { customAlphabet } from 'nanoid';
-import React, { useCallback } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import GameSpeed from './GameSpeed';
 import PlayerListOption from './PlayerListOption';
-
-const PUBLIC_ROOM = 'PUBLIC';
+import RoomSwitch from 'components/GameForm/RoomSwitch';
 
 export default function RoomSettings({ formData, setFormData }) {
-  const { id: room } = useParams();
   const { t } = useTranslation();
 
   const backgrounds = {
@@ -27,83 +14,12 @@ export default function RoomSettings({ formData, setFormData }) {
     custom: t('customURL'),
   };
 
-  const handleChange = useCallback(
-    (event) => {
-      setFormData({
-        ...formData,
-        room: event.target.value,
-        boardUpdated: true,
-      });
-    },
-    [formData, setFormData]
-  );
-
-  const togglePrivateRoomField = useCallback(
-    (event) => {
-      let roomId;
-
-      if (event.target.checked && room.toUpperCase() === PUBLIC_ROOM) {
-        roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-      } else if (event.target.checked && room.toUpperCase() !== PUBLIC_ROOM) {
-        roomId = room;
-      } else {
-        roomId = PUBLIC_ROOM;
-      }
-
-      setFormData({
-        ...formData,
-        room: roomId,
-        gameMode:
-          roomId.toUpperCase() === PUBLIC_ROOM ? 'online' : formData.gameMode,
-      });
-    },
-    [room, formData, setFormData]
-  );
-
   return (
     <Box sx={{ margin: '0.5rem' }}>
-      <Stack
-        direction="row"
-        spacing={1}
-        alignItems="center"
-        justifyContent="center"
-        sx={{ width: '100%' }}
-      >
-        <Typography>
-          <Trans i18nKey="public" />
-        </Typography>
-        <Switch
-          id="showPrivate"
-          checked={formData.room.toUpperCase() !== PUBLIC_ROOM}
-          onChange={togglePrivateRoomField}
-          inputProps={{ 'aria-label': t('room') }}
-        />
-        <Typography>
-          <Trans i18nKey="private" />
-        </Typography>
-        <Tooltip
-          title={
-            <Typography variant="subtitle2">
-              <Trans i18nKey="privateOptions" />
-            </Typography>
-          }
-          arrow
-        >
-          <Help sx={{ fontSize: 15 }} />
-        </Tooltip>
-      </Stack>
+      <RoomSwitch formData={formData} setFormData={setFormData} />
 
-      {formData.room.toUpperCase() !== PUBLIC_ROOM && (
+      {formData.room.toUpperCase() !== 'PUBLIC' && (
         <>
-          <TextField
-            fullWidth
-            id="privateRoom"
-            label="Private Room"
-            defaultValue={formData.room}
-            margin="normal"
-            onBlur={handleChange}
-            onKeyDown={handleChange}
-          />
           <Divider sx={{ my: 1 }} />
           <GameSpeed formData={formData} setFormData={setFormData} />
           <Divider sx={{ my: 1 }} />

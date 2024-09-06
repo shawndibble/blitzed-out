@@ -56,8 +56,7 @@ export default function GameSettings({ closeDialog }) {
     setValue(newValue);
   }, []);
 
-  const boardUpdated = () =>
-    updateSettings({ ...settings, boardUpdated: true });
+  const boardUpdated = () => updateSettings({ ...settings, boardUpdated: true });
 
   // once our data from localstorage updates, push them to the formData.
   useEffect(() => {
@@ -91,27 +90,19 @@ export default function GameSettings({ closeDialog }) {
 
     const updatedUser = await handleUser(user, displayName, updateUser);
 
-    if (
-      !formData.roomBackgroundURL ||
-      !formData.roomBackgroundURL.match(/^https?:\/\/.+\/.+$/)
-    ) {
+    if (!formData.roomBackgroundURL || !formData.roomBackgroundURL.match(/^https?:\/\/.+\/.+$/)) {
       formData.roomBackground = 'app';
     }
 
-    const { settingsBoardUpdated, gameMode, newBoard } =
-      await updateGameBoardTiles(formData);
+    const { settingsBoardUpdated, gameMode, newBoard } = await updateGameBoardTiles(formData);
 
     const roomChanged = room.toUpperCase() !== formData.room.toUpperCase();
-    const isPrivateRoom =
-      formData.room && formData?.room.toUpperCase() !== 'PUBLIC';
+    const isPrivateRoom = formData.room && formData?.room.toUpperCase() !== 'PUBLIC';
     const privateBoardSizeChanged =
       isPrivateRoom && formData.roomTileCount !== settings.roomTileCount;
 
     // send out room specific settings if we are in a private room.
-    if (
-      isPrivateRoom &&
-      (formData.roomUpdated || !messages.find((m) => m.type === 'room'))
-    ) {
+    if (isPrivateRoom && (formData.roomUpdated || !messages.find((m) => m.type === 'room'))) {
       await sendRoomSettingsMessage(formData, updatedUser);
     }
 
@@ -211,12 +202,7 @@ export default function GameSettings({ closeDialog }) {
       />
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs
-          value={value}
-          onChange={handleTabChange}
-          aria-label="Game Settings"
-          centered
-        >
+        <Tabs value={value} onChange={handleTabChange} aria-label="Game Settings" centered>
           <Tab label={t('gameboard')} {...a11yProps(0)} />
           <Tab label={t('room')} {...a11yProps(1)} />
           <Tab label={t('application')} {...a11yProps(2)} />
@@ -224,11 +210,7 @@ export default function GameSettings({ closeDialog }) {
       </Box>
 
       <TabPanel value={value} index={0} style={{ p: 0 }}>
-        <BoardSettings
-          formData={formData}
-          setFormData={setFormData}
-          actionsList={actionsList}
-        />
+        <BoardSettings formData={formData} setFormData={setFormData} actionsList={actionsList} />
       </TabPanel>
 
       <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
@@ -236,19 +218,11 @@ export default function GameSettings({ closeDialog }) {
       </TabPanel>
 
       <TabPanel value={value} index={2} style={{ p: 0, pt: 1 }}>
-        <AppSettings
-          formData={formData}
-          setFormData={setFormData}
-          boardUpdated={boardUpdated}
-        />
+        <AppSettings formData={formData} setFormData={setFormData} boardUpdated={boardUpdated} />
       </TabPanel>
 
       <div className="flex-buttons">
-        <Button
-          variant="outlined"
-          type="button"
-          onClick={() => setOpenCustomTile(true)}
-        >
+        <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
           <Trans i18nKey="customTiles">Custom Tiles</Trans>
         </Button>
         <Button variant="contained" type="submit">
@@ -263,11 +237,7 @@ export default function GameSettings({ closeDialog }) {
           actionsList={actionsList}
         />
       )}
-      <ToastAlert
-        open={!!alert}
-        setOpen={setAlert}
-        close={() => setAlert(null)}
-      >
+      <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
         {alert}
       </ToastAlert>
     </Box>

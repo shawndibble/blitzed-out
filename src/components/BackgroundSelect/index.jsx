@@ -1,20 +1,9 @@
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export default function BackgroundSelect({
-  formData,
-  setFormData,
-  backgrounds,
-  isRoom = false,
-}) {
+export default function BackgroundSelect({ formData, setFormData, backgrounds, isRoom = false }) {
   const { t } = useTranslation();
   const backgroundKey = !isRoom ? 'background' : 'roomBackground';
   const backgroundURLKey = !isRoom ? 'backgroundURL' : 'roomBackgroundURL';
@@ -60,7 +49,7 @@ export default function BackgroundSelect({
           labelId="background-label"
           id="background"
           label={t('background')}
-          value={background}
+          value={background || ''}
           onChange={backgroundSelection}
         >
           {options()}
