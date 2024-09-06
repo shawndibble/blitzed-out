@@ -6,15 +6,29 @@ import IntensityTitle from '../IntensityTitle';
 
 const MAX_ACTIONS = 4;
 
-export default function PickActions({ formData, setFormData, options, actionsList }) {
-  const [selectedActions, setSelectedActions] = useState([]);
-
-  // Determine the action type we are going to allow.
-  // Solo for online only. Sex requires being naked.
-  let action = 'solo';
+const getAction = (formData) => {
   if (formData?.gameMode === 'local') {
-    action = formData.isNaked ? 'sex' : 'foreplay';
+    return formData.isNaked ? 'sex' : 'foreplay';
   }
+  return 'solo';
+};
+
+const populateAction = (formData, optionList, action) => {
+  return Object.entries(formData)
+    .map(([key, entry]) => {
+      if (entry.type !== action) return null;
+      return { value: key, label: optionList.find((x) => x.value === key).label };
+    })
+    .filter((x) => x);
+};
+
+export default function PickActions({ formData, setFormData, options, actionsList }) {
+  const action = getAction(formData);
+  const optionList = options(action);
+
+  const initialActions = populateAction(formData, optionList, action);
+  // remove empty objects from array
+  const [selectedActions, setSelectedActions] = useState(initialActions);
 
   function handleActions(_, newValue) {
     // if we remove an action from our autocomplete, drop intensity too.
@@ -51,7 +65,7 @@ export default function PickActions({ formData, setFormData, options, actionsLis
 
       <Autocomplete
         multiple
-        options={options(action)}
+        options={optionList}
         getOptionLabel={(option) => option.label}
         isOptionEqualToValue={(option, value) => option.value === value.value}
         value={selectedActions}

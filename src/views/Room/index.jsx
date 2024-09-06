@@ -45,7 +45,7 @@ export default function Room() {
     return (
       <>
         <Navigation room={params.id} playerList={playerList} />
-        <GameSettingsDialog openSettingsDialog={true} />
+        <GameSettingsDialog open={true} />
       </>
     );
   }
@@ -55,15 +55,10 @@ export default function Room() {
 
   const { background, roomBackground } = settings;
   const isTransparent =
-    (room.toUpperCase() !== 'PUBLIC' && roomBackground !== 'app') ||
-    background !== 'color';
+    (room.toUpperCase() !== 'PUBLIC' && roomBackground !== 'app') || background !== 'color';
 
   const GameBoardComponent = (
-    <GameBoard
-      playerList={playerList}
-      isTransparent={isTransparent}
-      gameBoard={gameBoard}
-    />
+    <GameBoard playerList={playerList} isTransparent={isTransparent} gameBoard={gameBoard} />
   );
 
   const messagesComponent = (
