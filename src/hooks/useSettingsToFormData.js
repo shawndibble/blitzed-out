@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import useLocalStorage from './useLocalStorage';
 import { useParams } from 'react-router-dom';
 
-export default function useSettingsToFormData() {
+export default function useSettingsToFormData(defaultSettings = {}) {
   const { id: room } = useParams();
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(defaultSettings);
   const { messages } = useMessages();
   const settings = useLocalStorage('gameSettings')[0];
 

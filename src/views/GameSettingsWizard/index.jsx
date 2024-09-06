@@ -7,18 +7,17 @@ import ActionsStep from './ActionsStep';
 import FinishStep from './FinishStep';
 import GameSettings from 'views/GameSettings';
 import { useParams } from 'react-router-dom';
+import useSettingsToFormData from 'hooks/useSettingsToFormData';
 
 export default function GameSettingsWizard() {
   const { id: room } = useParams();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useSettingsToFormData({
     room,
-    gameMode: 'online',
     roomRealtime: true,
     actions: [],
     consumption: [],
     role: 'sub',
-    finishRange: [100, 100],
   });
 
   const nextStep = (count) => {

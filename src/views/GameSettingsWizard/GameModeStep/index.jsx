@@ -13,14 +13,13 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
       </Typography>
       <YesNoSwitch
         trueCondition={formData?.gameMode === 'local'}
-        onChange={(event) => {
-          console.log(formData);
+        onChange={(event) =>
           setFormData({
             ...formData,
             gameMode: event.target.checked ? 'local' : 'online',
             roomRealtime: !event.target.checked,
-          });
-        }}
+          })
+        }
         yesLabel="yesInteracting"
         noLabel="noInteracting"
       />

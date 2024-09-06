@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button, FormControlLabel, Switch, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
 import ButtonRow from 'components/ButtonRow';
@@ -14,6 +14,16 @@ export default function FinishStep({ formData, setFormData, prevStep }) {
       finishRange: event.target.checked ? yes : no,
     });
   }
+
+  // If we don't have a finishRange OR if it is something from advanced settings, replace it.
+  useEffect(() => {
+    if (!arraysEqual(formData.finishRange, yes) || !arraysEqual(formData.finishRange, no)) {
+      setFormData({
+        ...formData,
+        finishRange: no,
+      });
+    }
+  }, []);
 
   return (
     <Box>
@@ -46,7 +56,7 @@ export default function FinishStep({ formData, setFormData, prevStep }) {
 
       <ButtonRow>
         <Button onClick={prevStep}>
-          <Trans i18nKey="step3" />
+          <Trans i18nKey="previous" />
         </Button>
         <Button variant="contained" onClick={() => alert('Game Built!')}>
           <Trans i18nKey="buildGame" />
