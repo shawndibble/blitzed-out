@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Divider, Step, StepLabel, Stepper } from '@mui/material';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import RoomStep from './RoomStep';
 import GameModeStep from './GameModeStep';
 import ActionsStep from './ActionsStep';
@@ -8,17 +8,26 @@ import FinishStep from './FinishStep';
 import GameSettings from 'views/GameSettings';
 import { useParams } from 'react-router-dom';
 import useSettingsToFormData from 'hooks/useSettingsToFormData';
+import { importActions } from 'services/importLocales';
 
 export default function GameSettingsWizard() {
   const { id: room } = useParams();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useSettingsToFormData({
     room,
+    gameMode: 'online',
     roomRealtime: true,
     actions: [],
     consumption: [],
     role: 'sub',
   });
+  const { i18n } = useTranslation();
+  const [actionsList, setActionList] = useState({});
+
+  useEffect(() => {
+    if (!formData?.gameMode) return;
+    setActionList(importActions(i18n.resolvedLanguage, formData.gameMode));
+  }, [i18n.resolvedLanguage, formData?.gameMode]);
 
   const nextStep = (count) => {
     if (!Number.isInteger(count)) return setStep(step + 1);
@@ -52,10 +61,18 @@ export default function GameSettingsWizard() {
             setFormData={setFormData}
             nextStep={nextStep}
             prevStep={prevStep}
+            actionsList={actionsList}
           />
         );
       case 4:
-        return <FinishStep formData={formData} setFormData={setFormData} prevStep={prevStep} />;
+        return (
+          <FinishStep
+            formData={formData}
+            setFormData={setFormData}
+            prevStep={prevStep}
+            actionsList={actionsList}
+          />
+        );
       default:
         return null;
     }

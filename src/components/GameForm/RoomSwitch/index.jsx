@@ -57,7 +57,7 @@ export default function RoomSwitch({ formData, setFormData }) {
         </Typography>
         <Switch
           id="showPrivate"
-          checked={formData.room.toUpperCase() !== PUBLIC_ROOM}
+          checked={formData.room?.toUpperCase() !== PUBLIC_ROOM}
           onChange={togglePrivateRoomField}
           inputProps={{ 'aria-label': t('room') }}
         />
@@ -76,12 +76,12 @@ export default function RoomSwitch({ formData, setFormData }) {
         </Tooltip>
       </Stack>
 
-      {formData.room.toUpperCase() !== 'PUBLIC' && (
+      {formData.room?.toUpperCase() !== 'PUBLIC' && (
         <TextField
           fullWidth
           id="privateRoom"
           label="Private Room"
-          defaultValue={formData.room}
+          defaultValue={formData.room?.toUpperCase()}
           margin="normal"
           onBlur={handleChange}
           onKeyDown={handleChange}

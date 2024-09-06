@@ -15,6 +15,7 @@ import './styles.css';
 import validateFormData from './validateForm';
 import useSubmitGameSettings from 'hooks/useSubmitGameSettings';
 import useSettingsToFormData from 'hooks/useSettingsToFormData';
+import useRoomNavigate from 'hooks/useRoomNavigate';
 
 export default function GameSettings({ closeDialog }) {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ export default function GameSettings({ closeDialog }) {
   const [actionsList, setActionsList] = useState({});
   const [openCustomTile, setOpenCustomTile] = useState(false);
   const [formData, setFormData] = useSettingsToFormData();
+  const navigate = useRoomNavigate();
 
   const submitSettings = useSubmitGameSettings();
 
@@ -34,9 +36,10 @@ export default function GameSettings({ closeDialog }) {
     setActionsList(importActions(i18n.resolvedLanguage, formData?.gameMode));
   }, [i18n.resolvedLanguage, formData?.gameMode]);
 
-  const handleTabChange = useCallback((_, newValue) => {
+  const handleTabChange = (_, newValue) => {
     setValue(newValue);
-  }, []);
+    navigate(formData.room);
+  };
 
   const boardUpdated = () => updateSettings({ ...settings, boardUpdated: true });
 

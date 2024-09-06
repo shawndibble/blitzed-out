@@ -1,7 +1,7 @@
 import useAuth from 'context/hooks/useAuth';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { getActiveTiles } from 'stores/customTiles';
 import useGameBoard from './useGameBoard';
 import useLocalStorage from './useLocalStorage';
@@ -9,6 +9,7 @@ import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { getActiveBoard, upsertBoard } from 'stores/gameBoard';
 import { handleUser, sendRoomSettingsMessage } from 'views/GameSettings/submitForm';
 import useMessages from 'context/hooks/useMessages';
+import useRoomNavigate from './useRoomNavigate';
 
 const isValidURL = (url) => /^https?:\/\/.+\/.+$/.test(url);
 
@@ -26,7 +27,7 @@ export default function useSubmitGameSettings() {
   const updateGameBoardTiles = useGameBoard();
   const [settings, updateSettings] = useLocalStorage('gameSettings');
   const gameBoard = useLiveQuery(getActiveBoard);
-  const navigate = useNavigate();
+  const navigate = useRoomNavigate();
   const { messages } = useMessages();
 
   const handleRoomChange = (formData) => {
@@ -35,13 +36,6 @@ export default function useSubmitGameSettings() {
     const privateBoardSizeChanged =
       isPrivateRoom && formData.roomTileCount !== settings.roomTileCount;
     return { roomChanged, isPrivateRoom, privateBoardSizeChanged };
-  };
-
-  const handleNavigation = (roomChanged, formData) => {
-    if (roomChanged) {
-      const privatePath = `/${formData?.room || 'public'}`;
-      navigate(privatePath);
-    }
   };
 
   async function submitSettings(formData, actionsList) {
@@ -84,7 +78,7 @@ export default function useSubmitGameSettings() {
       gameMode,
     });
 
-    handleNavigation(roomChanged, formData);
+    navigate(formData.room);
   }
 
   return (formData, actionsList) => submitSettings(formData, actionsList);

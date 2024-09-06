@@ -3,10 +3,12 @@ import { Box, Button, FormControlLabel, Switch, Typography } from '@mui/material
 import { Trans } from 'react-i18next';
 import ButtonRow from 'components/ButtonRow';
 import { arraysEqual } from 'helpers/arrays';
+import useSubmitGameSettings from 'hooks/useSubmitGameSettings';
 
-export default function FinishStep({ formData, setFormData, prevStep }) {
+export default function FinishStep({ formData, setFormData, prevStep, actionsList }) {
   const no = [100, 100];
   const yes = [0, 0];
+  const submitSettings = useSubmitGameSettings();
 
   function handleChange(event) {
     setFormData({
@@ -15,7 +17,7 @@ export default function FinishStep({ formData, setFormData, prevStep }) {
     });
   }
 
-  // If we don't have a finishRange OR if it is something from advanced settings, replace it.
+  // on load, if don't have a finishRange OR if it is something from advanced settings, replace it.
   useEffect(() => {
     if (!arraysEqual(formData.finishRange, yes) || !arraysEqual(formData.finishRange, no)) {
       setFormData({
@@ -24,6 +26,10 @@ export default function FinishStep({ formData, setFormData, prevStep }) {
       });
     }
   }, []);
+
+  async function handleSubmit() {
+    await submitSettings(formData, actionsList);
+  }
 
   return (
     <Box>
@@ -58,7 +64,7 @@ export default function FinishStep({ formData, setFormData, prevStep }) {
         <Button onClick={prevStep}>
           <Trans i18nKey="previous" />
         </Button>
-        <Button variant="contained" onClick={() => alert('Game Built!')}>
+        <Button variant="contained" onClick={handleSubmit}>
           <Trans i18nKey="buildGame" />
         </Button>
       </ButtonRow>

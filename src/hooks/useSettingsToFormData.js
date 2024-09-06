@@ -21,8 +21,6 @@ export default function useSettingsToFormData(defaultSettings = {}) {
 
   // Import our private room settings into the form data.
   useEffect(() => {
-    if (room.toUpperCase() === 'PUBLIC') return;
-
     const message = latestMessageByType(messages, 'room');
 
     if (message?.settings) {

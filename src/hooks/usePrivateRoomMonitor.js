@@ -74,6 +74,12 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       return;
     }
 
+    // make sure that a private room sends out the room settings
+    // before it sends out my game board settings.
+    if (room.toUpperCase() !== 'PUBLIC' && !roomMessage) {
+      return;
+    }
+
     if (room !== settings.room && gameBoard?.length) {
       roomChanged();
       return;
