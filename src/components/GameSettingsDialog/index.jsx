@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { Trans } from 'react-i18next';
 import CloseIcon from 'components/CloseIcon';
-import GameSettings from 'views/GameSettings';
 import useBreakpoint from 'hooks/useBreakpoint';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -24,7 +23,6 @@ export default function GameSettingsDialog({ openSettingsDialog, closeSettings =
       </DialogTitle>
       <DialogContent>
         <GameSettingsWizard />
-        {false && <GameSettings closeDialog={closeSettings} />}
       </DialogContent>
     </Dialog>
   );

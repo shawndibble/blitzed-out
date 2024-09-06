@@ -18,7 +18,7 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
           setFormData({
             ...formData,
             gameMode: event.target.checked ? 'local' : 'online',
-            roomRealtime: event.target.checked ? false : true,
+            roomRealtime: !event.target.checked,
           });
         }}
         yesLabel="yesInteracting"

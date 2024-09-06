@@ -60,7 +60,7 @@ export default function SelectBoardSetting({
           actionsFolder={actionsFolder}
           settings={settings}
           option={option}
-          onCHange={(event) => handleChange(event, option, 'level')}
+          onChange={(event) => handleChange(event, option, 'level')}
         />
       </Grid>
       {!!showRole && (

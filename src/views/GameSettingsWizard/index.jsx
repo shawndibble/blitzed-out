@@ -22,12 +22,12 @@ export default function GameSettingsWizard() {
   });
 
   const nextStep = (count) => {
-    if (!Number.isInteger(count)) count = 1;
+    if (!Number.isInteger(count)) return setStep(step + 1);
     setStep(step + count);
   };
 
   const prevStep = (count) => {
-    if (!Number.isInteger(count)) count = 1;
+    if (!Number.isInteger(count)) return setStep(step - 1);
     setStep(step - count);
   };
 

@@ -9,14 +9,16 @@ const MAX_ACTIONS = 4;
 export default function PickActions({ formData, setFormData, options, actionsList }) {
   const [selectedActions, setSelectedActions] = useState([]);
 
+  // Determine the action type we are going to allow.
+  // Solo for online only. Sex requires being naked.
   let action = 'solo';
   if (formData?.gameMode === 'local') {
     action = formData.isNaked ? 'sex' : 'foreplay';
   }
 
   function handleActions(_, newValue) {
+    // if we remove an action from our autocomplete, drop intensity too.
     const removed = selectedActions.filter((x) => !newValue.includes(x))[0];
-
     if (removed) {
       setFormData((prevData) => {
         const newFormData = { ...prevData };
