@@ -27,6 +27,8 @@ export default function GameSettingsWizard({ close }) {
 
   // on load, we want to guess what page we should be on.
   useEffect(() => {
+    if (formData.advancedSettings) return goToAdvanced();
+
     // if we do not have a close() then this dialog opened b/c we need to set up a game.
     // this also means we need to do all steps.
     if (typeof close !== 'function') return;
@@ -35,7 +37,7 @@ export default function GameSettingsWizard({ close }) {
     if (isPublicRoom(room)) return setStep(3);
 
     setStep(2);
-  }, []);
+  }, [formData]);
 
   useEffect(() => {
     if (!formData?.gameMode) return;

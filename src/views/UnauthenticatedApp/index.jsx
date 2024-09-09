@@ -39,6 +39,7 @@ export default function UnauthenticatedApp() {
     othersDialog: false,
     mySound: true,
     chatSound: true,
+    visibleBoardActions: true,
     locale: 'en',
     gameMode: 'online',
     background: 'color',
@@ -80,12 +81,7 @@ export default function UnauthenticatedApp() {
               <h2 className="setup">
                 <Trans i18nKey="setup" />
               </h2>
-              <Box
-                component="form"
-                method="post"
-                onSubmit={handleSubmit}
-                className="settings-box"
-              >
+              <Box component="form" method="post" onSubmit={handleSubmit} className="settings-box">
                 <TextField
                   fullWidth
                   id="displayName"
@@ -99,11 +95,7 @@ export default function UnauthenticatedApp() {
                 />
                 <div className="flex-buttons">
                   <Button variant="contained" type="submit">
-                    {hasImport ? (
-                      <Trans i18nKey="import" />
-                    ) : (
-                      <Trans i18nKey="access" />
-                    )}
+                    {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="access" />}
                   </Button>
                 </div>
               </Box>

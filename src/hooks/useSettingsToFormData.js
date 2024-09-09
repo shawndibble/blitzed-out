@@ -6,9 +6,9 @@ import { useParams } from 'react-router-dom';
 
 export default function useSettingsToFormData(defaultSettings = {}) {
   const { id: room } = useParams();
-  const [formData, setFormData] = useState(defaultSettings);
-  const { messages } = useMessages();
   const settings = useLocalStorage('gameSettings')[0];
+  const [formData, setFormData] = useState({ ...defaultSettings, ...settings });
+  const { messages } = useMessages();
 
   // once our data from localstorage updates, push them to the formData.
   useEffect(() => {
