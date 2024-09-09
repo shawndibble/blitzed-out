@@ -28,7 +28,7 @@ export default function AppSettings({ formData, setFormData, boardUpdated }) {
     <>
       <LanguageSelect boardUpdated={boardUpdated} />
 
-      <Typography variant="h3">
+      <Typography variant="h5">
         <Trans i18nKey="dialog" />
       </Typography>
 
@@ -37,7 +37,7 @@ export default function AppSettings({ formData, setFormData, boardUpdated }) {
 
       <Divider />
 
-      <Typography variant="h3" sx={{ mt: 2 }}>
+      <Typography variant="h5" sx={{ mt: 2 }}>
         <Trans i18nKey="sounds" />
       </Typography>
 
@@ -48,7 +48,7 @@ export default function AppSettings({ formData, setFormData, boardUpdated }) {
 
       <Divider />
 
-      <Typography variant="h3" sx={{ mt: 2, textTransform: 'capitalize' }}>
+      <Typography variant="h5" sx={{ mt: 2, textTransform: 'capitalize' }}>
         <Trans i18nKey="miscellaneous" />
       </Typography>
 
