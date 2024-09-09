@@ -30,7 +30,11 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
   Object.entries(actionsList).forEach(([key, val]) => {
     if (!settings[key]) return;
 
-    const { role = 'sub', variation, level } = settings[key];
+    console.log(settings);
+
+    const { role, variation, level } = settings[key];
+    const actualRole = role || settings.role || 'sub';
+
     if (level > 0) {
       message += `* ${val?.label}: ${Object.keys(val?.actions)?.[level]}`;
 
@@ -38,9 +42,9 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
         message += ` (${t(variation)})`;
       }
 
-      if (settings.gameMode === 'local') {
+      if (settings.gameMode === 'local' && !variation) {
         // if we have a role from the translation files, use them first.
-        const roleText = val[role] ?? t(role);
+        const roleText = val[actualRole] ?? t(actualRole);
         message += ` (${roleText})`;
       }
       message += '\r\n';
@@ -57,11 +61,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
     message += `* ${t('finishSlider')} ${finishRange[0]}%  | ${finishRange[1] - finishRange[0]}% | ${100 - finishRange[1]}%`;
   }
 
-  const customTileCount = getCustomTileCount(
-    settings,
-    customTiles,
-    actionsList
-  );
+  const customTileCount = getCustomTileCount(settings, customTiles, actionsList);
   if (customTileCount) {
     message += `* ${t('customTiles')}: ${customTileCount} \r\n`;
   }
@@ -83,10 +83,7 @@ function exportSettings(formData) {
       'playerDialog',
     ];
     // don't export personal settings nor room specific settings.
-    if (
-      !personalSettings.includes(settingKey) &&
-      !settingKey.startsWith('room')
-    ) {
+    if (!personalSettings.includes(settingKey) && !settingKey.startsWith('room')) {
       newSettings[settingKey] = settingValue;
     }
   });

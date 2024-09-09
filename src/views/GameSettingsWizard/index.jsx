@@ -32,7 +32,7 @@ export default function GameSettingsWizard({ close }) {
     if (typeof close !== 'function') return;
 
     // If we are in the public room, then we can skip to step 3.
-    if (isPublicRoom) setStep(3);
+    if (isPublicRoom(room)) return setStep(3);
 
     setStep(2);
   }, []);
