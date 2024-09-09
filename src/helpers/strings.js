@@ -25,9 +25,7 @@ export function extractAction(message) {
 
 export function extractTime(string, timeValue) {
   const reg = new RegExp(`\\d+\\s${timeValue}`, 'g');
-  return string
-    .match(reg)
-    ?.filter((value, index, array) => array.indexOf(value) === index);
+  return string.match(reg)?.filter((value, index, array) => array.indexOf(value) === index);
 }
 
 export function getExtension(filename) {
@@ -38,17 +36,7 @@ export function getExtension(filename) {
 
 export function isVideo(file) {
   const bgExtension = getExtension(file);
-  return [
-    'mp4',
-    'webm',
-    'mkv',
-    'flv',
-    'avi',
-    'mov',
-    'wmv',
-    'mpg',
-    'mv4',
-  ].includes(bgExtension);
+  return ['mp4', 'webm', 'mkv', 'flv', 'avi', 'mov', 'wmv', 'mpg', 'mv4'].includes(bgExtension);
 }
 
 export function getURLPath(string) {
@@ -67,4 +55,8 @@ export function getSiteName(urlString) {
     .replace('.com', '')
     .replace('.net', '')
     .replace('.gg', '');
+}
+
+export function isPublicRoom(room) {
+  return room.toUpperCase() === 'PUBLIC';
 }

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import GameSpeed from './GameSpeed';
 import PlayerListOption from './PlayerListOption';
 import RoomSwitch from 'components/GameForm/RoomSwitch';
+import { isPublicRoom } from 'helpers/strings';
 
 export default function RoomSettings({ formData, setFormData }) {
   const { t } = useTranslation();
@@ -18,7 +19,7 @@ export default function RoomSettings({ formData, setFormData }) {
     <Box sx={{ margin: '0.5rem' }}>
       <RoomSwitch formData={formData} setFormData={setFormData} />
 
-      {formData.room.toUpperCase() !== 'PUBLIC' && (
+      {!isPublicRoom(formData.room) && (
         <>
           <Divider sx={{ my: 1 }} />
           <GameSpeed formData={formData} setFormData={setFormData} />

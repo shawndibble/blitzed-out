@@ -32,7 +32,7 @@ export default function useSubmitGameSettings() {
 
   const handleRoomChange = (formData) => {
     const roomChanged = room.toUpperCase() !== formData.room.toUpperCase();
-    const isPrivateRoom = formData.room && formData.room.toUpperCase() !== 'PUBLIC';
+    const isPrivateRoom = formData.room && !isPublicRoom(formData.room);
     const privateBoardSizeChanged =
       isPrivateRoom && formData.roomTileCount !== settings.roomTileCount;
     return { roomChanged, isPrivateRoom, privateBoardSizeChanged };

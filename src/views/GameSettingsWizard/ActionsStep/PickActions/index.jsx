@@ -32,11 +32,11 @@ export default function PickActions({ formData, setFormData, options, actionsLis
 
   function handleActions(_, newValue) {
     // if we remove an action from our autocomplete, drop intensity too.
-    const removed = selectedActions.filter((x) => !newValue.includes(x))[0];
+    const removed = selectedActions.filter((x) => !newValue.includes(x));
     if (removed) {
       setFormData((prevData) => {
         const newFormData = { ...prevData };
-        delete newFormData[removed.value];
+        removed.foreach((option) => delete newFormData[option.value]);
         return newFormData;
       });
     }

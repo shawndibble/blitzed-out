@@ -1,5 +1,6 @@
 import { Help } from '@mui/icons-material';
 import { Stack, Switch, TextField, Tooltip, Typography } from '@mui/material';
+import { isPublicRoom } from 'helpers/strings';
 import { customAlphabet } from 'nanoid';
 import { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -15,9 +16,9 @@ export default function RoomSwitch({ formData, setFormData }) {
     (event) => {
       let roomId;
 
-      if (event.target.checked && room.toUpperCase() === PUBLIC_ROOM) {
+      if (event.target.checked && isPublicRoom(room)) {
         roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-      } else if (event.target.checked && room.toUpperCase() !== PUBLIC_ROOM) {
+      } else if (event.target.checked && isPublicRoom(room)) {
         roomId = room;
       } else {
         roomId = PUBLIC_ROOM;
@@ -26,7 +27,7 @@ export default function RoomSwitch({ formData, setFormData }) {
       setFormData({
         ...formData,
         room: roomId,
-        gameMode: roomId.toUpperCase() === PUBLIC_ROOM ? 'online' : formData.gameMode,
+        gameMode: isPublicRoom(roomId ? 'online' : formData.gameMode,
       });
     },
     [room, formData, setFormData]

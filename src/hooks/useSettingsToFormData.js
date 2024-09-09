@@ -17,7 +17,7 @@ export default function useSettingsToFormData(defaultSettings = {}) {
       ...settings,
       room,
     }));
-  }, []);
+  }, [settings, room]);
 
   // Import our private room settings into the form data.
   useEffect(() => {

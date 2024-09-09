@@ -11,12 +11,12 @@ export default function PickConsumptions({ formData, setFormData, options, actio
   const [selectedConsumptions, setSelectedConsumptions] = useState([]);
 
   function handleConsumption(_, newValue) {
-    const removed = selectedConsumptions.filter((x) => !newValue.includes(x))[0];
-
+    // if we have actions that shouldn't be here, drop them.
+    const removed = selectedConsumptions.filter((x) => !newValue.includes(x));
     if (removed) {
       setFormData((prevData) => {
         const newFormData = { ...prevData };
-        delete newFormData[removed.value];
+        removed.foreach((option) => delete newFormData[option.value]);
         return newFormData;
       });
     }

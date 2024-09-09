@@ -14,6 +14,7 @@ export default function FinishStep({
 }) {
   const no = [100, 100];
   const yes = [0, 0];
+  const yesFinishRange = arraysEqual(formData.finishRange, yes);
   const submitSettings = useSubmitGameSettings();
 
   function handleChange(event) {
@@ -25,13 +26,13 @@ export default function FinishStep({
 
   // on load, if don't have a finishRange OR if it is something from advanced settings, replace it.
   useEffect(() => {
-    if (!arraysEqual(formData.finishRange, yes) || !arraysEqual(formData.finishRange, no)) {
+    if (!yesFinishRange || !arraysEqual(formData.finishRange, no)) {
       setFormData({
         ...formData,
         finishRange: no,
       });
     }
-  }, []);
+  }, []); // only run on load once.
 
   async function handleSubmit() {
     await submitSettings(formData, actionsList);
@@ -55,15 +56,8 @@ export default function FinishStep({
         }}
       >
         <FormControlLabel
-          control={
-            <Switch
-              checked={arraysEqual(formData.finishRange, yes) || false}
-              onChange={handleChange}
-            />
-          }
-          label={
-            <Trans i18nKey={arraysEqual(formData.finishRange, yes) ? 'yesOrgasm' : 'noOrgasm'} />
-          }
+          control={<Switch checked={yesFinishRange || false} onChange={handleChange} />}
+          label={<Trans i18nKey={yesFinishRange ? 'yesOrgasm' : 'noOrgasm'} />}
         />
       </Box>
 

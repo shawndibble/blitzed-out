@@ -1,3 +1,5 @@
+import { isPublicRoom } from 'helpers/strings';
+
 function hasSomethingPicked(object) {
   return Object.values(object).some(({ level }) => level > 0);
 }
@@ -22,27 +24,18 @@ function separateConsumableFromValidRest(gameOptions, actionsList) {
 }
 
 function isTryingToAppend(withAppend) {
-  return (
-    Object.keys(withAppend).length &&
-    Object.values(withAppend).some(({ level }) => level > 0)
-  );
+  return Object.keys(withAppend).length && Object.values(withAppend).some(({ level }) => level > 0);
 }
 
 // returns a translation key for an alert if fails.
 export default function validateFormData(gameOptions, actionsList) {
-  const { withAppend, withoutAppend } = separateConsumableFromValidRest(
-    gameOptions,
-    actionsList
-  );
+  const { withAppend, withoutAppend } = separateConsumableFromValidRest(gameOptions, actionsList);
 
   if (!hasSomethingPicked(withoutAppend)) {
     return isTryingToAppend(withAppend) ? 'appendWithAction' : 'pickSomething';
   }
 
-  if (
-    gameOptions.room.toUpperCase() === 'PUBLIC' &&
-    gameOptions.gameMode === 'local'
-  ) {
+  if (isPublicRoom(gameOptions.room) && gameOptions.gameMode === 'local') {
     return 'privateRequired';
   }
 
