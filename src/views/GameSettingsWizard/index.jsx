@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button, Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import RoomStep from './RoomStep';
@@ -24,9 +24,13 @@ export default function GameSettingsWizard({ close }) {
   });
   const { i18n } = useTranslation();
   const [actionsList, setActionList] = useState({});
+  const initialLoad = useRef(true);
 
   // on load, we want to guess what page we should be on.
   useEffect(() => {
+    if (!initialLoad.current) return;
+    initialLoad.current = false;
+
     if (formData.advancedSettings) return goToAdvanced();
 
     // if we do not have a close() then this dialog opened b/c we need to set up a game.
