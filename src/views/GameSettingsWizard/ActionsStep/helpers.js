@@ -20,8 +20,9 @@ export const purgedFormData = (formData) => {
 export const populateSelections = (formData, optionList, type) => {
   return Object.entries(formData)
     .map(([key, entry]) => {
-      if (entry.type !== type) return null;
-      return { value: key, label: optionList.find((x) => x.value === key).label };
+      const label = optionList.find((x) => x.value === key)?.label;
+      if (entry.type !== type || !label) return null;
+      return { value: key, label };
     })
     .filter((x) => x);
 };
