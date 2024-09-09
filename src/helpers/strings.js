@@ -62,5 +62,5 @@ export function isValidURL(url) {
 }
 
 export function isPublicRoom(room) {
-  return room.toUpperCase() === 'PUBLIC';
+  return room?.toUpperCase() === 'PUBLIC';
 }

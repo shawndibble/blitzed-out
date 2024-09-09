@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
 import ButtonRow from 'components/ButtonRow';
 import PickConsumptions from './PickConsumptions/index';
 import PickActions from './PickActions';
+import { purgedFormData } from './helpers';
 
 export default function ActionsStep({ formData, setFormData, nextStep, prevStep, actionsList }) {
   function settingSelectLists(type) {
     return Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
   }
+
+  // on load, purge invalid actions.
+  useEffect(() => {
+    // purge actions that we shouldn't be able to access.
+    const newFormData = purgedFormData(formData);
+    setFormData(newFormData);
+  }, []);
 
   const options = (key) =>
     settingSelectLists(key).map((option) => ({

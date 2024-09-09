@@ -35,17 +35,19 @@ export default function PickConsumptions({ formData, setFormData, options, actio
   }
 
   function variationChange(event) {
-    selectedConsumptions.forEach((option) => {
-      setFormData((prevData) => ({
-        ...prevData,
-        isAppend: event.target.checked,
-        [option.value]: {
-          ...prevData[option.value],
+    const updatedFormData = selectedConsumptions.reduce(
+      (acc, option) => {
+        acc[option.value] = {
+          ...acc[option.value],
           type: 'consumption',
           variation: event.target.checked ? 'appendMost' : 'standalone',
-        },
-      }));
-    });
+        };
+        return acc;
+      },
+      { ...formData, isAppend: event.target.checked }
+    );
+
+    setFormData(updatedFormData);
   }
 
   return (

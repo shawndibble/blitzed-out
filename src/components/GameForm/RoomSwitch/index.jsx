@@ -6,8 +6,6 @@ import { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 
-const PUBLIC_ROOM = 'PUBLIC';
-
 export default function RoomSwitch({ formData, setFormData }) {
   const { id: room } = useParams();
   const { t } = useTranslation();
@@ -21,7 +19,7 @@ export default function RoomSwitch({ formData, setFormData }) {
       } else if (event.target.checked && !isPublicRoom(room)) {
         roomId = room;
       } else {
-        roomId = PUBLIC_ROOM;
+        roomId = 'PUBLIC';
       }
 
       setFormData({
@@ -58,7 +56,7 @@ export default function RoomSwitch({ formData, setFormData }) {
         </Typography>
         <Switch
           id="showPrivate"
-          checked={formData.room?.toUpperCase() !== PUBLIC_ROOM}
+          checked={!isPublicRoom(formData.room)}
           onChange={togglePrivateRoomField}
           inputProps={{ 'aria-label': t('room') }}
         />
@@ -77,7 +75,7 @@ export default function RoomSwitch({ formData, setFormData }) {
         </Tooltip>
       </Stack>
 
-      {formData.room?.toUpperCase() !== 'PUBLIC' && (
+      {!isPublicRoom(formData.room) && (
         <TextField
           fullWidth
           id="privateRoom"
