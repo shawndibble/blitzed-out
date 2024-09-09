@@ -9,7 +9,7 @@ import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { importActions } from 'services/importLocales';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from 'stores/customTiles';
-import { isPublicRoom } from 'helpers/strings';
+import { isOnlineMode, isPublicRoom } from 'helpers/strings';
 
 export default function usePrivateRoomMonitor(room, gameBoard) {
   const DEFAULT_DIEM = '1d6';
@@ -82,7 +82,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
     }
 
     // make sure if I am in a public room, I can't send out private room settings.
-    if (isPublicRoom(room) && settings?.gameMode === 'local') {
+    if (isPublicRoom(room) && !isOnlineMode(settings?.gameMode)) {
       return;
     }
 

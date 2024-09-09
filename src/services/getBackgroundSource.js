@@ -1,4 +1,5 @@
-import { getURLPath, isPublicRoom } from 'helpers/strings';
+import { isPublicRoom } from 'helpers/strings';
+import { getURLPath } from 'helpers/urls';
 
 function vimeo(url) {
   const vimeoRegex = /vimeo\.com\/(\d+)/;

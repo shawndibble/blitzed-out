@@ -6,6 +6,7 @@ import customizeBoard from 'services/buildGame';
 import { importActions } from 'services/importLocales';
 import { getActiveTiles } from 'stores/customTiles';
 import { getActiveBoard, upsertBoard } from 'stores/gameBoard';
+import { isOnlineMode } from 'helpers/strings';
 
 /**
  * Builds a game board based on the settings provided.
@@ -30,7 +31,7 @@ export default function useGameBoard() {
 
     // If we are in a public room,
     // then gameMode should update to online, and we need to re-import actions.
-    if (isPublic && gameMode === 'local') {
+    if (isPublic && !isOnlineMode(gameMode)) {
       gameMode = 'online';
       // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
       settingsBoardUpdated = true;

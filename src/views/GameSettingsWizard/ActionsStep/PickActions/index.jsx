@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
 import { populateSelections, removeFromFormData } from '../helpers';
+import { isOnlineMode } from 'helpers/strings';
 
 const MAX_ACTIONS = 4;
 
 const getAction = (formData) => {
-  if (formData?.gameMode === 'local') {
+  if (!isOnlineMode(formData?.gameMode)) {
     return formData.isNaked ? 'sex' : 'foreplay';
   }
   return 'solo';

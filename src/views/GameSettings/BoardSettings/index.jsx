@@ -8,12 +8,12 @@ import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
 import SoloSwitch from './SoloSwitch';
 import WarningAlert from './WarningAlert';
-import { isPublicRoom } from 'helpers/strings';
+import { isOnlineMode, isPublicRoom } from 'helpers/strings';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { t } = useTranslation();
   const isMobile = useBreakpoint('md');
-  const isLocal = !isPublicRoom(formData?.room) && formData.gameMode === 'local';
+  const isLocal = !isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode);
 
   function settingSelectLists(type, extraProps = {}) {
     return Object.keys(actionsList)
@@ -48,7 +48,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
     <>
       <SoloSwitch formData={formData} setFormData={setFormData} />
 
-      {isPublicRoom(formData?.room) && formData.gameMode === 'local' && (
+      {isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode) && (
         <Grid container alignContent="center" justifyContent="space-evenly">
           <Grid item sx={{ py: 3 }}>
             <Typography variant="h5">

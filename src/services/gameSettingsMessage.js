@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import { getOrCreateBoard, sendMessage } from './firebase';
+import { isOnlineMode } from 'helpers/strings';
 
 function getCustomTileCount(settings, customTiles, actionsList) {
   const settingsDataFolder = Object.entries(actionsList)
@@ -30,8 +31,6 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
   Object.entries(actionsList).forEach(([key, val]) => {
     if (!settings[key]) return;
 
-    console.log(settings);
-
     const { role, variation, level } = settings[key];
     const actualRole = role || settings.role || 'sub';
 
@@ -42,7 +41,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
         message += ` (${t(variation)})`;
       }
 
-      if (settings.gameMode === 'local' && !variation) {
+      if (!isOnlineMode(settings.gameMode) && !variation) {
         // if we have a role from the translation files, use them first.
         const roleText = val[actualRole] ?? t(actualRole);
         message += ` (${roleText})`;

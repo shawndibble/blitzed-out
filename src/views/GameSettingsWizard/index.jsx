@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button, Divider, Step, StepLabel, Stepper } from '@mui/material';
-import { Trans, useTranslation } from 'react-i18next';
+import { Trans } from 'react-i18next';
 import RoomStep from './RoomStep';
 import GameModeStep from './GameModeStep';
 import ActionsStep from './ActionsStep';
@@ -8,23 +8,33 @@ import FinishStep from './FinishStep';
 import GameSettings from 'views/GameSettings';
 import { useParams } from 'react-router-dom';
 import useSettingsToFormData from 'hooks/useSettingsToFormData';
-import { importActions } from 'services/importLocales';
 import { isPublicRoom } from 'helpers/strings';
+import useActionList from 'hooks/useActionList';
 
 export default function GameSettingsWizard({ close }) {
   const { id: room } = useParams();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useSettingsToFormData({
-    room,
-    gameMode: 'online',
-    roomRealtime: true,
-    actions: [],
-    consumption: [],
-    role: 'sub',
-  });
-  const { i18n } = useTranslation();
-  const [actionsList, setActionList] = useState({});
+
+  const overrideSettings = { room };
+  if (isPublicRoom(room)) {
+    // if we are in the public room, some settings are forced.
+    overrideSettings.gameMode = 'online';
+    overrideSettings.roomRealtime = true;
+  }
+
+  const [formData, setFormData] = useSettingsToFormData(
+    {
+      gameMode: 'online',
+      roomRealtime: true,
+      actions: [],
+      consumption: [],
+      role: 'sub',
+    },
+    overrideSettings
+  );
+
   const initialLoad = useRef(true);
+  const actionsList = useActionList(formData.gameMode);
 
   // on load, we want to guess what page we should be on.
   useEffect(() => {
@@ -42,11 +52,6 @@ export default function GameSettingsWizard({ close }) {
 
     setStep(2);
   }, [formData]);
-
-  useEffect(() => {
-    if (!formData?.gameMode) return;
-    setActionList(importActions(i18n.resolvedLanguage, formData.gameMode));
-  }, [i18n.resolvedLanguage, formData?.gameMode]);
 
   const nextStep = (count) => {
     if (!Number.isInteger(count)) return setStep(step + 1);

@@ -1,4 +1,4 @@
-import { getSiteName } from 'helpers/strings';
+import { getSiteName } from 'helpers/urls';
 import i18next from 'i18next';
 import { sendMessage } from 'services/firebase';
 

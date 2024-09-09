@@ -32,7 +32,7 @@ export default function FinishStep({ formData, setFormData, prevStep, actionsLis
 
   async function handleSubmit() {
     await submitSettings(formData, actionsList);
-    close();
+    if (typeof close === 'function') close();
   }
 
   return (

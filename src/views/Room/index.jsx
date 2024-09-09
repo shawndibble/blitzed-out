@@ -24,7 +24,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveBoard } from 'stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { isPublicRoom } from 'helpers/strings';
+import { isOnlineMode, isPublicRoom } from 'helpers/strings';
 
 export default function Room() {
   const params = useParams();
@@ -42,7 +42,12 @@ export default function Room() {
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult] = useUrlImport(settings, setSettings);
 
-  if (!gameBoard || !gameBoard.length || !Object.keys(settings).length) {
+  if (
+    !gameBoard ||
+    !gameBoard.length ||
+    !Object.keys(settings).length ||
+    (isPublicRoom(room) && !isOnlineMode(settings.gameMode))
+  ) {
     return (
       <>
         <Navigation room={params.id} playerList={playerList} />

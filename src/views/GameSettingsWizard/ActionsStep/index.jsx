@@ -5,6 +5,7 @@ import ButtonRow from 'components/ButtonRow';
 import PickConsumptions from './PickConsumptions/index';
 import PickActions from './PickActions';
 import { purgedFormData } from './helpers';
+import { isPublicRoom } from 'helpers/strings';
 
 export default function ActionsStep({ formData, setFormData, nextStep, prevStep, actionsList }) {
   function settingSelectLists(type) {
@@ -49,7 +50,7 @@ export default function ActionsStep({ formData, setFormData, nextStep, prevStep,
       />
 
       <ButtonRow>
-        <Button onClick={() => prevStep(formData.room === 'PUBLIC' ? 2 : 1)}>
+        <Button onClick={() => prevStep(isPublicRoom(formData.room) ? 2 : 1)}>
           <Trans i18nKey="previous" />
         </Button>
         <Button variant="contained" disabled={isNextDisabled} onClick={nextStep}>

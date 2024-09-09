@@ -1,9 +1,12 @@
+import { isOnlineMode } from 'helpers/strings';
+
 const shouldPurgeAction = (formData, entry) => {
   const { gameMode, isNaked } = formData;
+  const isSolo = isOnlineMode(gameMode);
   return (
-    (gameMode === 'online' && ['foreplay', 'sex'].includes(entry.type)) ||
-    (gameMode === 'local' && isNaked && ['solo', 'foreplay'].includes(entry.type)) ||
-    (gameMode === 'local' && !isNaked && ['solo', 'sex'].includes(entry.type))
+    (isSolo && ['foreplay', 'sex'].includes(entry.type)) ||
+    (!isSolo && isNaked && ['solo', 'foreplay'].includes(entry.type)) ||
+    (!isSolo && !isNaked && ['solo', 'sex'].includes(entry.type))
   );
 };
 

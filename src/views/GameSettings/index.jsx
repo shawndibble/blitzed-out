@@ -4,9 +4,8 @@ import ToastAlert from 'components/ToastAlert';
 import { a11yProps } from 'helpers/strings';
 import useAuth from 'context/hooks/useAuth';
 import useLocalStorage from 'hooks/useLocalStorage';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { importActions } from 'services/importLocales';
 import CustomTileDialog from 'views/CustomTileDialog';
 import AppSettings from './AppSettings';
 import BoardSettings from './BoardSettings';
@@ -16,25 +15,21 @@ import validateFormData from './validateForm';
 import useSubmitGameSettings from 'hooks/useSubmitGameSettings';
 import useSettingsToFormData from 'hooks/useSettingsToFormData';
 import useRoomNavigate from 'hooks/useRoomNavigate';
+import useActionList from 'hooks/useActionList';
 
 export default function GameSettings({ closeDialog }) {
   const { user } = useAuth();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const [settings, updateSettings] = useLocalStorage('gameSettings');
   const [value, setValue] = useState(0);
   const [alert, setAlert] = useState(null);
-  const [actionsList, setActionsList] = useState({});
   const [openCustomTile, setOpenCustomTile] = useState(false);
   const [formData, setFormData] = useSettingsToFormData();
   const navigate = useRoomNavigate();
 
   const submitSettings = useSubmitGameSettings();
-
-  // Update our actions list when the language changes.
-  useEffect(() => {
-    setActionsList(importActions(i18n.resolvedLanguage, formData?.gameMode));
-  }, [i18n.resolvedLanguage, formData?.gameMode]);
+  const actionsList = useActionList(formData?.gameMode);
 
   const handleTabChange = (_, newValue) => {
     setValue(newValue);

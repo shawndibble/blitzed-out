@@ -1,16 +1,11 @@
 import { Help } from '@mui/icons-material';
 import { Stack, Switch, Tooltip, Typography } from '@mui/material';
+import { isOnlineMode } from 'helpers/strings';
 import { Trans } from 'react-i18next';
 
 export default function SoloSwitch({ formData, setFormData }) {
   return (
-    <Stack
-      direction="row"
-      spacing={1}
-      alignItems="center"
-      justifyContent="center"
-      sx={{ mt: 1 }}
-    >
+    <Stack direction="row" spacing={1} alignItems="center" justifyContent="center" sx={{ mt: 1 }}>
       <Typography>
         <Trans i18nKey="solo" />
       </Typography>
@@ -26,7 +21,7 @@ export default function SoloSwitch({ formData, setFormData }) {
       </Tooltip>
       <Switch
         id="gameMode"
-        checked={formData.gameMode === 'local'}
+        checked={!isOnlineMode(formData.gameMode)}
         onChange={(event) =>
           setFormData({
             ...formData,

@@ -4,6 +4,7 @@ import { Trans } from 'react-i18next';
 import ButtonRow from 'components/ButtonRow';
 import SettingsSelect from 'components/SettingsSelect';
 import YesNoSwitch from 'components/GameForm/YesNoSwitch';
+import { isOnlineMode } from 'helpers/strings';
 
 export default function GameModeStep({ formData, setFormData, nextStep, prevStep }) {
   return (
@@ -12,7 +13,7 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
         <Trans i18nKey="playingWithPeople" />
       </Typography>
       <YesNoSwitch
-        trueCondition={formData?.gameMode === 'local'}
+        trueCondition={!isOnlineMode(formData?.gameMode)}
         onChange={(event) =>
           setFormData({
             ...formData,
@@ -24,7 +25,7 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
         noLabel="noInteracting"
       />
 
-      {formData.gameMode === 'local' && (
+      {!isOnlineMode(formData.gameMode) && (
         <>
           <Typography variant="h6" sx={{ mt: 2 }}>
             <Trans i18nKey="yourRole" />

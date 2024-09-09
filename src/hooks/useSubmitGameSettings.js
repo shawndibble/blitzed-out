@@ -10,7 +10,8 @@ import { getActiveBoard, upsertBoard } from 'stores/gameBoard';
 import { handleUser, sendRoomSettingsMessage } from 'views/GameSettings/submitForm';
 import useMessages from 'context/hooks/useMessages';
 import useRoomNavigate from './useRoomNavigate';
-import { isPublicRoom, isValidURL } from 'helpers/strings';
+import { isPublicRoom } from 'helpers/strings';
+import { isValidURL } from 'helpers/urls';
 
 function updateRoomBackground(formData) {
   if (!formData.roomBackgroundURL || !isValidURL(formData.roomBackgroundURL)) {

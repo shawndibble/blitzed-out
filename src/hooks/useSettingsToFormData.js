@@ -2,22 +2,16 @@ import useMessages from 'context/hooks/useMessages';
 import latestMessageByType from 'helpers/messages';
 import { useEffect, useState } from 'react';
 import useLocalStorage from './useLocalStorage';
-import { useParams } from 'react-router-dom';
 
-export default function useSettingsToFormData(defaultSettings = {}) {
-  const { id: room } = useParams();
+export default function useSettingsToFormData(defaultSettings = {}, overrideSettings = {}) {
   const settings = useLocalStorage('gameSettings')[0];
-  const [formData, setFormData] = useState({ ...defaultSettings, ...settings });
+  // default < localstorage < override.
+  const [formData, setFormData] = useState({
+    ...defaultSettings,
+    ...settings,
+    ...overrideSettings,
+  });
   const { messages } = useMessages();
-
-  // once our data from localstorage updates, push them to the formData.
-  useEffect(() => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      ...settings,
-      room,
-    }));
-  }, [settings, room]);
 
   // Import our private room settings into the form data.
   useEffect(() => {
