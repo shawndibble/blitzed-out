@@ -18,6 +18,7 @@ import Schedule from 'views/Schedule';
 import MenuDrawer from './MenuDrawer';
 import PlayersOnline from './PlayersOnline';
 import './styles.css';
+import { isPublicRoom } from 'helpers/strings';
 
 export default function Navigation({ room, playerList = [] }) {
   const { t } = useTranslation();
@@ -50,33 +51,17 @@ export default function Navigation({ room, playerList = [] }) {
     <AppBar position="fixed">
       <Toolbar disableGutters variant="dense" component="nav" className="nav">
         <div className="site-name">
-          <Box
-            component="img"
-            sx={{ height: 32 }}
-            alt="Blitzed Out Logo"
-            src={Logo}
-          />
+          <Box component="img" sx={{ height: 32 }} alt="Blitzed Out Logo" src={Logo} />
           <h1>Blitzed Out</h1>
         </div>
         <div>
           <div className="nav-room-name">
-            <h2>
-              {room.toUpperCase() === 'PUBLIC' || room === undefined
-                ? t('public')
-                : room}
-            </h2>
+            <h2>{isPublicRoom(room) || room === undefined ? t('public') : room}</h2>
             <Tooltip title={playersOnlineTooltip}>
               <WrapPlayersOnline playerList={playerList} />
             </Tooltip>
-            <IconButton
-              onClick={handleScheduleClick}
-              aria-label="schedule game"
-              sx={{ ml: 2 }}
-            >
-              <Badge
-                color="primary"
-                badgeContent={!seen ? schedule.length : null}
-              >
+            <IconButton onClick={handleScheduleClick} aria-label="schedule game" sx={{ ml: 2 }}>
+              <Badge color="primary" badgeContent={!seen ? schedule.length : null}>
                 <CalendarMonth />
               </Badge>
             </IconButton>
@@ -100,6 +85,4 @@ export default function Navigation({ room, playerList = [] }) {
   );
 }
 
-const WrapPlayersOnline = forwardRef((props, ref) => (
-  <PlayersOnline {...props} innerRef={ref} />
-));
+const WrapPlayersOnline = forwardRef((props, ref) => <PlayersOnline {...props} innerRef={ref} />);

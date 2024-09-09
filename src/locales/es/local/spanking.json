@@ -1,6 +1,6 @@
 ﻿{
   "label": "Azotes",
-  "type": "sexo",
+  "type": "sex",
   "dom": "Azotador",
   "sub": "Azotado",
   "actions": {

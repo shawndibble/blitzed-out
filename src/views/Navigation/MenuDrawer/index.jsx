@@ -1,9 +1,4 @@
-import {
-  AppRegistration,
-  CalendarMonth,
-  Logout,
-  Tv,
-} from '@mui/icons-material';
+import { AppRegistration, CalendarMonth, Logout, Tv } from '@mui/icons-material';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -22,6 +17,7 @@ import {
   SvgIcon,
 } from '@mui/material';
 import CloseIcon from 'components/CloseIcon';
+import GameSettingsDialog from 'components/GameSettingsDialog';
 import useAuth from 'context/hooks/useAuth';
 import useBreakpoint from 'hooks/useBreakpoint';
 import { useMemo, useState } from 'react';
@@ -29,7 +25,6 @@ import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { logout } from 'services/firebase';
 import GameGuide from 'views/GameGuide';
-import GameSettings from 'views/GameSettings';
 import ManageGameBoards from 'views/ManageGameBoards';
 import Schedule from 'views/Schedule';
 
@@ -108,24 +103,8 @@ export default function MenuDrawer() {
     return items;
   }, [user, room]);
 
-  const settingsDialog = (
-    <Dialog fullScreen={isMobile} open={open.settings} maxWidth="md">
-      <DialogTitle>
-        <Trans i18nKey="gameSettings" />
-        <CloseIcon close={() => toggleDialog('settings', false)} />
-      </DialogTitle>
-      <DialogContent>
-        <GameSettings closeDialog={() => toggleDialog('settings', false)} />
-      </DialogContent>
-    </Dialog>
-  );
-
   const aboutDialog = (
-    <Dialog
-      fullScreen={isMobile}
-      open={open.about}
-      onClose={() => toggleDialog('about', false)}
-    >
+    <Dialog fullScreen={isMobile} open={open.about} onClose={() => toggleDialog('about', false)}>
       <DialogTitle>
         <CloseIcon close={() => toggleDialog('about', false)} />
       </DialogTitle>
@@ -149,20 +128,14 @@ export default function MenuDrawer() {
       <IconButton onClick={() => toggleDrawer(true)} aria-label="open menu">
         <MenuIcon />
       </IconButton>
-      <Drawer
-        anchor="right"
-        open={menuOpen}
-        onClose={() => toggleDrawer(false)}
-      >
-        <Box
-          role="presentation"
-          onClick={() => toggleDrawer(false)}
-          sx={{ width: 250 }}
-        >
+      <Drawer anchor="right" open={menuOpen} onClose={() => toggleDrawer(false)}>
+        <Box role="presentation" onClick={() => toggleDrawer(false)} sx={{ width: 250 }}>
           <List>{menuList}</List>
         </Box>
       </Drawer>
-      {!!open.settings && settingsDialog}
+      {!!open.settings && (
+        <GameSettingsDialog open={open.settings} close={() => toggleDialog('settings', false)} />
+      )}
       {aboutDialog}
       {!!open.gameBoard && (
         <ManageGameBoards

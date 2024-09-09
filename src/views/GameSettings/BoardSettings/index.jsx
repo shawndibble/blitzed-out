@@ -8,12 +8,12 @@ import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
 import SoloSwitch from './SoloSwitch';
 import WarningAlert from './WarningAlert';
+import { isPublicRoom } from 'helpers/strings';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { t } = useTranslation();
   const isMobile = useBreakpoint('md');
-  const isLocal =
-    formData?.room.toUpperCase() !== 'PUBLIC' && formData.gameMode === 'local';
+  const isLocal = !isPublicRoom(formData?.room) && formData.gameMode === 'local';
 
   function settingSelectLists(type, extraProps = {}) {
     return Object.keys(actionsList)
@@ -48,16 +48,15 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
     <>
       <SoloSwitch formData={formData} setFormData={setFormData} />
 
-      {formData?.room.toUpperCase() === 'PUBLIC' &&
-        formData.gameMode === 'local' && (
-          <Grid container alignContent="center" justifyContent="space-evenly">
-            <Grid item sx={{ py: 3 }}>
-              <Typography variant="h5">
-                <Trans i18nKey="privateRequired" />
-              </Typography>
-            </Grid>
+      {isPublicRoom(formData?.room) && formData.gameMode === 'local' && (
+        <Grid container alignContent="center" justifyContent="space-evenly">
+          <Grid item sx={{ py: 3 }}>
+            <Typography variant="h5">
+              <Trans i18nKey="privateRequired" />
+            </Typography>
           </Grid>
-        )}
+        </Grid>
+      )}
 
       <Grid container columnSpacing={2} justifyContent="space-evenly">
         <GridItem>
@@ -110,16 +109,10 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
 
       {isLocal ? (
         <>
-          <InvisibleAccordionGrid
-            title={t('consumption')}
-            subtitle={t('consumptionSubtitle')}
-          >
+          <InvisibleAccordionGrid title={t('consumption')} subtitle={t('consumptionSubtitle')}>
             {settingSelectLists('consumption', { showVariation: true })}
           </InvisibleAccordionGrid>
-          <InvisibleAccordionGrid
-            title={t('foreplay')}
-            subtitle={t('foreplaySubtitle')}
-          >
+          <InvisibleAccordionGrid title={t('foreplay')} subtitle={t('foreplaySubtitle')}>
             {settingSelectLists('foreplay', { showRole: isLocal })}
           </InvisibleAccordionGrid>
           <InvisibleAccordionGrid title={t('sex')} subtitle={t('sexSubtitle')}>

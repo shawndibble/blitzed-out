@@ -1,4 +1,4 @@
-import { getURLPath } from 'helpers/strings';
+import { getURLPath, isPublicRoom } from 'helpers/strings';
 
 function vimeo(url) {
   const vimeoRegex = /vimeo\.com\/(\d+)/;
@@ -92,13 +92,10 @@ export function processBackground(url) {
 export default function getBackgroundSource(settings, room, roomBackgroundUrl) {
   const { background, backgroundURL, roomBackground } = settings;
   const backgroundSource = background !== 'custom' ? background : backgroundURL;
-  const roomBackgroundSource =
-    roomBackground === 'app' ? roomBackground : roomBackgroundUrl;
+  const roomBackgroundSource = roomBackground === 'app' ? roomBackground : roomBackgroundUrl;
 
   const bgSource =
-    room.toUpperCase() !== 'PUBLIC' && roomBackground !== 'app'
-      ? roomBackgroundSource
-      : backgroundSource;
+    !isPublicRoom(room) && roomBackground !== 'app' ? roomBackgroundSource : backgroundSource;
 
   if (!bgSource) return { url: null, isVideo: false };
   return processBackground(bgSource);

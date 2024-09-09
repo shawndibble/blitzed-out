@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
+import { isPublicRoom } from 'helpers/strings';
 import useLocalStorage from 'hooks/useLocalStorage';
 import { useTranslation } from 'react-i18next';
 import customizeBoard from 'services/buildGame';
@@ -16,12 +17,11 @@ export default function useGameBoard() {
   const [settings, updateSettings] = useLocalStorage('gameSettings');
   const { i18n } = useTranslation();
 
-  return async (data = {}) => {
-    const formData =
-      data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
+  async function updateGameBoard(data = {}) {
+    const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
     let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
     const { roomTileCount = 40, finishRange, room } = formData;
-    const isPublicRoom = room?.toUpperCase() === 'PUBLIC';
+    const isPublic = isPublicRoom(room);
 
     if (!finishRange) {
       // still loading data.
@@ -30,23 +30,17 @@ export default function useGameBoard() {
 
     // If we are in a public room,
     // then gameMode should update to online, and we need to re-import actions.
-    if (isPublicRoom && gameMode === 'local') {
+    if (isPublic && gameMode === 'local') {
       gameMode = 'online';
-      console.log('changed to online', formData, settings);
       // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
       settingsBoardUpdated = true;
     }
 
     const tileActionList = importActions(i18n.resolvedLanguage, gameMode);
 
-    const tileCount = isPublicRoom ? 40 : roomTileCount;
+    const tileCount = isPublic ? 40 : roomTileCount;
 
-    const newBoard = customizeBoard(
-      formData,
-      tileActionList,
-      customTiles,
-      tileCount
-    );
+    const newBoard = customizeBoard(formData, tileActionList, customTiles, tileCount);
 
     // if our board updated, then push those changes out.
     if (
@@ -59,5 +53,7 @@ export default function useGameBoard() {
     }
 
     return { settingsBoardUpdated, gameMode, newBoard };
-  };
+  }
+
+  return (data = {}) => updateGameBoard(data);
 }

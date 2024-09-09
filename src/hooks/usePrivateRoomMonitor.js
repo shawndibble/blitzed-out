@@ -9,6 +9,7 @@ import sendGameSettingsMessage from 'services/gameSettingsMessage';
 import { importActions } from 'services/importLocales';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from 'stores/customTiles';
+import { isPublicRoom } from 'helpers/strings';
 
 export default function usePrivateRoomMonitor(room, gameBoard) {
   const DEFAULT_DIEM = '1d6';
@@ -55,7 +56,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       const { roomDice, roomBackgroundURL, roomTileCount } = messageSettings;
 
       let dice = DEFAULT_DIEM;
-      if (room.toUpperCase() !== 'PUBLIC' && roomDice) {
+      if (!isPublicRoom(room) && roomDice) {
         dice = roomDice;
       }
 
@@ -74,6 +75,18 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       return;
     }
 
+    // make sure that a private room sends out the room settings
+    // before it sends out my game board settings.
+    if (!isPublicRoom(room) && !roomMessage) {
+      return;
+    }
+
+    // make sure if I am in a public room, I can't send out private room settings.
+    if (isPublicRoom(room) && settings?.gameMode === 'local') {
+      return;
+    }
+
+    // if I am changing the room and have a game board, announce the board.
     if (room !== settings.room && gameBoard?.length) {
       roomChanged();
       return;

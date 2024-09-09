@@ -13,6 +13,7 @@ const SettingsSelect = forwardRef(
       defaultValue = null,
       sx,
       helpIcon = false,
+      fullWidth = true,
       ...rest
     },
     ref
@@ -34,7 +35,7 @@ const SettingsSelect = forwardRef(
     });
 
     return (
-      <FormControl fullWidth margin="normal" sx={sx} {...rest} ref={ref}>
+      <FormControl fullWidth={fullWidth} margin="normal" sx={sx} {...rest} ref={ref}>
         <InputLabel id={`${label}Label`}>
           <Trans i18nKey={label} />
           {!!helpIcon && <Help sx={{ ml: 1, fontSize: 16 }} />}

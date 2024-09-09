@@ -24,6 +24,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveBoard } from 'stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { isPublicRoom } from 'helpers/strings';
 
 export default function Room() {
   const params = useParams();
@@ -45,7 +46,7 @@ export default function Room() {
     return (
       <>
         <Navigation room={params.id} playerList={playerList} />
-        <GameSettingsDialog openSettingsDialog={true} />
+        <GameSettingsDialog open={true} />
       </>
     );
   }
@@ -54,16 +55,10 @@ export default function Room() {
   const videoAdjust = isVideo ? 'video-adjust' : '';
 
   const { background, roomBackground } = settings;
-  const isTransparent =
-    (room.toUpperCase() !== 'PUBLIC' && roomBackground !== 'app') ||
-    background !== 'color';
+  const isTransparent = (!isPublicRoom(room) && roomBackground !== 'app') || background !== 'color';
 
   const GameBoardComponent = (
-    <GameBoard
-      playerList={playerList}
-      isTransparent={isTransparent}
-      gameBoard={gameBoard}
-    />
+    <GameBoard playerList={playerList} isTransparent={isTransparent} gameBoard={gameBoard} />
   );
 
   const messagesComponent = (

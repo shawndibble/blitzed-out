@@ -10,3 +10,8 @@ export function shuffleArray(array) {
 export function cycleArray(array) {
   if (array.length > 1) array.push(array.shift());
 }
+
+export function arraysEqual(arr1, arr2) {
+  if (arr1.length !== arr2.length) return false;
+  return arr1.every((element, index) => element === arr2[index]);
+}
