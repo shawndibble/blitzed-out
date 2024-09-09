@@ -9,6 +9,7 @@ import GameSettings from 'views/GameSettings';
 import { useParams } from 'react-router-dom';
 import useSettingsToFormData from 'hooks/useSettingsToFormData';
 import { importActions } from 'services/importLocales';
+import { isPublicRoom } from 'helpers/strings';
 
 export default function GameSettingsWizard({ close }) {
   const { id: room } = useParams();
@@ -23,6 +24,18 @@ export default function GameSettingsWizard({ close }) {
   });
   const { i18n } = useTranslation();
   const [actionsList, setActionList] = useState({});
+
+  // on load, we want to guess what page we should be on.
+  useEffect(() => {
+    // if we do not have a close() then this dialog opened b/c we need to set up a game.
+    // this also means we need to do all steps.
+    if (typeof close !== 'function') return;
+
+    // If we are in the public room, then we can skip to step 3.
+    if (isPublicRoom) setStep(3);
+
+    setStep(2);
+  }, []);
 
   useEffect(() => {
     if (!formData?.gameMode) return;

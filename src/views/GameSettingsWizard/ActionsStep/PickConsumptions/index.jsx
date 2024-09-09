@@ -4,22 +4,18 @@ import YesNoSwitch from 'components/GameForm/YesNoSwitch';
 import { useState } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
+import { populateSelections, removeFromFormData } from '../helpers';
 
 const MAX_CONSUME = 2;
 
 export default function PickConsumptions({ formData, setFormData, options, actionsList }) {
-  const [selectedConsumptions, setSelectedConsumptions] = useState([]);
+  const optionList = options('consumption');
+
+  const initialConsumptions = populateSelections(formData, optionList, 'consumption');
+  const [selectedConsumptions, setSelectedConsumptions] = useState(initialConsumptions);
 
   function handleConsumption(_, newValue) {
-    // if we have actions that shouldn't be here, drop them.
-    const removed = selectedConsumptions.filter((x) => !newValue.includes(x));
-    if (removed) {
-      setFormData((prevData) => {
-        const newFormData = { ...prevData };
-        removed.foreach((option) => delete newFormData[option.value]);
-        return newFormData;
-      });
-    }
+    removeFromFormData(setFormData, selectedConsumptions, newValue);
 
     if (newValue.length <= MAX_CONSUME) {
       setSelectedConsumptions(newValue);
@@ -60,7 +56,7 @@ export default function PickConsumptions({ formData, setFormData, options, actio
 
       <Autocomplete
         multiple
-        options={options('consumption')}
+        options={optionList}
         getOptionLabel={(option) => option.label}
         isOptionEqualToValue={(option, value) => option.value === value.value}
         value={selectedConsumptions}
