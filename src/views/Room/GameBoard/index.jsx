@@ -3,7 +3,7 @@ import actionStringReplacement from 'services/actionStringReplacement';
 import GameTile from './GameTile';
 import './styles.css';
 
-export default function GameBoard({ playerList, isTransparent, gameBoard }) {
+export default function GameBoard({ playerList, isTransparent, gameBoard, settings }) {
   const { user } = useAuth();
   if (!Array.isArray(gameBoard) || !gameBoard.length) return null;
 
@@ -22,17 +22,19 @@ export default function GameBoard({ playerList, isTransparent, gameBoard }) {
     );
     const hueIndex = (Array.from(tileTypeArray).indexOf(entry.title) % 10) + 1;
 
+    const description =
+      settings.visibleBoardActions || index == 0
+        ? actionStringReplacement(entry.description, entry.role, user.displayName)
+        : // replace only letters and numbers with question marks. Remove special characters.
+          entry.description.replace(/[^\w\s]/g, '').replace(/[a-zA-Z0-9]/g, '?');
+
     return (
       <GameTile
         // eslint-disable-next-line react/no-array-index-key
         key={index}
         id={`tile-${index}`}
         title={`#${index + 1}: ${entry.title}`}
-        description={actionStringReplacement(
-          entry.description,
-          entry.role,
-          user.displayName
-        )}
+        description={description}
         players={players}
         current={current}
         isTransparent={isTransparent}

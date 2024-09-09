@@ -1,9 +1,13 @@
-import { Divider, FormControlLabel, Switch } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Divider, Typography } from '@mui/material';
+import { Trans, useTranslation } from 'react-i18next';
 import BackgroundSelect from 'components/BackgroundSelect';
 import LanguageSelect from './LanguageSelect';
+import AppBoolSwitch from './AppBoolSwitch';
+import useLocalStorage from 'hooks/useLocalStorage';
 
 export default function AppSettings({ formData, setFormData, boardUpdated }) {
+  const [settings, updateSettings] = useLocalStorage('gameSettings');
+
   const { t } = useTranslation();
   const backgrounds = {
     color: t('color'),
@@ -13,106 +17,45 @@ export default function AppSettings({ formData, setFormData, boardUpdated }) {
     custom: t('customURL'),
   };
 
+  function handleSwitch(event, field) {
+    setFormData({ ...formData, [field]: event.target.checked });
+    // normally we wouldn't update settings as it can be very slow, but for switch toggles,
+    // I want to ensure the local storage is updated immediately
+    updateSettings({ ...settings, [field]: event.target.checked });
+  }
+
   return (
     <>
       <LanguageSelect boardUpdated={boardUpdated} />
+
+      <Typography variant="h3">
+        <Trans i18nKey="dialog" />
+      </Typography>
+
+      <AppBoolSwitch field="playerDialog" formData={formData} handleSwitch={handleSwitch} />
+      <AppBoolSwitch field="othersDialog" formData={formData} handleSwitch={handleSwitch} />
+
       <Divider />
+
+      <Typography variant="h3" sx={{ mt: 2 }}>
+        <Trans i18nKey="sounds" />
+      </Typography>
+
+      <AppBoolSwitch field="mySound" formData={formData} handleSwitch={handleSwitch} />
+      <AppBoolSwitch field="otherSound" formData={formData} handleSwitch={handleSwitch} />
+      <AppBoolSwitch field="chatSound" formData={formData} handleSwitch={handleSwitch} />
+      <AppBoolSwitch field="readRoll" formData={formData} handleSwitch={handleSwitch} />
+
       <Divider />
-      <FormControlLabel
-        control={
-          <Switch
-            checked={formData.playerDialog}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                playerDialog: event.target.checked,
-              })
-            }
-          />
-        }
-        label={t('myRollDialog')}
-        labelPlacement="start"
-        className="settings-switch"
-      />
-      <Divider />
-      <FormControlLabel
-        control={
-          <Switch
-            checked={formData.othersDialog}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                othersDialog: event.target.checked,
-              })
-            }
-          />
-        }
-        label={t('othersRollDialog')}
-        labelPlacement="start"
-        className="settings-switch"
-      />
-      <Divider />
-      <FormControlLabel
-        control={
-          <Switch
-            checked={formData.mySound}
-            onChange={(event) =>
-              setFormData({ ...formData, mySound: event.target.checked })
-            }
-          />
-        }
-        label={t('mySound')}
-        labelPlacement="start"
-        className="settings-switch"
-      />
-      <Divider />
-      <FormControlLabel
-        control={
-          <Switch
-            checked={formData.otherSound}
-            onChange={(event) =>
-              setFormData({ ...formData, otherSound: event.target.checked })
-            }
-          />
-        }
-        label={t('otherSound')}
-        labelPlacement="start"
-        className="settings-switch"
-      />
-      <Divider />
-      <FormControlLabel
-        control={
-          <Switch
-            checked={formData.chatSound}
-            onChange={(event) =>
-              setFormData({ ...formData, chatSound: event.target.checked })
-            }
-          />
-        }
-        label={t('chatSound')}
-        labelPlacement="start"
-        className="settings-switch"
-      />
-      <Divider />
-      <FormControlLabel
-        control={
-          <Switch
-            checked={formData.readRoll}
-            onChange={(event) =>
-              setFormData({ ...formData, readRoll: event.target.checked })
-            }
-          />
-        }
-        label={t('readRoll')}
-        labelPlacement="start"
-        className="settings-switch"
-      />
-      <Divider />
-      <BackgroundSelect
-        formData={formData}
-        setFormData={setFormData}
-        backgrounds={backgrounds}
-      />
+
+      <Typography variant="h3" sx={{ mt: 2, textTransform: 'capitalize' }}>
+        <Trans i18nKey="miscellaneous" />
+      </Typography>
+
+      <AppBoolSwitch field="visibleBoardActions" formData={formData} handleSwitch={handleSwitch} />
+      <AppBoolSwitch field="advancedSettings" formData={formData} handleSwitch={handleSwitch} />
+
+      <BackgroundSelect formData={formData} setFormData={setFormData} backgrounds={backgrounds} />
       <Divider />
     </>
   );

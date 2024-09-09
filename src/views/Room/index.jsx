@@ -58,7 +58,12 @@ export default function Room() {
   const isTransparent = (!isPublicRoom(room) && roomBackground !== 'app') || background !== 'color';
 
   const GameBoardComponent = (
-    <GameBoard playerList={playerList} isTransparent={isTransparent} gameBoard={gameBoard} />
+    <GameBoard
+      playerList={playerList}
+      isTransparent={isTransparent}
+      gameBoard={gameBoard}
+      settings={settings}
+    />
   );
 
   const messagesComponent = (
