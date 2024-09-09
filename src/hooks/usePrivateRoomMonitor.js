@@ -86,6 +86,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       return;
     }
 
+    // if I am changing the room and have a game board, announce the board.
     if (room !== settings.room && gameBoard?.length) {
       roomChanged();
       return;
