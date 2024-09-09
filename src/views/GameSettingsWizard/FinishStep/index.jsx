@@ -29,12 +29,14 @@ export default function FinishStep({ formData, setFormData, prevStep, actionsLis
 
   // on load, if don't have a finishRange OR if it is something from advanced settings, replace it.
   useEffect(() => {
+    let newData = {
+      ...formData,
+      boardUpdated: true,
+    };
     if (!yesFinishRange || !arraysEqual(formData.finishRange, no)) {
-      setFormData({
-        ...formData,
-        finishRange: no,
-      });
+      newData['finishRange'] = no;
     }
+    setFormData(newData);
   }, []); // only run on load once.
 
   async function handleSubmit() {

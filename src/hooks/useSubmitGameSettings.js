@@ -38,6 +38,9 @@ export default function useSubmitGameSettings() {
   };
 
   async function submitSettings(formData, actionsList) {
+    if (formData) {
+      console.log(formData);
+    }
     const { displayName } = formData;
     const updatedUser = await handleUser(user, displayName, updateUser);
 
@@ -49,6 +52,8 @@ export default function useSubmitGameSettings() {
     if (isPrivateRoom && (formData.roomUpdated || !messages.find((m) => m.type === 'room'))) {
       await sendRoomSettingsMessage(formData, updatedUser);
     }
+
+    console.log(newBoard);
 
     if (gameBoard?.tiles !== newBoard) {
       await upsertBoard({
