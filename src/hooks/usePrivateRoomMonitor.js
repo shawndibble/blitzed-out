@@ -81,6 +81,11 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       return;
     }
 
+    // make sure if I am in a public room, I can't send out private room settings.
+    if (isPublicRoom(room) && settings?.gameMode === 'local') {
+      return;
+    }
+
     if (room !== settings.room && gameBoard?.length) {
       roomChanged();
       return;
