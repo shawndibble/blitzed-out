@@ -22,7 +22,7 @@ export default function GameSettingsDialog({ open, close = null }) {
         {typeof close === 'function' && <CloseIcon close={close} />}
       </DialogTitle>
       <DialogContent>
-        <GameSettingsWizard closeSettings={close} />
+        <GameSettingsWizard close={close} />
       </DialogContent>
     </Dialog>
   );

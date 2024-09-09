@@ -10,7 +10,7 @@ import { useParams } from 'react-router-dom';
 import useSettingsToFormData from 'hooks/useSettingsToFormData';
 import { importActions } from 'services/importLocales';
 
-export default function GameSettingsWizard({ closeSettings }) {
+export default function GameSettingsWizard({ close }) {
   const { id: room } = useParams();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useSettingsToFormData({
@@ -71,7 +71,7 @@ export default function GameSettingsWizard({ closeSettings }) {
             setFormData={setFormData}
             prevStep={prevStep}
             actionsList={actionsList}
-            closeSettings={closeSettings}
+            close={close}
           />
         );
       default:
@@ -79,7 +79,7 @@ export default function GameSettingsWizard({ closeSettings }) {
     }
   };
 
-  if (step === 'advanced') return <GameSettings closeDialog={closeSettings} />;
+  if (step === 'advanced') return <GameSettings closeDialog={close} />;
 
   return (
     <Box>

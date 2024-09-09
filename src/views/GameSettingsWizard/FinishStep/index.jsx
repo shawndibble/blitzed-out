@@ -5,13 +5,7 @@ import ButtonRow from 'components/ButtonRow';
 import { arraysEqual } from 'helpers/arrays';
 import useSubmitGameSettings from 'hooks/useSubmitGameSettings';
 
-export default function FinishStep({
-  formData,
-  setFormData,
-  prevStep,
-  actionsList,
-  closeSettings,
-}) {
+export default function FinishStep({ formData, setFormData, prevStep, actionsList, close }) {
   const no = [100, 100];
   const yes = [0, 0];
   const yesFinishRange = arraysEqual(formData.finishRange, yes);
@@ -36,7 +30,7 @@ export default function FinishStep({
 
   async function handleSubmit() {
     await submitSettings(formData, actionsList);
-    closeSettings();
+    close();
   }
 
   return (
