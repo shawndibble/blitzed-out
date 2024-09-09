@@ -18,7 +18,7 @@ export default function RoomSwitch({ formData, setFormData }) {
 
       if (event.target.checked && isPublicRoom(room)) {
         roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-      } else if (event.target.checked && isPublicRoom(room)) {
+      } else if (event.target.checked && !isPublicRoom(room)) {
         roomId = room;
       } else {
         roomId = PUBLIC_ROOM;
@@ -27,7 +27,7 @@ export default function RoomSwitch({ formData, setFormData }) {
       setFormData({
         ...formData,
         room: roomId,
-        gameMode: isPublicRoom(roomId ? 'online' : formData.gameMode,
+        gameMode: isPublicRoom(roomId) ? 'online' : formData.gameMode,
       });
     },
     [room, formData, setFormData]

@@ -57,6 +57,10 @@ export function getSiteName(urlString) {
     .replace('.gg', '');
 }
 
+export function isValidURL(url) {
+  return /^https?:\/\/.+\/.+$/.test(url);
+}
+
 export function isPublicRoom(room) {
   return room.toUpperCase() === 'PUBLIC';
 }

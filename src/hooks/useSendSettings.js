@@ -9,6 +9,7 @@ import { useParams } from 'react-router-dom';
 import { getActiveTiles } from 'stores/customTiles';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveBoard } from 'stores/gameBoard';
+import { isPublicRoom } from 'helpers/strings';
 
 function isCompatibleBoard(isPrivateRoom, latestRoomMessage, boardSize, roomTileCount) {
   if (!isPrivateRoom && boardSize === 40) return true;
