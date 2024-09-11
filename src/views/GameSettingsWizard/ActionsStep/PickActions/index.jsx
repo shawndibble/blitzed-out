@@ -48,6 +48,7 @@ export default function PickActions({ formData, setFormData, options, actionsLis
       </Typography>
 
       <Autocomplete
+        disableCloseOnSelect
         multiple
         options={optionList}
         getOptionLabel={(option) => option.label}

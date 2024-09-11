@@ -57,6 +57,7 @@ export default function PickConsumptions({ formData, setFormData, options, actio
       </Typography>
 
       <Autocomplete
+        disableCloseOnSelect
         multiple
         options={optionList}
         getOptionLabel={(option) => option.label}
