@@ -1,10 +1,11 @@
-import { Autocomplete, TextField, Typography } from '@mui/material';
+import { Autocomplete, Checkbox, TextField, Typography } from '@mui/material';
 import IncrementalSelect from 'components/GameForm/IncrementalSelect';
 import { useState } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
 import { populateSelections, removeFromFormData } from '../helpers';
 import { isOnlineMode } from 'helpers/strings';
+import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 
 const MAX_ACTIONS = 4;
 
@@ -55,6 +56,20 @@ export default function PickActions({ formData, setFormData, options, actionsLis
         isOptionEqualToValue={(option, value) => option.value === value.value}
         value={selectedActions}
         onChange={handleActions}
+        renderOption={(props, option, { selected }) => {
+          const { key, ...optionProps } = props;
+          return (
+            <li key={key} {...optionProps}>
+              <Checkbox
+                icon={<CheckBoxOutlineBlank fontSize="small" />}
+                checkedIcon={<CheckBox fontSize="small" />}
+                style={{ marginRight: 8 }}
+                checked={selected}
+              />
+              {option.label}
+            </li>
+          );
+        }}
         renderInput={(params) => (
           <TextField {...params} variant="outlined" label={<Trans i18nKey="actionsLabel" />} />
         )}
