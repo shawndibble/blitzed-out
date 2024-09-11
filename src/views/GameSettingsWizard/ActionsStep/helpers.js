@@ -66,7 +66,6 @@ export const updateFormDataWithDefaults = (value, action, setFormData) => {
 export const handleChange = (
   event,
   key,
-  nestedKey,
   action,
   setFormData,
   setSelectedItems,
@@ -88,7 +87,7 @@ export const handleChange = (
     [key]: {
       ...prevData[key],
       type: action,
-      [nestedKey]: value,
+      level: value,
       ...(!!variation && { variation }),
     },
   }));

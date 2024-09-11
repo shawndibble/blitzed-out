@@ -69,7 +69,6 @@ export default function PickConsumptions({ formData, setFormData, options, actio
                 handleChange(
                   event,
                   option,
-                  'level',
                   action,
                   setFormData,
                   setSelectedConsumptions,

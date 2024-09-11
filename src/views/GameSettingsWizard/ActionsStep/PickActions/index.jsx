@@ -57,7 +57,7 @@ export default function PickActions({ formData, setFormData, options, actionsLis
               option={option}
               initValue={1}
               onChange={(event) =>
-                handleChange(event, option, 'level', action, setFormData, setSelectedActions)
+                handleChange(event, option, action, setFormData, setSelectedActions)
               }
             />
           ))}
