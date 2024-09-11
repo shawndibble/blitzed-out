@@ -23,21 +23,82 @@ export const purgedFormData = (formData) => {
 export const populateSelections = (formData, optionList, type) => {
   return Object.entries(formData)
     .map(([key, entry]) => {
-      const label = optionList.find((x) => x.value === key)?.label;
-      if (entry.type !== type || !label) return null;
-      return { value: key, label };
+      const found = optionList.find((x) => x.value === key);
+      if (entry.type !== type || !found) return null;
+      return key;
     })
     .filter((x) => x);
 };
 
-export const removeFromFormData = (setFormData, selection, newValue) => {
-  const removed = selection.filter((x) => !newValue.includes(x));
+// if prevData has a type of action that isn't in the value array, delete it.
+const deleteOldFormData = (prevData, action, value) => {
+  const newFormData = { ...prevData };
+  Object.keys(newFormData).forEach((key) => {
+    if (newFormData[key].type === action && !value.includes(key)) {
+      delete newFormData[key];
+    }
+  });
+  return newFormData;
+};
 
-  if (removed.length) {
-    setFormData((prevData) => {
+export const updateFormDataWithDefaults = (value, action, setFormData) => {
+  setFormData((prevData) => {
+    const newFormData = deleteOldFormData(prevData, action, value);
+    value.forEach((option) => {
+      console.log('updateWithDefaults', newFormData, value, action);
+      if (newFormData[option]) {
+        return;
+      }
+
+      let data = { type: action, level: 1 };
+      if (action === 'consumption') {
+        data = {
+          ...data,
+          variation: newFormData.isAppend ? 'appendMost' : 'standalone',
+        };
+      }
+      newFormData[option] = data;
+    });
+    return newFormData;
+  });
+};
+
+export const handleChange = (
+  event,
+  key,
+  nestedKey,
+  action,
+  setFormData,
+  setSelectedItems,
+  variation = null
+) => {
+  const value = event?.target?.value;
+
+  if (value === 0) {
+    setSelectedItems((prev) => prev.filter((x) => x !== key));
+    return setFormData((prevData) => {
       const newFormData = { ...prevData };
-      removed.forEach((option) => delete newFormData[option.value]);
+      delete newFormData[key];
       return newFormData;
     });
+  }
+
+  setFormData((prevData) => ({
+    ...prevData,
+    [key]: {
+      ...prevData[key],
+      type: action,
+      [nestedKey]: value,
+      ...(!!variation && { variation }),
+    },
+  }));
+};
+
+export const handleSelectionChange = (event, maxItems, action, setSelectedItems, setFormData) => {
+  const { value } = event.target;
+
+  if (value.length <= maxItems) {
+    setSelectedItems(value);
+    updateFormDataWithDefaults(value, action, setFormData);
   }
 };

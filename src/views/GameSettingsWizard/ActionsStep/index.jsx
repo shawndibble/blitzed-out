@@ -19,6 +19,8 @@ export default function ActionsStep({ formData, setFormData, nextStep, prevStep,
     setFormData(newFormData);
   }, []);
 
+  console.log(formData);
+
   const options = (key) =>
     settingSelectLists(key).map((option) => ({
       value: option,
