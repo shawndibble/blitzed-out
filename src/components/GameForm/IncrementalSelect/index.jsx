@@ -1,11 +1,19 @@
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import useHasMouse from 'hooks/useHasMouse';
 import { useState } from 'react';
 
-export default function IncrementalSelect({ actionsFolder, settings, option, onChange }) {
+export default function IncrementalSelect({
+  actionsFolder,
+  settings,
+  option,
+  onChange,
+  initValue = 0,
+}) {
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
+  const hasMouse = useHasMouse();
   const [hoveredOption, setHoveredOption] = useState(settings[option]?.level || 0);
 
   const handleMouseOver = (index) => {
@@ -30,9 +38,11 @@ export default function IncrementalSelect({ actionsFolder, settings, option, onC
         key={`${category}-${optionVal}`}
         onMouseOver={() => handleMouseOver(index)}
       >
-        <span className="menu-item-icon">
-          {showCheckbox(index) ? <CheckBox /> : <CheckBoxOutlineBlank />}
-        </span>
+        {!!hasMouse && (
+          <span className="menu-item-icon">
+            {showCheckbox(index) ? <CheckBox /> : <CheckBoxOutlineBlank />}
+          </span>
+        )}
         {optionVal}
       </MenuItem>
     ));
@@ -45,10 +55,10 @@ export default function IncrementalSelect({ actionsFolder, settings, option, onC
         labelId={labelId}
         id={option}
         label={label}
-        value={settings[option]?.level || 0}
+        value={settings[option]?.level || initValue}
         onChange={onChange}
-        onOpen={() => setHoveredOption(settings[option]?.level || 0)}
-        onClose={() => setHoveredOption(settings[option]?.level || 0)}
+        onOpen={() => setHoveredOption(settings[option]?.level || initValue)}
+        onClose={() => setHoveredOption(settings[option]?.level || initValue)}
       >
         {getOptions(option)}
       </Select>

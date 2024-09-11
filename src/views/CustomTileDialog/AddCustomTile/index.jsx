@@ -1,10 +1,4 @@
-import {
-  Autocomplete,
-  Box,
-  Button,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Autocomplete, Box, Button, TextField, Typography } from '@mui/material';
 import { submitCustomAction } from 'services/firebase';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -35,8 +29,7 @@ export default function AddCustomTile({
   useEffect(() => {
     const editTile = customTiles.find(({ id }) => id === updateTileId);
     const editTileOption = mappedGroups.find(
-      ({ value, intensity }) =>
-        value === editTile?.group && intensity === editTile?.intensity
+      ({ value, intensity }) => value === editTile?.group && intensity === editTile?.intensity
     );
     setFormData({
       tileOption: editTileOption || null,
@@ -124,12 +117,8 @@ export default function AddCustomTile({
             getOptionLabel={(option) => option.label}
             groupBy={(option) => option.group}
             value={formData.tileOption}
-            onChange={(_event, newValue) =>
-              setFormData({ ...formData, tileOption: newValue })
-            }
-            renderInput={(params) => (
-              <TextField {...params} label={t('group')} required />
-            )}
+            onChange={(_event, newValue) => setFormData({ ...formData, tileOption: newValue })}
+            renderInput={(params) => <TextField {...params} label={t('group')} required />}
             isOptionEqualToValue={(option) => option.label}
             sx={{ py: 2 }}
           />
@@ -150,6 +139,7 @@ export default function AddCustomTile({
           <Autocomplete
             id="tags"
             name="tags"
+            disableCloseOnSelect
             multiple
             freeSolo
             options={tagList}
@@ -169,11 +159,7 @@ export default function AddCustomTile({
             <Button variant="contained" type="button" onClick={() => clear()}>
               Clear
             </Button>
-            <Button
-              variant="contained"
-              type="button"
-              onClick={(event) => submitNewTile(event)}
-            >
+            <Button variant="contained" type="button" onClick={(event) => submitNewTile(event)}>
               <Trans i18nKey={updateTileId ? 'ctUpdate' : 'ctAdd'} />
             </Button>
           </Box>
