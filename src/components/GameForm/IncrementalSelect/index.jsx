@@ -1,6 +1,6 @@
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import useBreakpoint from 'hooks/useBreakpoint';
+import useHasMouse from 'hooks/useHasMouse';
 import { useState } from 'react';
 
 export default function IncrementalSelect({
@@ -13,7 +13,7 @@ export default function IncrementalSelect({
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
-  const isMobile = useBreakpoint();
+  const hasMouse = useHasMouse();
   const [hoveredOption, setHoveredOption] = useState(settings[option]?.level || 0);
 
   const handleMouseOver = (index) => {
@@ -38,7 +38,7 @@ export default function IncrementalSelect({
         key={`${category}-${optionVal}`}
         onMouseOver={() => handleMouseOver(index)}
       >
-        {!isMobile && (
+        {!!hasMouse && (
           <span className="menu-item-icon">
             {showCheckbox(index) ? <CheckBox /> : <CheckBoxOutlineBlank />}
           </span>
