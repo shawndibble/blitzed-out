@@ -2,7 +2,13 @@ import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { useState } from 'react';
 
-export default function IncrementalSelect({ actionsFolder, settings, option, onChange }) {
+export default function IncrementalSelect({
+  actionsFolder,
+  settings,
+  option,
+  onChange,
+  initialValue = 0,
+}) {
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
@@ -45,10 +51,10 @@ export default function IncrementalSelect({ actionsFolder, settings, option, onC
         labelId={labelId}
         id={option}
         label={label}
-        value={settings[option]?.level || 0}
+        value={settings[option]?.level || initialValue}
         onChange={onChange}
-        onOpen={() => setHoveredOption(settings[option]?.level || 0)}
-        onClose={() => setHoveredOption(settings[option]?.level || 0)}
+        onOpen={() => setHoveredOption(settings[option]?.level || initialValue)}
+        onClose={() => setHoveredOption(settings[option]?.level || initialValue)}
       >
         {getOptions(option)}
       </Select>

@@ -79,6 +79,7 @@ export default function PickConsumptions({ formData, setFormData, options, actio
               actionsFolder={actionsList}
               settings={formData}
               option={option.value}
+              initialValue={1}
               onChange={(event) =>
                 handleChange(
                   event,
