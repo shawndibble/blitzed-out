@@ -85,7 +85,7 @@ export default function PickActions({ formData, setFormData, options, actionsLis
               actionsFolder={actionsList}
               settings={formData}
               option={option.value}
-              initialValue={1}
+              initValue={1}
               onChange={(event) => handleChange(event, option.value, 'level')}
             />
           ))}

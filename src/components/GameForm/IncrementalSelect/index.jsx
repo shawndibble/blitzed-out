@@ -8,7 +8,7 @@ export default function IncrementalSelect({
   settings,
   option,
   onChange,
-  initialValue = 0,
+  initValue = 0,
 }) {
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
@@ -55,10 +55,10 @@ export default function IncrementalSelect({
         labelId={labelId}
         id={option}
         label={label}
-        value={settings[option]?.level || initialValue}
+        value={settings[option]?.level || initValue}
         onChange={onChange}
-        onOpen={() => setHoveredOption(settings[option]?.level || initialValue)}
-        onClose={() => setHoveredOption(settings[option]?.level || initialValue)}
+        onOpen={() => setHoveredOption(settings[option]?.level || initValue)}
+        onClose={() => setHoveredOption(settings[option]?.level || initValue)}
       >
         {getOptions(option)}
       </Select>
