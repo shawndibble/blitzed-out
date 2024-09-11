@@ -1,46 +1,36 @@
-import { Autocomplete, Checkbox, TextField, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import IncrementalSelect from 'components/GameForm/IncrementalSelect';
 import YesNoSwitch from 'components/GameForm/YesNoSwitch';
 import { useState } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
-import { populateSelections, removeFromFormData } from '../helpers';
-import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
+import { populateSelections, handleChange, updateFormDataWithDefaults } from '../helpers';
+import MultiSelect from 'components/MultiSelect';
 
 const MAX_CONSUME = 2;
 
 export default function PickConsumptions({ formData, setFormData, options, actionsList }) {
-  const optionList = options('consumption');
+  const action = 'consumption';
+  const optionList = options(action);
 
-  const initialConsumptions = populateSelections(formData, optionList, 'consumption');
+  const initialConsumptions = populateSelections(formData, optionList, action);
   const [selectedConsumptions, setSelectedConsumptions] = useState(initialConsumptions);
 
-  function handleConsumption(_, newValue) {
-    removeFromFormData(setFormData, selectedConsumptions, newValue);
+  const handleConsumptionChange = (event) => {
+    const { value } = event.target;
 
-    if (newValue.length <= MAX_CONSUME) {
-      setSelectedConsumptions(newValue);
+    if (value.length <= MAX_CONSUME) {
+      setSelectedConsumptions(value);
+      updateFormDataWithDefaults(value, action, setFormData);
     }
-  }
+  };
 
-  function handleChange(event, key, nestedKey, variation) {
-    setFormData((prevData) => ({
-      ...prevData,
-      [key]: {
-        ...prevData[key],
-        type: 'consumption',
-        [nestedKey]: event?.target?.value,
-        variation,
-      },
-    }));
-  }
-
-  function variationChange(event) {
-    const updatedFormData = selectedConsumptions.reduce(
+  const variationChange = (event, selectedItems) => {
+    const updatedFormData = selectedItems.reduce(
       (acc, option) => {
-        acc[option.value] = {
-          ...acc[option.value],
-          type: 'consumption',
+        acc[option] = {
+          ...acc[option],
+          type: action,
           variation: event.target.checked ? 'appendMost' : 'standalone',
         };
         return acc;
@@ -49,7 +39,7 @@ export default function PickConsumptions({ formData, setFormData, options, actio
     );
 
     setFormData(updatedFormData);
-  }
+  };
 
   return (
     <>
@@ -57,31 +47,11 @@ export default function PickConsumptions({ formData, setFormData, options, actio
         <Trans i18nKey="pickConsumptions" />
       </Typography>
 
-      <Autocomplete
-        disableCloseOnSelect
-        multiple
+      <MultiSelect
+        onChange={handleConsumptionChange}
+        values={selectedConsumptions}
         options={optionList}
-        getOptionLabel={(option) => option.label}
-        isOptionEqualToValue={(option, value) => option.value === value.value}
-        value={selectedConsumptions}
-        onChange={handleConsumption}
-        renderOption={(props, option, { selected }) => {
-          const { key, ...optionProps } = props;
-          return (
-            <li key={key} {...optionProps}>
-              <Checkbox
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBox fontSize="small" />}
-                style={{ marginRight: 8 }}
-                checked={selected}
-              />
-              {option.label}
-            </li>
-          );
-        }}
-        renderInput={(params) => (
-          <TextField {...params} variant="outlined" label={<Trans i18nKey="consumables" />} />
-        )}
+        label={<Trans i18nKey="consumables" />}
       />
 
       {!!selectedConsumptions.length && (
@@ -90,16 +60,19 @@ export default function PickConsumptions({ formData, setFormData, options, actio
 
           {selectedConsumptions.map((option) => (
             <IncrementalSelect
-              key={option.value}
+              key={option}
               actionsFolder={actionsList}
               settings={formData}
-              option={option.value}
+              option={option}
               initValue={1}
               onChange={(event) =>
                 handleChange(
                   event,
-                  option.value,
+                  option,
                   'level',
+                  action,
+                  setFormData,
+                  setSelectedConsumptions,
                   formData.isAppend ? 'appendMost' : 'standalone'
                 )
               }
@@ -112,7 +85,7 @@ export default function PickConsumptions({ formData, setFormData, options, actio
 
           <YesNoSwitch
             trueCondition={formData.isAppend}
-            onChange={variationChange}
+            onChange={(event) => variationChange(event, selectedConsumptions)}
             yesLabel="combineWithActions"
             noLabel="standaloneConsumables"
           />

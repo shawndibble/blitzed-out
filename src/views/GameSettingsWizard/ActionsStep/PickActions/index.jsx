@@ -1,11 +1,11 @@
-import { Autocomplete, Checkbox, TextField, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import IncrementalSelect from 'components/GameForm/IncrementalSelect';
 import { useState } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
-import { populateSelections, removeFromFormData } from '../helpers';
 import { isOnlineMode } from 'helpers/strings';
-import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
+import MultiSelect from 'components/MultiSelect';
+import { handleChange, populateSelections, updateFormDataWithDefaults } from '../helpers';
 
 const MAX_ACTIONS = 4;
 
@@ -23,24 +23,14 @@ export default function PickActions({ formData, setFormData, options, actionsLis
   const initialActions = populateSelections(formData, optionList, action);
   const [selectedActions, setSelectedActions] = useState(initialActions);
 
-  function handleActions(_, newValue) {
-    removeFromFormData(setFormData, selectedActions, newValue);
+  const handleActionChange = (event) => {
+    const { value } = event.target;
 
-    if (newValue.length <= MAX_ACTIONS) {
-      setSelectedActions(newValue);
+    if (value.length <= MAX_ACTIONS) {
+      setSelectedActions(value);
+      updateFormDataWithDefaults(value, action, setFormData);
     }
-  }
-
-  function handleChange(event, key, nestedKey) {
-    setFormData((prevData) => ({
-      ...prevData,
-      [key]: {
-        ...prevData[key],
-        type: action,
-        [nestedKey]: event?.target?.value,
-      },
-    }));
-  }
+  };
 
   return (
     <>
@@ -48,31 +38,11 @@ export default function PickActions({ formData, setFormData, options, actionsLis
         <Trans i18nKey="pickActions" />
       </Typography>
 
-      <Autocomplete
-        disableCloseOnSelect
-        multiple
+      <MultiSelect
+        onChange={handleActionChange}
+        values={selectedActions}
         options={optionList}
-        getOptionLabel={(option) => option.label}
-        isOptionEqualToValue={(option, value) => option.value === value.value}
-        value={selectedActions}
-        onChange={handleActions}
-        renderOption={(props, option, { selected }) => {
-          const { key, ...optionProps } = props;
-          return (
-            <li key={key} {...optionProps}>
-              <Checkbox
-                icon={<CheckBoxOutlineBlank fontSize="small" />}
-                checkedIcon={<CheckBox fontSize="small" />}
-                style={{ marginRight: 8 }}
-                checked={selected}
-              />
-              {option.label}
-            </li>
-          );
-        }}
-        renderInput={(params) => (
-          <TextField {...params} variant="outlined" label={<Trans i18nKey="actionsLabel" />} />
-        )}
+        label={<Trans i18nKey="actionsLabel" />}
       />
 
       {!!selectedActions.length && (
@@ -81,12 +51,14 @@ export default function PickActions({ formData, setFormData, options, actionsLis
 
           {selectedActions.map((option) => (
             <IncrementalSelect
-              key={option.value}
+              key={option}
               actionsFolder={actionsList}
               settings={formData}
-              option={option.value}
+              option={option}
               initValue={1}
-              onChange={(event) => handleChange(event, option.value, 'level')}
+              onChange={(event) =>
+                handleChange(event, option, 'level', action, setFormData, setSelectedActions)
+              }
             />
           ))}
         </>
