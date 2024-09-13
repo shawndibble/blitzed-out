@@ -23,7 +23,7 @@ export default function GameBoard({ playerList, isTransparent, gameBoard, settin
     const hueIndex = (Array.from(tileTypeArray).indexOf(entry.title) % 10) + 1;
 
     const description =
-      settings.visibleBoardActions || index == 0
+      !settings.hideBoardActions || index === 0 || current
         ? actionStringReplacement(entry.description, entry.role, user.displayName)
         : // replace only letters and numbers with question marks. Remove special characters.
           entry.description.replace(/[^\w\s]/g, '').replace(/[a-zA-Z0-9]/g, '?');

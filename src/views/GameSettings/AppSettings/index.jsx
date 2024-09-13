@@ -52,7 +52,7 @@ export default function AppSettings({ formData, setFormData, boardUpdated }) {
         <Trans i18nKey="miscellaneous" />
       </Typography>
 
-      <AppBoolSwitch field="visibleBoardActions" formData={formData} handleSwitch={handleSwitch} />
+      <AppBoolSwitch field="hideBoardActions" formData={formData} handleSwitch={handleSwitch} />
       <AppBoolSwitch field="advancedSettings" formData={formData} handleSwitch={handleSwitch} />
 
       <BackgroundSelect formData={formData} setFormData={setFormData} backgrounds={backgrounds} />
