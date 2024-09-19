@@ -1,12 +1,6 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  IconButton,
-} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Divider, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { importCustomTiles, getCustomTiles } from 'stores/customTiles';
@@ -18,12 +12,7 @@ import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
 
-export default function CustomTileDialog({
-  boardUpdated,
-  actionsList,
-  setOpen,
-  open = false,
-}) {
+export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, open = false }) {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
   const [submitMessage, setSubmitMessage] = useState({

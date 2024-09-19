@@ -7,9 +7,7 @@ import usePlayerList from './usePlayerList';
 
 function getFinishResult(textArray) {
   // if we have %, we are on the finish tile. Let's get a random result.
-  const finishValues = textArray
-    .filter((n) => n)
-    .map((line) => line.split(': '));
+  const finishValues = textArray.filter((n) => n).map((line) => line.split(': '));
 
   // process weighted random finish result.
   const weightedArray = [];
@@ -19,12 +17,9 @@ function getFinishResult(textArray) {
     weightedArray.push(...clone);
   });
 
-  const result =
-    weightedArray[Math.floor(Math.random() * weightedArray.length)];
+  const result = weightedArray[Math.floor(Math.random() * weightedArray.length)];
 
-  return finishValues
-    .map(([action]) => action)
-    [result]?.replace(/(\r\n|\n|\r)/gm, '');
+  return finishValues.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '');
 }
 
 function parseDescription(text, role, displayName) {
@@ -45,27 +40,21 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
   const [tile, setTile] = useState(gameBoard[0]);
   const lastTile = total - 1;
 
-  const handleTextOutput = useCallback(
-    (newTile, rollNumber, newLocation, preMessage) => {
-      let message = '';
-      const description = parseDescription(
-        newTile?.description,
-        newTile.role,
-        user.displayName
-      );
-      if (rollNumber !== -1) {
-        message += `${t('roll')}: ${rollNumber}\n`;
-      }
-      message += `#${newLocation + 1}: ${newTile?.title}\n`;
-      message += `${t('action')}: ${description}`;
-      sendMessage({
-        room,
-        user,
-        text: preMessage ? preMessage + message : message,
-        type: 'actions',
-      });
+  const handleTextOutput = useCallback((newTile, rollNumber, newLocation, preMessage) => {
+    let message = '';
+    const description = parseDescription(newTile?.description, newTile.role, user.displayName);
+    if (rollNumber !== -1) {
+      message += `${t('roll')}: ${rollNumber}\n`;
     }
-  );
+    message += `#${newLocation + 1}: ${newTile?.title}\n`;
+    message += `${t('action')}: ${description}`;
+    sendMessage({
+      room,
+      user,
+      text: preMessage ? preMessage + message : message,
+      type: 'actions',
+    });
+  });
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
@@ -108,12 +97,7 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
     setTile(gameBoard[newLocation]);
 
     // send our message.
-    handleTextOutput(
-      gameBoard[newLocation],
-      rollNumber,
-      newLocation,
-      preMessage
-    );
+    handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);
   }, [rollValue]);
 
   return { tile, playerList };

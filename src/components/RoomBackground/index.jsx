@@ -3,10 +3,7 @@ import React from 'react';
 
 export default function RoomBackground({ url = null, isVideo = null }) {
   return (
-    <Box
-      className="main-container"
-      sx={{ backgroundImage: !isVideo && `url(${url})` }}
-    >
+    <Box className="main-container" sx={{ backgroundImage: !isVideo && `url(${url})` }}>
       {isVideo && (
         <iframe
           width="100%"

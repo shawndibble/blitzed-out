@@ -34,8 +34,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
   const [selectedRoll, setSelectedRoll] = useState('manual');
   const [autoTime, setAutoTime] = useState(0);
   const [rollText, setRollText] = useState(t('roll'));
-  const { timeLeft, setTimeLeft, togglePause, isPaused } =
-    useCountdown(autoTime);
+  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(autoTime);
 
   const updateRollValue = useCallback((value) => {
     setRollValue({ value, time: Date.now() });
@@ -67,15 +66,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
     }
     togglePause();
     return null;
-  }, [
-    selectedRoll,
-    isPaused,
-    timeLeft,
-    autoTime,
-    rollCount,
-    diceSide,
-    togglePause,
-  ]);
+  }, [selectedRoll, isPaused, timeLeft, autoTime, rollCount, diceSide, togglePause]);
 
   const handleMenuItemClick = useCallback(
     (key) => {
@@ -133,12 +124,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
   return (
     <>
       <ButtonGroup variant="contained" ref={anchorRef} className="dice-roller">
-        <Button
-          aria-label={t('roll')}
-          onClick={handleClick}
-          disabled={isDisabled}
-          size="large"
-        >
+        <Button aria-label={t('roll')} onClick={handleClick} disabled={isDisabled} size="large">
           <Casino sx={{ mr: 1 }} />
           {rollText}
         </Button>
@@ -165,10 +151,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
         placement="top-end"
       >
         {({ TransitionProps }) => (
-          <Grow
-            {...TransitionProps}
-            style={{ transformOrigin: 'right bottom' }}
-          >
+          <Grow {...TransitionProps} style={{ transformOrigin: 'right bottom' }}>
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>

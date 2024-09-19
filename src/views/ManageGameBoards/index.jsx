@@ -15,12 +15,7 @@ import { Trans } from 'react-i18next';
 import ImportExport from './ImportExport';
 import { useState } from 'react';
 import ToastAlert from 'components/ToastAlert';
-import {
-  activateBoard,
-  deleteBoard,
-  getBoards,
-  upsertBoard,
-} from 'stores/gameBoard';
+import { activateBoard, deleteBoard, getBoards, upsertBoard } from 'stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
 import Accordion from 'components/Accordion';
 import AccordionSummary from 'components/Accordion/Summary';
@@ -50,9 +45,7 @@ export default function GameBoard({ open, close, isMobile }) {
   };
 
   async function createGameMessage({ title, tiles }) {
-    const gameTileTitles = tiles.map(
-      ({ title: tileTitle }) => `* ${tileTitle} \n`
-    );
+    const gameTileTitles = tiles.map(({ title: tileTitle }) => `* ${tileTitle} \n`);
     // remove our start and finish tiles from the list.
     gameTileTitles.pop();
     gameTileTitles.shift();
@@ -165,9 +158,7 @@ export default function GameBoard({ open, close, isMobile }) {
               <AccordionSummary>
                 <Box>
                   <Typography variant="body1">{board.title}</Typography>
-                  <Typography variant="body2">
-                    {board.tiles?.length} tiles
-                  </Typography>
+                  <Typography variant="body2">{board.tiles?.length} tiles</Typography>
                 </Box>
                 <Box style={{ marginLeft: 'auto' }} justifyContent="flex-end">
                   <Tooltip title={getSwitchTooltip(board)}>
@@ -181,10 +172,7 @@ export default function GameBoard({ open, close, isMobile }) {
                     </span>
                   </Tooltip>
                   <Tooltip title={t('delete')}>
-                    <IconButton
-                      onClick={() => confirmDelete(board.id)}
-                      size="small"
-                    >
+                    <IconButton onClick={() => confirmDelete(board.id)} size="small">
                       <Delete color="error" />
                     </IconButton>
                   </Tooltip>

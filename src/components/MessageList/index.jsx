@@ -11,11 +11,7 @@ import { useTranslation } from 'react-i18next';
 import Message from './Message';
 import './styles.css';
 
-export default function MessageList({
-  room,
-  isTransparent,
-  currentGameBoardSize = 40,
-}) {
+export default function MessageList({ room, isTransparent, currentGameBoardSize = 40 }) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
   const { messages, isLoading } = useMessages(room);
@@ -35,10 +31,7 @@ export default function MessageList({
     [messages]
   );
 
-  const updatedMessages = useMemo(
-    () => filterMessages(currentTab),
-    [filterMessages, currentTab]
-  );
+  const updatedMessages = useMemo(() => filterMessages(currentTab), [filterMessages, currentTab]);
 
   useEffect(() => {
     if (isLoading) return;

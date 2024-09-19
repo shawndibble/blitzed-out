@@ -1,13 +1,5 @@
 import { Delete, Edit } from '@mui/icons-material';
-import {
-  Box,
-  Card,
-  CardActions,
-  CardHeader,
-  Chip,
-  IconButton,
-  Switch,
-} from '@mui/material';
+import { Box, Card, CardActions, CardHeader, Chip, IconButton, Switch } from '@mui/material';
 import { useState } from 'react';
 import { deleteCustomTile, toggleCustomTile } from 'stores/customTiles';
 
@@ -38,9 +30,7 @@ export default function ViewCustomTiles({
 
   const tileList = customTiles
     ?.filter(({ tags }) => !filter || tags?.includes(filter))
-    ?.sort(
-      (a, b) => `${b.group} - ${b.intensity}` - `${a.group} - ${a.intensity}`
-    )
+    ?.sort((a, b) => `${b.group} - ${b.intensity}` - `${a.group} - ${a.intensity}`)
     ?.map(({ id, group, intensity, action, tags, isEnabled = true }) => (
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
@@ -48,8 +38,7 @@ export default function ViewCustomTiles({
           titleTypographyProps={{ variant: 'body1' }}
           subheader={
             mappedGroups.find(
-              ({ value, intensity: inten }) =>
-                value === group && inten === Number(intensity)
+              ({ value, intensity: inten }) => value === group && inten === Number(intensity)
             )?.label
           }
           subheaderTypographyProps={{ variant: 'body2' }}

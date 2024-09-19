@@ -17,14 +17,8 @@ export default function useSoundAndDialog(room) {
   const [popupMessage, setPopupMessage] = useState(false);
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
-  const {
-    playerDialog,
-    othersDialog,
-    mySound,
-    otherSound,
-    chatSound,
-    readRoll,
-  } = useLocalStorage('gameSettings')[0];
+  const { playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll } =
+    useLocalStorage('gameSettings')[0];
 
   const latestMessage = useMemo(() => [...messages].pop(), [messages.length]);
 
@@ -32,26 +26,19 @@ export default function useSoundAndDialog(room) {
     speak(text, language);
   }, []);
 
-  const newMessage =
-    moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') >= -2;
+  const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') >= -2;
   const myMessage = latestMessage?.uid === user?.uid;
   const showPlayerDialog = playerDialog && myMessage;
   const showOthersDialog = othersDialog && !myMessage;
   const playDiceSoundCondition =
-    ((myMessage && mySound) || (!myMessage && otherSound)) &&
-    latestMessage?.type === 'actions';
-  const speakTextCondition =
-    myMessage && readRoll && latestMessage?.type === 'actions';
+    ((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions';
+  const speakTextCondition = myMessage && readRoll && latestMessage?.type === 'actions';
   const playMessageSoundCondition = chatSound && latestMessage?.type === 'chat';
 
   useEffect(() => {
     moment.locale(i18n.resolvedLanguage);
 
-    if (
-      newMessage &&
-      latestMessage?.type === 'actions' &&
-      (showPlayerDialog || showOthersDialog)
-    ) {
+    if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
       setPopupMessage(latestMessage);
     }
 

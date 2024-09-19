@@ -1,11 +1,4 @@
-import {
-  Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -21,13 +14,11 @@ export default function GameSpeed({ formData, setFormData }) {
     ? Math.floor(formData.roomTileCount / diceRollAverage[formData.roomDice])
     : 16;
 
-  const tileMenuItem = Array.from({ length: 7 }, (_, i) => (i + 2) * 10).map(
-    (tileCount) => (
-      <MenuItem key={tileCount} value={tileCount}>
-        {tileCount}
-      </MenuItem>
-    )
-  );
+  const tileMenuItem = Array.from({ length: 7 }, (_, i) => (i + 2) * 10).map((tileCount) => (
+    <MenuItem key={tileCount} value={tileCount}>
+      {tileCount}
+    </MenuItem>
+  ));
 
   return (
     <>

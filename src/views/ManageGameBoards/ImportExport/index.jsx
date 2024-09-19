@@ -77,9 +77,7 @@ export default function ImportExport({ open, close, setAlert, board }) {
   };
 
   const exportBoard = () => {
-    const arrayExport = board?.tiles?.map(
-      ({ title, description }) => `[${title}]\n${description}`
-    );
+    const arrayExport = board?.tiles?.map(({ title, description }) => `[${title}]\n${description}`);
 
     setTextField(arrayExport?.join('\n~~\n'));
   };

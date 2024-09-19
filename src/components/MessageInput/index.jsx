@@ -103,11 +103,7 @@ export default function MessageInput({ room, isTransparent }) {
           helperText={<Trans i18nKey="markdown" />}
         />
       </form>
-      <ToastAlert
-        open={!!alert}
-        setOpen={setAlert}
-        close={() => setAlert(null)}
-      >
+      <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
         {alert}
       </ToastAlert>
     </>

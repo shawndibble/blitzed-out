@@ -1,11 +1,5 @@
 import { ExpandMore } from '@mui/icons-material';
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Grid,
-  Typography,
-} from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Grid, Typography } from '@mui/material';
 
 export default function InvisibleAccordionGrid({
   children,
@@ -31,12 +25,7 @@ export default function InvisibleAccordionGrid({
         <Typography sx={{ pt: 0.5 }}>{subtitle}</Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ px: 0 }}>
-        <Grid
-          container
-          columnSpacing={2}
-          justifyContent="space-evenly"
-          className="columned-grid"
-        >
+        <Grid container columnSpacing={2} justifyContent="space-evenly" className="columned-grid">
           {children}
         </Grid>
       </AccordionDetails>

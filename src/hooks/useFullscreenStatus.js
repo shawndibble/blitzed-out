@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export default function useFullscreenStatus() {
-  const [isFullscreen, setIsFullscreen] = useState(
-    document.fullscreenElement != null
-  );
+  const [isFullscreen, setIsFullscreen] = useState(document.fullscreenElement != null);
 
   useEffect(() => {
     const handleChange = () => {

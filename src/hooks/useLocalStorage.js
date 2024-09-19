@@ -15,9 +15,7 @@ function getInitialValue(key, defaultVal) {
 export default function useLocalStorage(localStorageKey, defaultVal = {}) {
   const eventName = `${localStorageKey}Storage`;
 
-  const [storage, setStorage] = useState(() =>
-    getInitialValue(localStorageKey, defaultVal)
-  );
+  const [storage, setStorage] = useState(() => getInitialValue(localStorageKey, defaultVal));
 
   useEffect(() => {
     const listener = (e) => setStorage(e.newValue);

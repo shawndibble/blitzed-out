@@ -1,19 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import {
-  getAuth,
-  signInAnonymously,
-  signOut,
-  updateProfile,
-} from 'firebase/auth';
-import {
-  getDatabase,
-  onDisconnect,
-  onValue,
-  push,
-  ref,
-  remove,
-  set,
-} from 'firebase/database';
+import { getAuth, signInAnonymously, signOut, updateProfile } from 'firebase/auth';
+import { getDatabase, onDisconnect, onValue, push, ref, remove, set } from 'firebase/database';
 import {
   Timestamp,
   addDoc,
@@ -31,12 +18,7 @@ import {
   where,
 } from 'firebase/firestore';
 
-import {
-  getDownloadURL,
-  getStorage,
-  ref as storageRef,
-  uploadString,
-} from 'firebase/storage';
+import { getDownloadURL, getStorage, ref as storageRef, uploadString } from 'firebase/storage';
 import { sha256 } from 'js-sha256';
 
 const firebaseConfig = {
@@ -87,14 +69,8 @@ export function setMyPresence({
   const uid = auth.currentUser?.uid;
   const newRoomName = newRoom?.toUpperCase();
   const oldRoomName = oldRoom?.toUpperCase();
-  const newRoomConnectionsRef = ref(
-    database,
-    `rooms/${newRoomName}/uids/${uid}`
-  );
-  const oldRoomConnectionsRef = ref(
-    database,
-    `rooms/${oldRoomName}/uids/${uid}`
-  );
+  const newRoomConnectionsRef = ref(database, `rooms/${newRoomName}/uids/${uid}`);
+  const oldRoomConnectionsRef = ref(database, `rooms/${oldRoomName}/uids/${uid}`);
   const connectedRef = ref(database, '.info/connected');
 
   let newRef;
@@ -140,9 +116,7 @@ export function getUserList(roomId, callback, existingData = {}) {
     // to prevent an endless loop, see if our new data matches the existing stuff.
     // can't compare two arrays directly, but we can compare two strings.
     const dataString = Object.keys(data).sort().join(',');
-    const existingString = existingData
-      ? Object.keys(existingData).sort().join(',')
-      : '';
+    const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
     if (dataString !== existingString) callback(data);
   });
 }
@@ -173,10 +147,7 @@ export async function submitCustomAction(grouping, customAction) {
 }
 
 async function getBoardByContent(checksum) {
-  const q = query(
-    collection(db, 'game-boards'),
-    where('checksum', '==', checksum)
-  );
+  const q = query(collection(db, 'game-boards'), where('checksum', '==', checksum));
   const snapshot = await getDocs(q);
   if (snapshot.size) {
     return snapshot.docs[0];
@@ -237,13 +208,7 @@ export async function getBoard(id) {
 
 let lastMessage = {};
 
-export async function sendMessage({
-  room,
-  user,
-  text = '',
-  type = 'chat',
-  ...rest
-}) {
+export async function sendMessage({ room, user, text = '', type = 'chat', ...rest }) {
   const allowedTypes = ['chat', 'actions', 'settings', 'room', 'media'];
   if (!allowedTypes.includes(type)) {
     let message = 'Invalid message type. Was expecting ';
@@ -262,18 +227,15 @@ export async function sendMessage({
   const now = Date.now();
 
   try {
-    return await addDoc(
-      collection(db, 'chat-rooms', room?.toUpperCase(), 'messages'),
-      {
-        uid: user.uid,
-        displayName: user.displayName,
-        text: text.trim(),
-        timestamp: serverTimestamp(),
-        ttl: new Date(now + 24 * 60 * 60 * 1000), // 24 hours
-        type,
-        ...rest,
-      }
-    );
+    return await addDoc(collection(db, 'chat-rooms', room?.toUpperCase(), 'messages'), {
+      uid: user.uid,
+      displayName: user.displayName,
+      text: text.trim(),
+      timestamp: serverTimestamp(),
+      ttl: new Date(now + 24 * 60 * 60 * 1000), // 24 hours
+      type,
+      ...rest,
+    });
   } catch (error) {
     // eslint-disable-next-line
     return console.error(error);
@@ -281,9 +243,7 @@ export async function sendMessage({
 }
 
 export async function deleteMessage(room, messageId) {
-  return deleteDoc(
-    doc(db, `/chat-rooms/${room.toUpperCase()}/messages/${messageId}`)
-  );
+  return deleteDoc(doc(db, `/chat-rooms/${room.toUpperCase()}/messages/${messageId}`));
 }
 
 export async function uploadImage({ image, room, user }) {

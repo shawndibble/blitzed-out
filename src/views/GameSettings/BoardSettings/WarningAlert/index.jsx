@@ -9,13 +9,9 @@ export default function ConsumptionWarning({ formData }) {
     const consumptionCount = Object.values(formData).filter(
       (setting) => setting?.type === 'consumption' && setting?.level > 0
     ).length;
-    const totalCount = Object.values(formData).filter(
-      (setting) => setting?.level > 0
-    ).length;
+    const totalCount = Object.values(formData).filter((setting) => setting?.level > 0).length;
 
-    setShowWarning(
-      consumptionCount > 1 && consumptionCount >= totalCount - consumptionCount
-    );
+    setShowWarning(consumptionCount > 1 && consumptionCount >= totalCount - consumptionCount);
   }, [formData]);
 
   if (!showWarning) return null;

@@ -39,10 +39,7 @@ export default function useUrlImport(settings, setSettings) {
     const importedGameBoard = parseGameBoard(board.gameBoard);
     if (!importedGameBoard) return setAlert(t('failedBoardImport'));
 
-    const title =
-      board?.title !== t('settingsGenerated')
-        ? board.title
-        : t('importedBoard');
+    const title = board?.title !== t('settingsGenerated') ? board.title : t('importedBoard');
 
     upsertBoard({ ...board, title, tiles: importedGameBoard, isActive: 1 });
     const importSettings = parseSettings(board?.settings);

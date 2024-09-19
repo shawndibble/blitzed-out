@@ -31,14 +31,12 @@ function areTagsEqual(tags1, tags2) {
  */
 function parseTile(tile, mappedGroups) {
   const [preGrouping, action, tagString] = tile.split('\n').filter(Boolean);
-  const tags =
-    tagString?.replace('Tags:', '')?.trim()?.split(', ')?.filter(Boolean) || [];
+  const tags = tagString?.replace('Tags:', '')?.trim()?.split(', ')?.filter(Boolean) || [];
   const withoutBrackets = preGrouping.replace(/\[|\]/g, '');
   const [group, intensity] = withoutBrackets.split(' - ');
 
   const appGroup = mappedGroups.find(
-    (mapped) =>
-      mapped.translatedIntensity === intensity && mapped.group === group
+    (mapped) => mapped.translatedIntensity === intensity && mapped.group === group
   );
 
   if (!appGroup) {
@@ -63,17 +61,11 @@ function parseTile(tile, mappedGroups) {
  * @param {Array} mappedGroups - The array of mapped groups.
  * @returns {Object} - An object containing new unique records and existing records with changed tags.
  */
-export default function getUniqueImportRecords(
-  importData,
-  customTiles,
-  mappedGroups
-) {
+export default function getUniqueImportRecords(importData, customTiles, mappedGroups) {
   const preArray = importData?.split('---') || [];
   preArray.forEach(validateGroupMatch);
 
-  const result = preArray
-    .map((tile) => parseTile(tile, mappedGroups))
-    .filter(Boolean);
+  const result = preArray.map((tile) => parseTile(tile, mappedGroups)).filter(Boolean);
 
   const newUniqueRecords = [];
   const changedTagRecords = [];
@@ -88,10 +80,7 @@ export default function getUniqueImportRecords(
 
     if (!existingRecord) {
       newUniqueRecords.push(entry);
-    } else if (
-      existingRecord &&
-      !areTagsEqual(existingRecord.tags, entry.tags)
-    ) {
+    } else if (existingRecord && !areTagsEqual(existingRecord.tags, entry.tags)) {
       changedTagRecords.push({ ...existingRecord, tags: entry.tags });
     }
   });

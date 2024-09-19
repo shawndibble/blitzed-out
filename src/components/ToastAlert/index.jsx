@@ -25,12 +25,7 @@ export default function ToastAlert({
   };
 
   const action = !hideCloseButton && (
-    <IconButton
-      size="small"
-      aria-label={t('close')}
-      color="inherit"
-      onClick={handleClose}
-    >
+    <IconButton size="small" aria-label={t('close')} color="inherit" onClick={handleClose}>
       <CloseIcon fontSize="small" />
     </IconButton>
   );
@@ -45,11 +40,7 @@ export default function ToastAlert({
         anchorOrigin={{ vertical, horizontal }}
         TransitionComponent={Slide}
       >
-        <Alert
-          onClose={!hideCloseButton && handleClose}
-          severity={type}
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={!hideCloseButton && handleClose} severity={type} sx={{ width: '100%' }}>
           {children}
         </Alert>
       </Snackbar>

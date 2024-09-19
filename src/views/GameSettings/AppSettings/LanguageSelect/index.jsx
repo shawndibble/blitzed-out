@@ -23,10 +23,7 @@ export default function LanguageSelect({ boardUpdated }) {
   return (
     <Box sx={{ minWidth: 120, mt: 1, mb: 2 }}>
       <FormControl fullWidth>
-        <InputLabel
-          id="language-label"
-          sx={{ display: 'flex', alignItems: 'center' }}
-        >
+        <InputLabel id="language-label" sx={{ display: 'flex', alignItems: 'center' }}>
           <Language sx={{ mr: 1 }} />
           <Trans i18nKey="language" />
         </InputLabel>

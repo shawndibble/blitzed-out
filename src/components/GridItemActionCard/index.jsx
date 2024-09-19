@@ -1,18 +1,6 @@
-import {
-  Card,
-  CardActionArea,
-  CardContent,
-  Divider,
-  Grid,
-  Typography,
-} from '@mui/material';
+import { Card, CardActionArea, CardContent, Divider, Grid, Typography } from '@mui/material';
 
-export default function GridItemActionCard({
-  children,
-  title,
-  onClick,
-  disabled,
-}) {
+export default function GridItemActionCard({ children, title, onClick, disabled }) {
   return (
     <Grid item xs={12} sm={6} container>
       <Card sx={{ width: '100%' }}>
@@ -26,9 +14,7 @@ export default function GridItemActionCard({
           onClick={onClick}
           disabled={disabled}
         >
-          <CardContent
-            sx={{ width: '100%', color: disabled ? 'gray' : 'white' }}
-          >
+          <CardContent sx={{ width: '100%', color: disabled ? 'gray' : 'white' }}>
             <Typography variant="h5">{title}</Typography>
             <Divider sx={{ mb: 2 }} />
             {children}

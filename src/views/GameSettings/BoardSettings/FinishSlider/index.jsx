@@ -20,12 +20,7 @@ export default function FinishSlider({ formData, setFormData }) {
         onChange={handleChange}
         valueLabelDisplay="off"
       />
-      <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="space-between"
-        textAlign="center"
-      >
+      <Box display="flex" flexDirection="column" justifyContent="space-between" textAlign="center">
         <Typography whiteSpace="nowrap">
           <Trans i18nKey="noCum" /> {finishRange[0]}%
         </Typography>

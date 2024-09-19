@@ -24,10 +24,7 @@ export default function CountDownButtonModal({
   const [open, setOpen] = useState(false);
 
   const [time, seconds] = textString.split(' ');
-  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(
-    time,
-    true
-  );
+  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(time, true);
 
   useEffect(() => togglePause(), []);
 
@@ -54,11 +51,7 @@ export default function CountDownButtonModal({
 
   return (
     <>
-      <Button
-        onClick={clickedButton}
-        sx={{ p: noPadding ? 0 : 1 }}
-        color="secondary"
-      >
+      <Button onClick={clickedButton} sx={{ p: noPadding ? 0 : 1 }} color="secondary">
         {textString}
       </Button>
       <Modal
@@ -76,9 +69,7 @@ export default function CountDownButtonModal({
           <Typography variant="h2" sx={{ display: 'inline-block' }}>
             {timeLeft}
           </Typography>
-          <Typography sx={{ ml: 2, display: 'inline-block' }}>
-            {seconds}
-          </Typography>
+          <Typography sx={{ ml: 2, display: 'inline-block' }}>{seconds}</Typography>
         </Box>
       </Modal>
     </>

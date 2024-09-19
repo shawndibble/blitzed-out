@@ -1,18 +1,8 @@
-import {
-  CssBaseline,
-  ThemeProvider,
-  createTheme,
-  responsiveFontSizes,
-} from '@mui/material';
+import { CssBaseline, ThemeProvider, createTheme, responsiveFontSizes } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import useAuth from 'context/hooks/useAuth';
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-} from 'react-router-dom';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Cast from 'views/Cast';
 import Room from 'views/Room';
 import UnauthenticatedApp from 'views/UnauthenticatedApp';

@@ -44,11 +44,7 @@ export default function Schedule({ open, close, isMobile }) {
         return;
       }
 
-      if (
-        schedule.find(
-          (s) => s.dateTime.toDate().toUTCString() === dateTime.toUTCString()
-        )
-      ) {
+      if (schedule.find((s) => s.dateTime.toDate().toUTCString() === dateTime.toUTCString())) {
         setAlert('A game is already scheduled for this date and time');
         return;
       }
@@ -78,9 +74,7 @@ export default function Schedule({ open, close, isMobile }) {
           <DialogContent>
             <Box>
               {schedule.length ? (
-                schedule?.map((game) => (
-                  <ScheduleItem key={game.id} game={game} />
-                ))
+                schedule?.map((game) => <ScheduleItem key={game.id} game={game} />)
               ) : (
                 <Typography variant="body1">No Planned Games</Typography>
               )}
@@ -103,12 +97,7 @@ export default function Schedule({ open, close, isMobile }) {
               />
             </Box>
             <Box sx={{ mb: 2 }}>
-              <TextField
-                label={t('camUrl')}
-                variant="outlined"
-                name="link"
-                fullWidth
-              />
+              <TextField label={t('camUrl')} variant="outlined" name="link" fullWidth />
             </Box>
 
             <Button variant="contained" type="submit" fullWidth>

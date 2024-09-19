@@ -13,9 +13,7 @@ function filteredGameMessages(messages) {
 // see if the realtime db connection is recent.
 function isRecentlyConnected(userObj) {
   const FIVE_MINUTES = 5 * 60 * 1000;
-  const mostRecentEntry = Object.values(userObj).sort(
-    (a, b) => b.lastActive - a.lastActive
-  )[0];
+  const mostRecentEntry = Object.values(userObj).sort((a, b) => b.lastActive - a.lastActive)[0];
   return Date.now() - mostRecentEntry.lastActive < FIVE_MINUTES;
 }
 
@@ -42,28 +40,19 @@ function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
       // * Check if the user has done anything in the last 10 minutes.
       // * Check if the user is himself (should always list)
       const isSelf = onlineUid === user?.uid;
-      return (
-        isRecentlyConnected(data) ||
-        isRecentlyActive(messages, onlineUid) ||
-        isSelf
-      );
+      return isRecentlyConnected(data) || isRecentlyActive(messages, onlineUid) || isSelf;
     })
     .map(([onlineUid, data]) => {
-      const mostRecentEntry = Object.values(data).sort(
-        (a, b) => b.lastActive - a.lastActive
-      )[0];
+      const mostRecentEntry = Object.values(data).sort((a, b) => b.lastActive - a.lastActive)[0];
       const { displayName } = mostRecentEntry;
 
-      const userGameMessage = uniqueGameActions.find(
-        (message) => message.uid === onlineUid
-      )?.text;
+      const userGameMessage = uniqueGameActions.find((message) => message.uid === onlineUid)?.text;
       const locationRegEx = /(?:#)[\d]*(?=:)/gs;
       const currentLocation =
         userGameMessage && userGameMessage.match(locationRegEx)
           ? Number(userGameMessage.match(locationRegEx)[0].replace('#', ''))
           : 0;
-      const location =
-        currentLocation > 0 ? currentLocation - 1 : currentLocation;
+      const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
       const isFinished = userGameMessage?.includes(t('finish'));
 
       return {

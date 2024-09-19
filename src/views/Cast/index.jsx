@@ -55,11 +55,7 @@ export default function Cast() {
   return (
     <Box className="text-stroke flex-column">
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        sx={{ mx: 2, mt: 2, mb: -2 }}
-      >
+      <Box display="flex" justifyContent="space-between" sx={{ mx: 2, mt: 2, mb: -2 }}>
         <Box flex="1">
           {!isFullscreen && (
             <Button variant="text" onClick={toggleFullscreen}>
@@ -71,18 +67,13 @@ export default function Cast() {
         <Box textAlign="center" flex="1">
           {!!nextPlayer?.displayName && (
             <Typography variant="h4">
-              <Trans
-                i18nKey="nextPlayersTurn"
-                values={{ player: nextPlayer.displayName }}
-              />
+              <Trans i18nKey="nextPlayersTurn" values={{ player: nextPlayer.displayName }} />
             </Typography>
           )}
         </Box>
 
         <Box flex="1" textAlign="right">
-          {activity && (
-            <Typography variant="h4">blitzedout.com/{room}</Typography>
-          )}
+          {activity && <Typography variant="h4">blitzedout.com/{room}</Typography>}
         </Box>
       </Box>
 
@@ -97,9 +88,7 @@ export default function Cast() {
         <Grid item container justifyContent="center">
           {activity ? (
             <Grid item xl={8} lg={10} md={10} className="action-box">
-              <Typography variant="h3">
-                {`${type} ${t('for')} ${displayName}`}
-              </Typography>
+              <Typography variant="h3">{`${type} ${t('for')} ${displayName}`}</Typography>
               <Box className="divider">
                 <Divider />
               </Box>
@@ -113,11 +102,7 @@ export default function Cast() {
         </Grid>
       </Grid>
 
-      <ToastAlert
-        open={!!openAlert}
-        close={() => setOpenAlert(false)}
-        hideCloseButton
-      >
+      <ToastAlert open={!!openAlert} close={() => setOpenAlert(false)} hideCloseButton>
         <Typography variant="h5">{alertMessage}</Typography>
       </ToastAlert>
     </Box>

@@ -22,20 +22,17 @@ export default function ImportExport({
   const [inputValue, setInputValue] = useState('');
 
   const exportData = () => {
-    const customString = customTiles.map(
-      ({ group, intensity, action, tags }) => {
-        const userData = mappedGroups.find(
-          (entry) =>
-            entry?.intensity === Number(intensity) && entry?.value === group
-        );
-        let actionText = '';
-        actionText += `[${userData?.group} - ${userData?.translatedIntensity}]\n`;
-        actionText += action;
-        actionText += tags?.length ? `\nTags: ` + tags?.join(', ') : '';
+    const customString = customTiles.map(({ group, intensity, action, tags }) => {
+      const userData = mappedGroups.find(
+        (entry) => entry?.intensity === Number(intensity) && entry?.value === group
+      );
+      let actionText = '';
+      actionText += `[${userData?.group} - ${userData?.translatedIntensity}]\n`;
+      actionText += action;
+      actionText += tags?.length ? `\nTags: ` + tags?.join(', ') : '';
 
-        return actionText;
-      }
-    );
+      return actionText;
+    });
 
     setInputValue(customString.join('\n---\n'));
   };
@@ -69,10 +66,7 @@ export default function ImportExport({
 
     if (uniqueRecords.length) {
       uniqueRecords.forEach(async (record) => {
-        submitCustomAction(
-          `${record.group} - ${record.intensity}`,
-          record.action
-        );
+        submitCustomAction(`${record.group} - ${record.intensity}`, record.action);
       });
       bulkImport(uniqueRecords);
     }
@@ -93,10 +87,7 @@ export default function ImportExport({
   }, [expanded, customTiles]);
 
   return (
-    <Accordion
-      expanded={expanded === 'ctImport'}
-      onChange={handleChange('ctImport')}
-    >
+    <Accordion expanded={expanded === 'ctImport'} onChange={handleChange('ctImport')}>
       <AccordionSummary aria-controls="ctImport-content" id="ctImport-header">
         <Typography>
           <Trans i18nKey="importExport" />
@@ -121,12 +112,7 @@ export default function ImportExport({
               sx: { alignItems: 'flex-start' },
             }}
           />
-          <Button
-            fullWidth
-            variant="contained"
-            type="button"
-            onClick={() => importTiles(formData)}
-          >
+          <Button fullWidth variant="contained" type="button" onClick={() => importTiles(formData)}>
             <Trans i18nKey="import" />
           </Button>
         </Box>

@@ -86,11 +86,7 @@ export default function TransitionModal({
             </Typography>
             <CloseIcon close={handleClose} />
 
-            <Typography
-              id="transition-modal-description"
-              variant="h4"
-              sx={{ mt: 2 }}
-            >
+            <Typography id="transition-modal-description" variant="h4" sx={{ mt: 2 }}>
               {description}
             </Typography>
             <br />

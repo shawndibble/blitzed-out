@@ -1,10 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  Typography,
-} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Grid, Typography } from '@mui/material';
 import CloseIcon from 'components/CloseIcon';
 import GridItemActionCard from 'components/GridItemActionCard';
 import useBreakpoint from 'hooks/useBreakpoint';
@@ -59,12 +53,7 @@ export default function GameOverDialog({ isOpen = false, close }) {
 
   return (
     <>
-      <Dialog
-        open={isOpen}
-        onClose={close}
-        fullScreen={isMobile}
-        aria-labelledby="modal-game-over"
-      >
+      <Dialog open={isOpen} onClose={close} fullScreen={isMobile} aria-labelledby="modal-game-over">
         <DialogContent>
           <Typography variant="h4" textAlign="center" sx={{ mb: 2, px: 2 }}>
             <Trans i18nKey="gameOverPlayAgain" />
@@ -88,10 +77,7 @@ export default function GameOverDialog({ isOpen = false, close }) {
               <Trans i18nKey="finalDifficultyDescription" />
             </GridItemActionCard>
 
-            <GridItemActionCard
-              title={t('changeSettings')}
-              onClick={openSettings}
-            >
+            <GridItemActionCard title={t('changeSettings')} onClick={openSettings}>
               <Trans i18nKey="changeSettingsDescription" />
             </GridItemActionCard>
           </Grid>

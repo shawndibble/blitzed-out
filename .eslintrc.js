@@ -11,11 +11,7 @@ module.exports = {
     node: true,
     es6: true,
   },
-  extends: [
-    'eslint:recommended',
-    'plugin:react/recommended',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['eslint:recommended', 'plugin:react/recommended', 'plugin:prettier/recommended'],
   plugins: ['react', 'react-hooks'],
   settings: {
     'import/resolver': {

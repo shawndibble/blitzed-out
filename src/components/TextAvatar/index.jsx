@@ -47,10 +47,7 @@ function stringAvatar(name, uid, size) {
 export default function TextAvatar({ uid, displayName, size }) {
   return (
     <Tooltip title={displayName}>
-      <Avatar
-        {...stringAvatar(displayName, uid, size)}
-        className="player-online"
-      />
+      <Avatar {...stringAvatar(displayName, uid, size)} className="player-online" />
     </Tooltip>
   );
 }

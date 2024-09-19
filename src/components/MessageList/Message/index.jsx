@@ -28,20 +28,9 @@ export default function Message({
     setDialog(false);
   }, []);
 
-  const {
-    id,
-    displayName,
-    text,
-    uid,
-    timestamp,
-    type,
-    boardSize,
-    image,
-    gameBoardId,
-  } = message;
+  const { id, displayName, text, uid, timestamp, type, boardSize, image, gameBoardId } = message;
 
-  const isImportable =
-    type === 'settings' && boardSize === currentGameBoardSize;
+  const isImportable = type === 'settings' && boardSize === currentGameBoardSize;
 
   let ago = moment(timestamp?.toDate()).fromNow();
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
@@ -52,13 +41,7 @@ export default function Message({
   }
 
   return (
-    <li
-      className={clsx(
-        'message',
-        isOwnMessage && 'own-message',
-        isTransparent && 'transparent'
-      )}
-    >
+    <li className={clsx('message', isOwnMessage && 'own-message', isTransparent && 'transparent')}>
       <div className="message-header">
         <div className="sender">
           <TextAvatar uid={uid} displayName={displayName} size="small" />
@@ -83,11 +66,7 @@ export default function Message({
           <>
             <Divider sx={{ my: 0.5 }} />
             {isImportable ? (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-              >
+              <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Link to={`?importBoard=${gameBoardId}`}>
                   <Trans i18nKey="importBoard" />
                 </Link>
@@ -104,11 +83,7 @@ export default function Message({
           </>
         )}
         {type === 'room' && (
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
+          <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="subtitle1">
               {t('room')}: <a href={window.location.href}>{room}</a>
             </Typography>

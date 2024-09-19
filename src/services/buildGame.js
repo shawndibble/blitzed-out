@@ -9,10 +9,7 @@ function playerRoleFiltering(actions, role) {
   // Filter should keep action if it has both {dom} and {sub} regardless of role. It should keep the action if it has {player}, regardless of role.
   return actions.filter((action) => {
     if (role === 'vers') {
-      return (
-        (action.includes('{sub}') && action.includes('{dom}')) ||
-        action.includes('{player}')
-      );
+      return (action.includes('{sub}') && action.includes('{dom}')) || action.includes('{player}');
     }
 
     return !action.match(/{(dom|sub)}/) || action.includes(`{${role}}`);
@@ -37,11 +34,7 @@ function restrictActionsToUserSelections(actionsFolder, settings) {
     .filter(([actionKey]) => settings[actionKey]?.level > 0)
     .map(([actionKey, actionObject]) => ({
       label: actionObject.label,
-      actions: restrictSubsetActions(
-        settings,
-        actionKey,
-        actionObject?.actions
-      ),
+      actions: restrictSubsetActions(settings, actionKey, actionObject?.actions),
       key: actionKey, // Key value used for categories prior to translation.
       standalone: false, // Determines if it will append to another category or stand on its own.
       role: settings[actionKey]?.role ?? settings.role ?? 'sub',
@@ -109,12 +102,7 @@ function separateAppendOptions(appendOptions, listWithMisc) {
   return { appendList, listWithoutAppend };
 }
 
-function calculateIntensity(
-  gameSize,
-  userSelectionMax,
-  currentTile,
-  difficulty
-) {
+function calculateIntensity(gameSize, userSelectionMax, currentTile, difficulty) {
   // for normal, we break the game up evenly, based on user's max intensity level.
   if ([undefined, 'normal'].includes(difficulty)) {
     const divider = gameSize / userSelectionMax;
@@ -149,12 +137,7 @@ function getCurrentTile(listWithMisc, size, currentTile, settings) {
   const catKeys = Object.keys(actions);
   const catActions = Object.values(actions);
 
-  let intensity = calculateIntensity(
-    size,
-    catKeys.length,
-    currentTile,
-    settings?.difficulty
-  );
+  let intensity = calculateIntensity(size, catKeys.length, currentTile, settings?.difficulty);
 
   // if we go too high with our math, back down 1.
   if (!catActions[intensity]) {
@@ -174,10 +157,7 @@ function getCurrentTile(listWithMisc, size, currentTile, settings) {
 // Builds the board based on user settings
 function buildBoard(listWithMisc, settings, size) {
   const appendOptions = getUserAppendSelections(settings);
-  const { listWithoutAppend, appendList } = separateAppendOptions(
-    appendOptions,
-    listWithMisc
-  );
+  const { listWithoutAppend, appendList } = separateAppendOptions(appendOptions, listWithMisc);
   const board = [];
 
   for (let currentTile = 1; currentTile <= size; currentTile += 1) {
@@ -196,9 +176,7 @@ function buildBoard(listWithMisc, settings, size) {
         currentTile,
         settings
       );
-      const ensurePunctuation = appendDescription
-        .trim()
-        .replace(/([^.,!?])$/, '$1.');
+      const ensurePunctuation = appendDescription.trim().replace(/([^.,!?])$/, '$1.');
       finalDescription = `${ensurePunctuation} ${description}`;
     } else {
       finalDescription = description;
@@ -225,16 +203,8 @@ function addStartAndFinishTiles(shuffledTiles, settings) {
 
 // Customizes the board based on user settings
 // Starts here as this is the only export.
-export default function customizeBoard(
-  settings,
-  actionsFolder,
-  userCustomTiles = [],
-  size = 40
-) {
-  const newActionList = restrictActionsToUserSelections(
-    actionsFolder,
-    settings
-  );
+export default function customizeBoard(settings, actionsFolder, userCustomTiles = [], size = 40) {
+  const newActionList = restrictActionsToUserSelections(actionsFolder, settings);
 
   if (!newActionList.length) {
     // if we have no action list, then clear local storage and reload.
