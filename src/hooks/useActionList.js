@@ -6,9 +6,14 @@ export default function useActionList(gameMode) {
   const { i18n } = useTranslation();
   const [actionsList, setActionList] = useState({});
 
-  useEffect(() => {
+  const importData = async () => {
     if (!gameMode) return;
-    setActionList(importActions(i18n.resolvedLanguage, gameMode));
+    const data = await importActions(i18n.resolvedLanguage, gameMode);
+    setActionList(data);
+  };
+
+  useEffect(() => {
+    importData()
   }, [i18n.resolvedLanguage, gameMode]);
 
   return actionsList;

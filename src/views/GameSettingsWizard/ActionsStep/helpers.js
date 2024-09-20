@@ -45,7 +45,6 @@ export const updateFormDataWithDefaults = (value, action, setFormData) => {
   setFormData((prevData) => {
     const newFormData = deleteOldFormData(prevData, action, value);
     value.forEach((option) => {
-      console.log('updateWithDefaults', newFormData, value, action);
       if (newFormData[option]) {
         return;
       }
