@@ -1,8 +1,8 @@
-import { Card, CardActionArea, CardContent, Divider, Grid, Typography } from '@mui/material';
+import { Card, CardActionArea, CardContent, Divider, Grid2, Typography } from '@mui/material';
 
 export default function GridItemActionCard({ children, title, onClick, disabled }) {
   return (
-    <Grid item xs={12} sm={6} container>
+    <Grid2 size={{ xs: 12, sm: 6 }} container>
       <Card sx={{ width: '100%' }}>
         <CardActionArea
           sx={{
@@ -21,6 +21,6 @@ export default function GridItemActionCard({ children, title, onClick, disabled 
           </CardContent>
         </CardActionArea>
       </Card>
-    </Grid>
+    </Grid2>
   );
 }

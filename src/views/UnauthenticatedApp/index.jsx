@@ -5,7 +5,7 @@ import {
   Card,
   CardContent,
   Container,
-  Grid,
+  Grid2,
   TextField,
   Typography,
 } from '@mui/material';
@@ -75,7 +75,7 @@ export default function UnauthenticatedApp() {
     <>
       <Navigation room={room} playerList={playerList} />
       <Container maxWidth="sm" sx={{ mt: 8 }}>
-        <Grid container flexDirection="column">
+        <Grid2 container flexDirection="column">
           <Card className="unauthenticated-card">
             <CardContent>
               <h2 className="setup">
@@ -101,9 +101,9 @@ export default function UnauthenticatedApp() {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid container sx={{ mt: 1 }}>
-          <Grid item className="language">
+        </Grid2>
+        <Grid2 container sx={{ mt: 1 }}>
+          <Grid2 className="language">
             <Card className="unauthenticated-card">
               <CardContent className="translation-card-content">
                 {!isMobile && <Language sx={{ mr: 1 }} />}
@@ -113,17 +113,17 @@ export default function UnauthenticatedApp() {
                 {languageLinks}
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
-        <Grid container sx={{ mt: 1 }}>
-          <Grid item className="language">
+          </Grid2>
+        </Grid2>
+        <Grid2 container sx={{ mt: 1 }}>
+          <Grid2 className="language">
             <Card className="unauthenticated-card">
               <CardContent>
                 <GameGuide />
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Grid2>
+        </Grid2>
       </Container>
     </>
   );

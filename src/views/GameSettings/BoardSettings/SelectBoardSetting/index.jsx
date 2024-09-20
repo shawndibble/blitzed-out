@@ -1,4 +1,4 @@
-import { FormControl, Grid, InputLabel, MenuItem, Select, Tooltip } from '@mui/material';
+import { FormControl, Grid2, InputLabel, MenuItem, Select, Tooltip } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
 import { Help } from '@mui/icons-material';
@@ -32,8 +32,7 @@ export default function SelectBoardSetting({
   }
 
   let gridSize = 12;
-  if (showVariation) gridSize = 6;
-  if (showRole) gridSize = 6;
+  if (showVariation || showRole) gridSize = 6;
 
   let roleOptions = ['dom', 'vers', 'sub'];
   if (actionsFolder[option]?.dom) {
@@ -54,17 +53,17 @@ export default function SelectBoardSetting({
   }
 
   return (
-    <Grid container key={option} justifyContent="center">
-      <Grid item xs={gridSize}>
+    <Grid2 container key={option} justifyContent="center">
+      <Grid2 size={gridSize}>
         <IncrementalSelect
           actionsFolder={actionsFolder}
           settings={settings}
           option={option}
           onChange={(event) => handleChange(event, option, 'level')}
         />
-      </Grid>
+      </Grid2>
       {!!showRole && (
-        <Grid item xs={6}>
+        <Grid2 size={6}>
           <SettingsSelect
             sx={{ ml: 1 }}
             value={settings[option]?.role}
@@ -73,10 +72,10 @@ export default function SelectBoardSetting({
             options={roleOptions}
             defaultValue={settings.role || 'sub'}
           />
-        </Grid>
+        </Grid2>
       )}
       {!!showVariation && (
-        <Grid item xs={6}>
+        <Grid2 size={6}>
           <Tooltip
             placement="top"
             title={
@@ -117,8 +116,8 @@ export default function SelectBoardSetting({
               </Select>
             </FormControl>
           </Tooltip>
-        </Grid>
+        </Grid2>
       )}
-    </Grid>
+    </Grid2>
   );
 }

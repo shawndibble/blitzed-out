@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from '@mui/material';
+import { Button, Grid2, Typography } from '@mui/material';
 import { getSiteName } from 'helpers/urls';
 
 const getSiteButton = (url) => {
@@ -18,8 +18,8 @@ const getSiteButton = (url) => {
 
 export default function ScheduleItem({ game }) {
   return (
-    <Grid container alignItems="center" spacing={1}>
-      <Grid item sx={{ whiteSpace: 'nowrap' }}>
+    <Grid2 container alignItems="center" spacing={1}>
+      <Grid2 sx={{ whiteSpace: 'nowrap' }}>
         <Typography variant="body2">
           {game.dateTime.toDate().toLocaleString([], {
             weekday: 'short',
@@ -29,8 +29,8 @@ export default function ScheduleItem({ game }) {
             minute: '2-digit',
           })}
         </Typography>
-      </Grid>
-      <Grid item>{getSiteButton(game.url)}</Grid>
-    </Grid>
+      </Grid2>
+      <Grid2>{getSiteButton(game.url)}</Grid2>
+    </Grid2>
   );
 }

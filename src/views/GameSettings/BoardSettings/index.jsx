@@ -1,4 +1,4 @@
-import { Divider, Grid, Tooltip, Typography } from '@mui/material';
+import { Divider, Grid2, Tooltip, Typography } from '@mui/material';
 import useBreakpoint from 'hooks/useBreakpoint';
 import GridItem from 'components/GridItem';
 import SettingsSelect from 'components/SettingsSelect';
@@ -49,16 +49,16 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
       <SoloSwitch formData={formData} setFormData={setFormData} />
 
       {isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode) && (
-        <Grid container alignContent="center" justifyContent="space-evenly">
-          <Grid item sx={{ py: 3 }}>
+        <Grid2 container alignContent="center" justifyContent="space-evenly">
+          <Grid2 sx={{ py: 3 }}>
             <Typography variant="h5">
               <Trans i18nKey="privateRequired" />
             </Typography>
-          </Grid>
-        </Grid>
+          </Grid2>
+        </Grid2>
       )}
 
-      <Grid container columnSpacing={2} justifyContent="space-evenly">
+      <Grid2 container columnSpacing={2} justifyContent="space-evenly">
         <GridItem>
           <Tooltip
             placement="top"
@@ -105,7 +105,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
             />
           </GridItem>
         )}
-      </Grid>
+      </Grid2>
 
       {isLocal ? (
         <>
@@ -121,13 +121,13 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
         </>
       ) : (
         <>
-          <Grid container columnSpacing={2} justifyContent="space-evenly">
+          <Grid2 container columnSpacing={2} justifyContent="space-evenly">
             {settingSelectLists('consumption', { showVariation: true })}
-          </Grid>
+          </Grid2>
           <Divider />
-          <Grid container columnSpacing={2} justifyContent="center">
+          <Grid2 container columnSpacing={2} justifyContent="center">
             {settingSelectLists('solo')}
-          </Grid>
+          </Grid2>
         </>
       )}
 

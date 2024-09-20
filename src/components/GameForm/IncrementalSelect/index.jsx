@@ -49,7 +49,7 @@ export default function IncrementalSelect({
   }
 
   return (
-    <FormControl fullWidth margin="normal">
+    <FormControl margin="normal" fullWidth>
       <InputLabel id={labelId}>{label}</InputLabel>
       <Select
         labelId={labelId}
