@@ -37,7 +37,7 @@ export default function useGameBoard() {
       settingsBoardUpdated = true;
     }
 
-    const tileActionList = importActions(i18n.resolvedLanguage, gameMode);
+    const tileActionList = await importActions(i18n.resolvedLanguage, gameMode);
 
     const tileCount = isPublic ? 40 : roomTileCount;
 
