@@ -50,6 +50,11 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
     }
   });
 
+  // if our last line was the --- \r\n then return nothing because we have no settings.
+  if (message.endsWith('--- \r\n')) {
+    return '';
+  }
+
   const { finishRange, difficulty } = settings;
 
   message += '--- \r\n';
@@ -110,14 +115,16 @@ export default async function sendGameSettingsMessage({
     settings,
   });
 
-  if (!gameBoard?.id) {
+  const text = getSettingsMessage(formData, customTiles, actionsList, reason);
+
+  if (!gameBoard?.id || text === '') {
     return;
   }
 
   return sendMessage({
     room: formData?.room || 'PUBLIC',
     user,
-    text: getSettingsMessage(formData, customTiles, actionsList, reason),
+    text,
     type: 'settings',
     gameBoardId: gameBoard.id,
     boardSize: tiles.length,

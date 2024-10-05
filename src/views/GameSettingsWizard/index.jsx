@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, Divider, Step, StepLabel, Stepper } from '@mui/material';
+import { Box, Button, CircularProgress, Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { Trans } from 'react-i18next';
 import RoomStep from './RoomStep';
 import GameModeStep from './GameModeStep';
@@ -54,7 +54,7 @@ export default function GameSettingsWizard({ close }) {
   }, [formData]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <CircularProgress />;
   }
 
   const nextStep = (count) => {
