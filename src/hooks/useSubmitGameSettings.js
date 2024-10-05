@@ -1,17 +1,17 @@
-import useAuth from 'context/hooks/useAuth';
+import useAuth from '@/context/hooks/useAuth';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { getActiveTiles } from 'stores/customTiles';
+import { getActiveTiles } from '@/stores/customTiles';
 import useGameBoard from './useGameBoard';
 import useLocalStorage from './useLocalStorage';
-import sendGameSettingsMessage from 'services/gameSettingsMessage';
-import { getActiveBoard, upsertBoard } from 'stores/gameBoard';
-import { handleUser, sendRoomSettingsMessage } from 'views/GameSettings/submitForm';
-import useMessages from 'context/hooks/useMessages';
+import sendGameSettingsMessage from '@/services/gameSettingsMessage';
+import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
+import { handleUser, sendRoomSettingsMessage } from '@/views/GameSettings/submitForm';
+import useMessages from '@/context/hooks/useMessages';
 import useRoomNavigate from './useRoomNavigate';
-import { isPublicRoom } from 'helpers/strings';
-import { isValidURL } from 'helpers/urls';
+import { isPublicRoom } from '@/helpers/strings';
+import { isValidURL } from '@/helpers/urls';
 
 function updateRoomBackground(formData) {
   if (!formData.roomBackgroundURL || !isValidURL(formData.roomBackgroundURL)) {

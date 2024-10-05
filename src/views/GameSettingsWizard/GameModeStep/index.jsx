@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
-import ButtonRow from 'components/ButtonRow';
-import SettingsSelect from 'components/SettingsSelect';
-import YesNoSwitch from 'components/GameForm/YesNoSwitch';
-import { isOnlineMode } from 'helpers/strings';
+import ButtonRow from '@/components/ButtonRow';
+import SettingsSelect from '@/components/SettingsSelect';
+import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
+import { isOnlineMode } from '@/helpers/strings';
 
 export default function GameModeStep({ formData, setFormData, nextStep, prevStep }) {
   return (

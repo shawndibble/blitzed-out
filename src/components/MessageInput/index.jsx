@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import useAuth from 'context/hooks/useAuth';
-import { sendMessage } from 'services/firebase';
+import useAuth from '@/context/hooks/useAuth';
+import { sendMessage } from '@/services/firebase';
 import './styles.css';
 import { Trans, useTranslation } from 'react-i18next';
 import { Camera, CameraResultType } from '@capacitor/camera';
-import ToastAlert from 'components/ToastAlert';
+import ToastAlert from '@/components/ToastAlert';
 import { Photo } from '@mui/icons-material';
 
 const calculateFileSizeInMB = (base64String) => {

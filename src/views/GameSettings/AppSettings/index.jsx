@@ -1,9 +1,9 @@
 import { Divider, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import BackgroundSelect from 'components/BackgroundSelect';
+import BackgroundSelect from '@/components/BackgroundSelect';
 import LanguageSelect from './LanguageSelect';
 import AppBoolSwitch from './AppBoolSwitch';
-import useLocalStorage from 'hooks/useLocalStorage';
+import useLocalStorage from '@/hooks/useLocalStorage';
 
 export default function AppSettings({ formData, setFormData, boardUpdated }) {
   const [settings, updateSettings] = useLocalStorage('gameSettings');

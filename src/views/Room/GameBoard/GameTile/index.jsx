@@ -2,7 +2,7 @@ import { AvatarGroup, Divider } from '@mui/material';
 import './styles.css';
 import { useEffect, useMemo, useRef } from 'react';
 
-import TextAvatar from 'components/TextAvatar';
+import TextAvatar from '@/components/TextAvatar';
 
 export default function GameTile({
   title,

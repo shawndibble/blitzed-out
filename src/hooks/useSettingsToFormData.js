@@ -1,5 +1,5 @@
-import useMessages from 'context/hooks/useMessages';
-import latestMessageByType from 'helpers/messages';
+import useMessages from '@/context/hooks/useMessages';
+import latestMessageByType from '@/helpers/messages';
 import { useEffect, useState } from 'react';
 import useLocalStorage from './useLocalStorage';
 

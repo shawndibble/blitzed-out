@@ -1,14 +1,14 @@
 import { Divider, Grid2, Tooltip, Typography } from '@mui/material';
-import useBreakpoint from 'hooks/useBreakpoint';
-import GridItem from 'components/GridItem';
-import SettingsSelect from 'components/SettingsSelect';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import GridItem from '@/components/GridItem';
+import SettingsSelect from '@/components/SettingsSelect';
 import { Trans, useTranslation } from 'react-i18next';
-import InvisibleAccordionGrid from 'components/InvisibleAccordionGrid';
+import InvisibleAccordionGrid from '@/components/InvisibleAccordionGrid';
 import FinishSlider from './FinishSlider';
 import SelectBoardSetting from './SelectBoardSetting';
 import SoloSwitch from './SoloSwitch';
 import WarningAlert from './WarningAlert';
-import { isOnlineMode, isPublicRoom } from 'helpers/strings';
+import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
 export default function BoardSettings({ formData, setFormData, actionsList }) {
   const { t } = useTranslation();

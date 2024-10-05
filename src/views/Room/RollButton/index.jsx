@@ -12,7 +12,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
-import useCountdown from 'hooks/useCountdown';
+import useCountdown from '@/hooks/useCountdown';
 
 function isNumeric(value) {
   return /^-?\d+$/.test(value);

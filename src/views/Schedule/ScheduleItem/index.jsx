@@ -1,5 +1,5 @@
 import { Button, Grid2, Typography } from '@mui/material';
-import { getSiteName } from 'helpers/urls';
+import { getSiteName } from '@/helpers/urls';
 
 const getSiteButton = (url) => {
   try {

@@ -4,11 +4,11 @@ import Box from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
-import CloseIcon from 'components/CloseIcon';
-import CountDownButtonModal from 'components/CountDownButtonModal';
-import GameOverDialog from 'components/GameOverDialog';
-import { extractAction, extractTime } from 'helpers/strings';
-import useCountdown from 'hooks/useCountdown';
+import CloseIcon from '@/components/CloseIcon';
+import CountDownButtonModal from '@/components/CountDownButtonModal';
+import GameOverDialog from '@/components/GameOverDialog';
+import { extractAction, extractTime } from '@/helpers/strings';
+import useCountdown from '@/hooks/useCountdown';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 

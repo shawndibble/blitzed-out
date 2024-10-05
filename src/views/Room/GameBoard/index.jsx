@@ -1,5 +1,5 @@
-import useAuth from 'context/hooks/useAuth';
-import actionStringReplacement from 'services/actionStringReplacement';
+import useAuth from '@/context/hooks/useAuth';
+import actionStringReplacement from '@/services/actionStringReplacement';
 import GameTile from './GameTile';
 import './styles.css';
 

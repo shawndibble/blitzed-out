@@ -1,7 +1,7 @@
-import { normalSortedMessages } from 'helpers/messages';
+import { normalSortedMessages } from '@/helpers/messages';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getMessages } from 'services/firebase';
+import { getMessages } from '@/services/firebase';
 
 const MessagesContext = React.createContext();
 

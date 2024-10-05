@@ -1,4 +1,4 @@
-import { shuffleArray, cycleArray } from 'helpers/arrays';
+import { shuffleArray, cycleArray } from '@/helpers/arrays';
 import i18next from 'i18next';
 
 const { t } = i18next;

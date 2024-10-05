@@ -1,6 +1,6 @@
 import { Help } from '@mui/icons-material';
 import { Stack, Switch, TextField, Tooltip, Typography } from '@mui/material';
-import { isPublicRoom } from 'helpers/strings';
+import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
 import { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';

@@ -1,4 +1,4 @@
-import { UserListContext } from 'context/userList';
+import { UserListContext } from '@/context/userList';
 import React from 'react';
 
 export default function useUserList() {

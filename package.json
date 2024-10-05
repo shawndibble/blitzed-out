@@ -10,7 +10,8 @@
     "format": "prettier --write .",
     "start": "vite",
     "build": "vite build",
-    "dev": "vite"
+    "prepare": "husky",
+    "test": "jest"
   },
   "dependencies": {
     "@capacitor/camera": "^6.0.0",
@@ -46,18 +47,24 @@
     "web-vitals": "^4.0.0"
   },
   "devDependencies": {
-    "@svgr/core": "^8.1.0",
-    "@svgr/plugin-jsx": "^8.1.0",
-    "@vitejs/plugin-react": "^4.3.1",
-    "eslint": "^8.56.0",
+    "@eslint/js": "^9.9.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^9.12.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-react": "^7.34.2",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "husky": "^9.0.11",
-    "prettier": "^3.3.1",
-    "vite": "^5.2.13",
-    "vite-tsconfig-paths": "^4.3.2"
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.37.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.9",
+    "globals": "^15.9.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "path": "^0.12.7",
+    "prettier": "^3.3.3",
+    "vite": "^5.4.1"
   },
   "browserslist": {
     "production": [
@@ -71,19 +78,17 @@
       "last 1 safari version"
     ]
   },
+  "lint-staged": {
+    "src/**/*.(ts|tsx|js|jsx)": [
+      "prettier --write"
+    ],
+    "src/**/*.(json|css|scss|md)|.(babelrc|prettierrc|eslint.js|tsconfig.json)": [
+      "prettier --write"
+    ]
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.jsx": [
-      "eslint --fix",
-      "prettier --write"
-    ]
   }
 }

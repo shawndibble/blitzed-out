@@ -1,9 +1,9 @@
 import { t } from 'i18next';
 import { useMemo } from 'react';
-import { orderedMessagesByType } from 'helpers/messages';
-import useAuth from 'context/hooks/useAuth';
-import useMessages from 'context/hooks/useMessages';
-import useUserList from 'context/hooks/useUserList';
+import { orderedMessagesByType } from '@/helpers/messages';
+import useAuth from '@/context/hooks/useAuth';
+import useMessages from '@/context/hooks/useMessages';
+import useUserList from '@/context/hooks/useUserList';
 
 function filteredGameMessages(messages) {
   const filteredMessages = orderedMessagesByType(messages, 'actions', 'DESC');

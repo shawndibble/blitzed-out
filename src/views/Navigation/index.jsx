@@ -9,16 +9,16 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import useSchedule from 'context/hooks/useSchedule';
-import useBreakpoint from 'hooks/useBreakpoint';
-import Logo from 'images/blitzed-out.png';
+import useSchedule from '@/context/hooks/useSchedule';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import Logo from '@/images/blitzed-out.png';
 import { forwardRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import Schedule from 'views/Schedule';
+import Schedule from '@/views/Schedule';
 import MenuDrawer from './MenuDrawer';
 import PlayersOnline from './PlayersOnline';
 import './styles.css';
-import { isPublicRoom } from 'helpers/strings';
+import { isPublicRoom } from '@/helpers/strings';
 
 export default function Navigation({ room, playerList = [] }) {
   const { t } = useTranslation();

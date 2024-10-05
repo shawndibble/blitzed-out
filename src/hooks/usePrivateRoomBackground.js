@@ -1,5 +1,5 @@
-import latestMessageByType from 'helpers/messages';
-import { processBackground } from 'services/getBackgroundSource';
+import latestMessageByType from '@/helpers/messages';
+import { processBackground } from '@/services/getBackgroundSource';
 
 export default function usePrivateRoomBackground(messages) {
   const roomMessage = latestMessageByType(messages, 'room');

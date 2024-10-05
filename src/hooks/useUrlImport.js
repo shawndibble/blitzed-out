@@ -1,8 +1,8 @@
-import { getBoard } from 'services/firebase';
+import { getBoard } from '@/services/firebase';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
-import { upsertBoard } from 'stores/gameBoard';
+import { upsertBoard } from '@/stores/gameBoard';
 
 export default function useUrlImport(settings, setSettings) {
   const [alert, setAlert] = useState(null);

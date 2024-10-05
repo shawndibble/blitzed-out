@@ -1,7 +1,7 @@
 import { Delete } from '@mui/icons-material';
 import { IconButton, Tooltip } from '@mui/material';
 import { Trans } from 'react-i18next';
-import { deleteMessage } from 'services/firebase';
+import { deleteMessage } from '@/services/firebase';
 
 export default function DeleteMessageButton({ room, id }) {
   return (

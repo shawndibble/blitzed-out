@@ -1,6 +1,6 @@
 import { ContentCopy } from '@mui/icons-material';
 import { IconButton, Tooltip } from '@mui/material';
-import ToastAlert from 'components/ToastAlert';
+import ToastAlert from '@/components/ToastAlert';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

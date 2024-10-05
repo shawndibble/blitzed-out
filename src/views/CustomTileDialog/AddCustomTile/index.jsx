@@ -1,11 +1,11 @@
 import { Autocomplete, Box, Button, TextField, Typography } from '@mui/material';
-import { submitCustomAction } from 'services/firebase';
+import { submitCustomAction } from '@/services/firebase';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import Accordion from 'components/Accordion';
-import AccordionSummary from 'components/Accordion/Summary';
-import AccordionDetails from 'components/Accordion/Details';
-import { addCustomTile, updateCustomTile } from 'stores/customTiles';
+import Accordion from '@/components/Accordion';
+import AccordionSummary from '@/components/Accordion/Summary';
+import AccordionDetails from '@/components/Accordion/Details';
+import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
 
 export default function AddCustomTile({
   setSubmitMessage,

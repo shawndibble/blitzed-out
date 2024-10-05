@@ -1,16 +1,16 @@
 import { Box, Button, Divider, Grid2, Typography } from '@mui/material';
-import ToastAlert from 'components/ToastAlert';
-import latestMessageByType from 'helpers/messages';
-import useMessages from 'context/hooks/useMessages';
-import usePrivateRoomBackground from 'hooks/usePrivateRoomBackground';
-import useTurnIndicator from 'hooks/useTurnIndicator';
+import ToastAlert from '@/components/ToastAlert';
+import latestMessageByType from '@/helpers/messages';
+import useMessages from '@/context/hooks/useMessages';
+import usePrivateRoomBackground from '@/hooks/usePrivateRoomBackground';
+import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { t } from 'i18next';
 import { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import RoomBackground from 'components/RoomBackground';
+import RoomBackground from '@/components/RoomBackground';
 import './styles.css';
-import useFullscreenStatus from 'hooks/useFullscreenStatus';
+import useFullscreenStatus from '@/hooks/useFullscreenStatus';
 import React from 'react';
 
 const ACTION_TYPE = 'actions';

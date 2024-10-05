@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
-import RoomSwitch from 'components/GameForm/RoomSwitch';
-import ButtonRow from 'components/ButtonRow';
-import useRoomNavigate from 'hooks/useRoomNavigate';
-import { isPublicRoom } from 'helpers/strings';
+import RoomSwitch from '@/components/GameForm/RoomSwitch';
+import ButtonRow from '@/components/ButtonRow';
+import useRoomNavigate from '@/hooks/useRoomNavigate';
+import { isPublicRoom } from '@/helpers/strings';
 
 export default function RoomStep({ formData, setFormData, nextStep }) {
   const navigate = useRoomNavigate();

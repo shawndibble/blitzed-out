@@ -2,7 +2,7 @@ import { Language } from '@mui/icons-material';
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import languages from 'locales/languages.json';
+import languages from '@/locales/languages.json';
 
 export default function LanguageSelect({ boardUpdated }) {
   const { i18n } = useTranslation();

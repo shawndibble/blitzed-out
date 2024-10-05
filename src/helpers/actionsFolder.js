@@ -1,4 +1,4 @@
-import { camelToPascal } from 'helpers/strings';
+import { camelToPascal } from '@/helpers/strings';
 import i18next from 'i18next';
 
 export default function groupActionsFolder(actionsFolder) {

@@ -1,7 +1,7 @@
 import { Delete, Edit } from '@mui/icons-material';
 import { Box, Card, CardActions, CardHeader, Chip, IconButton, Switch } from '@mui/material';
 import { useState } from 'react';
-import { deleteCustomTile, toggleCustomTile } from 'stores/customTiles';
+import { deleteCustomTile, toggleCustomTile } from '@/stores/customTiles';
 
 export default function ViewCustomTiles({
   tagList,

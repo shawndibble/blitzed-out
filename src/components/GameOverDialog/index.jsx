@@ -1,13 +1,13 @@
 import { Dialog, DialogContent, DialogTitle, Grid2, Typography } from '@mui/material';
-import CloseIcon from 'components/CloseIcon';
-import GridItemActionCard from 'components/GridItemActionCard';
-import useBreakpoint from 'hooks/useBreakpoint';
-import useGameBoard from 'hooks/useGameBoard';
-import useLocalStorage from 'hooks/useLocalStorage';
-import useReturnToStart from 'hooks/useReturnToStart';
+import CloseIcon from '@/components/CloseIcon';
+import GridItemActionCard from '@/components/GridItemActionCard';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import useGameBoard from '@/hooks/useGameBoard';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import useReturnToStart from '@/hooks/useReturnToStart';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import GameSettings from 'views/GameSettings';
+import GameSettings from '@/views/GameSettings';
 
 export default function GameOverDialog({ isOpen = false, close }) {
   const { t } = useTranslation();

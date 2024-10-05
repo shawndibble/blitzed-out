@@ -1,6 +1,6 @@
 import { Backdrop, Box, Button, Modal, Typography } from '@mui/material';
-import CloseIcon from 'components/CloseIcon';
-import useCountdown from 'hooks/useCountdown';
+import CloseIcon from '@/components/CloseIcon';
+import useCountdown from '@/hooks/useCountdown';
 import { useEffect, useState } from 'react';
 
 const style = () => ({

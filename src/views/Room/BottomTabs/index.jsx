@@ -4,8 +4,8 @@ import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import { a11yProps } from 'helpers/strings';
-import TabPanel from 'components/TabPanel';
+import { a11yProps } from '@/helpers/strings';
+import TabPanel from '@/components/TabPanel';
 import { useTranslation } from 'react-i18next';
 
 export default function BottomTabs({ tab1, tab2 }) {

@@ -1,6 +1,6 @@
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import useHasMouse from 'hooks/useHasMouse';
+import useHasMouse from '@/hooks/useHasMouse';
 import { useState } from 'react';
 
 export default function IncrementalSelect({

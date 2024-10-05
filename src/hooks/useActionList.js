@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { importActions } from 'services/importLocales';
+import { importActions } from '@/services/importLocales';
 
 export default function useActionList(gameMode) {
   const { i18n } = useTranslation();

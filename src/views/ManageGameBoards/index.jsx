@@ -10,21 +10,21 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import CloseIcon from 'components/CloseIcon';
+import CloseIcon from '@/components/CloseIcon';
 import { Trans } from 'react-i18next';
 import ImportExport from './ImportExport';
 import { useState } from 'react';
-import ToastAlert from 'components/ToastAlert';
-import { activateBoard, deleteBoard, getBoards, upsertBoard } from 'stores/gameBoard';
+import ToastAlert from '@/components/ToastAlert';
+import { activateBoard, deleteBoard, getBoards, upsertBoard } from '@/stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
-import Accordion from 'components/Accordion';
-import AccordionSummary from 'components/Accordion/Summary';
-import AccordionDetails from 'components/Accordion/Details';
+import Accordion from '@/components/Accordion';
+import AccordionSummary from '@/components/Accordion/Summary';
+import AccordionDetails from '@/components/Accordion/Details';
 import { AddCircle, Delete } from '@mui/icons-material';
 import { t } from 'i18next';
-import useLocalStorage from 'hooks/useLocalStorage';
-import useAuth from 'context/hooks/useAuth';
-import { getOrCreateBoard, sendMessage } from 'services/firebase';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import useAuth from '@/context/hooks/useAuth';
+import { getOrCreateBoard, sendMessage } from '@/services/firebase';
 
 export default function GameBoard({ open, close, isMobile }) {
   const gameBoards = useLiveQuery(getBoards);

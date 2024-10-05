@@ -1,4 +1,4 @@
-import { isOnlineMode, isPublicRoom } from 'helpers/strings';
+import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
 function hasSomethingPicked(object) {
   return Object.values(object).some(({ level }) => level > 0);

@@ -1,7 +1,7 @@
 import Typography from '@mui/material/Typography';
-import Accordion from 'components/Accordion';
-import AccordionDetails from 'components/Accordion/Details';
-import AccordionSummary from 'components/Accordion/Summary';
+import Accordion from '@/components/Accordion';
+import AccordionDetails from '@/components/Accordion/Details';
+import AccordionSummary from '@/components/Accordion/Summary';
 import { Trans } from 'react-i18next';
 
 export default function CustomTileHelp({ expanded, handleChange }) {

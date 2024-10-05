@@ -1,8 +1,8 @@
 import { Box, Button, Divider, Typography } from '@mui/material';
 import clsx from 'clsx';
-import DeleteMessageButton from 'components/DeleteMessageButton';
-import GameOverDialog from 'components/GameOverDialog';
-import TextAvatar from 'components/TextAvatar';
+import DeleteMessageButton from '@/components/DeleteMessageButton';
+import GameOverDialog from '@/components/GameOverDialog';
+import TextAvatar from '@/components/TextAvatar';
 import moment from 'moment';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -10,7 +10,7 @@ import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
 import remarkGemoji from 'remark-gemoji';
-import CopyToClipboard from 'components/CopyToClipboard';
+import CopyToClipboard from '@/components/CopyToClipboard';
 import { Share } from '@mui/icons-material';
 import ActionText from './actionText';
 

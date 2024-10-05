@@ -1,4 +1,4 @@
-import { isOnlineMode } from 'helpers/strings';
+import { isOnlineMode } from '@/helpers/strings';
 
 const shouldPurgeAction = (formData, entry) => {
   const { gameMode, isNaked } = formData;

@@ -5,11 +5,11 @@ import RoomStep from './RoomStep';
 import GameModeStep from './GameModeStep';
 import ActionsStep from './ActionsStep';
 import FinishStep from './FinishStep';
-import GameSettings from 'views/GameSettings';
+import GameSettings from '@/views/GameSettings';
 import { useParams } from 'react-router-dom';
-import useSettingsToFormData from 'hooks/useSettingsToFormData';
-import { isPublicRoom } from 'helpers/strings';
-import useActionList from 'hooks/useActionList';
+import useSettingsToFormData from '@/hooks/useSettingsToFormData';
+import { isPublicRoom } from '@/helpers/strings';
+import useActionList from '@/hooks/useActionList';
 
 export default function GameSettingsWizard({ close }) {
   const { id: room } = useParams();

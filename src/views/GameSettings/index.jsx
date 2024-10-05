@@ -1,21 +1,21 @@
 import { Box, Button, Tab, Tabs, TextField, Typography } from '@mui/material';
-import TabPanel from 'components/TabPanel';
-import ToastAlert from 'components/ToastAlert';
-import { a11yProps } from 'helpers/strings';
-import useAuth from 'context/hooks/useAuth';
-import useLocalStorage from 'hooks/useLocalStorage';
+import TabPanel from '@/components/TabPanel';
+import ToastAlert from '@/components/ToastAlert';
+import { a11yProps } from '@/helpers/strings';
+import useAuth from '@/context/hooks/useAuth';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import CustomTileDialog from 'views/CustomTileDialog';
+import CustomTileDialog from '@/views/CustomTileDialog';
 import AppSettings from './AppSettings';
 import BoardSettings from './BoardSettings';
 import RoomSettings from './RoomSettings';
 import './styles.css';
 import validateFormData from './validateForm';
-import useSubmitGameSettings from 'hooks/useSubmitGameSettings';
-import useSettingsToFormData from 'hooks/useSettingsToFormData';
-import useRoomNavigate from 'hooks/useRoomNavigate';
-import useActionList from 'hooks/useActionList';
+import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
+import useSettingsToFormData from '@/hooks/useSettingsToFormData';
+import useRoomNavigate from '@/hooks/useRoomNavigate';
+import useActionList from '@/hooks/useActionList';
 
 export default function GameSettings({ closeDialog }) {
   const { user } = useAuth();

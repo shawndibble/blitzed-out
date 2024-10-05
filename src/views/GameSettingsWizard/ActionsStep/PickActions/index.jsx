@@ -1,10 +1,10 @@
 import { Typography } from '@mui/material';
-import IncrementalSelect from 'components/GameForm/IncrementalSelect';
+import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
 import { useState } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
-import { isOnlineMode } from 'helpers/strings';
-import MultiSelect from 'components/MultiSelect';
+import { isOnlineMode } from '@/helpers/strings';
+import MultiSelect from '@/components/MultiSelect';
 import { handleChange, populateSelections, updateFormDataWithDefaults } from '../helpers';
 
 const MAX_ACTIONS = 4;

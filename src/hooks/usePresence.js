@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { setMyPresence } from 'services/firebase';
-import useAuth from 'context/hooks/useAuth';
+import { setMyPresence } from '@/services/firebase';
+import useAuth from '@/context/hooks/useAuth';
 
 export default function usePresence(roomId, roomRealtime) {
   const {

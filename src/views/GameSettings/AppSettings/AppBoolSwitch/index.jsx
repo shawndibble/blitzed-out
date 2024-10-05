@@ -1,4 +1,4 @@
-import YesNoSwitch from 'components/GameForm/YesNoSwitch';
+import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
 
 export default function AppBoolSwitch({ field, formData, handleSwitch }) {
   return (

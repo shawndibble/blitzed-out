@@ -1,11 +1,11 @@
 import { Box, Divider } from '@mui/material';
-import BackgroundSelect from 'components/BackgroundSelect';
+import BackgroundSelect from '@/components/BackgroundSelect';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import GameSpeed from './GameSpeed';
 import PlayerListOption from './PlayerListOption';
-import RoomSwitch from 'components/GameForm/RoomSwitch';
-import { isPublicRoom } from 'helpers/strings';
+import RoomSwitch from '@/components/GameForm/RoomSwitch';
+import { isPublicRoom } from '@/helpers/strings';
 
 export default function RoomSettings({ formData, setFormData }) {
   const { t } = useTranslation();

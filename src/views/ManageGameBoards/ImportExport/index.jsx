@@ -1,9 +1,9 @@
 import { Save, Share } from '@mui/icons-material';
 import { IconButton, TextField, Tooltip } from '@mui/material';
-import CopyToClipboard from 'components/CopyToClipboard';
+import CopyToClipboard from '@/components/CopyToClipboard';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { updateBoard } from 'stores/gameBoard';
+import { updateBoard } from '@/stores/gameBoard';
 
 export default function ImportExport({ open, close, setAlert, board }) {
   const { t } = useTranslation();

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
-import ButtonRow from 'components/ButtonRow';
+import ButtonRow from '@/components/ButtonRow';
 import PickConsumptions from './PickConsumptions/index';
 import PickActions from './PickActions';
 import { purgedFormData } from './helpers';
-import { isPublicRoom } from 'helpers/strings';
+import { isPublicRoom } from '@/helpers/strings';
 
 export default function ActionsStep({ formData, setFormData, nextStep, prevStep, actionsList }) {
   function settingSelectLists(type) {

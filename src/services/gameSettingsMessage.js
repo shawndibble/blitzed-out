@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 import { getOrCreateBoard, sendMessage } from './firebase';
-import { isOnlineMode } from 'helpers/strings';
+import { isOnlineMode } from '@/helpers/strings';
 
 function getCustomTileCount(settings, customTiles, actionsList) {
   const settingsDataFolder = Object.entries(actionsList)

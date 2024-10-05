@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Box, Button, FormControlLabel, Switch, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
-import ButtonRow from 'components/ButtonRow';
-import { arraysEqual } from 'helpers/arrays';
-import useSubmitGameSettings from 'hooks/useSubmitGameSettings';
+import ButtonRow from '@/components/ButtonRow';
+import { arraysEqual } from '@/helpers/arrays';
+import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 
 export default function FinishStep({ formData, setFormData, prevStep, actionsList, close }) {
   const no = [100, 100];

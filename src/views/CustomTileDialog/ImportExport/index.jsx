@@ -1,13 +1,13 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
-import { submitCustomAction } from 'services/firebase';
+import { submitCustomAction } from '@/services/firebase';
 import { useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import Accordion from 'components/Accordion';
-import AccordionSummary from 'components/Accordion/Summary';
-import AccordionDetails from 'components/Accordion/Details';
-import CopyToClipboard from 'components/CopyToClipboard';
+import Accordion from '@/components/Accordion';
+import AccordionSummary from '@/components/Accordion/Summary';
+import AccordionDetails from '@/components/Accordion/Details';
+import CopyToClipboard from '@/components/CopyToClipboard';
 import getUniqueImportRecords from './getUniqueImportRecords';
-import { updateCustomTile } from 'stores/customTiles';
+import { updateCustomTile } from '@/stores/customTiles';
 
 export default function ImportExport({
   expanded,

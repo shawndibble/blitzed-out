@@ -9,17 +9,17 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import useAuth from 'context/hooks/useAuth';
-import useBreakpoint from 'hooks/useBreakpoint';
-import useLocalStorage from 'hooks/useLocalStorage';
-import usePlayerList from 'hooks/usePlayerList';
-import languages from 'locales/languages.json';
+import useAuth from '@/context/hooks/useAuth';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import usePlayerList from '@/hooks/usePlayerList';
+import languages from '@/locales/languages.json';
 import React, { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';
-import Navigation from 'views/Navigation';
+import Navigation from '@/views/Navigation';
 import './styles.css';
-import GameGuide from 'views/GameGuide';
+import GameGuide from '@/views/GameGuide';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();

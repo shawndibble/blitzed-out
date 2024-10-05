@@ -2,9 +2,9 @@ import { FormControl, Grid2, InputLabel, MenuItem, Select, Tooltip } from '@mui/
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
 import { Help } from '@mui/icons-material';
-import SettingsSelect from 'components/SettingsSelect';
+import SettingsSelect from '@/components/SettingsSelect';
 import './style.css';
-import IncrementalSelect from 'components/GameForm/IncrementalSelect';
+import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
 
 export default function SelectBoardSetting({
   option,

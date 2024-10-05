@@ -1,12 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { isPublicRoom } from 'helpers/strings';
-import useLocalStorage from 'hooks/useLocalStorage';
+import { isPublicRoom } from '@/helpers/strings';
+import useLocalStorage from '@/hooks/useLocalStorage';
 import { useTranslation } from 'react-i18next';
-import customizeBoard from 'services/buildGame';
-import { importActions } from 'services/importLocales';
-import { getActiveTiles } from 'stores/customTiles';
-import { getActiveBoard, upsertBoard } from 'stores/gameBoard';
-import { isOnlineMode } from 'helpers/strings';
+import customizeBoard from '@/services/buildGame';
+import { importActions } from '@/services/importLocales';
+import { getActiveTiles } from '@/stores/customTiles';
+import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
+import { isOnlineMode } from '@/helpers/strings';
 
 /**
  * Builds a game board based on the settings provided.

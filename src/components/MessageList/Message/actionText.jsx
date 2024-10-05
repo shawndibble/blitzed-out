@@ -1,5 +1,5 @@
-import CountDownButtonModal from 'components/CountDownButtonModal';
-import { extractTime } from 'helpers/strings';
+import CountDownButtonModal from '@/components/CountDownButtonModal';
+import { extractTime } from '@/helpers/strings';
 import { useTranslation } from 'react-i18next';
 import reactStringReplace from 'react-string-replace';
 

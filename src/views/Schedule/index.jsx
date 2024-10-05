@@ -10,12 +10,12 @@ import {
 } from '@mui/material';
 
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import CloseIcon from 'components/CloseIcon';
-import ToastAlert from 'components/ToastAlert';
+import CloseIcon from '@/components/CloseIcon';
+import ToastAlert from '@/components/ToastAlert';
 import dayjs from 'dayjs';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import useSchedule from 'context/hooks/useSchedule';
+import useSchedule from '@/context/hooks/useSchedule';
 import ScheduleItem from './ScheduleItem';
 
 export default function Schedule({ open, close, isMobile }) {

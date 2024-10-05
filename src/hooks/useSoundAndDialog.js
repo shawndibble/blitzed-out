@@ -1,13 +1,13 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import useLocalStorage from 'hooks/useLocalStorage';
-import diceSound from 'sounds/roll-dice.mp3';
-import messageSound from 'sounds/message.mp3';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import diceSound from '@/sounds/roll-dice.mp3';
+import messageSound from '@/sounds/message.mp3';
 import moment from 'moment';
 import useSound from 'use-sound';
-import speak from 'services/textToSpeech';
-import { extractAction } from 'helpers/strings';
-import useAuth from 'context/hooks/useAuth';
-import useMessages from 'context/hooks/useMessages';
+import speak from '@/services/textToSpeech';
+import { extractAction } from '@/helpers/strings';
+import useAuth from '@/context/hooks/useAuth';
+import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 
 export default function useSoundAndDialog(room) {

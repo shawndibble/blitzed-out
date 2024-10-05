@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { sendMessage } from 'services/firebase';
-import useAuth from 'context/hooks/useAuth';
-import actionStringReplacement from 'services/actionStringReplacement';
+import { sendMessage } from '@/services/firebase';
+import useAuth from '@/context/hooks/useAuth';
+import actionStringReplacement from '@/services/actionStringReplacement';
 import usePlayerList from './usePlayerList';
 
 function getFinishResult(textArray) {

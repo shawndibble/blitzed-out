@@ -1,6 +1,6 @@
-import { getSiteName } from 'helpers/urls';
+import { getSiteName } from '@/helpers/urls';
 import i18next from 'i18next';
-import { sendMessage } from 'services/firebase';
+import { sendMessage } from '@/services/firebase';
 
 function getRoomSettingsMessage(settings) {
   const { t } = i18next;

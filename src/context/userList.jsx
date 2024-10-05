@@ -1,6 +1,6 @@
 import { createContext, useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { getUserList } from 'services/firebase';
+import { getUserList } from '@/services/firebase';
 
 const UserListContext = createContext();
 

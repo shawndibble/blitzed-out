@@ -1,15 +1,15 @@
-import latestMessageByType from 'helpers/messages';
-import useAuth from 'context/hooks/useAuth';
-import useGameBoard from 'hooks/useGameBoard';
-import useLocalStorage from 'hooks/useLocalStorage';
-import useMessages from 'context/hooks/useMessages';
+import latestMessageByType from '@/helpers/messages';
+import useAuth from '@/context/hooks/useAuth';
+import useGameBoard from '@/hooks/useGameBoard';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import useMessages from '@/context/hooks/useMessages';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import sendGameSettingsMessage from 'services/gameSettingsMessage';
-import { importActions } from 'services/importLocales';
+import sendGameSettingsMessage from '@/services/gameSettingsMessage';
+import { importActions } from '@/services/importLocales';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getActiveTiles } from 'stores/customTiles';
-import { isOnlineMode, isPublicRoom } from 'helpers/strings';
+import { getActiveTiles } from '@/stores/customTiles';
+import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
 export default function usePrivateRoomMonitor(room, gameBoard) {
   const DEFAULT_DIEM = '1d6';

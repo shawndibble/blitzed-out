@@ -16,17 +16,17 @@ import {
   ListItemText,
   SvgIcon,
 } from '@mui/material';
-import CloseIcon from 'components/CloseIcon';
-import GameSettingsDialog from 'components/GameSettingsDialog';
-import useAuth from 'context/hooks/useAuth';
-import useBreakpoint from 'hooks/useBreakpoint';
+import CloseIcon from '@/components/CloseIcon';
+import GameSettingsDialog from '@/components/GameSettingsDialog';
+import useAuth from '@/context/hooks/useAuth';
+import useBreakpoint from '@/hooks/useBreakpoint';
 import { useMemo, useState } from 'react';
 import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { logout } from 'services/firebase';
-import GameGuide from 'views/GameGuide';
-import ManageGameBoards from 'views/ManageGameBoards';
-import Schedule from 'views/Schedule';
+import { logout } from '@/services/firebase';
+import GameGuide from '@/views/GameGuide';
+import ManageGameBoards from '@/views/ManageGameBoards';
+import Schedule from '@/views/Schedule';
 
 export default function MenuDrawer() {
   const { id: room } = useParams();

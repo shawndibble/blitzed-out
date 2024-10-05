@@ -1,5 +1,5 @@
 import { createContext, useState, useMemo, useEffect } from 'react';
-import { getSchedule, addSchedule } from 'services/firebase';
+import { getSchedule, addSchedule } from '@/services/firebase';
 
 const ScheduleContext = createContext();
 
