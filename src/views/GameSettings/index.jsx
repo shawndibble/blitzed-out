@@ -29,7 +29,7 @@ export default function GameSettings({ closeDialog }) {
   const navigate = useRoomNavigate();
 
   const submitSettings = useSubmitGameSettings();
-  const actionsList = useActionList(formData?.gameMode);
+  const { isLoading, actionsList } = useActionList(formData?.gameMode);
 
   const handleTabChange = (_, newValue) => {
     setValue(newValue);
@@ -76,7 +76,7 @@ export default function GameSettings({ closeDialog }) {
     [formData, handleSubmit]
   );
 
-  if (!formData.room) {
+  if (!formData.room || isLoading) {
     return (
       <Box>
         <Typography variant="h2">
