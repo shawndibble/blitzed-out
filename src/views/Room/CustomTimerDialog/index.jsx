@@ -30,8 +30,12 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       if (isMinutes) {
         time *= 60; // Convert minutes to seconds
       }
-      onSubmit(time);
+      // ensure the time is no lower than 5 seconds
+    } else {
+      time = 5;
     }
+    time = Math.max(time, 5);
+    onSubmit(time);
     onClose();
   };
 
@@ -61,7 +65,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
           value={customTime}
           onChange={(e) => setCustomTime(e.target.value)}
           sx={{ width: '15rem' }}
-          inputProps={{ min: 1, max: isMinutes ? 60 : 3600 }}
+          inputProps={{ min: 5, max: isMinutes ? 60 : 3600 }}
           slotProps={{
             input: {
               endAdornment: (
