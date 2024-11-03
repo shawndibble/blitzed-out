@@ -109,6 +109,7 @@
   "auto30": "Auto 30s",
   "auto60": "Auto 60s",
   "auto90": "Auto 90s",
+  "setTimer": "Custom Timer",
   "alreadyFinished": "You already finished. Starting over.",
   "messageInput": "Enter a message",
   "markdown": "Supports GitHub Markdown and Emojis",

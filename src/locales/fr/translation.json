@@ -109,6 +109,7 @@
   "auto30": "Lancé automatique 30s",
   "auto60": "Lancé automatique 60s",
   "auto90": "Lancé automatique 90s",
+  "setTimer": "Minuteur personnalisé",
   "alreadyFinished": "Vous avez déjà terminé. Recommencement.",
   "messageInput": "Saisir un message",
   "markdown": "Prend en charge Github Markdown et Emojis",
