@@ -26,13 +26,10 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
 
   const handleSubmit = () => {
     let time = Number.parseInt(customTime, 10);
-    if (!Number.isNaN(time) && time > 0) {
-      if (isMinutes) {
-        time *= 60; // Convert minutes to seconds
-      }
-      // ensure the time is no lower than 5 seconds
-    } else {
+    if (Number.isNaN(time) || time < 10) {
       time = 10;
+    } else if (isMinutes) {
+      time *= 60; // Convert minutes to seconds
     }
     time = Math.max(time, 10);
     onSubmit(time);
