@@ -39,7 +39,7 @@ export default function UnauthenticatedApp() {
     othersDialog: false,
     mySound: true,
     chatSound: true,
-    hideBoardActions: true,
+    hideBoardActions: false,
     locale: 'en',
     gameMode: 'online',
     background: 'color',
