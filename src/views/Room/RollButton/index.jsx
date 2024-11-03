@@ -1,18 +1,11 @@
-import { ArrowDropUp, Casino } from '@mui/icons-material';
-import {
-  Button,
-  ButtonGroup,
-  ClickAwayListener,
-  Grow,
-  MenuItem,
-  MenuList,
-  Paper,
-  Popper,
-} from '@mui/material';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Casino } from '@mui/icons-material';
+import { Button, ButtonGroup } from '@mui/material';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from '@/hooks/useCountdown';
+import RollOptionsMenu from '../RollOptionsMenu';
+import CustomTimerDialog from '../CustomTimerDialog';
 
 function isNumeric(value) {
   return /^-?\d+$/.test(value);
@@ -29,12 +22,11 @@ function rollDice(rollCount, diceSide, updateRollValue) {
 const RollButton = function memo({ setRollValue, playerTile, dice }) {
   const { t } = useTranslation();
   const [isDisabled, setDisabled] = useState(false);
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
   const [selectedRoll, setSelectedRoll] = useState('manual');
   const [autoTime, setAutoTime] = useState(0);
   const [rollText, setRollText] = useState(t('roll'));
   const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(autoTime);
+  const [isDialogOpen, setDialogOpen] = useState(false);
 
   const updateRollValue = useCallback((value) => {
     setRollValue({ value, time: Date.now() });
@@ -47,7 +39,8 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
       .set('manual', t('manual'))
       .set(30, t('auto30'))
       .set(60, t('auto60'))
-      .set(90, t('auto90'));
+      .set(90, t('auto90'))
+      .set('custom', t('setTimer'));
     return opts;
   }, []);
 
@@ -70,12 +63,16 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
 
   const handleMenuItemClick = useCallback(
     (key) => {
-      setOpen(false);
       if (key === 'restart') {
         return updateRollValue(-1);
       }
 
       setSelectedRoll(key);
+
+      if (key === 'custom') {
+        setDialogOpen(true);
+        return null;
+      }
 
       if (isNumeric(key)) {
         if (!isPaused) togglePause();
@@ -87,16 +84,15 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
     [isPaused, setTimeLeft, togglePause]
   );
 
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+  const handleDialogClose = () => {
+    setDialogOpen(false);
   };
 
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setOpen(false);
+  const handleDialogSubmit = (time) => {
+    if (!isPaused) togglePause();
+    setAutoTime(time);
+    setTimeLeft(time);
+    setDialogOpen(false);
   };
 
   useEffect(() => {
@@ -123,53 +119,22 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
 
   return (
     <>
-      <ButtonGroup variant="contained" ref={anchorRef} className="dice-roller">
+      <ButtonGroup variant="contained" className="dice-roller">
         <Button aria-label={t('roll')} onClick={handleClick} disabled={isDisabled} size="large">
           <Casino sx={{ mr: 1 }} />
           {rollText}
         </Button>
-        <Button
-          size="small"
-          aria-controls={open ? 'split-button-menu' : undefined}
-          aria-expanded={open ? 'true' : undefined}
-          aria-label="select roll options"
-          aria-haspopup="menu"
-          onClick={handleToggle}
-        >
-          <ArrowDropUp />
-        </Button>
+        <RollOptionsMenu
+          options={options}
+          selectedRoll={selectedRoll}
+          handleMenuItemClick={handleMenuItemClick}
+        />
       </ButtonGroup>
-      <Popper
-        sx={{
-          zIndex: 1,
-        }}
-        open={open}
-        anchorEl={anchorRef.current}
-        role={undefined}
-        transition
-        disablePortal
-        placement="top-end"
-      >
-        {({ TransitionProps }) => (
-          <Grow {...TransitionProps} style={{ transformOrigin: 'right bottom' }}>
-            <Paper>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList id="split-button-menu" autoFocusItem>
-                  {Array.from(options).map(([key, option]) => (
-                    <MenuItem
-                      key={key}
-                      selected={key === selectedRoll}
-                      onClick={() => handleMenuItemClick(key)}
-                    >
-                      {option}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
+      <CustomTimerDialog
+        isOpen={isDialogOpen}
+        onClose={handleDialogClose}
+        onSubmit={handleDialogSubmit}
+      />
     </>
   );
 };
