@@ -6,35 +6,64 @@ import {
   DialogTitle,
   InputAdornment,
   TextField,
+  IconButton,
 } from '@mui/material';
+import { ChangeCircle } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
 const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
   const { t } = useTranslation();
   const [customTime, setCustomTime] = useState('');
+  const [isMinutes, setIsMinutes] = useState(false);
 
   const handleSubmit = () => {
-    const time = parseInt(customTime, 10);
+    let time = parseInt(customTime, 10);
     if (!isNaN(time) && time > 0) {
+      if (isMinutes) {
+        time *= 60; // Convert minutes to seconds
+      }
       onSubmit(time);
     }
     onClose();
   };
 
+  const toggleTimeUnit = () => {
+    setCustomTime((prevTime) => {
+      let time = parseFloat(prevTime);
+      if (isNaN(time) || time <= 0) return prevTime;
+
+      if (isMinutes) {
+        // Convert minutes to seconds
+        return (time * 60).toString();
+      } else {
+        // Convert seconds to minutes
+        return (time / 60).toString();
+      }
+    });
+    setIsMinutes((prev) => !prev);
+  };
+
   return (
-    <Dialog open={isOpen} onClose={onClose}>
+    <Dialog open={isOpen} onClose={onClose} maxWidth="xs">
       <DialogTitle>{t('setTimer')}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           type="number"
-          fullWidth
           value={customTime}
           onChange={(e) => setCustomTime(e.target.value)}
+          sx={{ width: '15rem' }}
           slotProps={{
             input: {
-              endAdornment: <InputAdornment position="end">{t('seconds')}</InputAdornment>,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Button onClick={toggleTimeUnit} variant="text">
+                    {isMinutes ? t('minutes') : t('seconds')}
+                    <ChangeCircle sx={{ ml: 1 }} />
+                  </Button>
+                </InputAdornment>
+              ),
             },
           }}
         />
