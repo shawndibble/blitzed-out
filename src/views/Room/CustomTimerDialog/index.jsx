@@ -21,7 +21,7 @@ import { useState } from 'react';
  */
 const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
   const { t } = useTranslation();
-  const [customTime, setCustomTime] = useState('');
+  const [customTime, setCustomTime] = useState(30);
   const [isMinutes, setIsMinutes] = useState(false);
 
   const handleSubmit = () => {
