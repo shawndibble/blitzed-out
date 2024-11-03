@@ -61,10 +61,9 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
           value={customTime}
           onChange={(e) => setCustomTime(e.target.value)}
           sx={{ width: '15rem' }}
+          inputProps={{ min: 1, max: isMinutes ? 60 : 3600 }}
           slotProps={{
             input: {
-              min: 1,
-              max: isMinutes ? 60 : 3600,
               endAdornment: (
                 <InputAdornment position="end">
                   <Button onClick={toggleTimeUnit} variant="text">
