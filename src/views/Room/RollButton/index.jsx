@@ -19,7 +19,7 @@ function rollDice(rollCount, diceSide, updateRollValue) {
   updateRollValue(total);
 }
 
-const RollButton = function memo({ setRollValue, playerTile, dice }) {
+const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
   const { t } = useTranslation();
   const [isDisabled, setDisabled] = useState(false);
   const [selectedRoll, setSelectedRoll] = useState('manual');
@@ -46,7 +46,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
 
   const [rollCount, diceSide] = dice.split('d');
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     if (selectedRoll === 'manual') {
       rollDice(rollCount, diceSide, updateRollValue);
       setDisabled(true);
@@ -59,7 +59,7 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
     }
     togglePause();
     return null;
-  }, [selectedRoll, isPaused, timeLeft, autoTime, rollCount, diceSide, togglePause]);
+  };
 
   const handleMenuItemClick = useCallback(
     (key) => {
@@ -96,10 +96,10 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
   };
 
   useEffect(() => {
-    if (playerTile?.description === t('finish')) {
+    if (isEndOfBoard) {
       togglePause();
     }
-  }, [playerTile]);
+  }, [isEndOfBoard]);
 
   useEffect(() => {
     if (isDisabled) return setRollText(t('wait'));

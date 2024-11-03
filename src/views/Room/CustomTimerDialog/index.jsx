@@ -19,6 +19,8 @@ import { useState } from 'react';
  * @param {Function} props.onClose - Callback when dialog is closed
  * @param {Function} props.onSubmit - Callback when timer value is submitted
  */
+const MIN_SECONDS = 10;
+
 const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
   const { t } = useTranslation();
   const [customTime, setCustomTime] = useState(30);
@@ -26,12 +28,13 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
 
   const handleSubmit = () => {
     let time = Number.parseInt(customTime, 10);
-    if (Number.isNaN(time) || time < 10) {
-      time = 10;
+    if (Number.isNaN(time) || time < MIN_SECONDS) {
+      time = MIN_SECONDS;
+      setCustomTime(time);
     } else if (isMinutes) {
       time *= 60; // Convert minutes to seconds
     }
-    time = Math.max(time, 10);
+    time = Math.max(time, MIN_SECONDS);
     onSubmit(time);
     onClose();
   };

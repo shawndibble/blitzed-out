@@ -94,7 +94,7 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
     const { preMessage, newLocation } = getNewLocation(rollNumber);
 
     // update our tile that we will return.
-    setTile(gameBoard[newLocation]);
+    setTile({ ...gameBoard[newLocation], index: newLocation });
 
     // send our message.
     handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);

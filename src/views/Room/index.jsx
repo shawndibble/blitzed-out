@@ -86,7 +86,11 @@ export default function Room() {
     <>
       <Navigation room={room} playerList={playerList} />
 
-      <RollButton setRollValue={setRollValue} dice={roller} playerTile={tile} />
+      <RollButton
+        setRollValue={setRollValue}
+        dice={roller}
+        isEndOfBoard={tile?.index >= gameBoard.length - 1}
+      />
       <RoomBackground isVideo={isVideo} url={url} />
       <TurnIndicator room={room} />
       {isMobile ? (
