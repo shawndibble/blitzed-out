@@ -89,9 +89,9 @@ const RollButton = function memo({ setRollValue, playerTile, dice }) {
   };
 
   const handleDialogSubmit = (time) => {
+    if (!isPaused) togglePause();
     setAutoTime(time);
     setTimeLeft(time);
-    if (!isPaused) togglePause();
     setDialogOpen(false);
   };
 

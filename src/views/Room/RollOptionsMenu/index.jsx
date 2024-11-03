@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { ArrowDropUp } from '@mui/icons-material';
 import { Button, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from '@mui/material';
 import { useRef, useState } from 'react';
@@ -11,7 +12,7 @@ const RollOptionsMenu = ({ options, selectedRoll, handleMenuItemClick }) => {
   };
 
   const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+    if (anchorRef.current?.contains(event.target)) {
       return;
     }
     setOpen(false);
@@ -34,7 +35,6 @@ const RollOptionsMenu = ({ options, selectedRoll, handleMenuItemClick }) => {
         sx={{ zIndex: 1 }}
         open={open}
         anchorEl={anchorRef.current}
-        role={undefined}
         transition
         disablePortal
         placement="top-end"
@@ -61,6 +61,12 @@ const RollOptionsMenu = ({ options, selectedRoll, handleMenuItemClick }) => {
       </Popper>
     </>
   );
+};
+
+RollOptionsMenu.propTypes = {
+  options: PropTypes.instanceOf(Map).isRequired,
+  selectedRoll: PropTypes.string.isRequired,
+  handleMenuItemClick: PropTypes.func.isRequired,
 };
 
 export default RollOptionsMenu;

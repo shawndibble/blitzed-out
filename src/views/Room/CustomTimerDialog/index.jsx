@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {
   Button,
   Dialog,
@@ -6,20 +7,26 @@ import {
   DialogTitle,
   InputAdornment,
   TextField,
-  IconButton,
 } from '@mui/material';
 import { ChangeCircle } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
+/**
+ * Dialog component for setting a custom timer value in seconds
+ * @param {Object} props
+ * @param {boolean} props.isOpen - Controls dialog visibility
+ * @param {Function} props.onClose - Callback when dialog is closed
+ * @param {Function} props.onSubmit - Callback when timer value is submitted
+ */
 const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
   const { t } = useTranslation();
   const [customTime, setCustomTime] = useState('');
   const [isMinutes, setIsMinutes] = useState(false);
 
   const handleSubmit = () => {
-    let time = parseInt(customTime, 10);
-    if (!isNaN(time) && time > 0) {
+    let time = Number.parseInt(customTime, 10);
+    if (!Number.isNaN(time) && time > 0) {
       if (isMinutes) {
         time *= 60; // Convert minutes to seconds
       }
@@ -30,8 +37,8 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
 
   const toggleTimeUnit = () => {
     setCustomTime((prevTime) => {
-      let time = parseFloat(prevTime);
-      if (isNaN(time) || time <= 0) return prevTime;
+      const time = Number.parseFloat(prevTime);
+      if (Number.isNaN(time) || time <= 0) return prevTime;
 
       if (isMinutes) {
         // Convert minutes to seconds
@@ -56,6 +63,8 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
           sx={{ width: '15rem' }}
           slotProps={{
             input: {
+              min: 1,
+              max: isMinutes ? 60 : 3600,
               endAdornment: (
                 <InputAdornment position="end">
                   <Button onClick={toggleTimeUnit} variant="text">
@@ -74,6 +83,12 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       </DialogActions>
     </Dialog>
   );
+};
+
+CustomTimerDialog.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
 export default CustomTimerDialog;

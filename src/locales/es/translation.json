@@ -110,6 +110,8 @@
   "auto60": "Automática en 60s",
   "auto90": "Automática en 90s",
   "setTimer": "Temporizador personalizado",
+  "cancel": "Cancelar",
+  "set": "Establecer",
   "alreadyFinished": "Has terminado. Empezar de nuevo",
   "messageInput": "Escribe un mensaje",
   "markdown": "Admite Markdown de GitHub y Emojis",
