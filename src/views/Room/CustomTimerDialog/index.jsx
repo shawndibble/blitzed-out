@@ -32,9 +32,9 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       }
       // ensure the time is no lower than 5 seconds
     } else {
-      time = 5;
+      time = 10;
     }
-    time = Math.max(time, 5);
+    time = Math.max(time, 10);
     onSubmit(time);
     onClose();
   };
