@@ -53,7 +53,7 @@ export default function Cast() {
   const { displayName, type, activity } = actionCard(lastAction);
 
   return (
-    <Box className="text-stroke flex-column">
+    <Box className="flex-column">
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
       <Box display="flex" justifyContent="space-between" sx={{ mx: 2, mt: 2, mb: -2 }}>
         <Box flex="1">
@@ -72,7 +72,7 @@ export default function Cast() {
           )}
         </Box>
 
-        <Box flex="1" textAlign="right">
+        <Box flex="1" textAlign="right" class="text-stroke">
           {activity && <Typography variant="h4">blitzedout.com/{room}</Typography>}
         </Box>
       </Box>
