@@ -64,7 +64,7 @@ export default function Cast() {
           )}
         </Box>
 
-        <Box textAlign="center" flex="1">
+        <Box textAlign="center" flex="1" key={nextPlayer?.display_name}>
           {!!nextPlayer?.displayName && (
             <Typography variant="h4">
               <Trans i18nKey="nextPlayersTurn" values={{ player: nextPlayer.displayName }} />
@@ -84,10 +84,11 @@ export default function Cast() {
         alignItems="center"
         justifyContent="center"
         className="cast-container"
+        key={messages.length}
       >
         <Grid2 container justifyContent="center">
           {activity ? (
-            <Grid2 size={{ md: 10, lg: 10, xl: 8 }} className="action-box">
+            <Grid2 size={12} className="action-box">
               <Typography variant="h3">{`${type} ${t('for')} ${displayName}`}</Typography>
               <Box className="divider">
                 <Divider />
