@@ -27,6 +27,7 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
   const [rollText, setRollText] = useState(t('roll'));
   const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(autoTime);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [timerSettings, setTimerSettings] = useState({ isRange: false, min: 30, max: 120 });
 
   const updateRollValue = useCallback((value) => {
     setRollValue({ value, time: Date.now() });
@@ -88,10 +89,12 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
     setDialogOpen(false);
   };
 
-  const handleDialogSubmit = (time) => {
+  const handleDialogSubmit = (time, settings = { isRange: false }) => {
     if (!isPaused) togglePause();
     setAutoTime(time);
     setTimeLeft(time);
+    setTimerSettings(settings);
+    setSelectedRoll('custom');
     setDialogOpen(false);
   };
 
@@ -114,6 +117,15 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
     }
 
     rollDice(rollCount, diceSide, updateRollValue);
+    
+    // If using random range, generate a new random time for the next roll
+    if (timerSettings.isRange) {
+      const { min, max } = timerSettings;
+      const newRandomTime = Math.floor(Math.random() * (max - min + 1)) + min;
+      setAutoTime(newRandomTime);
+      return setTimeLeft(newRandomTime);
+    }
+    
     return setTimeLeft(autoTime);
   }, [isDisabled, selectedRoll, timeLeft, autoTime, isPaused]);
 
