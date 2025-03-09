@@ -24,7 +24,6 @@ import { useState } from 'react';
  * @param {Function} props.onSubmit - Callback when timer value is submitted
  */
 const MIN_SECONDS = 10;
-const MIN_MINUTES = MIN_SECONDS / 60; // 0.16666... minutes
 
 const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
   const { t } = useTranslation();
@@ -41,8 +40,8 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       let max = Number.parseInt(maxTime, 10);
       
       // Validate min and max
-      if (Number.isNaN(min) || min < (isMinutes ? MIN_MINUTES : MIN_SECONDS)) {
-        min = isMinutes ? MIN_MINUTES : MIN_SECONDS;
+      if (Number.isNaN(min) || (!isMinutes && min < MIN_SECONDS)) {
+        min = isMinutes ? 1 : MIN_SECONDS;
         setMinTime(min);
       }
       
@@ -67,8 +66,8 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
     } else {
       // For fixed time mode
       let time = Number.parseInt(customTime, 10);
-      if (Number.isNaN(time) || time < (isMinutes ? MIN_MINUTES : MIN_SECONDS)) {
-        time = isMinutes ? MIN_MINUTES : MIN_SECONDS;
+      if (Number.isNaN(time) || (!isMinutes && time < MIN_SECONDS)) {
+        time = isMinutes ? 1 : MIN_SECONDS;
         setCustomTime(time);
       } else if (isMinutes) {
         time *= 60; // Convert minutes to seconds
@@ -142,10 +141,10 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
                 value={minTime}
                 onChange={(e) => {
                   const value = parseInt(e.target.value, 10);
-                  setMinTime(Math.max(isMinutes ? MIN_MINUTES : MIN_SECONDS, value));
+                  setMinTime(isMinutes ? value : Math.max(MIN_SECONDS, value));
                 }}
                 fullWidth
-                inputProps={{ min: isMinutes ? MIN_MINUTES : MIN_SECONDS }}
+                inputProps={{ min: isMinutes ? 1 : MIN_SECONDS }}
               />
               <Typography variant="body1" sx={{ alignSelf: 'center' }}>-</Typography>
               <TextField
@@ -173,7 +172,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
             value={customTime}
             onChange={(e) => setCustomTime(e.target.value)}
             sx={{ width: '15rem' }}
-            inputProps={{ min: isMinutes ? MIN_MINUTES : MIN_SECONDS, max: isMinutes ? 60 : 3600 }}
+            inputProps={{ min: isMinutes ? 1 : MIN_SECONDS, max: isMinutes ? 60 : 3600 }}
             slotProps={{
               input: {
                 endAdornment: (
