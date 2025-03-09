@@ -30,8 +30,8 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
   const [customTime, setCustomTime] = useState(30);
   const [isMinutes, setIsMinutes] = useState(false);
   const [isRangeMode, setIsRangeMode] = useState(false);
-  const [minTime, setMinTime] = useState(30);
-  const [maxTime, setMaxTime] = useState(120);
+  const [minTime, setMinTime] = useState(20);
+  const [maxTime, setMaxTime] = useState(60);
 
   const handleSubmit = () => {
     if (isRangeMode) {
@@ -47,6 +47,10 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       
       if (Number.isNaN(max) || max < min) {
         max = min;
+        setMaxTime(max);
+      } else if (max === 0) {
+        // If max is not provided, set to 3 minutes (in seconds)
+        max = 180;
         setMaxTime(max);
       }
       
@@ -135,18 +139,25 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
                 label={t('minValue')}
                 type="number"
                 value={minTime}
-                onChange={(e) => setMinTime(e.target.value)}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value, 10);
+                  setMinTime(Math.max(MIN_SECONDS, value));
+                }}
                 fullWidth
-                inputProps={{ min: 5, max: isMinutes ? 60 : 3600 }}
+                inputProps={{ min: MIN_SECONDS }}
               />
               <Typography variant="body1" sx={{ alignSelf: 'center' }}>-</Typography>
               <TextField
                 label={t('maxValue')}
                 type="number"
                 value={maxTime}
-                onChange={(e) => setMaxTime(e.target.value)}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value, 10);
+                  // Ensure max is at least equal to min
+                  setMaxTime(Math.max(minTime, value));
+                }}
                 fullWidth
-                inputProps={{ min: 5, max: isMinutes ? 60 : 3600 }}
+                inputProps={{ min: minTime }}
               />
             </Box>
             <Button onClick={toggleTimeUnit} variant="outlined" size="small">
