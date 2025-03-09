@@ -1,4 +1,4 @@
-import { AppRegistration, CalendarMonth, Logout, Tv } from '@mui/icons-material';
+import { AppRegistration, CalendarMonth, Logout, Tv, ViewModule } from '@mui/icons-material';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -27,6 +27,7 @@ import { logout } from '@/services/firebase';
 import GameGuide from '@/views/GameGuide';
 import ManageGameBoards from '@/views/ManageGameBoards';
 import Schedule from '@/views/Schedule';
+import CustomTileDialog from '@/views/CustomTileDialog';
 
 export default function MenuDrawer() {
   const { id: room } = useParams();
@@ -40,6 +41,7 @@ export default function MenuDrawer() {
     gameBoard: false,
     about: false,
     schedule: false,
+    customTiles: false,
   });
 
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
@@ -59,6 +61,12 @@ export default function MenuDrawer() {
         title: <Trans i18nKey="gameBoards" />,
         icon: <AppRegistration />,
         onClick: () => toggleDialog('gameBoard', true),
+      },
+      {
+        key: 'customTiles',
+        title: <Trans i18nKey="customTiles" />,
+        icon: <ViewModule />,
+        onClick: () => toggleDialog('customTiles', true),
       },
       {
         key: 'cast',
@@ -148,6 +156,13 @@ export default function MenuDrawer() {
         <Schedule
           open={open.schedule}
           close={() => toggleDialog('schedule', false)}
+          isMobile={isMobile}
+        />
+      )}
+      {!!open.customTiles && (
+        <CustomTileDialog
+          open={open.customTiles}
+          close={() => toggleDialog('customTiles', false)}
           isMobile={isMobile}
         />
       )}
