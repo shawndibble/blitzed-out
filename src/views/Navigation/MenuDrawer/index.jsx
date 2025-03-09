@@ -27,7 +27,7 @@ import { logout } from '@/services/firebase';
 import GameGuide from '@/views/GameGuide';
 import ManageGameBoards from '@/views/ManageGameBoards';
 import Schedule from '@/views/Schedule';
-import CustomTileDialog from '@/views/CustomTileDialog';
+import CustomTileDialog from '@/components/CustomTilesDialog';
 
 export default function MenuDrawer() {
   const { id: room } = useParams();
