@@ -136,10 +136,10 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
         
         {isRangeMode ? (
           <Box>
-            <Typography variant="subtitle2" gutterBottom>
+            <Typography variant="subtitle2">
               {t('randomTimerRange')}
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2, my: 2 }}>
               <TextField
                 label={t('minValue')}
                 type="number"
