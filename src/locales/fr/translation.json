@@ -153,7 +153,7 @@
   "addCustom": "Ajouter une tuile personnalisée",
   "autoCloseModal": "Cette fenêtre se fermera automatiquement après {{timeLeft}} secondes.",
   "autoCloseStopped": "Cette fenêtre ne se fermera plus automatiquement.",
-  "nextPlayersTurn": "Prochain joueur: {{nextPlayer}}",
+  "nextPlayersTurn": "Prochain joueur: {{player}}",
   "playersTurn": "Tour de {{player}}",
   "yourTurn": "C'EST VOTRE TOUR!!!",
   "timers": "Minuteries: ",

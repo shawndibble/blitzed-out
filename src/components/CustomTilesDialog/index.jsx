@@ -11,10 +11,10 @@ export default function CustomTilesDialog({ open, close = null }) {
 
   return (
     <CustomTiles
-        setOpen={close}
-        boardUpdated={() => null}
-        actionsList={actionsList}
-        open={open}
+      setOpen={close}
+      boardUpdated={() => null} // no need to call boardUpdated in this case
+      actionsList={actionsList}
+      open={open}
     />
   );
 }
