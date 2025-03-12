@@ -13,7 +13,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(import.meta.url, 'src').replace('file:', ''), // Use '@' as an alias for 'src'
+      '@': path.resolve(__dirname, 'src'), // Use '@' as an alias for 'src'
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
