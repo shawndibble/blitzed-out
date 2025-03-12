@@ -8,21 +8,26 @@ import './App.css';
 import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
+import { AuthProvider } from '@/context/auth'; // Make sure this import is correct
 import darkTheme from './theme';
-
-function Providers({ children }) {
-  return (
-    <ScheduleProvider>
-      <UserListProvider>
-        <MessagesProvider>{children}</MessagesProvider>
-      </UserListProvider>
-    </ScheduleProvider>
-  );
-}
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
 const Room = lazy(() => import('@/views/Room'));
+
+function Providers({ children }) {
+  return (
+    <AuthProvider>
+      <UserListProvider>
+        <ScheduleProvider>
+          <MessagesProvider>{children}</MessagesProvider>
+        </ScheduleProvider>
+      </UserListProvider>
+    </AuthProvider>
+  );
+}
+
+// Rest of the file remains the same
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -59,10 +64,10 @@ function AppRoutes() {
 function App() {
   return (
     <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <CssBaseline />
         <BrowserRouter>
-          <AppRoutes />
+            <AppRoutes />
         </BrowserRouter>
       </LocalizationProvider>
     </ThemeProvider>

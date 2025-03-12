@@ -23,10 +23,11 @@ function getFinishResult(textArray) {
 }
 
 function parseDescription(text, role, displayName) {
+  if (!text) return '';
   // our finish tile has %, so if we have it, figure out the result.
-  const textArray = text?.split('%');
-  if (textArray?.length <= 1) {
-    return actionStringReplacement(text, role, displayName);
+  const textArray = text.split('%');
+  if (textArray.length <= 1) {
+    return actionStringReplacement(text, role || '', displayName);
   }
 
   return getFinishResult(textArray);
@@ -41,20 +42,30 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
   const lastTile = total - 1;
 
   const handleTextOutput = useCallback((newTile, rollNumber, newLocation, preMessage) => {
+    if (!newTile) {
+      console.error('Tile not found at location:', newLocation);
+      return;
+    }
     let message = '';
-    const description = parseDescription(newTile?.description, newTile.role, user.displayName);
+    // Safely access newTile properties with default values if they don't exist
+    const description = parseDescription(
+      newTile.description || '', 
+      newTile.role || '', 
+      user.displayName
+    );
     if (rollNumber !== -1) {
       message += `${t('roll')}: ${rollNumber}\n`;
     }
-    message += `#${newLocation + 1}: ${newTile?.title}\n`;
+    message += `#${newLocation + 1}: ${newTile.title || t('unknownTile')}\n`;
     message += `${t('action')}: ${description}`;
+
     sendMessage({
       room,
       user,
       text: preMessage ? preMessage + message : message,
       type: 'actions',
     });
-  });
+  }, [room, user, t]);
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
@@ -67,7 +78,7 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
       };
     }
 
-    const currentLocation = playerList.find((p) => p.isSelf)?.location;
+    const currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
 
     // restart game if we roll and are on the last tile.
     if (currentLocation === lastTile) {
@@ -93,12 +104,18 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
 
     const { preMessage, newLocation } = getNewLocation(rollNumber);
 
-    // update our tile that we will return.
-    setTile({ ...gameBoard[newLocation], index: newLocation });
+    // Make sure we have a valid location and tile
+    if (newLocation >= 0 && newLocation < gameBoard.length && gameBoard[newLocation]) {
+      // update our tile that we will return.
+      setTile({ ...gameBoard[newLocation], index: newLocation });
 
-    // send our message.
-    handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);
-  }, [rollValue]);
+      // send our message.
+      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);
+    } else {
+      console.error(`Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}`);
+    }
+  }, [rollValue, gameBoard, handleTextOutput]);
 
   return { tile, playerList };
 }
+

@@ -1,11 +1,11 @@
 import { normalSortedMessages } from '@/helpers/messages';
-import React, { useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getMessages } from '@/services/firebase';
 
-const MessagesContext = React.createContext();
+export const MessagesContext = createContext();
 
-function MessagesProvider(props) {
+export function MessagesProvider(props) {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { id: room } = useParams();
@@ -23,8 +23,6 @@ function MessagesProvider(props) {
 
   // eslint-disable-next-line
   const value = { messages, isLoading };
-
+  
   return <MessagesContext.Provider value={value} {...props} />;
 }
-
-export { MessagesContext, MessagesProvider };

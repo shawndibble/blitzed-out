@@ -19,6 +19,7 @@ import { lazy, Suspense, useMemo, useState } from 'react';
 import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { logout } from '@/services/firebase';
+import DialogWrapper from '@/components/DialogWrapper';
 
 // Lazy load dialogs
 const GameSettingsDialog = lazy(() => import('@/components/GameSettingsDialog'));
@@ -140,7 +141,17 @@ export default function MenuDrawer() {
         </Box>
       </Drawer>
       {open.settings && renderDialog(GameSettingsDialog, 'settings')}
-      {open.about && renderDialog(GameGuide, 'about')}
+      {open.about && (
+        <Suspense fallback={<div>Loading...</div>}>
+          <DialogWrapper
+            open={open.about}
+            close={() => toggleDialog('about', false)}
+            fullScreen={isMobile}
+          >
+            <GameGuide close={() => toggleDialog('about', false)} isMobile={isMobile} />
+          </DialogWrapper>
+        </Suspense>
+      )}
       {open.gameBoard && renderDialog(ManageGameBoards, 'gameBoard')}
       {open.schedule && renderDialog(Schedule, 'schedule')}
       {open.customTiles && renderDialog(CustomTileDialog, 'customTiles')}
