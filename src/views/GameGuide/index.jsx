@@ -69,7 +69,7 @@ export default function GameGuide({ open, close = null, isMobile }) {
 
                 <Typography variant="body1" mt={2}>
                   Don&apos;t like your current board or some aspect of the game? Go to Menu, then
-                  Settings and change it. Utilize custom tiles to make make the game even more your own.
+                  Settings and change it. Utilize custom tiles to make the game even more your own.
                 </Typography>
               </Trans>
             </AccordionDetails>
