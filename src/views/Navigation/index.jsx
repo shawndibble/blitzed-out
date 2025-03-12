@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { CalendarMonth } from '@mui/icons-material';
 import {
   AppBar,
@@ -14,11 +15,12 @@ import useBreakpoint from '@/hooks/useBreakpoint';
 import Logo from '@/images/blitzed-out.png';
 import { forwardRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import Schedule from '@/views/Schedule';
 import MenuDrawer from './MenuDrawer';
 import PlayersOnline from './PlayersOnline';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
+
+const Schedule = lazy(() => import('@/views/Schedule'));
 
 export default function Navigation({ room, playerList = [] }) {
   const { t } = useTranslation();
@@ -67,11 +69,13 @@ export default function Navigation({ room, playerList = [] }) {
             </IconButton>
             {openSchedule && (
               <Portal>
-                <Schedule
-                  open={openSchedule}
-                  close={() => setOpenSchedule(false)}
-                  isMobile={isMobile}
-                />
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Schedule
+                    open={openSchedule}
+                    close={() => setOpenSchedule(false)}
+                    isMobile={isMobile}
+                  />
+                </Suspense>
               </Portal>
             )}
           </div>

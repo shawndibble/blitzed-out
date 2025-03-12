@@ -13,7 +13,7 @@ import useAuth from '@/context/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import usePlayerList from '@/hooks/usePlayerList';
-import languages from '@/locales/languages.json';
+import { languages } from '@/services/importLocales';
 import React, { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';

@@ -1,4 +1,4 @@
-import languages from '@/locales/languages.json';
+import { languages } from './importLocales';
 
 export default function speak(message, language) {
   const utterance = new SpeechSynthesisUtterance();

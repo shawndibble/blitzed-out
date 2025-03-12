@@ -1,6 +1,5 @@
-/**
- * Import all json files from a directory
- */
+import languages from '../locales/languages.json';
+
 export async function importActions(lang = 'en', type = 'online') {
   const obj = {};
   const context = import.meta.glob('../locales/**/*.json');
@@ -15,3 +14,4 @@ export async function importActions(lang = 'en', type = 'online') {
   return obj;
 }
 
+export { languages };

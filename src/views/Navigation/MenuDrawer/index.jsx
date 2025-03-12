@@ -4,9 +4,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Box,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   Drawer,
   IconButton,
   List,
@@ -16,18 +13,19 @@ import {
   ListItemText,
   SvgIcon,
 } from '@mui/material';
-import CloseIcon from '@/components/CloseIcon';
-import GameSettingsDialog from '@/components/GameSettingsDialog';
 import useAuth from '@/context/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { Trans } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { logout } from '@/services/firebase';
-import GameGuide from '@/views/GameGuide';
-import ManageGameBoards from '@/views/ManageGameBoards';
-import Schedule from '@/views/Schedule';
-import CustomTileDialog from '@/components/CustomTilesDialog';
+
+// Lazy load dialogs
+const GameSettingsDialog = lazy(() => import('@/components/GameSettingsDialog'));
+const GameGuide = lazy(() => import('@/views/GameGuide'));
+const ManageGameBoards = lazy(() => import('@/views/ManageGameBoards'));
+const Schedule = lazy(() => import('@/views/Schedule'));
+const CustomTileDialog = lazy(() => import('@/components/CustomTilesDialog'));
 
 export default function MenuDrawer() {
   const { id: room } = useParams();
@@ -111,17 +109,6 @@ export default function MenuDrawer() {
     return items;
   }, [user, room]);
 
-  const aboutDialog = (
-    <Dialog fullScreen={isMobile} open={open.about} onClose={() => toggleDialog('about', false)}>
-      <DialogTitle>
-        <CloseIcon close={() => toggleDialog('about', false)} />
-      </DialogTitle>
-      <DialogContent>
-        <GameGuide />
-      </DialogContent>
-    </Dialog>
-  );
-
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
     <ListItem key={key} disablePadding onClick={onClick}>
       <ListItemButton>
@@ -130,6 +117,17 @@ export default function MenuDrawer() {
       </ListItemButton>
     </ListItem>
   ));
+
+  const renderDialog = (Component, dialogKey, props = {}) => (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Component
+        open={open[dialogKey]}
+        close={() => toggleDialog(dialogKey, false)}
+        isMobile={isMobile}
+        {...props}
+      />
+    </Suspense>
+  );
 
   return (
     <>
@@ -141,31 +139,11 @@ export default function MenuDrawer() {
           <List>{menuList}</List>
         </Box>
       </Drawer>
-      {!!open.settings && (
-        <GameSettingsDialog open={open.settings} close={() => toggleDialog('settings', false)} />
-      )}
-      {aboutDialog}
-      {!!open.gameBoard && (
-        <ManageGameBoards
-          open={open.gameBoard}
-          close={() => toggleDialog('gameBoard', false)}
-          isMobile={isMobile}
-        />
-      )}
-      {!!open.schedule && (
-        <Schedule
-          open={open.schedule}
-          close={() => toggleDialog('schedule', false)}
-          isMobile={isMobile}
-        />
-      )}
-      {!!open.customTiles && (
-        <CustomTileDialog
-          open={open.customTiles}
-          close={() => toggleDialog('customTiles', false)}
-          isMobile={isMobile}
-        />
-      )}
+      {open.settings && renderDialog(GameSettingsDialog, 'settings')}
+      {open.about && renderDialog(GameGuide, 'about')}
+      {open.gameBoard && renderDialog(ManageGameBoards, 'gameBoard')}
+      {open.schedule && renderDialog(Schedule, 'schedule')}
+      {open.customTiles && renderDialog(CustomTileDialog, 'customTiles')}
     </>
   );
 }
