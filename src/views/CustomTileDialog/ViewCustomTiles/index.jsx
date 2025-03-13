@@ -83,7 +83,7 @@ export default function ViewCustomTiles({
   // Load tiles when filters change
   useEffect(() => {
     let isMounted = true;
-    
+
     async function loadTiles() {
       try {
         setLoading(true);
@@ -99,7 +99,7 @@ export default function ViewCustomTiles({
         };
 
         const tileData = await getCustomTiles(filters);
-        
+
         // Only update state if component is still mounted
         if (isMounted) {
           setTiles(tileData);
@@ -124,7 +124,7 @@ export default function ViewCustomTiles({
     } else {
       setLoading(false);
     }
-    
+
     // Cleanup function to prevent state updates after unmount
     return () => {
       isMounted = false;
@@ -152,7 +152,7 @@ export default function ViewCustomTiles({
   function handleGroupFilterChange(event) {
     // Set loading first for smoother transition
     setLoading(true);
-    
+
     const newGroup = event.target.value;
     setGroupFilter(newGroup);
     setPage(1); // Reset to first page
@@ -172,7 +172,7 @@ export default function ViewCustomTiles({
   function handleIntensityFilterChange(event) {
     // Set loading first for smoother transition
     setLoading(true);
-    
+
     setIntensityFilter(event.target.value);
     setPage(1); // Reset to first page
   }
@@ -268,13 +268,13 @@ export default function ViewCustomTiles({
 
   return (
     <Box>
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: 2, 
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
           mb: 2,
-          transition: 'all 0.3s ease-in-out' 
+          transition: 'all 0.3s ease-in-out',
         }}
       >
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
@@ -368,31 +368,33 @@ export default function ViewCustomTiles({
       <Box sx={{ position: 'relative', minHeight: '200px' }}>
         {/* Loading overlay */}
         <Fade in={loading} timeout={300}>
-          <Box 
-            sx={{ 
-              position: 'absolute', 
-              top: 0, 
-              left: 0, 
-              right: 0, 
-              bottom: 0, 
-              display: 'flex', 
-              justifyContent: 'center', 
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              backgroundColor: 'rgba(255, 255, 255, 0)',
               zIndex: 1,
-              borderRadius: 1
+              borderRadius: 1,
             }}
           >
             <CircularProgress />
           </Box>
         </Fade>
-        
+
         {/* Content area with consistent height */}
-        <Box sx={{ 
-          opacity: loading ? 0.3 : 1, 
-          transition: 'opacity 0.3s ease-in-out',
-          pointerEvents: loading ? 'none' : 'auto'
-        }}>
+        <Box
+          sx={{
+            opacity: loading ? 0.3 : 1,
+            transition: 'opacity 0.3s ease-in-out',
+            pointerEvents: loading ? 'none' : 'auto',
+          }}
+        >
           {tiles.items.length === 0 ? (
             <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
               <Trans i18nKey="customTiles.noTilesFound">
@@ -415,7 +417,10 @@ export default function ViewCustomTiles({
                 </Box>
               )}
 
-              <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: 'text.secondary' }}>
+              <Typography
+                variant="body2"
+                sx={{ textAlign: 'center', mt: 2, color: 'text.secondary' }}
+              >
                 <Trans
                   i18nKey="customTiles.showingTiles"
                   values={{ shown: tiles.items.length, total: tiles.total }}
