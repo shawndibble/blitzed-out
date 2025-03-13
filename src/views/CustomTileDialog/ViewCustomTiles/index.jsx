@@ -14,6 +14,7 @@ import {
   Pagination,
   Typography,
   CircularProgress,
+  Fade,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import {
@@ -81,6 +82,8 @@ export default function ViewCustomTiles({
 
   // Load tiles when filters change
   useEffect(() => {
+    let isMounted = true;
+    
     async function loadTiles() {
       try {
         setLoading(true);
@@ -96,18 +99,36 @@ export default function ViewCustomTiles({
         };
 
         const tileData = await getCustomTiles(filters);
-        setTiles(tileData);
+        
+        // Only update state if component is still mounted
+        if (isMounted) {
+          setTiles(tileData);
+          // Add a small delay before removing loading state for smoother transitions
+          setTimeout(() => {
+            if (isMounted) {
+              setLoading(false);
+            }
+          }, 300);
+        }
       } catch (error) {
         console.error('Error loading tiles:', error);
-      } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
     // Only load if we have a group filter
     if (groupFilter) {
       loadTiles();
+    } else {
+      setLoading(false);
     }
+    
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
   }, [
     groupFilter,
     intensityFilter,
@@ -120,13 +141,18 @@ export default function ViewCustomTiles({
   ]);
 
   function toggleTagFilter(tag) {
+    setLoading(true);
     if (tagFilter === tag) {
-      return setTagFilter(null);
+      setTagFilter(null);
+    } else {
+      setTagFilter(tag);
     }
-    return setTagFilter(tag);
   }
 
   function handleGroupFilterChange(event) {
+    // Set loading first for smoother transition
+    setLoading(true);
+    
     const newGroup = event.target.value;
     setGroupFilter(newGroup);
     setPage(1); // Reset to first page
@@ -144,11 +170,15 @@ export default function ViewCustomTiles({
   }
 
   function handleIntensityFilterChange(event) {
+    // Set loading first for smoother transition
+    setLoading(true);
+    
     setIntensityFilter(event.target.value);
     setPage(1); // Reset to first page
   }
 
   function handlePageChange(event, newPage) {
+    setLoading(true);
     setPage(newPage);
   }
 
@@ -238,7 +268,15 @@ export default function ViewCustomTiles({
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: 2, 
+          mb: 2,
+          transition: 'all 0.3s ease-in-out' 
+        }}
+      >
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
           <FormControl sx={{ width: 125, flexShrink: 0 }}>
             <InputLabel id="game-mode-filter-label">
@@ -327,42 +365,68 @@ export default function ViewCustomTiles({
         </Box>
       </Box>
 
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : tiles.items.length === 0 ? (
-        <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
-          <Trans i18nKey="customTiles.noTilesFound">
-            No tiles found with the selected filters.
-          </Trans>
-        </Typography>
-      ) : (
-        <>
-          {tileList}
+      <Box sx={{ position: 'relative', minHeight: '200px' }}>
+        {/* Loading overlay */}
+        <Fade in={loading} timeout={300}>
+          <Box 
+            sx={{ 
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              right: 0, 
+              bottom: 0, 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              zIndex: 1,
+              borderRadius: 1
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        </Fade>
+        
+        {/* Content area with consistent height */}
+        <Box sx={{ 
+          opacity: loading ? 0.3 : 1, 
+          transition: 'opacity 0.3s ease-in-out',
+          pointerEvents: loading ? 'none' : 'auto'
+        }}>
+          {tiles.items.length === 0 ? (
+            <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
+              <Trans i18nKey="customTiles.noTilesFound">
+                No tiles found with the selected filters.
+              </Trans>
+            </Typography>
+          ) : (
+            <>
+              {tileList}
 
-          {/* Pagination */}
-          {tiles.totalPages > 1 && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
-              <Pagination
-                count={tiles.totalPages}
-                page={page}
-                onChange={handlePageChange}
-                color="primary"
-              />
-            </Box>
+              {/* Pagination */}
+              {tiles.totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
+                  <Pagination
+                    count={tiles.totalPages}
+                    page={page}
+                    onChange={handlePageChange}
+                    color="primary"
+                  />
+                </Box>
+              )}
+
+              <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: 'text.secondary' }}>
+                <Trans
+                  i18nKey="customTiles.showingTiles"
+                  values={{ shown: tiles.items.length, total: tiles.total }}
+                >
+                  Showing {{ shown: tiles.items.length }} of {{ total: tiles.total }} tiles
+                </Trans>
+              </Typography>
+            </>
           )}
-
-          <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: 'text.secondary' }}>
-            <Trans
-              i18nKey="customTiles.showingTiles"
-              values={{ shown: tiles.items.length, total: tiles.total }}
-            >
-              Showing {{ shown: tiles.items.length }} of {{ total: tiles.total }} tiles
-            </Trans>
-          </Typography>
-        </>
-      )}
+        </Box>
+      </Box>
     </Box>
   );
 }
