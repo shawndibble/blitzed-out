@@ -8,6 +8,7 @@
     "noTilesFound": "No tiles found with the selected filters.",
     "showingTiles": "Showing {{shown}} of {{total}} tiles"
   },
+  "customTilesLabel": "Custom Tiles",
   "default": "Default",
   "logout": "Logout",
   "online": "Players Online",

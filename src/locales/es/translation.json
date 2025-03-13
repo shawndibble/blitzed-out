@@ -8,6 +8,7 @@
     "noTilesFound": "No se encontraron fichas con los filtros seleccionados.",
     "showingTiles": "Mostrando {{shown}} de {{total}} fichas"
   },
+  "customTilesLabel": "Mis Casillas",
   "default": "Estándar",
   "logout": "Cerrar sesión",
   "online": "Jugadores en línea",
