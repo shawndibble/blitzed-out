@@ -145,40 +145,64 @@ export default function MenuDrawer() {
         <MenuIcon />
       </IconButton>
       <Drawer anchor="right" open={menuOpen} onClose={() => toggleDrawer(false)}>
-        <Box role="presentation" onClick={() => toggleDrawer(false)} sx={{ width: 250 }}>
-          <List>
+        <Box 
+          role="presentation" 
+          onClick={() => toggleDrawer(false)} 
+          sx={{ 
+            width: 250, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            height: '100%' 
+          }}
+        >
+          <List sx={{ flexGrow: 1 }}>
             {menuList}
-            <ListItem sx={{ mt: 2, borderTop: '1px solid rgba(0, 0, 0, 0.12)', pt: 2 }}>
-              <ListItemIcon>
-                <Language />
-              </ListItemIcon>
-              <ListItemText primary={<Trans i18nKey="language" />} />
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton onClick={() => changeLanguage('en')}>
-                <ListItemText 
-                  primary="English" 
-                  sx={{ pl: 4, color: i18n.language === 'en' ? 'primary.main' : 'inherit' }}
-                />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton onClick={() => changeLanguage('fr')}>
-                <ListItemText 
-                  primary="Français" 
-                  sx={{ pl: 4, color: i18n.language === 'fr' ? 'primary.main' : 'inherit' }}
-                />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton onClick={() => changeLanguage('es')}>
-                <ListItemText 
-                  primary="Español" 
-                  sx={{ pl: 4, color: i18n.language === 'es' ? 'primary.main' : 'inherit' }}
-                />
-              </ListItemButton>
-            </ListItem>
           </List>
+          <Box 
+            sx={{ 
+              borderTop: '1px solid rgba(0, 0, 0, 0.12)', 
+              p: 2, 
+              display: 'flex', 
+              justifyContent: 'center',
+              gap: 1
+            }}
+          >
+            <Box 
+              component="span" 
+              onClick={() => changeLanguage('en')} 
+              sx={{ 
+                cursor: 'pointer', 
+                fontWeight: i18n.language === 'en' ? 'bold' : 'normal',
+                color: i18n.language === 'en' ? 'primary.main' : 'inherit'
+              }}
+            >
+              English
+            </Box>
+            <Box component="span">|</Box>
+            <Box 
+              component="span" 
+              onClick={() => changeLanguage('fr')} 
+              sx={{ 
+                cursor: 'pointer', 
+                fontWeight: i18n.language === 'fr' ? 'bold' : 'normal',
+                color: i18n.language === 'fr' ? 'primary.main' : 'inherit'
+              }}
+            >
+              Français
+            </Box>
+            <Box component="span">|</Box>
+            <Box 
+              component="span" 
+              onClick={() => changeLanguage('es')} 
+              sx={{ 
+                cursor: 'pointer', 
+                fontWeight: i18n.language === 'es' ? 'bold' : 'normal',
+                color: i18n.language === 'es' ? 'primary.main' : 'inherit'
+              }}
+            >
+              Español
+            </Box>
+          </Box>
         </Box>
       </Drawer>
       {open.settings && renderDialog(GameSettingsDialog, 'settings')}
