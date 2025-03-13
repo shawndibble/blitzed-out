@@ -132,7 +132,7 @@ export default function GameSettings({ closeDialog }) {
 
       <div className="flex-buttons">
         <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
-          <Trans i18nKey="customTiles">Custom Tiles</Trans>
+          <Trans i18nKey="customTilesLabel">Game Tiles</Trans>
         </Button>
         <Button variant="contained" type="submit">
           <Trans i18nKey="update" />
