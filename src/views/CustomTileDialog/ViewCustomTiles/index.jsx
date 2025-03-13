@@ -159,6 +159,15 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     }));
   }
 
+  function handleUpdateTile(id) {
+    updateTile(id);
+    // Scroll to the top of the dialog where the AddCustomTile component is
+    const dialogContent = document.querySelector('.MuiDialogContent-root');
+    if (dialogContent) {
+      dialogContent.scrollTop = 0;
+    }
+  }
+
   const tileList = tiles.items?.map(
     ({ id, group, intensity, action, tags, isEnabled = true, isCustom = true }) => (
       <Card sx={{ my: 2 }} key={id}>
@@ -180,7 +189,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
               />
               {!!isCustom && (
                 <>
-                  <IconButton aria-label={t('customTiles.update')} onClick={() => updateTile(id)}>
+                  <IconButton aria-label={t('customTiles.update')} onClick={() => handleUpdateTile(id)}>
                     <Edit />
                   </IconButton>
                   <IconButton aria-label={t('customTiles.delete')} onClick={() => deleteTile(id)}>

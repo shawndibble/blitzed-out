@@ -20,7 +20,7 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
     type: 'info',
   });
   const [expanded, setExpanded] = useState('ctAdd');
-  const [tileId, updateTile] = useState(null);
+  const [tileId, setTileId] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Create a function to trigger refresh of the ViewCustomTiles component
@@ -111,7 +111,10 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
                   triggerRefresh();
                 }}
                 mappedGroups={mappedGroups}
-                updateTile={updateTile}
+                updateTile={(id) => {
+                  setTileId(id);
+                  setExpanded('ctAdd');
+                }}
                 refreshTrigger={refreshTrigger}
               />
             </>
