@@ -89,10 +89,10 @@ export default function AddCustomTile({
     });
   }
 
-  async function submitNewTile(event) {
+  async function submitNewTile() {
     // Check if there's text in the tag input field and add it to tags
     const tagInput = document.querySelector('input[name="tags"]');
-    let currentTags = [...formData.tags];
+    const currentTags = [...formData.tags];
 
     if (tagInput && tagInput.value.trim()) {
       currentTags.push(tagInput.value.trim());
@@ -291,7 +291,7 @@ export default function AddCustomTile({
             <Button variant="contained" type="button" onClick={() => clear()}>
               <Trans i18nKey="clear" />
             </Button>
-            <Button variant="contained" type="button" onClick={(event) => submitNewTile(event)}>
+            <Button variant="contained" type="button" onClick={submitNewTile}>
               <Trans i18nKey={updateTileId ? 'ctUpdate' : 'ctAdd'} />
             </Button>
           </Box>

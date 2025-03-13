@@ -28,7 +28,7 @@ function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'onlin
     }
 
     // Process each intensity level
-    Object.entries(groupData.actions).forEach(([intensityKey, actionsList], intensityIndex) => {
+    Object.entries(groupData.actions).forEach(([_, actionsList], intensityIndex) => {
       // Skip empty action lists
       if (!actionsList || actionsList.length === 0) {
         return;
