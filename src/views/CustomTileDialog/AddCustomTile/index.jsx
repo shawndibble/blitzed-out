@@ -7,6 +7,7 @@ import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
 import useGameSettings from '@/hooks/useGameSettings';
+import groupActionsFolder from '@/helpers/actionsFolder';
 
 export default function AddCustomTile({
   setSubmitMessage,
@@ -205,7 +206,7 @@ export default function AddCustomTile({
           <Autocomplete
             id="tileOption"
             name="tileOption"
-            options={mappedGroups[formData.gameMode] || []}
+            options={Array.isArray(mappedGroups[formData.gameMode]) ? mappedGroups[formData.gameMode] : groupActionsFolder(mappedGroups[formData.gameMode] || {})}
             getOptionLabel={(option) => option.label}
             groupBy={(option) => option.group}
             value={formData.tileOption}

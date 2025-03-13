@@ -25,6 +25,7 @@ import {
 import { Trans } from 'react-i18next';
 import { useTranslation } from 'react-i18next';
 import useGameSettings from '@/hooks/useGameSettings';
+import groupActionsFolder from '@/helpers/actionsFolder';
 
 export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, updateTile, refreshTrigger }) {
   const { t } = useTranslation();
@@ -182,9 +183,13 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
           title={action}
           titleTypographyProps={{ variant: 'body1' }}
           subheader={
-            mappedGroups[gameModeFilter]?.find(
-              ({ value, intensity: inten }) => value === group && inten === Number(intensity)
-            )?.label
+            Array.isArray(mappedGroups[gameModeFilter])
+              ? mappedGroups[gameModeFilter]?.find(
+                  ({ value, intensity: inten }) => value === group && inten === Number(intensity)
+                )?.label
+              : groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
+                  ({ value, intensity: inten }) => value === group && inten === Number(intensity)
+                )?.label
           }
           subheaderTypographyProps={{ variant: 'body2' }}
           action={
@@ -260,7 +265,9 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
             >
               {uniqueGroups.map((group) => (
                 <MenuItem key={group} value={group}>
-                  {mappedGroups[gameModeFilter]?.find((g) => g.value === group)?.group || group}
+                  {Array.isArray(mappedGroups[gameModeFilter]) 
+                    ? mappedGroups[gameModeFilter]?.find((g) => g.value === group)?.group 
+                    : groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find((g) => g.value === group)?.group || group}
                   {groups[group] && ` (${groups[group].count})`}
                 </MenuItem>
               ))}
@@ -284,9 +291,13 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
                   .sort(([a], [b]) => Number(a) - Number(b))
                   .map(([intensity, count]) => (
                     <MenuItem key={intensity} value={Number(intensity)}>
-                      {mappedGroups[gameModeFilter]?.find(
-                        (g) => g.value === groupFilter && g.intensity === Number(intensity)
-                      )?.translatedIntensity || `Level ${intensity}`}
+                      {Array.isArray(mappedGroups[gameModeFilter])
+                        ? mappedGroups[gameModeFilter]?.find(
+                            (g) => g.value === groupFilter && g.intensity === Number(intensity)
+                          )?.translatedIntensity
+                        : groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
+                            (g) => g.value === groupFilter && g.intensity === Number(intensity)
+                          )?.translatedIntensity || `Level ${intensity}`}
                       {` (${count})`}
                     </MenuItem>
                   ))}
