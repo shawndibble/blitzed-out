@@ -178,24 +178,28 @@ export default function AddCustomTile({
             onChange={(_event, newValues) => {
               setFormData({ ...formData, tags: newValues });
             }}
+            onBlur={() => {
+              // Force close the dropdown when the component loses focus
+              const autocompleteElement = document.getElementById('tags');
+              if (autocompleteElement) {
+                // Manually close the popup
+                const popupElement = document.querySelector('.MuiAutocomplete-popper');
+                if (popupElement) {
+                  popupElement.style.display = 'none';
+                }
+              }
+            }}
             renderInput={(params) => {
               params.inputProps.onKeyDown = handleKeyDown;
               params.inputProps.onBlur = (event) => {
                 handleTagInputBlur(event);
-                // Force close the dropdown
-                const autocompleteElement = document.getElementById('tags');
-                if (autocompleteElement) {
-                  const closeButton = autocompleteElement.querySelector('.MuiAutocomplete-clearIndicator');
-                  if (closeButton) {
-                    closeButton.click();
-                  }
-                }
               };
               return <TextField {...params} label={t('tags')} />;
             }}
             sx={{ pb: 2 }}
             clearOnBlur
             blurOnSelect
+            open={false} // Never open the dropdown automatically
             openOnFocus={false}
             forcePopupIcon={false}
             disablePortal
