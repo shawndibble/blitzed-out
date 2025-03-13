@@ -113,6 +113,8 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
 
   if (!allTiles || isLoadingActions) return null;
 
+  console.log(mappedGroups);
+
   return (
     <>
       <Dialog fullScreen={isMobile} open={open} onClose={() => setOpen(false)}>
