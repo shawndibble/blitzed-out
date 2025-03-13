@@ -41,7 +41,7 @@ function AppRoutes() {
         path="/:id/cast"
         element={
           <Providers>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense>
               <Cast />
             </Suspense>
           </Providers>
@@ -51,7 +51,7 @@ function AppRoutes() {
         path="/:id"
         element={
           <Providers>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense>
               {room}
             </Suspense>
           </Providers>
