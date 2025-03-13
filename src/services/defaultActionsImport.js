@@ -1,6 +1,9 @@
 import { importActions } from './importLocales';
 import { getCustomTiles, importCustomTiles } from '@/stores/customTiles';
 import { t } from 'i18next';
+import db from '@/stores/store';
+
+const { customTiles } = db;
 
 /**
  * Transforms locale actions into the format expected by the customTiles store
@@ -51,11 +54,20 @@ function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'onlin
  * @returns {boolean} - True if default actions exist, false otherwise
  */
 function defaultActionsExist(existingTiles, locale, gameMode) {
-  return Array.isArray(existingTiles) && existingTiles.some(tile => 
+  // If existingTiles is not an array or empty, no default actions exist
+  if (!Array.isArray(existingTiles) || existingTiles.length === 0) {
+    return false;
+  }
+  
+  // Count how many default actions exist for this locale and game mode
+  const defaultActionsCount = existingTiles.filter(tile => 
     tile.locale === locale && 
     tile.gameMode === gameMode && 
     tile.isCustom === 0
-  );
+  ).length;
+  
+  // If we have at least one default action, consider it as existing
+  return defaultActionsCount > 0;
 }
 
 /**
@@ -92,7 +104,11 @@ export async function importDefaultActions(locale, gameMode) {
 
   try {
     // Get existing custom tiles
-    const existingTiles = await getCustomTiles();
+    const existingTiles = await getCustomTiles({ 
+      locale: targetLocale, 
+      gameMode: targetGameMode,
+      paginated: false 
+    });
     
     // Ensure existingTiles is an array
     const tilesArray = Array.isArray(existingTiles) ? existingTiles : [];
@@ -122,14 +138,71 @@ export async function importDefaultActions(locale, gameMode) {
 }
 
 /**
+ * Removes duplicate default actions for a specific locale and game mode
+ * @param {string} locale - The locale code
+ * @param {string} gameMode - The game mode
+ */
+async function removeDuplicateDefaultActions(locale, gameMode) {
+  try {
+    // Get all default actions for this locale and game mode
+    const defaultActions = await getCustomTiles({
+      locale,
+      gameMode,
+      paginated: false
+    });
+    
+    if (!Array.isArray(defaultActions) || defaultActions.length === 0) {
+      return;
+    }
+    
+    // Filter to only default actions (isCustom === 0)
+    const defaultActionsOnly = defaultActions.filter(tile => tile.isCustom === 0);
+    
+    // If we have 0 or 1 default actions, no duplicates to remove
+    if (defaultActionsOnly.length <= 1) {
+      return;
+    }
+    
+    console.log(`Found ${defaultActionsOnly.length} default actions for ${locale}/${gameMode}, checking for duplicates...`);
+    
+    // Create a map to track unique actions
+    const uniqueActions = new Map();
+    const duplicateIds = [];
+    
+    // Find duplicates
+    defaultActionsOnly.forEach(tile => {
+      const key = `${tile.group}-${tile.intensity}-${tile.action}`;
+      if (uniqueActions.has(key)) {
+        // This is a duplicate, mark for deletion
+        duplicateIds.push(tile.id);
+      } else {
+        uniqueActions.set(key, tile.id);
+      }
+    });
+    
+    // Delete duplicates if any found
+    if (duplicateIds.length > 0) {
+      console.log(`Removing ${duplicateIds.length} duplicate default actions for ${locale}/${gameMode}`);
+      for (const id of duplicateIds) {
+        await customTiles.delete(id);
+      }
+    }
+  } catch (error) {
+    console.error(`Error removing duplicate default actions for ${locale}/${gameMode}:`, error);
+  }
+}
+
+/**
  * Checks for and imports missing default actions for all supported locales and game modes
  */
 export async function importAllDefaultActions() {
   const settings = getGameSettings();
   
-  // Always import the current locale and game mode
+  // First, remove any duplicate default actions
+  await removeDuplicateDefaultActions(settings.locale, settings.gameMode);
+  
+  // Then import the current locale and game mode
   await importDefaultActions(settings.locale, settings.gameMode);
-
 }
 
 /**
