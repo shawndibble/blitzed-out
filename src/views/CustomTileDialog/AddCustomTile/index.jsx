@@ -151,7 +151,6 @@ export default function AddCustomTile({
   const handleKeyDown = (event) => {
     switch (event.key) {
       case ',':
-      case ' ':
       case 'Enter': {
         event.preventDefault();
         event.stopPropagation();
