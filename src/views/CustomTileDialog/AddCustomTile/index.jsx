@@ -180,14 +180,12 @@ export default function AddCustomTile({
             }}
             onBlur={() => {
               // Force close the dropdown when the component loses focus
-              const autocompleteElement = document.getElementById('tags');
-              if (autocompleteElement) {
-                // Manually close the popup
+              setTimeout(() => {
                 const popupElement = document.querySelector('.MuiAutocomplete-popper');
                 if (popupElement) {
                   popupElement.style.display = 'none';
                 }
-              }
+              }, 100);
             }}
             renderInput={(params) => {
               params.inputProps.onKeyDown = handleKeyDown;
@@ -199,9 +197,8 @@ export default function AddCustomTile({
             sx={{ pb: 2 }}
             clearOnBlur
             blurOnSelect
-            open={false} // Never open the dropdown automatically
-            openOnFocus={false}
-            forcePopupIcon={false}
+            openOnFocus={true}
+            forcePopupIcon={true}
             disablePortal
           />
 
