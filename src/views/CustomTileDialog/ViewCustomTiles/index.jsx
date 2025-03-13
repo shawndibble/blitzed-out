@@ -24,10 +24,13 @@ import {
 } from '@/stores/customTiles';
 import { Trans } from 'react-i18next';
 import { useTranslation } from 'react-i18next';
+import useGameSettings from '@/hooks/useGameSettings';
 
 export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, updateTile, refreshTrigger }) {
   const { t } = useTranslation();
+  const { settings } = useGameSettings();
   const [tagFilter, setTagFilter] = useState(null);
+  const [gameModeFilter, setGameModeFilter] = useState(settings.gameMode || 'online');
   const [groupFilter, setGroupFilter] = useState('');
   const [intensityFilter, setIntensityFilter] = useState('');
   const [page, setPage] = useState(1);
@@ -42,7 +45,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     async function loadGroups() {
       try {
         setLoading(true);
-        const groupData = await getCustomTileGroups();
+        const groupData = await getCustomTileGroups(gameModeFilter, settings.locale);
         setGroups(groupData);
 
         // Extract unique groups
@@ -67,7 +70,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     }
 
     loadGroups();
-  }, []);
+  }, [gameModeFilter]);
 
   // Load tiles when filters change
   useEffect(() => {
@@ -78,6 +81,8 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
           group: groupFilter,
           intensity: intensityFilter,
           tag: tagFilter,
+          gameMode: gameModeFilter,
+          locale: settings.locale,
           page,
           limit,
           paginated: true,
@@ -96,7 +101,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     if (groupFilter) {
       loadTiles();
     }
-  }, [groupFilter, intensityFilter, tagFilter, page, limit, refreshTrigger]);
+  }, [groupFilter, intensityFilter, tagFilter, gameModeFilter, page, limit, refreshTrigger, settings.locale]);
 
   function toggleTagFilter(tag) {
     if (tagFilter === tag) {
@@ -139,6 +144,8 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
       group: groupFilter,
       intensity: intensityFilter,
       tag: tagFilter,
+      gameMode: gameModeFilter,
+      locale: settings.locale,
       page,
       limit,
       paginated: true,
@@ -214,6 +221,32 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     <Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
+          <FormControl>
+            <InputLabel id="game-mode-filter-label">
+              <Trans i18nKey="customTiles.gameMode">Game Mode</Trans>
+            </InputLabel>
+            <Select
+              labelId="game-mode-filter-label"
+              id="game-mode-filter"
+              value={gameModeFilter}
+              label={t('customTiles.gameMode', 'Game Mode')}
+              onChange={(e) => {
+                setGameModeFilter(e.target.value);
+                setGroupFilter('');
+                setIntensityFilter('');
+                setPage(1);
+              }}
+              sx={{ minWidth: 120 }}
+            >
+              <MenuItem value="online">
+                <Trans i18nKey="gameMode.online">Online</Trans>
+              </MenuItem>
+              <MenuItem value="local">
+                <Trans i18nKey="gameMode.local">Local</Trans>
+              </MenuItem>
+            </Select>
+          </FormControl>
+          
           <FormControl fullWidth>
             <InputLabel id="group-filter-label">
               <Trans i18nKey="customTiles.filterByGroup">Filter by Group</Trans>
