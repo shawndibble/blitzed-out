@@ -51,8 +51,18 @@ export default function AddCustomTile({
     setUpdateTileId(null);
   }
 
-  async function submitNewTile() {
-    const { tileOption, action, tags } = formData;
+  async function submitNewTile(event) {
+    // Check if there's text in the tag input field and add it to tags
+    const tagInput = document.querySelector('input[name="tags"]');
+    let currentTags = [...formData.tags];
+    
+    if (tagInput && tagInput.value.trim()) {
+      currentTags.push(tagInput.value.trim());
+      // Clear the input field
+      tagInput.value = '';
+    }
+
+    const { tileOption, action } = formData;
 
     if (!tileOption || !action) {
       return setSubmitMessage({ message: t('bothRequired'), type: 'error' });
@@ -68,7 +78,7 @@ export default function AddCustomTile({
       group: option.value,
       intensity: option.intensity,
       action,
-      tags,
+      tags: currentTags,
     };
 
     // send action to firebase for review
@@ -88,7 +98,8 @@ export default function AddCustomTile({
   const handleKeyDown = (event) => {
     switch (event.key) {
       case ',':
-      case ' ': {
+      case ' ':
+      case 'Enter': {
         event.preventDefault();
         event.stopPropagation();
         if (event.target.value.length > 0) {
@@ -96,10 +107,23 @@ export default function AddCustomTile({
             ...formData,
             tags: [...formData.tags, event.target.value],
           });
+          // Clear the input after adding the tag
+          event.target.value = '';
         }
         break;
       }
       default:
+    }
+  };
+
+  const handleTagInputBlur = (event) => {
+    if (event.target.value.length > 0) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, event.target.value],
+      });
+      // Clear the input after adding the tag
+      event.target.value = '';
     }
   };
 
@@ -151,6 +175,7 @@ export default function AddCustomTile({
             }}
             renderInput={(params) => {
               params.inputProps.onKeyDown = handleKeyDown;
+              params.inputProps.onBlur = handleTagInputBlur;
               return <TextField {...params} label={t('tags')} />;
             }}
             sx={{ pb: 2 }}
