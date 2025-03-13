@@ -120,7 +120,6 @@ export async function importDefaultActions(locale) {
       
       // Check if default actions for this locale and game mode already exist
       if (defaultActionsExist(tilesArray, targetLocale, mode)) {
-        console.log(`Default actions for ${targetLocale} already exist in ${mode} mode.`);
         continue; // Skip this mode if actions already exist
       }
       
@@ -132,7 +131,6 @@ export async function importDefaultActions(locale) {
       
       // Import custom tiles
       if (customTilesData.length > 0) {
-        console.log(`Importing ${customTilesData.length} ${mode} actions for ${targetLocale}`);
         await importCustomTiles(customTilesData);
       }
     }
