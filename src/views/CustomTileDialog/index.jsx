@@ -82,63 +82,6 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
     triggerRefresh();
   }, [boardUpdated, triggerRefresh]);
 
-  // Create mapped groups for both game modes
-  const mappedGroups = useMemo(() => {
-    // Create mapped groups for both game modes
-    const onlineGroups = groupActionsFolder(allGameModeActions.online);
-    const localGroups = groupActionsFolder(allGameModeActions.local);
-    
-    // Create a map to store merged groups with all intensity levels
-    const groupMap = new Map();
-    
-    // Helper function to add a group to our map
-    const addGroupToMap = (group, gameMode) => {
-      const existingGroup = groupMap.get(group.value);
-      
-      if (existingGroup) {
-        // Group already exists, merge intensities
-        const intensityMap = new Map();
-        
-        // Add existing intensities to map
-        existingGroup.intensities.forEach(intensity => {
-          intensityMap.set(intensity.value, intensity);
-        });
-        
-        // Add new intensities from this group
-        (group.intensities || []).forEach(intensity => {
-          if (!intensityMap.has(intensity.value)) {
-            intensityMap.set(intensity.value, intensity);
-          }
-        });
-        
-        // Update the group with all intensities
-        groupMap.set(group.value, {
-          ...existingGroup,
-          intensities: Array.from(intensityMap.values())
-        });
-      } else {
-        // New group, add it to the map
-        groupMap.set(group.value, {
-          ...group,
-          gameMode,
-          intensities: [...(group.intensities || [])]
-        });
-      }
-    };
-    
-    // Process all groups from both game modes
-    onlineGroups.forEach(group => addGroupToMap(group, 'online'));
-    localGroups.forEach(group => addGroupToMap(group, 'local'));
-    
-    // Convert the map back to an array and sort intensities by value
-    const allGroups = Array.from(groupMap.values()).map(group => ({
-      ...group,
-      intensities: (group.intensities || []).sort((a, b) => a.value - b.value)
-    }));
-    
-    return allGroups;
-  }, [allGameModeActions]);
-
   if (!allTiles || isLoadingActions) return null;
 
 
@@ -170,7 +113,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
               triggerRefresh();
             }}
             customTiles={allTiles}
-            mappedGroups={mappedGroups}
+            mappedGroups={allGameModeActions}
             expanded={expanded}
             handleChange={handleChange}
             tagList={tagList}
@@ -182,7 +125,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
             expanded={expanded}
             handleChange={handleChange}
             customTiles={allTiles}
-            mappedGroups={mappedGroups}
+            mappedGroups={allGameModeActions}
             setSubmitMessage={setSubmitMessage}
             bulkImport={bulkImport}
           />
@@ -196,7 +139,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
                   boardUpdated();
                   triggerRefresh();
                 }}
-                mappedGroups={mappedGroups}
+                mappedGroups={allGameModeActions}
                 updateTile={(id) => {
                   setTileId(id);
                   setExpanded('ctAdd');
