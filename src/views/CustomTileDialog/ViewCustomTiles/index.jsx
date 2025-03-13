@@ -129,7 +129,6 @@ export default function ViewCustomTiles({
               label="Filter by Group"
               onChange={handleGroupFilterChange}
             >
-              <MenuItem value="">All Groups</MenuItem>
               {/* Get unique groups from mappedGroups */}
               {Array.from(new Set(mappedGroups.map(g => g.value))).map((group) => (
                 <MenuItem key={group} value={group}>
@@ -148,7 +147,6 @@ export default function ViewCustomTiles({
               label="Intensity Level"
               onChange={handleIntensityFilterChange}
             >
-              <MenuItem value="">All Intensities</MenuItem>
               {/* Filter intensities based on selected group */}
               {mappedGroups
                 .filter(g => g.value === groupFilter)
