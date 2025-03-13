@@ -8,7 +8,6 @@ import './App.css';
 import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
-import { AuthProvider } from '@/context/auth'; // Make sure this import is correct
 import darkTheme from './theme';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
@@ -17,13 +16,11 @@ const Room = lazy(() => import('@/views/Room'));
 
 function Providers({ children }) {
   return (
-    <AuthProvider>
-      <UserListProvider>
-        <ScheduleProvider>
-          <MessagesProvider>{children}</MessagesProvider>
-        </ScheduleProvider>
-      </UserListProvider>
-    </AuthProvider>
+    <UserListProvider>
+      <ScheduleProvider>
+        <MessagesProvider>{children}</MessagesProvider>
+      </ScheduleProvider>
+    </UserListProvider>
   );
 }
 
