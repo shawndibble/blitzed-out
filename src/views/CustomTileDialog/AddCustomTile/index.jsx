@@ -130,6 +130,15 @@ export default function AddCustomTile({
       // Clear the input after adding the tag
       event.target.value = '';
     }
+    
+    // Give time for any click events to process before closing dropdown
+    setTimeout(() => {
+      // Close any open dropdown
+      const popperElement = document.querySelector('.MuiAutocomplete-popper');
+      if (popperElement) {
+        popperElement.style.display = 'none';
+      }
+    }, 150);
   };
 
   return (
@@ -178,28 +187,30 @@ export default function AddCustomTile({
             onChange={(_event, newValues) => {
               setFormData({ ...formData, tags: newValues });
             }}
-            onBlur={() => {
-              // Force close the dropdown when the component loses focus
-              setTimeout(() => {
-                const popupElement = document.querySelector('.MuiAutocomplete-popper');
-                if (popupElement) {
-                  popupElement.style.display = 'none';
-                }
-              }, 100);
-            }}
             renderInput={(params) => {
               params.inputProps.onKeyDown = handleKeyDown;
-              params.inputProps.onBlur = (event) => {
-                handleTagInputBlur(event);
-              };
+              params.inputProps.onBlur = handleTagInputBlur;
               return <TextField {...params} label={t('tags')} />;
             }}
             sx={{ pb: 2 }}
             clearOnBlur
             blurOnSelect
-            openOnFocus={true}
-            forcePopupIcon={true}
-            disablePortal
+            openOnFocus
+            disablePortal={false}
+            componentsProps={{
+              popper: {
+                modifiers: [
+                  {
+                    name: 'preventOverflow',
+                    options: {
+                      altAxis: true,
+                      altBoundary: true,
+                      padding: 8,
+                    },
+                  },
+                ],
+              },
+            }}
           />
 
           <Box display="flex" justifyContent="space-evenly">
