@@ -44,7 +44,7 @@
   "roomType": "Type de salle",
   "solo": "Solo",
   "soloTooltip": "Jouer seul",
-  "local": "En personn",
+  "local": "En personne",
   "localTooltip": "Jouer avec d'autres personnes en présentiel",
   "gameSpeed": "Vitesse de jeu",
   "averageRolls": "Lancers moyens par match:",
@@ -247,7 +247,7 @@
   "orgasmDisclaimer": "Vous pourrez toujours modifier cela plus tard dans les paramètres.",
   "noOrgasm": "Non, pas cette lecture.",
   "yesOrgasm": "Oui, je le ferai à la fin.",
-  "clear": "Borrar",
-  "previous": "Anterior",
-  "next": "Siguiente"
+  "clear": "Effacer",
+  "previous": "Précédent",
+  "next": "Suivant"
 }

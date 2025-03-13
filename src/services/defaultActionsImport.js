@@ -75,7 +75,7 @@ function defaultActionsExist(existingTiles, locale, gameMode) {
   
   // We should have at least a minimum number of default actions
   // This helps detect incomplete imports
-  const MINIMUM_DEFAULT_ACTIONS = 5;
+  const MINIMUM_DEFAULT_ACTIONS = 4;
   return defaultActionsCount >= MINIMUM_DEFAULT_ACTIONS;
 }
 

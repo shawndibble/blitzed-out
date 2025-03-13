@@ -23,25 +23,27 @@ export default function ImportExport({
   const [inputValue, setInputValue] = useState('');
 
   const exportData = () => {
-    const userCustomTiles = customTiles.filter(tile => tile.isCustom);
-    
-    const customString = userCustomTiles.map(({ group, intensity, action, tags, gameMode = 'online' }) => {
-      // Get the appropriate groups for this tile's game mode
-      const gameModeGroups = groupActionsFolder(mappedGroups[gameMode] || {});
-      
-      // Find the matching group data
-      const userData = gameModeGroups.find(
-        (entry) => entry?.intensity === Number(intensity) && entry?.value === group
-      );
-      
-      let actionText = '';
-      actionText += `[${userData?.group || group} - ${userData?.translatedIntensity || intensity}]\n`;
-      actionText += action;
-      actionText += tags?.length ? `\nTags: ` + tags?.join(', ') : '';
-      actionText += `\nGameMode: ${gameMode}`;
+    const userCustomTiles = customTiles.filter((tile) => tile.isCustom);
 
-      return actionText;
-    });
+    const customString = userCustomTiles.map(
+      ({ group, intensity, action, tags, gameMode = 'online' }) => {
+        // Get the appropriate groups for this tile's game mode
+        const gameModeGroups = groupActionsFolder(mappedGroups[gameMode] || {});
+
+        // Find the matching group data
+        const userData = gameModeGroups.find(
+          (entry) => entry?.intensity === Number(intensity) && entry?.value === group
+        );
+
+        let actionText = '';
+        actionText += `[${userData?.group || group} - ${userData?.translatedIntensity || intensity}]\n`;
+        actionText += action;
+        actionText += tags?.length ? `\nTags: ` + tags?.join(', ') : '';
+        actionText += `\nGameMode: ${gameMode}`;
+
+        return actionText;
+      }
+    );
 
     setInputValue(customString.join('\n---\n'));
   };

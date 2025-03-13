@@ -1,4 +1,4 @@
-import { AppRegistration, CalendarMonth, Language, Logout, Tv, ViewModule } from '@mui/icons-material';
+import { AppRegistration, CalendarMonth, Logout, Tv, ViewModule } from '@mui/icons-material';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -56,10 +56,13 @@ export default function MenuDrawer() {
 
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
-    localStorage.setItem('gameSettings', JSON.stringify({ 
-      ...JSON.parse(localStorage.getItem('gameSettings') || '{}'), 
-      locale: lng 
-    }));
+    localStorage.setItem(
+      'gameSettings',
+      JSON.stringify({
+        ...JSON.parse(localStorage.getItem('gameSettings') || '{}'),
+        locale: lng,
+      })
+    );
   };
 
   const menuItems = useMemo(() => {
@@ -145,59 +148,57 @@ export default function MenuDrawer() {
         <MenuIcon />
       </IconButton>
       <Drawer anchor="right" open={menuOpen} onClose={() => toggleDrawer(false)}>
-        <Box 
-          role="presentation" 
-          onClick={() => toggleDrawer(false)} 
-          sx={{ 
-            width: 250, 
-            display: 'flex', 
-            flexDirection: 'column', 
-            height: '100%' 
+        <Box
+          role="presentation"
+          onClick={() => toggleDrawer(false)}
+          sx={{
+            width: 250,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
           }}
         >
-          <List sx={{ flexGrow: 1 }}>
-            {menuList}
-          </List>
-          <Box 
-            sx={{ 
-              borderTop: '1px solid rgba(0, 0, 0, 0.12)', 
-              p: 2, 
-              display: 'flex', 
+          <List sx={{ flexGrow: 1 }}>{menuList}</List>
+          <Box
+            sx={{
+              borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+              p: 2,
+              display: 'flex',
               justifyContent: 'center',
-              gap: 1
+              gap: 1,
             }}
           >
-            <Box 
-              component="span" 
-              onClick={() => changeLanguage('en')} 
-              sx={{ 
-                cursor: 'pointer', 
+            <Box
+              component="span"
+              onClick={() => changeLanguage('en')}
+              sx={{
+                cursor: 'pointer',
                 fontWeight: i18n.language === 'en' ? 'bold' : 'normal',
-                color: i18n.language === 'en' ? 'primary.main' : 'inherit'
+                color: i18n.language === 'en' ? 'primary.main' : 'inherit',
               }}
             >
               English
             </Box>
             <Box component="span">|</Box>
-            <Box 
-              component="span" 
-              onClick={() => changeLanguage('fr')} 
-              sx={{ 
-                cursor: 'pointer', 
+            <Box
+              component="span"
+              onClick={() => changeLanguage('fr')}
+              sx={{
+                cursor: 'pointer',
                 fontWeight: i18n.language === 'fr' ? 'bold' : 'normal',
-                color: i18n.language === 'fr' ? 'primary.main' : 'inherit'
+                color: i18n.language === 'fr' ? 'primary.main' : 'inherit',
               }}
             >
               Français
             </Box>
             <Box component="span">|</Box>
-            <Box 
-              component="span" 
-              onClick={() => changeLanguage('es')} 
-              sx={{ 
-                cursor: 'pointer', 
+            <Box
+              component="span"
+              onClick={() => changeLanguage('es')}
+              sx={{
+                cursor: 'pointer',
                 fontWeight: i18n.language === 'es' ? 'bold' : 'normal',
-                color: i18n.language === 'es' ? 'primary.main' : 'inherit'
+                color: i18n.language === 'es' ? 'primary.main' : 'inherit',
               }}
             >
               Español
