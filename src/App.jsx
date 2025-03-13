@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import useAuth from '@/context/hooks/useAuth';
@@ -9,6 +9,7 @@ import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
+import { importDefaultActions } from '@/services/defaultActionsImport';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
@@ -59,6 +60,15 @@ function AppRoutes() {
 }
 
 function App() {
+  useEffect(() => {
+    // Import default actions when the app loads
+    // You can add more locales and game modes as needed
+    importDefaultActions('en', 'online');
+    // Example for additional locales/modes:
+    // importDefaultActions('fr', 'online');
+    // importDefaultActions('en', 'offline');
+  }, []);
+
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />

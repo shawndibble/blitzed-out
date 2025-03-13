@@ -2,6 +2,14 @@ import db from './store';
 
 const { customTiles } = db;
 
+// Index the customTiles table by locale, gameMode, and isCustom for faster queries
+customTiles.hook('creating', function (primKey, obj) {
+  if (obj.locale === undefined) obj.locale = 'en';
+  if (obj.gameMode === undefined) obj.gameMode = 'online';
+  if (obj.isCustom === undefined) obj.isCustom = 1;
+  return undefined;
+});
+
 export const importCustomTiles = async (record) => {
   const recordData = record.map((tile) => ({ ...tile, isEnabled: 1 }));
   return await customTiles.bulkAdd(recordData);
