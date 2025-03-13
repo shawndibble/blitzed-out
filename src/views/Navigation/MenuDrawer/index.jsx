@@ -63,7 +63,7 @@ export default function MenuDrawer() {
       },
       {
         key: 'customTiles',
-        title: <Trans i18nKey="customTiles" />,
+        title: <Trans i18nKey="customTilesLabel" />,
         icon: <ViewModule />,
         onClick: () => toggleDialog('customTiles', true),
       },
