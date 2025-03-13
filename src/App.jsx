@@ -10,6 +10,7 @@ import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
 import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
+import i18next from 'i18next';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
@@ -61,6 +62,15 @@ function AppRoutes() {
 
 function App() {
   useEffect(() => {
+    // Ensure i18next has the necessary translations for tags
+    if (!i18next.exists('tags.default')) {
+      i18next.addResourceBundle('en', 'translation', {
+        tags: {
+          default: 'Default'
+        }
+      }, true, true);
+    }
+    
     // Set up default actions import that responds to game settings changes
     setupDefaultActionsImport();
   }, []);
