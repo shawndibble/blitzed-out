@@ -30,7 +30,7 @@ function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'onlin
 
       actionsList.forEach((action) => {
         // Create a tile for each game mode to ensure actions are available regardless of mode
-        ['online', 'offline'].forEach(mode => {
+        ['online', 'local'].forEach(mode => {
           customTiles.push({
             group: groupKey,
             intensity: intensityIndex, // Use the index instead of the key string
@@ -105,7 +105,7 @@ export async function importDefaultActions(locale, gameMode) {
   const targetLocale = locale || settings.locale;
   
   // We'll import for both game modes regardless of the current mode
-  const gameModes = ['online', 'offline'];
+  const gameModes = ['online', 'local'];
   
   try {
     for (const mode of gameModes) {
@@ -201,7 +201,7 @@ export async function importAllDefaultActions() {
   
   // First, remove any duplicate default actions for both game modes
   await removeDuplicateDefaultActions(settings.locale, 'online');
-  await removeDuplicateDefaultActions(settings.locale, 'offline');
+  await removeDuplicateDefaultActions(settings.locale, 'local');
   
   // Then import the current locale (this will handle both game modes)
   await importDefaultActions(settings.locale);
