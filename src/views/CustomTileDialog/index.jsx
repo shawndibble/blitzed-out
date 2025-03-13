@@ -89,7 +89,6 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
               <Divider sx={{ my: 2 }} />
               <ViewCustomTiles
                 tagList={tagList}
-                customTiles={allTiles}
                 boardUpdated={boardUpdated}
                 mappedGroups={mappedGroups}
                 updateTile={updateTile}
