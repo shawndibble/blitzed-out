@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Dialog, DialogContent, DialogTitle, Divider, IconButton } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Divider, IconButton, Grid2, Box } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { importCustomTiles, getCustomTiles } from '@/stores/customTiles';
@@ -15,6 +15,7 @@ import ViewCustomTiles from './ViewCustomTiles';
 export default function CustomTileDialog({ boardUpdated, setOpen, open = false }) {
   const { t, i18n } = useTranslation();
   const isMobile = useBreakpoint();
+  const isSmallScreen = useBreakpoint('md');
   const [submitMessage, setSubmitMessage] = useState({
     message: '',
     type: 'info',
@@ -86,9 +87,91 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
 
   if (!allTiles || isLoadingActions) return null;
 
+  // Render content based on screen size
+  const renderContent = () => {
+    const leftColumnContent = (
+      <>
+        <CustomTileHelp expanded={expanded} handleChange={handleChange} />
+
+        <AddCustomTile
+          setSubmitMessage={setSubmitMessage}
+          boardUpdated={() => {
+            boardUpdated();
+            triggerRefresh();
+          }}
+          customTiles={allTiles}
+          mappedGroups={allGameModeActions}
+          expanded={expanded}
+          handleChange={handleChange}
+          tagList={tagList}
+          updateTileId={tileId}
+          setUpdateTileId={setTileId}
+        />
+
+        <ImportExport
+          expanded={expanded}
+          handleChange={handleChange}
+          customTiles={allTiles}
+          mappedGroups={allGameModeActions}
+          setSubmitMessage={setSubmitMessage}
+          bulkImport={bulkImport}
+        />
+      </>
+    );
+
+    const rightColumnContent = Array.isArray(allTiles) && allTiles.length > 0 && (
+      <Box sx={{ pt: 1 }}>
+        <ViewCustomTiles
+          tagList={tagList}
+          boardUpdated={() => {
+            boardUpdated();
+            triggerRefresh();
+          }}
+          mappedGroups={allGameModeActions}
+          updateTile={(id) => {
+            setTileId(id);
+            setExpanded('ctAdd');
+          }}
+          refreshTrigger={refreshTrigger}
+        />
+      </Box>
+    );
+
+    if (!isSmallScreen) {
+      return (
+        <Grid2 container spacing={2}>
+          <Grid2 item size={{ xs: 12, md: 6 }}>
+            {leftColumnContent}
+          </Grid2>
+          <Grid2 item size={{ xs: 12, md: 6 }}>
+            {rightColumnContent}
+          </Grid2>
+        </Grid2>
+      );
+    } else {
+      return (
+        <>
+          {leftColumnContent}
+          {rightColumnContent && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              {rightColumnContent}
+            </>
+          )}
+        </>
+      );
+    }
+  };
+
   return (
     <>
-      <Dialog fullScreen={isMobile} open={open} onClose={() => setOpen(false)}>
+      <Dialog
+        fullScreen={isMobile}
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth={!isSmallScreen ? 'lg' : 'sm'}
+        fullWidth={true}
+      >
         <DialogTitle>
           <Trans i18nKey="manageTiles" />
           <IconButton
@@ -104,52 +187,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
             <Close />
           </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <CustomTileHelp expanded={expanded} handleChange={handleChange} />
-
-          <AddCustomTile
-            setSubmitMessage={setSubmitMessage}
-            boardUpdated={() => {
-              boardUpdated();
-              triggerRefresh();
-            }}
-            customTiles={allTiles}
-            mappedGroups={allGameModeActions}
-            expanded={expanded}
-            handleChange={handleChange}
-            tagList={tagList}
-            updateTileId={tileId}
-            setUpdateTileId={setTileId}
-          />
-
-          <ImportExport
-            expanded={expanded}
-            handleChange={handleChange}
-            customTiles={allTiles}
-            mappedGroups={allGameModeActions}
-            setSubmitMessage={setSubmitMessage}
-            bulkImport={bulkImport}
-          />
-
-          {Array.isArray(allTiles) && allTiles.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <ViewCustomTiles
-                tagList={tagList}
-                boardUpdated={() => {
-                  boardUpdated();
-                  triggerRefresh();
-                }}
-                mappedGroups={allGameModeActions}
-                updateTile={(id) => {
-                  setTileId(id);
-                  setExpanded('ctAdd');
-                }}
-                refreshTrigger={refreshTrigger}
-              />
-            </>
-          )}
-        </DialogContent>
+        <DialogContent>{renderContent()}</DialogContent>
       </Dialog>
       <ToastAlert
         open={!!submitMessage.message}
