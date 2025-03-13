@@ -144,19 +144,19 @@ export async function importDefaultActions(locale, gameMode) {
  */
 async function removeDuplicateDefaultActions(locale, gameMode) {
   try {
-    // Get all default actions for this locale and game mode
-    const defaultActions = await getCustomTiles({
+    // Get all tiles for this locale and game mode
+    const allTiles = await getCustomTiles({
       locale,
       gameMode,
       paginated: false
     });
     
-    if (!Array.isArray(defaultActions) || defaultActions.length === 0) {
+    if (!Array.isArray(allTiles) || allTiles.length === 0) {
       return;
     }
     
     // Filter to only default actions (isCustom === 0)
-    const defaultActionsOnly = defaultActions.filter(tile => tile.isCustom === 0);
+    const defaultActionsOnly = allTiles.filter(tile => tile.isCustom === 0);
     
     // If we have 0 or 1 default actions, no duplicates to remove
     if (defaultActionsOnly.length <= 1) {
@@ -212,7 +212,11 @@ export function setupDefaultActionsImport() {
   let previousSettings = getGameSettings();
   
   // Initial import
-  importAllDefaultActions();
+  try {
+    importAllDefaultActions();
+  } catch (error) {
+    console.error('Error during initial default actions import:', error);
+  }
   
   // Set up storage event listener to detect changes
   window.addEventListener('storage', (event) => {

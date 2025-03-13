@@ -21,20 +21,20 @@ export const getCustomTiles = async (filters = {}) => {
   let query = customTiles;
   
   // Apply filters if provided
-  if (group) {
-    query = query.where('group').equals(group);
-  }
-  
-  if (intensity !== undefined && intensity !== '') {
-    query = query.and(tile => Number(tile.intensity) === Number(intensity));
-  }
-  
   if (locale) {
     query = query.where('locale').equals(locale);
   }
   
   if (gameMode) {
     query = query.where('gameMode').equals(gameMode);
+  }
+  
+  if (group) {
+    query = query.where('group').equals(group);
+  }
+  
+  if (intensity !== undefined && intensity !== '') {
+    query = query.and(tile => Number(tile.intensity) === Number(intensity));
   }
   
   // If pagination is not requested, return all items as an array
