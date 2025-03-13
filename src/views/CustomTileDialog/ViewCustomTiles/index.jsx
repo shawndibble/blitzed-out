@@ -131,7 +131,7 @@ export default function ViewCustomTiles({
             >
               <MenuItem value="">All Groups</MenuItem>
               {/* Get unique groups from mappedGroups */}
-              {[...new Set(mappedGroups.map(g => g.value))].map((group) => (
+              {Array.from(new Set(mappedGroups.map(g => g.value))).map((group) => (
                 <MenuItem key={group} value={group}>
                   {mappedGroups.find(g => g.value === group)?.group || group}
                 </MenuItem>
