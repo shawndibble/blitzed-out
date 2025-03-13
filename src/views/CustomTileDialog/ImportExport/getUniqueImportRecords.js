@@ -25,17 +25,30 @@ function areTagsEqual(tags1, tags2) {
 /**
  * Parses and transforms a single tile entry into a structured object.
  * @param {string} tile - The tile entry to parse.
- * @param {Array} mappedGroups - The array of mapped groups.
+ * @param {Object} mappedGroups - The object of mapped groups by game mode.
  * @returns {Object} - The parsed tile as an object.
  * @throws Will throw an error if the tile cannot be parsed correctly.
  */
 function parseTile(tile, mappedGroups) {
-  const [preGrouping, action, tagString] = tile.split('\n').filter(Boolean);
-  const tags = tagString?.replace('Tags:', '')?.trim()?.split(', ')?.filter(Boolean) || [];
+  const lines = tile.split('\n').filter(Boolean);
+  const preGrouping = lines[0];
+  const action = lines[1];
+  
+  // Extract tags if present
+  const tagLine = lines.find(line => line.startsWith('Tags:'));
+  const tags = tagLine?.replace('Tags:', '')?.trim()?.split(', ')?.filter(Boolean) || [];
+  
+  // Extract game mode if present
+  const gameModeLine = lines.find(line => line.startsWith('GameMode:'));
+  const gameMode = gameModeLine?.replace('GameMode:', '')?.trim() || 'online';
+  
   const withoutBrackets = preGrouping.replace(/\[|\]/g, '');
   const [group, intensity] = withoutBrackets.split(' - ');
 
-  const appGroup = mappedGroups.find(
+  // Get the appropriate groups for this game mode
+  const gameModeGroups = groupActionsFolder(mappedGroups[gameMode] || {});
+  
+  const appGroup = gameModeGroups.find(
     (mapped) => mapped.translatedIntensity === intensity && mapped.group === group
   );
 
@@ -51,6 +64,8 @@ function parseTile(tile, mappedGroups) {
     intensity: appGroup.intensity,
     action,
     tags,
+    gameMode,
+    isCustom: 1,
   };
 }
 
@@ -58,7 +73,7 @@ function parseTile(tile, mappedGroups) {
  * Processes import data to identify new unique records and existing records with changed tags.
  * @param {Object} importData - The import data to process.
  * @param {Array} customTiles - The array of existing custom tiles.
- * @param {Array} mappedGroups - The array of mapped groups.
+ * @param {Object} mappedGroups - The object of mapped groups by game mode.
  * @returns {Object} - An object containing new unique records and existing records with changed tags.
  */
 export default function getUniqueImportRecords(importData, customTiles, mappedGroups) {
@@ -75,7 +90,8 @@ export default function getUniqueImportRecords(importData, customTiles, mappedGr
       (existing) =>
         existing.group === entry.group &&
         existing.intensity === entry.intensity &&
-        existing.action === entry.action
+        existing.action === entry.action &&
+        existing.gameMode === entry.gameMode
     );
 
     if (!existingRecord) {
