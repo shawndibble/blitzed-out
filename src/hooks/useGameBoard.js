@@ -15,7 +15,6 @@ import { isOnlineMode } from '@/helpers/strings';
 export default function useGameBoard() {
   const gameBoard = useLiveQuery(getActiveBoard);
   const [settings, updateSettings] = useLocalStorage('gameSettings');
-  const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
   const { i18n } = useTranslation();
 
   async function updateGameBoard(data = {}) {
@@ -40,6 +39,8 @@ export default function useGameBoard() {
     const tileActionList = await importActions(i18n.resolvedLanguage, gameMode);
 
     const tileCount = isPublic ? 40 : roomTileCount;
+
+    const customTiles = await getActiveTiles(gameMode);
 
     const newBoard = customizeBoard(formData, tileActionList, customTiles, tileCount);
 

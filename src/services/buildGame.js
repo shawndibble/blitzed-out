@@ -181,7 +181,6 @@ function buildBoard(listWithMisc, settings, size) {
     } else {
       finalDescription = description;
     }
-
     board.push({ title, description: finalDescription.trim(), role });
   }
 
