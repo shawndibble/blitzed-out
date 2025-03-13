@@ -27,7 +27,8 @@ export default function AddCustomTile({
   });
 
   useEffect(() => {
-    const editTile = customTiles.find(({ id }) => id === updateTileId);
+    const tilesArray = Array.isArray(customTiles) ? customTiles : [];
+    const editTile = tilesArray.find(({ id }) => id === updateTileId);
     const editTileOption = mappedGroups.find(
       ({ value, intensity }) => value === editTile?.group && intensity === editTile?.intensity
     );
@@ -39,7 +40,8 @@ export default function AddCustomTile({
   }, [updateTileId]);
 
   function tileExists(newGroup, newAction) {
-    return customTiles.find(
+    const tilesArray = Array.isArray(customTiles) ? customTiles : [];
+    return tilesArray.find(
       ({ group, intensity, action }) =>
         `${group} - ${intensity}` === newGroup && action === newAction
     );
