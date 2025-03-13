@@ -97,9 +97,8 @@ function getGameSettings() {
 /**
  * Imports default actions if they don't already exist in the database
  * @param {string} locale - The locale code (e.g., 'en')
- * @param {string} gameMode - The game mode (e.g., 'online')
  */
-export async function importDefaultActions(locale, gameMode) {
+export async function importDefaultActions(locale) {
   // If locale and gameMode are not provided, get them from localStorage
   const settings = getGameSettings();
   const targetLocale = locale || settings.locale;
@@ -109,6 +108,7 @@ export async function importDefaultActions(locale, gameMode) {
   
   try {
     for (const mode of gameModes) {
+      console.log('mode:', mode);
       // Get existing custom tiles for this locale and game mode
       const existingTiles = await getCustomTiles({ 
         locale: targetLocale, 
@@ -121,11 +121,14 @@ export async function importDefaultActions(locale, gameMode) {
       
       // Check if default actions for this locale and game mode already exist
       if (defaultActionsExist(tilesArray, targetLocale, mode)) {
+        console.log(`Default actions for ${targetLocale} already exist in ${mode} mode.`);
+        console.log(tilesArray);
         continue; // Skip this mode if actions already exist
       }
       
       // Import actions from locales - use the current mode for import
       const actions = await importActions(targetLocale, mode);
+      console.log(mode, actions);
       
       // Transform actions to custom tiles format - this will create entries for both modes
       const customTilesData = transformActionsToCustomTiles(actions, targetLocale, mode);
