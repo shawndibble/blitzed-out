@@ -22,10 +22,11 @@ export default function ViewCustomTiles({
   const [tiles, setTiles] = useState({ items: [], total: 0, totalPages: 1 });
   const [groups, setGroups] = useState({});
   const [uniqueGroups, setUniqueGroups] = useState([]);
-  
+  console.log('loaded view custom tiles');
   // Load groups on initial render
   useEffect(() => {
     async function loadGroups() {
+      console.log('called loadGroups');
       try {
         setLoading(true);
         const groupData = await getCustomTileGroups();
