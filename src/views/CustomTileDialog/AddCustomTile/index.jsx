@@ -175,13 +175,25 @@ export default function AddCustomTile({
             }}
             renderInput={(params) => {
               params.inputProps.onKeyDown = handleKeyDown;
-              params.inputProps.onBlur = handleTagInputBlur;
+              params.inputProps.onBlur = (event) => {
+                handleTagInputBlur(event);
+                // Force close the dropdown
+                const autocompleteElement = document.getElementById('tags');
+                if (autocompleteElement) {
+                  const closeButton = autocompleteElement.querySelector('.MuiAutocomplete-clearIndicator');
+                  if (closeButton) {
+                    closeButton.click();
+                  }
+                }
+              };
               return <TextField {...params} label={t('tags')} />;
             }}
             sx={{ pb: 2 }}
             clearOnBlur
             blurOnSelect
             openOnFocus={false}
+            forcePopupIcon={false}
+            disablePortal
           />
 
           <Box display="flex" justifyContent="space-evenly">
