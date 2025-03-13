@@ -29,11 +29,13 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
   const allTiles = useLiveQuery(getCustomTiles);
   if (!allTiles) return null;
 
-  const tagList = allTiles
-    ?.map(({ tags }) => tags)
-    ?.flat()
-    ?.filter((tag, index, self) => tag && self.indexOf(tag) === index)
-    ?.sort();
+  const tagList = Array.isArray(allTiles) 
+    ? allTiles
+        .map(({ tags }) => tags)
+        .flat()
+        .filter((tag, index, self) => tag && self.indexOf(tag) === index)
+        .sort()
+    : [];
 
   const bulkImport = async (records) => {
     await importCustomTiles(records);
@@ -84,7 +86,7 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
             bulkImport={bulkImport}
           />
 
-          {!!allTiles?.length && (
+          {Array.isArray(allTiles) && allTiles.length > 0 && (
             <>
               <Divider sx={{ my: 2 }} />
               <ViewCustomTiles
