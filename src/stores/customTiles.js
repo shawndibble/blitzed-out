@@ -16,7 +16,7 @@ export const importCustomTiles = async (record) => {
 };
 
 export const getCustomTiles = async (filters = {}) => {
-  const { group, intensity, tag, locale, gameMode, page = 1, limit = 50 } = filters;
+  const { group, intensity, tag, locale, gameMode, page = 1, limit = 50, paginated = false } = filters;
   
   let query = customTiles;
   
@@ -35,6 +35,12 @@ export const getCustomTiles = async (filters = {}) => {
   
   if (gameMode) {
     query = query.where('gameMode').equals(gameMode);
+  }
+  
+  // If pagination is not requested, return all items as an array
+  if (!paginated) {
+    const items = await query.toArray();
+    return tag ? items.filter(item => item.tags?.includes(tag)) : items;
   }
   
   // Get total count for pagination

@@ -272,3 +272,114 @@ export default function ViewCustomTiles({
     </Box>
   );
 }
+import { useState, useEffect } from 'react';
+import { Box, Chip, IconButton, Stack, Typography } from '@mui/material';
+import { Delete, Edit } from '@mui/icons-material';
+import { Trans, useTranslation } from 'react-i18next';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { deleteCustomTile, getCustomTiles, toggleCustomTile } from '@/stores/customTiles';
+
+export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, updateTile }) {
+  const { t } = useTranslation();
+  const [selectedTag, setSelectedTag] = useState('');
+  const [tiles, setTiles] = useState([]);
+  
+  const customTiles = useLiveQuery(() => getCustomTiles({ tag: selectedTag, paginated: true }));
+  
+  useEffect(() => {
+    if (customTiles?.items) {
+      setTiles(customTiles.items);
+    }
+  }, [customTiles]);
+
+  const handleTagClick = (tag) => {
+    setSelectedTag(tag === selectedTag ? '' : tag);
+  };
+
+  const handleDelete = async (id) => {
+    await deleteCustomTile(id);
+    boardUpdated();
+  };
+
+  const handleToggle = async (id) => {
+    await toggleCustomTile(id);
+    boardUpdated();
+  };
+
+  const handleEdit = (id) => {
+    updateTile(id);
+  };
+
+  return (
+    <Box>
+      <Typography variant="h6" gutterBottom>
+        <Trans i18nKey="customTiles" />
+      </Typography>
+      
+      {tagList.length > 0 && (
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1, mb: 2 }}>
+          {tagList.map((tag) => (
+            <Chip
+              key={tag}
+              label={tag}
+              onClick={() => handleTagClick(tag)}
+              color={selectedTag === tag ? 'primary' : 'default'}
+            />
+          ))}
+        </Stack>
+      )}
+      
+      {tiles.length === 0 ? (
+        <Typography><Trans i18nKey="noCustomTiles" /></Typography>
+      ) : (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {tiles.map((tile) => {
+            const groupInfo = mappedGroups.find(
+              (g) => g.value === tile.group && g.intensity === tile.intensity
+            );
+            
+            return (
+              <Box 
+                key={tile.id} 
+                sx={{ 
+                  p: 2, 
+                  border: '1px solid', 
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                  opacity: tile.isEnabled ? 1 : 0.5,
+                  transition: 'opacity 0.3s'
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="subtitle1" color="primary">
+                    {groupInfo?.label || `${tile.group} - ${tile.intensity}`}
+                  </Typography>
+                  <Box>
+                    <IconButton size="small" onClick={() => handleEdit(tile.id)}>
+                      <Edit fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" onClick={() => handleDelete(tile.id)}>
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </Box>
+                
+                <Typography variant="body1" sx={{ mb: 1 }}>
+                  {tile.action}
+                </Typography>
+                
+                {tile.tags && tile.tags.length > 0 && (
+                  <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                    {tile.tags.map((tag) => (
+                      <Chip key={tag} label={tag} size="small" />
+                    ))}
+                  </Stack>
+                )}
+              </Box>
+            );
+          })}
+        </Box>
+      )}
+    </Box>
+  );
+}

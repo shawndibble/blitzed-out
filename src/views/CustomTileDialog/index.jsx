@@ -26,16 +26,14 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
     setExpanded(newExpanded ? panel : false);
   };
 
-  const allTiles = useLiveQuery(getCustomTiles);
+  const allTiles = useLiveQuery(() => getCustomTiles());
   if (!allTiles) return null;
 
-  const tagList = Array.isArray(allTiles) 
-    ? allTiles
-        .map(({ tags }) => tags)
-        .flat()
-        .filter((tag, index, self) => tag && self.indexOf(tag) === index)
-        .sort()
-    : [];
+  const tagList = allTiles
+    .map(({ tags }) => tags)
+    .flat()
+    .filter((tag, index, self) => tag && self.indexOf(tag) === index)
+    .sort();
 
   const bulkImport = async (records) => {
     await importCustomTiles(records);
