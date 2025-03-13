@@ -115,7 +115,6 @@ export async function importDefaultActions(locale, gameMode) {
     
     // Check if default actions for this locale and game mode already exist
     if (defaultActionsExist(tilesArray, targetLocale, targetGameMode)) {
-      console.log(`Default actions for ${targetLocale}/${targetGameMode} already exist.`);
       return;
     }
     
@@ -128,9 +127,6 @@ export async function importDefaultActions(locale, gameMode) {
     // Import custom tiles
     if (customTilesData.length > 0) {
       await importCustomTiles(customTilesData);
-      console.log(`Imported ${customTilesData.length} default actions for ${targetLocale}/${targetGameMode}`);
-    } else {
-      console.log(`No default actions found for ${targetLocale}/${targetGameMode}`);
     }
   } catch (error) {
     console.error(`Error importing default actions for ${targetLocale}/${targetGameMode}:`, error);
@@ -152,7 +148,6 @@ async function removeDuplicateDefaultActions(locale, gameMode) {
     });
     
     if (!Array.isArray(allTiles) || allTiles.length === 0) {
-      console.log(`No tiles found for ${locale}/${gameMode} to check for duplicates`);
       return;
     }
     
@@ -163,8 +158,7 @@ async function removeDuplicateDefaultActions(locale, gameMode) {
     if (defaultActionsOnly.length <= 1) {
       return;
     }
-    
-    console.log(`Found ${defaultActionsOnly.length} default actions for ${locale}/${gameMode}, checking for duplicates...`);
+  
     
     // Create a map to track unique actions
     const uniqueActions = new Map();
@@ -183,7 +177,6 @@ async function removeDuplicateDefaultActions(locale, gameMode) {
     
     // Delete duplicates if any found
     if (duplicateIds.length > 0) {
-      console.log(`Removing ${duplicateIds.length} duplicate default actions for ${locale}/${gameMode}`);
       for (const id of duplicateIds) {
         await customTiles.delete(id);
       }
