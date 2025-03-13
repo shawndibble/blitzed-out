@@ -6,13 +6,15 @@
     "update": "Mettre à jour",
     "delete": "Supprimer",
     "noTilesFound": "Aucune tuile trouvée avec les filtres sélectionnés.",
-    "showingTiles": "Affichage de {{shown}} sur {{total}} tuiles"
+    "showingTiles": "Affichage de {{shown}} sur {{total}} tuiles",
+    "gameMode": "Mode de jeu"
   },
   "customTilesLabel": "Tuiles de jeu",
   "default": "Par défaut",
   "logout": "Se déconnecter",
-  "online": "Joueurs en ligne",
+  "online": "En ligne",
   "setup": "Configuration du jeu",
+  "buildGame": "Créer un Jeu",
   "access": "Accéder au jeu",
   "settings": "Paramètres",
   "about": "À propos",
@@ -42,7 +44,7 @@
   "roomType": "Type de salle",
   "solo": "Solo",
   "soloTooltip": "Jouer seul",
-  "local": "Interactions réelles",
+  "local": "En personn",
   "localTooltip": "Jouer avec d'autres personnes en présentiel",
   "gameSpeed": "Vitesse de jeu",
   "averageRolls": "Lancers moyens par match:",
@@ -244,5 +246,8 @@
   "WillYouOrgasm": "Veux-tu jouir ?",
   "orgasmDisclaimer": "Vous pourrez toujours modifier cela plus tard dans les paramètres.",
   "noOrgasm": "Non, pas cette lecture.",
-  "yesOrgasm": "Oui, je le ferai à la fin."
+  "yesOrgasm": "Oui, je le ferai à la fin.",
+  "clear": "Borrar",
+  "previous": "Anterior",
+  "next": "Siguiente"
 }

@@ -6,13 +6,15 @@
     "update": "Update",
     "delete": "Delete",
     "noTilesFound": "No tiles found with the selected filters.",
-    "showingTiles": "Showing {{shown}} of {{total}} tiles"
+    "showingTiles": "Showing {{shown}} of {{total}} tiles",
+    "gameMode": "Game Mode"
   },
   "customTilesLabel": "Game Tiles",
   "default": "Default",
   "logout": "Logout",
-  "online": "Players Online",
+  "online": "Online",
   "setup": "Game Setup",
+  "buildGame": "Build Game",
   "access": "Access Game",
   "settings": "Settings",
   "about": "About",
@@ -42,7 +44,7 @@
   "roomType": "Room Type",
   "solo": "Solo",
   "soloTooltip": "Play with yourself",
-  "local": "IRL Interaction",
+  "local": "In Person",
   "localTooltip": "Playing with other people in person",
   "gameSpeed": "Game Speed",
   "averageRolls": "Average rolls per game: ",
@@ -243,5 +245,8 @@
   "WillYouOrgasm": "Will you orgasm?",
   "orgasmDisclaimer": "You can always change this later in settings.",
   "noOrgasm": "No, not this play through.",
-  "yesOrgasm": "Yes, I will at the end."
+  "yesOrgasm": "Yes, I will at the end.",
+  "clear": "Clear",
+  "previous": "Previous",
+  "next": "Next"
 }

@@ -7,6 +7,7 @@ export default function groupActionsFolder(actionsFolder) {
     const intensities = Object.keys(actions).filter((entry) => entry !== 'None');
     return intensities.map((intensity, index) => ({
       group: camelToPascal(key),
+      groupLabel: label,
       value: key,
       intensity: Number(index + 1),
       translatedIntensity: intensity,
@@ -18,6 +19,7 @@ export default function groupActionsFolder(actionsFolder) {
     ...mappedGroups,
     {
       group: i18next.t('misc'),
+      groupLabel: i18next.t('misc'),
       value: 'misc',
       intensity: 1,
       translatedIntensity: i18next.t('all'),

@@ -1,4 +1,14 @@
-import { Autocomplete, Box, Button, TextField, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  TextField,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
 import { submitCustomAction } from '@/services/firebase';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -33,19 +43,19 @@ export default function AddCustomTile({
   useEffect(() => {
     const tilesArray = Array.isArray(customTiles) ? customTiles : [];
     const editTile = tilesArray.find(({ id }) => id === updateTileId);
-    
+
     if (editTile) {
       // Get the game mode from the tile being edited
       const tileGameMode = editTile.gameMode || settings.gameMode;
-      
+
       // Get the appropriate groups for this game mode
       const gameModeGroups = groupActionsFolder(mappedGroups[tileGameMode] || {});
-      
+
       // Find the matching option in the groups for this game mode
       const editTileOption = gameModeGroups.find(
         ({ value, intensity }) => value === editTile.group && intensity === editTile.intensity
       );
-      
+
       setFormData({
         gameMode: tileGameMode,
         tileOption: editTileOption || null,
@@ -54,9 +64,9 @@ export default function AddCustomTile({
       });
     } else {
       // For new tiles, just set the game mode to the current setting
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        gameMode: settings.gameMode
+        gameMode: settings.gameMode,
       }));
     }
   }, [updateTileId, settings.gameMode, mappedGroups]);
@@ -83,7 +93,7 @@ export default function AddCustomTile({
     // Check if there's text in the tag input field and add it to tags
     const tagInput = document.querySelector('input[name="tags"]');
     let currentTags = [...formData.tags];
-    
+
     if (tagInput && tagInput.value.trim()) {
       currentTags.push(tagInput.value.trim());
       // Clear the input field
@@ -93,7 +103,10 @@ export default function AddCustomTile({
     const { gameMode, tileOption, action } = formData;
 
     if (!gameMode || !tileOption || !action) {
-      return setSubmitMessage({ message: t('allFieldsRequired', 'All fields are required'), type: 'error' });
+      return setSubmitMessage({
+        message: t('allFieldsRequired', 'All fields are required'),
+        type: 'error',
+      });
     }
 
     if (updateTileId == null && tileExists(tileOption, action)) {
@@ -102,12 +115,15 @@ export default function AddCustomTile({
 
     // Get the appropriate groups for this game mode
     const gameModeGroups = groupActionsFolder(mappedGroups[gameMode] || {});
-    
+
     // Find the matching option in the groups for this game mode
     const option = gameModeGroups.find(({ label }) => label === tileOption.label);
 
     if (!option) {
-      return setSubmitMessage({ message: t('invalidOption', 'Invalid option selected'), type: 'error' });
+      return setSubmitMessage({
+        message: t('invalidOption', 'Invalid option selected'),
+        type: 'error',
+      });
     }
 
     const data = {
@@ -162,7 +178,7 @@ export default function AddCustomTile({
       // Clear the input after adding the tag
       event.target.value = '';
     }
-    
+
     // Give time for any click events to process before closing dropdown
     setTimeout(() => {
       // Close any open dropdown
@@ -183,23 +199,29 @@ export default function AddCustomTile({
       <AccordionDetails>
         <Box component="form" method="post" className="settings-box">
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel id="game-mode-label">{t('gameMode', 'Game Mode')}</InputLabel>
+            <InputLabel id="game-mode-label">
+              <Trans i18nKey="customTiles.gameMode" />
+            </InputLabel>
             <Select
               labelId="game-mode-label"
               id="gameMode"
               name="gameMode"
               value={formData.gameMode}
-              label={t('gameMode', 'Game Mode')}
+              label={t('customTiles.gameMode')}
               onChange={(event) => {
-                setFormData({ 
-                  ...formData, 
+                setFormData({
+                  ...formData,
                   gameMode: event.target.value,
-                  tileOption: null // Reset tile option when game mode changes
+                  tileOption: null, // Reset tile option when game mode changes
                 });
               }}
             >
-              <MenuItem value="online">{t('gameMode.online', 'Online')}</MenuItem>
-              <MenuItem value="local">{t('gameMode.local', 'Local')}</MenuItem>
+              <MenuItem value="online">
+                <Trans i18nKey="online" />
+              </MenuItem>
+              <MenuItem value="local">
+                <Trans i18nKey="local" />
+              </MenuItem>
             </Select>
           </FormControl>
 
@@ -268,7 +290,7 @@ export default function AddCustomTile({
 
           <Box display="flex" justifyContent="space-evenly">
             <Button variant="contained" type="button" onClick={() => clear()}>
-              Clear
+              <Trans i18nKey="clear" />
             </Button>
             <Button variant="contained" type="button" onClick={(event) => submitNewTile(event)}>
               <Trans i18nKey={updateTileId ? 'ctUpdate' : 'ctAdd'} />

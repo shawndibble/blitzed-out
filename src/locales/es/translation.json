@@ -6,13 +6,15 @@
     "update": "Actualizar",
     "delete": "Eliminar",
     "noTilesFound": "No se encontraron fichas con los filtros seleccionados.",
-    "showingTiles": "Mostrando {{shown}} de {{total}} fichas"
+    "showingTiles": "Mostrando {{shown}} de {{total}} fichas",
+    "gameMode": "Modo de juego"
   },
   "customTilesLabel": "Casillas de Juego",
   "default": "Estándar",
   "logout": "Cerrar sesión",
-  "online": "Jugadores en línea",
+  "online": "En línea",
   "setup": "Configuración del juego",
+  "buildGame": "Construir Juego",
   "access": "Acceder",
   "settings": "Ajustes",
   "about": "Acerca de",
@@ -42,7 +44,7 @@
   "roomType": "Tipo de sala",
   "solo": "Individual",
   "soloTooltip": "Juega a solas",
-  "local": "Interacción en persona",
+  "local": "En persona",
   "localTooltip": "Juega con otros en persona",
   "gameSpeed": "Velocidad del juego",
   "averageRolls": "Tiradas promedio por juego: ",
@@ -244,5 +246,8 @@
   "WillYouOrgasm": "¿Tendrás un orgasmo?",
   "orgasmDisclaimer": "Siempre puedes cambiar esto más tarde en la configuración.",
   "noOrgasm": "No, esta partida no.",
-  "yesOrgasm": "Sí, lo tendré al final."
+  "yesOrgasm": "Sí, lo tendré al final.",
+  "clear": "Effacer",
+  "previous": "Précédent",
+  "next": "Suivant"
 }

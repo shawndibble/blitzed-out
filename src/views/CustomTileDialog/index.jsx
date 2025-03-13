@@ -24,13 +24,13 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [allGameModeActions, setAllGameModeActions] = useState({
     online: {},
-    local: {}
+    local: {},
   });
   const [isLoadingActions, setIsLoadingActions] = useState(true);
 
   // Create a function to trigger refresh of the ViewCustomTiles component
   const triggerRefresh = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
+    setRefreshTrigger((prev) => prev + 1);
   }, []);
 
   const handleChange = (panel) => (_event, newExpanded) => {
@@ -44,12 +44,12 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
       try {
         const [onlineActions, localActions] = await Promise.all([
           importActions(i18n.resolvedLanguage, 'online'),
-          importActions(i18n.resolvedLanguage, 'local')
+          importActions(i18n.resolvedLanguage, 'local'),
         ]);
-        
+
         setAllGameModeActions({
           online: onlineActions,
-          local: localActions
+          local: localActions,
         });
       } catch (error) {
         console.error('Error loading game mode actions:', error);
@@ -57,16 +57,16 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
         setIsLoadingActions(false);
       }
     }
-    
+
     loadAllGameModeActions();
   }, [i18n.resolvedLanguage]);
 
   const allTiles = useLiveQuery(() => getCustomTiles({ paginated: false }));
-  
+
   const tagList = useMemo(() => {
     if (!allTiles) return [];
-    
-    return Array.isArray(allTiles) 
+
+    return Array.isArray(allTiles)
       ? allTiles
           .map(({ tags }) => tags)
           .flat()
@@ -75,14 +75,16 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
       : [];
   }, [allTiles]);
 
-  const bulkImport = useCallback(async (records) => {
-    await importCustomTiles(records);
-    boardUpdated();
-    triggerRefresh();
-  }, [boardUpdated, triggerRefresh]);
+  const bulkImport = useCallback(
+    async (records) => {
+      await importCustomTiles(records);
+      boardUpdated();
+      triggerRefresh();
+    },
+    [boardUpdated, triggerRefresh]
+  );
 
   if (!allTiles || isLoadingActions) return null;
-
 
   return (
     <>

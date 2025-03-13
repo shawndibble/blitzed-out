@@ -27,8 +27,14 @@ import { useTranslation } from 'react-i18next';
 import useGameSettings from '@/hooks/useGameSettings';
 import groupActionsFolder from '@/helpers/actionsFolder';
 
-export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, updateTile, refreshTrigger }) {
-  const { t } = useTranslation();
+export default function ViewCustomTiles({
+  tagList,
+  boardUpdated,
+  mappedGroups,
+  updateTile,
+  refreshTrigger,
+}) {
+  const { t, i18n } = useTranslation();
   const { settings } = useGameSettings();
   const [tagFilter, setTagFilter] = useState(null);
   const [gameModeFilter, setGameModeFilter] = useState(settings.gameMode || 'online');
@@ -46,7 +52,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     async function loadGroups() {
       try {
         setLoading(true);
-        const groupData = await getCustomTileGroups(settings.locale, gameModeFilter);
+        const groupData = await getCustomTileGroups(i18n.resolvedLanguage, gameModeFilter);
         setGroups(groupData);
 
         // Extract unique groups
@@ -71,7 +77,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     }
 
     loadGroups();
-  }, [gameModeFilter]);
+  }, [gameModeFilter, i18n.resolvedLanguage]);
 
   // Load tiles when filters change
   useEffect(() => {
@@ -102,7 +108,16 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     if (groupFilter) {
       loadTiles();
     }
-  }, [groupFilter, intensityFilter, tagFilter, gameModeFilter, page, limit, refreshTrigger, settings.locale]);
+  }, [
+    groupFilter,
+    intensityFilter,
+    tagFilter,
+    gameModeFilter,
+    page,
+    limit,
+    refreshTrigger,
+    settings.locale,
+  ]);
 
   function toggleTagFilter(tag) {
     if (tagFilter === tag) {
@@ -197,7 +212,10 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
               />
               {!!isCustom && (
                 <>
-                  <IconButton aria-label={t('customTiles.update')} onClick={() => handleUpdateTile(id)}>
+                  <IconButton
+                    aria-label={t('customTiles.update')}
+                    onClick={() => handleUpdateTile(id)}
+                  >
                     <Edit />
                   </IconButton>
                   <IconButton aria-label={t('customTiles.delete')} onClick={() => deleteTile(id)}>
@@ -218,14 +236,13 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     )
   );
 
-
   return (
     <Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
           <FormControl sx={{ width: 125, flexShrink: 0 }}>
             <InputLabel id="game-mode-filter-label">
-              <Trans i18nKey="customTiles.gameMode">Game Mode</Trans>
+              <Trans i18nKey="customTiles.gameMode" />
             </InputLabel>
             <Select
               labelId="game-mode-filter-label"
@@ -240,14 +257,14 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
               }}
             >
               <MenuItem value="online">
-                <Trans i18nKey="gameMode.online">Online</Trans>
+                <Trans i18nKey="online" />
               </MenuItem>
               <MenuItem value="local">
-                <Trans i18nKey="gameMode.local">Local</Trans>
+                <Trans i18nKey="local" />
               </MenuItem>
             </Select>
           </FormControl>
-          
+
           <FormControl sx={{ minWidth: 150, flex: 1 }}>
             <InputLabel id="group-filter-label">
               <Trans i18nKey="customTiles.filterByGroup">Filter by Group</Trans>
@@ -261,7 +278,9 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
             >
               {uniqueGroups.map((group) => (
                 <MenuItem key={group} value={group}>
-                  {groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find((g) => g.value === group)?.group || group}
+                  {groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
+                    (g) => g.value === group
+                  )?.groupLabel || group}
                   {groups[group] && ` (${groups[group].count})`}
                 </MenuItem>
               ))}
