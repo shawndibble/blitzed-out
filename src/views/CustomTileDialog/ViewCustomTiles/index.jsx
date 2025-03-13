@@ -223,7 +223,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     <Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-          <FormControl sx={{ width: 150, flexShrink: 0 }}>
+          <FormControl sx={{ width: 125, flexShrink: 0 }}>
             <InputLabel id="game-mode-filter-label">
               <Trans i18nKey="customTiles.gameMode">Game Mode</Trans>
             </InputLabel>
@@ -248,7 +248,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
             </Select>
           </FormControl>
           
-          <FormControl sx={{ minWidth: 200, flex: 1 }}>
+          <FormControl sx={{ minWidth: 150, flex: 1 }}>
             <InputLabel id="group-filter-label">
               <Trans i18nKey="customTiles.filterByGroup">Filter by Group</Trans>
             </InputLabel>
