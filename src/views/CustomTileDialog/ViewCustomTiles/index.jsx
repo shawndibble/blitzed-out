@@ -89,6 +89,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
         };
 
         const tileData = await getCustomTiles(filters);
+        console.log(tileData);
         setTiles(tileData);
       } catch (error) {
         console.error('Error loading tiles:', error);
