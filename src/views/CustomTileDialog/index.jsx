@@ -85,26 +85,55 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
   // Create mapped groups for both game modes
   const mappedGroups = useMemo(() => {
     // Create mapped groups for both game modes
-    console.log(allGameModeActions);
     const onlineGroups = groupActionsFolder(allGameModeActions.online);
     const localGroups = groupActionsFolder(allGameModeActions.local);
     
-    // Combine all groups from both modes, removing duplicates
-    const allGroups = [];
+    // Create a map to store merged groups with all intensity levels
+    const groupMap = new Map();
     
-    // Add groups from online mode
+    // Process online groups first
     onlineGroups.forEach(onlineGroup => {
-      if (!allGroups.some(g => g.value === onlineGroup.value)) {
-        allGroups.push(onlineGroup);
+      groupMap.set(onlineGroup.value, {
+        ...onlineGroup,
+        // Store all intensities in an array
+        allIntensities: onlineGroup.intensities || []
+      });
+    });
+    
+    // Process local groups, merging with existing online groups if needed
+    localGroups.forEach(localGroup => {
+      const existingGroup = groupMap.get(localGroup.value);
+      
+      if (existingGroup) {
+        // Merge intensities from both game modes
+        const allIntensities = [...existingGroup.allIntensities];
+        
+        // Add any new intensities from local mode
+        (localGroup.intensities || []).forEach(intensity => {
+          if (!allIntensities.some(i => i.value === intensity.value)) {
+            allIntensities.push(intensity);
+          }
+        });
+        
+        // Update the group with merged intensities
+        groupMap.set(localGroup.value, {
+          ...existingGroup,
+          allIntensities
+        });
+      } else {
+        // This is a new group only in local mode
+        groupMap.set(localGroup.value, {
+          ...localGroup,
+          allIntensities: localGroup.intensities || []
+        });
       }
     });
     
-    // Add groups from local mode
-    localGroups.forEach(localGroup => {
-      if (!allGroups.some(g => g.value === localGroup.value)) {
-        allGroups.push(localGroup);
-      }
-    });
+    // Convert the map back to an array and ensure each group has all intensities
+    const allGroups = Array.from(groupMap.values()).map(group => ({
+      ...group,
+      intensities: group.allIntensities
+    }));
     
     return allGroups;
   }, [allGameModeActions]);
