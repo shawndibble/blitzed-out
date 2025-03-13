@@ -1,6 +1,6 @@
 import { importActions } from './importLocales';
 import { getCustomTiles, importCustomTiles } from '@/stores/customTiles';
-import i18next from 'i18next';
+import { t } from 'i18next';
 
 /**
  * Transforms locale actions into the format expected by the customTiles store
@@ -31,7 +31,7 @@ function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'onlin
           intensity: intensityIndex, // Use the index instead of the key string
           action,
           isEnabled: 1,
-          tags: [i18next.t('tags.default', 'Default')], // Add "Default" tag with translation
+          tags: [t('default', 'Default')],
           gameMode,
           isCustom: 0, // Mark as default action
           locale
