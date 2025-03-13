@@ -49,6 +49,11 @@ export default function AddCustomTile({
 
   function clear() {
     setUpdateTileId(null);
+    setFormData({
+      tileOption: null,
+      action: '',
+      tags: [],
+    });
   }
 
   async function submitNewTile(event) {
