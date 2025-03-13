@@ -1,6 +1,6 @@
 import { Delete, Edit } from '@mui/icons-material';
-import { Box, Card, CardActions, CardHeader, Chip, IconButton, Switch } from '@mui/material';
-import { useState } from 'react';
+import { Box, Card, CardActions, CardHeader, Chip, IconButton, Switch, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { useState, useEffect } from 'react';
 import { deleteCustomTile, toggleCustomTile } from '@/stores/customTiles';
 
 export default function ViewCustomTiles({
@@ -10,12 +10,32 @@ export default function ViewCustomTiles({
   mappedGroups,
   updateTile,
 }) {
-  const [filter, setFilter] = useState(null);
-  function toggleFilter(tag) {
-    if (filter === tag) {
-      return setFilter(null);
+  const [tagFilter, setTagFilter] = useState(null);
+  const [groupFilter, setGroupFilter] = useState('');
+  const [uniqueGroups, setUniqueGroups] = useState([]);
+
+  // Extract unique groups from custom tiles
+  useEffect(() => {
+    if (customTiles?.length) {
+      const groups = [...new Set(customTiles.map(tile => tile.group))];
+      setUniqueGroups(groups);
+      
+      // Set default group filter to first group if not already set
+      if (!groupFilter && groups.length) {
+        setGroupFilter(groups[0]);
+      }
     }
-    return setFilter(tag);
+  }, [customTiles, groupFilter]);
+
+  function toggleTagFilter(tag) {
+    if (tagFilter === tag) {
+      return setTagFilter(null);
+    }
+    return setTagFilter(tag);
+  }
+
+  function handleGroupFilterChange(event) {
+    setGroupFilter(event.target.value);
   }
 
   function deleteTile(index) {
@@ -29,7 +49,10 @@ export default function ViewCustomTiles({
   }
 
   const tileList = customTiles
-    ?.filter(({ tags }) => !filter || tags?.includes(filter))
+    ?.filter(({ tags, group }) => 
+      (!tagFilter || tags?.includes(tagFilter)) && 
+      (!groupFilter || group === groupFilter)
+    )
     ?.sort((a, b) => `${b.group} - ${b.intensity}` - `${a.group} - ${a.intensity}`)
     ?.map(({ id, group, intensity, action, tags, isEnabled = true }) => (
       <Card sx={{ my: 2 }} key={id}>
@@ -69,16 +92,36 @@ export default function ViewCustomTiles({
 
   return (
     <Box>
-      <Box>
-        {tagList?.map((tag) => (
-          <Chip
-            key={tag}
-            label={tag}
-            sx={{ m: 0.5 }}
-            color={filter === tag ? 'primary' : 'default'}
-            onClick={() => toggleFilter(tag)}
-          />
-        ))}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+        <FormControl fullWidth>
+          <InputLabel id="group-filter-label">Filter by Group</InputLabel>
+          <Select
+            labelId="group-filter-label"
+            id="group-filter"
+            value={groupFilter}
+            label="Filter by Group"
+            onChange={handleGroupFilterChange}
+          >
+            <MenuItem value="">All Groups</MenuItem>
+            {uniqueGroups.map((group) => (
+              <MenuItem key={group} value={group}>
+                {mappedGroups.find(g => g.value === group)?.label || group}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        
+        <Box>
+          {tagList?.map((tag) => (
+            <Chip
+              key={tag}
+              label={tag}
+              sx={{ m: 0.5 }}
+              color={tagFilter === tag ? 'primary' : 'default'}
+              onClick={() => toggleTagFilter(tag)}
+            />
+          ))}
+        </Box>
       </Box>
       {tileList}
     </Box>
