@@ -85,6 +85,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
   // Create mapped groups for both game modes
   const mappedGroups = useMemo(() => {
     // Create mapped groups for both game modes
+    console.log(allGameModeActions);
     const onlineGroups = groupActionsFolder(allGameModeActions.online);
     const localGroups = groupActionsFolder(allGameModeActions.local);
     
