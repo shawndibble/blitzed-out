@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import useAuth from '@/context/hooks/useAuth';
@@ -10,6 +10,7 @@ import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
 import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
+import i18next from 'i18next';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
@@ -60,10 +61,9 @@ function AppRoutes() {
 }
 
 function App() {
-  useEffect(() => {
-    // Set up default actions import that responds to game settings changes
-    setupDefaultActionsImport();
-  }, []);
+  i18next.on('languageChanged', (lng) => {
+    setupDefaultActionsImport(lng);
+  });
 
   return (
     <ThemeProvider theme={darkTheme}>

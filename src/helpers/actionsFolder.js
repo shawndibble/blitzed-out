@@ -3,6 +3,7 @@ import i18next from 'i18next';
 
 export default function groupActionsFolder(actionsFolder) {
   const mappedGroups = Object.entries(actionsFolder).flatMap(([key, { label, actions }]) => {
+    if (!actions) return [];
     const intensities = Object.keys(actions).filter((entry) => entry !== 'None');
     return intensities.map((intensity, index) => ({
       group: camelToPascal(key),

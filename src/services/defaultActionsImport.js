@@ -74,34 +74,12 @@ function defaultActionsExist(existingTiles, locale, gameMode) {
 }
 
 /**
- * Gets game settings from local storage
- * @returns {Object} Game settings with locale and gameMode
- */
-function getGameSettings() {
-  try {
-    const storedSettings = localStorage.getItem('gameSettings');
-    if (!storedSettings) {
-      return { locale: 'en', gameMode: 'online' };
-    }
-    const settings = JSON.parse(storedSettings);
-    return {
-      locale: settings.locale || 'en',
-      gameMode: settings.gameMode || 'online'
-    };
-  } catch (error) {
-    console.error('Error parsing game settings:', error);
-    return { locale: 'en', gameMode: 'online' };
-  }
-}
-
-/**
  * Imports default actions if they don't already exist in the database
  * @param {string} locale - The locale code (e.g., 'en')
  */
 export async function importDefaultActions(locale) {
   // If locale is not provided, get it from localStorage
-  const settings = getGameSettings();
-  const targetLocale = locale || settings.locale;
+  const targetLocale = locale || 'en';
   
   // We'll import for both game modes
   const gameModes = ['online', 'local'];
@@ -195,49 +173,27 @@ async function removeDuplicateDefaultActions(locale, gameMode) {
 /**
  * Checks for and imports missing default actions for all supported locales and game modes
  */
-export async function importAllDefaultActions() {
-  const settings = getGameSettings();
-  
+export async function importAllDefaultActions(locale) {
   // First, remove any duplicate default actions for both game modes
-  await removeDuplicateDefaultActions(settings.locale, 'online');
-  await removeDuplicateDefaultActions(settings.locale, 'local');
+  await removeDuplicateDefaultActions(locale, 'online');
+  await removeDuplicateDefaultActions(locale, 'local');
   
   // Then import the current locale (this will handle both game modes)
-  await importDefaultActions(settings.locale);
+  await importDefaultActions(locale);
 }
 
 /**
  * Sets up a listener for game settings changes and imports actions when needed
  */
-export function setupDefaultActionsImport() {
-  let previousSettings = getGameSettings();
-  
+export function setupDefaultActionsImport(locale) {
   // Initial import - wrap in setTimeout to ensure it runs after the database is fully initialized
   setTimeout(() => {
     try {
-      importAllDefaultActions().catch(error => {
+      importAllDefaultActions(locale).catch(error => {
         console.error('Error during initial default actions import:', error);
       });
     } catch (error) {
       console.error('Error during initial default actions import:', error);
     }
   }, 1000);
-  
-  // Set up storage event listener to detect changes
-  window.addEventListener('storage', (event) => {
-    if (event.key === 'gameSettings') {
-      try {
-        const newSettings = JSON.parse(event.newValue);
-        const oldSettings = previousSettings;
-        
-        // If locale changed, import actions for the new locale (both game modes)
-        if (newSettings.locale !== oldSettings.locale) {
-          importDefaultActions(newSettings.locale);
-          previousSettings = newSettings;
-        }
-      } catch (error) {
-        console.error('Error handling game settings change:', error);
-      }
-    }
-  });
 }
