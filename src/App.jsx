@@ -9,7 +9,7 @@ import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
-import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
+import { setupDefaultActionsImport, importDefaultActions } from '@/services/defaultActionsImport';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
