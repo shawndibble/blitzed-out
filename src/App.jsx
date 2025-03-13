@@ -9,7 +9,7 @@ import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
-import { importDefaultActions } from '@/services/defaultActionsImport';
+import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
@@ -61,12 +61,8 @@ function AppRoutes() {
 
 function App() {
   useEffect(() => {
-    // Import default actions when the app loads
-    // You can add more locales and game modes as needed
-    importDefaultActions('en', 'online');
-    // Example for additional locales/modes:
-    // importDefaultActions('fr', 'online');
-    // importDefaultActions('en', 'offline');
+    // Set up default actions import that responds to game settings changes
+    setupDefaultActionsImport();
   }, []);
 
   return (
