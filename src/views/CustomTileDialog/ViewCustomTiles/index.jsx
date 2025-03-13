@@ -45,7 +45,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     async function loadGroups() {
       try {
         setLoading(true);
-        const groupData = await getCustomTileGroups(gameModeFilter, settings.locale);
+        const groupData = await getCustomTileGroups(settings.locale, gameModeFilter);
         setGroups(groupData);
 
         // Extract unique groups
