@@ -13,7 +13,7 @@ import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
 
-export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, open = false }) {
+export default function CustomTileDialog({ boardUpdated, setOpen, open = false }) {
   const { t, i18n } = useTranslation();
   const isMobile = useBreakpoint();
   const [submitMessage, setSubmitMessage] = useState({
@@ -84,24 +84,21 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
 
   // Create mapped groups for both game modes
   const mappedGroups = useMemo(() => {
-    // Use the provided actionsList for the current game mode
-    const currentModeGroups = groupActionsFolder(actionsList);
-    
     // Create mapped groups for both game modes
     const onlineGroups = groupActionsFolder(allGameModeActions.online);
     const localGroups = groupActionsFolder(allGameModeActions.local);
     
     // Combine all groups from both modes, removing duplicates
-    const allGroups = [...currentModeGroups];
+    const allGroups = [];
     
-    // Add groups from online mode if not already present
+    // Add groups from online mode
     onlineGroups.forEach(onlineGroup => {
       if (!allGroups.some(g => g.value === onlineGroup.value)) {
         allGroups.push(onlineGroup);
       }
     });
     
-    // Add groups from local mode if not already present
+    // Add groups from local mode
     localGroups.forEach(localGroup => {
       if (!allGroups.some(g => g.value === localGroup.value)) {
         allGroups.push(localGroup);
@@ -109,11 +106,10 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
     });
     
     return allGroups;
-  }, [actionsList, allGameModeActions]);
+  }, [allGameModeActions]);
 
   if (!allTiles || isLoadingActions) return null;
 
-  console.log(mappedGroups);
 
   return (
     <>
