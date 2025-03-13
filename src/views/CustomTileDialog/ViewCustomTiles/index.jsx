@@ -12,20 +12,26 @@ export default function ViewCustomTiles({
 }) {
   const [tagFilter, setTagFilter] = useState(null);
   const [groupFilter, setGroupFilter] = useState('');
-  const [uniqueGroups, setUniqueGroups] = useState([]);
-
-  // Extract unique groups from custom tiles
+  const [intensityFilter, setIntensityFilter] = useState('');
+  
+  // Set default filters when component loads
   useEffect(() => {
-    if (customTiles?.length) {
-      const groups = [...new Set(customTiles.map(tile => tile.group))];
-      setUniqueGroups(groups);
+    if (customTiles?.length && mappedGroups?.length && !groupFilter) {
+      // Get the first group from mappedGroups
+      const firstGroup = mappedGroups[0]?.value || '';
+      setGroupFilter(firstGroup);
       
-      // Set default group filter to first group if not already set
-      if (!groupFilter && groups.length) {
-        setGroupFilter(groups[0]);
+      // Find intensities for this group
+      const intensitiesForGroup = mappedGroups
+        .filter(item => item.value === firstGroup)
+        .map(item => item.intensity);
+      
+      // Set first intensity if available
+      if (intensitiesForGroup.length > 0) {
+        setIntensityFilter(intensitiesForGroup[0]);
       }
     }
-  }, [customTiles, groupFilter]);
+  }, [customTiles, mappedGroups, groupFilter]);
 
   function toggleTagFilter(tag) {
     if (tagFilter === tag) {
@@ -35,7 +41,26 @@ export default function ViewCustomTiles({
   }
 
   function handleGroupFilterChange(event) {
-    setGroupFilter(event.target.value);
+    const newGroup = event.target.value;
+    setGroupFilter(newGroup);
+    
+    // Reset intensity filter when group changes
+    setIntensityFilter('');
+    
+    // If a group is selected, set intensity to the first available intensity for that group
+    if (newGroup) {
+      const intensitiesForGroup = mappedGroups
+        .filter(item => item.value === newGroup)
+        .map(item => item.intensity);
+      
+      if (intensitiesForGroup.length > 0) {
+        setIntensityFilter(intensitiesForGroup[0]);
+      }
+    }
+  }
+  
+  function handleIntensityFilterChange(event) {
+    setIntensityFilter(event.target.value);
   }
 
   function deleteTile(index) {
@@ -49,9 +74,10 @@ export default function ViewCustomTiles({
   }
 
   const tileList = customTiles
-    ?.filter(({ tags, group }) => 
+    ?.filter(({ tags, group, intensity }) => 
       (!tagFilter || tags?.includes(tagFilter)) && 
-      (!groupFilter || group === groupFilter)
+      (!groupFilter || group === groupFilter) &&
+      (!intensityFilter || Number(intensity) === Number(intensityFilter))
     )
     ?.sort((a, b) => `${b.group} - ${b.intensity}` - `${a.group} - ${a.intensity}`)
     ?.map(({ id, group, intensity, action, tags, isEnabled = true }) => (
@@ -93,23 +119,47 @@ export default function ViewCustomTiles({
   return (
     <Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
-        <FormControl fullWidth>
-          <InputLabel id="group-filter-label">Filter by Group</InputLabel>
-          <Select
-            labelId="group-filter-label"
-            id="group-filter"
-            value={groupFilter}
-            label="Filter by Group"
-            onChange={handleGroupFilterChange}
-          >
-            <MenuItem value="">All Groups</MenuItem>
-            {uniqueGroups.map((group) => (
-              <MenuItem key={group} value={group}>
-                {mappedGroups.find(g => g.value === group)?.label || group}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <FormControl fullWidth>
+            <InputLabel id="group-filter-label">Filter by Group</InputLabel>
+            <Select
+              labelId="group-filter-label"
+              id="group-filter"
+              value={groupFilter}
+              label="Filter by Group"
+              onChange={handleGroupFilterChange}
+            >
+              <MenuItem value="">All Groups</MenuItem>
+              {/* Get unique groups from mappedGroups */}
+              {[...new Set(mappedGroups.map(g => g.value))].map((group) => (
+                <MenuItem key={group} value={group}>
+                  {mappedGroups.find(g => g.value === group)?.group || group}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          
+          <FormControl fullWidth disabled={!groupFilter}>
+            <InputLabel id="intensity-filter-label">Intensity Level</InputLabel>
+            <Select
+              labelId="intensity-filter-label"
+              id="intensity-filter"
+              value={intensityFilter}
+              label="Intensity Level"
+              onChange={handleIntensityFilterChange}
+            >
+              <MenuItem value="">All Intensities</MenuItem>
+              {/* Filter intensities based on selected group */}
+              {mappedGroups
+                .filter(g => g.value === groupFilter)
+                .map((item) => (
+                  <MenuItem key={item.intensity} value={item.intensity}>
+                    {item.translatedIntensity || `Level ${item.intensity}`}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </Box>
         
         <Box>
           {tagList?.map((tag) => (
