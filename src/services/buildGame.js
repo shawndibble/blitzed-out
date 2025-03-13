@@ -204,6 +204,14 @@ function addStartAndFinishTiles(shuffledTiles, settings) {
 // Customizes the board based on user settings
 // Starts here as this is the only export.
 export default function customizeBoard(settings, actionsFolder, userCustomTiles = [], size = 40) {
+  console.log('pre actionsFoler', actionsFolder);
+  Object.values(actionsFolder).forEach((actionObject) => {
+    if (actionObject.actions) {
+      actionObject.actions = {};
+    }
+  });
+
+  console.log('post actionsFoler', actionsFolder);
   const newActionList = restrictActionsToUserSelections(actionsFolder, settings);
 
   if (!newActionList.length) {
