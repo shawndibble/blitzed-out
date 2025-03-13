@@ -8,8 +8,9 @@ import './App.css';
 import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
-import { AuthProvider } from '@/context/auth'; // Make sure this import is correct
 import darkTheme from './theme';
+import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
+import i18next from 'i18next';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
@@ -17,13 +18,11 @@ const Room = lazy(() => import('@/views/Room'));
 
 function Providers({ children }) {
   return (
-    <AuthProvider>
-      <UserListProvider>
-        <ScheduleProvider>
-          <MessagesProvider>{children}</MessagesProvider>
-        </ScheduleProvider>
-      </UserListProvider>
-    </AuthProvider>
+    <UserListProvider>
+      <ScheduleProvider>
+        <MessagesProvider>{children}</MessagesProvider>
+      </ScheduleProvider>
+    </UserListProvider>
   );
 }
 
@@ -31,6 +30,9 @@ function Providers({ children }) {
 
 function AppRoutes() {
   const { user } = useAuth();
+  i18next.on('languageChanged', (lng) => {
+    setupDefaultActionsImport(lng);
+  });
 
   const room = user ? <Room /> : <UnauthenticatedApp />;
 
@@ -51,9 +53,7 @@ function AppRoutes() {
         path="/:id"
         element={
           <Providers>
-            <Suspense>
-              {room}
-            </Suspense>
+            <Suspense>{room}</Suspense>
           </Providers>
         }
       />
@@ -67,7 +67,7 @@ function App() {
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <BrowserRouter>
-            <AppRoutes />
+          <AppRoutes />
         </BrowserRouter>
       </LocalizationProvider>
     </ThemeProvider>

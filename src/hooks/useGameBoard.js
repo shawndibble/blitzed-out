@@ -13,7 +13,6 @@ import { isOnlineMode } from '@/helpers/strings';
  * @returns {function} - A function that takes in a form data object and returns an object.
  */
 export default function useGameBoard() {
-  const customTiles = useLiveQuery(getActiveTiles);
   const gameBoard = useLiveQuery(getActiveBoard);
   const [settings, updateSettings] = useLocalStorage('gameSettings');
   const { i18n } = useTranslation();
@@ -40,6 +39,8 @@ export default function useGameBoard() {
     const tileActionList = await importActions(i18n.resolvedLanguage, gameMode);
 
     const tileCount = isPublic ? 40 : roomTileCount;
+
+    const customTiles = await getActiveTiles(gameMode);
 
     const newBoard = customizeBoard(formData, tileActionList, customTiles, tileCount);
 

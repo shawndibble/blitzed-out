@@ -23,9 +23,9 @@ export default function useSubmitGameSettings() {
   const { user, updateUser } = useAuth();
   const { id: room } = useParams();
   const { t } = useTranslation();
-  const customTiles = useLiveQuery(() => getActiveTiles());
   const updateGameBoardTiles = useGameBoard();
   const [settings, updateSettings] = useLocalStorage('gameSettings');
+  const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();

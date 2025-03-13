@@ -14,7 +14,7 @@ import useBreakpoint from '@/hooks/useBreakpoint';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import usePlayerList from '@/hooks/usePlayerList';
 import { languages } from '@/services/importLocales';
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from '@/views/Navigation';
@@ -48,20 +48,21 @@ export default function UnauthenticatedApp() {
     roomDice: '1d6',
   });
 
-  const handleSubmit = async (event) => {
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleSubmit = useCallback(async (event) => {
     event.preventDefault();
-
     await updateSettings({ ...settings, displayName, room });
     await login(displayName);
-  };
+  }, [displayName, login, room, settings, updateSettings]);
 
-  const onEnterKey = async (event) => {
+  const onEnterKey = useCallback(async (event) => {
     if (event.key === 'Enter') {
       await handleSubmit(event);
     }
-  };
+  }, [handleSubmit]);
 
-  const languageLinks = Object.entries(languages).map(([key, obj]) => (
+  // Memoize language links to prevent re-rendering
+  const languageLinks = useMemo(() => Object.entries(languages).map(([key, obj]) => (
     <Button
       key={key}
       onClick={() => i18n.changeLanguage(key)}
@@ -69,7 +70,7 @@ export default function UnauthenticatedApp() {
     >
       {obj.label}
     </Button>
-  ));
+  )), [i18n]);
 
   return (
     <>

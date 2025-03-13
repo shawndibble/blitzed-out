@@ -28,7 +28,7 @@ export default function useSendSettings(user, messages, isLoading) {
   const [settingsSent, setSettingsSent] = useState(false);
   const { i18n } = useTranslation();
   const settings = useLocalStorage('gameSettings')[0];
-  const customTiles = useLiveQuery(() => getActiveTiles());
+  const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
   const board = useLiveQuery(getActiveBoard);
 
   // populate the room and game settings if they are not part of the message list.

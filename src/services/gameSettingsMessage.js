@@ -67,7 +67,7 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
 
   const customTileCount = getCustomTileCount(settings, customTiles, actionsList);
   if (customTileCount) {
-    message += `* ${t('customTiles')}: ${customTileCount} \r\n`;
+    message += `* ${t('customTilesLabel')}: ${customTileCount} \r\n`;
   }
 
   return message;

@@ -16,7 +16,7 @@ import {
 import useAuth from '@/context/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { logout } from '@/services/firebase';
 import DialogWrapper from '@/components/DialogWrapper';
@@ -32,6 +32,7 @@ export default function MenuDrawer() {
   const { id: room } = useParams();
   const { user } = useAuth();
   const isMobile = useBreakpoint();
+  const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState(false);
   const toggleDrawer = (isOpen) => setMenu(isOpen);
 
@@ -53,6 +54,17 @@ export default function MenuDrawer() {
     </SvgIcon>
   );
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem(
+      'gameSettings',
+      JSON.stringify({
+        ...JSON.parse(localStorage.getItem('gameSettings') || '{}'),
+        locale: lng,
+      })
+    );
+  };
+
   const menuItems = useMemo(() => {
     const items = [
       {
@@ -63,7 +75,7 @@ export default function MenuDrawer() {
       },
       {
         key: 'customTiles',
-        title: <Trans i18nKey="customTiles" />,
+        title: <Trans i18nKey="customTilesLabel" />,
         icon: <ViewModule />,
         onClick: () => toggleDialog('customTiles', true),
       },
@@ -136,8 +148,62 @@ export default function MenuDrawer() {
         <MenuIcon />
       </IconButton>
       <Drawer anchor="right" open={menuOpen} onClose={() => toggleDrawer(false)}>
-        <Box role="presentation" onClick={() => toggleDrawer(false)} sx={{ width: 250 }}>
-          <List>{menuList}</List>
+        <Box
+          role="presentation"
+          onClick={() => toggleDrawer(false)}
+          sx={{
+            width: 250,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
+          <List sx={{ flexGrow: 1 }}>{menuList}</List>
+          <Box
+            sx={{
+              borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+              p: 2,
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 1,
+            }}
+          >
+            <Box
+              component="span"
+              onClick={() => changeLanguage('en')}
+              sx={{
+                cursor: 'pointer',
+                fontWeight: i18n.language === 'en' ? 'bold' : 'normal',
+                color: i18n.language === 'en' ? 'primary.main' : 'inherit',
+              }}
+            >
+              English
+            </Box>
+            <Box component="span">|</Box>
+            <Box
+              component="span"
+              onClick={() => changeLanguage('fr')}
+              sx={{
+                cursor: 'pointer',
+                fontWeight: i18n.language === 'fr' ? 'bold' : 'normal',
+                color: i18n.language === 'fr' ? 'primary.main' : 'inherit',
+              }}
+            >
+              Français
+            </Box>
+            <Box component="span">|</Box>
+            <Box
+              component="span"
+              onClick={() => changeLanguage('es')}
+              sx={{
+                cursor: 'pointer',
+                fontWeight: i18n.language === 'es' ? 'bold' : 'normal',
+                color: i18n.language === 'es' ? 'primary.main' : 'inherit',
+              }}
+            >
+              Español
+            </Box>
+          </Box>
         </Box>
       </Drawer>
       {open.settings && renderDialog(GameSettingsDialog, 'settings')}

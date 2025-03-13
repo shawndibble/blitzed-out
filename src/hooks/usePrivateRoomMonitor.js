@@ -17,8 +17,8 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
   const { i18n, t } = useTranslation();
   const { user } = useAuth();
 
-  const customTiles = useLiveQuery(getActiveTiles);
   const [settings, updateSettings] = useLocalStorage('gameSettings');
+  const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
   const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState(DEFAULT_DIEM);
   const [roomBgUrl, setRoomBackground] = useState('');

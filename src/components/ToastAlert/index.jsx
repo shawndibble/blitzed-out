@@ -38,7 +38,7 @@ export default function ToastAlert({
         onClose={handleClose}
         action={action}
         anchorOrigin={{ vertical, horizontal }}
-        TransitionComponent={Slide}
+        transitionComponent={Slide}
       >
         <Alert onClose={!hideCloseButton && handleClose} severity={type} sx={{ width: '100%' }}>
           {children}
