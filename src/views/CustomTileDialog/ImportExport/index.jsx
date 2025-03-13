@@ -22,8 +22,7 @@ export default function ImportExport({
   const [inputValue, setInputValue] = useState('');
 
   const exportData = () => {
-    // Filter out default tiles - only include user-created custom tiles
-    const userCustomTiles = customTiles.filter(tile => !tile.isDefault);
+    const userCustomTiles = customTiles.filter(tile => tile.isCustom);
     
     const customString = userCustomTiles.map(({ group, intensity, action, tags }) => {
       const userData = mappedGroups.find(
