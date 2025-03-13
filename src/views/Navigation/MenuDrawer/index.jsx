@@ -1,4 +1,4 @@
-import { AppRegistration, CalendarMonth, Logout, Tv, ViewModule } from '@mui/icons-material';
+import { AppRegistration, CalendarMonth, Language, Logout, Tv, ViewModule } from '@mui/icons-material';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -16,7 +16,7 @@ import {
 import useAuth from '@/context/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { lazy, Suspense, useMemo, useState } from 'react';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { logout } from '@/services/firebase';
 import DialogWrapper from '@/components/DialogWrapper';
@@ -32,6 +32,7 @@ export default function MenuDrawer() {
   const { id: room } = useParams();
   const { user } = useAuth();
   const isMobile = useBreakpoint();
+  const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState(false);
   const toggleDrawer = (isOpen) => setMenu(isOpen);
 
@@ -52,6 +53,14 @@ export default function MenuDrawer() {
       <path d="M18.942 5.556a16.299 16.299 0 0 0-4.126-1.297c-.178.321-.385.754-.529 1.097a15.175 15.175 0 0 0-4.573 0 11.583 11.583 0 0 0-.535-1.097 16.274 16.274 0 0 0-4.129 1.3c-2.611 3.946-3.319 7.794-2.965 11.587a16.494 16.494 0 0 0 5.061 2.593 12.65 12.65 0 0 0 1.084-1.785 10.689 10.689 0 0 1-1.707-.831c.143-.106.283-.217.418-.331 3.291 1.539 6.866 1.539 10.118 0 .137.114.277.225.418.331-.541.326-1.114.606-1.71.832a12.52 12.52 0 0 0 1.084 1.785 16.46 16.46 0 0 0 5.064-2.595c.415-4.396-.709-8.209-2.973-11.589zM8.678 14.813c-.988 0-1.798-.922-1.798-2.045s.793-2.047 1.798-2.047 1.815.922 1.798 2.047c.001 1.123-.793 2.045-1.798 2.045zm6.644 0c-.988 0-1.798-.922-1.798-2.045s.793-2.047 1.798-2.047 1.815.922 1.798 2.047c0 1.123-.793 2.045-1.798 2.045z" />
     </SvgIcon>
   );
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+    localStorage.setItem('gameSettings', JSON.stringify({ 
+      ...JSON.parse(localStorage.getItem('gameSettings') || '{}'), 
+      locale: lng 
+    }));
+  };
 
   const menuItems = useMemo(() => {
     const items = [
@@ -137,7 +146,39 @@ export default function MenuDrawer() {
       </IconButton>
       <Drawer anchor="right" open={menuOpen} onClose={() => toggleDrawer(false)}>
         <Box role="presentation" onClick={() => toggleDrawer(false)} sx={{ width: 250 }}>
-          <List>{menuList}</List>
+          <List>
+            {menuList}
+            <ListItem sx={{ mt: 2, borderTop: '1px solid rgba(0, 0, 0, 0.12)', pt: 2 }}>
+              <ListItemIcon>
+                <Language />
+              </ListItemIcon>
+              <ListItemText primary={<Trans i18nKey="language" />} />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => changeLanguage('en')}>
+                <ListItemText 
+                  primary="English" 
+                  sx={{ pl: 4, color: i18n.language === 'en' ? 'primary.main' : 'inherit' }}
+                />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => changeLanguage('fr')}>
+                <ListItemText 
+                  primary="Français" 
+                  sx={{ pl: 4, color: i18n.language === 'fr' ? 'primary.main' : 'inherit' }}
+                />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => changeLanguage('es')}>
+                <ListItemText 
+                  primary="Español" 
+                  sx={{ pl: 4, color: i18n.language === 'es' ? 'primary.main' : 'inherit' }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </List>
         </Box>
       </Drawer>
       {open.settings && renderDialog(GameSettingsDialog, 'settings')}
