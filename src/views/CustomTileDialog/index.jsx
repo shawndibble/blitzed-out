@@ -91,48 +91,49 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
     // Create a map to store merged groups with all intensity levels
     const groupMap = new Map();
     
-    // Process online groups first
-    onlineGroups.forEach(onlineGroup => {
-      groupMap.set(onlineGroup.value, {
-        ...onlineGroup,
-        // Store all intensities in an array
-        allIntensities: onlineGroup.intensities || []
-      });
-    });
-    
-    // Process local groups, merging with existing online groups if needed
-    localGroups.forEach(localGroup => {
-      const existingGroup = groupMap.get(localGroup.value);
+    // Helper function to add a group to our map
+    const addGroupToMap = (group, gameMode) => {
+      const existingGroup = groupMap.get(group.value);
       
       if (existingGroup) {
-        // Merge intensities from both game modes
-        const allIntensities = [...existingGroup.allIntensities];
+        // Group already exists, merge intensities
+        const intensityMap = new Map();
         
-        // Add any new intensities from local mode
-        (localGroup.intensities || []).forEach(intensity => {
-          if (!allIntensities.some(i => i.value === intensity.value)) {
-            allIntensities.push(intensity);
+        // Add existing intensities to map
+        existingGroup.intensities.forEach(intensity => {
+          intensityMap.set(intensity.value, intensity);
+        });
+        
+        // Add new intensities from this group
+        (group.intensities || []).forEach(intensity => {
+          if (!intensityMap.has(intensity.value)) {
+            intensityMap.set(intensity.value, intensity);
           }
         });
         
-        // Update the group with merged intensities
-        groupMap.set(localGroup.value, {
+        // Update the group with all intensities
+        groupMap.set(group.value, {
           ...existingGroup,
-          allIntensities
+          intensities: Array.from(intensityMap.values())
         });
       } else {
-        // This is a new group only in local mode
-        groupMap.set(localGroup.value, {
-          ...localGroup,
-          allIntensities: localGroup.intensities || []
+        // New group, add it to the map
+        groupMap.set(group.value, {
+          ...group,
+          gameMode,
+          intensities: [...(group.intensities || [])]
         });
       }
-    });
+    };
     
-    // Convert the map back to an array and ensure each group has all intensities
+    // Process all groups from both game modes
+    onlineGroups.forEach(group => addGroupToMap(group, 'online'));
+    localGroups.forEach(group => addGroupToMap(group, 'local'));
+    
+    // Convert the map back to an array and sort intensities by value
     const allGroups = Array.from(groupMap.values()).map(group => ({
       ...group,
-      intensities: group.allIntensities
+      intensities: (group.intensities || []).sort((a, b) => a.value - b.value)
     }));
     
     return allGroups;
