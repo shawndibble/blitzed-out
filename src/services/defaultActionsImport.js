@@ -5,6 +5,12 @@ import db from '@/stores/store';
 
 const { customTiles } = db;
 
+// Add a lock mechanism to prevent concurrent imports
+const importLocks = {
+  online: false,
+  local: false
+};
+
 /**
  * Transforms locale actions into the format expected by the customTiles store
  * @param {Object} actions - The actions object from importActions
@@ -86,35 +92,89 @@ export async function importDefaultActions(locale) {
   
   try {
     for (const mode of gameModes) {
-      // Get existing custom tiles for this locale and game mode
-      const existingTiles = await getCustomTiles({ 
-        locale: targetLocale, 
-        gameMode: mode,
-        paginated: false 
-      });
-      
-      // Ensure existingTiles is an array
-      const tilesArray = Array.isArray(existingTiles) ? existingTiles : [];
-      
-      // Check if default actions for this locale and game mode already exist
-      if (defaultActionsExist(tilesArray, targetLocale, mode)) {
-        continue; // Skip this mode if actions already exist
+      // Skip if there's already an import in progress for this mode
+      if (importLocks[mode]) {
+        console.log(`Import already in progress for ${mode} mode, skipping`);
+        continue;
       }
       
-      // Import actions from locales - use the specific mode for import
-      const actions = await importActions(targetLocale, mode);
+      // Set the lock
+      importLocks[mode] = true;
       
-      // Transform actions to custom tiles format - now respecting the original game mode
-      const customTilesData = transformActionsToCustomTiles(actions, targetLocale, mode);
-      
-      // Import custom tiles
-      if (customTilesData.length > 0) {
-        await importCustomTiles(customTilesData);
+      try {
+        // Get existing custom tiles for this locale and game mode
+        const existingTiles = await getCustomTiles({ 
+          locale: targetLocale, 
+          gameMode: mode,
+          paginated: false 
+        });
+        
+        // Ensure existingTiles is an array
+        const tilesArray = Array.isArray(existingTiles) ? existingTiles : [];
+        
+        // Check if default actions for this locale and game mode already exist
+        if (defaultActionsExist(tilesArray, targetLocale, mode)) {
+          console.log(`Default actions already exist for ${targetLocale}/${mode}, skipping import`);
+          continue; // Skip this mode if actions already exist
+        }
+        
+        console.log(`Importing default actions for ${targetLocale}/${mode}`);
+        
+        // Import actions from locales - use the specific mode for import
+        const actions = await importActions(targetLocale, mode);
+        
+        // Transform actions to custom tiles format - now respecting the original game mode
+        const customTilesData = transformActionsToCustomTiles(actions, targetLocale, mode);
+        
+        // Before importing, check for duplicates
+        const uniqueTiles = await filterOutExistingTiles(customTilesData, targetLocale, mode);
+        
+        // Import custom tiles
+        if (uniqueTiles.length > 0) {
+          console.log(`Importing ${uniqueTiles.length} unique tiles for ${targetLocale}/${mode}`);
+          await importCustomTiles(uniqueTiles);
+        } else {
+          console.log(`No new tiles to import for ${targetLocale}/${mode}`);
+        }
+      } finally {
+        // Always release the lock when done
+        importLocks[mode] = false;
       }
     }
   } catch (error) {
     console.error(`Error importing default actions for ${targetLocale}:`, error);
+    // Make sure to release locks in case of error
+    importLocks.online = false;
+    importLocks.local = false;
   }
+}
+
+/**
+ * Filters out tiles that already exist in the database
+ * @param {Array} tilesToImport - Array of tiles to import
+ * @param {string} locale - The locale code
+ * @param {string} gameMode - The game mode
+ * @returns {Array} - Array of tiles that don't already exist
+ */
+async function filterOutExistingTiles(tilesToImport, locale, gameMode) {
+  // Get existing tiles
+  const existingTiles = await customTiles
+    .where('locale').equals(locale)
+    .and(tile => tile.gameMode === gameMode && tile.isCustom === 0)
+    .toArray();
+  
+  // Create a set of existing tile signatures for quick lookup
+  const existingSignatures = new Set();
+  existingTiles.forEach(tile => {
+    const signature = `${tile.group}-${tile.intensity}-${tile.action}`;
+    existingSignatures.add(signature);
+  });
+  
+  // Filter out tiles that already exist
+  return tilesToImport.filter(tile => {
+    const signature = `${tile.group}-${tile.intensity}-${tile.action}`;
+    return !existingSignatures.has(signature);
+  });
 }
 
 /**
@@ -161,6 +221,7 @@ async function removeDuplicateDefaultActions(locale, gameMode) {
     
     // Delete duplicates if any found
     if (duplicateIds.length > 0) {
+      console.log(`Removing ${duplicateIds.length} duplicate default actions for ${locale}/${gameMode}`);
       for (const id of duplicateIds) {
         await customTiles.delete(id);
       }
@@ -182,12 +243,20 @@ export async function importAllDefaultActions(locale) {
   await importDefaultActions(locale);
 }
 
+// Use a debounce mechanism to prevent multiple rapid calls
+let importTimeout = null;
+
 /**
  * Sets up a listener for game settings changes and imports actions when needed
  */
 export function setupDefaultActionsImport(locale) {
-  // Initial import - wrap in setTimeout to ensure it runs after the database is fully initialized
-  setTimeout(() => {
+  // Clear any existing timeout
+  if (importTimeout) {
+    clearTimeout(importTimeout);
+  }
+  
+  // Set a new timeout to debounce multiple calls
+  importTimeout = setTimeout(() => {
     try {
       importAllDefaultActions(locale).catch(error => {
         console.error('Error during initial default actions import:', error);
@@ -195,5 +264,6 @@ export function setupDefaultActionsImport(locale) {
     } catch (error) {
       console.error('Error during initial default actions import:', error);
     }
+    importTimeout = null;
   }, 1000);
 }
