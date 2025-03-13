@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Dialog, DialogContent, DialogTitle, Divider, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
@@ -21,6 +21,7 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
   });
   const [expanded, setExpanded] = useState('ctAdd');
   const [tileId, updateTile] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleChange = (panel) => (_event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);
@@ -37,9 +38,15 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
         .sort()
     : [];
 
+  // Create a function to trigger refresh of the ViewCustomTiles component
+  const triggerRefresh = useCallback(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, []);
+
   const bulkImport = async (records) => {
     await importCustomTiles(records);
     boardUpdated();
+    triggerRefresh();
   };
 
   const mappedGroups = groupActionsFolder(actionsList);
@@ -67,7 +74,10 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
 
           <AddCustomTile
             setSubmitMessage={setSubmitMessage}
-            boardUpdated={boardUpdated}
+            boardUpdated={() => {
+              boardUpdated();
+              triggerRefresh();
+            }}
             customTiles={allTiles}
             mappedGroups={mappedGroups}
             expanded={expanded}
@@ -91,9 +101,13 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
               <Divider sx={{ my: 2 }} />
               <ViewCustomTiles
                 tagList={tagList}
-                boardUpdated={boardUpdated}
+                boardUpdated={() => {
+                  boardUpdated();
+                  triggerRefresh();
+                }}
                 mappedGroups={mappedGroups}
                 updateTile={updateTile}
+                refreshTrigger={refreshTrigger}
               />
             </>
           )}

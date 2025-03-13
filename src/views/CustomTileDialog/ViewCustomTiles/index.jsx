@@ -25,7 +25,7 @@ import {
 import { Trans } from 'react-i18next';
 import { useTranslation } from 'react-i18next';
 
-export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, updateTile }) {
+export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, updateTile, refreshTrigger }) {
   const { t } = useTranslation();
   const [tagFilter, setTagFilter] = useState(null);
   const [groupFilter, setGroupFilter] = useState('');
@@ -96,7 +96,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     if (groupFilter) {
       loadTiles();
     }
-  }, [groupFilter, intensityFilter, tagFilter, page, limit]);
+  }, [groupFilter, intensityFilter, tagFilter, page, limit, refreshTrigger]);
 
   function toggleTagFilter(tag) {
     if (tagFilter === tag) {
