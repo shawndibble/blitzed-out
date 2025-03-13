@@ -180,6 +180,8 @@ export default function AddCustomTile({
             }}
             sx={{ pb: 2 }}
             clearOnBlur
+            blurOnSelect
+            openOnFocus={false}
           />
 
           <Box display="flex" justifyContent="space-evenly">
