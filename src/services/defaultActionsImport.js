@@ -97,6 +97,7 @@ export async function importDefaultActions(locale, gameMode) {
     
     // Check if default actions for this locale and game mode already exist
     if (defaultActionsExist(existingTiles, targetLocale, targetGameMode)) {
+      console.log(existingTiles);
       console.log(`Default actions for ${targetLocale}/${targetGameMode} already exist.`);
       return;
     }
