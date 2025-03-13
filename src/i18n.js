@@ -27,8 +27,4 @@ const i18n = i18next
     },
   });
 
-i18n.on('languageChanged', (lng) => {
-  setupDefaultActionsImport(lng);
-});
-
 export default i18n;

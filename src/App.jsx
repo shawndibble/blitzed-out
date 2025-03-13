@@ -9,6 +9,8 @@ import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
+import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
+import i18next from 'i18next';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
@@ -57,6 +59,10 @@ function AppRoutes() {
 }
 
 function App() {
+  i18next.on('languageChanged', (lng) => {
+    setupDefaultActionsImport(lng);
+  });
+
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
