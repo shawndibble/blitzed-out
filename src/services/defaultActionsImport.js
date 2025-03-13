@@ -11,9 +11,7 @@ import { getCustomTiles, importCustomTiles } from '@/stores/customTiles';
 function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'online') {
   const customTiles = [];
 
-  Object.entries(actions).forEach(([groupKey, groupData]) => {
-    const group = groupData.label || groupKey;
-    
+  Object.entries(actions).forEach(([groupKey, groupData]) => {  
     // Skip if there are no actions or if it's just a label
     if (!groupData.actions || Object.keys(groupData.actions).length === 0) {
       return;
@@ -28,7 +26,7 @@ function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'onlin
 
       actionsList.forEach((action) => {
         customTiles.push({
-          group,
+          group: groupKey,
           intensity: intensityIndex, // Use the index instead of the key string
           action,
           isEnabled: 1,
@@ -97,7 +95,6 @@ export async function importDefaultActions(locale, gameMode) {
     
     // Check if default actions for this locale and game mode already exist
     if (defaultActionsExist(existingTiles, targetLocale, targetGameMode)) {
-      console.log(existingTiles);
       console.log(`Default actions for ${targetLocale}/${targetGameMode} already exist.`);
       return;
     }
@@ -128,11 +125,7 @@ export async function importAllDefaultActions() {
   
   // Always import the current locale and game mode
   await importDefaultActions(settings.locale, settings.gameMode);
-  
-  // You can add additional locales and game modes here if needed
-  // For example:
-  // if (settings.locale !== 'en') await importDefaultActions('en', settings.gameMode);
-  // if (settings.gameMode !== 'offline') await importDefaultActions(settings.locale, 'offline');
+
 }
 
 /**
