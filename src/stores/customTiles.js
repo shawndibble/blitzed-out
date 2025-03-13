@@ -123,8 +123,14 @@ export const getCustomTileGroups = async (locale = 'en', gameMode = 'online') =>
   return groups;
 };
 
-export const getActiveTiles = () => {
-  return customTiles.where('isEnabled').equals(1).toArray();
+export const getActiveTiles = (gameMode = null) => {
+  let tiles = customTiles.where('isEnabled').equals(1);
+  
+  if (gameMode) {
+    tiles = tiles.and(tile => tile.gameMode === gameMode);
+  }
+  
+  return tiles.toArray();
 };
 
 export const addCustomTile = async (record) => {

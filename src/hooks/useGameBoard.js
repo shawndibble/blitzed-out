@@ -13,9 +13,9 @@ import { isOnlineMode } from '@/helpers/strings';
  * @returns {function} - A function that takes in a form data object and returns an object.
  */
 export default function useGameBoard() {
-  const customTiles = useLiveQuery(getActiveTiles);
   const gameBoard = useLiveQuery(getActiveBoard);
   const [settings, updateSettings] = useLocalStorage('gameSettings');
+  const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
   const { i18n } = useTranslation();
 
   async function updateGameBoard(data = {}) {
