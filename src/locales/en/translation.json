@@ -1,4 +1,13 @@
 {
+  "customTiles": {
+    "filterByGroup": "Filter by Group",
+    "intensityLevel": "Intensity Level",
+    "toggleTile": "Toggle tile",
+    "update": "Update",
+    "delete": "Delete",
+    "noTilesFound": "No tiles found with the selected filters.",
+    "showingTiles": "Showing {{shown}} of {{total}} tiles"
+  },
   "default": "Default",
   "logout": "Logout",
   "online": "Players Online",

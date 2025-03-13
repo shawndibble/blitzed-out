@@ -1,4 +1,13 @@
 ﻿{
+  "customTiles": {
+    "filterByGroup": "Filtrar por grupo",
+    "intensityLevel": "Nivel de intensidad",
+    "toggleTile": "Alternar ficha",
+    "update": "Actualizar",
+    "delete": "Eliminar",
+    "noTilesFound": "No se encontraron fichas con los filtros seleccionados.",
+    "showingTiles": "Mostrando {{shown}} de {{total}} fichas"
+  },
   "default": "Estándar",
   "logout": "Cerrar sesión",
   "online": "Jugadores en línea",

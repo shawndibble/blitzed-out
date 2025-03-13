@@ -1,4 +1,13 @@
 {
+  "customTiles": {
+    "filterByGroup": "Filtrer par groupe",
+    "intensityLevel": "Niveau d'intensité",
+    "toggleTile": "Activer/désactiver la tuile",
+    "update": "Mettre à jour",
+    "delete": "Supprimer",
+    "noTilesFound": "Aucune tuile trouvée avec les filtres sélectionnés.",
+    "showingTiles": "Affichage de {{shown}} sur {{total}} tuiles"
+  },
   "default": "Par défaut",
   "logout": "Se déconnecter",
   "online": "Joueurs en ligne",
