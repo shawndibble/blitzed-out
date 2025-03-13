@@ -152,6 +152,7 @@ async function removeDuplicateDefaultActions(locale, gameMode) {
     });
     
     if (!Array.isArray(allTiles) || allTiles.length === 0) {
+      console.log(`No tiles found for ${locale}/${gameMode} to check for duplicates`);
       return;
     }
     
@@ -211,12 +212,16 @@ export async function importAllDefaultActions() {
 export function setupDefaultActionsImport() {
   let previousSettings = getGameSettings();
   
-  // Initial import
-  try {
-    importAllDefaultActions();
-  } catch (error) {
-    console.error('Error during initial default actions import:', error);
-  }
+  // Initial import - wrap in setTimeout to ensure it runs after the database is fully initialized
+  setTimeout(() => {
+    try {
+      importAllDefaultActions().catch(error => {
+        console.error('Error during initial default actions import:', error);
+      });
+    } catch (error) {
+      console.error('Error during initial default actions import:', error);
+    }
+  }, 1000);
   
   // Set up storage event listener to detect changes
   window.addEventListener('storage', (event) => {

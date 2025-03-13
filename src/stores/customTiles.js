@@ -18,50 +18,81 @@ export const importCustomTiles = async (record) => {
 export const getCustomTiles = async (filters = {}) => {
   const { group, intensity, tag, locale, gameMode, page = 1, limit = 50, paginated = false } = filters;
   
-  let query = customTiles;
+  try {
+    let query = customTiles;
+    
+    // Apply filters if provided - only apply one where clause, then use and() for the rest
+    if (locale) {
+      query = query.where('locale').equals(locale);
+      
+      if (gameMode) {
+        query = query.and(tile => tile.gameMode === gameMode);
+      }
+      
+      if (group) {
+        query = query.and(tile => tile.group === group);
+      }
+      
+      if (intensity !== undefined && intensity !== '') {
+        query = query.and(tile => Number(tile.intensity) === Number(intensity));
+      }
+    } else if (gameMode) {
+      query = query.where('gameMode').equals(gameMode);
+      
+      if (group) {
+        query = query.and(tile => tile.group === group);
+      }
+      
+      if (intensity !== undefined && intensity !== '') {
+        query = query.and(tile => Number(tile.intensity) === Number(intensity));
+      }
+    } else if (group) {
+      query = query.where('group').equals(group);
+      
+      if (intensity !== undefined && intensity !== '') {
+        query = query.and(tile => Number(tile.intensity) === Number(intensity));
+      }
+    }
   
-  // Apply filters if provided
-  if (locale) {
-    query = query.where('locale').equals(locale);
+    // If pagination is not requested, return all items as an array
+    if (!paginated) {
+      const items = await query.toArray();
+      return tag ? items.filter(item => item.tags?.includes(tag)) : items;
+    }
+    
+    // Get total count for pagination
+    const count = await query.count();
+    
+    // Apply pagination
+    const offset = (page - 1) * limit;
+    const items = await query.offset(offset).limit(limit).toArray();
+    
+    // Filter by tag if needed (can't be done in the query)
+    const filteredItems = tag 
+      ? items.filter(item => item.tags?.includes(tag))
+      : items;
+    
+    return {
+      items: filteredItems,
+      total: count,
+      page,
+      limit,
+      totalPages: Math.ceil(count / limit)
+    };
+  } catch (error) {
+    console.error('Error in getCustomTiles:', error);
+    // Return empty results on error
+    if (!paginated) {
+      return [];
+    }
+    return {
+      items: [],
+      total: 0,
+      page,
+      limit,
+      totalPages: 0
+    };
   }
-  
-  if (gameMode) {
-    query = query.where('gameMode').equals(gameMode);
-  }
-  
-  if (group) {
-    query = query.where('group').equals(group);
-  }
-  
-  if (intensity !== undefined && intensity !== '') {
-    query = query.and(tile => Number(tile.intensity) === Number(intensity));
-  }
-  
-  // If pagination is not requested, return all items as an array
-  if (!paginated) {
-    const items = await query.toArray();
-    return tag ? items.filter(item => item.tags?.includes(tag)) : items;
-  }
-  
-  // Get total count for pagination
-  const count = await query.count();
-  
-  // Apply pagination
-  const offset = (page - 1) * limit;
-  const items = await query.offset(offset).limit(limit).toArray();
-  
-  // Filter by tag if needed (can't be done in the query)
-  const filteredItems = tag 
-    ? items.filter(item => item.tags?.includes(tag))
-    : items;
-  
-  return {
-    items: filteredItems,
-    total: count,
-    page,
-    limit,
-    totalPages: Math.ceil(count / limit)
-  };
 };
 
 export const getCustomTileGroups = async (locale = 'en', gameMode = 'online') => {
