@@ -204,18 +204,21 @@ function addStartAndFinishTiles(shuffledTiles, settings) {
 // Customizes the board based on user settings
 // Starts here as this is the only export.
 export default function customizeBoard(settings, actionsFolder, userCustomTiles = [], size = 40) {
-  console.log('pre actionsFoler', actionsFolder);
-  Object.values(actionsFolder).forEach((actionObject) => {
-    if (actionObject.actions) {
-      actionObject.actions = {};
-    }
-  });
+  // Create a deep copy of the actionsFolder structure but with empty actions
+  const emptyActionsFolder = Object.entries(actionsFolder).reduce((acc, [key, value]) => {
+    acc[key] = {
+      ...value,
+      actions: Object.keys(value.actions || {}).reduce((actionsAcc, actionKey) => {
+        actionsAcc[actionKey] = [];
+        return actionsAcc;
+      }, {})
+    };
+    return acc;
+  }, {});
+  const newActionList = restrictActionsToUserSelections(emptyActionsFolder, settings);
 
-  console.log('post actionsFoler', actionsFolder);
-  const newActionList = restrictActionsToUserSelections(actionsFolder, settings);
-
-  if (!newActionList.length) {
-    // if we have no action list, then clear local storage and reload.
+  if (!newActionList.length && !userCustomTiles.length) {
+    // if we have no action list and no custom tiles, then clear local storage and reload.
     localStorage.clear();
     window.location.reload();
   }
