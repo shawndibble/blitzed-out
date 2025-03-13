@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Dialog, DialogContent, DialogTitle, Divider, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
@@ -23,33 +23,38 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
   const [tileId, updateTile] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleChange = (panel) => (_event, newExpanded) => {
-    setExpanded(newExpanded ? panel : false);
-  };
-
-  const allTiles = useLiveQuery(() => getCustomTiles({ paginated: false }));
-  if (!allTiles) return null;
-
-  const tagList = Array.isArray(allTiles) 
-    ? allTiles
-        .map(({ tags }) => tags)
-        .flat()
-        .filter((tag, index, self) => tag && self.indexOf(tag) === index)
-        .sort()
-    : [];
-
   // Create a function to trigger refresh of the ViewCustomTiles component
   const triggerRefresh = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
   }, []);
 
-  const bulkImport = async (records) => {
+  const handleChange = (panel) => (_event, newExpanded) => {
+    setExpanded(newExpanded ? panel : false);
+  };
+
+  const allTiles = useLiveQuery(() => getCustomTiles({ paginated: false }));
+  
+  const tagList = useMemo(() => {
+    if (!allTiles) return [];
+    
+    return Array.isArray(allTiles) 
+      ? allTiles
+          .map(({ tags }) => tags)
+          .flat()
+          .filter((tag, index, self) => tag && self.indexOf(tag) === index)
+          .sort()
+      : [];
+  }, [allTiles]);
+
+  const bulkImport = useCallback(async (records) => {
     await importCustomTiles(records);
     boardUpdated();
     triggerRefresh();
-  };
+  }, [boardUpdated, triggerRefresh]);
 
-  const mappedGroups = groupActionsFolder(actionsList);
+  const mappedGroups = useMemo(() => groupActionsFolder(actionsList), [actionsList]);
+
+  if (!allTiles) return null;
 
   return (
     <>
