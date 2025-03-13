@@ -220,8 +220,8 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
   return (
     <Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <FormControl>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+          <FormControl sx={{ width: 150, flexShrink: 0 }}>
             <InputLabel id="game-mode-filter-label">
               <Trans i18nKey="customTiles.gameMode">Game Mode</Trans>
             </InputLabel>
@@ -236,7 +236,6 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
                 setIntensityFilter('');
                 setPage(1);
               }}
-              sx={{ minWidth: 120 }}
             >
               <MenuItem value="online">
                 <Trans i18nKey="gameMode.online">Online</Trans>
@@ -247,7 +246,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
             </Select>
           </FormControl>
           
-          <FormControl fullWidth>
+          <FormControl sx={{ minWidth: 200, flex: 1 }}>
             <InputLabel id="group-filter-label">
               <Trans i18nKey="customTiles.filterByGroup">Filter by Group</Trans>
             </InputLabel>
@@ -267,7 +266,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
             </Select>
           </FormControl>
 
-          <FormControl fullWidth disabled={!groupFilter}>
+          <FormControl sx={{ minWidth: 200, flex: 1 }} disabled={!groupFilter}>
             <InputLabel id="intensity-filter-label">
               <Trans i18nKey="customTiles.intensityLevel">Intensity Level</Trans>
             </InputLabel>
