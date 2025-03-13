@@ -1,11 +1,14 @@
-import { Delete, Edit } from '@mui/icons-material';
-import { Box, Card, CardActions, CardHeader, Chip, IconButton, Switch, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Delete, Edit, NavigateBefore, NavigateNext } from '@mui/icons-material';
+import { 
+  Box, Card, CardActions, CardHeader, Chip, IconButton, Switch, 
+  FormControl, InputLabel, Select, MenuItem, Pagination, 
+  Typography, CircularProgress, Button
+} from '@mui/material';
 import { useState, useEffect } from 'react';
-import { deleteCustomTile, toggleCustomTile } from '@/stores/customTiles';
+import { deleteCustomTile, toggleCustomTile, getCustomTiles, getCustomTileGroups } from '@/stores/customTiles';
 
 export default function ViewCustomTiles({
   tagList,
-  customTiles,
   boardUpdated,
   mappedGroups,
   updateTile,
@@ -13,25 +16,72 @@ export default function ViewCustomTiles({
   const [tagFilter, setTagFilter] = useState(null);
   const [groupFilter, setGroupFilter] = useState('');
   const [intensityFilter, setIntensityFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20); // Number of items per page
+  const [loading, setLoading] = useState(true);
+  const [tiles, setTiles] = useState({ items: [], total: 0, totalPages: 1 });
+  const [groups, setGroups] = useState({});
+  const [uniqueGroups, setUniqueGroups] = useState([]);
   
-  // Set default filters when component loads
+  // Load groups on initial render
   useEffect(() => {
-    if (customTiles?.length && mappedGroups?.length && !groupFilter) {
-      // Get the first group from mappedGroups
-      const firstGroup = mappedGroups[0]?.value || '';
-      setGroupFilter(firstGroup);
-      
-      // Find intensities for this group
-      const intensitiesForGroup = mappedGroups
-        .filter(item => item.value === firstGroup)
-        .map(item => item.intensity);
-      
-      // Set first intensity if available
-      if (intensitiesForGroup.length > 0) {
-        setIntensityFilter(intensitiesForGroup[0]);
+    async function loadGroups() {
+      try {
+        setLoading(true);
+        const groupData = await getCustomTileGroups();
+        setGroups(groupData);
+        
+        // Extract unique groups
+        const groupNames = Object.keys(groupData);
+        setUniqueGroups(groupNames);
+        
+        // Set default group filter if not already set
+        if (!groupFilter && groupNames.length > 0) {
+          setGroupFilter(groupNames[0]);
+          
+          // Set default intensity if available
+          const intensities = Object.keys(groupData[groupNames[0]]?.intensities || {});
+          if (intensities.length > 0) {
+            setIntensityFilter(Number(intensities[0]));
+          }
+        }
+      } catch (error) {
+        console.error('Error loading groups:', error);
+      } finally {
+        setLoading(false);
       }
     }
-  }, [customTiles, mappedGroups, groupFilter]);
+    
+    loadGroups();
+  }, []);
+  
+  // Load tiles when filters change
+  useEffect(() => {
+    async function loadTiles() {
+      try {
+        setLoading(true);
+        const filters = {
+          group: groupFilter,
+          intensity: intensityFilter,
+          tag: tagFilter,
+          page,
+          limit
+        };
+        
+        const tileData = await getCustomTiles(filters);
+        setTiles(tileData);
+      } catch (error) {
+        console.error('Error loading tiles:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    // Only load if we have a group filter
+    if (groupFilter) {
+      loadTiles();
+    }
+  }, [groupFilter, intensityFilter, tagFilter, page, limit]);
 
   function toggleTagFilter(tag) {
     if (tagFilter === tag) {
@@ -43,44 +93,57 @@ export default function ViewCustomTiles({
   function handleGroupFilterChange(event) {
     const newGroup = event.target.value;
     setGroupFilter(newGroup);
+    setPage(1); // Reset to first page
     
     // Reset intensity filter when group changes
     setIntensityFilter('');
     
     // If a group is selected, set intensity to the first available intensity for that group
-    if (newGroup) {
-      const intensitiesForGroup = mappedGroups
-        .filter(item => item.value === newGroup)
-        .map(item => item.intensity);
-      
-      if (intensitiesForGroup.length > 0) {
-        setIntensityFilter(intensitiesForGroup[0]);
+    if (newGroup && groups[newGroup]) {
+      const intensities = Object.keys(groups[newGroup].intensities || {});
+      if (intensities.length > 0) {
+        setIntensityFilter(Number(intensities[0]));
       }
     }
   }
   
   function handleIntensityFilterChange(event) {
     setIntensityFilter(event.target.value);
+    setPage(1); // Reset to first page
+  }
+  
+  function handlePageChange(event, newPage) {
+    setPage(newPage);
   }
 
-  function deleteTile(index) {
-    deleteCustomTile(index);
+  async function deleteTile(index) {
+    await deleteCustomTile(index);
     boardUpdated();
+    // Refresh the current page
+    const filters = {
+      group: groupFilter,
+      intensity: intensityFilter,
+      tag: tagFilter,
+      page,
+      limit
+    };
+    const tileData = await getCustomTiles(filters);
+    setTiles(tileData);
   }
 
-  function toggleTile(id) {
-    toggleCustomTile(id);
+  async function toggleTile(id) {
+    await toggleCustomTile(id);
     boardUpdated();
+    // Update the tile in the current list without reloading
+    setTiles(prev => ({
+      ...prev,
+      items: prev.items.map(tile => 
+        tile.id === id ? { ...tile, isEnabled: !tile.isEnabled } : tile
+      )
+    }));
   }
 
-  const tileList = customTiles
-    ?.filter(({ tags, group, intensity }) => 
-      (!tagFilter || tags?.includes(tagFilter)) && 
-      (!groupFilter || group === groupFilter) &&
-      (!intensityFilter || Number(intensity) === Number(intensityFilter))
-    )
-    ?.sort((a, b) => `${b.group} - ${b.intensity}` - `${a.group} - ${a.intensity}`)
-    ?.map(({ id, group, intensity, action, tags, isEnabled = true }) => (
+  const tileList = tiles.items?.map(({ id, group, intensity, action, tags, isEnabled = true }) => (
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
           title={action}
@@ -129,10 +192,10 @@ export default function ViewCustomTiles({
               label="Filter by Group"
               onChange={handleGroupFilterChange}
             >
-              {/* Get unique groups from mappedGroups */}
-              {Array.from(new Set(mappedGroups.map(g => g.value))).map((group) => (
+              {uniqueGroups.map((group) => (
                 <MenuItem key={group} value={group}>
                   {mappedGroups.find(g => g.value === group)?.group || group}
+                  {groups[group] && ` (${groups[group].count})`}
                 </MenuItem>
               ))}
             </Select>
@@ -147,14 +210,19 @@ export default function ViewCustomTiles({
               label="Intensity Level"
               onChange={handleIntensityFilterChange}
             >
-              {/* Filter intensities based on selected group */}
-              {mappedGroups
-                .filter(g => g.value === groupFilter)
-                .map((item) => (
-                  <MenuItem key={item.intensity} value={item.intensity}>
-                    {item.translatedIntensity || `Level ${item.intensity}`}
-                  </MenuItem>
-                ))}
+              <MenuItem value="">All Levels</MenuItem>
+              {groupFilter && groups[groupFilter] && 
+                Object.entries(groups[groupFilter].intensities || {})
+                  .sort(([a], [b]) => Number(a) - Number(b))
+                  .map(([intensity, count]) => (
+                    <MenuItem key={intensity} value={Number(intensity)}>
+                      {mappedGroups.find(g => 
+                        g.value === groupFilter && g.intensity === Number(intensity)
+                      )?.translatedIntensity || `Level ${intensity}`}
+                      {` (${count})`}
+                    </MenuItem>
+                  ))
+              }
             </Select>
           </FormControl>
         </Box>
@@ -171,7 +239,36 @@ export default function ViewCustomTiles({
           ))}
         </Box>
       </Box>
-      {tileList}
+      
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : tiles.items.length === 0 ? (
+        <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
+          No tiles found with the selected filters.
+        </Typography>
+      ) : (
+        <>
+          {tileList}
+          
+          {/* Pagination */}
+          {tiles.totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
+              <Pagination 
+                count={tiles.totalPages} 
+                page={page} 
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </Box>
+          )}
+          
+          <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: 'text.secondary' }}>
+            Showing {tiles.items.length} of {tiles.total} tiles
+          </Typography>
+        </>
+      )}
     </Box>
   );
 }

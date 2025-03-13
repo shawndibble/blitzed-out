@@ -15,8 +15,75 @@ export const importCustomTiles = async (record) => {
   return await customTiles.bulkAdd(recordData);
 };
 
-export const getCustomTiles = () => {
-  return customTiles.toArray();
+export const getCustomTiles = async (filters = {}) => {
+  const { group, intensity, tag, locale, gameMode, page = 1, limit = 50 } = filters;
+  
+  let query = customTiles;
+  
+  // Apply filters if provided
+  if (group) {
+    query = query.where('group').equals(group);
+  }
+  
+  if (intensity !== undefined && intensity !== '') {
+    query = query.and(tile => Number(tile.intensity) === Number(intensity));
+  }
+  
+  if (locale) {
+    query = query.where('locale').equals(locale);
+  }
+  
+  if (gameMode) {
+    query = query.where('gameMode').equals(gameMode);
+  }
+  
+  // Get total count for pagination
+  const count = await query.count();
+  
+  // Apply pagination
+  const offset = (page - 1) * limit;
+  const items = await query.offset(offset).limit(limit).toArray();
+  
+  // Filter by tag if needed (can't be done in the query)
+  const filteredItems = tag 
+    ? items.filter(item => item.tags?.includes(tag))
+    : items;
+  
+  return {
+    items: filteredItems,
+    total: count,
+    page,
+    limit,
+    totalPages: Math.ceil(count / limit)
+  };
+};
+
+export const getCustomTileGroups = async (locale = 'en', gameMode = 'online') => {
+  // Get unique groups with count of items in each group
+  const allTiles = await customTiles
+    .where('locale').equals(locale)
+    .and(tile => tile.gameMode === gameMode)
+    .toArray();
+  
+  const groups = {};
+  allTiles.forEach(tile => {
+    const group = tile.group;
+    if (!groups[group]) {
+      groups[group] = {
+        count: 0,
+        intensities: {}
+      };
+    }
+    groups[group].count++;
+    
+    const intensity = Number(tile.intensity);
+    if (!groups[group].intensities[intensity]) {
+      groups[group].intensities[intensity] = 0;
+    }
+    groups[group].intensities[intensity]++;
+  });
+  
+  return groups;
 };
 
 export const getActiveTiles = () => {
