@@ -182,7 +182,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
           title={action}
           titleTypographyProps={{ variant: 'body1' }}
           subheader={
-            mappedGroups[gameModeFilter].find(
+            mappedGroups[gameModeFilter]?.find(
               ({ value, intensity: inten }) => value === group && inten === Number(intensity)
             )?.label
           }
@@ -217,7 +217,6 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
     )
   );
 
-  console.log(mappedGroups[gameModeFilter]);
 
   return (
     <Box>
@@ -261,7 +260,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
             >
               {uniqueGroups.map((group) => (
                 <MenuItem key={group} value={group}>
-                  {mappedGroups[gameModeFilter].find((g) => g.value === group)?.group || group}
+                  {mappedGroups[gameModeFilter]?.find((g) => g.value === group)?.group || group}
                   {groups[group] && ` (${groups[group].count})`}
                 </MenuItem>
               ))}
@@ -285,7 +284,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
                   .sort(([a], [b]) => Number(a) - Number(b))
                   .map(([intensity, count]) => (
                     <MenuItem key={intensity} value={Number(intensity)}>
-                      {mappedGroups[gameModeFilter].find(
+                      {mappedGroups[gameModeFilter]?.find(
                         (g) => g.value === groupFilter && g.intensity === Number(intensity)
                       )?.translatedIntensity || `Level ${intensity}`}
                       {` (${count})`}
