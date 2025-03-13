@@ -89,7 +89,7 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
             handleChange={handleChange}
             tagList={tagList}
             updateTileId={tileId}
-            setUpdateTileId={updateTile}
+            setUpdateTileId={setTileId}
           />
 
           <ImportExport
