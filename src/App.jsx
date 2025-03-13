@@ -30,6 +30,9 @@ function Providers({ children }) {
 
 function AppRoutes() {
   const { user } = useAuth();
+  i18next.on('languageChanged', (lng) => {
+    setupDefaultActionsImport(lng);
+  });
 
   const room = user ? <Room /> : <UnauthenticatedApp />;
 
@@ -59,10 +62,6 @@ function AppRoutes() {
 }
 
 function App() {
-  i18next.on('languageChanged', (lng) => {
-    setupDefaultActionsImport(lng);
-  });
-
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
