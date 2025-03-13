@@ -51,7 +51,7 @@ function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'onlin
  * @returns {boolean} - True if default actions exist, false otherwise
  */
 function defaultActionsExist(existingTiles, locale, gameMode) {
-  return existingTiles.some(tile => 
+  return Array.isArray(existingTiles) && existingTiles.some(tile => 
     tile.locale === locale && 
     tile.gameMode === gameMode && 
     tile.isCustom === 0
@@ -94,8 +94,11 @@ export async function importDefaultActions(locale, gameMode) {
     // Get existing custom tiles
     const existingTiles = await getCustomTiles();
     
+    // Ensure existingTiles is an array
+    const tilesArray = Array.isArray(existingTiles) ? existingTiles : [];
+    
     // Check if default actions for this locale and game mode already exist
-    if (defaultActionsExist(existingTiles, targetLocale, targetGameMode)) {
+    if (defaultActionsExist(tilesArray, targetLocale, targetGameMode)) {
       console.log(`Default actions for ${targetLocale}/${targetGameMode} already exist.`);
       return;
     }
