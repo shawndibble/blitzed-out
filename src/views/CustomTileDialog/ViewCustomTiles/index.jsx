@@ -1,11 +1,13 @@
-import { Delete, Edit, NavigateBefore, NavigateNext } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import { 
   Box, Card, CardActions, CardHeader, Chip, IconButton, Switch, 
   FormControl, InputLabel, Select, MenuItem, Pagination, 
-  Typography, CircularProgress, Button
+  Typography, CircularProgress
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { deleteCustomTile, toggleCustomTile, getCustomTiles, getCustomTileGroups } from '@/stores/customTiles';
+import { Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function ViewCustomTiles({
   tagList,
@@ -13,6 +15,7 @@ export default function ViewCustomTiles({
   mappedGroups,
   updateTile,
 }) {
+  const { t } = useTranslation();
   const [tagFilter, setTagFilter] = useState(null);
   const [groupFilter, setGroupFilter] = useState('');
   const [intensityFilter, setIntensityFilter] = useState('');
@@ -161,12 +164,12 @@ export default function ViewCustomTiles({
               <Switch
                 checked={!!isEnabled}
                 onChange={() => toggleTile(id)}
-                inputProps={{ 'aria-label': 'toggle tile' }}
+                inputProps={{ 'aria-label': t('customTiles.toggleTile') }}
               />
-              <IconButton aria-label="update" onClick={() => updateTile(id)}>
+              <IconButton aria-label={t('customTiles.update')} onClick={() => updateTile(id)}>
                 <Edit />
               </IconButton>
-              <IconButton aria-label="delete" onClick={() => deleteTile(id)}>
+              <IconButton aria-label={t('customTiles.delete')} onClick={() => deleteTile(id)}>
                 <Delete />
               </IconButton>
             </>
@@ -186,7 +189,7 @@ export default function ViewCustomTiles({
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <FormControl fullWidth>
-            <InputLabel id="group-filter-label">Filter by Group</InputLabel>
+            <InputLabel id="group-filter-label"><Trans i18nKey="customTiles.filterByGroup">Filter by Group</Trans></InputLabel>
             <Select
               labelId="group-filter-label"
               id="group-filter"
@@ -204,7 +207,7 @@ export default function ViewCustomTiles({
           </FormControl>
           
           <FormControl fullWidth disabled={!groupFilter}>
-            <InputLabel id="intensity-filter-label">Intensity Level</InputLabel>
+            <InputLabel id="intensity-filter-label"><Trans i18nKey="customTiles.intensityLevel">Intensity Level</Trans></InputLabel>
             <Select
               labelId="intensity-filter-label"
               id="intensity-filter"
@@ -212,7 +215,6 @@ export default function ViewCustomTiles({
               label="Intensity Level"
               onChange={handleIntensityFilterChange}
             >
-              <MenuItem value="">All Levels</MenuItem>
               {groupFilter && groups[groupFilter] && 
                 Object.entries(groups[groupFilter].intensities || {})
                   .sort(([a], [b]) => Number(a) - Number(b))
@@ -248,7 +250,7 @@ export default function ViewCustomTiles({
         </Box>
       ) : tiles.items.length === 0 ? (
         <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
-          No tiles found with the selected filters.
+          <Trans i18nKey="customTiles.noTilesFound">No tiles found with the selected filters.</Trans>
         </Typography>
       ) : (
         <>
@@ -267,7 +269,9 @@ export default function ViewCustomTiles({
           )}
           
           <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, color: 'text.secondary' }}>
-            Showing {tiles.items.length} of {tiles.total} tiles
+            <Trans i18nKey="customTiles.showingTiles" values={{ shown: tiles.items.length, total: tiles.total }}>
+              Showing {{ shown: tiles.items.length }} of {{ total: tiles.total }} tiles
+            </Trans>
           </Typography>
         </>
       )}
