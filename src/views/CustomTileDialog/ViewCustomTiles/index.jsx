@@ -183,13 +183,9 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
           title={action}
           titleTypographyProps={{ variant: 'body1' }}
           subheader={
-            Array.isArray(mappedGroups[gameModeFilter])
-              ? mappedGroups[gameModeFilter]?.find(
-                  ({ value, intensity: inten }) => value === group && inten === Number(intensity)
-                )?.label
-              : groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
-                  ({ value, intensity: inten }) => value === group && inten === Number(intensity)
-                )?.label
+            groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
+              ({ value, intensity: inten }) => value === group && inten === Number(intensity)
+            )?.label
           }
           subheaderTypographyProps={{ variant: 'body2' }}
           action={
@@ -265,9 +261,7 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
             >
               {uniqueGroups.map((group) => (
                 <MenuItem key={group} value={group}>
-                  {Array.isArray(mappedGroups[gameModeFilter]) 
-                    ? mappedGroups[gameModeFilter]?.find((g) => g.value === group)?.group 
-                    : groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find((g) => g.value === group)?.group || group}
+                  {groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find((g) => g.value === group)?.group || group}
                   {groups[group] && ` (${groups[group].count})`}
                 </MenuItem>
               ))}
@@ -291,13 +285,9 @@ export default function ViewCustomTiles({ tagList, boardUpdated, mappedGroups, u
                   .sort(([a], [b]) => Number(a) - Number(b))
                   .map(([intensity, count]) => (
                     <MenuItem key={intensity} value={Number(intensity)}>
-                      {Array.isArray(mappedGroups[gameModeFilter])
-                        ? mappedGroups[gameModeFilter]?.find(
-                            (g) => g.value === groupFilter && g.intensity === Number(intensity)
-                          )?.translatedIntensity
-                        : groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
-                            (g) => g.value === groupFilter && g.intensity === Number(intensity)
-                          )?.translatedIntensity || `Level ${intensity}`}
+                      {groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
+                        (g) => g.value === groupFilter && g.intensity === Number(intensity)
+                      )?.translatedIntensity || `Level ${intensity}`}
                       {` (${count})`}
                     </MenuItem>
                   ))}

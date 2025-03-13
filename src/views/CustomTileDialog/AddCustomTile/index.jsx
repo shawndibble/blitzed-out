@@ -39,7 +39,7 @@ export default function AddCustomTile({
       const tileGameMode = editTile.gameMode || settings.gameMode;
       
       // Get the appropriate groups for this game mode
-      const gameModeGroups = mappedGroups[tileGameMode] || [];
+      const gameModeGroups = groupActionsFolder(mappedGroups[tileGameMode] || {});
       
       // Find the matching option in the groups for this game mode
       const editTileOption = gameModeGroups.find(
@@ -101,7 +101,7 @@ export default function AddCustomTile({
     }
 
     // Get the appropriate groups for this game mode
-    const gameModeGroups = mappedGroups[gameMode] || [];
+    const gameModeGroups = groupActionsFolder(mappedGroups[gameMode] || {});
     
     // Find the matching option in the groups for this game mode
     const option = gameModeGroups.find(({ label }) => label === tileOption.label);
@@ -206,7 +206,7 @@ export default function AddCustomTile({
           <Autocomplete
             id="tileOption"
             name="tileOption"
-            options={Array.isArray(mappedGroups[formData.gameMode]) ? mappedGroups[formData.gameMode] : groupActionsFolder(mappedGroups[formData.gameMode] || {})}
+            options={groupActionsFolder(mappedGroups[formData.gameMode] || {})}
             getOptionLabel={(option) => option.label}
             groupBy={(option) => option.group}
             value={formData.tileOption}
