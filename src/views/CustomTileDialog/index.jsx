@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Dialog, DialogContent, DialogTitle, Divider, IconButton } from '@mui/material';
 import { Close } from '@mui/icons-material';
@@ -7,13 +7,14 @@ import { importCustomTiles, getCustomTiles } from '@/stores/customTiles';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import ToastAlert from '@/components/ToastAlert';
 import groupActionsFolder from '@/helpers/actionsFolder';
+import { importActions } from '@/services/importLocales';
 import ImportExport from '@/views/CustomTileDialog/ImportExport';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
 
 export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, open = false }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isMobile = useBreakpoint();
   const [submitMessage, setSubmitMessage] = useState({
     message: '',
@@ -22,6 +23,11 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
   const [expanded, setExpanded] = useState('ctAdd');
   const [tileId, setTileId] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [allGameModeActions, setAllGameModeActions] = useState({
+    online: {},
+    local: {}
+  });
+  const [isLoadingActions, setIsLoadingActions] = useState(true);
 
   // Create a function to trigger refresh of the ViewCustomTiles component
   const triggerRefresh = useCallback(() => {
@@ -31,6 +37,30 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
   const handleChange = (panel) => (_event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);
   };
+
+  // Load actions for both game modes
+  useEffect(() => {
+    async function loadAllGameModeActions() {
+      setIsLoadingActions(true);
+      try {
+        const [onlineActions, localActions] = await Promise.all([
+          importActions(i18n.resolvedLanguage, 'online'),
+          importActions(i18n.resolvedLanguage, 'local')
+        ]);
+        
+        setAllGameModeActions({
+          online: onlineActions,
+          local: localActions
+        });
+      } catch (error) {
+        console.error('Error loading game mode actions:', error);
+      } finally {
+        setIsLoadingActions(false);
+      }
+    }
+    
+    loadAllGameModeActions();
+  }, [i18n.resolvedLanguage]);
 
   const allTiles = useLiveQuery(() => getCustomTiles({ paginated: false }));
   
@@ -52,9 +82,36 @@ export default function CustomTileDialog({ boardUpdated, actionsList, setOpen, o
     triggerRefresh();
   }, [boardUpdated, triggerRefresh]);
 
-  const mappedGroups = useMemo(() => groupActionsFolder(actionsList), [actionsList]);
+  // Create mapped groups for both game modes
+  const mappedGroups = useMemo(() => {
+    // Use the provided actionsList for the current game mode
+    const currentModeGroups = groupActionsFolder(actionsList);
+    
+    // Create mapped groups for both game modes
+    const onlineGroups = groupActionsFolder(allGameModeActions.online);
+    const localGroups = groupActionsFolder(allGameModeActions.local);
+    
+    // Combine all groups from both modes, removing duplicates
+    const allGroups = [...currentModeGroups];
+    
+    // Add groups from online mode if not already present
+    onlineGroups.forEach(onlineGroup => {
+      if (!allGroups.some(g => g.value === onlineGroup.value)) {
+        allGroups.push(onlineGroup);
+      }
+    });
+    
+    // Add groups from local mode if not already present
+    localGroups.forEach(localGroup => {
+      if (!allGroups.some(g => g.value === localGroup.value)) {
+        allGroups.push(localGroup);
+      }
+    });
+    
+    return allGroups;
+  }, [actionsList, allGameModeActions]);
 
-  if (!allTiles) return null;
+  if (!allTiles || isLoadingActions) return null;
 
   return (
     <>
