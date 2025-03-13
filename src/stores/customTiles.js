@@ -98,12 +98,11 @@ export const getCustomTiles = async (filters = {}) => {
 export const getCustomTileGroups = async (locale = 'en', gameMode = 'online') => {
   // Get unique groups with count of items in each group
   const allTiles = await customTiles
-    .where('locale').equals(locale)
-    .and(tile => tile.gameMode === gameMode)
-    .toArray();
+  .where('locale').equals(locale)
+  .and(tile => tile.gameMode === gameMode)
+  .toArray();
   
-  const groups = {};
-  allTiles.forEach(tile => {
+  return allTiles.reduce((groups, tile) => {
     const group = tile.group;
     if (!groups[group]) {
       groups[group] = {
@@ -118,9 +117,9 @@ export const getCustomTileGroups = async (locale = 'en', gameMode = 'online') =>
       groups[group].intensities[intensity] = 0;
     }
     groups[group].intensities[intensity]++;
-  });
-  
-  return groups;
+    
+    return groups;
+  }, {});
 };
 
 export const getActiveTiles = (gameMode = null) => {
