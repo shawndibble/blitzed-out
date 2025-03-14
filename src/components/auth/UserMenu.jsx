@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Button, 
-  Menu, 
-  MenuItem, 
-  ListItemIcon, 
+import {
+  Button,
+  Menu,
+  MenuItem,
+  ListItemIcon,
   ListItemText,
   Divider,
   Typography,
@@ -11,9 +11,9 @@ import {
   Box,
   IconButton,
   Tooltip,
-  Badge
+  Badge,
 } from '@mui/material';
-import { 
+import {
   Login as LoginIcon,
   Logout as LogoutIcon,
   AccountCircle,
@@ -21,7 +21,7 @@ import {
   CloudUpload as CloudUploadIcon,
   CloudDone as CloudDoneIcon,
   CloudOff as CloudOffIcon,
-  Sync as SyncIcon
+  Sync as SyncIcon,
 } from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
 import AuthDialog from './AuthDialog';
@@ -30,51 +30,45 @@ export default function UserMenu() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDialogView, setAuthDialogView] = useState('login');
-  
-  const { 
-    user, 
-    logout, 
-    syncData, 
-    syncStatus, 
-    isAnonymous 
-  } = useAuth();
-  
+
+  const { user, logout, syncData, syncStatus, isAnonymous } = useAuth();
+
   const open = Boolean(anchorEl);
-  
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const handleClose = () => {
     setAnchorEl(null);
   };
-  
+
   const handleLogout = async () => {
     handleClose();
     await logout();
   };
-  
+
   const handleSync = async () => {
     handleClose();
     await syncData();
   };
-  
+
   const openAuthDialog = (view) => {
     setAuthDialogView(view);
     setAuthDialogOpen(true);
     handleClose();
   };
-  
+
   const closeAuthDialog = () => {
     setAuthDialogOpen(false);
   };
-  
+
   // Get first letter of display name for avatar
   const getAvatarLetter = () => {
     if (!user || !user.displayName) return '?';
     return user.displayName.charAt(0).toUpperCase();
   };
-  
+
   // Get sync status icon
   const getSyncIcon = () => {
     if (!user || isAnonymous) return <CloudOffIcon />;
@@ -82,12 +76,12 @@ export default function UserMenu() {
     if (syncStatus.lastSync) return <CloudDoneIcon />;
     return <CloudUploadIcon />;
   };
-  
+
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         {user && (
-          <Tooltip title={syncStatus.syncing ? "Syncing..." : "Account sync status"}>
+          <Tooltip title={syncStatus.syncing ? 'Syncing...' : 'Account sync status'}>
             <IconButton
               size="small"
               sx={{ mr: 1 }}
@@ -98,8 +92,8 @@ export default function UserMenu() {
             </IconButton>
           </Tooltip>
         )}
-        
-        <Tooltip title={user ? "Account menu" : "Login options"}>
+
+        <Tooltip title={user ? 'Account menu' : 'Login options'}>
           <IconButton
             onClick={handleClick}
             size="small"
@@ -108,7 +102,9 @@ export default function UserMenu() {
             aria-expanded={open ? 'true' : undefined}
           >
             {user ? (
-              <Avatar sx={{ width: 32, height: 32, bgcolor: isAnonymous ? 'grey.500' : 'primary.main' }}>
+              <Avatar
+                sx={{ width: 32, height: 32, bgcolor: isAnonymous ? 'grey.500' : 'primary.main' }}
+              >
                 {getAvatarLetter()}
               </Avatar>
             ) : (
@@ -117,7 +113,7 @@ export default function UserMenu() {
           </IconButton>
         </Tooltip>
       </Box>
-      
+
       <Menu
         anchorEl={anchorEl}
         id="account-menu"
@@ -133,7 +129,7 @@ export default function UserMenu() {
                 {user.displayName || 'Anonymous User'}
               </Typography>
             </MenuItem>
-            
+
             {isAnonymous && (
               <MenuItem onClick={() => openAuthDialog('link')}>
                 <ListItemIcon>
@@ -142,18 +138,22 @@ export default function UserMenu() {
                 <ListItemText>Link Account</ListItemText>
               </MenuItem>
             )}
-            
+
             {!isAnonymous && (
               <MenuItem onClick={handleSync} disabled={syncStatus.syncing}>
                 <ListItemIcon>
-                  {syncStatus.syncing ? <SyncIcon className="rotating" fontSize="small" /> : <CloudUploadIcon fontSize="small" />}
+                  {syncStatus.syncing ? (
+                    <SyncIcon className="rotating" fontSize="small" />
+                  ) : (
+                    <CloudUploadIcon fontSize="small" />
+                  )}
                 </ListItemIcon>
                 <ListItemText>Sync Data</ListItemText>
               </MenuItem>
             )}
-            
+
             <Divider />
-            
+
             <MenuItem onClick={handleLogout}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
@@ -162,7 +162,7 @@ export default function UserMenu() {
             </MenuItem>
           </>
         )}
-        
+
         {!user && (
           <>
             <MenuItem onClick={() => openAuthDialog('login')}>
@@ -171,7 +171,7 @@ export default function UserMenu() {
               </ListItemIcon>
               <ListItemText>Sign In</ListItemText>
             </MenuItem>
-            
+
             <MenuItem onClick={() => openAuthDialog('register')}>
               <ListItemIcon>
                 <AccountCircle fontSize="small" />
@@ -181,18 +181,14 @@ export default function UserMenu() {
           </>
         )}
       </Menu>
-      
-      <AuthDialog 
-        open={authDialogOpen} 
-        onClose={closeAuthDialog} 
-        initialView={authDialogView} 
-      />
-      
+
+      <AuthDialog open={authDialogOpen} onClose={closeAuthDialog} initialView={authDialogView} />
+
       <style jsx global>{`
         .rotating {
           animation: rotate 2s linear infinite;
         }
-        
+
         @keyframes rotate {
           from {
             transform: rotate(0deg);

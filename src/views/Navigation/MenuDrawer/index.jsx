@@ -1,4 +1,4 @@
-import { AppRegistration, CalendarMonth, Logout, Tv, ViewModule } from '@mui/icons-material';
+import { AppRegistration, CalendarMonth, Link, Logout, Tv, ViewModule } from '@mui/icons-material';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -19,6 +19,7 @@ import { lazy, Suspense, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';
+import AuthDialog from '@/components/auth/AuthDialog';
 
 // Lazy load dialogs
 const GameSettingsDialog = lazy(() => import('@/components/GameSettingsDialog'));
@@ -41,6 +42,7 @@ export default function MenuDrawer() {
     about: false,
     schedule: false,
     customTiles: false,
+    linkAccount: false,
   });
 
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
@@ -119,7 +121,7 @@ export default function MenuDrawer() {
       items.push({
         key: 'linkAccount',
         title: <Trans i18nKey="linkAccount" />,
-        icon: <LinkIcon />,
+        icon: <Link />,
         onClick: () => toggleDialog('linkAccount', true),
       });
       items.push({
@@ -231,6 +233,7 @@ export default function MenuDrawer() {
       {open.gameBoard && renderDialog(ManageGameBoards, 'gameBoard')}
       {open.schedule && renderDialog(Schedule, 'schedule')}
       {open.customTiles && renderDialog(CustomTileDialog, 'customTiles')}
+      {open.linkAccount && renderDialog(AuthDialog, 'linkAccount')}
     </>
   );
 }
