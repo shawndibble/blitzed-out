@@ -128,9 +128,11 @@ export async function logout() {
   try {
     const auth = getAuth();
     await signOut(auth);
+    return true;
   } catch (error) {
     // eslint-disable-next-line
     console.error(error);
+    throw error;
   }
 }
 
