@@ -15,69 +15,87 @@ export const importCustomTiles = async (record) => {
   return await customTiles.bulkAdd(recordData);
 };
 
-export const getCustomTiles = async (filters = {}) => {
-  const { group, intensity, tag, locale, gameMode, page = 1, limit = 50, paginated = false } = filters;
-  
+export const getTiles = async (filters = {}) => {
+  const {
+    group,
+    intensity,
+    tag,
+    locale,
+    gameMode,
+    page = 1,
+    limit = 50,
+    paginated = false,
+    isCustom,
+  } = filters;
+
   try {
+    // Start with the base collection
     let query = customTiles;
-    
-    // Apply filters if provided - only apply one where clause, then use and() for the rest
+    let hasWhereClause = false;
+
+    // Apply filters in a more structured way
     if (locale) {
       query = query.where('locale').equals(locale);
-      
-      if (gameMode) {
-        query = query.and(tile => tile.gameMode === gameMode);
-      }
-      
-      if (group) {
-        query = query.and(tile => tile.group === group);
-      }
-      
-      if (intensity !== undefined && intensity !== '') {
-        query = query.and(tile => Number(tile.intensity) === Number(intensity));
-      }
-    } else if (gameMode) {
-      query = query.where('gameMode').equals(gameMode);
-      
-      if (group) {
-        query = query.and(tile => tile.group === group);
-      }
-      
-      if (intensity !== undefined && intensity !== '') {
-        query = query.and(tile => Number(tile.intensity) === Number(intensity));
-      }
-    } else if (group) {
-      query = query.where('group').equals(group);
-      
-      if (intensity !== undefined && intensity !== '') {
-        query = query.and(tile => Number(tile.intensity) === Number(intensity));
+      hasWhereClause = true;
+    }
+
+    if (gameMode) {
+      if (hasWhereClause) {
+        query = query.and((tile) => tile.gameMode === gameMode);
+      } else {
+        query = query.where('gameMode').equals(gameMode);
+        hasWhereClause = true;
       }
     }
-  
+
+    if (group) {
+      if (hasWhereClause) {
+        query = query.and((tile) => tile.group === group);
+      } else {
+        query = query.where('group').equals(group);
+        hasWhereClause = true;
+      }
+    }
+
+    if (intensity !== undefined && intensity !== '') {
+      if (hasWhereClause) {
+        query = query.and((tile) => Number(tile.intensity) === Number(intensity));
+      } else {
+        query = query.where('intensity').equals(Number(intensity));
+        hasWhereClause = true;
+      }
+    }
+
+    if (isCustom !== undefined) {
+      if (hasWhereClause) {
+        query = query.and((tile) => tile.isCustom === isCustom);
+      } else {
+        query = query.where('isCustom').equals(isCustom);
+        hasWhereClause = true;
+      }
+    }
     // If pagination is not requested, return all items as an array
     if (!paginated) {
       const items = await query.toArray();
-      return tag ? items.filter(item => item.tags?.includes(tag)) : items;
+      return tag ? items.filter((item) => item.tags?.includes(tag)) : items;
     }
-    
+
     // Get total count for pagination
     const count = await query.count();
-    
+
     // Apply pagination
     const offset = (page - 1) * limit;
     const items = await query.offset(offset).limit(limit).toArray();
-    
+
     // Filter by tag if needed (can't be done in the query)
-    const filteredItems = tag 
-      ? items.filter(item => item.tags?.includes(tag))
-      : items;
-    
+    const filteredItems = tag ? items.filter((item) => item.tags?.includes(tag)) : items;
+
     return {
       items: filteredItems,
       total: count,
       page,
       limit,
-      totalPages: Math.ceil(count / limit)
+      totalPages: Math.ceil(count / limit),
     };
   } catch (error) {
     console.error('Error in getCustomTiles:', error);
@@ -90,7 +108,7 @@ export const getCustomTiles = async (filters = {}) => {
       total: 0,
       page,
       limit,
-      totalPages: 0
+      totalPages: 0,
     };
   }
 };
@@ -98,37 +116,38 @@ export const getCustomTiles = async (filters = {}) => {
 export const getCustomTileGroups = async (locale = 'en', gameMode = 'online') => {
   // Get unique groups with count of items in each group
   const allTiles = await customTiles
-  .where('locale').equals(locale)
-  .and(tile => tile.gameMode === gameMode)
-  .toArray();
-  
+    .where('locale')
+    .equals(locale)
+    .and((tile) => tile.gameMode === gameMode)
+    .toArray();
+
   return allTiles.reduce((groups, tile) => {
     const group = tile.group;
     if (!groups[group]) {
       groups[group] = {
         count: 0,
-        intensities: {}
+        intensities: {},
       };
     }
     groups[group].count++;
-    
+
     const intensity = Number(tile.intensity);
     if (!groups[group].intensities[intensity]) {
       groups[group].intensities[intensity] = 0;
     }
     groups[group].intensities[intensity]++;
-    
+
     return groups;
   }, {});
 };
 
 export const getActiveTiles = (gameMode = null) => {
   let tiles = customTiles.where('isEnabled').equals(1);
-  
+
   if (gameMode) {
-    tiles = tiles.and(tile => tile.gameMode === gameMode);
+    tiles = tiles.and((tile) => tile.gameMode === gameMode);
   }
-  
+
   return tiles.toArray();
 };
 

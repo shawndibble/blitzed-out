@@ -1,5 +1,5 @@
 import { importActions } from './importLocales';
-import { getCustomTiles, importCustomTiles } from '@/stores/customTiles';
+import { getTiles, importCustomTiles } from '@/stores/customTiles';
 import { t } from 'i18next';
 import db from '@/stores/store';
 
@@ -100,7 +100,7 @@ export async function importDefaultActions(locale) {
 
       try {
         // Get existing custom tiles for this locale and game mode
-        const existingTiles = await getCustomTiles({
+        const existingTiles = await getTiles({
           locale: targetLocale,
           gameMode: mode,
           paginated: false,
@@ -177,7 +177,7 @@ async function filterOutExistingTiles(tilesToImport, locale, gameMode) {
 async function removeDuplicateDefaultActions(locale, gameMode) {
   try {
     // Get all tiles for this locale and game mode
-    const allTiles = await getCustomTiles({
+    const allTiles = await getTiles({
       locale,
       gameMode,
       paginated: false,

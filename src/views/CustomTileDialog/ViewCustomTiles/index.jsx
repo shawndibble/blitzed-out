@@ -20,7 +20,7 @@ import { useState, useEffect } from 'react';
 import {
   deleteCustomTile,
   toggleCustomTile,
-  getCustomTiles,
+  getTiles,
   getCustomTileGroups,
 } from '@/stores/customTiles';
 import { Trans } from 'react-i18next';
@@ -98,7 +98,7 @@ export default function ViewCustomTiles({
           paginated: true,
         };
 
-        const tileData = await getCustomTiles(filters);
+        const tileData = await getTiles(filters);
 
         // Only update state if component is still mounted
         if (isMounted) {
@@ -196,7 +196,7 @@ export default function ViewCustomTiles({
       limit,
       paginated: true,
     };
-    const tileData = await getCustomTiles(filters);
+    const tileData = await getTiles(filters);
     setTiles(tileData);
   }
 
@@ -305,13 +305,13 @@ export default function ViewCustomTiles({
 
           <FormControl sx={{ minWidth: 150, flex: 1 }}>
             <InputLabel id="group-filter-label">
-              <Trans i18nKey="customTiles.filterByGroup">Filter by Group</Trans>
+              <Trans i18nKey="group" />
             </InputLabel>
             <Select
               labelId="group-filter-label"
               id="group-filter"
               value={groupFilter}
-              label="Filter by Group"
+              label={t('group')}
               onChange={handleGroupFilterChange}
             >
               {uniqueGroups.map((group) => (
@@ -333,7 +333,7 @@ export default function ViewCustomTiles({
               labelId="intensity-filter-label"
               id="intensity-filter"
               value={intensityFilter}
-              label="Intensity Level"
+              label={t('customTiles.intensityLevel', 'Intensity Level')}
               onChange={handleIntensityFilterChange}
             >
               {groupFilter &&

@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { Dialog, DialogContent, DialogTitle, Divider, IconButton, Grid2, Box } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
-import { importCustomTiles, getCustomTiles } from '@/stores/customTiles';
+import { importCustomTiles, getTiles } from '@/stores/customTiles';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import ToastAlert from '@/components/ToastAlert';
 import { importActions } from '@/services/importLocales';
@@ -62,7 +62,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
     loadAllGameModeActions();
   }, [i18n.resolvedLanguage]);
 
-  const allTiles = useLiveQuery(() => getCustomTiles({ paginated: false }));
+  const allTiles = useLiveQuery(() => getTiles({ paginated: false }));
 
   const tagList = useMemo(() => {
     if (!allTiles) return [];
@@ -140,12 +140,8 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
     if (!isSmallScreen) {
       return (
         <Grid2 container spacing={2}>
-          <Grid2 item size={{ xs: 12, md: 6 }}>
-            {leftColumnContent}
-          </Grid2>
-          <Grid2 item size={{ xs: 12, md: 6 }}>
-            {rightColumnContent}
-          </Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }}>{leftColumnContent}</Grid2>
+          <Grid2 size={{ xs: 12, md: 6 }}>{rightColumnContent}</Grid2>
         </Grid2>
       );
     } else {
