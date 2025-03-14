@@ -37,6 +37,11 @@ export default function UnauthenticatedApp() {
     setAuthDialogView('register');
     setAuthDialogOpen(true);
   };
+  
+  const handleOpenLinkAccount = () => {
+    setAuthDialogView('login');
+    setAuthDialogOpen(true);
+  };
   const params = useParams();
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');
@@ -87,7 +92,11 @@ export default function UnauthenticatedApp() {
 
   return (
     <>
-      <Navigation room={room} playerList={playerList} />
+      <Navigation 
+        room={room} 
+        playerList={playerList} 
+        onLinkAccount={handleOpenLinkAccount}
+      />
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Grid2 container flexDirection="column">
           <Card className="unauthenticated-card">

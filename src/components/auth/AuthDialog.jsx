@@ -17,7 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthDialog({ open, onClose, initialView = 'login' }) {
   const [currentView, setCurrentView] = useState(initialView);
-  const { user } = useAuth();
+  const { user, isAnonymous } = useAuth();
   
   const handleSuccess = () => {
     onClose();
@@ -26,13 +26,11 @@ export default function AuthDialog({ open, onClose, initialView = 'login' }) {
   const getTitle = () => {
     switch (currentView) {
       case 'login':
-        return 'Sign In';
+        return isAnonymous ? 'Link Account' : 'Sign In';
       case 'register':
-        return 'Create Account';
+        return isAnonymous ? 'Create Permanent Account' : 'Create Account';
       case 'reset':
         return 'Reset Password';
-      case 'link':
-        return 'Link Account';
       default:
         return 'Authentication';
     }
@@ -66,24 +64,21 @@ export default function AuthDialog({ open, onClose, initialView = 'login' }) {
             <>
               <Login 
                 onSwitchToRegister={() => setCurrentView('register')} 
-                onSuccess={handleSuccess} 
+                onSuccess={handleSuccess}
+                isLinking={isAnonymous}
               />
-              <SocialLoginButtons onSuccess={handleSuccess} />
+              <SocialLoginButtons 
+                onSuccess={handleSuccess} 
+                isLinking={isAnonymous}
+              />
             </>
           )}
           
           {currentView === 'register' && (
             <CreateAccount 
               onSwitchToLogin={() => setCurrentView('login')} 
-              onSuccess={handleSuccess} 
-            />
-          )}
-          
-          {currentView === 'link' && (
-            <CreateAccount 
-              onSwitchToLogin={() => setCurrentView('login')} 
               onSuccess={handleSuccess}
-              isAnonymous={true}
+              isAnonymous={isAnonymous}
             />
           )}
         </Box>

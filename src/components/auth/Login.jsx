@@ -10,7 +10,7 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { loginWithEmail } from '@/services/firebase';
 
-export default function Login({ onSuccess, onSwitchToRegister }) {
+export default function Login({ onSuccess, onSwitchToRegister, isLinking = false }) {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -74,7 +74,9 @@ export default function Login({ onSuccess, onSwitchToRegister }) {
         sx={{ mt: 3, mb: 2 }}
         disabled={loading}
       >
-        {loading ? <CircularProgress size={24} /> : <Trans i18nKey="signIn" />}
+        {loading ? <CircularProgress size={24} /> : 
+          isLinking ? <Trans i18nKey="linkAccount">Link Account</Trans> : <Trans i18nKey="signIn" />
+        }
       </Button>
       
       <Typography align="center">

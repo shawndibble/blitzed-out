@@ -4,7 +4,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { loginWithGoogle } from '@/services/firebase';
 import { Trans } from 'react-i18next';
 
-export default function SocialLoginButtons({ onSuccess }) {
+export default function SocialLoginButtons({ onSuccess, isLinking = false }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +40,10 @@ export default function SocialLoginButtons({ onSuccess }) {
         disabled={loading}
         sx={{ mb: 1 }}
       >
-        {loading ? <CircularProgress size={24} /> : <Trans i18nKey="signInWithGoogle">Sign in with Google</Trans>}
+        {loading ? <CircularProgress size={24} /> : 
+          isLinking ? <Trans i18nKey="linkWithGoogle">Link with Google</Trans> : 
+                     <Trans i18nKey="signInWithGoogle">Sign in with Google</Trans>
+        }
       </Button>
     </Box>
   );
