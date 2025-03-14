@@ -233,7 +233,11 @@ export default function ViewCustomTiles({
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
           title={action}
-          slotProps={{ title: { variant: 'body1' }, subheader: { variant: 'body2' } }}
+          slotProps={{ 
+            title: { variant: 'body1' }, 
+            subheader: { variant: 'body2' },
+            action: { 'aria-label': t('customTiles.actions') }
+          }}
           subheader={
             mappedGroups &&
             mappedGroups[gameModeFilter] &&
@@ -253,12 +257,15 @@ export default function ViewCustomTiles({
               {!!isCustom && (
                 <>
                   <IconButton
-                    aria-label={t('customTiles.update')}
                     onClick={() => handleUpdateTile(id)}
+                    slotProps={{ root: { 'aria-label': t('customTiles.update') } }}
                   >
                     <Edit />
                   </IconButton>
-                  <IconButton aria-label={t('customTiles.delete')} onClick={() => deleteTile(id)}>
+                  <IconButton 
+                    onClick={() => deleteTile(id)}
+                    slotProps={{ root: { 'aria-label': t('customTiles.delete') } }}
+                  >
                     <Delete />
                   </IconButton>
                 </>

@@ -45,50 +45,65 @@ export default function AddCustomTile({
   // Process mappedGroups to create a structure for TileCategorySelection
   useEffect(() => {
     if (!mappedGroups || !mappedGroups[formData.gameMode]) {
+      setGroups({});
       return;
     }
     
-    // Create groups structure from mappedGroups
-    const processedGroups = {};
-    
-    // Group actions by their group value
-    const groupedActions = groupActionsFolder(mappedGroups[formData.gameMode]);
-    
-    groupedActions.forEach(action => {
-      const { value: group, intensity } = action;
+    try {
+      // Create groups structure from mappedGroups
+      const processedGroups = {};
       
-      if (!processedGroups[group]) {
-        processedGroups[group] = { 
-          count: 0, 
-          intensities: {} 
-        };
+      // Group actions by their group value
+      const groupedActions = groupActionsFolder(mappedGroups[formData.gameMode]);
+      
+      if (!Array.isArray(groupedActions)) {
+        console.warn('groupedActions is not an array:', groupedActions);
+        setGroups({});
+        return;
       }
       
-      processedGroups[group].count += 1;
+      groupedActions.forEach(action => {
+        if (!action || typeof action !== 'object') return;
+        
+        const { value: group, intensity } = action;
+        if (!group || !intensity) return;
+        
+        if (!processedGroups[group]) {
+          processedGroups[group] = { 
+            count: 0, 
+            intensities: {} 
+          };
+        }
+        
+        processedGroups[group].count += 1;
+        
+        if (!processedGroups[group].intensities[intensity]) {
+          processedGroups[group].intensities[intensity] = 0;
+        }
+        
+        processedGroups[group].intensities[intensity] += 1;
+      });
       
-      if (!processedGroups[group].intensities[intensity]) {
-        processedGroups[group].intensities[intensity] = 0;
+      setGroups(processedGroups);
+      
+      // Set default group and intensity if not already set
+      if (!formData.group && Object.keys(processedGroups).length > 0) {
+        const firstGroup = Object.keys(processedGroups)[0];
+        let firstIntensity = '';
+        
+        if (processedGroups[firstGroup] && Object.keys(processedGroups[firstGroup].intensities).length > 0) {
+          firstIntensity = Number(Object.keys(processedGroups[firstGroup].intensities)[0]);
+        }
+        
+        setFormData(prev => ({
+          ...prev,
+          group: firstGroup,
+          intensity: firstIntensity
+        }));
       }
-      
-      processedGroups[group].intensities[intensity] += 1;
-    });
-    
-    setGroups(processedGroups);
-    
-    // Set default group and intensity if not already set
-    if (!formData.group && Object.keys(processedGroups).length > 0) {
-      const firstGroup = Object.keys(processedGroups)[0];
-      let firstIntensity = '';
-      
-      if (processedGroups[firstGroup] && Object.keys(processedGroups[firstGroup].intensities).length > 0) {
-        firstIntensity = Number(Object.keys(processedGroups[firstGroup].intensities)[0]);
-      }
-      
-      setFormData(prev => ({
-        ...prev,
-        group: firstGroup,
-        intensity: firstIntensity
-      }));
+    } catch (error) {
+      console.error('Error processing mappedGroups:', error);
+      setGroups({});
     }
   }, [formData.gameMode, mappedGroups]);
 

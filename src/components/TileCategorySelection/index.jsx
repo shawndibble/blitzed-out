@@ -74,6 +74,9 @@ export default function TileCategorySelection({
           onChange={(e) => {
             onGameModeChange(e.target.value);
           }}
+          slotProps={{
+            input: { 'aria-label': t('customTiles.gameMode', 'Game Mode') }
+          }}
         >
           <MenuItem value="online">
             <Trans i18nKey="online" />
@@ -94,6 +97,9 @@ export default function TileCategorySelection({
           value={validGroupFilter}
           label={t('group')}
           onChange={handleGroupFilterChange}
+          slotProps={{
+            input: { 'aria-label': t('group') }
+          }}
         >
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
@@ -120,6 +126,9 @@ export default function TileCategorySelection({
             value={validIntensityFilter}
             label={t('customTiles.intensityLevel', 'Intensity Level')}
             onChange={(e) => onIntensityChange(e.target.value)}
+            slotProps={{
+              input: { 'aria-label': t('customTiles.intensityLevel', 'Intensity Level') }
+            }}
           >
             {validGroupFilter &&
               groups &&
