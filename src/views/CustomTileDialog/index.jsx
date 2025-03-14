@@ -120,7 +120,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
     );
 
     const rightColumnContent = Array.isArray(allTiles) && allTiles.length > 0 && (
-      <Box sx={{ pt: 1 }}>
+      <Box>
         <ViewCustomTiles
           tagList={tagList}
           boardUpdated={() => {

@@ -16,68 +16,40 @@ export const importCustomTiles = async (record) => {
 };
 
 export const getTiles = async (filters = {}) => {
-  const {
-    group,
-    intensity,
-    tag,
-    locale,
-    gameMode,
-    page = 1,
-    limit = 50,
-    paginated = false,
-    isCustom,
-  } = filters;
+  const { page = 1, limit = 50, paginated = false } = filters;
 
   try {
-    // Start with the base collection
     let query = customTiles;
-    let hasWhereClause = false;
+    let useAnd = false;
+    const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom'];
+    const filtersArray = Object.entries(filters).filter(([key]) => possibleFilters.includes(key));
 
-    // Apply filters in a more structured way
-    if (locale) {
-      query = query.where('locale').equals(locale);
-      hasWhereClause = true;
-    }
+    filtersArray.forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return; // Skip empty or null values (ignores filters with no value)
 
-    if (gameMode) {
-      if (hasWhereClause) {
-        query = query.and((tile) => tile.gameMode === gameMode);
+      // Special handling for tag filter since it's an array field
+      if (key === 'tag') {
+        if (!useAnd) {
+          query = query.filter((tile) => tile.tags.includes(value));
+          useAnd = true;
+        } else {
+          query = query.and((tile) => tile.tags.includes(value));
+        }
       } else {
-        query = query.where('gameMode').equals(gameMode);
-        hasWhereClause = true;
+        // Normal handling for other filters
+        if (!useAnd) {
+          query = query.where(key).equals(value);
+          useAnd = true;
+        } else {
+          query = query.and((tile) => tile[key] === value);
+        }
       }
-    }
+    });
 
-    if (group) {
-      if (hasWhereClause) {
-        query = query.and((tile) => tile.group === group);
-      } else {
-        query = query.where('group').equals(group);
-        hasWhereClause = true;
-      }
-    }
-
-    if (intensity !== undefined && intensity !== '') {
-      if (hasWhereClause) {
-        query = query.and((tile) => Number(tile.intensity) === Number(intensity));
-      } else {
-        query = query.where('intensity').equals(Number(intensity));
-        hasWhereClause = true;
-      }
-    }
-
-    if (isCustom !== undefined) {
-      if (hasWhereClause) {
-        query = query.and((tile) => tile.isCustom === isCustom);
-      } else {
-        query = query.where('isCustom').equals(isCustom);
-        hasWhereClause = true;
-      }
-    }
     // If pagination is not requested, return all items as an array
     if (!paginated) {
       const items = await query.toArray();
-      return tag ? items.filter((item) => item.tags?.includes(tag)) : items;
+      return items;
     }
 
     // Get total count for pagination
@@ -87,11 +59,8 @@ export const getTiles = async (filters = {}) => {
     const offset = (page - 1) * limit;
     const items = await query.offset(offset).limit(limit).toArray();
 
-    // Filter by tag if needed (can't be done in the query)
-    const filteredItems = tag ? items.filter((item) => item.tags?.includes(tag)) : items;
-
     return {
-      items: filteredItems,
+      items: items,
       total: count,
       page,
       limit,
@@ -113,13 +82,19 @@ export const getTiles = async (filters = {}) => {
   }
 };
 
-export const getCustomTileGroups = async (locale = 'en', gameMode = 'online') => {
+export const getCustomTileGroups = async (locale = 'en', gameMode = 'online', tags = null) => {
   // Get unique groups with count of items in each group
-  const allTiles = await customTiles
+  let query = customTiles
     .where('locale')
     .equals(locale)
-    .and((tile) => tile.gameMode === gameMode)
-    .toArray();
+    .and((tile) => tile.gameMode === gameMode);
+
+  if (tags) {
+    console.log(tags);
+    query = query.and((tile) => tile.tags.some((tag) => tags.includes(tag)));
+  }
+
+  const allTiles = await query.toArray();
 
   return allTiles.reduce((groups, tile) => {
     const group = tile.group;

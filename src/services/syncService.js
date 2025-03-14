@@ -1,7 +1,7 @@
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
-import { getActiveTiles, addCustomTile, getTiles } from '@/stores/customTiles';
+import { addCustomTile, getTiles } from '@/stores/customTiles';
 import { getBoards, upsertBoard } from '@/stores/gameBoard';
 
 const db = getFirestore();
@@ -35,10 +35,10 @@ export async function syncCustomTilesToFirebase() {
       { merge: true }
     );
 
-    console.log('Custom tiles synced to Firebase');
+    console.log('Custom tiles synced: ' + customTiles.length);
     return true;
   } catch (error) {
-    console.error('Error syncing custom tiles to Firebase:', error);
+    console.error('Error syncing custom tiles:', error);
     return false;
   }
 }
@@ -72,10 +72,10 @@ export async function syncGameBoardsToFirebase() {
       { merge: true }
     );
 
-    console.log('Game boards synced to Firebase');
+    console.log('Game boards synced');
     return true;
   } catch (error) {
-    console.error('Error syncing game boards to Firebase:', error);
+    console.error('Error syncing game boards:', error);
     return false;
   }
 }
@@ -101,10 +101,9 @@ export async function syncDataFromFirebase() {
     // Get user data from Firebase
     const userDocRef = doc(db, 'user-data', user.uid);
     const userDoc = await getDoc(userDocRef);
-    console.log(userDoc);
 
     if (!userDoc.exists()) {
-      console.log('No user data found in Firebase');
+      console.log('No user data found');
       return false;
     }
 
@@ -112,7 +111,6 @@ export async function syncDataFromFirebase() {
 
     // Import custom tiles
     if (userData.customTiles && userData.customTiles.length > 0) {
-      let tileCount = 0;
       for (const tile of userData.customTiles) {
         // Check if tile already exists by matching action and group
         const existingTiles = await getTiles({
@@ -122,10 +120,9 @@ export async function syncDataFromFirebase() {
 
         if (!existingTiles.length) {
           await addCustomTile(tile);
-          tileCount++;
         }
       }
-      console.log(tileCount + ' Custom tiles imported from Firebase');
+      console.log(userData.customTiles.length + ' custom tiles imported');
     }
 
     // Import game boards
@@ -139,12 +136,12 @@ export async function syncDataFromFirebase() {
           isActive: board.isActive || 0,
         });
       }
-      console.log(userData.gameBoards?.length + ' Game boards imported from Firebase');
+      console.log(userData.gameBoards?.length + ' game boards imported');
     }
 
     return true;
   } catch (error) {
-    console.error('Error syncing data from Firebase:', error);
+    console.error('Error syncing data:', error);
     return false;
   }
 }

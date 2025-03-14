@@ -28,39 +28,21 @@ export default function TileCategorySelection({
 
   function handleGroupFilterChange(event) {
     const newGroup = event.target.value;
-    
-    // Reset intensity filter when group changes
-    let newIntensity = '';
-    
-    // If a group is selected, set intensity to the first available intensity for that group
-    if (newGroup && groups && groups[newGroup]) {
-      const intensities = Object.keys(groups[newGroup].intensities || {});
-      if (intensities.length > 0) {
-        newIntensity = Number(intensities[0]);
-      }
-    }
-    
+
     // Call the parent handlers
     onGroupChange(newGroup);
     if (onIntensityChange) {
-      onIntensityChange(newIntensity);
+      onIntensityChange('all');
     }
   }
 
-  // Ensure gameMode is one of the valid options
-  const validGameMode = gameMode === 'online' || gameMode === 'local' ? gameMode : 'online';
-  
   // Ensure groupFilter is in the list of uniqueGroups or empty
   // If uniqueGroups is empty, don't validate to allow for initial values
-  const validGroupFilter = uniqueGroups.length === 0 || uniqueGroups.includes(groupFilter) 
-    ? groupFilter 
-    : '';
-  
+  const validGroupFilter =
+    uniqueGroups.length === 0 || uniqueGroups.includes(groupFilter) ? groupFilter : '';
+
   // Ensure intensityFilter is valid for the selected group or is 'all'
-  const validIntensityFilter = intensityFilter === 'all' ? 'all' : 
-    (groupFilter && groups && groups[groupFilter] && 
-    Object.keys(groups[groupFilter].intensities || {}).includes(String(intensityFilter)) 
-    ? intensityFilter : 'all');
+  const validIntensityFilter = intensityFilter === 'all' ? 'all' : intensityFilter;
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, ...sx }}>
@@ -71,13 +53,13 @@ export default function TileCategorySelection({
         <Select
           labelId="game-mode-filter-label"
           id="game-mode-filter"
-          value={validGameMode}
+          value={gameMode}
           label={t('customTiles.gameMode', 'Game Mode')}
           onChange={(e) => {
             onGameModeChange(e.target.value);
           }}
           slotProps={{
-            input: { 'aria-label': t('customTiles.gameMode', 'Game Mode') }
+            input: { 'aria-label': t('customTiles.gameMode', 'Game Mode') },
           }}
         >
           <MenuItem value="online">
@@ -100,17 +82,17 @@ export default function TileCategorySelection({
           label={t('group')}
           onChange={handleGroupFilterChange}
           slotProps={{
-            input: { 'aria-label': t('group') }
+            input: { 'aria-label': t('group') },
           }}
         >
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
-              {mappedGroups && mappedGroups[gameMode] && 
-               Array.isArray(groupActionsFolder(mappedGroups[gameMode])) ? 
-                (groupActionsFolder(mappedGroups[gameMode]).find(
-                  (g) => g.value === group
-                )?.groupLabel || group) : 
-                group}
+              {mappedGroups &&
+              mappedGroups[gameMode] &&
+              Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
+                ? groupActionsFolder(mappedGroups[gameMode]).find((g) => g.value === group)
+                    ?.groupLabel || group
+                : group}
               {showCounts && groups[group] && ` (${groups[group].count})`}
             </MenuItem>
           ))}
@@ -128,15 +110,13 @@ export default function TileCategorySelection({
             value={validIntensityFilter}
             label={t('customTiles.intensityLevel', 'Intensity Level')}
             onChange={(e) => onIntensityChange(e.target.value)}
-            slotProps={{
-              input: { 'aria-label': t('customTiles.intensityLevel', 'Intensity Level') }
+            slotprops={{
+              input: { 'aria-label': t('customTiles.intensityLevel', 'Intensity Level') },
             }}
           >
-            {validGroupFilter && (
-              <MenuItem key="all" value="all">
-                <Trans i18nKey="customTiles.allIntensities">All Intensities</Trans>
-              </MenuItem>
-            )}
+            <MenuItem key="all" value="all">
+              <Trans i18nKey="all">All</Trans>
+            </MenuItem>
             {validGroupFilter &&
               groups &&
               groups[validGroupFilter] &&
@@ -144,12 +124,13 @@ export default function TileCategorySelection({
                 .sort(([a], [b]) => Number(a) - Number(b))
                 .map(([intensity, count]) => (
                   <MenuItem key={intensity} value={Number(intensity)}>
-                    {mappedGroups && mappedGroups[gameMode] && 
-                     Array.isArray(groupActionsFolder(mappedGroups[gameMode])) ? 
-                      (groupActionsFolder(mappedGroups[gameMode]).find(
-                        (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
-                      )?.translatedIntensity || `Level ${intensity}`) : 
-                      `Level ${intensity}`}
+                    {mappedGroups &&
+                    mappedGroups[gameMode] &&
+                    Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
+                      ? groupActionsFolder(mappedGroups[gameMode]).find(
+                          (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
+                        )?.translatedIntensity || `Level ${intensity}`
+                      : `Level ${intensity}`}
                     {showCounts && count !== undefined ? ` (${count})` : ''}
                   </MenuItem>
                 ))}

@@ -40,17 +40,22 @@ export default function ViewCustomTiles({
   const [groupFilter, setGroupFilter] = useState('');
   const [intensityFilter, setIntensityFilter] = useState('');
   const [page, setPage] = useState(1);
-  const [limit] = useState(20); // Number of items per page
   const [loading, setLoading] = useState(true);
   const [tiles, setTiles] = useState({ items: [], total: 0, totalPages: 1 });
   const [groups, setGroups] = useState({});
+
+  const limit = 10;
 
   // Load groups on initial render
   useEffect(() => {
     async function loadGroups() {
       try {
         setLoading(true);
-        const groupData = await getCustomTileGroups(i18n.resolvedLanguage, gameModeFilter);
+        const groupData = await getCustomTileGroups(
+          i18n.resolvedLanguage,
+          gameModeFilter,
+          tagFilter
+        );
         setGroups(groupData);
 
         // Extract unique groups
@@ -62,8 +67,6 @@ export default function ViewCustomTiles({
         // Set default group filter if not already set or if current is invalid
         if ((!groupFilter || !isCurrentGroupValid) && groupNames.length > 0) {
           setGroupFilter(groupNames[0]);
-          
-          // Set default intensity to 'all'
           setIntensityFilter('all');
         } else if (isCurrentGroupValid && intensityFilter !== 'all') {
           // Verify intensity is valid for this group
@@ -80,7 +83,7 @@ export default function ViewCustomTiles({
     }
 
     loadGroups();
-  }, [gameModeFilter, i18n.resolvedLanguage]);
+  }, [gameModeFilter, i18n.resolvedLanguage, tagFilter]);
 
   // Load tiles when filters change
   useEffect(() => {
@@ -237,14 +240,11 @@ export default function ViewCustomTiles({
                 <>
                   <IconButton
                     onClick={() => handleUpdateTile(id)}
-                    slotProps={{ root: { 'aria-label': t('customTiles.update') } }}
+                    aria-label={t('customTiles.update')}
                   >
                     <Edit />
                   </IconButton>
-                  <IconButton
-                    onClick={() => deleteTile(id)}
-                    slotProps={{ root: { 'aria-label': t('customTiles.delete') } }}
-                  >
+                  <IconButton onClick={() => deleteTile(id)} aria-label={t('customTiles.delete')}>
                     <Delete />
                   </IconButton>
                 </>
@@ -264,12 +264,23 @@ export default function ViewCustomTiles({
 
   return (
     <Box>
+      <Box>
+        {tagList?.map((tag) => (
+          <Chip
+            key={tag}
+            label={tag}
+            sx={{ m: 0.5 }}
+            color={tagFilter === tag ? 'primary' : 'default'}
+            onClick={() => toggleTagFilter(tag)}
+          />
+        ))}
+      </Box>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
-          mb: 2,
+          my: 2,
           transition: 'all 0.3s ease-in-out',
         }}
       >
@@ -294,18 +305,6 @@ export default function ViewCustomTiles({
             setPage(1);
           }}
         />
-
-        <Box>
-          {tagList?.map((tag) => (
-            <Chip
-              key={tag}
-              label={tag}
-              sx={{ m: 0.5 }}
-              color={tagFilter === tag ? 'primary' : 'default'}
-              onClick={() => toggleTagFilter(tag)}
-            />
-          ))}
-        </Box>
       </Box>
 
       <Box sx={{ position: 'relative', minHeight: '200px' }}>
