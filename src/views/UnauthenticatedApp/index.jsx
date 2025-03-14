@@ -21,6 +21,7 @@ import Navigation from '@/views/Navigation';
 import './styles.css';
 import GameGuide from '@/views/GameGuide';
 import AuthDialog from '@/components/auth/AuthDialog';
+import AuthDialog from '@/components/auth/AuthDialog';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
