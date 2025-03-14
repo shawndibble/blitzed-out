@@ -62,17 +62,14 @@ export default function ViewCustomTiles({
         // Set default group filter if not already set or if current is invalid
         if ((!groupFilter || !isCurrentGroupValid) && groupNames.length > 0) {
           setGroupFilter(groupNames[0]);
-
-          // Set default intensity if available
-          const intensities = Object.keys(groupData[groupNames[0]]?.intensities || {});
-          if (intensities.length > 0) {
-            setIntensityFilter(Number(intensities[0]));
-          }
-        } else if (isCurrentGroupValid) {
+          
+          // Set default intensity to 'all'
+          setIntensityFilter('all');
+        } else if (isCurrentGroupValid && intensityFilter !== 'all') {
           // Verify intensity is valid for this group
           const validIntensities = Object.keys(groupData[groupFilter]?.intensities || {});
-          if (!validIntensities.includes(String(intensityFilter)) && validIntensities.length > 0) {
-            setIntensityFilter(Number(validIntensities[0]));
+          if (!validIntensities.includes(String(intensityFilter))) {
+            setIntensityFilter('all');
           }
         }
       } catch (error) {
@@ -94,7 +91,7 @@ export default function ViewCustomTiles({
         setLoading(true);
         const filters = {
           group: groupFilter,
-          intensity: intensityFilter,
+          intensity: intensityFilter === 'all' ? '' : intensityFilter, // Send empty string for 'all'
           tag: tagFilter,
           gameMode: gameModeFilter,
           locale: settings.locale,
@@ -162,16 +159,8 @@ export default function ViewCustomTiles({
     setGroupFilter(newGroup);
     setPage(1); // Reset to first page
 
-    // Reset intensity filter when group changes
-    setIntensityFilter('');
-
-    // If a group is selected, set intensity to the first available intensity for that group
-    if (newGroup && groups[newGroup]) {
-      const intensities = Object.keys(groups[newGroup].intensities || {});
-      if (intensities.length > 0) {
-        setIntensityFilter(Number(intensities[0]));
-      }
-    }
+    // Set intensity filter to 'all' when group changes
+    setIntensityFilter('all');
   }
 
   function handlePageChange(_, newPage) {
@@ -185,7 +174,7 @@ export default function ViewCustomTiles({
     // Refresh the current page
     const filters = {
       group: groupFilter,
-      intensity: intensityFilter,
+      intensity: intensityFilter === 'all' ? '' : intensityFilter, // Send empty string for 'all'
       tag: tagFilter,
       gameMode: gameModeFilter,
       locale: settings.locale,

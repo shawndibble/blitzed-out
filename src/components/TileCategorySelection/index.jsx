@@ -56,10 +56,11 @@ export default function TileCategorySelection({
     ? groupFilter 
     : '';
   
-  // Ensure intensityFilter is valid for the selected group
-  const validIntensityFilter = groupFilter && groups && groups[groupFilter] && 
+  // Ensure intensityFilter is valid for the selected group or is 'all'
+  const validIntensityFilter = intensityFilter === 'all' ? 'all' : 
+    (groupFilter && groups && groups[groupFilter] && 
     Object.keys(groups[groupFilter].intensities || {}).includes(String(intensityFilter)) 
-    ? intensityFilter : '';
+    ? intensityFilter : 'all');
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, ...sx }}>
@@ -131,6 +132,11 @@ export default function TileCategorySelection({
               input: { 'aria-label': t('customTiles.intensityLevel', 'Intensity Level') }
             }}
           >
+            {validGroupFilter && (
+              <MenuItem key="all" value="all">
+                <Trans i18nKey="customTiles.allIntensities">All Intensities</Trans>
+              </MenuItem>
+            )}
             {validGroupFilter &&
               groups &&
               groups[validGroupFilter] &&
