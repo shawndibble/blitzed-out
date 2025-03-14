@@ -235,8 +235,9 @@ export default function ViewCustomTiles({
           title={action}
           titleTypographyProps={{ variant: 'body1' }}
           subheader={
-            mappedGroups && mappedGroups[gameModeFilter] ? 
-              (groupActionsFolder(mappedGroups[gameModeFilter])?.find(
+            mappedGroups && mappedGroups[gameModeFilter] && 
+            Array.isArray(groupActionsFolder(mappedGroups[gameModeFilter])) ? 
+              (groupActionsFolder(mappedGroups[gameModeFilter]).find(
                 ({ value, intensity: inten }) => value === group && inten === Number(intensity)
               )?.label) : 
               `${group} - Level ${intensity}`

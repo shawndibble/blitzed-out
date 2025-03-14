@@ -42,31 +42,55 @@ export default function AddCustomTile({
   // For the TileCategorySelection component
   const [groups, setGroups] = useState({});
 
-  // Process custom tiles to create groups structure for TileCategorySelection
+  // Process mappedGroups to create a structure for TileCategorySelection
   useEffect(() => {
-    const tilesArray = Array.isArray(customTiles) ? customTiles : [];
+    if (!mappedGroups || !mappedGroups[formData.gameMode]) {
+      return;
+    }
     
-    // Create groups structure similar to what getCustomTileGroups returns
-    const processedGroups = tilesArray.reduce((acc, tile) => {
-      const { group, intensity } = tile;
+    // Create groups structure from mappedGroups
+    const processedGroups = {};
+    
+    // Group actions by their group value
+    const groupedActions = groupActionsFolder(mappedGroups[formData.gameMode]);
+    
+    groupedActions.forEach(action => {
+      const { value: group, intensity } = action;
       
-      if (!acc[group]) {
-        acc[group] = { count: 0, intensities: {} };
+      if (!processedGroups[group]) {
+        processedGroups[group] = { 
+          count: 0, 
+          intensities: {} 
+        };
       }
       
-      acc[group].count += 1;
+      processedGroups[group].count += 1;
       
-      if (!acc[group].intensities[intensity]) {
-        acc[group].intensities[intensity] = 0;
+      if (!processedGroups[group].intensities[intensity]) {
+        processedGroups[group].intensities[intensity] = 0;
       }
       
-      acc[group].intensities[intensity] += 1;
-      
-      return acc;
-    }, {});
+      processedGroups[group].intensities[intensity] += 1;
+    });
     
     setGroups(processedGroups);
-  }, [customTiles]);
+    
+    // Set default group and intensity if not already set
+    if (!formData.group && Object.keys(processedGroups).length > 0) {
+      const firstGroup = Object.keys(processedGroups)[0];
+      let firstIntensity = '';
+      
+      if (processedGroups[firstGroup] && Object.keys(processedGroups[firstGroup].intensities).length > 0) {
+        firstIntensity = Number(Object.keys(processedGroups[firstGroup].intensities)[0]);
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        group: firstGroup,
+        intensity: firstIntensity
+      }));
+    }
+  }, [formData.gameMode, mappedGroups]);
 
   // Handle editing a tile
   useEffect(() => {
@@ -148,11 +172,17 @@ export default function AddCustomTile({
     // send action to firebase for review
     if (updateTileId === null) {
       // Get the label from mappedGroups using group and intensity
-      const groupLabel = mappedGroups && mappedGroups[gameMode] ? 
-        (groupActionsFolder(mappedGroups[gameMode])?.find(
+      let groupLabel = `${group} - Level ${intensity}`;
+      
+      if (mappedGroups && mappedGroups[gameMode] && 
+          Array.isArray(groupActionsFolder(mappedGroups[gameMode]))) {
+        const foundGroup = groupActionsFolder(mappedGroups[gameMode]).find(
           (g) => g.value === group && g.intensity === Number(intensity)
-        )?.label || `${group} - Level ${intensity}`) : 
-        `${group} - Level ${intensity}`;
+        );
+        if (foundGroup && foundGroup.label) {
+          groupLabel = foundGroup.label;
+        }
+      }
       
       submitCustomAction(groupLabel, action);
       // store locally for user's board

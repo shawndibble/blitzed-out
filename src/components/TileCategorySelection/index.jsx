@@ -50,7 +50,10 @@ export default function TileCategorySelection({
   const validGameMode = gameMode === 'online' || gameMode === 'local' ? gameMode : 'online';
   
   // Ensure groupFilter is in the list of uniqueGroups or empty
-  const validGroupFilter = uniqueGroups.includes(groupFilter) ? groupFilter : '';
+  // If uniqueGroups is empty, don't validate to allow for initial values
+  const validGroupFilter = uniqueGroups.length === 0 || uniqueGroups.includes(groupFilter) 
+    ? groupFilter 
+    : '';
   
   // Ensure intensityFilter is valid for the selected group
   const validIntensityFilter = groupFilter && groups && groups[groupFilter] && 
@@ -94,8 +97,9 @@ export default function TileCategorySelection({
         >
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
-              {mappedGroups && mappedGroups[gameMode] ? 
-                (groupActionsFolder(mappedGroups[gameMode])?.find(
+              {mappedGroups && mappedGroups[gameMode] && 
+               Array.isArray(groupActionsFolder(mappedGroups[gameMode])) ? 
+                (groupActionsFolder(mappedGroups[gameMode]).find(
                   (g) => g.value === group
                 )?.groupLabel || group) : 
                 group}
@@ -124,8 +128,9 @@ export default function TileCategorySelection({
                 .sort(([a], [b]) => Number(a) - Number(b))
                 .map(([intensity, count]) => (
                   <MenuItem key={intensity} value={Number(intensity)}>
-                    {mappedGroups && mappedGroups[gameMode] ? 
-                      (groupActionsFolder(mappedGroups[gameMode])?.find(
+                    {mappedGroups && mappedGroups[gameMode] && 
+                     Array.isArray(groupActionsFolder(mappedGroups[gameMode])) ? 
+                      (groupActionsFolder(mappedGroups[gameMode]).find(
                         (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
                       )?.translatedIntensity || `Level ${intensity}`) : 
                       `Level ${intensity}`}
