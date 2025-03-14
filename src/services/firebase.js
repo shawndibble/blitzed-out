@@ -1,5 +1,17 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signOut, updateProfile } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  EmailAuthProvider,
+  getAuth,
+  GoogleAuthProvider,
+  linkWithCredential,
+  sendPasswordResetEmail,
+  signInAnonymously,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
 import { getDatabase, onDisconnect, onValue, push, ref, remove, set } from 'firebase/database';
 import {
   Timestamp,
@@ -44,6 +56,71 @@ export async function loginAnonymously(displayName = '') {
     // eslint-disable-next-line
     console.error(error);
     return null;
+  }
+}
+
+export async function registerWithEmail(email, password, displayName = '') {
+  try {
+    const auth = getAuth();
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(userCredential.user, { displayName });
+    return userCredential.user;
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
+}
+
+export async function loginWithEmail(email, password) {
+  try {
+    const auth = getAuth();
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    console.error('Email login error:', error);
+    throw error;
+  }
+}
+
+export async function loginWithGoogle() {
+  try {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    const userCredential = await signInWithPopup(auth, provider);
+    return userCredential.user;
+  } catch (error) {
+    console.error('Google login error:', error);
+    throw error;
+  }
+}
+
+export async function resetPassword(email) {
+  try {
+    const auth = getAuth();
+    await sendPasswordResetEmail(auth, email);
+    return true;
+  } catch (error) {
+    console.error('Password reset error:', error);
+    throw error;
+  }
+}
+
+// Function to convert anonymous account to permanent account
+export async function convertAnonymousAccount(email, password) {
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user && user.isAnonymous) {
+      const credential = EmailAuthProvider.credential(email, password);
+      const result = await linkWithCredential(user, credential);
+      return result.user;
+    } else {
+      throw new Error('User is not anonymous or not logged in');
+    }
+  } catch (error) {
+    console.error('Account conversion error:', error);
+    throw error;
   }
 }
 
