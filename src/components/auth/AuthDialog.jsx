@@ -5,12 +5,13 @@ import {
   DialogContent, 
   IconButton, 
   Typography,
-  Box
+  Box,
+  Divider
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import LoginForm from './LoginForm';
-import RegisterForm from './RegisterForm';
-import ResetPasswordForm from './ResetPasswordForm';
+import { Trans } from 'react-i18next';
+import Login from './Login';
+import CreateAccount from './CreateAccount';
 import SocialLoginButtons from './SocialLoginButtons';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -20,10 +21,6 @@ export default function AuthDialog({ open, onClose, initialView = 'login' }) {
   
   const handleSuccess = () => {
     onClose();
-  };
-  
-  const handleToggleForm = (formType) => {
-    setCurrentView(formType);
   };
   
   const getTitle = () => {
@@ -67,8 +64,8 @@ export default function AuthDialog({ open, onClose, initialView = 'login' }) {
         <Box sx={{ p: 1 }}>
           {currentView === 'login' && (
             <>
-              <LoginForm 
-                onToggleForm={handleToggleForm} 
+              <Login 
+                onSwitchToRegister={() => setCurrentView('register')} 
                 onSuccess={handleSuccess} 
               />
               <SocialLoginButtons onSuccess={handleSuccess} />
@@ -76,21 +73,15 @@ export default function AuthDialog({ open, onClose, initialView = 'login' }) {
           )}
           
           {currentView === 'register' && (
-            <RegisterForm 
-              onToggleForm={handleToggleForm} 
+            <CreateAccount 
+              onSwitchToLogin={() => setCurrentView('login')} 
               onSuccess={handleSuccess} 
             />
           )}
           
-          {currentView === 'reset' && (
-            <ResetPasswordForm 
-              onToggleForm={handleToggleForm} 
-            />
-          )}
-          
           {currentView === 'link' && (
-            <RegisterForm 
-              onToggleForm={handleToggleForm} 
+            <CreateAccount 
+              onSwitchToLogin={() => setCurrentView('login')} 
               onSuccess={handleSuccess}
               isAnonymous={true}
             />

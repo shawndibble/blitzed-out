@@ -21,13 +21,22 @@ import Navigation from '@/views/Navigation';
 import './styles.css';
 import GameGuide from '@/views/GameGuide';
 import AuthDialog from '@/components/auth/AuthDialog';
-import AuthDialog from '@/components/auth/AuthDialog';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
   const { login, user, isAnonymous } = useAuth();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDialogView, setAuthDialogView] = useState('login');
+  
+  const handleOpenLogin = () => {
+    setAuthDialogView('login');
+    setAuthDialogOpen(true);
+  };
+  
+  const handleOpenRegister = () => {
+    setAuthDialogView('register');
+    setAuthDialogOpen(true);
+  };
   const params = useParams();
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');
@@ -109,9 +118,16 @@ export default function UnauthenticatedApp() {
                   <Button 
                     variant="outlined"
                     startIcon={<Login />}
-                    onClick={() => setAuthDialogOpen(true)}
+                    onClick={handleOpenLogin}
+                    sx={{ mr: 1 }}
                   >
                     <Trans i18nKey="signIn" />
+                  </Button>
+                  <Button 
+                    variant="text"
+                    onClick={handleOpenRegister}
+                  >
+                    <Trans i18nKey="createAccount" />
                   </Button>
                 </div>
               </Box>
