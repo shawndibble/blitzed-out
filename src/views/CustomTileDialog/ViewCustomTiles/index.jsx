@@ -7,15 +7,12 @@ import {
   Chip,
   IconButton,
   Switch,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Pagination,
   Typography,
   CircularProgress,
   Fade,
 } from '@mui/material';
+import TileCategorySelection from '@/Components/TileCategorySelection';
 import { useState, useEffect } from 'react';
 import {
   deleteCustomTile,
@@ -277,80 +274,27 @@ export default function ViewCustomTiles({
           transition: 'all 0.3s ease-in-out',
         }}
       >
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-          <FormControl sx={{ width: 125, flexShrink: 0 }}>
-            <InputLabel id="game-mode-filter-label">
-              <Trans i18nKey="customTiles.gameMode" />
-            </InputLabel>
-            <Select
-              labelId="game-mode-filter-label"
-              id="game-mode-filter"
-              value={gameModeFilter}
-              label={t('customTiles.gameMode', 'Game Mode')}
-              onChange={(e) => {
-                setGameModeFilter(e.target.value);
-                setGroupFilter('');
-                setIntensityFilter('');
-                setPage(1);
-              }}
-            >
-              <MenuItem value="online">
-                <Trans i18nKey="online" />
-              </MenuItem>
-              <MenuItem value="local">
-                <Trans i18nKey="local" />
-              </MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl sx={{ minWidth: 150, flex: 1 }}>
-            <InputLabel id="group-filter-label">
-              <Trans i18nKey="group" />
-            </InputLabel>
-            <Select
-              labelId="group-filter-label"
-              id="group-filter"
-              value={groupFilter}
-              label={t('group')}
-              onChange={handleGroupFilterChange}
-            >
-              {uniqueGroups.map((group) => (
-                <MenuItem key={group} value={group}>
-                  {groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
-                    (g) => g.value === group
-                  )?.groupLabel || group}
-                  {groups[group] && ` (${groups[group].count})`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl sx={{ minWidth: 200, flex: 1 }} disabled={!groupFilter}>
-            <InputLabel id="intensity-filter-label">
-              <Trans i18nKey="customTiles.intensityLevel">Intensity Level</Trans>
-            </InputLabel>
-            <Select
-              labelId="intensity-filter-label"
-              id="intensity-filter"
-              value={intensityFilter}
-              label={t('customTiles.intensityLevel', 'Intensity Level')}
-              onChange={handleIntensityFilterChange}
-            >
-              {groupFilter &&
-                groups[groupFilter] &&
-                Object.entries(groups[groupFilter].intensities || {})
-                  .sort(([a], [b]) => Number(a) - Number(b))
-                  .map(([intensity, count]) => (
-                    <MenuItem key={intensity} value={Number(intensity)}>
-                      {groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
-                        (g) => g.value === groupFilter && g.intensity === Number(intensity)
-                      )?.translatedIntensity || `Level ${intensity}`}
-                      {` (${count})`}
-                    </MenuItem>
-                  ))}
-            </Select>
-          </FormControl>
-        </Box>
+        <TileCategorySelection
+          gameMode={gameModeFilter}
+          groupFilter={groupFilter}
+          intensityFilter={intensityFilter}
+          groups={groups}
+          mappedGroups={mappedGroups}
+          onGameModeChange={(value) => {
+            setGameModeFilter(value);
+            setGroupFilter('');
+            setIntensityFilter('');
+            setPage(1);
+          }}
+          onGroupChange={(value) => {
+            setGroupFilter(value);
+            setPage(1);
+          }}
+          onIntensityChange={(value) => {
+            setIntensityFilter(value);
+            setPage(1);
+          }}
+        />
 
         <Box>
           {tagList?.map((tag) => (

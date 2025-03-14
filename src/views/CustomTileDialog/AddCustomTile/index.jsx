@@ -4,11 +4,8 @@ import {
   Button,
   TextField,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from '@mui/material';
+import TileCategorySelection from '@/Components/TileCategorySelection';
 import { submitCustomAction } from '@/services/firebase';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -35,11 +32,42 @@ export default function AddCustomTile({
 
   const [formData, setFormData] = useState({
     gameMode: settings.gameMode || 'online',
-    tileOption: null,
+    group: '',
+    intensity: '',
     action: '',
     tags: [],
   });
+  
+  // For the TileCategorySelection component
+  const [groups, setGroups] = useState({});
 
+  // Process custom tiles to create groups structure for TileCategorySelection
+  useEffect(() => {
+    const tilesArray = Array.isArray(customTiles) ? customTiles : [];
+    
+    // Create groups structure similar to what getCustomTileGroups returns
+    const processedGroups = tilesArray.reduce((acc, tile) => {
+      const { group, intensity } = tile;
+      
+      if (!acc[group]) {
+        acc[group] = { count: 0, intensities: {} };
+      }
+      
+      acc[group].count += 1;
+      
+      if (!acc[group].intensities[intensity]) {
+        acc[group].intensities[intensity] = 0;
+      }
+      
+      acc[group].intensities[intensity] += 1;
+      
+      return acc;
+    }, {});
+    
+    setGroups(processedGroups);
+  }, [customTiles]);
+
+  // Handle editing a tile
   useEffect(() => {
     const tilesArray = Array.isArray(customTiles) ? customTiles : [];
     const editTile = tilesArray.find(({ id }) => id === updateTileId);
@@ -48,17 +76,10 @@ export default function AddCustomTile({
       // Get the game mode from the tile being edited
       const tileGameMode = editTile.gameMode || settings.gameMode;
 
-      // Get the appropriate groups for this game mode
-      const gameModeGroups = groupActionsFolder(mappedGroups[tileGameMode] || {});
-
-      // Find the matching option in the groups for this game mode
-      const editTileOption = gameModeGroups.find(
-        ({ value, intensity }) => value === editTile.group && intensity === editTile.intensity
-      );
-
       setFormData({
         gameMode: tileGameMode,
-        tileOption: editTileOption || null,
+        group: editTile.group || '',
+        intensity: editTile.intensity || '',
         action: editTile.action || '',
         tags: editTile.tags || [],
       });
@@ -67,15 +88,16 @@ export default function AddCustomTile({
       setFormData((prev) => ({
         ...prev,
         gameMode: settings.gameMode,
+        group: '',
+        intensity: '',
       }));
     }
-  }, [updateTileId, settings.gameMode, mappedGroups]);
+  }, [updateTileId, settings.gameMode, customTiles]);
 
-  function tileExists(newGroup, newAction) {
+  function tileExists(group, intensity, newAction) {
     const tilesArray = Array.isArray(customTiles) ? customTiles : [];
     return tilesArray.find(
-      ({ group, intensity, action }) =>
-        `${group} - ${intensity}` === newGroup && action === newAction
+      (tile) => tile.group === group && tile.intensity === intensity && tile.action === newAction
     );
   }
 
@@ -83,7 +105,8 @@ export default function AddCustomTile({
     setUpdateTileId(null);
     setFormData({
       gameMode: settings.gameMode,
-      tileOption: null,
+      group: '',
+      intensity: '',
       action: '',
       tags: [],
     });
@@ -100,35 +123,22 @@ export default function AddCustomTile({
       tagInput.value = '';
     }
 
-    const { gameMode, tileOption, action } = formData;
+    const { gameMode, group, intensity, action } = formData;
 
-    if (!gameMode || !tileOption || !action) {
+    if (!gameMode || !group || !intensity || !action) {
       return setSubmitMessage({
         message: t('allFieldsRequired', 'All fields are required'),
         type: 'error',
       });
     }
 
-    if (updateTileId == null && tileExists(tileOption, action)) {
+    if (updateTileId == null && tileExists(group, intensity, action)) {
       return setSubmitMessage({ message: t('actionExists'), type: 'error' });
     }
 
-    // Get the appropriate groups for this game mode
-    const gameModeGroups = groupActionsFolder(mappedGroups[gameMode] || {});
-
-    // Find the matching option in the groups for this game mode
-    const option = gameModeGroups.find(({ label }) => label === tileOption.label);
-
-    if (!option) {
-      return setSubmitMessage({
-        message: t('invalidOption', 'Invalid option selected'),
-        type: 'error',
-      });
-    }
-
     const data = {
-      group: option.value,
-      intensity: option.intensity,
+      group,
+      intensity,
       action,
       tags: currentTags,
       gameMode, // Store the game mode with the tile
@@ -197,43 +207,32 @@ export default function AddCustomTile({
       </AccordionSummary>
       <AccordionDetails>
         <Box component="form" method="post" className="settings-box">
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel id="game-mode-label">
-              <Trans i18nKey="customTiles.gameMode" />
-            </InputLabel>
-            <Select
-              labelId="game-mode-label"
-              id="gameMode"
-              name="gameMode"
-              value={formData.gameMode}
-              label={t('customTiles.gameMode')}
-              onChange={(event) => {
-                setFormData({
-                  ...formData,
-                  gameMode: event.target.value,
-                  tileOption: null, // Reset tile option when game mode changes
-                });
-              }}
-            >
-              <MenuItem value="online">
-                <Trans i18nKey="online" />
-              </MenuItem>
-              <MenuItem value="local">
-                <Trans i18nKey="local" />
-              </MenuItem>
-            </Select>
-          </FormControl>
-
-          <Autocomplete
-            id="tileOption"
-            name="tileOption"
-            options={groupActionsFolder(mappedGroups[formData.gameMode] || {})}
-            getOptionLabel={(option) => option.label}
-            groupBy={(option) => option.group}
-            value={formData.tileOption}
-            onChange={(_event, newValue) => setFormData({ ...formData, tileOption: newValue })}
-            renderInput={(params) => <TextField {...params} label={t('group')} required />}
-            isOptionEqualToValue={(option, value) => option.label === value.label}
+          <TileCategorySelection
+            gameMode={formData.gameMode}
+            groupFilter={formData.group}
+            intensityFilter={formData.intensity}
+            groups={groups}
+            mappedGroups={mappedGroups}
+            onGameModeChange={(value) => {
+              setFormData({
+                ...formData,
+                gameMode: value,
+                group: '',
+                intensity: '',
+              });
+            }}
+            onGroupChange={(value) => {
+              setFormData({
+                ...formData,
+                group: value,
+              });
+            }}
+            onIntensityChange={(value) => {
+              setFormData({
+                ...formData,
+                intensity: value,
+              });
+            }}
             sx={{ mb: 2 }}
           />
 
