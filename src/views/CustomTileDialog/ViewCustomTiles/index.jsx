@@ -11,6 +11,7 @@ import {
   Typography,
   CircularProgress,
   Fade,
+  FormControl,
 } from '@mui/material';
 import TileCategorySelection from '@/Components/TileCategorySelection';
 import { useState, useEffect } from 'react';

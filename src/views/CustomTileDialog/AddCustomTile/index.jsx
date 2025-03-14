@@ -4,6 +4,7 @@ import {
   Button,
   TextField,
   Typography,
+  FormControl,
 } from '@mui/material';
 import TileCategorySelection from '@/Components/TileCategorySelection';
 import { submitCustomAction } from '@/services/firebase';
@@ -146,8 +147,13 @@ export default function AddCustomTile({
 
     // send action to firebase for review
     if (updateTileId === null) {
-      submitCustomAction(option.label, action);
-      // // store locally for user's board
+      // Get the label from mappedGroups using group and intensity
+      const groupLabel = groupActionsFolder(mappedGroups[gameMode] || {})?.find(
+        (g) => g.value === group && g.intensity === Number(intensity)
+      )?.label || `${group} - Level ${intensity}`;
+      
+      submitCustomAction(groupLabel, action);
+      // store locally for user's board
       addCustomTile(data);
     } else {
       updateCustomTile(updateTileId, data);
