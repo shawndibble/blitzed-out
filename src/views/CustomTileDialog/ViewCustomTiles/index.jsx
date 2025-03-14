@@ -44,7 +44,6 @@ export default function ViewCustomTiles({
   const [loading, setLoading] = useState(true);
   const [tiles, setTiles] = useState({ items: [], total: 0, totalPages: 1 });
   const [groups, setGroups] = useState({});
-  const [uniqueGroups, setUniqueGroups] = useState([]);
 
   // Load groups on initial render
   useEffect(() => {
@@ -56,7 +55,6 @@ export default function ViewCustomTiles({
 
         // Extract unique groups
         const groupNames = Object.keys(groupData);
-        setUniqueGroups(groupNames);
 
         // Check if current groupFilter is valid in the new list
         const isCurrentGroupValid = groupNames.includes(groupFilter);
@@ -176,15 +174,7 @@ export default function ViewCustomTiles({
     }
   }
 
-  function handleIntensityFilterChange(event) {
-    // Set loading first for smoother transition
-    setLoading(true);
-
-    setIntensityFilter(event.target.value);
-    setPage(1); // Reset to first page
-  }
-
-  function handlePageChange(event, newPage) {
+  function handlePageChange(_, newPage) {
     setLoading(true);
     setPage(newPage);
   }
@@ -233,10 +223,10 @@ export default function ViewCustomTiles({
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
           title={action}
-          slotProps={{ 
-            title: { variant: 'body1' }, 
+          slotProps={{
+            title: { variant: 'body1' },
             subheader: { variant: 'body2' },
-            action: { 'aria-label': t('customTiles.actions') }
+            action: { 'aria-label': t('customTiles.actions') },
           }}
           subheader={
             mappedGroups &&
@@ -262,7 +252,7 @@ export default function ViewCustomTiles({
                   >
                     <Edit />
                   </IconButton>
-                  <IconButton 
+                  <IconButton
                     onClick={() => deleteTile(id)}
                     slotProps={{ root: { 'aria-label': t('customTiles.delete') } }}
                   >
