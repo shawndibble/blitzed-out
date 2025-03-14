@@ -44,7 +44,7 @@ export default function MenuDrawer() {
   });
 
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
-  
+
   const handleLogout = async () => {
     await logout();
     toggleDrawer(false);
@@ -115,6 +115,12 @@ export default function MenuDrawer() {
         title: <Trans i18nKey="settings" />,
         icon: <SettingsIcon />,
         onClick: () => toggleDialog('settings', true),
+      });
+      items.push({
+        key: 'linkAccount',
+        title: <Trans i18nKey="linkAccount" />,
+        icon: <LinkIcon />,
+        onClick: () => toggleDialog('linkAccount', true),
       });
       items.push({
         key: 'logout',
