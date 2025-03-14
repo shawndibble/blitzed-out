@@ -286,6 +286,7 @@ export default function AddCustomTile({
                 intensity: value,
               });
             }}
+            showCounts={false}
             sx={{ mb: 2 }}
           />
 

@@ -12,6 +12,7 @@ export default function TileCategorySelection({
   onGameModeChange,
   onGroupChange,
   onIntensityChange,
+  showCounts = true,
   sx = {},
 }) {
   const { t } = useTranslation();
@@ -109,7 +110,7 @@ export default function TileCategorySelection({
                   (g) => g.value === group
                 )?.groupLabel || group) : 
                 group}
-              {groups[group] && ` (${groups[group].count})`}
+              {showCounts && groups[group] && ` (${groups[group].count})`}
             </MenuItem>
           ))}
         </Select>
@@ -143,7 +144,7 @@ export default function TileCategorySelection({
                         (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
                       )?.translatedIntensity || `Level ${intensity}`) : 
                       `Level ${intensity}`}
-                    {count !== undefined ? ` (${count})` : ''}
+                    {showCounts && count !== undefined ? ` (${count})` : ''}
                   </MenuItem>
                 ))}
           </Select>
