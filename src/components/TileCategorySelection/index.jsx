@@ -46,6 +46,17 @@ export default function TileCategorySelection({
     }
   }
 
+  // Ensure gameMode is one of the valid options
+  const validGameMode = gameMode === 'online' || gameMode === 'local' ? gameMode : 'online';
+  
+  // Ensure groupFilter is in the list of uniqueGroups or empty
+  const validGroupFilter = uniqueGroups.includes(groupFilter) ? groupFilter : '';
+  
+  // Ensure intensityFilter is valid for the selected group
+  const validIntensityFilter = groupFilter && groups && groups[groupFilter] && 
+    Object.keys(groups[groupFilter].intensities || {}).includes(String(intensityFilter)) 
+    ? intensityFilter : '';
+
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, ...sx }}>
       <FormControl sx={{ width: 125, flexShrink: 0 }}>
@@ -55,7 +66,7 @@ export default function TileCategorySelection({
         <Select
           labelId="game-mode-filter-label"
           id="game-mode-filter"
-          value={gameMode}
+          value={validGameMode}
           label={t('customTiles.gameMode', 'Game Mode')}
           onChange={(e) => {
             onGameModeChange(e.target.value);
@@ -77,7 +88,7 @@ export default function TileCategorySelection({
         <Select
           labelId="group-filter-label"
           id="group-filter"
-          value={groupFilter}
+          value={validGroupFilter}
           label={t('group')}
           onChange={handleGroupFilterChange}
         >
@@ -95,27 +106,27 @@ export default function TileCategorySelection({
       </FormControl>
 
       {onIntensityChange && (
-        <FormControl sx={{ minWidth: 200, flex: 1 }} disabled={!groupFilter}>
+        <FormControl sx={{ minWidth: 200, flex: 1 }} disabled={!validGroupFilter}>
           <InputLabel id="intensity-filter-label">
             <Trans i18nKey="customTiles.intensityLevel">Intensity Level</Trans>
           </InputLabel>
           <Select
             labelId="intensity-filter-label"
             id="intensity-filter"
-            value={intensityFilter}
+            value={validIntensityFilter}
             label={t('customTiles.intensityLevel', 'Intensity Level')}
             onChange={(e) => onIntensityChange(e.target.value)}
           >
-            {groupFilter &&
+            {validGroupFilter &&
               groups &&
-              groups[groupFilter] &&
-              Object.entries(groups[groupFilter].intensities || {})
+              groups[validGroupFilter] &&
+              Object.entries(groups[validGroupFilter].intensities || {})
                 .sort(([a], [b]) => Number(a) - Number(b))
                 .map(([intensity, count]) => (
                   <MenuItem key={intensity} value={Number(intensity)}>
                     {mappedGroups && mappedGroups[gameMode] ? 
                       (groupActionsFolder(mappedGroups[gameMode])?.find(
-                        (g) => g.value === groupFilter && g.intensity === Number(intensity)
+                        (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
                       )?.translatedIntensity || `Level ${intensity}`) : 
                       `Level ${intensity}`}
                     {count !== undefined ? ` (${count})` : ''}

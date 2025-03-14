@@ -58,14 +58,23 @@ export default function ViewCustomTiles({
         const groupNames = Object.keys(groupData);
         setUniqueGroups(groupNames);
 
-        // Set default group filter if not already set
-        if (!groupFilter && groupNames.length > 0) {
+        // Check if current groupFilter is valid in the new list
+        const isCurrentGroupValid = groupNames.includes(groupFilter);
+        
+        // Set default group filter if not already set or if current is invalid
+        if ((!groupFilter || !isCurrentGroupValid) && groupNames.length > 0) {
           setGroupFilter(groupNames[0]);
 
           // Set default intensity if available
           const intensities = Object.keys(groupData[groupNames[0]]?.intensities || {});
           if (intensities.length > 0) {
             setIntensityFilter(Number(intensities[0]));
+          }
+        } else if (isCurrentGroupValid) {
+          // Verify intensity is valid for this group
+          const validIntensities = Object.keys(groupData[groupFilter]?.intensities || {});
+          if (!validIntensities.includes(String(intensityFilter)) && validIntensities.length > 0) {
+            setIntensityFilter(Number(validIntensities[0]));
           }
         }
       } catch (error) {
