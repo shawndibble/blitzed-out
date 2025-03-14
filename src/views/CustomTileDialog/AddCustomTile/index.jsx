@@ -1,11 +1,4 @@
-import {
-  Autocomplete,
-  Box,
-  Button,
-  TextField,
-  Typography,
-  FormControl,
-} from '@mui/material';
+import { Autocomplete, Box, Button, TextField, Typography, FormControl } from '@mui/material';
 import TileCategorySelection from '@/Components/TileCategorySelection';
 import { submitCustomAction } from '@/services/firebase';
 import { useEffect, useState } from 'react';
@@ -38,72 +31,92 @@ export default function AddCustomTile({
     action: '',
     tags: [],
   });
-  
+
   // For the TileCategorySelection component
   const [groups, setGroups] = useState({});
 
   // Process mappedGroups to create a structure for TileCategorySelection
+  // Update the useEffect that processes mappedGroups
   useEffect(() => {
     if (!mappedGroups || !mappedGroups[formData.gameMode]) {
       setGroups({});
+      setFormData((prev) => ({
+        ...prev,
+        group: '',
+        intensity: '',
+      }));
       return;
     }
-    
+
     try {
       // Create groups structure from mappedGroups
       const processedGroups = {};
-      
+
       // Group actions by their group value
       const groupedActions = groupActionsFolder(mappedGroups[formData.gameMode]);
-      
+
       if (!Array.isArray(groupedActions)) {
         console.warn('groupedActions is not an array:', groupedActions);
         setGroups({});
         return;
       }
-      
-      groupedActions.forEach(action => {
+
+      groupedActions.forEach((action) => {
         if (!action || typeof action !== 'object') return;
-        
+
         const { value: group, intensity } = action;
         if (!group || !intensity) return;
-        
+
         if (!processedGroups[group]) {
-          processedGroups[group] = { 
-            count: 0, 
-            intensities: {} 
+          processedGroups[group] = {
+            count: 0,
+            intensities: {},
           };
         }
-        
+
         processedGroups[group].count += 1;
-        
+
         if (!processedGroups[group].intensities[intensity]) {
           processedGroups[group].intensities[intensity] = 0;
         }
-        
+
         processedGroups[group].intensities[intensity] += 1;
       });
-      
+
       setGroups(processedGroups);
-      
-      // Set default group and intensity if not already set
-      if (!formData.group && Object.keys(processedGroups).length > 0) {
+
+      // Only set default group and intensity if they're empty and we have groups
+      if (
+        (!formData.group || !processedGroups[formData.group]) &&
+        Object.keys(processedGroups).length > 0
+      ) {
         const firstGroup = Object.keys(processedGroups)[0];
         let firstIntensity = '';
-        
-        if (processedGroups[firstGroup] && Object.keys(processedGroups[firstGroup].intensities).length > 0) {
+
+        if (
+          processedGroups[firstGroup] &&
+          Object.keys(processedGroups[firstGroup].intensities).length > 0
+        ) {
           firstIntensity = Number(Object.keys(processedGroups[firstGroup].intensities)[0]);
         }
-        
-        setFormData(prev => ({
-          ...prev,
-          group: firstGroup,
-          intensity: firstIntensity
-        }));
+
+        // Use a timeout to ensure the select options are populated before setting the value
+        setTimeout(() => {
+          setFormData((prev) => ({
+            ...prev,
+            group: firstGroup,
+            intensity: firstIntensity,
+          }));
+        }, 0);
       }
     } catch (error) {
       console.error('Error processing mappedGroups:', error);
       setGroups({});
+      setFormData((prev) => ({
+        ...prev,
+        group: '',
+        intensity: '',
+      }));
     }
   }, [formData.gameMode, mappedGroups]);
 
@@ -188,9 +201,12 @@ export default function AddCustomTile({
     if (updateTileId === null) {
       // Get the label from mappedGroups using group and intensity
       let groupLabel = `${group} - Level ${intensity}`;
-      
-      if (mappedGroups && mappedGroups[gameMode] && 
-          Array.isArray(groupActionsFolder(mappedGroups[gameMode]))) {
+
+      if (
+        mappedGroups &&
+        mappedGroups[gameMode] &&
+        Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
+      ) {
         const foundGroup = groupActionsFolder(mappedGroups[gameMode]).find(
           (g) => g.value === group && g.intensity === Number(intensity)
         );
@@ -198,7 +214,7 @@ export default function AddCustomTile({
           groupLabel = foundGroup.label;
         }
       }
-      
+
       submitCustomAction(groupLabel, action);
       // store locally for user's board
       addCustomTile(data);
