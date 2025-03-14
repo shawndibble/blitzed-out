@@ -13,12 +13,11 @@ import {
   ListItemText,
   SvgIcon,
 } from '@mui/material';
-import useAuth from '@/context/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { logout } from '@/services/firebase';
 import DialogWrapper from '@/components/DialogWrapper';
 
 // Lazy load dialogs
@@ -30,7 +29,7 @@ const CustomTileDialog = lazy(() => import('@/components/CustomTilesDialog'));
 
 export default function MenuDrawer() {
   const { id: room } = useParams();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState(false);
@@ -45,6 +44,11 @@ export default function MenuDrawer() {
   });
 
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
+  
+  const handleLogout = async () => {
+    await logout();
+    toggleDrawer(false);
+  };
 
   const openInNewTab = (url) => window.open(url, '_blank', 'noreferrer');
 
@@ -116,7 +120,7 @@ export default function MenuDrawer() {
         key: 'logout',
         title: <Trans i18nKey="logout" />,
         icon: <Logout />,
-        onClick: () => logout(),
+        onClick: () => handleLogout(),
       });
     }
     return items;

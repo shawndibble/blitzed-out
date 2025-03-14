@@ -1,4 +1,4 @@
-import { Language } from '@mui/icons-material';
+import { Language, Login } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -14,16 +14,19 @@ import useBreakpoint from '@/hooks/useBreakpoint';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import usePlayerList from '@/hooks/usePlayerList';
 import { languages } from '@/services/importLocales';
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from '@/views/Navigation';
 import './styles.css';
 import GameGuide from '@/views/GameGuide';
+import AuthDialog from '@/components/auth/AuthDialog';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
-  const { login, user } = useAuth();
+  const { login, user, isAnonymous } = useAuth();
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDialogView, setAuthDialogView] = useState('login');
   const params = useParams();
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');
@@ -95,8 +98,19 @@ export default function UnauthenticatedApp() {
                   margin="normal"
                 />
                 <div className="flex-buttons">
-                  <Button variant="contained" type="submit">
+                  <Button 
+                    variant="contained" 
+                    type="submit"
+                    sx={{ mr: 1 }}
+                  >
                     {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="access" />}
+                  </Button>
+                  <Button 
+                    variant="outlined"
+                    startIcon={<Login />}
+                    onClick={() => setAuthDialogOpen(true)}
+                  >
+                    <Trans i18nKey="signIn" />
                   </Button>
                 </div>
               </Box>
@@ -126,6 +140,12 @@ export default function UnauthenticatedApp() {
           </Grid2>
         </Grid2>
       </Container>
+      
+      <AuthDialog 
+        open={authDialogOpen} 
+        onClose={() => setAuthDialogOpen(false)} 
+        initialView={authDialogView} 
+      />
     </>
   );
 }

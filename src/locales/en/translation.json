@@ -12,6 +12,7 @@
   "customTilesLabel": "Game Tiles",
   "default": "Default",
   "logout": "Logout",
+  "signIn": "Sign In",
   "online": "Online",
   "setup": "Game Setup",
   "buildGame": "Build Game",
