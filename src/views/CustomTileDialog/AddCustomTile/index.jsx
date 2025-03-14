@@ -148,9 +148,11 @@ export default function AddCustomTile({
     // send action to firebase for review
     if (updateTileId === null) {
       // Get the label from mappedGroups using group and intensity
-      const groupLabel = groupActionsFolder(mappedGroups[gameMode] || {})?.find(
-        (g) => g.value === group && g.intensity === Number(intensity)
-      )?.label || `${group} - Level ${intensity}`;
+      const groupLabel = mappedGroups && mappedGroups[gameMode] ? 
+        (groupActionsFolder(mappedGroups[gameMode])?.find(
+          (g) => g.value === group && g.intensity === Number(intensity)
+        )?.label || `${group} - Level ${intensity}`) : 
+        `${group} - Level ${intensity}`;
       
       submitCustomAction(groupLabel, action);
       // store locally for user's board

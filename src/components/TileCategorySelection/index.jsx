@@ -83,9 +83,11 @@ export default function TileCategorySelection({
         >
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
-              {groupActionsFolder(mappedGroups[gameMode] || {})?.find(
-                (g) => g.value === group
-              )?.groupLabel || group}
+              {mappedGroups && mappedGroups[gameMode] ? 
+                (groupActionsFolder(mappedGroups[gameMode])?.find(
+                  (g) => g.value === group
+                )?.groupLabel || group) : 
+                group}
               {groups[group] && ` (${groups[group].count})`}
             </MenuItem>
           ))}
@@ -111,9 +113,11 @@ export default function TileCategorySelection({
                 .sort(([a], [b]) => Number(a) - Number(b))
                 .map(([intensity, count]) => (
                   <MenuItem key={intensity} value={Number(intensity)}>
-                    {groupActionsFolder(mappedGroups[gameMode] || {})?.find(
-                      (g) => g.value === groupFilter && g.intensity === Number(intensity)
-                    )?.translatedIntensity || `Level ${intensity}`}
+                    {mappedGroups && mappedGroups[gameMode] ? 
+                      (groupActionsFolder(mappedGroups[gameMode])?.find(
+                        (g) => g.value === groupFilter && g.intensity === Number(intensity)
+                      )?.translatedIntensity || `Level ${intensity}`) : 
+                      `Level ${intensity}`}
                     {count !== undefined ? ` (${count})` : ''}
                   </MenuItem>
                 ))}
