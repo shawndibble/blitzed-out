@@ -60,7 +60,7 @@ export default function ViewCustomTiles({
 
         // Check if current groupFilter is valid in the new list
         const isCurrentGroupValid = groupNames.includes(groupFilter);
-        
+
         // Set default group filter if not already set or if current is invalid
         if ((!groupFilter || !isCurrentGroupValid) && groupNames.length > 0) {
           setGroupFilter(groupNames[0]);
@@ -233,22 +233,22 @@ export default function ViewCustomTiles({
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
           title={action}
-          titleTypographyProps={{ variant: 'body1' }}
+          slotProps={{ title: { variant: 'body1' }, subheader: { variant: 'body2' } }}
           subheader={
-            mappedGroups && mappedGroups[gameModeFilter] && 
-            Array.isArray(groupActionsFolder(mappedGroups[gameModeFilter])) ? 
-              (groupActionsFolder(mappedGroups[gameModeFilter]).find(
-                ({ value, intensity: inten }) => value === group && inten === Number(intensity)
-              )?.label) : 
-              `${group} - Level ${intensity}`
+            mappedGroups &&
+            mappedGroups[gameModeFilter] &&
+            Array.isArray(groupActionsFolder(mappedGroups[gameModeFilter]))
+              ? groupActionsFolder(mappedGroups[gameModeFilter]).find(
+                  ({ value, intensity: inten }) => value === group && inten === Number(intensity)
+                )?.label
+              : `${group} - Level ${intensity}`
           }
-          subheaderTypographyProps={{ variant: 'body2' }}
           action={
             <>
               <Switch
                 checked={!!isEnabled}
                 onChange={() => toggleTile(id)}
-                inputProps={{ 'aria-label': t('customTiles.toggleTile') }}
+                slotProps={{ input: { 'aria-label': t('customTiles.toggleTile') } }}
               />
               {!!isCustom && (
                 <>
