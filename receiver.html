@@ -22,17 +22,29 @@
         height: 100%;
         border: none;
       }
+      .loading {
+        color: white;
+        font-size: 24px;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 40vh;
+      }
     </style>
   </head>
   <body>
-    <div id="iframe-container"></div>
+    <div id="iframe-container">
+      <div class="loading">Waiting for content...</div>
+    </div>
 
     <script>
       // Initialize the receiver context
       const context = cast.framework.CastReceiverContext.getInstance();
-
-      // Create a custom message channel
-      const customChannel = context.addCustomMessageListener(
+      
+      // Log startup
+      console.log('Blitzed Out Cast Receiver starting up');
+      
+      // Handle messages from sender
+      context.addCustomMessageListener(
         'urn:x-cast:com.blitzedout.app',
         function (event) {
           console.log('Received message from sender:', event.data);
@@ -55,9 +67,12 @@
       );
 
       // Configure and start the receiver
-      context.start({
-        disableIdleTimeout: true,
-      });
+      const options = new cast.framework.CastReceiverOptions();
+      options.disableIdleTimeout = true;
+      
+      // Start the receiver
+      context.start(options);
+      console.log('Receiver started');
     </script>
   </body>
 </html>
