@@ -10,7 +10,8 @@ export default function CastButton() {
   const [castApiLoaded, setCastApiLoaded] = useState(false);
   const { id: room } = useParams();
 
-  const CAST_APP_ID = 'CC1AD845';
+  // Use your registered Cast Application ID
+  const CAST_APP_ID = '1227B8DE';
 
   // Function to initialize the Cast API
   const initializeCastApi = () => {
@@ -90,7 +91,6 @@ export default function CastButton() {
   }, []);
 
   // Function to start casting
-  // Replace the startCasting function with this improved version
   const startCasting = async () => {
     if (!castApiLoaded || !window.cast || !window.cast.framework) {
       console.error('Cast API not loaded');
@@ -102,7 +102,7 @@ export default function CastButton() {
 
       // Get the current origin with protocol
       const origin = window.location.origin;
-      // Create the correct cast URL
+      // Create the correct cast URL with the room parameter
       const castUrl = `${origin}/${room}/cast`;
       console.log('Target cast URL:', castUrl);
 
@@ -111,25 +111,21 @@ export default function CastButton() {
 
       try {
         // Request a session
-        await castContext.requestSession();
+        const session = await castContext.requestSession();
         console.log('Cast session created successfully');
 
-        // Get the current session
-        const castSession = castContext.getCurrentSession();
+        if (session) {
+          // For custom web receivers, we send a message with the URL to load
+          const message = {
+            type: 'LOAD',
+            url: castUrl,
+            roomId: room,
+          };
 
-        if (castSession) {
-          // For web content, we need to load a URL
-          const loadRequest = new window.chrome.cast.media.LoadRequest(
-            new window.chrome.cast.media.MediaInfo(castUrl, 'text/html')
-          );
-
-          try {
-            await castSession.loadMedia(loadRequest);
-            console.log('Media loaded successfully');
-            setIsCasting(true);
-          } catch (error) {
-            console.error('Failed to load media:', error);
-          }
+          // Send the message to the receiver
+          session.sendMessage('urn:x-cast:com.blitzedout.app', message);
+          console.log('Message sent to receiver:', message);
+          setIsCasting(true);
         }
       } catch (error) {
         console.error('Error requesting cast session:', error);
