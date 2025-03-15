@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import CastIcon from '@mui/icons-material/Cast';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+
+// Global flag to track if the script has been loaded
+let castScriptLoaded = false;
 
 export default function CastButton() {
   const [castingAvailable, setCastingAvailable] = useState(false);
@@ -11,92 +14,130 @@ export default function CastButton() {
   const { t } = useTranslation();
   const { id: room } = useParams();
 
-  // Custom receiver app ID - you need to register one at the Google Cast Developer Console
-  const CAST_APP_ID = import.meta.env.CAST_APP_ID || 'CC1AD845'; // Replace with your registered app ID once you have it
+  // Replace with your actual application ID
+  const CAST_APP_ID = '1227B8DE';
+
+  const initializeCastApi = useCallback(() => {
+    const sessionRequest = new window.chrome.cast.SessionRequest(CAST_APP_ID);
+
+    const apiConfig = new window.chrome.cast.ApiConfig(
+      sessionRequest,
+      (session) => {
+        // Session listener - called when a session is created or updated
+        console.log('New or updated session', session);
+        setIsCasting(true);
+      },
+      (availability) => {
+        // Receiver availability listener
+        console.log('Receiver availability:', availability);
+        setCastingAvailable(availability === window.chrome.cast.ReceiverAvailability.AVAILABLE);
+      },
+      window.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+    );
+
+    window.chrome.cast.initialize(
+      apiConfig,
+      () => {
+        console.log('Cast API initialized successfully');
+        // Check if there's an existing session
+        if (window.chrome.cast.isAvailable) {
+          try {
+            const session = window.chrome.cast.session;
+            if (session) {
+              setIsCasting(true);
+            }
+          } catch (e) {
+            console.log('No active session found', e);
+          }
+        }
+      },
+      (error) => {
+        console.error('Cast API initialization error:', error);
+      }
+    );
+  }, [CAST_APP_ID]);
 
   useEffect(() => {
-    // Initialize the Cast API
-    const initializeCastApi = () => {
-      const context = cast.framework.CastContext.getInstance();
-      context.setOptions({
-        receiverApplicationId: CAST_APP_ID,
-        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
-      });
-
-      // Listen for cast state changes
-      context.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, (event) => {
-        switch (event.castState) {
-          case cast.framework.CastState.NO_DEVICES_AVAILABLE:
-            setCastingAvailable(false);
-            setIsCasting(false);
-            break;
-          case cast.framework.CastState.NOT_CONNECTED:
-            setCastingAvailable(true);
-            setIsCasting(false);
-            break;
-          case cast.framework.CastState.CONNECTED:
-            setCastingAvailable(true);
-            setIsCasting(true);
-            break;
-          default:
-            break;
-        }
-      });
-    };
-
-    // Check if the Cast API is available
-    if (window.cast && window.chrome) {
-      if (window.cast.framework) {
+    // Define the callback function for when the Cast API is available
+    window['__onGCastApiAvailable'] = (isAvailable) => {
+      if (isAvailable && window.chrome && window.chrome.cast) {
         initializeCastApi();
       } else {
-        window.__onGCastApiAvailable = (isAvailable) => {
-          if (isAvailable) {
-            initializeCastApi();
-          }
-        };
+        console.log('Cast API not available');
       }
+    };
+
+    // Only load the script once across the entire app
+    if (!castScriptLoaded) {
+      const script = document.createElement('script');
+      script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
+      script.async = true;
+      document.body.appendChild(script);
+      castScriptLoaded = true;
+    } else if (window.chrome && window.chrome.cast && window.chrome.cast.isAvailable) {
+      // If the API is already available, initialize it directly
+      initializeCastApi();
     }
-  }, []);
 
-  const handleCastClick = () => {
-    if (!room) return;
+    return () => {
+      // Cleanup if needed
+    };
+  }, [initializeCastApi]);
 
-    if (isCasting) {
-      // Stop casting
-      const castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-      if (castSession) {
-        castSession.endSession(true);
-      }
-    } else {
-      // Start casting
-      const castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-      if (castSession) {
-        // For custom web receiver, we need to send a URL to load
+  const startCasting = () => {
+    if (!window.chrome || !window.chrome.cast || !window.chrome.cast.isAvailable) {
+      console.error('Cast API not available');
+      return;
+    }
+
+    window.chrome.cast.requestSession(
+      (session) => {
+        console.log('Session started:', session);
+        setIsCasting(true);
+
+        // Send the room ID to the receiver
         const castUrl = `${window.location.origin}/${room}/cast`;
-
-        // Create a custom message with the URL to load
-        const message = {
-          type: 'LOAD',
-          url: castUrl,
-        };
-
-        // Send the message to the receiver
-        castSession.sendMessage('urn:x-cast:com.blitzedout.cast', message);
-      } else {
-        // Request a new session
-        cast.framework.CastContext.getInstance().requestSession();
+        session.sendMessage('urn:x-cast:com.blitzedout.cast', { castUrl, roomId: room });
+      },
+      (error) => {
+        console.error('Error starting cast session:', error);
       }
+    );
+  };
+
+  const stopCasting = () => {
+    if (!window.chrome || !window.chrome.cast || !window.chrome.cast.isAvailable) {
+      return;
+    }
+
+    const session = window.chrome.cast.session;
+    if (session) {
+      session.leave(
+        () => {
+          console.log('Left session successfully');
+          setIsCasting(false);
+        },
+        (error) => {
+          console.error('Error leaving session:', error);
+        }
+      );
     }
   };
 
-  if (!castingAvailable) return null;
+  const handleCastClick = () => {
+    if (isCasting) {
+      stopCasting();
+    } else {
+      startCasting();
+    }
+  };
 
   return (
     <Tooltip title={isCasting ? t('stopCasting') : t('startCasting')}>
       <IconButton
-        color="inherit"
+        color={isCasting ? 'primary' : 'default'}
         onClick={handleCastClick}
-        aria-label={isCasting ? t('stopCasting') : t('startCasting')}
+        disabled={!castingAvailable}
       >
         {isCasting ? <CastConnectedIcon /> : <CastIcon />}
       </IconButton>
