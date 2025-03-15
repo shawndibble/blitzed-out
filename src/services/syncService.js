@@ -147,3 +147,57 @@ export async function syncDataFromFirebase() {
     return false;
   }
 }
+
+// Variable to store the interval ID for periodic syncing
+let syncIntervalId = null;
+
+// Start periodic syncing from Firebase (every 5 minutes)
+export function startPeriodicSync(intervalMinutes = 5) {
+  // Clear any existing interval first
+  stopPeriodicSync();
+
+  // Convert minutes to milliseconds
+  const intervalMs = intervalMinutes * 60 * 1000;
+
+  // Set up the interval
+  syncIntervalId = setInterval(async () => {
+    const auth = getAuth();
+    if (auth.currentUser && !auth.currentUser.isAnonymous) {
+      console.log('Performing periodic sync from Firebase...');
+      await syncDataFromFirebase();
+    } else {
+      console.log('Skipping periodic sync - no user logged in');
+    }
+  }, intervalMs);
+
+  // Perform an immediate sync
+  syncDataFromFirebase();
+
+  return true;
+}
+
+// Stop periodic syncing
+export function stopPeriodicSync() {
+  if (syncIntervalId) {
+    clearInterval(syncIntervalId);
+    syncIntervalId = null;
+    return true;
+  }
+  return false;
+}
+
+// Check if periodic sync is active
+export function isPeriodicSyncActive() {
+  return syncIntervalId !== null;
+}
+
+// Auto-start sync when user logs in and stop when they log out
+getAuth().onAuthStateChanged((user) => {
+  if (user) {
+    // User is signed in, start periodic sync
+    startPeriodicSync();
+  } else {
+    // User is signed out, stop periodic sync
+    stopPeriodicSync();
+  }
+});
