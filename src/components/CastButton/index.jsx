@@ -18,6 +18,11 @@ export default function CastButton() {
   const CAST_APP_ID = '1227B8DE';
 
   const initializeCastApi = useCallback(() => {
+    if (!window.chrome || !window.chrome.cast) {
+      console.error('Chrome Cast API not available');
+      return;
+    }
+
     const sessionRequest = new window.chrome.cast.SessionRequest(CAST_APP_ID);
 
     const apiConfig = new window.chrome.cast.ApiConfig(
@@ -39,17 +44,8 @@ export default function CastButton() {
       apiConfig,
       () => {
         console.log('Cast API initialized successfully');
-        // Check if there's an existing session
-        if (window.chrome.cast.isAvailable) {
-          try {
-            const session = window.chrome.cast.session;
-            if (session) {
-              setIsCasting(true);
-            }
-          } catch (e) {
-            console.log('No active session found', e);
-          }
-        }
+        // We don't use getCurrentSession here as it might not be available
+        // Instead, we'll check for active sessions when requesting a new one
       },
       (error) => {
         console.error('Cast API initialization error:', error);
@@ -69,8 +65,14 @@ export default function CastButton() {
 
     // Only load the script once across the entire app
     if (!castScriptLoaded) {
+      // Remove any existing script to avoid conflicts
+      const existingScript = document.querySelector('script[src*="cast_sender.js"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+
       const script = document.createElement('script');
-      script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
+      script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js';
       script.async = true;
       document.body.appendChild(script);
       castScriptLoaded = true;
@@ -102,6 +104,7 @@ export default function CastButton() {
       (error) => {
         console.error('Error starting cast session:', error);
       }
+      // Use the default timeout
     );
   };
 
@@ -110,17 +113,26 @@ export default function CastButton() {
       return;
     }
 
-    const session = window.chrome.cast.session;
-    if (session) {
-      session.leave(
-        () => {
-          console.log('Left session successfully');
-          setIsCasting(false);
-        },
-        (error) => {
-          console.error('Error leaving session:', error);
-        }
-      );
+    try {
+      // Get the current session using the Cast API's session property
+      const currentSession = window.chrome.cast.session;
+      if (currentSession) {
+        currentSession.leave(
+          () => {
+            console.log('Left session successfully');
+            setIsCasting(false);
+          },
+          (error) => {
+            console.error('Error leaving session:', error);
+          }
+        );
+      } else {
+        console.log('No active session to stop');
+        setIsCasting(false);
+      }
+    } catch (e) {
+      console.error('Error stopping cast:', e);
+      setIsCasting(false);
     }
   };
 
