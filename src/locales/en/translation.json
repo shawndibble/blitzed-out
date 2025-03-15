@@ -266,5 +266,7 @@
   "sendResetLink": "Send Reset Email",
   "backToLogin": "Back to Login",
   "anonymousLogin": "Anonymous Login",
-  "convertAccount": "Convert Account"
+  "convertAccount": "Convert Account",
+  "startCasting": "Start Casting",
+  "stopCasting": "Stop Casting"
 }

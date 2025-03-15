@@ -266,5 +266,7 @@
   "sendResetLink": "Enviar correo de restablecimiento",
   "backToLogin": "Volver al inicio de sesión",
   "anonymousLogin": "Iniciar sesión anónimo",
-  "convertAccount": "Convertir cuenta"
+  "convertAccount": "Convertir cuenta",
+  "startCasting": "Iniciar el casting",
+  "stopCasting": "Detener el casting"
 }

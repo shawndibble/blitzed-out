@@ -17,6 +17,7 @@ import { forwardRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import MenuDrawer from './MenuDrawer';
 import PlayersOnline from './PlayersOnline';
+import CastButton from '@/components/CastButton';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
 
@@ -82,6 +83,7 @@ export default function Navigation({ room, playerList = [] }) {
         </div>
 
         <div className="menu-drawer">
+          <CastButton />
           <MenuDrawer />
         </div>
       </Toolbar>

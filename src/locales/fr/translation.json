@@ -266,5 +266,7 @@
   "sendResetLink": "Envoyer l'e-mail de réinitialisation",
   "backToLogin": "Retour à la connexion",
   "anonymousLogin": "Connexion anonyme",
-  "convertAccount": "Convertir le compte"
+  "convertAccount": "Convertir le compte",
+  "startCasting": "Start Casting",
+  "stopCasting": "Stop Casting"
 }

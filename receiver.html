@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Blitzed Out Receiver</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #000;
+        color: #fff;
+        font-family: Arial, sans-serif;
+      }
+      #content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    </style>
+    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+
+    <script>
+      const context = cast.framework.CastReceiverContext.getInstance();
+      const options = new cast.framework.CastReceiverOptions();
+      options.disableIdleTimeout = true;
+
+      // Create a custom channel to receive messages
+      context.addCustomMessageListener('urn:x-cast:com.blitzedout.cast', function (event) {
+        console.log('Received message', event.data);
+
+        if (event.data.type === 'LOAD' && event.data.url) {
+          // Load the URL in an iframe
+          const contentDiv = document.getElementById('content');
+          contentDiv.innerHTML = `<iframe src="${event.data.url}" allow="autoplay; fullscreen"></iframe>`;
+        }
+      });
+
+      // Start the receiver
+      context.start(options);
+    </script>
+  </body>
+</html>

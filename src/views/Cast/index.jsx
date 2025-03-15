@@ -27,6 +27,16 @@ const actionCard = (lastAction) => {
   return { displayName, type, activity };
 };
 
+const setupCastReceiver = () => {
+  if (window.cast && window.cast.framework) {
+    const options = new cast.framework.CastReceiverOptions();
+    options.disableIdleTimeout = true;
+
+    const instance = cast.framework.CastReceiverContext.getInstance();
+    instance.start(options);
+  }
+};
+
 export default function Cast() {
   const { id: room } = useParams();
   const { messages, isLoading } = useMessages();
@@ -38,6 +48,19 @@ export default function Cast() {
   const lastAction = latestMessageByType(messages, ACTION_TYPE) || {};
   const nextPlayer = useTurnIndicator(room, lastAction);
   const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
+
+  useEffect(() => {
+    // Initialize as a cast receiver if this page is loaded on a Chromecast device
+    setupCastReceiver();
+
+    // Clean up when component unmounts
+    return () => {
+      if (window.cast && window.cast.framework) {
+        const instance = cast.framework.CastReceiverContext.getInstance();
+        instance.stop();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
