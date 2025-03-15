@@ -38,7 +38,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       // For range mode, calculate a random time between min and max
       let min = Number.parseInt(minTime, 10);
       let max = Number.parseInt(maxTime, 10);
-      
+
       // Validate min and max
       if (Number.isNaN(min)) {
         min = isMinutes ? 1 : MIN_SECONDS;
@@ -47,7 +47,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
         // Only enforce minimum in seconds mode
         min = MIN_SECONDS;
       }
-      
+
       if (Number.isNaN(max) || max < min) {
         max = min;
         setMaxTime(max);
@@ -56,13 +56,13 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
         max = 180;
         setMaxTime(max);
       }
-      
+
       // Convert to seconds if in minutes mode
       if (isMinutes) {
         min *= 60;
         max *= 60;
       }
-      
+
       // Generate a random time between min and max
       const randomTime = Math.floor(Math.random() * (max - min + 1)) + min;
       onSubmit(randomTime, { isRange: true, min, max });
@@ -96,30 +96,30 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
         return (time / 60).toString();
       }
     });
-    
+
     // Also convert min and max times
     setMinTime((prevTime) => {
       const time = Number.parseFloat(prevTime);
       if (Number.isNaN(time) || time <= 0) return prevTime;
-      
+
       if (isMinutes) {
         return (time * 60).toString();
       } else {
         return (time / 60).toString();
       }
     });
-    
+
     setMaxTime((prevTime) => {
       const time = Number.parseFloat(prevTime);
       if (Number.isNaN(time) || time <= 0) return prevTime;
-      
+
       if (isMinutes) {
         return (time * 60).toString();
       } else {
         return (time / 60).toString();
       }
     });
-    
+
     setIsMinutes((prev) => !prev);
   };
 
@@ -129,16 +129,16 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       <DialogContent>
         <Box sx={{ mb: 2 }}>
           <FormControlLabel
-            control={<Switch checked={isRangeMode} onChange={(e) => setIsRangeMode(e.target.checked)} />}
+            control={
+              <Switch checked={isRangeMode} onChange={(e) => setIsRangeMode(e.target.checked)} />
+            }
             label={t('useRandomRange')}
           />
         </Box>
-        
+
         {isRangeMode ? (
           <Box>
-            <Typography variant="subtitle2">
-              {t('randomTimerRange')}
-            </Typography>
+            <Typography variant="subtitle2">{t('randomTimerRange')}</Typography>
             <Box sx={{ display: 'flex', gap: 2, my: 2 }}>
               <TextField
                 label={t('minValue')}
@@ -149,9 +149,11 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
                   setMinTime(value);
                 }}
                 fullWidth
-                inputProps={{ min: 1 }}
+                slotProps={{ input: { min: 1 } }}
               />
-              <Typography variant="body1" sx={{ alignSelf: 'center' }}>-</Typography>
+              <Typography variant="body1" sx={{ alignSelf: 'center' }}>
+                -
+              </Typography>
               <TextField
                 label={t('maxValue')}
                 type="number"
@@ -162,7 +164,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
                   setMaxTime(Math.max(minTime, value));
                 }}
                 fullWidth
-                inputProps={{ min: minTime }}
+                slotProps={{ input: { min: minTime } }}
               />
             </Box>
             <Button onClick={toggleTimeUnit} variant="outlined" size="small">
@@ -177,9 +179,10 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
             value={customTime}
             onChange={(e) => setCustomTime(e.target.value)}
             sx={{ width: '15rem' }}
-            inputProps={{ min: 1, max: isMinutes ? 60 : 3600 }}
             slotProps={{
               input: {
+                min: 1,
+                max: isMinutes ? 60 : 3600,
                 endAdornment: (
                   <InputAdornment position="end">
                     <Button onClick={toggleTimeUnit} variant="text">

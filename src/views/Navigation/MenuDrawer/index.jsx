@@ -1,4 +1,4 @@
-import { AppRegistration, CalendarMonth, Logout, Tv, ViewModule } from '@mui/icons-material';
+import { AppRegistration, CalendarMonth, Link, Logout, Tv, ViewModule } from '@mui/icons-material';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -13,13 +13,13 @@ import {
   ListItemText,
   SvgIcon,
 } from '@mui/material';
-import useAuth from '@/context/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { logout } from '@/services/firebase';
 import DialogWrapper from '@/components/DialogWrapper';
+import AuthDialog from '@/components/auth/AuthDialog';
 
 // Lazy load dialogs
 const GameSettingsDialog = lazy(() => import('@/components/GameSettingsDialog'));
@@ -30,7 +30,7 @@ const CustomTileDialog = lazy(() => import('@/components/CustomTilesDialog'));
 
 export default function MenuDrawer() {
   const { id: room } = useParams();
-  const { user } = useAuth();
+  const { user, logout, isAnonymous } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState(false);
@@ -42,9 +42,15 @@ export default function MenuDrawer() {
     about: false,
     schedule: false,
     customTiles: false,
+    linkAccount: false,
   });
 
   const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
+
+  const handleLogout = async () => {
+    await logout();
+    toggleDrawer(false);
+  };
 
   const openInNewTab = (url) => window.open(url, '_blank', 'noreferrer');
 
@@ -112,15 +118,23 @@ export default function MenuDrawer() {
         icon: <SettingsIcon />,
         onClick: () => toggleDialog('settings', true),
       });
+      if (isAnonymous) {
+        items.push({
+          key: 'linkAccount',
+          title: <Trans i18nKey="linkAccount" />,
+          icon: <Link />,
+          onClick: () => toggleDialog('linkAccount', true),
+        });
+      }
       items.push({
         key: 'logout',
         title: <Trans i18nKey="logout" />,
         icon: <Logout />,
-        onClick: () => logout(),
+        onClick: () => handleLogout(),
       });
     }
     return items;
-  }, [user, room]);
+  }, [user, room, isAnonymous]);
 
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
     <ListItem key={key} disablePadding onClick={onClick}>
@@ -221,6 +235,7 @@ export default function MenuDrawer() {
       {open.gameBoard && renderDialog(ManageGameBoards, 'gameBoard')}
       {open.schedule && renderDialog(Schedule, 'schedule')}
       {open.customTiles && renderDialog(CustomTileDialog, 'customTiles')}
+      {open.linkAccount && renderDialog(AuthDialog, 'linkAccount')}
     </>
   );
 }

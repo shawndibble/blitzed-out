@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import db from './store';
 
 const { customTiles } = db;
@@ -15,72 +16,58 @@ export const importCustomTiles = async (record) => {
   return await customTiles.bulkAdd(recordData);
 };
 
-export const getCustomTiles = async (filters = {}) => {
-  const { group, intensity, tag, locale, gameMode, page = 1, limit = 50, paginated = false } = filters;
-  
+export const getTiles = async (filters = {}) => {
+  const { page = 1, limit = 50, paginated = false } = filters;
+  const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom'];
+
   try {
     let query = customTiles;
-    
-    // Apply filters if provided - only apply one where clause, then use and() for the rest
-    if (locale) {
-      query = query.where('locale').equals(locale);
-      
-      if (gameMode) {
-        query = query.and(tile => tile.gameMode === gameMode);
+    let useAnd = false;
+    const filtersArray = Object.entries(filters).filter(([key]) => possibleFilters.includes(key));
+
+    filtersArray.forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return; // Skip empty or null values (ignores filters with no value)
+
+      // Special handling for tag filter since it's an array field
+      if (key === 'tag') {
+        if (!useAnd) {
+          query = query.filter((tile) => tile.tags.includes(value));
+          useAnd = true;
+        } else {
+          query = query.and((tile) => tile.tags.includes(value));
+        }
+      } else {
+        // Normal handling for other filters
+        if (!useAnd) {
+          query = query.where(key).equals(value);
+          useAnd = true;
+        } else {
+          query = query.and((tile) => tile[key] === value);
+        }
       }
-      
-      if (group) {
-        query = query.and(tile => tile.group === group);
-      }
-      
-      if (intensity !== undefined && intensity !== '') {
-        query = query.and(tile => Number(tile.intensity) === Number(intensity));
-      }
-    } else if (gameMode) {
-      query = query.where('gameMode').equals(gameMode);
-      
-      if (group) {
-        query = query.and(tile => tile.group === group);
-      }
-      
-      if (intensity !== undefined && intensity !== '') {
-        query = query.and(tile => Number(tile.intensity) === Number(intensity));
-      }
-    } else if (group) {
-      query = query.where('group').equals(group);
-      
-      if (intensity !== undefined && intensity !== '') {
-        query = query.and(tile => Number(tile.intensity) === Number(intensity));
-      }
-    }
-  
+    });
+
     // If pagination is not requested, return all items as an array
     if (!paginated) {
       const items = await query.toArray();
-      return tag ? items.filter(item => item.tags?.includes(tag)) : items;
+      return items;
     }
-    
+
     // Get total count for pagination
     const count = await query.count();
-    
+
     // Apply pagination
     const offset = (page - 1) * limit;
     const items = await query.offset(offset).limit(limit).toArray();
-    
-    // Filter by tag if needed (can't be done in the query)
-    const filteredItems = tag 
-      ? items.filter(item => item.tags?.includes(tag))
-      : items;
-    
+
     return {
-      items: filteredItems,
+      items: items,
       total: count,
       page,
       limit,
-      totalPages: Math.ceil(count / limit)
+      totalPages: Math.ceil(count / limit),
     };
   } catch (error) {
-    console.error('Error in getCustomTiles:', error);
     // Return empty results on error
     if (!paginated) {
       return [];
@@ -90,45 +77,56 @@ export const getCustomTiles = async (filters = {}) => {
       total: 0,
       page,
       limit,
-      totalPages: 0
+      totalPages: 0,
     };
   }
 };
 
-export const getCustomTileGroups = async (locale = 'en', gameMode = 'online') => {
+export const getCustomTileGroups = async (locale = 'en', gameMode = 'online', tags = null) => {
   // Get unique groups with count of items in each group
-  const allTiles = await customTiles
-  .where('locale').equals(locale)
-  .and(tile => tile.gameMode === gameMode)
-  .toArray();
-  
+  let query = customTiles
+    .where('locale')
+    .equals(locale)
+    .and((tile) => tile.gameMode === gameMode);
+
+  if (tags) {
+    query = query.and((tile) => tile.tags.some((tag) => tags.includes(tag)));
+  }
+
+  const allTiles = await query.toArray();
+
   return allTiles.reduce((groups, tile) => {
     const group = tile.group;
     if (!groups[group]) {
       groups[group] = {
         count: 0,
-        intensities: {}
+        intensities: {},
       };
     }
     groups[group].count++;
-    
+
     const intensity = Number(tile.intensity);
     if (!groups[group].intensities[intensity]) {
       groups[group].intensities[intensity] = 0;
     }
     groups[group].intensities[intensity]++;
-    
+
     return groups;
   }, {});
 };
 
 export const getActiveTiles = (gameMode = null) => {
-  let tiles = customTiles.where('isEnabled').equals(1);
-  
+  const currentLocale = i18n.resolvedLanguage || i18n.language || 'en';
+
+  let tiles = customTiles
+    .where('locale')
+    .equals(currentLocale)
+    .and((tile) => tile.isEnabled === 1);
+
   if (gameMode) {
-    tiles = tiles.and(tile => tile.gameMode === gameMode);
+    tiles = tiles.and((tile) => tile.gameMode === gameMode);
   }
-  
+
   return tiles.toArray();
 };
 

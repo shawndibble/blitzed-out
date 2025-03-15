@@ -1,10 +1,11 @@
-import { Language } from '@mui/icons-material';
+import { Language, Login } from '@mui/icons-material';
 import {
   Box,
   Button,
   Card,
   CardContent,
   Container,
+  Divider,
   Grid2,
   TextField,
   Typography,
@@ -20,10 +21,28 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from '@/views/Navigation';
 import './styles.css';
 import GameGuide from '@/views/GameGuide';
+import AuthDialog from '@/components/auth/AuthDialog';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
   const { login, user } = useAuth();
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authDialogView, setAuthDialogView] = useState('login');
+
+  const handleOpenLogin = () => {
+    setAuthDialogView('login');
+    setAuthDialogOpen(true);
+  };
+
+  const handleOpenRegister = () => {
+    setAuthDialogView('register');
+    setAuthDialogOpen(true);
+  };
+
+  const handleOpenLinkAccount = () => {
+    setAuthDialogView('login');
+    setAuthDialogOpen(true);
+  };
   const params = useParams();
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');
@@ -49,32 +68,42 @@ export default function UnauthenticatedApp() {
   });
 
   // Memoize handlers to prevent unnecessary re-renders
-  const handleSubmit = useCallback(async (event) => {
-    event.preventDefault();
-    await updateSettings({ ...settings, displayName, room });
-    await login(displayName);
-  }, [displayName, login, room, settings, updateSettings]);
+  const handleSubmit = useCallback(
+    async (event) => {
+      event.preventDefault();
+      await updateSettings({ ...settings, displayName, room });
+      await login(displayName);
+    },
+    [displayName, login, room, settings, updateSettings]
+  );
 
-  const onEnterKey = useCallback(async (event) => {
-    if (event.key === 'Enter') {
-      await handleSubmit(event);
-    }
-  }, [handleSubmit]);
+  const onEnterKey = useCallback(
+    async (event) => {
+      if (event.key === 'Enter') {
+        await handleSubmit(event);
+      }
+    },
+    [handleSubmit]
+  );
 
   // Memoize language links to prevent re-rendering
-  const languageLinks = useMemo(() => Object.entries(languages).map(([key, obj]) => (
-    <Button
-      key={key}
-      onClick={() => i18n.changeLanguage(key)}
-      disabled={i18n.resolvedLanguage === key}
-    >
-      {obj.label}
-    </Button>
-  )), [i18n]);
+  const languageLinks = useMemo(
+    () =>
+      Object.entries(languages).map(([key, obj]) => (
+        <Button
+          key={key}
+          onClick={() => i18n.changeLanguage(key)}
+          disabled={i18n.resolvedLanguage === key}
+        >
+          {obj.label}
+        </Button>
+      )),
+    [i18n]
+  );
 
   return (
     <>
-      <Navigation room={room} playerList={playerList} />
+      <Navigation room={room} playerList={playerList} onLinkAccount={handleOpenLinkAccount} />
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Grid2 container flexDirection="column">
           <Card className="unauthenticated-card">
@@ -94,11 +123,28 @@ export default function UnauthenticatedApp() {
                   onKeyDown={(event) => onEnterKey(event)}
                   margin="normal"
                 />
-                <div className="flex-buttons">
-                  <Button variant="contained" type="submit">
-                    {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="access" />}
+
+                <Button variant="contained" type="submit" sx={{ mr: 1 }} fullWidth>
+                  {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="anonymousLogin" />}
+                </Button>
+                <Divider sx={{ my: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    <Trans i18nKey="or">OR</Trans>
+                  </Typography>
+                </Divider>
+                <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Login />}
+                    onClick={handleOpenLogin}
+                    sx={{ mr: 1 }}
+                  >
+                    <Trans i18nKey="signIn" />
                   </Button>
-                </div>
+                  <Button variant="outlined" onClick={handleOpenRegister}>
+                    <Trans i18nKey="createAccount" />
+                  </Button>
+                </Box>
               </Box>
             </CardContent>
           </Card>
@@ -126,6 +172,12 @@ export default function UnauthenticatedApp() {
           </Grid2>
         </Grid2>
       </Container>
+
+      <AuthDialog
+        open={authDialogOpen}
+        onClose={() => setAuthDialogOpen(false)}
+        initialView={authDialogView}
+      />
     </>
   );
 }

@@ -41,31 +41,34 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
   const [tile, setTile] = useState(gameBoard[0]);
   const lastTile = total - 1;
 
-  const handleTextOutput = useCallback((newTile, rollNumber, newLocation, preMessage) => {
-    if (!newTile) {
-      console.error('Tile not found at location:', newLocation);
-      return;
-    }
-    let message = '';
-    // Safely access newTile properties with default values if they don't exist
-    const description = parseDescription(
-      newTile.description || '', 
-      newTile.role || '', 
-      user.displayName
-    );
-    if (rollNumber !== -1) {
-      message += `${t('roll')}: ${rollNumber}\n`;
-    }
-    message += `#${newLocation + 1}: ${newTile.title || t('unknownTile')}\n`;
-    message += `${t('action')}: ${description}`;
+  const handleTextOutput = useCallback(
+    (newTile, rollNumber, newLocation, preMessage) => {
+      if (!newTile) {
+        console.error('Tile not found at location:', newLocation);
+        return;
+      }
+      let message = '';
+      // Safely access newTile properties with default values if they don't exist
+      const description = parseDescription(
+        newTile.description || '',
+        newTile.role || '',
+        user.displayName
+      );
+      if (rollNumber !== -1) {
+        message += `${t('roll')}: ${rollNumber}\n`;
+      }
+      message += `#${newLocation + 1}: ${newTile.title || t('unknownTile')}\n`;
+      message += `${t('action')}: ${description}`;
 
-    sendMessage({
-      room,
-      user,
-      text: preMessage ? preMessage + message : message,
-      type: 'actions',
-    });
-  }, [room, user, t]);
+      sendMessage({
+        room,
+        user,
+        text: preMessage ? preMessage + message : message,
+        type: 'actions',
+      });
+    },
+    [room, user, t]
+  );
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
@@ -112,10 +115,11 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
       // send our message.
       handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);
     } else {
-      console.error(`Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}`);
+      console.error(
+        `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}`
+      );
     }
   }, [rollValue, gameBoard, handleTextOutput]);
 
   return { tile, playerList };
 }
-

@@ -162,19 +162,21 @@ export default function GameBoard({ open, close, isMobile }) {
                 </Box>
                 <Box style={{ marginLeft: 'auto' }} justifyContent="flex-end">
                   <Tooltip title={getSwitchTooltip(board)}>
-                    <span>
+                    <div style={{ display: 'inline-block' }}>
                       <Switch
                         checked={!!board.isActive}
                         disabled={!!board.isActive || invalidBoard(board)}
                         onChange={() => enableBoard(board)}
                         size="small"
                       />
-                    </span>
+                    </div>
                   </Tooltip>
                   <Tooltip title={t('delete')}>
-                    <IconButton onClick={() => confirmDelete(board.id)} size="small">
-                      <Delete color="error" />
-                    </IconButton>
+                    <div style={{ display: 'inline-block' }}>
+                      <IconButton onClick={() => confirmDelete(board.id)} size="small">
+                        <Delete color="error" />
+                      </IconButton>
+                    </div>
                   </Tooltip>
                 </Box>
               </AccordionSummary>

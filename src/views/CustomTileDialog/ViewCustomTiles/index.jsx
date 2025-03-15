@@ -7,20 +7,17 @@ import {
   Chip,
   IconButton,
   Switch,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Pagination,
   Typography,
   CircularProgress,
   Fade,
 } from '@mui/material';
+import TileCategorySelection from '@/Components/TileCategorySelection';
 import { useState, useEffect } from 'react';
 import {
   deleteCustomTile,
   toggleCustomTile,
-  getCustomTiles,
+  getTiles,
   getCustomTileGroups,
 } from '@/stores/customTiles';
 import { Trans } from 'react-i18next';
@@ -42,32 +39,39 @@ export default function ViewCustomTiles({
   const [groupFilter, setGroupFilter] = useState('');
   const [intensityFilter, setIntensityFilter] = useState('');
   const [page, setPage] = useState(1);
-  const [limit] = useState(20); // Number of items per page
   const [loading, setLoading] = useState(true);
   const [tiles, setTiles] = useState({ items: [], total: 0, totalPages: 1 });
   const [groups, setGroups] = useState({});
-  const [uniqueGroups, setUniqueGroups] = useState([]);
+
+  const limit = 10;
 
   // Load groups on initial render
   useEffect(() => {
     async function loadGroups() {
       try {
         setLoading(true);
-        const groupData = await getCustomTileGroups(i18n.resolvedLanguage, gameModeFilter);
+        const groupData = await getCustomTileGroups(
+          i18n.resolvedLanguage,
+          gameModeFilter,
+          tagFilter
+        );
         setGroups(groupData);
 
         // Extract unique groups
         const groupNames = Object.keys(groupData);
-        setUniqueGroups(groupNames);
 
-        // Set default group filter if not already set
-        if (!groupFilter && groupNames.length > 0) {
+        // Check if current groupFilter is valid in the new list
+        const isCurrentGroupValid = groupNames.includes(groupFilter);
+
+        // Set default group filter if not already set or if current is invalid
+        if ((!groupFilter || !isCurrentGroupValid) && groupNames.length > 0) {
           setGroupFilter(groupNames[0]);
-
-          // Set default intensity if available
-          const intensities = Object.keys(groupData[groupNames[0]]?.intensities || {});
-          if (intensities.length > 0) {
-            setIntensityFilter(Number(intensities[0]));
+          setIntensityFilter('all');
+        } else if (isCurrentGroupValid && intensityFilter !== 'all') {
+          // Verify intensity is valid for this group
+          const validIntensities = Object.keys(groupData[groupFilter]?.intensities || {});
+          if (!validIntensities.includes(String(intensityFilter))) {
+            setIntensityFilter('all');
           }
         }
       } catch (error) {
@@ -78,7 +82,7 @@ export default function ViewCustomTiles({
     }
 
     loadGroups();
-  }, [gameModeFilter, i18n.resolvedLanguage]);
+  }, [gameModeFilter, i18n.resolvedLanguage, tagFilter]);
 
   // Load tiles when filters change
   useEffect(() => {
@@ -89,7 +93,7 @@ export default function ViewCustomTiles({
         setLoading(true);
         const filters = {
           group: groupFilter,
-          intensity: intensityFilter,
+          intensity: intensityFilter === 'all' ? null : intensityFilter, // Send empty string for 'all'
           tag: tagFilter,
           gameMode: gameModeFilter,
           locale: settings.locale,
@@ -98,7 +102,7 @@ export default function ViewCustomTiles({
           paginated: true,
         };
 
-        const tileData = await getCustomTiles(filters);
+        const tileData = await getTiles(filters);
 
         // Only update state if component is still mounted
         if (isMounted) {
@@ -149,35 +153,7 @@ export default function ViewCustomTiles({
     }
   }
 
-  function handleGroupFilterChange(event) {
-    // Set loading first for smoother transition
-    setLoading(true);
-
-    const newGroup = event.target.value;
-    setGroupFilter(newGroup);
-    setPage(1); // Reset to first page
-
-    // Reset intensity filter when group changes
-    setIntensityFilter('');
-
-    // If a group is selected, set intensity to the first available intensity for that group
-    if (newGroup && groups[newGroup]) {
-      const intensities = Object.keys(groups[newGroup].intensities || {});
-      if (intensities.length > 0) {
-        setIntensityFilter(Number(intensities[0]));
-      }
-    }
-  }
-
-  function handleIntensityFilterChange(event) {
-    // Set loading first for smoother transition
-    setLoading(true);
-
-    setIntensityFilter(event.target.value);
-    setPage(1); // Reset to first page
-  }
-
-  function handlePageChange(event, newPage) {
+  function handlePageChange(_, newPage) {
     setLoading(true);
     setPage(newPage);
   }
@@ -188,7 +164,7 @@ export default function ViewCustomTiles({
     // Refresh the current page
     const filters = {
       group: groupFilter,
-      intensity: intensityFilter,
+      intensity: intensityFilter === 'all' ? '' : intensityFilter, // Send empty string for 'all'
       tag: tagFilter,
       gameMode: gameModeFilter,
       locale: settings.locale,
@@ -196,7 +172,7 @@ export default function ViewCustomTiles({
       limit,
       paginated: true,
     };
-    const tileData = await getCustomTiles(filters);
+    const tileData = await getTiles(filters);
     setTiles(tileData);
   }
 
@@ -226,29 +202,35 @@ export default function ViewCustomTiles({
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
           title={action}
-          titleTypographyProps={{ variant: 'body1' }}
+          slotProps={{
+            title: { variant: 'body1' },
+            subheader: { variant: 'body2' },
+            action: { 'aria-label': t('customTiles.actions') },
+          }}
           subheader={
-            groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
-              ({ value, intensity: inten }) => value === group && inten === Number(intensity)
-            )?.label
+            mappedGroups?.[gameModeFilter] &&
+            Array.isArray(groupActionsFolder(mappedGroups[gameModeFilter]))
+              ? groupActionsFolder(mappedGroups[gameModeFilter]).find(
+                  ({ value, intensity: inten }) => value === group && inten === Number(intensity)
+                )?.label
+              : `${group} - Level ${intensity}`
           }
-          subheaderTypographyProps={{ variant: 'body2' }}
           action={
             <>
               <Switch
                 checked={!!isEnabled}
                 onChange={() => toggleTile(id)}
-                inputProps={{ 'aria-label': t('customTiles.toggleTile') }}
+                slotProps={{ input: { 'aria-label': t('customTiles.toggleTile') } }}
               />
               {!!isCustom && (
                 <>
                   <IconButton
-                    aria-label={t('customTiles.update')}
                     onClick={() => handleUpdateTile(id)}
+                    aria-label={t('customTiles.update')}
                   >
                     <Edit />
                   </IconButton>
-                  <IconButton aria-label={t('customTiles.delete')} onClick={() => deleteTile(id)}>
+                  <IconButton onClick={() => deleteTile(id)} aria-label={t('customTiles.delete')}>
                     <Delete />
                   </IconButton>
                 </>
@@ -268,101 +250,47 @@ export default function ViewCustomTiles({
 
   return (
     <Box>
+      <Box>
+        {tagList?.map((tag) => (
+          <Chip
+            key={tag}
+            label={tag}
+            sx={{ m: 0.5 }}
+            color={tagFilter === tag ? 'primary' : 'default'}
+            onClick={() => toggleTagFilter(tag)}
+          />
+        ))}
+      </Box>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
-          mb: 2,
+          my: 2,
           transition: 'all 0.3s ease-in-out',
         }}
       >
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-          <FormControl sx={{ width: 125, flexShrink: 0 }}>
-            <InputLabel id="game-mode-filter-label">
-              <Trans i18nKey="customTiles.gameMode" />
-            </InputLabel>
-            <Select
-              labelId="game-mode-filter-label"
-              id="game-mode-filter"
-              value={gameModeFilter}
-              label={t('customTiles.gameMode', 'Game Mode')}
-              onChange={(e) => {
-                setGameModeFilter(e.target.value);
-                setGroupFilter('');
-                setIntensityFilter('');
-                setPage(1);
-              }}
-            >
-              <MenuItem value="online">
-                <Trans i18nKey="online" />
-              </MenuItem>
-              <MenuItem value="local">
-                <Trans i18nKey="local" />
-              </MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl sx={{ minWidth: 150, flex: 1 }}>
-            <InputLabel id="group-filter-label">
-              <Trans i18nKey="customTiles.filterByGroup">Filter by Group</Trans>
-            </InputLabel>
-            <Select
-              labelId="group-filter-label"
-              id="group-filter"
-              value={groupFilter}
-              label="Filter by Group"
-              onChange={handleGroupFilterChange}
-            >
-              {uniqueGroups.map((group) => (
-                <MenuItem key={group} value={group}>
-                  {groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
-                    (g) => g.value === group
-                  )?.groupLabel || group}
-                  {groups[group] && ` (${groups[group].count})`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl sx={{ minWidth: 200, flex: 1 }} disabled={!groupFilter}>
-            <InputLabel id="intensity-filter-label">
-              <Trans i18nKey="customTiles.intensityLevel">Intensity Level</Trans>
-            </InputLabel>
-            <Select
-              labelId="intensity-filter-label"
-              id="intensity-filter"
-              value={intensityFilter}
-              label="Intensity Level"
-              onChange={handleIntensityFilterChange}
-            >
-              {groupFilter &&
-                groups[groupFilter] &&
-                Object.entries(groups[groupFilter].intensities || {})
-                  .sort(([a], [b]) => Number(a) - Number(b))
-                  .map(([intensity, count]) => (
-                    <MenuItem key={intensity} value={Number(intensity)}>
-                      {groupActionsFolder(mappedGroups[gameModeFilter] || {})?.find(
-                        (g) => g.value === groupFilter && g.intensity === Number(intensity)
-                      )?.translatedIntensity || `Level ${intensity}`}
-                      {` (${count})`}
-                    </MenuItem>
-                  ))}
-            </Select>
-          </FormControl>
-        </Box>
-
-        <Box>
-          {tagList?.map((tag) => (
-            <Chip
-              key={tag}
-              label={tag}
-              sx={{ m: 0.5 }}
-              color={tagFilter === tag ? 'primary' : 'default'}
-              onClick={() => toggleTagFilter(tag)}
-            />
-          ))}
-        </Box>
+        <TileCategorySelection
+          gameMode={gameModeFilter}
+          groupFilter={groupFilter}
+          intensityFilter={intensityFilter}
+          groups={groups}
+          mappedGroups={mappedGroups}
+          onGameModeChange={(value) => {
+            setGameModeFilter(value);
+            setGroupFilter('');
+            setIntensityFilter('');
+            setPage(1);
+          }}
+          onGroupChange={(value) => {
+            setGroupFilter(value);
+            setPage(1);
+          }}
+          onIntensityChange={(value) => {
+            setIntensityFilter(value);
+            setPage(1);
+          }}
+        />
       </Box>
 
       <Box sx={{ position: 'relative', minHeight: '200px' }}>
