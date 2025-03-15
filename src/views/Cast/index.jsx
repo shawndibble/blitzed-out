@@ -53,8 +53,13 @@ export default function Cast() {
         // Initialize the receiver context
         const context = window.cast.framework.CastReceiverContext.getInstance();
 
+        // Configure options if needed
+        const options = new window.cast.framework.CastReceiverOptions();
+        // Allow the sender to control the volume
+        options.disableIdleTimeout = true;
+
         // Start the receiver app
-        context.start();
+        context.start(options);
       } catch (error) {
         console.error('Error initializing Cast receiver:', error);
       }
