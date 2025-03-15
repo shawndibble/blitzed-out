@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import CastIcon from '@mui/icons-material/Cast';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
@@ -13,166 +13,128 @@ export default function CastButton() {
   const [isCasting, setIsCasting] = useState(false);
   const { t } = useTranslation();
   const { id: room } = useParams();
-  const CAST_APP_ID = '1227B8DE';
 
-  const initializeCastApi = useCallback(() => {
-    if (!window.chrome || !window.chrome.cast) {
-      console.error('Chrome Cast API not available');
-      return;
-    }
-
-    const sessionRequest = new window.chrome.cast.SessionRequest(CAST_APP_ID);
-
-    const apiConfig = new window.chrome.cast.ApiConfig(
-      sessionRequest,
-      (session) => {
-        // Session listener - called when a session is created or updated
-        console.log('New or updated session', session);
-        setIsCasting(true);
-      },
-      (availability) => {
-        // Receiver availability listener
-        console.log('Receiver availability:', availability);
-        setCastingAvailable(availability === window.chrome.cast.ReceiverAvailability.AVAILABLE);
-      },
-      window.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-    );
-
-    window.chrome.cast.initialize(
-      apiConfig,
-      () => {
-        console.log('Cast API initialized successfully');
-        // Check if there's already an active session
-        if (window.chrome.cast.session) {
-          setIsCasting(true);
-        }
-      },
-      (error) => {
-        console.error('Cast API initialization error:', error);
-      }
-    );
-  }, [CAST_APP_ID]);
-
+  // Load the Cast API script
   useEffect(() => {
-    // Define the callback function for when the Cast API is available
-    window['__onGCastApiAvailable'] = (isAvailable) => {
-      if (isAvailable && window.chrome && window.chrome.cast) {
-        initializeCastApi();
-      } else {
-        console.log('Cast API not available');
-      }
-    };
+    if (!castScriptLoaded && !window.__onGCastApiAvailable) {
+      // Define the callback function that the Cast API will call when loaded
+      window.__onGCastApiAvailable = function (isAvailable) {
+        if (isAvailable) {
+          initializeCastApi();
+        }
+      };
 
-    // Only load the script once across the entire app
-    if (!castScriptLoaded) {
-      // Remove any existing script to avoid conflicts
-      const existingScript = document.querySelector('script[src*="cast_sender.js"]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-
+      // Load the Cast API script
       const script = document.createElement('script');
       script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
       script.async = true;
-      document.body.appendChild(script);
+      document.head.appendChild(script);
+
       castScriptLoaded = true;
-    } else if (window.chrome && window.chrome.cast && window.chrome.cast.isAvailable) {
-      // If the API is already available, initialize it directly
+    } else if (window.cast && window.cast.framework) {
+      // If the API is already loaded, initialize it
       initializeCastApi();
     }
 
     return () => {
-      // Cleanup if needed
+      // Clean up any cast session if component unmounts
+      if (window.cast && window.cast.framework) {
+        const castSession = window.cast.framework.CastContext.getInstance().getCurrentSession();
+        if (castSession) {
+          castSession.endSession(true);
+        }
+      }
     };
-  }, [initializeCastApi]);
+  }, []);
 
-  const startCasting = () => {
-    if (!window.chrome || !window.chrome.cast || !window.chrome.cast.isAvailable) {
-      console.error('Cast API not available');
-      return;
-    }
+  // Initialize the Cast API
+  const initializeCastApi = () => {
+    const context = window.cast.framework.CastContext.getInstance();
 
-    window.chrome.cast.requestSession(
-      (session) => {
-        console.log('Session started:', session);
-        setIsCasting(true);
+    // Set up the receiver application ID
+    // For development, you can use the default media receiver
+    context.setOptions({
+      receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
+      autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+    });
 
-        // Create a media info object for the cast URL
-        const castUrl = `${window.location.origin}/${room}/cast`;
+    // Listen for cast state changes
+    context.addEventListener(
+      window.cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+      (event) => {
+        const castState = event.castState;
 
-        // Load the media using the default media receiver
-        const mediaInfo = new window.chrome.cast.media.MediaInfo(castUrl, 'text/html');
-
-        // Set the content type to HTML
-        mediaInfo.contentType = 'text/html';
-
-        // Add custom data to help the receiver understand what to display
-        mediaInfo.customData = {
-          roomId: room,
-          isBlitzedOutCast: true,
-        };
-
-        // Create a request to load this media
-        const request = new window.chrome.cast.media.LoadRequest(mediaInfo);
-
-        // Send the request to the session
-        session.loadMedia(
-          request,
-          (mediaSession) => {
-            console.log('Media loaded successfully', mediaSession);
-          },
-          (error) => {
-            console.error('Error loading media:', error);
-          }
-        );
-      },
-      (error) => {
-        console.error('Error starting cast session:', error);
+        // Update state based on cast availability
+        if (castState === window.cast.framework.CastState.NO_DEVICES_AVAILABLE) {
+          setCastingAvailable(false);
+          setIsCasting(false);
+        } else {
+          setCastingAvailable(true);
+          setIsCasting(
+            castState === window.cast.framework.CastState.CONNECTED ||
+              castState === window.cast.framework.CastState.CONNECTING
+          );
+        }
       }
     );
   };
 
-  const stopCasting = () => {
-    if (!window.chrome || !window.chrome.cast || !window.chrome.cast.isAvailable) {
+  // Handle the cast button click
+  const handleCastClick = () => {
+    if (!window.cast || !window.cast.framework) {
+      console.error('Cast API not available');
       return;
     }
 
-    try {
-      const currentSession = window.chrome.cast.session;
-      if (currentSession) {
-        currentSession.endSession(
-          () => {
-            console.log('Session ended successfully');
-            setIsCasting(false);
-          },
-          (error) => {
-            console.error('Error ending session:', error);
-          }
-        );
-      } else {
-        console.log('No active session to stop');
-        setIsCasting(false);
-      }
-    } catch (e) {
-      console.error('Error stopping cast:', e);
+    const castContext = window.cast.framework.CastContext.getInstance();
+    const currentSession = castContext.getCurrentSession();
+
+    if (currentSession) {
+      // If already casting, end the session
+      currentSession.endSession(true);
       setIsCasting(false);
+    } else {
+      // Start a new cast session
+      // Generate the full URL for the cast page
+      const baseUrl = window.location.origin;
+      const castUrl = `${baseUrl}/${room}/cast`;
+
+      // Request a new session
+      castContext.requestSession().then(
+        (session) => {
+          // Load the URL in the cast session
+          const mediaInfo = new window.chrome.cast.media.MediaInfo(castUrl, 'text/html');
+
+          const request = new window.chrome.cast.media.LoadRequest(mediaInfo);
+          session.loadMedia(request).then(
+            () => {
+              console.log('Cast session started successfully');
+              setIsCasting(true);
+            },
+            (error) => {
+              console.error('Error loading media:', error);
+              setIsCasting(false);
+            }
+          );
+        },
+        (error) => {
+          console.error('Error starting cast session:', error);
+        }
+      );
     }
   };
 
-  const handleCastClick = () => {
-    if (isCasting) {
-      stopCasting();
-    } else {
-      startCasting();
-    }
-  };
+  // Don't render the button if casting is not available
+  if (!castScriptLoaded) {
+    return null;
+  }
 
   return (
     <Tooltip title={isCasting ? t('stopCasting') : t('startCasting')}>
       <IconButton
-        color={isCasting ? 'primary' : 'default'}
         onClick={handleCastClick}
         disabled={!castingAvailable}
+        color={isCasting ? 'primary' : 'default'}
       >
         {isCasting ? <CastConnectedIcon /> : <CastIcon />}
       </IconButton>

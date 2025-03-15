@@ -27,21 +27,12 @@ const actionCard = (lastAction) => {
   return { displayName, type, activity };
 };
 
-const setupCastReceiver = () => {
-  if (window.cast && window.cast.framework) {
-    const options = new cast.framework.CastReceiverOptions();
-    options.disableIdleTimeout = true;
-
-    const instance = cast.framework.CastReceiverContext.getInstance();
-    instance.start(options);
-  }
-};
-
 export default function Cast() {
   const { id: room } = useParams();
   const { messages, isLoading } = useMessages();
   const [alertMessage, setAlertMessage] = useState('');
   const [openAlert, setOpenAlert] = useState(false);
+  const [isCastReceiver, setIsCastReceiver] = useState(false);
 
   const { isVideo, url } = usePrivateRoomBackground(messages);
 
@@ -50,14 +41,40 @@ export default function Cast() {
   const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
 
   useEffect(() => {
-    // Initialize as a cast receiver if this page is loaded on a Chromecast device
-    setupCastReceiver();
+    // Check if we're running in a Cast receiver environment
+    const isCastEnvironment =
+      window.cast && window.cast.framework && window.cast.framework.CastReceiverContext;
 
-    // Clean up when component unmounts
+    if (isCastEnvironment) {
+      document.body.classList.add('cast-receiver-mode');
+      setIsCastReceiver(true);
+
+      try {
+        // Initialize the receiver context
+        const context = window.cast.framework.CastReceiverContext.getInstance();
+
+        // Optional: Set up custom message listeners if needed
+        // const options = new window.cast.framework.CastReceiverOptions();
+        // options.customNamespaces = {...};
+        // context.start(options);
+
+        // Start the receiver app
+        context.start();
+      } catch (error) {
+        console.error('Error initializing Cast receiver:', error);
+      }
+    }
+
     return () => {
-      if (window.cast && window.cast.framework) {
-        const instance = cast.framework.CastReceiverContext.getInstance();
-        instance.stop();
+      if (isCastEnvironment) {
+        document.body.classList.remove('cast-receiver-mode');
+
+        try {
+          const context = window.cast.framework.CastReceiverContext.getInstance();
+          context.stop();
+        } catch (error) {
+          console.error('Error stopping Cast receiver:', error);
+        }
       }
     };
   }, []);
@@ -80,7 +97,7 @@ export default function Cast() {
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
       <Box display="flex" justifyContent="space-between" sx={{ mx: 2, mt: 2, mb: -2 }}>
         <Box flex="1">
-          {!isFullscreen && (
+          {!isCastReceiver && !isFullscreen && (
             <Button variant="text" onClick={toggleFullscreen}>
               Fullscreen
             </Button>
@@ -95,7 +112,7 @@ export default function Cast() {
           )}
         </Box>
 
-        <Box flex="1" textAlign="right" class="text-stroke">
+        <Box flex="1" textAlign="right" className="text-stroke">
           {activity && <Typography variant="h4">blitzedout.com/{room}</Typography>}
         </Box>
       </Box>
