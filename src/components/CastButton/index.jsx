@@ -10,7 +10,7 @@ export default function CastButton() {
   const [castApiLoaded, setCastApiLoaded] = useState(false);
   const { id: room } = useParams();
 
-  const CAST_APP_ID = '1227B8DE';
+  const CAST_APP_ID = 'CC1AD845';
 
   // Function to initialize the Cast API
   const initializeCastApi = () => {
@@ -90,6 +90,7 @@ export default function CastButton() {
   }, []);
 
   // Function to start casting
+  // Replace the startCasting function with this improved version
   const startCasting = async () => {
     if (!castApiLoaded || !window.cast || !window.cast.framework) {
       console.error('Cast API not loaded');
@@ -109,30 +110,29 @@ export default function CastButton() {
       const castContext = window.cast.framework.CastContext.getInstance();
 
       try {
-        // Request a session using the higher-level Cast framework API
-        const castSession = await castContext.requestSession();
-        console.log('Cast session created successfully:', castSession);
+        // Request a session
+        await castContext.requestSession();
+        console.log('Cast session created successfully');
 
-        // Create a load request for the URL
-        const loadRequest = new window.cast.framework.messages.LoadRequest();
-        loadRequest.media = {
-          contentId: castUrl,
-          contentType: 'text/html',
-          streamType: window.cast.framework.messages.StreamType.NONE,
-        };
+        // Get the current session
+        const castSession = castContext.getCurrentSession();
 
-        // Load the media
-        castSession
-          .loadMedia(loadRequest)
-          .then(() => {
+        if (castSession) {
+          // For web content, we need to load a URL
+          const loadRequest = new window.chrome.cast.media.LoadRequest(
+            new window.chrome.cast.media.MediaInfo(castUrl, 'text/html')
+          );
+
+          try {
+            await castSession.loadMedia(loadRequest);
             console.log('Media loaded successfully');
             setIsCasting(true);
-          })
-          .catch((error) => {
+          } catch (error) {
             console.error('Failed to load media:', error);
-          });
+          }
+        }
       } catch (error) {
-        console.error('Failed to create session:', error);
+        console.error('Error requesting cast session:', error);
       }
     } catch (error) {
       console.error('Error in startCasting:', error);
