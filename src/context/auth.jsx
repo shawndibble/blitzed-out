@@ -190,7 +190,7 @@ function AuthProvider(props) {
             .finally(() => {
               syncTimeoutRef.current = null;
             });
-        }, 500); // 1 second debounce
+        }, 500); // 0.5 second debounce
       }
     });
 

@@ -48,11 +48,6 @@ export default function Cast() {
     if (isCastEnvironment) {
       document.body.classList.add('cast-receiver-mode');
       setIsCastReceiver(true);
-      
-      // We don't need to initialize the receiver here as it's handled in receiver.html
-      console.log('Running in Cast receiver environment');
-    } else {
-      console.log('Running in normal browser environment');
     }
 
     return () => {
@@ -80,7 +75,7 @@ export default function Cast() {
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
       <Box display="flex" justifyContent="space-between" sx={{ mx: 2, mt: 2, mb: -2 }}>
         <Box flex="1">
-          {!isCastReceiver && !isFullscreen && (
+          {(!isCastReceiver || !isFullscreen) && (
             <Button variant="text" onClick={toggleFullscreen}>
               Fullscreen
             </Button>

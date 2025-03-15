@@ -148,9 +148,15 @@ export const toggleCustomTile = async (id) => {
   });
 };
 
-export const deleteAllIsCustomTiles = async () => {
-  return await customTiles.where('isCustom').equals(1).delete();
-};
+export async function deleteAllIsCustomTiles() {
+  try {
+    await db.customTiles.where('isCustom').equals(1).delete();
+    return true;
+  } catch (error) {
+    console.error('Error deleting custom tiles:', error);
+    return false;
+  }
+}
 
 export const deleteCustomTile = async (id) => {
   return await customTiles.delete(id);

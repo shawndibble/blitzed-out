@@ -3,6 +3,7 @@ import { IconButton, Tooltip } from '@mui/material';
 import CastIcon from '@mui/icons-material/Cast';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
 import { useParams } from 'react-router-dom';
+import { t } from 'i18next';
 
 // Global flag to track if Cast API has been initialized
 window.__castApiInitialized = window.__castApiInitialized || false;
@@ -20,19 +21,16 @@ export default function CastButton() {
     const initializeCastApi = () => {
       try {
         if (!window.cast || !window.cast.framework) {
-          console.log('Cast framework not available yet');
           return;
         }
 
         // Only initialize once
         if (window.__castApiInitialized) {
-          console.log('Cast API already initialized');
           setCastApiReady(true);
           setupSessionListener();
           return;
         }
 
-        console.log('Initializing Cast API');
         const castContext = window.cast.framework.CastContext.getInstance();
 
         // Use your custom receiver application ID
@@ -118,8 +116,6 @@ export default function CastButton() {
     };
   }, [room]);
 
-  if (room !== 'PUBLIX') return null;
-
   // Function to send a message to the cast session
   const sendCastMessage = (session) => {
     try {
@@ -138,7 +134,6 @@ export default function CastButton() {
   // Function to toggle casting
   const toggleCasting = () => {
     if (!castApiReady) {
-      console.log('Cast API not ready yet');
       return;
     }
 
@@ -168,8 +163,10 @@ export default function CastButton() {
     }
   }, [room, isCasting, castSession]);
 
+  if (!castApiReady) return null;
+
   return (
-    <Tooltip title={isCasting ? 'Stop Casting' : 'Cast to TV'}>
+    <Tooltip title={isCasting ? t('stopCasting') : t('startCasting')}>
       <IconButton
         ref={castButtonRef}
         onClick={toggleCasting}

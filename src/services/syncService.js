@@ -110,18 +110,25 @@ export async function syncDataFromFirebase() {
 
     // Import custom tiles
     if (userData.customTiles && userData.customTiles.length > 0) {
-      deleteAllCustomTiles();
-      for (const tile of userData.customTiles) {
-        // Check if tile already exists by matching action and group
-        const existingTiles = await getTiles({
-          gameMode: tile.gameMode,
-          group: tile.group,
-          intensity: tile.intensity,
-          action: tile.action,
-        });
+      await deleteAllCustomTiles();
 
-        if (!existingTiles.length) {
-          await addCustomTile(tile);
+      // add a delay after clearing custom tiles before syncing with remote server
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      for (const tile of userData.customTiles) {
+        try {
+          const existingTile = await getTiles({
+            gameMode: tile.gameMode,
+            group: tile.group,
+            intensity: tile.intensity,
+            action: tile.action,
+          });
+
+          if (existingTile.length === 0) {
+            await addCustomTile(tile);
+          }
+        } catch (error) {
+          console.error('Error importing custom tile:', tile, error);
         }
       }
       console.log(`${userData.customTiles.length} custom tiles imported`);
