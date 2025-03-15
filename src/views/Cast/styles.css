@@ -52,10 +52,15 @@
 .cast-receiver-mode .action-box {
   padding: 2rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.7);
+  max-width: 80%;
+  margin: 0 auto;
+  margin-top: 3rem;
 }
 
 .cast-receiver-mode h1,
 .cast-receiver-mode h3,
 .cast-receiver-mode h4 {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-size: 120%;
 }

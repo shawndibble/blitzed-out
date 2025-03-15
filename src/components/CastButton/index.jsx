@@ -118,7 +118,7 @@ export default function CastButton() {
     };
   }, [room]);
 
-  if (room !== 'PUBLIX') return null;
+  if (room !== 'PUBLIC') return null;
 
   // Function to send a message to the cast session
   const sendCastMessage = (session) => {
@@ -126,7 +126,8 @@ export default function CastButton() {
       const castUrl = `${window.location.origin}/${room}/cast`;
       console.log('Sending cast message with URL:', castUrl);
 
-      session.sendMessage('urn:x-cast:com.blitzedout.cast', {
+      session.sendMessage('urn:x-cast:com.blitzedout.app', {
+        type: 'LOAD',
         url: castUrl,
       });
     } catch (error) {

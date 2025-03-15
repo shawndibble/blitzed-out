@@ -48,33 +48,16 @@ export default function Cast() {
     if (isCastEnvironment) {
       document.body.classList.add('cast-receiver-mode');
       setIsCastReceiver(true);
-
-      try {
-        // Initialize the receiver context
-        const context = window.cast.framework.CastReceiverContext.getInstance();
-
-        // Configure options if needed
-        const options = new window.cast.framework.CastReceiverOptions();
-        // Allow the sender to control the volume
-        options.disableIdleTimeout = true;
-
-        // Start the receiver app
-        context.start(options);
-      } catch (error) {
-        console.error('Error initializing Cast receiver:', error);
-      }
+      
+      // We don't need to initialize the receiver here as it's handled in receiver.html
+      console.log('Running in Cast receiver environment');
+    } else {
+      console.log('Running in normal browser environment');
     }
 
     return () => {
       if (isCastEnvironment) {
         document.body.classList.remove('cast-receiver-mode');
-
-        try {
-          const context = window.cast.framework.CastReceiverContext.getInstance();
-          context.stop();
-        } catch (error) {
-          console.error('Error stopping Cast receiver:', error);
-        }
       }
     };
   }, []);
