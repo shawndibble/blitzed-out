@@ -118,7 +118,7 @@ export default function CastButton() {
     };
   }, [room]);
 
-  if (room !== 'PUBLIC') return null;
+  if (room !== 'PUBLIX') return null;
 
   // Function to send a message to the cast session
   const sendCastMessage = (session) => {
