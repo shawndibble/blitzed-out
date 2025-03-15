@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Button, 
-  TextField, 
-  Typography, 
-  Alert,
-  CircularProgress
-} from '@mui/material';
+import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { registerWithEmail } from '@/services/firebase';
 
@@ -22,17 +15,17 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     // Validate passwords match
     if (password !== confirmPassword) {
       setError(t('passwordsDoNotMatch') || 'Passwords do not match');
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      await registerWithEmail(email, password, displayName);
+      await registerWithEmail(email?.trim(), password, displayName?.trim());
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error('Registration error:', err);
@@ -49,7 +42,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
           {error}
         </Alert>
       )}
-      
+
       <TextField
         margin="normal"
         required
@@ -62,7 +55,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
         value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
       />
-      
+
       <TextField
         margin="normal"
         required
@@ -74,7 +67,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      
+
       <TextField
         margin="normal"
         required
@@ -87,7 +80,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      
+
       <TextField
         margin="normal"
         required
@@ -100,24 +93,19 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
       />
-      
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        sx={{ mt: 3, mb: 2 }}
-        disabled={loading}
-      >
-        {loading ? <CircularProgress size={24} /> : 
-          isAnonymous ? <Trans i18nKey="linkAccount" /> : <Trans i18nKey="createAccount" />
-        }
+
+      <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>
+        {loading ? (
+          <CircularProgress size={24} />
+        ) : isAnonymous ? (
+          <Trans i18nKey="linkAccount" />
+        ) : (
+          <Trans i18nKey="createAccount" />
+        )}
       </Button>
-      
+
       <Typography align="center">
-        <Button 
-          onClick={onSwitchToLogin} 
-          variant="text"
-        >
+        <Button onClick={onSwitchToLogin} variant="text">
           <Trans i18nKey="alreadyHaveAccount" />
         </Button>
       </Typography>

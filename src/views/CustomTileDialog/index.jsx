@@ -62,7 +62,9 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
     loadAllGameModeActions();
   }, [i18n.resolvedLanguage]);
 
-  const allTiles = useLiveQuery(() => getTiles({ paginated: false }));
+  const allTiles = useLiveQuery(() =>
+    getTiles({ paginated: false, locale: i18n.resolvedLanguage })
+  );
 
   const tagList = useMemo(() => {
     if (!allTiles) return [];

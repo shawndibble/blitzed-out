@@ -1,5 +1,3 @@
-import { AuthContext } from '@/context/auth';
-
 /**
  * Creates a Dexie middleware that syncs data to Firebase after database modifications
  * @param {Object} options - Configuration options
@@ -36,7 +34,7 @@ export function createSyncMiddleware(options = { tables: ['customTiles', 'gameBo
       if (this.queue.size === 0) return;
 
       // Only sync if we have an authenticated non-anonymous user
-      if (window.authContext && window.authContext.user && !window.authContext.user.isAnonymous) {
+      if (window.authContext?.user && !window.authContext.user.isAnonymous) {
         window.authContext.syncData();
       }
 

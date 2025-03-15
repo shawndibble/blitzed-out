@@ -117,7 +117,7 @@ export async function syncDataFromFirebase() {
           await addCustomTile(tile);
         }
       }
-      console.log(userData.customTiles.length + ' custom tiles imported');
+      console.log(`${userData.customTiles.length} custom tiles imported`);
     }
 
     // Import game boards
@@ -131,7 +131,7 @@ export async function syncDataFromFirebase() {
           isActive: board.isActive || 0,
         });
       }
-      console.log(userData.gameBoards?.length + ' game boards imported');
+      console.log(`${userData.gameBoards?.length} game boards imported`);
     }
 
     return true;

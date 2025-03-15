@@ -24,7 +24,7 @@ function AuthProvider(props) {
   const syncTimeoutRef = useRef(null);
 
   // Function to safely perform sync operations with debouncing
-  const performSync = async (syncFunction, message = 'Syncing data') => {
+  const performSync = async (syncFunction) => {
     // Clear any pending sync timeout
     if (syncTimeoutRef.current) {
       clearTimeout(syncTimeoutRef.current);
@@ -149,7 +149,7 @@ function AuthProvider(props) {
     try {
       // Sync data to Firebase before logout if user is not anonymous
       if (user && !user.isAnonymous) {
-        await performSync(syncAllDataToFirebase, 'Syncing data to Firebase before logout');
+        await performSync(syncAllDataToFirebase);
       }
 
       await logout();
@@ -161,7 +161,7 @@ function AuthProvider(props) {
   }
 
   async function syncData() {
-    return performSync(syncAllDataToFirebase, 'Manual sync initiated');
+    return performSync(syncAllDataToFirebase);
   }
 
   useEffect(() => {
@@ -203,7 +203,7 @@ function AuthProvider(props) {
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
       }
-      delete window.authContext;
+      window.authContext = undefined;
     };
   }, []);
 

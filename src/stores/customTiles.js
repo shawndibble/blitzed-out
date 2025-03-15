@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import db from './store';
 
 const { customTiles } = db;
@@ -17,11 +18,11 @@ export const importCustomTiles = async (record) => {
 
 export const getTiles = async (filters = {}) => {
   const { page = 1, limit = 50, paginated = false } = filters;
+  const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom'];
 
   try {
     let query = customTiles;
     let useAnd = false;
-    const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom'];
     const filtersArray = Object.entries(filters).filter(([key]) => possibleFilters.includes(key));
 
     filtersArray.forEach(([key, value]) => {
@@ -67,7 +68,6 @@ export const getTiles = async (filters = {}) => {
       totalPages: Math.ceil(count / limit),
     };
   } catch (error) {
-    console.error('Error in getCustomTiles:', error);
     // Return empty results on error
     if (!paginated) {
       return [];
@@ -90,7 +90,6 @@ export const getCustomTileGroups = async (locale = 'en', gameMode = 'online', ta
     .and((tile) => tile.gameMode === gameMode);
 
   if (tags) {
-    console.log(tags);
     query = query.and((tile) => tile.tags.some((tag) => tags.includes(tag)));
   }
 
@@ -117,7 +116,12 @@ export const getCustomTileGroups = async (locale = 'en', gameMode = 'online', ta
 };
 
 export const getActiveTiles = (gameMode = null) => {
-  let tiles = customTiles.where('isEnabled').equals(1);
+  const currentLocale = i18n.resolvedLanguage || i18n.language || 'en';
+
+  let tiles = customTiles
+    .where('locale')
+    .equals(currentLocale)
+    .and((tile) => tile.isEnabled === 1);
 
   if (gameMode) {
     tiles = tiles.and((tile) => tile.gameMode === gameMode);

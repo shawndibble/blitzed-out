@@ -15,7 +15,7 @@ import useBreakpoint from '@/hooks/useBreakpoint';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import usePlayerList from '@/hooks/usePlayerList';
 import { languages } from '@/services/importLocales';
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from '@/views/Navigation';
@@ -123,29 +123,28 @@ export default function UnauthenticatedApp() {
                   onKeyDown={(event) => onEnterKey(event)}
                   margin="normal"
                 />
-                <div className="flex-buttons">
-                  <Button variant="contained" type="submit" sx={{ mr: 1 }} fullWidth>
-                    {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="anonymousLogin" />}
+
+                <Button variant="contained" type="submit" sx={{ mr: 1 }} fullWidth>
+                  {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="anonymousLogin" />}
+                </Button>
+                <Divider sx={{ my: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    <Trans i18nKey="or">OR</Trans>
+                  </Typography>
+                </Divider>
+                <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Login />}
+                    onClick={handleOpenLogin}
+                    sx={{ mr: 1 }}
+                  >
+                    <Trans i18nKey="signIn" />
                   </Button>
-                  <Divider sx={{ my: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <Trans i18nKey="or">OR</Trans>
-                    </Typography>
-                  </Divider>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                    <Button
-                      variant="outlined"
-                      startIcon={<Login />}
-                      onClick={handleOpenLogin}
-                      sx={{ mr: 1 }}
-                    >
-                      <Trans i18nKey="signIn" />
-                    </Button>
-                    <Button variant="outlined" onClick={handleOpenRegister}>
-                      <Trans i18nKey="createAccount" />
-                    </Button>
-                  </Box>
-                </div>
+                  <Button variant="outlined" onClick={handleOpenRegister}>
+                    <Trans i18nKey="createAccount" />
+                  </Button>
+                </Box>
               </Box>
             </CardContent>
           </Card>

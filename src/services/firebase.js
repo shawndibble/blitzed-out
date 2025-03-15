@@ -111,7 +111,7 @@ export async function convertAnonymousAccount(email, password) {
     const auth = getAuth();
     const user = auth.currentUser;
 
-    if (user && user.isAnonymous) {
+    if (user?.isAnonymous) {
       const credential = EmailAuthProvider.credential(email, password);
       const result = await linkWithCredential(user, credential);
       return result.user;

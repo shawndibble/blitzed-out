@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, TextField, Typography, FormControl } from '@mui/material';
+import { Autocomplete, Box, Button, TextField, Typography } from '@mui/material';
 import TileCategorySelection from '@/Components/TileCategorySelection';
 import { submitCustomAction } from '@/services/firebase';
 import { useEffect, useState } from 'react';
@@ -189,15 +189,11 @@ export default function AddCustomTile({
       // Get the label from mappedGroups using group and intensity
       let groupLabel = `${group} - Level ${intensity}`;
 
-      if (
-        mappedGroups &&
-        mappedGroups[gameMode] &&
-        Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
-      ) {
+      if (Array.isArray(groupActionsFolder(mappedGroups?.[gameMode]))) {
         const foundGroup = groupActionsFolder(mappedGroups[gameMode]).find(
           (g) => g.value === group && g.intensity === Number(intensity)
         );
-        if (foundGroup && foundGroup.label) {
+        if (foundGroup?.label) {
           groupLabel = foundGroup.label;
         }
       }

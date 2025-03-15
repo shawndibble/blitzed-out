@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Link, Alert, CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Alert, CircularProgress } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { Trans } from 'react-i18next';
 

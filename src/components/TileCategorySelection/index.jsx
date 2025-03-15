@@ -88,9 +88,7 @@ export default function TileCategorySelection({
         >
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
-              {mappedGroups &&
-              mappedGroups[gameMode] &&
-              Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
+              {mappedGroups?.[gameMode] && Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
                 ? groupActionsFolder(mappedGroups[gameMode]).find((g) => g.value === group)
                     ?.groupLabel || group
                 : group}
@@ -110,7 +108,7 @@ export default function TileCategorySelection({
           value={validIntensityFilter}
           label={t('customTiles.intensityLevel', 'Intensity Level')}
           onChange={(e) => onIntensityChange(e.target.value)}
-          slotprops={{
+          slotProps={{
             input: { 'aria-label': t('customTiles.intensityLevel', 'Intensity Level') },
           }}
         >
@@ -126,8 +124,7 @@ export default function TileCategorySelection({
               .sort(([a], [b]) => Number(a) - Number(b))
               .map(([intensity, count]) => (
                 <MenuItem key={intensity} value={Number(intensity)}>
-                  {mappedGroups &&
-                  mappedGroups[gameMode] &&
+                  {mappedGroups?.[gameMode] &&
                   Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
                     ? groupActionsFolder(mappedGroups[gameMode]).find(
                         (g) => g.value === validGroupFilter && g.intensity === Number(intensity)

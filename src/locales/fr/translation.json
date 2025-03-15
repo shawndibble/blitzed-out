@@ -264,5 +264,6 @@
   "resetEmailSent": "E-mail de réinitialisation envoyé! Vérifiez votre boîte de réception.",
   "sendResetLink": "Envoyer l'e-mail de réinitialisation",
   "backToLogin": "Retour à la connexion",
-  "anonymousLogin": "Connexion anonyme"
+  "anonymousLogin": "Connexion anonyme",
+  "convertAccount": "Convertir le compte"
 }

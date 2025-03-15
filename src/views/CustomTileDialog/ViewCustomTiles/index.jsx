@@ -11,7 +11,6 @@ import {
   Typography,
   CircularProgress,
   Fade,
-  FormControl,
 } from '@mui/material';
 import TileCategorySelection from '@/Components/TileCategorySelection';
 import { useState, useEffect } from 'react';
@@ -209,8 +208,7 @@ export default function ViewCustomTiles({
             action: { 'aria-label': t('customTiles.actions') },
           }}
           subheader={
-            mappedGroups &&
-            mappedGroups[gameModeFilter] &&
+            mappedGroups?.[gameModeFilter] &&
             Array.isArray(groupActionsFolder(mappedGroups[gameModeFilter]))
               ? groupActionsFolder(mappedGroups[gameModeFilter]).find(
                   ({ value, intensity: inten }) => value === group && inten === Number(intensity)
