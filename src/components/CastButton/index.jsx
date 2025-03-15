@@ -9,7 +9,7 @@ export default function CastButton() {
   const [isCasting, setIsCasting] = useState(false);
   const [castApiLoaded, setCastApiLoaded] = useState(false);
   const { id: room } = useParams();
-  const CAST_APP_ID = import.meta.env.VITE_CAST_APP_ID || '1227B8DE';
+  const CAST_APP_ID = '1227B8DE'; // Hardcoded app ID
 
   // Function to initialize the Cast API
   const initializeCastApi = () => {
@@ -19,7 +19,7 @@ export default function CastButton() {
     }
 
     try {
-      console.log('Initializing Cast API');
+      console.log('Initializing Cast API with app ID:', CAST_APP_ID);
       const castContext = window.cast.framework.CastContext.getInstance();
 
       // Set up the receiver application ID
@@ -41,6 +41,7 @@ export default function CastButton() {
       );
 
       setCastingAvailable(true);
+      setCastApiLoaded(true);
       return true;
     } catch (error) {
       console.error('Error initializing Cast API:', error);
@@ -50,6 +51,8 @@ export default function CastButton() {
 
   // Load the Cast SDK
   useEffect(() => {
+    console.log('CastButton component mounted');
+
     // Define the callback for when the Cast API is available
     window.__onGCastApiAvailable = function (isAvailable) {
       console.log('Cast API available:', isAvailable);
@@ -96,23 +99,11 @@ export default function CastButton() {
 
     return () => {
       clearInterval(initInterval);
-
-      // Clean up if needed
-      if (window.cast && window.cast.framework) {
-        try {
-          const castContext = window.cast.framework.CastContext.getInstance();
-          const session = castContext.getCurrentSession();
-          if (session) {
-            session.endSession(true);
-          }
-        } catch (error) {
-          console.error('Error cleaning up cast session:', error);
-        }
-      }
     };
   }, []);
 
   const startCasting = () => {
+    console.log('Start casting clicked');
     if (!window.cast || !window.cast.framework) {
       console.error('Cast framework not available');
       return;
@@ -167,7 +158,11 @@ export default function CastButton() {
     }
   };
 
-  // Always show the button, but disable it if casting is not available
+  if (!castApiLoaded) return null;
+
+  console.log('Rendering CastButton, castApiLoaded:', castApiLoaded);
+
+  // Always render the button
   return (
     <Tooltip title={isCasting ? 'Stop Casting' : 'Cast to TV'}>
       <span>
@@ -175,7 +170,6 @@ export default function CastButton() {
           color={isCasting ? 'primary' : 'default'}
           onClick={startCasting}
           aria-label={isCasting ? 'Stop Casting' : 'Cast to TV'}
-          disabled={!castApiLoaded}
         >
           {isCasting ? <CastConnectedIcon /> : <CastIcon />}
         </IconButton>
