@@ -53,11 +53,6 @@ export default function Cast() {
         // Initialize the receiver context
         const context = window.cast.framework.CastReceiverContext.getInstance();
 
-        // Optional: Set up custom message listeners if needed
-        // const options = new window.cast.framework.CastReceiverOptions();
-        // options.customNamespaces = {...};
-        // context.start(options);
-
         // Start the receiver app
         context.start();
       } catch (error) {
@@ -104,7 +99,7 @@ export default function Cast() {
           )}
         </Box>
 
-        <Box textAlign="center" flex="1" key={nextPlayer?.display_name}>
+        <Box textAlign="center" flex="1" key={nextPlayer?.displayName}>
           {!!nextPlayer?.displayName && (
             <Typography variant="h4">
               <Trans i18nKey="nextPlayersTurn" values={{ player: nextPlayer.displayName }} />
