@@ -11,5 +11,8 @@ export default function usePrivateRoomBackground(messages) {
     if (backgroundSource?.isVideo) isVideo = backgroundSource.isVideo;
     if (backgroundSource?.url) url = backgroundSource.url;
   }
+
+  if (['color', 'gray'].some((color) => url.includes(color))) url = '';
+
   return { isVideo, url };
 }
