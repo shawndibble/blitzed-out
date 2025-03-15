@@ -11,6 +11,7 @@
         overflow: hidden;
         width: 100vw;
         height: 100vh;
+        background-color: #000;
       }
       #iframe-container {
         width: 100%;
@@ -31,27 +32,27 @@
       const context = cast.framework.CastReceiverContext.getInstance();
 
       // Create a custom message channel
-      const customChannel = context.addCustomMessageListener('urn:x-cast:com.blitzedout.app');
+      const customChannel = context.addCustomMessageListener(
+        'urn:x-cast:com.blitzedout.app',
+        function (event) {
+          console.log('Received message from sender:', event.data);
 
-      // Listen for messages from the sender
-      customChannel.addEventListener((event) => {
-        console.log('Received message from sender:', event.data);
+          const message = event.data;
 
-        const message = event.data;
+          if (message.type === 'LOAD' && message.url) {
+            console.log('Loading URL:', message.url);
 
-        if (message.type === 'LOAD' && message.url) {
-          console.log('Loading URL:', message.url);
+            // Create an iframe to load the specified URL
+            const container = document.getElementById('iframe-container');
+            container.innerHTML = ''; // Clear any existing content
 
-          // Create an iframe to load the specified URL
-          const container = document.getElementById('iframe-container');
-          container.innerHTML = ''; // Clear any existing content
-
-          const iframe = document.createElement('iframe');
-          iframe.src = message.url;
-          iframe.allow = 'autoplay; fullscreen';
-          container.appendChild(iframe);
+            const iframe = document.createElement('iframe');
+            iframe.src = message.url;
+            iframe.allow = 'autoplay; fullscreen';
+            container.appendChild(iframe);
+          }
         }
-      });
+      );
 
       // Configure and start the receiver
       context.start({
