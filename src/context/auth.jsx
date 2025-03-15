@@ -120,10 +120,7 @@ function AuthProvider(props) {
       setUser(convertedUser);
 
       // Sync local data to Firebase after conversion
-      await performSync(
-        syncAllDataToFirebase,
-        'Syncing local data to Firebase after account conversion'
-      );
+      await performSync(syncAllDataToFirebase);
 
       return convertedUser;
     } catch (err) {
@@ -193,7 +190,7 @@ function AuthProvider(props) {
             .finally(() => {
               syncTimeoutRef.current = null;
             });
-        }, 1000); // 1 second debounce
+        }, 500); // 1 second debounce
       }
     });
 

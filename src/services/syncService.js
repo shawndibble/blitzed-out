@@ -1,7 +1,11 @@
 import { getAuth } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
-import { addCustomTile, getTiles } from '@/stores/customTiles';
+import {
+  addCustomTile,
+  deleteAllIsCustomTiles as deleteAllCustomTiles,
+  getTiles,
+} from '@/stores/customTiles';
 import { getBoards, upsertBoard } from '@/stores/gameBoard';
 
 const db = getFirestore();
@@ -106,10 +110,13 @@ export async function syncDataFromFirebase() {
 
     // Import custom tiles
     if (userData.customTiles && userData.customTiles.length > 0) {
+      deleteAllCustomTiles();
       for (const tile of userData.customTiles) {
         // Check if tile already exists by matching action and group
         const existingTiles = await getTiles({
+          gameMode: tile.gameMode,
           group: tile.group,
+          intensity: tile.intensity,
           action: tile.action,
         });
 

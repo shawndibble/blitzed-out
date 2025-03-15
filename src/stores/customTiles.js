@@ -18,7 +18,7 @@ export const importCustomTiles = async (record) => {
 
 export const getTiles = async (filters = {}) => {
   const { page = 1, limit = 50, paginated = false } = filters;
-  const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom'];
+  const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom', 'action'];
 
   try {
     let query = customTiles;
@@ -146,6 +146,10 @@ export const toggleCustomTile = async (id) => {
   return await customTiles.update(id, {
     isEnabled: !tile.isEnabled ? 1 : 0,
   });
+};
+
+export const deleteAllIsCustomTiles = async () => {
+  return await customTiles.where('isCustom').equals(1).delete();
 };
 
 export const deleteCustomTile = async (id) => {

@@ -27,7 +27,7 @@ export default function AddCustomTile({
   const [formData, setFormData] = useState({
     gameMode: settings.gameMode || 'online',
     group: '',
-    intensity: null,
+    intensity: '',
     action: '',
     tags: [],
   });
@@ -38,16 +38,6 @@ export default function AddCustomTile({
   // Process mappedGroups to create a structure for TileCategorySelection
   // Update the useEffect that processes mappedGroups
   useEffect(() => {
-    if (!mappedGroups || !mappedGroups[formData.gameMode]) {
-      setGroups({});
-      setFormData((prev) => ({
-        ...prev,
-        group: '',
-        intensity: null,
-      }));
-      return;
-    }
-
     try {
       // Process groups for the current game mode
       const processedGroups = {};
@@ -82,7 +72,7 @@ export default function AddCustomTile({
           // Only set default group if it's empty or doesn't exist in the current game mode
           if (!prev.group || !processedGroups[prev.group]) {
             const firstGroup = Object.keys(processedGroups)[0];
-            let firstIntensity = null;
+            let firstIntensity = '';
 
             if (
               firstGroup &&
@@ -94,8 +84,8 @@ export default function AddCustomTile({
 
             return {
               ...prev,
-              group: firstGroup || '',
-              intensity: firstIntensity || null,
+              group: prev.group || firstGroup || '',
+              intensity: formData.intensity || firstIntensity || '',
             };
           }
           return prev;
@@ -119,7 +109,7 @@ export default function AddCustomTile({
       setFormData({
         gameMode: tileGameMode,
         group: editTile.group || '',
-        intensity: editTile.intensity || null,
+        intensity: editTile.intensity || '',
         action: editTile.action || '',
         tags: editTile.tags || [],
       });
@@ -128,8 +118,6 @@ export default function AddCustomTile({
       setFormData((prev) => ({
         ...prev,
         gameMode: settings.gameMode,
-        group: '',
-        intensity: null,
       }));
     }
   }, [updateTileId, settings.gameMode, customTiles]);
@@ -145,8 +133,8 @@ export default function AddCustomTile({
     setUpdateTileId(null);
     setFormData({
       gameMode: settings.gameMode,
-      group: '',
-      intensity: null,
+      group: formData.group || 'alcohol',
+      intensity: formData.intensity || 1,
       action: '',
       tags: [],
     });
@@ -181,7 +169,7 @@ export default function AddCustomTile({
       intensity,
       action,
       tags: currentTags,
-      gameMode, // Store the game mode with the tile
+      gameMode,
     };
 
     // send action to firebase for review
@@ -207,6 +195,12 @@ export default function AddCustomTile({
 
     boardUpdated();
 
+    setFormData((prev) => ({
+      ...prev,
+      action: '',
+      tags: [],
+    }));
+
     return setSubmitMessage({ message: t('customAdded'), type: 'success' });
   }
 
@@ -217,10 +211,10 @@ export default function AddCustomTile({
         event.preventDefault();
         event.stopPropagation();
         if (event.target.value.length > 0) {
-          setFormData({
-            ...formData,
-            tags: [...formData.tags, event.target.value],
-          });
+          setFormData((prev) => ({
+            ...prev,
+            tags: [...prev.tags, event.target.value],
+          }));
           // Clear the input after adding the tag
           event.target.value = '';
         }
@@ -232,10 +226,10 @@ export default function AddCustomTile({
 
   const handleTagInputBlur = (event) => {
     if (event.target.value.length > 0) {
-      setFormData({
-        ...formData,
-        tags: [...formData.tags, event.target.value],
-      });
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, event.target.value],
+      }));
       // Clear the input after adding the tag
       event.target.value = '';
     }
@@ -249,8 +243,6 @@ export default function AddCustomTile({
       }
     }, 150);
   };
-
-  if (!groups[formData.group]) return null;
 
   return (
     <Accordion expanded={expanded === 'ctAdd'} onChange={handleChange('ctAdd')}>
@@ -275,7 +267,7 @@ export default function AddCustomTile({
                 gameMode: value,
                 // Don't hardcode 'alcohol' here - let the useEffect handle default values
                 group: '',
-                intensity: null,
+                intensity: '',
               }));
             }}
             onGroupChange={(value) => {
@@ -283,7 +275,7 @@ export default function AddCustomTile({
               setFormData((prevFormData) => ({
                 ...prevFormData,
                 group: value,
-                intensity: null,
+                intensity: '',
               }));
             }}
             onIntensityChange={(value) => {
