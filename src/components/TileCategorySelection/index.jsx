@@ -12,7 +12,6 @@ export default function TileCategorySelection({
   onGameModeChange,
   onGroupChange,
   onIntensityChange,
-  showCounts = true,
   hideAll = false,
   sx = {},
 }) {
@@ -33,9 +32,7 @@ export default function TileCategorySelection({
 
     // Call the parent handlers
     onGroupChange(newGroup);
-    if (onIntensityChange) {
-      onIntensityChange(defaultIntensityFilter);
-    }
+    onIntensityChange(defaultIntensityFilter);
   }
 
   if (!uniqueGroups?.length) return null;
@@ -97,52 +94,50 @@ export default function TileCategorySelection({
                 ? groupActionsFolder(mappedGroups[gameMode]).find((g) => g.value === group)
                     ?.groupLabel || group
                 : group}
-              {showCounts && groups[group] && ` (${groups[group].count})`}
+              {!hideAll && groups[group] && ` (${groups[group].count})`}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      {onIntensityChange && (
-        <FormControl sx={{ minWidth: 200, flex: 1 }} disabled={!validGroupFilter}>
-          <InputLabel id="intensity-filter-label">
-            <Trans i18nKey="customTiles.intensityLevel">Intensity Level</Trans>
-          </InputLabel>
-          <Select
-            labelId="intensity-filter-label"
-            id="intensity-filter"
-            value={validIntensityFilter}
-            label={t('customTiles.intensityLevel', 'Intensity Level')}
-            onChange={(e) => onIntensityChange(e.target.value)}
-            slotprops={{
-              input: { 'aria-label': t('customTiles.intensityLevel', 'Intensity Level') },
-            }}
-          >
-            {!hideAll && (
-              <MenuItem key="all" value="all">
-                <Trans i18nKey="all">All</Trans>
-              </MenuItem>
-            )}
-            {validGroupFilter &&
-              groups &&
-              groups[validGroupFilter] &&
-              Object.entries(groups[validGroupFilter].intensities || {})
-                .sort(([a], [b]) => Number(a) - Number(b))
-                .map(([intensity, count]) => (
-                  <MenuItem key={intensity} value={Number(intensity)}>
-                    {mappedGroups &&
-                    mappedGroups[gameMode] &&
-                    Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
-                      ? groupActionsFolder(mappedGroups[gameMode]).find(
-                          (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
-                        )?.translatedIntensity || `Level ${intensity}`
-                      : `Level ${intensity}`}
-                    {showCounts && count !== undefined ? ` (${count})` : ''}
-                  </MenuItem>
-                ))}
-          </Select>
-        </FormControl>
-      )}
+      <FormControl sx={{ minWidth: 200, flex: 1 }} disabled={!validGroupFilter}>
+        <InputLabel id="intensity-filter-label">
+          <Trans i18nKey="customTiles.intensityLevel">Intensity Level</Trans>
+        </InputLabel>
+        <Select
+          labelId="intensity-filter-label"
+          id="intensity-filter"
+          value={validIntensityFilter}
+          label={t('customTiles.intensityLevel', 'Intensity Level')}
+          onChange={(e) => onIntensityChange(e.target.value)}
+          slotprops={{
+            input: { 'aria-label': t('customTiles.intensityLevel', 'Intensity Level') },
+          }}
+        >
+          {!hideAll && (
+            <MenuItem key="all" value="all">
+              <Trans i18nKey="all">All</Trans>
+            </MenuItem>
+          )}
+          {validGroupFilter &&
+            groups &&
+            groups[validGroupFilter] &&
+            Object.entries(groups[validGroupFilter].intensities || {})
+              .sort(([a], [b]) => Number(a) - Number(b))
+              .map(([intensity, count]) => (
+                <MenuItem key={intensity} value={Number(intensity)}>
+                  {mappedGroups &&
+                  mappedGroups[gameMode] &&
+                  Array.isArray(groupActionsFolder(mappedGroups[gameMode]))
+                    ? groupActionsFolder(mappedGroups[gameMode]).find(
+                        (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
+                      )?.translatedIntensity || `Level ${intensity}`
+                    : `Level ${intensity}`}
+                  {!hideAll && count !== undefined ? ` (${count})` : ''}
+                </MenuItem>
+              ))}
+        </Select>
+      </FormControl>
     </Box>
   );
 }
