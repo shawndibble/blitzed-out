@@ -10,6 +10,7 @@
     "gameMode": "Modo de juego"
   },
   "customTilesLabel": "Casillas de Juego",
+  "custom": "Personalizado",
   "default": "Estándar",
   "logout": "Cerrar sesión",
   "online": "En línea",

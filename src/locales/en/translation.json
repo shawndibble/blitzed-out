@@ -10,6 +10,7 @@
     "gameMode": "Game Mode"
   },
   "customTilesLabel": "Game Tiles",
+  "custom": "Custom",
   "default": "Default",
   "logout": "Logout",
   "signIn": "Sign In",

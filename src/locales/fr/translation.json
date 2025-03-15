@@ -10,6 +10,7 @@
     "gameMode": "Mode de jeu"
   },
   "customTilesLabel": "Tuiles de jeu",
+  "custom": "Personnalisé",
   "default": "Par défaut",
   "logout": "Se déconnecter",
   "online": "En ligne",

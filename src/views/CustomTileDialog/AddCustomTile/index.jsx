@@ -29,7 +29,7 @@ export default function AddCustomTile({
     group: '',
     intensity: '',
     action: '',
-    tags: [],
+    tags: [t('custom')],
   });
 
   // For the TileCategorySelection component
@@ -111,7 +111,7 @@ export default function AddCustomTile({
         group: editTile.group || '',
         intensity: editTile.intensity || '',
         action: editTile.action || '',
-        tags: editTile.tags || [],
+        tags: editTile.tags || [t('custom')],
       });
     } else {
       // For new tiles, just set the game mode to the current setting
@@ -136,7 +136,7 @@ export default function AddCustomTile({
       group: formData.group || 'alcohol',
       intensity: formData.intensity || 1,
       action: '',
-      tags: [],
+      tags: [t('custom')],
     });
   }
 
@@ -198,7 +198,7 @@ export default function AddCustomTile({
     setFormData((prev) => ({
       ...prev,
       action: '',
-      tags: [],
+      tags: [t('custom')],
     }));
 
     return setSubmitMessage({ message: t('customAdded'), type: 'success' });
