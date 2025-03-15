@@ -249,5 +249,19 @@
   "yesOrgasm": "Sí, lo tendré al final.",
   "clear": "Borrar",
   "previous": "Anterior",
-  "next": "Siguiente"
+  "next": "Siguiente",
+  "linkAccount": "Vincular cuenta",
+  "createAccount": "Crear cuenta",
+  "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+  "needAccount": "Crear una cuenta",
+  "email": "Correo electrónico",
+  "password": "Contraseña",
+  "confirmPassword": "Confirmar contraseña",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "resetPassword": "Restablecer contraseña",
+  "login": "Iniciar sesión",
+  "or": "O",
+  "resetEmailSent": "¡Correo de restablecimiento enviado! Revisa tu bandeja de entrada.",
+  "sendResetLink": "Enviar correo de restablecimiento",
+  "backToLogin": "Volver al inicio de sesión"
 }

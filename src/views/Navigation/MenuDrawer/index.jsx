@@ -30,7 +30,7 @@ const CustomTileDialog = lazy(() => import('@/components/CustomTilesDialog'));
 
 export default function MenuDrawer() {
   const { id: room } = useParams();
-  const { user, logout } = useAuth();
+  const { user, logout, isAnonymous } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState(false);
@@ -118,12 +118,14 @@ export default function MenuDrawer() {
         icon: <SettingsIcon />,
         onClick: () => toggleDialog('settings', true),
       });
-      items.push({
-        key: 'linkAccount',
-        title: <Trans i18nKey="linkAccount" />,
-        icon: <Link />,
-        onClick: () => toggleDialog('linkAccount', true),
-      });
+      if (isAnonymous) {
+        items.push({
+          key: 'linkAccount',
+          title: <Trans i18nKey="linkAccount" />,
+          icon: <Link />,
+          onClick: () => toggleDialog('linkAccount', true),
+        });
+      }
       items.push({
         key: 'logout',
         title: <Trans i18nKey="logout" />,
@@ -132,7 +134,7 @@ export default function MenuDrawer() {
       });
     }
     return items;
-  }, [user, room]);
+  }, [user, room, isAnonymous]);
 
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
     <ListItem key={key} disablePadding onClick={onClick}>

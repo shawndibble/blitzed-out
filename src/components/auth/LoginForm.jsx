@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Link, Alert, CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Link, Alert, CircularProgress } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginForm({ onToggleForm, onSuccess }) {
@@ -26,8 +26,12 @@ export default function LoginForm({ onToggleForm, onSuccess }) {
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
       <TextField
         margin="normal"
         required
@@ -40,7 +44,7 @@ export default function LoginForm({ onToggleForm, onSuccess }) {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      
+
       <TextField
         margin="normal"
         required
@@ -53,17 +57,11 @@ export default function LoginForm({ onToggleForm, onSuccess }) {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        sx={{ mt: 3, mb: 2 }}
-        disabled={loading}
-      >
+
+      <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>
         {loading ? <CircularProgress size={24} /> : 'Sign In'}
       </Button>
-      
+
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Link component="button" variant="body2" onClick={() => onToggleForm('register')}>
           Don't have an account? Sign Up

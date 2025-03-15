@@ -249,5 +249,19 @@
   "yesOrgasm": "Yes, I will at the end.",
   "clear": "Clear",
   "previous": "Previous",
-  "next": "Next"
+  "next": "Next",
+  "linkAccount": "Link Account",
+  "createAccount": "Create Account",
+  "alreadyHaveAccount": "Already have an account?",
+  "needAccount": "Create an account",
+  "email": "Email",
+  "password": "Password",
+  "confirmPassword": "Confirm Password",
+  "forgotPassword": "Forgot Password?",
+  "resetPassword": "Reset Password",
+  "login": "Login",
+  "or": "OR",
+  "resetEmailSent": "Password reset email sent! Check your inbox.",
+  "sendResetLink": "Send Reset Email",
+  "backToLogin": "Back to Login"
 }

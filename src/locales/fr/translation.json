@@ -249,5 +249,19 @@
   "yesOrgasm": "Oui, je le ferai à la fin.",
   "clear": "Effacer",
   "previous": "Précédent",
-  "next": "Suivant"
+  "next": "Suivant",
+  "linkAccount": "Lier le compte",
+  "createAccount": "Créer un compte",
+  "alreadyHaveAccount": "Vous avez déjà un compte?",
+  "needAccount": "Créer un compte",
+  "email": "E-mail",
+  "password": "Mot de passe",
+  "confirmPassword": "Confirmer le mot de passe",
+  "forgotPassword": "Mot de passe oublié?",
+  "resetPassword": "Réinitialiser le mot de passe",
+  "login": "Connexion",
+  "or": "OU",
+  "resetEmailSent": "E-mail de réinitialisation envoyé! Vérifiez votre boîte de réception.",
+  "sendResetLink": "Envoyer l'e-mail de réinitialisation",
+  "backToLogin": "Retour à la connexion"
 }

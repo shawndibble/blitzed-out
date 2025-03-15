@@ -4,6 +4,7 @@ import CreateAccount from './CreateAccount';
 import SocialLoginButtons from './SocialLoginButtons';
 import { useAuth } from '@/hooks/useAuth';
 import DialogWrapper from '../DialogWrapper';
+import ResetPasswordForm from './ResetPasswordForm';
 
 export default function AuthDialog({ open, close, initialView = 'login' }) {
   const [currentView, setCurrentView] = useState(initialView);
@@ -28,12 +29,15 @@ export default function AuthDialog({ open, close, initialView = 'login' }) {
         <>
           <Login
             onSwitchToRegister={() => setCurrentView('register')}
+            onSwitchToForgotPassword={() => setCurrentView('reset')}
             onSuccess={close}
             isLinking={isAnonymous}
           />
           <SocialLoginButtons onSuccess={close} isLinking={isAnonymous} />
         </>
       )}
+
+      {currentView === 'reset' && <ResetPasswordForm onToggleForm={setCurrentView} />}
 
       {currentView === 'register' && (
         <CreateAccount
