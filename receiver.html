@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Blitzed Out Cast Receiver</title>
+    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+      }
+      #iframe-container {
+        width: 100%;
+        height: 100%;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="iframe-container"></div>
+
+    <script>
+      // Initialize the receiver context
+      const context = cast.framework.CastReceiverContext.getInstance();
+
+      // Create a custom message channel
+      const customChannel = context.addCustomMessageListener('urn:x-cast:com.blitzedout.app');
+
+      // Listen for messages from the sender
+      customChannel.addEventListener((event) => {
+        console.log('Received message from sender:', event.data);
+
+        const message = event.data;
+
+        if (message.type === 'LOAD' && message.url) {
+          console.log('Loading URL:', message.url);
+
+          // Create an iframe to load the specified URL
+          const container = document.getElementById('iframe-container');
+          container.innerHTML = ''; // Clear any existing content
+
+          const iframe = document.createElement('iframe');
+          iframe.src = message.url;
+          iframe.allow = 'autoplay; fullscreen';
+          container.appendChild(iframe);
+        }
+      });
+
+      // Configure and start the receiver
+      context.start({
+        disableIdleTimeout: true,
+      });
+    </script>
+  </body>
+</html>
