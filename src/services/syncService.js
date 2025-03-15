@@ -21,7 +21,6 @@ export async function syncCustomTilesToFirebase() {
     const customTiles = await getTiles({ isCustom: 1 });
 
     if (!customTiles.length) {
-      console.log('No custom tiles to sync');
       return true;
     }
 
@@ -35,7 +34,6 @@ export async function syncCustomTilesToFirebase() {
       { merge: true }
     );
 
-    console.log('Custom tiles synced: ' + customTiles.length);
     return true;
   } catch (error) {
     console.error('Error syncing custom tiles:', error);
@@ -58,7 +56,6 @@ export async function syncGameBoardsToFirebase() {
     const gameBoards = await getBoards();
 
     if (!gameBoards.length) {
-      console.log('No game boards to sync');
       return true;
     }
 
@@ -72,7 +69,6 @@ export async function syncGameBoardsToFirebase() {
       { merge: true }
     );
 
-    console.log('Game boards synced');
     return true;
   } catch (error) {
     console.error('Error syncing game boards:', error);
@@ -103,7 +99,6 @@ export async function syncDataFromFirebase() {
     const userDoc = await getDoc(userDocRef);
 
     if (!userDoc.exists()) {
-      console.log('No user data found');
       return false;
     }
 

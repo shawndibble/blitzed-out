@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { getAuth } from 'firebase/auth';
 import {
   loginAnonymously,
@@ -12,7 +12,7 @@ import {
 } from '@/services/firebase';
 import { syncDataFromFirebase, syncAllDataToFirebase } from '@/services/syncService';
 
-const AuthContext = React.createContext();
+export const AuthContext = React.createContext();
 
 function AuthProvider(props) {
   const [user, setUser] = useState(null);
@@ -20,6 +20,32 @@ function AuthProvider(props) {
   const [error, setError] = useState(null);
   const [syncStatus, setSyncStatus] = useState({ syncing: false, lastSync: null });
 
+  // Debounce mechanism for sync operations
+  const syncTimeoutRef = useRef(null);
+
+  // Function to safely perform sync operations with debouncing
+  const performSync = async (syncFunction, message = 'Syncing data') => {
+    // Clear any pending sync timeout
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+      syncTimeoutRef.current = null;
+    }
+
+    // Return early if user is not logged in or is anonymous
+    if (!user || user.isAnonymous) return false;
+
+    try {
+      setSyncStatus({ syncing: true, lastSync: syncStatus.lastSync });
+      await syncFunction();
+      setSyncStatus({ syncing: false, lastSync: new Date() });
+      return true;
+    } catch (err) {
+      console.error('Sync error:', err);
+      setError(err.message);
+      setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
+      return false;
+    }
+  };
   async function login(displayName = '') {
     try {
       const loggedInUser = await loginAnonymously(displayName);
@@ -36,14 +62,8 @@ function AuthProvider(props) {
       setLoading(true);
       const loggedInUser = await loginWithEmail(email, password);
       setUser(loggedInUser);
-      
-      // Sync data from Firebase after login
-      if (!loggedInUser.isAnonymous) {
-        setSyncStatus({ syncing: true, lastSync: null });
-        await syncDataFromFirebase();
-        setSyncStatus({ syncing: false, lastSync: new Date() });
-      }
-      
+
+      // Sync will happen via onAuthStateChanged
       return loggedInUser;
     } catch (err) {
       setError(err.message);
@@ -58,14 +78,8 @@ function AuthProvider(props) {
       setLoading(true);
       const loggedInUser = await loginWithGoogle();
       setUser(loggedInUser);
-      
-      // Sync data from Firebase after login
-      if (!loggedInUser.isAnonymous) {
-        setSyncStatus({ syncing: true, lastSync: null });
-        await syncDataFromFirebase();
-        setSyncStatus({ syncing: false, lastSync: new Date() });
-      }
-      
+
+      // Sync will happen via onAuthStateChanged
       return loggedInUser;
     } catch (err) {
       setError(err.message);
@@ -104,12 +118,13 @@ function AuthProvider(props) {
       setLoading(true);
       const convertedUser = await convertAnonymousAccount(email, password);
       setUser(convertedUser);
-      
+
       // Sync local data to Firebase after conversion
-      setSyncStatus({ syncing: true, lastSync: null });
-      await syncAllDataToFirebase();
-      setSyncStatus({ syncing: false, lastSync: new Date() });
-      
+      await performSync(
+        syncAllDataToFirebase,
+        'Syncing local data to Firebase after account conversion'
+      );
+
       return convertedUser;
     } catch (err) {
       setError(err.message);
@@ -118,7 +133,7 @@ function AuthProvider(props) {
       setLoading(false);
     }
   }
-  
+
   async function updateUser(displayName = '') {
     try {
       const updatedUser = await updateDisplayName(displayName);
@@ -129,16 +144,14 @@ function AuthProvider(props) {
       throw err;
     }
   }
-  
+
   async function logoutUser() {
     try {
       // Sync data to Firebase before logout if user is not anonymous
       if (user && !user.isAnonymous) {
-        setSyncStatus({ syncing: true, lastSync: syncStatus.lastSync });
-        await syncAllDataToFirebase();
-        setSyncStatus({ syncing: false, lastSync: new Date() });
+        await performSync(syncAllDataToFirebase, 'Syncing data to Firebase before logout');
       }
-      
+
       await logout();
       setUser(null);
     } catch (err) {
@@ -146,20 +159,9 @@ function AuthProvider(props) {
       throw err;
     }
   }
-  
+
   async function syncData() {
-    if (!user || user.isAnonymous) return false;
-    
-    try {
-      setSyncStatus({ syncing: true, lastSync: syncStatus.lastSync });
-      await syncAllDataToFirebase();
-      setSyncStatus({ syncing: false, lastSync: new Date() });
-      return true;
-    } catch (err) {
-      setError(err.message);
-      setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
-      return false;
-    }
+    return performSync(syncAllDataToFirebase, 'Manual sync initiated');
   }
 
   useEffect(() => {
@@ -167,30 +169,50 @@ function AuthProvider(props) {
     const unsubscribe = auth.onAuthStateChanged((userData) => {
       setUser(userData || null);
       setLoading(false);
-      
+
       // If user is logged in and not anonymous, sync data from Firebase
       if (userData && !userData.isAnonymous) {
-        setSyncStatus({ syncing: true, lastSync: null });
-        syncDataFromFirebase().then(() => {
-          setSyncStatus({ syncing: false, lastSync: new Date() });
-        });
+        // Use debounced sync to prevent multiple rapid syncs
+        if (syncTimeoutRef.current) {
+          clearTimeout(syncTimeoutRef.current);
+        }
+
+        syncTimeoutRef.current = setTimeout(() => {
+          setSyncStatus({ syncing: true, lastSync: null });
+          syncDataFromFirebase()
+            .then(() => {
+              setSyncStatus({ syncing: false, lastSync: new Date() });
+            })
+            .catch((err) => {
+              console.error('Error syncing from Firebase:', err);
+              setSyncStatus({ syncing: false, lastSync: null });
+            })
+            .finally(() => {
+              syncTimeoutRef.current = null;
+            });
+        }, 1000); // 1 second debounce
       }
     });
 
-    return () => unsubscribe();
+    // Make auth context available globally for middleware
+    window.authContext = { user: null };
+
+    // Clean up function
+    return () => {
+      unsubscribe();
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+      }
+      delete window.authContext;
+    };
   }, []);
 
-  // Set up periodic sync for logged-in non-anonymous users
+  // Update global auth context when user changes
   useEffect(() => {
-    if (!user || user.isAnonymous) return;
-    
-    const syncInterval = setInterval(() => {
-      syncData();
-    }, 5 * 60 * 1000); // Sync every 5 minutes
-    
-    return () => clearInterval(syncInterval);
+    if (window.authContext) {
+      window.authContext.user = user;
+    }
   }, [user]);
-
   const value = useMemo(
     () => ({
       user,
@@ -214,4 +236,4 @@ function AuthProvider(props) {
   return <AuthContext.Provider value={value} {...props} />;
 }
 
-export { AuthContext, AuthProvider };
+export { AuthProvider };

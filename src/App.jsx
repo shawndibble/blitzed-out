@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import useAuth from '@/context/hooks/useAuth';
@@ -26,15 +26,21 @@ function Providers({ children }) {
   );
 }
 
-// Rest of the file remains the same
-
 function AppRoutes() {
-  const { user } = useAuth();
+  const auth = useAuth();
+
+  // Make auth context available to the middleware
+  useEffect(() => {
+    window.authContext = auth;
+    return () => {
+      window.authContext = null;
+    };
+  }, [auth]);
   i18next.on('languageChanged', (lng) => {
     setupDefaultActionsImport(lng);
   });
 
-  const room = user ? <Room /> : <UnauthenticatedApp />;
+  const room = auth.user ? <Room /> : <UnauthenticatedApp />;
 
   return (
     <Routes future={{ v7_startTransition: true }}>
