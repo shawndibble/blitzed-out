@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, Link, Alert, CircularProgress } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { t } from 'i18next';
+import { Trans } from 'react-i18next';
 
 export default function RegisterForm({ onToggleForm, onSuccess, isAnonymous = false }) {
   const [email, setEmail] = useState('');

@@ -149,7 +149,10 @@ function AuthProvider(props) {
     try {
       // Sync data to Firebase before logout if user is not anonymous
       if (user && !user.isAnonymous) {
-        await performSync(syncAllDataToFirebase);
+        // Add timeout to make sure logout doesn't hang
+        const syncPromise = performSync(syncAllDataToFirebase);
+        const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 5000, false));
+        await Promise.race([syncPromise, timeoutPromise]);
       }
 
       await logout();

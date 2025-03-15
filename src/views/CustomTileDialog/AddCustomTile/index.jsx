@@ -27,7 +27,7 @@ export default function AddCustomTile({
   const [formData, setFormData] = useState({
     gameMode: settings.gameMode || 'online',
     group: '',
-    intensity: '',
+    intensity: null,
     action: '',
     tags: [],
   });
@@ -43,7 +43,7 @@ export default function AddCustomTile({
       setFormData((prev) => ({
         ...prev,
         group: '',
-        intensity: '',
+        intensity: null,
       }));
       return;
     }
@@ -82,7 +82,7 @@ export default function AddCustomTile({
           // Only set default group if it's empty or doesn't exist in the current game mode
           if (!prev.group || !processedGroups[prev.group]) {
             const firstGroup = Object.keys(processedGroups)[0];
-            let firstIntensity = '';
+            let firstIntensity = null;
 
             if (
               firstGroup &&
@@ -95,7 +95,7 @@ export default function AddCustomTile({
             return {
               ...prev,
               group: firstGroup || '',
-              intensity: firstIntensity || '',
+              intensity: firstIntensity || null,
             };
           }
           return prev;
@@ -119,7 +119,7 @@ export default function AddCustomTile({
       setFormData({
         gameMode: tileGameMode,
         group: editTile.group || '',
-        intensity: editTile.intensity || '',
+        intensity: editTile.intensity || null,
         action: editTile.action || '',
         tags: editTile.tags || [],
       });
@@ -129,7 +129,7 @@ export default function AddCustomTile({
         ...prev,
         gameMode: settings.gameMode,
         group: '',
-        intensity: '',
+        intensity: null,
       }));
     }
   }, [updateTileId, settings.gameMode, customTiles]);
@@ -146,7 +146,7 @@ export default function AddCustomTile({
     setFormData({
       gameMode: settings.gameMode,
       group: '',
-      intensity: '',
+      intensity: null,
       action: '',
       tags: [],
     });
@@ -275,7 +275,7 @@ export default function AddCustomTile({
                 gameMode: value,
                 // Don't hardcode 'alcohol' here - let the useEffect handle default values
                 group: '',
-                intensity: '',
+                intensity: null,
               }));
             }}
             onGroupChange={(value) => {
@@ -283,7 +283,7 @@ export default function AddCustomTile({
               setFormData((prevFormData) => ({
                 ...prevFormData,
                 group: value,
-                intensity: '',
+                intensity: null,
               }));
             }}
             onIntensityChange={(value) => {

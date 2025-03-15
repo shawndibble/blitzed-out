@@ -93,7 +93,7 @@ export default function ViewCustomTiles({
         setLoading(true);
         const filters = {
           group: groupFilter,
-          intensity: intensityFilter === 'all' ? '' : intensityFilter, // Send empty string for 'all'
+          intensity: intensityFilter === 'all' ? null : intensityFilter, // Send empty string for 'all'
           tag: tagFilter,
           gameMode: gameModeFilter,
           locale: settings.locale,
