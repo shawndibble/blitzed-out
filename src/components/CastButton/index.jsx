@@ -170,6 +170,8 @@ export default function CastButton() {
     }
   };
 
+  if (room !== 'PUBLIX') return null; // Don't render the cast button for non-PUBLIX rooms
+
   return (
     <Tooltip title={isCasting ? 'Stop Casting' : 'Cast to TV'}>
       <IconButton
