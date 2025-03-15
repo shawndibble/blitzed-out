@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Button, Typography, Collapse } from '@mui/material';
 import { Trans } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import SettingsSelect from '@/components/SettingsSelect';
@@ -7,8 +7,15 @@ import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
 import { isOnlineMode } from '@/helpers/strings';
 
 export default function GameModeStep({ formData, setFormData, nextStep, prevStep }) {
+  const [visible, setVisible] = useState(!isOnlineMode(formData?.gameMode));
+
+  // Update visibility when game mode changes
+  useEffect(() => {
+    setVisible(!isOnlineMode(formData?.gameMode));
+  }, [formData?.gameMode]);
+
   return (
-    <Box>
+    <Box sx={{ minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h6">
         <Trans i18nKey="playingWithPeople" />
       </Typography>
@@ -22,12 +29,11 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
           })
         }
         yesLabel="yesInteracting"
-        noLabel="noInteracting"
       />
 
-      {!isOnlineMode(formData.gameMode) && (
-        <>
-          <Typography variant="h6" sx={{ mt: 2 }}>
+      <Collapse in={visible} timeout={500} sx={{ mt: visible ? 2 : 0 }}>
+        <Box>
+          <Typography variant="h6">
             <Trans i18nKey="yourRole" />
           </Typography>
           <Box
@@ -68,11 +74,11 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
             }
             trueCondition={formData.isNaked}
             yesLabel="yesNaked"
-            noLabel="noNaked"
           />
-        </>
-      )}
+        </Box>
+      </Collapse>
 
+      <Box sx={{ flexGrow: 1 }} />
       <ButtonRow>
         <Button onClick={prevStep}>
           <Trans i18nKey="previous" />

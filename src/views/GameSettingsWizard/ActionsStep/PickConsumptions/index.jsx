@@ -86,7 +86,6 @@ export default function PickConsumptions({ formData, setFormData, options, actio
             trueCondition={formData.isAppend}
             onChange={(event) => variationChange(event, selectedConsumptions)}
             yesLabel="combineWithActions"
-            noLabel="standaloneConsumables"
           />
         </>
       )}

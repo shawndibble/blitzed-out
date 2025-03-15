@@ -1,5 +1,5 @@
 import { Help } from '@mui/icons-material';
-import { Stack, Switch, TextField, Tooltip, Typography } from '@mui/material';
+import { Stack, Switch, TextField, Tooltip, Typography, Collapse } from '@mui/material';
 import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
 import { useCallback } from 'react';
@@ -42,6 +42,7 @@ export default function RoomSwitch({ formData, setFormData }) {
     [formData, setFormData]
   );
 
+  const isPrivate = !isPublicRoom(formData.room);
   return (
     <>
       <Stack
@@ -56,7 +57,7 @@ export default function RoomSwitch({ formData, setFormData }) {
         </Typography>
         <Switch
           id="showPrivate"
-          checked={!isPublicRoom(formData.room)}
+          checked={isPrivate}
           onChange={togglePrivateRoomField}
           inputProps={{ 'aria-label': t('room') }}
         />
@@ -75,7 +76,7 @@ export default function RoomSwitch({ formData, setFormData }) {
         </Tooltip>
       </Stack>
 
-      {!isPublicRoom(formData.room) && (
+      <Collapse in={isPrivate} timeout={500}>
         <TextField
           fullWidth
           id="privateRoom"
@@ -85,7 +86,7 @@ export default function RoomSwitch({ formData, setFormData }) {
           onBlur={handleChange}
           onKeyDown={handleChange}
         />
-      )}
+      </Collapse>
     </>
   );
 }

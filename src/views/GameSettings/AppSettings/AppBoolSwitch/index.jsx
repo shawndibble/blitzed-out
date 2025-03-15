@@ -6,7 +6,6 @@ export default function AppBoolSwitch({ field, formData, handleSwitch }) {
       trueCondition={formData[field]}
       onChange={(event) => handleSwitch(event, field)}
       yesLabel={`${field}Enable`}
-      noLabel={`${field}Disable`}
       sx={{ justifyContent: 'left' }}
     />
   );

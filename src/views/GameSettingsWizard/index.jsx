@@ -34,7 +34,7 @@ export default function GameSettingsWizard({ close }) {
   );
 
   const initialLoad = useRef(true);
-  const { isLoading, actionsList } = useActionList(formData.gameMode);
+  const { actionsList } = useActionList(formData.gameMode);
 
   // on load, we want to guess what page we should be on.
   useEffect(() => {
@@ -52,10 +52,6 @@ export default function GameSettingsWizard({ close }) {
 
     setStep(2);
   }, [formData]);
-
-  if (isLoading) {
-    return <CircularProgress />;
-  }
 
   const nextStep = (count) => {
     if (!Number.isInteger(count)) return setStep(step + 1);
