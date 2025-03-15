@@ -263,5 +263,6 @@
   "or": "OR",
   "resetEmailSent": "Password reset email sent! Check your inbox.",
   "sendResetLink": "Send Reset Email",
-  "backToLogin": "Back to Login"
+  "backToLogin": "Back to Login",
+  "anonymousLogin": "Anonymous Login"
 }

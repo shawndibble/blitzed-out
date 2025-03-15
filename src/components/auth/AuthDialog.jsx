@@ -5,21 +5,23 @@ import SocialLoginButtons from './SocialLoginButtons';
 import { useAuth } from '@/hooks/useAuth';
 import DialogWrapper from '../DialogWrapper';
 import ResetPasswordForm from './ResetPasswordForm';
+import { useTranslation } from 'react-i18next';
 
 export default function AuthDialog({ open, close, initialView = 'login' }) {
   const [currentView, setCurrentView] = useState(initialView);
   const { isAnonymous } = useAuth();
+  const { t } = useTranslation();
 
   const getTitle = () => {
     switch (currentView) {
       case 'login':
-        return isAnonymous ? 'Link Account' : 'Sign In';
+        return isAnonymous ? t('linkAccount') : t('signIn');
       case 'register':
-        return isAnonymous ? 'Create Permanent Account' : 'Create Account';
+        return t('createAccount');
       case 'reset':
-        return 'Reset Password';
+        return t('resetPassword');
       default:
-        return 'Authentication';
+        return t('Authentication');
     }
   };
 

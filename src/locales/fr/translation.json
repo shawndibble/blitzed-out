@@ -263,5 +263,6 @@
   "or": "OU",
   "resetEmailSent": "E-mail de réinitialisation envoyé! Vérifiez votre boîte de réception.",
   "sendResetLink": "Envoyer l'e-mail de réinitialisation",
-  "backToLogin": "Retour à la connexion"
+  "backToLogin": "Retour à la connexion",
+  "anonymousLogin": "Connexion anonyme"
 }

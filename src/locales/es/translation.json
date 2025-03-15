@@ -263,5 +263,6 @@
   "or": "O",
   "resetEmailSent": "¡Correo de restablecimiento enviado! Revisa tu bandeja de entrada.",
   "sendResetLink": "Enviar correo de restablecimiento",
-  "backToLogin": "Volver al inicio de sesión"
+  "backToLogin": "Volver al inicio de sesión",
+  "anonymousLogin": "Iniciar sesión anónimo"
 }
