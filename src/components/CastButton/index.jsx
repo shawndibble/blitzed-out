@@ -10,8 +10,7 @@ export default function CastButton() {
   const [castApiLoaded, setCastApiLoaded] = useState(false);
   const { id: room } = useParams();
 
-  // Use your specific app ID
-  const CAST_APP_ID = '1227B8DE'; // Your custom receiver app ID
+  const CAST_APP_ID = '1227B8DE';
 
   // Function to initialize the Cast API
   const initializeCastApi = () => {
@@ -98,69 +97,42 @@ export default function CastButton() {
     }
 
     try {
-      const castContext = window.cast.framework.CastContext.getInstance();
       console.log('Starting cast session...');
 
-      // Request a session
+      // Get the current origin with protocol
+      const origin = window.location.origin;
+      // Create the correct cast URL
+      const castUrl = `${origin}/${room}/cast`;
+      console.log('Target cast URL:', castUrl);
+
+      // Use the CastContext to request a session
+      const castContext = window.cast.framework.CastContext.getInstance();
+
       try {
-        const session = await castContext.requestSession();
-        console.log('Cast session started:', session);
+        // Request a session using the higher-level Cast framework API
+        const castSession = await castContext.requestSession();
+        console.log('Cast session created successfully:', castSession);
 
-        if (session) {
-          // Create a media info object
-          const castSession = castContext.getCurrentSession();
-          if (castSession) {
-            // Get the current origin
-            const origin = window.location.origin;
-            // Create the correct cast URL - make sure it's properly formatted
-            const castUrl = `${origin}/cast/${room}`;
+        // Create a load request for the URL
+        const loadRequest = new window.cast.framework.messages.LoadRequest();
+        loadRequest.media = {
+          contentId: castUrl,
+          contentType: 'text/html',
+          streamType: window.cast.framework.messages.StreamType.NONE,
+        };
 
-            console.log('Loading media URL:', castUrl);
-
-            // Load the media
-            const mediaInfo = new window.chrome.cast.media.MediaInfo(castUrl, 'text/html');
-            const request = new window.chrome.cast.media.LoadRequest(mediaInfo);
-
-            try {
-              await castSession.loadMedia(request);
-              console.log('Media loaded successfully');
-              setIsCasting(true);
-            } catch (error) {
-              console.error('Error loading media:', error);
-            }
-          } else {
-            console.error('No active cast session found');
-          }
-        } else {
-          console.error('Failed to start cast session');
-        }
-      } catch (error) {
-        console.error('Error requesting cast session:', error);
-
-        // Try to get the current session if one exists
-        const currentSession = castContext.getCurrentSession();
-        if (currentSession) {
-          console.log('Found existing session, trying to use it');
-
-          // Get the current origin
-          const origin = window.location.origin;
-          // Create the correct cast URL
-          const castUrl = `${origin}/cast/${room}`;
-
-          console.log('Loading media URL:', castUrl);
-
-          // Load the media
-          const mediaInfo = new window.chrome.cast.media.MediaInfo(castUrl, 'text/html');
-          const request = new window.chrome.cast.media.LoadRequest(mediaInfo);
-
-          try {
-            await currentSession.loadMedia(request);
+        // Load the media
+        castSession
+          .loadMedia(loadRequest)
+          .then(() => {
             console.log('Media loaded successfully');
             setIsCasting(true);
-          } catch (mediaError) {
-            console.error('Error loading media:', mediaError);
-          }
-        }
+          })
+          .catch((error) => {
+            console.error('Failed to load media:', error);
+          });
+      } catch (error) {
+        console.error('Failed to create session:', error);
       }
     } catch (error) {
       console.error('Error in startCasting:', error);
@@ -175,8 +147,7 @@ export default function CastButton() {
     }
 
     try {
-      const castContext = window.cast.framework.CastContext.getInstance();
-      const castSession = castContext.getCurrentSession();
+      const castSession = window.cast.framework.CastContext.getInstance().getCurrentSession();
 
       if (castSession) {
         console.log('Ending cast session...');
@@ -199,14 +170,12 @@ export default function CastButton() {
     }
   };
 
-  // Always render the button, even if API isn't fully loaded yet
-  // This helps with debugging and user experience
   return (
     <Tooltip title={isCasting ? 'Stop Casting' : 'Cast to TV'}>
       <IconButton
         onClick={toggleCasting}
         color={isCasting ? 'primary' : 'default'}
-        disabled={!castApiLoaded && !castingAvailable}
+        disabled={!castingAvailable}
       >
         {isCasting ? <CastConnectedIcon /> : <CastIcon />}
       </IconButton>
