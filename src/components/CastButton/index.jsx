@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Box, IconButton, Tooltip } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import CastIcon from '@mui/icons-material/Cast';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
 import { useParams } from 'react-router-dom';
@@ -12,7 +12,6 @@ export default function CastButton() {
   const [castSession, setCastSession] = useState(null);
   const { id: room } = useParams();
   const castButtonRef = useRef(null);
-  const castButtonContainerRef = useRef(null);
   const [castApiReady, setCastApiReady] = useState(false);
 
   // Initialize the Cast API when the component mounts
@@ -118,6 +117,8 @@ export default function CastButton() {
       // Don't reset the global callback as other instances might need it
     };
   }, [room]);
+
+  if (room !== 'PUBLIX') return null;
 
   // Function to send a message to the cast session
   const sendCastMessage = (session) => {
