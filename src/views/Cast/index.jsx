@@ -75,7 +75,7 @@ export default function Cast() {
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
       <Box display="flex" justifyContent="space-between" sx={{ mx: 2, mt: 2, mb: -2 }}>
         <Box flex="1">
-          {(!isCastReceiver || !isFullscreen) && (
+          {!isCastReceiver && !isFullscreen && (
             <Button variant="text" onClick={toggleFullscreen}>
               Fullscreen
             </Button>
