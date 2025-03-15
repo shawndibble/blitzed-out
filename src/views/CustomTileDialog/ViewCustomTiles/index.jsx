@@ -154,18 +154,6 @@ export default function ViewCustomTiles({
     }
   }
 
-  function handleGroupFilterChange(event) {
-    // Set loading first for smoother transition
-    setLoading(true);
-
-    const newGroup = event.target.value;
-    setGroupFilter(newGroup);
-    setPage(1); // Reset to first page
-
-    // Set intensity filter to 'all' when group changes
-    setIntensityFilter('all');
-  }
-
   function handlePageChange(_, newPage) {
     setLoading(true);
     setPage(newPage);

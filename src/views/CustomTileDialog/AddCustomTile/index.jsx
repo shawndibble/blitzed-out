@@ -49,74 +49,61 @@ export default function AddCustomTile({
     }
 
     try {
-      // Create groups structure from mappedGroups
+      // Process groups for the current game mode
       const processedGroups = {};
 
-      // Group actions by their group value
-      const groupedActions = groupActionsFolder(mappedGroups[formData.gameMode]);
+      // Extract groups from mappedGroups for the current game mode
+      if (mappedGroups[formData.gameMode]) {
+        const gameModeGroups = groupActionsFolder(mappedGroups[formData.gameMode]);
 
-      if (!Array.isArray(groupedActions)) {
-        console.warn('groupedActions is not an array:', groupedActions);
-        setGroups({});
-        return;
+        // Process each group
+        gameModeGroups.forEach((groupItem) => {
+          const { value, label, intensity } = groupItem;
+
+          if (!processedGroups[value]) {
+            processedGroups[value] = {
+              label,
+              intensities: {},
+            };
+          }
+
+          // Add intensity to the group
+          if (intensity !== undefined) {
+            processedGroups[value].intensities[intensity] = true;
+          }
+        });
       }
 
-      groupedActions.forEach((action) => {
-        if (!action || typeof action !== 'object') return;
-
-        const { value: group, intensity } = action;
-        if (!group || !intensity) return;
-
-        if (!processedGroups[group]) {
-          processedGroups[group] = {
-            count: 0,
-            intensities: {},
-          };
-        }
-
-        processedGroups[group].count += 1;
-
-        if (!processedGroups[group].intensities[intensity]) {
-          processedGroups[group].intensities[intensity] = 0;
-        }
-
-        processedGroups[group].intensities[intensity] += 1;
-      });
-
+      // Set the processed groups
       setGroups(processedGroups);
+      // After setting groups, check if we need to set default values
+      setTimeout(() => {
+        setFormData((prev) => {
+          // Only set default group if it's empty or doesn't exist in the current game mode
+          if (!prev.group || !processedGroups[prev.group]) {
+            const firstGroup = Object.keys(processedGroups)[0];
+            let firstIntensity = '';
 
-      // Only set default group and intensity if they're empty and we have groups
-      if (
-        (!formData.group || !processedGroups[formData.group]) &&
-        Object.keys(processedGroups).length > 0
-      ) {
-        const firstGroup = Object.keys(processedGroups)[0];
-        let firstIntensity = '';
+            if (
+              firstGroup &&
+              processedGroups[firstGroup] &&
+              Object.keys(processedGroups[firstGroup].intensities).length > 0
+            ) {
+              firstIntensity = Number(Object.keys(processedGroups[firstGroup].intensities)[0]);
+            }
 
-        if (
-          processedGroups[firstGroup] &&
-          Object.keys(processedGroups[firstGroup].intensities).length > 0
-        ) {
-          firstIntensity = Number(Object.keys(processedGroups[firstGroup].intensities)[0]);
-        }
-
-        // Use a timeout to ensure the select options are populated before setting the value
-        setTimeout(() => {
-          setFormData((prev) => ({
-            ...prev,
-            group: firstGroup,
-            intensity: firstIntensity,
-          }));
-        }, 0);
-      }
+            return {
+              ...prev,
+              group: firstGroup || '',
+              intensity: firstIntensity || '',
+            };
+          }
+          return prev;
+        });
+      }, 0);
     } catch (error) {
-      console.error('Error processing mappedGroups:', error);
+      console.error('Error processing groups:', error);
       setGroups({});
-      setFormData((prev) => ({
-        ...prev,
-        group: '',
-        intensity: '',
-      }));
     }
   }, [formData.gameMode, mappedGroups]);
 
@@ -267,6 +254,8 @@ export default function AddCustomTile({
     }, 150);
   };
 
+  if (!groups[formData.group]) return null;
+
   return (
     <Accordion expanded={expanded === 'ctAdd'} onChange={handleChange('ctAdd')}>
       <AccordionSummary aria-controls="ctAdd-content" id="ctAdd-header">
@@ -282,27 +271,33 @@ export default function AddCustomTile({
             intensityFilter={formData.intensity}
             groups={groups}
             mappedGroups={mappedGroups}
+            // Modify the onGameModeChange handler
             onGameModeChange={(value) => {
-              setFormData({
-                ...formData,
+              // Use the functional form of setFormData to ensure we're working with the latest state
+              setFormData((prevFormData) => ({
+                ...prevFormData,
                 gameMode: value,
+                // Don't hardcode 'alcohol' here - let the useEffect handle default values
                 group: '',
                 intensity: '',
-              });
+              }));
             }}
             onGroupChange={(value) => {
-              setFormData({
-                ...formData,
+              // Use the functional form of setFormData to ensure we're working with the latest state
+              setFormData((prevFormData) => ({
+                ...prevFormData,
                 group: value,
-              });
+                intensity: '',
+              }));
             }}
             onIntensityChange={(value) => {
-              setFormData({
-                ...formData,
+              setFormData((prevFormData) => ({
+                ...prevFormData,
                 intensity: value,
-              });
+              }));
             }}
             showCounts={false}
+            hideAll
             sx={{ mb: 2 }}
           />
 

@@ -13,10 +13,12 @@ export default function TileCategorySelection({
   onGroupChange,
   onIntensityChange,
   showCounts = true,
+  hideAll = false,
   sx = {},
 }) {
   const { t } = useTranslation();
   const [uniqueGroups, setUniqueGroups] = useState([]);
+  const defaultIntensityFilter = hideAll ? 1 : 'all';
 
   // Extract unique groups whenever groups or gameMode changes
   useEffect(() => {
@@ -32,16 +34,18 @@ export default function TileCategorySelection({
     // Call the parent handlers
     onGroupChange(newGroup);
     if (onIntensityChange) {
-      onIntensityChange('all');
+      onIntensityChange(defaultIntensityFilter);
     }
   }
+
+  if (!uniqueGroups?.length) return null;
 
   // Ensure groupFilter is in the list of uniqueGroups or empty
   // If uniqueGroups is empty, don't validate to allow for initial values
   const validGroupFilter =
     uniqueGroups.length === 0 || uniqueGroups.includes(groupFilter) ? groupFilter : '';
 
-  // Ensure intensityFilter is valid for the selected group or is 'all'
+  // for the intensity filter, grab the first intensity for the selected group if available
   const validIntensityFilter = intensityFilter === 'all' ? 'all' : intensityFilter;
 
   return (
@@ -114,9 +118,11 @@ export default function TileCategorySelection({
               input: { 'aria-label': t('customTiles.intensityLevel', 'Intensity Level') },
             }}
           >
-            <MenuItem key="all" value="all">
-              <Trans i18nKey="all">All</Trans>
-            </MenuItem>
+            {!hideAll && (
+              <MenuItem key="all" value="all">
+                <Trans i18nKey="all">All</Trans>
+              </MenuItem>
+            )}
             {validGroupFilter &&
               groups &&
               groups[validGroupFilter] &&

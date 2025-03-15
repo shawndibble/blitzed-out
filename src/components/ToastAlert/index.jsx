@@ -39,7 +39,6 @@ export default function ToastAlert({
         action={action}
         anchorOrigin={{ vertical, horizontal }}
         TransitionComponent={Slide}
-        ClickAwayListenerProps={{ mouseEvent: 'onMouseUp' }}
       >
         <Alert onClose={!hideCloseButton && handleClose} severity={type} sx={{ width: '100%' }}>
           {children}
