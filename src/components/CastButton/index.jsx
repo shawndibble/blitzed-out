@@ -110,8 +110,12 @@ export default function CastButton() {
       }
     } else {
       // Start casting
-      const castButton = new window.cast.framework.CastButton();
-      castButton.click();
+      try {
+        const castContext = window.cast.framework.CastContext.getInstance();
+        castContext.requestSession();
+      } catch (error) {
+        console.error('Error requesting cast session:', error);
+      }
     }
   };
 
