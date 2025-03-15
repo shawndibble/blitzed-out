@@ -2,32 +2,56 @@ import { useState, useEffect } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import CastIcon from '@mui/icons-material/Cast';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 export default function CastButton() {
   const [castingAvailable, setCastingAvailable] = useState(false);
   const [isCasting, setIsCasting] = useState(false);
-  const [castApiLoaded, setCastApiLoaded] = useState(false);
+  const [castSession, setCastSession] = useState(null);
   const { id: room } = useParams();
+  const location = useLocation();
 
-  // Use your registered Cast Application ID
   const CAST_APP_ID = '1227B8DE';
+
+  // Initialize the Cast API when the component mounts
+  useEffect(() => {
+    // Function to load the Cast API
+    const loadCastApi = () => {
+      if (!window.chrome || !window.chrome.cast || !window.cast) {
+        console.log('Cast API not available yet');
+        setTimeout(loadCastApi, 1000);
+        return;
+      }
+
+      // Initialize the Cast API
+      window.__onGCastApiAvailable = function (isAvailable) {
+        if (isAvailable) {
+          initializeCastApi();
+        }
+      };
+
+      // Load the Cast API
+      const script = document.createElement('script');
+      script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
+      document.head.appendChild(script);
+    };
+
+    loadCastApi();
+
+    // Cleanup function
+    return () => {
+      window.__onGCastApiAvailable = null;
+    };
+  }, []);
 
   // Function to initialize the Cast API
   const initializeCastApi = () => {
-    if (!window.cast || !window.cast.framework) {
-      console.log('Cast framework not available yet');
-      return false;
-    }
-
     try {
-      console.log('Initializing Cast API with app ID:', CAST_APP_ID);
       const castContext = window.cast.framework.CastContext.getInstance();
 
       // Set up the receiver application ID
       castContext.setOptions({
         receiverApplicationId: CAST_APP_ID,
-        // Use ORIGIN_SCOPED to make discovery automatic
         autoJoinPolicy: window.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
       });
 
@@ -35,138 +59,68 @@ export default function CastButton() {
       castContext.addEventListener(
         window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
         (event) => {
-          const sessionState = event.sessionState;
-          console.log('Cast session state changed:', sessionState);
+          const session = castContext.getCurrentSession();
+          setCastSession(session);
+
           setIsCasting(
-            sessionState === window.cast.framework.SessionState.SESSION_STARTED ||
-              sessionState === window.cast.framework.SessionState.SESSION_RESUMED
+            event.sessionState === window.cast.framework.SessionState.SESSION_STARTED ||
+              event.sessionState === window.cast.framework.SessionState.SESSION_RESUMED
           );
+
+          if (session && room) {
+            sendCastMessage(session);
+          }
         }
       );
 
       setCastingAvailable(true);
-      setCastApiLoaded(true);
-      return true;
+      console.log('Cast API initialized successfully');
     } catch (error) {
       console.error('Error initializing Cast API:', error);
-      return false;
     }
   };
 
-  // Load the Cast SDK
-  useEffect(() => {
-    console.log('CastButton component mounted');
-
-    // Define the callback for when the Cast API is available
-    window.__onGCastApiAvailable = function (isAvailable) {
-      console.log('Cast API available:', isAvailable);
-      if (isAvailable) {
-        setCastApiLoaded(true);
-        const success = initializeCastApi();
-        if (success) {
-          console.log('Cast API initialized successfully');
-        }
-      }
-    };
-
-    // Check if the Cast API is already loaded
-    if (window.cast && window.cast.framework) {
-      console.log('Cast API already loaded');
-      setCastApiLoaded(true);
-      initializeCastApi();
-    } else {
-      // Add the Cast SDK script
-      console.log('Loading Cast SDK script');
-      const script = document.createElement('script');
-      script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
-      script.async = true;
-      document.head.appendChild(script);
-    }
-
-    // Cleanup function
-    return () => {
-      // Remove the global callback when component unmounts
-      window.__onGCastApiAvailable = null;
-    };
-  }, []);
-
-  // Function to start casting
-  const startCasting = async () => {
-    if (!castApiLoaded || !window.cast || !window.cast.framework) {
-      console.error('Cast API not loaded');
-      return;
-    }
+  // Function to send a message to the receiver
+  const sendCastMessage = (session) => {
+    if (!session) return;
 
     try {
-      console.log('Starting cast session...');
+      // Get the current URL to cast
+      const baseUrl = window.location.origin;
+      const castUrl = `${baseUrl}/${room}/cast`;
 
-      // Get the current origin with protocol
-      const origin = window.location.origin;
-      // Create the correct cast URL with the room parameter
-      const castUrl = `${origin}/${room}/cast`;
-      console.log('Target cast URL:', castUrl);
+      console.log('Sending cast message with URL:', castUrl);
 
-      // Use the CastContext to request a session
-      const castContext = window.cast.framework.CastContext.getInstance();
-
-      try {
-        // Request a session
-        const session = await castContext.requestSession();
-        console.log('Cast session created successfully');
-
-        if (session) {
-          // For custom web receivers, we send a message with the URL to load
-          const message = {
-            type: 'LOAD',
-            url: castUrl,
-            roomId: room,
-          };
-
-          // Send the message to the receiver
-          session.sendMessage('urn:x-cast:com.blitzedout.app', message);
-          console.log('Message sent to receiver:', message);
-          setIsCasting(true);
-        }
-      } catch (error) {
-        console.error('Error requesting cast session:', error);
-      }
+      // Send a message to the receiver
+      session.sendMessage('urn:x-cast:com.blitzedout.app', {
+        type: 'LOAD',
+        url: castUrl,
+      });
     } catch (error) {
-      console.error('Error in startCasting:', error);
+      console.error('Error sending cast message:', error);
     }
   };
 
-  // Function to stop casting
-  const stopCasting = () => {
-    if (!castApiLoaded || !window.cast || !window.cast.framework) {
-      console.error('Cast API not loaded');
-      return;
-    }
-
-    try {
-      const castSession = window.cast.framework.CastContext.getInstance().getCurrentSession();
-
-      if (castSession) {
-        console.log('Ending cast session...');
-        castSession.endSession(true);
-        setIsCasting(false);
-      } else {
-        console.error('No active cast session found');
-      }
-    } catch (error) {
-      console.error('Error stopping cast session:', error);
-    }
-  };
-
-  // Toggle casting
+  // Function to toggle casting
   const toggleCasting = () => {
     if (isCasting) {
-      stopCasting();
+      // Stop casting
+      if (castSession) {
+        castSession.endSession(true);
+      }
     } else {
-      startCasting();
+      // Start casting
+      const castButton = new window.cast.framework.CastButton();
+      castButton.click();
     }
   };
 
-  if (room !== 'PUBLIX') return null; // Don't render the cast button for non-PUBLIX rooms
+  // Send a new cast message when the room changes
+  useEffect(() => {
+    if (isCasting && castSession && room) {
+      sendCastMessage(castSession);
+    }
+  }, [room, isCasting, castSession]);
 
   return (
     <Tooltip title={isCasting ? 'Stop Casting' : 'Cast to TV'}>
