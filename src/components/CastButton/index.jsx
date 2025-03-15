@@ -13,8 +13,6 @@ export default function CastButton() {
   const [isCasting, setIsCasting] = useState(false);
   const { t } = useTranslation();
   const { id: room } = useParams();
-
-  // Replace with your actual application ID
   const CAST_APP_ID = '1227B8DE';
 
   const initializeCastApi = useCallback(() => {
@@ -44,8 +42,10 @@ export default function CastButton() {
       apiConfig,
       () => {
         console.log('Cast API initialized successfully');
-        // We don't use getCurrentSession here as it might not be available
-        // Instead, we'll check for active sessions when requesting a new one
+        // Check if there's already an active session
+        if (window.chrome.cast.session) {
+          setIsCasting(true);
+        }
       },
       (error) => {
         console.error('Cast API initialization error:', error);
@@ -72,7 +72,7 @@ export default function CastButton() {
       }
 
       const script = document.createElement('script');
-      script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js';
+      script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
       script.async = true;
       document.body.appendChild(script);
       castScriptLoaded = true;
@@ -97,14 +97,38 @@ export default function CastButton() {
         console.log('Session started:', session);
         setIsCasting(true);
 
-        // Send the room ID to the receiver
+        // Create a media info object for the cast URL
         const castUrl = `${window.location.origin}/${room}/cast`;
-        session.sendMessage('urn:x-cast:com.blitzedout.cast', { castUrl, roomId: room });
+
+        // Load the media using the default media receiver
+        const mediaInfo = new window.chrome.cast.media.MediaInfo(castUrl, 'text/html');
+
+        // Set the content type to HTML
+        mediaInfo.contentType = 'text/html';
+
+        // Add custom data to help the receiver understand what to display
+        mediaInfo.customData = {
+          roomId: room,
+          isBlitzedOutCast: true,
+        };
+
+        // Create a request to load this media
+        const request = new window.chrome.cast.media.LoadRequest(mediaInfo);
+
+        // Send the request to the session
+        session.loadMedia(
+          request,
+          (mediaSession) => {
+            console.log('Media loaded successfully', mediaSession);
+          },
+          (error) => {
+            console.error('Error loading media:', error);
+          }
+        );
       },
       (error) => {
         console.error('Error starting cast session:', error);
       }
-      // Use the default timeout
     );
   };
 
@@ -114,16 +138,15 @@ export default function CastButton() {
     }
 
     try {
-      // Get the current session using the Cast API's session property
       const currentSession = window.chrome.cast.session;
       if (currentSession) {
-        currentSession.leave(
+        currentSession.endSession(
           () => {
-            console.log('Left session successfully');
+            console.log('Session ended successfully');
             setIsCasting(false);
           },
           (error) => {
-            console.error('Error leaving session:', error);
+            console.error('Error ending session:', error);
           }
         );
       } else {
