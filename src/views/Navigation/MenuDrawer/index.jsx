@@ -87,7 +87,7 @@ export default function MenuDrawer() {
       },
       {
         key: 'cast',
-        title: <Trans i18nKey="cast" />,
+        title: <Trans i18nKey="tvMode" />,
         icon: <Tv />,
         onClick: () => openInNewTab(`/${room.toUpperCase()}/cast`),
       },
