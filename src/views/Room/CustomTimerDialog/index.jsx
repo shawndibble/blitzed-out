@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {
   Button,
   Dialog,
@@ -202,12 +201,6 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       </DialogActions>
     </Dialog>
   );
-};
-
-CustomTimerDialog.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onSubmit: PropTypes.func.isRequired,
 };
 
 export default CustomTimerDialog;

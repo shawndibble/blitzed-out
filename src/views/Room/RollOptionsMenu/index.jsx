@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { ArrowDropUp } from '@mui/icons-material';
 import { Button, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from '@mui/material';
 import { useRef, useState } from 'react';
@@ -61,12 +60,6 @@ const RollOptionsMenu = ({ options, selectedRoll, handleMenuItemClick }) => {
       </Popper>
     </>
   );
-};
-
-RollOptionsMenu.propTypes = {
-  options: PropTypes.instanceOf(Map).isRequired,
-  selectedRoll: PropTypes.string.isRequired,
-  handleMenuItemClick: PropTypes.func.isRequired,
 };
 
 export default RollOptionsMenu;
