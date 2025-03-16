@@ -46,7 +46,9 @@ export default function AddCustomTile({
 
       // Extract groups from mappedGroups for the current game mode
       if (mappedGroups[formData.gameMode as keyof typeof mappedGroups]) {
-        const gameModeGroups = groupActionsFolder(mappedGroups[formData.gameMode as keyof typeof mappedGroups]);
+        const gameModeGroups = groupActionsFolder(
+          mappedGroups[formData.gameMode as keyof typeof mappedGroups]
+        );
 
         // Process each group
         gameModeGroups.forEach((groupItem) => {
@@ -124,7 +126,11 @@ export default function AddCustomTile({
     }
   }, [updateTileId, settings.gameMode, customTiles, t]);
 
-  function tileExists(group: string, intensity: string | number, newAction: string): CustomTile | undefined {
+  function tileExists(
+    group: string,
+    intensity: string | number,
+    newAction: string
+  ): CustomTile | undefined {
     const tilesArray = Array.isArray(customTiles) ? customTiles : [];
     return tilesArray.find(
       (tile) => tile.group === group && tile.intensity === intensity && tile.action === newAction
@@ -179,10 +185,12 @@ export default function AddCustomTile({
       // Get the label from mappedGroups using group and intensity
       let groupLabel = `${group} - Level ${intensity}`;
 
-      if (Array.isArray(groupActionsFolder(mappedGroups?.[gameMode as keyof typeof mappedGroups]))) {
-        const foundGroup = groupActionsFolder(mappedGroups[gameMode as keyof typeof mappedGroups]).find(
-          (g) => g.value === group && g.intensity === Number(intensity)
-        );
+      if (
+        Array.isArray(groupActionsFolder(mappedGroups?.[gameMode as keyof typeof mappedGroups]))
+      ) {
+        const foundGroup = groupActionsFolder(
+          mappedGroups[gameMode as keyof typeof mappedGroups]
+        ).find((g) => g.value === group && g.intensity === Number(intensity));
         if (foundGroup?.label) {
           groupLabel = foundGroup.label;
         }
