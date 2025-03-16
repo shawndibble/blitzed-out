@@ -3,7 +3,12 @@ import CustomTiles from '@/views/CustomTileDialog';
 import useActionList from '@/hooks/useActionList';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 
-export default function CustomTilesDialog({ open, close = null }) {
+interface CustomTilesDialogProps {
+  open: boolean;
+  close?: ((open: boolean) => void) | null;
+}
+
+export default function CustomTilesDialog({ open, close = null }: CustomTilesDialogProps) {
   const [formData] = useSettingsToFormData();
   const { isLoading, actionsList } = useActionList(formData?.gameMode);
 
@@ -11,7 +16,7 @@ export default function CustomTilesDialog({ open, close = null }) {
 
   return (
     <CustomTiles
-      setOpen={close}
+      setOpen={close || (() => {})}
       boardUpdated={() => null} // no need to call boardUpdated in this case
       actionsList={actionsList}
       open={open}

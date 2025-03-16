@@ -1,7 +1,7 @@
 import { Autocomplete, Box, Button, TextField, Typography } from '@mui/material';
 import TileCategorySelection from '@/Components/TileCategorySelection';
 import { submitCustomAction } from '@/services/firebase';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, KeyboardEvent, FocusEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
@@ -9,6 +9,15 @@ import AccordionDetails from '@/components/Accordion/Details';
 import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
 import useGameSettings from '@/hooks/useGameSettings';
 import groupActionsFolder from '@/helpers/actionsFolder';
+import { AddCustomTileProps, CustomTile, ProcessedGroups } from '@/types/customTiles';
+
+interface FormDataState {
+  gameMode: string;
+  group: string;
+  intensity: string | number;
+  action: string;
+  tags: string[];
+}
 
 export default function AddCustomTile({
   setSubmitMessage,
@@ -20,11 +29,11 @@ export default function AddCustomTile({
   tagList,
   updateTileId,
   setUpdateTileId,
-}) {
+}: AddCustomTileProps) {
   const { t } = useTranslation();
   const { settings } = useGameSettings();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataState>({
     gameMode: settings.gameMode || 'online',
     group: '',
     intensity: '',
@@ -33,18 +42,18 @@ export default function AddCustomTile({
   });
 
   // For the TileCategorySelection component
-  const [groups, setGroups] = useState({});
+  const [groups, setGroups] = useState<ProcessedGroups>({});
 
   // Process mappedGroups to create a structure for TileCategorySelection
   // Update the useEffect that processes mappedGroups
   useEffect(() => {
     try {
       // Process groups for the current game mode
-      const processedGroups = {};
+      const processedGroups: ProcessedGroups = {};
 
       // Extract groups from mappedGroups for the current game mode
-      if (mappedGroups[formData.gameMode]) {
-        const gameModeGroups = groupActionsFolder(mappedGroups[formData.gameMode]);
+      if (mappedGroups[formData.gameMode as keyof typeof mappedGroups]) {
+        const gameModeGroups = groupActionsFolder(mappedGroups[formData.gameMode as keyof typeof mappedGroups]);
 
         // Process each group
         gameModeGroups.forEach((groupItem) => {
@@ -120,16 +129,16 @@ export default function AddCustomTile({
         gameMode: settings.gameMode,
       }));
     }
-  }, [updateTileId, settings.gameMode, customTiles]);
+  }, [updateTileId, settings.gameMode, customTiles, t]);
 
-  function tileExists(group, intensity, newAction) {
+  function tileExists(group: string, intensity: string | number, newAction: string): CustomTile | undefined {
     const tilesArray = Array.isArray(customTiles) ? customTiles : [];
     return tilesArray.find(
       (tile) => tile.group === group && tile.intensity === intensity && tile.action === newAction
     );
   }
 
-  function clear() {
+  function clear(): void {
     setUpdateTileId(null);
     setFormData({
       gameMode: settings.gameMode,
@@ -140,9 +149,9 @@ export default function AddCustomTile({
     });
   }
 
-  async function submitNewTile() {
+  async function submitNewTile(): Promise<void> {
     // Check if there's text in the tag input field and add it to tags
-    const tagInput = document.querySelector('input[name="tags"]');
+    const tagInput = document.querySelector('input[name="tags"]') as HTMLInputElement | null;
     const currentTags = [...formData.tags];
 
     if (tagInput && tagInput.value.trim()) {
@@ -164,7 +173,7 @@ export default function AddCustomTile({
       return setSubmitMessage({ message: t('actionExists'), type: 'error' });
     }
 
-    const data = {
+    const data: CustomTile = {
       group,
       intensity,
       action,
@@ -177,8 +186,8 @@ export default function AddCustomTile({
       // Get the label from mappedGroups using group and intensity
       let groupLabel = `${group} - Level ${intensity}`;
 
-      if (Array.isArray(groupActionsFolder(mappedGroups?.[gameMode]))) {
-        const foundGroup = groupActionsFolder(mappedGroups[gameMode]).find(
+      if (Array.isArray(groupActionsFolder(mappedGroups?.[gameMode as keyof typeof mappedGroups]))) {
+        const foundGroup = groupActionsFolder(mappedGroups[gameMode as keyof typeof mappedGroups]).find(
           (g) => g.value === group && g.intensity === Number(intensity)
         );
         if (foundGroup?.label) {
@@ -204,19 +213,19 @@ export default function AddCustomTile({
     return setSubmitMessage({ message: t('customAdded'), type: 'success' });
   }
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     switch (event.key) {
       case ',':
       case 'Enter': {
         event.preventDefault();
         event.stopPropagation();
-        if (event.target.value.length > 0) {
+        if (event.currentTarget.value.length > 0) {
           setFormData((prev) => ({
             ...prev,
-            tags: [...prev.tags, event.target.value],
+            tags: [...prev.tags, event.currentTarget.value],
           }));
           // Clear the input after adding the tag
-          event.target.value = '';
+          event.currentTarget.value = '';
         }
         break;
       }
@@ -224,7 +233,7 @@ export default function AddCustomTile({
     }
   };
 
-  const handleTagInputBlur = (event) => {
+  const handleTagInputBlur = (event: FocusEvent<HTMLInputElement>): void => {
     if (event.target.value.length > 0) {
       setFormData((prev) => ({
         ...prev,
@@ -239,7 +248,7 @@ export default function AddCustomTile({
       // Close any open dropdown
       const popperElement = document.querySelector('.MuiAutocomplete-popper');
       if (popperElement) {
-        popperElement.style.display = 'none';
+        (popperElement as HTMLElement).style.display = 'none';
       }
     }, 150);
   };
@@ -310,7 +319,7 @@ export default function AddCustomTile({
             options={tagList}
             value={formData.tags}
             onChange={(_event, newValues) => {
-              setFormData({ ...formData, tags: newValues });
+              setFormData({ ...formData, tags: newValues as string[] });
             }}
             renderInput={(params) => {
               params.inputProps.onKeyDown = handleKeyDown;

@@ -1,11 +1,12 @@
 import groupActionsFolder from "@/helpers/actionsFolder";
+import { CustomTile, GetUniqueImportRecordsResult, AllGameModeActions } from "@/types/customTiles";
 
 /**
  * Validates the group match within each entry.
  * @param {string} entry - The entry to validate.
  * @throws Will throw an error if the entry does not contain exactly two brackets.
  */
-function validateGroupMatch(entry) {
+function validateGroupMatch(entry: string): void {
   const groupMatch = entry.match(/\[|\]/g)?.length;
   if (groupMatch !== 2) {
     throw new Error('ctSeparatorError');
@@ -18,7 +19,7 @@ function validateGroupMatch(entry) {
  * @param {Array} tags2 - The second array of tags.
  * @returns {boolean} - True if the arrays contain the same tags, false otherwise.
  */
-function areTagsEqual(tags1, tags2) {
+function areTagsEqual(tags1: string[] | undefined, tags2: string[] | undefined): boolean {
   const sortedTags1 = tags1?.sort() || [];
   const sortedTags2 = tags2?.sort() || [];
   return JSON.stringify(sortedTags1) === JSON.stringify(sortedTags2);
@@ -31,7 +32,7 @@ function areTagsEqual(tags1, tags2) {
  * @returns {Object} - The parsed tile as an object.
  * @throws Will throw an error if the tile cannot be parsed correctly.
  */
-function parseTile(tile, mappedGroups) {
+function parseTile(tile: string, mappedGroups: AllGameModeActions): CustomTile {
   const lines = tile.split('\n').filter(Boolean);
   const preGrouping = lines[0];
   const action = lines[1];
@@ -48,7 +49,7 @@ function parseTile(tile, mappedGroups) {
   const [group, intensity] = withoutBrackets.split(' - ');
 
   // Get the appropriate groups for this game mode
-  const gameModeGroups = groupActionsFolder(mappedGroups[gameMode] || {});
+  const gameModeGroups = groupActionsFolder(mappedGroups[gameMode as keyof AllGameModeActions] || {});
   
   const appGroup = gameModeGroups.find(
     (mapped) => mapped.translatedIntensity === intensity && mapped.group === group
@@ -73,19 +74,23 @@ function parseTile(tile, mappedGroups) {
 
 /**
  * Processes import data to identify new unique records and existing records with changed tags.
- * @param {Object} importData - The import data to process.
+ * @param {string} importData - The import data to process.
  * @param {Array} customTiles - The array of existing custom tiles.
  * @param {Object} mappedGroups - The object of mapped groups by game mode.
  * @returns {Object} - An object containing new unique records and existing records with changed tags.
  */
-export default function getUniqueImportRecords(importData, customTiles, mappedGroups) {
+export default function getUniqueImportRecords(
+  importData: string, 
+  customTiles: CustomTile[], 
+  mappedGroups: AllGameModeActions
+): GetUniqueImportRecordsResult {
   const preArray = importData?.split('---') || [];
   preArray.forEach(validateGroupMatch);
 
   const result = preArray.map((tile) => parseTile(tile, mappedGroups)).filter(Boolean);
 
-  const newUniqueRecords = [];
-  const changedTagRecords = [];
+  const newUniqueRecords: CustomTile[] = [];
+  const changedTagRecords: CustomTile[] = [];
 
   result.forEach((entry) => {
     const existingRecord = customTiles.find(

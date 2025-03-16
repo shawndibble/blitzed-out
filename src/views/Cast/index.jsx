@@ -12,27 +12,37 @@ import RoomBackground from '@/components/RoomBackground';
 import './styles.css';
 import useFullscreenStatus from '@/hooks/useFullscreenStatus';
 import React from 'react';
+import { ActionCard, Message, TurnIndicator } from '@/types/cast';
 
 const ACTION_TYPE = 'actions';
 
-const actionCard = (lastAction) => {
+const actionCard = (lastAction: Message): ActionCard => {
   const { text, displayName } = lastAction;
   if (!displayName) return {};
 
   const splitText = text?.split('\n');
   const [typeString, activityString] = splitText?.slice(1) || [];
-  const type = typeString?.split(':')[1].trim();
-  const activity = activityString?.split(':')[1].trim();
+  const type = typeString?.split(':')[1]?.trim();
+  const activity = activityString?.split(':')[1]?.trim();
 
   return { displayName, type, activity };
 };
 
+// Define the Cast interface for window
+interface CastWindow extends Window {
+  cast?: {
+    framework?: {
+      CastReceiverContext?: any;
+    };
+  };
+}
+
 export default function Cast() {
-  const { id: room } = useParams();
+  const { id: room } = useParams<{ id: string }>();
   const { messages, isLoading } = useMessages();
-  const [alertMessage, setAlertMessage] = useState('');
-  const [openAlert, setOpenAlert] = useState(false);
-  const [isCastReceiver, setIsCastReceiver] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string>('');
+  const [openAlert, setOpenAlert] = useState<boolean>(false);
+  const [isCastReceiver, setIsCastReceiver] = useState<boolean>(false);
 
   const { isVideo, url } = usePrivateRoomBackground(messages);
 
@@ -42,8 +52,9 @@ export default function Cast() {
 
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
+    const castWindow = window as CastWindow;
     const isCastEnvironment =
-      window.cast && window.cast.framework && window.cast.framework.CastReceiverContext;
+      castWindow.cast && castWindow.cast.framework && castWindow.cast.framework.CastReceiverContext;
 
     if (isCastEnvironment) {
       document.body.classList.add('cast-receiver-mode');

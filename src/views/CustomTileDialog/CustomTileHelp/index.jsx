@@ -3,8 +3,9 @@ import Accordion from '@/components/Accordion';
 import AccordionDetails from '@/components/Accordion/Details';
 import AccordionSummary from '@/components/Accordion/Summary';
 import { Trans } from 'react-i18next';
+import { CustomTileHelpProps } from '@/types/customTiles';
 
-export default function CustomTileHelp({ expanded, handleChange }) {
+export default function CustomTileHelp({ expanded, handleChange }: CustomTileHelpProps) {
   return (
     <>
       <Accordion expanded={expanded === 'help1'} onChange={handleChange('help1')}>

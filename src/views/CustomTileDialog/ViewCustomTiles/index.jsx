@@ -24,6 +24,24 @@ import { Trans } from 'react-i18next';
 import { useTranslation } from 'react-i18next';
 import useGameSettings from '@/hooks/useGameSettings';
 import groupActionsFolder from '@/helpers/actionsFolder';
+import { ViewCustomTilesProps, CustomTile, ProcessedGroups } from '@/types/customTiles';
+
+interface TileData {
+  items: CustomTile[];
+  total: number;
+  totalPages: number;
+}
+
+interface TileFilters {
+  group: string;
+  intensity: string | number | null;
+  tag: string | null;
+  gameMode: string;
+  locale: string;
+  page: number;
+  limit: number;
+  paginated: boolean;
+}
 
 export default function ViewCustomTiles({
   tagList,
@@ -31,17 +49,17 @@ export default function ViewCustomTiles({
   mappedGroups,
   updateTile,
   refreshTrigger,
-}) {
+}: ViewCustomTilesProps) {
   const { t, i18n } = useTranslation();
   const { settings } = useGameSettings();
-  const [tagFilter, setTagFilter] = useState(null);
-  const [gameModeFilter, setGameModeFilter] = useState(settings.gameMode || 'online');
-  const [groupFilter, setGroupFilter] = useState('');
-  const [intensityFilter, setIntensityFilter] = useState('');
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [tiles, setTiles] = useState({ items: [], total: 0, totalPages: 1 });
-  const [groups, setGroups] = useState({});
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [gameModeFilter, setGameModeFilter] = useState<string>(settings.gameMode || 'online');
+  const [groupFilter, setGroupFilter] = useState<string>('');
+  const [intensityFilter, setIntensityFilter] = useState<string>('');
+  const [page, setPage] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [tiles, setTiles] = useState<TileData>({ items: [], total: 0, totalPages: 1 });
+  const [groups, setGroups] = useState<ProcessedGroups>({});
 
   const limit = 10;
 
@@ -82,7 +100,7 @@ export default function ViewCustomTiles({
     }
 
     loadGroups();
-  }, [gameModeFilter, i18n.resolvedLanguage, tagFilter]);
+  }, [gameModeFilter, i18n.resolvedLanguage, tagFilter, groupFilter, intensityFilter]);
 
   // Load tiles when filters change
   useEffect(() => {
@@ -91,7 +109,7 @@ export default function ViewCustomTiles({
     async function loadTiles() {
       try {
         setLoading(true);
-        const filters = {
+        const filters: TileFilters = {
           group: groupFilter,
           intensity: intensityFilter === 'all' ? null : intensityFilter, // Send empty string for 'all'
           tag: tagFilter,
@@ -106,7 +124,7 @@ export default function ViewCustomTiles({
 
         // Only update state if component is still mounted
         if (isMounted) {
-          setTiles(tileData);
+          setTiles(tileData as TileData);
           // Add a small delay before removing loading state for smoother transitions
           setTimeout(() => {
             if (isMounted) {
@@ -144,7 +162,7 @@ export default function ViewCustomTiles({
     settings.locale,
   ]);
 
-  function toggleTagFilter(tag) {
+  function toggleTagFilter(tag: string): void {
     setLoading(true);
     if (tagFilter === tag) {
       setTagFilter(null);
@@ -153,18 +171,18 @@ export default function ViewCustomTiles({
     }
   }
 
-  function handlePageChange(_, newPage) {
+  function handlePageChange(_: React.ChangeEvent<unknown>, newPage: number): void {
     setLoading(true);
     setPage(newPage);
   }
 
-  async function deleteTile(index) {
+  async function deleteTile(index: number): Promise<void> {
     await deleteCustomTile(index);
     boardUpdated();
     // Refresh the current page
-    const filters = {
+    const filters: TileFilters = {
       group: groupFilter,
-      intensity: intensityFilter === 'all' ? '' : intensityFilter, // Send empty string for 'all'
+      intensity: intensityFilter === 'all' ? null : intensityFilter, // Send empty string for 'all'
       tag: tagFilter,
       gameMode: gameModeFilter,
       locale: settings.locale,
@@ -173,10 +191,10 @@ export default function ViewCustomTiles({
       paginated: true,
     };
     const tileData = await getTiles(filters);
-    setTiles(tileData);
+    setTiles(tileData as TileData);
   }
 
-  async function toggleTile(id) {
+  async function toggleTile(id: number): Promise<void> {
     await toggleCustomTile(id);
     boardUpdated();
     // Update the tile in the current list without reloading
@@ -188,7 +206,7 @@ export default function ViewCustomTiles({
     }));
   }
 
-  function handleUpdateTile(id) {
+  function handleUpdateTile(id: number): void {
     updateTile(id);
     // Scroll to the top of the dialog where the AddCustomTile component is
     const dialogContent = document.querySelector('.MuiDialogContent-root');
@@ -208,9 +226,9 @@ export default function ViewCustomTiles({
             action: { 'aria-label': t('customTiles.actions') },
           }}
           subheader={
-            mappedGroups?.[gameModeFilter] &&
-            Array.isArray(groupActionsFolder(mappedGroups[gameModeFilter]))
-              ? groupActionsFolder(mappedGroups[gameModeFilter]).find(
+            mappedGroups?.[gameModeFilter as keyof typeof mappedGroups] &&
+            Array.isArray(groupActionsFolder(mappedGroups[gameModeFilter as keyof typeof mappedGroups]))
+              ? groupActionsFolder(mappedGroups[gameModeFilter as keyof typeof mappedGroups]).find(
                   ({ value, intensity: inten }) => value === group && inten === Number(intensity)
                 )?.label
               : `${group} - Level ${intensity}`
@@ -219,18 +237,21 @@ export default function ViewCustomTiles({
             <>
               <Switch
                 checked={!!isEnabled}
-                onChange={() => toggleTile(id)}
+                onChange={() => id !== undefined && toggleTile(id)}
                 slotProps={{ input: { 'aria-label': t('customTiles.toggleTile') } }}
               />
               {!!isCustom && (
                 <>
                   <IconButton
-                    onClick={() => handleUpdateTile(id)}
+                    onClick={() => id !== undefined && handleUpdateTile(id)}
                     aria-label={t('customTiles.update')}
                   >
                     <Edit />
                   </IconButton>
-                  <IconButton onClick={() => deleteTile(id)} aria-label={t('customTiles.delete')}>
+                  <IconButton 
+                    onClick={() => id !== undefined && deleteTile(id)} 
+                    aria-label={t('customTiles.delete')}
+                  >
                     <Delete />
                   </IconButton>
                 </>

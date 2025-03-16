@@ -9,6 +9,13 @@ import CopyToClipboard from '@/components/CopyToClipboard';
 import getUniqueImportRecords from './getUniqueImportRecords';
 import { updateCustomTile } from '@/stores/customTiles';
 import groupActionsFolder from '@/helpers/actionsFolder';
+import { ImportExportProps, CustomTile } from '@/types/customTiles';
+
+interface FormData {
+  importData: {
+    value: string;
+  };
+}
 
 export default function ImportExport({
   expanded,
@@ -17,10 +24,10 @@ export default function ImportExport({
   mappedGroups,
   setSubmitMessage,
   bulkImport,
-}) {
-  const formData = useRef();
+}: ImportExportProps) {
+  const formData = useRef<HTMLFormElement>(null);
   const { t } = useTranslation();
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState<string>('');
 
   const exportData = () => {
     const userCustomTiles = customTiles.filter((tile) => tile.isCustom);
@@ -28,7 +35,7 @@ export default function ImportExport({
     const customString = userCustomTiles.map(
       ({ group, intensity, action, tags, gameMode = 'online' }) => {
         // Get the appropriate groups for this tile's game mode
-        const gameModeGroups = groupActionsFolder(mappedGroups[gameMode] || {});
+        const gameModeGroups = groupActionsFolder(mappedGroups[gameMode as keyof typeof mappedGroups] || {});
 
         // Find the matching group data
         const userData = gameModeGroups.find(
@@ -48,20 +55,24 @@ export default function ImportExport({
     setInputValue(customString.join('\n---\n'));
   };
 
-  async function importTiles(formData) {
-    const { importData } = formData.current;
-    let uniqueRecords = [];
-    let changedRecords = [];
+  async function importTiles(formRef: React.RefObject<HTMLFormElement>) {
+    if (!formRef.current) return;
+    
+    const form = formRef.current as unknown as { importData: HTMLInputElement };
+    const importDataValue = form.importData.value;
+    
+    let uniqueRecords: CustomTile[] = [];
+    let changedRecords: CustomTile[] = [];
 
     try {
       const { newUniqueRecords, changedTagRecords } = getUniqueImportRecords(
-        importData.value,
+        importDataValue,
         customTiles,
         mappedGroups
       );
       uniqueRecords = newUniqueRecords;
       changedRecords = changedTagRecords;
-    } catch (error) {
+    } catch (error: any) {
       return setSubmitMessage({
         type: 'error',
         message: t(error.message),
@@ -83,9 +94,11 @@ export default function ImportExport({
     }
 
     if (changedRecords.length) {
-      await changedRecords.forEach(async (record) => {
-        await updateCustomTile(record.id, record);
-      });
+      await Promise.all(changedRecords.map(async (record) => {
+        if (record.id !== undefined) {
+          await updateCustomTile(record.id, record);
+        }
+      }));
     }
 
     return exportData();

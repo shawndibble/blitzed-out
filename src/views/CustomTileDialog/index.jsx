@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, SyntheticEvent } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Dialog, DialogContent, DialogTitle, Divider, IconButton, Grid2, Box } from '@mui/material';
 import { Close } from '@mui/icons-material';
@@ -11,31 +11,32 @@ import ImportExport from '@/views/CustomTileDialog/ImportExport';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
+import { CustomTileDialogProps, CustomTile, AllGameModeActions, SubmitMessage } from '@/types/customTiles';
 
-export default function CustomTileDialog({ boardUpdated, setOpen, open = false }) {
+export default function CustomTileDialog({ boardUpdated, setOpen, open = false }: CustomTileDialogProps) {
   const { t, i18n } = useTranslation();
   const isMobile = useBreakpoint();
   const isSmallScreen = useBreakpoint('md');
-  const [submitMessage, setSubmitMessage] = useState({
+  const [submitMessage, setSubmitMessage] = useState<SubmitMessage>({
     message: '',
     type: 'info',
   });
-  const [expanded, setExpanded] = useState('ctAdd');
-  const [tileId, setTileId] = useState(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [allGameModeActions, setAllGameModeActions] = useState({
+  const [expanded, setExpanded] = useState<string>('ctAdd');
+  const [tileId, setTileId] = useState<number | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+  const [allGameModeActions, setAllGameModeActions] = useState<AllGameModeActions>({
     online: {},
     local: {},
   });
-  const [isLoadingActions, setIsLoadingActions] = useState(true);
+  const [isLoadingActions, setIsLoadingActions] = useState<boolean>(true);
 
   // Create a function to trigger refresh of the ViewCustomTiles component
   const triggerRefresh = useCallback(() => {
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
-  const handleChange = (panel) => (_event, newExpanded) => {
-    setExpanded(newExpanded ? panel : false);
+  const handleChange = (panel: string) => (_event: SyntheticEvent, newExpanded: boolean) => {
+    setExpanded(newExpanded ? panel : '');
   };
 
   // Load actions for both game modes
@@ -79,7 +80,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
   }, [allTiles]);
 
   const bulkImport = useCallback(
-    async (records) => {
+    async (records: CustomTile[]) => {
       await importCustomTiles(records);
       boardUpdated();
       triggerRefresh();
@@ -101,7 +102,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
             boardUpdated();
             triggerRefresh();
           }}
-          customTiles={allTiles}
+          customTiles={allTiles as CustomTile[]}
           mappedGroups={allGameModeActions}
           expanded={expanded}
           handleChange={handleChange}
@@ -113,7 +114,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
         <ImportExport
           expanded={expanded}
           handleChange={handleChange}
-          customTiles={allTiles}
+          customTiles={allTiles as CustomTile[]}
           mappedGroups={allGameModeActions}
           setSubmitMessage={setSubmitMessage}
           bulkImport={bulkImport}
@@ -130,7 +131,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
             triggerRefresh();
           }}
           mappedGroups={allGameModeActions}
-          updateTile={(id) => {
+          updateTile={(id: number) => {
             setTileId(id);
             setExpanded('ctAdd');
           }}
