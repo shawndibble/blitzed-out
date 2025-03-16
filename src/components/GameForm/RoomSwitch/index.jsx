@@ -1,5 +1,5 @@
 import { Help } from '@mui/icons-material';
-import { Stack, Switch, TextField, Tooltip, Typography, Collapse } from '@mui/material';
+import { Stack, Switch, TextField, Tooltip, Typography } from '@mui/material';
 import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
 import { useCallback } from 'react';
@@ -10,26 +10,24 @@ export default function RoomSwitch({ formData, setFormData }) {
   const { id: room } = useParams();
   const { t } = useTranslation();
 
-  const togglePrivateRoomField = useCallback(
-    (event) => {
-      let roomId;
+  const togglePrivateRoomField = (event) => {
+    let roomId;
 
-      if (event.target.checked && isPublicRoom(room)) {
-        roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-      } else if (event.target.checked && !isPublicRoom(room)) {
-        roomId = room;
-      } else {
-        roomId = 'PUBLIC';
-      }
+    if (event.target.checked && isPublicRoom(room)) {
+      roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
+      console.log('roomId', roomId);
+    } else if (event.target.checked && !isPublicRoom(room)) {
+      roomId = room;
+    } else {
+      roomId = 'PUBLIC';
+    }
 
-      setFormData({
-        ...formData,
-        room: roomId,
-        gameMode: isPublicRoom(roomId) ? 'online' : formData.gameMode,
-      });
-    },
-    [room, formData, setFormData]
-  );
+    setFormData({
+      ...formData,
+      room: roomId,
+      gameMode: isPublicRoom(roomId) ? 'online' : formData.gameMode,
+    });
+  };
 
   const handleChange = useCallback(
     (event) => {
@@ -59,7 +57,7 @@ export default function RoomSwitch({ formData, setFormData }) {
           id="showPrivate"
           checked={isPrivate}
           onChange={togglePrivateRoomField}
-          inputProps={{ 'aria-label': t('room') }}
+          slotProps={{ input: { 'aria-label': t('room') } }}
         />
         <Typography>
           <Trans i18nKey="private" />
@@ -75,8 +73,7 @@ export default function RoomSwitch({ formData, setFormData }) {
           <Help sx={{ fontSize: 15 }} />
         </Tooltip>
       </Stack>
-
-      <Collapse in={isPrivate} timeout={500}>
+      {isPrivate && (
         <TextField
           fullWidth
           id="privateRoom"
@@ -86,7 +83,7 @@ export default function RoomSwitch({ formData, setFormData }) {
           onBlur={handleChange}
           onKeyDown={handleChange}
         />
-      </Collapse>
+      )}
     </>
   );
 }
