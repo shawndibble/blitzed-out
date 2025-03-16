@@ -20,7 +20,7 @@ export default function useSettingsToFormData<T extends FormData>(
   // default < localstorage < override.
   const [formData, setFormData] = useState<T>({
     ...defaultSettings,
-    ...settings,
+    ...(settings || {} as T),
     ...overrideSettings,
   } as T);
   const { messages } = useMessages();

@@ -13,17 +13,18 @@ export default function useReturnToStart(): () => Promise<void> {
   const { id: room } = useParams<RouteParams>();
   const { user } = useAuth();
 
-  let message = `${t('restartingGame')}\n`;
-  message += `#1: ${t('start')}\n`;
-  message += `${t('action')}: ${t('start')}`;
-  
-  const send = (): Promise<void> =>
-    sendMessage({
+  const send = useCallback((): Promise<void> => {
+    let message = `${t('restartingGame')}\n`;
+    message += `#1: ${t('start')}\n`;
+    message += `${t('action')}: ${t('start')}`;
+    
+    return sendMessage({
       room,
       user,
       text: message,
       type: 'actions',
     });
+  }, [room, user, t]);
 
-  return useCallback(() => send(), [room, user, t]);
+  return send;
 }

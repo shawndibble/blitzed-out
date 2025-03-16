@@ -3,7 +3,7 @@ import useAuth from '@/context/hooks/useAuth';
 import useGameBoard from '@/hooks/useGameBoard';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useMessages from '@/context/hooks/useMessages';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { importActions } from '@/services/importLocales';
@@ -39,20 +39,20 @@ export default function usePrivateRoomMonitor(
   const { user } = useAuth();
 
   const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
-  const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
   const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState<string>(DEFAULT_DIEM);
   const [roomBgUrl, setRoomBackground] = useState<string>('');
   const updateGameBoardTiles = useGameBoard();
 
-  const rebuildGameBoard = async (messageSettings: any, messageUser: string | null = null): Promise<void> => {
+  const rebuildGameBoard = useCallback(async (messageSettings: any, messageUser: string | null = null): Promise<void> => {
     const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
 
     const message: any = {
       formData: { ...settings, ...messageSettings },
       user,
       customTiles,
-      actionsList: importActions(i18n.resolvedLanguage, gameMode),
+      actionsList: await importActions(i18n.resolvedLanguage, gameMode || 'online'),
       tiles: newBoard,
       title: t('settingsGenerated'),
     };
@@ -61,12 +61,12 @@ export default function usePrivateRoomMonitor(
     }
 
     await sendGameSettingsMessage(message);
-  };
+  }, [settings, user, customTiles, i18n.resolvedLanguage, t, updateGameBoardTiles]);
 
-  const roomChanged = async (): Promise<void> => {
+  const roomChanged = useCallback(async (): Promise<void> => {
     await updateSettings({ ...settings, room });
     await rebuildGameBoard({ ...settings, roomUpdated: true, room });
-  };
+  }, [settings, room, updateSettings, rebuildGameBoard]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -85,7 +85,7 @@ export default function usePrivateRoomMonitor(
       setRoomBackground(roomBackgroundURL || '');
 
       const shouldRebuildGameBoard =
-        roomMessage.uid !== user.uid &&
+        roomMessage.uid !== user?.uid &&
         roomTileCount &&
         gameBoard?.tile?.length &&
         roomTileCount !== gameBoard?.tile?.length;
@@ -103,12 +103,12 @@ export default function usePrivateRoomMonitor(
     }
 
     // make sure if I am in a public room, I can't send out private room settings.
-    if (isPublicRoom(room) && !isOnlineMode(settings?.gameMode)) {
+    if (isPublicRoom(room) && !isOnlineMode(settings?.gameMode || '')) {
       return;
     }
 
     // if I am changing the room and have a game board, announce the board.
-    if (room !== settings.room && gameBoard?.length) {
+    if (room !== settings?.room && gameBoard?.length) {
       roomChanged();
       return;
     }
@@ -116,7 +116,7 @@ export default function usePrivateRoomMonitor(
     if (settings?.roomBackgroundURL?.length) {
       setRoomBackground(settings.roomBackgroundURL);
     }
-  }, [room, messages, isLoading, settings.room]);
+  }, [room, messages, isLoading, settings, user, gameBoard, rebuildGameBoard, roomChanged]);
 
   return { roller, roomBgUrl };
 }

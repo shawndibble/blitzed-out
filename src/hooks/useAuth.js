@@ -13,7 +13,7 @@ interface AuthContextType {
   [key: string]: any;
 }
 
-export function useAuth(): AuthContextType {
+export default function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
 
   if (context === undefined) {

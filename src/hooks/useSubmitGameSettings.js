@@ -12,6 +12,7 @@ import useMessages from '@/context/hooks/useMessages';
 import useRoomNavigate from './useRoomNavigate';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
+import { useCallback } from 'react';
 
 interface FormData {
   room: string;
@@ -62,20 +63,20 @@ export default function useSubmitGameSettings(): (formData: FormData, actionsLis
   const { t } = useTranslation();
   const updateGameBoardTiles = useGameBoard();
   const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
-  const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();
 
-  const handleRoomChange = (formData: FormData): RoomChangeResult => {
-    const roomChanged = room.toUpperCase() !== formData.room.toUpperCase();
+  const handleRoomChange = useCallback((formData: FormData): RoomChangeResult => {
+    const roomChanged = room?.toUpperCase() !== formData.room.toUpperCase();
     const isPrivateRoom = formData.room && !isPublicRoom(formData.room);
     const privateBoardSizeChanged =
-      isPrivateRoom && formData.roomTileCount !== settings.roomTileCount;
+      isPrivateRoom && formData.roomTileCount !== settings?.roomTileCount;
     return { roomChanged, isPrivateRoom, privateBoardSizeChanged };
-  };
+  }, [room, settings?.roomTileCount]);
 
-  async function submitSettings(formData: FormData, actionsList: any): Promise<void> {
+  const submitSettings = useCallback(async (formData: FormData, actionsList: any): Promise<void> => {
     const { displayName } = formData;
     const updatedUser = await handleUser(user, displayName, updateUser);
 
@@ -116,7 +117,7 @@ export default function useSubmitGameSettings(): (formData: FormData, actionsLis
     });
 
     navigate(formData.room);
-  }
+  }, [user, updateUser, updateGameBoardTiles, handleRoomChange, messages, gameBoard, t, customTiles, updateSettings, navigate]);
 
-  return (formData: FormData, actionsList: any) => submitSettings(formData, actionsList);
+  return useCallback((formData: FormData, actionsList: any) => submitSettings(formData, actionsList), [submitSettings]);
 }

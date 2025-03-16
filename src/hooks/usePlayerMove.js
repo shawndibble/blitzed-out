@@ -42,7 +42,7 @@ function getFinishResult(textArray: string[]): string {
 
   const result = weightedArray[Math.floor(Math.random() * weightedArray.length)];
 
-  return finishValues.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '');
+  return finishValues.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '') || '';
 }
 
 function parseDescription(text: string | undefined, role: string, displayName: string): string {
@@ -50,7 +50,7 @@ function parseDescription(text: string | undefined, role: string, displayName: s
   // our finish tile has %, so if we have it, figure out the result.
   const textArray = text.split('%');
   if (textArray.length <= 1) {
-    return actionStringReplacement(text, role || '', displayName);
+    return actionStringReplacement(text, role || '', displayName || '');
   }
 
   return getFinishResult(textArray);
@@ -79,7 +79,7 @@ export default function usePlayerMove(
       const description = parseDescription(
         newTile.description || '',
         newTile.role || '',
-        user.displayName
+        user?.displayName || ''
       );
       if (rollNumber !== -1) {
         message += `${t('roll')}: ${rollNumber}\n`;
@@ -99,7 +99,7 @@ export default function usePlayerMove(
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
-  function getNewLocation(rollNumber: number): LocationResult {
+  const getNewLocation = useCallback((rollNumber: number): LocationResult => {
     // -1 is used to restart the game.
     if (rollNumber === -1) {
       return {
@@ -124,7 +124,7 @@ export default function usePlayerMove(
       return { newLocation: lastTile };
     }
     return { newLocation };
-  }
+  }, [playerList, lastTile, t]);
 
   useEffect(() => {
     const rollNumber = Array.isArray(rollValue.value) 
@@ -148,7 +148,7 @@ export default function usePlayerMove(
         `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}`
       );
     }
-  }, [rollValue, gameBoard, handleTextOutput, playerList, t]);
+  }, [rollValue, gameBoard, handleTextOutput, getNewLocation]);
 
   return { tile, playerList };
 }

@@ -1,5 +1,5 @@
 import { getBoard } from '@/services/firebase';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { upsertBoard } from '@/stores/gameBoard';
@@ -24,28 +24,28 @@ export default function useUrlImport(
   const importBoard = queryParams.get('importBoard');
   const { t } = useTranslation();
 
-  function clearAlert(): void {
+  const clearAlert = useCallback((): void => {
     setAlert(null);
-  }
+  }, []);
 
-  function parseGameBoard(gameBoardString: string): any[] | null {
+  const parseGameBoard = useCallback((gameBoardString: string): any[] | null => {
     try {
       const gameBoard = JSON.parse(gameBoardString);
       return Array.isArray(gameBoard) ? gameBoard : null;
     } catch {
       return null;
     }
-  }
+  }, []);
 
-  function parseSettings(settingsString?: string): Settings {
+  const parseSettings = useCallback((settingsString?: string): Settings => {
     try {
       return settingsString ? JSON.parse(settingsString) : {};
     } catch {
       return {};
     }
-  }
+  }, []);
 
-  const importGameBoard = async (): Promise<void> => {
+  const importGameBoard = useCallback(async (): Promise<void> => {
     setParams({});
     if (!importBoard) return;
     
@@ -65,13 +65,13 @@ export default function useUrlImport(
     if (alert !== t('updated')) {
       setAlert(t('updated'));
     }
-  };
+  }, [importBoard, parseGameBoard, parseSettings, settings, setSettings, t, alert]);
 
   useEffect(() => {
     if (importBoard) {
       importGameBoard();
     }
-  }, [importBoard]);
+  }, [importBoard, importGameBoard]);
 
   return [alert, clearAlert];
 }

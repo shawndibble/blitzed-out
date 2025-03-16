@@ -45,18 +45,19 @@ export default function useSoundAndDialog(room?: string): DialogResult {
   const [playMessageSound] = useSound(messageSound);
   const [settings] = useLocalStorage<Settings>('gameSettings');
   
-  const { playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll } = settings;
+  const { playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll } = settings || {};
 
-  const latestMessage = useMemo(() => [...messages].pop(), [messages.length]);
+  const latestMessage = useMemo(() => [...messages].pop(), [messages]);
 
   const speakText = useCallback((text: string | undefined, language: string): void => {
     if (text) speak(text, language);
   }, []);
 
-  const newMessage = latestMessage ? 
+  const newMessage = useMemo(() => latestMessage ? 
     moment(latestMessage.timestamp?.toDate()).diff(moment(), 'seconds') >= -2 : 
-    false;
-  const myMessage = latestMessage?.uid === user?.uid;
+    false, [latestMessage]);
+    
+  const myMessage = useMemo(() => latestMessage?.uid === user?.uid, [latestMessage, user]);
   const showPlayerDialog = Boolean(playerDialog && myMessage);
   const showOthersDialog = Boolean(othersDialog && !myMessage);
   const playDiceSoundCondition =
@@ -86,7 +87,6 @@ export default function useSoundAndDialog(room?: string): DialogResult {
       }
     }
   }, [
-    messages,
     i18n.resolvedLanguage,
     latestMessage,
     myMessage,
@@ -104,6 +104,6 @@ export default function useSoundAndDialog(room?: string): DialogResult {
   return {
     message: popupMessage,
     setMessage: setPopupMessage,
-    isMyMessage: myMessage,
+    isMyMessage: Boolean(myMessage),
   };
 }

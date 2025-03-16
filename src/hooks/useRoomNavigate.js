@@ -9,7 +9,7 @@ export default function useRoomNavigate(): (formRoom?: string) => void {
   const navigate = useNavigate();
 
   const changeRooms = (formRoom?: string): void => {
-    if (room.toUpperCase() !== formRoom?.toUpperCase()) {
+    if (room?.toUpperCase() !== formRoom?.toUpperCase()) {
       navigate(`/${formRoom || 'PUBLIC'}`);
     }
   };

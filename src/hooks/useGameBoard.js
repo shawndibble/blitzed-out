@@ -7,6 +7,7 @@ import { importActions } from '@/services/importLocales';
 import { getActiveTiles } from '@/stores/customTiles';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
 import { isOnlineMode } from '@/helpers/strings';
+import { useCallback } from 'react';
 
 interface FormData {
   roomUpdate?: boolean;
@@ -44,7 +45,7 @@ export default function useGameBoard(): (data?: FormData) => Promise<GameBoardRe
   const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
   const { i18n } = useTranslation();
 
-  async function updateGameBoard(data: FormData = {}): Promise<GameBoardResult> {
+  const updateGameBoard = useCallback(async (data: FormData = {}): Promise<GameBoardResult> => {
     const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
     let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
     const { roomTileCount = 40, finishRange, room } = formData;
@@ -82,7 +83,7 @@ export default function useGameBoard(): (data?: FormData) => Promise<GameBoardRe
     }
 
     return { settingsBoardUpdated, gameMode, newBoard };
-  }
+  }, [gameBoard, i18n.resolvedLanguage, settings, updateSettings]);
 
-  return (data: FormData = {}) => updateGameBoard(data);
+  return useCallback((data: FormData = {}) => updateGameBoard(data), [updateGameBoard]);
 }

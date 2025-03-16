@@ -9,11 +9,16 @@ function getInitialValue<T>(key: string, defaultVal: T): T {
   if (!storedValue) {
     return defaultVal;
   }
-  const parsedValue = JSON.parse(storedValue);
-  if (typeof defaultVal === 'object' && Object.keys(defaultVal).length) {
-    return { ...defaultVal, ...parsedValue } as T;
+  try {
+    const parsedValue = JSON.parse(storedValue);
+    if (typeof defaultVal === 'object' && defaultVal !== null && Object.keys(defaultVal).length) {
+      return { ...defaultVal, ...parsedValue } as T;
+    }
+    return parsedValue as T;
+  } catch (error) {
+    console.error('Error parsing localStorage value:', error);
+    return defaultVal;
   }
-  return parsedValue as T;
 }
 
 export default function useLocalStorage<T>(localStorageKey: string, defaultVal: T = {} as T): [T, (newValue: T) => void] {
@@ -22,7 +27,11 @@ export default function useLocalStorage<T>(localStorageKey: string, defaultVal: 
   const [storage, setStorage] = useState<T>(() => getInitialValue<T>(localStorageKey, defaultVal));
 
   useEffect(() => {
-    const listener = (e: CustomEvent): void => setStorage(e.newValue);
+    const listener = (e: CustomEvent): void => {
+      if (e.newValue !== undefined) {
+        setStorage(e.newValue);
+      }
+    };
     window.addEventListener(eventName, listener as EventListener);
 
     return () => window.removeEventListener(eventName, listener as EventListener);
@@ -30,11 +39,15 @@ export default function useLocalStorage<T>(localStorageKey: string, defaultVal: 
 
   const updateLocalStorage = useCallback(
     (newValue: T): void => {
-      localStorage.setItem(localStorageKey, JSON.stringify(newValue));
+      try {
+        localStorage.setItem(localStorageKey, JSON.stringify(newValue));
 
-      const event = new Event(eventName) as CustomEvent;
-      event.newValue = newValue;
-      window.dispatchEvent(event);
+        const event = new Event(eventName) as CustomEvent;
+        event.newValue = newValue;
+        window.dispatchEvent(event);
+      } catch (error) {
+        console.error('Error updating localStorage:', error);
+      }
     },
     [localStorageKey, eventName]
   );

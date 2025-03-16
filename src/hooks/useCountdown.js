@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface CountdownResult {
   timeLeft: number;
@@ -14,7 +14,7 @@ export default function useCountdown(
   const [timeLeft, setTimeLeft] = useState<number>(startSeconds);
   const [isPaused, setPause] = useState<boolean>(startPaused);
 
-  const togglePause = (): void => setPause(!isPaused);
+  const togglePause = useCallback((): void => setPause(prev => !prev), []);
 
   useEffect(() => {
     if (timeLeft === -1) {
@@ -22,7 +22,7 @@ export default function useCountdown(
     }
 
     // exit early when we reach 0
-    if (timeLeft < 0 || isPaused) return;
+    if (timeLeft <= 0 || isPaused) return;
 
     // save intervalId to clear the interval when the
     // component re-renders

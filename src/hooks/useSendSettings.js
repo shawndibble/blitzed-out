@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { sendRoomSettingsMessage } from '@/views/GameSettings/submitForm';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import useLocalStorage from '@/hooks/useLocalStorage';
@@ -70,19 +70,18 @@ export default function useSendSettings(
   const [settingsSent, setSettingsSent] = useState<boolean>(false);
   const { i18n } = useTranslation();
   const [settings] = useLocalStorage<Settings>('gameSettings');
-  const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
   const board = useLiveQuery<Board | undefined>(getActiveBoard);
 
-  // populate the room and game settings if they are not part of the message list.
-  useEffect(() => {
+  const sendSettings = useCallback(async () => {
     if (!settings || isLoading || settingsSent || !board?.tiles?.length) return;
 
-    const isPrivateRoom = !isPublicRoom(room);
+    const isPrivateRoom = !isPublicRoom(room || '');
     const formData = { ...settings, room };
     // send out room specific settings if we are in a private room.
     const latestRoomMessage = latestMessageByType(messages, 'room') as RoomMessage | null;
     if (isPrivateRoom && !latestRoomMessage) {
-      sendRoomSettingsMessage(formData, user);
+      await sendRoomSettingsMessage(formData, user);
     }
 
     setSettingsSent(true);
@@ -102,9 +101,9 @@ export default function useSendSettings(
     );
 
     if (!alreadySentSettings && isCompatible) {
-      const actionsList = importActions(i18n.resolvedLanguage, settings.gameMode);
+      const actionsList = await importActions(i18n.resolvedLanguage, settings.gameMode);
 
-      sendGameSettingsMessage({
+      await sendGameSettingsMessage({
         formData,
         user,
         customTiles,
@@ -113,5 +112,10 @@ export default function useSendSettings(
         title: board.title,
       });
     }
-  }, [isLoading, board?.tiles, messages, room, settings, settingsSent, user, i18n.resolvedLanguage]);
+  }, [board, customTiles, i18n.resolvedLanguage, isLoading, messages, room, settings, settingsSent, user]);
+
+  // populate the room and game settings if they are not part of the message list.
+  useEffect(() => {
+    sendSettings();
+  }, [sendSettings]);
 }

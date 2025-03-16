@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface GameSettings {
   locale: string;
@@ -42,11 +42,17 @@ export default function useGameSettings(): {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const updateSettings = (newSettings: Partial<GameSettings>): void => {
-    const updatedSettings = { ...settings, ...newSettings };
-    localStorage.setItem('gameSettings', JSON.stringify(updatedSettings));
-    setSettings(updatedSettings);
-  };
+  const updateSettings = useCallback((newSettings: Partial<GameSettings>): void => {
+    setSettings(prevSettings => {
+      const updatedSettings = { ...prevSettings, ...newSettings };
+      try {
+        localStorage.setItem('gameSettings', JSON.stringify(updatedSettings));
+      } catch (error) {
+        console.error('Error saving game settings to localStorage:', error);
+      }
+      return updatedSettings;
+    });
+  }, []);
 
   return { settings, updateSettings };
 }

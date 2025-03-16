@@ -8,19 +8,19 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
   } = useAuth();
 
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
-  const [currentDisplayName, setCurrentDisplayName] = useState<string>(displayName);
+  const [currentDisplayName, setCurrentDisplayName] = useState<string>(displayName || '');
 
   useEffect(() => {
     if (currentRoom !== roomId || displayName !== currentDisplayName) {
       setMyPresence({
         newRoom: roomId,
         oldRoom: currentRoom,
-        newDisplayName: displayName,
+        newDisplayName: displayName || '',
         oldDisplayName: currentDisplayName,
         removeOnDisconnect: roomRealtime || roomId.toUpperCase() === 'PUBLIC',
       });
       setCurrentRoom(roomId);
-      setCurrentDisplayName(displayName);
+      setCurrentDisplayName(displayName || '');
     }
   }, [roomId, displayName, currentRoom, currentDisplayName, roomRealtime]);
 }

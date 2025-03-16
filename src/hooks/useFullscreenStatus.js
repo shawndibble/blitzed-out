@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export default function useFullscreenStatus(): { 
   isFullscreen: boolean; 
@@ -19,13 +19,17 @@ export default function useFullscreenStatus(): {
   }, []);
 
   // open fullscreen
-  const toggleFullscreen = (): void => {
+  const toggleFullscreen = useCallback((): void => {
     if (document.fullscreenElement == null) {
-      document.documentElement.requestFullscreen();
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error('Error attempting to enable fullscreen:', err);
+      });
     } else {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(err => {
+        console.error('Error attempting to exit fullscreen:', err);
+      });
     }
-  };
+  }, []);
 
   return { isFullscreen, toggleFullscreen };
 }
