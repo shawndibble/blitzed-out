@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { lazy, Suspense, useEffect, ReactNode } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import useAuth from '@/context/hooks/useAuth';
@@ -11,19 +11,11 @@ import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
 import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
 import i18next from 'i18next';
+import { WindowWithAuth, ProvidersProps } from '@/types/app';
 
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
 const Room = lazy(() => import('@/views/Room'));
-
-// Define the window interface with authContext
-interface WindowWithAuth extends Window {
-  authContext?: any;
-}
-
-interface ProvidersProps {
-  children: ReactNode;
-}
 
 function Providers({ children }: ProvidersProps) {
   return (
@@ -40,9 +32,9 @@ function AppRoutes() {
 
   // Make auth context available to the middleware
   useEffect(() => {
-    (window as WindowWithAuth).authContext = auth;
+    (window as unknown as WindowWithAuth).authContext = auth;
     return () => {
-      (window as WindowWithAuth).authContext = null;
+      (window as unknown as WindowWithAuth).authContext = null;
     };
   }, [auth]);
   

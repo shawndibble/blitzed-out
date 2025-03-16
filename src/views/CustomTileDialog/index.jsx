@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, SyntheticEvent } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Dialog, DialogContent, DialogTitle, Divider, IconButton, Grid2, Box } from '@mui/material';
 import { Close } from '@mui/icons-material';
@@ -35,7 +35,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
     setRefreshTrigger((prev) => prev + 1);
   }, []);
 
-  const handleChange = (panel: string) => (_event: SyntheticEvent, newExpanded: boolean) => {
+  const handleChange = (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
     setExpanded(newExpanded ? panel : '');
   };
 

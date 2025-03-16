@@ -29,12 +29,16 @@ const actionCard = (lastAction: Message): ActionCard => {
 };
 
 // Define the Cast interface for window
-interface CastWindow extends Window {
-  cast?: {
-    framework?: {
-      CastReceiverContext?: any;
+
+// Define the window with cast properties
+declare global {
+  interface Window {
+    cast?: {
+      framework?: {
+        CastReceiverContext?: any;
+      };
     };
-  };
+  }
 }
 
 export default function Cast() {
@@ -52,7 +56,6 @@ export default function Cast() {
 
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
-    const castWindow = window as CastWindow;
     const isCastEnvironment =
       castWindow.cast && castWindow.cast.framework && castWindow.cast.framework.CastReceiverContext;
 

@@ -2,11 +2,7 @@ import React from 'react';
 import CustomTiles from '@/views/CustomTileDialog';
 import useActionList from '@/hooks/useActionList';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
-
-interface CustomTilesDialogProps {
-  open: boolean;
-  close?: ((open: boolean) => void) | null;
-}
+import { CustomTilesDialogProps } from '@/types/customTilesDialog';
 
 export default function CustomTilesDialog({ open, close = null }: CustomTilesDialogProps) {
   const [formData] = useSettingsToFormData();

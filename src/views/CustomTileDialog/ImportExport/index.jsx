@@ -10,12 +10,7 @@ import getUniqueImportRecords from './getUniqueImportRecords';
 import { updateCustomTile } from '@/stores/customTiles';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { ImportExportProps, CustomTile } from '@/types/customTiles';
-
-interface FormData {
-  importData: {
-    value: string;
-  };
-}
+import { FormData } from '@/types/importExport';
 
 export default function ImportExport({
   expanded,

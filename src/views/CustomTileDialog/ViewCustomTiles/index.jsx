@@ -26,23 +26,6 @@ import useGameSettings from '@/hooks/useGameSettings';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { ViewCustomTilesProps, CustomTile, ProcessedGroups } from '@/types/customTiles';
 
-interface TileData {
-  items: CustomTile[];
-  total: number;
-  totalPages: number;
-}
-
-interface TileFilters {
-  group: string;
-  intensity: string | number | null;
-  tag: string | null;
-  gameMode: string;
-  locale: string;
-  page: number;
-  limit: number;
-  paginated: boolean;
-}
-
 export default function ViewCustomTiles({
   tagList,
   boardUpdated,
@@ -109,7 +92,7 @@ export default function ViewCustomTiles({
     async function loadTiles() {
       try {
         setLoading(true);
-        const filters: TileFilters = {
+        const filters = {
           group: groupFilter,
           intensity: intensityFilter === 'all' ? null : intensityFilter, // Send empty string for 'all'
           tag: tagFilter,
@@ -124,7 +107,7 @@ export default function ViewCustomTiles({
 
         // Only update state if component is still mounted
         if (isMounted) {
-          setTiles(tileData as TileData);
+          setTiles(tileData as unknown as TileData);
           // Add a small delay before removing loading state for smoother transitions
           setTimeout(() => {
             if (isMounted) {
@@ -180,7 +163,7 @@ export default function ViewCustomTiles({
     await deleteCustomTile(index);
     boardUpdated();
     // Refresh the current page
-    const filters: TileFilters = {
+    const filters = {
       group: groupFilter,
       intensity: intensityFilter === 'all' ? null : intensityFilter, // Send empty string for 'all'
       tag: tagFilter,
@@ -191,7 +174,7 @@ export default function ViewCustomTiles({
       paginated: true,
     };
     const tileData = await getTiles(filters);
-    setTiles(tileData as TileData);
+    setTiles(tileData as unknown as TileData);
   }
 
   async function toggleTile(id: number): Promise<void> {

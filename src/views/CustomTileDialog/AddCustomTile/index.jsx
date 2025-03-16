@@ -10,14 +10,7 @@ import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
 import useGameSettings from '@/hooks/useGameSettings';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { AddCustomTileProps, CustomTile, ProcessedGroups } from '@/types/customTiles';
-
-interface FormDataState {
-  gameMode: string;
-  group: string;
-  intensity: string | number;
-  action: string;
-  tags: string[];
-}
+import { FormDataState } from '@/types/addCustomTile';
 
 export default function AddCustomTile({
   setSubmitMessage,
