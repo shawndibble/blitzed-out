@@ -11,7 +11,45 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveBoard } from '@/stores/gameBoard';
 import { isPublicRoom } from '@/helpers/strings';
 
-function isCompatibleBoard(isPrivateRoom, latestRoomMessage, boardSize, roomTileCount) {
+interface User {
+  uid: string;
+  [key: string]: any;
+}
+
+interface Message {
+  type: string;
+  uid: string;
+  settings?: string;
+  [key: string]: any;
+}
+
+interface RoomMessage {
+  roomTileCount: number;
+  [key: string]: any;
+}
+
+interface RouteParams {
+  id: string;
+}
+
+interface Settings {
+  gameMode: string;
+  roomTileCount?: number;
+  [key: string]: any;
+}
+
+interface Board {
+  title: string;
+  tiles: any[];
+  [key: string]: any;
+}
+
+function isCompatibleBoard(
+  isPrivateRoom: boolean, 
+  latestRoomMessage: RoomMessage | null, 
+  boardSize: number, 
+  roomTileCount?: number
+): boolean {
   if (!isPrivateRoom && boardSize === 40) return true;
 
   if (!latestRoomMessage) return false;
@@ -23,13 +61,17 @@ function isCompatibleBoard(isPrivateRoom, latestRoomMessage, boardSize, roomTile
   return boardSize === roomTileCount;
 }
 
-export default function useSendSettings(user, messages, isLoading) {
-  const { id: room } = useParams();
-  const [settingsSent, setSettingsSent] = useState(false);
+export default function useSendSettings(
+  user: User, 
+  messages: Message[], 
+  isLoading: boolean
+): void {
+  const { id: room } = useParams<RouteParams>();
+  const [settingsSent, setSettingsSent] = useState<boolean>(false);
   const { i18n } = useTranslation();
-  const settings = useLocalStorage('gameSettings')[0];
+  const [settings] = useLocalStorage<Settings>('gameSettings');
   const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
-  const board = useLiveQuery(getActiveBoard);
+  const board = useLiveQuery<Board | undefined>(getActiveBoard);
 
   // populate the room and game settings if they are not part of the message list.
   useEffect(() => {
@@ -38,7 +80,7 @@ export default function useSendSettings(user, messages, isLoading) {
     const isPrivateRoom = !isPublicRoom(room);
     const formData = { ...settings, room };
     // send out room specific settings if we are in a private room.
-    const latestRoomMessage = latestMessageByType(messages, 'room');
+    const latestRoomMessage = latestMessageByType(messages, 'room') as RoomMessage | null;
     if (isPrivateRoom && !latestRoomMessage) {
       sendRoomSettingsMessage(formData, user);
     }
@@ -56,7 +98,7 @@ export default function useSendSettings(user, messages, isLoading) {
 
     const alreadySentSettings = latestMessageBy(
       messages,
-      (m) => m.type === 'settings' && m.uid === user.uid
+      (m: Message) => m.type === 'settings' && m.uid === user.uid
     );
 
     if (!alreadySentSettings && isCompatible) {
@@ -71,5 +113,5 @@ export default function useSendSettings(user, messages, isLoading) {
         title: board.title,
       });
     }
-  }, [isLoading, board?.tiles]);
+  }, [isLoading, board?.tiles, messages, room, settings, settingsSent, user, i18n.resolvedLanguage]);
 }

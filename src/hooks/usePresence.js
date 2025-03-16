@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { setMyPresence } from '@/services/firebase';
 import useAuth from '@/context/hooks/useAuth';
 
-export default function usePresence(roomId, roomRealtime) {
+export default function usePresence(roomId: string, roomRealtime?: boolean): void {
   const {
     user: { displayName },
   } = useAuth();
 
-  const [currentRoom, setCurrentRoom] = useState(null);
-  const [currentDisplayName, setCurrentDisplayName] = useState(displayName);
+  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
+  const [currentDisplayName, setCurrentDisplayName] = useState<string>(displayName);
 
   useEffect(() => {
     if (currentRoom !== roomId || displayName !== currentDisplayName) {
@@ -22,5 +22,5 @@ export default function usePresence(roomId, roomRealtime) {
       setCurrentRoom(roomId);
       setCurrentDisplayName(displayName);
     }
-  }, [roomId, displayName, currentRoom, currentDisplayName]);
+  }, [roomId, displayName, currentRoom, currentDisplayName, roomRealtime]);
 }

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 
-export default function useFullscreenStatus() {
-  const [isFullscreen, setIsFullscreen] = useState(document.fullscreenElement != null);
+export default function useFullscreenStatus(): { 
+  isFullscreen: boolean; 
+  toggleFullscreen: () => void 
+} {
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(document.fullscreenElement != null);
 
   useEffect(() => {
-    const handleChange = () => {
+    const handleChange = (): void => {
       setIsFullscreen(document.fullscreenElement != null);
     };
 
@@ -16,7 +19,7 @@ export default function useFullscreenStatus() {
   }, []);
 
   // open fullscreen
-  const toggleFullscreen = () => {
+  const toggleFullscreen = (): void => {
     if (document.fullscreenElement == null) {
       document.documentElement.requestFullscreen();
     } else {

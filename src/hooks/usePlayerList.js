@@ -5,30 +5,71 @@ import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import useUserList from '@/context/hooks/useUserList';
 
-function filteredGameMessages(messages) {
+interface Message {
+  uid: string;
+  text?: string;
+  timestamp: {
+    toMillis: () => number;
+  };
+  [key: string]: any;
+}
+
+interface UserEntry {
+  lastActive: number;
+  displayName: string;
+  [key: string]: any;
+}
+
+interface UserData {
+  [key: string]: UserEntry;
+}
+
+interface OnlineUsers {
+  [uid: string]: UserData;
+}
+
+interface Player {
+  displayName: string;
+  uid: string;
+  isSelf: boolean;
+  location: number;
+  isFinished: boolean;
+}
+
+interface User {
+  uid: string;
+  [key: string]: any;
+}
+
+function filteredGameMessages(messages: Message[]): Message[] {
   const filteredMessages = orderedMessagesByType(messages, 'actions', 'DESC');
   return [...new Map(filteredMessages.map((m) => [m.uid, m])).values()];
 }
 
 // see if the realtime db connection is recent.
-function isRecentlyConnected(userObj) {
+function isRecentlyConnected(userObj: UserData): boolean {
   const FIVE_MINUTES = 5 * 60 * 1000;
   const mostRecentEntry = Object.values(userObj).sort((a, b) => b.lastActive - a.lastActive)[0];
   return Date.now() - mostRecentEntry.lastActive < FIVE_MINUTES;
 }
 
 // Check if the user sent a message recently.
-function isRecentlyActive(messages, onlineUid) {
+function isRecentlyActive(messages: Message[], onlineUid: string): boolean {
   const TEN_MINUTES = 10 * 60 * 1000;
   const lastActivity = messages
-    .sort((a, b) => b.timestamp - a.timestamp)
+    .sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis())
     .find((m) => m.uid === onlineUid)
     ?.timestamp.toMillis();
-  return Date.now() - lastActivity < TEN_MINUTES;
+  return lastActivity ? Date.now() - lastActivity < TEN_MINUTES : false;
 }
 
-function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
-  if (isLoading || !onlineUsers) return [];
+function getCurrentPlayers(
+  onlineUsers: OnlineUsers | null, 
+  user: User | null, 
+  messages: Message[], 
+  isLoading: boolean
+): Player[] {
+  if (isLoading || !onlineUsers || !user) return [];
   const uniqueGameActions = filteredGameMessages(messages);
 
   return Object.entries(onlineUsers)
@@ -53,7 +94,7 @@ function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
           ? Number(userGameMessage.match(locationRegEx)[0].replace('#', ''))
           : 0;
       const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
-      const isFinished = userGameMessage?.includes(t('finish'));
+      const isFinished = userGameMessage?.includes(t('finish')) || false;
 
       return {
         displayName,
@@ -65,9 +106,9 @@ function getCurrentPlayers(onlineUsers, user, messages, isLoading) {
     });
 }
 
-export default function usePlayerList() {
+export default function usePlayerList(room?: string): Player[] {
   const { user } = useAuth();
-  const { messages, isLoading } = useMessages();
+  const { messages, isLoading } = useMessages(room);
   const { onlineUsers } = useUserList();
 
   const players = useMemo(

@@ -1,7 +1,19 @@
 import { useContext } from 'react';
 import { AuthContext } from '@/context/auth';
 
-export function useAuth() {
+interface User {
+  uid: string;
+  displayName: string;
+  [key: string]: any;
+}
+
+interface AuthContextType {
+  user: User;
+  updateUser: (user: Partial<User>) => Promise<void>;
+  [key: string]: any;
+}
+
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
 
   if (context === undefined) {

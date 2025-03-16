@@ -1,14 +1,30 @@
 import { useEffect, useState } from 'react';
 import usePlayerList from './usePlayerList';
 
-function getNextPlayer(players, currentUid) {
+interface Player {
+  uid: string;
+  isFinished: boolean;
+  [key: string]: any;
+}
+
+interface Message {
+  uid: string;
+  [key: string]: any;
+}
+
+function getNextPlayer(players: Player[], currentUid: string): Player | null {
   const index = players.findIndex((player) => player.uid === currentUid);
+  if (index === -1 || players.length === 0) return null;
+  
   const nextIndex = index + 1 >= players.length ? 0 : index + 1;
   return players[nextIndex];
 }
 
-export default function useTurnIndicator(room, message) {
-  const [turnIndicator, setTurnIndicator] = useState(null);
+export default function useTurnIndicator(
+  room: string, 
+  message: Message | null
+): Player | null {
+  const [turnIndicator, setTurnIndicator] = useState<Player | null>(null);
   const players = usePlayerList(room);
 
   useEffect(() => {
@@ -23,7 +39,7 @@ export default function useTurnIndicator(room, message) {
 
     const nextPlayer = getNextPlayer(stillPlaying, message.uid);
     setTurnIndicator(nextPlayer);
-  }, [message]);
+  }, [message, players]);
 
   return turnIndicator;
 }

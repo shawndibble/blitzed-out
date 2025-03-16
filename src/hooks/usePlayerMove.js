@@ -5,12 +5,35 @@ import useAuth from '@/context/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import usePlayerList from './usePlayerList';
 
-function getFinishResult(textArray) {
+interface Tile {
+  title?: string;
+  description?: string;
+  role?: string;
+  index?: number;
+  [key: string]: any;
+}
+
+interface RollValue {
+  value: number | number[];
+}
+
+interface LocationResult {
+  preMessage?: string;
+  newLocation: number;
+}
+
+interface Player {
+  isSelf: boolean;
+  location: number;
+  [key: string]: any;
+}
+
+function getFinishResult(textArray: string[]): string {
   // if we have %, we are on the finish tile. Let's get a random result.
   const finishValues = textArray.filter((n) => n).map((line) => line.split(': '));
 
   // process weighted random finish result.
-  const weightedArray = [];
+  const weightedArray: number[] = [];
   finishValues.forEach((val, index) => {
     if (Number(val[1]) === 0) return;
     const clone = Array(Number(val[1])).fill(index);
@@ -22,7 +45,7 @@ function getFinishResult(textArray) {
   return finishValues.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '');
 }
 
-function parseDescription(text, role, displayName) {
+function parseDescription(text: string | undefined, role: string, displayName: string): string {
   if (!text) return '';
   // our finish tile has %, so if we have it, figure out the result.
   const textArray = text.split('%');
@@ -33,16 +56,20 @@ function parseDescription(text, role, displayName) {
   return getFinishResult(textArray);
 }
 
-export default function usePlayerMove(room, rollValue, gameBoard = []) {
+export default function usePlayerMove(
+  room: string, 
+  rollValue: RollValue, 
+  gameBoard: Tile[] = []
+): { tile: Tile; playerList: Player[] } {
   const { user } = useAuth();
   const { t } = useTranslation();
   const playerList = usePlayerList(room);
   const total = gameBoard.length;
-  const [tile, setTile] = useState(gameBoard[0]);
+  const [tile, setTile] = useState<Tile>(gameBoard[0] || {});
   const lastTile = total - 1;
 
   const handleTextOutput = useCallback(
-    (newTile, rollNumber, newLocation, preMessage) => {
+    (newTile: Tile, rollNumber: number, newLocation: number, preMessage?: string): void => {
       if (!newTile) {
         console.error('Tile not found at location:', newLocation);
         return;
@@ -72,7 +99,7 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
-  function getNewLocation(rollNumber) {
+  function getNewLocation(rollNumber: number): LocationResult {
     // -1 is used to restart the game.
     if (rollNumber === -1) {
       return {
@@ -100,7 +127,9 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
   }
 
   useEffect(() => {
-    const rollNumber = rollValue.value[0] ?? rollValue.value;
+    const rollNumber = Array.isArray(rollValue.value) 
+      ? rollValue.value[0] 
+      : rollValue.value;
 
     // a 0 means something went wrong. Give up.
     if (rollNumber === 0) return;
@@ -119,7 +148,7 @@ export default function usePlayerMove(room, rollValue, gameBoard = []) {
         `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}`
       );
     }
-  }, [rollValue, gameBoard, handleTextOutput]);
+  }, [rollValue, gameBoard, handleTextOutput, playerList, t]);
 
   return { tile, playerList };
 }

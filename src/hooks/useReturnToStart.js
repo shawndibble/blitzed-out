@@ -4,15 +4,20 @@ import { sendMessage } from '@/services/firebase';
 import { useCallback } from 'react';
 import useAuth from '@/context/hooks/useAuth';
 
-export default function useReturnToStart() {
+interface RouteParams {
+  id: string;
+}
+
+export default function useReturnToStart(): () => Promise<void> {
   const { t } = useTranslation();
-  const { id: room } = useParams();
+  const { id: room } = useParams<RouteParams>();
   const { user } = useAuth();
 
   let message = `${t('restartingGame')}\n`;
   message += `#1: ${t('start')}\n`;
   message += `${t('action')}: ${t('start')}`;
-  const send = () =>
+  
+  const send = (): Promise<void> =>
     sendMessage({
       room,
       user,
@@ -20,5 +25,5 @@ export default function useReturnToStart() {
       type: 'actions',
     });
 
-  return useCallback(() => send(), []);
+  return useCallback(() => send(), [room, user, t]);
 }

@@ -13,24 +13,61 @@ import useRoomNavigate from './useRoomNavigate';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
 
-function updateRoomBackground(formData) {
+interface FormData {
+  room: string;
+  roomTileCount?: number;
+  roomBackgroundURL?: string;
+  roomUpdated?: boolean;
+  displayName: string;
+  gameMode?: string;
+  boardUpdated?: boolean;
+  [key: string]: any;
+}
+
+interface RouteParams {
+  id: string;
+}
+
+interface Message {
+  type: string;
+  [key: string]: any;
+}
+
+interface RoomChangeResult {
+  roomChanged: boolean;
+  isPrivateRoom: boolean;
+  privateBoardSizeChanged: boolean;
+}
+
+interface Settings {
+  roomTileCount?: number;
+  [key: string]: any;
+}
+
+interface GameBoardResult {
+  settingsBoardUpdated: boolean;
+  gameMode: string;
+  newBoard: any[];
+}
+
+function updateRoomBackground(formData: FormData): void {
   if (!formData.roomBackgroundURL || !isValidURL(formData.roomBackgroundURL)) {
     formData.roomBackground = 'app';
   }
 }
 
-export default function useSubmitGameSettings() {
+export default function useSubmitGameSettings(): (formData: FormData, actionsList: any) => Promise<void> {
   const { user, updateUser } = useAuth();
-  const { id: room } = useParams();
+  const { id: room } = useParams<RouteParams>();
   const { t } = useTranslation();
   const updateGameBoardTiles = useGameBoard();
-  const [settings, updateSettings] = useLocalStorage('gameSettings');
+  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
   const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();
 
-  const handleRoomChange = (formData) => {
+  const handleRoomChange = (formData: FormData): RoomChangeResult => {
     const roomChanged = room.toUpperCase() !== formData.room.toUpperCase();
     const isPrivateRoom = formData.room && !isPublicRoom(formData.room);
     const privateBoardSizeChanged =
@@ -38,16 +75,16 @@ export default function useSubmitGameSettings() {
     return { roomChanged, isPrivateRoom, privateBoardSizeChanged };
   };
 
-  async function submitSettings(formData, actionsList) {
+  async function submitSettings(formData: FormData, actionsList: any): Promise<void> {
     const { displayName } = formData;
     const updatedUser = await handleUser(user, displayName, updateUser);
 
     updateRoomBackground(formData);
 
-    const { settingsBoardUpdated, gameMode, newBoard } = await updateGameBoardTiles(formData);
+    const { settingsBoardUpdated, gameMode, newBoard } = await updateGameBoardTiles(formData) as GameBoardResult;
     const { roomChanged, isPrivateRoom, privateBoardSizeChanged } = handleRoomChange(formData);
 
-    if (isPrivateRoom && (formData.roomUpdated || !messages.find((m) => m.type === 'room'))) {
+    if (isPrivateRoom && (formData.roomUpdated || !messages.find((m: Message) => m.type === 'room'))) {
       await sendRoomSettingsMessage(formData, updatedUser);
     }
 
@@ -81,5 +118,5 @@ export default function useSubmitGameSettings() {
     navigate(formData.room);
   }
 
-  return (formData, actionsList) => submitSettings(formData, actionsList);
+  return (formData: FormData, actionsList: any) => submitSettings(formData, actionsList);
 }

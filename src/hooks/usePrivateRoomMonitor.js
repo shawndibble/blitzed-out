@@ -11,23 +11,44 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/customTiles';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
-export default function usePrivateRoomMonitor(room, gameBoard) {
+interface GameBoardTile {
+  [key: string]: any;
+}
+
+interface Settings {
+  gameMode: string;
+  room: string;
+  roomBackgroundURL?: string;
+  [key: string]: any;
+}
+
+interface Message {
+  uid: string;
+  displayName: string;
+  settings: string;
+  [key: string]: any;
+}
+
+export default function usePrivateRoomMonitor(
+  room: string, 
+  gameBoard?: GameBoardTile[]
+): { roller: string; roomBgUrl: string } {
   const DEFAULT_DIEM = '1d6';
 
   const { i18n, t } = useTranslation();
   const { user } = useAuth();
 
-  const [settings, updateSettings] = useLocalStorage('gameSettings');
+  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
   const customTiles = useLiveQuery(() => getActiveTiles(settings.gameMode));
   const { messages, isLoading } = useMessages();
-  const [roller, setRoller] = useState(DEFAULT_DIEM);
-  const [roomBgUrl, setRoomBackground] = useState('');
+  const [roller, setRoller] = useState<string>(DEFAULT_DIEM);
+  const [roomBgUrl, setRoomBackground] = useState<string>('');
   const updateGameBoardTiles = useGameBoard();
 
-  const rebuildGameBoard = async (messageSettings, messageUser = null) => {
+  const rebuildGameBoard = async (messageSettings: any, messageUser: string | null = null): Promise<void> => {
     const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
 
-    const message = {
+    const message: any = {
       formData: { ...settings, ...messageSettings },
       user,
       customTiles,
@@ -42,7 +63,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
     await sendGameSettingsMessage(message);
   };
 
-  const roomChanged = async () => {
+  const roomChanged = async (): Promise<void> => {
     await updateSettings({ ...settings, room });
     await rebuildGameBoard({ ...settings, roomUpdated: true, room });
   };
@@ -50,7 +71,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
   useEffect(() => {
     if (isLoading) return;
 
-    const roomMessage = latestMessageByType(messages, 'room');
+    const roomMessage = latestMessageByType(messages, 'room') as Message | undefined;
     if (roomMessage) {
       const messageSettings = JSON.parse(roomMessage.settings);
       const { roomDice, roomBackgroundURL, roomTileCount } = messageSettings;
@@ -61,7 +82,7 @@ export default function usePrivateRoomMonitor(room, gameBoard) {
       }
 
       setRoller(dice);
-      setRoomBackground(roomBackgroundURL);
+      setRoomBackground(roomBackgroundURL || '');
 
       const shouldRebuildGameBoard =
         roomMessage.uid !== user.uid &&

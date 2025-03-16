@@ -10,26 +10,55 @@ import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 
-export default function useSoundAndDialog(room) {
+interface Message {
+  uid: string;
+  type: string;
+  text?: string;
+  timestamp: {
+    toDate: () => Date;
+  };
+  [key: string]: any;
+}
+
+interface Settings {
+  playerDialog?: boolean;
+  othersDialog?: boolean;
+  mySound?: boolean;
+  otherSound?: boolean;
+  chatSound?: boolean;
+  readRoll?: boolean;
+  [key: string]: any;
+}
+
+interface DialogResult {
+  message: Message | false;
+  setMessage: React.Dispatch<React.SetStateAction<Message | false>>;
+  isMyMessage: boolean;
+}
+
+export default function useSoundAndDialog(room?: string): DialogResult {
   const { i18n } = useTranslation();
   const { user } = useAuth();
   const { messages } = useMessages(room);
-  const [popupMessage, setPopupMessage] = useState(false);
+  const [popupMessage, setPopupMessage] = useState<Message | false>(false);
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
-  const { playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll } =
-    useLocalStorage('gameSettings')[0];
+  const [settings] = useLocalStorage<Settings>('gameSettings');
+  
+  const { playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll } = settings;
 
   const latestMessage = useMemo(() => [...messages].pop(), [messages.length]);
 
-  const speakText = useCallback((text, language) => {
-    speak(text, language);
+  const speakText = useCallback((text: string | undefined, language: string): void => {
+    if (text) speak(text, language);
   }, []);
 
-  const newMessage = moment(latestMessage?.timestamp?.toDate()).diff(moment(), 'seconds') >= -2;
+  const newMessage = latestMessage ? 
+    moment(latestMessage.timestamp?.toDate()).diff(moment(), 'seconds') >= -2 : 
+    false;
   const myMessage = latestMessage?.uid === user?.uid;
-  const showPlayerDialog = playerDialog && myMessage;
-  const showOthersDialog = othersDialog && !myMessage;
+  const showPlayerDialog = Boolean(playerDialog && myMessage);
+  const showOthersDialog = Boolean(othersDialog && !myMessage);
   const playDiceSoundCondition =
     ((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions';
   const speakTextCondition = myMessage && readRoll && latestMessage?.type === 'actions';
@@ -66,6 +95,10 @@ export default function useSoundAndDialog(room) {
     playDiceSoundCondition,
     speakTextCondition,
     playMessageSoundCondition,
+    playDiceSound,
+    playMessageSound,
+    speakText,
+    newMessage
   ]);
 
   return {

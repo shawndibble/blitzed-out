@@ -4,17 +4,31 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { upsertBoard } from '@/stores/gameBoard';
 
-export default function useUrlImport(settings, setSettings) {
-  const [alert, setAlert] = useState(null);
+interface Settings {
+  [key: string]: any;
+}
+
+interface Board {
+  gameBoard?: string;
+  title?: string;
+  settings?: string;
+  [key: string]: any;
+}
+
+export default function useUrlImport(
+  settings: Settings, 
+  setSettings: (settings: Settings) => void
+): [string | null, () => void] {
+  const [alert, setAlert] = useState<string | null>(null);
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
   const { t } = useTranslation();
 
-  function clearAlert() {
+  function clearAlert(): void {
     setAlert(null);
   }
 
-  function parseGameBoard(gameBoardString) {
+  function parseGameBoard(gameBoardString: string): any[] | null {
     try {
       const gameBoard = JSON.parse(gameBoardString);
       return Array.isArray(gameBoard) ? gameBoard : null;
@@ -23,17 +37,19 @@ export default function useUrlImport(settings, setSettings) {
     }
   }
 
-  function parseSettings(settingsString) {
+  function parseSettings(settingsString?: string): Settings {
     try {
-      return JSON.parse(settingsString);
+      return settingsString ? JSON.parse(settingsString) : {};
     } catch {
       return {};
     }
   }
 
-  const importGameBoard = async () => {
+  const importGameBoard = async (): Promise<void> => {
     setParams({});
-    const board = await getBoard(importBoard);
+    if (!importBoard) return;
+    
+    const board = await getBoard(importBoard) as Board | null;
     if (!board?.gameBoard) return setAlert(t('failedBoardImport'));
 
     const importedGameBoard = parseGameBoard(board.gameBoard);

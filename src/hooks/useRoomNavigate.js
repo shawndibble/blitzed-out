@@ -1,10 +1,14 @@
 import { useNavigate, useParams } from 'react-router-dom';
 
-export default function useRoomNavigate() {
-  const { id: room } = useParams();
+interface RouteParams {
+  id: string;
+}
+
+export default function useRoomNavigate(): (formRoom?: string) => void {
+  const { id: room } = useParams<RouteParams>();
   const navigate = useNavigate();
 
-  const changeRooms = (formRoom) => {
+  const changeRooms = (formRoom?: string): void => {
     if (room.toUpperCase() !== formRoom?.toUpperCase()) {
       navigate(`/${formRoom || 'PUBLIC'}`);
     }

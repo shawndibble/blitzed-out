@@ -1,10 +1,20 @@
 import { useEffect, useState } from 'react';
 
-export default function useCountdown(startSeconds, startPaused = true) {
-  const [timeLeft, setTimeLeft] = useState(startSeconds);
-  const [isPaused, setPause] = useState(startPaused);
+interface CountdownResult {
+  timeLeft: number;
+  setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
+  togglePause: () => void;
+  isPaused: boolean;
+}
 
-  const togglePause = () => setPause(!isPaused);
+export default function useCountdown(
+  startSeconds: number, 
+  startPaused: boolean = true
+): CountdownResult {
+  const [timeLeft, setTimeLeft] = useState<number>(startSeconds);
+  const [isPaused, setPause] = useState<boolean>(startPaused);
+
+  const togglePause = (): void => setPause(!isPaused);
 
   useEffect(() => {
     if (timeLeft === -1) {
@@ -21,7 +31,6 @@ export default function useCountdown(startSeconds, startPaused = true) {
     }, 1000);
 
     // clear interval on re-render to avoid memory leaks
-    // eslint-disable-next-line consistent-return
     return () => clearInterval(intervalId);
   }, [timeLeft, isPaused]);
 
