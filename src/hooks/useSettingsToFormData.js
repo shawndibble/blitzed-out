@@ -30,10 +30,14 @@ export default function useSettingsToFormData<T extends FormData>(
     const message = latestMessageByType(messages, 'room') as Message | undefined;
 
     if (message?.settings) {
-      setFormData((previousFormData) => ({
-        ...previousFormData,
-        ...JSON.parse(message.settings),
-      }));
+      try {
+        setFormData((previousFormData) => ({
+          ...previousFormData,
+          ...JSON.parse(message.settings),
+        }));
+      } catch (error) {
+        console.error('Error parsing message settings:', error);
+      }
     }
   }, [messages]);
 

@@ -9,6 +9,7 @@ import { extractAction } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
+import React from 'react';
 
 interface Message {
   uid: string;

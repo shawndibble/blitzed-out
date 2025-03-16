@@ -71,50 +71,54 @@ export default function usePrivateRoomMonitor(
   useEffect(() => {
     if (isLoading) return;
 
-    const roomMessage = latestMessageByType(messages, 'room') as Message | undefined;
-    if (roomMessage) {
-      const messageSettings = JSON.parse(roomMessage.settings);
-      const { roomDice, roomBackgroundURL, roomTileCount } = messageSettings;
+    try {
+      const roomMessage = latestMessageByType(messages, 'room') as Message | undefined;
+      if (roomMessage) {
+        const messageSettings = JSON.parse(roomMessage.settings);
+        const { roomDice, roomBackgroundURL, roomTileCount } = messageSettings;
 
-      let dice = DEFAULT_DIEM;
-      if (!isPublicRoom(room) && roomDice) {
-        dice = roomDice;
+        let dice = DEFAULT_DIEM;
+        if (!isPublicRoom(room) && roomDice) {
+          dice = roomDice;
+        }
+
+        setRoller(dice);
+        setRoomBackground(roomBackgroundURL || '');
+
+        const shouldRebuildGameBoard =
+          roomMessage.uid !== user?.uid &&
+          roomTileCount &&
+          gameBoard?.tile?.length &&
+          roomTileCount !== gameBoard?.tile?.length;
+
+        if (shouldRebuildGameBoard) {
+          rebuildGameBoard(messageSettings, roomMessage.displayName);
+        }
+        return;
       }
 
-      setRoller(dice);
-      setRoomBackground(roomBackgroundURL || '');
-
-      const shouldRebuildGameBoard =
-        roomMessage.uid !== user?.uid &&
-        roomTileCount &&
-        gameBoard?.tile?.length &&
-        roomTileCount !== gameBoard?.tile?.length;
-
-      if (shouldRebuildGameBoard) {
-        rebuildGameBoard(messageSettings, roomMessage.displayName);
+      // make sure that a private room sends out the room settings
+      // before it sends out my game board settings.
+      if (!isPublicRoom(room) && !roomMessage) {
+        return;
       }
-      return;
-    }
 
-    // make sure that a private room sends out the room settings
-    // before it sends out my game board settings.
-    if (!isPublicRoom(room) && !roomMessage) {
-      return;
-    }
+      // make sure if I am in a public room, I can't send out private room settings.
+      if (isPublicRoom(room) && !isOnlineMode(settings?.gameMode || '')) {
+        return;
+      }
 
-    // make sure if I am in a public room, I can't send out private room settings.
-    if (isPublicRoom(room) && !isOnlineMode(settings?.gameMode || '')) {
-      return;
-    }
+      // if I am changing the room and have a game board, announce the board.
+      if (room !== settings?.room && gameBoard?.length) {
+        roomChanged();
+        return;
+      }
 
-    // if I am changing the room and have a game board, announce the board.
-    if (room !== settings?.room && gameBoard?.length) {
-      roomChanged();
-      return;
-    }
-
-    if (settings?.roomBackgroundURL?.length) {
-      setRoomBackground(settings.roomBackgroundURL);
+      if (settings?.roomBackgroundURL?.length) {
+        setRoomBackground(settings.roomBackgroundURL);
+      }
+    } catch (error) {
+      console.error('Error in usePrivateRoomMonitor effect:', error);
     }
   }, [room, messages, isLoading, settings, user, gameBoard, rebuildGameBoard, roomChanged]);
 

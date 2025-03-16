@@ -65,7 +65,7 @@ export default function useUrlImport(
     if (alert !== t('updated')) {
       setAlert(t('updated'));
     }
-  }, [importBoard, parseGameBoard, parseSettings, settings, setSettings, t, alert]);
+  }, [importBoard, parseGameBoard, parseSettings, settings, setSettings, t, alert, setParams]);
 
   useEffect(() => {
     if (importBoard) {
