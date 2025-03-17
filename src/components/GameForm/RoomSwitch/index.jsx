@@ -15,7 +15,6 @@ export default function RoomSwitch({ formData, setFormData }) {
 
     if (event.target.checked && isPublicRoom(room)) {
       roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-      console.log('roomId', roomId);
     } else if (event.target.checked && !isPublicRoom(room)) {
       roomId = room;
     } else {

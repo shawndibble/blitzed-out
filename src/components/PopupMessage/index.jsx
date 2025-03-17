@@ -5,10 +5,10 @@ import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { useTranslation } from 'react-i18next';
 import React from 'react';
 
-const PopupMessage = ({ room }) => {
+const PopupMessage = () => {
   const { t } = useTranslation();
-  const { message, setMessage, isMyMessage } = useSoundAndDialog(room);
-  const nextPlayer = useTurnIndicator(room, message);
+  const { message, setMessage, isMyMessage } = useSoundAndDialog();
+  const nextPlayer = useTurnIndicator(message);
 
   // handle timeout of TransitionModal
   const timeoutId = useRef();

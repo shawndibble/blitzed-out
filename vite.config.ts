@@ -7,9 +7,9 @@ export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins: [["babel-plugin-react-compiler"]]
-      }
-    }),
+        plugins: [['babel-plugin-react-compiler']],
+      },
+    } as any),
   ],
   resolve: {
     alias: {
@@ -38,7 +38,8 @@ export default defineConfig({
       'firebase/app',
       'firebase/auth',
       'firebase/firestore',
-      'firebase/storage'
+      'firebase/storage',
     ],
   },
+  assetsInclude: ['**/*.mp3'],
 });

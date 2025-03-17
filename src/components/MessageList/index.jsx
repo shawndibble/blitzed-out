@@ -14,7 +14,7 @@ import './styles.css';
 export default function MessageList({ room, isTransparent, currentGameBoardSize = 40 }) {
   const containerRef = React.useRef(null);
   const { user } = useAuth();
-  const { messages, isLoading } = useMessages(room);
+  const { messages, isLoading } = useMessages();
   useSendSettings(user, messages, isLoading);
 
   const [currentTab, setTab] = useState(0);

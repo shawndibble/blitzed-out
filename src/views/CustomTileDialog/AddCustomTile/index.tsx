@@ -1,5 +1,5 @@
 import { Autocomplete, Box, Button, TextField, Typography } from '@mui/material';
-import TileCategorySelection from '@/Components/TileCategorySelection';
+import TileCategorySelection from '@/components/TileCategorySelection';
 import { submitCustomAction } from '@/services/firebase';
 import { useEffect, useState, KeyboardEvent, FocusEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -76,7 +76,7 @@ export default function AddCustomTile({
           // Only set default group if it's empty or doesn't exist in the current game mode
           if (!prev.group || !processedGroups[prev.group]) {
             const firstGroup = Object.keys(processedGroups)[0];
-            let firstIntensity = '';
+            let firstIntensity: number | string = '';
 
             if (
               firstGroup &&
@@ -270,7 +270,7 @@ export default function AddCustomTile({
             groups={groups}
             mappedGroups={mappedGroups}
             // Modify the onGameModeChange handler
-            onGameModeChange={(value) => {
+            onGameModeChange={(value: string) => {
               // Use the functional form of setFormData to ensure we're working with the latest state
               setFormData((prevFormData) => ({
                 ...prevFormData,
@@ -280,7 +280,7 @@ export default function AddCustomTile({
                 intensity: '',
               }));
             }}
-            onGroupChange={(value) => {
+            onGroupChange={(value: string) => {
               // Use the functional form of setFormData to ensure we're working with the latest state
               setFormData((prevFormData) => ({
                 ...prevFormData,
@@ -288,7 +288,7 @@ export default function AddCustomTile({
                 intensity: '',
               }));
             }}
-            onIntensityChange={(value) => {
+            onIntensityChange={(value: number) => {
               setFormData((prevFormData) => ({
                 ...prevFormData,
                 intensity: value,
@@ -313,7 +313,6 @@ export default function AddCustomTile({
 
           <Autocomplete
             id="tags"
-            name="tags"
             disableCloseOnSelect
             multiple
             freeSolo

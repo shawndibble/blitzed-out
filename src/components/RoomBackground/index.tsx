@@ -1,5 +1,4 @@
 import { Box } from '@mui/material';
-import React from 'react';
 
 interface RoomBackgroundProps {
   url?: string | null;
@@ -8,7 +7,12 @@ interface RoomBackgroundProps {
 
 export default function RoomBackground({ url = null, isVideo = null }: RoomBackgroundProps) {
   return (
-    <Box className="main-container" sx={{ backgroundImage: !isVideo && `url(${url})` }}>
+    <Box
+      className="main-container"
+      sx={{
+        backgroundImage: !isVideo && url ? `url(${url})` : 'none',
+      }}
+    >
       {isVideo && (
         <iframe
           width="100%"

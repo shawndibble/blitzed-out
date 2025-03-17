@@ -37,27 +37,31 @@ interface DialogResult {
   isMyMessage: boolean;
 }
 
-export default function useSoundAndDialog(room?: string): DialogResult {
+export default function useSoundAndDialog(): DialogResult {
   const { i18n } = useTranslation();
   const { user } = useAuth();
-  const { messages } = useMessages(room);
+  const { messages } = useMessages();
   const [popupMessage, setPopupMessage] = useState<Message | false>(false);
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
   const [settings] = useLocalStorage<Settings>('gameSettings');
-  
+
   const { playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll } = settings || {};
 
   const latestMessage = useMemo(() => [...messages].pop(), [messages]);
 
-  const speakText = useCallback((text: string | undefined, language: string): void => {
+  const speakText = useCallback((text: string | undefined, language: string | undefined): void => {
     if (text) speak(text, language);
   }, []);
 
-  const newMessage = useMemo(() => latestMessage ? 
-    moment(latestMessage.timestamp?.toDate()).diff(moment(), 'seconds') >= -2 : 
-    false, [latestMessage]);
-    
+  const newMessage = useMemo(
+    () =>
+      latestMessage
+        ? moment(latestMessage.timestamp?.toDate()).diff(moment(), 'seconds') >= -2
+        : false,
+    [latestMessage]
+  );
+
   const myMessage = useMemo(() => latestMessage?.uid === user?.uid, [latestMessage, user]);
   const showPlayerDialog = Boolean(playerDialog && myMessage);
   const showOthersDialog = Boolean(othersDialog && !myMessage);
@@ -99,7 +103,7 @@ export default function useSoundAndDialog(room?: string): DialogResult {
     playDiceSound,
     playMessageSound,
     speakText,
-    newMessage
+    newMessage,
   ]);
 
   return {

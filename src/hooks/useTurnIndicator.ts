@@ -15,17 +15,14 @@ interface Message {
 function getNextPlayer(players: Player[], currentUid: string): Player | null {
   const index = players.findIndex((player) => player.uid === currentUid);
   if (index === -1 || players.length === 0) return null;
-  
+
   const nextIndex = index + 1 >= players.length ? 0 : index + 1;
   return players[nextIndex];
 }
 
-export default function useTurnIndicator(
-  room: string, 
-  message: Message | null
-): Player | null {
+export default function useTurnIndicator(message: Message | null): Player | null {
   const [turnIndicator, setTurnIndicator] = useState<Player | null>(null);
-  const players = usePlayerList(room);
+  const players = usePlayerList();
 
   useEffect(() => {
     if (!message) return;

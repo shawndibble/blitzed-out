@@ -12,7 +12,6 @@ import usePresence from '@/hooks/usePresence';
 import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
 import useUrlImport from '@/hooks/useUrlImport';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import getBackgroundSource from '@/services/getBackgroundSource';
 import Navigation from '@/views/Navigation';
@@ -20,7 +19,7 @@ import GameBoard from '@/views/Room/GameBoard';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import './styles.css';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveBoard } from '@/stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -36,8 +35,15 @@ export default function Room() {
 
   usePresence(room, settings.roomRealtime);
 
-  const [rollValue, setRollValue] = useState({ value: 0, time: Date.now() });
+  const [rollValue, setRollValue] = useState({ value: 0, time: 0 });
   const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
+
+  // Use useCallback to memoize the setRollValue function
+  const memoizedSetRollValue = useCallback((newValue) => {
+    setRollValue({ value: newValue, time: Date.now() });
+  }, []);
+
+  // Use usePlayerMove directly
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult] = useUrlImport(settings, setSettings);
@@ -87,10 +93,11 @@ export default function Room() {
       <Navigation room={room} playerList={playerList} />
 
       <RollButton
-        setRollValue={setRollValue}
+        setRollValue={memoizedSetRollValue}
         dice={roller}
         isEndOfBoard={tile?.index >= gameBoard.length - 1}
       />
+
       <RoomBackground isVideo={isVideo} url={url} />
       <TurnIndicator room={room} />
       {isMobile ? (
@@ -103,7 +110,7 @@ export default function Room() {
           {messagesComponent}
         </Box>
       )}
-      <PopupMessage room={room} />
+      <PopupMessage />
       <ToastAlert
         type={importResult === t('updated') ? 'success' : 'error'}
         open={!!importResult}

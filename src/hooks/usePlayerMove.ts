@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sendMessage } from '@/services/firebase';
 import useAuth from '@/context/hooks/useAuth';
@@ -15,6 +15,7 @@ interface Tile {
 
 interface RollValue {
   value: number | number[];
+  time: number | DateConstructor;
 }
 
 interface LocationResult {
@@ -68,10 +69,12 @@ export default function usePlayerMove(
 ): PlayerMoveResult {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const playerList = usePlayerList(room);
+  const playerList = usePlayerList();
   const total = gameBoard.length;
   const [tile, setTile] = useState<Tile>(gameBoard[0] || {});
   const lastTile = total - 1;
+
+  const lastRollTimeRef = useRef<number>(0);
 
   const handleTextOutput = useCallback(
     (newTile: Tile, rollNumber: number, newLocation: number, preMessage?: string): void => {
@@ -99,46 +102,48 @@ export default function usePlayerMove(
         type: 'actions',
       });
     },
-    [room, user, t]
+    [room, user]
   );
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
-  const getNewLocation = useCallback(
-    (rollNumber: number): LocationResult => {
-      // -1 is used to restart the game.
-      if (rollNumber === -1) {
-        return {
-          preMessage: `${t('restartingGame')}\n`,
-          newLocation: 0,
-        };
-      }
+  const getNewLocation = (rollNumber: number): LocationResult => {
+    // -1 is used to restart the game.
+    if (rollNumber === -1) {
+      return {
+        preMessage: `${t('restartingGame')}\n`,
+        newLocation: 0,
+      };
+    }
 
-      const currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
+    const currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
 
-      // restart game if we roll and are on the last tile.
-      if (currentLocation === lastTile) {
-        return {
-          preMessage: `${t('alreadyFinished')}\n`,
-          newLocation: rollNumber,
-        };
-      }
+    // restart game if we roll and are on the last tile.
+    if (currentLocation === lastTile) {
+      return {
+        preMessage: `${t('alreadyFinished')}\n`,
+        newLocation: rollNumber,
+      };
+    }
 
-      const newLocation = rollNumber + currentLocation;
-      // If we move past finish, move to finish instead.
-      if (newLocation >= lastTile) {
-        return { newLocation: lastTile };
-      }
-      return { newLocation };
-    },
-    [playerList, lastTile, t]
-  );
+    const newLocation = rollNumber + currentLocation;
+    // If we move past finish, move to finish instead.
+    if (newLocation >= lastTile) {
+      return { newLocation: lastTile };
+    }
+    return { newLocation };
+  };
 
   useEffect(() => {
     const rollNumber = Array.isArray(rollValue.value) ? rollValue.value[0] : rollValue.value;
+    const currentTime = rollValue.time as number;
 
     // a 0 means something went wrong. Give up.
-    if (rollNumber === 0) return;
+    if (rollNumber === 0 || currentTime <= lastRollTimeRef.current) {
+      return;
+    }
+
+    lastRollTimeRef.current = currentTime;
 
     const { preMessage, newLocation } = getNewLocation(rollNumber);
 

@@ -1,5 +1,3 @@
-import { ReactNode } from 'react';
-
 export interface CustomTile {
   id?: number;
   group: string;
@@ -9,6 +7,7 @@ export interface CustomTile {
   isEnabled?: number | boolean;
   isCustom?: number | boolean;
   gameMode?: string;
+  locale?: string;
 }
 
 export interface MappedGroup {

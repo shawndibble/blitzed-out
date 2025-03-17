@@ -7,11 +7,11 @@ import { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
 
 export default function TurnIndicator({ room }) {
-  const { messages } = useMessages(room);
+  const { messages } = useMessages();
   const [showToast, setShowToast] = useState(false);
   const message = latestMessageByType(messages, 'actions');
   const lastMessage = latestMessage(messages);
-  const player = useTurnIndicator(room, message);
+  const player = useTurnIndicator(message);
   const { playerDialog, othersDialog } = useLocalStorage('gameSettings')[0];
 
   useEffect(() => {

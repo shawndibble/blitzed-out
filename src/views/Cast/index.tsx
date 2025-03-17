@@ -51,13 +51,12 @@ export default function Cast() {
   const { isVideo, url } = usePrivateRoomBackground(messages);
 
   const lastAction = latestMessageByType(messages, ACTION_TYPE) || {};
-  const nextPlayer = useTurnIndicator(room, lastAction);
+  const nextPlayer = useTurnIndicator(lastAction);
   const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
 
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
-    const isCastEnvironment =
-      castWindow.cast && castWindow.cast.framework && castWindow.cast.framework.CastReceiverContext;
+    const isCastEnvironment = window.cast?.framework?.CastReceiverContext;
 
     if (isCastEnvironment) {
       document.body.classList.add('cast-receiver-mode');

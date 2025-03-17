@@ -1,62 +1,53 @@
-import i18n from '@/i18n';
+import i18next from 'i18next';
 import db from './store';
 import { CustomTile } from '@/types/customTiles';
-import { 
-  CustomTileFilters, 
-  CustomTileGroups, 
-  PaginatedResult 
-} from '@/types/dexieTypes';
+import { CustomTileFilters, CustomTileGroups, PaginatedResult } from '@/types/dexieTypes';
+import { Collection, Table } from 'dexie';
 
 const { customTiles } = db;
 
 // Index the customTiles table by locale, gameMode, and isCustom for faster queries
-customTiles.hook('creating', function (primKey: number, obj: CustomTile) {
-  if (obj.locale === undefined) obj.locale = 'en';
-  if (obj.gameMode === undefined) obj.gameMode = 'online';
-  if (obj.isCustom === undefined) obj.isCustom = 1;
-  return undefined;
-});
+customTiles.hook(
+  'creating',
+  function (this: any, _primKey: number | undefined, obj: CustomTile, _transaction: any) {
+    if (obj.locale === undefined) obj.locale = 'en';
+    if (obj.gameMode === undefined) obj.gameMode = 'online';
+    if (obj.isCustom === undefined) obj.isCustom = 1;
+  }
+);
 
-export const importCustomTiles = async (record: Partial<CustomTile>[]): Promise<number> => {
+export const importCustomTiles = async (
+  record: Partial<CustomTile>[]
+): Promise<number | undefined> => {
   const recordData = record.map((tile) => ({ ...tile, isEnabled: 1 }));
   return await customTiles.bulkAdd(recordData as CustomTile[]);
 };
 
-export const getTiles = async (filters: CustomTileFilters = {}): Promise<CustomTile[] | PaginatedResult<CustomTile>> => {
+export const getTiles = async (
+  filters: CustomTileFilters = {}
+): Promise<CustomTile[] | PaginatedResult<CustomTile>> => {
   const { page = 1, limit = 50, paginated = false } = filters;
   const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom', 'action'];
 
   try {
-    let query = customTiles;
-    let useAnd = false;
+    let query: Collection<CustomTile, number | undefined> = (
+      customTiles as Table<CustomTile, number>
+    ).toCollection();
     const filtersArray = Object.entries(filters).filter(([key]) => possibleFilters.includes(key));
 
     filtersArray.forEach(([key, value]) => {
-      if (value === undefined || value === null || value === '') return; // Skip empty or null values (ignores filters with no value)
+      if (value === undefined || value === null || value === '') return;
 
-      // Special handling for tag filter since it's an array field
       if (key === 'tag') {
-        if (!useAnd) {
-          query = query.filter((tile) => tile.tags.includes(value as string));
-          useAnd = true;
-        } else {
-          query = query.and((tile) => tile.tags.includes(value as string));
-        }
+        query = query.filter((tile) => tile.tags.includes(value as string));
       } else {
-        // Normal handling for other filters
-        if (!useAnd) {
-          query = query.where(key).equals(value);
-          useAnd = true;
-        } else {
-          query = query.and((tile) => tile[key as keyof CustomTile] === value);
-        }
+        query = query.filter((tile) => tile[key as keyof CustomTile] === value);
       }
     });
 
     // If pagination is not requested, return all items as an array
     if (!paginated) {
-      const items = await query.toArray();
-      return items;
+      return await query.toArray();
     }
 
     // Get total count for pagination
@@ -74,6 +65,7 @@ export const getTiles = async (filters: CustomTileFilters = {}): Promise<CustomT
       totalPages: Math.ceil(count / limit),
     };
   } catch (error) {
+    console.error('Error in getTiles:', error);
     // Return empty results on error
     if (!paginated) {
       return [];
@@ -89,8 +81,8 @@ export const getTiles = async (filters: CustomTileFilters = {}): Promise<CustomT
 };
 
 export const getCustomTileGroups = async (
-  locale = 'en', 
-  gameMode = 'online', 
+  locale = 'en',
+  gameMode = 'online',
   tags: string[] | null = null
 ): Promise<CustomTileGroups> => {
   // Get unique groups with count of items in each group
@@ -126,7 +118,7 @@ export const getCustomTileGroups = async (
 };
 
 export const getActiveTiles = (gameMode: string | null = null): Promise<CustomTile[]> => {
-  const currentLocale = i18n.resolvedLanguage || i18n.language || 'en';
+  const currentLocale = i18next.resolvedLanguage || i18next.language || 'en';
 
   let tiles = customTiles
     .where('locale')
@@ -140,21 +132,24 @@ export const getActiveTiles = (gameMode: string | null = null): Promise<CustomTi
   return tiles.toArray();
 };
 
-export const addCustomTile = async (record: Partial<CustomTile>): Promise<number> => {
+export const addCustomTile = async (record: Partial<CustomTile>): Promise<number | undefined> => {
   return await customTiles.add({
     ...record,
     isEnabled: 1,
   } as CustomTile);
 };
 
-export const updateCustomTile = async (id: number, record: Partial<CustomTile>): Promise<number> => {
+export const updateCustomTile = async (
+  id: number,
+  record: Partial<CustomTile>
+): Promise<number> => {
   return await customTiles.update(id, record);
 };
 
 export const toggleCustomTile = async (id: number): Promise<number> => {
   const tile = await customTiles.get(id);
   if (!tile) throw new Error(`Custom tile with id ${id} not found`);
-  
+
   return await customTiles.update(id, {
     isEnabled: !tile.isEnabled ? 1 : 0,
   });

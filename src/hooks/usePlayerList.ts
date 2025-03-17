@@ -43,7 +43,7 @@ interface User {
 
 function filteredGameMessages(messages: Message[]): Message[] {
   const filteredMessages = orderedMessagesByType(messages, 'actions', 'DESC');
-  return [...new Map(filteredMessages.map((m: Message) => [m.uid, m])).values()];
+  return [...new Map<string, Message>(filteredMessages.map((m: Message) => [m.uid, m])).values()];
 }
 
 // see if the realtime db connection is recent.
@@ -70,9 +70,9 @@ function isRecentlyActive(messages: Message[], onlineUid: string): boolean {
   return lastActivity ? Date.now() - lastActivity < TEN_MINUTES : false;
 }
 
-export default function usePlayerList(room?: string): Player[] {
+export default function usePlayerList(): Player[] {
   const { user } = useAuth();
-  const { messages, isLoading } = useMessages(room);
+  const { messages, isLoading } = useMessages();
   const { onlineUsers } = useUserList();
 
   const getCurrentPlayers = useCallback(

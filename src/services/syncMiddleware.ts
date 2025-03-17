@@ -1,3 +1,4 @@
+import { Middleware, DBCore, DBCoreTable, DBCoreMutateRequest } from 'dexie';
 import { WindowWithAuth } from '../types/app';
 
 interface SyncMiddlewareOptions {
@@ -15,29 +16,9 @@ interface SyncDebounce {
   processSyncQueue(): void;
 }
 
-interface DexieRequest {
-  type: string;
-  [key: string]: any;
-}
-
-interface DexieTable {
-  mutate(req: DexieRequest): Promise<any>;
-  [key: string]: any;
-}
-
-interface DexieDatabase {
-  table(tableName: string): DexieTable;
-  [key: string]: any;
-}
-
-interface DexieMiddleware {
-  stack: string;
+interface DexieMiddleware extends Middleware<DBCore> {
+  stack: 'dbcore';
   name: string;
-  create(downlevelDatabase: DexieDatabase): DexieDatabase;
-}
-
-declare global {
-  interface Window extends WindowWithAuth {}
 }
 
 /**
@@ -77,8 +58,9 @@ export function createSyncMiddleware(
       if (this.queue.size === 0) return;
 
       // Only sync if we have an authenticated non-anonymous user
-      if (window.authContext?.user && !window.authContext.user.isAnonymous) {
-        window.authContext.syncData();
+      const windowWithAuth = window as WindowWithAuth;
+      if (windowWithAuth.authContext?.user && !windowWithAuth.authContext.user.isAnonymous) {
+        windowWithAuth.authContext.syncData();
       }
 
       // Clear the queue and timeouts
@@ -93,10 +75,10 @@ export function createSyncMiddleware(
   return {
     stack: 'dbcore',
     name: 'syncMiddleware',
-    create(downlevelDatabase: DexieDatabase): DexieDatabase {
+    create(downlevelDatabase: DBCore): DBCore {
       return {
         ...downlevelDatabase,
-        table(tableName: string): DexieTable {
+        table(tableName: string): DBCoreTable {
           const downlevelTable = downlevelDatabase.table(tableName);
 
           // Only apply middleware to specified tables
@@ -106,7 +88,7 @@ export function createSyncMiddleware(
 
           return {
             ...downlevelTable,
-            mutate: async (req: DexieRequest): Promise<any> => {
+            mutate: async (req: DBCoreMutateRequest): Promise<any> => {
               // First, perform the actual database operation
               const result = await downlevelTable.mutate(req);
 

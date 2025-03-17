@@ -30,7 +30,7 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
   const [timerSettings, setTimerSettings] = useState({ isRange: false, min: 30, max: 120 });
 
   const updateRollValue = useCallback((value) => {
-    setRollValue({ value, time: Date.now() });
+    setRollValue(value);
   }, []);
 
   const options = useMemo(() => {
@@ -105,29 +105,31 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
   }, [isEndOfBoard]);
 
   useEffect(() => {
-    if (isDisabled) return setRollText(t('wait'));
-    if (selectedRoll === 'manual') {
-      return setRollText(t('roll'));
-    }
+    if (isDisabled) {
+      setRollText(t('wait'));
+    } else if (selectedRoll === 'manual') {
+      setRollText(t('roll'));
+    } else if (isPaused) {
+      setRollText(`${t('play')} (${timeLeft})`);
+    } else if (timeLeft > 0) {
+      setRollText(`${t('pause')} (${timeLeft})`);
+    } else if (timeLeft === 0 && !isPaused && selectedRoll !== 'manual') {
+      // Only roll and reset timer if we're not paused and not in manual mode
+      rollDice(rollCount, diceSide, updateRollValue);
 
-    if (isPaused) return setRollText(`${t('play')} (${timeLeft})`);
+      let newTime;
+      if (timerSettings.isRange) {
+        const { min, max } = timerSettings;
+        newTime = Math.floor(Math.random() * (max - min + 1)) + min;
+      } else {
+        newTime = autoTime;
+      }
 
-    if (timeLeft > 0) {
-      return setRollText(`${t('pause')} (${timeLeft})`);
+      setAutoTime(newTime);
+      setTimeLeft(newTime);
+      setRollText(`${t('pause')} (${newTime})`);
     }
-
-    rollDice(rollCount, diceSide, updateRollValue);
-    
-    // If using random range, generate a new random time for the next roll
-    if (timerSettings.isRange) {
-      const { min, max } = timerSettings;
-      const newRandomTime = Math.floor(Math.random() * (max - min + 1)) + min;
-      setAutoTime(newRandomTime);
-      return setTimeLeft(newRandomTime);
-    }
-    
-    return setTimeLeft(autoTime);
-  }, [isDisabled, selectedRoll, timeLeft, autoTime, isPaused]);
+  }, [isDisabled, selectedRoll, timeLeft, isPaused, autoTime, timerSettings]);
 
   return (
     <>
