@@ -9,7 +9,7 @@ interface User {
 
 interface AuthContextType {
   user: User;
-  updateUser: (user: Partial<User>) => Promise<void>;
+  updateUser: (user: Partial<User>) => Promise<User>;
   [key: string]: any;
 }
 

@@ -28,6 +28,11 @@ interface Player {
   [key: string]: any;
 }
 
+interface PlayerMoveResult {
+  tile: Tile;
+  playerList: Player[];
+}
+
 function getFinishResult(textArray: string[]): string {
   // if we have %, we are on the finish tile. Let's get a random result.
   const finishValues = textArray.filter((n) => n).map((line) => line.split(': '));
@@ -57,10 +62,10 @@ function parseDescription(text: string | undefined, role: string, displayName: s
 }
 
 export default function usePlayerMove(
-  room: string, 
-  rollValue: RollValue, 
+  room: string,
+  rollValue: RollValue,
   gameBoard: Tile[] = []
-): { tile: Tile; playerList: Player[] } {
+): PlayerMoveResult {
   const { user } = useAuth();
   const { t } = useTranslation();
   const playerList = usePlayerList(room);
@@ -99,37 +104,38 @@ export default function usePlayerMove(
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
-  const getNewLocation = useCallback((rollNumber: number): LocationResult => {
-    // -1 is used to restart the game.
-    if (rollNumber === -1) {
-      return {
-        preMessage: `${t('restartingGame')}\n`,
-        newLocation: 0,
-      };
-    }
+  const getNewLocation = useCallback(
+    (rollNumber: number): LocationResult => {
+      // -1 is used to restart the game.
+      if (rollNumber === -1) {
+        return {
+          preMessage: `${t('restartingGame')}\n`,
+          newLocation: 0,
+        };
+      }
 
-    const currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
+      const currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
 
-    // restart game if we roll and are on the last tile.
-    if (currentLocation === lastTile) {
-      return {
-        preMessage: `${t('alreadyFinished')}\n`,
-        newLocation: rollNumber,
-      };
-    }
+      // restart game if we roll and are on the last tile.
+      if (currentLocation === lastTile) {
+        return {
+          preMessage: `${t('alreadyFinished')}\n`,
+          newLocation: rollNumber,
+        };
+      }
 
-    const newLocation = rollNumber + currentLocation;
-    // If we move past finish, move to finish instead.
-    if (newLocation >= lastTile) {
-      return { newLocation: lastTile };
-    }
-    return { newLocation };
-  }, [playerList, lastTile, t]);
+      const newLocation = rollNumber + currentLocation;
+      // If we move past finish, move to finish instead.
+      if (newLocation >= lastTile) {
+        return { newLocation: lastTile };
+      }
+      return { newLocation };
+    },
+    [playerList, lastTile, t]
+  );
 
   useEffect(() => {
-    const rollNumber = Array.isArray(rollValue.value) 
-      ? rollValue.value[0] 
-      : rollValue.value;
+    const rollNumber = Array.isArray(rollValue.value) ? rollValue.value[0] : rollValue.value;
 
     // a 0 means something went wrong. Give up.
     if (rollNumber === 0) return;

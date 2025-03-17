@@ -29,10 +29,15 @@ interface Message {
   [key: string]: any;
 }
 
+interface PrivateRoomMonitorResult {
+  roller: string;
+  roomBgUrl: string;
+}
+
 export default function usePrivateRoomMonitor(
-  room: string, 
+  room: string,
   gameBoard?: GameBoardTile[]
-): { roller: string; roomBgUrl: string } {
+): PrivateRoomMonitorResult {
   const DEFAULT_DIEM = '1d6';
 
   const { i18n, t } = useTranslation();
@@ -45,23 +50,26 @@ export default function usePrivateRoomMonitor(
   const [roomBgUrl, setRoomBackground] = useState<string>('');
   const updateGameBoardTiles = useGameBoard();
 
-  const rebuildGameBoard = useCallback(async (messageSettings: any, messageUser: string | null = null): Promise<void> => {
-    const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
+  const rebuildGameBoard = useCallback(
+    async (messageSettings: any, messageUser: string | null = null): Promise<void> => {
+      const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
 
-    const message: any = {
-      formData: { ...settings, ...messageSettings },
-      user,
-      customTiles,
-      actionsList: await importActions(i18n.resolvedLanguage, gameMode || 'online'),
-      tiles: newBoard,
-      title: t('settingsGenerated'),
-    };
-    if (messageUser) {
-      message.reason = t('rebuiltBoard', { messageUser });
-    }
+      const message: any = {
+        formData: { ...settings, ...messageSettings },
+        user,
+        customTiles,
+        actionsList: await importActions(i18n.resolvedLanguage, gameMode || 'online'),
+        tiles: newBoard,
+        title: t('settingsGenerated'),
+      };
+      if (messageUser) {
+        message.reason = t('rebuiltBoard', { messageUser });
+      }
 
-    await sendGameSettingsMessage(message);
-  }, [settings, user, customTiles, i18n.resolvedLanguage, t, updateGameBoardTiles]);
+      await sendGameSettingsMessage(message);
+    },
+    [settings, user, customTiles, i18n.resolvedLanguage, t, updateGameBoardTiles]
+  );
 
   const roomChanged = useCallback(async (): Promise<void> => {
     await updateSettings({ ...settings, room });

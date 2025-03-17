@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export default function useFullscreenStatus(): { 
-  isFullscreen: boolean; 
-  toggleFullscreen: () => void 
-} {
+interface FullscreenStatusResult {
+  isFullscreen: boolean;
+  toggleFullscreen: () => void;
+}
+
+export default function useFullscreenStatus(): FullscreenStatusResult {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(document.fullscreenElement != null);
 
   useEffect(() => {
@@ -21,11 +23,11 @@ export default function useFullscreenStatus(): {
   // open fullscreen
   const toggleFullscreen = useCallback((): void => {
     if (document.fullscreenElement == null) {
-      document.documentElement.requestFullscreen().catch(err => {
+      document.documentElement.requestFullscreen().catch((err) => {
         console.error('Error attempting to enable fullscreen:', err);
       });
     } else {
-      document.exitFullscreen().catch(err => {
+      document.exitFullscreen().catch((err) => {
         console.error('Error attempting to exit fullscreen:', err);
       });
     }

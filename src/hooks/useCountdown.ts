@@ -8,13 +8,13 @@ interface CountdownResult {
 }
 
 export default function useCountdown(
-  startSeconds: number, 
+  startSeconds: number,
   startPaused: boolean = true
 ): CountdownResult {
   const [timeLeft, setTimeLeft] = useState<number>(startSeconds);
   const [isPaused, setPause] = useState<boolean>(startPaused);
 
-  const togglePause = useCallback((): void => setPause(prev => !prev), []);
+  const togglePause = useCallback((): void => setPause((prev) => !prev), []);
 
   useEffect(() => {
     if (timeLeft === -1) {

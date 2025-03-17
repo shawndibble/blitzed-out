@@ -11,11 +11,16 @@ interface BackgroundSource {
   url?: string;
 }
 
-export default function usePrivateRoomBackground(messages: Message[]): { isVideo: boolean; url: string } {
+interface BackgroundResult {
+  isVideo: boolean;
+  url: string;
+}
+
+export default function usePrivateRoomBackground(messages: Message[]): BackgroundResult {
   const roomMessage = latestMessageByType(messages, 'room') as Message | undefined;
   let isVideo = false;
   let url = '';
-  
+
   if (roomMessage) {
     const { roomBackgroundURL } = JSON.parse(roomMessage.settings);
     const backgroundSource = processBackground(roomBackgroundURL) as BackgroundSource;

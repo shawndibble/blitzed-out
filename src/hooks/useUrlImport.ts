@@ -15,10 +15,12 @@ interface Board {
   [key: string]: any;
 }
 
+type UrlImportResult = [string | null, () => void];
+
 export default function useUrlImport(
   settings: Settings, 
   setSettings: (settings: Settings) => void
-): [string | null, () => void] {
+): UrlImportResult {
   const [alert, setAlert] = useState<string | null>(null);
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');

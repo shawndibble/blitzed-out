@@ -21,7 +21,10 @@ function getInitialValue<T>(key: string, defaultVal: T): T {
   }
 }
 
-export default function useLocalStorage<T>(localStorageKey: string, defaultVal: T = {} as T): [T, (newValue: T) => void] {
+export default function useLocalStorage<T>(
+  localStorageKey: string,
+  defaultVal: T = {} as T
+): [T, (newValue: T) => void] {
   const eventName = `${localStorageKey}Storage`;
 
   const [storage, setStorage] = useState<T>(() => getInitialValue<T>(localStorageKey, defaultVal));

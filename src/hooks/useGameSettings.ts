@@ -6,19 +6,21 @@ interface GameSettings {
   [key: string]: any;
 }
 
+interface GameSettingsResult {
+  settings: GameSettings;
+  updateSettings: (newSettings: Partial<GameSettings>) => void;
+}
+
 /**
  * Hook to access and monitor game settings from local storage
  * @returns Game settings object and a function to update it
  */
-export default function useGameSettings(): {
-  settings: GameSettings;
-  updateSettings: (newSettings: Partial<GameSettings>) => void;
-} {
+export default function useGameSettings(): GameSettingsResult {
   const [settings, setSettings] = useState<GameSettings>(() => {
     try {
       const storedSettings = localStorage.getItem('gameSettings');
-      return storedSettings 
-        ? { ...{ locale: 'en', gameMode: 'online' }, ...JSON.parse(storedSettings) } 
+      return storedSettings
+        ? { ...{ locale: 'en', gameMode: 'online' }, ...JSON.parse(storedSettings) }
         : { locale: 'en', gameMode: 'online' };
     } catch (error) {
       console.error('Error parsing game settings from localStorage:', error);
@@ -43,7 +45,7 @@ export default function useGameSettings(): {
   }, []);
 
   const updateSettings = useCallback((newSettings: Partial<GameSettings>): void => {
-    setSettings(prevSettings => {
+    setSettings((prevSettings) => {
       const updatedSettings = { ...prevSettings, ...newSettings };
       try {
         localStorage.setItem('gameSettings', JSON.stringify(updatedSettings));

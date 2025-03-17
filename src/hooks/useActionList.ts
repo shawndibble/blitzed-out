@@ -2,7 +2,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { importActions } from '@/services/importLocales';
 
-export default function useActionList(gameMode?: string) {
+interface ActionListResult {
+  actionsList: Record<string, any>;
+  isLoading: boolean;
+}
+
+export default function useActionList(gameMode?: string): ActionListResult {
   const { i18n } = useTranslation();
   const [actionsList, setActionList] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);

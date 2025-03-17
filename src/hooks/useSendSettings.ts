@@ -73,7 +73,7 @@ export default function useSendSettings(
   const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
   const board = useLiveQuery<Board | undefined>(getActiveBoard);
 
-  const sendSettings = useCallback(async () => {
+  const sendSettings = useCallback(async (): Promise<void> => {
     if (!settings || isLoading || settingsSent || !board?.tiles?.length) return;
 
     const isPrivateRoom = !isPublicRoom(room || '');
