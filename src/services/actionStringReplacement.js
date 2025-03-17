@@ -2,16 +2,16 @@ import i18next from 'i18next';
 
 const { t } = i18next;
 
-function capitalizeFirstLetterInCurlyBraces(string) {
+function capitalizeFirstLetterInCurlyBraces(string: string): string {
   return string.replace(/(?:^|\.\s|!\s)(\w)/g, (match) => match.toUpperCase());
 }
 
-function replaceWithPlayerName(string, role, displayName) {
+function replaceWithPlayerName(string: string, role: string, displayName: string): string {
   const chance = Math.random();
   const hasBothDomAndSub = string.includes('{dom}') && string.includes('{sub}');
   const isVers = role === 'vers';
 
-  function shouldReplace(match) {
+  function shouldReplace(match: string): boolean {
     if (match === '{player}') return true;
 
     const isDomOrSub = match === '{dom}' || match === '{sub}';
@@ -32,7 +32,7 @@ function replaceWithPlayerName(string, role, displayName) {
   );
 }
 
-export default function actionStringReplacement(action, role, displayName) {
+export default function actionStringReplacement(action: string, role: string, displayName: string): string {
   const newAction = replaceWithPlayerName(action, role, displayName).replace(
     /{(dom|sub)}/g,
     t('anotherPlayer')

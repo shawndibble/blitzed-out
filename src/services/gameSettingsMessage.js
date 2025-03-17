@@ -2,10 +2,36 @@ import i18next from 'i18next';
 import { getOrCreateBoard, sendMessage } from './firebase';
 import { isOnlineMode } from '@/helpers/strings';
 
-function getCustomTileCount(settings, customTiles, actionsList) {
+interface GameSettings {
+  [key: string]: any;
+  gameMode?: string;
+  room?: string;
+  role?: string;
+  finishRange?: [number, number];
+  difficulty?: string;
+}
+
+interface CustomTile {
+  group: string;
+  intensity: string | number;
+}
+
+interface ActionsList {
+  [key: string]: {
+    label: string;
+    actions: Record<string, any>;
+    [key: string]: any;
+  };
+}
+
+function getCustomTileCount(
+  settings: GameSettings, 
+  customTiles: CustomTile[] | null | undefined, 
+  actionsList: ActionsList
+): number {
   const settingsDataFolder = Object.entries(actionsList)
     .filter(([key]) => settings[key])
-    .reduce((acc, [key, value]) => {
+    .reduce<Record<string, string[]>>((acc, [key, value]) => {
       acc[key] = Object.keys(value.actions).slice(1, settings[key] + 1);
       return acc;
     }, {});
@@ -14,12 +40,17 @@ function getCustomTileCount(settings, customTiles, actionsList) {
     if (entry.group === 'misc') return true;
     const intensityArray = settingsDataFolder[entry.group];
     return intensityArray && intensityArray.length >= Number(entry.intensity);
-  });
+  }) || [];
 
   return usedCustomTiles.length;
 }
 
-function getSettingsMessage(settings, customTiles, actionsList, reason) {
+function getSettingsMessage(
+  settings: GameSettings, 
+  customTiles: CustomTile[] | null | undefined, 
+  actionsList: ActionsList, 
+  reason?: string
+): string {
   const { t } = i18next;
   let message = `### ${i18next.t('gameSettings')}\r\n`;
   if (reason) {
@@ -35,7 +66,8 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
     const actualRole = role || settings.role || 'sub';
 
     if (level > 0) {
-      message += `* ${val?.label}: ${Object.keys(val?.actions)?.[level]}`;
+      const actionsKeys = Object.keys(val?.actions || {});
+      message += `* ${val?.label}: ${actionsKeys[level] || ''}`;
 
       if (variation) {
         message += ` (${t(variation)})`;
@@ -73,8 +105,8 @@ function getSettingsMessage(settings, customTiles, actionsList, reason) {
   return message;
 }
 
-function exportSettings(formData) {
-  const newSettings = {};
+function exportSettings(formData: GameSettings): Record<string, any> {
+  const newSettings: Record<string, any> = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     // list of settings to not export and thus not import.
     const personalSettings = [
@@ -98,6 +130,16 @@ function exportSettings(formData) {
   return newSettings;
 }
 
+interface GameSettingsMessageProps {
+  title: string;
+  formData: GameSettings;
+  user: { uid: string; displayName?: string };
+  actionsList: ActionsList;
+  tiles: any[];
+  customTiles?: CustomTile[];
+  reason?: string;
+}
+
 export default async function sendGameSettingsMessage({
   title,
   formData,
@@ -106,7 +148,7 @@ export default async function sendGameSettingsMessage({
   tiles,
   customTiles = [],
   reason = '',
-}) {
+}: GameSettingsMessageProps) {
   const settings = JSON.stringify(exportSettings(formData));
 
   const gameBoard = await getOrCreateBoard({

@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, DocumentData } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import {
   addCustomTile,
@@ -8,10 +8,26 @@ import {
 } from '@/stores/customTiles';
 import { getBoards, upsertBoard } from '@/stores/gameBoard';
 
+interface CustomTile {
+  gameMode: string;
+  group: string;
+  intensity: number | string;
+  action: string;
+  [key: string]: any;
+}
+
+interface GameBoard {
+  title: string;
+  tiles: any[];
+  tags?: string[];
+  gameMode?: string;
+  isActive?: number;
+}
+
 const db = getFirestore();
 
 // Sync custom tiles to Firebase
-export async function syncCustomTilesToFirebase() {
+export async function syncCustomTilesToFirebase(): Promise<boolean> {
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -46,7 +62,7 @@ export async function syncCustomTilesToFirebase() {
 }
 
 // Sync game boards to Firebase
-export async function syncGameBoardsToFirebase() {
+export async function syncGameBoardsToFirebase(): Promise<boolean> {
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -81,14 +97,14 @@ export async function syncGameBoardsToFirebase() {
 }
 
 // Sync all data to Firebase
-export async function syncAllDataToFirebase() {
+export async function syncAllDataToFirebase(): Promise<boolean> {
   await syncCustomTilesToFirebase();
   await syncGameBoardsToFirebase();
   return true;
 }
 
 // Sync data from Firebase to Dexie
-export async function syncDataFromFirebase() {
+export async function syncDataFromFirebase(): Promise<boolean> {
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -115,7 +131,7 @@ export async function syncDataFromFirebase() {
       // add a delay after clearing custom tiles before syncing with remote server
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      for (const tile of userData.customTiles) {
+      for (const tile of userData.customTiles as CustomTile[]) {
         try {
           const existingTile = await getTiles({
             gameMode: tile.gameMode,
@@ -136,7 +152,7 @@ export async function syncDataFromFirebase() {
 
     // Import game boards
     if (userData.gameBoards && userData.gameBoards.length > 0) {
-      for (const board of userData.gameBoards) {
+      for (const board of userData.gameBoards as GameBoard[]) {
         await upsertBoard({
           title: board.title,
           tiles: board.tiles,
@@ -156,10 +172,10 @@ export async function syncDataFromFirebase() {
 }
 
 // Variable to store the interval ID for periodic syncing
-let syncIntervalId = null;
+let syncIntervalId: number | null = null;
 
 // Start periodic syncing from Firebase (every 5 minutes)
-export function startPeriodicSync(intervalMinutes = 5) {
+export function startPeriodicSync(intervalMinutes = 5): boolean {
   // Clear any existing interval first
   stopPeriodicSync();
 
@@ -167,7 +183,7 @@ export function startPeriodicSync(intervalMinutes = 5) {
   const intervalMs = intervalMinutes * 60 * 1000;
 
   // Set up the interval
-  syncIntervalId = setInterval(async () => {
+  syncIntervalId = window.setInterval(async () => {
     const auth = getAuth();
     if (auth.currentUser && !auth.currentUser.isAnonymous) {
       console.log('Performing periodic sync from Firebase...');
@@ -184,9 +200,9 @@ export function startPeriodicSync(intervalMinutes = 5) {
 }
 
 // Stop periodic syncing
-export function stopPeriodicSync() {
+export function stopPeriodicSync(): boolean {
   if (syncIntervalId) {
-    clearInterval(syncIntervalId);
+    window.clearInterval(syncIntervalId);
     syncIntervalId = null;
     return true;
   }
@@ -194,7 +210,7 @@ export function stopPeriodicSync() {
 }
 
 // Check if periodic sync is active
-export function isPeriodicSyncActive() {
+export function isPeriodicSyncActive(): boolean {
   return syncIntervalId !== null;
 }
 

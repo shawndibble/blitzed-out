@@ -3,23 +3,48 @@ import { getTiles, importCustomTiles } from '@/stores/customTiles';
 import { t } from 'i18next';
 import db from '@/stores/store';
 
+interface CustomTile {
+  group: string;
+  intensity: number;
+  action: string;
+  isEnabled: number;
+  tags: string[];
+  gameMode: string;
+  isCustom: number;
+  locale: string;
+  [key: string]: any;
+}
+
+interface ActionGroup {
+  actions?: Record<string, string[]>;
+  [key: string]: any;
+}
+
+interface Actions {
+  [key: string]: ActionGroup;
+}
+
 const { customTiles } = db;
 
 // Add a lock mechanism to prevent concurrent imports
-const importLocks = {
+const importLocks: Record<string, boolean> = {
   online: false,
   local: false,
 };
 
 /**
  * Transforms locale actions into the format expected by the customTiles store
- * @param {Object} actions - The actions object from importActions
- * @param {string} locale - The locale code (e.g., 'en')
- * @param {string} gameMode - The game mode (e.g., 'online')
- * @returns {Array} - Array of custom tile objects ready for import
+ * @param actions - The actions object from importActions
+ * @param locale - The locale code (e.g., 'en')
+ * @param gameMode - The game mode (e.g., 'online')
+ * @returns Array of custom tile objects ready for import
  */
-function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'online') {
-  const customTiles = [];
+function transformActionsToCustomTiles(
+  actions: Actions, 
+  locale = 'en', 
+  gameMode = 'online'
+): CustomTile[] {
+  const customTiles: CustomTile[] = [];
 
   Object.entries(actions).forEach(([groupKey, groupData]) => {
     // Skip if there are no actions or if it's just a label
@@ -34,7 +59,7 @@ function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'onlin
         return;
       }
 
-      actionsList.forEach((action) => {
+      actionsList.forEach((action: string) => {
         // Create a tile for the specific game mode
         customTiles.push({
           group: groupKey,
@@ -55,12 +80,16 @@ function transformActionsToCustomTiles(actions, locale = 'en', gameMode = 'onlin
 
 /**
  * Checks if default actions are already imported for a specific locale and game mode
- * @param {Array} existingTiles - The existing custom tiles
- * @param {string} locale - The locale code
- * @param {string} gameMode - The game mode
- * @returns {boolean} - True if default actions exist, false otherwise
+ * @param existingTiles - The existing custom tiles
+ * @param locale - The locale code
+ * @param gameMode - The game mode
+ * @returns True if default actions exist, false otherwise
  */
-function defaultActionsExist(existingTiles, locale, gameMode) {
+function defaultActionsExist(
+  existingTiles: CustomTile[] | any[], 
+  locale: string, 
+  gameMode: string
+): boolean {
   // If existingTiles is not an array or empty, no default actions exist
   if (!Array.isArray(existingTiles) || existingTiles.length === 0) {
     return false;
@@ -79,9 +108,9 @@ function defaultActionsExist(existingTiles, locale, gameMode) {
 
 /**
  * Imports default actions if they don't already exist in the database
- * @param {string} locale - The locale code (e.g., 'en')
+ * @param locale - The locale code (e.g., 'en')
  */
-export async function importDefaultActions(locale) {
+export async function importDefaultActions(locale?: string): Promise<void> {
   // If locale is not provided, get it from localStorage
   const targetLocale = locale || 'en';
 
@@ -142,22 +171,26 @@ export async function importDefaultActions(locale) {
 
 /**
  * Filters out tiles that already exist in the database
- * @param {Array} tilesToImport - Array of tiles to import
- * @param {string} locale - The locale code
- * @param {string} gameMode - The game mode
- * @returns {Array} - Array of tiles that don't already exist
+ * @param tilesToImport - Array of tiles to import
+ * @param locale - The locale code
+ * @param gameMode - The game mode
+ * @returns Array of tiles that don't already exist
  */
-async function filterOutExistingTiles(tilesToImport, locale, gameMode) {
+async function filterOutExistingTiles(
+  tilesToImport: CustomTile[], 
+  locale: string, 
+  gameMode: string
+): Promise<CustomTile[]> {
   // Get existing tiles
   const existingTiles = await customTiles
     .where('locale')
     .equals(locale)
-    .and((tile) => tile.gameMode === gameMode && tile.isCustom === 0)
+    .and((tile: CustomTile) => tile.gameMode === gameMode && tile.isCustom === 0)
     .toArray();
 
   // Create a set of existing tile signatures for quick lookup
-  const existingSignatures = new Set();
-  existingTiles.forEach((tile) => {
+  const existingSignatures = new Set<string>();
+  existingTiles.forEach((tile: CustomTile) => {
     const signature = `${tile.group}-${tile.intensity}-${tile.action}`;
     existingSignatures.add(signature);
   });
@@ -171,10 +204,10 @@ async function filterOutExistingTiles(tilesToImport, locale, gameMode) {
 
 /**
  * Removes duplicate default actions for a specific locale and game mode
- * @param {string} locale - The locale code
- * @param {string} gameMode - The game mode
+ * @param locale - The locale code
+ * @param gameMode - The game mode
  */
-async function removeDuplicateDefaultActions(locale, gameMode) {
+async function removeDuplicateDefaultActions(locale: string, gameMode: string): Promise<void> {
   try {
     // Get all tiles for this locale and game mode
     const allTiles = await getTiles({
@@ -196,15 +229,17 @@ async function removeDuplicateDefaultActions(locale, gameMode) {
     }
 
     // Create a map to track unique actions
-    const uniqueActions = new Map();
-    const duplicateIds = [];
+    const uniqueActions = new Map<string, number>();
+    const duplicateIds: number[] = [];
 
     // Find duplicates
     defaultActionsOnly.forEach((tile) => {
       const key = `${tile.group}-${tile.intensity}-${tile.action}`;
       if (uniqueActions.has(key)) {
         // This is a duplicate, mark for deletion
-        duplicateIds.push(tile.id);
+        if (tile.id !== undefined) {
+          duplicateIds.push(tile.id);
+        }
       } else {
         uniqueActions.set(key, tile.id);
       }
@@ -224,7 +259,7 @@ async function removeDuplicateDefaultActions(locale, gameMode) {
 /**
  * Checks for and imports missing default actions for all supported locales and game modes
  */
-export async function importAllDefaultActions(locale) {
+export async function importAllDefaultActions(locale: string): Promise<void> {
   // First, remove any duplicate default actions for both game modes
   await removeDuplicateDefaultActions(locale, 'online');
   await removeDuplicateDefaultActions(locale, 'local');
@@ -234,19 +269,19 @@ export async function importAllDefaultActions(locale) {
 }
 
 // Use a debounce mechanism to prevent multiple rapid calls
-let importTimeout = null;
+let importTimeout: number | null = null;
 
 /**
  * Sets up a listener for game settings changes and imports actions when needed
  */
-export function setupDefaultActionsImport(locale) {
+export function setupDefaultActionsImport(locale: string): void {
   // Clear any existing timeout
   if (importTimeout) {
     clearTimeout(importTimeout);
   }
 
   // Set a new timeout to debounce multiple calls
-  importTimeout = setTimeout(() => {
+  importTimeout = window.setTimeout(() => {
     try {
       importAllDefaultActions(locale).catch((error) => {
         console.error('Error during initial default actions import:', error);
