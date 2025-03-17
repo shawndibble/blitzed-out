@@ -1,5 +1,14 @@
-import { Box, FormControlLabel, Switch } from '@mui/material';
+import { Box, FormControlLabel, Switch, SxProps, Theme } from '@mui/material';
 import { Trans } from 'react-i18next';
+import { ChangeEvent } from 'react';
+
+interface YesNoSwitchProps {
+  trueCondition: boolean;
+  onChange: (event: ChangeEvent<HTMLInputElement>, checked: boolean) => void;
+  yesLabel: string;
+  noLabel?: string | null;
+  sx?: SxProps<Theme>;
+}
 
 export default function YesNoSwitch({
   trueCondition,
@@ -7,7 +16,7 @@ export default function YesNoSwitch({
   yesLabel,
   noLabel = null,
   sx = {},
-}) {
+}: YesNoSwitchProps): JSX.Element {
   // if we were not provided a noLabel, use the same label as the yesLabel
   const actuallyNoLabel = noLabel ?? yesLabel;
   return (

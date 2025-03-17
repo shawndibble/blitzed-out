@@ -1,5 +1,5 @@
 import { AppBar, Tab, Tabs } from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
@@ -10,21 +10,32 @@ import 'moment/locale/fr';
 import { useTranslation } from 'react-i18next';
 import Message from './Message';
 import './styles.css';
+import { Message as MessageType, MessageType as MsgType } from '@/types/Message';
 
-export default function MessageList({ room, isTransparent, currentGameBoardSize = 40 }) {
-  const containerRef = React.useRef(null);
+interface MessageListProps {
+  room: string;
+  isTransparent?: boolean;
+  currentGameBoardSize?: number;
+}
+
+export default function MessageList({ 
+  room, 
+  isTransparent, 
+  currentGameBoardSize = 40 
+}: MessageListProps): JSX.Element {
+  const containerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { messages, isLoading } = useMessages();
   useSendSettings(user, messages, isLoading);
 
-  const [currentTab, setTab] = useState(0);
+  const [currentTab, setTab] = useState<number>(0);
   const { t, i18n } = useTranslation();
 
   const filterMessages = useCallback(
-    (tabId) =>
+    (tabId: number): MessageType[] =>
       messages.filter((m) => {
-        if (tabId === 1) return ['settings', 'room'].includes(m.type);
-        if (tabId === 2) return ['chat', 'media'].includes(m.type);
+        if (tabId === 1) return ['settings', 'room'].includes(m.type as MsgType);
+        if (tabId === 2) return ['chat', 'media'].includes(m.type as MsgType);
         if (tabId === 3) return m.type === 'actions';
         return m;
       }),
@@ -36,7 +47,7 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
   useEffect(() => {
     if (isLoading) return;
     filterMessages(currentTab);
-  }, [messages, isLoading, i18n.resolvedLanguage]);
+  }, [messages, isLoading, i18n.resolvedLanguage, filterMessages, currentTab]);
 
   React.useLayoutEffect(() => {
     if (containerRef.current) {
@@ -44,7 +55,7 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
     }
   });
 
-  const handleChange = (_, newValue) => {
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
     filterMessages(newValue);
   };
@@ -71,7 +82,6 @@ export default function MessageList({ room, isTransparent, currentGameBoardSize 
             key={x.id}
             message={x}
             isOwnMessage={x.uid === user.uid}
-            locale={i18n.resolvedLanguage}
             isTransparent={isTransparent}
             currentGameBoardSize={currentGameBoardSize}
             room={room}

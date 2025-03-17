@@ -1,12 +1,25 @@
-import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { FormControl, InputLabel, MenuItem, Select, TextField, SelectChangeEvent } from '@mui/material';
+import { useEffect, useState, ChangeEvent, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Settings } from '@/types/Settings';
 
-export default function BackgroundSelect({ formData, setFormData, backgrounds, isRoom = false }) {
+interface BackgroundSelectProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+  backgrounds: Record<string, string>;
+  isRoom?: boolean;
+}
+
+export default function BackgroundSelect({ 
+  formData, 
+  setFormData, 
+  backgrounds, 
+  isRoom = false 
+}: BackgroundSelectProps): JSX.Element {
   const { t } = useTranslation();
   const backgroundKey = !isRoom ? 'background' : 'roomBackground';
   const backgroundURLKey = !isRoom ? 'backgroundURL' : 'roomBackgroundURL';
-  const [background, setBackground] = useState(
+  const [background, setBackground] = useState<string>(
     formData?.[backgroundKey] || Object.keys(backgrounds)[0]
   );
 
@@ -17,23 +30,24 @@ export default function BackgroundSelect({ formData, setFormData, backgrounds, i
       </MenuItem>
     ));
 
-  const backgroundSelection = (event) => {
+  const backgroundSelection = (event: SelectChangeEvent<string>) => {
     setFormData({ ...formData, [backgroundKey]: event.target.value });
     setBackground(event.target.value);
   };
 
   useEffect(() => {
     if (background !== formData?.[backgroundKey]) {
-      setBackground(formData?.[backgroundKey]);
+      setBackground(formData?.[backgroundKey] || '');
     }
-  }, [formData?.[backgroundKey]]);
+  }, [formData, background, backgroundKey]);
 
-  const handleURLChange = (event) => {
+  const handleURLChange = (event: ChangeEvent<HTMLInputElement>) => {
     const data = {
       ...formData,
       [backgroundKey]: 'custom',
       [backgroundURLKey]: event.target.value,
-    };
+    } as Settings;
+    
     if (isRoom) {
       data.roomUpdated = true;
     }
@@ -58,7 +72,7 @@ export default function BackgroundSelect({ formData, setFormData, backgrounds, i
         <TextField
           sx={{ mt: 2 }}
           label={t('url')}
-          value={formData?.[backgroundURLKey]}
+          value={formData?.[backgroundURLKey] || ''}
           fullWidth
           onChange={handleURLChange}
           helperText={

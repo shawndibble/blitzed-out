@@ -1,5 +1,14 @@
 import { ExpandMore } from '@mui/icons-material';
 import { Accordion, AccordionDetails, AccordionSummary, Grid2, Typography } from '@mui/material';
+import { ReactNode } from 'react';
+
+interface InvisibleAccordionGridProps {
+  children: ReactNode;
+  title: ReactNode;
+  subtitle: ReactNode;
+  defaultExpanded?: boolean;
+  [key: string]: any;
+}
 
 export default function InvisibleAccordionGrid({
   children,
@@ -7,7 +16,7 @@ export default function InvisibleAccordionGrid({
   subtitle,
   defaultExpanded = false,
   ...rest
-}) {
+}: InvisibleAccordionGridProps): JSX.Element {
   return (
     <Accordion
       defaultExpanded={defaultExpanded}

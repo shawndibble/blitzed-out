@@ -1,7 +1,17 @@
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import useHasMouse from '@/hooks/useHasMouse';
 import { useState } from 'react';
+import { GroupedActions } from '@/types/customTiles';
+import { Settings } from '@/types/Settings';
+
+interface IncrementalSelectProps {
+  actionsFolder: GroupedActions;
+  settings: Settings;
+  option: string;
+  onChange: (event: SelectChangeEvent<number>) => void;
+  initValue?: number;
+}
 
 export default function IncrementalSelect({
   actionsFolder,
@@ -9,18 +19,20 @@ export default function IncrementalSelect({
   option,
   onChange,
   initValue = 0,
-}) {
+}: IncrementalSelectProps): JSX.Element {
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
   const hasMouse = useHasMouse();
-  const [hoveredOption, setHoveredOption] = useState(settings[option]?.level || 0);
+  const [hoveredOption, setHoveredOption] = useState<number>(
+    settings[option]?.level || 0
+  );
 
-  const handleMouseOver = (index) => {
+  const handleMouseOver = (index: number) => {
     setHoveredOption(index);
   };
 
-  const showCheckbox = (index) => {
+  const showCheckbox = (index: number): boolean => {
     if (hoveredOption > 0 && index === 0) {
       return false;
     }
@@ -31,8 +43,8 @@ export default function IncrementalSelect({
     return hoveredOption >= index;
   };
 
-  function getOptions(category) {
-    return Object.keys(actionsFolder[category]?.actions).map((optionVal, index) => (
+  function getOptions(category: string) {
+    return Object.keys(actionsFolder[category]?.actions || {}).map((optionVal, index) => (
       <MenuItem
         value={index}
         key={`${category}-${optionVal}`}

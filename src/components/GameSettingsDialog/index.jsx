@@ -5,7 +5,12 @@ import useBreakpoint from '@/hooks/useBreakpoint';
 import { useSearchParams } from 'react-router-dom';
 import GameSettingsWizard from '@/views/GameSettingsWizard';
 
-export default function GameSettingsDialog({ open, close = null }) {
+interface GameSettingsDialogProps {
+  open: boolean;
+  close?: (() => void) | null;
+}
+
+export default function GameSettingsDialog({ open, close = null }: GameSettingsDialogProps): JSX.Element | null {
   const isMobile = useBreakpoint();
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');

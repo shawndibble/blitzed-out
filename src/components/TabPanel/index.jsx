@@ -1,6 +1,15 @@
-import { Box } from '@mui/material';
+import { Box, SxProps, Theme } from '@mui/material';
+import { ReactNode } from 'react';
 
-export default function TabPanel({ children, value, index, style, ...other }) {
+interface TabPanelProps {
+  children: ReactNode;
+  value: number;
+  index: number;
+  style?: SxProps<Theme>;
+  [key: string]: any;
+}
+
+export default function TabPanel({ children, value, index, style, ...other }: TabPanelProps): JSX.Element {
   return (
     <div
       role="tabpanel"

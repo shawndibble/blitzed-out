@@ -8,26 +8,32 @@ import useReturnToStart from '@/hooks/useReturnToStart';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import GameSettings from '@/views/GameSettings';
+import { Settings } from '@/types/Settings';
 
-export default function GameOverDialog({ isOpen = false, close }) {
+interface GameOverDialogProps {
+  isOpen?: boolean;
+  close: () => void;
+}
+
+export default function GameOverDialog({ isOpen = false, close }: GameOverDialogProps): JSX.Element {
   const { t } = useTranslation();
-  const [openSettingsDialog, setSettingsDialog] = useState(false);
+  const [openSettingsDialog, setSettingsDialog] = useState<boolean>(false);
   const sentUserToStart = useReturnToStart();
 
   const isMobile = useBreakpoint();
   const updateGameBoardTiles = useGameBoard();
-  const [settings, updateLocalStorage] = useLocalStorage('gameSettings');
+  const [settings, updateLocalStorage] = useLocalStorage<Settings>('gameSettings');
 
   const returnToStart = useCallback(() => {
     sentUserToStart();
     close();
-  }, []);
+  }, [sentUserToStart, close]);
 
   const rebuild = useCallback(async () => {
     await updateGameBoardTiles({ ...settings, boardUpdated: true });
     sentUserToStart();
     close();
-  }, []);
+  }, [updateGameBoardTiles, settings, sentUserToStart, close]);
 
   const acceleratedDifficulty = useCallback(async () => {
     const newSettings = {
@@ -39,17 +45,17 @@ export default function GameOverDialog({ isOpen = false, close }) {
     updateLocalStorage(newSettings);
     sentUserToStart();
     close();
-  }, []);
+  }, [updateGameBoardTiles, settings, updateLocalStorage, sentUserToStart, close]);
 
   const openSettings = useCallback(() => {
     setSettingsDialog(true);
     close();
-  }, []);
+  }, [close]);
 
   const closeSettings = useCallback(() => {
     setSettingsDialog(false);
     sentUserToStart();
-  });
+  }, [sentUserToStart]);
 
   return (
     <>

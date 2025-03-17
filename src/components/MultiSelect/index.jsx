@@ -8,11 +8,25 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
+  SelectChangeEvent,
 } from '@mui/material';
 import { Trans } from 'react-i18next';
+import { ReactNode } from 'react';
 
-export default function MultiSelect({ onChange, values, options, label }) {
-  function getLabel(value) {
+interface Option {
+  value: string;
+  label: ReactNode;
+}
+
+interface MultiSelectProps {
+  onChange: (event: SelectChangeEvent<string[]>) => void;
+  values: string[];
+  options: Option[];
+  label: string;
+}
+
+export default function MultiSelect({ onChange, values, options, label }: MultiSelectProps): JSX.Element {
+  function getLabel(value: string): ReactNode {
     return options?.find((option) => option.value === value)?.label;
   }
 
@@ -29,7 +43,7 @@ export default function MultiSelect({ onChange, values, options, label }) {
         input={<OutlinedInput label={<Trans i18nKey="actionsLabel" />} />}
         renderValue={(selected) => (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {selected?.map((value) => (
+            {(selected as string[])?.map((value) => (
               <Chip key={value} label={getLabel(value)} />
             ))}
           </Box>

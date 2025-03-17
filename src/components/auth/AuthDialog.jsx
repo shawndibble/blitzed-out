@@ -7,8 +7,20 @@ import DialogWrapper from '../DialogWrapper';
 import ResetPasswordForm from './ResetPasswordForm';
 import { useTranslation } from 'react-i18next';
 
-export default function AuthDialog({ open, close, initialView = 'login' }) {
-  const [currentView, setCurrentView] = useState(initialView);
+type AuthView = 'login' | 'register' | 'reset';
+
+interface AuthDialogProps {
+  open: boolean;
+  close: () => void;
+  initialView?: AuthView;
+}
+
+export default function AuthDialog({ 
+  open, 
+  close, 
+  initialView = 'login' 
+}: AuthDialogProps): JSX.Element {
+  const [currentView, setCurrentView] = useState<AuthView>(initialView);
   const { isAnonymous } = useAuth();
   const { t } = useTranslation();
 
@@ -26,7 +38,7 @@ export default function AuthDialog({ open, close, initialView = 'login' }) {
   };
 
   return (
-    <DialogWrapper title={getTitle(isAnonymous)} open={open} close={close}>
+    <DialogWrapper title={getTitle()} open={open} close={close}>
       {currentView === 'login' && (
         <>
           <Login

@@ -1,4 +1,4 @@
-import { Button, Divider } from '@mui/material';
+import { Button, Divider, Theme } from '@mui/material';
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
@@ -12,7 +12,22 @@ import useCountdown from '@/hooks/useCountdown';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
-const style = (theme) => ({
+interface Player {
+  displayName: string;
+  isSelf: boolean;
+}
+
+interface TransitionModalProps {
+  open: boolean;
+  text?: string;
+  displayName?: string;
+  handleClose: () => void;
+  stopAutoClose?: () => void;
+  nextPlayer?: Player | string;
+  isMyMessage?: boolean;
+}
+
+const style = (theme: Theme) => ({
   position: 'absolute',
   top: '50%',
   left: '50%',
@@ -29,15 +44,15 @@ const style = (theme) => ({
 
 export default function TransitionModal({
   open,
-  text,
-  displayName,
+  text = '',
+  displayName = '',
   handleClose,
   stopAutoClose = () => null,
   nextPlayer = '',
   isMyMessage = false,
-}) {
+}: TransitionModalProps): JSX.Element {
   const { t } = useTranslation();
-  const [isGameOverOpen, setGameOverDialog] = useState(false);
+  const [isGameOverOpen, setGameOverDialog] = useState<boolean>(false);
 
   const title = text?.match(/(?:#[\d]*:).*(?=\n)/gs);
 
@@ -46,9 +61,9 @@ export default function TransitionModal({
   const numbers = extractTime(text, t('seconds'));
 
   const { timeLeft, togglePause } = useCountdown(20, false);
-  const [showAutoCloseText, setAutoCloseText] = useState(true);
+  const [showAutoCloseText, setAutoCloseText] = useState<boolean>(true);
 
-  const player = nextPlayer?.displayName;
+  const player = typeof nextPlayer === 'string' ? nextPlayer : nextPlayer?.displayName;
 
   const preventClose = () => {
     togglePause();
@@ -59,11 +74,11 @@ export default function TransitionModal({
   const openGameOver = useCallback(() => {
     preventClose();
     setGameOverDialog(true);
-  });
+  }, []);
 
   const closeGameOver = useCallback(() => {
     setGameOverDialog(false);
-  });
+  }, []);
 
   return (
     <div>
@@ -114,7 +129,7 @@ export default function TransitionModal({
               <Box textAlign="center">
                 <Divider style={{ margin: '1rem 0 0.5rem' }} />
                 <Typography variant="body1">
-                  {nextPlayer.isSelf ? (
+                  {typeof nextPlayer !== 'string' && nextPlayer.isSelf ? (
                     <Trans i18nKey="yourTurn" />
                   ) : (
                     <Trans i18nKey="nextPlayersTurn" values={{ player }} />

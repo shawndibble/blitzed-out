@@ -1,6 +1,12 @@
 import { Avatar, Tooltip } from '@mui/material';
 
-function contrastBgColor(bgColor, lightColor, darkColor) {
+interface TextAvatarProps {
+  uid: string;
+  displayName: string;
+  size?: 'small' | 'medium';
+}
+
+function contrastBgColor(bgColor: string, lightColor: string, darkColor: string): string {
   const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
   const r = parseInt(color.substring(0, 2), 16); // hexToR
   const g = parseInt(color.substring(2, 4), 16); // hexToG
@@ -8,7 +14,7 @@ function contrastBgColor(bgColor, lightColor, darkColor) {
   return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? darkColor : lightColor;
 }
 
-function stringToColor(string) {
+function stringToColor(string: string): string {
   let hash = 0;
   let i;
 
@@ -28,7 +34,7 @@ function stringToColor(string) {
   return color;
 }
 
-function stringAvatar(name, uid, size) {
+function stringAvatar(name: string, uid: string, size?: 'small' | 'medium') {
   const bgcolor = stringToColor(uid);
   const dimension = size === 'small' ? 18 : 24;
   const fontSize = size === 'small' ? 10 : 12;
@@ -40,11 +46,11 @@ function stringAvatar(name, uid, size) {
       fontSize,
       color: contrastBgColor(bgcolor, '#FFFFFF', '#000000'),
     },
-    children: `${name?.split(' ')[0][0]}${name?.split(' ')?.[1]?.[0] ?? ''}`,
+    children: `${name?.split(' ')[0]?.[0] || ''}${name?.split(' ')?.[1]?.[0] ?? ''}`,
   };
 }
 
-export default function TextAvatar({ uid, displayName, size }) {
+export default function TextAvatar({ uid, displayName, size }: TextAvatarProps): JSX.Element {
   return (
     <Tooltip title={displayName}>
       <Avatar {...stringAvatar(displayName, uid, size)} className="player-online" />

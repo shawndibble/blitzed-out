@@ -2,8 +2,13 @@ import CountDownButtonModal from '@/components/CountDownButtonModal';
 import { extractTime } from '@/helpers/strings';
 import { useTranslation } from 'react-i18next';
 import reactStringReplace from 'react-string-replace';
+import { ReactNode } from 'react';
 
-export default function ActionText({ text }) {
+interface ActionTextProps {
+  text: string;
+}
+
+export default function ActionText({ text }: ActionTextProps): ReactNode {
   const { t } = useTranslation();
   const seconds = extractTime(text, t('seconds'));
 

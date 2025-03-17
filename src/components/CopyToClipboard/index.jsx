@@ -1,12 +1,24 @@
 import { ContentCopy } from '@mui/icons-material';
 import { IconButton, Tooltip } from '@mui/material';
 import ToastAlert from '@/components/ToastAlert';
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export default function CopyToClipboard({ text, copiedText = null, icon = null, tooltip = null }) {
+interface CopyToClipboardProps {
+  text: string;
+  copiedText?: string | null;
+  icon?: ReactNode | null;
+  tooltip?: ReactNode | null;
+}
+
+export default function CopyToClipboard({ 
+  text, 
+  copiedText = null, 
+  icon = null, 
+  tooltip = null 
+}: CopyToClipboardProps): JSX.Element {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   const copyText = copiedText || t('copied');
   const buttonIcon = icon || <ContentCopy />;

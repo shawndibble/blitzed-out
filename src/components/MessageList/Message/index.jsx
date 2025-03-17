@@ -13,17 +13,32 @@ import remarkGemoji from 'remark-gemoji';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import { Share } from '@mui/icons-material';
 import ActionText from './actionText';
+import { Message as MessageType } from '@/types/Message';
+import { Timestamp } from 'firebase/firestore';
+
+interface MessageProps {
+  message: MessageType;
+  isOwnMessage: boolean;
+  isTransparent?: boolean;
+  currentGameBoardSize?: number;
+  room: string;
+}
+
+interface ImageData {
+  format: string;
+  base64String: string;
+}
 
 export default function Message({
   message,
   isOwnMessage,
   isTransparent,
-  currentGameBoardSize,
+  currentGameBoardSize = 40,
   room,
-}) {
+}: MessageProps): JSX.Element {
   const { t } = useTranslation();
 
-  const [isOpenDialog, setDialog] = useState(false);
+  const [isOpenDialog, setDialog] = useState<boolean>(false);
   const closeDialog = useCallback(() => {
     setDialog(false);
   }, []);
@@ -32,12 +47,13 @@ export default function Message({
 
   const isImportable = type === 'settings' && boardSize === currentGameBoardSize;
 
-  let ago = moment(timestamp?.toDate()).fromNow();
+  let ago = moment((timestamp as Timestamp)?.toDate()).fromNow();
   if (ago === 'in a few seconds') ago = 'a few seconds ago';
 
-  let imageSrc = false;
-  if (type === 'media') {
-    imageSrc = `data:image/${image.format};base64,${image.base64String}`;
+  let imageSrc: string | false = false;
+  if (type === 'media' && image) {
+    const imageData = image as unknown as ImageData;
+    imageSrc = `data:image/${imageData.format};base64,${imageData.base64String}`;
   }
 
   return (
@@ -49,7 +65,7 @@ export default function Message({
         </div>
         <div className="timestamp">
           {ago}
-          {!!isOwnMessage && ['media', 'chat'].includes(type) && (
+          {!!isOwnMessage && ['media', 'chat'].includes(type) && id && (
             <DeleteMessageButton room={room} id={id} />
           )}
         </div>

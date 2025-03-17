@@ -1,18 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { registerWithEmail } from '@/services/firebase';
 
-export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous = false }) {
-  const { t } = useTranslation();
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+interface CreateAccountProps {
+  onSuccess?: () => void;
+  onSwitchToLogin: () => void;
+  isAnonymous?: boolean;
+}
 
-  const handleSubmit = async (e) => {
+export default function CreateAccount({ 
+  onSuccess, 
+  onSwitchToLogin, 
+  isAnonymous = false 
+}: CreateAccountProps): JSX.Element {
+  const { t } = useTranslation();
+  const [displayName, setDisplayName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
@@ -27,7 +37,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
     try {
       await registerWithEmail(email?.trim(), password, displayName?.trim());
       if (onSuccess) onSuccess();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Registration error:', err);
       setError(err.message || 'Failed to create account');
     } finally {
@@ -53,7 +63,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
         autoComplete="name"
         autoFocus
         value={displayName}
-        onChange={(e) => setDisplayName(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
       />
 
       <TextField
@@ -65,7 +75,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
         name="email"
         autoComplete="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
       />
 
       <TextField
@@ -78,7 +88,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
         id="password"
         autoComplete="new-password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
       />
 
       <TextField
@@ -91,7 +101,7 @@ export default function CreateAccount({ onSuccess, onSwitchToLogin, isAnonymous 
         id="confirmPassword"
         autoComplete="new-password"
         value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
       />
 
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>

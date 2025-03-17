@@ -1,20 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Link, Alert, CircularProgress } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { t } from 'i18next';
 import { Trans } from 'react-i18next';
 
-export default function RegisterForm({ onToggleForm, onSuccess, isAnonymous = false }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+interface RegisterFormProps {
+  onToggleForm: (view: string) => void;
+  onSuccess?: () => void;
+  isAnonymous?: boolean;
+}
+
+export default function RegisterForm({ 
+  onToggleForm, 
+  onSuccess, 
+  isAnonymous = false 
+}: RegisterFormProps): JSX.Element {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [displayName, setDisplayName] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { register, convertToRegistered } = useAuth();
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return false;
@@ -26,7 +36,7 @@ export default function RegisterForm({ onToggleForm, onSuccess, isAnonymous = fa
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
@@ -41,7 +51,7 @@ export default function RegisterForm({ onToggleForm, onSuccess, isAnonymous = fa
         await register(email, password, displayName);
       }
       if (onSuccess) onSuccess();
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
@@ -66,7 +76,7 @@ export default function RegisterForm({ onToggleForm, onSuccess, isAnonymous = fa
           name="displayName"
           autoFocus
           value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
         />
       )}
 
@@ -80,7 +90,7 @@ export default function RegisterForm({ onToggleForm, onSuccess, isAnonymous = fa
         autoComplete="email"
         autoFocus={isAnonymous}
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
       />
 
       <TextField
@@ -93,7 +103,7 @@ export default function RegisterForm({ onToggleForm, onSuccess, isAnonymous = fa
         id="password"
         autoComplete="new-password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
       />
 
       <TextField
@@ -105,7 +115,7 @@ export default function RegisterForm({ onToggleForm, onSuccess, isAnonymous = fa
         type="password"
         id="confirmPassword"
         value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
       />
 
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>

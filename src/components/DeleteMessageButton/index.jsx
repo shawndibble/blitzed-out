@@ -3,7 +3,12 @@ import { IconButton, Tooltip } from '@mui/material';
 import { Trans } from 'react-i18next';
 import { deleteMessage } from '@/services/firebase';
 
-export default function DeleteMessageButton({ room, id }) {
+interface DeleteMessageButtonProps {
+  room: string;
+  id: string;
+}
+
+export default function DeleteMessageButton({ room, id }: DeleteMessageButtonProps): JSX.Element {
   return (
     <Tooltip title={<Trans i18nKey="delete" />}>
       <IconButton

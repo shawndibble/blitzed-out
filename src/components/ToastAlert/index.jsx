@@ -2,7 +2,21 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Alert, Portal, Slide } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import IconButton from '@mui/material/IconButton';
-import Snackbar from '@mui/material/Snackbar';
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar';
+import { ReactNode, SyntheticEvent } from 'react';
+
+type AlertType = 'error' | 'warning' | 'info' | 'success';
+
+interface ToastAlertProps {
+  children: ReactNode;
+  open: boolean;
+  close: () => void;
+  type?: AlertType;
+  hideCloseButton?: boolean;
+  vertical?: SnackbarOrigin['vertical'];
+  horizontal?: SnackbarOrigin['horizontal'];
+  disableAutoHide?: boolean;
+}
 
 export default function ToastAlert({
   children,
@@ -13,10 +27,10 @@ export default function ToastAlert({
   vertical = 'bottom',
   horizontal = 'center',
   disableAutoHide = false,
-}) {
+}: ToastAlertProps): JSX.Element {
   const { t } = useTranslation();
 
-  const handleClose = (event, reason) => {
+  const handleClose = (_event: SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -40,7 +54,11 @@ export default function ToastAlert({
         anchorOrigin={{ vertical, horizontal }}
         TransitionComponent={Slide}
       >
-        <Alert onClose={!hideCloseButton && handleClose} severity={type} sx={{ width: '100%' }}>
+        <Alert 
+          onClose={!hideCloseButton ? handleClose : undefined} 
+          severity={type} 
+          sx={{ width: '100%' }}
+        >
           {children}
         </Alert>
       </Snackbar>

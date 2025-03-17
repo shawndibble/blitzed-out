@@ -1,7 +1,13 @@
 import { Backdrop, Box, Button, Modal, Typography } from '@mui/material';
 import CloseIcon from '@/components/CloseIcon';
 import useCountdown from '@/hooks/useCountdown';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+
+interface CountDownButtonModalProps {
+  textString: string;
+  preventParentClose: () => void;
+  noPadding?: boolean;
+}
 
 const style = () => ({
   position: 'absolute',
@@ -20,30 +26,32 @@ export default function CountDownButtonModal({
   textString,
   preventParentClose,
   noPadding = false,
-}) {
-  const [open, setOpen] = useState(false);
+}: CountDownButtonModalProps): JSX.Element {
+  const [open, setOpen] = useState<boolean>(false);
 
   const [time, seconds] = textString.split(' ');
-  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(time, true);
+  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(parseInt(time), true);
 
-  useEffect(() => togglePause(), []);
+  useEffect(() => togglePause(), [togglePause]);
 
   const clickedButton = () => {
     preventParentClose();
     setOpen(true);
-    setTimeLeft(time);
+    setTimeLeft(parseInt(time));
     if (isPaused) togglePause();
   };
 
   // handle timeout
-  let timeoutId;
+  const timeoutId = useRef<NodeJS.Timeout>();
   useEffect(() => {
-    if (open) timeoutId = setTimeout(() => setOpen(false), time * 1000);
-    return () => clearTimeout(timeoutId);
-  }, [open]);
+    if (open) timeoutId.current = setTimeout(() => setOpen(false), parseInt(time) * 1000);
+    return () => {
+      if (timeoutId.current) clearTimeout(timeoutId.current);
+    };
+  }, [open, time]);
 
   const handleClose = () => {
-    clearTimeout(timeoutId);
+    if (timeoutId.current) clearTimeout(timeoutId.current);
     setOpen(false);
   };
 

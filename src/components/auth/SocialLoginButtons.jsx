@@ -4,9 +4,17 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { loginWithGoogle } from '@/services/firebase';
 import { Trans } from 'react-i18next';
 
-export default function SocialLoginButtons({ onSuccess, isLinking = false }) {
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+interface SocialLoginButtonsProps {
+  onSuccess?: () => void;
+  isLinking?: boolean;
+}
+
+export default function SocialLoginButtons({ 
+  onSuccess, 
+  isLinking = false 
+}: SocialLoginButtonsProps): JSX.Element {
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleGoogleLogin = async () => {
     setError('');
@@ -15,7 +23,7 @@ export default function SocialLoginButtons({ onSuccess, isLinking = false }) {
     try {
       await loginWithGoogle();
       if (onSuccess) onSuccess();
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google');
     } finally {
       setLoading(false);

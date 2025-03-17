@@ -3,31 +3,36 @@ import TransitionModal from '@/components/TransitionModal';
 import useSoundAndDialog from '@/hooks/useSoundAndDialog';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { useTranslation } from 'react-i18next';
+import { Message } from '@/types/Message';
 
-const PopupMessage = () => {
+const PopupMessage = (): JSX.Element | null => {
   const { t } = useTranslation();
   const { message, setMessage, isMyMessage } = useSoundAndDialog();
-  const nextPlayer = useTurnIndicator(message);
+  const nextPlayer = useTurnIndicator(message as Message);
 
   // handle timeout of TransitionModal
-  const timeoutId = useRef();
+  const timeoutId = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (message) {
       timeoutId.current = setTimeout(() => setMessage(false), 21000);
     }
-    return () => clearTimeout(timeoutId.current);
-  }, [message]);
+    return () => {
+      if (timeoutId.current) clearTimeout(timeoutId.current);
+    };
+  }, [message, setMessage]);
 
   const closeTransitionModal = useCallback(() => {
-    clearTimeout(timeoutId.current);
+    if (timeoutId.current) clearTimeout(timeoutId.current);
     setMessage(false);
-  }, []);
+  }, [setMessage]);
 
-  const stopAutoClose = useCallback(() => clearTimeout(timeoutId.current), []);
+  const stopAutoClose = useCallback(() => {
+    if (timeoutId.current) clearTimeout(timeoutId.current);
+  }, []);
   // end handle timeout of TransitionModal.
 
-  if (!message.text || message.text.includes(t('start'))) {
+  if (!message || !message.text || message.text.includes(t('start'))) {
     return null;
   }
 
@@ -35,7 +40,6 @@ const PopupMessage = () => {
     <TransitionModal
       text={message?.text}
       displayName={message?.displayName}
-      setOpen={setMessage}
       open={!!message || !!message?.text}
       handleClose={closeTransitionModal}
       stopAutoClose={stopAutoClose}

@@ -1,21 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { loginWithEmail } from '@/services/firebase';
+
+interface LoginProps {
+  onSuccess?: () => void;
+  onSwitchToRegister: () => void;
+  onSwitchToForgotPassword: () => void;
+  isLinking?: boolean;
+}
 
 export default function Login({
   onSuccess,
   onSwitchToRegister,
   onSwitchToForgotPassword,
   isLinking = false,
-}) {
+}: LoginProps): JSX.Element {
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -23,7 +30,7 @@ export default function Login({
     try {
       await loginWithEmail(email, password);
       if (onSuccess) onSuccess();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login error:', err);
       setError(err.message || 'Failed to sign in');
     } finally {
@@ -49,7 +56,7 @@ export default function Login({
         autoComplete="email"
         autoFocus
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
       />
 
       <TextField
@@ -62,7 +69,7 @@ export default function Login({
         id="password"
         autoComplete="current-password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
       />
 
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>

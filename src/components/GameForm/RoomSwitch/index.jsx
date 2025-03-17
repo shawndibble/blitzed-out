@@ -2,16 +2,26 @@ import { Help } from '@mui/icons-material';
 import { Stack, Switch, TextField, Tooltip, Typography } from '@mui/material';
 import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
-import { useCallback } from 'react';
+import { useCallback, ChangeEvent, KeyboardEvent, FocusEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import { Settings, GameMode } from '@/types/Settings';
 
-export default function RoomSwitch({ formData, setFormData }) {
-  const { id: room } = useParams();
+interface Params {
+  id: string;
+}
+
+interface RoomSwitchProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+}
+
+export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): JSX.Element {
+  const { id: room } = useParams<Params>();
   const { t } = useTranslation();
 
-  const togglePrivateRoomField = (event) => {
-    let roomId;
+  const togglePrivateRoomField = (event: ChangeEvent<HTMLInputElement>) => {
+    let roomId: string;
 
     if (event.target.checked && isPublicRoom(room)) {
       roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
@@ -24,15 +34,15 @@ export default function RoomSwitch({ formData, setFormData }) {
     setFormData({
       ...formData,
       room: roomId,
-      gameMode: isPublicRoom(roomId) ? 'online' : formData.gameMode,
+      gameMode: isPublicRoom(roomId) ? 'online' as GameMode : formData.gameMode,
     });
   };
 
   const handleChange = useCallback(
-    (event) => {
+    (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => {
       setFormData({
         ...formData,
-        room: event.target.value,
+        room: event.currentTarget.value,
         boardUpdated: true,
       });
     },

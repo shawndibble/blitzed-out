@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Alert, CircularProgress } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { Trans } from 'react-i18next';
 
-export default function ResetPasswordForm({ onToggleForm }) {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+interface ResetPasswordFormProps {
+  onToggleForm: (view: string) => void;
+}
+
+export default function ResetPasswordForm({ onToggleForm }: ResetPasswordFormProps): JSX.Element {
+  const [email, setEmail] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const { forgotPassword } = useAuth();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setSuccess(false);
@@ -19,7 +23,7 @@ export default function ResetPasswordForm({ onToggleForm }) {
     try {
       await forgotPassword(email);
       setSuccess(true);
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || 'Failed to send reset email');
     } finally {
       setLoading(false);
@@ -49,7 +53,7 @@ export default function ResetPasswordForm({ onToggleForm }) {
         autoComplete="email"
         autoFocus
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
       />
 
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>

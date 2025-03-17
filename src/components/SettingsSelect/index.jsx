@@ -1,9 +1,28 @@
 import { Help } from '@mui/icons-material';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { forwardRef } from 'react';
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, SxProps, Theme } from '@mui/material';
+import { forwardRef, ReactNode } from 'react';
 import { Trans } from 'react-i18next';
 
-const SettingsSelect = forwardRef(
+interface OptionObject {
+  value: string;
+  label: ReactNode;
+}
+
+type Option = string | OptionObject;
+
+interface SettingsSelectProps {
+  value: string | null;
+  onChange: (event: SelectChangeEvent<string>) => void;
+  label: string;
+  options: Option[];
+  defaultValue?: string | null;
+  sx?: SxProps<Theme>;
+  helpIcon?: boolean;
+  fullWidth?: boolean;
+  [key: string]: any;
+}
+
+const SettingsSelect = forwardRef<HTMLDivElement, SettingsSelectProps>(
   (
     {
       value,
@@ -49,7 +68,7 @@ const SettingsSelect = forwardRef(
               {!!helpIcon && <Help sx={{ ml: 1, fontSize: 16 }} />}
             </>
           }
-          value={value || defaultValue}
+          value={value || defaultValue || ''}
           onChange={onChange}
         >
           {items}

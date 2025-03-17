@@ -1,6 +1,16 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import CloseIcon from '@/components/CloseIcon';
 import useBreakpoint from '@/hooks/useBreakpoint';
+import { ReactNode } from 'react';
+
+interface DialogWrapperProps {
+  children: ReactNode;
+  open: boolean;
+  close?: (() => void) | null;
+  isMobile?: boolean | null;
+  title?: ReactNode | null;
+  isLoading?: boolean;
+}
 
 export default function DialogWrapper({
   children,
@@ -9,8 +19,8 @@ export default function DialogWrapper({
   isMobile = null,
   title = null,
   isLoading = false,
-}) {
-  const isMobileBreakpoint = isMobile || useBreakpoint();
+}: DialogWrapperProps): JSX.Element | null {
+  const isMobileBreakpoint = isMobile !== null ? isMobile : useBreakpoint();
 
   if (isLoading) {
     return null;

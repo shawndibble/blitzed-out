@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
-import MuiAccordion from '@mui/material/Accordion';
+import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 
-const Accordion = styled((props) => (
+const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,

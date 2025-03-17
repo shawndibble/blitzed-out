@@ -1,32 +1,37 @@
-import { useState } from 'react';
+import { useState, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import useAuth from '@/context/hooks/useAuth';
 import { sendMessage } from '@/services/firebase';
 import './styles.css';
 import { Trans, useTranslation } from 'react-i18next';
-import { Camera, CameraResultType } from '@capacitor/camera';
+import { Camera, CameraResultType, Photo as CameraPhoto } from '@capacitor/camera';
 import ToastAlert from '@/components/ToastAlert';
 import { Photo } from '@mui/icons-material';
 
-const calculateFileSizeInMB = (base64String) => {
+interface MessageInputProps {
+  room: string;
+  isTransparent?: boolean;
+}
+
+const calculateFileSizeInMB = (base64String: string): number => {
   const stringLength = base64String.length - 'data:image/png;base64,'.length;
 
   const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
   return sizeInBytes / 1000000;
 };
 
-export default function MessageInput({ room, isTransparent }) {
+export default function MessageInput({ room, isTransparent }: MessageInputProps): JSX.Element {
   const { user } = useAuth();
-  const [value, setValue] = useState('');
-  const [alert, setAlert] = useState('');
+  const [value, setValue] = useState<string>('');
+  const [alert, setAlert] = useState<string>('');
   const { t } = useTranslation();
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     sendMessage({
       room,
@@ -38,7 +43,7 @@ export default function MessageInput({ room, isTransparent }) {
   };
 
   const attachFile = async () => {
-    let image = '';
+    let image: CameraPhoto | '' = '';
     try {
       image = await Camera.getPhoto({
         quality: 90,
@@ -50,7 +55,7 @@ export default function MessageInput({ room, isTransparent }) {
     }
 
     // prevent any files larger than 5MB
-    if (calculateFileSizeInMB(image.base64String) > 5) {
+    if (image.base64String && calculateFileSizeInMB(image.base64String) > 5) {
       return setAlert(
         'File too large! Max size is 5MB. If you need to send a larger file, please use a link from another site.'
       );
@@ -68,7 +73,7 @@ export default function MessageInput({ room, isTransparent }) {
     <>
       <form
         onSubmit={handleSubmit}
-        className={`message-input-container ${isTransparent && 'transparent'}`}
+        className={`message-input-container ${isTransparent ? 'transparent' : ''}`}
       >
         <TextField
           multiline
@@ -76,14 +81,14 @@ export default function MessageInput({ room, isTransparent }) {
           fullWidth
           value={value}
           onChange={handleChange}
-          onKeyDown={(e) => {
+          onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              handleSubmit(e);
+              handleSubmit(e as unknown as FormEvent);
             }
           }}
           required
-          minLength={1}
+          inputProps={{ minLength: 1 }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -94,7 +99,7 @@ export default function MessageInput({ room, isTransparent }) {
             ),
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton type="submit" color="primary" disabled={value < 1}>
+                <IconButton type="submit" color="primary" disabled={value.length < 1}>
                   <SendIcon />
                 </IconButton>
               </InputAdornment>
@@ -103,7 +108,7 @@ export default function MessageInput({ room, isTransparent }) {
           helperText={<Trans i18nKey="markdown" />}
         />
       </form>
-      <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
+      <ToastAlert open={!!alert} close={() => setAlert('')}>
         {alert}
       </ToastAlert>
     </>
