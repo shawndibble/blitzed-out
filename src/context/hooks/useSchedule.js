@@ -1,7 +1,7 @@
 import React from 'react';
-import { ScheduleContext } from '../schedule';
+import { ScheduleContext, ScheduleContextType } from '../schedule';
 
-export default function useSchedule() {
+export default function useSchedule(): ScheduleContextType {
   const value = React.useContext(ScheduleContext);
 
   if (!value) {

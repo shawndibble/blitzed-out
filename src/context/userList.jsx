@@ -1,15 +1,35 @@
-import { createContext, useState, useMemo, useEffect } from 'react';
+import React, { createContext, useState, useMemo, useEffect, ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
 import { getUserList } from '@/services/firebase';
 
-const UserListContext = createContext();
+export interface OnlineUser {
+  displayName: string;
+  uid: string;
+  lastSeen: Date;
+  [key: string]: any;
+}
 
-function UserListProvider(props) {
-  const { id: room } = useParams();
-  const [onlineUsers, setOnlineUsers] = useState({});
+export interface UserListContextType {
+  onlineUsers: Record<string, OnlineUser>;
+}
+
+export const UserListContext = createContext<UserListContextType | undefined>(undefined);
+
+interface UserListProviderProps {
+  children: ReactNode;
+  [key: string]: any;
+}
+
+interface RouteParams {
+  id: string;
+}
+
+function UserListProvider(props: UserListProviderProps): JSX.Element {
+  const { id: room } = useParams<RouteParams>();
+  const [onlineUsers, setOnlineUsers] = useState<Record<string, OnlineUser>>({});
 
   useEffect(() => {
-    getUserList(room, (newUsers) => setOnlineUsers(newUsers), onlineUsers);
+    getUserList(room, (newUsers: Record<string, OnlineUser>) => setOnlineUsers(newUsers), onlineUsers);
   }, [room]);
 
   const value = useMemo(() => ({ onlineUsers }), [onlineUsers]);
@@ -17,4 +37,4 @@ function UserListProvider(props) {
   return <UserListContext.Provider value={value} {...props} />;
 }
 
-export { UserListContext, UserListProvider };
+export { UserListProvider };

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { getAuth } from 'firebase/auth';
+import React, { useEffect, useMemo, useState, useRef, ReactNode } from 'react';
+import { getAuth, User } from 'firebase/auth';
 import {
   loginAnonymously,
   updateDisplayName,
@@ -12,19 +12,46 @@ import {
 } from '@/services/firebase';
 import { syncDataFromFirebase, syncAllDataToFirebase } from '@/services/syncService';
 
-export const AuthContext = React.createContext();
+export interface SyncStatus {
+  syncing: boolean;
+  lastSync: Date | null;
+}
 
-function AuthProvider(props) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [syncStatus, setSyncStatus] = useState({ syncing: false, lastSync: null });
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  syncStatus: SyncStatus;
+  login: (displayName?: string) => Promise<User | null>;
+  loginEmail: (email: string, password: string) => Promise<User>;
+  loginGoogle: () => Promise<User>;
+  register: (email: string, password: string, displayName: string) => Promise<User>;
+  updateUser: (displayName?: string) => Promise<User | null>;
+  forgotPassword: (email: string) => Promise<boolean>;
+  convertToRegistered: (email: string, password: string) => Promise<User>;
+  logout: () => Promise<void>;
+  syncData: () => Promise<boolean>;
+  isAnonymous: boolean;
+}
+
+export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
+
+interface AuthProviderProps {
+  children: ReactNode;
+  [key: string]: any;
+}
+
+function AuthProvider(props: AuthProviderProps): JSX.Element {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>({ syncing: false, lastSync: null });
 
   // Debounce mechanism for sync operations
-  const syncTimeoutRef = useRef(null);
+  const syncTimeoutRef = useRef<number | null>(null);
 
   // Function to safely perform sync operations with debouncing
-  const performSync = async (syncFunction) => {
+  const performSync = async (syncFunction: () => Promise<boolean>): Promise<boolean> => {
     // Clear any pending sync timeout
     if (syncTimeoutRef.current) {
       clearTimeout(syncTimeoutRef.current);
@@ -46,18 +73,18 @@ function AuthProvider(props) {
       return false;
     }
   };
-  async function login(displayName = '') {
+  async function login(displayName = ''): Promise<User | null> {
     try {
       const loggedInUser = await loginAnonymously(displayName);
       setUser(loggedInUser);
       return loggedInUser;
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
       throw err;
     }
   }
 
-  async function loginEmail(email, password) {
+  async function loginEmail(email: string, password: string): Promise<User> {
     try {
       setLoading(true);
       const loggedInUser = await loginWithEmail(email, password);
@@ -73,7 +100,7 @@ function AuthProvider(props) {
     }
   }
 
-  async function loginGoogle() {
+  async function loginGoogle(): Promise<User> {
     try {
       setLoading(true);
       const loggedInUser = await loginWithGoogle();
@@ -89,7 +116,7 @@ function AuthProvider(props) {
     }
   }
 
-  async function register(email, password, displayName) {
+  async function register(email: string, password: string, displayName: string): Promise<User> {
     try {
       setLoading(true);
       const registeredUser = await registerWithEmail(email, password, displayName);
@@ -103,7 +130,7 @@ function AuthProvider(props) {
     }
   }
 
-  async function forgotPassword(email) {
+  async function forgotPassword(email: string): Promise<boolean> {
     try {
       await resetPassword(email);
       return true;
@@ -113,7 +140,7 @@ function AuthProvider(props) {
     }
   }
 
-  async function convertToRegistered(email, password) {
+  async function convertToRegistered(email: string, password: string): Promise<User> {
     try {
       setLoading(true);
       const convertedUser = await convertAnonymousAccount(email, password);
@@ -131,7 +158,7 @@ function AuthProvider(props) {
     }
   }
 
-  async function updateUser(displayName = '') {
+  async function updateUser(displayName = ''): Promise<User | null> {
     try {
       const updatedUser = await updateDisplayName(displayName);
       setUser(updatedUser);
@@ -142,7 +169,7 @@ function AuthProvider(props) {
     }
   }
 
-  async function logoutUser() {
+  async function logoutUser(): Promise<void> {
     try {
       // Sync data to Firebase before logout if user is not anonymous
       if (user && !user.isAnonymous) {
@@ -160,13 +187,13 @@ function AuthProvider(props) {
     }
   }
 
-  async function syncData() {
+  async function syncData(): Promise<boolean> {
     return performSync(syncAllDataToFirebase);
   }
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = auth.onAuthStateChanged((userData) => {
+    const unsubscribe = auth.onAuthStateChanged((userData: User | null) => {
       setUser(userData || null);
       setLoading(false);
 
@@ -195,7 +222,7 @@ function AuthProvider(props) {
     });
 
     // Make auth context available globally for middleware
-    window.authContext = { user: null };
+    (window as any).authContext = { user: null };
 
     // Clean up function
     return () => {
@@ -203,14 +230,14 @@ function AuthProvider(props) {
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
       }
-      window.authContext = undefined;
+      (window as any).authContext = undefined;
     };
   }, []);
 
   // Update global auth context when user changes
   useEffect(() => {
-    if (window.authContext) {
-      window.authContext.user = user;
+    if ((window as any).authContext) {
+      (window as any).authContext.user = user;
     }
   }, [user]);
   const value = useMemo(

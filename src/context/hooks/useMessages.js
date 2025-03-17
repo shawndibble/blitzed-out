@@ -1,7 +1,7 @@
 import React from 'react';
-import { MessagesContext } from '../messages';
+import { MessagesContext, MessagesContextType } from '../messages';
 
-export default function useMessages() {
+export default function useMessages(): MessagesContextType {
   const value = React.useContext(MessagesContext);
 
   if (!value) {

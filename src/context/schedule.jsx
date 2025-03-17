@@ -1,13 +1,31 @@
-import { createContext, useState, useMemo, useEffect } from 'react';
+import React, { createContext, useState, useMemo, useEffect, ReactNode } from 'react';
 import { getSchedule, addSchedule } from '@/services/firebase';
 
-const ScheduleContext = createContext();
+export interface ScheduleItem {
+  id?: string;
+  dateTime: Date;
+  url: string;
+  room: string;
+  [key: string]: any;
+}
 
-function ScheduleProvider(props) {
-  const [schedule, setSchedule] = useState({});
+export interface ScheduleContextType {
+  schedule: ScheduleItem[];
+  addToSchedule: (dateTime: Date, url: string, room?: string) => Promise<void>;
+}
+
+export const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
+
+interface ScheduleProviderProps {
+  children: ReactNode;
+  [key: string]: any;
+}
+
+function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
 
   useEffect(() => {
-    getSchedule((newSchedule) => setSchedule(newSchedule));
+    getSchedule((newSchedule: ScheduleItem[]) => setSchedule(newSchedule));
   }, []);
 
   const value = useMemo(() => ({ schedule, addToSchedule: addSchedule }), [schedule]);
@@ -15,4 +33,4 @@ function ScheduleProvider(props) {
   return <ScheduleContext.Provider value={value} {...props} />;
 }
 
-export { ScheduleContext, ScheduleProvider };
+export { ScheduleProvider };

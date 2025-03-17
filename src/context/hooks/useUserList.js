@@ -1,7 +1,7 @@
-import { UserListContext } from '@/context/userList';
+import { UserListContext, UserListContextType } from '@/context/userList';
 import React from 'react';
 
-export default function useUserList() {
+export default function useUserList(): UserListContextType {
   const value = React.useContext(UserListContext);
 
   if (!value) {
