@@ -1,7 +1,20 @@
 import languagesData from '../locales/languages.json';
 
+interface ActionModule {
+  actions: {
+    [key: string]: string[];
+  };
+  default: {
+    actions: {
+      [key: string]: string[];
+    };
+  };
+  label: string;
+  type: string;
+}
+
 interface ActionObject {
-  [key: string]: any;
+  [key: string]: ActionModule;
 }
 
 export interface LanguageConfig {

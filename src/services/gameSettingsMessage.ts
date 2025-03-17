@@ -6,6 +6,7 @@ import { CustomTilePull } from '@/types/customTiles';
 import { Message } from '@/types/Message';
 import { DocumentData, DocumentReference } from 'firebase/firestore';
 import { User } from '@/types';
+import { Tile } from '@/types/gameBoard';
 
 interface ActionsList {
   [key: string]: {
@@ -127,7 +128,7 @@ interface SendMessageOptions {
   formData: Settings;
   user: User;
   actionsList: ActionsList;
-  tiles: CustomTilePull[];
+  tiles: Tile[];
   customTiles?: CustomTilePull[];
   reason?: string;
 }

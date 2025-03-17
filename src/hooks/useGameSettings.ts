@@ -1,9 +1,9 @@
-import { GameSettings } from '@/types';
+import { Settings } from '@/types/Settings';
 import { useState, useEffect, useCallback } from 'react';
 
 interface GameSettingsResult {
-  settings: GameSettings;
-  updateSettings: (newSettings: Partial<GameSettings>) => void;
+  settings: Settings;
+  updateSettings: (newSettings: Partial<Settings>) => void;
 }
 
 /**
@@ -11,7 +11,7 @@ interface GameSettingsResult {
  * @returns Game settings object and a function to update it
  */
 export default function useGameSettings(): GameSettingsResult {
-  const [settings, setSettings] = useState<GameSettings>(() => {
+  const [settings, setSettings] = useState<Settings>(() => {
     try {
       const storedSettings = localStorage.getItem('gameSettings');
       return storedSettings
@@ -39,7 +39,7 @@ export default function useGameSettings(): GameSettingsResult {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const updateSettings = useCallback((newSettings: Partial<GameSettings>): void => {
+  const updateSettings = useCallback((newSettings: Partial<Settings>): void => {
     setSettings((prevSettings) => {
       const updatedSettings = { ...prevSettings, ...newSettings };
       try {

@@ -4,14 +4,7 @@ import { sendMessage } from '@/services/firebase';
 import useAuth from '@/context/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import usePlayerList from './usePlayerList';
-
-interface Tile {
-  title?: string;
-  description?: string;
-  role?: string;
-  index?: number;
-  [key: string]: any;
-}
+import { Tile } from '@/types/gameBoard';
 
 interface RollValue {
   value: number | number[];

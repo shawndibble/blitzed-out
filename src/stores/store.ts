@@ -1,11 +1,11 @@
 import { createSyncMiddleware } from '@/services/syncMiddleware';
 import Dexie, { type EntityTable } from 'dexie';
 import { CustomTilePull } from '@/types/customTiles';
-import { GameBoard } from '@/types/gameBoard';
+import { DBGameBoard } from '@/types/gameBoard';
 
 class BlitzedOutDatabase extends Dexie {
   customTiles!: EntityTable<CustomTilePull, 'id'>;
-  gameBoard!: EntityTable<GameBoard, 'id'>;
+  gameBoard!: EntityTable<DBGameBoard, 'id'>;
 
   constructor() {
     super('blitzedOut');

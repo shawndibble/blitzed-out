@@ -12,11 +12,7 @@ import { getActiveTiles } from '@/stores/customTiles';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
 import { Message } from '@/types/Message';
-
-interface GameBoardTile {
-  tiles: any;
-  [key: string]: any;
-}
+import { GameBoard } from '@/types/gameBoard';
 
 interface PrivateRoomMonitorResult {
   roller: string;
@@ -25,7 +21,7 @@ interface PrivateRoomMonitorResult {
 
 export default function usePrivateRoomMonitor(
   room: string,
-  gameBoard?: GameBoardTile
+  gameBoard?: GameBoard
 ): PrivateRoomMonitorResult {
   const DEFAULT_DIEM = '1d6';
 
@@ -85,8 +81,8 @@ export default function usePrivateRoomMonitor(
         const shouldRebuildGameBoard =
           roomMessage.uid !== user?.uid &&
           roomTileCount &&
-          gameBoard?.tiles?.length &&
-          roomTileCount !== gameBoard?.tiles?.length;
+          gameBoard?.length &&
+          roomTileCount !== gameBoard?.length;
 
         if (shouldRebuildGameBoard) {
           rebuildGameBoard(messageSettings, roomMessage.displayName);

@@ -1,7 +1,8 @@
+import { User as FirebaseUser } from 'firebase/auth';
 // Common types used throughout the application
 
 // Auth related types
-export interface User {
+export interface User extends FirebaseUser {
   uid: string;
   displayName: string | null;
   email: string | null;

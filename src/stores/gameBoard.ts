@@ -1,33 +1,33 @@
 import db from './store';
-import { GameBoard } from '@/types/gameBoard';
+import { DBGameBoard } from '@/types/gameBoard';
 
 const { gameBoard } = db;
 
-export const getBoards = (): Promise<GameBoard[]> => {
+export const getBoards = (): Promise<DBGameBoard[]> => {
   return gameBoard.orderBy('title').toArray();
 };
 
-export const getActiveBoard = (): Promise<GameBoard | undefined> => {
+export const getActiveBoard = (): Promise<DBGameBoard | undefined> => {
   return gameBoard.where('isActive').equals(1).first() || {};
 };
 
-export const getBoard = (id: number): Promise<GameBoard | undefined> => {
+export const getBoard = (id: number): Promise<DBGameBoard | undefined> => {
   return gameBoard.get(id);
 };
 
-export const addBoard = async (record: Partial<GameBoard>): Promise<number | undefined> => {
-  return await gameBoard.add(record as GameBoard);
+export const addBoard = async (record: Partial<DBGameBoard>): Promise<number | undefined> => {
+  return await gameBoard.add(record as DBGameBoard);
 };
 
 export const updateBoard = async (
-  board: GameBoard,
-  record: Partial<GameBoard>
+  board: DBGameBoard,
+  record: Partial<DBGameBoard>
 ): Promise<number> => {
   return await gameBoard.update(board.id as number, { ...board, ...record });
 };
 
-export const upsertBoard = async (record: Partial<GameBoard>): Promise<number | undefined> => {
-  const newData: GameBoard = {
+export const upsertBoard = async (record: Partial<DBGameBoard>): Promise<number | undefined> => {
+  const newData: DBGameBoard = {
     title: record.title === undefined ? '' : record.title,
     tiles: record.tiles || [],
     isActive: record.isActive === undefined ? 1 : record.isActive,

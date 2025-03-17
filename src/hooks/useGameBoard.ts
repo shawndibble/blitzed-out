@@ -9,16 +9,7 @@ import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
 import { isOnlineMode } from '@/helpers/strings';
 import { useCallback } from 'react';
 import { GameMode, Settings } from '@/types/Settings';
-
-interface FormData {
-  roomUpdate?: boolean;
-  boardUpdated: boolean;
-  gameMode: GameMode;
-  roomTileCount?: number;
-  finishRange?: any;
-  room?: string;
-  [key: string]: any;
-}
+import { DBGameBoard, GameBoard } from '@/types/gameBoard';
 
 interface GameBoardResult {
   settingsBoardUpdated?: boolean;
@@ -27,23 +18,17 @@ interface GameBoardResult {
   [key: string]: any;
 }
 
-interface GameBoard {
-  title?: string;
-  tiles?: any[];
-  [key: string]: any;
-}
-
 /**
  * Builds a game board based on the settings provided.
  * @returns A function that takes in a form data object and returns an object.
  */
-export default function useGameBoard(): (data: FormData) => Promise<GameBoardResult> {
-  const gameBoard = useLiveQuery<GameBoard | undefined>(getActiveBoard);
+export default function useGameBoard(): (data: Settings) => Promise<GameBoardResult> {
+  const gameBoard = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
   const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
   const { i18n } = useTranslation();
 
   const updateGameBoard = useCallback(
-    async (data: FormData): Promise<GameBoardResult> => {
+    async (data: Settings): Promise<GameBoardResult> => {
       const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
       let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
       const { roomTileCount = 40, finishRange, room } = formData;
@@ -85,5 +70,5 @@ export default function useGameBoard(): (data: FormData) => Promise<GameBoardRes
     [gameBoard, i18n.resolvedLanguage, settings, updateSettings]
   );
 
-  return useCallback((data: FormData) => updateGameBoard(data), [updateGameBoard]);
+  return useCallback((data: Settings) => updateGameBoard(data), [updateGameBoard]);
 }

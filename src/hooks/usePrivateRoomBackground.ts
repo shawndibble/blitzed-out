@@ -1,10 +1,6 @@
 import latestMessageByType from '@/helpers/messages';
 import { processBackground } from '@/services/getBackgroundSource';
-
-interface Message {
-  settings: string;
-  [key: string]: any;
-}
+import { Message } from '@/types/Message';
 
 interface BackgroundSource {
   isVideo?: boolean;

@@ -12,7 +12,7 @@ import { getActiveBoard } from '@/stores/gameBoard';
 import { isPublicRoom } from '@/helpers/strings';
 import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
-import { GameBoard } from '@/types/gameBoard';
+import { DBGameBoard } from '@/types/gameBoard';
 import { User } from '@/types';
 
 function isCompatibleBoard(
@@ -38,7 +38,7 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
   const { i18n } = useTranslation();
   const [settings] = useLocalStorage<Settings>('gameSettings');
   const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
-  const board = useLiveQuery<GameBoard | undefined>(getActiveBoard);
+  const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
 
   const sendSettings = useCallback(async (): Promise<void> => {
     if (!settings || isLoading || settingsSent || !board?.tiles?.length) return;

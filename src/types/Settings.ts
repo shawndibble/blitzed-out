@@ -14,7 +14,7 @@ export interface Settings {
   hideBoardActions?: boolean;
   locale?: string;
   background?: string;
-  finishRange?: Array<number>;
+  finishRange?: [number, number];
   roomTileCount?: number;
   roomDice?: string;
   readRoll?: boolean;
