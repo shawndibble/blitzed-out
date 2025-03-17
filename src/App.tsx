@@ -37,7 +37,7 @@ function AppRoutes() {
       (window as unknown as WindowWithAuth).authContext = null;
     };
   }, [auth]);
-  
+
   i18next.on('languageChanged', (lng: string) => {
     setupDefaultActionsImport(lng);
   });
@@ -45,7 +45,7 @@ function AppRoutes() {
   const room = auth.user ? <Room /> : <UnauthenticatedApp />;
 
   return (
-    <Routes future={{ v7_startTransition: true }}>
+    <Routes>
       <Route path="/" element={<Navigate replace to="/public" />} />
       <Route
         path="/:id/cast"

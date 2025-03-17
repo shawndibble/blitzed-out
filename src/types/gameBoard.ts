@@ -1,3 +1,5 @@
+import { GameMode } from './Settings';
+
 export interface DBGameBoard {
   id?: number;
   title: string;
@@ -16,3 +18,10 @@ export interface Tile {
 }
 
 export type GameBoard = Tile[];
+
+export interface GameBoardResult {
+  settingsBoardUpdated?: boolean;
+  gameMode: GameMode;
+  newBoard?: Tile[];
+  [key: string]: any;
+}

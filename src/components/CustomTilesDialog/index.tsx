@@ -1,4 +1,3 @@
-import React from 'react';
 import CustomTiles from '@/views/CustomTileDialog';
 import useActionList from '@/hooks/useActionList';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';

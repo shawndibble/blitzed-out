@@ -10,7 +10,6 @@ import getUniqueImportRecords from './getUniqueImportRecords';
 import { updateCustomTile } from '@/stores/customTiles';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { ImportExportProps, CustomTile } from '@/types/customTiles';
-import { FormData } from '@/types/importExport';
 
 export default function ImportExport({
   expanded,
@@ -30,7 +29,9 @@ export default function ImportExport({
     const customString = userCustomTiles.map(
       ({ group, intensity, action, tags, gameMode = 'online' }) => {
         // Get the appropriate groups for this tile's game mode
-        const gameModeGroups = groupActionsFolder(mappedGroups[gameMode as keyof typeof mappedGroups] || {});
+        const gameModeGroups = groupActionsFolder(
+          mappedGroups[gameMode as keyof typeof mappedGroups] || {}
+        );
 
         // Find the matching group data
         const userData = gameModeGroups.find(
@@ -52,10 +53,10 @@ export default function ImportExport({
 
   async function importTiles(formRef: React.RefObject<HTMLFormElement>) {
     if (!formRef.current) return;
-    
+
     const form = formRef.current as unknown as { importData: HTMLInputElement };
     const importDataValue = form.importData.value;
-    
+
     let uniqueRecords: CustomTile[] = [];
     let changedRecords: CustomTile[] = [];
 
@@ -68,10 +69,12 @@ export default function ImportExport({
       uniqueRecords = newUniqueRecords;
       changedRecords = changedTagRecords;
     } catch (error: any) {
-      return setSubmitMessage({
-        type: 'error',
-        message: t(error.message),
-      });
+      if (error instanceof Error) {
+        return setSubmitMessage({
+          type: 'error',
+          message: t(error.message),
+        });
+      }
     }
 
     if (!uniqueRecords.length && !changedRecords.length) {
@@ -89,11 +92,13 @@ export default function ImportExport({
     }
 
     if (changedRecords.length) {
-      await Promise.all(changedRecords.map(async (record) => {
-        if (record.id !== undefined) {
-          await updateCustomTile(record.id, record);
-        }
-      }));
+      await Promise.all(
+        changedRecords.map(async (record) => {
+          if (record.id !== undefined) {
+            await updateCustomTile(record.id, record);
+          }
+        })
+      );
     }
 
     return exportData();
@@ -126,9 +131,11 @@ export default function ImportExport({
             sx={{ pb: 2 }}
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
-            InputProps={{
-              endAdornment: <CopyToClipboard text={inputValue} />,
-              sx: { alignItems: 'flex-start' },
+            slotProps={{
+              input: {
+                endAdornment: <CopyToClipboard text={inputValue} />,
+                sx: { alignItems: 'flex-start' },
+              },
             }}
           />
           <Button fullWidth variant="contained" type="button" onClick={() => importTiles(formData)}>

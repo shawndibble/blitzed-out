@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import CloseIcon from '@/components/CloseIcon';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import React from 'react';
 
 export default function DialogWrapper({
   children,

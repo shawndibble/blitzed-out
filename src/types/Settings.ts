@@ -19,7 +19,7 @@ export interface Settings {
   roomDice?: string;
   readRoll?: boolean;
   displayName?: string;
-  room?: string;
+  room: string;
   roomBackgroundURL?: string;
   [key: string]: any;
 }

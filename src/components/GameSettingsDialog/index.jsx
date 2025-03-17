@@ -2,7 +2,6 @@ import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { Trans } from 'react-i18next';
 import CloseIcon from '@/components/CloseIcon';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import GameSettingsWizard from '@/views/GameSettingsWizard';
 

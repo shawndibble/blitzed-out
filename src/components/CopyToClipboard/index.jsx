@@ -4,7 +4,7 @@ import ToastAlert from '@/components/ToastAlert';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export default function CopyToClipboard({ text, copiedText = null, icon, tooltip = null }) {
+export default function CopyToClipboard({ text, copiedText = null, icon = null, tooltip = null }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 

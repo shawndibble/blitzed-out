@@ -8,15 +8,8 @@ import { getActiveTiles } from '@/stores/customTiles';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
 import { isOnlineMode } from '@/helpers/strings';
 import { useCallback } from 'react';
-import { GameMode, Settings } from '@/types/Settings';
-import { DBGameBoard, GameBoard } from '@/types/gameBoard';
-
-interface GameBoardResult {
-  settingsBoardUpdated?: boolean;
-  gameMode: GameMode;
-  newBoard?: any[];
-  [key: string]: any;
-}
+import { Settings } from '@/types/Settings';
+import { DBGameBoard, GameBoardResult } from '@/types/gameBoard';
 
 /**
  * Builds a game board based on the settings provided.

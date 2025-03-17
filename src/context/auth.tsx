@@ -48,7 +48,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ syncing: false, lastSync: null });
 
   // Debounce mechanism for sync operations
-  const syncTimeoutRef = useRef<number | null>(null);
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to safely perform sync operations with debouncing
   const performSync = async (syncFunction: () => Promise<boolean>): Promise<boolean> => {
@@ -66,9 +66,13 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       await syncFunction();
       setSyncStatus({ syncing: false, lastSync: new Date() });
       return true;
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Sync error:', err);
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
       setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
       return false;
     }
@@ -93,7 +97,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       // Sync will happen via onAuthStateChanged
       return loggedInUser;
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      }
       throw err;
     } finally {
       setLoading(false);
@@ -109,7 +115,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       // Sync will happen via onAuthStateChanged
       return loggedInUser;
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      }
       throw err;
     } finally {
       setLoading(false);
@@ -123,7 +131,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       setUser(registeredUser);
       return registeredUser;
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      }
       throw err;
     } finally {
       setLoading(false);
@@ -135,7 +145,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       await resetPassword(email);
       return true;
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      }
       throw err;
     }
   }
@@ -151,7 +163,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
       return convertedUser;
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      }
       throw err;
     } finally {
       setLoading(false);
@@ -164,7 +178,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       setUser(updatedUser);
       return updatedUser;
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      }
       throw err;
     }
   }
@@ -182,7 +198,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       await logout();
       setUser(null);
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      }
       throw err;
     }
   }

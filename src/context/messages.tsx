@@ -1,6 +1,6 @@
 import { normalSortedMessages } from '@/helpers/messages';
-import React, { createContext, useEffect, useState, ReactNode } from 'react';
-import { useParams } from 'react-router-dom';
+import { createContext, useEffect, useState, ReactNode } from 'react';
+import { Params, useParams } from 'react-router-dom';
 import { getMessages } from '@/services/firebase';
 import { Message } from '@/types/Message';
 
@@ -16,14 +16,10 @@ interface MessagesProviderProps {
   [key: string]: any;
 }
 
-interface RouteParams {
-  id: string;
-}
-
 export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { id: room } = useParams<RouteParams>();
+  const { id: room } = useParams<Params>();
 
   useEffect(() => {
     setIsLoading(true);
@@ -38,6 +34,6 @@ export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
 
   // eslint-disable-next-line
   const value = { messages, isLoading };
-  
+
   return <MessagesContext.Provider value={value} {...props} />;
 }

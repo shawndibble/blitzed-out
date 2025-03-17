@@ -6,12 +6,14 @@ function getExtension(filename?: string): string | false {
 
 function isVideo(file?: string): boolean {
   const bgExtension = getExtension(file);
-  return typeof bgExtension === 'string' && 
-    ['mp4', 'webm', 'mkv', 'flv', 'avi', 'mov', 'wmv', 'mpg', 'mv4'].includes(bgExtension);
+  return (
+    typeof bgExtension === 'string' &&
+    ['mp4', 'webm', 'mkv', 'flv', 'avi', 'mov', 'wmv', 'mpg', 'mv4'].includes(bgExtension)
+  );
 }
 
-export function getURLPath(string?: string): string | false {
-  if (!string) return false;
+export function getURLPath(string?: string): string {
+  if (!string) return '';
 
   if (string?.startsWith('http')) return string;
 

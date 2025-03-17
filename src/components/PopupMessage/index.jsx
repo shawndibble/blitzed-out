@@ -3,7 +3,6 @@ import TransitionModal from '@/components/TransitionModal';
 import useSoundAndDialog from '@/hooks/useSoundAndDialog';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
 
 const PopupMessage = () => {
   const { t } = useTranslation();

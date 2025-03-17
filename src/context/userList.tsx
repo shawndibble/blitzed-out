@@ -1,5 +1,5 @@
-import React, { createContext, useState, useMemo, useEffect, ReactNode } from 'react';
-import { useParams } from 'react-router-dom';
+import { createContext, useState, useMemo, useEffect, ReactNode } from 'react';
+import { Params, useParams } from 'react-router-dom';
 import { getUserList } from '@/services/firebase';
 
 export interface OnlineUser {
@@ -20,16 +20,16 @@ interface UserListProviderProps {
   [key: string]: any;
 }
 
-interface RouteParams {
-  id: string;
-}
-
 function UserListProvider(props: UserListProviderProps): JSX.Element {
-  const { id: room } = useParams<RouteParams>();
+  const { id: room } = useParams<Params>();
   const [onlineUsers, setOnlineUsers] = useState<Record<string, OnlineUser>>({});
 
   useEffect(() => {
-    getUserList(room, (newUsers: Record<string, OnlineUser>) => setOnlineUsers(newUsers), onlineUsers);
+    getUserList(
+      room,
+      (newUsers: Record<string, OnlineUser>) => setOnlineUsers(newUsers),
+      onlineUsers
+    );
   }, [room]);
 
   const value = useMemo(() => ({ onlineUsers }), [onlineUsers]);

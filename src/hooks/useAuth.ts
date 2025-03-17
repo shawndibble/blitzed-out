@@ -1,14 +1,7 @@
 import { useContext } from 'react';
-import { AuthContext } from '@/context/auth';
-import { User } from '@/types';
+import { AuthContext, AuthContextType as ContextAuthType } from '@/context/auth';
 
-interface AuthContextType {
-  user: User;
-  updateUser: (user: Partial<User>) => Promise<User>;
-  [key: string]: any;
-}
-
-function useAuth(): AuthContextType {
+function useAuth(): ContextAuthType {
   const context = useContext(AuthContext);
 
   if (context === undefined) {

@@ -41,7 +41,9 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
   const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
 
   const sendSettings = useCallback(async (): Promise<void> => {
-    if (!settings || isLoading || settingsSent || !board?.tiles?.length) return;
+    if (!settings || isLoading || settingsSent || !board?.tiles?.length || room === undefined) {
+      return;
+    }
 
     const isPrivateRoom = !isPublicRoom(room || '');
     const formData = { ...settings, room };

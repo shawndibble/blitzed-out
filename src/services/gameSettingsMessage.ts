@@ -3,7 +3,6 @@ import { getOrCreateBoard, sendMessage } from './firebase';
 import { isOnlineMode } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
 import { CustomTilePull } from '@/types/customTiles';
-import { Message } from '@/types/Message';
 import { DocumentData, DocumentReference } from 'firebase/firestore';
 import { User } from '@/types';
 import { Tile } from '@/types/gameBoard';
