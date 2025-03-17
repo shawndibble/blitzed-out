@@ -1,7 +1,7 @@
-export interface CustomTile {
-  id?: number;
+// Base CustomTile interface (for pushing)
+export interface CustomTileBase {
   group: string;
-  intensity: string | number;
+  intensity: number;
   action: string;
   tags: string[];
   isEnabled?: number | boolean;
@@ -9,6 +9,19 @@ export interface CustomTile {
   gameMode?: string;
   locale?: string;
 }
+
+// CustomTile interface for pushing (id is optional)
+export interface CustomTilePush extends CustomTileBase {
+  id?: number;
+}
+
+// CustomTile interface for pulling (id is required and always a number)
+export interface CustomTilePull extends CustomTileBase {
+  id: number;
+}
+
+// Generic CustomTile type that can be used in most cases
+export type CustomTile = CustomTilePush | CustomTilePull;
 
 export interface MappedGroup {
   group: string;

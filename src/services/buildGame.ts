@@ -1,4 +1,5 @@
 import { shuffleArray, cycleArray } from '@/helpers/arrays';
+import { CustomTilePull } from '@/types/customTiles';
 import i18next from 'i18next';
 
 interface GameSettings {
@@ -6,12 +7,6 @@ interface GameSettings {
   role?: string;
   difficulty?: string;
   finishRange?: [number, number];
-}
-
-interface CustomTile {
-  group: string;
-  intensity: number;
-  action: string;
 }
 
 interface ActionObject {
@@ -56,8 +51,8 @@ function playerRoleFiltering(actions: string[], role: string): string[] {
 }
 
 function restrictSubsetActions(
-  settings: GameSettings, 
-  settingsKey: string, 
+  settings: GameSettings,
+  settingsKey: string,
   actionObject: Record<string, string[]>
 ): Record<string, string[]> {
   const role = settings[settingsKey]?.role ?? settings.role ?? 'sub';
@@ -73,7 +68,7 @@ function restrictSubsetActions(
 
 // Restricts the categories/major actions based on user selections
 function restrictActionsToUserSelections(
-  actionsFolder: ActionFolder, 
+  actionsFolder: ActionFolder,
   settings: GameSettings
 ): ActionCategory[] {
   return Object.entries(actionsFolder)
@@ -89,8 +84,8 @@ function restrictActionsToUserSelections(
 
 // Adds custom tiles to the action list
 function addInCustomTiles(
-  newActionList: ActionCategory[], 
-  userCustomTiles: CustomTile[]
+  newActionList: ActionCategory[],
+  userCustomTiles: CustomTilePull[]
 ): ActionCategory[] {
   if (!userCustomTiles.length) {
     return newActionList;
@@ -133,7 +128,7 @@ function getUserAppendSelections(settings: GameSettings): Record<string, any> {
 
 // Separates the append options from rest of our categories/action items
 function separateAppendOptions(
-  appendOptions: Record<string, any>, 
+  appendOptions: Record<string, any>,
   listWithMisc: ActionCategory[]
 ): { appendList: ActionCategory[]; listWithoutAppend: ActionCategory[] } {
   const appendList: ActionCategory[] = [];
@@ -144,7 +139,7 @@ function separateAppendOptions(
 
     const categoryIndex = listWithMisc.findIndex((item) => item.key === key);
     if (categoryIndex === -1) return;
-    
+
     if (variation === 'standalone') {
       listWithoutAppend[categoryIndex].standalone = true;
       return;
@@ -159,9 +154,9 @@ function separateAppendOptions(
 }
 
 function calculateIntensity(
-  gameSize: number, 
-  userSelectionMax: number, 
-  currentTile: number, 
+  gameSize: number,
+  userSelectionMax: number,
+  currentTile: number,
   difficulty?: string
 ): number {
   // for normal, we break the game up evenly, based on user's max intensity level.
@@ -184,9 +179,9 @@ function calculateIntensity(
 
 // Gets the current tile for the board
 function getCurrentTile(
-  listWithMisc: ActionCategory[], 
-  size: number, 
-  currentTile: number, 
+  listWithMisc: ActionCategory[],
+  size: number,
+  currentTile: number,
   settings: GameSettings
 ): GameTile {
   cycleArray(listWithMisc);
@@ -212,7 +207,7 @@ function getCurrentTile(
 
   if (catActions[intensity] && catActions[intensity].length > 0) {
     cycleArray(catActions[intensity]);
-    
+
     return {
       title: label,
       description: catActions[intensity][0],
@@ -220,14 +215,14 @@ function getCurrentTile(
       role,
     };
   }
-  
+
   return { description: '' };
 }
 
 // Builds the board based on user settings
 function buildBoard(
-  listWithMisc: ActionCategory[], 
-  settings: GameSettings, 
+  listWithMisc: ActionCategory[],
+  settings: GameSettings,
   size: number
 ): GameTile[] {
   const appendOptions = getUserAppendSelections(settings);
@@ -250,7 +245,7 @@ function buildBoard(
         currentTile,
         settings
       );
-      
+
       if (appendDescription) {
         const ensurePunctuation = appendDescription.trim().replace(/([^.,!?])$/, '$1.');
         finalDescription = `${ensurePunctuation} ${description}`;
@@ -260,7 +255,7 @@ function buildBoard(
     } else {
       finalDescription = description || '';
     }
-    
+
     board.push({ title, description: finalDescription.trim(), role });
   }
 
@@ -283,23 +278,29 @@ function addStartAndFinishTiles(shuffledTiles: GameTile[], settings: GameSetting
 // Customizes the board based on user settings
 // Starts here as this is the only export.
 export default function customizeBoard(
-  settings: GameSettings, 
-  actionsFolder: ActionFolder, 
-  userCustomTiles: CustomTile[] = [], 
+  settings: GameSettings,
+  actionsFolder: ActionFolder,
+  userCustomTiles: CustomTilePull[] = [],
   size = 40
 ): GameTile[] {
   // Create a deep copy of the actionsFolder structure but with empty actions
-  const emptyActionsFolder = Object.entries(actionsFolder).reduce<ActionFolder>((acc, [key, value]) => {
-    acc[key] = {
-      ...value,
-      actions: Object.keys(value.actions || {}).reduce<Record<string, string[]>>((actionsAcc, actionKey) => {
-        actionsAcc[actionKey] = [];
-        return actionsAcc;
-      }, {})
-    };
-    return acc;
-  }, {});
-  
+  const emptyActionsFolder = Object.entries(actionsFolder).reduce<ActionFolder>(
+    (acc, [key, value]) => {
+      acc[key] = {
+        ...value,
+        actions: Object.keys(value.actions || {}).reduce<Record<string, string[]>>(
+          (actionsAcc, actionKey) => {
+            actionsAcc[actionKey] = [];
+            return actionsAcc;
+          },
+          {}
+        ),
+      };
+      return acc;
+    },
+    {}
+  );
+
   const newActionList = restrictActionsToUserSelections(emptyActionsFolder, settings);
 
   if (!newActionList.length && !userCustomTiles.length) {

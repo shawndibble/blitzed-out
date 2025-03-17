@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc, setDoc, DocumentData } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import {
   addCustomTile,
@@ -7,14 +7,7 @@ import {
   getTiles,
 } from '@/stores/customTiles';
 import { getBoards, upsertBoard } from '@/stores/gameBoard';
-
-interface CustomTile {
-  gameMode: string;
-  group: string;
-  intensity: number | string;
-  action: string;
-  [key: string]: any;
-}
+import { CustomTilePull } from '@/types/customTiles';
 
 interface GameBoard {
   title: string;
@@ -131,7 +124,7 @@ export async function syncDataFromFirebase(): Promise<boolean> {
       // add a delay after clearing custom tiles before syncing with remote server
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      for (const tile of userData.customTiles as CustomTile[]) {
+      for (const tile of userData.customTiles as CustomTilePull[]) {
         try {
           const existingTile = await getTiles({
             gameMode: tile.gameMode,

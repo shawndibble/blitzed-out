@@ -12,19 +12,21 @@ import {
   CircularProgress,
   Fade,
 } from '@mui/material';
-import TileCategorySelection from '@/Components/TileCategorySelection';
+import TileCategorySelection from '@/components/TileCategorySelection';
 import { useState, useEffect } from 'react';
 import {
   deleteCustomTile,
   toggleCustomTile,
-  getTiles,
   getCustomTileGroups,
+  getPaginatedTiles,
 } from '@/stores/customTiles';
 import { Trans } from 'react-i18next';
 import { useTranslation } from 'react-i18next';
 import useGameSettings from '@/hooks/useGameSettings';
 import groupActionsFolder from '@/helpers/actionsFolder';
-import { ViewCustomTilesProps, CustomTile, ProcessedGroups } from '@/types/customTiles';
+import { ViewCustomTilesProps } from '@/types/customTiles';
+import { TileData } from '@/types/viewCustomTiles';
+import { CustomTileGroups } from '@/types/dexieTypes';
 
 export default function ViewCustomTiles({
   tagList,
@@ -42,7 +44,7 @@ export default function ViewCustomTiles({
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [tiles, setTiles] = useState<TileData>({ items: [], total: 0, totalPages: 1 });
-  const [groups, setGroups] = useState<ProcessedGroups>({});
+  const [groups, setGroups] = useState<CustomTileGroups>({});
 
   const limit = 10;
 
@@ -94,7 +96,7 @@ export default function ViewCustomTiles({
         setLoading(true);
         const filters = {
           group: groupFilter,
-          intensity: intensityFilter === 'all' ? null : intensityFilter, // Send empty string for 'all'
+          intensity: intensityFilter === 'all' ? null : Number(intensityFilter), // Send empty string for 'all'
           tag: tagFilter,
           gameMode: gameModeFilter,
           locale: settings.locale,
@@ -103,7 +105,7 @@ export default function ViewCustomTiles({
           paginated: true,
         };
 
-        const tileData = await getTiles(filters);
+        const tileData = await getPaginatedTiles(filters);
 
         // Only update state if component is still mounted
         if (isMounted) {
@@ -173,7 +175,7 @@ export default function ViewCustomTiles({
       limit,
       paginated: true,
     };
-    const tileData = await getTiles(filters);
+    const tileData = await getPaginatedTiles(filters);
     setTiles(tileData as unknown as TileData);
   }
 
@@ -210,7 +212,9 @@ export default function ViewCustomTiles({
           }}
           subheader={
             mappedGroups?.[gameModeFilter as keyof typeof mappedGroups] &&
-            Array.isArray(groupActionsFolder(mappedGroups[gameModeFilter as keyof typeof mappedGroups]))
+            Array.isArray(
+              groupActionsFolder(mappedGroups[gameModeFilter as keyof typeof mappedGroups])
+            )
               ? groupActionsFolder(mappedGroups[gameModeFilter as keyof typeof mappedGroups]).find(
                   ({ value, intensity: inten }) => value === group && inten === Number(intensity)
                 )?.label
@@ -231,8 +235,8 @@ export default function ViewCustomTiles({
                   >
                     <Edit />
                   </IconButton>
-                  <IconButton 
-                    onClick={() => id !== undefined && deleteTile(id)} 
+                  <IconButton
+                    onClick={() => id !== undefined && deleteTile(id)}
                     aria-label={t('customTiles.delete')}
                   >
                     <Delete />
@@ -244,9 +248,7 @@ export default function ViewCustomTiles({
           sx={{ pb: 0 }}
         />
         <CardActions>
-          {tags?.map((tag) => (
-            <Chip key={tag} label={tag} sx={{ m: 0.5 }} />
-          ))}
+          {tags?.map((tag) => <Chip key={tag} label={tag} sx={{ m: 0.5 }} />)}
         </CardActions>
       </Card>
     )
@@ -280,17 +282,17 @@ export default function ViewCustomTiles({
           intensityFilter={intensityFilter}
           groups={groups}
           mappedGroups={mappedGroups}
-          onGameModeChange={(value) => {
+          onGameModeChange={(value: string) => {
             setGameModeFilter(value);
             setGroupFilter('');
             setIntensityFilter('');
             setPage(1);
           }}
-          onGroupChange={(value) => {
+          onGroupChange={(value: string) => {
             setGroupFilter(value);
             setPage(1);
           }}
-          onIntensityChange={(value) => {
+          onIntensityChange={(value: string) => {
             setIntensityFilter(value);
             setPage(1);
           }}

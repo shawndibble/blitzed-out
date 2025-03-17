@@ -12,9 +12,18 @@ import {
   signOut,
   updateProfile,
   User,
-  UserCredential,
 } from 'firebase/auth';
-import { getDatabase, onDisconnect, onValue, push, ref, remove, set, DataSnapshot } from 'firebase/database';
+import {
+  getDatabase,
+  onDisconnect,
+  onValue,
+  push,
+  ref,
+  remove,
+  set,
+  DataSnapshot,
+  ThenableReference,
+} from 'firebase/database';
 import {
   Timestamp,
   addDoc,
@@ -35,7 +44,7 @@ import {
   QuerySnapshot,
 } from 'firebase/firestore';
 
-import { getDownloadURL, getStorage, ref as storageRef, uploadString, UploadTask } from 'firebase/storage';
+import { getDownloadURL, getStorage, ref as storageRef, uploadString } from 'firebase/storage';
 import { sha256 } from 'js-sha256';
 
 interface FirebaseConfig {
@@ -77,7 +86,11 @@ export async function loginAnonymously(displayName = ''): Promise<User | null> {
   }
 }
 
-export async function registerWithEmail(email: string, password: string, displayName = ''): Promise<User> {
+export async function registerWithEmail(
+  email: string,
+  password: string,
+  displayName = ''
+): Promise<User> {
   try {
     const auth = getAuth();
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -178,8 +191,8 @@ export function setMyPresence({
   const oldRoomConnectionsRef = ref(database, `rooms/${oldRoomName}/uids/${uid}`);
   const connectedRef = ref(database, '.info/connected');
 
-  let newRef;
-  let oldRef;
+  let newRef: ThenableReference;
+  let oldRef: ThenableReference;
 
   onValue(connectedRef, (snap) => {
     if (snap.val() === true) {
@@ -211,8 +224,8 @@ export function setMyPresence({
 }
 
 export function getUserList(
-  roomId: string | null | undefined, 
-  callback: (data: any) => void, 
+  roomId: string | null | undefined,
+  callback: (data: any) => void,
   existingData: Record<string, any> = {}
 ): void {
   const database = getDatabase();
@@ -273,7 +286,11 @@ interface BoardData {
   settings: any;
 }
 
-export async function getOrCreateBoard({ title, gameBoard, settings }: BoardData): Promise<DocumentData | undefined> {
+export async function getOrCreateBoard({
+  title,
+  gameBoard,
+  settings,
+}: BoardData): Promise<DocumentData | undefined> {
   if (!title) {
     return;
   }
@@ -300,7 +317,12 @@ interface StoreBoardData extends BoardData {
   checksum: string;
 }
 
-async function storeBoard({ title, gameBoard, settings, checksum }: StoreBoardData): Promise<DocumentReference<DocumentData> | undefined> {
+async function storeBoard({
+  title,
+  gameBoard,
+  settings,
+  checksum,
+}: StoreBoardData): Promise<DocumentReference<DocumentData> | undefined> {
   try {
     return await addDoc(collection(db, 'game-boards'), {
       title,
@@ -346,7 +368,13 @@ interface MessageData {
 
 let lastMessage: Record<string, any> = {};
 
-export async function sendMessage({ room, user, text = '', type = 'chat', ...rest }: MessageData): Promise<DocumentReference<DocumentData> | void> {
+export async function sendMessage({
+  room,
+  user,
+  text = '',
+  type = 'chat',
+  ...rest
+}: MessageData): Promise<DocumentReference<DocumentData> | void> {
   const allowedTypes = ['chat', 'actions', 'settings', 'room', 'media'];
   if (!allowedTypes.includes(type)) {
     let message = 'Invalid message type. Was expecting ';
@@ -400,28 +428,24 @@ export async function uploadImage({ image, room, user }: UploadImageData): Promi
   const imageUrl = image.base64String;
   const imageLoc = `/images/${Math.random()}.${image.format}`;
   const imageRef = storageRef(storage, imageLoc);
-  const uploadTask = uploadString(imageRef, imageUrl, 'base64');
 
-  uploadTask.on(
-    'state_changed',
-    () => {},
-    // eslint-disable-next-line no-console
-    (error) => console.error(error),
-    () => {
-      getDownloadURL(uploadTask.snapshot.ref).then(async (url) => {
-        await sendMessage({
-          room,
-          user,
-          text: url,
-          type: 'media',
-        });
-      });
-    }
-  );
+  try {
+    const uploadResult = await uploadString(imageRef, imageUrl, 'base64');
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+
+    await sendMessage({
+      room,
+      user,
+      text: downloadURL,
+      type: 'media',
+    });
+  } catch (error) {
+    console.error('Error uploading image:', error);
+  }
 }
 
 export function getMessages(
-  roomId: string | null | undefined, 
+  roomId: string | null | undefined,
   callback: (messages: any[]) => void
 ): (() => void) | undefined {
   if (!roomId) return undefined;
@@ -443,7 +467,7 @@ export function getMessages(
   );
 }
 
-export function getSchedule(callback: (schedule: any[]) => void): (() => void) {
+export function getSchedule(callback: (schedule: any[]) => void): () => void {
   return onSnapshot(
     query(
       collection(db, 'schedule'),
@@ -462,8 +486,8 @@ export function getSchedule(callback: (schedule: any[]) => void): (() => void) {
 }
 
 export async function addSchedule(
-  dateTime: Date, 
-  url: string, 
+  dateTime: Date,
+  url: string,
   room = 'PUBLIC'
 ): Promise<DocumentReference<DocumentData> | void> {
   try {

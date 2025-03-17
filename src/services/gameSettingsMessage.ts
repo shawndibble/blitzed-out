@@ -1,20 +1,8 @@
 import i18next from 'i18next';
 import { getOrCreateBoard, sendMessage } from './firebase';
 import { isOnlineMode } from '@/helpers/strings';
-
-interface GameSettings {
-  [key: string]: any;
-  gameMode?: string;
-  room?: string;
-  role?: string;
-  finishRange?: [number, number];
-  difficulty?: string;
-}
-
-interface CustomTile {
-  group: string;
-  intensity: string | number;
-}
+import { GameSettings } from '@/types';
+import { CustomTilePull } from '@/types/customTiles';
 
 interface ActionsList {
   [key: string]: {
@@ -25,8 +13,8 @@ interface ActionsList {
 }
 
 function getCustomTileCount(
-  settings: GameSettings, 
-  customTiles: CustomTile[] | null | undefined, 
+  settings: GameSettings,
+  customTiles: CustomTilePull[] | null | undefined,
   actionsList: ActionsList
 ): number {
   const settingsDataFolder = Object.entries(actionsList)
@@ -36,19 +24,20 @@ function getCustomTileCount(
       return acc;
     }, {});
 
-  const usedCustomTiles = customTiles?.filter((entry) => {
-    if (entry.group === 'misc') return true;
-    const intensityArray = settingsDataFolder[entry.group];
-    return intensityArray && intensityArray.length >= Number(entry.intensity);
-  }) || [];
+  const usedCustomTiles =
+    customTiles?.filter((entry) => {
+      if (entry.group === 'misc') return true;
+      const intensityArray = settingsDataFolder[entry.group];
+      return intensityArray && intensityArray.length >= Number(entry.intensity);
+    }) || [];
 
   return usedCustomTiles.length;
 }
 
 function getSettingsMessage(
-  settings: GameSettings, 
-  customTiles: CustomTile[] | null | undefined, 
-  actionsList: ActionsList, 
+  settings: GameSettings,
+  customTiles: CustomTilePull[] | null | undefined,
+  actionsList: ActionsList,
   reason?: string
 ): string {
   const { t } = i18next;
@@ -136,7 +125,7 @@ interface GameSettingsMessageProps {
   user: { uid: string; displayName?: string };
   actionsList: ActionsList;
   tiles: any[];
-  customTiles?: CustomTile[];
+  customTiles?: CustomTilePull[];
   reason?: string;
 }
 

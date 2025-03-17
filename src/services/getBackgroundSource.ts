@@ -106,8 +106,8 @@ interface BackgroundSettings {
 }
 
 export default function getBackgroundSource(
-  settings: BackgroundSettings, 
-  room: string | null | undefined, 
+  settings: BackgroundSettings,
+  room: string | null | undefined,
   roomBackgroundUrl: string | null | undefined
 ): BackgroundResult {
   const { background, backgroundURL, roomBackground } = settings;

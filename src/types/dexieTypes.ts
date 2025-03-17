@@ -1,6 +1,3 @@
-import { CustomTile } from './customTiles';
-import { GameBoard } from './gameBoard';
-
 export interface PaginatedResult<T> {
   items: T[];
   total: number;
@@ -16,8 +13,8 @@ export interface CustomTileFilters {
   locale?: string;
   gameMode?: string;
   group?: string;
-  intensity?: string | number;
-  tag?: string;
+  intensity?: string | number | null;
+  tag?: string | null;
   isCustom?: number;
   action?: string;
 }

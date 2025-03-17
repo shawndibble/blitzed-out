@@ -1,7 +1,12 @@
-import languages from '../locales/languages.json';
+import languagesData from '../locales/languages.json';
 
 interface ActionObject {
   [key: string]: any;
+}
+
+export interface LanguageConfig {
+  label: string;
+  voice: string;
 }
 
 export async function importActions(lang = 'en', type = 'online'): Promise<ActionObject> {
@@ -20,4 +25,4 @@ export async function importActions(lang = 'en', type = 'online'): Promise<Actio
   return obj;
 }
 
-export { languages };
+export const languages: { [key: string]: LanguageConfig } = languagesData;

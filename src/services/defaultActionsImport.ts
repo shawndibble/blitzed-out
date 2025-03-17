@@ -1,19 +1,8 @@
 import { importActions } from './importLocales';
-import { getTiles, importCustomTiles } from '@/stores/customTiles';
+import { getPaginatedTiles, importCustomTiles } from '@/stores/customTiles';
 import { t } from 'i18next';
 import db from '@/stores/store';
-
-interface CustomTile {
-  group: string;
-  intensity: number;
-  action: string;
-  isEnabled: number;
-  tags: string[];
-  gameMode: string;
-  isCustom: number;
-  locale: string;
-  [key: string]: any;
-}
+import { CustomTile } from '@/types/customTiles';
 
 interface ActionGroup {
   actions?: Record<string, string[]>;
@@ -40,8 +29,8 @@ const importLocks: Record<string, boolean> = {
  * @returns Array of custom tile objects ready for import
  */
 function transformActionsToCustomTiles(
-  actions: Actions, 
-  locale = 'en', 
+  actions: Actions,
+  locale = 'en',
   gameMode = 'online'
 ): CustomTile[] {
   const customTiles: CustomTile[] = [];
@@ -86,8 +75,8 @@ function transformActionsToCustomTiles(
  * @returns True if default actions exist, false otherwise
  */
 function defaultActionsExist(
-  existingTiles: CustomTile[] | any[], 
-  locale: string, 
+  existingTiles: CustomTile[] | any[],
+  locale: string,
   gameMode: string
 ): boolean {
   // If existingTiles is not an array or empty, no default actions exist
@@ -129,7 +118,7 @@ export async function importDefaultActions(locale?: string): Promise<void> {
 
       try {
         // Get existing custom tiles for this locale and game mode
-        const existingTiles = await getTiles({
+        const existingTiles = await getPaginatedTiles({
           locale: targetLocale,
           gameMode: mode,
           paginated: false,
@@ -177,8 +166,8 @@ export async function importDefaultActions(locale?: string): Promise<void> {
  * @returns Array of tiles that don't already exist
  */
 async function filterOutExistingTiles(
-  tilesToImport: CustomTile[], 
-  locale: string, 
+  tilesToImport: CustomTile[],
+  locale: string,
   gameMode: string
 ): Promise<CustomTile[]> {
   // Get existing tiles
@@ -210,7 +199,7 @@ async function filterOutExistingTiles(
 async function removeDuplicateDefaultActions(locale: string, gameMode: string): Promise<void> {
   try {
     // Get all tiles for this locale and game mode
-    const allTiles = await getTiles({
+    const allTiles = await getPaginatedTiles({
       locale,
       gameMode,
       paginated: false,

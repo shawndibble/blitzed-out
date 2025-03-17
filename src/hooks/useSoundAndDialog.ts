@@ -50,7 +50,7 @@ export default function useSoundAndDialog(): DialogResult {
 
   const latestMessage = useMemo(() => [...messages].pop(), [messages]);
 
-  const speakText = useCallback((text: string | undefined, language: string | undefined): void => {
+  const speakText = useCallback((text: string | undefined, language: string): void => {
     if (text) speak(text, language);
   }, []);
 
@@ -84,7 +84,7 @@ export default function useSoundAndDialog(): DialogResult {
 
       if (speakTextCondition) {
         const text = extractAction(latestMessage?.text);
-        speakText(text, i18n.resolvedLanguage);
+        speakText(text, i18n.resolvedLanguage || 'en');
       }
 
       if (playMessageSoundCondition) {

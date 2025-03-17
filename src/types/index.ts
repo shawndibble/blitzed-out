@@ -77,6 +77,10 @@ export interface ToastAlertProps {
 export interface GameSettings {
   locale: string;
   gameMode: 'online' | 'offline';
+  room?: string;
+  role?: string;
+  finishRange?: [number, number];
+  difficulty?: string;
   [key: string]: any;
 }
 

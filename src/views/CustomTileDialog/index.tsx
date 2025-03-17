@@ -11,9 +11,19 @@ import ImportExport from '@/views/CustomTileDialog/ImportExport';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
 import ViewCustomTiles from './ViewCustomTiles';
-import { CustomTileDialogProps, CustomTile, AllGameModeActions, SubmitMessage } from '@/types/customTiles';
+import {
+  CustomTileDialogProps,
+  CustomTile,
+  AllGameModeActions,
+  SubmitMessage,
+  CustomTilePull,
+} from '@/types/customTiles';
 
-export default function CustomTileDialog({ boardUpdated, setOpen, open = false }: CustomTileDialogProps) {
+export default function CustomTileDialog({
+  boardUpdated,
+  setOpen,
+  open = false,
+}: CustomTileDialogProps) {
   const { t, i18n } = useTranslation();
   const isMobile = useBreakpoint();
   const isSmallScreen = useBreakpoint('md');
@@ -63,9 +73,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
     loadAllGameModeActions();
   }, [i18n.resolvedLanguage]);
 
-  const allTiles = useLiveQuery(() =>
-    getTiles({ paginated: false, locale: i18n.resolvedLanguage })
-  );
+  const allTiles = useLiveQuery(() => getTiles({ locale: i18n.resolvedLanguage }));
 
   const tagList = useMemo(() => {
     if (!allTiles) return [];
@@ -102,7 +110,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
             boardUpdated();
             triggerRefresh();
           }}
-          customTiles={allTiles as CustomTile[]}
+          customTiles={allTiles as CustomTilePull[]}
           mappedGroups={allGameModeActions}
           expanded={expanded}
           handleChange={handleChange}
@@ -114,7 +122,7 @@ export default function CustomTileDialog({ boardUpdated, setOpen, open = false }
         <ImportExport
           expanded={expanded}
           handleChange={handleChange}
-          customTiles={allTiles as CustomTile[]}
+          customTiles={allTiles as CustomTilePull[]}
           mappedGroups={allGameModeActions}
           setSubmitMessage={setSubmitMessage}
           bulkImport={bulkImport}

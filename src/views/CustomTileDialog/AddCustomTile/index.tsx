@@ -174,7 +174,7 @@ export default function AddCustomTile({
 
     const data: CustomTile = {
       group,
-      intensity,
+      intensity: Number(intensity),
       action,
       tags: currentTags,
       gameMode,

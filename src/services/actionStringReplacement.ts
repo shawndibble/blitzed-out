@@ -32,7 +32,11 @@ function replaceWithPlayerName(string: string, role: string, displayName: string
   );
 }
 
-export default function actionStringReplacement(action: string, role: string, displayName: string): string {
+export default function actionStringReplacement(
+  action: string,
+  role: string,
+  displayName: string
+): string {
   const newAction = replaceWithPlayerName(action, role, displayName).replace(
     /{(dom|sub)}/g,
     t('anotherPlayer')

@@ -1,10 +1,5 @@
+import { GameSettings } from '@/types';
 import { useState, useEffect, useCallback } from 'react';
-
-interface GameSettings {
-  locale: string;
-  gameMode: string;
-  [key: string]: any;
-}
 
 interface GameSettingsResult {
   settings: GameSettings;
