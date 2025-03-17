@@ -1,22 +1,28 @@
 import i18n from '@/i18n';
 import db from './store';
+import { CustomTile } from '@/types/customTiles';
+import { 
+  CustomTileFilters, 
+  CustomTileGroups, 
+  PaginatedResult 
+} from '@/types/dexieTypes';
 
 const { customTiles } = db;
 
 // Index the customTiles table by locale, gameMode, and isCustom for faster queries
-customTiles.hook('creating', function (primKey, obj) {
+customTiles.hook('creating', function (primKey: number, obj: CustomTile) {
   if (obj.locale === undefined) obj.locale = 'en';
   if (obj.gameMode === undefined) obj.gameMode = 'online';
   if (obj.isCustom === undefined) obj.isCustom = 1;
   return undefined;
 });
 
-export const importCustomTiles = async (record) => {
+export const importCustomTiles = async (record: Partial<CustomTile>[]): Promise<number> => {
   const recordData = record.map((tile) => ({ ...tile, isEnabled: 1 }));
-  return await customTiles.bulkAdd(recordData);
+  return await customTiles.bulkAdd(recordData as CustomTile[]);
 };
 
-export const getTiles = async (filters = {}) => {
+export const getTiles = async (filters: CustomTileFilters = {}): Promise<CustomTile[] | PaginatedResult<CustomTile>> => {
   const { page = 1, limit = 50, paginated = false } = filters;
   const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom', 'action'];
 
@@ -31,10 +37,10 @@ export const getTiles = async (filters = {}) => {
       // Special handling for tag filter since it's an array field
       if (key === 'tag') {
         if (!useAnd) {
-          query = query.filter((tile) => tile.tags.includes(value));
+          query = query.filter((tile) => tile.tags.includes(value as string));
           useAnd = true;
         } else {
-          query = query.and((tile) => tile.tags.includes(value));
+          query = query.and((tile) => tile.tags.includes(value as string));
         }
       } else {
         // Normal handling for other filters
@@ -42,7 +48,7 @@ export const getTiles = async (filters = {}) => {
           query = query.where(key).equals(value);
           useAnd = true;
         } else {
-          query = query.and((tile) => tile[key] === value);
+          query = query.and((tile) => tile[key as keyof CustomTile] === value);
         }
       }
     });
@@ -82,7 +88,11 @@ export const getTiles = async (filters = {}) => {
   }
 };
 
-export const getCustomTileGroups = async (locale = 'en', gameMode = 'online', tags = null) => {
+export const getCustomTileGroups = async (
+  locale = 'en', 
+  gameMode = 'online', 
+  tags: string[] | null = null
+): Promise<CustomTileGroups> => {
   // Get unique groups with count of items in each group
   let query = customTiles
     .where('locale')
@@ -95,7 +105,7 @@ export const getCustomTileGroups = async (locale = 'en', gameMode = 'online', ta
 
   const allTiles = await query.toArray();
 
-  return allTiles.reduce((groups, tile) => {
+  return allTiles.reduce<CustomTileGroups>((groups, tile) => {
     const group = tile.group;
     if (!groups[group]) {
       groups[group] = {
@@ -115,7 +125,7 @@ export const getCustomTileGroups = async (locale = 'en', gameMode = 'online', ta
   }, {});
 };
 
-export const getActiveTiles = (gameMode = null) => {
+export const getActiveTiles = (gameMode: string | null = null): Promise<CustomTile[]> => {
   const currentLocale = i18n.resolvedLanguage || i18n.language || 'en';
 
   let tiles = customTiles
@@ -130,25 +140,27 @@ export const getActiveTiles = (gameMode = null) => {
   return tiles.toArray();
 };
 
-export const addCustomTile = async (record) => {
+export const addCustomTile = async (record: Partial<CustomTile>): Promise<number> => {
   return await customTiles.add({
     ...record,
     isEnabled: 1,
-  });
+  } as CustomTile);
 };
 
-export const updateCustomTile = async (id, record) => {
+export const updateCustomTile = async (id: number, record: Partial<CustomTile>): Promise<number> => {
   return await customTiles.update(id, record);
 };
 
-export const toggleCustomTile = async (id) => {
+export const toggleCustomTile = async (id: number): Promise<number> => {
   const tile = await customTiles.get(id);
+  if (!tile) throw new Error(`Custom tile with id ${id} not found`);
+  
   return await customTiles.update(id, {
     isEnabled: !tile.isEnabled ? 1 : 0,
   });
 };
 
-export async function deleteAllIsCustomTiles() {
+export async function deleteAllIsCustomTiles(): Promise<boolean> {
   try {
     await db.customTiles.where('isCustom').equals(1).delete();
     return true;
@@ -158,6 +170,6 @@ export async function deleteAllIsCustomTiles() {
   }
 }
 
-export const deleteCustomTile = async (id) => {
-  return await customTiles.delete(id);
+export const deleteCustomTile = async (id: number): Promise<void> => {
+  await customTiles.delete(id);
 };

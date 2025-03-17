@@ -1,31 +1,32 @@
 import db from './store';
+import { GameBoard } from '@/types/gameBoard';
 
 const { gameBoard } = db;
 
-export const getBoards = () => {
+export const getBoards = (): Promise<GameBoard[]> => {
   return gameBoard.orderBy('title').toArray();
 };
 
-export const getActiveBoard = () => {
-  return gameBoard.where('isActive').equals(1).first() || {};
+export const getActiveBoard = (): Promise<GameBoard> => {
+  return gameBoard.where('isActive').equals(1).first() || {} as GameBoard;
 };
 
-export const getBoard = (id) => {
+export const getBoard = (id: number): Promise<GameBoard | undefined> => {
   return gameBoard.get(id);
 };
 
-export const addBoard = async (record) => {
-  return await gameBoard.add(record);
+export const addBoard = async (record: Partial<GameBoard>): Promise<number> => {
+  return await gameBoard.add(record as GameBoard);
 };
 
-export const updateBoard = async (board, record) => {
-  return await gameBoard.update(board.id, { ...board, ...record });
+export const updateBoard = async (board: GameBoard, record: Partial<GameBoard>): Promise<number> => {
+  return await gameBoard.update(board.id as number, { ...board, ...record });
 };
 
-export const upsertBoard = async (record) => {
-  const newData = {
+export const upsertBoard = async (record: Partial<GameBoard>): Promise<number | undefined> => {
+  const newData: GameBoard = {
     title: record.title === undefined ? '' : record.title,
-    tiles: record.tiles,
+    tiles: record.tiles || [],
     isActive: record.isActive === undefined ? 1 : record.isActive,
     tags: record.tags || [],
     gameMode: record.gameMode || 'online',
@@ -33,7 +34,7 @@ export const upsertBoard = async (record) => {
 
   // if we have tiles, we should have a title to go with it.
   if (!newData?.title?.length && newData?.tiles?.length) {
-    return;
+    return undefined;
   }
 
   const board = await gameBoard.where('title').equals(newData.title).first();
@@ -52,7 +53,7 @@ export const upsertBoard = async (record) => {
   });
 };
 
-export const activateBoard = async (id) => {
+export const activateBoard = async (id: number): Promise<void> => {
   const allBoards = await gameBoard.toArray();
 
   const updatedBoards = allBoards.map((board) => ({
@@ -63,10 +64,10 @@ export const activateBoard = async (id) => {
   await gameBoard.bulkPut(updatedBoards);
 };
 
-export const deleteBoard = async (id) => {
-  return await gameBoard.delete(id);
+export const deleteBoard = async (id: number): Promise<void> => {
+  await gameBoard.delete(id);
 };
 
-const deactivateAllBoards = async () => {
+const deactivateAllBoards = async (): Promise<void> => {
   await gameBoard.where('isActive').equals(1).modify({ isActive: 0 });
 };
