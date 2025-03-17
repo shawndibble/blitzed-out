@@ -10,22 +10,11 @@ import { importActions } from '@/services/importLocales';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/customTiles';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { Settings } from '@/types/Settings';
+import { Message } from '@/types/Message';
 
 interface GameBoardTile {
-  [key: string]: any;
-}
-
-interface Settings {
-  gameMode: string;
-  room: string;
-  roomBackgroundURL?: string;
-  [key: string]: any;
-}
-
-interface Message {
-  uid: string;
-  displayName: string;
-  settings: string;
+  tiles: any;
   [key: string]: any;
 }
 
@@ -36,7 +25,7 @@ interface PrivateRoomMonitorResult {
 
 export default function usePrivateRoomMonitor(
   room: string,
-  gameBoard?: GameBoardTile[]
+  gameBoard?: GameBoardTile
 ): PrivateRoomMonitorResult {
   const DEFAULT_DIEM = '1d6';
 
@@ -96,8 +85,8 @@ export default function usePrivateRoomMonitor(
         const shouldRebuildGameBoard =
           roomMessage.uid !== user?.uid &&
           roomTileCount &&
-          gameBoard?.tile?.length &&
-          roomTileCount !== gameBoard?.tile?.length;
+          gameBoard?.tiles?.length &&
+          roomTileCount !== gameBoard?.tiles?.length;
 
         if (shouldRebuildGameBoard) {
           rebuildGameBoard(messageSettings, roomMessage.displayName);

@@ -8,11 +8,12 @@ import { getActiveTiles } from '@/stores/customTiles';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
 import { isOnlineMode } from '@/helpers/strings';
 import { useCallback } from 'react';
+import { GameMode, Settings } from '@/types/Settings';
 
 interface FormData {
   roomUpdate?: boolean;
-  boardUpdated?: boolean;
-  gameMode?: string;
+  boardUpdated: boolean;
+  gameMode: GameMode;
   roomTileCount?: number;
   finishRange?: any;
   room?: string;
@@ -21,12 +22,8 @@ interface FormData {
 
 interface GameBoardResult {
   settingsBoardUpdated?: boolean;
-  gameMode?: string;
+  gameMode: GameMode;
   newBoard?: any[];
-  [key: string]: any;
-}
-
-interface Settings {
   [key: string]: any;
 }
 
@@ -40,21 +37,21 @@ interface GameBoard {
  * Builds a game board based on the settings provided.
  * @returns A function that takes in a form data object and returns an object.
  */
-export default function useGameBoard(): (data?: FormData) => Promise<GameBoardResult> {
+export default function useGameBoard(): (data: FormData) => Promise<GameBoardResult> {
   const gameBoard = useLiveQuery<GameBoard | undefined>(getActiveBoard);
   const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
   const { i18n } = useTranslation();
 
   const updateGameBoard = useCallback(
-    async (data: FormData = {}): Promise<GameBoardResult> => {
+    async (data: FormData): Promise<GameBoardResult> => {
       const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
       let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
       const { roomTileCount = 40, finishRange, room } = formData;
       const isPublic = isPublicRoom(room || '');
 
-      if (!finishRange) {
+      if (!data || !finishRange) {
         // still loading data.
-        return {};
+        return { gameMode };
       }
 
       // If we are in a public room,
@@ -88,5 +85,5 @@ export default function useGameBoard(): (data?: FormData) => Promise<GameBoardRe
     [gameBoard, i18n.resolvedLanguage, settings, updateSettings]
   );
 
-  return useCallback((data: FormData = {}) => updateGameBoard(data), [updateGameBoard]);
+  return useCallback((data: FormData) => updateGameBoard(data), [updateGameBoard]);
 }

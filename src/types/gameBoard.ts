@@ -6,3 +6,7 @@ export interface GameBoard {
   tags: string[];
   gameMode: string;
 }
+
+export interface Tile {
+  id?: number;
+}

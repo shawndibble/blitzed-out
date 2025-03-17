@@ -11,8 +11,8 @@ import { useParams } from 'react-router-dom';
 import RoomBackground from '@/components/RoomBackground';
 import './styles.css';
 import useFullscreenStatus from '@/hooks/useFullscreenStatus';
-import React from 'react';
-import { ActionCard, Message, TurnIndicator } from '@/types/cast';
+import { ActionCard } from '@/types/cast';
+import { Message } from '@/types/Message';
 
 const ACTION_TYPE = 'actions';
 
@@ -50,7 +50,7 @@ export default function Cast() {
 
   const { isVideo, url } = usePrivateRoomBackground(messages);
 
-  const lastAction = latestMessageByType(messages, ACTION_TYPE) || {};
+  const lastAction = latestMessageByType(messages, ACTION_TYPE);
   const nextPlayer = useTurnIndicator(lastAction);
   const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
 
@@ -80,6 +80,8 @@ export default function Cast() {
       setAlertMessage(`${latestMessage.displayName} ${t('changedSettings')}`);
     }
   }, [messages, isLoading]);
+
+  if (!lastAction) return null;
 
   const { displayName, type, activity } = actionCard(lastAction);
 

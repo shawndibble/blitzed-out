@@ -1,11 +1,6 @@
 import { useContext } from 'react';
 import { AuthContext } from '@/context/auth';
-
-interface User {
-  uid: string;
-  displayName: string;
-  [key: string]: any;
-}
+import { User } from '@/types';
 
 interface AuthContextType {
   user: User;

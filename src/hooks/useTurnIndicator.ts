@@ -20,7 +20,7 @@ function getNextPlayer(players: Player[], currentUid: string): Player | null {
   return players[nextIndex];
 }
 
-export default function useTurnIndicator(message: Message | null): Player | null {
+export default function useTurnIndicator(message?: Message): Player | null {
   const [turnIndicator, setTurnIndicator] = useState<Player | null>(null);
   const players = usePlayerList();
 

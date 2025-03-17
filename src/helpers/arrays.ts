@@ -11,7 +11,7 @@ export function cycleArray<T>(array: T[]): void {
   if (array.length > 1) array.push(array.shift() as T);
 }
 
-export function arraysEqual<T>(arr1?: T[], arr2?: T[]): boolean {
+export function arraysEqual<T>(arr1: T[], arr2: T[]): boolean {
   if (arr1?.length !== arr2?.length) return false;
   return arr1.every((element, index) => element === arr2[index]);
 }

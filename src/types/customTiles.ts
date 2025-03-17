@@ -29,6 +29,7 @@ export interface MappedGroup {
   value: string;
   intensity: number;
   translatedIntensity: string;
+  label: string;
 }
 
 export interface GroupedActions {

@@ -10,26 +10,8 @@ import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 import React from 'react';
-
-interface Message {
-  uid: string;
-  type: string;
-  text?: string;
-  timestamp: {
-    toDate: () => Date;
-  };
-  [key: string]: any;
-}
-
-interface Settings {
-  playerDialog?: boolean;
-  othersDialog?: boolean;
-  mySound?: boolean;
-  otherSound?: boolean;
-  chatSound?: boolean;
-  readRoll?: boolean;
-  [key: string]: any;
-}
+import { Message } from '@/types/Message';
+import { Settings } from '@/types/Settings';
 
 interface DialogResult {
   message: Message | false;

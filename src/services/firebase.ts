@@ -1,3 +1,4 @@
+import { MessageType } from '@/types/Message';
 import { initializeApp } from 'firebase/app';
 import {
   createUserWithEmailAndPassword,
@@ -46,6 +47,7 @@ import {
 
 import { getDownloadURL, getStorage, ref as storageRef, uploadString } from 'firebase/storage';
 import { sha256 } from 'js-sha256';
+import { User as UserType } from '@/types';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -353,20 +355,15 @@ export async function getBoard(id: string): Promise<DocumentData | undefined> {
   }
 }
 
-interface MessageUser {
-  uid: string;
-  displayName?: string;
-}
+let lastMessage: Record<string, any> = {};
 
-interface MessageData {
-  room: string | null | undefined;
-  user: MessageUser;
+interface SendMessageOptions {
+  room?: string | null;
+  user: UserType;
   text?: string;
-  type?: 'chat' | 'actions' | 'settings' | 'room' | 'media';
+  type: MessageType;
   [key: string]: any;
 }
-
-let lastMessage: Record<string, any> = {};
 
 export async function sendMessage({
   room,
@@ -374,7 +371,7 @@ export async function sendMessage({
   text = '',
   type = 'chat',
   ...rest
-}: MessageData): Promise<DocumentReference<DocumentData> | void> {
+}: SendMessageOptions): Promise<DocumentReference<DocumentData> | void> {
   const allowedTypes = ['chat', 'actions', 'settings', 'room', 'media'];
   if (!allowedTypes.includes(type)) {
     let message = 'Invalid message type. Was expecting ';
@@ -394,13 +391,13 @@ export async function sendMessage({
 
   try {
     return await addDoc(collection(db, 'chat-rooms', room?.toUpperCase() || 'PUBLIC', 'messages'), {
-      uid: user.uid,
-      displayName: user.displayName,
       text: text.trim(),
-      timestamp: serverTimestamp(),
       ttl: new Date(now + 24 * 60 * 60 * 1000), // 24 hours
       type,
       ...rest,
+      uid: user.uid,
+      displayName: user.displayName,
+      timestamp: serverTimestamp(),
     });
   } catch (error) {
     // eslint-disable-next-line
@@ -420,7 +417,7 @@ interface ImageData {
 interface UploadImageData {
   image: ImageData;
   room: string | null | undefined;
-  user: MessageUser;
+  user: UserType;
 }
 
 export async function uploadImage({ image, room, user }: UploadImageData): Promise<void> {

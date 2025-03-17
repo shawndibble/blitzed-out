@@ -4,15 +4,8 @@ import { orderedMessagesByType } from '@/helpers/messages';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import useUserList from '@/context/hooks/useUserList';
-
-interface Message {
-  uid: string;
-  text?: string;
-  timestamp: {
-    toMillis: () => number;
-  };
-  [key: string]: any;
-}
+import { User } from '@/types';
+import { Message } from '@/types/Message';
 
 interface UserEntry {
   lastActive: number;
@@ -34,11 +27,6 @@ interface Player {
   isSelf: boolean;
   location: number;
   isFinished: boolean;
-}
-
-interface User {
-  uid: string;
-  [key: string]: any;
 }
 
 function filteredGameMessages(messages: Message[]): Message[] {

@@ -1,8 +1,11 @@
 import i18next from 'i18next';
 import { getOrCreateBoard, sendMessage } from './firebase';
 import { isOnlineMode } from '@/helpers/strings';
-import { GameSettings } from '@/types';
+import { Settings } from '@/types/Settings';
 import { CustomTilePull } from '@/types/customTiles';
+import { Message } from '@/types/Message';
+import { DocumentData, DocumentReference } from 'firebase/firestore';
+import { User } from '@/types';
 
 interface ActionsList {
   [key: string]: {
@@ -13,7 +16,7 @@ interface ActionsList {
 }
 
 function getCustomTileCount(
-  settings: GameSettings,
+  settings: Settings,
   customTiles: CustomTilePull[] | null | undefined,
   actionsList: ActionsList
 ): number {
@@ -35,7 +38,7 @@ function getCustomTileCount(
 }
 
 function getSettingsMessage(
-  settings: GameSettings,
+  settings: Settings,
   customTiles: CustomTilePull[] | null | undefined,
   actionsList: ActionsList,
   reason?: string
@@ -94,7 +97,7 @@ function getSettingsMessage(
   return message;
 }
 
-function exportSettings(formData: GameSettings): Record<string, any> {
+function exportSettings(formData: Settings): Record<string, any> {
   const newSettings: Record<string, any> = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     // list of settings to not export and thus not import.
@@ -119,12 +122,12 @@ function exportSettings(formData: GameSettings): Record<string, any> {
   return newSettings;
 }
 
-interface GameSettingsMessageProps {
+interface SendMessageOptions {
   title: string;
-  formData: GameSettings;
-  user: { uid: string; displayName?: string };
+  formData: Settings;
+  user: User;
   actionsList: ActionsList;
-  tiles: any[];
+  tiles: CustomTilePull[];
   customTiles?: CustomTilePull[];
   reason?: string;
 }
@@ -137,7 +140,7 @@ export default async function sendGameSettingsMessage({
   tiles,
   customTiles = [],
   reason = '',
-}: GameSettingsMessageProps) {
+}: SendMessageOptions): Promise<DocumentReference<DocumentData> | void> {
   const settings = JSON.stringify(exportSettings(formData));
 
   const gameBoard = await getOrCreateBoard({
