@@ -1,10 +1,20 @@
-import { Box, FormControl, InputLabel, MenuItem, Select, Typography } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { Settings } from '@/types/Settings';
 
-export default function GameSpeed({ formData, setFormData }) {
+interface GameSpeedProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+}
+
+interface DiceAverages {
+  [key: string]: number;
+}
+
+export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JSX.Element {
   const { t } = useTranslation();
-  const diceRollAverage = {
+  const diceRollAverage: DiceAverages = {
     '1d4': 2.5,
     '1d6': 3.5,
     '2d4': 5,
@@ -35,7 +45,7 @@ export default function GameSpeed({ formData, setFormData }) {
             id="diceRole-select"
             value={formData?.roomDice || '1d4'}
             label={t('roomDice')}
-            onChange={(event) =>
+            onChange={(event: SelectChangeEvent<string>) =>
               setFormData({
                 ...formData,
                 roomDice: event.target.value,
@@ -57,10 +67,10 @@ export default function GameSpeed({ formData, setFormData }) {
             id="tile-count-select"
             value={formData?.roomTileCount || 40}
             label={t('roomTileCount')}
-            onChange={(event) =>
+            onChange={(event: SelectChangeEvent<number>) =>
               setFormData({
                 ...formData,
-                roomTileCount: event.target.value,
+                roomTileCount: event.target.value as number,
                 roomUpdated: true,
               })
             }

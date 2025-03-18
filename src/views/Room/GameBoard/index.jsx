@@ -2,12 +2,38 @@ import useAuth from '@/context/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import GameTile from './GameTile';
 import './styles.css';
+import { Settings } from '@/types/Settings';
 
-export default function GameBoard({ playerList, isTransparent, gameBoard, settings }) {
+interface Player {
+  uid: string;
+  displayName: string;
+  location?: number;
+  isSelf?: boolean;
+}
+
+interface GameTile {
+  title: string;
+  description: string;
+  role?: string;
+}
+
+interface GameBoardProps {
+  playerList: Player[];
+  isTransparent: boolean;
+  gameBoard: GameTile[];
+  settings: Settings;
+}
+
+export default function GameBoard({ 
+  playerList, 
+  isTransparent, 
+  gameBoard, 
+  settings 
+}: GameBoardProps): JSX.Element | null {
   const { user } = useAuth();
   if (!Array.isArray(gameBoard) || !gameBoard.length) return null;
 
-  const tileTypeArray = new Set();
+  const tileTypeArray = new Set<string>();
 
   gameBoard.forEach(({ title }, index) => {
     if (index !== 0 && index !== gameBoard.length - 1) {

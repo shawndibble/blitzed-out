@@ -1,9 +1,16 @@
 import { Box, Divider, Slider, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
+import { Settings } from '@/types/Settings';
+import { ChangeEvent } from 'react';
 
-export default function FinishSlider({ formData, setFormData }) {
-  const handleChange = (_, newValue) => {
-    setFormData({ ...formData, finishRange: newValue, boardUpdated: true });
+interface FinishSliderProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+}
+
+export default function FinishSlider({ formData, setFormData }: FinishSliderProps): JSX.Element {
+  const handleChange = (_: Event, newValue: number | number[]): void => {
+    setFormData({ ...formData, finishRange: newValue as [number, number], boardUpdated: true });
   };
 
   const finishRange = formData?.finishRange || [30, 70];

@@ -1,21 +1,46 @@
 import { Save, Share } from '@mui/icons-material';
 import { IconButton, TextField, Tooltip } from '@mui/material';
 import CopyToClipboard from '@/components/CopyToClipboard';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ChangeEvent, FocusEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { updateBoard } from '@/stores/gameBoard';
 
-export default function ImportExport({ open, close, setAlert, board }) {
-  const { t } = useTranslation();
-  const [textValue, setTextField] = useState('');
-  const [boardTitle, setBoardTitle] = useState(board.title);
+interface GameTile {
+  title: string;
+  description: string;
+}
 
-  function getGameTiles(entries) {
+interface Board {
+  id: number;
+  title: string;
+  tiles?: GameTile[];
+  isActive?: number;
+}
+
+interface AlertMessage {
+  message: string;
+  type?: 'error' | 'warning' | 'info' | 'success';
+}
+
+interface ImportExportProps {
+  open: boolean;
+  close: () => void;
+  setAlert: (alert: AlertMessage) => void;
+  board: Board;
+}
+
+export default function ImportExport({ open, close, setAlert, board }: ImportExportProps): JSX.Element {
+  const { t } = useTranslation();
+  const [textValue, setTextField] = useState<string>('');
+  const [boardTitle, setBoardTitle] = useState<string>(board.title || '');
+
+  function getGameTiles(entries: string[]): GameTile[] | null {
     try {
       if (!boardTitle.length) {
-        return setAlert({
+        setAlert({
           message: t('importTitleRequired'),
         });
+        return null;
       }
       return entries.map((entry, index) => {
         const [title, ...description] = entry.split('\n').filter((e) => e);
@@ -50,7 +75,7 @@ export default function ImportExport({ open, close, setAlert, board }) {
     }
   }
 
-  const importBoard = async () => {
+  const importBoard = async (): Promise<null> => {
     const entries = textValue
       .split(/~+/) // ~~~ separates each tile.
       .filter((e) => e);
@@ -61,9 +86,10 @@ export default function ImportExport({ open, close, setAlert, board }) {
     if (!gameTiles) return null;
 
     if (JSON.stringify(board.tiles) === JSON.stringify(gameTiles)) {
-      return setAlert({
+      setAlert({
         message: t('importNoChange'),
       });
+      return null;
     }
 
     updateBoard({ ...board, title: boardTitle, tiles: gameTiles });
@@ -74,25 +100,27 @@ export default function ImportExport({ open, close, setAlert, board }) {
     });
 
     close();
+    return null;
   };
 
-  const exportBoard = () => {
+  const exportBoard = (): void => {
     const arrayExport = board?.tiles?.map(({ title, description }) => `[${title}]\n${description}`);
 
-    setTextField(arrayExport?.join('\n~~\n'));
+    setTextField(arrayExport?.join('\n~~\n') || '');
   };
 
-  const changeTitle = (event) => {
+  const changeTitle = (event: ChangeEvent<HTMLInputElement>): void => {
     setBoardTitle(event.target.value);
   };
 
-  const saveTitle = async (event) => {
+  const saveTitle = async (event: FocusEvent<HTMLInputElement>): Promise<null | undefined> => {
     if (!event.target.value.length) {
       return setAlert({
         message: t('importTitleRequired'),
       });
     }
     updateBoard({ ...board, title: event.target.value });
+    return undefined;
   };
 
   useEffect(() => {
@@ -115,7 +143,7 @@ export default function ImportExport({ open, close, setAlert, board }) {
         multiline
         fullWidth
         value={textValue}
-        onChange={(event) => setTextField(event.target.value)}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => setTextField(event.target.value)}
         InputProps={{
           endAdornment: (
             <div

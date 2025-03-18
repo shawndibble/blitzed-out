@@ -5,11 +5,18 @@ import RoomSwitch from '@/components/GameForm/RoomSwitch';
 import ButtonRow from '@/components/ButtonRow';
 import useRoomNavigate from '@/hooks/useRoomNavigate';
 import { isPublicRoom } from '@/helpers/strings';
+import { Settings } from '@/types/Settings';
 
-export default function RoomStep({ formData, setFormData, nextStep }) {
+interface RoomStepProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+  nextStep: (step: number) => void;
+}
+
+export default function RoomStep({ formData, setFormData, nextStep }: RoomStepProps): JSX.Element {
   const navigate = useRoomNavigate();
 
-  function handleNext() {
+  function handleNext(): void {
     navigate(formData.room);
     nextStep(isPublicRoom(formData.room) ? 2 : 1);
   }

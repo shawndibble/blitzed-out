@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, forwardRef, useState, ReactElement } from 'react';
 import { CalendarMonth } from '@mui/icons-material';
 import {
   AppBar,
@@ -13,7 +13,6 @@ import {
 import useSchedule from '@/context/hooks/useSchedule';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import Logo from '@/images/blitzed-out.png';
-import { forwardRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import MenuDrawer from './MenuDrawer';
 import PlayersOnline from './PlayersOnline';
@@ -23,14 +22,26 @@ import { isPublicRoom } from '@/helpers/strings';
 
 const Schedule = lazy(() => import('@/views/Schedule'));
 
-export default function Navigation({ room, playerList = [] }) {
-  const { t } = useTranslation();
-  const [openSchedule, setOpenSchedule] = useState(false);
-  const [seen, setSeen] = useState(false);
-  const { schedule } = useSchedule();
-  const { isMobile } = useBreakpoint();
+interface Player {
+  uid: string;
+  displayName: string;
+  location?: number;
+  isSelf?: boolean;
+}
 
-  const handleScheduleClick = () => {
+interface NavigationProps {
+  room?: string;
+  playerList?: Player[];
+}
+
+export default function Navigation({ room, playerList = [] }: NavigationProps): JSX.Element {
+  const { t } = useTranslation();
+  const [openSchedule, setOpenSchedule] = useState<boolean>(false);
+  const [seen, setSeen] = useState<boolean>(false);
+  const { schedule } = useSchedule();
+  const isMobile = useBreakpoint();
+
+  const handleScheduleClick = (): void => {
     setOpenSchedule(true);
     setSeen(true);
   };
@@ -91,4 +102,13 @@ export default function Navigation({ room, playerList = [] }) {
   );
 }
 
-const WrapPlayersOnline = forwardRef((props, ref) => <PlayersOnline {...props} innerRef={ref} />);
+interface WrapPlayersOnlineProps {
+  playerList: Player[];
+  [key: string]: any;
+}
+
+const WrapPlayersOnline = forwardRef<HTMLDivElement, WrapPlayersOnlineProps>(
+  (props, ref): ReactElement => <PlayersOnline {...props} innerRef={ref} />
+);
+
+WrapPlayersOnline.displayName = 'WrapPlayersOnline';

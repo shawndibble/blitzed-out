@@ -4,14 +4,30 @@ import { Trans } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
+import { Settings } from '@/types/Settings';
+import { ChangeEvent } from 'react';
 
-export default function FinishStep({ formData, setFormData, prevStep, actionsList, close }) {
-  const no = [100, 100];
-  const yes = [0, 0];
+interface FinishStepProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+  prevStep: () => void;
+  actionsList: Record<string, any>;
+  close?: () => void;
+}
+
+export default function FinishStep({ 
+  formData, 
+  setFormData, 
+  prevStep, 
+  actionsList, 
+  close 
+}: FinishStepProps): JSX.Element {
+  const no: [number, number] = [100, 100];
+  const yes: [number, number] = [0, 0];
   const yesFinishRange = arraysEqual(formData.finishRange, yes);
   const submitSettings = useSubmitGameSettings();
 
-  function handleChange(event) {
+  function handleChange(event: ChangeEvent<HTMLInputElement>): void {
     setFormData({
       ...formData,
       finishRange: event.target.checked ? yes : no,
@@ -25,12 +41,12 @@ export default function FinishStep({ formData, setFormData, prevStep, actionsLis
       boardUpdated: true,
     };
     if (!yesFinishRange || !arraysEqual(formData.finishRange, no)) {
-      newData['finishRange'] = no;
+      newData.finishRange = no;
     }
     setFormData(newData);
   }, []); // only run on load once.
 
-  async function handleSubmit() {
+  async function handleSubmit(): Promise<void> {
     await submitSettings(formData, actionsList);
     if (typeof close === 'function') close();
   }

@@ -2,8 +2,15 @@ import { Help } from '@mui/icons-material';
 import { Stack, Switch, Tooltip, Typography } from '@mui/material';
 import { isOnlineMode } from '@/helpers/strings';
 import { Trans } from 'react-i18next';
+import { ChangeEvent } from 'react';
+import { Settings } from '@/types/Settings';
 
-export default function SoloSwitch({ formData, setFormData }) {
+interface SoloSwitchProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+}
+
+export default function SoloSwitch({ formData, setFormData }: SoloSwitchProps): JSX.Element {
   return (
     <Stack direction="row" spacing={1} alignItems="center" justifyContent="center" sx={{ mt: 1 }}>
       <Typography>
@@ -22,7 +29,7 @@ export default function SoloSwitch({ formData, setFormData }) {
       <Switch
         id="gameMode"
         checked={!isOnlineMode(formData.gameMode)}
-        onChange={(event) =>
+        onChange={(event: ChangeEvent<HTMLInputElement>) =>
           setFormData({
             ...formData,
             gameMode: event.target.checked ? 'local' : 'online',

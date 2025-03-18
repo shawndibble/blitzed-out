@@ -4,7 +4,7 @@ import ToastAlert from '@/components/ToastAlert';
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, FormEvent, KeyboardEvent, ChangeEvent, ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import CustomTileDialog from '@/views/CustomTileDialog';
 import AppSettings from './AppSettings';
@@ -16,29 +16,34 @@ import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useRoomNavigate from '@/hooks/useRoomNavigate';
 import useActionList from '@/hooks/useActionList';
+import { Settings } from '@/types/Settings';
 
-export default function GameSettings({ closeDialog }) {
+interface GameSettingsProps {
+  closeDialog?: () => void;
+}
+
+export default function GameSettings({ closeDialog }: GameSettingsProps): JSX.Element {
   const { user } = useAuth();
   const { t } = useTranslation();
 
-  const [settings, updateSettings] = useLocalStorage('gameSettings');
-  const [value, setValue] = useState(0);
-  const [alert, setAlert] = useState(null);
-  const [openCustomTile, setOpenCustomTile] = useState(false);
+  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
+  const [value, setValue] = useState<number>(0);
+  const [alert, setAlert] = useState<string | null>(null);
+  const [openCustomTile, setOpenCustomTile] = useState<boolean>(false);
   const [formData, setFormData] = useSettingsToFormData();
   const navigate = useRoomNavigate();
 
   const submitSettings = useSubmitGameSettings();
   const { isLoading, actionsList } = useActionList(formData?.gameMode);
 
-  const handleTabChange = (_, newValue) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number): void => {
     setValue(newValue);
     navigate(formData.room);
   };
 
-  const boardUpdated = () => updateSettings({ ...settings, boardUpdated: true });
+  const boardUpdated = (): void => updateSettings({ ...settings, boardUpdated: true });
 
-  async function handleSubmit(event) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<null> {
     event.preventDefault();
     // eslint-disable-next-line no-unused-vars
     const { displayName, ...gameOptions } = formData; // we don't want to validate the displayName
@@ -54,26 +59,26 @@ export default function GameSettings({ closeDialog }) {
   }
 
   const handleBlur = useCallback(
-    (event) => {
+    (event: ChangeEvent<HTMLInputElement>): void => {
       setFormData((prevFormData) => ({
         ...prevFormData,
         displayName: event.target.value,
       }));
     },
-    [formData]
+    []
   );
 
   const onEnterKey = useCallback(
-    (event) => {
+    (event: KeyboardEvent<HTMLInputElement>): void => {
       if (event.key === 'Enter') {
         setFormData((prevFormData) => ({
           ...prevFormData,
-          displayName: event.target.value,
+          displayName: (event.target as HTMLInputElement).value,
         }));
-        handleSubmit(event);
+        handleSubmit(event as unknown as FormEvent<HTMLFormElement>);
       }
     },
-    [formData, handleSubmit]
+    [handleSubmit]
   );
 
   if (!formData.room || isLoading) {
@@ -94,7 +99,6 @@ export default function GameSettings({ closeDialog }) {
     <Box
       component="form"
       method="post"
-      // eslint-disable-next-line react/jsx-no-bind
       onSubmit={handleSubmit}
       className="settings-box"
     >
@@ -106,7 +110,7 @@ export default function GameSettings({ closeDialog }) {
         required
         autoFocus
         onBlur={handleBlur}
-        onKeyDown={(event) => onEnterKey(event)}
+        onKeyDown={onEnterKey}
         margin="normal"
       />
 
@@ -147,7 +151,7 @@ export default function GameSettings({ closeDialog }) {
         />
       )}
       <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
-        {alert}
+        {alert as ReactNode}
       </ToastAlert>
     </Box>
   );

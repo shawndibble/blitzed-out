@@ -2,14 +2,20 @@ import { Divider, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './styles.css';
 import { Trans } from 'react-i18next';
-import { useState } from 'react';
+import { useState, SyntheticEvent } from 'react';
 import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 
-export default function GameGuide({ open = true, close = null, isMobile = null }) {
-  const [expanded, setExpanded] = useState('panel1');
-  const handleChange = (panel) => (_event, newExpanded) => {
+interface GameGuideProps {
+  open?: boolean;
+  close?: (() => void) | null;
+  isMobile?: boolean | null;
+}
+
+export default function GameGuide({ open = true, close = null, isMobile = null }: GameGuideProps): JSX.Element {
+  const [expanded, setExpanded] = useState<string | false>('panel1');
+  const handleChange = (panel: string) => (_event: SyntheticEvent, newExpanded: boolean) => {
     setExpanded(newExpanded ? panel : false);
   };
 

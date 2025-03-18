@@ -13,30 +13,38 @@ import {
 } from '@mui/material';
 import { ChangeCircle } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 
 /**
  * Dialog component for setting a custom timer value in seconds
- * @param {Object} props
- * @param {boolean} props.isOpen - Controls dialog visibility
- * @param {Function} props.onClose - Callback when dialog is closed
- * @param {Function} props.onSubmit - Callback when timer value is submitted
  */
 const MIN_SECONDS = 10;
 
-const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
-  const { t } = useTranslation();
-  const [customTime, setCustomTime] = useState(30);
-  const [isMinutes, setIsMinutes] = useState(false);
-  const [isRangeMode, setIsRangeMode] = useState(false);
-  const [minTime, setMinTime] = useState(20);
-  const [maxTime, setMaxTime] = useState(60);
+interface TimerSettings {
+  isRange: boolean;
+  min: number;
+  max: number;
+}
 
-  const handleSubmit = () => {
+interface CustomTimerDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (time: number, settings?: Partial<TimerSettings>) => void;
+}
+
+const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps): JSX.Element => {
+  const { t } = useTranslation();
+  const [customTime, setCustomTime] = useState<number | string>(30);
+  const [isMinutes, setIsMinutes] = useState<boolean>(false);
+  const [isRangeMode, setIsRangeMode] = useState<boolean>(false);
+  const [minTime, setMinTime] = useState<number | string>(20);
+  const [maxTime, setMaxTime] = useState<number | string>(60);
+
+  const handleSubmit = (): void => {
     if (isRangeMode) {
       // For range mode, calculate a random time between min and max
-      let min = Number.parseInt(minTime, 10);
-      let max = Number.parseInt(maxTime, 10);
+      let min = Number.parseInt(String(minTime), 10);
+      let max = Number.parseInt(String(maxTime), 10);
 
       // Validate min and max
       if (Number.isNaN(min)) {
@@ -67,7 +75,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
       onSubmit(randomTime, { isRange: true, min, max });
     } else {
       // For fixed time mode
-      let time = Number.parseInt(customTime, 10);
+      let time = Number.parseInt(String(customTime), 10);
       if (Number.isNaN(time)) {
         time = isMinutes ? 1 : MIN_SECONDS;
         setCustomTime(time);
@@ -82,9 +90,9 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
     onClose();
   };
 
-  const toggleTimeUnit = () => {
+  const toggleTimeUnit = (): void => {
     setCustomTime((prevTime) => {
-      const time = Number.parseFloat(prevTime);
+      const time = Number.parseFloat(String(prevTime));
       if (Number.isNaN(time) || time <= 0) return prevTime;
 
       if (isMinutes) {
@@ -98,7 +106,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
 
     // Also convert min and max times
     setMinTime((prevTime) => {
-      const time = Number.parseFloat(prevTime);
+      const time = Number.parseFloat(String(prevTime));
       if (Number.isNaN(time) || time <= 0) return prevTime;
 
       if (isMinutes) {
@@ -109,7 +117,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
     });
 
     setMaxTime((prevTime) => {
-      const time = Number.parseFloat(prevTime);
+      const time = Number.parseFloat(String(prevTime));
       if (Number.isNaN(time) || time <= 0) return prevTime;
 
       if (isMinutes) {
@@ -129,7 +137,10 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
         <Box sx={{ mb: 2 }}>
           <FormControlLabel
             control={
-              <Switch checked={isRangeMode} onChange={(e) => setIsRangeMode(e.target.checked)} />
+              <Switch 
+                checked={isRangeMode} 
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setIsRangeMode(e.target.checked)} 
+              />
             }
             label={t('useRandomRange')}
           />
@@ -160,10 +171,10 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }) => {
                 onChange={(e) => {
                   const value = parseInt(e.target.value, 10);
                   // Ensure max is at least equal to min
-                  setMaxTime(Math.max(minTime, value));
+                  setMaxTime(Math.max(Number(minTime), value));
                 }}
                 fullWidth
-                slotProps={{ input: { min: minTime } }}
+                slotProps={{ input: { min: Number(minTime) } }}
               />
             </Box>
             <Button onClick={toggleTimeUnit} variant="outlined" size="small">

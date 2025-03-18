@@ -1,4 +1,4 @@
-import { AppRegistration, CalendarMonth, Link, Logout, Tv, ViewModule } from '@mui/icons-material';
+import { AppRegistration, CalendarMonth, Link as LinkIcon, Logout, Tv, ViewModule } from '@mui/icons-material';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState, ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';
@@ -28,15 +28,32 @@ const ManageGameBoards = lazy(() => import('@/views/ManageGameBoards'));
 const Schedule = lazy(() => import('@/views/Schedule'));
 const CustomTileDialog = lazy(() => import('@/components/CustomTilesDialog'));
 
-export default function MenuDrawer() {
-  const { id: room } = useParams();
+interface MenuItem {
+  key: string;
+  title: ReactNode;
+  icon: ReactNode;
+  onClick: () => void;
+}
+
+interface DialogState {
+  settings: boolean;
+  gameBoard: boolean;
+  about: boolean;
+  schedule: boolean;
+  customTiles: boolean;
+  linkAccount: boolean;
+  [key: string]: boolean;
+}
+
+export default function MenuDrawer(): JSX.Element {
+  const { id: room } = useParams<{ id: string }>();
   const { user, logout, isAnonymous } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
-  const [menuOpen, setMenu] = useState(false);
-  const toggleDrawer = (isOpen) => setMenu(isOpen);
+  const [menuOpen, setMenu] = useState<boolean>(false);
+  const toggleDrawer = (isOpen: boolean): void => setMenu(isOpen);
 
-  const [open, setOpen] = useState({
+  const [open, setOpen] = useState<DialogState>({
     settings: false,
     gameBoard: false,
     about: false,
@@ -45,14 +62,14 @@ export default function MenuDrawer() {
     linkAccount: false,
   });
 
-  const toggleDialog = (type, isOpen) => setOpen({ ...open, [type]: isOpen });
+  const toggleDialog = (type: string, isOpen: boolean): void => setOpen({ ...open, [type]: isOpen });
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     await logout();
     toggleDrawer(false);
   };
 
-  const openInNewTab = (url) => window.open(url, '_blank', 'noreferrer');
+  const openInNewTab = (url: string): Window | null => window.open(url, '_blank', 'noreferrer');
 
   const discordIcon = (
     <SvgIcon>
@@ -60,7 +77,7 @@ export default function MenuDrawer() {
     </SvgIcon>
   );
 
-  const changeLanguage = (lng) => {
+  const changeLanguage = (lng: string): void => {
     i18n.changeLanguage(lng);
     localStorage.setItem(
       'gameSettings',
@@ -71,8 +88,8 @@ export default function MenuDrawer() {
     );
   };
 
-  const menuItems = useMemo(() => {
-    const items = [
+  const menuItems = useMemo<MenuItem[]>(() => {
+    const items: MenuItem[] = [
       {
         key: 'gameBoard',
         title: <Trans i18nKey="gameBoards" />,
@@ -89,7 +106,7 @@ export default function MenuDrawer() {
         key: 'cast',
         title: <Trans i18nKey="tvMode" />,
         icon: <Tv />,
-        onClick: () => openInNewTab(`/${room.toUpperCase()}/cast`),
+        onClick: () => openInNewTab(`/${room?.toUpperCase()}/cast`),
       },
       {
         key: 'schedule',
@@ -122,7 +139,7 @@ export default function MenuDrawer() {
         items.push({
           key: 'linkAccount',
           title: <Trans i18nKey="linkAccount" />,
-          icon: <Link />,
+          icon: <LinkIcon />,
           onClick: () => toggleDialog('linkAccount', true),
         });
       }
@@ -145,13 +162,17 @@ export default function MenuDrawer() {
     </ListItem>
   ));
 
-  const renderDialog = (Component, dialogKey, props = {}) => (
+  const renderDialog = <T extends object>(
+    Component: React.ComponentType<T>, 
+    dialogKey: keyof DialogState, 
+    props: Omit<T, 'open' | 'close' | 'isMobile'> = {} as any
+  ): JSX.Element => (
     <Suspense fallback={<div>Loading...</div>}>
       <Component
         open={open[dialogKey]}
-        close={() => toggleDialog(dialogKey, false)}
+        close={() => toggleDialog(dialogKey.toString(), false)}
         isMobile={isMobile}
-        {...props}
+        {...(props as any)}
       />
     </Suspense>
   );

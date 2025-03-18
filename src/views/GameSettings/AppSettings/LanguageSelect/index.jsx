@@ -1,14 +1,18 @@
 import { Language } from '@mui/icons-material';
-import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { languages } from '@/services/importLocales';
 
-export default function LanguageSelect({ boardUpdated }) {
-  const { i18n } = useTranslation();
-  const [language, setLanguage] = useState(i18n.resolvedLanguage);
+interface LanguageSelectProps {
+  boardUpdated: () => void;
+}
 
-  function changeLanguage(value) {
+export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): JSX.Element {
+  const { i18n } = useTranslation();
+  const [language, setLanguage] = useState<string>(i18n.resolvedLanguage);
+
+  function changeLanguage(value: string): void {
     setLanguage(value);
     i18n.changeLanguage(value);
     boardUpdated();
@@ -37,7 +41,7 @@ export default function LanguageSelect({ boardUpdated }) {
               <Trans i18nKey="language" />
             </>
           }
-          onChange={(event) => changeLanguage(event.target.value)}
+          onChange={(event: SelectChangeEvent<string>) => changeLanguage(event.target.value)}
         >
           {menuItems}
         </Select>

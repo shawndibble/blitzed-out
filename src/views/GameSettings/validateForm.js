@@ -1,12 +1,30 @@
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { Settings } from '@/types/Settings';
 
-function hasSomethingPicked(object) {
+interface ActionOption {
+  level: number;
+  variation?: string;
+}
+
+interface ActionOptions {
+  [key: string]: ActionOption;
+}
+
+interface SeparatedOptions {
+  withAppend: ActionOptions;
+  withoutAppend: ActionOptions;
+}
+
+function hasSomethingPicked(object: ActionOptions): boolean {
   return Object.values(object).some(({ level }) => level > 0);
 }
 
-function separateConsumableFromValidRest(gameOptions, actionsList) {
+function separateConsumableFromValidRest(
+  gameOptions: Settings, 
+  actionsList: Record<string, any>
+): SeparatedOptions {
   return Object.entries(gameOptions).reduce(
-    (acc, [key, value]) => {
+    (acc: SeparatedOptions, [key, value]: [string, any]) => {
       // Check if the key is in actionsList
       if (key in actionsList) {
         if (value?.variation?.startsWith('append')) {
@@ -23,12 +41,15 @@ function separateConsumableFromValidRest(gameOptions, actionsList) {
   );
 }
 
-function isTryingToAppend(withAppend) {
-  return Object.keys(withAppend).length && Object.values(withAppend).some(({ level }) => level > 0);
+function isTryingToAppend(withAppend: ActionOptions): boolean {
+  return Object.keys(withAppend).length > 0 && Object.values(withAppend).some(({ level }) => level > 0);
 }
 
 // returns a translation key for an alert if fails.
-export default function validateFormData(gameOptions, actionsList) {
+export default function validateFormData(
+  gameOptions: Settings, 
+  actionsList: Record<string, any>
+): string | null {
   const { withAppend, withoutAppend } = separateConsumableFromValidRest(gameOptions, actionsList);
 
   if (!hasSomethingPicked(withoutAppend)) {

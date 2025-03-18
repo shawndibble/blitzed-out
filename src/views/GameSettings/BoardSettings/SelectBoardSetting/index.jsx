@@ -1,10 +1,27 @@
-import { FormControl, Grid2, InputLabel, MenuItem, Select, Tooltip } from '@mui/material';
+import { FormControl, Grid2, InputLabel, MenuItem, Select, SelectChangeEvent, Tooltip } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
 import { Help } from '@mui/icons-material';
 import SettingsSelect from '@/components/SettingsSelect';
 import './style.css';
 import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
+import { Settings } from '@/types/Settings';
+import { ReactNode } from 'react';
+
+interface SelectBoardSettingProps {
+  option: string;
+  settings: Settings;
+  setSettings: (settings: Settings) => void;
+  actionsFolder: Record<string, any>;
+  type: string;
+  showVariation?: boolean;
+  showRole?: boolean;
+}
+
+interface RoleOption {
+  label: string;
+  value: string;
+}
 
 export default function SelectBoardSetting({
   option,
@@ -14,27 +31,27 @@ export default function SelectBoardSetting({
   type,
   showVariation = false,
   showRole = false,
-}) {
+}: SelectBoardSettingProps): JSX.Element {
   const { t } = useTranslation();
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
-  function handleChange(event, key, nestedKey) {
-    setSettings((prevSettings) => ({
-      ...prevSettings,
+  function handleChange(event: SelectChangeEvent<any>, key: string, nestedKey: string): void {
+    setSettings({
+      ...settings,
       [key]: {
-        ...prevSettings[key],
+        ...settings[key],
         type,
         [nestedKey]: event?.target?.value,
       },
       boardUpdated: true,
-    }));
+    });
   }
 
   let gridSize = 12;
   if (showVariation || showRole) gridSize = 6;
 
-  let roleOptions = ['dom', 'vers', 'sub'];
+  let roleOptions: string[] | RoleOption[] = ['dom', 'vers', 'sub'];
   if (actionsFolder[option]?.dom) {
     roleOptions = [
       {
@@ -59,7 +76,7 @@ export default function SelectBoardSetting({
           actionsFolder={actionsFolder}
           settings={settings}
           option={option}
-          onChange={(event) => handleChange(event, option, 'level')}
+          onChange={(event) => handleChange(event as SelectChangeEvent<any>, option, 'level')}
         />
       </Grid2>
       {!!showRole && (
@@ -67,7 +84,7 @@ export default function SelectBoardSetting({
           <SettingsSelect
             sx={{ ml: 1 }}
             value={settings[option]?.role}
-            onChange={(event) => handleChange(event, option, 'role')}
+            onChange={(event) => handleChange(event as SelectChangeEvent<any>, option, 'role')}
             label={`${t('role')}: ${label}`}
             options={roleOptions}
             defaultValue={settings.role || 'sub'}

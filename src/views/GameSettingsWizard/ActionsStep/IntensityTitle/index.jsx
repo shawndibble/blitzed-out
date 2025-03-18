@@ -2,7 +2,7 @@ import { Help } from '@mui/icons-material';
 import { Tooltip, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
 
-export default function IntensityTitle() {
+export default function IntensityTitle(): JSX.Element {
   return (
     <Typography variant="h6" sx={{ mt: 2 }}>
       <Trans i18nKey="setIntensityLevel" />

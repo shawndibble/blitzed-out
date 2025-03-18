@@ -7,11 +7,23 @@ import useCountdown from '@/hooks/useCountdown';
 import RollOptionsMenu from '../RollOptionsMenu';
 import CustomTimerDialog from '../CustomTimerDialog';
 
-function isNumeric(value) {
-  return /^-?\d+$/.test(value);
+interface RollButtonProps {
+  setRollValue: (value: number) => void;
+  dice: string;
+  isEndOfBoard: boolean;
 }
 
-function rollDice(rollCount, diceSide, updateRollValue) {
+interface TimerSettings {
+  isRange: boolean;
+  min: number;
+  max: number;
+}
+
+function isNumeric(value: string | number): boolean {
+  return /^-?\d+$/.test(String(value));
+}
+
+function rollDice(rollCount: string, diceSide: string, updateRollValue: (value: number) => void): void {
   let total = 0;
   for (let i = 0; i < Number(rollCount); i += 1) {
     total += Number([Math.floor(Math.random() * Number(diceSide)) + 1]);
@@ -19,22 +31,22 @@ function rollDice(rollCount, diceSide, updateRollValue) {
   updateRollValue(total);
 }
 
-const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
+const RollButton = function memo({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.Element {
   const { t } = useTranslation();
-  const [isDisabled, setDisabled] = useState(false);
-  const [selectedRoll, setSelectedRoll] = useState('manual');
-  const [autoTime, setAutoTime] = useState(0);
-  const [rollText, setRollText] = useState(t('roll'));
+  const [isDisabled, setDisabled] = useState<boolean>(false);
+  const [selectedRoll, setSelectedRoll] = useState<string | number>('manual');
+  const [autoTime, setAutoTime] = useState<number>(0);
+  const [rollText, setRollText] = useState<string>(t('roll'));
   const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(autoTime);
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [timerSettings, setTimerSettings] = useState({ isRange: false, min: 30, max: 120 });
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [timerSettings, setTimerSettings] = useState<TimerSettings>({ isRange: false, min: 30, max: 120 });
 
-  const updateRollValue = useCallback((value) => {
+  const updateRollValue = useCallback((value: number): void => {
     setRollValue(value);
-  }, []);
+  }, [setRollValue]);
 
   const options = useMemo(() => {
-    const opts = new Map();
+    const opts = new Map<string | number, string>();
     opts
       .set('restart', t('restart'))
       .set('manual', t('manual'))
@@ -43,11 +55,11 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
       .set(90, t('auto90'))
       .set('custom', t('setTimer'));
     return opts;
-  }, []);
+  }, [t]);
 
   const [rollCount, diceSide] = dice.split('d');
 
-  const handleClick = () => {
+  const handleClick = (): null => {
     if (selectedRoll === 'manual') {
       rollDice(rollCount, diceSide, updateRollValue);
       setDisabled(true);
@@ -63,9 +75,10 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
   };
 
   const handleMenuItemClick = useCallback(
-    (key) => {
+    (key: string | number): null => {
       if (key === 'restart') {
-        return updateRollValue(-1);
+        updateRollValue(-1);
+        return null;
       }
 
       setSelectedRoll(key);
@@ -77,23 +90,24 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
 
       if (isNumeric(key)) {
         if (!isPaused) togglePause();
-        setAutoTime(key);
-        setTimeLeft(key);
+        const numericKey = Number(key);
+        setAutoTime(numericKey);
+        setTimeLeft(numericKey);
       }
       return null;
     },
-    [isPaused, setTimeLeft, togglePause]
+    [isPaused, setTimeLeft, togglePause, updateRollValue]
   );
 
-  const handleDialogClose = () => {
+  const handleDialogClose = (): void => {
     setDialogOpen(false);
   };
 
-  const handleDialogSubmit = (time, settings = { isRange: false }) => {
+  const handleDialogSubmit = (time: number, settings: Partial<TimerSettings> = { isRange: false }): void => {
     if (!isPaused) togglePause();
     setAutoTime(time);
     setTimeLeft(time);
-    setTimerSettings(settings);
+    setTimerSettings({ ...timerSettings, ...settings });
     setSelectedRoll('custom');
     setDialogOpen(false);
   };
@@ -102,7 +116,7 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
     if (isEndOfBoard) {
       togglePause();
     }
-  }, [isEndOfBoard]);
+  }, [isEndOfBoard, togglePause]);
 
   useEffect(() => {
     if (isDisabled) {
@@ -117,7 +131,7 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
       // Only roll and reset timer if we're not paused and not in manual mode
       rollDice(rollCount, diceSide, updateRollValue);
 
-      let newTime;
+      let newTime: number;
       if (timerSettings.isRange) {
         const { min, max } = timerSettings;
         newTime = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -129,7 +143,7 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }) {
       setTimeLeft(newTime);
       setRollText(`${t('pause')} (${newTime})`);
     }
-  }, [isDisabled, selectedRoll, timeLeft, isPaused, autoTime, timerSettings]);
+  }, [isDisabled, selectedRoll, timeLeft, isPaused, autoTime, timerSettings, t, rollCount, diceSide, updateRollValue]);
 
   return (
     <>
