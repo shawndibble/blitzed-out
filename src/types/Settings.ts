@@ -24,4 +24,4 @@ export interface Settings {
   [key: string]: any;
 }
 
-export type GameMode = 'solo' | 'online';
+export type GameMode = 'solo' | 'online' | 'local';

@@ -26,7 +26,7 @@ export default function GameSettingsDialog({ open, close }: GameSettingsDialogPr
         {typeof close === 'function' && <CloseIcon close={close} />}
       </DialogTitle>
       <DialogContent>
-        <GameSettingsWizard close={close} />
+        <GameSettingsWizard close={typeof close === 'function' ? close : undefined} />
       </DialogContent>
     </Dialog>
   );

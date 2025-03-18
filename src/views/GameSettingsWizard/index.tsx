@@ -11,6 +11,7 @@ import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import { isPublicRoom } from '@/helpers/strings';
 import useActionList from '@/hooks/useActionList';
 import { FormData } from '@/types';
+import { Settings } from '@/types/Settings';
 
 interface GameSettingsWizardProps {
   close?: () => void;
@@ -67,12 +68,12 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
 
   const nextStep = (count?: number) => {
     if (!Number.isInteger(count)) return setStep(step + 1);
-    setStep(step + count);
+    setStep(step + (count || 1));
   };
 
   const prevStep = (count?: number) => {
     if (!Number.isInteger(count)) return setStep(step - 1);
-    setStep(step - count);
+    setStep(step - (count || 1));
   };
 
   const goToAdvanced = () => setStep(0); // Use 0 to represent 'advanced'

@@ -1,5 +1,8 @@
 import { User as FirebaseUser } from 'firebase/auth';
-import { SelectChangeEvent as MuiSelectChangeEvent } from '@mui/material/Select';
+import { SelectChangeEvent } from '@mui/material/Select';
+import { SxProps } from '@mui/system';
+import { Theme } from '@mui/material/styles';
+import { GameMode } from './Settings';
 // Common types used throughout the application
 
 // Auth related types
@@ -25,20 +28,22 @@ export interface CopyToClipboardProps {
 
 export interface YesNoSwitchProps {
   trueCondition: boolean;
-  onChange: (value: boolean) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => void;
   yesLabel: string;
   noLabel?: string | null;
-  sx?: Record<string, unknown>;
+  sx?: SxProps<Theme>;
 }
 
 export interface GridItemProps {
   children: React.ReactNode;
+  sm?: number;
+  [key: string]: any;
 }
 
 export interface InvisibleAccordionGridProps {
   children: React.ReactNode;
-  title: string;
-  subtitle?: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
   defaultExpanded?: boolean;
   [key: string]: any;
 }
@@ -52,16 +57,21 @@ export interface MessageProps {
 }
 
 export interface MultiSelectProps {
-  onChange: (values: string[]) => void;
+  onChange: (event: SelectChangeEvent<string[]>) => void;
   values: string[];
-  options: { value: string; label: string }[];
-  label: string;
+  options: Option[];
+  label: React.ReactNode;
+}
+
+export interface Option {
+  value: string;
+  label: React.ReactNode;
 }
 
 export interface TextAvatarProps {
-  name: string;
+  displayName: string;
   uid: string;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium';
 }
 
 export interface ToastAlertProps {
@@ -97,7 +107,7 @@ export interface LocalStorageHookReturn<T> {
 // Form data types
 export interface FormData {
   [key: string]: any;
-  gameMode?: string;
+  gameMode?: GameMode;
   isNaked?: boolean;
   isAppend?: boolean;
   room?: string;
@@ -105,6 +115,8 @@ export interface FormData {
   actions?: any[];
   consumption?: any[];
   role?: string;
+  boardUpdated?: boolean;
+  finishRange?: [number, number];
 }
 
 export interface ActionEntry {
@@ -137,27 +149,6 @@ export interface BoardType {
 export interface AlertState {
   message: string;
   type: 'success' | 'error' | 'info' | 'warning';
-}
-
-// Settings interface
-export interface Settings {
-  boardUpdated: boolean;
-  roomUpdated?: boolean;
-  playerDialog?: boolean;
-  othersDialog?: boolean;
-  mySound?: boolean;
-  otherSound?: boolean;
-  chatSound?: boolean;
-  readRoll?: boolean;
-  hideBoardActions?: boolean;
-  locale?: string;
-  gameMode?: string;
-  background?: string;
-  finishRange?: number[];
-  roomTileCount?: number;
-  roomDice?: string;
-  room?: string;
-  [key: string]: any;
 }
 
 // Roll value state
