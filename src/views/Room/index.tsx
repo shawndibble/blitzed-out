@@ -26,7 +26,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
 import { RollValueState } from '@/types/index';
-import { GameTile } from '@/types/gameBoard';
+import { Tile as GameTile } from '@/types/gameBoard';
 
 export default function Room() {
   const params = useParams<{ id: string }>();
@@ -49,7 +49,7 @@ export default function Room() {
   // Use usePlayerMove directly
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
-  const [importResult, clearImportResult] = useUrlImport(settings, setSettings);
+  const [importResult, clearImportResult] = useUrlImport(settings, setSettings as any);
 
   if (
     !gameBoard ||
@@ -73,7 +73,7 @@ export default function Room() {
 
   const GameBoardComponent = (
     <GameBoard
-      playerList={playerList}
+      playerList={playerList as any}
       isTransparent={isTransparent}
       gameBoard={gameBoard}
       settings={settings as Settings}
