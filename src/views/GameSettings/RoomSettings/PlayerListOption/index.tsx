@@ -1,7 +1,6 @@
 import { Help } from '@mui/icons-material';
 import { Stack, Switch, Tooltip, Typography } from '@mui/material';
 import { t } from 'i18next';
-import React from 'react';
 import { useCallback } from 'react';
 import { Trans } from 'react-i18next';
 
