@@ -11,7 +11,7 @@ export function pascalToCamel(text: string): string {
   });
 }
 
-export function a11yProps(index: number): {
+export function a11yProps(index: number | string): {
   id: string;
   'aria-controls': string;
 } {

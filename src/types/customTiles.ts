@@ -23,6 +23,9 @@ export interface CustomTilePull extends CustomTileBase {
 // Generic CustomTile type that can be used in most cases
 export type CustomTile = CustomTilePush | CustomTilePull;
 
+// GameMode type definition
+export type GameMode = 'online' | 'solo' | 'local';
+
 export interface MappedGroup {
   group: string;
   groupLabel: string;
@@ -55,6 +58,7 @@ export interface ProcessedGroups {
 export interface AllGameModeActions {
   online: GroupedActions;
   local: GroupedActions;
+  solo: GroupedActions;
 }
 
 export interface SubmitMessage {
