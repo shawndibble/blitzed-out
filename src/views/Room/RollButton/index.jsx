@@ -26,7 +26,7 @@ function isNumeric(value: string | number): boolean {
 function rollDice(rollCount: string, diceSide: string, updateRollValue: (value: number) => void): void {
   let total = 0;
   for (let i = 0; i < Number(rollCount); i += 1) {
-    total += Number([Math.floor(Math.random() * Number(diceSide)) + 1]);
+    total += Math.floor(Math.random() * Number(diceSide)) + 1;
   }
   updateRollValue(total);
 }
@@ -59,33 +59,32 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }: RollButto
 
   const [rollCount, diceSide] = dice.split('d');
 
-  const handleClick = (): null => {
+  const handleClick = (): void => {
     if (selectedRoll === 'manual') {
       rollDice(rollCount, diceSide, updateRollValue);
       setDisabled(true);
       setTimeout(() => setDisabled(false), 4000);
-      return null;
+      return;
     }
 
     if (isPaused && timeLeft === autoTime) {
       rollDice(rollCount, diceSide, updateRollValue);
     }
     togglePause();
-    return null;
   };
 
   const handleMenuItemClick = useCallback(
-    (key: string | number): null => {
+    (key: string | number): void => {
       if (key === 'restart') {
         updateRollValue(-1);
-        return null;
+        return;
       }
 
       setSelectedRoll(key);
 
       if (key === 'custom') {
         setDialogOpen(true);
-        return null;
+        return;
       }
 
       if (isNumeric(key)) {
@@ -94,7 +93,6 @@ const RollButton = function memo({ setRollValue, dice, isEndOfBoard }: RollButto
         setAutoTime(numericKey);
         setTimeLeft(numericKey);
       }
-      return null;
     },
     [isPaused, setTimeLeft, togglePause, updateRollValue]
   );

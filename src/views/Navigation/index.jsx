@@ -1,4 +1,4 @@
-import { lazy, Suspense, forwardRef, useState, ReactElement } from 'react';
+import React, { lazy, Suspense, forwardRef, useState, ReactElement } from 'react';
 import { CalendarMonth } from '@mui/icons-material';
 import {
   AppBar,

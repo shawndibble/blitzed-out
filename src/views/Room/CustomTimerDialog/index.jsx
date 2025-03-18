@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { ChangeCircle } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 
 /**
  * Dialog component for setting a custom timer value in seconds

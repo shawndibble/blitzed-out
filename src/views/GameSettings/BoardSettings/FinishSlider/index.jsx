@@ -1,7 +1,7 @@
 import { Box, Divider, Slider, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
 import { Settings } from '@/types/Settings';
-import { ChangeEvent } from 'react';
+import React from 'react';
 
 interface FinishSliderProps {
   formData: Settings;

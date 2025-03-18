@@ -2,7 +2,7 @@ import { Divider, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './styles.css';
 import { Trans } from 'react-i18next';
-import { useState, SyntheticEvent } from 'react';
+import React, { useState, SyntheticEvent } from 'react';
 import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';

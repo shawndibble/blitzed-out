@@ -127,7 +127,7 @@ export default function ImportExport({ open, close, setAlert, board }: ImportExp
     if (open) {
       exportBoard();
     }
-  }, [open]);
+  }, [open, board]); // Add board as dependency since exportBoard uses it
 
   return (
     <>

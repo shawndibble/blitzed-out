@@ -1,5 +1,5 @@
 import CircleIcon from '@mui/icons-material/Circle';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 interface Player {
   uid: string;

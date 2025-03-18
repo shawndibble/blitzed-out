@@ -4,7 +4,7 @@ import ToastAlert from '@/components/ToastAlert';
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { useCallback, useState, FormEvent, KeyboardEvent, ChangeEvent, ReactNode } from 'react';
+import React, { useCallback, useState, FormEvent, KeyboardEvent, ChangeEvent, ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import CustomTileDialog from '@/views/CustomTileDialog';
 import AppSettings from './AppSettings';

@@ -1,5 +1,5 @@
 import { Alert } from '@mui/material';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
 import { Settings } from '@/types/Settings';
 

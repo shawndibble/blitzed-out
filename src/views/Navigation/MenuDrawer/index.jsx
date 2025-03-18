@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { lazy, Suspense, useMemo, useState, ReactNode } from 'react';
+import React, { lazy, Suspense, useMemo, useState, ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';

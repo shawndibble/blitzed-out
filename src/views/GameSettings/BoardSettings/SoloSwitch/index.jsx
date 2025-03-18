@@ -2,7 +2,7 @@ import { Help } from '@mui/icons-material';
 import { Stack, Switch, Tooltip, Typography } from '@mui/material';
 import { isOnlineMode } from '@/helpers/strings';
 import { Trans } from 'react-i18next';
-import { ChangeEvent } from 'react';
+import React, { ChangeEvent } from 'react';
 import { Settings } from '@/types/Settings';
 
 interface SoloSwitchProps {

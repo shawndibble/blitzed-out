@@ -44,7 +44,7 @@ export default function FinishStep({
       newData.finishRange = no;
     }
     setFormData(newData);
-  }, []); // only run on load once.
+  }, [formData, no, yesFinishRange, setFormData]); // Include dependencies
 
   async function handleSubmit(): Promise<void> {
     await submitSettings(formData, actionsList);

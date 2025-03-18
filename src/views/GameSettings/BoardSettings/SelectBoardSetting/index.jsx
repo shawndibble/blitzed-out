@@ -6,7 +6,7 @@ import SettingsSelect from '@/components/SettingsSelect';
 import './style.css';
 import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
 import { Settings } from '@/types/Settings';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 interface SelectBoardSettingProps {
   option: string;
