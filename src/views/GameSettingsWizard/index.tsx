@@ -10,19 +10,24 @@ import { useParams } from 'react-router-dom';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import { isPublicRoom } from '@/helpers/strings';
 import useActionList from '@/hooks/useActionList';
+import { FormData } from '@/types';
 
-export default function GameSettingsWizard({ close }) {
-  const { id: room } = useParams();
-  const [step, setStep] = useState(1);
+interface GameSettingsWizardProps {
+  close?: () => void;
+}
 
-  const overrideSettings = { room };
-  if (isPublicRoom(room)) {
+export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
+  const { id: room } = useParams<{ id: string }>();
+  const [step, setStep] = useState<number | string>(1);
+
+  const overrideSettings: Record<string, any> = { room };
+  if (isPublicRoom(room || '')) {
     // if we are in the public room, some settings are forced.
     overrideSettings.gameMode = 'online';
     overrideSettings.roomRealtime = true;
   }
 
-  const [formData, setFormData] = useSettingsToFormData(
+  const [formData, setFormData] = useSettingsToFormData<FormData>(
     {
       gameMode: 'online',
       roomRealtime: true,

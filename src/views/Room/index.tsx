@@ -26,20 +26,20 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
 export default function Room() {
-  const params = useParams();
-  const room = params.id;
+  const params = useParams<{ id: string }>();
+  const room = params.id || '';
   const isMobile = useBreakpoint();
   const { t } = useTranslation();
 
   const [settings, setSettings] = useLocalStorage('gameSettings');
 
-  usePresence(room, settings.roomRealtime);
+  usePresence(room, settings?.roomRealtime);
 
-  const [rollValue, setRollValue] = useState({ value: 0, time: 0 });
+  const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
   const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
 
   // Use useCallback to memoize the setRollValue function
-  const memoizedSetRollValue = useCallback((newValue) => {
+  const memoizedSetRollValue = useCallback((newValue: number) => {
     setRollValue({ value: newValue, time: Date.now() });
   }, []);
 

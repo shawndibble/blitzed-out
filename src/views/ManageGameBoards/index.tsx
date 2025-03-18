@@ -26,11 +26,17 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import useAuth from '@/context/hooks/useAuth';
 import { getOrCreateBoard, sendMessage } from '@/services/firebase';
 
-export default function GameBoard({ open, close, isMobile }) {
+interface GameBoardProps {
+  open: boolean;
+  close: () => void;
+  isMobile: boolean;
+}
+
+export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   const gameBoards = useLiveQuery(getBoards);
-  const [alert, setAlert] = useState(null);
-  const [confirmDialog, setConfirmDialog] = useState(false);
-  const [expandedElement, setExpanded] = useState(false);
+  const [alert, setAlert] = useState<AlertState | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<number | false>(false);
+  const [expandedElement, setExpanded] = useState<number | false>(false);
   const settings = useLocalStorage('gameSettings')[0];
   const { user } = useAuth();
 

@@ -1,6 +1,8 @@
 import { isOnlineMode } from '@/helpers/strings';
+import { FormData, ActionEntry } from '@/types';
+import { ChangeEvent } from 'react';
 
-const shouldPurgeAction = (formData, entry) => {
+const shouldPurgeAction = (formData: FormData, entry: ActionEntry): boolean => {
   const { gameMode, isNaked } = formData;
   const isSolo = isOnlineMode(gameMode);
   return (
@@ -10,38 +12,42 @@ const shouldPurgeAction = (formData, entry) => {
   );
 };
 
-export const purgedFormData = (formData) => {
-  return Object.entries(formData).reduce((acc, [key, data]) => {
+export const purgedFormData = (formData: FormData): FormData => {
+  return Object.entries(formData).reduce<FormData>((acc, [key, data]) => {
     // only allow non-purged actions to be in our list.
-    if (!shouldPurgeAction(formData, data)) {
+    if (!shouldPurgeAction(formData, data as ActionEntry)) {
       acc[key] = data;
     }
     return acc;
-  }, {});
+  }, {} as FormData);
 };
 
-export const populateSelections = (formData, optionList, type) => {
+export const populateSelections = (formData: FormData, optionList: Array<{value: string, label: string}>, type: string): string[] => {
   return Object.entries(formData)
     .map(([key, entry]) => {
       const found = optionList.find((x) => x.value === key);
-      if (entry.type !== type || !found) return null;
+      if ((entry as ActionEntry).type !== type || !found) return null;
       return key;
     })
-    .filter((x) => x);
+    .filter((x): x is string => !!x);
 };
 
 // if prevData has a type of action that isn't in the value array, delete it.
-const deleteOldFormData = (prevData, action, value) => {
+const deleteOldFormData = (prevData: FormData, action: string, value: string[]): FormData => {
   const newFormData = { ...prevData };
   Object.keys(newFormData).forEach((key) => {
-    if (newFormData[key].type === action && !value.includes(key)) {
+    if ((newFormData[key] as ActionEntry).type === action && !value.includes(key)) {
       delete newFormData[key];
     }
   });
   return newFormData;
 };
 
-export const updateFormDataWithDefaults = (value, action, setFormData) => {
+export const updateFormDataWithDefaults = (
+  value: string[], 
+  action: string, 
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>
+): void => {
   setFormData((prevData) => {
     const newFormData = deleteOldFormData(prevData, action, value);
     value.forEach((option) => {
@@ -49,11 +55,11 @@ export const updateFormDataWithDefaults = (value, action, setFormData) => {
         return;
       }
 
-      let data = { type: action, level: 1 };
+      let data: ActionEntry = { type: action, level: 1 };
       if (action === 'consumption') {
         data = {
           ...data,
-          variation: newFormData.isAppend ? 'appendMost' : 'standalone',
+          variation: (newFormData as any).isAppend ? 'appendMost' : 'standalone',
         };
       }
       newFormData[option] = data;
@@ -63,13 +69,13 @@ export const updateFormDataWithDefaults = (value, action, setFormData) => {
 };
 
 export const handleChange = (
-  event,
-  key,
-  action,
-  setFormData,
-  setSelectedItems,
-  variation = null
-) => {
+  event: ChangeEvent<HTMLInputElement> | { target: { value: number } } | null,
+  key: string,
+  action: string,
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>,
+  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>,
+  variation: string | null = null
+): void => {
   const value = event?.target?.value;
 
   if (value === 0) {
@@ -84,7 +90,7 @@ export const handleChange = (
   setFormData((prevData) => ({
     ...prevData,
     [key]: {
-      ...prevData[key],
+      ...(prevData[key] as object || {}),
       type: action,
       level: value,
       ...(!!variation && { variation }),
@@ -92,7 +98,13 @@ export const handleChange = (
   }));
 };
 
-export const handleSelectionChange = (event, maxItems, action, setSelectedItems, setFormData) => {
+export const handleSelectionChange = (
+  event: { target: { value: string[] } },
+  maxItems: number,
+  action: string,
+  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>,
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>
+): void => {
   const { value } = event.target;
 
   if (value.length <= maxItems) {

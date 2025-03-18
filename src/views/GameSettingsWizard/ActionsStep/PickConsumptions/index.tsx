@@ -1,35 +1,45 @@
 import { Typography } from '@mui/material';
 import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
 import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
 import { populateSelections, handleChange, updateFormDataWithDefaults } from '../helpers';
 import MultiSelect from '@/components/MultiSelect';
+import { FormData } from '@/types';
+import { SelectChangeEvent } from '@mui/material/Select';
+
+interface PickConsumptionsProps {
+  formData: FormData;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
+  options: (actionType: string) => Array<{value: string, label: string}>;
+  actionsList: any;
+}
 
 const MAX_CONSUME = 2;
 
-export default function PickConsumptions({ formData, setFormData, options, actionsList }) {
+export default function PickConsumptions({ formData, setFormData, options, actionsList }: PickConsumptionsProps) {
   const action = 'consumption';
   const optionList = options(action);
 
   const initialConsumptions = populateSelections(formData, optionList, action);
-  const [selectedConsumptions, setSelectedConsumptions] = useState(initialConsumptions);
+  const [selectedConsumptions, setSelectedConsumptions] = useState<string[]>(initialConsumptions);
 
-  const handleConsumptionChange = (event) => {
+  const handleConsumptionChange = (event: SelectChangeEvent<string[]>) => {
     const { value } = event.target;
+    const valueArray = typeof value === 'string' ? value.split(',') : value;
 
-    if (value.length <= MAX_CONSUME) {
-      setSelectedConsumptions(value);
-      updateFormDataWithDefaults(value, action, setFormData);
+    if (valueArray.length <= MAX_CONSUME) {
+      setSelectedConsumptions(valueArray);
+      updateFormDataWithDefaults(valueArray, action, setFormData);
     }
   };
 
-  const variationChange = (event, selectedItems) => {
-    const updatedFormData = selectedItems.reduce(
+  const variationChange = (event: ChangeEvent<HTMLInputElement>, selectedItems: string[]) => {
+    const updatedFormData = selectedItems.reduce<FormData>(
       (acc, option) => {
         acc[option] = {
-          ...acc[option],
+          ...(acc[option] as object || {}),
           type: action,
           variation: event.target.checked ? 'appendMost' : 'standalone',
         };

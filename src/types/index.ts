@@ -1,4 +1,5 @@
 import { User as FirebaseUser } from 'firebase/auth';
+import { SelectChangeEvent } from '@mui/material/Select';
 // Common types used throughout the application
 
 // Auth related types
@@ -91,4 +92,55 @@ export interface LocalStorageHookReturn<T> {
   storage: T;
   setStorage: (value: T | ((val: T) => T)) => void;
   removeStorage: () => void;
+}
+
+// Form data types
+export interface FormData {
+  [key: string]: any;
+  gameMode?: string;
+  isNaked?: boolean;
+  isAppend?: boolean;
+  room?: string;
+  roomRealtime?: boolean;
+  actions?: any[];
+  consumption?: any[];
+  role?: string;
+}
+
+export interface ActionEntry {
+  type: string;
+  level: number;
+  variation?: string;
+  [key: string]: any;
+}
+
+// Game board types
+export interface Tile {
+  id?: number;
+  title?: string;
+  description?: string;
+  index?: number;
+  [key: string]: any;
+}
+
+export interface BoardType {
+  id: number;
+  title: string;
+  tiles?: Tile[];
+  isActive: number;
+  tags?: string[];
+  gameMode?: string;
+  [key: string]: any;
+}
+
+// Alert state type
+export interface AlertState {
+  message: string;
+  type: 'success' | 'error' | 'info' | 'warning';
+}
+
+// Roll value state
+export interface RollValueState {
+  value: number;
+  time: number;
 }
