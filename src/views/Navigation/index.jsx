@@ -108,7 +108,7 @@ interface WrapPlayersOnlineProps {
 }
 
 const WrapPlayersOnline = forwardRef<HTMLDivElement, WrapPlayersOnlineProps>(
-  (props, ref): ReactElement => <PlayersOnline {...props} innerRef={ref} />
+  (props, ref) => <PlayersOnline {...props} innerRef={ref} />
 );
 
 WrapPlayersOnline.displayName = 'WrapPlayersOnline';

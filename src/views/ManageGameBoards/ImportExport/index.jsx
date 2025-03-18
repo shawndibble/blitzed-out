@@ -127,7 +127,8 @@ export default function ImportExport({ open, close, setAlert, board }: ImportExp
     if (open) {
       exportBoard();
     }
-  }, [open, board]); // Add board as dependency since exportBoard uses it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]); // Removed board dependency to avoid circular reference
 
   return (
     <>

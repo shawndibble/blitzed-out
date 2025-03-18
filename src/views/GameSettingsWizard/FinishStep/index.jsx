@@ -43,7 +43,8 @@ export default function FinishStep({
       newData.finishRange = no;
     }
     setFormData(newData);
-  }, [formData, no, yesFinishRange, setFormData]); // Include dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData, no, yesFinishRange]); // Removed setFormData to avoid unnecessary rerenders
 
   async function handleSubmit(): Promise<void> {
     await submitSettings(formData, actionsList);

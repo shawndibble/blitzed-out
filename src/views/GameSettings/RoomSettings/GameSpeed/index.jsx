@@ -67,7 +67,7 @@ export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JS
             id="tile-count-select"
             value={formData?.roomTileCount || 40}
             label={t('roomTileCount')}
-            onChange={(event: SelectChangeEvent<string>) =>
+            onChange={(event: SelectChangeEvent) =>
               setFormData({
                 ...formData,
                 roomTileCount: Number(event.target.value),

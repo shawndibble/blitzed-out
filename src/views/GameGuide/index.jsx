@@ -15,7 +15,7 @@ interface GameGuideProps {
 
 export default function GameGuide({ open = true, close = null, isMobile = null }: GameGuideProps): JSX.Element {
   const [expanded, setExpanded] = useState<string | false>('panel1');
-  const handleChange = (panel: string) => (_event: SyntheticEvent, newExpanded: boolean) => {
+  const handleChange = (panel: string) => (_event: SyntheticEvent<Element, Event>, newExpanded: boolean) => {
     setExpanded(newExpanded ? panel : false);
   };
 

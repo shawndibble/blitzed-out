@@ -162,10 +162,10 @@ export default function MenuDrawer(): JSX.Element {
     </ListItem>
   ));
 
-  const renderDialog = <T extends Record<string, any>>(
-    Component: React.ComponentType<T>, 
+  const renderDialog = <T,>(
+    Component: React.ComponentType<T & { open: boolean; close: () => void; isMobile: boolean }>, 
     dialogKey: keyof DialogState, 
-    props: Omit<T, 'open' | 'close' | 'isMobile'> = {} as any
+    props: Partial<T> = {} as any
   ): JSX.Element => (
     <Suspense fallback={<div>Loading...</div>}>
       <Component

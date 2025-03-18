@@ -65,7 +65,7 @@ export default function GameSettings({ closeDialog }: GameSettingsProps): JSX.El
         displayName: event.target.value,
       }));
     },
-    []
+    [setFormData]
   );
 
   const onEnterKey = useCallback(
@@ -78,7 +78,7 @@ export default function GameSettings({ closeDialog }: GameSettingsProps): JSX.El
         handleSubmit(event as unknown as FormEvent<HTMLFormElement>);
       }
     },
-    [handleSubmit]
+    [handleSubmit, setFormData]
   );
 
   if (!formData.room || isLoading) {

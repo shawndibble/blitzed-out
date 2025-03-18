@@ -35,7 +35,7 @@ export default function PickActions({
   const optionList = options(action);
 
   const initialActions = populateSelections(formData, optionList, action);
-  const [selectedActions, setSelectedActions] = useState<string[]>(initialActions);
+  const [selectedActions, setSelectedActions] = useState<string[]>(initialActions || []);
 
   const handleActionChange = (event: SelectChangeEvent<string[]>): void => {
     const { value } = event.target;

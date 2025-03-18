@@ -139,7 +139,7 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
             control={
               <Switch 
                 checked={isRangeMode} 
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setIsRangeMode(e.target.checked)} 
+                onChange={(e) => setIsRangeMode(e.target.checked)} 
               />
             }
             label={t('useRandomRange')}
