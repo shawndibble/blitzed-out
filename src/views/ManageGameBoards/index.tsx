@@ -34,7 +34,10 @@ interface GameBoardProps {
 
 export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   const gameBoards = useLiveQuery(getBoards);
-  const [alert, setAlert] = useState<AlertState | null>(null);
+  const [alert, setAlert] = useState<{
+    message: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+  } | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<number | false>(false);
   const [expandedElement, setExpanded] = useState<number | false>(false);
   const settings = useLocalStorage('gameSettings')[0];
@@ -44,14 +47,14 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     return null;
   }
 
-  const getFinishRange = (tiles) => {
+  const getFinishRange = (tiles: any[]) => {
     const lastTile = tiles[tiles.length - 1];
     const percentageValues = lastTile.description.match(/\d+%/g);
     return percentageValues;
   };
 
-  async function createGameMessage({ title, tiles }) {
-    const gameTileTitles = tiles.map(({ title: tileTitle }) => `* ${tileTitle} \n`);
+  async function createGameMessage({ title, tiles }: { title: string; tiles: any[] }) {
+    const gameTileTitles = tiles.map(({ title: tileTitle }: { title: string }) => `* ${tileTitle} \n`);
     // remove our start and finish tiles from the list.
     gameTileTitles.pop();
     gameTileTitles.shift();
@@ -76,13 +79,13 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     }
 
     await sendMessage({
-      room: settings.room || 'PUBLIC',
+      room: settings?.room || 'PUBLIC',
       user,
       text: message,
       type: 'settings',
       gameBoardId: gameBoard.id,
       boardSize: tiles.length,
-      gameMode: settings.gameMode,
+      gameMode: settings?.gameMode,
     });
   }
 
@@ -91,31 +94,33 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     setExpanded(boardId);
   };
 
-  const enableBoard = (board) => {
+  const enableBoard = (board: any) => {
     activateBoard(board.id);
     createGameMessage(board);
     setAlert({ message: t('boardEnabled'), type: 'success' });
   };
 
-  const confirmDelete = (boardId) => {
+  const confirmDelete = (boardId: number) => {
     setConfirmDialog(boardId);
   };
 
   const deleteGameBoard = () => {
-    deleteBoard(confirmDialog);
-    setConfirmDialog(0);
+    if (typeof confirmDialog === 'number') {
+      deleteBoard(confirmDialog);
+    }
+    setConfirmDialog(false);
   };
 
-  const handleExpand = (panel) => (_event, newExpanded) => {
+  const handleExpand = (panel: number) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
     setExpanded(newExpanded ? panel : false);
   };
 
-  const invalidBoard = (board) =>
-    !board.tiles || board.tiles.length !== (settings.roomTileCount || 40);
+  const invalidBoard = (board: any) =>
+    !board.tiles || board.tiles.length !== (settings?.roomTileCount || 40);
 
-  const getSwitchTooltip = (board) => {
+  const getSwitchTooltip = (board: any) => {
     if (invalidBoard(board)) {
-      return t('boardWrongSize', { size: settings.roomTileCount || 40 });
+      return t('boardWrongSize', { size: settings?.roomTileCount || 40 });
     }
     if (board.isActive) {
       return t('boardActive');
@@ -189,7 +194,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
               <AccordionDetails>
                 <ImportExport
                   open={open}
-                  close={handleExpand(null)}
+                  close={() => handleExpand(board.id)(null as any, false)}
                   setAlert={setAlert}
                   board={board}
                 />
@@ -201,7 +206,6 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
       <ToastAlert
         open={!!alert?.message}
         type={alert?.type || 'error'}
-        setOpen={setAlert}
         close={() => setAlert(null)}
       >
         {alert?.message}

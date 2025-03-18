@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Box, Button, CircularProgress, Divider, Step, StepLabel, Stepper } from '@mui/material';
+import { Box, Button, Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { Trans } from 'react-i18next';
 import RoomStep from './RoomStep';
 import GameModeStep from './GameModeStep';
@@ -18,7 +18,7 @@ interface GameSettingsWizardProps {
 
 export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const { id: room } = useParams<{ id: string }>();
-  const [step, setStep] = useState<number | string>(1);
+  const [step, setStep] = useState<number>(1);
 
   const overrideSettings: Record<string, any> = { room };
   if (isPublicRoom(room || '')) {
@@ -27,13 +27,14 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     overrideSettings.roomRealtime = true;
   }
 
-  const [formData, setFormData] = useSettingsToFormData<FormData>(
+  const [formData, setFormData] = useSettingsToFormData<FormData & Partial<Settings>>(
     {
       gameMode: 'online',
       roomRealtime: true,
       actions: [],
       consumption: [],
       role: 'sub',
+      boardUpdated: false,
     },
     overrideSettings
   );
@@ -46,29 +47,35 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     if (!initialLoad.current) return;
     initialLoad.current = false;
 
-    if (formData.advancedSettings) return goToAdvanced();
+    if (formData.advancedSettings) {
+      goToAdvanced();
+      return;
+    }
 
     // if we do not have a close() then this dialog opened b/c we need to set up a game.
     // this also means we need to do all steps.
     if (typeof close !== 'function') return;
 
     // If we are in the public room, then we can skip to step 3.
-    if (isPublicRoom(room)) return setStep(3);
+    if (isPublicRoom(room)) {
+      setStep(3);
+      return;
+    }
 
     setStep(2);
   }, [formData]);
 
-  const nextStep = (count) => {
+  const nextStep = (count?: number) => {
     if (!Number.isInteger(count)) return setStep(step + 1);
     setStep(step + count);
   };
 
-  const prevStep = (count) => {
+  const prevStep = (count?: number) => {
     if (!Number.isInteger(count)) return setStep(step - 1);
     setStep(step - count);
   };
 
-  const goToAdvanced = () => setStep('advanced');
+  const goToAdvanced = () => setStep(0); // Use 0 to represent 'advanced'
 
   const renderStep = () => {
     switch (step) {
@@ -108,7 +115,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     }
   };
 
-  if (step === 'advanced') return <GameSettings closeDialog={close} />;
+  if (step === 0) return <GameSettings closeDialog={close} />;
 
   return (
     <Box>

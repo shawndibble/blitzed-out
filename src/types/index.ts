@@ -1,5 +1,5 @@
 import { User as FirebaseUser } from 'firebase/auth';
-import { SelectChangeEvent } from '@mui/material/Select';
+import { SelectChangeEvent as MuiSelectChangeEvent } from '@mui/material/Select';
 // Common types used throughout the application
 
 // Auth related types
@@ -137,6 +137,27 @@ export interface BoardType {
 export interface AlertState {
   message: string;
   type: 'success' | 'error' | 'info' | 'warning';
+}
+
+// Settings interface
+export interface Settings {
+  boardUpdated: boolean;
+  roomUpdated?: boolean;
+  playerDialog?: boolean;
+  othersDialog?: boolean;
+  mySound?: boolean;
+  otherSound?: boolean;
+  chatSound?: boolean;
+  readRoll?: boolean;
+  hideBoardActions?: boolean;
+  locale?: string;
+  gameMode?: string;
+  background?: string;
+  finishRange?: number[];
+  roomTileCount?: number;
+  roomDice?: string;
+  room?: string;
+  [key: string]: any;
 }
 
 // Roll value state
