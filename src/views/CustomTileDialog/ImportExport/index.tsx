@@ -131,11 +131,9 @@ export default function ImportExport({
             sx={{ pb: 2 }}
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
-            slotProps={{
-              input: {
-                endAdornment: <CopyToClipboard text={inputValue} />,
-                sx: { alignItems: 'flex-start' },
-              },
+            InputProps={{
+              endAdornment: <CopyToClipboard text={inputValue} />,
+              sx: { alignItems: 'flex-start' },
             }}
           />
           <Button fullWidth variant="contained" type="button" onClick={() => importTiles(formData)}>
