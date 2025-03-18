@@ -13,7 +13,7 @@ import React from 'react';
 import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 
-interface DialogResult {
+export interface DialogResult {
   message: Message | false;
   setMessage: React.Dispatch<React.SetStateAction<Message | false>>;
   isMyMessage: boolean;

@@ -1,5 +1,14 @@
 import { Help } from '@mui/icons-material';
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, SxProps, Theme } from '@mui/material';
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  SxProps,
+  Theme,
+} from '@mui/material';
+import { t } from 'i18next';
 import { forwardRef, ReactNode } from 'react';
 import { Trans } from 'react-i18next';
 
@@ -37,11 +46,11 @@ const SettingsSelect = forwardRef<HTMLDivElement, SettingsSelectProps>(
     },
     ref
   ) => {
-    const items = options.map((option) => {
+    const items = options.map((option: Option) => {
       if (typeof option === 'string') {
         return (
           <MenuItem key={option} value={option}>
-            <Trans i18nKey={option} />
+            {t(option)}
           </MenuItem>
         );
       }

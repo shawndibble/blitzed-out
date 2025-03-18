@@ -11,11 +11,7 @@ import { extractAction, extractTime } from '@/helpers/strings';
 import useCountdown from '@/hooks/useCountdown';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-
-interface Player {
-  displayName: string;
-  isSelf: boolean;
-}
+import { Player } from '@/types/player';
 
 interface TransitionModalProps {
   open: boolean;
@@ -23,7 +19,7 @@ interface TransitionModalProps {
   displayName?: string;
   handleClose: () => void;
   stopAutoClose?: () => void;
-  nextPlayer?: Player | string;
+  nextPlayer: Player | null;
   isMyMessage?: boolean;
 }
 
@@ -48,7 +44,7 @@ export default function TransitionModal({
   displayName = '',
   handleClose,
   stopAutoClose = () => null,
-  nextPlayer = '',
+  nextPlayer = null,
   isMyMessage = false,
 }: TransitionModalProps): JSX.Element {
   const { t } = useTranslation();

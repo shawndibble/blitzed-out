@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 import usePlayerList from './usePlayerList';
-
-interface Player {
-  uid: string;
-  isFinished: boolean;
-  [key: string]: any;
-}
+import { Player } from '@/types/player';
 
 interface Message {
   uid: string;

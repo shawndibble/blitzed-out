@@ -19,7 +19,7 @@ import GameBoard from '@/views/Room/GameBoard';
 import BottomTabs from './BottomTabs';
 import RollButton from './RollButton';
 import './styles.css';
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getActiveBoard } from '@/stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -99,7 +99,7 @@ export default function Room() {
       />
 
       <RoomBackground isVideo={isVideo} url={url} />
-      <TurnIndicator room={room} />
+      <TurnIndicator />
       {isMobile ? (
         <Box className="mobile-container">
           <BottomTabs tab1={GameBoardComponent} tab2={messagesComponent} />

@@ -112,6 +112,7 @@ export const getCustomTileGroups = async (
     const group = tile.group;
     if (!groups[group]) {
       groups[group] = {
+        label: group,
         count: 0,
         intensities: {},
       };

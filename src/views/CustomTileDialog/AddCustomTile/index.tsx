@@ -63,7 +63,7 @@ export default function AddCustomTile({
 
           // Add intensity to the group
           if (intensity !== undefined) {
-            processedGroups[value].intensities[intensity] = true;
+            processedGroups[value].intensities[intensity] = 1;
           }
         });
       }
@@ -178,6 +178,7 @@ export default function AddCustomTile({
       action,
       tags: currentTags,
       gameMode,
+      isCustom: 1,
     };
 
     // send action to firebase for review
@@ -288,10 +289,10 @@ export default function AddCustomTile({
                 intensity: '',
               }));
             }}
-            onIntensityChange={(value: number) => {
+            onIntensityChange={(value: string | number) => {
               setFormData((prevFormData) => ({
                 ...prevFormData,
-                intensity: value,
+                intensity: Number(value),
               }));
             }}
             hideAll

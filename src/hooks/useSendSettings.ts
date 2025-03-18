@@ -10,7 +10,7 @@ import { getActiveTiles } from '@/stores/customTiles';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveBoard } from '@/stores/gameBoard';
 import { isPublicRoom } from '@/helpers/strings';
-import { Message } from '@/types/Message';
+import { Message, RoomMessage } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 import { DBGameBoard } from '@/types/gameBoard';
 import { User } from '@/types';
@@ -18,7 +18,7 @@ import { User } from '@/types';
 function isCompatibleBoard(
   isPrivateRoom: boolean,
   boardSize: number,
-  latestRoomMessage?: Message,
+  latestRoomMessage?: RoomMessage,
   roomTileCount?: number
 ): boolean {
   if (!isPrivateRoom && boardSize === 40) return true;
@@ -48,7 +48,7 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
     const isPrivateRoom = !isPublicRoom(room || '');
     const formData = { ...settings, room };
     // send out room specific settings if we are in a private room.
-    const latestRoomMessage = latestMessageByType(messages, 'room') as Message | undefined;
+    const latestRoomMessage = latestMessageByType(messages, 'room') as RoomMessage | undefined;
     if (isPrivateRoom && !latestRoomMessage) {
       await sendRoomSettingsMessage(formData, user);
     }

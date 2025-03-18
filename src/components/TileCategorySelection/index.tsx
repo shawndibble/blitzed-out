@@ -1,28 +1,28 @@
-import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, SxProps, Theme } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  SxProps,
+  Theme,
+} from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import groupActionsFolder from '@/helpers/actionsFolder';
-import { AllGameModeActions, MappedGroup } from '@/types/customTiles';
+import { AllGameModeActions, MappedGroup, ProcessedGroups } from '@/types/customTiles';
 import { GameMode } from '@/types/Settings';
-
-interface GroupIntensity {
-  intensities?: Record<string, number>;
-  count?: number;
-}
-
-interface Groups {
-  [key: string]: GroupIntensity;
-}
 
 interface TileCategorySelectionProps {
   gameMode: GameMode | string;
   groupFilter: string;
   intensityFilter: number | string;
-  groups: Groups;
+  groups: ProcessedGroups;
   mappedGroups: AllGameModeActions;
   onGameModeChange: (value: string) => void;
   onGroupChange: (value: string) => void;
-  onIntensityChange: (value: number | string) => void;
+  onIntensityChange: (value: string | number) => void;
   hideAll?: boolean;
   sx?: SxProps<Theme>;
 }
@@ -112,9 +112,11 @@ export default function TileCategorySelection({
         >
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
-              {mappedGroups?.[gameMode as GameMode] && Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
-                ? (groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]).find((g) => g.value === group)
-                    ?.groupLabel || group
+              {mappedGroups?.[gameMode as GameMode] &&
+              Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
+                ? (groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]).find(
+                    (g) => g.value === group
+                  )?.groupLabel || group
                 : group}
               {!hideAll && groups[group] && ` (${groups[group].count})`}
             </MenuItem>
@@ -150,7 +152,9 @@ export default function TileCategorySelection({
                 <MenuItem key={intensity} value={Number(intensity)}>
                   {mappedGroups?.[gameMode as GameMode] &&
                   Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
-                    ? (groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]).find(
+                    ? (
+                        groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]
+                      ).find(
                         (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
                       )?.translatedIntensity || `Level ${intensity}`
                     : `Level ${intensity}`}

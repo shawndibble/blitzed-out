@@ -13,6 +13,7 @@ import './styles.css';
 import useFullscreenStatus from '@/hooks/useFullscreenStatus';
 import { ActionCard } from '@/types/cast';
 import { Message } from '@/types/Message';
+import '@/types/window';
 
 const ACTION_TYPE = 'actions';
 
@@ -27,19 +28,6 @@ const actionCard = (lastAction: Message): ActionCard => {
 
   return { displayName, type, activity };
 };
-
-// Define the Cast interface for window
-
-// Define the window with cast properties
-declare global {
-  interface Window {
-    cast?: {
-      framework?: {
-        CastReceiverContext?: any;
-      };
-    };
-  }
-}
 
 export default function Cast() {
   const { id: room } = useParams<{ id: string }>();

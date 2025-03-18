@@ -1,6 +1,6 @@
 import latestMessageByType from '@/helpers/messages';
 import { processBackground } from '@/services/getBackgroundSource';
-import { Message } from '@/types/Message';
+import { Message, RoomMessage } from '@/types/Message';
 
 interface BackgroundSource {
   isVideo?: boolean;
@@ -13,7 +13,7 @@ interface BackgroundResult {
 }
 
 export default function usePrivateRoomBackground(messages: Message[]): BackgroundResult {
-  const roomMessage = latestMessageByType(messages, 'room') as Message | undefined;
+  const roomMessage = latestMessageByType(messages, 'room') as RoomMessage | undefined;
   let isVideo = false;
   let url = '';
 

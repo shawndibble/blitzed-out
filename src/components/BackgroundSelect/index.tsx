@@ -1,5 +1,12 @@
-import { FormControl, InputLabel, MenuItem, Select, TextField, SelectChangeEvent } from '@mui/material';
-import { useEffect, useState, ChangeEvent, ReactNode } from 'react';
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  SelectChangeEvent,
+} from '@mui/material';
+import { useEffect, useState, ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Settings } from '@/types/Settings';
 
@@ -10,11 +17,11 @@ interface BackgroundSelectProps {
   isRoom?: boolean;
 }
 
-export default function BackgroundSelect({ 
-  formData, 
-  setFormData, 
-  backgrounds, 
-  isRoom = false 
+export default function BackgroundSelect({
+  formData,
+  setFormData,
+  backgrounds,
+  isRoom = false,
 }: BackgroundSelectProps): JSX.Element {
   const { t } = useTranslation();
   const backgroundKey = !isRoom ? 'background' : 'roomBackground';
@@ -47,7 +54,7 @@ export default function BackgroundSelect({
       [backgroundKey]: 'custom',
       [backgroundURLKey]: event.target.value,
     } as Settings;
-    
+
     if (isRoom) {
       data.roomUpdated = true;
     }

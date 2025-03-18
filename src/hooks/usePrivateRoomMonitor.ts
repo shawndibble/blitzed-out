@@ -11,7 +11,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/customTiles';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
-import { Message } from '@/types/Message';
+import { RoomMessage } from '@/types/Message';
 import { GameBoard } from '@/types/gameBoard';
 
 interface PrivateRoomMonitorResult {
@@ -65,7 +65,7 @@ export default function usePrivateRoomMonitor(
     if (isLoading) return;
 
     try {
-      const roomMessage = latestMessageByType(messages, 'room') as Message | undefined;
+      const roomMessage = latestMessageByType(messages, 'room') as RoomMessage | undefined;
       if (roomMessage) {
         const messageSettings = JSON.parse(roomMessage.settings);
         const { roomDice, roomBackgroundURL, roomTileCount } = messageSettings;

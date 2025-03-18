@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef, ReactNode } from 'react';
+import { useEffect, useMemo, useState, useRef, ReactNode, createContext } from 'react';
 import { getAuth, User } from 'firebase/auth';
 import {
   loginAnonymously,
@@ -34,7 +34,7 @@ export interface AuthContextType {
   isAnonymous: boolean;
 }
 
-export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;

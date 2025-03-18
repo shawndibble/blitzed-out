@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Login from './Login';
 import CreateAccount from './CreateAccount';
 import SocialLoginButtons from './SocialLoginButtons';
@@ -7,7 +7,7 @@ import DialogWrapper from '../DialogWrapper';
 import ResetPasswordForm from './ResetPasswordForm';
 import { useTranslation } from 'react-i18next';
 
-type AuthView = 'login' | 'register' | 'reset';
+export type AuthView = 'login' | 'register' | 'reset';
 
 interface AuthDialogProps {
   open: boolean;
@@ -15,10 +15,10 @@ interface AuthDialogProps {
   initialView?: AuthView;
 }
 
-export default function AuthDialog({ 
-  open, 
-  close, 
-  initialView = 'login' 
+export default function AuthDialog({
+  open,
+  close,
+  initialView = 'login',
 }: AuthDialogProps): JSX.Element {
   const [currentView, setCurrentView] = useState<AuthView>(initialView);
   const { isAnonymous } = useAuth();

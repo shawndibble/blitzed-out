@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';

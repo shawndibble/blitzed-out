@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
+import { GameMode } from './customTiles';
 
 export type MessageType = 'chat' | 'actions' | 'settings' | 'room' | 'media';
 
@@ -8,7 +9,6 @@ interface BaseMessage {
   text: string;
   displayName: string;
   timestamp: Timestamp;
-  [key: string]: any;
 }
 
 interface ChatMessage extends BaseMessage {
@@ -22,14 +22,18 @@ interface ActionsMessage extends BaseMessage {
 interface SettingsMessage extends BaseMessage {
   type: 'settings';
   settings?: string;
+  boardSize: number;
+  gameBoardId: string;
+  gameMode: GameMode;
 }
 
-interface RoomMessage extends BaseMessage {
+export interface RoomMessage extends BaseMessage {
   type: 'room';
   settings: string;
   boardSize: number;
   gameBoardId: string;
-  gameMode: 'online' | 'solo';
+  gameMode: GameMode;
+  roomTileCount: number;
 }
 
 interface MediaMessage extends BaseMessage {

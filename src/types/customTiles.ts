@@ -5,7 +5,7 @@ export interface CustomTileBase {
   action: string;
   tags: string[];
   isEnabled?: number | boolean;
-  isCustom?: number | boolean;
+  isCustom: number;
   gameMode?: string;
   locale?: string;
 }
@@ -45,10 +45,11 @@ export interface GroupedActions {
 }
 
 export interface ProcessedGroup {
-  label: string;
+  label?: string;
   intensities: {
-    [key: string]: boolean;
+    [key: number]: number;
   };
+  count?: number;
 }
 
 export interface ProcessedGroups {

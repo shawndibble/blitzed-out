@@ -43,7 +43,22 @@ export default function Message({
     setDialog(false);
   }, []);
 
-  const { id, displayName, text, uid, timestamp, type, boardSize, image, gameBoardId } = message;
+  // Destructure common properties
+  const { id, displayName, text, uid, timestamp, type } = message;
+
+  // Then conditionally access type-specific properties
+  let boardSize, gameBoardId, image;
+
+  if (type === 'settings' || type === 'room') {
+    // TypeScript knows these properties exist on settings and room messages
+    boardSize = (message as any).boardSize;
+    gameBoardId = (message as any).gameBoardId;
+  }
+
+  if (type === 'media') {
+    // TypeScript knows this property exists on media messages
+    image = (message as any).image;
+  }
 
   const isImportable = type === 'settings' && boardSize === currentGameBoardSize;
 

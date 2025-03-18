@@ -12,7 +12,7 @@ export default function ActionText({ text }: ActionTextProps): ReactNode {
   const { t } = useTranslation();
   const seconds = extractTime(text, t('seconds'));
 
-  let fixedText = text;
+  let fixedText: string | ReactNode[] = text;
 
   seconds?.forEach((secondString) => {
     if (secondString) {

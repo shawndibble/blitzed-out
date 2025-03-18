@@ -5,19 +5,15 @@ import useMessages from '@/context/hooks/useMessages';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
-import { Message } from '@/types/Message';
+import { Settings } from '@/types/Settings';
 
-interface TurnIndicatorProps {
-  room: string;
-}
-
-export default function TurnIndicator({ room }: TurnIndicatorProps): JSX.Element | null {
+export default function TurnIndicator(): JSX.Element | null {
   const { messages } = useMessages();
   const [showToast, setShowToast] = useState<boolean>(false);
   const message = latestMessageByType(messages, 'actions');
   const lastMessage = latestMessage(messages);
   const player = useTurnIndicator(message);
-  const { playerDialog, othersDialog } = useLocalStorage('gameSettings')[0];
+  const { playerDialog, othersDialog } = useLocalStorage('gameSettings')[0] as Settings;
 
   useEffect(() => {
     if (!player || lastMessage !== message) return;
@@ -48,6 +44,6 @@ export default function TurnIndicator({ room }: TurnIndicatorProps): JSX.Element
       </ToastAlert>
     );
   }
-  
+
   return null;
 }

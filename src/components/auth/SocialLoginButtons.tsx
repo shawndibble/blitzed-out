@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, Divider, Typography, Alert, CircularProgress } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import { loginWithGoogle } from '@/services/firebase';
 import { Trans } from 'react-i18next';
+import { t } from 'i18next';
 
 interface SocialLoginButtonsProps {
   onSuccess?: () => void;
   isLinking?: boolean;
 }
 
-export default function SocialLoginButtons({ 
-  onSuccess, 
-  isLinking = false 
+export default function SocialLoginButtons({
+  onSuccess,
+  isLinking = false,
 }: SocialLoginButtonsProps): JSX.Element {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -57,9 +58,9 @@ export default function SocialLoginButtons({
         {loading ? (
           <CircularProgress size={24} />
         ) : isLinking ? (
-          <Trans i18nKey="linkWithGoogle">Link with Google</Trans>
+          t('linkWithGoogle', 'Link with Google')
         ) : (
-          <Trans i18nKey="signInWithGoogle">Sign in with Google</Trans>
+          t('signInWithGoogle', 'Sign in with Google')
         )}
       </Button>
     </Box>

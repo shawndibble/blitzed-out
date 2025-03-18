@@ -1,10 +1,11 @@
-import React, { useState, FormEvent, ChangeEvent } from 'react';
+import { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Alert, CircularProgress } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import { Trans } from 'react-i18next';
+import { AuthView } from './AuthDialog';
 
 interface ResetPasswordFormProps {
-  onToggleForm: (view: string) => void;
+  onToggleForm: (view: AuthView) => void;
 }
 
 export default function ResetPasswordForm({ onToggleForm }: ResetPasswordFormProps): JSX.Element {

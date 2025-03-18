@@ -20,6 +20,7 @@ export interface CustomTileFilters {
 }
 
 export interface CustomTileGroup {
+  label: string;
   count: number;
   intensities: {
     [key: number]: number;

@@ -1,57 +1,44 @@
-import React, { useState, FormEvent, ChangeEvent } from 'react';
-import { Box, Button, TextField, Link, Alert, CircularProgress } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
-import { t } from 'i18next';
-import { Trans } from 'react-i18next';
+import { useState, FormEvent, ChangeEvent } from 'react';
+import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
+import { Trans, useTranslation } from 'react-i18next';
+import { registerWithEmail } from '@/services/firebase';
 
-interface RegisterFormProps {
-  onToggleForm: (view: string) => void;
+interface CreateAccountProps {
   onSuccess?: () => void;
+  onSwitchToLogin: () => void;
   isAnonymous?: boolean;
 }
 
-export default function RegisterForm({ 
-  onToggleForm, 
-  onSuccess, 
-  isAnonymous = false 
-}: RegisterFormProps): JSX.Element {
+export default function CreateAccount({
+  onSuccess,
+  onSwitchToLogin,
+  isAnonymous = false,
+}: CreateAccountProps): JSX.Element {
+  const { t } = useTranslation();
+  const [displayName, setDisplayName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [displayName, setDisplayName] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-
-  const { register, convertToRegistered } = useAuth();
-
-  const validateForm = (): boolean => {
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return false;
-    }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return false;
-    }
-    return true;
-  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
-    if (!validateForm()) return;
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError(t('passwordsDoNotMatch') || 'Passwords do not match');
+      return;
+    }
 
     setLoading(true);
 
     try {
-      if (isAnonymous) {
-        await convertToRegistered(email, password);
-      } else {
-        await register(email, password, displayName);
-      }
+      await registerWithEmail(email?.trim(), password, displayName?.trim());
       if (onSuccess) onSuccess();
     } catch (err: any) {
+      console.error('Registration error:', err);
       setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
@@ -66,19 +53,18 @@ export default function RegisterForm({
         </Alert>
       )}
 
-      {!isAnonymous && (
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="displayName"
-          label={t('displayName')}
-          name="displayName"
-          autoFocus
-          value={displayName}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
-        />
-      )}
+      <TextField
+        margin="normal"
+        required
+        fullWidth
+        id="displayName"
+        label={t('displayName')}
+        name="displayName"
+        autoComplete="name"
+        autoFocus
+        value={displayName}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
+      />
 
       <TextField
         margin="normal"
@@ -88,7 +74,6 @@ export default function RegisterForm({
         label={t('email')}
         name="email"
         autoComplete="email"
-        autoFocus={isAnonymous}
         value={email}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
       />
@@ -114,6 +99,7 @@ export default function RegisterForm({
         label={t('confirmPassword')}
         type="password"
         id="confirmPassword"
+        autoComplete="new-password"
         value={confirmPassword}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value)}
       />
@@ -121,18 +107,18 @@ export default function RegisterForm({
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>
         {loading ? (
           <CircularProgress size={24} />
+        ) : isAnonymous ? (
+          <Trans i18nKey="linkAccount" />
         ) : (
-          <Trans i18nKey={isAnonymous ? 'convertAccount' : 'createAccount'} />
+          <Trans i18nKey="createAccount" />
         )}
       </Button>
 
-      {!isAnonymous && (
-        <Box sx={{ textAlign: 'center' }}>
-          <Link component="button" variant="body2" onClick={() => onToggleForm('login')}>
-            <Trans i18nKey="alreadyHaveAccount" /> <Trans i18nKey="signIn" />
-          </Link>
-        </Box>
-      )}
+      <Typography align="center">
+        <Button onClick={onSwitchToLogin} variant="text">
+          <Trans i18nKey="alreadyHaveAccount" />
+        </Button>
+      </Typography>
     </Box>
   );
 }

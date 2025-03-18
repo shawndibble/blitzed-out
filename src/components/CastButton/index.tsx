@@ -2,42 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import CastIcon from '@mui/icons-material/Cast';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
-import { useParams } from 'react-router-dom';
+import { Params, useParams } from 'react-router-dom';
 import { t } from 'i18next';
-
-// Extend Window interface to include cast-related properties
-declare global {
-  interface Window {
-    __castApiInitialized?: boolean;
-    __onGCastApiAvailable?: (isAvailable: boolean) => void;
-    chrome?: {
-      cast?: {
-        AutoJoinPolicy?: {
-          ORIGIN_SCOPED: string;
-        };
-      };
-    };
-    cast?: {
-      framework?: {
-        CastContext: {
-          getInstance: () => any;
-        };
-        CastContextEventType: {
-          SESSION_STATE_CHANGED: string;
-        };
-        SessionState: {
-          SESSION_STARTED: string;
-          SESSION_RESUMED: string;
-          SESSION_ENDED: string;
-        };
-      };
-    };
-  }
-}
-
-interface Params {
-  id: string;
-}
 
 // Global flag to track if Cast API has been initialized
 window.__castApiInitialized = window.__castApiInitialized || false;
@@ -54,7 +20,7 @@ export default function CastButton(): JSX.Element | null {
     // Function to initialize the Cast API
     const initializeCastApi = () => {
       try {
-        if (!window.cast || !window.cast.framework) {
+        if (!window?.cast?.framework) {
           return;
         }
 
@@ -97,9 +63,11 @@ export default function CastButton(): JSX.Element | null {
           }
         }
 
+        if (!window?.cast?.framework) return;
+
         // Set up session state listener
         castContext.addEventListener(
-          window.cast?.framework?.CastContextEventType.SESSION_STATE_CHANGED,
+          window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
           (event: { sessionState: string }) => {
             const session = castContext.getCurrentSession();
 

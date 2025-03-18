@@ -4,12 +4,8 @@ import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
 import { useCallback, ChangeEvent, KeyboardEvent, FocusEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { Params, useParams } from 'react-router-dom';
 import { Settings, GameMode } from '@/types/Settings';
-
-interface Params {
-  id: string;
-}
 
 interface RoomSwitchProps {
   formData: Settings;
@@ -25,7 +21,7 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
 
     if (event.target.checked && isPublicRoom(room)) {
       roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
-    } else if (event.target.checked && !isPublicRoom(room)) {
+    } else if (!!room && event.target.checked && !isPublicRoom(room)) {
       roomId = room;
     } else {
       roomId = 'PUBLIC';
@@ -34,12 +30,12 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
     setFormData({
       ...formData,
       room: roomId,
-      gameMode: isPublicRoom(roomId) ? 'online' as GameMode : formData.gameMode,
+      gameMode: isPublicRoom(roomId) ? ('online' as GameMode) : formData.gameMode,
     });
   };
 
-  const handleChange = useCallback(
-    (event: FocusEvent<HTMLInputElement> | KeyboardEvent<HTMLInputElement>) => {
+  const handleBlur = useCallback(
+    (event: FocusEvent<HTMLInputElement>) => {
       setFormData({
         ...formData,
         room: event.currentTarget.value,
@@ -49,6 +45,18 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
     [formData, setFormData]
   );
 
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        setFormData({
+          ...formData,
+          room: event.currentTarget.value,
+          boardUpdated: true,
+        });
+      }
+    },
+    [formData, setFormData]
+  );
   const isPrivate = !isPublicRoom(formData.room);
   return (
     <>
@@ -89,8 +97,8 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
           label="Private Room"
           defaultValue={formData.room?.toUpperCase()}
           margin="normal"
-          onBlur={handleChange}
-          onKeyDown={handleChange}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
         />
       )}
     </>

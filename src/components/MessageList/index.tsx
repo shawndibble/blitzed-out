@@ -1,5 +1,5 @@
 import { AppBar, Tab, Tabs } from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
 
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
@@ -18,10 +18,10 @@ interface MessageListProps {
   currentGameBoardSize?: number;
 }
 
-export default function MessageList({ 
-  room, 
-  isTransparent, 
-  currentGameBoardSize = 40 
+export default function MessageList({
+  room,
+  isTransparent,
+  currentGameBoardSize = 40,
 }: MessageListProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -49,7 +49,7 @@ export default function MessageList({
     filterMessages(currentTab);
   }, [messages, isLoading, i18n.resolvedLanguage, filterMessages, currentTab]);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }

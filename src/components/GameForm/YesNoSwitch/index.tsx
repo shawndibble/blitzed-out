@@ -1,6 +1,6 @@
 import { Box, FormControlLabel, Switch, SxProps, Theme } from '@mui/material';
-import { Trans } from 'react-i18next';
 import { ChangeEvent } from 'react';
+import { t } from 'i18next';
 
 interface YesNoSwitchProps {
   trueCondition: boolean;
@@ -30,7 +30,7 @@ export default function YesNoSwitch({
     >
       <FormControlLabel
         control={<Switch checked={trueCondition || false} onChange={onChange} />}
-        label={<Trans i18nKey={trueCondition ? yesLabel : actuallyNoLabel} />}
+        label={t(trueCondition ? yesLabel : actuallyNoLabel)}
       />
     </Box>
   );

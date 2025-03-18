@@ -40,7 +40,7 @@ export default function ViewCustomTiles({
   const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [gameModeFilter, setGameModeFilter] = useState<string>(settings.gameMode || 'online');
   const [groupFilter, setGroupFilter] = useState<string>('');
-  const [intensityFilter, setIntensityFilter] = useState<string>('');
+  const [intensityFilter, setIntensityFilter] = useState<string | number>('');
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [tiles, setTiles] = useState<TileData>({ items: [], total: 0, totalPages: 1 });
@@ -292,7 +292,7 @@ export default function ViewCustomTiles({
             setGroupFilter(value);
             setPage(1);
           }}
-          onIntensityChange={(value: string) => {
+          onIntensityChange={(value: string | number) => {
             setIntensityFilter(value);
             setPage(1);
           }}

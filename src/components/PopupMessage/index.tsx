@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef } from 'react';
 import TransitionModal from '@/components/TransitionModal';
-import useSoundAndDialog from '@/hooks/useSoundAndDialog';
+import useSoundAndDialog, { DialogResult } from '@/hooks/useSoundAndDialog';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { useTranslation } from 'react-i18next';
 import { Message } from '@/types/Message';
 
 const PopupMessage = (): JSX.Element | null => {
   const { t } = useTranslation();
-  const { message, setMessage, isMyMessage } = useSoundAndDialog();
+  const { message, setMessage, isMyMessage }: DialogResult = useSoundAndDialog();
   const nextPlayer = useTurnIndicator(message as Message);
 
   // handle timeout of TransitionModal
@@ -32,7 +32,12 @@ const PopupMessage = (): JSX.Element | null => {
   }, []);
   // end handle timeout of TransitionModal.
 
-  if (!message || !message.text || message.text.includes(t('start'))) {
+  if (
+    !message ||
+    typeof message !== 'object' ||
+    !message.text ||
+    message.text.includes(t('start'))
+  ) {
     return null;
   }
 
@@ -40,7 +45,7 @@ const PopupMessage = (): JSX.Element | null => {
     <TransitionModal
       text={message?.text}
       displayName={message?.displayName}
-      open={!!message || !!message?.text}
+      open
       handleClose={closeTransitionModal}
       stopAutoClose={stopAutoClose}
       nextPlayer={nextPlayer}

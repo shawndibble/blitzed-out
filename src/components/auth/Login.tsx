@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, ChangeEvent } from 'react';
+import { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { loginWithEmail } from '@/services/firebase';

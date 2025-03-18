@@ -2,7 +2,7 @@ import useMessages from '@/context/hooks/useMessages';
 import latestMessageByType from '@/helpers/messages';
 import { useEffect, useState, Dispatch, SetStateAction } from 'react';
 import useLocalStorage from './useLocalStorage';
-import { Message } from '@/types/Message';
+import { RoomMessage } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 
 export default function useSettingsToFormData<T extends Settings>(
@@ -20,7 +20,7 @@ export default function useSettingsToFormData<T extends Settings>(
 
   // Import our private room settings into the form data.
   useEffect(() => {
-    const message = latestMessageByType(messages, 'room') as Message | undefined;
+    const message = latestMessageByType(messages, 'room') as RoomMessage | undefined;
 
     if (message?.settings) {
       try {
