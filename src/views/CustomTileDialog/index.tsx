@@ -37,6 +37,7 @@ export default function CustomTileDialog({
   const [allGameModeActions, setAllGameModeActions] = useState<AllGameModeActions>({
     online: {},
     local: {},
+    solo: {},
   });
   const [isLoadingActions, setIsLoadingActions] = useState<boolean>(true);
 
@@ -62,6 +63,7 @@ export default function CustomTileDialog({
         setAllGameModeActions({
           online: onlineActions,
           local: localActions,
+          solo: {}, // Initialize solo game mode actions
         });
       } catch (error) {
         console.error('Error loading game mode actions:', error);
