@@ -9,7 +9,7 @@ interface FinishSliderProps {
 }
 
 export default function FinishSlider({ formData, setFormData }: FinishSliderProps): JSX.Element {
-  const handleChange = (_: Event, newValue: number | number[]): void => {
+  const handleChange = (_: Event | React.SyntheticEvent, newValue: number | number[]): void => {
     setFormData({ ...formData, finishRange: newValue as [number, number], boardUpdated: true });
   };
 

@@ -1,7 +1,7 @@
 import { Save, Share } from '@mui/icons-material';
 import { IconButton, TextField, Tooltip } from '@mui/material';
 import CopyToClipboard from '@/components/CopyToClipboard';
-import { useEffect, useState, ChangeEvent, FocusEvent } from 'react';
+import React, { useEffect, useState, ChangeEvent, FocusEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { updateBoard } from '@/stores/gameBoard';
 

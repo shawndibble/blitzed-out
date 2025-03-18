@@ -1,6 +1,6 @@
 import { Casino } from '@mui/icons-material';
 import { Button, ButtonGroup } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from '@/hooks/useCountdown';

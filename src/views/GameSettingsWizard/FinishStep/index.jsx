@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
+import React, { useEffect, ChangeEvent } from 'react';
 import { Box, Button, FormControlLabel, Switch, Typography } from '@mui/material';
 import { Trans } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import { Settings } from '@/types/Settings';
-import { ChangeEvent } from 'react';
 
 interface FinishStepProps {
   formData: Settings;

@@ -36,7 +36,7 @@ export default function SelectBoardSetting({
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
-  function handleChange(event: SelectChangeEvent<any>, key: string, nestedKey: string): void {
+  function handleChange(event: SelectChangeEvent<any> | any, key: string, nestedKey: string): void {
     setSettings({
       ...settings,
       [key]: {

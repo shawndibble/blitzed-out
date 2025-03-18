@@ -162,7 +162,7 @@ export default function MenuDrawer(): JSX.Element {
     </ListItem>
   ));
 
-  const renderDialog = <T extends object>(
+  const renderDialog = <T extends Record<string, any>>(
     Component: React.ComponentType<T>, 
     dialogKey: keyof DialogState, 
     props: Omit<T, 'open' | 'close' | 'isMobile'> = {} as any
