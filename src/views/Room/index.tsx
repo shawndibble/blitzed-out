@@ -75,7 +75,7 @@ export default function Room() {
     <GameBoard
       playerList={playerList as any}
       isTransparent={isTransparent}
-      gameBoard={gameBoard}
+      gameBoard={gameBoard as any}
       settings={settings as Settings}
     />
   );
