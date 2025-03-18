@@ -15,7 +15,7 @@ import useBreakpoint from '@/hooks/useBreakpoint';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import usePlayerList from '@/hooks/usePlayerList';
 import { languages } from '@/services/importLocales';
-import React, { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from '@/views/Navigation';

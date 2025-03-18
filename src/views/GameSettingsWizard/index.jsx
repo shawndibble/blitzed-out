@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box, Button, CircularProgress, Divider, Step, StepLabel, Stepper } from '@mui/material';
 import { Trans } from 'react-i18next';
 import RoomStep from './RoomStep';
