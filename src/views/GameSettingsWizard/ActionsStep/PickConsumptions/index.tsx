@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
 import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
-import { useState, ChangeEvent } from 'react';
+import { useState } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
 import { populateSelections, handleChange, updateFormDataWithDefaults } from '../helpers';

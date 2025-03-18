@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef } from 'react';
 
 import TextAvatar from '@/components/TextAvatar';
 
+import { GameTileProps } from './types';
+
 export default function GameTile({
   title,
   description,
@@ -11,16 +13,17 @@ export default function GameTile({
   current,
   isTransparent,
   className,
-}) {
+  id,
+}: GameTileProps) {
   const playerIndicators = useMemo(
-    () => players.map((p) => <TextAvatar key={p.uid} displayName={p.displayName} uid={p.uid} />),
+    () => players.map((p) => <TextAvatar key={p.uid} displayName={p.displayName || ''} uid={p.uid || ''} />),
     [players]
   );
 
   const tileRef = useRef(null);
   useEffect(() => {
     if (tileRef.current && current) {
-      tileRef.current.scrollIntoView({ behavior: 'smooth' });
+      tileRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [current]);
 
