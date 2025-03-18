@@ -24,6 +24,9 @@ import { useTranslation } from 'react-i18next';
 import { getActiveBoard } from '@/stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { Settings } from '@/types/Settings';
+import { RollValueState } from '@/types/index';
+import { GameTile } from '@/types/gameBoard';
 
 export default function Room() {
   const params = useParams<{ id: string }>();
@@ -31,12 +34,12 @@ export default function Room() {
   const isMobile = useBreakpoint();
   const { t } = useTranslation();
 
-  const [settings, setSettings] = useLocalStorage('gameSettings');
+  const [settings, setSettings] = useLocalStorage<Settings>('gameSettings');
 
   usePresence(room, settings?.roomRealtime);
 
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
-  const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
+  const gameBoard = useLiveQuery(getActiveBoard)?.tiles as GameTile[] | undefined;
 
   // Use useCallback to memoize the setRollValue function
   const memoizedSetRollValue = useCallback((newValue: number) => {
@@ -56,7 +59,7 @@ export default function Room() {
   ) {
     return (
       <>
-        <Navigation room={params.id} playerList={playerList} />
+        <Navigation room={params.id} playerList={playerList as any} />
         <GameSettingsDialog open={true} />
       </>
     );
@@ -73,7 +76,7 @@ export default function Room() {
       playerList={playerList}
       isTransparent={isTransparent}
       gameBoard={gameBoard}
-      settings={settings}
+      settings={settings as Settings}
     />
   );
 
@@ -90,12 +93,12 @@ export default function Room() {
 
   return (
     <>
-      <Navigation room={room} playerList={playerList} />
+      <Navigation room={room} playerList={playerList as any} />
 
       <RollButton
         setRollValue={memoizedSetRollValue}
         dice={roller}
-        isEndOfBoard={tile?.index >= gameBoard.length - 1}
+        isEndOfBoard={tile?.index !== undefined && tile.index >= (gameBoard?.length ?? 0) - 1}
       />
 
       <RoomBackground isVideo={isVideo} url={url} />
