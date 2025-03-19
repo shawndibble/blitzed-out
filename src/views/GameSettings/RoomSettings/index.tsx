@@ -5,11 +5,17 @@ import GameSpeed from './GameSpeed';
 import PlayerListOption from './PlayerListOption';
 import RoomSwitch from '@/components/GameForm/RoomSwitch';
 import { isPublicRoom } from '@/helpers/strings';
+import { Settings } from '@/types/Settings';
 
-export default function RoomSettings({ formData, setFormData }) {
+interface RoomSettingsProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+}
+
+export default function RoomSettings({ formData, setFormData }: RoomSettingsProps): JSX.Element {
   const { t } = useTranslation();
 
-  const backgrounds = {
+  const backgrounds: Record<string, string> = {
     app: t('appBackground'),
     custom: t('customURL'),
   };

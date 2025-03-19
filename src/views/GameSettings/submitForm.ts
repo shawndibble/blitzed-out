@@ -1,8 +1,10 @@
 import { getSiteName } from '@/helpers/urls';
 import i18next from 'i18next';
 import { sendMessage } from '@/services/firebase';
+import { Settings } from '@/types/Settings';
+import { User } from 'firebase/auth';
 
-function getRoomSettingsMessage(settings) {
+function getRoomSettingsMessage(settings: Partial<Settings>): string {
   const { t } = i18next;
   let message = `### ${t('roomSettings')}\r\n`;
 
@@ -23,8 +25,8 @@ function getRoomSettingsMessage(settings) {
   return message;
 }
 
-function exportRoomSettings(formData) {
-  const newSettings = {};
+function exportRoomSettings(formData: Settings): Partial<Settings> {
+  const newSettings: Partial<Settings> = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     if (
       settingKey.startsWith('room') &&
@@ -36,7 +38,11 @@ function exportRoomSettings(formData) {
   return newSettings;
 }
 
-export async function handleUser(user, displayName, updateUser) {
+export async function handleUser(
+  user: User | null, 
+  displayName: string | undefined, 
+  updateUser: (displayName: string) => Promise<User | null>
+): Promise<User | null> {
   let updatedUser = user;
   if (displayName !== undefined && displayName.length > 0) {
     updatedUser = await updateUser(displayName);
@@ -44,7 +50,7 @@ export async function handleUser(user, displayName, updateUser) {
   return updatedUser;
 }
 
-export function sendRoomSettingsMessage(formData, updatedUser) {
+export function sendRoomSettingsMessage(formData: Settings, updatedUser: User | null): Promise<any> {
   const roomSettings = exportRoomSettings(formData);
   return sendMessage({
     room: formData.room,

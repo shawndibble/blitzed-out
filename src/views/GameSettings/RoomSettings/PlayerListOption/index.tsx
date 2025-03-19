@@ -3,8 +3,14 @@ import { Stack, Switch, Tooltip, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { useCallback } from 'react';
 import { Trans } from 'react-i18next';
+import { Settings } from '@/types/Settings';
 
-export default function PlayerListOption({ formData, setFormData }) {
+interface PlayerListOptionProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+}
+
+export default function PlayerListOption({ formData, setFormData }: PlayerListOptionProps): JSX.Element {
   const togglePlayerListOption = useCallback(() => {
     setFormData({
       ...formData,

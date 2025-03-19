@@ -1,6 +1,14 @@
 import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
+import { ChangeEvent } from 'react';
+import { Settings } from '@/types/Settings';
 
-export default function AppBoolSwitch({ field, formData, handleSwitch }) {
+interface AppBoolSwitchProps {
+  field: string;
+  formData: Settings;
+  handleSwitch: (event: ChangeEvent<HTMLInputElement>, field: string) => void;
+}
+
+export default function AppBoolSwitch({ field, formData, handleSwitch }: AppBoolSwitchProps): JSX.Element {
   return (
     <YesNoSwitch
       trueCondition={formData[field]}

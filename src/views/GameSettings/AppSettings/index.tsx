@@ -4,12 +4,20 @@ import BackgroundSelect from '@/components/BackgroundSelect';
 import LanguageSelect from './LanguageSelect';
 import AppBoolSwitch from './AppBoolSwitch';
 import useLocalStorage from '@/hooks/useLocalStorage';
+import { Settings } from '@/types/Settings';
+import { ChangeEvent } from 'react';
 
-export default function AppSettings({ formData, setFormData, boardUpdated }) {
+interface AppSettingsProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+  boardUpdated: () => void;
+}
+
+export default function AppSettings({ formData, setFormData, boardUpdated }: AppSettingsProps): JSX.Element {
   const [settings, updateSettings] = useLocalStorage('gameSettings');
 
   const { t } = useTranslation();
-  const backgrounds = {
+  const backgrounds: Record<string, string> = {
     color: t('color'),
     gray: t('gray'),
     'metronome.gif': t('hypnoDick'),
@@ -17,7 +25,7 @@ export default function AppSettings({ formData, setFormData, boardUpdated }) {
     custom: t('customURL'),
   };
 
-  function handleSwitch(event, field) {
+  function handleSwitch(event: ChangeEvent<HTMLInputElement>, field: string): void {
     setFormData({ ...formData, [field]: event.target.checked });
     // normally we wouldn't update settings as it can be very slow, but for switch toggles,
     // I want to ensure the local storage is updated immediately

@@ -10,12 +10,20 @@ import SoloSwitch from './SoloSwitch';
 import WarningAlert from './WarningAlert';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
-export default function BoardSettings({ formData, setFormData, actionsList }) {
+import { Settings } from '@/types/Settings';
+
+interface BoardSettingsProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+  actionsList: Record<string, any>;
+}
+
+export default function BoardSettings({ formData, setFormData, actionsList }: BoardSettingsProps): JSX.Element {
   const { t } = useTranslation();
   const isMobile = useBreakpoint('md');
   const isLocal = !isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode);
 
-  function settingSelectLists(type, extraProps = {}) {
+  function settingSelectLists(type: string, extraProps: Record<string, any> = {}): JSX.Element[] {
     return Object.keys(actionsList)
       .filter((option) => actionsList[option]?.type === type)
       .map((option) => (
@@ -32,8 +40,8 @@ export default function BoardSettings({ formData, setFormData, actionsList }) {
       ));
   }
 
-  // go through all entries in formData and update the vale if the key contains the word role
-  const updateAllRoles = (value) => {
+  // go through all entries in formData and update the value if the key contains the word role
+  const updateAllRoles = (value: string): Settings => {
     const newFormData = JSON.parse(JSON.stringify(formData));
     Object.keys(newFormData).forEach((key) => {
       newFormData.role = value;
