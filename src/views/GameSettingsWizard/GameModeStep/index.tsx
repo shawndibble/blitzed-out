@@ -1,12 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Box, Button, Typography, Collapse } from '@mui/material';
+import { useState, useEffect, ChangeEvent } from 'react';
+import { Box, Button, Typography, Collapse, SelectChangeEvent } from '@mui/material';
 import { Trans } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import SettingsSelect from '@/components/SettingsSelect';
 import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
 import { isOnlineMode } from '@/helpers/strings';
+import { FormData } from '@/types';
+import { Settings } from '@/types/Settings';
 
-export default function GameModeStep({ formData, setFormData, nextStep, prevStep }) {
+interface GameModeStepProps {
+  formData: FormData & Partial<Settings>;
+  setFormData: React.Dispatch<React.SetStateAction<FormData & Partial<Settings>>>;
+  nextStep: () => void;
+  prevStep: () => void;
+}
+
+export default function GameModeStep({ formData, setFormData, nextStep, prevStep }: GameModeStepProps): JSX.Element {
   const [visible, setVisible] = useState(!isOnlineMode(formData?.gameMode));
 
   // Update visibility when game mode changes
@@ -21,7 +30,7 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
       </Typography>
       <YesNoSwitch
         trueCondition={!isOnlineMode(formData?.gameMode)}
-        onChange={(event) =>
+        onChange={(event: ChangeEvent<HTMLInputElement>) =>
           setFormData({
             ...formData,
             gameMode: event.target.checked ? 'local' : 'online',
@@ -44,7 +53,7 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
           >
             <SettingsSelect
               value={formData.role}
-              onChange={(event) =>
+              onChange={(event: SelectChangeEvent<string>) =>
                 setFormData({
                   ...formData,
                   role: event.target.value,
@@ -66,7 +75,7 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
           </Typography>
 
           <YesNoSwitch
-            onChange={(event) =>
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
               setFormData({
                 ...formData,
                 isNaked: event.target.checked,

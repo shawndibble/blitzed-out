@@ -6,9 +6,19 @@ import PickConsumptions from './PickConsumptions/index';
 import PickActions from './PickActions';
 import { purgedFormData } from './helpers';
 import { isPublicRoom } from '@/helpers/strings';
+import { FormData } from '@/types';
+import { Settings } from '@/types/Settings';
 
-export default function ActionsStep({ formData, setFormData, nextStep, prevStep, actionsList }) {
-  function settingSelectLists(type) {
+interface ActionsStepProps {
+  formData: FormData & Partial<Settings>;
+  setFormData: React.Dispatch<React.SetStateAction<FormData & Partial<Settings>>>;
+  nextStep: () => void;
+  prevStep: (count?: number) => void;
+  actionsList: Record<string, any>;
+}
+
+export default function ActionsStep({ formData, setFormData, nextStep, prevStep, actionsList }: ActionsStepProps): JSX.Element {
+  function settingSelectLists(type: string): string[] {
     return Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
   }
 
@@ -19,7 +29,7 @@ export default function ActionsStep({ formData, setFormData, nextStep, prevStep,
     setFormData(newFormData);
   }, []);
 
-  const options = (key) =>
+  const options = (key: string) =>
     settingSelectLists(key).map((option) => ({
       value: option,
       label: actionsList[option]?.label,

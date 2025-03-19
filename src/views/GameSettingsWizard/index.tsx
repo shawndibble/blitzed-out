@@ -66,19 +66,19 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     setStep(2);
   }, [formData]);
 
-  const nextStep = (count?: number) => {
+  const nextStep = (count?: number): void => {
     if (!Number.isInteger(count)) return setStep(step + 1);
     setStep(step + (count || 1));
   };
 
-  const prevStep = (count?: number) => {
+  const prevStep = (count?: number): void => {
     if (!Number.isInteger(count)) return setStep(step - 1);
     setStep(step - (count || 1));
   };
 
-  const goToAdvanced = () => setStep(0); // Use 0 to represent 'advanced'
+  const goToAdvanced = (): void => setStep(0); // Use 0 to represent 'advanced'
 
-  const renderStep = () => {
+  const renderStep = (): JSX.Element | null => {
     switch (step) {
       case 1:
         return <RoomStep formData={formData} setFormData={setFormData} nextStep={nextStep} />;

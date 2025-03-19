@@ -2,6 +2,9 @@ import { isOnlineMode } from '@/helpers/strings';
 import { FormData, ActionEntry } from '@/types';
 import { ChangeEvent } from 'react';
 
+type SetFormDataFunction = React.Dispatch<React.SetStateAction<FormData>>;
+type SetSelectedItemsFunction = React.Dispatch<React.SetStateAction<string[]>>;
+
 const shouldPurgeAction = (formData: FormData, entry: ActionEntry): boolean => {
   const { gameMode, isNaked } = formData;
   const isSolo = isOnlineMode(gameMode);
@@ -72,8 +75,8 @@ export const handleChange = (
   event: ChangeEvent<HTMLInputElement> | { target: { value: number } } | null,
   key: string,
   action: string,
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>,
-  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>,
+  setFormData: SetFormDataFunction,
+  setSelectedItems: SetSelectedItemsFunction,
   variation: string | null = null
 ): void => {
   const value = event?.target?.value;
@@ -102,8 +105,8 @@ export const handleSelectionChange = (
   event: { target: { value: string[] } },
   maxItems: number,
   action: string,
-  setSelectedItems: React.Dispatch<React.SetStateAction<string[]>>,
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>
+  setSelectedItems: SetSelectedItemsFunction,
+  setFormData: SetFormDataFunction
 ): void => {
   const { value } = event.target;
 

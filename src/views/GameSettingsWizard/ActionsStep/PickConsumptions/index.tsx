@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
 import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
 import { populateSelections, handleChange, updateFormDataWithDefaults } from '../helpers';
@@ -13,12 +13,12 @@ interface PickConsumptionsProps {
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
   options: (actionType: string) => Array<{value: string, label: string}>;
-  actionsList: any;
+  actionsList: Record<string, any>;
 }
 
 const MAX_CONSUME = 2;
 
-export default function PickConsumptions({ formData, setFormData, options, actionsList }: PickConsumptionsProps) {
+export default function PickConsumptions({ formData, setFormData, options, actionsList }: PickConsumptionsProps): JSX.Element {
   const action = 'consumption';
   const optionList = options(action);
 
