@@ -15,6 +15,8 @@ import { ChangeCircle } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useState, ChangeEvent } from 'react';
 
+import { CustomTimerDialogProps } from './types';
+
 /**
  * Dialog component for setting a custom timer value in seconds
  */
@@ -24,12 +26,6 @@ interface TimerSettings {
   isRange: boolean;
   min: number;
   max: number;
-}
-
-interface CustomTimerDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (time: number, settings?: Partial<TimerSettings>) => void;
 }
 
 const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps): JSX.Element => {

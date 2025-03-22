@@ -1,7 +1,7 @@
 import { Button, Grid2, Typography } from '@mui/material';
 import { getSiteName } from '@/helpers/urls';
 
-const getSiteButton = (url) => {
+const getSiteButton = (url: string) => {
   try {
     const { href } = new URL(url);
     const name = getSiteName(url);
@@ -16,7 +16,18 @@ const getSiteButton = (url) => {
   }
 };
 
-export default function ScheduleItem({ game }) {
+interface Game {
+  dateTime: {
+    toDate: () => Date;
+  };
+  url: string;
+}
+
+interface ScheduleItemProps {
+  game: Game;
+}
+
+export default function ScheduleItem({ game }: ScheduleItemProps): JSX.Element {
   return (
     <Grid2 container alignItems="center" spacing={1}>
       <Grid2 sx={{ whiteSpace: 'nowrap' }}>

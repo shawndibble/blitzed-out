@@ -18,9 +18,15 @@ import { Trans, useTranslation } from 'react-i18next';
 import useSchedule from '@/context/hooks/useSchedule';
 import ScheduleItem from './ScheduleItem';
 
-export default function Schedule({ open, close, isMobile }) {
+interface ScheduleProps {
+  open: boolean;
+  close: () => void;
+  isMobile: boolean;
+}
+
+export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.Element {
   const { t } = useTranslation();
-  const [alert, setAlert] = useState('');
+  const [alert, setAlert] = useState<string | null>('');
   const { schedule, addToSchedule } = useSchedule();
   const twoWeeksFromNow = dayjs().add(2, 'week');
 
@@ -29,10 +35,11 @@ export default function Schedule({ open, close, isMobile }) {
   }, []);
 
   const scheduleEvent = useCallback(
-    (event) => {
+    (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      const dateTime = new Date(event.target.elements['date-time'].value);
-      const url = event.target.elements.link.value;
+      const formElements = event.target as HTMLFormElement;
+      const dateTime = new Date(formElements.elements['date-time'].value);
+      const url = (formElements.elements.link as HTMLInputElement).value;
 
       if (!dateTime || !(dateTime instanceof Date)) {
         setAlert('Please select a date and time');

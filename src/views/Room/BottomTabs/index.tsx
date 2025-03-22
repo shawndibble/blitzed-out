@@ -8,12 +8,14 @@ import { a11yProps } from '@/helpers/strings';
 import TabPanel from '@/components/TabPanel';
 import { useTranslation } from 'react-i18next';
 
-export default function BottomTabs({ tab1, tab2 }) {
+import { BottomTabsProps } from './types';
+
+export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element {
   const theme = useTheme();
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState<number>(0);
   const { t } = useTranslation();
 
-  const handleChange = (_event, newValue) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number): void => {
     setValue(newValue);
   };
 

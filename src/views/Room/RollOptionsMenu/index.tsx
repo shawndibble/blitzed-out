@@ -2,15 +2,21 @@ import { ArrowDropUp } from '@mui/icons-material';
 import { Button, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from '@mui/material';
 import { useRef, useState } from 'react';
 
-const RollOptionsMenu = ({ options, selectedRoll, handleMenuItemClick }) => {
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
+import { RollOptionsMenuProps } from './types';
 
-  const handleToggle = () => {
+const RollOptionsMenu = ({ 
+  options, 
+  selectedRoll, 
+  handleMenuItemClick 
+}: RollOptionsMenuProps): JSX.Element => {
+  const [open, setOpen] = useState<boolean>(false);
+  const anchorRef = useRef<HTMLButtonElement>(null);
+
+  const handleToggle = (): void => {
     setOpen((prevOpen) => !prevOpen);
   };
 
-  const handleClose = (event) => {
+  const handleClose = (event: Event | React.SyntheticEvent): void => {
     if (anchorRef.current?.contains(event.target)) {
       return;
     }
