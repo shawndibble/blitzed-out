@@ -28,7 +28,7 @@ export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JS
   };
 
   const rollAverage = formData?.roomTileCount
-    ? Math.floor(formData.roomTileCount / diceRollAverage[formData.roomDice])
+    ? Math.floor(formData.roomTileCount / diceRollAverage[formData.roomDice || '1d6'])
     : 16;
 
   const tileMenuItem = Array.from({ length: 7 }, (_, i) => (i + 2) * 10).map((tileCount) => (
@@ -72,7 +72,7 @@ export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JS
           <Select
             labelId="tile-count-label"
             id="tile-count-select"
-            value={formData?.roomTileCount || 40}
+            value={String(formData?.roomTileCount || 40)}
             label={t('roomTileCount')}
             onChange={(event: SelectChangeEvent) =>
               setFormData({

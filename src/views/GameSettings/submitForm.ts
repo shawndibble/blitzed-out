@@ -2,7 +2,7 @@ import { getSiteName } from '@/helpers/urls';
 import i18next from 'i18next';
 import { sendMessage } from '@/services/firebase';
 import { Settings } from '@/types/Settings';
-import { User } from 'firebase/auth';
+import { User } from '@/types';
 
 function getRoomSettingsMessage(settings: Partial<Settings>): string {
   const { t } = i18next;
@@ -39,8 +39,8 @@ function exportRoomSettings(formData: Settings): Partial<Settings> {
 }
 
 export async function handleUser(
-  user: User | null, 
-  displayName: string | undefined, 
+  user: User | null,
+  displayName: string | undefined,
   updateUser: (displayName: string) => Promise<User | null>
 ): Promise<User | null> {
   let updatedUser = user;
@@ -50,7 +50,7 @@ export async function handleUser(
   return updatedUser;
 }
 
-export function sendRoomSettingsMessage(formData: Settings, updatedUser: User | null): Promise<any> {
+export function sendRoomSettingsMessage(formData: Settings, updatedUser: User): Promise<any> {
   const roomSettings = exportRoomSettings(formData);
   return sendMessage({
     room: formData.room,

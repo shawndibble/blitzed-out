@@ -13,8 +13,12 @@ interface AppSettingsProps {
   boardUpdated: () => void;
 }
 
-export default function AppSettings({ formData, setFormData, boardUpdated }: AppSettingsProps): JSX.Element {
-  const [settings, updateSettings] = useLocalStorage('gameSettings');
+export default function AppSettings({
+  formData,
+  setFormData,
+  boardUpdated,
+}: AppSettingsProps): JSX.Element {
+  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
 
   const { t } = useTranslation();
   const backgrounds: Record<string, string> = {
@@ -57,7 +61,7 @@ export default function AppSettings({ formData, setFormData, boardUpdated }: App
       <Divider />
 
       <Typography variant="h5" sx={{ mt: 2, textTransform: 'capitalize' }}>
-        <Trans i18nKey="miscellaneous" />
+        <Trans i18nKey="misc" />
       </Typography>
 
       <AppBoolSwitch field="hideBoardActions" formData={formData} handleSwitch={handleSwitch} />

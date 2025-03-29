@@ -3,8 +3,8 @@ import './styles.css';
 import { useEffect, useMemo, useRef } from 'react';
 
 import TextAvatar from '@/components/TextAvatar';
-
-import { GameTileProps } from './types';
+import { Tile } from '@/types';
+import { Player } from '@/types/player';
 
 export default function GameTile({
   title,
@@ -13,17 +13,19 @@ export default function GameTile({
   current,
   isTransparent,
   className,
-  id,
-}: GameTileProps) {
+}: Tile) {
   const playerIndicators = useMemo(
-    () => players.map((p) => <TextAvatar key={p.uid} displayName={p.displayName || ''} uid={p.uid || ''} />),
+    () =>
+      players.map((p: Player) => (
+        <TextAvatar key={p.uid} displayName={p.displayName || ''} uid={p.uid || ''} />
+      )),
     [players]
   );
 
-  const tileRef = useRef(null);
+  const tileRef = useRef<HTMLLIElement | null>(null);
   useEffect(() => {
     if (tileRef.current && current) {
-      tileRef.current?.scrollIntoView({ behavior: 'smooth' });
+      tileRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [current]);
 

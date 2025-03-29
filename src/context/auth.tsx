@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef, ReactNode, createContext } from 'react';
-import { getAuth, User } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import {
   loginAnonymously,
   updateDisplayName,
@@ -11,6 +11,7 @@ import {
   logout,
 } from '@/services/firebase';
 import { syncDataFromFirebase, syncAllDataToFirebase } from '@/services/syncService';
+import { User } from '@/types';
 
 export interface SyncStatus {
   syncing: boolean;

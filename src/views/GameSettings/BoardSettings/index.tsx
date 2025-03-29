@@ -1,5 +1,4 @@
-import { Divider, Grid2, Tooltip, Typography } from '@mui/material';
-import useBreakpoint from '@/hooks/useBreakpoint';
+import { Divider, Grid2, SelectChangeEvent, Tooltip, Typography } from '@mui/material';
 import GridItem from '@/components/GridItem';
 import SettingsSelect from '@/components/SettingsSelect';
 import { Trans, useTranslation } from 'react-i18next';
@@ -18,16 +17,19 @@ interface BoardSettingsProps {
   actionsList: Record<string, any>;
 }
 
-export default function BoardSettings({ formData, setFormData, actionsList }: BoardSettingsProps): JSX.Element {
+export default function BoardSettings({
+  formData,
+  setFormData,
+  actionsList,
+}: BoardSettingsProps): JSX.Element {
   const { t } = useTranslation();
-  const isMobile = useBreakpoint('md');
   const isLocal = !isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode);
 
   function settingSelectLists(type: string, extraProps: Record<string, any> = {}): JSX.Element[] {
     return Object.keys(actionsList)
       .filter((option) => actionsList[option]?.type === type)
       .map((option) => (
-        <GridItem sm={isMobile && !isLocal ? 6 : 12} key={option}>
+        <GridItem key={option}>
           <SelectBoardSetting
             option={option}
             settings={formData}
@@ -83,7 +85,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }: Bo
           >
             <SettingsSelect
               value={formData.difficulty}
-              onChange={(event) =>
+              onChange={(event: SelectChangeEvent<string>) =>
                 setFormData({
                   ...formData,
                   difficulty: event.target.value,
@@ -101,7 +103,7 @@ export default function BoardSettings({ formData, setFormData, actionsList }: Bo
           <GridItem>
             <SettingsSelect
               value={formData.role}
-              onChange={(event) =>
+              onChange={(event: SelectChangeEvent<string>) =>
                 setFormData({
                   ...updateAllRoles(event.target.value),
                   boardUpdated: true,

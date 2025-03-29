@@ -1,5 +1,6 @@
 import { isOnlineMode } from '@/helpers/strings';
-import { FormData, ActionEntry } from '@/types';
+import { FormData, ActionEntry, Option } from '@/types';
+import { Settings } from '@/types/Settings';
 import { ChangeEvent } from 'react';
 
 type SetFormDataFunction = React.Dispatch<React.SetStateAction<FormData>>;
@@ -25,7 +26,11 @@ export const purgedFormData = (formData: FormData): FormData => {
   }, {} as FormData);
 };
 
-export const populateSelections = (formData: FormData, optionList: Array<{value: string, label: string}>, type: string): string[] => {
+export const populateSelections = (
+  formData: FormData,
+  optionList: Option[],
+  type: string
+): string[] => {
   return Object.entries(formData)
     .map(([key, entry]) => {
       const found = optionList.find((x) => x.value === key);
@@ -47,9 +52,9 @@ const deleteOldFormData = (prevData: FormData, action: string, value: string[]):
 };
 
 export const updateFormDataWithDefaults = (
-  value: string[], 
-  action: string, 
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>
+  value: string[],
+  action: string,
+  setFormData: React.Dispatch<React.SetStateAction<Settings>>
 ): void => {
   setFormData((prevData) => {
     const newFormData = deleteOldFormData(prevData, action, value);
@@ -93,7 +98,7 @@ export const handleChange = (
   setFormData((prevData) => ({
     ...prevData,
     [key]: {
-      ...(prevData[key] as object || {}),
+      ...((prevData[key] as object) || {}),
       type: action,
       level: value,
       ...(!!variation && { variation }),

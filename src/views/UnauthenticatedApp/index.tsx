@@ -21,13 +21,14 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from '@/views/Navigation';
 import './styles.css';
 import GameGuide from '@/views/GameGuide';
-import AuthDialog from '@/components/auth/AuthDialog';
+import AuthDialog, { AuthView } from '@/components/auth/AuthDialog';
+import { Settings } from '@/types/Settings';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
   const { login, user } = useAuth();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const [authDialogView, setAuthDialogView] = useState('login');
+  const [authDialogView, setAuthDialogView] = useState<AuthView>('login');
 
   const handleOpenLogin = () => {
     setAuthDialogView('login');
@@ -39,10 +40,6 @@ export default function UnauthenticatedApp() {
     setAuthDialogOpen(true);
   };
 
-  const handleOpenLinkAccount = () => {
-    setAuthDialogView('login');
-    setAuthDialogOpen(true);
-  };
   const params = useParams();
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');
@@ -51,7 +48,7 @@ export default function UnauthenticatedApp() {
   const isMobile = useBreakpoint('sm');
   const [displayName, setDisplayName] = useState(user?.displayName || '');
 
-  const [settings, updateSettings] = useLocalStorage('gameSettings', {
+  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings', {
     boardUpdated: false,
     roomUpdated: false,
     playerDialog: true,
@@ -65,11 +62,12 @@ export default function UnauthenticatedApp() {
     finishRange: [30, 70],
     roomTileCount: 40,
     roomDice: '1d6',
+    room,
   });
 
   // Memoize handlers to prevent unnecessary re-renders
   const handleSubmit = useCallback(
-    async (event) => {
+    async (event: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLDivElement>) => {
       event.preventDefault();
       await updateSettings({ ...settings, displayName, room });
       await login(displayName);
@@ -78,7 +76,7 @@ export default function UnauthenticatedApp() {
   );
 
   const onEnterKey = useCallback(
-    async (event) => {
+    async (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (event.key === 'Enter') {
         await handleSubmit(event);
       }
@@ -103,7 +101,7 @@ export default function UnauthenticatedApp() {
 
   return (
     <>
-      <Navigation room={room} playerList={playerList} onLinkAccount={handleOpenLinkAccount} />
+      <Navigation room={room} playerList={playerList} />
       <Container maxWidth="sm" sx={{ mt: 8 }}>
         <Grid2 container flexDirection="column">
           <Card className="unauthenticated-card">
@@ -175,7 +173,7 @@ export default function UnauthenticatedApp() {
 
       <AuthDialog
         open={authDialogOpen}
-        onClose={() => setAuthDialogOpen(false)}
+        close={() => setAuthDialogOpen(false)}
         initialView={authDialogView}
       />
     </>

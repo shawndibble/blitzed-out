@@ -1,6 +1,6 @@
 import { Casino } from '@mui/icons-material';
 import { Button, ButtonGroup } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from '@/hooks/useCountdown';
@@ -42,7 +42,7 @@ const RollButton = function memo({
 }: RollButtonProps): JSX.Element {
   const { t } = useTranslation();
   const [isDisabled, setDisabled] = useState<boolean>(false);
-  const [selectedRoll, setSelectedRoll] = useState<string | number>('manual');
+  const [selectedRoll, setSelectedRoll] = useState<string>('manual');
   const [autoTime, setAutoTime] = useState<number>(0);
   const [rollText, setRollText] = useState<string>(t('roll'));
   const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(autoTime);
@@ -59,18 +59,6 @@ const RollButton = function memo({
     },
     [setRollValue]
   );
-
-  const options = useMemo(() => {
-    const opts = new Map<string | number, string>();
-    opts
-      .set('restart', t('restart'))
-      .set('manual', t('manual'))
-      .set(30, t('auto30'))
-      .set(60, t('auto60'))
-      .set(90, t('auto90'))
-      .set('custom', t('setTimer'));
-    return opts;
-  }, [t]);
 
   const [rollCount, diceSide] = dice.split('d');
 
@@ -95,7 +83,7 @@ const RollButton = function memo({
         return;
       }
 
-      setSelectedRoll(key);
+      setSelectedRoll(String(key));
 
       if (key === 'custom') {
         setDialogOpen(true);
@@ -179,11 +167,7 @@ const RollButton = function memo({
           <Casino sx={{ mr: 1 }} />
           {rollText}
         </Button>
-        <RollOptionsMenu
-          options={options}
-          selectedRoll={selectedRoll}
-          handleMenuItemClick={handleMenuItemClick}
-        />
+        <RollOptionsMenu selectedRoll={selectedRoll} handleMenuItemClick={handleMenuItemClick} />
       </ButtonGroup>
       <CustomTimerDialog
         isOpen={isDialogOpen}

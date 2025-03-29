@@ -67,6 +67,8 @@ export default function useSubmitGameSettings(): (
       } = (await updateGameBoardTiles(formData)) as GameBoardResult;
       const { roomChanged, isPrivateRoom, privateBoardSizeChanged } = handleRoomChange(formData);
 
+      if (!updatedUser) return;
+
       if (
         isPrivateRoom &&
         (formData.roomUpdated || !messages.find((m: Message) => m.type === 'room'))

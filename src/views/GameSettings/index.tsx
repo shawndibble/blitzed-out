@@ -4,7 +4,7 @@ import ToastAlert from '@/components/ToastAlert';
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { useCallback, useState, FormEvent, KeyboardEvent, ChangeEvent, ReactNode } from 'react';
+import { useCallback, useState, FormEvent, KeyboardEvent, ReactNode, FocusEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import CustomTileDialog from '@/views/CustomTileDialog';
 import AppSettings from './AppSettings';
@@ -49,7 +49,10 @@ export default function GameSettings({ closeDialog }: GameSettingsProps): JSX.El
     const { displayName, ...gameOptions } = formData; // we don't want to validate the displayName
 
     const validationMessage = validateFormData(gameOptions, actionsList);
-    if (validationMessage) return setAlert(t(validationMessage));
+    if (validationMessage) {
+      setAlert(t(validationMessage));
+      return null;
+    }
 
     submitSettings(formData, actionsList);
 
@@ -59,7 +62,7 @@ export default function GameSettings({ closeDialog }: GameSettingsProps): JSX.El
   }
 
   const handleBlur = useCallback(
-    (event: ChangeEvent<HTMLInputElement>): void => {
+    (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
       setFormData((prevFormData) => ({
         ...prevFormData,
         displayName: event.target.value,
@@ -85,7 +88,7 @@ export default function GameSettings({ closeDialog }: GameSettingsProps): JSX.El
     return (
       <Box>
         <Typography variant="h2">
-          <Trans i18nKey="Loading" />
+          <Trans i18nKey="loading" />
           ...
         </Typography>
         <Typography variant="body1">
@@ -145,7 +148,7 @@ export default function GameSettings({ closeDialog }: GameSettingsProps): JSX.El
           actionsList={actionsList}
         />
       )}
-      <ToastAlert open={!!alert} setOpen={setAlert} close={() => setAlert(null)}>
+      <ToastAlert open={!!alert} close={() => setAlert(null)}>
         {alert as ReactNode}
       </ToastAlert>
     </Box>

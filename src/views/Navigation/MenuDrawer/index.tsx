@@ -252,12 +252,8 @@ export default function MenuDrawer(): JSX.Element {
       {open.settings && renderDialog(GameSettingsDialog, 'settings')}
       {open.about && (
         <Suspense fallback={<div>Loading...</div>}>
-          <DialogWrapper
-            open={open.about}
-            close={() => toggleDialog('about', false)}
-            fullScreen={isMobile}
-          >
-            <GameGuide close={() => toggleDialog('about', false)} isMobile={isMobile} />
+          <DialogWrapper open={open.about} close={() => toggleDialog('about', false)}>
+            <GameGuide />
           </DialogWrapper>
         </Suspense>
       )}

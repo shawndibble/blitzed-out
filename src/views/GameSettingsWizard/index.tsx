@@ -22,7 +22,8 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const [step, setStep] = useState<number>(1);
 
   const overrideSettings: Record<string, any> = { room };
-  if (isPublicRoom(room || '')) {
+
+  if (isPublicRoom(room)) {
     // if we are in the public room, some settings are forced.
     overrideSettings.gameMode = 'online';
     overrideSettings.roomRealtime = true;
@@ -36,6 +37,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
       consumption: [],
       role: 'sub',
       boardUpdated: false,
+      room: room || 'PUBLIC',
     },
     overrideSettings
   );

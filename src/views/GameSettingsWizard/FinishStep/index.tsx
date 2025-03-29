@@ -23,7 +23,7 @@ export default function FinishStep({
 }: FinishStepProps): JSX.Element {
   const no: [number, number] = [100, 100];
   const yes: [number, number] = [0, 0];
-  const yesFinishRange = arraysEqual(formData.finishRange, yes);
+  const yesFinishRange = arraysEqual(formData?.finishRange || [], yes);
   const submitSettings = useSubmitGameSettings();
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -39,7 +39,7 @@ export default function FinishStep({
       ...formData,
       boardUpdated: true,
     };
-    if (!yesFinishRange || !arraysEqual(formData.finishRange, no)) {
+    if (!yesFinishRange || !arraysEqual(formData.finishRange || [], no)) {
       newData.finishRange = no;
     }
     setFormData(newData);

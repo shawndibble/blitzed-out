@@ -3,7 +3,7 @@ export interface Settings {
   roomRealtime?: boolean;
   actions?: Array<string>; // depricated
   consumption?: Array<string>; //depricated
-  role?: 'sub' | 'dom' | 'vers';
+  role?: PlayerRole;
   boardUpdated: boolean;
   roomUpdated?: boolean;
   playerDialog?: boolean;
@@ -25,3 +25,5 @@ export interface Settings {
 }
 
 export type GameMode = 'solo' | 'online' | 'local';
+
+export type PlayerRole = 'sub' | 'dom' | 'vers';

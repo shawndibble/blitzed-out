@@ -4,29 +4,14 @@ import CopyToClipboard from '@/components/CopyToClipboard';
 import { useEffect, useState, ChangeEvent, FocusEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { updateBoard } from '@/stores/gameBoard';
-
-interface GameTile {
-  title: string;
-  description: string;
-}
-
-interface Board {
-  id: number;
-  title: string;
-  tiles?: GameTile[];
-  isActive?: number;
-}
-
-interface AlertMessage {
-  message: string;
-  type?: 'error' | 'warning' | 'info' | 'success';
-}
+import { DBGameBoard, TileExport } from '@/types/gameBoard';
+import { AlertState } from '@/types';
 
 interface ImportExportProps {
   open: boolean;
   close: () => void;
-  setAlert: (alert: AlertMessage) => void;
-  board: Board;
+  setAlert: (alert: AlertState) => void;
+  board: DBGameBoard;
 }
 
 export default function ImportExport({
@@ -39,7 +24,7 @@ export default function ImportExport({
   const [textValue, setTextField] = useState<string>('');
   const [boardTitle, setBoardTitle] = useState<string>(board.title || '');
 
-  function getGameTiles(entries: string[]): GameTile[] | null {
+  function getGameTiles(entries: string[]): TileExport[] | null {
     try {
       if (!boardTitle.length) {
         setAlert({
@@ -120,9 +105,8 @@ export default function ImportExport({
 
   const saveTitle = async (event: FocusEvent<HTMLInputElement>): Promise<null | undefined> => {
     if (!event.target.value.length) {
-      return setAlert({
-        message: t('importTitleRequired'),
-      });
+      setAlert({ message: t('importTitleRequired') });
+      return null;
     }
     updateBoard({ ...board, title: event.target.value });
     return undefined;

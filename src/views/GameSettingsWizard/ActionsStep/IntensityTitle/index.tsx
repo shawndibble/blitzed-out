@@ -6,8 +6,16 @@ export default function IntensityTitle(): JSX.Element {
   return (
     <Typography variant="h6" sx={{ mt: 2 }}>
       <Trans i18nKey="setIntensityLevel" />
-      <Tooltip title={<Trans i18nKey="intensityTooltip" />} arrow sx={{ ml: 1 }}>
-        <Help fontSize="15" />
+      <Tooltip
+        title={
+          <Typography variant="body1">
+            <Trans i18nKey="intensityTooltip" />
+          </Typography>
+        }
+        arrow
+        sx={{ ml: 1 }}
+      >
+        <Help sx={{ ml: 0.5, fontSize: 15 }} />
       </Tooltip>
     </Typography>
   );

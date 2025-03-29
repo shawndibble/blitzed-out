@@ -1,10 +1,11 @@
 import { createContext, useState, useMemo, useEffect, ReactNode } from 'react';
 import { getSchedule, addSchedule } from '@/services/firebase';
 import { DocumentReference, DocumentData } from 'firebase/firestore';
+import dayjs from 'dayjs';
 
 export interface ScheduleItem {
   id?: string;
-  dateTime: Date;
+  dateTime: dayjs.Dayjs;
   url: string;
   room: string;
   [key: string]: any;

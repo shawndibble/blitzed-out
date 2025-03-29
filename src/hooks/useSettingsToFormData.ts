@@ -9,11 +9,11 @@ export default function useSettingsToFormData<T extends Settings>(
   defaultSettings: T = {} as T,
   overrideSettings: Partial<T> = {}
 ): [T, Dispatch<SetStateAction<T>>] {
-  const [settings] = useLocalStorage<T>('gameSettings');
+  const [settings] = useLocalStorage<Settings>('gameSettings');
   // default < localstorage < override.
   const [formData, setFormData] = useState<T>({
     ...defaultSettings,
-    ...(settings || ({} as T)),
+    ...(settings || {}),
     ...overrideSettings,
   } as T);
   const { messages } = useMessages();

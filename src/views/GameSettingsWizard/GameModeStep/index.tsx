@@ -6,7 +6,7 @@ import SettingsSelect from '@/components/SettingsSelect';
 import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
 import { isOnlineMode } from '@/helpers/strings';
 import { FormData } from '@/types';
-import { Settings } from '@/types/Settings';
+import { PlayerRole, Settings } from '@/types/Settings';
 
 interface GameModeStepProps {
   formData: FormData & Partial<Settings>;
@@ -15,7 +15,12 @@ interface GameModeStepProps {
   prevStep: () => void;
 }
 
-export default function GameModeStep({ formData, setFormData, nextStep, prevStep }: GameModeStepProps): JSX.Element {
+export default function GameModeStep({
+  formData,
+  setFormData,
+  nextStep,
+  prevStep,
+}: GameModeStepProps): JSX.Element {
   const [visible, setVisible] = useState(!isOnlineMode(formData?.gameMode));
 
   // Update visibility when game mode changes
@@ -56,7 +61,7 @@ export default function GameModeStep({ formData, setFormData, nextStep, prevStep
               onChange={(event: SelectChangeEvent<string>) =>
                 setFormData({
                   ...formData,
-                  role: event.target.value,
+                  role: event.target.value as PlayerRole,
                 })
               }
               label="mainRole"

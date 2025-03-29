@@ -10,7 +10,7 @@ interface LanguageSelectProps {
 
 export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): JSX.Element {
   const { i18n } = useTranslation();
-  const [language, setLanguage] = useState<string>(i18n.resolvedLanguage);
+  const [language, setLanguage] = useState<string>(i18n.resolvedLanguage || 'en');
 
   function changeLanguage(value: string): void {
     setLanguage(value);

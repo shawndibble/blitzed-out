@@ -21,7 +21,7 @@ export const addBoard = async (record: Partial<DBGameBoard>): Promise<number | u
 
 export const updateBoard = async (
   board: DBGameBoard,
-  record: Partial<DBGameBoard>
+  record?: Partial<DBGameBoard>
 ): Promise<number> => {
   return await gameBoard.update(board.id as number, { ...board, ...record });
 };

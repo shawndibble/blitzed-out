@@ -3,7 +3,7 @@ import { ChangeEvent } from 'react';
 import { t } from 'i18next';
 
 interface YesNoSwitchProps {
-  trueCondition: boolean;
+  trueCondition?: boolean;
   onChange: (event: ChangeEvent<HTMLInputElement>, checked: boolean) => void;
   yesLabel: string;
   noLabel?: string | null;

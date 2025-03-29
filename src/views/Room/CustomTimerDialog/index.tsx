@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { ChangeCircle } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { useState, ChangeEvent } from 'react';
+import { useState } from 'react';
 
 import { CustomTimerDialogProps } from './types';
 
@@ -21,12 +21,6 @@ import { CustomTimerDialogProps } from './types';
  * Dialog component for setting a custom timer value in seconds
  */
 const MIN_SECONDS = 10;
-
-interface TimerSettings {
-  isRange: boolean;
-  min: number;
-  max: number;
-}
 
 const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps): JSX.Element => {
   const { t } = useTranslation();
@@ -152,7 +146,6 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
                   setMinTime(value);
                 }}
                 fullWidth
-                slotProps={{ input: { min: 1 } }}
               />
               <Typography variant="body1" sx={{ alignSelf: 'center' }}>
                 -
@@ -167,7 +160,6 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
                   setMaxTime(Math.max(Number(minTime), value));
                 }}
                 fullWidth
-                slotProps={{ input: { min: Number(minTime) } }}
               />
             </Box>
             <Button onClick={toggleTimeUnit} variant="outlined" size="small">
@@ -184,8 +176,6 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
             sx={{ width: '15rem' }}
             slotProps={{
               input: {
-                min: 1,
-                max: isMinutes ? 60 : 3600,
                 endAdornment: (
                   <InputAdornment position="end">
                     <Button onClick={toggleTimeUnit} variant="text">

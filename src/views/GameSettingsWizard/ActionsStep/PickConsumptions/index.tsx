@@ -8,17 +8,23 @@ import { populateSelections, handleChange, updateFormDataWithDefaults } from '..
 import MultiSelect from '@/components/MultiSelect';
 import { FormData } from '@/types';
 import { SelectChangeEvent } from '@mui/material/Select';
+import { t } from 'i18next';
 
 interface PickConsumptionsProps {
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
-  options: (actionType: string) => Array<{value: string, label: string}>;
+  options: (actionType: string) => Array<{ value: string; label: string }>;
   actionsList: Record<string, any>;
 }
 
 const MAX_CONSUME = 2;
 
-export default function PickConsumptions({ formData, setFormData, options, actionsList }: PickConsumptionsProps): JSX.Element {
+export default function PickConsumptions({
+  formData,
+  setFormData,
+  options,
+  actionsList,
+}: PickConsumptionsProps): JSX.Element {
   const action = 'consumption';
   const optionList = options(action);
 
@@ -39,7 +45,7 @@ export default function PickConsumptions({ formData, setFormData, options, actio
     const updatedFormData = selectedItems.reduce<FormData>(
       (acc, option) => {
         acc[option] = {
-          ...(acc[option] as object || {}),
+          ...((acc[option] as object) || {}),
           type: action,
           variation: event.target.checked ? 'appendMost' : 'standalone',
         };
@@ -61,7 +67,7 @@ export default function PickConsumptions({ formData, setFormData, options, actio
         onChange={handleConsumptionChange}
         values={selectedConsumptions}
         options={optionList}
-        label={<Trans i18nKey="consumables" />}
+        label={t('consumables')}
       />
 
       {!!selectedConsumptions.length && (

@@ -37,16 +37,18 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
   const scheduleEvent = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      const formElements = event.target as HTMLFormElement;
-      const dateTime = new Date(formElements.elements['date-time'].value);
-      const url = (formElements.elements.link as HTMLInputElement).value;
+      const formElements = event.currentTarget as HTMLFormElement;
+      const dateTimeInput = formElements.elements.namedItem('date-time') as HTMLInputElement;
+      const dateTime = new Date(dateTimeInput.value);
+      const urlInput = formElements.elements.namedItem('link') as HTMLInputElement;
+      const url = urlInput.value;
 
       if (!dateTime || !(dateTime instanceof Date)) {
         setAlert('Please select a date and time');
         return;
       }
 
-      if (dateTime < dayjs()) {
+      if (dateTime < dayjs().toDate()) {
         setAlert('Please select a date and time in the future');
         return;
       }
@@ -56,7 +58,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
         return;
       }
 
-      if (dateTime > twoWeeksFromNow) {
+      if (dateTime > twoWeeksFromNow.toDate()) {
         setAlert('Please select a date and time within the next two weeks');
         return;
       }
@@ -113,7 +115,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
           </DialogContent>
         </form>
       </Dialog>
-      <ToastAlert open={!!alert} setOpen={setAlert} close={handleCloseAlert}>
+      <ToastAlert open={!!alert} close={handleCloseAlert}>
         {alert}
       </ToastAlert>
     </>

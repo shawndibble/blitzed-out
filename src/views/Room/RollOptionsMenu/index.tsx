@@ -1,13 +1,16 @@
 import { ArrowDropUp } from '@mui/icons-material';
 import { Button, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from '@mui/material';
+import { t } from 'i18next';
 import { useRef, useState } from 'react';
 
-import { RollOptionsMenuProps } from './types';
+interface RollOptionsMenuProps {
+  selectedRoll: string;
+  handleMenuItemClick: (value: string) => void;
+}
 
-const RollOptionsMenu = ({ 
-  options, 
-  selectedRoll, 
-  handleMenuItemClick 
+const RollOptionsMenu = ({
+  selectedRoll,
+  handleMenuItemClick,
 }: RollOptionsMenuProps): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
@@ -17,11 +20,20 @@ const RollOptionsMenu = ({
   };
 
   const handleClose = (event: Event | React.SyntheticEvent): void => {
-    if (anchorRef.current?.contains(event.target)) {
+    if (event.target instanceof Node && anchorRef.current?.contains(event.target)) {
       return;
     }
     setOpen(false);
   };
+
+  const options = new Map<string, string>();
+  options
+    .set('restart', t('restart'))
+    .set('manual', t('manual'))
+    .set('30', t('auto30'))
+    .set('60', t('auto60'))
+    .set('90', t('auto90'))
+    .set('custom', t('setTimer'));
 
   return (
     <>

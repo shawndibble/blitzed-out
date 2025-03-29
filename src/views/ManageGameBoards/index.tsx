@@ -25,6 +25,8 @@ import { t } from 'i18next';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import useAuth from '@/context/hooks/useAuth';
 import { getOrCreateBoard, sendMessage } from '@/services/firebase';
+import { Settings } from '@/types/Settings';
+import { AlertState } from '@/types';
 
 interface GameBoardProps {
   open: boolean;
@@ -34,13 +36,10 @@ interface GameBoardProps {
 
 export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   const gameBoards = useLiveQuery(getBoards);
-  const [alert, setAlert] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'info' | 'warning';
-  } | null>(null);
-  const [confirmDialog, setConfirmDialog] = useState<number | false>(false);
-  const [expandedElement, setExpanded] = useState<number | false>(false);
-  const settings = useLocalStorage('gameSettings')[0];
+  const [alert, setAlert] = useState<AlertState | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<number>(0);
+  const [expandedElement, setExpanded] = useState<number>(0);
+  const settings = useLocalStorage('gameSettings')[0] as Settings;
   const { user } = useAuth();
 
   if (!gameBoards) {
@@ -53,8 +52,14 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     return percentageValues;
   };
 
+  const handleSetAlert = (alert: AlertState) => {
+    setAlert(alert);
+  };
+
   async function createGameMessage({ title, tiles }: { title: string; tiles: any[] }) {
-    const gameTileTitles = tiles.map(({ title: tileTitle }: { title: string }) => `* ${tileTitle} \n`);
+    const gameTileTitles = tiles.map(
+      ({ title: tileTitle }: { title: string }) => `* ${tileTitle} \n`
+    );
     // remove our start and finish tiles from the list.
     gameTileTitles.pop();
     gameTileTitles.shift();
@@ -70,8 +75,9 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     }
 
     const gameBoard = await getOrCreateBoard({
-      gameBoard: JSON.stringify(tiles),
-      settings: JSON.stringify(settings),
+      title,
+      gameBoard: JSON.stringify(tiles) as string,
+      settings: JSON.stringify(settings) as string,
     });
 
     if (!gameBoard?.id) {
@@ -90,7 +96,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   }
 
   const addBoard = async () => {
-    const boardId = await upsertBoard({ isActive: 0 });
+    const boardId = (await upsertBoard({ isActive: 0 })) || 0;
     setExpanded(boardId);
   };
 
@@ -101,6 +107,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   };
 
   const confirmDelete = (boardId: number) => {
+    if (boardId === 0) return;
     setConfirmDialog(boardId);
   };
 
@@ -108,11 +115,11 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     if (typeof confirmDialog === 'number') {
       deleteBoard(confirmDialog);
     }
-    setConfirmDialog(false);
+    setConfirmDialog(0);
   };
 
   const handleExpand = (panel: number) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
-    setExpanded(newExpanded ? panel : false);
+    setExpanded(newExpanded ? panel : 0);
   };
 
   const invalidBoard = (board: any) =>
@@ -164,7 +171,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
             <Accordion
               key={board.id}
               expanded={expandedElement === board.id}
-              onChange={handleExpand(board.id)}
+              onChange={handleExpand(board.id || 0)}
             >
               <AccordionSummary>
                 <Box>
@@ -184,7 +191,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
                   </Tooltip>
                   <Tooltip title={t('delete')}>
                     <div style={{ display: 'inline-block' }}>
-                      <IconButton onClick={() => confirmDelete(board.id)} size="small">
+                      <IconButton onClick={() => confirmDelete(board.id || 0)} size="small">
                         <Delete color="error" />
                       </IconButton>
                     </div>
@@ -194,8 +201,8 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
               <AccordionDetails>
                 <ImportExport
                   open={open}
-                  close={() => handleExpand(board.id)(null as any, false)}
-                  setAlert={setAlert}
+                  close={() => handleExpand(board.id || 0)(null as any, false)}
+                  setAlert={handleSetAlert}
                   board={board}
                 />
               </AccordionDetails>

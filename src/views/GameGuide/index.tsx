@@ -7,17 +7,7 @@ import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 
-interface GameGuideProps {
-  open?: boolean;
-  close?: (() => void) | null;
-  isMobile?: boolean | null;
-}
-
-export default function GameGuide({
-  open = true,
-  close = null,
-  isMobile = null,
-}: GameGuideProps): JSX.Element {
+export default function GameGuide(): JSX.Element {
   const [expanded, setExpanded] = useState<string | false>('panel1');
   const handleChange =
     (panel: string) => (_event: SyntheticEvent<Element, Event>, newExpanded: boolean) => {

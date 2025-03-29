@@ -3,6 +3,7 @@ import actionStringReplacement from '@/services/actionStringReplacement';
 import GameTile from './GameTile';
 import './styles.css';
 import { Settings } from '@/types/Settings';
+import { Tile } from '@/types';
 
 interface Player {
   uid: string;
@@ -11,24 +12,18 @@ interface Player {
   isSelf?: boolean;
 }
 
-interface GameTile {
-  title: string;
-  description: string;
-  role?: string;
-}
-
 interface GameBoardProps {
   playerList: Player[];
   isTransparent: boolean;
-  gameBoard: GameTile[];
+  gameBoard: Tile[];
   settings: Settings;
 }
 
-export default function GameBoard({ 
-  playerList, 
-  isTransparent, 
-  gameBoard, 
-  settings 
+export default function GameBoard({
+  playerList,
+  isTransparent,
+  gameBoard,
+  settings,
 }: GameBoardProps): JSX.Element | null {
   const { user } = useAuth();
   if (!Array.isArray(gameBoard) || !gameBoard.length) return null;
@@ -36,7 +31,7 @@ export default function GameBoard({
   const tileTypeArray = new Set<string>();
 
   gameBoard.forEach(({ title }, index) => {
-    if (index !== 0 && index !== gameBoard.length - 1) {
+    if (title && index !== 0 && index !== gameBoard.length - 1) {
       tileTypeArray.add(title);
     }
   });
@@ -50,7 +45,7 @@ export default function GameBoard({
 
     const description =
       !settings.hideBoardActions || index === 0 || current
-        ? actionStringReplacement(entry.description, entry.role, user.displayName)
+        ? actionStringReplacement(entry.description, entry.role, user.displayName || '')
         : // replace only letters and numbers with question marks. Remove special characters.
           entry.description.replace(/[^\w\s]/g, '').replace(/[a-zA-Z0-9]/g, '?');
 
@@ -58,7 +53,6 @@ export default function GameBoard({
       <GameTile
         // eslint-disable-next-line react/no-array-index-key
         key={index}
-        id={`tile-${index}`}
         title={`#${index + 1}: ${entry.title}`}
         description={description}
         players={players}

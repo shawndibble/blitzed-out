@@ -17,7 +17,13 @@ interface ActionsStepProps {
   actionsList: Record<string, any>;
 }
 
-export default function ActionsStep({ formData, setFormData, nextStep, prevStep, actionsList }: ActionsStepProps): JSX.Element {
+export default function ActionsStep({
+  formData,
+  setFormData,
+  nextStep,
+  prevStep,
+  actionsList,
+}: ActionsStepProps): JSX.Element {
   function settingSelectLists(type: string): string[] {
     return Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
   }
@@ -41,7 +47,7 @@ export default function ActionsStep({ formData, setFormData, nextStep, prevStep,
 
   return (
     <Box>
-      <Typography variant="body" sx={{ my: 2 }}>
+      <Typography variant="body1" sx={{ my: 2 }}>
         <Trans i18nKey="actionsDisclaimer" />
       </Typography>
 

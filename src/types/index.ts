@@ -2,7 +2,7 @@ import { User as FirebaseUser } from 'firebase/auth';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
-import { GameMode } from './Settings';
+import { GameMode, PlayerRole } from './Settings';
 // Common types used throughout the application
 
 // Auth related types
@@ -107,15 +107,15 @@ export interface LocalStorageHookReturn<T> {
 // Form data types
 export interface FormData {
   [key: string]: any;
-  gameMode?: GameMode;
+  gameMode: GameMode;
   isNaked?: boolean;
   isAppend?: boolean;
-  room?: string;
+  room: string;
   roomRealtime?: boolean;
   actions?: any[];
   consumption?: any[];
-  role?: string;
-  boardUpdated?: boolean;
+  role?: PlayerRole;
+  boardUpdated: boolean;
   finishRange?: [number, number];
 }
 
@@ -129,8 +129,8 @@ export interface ActionEntry {
 // Game board types
 export interface Tile {
   id?: number;
-  title?: string;
-  description?: string;
+  title: string;
+  description: string;
   index?: number;
   [key: string]: any;
 }
@@ -148,7 +148,7 @@ export interface BoardType {
 // Alert state type
 export interface AlertState {
   message: string;
-  type: 'success' | 'error' | 'info' | 'warning';
+  type?: 'success' | 'error' | 'info' | 'warning';
 }
 
 // Roll value state

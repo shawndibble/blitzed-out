@@ -1,9 +1,10 @@
+import { Player } from './player';
 import { GameMode } from './Settings';
 
 export interface DBGameBoard {
   id?: number;
   title: string;
-  tiles?: Tile[];
+  tiles?: TileExport[];
   isActive: number;
   tags: string[];
   gameMode: string;
@@ -11,17 +12,23 @@ export interface DBGameBoard {
 
 export interface Tile {
   id?: number;
-  title?: string;
+  title: string;
   description?: string;
   role?: string;
   index?: number;
+  players: Player[];
+  current: Player | null;
+  isTransparent: boolean;
+  className: string;
 }
+
+export type TileExport = Pick<Tile, 'title' | 'description'>;
 
 export type GameBoard = Tile[];
 
 export interface GameBoardResult {
   settingsBoardUpdated?: boolean;
   gameMode: GameMode;
-  newBoard?: Tile[];
+  newBoard?: TileExport[];
   [key: string]: any;
 }

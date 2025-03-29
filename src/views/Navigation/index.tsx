@@ -1,4 +1,4 @@
-import { lazy, Suspense, forwardRef, useState, ReactElement } from 'react';
+import { lazy, Suspense, forwardRef, useState } from 'react';
 import { CalendarMonth } from '@mui/icons-material';
 import {
   AppBar,
@@ -107,8 +107,10 @@ interface WrapPlayersOnlineProps {
   [key: string]: any;
 }
 
-const WrapPlayersOnline = forwardRef<HTMLDivElement, WrapPlayersOnlineProps>((props, ref) => (
-  <PlayersOnline {...props} innerRef={ref} />
-));
+const WrapPlayersOnline = forwardRef<HTMLDivElement, WrapPlayersOnlineProps>(
+  ({ playerList, ...rest }, ref) => (
+    <PlayersOnline playerList={playerList} {...rest} innerRef={ref} />
+  )
+);
 
 WrapPlayersOnline.displayName = 'WrapPlayersOnline';

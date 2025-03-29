@@ -8,12 +8,13 @@ import MultiSelect from '@/components/MultiSelect';
 import { handleChange, populateSelections, updateFormDataWithDefaults } from '../helpers';
 import { Settings } from '@/types/Settings';
 import { Option } from '@/types/index';
+import { t } from 'i18next';
 
 const MAX_ACTIONS = 4;
 
 interface PickActionsProps {
   formData: Settings;
-  setFormData: (data: Settings) => void;
+  setFormData: React.Dispatch<React.SetStateAction<Settings>>;
   options: (action: string) => Option[];
   actionsList: Record<string, any>;
 }
@@ -57,7 +58,7 @@ export default function PickActions({
         onChange={handleActionChange}
         values={selectedActions}
         options={optionList}
-        label={<Trans i18nKey="actionsLabel" />}
+        label={t('actionsLabel')}
       />
 
       {!!selectedActions.length && (

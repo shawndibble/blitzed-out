@@ -25,7 +25,7 @@ import { getActiveBoard } from '@/stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
-import { RollValueState } from '@/types/index';
+import { RollValueState, Tile } from '@/types/index';
 import { Tile as GameTile } from '@/types/gameBoard';
 
 export default function Room() {
@@ -75,7 +75,7 @@ export default function Room() {
     <GameBoard
       playerList={playerList as any}
       isTransparent={isTransparent}
-      gameBoard={gameBoard as GameTile[]}
+      gameBoard={gameBoard as Tile[]}
       settings={settings as Settings}
     />
   );

@@ -1,5 +1,6 @@
 import { shuffleArray, cycleArray } from '@/helpers/arrays';
 import { CustomTilePull } from '@/types/customTiles';
+import { TileExport } from '@/types/gameBoard';
 import i18next from 'i18next';
 
 interface GameSettings {
@@ -20,7 +21,7 @@ interface ActionFolder {
 }
 
 interface GameTile {
-  title?: string;
+  title: string;
   description: string;
   standalone?: boolean;
   role?: string;
@@ -192,7 +193,7 @@ function getCurrentTile(
   // Use that number to determine if we append or not.
   const randomNumber = Math.random();
   if (frequency && frequency <= randomNumber) {
-    return { description: '' };
+    return { title: '', description: '' };
   }
 
   const catKeys = Object.keys(actions);
@@ -216,7 +217,7 @@ function getCurrentTile(
     };
   }
 
-  return { description: '' };
+  return { title: '', description: '' };
 }
 
 // Builds the board based on user settings
@@ -282,7 +283,7 @@ export default function customizeBoard(
   actionsFolder: ActionFolder,
   userCustomTiles: CustomTilePull[] = [],
   size = 40
-): GameTile[] {
+): TileExport[] {
   // Create a deep copy of the actionsFolder structure but with empty actions
   const emptyActionsFolder = Object.entries(actionsFolder).reduce<ActionFolder>(
     (acc, [key, value]) => {

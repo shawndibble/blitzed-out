@@ -14,7 +14,6 @@ import SettingsSelect from '@/components/SettingsSelect';
 import './style.css';
 import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
 import { Settings } from '@/types/Settings';
-import { ReactNode } from 'react';
 
 interface SelectBoardSettingProps {
   option: string;
@@ -92,7 +91,7 @@ export default function SelectBoardSetting({
           <SettingsSelect
             sx={{ ml: 1 }}
             value={settings[option]?.role}
-            onChange={(event) => handleChange(event as SelectChangeEvent<any>, option, 'role')}
+            onChange={(event: SelectChangeEvent<string>) => handleChange(event, option, 'role')}
             label={`${t('role')}: ${label}`}
             options={roleOptions}
             defaultValue={settings.role || 'sub'}
