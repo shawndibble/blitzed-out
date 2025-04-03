@@ -32,7 +32,7 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
           <Tab label={t('messages')} {...a11yProps(1)} />
         </Tabs>
       </AppBar>
-      <TabPanel value={value} index={0} dir={theme.direction} style={{ p: 0, height: 'calc(100vh - 56px)', overflowY: 'auto' }}>
+      <TabPanel value={value} index={0} dir={theme.direction} style={{ p: 0, height: 'calc(100vh - 6rem)', overflowY: 'auto' }}>
         {tab1}
       </TabPanel>
       <TabPanel value={value} index={1} dir={theme.direction} style={{ p: 0 }}>
