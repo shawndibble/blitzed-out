@@ -1,4 +1,5 @@
 export interface Settings {
+  advancedSettings?: boolean;
   gameMode: GameMode;
   roomRealtime?: boolean;
   actions?: Array<string>; // depricated

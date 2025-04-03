@@ -20,14 +20,15 @@ import { Settings } from '@/types/Settings';
 
 interface GameSettingsProps {
   closeDialog?: () => void;
+  initialTab?: number;
 }
 
-export default function GameSettings({ closeDialog }: GameSettingsProps): JSX.Element {
+export default function GameSettings({ closeDialog, initialTab = 0 }: GameSettingsProps): JSX.Element {
   const { user } = useAuth();
   const { t } = useTranslation();
 
   const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
-  const [value, setValue] = useState<number>(0);
+  const [value, setValue] = useState<number>(initialTab);
   const [alert, setAlert] = useState<string | null>(null);
   const [openCustomTile, setOpenCustomTile] = useState<boolean>(false);
   const [formData, setFormData] = useSettingsToFormData();

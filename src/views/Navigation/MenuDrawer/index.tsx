@@ -9,6 +9,7 @@ import {
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
+import TuneIcon from '@mui/icons-material/Tune';
 import {
   Box,
   Drawer,
@@ -27,8 +28,11 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';
 import AuthDialog from '@/components/auth/AuthDialog';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { Settings } from '@/types/Settings';
 
 // Lazy load dialogs
+const AppSettingsDialog = lazy(() => import('@/components/AppSettingsDialog'));
 const GameSettingsDialog = lazy(() => import('@/components/GameSettingsDialog'));
 const GameGuide = lazy(() => import('@/views/GameGuide'));
 const ManageGameBoards = lazy(() => import('@/views/ManageGameBoards'));
@@ -49,6 +53,7 @@ interface DialogState {
   schedule: boolean;
   customTiles: boolean;
   linkAccount: boolean;
+  appSettings: boolean;
   [key: string]: boolean;
 }
 
@@ -59,6 +64,7 @@ export default function MenuDrawer(): JSX.Element {
   const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState<boolean>(false);
   const toggleDrawer = (isOpen: boolean): void => setMenu(isOpen);
+  const gameSettings = useLocalStorage('gameSettings')[0] as Settings;
 
   const [open, setOpen] = useState<DialogState>({
     settings: false,
@@ -67,6 +73,7 @@ export default function MenuDrawer(): JSX.Element {
     schedule: false,
     customTiles: false,
     linkAccount: false,
+    appSettings: false,
   });
 
   const toggleDialog = (type: string, isOpen: boolean): void =>
@@ -138,8 +145,15 @@ export default function MenuDrawer(): JSX.Element {
 
     if (user) {
       items.unshift({
+        key: 'appSettings',
+        title: <Trans i18nKey="appSettings" />,
+        icon: <TuneIcon />,
+        onClick: () => toggleDialog('appSettings', true),
+
+      });
+      items.unshift({
         key: 'settings',
-        title: <Trans i18nKey="settings" />,
+        title: <Trans i18nKey={gameSettings.advancedSettings ? "settings" : "setupWizard"} />,
         icon: <SettingsIcon />,
         onClick: () => toggleDialog('settings', true),
       });
@@ -159,7 +173,7 @@ export default function MenuDrawer(): JSX.Element {
       });
     }
     return items;
-  }, [user, room, isAnonymous]);
+  }, [user, room, isAnonymous, gameSettings.advancedSettings]);
 
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
     <ListItem key={key} disablePadding onClick={onClick}>
@@ -250,6 +264,7 @@ export default function MenuDrawer(): JSX.Element {
         </Box>
       </Drawer>
       {open.settings && renderDialog(GameSettingsDialog, 'settings')}
+      {open.appSettings && renderDialog(AppSettingsDialog, 'appSettings')}
       {open.about && (
         <Suspense fallback={<div>Loading...</div>}>
           <DialogWrapper open={open.about} close={() => toggleDialog('about', false)}>
