@@ -1,5 +1,5 @@
-import { useEffect, ChangeEvent } from 'react';
-import { Box, Button, FormControlLabel, Switch, Typography } from '@mui/material';
+import { useEffect, useState, ChangeEvent } from 'react';
+import { Box, Button, FormControlLabel, Switch, Typography, CircularProgress } from '@mui/material';
 import { Trans } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import { arraysEqual } from '@/helpers/arrays';
@@ -23,7 +23,8 @@ export default function FinishStep({
 }: FinishStepProps): JSX.Element {
   const no: [number, number] = [100, 100];
   const yes: [number, number] = [0, 0];
-  const yesFinishRange = arraysEqual(formData?.finishRange || [], yes);
+  const [yesFinishRange, setYesFinishRange] = useState<boolean>(arraysEqual(formData?.finishRange || [], yes));
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const submitSettings = useSubmitGameSettings();
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -31,6 +32,7 @@ export default function FinishStep({
       ...formData,
       finishRange: event.target.checked ? yes : no,
     });
+    setYesFinishRange(event.target.checked);
   }
 
   // on load, if don't have a finishRange OR if it is something from advanced settings, replace it.
@@ -44,10 +46,17 @@ export default function FinishStep({
     }
     setFormData(newData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData, no, yesFinishRange]); // Removed setFormData to avoid unnecessary rerenders
+  }, []);
 
   async function handleSubmit(): Promise<void> {
-    await submitSettings(formData, actionsList);
+    setIsLoading(true);
+    try {
+      await submitSettings(formData, actionsList);
+    } catch (error) {
+      console.error('Error submitting settings:', error);
+    } finally {
+      setIsLoading(false);
+    }
     if (typeof close === 'function') close();
   }
 
@@ -68,16 +77,21 @@ export default function FinishStep({
         }}
       >
         <FormControlLabel
-          control={<Switch checked={yesFinishRange || false} onChange={handleChange} />}
-          label={<Trans i18nKey={yesFinishRange ? 'yesOrgasm' : 'noOrgasm'} />}
+          control={<Switch checked={yesFinishRange} onChange={handleChange} />}
+          label={<Trans i18nKey={'yesOrgasm'} />}
         />
       </Box>
 
       <ButtonRow>
-        <Button onClick={prevStep}>
+        <Button onClick={prevStep} disabled={isLoading}>
           <Trans i18nKey="previous" />
         </Button>
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button 
+          variant="contained" 
+          onClick={handleSubmit} 
+          disabled={isLoading}
+          startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+        >
           <Trans i18nKey="buildGame" />
         </Button>
       </ButtonRow>
