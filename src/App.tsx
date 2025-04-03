@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { CssBaseline, ThemeProvider, CircularProgress, Box } from '@mui/material';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import useAuth from '@/context/hooks/useAuth';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import './App.css';
