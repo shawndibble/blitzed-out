@@ -1,1 +1,0 @@
-const e={label:"English",voice:"Google UK English Male"},o={label:"Español",voice:"Google español de Estados Unidos"},l={label:"Française",voice:"Google français"},s={en:e,es:o,fr:l};export{s as default,e as en,o as es,l as fr};
