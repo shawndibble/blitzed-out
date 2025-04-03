@@ -17,30 +17,6 @@ const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
 const Room = lazy(() => import('@/views/Room'));
 
-// Custom loading component with animation
-const LoadingFallback = () => (
-  <Box
-    sx={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      width: '100vw',
-      backgroundColor: 'background.default',
-    }}
-    className="fade-in"
-  >
-    <CircularProgress
-      size={60}
-      thickness={4}
-      sx={{
-        color: 'primary.main',
-        animation: 'pulse 1.5s infinite ease-in-out',
-      }}
-    />
-  </Box>
-);
-
 function Providers({ children }: ProvidersProps) {
   return (
     <UserListProvider>
