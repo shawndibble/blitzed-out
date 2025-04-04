@@ -36,7 +36,7 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
         </Tabs>
       </AppBar>
 
-      <Box sx={{ height: 'calc(100vh - 6rem)', overflowY: 'auto' }}>
+      <Box sx={{ height: 'calc(100vh - 3rem)', overflowY: 'auto' }}>
         <TabPanel value={value} index={0}>
           {tab1}
         </TabPanel>

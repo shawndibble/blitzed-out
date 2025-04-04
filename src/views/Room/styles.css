@@ -23,17 +23,11 @@
   overflow-y: auto;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeIn 0.5s ease-out forwards;
-  padding-top: 64px; /* Account for fixed navbar */
+  padding-top: 4rem; /* Account for fixed navbar */
 }
 
 .mobile-container {
   margin-top: 3rem;
-  height: calc(100vh - 3rem);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: slideUp 0.4s ease-out forwards;
 }
