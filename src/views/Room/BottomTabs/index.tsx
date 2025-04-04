@@ -1,4 +1,5 @@
 import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -21,22 +22,8 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
   };
 
   return (
-    <Box 
-      sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        height: 'calc(100vh - 3rem)',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
-    >
-      <Box 
-        sx={{ 
-          flex: '1 1 auto', 
-          overflowY: 'auto',
-          paddingBottom: '48px' // Height of the tabs
-        }}
-      >
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 3rem)' }}>
+      <Box sx={{ flex: 1, overflowY: 'auto' }}>
         <TabPanel value={value} index={0}>
           {tab1}
         </TabPanel>
@@ -45,17 +32,7 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
         </TabPanel>
       </Box>
 
-      <Box 
-        sx={{ 
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: 'background.paper',
-          borderTop: 1,
-          borderColor: 'divider'
-        }}
-      >
+      <Box sx={{ flex: 0, backgroundColor: 'background.paper', borderTop: 1, borderColor: 'divider' }}>
         <Tabs
           value={value}
           onChange={handleChange}
