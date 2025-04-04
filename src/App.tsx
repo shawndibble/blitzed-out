@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { CssBaseline, ThemeProvider } from '@mui/material';
@@ -27,6 +27,22 @@ function Providers({ children }: ProvidersProps) {
   );
 }
 
+// Component to ensure the room ID is always uppercase
+function UppercaseRedirect({ children }: { children: React.ReactNode }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  useEffect(() => {
+    if (id && id !== id.toUpperCase()) {
+      const newPath = location.pathname.replace(id, id.toUpperCase());
+      navigate(newPath + location.search + location.hash, { replace: true });
+    }
+  }, [id, navigate, location]);
+  
+  return <>{children}</>;
+}
+
 function AppRoutes() {
   const auth = useAuth();
 
@@ -46,23 +62,27 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate replace to="/public" />} />
+      <Route path="/" element={<Navigate replace to="/PUBLIC" />} />
       <Route
         path="/:id/cast"
         element={
-          <Providers>
-            <Suspense>
+          <UppercaseRedirect>
+            <Providers>
+              <Suspense>
                 <Cast />
-            </Suspense>
-          </Providers>
+              </Suspense>
+            </Providers>
+          </UppercaseRedirect>
         }
       />
       <Route
         path="/:id"
         element={
-          <Providers>
-            <Suspense>{room}</Suspense>
-          </Providers>
+          <UppercaseRedirect>
+            <Providers>
+              <Suspense>{room}</Suspense>
+            </Providers>
+          </UppercaseRedirect>
         }
       />
     </Routes>

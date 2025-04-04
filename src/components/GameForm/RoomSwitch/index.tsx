@@ -29,7 +29,7 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
 
     setFormData({
       ...formData,
-      room: roomId,
+      room: roomId.toUpperCase(),
       gameMode: isPublicRoom(roomId) ? ('online' as GameMode) : formData.gameMode,
     });
   };
@@ -57,6 +57,15 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
     },
     [formData, setFormData]
   );
+
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const upperCaseValue = event.target.value.toUpperCase();
+      event.target.value = upperCaseValue;
+    },
+    []
+  );
+
   const isPrivate = !isPublicRoom(formData.room);
   return (
     <>
@@ -99,6 +108,8 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
           margin="normal"
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          onChange={handleChange}
+          inputProps={{ style: { textTransform: 'uppercase' } }}
         />
       )}
     </>
