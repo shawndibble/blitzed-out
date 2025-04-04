@@ -10,6 +10,7 @@
   padding: 0;
   --hue: 1;
   --unit: 1rem;
+  margin: 0 auto;
 }
 
 .gameboard li {
@@ -36,6 +37,7 @@
     0 1px 0 black;
 }
 
+/* Default vertical connector */
 .gameboard li::before {
   content: '';
   background-color: inherit;
@@ -62,169 +64,232 @@
   content: none;
 }
 
-.gameboard .hue0 {
-  --hue: 0;
+/* Hue variations */
+.gameboard .hue0 { --hue: 0; }
+.gameboard .hue1 { --hue: 3; }
+.gameboard .hue2 { --hue: 6; }
+.gameboard .hue3 { --hue: 9; }
+.gameboard .hue4 { --hue: 2; }
+.gameboard .hue5 { --hue: 5; }
+.gameboard .hue6 { --hue: 8; }
+.gameboard .hue7 { --hue: 1; }
+.gameboard .hue8 { --hue: 4; }
+.gameboard .hue9 { --hue: 7; }
+.gameboard .hue10 { --hue: 10; }
+
+@media (max-width: 820px) {
+  .gameboard li:first-child {
+    margin-top: 0;
+  }
 }
 
-.gameboard .hue1 {
-  --hue: 3;
-}
-
-.gameboard .hue2 {
-  --hue: 6;
-}
-
-.gameboard .hue3 {
-  --hue: 9;
-}
-
-.gameboard .hue4 {
-  --hue: 2;
-}
-
-.gameboard .hue5 {
-  --hue: 5;
-}
-
-.gameboard .hue6 {
-  --hue: 8;
-}
-
-.gameboard .hue7 {
-  --hue: 1;
-}
-
-.gameboard .hue8 {
-  --hue: 4;
-}
-
-.gameboard .hue9 {
-  --hue: 7;
-}
-
-.gameboard .hue10 {
-  --hue: 10;
-}
-
-@media (min-width: 820px) and (max-width: 1019px) {
+/* Common responsive styles */
+@media (min-width: 820px) {
+  /* Base responsive styles */
   .gameboard li {
     margin: 1rem;
-    width: calc(50% - 2rem);
     float: left;
     min-height: 11rem;
   }
-
-  .gameboard li:nth-child(4n + 3),
-  .gameboard li:nth-child(4n + 4) {
-    float: right;
-  }
-
-  .gameboard li:nth-child(4n + 1)::before {
+  
+  /* Left connector */
+  .gameboard li.left-connector::before,
+  .gameboard li[class*="left-connect"]::before {
+    content: '';
     top: calc(var(--height) / 2 + var(--unit) / 2);
     left: 100%;
   }
-
-  .gameboard li:nth-child(4n + 1)::after {
+  
+  .gameboard li.left-connector::after,
+  .gameboard li[class*="left-connect"]::after {
+    content: '';
     top: calc(var(--height) / 2);
-    left: calc(100% + (var(--unit)));
+    left: calc(100% + var(--unit));
     border: var(--unit) solid transparent;
     border-left-color: inherit;
+    border-top-color: transparent;
   }
-
-  .gameboard li:nth-child(4n + 3)::before {
+  
+  /* Right connector */
+  .gameboard li.right-connector::before,
+  .gameboard li[class*="right-connect"]::before {
+    content: '';
     top: calc(var(--height) / 2 + var(--unit) / 2);
     left: -1rem;
   }
-
-  .gameboard li:nth-child(4n + 3)::after {
+  
+  .gameboard li.right-connector::after,
+  .gameboard li[class*="right-connect"]::after {
+    content: '';
     top: calc(var(--height) / 2);
     left: -3rem;
     border: var(--unit) solid transparent;
     border-right-color: inherit;
+    border-top-color: transparent;
   }
 }
 
+/* Two column layout */
+@media (min-width: 820px) and (max-width: 1019px) {
+  .gameboard li {
+    width: calc(50% - 2rem);
+  }
+  
+  .gameboard li:nth-child(4n + 3),
+  .gameboard li:nth-child(4n + 4) {
+    float: right;
+  }
+  
+  /* Apply connectors */
+  .gameboard li:nth-child(4n + 1)::before,
+  .gameboard li:nth-child(4n + 1)::after {
+    content: '';
+    top: calc(var(--height) / 2 + var(--unit) / 2);
+    left: 100%;
+  }
+  
+  .gameboard li:nth-child(4n + 1)::after {
+    top: calc(var(--height) / 2);
+    left: calc(100% + var(--unit));
+    border: var(--unit) solid transparent;
+    border-left-color: inherit;
+    border-top-color: transparent;
+  }
+  
+  .gameboard li:nth-child(4n + 3)::before {
+    content: '';
+    top: calc(var(--height) / 2 + var(--unit) / 2);
+    left: -1rem;
+  }
+  
+  .gameboard li:nth-child(4n + 3)::after {
+    content: '';
+    top: calc(var(--height) / 2);
+    left: -3rem;
+    border: var(--unit) solid transparent;
+    border-right-color: inherit;
+    border-top-color: transparent;
+  }
+}
+
+/* Three column layout */
 @media (min-width: 1020px) and (max-width: 1249px) {
   .gameboard li {
-    margin: 1rem;
     width: calc(33% - 2rem);
-    float: left;
     min-height: 12rem;
   }
-
+  
   .gameboard li:nth-child(6n + 4),
   .gameboard li:nth-child(6n + 5),
   .gameboard li:nth-child(6n + 6) {
     float: right;
   }
-
+  
+  /* Left connectors */
+  .gameboard li:nth-child(6n + 1)::before,
+  .gameboard li:nth-child(6n + 2)::before,
+  .gameboard li:nth-child(6n + 1)::after,
+  .gameboard li:nth-child(6n + 2)::after {
+    content: '';
+  }
+  
   .gameboard li:nth-child(6n + 1)::before,
   .gameboard li:nth-child(6n + 2)::before {
     top: calc(var(--height) / 2 + var(--unit) / 2);
     left: 100%;
   }
-
+  
   .gameboard li:nth-child(6n + 1)::after,
   .gameboard li:nth-child(6n + 2)::after {
     top: calc(var(--height) / 2);
-    left: calc(100% + (var(--unit)));
+    left: calc(100% + var(--unit));
     border: var(--unit) solid transparent;
     border-left-color: inherit;
+    border-top-color: transparent;
   }
-
+  
+  /* Right connectors */
+  .gameboard li:nth-child(6n + 4)::before,
+  .gameboard li:nth-child(6n + 5)::before,
+  .gameboard li:nth-child(6n + 4)::after,
+  .gameboard li:nth-child(6n + 5)::after {
+    content: '';
+  }
+  
   .gameboard li:nth-child(6n + 4)::before,
   .gameboard li:nth-child(6n + 5)::before {
     top: calc(var(--height) / 2 + var(--unit) / 2);
     left: -1rem;
   }
-
+  
   .gameboard li:nth-child(6n + 4)::after,
   .gameboard li:nth-child(6n + 5)::after {
     top: calc(var(--height) / 2);
     left: -3rem;
     border: var(--unit) solid transparent;
     border-right-color: inherit;
+    border-top-color: transparent;
   }
 }
 
+/* Four column layout */
 @media (min-width: 1250px) and (max-width: 1549px) {
   .gameboard li {
-    margin: 1rem;
     width: calc(25% - 2rem);
-    float: left;
     min-height: 12rem;
   }
-
+  
   .gameboard li:nth-child(8n + 5),
   .gameboard li:nth-child(8n + 6),
   .gameboard li:nth-child(8n + 7),
   .gameboard li:nth-child(8n + 8) {
     float: right;
   }
-
+  
+  /* Left connectors */
+  .gameboard li:nth-child(8n + 1)::before,
+  .gameboard li:nth-child(8n + 2)::before,
+  .gameboard li:nth-child(8n + 3)::before,
+  .gameboard li:nth-child(8n + 1)::after,
+  .gameboard li:nth-child(8n + 2)::after,
+  .gameboard li:nth-child(8n + 3)::after {
+    content: '';
+  }
+  
   .gameboard li:nth-child(8n + 1)::before,
   .gameboard li:nth-child(8n + 2)::before,
   .gameboard li:nth-child(8n + 3)::before {
     top: calc(var(--height) / 2 + var(--unit) / 2);
     left: 100%;
   }
-
+  
   .gameboard li:nth-child(8n + 1)::after,
   .gameboard li:nth-child(8n + 2)::after,
   .gameboard li:nth-child(8n + 3)::after {
     top: calc(var(--height) / 2);
-    left: calc(100% + (var(--unit)));
+    left: calc(100% + var(--unit));
     border: var(--unit) solid transparent;
     border-left-color: inherit;
+    border-top-color: transparent;
   }
-
+  
+  /* Right connectors */
+  .gameboard li:nth-child(8n + 5)::before,
+  .gameboard li:nth-child(8n + 6)::before,
+  .gameboard li:nth-child(8n + 7)::before,
+  .gameboard li:nth-child(8n + 5)::after,
+  .gameboard li:nth-child(8n + 6)::after,
+  .gameboard li:nth-child(8n + 7)::after {
+    content: '';
+  }
+  
   .gameboard li:nth-child(8n + 5)::before,
   .gameboard li:nth-child(8n + 6)::before,
   .gameboard li:nth-child(8n + 7)::before {
     top: calc(var(--height) / 2 + var(--unit) / 2);
     left: -1rem;
   }
-
+  
   .gameboard li:nth-child(8n + 5)::after,
   .gameboard li:nth-child(8n + 6)::after,
   .gameboard li:nth-child(8n + 7)::after {
@@ -232,22 +297,21 @@
     left: -3rem;
     border: var(--unit) solid transparent;
     border-right-color: inherit;
+    border-top-color: transparent;
   }
 }
 
+/* Six column layout */
 @media (min-width: 1550px) {
   .gameboard ol {
     max-width: 1600px;
-    margin: 0 auto;
   }
-
+  
   .gameboard li {
-    margin: 1rem;
     width: calc(100% / 6 - 2rem);
-    float: left;
     min-height: 12rem;
   }
-
+  
   .gameboard li:nth-child(12n + 7),
   .gameboard li:nth-child(12n + 8),
   .gameboard li:nth-child(12n + 9),
@@ -256,44 +320,52 @@
   .gameboard li:nth-child(12n + 12) {
     float: right;
   }
-
+  
+  /* Left connectors */
   .gameboard li:nth-child(12n + 1)::before,
   .gameboard li:nth-child(12n + 2)::before,
   .gameboard li:nth-child(12n + 3)::before,
   .gameboard li:nth-child(12n + 4)::before,
   .gameboard li:nth-child(12n + 5)::before {
+    content: '';
     top: calc(var(--height) / 2 + var(--unit) / 2);
     left: 100%;
   }
-
+  
   .gameboard li:nth-child(12n + 1)::after,
   .gameboard li:nth-child(12n + 2)::after,
   .gameboard li:nth-child(12n + 3)::after,
   .gameboard li:nth-child(12n + 4)::after,
   .gameboard li:nth-child(12n + 5)::after {
+    content: '';
     top: calc(var(--height) / 2);
-    left: calc(100% + (var(--unit)));
+    left: calc(100% + var(--unit));
     border: var(--unit) solid transparent;
     border-left-color: inherit;
+    border-top-color: transparent;
   }
-
+  
+  /* Right connectors */
   .gameboard li:nth-child(12n + 7)::before,
   .gameboard li:nth-child(12n + 8)::before,
   .gameboard li:nth-child(12n + 9)::before,
   .gameboard li:nth-child(12n + 10)::before,
   .gameboard li:nth-child(12n + 11)::before {
+    content: '';
     top: calc(var(--height) / 2 + var(--unit) / 2);
     left: -1rem;
   }
-
+  
   .gameboard li:nth-child(12n + 7)::after,
   .gameboard li:nth-child(12n + 8)::after,
   .gameboard li:nth-child(12n + 9)::after,
   .gameboard li:nth-child(12n + 10)::after,
   .gameboard li:nth-child(12n + 11)::after {
+    content: '';
     top: calc(var(--height) / 2);
     left: -3rem;
     border: var(--unit) solid transparent;
     border-right-color: inherit;
+    border-top-color: transparent;
   }
 }
