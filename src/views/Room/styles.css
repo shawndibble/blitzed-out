@@ -27,10 +27,9 @@
 }
 
 .mobile-container {
-  margin: 0;
-  padding-bottom: 56px; /* Height of bottom tabs */
-  height: 100vh;
-  overflow-y: 'hidden';
+  margin: 1.5rem 0 0;
+  height: calc(100vh - 1.5rem);
+  overflow-y: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: slideUp 0.4s ease-out forwards;
   padding-top: 24px;
