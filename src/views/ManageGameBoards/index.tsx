@@ -190,11 +190,11 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
                     </div>
                   </Tooltip>
                   <Tooltip title={t('delete')}>
-                    <div style={{ display: 'inline-block' }}>
-                      <IconButton onClick={() => confirmDelete(board.id || 0)} size="small">
+                    <span style={{ display: 'inline-block' }}>
+                      <IconButton onClick={() => confirmDelete(board.id || 0)} size="small" component="span">
                         <Delete color="error" />
                       </IconButton>
-                    </div>
+                    </span>
                   </Tooltip>
                 </Box>
               </AccordionSummary>

@@ -33,10 +33,6 @@ export async function syncCustomTilesToFirebase(): Promise<boolean> {
     // Get all custom tiles from Dexie
     const customTiles = await getTiles({ isCustom: 1 });
 
-    if (!customTiles.length) {
-      return true;
-    }
-
     // Create a document in Firebase with all custom tiles
     await setDoc(
       doc(db, 'user-data', user.uid),
@@ -118,29 +114,35 @@ export async function syncDataFromFirebase(): Promise<boolean> {
     const userData = userDoc.data();
 
     // Import custom tiles
-    if (userData.customTiles && userData.customTiles.length > 0) {
+    if (userData.customTiles !== undefined) {
+      // Clear existing custom tiles before importing
       await deleteAllCustomTiles();
 
-      // add a delay after clearing custom tiles before syncing with remote server
+      // Add a delay after clearing custom tiles before syncing with remote server
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      for (const tile of userData.customTiles as CustomTilePull[]) {
-        try {
-          const existingTile = await getTiles({
-            gameMode: tile.gameMode,
-            group: tile.group,
-            intensity: tile.intensity,
-            action: tile.action,
-          });
+      // Only import if there are tiles to import
+      if (userData.customTiles && userData.customTiles.length > 0) {
+        for (const tile of userData.customTiles as CustomTilePull[]) {
+          try {
+            const existingTile = await getTiles({
+              gameMode: tile.gameMode,
+              group: tile.group,
+              intensity: tile.intensity,
+              action: tile.action,
+            });
 
-          if (existingTile.length === 0) {
-            await addCustomTile(tile);
+            if (existingTile.length === 0) {
+              await addCustomTile(tile);
+            }
+          } catch (error) {
+            console.error('Error importing custom tile:', tile, error);
           }
-        } catch (error) {
-          console.error('Error importing custom tile:', tile, error);
         }
+        console.log(`${userData.customTiles.length} custom tiles imported`);
+      } else {
+        console.log('No custom tiles to import');
       }
-      console.log(`${userData.customTiles.length} custom tiles imported`);
     }
 
     // Import game boards
@@ -206,14 +208,3 @@ export function stopPeriodicSync(): boolean {
 export function isPeriodicSyncActive(): boolean {
   return syncIntervalId !== null;
 }
-
-// Auto-start sync when user logs in and stop when they log out
-getAuth().onAuthStateChanged((user) => {
-  if (user) {
-    // User is signed in, start periodic sync
-    startPeriodicSync();
-  } else {
-    // User is signed out, stop periodic sync
-    stopPeriodicSync();
-  }
-});
