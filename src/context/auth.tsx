@@ -10,7 +10,12 @@ import {
   convertAnonymousAccount,
   logout,
 } from '@/services/firebase';
-import { syncDataFromFirebase, syncAllDataToFirebase } from '@/services/syncService';
+import { 
+  syncDataFromFirebase, 
+  syncAllDataToFirebase, 
+  startPeriodicSync, 
+  stopPeriodicSync 
+} from '@/services/syncService';
 import { User } from '@/types';
 
 export interface SyncStatus {
@@ -228,6 +233,8 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
           syncDataFromFirebase()
             .then(() => {
               setSyncStatus({ syncing: false, lastSync: new Date() });
+              // Start periodic sync after initial sync completes
+              startPeriodicSync();
             })
             .catch((err) => {
               console.error('Error syncing from Firebase:', err);
@@ -237,6 +244,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
               syncTimeoutRef.current = null;
             });
         }, 500); // 0.5 second debounce
+      } else {
+        // User is logged out or anonymous, stop periodic sync
+        stopPeriodicSync();
       }
     });
 
@@ -249,6 +259,8 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
       }
+      // Make sure to stop periodic sync when component unmounts
+      stopPeriodicSync();
       (window as any).authContext = undefined;
     };
   }, []);

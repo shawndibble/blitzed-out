@@ -85,7 +85,15 @@ export default function useSubmitGameSettings(): (
         });
       }
 
-      if (settingsBoardUpdated || roomChanged || privateBoardSizeChanged) {
+      const shouldSendGameSettings =
+        (settingsBoardUpdated || roomChanged || privateBoardSizeChanged) &&
+        !messages.some((m: Message) =>
+          m.type === 'settings' &&
+          m.uid === updatedUser.uid &&
+          (Date.now() - (m.timestamp?.toMillis() || 0) < 5000)
+        );
+
+      if (shouldSendGameSettings) {
         await sendGameSettingsMessage({
           formData,
           user: updatedUser,
