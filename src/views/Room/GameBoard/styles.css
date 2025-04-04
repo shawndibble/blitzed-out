@@ -61,7 +61,7 @@
 
 .gameboard li:last-child::before,
 .gameboard li:last-child::after {
-  content: none;
+  content: none !important;
 }
 
 /* Hue variations */
