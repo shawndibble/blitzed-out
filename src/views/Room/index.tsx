@@ -104,9 +104,7 @@ export default function Room() {
       <RoomBackground isVideo={isVideo} url={url} />
       <TurnIndicator />
       {isMobile ? (
-        <Box className="mobile-container">
           <BottomTabs tab1={GameBoardComponent} tab2={messagesComponent} />
-        </Box>
       ) : (
         <Box className={`desktop-container ${videoAdjust}`}>
           {GameBoardComponent}
