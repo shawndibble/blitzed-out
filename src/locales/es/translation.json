@@ -1,4 +1,4 @@
-﻿{
+{
   "customTiles": {
     "filterByGroup": "Filtrar por grupo",
     "intensityLevel": "Nivel de intensidad",
@@ -268,8 +268,21 @@
   "resetEmailSent": "¡Correo de restablecimiento enviado! Revisa tu bandeja de entrada.",
   "sendResetLink": "Enviar correo de restablecimiento",
   "backToLogin": "Volver al inicio de sesión",
-  "anonymousLogin": "Iniciar sesión anónimo",
+  "anonymousLogin": "Inicio de sesión anónimo",
   "convertAccount": "Convertir cuenta",
-  "startCasting": "Iniciar el casting",
-  "stopCasting": "Detener el casting"
+  "startCasting": "Iniciar transmisión",
+  "stopCasting": "Detener transmisión",
+  
+  "calendar": {
+    "addToCalendar": "Calendario",
+    "downloadIcs": "Descargar archivo ICS",
+    "googleCalendar": "Google Calendar",
+    "outlookCalendar": "Outlook Calendar",
+    "yahooCalendar": "Yahoo Calendar",
+    "appleCalendar": "Apple Calendar (ICS)",
+    "videoLink": "Enlace de video",
+    "gameTitle": "Juego de Blitzed Out"
+  },
+  "soon": "Pronto",
+  "noLinkProvided": "Sin enlace"
 }

@@ -270,5 +270,17 @@
   "anonymousLogin": "Anonymous Login",
   "convertAccount": "Convert Account",
   "startCasting": "Start Casting",
-  "stopCasting": "Stop Casting"
+  "stopCasting": "Stop Casting",
+  "calendar": {
+    "addToCalendar": "Add to Calendar",
+    "downloadIcs": "Download ICS File",
+    "googleCalendar": "Google Calendar",
+    "outlookCalendar": "Outlook Calendar",
+    "yahooCalendar": "Yahoo Calendar",
+    "appleCalendar": "Apple Calendar (ICS)",
+    "videoLink": "Video Link",
+    "gameTitle": "Blitzed Out Game"
+  },
+  "soon": "Soon",
+  "noLinkProvided": "No link provided"
 }

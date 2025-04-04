@@ -270,6 +270,19 @@
   "backToLogin": "Retour à la connexion",
   "anonymousLogin": "Connexion anonyme",
   "convertAccount": "Convertir le compte",
-  "startCasting": "Start Casting",
-  "stopCasting": "Stop Casting"
+  "startCasting": "Démarrer la diffusion",
+  "stopCasting": "Arrêter la diffusion",
+  
+  "calendar": {
+    "addToCalendar": "Ajouter au calendrier",
+    "downloadIcs": "Télécharger le fichier ICS",
+    "googleCalendar": "Agenda Google",
+    "outlookCalendar": "Agenda Outlook",
+    "yahooCalendar": "Agenda Yahoo",
+    "appleCalendar": "Agenda Apple (ICS)",
+    "videoLink": "Lien vidéo",
+    "gameTitle": "Partie de Blitzed Out"
+  },
+  "soon": "Bientôt",
+  "noLinkProvided": "Aucun lien fourni"
 }
