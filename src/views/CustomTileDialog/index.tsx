@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Dialog, DialogContent, DialogTitle, Divider, IconButton, Grid2, Box } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Divider, IconButton, Grid, Box } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { importCustomTiles, getTiles } from '@/stores/customTiles';
@@ -152,10 +152,10 @@ export default function CustomTileDialog({
 
     if (!isSmallScreen) {
       return (
-        <Grid2 container spacing={2}>
-          <Grid2 size={{ xs: 12, md: 6 }}>{leftColumnContent}</Grid2>
-          <Grid2 size={{ xs: 12, md: 6 }}>{rightColumnContent}</Grid2>
-        </Grid2>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, md: 6 }}>{leftColumnContent}</Grid>
+          <Grid size={{ xs: 12, md: 6 }}>{rightColumnContent}</Grid>
+        </Grid>
       );
     } else {
       return (

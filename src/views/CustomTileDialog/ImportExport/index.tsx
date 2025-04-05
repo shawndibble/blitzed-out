@@ -19,7 +19,7 @@ export default function ImportExport({
   setSubmitMessage,
   bulkImport,
 }: ImportExportProps) {
-  const formData = useRef<HTMLFormElement>(null);
+  const formData = useRef<HTMLFormElement | null>(null);
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState<string>('');
 
@@ -51,7 +51,7 @@ export default function ImportExport({
     setInputValue(customString.join('\n---\n'));
   };
 
-  async function importTiles(formRef: React.RefObject<HTMLFormElement>) {
+  async function importTiles(formRef: React.RefObject<HTMLFormElement | null>) {
     if (!formRef.current) return;
 
     const form = formRef.current as unknown as { importData: HTMLInputElement };

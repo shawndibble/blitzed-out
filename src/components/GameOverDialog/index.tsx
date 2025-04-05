@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle, Grid2, Typography } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Grid, Typography } from '@mui/material';
 import CloseIcon from '@/components/CloseIcon';
 import GridItemActionCard from '@/components/GridItemActionCard';
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -66,7 +66,7 @@ export default function GameOverDialog({ isOpen = false, close }: GameOverDialog
           </Typography>
           <CloseIcon close={close} />
 
-          <Grid2 container spacing={2} alignItems="stretch">
+          <Grid container spacing={2} alignItems="stretch">
             <GridItemActionCard title={t('sameBoard')} onClick={returnToStart}>
               <Trans i18nKey="sameBoardDescription" />
             </GridItemActionCard>
@@ -86,7 +86,7 @@ export default function GameOverDialog({ isOpen = false, close }: GameOverDialog
             <GridItemActionCard title={t('changeSettings')} onClick={openSettings}>
               <Trans i18nKey="changeSettingsDescription" />
             </GridItemActionCard>
-          </Grid2>
+          </Grid>
         </DialogContent>
       </Dialog>
 

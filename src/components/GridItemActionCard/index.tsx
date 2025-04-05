@@ -1,4 +1,4 @@
-import { Card, CardActionArea, CardContent, Divider, Grid2, Typography } from '@mui/material';
+import { Card, CardActionArea, CardContent, Divider, Grid, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
 interface GridItemActionCardProps {
@@ -15,7 +15,7 @@ export default function GridItemActionCard({
   disabled 
 }: GridItemActionCardProps): JSX.Element {
   return (
-    <Grid2 size={{ xs: 12, sm: 6 }} container>
+    <Grid size={{ xs: 12, sm: 6 }} container>
       <Card sx={{ width: '100%' }}>
         <CardActionArea
           sx={{
@@ -34,6 +34,6 @@ export default function GridItemActionCard({
           </CardContent>
         </CardActionArea>
       </Card>
-    </Grid2>
+    </Grid>
   );
 }

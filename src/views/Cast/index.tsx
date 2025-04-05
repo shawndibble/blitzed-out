@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid2, Typography } from '@mui/material';
+import { Box, Button, Divider, Grid, Typography } from '@mui/material';
 import ToastAlert from '@/components/ToastAlert';
 import latestMessageByType from '@/helpers/messages';
 import useMessages from '@/context/hooks/useMessages';
@@ -98,7 +98,7 @@ export default function Cast() {
         </Box>
       </Box>
 
-      <Grid2
+      <Grid
         container
         spacing={0}
         direction="column"
@@ -107,22 +107,22 @@ export default function Cast() {
         className="cast-container"
         key={messages.length}
       >
-        <Grid2 container justifyContent="center">
+        <Grid container justifyContent="center">
           {activity ? (
-            <Grid2 size={12} className="action-box">
+            <Grid size={12} className="action-box">
               <Typography variant="h3">{`${type} ${t('for')} ${displayName}`}</Typography>
               <Box className="divider">
                 <Divider />
               </Box>
               <Typography variant="h1">{activity}</Typography>
-            </Grid2>
+            </Grid>
           ) : (
             <div className="action-box">
               <Typography variant="h1">blitzedout.com/{room}</Typography>
             </div>
           )}
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
 
       <ToastAlert open={!!openAlert} close={() => setOpenAlert(false)} hideCloseButton>
         <Typography variant="h5">{alertMessage}</Typography>

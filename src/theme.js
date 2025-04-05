@@ -26,7 +26,6 @@ let darkTheme = createTheme({
         },
     },
     typography: {
-        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
         h1: {
             fontWeight: 700,
             letterSpacing: '-0.025em',

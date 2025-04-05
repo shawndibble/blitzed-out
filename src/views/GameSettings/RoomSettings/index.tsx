@@ -6,6 +6,7 @@ import PlayerListOption from './PlayerListOption';
 import RoomSwitch from '@/components/GameForm/RoomSwitch';
 import { isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
+import { JSX } from 'react';
 
 interface RoomSettingsProps {
   formData: Settings;

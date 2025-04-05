@@ -52,7 +52,7 @@ export default function ScheduleItem({ game }: ScheduleItemProps): JSX.Element {
 
   return (
     <Grid container spacing={2} alignItems="center">
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <EventIcon 
             fontSize="small" 
@@ -96,7 +96,7 @@ export default function ScheduleItem({ game }: ScheduleItemProps): JSX.Element {
         </Box>
       </Grid>
       
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {game.url ? (
             getSiteButton(game.url)

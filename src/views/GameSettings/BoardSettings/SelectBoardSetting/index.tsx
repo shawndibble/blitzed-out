@@ -1,6 +1,6 @@
 import {
   FormControl,
-  Grid2,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -77,17 +77,17 @@ export default function SelectBoardSetting({
   }
 
   return (
-    <Grid2 container key={option} justifyContent="center">
-      <Grid2 size={gridSize}>
+    <Grid container key={option} justifyContent="center">
+      <Grid size={gridSize}>
         <IncrementalSelect
           actionsFolder={actionsFolder}
           settings={settings}
           option={option}
           onChange={(event) => handleChange(event as SelectChangeEvent<any>, option, 'level')}
         />
-      </Grid2>
+      </Grid>
       {!!showRole && (
-        <Grid2 size={6}>
+        <Grid size={6}>
           <SettingsSelect
             sx={{ ml: 1 }}
             value={settings[option]?.role}
@@ -96,10 +96,10 @@ export default function SelectBoardSetting({
             options={roleOptions}
             defaultValue={settings.role || 'sub'}
           />
-        </Grid2>
+        </Grid>
       )}
       {!!showVariation && (
-        <Grid2 size={6}>
+        <Grid size={6}>
           <Tooltip
             placement="top"
             title={
@@ -140,8 +140,8 @@ export default function SelectBoardSetting({
               </Select>
             </FormControl>
           </Tooltip>
-        </Grid2>
+        </Grid>
       )}
-    </Grid2>
+    </Grid>
   );
 }

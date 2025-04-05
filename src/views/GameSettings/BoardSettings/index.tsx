@@ -1,4 +1,4 @@
-import { Divider, Grid2, SelectChangeEvent, Tooltip, Typography } from '@mui/material';
+import { Divider, Grid, SelectChangeEvent, Tooltip, Typography } from '@mui/material';
 import GridItem from '@/components/GridItem';
 import SettingsSelect from '@/components/SettingsSelect';
 import { Trans, useTranslation } from 'react-i18next';
@@ -59,16 +59,16 @@ export default function BoardSettings({
       <SoloSwitch formData={formData} setFormData={setFormData} />
 
       {isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode) && (
-        <Grid2 container alignContent="center" justifyContent="space-evenly">
-          <Grid2 sx={{ py: 3 }}>
+        <Grid container alignContent="center" justifyContent="space-evenly">
+          <Grid sx={{ py: 3 }}>
             <Typography variant="h5">
               <Trans i18nKey="privateRequired" />
             </Typography>
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
       )}
 
-      <Grid2 container columnSpacing={2} justifyContent="space-evenly">
+      <Grid container columnSpacing={2} justifyContent="space-evenly">
         <GridItem>
           <Tooltip
             placement="top"
@@ -115,7 +115,7 @@ export default function BoardSettings({
             />
           </GridItem>
         )}
-      </Grid2>
+      </Grid>
 
       {isLocal ? (
         <>
@@ -131,13 +131,13 @@ export default function BoardSettings({
         </>
       ) : (
         <>
-          <Grid2 container columnSpacing={2} justifyContent="space-evenly">
+          <Grid container columnSpacing={2} justifyContent="space-evenly">
             {settingSelectLists('consumption', { showVariation: true })}
-          </Grid2>
+          </Grid>
           <Divider />
-          <Grid2 container columnSpacing={2} justifyContent="center">
+          <Grid container columnSpacing={2} justifyContent="center">
             {settingSelectLists('solo')}
-          </Grid2>
+          </Grid>
         </>
       )}
 

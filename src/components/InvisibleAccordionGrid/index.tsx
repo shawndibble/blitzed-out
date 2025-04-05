@@ -1,5 +1,5 @@
 import { ExpandMore } from '@mui/icons-material';
-import { Accordion, AccordionDetails, AccordionSummary, Grid2, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Grid, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
 interface InvisibleAccordionGridProps {
@@ -34,9 +34,9 @@ export default function InvisibleAccordionGrid({
         <Typography sx={{ pt: 0.5 }}>{subtitle}</Typography>
       </AccordionSummary>
       <AccordionDetails sx={{ px: 0 }}>
-        <Grid2 container columnSpacing={2} justifyContent="space-evenly" className="columned-grid">
+        <Grid container columnSpacing={2} justifyContent="space-evenly" className="columned-grid">
           {children}
-        </Grid2>
+        </Grid>
       </AccordionDetails>
     </Accordion>
   );

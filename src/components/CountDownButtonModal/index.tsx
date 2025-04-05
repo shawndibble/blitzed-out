@@ -42,7 +42,7 @@ export default function CountDownButtonModal({
   };
 
   // handle timeout
-  const timeoutId = useRef<NodeJS.Timeout>();
+  const timeoutId = useRef<NodeJS.Timeout | undefined>(undefined);
   useEffect(() => {
     if (open) timeoutId.current = setTimeout(() => setOpen(false), parseInt(time) * 1000);
     return () => {

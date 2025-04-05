@@ -11,7 +11,7 @@ const PopupMessage = (): JSX.Element | null => {
   const nextPlayer = useTurnIndicator(message as Message);
 
   // handle timeout of TransitionModal
-  const timeoutId = useRef<NodeJS.Timeout>();
+  const timeoutId = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     if (message) {
