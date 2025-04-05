@@ -48,6 +48,33 @@ function xhamster(url: string): string {
   return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true`;
 }
 
+function imgur(url: string): string {
+  // For Discord proxy URLs that contain Imgur links, just return the URL directly
+  if (url.includes('discordapp.net') && url.includes('imgur.com') && url.endsWith('.mp4')) {
+    return url;
+  }
+  
+  // Extract the Imgur ID from different possible URL formats
+  const imgurRegex = /imgur\.com\/([a-zA-Z0-9]+)(?:\.mp4)?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.mp4/;
+  const match = url.match(imgurRegex);
+  const imgurId = match ? (match[1] || match[2]) : '';
+  
+  // Return direct link to the MP4 file
+  return `https://i.imgur.com/${imgurId}.mp4`;
+}
+
+function isDirectVideoUrl(url: string): boolean {
+  return /\.(mp4|webm|ogg|mov)(\?.*)?$/.test(url);
+}
+
+function isDiscordMediaUrl(url: string): boolean {
+  return urlContainsAny(url, ['media.discordapp.net', 'cdn.discordapp.com']) && !isDirectVideoUrl(url);
+}
+
+function urlContainsAny(url: string, domains: string[]): boolean {
+  return domains.some(domain => url.includes(domain));
+}
+
 interface BackgroundResult {
   url: string | null;
   isVideo: boolean;
@@ -66,8 +93,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case url.includes('vimeo.com'):
       embedUrl = vimeo(url);
       break;
-    case url.includes('youtube.com'):
-    case url.includes('youtu.be'):
+    case urlContainsAny(url, ['youtube.com', 'youtu.be']):
       embedUrl = youtube(url);
       break;
     case url.includes('drive.google.com'):
@@ -82,8 +108,17 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case url.includes('dropbox.com'):
       embedUrl = dropBox(url);
       break;
-    case url.includes('thisvid.com'):
-    case url.includes('boyfriendtv.com'):
+    case urlContainsAny(url, ['imgur.com', 'i.imgur.com','discordapp.net', 'imgur.com']):
+      embedUrl = imgur(url);
+      break;
+    case urlContainsAny(url, ['thisvid.com', 'boyfriendtv.com']):
+      embedUrl = url;
+      break;
+    case isDiscordMediaUrl(url):
+      embedUrl = url;
+      isVideo = false;
+      break;
+    case isDirectVideoUrl(url):
       embedUrl = url;
       break;
     default:
