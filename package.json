@@ -15,8 +15,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@capacitor/camera": "^6.0.0",
-    "@capacitor/core": "^6.0.0",
+    "@capacitor/camera": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@ionic/pwa-elements": "^3.2.2",
@@ -48,6 +48,7 @@
     "web-vitals": "^4.0.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
     "@eslint/js": "^9.9.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
