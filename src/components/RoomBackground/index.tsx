@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import './styles.css';
 
 interface RoomBackgroundProps {
   url?: string | null;
