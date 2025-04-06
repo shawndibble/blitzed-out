@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useGameSettingsStore } from '@/stores/gameSettings';
 import diceSound from '@/sounds/roll-dice.mp3';
 import messageSound from '@/sounds/message.mp3';
 import moment from 'moment';
@@ -10,7 +10,6 @@ import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 import { Message } from '@/types/Message';
-import { Settings } from '@/types/Settings';
 
 export interface DialogResult {
   message: Message | false;
@@ -25,7 +24,7 @@ export default function useSoundAndDialog(): DialogResult {
   const [popupMessage, setPopupMessage] = useState<Message | false>(false);
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
-  const [settings] = useLocalStorage<Settings>('gameSettings');
+  const settings = useGameSettingsStore();
 
   const { playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll } = settings || {};
 

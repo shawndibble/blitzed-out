@@ -3,7 +3,7 @@ import TabPanel from '@/components/TabPanel';
 import ToastAlert from '@/components/ToastAlert';
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useGameSettingsStore, updateGameSettings } from '@/stores/gameSettings';
 import { useCallback, useState, FormEvent, KeyboardEvent, ReactNode, FocusEvent, JSX } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import CustomTileDialog from '@/views/CustomTileDialog';
@@ -16,7 +16,6 @@ import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useRoomNavigate from '@/hooks/useRoomNavigate';
 import useActionList from '@/hooks/useActionList';
-import { Settings } from '@/types/Settings';
 
 interface GameSettingsProps {
   closeDialog?: () => void;
@@ -27,7 +26,7 @@ export default function GameSettings({ closeDialog, initialTab = 0 }: GameSettin
   const { user } = useAuth();
   const { t } = useTranslation();
 
-  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
+  const settings = useGameSettingsStore();
   const [value, setValue] = useState<number>(initialTab);
   const [alert, setAlert] = useState<string | null>(null);
   const [openCustomTile, setOpenCustomTile] = useState<boolean>(false);
@@ -42,7 +41,7 @@ export default function GameSettings({ closeDialog, initialTab = 0 }: GameSettin
     navigate(formData.room);
   };
 
-  const boardUpdated = (): void => updateSettings({ ...settings, boardUpdated: true });
+  const boardUpdated = (): void => updateGameSettings({ ...settings, boardUpdated: true });
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<null> {
     event.preventDefault();

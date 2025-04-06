@@ -1,7 +1,7 @@
 import latestMessageByType from '@/helpers/messages';
 import useAuth from '@/context/hooks/useAuth';
 import useGameBoard from '@/hooks/useGameBoard';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useGameSettingsStore, updateGameSettings } from '@/stores/gameSettings';
 import useMessages from '@/context/hooks/useMessages';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,6 @@ import { importActions } from '@/services/importLocales';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/customTiles';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
-import { Settings } from '@/types/Settings';
 import { RoomMessage } from '@/types/Message';
 import { GameBoard } from '@/types/gameBoard';
 
@@ -28,7 +27,7 @@ export default function usePrivateRoomMonitor(
   const { i18n, t } = useTranslation();
   const { user } = useAuth();
 
-  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
+  const settings = useGameSettingsStore();
   const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
   const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState<string>(DEFAULT_DIEM);
@@ -79,9 +78,9 @@ export default function usePrivateRoomMonitor(
       return;
     }
     
-    await updateSettings({ ...settings, room });
+    updateGameSettings({ room });
     await rebuildGameBoard({ ...settings, roomUpdated: true, room });
-  }, [settings, room, updateSettings, rebuildGameBoard]);
+  }, [settings, room, rebuildGameBoard]);
 
   // Process room messages
   useEffect(() => {

@@ -1,11 +1,10 @@
 import ToastAlert from '@/components/ToastAlert';
 import latestMessageByType, { latestMessage } from '@/helpers/messages';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useGameSettingsStore } from '@/stores/gameSettings';
 import useMessages from '@/context/hooks/useMessages';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { useEffect, useState } from 'react';
 import { Trans } from 'react-i18next';
-import { Settings } from '@/types/Settings';
 
 export default function TurnIndicator(): JSX.Element | null {
   const { messages } = useMessages();
@@ -13,7 +12,7 @@ export default function TurnIndicator(): JSX.Element | null {
   const message = latestMessageByType(messages, 'actions');
   const lastMessage = latestMessage(messages);
   const player = useTurnIndicator(message);
-  const { playerDialog, othersDialog } = useLocalStorage('gameSettings')[0] as Settings;
+  const { playerDialog, othersDialog } = useGameSettingsStore();
 
   useEffect(() => {
     if (!player || lastMessage !== message) return;

@@ -3,12 +3,11 @@ import CloseIcon from '@/components/CloseIcon';
 import GridItemActionCard from '@/components/GridItemActionCard';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import useGameBoard from '@/hooks/useGameBoard';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useGameSettingsStore, updateGameSettings } from '@/stores/gameSettings';
 import useReturnToStart from '@/hooks/useReturnToStart';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import GameSettings from '@/views/GameSettings';
-import { Settings } from '@/types/Settings';
 
 interface GameOverDialogProps {
   isOpen?: boolean;
@@ -22,7 +21,7 @@ export default function GameOverDialog({ isOpen = false, close }: GameOverDialog
 
   const isMobile = useBreakpoint();
   const updateGameBoardTiles = useGameBoard();
-  const [settings, updateLocalStorage] = useLocalStorage<Settings>('gameSettings');
+  const settings = useGameSettingsStore();
 
   const returnToStart = useCallback(() => {
     sentUserToStart();
@@ -42,10 +41,10 @@ export default function GameOverDialog({ isOpen = false, close }: GameOverDialog
       difficulty: 'accelerated',
     };
     await updateGameBoardTiles(newSettings);
-    updateLocalStorage(newSettings);
+    updateGameSettings(newSettings);
     sentUserToStart();
     close();
-  }, [updateGameBoardTiles, settings, updateLocalStorage, sentUserToStart, close]);
+  }, [updateGameBoardTiles, settings, sentUserToStart, close]);
 
   const openSettings = useCallback(() => {
     setSettingsDialog(true);

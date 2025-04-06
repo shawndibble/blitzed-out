@@ -3,7 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import BackgroundSelect from '@/components/BackgroundSelect';
 import LanguageSelect from './LanguageSelect';
 import AppBoolSwitch from './AppBoolSwitch';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { updateGameSettings } from '@/stores/gameSettings';
 import { Settings } from '@/types/Settings';
 import { ChangeEvent } from 'react';
 
@@ -18,8 +18,6 @@ export default function AppSettings({
   setFormData,
   boardUpdated,
 }: AppSettingsProps): JSX.Element {
-  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
-
   const { t } = useTranslation();
   const backgrounds: Record<string, string> = {
     color: t('color'),
@@ -32,8 +30,8 @@ export default function AppSettings({
   function handleSwitch(event: ChangeEvent<HTMLInputElement>, field: string): void {
     setFormData({ ...formData, [field]: event.target.checked });
     // normally we wouldn't update settings as it can be very slow, but for switch toggles,
-    // I want to ensure the local storage is updated immediately
-    updateSettings({ ...settings, [field]: event.target.checked });
+    // I want to ensure the state is updated immediately
+    updateGameSettings({ [field]: event.target.checked });
   }
 
   return (

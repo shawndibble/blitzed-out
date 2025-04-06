@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import useAuth from '@/context/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { updateGameSettings } from '@/stores/gameSettings';
 import usePlayerList from '@/hooks/usePlayerList';
 import { languages } from '@/services/importLocales';
 import { useState, useCallback, useMemo } from 'react';
@@ -22,7 +22,6 @@ import Navigation from '@/views/Navigation';
 import './styles.css';
 import GameGuide from '@/views/GameGuide';
 import AuthDialog, { AuthView } from '@/components/auth/AuthDialog';
-import { Settings } from '@/types/Settings';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
@@ -48,31 +47,14 @@ export default function UnauthenticatedApp() {
   const isMobile = useBreakpoint('sm');
   const [displayName, setDisplayName] = useState(user?.displayName || '');
 
-  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings', {
-    boardUpdated: false,
-    roomUpdated: false,
-    playerDialog: true,
-    othersDialog: false,
-    mySound: true,
-    chatSound: true,
-    hideBoardActions: false,
-    locale: 'en',
-    gameMode: 'online',
-    background: 'color',
-    finishRange: [30, 70],
-    roomTileCount: 40,
-    roomDice: '1d6',
-    room,
-  });
-
   // Memoize handlers to prevent unnecessary re-renders
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLDivElement>) => {
       event.preventDefault();
-      await updateSettings({ ...settings, displayName, room });
+      updateGameSettings({ displayName, room });
       await login(displayName);
     },
-    [displayName, login, room, settings, updateSettings]
+    [displayName, login, room]
   );
 
   const onEnterKey = useCallback(
