@@ -43,7 +43,6 @@ export default function BackgroundSelect({
       data.roomBackgroundURL = '';
       data.roomUpdated = true;
     }
-    console.log('data', data.roomBackgroundURL);
     setFormData(data);
     setBackground(event.target.value);
   };

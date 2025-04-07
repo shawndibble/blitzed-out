@@ -50,7 +50,6 @@ export default function speak(message: string, language: string): void {
     
     if (voice) {
       utterance.voice = voice;
-      console.log(`Using voice: ${voice.name}`);
     }
     
     window.speechSynthesis.speak(utterance);

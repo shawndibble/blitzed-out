@@ -28,7 +28,6 @@ function getRoomSettingsMessage(settings: Partial<Settings>): string {
 function exportRoomSettings(formData: Settings): Partial<Settings> {
   const newSettings: Partial<Settings> = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
-    console.log(settingKey);
     if (
       settingKey.startsWith('room') &&
       !['roomUpdated', 'roomBackground'].some((key) => key === settingKey)
