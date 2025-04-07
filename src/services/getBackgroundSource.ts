@@ -143,14 +143,13 @@ interface BackgroundSettings {
 export default function getBackgroundSource(
   settings: BackgroundSettings,
   room: string,
-  roomBackgroundUrl: string | null | undefined
+  roomBackgroundURL: string | null | undefined
 ): BackgroundResult {
   const { background, backgroundURL, roomBackground } = settings;
   const backgroundSource = background !== 'custom' ? background : backgroundURL;
-  const roomBackgroundSource = roomBackground === 'app' ? roomBackground : roomBackgroundUrl;
+  const roomBackgroundSource = roomBackgroundURL ?? roomBackground;
 
-  const bgSource =
-    !isPublicRoom(room) && roomBackground !== 'app' ? roomBackgroundSource : backgroundSource;
+  const bgSource = !isPublicRoom(room) ? roomBackgroundSource : backgroundSource;
 
   if (!bgSource) return { url: null, isVideo: false };
   return processBackground(bgSource);

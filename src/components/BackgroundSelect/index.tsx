@@ -38,7 +38,13 @@ export default function BackgroundSelect({
     ));
 
   const backgroundSelection = (event: SelectChangeEvent<string>) => {
-    setFormData({ ...formData, [backgroundKey]: event.target.value });
+    const data = { ...formData, [backgroundKey]: event.target.value };
+    if (backgroundKey === 'roomBackground' && event.target.value === 'app') {
+      data.roomBackgroundURL = '';
+      data.roomUpdated = true;
+    }
+    console.log('data', data.roomBackgroundURL);
+    setFormData(data);
     setBackground(event.target.value);
   };
 

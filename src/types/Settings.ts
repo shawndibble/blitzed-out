@@ -6,23 +6,26 @@ export interface Settings {
   consumption?: Array<string>; //depricated
   role?: PlayerRole;
   boardUpdated: boolean;
-  roomUpdated?: boolean;
-  playerDialog?: boolean;
-  othersDialog?: boolean;
-  mySound?: boolean;
+  roomUpdated: boolean; 
+  playerDialog: boolean; 
+  othersDialog: boolean; 
+  mySound: boolean; 
   otherSound?: boolean;
-  chatSound?: boolean;
-  hideBoardActions?: boolean;
-  locale?: string;
-  background?: string;
-  finishRange?: [number, number];
-  roomTileCount?: number;
-  roomDice?: string;
+  chatSound: boolean; 
+  hideBoardActions: boolean; 
+  locale: string; 
+  background: string; 
+  backgroundURL: string; 
+  finishRange: [number, number]; 
+  roomTileCount: number; 
+  roomDice: string; 
   readRoll?: boolean;
   displayName?: string;
   room: string;
-  roomBackgroundURL?: string;
-  [key: string]: any;
+  roomBackground: 'app' | 'custom';
+  roomBackgroundURL: string; 
+  difficulty?: string; 
+  [key: string]: any; 
 }
 
 export type GameMode = 'solo' | 'online' | 'local';

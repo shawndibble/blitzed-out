@@ -11,7 +11,7 @@ function getRoomSettingsMessage(settings: Partial<Settings>): string {
   Object.entries(settings).forEach(([key, val]) => {
     if (key === 'room') return; // we handle the room separately.
     if (key === 'roomBackgroundURL' && val !== '') {
-      message += `* ${t(key)}: [${getSiteName(val)}:link:](${val})\r\n`;
+      message += `* ${t(key)}: [${getSiteName(String(val))}:link:](${val})\r\n`;
       return;
     }
     if (key === 'roomRealtime') {
@@ -28,11 +28,12 @@ function getRoomSettingsMessage(settings: Partial<Settings>): string {
 function exportRoomSettings(formData: Settings): Partial<Settings> {
   const newSettings: Partial<Settings> = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
+    console.log(settingKey);
     if (
       settingKey.startsWith('room') &&
       !['roomUpdated', 'roomBackground'].some((key) => key === settingKey)
     ) {
-      newSettings[settingKey] = settingValue;
+      newSettings[settingKey as keyof Settings] = settingValue;
     }
   });
   return newSettings;

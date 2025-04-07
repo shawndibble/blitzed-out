@@ -117,6 +117,10 @@ export interface FormData {
   role?: PlayerRole;
   boardUpdated: boolean;
   finishRange?: [number, number];
+  roomBackground: 'app' | 'custom';
+  roomBackgroundURL?: string;
+  background?: string;
+  backgroundURL?: string;
 }
 
 export interface ActionEntry {

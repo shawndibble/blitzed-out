@@ -5,21 +5,24 @@ import { Settings } from '@/types/Settings';
 // Define the game settings store with persistence
 export const useGameSettingsStore = create<Settings>()(
   persist(
-    (set) => ({
-      boardUpdated: false,
-      roomUpdated: false,
-      playerDialog: true,
-      othersDialog: false,
-      mySound: true,
-      chatSound: true,
-      hideBoardActions: false,
+    () => ({
+      boardUpdated: false as boolean,
+      roomUpdated: false as boolean,
+      playerDialog: true as boolean,
+      othersDialog: false as boolean,
+      mySound: true as boolean,
+      chatSound: true as boolean,
+      hideBoardActions: false as boolean,
       locale: 'en',
-      gameMode: 'online',
+      gameMode: 'online' as const,
       background: 'color',
-      finishRange: [30, 70],
+      finishRange: [30, 70] as [number, number],
       roomTileCount: 40,
       roomDice: '1d6',
       room: 'PUBLIC',
+      roomBackground: 'app' as const,
+      backgroundURL: '',
+      roomBackgroundURL: '',
     }),
     {
       name: 'gameSettings',

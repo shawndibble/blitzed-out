@@ -38,6 +38,9 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
       role: 'sub',
       boardUpdated: false,
       room: room || 'PUBLIC',
+      roomBackground: 'app',
+      backgroundURL: '',
+      roomBackgroundURL: '',
     },
     overrideSettings
   );
