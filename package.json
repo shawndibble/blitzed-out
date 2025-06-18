@@ -23,7 +23,7 @@
     "@ionic/pwa-elements": "^3.2.2",
     "@mui/icons-material": "^7.0.0",
     "@mui/material": "^7.0.1",
-    "@mui/x-date-pickers": "^7.0.0",
+    "@mui/x-date-pickers": "^8.0.0",
     "clsx": "^2.1.0",
     "dayjs": "^1.11.10",
     "dexie": "^4.0.1-rc.1",
