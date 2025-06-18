@@ -47,7 +47,7 @@
     "remark-gemoji": "^8.0.0",
     "remark-gfm": "^4.0.0",
     "use-sound": "^5.0.0",
-    "web-vitals": "^4.0.0"
+    "web-vitals": "^5.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0",
