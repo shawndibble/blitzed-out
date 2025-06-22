@@ -1,11 +1,18 @@
 import { languages } from './importLocales';
 
 export default function speak(message: string, language: string): void {
+  // Stop any existing speech to prevent conflicts
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+  }
+  
   const utterance = new SpeechSynthesisUtterance();
   utterance.text = message;
   
   // Set a lower pitch for a deeper voice
   utterance.pitch = 0.5;  // Range 0-2, lower values = deeper voice
+  utterance.rate = 0.9;   // Slightly slower for clarity
+  utterance.volume = 1.0; // Full volume
 
   const setVoiceAndSpeak = (): void => {
     const voices = window.speechSynthesis.getVoices();
@@ -52,7 +59,10 @@ export default function speak(message: string, language: string): void {
       utterance.voice = voice;
     }
     
-    window.speechSynthesis.speak(utterance);
+    // Add a small delay to ensure speech synthesis is ready
+    setTimeout(() => {
+      window.speechSynthesis.speak(utterance);
+    }, 100);
   };
 
   if (window.speechSynthesis.getVoices().length === 0) {

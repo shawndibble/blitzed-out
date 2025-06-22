@@ -28,7 +28,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';
 import AuthDialog from '@/components/auth/AuthDialog';
-import { useGameSettingsStore, updateGameSettings } from '@/stores/gameSettings';
+import { useGameSettingsStore, useMenuSettings } from '@/stores/gameSettings';
 
 // Lazy load dialogs
 const AppSettingsDialog = lazy(() => import('@/components/AppSettingsDialog'));
@@ -63,7 +63,8 @@ export default function MenuDrawer(): JSX.Element {
   const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState<boolean>(false);
   const toggleDrawer = (isOpen: boolean): void => setMenu(isOpen);
-  const gameSettings = useGameSettingsStore();
+  const gameSettings = useMenuSettings();
+  const updateSettings = useGameSettingsStore((state) => state.updateSettings);
 
   const [open, setOpen] = useState<DialogState>({
     settings: false,
@@ -93,7 +94,7 @@ export default function MenuDrawer(): JSX.Element {
 
   const changeLanguage = (lng: string): void => {
     i18n.changeLanguage(lng);
-    updateGameSettings({ locale: lng });
+    updateSettings({ locale: lng });
   };
 
   const menuItems = useMemo<MenuItem[]>(() => {

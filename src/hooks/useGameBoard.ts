@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { isPublicRoom } from '@/helpers/strings';
-import { useGameSettingsStore, updateGameSettings } from '@/stores/gameSettings';
+import { updateGameSettings, useBoardSettings } from '@/stores/gameSettings';
 import { useTranslation } from 'react-i18next';
 import customizeBoard from '@/services/buildGame';
 import { importActions } from '@/services/importLocales';
@@ -17,7 +17,7 @@ import { DBGameBoard, GameBoardResult } from '@/types/gameBoard';
  */
 export default function useGameBoard(): (data: Settings) => Promise<GameBoardResult> {
   const gameBoard = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
-  const settings = useGameSettingsStore();
+  const settings = useBoardSettings();
   const { i18n } = useTranslation();
 
   const updateGameBoard = useCallback(

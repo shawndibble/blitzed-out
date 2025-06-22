@@ -6,7 +6,7 @@ import RoomBackground from '@/components/RoomBackground';
 import ToastAlert from '@/components/ToastAlert';
 import TurnIndicator from '@/components/TurnIndicator';
 import GameSettingsDialog from '@/components/GameSettingsDialog';
-import { useGameSettingsStore, updateGameSettings } from '@/stores/gameSettings';
+import { useGameSettingsStore, useRoomPageSettings } from '@/stores/gameSettings';
 import usePlayerMove from '@/hooks/usePlayerMove';
 import usePresence from '@/hooks/usePresence';
 import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
@@ -28,16 +28,19 @@ import { Settings } from '@/types/Settings';
 import { RollValueState, Tile } from '@/types/index';
 import { Tile as GameTile } from '@/types/gameBoard';
 
-export default function Room() {
+export default function Room(): JSX.Element {
   const params = useParams<{ id: string }>();
   const room = params.id || '';
   const isMobile = useBreakpoint();
   const { t } = useTranslation();
 
-  const settings = useGameSettingsStore();
-  const setSettings = (newSettings: Partial<Settings>) => updateGameSettings(newSettings);
+  const [initializing, setInitializing] = useState<boolean>(true);
+  const [toast, setToast] = useState<string | null>(null);
 
-  usePresence(room, settings?.roomRealtime);
+  const settings = useRoomPageSettings();
+  const updateSettings = useGameSettingsStore((state) => state.updateSettings);
+
+  usePresence(room, false);
 
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
   const gameBoard = useLiveQuery(getActiveBoard)?.tiles as GameTile[] | undefined;
@@ -50,7 +53,7 @@ export default function Room() {
   // Use usePlayerMove directly
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
-  const [importResult, clearImportResult] = useUrlImport(settings, setSettings as any);
+  const [importResult, clearImportResult] = useUrlImport(settings, updateSettings as any);
 
   if (
     !gameBoard ||
@@ -69,8 +72,7 @@ export default function Room() {
   const { isVideo, url } = getBackgroundSource(settings, room, roomBgUrl);
   const videoAdjust = isVideo ? 'video-adjust' : '';
 
-  const { background, roomBackground } = settings;
-  const isTransparent = (!isPublicRoom(room) && roomBackground !== 'app') || background !== 'color';
+  const isTransparent = (!isPublicRoom(room) && settings.roomBackground !== 'app') || settings.background !== 'color';
 
   const GameBoardComponent = (
     <GameBoard

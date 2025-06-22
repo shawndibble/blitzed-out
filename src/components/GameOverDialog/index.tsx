@@ -2,102 +2,95 @@ import { Dialog, DialogContent, DialogTitle, Grid, Typography } from '@mui/mater
 import CloseIcon from '@/components/CloseIcon';
 import GridItemActionCard from '@/components/GridItemActionCard';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import useGameBoard from '@/hooks/useGameBoard';
-import { useGameSettingsStore, updateGameSettings } from '@/stores/gameSettings';
-import useReturnToStart from '@/hooks/useReturnToStart';
+import { useGameSettingsStore } from '@/stores/gameSettings';
+import useRoomNavigate from '@/hooks/useRoomNavigate';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import GameSettings from '@/views/GameSettings';
 
 interface GameOverDialogProps {
-  isOpen?: boolean;
-  close: () => void;
+  open: boolean;
+  onClose: () => void;
+  winner?: string;
 }
 
-export default function GameOverDialog({ isOpen = false, close }: GameOverDialogProps): JSX.Element {
+export default function GameOverDialog({
+  open,
+  onClose,
+}: GameOverDialogProps): JSX.Element {
   const { t } = useTranslation();
-  const [openSettingsDialog, setSettingsDialog] = useState<boolean>(false);
-  const sentUserToStart = useReturnToStart();
-
-  const isMobile = useBreakpoint();
-  const updateGameBoardTiles = useGameBoard();
-  const settings = useGameSettingsStore();
+  const navigate = useRoomNavigate();
+  const updateSettings = useGameSettingsStore((state) => state.updateSettings);
+  const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
 
   const returnToStart = useCallback(() => {
-    sentUserToStart();
-    close();
-  }, [sentUserToStart, close]);
+    navigate('/start');
+    onClose();
+  }, [navigate, onClose]);
 
-  const rebuild = useCallback(async () => {
-    await updateGameBoardTiles({ ...settings, boardUpdated: true });
-    sentUserToStart();
-    close();
-  }, [updateGameBoardTiles, settings, sentUserToStart, close]);
+  const playAgain = useCallback(async () => {
+    updateSettings({ boardUpdated: true });
+    onClose();
+  }, [updateSettings, onClose]);
+
+  const handleNewGame = useCallback(async () => {
+    updateSettings({ boardUpdated: false });
+    onClose();
+  }, [updateSettings, onClose]);
 
   const acceleratedDifficulty = useCallback(async () => {
-    const newSettings = {
-      ...settings,
-      boardUpdated: true,
-      difficulty: 'accelerated',
-    };
-    await updateGameBoardTiles(newSettings);
-    updateGameSettings(newSettings);
-    sentUserToStart();
-    close();
-  }, [updateGameBoardTiles, settings, sentUserToStart, close]);
+    updateSettings({ boardUpdated: true });
+    onClose();
+  }, [updateSettings, onClose]);
 
-  const openSettings = useCallback(() => {
-    setSettingsDialog(true);
-    close();
-  }, [close]);
+  const openSettingsHandler = useCallback(() => {
+    setOpenSettingsDialog(true);
+    onClose();
+  }, [onClose]);
 
   const closeSettings = useCallback(() => {
-    setSettingsDialog(false);
-    sentUserToStart();
-  }, [sentUserToStart]);
+    setOpenSettingsDialog(false);
+    navigate('/start');
+  }, [navigate]);
 
   return (
     <>
-      <Dialog open={isOpen} onClose={close} fullScreen={isMobile} aria-labelledby="modal-game-over">
+      <Dialog open={open} onClose={onClose} fullScreen={useBreakpoint()} aria-labelledby="modal-game-over">
         <DialogContent>
           <Typography variant="h4" textAlign="center" sx={{ mb: 2, px: 2 }}>
             <Trans i18nKey="gameOverPlayAgain" />
           </Typography>
-          <CloseIcon close={close} />
+          <CloseIcon close={onClose} />
 
-          <Grid container spacing={2} alignItems="stretch">
-            <GridItemActionCard title={t('sameBoard')} onClick={returnToStart}>
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <GridItemActionCard title={t('newGame')} onClick={handleNewGame}>
               <Trans i18nKey="sameBoardDescription" />
             </GridItemActionCard>
-
-            <GridItemActionCard title={t('rebuildBoard')} onClick={rebuild}>
+            
+            <GridItemActionCard title={t('playAgain')} onClick={playAgain}>
               <Trans i18nKey="rebuildBoardDescription" />
             </GridItemActionCard>
-
-            <GridItemActionCard
-              title={t('finalDifficulty')}
-              onClick={acceleratedDifficulty}
-              disabled={settings.difficulty === 'accelerated'}
-            >
+            
+            <GridItemActionCard title={t('accelerated')} onClick={acceleratedDifficulty}>
               <Trans i18nKey="finalDifficultyDescription" />
             </GridItemActionCard>
-
-            <GridItemActionCard title={t('changeSettings')} onClick={openSettings}>
+            
+            <GridItemActionCard title={t('settings')} onClick={openSettingsHandler}>
               <Trans i18nKey="changeSettingsDescription" />
+            </GridItemActionCard>
+            
+            <GridItemActionCard title={t('returnToStart')} onClick={returnToStart}>
+              <Trans i18nKey="sameBoardDescription" />
             </GridItemActionCard>
           </Grid>
         </DialogContent>
       </Dialog>
 
-      {!!openSettingsDialog && (
-        <Dialog fullScreen={isMobile} open={openSettingsDialog} maxWidth="md">
+      {openSettingsDialog && (
+        <Dialog fullScreen={useBreakpoint()} open={openSettingsDialog} maxWidth="md">
           <DialogTitle>
             <Trans i18nKey="gameSettings" />
             <CloseIcon close={closeSettings} />
           </DialogTitle>
-          <DialogContent>
-            <GameSettings closeDialog={closeSettings} />
-          </DialogContent>
         </Dialog>
       )}
     </>
