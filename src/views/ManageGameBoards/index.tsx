@@ -47,7 +47,9 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   }
 
   const getFinishRange = (tiles: any[]) => {
+    if (!tiles || !tiles.length) return null;
     const lastTile = tiles[tiles.length - 1];
+    if (!lastTile?.description) return null;
     const percentageValues = lastTile.description.match(/\d+%/g);
     return percentageValues;
   };
@@ -70,7 +72,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     message += '---\n';
     // get finishRange from the last tile.
     const finishRange = getFinishRange(tiles);
-    if (finishRange.length === 3) {
+    if (finishRange && finishRange.length === 3) {
       message += `* ${t('finishSlider')} ${finishRange[0]}  | ${finishRange[1]} | ${finishRange[2]}`;
     }
 

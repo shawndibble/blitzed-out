@@ -13,6 +13,7 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
   return (
     <Box
       className="main-container"
+      role="presentation"
       sx={{
         backgroundImage: !isVideo && url ? `url(${url})` : 'none',
       }}
@@ -20,22 +21,22 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
       {isVideo && (
         isDirectVideo ? (
           <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            src={url || ''}
+            autoPlay={true}
+            loop={true}
+            muted={true}
+            playsInline={true}
+            src={url || undefined}
             className="video-background"
           />
         ) : (
           <iframe
             width="100%"
             height="100%"
-            src={url || ''}
+            src={url || undefined}
             title="video"
             allowFullScreen
             allow="autoplay"
-            style={{ border: 'none' }}
+            style={{ border: 0 }}
           />
         )
       )}

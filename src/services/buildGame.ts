@@ -142,7 +142,9 @@ function separateAppendOptions(
     if (categoryIndex === -1) return;
 
     if (variation === 'standalone') {
-      listWithoutAppend[categoryIndex].standalone = true;
+      if (listWithoutAppend[categoryIndex]) {
+        listWithoutAppend[categoryIndex].standalone = true;
+      }
       return;
     }
 
@@ -185,6 +187,10 @@ function getCurrentTile(
   currentTile: number,
   settings: GameSettings
 ): GameTile {
+  if (!listWithMisc.length) {
+    return { title: '', description: '' };
+  }
+
   cycleArray(listWithMisc);
 
   const { actions, label, standalone, frequency, role } = listWithMisc[0];
@@ -284,25 +290,7 @@ export default function customizeBoard(
   userCustomTiles: CustomTilePull[] = [],
   size = 40
 ): TileExport[] {
-  // Create a deep copy of the actionsFolder structure but with empty actions
-  const emptyActionsFolder = Object.entries(actionsFolder).reduce<ActionFolder>(
-    (acc, [key, value]) => {
-      acc[key] = {
-        ...value,
-        actions: Object.keys(value.actions || {}).reduce<Record<string, string[]>>(
-          (actionsAcc, actionKey) => {
-            actionsAcc[actionKey] = [];
-            return actionsAcc;
-          },
-          {}
-        ),
-      };
-      return acc;
-    },
-    {}
-  );
-
-  const newActionList = restrictActionsToUserSelections(emptyActionsFolder, settings);
+  const newActionList = restrictActionsToUserSelections(actionsFolder, settings);
 
   if (!newActionList.length && !userCustomTiles.length) {
     // if we have no action list and no custom tiles, then clear local storage and reload.

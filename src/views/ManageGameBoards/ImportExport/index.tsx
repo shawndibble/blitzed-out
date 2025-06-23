@@ -74,10 +74,18 @@ export default function ImportExport({
 
     // if we got nothing from getGameTiles, then we have an error message and should stop.
     if (!gameTiles) return null;
-
-    if (JSON.stringify(board.tiles) === JSON.stringify(gameTiles)) {
+    
+    try {
+      if (JSON.stringify(board.tiles) === JSON.stringify(gameTiles)) {
+        setAlert({
+          message: t('importNoChange'),
+        });
+        return null;
+      }
+    } catch (error) {
       setAlert({
-        message: t('importNoChange'),
+        message: t('error'),
+        type: 'error',
       });
       return null;
     }
@@ -94,7 +102,13 @@ export default function ImportExport({
   };
 
   const exportBoard = (): void => {
-    const arrayExport = board?.tiles?.map(({ title, description }) => `[${title}]\n${description}`);
+    // Guard against null/undefined tiles and properties
+    const arrayExport = board?.tiles?.map(tile => {
+      if (!tile) return '';
+      const title = tile.title || '';
+      const description = tile.description || '';
+      return `[${title}]\n${description}`;
+    }).filter(Boolean);
 
     setTextField(arrayExport?.join('\n~~\n') || '');
   };
@@ -118,6 +132,11 @@ export default function ImportExport({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]); // Removed board dependency to avoid circular reference
+  
+  // Sync boardTitle state with board.title prop when it changes
+  useEffect(() => {
+    setBoardTitle(board.title || '');
+  }, [board.title]);
 
   return (
     <>
@@ -145,7 +164,12 @@ export default function ImportExport({
               }}
             >
               <Tooltip title={t('save')}>
-                <IconButton size="small" onClick={importBoard}>
+                <IconButton 
+                  size="small" 
+                  onClick={importBoard} 
+                  title={t('save')}
+                  aria-label={t('save')}
+                >
                   <Save color="success" />
                 </IconButton>
               </Tooltip>
