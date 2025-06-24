@@ -8,11 +8,11 @@ interface GridItemActionCardProps {
   disabled?: boolean;
 }
 
-export default function GridItemActionCard({ 
-  children, 
-  title, 
-  onClick, 
-  disabled 
+export default function GridItemActionCard({
+  children,
+  title,
+  onClick,
+  disabled,
 }: GridItemActionCardProps): JSX.Element {
   return (
     <Grid size={{ xs: 12, sm: 6 }} container>

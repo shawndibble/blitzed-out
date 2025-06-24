@@ -1,4 +1,12 @@
-import { BrowserRouter, Routes, Route, Navigate, useParams, useNavigate, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom';
 import { lazy, Suspense, useEffect } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { CssBaseline, ThemeProvider } from '@mui/material';
@@ -32,14 +40,14 @@ function UppercaseRedirect({ children }: { children: React.ReactNode }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   useEffect(() => {
     if (id && id !== id.toUpperCase()) {
       const newPath = location.pathname.replace(id, id.toUpperCase());
       navigate(newPath + location.search + location.hash, { replace: true });
     }
   }, [id, navigate, location]);
-  
+
   return <>{children}</>;
 }
 

@@ -15,7 +15,10 @@ interface GameOverDialogProps {
   close: () => void;
 }
 
-export default function GameOverDialog({ isOpen = false, close }: GameOverDialogProps): JSX.Element {
+export default function GameOverDialog({
+  isOpen = false,
+  close,
+}: GameOverDialogProps): JSX.Element {
   const { t } = useTranslation();
   const [openSettingsDialog, setSettingsDialog] = useState<boolean>(false);
   const sentUserToStart = useReturnToStart();

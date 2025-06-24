@@ -20,7 +20,7 @@ function hasSomethingPicked(object: ActionOptions): boolean {
 }
 
 function separateConsumableFromValidRest(
-  gameOptions: Settings, 
+  gameOptions: Settings,
   actionsList: Record<string, any>
 ): SeparatedOptions {
   return Object.entries(gameOptions).reduce(
@@ -42,12 +42,14 @@ function separateConsumableFromValidRest(
 }
 
 function isTryingToAppend(withAppend: ActionOptions): boolean {
-  return Object.keys(withAppend).length > 0 && Object.values(withAppend).some(({ level }) => level > 0);
+  return (
+    Object.keys(withAppend).length > 0 && Object.values(withAppend).some(({ level }) => level > 0)
+  );
 }
 
 // returns a translation key for an alert if fails.
 export default function validateFormData(
-  gameOptions: Settings, 
+  gameOptions: Settings,
   actionsList: Record<string, any>
 ): string | null {
   const { withAppend, withoutAppend } = separateConsumableFromValidRest(gameOptions, actionsList);

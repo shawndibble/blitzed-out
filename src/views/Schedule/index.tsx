@@ -79,7 +79,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
       }
 
       addToSchedule(dateTime, url);
-      
+
       // Reset form fields
       formElements.reset();
     },
@@ -88,18 +88,15 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
 
   return (
     <>
-      <Dialog 
-        fullScreen={isMobile} 
-        open={open} 
-        onClose={close} 
-        maxWidth="md"
-      >
+      <Dialog fullScreen={isMobile} open={open} onClose={close} maxWidth="md">
         <form onSubmit={scheduleEvent}>
-          <DialogTitle sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 1,
-          }}>
+          <DialogTitle
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
             <CalendarMonthIcon color="primary" />
             <Typography variant="h5" component="span" fontWeight="bold">
               <Trans i18nKey="schedule" />
@@ -107,10 +104,10 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
             <CloseIcon close={close} />
           </DialogTitle>
           <DialogContent>
-            <Card 
-              elevation={3} 
-              sx={{ 
-                mb: 4, 
+            <Card
+              elevation={3}
+              sx={{
+                mb: 4,
                 background: alpha(theme.palette.primary.main, 0.05),
                 border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
                 borderRadius: 2,
@@ -118,7 +115,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                 position: 'relative',
               }}
             >
-              <CardHeader 
+              <CardHeader
                 title={
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <EventIcon color="primary" />
@@ -127,7 +124,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                     </Typography>
                   </Box>
                 }
-                sx={{ 
+                sx={{
                   pb: 1,
                   borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 }}
@@ -136,23 +133,21 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                 {schedule.length ? (
                   <Stack spacing={2}>
                     {schedule?.map((game) => (
-                      <Paper 
-                        key={game.id} 
-                        elevation={1} 
-                        sx={{ p: 1.5, borderRadius: 1.5 }}
-                      >
+                      <Paper key={game.id} elevation={1} sx={{ p: 1.5, borderRadius: 1.5 }}>
                         <ScheduleItem game={game} />
                       </Paper>
                     ))}
                   </Stack>
                 ) : (
-                  <Box sx={{ 
-                    p: 3, 
-                    textAlign: 'center',
-                    color: alpha(theme.palette.text.primary, 0.6),
-                    borderRadius: 1,
-                    background: alpha(theme.palette.background.paper, 0.5),
-                  }}>
+                  <Box
+                    sx={{
+                      p: 3,
+                      textAlign: 'center',
+                      color: alpha(theme.palette.text.primary, 0.6),
+                      borderRadius: 1,
+                      background: alpha(theme.palette.background.paper, 0.5),
+                    }}
+                  >
                     <Typography variant="body1">No Planned Games</Typography>
                     <Typography variant="body2" sx={{ mt: 1, fontSize: '0.85rem' }}>
                       Use the form below to schedule your first game
@@ -162,14 +157,14 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
               </CardContent>
             </Card>
 
-            <Card 
-              elevation={2} 
-              sx={{ 
+            <Card
+              elevation={2}
+              sx={{
                 background: alpha(theme.palette.background.paper, 0.7),
                 borderRadius: 2,
               }}
             >
-              <CardHeader 
+              <CardHeader
                 title={
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <AddIcon color="secondary" />
@@ -178,7 +173,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                     </Typography>
                   </Box>
                 }
-                sx={{ 
+                sx={{
                   pb: 1,
                   borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 }}
@@ -197,26 +192,26 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                       textField: {
                         variant: 'outlined',
                         fullWidth: true,
-                      }
+                      },
                     }}
                   />
-                  
-                  <TextField 
-                    label={t('camUrl')} 
-                    variant="outlined" 
-                    name="link" 
-                    fullWidth 
+
+                  <TextField
+                    label={t('camUrl')}
+                    variant="outlined"
+                    name="link"
+                    fullWidth
                     placeholder="https://..."
                     helperText="Optional: Link to your stream or meeting"
                   />
-                  
-                  <Button 
-                    variant="contained" 
-                    type="submit" 
+
+                  <Button
+                    variant="contained"
+                    type="submit"
                     fullWidth
                     size="large"
                     startIcon={<EventIcon />}
-                    sx={{ 
+                    sx={{
                       mt: 2,
                       py: 1.2,
                       borderRadius: 1.5,
@@ -225,7 +220,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                       boxShadow: theme.shadows[4],
                       '&:hover': {
                         boxShadow: theme.shadows[8],
-                      }
+                      },
                     }}
                   >
                     <Trans i18nKey="schedule" />

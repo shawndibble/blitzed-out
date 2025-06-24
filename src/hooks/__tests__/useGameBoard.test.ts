@@ -99,7 +99,7 @@ describe('useGameBoard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default mocks
     vi.mocked(useLiveQuery).mockReturnValue(mockGameBoard);
     vi.mocked(useLocalStorage).mockReturnValue([mockSettings, updateSettingsMock]);
@@ -212,7 +212,9 @@ describe('useGameBoard', () => {
         tiles: new Array(3).fill({ title: 'Test', description: 'Test' }),
       };
       vi.mocked(useLiveQuery).mockReturnValue(mockGameBoardWithSameTileCount);
-      vi.mocked(customizeBoard).mockReturnValue(new Array(3).fill({ title: 'Test', description: 'Test' }));
+      vi.mocked(customizeBoard).mockReturnValue(
+        new Array(3).fill({ title: 'Test', description: 'Test' })
+      );
 
       const { result } = renderHook(() => useGameBoard());
 
@@ -423,7 +425,7 @@ describe('useGameBoard', () => {
       const results = await Promise.all(promises);
 
       expect(results).toHaveLength(3);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.gameMode).toBe('online');
       });
     });

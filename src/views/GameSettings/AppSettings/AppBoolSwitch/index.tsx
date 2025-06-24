@@ -8,7 +8,11 @@ interface AppBoolSwitchProps {
   handleSwitch: (event: ChangeEvent<HTMLInputElement>, field: string) => void;
 }
 
-export default function AppBoolSwitch({ field, formData, handleSwitch }: AppBoolSwitchProps): JSX.Element {
+export default function AppBoolSwitch({
+  field,
+  formData,
+  handleSwitch,
+}: AppBoolSwitchProps): JSX.Element {
   return (
     <YesNoSwitch
       trueCondition={formData[field]}

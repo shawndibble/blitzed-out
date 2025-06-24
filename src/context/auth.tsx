@@ -10,11 +10,11 @@ import {
   convertAnonymousAccount,
   logout,
 } from '@/services/firebase';
-import { 
-  syncDataFromFirebase, 
-  syncAllDataToFirebase, 
-  startPeriodicSync, 
-  stopPeriodicSync 
+import {
+  syncDataFromFirebase,
+  syncAllDataToFirebase,
+  startPeriodicSync,
+  stopPeriodicSync,
 } from '@/services/syncService';
 import { User } from '@/types';
 

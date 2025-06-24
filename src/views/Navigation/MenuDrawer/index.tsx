@@ -149,11 +149,10 @@ export default function MenuDrawer(): JSX.Element {
         title: <Trans i18nKey="appSettings" />,
         icon: <TuneIcon />,
         onClick: () => toggleDialog('appSettings', true),
-
       });
       items.unshift({
         key: 'settings',
-        title: <Trans i18nKey={gameSettings.advancedSettings ? "settings" : "setupWizard"} />,
+        title: <Trans i18nKey={gameSettings.advancedSettings ? 'settings' : 'setupWizard'} />,
         icon: <SettingsIcon />,
         onClick: () => toggleDialog('settings', true),
       });

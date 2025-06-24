@@ -24,9 +24,7 @@ export default function IncrementalSelect({
   const label = actionsFolder[option]?.label;
 
   const hasMouse = useHasMouse();
-  const [hoveredOption, setHoveredOption] = useState<number>(
-    settings[option]?.level || 0
-  );
+  const [hoveredOption, setHoveredOption] = useState<number>(settings[option]?.level || 0);
 
   const handleMouseOver = (index: number) => {
     setHoveredOption(index);

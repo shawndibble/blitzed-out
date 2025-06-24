@@ -95,7 +95,7 @@
 }
 
 /* Ensure bottom tabs have no gap */
-.MuiAppBar-root[style*="bottom: 0"] {
+.MuiAppBar-root[style*='bottom: 0'] {
   bottom: 0 !important;
 }
 

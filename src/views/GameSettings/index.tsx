@@ -23,7 +23,10 @@ interface GameSettingsProps {
   initialTab?: number;
 }
 
-export default function GameSettings({ closeDialog, initialTab = 0 }: GameSettingsProps): JSX.Element {
+export default function GameSettings({
+  closeDialog,
+  initialTab = 0,
+}: GameSettingsProps): JSX.Element {
   const { user } = useAuth();
   const { t } = useTranslation();
 

@@ -39,18 +39,18 @@ vi.mock('@/services/syncService', () => ({
 
 describe('AuthProvider', () => {
   let authStateChangedCallback: ((user: any) => void) | null = null;
-  
+
   beforeEach(() => {
     vi.clearAllMocks();
     authStateChangedCallback = null;
-    
+
     // Setup mock for onAuthStateChanged to capture the callback
     mockOnAuthStateChanged.mockImplementation((callback) => {
       authStateChangedCallback = callback;
       // Return unsubscribe function
       return vi.fn();
     });
-    
+
     // Clear window auth context
     (window as any).authContext = undefined;
   });
@@ -67,7 +67,7 @@ describe('AuthProvider', () => {
   describe('Initialization', () => {
     it('should initialize with loading state', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       expect(result.current.loading).toBe(true);
       expect(result.current.user).toBe(null);
       expect(result.current.error).toBe(null);
@@ -76,14 +76,14 @@ describe('AuthProvider', () => {
 
     it('should set up auth state listener on mount', () => {
       renderHook(() => useAuth(), { wrapper });
-      
+
       expect(mockOnAuthStateChanged).toHaveBeenCalledTimes(1);
       expect(typeof authStateChangedCallback).toBe('function');
     });
 
     it('should set up global auth context', () => {
       renderHook(() => useAuth(), { wrapper });
-      
+
       expect((window as any).authContext).toBeDefined();
       expect((window as any).authContext.user).toBe(null);
     });
@@ -92,7 +92,7 @@ describe('AuthProvider', () => {
   describe('Auth State Changes', () => {
     it('should update user state when auth state changes to authenticated user', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         authStateChangedCallback?.(mockUser);
       });
@@ -106,7 +106,7 @@ describe('AuthProvider', () => {
 
     it('should update user state when auth state changes to anonymous user', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         authStateChangedCallback?.(mockAnonymousUser);
       });
@@ -120,7 +120,7 @@ describe('AuthProvider', () => {
 
     it('should clear user state when auth state changes to null', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // First set a user
       await act(async () => {
         authStateChangedCallback?.(mockUser);
@@ -141,7 +141,7 @@ describe('AuthProvider', () => {
     it('should trigger data sync for authenticated non-anonymous users', async () => {
       vi.useFakeTimers();
       renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         authStateChangedCallback?.(mockUser);
       });
@@ -160,7 +160,7 @@ describe('AuthProvider', () => {
     it('should not trigger data sync for anonymous users', async () => {
       vi.useFakeTimers();
       renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         authStateChangedCallback?.(mockAnonymousUser);
       });
@@ -178,7 +178,7 @@ describe('AuthProvider', () => {
 
     it('should stop periodic sync when user logs out', async () => {
       renderHook(() => useAuth(), { wrapper });
-      
+
       // First set a user
       await act(async () => {
         authStateChangedCallback?.(mockUser);
@@ -194,7 +194,7 @@ describe('AuthProvider', () => {
 
     it('should update global auth context when user changes', async () => {
       renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         authStateChangedCallback?.(mockUser);
       });
@@ -209,7 +209,7 @@ describe('AuthProvider', () => {
       mockLoginAnonymously.mockResolvedValue(mockAnonymousUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       let loginResult;
       await act(async () => {
         loginResult = await result.current.login('Test User');
@@ -225,7 +225,7 @@ describe('AuthProvider', () => {
       mockLoginAnonymously.mockResolvedValue(mockAnonymousUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         await result.current.login();
       });
@@ -239,7 +239,7 @@ describe('AuthProvider', () => {
       mockLoginAnonymously.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         try {
           await result.current.login();
@@ -258,7 +258,7 @@ describe('AuthProvider', () => {
       mockLoginWithEmail.mockResolvedValue(mockUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       let loginResult;
       await act(async () => {
         loginResult = await result.current.loginEmail('test@example.com', 'password123');
@@ -275,7 +275,7 @@ describe('AuthProvider', () => {
       mockLoginWithEmail.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         try {
           await result.current.loginEmail('test@example.com', 'wrongpassword');
@@ -293,13 +293,21 @@ describe('AuthProvider', () => {
       mockRegisterWithEmail.mockResolvedValue(mockUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       let registerResult;
       await act(async () => {
-        registerResult = await result.current.register('test@example.com', 'password123', 'Test User');
+        registerResult = await result.current.register(
+          'test@example.com',
+          'password123',
+          'Test User'
+        );
       });
 
-      expect(mockRegisterWithEmail).toHaveBeenCalledWith('test@example.com', 'password123', 'Test User');
+      expect(mockRegisterWithEmail).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123',
+        'Test User'
+      );
       expect(registerResult).toEqual(mockUser);
       expect(result.current.user).toEqual(mockUser);
     });
@@ -310,7 +318,7 @@ describe('AuthProvider', () => {
       mockRegisterWithEmail.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         try {
           await result.current.register('test@example.com', 'password123', 'Test User');
@@ -330,7 +338,7 @@ describe('AuthProvider', () => {
       mockLoginWithGoogle.mockResolvedValue(mockUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       let loginResult;
       await act(async () => {
         loginResult = await result.current.loginGoogle();
@@ -347,7 +355,7 @@ describe('AuthProvider', () => {
       mockLoginWithGoogle.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         try {
           await result.current.loginGoogle();
@@ -367,7 +375,7 @@ describe('AuthProvider', () => {
       mockResetPassword.mockResolvedValue(true);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       let resetResult;
       await act(async () => {
         resetResult = await result.current.forgotPassword('test@example.com');
@@ -383,7 +391,7 @@ describe('AuthProvider', () => {
       mockResetPassword.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         try {
           await result.current.forgotPassword('test@example.com');
@@ -404,7 +412,7 @@ describe('AuthProvider', () => {
       mockSyncAllDataToFirebase.mockResolvedValue(true);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // First set anonymous user
       await act(async () => {
         authStateChangedCallback?.(mockAnonymousUser);
@@ -428,7 +436,7 @@ describe('AuthProvider', () => {
       mockConvertAnonymousAccount.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         try {
           await result.current.convertToRegistered('test@example.com', 'password123');
@@ -449,7 +457,7 @@ describe('AuthProvider', () => {
       mockUpdateDisplayName.mockResolvedValue(updatedUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       let updateResult;
       await act(async () => {
         updateResult = await result.current.updateUser('Updated Name');
@@ -466,7 +474,7 @@ describe('AuthProvider', () => {
       mockUpdateDisplayName.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         try {
           await result.current.updateUser('Updated Name');
@@ -487,7 +495,7 @@ describe('AuthProvider', () => {
       mockSyncAllDataToFirebase.mockResolvedValue(true);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // First set a registered user
       act(() => {
         authStateChangedCallback?.(mockUser);
@@ -508,7 +516,7 @@ describe('AuthProvider', () => {
       mockLogout.mockResolvedValue(true);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // First set an anonymous user
       act(() => {
         authStateChangedCallback?.(mockAnonymousUser);
@@ -532,7 +540,7 @@ describe('AuthProvider', () => {
       mockSyncAllDataToFirebase.mockImplementation(() => new Promise(() => {}));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // First set a registered user
       await act(async () => {
         authStateChangedCallback?.(mockUser);
@@ -557,7 +565,7 @@ describe('AuthProvider', () => {
       mockLogout.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       await act(async () => {
         try {
           await result.current.logout();
@@ -576,7 +584,7 @@ describe('AuthProvider', () => {
       mockSyncAllDataToFirebase.mockResolvedValue(true);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // Set a registered user
       act(() => {
         authStateChangedCallback?.(mockUser);
@@ -595,7 +603,7 @@ describe('AuthProvider', () => {
       const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // Set an anonymous user
       act(() => {
         authStateChangedCallback?.(mockAnonymousUser);
@@ -616,7 +624,7 @@ describe('AuthProvider', () => {
       mockSyncAllDataToFirebase.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // Set a registered user
       act(() => {
         authStateChangedCallback?.(mockUser);
@@ -642,7 +650,7 @@ describe('AuthProvider', () => {
       mockSyncAllDataToFirebase.mockReturnValue(syncPromise);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // Set a registered user
       await act(async () => {
         authStateChangedCallback?.(mockUser);
@@ -680,12 +688,12 @@ describe('AuthProvider', () => {
   describe('Error Handling', () => {
     it('should handle errors in auth operations', async () => {
       const mockLoginAnonymously = vi.mocked(firebaseService.loginAnonymously);
-      
+
       // First cause an error
       mockLoginAnonymously.mockRejectedValueOnce(new Error('First error'));
-      
+
       const { result } = renderHook(() => useAuth(), { wrapper });
-      
+
       // Wait for provider to be ready
       await waitFor(() => {
         expect(result.current).toBeDefined();
@@ -705,7 +713,7 @@ describe('AuthProvider', () => {
 
       // Then succeed
       mockLoginAnonymously.mockResolvedValueOnce(mockAnonymousUser);
-      
+
       await act(async () => {
         await result.current.login();
       });
@@ -721,7 +729,7 @@ describe('AuthProvider', () => {
   describe('Cleanup', () => {
     it('should cleanup on unmount', () => {
       const unsubscribeMock = vi.fn();
-      
+
       // Mock the auth state changed to return our unsubscribe function
       mockOnAuthStateChanged.mockImplementation((callback) => {
         // Store the callback to simulate auth state
@@ -731,7 +739,7 @@ describe('AuthProvider', () => {
       });
 
       const { unmount } = renderHook(() => useAuth(), { wrapper });
-      
+
       unmount();
 
       expect(unsubscribeMock).toHaveBeenCalledTimes(1);
@@ -745,11 +753,11 @@ describe('useAuth hook', () => {
   it('should throw error when used outside AuthProvider', () => {
     // Mock console.error to avoid error output in tests
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     expect(() => {
       renderHook(() => useAuth());
     }).toThrow('useAuth must be used within an AuthProvider');
-    
+
     consoleSpy.mockRestore();
   });
 });

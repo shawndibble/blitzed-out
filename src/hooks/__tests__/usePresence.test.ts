@@ -89,10 +89,9 @@ describe('usePresence Hook', () => {
 
   describe('Room Changes', () => {
     it('should update presence when room changes', () => {
-      const { rerender } = renderHook(
-        ({ roomId }) => usePresence(roomId),
-        { initialProps: { roomId: 'room1' } }
-      );
+      const { rerender } = renderHook(({ roomId }) => usePresence(roomId), {
+        initialProps: { roomId: 'room1' },
+      });
 
       expect(mockSetMyPresence).toHaveBeenCalledWith({
         newRoom: 'room1',
@@ -117,10 +116,9 @@ describe('usePresence Hook', () => {
     });
 
     it('should not call setMyPresence if room has not changed', () => {
-      const { rerender } = renderHook(
-        ({ roomId }) => usePresence(roomId),
-        { initialProps: { roomId: 'test-room' } }
-      );
+      const { rerender } = renderHook(({ roomId }) => usePresence(roomId), {
+        initialProps: { roomId: 'test-room' },
+      });
 
       expect(mockSetMyPresence).toHaveBeenCalledTimes(1);
 
@@ -132,10 +130,9 @@ describe('usePresence Hook', () => {
     });
 
     it('should handle multiple rapid room changes', () => {
-      const { rerender } = renderHook(
-        ({ roomId }) => usePresence(roomId),
-        { initialProps: { roomId: 'room1' } }
-      );
+      const { rerender } = renderHook(({ roomId }) => usePresence(roomId), {
+        initialProps: { roomId: 'room1' },
+      });
 
       expect(mockSetMyPresence).toHaveBeenCalledTimes(1);
 
@@ -158,7 +155,7 @@ describe('usePresence Hook', () => {
   describe('Display Name Changes', () => {
     it('should update presence when display name changes', () => {
       // Use the controllable mock
-      
+
       mockUseAuth.mockReturnValue({
         user: {
           displayName: 'Initial Name',
@@ -211,7 +208,7 @@ describe('usePresence Hook', () => {
 
     it('should handle display name changing to empty string', () => {
       // Use the controllable mock
-      
+
       mockUseAuth.mockReturnValue({
         user: {
           displayName: 'Test User',
@@ -307,10 +304,9 @@ describe('usePresence Hook', () => {
 
   describe('Presence Cleanup', () => {
     it('should handle user leaving room', () => {
-      const { rerender } = renderHook(
-        ({ roomId }) => usePresence(roomId),
-        { initialProps: { roomId: 'room1' } }
-      );
+      const { rerender } = renderHook(({ roomId }) => usePresence(roomId), {
+        initialProps: { roomId: 'room1' },
+      });
 
       mockSetMyPresence.mockClear();
 
@@ -455,11 +451,11 @@ describe('usePresence Hook', () => {
     it('should not cause unnecessary re-renders', () => {
       const { rerender } = renderHook(
         ({ roomId, roomRealtime }) => usePresence(roomId, roomRealtime),
-        { 
-          initialProps: { 
-            roomId: 'test-room', 
-            roomRealtime: false 
-          } 
+        {
+          initialProps: {
+            roomId: 'test-room',
+            roomRealtime: false,
+          },
         }
       );
 
@@ -474,10 +470,9 @@ describe('usePresence Hook', () => {
     });
 
     it('should handle rapid consecutive changes efficiently', () => {
-      const { rerender } = renderHook(
-        ({ roomId }) => usePresence(roomId),
-        { initialProps: { roomId: 'room1' } }
-      );
+      const { rerender } = renderHook(({ roomId }) => usePresence(roomId), {
+        initialProps: { roomId: 'room1' },
+      });
 
       // Rapid consecutive changes
       for (let i = 2; i <= 10; i++) {
@@ -491,10 +486,9 @@ describe('usePresence Hook', () => {
 
   describe('Integration Scenarios', () => {
     it('should work with user switching between multiple rooms', () => {
-      const { rerender } = renderHook(
-        ({ roomId }) => usePresence(roomId),
-        { initialProps: { roomId: 'lobby' } }
-      );
+      const { rerender } = renderHook(({ roomId }) => usePresence(roomId), {
+        initialProps: { roomId: 'lobby' },
+      });
 
       // User goes to game room
       rerender({ roomId: 'game-room-1' });
@@ -529,7 +523,7 @@ describe('usePresence Hook', () => {
 
     it('should handle user updating profile while in room', () => {
       // Use the controllable mock
-      
+
       mockUseAuth.mockReturnValue({
         user: {
           displayName: 'Old Name',

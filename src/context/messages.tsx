@@ -32,7 +32,6 @@ export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
     return unsubscribe;
   }, [room]);
 
-   
   const value = { messages, isLoading };
 
   return <MessagesContext.Provider value={value} {...props} />;

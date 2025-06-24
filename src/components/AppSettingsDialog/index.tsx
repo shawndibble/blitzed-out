@@ -13,7 +13,11 @@ interface AppSettingsDialogProps {
   isMobile?: boolean;
 }
 
-export default function AppSettingsDialog({ open, close, isMobile = false }: AppSettingsDialogProps): JSX.Element | null {
+export default function AppSettingsDialog({
+  open,
+  close,
+  isMobile = false,
+}: AppSettingsDialogProps): JSX.Element | null {
   const breakpointResult = useBreakpoint();
   const isSmallScreen = isMobile || breakpointResult;
   const [queryParams] = useSearchParams();
@@ -31,8 +35,8 @@ export default function AppSettingsDialog({ open, close, isMobile = false }: App
       </DialogTitle>
       <DialogContent>
         <Suspense fallback={<div>Loading...</div>}>
-          <GameSettings 
-            closeDialog={typeof close === 'function' ? close : undefined} 
+          <GameSettings
+            closeDialog={typeof close === 'function' ? close : undefined}
             initialTab={2} // Open directly to App Settings tab (index 2)
           />
         </Suspense>

@@ -87,10 +87,11 @@ export default function useSubmitGameSettings(): (
 
       const shouldSendGameSettings =
         (settingsBoardUpdated || roomChanged || privateBoardSizeChanged) &&
-        !messages.some((m: Message) =>
-          m.type === 'settings' &&
-          m.uid === updatedUser.uid &&
-          (Date.now() - (m.timestamp?.toMillis() || 0) < 5000)
+        !messages.some(
+          (m: Message) =>
+            m.type === 'settings' &&
+            m.uid === updatedUser.uid &&
+            Date.now() - (m.timestamp?.toMillis() || 0) < 5000
         );
 
       if (shouldSendGameSettings) {

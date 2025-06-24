@@ -18,7 +18,7 @@ interface Board {
 type UrlImportResult = [string | null, () => void];
 
 export default function useUrlImport(
-  settings: Settings, 
+  settings: Settings,
   setSettings: (settings: Settings) => void
 ): UrlImportResult {
   const [alert, setAlert] = useState<string | null>(null);
@@ -50,8 +50,8 @@ export default function useUrlImport(
   const importGameBoard = useCallback(async (): Promise<void> => {
     setParams({});
     if (!importBoard) return;
-    
-    const board = await getBoard(importBoard) as Board | null;
+
+    const board = (await getBoard(importBoard)) as Board | null;
     if (!board?.gameBoard) return setAlert(t('failedBoardImport'));
 
     const importedGameBoard = parseGameBoard(board.gameBoard);

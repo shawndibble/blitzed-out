@@ -9,7 +9,13 @@ interface TabPanelProps {
   [key: string]: any;
 }
 
-export default function TabPanel({ children, value, index, style, ...other }: TabPanelProps): JSX.Element {
+export default function TabPanel({
+  children,
+  value,
+  index,
+  style,
+  ...other
+}: TabPanelProps): JSX.Element {
   return (
     <div
       role="tabpanel"

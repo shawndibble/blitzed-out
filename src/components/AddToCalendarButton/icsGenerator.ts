@@ -2,22 +2,27 @@
  * Generate an ICS file for calendar events
  */
 export const generateICSFile = (
-  title: string, 
-  startDate: Date, 
-  url?: string, 
+  title: string,
+  startDate: Date,
+  url?: string,
   description?: string
 ) => {
   // Set end time to 1 hour after start time
   const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-  
+
   // Format dates for ICS file (YYYYMMDDTHHMMSSZ format)
   const formatDateForICS = (date: Date) => {
-    return date.toISOString().replace(/-|:|\.\d+/g, '').slice(0, 15) + 'Z';
+    return (
+      date
+        .toISOString()
+        .replace(/-|:|\.\d+/g, '')
+        .slice(0, 15) + 'Z'
+    );
   };
-  
+
   const startDateFormatted = formatDateForICS(startDate);
   const endDateFormatted = formatDateForICS(endDate);
-  
+
   // Create ICS content
   let icsContent = [
     'BEGIN:VCALENDAR',
@@ -31,16 +36,13 @@ export const generateICSFile = (
     `DESCRIPTION:${description?.replace(/\n/g, '\\n') || title}`,
     'STATUS:CONFIRMED',
   ];
-  
+
   if (url) {
     icsContent.push(`URL:${url}`);
   }
-  
-  icsContent = icsContent.concat([
-    'END:VEVENT',
-    'END:VCALENDAR'
-  ]);
-  
+
+  icsContent = icsContent.concat(['END:VEVENT', 'END:VCALENDAR']);
+
   return icsContent.join('\r\n');
 };
 
@@ -48,15 +50,15 @@ export const generateICSFile = (
  * Function to trigger calendar download
  */
 export const downloadCalendarEvent = (
-  title: string, 
-  date: Date, 
-  url?: string, 
+  title: string,
+  date: Date,
+  url?: string,
   description?: string
 ) => {
   const icsContent = generateICSFile(title, date, url, description);
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const link = document.createElement('a');
-  
+
   link.href = URL.createObjectURL(blob);
   link.download = `blitzed-out-game-${date.toISOString().split('T')[0]}.ics`;
   document.body.appendChild(link);

@@ -34,7 +34,7 @@ export default function usePrivateRoomMonitor(
   const [roller, setRoller] = useState<string>(DEFAULT_DIEM);
   const [roomBgUrl, setRoomBackground] = useState<string>('');
   const updateGameBoardTiles = useGameBoard();
-  
+
   // Track if we've already rebuilt the board for this room change
   const hasRebuiltRef = useRef(false);
 
@@ -44,9 +44,9 @@ export default function usePrivateRoomMonitor(
       if (hasRebuiltRef.current) {
         return;
       }
-      
+
       hasRebuiltRef.current = true;
-      
+
       try {
         const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
 
@@ -78,7 +78,7 @@ export default function usePrivateRoomMonitor(
     if (settings?.room === room) {
       return;
     }
-    
+
     await updateSettings({ ...settings, room });
     await rebuildGameBoard({ ...settings, roomUpdated: true, room });
   }, [settings, room, updateSettings, rebuildGameBoard]);
@@ -86,7 +86,7 @@ export default function usePrivateRoomMonitor(
   // Process room messages
   useEffect(() => {
     if (isLoading || !messages.length) return;
-    
+
     try {
       const roomMessage = latestMessageByType(messages, 'room') as RoomMessage | undefined;
       if (roomMessage) {
@@ -122,10 +122,10 @@ export default function usePrivateRoomMonitor(
 
     try {
       const roomMessage = latestMessageByType(messages, 'room') as RoomMessage | undefined;
-      
+
       // Skip if we have a room message (handled by the other effect)
       if (roomMessage) return;
-      
+
       // make sure that a private room sends out the room settings
       // before it sends out my game board settings.
       if (!isPublicRoom(room) && !roomMessage) {

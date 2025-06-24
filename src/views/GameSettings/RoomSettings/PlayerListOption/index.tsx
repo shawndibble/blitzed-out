@@ -10,7 +10,10 @@ interface PlayerListOptionProps {
   setFormData: (data: Settings) => void;
 }
 
-export default function PlayerListOption({ formData, setFormData }: PlayerListOptionProps): JSX.Element {
+export default function PlayerListOption({
+  formData,
+  setFormData,
+}: PlayerListOptionProps): JSX.Element {
   const togglePlayerListOption = useCallback(() => {
     setFormData({
       ...formData,

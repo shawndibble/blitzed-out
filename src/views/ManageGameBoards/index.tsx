@@ -193,7 +193,11 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
                   </Tooltip>
                   <Tooltip title={t('delete')}>
                     <span style={{ display: 'inline-block' }}>
-                      <IconButton onClick={() => confirmDelete(board.id || 0)} size="small" component="span">
+                      <IconButton
+                        onClick={() => confirmDelete(board.id || 0)}
+                        size="small"
+                        component="span"
+                      >
                         <Delete color="error" />
                       </IconButton>
                     </span>

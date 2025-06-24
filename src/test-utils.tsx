@@ -26,13 +26,13 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 }
 
 // All providers wrapper
-function AllTheProviders({ 
-  children, 
+function AllTheProviders({
+  children,
   withAuth = true,
   withMessages = true,
   withUserList = true,
   withSchedule = true,
-}: { 
+}: {
   children: ReactNode;
   withAuth?: boolean;
   withMessages?: boolean;
@@ -45,15 +45,15 @@ function AllTheProviders({
   if (withSchedule) {
     wrappedChildren = <ScheduleProvider>{wrappedChildren}</ScheduleProvider>;
   }
-  
+
   if (withUserList) {
     wrappedChildren = <UserListProvider>{wrappedChildren}</UserListProvider>;
   }
-  
+
   if (withMessages) {
     wrappedChildren = <MessagesProvider>{wrappedChildren}</MessagesProvider>;
   }
-  
+
   if (withAuth) {
     wrappedChildren = <AuthProvider>{wrappedChildren}</AuthProvider>;
   }
@@ -61,9 +61,7 @@ function AllTheProviders({
   return (
     <ThemeProvider theme={darkTheme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <BrowserRouter>
-          {wrappedChildren}
-        </BrowserRouter>
+        <BrowserRouter>{wrappedChildren}</BrowserRouter>
       </LocalizationProvider>
     </ThemeProvider>
   );
@@ -146,9 +144,7 @@ function renderWithoutProviders(ui: ReactElement, options?: RenderOptions) {
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <ThemeProvider theme={darkTheme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <BrowserRouter>
-          {children}
-        </BrowserRouter>
+        <BrowserRouter>{children}</BrowserRouter>
       </LocalizationProvider>
     </ThemeProvider>
   );
@@ -192,7 +188,7 @@ export function createMockAnonymousUser(overrides = {}) {
 export function waitFor(callback: () => void | Promise<void>, timeout = 1000) {
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
-    
+
     const checkCondition = async () => {
       try {
         await callback();
@@ -205,7 +201,7 @@ export function waitFor(callback: () => void | Promise<void>, timeout = 1000) {
         }
       }
     };
-    
+
     checkCondition();
   });
 }
@@ -214,7 +210,7 @@ export function waitFor(callback: () => void | Promise<void>, timeout = 1000) {
 export * from '@testing-library/react';
 
 // Override render with our custom render
-export { 
+export {
   customRender as render,
   renderWithAuth,
   renderWithMessages,

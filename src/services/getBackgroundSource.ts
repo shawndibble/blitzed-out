@@ -53,12 +53,13 @@ function imgur(url: string): string {
   if (url.includes('discordapp.net') && url.includes('imgur.com') && url.endsWith('.mp4')) {
     return url;
   }
-  
+
   // Extract the Imgur ID from different possible URL formats
-  const imgurRegex = /imgur\.com\/([a-zA-Z0-9]+)(?:\.mp4)?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.mp4/;
+  const imgurRegex =
+    /imgur\.com\/([a-zA-Z0-9]+)(?:\.mp4)?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.mp4/;
   const match = url.match(imgurRegex);
-  const imgurId = match ? (match[1] || match[2]) : '';
-  
+  const imgurId = match ? match[1] || match[2] : '';
+
   // Return direct link to the MP4 file
   return `https://i.imgur.com/${imgurId}.mp4`;
 }
@@ -68,11 +69,13 @@ function isDirectVideoUrl(url: string): boolean {
 }
 
 function isDiscordMediaUrl(url: string): boolean {
-  return urlContainsAny(url, ['media.discordapp.net', 'cdn.discordapp.com']) && !isDirectVideoUrl(url);
+  return (
+    urlContainsAny(url, ['media.discordapp.net', 'cdn.discordapp.com']) && !isDirectVideoUrl(url)
+  );
 }
 
 function urlContainsAny(url: string, domains: string[]): boolean {
-  return domains.some(domain => url.includes(domain));
+  return domains.some((domain) => url.includes(domain));
 }
 
 interface BackgroundResult {
@@ -88,7 +91,6 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     return { url: '', isVideo: false };
   }
 
-   
   switch (true) {
     case url.includes('vimeo.com'):
       embedUrl = vimeo(url);
@@ -108,7 +110,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case url.includes('dropbox.com'):
       embedUrl = dropBox(url);
       break;
-    case urlContainsAny(url, ['imgur.com', 'i.imgur.com','discordapp.net', 'imgur.com']):
+    case urlContainsAny(url, ['imgur.com', 'i.imgur.com', 'discordapp.net', 'imgur.com']):
       embedUrl = imgur(url);
       break;
     case urlContainsAny(url, ['thisvid.com', 'boyfriendtv.com']):
@@ -126,7 +128,6 @@ export function processBackground(url: string | null | undefined): BackgroundRes
       isVideo = false;
       break;
   }
-   
 
   return {
     url: embedUrl,
