@@ -25,7 +25,12 @@ interface MultiSelectProps {
   label: string;
 }
 
-export default function MultiSelect({ onChange, values, options, label }: MultiSelectProps): JSX.Element {
+export default function MultiSelect({
+  onChange,
+  values,
+  options,
+  label,
+}: MultiSelectProps): JSX.Element {
   function getLabel(value: string): ReactNode {
     return options?.find((option) => option.value === value)?.label;
   }
@@ -43,9 +48,7 @@ export default function MultiSelect({ onChange, values, options, label }: MultiS
         input={<OutlinedInput label={<Trans i18nKey="actionsLabel" />} />}
         renderValue={(selected) => (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {(selected as string[])?.map((value) => (
-              <Chip key={value} label={getLabel(value)} />
-            ))}
+            {(selected as string[])?.map((value) => <Chip key={value} label={getLabel(value)} />)}
           </Box>
         )}
       >

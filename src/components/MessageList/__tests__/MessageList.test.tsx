@@ -5,7 +5,6 @@ import { BrowserRouter } from 'react-router-dom';
 import MessageList from '../index';
 import { Message, MessageType } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
-import { User } from '@/types';
 import useMessages from '@/context/hooks/useMessages';
 
 // Mock dependencies
@@ -30,7 +29,15 @@ vi.mock('@/hooks/useSendSettings', () => ({
 }));
 
 vi.mock('../Message', () => ({
-  default: ({ message, isOwnMessage, room }: { message: Message; isOwnMessage: boolean; room: string }) => (
+  default: ({
+    message,
+    isOwnMessage,
+    room,
+  }: {
+    message: Message;
+    isOwnMessage: boolean;
+    room: string;
+  }) => (
     <div data-testid={`message-${message.id}`} data-own={isOwnMessage} data-room={room}>
       <span data-testid="message-type">{message.type}</span>
       <span data-testid="message-text">{message.text}</span>
@@ -58,9 +65,7 @@ vi.mock('react-i18next', () => ({
 
 // Test wrapper component
 const TestWrapper = ({ children }: { children: ReactNode }) => (
-  <BrowserRouter>
-    {children}
-  </BrowserRouter>
+  <BrowserRouter>{children}</BrowserRouter>
 );
 
 // Helper function to create mock messages
@@ -80,12 +85,6 @@ const createMockMessage = (
   timestamp: {
     toDate: () => timestamp,
   } as Timestamp,
-});
-
-// Helper function to create mock user
-const createMockUser = (uid = 'current-user-id', displayName = 'Current User'): User => ({
-  uid,
-  displayName,
 });
 
 describe('MessageList Component', () => {
@@ -247,9 +246,7 @@ describe('MessageList Component', () => {
 
   describe('Real-time Updates', () => {
     it('should update when new messages arrive', async () => {
-      const initialMessages = [
-        createMockMessage('1', 'Initial message', 'chat'),
-      ];
+      const initialMessages = [createMockMessage('1', 'Initial message', 'chat')];
 
       const mockUseMessages = vi.mocked(useMessages);
       mockUseMessages.mockReturnValue({
@@ -266,10 +263,7 @@ describe('MessageList Component', () => {
       expect(screen.getByTestId('message-1')).toBeInTheDocument();
 
       // Simulate new message arriving
-      const updatedMessages = [
-        ...initialMessages,
-        createMockMessage('2', 'New message', 'chat'),
-      ];
+      const updatedMessages = [...initialMessages, createMockMessage('2', 'New message', 'chat')];
 
       mockUseMessages.mockReturnValue({
         messages: updatedMessages,
@@ -308,9 +302,7 @@ describe('MessageList Component', () => {
       expect(screen.getByTestId('message-2')).toBeInTheDocument();
 
       // Simulate message deletion
-      const updatedMessages = [
-        createMockMessage('1', 'Message 1', 'chat'),
-      ];
+      const updatedMessages = [createMockMessage('1', 'Message 1', 'chat')];
 
       mockUseMessages.mockReturnValue({
         messages: updatedMessages,
@@ -346,9 +338,7 @@ describe('MessageList Component', () => {
     });
 
     it('should render messages even while loading', () => {
-      const mockMessages = [
-        createMockMessage('1', 'Test message', 'chat'),
-      ];
+      const mockMessages = [createMockMessage('1', 'Test message', 'chat')];
 
       vi.mocked(useMessages).mockReturnValue({
         messages: mockMessages,
@@ -479,7 +469,7 @@ describe('MessageList Component', () => {
       await waitFor(() => {
         const message1 = screen.getByTestId('message-1');
         const message2 = screen.getByTestId('message-2');
-        
+
         expect(message1.querySelector('[data-testid="message-user"]')).toHaveTextContent('Alice');
         expect(message2.querySelector('[data-testid="message-user"]')).toHaveTextContent('Bob');
       });
@@ -557,9 +547,7 @@ describe('MessageList Component', () => {
 
   describe('Room Management', () => {
     it('should pass room prop to messages', () => {
-      const mockMessages = [
-        createMockMessage('1', 'Test message', 'chat'),
-      ];
+      const mockMessages = [createMockMessage('1', 'Test message', 'chat')];
 
       vi.mocked(useMessages).mockReturnValue({
         messages: mockMessages,

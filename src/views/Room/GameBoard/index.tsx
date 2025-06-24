@@ -51,7 +51,6 @@ export default function GameBoard({
 
     return (
       <GameTile
-        // eslint-disable-next-line react/no-array-index-key
         key={index}
         title={`#${index + 1}: ${entry.title}`}
         description={description}

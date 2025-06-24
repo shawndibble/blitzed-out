@@ -50,7 +50,7 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
         allowEditing: true,
         resultType: CameraResultType.Base64,
       });
-    } catch (error) {
+    } catch {
       return '';
     }
 

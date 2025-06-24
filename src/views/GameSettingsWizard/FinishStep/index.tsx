@@ -23,7 +23,9 @@ export default function FinishStep({
 }: FinishStepProps): JSX.Element {
   const no: [number, number] = [100, 100];
   const yes: [number, number] = [0, 0];
-  const [yesFinishRange, setYesFinishRange] = useState<boolean>(arraysEqual(formData?.finishRange || [], yes));
+  const [yesFinishRange, setYesFinishRange] = useState<boolean>(
+    arraysEqual(formData?.finishRange || [], yes)
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const submitSettings = useSubmitGameSettings();
 
@@ -86,9 +88,9 @@ export default function FinishStep({
         <Button onClick={prevStep} disabled={isLoading}>
           <Trans i18nKey="previous" />
         </Button>
-        <Button 
-          variant="contained" 
-          onClick={handleSubmit} 
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
           disabled={isLoading}
           startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
         >

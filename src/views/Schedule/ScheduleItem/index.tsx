@@ -13,9 +13,9 @@ const getSiteButton = (url: string) => {
     const name = getSiteName(url);
 
     return (
-      <Button 
-        href={href} 
-        target="_blank" 
+      <Button
+        href={href}
+        target="_blank"
         rel="noreferrer"
         variant="outlined"
         size="small"
@@ -24,7 +24,7 @@ const getSiteButton = (url: string) => {
         {name}
       </Button>
     );
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -46,66 +46,68 @@ export default function ScheduleItem({ game }: ScheduleItemProps): JSX.Element {
   const { t } = useTranslation();
   const date = game.dateTime.toDate();
   const isToday = new Date().toDateString() === date.toDateString();
-  
+
   // Calculate if the game is upcoming (within the next 24 hours)
-  const isUpcoming = date.getTime() - new Date().getTime() < 24 * 60 * 60 * 1000 && date > new Date();
+  const isUpcoming =
+    date.getTime() - new Date().getTime() < 24 * 60 * 60 * 1000 && date > new Date();
 
   return (
     <Grid container spacing={2} alignItems="center">
       <Grid size={12}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <EventIcon 
-            fontSize="small" 
-            color={isToday ? "secondary" : "action"} 
+          <EventIcon
+            fontSize="small"
+            color={isToday ? 'secondary' : 'action'}
             sx={{ opacity: isToday ? 1 : 0.7 }}
           />
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Typography variant="body2" fontWeight={isToday ? "bold" : "normal"}>
+            <Typography variant="body2" fontWeight={isToday ? 'bold' : 'normal'}>
               {date.toLocaleString([], {
                 weekday: 'short',
                 month: 'short',
                 day: 'numeric',
               })}
             </Typography>
-            <Typography 
-              variant="body2" 
-              color="text.secondary"
-            >
+            <Typography variant="body2" color="text.secondary">
               {date.toLocaleString([], {
                 hour: 'numeric',
                 minute: '2-digit',
               })}
             </Typography>
           </Box>
-          
+
           {isUpcoming && (
-            <Chip 
-              label={t('soon')} 
-              size="small" 
-              color="primary" 
-              sx={{ 
-                height: 20, 
+            <Chip
+              label={t('soon')}
+              size="small"
+              color="primary"
+              sx={{
+                height: 20,
                 fontSize: '0.7rem',
                 ml: 1,
                 borderRadius: 1,
                 fontWeight: 'bold',
-                backgroundColor: alpha(theme.palette.success.main, 0.8)
-              }} 
+                backgroundColor: alpha(theme.palette.success.main, 0.8),
+              }}
             />
           )}
         </Box>
       </Grid>
-      
+
       <Grid size={12}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {game.url ? (
             getSiteButton(game.url)
           ) : (
-            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', fontSize: '0.85rem' }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontStyle: 'italic', fontSize: '0.85rem' }}
+            >
               {t('noLinkProvided')}
             </Typography>
           )}
-          
+
           <AddToCalendarButton
             title={t('calendar.gameTitle')}
             date={date}

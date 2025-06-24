@@ -250,6 +250,7 @@ describe('buildGame service', () => {
 
     it('should handle undefined difficulty (defaults to normal)', () => {
       const { difficulty, ...settingsWithoutDifficulty } = mockSettings;
+      void difficulty; // Intentionally excluded from settings
       const result = customizeBoard(settingsWithoutDifficulty, mockActionsFolder, [], 5);
 
       expect(result).toHaveLength(5);

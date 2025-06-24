@@ -25,7 +25,7 @@ describe('useGameSettings', () => {
     locale: 'en',
     gameMode: 'online',
     boardUpdated: false,
-    room: 'PUBLIC'
+    room: 'PUBLIC',
   };
 
   const customSettings: Settings = {
@@ -45,14 +45,14 @@ describe('useGameSettings', () => {
     roomDice: 'special',
     readRoll: true,
     background: 'custom',
-    roomBackgroundURL: 'https://example.com/bg.jpg'
+    roomBackgroundURL: 'https://example.com/bg.jpg',
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
     localStorageMock.getItem.mockReturnValue(null);
     localStorageMock.setItem.mockImplementation(() => {});
-    
+
     // Set up fresh spies for each test
     addEventListenerSpy = vi.spyOn(window, 'addEventListener');
     removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
@@ -70,7 +70,7 @@ describe('useGameSettings', () => {
 
       expect(result.current.settings).toEqual({
         locale: 'en',
-        gameMode: 'online'
+        gameMode: 'online',
       });
       expect(localStorageMock.getItem).toHaveBeenCalledWith('gameSettings');
     });
@@ -83,14 +83,14 @@ describe('useGameSettings', () => {
       expect(result.current.settings).toEqual({
         locale: 'en',
         gameMode: 'online',
-        ...customSettings
+        ...customSettings,
       });
     });
 
     it('should merge default settings with stored settings', () => {
       const partialSettings = {
         locale: 'fr',
-        mySound: false
+        mySound: false,
       };
       localStorageMock.getItem.mockReturnValue(JSON.stringify(partialSettings));
 
@@ -99,7 +99,7 @@ describe('useGameSettings', () => {
       expect(result.current.settings).toEqual({
         locale: 'en',
         gameMode: 'online',
-        ...partialSettings
+        ...partialSettings,
       });
     });
 
@@ -111,7 +111,7 @@ describe('useGameSettings', () => {
 
       expect(result.current.settings).toEqual({
         locale: 'en',
-        gameMode: 'online'
+        gameMode: 'online',
       });
       expect(consoleSpy).toHaveBeenCalledWith(
         'Error parsing game settings from localStorage:',
@@ -124,10 +124,7 @@ describe('useGameSettings', () => {
     it('should set up storage event listener on mount', () => {
       renderHook(() => useGameSettings());
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith(
-        'storage',
-        expect.any(Function)
-      );
+      expect(addEventListenerSpy).toHaveBeenCalledWith('storage', expect.any(Function));
     });
   });
 
@@ -145,13 +142,13 @@ describe('useGameSettings', () => {
 
       expect(result.current.settings).toEqual({
         ...defaultSettings,
-        ...newSettings
+        ...newSettings,
       });
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'gameSettings',
         JSON.stringify({
           ...defaultSettings,
-          ...newSettings
+          ...newSettings,
         })
       );
     });
@@ -212,10 +209,10 @@ describe('useGameSettings', () => {
       const { result } = renderHook(() => useGameSettings());
 
       const newSettings = { locale: 'pt', gameMode: 'solo' as const };
-      
+
       // Get the actual event listener function that was registered
       const storageHandler = addEventListenerSpy.mock.calls.find(
-        call => call[0] === 'storage'
+        (call) => call[0] === 'storage'
       )?.[1];
 
       act(() => {
@@ -225,7 +222,7 @@ describe('useGameSettings', () => {
           newValue: JSON.stringify(newSettings),
           oldValue: null,
           storageArea: window.localStorage,
-          url: 'http://localhost:3000'
+          url: 'http://localhost:3000',
         });
       });
 
@@ -240,7 +237,7 @@ describe('useGameSettings', () => {
 
       // Get the actual event listener function that was registered
       const storageHandler = addEventListenerSpy.mock.calls.find(
-        call => call[0] === 'storage'
+        (call) => call[0] === 'storage'
       )?.[1];
 
       act(() => {
@@ -250,7 +247,7 @@ describe('useGameSettings', () => {
           newValue: JSON.stringify({ someOtherData: true }),
           oldValue: null,
           storageArea: window.localStorage,
-          url: 'http://localhost:3000'
+          url: 'http://localhost:3000',
         });
       });
 
@@ -265,7 +262,7 @@ describe('useGameSettings', () => {
 
       // Get the actual event listener function that was registered
       const storageHandler = addEventListenerSpy.mock.calls.find(
-        call => call[0] === 'storage'
+        (call) => call[0] === 'storage'
       )?.[1];
 
       act(() => {
@@ -275,7 +272,7 @@ describe('useGameSettings', () => {
           newValue: null,
           oldValue: JSON.stringify(defaultSettings),
           storageArea: window.localStorage,
-          url: 'http://localhost:3000'
+          url: 'http://localhost:3000',
         });
       });
 
@@ -289,7 +286,7 @@ describe('useGameSettings', () => {
 
       // Get the actual event listener function that was registered
       const storageHandler = addEventListenerSpy.mock.calls.find(
-        call => call[0] === 'storage'
+        (call) => call[0] === 'storage'
       )?.[1];
 
       act(() => {
@@ -299,7 +296,7 @@ describe('useGameSettings', () => {
           newValue: 'invalid json',
           oldValue: null,
           storageArea: window.localStorage,
-          url: 'http://localhost:3000'
+          url: 'http://localhost:3000',
         });
       });
 
@@ -319,10 +316,7 @@ describe('useGameSettings', () => {
 
       unmount();
 
-      expect(removeEventListenerSpy).toHaveBeenCalledWith(
-        'storage',
-        expect.any(Function)
-      );
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('storage', expect.any(Function));
     });
   });
 
@@ -368,7 +362,7 @@ describe('useGameSettings', () => {
         readRoll: false,
         boardUpdated: true,
         roomUpdated: false,
-        roomRealtime: true
+        roomRealtime: true,
       };
 
       const { result } = renderHook(() => useGameSettings());
@@ -385,7 +379,7 @@ describe('useGameSettings', () => {
     it('should handle numeric settings correctly', () => {
       const numericSettings = {
         roomTileCount: 36,
-        finishRange: [2, 12] as [number, number]
+        finishRange: [2, 12] as [number, number],
       };
 
       const { result } = renderHook(() => useGameSettings());
@@ -405,7 +399,7 @@ describe('useGameSettings', () => {
         roomDice: 'rigged',
         background: 'gray',
         roomBackgroundURL: 'https://example.com/custom-bg.png',
-        displayName: 'Custom Player Name'
+        displayName: 'Custom Player Name',
       };
 
       const { result } = renderHook(() => useGameSettings());
@@ -440,7 +434,7 @@ describe('useGameSettings', () => {
       act(() => {
         result.current.updateSettings({
           displayName: undefined,
-          roomBackgroundURL: null
+          roomBackgroundURL: null,
         } as any);
       });
 
@@ -453,7 +447,7 @@ describe('useGameSettings', () => {
 
       act(() => {
         result.current.updateSettings({
-          unknownProperty: 'should be allowed due to index signature'
+          unknownProperty: 'should be allowed due to index signature',
         } as any);
       });
 
@@ -475,18 +469,18 @@ describe('useGameSettings', () => {
 
       // Get all the storage event handlers that were registered
       const storageHandlers = addEventListenerSpy.mock.calls
-        .filter(call => call[0] === 'storage')
-        .map(call => call[1]);
+        .filter((call) => call[0] === 'storage')
+        .map((call) => call[1]);
 
       // Simulate storage event being received by all instances
       act(() => {
-        storageHandlers.forEach(handler => {
+        storageHandlers.forEach((handler) => {
           handler?.({
             key: 'gameSettings',
             newValue: JSON.stringify({ locale: 'ru', gameMode: 'online' }),
             oldValue: null,
             storageArea: window.localStorage,
-            url: 'http://localhost:3000'
+            url: 'http://localhost:3000',
           });
         });
       });

@@ -82,7 +82,6 @@ export async function loginAnonymously(displayName = ''): Promise<User | null> {
     }
     return null;
   } catch (error) {
-    // eslint-disable-next-line
     console.error(error);
     return null;
   }
@@ -163,7 +162,6 @@ export async function logout(): Promise<boolean> {
     await signOut(auth);
     return true;
   } catch (error) {
-    // eslint-disable-next-line
     console.error(error);
     throw error;
   }
@@ -254,7 +252,6 @@ export async function updateDisplayName(displayName = ''): Promise<User | null> 
     }
     return null;
   } catch (error) {
-    // eslint-disable-next-line
     console.error(error);
     return null;
   }
@@ -268,7 +265,6 @@ export async function submitCustomAction(grouping: string, customAction: string)
       ttl: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days
     });
   } catch (error) {
-    // eslint-disable-next-line
     console.error(error);
   }
 }
@@ -310,7 +306,6 @@ export async function getOrCreateBoard({
     }
     return await storeBoard({ title, gameBoard, settings, checksum });
   } catch (error) {
-    // eslint-disable-next-line
     console.error(error);
   }
 }
@@ -334,7 +329,6 @@ async function storeBoard({
       ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     });
   } catch (error) {
-    // eslint-disable-next-line
     console.error(error);
     return undefined;
   }
@@ -349,7 +343,6 @@ export async function getBoard(id: string): Promise<DocumentData | undefined> {
     }
     return undefined;
   } catch (error) {
-    // eslint-disable-next-line
     console.error(error);
     return undefined;
   }
@@ -377,7 +370,7 @@ export async function sendMessage({
     let message = 'Invalid message type. Was expecting ';
     message += allowedTypes.join(', ');
     message += ` but got ${type}`;
-    // eslint-disable-next-line
+
     return console.error(message);
   }
 
@@ -400,7 +393,6 @@ export async function sendMessage({
       timestamp: serverTimestamp(),
     });
   } catch (error) {
-    // eslint-disable-next-line
     return console.error(error);
   }
 }
@@ -494,7 +486,6 @@ export async function addSchedule(
       room,
     });
   } catch (error) {
-    // eslint-disable-next-line
     return console.error(error);
   }
 }

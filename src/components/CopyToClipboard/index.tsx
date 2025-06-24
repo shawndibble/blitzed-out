@@ -11,11 +11,11 @@ interface CopyToClipboardProps {
   tooltip?: ReactNode | null;
 }
 
-export default function CopyToClipboard({ 
-  text, 
-  copiedText = null, 
-  icon = null, 
-  tooltip = null 
+export default function CopyToClipboard({
+  text,
+  copiedText = null,
+  icon = null,
+  tooltip = null,
 }: CopyToClipboardProps): JSX.Element {
   const { t } = useTranslation();
   const [open, setOpen] = useState<boolean>(false);

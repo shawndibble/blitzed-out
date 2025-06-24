@@ -202,7 +202,7 @@ describe('RoomBackground', () => {
       const nonVideoUrl = 'https://example.com/video.html';
       render(<RoomBackground url={nonVideoUrl} isVideo={true} />);
 
-      // @ts-ignore
+      // @ts-expect-error DOM querySelector returns Element | null, Jest expects HTMLElement
       expect(screen.queryByRole('presentation').querySelector('video')).not.toBeInTheDocument();
       expect(screen.getByTitle('video')).toBeInTheDocument();
     });
@@ -236,7 +236,7 @@ describe('RoomBackground', () => {
     it('does not render video elements when not needed', () => {
       render(<RoomBackground url="https://example.com/image.jpg" isVideo={false} />);
 
-      // @ts-ignore
+      // @ts-expect-error DOM querySelector returns Element | null, Jest expects HTMLElement
       expect(screen.queryByRole('presentation').querySelector('video')).not.toBeInTheDocument();
       expect(screen.queryByTitle('video')).not.toBeInTheDocument();
     });
@@ -277,7 +277,7 @@ describe('RoomBackground', () => {
       rerender(<RoomBackground url={url} isVideo={false} />);
 
       // Should show image background
-      // @ts-ignore
+      // @ts-expect-error DOM querySelector returns Element | null, Jest expects HTMLElement
       expect(screen.queryByRole('presentation').querySelector('video')).not.toBeInTheDocument();
       expect(screen.getByRole('presentation')).toHaveStyle(`background-image: url(${url})`);
     });

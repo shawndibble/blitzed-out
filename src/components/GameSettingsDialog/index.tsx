@@ -10,7 +10,10 @@ interface GameSettingsDialogProps {
   close?: (() => void) | null;
 }
 
-export default function GameSettingsDialog({ open, close }: GameSettingsDialogProps): JSX.Element | null {
+export default function GameSettingsDialog({
+  open,
+  close,
+}: GameSettingsDialogProps): JSX.Element | null {
   const isMobile = useBreakpoint();
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');

@@ -1,6 +1,6 @@
 import { Casino } from '@mui/icons-material';
 import { Button, ButtonGroup } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from '@/hooks/useCountdown';
@@ -35,7 +35,7 @@ function rollDice(
   updateRollValue(total);
 }
 
-const RollButton = function memo({
+const RollButton = memo(function RollButton({
   setRollValue,
   dice,
   isEndOfBoard,
@@ -158,6 +158,7 @@ const RollButton = function memo({
     rollCount,
     diceSide,
     updateRollValue,
+    setTimeLeft,
   ]);
 
   return (
@@ -176,6 +177,6 @@ const RollButton = function memo({
       />
     </>
   );
-};
+});
 
 export default RollButton;

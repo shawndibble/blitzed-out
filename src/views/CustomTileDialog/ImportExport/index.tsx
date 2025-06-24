@@ -1,6 +1,6 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { submitCustomAction } from '@/services/firebase';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
@@ -23,7 +23,7 @@ export default function ImportExport({
   const { t } = useTranslation();
   const [inputValue, setInputValue] = useState<string>('');
 
-  const exportData = () => {
+  const exportData = useCallback(() => {
     const userCustomTiles = customTiles.filter((tile) => tile.isCustom);
 
     const customString = userCustomTiles.map(
@@ -49,7 +49,7 @@ export default function ImportExport({
     );
 
     setInputValue(customString.join('\n---\n'));
-  };
+  }, [customTiles, mappedGroups, setInputValue]);
 
   async function importTiles(formRef: React.RefObject<HTMLFormElement | null>) {
     if (!formRef.current) return;
@@ -108,7 +108,7 @@ export default function ImportExport({
     if (expanded === 'ctImport') {
       exportData();
     }
-  }, [expanded, customTiles]);
+  }, [expanded, customTiles, exportData]);
 
   return (
     <Accordion expanded={expanded === 'ctImport'} onChange={handleChange('ctImport')}>

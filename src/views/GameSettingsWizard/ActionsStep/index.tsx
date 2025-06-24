@@ -33,6 +33,7 @@ export default function ActionsStep({
     // purge actions that we shouldn't be able to access.
     const newFormData = purgedFormData(formData);
     setFormData(newFormData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- This should only run once on mount to clean initial data
   }, []);
 
   const options = (key: string) =>

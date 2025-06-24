@@ -50,7 +50,7 @@ export default function TransitionModal({
   const { t } = useTranslation();
   const [isGameOverOpen, setGameOverDialog] = useState<boolean>(false);
 
-  const title = text?.match(/(?:#[\d]*:).*(?=\n)/gs);
+  const title = text?.match(/#\d*:.*(?=\n)/gs);
 
   const description = extractAction(text) || '';
 
@@ -59,18 +59,18 @@ export default function TransitionModal({
   const { timeLeft, togglePause } = useCountdown(20, false);
   const [showAutoCloseText, setAutoCloseText] = useState<boolean>(true);
 
-  const player = typeof nextPlayer === 'string' ? nextPlayer : nextPlayer?.displayName;
+  const player = nextPlayer?.displayName;
 
-  const preventClose = () => {
+  const preventClose = useCallback(() => {
     togglePause();
     stopAutoClose();
     setAutoCloseText(false);
-  };
+  }, [togglePause, stopAutoClose, setAutoCloseText]);
 
   const openGameOver = useCallback(() => {
     preventClose();
     setGameOverDialog(true);
-  }, []);
+  }, [preventClose]);
 
   const closeGameOver = useCallback(() => {
     setGameOverDialog(false);
@@ -125,7 +125,7 @@ export default function TransitionModal({
               <Box textAlign="center">
                 <Divider style={{ margin: '1rem 0 0.5rem' }} />
                 <Typography variant="body1">
-                  {typeof nextPlayer !== 'string' && nextPlayer.isSelf ? (
+                  {nextPlayer.isSelf ? (
                     <Trans i18nKey="yourTurn" />
                   ) : (
                     <Trans i18nKey="nextPlayersTurn" values={{ player }} />

@@ -58,13 +58,10 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
     [formData, setFormData]
   );
 
-  const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const upperCaseValue = event.target.value.toUpperCase();
-      event.target.value = upperCaseValue;
-    },
-    []
-  );
+  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const upperCaseValue = event.target.value.toUpperCase();
+    event.target.value = upperCaseValue;
+  }, []);
 
   const isPrivate = !isPublicRoom(formData.room);
   return (

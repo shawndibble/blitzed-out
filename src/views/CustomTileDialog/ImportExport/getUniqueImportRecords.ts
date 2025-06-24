@@ -1,5 +1,5 @@
-import groupActionsFolder from "@/helpers/actionsFolder";
-import { CustomTile, GetUniqueImportRecordsResult, AllGameModeActions } from "@/types/customTiles";
+import groupActionsFolder from '@/helpers/actionsFolder';
+import { CustomTile, GetUniqueImportRecordsResult, AllGameModeActions } from '@/types/customTiles';
 
 /**
  * Validates the group match within each entry.
@@ -36,21 +36,23 @@ function parseTile(tile: string, mappedGroups: AllGameModeActions): CustomTile {
   const lines = tile.split('\n').filter(Boolean);
   const preGrouping = lines[0];
   const action = lines[1];
-  
+
   // Extract tags if present
-  const tagLine = lines.find(line => line.startsWith('Tags:'));
+  const tagLine = lines.find((line) => line.startsWith('Tags:'));
   const tags = tagLine?.replace('Tags:', '')?.trim()?.split(', ')?.filter(Boolean) || [];
-  
+
   // Extract game mode if present
-  const gameModeLine = lines.find(line => line.startsWith('GameMode:'));
+  const gameModeLine = lines.find((line) => line.startsWith('GameMode:'));
   const gameMode = gameModeLine?.replace('GameMode:', '')?.trim() || 'online';
-  
+
   const withoutBrackets = preGrouping.replace(/\[|\]/g, '');
   const [group, intensity] = withoutBrackets.split(' - ');
 
   // Get the appropriate groups for this game mode
-  const gameModeGroups = groupActionsFolder(mappedGroups[gameMode as keyof AllGameModeActions] || {});
-  
+  const gameModeGroups = groupActionsFolder(
+    mappedGroups[gameMode as keyof AllGameModeActions] || {}
+  );
+
   const appGroup = gameModeGroups.find(
     (mapped) => mapped.translatedIntensity === intensity && mapped.group === group
   );
@@ -80,8 +82,8 @@ function parseTile(tile: string, mappedGroups: AllGameModeActions): CustomTile {
  * @returns {Object} - An object containing new unique records and existing records with changed tags.
  */
 export default function getUniqueImportRecords(
-  importData: string, 
-  customTiles: CustomTile[], 
+  importData: string,
+  customTiles: CustomTile[],
   mappedGroups: AllGameModeActions
 ): GetUniqueImportRecordsResult {
   const preArray = importData?.split('---') || [];
