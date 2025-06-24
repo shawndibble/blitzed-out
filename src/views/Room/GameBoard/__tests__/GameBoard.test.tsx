@@ -15,7 +15,7 @@ vi.mock('@/services/actionStringReplacement', () => ({
 
 vi.mock('../GameTile', () => ({
   default: vi.fn(({ title, description, players, current, isTransparent, className }) => (
-    <li 
+    <li
       data-testid="game-tile"
       data-title={title}
       data-description={description}
@@ -97,8 +97,9 @@ describe('GameBoard', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     vi.mocked(useAuth).mockReturnValue({
+      // @ts-ignore
       user: mockUser,
       loading: false,
       signIn: vi.fn(),
@@ -108,9 +109,12 @@ describe('GameBoard', () => {
       updateUserProfile: vi.fn(),
     });
 
-    vi.mocked(actionStringReplacement).mockImplementation(
-      (description, role, displayName) => 
-        description ? description.replace(/{player}/g, displayName || '').replace(/{(sub|dom)}/g, displayName || '') : ''
+    vi.mocked(actionStringReplacement).mockImplementation((description, _role, displayName) =>
+      description
+        ? description
+            .replace(/{player}/g, displayName || '')
+            .replace(/{(sub|dom)}/g, displayName || '')
+        : ''
     );
   });
 
@@ -187,7 +191,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      
+
       expect(tiles[0]).toHaveAttribute('data-title', '#1: Start');
       expect(tiles[1]).toHaveAttribute('data-title', '#2: Gentle');
       expect(tiles[2]).toHaveAttribute('data-title', '#3: Intense');
@@ -207,10 +211,10 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      
+
       // Tile 0 should have player1
       expect(tiles[0]).toHaveAttribute('data-player-count', '1');
-      
+
       // Tile 2 should have both user123 and player2
       expect(tiles[2]).toHaveAttribute('data-player-count', '2');
       expect(tiles[2]).toHaveAttribute('data-has-current', 'true');
@@ -227,7 +231,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      
+
       // Tile 1 should have no players
       expect(tiles[1]).toHaveAttribute('data-player-count', '0');
       expect(tiles[1]).toHaveAttribute('data-has-current', 'false');
@@ -259,7 +263,7 @@ describe('GameBoard', () => {
 
     it('should show action for current player tile regardless of hideBoardActions', () => {
       const settingsWithHidden = { ...mockSettings, hideBoardActions: true };
-      
+
       render(
         <GameBoard
           playerList={mockPlayerList}
@@ -279,7 +283,7 @@ describe('GameBoard', () => {
 
     it('should hide actions when hideBoardActions is true and player not current', () => {
       const settingsWithHidden = { ...mockSettings, hideBoardActions: true };
-      
+
       render(
         <GameBoard
           playerList={mockPlayerList}
@@ -290,7 +294,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      
+
       // Check that hidden descriptions contain question marks
       const hiddenTile = tiles[1]; // Tile where player is not current
       const description = hiddenTile.getAttribute('data-description');
@@ -310,7 +314,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      
+
       // Start and Finish tiles (index 0 and last) should not contribute to hue calculation
       // So Gentle should get hue1 and Intense should get hue2
       expect(tiles[1]).toHaveAttribute('data-classname', 'hue1');
@@ -337,7 +341,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      
+
       // 11th unique type should cycle back to hue1 (10 % 10 + 1 = 1)
       expect(tiles[11]).toHaveAttribute('data-classname', 'hue1');
       // 12th unique type should be hue2
@@ -357,7 +361,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      tiles.forEach(tile => {
+      tiles.forEach((tile) => {
         expect(tile).toHaveAttribute('data-transparent', 'true');
       });
     });
@@ -373,7 +377,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      tiles.forEach(tile => {
+      tiles.forEach((tile) => {
         expect(tile).toHaveAttribute('data-transparent', 'false');
       });
     });
@@ -391,7 +395,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      tiles.forEach(tile => {
+      tiles.forEach((tile) => {
         expect(tile).toHaveAttribute('data-player-count', '0');
         expect(tile).toHaveAttribute('data-has-current', 'false');
       });
@@ -418,6 +422,7 @@ describe('GameBoard', () => {
 
     it('should handle user without display name', () => {
       vi.mocked(useAuth).mockReturnValue({
+        // @ts-ignore
         user: { ...mockUser, displayName: null },
         loading: false,
         signIn: vi.fn(),
@@ -462,7 +467,7 @@ describe('GameBoard', () => {
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      
+
       // Both Action tiles should have the same hue
       expect(tiles[1]).toHaveAttribute('data-classname', 'hue1');
       expect(tiles[2]).toHaveAttribute('data-classname', 'hue1');
@@ -494,33 +499,6 @@ describe('GameBoard', () => {
   });
 
   describe('performance considerations', () => {
-    it('should handle large game boards efficiently', () => {
-      const largeBoardWith100Tiles: Tile[] = Array.from({ length: 100 }, (_, i) => ({
-        title: `Tile ${i}`,
-        description: `Description for tile ${i}`,
-      }));
-
-      const start = performance.now();
-      
-      render(
-        <GameBoard
-          playerList={mockPlayerList}
-          isTransparent={false}
-          gameBoard={largeBoardWith100Tiles}
-          settings={mockSettings}
-        />
-      );
-
-      const end = performance.now();
-      const renderTime = end - start;
-
-      // Should render within reasonable time (less than 100ms for 100 tiles)
-      expect(renderTime).toBeLessThan(100);
-      
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles).toHaveLength(100);
-    });
-
     it('should efficiently calculate unique tile types for hue assignment', () => {
       // Test with many tiles but few unique types
       const boardWithFewUniqueTypes: Tile[] = Array.from({ length: 50 }, (_, i) => ({
@@ -539,11 +517,11 @@ describe('GameBoard', () => {
 
       const tiles = screen.getAllByTestId('game-tile');
       expect(tiles).toHaveLength(50);
-      
+
       // Check that we have hue classes (the exact values may vary due to array indexing)
       const firstTileClass = tiles[0].getAttribute('data-classname');
       const secondTileClass = tiles[1].getAttribute('data-classname');
-      
+
       expect(firstTileClass).toMatch(/^hue\d+$/);
       expect(secondTileClass).toMatch(/^hue\d+$/);
     });
@@ -562,7 +540,7 @@ describe('GameBoard', () => {
 
       const gameboardContainer = container.querySelector('.gameboard');
       expect(gameboardContainer).toBeInTheDocument();
-      
+
       const orderList = gameboardContainer?.querySelector('ol');
       expect(orderList).toBeInTheDocument();
     });

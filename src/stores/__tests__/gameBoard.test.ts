@@ -74,7 +74,7 @@ describe('gameBoard store', () => {
     it('should return all boards ordered by title', async () => {
       const mockToArray = vi.fn().mockResolvedValue(mockBoards);
       const mockOrderBy = vi.fn().mockReturnValue({ toArray: mockToArray });
-      
+
       vi.mocked(db.gameBoard.orderBy).mockReturnValue(mockOrderBy('title') as any);
 
       const result = await getBoards();
@@ -87,7 +87,7 @@ describe('gameBoard store', () => {
     it('should handle empty boards array', async () => {
       const mockToArray = vi.fn().mockResolvedValue([]);
       const mockOrderBy = vi.fn().mockReturnValue({ toArray: mockToArray });
-      
+
       vi.mocked(db.gameBoard.orderBy).mockReturnValue(mockOrderBy('title') as any);
 
       const result = await getBoards();
@@ -113,7 +113,6 @@ describe('gameBoard store', () => {
     });
 
     it('should return empty object when no active board exists', async () => {
-      // Since the actual function uses `first() || {}`, it returns the empty object when first() is falsy
       const mockFirst = vi.fn().mockResolvedValue(undefined);
       const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
       const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
@@ -122,7 +121,7 @@ describe('gameBoard store', () => {
 
       const result = await getActiveBoard();
 
-      expect(result).toBeUndefined(); // Actually, the function returns undefined since the Promise resolves to undefined
+      expect(result).toEqual({}); // Actually, the function returns undefined since the Promise resolves to undefined
     });
   });
 
@@ -208,12 +207,14 @@ describe('gameBoard store', () => {
       const mockFirst = vi.fn().mockResolvedValue(undefined);
       const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
       const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-      
+
       vi.mocked(db.gameBoard.where).mockReturnValue(mockWhere('title') as any);
       vi.mocked(db.gameBoard.add).mockResolvedValue(newBoardId);
 
       // Mock transaction
+      // @ts-ignore
       vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
+        // @ts-ignore
         return await callback();
       });
 
@@ -242,12 +243,14 @@ describe('gameBoard store', () => {
       const mockFirst = vi.fn().mockResolvedValue(mockBoard);
       const mockEquals = vi.fn().mockReturnValue({ first: mockFirst, modify: mockModify });
       const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-      
+
       vi.mocked(db.gameBoard.where).mockReturnValue(mockWhere('title') as any);
       vi.mocked(db.gameBoard.update).mockResolvedValue(1);
 
       // Mock transaction
+      // @ts-ignore
       vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
+        // @ts-ignore
         return await callback();
       });
 
@@ -263,16 +266,26 @@ describe('gameBoard store', () => {
     });
 
     it('should deactivate all boards when isActive is true', async () => {
-      const mockModify = vi.fn().mockResolvedValue(1);
       const mockFirst = vi.fn().mockResolvedValue(undefined);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst, modify: mockModify });
+      const mockModify = vi.fn().mockResolvedValue(1);
+      const mockEquals = vi.fn().mockReturnValue({ modify: mockModify });
       const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-      
-      vi.mocked(db.gameBoard.where).mockReturnValue(mockWhere('title') as any);
+
+      // Mock for both title lookup and isActive deactivation
+      vi.mocked(db.gameBoard.where).mockImplementation((field) => {
+        // @ts-ignore
+        if (field === 'title') {
+          return { equals: vi.fn().mockReturnValue({ first: mockFirst }) };
+        }
+        return mockWhere(field);
+      });
+
       vi.mocked(db.gameBoard.add).mockResolvedValue(3);
 
       // Mock transaction
+      // @ts-ignore
       vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
+        // @ts-ignore
         return await callback();
       });
 
@@ -309,6 +322,7 @@ describe('gameBoard store', () => {
   describe('activateBoard', () => {
     it('should activate specified board and deactivate others', async () => {
       vi.mocked(db.gameBoard.toArray).mockResolvedValue(mockBoards);
+      // @ts-ignore
       vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([1, 2]);
 
       await activateBoard(2);
@@ -322,6 +336,7 @@ describe('gameBoard store', () => {
 
     it('should handle empty boards array', async () => {
       vi.mocked(db.gameBoard.toArray).mockResolvedValue([]);
+      // @ts-ignore
       vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([]);
 
       await activateBoard(1);
@@ -350,7 +365,7 @@ describe('gameBoard store', () => {
     it('should handle database connection errors', async () => {
       const mockToArray = vi.fn().mockRejectedValue(new Error('Database connection failed'));
       const mockOrderBy = vi.fn().mockReturnValue({ toArray: mockToArray });
-      
+
       vi.mocked(db.gameBoard.orderBy).mockReturnValue(mockOrderBy('title') as any);
 
       await expect(getBoards()).rejects.toThrow('Database connection failed');
@@ -373,17 +388,19 @@ describe('gameBoard store', () => {
     it('should handle concurrent board activation', async () => {
       // Simulate race condition where boards are modified during activation
       let callCount = 0;
+      // @ts-ignore
       vi.mocked(db.gameBoard.toArray).mockImplementation(async () => {
         callCount++;
         if (callCount === 1) {
           return mockBoards;
         }
-        // Return modified boards on second call to simulate concurrent modification
+        // Return modified boards on the second call to simulate concurrent modification
         return [
           { ...mockBoards[0], isActive: 0 },
           { ...mockBoards[1], isActive: 1 },
         ];
       });
+      // @ts-ignore
       vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([1, 2]);
 
       await activateBoard(2);
@@ -405,7 +422,7 @@ describe('gameBoard store', () => {
 
       const mockToArray = vi.fn().mockResolvedValue(largeBoards);
       const mockOrderBy = vi.fn().mockReturnValue({ toArray: mockToArray });
-      
+
       vi.mocked(db.gameBoard.orderBy).mockReturnValue(mockOrderBy('title') as any);
 
       const result = await getBoards();

@@ -1,13 +1,13 @@
 import '@testing-library/jest-dom';
 import React from 'react';
-import { beforeAll, afterEach, afterAll, vi, beforeEach } from 'vitest';
+import { afterEach, vi, beforeEach } from 'vitest';
 
 // Configure React Testing Library
 import { configure } from '@testing-library/react';
-configure({ 
+configure({
   testIdAttribute: 'data-testid',
   asyncUtilTimeout: 5000,
-  computedStyleSupportsPseudoElements: false
+  computedStyleSupportsPseudoElements: false,
 });
 
 // Suppress React 18 act warnings in tests
@@ -15,9 +15,11 @@ const originalError = console.error;
 beforeEach(() => {
   console.error = (...args: any[]) => {
     if (
-      typeof args[0] === 'string' &&
-      (args[0].includes('Warning: An update to') && args[0].includes('was not wrapped in act')) ||
-      args[0].includes('Warning: React does not recognize')
+      (typeof args[0] === 'string' &&
+        args[0].includes('Warning: An update to') &&
+        args[0].includes('was not wrapped in act')) ||
+      args[0].includes('Warning: React does not recognize') ||
+      args[0].includes('Warning: validateDOMNesting')
     ) {
       return;
     }
@@ -99,7 +101,6 @@ vi.mock('react-router-dom', async () => {
     ...actual,
     useNavigate: () => vi.fn(),
     useParams: () => ({ id: 'TEST' }),
-    useLocation: () => ({ pathname: '/TEST', search: '', hash: '' }),
   };
 });
 
@@ -114,10 +115,10 @@ vi.mock('i18next', () => {
     changeLanguage: vi.fn(),
     language: 'en',
   };
-  
+
   // Make the use method return the same instance for chaining
   mockI18n.use.mockReturnValue(mockI18n);
-  
+
   return {
     default: mockI18n,
     t: mockI18n.t,
@@ -136,7 +137,6 @@ vi.mock('react-i18next', () => ({
     type: '3rdParty',
     init: vi.fn(),
   },
-  I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
   Trans: ({ children }: { children: React.ReactNode }) => children,
 }));
 
@@ -181,43 +181,8 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
-  observe() {
-    return null;
-  }
-  disconnect() {
-    return null;
-  }
-  unobserve() {
-    return null;
-  }
-};
-
-// Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
-  observe() {
-    return null;
-  }
-  disconnect() {
-    return null;
-  }
-  unobserve() {
-    return null;
-  }
-};
-
 // Clean up after each test
 afterEach(() => {
   vi.clearAllMocks();
   console.error = originalError;
-});
-
-// Setup and teardown for test suites
-beforeAll(() => {
-  // Any global setup needed
-});
-
-afterAll(() => {
-  // Any global cleanup needed
 });

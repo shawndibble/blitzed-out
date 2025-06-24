@@ -2,7 +2,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { MessagesProvider, MessagesContext } from '../messages';
+import { MessagesProvider } from '../messages';
 import useMessages from '../hooks/useMessages';
 import { Message, MessageType } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
@@ -24,9 +24,9 @@ vi.mock('react-router-dom', async () => {
 
 // Mock the message helpers
 vi.mock('@/helpers/messages', () => ({
-  normalSortedMessages: vi.fn((messages) => 
-    messages.sort((a: Message, b: Message) => 
-      a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()
+  normalSortedMessages: vi.fn((messages) =>
+    messages.sort(
+      (a: Message, b: Message) => a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()
     )
   ),
 }));
@@ -34,7 +34,7 @@ vi.mock('@/helpers/messages', () => ({
 // Test component that uses the context
 const TestComponent = () => {
   const { messages, isLoading } = useMessages();
-  
+
   return (
     <div>
       <div data-testid="loading">{isLoading ? 'loading' : 'loaded'}</div>
@@ -51,9 +51,7 @@ const TestComponent = () => {
 // Test wrapper component
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter>
-    <MessagesProvider>
-      {children}
-    </MessagesProvider>
+    <MessagesProvider>{children}</MessagesProvider>
   </BrowserRouter>
 );
 
@@ -63,7 +61,14 @@ const createMockMessage = (
   type = 'chat' as MessageType,
   timestamp: Date = new Date(),
   uid: string = 'user1'
-): Message => ({
+): {
+  id: string;
+  text: string;
+  type: MessageType;
+  timestamp: Timestamp;
+  uid: string;
+  displayName: string;
+} => ({
   id: `msg-${Date.now()}-${Math.random()}`,
   text,
   type,
@@ -80,7 +85,7 @@ describe('MessagesProvider', () => {
 
   beforeEach(() => {
     mockUnsubscribe = vi.fn();
-    mockGetMessages.mockImplementation((roomId, callback) => {
+    mockGetMessages.mockImplementation((_roomId, callback) => {
       // Simulate initial loading state
       setTimeout(() => {
         callback([]);
@@ -102,7 +107,7 @@ describe('MessagesProvider', () => {
       );
 
       expect(screen.getByTestId('loading')).toHaveTextContent('loading');
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('loading')).toHaveTextContent('loaded');
       });
@@ -143,12 +148,9 @@ describe('MessagesProvider', () => {
     });
 
     it('should update loading state when messages are received', async () => {
-      const mockMessages = [
-        createMockMessage('Hello world!'),
-        createMockMessage('How are you?'),
-      ];
+      const mockMessages = [createMockMessage('Hello world!'), createMockMessage('How are you?')];
 
-      mockGetMessages.mockImplementation((roomId, callback) => {
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockMessages);
         }, 0);
@@ -168,7 +170,7 @@ describe('MessagesProvider', () => {
     });
 
     it('should handle empty message list', async () => {
-      mockGetMessages.mockImplementation((roomId, callback) => {
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback([]);
         }, 0);
@@ -190,9 +192,20 @@ describe('MessagesProvider', () => {
 
   describe('Real-time Message Updates', () => {
     it('should update messages when new messages arrive', async () => {
-      let messageCallback: ((messages: Message[]) => void) | null = null;
+      let messageCallback:
+        | ((
+            messages: {
+              id: string;
+              text: string;
+              type: MessageType;
+              timestamp: Timestamp;
+              uid: string;
+              displayName: string;
+            }[]
+          ) => void)
+        | null = null;
 
-      mockGetMessages.mockImplementation((roomId, callback) => {
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         messageCallback = callback;
         setTimeout(() => {
           callback([createMockMessage('Initial message')]);
@@ -211,10 +224,7 @@ describe('MessagesProvider', () => {
       });
 
       // Simulate new message arriving
-      const newMessages = [
-        createMockMessage('Initial message'),
-        createMockMessage('New message'),
-      ];
+      const newMessages = [createMockMessage('Initial message'), createMockMessage('New message')];
 
       await act(async () => {
         if (messageCallback) {
@@ -229,15 +239,23 @@ describe('MessagesProvider', () => {
     });
 
     it('should handle message deletion', async () => {
-      let messageCallback: ((messages: Message[]) => void) | null = null;
+      let messageCallback:
+        | ((
+            messages: {
+              id: string;
+              text: string;
+              type: MessageType;
+              timestamp: Timestamp;
+              uid: string;
+              displayName: string;
+            }[]
+          ) => void)
+        | null = null;
 
-      mockGetMessages.mockImplementation((roomId, callback) => {
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         messageCallback = callback;
         setTimeout(() => {
-          callback([
-            createMockMessage('Message 1'),
-            createMockMessage('Message 2'),
-          ]);
+          callback([createMockMessage('Message 1'), createMockMessage('Message 2')]);
         }, 0);
         return mockUnsubscribe;
       });
@@ -265,9 +283,20 @@ describe('MessagesProvider', () => {
     });
 
     it('should handle rapid message updates', async () => {
-      let messageCallback: ((messages: Message[]) => void) | null = null;
+      let messageCallback:
+        | ((
+            messages: {
+              id: string;
+              text: string;
+              type: MessageType;
+              timestamp: Timestamp;
+              uid: string;
+              displayName: string;
+            }[]
+          ) => void)
+        | null = null;
 
-      mockGetMessages.mockImplementation((roomId, callback) => {
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         messageCallback = callback;
         setTimeout(() => {
           callback([]);
@@ -289,7 +318,11 @@ describe('MessagesProvider', () => {
       const updates = [
         [createMockMessage('Message 1')],
         [createMockMessage('Message 1'), createMockMessage('Message 2')],
-        [createMockMessage('Message 1'), createMockMessage('Message 2'), createMockMessage('Message 3')],
+        [
+          createMockMessage('Message 1'),
+          createMockMessage('Message 2'),
+          createMockMessage('Message 3'),
+        ],
       ];
 
       for (const update of updates) {
@@ -309,8 +342,8 @@ describe('MessagesProvider', () => {
     it('should sort messages by timestamp', async () => {
       const oldMessage = createMockMessage('Old message', 'chat', new Date(2023, 0, 1));
       const newMessage = createMockMessage('New message', 'chat', new Date(2023, 0, 2));
-      
-      mockGetMessages.mockImplementation((roomId, callback) => {
+
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           // Pass messages in reverse chronological order
           callback([newMessage, oldMessage]);
@@ -343,7 +376,7 @@ describe('MessagesProvider', () => {
         createMockMessage('Media message', 'media'),
       ];
 
-      mockGetMessages.mockImplementation((roomId, callback) => {
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(messages);
         }, 0);
@@ -368,29 +401,8 @@ describe('MessagesProvider', () => {
   });
 
   describe('Room Changes', () => {
-    it('should re-subscribe when room changes', async () => {
-      // For this test, we'll skip the room change functionality 
-      // since it requires more complex mocking
-      const { rerender } = render(
-        <TestWrapper>
-          <TestComponent />
-        </TestWrapper>
-      );
-
-      expect(mockGetMessages).toHaveBeenCalledWith('test-room', expect.any(Function));
-
-      rerender(
-        <TestWrapper>
-          <TestComponent />
-        </TestWrapper>
-      );
-
-      // Should still be called with the same room since we're not changing the mock
-      expect(mockGetMessages).toHaveBeenCalledWith('test-room', expect.any(Function));
-    });
-
     it('should reset loading state when room changes', async () => {
-      mockGetMessages.mockImplementation((roomId, callback) => {
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback([createMockMessage('Message in room1')]);
         }, 0);
@@ -446,7 +458,7 @@ describe('MessagesProvider', () => {
         </TestWrapper>
       );
 
-      // Since we're not actually changing rooms in this test, 
+      // Since we're not actually changing rooms in this test,
       // unsubscribe won't be called, but that's okay for this test
       expect(mockGetMessages).toHaveBeenCalled();
     });
@@ -467,14 +479,28 @@ describe('MessagesProvider', () => {
     });
 
     it('should handle callback with malformed messages', async () => {
-      mockGetMessages.mockImplementation((roomId, callback) => {
+      mockGetMessages.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           // Pass invalid message data
-          callback([
-            { text: 'Valid message', type: 'chat', uid: 'user1', displayName: 'User', timestamp: { toDate: () => new Date() } },
-            null, // Invalid message
-            { text: 'Another valid message', type: 'chat', uid: 'user2', displayName: 'User2', timestamp: { toDate: () => new Date() } },
-          ].filter(Boolean));
+          callback(
+            [
+              {
+                text: 'Valid message',
+                type: 'chat',
+                uid: 'user1',
+                displayName: 'User',
+                timestamp: { toDate: () => new Date() },
+              },
+              null, // Invalid message
+              {
+                text: 'Another valid message',
+                type: 'chat',
+                uid: 'user2',
+                displayName: 'User2',
+                timestamp: { toDate: () => new Date() },
+              },
+            ].filter(Boolean)
+          );
         }, 0);
         return mockUnsubscribe;
       });

@@ -2,14 +2,12 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { UserListProvider, UserListContext, OnlineUser } from '../userList';
+import { UserListProvider, OnlineUser } from '../userList';
 import useUserList from '../hooks/useUserList';
 import * as firebaseService from '@/services/firebase';
 
-// Mock the firebase service  
-vi.mock('@/services/firebase', () => ({
-  getUserList: vi.fn(),
-}));
+// Mock the firebase service
+vi.mock('@/services/firebase');
 
 // Mock the router
 vi.mock('react-router-dom', async () => {
@@ -23,9 +21,9 @@ vi.mock('react-router-dom', async () => {
 // Test component that uses the context
 const TestComponent = () => {
   const { onlineUsers } = useUserList();
-  
+
   const userList = Object.values(onlineUsers);
-  
+
   return (
     <div>
       <div data-testid="user-count">{userList.length}</div>
@@ -36,9 +34,7 @@ const TestComponent = () => {
           </div>
         ))}
       </div>
-      <div data-testid="user-keys">
-        {Object.keys(onlineUsers).join(',')}
-      </div>
+      <div data-testid="user-keys">{Object.keys(onlineUsers).join(',')}</div>
     </div>
   );
 };
@@ -46,9 +42,7 @@ const TestComponent = () => {
 // Test wrapper component
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter>
-    <UserListProvider>
-      {children}
-    </UserListProvider>
+    <UserListProvider>{children}</UserListProvider>
   </BrowserRouter>
 );
 
@@ -67,8 +61,8 @@ describe('UserListProvider', () => {
   const mockGetUserList = vi.mocked(firebaseService.getUserList);
 
   beforeEach(() => {
-    mockGetUserList.mockImplementation((roomId, callback) => {
-      // Simulate initial empty state
+    mockGetUserList.mockImplementation((_roomId, callback) => {
+      // Simulate the initial empty state
       setTimeout(() => {
         callback({});
       }, 0);
@@ -88,7 +82,7 @@ describe('UserListProvider', () => {
       );
 
       expect(screen.getByTestId('user-count')).toHaveTextContent('0');
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('user-count')).toHaveTextContent('0');
       });
@@ -111,7 +105,6 @@ describe('UserListProvider', () => {
         </TestWrapper>
       );
 
-      // Just verify that the function is called, the actual room ID depends on the mock
       expect(mockGetUserList).toHaveBeenCalled();
     });
   });
@@ -129,11 +122,11 @@ describe('UserListProvider', () => {
 
     it('should update user list when users join', async () => {
       const mockUsers = {
-        'user1': createMockUser('user1', 'Alice'),
-        'user2': createMockUser('user2', 'Bob'),
+        user1: createMockUser('user1', 'Alice'),
+        user2: createMockUser('user2', 'Bob'),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);
@@ -154,10 +147,10 @@ describe('UserListProvider', () => {
 
     it('should handle single user joining', async () => {
       const mockUsers = {
-        'user1': createMockUser('user1', 'Alice'),
+        user1: createMockUser('user1', 'Alice'),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);
@@ -180,10 +173,10 @@ describe('UserListProvider', () => {
     it('should update when users join', async () => {
       let userCallback: ((users: Record<string, OnlineUser>) => void) | null = null;
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         userCallback = callback;
         setTimeout(() => {
-          callback({ 'user1': createMockUser('user1', 'Alice') });
+          callback({ user1: createMockUser('user1', 'Alice') });
         }, 0);
       });
 
@@ -199,8 +192,8 @@ describe('UserListProvider', () => {
 
       // Simulate new user joining
       const updatedUsers = {
-        'user1': createMockUser('user1', 'Alice'),
-        'user2': createMockUser('user2', 'Bob'),
+        user1: createMockUser('user1', 'Alice'),
+        user2: createMockUser('user2', 'Bob'),
       };
 
       await act(async () => {
@@ -218,12 +211,12 @@ describe('UserListProvider', () => {
     it('should update when users leave', async () => {
       let userCallback: ((users: Record<string, OnlineUser>) => void) | null = null;
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         userCallback = callback;
         setTimeout(() => {
           callback({
-            'user1': createMockUser('user1', 'Alice'),
-            'user2': createMockUser('user2', 'Bob'),
+            user1: createMockUser('user1', 'Alice'),
+            user2: createMockUser('user2', 'Bob'),
           });
         }, 0);
       });
@@ -241,7 +234,7 @@ describe('UserListProvider', () => {
       // Simulate user leaving
       await act(async () => {
         if (userCallback) {
-          userCallback({ 'user1': createMockUser('user1', 'Alice') });
+          userCallback({ user1: createMockUser('user1', 'Alice') });
         }
       });
 
@@ -254,12 +247,12 @@ describe('UserListProvider', () => {
     it('should handle all users leaving', async () => {
       let userCallback: ((users: Record<string, OnlineUser>) => void) | null = null;
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         userCallback = callback;
         setTimeout(() => {
           callback({
-            'user1': createMockUser('user1', 'Alice'),
-            'user2': createMockUser('user2', 'Bob'),
+            user1: createMockUser('user1', 'Alice'),
+            user2: createMockUser('user2', 'Bob'),
           });
         }, 0);
       });
@@ -287,9 +280,21 @@ describe('UserListProvider', () => {
     });
 
     it('should handle rapid user updates', async () => {
-      let userCallback: ((users: Record<string, OnlineUser>) => void) | null = null;
+      let userCallback:
+        | ((
+            users:
+              | { user1: OnlineUser }
+              | { user1: OnlineUser; user2: OnlineUser }
+              | {
+                  user1: OnlineUser;
+                  user2: OnlineUser;
+                  user3: OnlineUser;
+                }
+              | { user1: OnlineUser; user3: OnlineUser }
+          ) => void)
+        | null = null;
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         userCallback = callback;
         setTimeout(() => {
           callback({});
@@ -308,10 +313,14 @@ describe('UserListProvider', () => {
 
       // Simulate rapid user updates
       const updates = [
-        { 'user1': createMockUser('user1', 'Alice') },
-        { 'user1': createMockUser('user1', 'Alice'), 'user2': createMockUser('user2', 'Bob') },
-        { 'user1': createMockUser('user1', 'Alice'), 'user2': createMockUser('user2', 'Bob'), 'user3': createMockUser('user3', 'Charlie') },
-        { 'user1': createMockUser('user1', 'Alice'), 'user3': createMockUser('user3', 'Charlie') }, // user2 leaves
+        { user1: createMockUser('user1', 'Alice') },
+        { user1: createMockUser('user1', 'Alice'), user2: createMockUser('user2', 'Bob') },
+        {
+          user1: createMockUser('user1', 'Alice'),
+          user2: createMockUser('user2', 'Bob'),
+          user3: createMockUser('user3', 'Charlie'),
+        },
+        { user1: createMockUser('user1', 'Alice'), user3: createMockUser('user3', 'Charlie') }, // user2 leaves
       ];
 
       for (const update of updates) {
@@ -321,7 +330,9 @@ describe('UserListProvider', () => {
           }
         });
         await waitFor(() => {
-          expect(screen.getByTestId('user-count')).toHaveTextContent(Object.keys(update).length.toString());
+          expect(screen.getByTestId('user-count')).toHaveTextContent(
+            Object.keys(update).length.toString()
+          );
         });
       }
     });
@@ -330,11 +341,11 @@ describe('UserListProvider', () => {
   describe('User Data Management', () => {
     it('should preserve user data structure', async () => {
       const mockUsers = {
-        'user1': createMockUser('user1', 'Alice', new Date('2023-01-01')),
-        'user2': createMockUser('user2', 'Bob', new Date('2023-01-02')),
+        user1: createMockUser('user1', 'Alice', new Date('2023-01-01')),
+        user2: createMockUser('user2', 'Bob', new Date('2023-01-02')),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);
@@ -353,12 +364,12 @@ describe('UserListProvider', () => {
 
     it('should handle users with special characters in names', async () => {
       const mockUsers = {
-        'user1': createMockUser('user1', 'Alice (Admin)'),
-        'user2': createMockUser('user2', 'Bob-Smith'),
-        'user3': createMockUser('user3', 'Charlie_123'),
+        user1: createMockUser('user1', 'Alice (Admin)'),
+        user2: createMockUser('user2', 'Bob-Smith'),
+        user3: createMockUser('user3', 'Charlie_123'),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);
@@ -380,11 +391,11 @@ describe('UserListProvider', () => {
 
     it('should handle users with empty display names', async () => {
       const mockUsers = {
-        'user1': createMockUser('user1', ''),
-        'user2': createMockUser('user2', 'Bob'),
+        user1: createMockUser('user1', ''),
+        user2: createMockUser('user2', 'Bob'),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);
@@ -426,9 +437,9 @@ describe('UserListProvider', () => {
     });
 
     it('should reset user list when room changes', async () => {
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
-          callback({ 'user1': createMockUser('user1', 'Alice') });
+          callback({ user1: createMockUser('user1', 'Alice') });
         }, 0);
       });
 
@@ -442,7 +453,7 @@ describe('UserListProvider', () => {
         expect(screen.getByTestId('user-count')).toHaveTextContent('1');
       });
 
-      // Rerender should maintain the same state since room doesn't change
+      // Rerender should maintain the same state since the room doesn't change
       rerender(
         <TestWrapper>
           <TestComponent />
@@ -456,16 +467,16 @@ describe('UserListProvider', () => {
   });
 
   describe('User Presence Tracking', () => {
-    it('should track user last seen times', async () => {  
+    it('should track user last seen times', async () => {
       const now = new Date();
       const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
-      
+
       const mockUsers = {
-        'user1': createMockUser('user1', 'Alice', now),
-        'user2': createMockUser('user2', 'Bob', fiveMinutesAgo),
+        user1: createMockUser('user1', 'Alice', now),
+        user2: createMockUser('user2', 'Bob', fiveMinutesAgo),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);
@@ -484,10 +495,10 @@ describe('UserListProvider', () => {
 
     it('should handle users without last seen data', async () => {
       const mockUsers = {
-        'user1': { uid: 'user1', displayName: 'Alice' } as OnlineUser,
+        user1: { uid: 'user1', displayName: 'Alice' } as OnlineUser,
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);
@@ -509,13 +520,13 @@ describe('UserListProvider', () => {
   describe('Multiple Players Scenario', () => {
     it('should handle multiple players joining simultaneously', async () => {
       const mockUsers = {
-        'player1': createMockUser('player1', 'Player 1'),
-        'player2': createMockUser('player2', 'Player 2'),
-        'player3': createMockUser('player3', 'Player 3'),
-        'player4': createMockUser('player4', 'Player 4'),
+        player1: createMockUser('player1', 'Player 1'),
+        player2: createMockUser('player2', 'Player 2'),
+        player3: createMockUser('player3', 'Player 3'),
+        player4: createMockUser('player4', 'Player 4'),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);
@@ -529,7 +540,9 @@ describe('UserListProvider', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('user-count')).toHaveTextContent('4');
-        expect(screen.getByTestId('user-keys')).toHaveTextContent('player1,player2,player3,player4');
+        expect(screen.getByTestId('user-keys')).toHaveTextContent(
+          'player1,player2,player3,player4'
+        );
       });
     });
 
@@ -537,7 +550,7 @@ describe('UserListProvider', () => {
       // Simulate players joining in order
       let userCallback: ((users: Record<string, OnlineUser>) => void) | null = null;
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         userCallback = callback;
         setTimeout(() => {
           callback({});
@@ -557,7 +570,7 @@ describe('UserListProvider', () => {
       for (let i = 0; i < players.length; i++) {
         const playerId = players[i];
         playerData[playerId] = createMockUser(playerId, `Player ${i + 1}`);
-        
+
         await act(async () => {
           if (userCallback) {
             userCallback({ ...playerData });
@@ -574,11 +587,11 @@ describe('UserListProvider', () => {
   describe('Error Handling', () => {
     it('should handle malformed user data', async () => {
       const malformedUsers = {
-        'user1': createMockUser('user1', 'Alice'),
-        'user3': createMockUser('user3', 'Charlie'),
+        user1: createMockUser('user1', 'Alice'),
+        user3: createMockUser('user3', 'Charlie'),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(malformedUsers);
         }, 0);
@@ -597,7 +610,7 @@ describe('UserListProvider', () => {
     });
 
     it('should handle empty user data gracefully', async () => {
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(null);
         }, 0);
@@ -617,11 +630,11 @@ describe('UserListProvider', () => {
   describe('Performance', () => {
     it('should memoize user list properly', async () => {
       const mockUsers = {
-        'user1': createMockUser('user1', 'Alice'),
-        'user2': createMockUser('user2', 'Bob'),
+        user1: createMockUser('user1', 'Alice'),
+        user2: createMockUser('user2', 'Bob'),
       };
 
-      mockGetUserList.mockImplementation((roomId, callback) => {
+      mockGetUserList.mockImplementation((_roomId, callback) => {
         setTimeout(() => {
           callback(mockUsers);
         }, 0);

@@ -60,11 +60,23 @@ describe('Firebase Authentication Service', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     mockAuth.currentUser = null;
-    
+
     // Setup the getAuth mock to return our mock auth object
-    const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile, sendPasswordResetEmail, linkWithCredential, GoogleAuthProvider, EmailAuthProvider, signInAnonymously } = await import('firebase/auth');
+    const {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signInWithPopup,
+      signOut,
+      updateProfile,
+      sendPasswordResetEmail,
+      linkWithCredential,
+      GoogleAuthProvider,
+      EmailAuthProvider,
+      signInAnonymously,
+    } = await import('firebase/auth');
     vi.mocked(getAuth).mockReturnValue(mockAuth as any);
-    
+
     // Assign the mocked functions to our variables for easier access in tests
     mockCreateUserWithEmailAndPassword = vi.mocked(createUserWithEmailAndPassword);
     mockSignInWithEmailAndPassword = vi.mocked(signInWithEmailAndPassword);
@@ -106,8 +118,9 @@ describe('Firebase Authentication Service', () => {
     it('should call Firebase auth functions with correct parameters', async () => {
       const { loginAnonymously } = await import('../firebase');
       const { getAuth, signInAnonymously, updateProfile } = await import('firebase/auth');
-      
+
       // Setup mocks
+      // @ts-ignore
       mockAuth.currentUser = mockAnonymousUser;
       vi.mocked(signInAnonymously).mockResolvedValue({ user: mockAnonymousUser } as any);
       vi.mocked(updateProfile).mockResolvedValue(undefined);
@@ -125,7 +138,8 @@ describe('Firebase Authentication Service', () => {
     it('should handle anonymous login without display name', async () => {
       const { loginAnonymously } = await import('../firebase');
       const { signInAnonymously, updateProfile } = await import('firebase/auth');
-      
+
+      // @ts-ignore
       mockAuth.currentUser = mockAnonymousUser;
       vi.mocked(signInAnonymously).mockResolvedValue({ user: mockAnonymousUser } as any);
       vi.mocked(updateProfile).mockResolvedValue(undefined);
@@ -138,7 +152,7 @@ describe('Firebase Authentication Service', () => {
 
     it('should handle email registration', async () => {
       const { registerWithEmail } = await import('../firebase');
-      
+
       mockCreateUserWithEmailAndPassword.mockResolvedValue({ user: mockUser });
       mockUpdateProfile.mockResolvedValue(undefined);
 
@@ -155,7 +169,7 @@ describe('Firebase Authentication Service', () => {
 
     it('should handle email login', async () => {
       const { loginWithEmail } = await import('../firebase');
-      
+
       mockSignInWithEmailAndPassword.mockResolvedValue({ user: mockUser });
 
       const result = await loginWithEmail('test@example.com', 'password123');
@@ -170,7 +184,7 @@ describe('Firebase Authentication Service', () => {
 
     it('should handle Google login', async () => {
       const { loginWithGoogle } = await import('../firebase');
-      
+
       const mockProvider = {};
       mockGoogleAuthProvider.mockReturnValue(mockProvider);
       mockSignInWithPopup.mockResolvedValue({ user: mockUser });
@@ -184,7 +198,7 @@ describe('Firebase Authentication Service', () => {
 
     it('should handle password reset', async () => {
       const { resetPassword } = await import('../firebase');
-      
+
       mockSendPasswordResetEmail.mockResolvedValue(undefined);
 
       const result = await resetPassword('test@example.com');
@@ -195,7 +209,8 @@ describe('Firebase Authentication Service', () => {
 
     it('should handle account conversion', async () => {
       const { convertAnonymousAccount } = await import('../firebase');
-      
+
+      // @ts-ignore
       mockAuth.currentUser = mockAnonymousUser;
       const mockCredential = { providerId: 'password' };
       mockEmailAuthProvider.credential.mockReturnValue(mockCredential);
@@ -203,15 +218,19 @@ describe('Firebase Authentication Service', () => {
 
       const result = await convertAnonymousAccount('test@example.com', 'password123');
 
-      expect(mockEmailAuthProvider.credential).toHaveBeenCalledWith('test@example.com', 'password123');
+      expect(mockEmailAuthProvider.credential).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123'
+      );
       expect(mockLinkWithCredential).toHaveBeenCalledWith(mockAnonymousUser, mockCredential);
       expect(result).toEqual(mockUser);
     });
 
     it('should handle display name update', async () => {
       const { updateDisplayName } = await import('../firebase');
-      
+
       const updatedUser = { ...mockUser, displayName: 'Updated Name' };
+      // @ts-ignore
       mockAuth.currentUser = updatedUser;
       mockUpdateProfile.mockResolvedValue(undefined);
 
@@ -223,7 +242,7 @@ describe('Firebase Authentication Service', () => {
 
     it('should handle logout', async () => {
       const { logout } = await import('../firebase');
-      
+
       mockSignOut.mockResolvedValue(undefined);
 
       const result = await logout();
@@ -234,7 +253,7 @@ describe('Firebase Authentication Service', () => {
 
     it('should handle errors gracefully', async () => {
       const { loginAnonymously } = await import('../firebase');
-      
+
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockSignInAnonymously.mockRejectedValue(new Error('Sign in failed'));
 
@@ -247,7 +266,7 @@ describe('Firebase Authentication Service', () => {
 
     it('should return null when no current user exists for updateDisplayName', async () => {
       const { updateDisplayName } = await import('../firebase');
-      
+
       mockAuth.currentUser = null;
 
       const result = await updateDisplayName('Test Name');
@@ -258,27 +277,28 @@ describe('Firebase Authentication Service', () => {
 
     it('should throw error when converting non-anonymous account', async () => {
       const { convertAnonymousAccount } = await import('../firebase');
-      
+
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      // @ts-ignore
       mockAuth.currentUser = mockUser; // Not anonymous
 
       await expect(convertAnonymousAccount('test@example.com', 'password123')).rejects.toThrow(
         'User is not anonymous or not logged in'
       );
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should throw error when converting account without logged in user', async () => {
       const { convertAnonymousAccount } = await import('../firebase');
-      
+
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockAuth.currentUser = null;
 
       await expect(convertAnonymousAccount('test@example.com', 'password123')).rejects.toThrow(
         'User is not anonymous or not logged in'
       );
-      
+
       consoleSpy.mockRestore();
     });
   });
