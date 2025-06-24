@@ -7,8 +7,8 @@ export const getBoards = (): Promise<DBGameBoard[]> => {
   return gameBoard.orderBy('title').toArray();
 };
 
-export const getActiveBoard = (): Promise<DBGameBoard | undefined> => {
-  return gameBoard.where('isActive').equals(1).first() || {};
+export const getActiveBoard = async (): Promise<DBGameBoard | undefined> => {
+  return gameBoard.where('isActive').equals(1)?.first();
 };
 
 export const getBoard = (id: number): Promise<DBGameBoard | undefined> => {
@@ -16,14 +16,14 @@ export const getBoard = (id: number): Promise<DBGameBoard | undefined> => {
 };
 
 export const addBoard = async (record: Partial<DBGameBoard>): Promise<number | undefined> => {
-  return await gameBoard.add(record as DBGameBoard);
+  return gameBoard.add(record as DBGameBoard);
 };
 
 export const updateBoard = async (
   board: DBGameBoard,
   record?: Partial<DBGameBoard>
 ): Promise<number> => {
-  return await gameBoard.update(board.id as number, { ...board, ...record });
+  return gameBoard.update(board.id as number, { ...board, ...record });
 };
 
 export const upsertBoard = async (record: Partial<DBGameBoard>): Promise<number | undefined> => {

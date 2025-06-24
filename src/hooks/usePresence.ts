@@ -17,7 +17,7 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
         oldRoom: currentRoom,
         newDisplayName: displayName || '',
         oldDisplayName: currentDisplayName,
-        removeOnDisconnect: roomRealtime || roomId.toUpperCase() === 'PUBLIC',
+        removeOnDisconnect: roomRealtime || roomId?.toUpperCase() === 'PUBLIC',
       });
       setCurrentRoom(roomId);
       setCurrentDisplayName(displayName || '');

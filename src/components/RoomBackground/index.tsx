@@ -8,37 +8,37 @@ interface RoomBackgroundProps {
 
 export default function RoomBackground({ url = null, isVideo = null }: RoomBackgroundProps) {
   // Check if the URL is a direct video file (MP4, WebM, etc.)
-  const isDirectVideo = url && /\.(mp4|webm|ogg|mov)(\?.*)?$/.test(url);
-  
+  const isDirectVideo = url && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+
   return (
     <Box
       className="main-container"
+      role="presentation"
       sx={{
         backgroundImage: !isVideo && url ? `url(${url})` : 'none',
       }}
     >
-      {isVideo && (
-        isDirectVideo ? (
+      {isVideo &&
+        (isDirectVideo ? (
           <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            src={url || ''}
+            autoPlay={true}
+            loop={true}
+            muted={true}
+            playsInline={true}
+            src={url || undefined}
             className="video-background"
           />
         ) : (
           <iframe
             width="100%"
             height="100%"
-            src={url || ''}
+            src={url || undefined}
             title="video"
             allowFullScreen
             allow="autoplay"
-            style={{ border: 'none' }}
+            style={{ border: 0 }}
           />
-        )
-      )}
+        ))}
     </Box>
   );
 }
