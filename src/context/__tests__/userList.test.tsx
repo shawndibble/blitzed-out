@@ -95,7 +95,7 @@ describe('UserListProvider', () => {
         </TestWrapper>
       );
 
-      expect(mockGetUserList).toHaveBeenCalledWith('test-room', expect.any(Function), {});
+      expect(mockGetUserList).toHaveBeenCalledWith('test-room', expect.any(Function));
     });
 
     it('should handle undefined room ID', () => {
@@ -424,7 +424,7 @@ describe('UserListProvider', () => {
         </TestWrapper>
       );
 
-      expect(mockGetUserList).toHaveBeenCalledWith('test-room', expect.any(Function), {});
+      expect(mockGetUserList).toHaveBeenCalledWith('test-room', expect.any(Function));
 
       rerender(
         <TestWrapper>
@@ -433,7 +433,7 @@ describe('UserListProvider', () => {
       );
 
       // Should still be called with the same room since we're not changing the mock
-      expect(mockGetUserList).toHaveBeenCalledWith('test-room', expect.any(Function), {});
+      expect(mockGetUserList).toHaveBeenCalledWith('test-room', expect.any(Function));
     });
 
     it('should reset user list when room changes', async () => {
