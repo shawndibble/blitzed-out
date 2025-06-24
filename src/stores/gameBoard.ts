@@ -7,8 +7,8 @@ export const getBoards = (): Promise<DBGameBoard[]> => {
   return gameBoard.orderBy('title').toArray();
 };
 
-export const getActiveBoard = async (): Promise<{}> => {
-  return (await gameBoard.where('isActive').equals(1)?.first()) || {};
+export const getActiveBoard = async (): Promise<DBGameBoard | undefined> => {
+  return gameBoard.where('isActive').equals(1)?.first();
 };
 
 export const getBoard = (id: number): Promise<DBGameBoard | undefined> => {

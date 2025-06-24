@@ -121,7 +121,7 @@ describe('gameBoard store', () => {
 
       const result = await getActiveBoard();
 
-      expect(result).toEqual({}); // Actually, the function returns undefined since the Promise resolves to undefined
+      expect(result).toBeUndefined();
     });
   });
 
