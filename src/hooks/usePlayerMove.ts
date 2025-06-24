@@ -95,12 +95,12 @@ export default function usePlayerMove(
         type: 'actions',
       });
     },
-    [room, user]
+    [room, user, t]
   );
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
-  const getNewLocation = (rollNumber: number): LocationResult => {
+  const getNewLocation = useCallback((rollNumber: number): LocationResult => {
     // -1 is used to restart the game.
     if (rollNumber === -1) {
       return {
@@ -125,7 +125,7 @@ export default function usePlayerMove(
       return { newLocation: lastTile };
     }
     return { newLocation };
-  };
+  }, [t, playerList, lastTile]);
 
   useEffect(() => {
     const rollNumber = Array.isArray(rollValue.value) ? rollValue.value[0] : rollValue.value;

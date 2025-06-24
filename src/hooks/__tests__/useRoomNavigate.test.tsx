@@ -229,7 +229,7 @@ describe('useRoomNavigate', () => {
     });
 
     it('should handle both current room and form room being undefined', () => {
-      // @ts-ignore
+      // @ts-expect-error Testing undefined id parameter for edge case
       mockParams = { id: undefined };
 
       const { result } = renderHook(() => useRoomNavigate(), {

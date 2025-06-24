@@ -1,5 +1,5 @@
 import { normalSortedMessages } from '@/helpers/messages';
-import { createContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 import { Params, useParams } from 'react-router-dom';
 import { getMessages } from '@/services/firebase';
 import { Message } from '@/types/Message';
@@ -9,6 +9,7 @@ export interface MessagesContextType {
   isLoading: boolean;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const MessagesContext = createContext<MessagesContextType | undefined>(undefined);
 
 interface MessagesProviderProps {
@@ -23,13 +24,11 @@ export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
 
   useEffect(() => {
     setIsLoading(true);
-    const unsubscribe = getMessages(room, (newMessages: Message[]) => {
+    return getMessages(room, (newMessages: Message[]) => {
       const sorted = normalSortedMessages(newMessages);
       setMessages(sorted);
       setIsLoading(false);
     });
-
-    return unsubscribe;
   }, [room]);
 
   const value = { messages, isLoading };

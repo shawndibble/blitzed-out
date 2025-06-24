@@ -158,6 +158,7 @@ const RollButton = memo(function RollButton({
     rollCount,
     diceSide,
     updateRollValue,
+    setTimeLeft,
   ]);
 
   return (

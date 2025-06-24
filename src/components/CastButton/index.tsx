@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
 import CastIcon from '@mui/icons-material/Cast';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
@@ -14,6 +14,24 @@ export default function CastButton(): JSX.Element | null {
   const { id: room } = useParams<Params>();
   const castButtonRef = useRef<HTMLButtonElement>(null);
   const [castApiReady, setCastApiReady] = useState<boolean>(false);
+
+  // Function to send a message to the cast session
+  const sendCastMessage = useCallback(
+    (session: any) => {
+      try {
+        const castUrl = `${window.location.origin}/${room}/cast`;
+        console.log('Sending cast message with URL:', castUrl);
+
+        session.sendMessage('urn:x-cast:com.blitzedout.app', {
+          type: 'LOAD',
+          url: castUrl,
+        });
+      } catch (error) {
+        console.error('Error sending cast message:', error);
+      }
+    },
+    [room]
+  );
 
   // Initialize the Cast API when the component mounts
   useEffect(() => {
@@ -117,22 +135,7 @@ export default function CastButton(): JSX.Element | null {
     return () => {
       // Don't reset the global callback as other instances might need it
     };
-  }, [room]);
-
-  // Function to send a message to the cast session
-  const sendCastMessage = (session: any) => {
-    try {
-      const castUrl = `${window.location.origin}/${room}/cast`;
-      console.log('Sending cast message with URL:', castUrl);
-
-      session.sendMessage('urn:x-cast:com.blitzedout.app', {
-        type: 'LOAD',
-        url: castUrl,
-      });
-    } catch (error) {
-      console.error('Error sending cast message:', error);
-    }
-  };
+  }, [room, sendCastMessage]);
 
   // Function to toggle casting
   const toggleCasting = () => {
@@ -166,7 +169,7 @@ export default function CastButton(): JSX.Element | null {
     if (isCasting && castSession && room) {
       sendCastMessage(castSession);
     }
-  }, [room, isCasting, castSession]);
+  }, [room, isCasting, castSession, sendCastMessage]);
 
   if (!castApiReady) return null;
 

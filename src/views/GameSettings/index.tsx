@@ -47,23 +47,26 @@ export default function GameSettings({
 
   const boardUpdated = (): void => updateSettings({ ...settings, boardUpdated: true });
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<null> {
-    event.preventDefault();
-    const { displayName, ...gameOptions } = formData; // we don't want to validate the displayName
-    void displayName; // Intentionally excluded from validation
+  const handleSubmit = useCallback(
+    async (event: FormEvent<HTMLFormElement>): Promise<null> => {
+      event.preventDefault();
+      const { displayName, ...gameOptions } = formData; // we don't want to validate the displayName
+      void displayName; // Intentionally excluded from validation
 
-    const validationMessage = validateFormData(gameOptions, actionsList);
-    if (validationMessage) {
-      setAlert(t(validationMessage));
+      const validationMessage = validateFormData(gameOptions, actionsList);
+      if (validationMessage) {
+        setAlert(t(validationMessage));
+        return null;
+      }
+
+      submitSettings(formData, actionsList);
+
+      if (typeof closeDialog === 'function') closeDialog();
+
       return null;
-    }
-
-    submitSettings(formData, actionsList);
-
-    if (typeof closeDialog === 'function') closeDialog();
-
-    return null;
-  }
+    },
+    [formData, actionsList, t, setAlert, submitSettings, closeDialog]
+  );
 
   const handleBlur = useCallback(
     (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
@@ -144,7 +147,7 @@ export default function GameSettings({
           <Trans i18nKey="update" />
         </Button>
       </div>
-      {!!openCustomTile && (
+      {openCustomTile && (
         <CustomTileDialog
           open={openCustomTile}
           setOpen={setOpenCustomTile}

@@ -66,7 +66,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     }
 
     setStep(2);
-  }, [formData]);
+  }, [formData, close, room]);
 
   const nextStep = (count?: number): void => {
     if (!Number.isInteger(count)) return setStep(step + 1);

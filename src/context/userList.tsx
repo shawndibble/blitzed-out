@@ -13,6 +13,7 @@ export interface UserListContextType {
   onlineUsers: Record<string, OnlineUser>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const UserListContext = createContext<UserListContextType | undefined>(undefined);
 
 interface UserListProviderProps {
@@ -25,10 +26,9 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
   const [onlineUsers, setOnlineUsers] = useState<Record<string, OnlineUser>>({});
 
   useEffect(() => {
-    getUserList(
+    return getUserList(
       room,
-      (newUsers: Record<string, OnlineUser>) => setOnlineUsers(newUsers),
-      onlineUsers
+      (newUsers: Record<string, OnlineUser>) => setOnlineUsers(newUsers)
     );
   }, [room]);
 

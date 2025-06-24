@@ -212,9 +212,9 @@ describe('gameBoard store', () => {
       vi.mocked(db.gameBoard.add).mockResolvedValue(newBoardId);
 
       // Mock transaction
-      // @ts-ignore
+      // @ts-expect-error Mock implementation with simplified callback signature
       vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
-        // @ts-ignore
+        // @ts-expect-error Mock callback execution without proper typing
         return await callback();
       });
 
@@ -248,9 +248,9 @@ describe('gameBoard store', () => {
       vi.mocked(db.gameBoard.update).mockResolvedValue(1);
 
       // Mock transaction
-      // @ts-ignore
+      // @ts-expect-error Mock implementation with simplified callback signature
       vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
-        // @ts-ignore
+        // @ts-expect-error Mock callback execution without proper typing
         return await callback();
       });
 
@@ -273,7 +273,7 @@ describe('gameBoard store', () => {
 
       // Mock for both title lookup and isActive deactivation
       vi.mocked(db.gameBoard.where).mockImplementation((field) => {
-        // @ts-ignore
+        // @ts-expect-error Mock conditional return type based on field parameter
         if (field === 'title') {
           return { equals: vi.fn().mockReturnValue({ first: mockFirst }) };
         }
@@ -283,9 +283,9 @@ describe('gameBoard store', () => {
       vi.mocked(db.gameBoard.add).mockResolvedValue(3);
 
       // Mock transaction
-      // @ts-ignore
+      // @ts-expect-error Mock implementation with simplified callback signature
       vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
-        // @ts-ignore
+        // @ts-expect-error Mock callback execution without proper typing
         return await callback();
       });
 
@@ -322,7 +322,7 @@ describe('gameBoard store', () => {
   describe('activateBoard', () => {
     it('should activate specified board and deactivate others', async () => {
       vi.mocked(db.gameBoard.toArray).mockResolvedValue(mockBoards);
-      // @ts-ignore
+      // @ts-expect-error Mock return value type mismatch with actual bulkPut return
       vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([1, 2]);
 
       await activateBoard(2);
@@ -336,7 +336,7 @@ describe('gameBoard store', () => {
 
     it('should handle empty boards array', async () => {
       vi.mocked(db.gameBoard.toArray).mockResolvedValue([]);
-      // @ts-ignore
+      // @ts-expect-error Mock return value type mismatch with actual bulkPut return
       vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([]);
 
       await activateBoard(1);
@@ -388,7 +388,7 @@ describe('gameBoard store', () => {
     it('should handle concurrent board activation', async () => {
       // Simulate race condition where boards are modified during activation
       let callCount = 0;
-      // @ts-ignore
+      // @ts-expect-error Mock implementation with conditional return values
       vi.mocked(db.gameBoard.toArray).mockImplementation(async () => {
         callCount++;
         if (callCount === 1) {
@@ -400,7 +400,7 @@ describe('gameBoard store', () => {
           { ...mockBoards[1], isActive: 1 },
         ];
       });
-      // @ts-ignore
+      // @ts-expect-error Mock return value type mismatch with actual bulkPut return
       vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([1, 2]);
 
       await activateBoard(2);

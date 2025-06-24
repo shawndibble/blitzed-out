@@ -26,6 +26,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 }
 
 // All providers wrapper
+// eslint-disable-next-line react-refresh/only-export-components
 function AllTheProviders({
   children,
   withAuth = true,
@@ -207,6 +208,7 @@ export function waitFor(callback: () => void | Promise<void>, timeout = 1000) {
 }
 
 // Re-export everything from React Testing Library
+// eslint-disable-next-line react-refresh/only-export-components
 export * from '@testing-library/react';
 
 // Override render with our custom render

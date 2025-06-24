@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef, ReactNode, createContext } from 'react';
+import { useEffect, useMemo, useState, useRef, ReactNode, createContext, useCallback } from 'react';
 import { getAuth } from 'firebase/auth';
 import {
   loginAnonymously,
@@ -40,6 +40,7 @@ export interface AuthContextType {
   isAnonymous: boolean;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
@@ -57,7 +58,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to safely perform sync operations with debouncing
-  const performSync = async (syncFunction: () => Promise<boolean>): Promise<boolean> => {
+  const performSync = useCallback(async (syncFunction: () => Promise<boolean>): Promise<boolean> => {
     // Clear any pending sync timeout
     if (syncTimeoutRef.current) {
       clearTimeout(syncTimeoutRef.current);
@@ -82,7 +83,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
       return false;
     }
-  };
+  }, [user, syncTimeoutRef, setSyncStatus, syncStatus.lastSync, setError]);
   async function login(displayName = ''): Promise<User | null> {
     try {
       const loggedInUser = await loginAnonymously(displayName);
@@ -158,7 +159,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     }
   }
 
-  async function convertToRegistered(email: string, password: string): Promise<User> {
+  const convertToRegistered = useCallback(async (email: string, password: string): Promise<User> => {
     try {
       setLoading(true);
       const convertedUser = await convertAnonymousAccount(email, password);
@@ -176,7 +177,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     } finally {
       setLoading(false);
     }
-  }
+  }, [setLoading, setUser, performSync, setError]);
 
   async function updateUser(displayName = ''): Promise<User | null> {
     try {
@@ -191,7 +192,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     }
   }
 
-  async function logoutUser(): Promise<void> {
+  const logoutUser = useCallback(async (): Promise<void> => {
     try {
       // Sync data to Firebase before logout if user is not anonymous
       if (user && !user.isAnonymous) {
@@ -209,11 +210,11 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       }
       throw err;
     }
-  }
+  }, [user, performSync, setUser, setError]);
 
-  async function syncData(): Promise<boolean> {
+  const syncData = useCallback(async (): Promise<boolean> => {
     return performSync(syncAllDataToFirebase);
-  }
+  }, [performSync]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -288,7 +289,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       syncData,
       isAnonymous: user?.isAnonymous || false,
     }),
-    [user, loading, error, syncStatus]
+    [user, loading, error, syncStatus, convertToRegistered, logoutUser, syncData]
   );
 
   return <AuthContext.Provider value={value} {...props} />;

@@ -20,6 +20,7 @@ export interface ScheduleContextType {
   ) => Promise<void | DocumentReference<DocumentData>>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
 
 interface ScheduleProviderProps {

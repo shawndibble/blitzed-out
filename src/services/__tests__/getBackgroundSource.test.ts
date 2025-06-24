@@ -396,7 +396,7 @@ describe('getBackgroundSource', () => {
           roomBackground: null,
         };
 
-        // @ts-ignore - Testing runtime behavior
+        // @ts-expect-error Testing runtime behavior with invalid room type
         const result = getBackgroundSource(settings, 'PRIVATE', 'https://example.com/room-bg.jpg');
 
         expect(result.url).toBe('https://example.com/room-bg.jpg');

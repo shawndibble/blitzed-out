@@ -120,7 +120,7 @@ describe('Firebase Authentication Service', () => {
       const { getAuth, signInAnonymously, updateProfile } = await import('firebase/auth');
 
       // Setup mocks
-      // @ts-ignore
+      // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockAnonymousUser;
       vi.mocked(signInAnonymously).mockResolvedValue({ user: mockAnonymousUser } as any);
       vi.mocked(updateProfile).mockResolvedValue(undefined);
@@ -139,7 +139,7 @@ describe('Firebase Authentication Service', () => {
       const { loginAnonymously } = await import('../firebase');
       const { signInAnonymously, updateProfile } = await import('firebase/auth');
 
-      // @ts-ignore
+      // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockAnonymousUser;
       vi.mocked(signInAnonymously).mockResolvedValue({ user: mockAnonymousUser } as any);
       vi.mocked(updateProfile).mockResolvedValue(undefined);
@@ -210,7 +210,7 @@ describe('Firebase Authentication Service', () => {
     it('should handle account conversion', async () => {
       const { convertAnonymousAccount } = await import('../firebase');
 
-      // @ts-ignore
+      // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockAnonymousUser;
       const mockCredential = { providerId: 'password' };
       mockEmailAuthProvider.credential.mockReturnValue(mockCredential);
@@ -230,7 +230,7 @@ describe('Firebase Authentication Service', () => {
       const { updateDisplayName } = await import('../firebase');
 
       const updatedUser = { ...mockUser, displayName: 'Updated Name' };
-      // @ts-ignore
+      // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = updatedUser;
       mockUpdateProfile.mockResolvedValue(undefined);
 
@@ -279,7 +279,7 @@ describe('Firebase Authentication Service', () => {
       const { convertAnonymousAccount } = await import('../firebase');
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      // @ts-ignore
+      // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockUser; // Not anonymous
 
       await expect(convertAnonymousAccount('test@example.com', 'password123')).rejects.toThrow(

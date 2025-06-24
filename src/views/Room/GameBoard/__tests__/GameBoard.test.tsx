@@ -99,7 +99,7 @@ describe('GameBoard', () => {
     vi.clearAllMocks();
 
     vi.mocked(useAuth).mockReturnValue({
-      // @ts-ignore
+      // @ts-expect-error Mock user object with simplified type for testing
       user: mockUser,
       loading: false,
       signIn: vi.fn(),
@@ -422,7 +422,7 @@ describe('GameBoard', () => {
 
     it('should handle user without display name', () => {
       vi.mocked(useAuth).mockReturnValue({
-        // @ts-ignore
+        // @ts-expect-error Mock user object with null displayName for testing
         user: { ...mockUser, displayName: null },
         loading: false,
         signIn: vi.fn(),

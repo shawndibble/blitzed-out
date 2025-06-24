@@ -99,6 +99,7 @@ export default function AddCustomTile({
       console.error('Error processing groups:', error);
       setGroups({});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- formData.intensity is read to preserve current value, not to trigger re-runs
   }, [formData.gameMode, mappedGroups]);
 
   // Handle editing a tile
