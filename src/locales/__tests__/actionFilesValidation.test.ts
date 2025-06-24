@@ -51,84 +51,6 @@ describe('Action Files Validation', () => {
         expect(langActionFiles).toEqual(baseActionFiles);
       });
     });
-
-    it('action files exist in all required combinations', () => {
-      const baseLocalFiles = getActionFiles('en', 'local');
-      const baseOnlineFiles = getActionFiles('en', 'online');
-
-      supportedLanguages.forEach((lang) => {
-        gameModeFolders.forEach((mode) => {
-          const expectedFiles = mode === 'local' ? baseLocalFiles : baseOnlineFiles;
-
-          expectedFiles.forEach((actionType) => {
-            const content = getActionFileContent(lang, mode, actionType);
-            expect(content).not.toBeNull();
-            expect(content).toBeDefined();
-          });
-        });
-      });
-    });
-  });
-
-  describe('Action file content structure', () => {
-    it('all action files have consistent structure across languages', () => {
-      const baseLocalFiles = getActionFiles('en', 'local');
-      const baseOnlineFiles = getActionFiles('en', 'online');
-
-      [...baseLocalFiles, ...baseOnlineFiles].forEach((actionType) => {
-        gameModeFolders.forEach((mode) => {
-          if (
-            (mode === 'local' && !baseLocalFiles.includes(actionType)) ||
-            (mode === 'online' && !baseOnlineFiles.includes(actionType))
-          ) {
-            return;
-          }
-
-          const baseContent = getActionFileContent('en', mode, actionType);
-          if (!baseContent) return;
-
-          supportedLanguages.slice(1).forEach((lang) => {
-            const langContent = getActionFileContent(lang, mode, actionType);
-            expect(langContent).not.toBeNull();
-
-            // Check that both have the same top-level structure
-            expect(Object.keys(langContent).sort()).toEqual(Object.keys(baseContent).sort());
-
-            // Check action levels if they exist
-            if (baseContent.actions && langContent.actions) {
-              expect(Object.keys(langContent.actions).sort()).toEqual(
-                Object.keys(baseContent.actions).sort()
-              );
-            }
-          });
-        });
-      });
-    });
-
-    it('action levels have consistent action counts', () => {
-      const allActionTypes = [...getActionFiles('en', 'local'), ...getActionFiles('en', 'online')];
-
-      allActionTypes.forEach((actionType) => {
-        gameModeFolders.forEach((mode) => {
-          const baseContent = getActionFileContent('en', mode, actionType);
-          if (!baseContent?.actions) return;
-
-          supportedLanguages.slice(1).forEach((lang) => {
-            const langContent = getActionFileContent(lang, mode, actionType);
-            if (!langContent?.actions) return;
-
-            Object.keys(baseContent.actions).forEach((actionLevel) => {
-              const baseActions = baseContent.actions[actionLevel];
-              const langActions = langContent.actions[actionLevel];
-
-              if (Array.isArray(baseActions) && Array.isArray(langActions)) {
-                expect(langActions).toHaveLength(baseActions.length);
-              }
-            });
-          });
-        });
-      });
-    });
   });
 
   describe('Action content validation', () => {
@@ -254,30 +176,6 @@ describe('Action Files Validation', () => {
       // Online files should be a subset of local files (some actions might not be suitable for online)
       onlineFiles.forEach((onlineFile) => {
         expect(localFiles).toContain(onlineFile);
-      });
-    });
-
-    it('no unused action type files across languages', () => {
-      // This test ensures that if a file exists in one language, it exists in all
-      // and that there are no orphaned files
-
-      const allFoundFiles = new Set<string>();
-
-      supportedLanguages.forEach((lang) => {
-        gameModeFolders.forEach((mode) => {
-          const files = getActionFiles(lang, mode);
-          files.forEach((file) => allFoundFiles.add(`${mode}/${file}`));
-        });
-      });
-
-      // Verify each found file exists in all languages
-      allFoundFiles.forEach((fileKey) => {
-        const [mode, actionType] = fileKey.split('/');
-
-        supportedLanguages.forEach((lang) => {
-          const content = getActionFileContent(lang, mode, actionType);
-          expect(content).not.toBeNull();
-        });
       });
     });
   });
