@@ -433,23 +433,6 @@ describe('ImportExport', () => {
     });
   });
 
-  describe('error handling', () => {
-    it('should handle updateBoard failure', async () => {
-      vi.mocked(updateBoard).mockRejectedValue(new Error('Update failed'));
-
-      const user = userEvent.setup();
-      render(<ImportExport {...mockProps} />);
-
-      const titleField = screen.getByRole('textbox', { name: /title/i });
-      await user.clear(titleField);
-      await user.type(titleField, 'New Title');
-      await user.tab();
-
-      // Should handle the error gracefully without crashing
-      expect(updateBoard).toHaveBeenCalled();
-    });
-  });
-
   describe('component lifecycle', () => {
     it('should export board data when component opens', () => {
       const { rerender } = render(<ImportExport {...mockProps} open={false} />);
