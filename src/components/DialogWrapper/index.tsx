@@ -20,7 +20,8 @@ export default function DialogWrapper({
   title = null,
   isLoading = false,
 }: DialogWrapperProps): JSX.Element | null {
-  const isMobileBreakpoint = isMobile !== null ? isMobile : useBreakpoint();
+  const breakpointResult = useBreakpoint();
+  const isMobileBreakpoint = isMobile !== null ? isMobile : breakpointResult;
 
   if (isLoading) {
     return null;

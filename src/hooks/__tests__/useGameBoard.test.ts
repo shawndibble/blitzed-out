@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import useGameBoard from '../useGameBoard';
 import { Settings } from '@/types/Settings';
 import { DBGameBoard } from '@/types/gameBoard';
@@ -402,7 +402,7 @@ describe('useGameBoard', () => {
     it('should memoize the callback properly', () => {
       const { result, rerender } = renderHook(() => useGameBoard());
 
-      const firstCallback = result.current;
+      // First render to establish baseline
       rerender();
       const secondCallback = result.current;
 

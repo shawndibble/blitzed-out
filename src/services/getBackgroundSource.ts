@@ -88,7 +88,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     return { url: '', isVideo: false };
   }
 
-  /* eslint-disable indent */
+   
   switch (true) {
     case url.includes('vimeo.com'):
       embedUrl = vimeo(url);
@@ -126,7 +126,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
       isVideo = false;
       break;
   }
-  /* eslint-enable indent */
+   
 
   return {
     url: embedUrl,

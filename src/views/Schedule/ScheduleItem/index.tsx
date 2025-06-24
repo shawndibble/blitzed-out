@@ -24,7 +24,7 @@ const getSiteButton = (url: string) => {
         {name}
       </Button>
     );
-  } catch (e) {
+  } catch {
     return null;
   }
 };

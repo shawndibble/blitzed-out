@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_MEASUREMENT_ID: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ImportMeta {
   readonly env: ImportMetaEnv;
   glob: (pattern: string) => Record<string, () => Promise<any>>;

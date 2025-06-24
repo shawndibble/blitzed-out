@@ -5,7 +5,6 @@ import { BrowserRouter } from 'react-router-dom';
 import MessageList from '../index';
 import { Message, MessageType } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
-import { User } from '@/types';
 import useMessages from '@/context/hooks/useMessages';
 
 // Mock dependencies
@@ -82,11 +81,6 @@ const createMockMessage = (
   } as Timestamp,
 });
 
-// Helper function to create mock user
-const createMockUser = (uid = 'current-user-id', displayName = 'Current User'): User => ({
-  uid,
-  displayName,
-});
 
 describe('MessageList Component', () => {
   beforeEach(() => {

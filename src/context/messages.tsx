@@ -32,7 +32,7 @@ export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
     return unsubscribe;
   }, [room]);
 
-  // eslint-disable-next-line
+   
   const value = { messages, isLoading };
 
   return <MessagesContext.Provider value={value} {...props} />;

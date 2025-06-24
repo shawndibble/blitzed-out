@@ -59,7 +59,7 @@ export default function ImportExport({
           description: description.join('\n'),
         };
       });
-    } catch (error) {
+    } catch {
       // return nothing. Just wait for setAlert to output the error message.
       return null;
     }
@@ -82,7 +82,7 @@ export default function ImportExport({
         });
         return null;
       }
-    } catch (error) {
+    } catch {
       setAlert({
         message: t('error'),
         type: 'error',

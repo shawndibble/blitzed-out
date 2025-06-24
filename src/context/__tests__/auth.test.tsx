@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { AuthProvider, AuthContext } from '../auth';
+import { AuthProvider } from '../auth';
 import { useAuth } from '@/hooks/useAuth';
 import * as firebaseService from '@/services/firebase';
 import * as syncService from '@/services/syncService';
@@ -140,7 +140,7 @@ describe('AuthProvider', () => {
 
     it('should trigger data sync for authenticated non-anonymous users', async () => {
       vi.useFakeTimers();
-      const { result } = renderHook(() => useAuth(), { wrapper });
+      renderHook(() => useAuth(), { wrapper });
       
       await act(async () => {
         authStateChangedCallback?.(mockUser);
@@ -159,7 +159,7 @@ describe('AuthProvider', () => {
 
     it('should not trigger data sync for anonymous users', async () => {
       vi.useFakeTimers();
-      const { result } = renderHook(() => useAuth(), { wrapper });
+      renderHook(() => useAuth(), { wrapper });
       
       await act(async () => {
         authStateChangedCallback?.(mockAnonymousUser);
@@ -177,7 +177,7 @@ describe('AuthProvider', () => {
     });
 
     it('should stop periodic sync when user logs out', async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper });
+      renderHook(() => useAuth(), { wrapper });
       
       // First set a user
       await act(async () => {
@@ -193,7 +193,7 @@ describe('AuthProvider', () => {
     });
 
     it('should update global auth context when user changes', async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper });
+      renderHook(() => useAuth(), { wrapper });
       
       await act(async () => {
         authStateChangedCallback?.(mockUser);
@@ -694,7 +694,9 @@ describe('AuthProvider', () => {
       await act(async () => {
         try {
           await result.current.login();
-        } catch {}
+        } catch {
+          // Expected to fail - testing error handling
+        }
       });
 
       await waitFor(() => {

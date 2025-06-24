@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { resolve, join } from 'path';
+import { resolve } from 'path';
 
 const supportedLanguages = ['en', 'es', 'fr'];
 const gameModeFolders = ['local', 'online'];
@@ -9,7 +9,7 @@ const gameModeFolders = ['local', 'online'];
 const loadJsonFile = (filePath: string) => {
   try {
     return JSON.parse(readFileSync(filePath, 'utf-8'));
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -21,7 +21,7 @@ const getActionFiles = (lang: string, mode: string): string[] => {
     return readdirSync(folderPath)
       .filter(file => file.endsWith('.json'))
       .map(file => file.replace('.json', ''));
-  } catch (error) {
+  } catch {
     return [];
   }
 };
@@ -146,7 +146,7 @@ describe('Action Files Validation', () => {
             
             Object.values(content.intensities).forEach((actions: any) => {
               if (Array.isArray(actions)) {
-                actions.forEach((action, index) => {
+                actions.forEach((action) => {
                   if (typeof action === 'string') {
                     expect(action.trim()).not.toBe('');
                   } else if (typeof action === 'object' && action.action) {
@@ -345,7 +345,7 @@ describe('Action Files Validation', () => {
               const stats = statSync(filePath);
               // Action files shouldn't be excessively large (>100KB is suspicious)
               expect(stats.size).toBeLessThan(100000);
-            } catch (error) {
+            } catch {
               // File doesn't exist, which is okay for some combinations
             }
           });

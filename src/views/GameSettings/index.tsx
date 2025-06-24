@@ -46,8 +46,8 @@ export default function GameSettings({ closeDialog, initialTab = 0 }: GameSettin
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<null> {
     event.preventDefault();
-    // eslint-disable-next-line no-unused-vars
     const { displayName, ...gameOptions } = formData; // we don't want to validate the displayName
+    void displayName; // Intentionally excluded from validation
 
     const validationMessage = validateFormData(gameOptions, actionsList);
     if (validationMessage) {

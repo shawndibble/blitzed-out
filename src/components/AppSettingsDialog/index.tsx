@@ -14,7 +14,8 @@ interface AppSettingsDialogProps {
 }
 
 export default function AppSettingsDialog({ open, close, isMobile = false }: AppSettingsDialogProps): JSX.Element | null {
-  const isSmallScreen = isMobile || useBreakpoint();
+  const breakpointResult = useBreakpoint();
+  const isSmallScreen = isMobile || breakpointResult;
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');
 

@@ -38,6 +38,7 @@ export interface WindowCast {
 
 // Extend the global Window interface
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Window extends WindowCast {}
 }
 
