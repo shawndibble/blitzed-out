@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync, readdirSync, statSync } from 'fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve, join } from 'path';
 
 const supportedLanguages = ['en', 'es', 'fr'];

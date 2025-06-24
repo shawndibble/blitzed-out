@@ -67,9 +67,9 @@ const TestWrapper = ({ children }: { children: ReactNode }) => (
 const createMockMessage = (
   id: string,
   text: string,
-  type: MessageType = 'chat',
-  uid: string = 'user1',
-  displayName: string = 'Test User',
+  type = 'chat' as MessageType,
+  uid = 'user1',
+  displayName = 'Test User',
   timestamp: Date = new Date()
 ): Message => ({
   id,
@@ -83,7 +83,7 @@ const createMockMessage = (
 });
 
 // Helper function to create mock user
-const createMockUser = (uid: string = 'current-user-id', displayName: string = 'Current User'): User => ({
+const createMockUser = (uid = 'current-user-id', displayName = 'Current User'): User => ({
   uid,
   displayName,
 });

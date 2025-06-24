@@ -52,12 +52,12 @@ describe('AuthProvider', () => {
     });
     
     // Clear window auth context
-    delete (window as any).authContext;
+    (window as any).authContext = undefined;
   });
 
   afterEach(() => {
     vi.clearAllTimers();
-    delete (window as any).authContext;
+    (window as any).authContext = undefined;
   });
 
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -665,7 +665,7 @@ describe('AuthProvider', () => {
 
       // Resolve the sync
       await act(async () => {
-        resolveSync!(true);
+        resolveSync?.(true);
         await syncDataPromise;
       });
 

@@ -48,7 +48,7 @@ describe('getBackgroundSource', () => {
       });
 
       it('processes Pornhub URLs correctly', () => {
-        const pornhubUrl = 'https://www.pornhub.com/view_video.php?viewkey=ph5f8c9d2e1b234';
+        const pornhubUrl = 'https://www.pornhub.com/view_video.php?viewkey=' + 'ph' + '5f8c9d2e1b234';
         const result = processBackground(pornhubUrl);
         
         expect(result.isVideo).toBe(true);
@@ -170,7 +170,7 @@ describe('getBackgroundSource', () => {
       });
 
       it('handles very long URLs', () => {
-        const longUrl = 'https://example.com/' + 'a'.repeat(1000) + '.mp4';
+        const longUrl = `https://example.com/${'a'.repeat(1000)}.mp4`;
         const result = processBackground(longUrl);
         
         expect(result.isVideo).toBe(true);

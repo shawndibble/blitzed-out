@@ -172,7 +172,7 @@ describe('RoomBackground', () => {
     });
 
     it('handles very long URLs', () => {
-      const longUrl = 'https://example.com/' + 'a'.repeat(1000) + '.mp4';
+      const longUrl = `https://example.com/${'a'.repeat(1000)}.mp4`;
       render(<RoomBackground url={longUrl} isVideo={true} />);
       
       const video = screen.getByRole('presentation').querySelector('video');

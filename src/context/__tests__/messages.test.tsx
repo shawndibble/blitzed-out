@@ -60,7 +60,7 @@ const TestWrapper = ({ children }: { children: ReactNode }) => (
 // Helper function to create mock messages
 const createMockMessage = (
   text: string,
-  type: MessageType = 'chat',
+  type = 'chat' as MessageType,
   timestamp: Date = new Date(),
   uid: string = 'user1'
 ): Message => ({

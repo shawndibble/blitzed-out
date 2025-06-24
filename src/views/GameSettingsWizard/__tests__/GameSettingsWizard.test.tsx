@@ -6,7 +6,7 @@ import GameSettingsWizard from '../index';
 vi.mock('../RoomStep', () => ({
   default: ({ nextStep }: { nextStep: () => void }) => (
     <div data-testid="room-step">
-      <button onClick={nextStep}>Next</button>
+      <button type="button" onClick={nextStep}>Next</button>
     </div>
   ),
 }));
@@ -14,8 +14,8 @@ vi.mock('../RoomStep', () => ({
 vi.mock('../GameModeStep', () => ({
   default: ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => (
     <div data-testid="game-mode-step">
-      <button onClick={prevStep}>Previous</button>
-      <button onClick={nextStep}>Next</button>
+      <button type="button" onClick={prevStep}>Previous</button>
+      <button type="button" onClick={nextStep}>Next</button>
     </div>
   ),
 }));
@@ -23,8 +23,8 @@ vi.mock('../GameModeStep', () => ({
 vi.mock('../ActionsStep', () => ({
   default: ({ nextStep, prevStep }: { nextStep: () => void; prevStep: () => void }) => (
     <div data-testid="actions-step">
-      <button onClick={prevStep}>Previous</button>
-      <button onClick={nextStep}>Next</button>
+      <button type="button" onClick={prevStep}>Previous</button>
+      <button type="button" onClick={nextStep}>Next</button>
     </div>
   ),
 }));
@@ -32,8 +32,8 @@ vi.mock('../ActionsStep', () => ({
 vi.mock('../FinishStep', () => ({
   default: ({ prevStep, close }: { prevStep: () => void; close?: () => void }) => (
     <div data-testid="finish-step">
-      <button onClick={prevStep}>Previous</button>
-      {close && <button onClick={close}>Close</button>}
+      <button type="button" onClick={prevStep}>Previous</button>
+      {close && <button type="button" onClick={close}>Close</button>}
     </div>
   ),
 }));
@@ -41,7 +41,7 @@ vi.mock('../FinishStep', () => ({
 vi.mock('@/views/GameSettings', () => ({
   default: ({ closeDialog }: { closeDialog?: () => void }) => (
     <div data-testid="game-settings">
-      {closeDialog && <button onClick={closeDialog}>Close Advanced</button>}
+      {closeDialog && <button type="button" onClick={closeDialog}>Close Advanced</button>}
     </div>
   ),
 }));

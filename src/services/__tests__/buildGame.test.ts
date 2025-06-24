@@ -135,7 +135,7 @@ describe('buildGame service', () => {
       
       // Generate multiple times to check that denial can appear (due to randomness)
       let foundDenial = false;
-      let allFoundTitles = new Set<string>();
+      const allFoundTitles = new Set<string>();
       
       for (let i = 0; i < 50; i++) { // Increase attempts
         const testResult = customizeBoard(settingsWithLevels, mockActionsFolder, [], 20);

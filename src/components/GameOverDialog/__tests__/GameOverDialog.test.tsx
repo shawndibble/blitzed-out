@@ -38,7 +38,7 @@ vi.mock('@/hooks/useReturnToStart', () => ({
 vi.mock('@/views/GameSettings', () => ({
   default: ({ closeDialog }: { closeDialog?: () => void }) => (
     <div data-testid="game-settings">
-      <button onClick={closeDialog}>Close Settings</button>
+      <button type="button" onClick={closeDialog}>Close Settings</button>
     </div>
   ),
 }));
@@ -46,7 +46,7 @@ vi.mock('@/views/GameSettings', () => ({
 // Mock components
 vi.mock('@/components/CloseIcon', () => ({
   default: ({ close }: { close: () => void }) => (
-    <button onClick={close} data-testid="close-icon">
+    <button type="button" onClick={close} data-testid="close-icon">
       Close
     </button>
   ),
@@ -65,7 +65,7 @@ vi.mock('@/components/GridItemActionCard', () => ({
     disabled?: boolean;
   }) => (
     <div data-testid={`action-card-${title.toLowerCase().replace(/\s+/g, '-')}`}>
-      <button onClick={onClick} disabled={disabled}>
+      <button type="button" onClick={onClick} disabled={disabled}>
         {title}
       </button>
       <div>{children}</div>
