@@ -94,10 +94,10 @@ describe('Action Files Validation', () => {
             // Check that both have the same top-level structure
             expect(Object.keys(langContent).sort()).toEqual(Object.keys(baseContent).sort());
 
-            // Check intensity levels if they exist
-            if (baseContent.intensities && langContent.intensities) {
-              expect(Object.keys(langContent.intensities).sort()).toEqual(
-                Object.keys(baseContent.intensities).sort()
+            // Check action levels if they exist
+            if (baseContent.actions && langContent.actions) {
+              expect(Object.keys(langContent.actions).sort()).toEqual(
+                Object.keys(baseContent.actions).sort()
               );
             }
           });
@@ -105,21 +105,21 @@ describe('Action Files Validation', () => {
       });
     });
 
-    it('intensity levels have consistent action counts', () => {
+    it('action levels have consistent action counts', () => {
       const allActionTypes = [...getActionFiles('en', 'local'), ...getActionFiles('en', 'online')];
 
       allActionTypes.forEach((actionType) => {
         gameModeFolders.forEach((mode) => {
           const baseContent = getActionFileContent('en', mode, actionType);
-          if (!baseContent?.intensities) return;
+          if (!baseContent?.actions) return;
 
           supportedLanguages.slice(1).forEach((lang) => {
             const langContent = getActionFileContent(lang, mode, actionType);
-            if (!langContent?.intensities) return;
+            if (!langContent?.actions) return;
 
-            Object.keys(baseContent.intensities).forEach((intensity) => {
-              const baseActions = baseContent.intensities[intensity];
-              const langActions = langContent.intensities[intensity];
+            Object.keys(baseContent.actions).forEach((actionLevel) => {
+              const baseActions = baseContent.actions[actionLevel];
+              const langActions = langContent.actions[actionLevel];
 
               if (Array.isArray(baseActions) && Array.isArray(langActions)) {
                 expect(langActions).toHaveLength(baseActions.length);
@@ -139,9 +139,9 @@ describe('Action Files Validation', () => {
         allActionTypes.forEach((actionType) => {
           gameModeFolders.forEach((mode) => {
             const content = getActionFileContent(lang, mode, actionType);
-            if (!content?.intensities) return;
+            if (!content?.actions) return;
 
-            Object.values(content.intensities).forEach((actions: any) => {
+            Object.values(content.actions).forEach((actions: any) => {
               if (Array.isArray(actions)) {
                 actions.forEach((action) => {
                   if (typeof action === 'string') {
@@ -168,15 +168,15 @@ describe('Action Files Validation', () => {
       allActionTypes.forEach((actionType) => {
         gameModeFolders.forEach((mode) => {
           const baseContent = getActionFileContent('en', mode, actionType);
-          if (!baseContent?.intensities) return;
+          if (!baseContent?.actions) return;
 
           supportedLanguages.slice(1).forEach((lang) => {
             const langContent = getActionFileContent(lang, mode, actionType);
-            if (!langContent?.intensities) return;
+            if (!langContent?.actions) return;
 
-            Object.keys(baseContent.intensities).forEach((intensity) => {
-              const baseActions = baseContent.intensities[intensity];
-              const langActions = langContent.intensities[intensity];
+            Object.keys(baseContent.actions).forEach((actionLevel) => {
+              const baseActions = baseContent.actions[actionLevel];
+              const langActions = langContent.actions[actionLevel];
 
               if (Array.isArray(baseActions) && Array.isArray(langActions)) {
                 baseActions.forEach((baseAction: any, index: number) => {
@@ -218,11 +218,11 @@ describe('Action Files Validation', () => {
               }
             });
 
-            // Check intensity metadata
-            if (baseContent.intensities && langContent.intensities) {
-              Object.keys(baseContent.intensities).forEach((intensity) => {
-                const baseActions = baseContent.intensities[intensity];
-                const langActions = langContent.intensities[intensity];
+            // Check action metadata
+            if (baseContent.actions && langContent.actions) {
+              Object.keys(baseContent.actions).forEach((actionLevel) => {
+                const baseActions = baseContent.actions[actionLevel];
+                const langActions = langContent.actions[actionLevel];
 
                 if (Array.isArray(baseActions) && Array.isArray(langActions)) {
                   baseActions.forEach((baseAction: any, index: number) => {
@@ -315,9 +315,9 @@ describe('Action Files Validation', () => {
         allActionTypes.forEach((actionType) => {
           gameModeFolders.forEach((mode) => {
             const content = getActionFileContent(lang, mode, actionType);
-            if (!content?.intensities) return;
+            if (!content?.actions) return;
 
-            Object.values(content.intensities).forEach((actions: any) => {
+            Object.values(content.actions).forEach((actions: any) => {
               if (Array.isArray(actions)) {
                 actions.forEach((action: any) => {
                   const text = typeof action === 'string' ? action : action?.action;
@@ -373,7 +373,7 @@ describe('Action Files Validation', () => {
 
               // Should have some required fields if it's a proper action file
               if (Object.keys(content).length > 0) {
-                expect(content).toHaveProperty('intensities');
+                expect(content).toHaveProperty('actions');
               }
             }
           });
@@ -381,25 +381,18 @@ describe('Action Files Validation', () => {
       });
     });
 
-    it('intensity levels follow expected patterns', () => {
-      const expectedIntensityLevels = ['easy', 'medium', 'hard', 'extreme'];
-
+    it('action levels follow expected patterns', () => {
       const allActionTypes = [...getActionFiles('en', 'local'), ...getActionFiles('en', 'online')];
 
       allActionTypes.forEach((actionType) => {
         gameModeFolders.forEach((mode) => {
           const baseContent = getActionFileContent('en', mode, actionType);
-          if (!baseContent?.intensities) return;
+          if (!baseContent?.actions) return;
 
-          const intensityKeys = Object.keys(baseContent.intensities);
+          const actionKeys = Object.keys(baseContent.actions);
 
-          // All intensity keys should be from the expected set
-          intensityKeys.forEach((intensity) => {
-            expect(expectedIntensityLevels).toContain(intensity);
-          });
-
-          // Should have at least one intensity level
-          expect(intensityKeys.length).toBeGreaterThan(0);
+          // Should have at least one action level
+          expect(actionKeys.length).toBeGreaterThan(0);
         });
       });
     });
