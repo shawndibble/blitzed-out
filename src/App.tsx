@@ -7,10 +7,10 @@ import {
   useNavigate,
   useLocation,
 } from 'react-router-dom';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useContext } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import useAuth from '@/context/hooks/useAuth';
+import { AuthContext } from '@/context/auth';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import './App.css';
 import { MessagesProvider } from '@/context/messages';
@@ -20,10 +20,44 @@ import darkTheme from './theme';
 import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
 import i18next from 'i18next';
 import { WindowWithAuth, ProvidersProps } from '@/types/app';
+import AppSkeleton from '@/components/AppSkeleton';
 
+// Lazy load main views
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
 const Room = lazy(() => import('@/views/Room'));
+
+
+// Aggressive preloading to reduce subsequent requests
+const preloadChunks = () => {
+  // Preload all critical app chunks immediately after main load
+  Promise.all([
+    import('@/views/Room'),
+    import('@/components/MessageList'),
+    import('@/views/Room/GameBoard'),
+    import('@/views/Navigation'),
+    import('@/components/MessageInput'),
+    import('@/components/PopupMessage'),
+  ]).catch(console.warn); // Don't fail if preload fails
+};
+
+// Preload critical chunks immediately after initial render
+if (typeof window !== 'undefined') {
+  // Use requestIdleCallback for better performance
+  const schedulePreload = () => {
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(preloadChunks, { timeout: 1000 });
+    } else {
+      setTimeout(preloadChunks, 100);
+    }
+  };
+  
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', schedulePreload);
+  } else {
+    schedulePreload();
+  }
+}
 
 function Providers({ children }: ProvidersProps) {
   return (
@@ -52,19 +86,28 @@ function UppercaseRedirect({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
-  const auth = useAuth();
+  const auth = useContext(AuthContext);
 
   // Make auth context available to the middleware
   useEffect(() => {
-    (window as unknown as WindowWithAuth).authContext = auth;
+    if (auth) {
+      (window as unknown as WindowWithAuth).authContext = auth;
+    }
     return () => {
       (window as unknown as WindowWithAuth).authContext = null;
     };
   }, [auth]);
 
-  i18next.on('languageChanged', (lng: string) => {
-    setupDefaultActionsImport(lng);
-  });
+  useEffect(() => {
+    i18next.on('languageChanged', (lng: string) => {
+      setupDefaultActionsImport(lng);
+    });
+  }, []);
+
+  // Show skeleton during initial auth loading
+  if (!auth || auth.initializing) {
+    return <AppSkeleton />;
+  }
 
   const room = auth.user ? <Room /> : <UnauthenticatedApp />;
 
@@ -76,7 +119,7 @@ function AppRoutes() {
         element={
           <UppercaseRedirect>
             <Providers>
-              <Suspense>
+              <Suspense fallback={<AppSkeleton />}>
                 <Cast />
               </Suspense>
             </Providers>
@@ -88,7 +131,7 @@ function AppRoutes() {
         element={
           <UppercaseRedirect>
             <Providers>
-              <Suspense>{room}</Suspense>
+              <Suspense fallback={<AppSkeleton />}>{room}</Suspense>
             </Providers>
           </UppercaseRedirect>
         }

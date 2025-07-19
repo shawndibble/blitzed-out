@@ -21,14 +21,58 @@ const i18nOptions: InitOptions = {
   },
 };
 
+// Preload only critical translation resources
+const preloadCriticalTranslations = async () => {
+  const language = localStorage.getItem('i18nextLng') || 'en';
+  
+  try {
+    // Load only the main translation file initially
+    const mainTranslation = await import(`./locales/${language}/translation.json`);
+    
+    return {
+      [language]: {
+        translation: mainTranslation.default || mainTranslation,
+      }
+    };
+  } catch {
+    // Fallback to English if language not found
+    const enTranslation = await import(`./locales/en/translation.json`);
+    return {
+      en: {
+        translation: enTranslation.default || enTranslation,
+      }
+    };
+  }
+};
+
+// Lazy loading function for additional resources
+const lazyLoadTranslations = (language: string, namespace: string) => {
+  // Only load specific locale files when actually needed
+  if (namespace === 'translation') {
+    return import(`./locales/${language}/translation.json`);
+  }
+  
+  // For game-specific translations, load them on-demand
+  return import(`./locales/${language}/${namespace}.json`).catch(() => {
+    // Fallback to English if translation doesn't exist
+    return import(`./locales/en/${namespace}.json`);
+  });
+};
+
 const i18n = i18next
   .use(initReactI18next)
   .use(LanguageDetector)
-  .use(
-    resourcesToBackend(
-      (language: string, namespace: string) => import(`./locales/${language}/${namespace}.json`)
-    )
-  )
-  .init(i18nOptions);
+  .use(resourcesToBackend(lazyLoadTranslations));
+
+// Initialize with critical translations preloaded
+preloadCriticalTranslations().then((resources) => {
+  i18n.init({
+    ...i18nOptions,
+    resources, // Use preloaded resources
+  });
+}).catch(() => {
+  // Fallback to dynamic loading if preload fails
+  i18n.init(i18nOptions);
+});
 
 export default i18n;

@@ -1,7 +1,8 @@
-import { createContext, useState, useMemo, useEffect, ReactNode } from 'react';
+import { createContext, useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
 import { getSchedule, addSchedule } from '@/services/firebase';
 import { DocumentReference, DocumentData } from 'firebase/firestore';
 import dayjs from 'dayjs';
+import { useScheduleStore } from '@/stores/scheduleStore';
 
 export interface ScheduleItem {
   id?: string;
@@ -29,18 +30,64 @@ interface ScheduleProviderProps {
 }
 
 function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
-  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+  const { schedule, loadSchedule, flushPendingScheduleUpdates } = useScheduleStore();
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+
+  // Optimized schedule update handler
+  const handleScheduleUpdate = useCallback((newSchedule: ScheduleItem[]) => {
+    loadSchedule(newSchedule);
+  }, [loadSchedule]);
+
+  // Memoized addToSchedule function to prevent unnecessary re-renders
+  const memoizedAddToSchedule = useCallback(async (
+    dateTime: Date,
+    url: string,
+    room?: string
+  ): Promise<void | DocumentReference<DocumentData>> => {
+    try {
+      const result = await addSchedule(dateTime, url, room);
+      // Flush any pending updates after adding
+      flushPendingScheduleUpdates();
+      return result;
+    } catch (error) {
+      console.error('Error adding to schedule:', error);
+      throw error;
+    }
+  }, [flushPendingScheduleUpdates]);
+
+  // Cleanup function for Firebase listener
+  const cleanup = useCallback(() => {
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+    // Flush any pending updates before cleanup
+    flushPendingScheduleUpdates();
+  }, [flushPendingScheduleUpdates]);
 
   useEffect(() => {
-    getSchedule((newSchedule: ScheduleItem[]) => setSchedule(newSchedule));
-  }, []);
+    // Clean up previous listener
+    cleanup();
 
+    // Set up new listener
+    unsubscribeRef.current = getSchedule(handleScheduleUpdate);
+
+    // Cleanup on unmount
+    return cleanup;
+  }, [handleScheduleUpdate, cleanup]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
+
+  // Memoized context value with stable references
   const value: ScheduleContextType = useMemo(
     () => ({
       schedule,
-      addToSchedule: addSchedule,
+      addToSchedule: memoizedAddToSchedule,
     }),
-    [schedule]
+    [schedule, memoizedAddToSchedule]
   );
 
   return <ScheduleContext.Provider value={value} {...props} />;

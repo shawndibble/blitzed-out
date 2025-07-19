@@ -1,6 +1,7 @@
-import { createContext, useState, useMemo, useEffect, ReactNode } from 'react';
+import { createContext, useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
 import { Params, useParams } from 'react-router-dom';
 import { getUserList } from '@/services/firebase';
+import { useUserListStore } from '@/stores/userListStore';
 
 export interface OnlineUser {
   displayName: string;
@@ -23,12 +24,54 @@ interface UserListProviderProps {
 
 function UserListProvider(props: UserListProviderProps): JSX.Element {
   const { id: room } = useParams<Params>();
-  const [onlineUsers, setOnlineUsers] = useState<Record<string, OnlineUser>>({});
+  const { onlineUsers, setUsers, setRoom, clearUsers, flushPendingUpdates } = useUserListStore();
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+  const prevRoomRef = useRef<string | undefined>(room);
+
+  // Optimized user update handler with batching
+  const handleUserUpdate = useCallback((newUsers: Record<string, OnlineUser>) => {
+    setUsers(newUsers);
+  }, [setUsers]);
+
+  // Cleanup function for Firebase listener
+  const cleanup = useCallback(() => {
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+    // Flush any pending updates before cleanup
+    flushPendingUpdates();
+  }, [flushPendingUpdates]);
 
   useEffect(() => {
-    return getUserList(room, (newUsers: Record<string, OnlineUser>) => setOnlineUsers(newUsers));
-  }, [room]);
+    // Only update room if it actually changed
+    if (prevRoomRef.current !== room) {
+      setRoom(room || null);
+      prevRoomRef.current = room;
+    }
+    
+    if (!room) {
+      cleanup();
+      clearUsers();
+      return;
+    }
 
+    // Clean up previous listener
+    cleanup();
+
+    // Set up new listener
+    unsubscribeRef.current = getUserList(room, handleUserUpdate);
+
+    // Cleanup on unmount or room change
+    return cleanup;
+  }, [room, setRoom, clearUsers, handleUserUpdate, cleanup]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return cleanup;
+  }, [cleanup]);
+
+  // Memoized context value with stable reference
   const value = useMemo(() => ({ onlineUsers }), [onlineUsers]);
 
   return <UserListContext.Provider value={value} {...props} />;

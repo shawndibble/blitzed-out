@@ -1,5 +1,5 @@
 import { AppBar, Tab, Tabs } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
+import { useCallback, useMemo, useState, useRef, useLayoutEffect } from 'react';
 
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
@@ -9,8 +9,9 @@ import 'moment/locale/es';
 import 'moment/locale/fr';
 import { useTranslation } from 'react-i18next';
 import Message from './Message';
+import MessageSkeleton from './MessageSkeleton';
 import './styles.css';
-import { Message as MessageType, MessageType as MsgType } from '@/types/Message';
+import { MessageType as MsgType } from '@/types/Message';
 
 interface MessageListProps {
   room: string;
@@ -29,39 +30,30 @@ export default function MessageList({
   useSendSettings(user, messages, isLoading);
 
   const [currentTab, setTab] = useState<number>(0);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
-  const filterMessages = useCallback(
-    (tabId: number): MessageType[] =>
-      messages.filter((m) => {
-        if (tabId === 1) return ['settings', 'room'].includes(m.type as MsgType);
-        if (tabId === 2) return ['chat', 'media'].includes(m.type as MsgType);
-        if (tabId === 3) return m.type === 'actions';
-        return m;
-      }),
-    [messages]
-  );
-
-  const updatedMessages = useMemo(() => filterMessages(currentTab), [filterMessages, currentTab]);
-
-  useEffect(() => {
-    if (isLoading) return;
-    filterMessages(currentTab);
-  }, [messages, isLoading, i18n.resolvedLanguage, filterMessages, currentTab]);
+  // Memoize filtered messages directly to avoid creating a new function on each render
+  const updatedMessages = useMemo(() => {
+    return messages.filter((m) => {
+      if (currentTab === 1) return ['settings', 'room'].includes(m.type as MsgType);
+      if (currentTab === 2) return ['chat', 'media'].includes(m.type as MsgType);
+      if (currentTab === 3) return m.type === 'actions';
+      return true; // currentTab === 0 (all messages)
+    });
+  }, [messages, currentTab]);
 
   useLayoutEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-  });
+  }, [updatedMessages.length]); // Only scroll when new messages are added
 
-  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
-    filterMessages(newValue);
-  };
+  }, []);
 
   return (
-    <div className="message-list-container" ref={containerRef}>
+    <div className="message-list-container">
       <AppBar position="sticky">
         <Tabs
           variant="fullWidth"
@@ -76,18 +68,30 @@ export default function MessageList({
           <Tab label={t('actions')} {...a11yProps('actions')} />
         </Tabs>
       </AppBar>
-      <ul className="message-list">
-        {updatedMessages.map((x) => (
-          <Message
-            key={x.id}
-            message={x}
-            isOwnMessage={x.uid === user.uid}
-            isTransparent={isTransparent}
-            currentGameBoardSize={currentGameBoardSize}
-            room={room}
-          />
-        ))}
-      </ul>
+      <div className="message-list-scroll" ref={containerRef}>
+        <div className="message-list-scroll-content">
+          <ul className="message-list">
+            {isLoading ? (
+              <MessageSkeleton count={5} />
+            ) : (
+              updatedMessages.map((x) => {
+                // Memoize isOwnMessage calculation outside render
+                const isOwnMessage = x.uid === user.uid;
+                return (
+                  <Message
+                    key={x.id}
+                    message={x}
+                    isOwnMessage={isOwnMessage}
+                    isTransparent={isTransparent}
+                    currentGameBoardSize={currentGameBoardSize}
+                    room={room}
+                  />
+                );
+              })
+            )}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

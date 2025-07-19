@@ -1,8 +1,9 @@
 .message-list-container {
   margin-bottom: 16px;
   flex: 1;
-  overflow-y: auto;
   height: calc(100vh - 15rem);
+  display: flex;
+  flex-direction: column;
 }
 
 @media screen and (max-width: 600px) {
@@ -12,11 +13,26 @@
   }
 }
 
+.message-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.message-list-scroll-content {
+  width: 100%;
+  height: 100%;
+}
+
 .message-list {
-  max-height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .message-tabs button {

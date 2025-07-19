@@ -188,8 +188,8 @@ export function startPeriodicSync(intervalMinutes = 5): boolean {
     }
   }, intervalMs);
 
-  // Perform an immediate sync
-  syncDataFromFirebase();
+  // Note: Immediate sync is handled by the caller (auth context)
+  // to prevent duplicate sync operations
 
   return true;
 }
