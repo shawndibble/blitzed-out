@@ -41,6 +41,7 @@ import customizeBoard from '@/services/buildGame';
 import { importActions } from '@/services/importLocales';
 import { getActiveTiles } from '@/stores/customTiles';
 import { upsertBoard } from '@/stores/gameBoard';
+import { useSettings } from '@/stores/settingsStore';
 
 describe('useGameBoard', () => {
   const mockGameBoard: DBGameBoard = {
@@ -101,7 +102,7 @@ describe('useGameBoard', () => {
 
     // Setup default mocks
     vi.mocked(useLiveQuery).mockReturnValue(mockGameBoard);
-    vi.mocked(useLocalStorage).mockReturnValue([mockSettings, updateSettingsMock]);
+    vi.mocked(useSettings).mockReturnValue([mockSettings, updateSettingsMock]);
     vi.mocked(isPublicRoom).mockReturnValue(false);
     vi.mocked(isOnlineMode).mockReturnValue(true);
     vi.mocked(importActions).mockResolvedValue(mockTileActionList);
