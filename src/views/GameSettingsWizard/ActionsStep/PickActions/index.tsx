@@ -1,6 +1,5 @@
 import { Typography, SelectChangeEvent } from '@mui/material';
 import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
-import { useState } from 'react';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
 import { isOnlineMode } from '@/helpers/strings';
@@ -35,15 +34,15 @@ export default function PickActions({
   const action = getAction(formData);
   const optionList = options(action);
 
-  const initialActions = populateSelections(formData, optionList, action);
-  const [selectedActions, setSelectedActions] = useState<string[]>(initialActions || []);
+  // Always get current selections from formData instead of maintaining separate state
+  const currentSelections = populateSelections(formData, optionList, action);
+  const selectedActions = currentSelections || [];
 
   const handleActionChange = (event: SelectChangeEvent<string[]>): void => {
     const { value } = event.target;
     const selectedValues = typeof value === 'string' ? value.split(',') : value;
 
     if (selectedValues.length <= MAX_ACTIONS) {
-      setSelectedActions(selectedValues);
       updateFormDataWithDefaults(selectedValues, action, setFormData);
     }
   };
@@ -73,7 +72,7 @@ export default function PickActions({
               option={option}
               initValue={1}
               onChange={(event) =>
-                handleChange(event, option, action, setFormData, setSelectedActions)
+                handleChange(event, option, action, setFormData, () => {})
               }
             />
           ))}
