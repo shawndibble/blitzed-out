@@ -3,7 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import BackgroundSelect from '@/components/BackgroundSelect';
 import LanguageSelect from './LanguageSelect';
 import AppBoolSwitch from './AppBoolSwitch';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useSettings } from '@/stores/settingsStore';
 import { Settings } from '@/types/Settings';
 import { ChangeEvent } from 'react';
 
@@ -18,7 +18,7 @@ export default function AppSettings({
   setFormData,
   boardUpdated,
 }: AppSettingsProps): JSX.Element {
-  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
+  const [settings, updateSettings] = useSettings();
 
   const { t } = useTranslation();
   const backgrounds: Record<string, string> = {

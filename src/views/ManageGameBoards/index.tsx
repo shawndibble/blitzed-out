@@ -22,10 +22,9 @@ import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 import { AddCircle, Delete } from '@mui/icons-material';
 import { t } from 'i18next';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useSettings } from '@/stores/settingsStore';
 import useAuth from '@/context/hooks/useAuth';
 import { getOrCreateBoard, sendMessage } from '@/services/firebase';
-import { Settings } from '@/types/Settings';
 import { AlertState } from '@/types';
 
 interface GameBoardProps {
@@ -39,7 +38,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   const [alert, setAlert] = useState<AlertState | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<number>(0);
   const [expandedElement, setExpanded] = useState<number>(0);
-  const settings = useLocalStorage('gameSettings')[0] as Settings;
+  const settings = useSettings()[0];
   const { user } = useAuth();
 
   if (!gameBoards) {

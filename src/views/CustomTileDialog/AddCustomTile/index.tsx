@@ -7,7 +7,7 @@ import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
-import useGameSettings from '@/hooks/useGameSettings';
+import { useGameSettings } from '@/stores/settingsStore';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { AddCustomTileProps, CustomTile, ProcessedGroups } from '@/types/customTiles';
 import { FormDataState } from '@/types/addCustomTile';

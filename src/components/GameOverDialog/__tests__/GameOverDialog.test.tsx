@@ -26,8 +26,8 @@ vi.mock('@/hooks/useGameBoard', () => ({
   default: () => mockUpdateGameBoard,
 }));
 
-vi.mock('@/hooks/useLocalStorage', () => ({
-  default: () => mockLocalStorage(),
+vi.mock('@/stores/settingsStore', () => ({
+  useSettings: () => mockLocalStorage(),
 }));
 
 vi.mock('@/hooks/useReturnToStart', () => ({

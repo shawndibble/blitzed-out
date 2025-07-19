@@ -1,7 +1,7 @@
 import useMessages from '@/context/hooks/useMessages';
 import latestMessageByType from '@/helpers/messages';
 import { useEffect, useState, Dispatch, SetStateAction } from 'react';
-import useLocalStorage from './useLocalStorage';
+import { useSettings } from '@/stores/settingsStore';
 import { RoomMessage } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 
@@ -9,7 +9,7 @@ export default function useSettingsToFormData<T extends Settings>(
   defaultSettings: T = {} as T,
   overrideSettings: Partial<T> = {}
 ): [T, Dispatch<SetStateAction<T>>] {
-  const [settings] = useLocalStorage<Settings>('gameSettings');
+  const [settings] = useSettings();
   // default < localstorage < override.
   const [formData, setFormData] = useState<T>({
     ...defaultSettings,
@@ -26,7 +26,7 @@ export default function useSettingsToFormData<T extends Settings>(
     if (message?.settings) {
       try {
         const messageSettings = JSON.parse(message.settings);
-        
+
         setFormData((previousFormData) => {
           // Only apply message settings on initial load or if no user modifications exist
           if (!isInitialized) {
@@ -36,30 +36,33 @@ export default function useSettingsToFormData<T extends Settings>(
               ...messageSettings,
             };
           }
-          
+
           // For subsequent updates, only merge settings that don't conflict with user selections
           // Preserve any action/consumption selections that have been made
-          const hasUserSelections = Object.keys(previousFormData).some(key => {
+          const hasUserSelections = Object.keys(previousFormData).some((key) => {
             const entry = previousFormData[key] as any;
             return entry?.type && ['solo', 'foreplay', 'sex', 'consumption'].includes(entry.type);
           });
-          
+
           if (hasUserSelections) {
             // Merge non-action settings but preserve user action selections
             const nonActionSettings = Object.keys(messageSettings).reduce((acc, key) => {
               const entry = messageSettings[key];
-              if (!entry?.type || !['solo', 'foreplay', 'sex', 'consumption'].includes(entry.type)) {
+              if (
+                !entry?.type ||
+                !['solo', 'foreplay', 'sex', 'consumption'].includes(entry.type)
+              ) {
                 acc[key] = entry;
               }
               return acc;
             }, {} as any);
-            
+
             return {
               ...previousFormData,
               ...nonActionSettings,
             };
           }
-          
+
           return {
             ...previousFormData,
             ...messageSettings,

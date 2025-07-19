@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { sendRoomSettingsMessage } from '@/views/GameSettings/submitForm';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import { importActions } from '@/services/importLocales';
 import latestMessageByType, { latestMessageBy } from '@/helpers/messages';
@@ -11,7 +11,6 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveBoard } from '@/stores/gameBoard';
 import { isPublicRoom } from '@/helpers/strings';
 import { Message, RoomMessage } from '@/types/Message';
-import { Settings } from '@/types/Settings';
 import { DBGameBoard } from '@/types/gameBoard';
 import { User } from '@/types';
 
@@ -36,7 +35,7 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
   const { id: room } = useParams<Params>();
   const [settingsSent, setSettingsSent] = useState<boolean>(false);
   const { i18n } = useTranslation();
-  const [settings] = useLocalStorage<Settings>('gameSettings');
+  const [settings] = useSettings();
   const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
   const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
 

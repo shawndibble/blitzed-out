@@ -28,8 +28,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';
 import AuthDialog from '@/components/auth/AuthDialog';
-import useLocalStorage from '@/hooks/useLocalStorage';
-import { Settings } from '@/types/Settings';
+import { useSettings, useSettingsStore } from '@/stores/settingsStore';
 
 // Lazy load dialogs
 const AppSettingsDialog = lazy(() => import('@/components/AppSettingsDialog'));
@@ -64,7 +63,7 @@ export default function MenuDrawer(): JSX.Element {
   const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState<boolean>(false);
   const toggleDrawer = useCallback((isOpen: boolean): void => setMenu(isOpen), []);
-  const gameSettings = useLocalStorage('gameSettings')[0] as Settings;
+  const gameSettings = useSettings()[0];
 
   const [open, setOpen] = useState<DialogState>({
     settings: false,
@@ -76,8 +75,10 @@ export default function MenuDrawer(): JSX.Element {
     appSettings: false,
   });
 
-  const toggleDialog = useCallback((type: string, isOpen: boolean): void =>
-    setOpen(prev => ({ ...prev, [type]: isOpen })), []);
+  const toggleDialog = useCallback(
+    (type: string, isOpen: boolean): void => setOpen((prev) => ({ ...prev, [type]: isOpen })),
+    []
+  );
 
   const handleLogout = useCallback(async (): Promise<void> => {
     await logout();
@@ -86,21 +87,19 @@ export default function MenuDrawer(): JSX.Element {
 
   const openInNewTab = (url: string): Window | null => window.open(url, '_blank', 'noreferrer');
 
-  const discordIcon = useMemo(() => (
-    <SvgIcon>
-      <path d="M18.942 5.556a16.299 16.299 0 0 0-4.126-1.297c-.178.321-.385.754-.529 1.097a15.175 15.175 0 0 0-4.573 0 11.583 11.583 0 0 0-.535-1.097 16.274 16.274 0 0 0-4.129 1.3c-2.611 3.946-3.319 7.794-2.965 11.587a16.494 16.494 0 0 0 5.061 2.593 12.65 12.65 0 0 0 1.084-1.785 10.689 10.689 0 0 1-1.707-.831c.143-.106.283-.217.418-.331 3.291 1.539 6.866 1.539 10.118 0 .137.114.277.225.418.331-.541.326-1.114.606-1.71.832a12.52 12.52 0 0 0 1.084 1.785 16.46 16.46 0 0 0 5.064-2.595c.415-4.396-.709-8.209-2.973-11.589zM8.678 14.813c-.988 0-1.798-.922-1.798-2.045s.793-2.047 1.798-2.047 1.815.922 1.798 2.047c.001 1.123-.793 2.045-1.798 2.045zm6.644 0c-.988 0-1.798-.922-1.798-2.045s.793-2.047 1.798-2.047 1.815.922 1.798 2.047c0 1.123-.793 2.045-1.798 2.045z" />
-    </SvgIcon>
-  ), []);
+  const discordIcon = useMemo(
+    () => (
+      <SvgIcon>
+        <path d="M18.942 5.556a16.299 16.299 0 0 0-4.126-1.297c-.178.321-.385.754-.529 1.097a15.175 15.175 0 0 0-4.573 0 11.583 11.583 0 0 0-.535-1.097 16.274 16.274 0 0 0-4.129 1.3c-2.611 3.946-3.319 7.794-2.965 11.587a16.494 16.494 0 0 0 5.061 2.593 12.65 12.65 0 0 0 1.084-1.785 10.689 10.689 0 0 1-1.707-.831c.143-.106.283-.217.418-.331 3.291 1.539 6.866 1.539 10.118 0 .137.114.277.225.418.331-.541.326-1.114.606-1.71.832a12.52 12.52 0 0 0 1.084 1.785 16.46 16.46 0 0 0 5.064-2.595c.415-4.396-.709-8.209-2.973-11.589zM8.678 14.813c-.988 0-1.798-.922-1.798-2.045s.793-2.047 1.798-2.047 1.815.922 1.798 2.047c.001 1.123-.793 2.045-1.798 2.045zm6.644 0c-.988 0-1.798-.922-1.798-2.045s.793-2.047 1.798-2.047 1.815.922 1.798 2.047c0 1.123-.793 2.045-1.798 2.045z" />
+      </SvgIcon>
+    ),
+    []
+  );
 
+  const { setLocale } = useSettingsStore();
   const changeLanguage = (lng: string): void => {
     i18n.changeLanguage(lng);
-    localStorage.setItem(
-      'gameSettings',
-      JSON.stringify({
-        ...JSON.parse(localStorage.getItem('gameSettings') || '{}'),
-        locale: lng,
-      })
-    );
+    setLocale(lng);
   };
 
   const menuItems = useMemo<MenuItem[]>(() => {
@@ -172,7 +171,15 @@ export default function MenuDrawer(): JSX.Element {
       });
     }
     return items;
-  }, [user, room, isAnonymous, gameSettings.advancedSettings, discordIcon, handleLogout, toggleDialog]);
+  }, [
+    user,
+    room,
+    isAnonymous,
+    gameSettings.advancedSettings,
+    discordIcon,
+    handleLogout,
+    toggleDialog,
+  ]);
 
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
     <ListItem key={key} disablePadding onClick={onClick}>

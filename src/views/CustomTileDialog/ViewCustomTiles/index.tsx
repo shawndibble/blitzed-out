@@ -22,7 +22,7 @@ import {
 } from '@/stores/customTiles';
 import { Trans } from 'react-i18next';
 import { useTranslation } from 'react-i18next';
-import useGameSettings from '@/hooks/useGameSettings';
+import { useGameSettings } from '@/stores/settingsStore';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { ViewCustomTilesProps } from '@/types/customTiles';
 import { TileData } from '@/types/viewCustomTiles';
@@ -248,7 +248,9 @@ export default function ViewCustomTiles({
           sx={{ pb: 0 }}
         />
         <CardActions>
-          {tags?.map((tag) => <Chip key={tag} label={tag} sx={{ m: 0.5 }} />)}
+          {tags?.map((tag) => (
+            <Chip key={tag} label={tag} sx={{ m: 0.5 }} />
+          ))}
         </CardActions>
       </Card>
     )

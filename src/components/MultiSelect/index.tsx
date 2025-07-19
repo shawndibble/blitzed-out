@@ -48,7 +48,9 @@ export default function MultiSelect({
         input={<OutlinedInput label={<Trans i18nKey="actionsLabel" />} />}
         renderValue={(selected) => (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {(selected as string[])?.map((value) => <Chip key={value} label={getLabel(value)} />)}
+            {(selected as string[])?.map((value) => (
+              <Chip key={value} label={getLabel(value)} />
+            ))}
           </Box>
         )}
       >
