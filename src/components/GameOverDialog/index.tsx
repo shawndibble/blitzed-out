@@ -24,7 +24,7 @@ export default function GameOverDialog({
 
   const isMobile = useBreakpoint();
   const updateGameBoardTiles = useGameBoard();
-  const [settings, updateLocalStorage] = useSettings();
+  const [settings, updateSettings] = useSettings();
 
   const returnToStart = useCallback(() => {
     sentUserToStart();
@@ -44,10 +44,10 @@ export default function GameOverDialog({
       difficulty: 'accelerated',
     };
     await updateGameBoardTiles(newSettings);
-    updateLocalStorage(newSettings);
+    updateSettings(newSettings);
     sentUserToStart();
     close();
-  }, [updateGameBoardTiles, settings, updateLocalStorage, sentUserToStart, close]);
+  }, [updateGameBoardTiles, settings, updateSettings, sentUserToStart, close]);
 
   const openSettings = useCallback(() => {
     setSettingsDialog(true);

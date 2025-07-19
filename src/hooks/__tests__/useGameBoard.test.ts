@@ -15,6 +15,7 @@ vi.mock('@/helpers/strings', () => ({
 }));
 
 vi.mock('@/stores/settingsStore', () => ({
+  __esModule: true,
   useSettings: vi.fn(),
 }));
 
