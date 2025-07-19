@@ -14,8 +14,8 @@ vi.mock('@/helpers/strings', () => ({
   isOnlineMode: vi.fn(),
 }));
 
-vi.mock('@/hooks/useLocalStorage', () => ({
-  default: vi.fn(),
+vi.mock('@/stores/settingsStore', () => ({
+  useSettings: vi.fn(),
 }));
 
 vi.mock('@/services/buildGame', () => ({
@@ -37,7 +37,6 @@ vi.mock('@/stores/gameBoard', () => ({
 
 import { useLiveQuery } from 'dexie-react-hooks';
 import { isPublicRoom, isOnlineMode } from '@/helpers/strings';
-import useLocalStorage from '@/hooks/useLocalStorage';
 import customizeBoard from '@/services/buildGame';
 import { importActions } from '@/services/importLocales';
 import { getActiveTiles } from '@/stores/customTiles';

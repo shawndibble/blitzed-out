@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Params, useParams } from 'react-router-dom';
 import { getActiveTiles } from '@/stores/customTiles';
 import useGameBoard from './useGameBoard';
-import useLocalStorage from './useLocalStorage';
+import { useSettings } from '@/stores/settingsStore';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
 import { handleUser, sendRoomSettingsMessage } from '@/views/GameSettings/submitForm';
@@ -36,7 +36,7 @@ export default function useSubmitGameSettings(): (
   const { id: room } = useParams<Params>();
   const { t } = useTranslation();
   const updateGameBoardTiles = useGameBoard();
-  const [settings, updateSettings] = useLocalStorage<Settings>('gameSettings');
+  const [settings, updateSettings] = useSettings();
   const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();

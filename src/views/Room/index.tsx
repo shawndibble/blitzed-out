@@ -6,7 +6,7 @@ import RoomBackground from '@/components/RoomBackground';
 import ToastAlert from '@/components/ToastAlert';
 import TurnIndicator from '@/components/TurnIndicator';
 import GameSettingsDialog from '@/components/GameSettingsDialog';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useSettings } from '@/stores/settingsStore';
 import usePlayerMove from '@/hooks/usePlayerMove';
 import usePresence from '@/hooks/usePresence';
 import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
@@ -34,7 +34,7 @@ export default function Room() {
   const isMobile = useBreakpoint();
   const { t } = useTranslation();
 
-  const [settings, setSettings] = useLocalStorage<Settings>('gameSettings');
+  const [settings, setSettings] = useSettings();
 
   usePresence(room, settings?.roomRealtime);
 

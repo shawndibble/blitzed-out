@@ -26,10 +26,7 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
   const [onlineUsers, setOnlineUsers] = useState<Record<string, OnlineUser>>({});
 
   useEffect(() => {
-    return getUserList(
-      room,
-      (newUsers: Record<string, OnlineUser>) => setOnlineUsers(newUsers)
-    );
+    return getUserList(room, (newUsers: Record<string, OnlineUser>) => setOnlineUsers(newUsers));
   }, [room]);
 
   const value = useMemo(() => ({ onlineUsers }), [onlineUsers]);

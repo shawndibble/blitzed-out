@@ -58,32 +58,35 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to safely perform sync operations with debouncing
-  const performSync = useCallback(async (syncFunction: () => Promise<boolean>): Promise<boolean> => {
-    // Clear any pending sync timeout
-    if (syncTimeoutRef.current) {
-      clearTimeout(syncTimeoutRef.current);
-      syncTimeoutRef.current = null;
-    }
-
-    // Return early if user is not logged in or is anonymous
-    if (!user || user.isAnonymous) return false;
-
-    try {
-      setSyncStatus({ syncing: true, lastSync: syncStatus.lastSync });
-      await syncFunction();
-      setSyncStatus({ syncing: false, lastSync: new Date() });
-      return true;
-    } catch (err: unknown) {
-      console.error('Sync error:', err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred');
+  const performSync = useCallback(
+    async (syncFunction: () => Promise<boolean>): Promise<boolean> => {
+      // Clear any pending sync timeout
+      if (syncTimeoutRef.current) {
+        clearTimeout(syncTimeoutRef.current);
+        syncTimeoutRef.current = null;
       }
-      setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
-      return false;
-    }
-  }, [user, syncTimeoutRef, setSyncStatus, syncStatus.lastSync, setError]);
+
+      // Return early if user is not logged in or is anonymous
+      if (!user || user.isAnonymous) return false;
+
+      try {
+        setSyncStatus({ syncing: true, lastSync: syncStatus.lastSync });
+        await syncFunction();
+        setSyncStatus({ syncing: false, lastSync: new Date() });
+        return true;
+      } catch (err: unknown) {
+        console.error('Sync error:', err);
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unknown error occurred');
+        }
+        setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
+        return false;
+      }
+    },
+    [user, syncTimeoutRef, setSyncStatus, syncStatus.lastSync, setError]
+  );
   async function login(displayName = ''): Promise<User | null> {
     try {
       const loggedInUser = await loginAnonymously(displayName);
@@ -159,25 +162,28 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     }
   }
 
-  const convertToRegistered = useCallback(async (email: string, password: string): Promise<User> => {
-    try {
-      setLoading(true);
-      const convertedUser = await convertAnonymousAccount(email, password);
-      setUser(convertedUser);
+  const convertToRegistered = useCallback(
+    async (email: string, password: string): Promise<User> => {
+      try {
+        setLoading(true);
+        const convertedUser = await convertAnonymousAccount(email, password);
+        setUser(convertedUser);
 
-      // Sync local data to Firebase after conversion
-      await performSync(syncAllDataToFirebase);
+        // Sync local data to Firebase after conversion
+        await performSync(syncAllDataToFirebase);
 
-      return convertedUser;
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
+        return convertedUser;
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        }
+        throw err;
+      } finally {
+        setLoading(false);
       }
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [setLoading, setUser, performSync, setError]);
+    },
+    [setLoading, setUser, performSync, setError]
+  );
 
   async function updateUser(displayName = ''): Promise<User | null> {
     try {

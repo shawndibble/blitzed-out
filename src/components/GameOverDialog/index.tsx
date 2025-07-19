@@ -3,12 +3,11 @@ import CloseIcon from '@/components/CloseIcon';
 import GridItemActionCard from '@/components/GridItemActionCard';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import useGameBoard from '@/hooks/useGameBoard';
-import useLocalStorage from '@/hooks/useLocalStorage';
+import { useSettings } from '@/stores/settingsStore';
 import useReturnToStart from '@/hooks/useReturnToStart';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import GameSettings from '@/views/GameSettings';
-import { Settings } from '@/types/Settings';
 
 interface GameOverDialogProps {
   isOpen?: boolean;
@@ -25,7 +24,7 @@ export default function GameOverDialog({
 
   const isMobile = useBreakpoint();
   const updateGameBoardTiles = useGameBoard();
-  const [settings, updateLocalStorage] = useLocalStorage<Settings>('gameSettings');
+  const [settings, updateLocalStorage] = useSettings();
 
   const returnToStart = useCallback(() => {
     sentUserToStart();
