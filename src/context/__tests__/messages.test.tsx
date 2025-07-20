@@ -7,6 +7,7 @@ import useMessages from '../hooks/useMessages';
 import { Message, MessageType } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
 import * as firebaseService from '@/services/firebase';
+import { useMessagesStore } from '@/stores/messagesStore';
 
 // Mock the firebase service
 vi.mock('@/services/firebase', () => ({
@@ -92,6 +93,10 @@ describe('MessagesProvider', () => {
       }, 0);
       return mockUnsubscribe;
     });
+
+    // Clear the messages store before each test
+    useMessagesStore.getState().clearMessages();
+    useMessagesStore.getState().setLoading(true);
   });
 
   afterEach(() => {

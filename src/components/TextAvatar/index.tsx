@@ -1,4 +1,5 @@
 import { Avatar, Tooltip } from '@mui/material';
+import { memo, useMemo } from 'react';
 
 interface TextAvatarProps {
   uid: string;
@@ -48,10 +49,15 @@ function stringAvatar(name: string, uid: string, size?: 'small' | 'medium') {
   };
 }
 
-export default function TextAvatar({ uid, displayName, size }: TextAvatarProps): JSX.Element {
+function TextAvatar({ uid, displayName, size }: TextAvatarProps): JSX.Element {
+  // Memoize expensive avatar calculations
+  const avatarProps = useMemo(() => stringAvatar(displayName, uid, size), [displayName, uid, size]);
+
   return (
     <Tooltip title={displayName}>
-      <Avatar {...stringAvatar(displayName, uid, size)} className="player-online" />
+      <Avatar {...avatarProps} className="player-online" />
     </Tooltip>
   );
 }
+
+export default memo(TextAvatar);

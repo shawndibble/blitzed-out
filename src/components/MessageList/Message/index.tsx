@@ -4,7 +4,7 @@ import DeleteMessageButton from '@/components/DeleteMessageButton';
 import GameOverDialog from '@/components/GameOverDialog';
 import TextAvatar from '@/components/TextAvatar';
 import moment from 'moment';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
@@ -16,17 +16,14 @@ import ActionText from './actionText';
 import { Message as MessageType } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
 
+const MILLISECONDS_IN_A_MINUTE = 60000;
+
 interface MessageProps {
   message: MessageType;
   isOwnMessage: boolean;
   isTransparent?: boolean;
   currentGameBoardSize?: number;
   room: string;
-}
-
-interface ImageData {
-  format: string;
-  base64String: string;
 }
 
 export default function Message({
@@ -47,32 +44,58 @@ export default function Message({
   const { id, displayName, text, uid, timestamp, type } = message;
 
   // Then conditionally access type-specific properties
-  let boardSize, gameBoardId, image;
+  let boardSize: number | undefined;
+  let gameBoardId: string | undefined;
+  let image: string | undefined;
 
   if (type === 'settings' || type === 'room') {
     // TypeScript knows these properties exist on settings and room messages
-    boardSize = (message as any).boardSize;
-    gameBoardId = (message as any).gameBoardId;
+    const typedMessage = message as MessageType & { boardSize: number; gameBoardId: string };
+    boardSize = typedMessage.boardSize;
+    gameBoardId = typedMessage.gameBoardId;
   }
 
   if (type === 'media') {
     // TypeScript knows this property exists on media messages
-    image = (message as any).image;
+    const typedMessage = message as MessageType & { image: string };
+    image = typedMessage.image;
   }
 
   const isImportable = type === 'settings' && boardSize === currentGameBoardSize;
 
-  let ago = moment((timestamp as Timestamp)?.toDate()).fromNow();
-  if (ago === 'in a few seconds') ago = 'a few seconds ago';
+  // Memoize time formatting with 1-minute precision to reduce re-renders
+  const ago = useMemo(() => {
+    const date = (timestamp as Timestamp)?.toDate();
+    if (!date) return '';
 
-  let imageSrc: string | false = false;
-  if (type === 'media' && image) {
-    const imageData = image as unknown as ImageData;
-    imageSrc = `data:image/${imageData.format};base64,${imageData.base64String}`;
-  }
+    // Round to the nearest minute to reduce unnecessary re-renders
+    const roundedTime = new Date(
+      Math.floor(date.getTime() / MILLISECONDS_IN_A_MINUTE) * MILLISECONDS_IN_A_MINUTE
+    );
+    let result = moment(roundedTime).fromNow();
+    if (result === 'in a few seconds') result = 'a few seconds ago';
+    return result;
+  }, [timestamp]);
+
+  // Memoize image processing with precise dependencies
+  const imageSrc = useMemo((): string | false => {
+    if (type !== 'media' || !image) return false;
+    // The image is already a data URL string
+    return image;
+  }, [type, image]);
+
+  // Memoize markdown content rendering with text hash for better performance
+  const markdownContent = useMemo(() => {
+    if (type === 'actions') return null;
+    if (!text || text.trim() === '') return null;
+    return <Markdown remarkPlugins={[remarkGfm, remarkGemoji]}>{text}</Markdown>;
+  }, [text, type]);
 
   return (
-    <li className={clsx('message', isOwnMessage && 'own-message', isTransparent && 'transparent')}>
+    <li
+      className={clsx('message', isOwnMessage && 'own-message', isTransparent && 'transparent')}
+      data-testid={`message-${id}`}
+    >
       <div className="message-header">
         <div className="sender">
           <TextAvatar uid={uid} displayName={displayName} size="small" />
@@ -87,11 +110,7 @@ export default function Message({
       </div>
       <Divider sx={{ mb: 1 }} />
       <div className="message-message">
-        {type === 'actions' ? (
-          <ActionText text={text} />
-        ) : (
-          <Markdown remarkPlugins={[remarkGfm, remarkGemoji]}>{text}</Markdown>
-        )}
+        {type === 'actions' ? <ActionText text={text} /> : markdownContent}
         {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
         {type === 'settings' && (
           <>

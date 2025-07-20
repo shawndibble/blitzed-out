@@ -1,8 +1,8 @@
-import { normalSortedMessages } from '@/helpers/messages';
-import { createContext, ReactNode, useEffect, useState } from 'react';
+import { createContext, ReactNode, useEffect } from 'react';
 import { Params, useParams } from 'react-router-dom';
 import { getMessages } from '@/services/firebase';
 import { Message } from '@/types/Message';
+import { useMessagesStore } from '@/stores/messagesStore';
 
 export interface MessagesContextType {
   messages: Message[];
@@ -18,18 +18,29 @@ interface MessagesProviderProps {
 }
 
 export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { id: room } = useParams<Params>();
+  const { 
+    messages, 
+    loading: isLoading, 
+    loadMessages, 
+    setLoading, 
+    setRoom,
+    clearMessages 
+  } = useMessagesStore();
 
   useEffect(() => {
-    setIsLoading(true);
+    setLoading(true);
+    setRoom(room || null);
+    
+    if (!room) {
+      clearMessages();
+      return;
+    }
+
     return getMessages(room, (newMessages: Message[]) => {
-      const sorted = normalSortedMessages(newMessages);
-      setMessages(sorted);
-      setIsLoading(false);
+      loadMessages(newMessages);
     });
-  }, [room]);
+  }, [room, loadMessages, setLoading, setRoom, clearMessages]);
 
   const value = { messages, isLoading };
 

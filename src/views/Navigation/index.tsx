@@ -9,18 +9,24 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import useSchedule from '@/context/hooks/useSchedule';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import Logo from '@/images/blitzed-out.png';
 import { Trans, useTranslation } from 'react-i18next';
-import MenuDrawer from './MenuDrawer';
-import PlayersOnline from './PlayersOnline';
 import CastButton from '@/components/CastButton';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
 
+// Lazy load heavy components
 const Schedule = lazy(() => import('@/views/Schedule'));
+const MenuDrawer = lazy(() => import('./MenuDrawer'));
+import PlayersOnline from './PlayersOnline';
+
+function ComponentLoader() {
+  return <CircularProgress size={16} />;
+}
 
 interface Player {
   uid: string;
@@ -81,7 +87,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
             </IconButton>
             {openSchedule && (
               <Portal>
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense fallback={<ComponentLoader />}>
                   <Schedule
                     open={openSchedule}
                     close={() => setOpenSchedule(false)}
@@ -95,7 +101,9 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
 
         <div className="menu-drawer">
           <CastButton />
-          <MenuDrawer />
+          <Suspense fallback={<ComponentLoader />}>
+            <MenuDrawer />
+          </Suspense>
         </div>
       </Toolbar>
     </AppBar>

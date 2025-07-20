@@ -222,7 +222,7 @@ describe('Action Files Validation', () => {
                   if (!text) return;
 
                   const words = text.toLowerCase().split(/\s+/);
-                  const suspiciousWords = words.filter((word) =>
+                  const suspiciousWords = words.filter((word: string) =>
                     commonEnglishPhrases.includes(word.replace(/[.,!?;:()]/, ''))
                   );
 

@@ -10,6 +10,7 @@ import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 import { Message } from '@/types/Message';
+import { parseMessageTimestamp } from '@/helpers/timestamp';
 
 export interface DialogResult {
   message: Message | false;
@@ -34,13 +35,16 @@ export default function useSoundAndDialog(): DialogResult {
     if (text) speak(text, language);
   }, []);
 
-  const newMessage = useMemo(
-    () =>
-      latestMessage
-        ? moment(latestMessage.timestamp?.toDate()).diff(moment(), 'seconds') >= -2
-        : false,
-    [latestMessage]
-  );
+  const newMessage = useMemo(() => {
+    if (!latestMessage?.timestamp) return false;
+
+    const messageDate = parseMessageTimestamp(latestMessage.timestamp);
+    if (!messageDate) {
+      return false;
+    }
+
+    return moment(messageDate).diff(moment(), 'seconds') >= -2;
+  }, [latestMessage]);
 
   const myMessage = useMemo(() => latestMessage?.uid === user?.uid, [latestMessage, user]);
   const showPlayerDialog = Boolean(playerDialog && myMessage);

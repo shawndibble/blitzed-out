@@ -26,6 +26,7 @@ export interface SyncStatus {
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
+  initializing: boolean;
   error: string | null;
   syncStatus: SyncStatus;
   login: (displayName?: string) => Promise<User | null>;
@@ -50,12 +51,16 @@ interface AuthProviderProps {
 
 function AuthProvider(props: AuthProviderProps): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false); // Changed: false by default for immediate UI
+  const [initializing, setInitializing] = useState<boolean>(true); // New: tracks initial auth check
   const [error, setError] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ syncing: false, lastSync: null });
 
   // Debounce mechanism for sync operations
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Track if initial auth check is complete
+  const authInitializedRef = useRef<boolean>(false);
 
   // Function to safely perform sync operations with debouncing
   const performSync = useCallback(
@@ -226,31 +231,46 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     const auth = getAuth();
     const unsubscribe = auth.onAuthStateChanged((userData: User | null) => {
       setUser(userData || null);
-      setLoading(false);
+      
+      // Mark initial auth check as complete
+      if (!authInitializedRef.current) {
+        authInitializedRef.current = true;
+        setInitializing(false);
+      }
 
-      // If user is logged in and not anonymous, sync data from Firebase
+      // If user is logged in and not anonymous, defer sync operations
       if (userData && !userData.isAnonymous) {
-        // Use debounced sync to prevent multiple rapid syncs
-        if (syncTimeoutRef.current) {
-          clearTimeout(syncTimeoutRef.current);
-        }
+        // Defer sync to not block UI rendering - use requestIdleCallback or fallback
+        const deferSync = () => {
+          // Use debounced sync to prevent multiple rapid syncs
+          if (syncTimeoutRef.current) {
+            clearTimeout(syncTimeoutRef.current);
+          }
 
-        syncTimeoutRef.current = setTimeout(() => {
-          setSyncStatus({ syncing: true, lastSync: null });
-          syncDataFromFirebase()
-            .then(() => {
-              setSyncStatus({ syncing: false, lastSync: new Date() });
-              // Start periodic sync after initial sync completes
-              startPeriodicSync();
-            })
-            .catch((err) => {
-              console.error('Error syncing from Firebase:', err);
-              setSyncStatus({ syncing: false, lastSync: null });
-            })
-            .finally(() => {
-              syncTimeoutRef.current = null;
-            });
-        }, 500); // 0.5 second debounce
+          syncTimeoutRef.current = setTimeout(() => {
+            setSyncStatus({ syncing: true, lastSync: null });
+            syncDataFromFirebase()
+              .then(() => {
+                setSyncStatus({ syncing: false, lastSync: new Date() });
+                // Start periodic sync after initial sync completes
+                startPeriodicSync();
+              })
+              .catch((err) => {
+                console.error('Error syncing from Firebase:', err);
+                setSyncStatus({ syncing: false, lastSync: null });
+              })
+              .finally(() => {
+                syncTimeoutRef.current = null;
+              });
+          }, 1000); // Increased debounce to allow UI to render first
+        };
+
+        if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+          (window as any).requestIdleCallback(deferSync, { timeout: 5000 });
+        } else {
+          // Fallback for browsers without requestIdleCallback
+          setTimeout(deferSync, 100);
+        }
       } else {
         // User is logged out or anonymous, stop periodic sync
         stopPeriodicSync();
@@ -282,6 +302,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     () => ({
       user,
       loading,
+      initializing,
       error,
       syncStatus,
       login,
@@ -295,7 +316,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       syncData,
       isAnonymous: user?.isAnonymous || false,
     }),
-    [user, loading, error, syncStatus, convertToRegistered, logoutUser, syncData]
+    [user, loading, initializing, error, syncStatus, convertToRegistered, logoutUser, syncData]
   );
 
   return <AuthContext.Provider value={value} {...props} />;

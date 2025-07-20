@@ -8,9 +8,20 @@ export const mockUser = {
   isAnonymous: false,
   emailVerified: true,
   photoURL: null,
+  phoneNumber: null,
   providerId: 'firebase',
   getIdToken: vi.fn().mockResolvedValue('mock-token'),
   getIdTokenResult: vi.fn().mockResolvedValue({ token: 'mock-token' }),
+  metadata: {
+    creationTime: '2024-01-01T00:00:00.000Z',
+    lastSignInTime: '2024-01-01T00:00:00.000Z',
+  },
+  providerData: [],
+  refreshToken: 'mock-refresh-token',
+  tenantId: null,
+  delete: vi.fn().mockResolvedValue(undefined),
+  reload: vi.fn().mockResolvedValue(undefined),
+  toJSON: vi.fn().mockReturnValue({}),
 };
 
 export const mockAnonymousUser = {
@@ -20,9 +31,20 @@ export const mockAnonymousUser = {
   isAnonymous: true,
   emailVerified: false,
   photoURL: null,
+  phoneNumber: null,
   providerId: 'firebase',
   getIdToken: vi.fn().mockResolvedValue('mock-anonymous-token'),
   getIdTokenResult: vi.fn().mockResolvedValue({ token: 'mock-anonymous-token' }),
+  metadata: {
+    creationTime: '2024-01-01T00:00:00.000Z',
+    lastSignInTime: '2024-01-01T00:00:00.000Z',
+  },
+  providerData: [],
+  refreshToken: 'mock-refresh-token',
+  tenantId: null,
+  delete: vi.fn().mockResolvedValue(undefined),
+  reload: vi.fn().mockResolvedValue(undefined),
+  toJSON: vi.fn().mockReturnValue({}),
 };
 
 // Mock Firebase Auth
@@ -110,7 +132,7 @@ export const mockDatabase = {
     set: vi.fn().mockResolvedValue(undefined),
     update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
-    on: vi.fn((eventType, callback) => {
+    on: vi.fn((_eventType, callback) => {
       callback({
         val: () => ({ mockData: 'test' }),
         key: 'mock-key',

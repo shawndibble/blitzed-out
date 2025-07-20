@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
@@ -162,9 +162,20 @@ export function createMockUser(overrides = {}) {
     isAnonymous: false,
     emailVerified: true,
     photoURL: null,
+    phoneNumber: null,
     providerId: 'firebase',
     getIdToken: vi.fn().mockResolvedValue('mock-token'),
     getIdTokenResult: vi.fn().mockResolvedValue({ token: 'mock-token' }),
+    metadata: {
+      creationTime: '2024-01-01T00:00:00.000Z',
+      lastSignInTime: '2024-01-01T00:00:00.000Z',
+    },
+    providerData: [],
+    refreshToken: 'mock-refresh-token',
+    tenantId: null,
+    delete: vi.fn().mockResolvedValue(undefined),
+    reload: vi.fn().mockResolvedValue(undefined),
+    toJSON: vi.fn().mockReturnValue({}),
     ...overrides,
   };
 }
@@ -178,9 +189,20 @@ export function createMockAnonymousUser(overrides = {}) {
     isAnonymous: true,
     emailVerified: false,
     photoURL: null,
+    phoneNumber: null,
     providerId: 'firebase',
     getIdToken: vi.fn().mockResolvedValue('mock-anonymous-token'),
     getIdTokenResult: vi.fn().mockResolvedValue({ token: 'mock-anonymous-token' }),
+    metadata: {
+      creationTime: '2024-01-01T00:00:00.000Z',
+      lastSignInTime: '2024-01-01T00:00:00.000Z',
+    },
+    providerData: [],
+    refreshToken: 'mock-refresh-token',
+    tenantId: null,
+    delete: vi.fn().mockResolvedValue(undefined),
+    reload: vi.fn().mockResolvedValue(undefined),
+    toJSON: vi.fn().mockReturnValue({}),
     ...overrides,
   };
 }

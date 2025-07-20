@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { UserListProvider, OnlineUser } from '../userList';
 import useUserList from '../hooks/useUserList';
 import * as firebaseService from '@/services/firebase';
+import { useUserListStore } from '@/stores/userListStore';
 
 // Mock the firebase service
 vi.mock('@/services/firebase');
@@ -67,6 +68,9 @@ describe('UserListProvider', () => {
         callback({});
       }, 0);
     });
+
+    // Clear the user list store before each test
+    useUserListStore.getState().clearUsers();
   });
 
   afterEach(() => {

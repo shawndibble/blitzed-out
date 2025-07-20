@@ -166,12 +166,7 @@ export default function ImportExport({
               }}
             >
               <Tooltip title={t('save')}>
-                <IconButton
-                  size="small"
-                  onClick={importBoard}
-                  title={t('save')}
-                  aria-label={t('save')}
-                >
+                <IconButton size="small" onClick={importBoard} aria-label={t('save')}>
                   <Save color="success" />
                 </IconButton>
               </Tooltip>

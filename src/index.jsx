@@ -6,10 +6,25 @@ import { AuthProvider } from './context/auth';
 import './i18n';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
+
+// Optimize font loading - only import essential weights initially
+import '@fontsource/roboto/400.css'; // Regular weight only for faster initial load
+import '@fontsource/roboto/500.css'; // Medium weight for buttons/headers
+
+// Lazy load additional weights to reduce initial requests
+const loadAdditionalFonts = () => {
+  import('@fontsource/roboto/300.css').catch(() => {}); // Light weight
+  import('@fontsource/roboto/700.css').catch(() => {}); // Bold weight
+};
+
+// Load additional fonts after page is interactive
+if (typeof window !== 'undefined') {
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(loadAdditionalFonts, { timeout: 2000 });
+  } else {
+    setTimeout(loadAdditionalFonts, 1000);
+  }
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
