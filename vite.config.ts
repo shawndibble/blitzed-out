@@ -30,7 +30,7 @@ export default defineConfig({
           // Use object-based chunking to avoid function issues
           vendor: ['react', 'react-dom', 'react-router-dom'],
           mui: ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/database', 'firebase/storage'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
           utils: ['zustand', 'dexie', 'dayjs', 'nanoid', 'clsx']
         },
         // Optimize chunk sizes
