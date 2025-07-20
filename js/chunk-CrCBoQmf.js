@@ -1,1 +1,0 @@
-import{R as s}from"./chunk-DDoLnHI0.js";import{M as t}from"../assets/index-BodytYbc.js";function a(){const e=s.useContext(t);if(!e)throw new Error("MessagesContext's value is undefined.");return e}export{a as u};
