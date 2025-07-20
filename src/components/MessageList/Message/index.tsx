@@ -16,17 +16,14 @@ import ActionText from './actionText';
 import { Message as MessageType } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
 
+const MILLISECONDS_IN_A_MINUTE = 60000;
+
 interface MessageProps {
   message: MessageType;
   isOwnMessage: boolean;
   isTransparent?: boolean;
   currentGameBoardSize?: number;
   room: string;
-}
-
-interface ImageData {
-  format: string;
-  base64String: string;
 }
 
 function Message({
@@ -47,17 +44,19 @@ function Message({
   const { id, displayName, text, uid, timestamp, type } = message;
 
   // Then conditionally access type-specific properties
-  let boardSize, gameBoardId, image: any;
+  let boardSize: number | undefined, gameBoardId: string | undefined, image: string | undefined;
 
   if (type === 'settings' || type === 'room') {
     // TypeScript knows these properties exist on settings and room messages
-    boardSize = (message as any).boardSize;
-    gameBoardId = (message as any).gameBoardId;
+    const typedMessage = message as MessageType & { boardSize: number; gameBoardId: string };
+    boardSize = typedMessage.boardSize;
+    gameBoardId = typedMessage.gameBoardId;
   }
 
   if (type === 'media') {
     // TypeScript knows this property exists on media messages
-    image = (message as any).image;
+    const typedMessage = message as MessageType & { image: string };
+    image = typedMessage.image;
   }
 
   const isImportable = type === 'settings' && boardSize === currentGameBoardSize;
@@ -68,7 +67,9 @@ function Message({
     if (!date) return '';
 
     // Round to the nearest minute to reduce unnecessary re-renders
-    const roundedTime = new Date(Math.floor(date.getTime() / 60000) * 60000);
+    const roundedTime = new Date(
+      Math.floor(date.getTime() / MILLISECONDS_IN_A_MINUTE) * MILLISECONDS_IN_A_MINUTE
+    );
     let result = moment(roundedTime).fromNow();
     if (result === 'in a few seconds') result = 'a few seconds ago';
     return result;
@@ -77,9 +78,9 @@ function Message({
   // Memoize image processing with precise dependencies
   const imageSrc = useMemo((): string | false => {
     if (type !== 'media' || !image) return false;
-    const imageData = image as unknown as ImageData;
-    return `data:image/${imageData.format};base64,${imageData.base64String}`;
-  }, [type, image]); // Keep the full image object dependency for safety
+    // The image is already a data URL string
+    return image;
+  }, [type, image]);
 
   // Memoize markdown content rendering with text hash for better performance
   const markdownContent = useMemo(() => {
@@ -190,23 +191,16 @@ const arePropsEqual = (prevProps: MessageProps, nextProps: MessageProps): boolea
   const prevTime = (prevProps.message.timestamp as Timestamp)?.toDate()?.getTime() || 0;
   const nextTime = (nextProps.message.timestamp as Timestamp)?.toDate()?.getTime() || 0;
   // Round to minutes for comparison
-  const prevMinute = Math.floor(prevTime / 60000);
-  const nextMinute = Math.floor(nextTime / 60000);
+  const prevMinute = Math.floor(prevTime / MILLISECONDS_IN_A_MINUTE);
+  const nextMinute = Math.floor(nextTime / MILLISECONDS_IN_A_MINUTE);
   if (prevMinute !== nextMinute) return false;
 
   // For media messages, check if image data changed
   if (prevProps.message.type === 'media' && nextProps.message.type === 'media') {
-    const prevImage = (prevProps.message as any).image;
-    const nextImage = (nextProps.message as any).image;
-    // Deep comparison for image data if references differ
-    if (prevImage !== nextImage) {
-      if (!prevImage || !nextImage) return false;
-      if (
-        prevImage.format !== nextImage.format ||
-        prevImage.base64String !== nextImage.base64String
-      ) {
-        return false;
-      }
+    const prevMessage = prevProps.message as MessageType & { image: string };
+    const nextMessage = nextProps.message as MessageType & { image: string };
+    if (prevMessage.image !== nextMessage.image) {
+      return false;
     }
   }
 
@@ -215,12 +209,19 @@ const arePropsEqual = (prevProps: MessageProps, nextProps: MessageProps): boolea
     (prevProps.message.type === 'settings' || prevProps.message.type === 'room') &&
     (nextProps.message.type === 'settings' || nextProps.message.type === 'room')
   ) {
-    const prevBoardSize = (prevProps.message as any).boardSize;
-    const nextBoardSize = (nextProps.message as any).boardSize;
-    const prevGameBoardId = (prevProps.message as any).gameBoardId;
-    const nextGameBoardId = (nextProps.message as any).gameBoardId;
+    const prevMessage = prevProps.message as MessageType & {
+      boardSize: number;
+      gameBoardId: string;
+    };
+    const nextMessage = nextProps.message as MessageType & {
+      boardSize: number;
+      gameBoardId: string;
+    };
 
-    if (prevBoardSize !== nextBoardSize || prevGameBoardId !== nextGameBoardId) {
+    if (
+      prevMessage.boardSize !== nextMessage.boardSize ||
+      prevMessage.gameBoardId !== nextMessage.gameBoardId
+    ) {
       return false;
     }
   }
