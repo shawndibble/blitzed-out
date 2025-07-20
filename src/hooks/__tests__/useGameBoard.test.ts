@@ -69,11 +69,20 @@ describe('useGameBoard', () => {
   };
 
   const mockTileActionList = {
-    actions: {
-      level1: ['Action 1', 'Action 2'],
-      level2: ['Action 3', 'Action 4'],
+    'mock-module': {
+      actions: {
+        level1: ['Action 1', 'Action 2'],
+        level2: ['Action 3', 'Action 4'],
+      },
+      default: {
+        actions: {
+          level1: ['Action 1', 'Action 2'],
+          level2: ['Action 3', 'Action 4'],
+        },
+      },
+      label: 'Test Actions',
+      type: 'mock',
     },
-    label: 'Test Actions',
   };
 
   const mockCustomTiles = [
@@ -154,7 +163,7 @@ describe('useGameBoard', () => {
 
       const { result } = renderHook(() => useGameBoard());
 
-      const settingsWithOfflineMode = { ...mockSettings, gameMode: 'offline' };
+      const settingsWithOfflineMode = { ...mockSettings, gameMode: 'local' as const };
       const gameResult = await result.current(settingsWithOfflineMode);
 
       expect(gameResult.gameMode).toBe('online');
@@ -379,7 +388,10 @@ describe('useGameBoard', () => {
     it('should handle undefined gameMode', async () => {
       const { result } = renderHook(() => useGameBoard());
 
-      const settingsWithoutGameMode = { ...mockSettings, gameMode: undefined };
+      const settingsWithoutGameMode = {
+        ...mockSettings,
+        gameMode: undefined,
+      } as unknown as Settings;
       await result.current(settingsWithoutGameMode);
 
       expect(importActions).toHaveBeenCalledWith(undefined, 'online');

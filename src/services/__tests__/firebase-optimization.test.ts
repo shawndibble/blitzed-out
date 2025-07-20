@@ -19,7 +19,7 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(),
   limit: vi.fn(),
   startAfter: vi.fn(),
-  onSnapshot: vi.fn((query, callback) => {
+  onSnapshot: vi.fn((_query, callback) => {
     // Simulate async Firebase response
     setTimeout(() => {
       callback({
@@ -52,7 +52,7 @@ vi.mock('firebase/firestore', () => ({
 vi.mock('firebase/database', () => ({
   getDatabase: vi.fn(() => ({})),
   ref: vi.fn(),
-  onValue: vi.fn((ref, callback) => {
+  onValue: vi.fn((_ref, callback) => {
     setTimeout(() => {
       callback({
         val: () => ({
@@ -78,30 +78,30 @@ describe('Firebase Query Optimizations', () => {
     it('should support backward compatibility with no options', () => {
       const mockCallback = vi.fn();
       const unsubscribe = getMessages('test-room', mockCallback);
-      
+
       expect(typeof unsubscribe).toBe('function');
     });
 
     it('should support custom limit parameter', () => {
       const mockCallback = vi.fn();
       const unsubscribe = getMessages('test-room', mockCallback, { limitCount: 25 });
-      
+
       expect(typeof unsubscribe).toBe('function');
     });
 
     it('should support caching options', () => {
       const mockCallback = vi.fn();
-      const unsubscribe = getMessages('test-room', mockCallback, { 
+      const unsubscribe = getMessages('test-room', mockCallback, {
         enableCache: true,
-        enableDebounce: false 
+        enableDebounce: false,
       });
-      
+
       expect(typeof unsubscribe).toBe('function');
     });
 
     it('should handle null/undefined roomId gracefully', () => {
       const mockCallback = vi.fn();
-      
+
       expect(getMessages(null, mockCallback)).toBeUndefined();
       expect(getMessages(undefined, mockCallback)).toBeUndefined();
     });
@@ -111,7 +111,7 @@ describe('Firebase Query Optimizations', () => {
     it('should support backward compatibility', () => {
       const mockCallback = vi.fn();
       const existingData = {};
-      
+
       expect(() => {
         getUserList('test-room', mockCallback, existingData);
       }).not.toThrow();
@@ -120,22 +120,22 @@ describe('Firebase Query Optimizations', () => {
     it('should support optimization options', () => {
       const mockCallback = vi.fn();
       const existingData = {};
-      
+
       expect(() => {
         getUserList('test-room', mockCallback, existingData, {
           enableCache: true,
-          enableDebounce: false
+          enableDebounce: false,
         });
       }).not.toThrow();
     });
 
     it('should handle null/undefined roomId gracefully', () => {
       const mockCallback = vi.fn();
-      
+
       expect(() => {
         getUserList(null, mockCallback);
       }).not.toThrow();
-      
+
       expect(() => {
         getUserList(undefined, mockCallback);
       }).not.toThrow();
@@ -146,14 +146,14 @@ describe('Firebase Query Optimizations', () => {
     it('should support backward compatibility with no options', () => {
       const mockCallback = vi.fn();
       const unsubscribe = getSchedule(mockCallback);
-      
+
       expect(typeof unsubscribe).toBe('function');
     });
 
     it('should support custom limit and pagination', () => {
       const mockCallback = vi.fn();
       const unsubscribe = getSchedule(mockCallback, { limitCount: 25 });
-      
+
       expect(typeof unsubscribe).toBe('function');
     });
   });
@@ -162,14 +162,14 @@ describe('Firebase Query Optimizations', () => {
     it('should support getMessagesWithPagination', () => {
       const mockCallback = vi.fn();
       const unsubscribe = getMessagesWithPagination('test-room', mockCallback, 25);
-      
+
       expect(typeof unsubscribe).toBe('function');
     });
 
     it('should support getScheduleWithPagination', () => {
       const mockCallback = vi.fn();
       const unsubscribe = getScheduleWithPagination(mockCallback, 25);
-      
+
       expect(typeof unsubscribe).toBe('function');
     });
   });
@@ -177,13 +177,13 @@ describe('Firebase Query Optimizations', () => {
   describe('Performance monitoring', () => {
     it('should provide query performance metrics', () => {
       const metrics = getQueryPerformanceMetrics();
-      
+
       expect(typeof metrics).toBe('object');
     });
 
     it('should provide cache statistics', () => {
       const stats = getCacheStats();
-      
+
       expect(stats).toHaveProperty('totalCachedQueries');
       expect(stats).toHaveProperty('cacheSize');
       expect(stats).toHaveProperty('oldestCacheEntry');
@@ -195,14 +195,14 @@ describe('Firebase Query Optimizations', () => {
     it('should clear all cache when no pattern provided', () => {
       clearQueryCache();
       const stats = getCacheStats();
-      
+
       expect(stats.totalCachedQueries).toBe(0);
     });
 
     it('should clear specific cache entries with pattern', () => {
       clearQueryCache('messages');
       const stats = getCacheStats();
-      
+
       expect(stats.totalCachedQueries).toBe(0);
     });
   });

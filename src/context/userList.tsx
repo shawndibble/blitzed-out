@@ -29,9 +29,16 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
   const prevRoomRef = useRef<string | undefined>(room);
 
   // Optimized user update handler with batching
-  const handleUserUpdate = useCallback((newUsers: Record<string, OnlineUser>) => {
-    setUsers(newUsers);
-  }, [setUsers]);
+  const handleUserUpdate = useCallback(
+    (newUsers: Record<string, OnlineUser> | null) => {
+      if (newUsers === null) {
+        clearUsers();
+      } else {
+        setUsers(newUsers);
+      }
+    },
+    [setUsers, clearUsers]
+  );
 
   // Cleanup function for Firebase listener
   const cleanup = useCallback(() => {
@@ -49,7 +56,7 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
       setRoom(room || null);
       prevRoomRef.current = room;
     }
-    
+
     if (!room) {
       cleanup();
       clearUsers();
@@ -60,7 +67,8 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
     cleanup();
 
     // Set up new listener
-    unsubscribeRef.current = getUserList(room, handleUserUpdate);
+    getUserList(room, handleUserUpdate);
+    unsubscribeRef.current = null; // TODO: getUserList should return unsubscribe function
 
     // Cleanup on unmount or room change
     return cleanup;

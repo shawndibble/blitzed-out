@@ -76,16 +76,30 @@ const createMockMessage = (
   uid = 'user1',
   displayName = 'Test User',
   timestamp: Date = new Date()
-): Message => ({
-  id,
-  text,
-  type,
-  uid,
-  displayName,
-  timestamp: {
-    toDate: () => timestamp,
-  } as Timestamp,
-});
+): Message => {
+  const baseMessage = {
+    id,
+    text,
+    uid,
+    displayName,
+    timestamp: {
+      toDate: () => timestamp,
+    } as Timestamp,
+  };
+
+  if (type === 'media') {
+    return {
+      ...baseMessage,
+      type,
+      image: 'mock-image-url',
+    };
+  }
+
+  return {
+    ...baseMessage,
+    type,
+  } as Message;
+};
 
 describe('MessageList Component', () => {
   beforeEach(() => {

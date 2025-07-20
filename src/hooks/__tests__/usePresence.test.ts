@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import usePresence from '../usePresence';
 import * as firebaseService from '@/services/firebase';
 import useAuth from '@/context/hooks/useAuth';
+import { User } from '@/types';
 
 // Mock the firebase service
 vi.mock('@/services/firebase', () => ({
@@ -26,15 +27,55 @@ describe('usePresence Hook', () => {
   const mockSetMyPresence = vi.mocked(firebaseService.setMyPresence);
   const mockUseAuth = vi.mocked(useAuth);
 
+  // Helper function to create complete User mock
+  const createMockUser = (displayName: string, uid: string): User => ({
+    uid,
+    displayName,
+    email: 'test@example.com',
+    photoURL: null,
+    phoneNumber: null,
+    isAnonymous: false,
+    emailVerified: true,
+    providerId: 'firebase',
+    getIdToken: vi.fn().mockResolvedValue('mock-token'),
+    getIdTokenResult: vi.fn().mockResolvedValue({ token: 'mock-token' }),
+    metadata: {
+      creationTime: '2024-01-01T00:00:00.000Z',
+      lastSignInTime: '2024-01-01T00:00:00.000Z',
+    },
+    providerData: [],
+    refreshToken: 'mock-refresh-token',
+    tenantId: null,
+    delete: vi.fn().mockResolvedValue(undefined),
+    reload: vi.fn().mockResolvedValue(undefined),
+    toJSON: vi.fn().mockReturnValue({}),
+  });
+
+  // Helper function to create mock AuthContext with guaranteed User
+  const createMockAuthContextWithUser = (user: User) => ({
+    user,
+    loading: false,
+    initializing: false,
+    error: null,
+    syncStatus: { syncing: false, lastSync: null },
+    login: vi.fn(),
+    loginEmail: vi.fn(),
+    loginGoogle: vi.fn(),
+    register: vi.fn(),
+    updateUser: vi.fn(),
+    forgotPassword: vi.fn(),
+    convertToRegistered: vi.fn(),
+    logout: vi.fn(),
+    syncData: vi.fn(),
+    isAnonymous: false,
+  });
+
   beforeEach(() => {
     mockSetMyPresence.mockClear();
     // Reset to default mock return value
-    mockUseAuth.mockReturnValue({
-      user: {
-        displayName: 'Test User',
-        uid: 'test-user-id',
-      },
-    });
+    mockUseAuth.mockReturnValue(
+      createMockAuthContextWithUser(createMockUser('Test User', 'test-user-id'))
+    );
   });
 
   afterEach(() => {
@@ -68,12 +109,12 @@ describe('usePresence Hook', () => {
 
     it('should handle undefined display name', () => {
       // Mock auth context to return undefined display name
-      mockUseAuth.mockReturnValue({
-        user: {
+      mockUseAuth.mockReturnValue(
+        createMockAuthContextWithUser({
+          ...createMockUser('Test User', 'test-user-id'),
           displayName: undefined,
-          uid: 'test-user-id',
-        },
-      });
+        } as any)
+      );
 
       renderHook(() => usePresence('test-room'));
 
@@ -156,12 +197,9 @@ describe('usePresence Hook', () => {
     it('should update presence when display name changes', () => {
       // Use the controllable mock
 
-      mockUseAuth.mockReturnValue({
-        user: {
-          displayName: 'Initial Name',
-          uid: 'test-user-id',
-        },
-      });
+      mockUseAuth.mockReturnValue(
+        createMockAuthContextWithUser(createMockUser('Initial Name', 'test-user-id'))
+      );
 
       const { rerender } = renderHook(() => usePresence('test-room'));
 
@@ -176,12 +214,9 @@ describe('usePresence Hook', () => {
       mockSetMyPresence.mockClear();
 
       // Change display name
-      mockUseAuth.mockReturnValue({
-        user: {
-          displayName: 'Updated Name',
-          uid: 'test-user-id',
-        },
-      });
+      mockUseAuth.mockReturnValue(
+        createMockAuthContextWithUser(createMockUser('Updated Name', 'test-user-id'))
+      );
 
       rerender();
 
@@ -209,24 +244,21 @@ describe('usePresence Hook', () => {
     it('should handle display name changing to empty string', () => {
       // Use the controllable mock
 
-      mockUseAuth.mockReturnValue({
-        user: {
-          displayName: 'Test User',
-          uid: 'test-user-id',
-        },
-      });
+      mockUseAuth.mockReturnValue(
+        createMockAuthContextWithUser(createMockUser('Test User', 'test-user-id'))
+      );
 
       const { rerender } = renderHook(() => usePresence('test-room'));
 
       mockSetMyPresence.mockClear();
 
       // Change display name to empty
-      mockUseAuth.mockReturnValue({
-        user: {
+      mockUseAuth.mockReturnValue(
+        createMockAuthContextWithUser({
+          ...createMockUser('Test User', 'test-user-id'),
           displayName: '',
-          uid: 'test-user-id',
-        },
-      });
+        })
+      );
 
       rerender();
 
@@ -337,19 +369,9 @@ describe('usePresence Hook', () => {
   describe('Multiple Users Scenario', () => {
     it('should handle multiple users in same room', () => {
       // Simulate multiple users using the hook
-      const user1Auth = {
-        user: {
-          displayName: 'User 1',
-          uid: 'user1-id',
-        },
-      };
+      const user1Auth = createMockAuthContextWithUser(createMockUser('User 1', 'user1-id'));
 
-      const user2Auth = {
-        user: {
-          displayName: 'User 2',
-          uid: 'user2-id',
-        },
-      };
+      const user2Auth = createMockAuthContextWithUser(createMockUser('User 2', 'user2-id'));
 
       // Use the controllable mock
 
@@ -428,12 +450,9 @@ describe('usePresence Hook', () => {
     });
 
     it('should handle display name with special characters', () => {
-      mockUseAuth.mockReturnValue({
-        user: {
-          displayName: 'User (Admin) 🎮',
-          uid: 'test-user-id',
-        },
-      });
+      mockUseAuth.mockReturnValue(
+        createMockAuthContextWithUser(createMockUser('User (Admin) 🎮', 'test-user-id'))
+      );
 
       renderHook(() => usePresence('test-room'));
 
@@ -524,22 +543,16 @@ describe('usePresence Hook', () => {
     it('should handle user updating profile while in room', () => {
       // Use the controllable mock
 
-      mockUseAuth.mockReturnValue({
-        user: {
-          displayName: 'Old Name',
-          uid: 'test-user-id',
-        },
-      });
+      mockUseAuth.mockReturnValue(
+        createMockAuthContextWithUser(createMockUser('Old Name', 'test-user-id'))
+      );
 
       const { rerender } = renderHook(() => usePresence('game-room'));
 
       // User updates their display name
-      mockUseAuth.mockReturnValue({
-        user: {
-          displayName: 'New Name',
-          uid: 'test-user-id',
-        },
-      });
+      mockUseAuth.mockReturnValue(
+        createMockAuthContextWithUser(createMockUser('New Name', 'test-user-id'))
+      );
 
       rerender();
 

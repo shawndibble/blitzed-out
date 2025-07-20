@@ -66,7 +66,7 @@ function Message({
   const ago = useMemo(() => {
     const date = (timestamp as Timestamp)?.toDate();
     if (!date) return '';
-    
+
     // Round to the nearest minute to reduce unnecessary re-renders
     const roundedTime = new Date(Math.floor(date.getTime() / 60000) * 60000);
     let result = moment(roundedTime).fromNow();
@@ -89,7 +89,10 @@ function Message({
   }, [text, type]);
 
   return (
-    <li className={clsx('message', isOwnMessage && 'own-message', isTransparent && 'transparent')}>
+    <li
+      className={clsx('message', isOwnMessage && 'own-message', isTransparent && 'transparent')}
+      data-testid={`message-${id}`}
+    >
       <div className="message-header">
         <div className="sender">
           <TextAvatar uid={uid} displayName={displayName} size="small" />
@@ -104,11 +107,7 @@ function Message({
       </div>
       <Divider sx={{ mb: 1 }} />
       <div className="message-message">
-        {type === 'actions' ? (
-          <ActionText text={text} />
-        ) : (
-          markdownContent
-        )}
+        {type === 'actions' ? <ActionText text={text} /> : markdownContent}
         {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
         {type === 'settings' && (
           <>
@@ -169,13 +168,13 @@ const arePropsEqual = (prevProps: MessageProps, nextProps: MessageProps): boolea
       prevProps.room === nextProps.room
     );
   }
-  
+
   // Check essential props that affect rendering (most likely to change first)
   if (prevProps.message.id !== nextProps.message.id) return false;
   if (prevProps.isOwnMessage !== nextProps.isOwnMessage) return false;
   if (prevProps.message.type !== nextProps.message.type) return false;
   if (prevProps.message.text !== nextProps.message.text) return false;
-  
+
   // Check less frequently changing props
   if (
     prevProps.message.uid !== nextProps.message.uid ||
@@ -202,7 +201,10 @@ const arePropsEqual = (prevProps: MessageProps, nextProps: MessageProps): boolea
     // Deep comparison for image data if references differ
     if (prevImage !== nextImage) {
       if (!prevImage || !nextImage) return false;
-      if (prevImage.format !== nextImage.format || prevImage.base64String !== nextImage.base64String) {
+      if (
+        prevImage.format !== nextImage.format ||
+        prevImage.base64String !== nextImage.base64String
+      ) {
         return false;
       }
     }
@@ -217,7 +219,7 @@ const arePropsEqual = (prevProps: MessageProps, nextProps: MessageProps): boolea
     const nextBoardSize = (nextProps.message as any).boardSize;
     const prevGameBoardId = (prevProps.message as any).gameBoardId;
     const nextGameBoardId = (nextProps.message as any).gameBoardId;
-    
+
     if (prevBoardSize !== nextBoardSize || prevGameBoardId !== nextGameBoardId) {
       return false;
     }

@@ -1,4 +1,5 @@
-import { render, screen, waitFor, act } from '@/test-utils';
+import { render, screen, act } from '@/test-utils';
+import { waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import GameSettingsWizard from '../index';
 
@@ -311,12 +312,12 @@ describe('GameSettingsWizard', () => {
       act(() => {
         screen.getByRole('button', { name: 'Next' }).click();
       });
-      await waitFor(() => screen.getByTestId('actions-step'));
+      await waitFor(() => expect(screen.getByTestId('actions-step')).toBeInTheDocument());
 
       act(() => {
         screen.getByRole('button', { name: 'Next' }).click();
       });
-      await waitFor(() => screen.getByTestId('finish-step'));
+      await waitFor(() => expect(screen.getByTestId('finish-step')).toBeInTheDocument());
 
       // Close from finish step
       act(() => {
@@ -333,17 +334,17 @@ describe('GameSettingsWizard', () => {
       act(() => {
         screen.getByRole('button', { name: 'Next' }).click();
       });
-      await waitFor(() => screen.getByTestId('game-mode-step'));
+      await waitFor(() => expect(screen.getByTestId('game-mode-step')).toBeInTheDocument());
 
       act(() => {
         screen.getByRole('button', { name: 'Next' }).click();
       });
-      await waitFor(() => screen.getByTestId('actions-step'));
+      await waitFor(() => expect(screen.getByTestId('actions-step')).toBeInTheDocument());
 
       act(() => {
         screen.getByRole('button', { name: 'Next' }).click();
       });
-      await waitFor(() => screen.getByTestId('finish-step'));
+      await waitFor(() => expect(screen.getByTestId('finish-step')).toBeInTheDocument());
 
       expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
     });
@@ -360,7 +361,7 @@ describe('GameSettingsWizard', () => {
       act(() => {
         screen.getByRole('button', { name: 'Next' }).click();
       });
-      await waitFor(() => screen.getByTestId('game-mode-step'));
+      await waitFor(() => expect(screen.getByTestId('game-mode-step')).toBeInTheDocument());
 
       act(() => {
         screen.getByRole('button', { name: 'Previous' }).click();

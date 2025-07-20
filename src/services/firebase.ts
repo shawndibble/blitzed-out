@@ -236,16 +236,13 @@ export function getUserList(
   } = {}
 ): void {
   if (!roomId) return;
-  
-  const {
-    enableCache = true,
-    enableDebounce = true,
-  } = options;
-  
+
+  const { enableCache = true, enableDebounce = true } = options;
+
   const roomUpper = roomId.toUpperCase();
   const queryKey = getCacheKey('userList', roomUpper);
   const startTime = Date.now();
-  
+
   // Check cache first with smart cache validation
   if (enableCache) {
     const cached = queryCache.get(queryKey);
@@ -253,9 +250,9 @@ export function getUserList(
       // Update cache access count for smart eviction
       cached.queryCount++;
       queryCache.set(queryKey, cached);
-      
+
       updateQueryMetrics(queryKey, Date.now() - startTime, true);
-      
+
       // Still apply the existing data comparison logic
       const dataString = Object.keys(cached.data).sort().join(',');
       const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
@@ -265,49 +262,53 @@ export function getUserList(
       return;
     }
   }
-  
+
   const executeQuery = async () => {
     let networkError = false;
-    
+
     try {
       // Use connection pooling for optimal Firebase performance
       await acquireConnection();
-      
+
       const database = getDatabase();
       const roomRef = ref(database, `rooms/${roomUpper}/uids`);
-      
-      onValue(roomRef, (snap: DataSnapshot) => {
-        const queryEndTime = Date.now();
-        const latency = queryEndTime - startTime;
-        const data = snap.val();
 
-        if (!data) return;
+      onValue(
+        roomRef,
+        (snap: DataSnapshot) => {
+          const queryEndTime = Date.now();
+          const latency = queryEndTime - startTime;
+          const data = snap.val();
 
-        // Update cache with enhanced metadata
-        if (enableCache) {
-          evictOldCacheEntries(); // Prevent memory bloat
-          
-          const priority = getCachePriority(queryKey);
-          queryCache.set(queryKey, {
-            data,
-            timestamp: queryEndTime,
-            queryCount: 1,
-            priority,
-          });
+          if (!data) return;
+
+          // Update cache with enhanced metadata
+          if (enableCache) {
+            evictOldCacheEntries(); // Prevent memory bloat
+
+            const priority = getCachePriority(queryKey);
+            queryCache.set(queryKey, {
+              data,
+              timestamp: queryEndTime,
+              queryCount: 1,
+              priority,
+            });
+          }
+
+          updateQueryMetrics(queryKey, latency, false, networkError);
+
+          // to prevent an endless loop, see if our new data matches the existing stuff.
+          // can't compare two arrays directly, but we can compare two strings.
+          const dataString = Object.keys(data).sort().join(',');
+          const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
+          if (dataString !== existingString) callback(data);
+        },
+        (error) => {
+          networkError = true;
+          console.error('getUserList error:', error);
+          updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
         }
-        
-        updateQueryMetrics(queryKey, latency, false, networkError);
-        
-        // to prevent an endless loop, see if our new data matches the existing stuff.
-        // can't compare two arrays directly, but we can compare two strings.
-        const dataString = Object.keys(data).sort().join(',');
-        const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
-        if (dataString !== existingString) callback(data);
-      }, (error) => {
-        networkError = true;
-        console.error('getUserList error:', error);
-        updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
-      });
+      );
     } catch (error) {
       networkError = true;
       console.error('getUserList connection error:', error);
@@ -316,7 +317,7 @@ export function getUserList(
       releaseConnection();
     }
   };
-  
+
   // Apply smart debouncing based on priority
   if (enableDebounce) {
     debounceQuery(queryKey, executeQuery);
@@ -482,7 +483,12 @@ interface QueryMetrics {
 
 const queryMetrics = new Map<string, QueryMetrics>();
 
-function updateQueryMetrics(queryKey: string, latency: number, fromCache: boolean, networkError: boolean = false): void {
+function updateQueryMetrics(
+  queryKey: string,
+  latency: number,
+  fromCache: boolean,
+  networkError: boolean = false
+): void {
   const existing = queryMetrics.get(queryKey) || {
     queryCount: 0,
     totalLatency: 0,
@@ -494,33 +500,33 @@ function updateQueryMetrics(queryKey: string, latency: number, fromCache: boolea
     networkErrors: 0,
     latencyHistory: [],
   };
-  
+
   existing.queryCount++;
   existing.totalLatency += latency;
   existing.lastQueryTime = Date.now();
   existing.avgLatency = existing.totalLatency / existing.queryCount;
-  
+
   // Track latency history for percentile calculation (keep last 20)
   existing.latencyHistory.push(latency);
   if (existing.latencyHistory.length > 20) {
     existing.latencyHistory.shift();
   }
-  
+
   // Calculate 95th percentile
   if (existing.latencyHistory.length >= 5) {
     const sorted = [...existing.latencyHistory].sort((a, b) => a - b);
     const p95Index = Math.floor(sorted.length * 0.95);
     existing.p95Latency = sorted[p95Index];
   }
-  
+
   if (fromCache) {
     existing.cacheHits++;
   }
-  
+
   if (networkError) {
     existing.networkErrors++;
   }
-  
+
   queryMetrics.set(queryKey, existing);
 }
 
@@ -533,37 +539,43 @@ function getCachePriority(queryKey: string): 'high' | 'medium' | 'low' {
 
 function getCacheTTL(priority: 'high' | 'medium' | 'low'): number {
   switch (priority) {
-    case 'high': return PRIORITY_CACHE_TTL;
-    case 'medium': return CACHE_TTL;
-    case 'low': return CACHE_TTL * 2; // 30 seconds for low priority
+    case 'high':
+      return PRIORITY_CACHE_TTL;
+    case 'medium':
+      return CACHE_TTL;
+    case 'low':
+      return CACHE_TTL * 2; // 30 seconds for low priority
   }
 }
 
 function getDebounceDelay(priority: 'high' | 'medium' | 'low'): number {
   switch (priority) {
-    case 'high': return PRIORITY_DEBOUNCE_DELAY;
-    case 'medium': return DEBOUNCE_DELAY;
-    case 'low': return DEBOUNCE_DELAY * 2; // 300ms for low priority
+    case 'high':
+      return PRIORITY_DEBOUNCE_DELAY;
+    case 'medium':
+      return DEBOUNCE_DELAY;
+    case 'low':
+      return DEBOUNCE_DELAY * 2; // 300ms for low priority
   }
 }
 
 // Enhanced cache eviction strategy
 function evictOldCacheEntries(): void {
   if (queryCache.size <= MAX_CACHE_SIZE) return;
-  
+
   const entries = Array.from(queryCache.entries());
   // Sort by priority (low first) and then by timestamp (oldest first) and access count (least accessed first)
   entries.sort(([, a], [, b]) => {
     const priorityOrder = { low: 0, medium: 1, high: 2 };
     const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
     if (priorityDiff !== 0) return priorityDiff;
-    
+
     const accessDiff = a.queryCount - b.queryCount;
     if (accessDiff !== 0) return accessDiff;
-    
+
     return a.timestamp - b.timestamp;
   });
-  
+
   // Remove 20% of entries (starting with lowest priority, least accessed, oldest)
   const entriesToRemove = Math.ceil(queryCache.size * 0.2);
   for (let i = 0; i < entriesToRemove; i++) {
@@ -588,7 +600,7 @@ function acquireConnection(): Promise<void> {
 
 function releaseConnection(): void {
   connectionPool.activeConnections--;
-  
+
   if (connectionPool.connectionQueue.length > 0) {
     const nextCallback = connectionPool.connectionQueue.shift();
     if (nextCallback) {
@@ -597,22 +609,33 @@ function releaseConnection(): void {
   }
 }
 
-export function getQueryPerformanceMetrics(): Record<string, QueryMetrics & { cacheHitRate: number; errorRate: number; connectionPoolUtilization: number }> {
-  const result: Record<string, QueryMetrics & { cacheHitRate: number; errorRate: number; connectionPoolUtilization: number }> = {};
-  
+export function getQueryPerformanceMetrics(): Record<
+  string,
+  QueryMetrics & { cacheHitRate: number; errorRate: number; connectionPoolUtilization: number }
+> {
+  const result: Record<
+    string,
+    QueryMetrics & { cacheHitRate: number; errorRate: number; connectionPoolUtilization: number }
+  > = {};
+
   queryMetrics.forEach((metrics, key) => {
     result[key] = {
       ...metrics,
       cacheHitRate: metrics.queryCount > 0 ? (metrics.cacheHits / metrics.queryCount) * 100 : 0,
       errorRate: metrics.queryCount > 0 ? (metrics.networkErrors / metrics.queryCount) * 100 : 0,
-      connectionPoolUtilization: (connectionPool.activeConnections / connectionPool.maxConnections) * 100,
+      connectionPoolUtilization:
+        (connectionPool.activeConnections / connectionPool.maxConnections) * 100,
     };
   });
-  
+
   return result;
 }
 
-function getCacheKey(collection: string, roomId?: string | null, additionalParams?: string): string {
+function getCacheKey(
+  collection: string,
+  roomId?: string | null,
+  additionalParams?: string
+): string {
   return `${collection}:${roomId || 'global'}:${additionalParams || ''}`;
 }
 
@@ -630,11 +653,11 @@ function debounceQuery<T extends any[]>(
   const priority = getCachePriority(queryKey);
   const debounceDelay = getDebounceDelay(priority);
   const existingTimeout = queryDebounceMap.get(queryKey);
-  
+
   if (existingTimeout) {
     clearTimeout(existingTimeout);
   }
-  
+
   const timeout = setTimeout(async () => {
     try {
       // Use connection pooling for optimal performance
@@ -647,7 +670,7 @@ function debounceQuery<T extends any[]>(
       queryDebounceMap.delete(queryKey);
     }
   }, debounceDelay);
-  
+
   queryDebounceMap.set(queryKey, timeout);
 }
 
@@ -745,18 +768,18 @@ export function getMessages(
   } = {}
 ): (() => void) | undefined {
   if (!roomId) return undefined;
-  
+
   const {
     limitCount = DEFAULT_LIMIT,
     startAfterDoc,
     enableCache = true,
     enableDebounce = true,
   } = options;
-  
+
   const roomUpper = roomId.toUpperCase();
   const queryKey = getCacheKey('messages', roomUpper, `limit:${limitCount}`);
   const startTime = Date.now();
-  
+
   // Check cache first with smart cache validation
   if (enableCache) {
     const cached = queryCache.get(queryKey);
@@ -764,32 +787,32 @@ export function getMessages(
       // Update cache access count for smart eviction
       cached.queryCount++;
       queryCache.set(queryKey, cached);
-      
+
       updateQueryMetrics(queryKey, Date.now() - startTime, true);
       callback(cached.data);
       return () => {}; // Return empty unsubscribe function for cached results
     }
   }
-  
-  const executeQuery = async () => {
+
+  const executeQuery = () => {
     let networkError = false;
     let unsubscribe: (() => void) | undefined;
-    
+
     try {
       // Use connection pooling for optimal Firebase performance
-      await acquireConnection();
-      
+      acquireConnection();
+
       // Enhanced time window - use 3 hours for better performance vs data freshness balance
       const timeWindow = new Date();
       timeWindow.setHours(timeWindow.getHours() - 3);
-      
+
       let baseQuery = query(
         collection(db, 'chat-rooms', roomUpper, 'messages'),
         where('timestamp', '>', timeWindow),
         orderBy('timestamp', 'asc'),
         limit(limitCount)
       );
-      
+
       // Add pagination if startAfterDoc is provided
       if (startAfterDoc) {
         baseQuery = query(
@@ -800,40 +823,44 @@ export function getMessages(
           limit(limitCount)
         );
       }
-      
-      unsubscribe = onSnapshot(baseQuery, (querySnapshot: QuerySnapshot<DocumentData>) => {
-        const queryEndTime = Date.now();
-        const latency = queryEndTime - startTime;
-        
-        const messages = querySnapshot.docs.map((document) => ({
-          id: document.id,
-          ...document.data(),
-        }));
-        
-        // Update cache with enhanced metadata
-        if (enableCache && messages.length > 0) {
-          evictOldCacheEntries(); // Prevent memory bloat
-          
-          const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-          const priority = getCachePriority(queryKey);
-          
-          queryCache.set(queryKey, {
-            data: messages,
-            timestamp: queryEndTime,
-            lastVisible,
-            queryCount: 1,
-            priority,
-          });
+
+      unsubscribe = onSnapshot(
+        baseQuery,
+        (querySnapshot: QuerySnapshot<DocumentData>) => {
+          const queryEndTime = Date.now();
+          const latency = queryEndTime - startTime;
+
+          const messages = querySnapshot.docs.map((document) => ({
+            id: document.id,
+            ...document.data(),
+          }));
+
+          // Update cache with enhanced metadata
+          if (enableCache && messages.length > 0) {
+            evictOldCacheEntries(); // Prevent memory bloat
+
+            const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+            const priority = getCachePriority(queryKey);
+
+            queryCache.set(queryKey, {
+              data: messages,
+              timestamp: queryEndTime,
+              lastVisible,
+              queryCount: 1,
+              priority,
+            });
+          }
+
+          updateQueryMetrics(queryKey, latency, false, networkError);
+          callback(messages);
+        },
+        (error) => {
+          networkError = true;
+          console.error('getMessages error:', error);
+          updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
         }
-        
-        updateQueryMetrics(queryKey, latency, false, networkError);
-        callback(messages);
-      }, (error) => {
-        networkError = true;
-        console.error('getMessages error:', error);
-        updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
-      });
-      
+      );
+
       return unsubscribe;
     } catch (error) {
       networkError = true;
@@ -844,15 +871,15 @@ export function getMessages(
       releaseConnection();
     }
   };
-  
+
   // Apply smart debouncing based on priority
   if (enableDebounce) {
     let deferredUnsubscribe: (() => void) | undefined;
-    
-    debounceQuery(queryKey, async () => {
-      deferredUnsubscribe = await executeQuery();
+
+    debounceQuery(queryKey, () => {
+      deferredUnsubscribe = executeQuery();
     });
-    
+
     return () => {
       const timeout = queryDebounceMap.get(queryKey);
       if (timeout) {
@@ -864,9 +891,8 @@ export function getMessages(
       }
     };
   }
-  
-  const result = executeQuery();
-  return result instanceof Promise ? undefined : result;
+
+  return executeQuery();
 }
 
 // Enhanced pagination helper for messages
@@ -877,16 +903,22 @@ export function getMessagesWithPagination(
   startAfterDoc?: QueryDocumentSnapshot<DocumentData>
 ): (() => void) | undefined {
   if (!roomId) return undefined;
-  
-  return getMessages(roomId, (messages) => {
-    const cached = queryCache.get(getCacheKey('messages', roomId.toUpperCase(), `limit:${limitCount}`));
-    callback(messages, cached?.lastVisible);
-  }, {
-    limitCount,
-    startAfterDoc,
-    enableCache: true,
-    enableDebounce: true,
-  });
+
+  return getMessages(
+    roomId,
+    (messages) => {
+      const cached = queryCache.get(
+        getCacheKey('messages', roomId.toUpperCase(), `limit:${limitCount}`)
+      );
+      callback(messages, cached?.lastVisible);
+    },
+    {
+      limitCount,
+      startAfterDoc,
+      enableCache: true,
+      enableDebounce: true,
+    }
+  );
 }
 
 export function getSchedule(
@@ -904,10 +936,10 @@ export function getSchedule(
     enableCache = true,
     enableDebounce = true,
   } = options;
-  
+
   const queryKey = getCacheKey('schedule', null, `limit:${limitCount}`);
   const startTime = Date.now();
-  
+
   // Check cache first with smart cache validation
   if (enableCache) {
     const cached = queryCache.get(queryKey);
@@ -915,32 +947,32 @@ export function getSchedule(
       // Update cache access count for smart eviction
       cached.queryCount++;
       queryCache.set(queryKey, cached);
-      
+
       updateQueryMetrics(queryKey, Date.now() - startTime, true);
       callback(cached.data);
       return () => {}; // Return empty unsubscribe function for cached results
     }
   }
-  
-  const executeQuery = async (): Promise<(() => void)> => {
+
+  const executeQuery = async (): Promise<() => void> => {
     let networkError = false;
     let unsubscribe: (() => void) | undefined;
-    
+
     try {
       // Use connection pooling for optimal Firebase performance
       await acquireConnection();
-      
+
       // Enhanced time filtering - include current games (5 minutes buffer)
       const currentTime = new Date();
       currentTime.setMinutes(currentTime.getMinutes() - 5);
-      
+
       let baseQuery = query(
         collection(db, 'schedule'),
         where('dateTime', '>', currentTime),
         orderBy('dateTime', 'asc'),
         limit(limitCount)
       );
-      
+
       // Add pagination if startAfterDoc is provided
       if (startAfterDoc) {
         baseQuery = query(
@@ -951,40 +983,44 @@ export function getSchedule(
           limit(limitCount)
         );
       }
-      
-      unsubscribe = onSnapshot(baseQuery, (querySnapshot: QuerySnapshot<DocumentData>) => {
-        const queryEndTime = Date.now();
-        const latency = queryEndTime - startTime;
-        
-        const schedule = querySnapshot.docs.map((document) => ({
-          id: document.id,
-          ...document.data(),
-        }));
-        
-        // Update cache with enhanced metadata
-        if (enableCache && schedule.length > 0) {
-          evictOldCacheEntries(); // Prevent memory bloat
-          
-          const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-          const priority = getCachePriority(queryKey);
-          
-          queryCache.set(queryKey, {
-            data: schedule,
-            timestamp: queryEndTime,
-            lastVisible,
-            queryCount: 1,
-            priority,
-          });
+
+      unsubscribe = onSnapshot(
+        baseQuery,
+        (querySnapshot: QuerySnapshot<DocumentData>) => {
+          const queryEndTime = Date.now();
+          const latency = queryEndTime - startTime;
+
+          const schedule = querySnapshot.docs.map((document) => ({
+            id: document.id,
+            ...document.data(),
+          }));
+
+          // Update cache with enhanced metadata
+          if (enableCache && schedule.length > 0) {
+            evictOldCacheEntries(); // Prevent memory bloat
+
+            const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+            const priority = getCachePriority(queryKey);
+
+            queryCache.set(queryKey, {
+              data: schedule,
+              timestamp: queryEndTime,
+              lastVisible,
+              queryCount: 1,
+              priority,
+            });
+          }
+
+          updateQueryMetrics(queryKey, latency, false, networkError);
+          callback(schedule);
+        },
+        (error) => {
+          networkError = true;
+          console.error('getSchedule error:', error);
+          updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
         }
-        
-        updateQueryMetrics(queryKey, latency, false, networkError);
-        callback(schedule);
-      }, (error) => {
-        networkError = true;
-        console.error('getSchedule error:', error);
-        updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
-      });
-      
+      );
+
       return unsubscribe || (() => {});
     } catch (error) {
       networkError = true;
@@ -995,15 +1031,15 @@ export function getSchedule(
       releaseConnection();
     }
   };
-  
+
   // Apply smart debouncing based on priority
   if (enableDebounce) {
     let deferredUnsubscribe: (() => void) | undefined;
-    
+
     debounceQuery(queryKey, async () => {
       deferredUnsubscribe = await executeQuery();
     });
-    
+
     return () => {
       const timeout = queryDebounceMap.get(queryKey);
       if (timeout) {
@@ -1015,9 +1051,9 @@ export function getSchedule(
       }
     };
   }
-  
+
   const result = executeQuery();
-  return result instanceof Promise ? (() => {}) : result;
+  return result instanceof Promise ? () => {} : result;
 }
 
 // Enhanced pagination helper for schedule
@@ -1025,24 +1061,27 @@ export function getScheduleWithPagination(
   callback: (schedule: any[], lastVisible?: QueryDocumentSnapshot<DocumentData>) => void,
   limitCount: number = DEFAULT_LIMIT,
   startAfterDoc?: QueryDocumentSnapshot<DocumentData>
-): (() => void) {
-  return getSchedule((schedule) => {
-    const cached = queryCache.get(getCacheKey('schedule', null, `limit:${limitCount}`));
-    callback(schedule, cached?.lastVisible);
-  }, {
-    limitCount,
-    startAfterDoc,
-    enableCache: true,
-    enableDebounce: true,
-  });
+): () => void {
+  return getSchedule(
+    (schedule) => {
+      const cached = queryCache.get(getCacheKey('schedule', null, `limit:${limitCount}`));
+      callback(schedule, cached?.lastVisible);
+    },
+    {
+      limitCount,
+      startAfterDoc,
+      enableCache: true,
+      enableDebounce: true,
+    }
+  );
 }
 
 // Utility function to clear query cache (useful for testing or memory management)
 export function clearQueryCache(pattern?: string): void {
   if (pattern) {
     Array.from(queryCache.keys())
-      .filter(key => key.includes(pattern))
-      .forEach(key => queryCache.delete(key));
+      .filter((key) => key.includes(pattern))
+      .forEach((key) => queryCache.delete(key));
   } else {
     queryCache.clear();
   }
@@ -1064,9 +1103,9 @@ export function getCacheStats(): {
     utilizationPercentage: number;
   };
 } {
-  const timestamps = Array.from(queryCache.values()).map(cache => cache.timestamp);
+  const timestamps = Array.from(queryCache.values()).map((cache) => cache.timestamp);
   const cacheValues = Array.from(queryCache.values());
-  
+
   // Calculate cache distribution by priority
   const priorityStats = cacheValues.reduce(
     (acc, cache) => {
@@ -1075,17 +1114,18 @@ export function getCacheStats(): {
     },
     { high: 0, medium: 0, low: 0 }
   );
-  
+
   // Estimate memory usage (rough calculation)
   const memoryUsageEstimate = cacheValues.reduce((total, cache) => {
     return total + JSON.stringify(cache.data).length * 2; // Rough bytes estimate
   }, 0);
-  
+
   // Calculate average query count
-  const averageQueryCount = cacheValues.length > 0 
-    ? cacheValues.reduce((sum, cache) => sum + cache.queryCount, 0) / cacheValues.length 
-    : 0;
-  
+  const averageQueryCount =
+    cacheValues.length > 0
+      ? cacheValues.reduce((sum, cache) => sum + cache.queryCount, 0) / cacheValues.length
+      : 0;
+
   return {
     totalCachedQueries: queryCache.size,
     cacheSize: queryCache.size,
@@ -1098,7 +1138,8 @@ export function getCacheStats(): {
       activeConnections: connectionPool.activeConnections,
       maxConnections: connectionPool.maxConnections,
       queueLength: connectionPool.connectionQueue.length,
-      utilizationPercentage: (connectionPool.activeConnections / connectionPool.maxConnections) * 100,
+      utilizationPercentage:
+        (connectionPool.activeConnections / connectionPool.maxConnections) * 100,
     },
   };
 }
@@ -1113,14 +1154,14 @@ export function optimizeCache(): {
   const beforeMemory = Array.from(queryCache.values()).reduce((total, cache) => {
     return total + JSON.stringify(cache.data).length * 2;
   }, 0);
-  
+
   evictOldCacheEntries();
-  
+
   const afterSize = queryCache.size;
   const afterMemory = Array.from(queryCache.values()).reduce((total, cache) => {
     return total + JSON.stringify(cache.data).length * 2;
   }, 0);
-  
+
   return {
     entriesEvicted: beforeSize - afterSize,
     memoryFreed: beforeMemory - afterMemory,
@@ -1139,52 +1180,59 @@ export function getPerformanceRecommendations(): {
   const recommendations: string[] = [];
   const issues: string[] = [];
   let overallScore = 100;
-  
+
   // Analyze cache hit rates
-  const avgCacheHitRate = Object.values(metrics).reduce((sum, metric) => sum + metric.cacheHitRate, 0) / Object.keys(metrics).length || 0;
-  
+  const avgCacheHitRate =
+    Object.values(metrics).reduce((sum, metric) => sum + metric.cacheHitRate, 0) /
+      Object.keys(metrics).length || 0;
+
   if (avgCacheHitRate < 50) {
     recommendations.push('Increase cache TTL for better hit rates');
     issues.push('Low cache hit rate detected');
     overallScore -= 20;
   }
-  
+
   // Analyze connection pool utilization
   if (cacheStats.connectionPoolStats.utilizationPercentage > 80) {
     recommendations.push('Consider increasing connection pool size');
     issues.push('High connection pool utilization');
     overallScore -= 15;
   }
-  
+
   // Analyze error rates
-  const avgErrorRate = Object.values(metrics).reduce((sum, metric) => sum + metric.errorRate, 0) / Object.keys(metrics).length || 0;
-  
+  const avgErrorRate =
+    Object.values(metrics).reduce((sum, metric) => sum + metric.errorRate, 0) /
+      Object.keys(metrics).length || 0;
+
   if (avgErrorRate > 5) {
     recommendations.push('Investigate network errors and add retry logic');
     issues.push('High error rate detected');
     overallScore -= 25;
   }
-  
+
   // Analyze latency
-  const avgLatency = Object.values(metrics).reduce((sum, metric) => sum + metric.avgLatency, 0) / Object.keys(metrics).length || 0;
-  
+  const avgLatency =
+    Object.values(metrics).reduce((sum, metric) => sum + metric.avgLatency, 0) /
+      Object.keys(metrics).length || 0;
+
   if (avgLatency > 1000) {
     recommendations.push('Optimize query structures and indexes');
     issues.push('High average latency detected');
     overallScore -= 20;
   }
-  
+
   // Memory usage recommendations
-  if (cacheStats.memoryUsageEstimate > 10 * 1024 * 1024) { // 10MB
+  if (cacheStats.memoryUsageEstimate > 10 * 1024 * 1024) {
+    // 10MB
     recommendations.push('Consider reducing cache size or implementing more aggressive eviction');
     issues.push('High memory usage detected');
     overallScore -= 10;
   }
-  
+
   if (recommendations.length === 0) {
     recommendations.push('Performance is optimal!');
   }
-  
+
   return {
     recommendations,
     overallScore: Math.max(0, overallScore),

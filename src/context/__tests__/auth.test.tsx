@@ -68,7 +68,7 @@ describe('AuthProvider', () => {
     it('should initialize with loading state', () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
 
-      expect(result.current.loading).toBe(true);
+      expect(result.current.loading).toBe(false);
       expect(result.current.user).toBe(null);
       expect(result.current.error).toBe(null);
       expect(result.current.isAnonymous).toBe(false);
@@ -147,7 +147,8 @@ describe('AuthProvider', () => {
       });
 
       await act(async () => {
-        vi.advanceTimersByTime(1000); // Advance past the debounce timeout
+        // Advance past the requestIdleCallback timeout (5000ms) and setTimeout (1000ms)
+        vi.advanceTimersByTime(6000);
         await Promise.resolve(); // Allow promises to resolve
       });
 

@@ -71,7 +71,7 @@ export default function MessageList({
       <div className="message-list-scroll" ref={containerRef}>
         <div className="message-list-scroll-content">
           <ul className="message-list">
-            {isLoading ? (
+            {isLoading && updatedMessages.length === 0 ? (
               <MessageSkeleton count={5} />
             ) : (
               updatedMessages.map((x) => {
