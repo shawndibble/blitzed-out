@@ -27,14 +27,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Aggressive bundling to reduce HTTP requests
+          // Less aggressive bundling to prevent circular dependencies
           if (id.includes('node_modules')) {
-            // Group all React ecosystem
-            if (id.includes('react') || id.includes('@types/react')) {
+            // Keep React and React DOM together to prevent hook ordering issues
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
               return 'vendor-react';
             }
             
-            // Group all MUI components into single chunk
+            // Group MUI and Emotion together (they have tight coupling)
             if (id.includes('@mui/') || id.includes('@emotion/')) {
               return 'vendor-mui';
             }
@@ -56,30 +56,15 @@ export default defineConfig({
               return 'vendor-utils';
             }
             
-            // Group heavy libraries
-            if (id.includes('react-markdown') || id.includes('remark-') || 
-                id.includes('use-sound') || id.includes('@capacitor/') || 
-                id.includes('@ionic/')) {
-              return 'vendor-heavy';
-            }
-            
             // All other node_modules go to vendor
             return 'vendor';
           }
           
-          // App code chunking
-          if (id.includes('/views/')) {
-            return 'views';
-          }
-          if (id.includes('/components/')) {
-            return 'components';
-          }
-          if (id.includes('/services/') || id.includes('/stores/')) {
-            return 'services';
-          }
+          // Simplified app code chunking
           if (id.includes('/locales/')) {
             return 'locales';
           }
+          // Let Vite handle other app code automatically to prevent issues
         },
         // Optimize chunk sizes
         chunkFileNames: (chunkInfo) => {
