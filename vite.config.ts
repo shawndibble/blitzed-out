@@ -28,7 +28,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           // Use object-based chunking to avoid function issues
-          vendor: ['react', 'react-dom', 'react-router-dom'],
+          vendor: ['react', 'react-dom', 'react-router', 'react-router-dom'],
           mui: ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
           firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
           utils: ['zustand', 'dexie', 'dayjs', 'nanoid', 'clsx']
