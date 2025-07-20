@@ -6,7 +6,7 @@ import { afterEach, vi, beforeEach } from 'vitest';
 import { configure } from '@testing-library/react';
 configure({
   testIdAttribute: 'data-testid',
-  asyncUtilTimeout: 5000,
+  asyncUtilTimeout: 3000,
   computedStyleSupportsPseudoElements: false,
 });
 

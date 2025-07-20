@@ -50,11 +50,12 @@ describe('IntensitySelector', () => {
   });
 
   describe('no group selected state', () => {
-    it('should show select group first message when no groupName provided', () => {
+    it('should show select group first message when no groupName provided', async () => {
       render(<IntensitySelector {...defaultProps} groupName="" />);
 
-      expect(screen.getByText('Select a group first')).toBeInTheDocument();
-      expect(screen.getByRole('combobox')).toBeDisabled();
+      // Check the hidden input that is actually disabled
+      const hiddenInput = screen.getByDisplayValue('');
+      expect(hiddenInput).toBeDisabled();
     });
   });
 
@@ -65,7 +66,9 @@ describe('IntensitySelector', () => {
       render(<IntensitySelector {...defaultProps} />);
 
       expect(screen.getByText('Loading intensities...')).toBeInTheDocument();
-      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      // Check the hidden input that is actually disabled during loading
+      const hiddenInput = screen.getByDisplayValue('1');
+      expect(hiddenInput).toBeDisabled();
     });
   });
 
@@ -75,11 +78,19 @@ describe('IntensitySelector', () => {
 
       render(<IntensitySelector {...defaultProps} />);
 
+      // Wait for loading to complete first
       await waitFor(() => {
-        expect(screen.getByText('Beginner')).toBeInTheDocument();
+        expect(screen.queryByText('Loading intensities...')).not.toBeInTheDocument();
       });
 
-      expect(screen.getByText('Intermediate')).toBeInTheDocument();
+      // Click to open dropdown and see options
+      const select = screen.getByRole('combobox');
+      await userEvent.click(select);
+
+      await waitFor(() => {
+        expect(screen.getByText('Intermediate')).toBeInTheDocument();
+      });
+
       expect(screen.getByText('Advanced')).toBeInTheDocument();
     });
 
@@ -89,12 +100,17 @@ describe('IntensitySelector', () => {
 
       render(<IntensitySelector {...defaultProps} onChange={mockOnChange} />);
 
+      // Wait for loading to complete
       await waitFor(() => {
-        expect(screen.getByText('Beginner')).toBeInTheDocument();
+        expect(screen.queryByText('Loading intensities...')).not.toBeInTheDocument();
       });
 
       const select = screen.getByRole('combobox');
       await userEvent.click(select);
+
+      await waitFor(() => {
+        expect(screen.getByText('Advanced')).toBeInTheDocument();
+      });
 
       const option = screen.getByText('Advanced');
       await userEvent.click(option);

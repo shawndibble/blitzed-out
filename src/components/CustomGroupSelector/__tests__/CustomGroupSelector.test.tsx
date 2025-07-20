@@ -94,6 +94,16 @@ describe('CustomGroupSelector', () => {
 
       render(<CustomGroupSelector {...defaultProps} />);
 
+      // Wait for loading to finish first
+      await waitFor(() => {
+        expect(screen.queryByText('Loading groups...')).not.toBeInTheDocument();
+      });
+
+      // Click the select to open the dropdown and show options
+      const select = screen.getByRole('combobox');
+      await userEvent.click(select);
+
+      // Now check for the options in the dropdown
       await waitFor(() => {
         expect(screen.getByText('Test Group 1')).toBeInTheDocument();
       });
@@ -108,11 +118,14 @@ describe('CustomGroupSelector', () => {
 
       render(<CustomGroupSelector {...defaultProps} onChange={mockOnChange} />);
 
+      // Wait for loading to complete
       await waitFor(() => {
-        expect(screen.getByRole('combobox')).not.toBeDisabled();
+        expect(screen.queryByText('Loading groups...')).not.toBeInTheDocument();
       });
 
       const select = screen.getByRole('combobox');
+      expect(select).not.toBeDisabled();
+
       await userEvent.click(select);
 
       await waitFor(() => {
@@ -130,10 +143,13 @@ describe('CustomGroupSelector', () => {
 
       render(<CustomGroupSelector {...defaultProps} includeDefault={false} />);
 
+      // Wait for loading to complete
       await waitFor(() => {
-        const select = screen.getByRole('combobox');
-        userEvent.click(select);
+        expect(screen.queryByText('Loading groups...')).not.toBeInTheDocument();
       });
+
+      const select = screen.getByRole('combobox');
+      await userEvent.click(select);
 
       await waitFor(() => {
         expect(screen.getByText('Test Group 2')).toBeInTheDocument();
@@ -148,6 +164,15 @@ describe('CustomGroupSelector', () => {
 
       render(<CustomGroupSelector {...defaultProps} />);
 
+      // Wait for loading to complete
+      await waitFor(() => {
+        expect(screen.queryByText('Loading groups...')).not.toBeInTheDocument();
+      });
+
+      // Click to open the select and show the empty state message
+      const select = screen.getByRole('combobox');
+      await userEvent.click(select);
+
       await waitFor(() => {
         expect(screen.getByText('No groups available for en/online')).toBeInTheDocument();
       });
@@ -160,6 +185,15 @@ describe('CustomGroupSelector', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       render(<CustomGroupSelector {...defaultProps} />);
+
+      // Wait for loading to complete
+      await waitFor(() => {
+        expect(screen.queryByText('Loading groups...')).not.toBeInTheDocument();
+      });
+
+      // Click to open the select and show the error state message
+      const select = screen.getByRole('combobox');
+      await userEvent.click(select);
 
       await waitFor(() => {
         expect(screen.getByText('No groups available for en/online')).toBeInTheDocument();
@@ -176,11 +210,14 @@ describe('CustomGroupSelector', () => {
 
       render(<CustomGroupSelector {...defaultProps} disabled={true} />);
 
+      // Wait for loading to complete
       await waitFor(() => {
-        // Check the hidden input that is actually disabled
-        const hiddenInput = screen.getByDisplayValue('');
-        expect(hiddenInput).toBeDisabled();
+        expect(screen.queryByText('Loading groups...')).not.toBeInTheDocument();
       });
+
+      // Check the hidden input that is actually disabled
+      const hiddenInput = screen.getByDisplayValue('');
+      expect(hiddenInput).toBeDisabled();
     });
   });
 
