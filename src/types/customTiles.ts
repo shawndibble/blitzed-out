@@ -38,6 +38,7 @@ export interface MappedGroup {
 export interface GroupedActions {
   [key: string]: {
     label: string;
+    type?: string;
     actions?: {
       [key: string]: any;
     };

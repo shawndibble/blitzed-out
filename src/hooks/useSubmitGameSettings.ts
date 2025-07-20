@@ -28,6 +28,41 @@ function updateRoomBackground(formData: Settings): void {
   }
 }
 
+/**
+ * Clean form data by removing any action/consumption entries that have been deselected
+ * This ensures that the Zustand store doesn't retain stale action selections
+ */
+function cleanFormData(formData: Settings): Settings {
+  const cleanedData = { ...formData };
+  const cleanedSelectedActions: Record<string, any> = {};
+
+  // Clean the selectedActions object
+  if (formData.selectedActions) {
+    Object.entries(formData.selectedActions).forEach(([key, entry]) => {
+      if (entry && entry.level > 0) {
+        cleanedSelectedActions[key] = entry;
+      }
+    });
+  }
+
+  // Remove any old root-level action keys (for migration cleanup)
+  Object.keys(cleanedData).forEach((key) => {
+    const entry = cleanedData[key] as any;
+    if (
+      entry &&
+      typeof entry === 'object' &&
+      entry.type &&
+      ['solo', 'foreplay', 'sex', 'consumption'].includes(entry.type)
+    ) {
+      delete cleanedData[key];
+    }
+  });
+
+  cleanedData.selectedActions = cleanedSelectedActions;
+
+  return cleanedData;
+}
+
 export default function useSubmitGameSettings(): (
   formData: Settings,
   actionsList: any
@@ -105,8 +140,11 @@ export default function useSubmitGameSettings(): (
         });
       }
 
+      // Clean the formData to remove any deselected actions/consumptions before storing
+      const cleanedFormData = cleanFormData(formData);
+
       updateSettings({
-        ...formData,
+        ...cleanedFormData,
         boardUpdated: false,
         roomUpdated: false,
         gameMode,

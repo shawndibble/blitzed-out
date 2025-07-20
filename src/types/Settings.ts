@@ -1,9 +1,9 @@
+import { ActionEntry } from './index';
+
 export interface Settings {
   advancedSettings?: boolean;
   gameMode: GameMode;
   roomRealtime?: boolean;
-  actions?: Array<string>; // depricated
-  consumption?: Array<string>; //depricated
   role?: PlayerRole;
   boardUpdated: boolean;
   roomUpdated?: boolean;
@@ -22,6 +22,11 @@ export interface Settings {
   displayName?: string;
   room: string;
   roomBackgroundURL?: string;
+  customGroups?: Array<{
+    groupName: string;
+    intensity: number;
+  }>;
+  selectedActions?: Record<string, ActionEntry>;
   [key: string]: any;
 }
 

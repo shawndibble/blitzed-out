@@ -101,7 +101,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
 
         <div className="menu-drawer">
           <CastButton />
-          <Suspense fallback={<ComponentLoader />}>
+          <Suspense fallback={null}>
             <MenuDrawer />
           </Suspense>
         </div>

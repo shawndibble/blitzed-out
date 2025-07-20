@@ -25,7 +25,10 @@ export default function ActionsStep({
   actionsList,
 }: ActionsStepProps): JSX.Element {
   function settingSelectLists(type: string): string[] {
-    return Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
+    const filteredOptions = Object.keys(actionsList).filter(
+      (option) => actionsList[option]?.type === type
+    );
+    return filteredOptions;
   }
 
   // on load, purge invalid actions.
@@ -42,9 +45,16 @@ export default function ActionsStep({
       label: actionsList[option]?.label,
     }));
 
-  const isNextDisabled = !Object.keys(formData).some(
-    (key) => formData[key].level > 0 && formData[key].variation !== 'appendMost'
-  );
+  // Check if user has made selections
+  const hasSelections =
+    formData.selectedActions &&
+    Object.keys(formData.selectedActions).some(
+      (key) =>
+        formData.selectedActions![key]?.level > 0 &&
+        formData.selectedActions![key]?.variation !== 'appendMost'
+    );
+
+  const isNextDisabled = !hasSelections;
 
   return (
     <Box>

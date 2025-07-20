@@ -6,7 +6,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { importCustomTiles, getTiles } from '@/stores/customTiles';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import ToastAlert from '@/components/ToastAlert';
-import { importActions } from '@/services/importLocales';
+import { importActions } from '@/services/dexieActionImport';
 import ImportExport from '@/views/CustomTileDialog/ImportExport';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';

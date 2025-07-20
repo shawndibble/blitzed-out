@@ -12,12 +12,7 @@ function MessageSkeleton({ count = 3 }: MessageSkeletonProps) {
         <li key={index} className="message">
           <div className="message-header">
             <div className="sender">
-              <Skeleton 
-                variant="circular" 
-                width={18} 
-                height={18} 
-                sx={{ mr: 0.5 }} 
-              />
+              <Skeleton variant="circular" width={18} height={18} sx={{ mr: 0.5 }} />
               <Skeleton variant="text" width={80} height={20} />
             </div>
             <div className="timestamp">

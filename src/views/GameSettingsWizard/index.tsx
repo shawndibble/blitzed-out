@@ -9,7 +9,7 @@ import GameSettings from '@/views/GameSettings';
 import { useParams } from 'react-router-dom';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import { isPublicRoom } from '@/helpers/strings';
-import useActionList from '@/hooks/useActionList';
+import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import { FormData } from '@/types';
 import { Settings } from '@/types/Settings';
 
@@ -43,7 +43,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   );
 
   const initialLoad = useRef(true);
-  const { actionsList } = useActionList(formData.gameMode);
+  const { actionsList } = useUnifiedActionList(formData.gameMode);
 
   // on load, we want to guess what page we should be on.
   useEffect(() => {
@@ -61,6 +61,12 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
 
     // If we are in the public room, then we can skip to step 3.
     if (isPublicRoom(room)) {
+      setStep(3);
+      return;
+    }
+
+    // If we are already in online mode, skip the game mode step and go to actions
+    if (formData.gameMode === 'online') {
       setStep(3);
       return;
     }

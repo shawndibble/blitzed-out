@@ -19,10 +19,12 @@ interface PickActionsProps {
 }
 
 const getAction = (formData: Settings): string => {
-  if (!isOnlineMode(formData?.gameMode)) {
-    return formData.isNaked ? 'sex' : 'foreplay';
-  }
-  return 'solo';
+  const action = !isOnlineMode(formData?.gameMode)
+    ? formData.isNaked
+      ? 'sex'
+      : 'foreplay'
+    : 'solo';
+  return action;
 };
 
 export default function PickActions({
@@ -32,10 +34,10 @@ export default function PickActions({
   actionsList,
 }: PickActionsProps): JSX.Element {
   const action = getAction(formData);
-  const optionList = options(action);
+  const actionOptions = options(action);
 
-  // Always get current selections from formData instead of maintaining separate state
-  const currentSelections = populateSelections(formData, optionList, action);
+  // Get current selections from formData
+  const currentSelections = populateSelections(formData, actionOptions, action);
   const selectedActions = currentSelections || [];
 
   const handleActionChange = (event: SelectChangeEvent<string[]>): void => {
@@ -56,14 +58,15 @@ export default function PickActions({
       <MultiSelect
         onChange={handleActionChange}
         values={selectedActions}
-        options={optionList}
+        options={actionOptions}
         label={t('actionsLabel')}
       />
 
-      {!!selectedActions.length && (
+      {selectedActions.length > 0 && (
         <>
           <IntensityTitle />
 
+          {/* All Actions Intensity Controls (now includes custom groups seamlessly) */}
           {selectedActions.map((option) => (
             <IncrementalSelect
               key={option}

@@ -23,18 +23,16 @@ export default function IncrementalSelect({
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
-  const hasMouse = useHasMouse();
-  const [hoveredOption, setHoveredOption] = useState<number>(settings[option]?.level || 0);
+  // Get current level from selectedActions structure only
+  const getCurrentLevel = (): number => {
+    return settings.selectedActions?.[option]?.level || initValue;
+  };
 
-  const handleChange = (event: SelectChangeEvent) => {
-    const numberEvent = {
-      ...event,
-      target: {
-        ...event.target,
-        value: Number(event.target.value),
-      },
-    } as SelectChangeEvent<number>;
-    onChange(numberEvent);
+  const hasMouse = useHasMouse();
+  const [hoveredOption, setHoveredOption] = useState<number>(getCurrentLevel());
+
+  const handleChange = (event: SelectChangeEvent<number>) => {
+    onChange(event);
   };
 
   const handleMouseOver = (index: number) => {
@@ -76,10 +74,10 @@ export default function IncrementalSelect({
         labelId={labelId}
         id={option}
         label={label}
-        value={settings[option]?.level || initValue}
+        value={getCurrentLevel()}
         onChange={handleChange}
-        onOpen={() => setHoveredOption(settings[option]?.level || initValue)}
-        onClose={() => setHoveredOption(settings[option]?.level || initValue)}
+        onOpen={() => setHoveredOption(getCurrentLevel())}
+        onClose={() => setHoveredOption(getCurrentLevel())}
       >
         {getOptions(option)}
       </Select>

@@ -14,7 +14,7 @@ import useAuth from '@/context/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useSettings } from '@/stores/settingsStore';
 import usePlayerList from '@/hooks/usePlayerList';
-import { languages } from '@/services/importLocales';
+import { languages } from '@/services/dexieActionImport';
 import { useState, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';

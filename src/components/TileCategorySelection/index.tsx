@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { AllGameModeActions, MappedGroup, ProcessedGroups } from '@/types/customTiles';
 import { GameMode } from '@/types/Settings';
+import { CustomGroupPull } from '@/types/customGroups';
 
 interface TileCategorySelectionProps {
   gameMode: GameMode | string;
@@ -20,6 +21,7 @@ interface TileCategorySelectionProps {
   intensityFilter: number | string;
   groups: ProcessedGroups;
   mappedGroups: AllGameModeActions;
+  dexieGroups?: Record<string, CustomGroupPull>;
   onGameModeChange: (value: string) => void;
   onGroupChange: (value: string) => void;
   onIntensityChange: (value: string | number) => void;
@@ -33,6 +35,7 @@ export default function TileCategorySelection({
   intensityFilter,
   groups,
   mappedGroups,
+  dexieGroups,
   onGameModeChange,
   onGroupChange,
   onIntensityChange,
@@ -112,12 +115,28 @@ export default function TileCategorySelection({
         >
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
-              {mappedGroups?.[gameMode as GameMode] &&
-              Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
-                ? (groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]).find(
-                    (g) => g.value === group
-                  )?.groupLabel || group
-                : group}
+              {(() => {
+                // First try to get label from Dexie groups
+                if (dexieGroups?.[group]) {
+                  return dexieGroups[group].label || group;
+                }
+
+                // Fallback to mappedGroups for default groups
+                if (
+                  mappedGroups?.[gameMode as GameMode] &&
+                  Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
+                ) {
+                  const folderGroup = (
+                    groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]
+                  ).find((g) => g.value === group);
+                  if (folderGroup?.groupLabel) {
+                    return folderGroup.groupLabel;
+                  }
+                }
+
+                // Final fallback to raw group name
+                return group;
+              })()}
               {!hideAll && groups[group] && ` (${groups[group].count})`}
             </MenuItem>
           ))}
@@ -150,14 +169,35 @@ export default function TileCategorySelection({
               .sort(([a], [b]) => Number(a) - Number(b))
               .map(([intensity, count]) => (
                 <MenuItem key={intensity} value={Number(intensity)}>
-                  {mappedGroups?.[gameMode as GameMode] &&
-                  Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
-                    ? (
+                  {(() => {
+                    // First try to get intensity label from Dexie groups
+                    if (dexieGroups?.[validGroupFilter]) {
+                      const intensityData = dexieGroups[validGroupFilter].intensities.find(
+                        (i) => i.value === Number(intensity)
+                      );
+                      if (intensityData?.label) {
+                        return intensityData.label;
+                      }
+                    }
+
+                    // Fallback to mappedGroups for default groups
+                    if (
+                      mappedGroups?.[gameMode as GameMode] &&
+                      Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
+                    ) {
+                      const folderGroup = (
                         groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]
                       ).find(
                         (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
-                      )?.translatedIntensity || `Level ${intensity}`
-                    : `Level ${intensity}`}
+                      );
+                      if (folderGroup?.translatedIntensity) {
+                        return folderGroup.translatedIntensity;
+                      }
+                    }
+
+                    // Final fallback
+                    return `Level ${Number(intensity) + 1}`;
+                  })()}
                   {!hideAll && count !== undefined ? ` (${count})` : ''}
                 </MenuItem>
               ))}

@@ -6,12 +6,13 @@ import useMessages from '@/context/hooks/useMessages';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
-import { importActions } from '@/services/importLocales';
+import { importActions } from '@/services/dexieActionImport';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/customTiles';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { RoomMessage } from '@/types/Message';
 import { GameBoard } from '@/types/gameBoard';
+import { parseMessageTimestamp } from '@/helpers/timestamp';
 
 interface PrivateRoomMonitorResult {
   roller: string;
@@ -100,11 +101,17 @@ export default function usePrivateRoomMonitor(
         setRoller(dice);
         setRoomBackground(roomBackgroundURL || '');
 
+        // Only rebuild if the room message is recent (within last 5 minutes)
+        const messageDate = parseMessageTimestamp(roomMessage.timestamp);
+        const messageAge = messageDate ? Date.now() - messageDate.getTime() : Infinity;
+        const isRecentMessage = messageAge < 5 * 60 * 1000; // 5 minutes in milliseconds
+
         const shouldRebuildGameBoard =
           roomMessage.uid !== user?.uid &&
           roomTileCount &&
           gameBoard?.length &&
-          roomTileCount !== gameBoard?.length;
+          roomTileCount !== gameBoard?.length &&
+          isRecentMessage;
 
         if (shouldRebuildGameBoard && !hasRebuiltRef.current) {
           rebuildGameBoard(messageSettings, roomMessage.displayName);

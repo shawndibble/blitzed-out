@@ -58,7 +58,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
   // Debounce mechanism for sync operations
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Track if initial auth check is complete
   const authInitializedRef = useRef<boolean>(false);
 
@@ -231,7 +231,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     const auth = getAuth();
     const unsubscribe = auth.onAuthStateChanged((userData: User | null) => {
       setUser(userData || null);
-      
+
       // Mark initial auth check as complete
       if (!authInitializedRef.current) {
         authInitializedRef.current = true;

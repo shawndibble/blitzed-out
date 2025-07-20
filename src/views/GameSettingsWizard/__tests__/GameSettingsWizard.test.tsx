@@ -87,8 +87,8 @@ vi.mock('@/hooks/useSettingsToFormData', () => ({
   },
 }));
 
-vi.mock('@/hooks/useActionList', () => ({
-  default: () => ({ actionsList: [] }),
+vi.mock('@/hooks/useUnifiedActionList', () => ({
+  default: () => ({ actionsList: {}, isLoading: false }),
 }));
 
 vi.mock('@/helpers/strings', () => ({

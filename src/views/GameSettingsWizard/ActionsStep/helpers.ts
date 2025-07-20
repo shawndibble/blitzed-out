@@ -17,13 +17,19 @@ const shouldPurgeAction = (formData: FormData, entry: ActionEntry): boolean => {
 };
 
 export const purgedFormData = (formData: FormData): FormData => {
-  return Object.entries(formData).reduce<FormData>((acc, [key, data]) => {
-    // only allow non-purged actions to be in our list.
-    if (!shouldPurgeAction(formData, data as ActionEntry)) {
-      acc[key] = data;
+  const newFormData = { ...formData };
+  const selectedActions = formData.selectedActions || {};
+  const purgedSelectedActions: Record<string, ActionEntry> = {};
+
+  // Purge selectedActions instead of root-level entries
+  Object.entries(selectedActions).forEach(([key, entry]) => {
+    if (!shouldPurgeAction(formData, entry as ActionEntry)) {
+      purgedSelectedActions[key] = entry as ActionEntry;
     }
-    return acc;
-  }, {} as FormData);
+  });
+
+  newFormData.selectedActions = purgedSelectedActions;
+  return newFormData;
 };
 
 export const populateSelections = (
@@ -31,7 +37,8 @@ export const populateSelections = (
   optionList: Option[],
   type: string
 ): string[] => {
-  return Object.entries(formData)
+  const selectedActions = formData.selectedActions || {};
+  return Object.entries(selectedActions)
     .map(([key, entry]) => {
       const found = optionList.find((x) => x.value === key);
       if ((entry as ActionEntry).type !== type || !found) return null;
@@ -43,11 +50,15 @@ export const populateSelections = (
 // if prevData has a type of action that isn't in the value array, delete it.
 const deleteOldFormData = (prevData: FormData, action: string, value: string[]): FormData => {
   const newFormData = { ...prevData };
-  Object.keys(newFormData).forEach((key) => {
-    if ((newFormData[key] as ActionEntry).type === action && !value.includes(key)) {
-      delete newFormData[key];
+  const newSelectedActions = { ...newFormData.selectedActions };
+
+  Object.keys(newSelectedActions).forEach((key) => {
+    if ((newSelectedActions[key] as ActionEntry).type === action && !value.includes(key)) {
+      delete newSelectedActions[key];
     }
   });
+
+  newFormData.selectedActions = newSelectedActions;
   return newFormData;
 };
 
@@ -58,8 +69,10 @@ export const updateFormDataWithDefaults = (
 ): void => {
   setFormData((prevData) => {
     const newFormData = deleteOldFormData(prevData, action, value);
+    const newSelectedActions = { ...newFormData.selectedActions };
+
     value.forEach((option) => {
-      if (newFormData[option]) {
+      if (newSelectedActions[option]) {
         return;
       }
 
@@ -70,9 +83,10 @@ export const updateFormDataWithDefaults = (
           variation: (newFormData as any).isAppend ? 'appendMost' : 'standalone',
         };
       }
-      newFormData[option] = data;
+      newSelectedActions[option] = data;
     });
-    return newFormData;
+
+    return { ...newFormData, selectedActions: newSelectedActions };
   });
 };
 
@@ -89,21 +103,22 @@ export const handleChange = (
   if (value === 0) {
     setSelectedItems((prev) => prev.filter((x) => x !== key));
     return setFormData((prevData) => {
-      const newFormData = { ...prevData };
-      delete newFormData[key];
-      return newFormData;
+      const newSelectedActions = { ...prevData.selectedActions };
+      delete newSelectedActions[key];
+      return { ...prevData, selectedActions: newSelectedActions };
     });
   }
 
-  setFormData((prevData) => ({
-    ...prevData,
-    [key]: {
-      ...((prevData[key] as object) || {}),
+  setFormData((prevData) => {
+    const newSelectedActions = { ...prevData.selectedActions };
+    newSelectedActions[key] = {
+      ...(newSelectedActions[key] || {}),
       type: action,
       level: value,
       ...(!!variation && { variation }),
-    },
-  }));
+    };
+    return { ...prevData, selectedActions: newSelectedActions };
+  });
 };
 
 export const handleSelectionChange = (

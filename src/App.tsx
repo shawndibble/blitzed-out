@@ -17,8 +17,7 @@ import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
-import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
-import i18next from 'i18next';
+import { runMigrationIfNeeded } from '@/services/migrationService';
 import { WindowWithAuth, ProvidersProps } from '@/types/app';
 import AppSkeleton from '@/components/AppSkeleton';
 
@@ -26,7 +25,6 @@ import AppSkeleton from '@/components/AppSkeleton';
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
 const Room = lazy(() => import('@/views/Room'));
-
 
 // Aggressive preloading to reduce subsequent requests
 const preloadChunks = () => {
@@ -51,7 +49,7 @@ if (typeof window !== 'undefined') {
       setTimeout(preloadChunks, 100);
     }
   };
-  
+
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', schedulePreload);
   } else {
@@ -99,9 +97,8 @@ function AppRoutes() {
   }, [auth]);
 
   useEffect(() => {
-    i18next.on('languageChanged', (lng: string) => {
-      setupDefaultActionsImport(lng);
-    });
+    // Run migrations once at app startup
+    runMigrationIfNeeded().catch(console.error);
   }, []);
 
   // Show skeleton during initial auth loading

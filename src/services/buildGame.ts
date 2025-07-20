@@ -1,24 +1,13 @@
-import { shuffleArray, cycleArray } from '@/helpers/arrays';
-import { CustomTilePull } from '@/types/customTiles';
+import { cycleArray } from '@/helpers/arrays';
+import { Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
+import { CustomTilePull } from '@/types/customTiles';
+import { CustomGroupPull } from '@/types/customGroups';
 import i18next from 'i18next';
+import { getCustomGroups } from '@/stores/customGroups';
+import { getTiles } from '@/stores/customTiles';
 
-interface GameSettings {
-  [key: string]: any;
-  role?: string;
-  difficulty?: string;
-  finishRange?: [number, number];
-}
-
-interface ActionObject {
-  label: string;
-  actions: Record<string, string[]>;
-  [key: string]: any;
-}
-
-interface ActionFolder {
-  [key: string]: ActionObject;
-}
+const { t } = i18next;
 
 interface GameTile {
   title: string;
@@ -27,279 +16,346 @@ interface GameTile {
   role?: string;
 }
 
-interface ActionCategory {
-  label: string;
-  actions: Record<string, string[]>;
-  key: string;
-  standalone: boolean;
-  role?: string;
-  frequency?: number;
+interface BoardBuildResult {
+  board: TileExport[];
+  metadata: {
+    totalTiles: number;
+    tilesWithContent: number;
+    selectedGroups: string[];
+    missingGroups: string[];
+    availableTileCount: number;
+  };
 }
 
-const { t } = i18next;
-
-// Some actions are only for a dom or sub. Ensure we don't get the wrong role action.
-function playerRoleFiltering(actions: string[], role: string): string[] {
-  // filter should remove an action if it has only a single role in curly braces and that role doesn't match the user's role.
-  // Filter should keep action if it has both {dom} and {sub} regardless of role. It should keep the action if it has {player}, regardless of role.
-  return actions.filter((action) => {
+// Filter tiles based on player role
+function filterTilesByRole(tiles: CustomTilePull[], role: string): CustomTilePull[] {
+  return tiles.filter((tile) => {
+    const action = tile.action;
     if (role === 'vers') {
       return (action.includes('{sub}') && action.includes('{dom}')) || action.includes('{player}');
     }
-
     return !action.match(/{(dom|sub)}/) || action.includes(`{${role}}`);
   });
 }
 
-function restrictSubsetActions(
-  settings: GameSettings,
-  settingsKey: string,
-  actionObject: Record<string, string[]>
-): Record<string, string[]> {
-  const role = settings[settingsKey]?.role ?? settings.role ?? 'sub';
-
-  const newList = Object.keys(actionObject).reduce<Record<string, string[]>>((acc, key, index) => {
-    if (index > 0 && index <= settings[settingsKey]?.level) {
-      acc[key] = shuffleArray(playerRoleFiltering(actionObject[key], role));
-    }
-    return acc;
-  }, {});
-  return newList;
-}
-
-// Restricts the categories/major actions based on user selections
-function restrictActionsToUserSelections(
-  actionsFolder: ActionFolder,
-  settings: GameSettings
-): ActionCategory[] {
-  return Object.entries(actionsFolder)
-    .filter(([actionKey]) => settings[actionKey]?.level > 0)
-    .map(([actionKey, actionObject]) => ({
-      label: actionObject.label,
-      actions: restrictSubsetActions(settings, actionKey, actionObject?.actions),
-      key: actionKey, // Key value used for categories prior to translation.
-      standalone: false, // Determines if it will append to another category or stand on its own.
-      role: settings[actionKey]?.role ?? settings.role ?? 'sub',
-    }));
-}
-
-// Adds custom tiles to the action list
-function addInCustomTiles(
-  newActionList: ActionCategory[],
-  userCustomTiles: CustomTilePull[]
-): ActionCategory[] {
-  if (!userCustomTiles.length) {
-    return newActionList;
-  }
-
-  if (userCustomTiles.some(({ group }) => group === 'misc')) {
-    // Add an empty array of misc actions.
-    newActionList.push({
-      label: t('misc'),
-      actions: { All: [] },
-      key: 'misc',
-      standalone: false, // Determines if it will append to another category or stand on its own.
-    });
-  }
-
-  // Push custom tiles to the front of the list if applicable
-  userCustomTiles.forEach(({ group, intensity, action }) => {
-    const actionList = newActionList.find((object) => object.key === group);
-    if (actionList && Object.keys(actionList.actions).length >= intensity) {
-      const actions = Object.values(actionList.actions)[intensity - 1];
-      if (actions) {
-        const randomIndex = Math.floor(Math.random() * (actions.length + 1));
-        actions.splice(randomIndex, 0, action);
-      }
-    }
-  });
-
-  return newActionList;
-}
-
-// From settings, grab the options the user selected for appending.
-function getUserAppendSelections(settings: GameSettings): Record<string, any> {
-  return Object.entries(settings).reduce<Record<string, any>>((acc, [key, value]) => {
-    if (value?.variation) {
-      acc[key] = value;
-    }
-    return acc;
-  }, {});
-}
-
-// Separates the append options from rest of our categories/action items
-function separateAppendOptions(
-  appendOptions: Record<string, any>,
-  listWithMisc: ActionCategory[]
-): { appendList: ActionCategory[]; listWithoutAppend: ActionCategory[] } {
-  const appendList: ActionCategory[] = [];
-  const listWithoutAppend = [...listWithMisc];
-
-  Object.entries(appendOptions).forEach(([key, { level, variation }]) => {
-    if (level <= 0) return;
-
-    const categoryIndex = listWithMisc.findIndex((item) => item.key === key);
-    if (categoryIndex === -1) return;
-
-    if (variation === 'standalone') {
-      if (listWithoutAppend[categoryIndex]) {
-        listWithoutAppend[categoryIndex].standalone = true;
-      }
-      return;
-    }
-
-    const frequency = variation === 'appendSome' ? 0.4 : 0.9;
-    appendList.push({ ...listWithMisc[categoryIndex], frequency });
-    listWithoutAppend.splice(categoryIndex, 1);
-  });
-
-  return { appendList, listWithoutAppend };
-}
-
+// Calculate intensity level based on board position and difficulty
 function calculateIntensity(
   gameSize: number,
-  userSelectionMax: number,
+  maxIntensity: number,
   currentTile: number,
   difficulty?: string
 ): number {
-  // for normal, we break the game up evenly, based on user's max intensity level.
   if ([undefined, 'normal'].includes(difficulty)) {
-    const divider = gameSize / userSelectionMax;
-    return Math.floor(currentTile / divider);
+    const divider = gameSize / maxIntensity;
+    return Math.floor(currentTile / divider) + 1; // Add 1 since intensities start at 1
   }
 
-  // Accelerated difficulty:
-
-  // We don't have enough options for accelerated at 3+, so mix it up.
-  if (userSelectionMax >= 3) {
-    // give it a 40% chance of picking a lower intensity.
+  // Accelerated difficulty
+  if (maxIntensity >= 3) {
+    // 40% chance of picking a lower intensity
     if (Math.random() >= 0.6) {
-      return userSelectionMax - 2;
+      return maxIntensity - 1;
     }
   }
-  return userSelectionMax - 1;
+  return maxIntensity;
 }
 
-// Gets the current tile for the board
-function getCurrentTile(
-  listWithMisc: ActionCategory[],
-  size: number,
+// Get available tiles for a specific group and intensity
+function getGroupTiles(
+  allTiles: CustomTilePull[],
+  groupName: string,
+  intensity: number
+): CustomTilePull[] {
+  return allTiles.filter(
+    (tile) => tile.group === groupName && tile.intensity === intensity && tile.isEnabled
+  );
+}
+
+// Build individual tile content
+function buildTileContent(
+  availableGroups: CustomGroupPull[],
+  allTiles: CustomTilePull[],
+  selectedActions: Record<string, any>,
   currentTile: number,
-  settings: GameSettings
+  gameSize: number,
+  settings: Settings
 ): GameTile {
-  if (!listWithMisc.length) {
+  if (!availableGroups.length) {
     return { title: '', description: '' };
   }
 
-  cycleArray(listWithMisc);
+  // Cycle through available groups for variety
+  cycleArray(availableGroups);
+  const currentGroup = availableGroups[0];
 
-  const { actions, label, standalone, frequency, role } = listWithMisc[0];
-
-  // If we have a frequency percentage, then we are appending.
-  // Use that number to determine if we append or not.
-  const randomNumber = Math.random();
-  if (frequency && frequency <= randomNumber) {
+  // Check if this group should append or standalone
+  const groupSelection = selectedActions[currentGroup.name];
+  if (!groupSelection || groupSelection.level <= 0) {
     return { title: '', description: '' };
   }
 
-  const catKeys = Object.keys(actions);
-  const catActions = Object.values(actions);
+  // Handle frequency/append logic
+  if (groupSelection.variation) {
+    const frequency =
+      groupSelection.variation === 'appendSome'
+        ? 0.4
+        : groupSelection.variation === 'appendMost'
+          ? 0.9
+          : 1.0;
 
-  let intensity = calculateIntensity(size, catKeys.length, currentTile, settings?.difficulty);
-
-  // if we go too high with our math, back down 1.
-  if (!catActions[intensity]) {
-    intensity = Math.max(0, intensity - 1);
+    if (groupSelection.variation !== 'standalone' && Math.random() > frequency) {
+      return { title: '', description: '' };
+    }
   }
 
-  if (catActions[intensity] && catActions[intensity].length > 0) {
-    cycleArray(catActions[intensity]);
+  // Calculate intensity based on position and settings
+  const maxIntensity = Math.max(...currentGroup.intensities.map((i) => i.value));
+  const targetIntensity = Math.min(
+    calculateIntensity(gameSize, maxIntensity, currentTile, settings.difficulty),
+    groupSelection.level
+  );
 
-    return {
-      title: label,
-      description: catActions[intensity][0],
-      standalone,
-      role,
-    };
+  // Get available tiles for this group and intensity
+  const groupTiles = getGroupTiles(allTiles, currentGroup.name, targetIntensity);
+
+  if (!groupTiles.length) {
+    // Try lower intensities if target not available
+    for (let intensity = targetIntensity - 1; intensity >= 1; intensity--) {
+      const fallbackTiles = getGroupTiles(allTiles, currentGroup.name, intensity);
+      if (fallbackTiles.length > 0) {
+        cycleArray(fallbackTiles);
+        return {
+          title: currentGroup.label,
+          description: fallbackTiles[0].action,
+          standalone: groupSelection.variation === 'standalone',
+          role: settings.role || 'sub',
+        };
+      }
+    }
+    return { title: '', description: '' };
   }
 
-  return { title: '', description: '' };
+  // Select random tile from available options
+  cycleArray(groupTiles);
+
+  return {
+    title: currentGroup.label,
+    description: groupTiles[0].action,
+    standalone: groupSelection.variation === 'standalone',
+    role: settings.role || 'sub',
+  };
 }
 
-// Builds the board based on user settings
-function buildBoard(
-  listWithMisc: ActionCategory[],
-  settings: GameSettings,
+// Handle append logic for combining tiles
+function processAppendTiles(
+  mainTile: GameTile,
+  appendGroups: CustomGroupPull[],
+  allTiles: CustomTilePull[],
+  selectedActions: Record<string, any>,
+  currentTile: number,
+  gameSize: number,
+  settings: Settings
+): string {
+  if (mainTile.standalone || !appendGroups.length || !mainTile.description) {
+    return mainTile.description || '';
+  }
+
+  const appendTile = buildTileContent(
+    appendGroups,
+    allTiles,
+    selectedActions,
+    currentTile,
+    gameSize,
+    settings
+  );
+
+  if (appendTile.description) {
+    const ensurePunctuation = appendTile.description.trim().replace(/([^.,!?])$/, '$1.');
+    return `${ensurePunctuation} ${mainTile.description}`;
+  }
+
+  return mainTile.description;
+}
+
+// Build the complete game board
+async function buildBoard(
+  availableGroups: CustomGroupPull[],
+  allTiles: CustomTilePull[],
+  settings: Settings,
   size: number
-): GameTile[] {
-  const appendOptions = getUserAppendSelections(settings);
-  const { listWithoutAppend, appendList } = separateAppendOptions(appendOptions, listWithMisc);
+): Promise<GameTile[]> {
+  const selectedActions = settings.selectedActions || {};
+
+  // Separate groups into main and append categories
+  const mainGroups = availableGroups.filter((group) => {
+    const selection = selectedActions[group.name];
+    return (
+      selection &&
+      selection.level > 0 &&
+      (!selection.variation || selection.variation === 'standalone')
+    );
+  });
+
+  const appendGroups = availableGroups.filter((group) => {
+    const selection = selectedActions[group.name];
+    return (
+      selection &&
+      selection.level > 0 &&
+      (selection.variation === 'appendSome' || selection.variation === 'appendMost')
+    );
+  });
+
   const board: GameTile[] = [];
 
-  for (let currentTile = 1; currentTile <= size; currentTile += 1) {
-    const { title, description, standalone, role } = getCurrentTile(
-      listWithoutAppend,
-      size,
+  for (let currentTile = 1; currentTile <= size; currentTile++) {
+    const mainTile = buildTileContent(
+      mainGroups,
+      allTiles,
+      selectedActions,
       currentTile,
+      size,
       settings
     );
-    let finalDescription = '';
 
-    if (!standalone && appendList.length && description) {
-      const { description: appendDescription } = getCurrentTile(
-        appendList,
-        size,
-        currentTile,
-        settings
-      );
+    const finalDescription = processAppendTiles(
+      mainTile,
+      appendGroups,
+      allTiles,
+      selectedActions,
+      currentTile,
+      size,
+      settings
+    );
 
-      if (appendDescription) {
-        const ensurePunctuation = appendDescription.trim().replace(/([^.,!?])$/, '$1.');
-        finalDescription = `${ensurePunctuation} ${description}`;
-      } else {
-        finalDescription = description;
-      }
-    } else {
-      finalDescription = description || '';
-    }
-
-    board.push({ title, description: finalDescription.trim(), role });
+    board.push({
+      title: mainTile.title,
+      description: finalDescription.trim(),
+      role: mainTile.role,
+    });
   }
 
   return board;
 }
 
-function addStartAndFinishTiles(shuffledTiles: GameTile[], settings: GameSettings): GameTile[] {
-  const startTile: GameTile = { title: t('start'), description: t('start') };
+// Add start and finish tiles
+function addStartAndFinishTiles(board: GameTile[], settings: Settings): TileExport[] {
+  const startTile: TileExport = {
+    title: t('start'),
+    description: t('start'),
+  };
 
   const { finishRange = [33, 66] } = settings;
   const finishDescription =
     `${t('noCum')} ${finishRange[0]}%` +
     `\r\n${t('ruined')} ${finishRange[1] - finishRange[0]}%` +
     `\r\n${t('cum')} ${100 - finishRange[1]}%`;
-  const finishTile: GameTile = { title: t('finish'), description: finishDescription };
 
-  return [startTile, ...shuffledTiles, finishTile];
+  const finishTile: TileExport = {
+    title: t('finish'),
+    description: finishDescription,
+  };
+
+  return [
+    startTile,
+    ...board.map((tile) => ({ title: tile.title, description: tile.description })),
+    finishTile,
+  ];
 }
 
-// Customizes the board based on user settings
-// Starts here as this is the only export.
-export default function customizeBoard(
-  settings: GameSettings,
-  actionsFolder: ActionFolder,
-  userCustomTiles: CustomTilePull[] = [],
-  size = 40
-): TileExport[] {
-  const newActionList = restrictActionsToUserSelections(actionsFolder, settings);
+/**
+ * Build a game board directly from Dexie data
+ * @param settings Game settings including selectedActions
+ * @param locale Current locale for internationalization
+ * @param gameMode Current game mode (online, local, solo)
+ * @param tileCount Total number of tiles to generate (excluding start/finish)
+ * @returns Promise containing the built board and metadata
+ */
+export default async function buildGameBoard(
+  settings: Settings,
+  locale: string,
+  gameMode: string,
+  tileCount = 40
+): Promise<BoardBuildResult> {
+  try {
+    // Fetch all required data from Dexie in parallel
+    const [availableGroups, allTiles] = await Promise.all([
+      getCustomGroups({ locale, gameMode }), // Include both default and custom groups
+      getTiles({ locale, gameMode }),
+    ]);
 
-  if (!newActionList.length && !userCustomTiles.length) {
-    // if we have no action list and no custom tiles, then clear local storage and reload.
-    localStorage.clear();
-    window.location.reload();
+    // Get selected action group names
+    const selectedActions = settings.selectedActions || {};
+    const selectedGroupNames = Object.keys(selectedActions).filter(
+      (groupName) => selectedActions[groupName]?.level > 0
+    );
+
+    // Filter groups to only those selected by user
+    const selectedGroups = availableGroups.filter((group) =>
+      selectedGroupNames.includes(group.name)
+    );
+
+    // Find missing groups (selected but not available)
+    const availableGroupNames = availableGroups.map((g) => g.name);
+    const missingGroups = selectedGroupNames.filter((name) => !availableGroupNames.includes(name));
+
+    // Filter tiles by role if specified
+    const role = settings.role || 'sub';
+    const filteredTiles = filterTilesByRole(allTiles, role);
+
+    // Only get tiles for selected groups
+    const relevantTiles = filteredTiles.filter((tile) => selectedGroupNames.includes(tile.group));
+
+    // If no selected groups or tiles available, return empty board
+    if (!selectedGroups.length || !relevantTiles.length) {
+      console.warn('No available groups or tiles for board building', {
+        selectedGroups: selectedGroupNames,
+        availableGroups: availableGroupNames,
+        relevantTiles: relevantTiles.length,
+      });
+
+      return {
+        board: addStartAndFinishTiles([], settings),
+        metadata: {
+          totalTiles: tileCount + 2,
+          tilesWithContent: 2, // Start and finish tiles
+          selectedGroups: selectedGroupNames,
+          missingGroups,
+          availableTileCount: relevantTiles.length,
+        },
+      };
+    }
+
+    // Build the board
+    const gameBoard = await buildBoard(selectedGroups, relevantTiles, settings, tileCount);
+
+    // Calculate metadata
+    const tilesWithContent = gameBoard.filter((tile) => tile.description.trim().length > 0).length;
+
+    const finalBoard = addStartAndFinishTiles(gameBoard, settings);
+
+    return {
+      board: finalBoard,
+      metadata: {
+        totalTiles: finalBoard.length,
+        tilesWithContent: tilesWithContent + 2, // +2 for start/finish
+        selectedGroups: selectedGroupNames,
+        missingGroups,
+        availableTileCount: relevantTiles.length,
+      },
+    };
+  } catch (error) {
+    console.error('Error building game board:', error);
+
+    // Return empty board on error
+    return {
+      board: addStartAndFinishTiles([], settings),
+      metadata: {
+        totalTiles: 2,
+        tilesWithContent: 2, // Start and finish tiles
+        selectedGroups: [],
+        missingGroups: [],
+        availableTileCount: 0,
+      },
+    };
   }
-
-  const listWithMisc = addInCustomTiles(newActionList, userCustomTiles);
-  const usersBoard = buildBoard(listWithMisc, settings, size - 2);
-
-  return addStartAndFinishTiles(usersBoard, settings);
 }

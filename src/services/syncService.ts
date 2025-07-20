@@ -7,7 +7,9 @@ import {
   getTiles,
 } from '@/stores/customTiles';
 import { getBoards, upsertBoard } from '@/stores/gameBoard';
+import { getCustomGroups, deleteAllCustomGroups, importCustomGroups } from '@/stores/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
+import { CustomGroupPull } from '@/types/customGroups';
 
 interface GameBoard {
   title: string;
@@ -16,6 +18,8 @@ interface GameBoard {
   gameMode?: string;
   isActive?: number;
 }
+
+// Updated to use inline type instead of separate interface to avoid unused warning
 
 const db = getFirestore();
 
@@ -46,6 +50,37 @@ export async function syncCustomTilesToFirebase(): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('Error syncing custom tiles:', error);
+    return false;
+  }
+}
+
+// Sync custom groups to Firebase
+export async function syncCustomGroupsToFirebase(): Promise<boolean> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    console.error('No user logged in');
+    return false;
+  }
+
+  try {
+    // Get all custom groups from Dexie
+    const customGroups = await getCustomGroups();
+
+    // Create a document in Firebase with all custom groups
+    await setDoc(
+      doc(db, 'user-data', user.uid),
+      {
+        customGroups,
+        lastUpdated: new Date(),
+      },
+      { merge: true }
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Error syncing custom groups:', error);
     return false;
   }
 }
@@ -88,6 +123,7 @@ export async function syncGameBoardsToFirebase(): Promise<boolean> {
 // Sync all data to Firebase
 export async function syncAllDataToFirebase(): Promise<boolean> {
   await syncCustomTilesToFirebase();
+  await syncCustomGroupsToFirebase();
   await syncGameBoardsToFirebase();
   return true;
 }
@@ -139,9 +175,30 @@ export async function syncDataFromFirebase(): Promise<boolean> {
             console.error('Error importing custom tile:', tile, error);
           }
         }
-        console.log(`${userData.customTiles.length} custom tiles imported`);
+        // Custom tiles imported successfully
       } else {
-        console.log('No custom tiles to import');
+        // No custom tiles to import
+      }
+    }
+
+    // Import custom groups
+    if (userData.customGroups !== undefined) {
+      // Clear existing custom groups before importing
+      await deleteAllCustomGroups();
+
+      // Add a delay after clearing custom groups before syncing with remote server
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Only import if there are groups to import
+      if (userData.customGroups && userData.customGroups.length > 0) {
+        try {
+          await importCustomGroups(userData.customGroups as CustomGroupPull[]);
+          // Custom groups imported successfully
+        } catch (error) {
+          console.error('Error importing custom groups:', error);
+        }
+      } else {
+        // No custom groups to import
       }
     }
 
@@ -156,7 +213,7 @@ export async function syncDataFromFirebase(): Promise<boolean> {
           isActive: board.isActive || 0,
         });
       }
-      console.log(`${userData.gameBoards?.length} game boards imported`);
+      // Game boards imported successfully
     }
 
     return true;
@@ -181,10 +238,7 @@ export function startPeriodicSync(intervalMinutes = 5): boolean {
   syncIntervalId = window.setInterval(async () => {
     const auth = getAuth();
     if (auth.currentUser && !auth.currentUser.isAnonymous) {
-      console.log('Performing periodic sync from Firebase...');
       await syncDataFromFirebase();
-    } else {
-      console.log('Skipping periodic sync - no user logged in');
     }
   }, intervalMs);
 

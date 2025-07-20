@@ -20,7 +20,7 @@ export default function CastButton(): JSX.Element | null {
     (session: any) => {
       try {
         const castUrl = `${window.location.origin}/${room}/cast`;
-        console.log('Sending cast message with URL:', castUrl);
+        // Sending cast message
 
         session.sendMessage('urn:x-cast:com.blitzedout.app', {
           type: 'LOAD',
@@ -154,7 +154,7 @@ export default function CastButton(): JSX.Element | null {
         const castContext = window.cast?.framework?.CastContext.getInstance();
         if (castContext) {
           castContext.requestSession().then(
-            () => console.log('Cast session requested successfully'),
+            () => {}, // Cast session requested successfully
             (error: Error) => console.error('Error requesting cast session:', error)
           );
         }

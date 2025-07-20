@@ -30,5 +30,12 @@ export interface GameBoardResult {
   settingsBoardUpdated?: boolean;
   gameMode: GameMode;
   newBoard?: TileExport[];
+  metadata?: {
+    totalTiles: number;
+    tilesWithContent: number;
+    selectedGroups: string[];
+    missingGroups: string[];
+    availableTileCount: number;
+  };
   [key: string]: any;
 }

@@ -17,16 +17,17 @@ import { useState, useEffect } from 'react';
 import {
   deleteCustomTile,
   toggleCustomTile,
-  getCustomTileGroups,
+  getTileCountsByGroup,
   getPaginatedTiles,
 } from '@/stores/customTiles';
 import { Trans } from 'react-i18next';
 import { useTranslation } from 'react-i18next';
 import { useGameSettings } from '@/stores/settingsStore';
-import groupActionsFolder from '@/helpers/actionsFolder';
 import { ViewCustomTilesProps } from '@/types/customTiles';
 import { TileData } from '@/types/viewCustomTiles';
 import { CustomTileGroups } from '@/types/dexieTypes';
+import { getAllAvailableGroups } from '@/stores/customGroups';
+import { CustomGroupPull } from '@/types/customGroups';
 
 export default function ViewCustomTiles({
   tagList,
@@ -45,23 +46,48 @@ export default function ViewCustomTiles({
   const [loading, setLoading] = useState<boolean>(true);
   const [tiles, setTiles] = useState<TileData>({ items: [], total: 0, totalPages: 1 });
   const [groups, setGroups] = useState<CustomTileGroups>({});
+  const [dexieGroups, setDexieGroups] = useState<Record<string, CustomGroupPull>>({});
 
   const limit = 10;
 
-  // Load groups on initial render
+  // Load groups and tile counts on initial render
   useEffect(() => {
-    async function loadGroups() {
+    async function loadGroupsAndCounts() {
       try {
         setLoading(true);
-        const groupData = await getCustomTileGroups(
+
+        // Get all available groups from customGroups table (primary source)
+        const allGroups = await getAllAvailableGroups(i18n.resolvedLanguage, gameModeFilter);
+
+        // Also set dexieGroups for TileCategorySelection component
+        const groupMap: Record<string, CustomGroupPull> = {};
+        allGroups.forEach((group) => {
+          groupMap[group.name] = group;
+        });
+        setDexieGroups(groupMap);
+
+        // Get tile counts by group
+        const tileCounts = await getTileCountsByGroup(
           i18n.resolvedLanguage,
           gameModeFilter,
           tagFilter
         );
+
+        // Merge group definitions with tile counts
+        const groupData: CustomTileGroups = {};
+        allGroups.forEach((group) => {
+          const counts = tileCounts[group.name] || { count: 0, intensities: {} };
+          groupData[group.name] = {
+            label: group.label || group.name,
+            count: counts.count,
+            intensities: counts.intensities,
+          };
+        });
+
         setGroups(groupData);
 
-        // Extract unique groups
-        const groupNames = Object.keys(groupData);
+        // Extract group names from all available groups (not just those with tiles)
+        const groupNames = allGroups.map((group) => group.name);
 
         // Check if current groupFilter is valid in the new list
         const isCurrentGroupValid = groupNames.includes(groupFilter);
@@ -71,20 +97,23 @@ export default function ViewCustomTiles({
           setGroupFilter(groupNames[0]);
           setIntensityFilter('all');
         } else if (isCurrentGroupValid && intensityFilter !== 'all') {
-          // Verify intensity is valid for this group
-          const validIntensities = Object.keys(groupData[groupFilter]?.intensities || {});
-          if (!validIntensities.includes(String(intensityFilter))) {
-            setIntensityFilter('all');
+          // Verify intensity is valid for this group - use the group definition, not tile data
+          const selectedGroup = allGroups.find((g) => g.name === groupFilter);
+          if (selectedGroup) {
+            const validIntensityValues = selectedGroup.intensities.map((i) => i.value);
+            if (!validIntensityValues.includes(Number(intensityFilter))) {
+              setIntensityFilter('all');
+            }
           }
         }
       } catch (error) {
-        console.error('Error loading groups:', error);
+        console.error('Error loading groups and counts:', error);
       } finally {
         setLoading(false);
       }
     }
 
-    loadGroups();
+    loadGroupsAndCounts();
   }, [gameModeFilter, i18n.resolvedLanguage, tagFilter, groupFilter, intensityFilter]);
 
   // Load tiles when filters change
@@ -210,16 +239,26 @@ export default function ViewCustomTiles({
             subheader: { variant: 'body2' },
             action: { 'aria-label': t('customTiles.actions') },
           }}
-          subheader={
-            mappedGroups?.[gameModeFilter as keyof typeof mappedGroups] &&
-            Array.isArray(
-              groupActionsFolder(mappedGroups[gameModeFilter as keyof typeof mappedGroups])
-            )
-              ? groupActionsFolder(mappedGroups[gameModeFilter as keyof typeof mappedGroups]).find(
-                  ({ value, intensity: inten }) => value === group && inten === Number(intensity)
-                )?.label
-              : `${group} - Level ${intensity}`
-          }
+          subheader={(() => {
+            // Get group and intensity labels from Dexie
+            const dexieGroup = dexieGroups[group];
+
+            if (dexieGroup) {
+              // Get the group label
+              const groupLabel = dexieGroup.label || group;
+
+              // Find the intensity label
+              const intensityData = dexieGroup.intensities.find(
+                (i) => i.value === Number(intensity)
+              );
+              const intensityLabel = intensityData?.label || `Level ${Number(intensity) + 1}`;
+
+              return `${groupLabel} - ${intensityLabel}`;
+            }
+
+            // Fallback if group not found in Dexie
+            return `${group} - Level ${Number(intensity) + 1}`;
+          })()}
           action={
             <>
               <Switch
@@ -284,6 +323,7 @@ export default function ViewCustomTiles({
           intensityFilter={intensityFilter}
           groups={groups}
           mappedGroups={mappedGroups}
+          dexieGroups={dexieGroups}
           onGameModeChange={(value: string) => {
             setGameModeFilter(value);
             setGroupFilter('');

@@ -24,15 +24,15 @@ const i18nOptions: InitOptions = {
 // Preload only critical translation resources
 const preloadCriticalTranslations = async () => {
   const language = localStorage.getItem('i18nextLng') || 'en';
-  
+
   try {
     // Load only the main translation file initially
     const mainTranslation = await import(`./locales/${language}/translation.json`);
-    
+
     return {
       [language]: {
         translation: mainTranslation.default || mainTranslation,
-      }
+      },
     };
   } catch {
     // Fallback to English if language not found
@@ -40,7 +40,7 @@ const preloadCriticalTranslations = async () => {
     return {
       en: {
         translation: enTranslation.default || enTranslation,
-      }
+      },
     };
   }
 };
@@ -51,7 +51,7 @@ const lazyLoadTranslations = (language: string, namespace: string) => {
   if (namespace === 'translation') {
     return import(`./locales/${language}/translation.json`);
   }
-  
+
   // For game-specific translations, load them on-demand
   return import(`./locales/${language}/${namespace}.json`).catch(() => {
     // Fallback to English if translation doesn't exist
@@ -65,14 +65,16 @@ const i18n = i18next
   .use(resourcesToBackend(lazyLoadTranslations));
 
 // Initialize with critical translations preloaded
-preloadCriticalTranslations().then((resources) => {
-  i18n.init({
-    ...i18nOptions,
-    resources, // Use preloaded resources
+preloadCriticalTranslations()
+  .then((resources) => {
+    i18n.init({
+      ...i18nOptions,
+      resources, // Use preloaded resources
+    });
+  })
+  .catch(() => {
+    // Fallback to dynamic loading if preload fails
+    i18n.init(i18nOptions);
   });
-}).catch(() => {
-  // Fallback to dynamic loading if preload fails
-  i18n.init(i18nOptions);
-});
 
 export default i18n;

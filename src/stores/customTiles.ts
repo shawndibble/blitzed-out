@@ -1,7 +1,7 @@
 import i18next from 'i18next';
 import db from './store';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
-import { CustomTileFilters, CustomTileGroups, PaginatedResult } from '@/types/dexieTypes';
+import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
 
 const { customTiles } = db;
@@ -91,12 +91,16 @@ export const getPaginatedTiles = async (
   }
 };
 
-export const getCustomTileGroups = async (
+/**
+ * Get tile counts and intensity distributions by group (without labels)
+ * This should be merged with group definitions from customGroups table
+ */
+export const getTileCountsByGroup = async (
   locale = 'en',
   gameMode = 'online',
   tags: string[] | string | null = null
-): Promise<CustomTileGroups> => {
-  // Get unique groups with count of items in each group
+): Promise<Record<string, { count: number; intensities: Record<number, number> }>> => {
+  // Get tiles with count of items in each group
   let query = customTiles
     .where('locale')
     .equals(locale)
@@ -108,25 +112,27 @@ export const getCustomTileGroups = async (
 
   const allTiles = await query.toArray();
 
-  return allTiles.reduce<CustomTileGroups>((groups, tile) => {
-    const group = tile.group;
-    if (!groups[group]) {
-      groups[group] = {
-        label: group,
-        count: 0,
-        intensities: {},
-      };
-    }
-    groups[group].count++;
+  return allTiles.reduce<Record<string, { count: number; intensities: Record<number, number> }>>(
+    (groups, tile) => {
+      const group = tile.group;
+      if (!groups[group]) {
+        groups[group] = {
+          count: 0,
+          intensities: {},
+        };
+      }
+      groups[group].count++;
 
-    const intensity = Number(tile.intensity);
-    if (!groups[group].intensities[intensity]) {
-      groups[group].intensities[intensity] = 0;
-    }
-    groups[group].intensities[intensity]++;
+      const intensity = Number(tile.intensity);
+      if (!groups[group].intensities[intensity]) {
+        groups[group].intensities[intensity] = 0;
+      }
+      groups[group].intensities[intensity]++;
 
-    return groups;
-  }, {});
+      return groups;
+    },
+    {}
+  );
 };
 
 export const getActiveTiles = (gameMode: string | null = null): Promise<CustomTilePull[]> => {
@@ -179,4 +185,44 @@ export async function deleteAllIsCustomTiles(): Promise<boolean> {
 
 export const deleteCustomTile = async (id: number): Promise<void> => {
   await customTiles.delete(id);
+};
+
+/**
+ * Count custom tiles that belong to a specific group
+ */
+export const countTilesByGroup = async (
+  groupName: string,
+  locale = 'en',
+  gameMode = 'online'
+): Promise<number> => {
+  try {
+    return await customTiles
+      .where('group')
+      .equals(groupName)
+      .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
+      .count();
+  } catch (error) {
+    console.error('Error counting tiles by group:', error);
+    return 0;
+  }
+};
+
+/**
+ * Delete all custom tiles that belong to a specific group
+ */
+export const deleteCustomTilesByGroup = async (
+  groupName: string,
+  locale = 'en',
+  gameMode = 'online'
+): Promise<number> => {
+  try {
+    return await customTiles
+      .where('group')
+      .equals(groupName)
+      .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
+      .delete();
+  } catch (error) {
+    console.error('Error deleting tiles by group:', error);
+    return 0;
+  }
 };
