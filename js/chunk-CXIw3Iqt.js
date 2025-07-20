@@ -1,0 +1,1 @@
+import{r}from"./chunk-DDoLnHI0.js";import{A as o}from"../assets/index-BodytYbc.js";function n(){const t=r.useContext(o);if(t===void 0)throw new Error("useAuth must be used within an AuthProvider");return t}export{n as u};
