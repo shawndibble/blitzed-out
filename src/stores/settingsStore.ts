@@ -7,6 +7,7 @@ const defaultSettings: Settings = {
   gameMode: 'online',
   boardUpdated: false,
   room: 'PUBLIC',
+  background: 'color',
 };
 
 interface SettingsStore {
