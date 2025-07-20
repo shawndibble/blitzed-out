@@ -4,7 +4,7 @@ import DeleteMessageButton from '@/components/DeleteMessageButton';
 import GameOverDialog from '@/components/GameOverDialog';
 import TextAvatar from '@/components/TextAvatar';
 import moment from 'moment';
-import { useCallback, useState, useMemo, memo } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
@@ -26,7 +26,7 @@ interface MessageProps {
   room: string;
 }
 
-function Message({
+export default function Message({
   message,
   isOwnMessage,
   isTransparent,
@@ -158,77 +158,3 @@ function Message({
     </li>
   );
 }
-
-// Custom comparison function for memo to optimize re-renders
-const arePropsEqual = (prevProps: MessageProps, nextProps: MessageProps): boolean => {
-  // Fast path: Check if message object is the same reference
-  if (prevProps.message === nextProps.message) {
-    // Still need to check other props that might have changed
-    return (
-      prevProps.isOwnMessage === nextProps.isOwnMessage &&
-      prevProps.isTransparent === nextProps.isTransparent &&
-      prevProps.currentGameBoardSize === nextProps.currentGameBoardSize &&
-      prevProps.room === nextProps.room
-    );
-  }
-
-  // Check essential props that affect rendering (most likely to change first)
-  if (prevProps.message.id !== nextProps.message.id) return false;
-  if (prevProps.isOwnMessage !== nextProps.isOwnMessage) return false;
-  if (prevProps.message.type !== nextProps.message.type) return false;
-  if (prevProps.message.text !== nextProps.message.text) return false;
-
-  // Check less frequently changing props
-  if (
-    prevProps.message.uid !== nextProps.message.uid ||
-    prevProps.message.displayName !== nextProps.message.displayName ||
-    prevProps.isTransparent !== nextProps.isTransparent ||
-    prevProps.currentGameBoardSize !== nextProps.currentGameBoardSize ||
-    prevProps.room !== nextProps.room
-  ) {
-    return false;
-  }
-
-  // Compare timestamps with 1-minute tolerance to reduce unnecessary re-renders
-  const prevTime = (prevProps.message.timestamp as Timestamp)?.toDate()?.getTime() || 0;
-  const nextTime = (nextProps.message.timestamp as Timestamp)?.toDate()?.getTime() || 0;
-  // Round to minutes for comparison
-  const prevMinute = Math.floor(prevTime / MILLISECONDS_IN_A_MINUTE);
-  const nextMinute = Math.floor(nextTime / MILLISECONDS_IN_A_MINUTE);
-  if (prevMinute !== nextMinute) return false;
-
-  // For media messages, check if image data changed
-  if (prevProps.message.type === 'media' && nextProps.message.type === 'media') {
-    const prevMessage = prevProps.message as MessageType & { image: string };
-    const nextMessage = nextProps.message as MessageType & { image: string };
-    if (prevMessage.image !== nextMessage.image) {
-      return false;
-    }
-  }
-
-  // For settings/room messages, check board-related properties
-  if (
-    (prevProps.message.type === 'settings' || prevProps.message.type === 'room') &&
-    (nextProps.message.type === 'settings' || nextProps.message.type === 'room')
-  ) {
-    const prevMessage = prevProps.message as MessageType & {
-      boardSize: number;
-      gameBoardId: string;
-    };
-    const nextMessage = nextProps.message as MessageType & {
-      boardSize: number;
-      gameBoardId: string;
-    };
-
-    if (
-      prevMessage.boardSize !== nextMessage.boardSize ||
-      prevMessage.gameBoardId !== nextMessage.gameBoardId
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-export default memo(Message, arePropsEqual);

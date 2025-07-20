@@ -16,6 +16,7 @@ interface UserListStore {
   room: string | null;
   _performanceMetrics: PerformanceMetrics;
   _pendingUpdates: Record<string, OnlineUser | null>; // null means removal
+  _batchTimeout: NodeJS.Timeout | null;
 
   // Actions
   setUsers: (users: Record<string, OnlineUser>) => void;
@@ -25,7 +26,7 @@ interface UserListStore {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setRoom: (room: string | null) => void;
-  
+
   // Performance optimized actions
   batchUpdateUsers: (updates: Record<string, OnlineUser | null>) => void;
   flushPendingUpdates: () => void;
@@ -36,8 +37,6 @@ interface UserListStore {
   getPerformanceMetrics: () => PerformanceMetrics;
 }
 
-// Debounce utility for batch updates
-let batchTimeout: NodeJS.Timeout | null = null;
 const BATCH_DELAY = 50; // 50ms debounce for real-time updates
 
 export const useUserListStore = create<UserListStore>((set, get) => ({
@@ -52,6 +51,7 @@ export const useUserListStore = create<UserListStore>((set, get) => ({
     averageUpdateInterval: 0,
   },
   _pendingUpdates: {},
+  _batchTimeout: null,
 
   // Actions
   setUsers: (users) => {
@@ -59,8 +59,11 @@ export const useUserListStore = create<UserListStore>((set, get) => ({
     set((state) => {
       const timeDiff = now - state._performanceMetrics.lastUpdateTime;
       const newUpdateCount = state._performanceMetrics.updateCount + 1;
-      const newAverage = (state._performanceMetrics.averageUpdateInterval * state._performanceMetrics.updateCount + timeDiff) / newUpdateCount;
-      
+      const newAverage =
+        (state._performanceMetrics.averageUpdateInterval * state._performanceMetrics.updateCount +
+          timeDiff) /
+        newUpdateCount;
+
       return {
         onlineUsers: users,
         loading: false,
@@ -77,29 +80,31 @@ export const useUserListStore = create<UserListStore>((set, get) => ({
   addUser: (uid, user) => {
     const state = get();
     state._pendingUpdates[uid] = user;
-    
+
     // Debounced batch update
-    if (batchTimeout) clearTimeout(batchTimeout);
-    batchTimeout = setTimeout(() => {
+    if (state._batchTimeout) clearTimeout(state._batchTimeout);
+    const timeout = setTimeout(() => {
       state.flushPendingUpdates();
     }, BATCH_DELAY);
+    set({ _batchTimeout: timeout });
   },
 
   removeUser: (uid) => {
     const state = get();
     state._pendingUpdates[uid] = null; // null indicates removal
-    
+
     // Debounced batch update
-    if (batchTimeout) clearTimeout(batchTimeout);
-    batchTimeout = setTimeout(() => {
+    if (state._batchTimeout) clearTimeout(state._batchTimeout);
+    const timeout = setTimeout(() => {
       state.flushPendingUpdates();
     }, BATCH_DELAY);
+    set({ _batchTimeout: timeout });
   },
 
   batchUpdateUsers: (updates) =>
     set((state) => {
       const newUsers = { ...state.onlineUsers };
-      
+
       Object.entries(updates).forEach(([uid, user]) => {
         if (user === null) {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -113,7 +118,10 @@ export const useUserListStore = create<UserListStore>((set, get) => ({
       const now = Date.now();
       const timeDiff = now - state._performanceMetrics.lastUpdateTime;
       const newUpdateCount = state._performanceMetrics.updateCount + 1;
-      const newAverage = (state._performanceMetrics.averageUpdateInterval * state._performanceMetrics.updateCount + timeDiff) / newUpdateCount;
+      const newAverage =
+        (state._performanceMetrics.averageUpdateInterval * state._performanceMetrics.updateCount +
+          timeDiff) /
+        newUpdateCount;
 
       return {
         onlineUsers: newUsers,
@@ -128,7 +136,7 @@ export const useUserListStore = create<UserListStore>((set, get) => ({
   flushPendingUpdates: () => {
     const state = get();
     if (Object.keys(state._pendingUpdates).length === 0) return;
-    
+
     state.batchUpdateUsers(state._pendingUpdates);
     set(() => ({ _pendingUpdates: {} }));
   },
@@ -151,7 +159,7 @@ export const useUserListStore = create<UserListStore>((set, get) => ({
   getUsersByRoom: (room) => {
     const state = get();
     if (!room) return state.onlineUsers;
-    
+
     // Filter users by room if needed (current implementation doesn't filter by room)
     // This is here for future extensibility when room-specific user filtering is needed
     return state.onlineUsers;
@@ -175,13 +183,17 @@ export const useUserListError = () => useUserListStore((state) => state.error);
 export const useActiveUserCount = () => useUserListStore((state) => state.getActiveUserCount());
 
 // Performance-optimized hooks
-export const useUserListPerformance = () => useUserListStore((state) => state.getPerformanceMetrics());
+export const useUserListPerformance = () =>
+  useUserListStore((state) => state.getPerformanceMetrics());
 
 // Memoized selectors for better performance
-export const useUserCount = () => useUserListStore((state) => Object.keys(state.onlineUsers).length);
+export const useUserCount = () =>
+  useUserListStore((state) => Object.keys(state.onlineUsers).length);
 export const useUserIds = () => useUserListStore((state) => Object.keys(state.onlineUsers));
-export const useHasUsers = () => useUserListStore((state) => Object.keys(state.onlineUsers).length > 0);
+export const useHasUsers = () =>
+  useUserListStore((state) => Object.keys(state.onlineUsers).length > 0);
 
 // Specific user selectors to prevent unnecessary re-renders
 export const useUser = (uid: string) => useUserListStore((state) => state.onlineUsers[uid]);
-export const useIsUserOnline = (uid: string) => useUserListStore((state) => !!state.onlineUsers[uid]);
+export const useIsUserOnline = (uid: string) =>
+  useUserListStore((state) => !!state.onlineUsers[uid]);
