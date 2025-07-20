@@ -26,45 +26,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Less aggressive bundling to prevent circular dependencies
-          if (id.includes('node_modules')) {
-            // Keep React and React DOM together to prevent hook ordering issues
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'vendor-react';
-            }
-            
-            // Group MUI and Emotion together (they have tight coupling)
-            if (id.includes('@mui/') || id.includes('@emotion/')) {
-              return 'vendor-mui';
-            }
-            
-            // Group all Firebase services
-            if (id.includes('firebase')) {
-              return 'vendor-firebase';
-            }
-            
-            // Group i18n related modules
-            if (id.includes('i18next') || id.includes('react-i18next')) {
-              return 'vendor-i18n';
-            }
-            
-            // Group utility libraries
-            if (id.includes('dayjs') || id.includes('moment') || id.includes('nanoid') || 
-                id.includes('js-sha256') || id.includes('clsx') || id.includes('zustand') ||
-                id.includes('dexie')) {
-              return 'vendor-utils';
-            }
-            
-            // All other node_modules go to vendor
-            return 'vendor';
-          }
-          
-          // Simplified app code chunking
-          if (id.includes('/locales/')) {
-            return 'locales';
-          }
-          // Let Vite handle other app code automatically to prevent issues
+        manualChunks: {
+          // Use object-based chunking to avoid function issues
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          mui: ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/database', 'firebase/storage'],
+          utils: ['zustand', 'dexie', 'dayjs', 'nanoid', 'clsx']
         },
         // Optimize chunk sizes
         chunkFileNames: (chunkInfo) => {
