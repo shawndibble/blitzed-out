@@ -30,13 +30,7 @@ export default defineConfig({
           // Less aggressive bundling to prevent circular dependencies
           if (id.includes('node_modules')) {
             // Keep React and React DOM together to prevent hook ordering issues
-            if (id.includes('react') && !id.includes('react-')) {
-              return 'vendor-react';
-            }
-            if (id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('react-router')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
               return 'vendor-react';
             }
             
