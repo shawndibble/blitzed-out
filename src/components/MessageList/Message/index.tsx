@@ -44,7 +44,9 @@ function Message({
   const { id, displayName, text, uid, timestamp, type } = message;
 
   // Then conditionally access type-specific properties
-  let boardSize: number | undefined, gameBoardId: string | undefined, image: string | undefined;
+  let boardSize: number | undefined;
+  let gameBoardId: string | undefined;
+  let image: string | undefined;
 
   if (type === 'settings' || type === 'room') {
     // TypeScript knows these properties exist on settings and room messages
