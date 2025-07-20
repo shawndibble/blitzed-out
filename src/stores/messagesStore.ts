@@ -6,6 +6,7 @@ import latestMessageByType, {
   orderedMessagesByType,
   latestMessage,
 } from '@/helpers/messages';
+import { parseMessageTimestamp } from '@/helpers/timestamp';
 
 interface MessagesState {
   messages: Message[];
@@ -188,50 +189,14 @@ export const useMessagesStore = create<MessagesStore>()(
 
             const validMessages = state.messages.filter((msg) => {
               try {
-                let messageTime: Date | null = null;
-
-                if (msg.timestamp && typeof msg.timestamp.toDate === 'function') {
-                  // Firebase Timestamp format
-                  messageTime = msg.timestamp.toDate();
-                } else if (msg.timestamp && typeof msg.timestamp === 'string') {
-                  // Serialized timestamp format
-                  messageTime = new Date(msg.timestamp);
-                  if (isNaN(messageTime.getTime())) {
-                    throw new Error('Invalid serialized timestamp format');
-                  }
-                } else if (msg.timestamp && typeof msg.timestamp === 'number') {
-                  // Unix timestamp (milliseconds or seconds)
-                  const timestamp = msg.timestamp;
-                  // If timestamp is less than year 3000 in seconds, convert to milliseconds
-                  const timestampMs = timestamp < 32503680000 ? timestamp * 1000 : timestamp;
-                  messageTime = new Date(timestampMs);
-                  if (isNaN(messageTime.getTime())) {
-                    throw new Error('Invalid numeric timestamp format');
-                  }
-                } else if (
-                  msg.timestamp &&
-                  typeof msg.timestamp === 'object' &&
-                  msg.timestamp.seconds
-                ) {
-                  // Firestore Timestamp serialized object format {seconds: number, nanoseconds: number}
-                  const timestampObj = msg.timestamp as { seconds: number; nanoseconds?: number };
-                  messageTime = new Date(
-                    timestampObj.seconds * 1000 + (timestampObj.nanoseconds || 0) / 1000000
-                  );
-                  if (isNaN(messageTime.getTime())) {
-                    throw new Error('Invalid Firestore timestamp object format');
-                  }
-                } else if (msg.timestamp instanceof Date) {
-                  // Already a Date object
-                  messageTime = msg.timestamp;
-                } else {
-                  // Log the actual timestamp value for debugging
+                const messageTime = parseMessageTimestamp(msg.timestamp);
+                if (!messageTime) {
                   console.warn(
-                    `Unsupported timestamp format for message ${msg.id}:`,
+                    `Failed to parse timestamp for message ${msg.id}:`,
                     typeof msg.timestamp,
                     msg.timestamp
                   );
-                  throw new Error(`Unsupported timestamp format: ${typeof msg.timestamp}`);
+                  throw new Error(`Failed to parse timestamp for message ${msg.id}`);
                 }
 
                 return messageTime > twentyFourHoursAgo;

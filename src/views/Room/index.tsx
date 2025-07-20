@@ -103,8 +103,8 @@ export default function Room() {
           isTransparent={isTransparent}
           currentGameBoardSize={gameBoard.length}
         />
+        <MessageInput room={room} isTransparent={isTransparent} />
       </Suspense>
-      <MessageInput room={room} isTransparent={isTransparent} />
     </div>
   );
 

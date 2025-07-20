@@ -22,7 +22,7 @@ import { isPublicRoom } from '@/helpers/strings';
 // Lazy load heavy components
 const Schedule = lazy(() => import('@/views/Schedule'));
 const MenuDrawer = lazy(() => import('./MenuDrawer'));
-const PlayersOnline = lazy(() => import('./PlayersOnline'));
+import PlayersOnline from './PlayersOnline';
 
 function ComponentLoader() {
   return <CircularProgress size={16} />;
@@ -78,9 +78,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
           <div className="nav-room-name">
             <h2>{isPublicRoom(room) || room === undefined ? t('public') : room}</h2>
             <Tooltip title={playersOnlineTooltip}>
-              <Suspense fallback={<ComponentLoader />}>
-                <WrapPlayersOnline playerList={playerList} />
-              </Suspense>
+              <WrapPlayersOnline playerList={playerList} />
             </Tooltip>
             <IconButton onClick={handleScheduleClick} aria-label="schedule game" sx={{ ml: 2 }}>
               <Badge color="primary" badgeContent={!seen ? schedule.length : null}>

@@ -10,6 +10,7 @@ import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 import { Message } from '@/types/Message';
+import { parseMessageTimestamp } from '@/helpers/timestamp';
 
 export interface DialogResult {
   message: Message | false;
@@ -37,44 +38,12 @@ export default function useSoundAndDialog(): DialogResult {
   const newMessage = useMemo(() => {
     if (!latestMessage?.timestamp) return false;
 
-    let messageDate: Date;
-
-    try {
-      // Handle different timestamp formats
-      if (typeof latestMessage.timestamp.toDate === 'function') {
-        // Firebase Timestamp format
-        messageDate = latestMessage.timestamp.toDate();
-      } else if (typeof latestMessage.timestamp === 'string') {
-        // Serialized timestamp format
-        messageDate = new Date(latestMessage.timestamp);
-      } else if (typeof latestMessage.timestamp === 'number') {
-        // Unix timestamp (milliseconds or seconds)
-        const timestamp = latestMessage.timestamp;
-        const timestampMs = timestamp < 32503680000 ? timestamp * 1000 : timestamp;
-        messageDate = new Date(timestampMs);
-      } else if (typeof latestMessage.timestamp === 'object' && latestMessage.timestamp.seconds) {
-        // Firestore Timestamp serialized object format
-        const timestampObj = latestMessage.timestamp as { seconds: number; nanoseconds?: number };
-        messageDate = new Date(
-          timestampObj.seconds * 1000 + (timestampObj.nanoseconds || 0) / 1000000
-        );
-      } else if (latestMessage.timestamp instanceof Date) {
-        // Already a Date object
-        messageDate = latestMessage.timestamp;
-      } else {
-        console.warn(
-          'Unsupported timestamp format in useSoundAndDialog:',
-          typeof latestMessage.timestamp,
-          latestMessage.timestamp
-        );
-        return false;
-      }
-
-      return moment(messageDate).diff(moment(), 'seconds') >= -2;
-    } catch (error) {
-      console.warn('Failed to parse timestamp in useSoundAndDialog:', error);
+    const messageDate = parseMessageTimestamp(latestMessage.timestamp);
+    if (!messageDate) {
       return false;
     }
+
+    return moment(messageDate).diff(moment(), 'seconds') >= -2;
   }, [latestMessage]);
 
   const myMessage = useMemo(() => latestMessage?.uid === user?.uid, [latestMessage, user]);
