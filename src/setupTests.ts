@@ -12,7 +12,7 @@ import '@testing-library/jest-dom';
 import React from 'react';
 
 // Configure React Testing Library
-import { configure } from '@testing-library/react';
+import { configure, cleanup } from '@testing-library/react';
 configure({
   testIdAttribute: 'data-testid',
   asyncUtilTimeout: 3000,
@@ -193,4 +193,5 @@ Object.defineProperty(window, 'matchMedia', {
 afterEach(() => {
   vi.clearAllMocks();
   console.error = originalError;
+  cleanup(); // Clean up DOM between tests
 });
