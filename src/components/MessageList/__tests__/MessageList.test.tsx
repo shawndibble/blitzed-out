@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ReactNode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
@@ -109,6 +109,7 @@ describe('MessageList Component', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    cleanup();
   });
 
   describe('Component Rendering', () => {
