@@ -1,6 +1,15 @@
+import { afterEach, vi, beforeEach } from 'vitest';
+
+// Mock syncService to prevent auth context errors - must be before other imports
+vi.mock('@/services/syncService', () => ({
+  syncDataFromFirebase: () => Promise.resolve(true),
+  syncAllDataToFirebase: () => Promise.resolve(true),
+  startPeriodicSync: () => {},
+  stopPeriodicSync: () => {},
+}));
+
 import '@testing-library/jest-dom';
 import React from 'react';
-import { afterEach, vi, beforeEach } from 'vitest';
 
 // Configure React Testing Library
 import { configure } from '@testing-library/react';
@@ -164,14 +173,6 @@ vi.mock('i18next-resources-to-backend', () => ({
 // Mock use-sound
 vi.mock('use-sound', () => ({
   default: () => [vi.fn(), { stop: vi.fn() }],
-}));
-
-// Mock syncService to prevent auth context errors
-vi.mock('@/services/syncService', () => ({
-  syncDataFromFirebase: vi.fn().mockResolvedValue(true),
-  syncAllDataToFirebase: vi.fn().mockResolvedValue(true),
-  startPeriodicSync: vi.fn(),
-  stopPeriodicSync: vi.fn(),
 }));
 
 // Mock window.matchMedia (for MUI responsive components)

@@ -249,11 +249,19 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
           syncTimeoutRef.current = setTimeout(() => {
             setSyncStatus({ syncing: true, lastSync: null });
-            syncDataFromFirebase()
+
+            // Handle case where syncDataFromFirebase might not be defined (e.g., in tests)
+            const syncPromise = syncDataFromFirebase
+              ? syncDataFromFirebase()
+              : Promise.resolve(false);
+
+            syncPromise
               .then(() => {
                 setSyncStatus({ syncing: false, lastSync: new Date() });
                 // Start periodic sync after initial sync completes
-                startPeriodicSync();
+                if (startPeriodicSync) {
+                  startPeriodicSync();
+                }
               })
               .catch((err) => {
                 console.error('Error syncing from Firebase:', err);
@@ -273,7 +281,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
         }
       } else {
         // User is logged out or anonymous, stop periodic sync
-        stopPeriodicSync();
+        if (stopPeriodicSync) {
+          stopPeriodicSync();
+        }
       }
     });
 
@@ -287,7 +297,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
         clearTimeout(syncTimeoutRef.current);
       }
       // Make sure to stop periodic sync when component unmounts
-      stopPeriodicSync();
+      if (stopPeriodicSync) {
+        stopPeriodicSync();
+      }
       (window as any).authContext = undefined;
     };
   }, []);
