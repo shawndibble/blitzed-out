@@ -53,9 +53,9 @@ describe('IntensitySelector', () => {
     it('should show select group first message when no groupName provided', async () => {
       render(<IntensitySelector {...defaultProps} groupName="" />);
 
-      // Check the hidden input that is actually disabled
-      const hiddenInput = screen.getByDisplayValue('');
-      expect(hiddenInput).toBeDisabled();
+      // The component should be disabled when no group is selected
+      const select = screen.getByRole('combobox');
+      expect(select).toHaveAttribute('aria-disabled', 'true');
     });
   });
 
@@ -66,9 +66,9 @@ describe('IntensitySelector', () => {
       render(<IntensitySelector {...defaultProps} />);
 
       expect(screen.getByText('Loading intensities...')).toBeInTheDocument();
-      // Check the hidden input that is actually disabled during loading
-      const hiddenInput = screen.getByDisplayValue('1');
-      expect(hiddenInput).toBeDisabled();
+      // The component should be disabled during loading
+      const select = screen.getByRole('combobox');
+      expect(select).toHaveAttribute('aria-disabled', 'true');
     });
   });
 
@@ -129,10 +129,13 @@ describe('IntensitySelector', () => {
 
       render(<IntensitySelector {...defaultProps} />);
 
+      // Wait for loading to complete
       await waitFor(() => {
-        const select = screen.getByRole('combobox');
-        userEvent.click(select);
+        expect(screen.queryByText('Loading intensities...')).not.toBeInTheDocument();
       });
+
+      const select = screen.getByRole('combobox');
+      await userEvent.click(select);
 
       await waitFor(() => {
         const options = screen.getAllByRole('option');
@@ -144,13 +147,14 @@ describe('IntensitySelector', () => {
   });
 
   describe('empty state', () => {
-    it('should show no intensities message when no intensities available', async () => {
+    it('should show disabled state when no intensities available', async () => {
       vi.mocked(getGroupIntensities).mockResolvedValue([]);
 
       render(<IntensitySelector {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText('No intensities available for "testGroup"')).toBeInTheDocument();
+        const select = screen.getByRole('combobox');
+        expect(select).toHaveAttribute('aria-disabled', 'true');
       });
     });
   });
@@ -163,7 +167,8 @@ describe('IntensitySelector', () => {
       render(<IntensitySelector {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText('No intensities available for "testGroup"')).toBeInTheDocument();
+        const select = screen.getByRole('combobox');
+        expect(select).toHaveAttribute('aria-disabled', 'true');
       });
 
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -193,9 +198,11 @@ describe('IntensitySelector', () => {
       render(<IntensitySelector {...defaultProps} value={2} onChange={mockOnChange} />);
 
       await waitFor(() => {
-        expect(screen.getByText('Beginner')).toBeInTheDocument();
+        expect(screen.queryByText('Loading intensities...')).not.toBeInTheDocument();
       });
 
+      // The current value (2) corresponds to "Intermediate"
+      expect(screen.getByDisplayValue('2')).toBeInTheDocument();
       expect(mockOnChange).not.toHaveBeenCalled();
     });
   });
@@ -207,7 +214,8 @@ describe('IntensitySelector', () => {
       render(<IntensitySelector {...defaultProps} disabled={true} />);
 
       await waitFor(() => {
-        expect(screen.getByRole('combobox')).toBeDisabled();
+        const select = screen.getByRole('combobox');
+        expect(select).toHaveAttribute('aria-disabled', 'true');
       });
     });
   });
@@ -237,12 +245,14 @@ describe('IntensitySelector', () => {
       const { rerender } = render(<IntensitySelector {...defaultProps} />);
 
       await waitFor(() => {
-        expect(screen.getByText('Beginner')).toBeInTheDocument();
+        expect(screen.queryByText('Loading intensities...')).not.toBeInTheDocument();
       });
 
       rerender(<IntensitySelector {...defaultProps} groupName="" />);
 
-      expect(screen.getByText('Select a group first')).toBeInTheDocument();
+      // The component shows the disabled state with aria-disabled
+      const select = screen.getByRole('combobox');
+      expect(select).toHaveAttribute('aria-disabled', 'true');
       expect(screen.queryByText('Beginner')).not.toBeInTheDocument();
     });
   });

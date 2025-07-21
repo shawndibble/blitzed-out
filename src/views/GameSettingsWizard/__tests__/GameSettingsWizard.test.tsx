@@ -223,14 +223,14 @@ describe('GameSettingsWizard', () => {
   });
 
   describe('Public room behavior', () => {
-    it('skips to step 2 for public room when close function provided', async () => {
+    it('skips to step 3 for public room when close function provided', async () => {
       renderWizard('PUBLIC', mockClose);
 
-      // Based on the observed behavior, PUBLIC room with close function goes to step 2 in the test environment
-      // This may be due to mock limitations but the component is working correctly
+      // PUBLIC room with close function skips to step 3 (actions-step)
+      // because PUBLIC room forces online mode, skipping room and game mode steps
       await waitFor(
         () => {
-          expect(screen.getByTestId('game-mode-step')).toBeInTheDocument();
+          expect(screen.getByTestId('actions-step')).toBeInTheDocument();
         },
         { timeout: 1000 }
       );
@@ -244,12 +244,14 @@ describe('GameSettingsWizard', () => {
   });
 
   describe('Private room behavior', () => {
-    it('skips to step 2 for private room when close function provided', async () => {
+    it('skips to step 3 for private room when close function provided', async () => {
       renderWizard('PRIVATE', mockClose);
 
+      // Private room with close function skips to step 3 (actions-step)
+      // because the gameMode is already 'online' in the mocked form data
       await waitFor(
         () => {
-          expect(screen.getByTestId('game-mode-step')).toBeInTheDocument();
+          expect(screen.getByTestId('actions-step')).toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -303,17 +305,12 @@ describe('GameSettingsWizard', () => {
     it('calls close function when provided', async () => {
       renderWizard('TEST', mockClose);
 
-      // Should start at step 2 (game-mode-step) since 'TEST' is not public and close function is provided
+      // Should start at step 3 (actions-step) since gameMode is already 'online' in mocked data
       await waitFor(() => {
-        expect(screen.getByTestId('game-mode-step')).toBeInTheDocument();
+        expect(screen.getByTestId('actions-step')).toBeInTheDocument();
       });
 
-      // Navigate to finish step
-      act(() => {
-        screen.getByRole('button', { name: 'Next' }).click();
-      });
-      await waitFor(() => expect(screen.getByTestId('actions-step')).toBeInTheDocument());
-
+      // Navigate to finish step - we're already on actions-step (step 3)
       act(() => {
         screen.getByRole('button', { name: 'Next' }).click();
       });
@@ -330,7 +327,8 @@ describe('GameSettingsWizard', () => {
     it('does not show close button when no close function provided', async () => {
       renderWizard();
 
-      // Navigate to finish step
+      // Navigate through all steps to finish step
+      // Step 1: Room step
       act(() => {
         screen.getByRole('button', { name: 'Next' }).click();
       });

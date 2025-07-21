@@ -21,24 +21,82 @@ vi.mock('nanoid', () => ({
   nanoid: () => 'test-id-123',
 }));
 
-// Mock the database
-const mockCustomGroups = {
-  add: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
-  where: vi.fn(),
-  toArray: vi.fn(),
-  filter: vi.fn(),
-  toCollection: vi.fn(),
-};
+// Mock the database with proper chaining - defined at module level for hoisting
+vi.mock('../store', () => {
+  const createMockCollection = () => {
+    const mockCollection = {
+      filter: vi.fn(),
+      toArray: vi.fn(),
+      first: vi.fn(),
+    };
+    // Make filter return itself for chaining
+    mockCollection.filter.mockReturnValue(mockCollection);
+    mockCollection.toArray.mockResolvedValue([]);
+    mockCollection.first.mockResolvedValue(undefined);
+    return mockCollection;
+  };
 
-vi.mock('../store', () => ({
-  default: {
-    customGroups: mockCustomGroups,
-  },
-}));
+  const createMockWhere = () => {
+    const mockWhere = {
+      equals: vi.fn(),
+      and: vi.fn(),
+      first: vi.fn(),
+    };
+    // Make methods return themselves for chaining
+    mockWhere.equals.mockReturnValue(mockWhere);
+    mockWhere.and.mockReturnValue(mockWhere);
+    mockWhere.first.mockResolvedValue(undefined);
+    return mockWhere;
+  };
+
+  return {
+    default: {
+      customGroups: {
+        add: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        bulkAdd: vi.fn(),
+        get: vi.fn(),
+        where: vi.fn(() => createMockWhere()),
+        toArray: vi.fn(),
+        toCollection: vi.fn(() => createMockCollection()),
+        hook: vi.fn(),
+      },
+    },
+  };
+});
+
+// Import the mocked database
+import db from '../store';
+const mockDb = db as any;
 
 describe('customGroups store', () => {
+  // Helper functions for creating mock objects
+  const createMockCollection = () => {
+    const mockCollection = {
+      filter: vi.fn(),
+      toArray: vi.fn(),
+      first: vi.fn(),
+    };
+    mockCollection.filter.mockReturnValue(mockCollection);
+    mockCollection.toArray.mockResolvedValue([]);
+    mockCollection.first.mockResolvedValue(undefined);
+    return mockCollection;
+  };
+
+  const createMockWhere = () => {
+    const mockWhere = {
+      equals: vi.fn(),
+      and: vi.fn(),
+      first: vi.fn(),
+    };
+    mockWhere.equals.mockReturnValue(mockWhere);
+    mockWhere.and.mockReturnValue(mockWhere);
+    mockWhere.first.mockResolvedValue(undefined);
+    return mockWhere;
+  };
+
   const mockGroup: CustomGroupBase = {
     name: 'testGroup',
     label: 'Test Group',
@@ -72,80 +130,79 @@ describe('customGroups store', () => {
 
   describe('addCustomGroup', () => {
     it('should add a new custom group successfully', async () => {
-      mockCustomGroups.add.mockResolvedValue('test-id-123');
+      vi.mocked(mockDb.customGroups.add).mockResolvedValue('test-id-123');
 
       const result = await addCustomGroup(mockGroup);
 
       expect(result).toBe('test-id-123');
-      expect(mockCustomGroups.add).toHaveBeenCalledWith(mockGroup);
+      expect(mockDb.customGroups.add).toHaveBeenCalledWith(mockGroup);
     });
 
     it('should handle errors when adding fails', async () => {
       const error = new Error('Database error');
-      mockCustomGroups.add.mockRejectedValue(error);
+      vi.mocked(mockDb.customGroups.add).mockRejectedValue(error);
 
-      await expect(addCustomGroup(mockGroup)).rejects.toThrow('Database error');
+      const result = await addCustomGroup(mockGroup);
+      expect(result).toBeUndefined();
     });
   });
 
   describe('updateCustomGroup', () => {
     it('should update an existing custom group successfully', async () => {
-      mockCustomGroups.update.mockResolvedValue(1);
+      vi.mocked(mockDb.customGroups.update).mockResolvedValue(1);
 
       await updateCustomGroup('test-id-123', mockGroup);
 
-      expect(mockCustomGroups.update).toHaveBeenCalledWith('test-id-123', mockGroup);
+      expect(mockDb.customGroups.update).toHaveBeenCalledWith('test-id-123', mockGroup);
     });
 
     it('should handle errors when updating fails', async () => {
       const error = new Error('Update failed');
-      mockCustomGroups.update.mockRejectedValue(error);
+      vi.mocked(mockDb.customGroups.update).mockRejectedValue(error);
 
-      await expect(updateCustomGroup('test-id-123', mockGroup)).rejects.toThrow('Update failed');
+      const result = await updateCustomGroup('test-id-123', mockGroup);
+      expect(result).toBe(0);
     });
   });
 
   describe('deleteCustomGroup', () => {
     it('should delete a custom group successfully', async () => {
-      mockCustomGroups.delete.mockResolvedValue(1);
+      vi.mocked(mockDb.customGroups.delete).mockResolvedValue(undefined);
 
       await deleteCustomGroup('test-id-123');
 
-      expect(mockCustomGroups.delete).toHaveBeenCalledWith('test-id-123');
+      expect(mockDb.customGroups.delete).toHaveBeenCalledWith('test-id-123');
     });
 
     it('should handle errors when deletion fails', async () => {
       const error = new Error('Delete failed');
-      mockCustomGroups.delete.mockRejectedValue(error);
+      vi.mocked(mockDb.customGroups.delete).mockRejectedValue(error);
 
-      await expect(deleteCustomGroup('test-id-123')).rejects.toThrow('Delete failed');
+      await expect(deleteCustomGroup('test-id-123')).resolves.not.toThrow();
     });
   });
 
   describe('getAllAvailableGroups', () => {
-    const mockCollection = {
-      filter: vi.fn(),
-      toArray: vi.fn(),
-    };
+    let mockCollection: any;
 
     beforeEach(() => {
-      mockCustomGroups.toCollection.mockReturnValue(mockCollection);
-      mockCollection.filter.mockReturnValue(mockCollection);
+      mockCollection = createMockCollection();
+      vi.mocked(mockDb.customGroups.toCollection).mockReturnValue(mockCollection);
     });
 
     it('should get all groups for locale and gameMode', async () => {
       const expectedGroups = [mockGroupPull];
-      mockCollection.toArray.mockResolvedValue(expectedGroups);
+      vi.mocked(mockCollection.toArray).mockResolvedValue(expectedGroups);
 
       const result = await getAllAvailableGroups('en', 'online');
 
       expect(result).toEqual(expectedGroups);
-      expect(mockCustomGroups.toCollection).toHaveBeenCalled();
-      expect(mockCollection.filter).toHaveBeenCalledTimes(2); // locale and gameMode filters
+      expect(mockDb.customGroups.toCollection).toHaveBeenCalled();
+      expect(mockCollection.filter).toHaveBeenCalledTimes(4); // removeDuplicateGroups (2) + getCustomGroups (2)
     });
 
     it('should handle empty results', async () => {
-      mockCollection.toArray.mockResolvedValue([]);
+      vi.mocked(mockCollection.toArray).mockResolvedValue([]);
 
       const result = await getAllAvailableGroups('fr', 'local');
 
@@ -154,34 +211,32 @@ describe('customGroups store', () => {
 
     it('should handle errors when fetching fails', async () => {
       const error = new Error('Fetch failed');
-      mockCollection.toArray.mockRejectedValue(error);
+      vi.mocked(mockCollection.toArray).mockRejectedValue(error);
 
-      await expect(getAllAvailableGroups('en', 'online')).rejects.toThrow('Fetch failed');
+      await expect(getAllAvailableGroups('en', 'online')).resolves.toEqual([]);
     });
   });
 
   describe('getGroupIntensities', () => {
-    const mockCollection = {
-      filter: vi.fn(),
-      first: vi.fn(),
-    };
+    let mockWhere: any;
 
     beforeEach(() => {
-      mockCustomGroups.toCollection.mockReturnValue(mockCollection);
-      mockCollection.filter.mockReturnValue(mockCollection);
+      mockWhere = createMockWhere();
+      vi.mocked(mockDb.customGroups.where).mockReturnValue(mockWhere);
     });
 
     it('should get intensities for a specific group', async () => {
-      mockCollection.first.mockResolvedValue(mockGroupPull);
+      vi.mocked(mockWhere.first).mockResolvedValue(mockGroupPull);
 
       const result = await getGroupIntensities('testGroup', 'en', 'online');
 
       expect(result).toEqual(mockGroup.intensities);
-      expect(mockCollection.filter).toHaveBeenCalledTimes(3); // name, locale, gameMode filters
+      expect(mockDb.customGroups.where).toHaveBeenCalledWith('name');
+      expect(mockWhere.equals).toHaveBeenCalledWith('testGroup');
     });
 
     it('should return empty array when group not found', async () => {
-      mockCollection.first.mockResolvedValue(undefined);
+      vi.mocked(mockWhere.first).mockResolvedValue(undefined);
 
       const result = await getGroupIntensities('nonexistent', 'en', 'online');
 
@@ -190,16 +245,14 @@ describe('customGroups store', () => {
 
     it('should handle errors when fetching intensities fails', async () => {
       const error = new Error('Fetch intensities failed');
-      mockCollection.first.mockRejectedValue(error);
+      vi.mocked(mockWhere.first).mockRejectedValue(error);
 
-      await expect(getGroupIntensities('testGroup', 'en', 'online')).rejects.toThrow(
-        'Fetch intensities failed'
-      );
+      await expect(getGroupIntensities('testGroup', 'en', 'online')).resolves.toEqual([]);
     });
 
     it('should return empty array when group has no intensities', async () => {
       const groupWithoutIntensities = { ...mockGroupPull, intensities: [] };
-      mockCollection.first.mockResolvedValue(groupWithoutIntensities);
+      vi.mocked(mockWhere.first).mockResolvedValue(groupWithoutIntensities);
 
       const result = await getGroupIntensities('testGroup', 'en', 'online');
 

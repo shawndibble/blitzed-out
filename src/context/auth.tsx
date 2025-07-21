@@ -251,9 +251,18 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
             setSyncStatus({ syncing: true, lastSync: null });
 
             // Handle case where syncDataFromFirebase might not be defined (e.g., in tests)
-            const syncPromise = syncDataFromFirebase
-              ? syncDataFromFirebase()
-              : Promise.resolve(false);
+            let syncPromise;
+            try {
+              syncPromise = syncDataFromFirebase ? syncDataFromFirebase() : Promise.resolve(false);
+            } catch (error) {
+              console.warn('syncDataFromFirebase is not available:', error);
+              syncPromise = Promise.resolve(false);
+            }
+
+            // Ensure syncPromise is always a Promise
+            if (!syncPromise || typeof syncPromise.then !== 'function') {
+              syncPromise = Promise.resolve(false);
+            }
 
             syncPromise
               .then(() => {
