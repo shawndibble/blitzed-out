@@ -179,7 +179,7 @@ const getActionGroupNames = async (locale: string, gameMode: string): Promise<st
     if (filePath.includes(targetPath)) {
       // Extract the group name from the file path
       const fileName = filePath.split('/').pop();
-      if (fileName && fileName.endsWith('.json')) {
+      if (fileName?.endsWith('.json')) {
         const groupName = fileName.replace('.json', '');
 
         try {

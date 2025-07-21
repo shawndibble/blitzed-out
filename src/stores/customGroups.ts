@@ -104,19 +104,7 @@ export const getCustomGroupByName = async (
  */
 export const addCustomGroup = async (group: CustomGroupBase): Promise<string | undefined> => {
   try {
-    const id = nanoid();
-    const now = new Date();
-    const groupWithAllFields: CustomGroupPull = {
-      ...group,
-      id,
-      locale: group.locale || 'en',
-      gameMode: group.gameMode || 'online',
-      isDefault: group.isDefault || false,
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    await customGroups.add(groupWithAllFields);
+    const id = await customGroups.add(group);
     return id;
   } catch (error) {
     console.error('Error in addCustomGroup:', error);

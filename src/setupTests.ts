@@ -166,6 +166,14 @@ vi.mock('use-sound', () => ({
   default: () => [vi.fn(), { stop: vi.fn() }],
 }));
 
+// Mock syncService to prevent auth context errors
+vi.mock('@/services/syncService', () => ({
+  syncDataFromFirebase: vi.fn().mockResolvedValue(true),
+  syncAllDataToFirebase: vi.fn().mockResolvedValue(true),
+  startPeriodicSync: vi.fn(),
+  stopPeriodicSync: vi.fn(),
+}));
+
 // Mock window.matchMedia (for MUI responsive components)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

@@ -1,6 +1,12 @@
 import { CustomTile } from '@/types/customTiles';
 import { CustomGroup } from '@/types/customGroups';
-import { getCustomGroups, addCustomGroup, getCustomGroupByName } from '@/stores/customGroups';
+import {
+  getCustomGroups,
+  addCustomGroup,
+  getCustomGroupByName,
+  updateCustomGroup,
+} from '@/stores/customGroups';
+import { getTiles, addCustomTile, updateCustomTile } from '@/stores/customTiles';
 import { validateCustomGroup } from '@/services/validationService';
 
 /**
@@ -36,9 +42,7 @@ export async function exportEnhancedData(locale = 'en', gameMode = 'online'): Pr
     const customGroups = await getCustomGroups({ locale, gameMode });
 
     // Get all custom tiles (we'll export all since they can be filtered on import)
-    const customTiles = await import('@/stores/customTiles').then((module) =>
-      module.getTiles({ isCustom: 1 })
-    );
+    const customTiles = await getTiles({ isCustom: 1 });
 
     const exportData: EnhancedExportData = {
       version: EXPORT_FORMAT_VERSION,
@@ -117,13 +121,11 @@ export async function importEnhancedData(
               continue;
             case 'overwrite':
               // Update existing group
-              await import('@/stores/customGroups').then((module) =>
-                module.updateCustomGroup(existingGroup.id, {
-                  ...group,
-                  locale: targetLocale,
-                  gameMode: targetGameMode,
-                })
-              );
+              await updateCustomGroup(existingGroup.id, {
+                ...group,
+                locale: targetLocale,
+                gameMode: targetGameMode,
+              });
               result.warnings.push(`Updated existing group: ${group.name}`);
               break;
             case 'rename': {
@@ -170,7 +172,6 @@ export async function importEnhancedData(
     }
 
     // Import custom tiles
-    const { addCustomTile, getTiles } = await import('@/stores/customTiles');
     const existingTiles = await getTiles();
 
     for (const tile of importData.customTiles) {
@@ -247,7 +248,6 @@ export async function importLegacyData(
   try {
     // Use the existing getUniqueImportRecords for legacy format
     const { default: getUniqueImportRecords } = await import('./getUniqueImportRecords');
-    const { getTiles, addCustomTile } = await import('@/stores/customTiles');
 
     const existingTiles = await getTiles();
     const { newUniqueRecords, changedTagRecords } = getUniqueImportRecords(
@@ -270,7 +270,6 @@ export async function importLegacyData(
     for (const tile of changedTagRecords) {
       try {
         if (tile.id) {
-          const { updateCustomTile } = await import('@/stores/customTiles');
           await updateCustomTile(tile.id, tile);
         }
       } catch (error) {
