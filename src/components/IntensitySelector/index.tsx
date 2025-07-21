@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   FormControl,
   InputLabel,
@@ -47,15 +47,20 @@ export default function IntensitySelector({
     loadIntensities();
   }, [groupName, locale, gameMode]);
 
+  // Memoize sorted intensities to prevent re-sorting on every render
+  const sortedIntensities = useMemo(() => {
+    return intensities.sort((a, b) => a.value - b.value);
+  }, [intensities]);
+
   // Validate current value when intensities change
   useEffect(() => {
     if (intensities.length > 0 && value && !intensities.some((i) => i.value === value)) {
-      const firstIntensity = intensities.sort((a, b) => a.value - b.value)[0];
+      const firstIntensity = sortedIntensities[0];
       if (firstIntensity) {
         onChange(firstIntensity.value);
       }
     }
-  }, [intensities, value, onChange]);
+  }, [intensities, value, onChange, sortedIntensities]);
 
   if (!groupName) {
     return (
@@ -110,13 +115,11 @@ export default function IntensitySelector({
           onChange={(e) => onChange(Number(e.target.value))}
           label={t('intensity')}
         >
-          {intensities
-            .sort((a, b) => a.value - b.value)
-            .map((intensity) => (
-              <MenuItem key={intensity.id} value={intensity.value}>
-                {intensity.label}
-              </MenuItem>
-            ))}
+          {sortedIntensities.map((intensity) => (
+            <MenuItem key={intensity.id} value={intensity.value}>
+              {intensity.label}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
     </Box>

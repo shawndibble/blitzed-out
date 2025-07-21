@@ -65,13 +65,10 @@ export const useSettingsStore = create<SettingsStore>()(
         const actions: Record<string, ActionEntry> = selectedActions || {};
         return Object.entries(actions)
           .filter(([, entry]: [string, ActionEntry]) => entry.type === type)
-          .reduce(
-            (acc: Record<string, ActionEntry>, [key, entry]: [string, ActionEntry]) => ({
-              ...acc,
-              [key]: entry,
-            }),
-            {}
-          );
+          .reduce((acc: Record<string, ActionEntry>, [key, entry]: [string, ActionEntry]) => {
+            acc[key] = entry;
+            return acc;
+          }, {});
       },
     }),
     {

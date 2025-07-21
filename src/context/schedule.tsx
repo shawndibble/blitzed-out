@@ -18,7 +18,7 @@ export interface ScheduleContextType {
     dateTime: Date,
     url: string,
     room?: string
-  ) => Promise<void | DocumentReference<DocumentData>>;
+  ) => Promise<undefined | DocumentReference<DocumentData>>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -47,12 +47,12 @@ function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
       dateTime: Date,
       url: string,
       room?: string
-    ): Promise<void | DocumentReference<DocumentData>> => {
+    ): Promise<undefined | DocumentReference<DocumentData>> => {
       try {
         const result = await addSchedule(dateTime, url, room);
         // Flush any pending updates after adding
         flushPendingScheduleUpdates();
-        return result;
+        return result || undefined;
       } catch (error) {
         console.error('Error adding to schedule:', error);
         throw error;

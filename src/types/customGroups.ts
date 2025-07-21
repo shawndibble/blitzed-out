@@ -1,4 +1,5 @@
 // Custom group and intensity management type definitions
+import type { GroupType } from '@/services/validationService';
 
 // Individual intensity level within a custom group
 export interface CustomGroupIntensity {
@@ -13,7 +14,7 @@ export interface CustomGroupBase {
   name: string; // Unique identifier/key for the group
   label: string; // Display label for the group
   intensities: CustomGroupIntensity[];
-  type?: string; // Action type (e.g., 'solo', 'consumption', 'action')
+  type?: GroupType; // Action type (e.g., 'solo', 'consumption', 'action')
   isDefault?: boolean; // Whether this is a system default group
   locale?: string; // Locale this group belongs to
   gameMode?: string; // Game mode this group applies to
@@ -64,7 +65,7 @@ export interface CustomGroupDialogProps {
   open: boolean;
   onClose: () => void;
   onGroupCreated?: (group: CustomGroupPull) => void;
-  onGroupUpdated?: (group: CustomGroupPull) => void;
+  onGroupUpdated?: (group: CustomGroupPull | null) => void;
   editingGroup?: CustomGroupPull | null;
   locale: string;
   gameMode: string;

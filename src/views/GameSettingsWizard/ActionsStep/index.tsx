@@ -4,7 +4,7 @@ import { Trans } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import PickConsumptions from './PickConsumptions/index';
 import PickActions from './PickActions';
-import { purgedFormData } from './helpers';
+import { purgedFormData, hasValidSelections } from './helpers';
 import { isPublicRoom } from '@/helpers/strings';
 import { FormData } from '@/types';
 import { Settings } from '@/types/Settings';
@@ -46,15 +46,7 @@ export default function ActionsStep({
     }));
 
   // Check if user has made selections
-  const hasSelections =
-    formData.selectedActions &&
-    Object.keys(formData.selectedActions).some(
-      (key) =>
-        formData.selectedActions![key]?.level > 0 &&
-        formData.selectedActions![key]?.variation !== 'appendMost'
-    );
-
-  const isNextDisabled = !hasSelections;
+  const isNextDisabled = !hasValidSelections(formData.selectedActions);
 
   return (
     <Box>

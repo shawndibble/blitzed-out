@@ -78,6 +78,8 @@ export default function AddCustomTile({
     };
 
     // Debounce validation to prevent excessive calls while typing
+    // 300ms provides responsive feedback while avoiding excessive validation calls.
+    // This timing is optimal for the lightweight validation operations performed here.
     const timeoutId = setTimeout(validateForm, 300);
     return () => clearTimeout(timeoutId);
   }, [

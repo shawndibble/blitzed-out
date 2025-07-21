@@ -65,7 +65,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
       return;
     }
 
-    // If we are already in online mode, skip the game mode step and go to actions
+    // If the game mode is already set to 'online,' the game mode step can be skipped because the user has already selected this mode and doesn't need to choose again.
     if (formData.gameMode === 'online') {
       setStep(3);
       return;

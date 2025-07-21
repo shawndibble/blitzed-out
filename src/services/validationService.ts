@@ -16,20 +16,20 @@ const MIN_INTENSITIES_COUNT = 1;
 const MAX_INTENSITIES_COUNT = 10;
 
 // Reserved group names that cannot be used for custom groups
+// Only includes names that would cause technical issues or UX confusion
 const RESERVED_GROUP_NAMES = [
-  'none',
-  'all',
-  'default',
-  'system',
-  'admin',
-  'user',
-  'custom',
-  'new',
-  'edit',
-  'delete',
-  'undefined',
-  'null',
+  'none', // Used in UI for "select none" operations
+  'all', // Used in UI for "select all" operations
+  'default', // Aligns with isDefault system property
+  'undefined', // JavaScript reserved word
+  'null', // JavaScript reserved word
 ];
+
+// Valid group types for custom groups
+const VALID_GROUP_TYPES = ['solo', 'foreplay', 'sex', 'consumption'] as const;
+
+// Export type for group types
+export type GroupType = (typeof VALID_GROUP_TYPES)[number];
 
 /**
  * Validate a custom group name
@@ -329,6 +329,7 @@ export const getValidationConstants = () => ({
   MIN_INTENSITIES_COUNT,
   MAX_INTENSITIES_COUNT,
   RESERVED_GROUP_NAMES,
+  VALID_GROUP_TYPES,
 });
 
 /**

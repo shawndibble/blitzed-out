@@ -303,12 +303,12 @@ export const removeDuplicateGroups = async (
               b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
             return aTime - bTime;
           } catch (error) {
-            // If date parsing fails, fall back to ID comparison for consistent ordering
+            // If date parsing fails, fall back to createdAt comparison for deterministic ordering
             console.warn(
-              'Date parsing failed in removeDuplicateGroups, using ID comparison:',
+              'Date parsing failed in removeDuplicateGroups, using createdAt fallback:',
               error
             );
-            return a.id.localeCompare(b.id);
+            return a.createdAt.getTime() - b.createdAt.getTime();
           }
         });
 
@@ -494,10 +494,14 @@ export const getGroupAvailability = async (): Promise<
         });
       }
 
-      const groupData = availability.get(group.name)!;
-      groupData.locales.add(group.locale);
-      groupData.gameModes.add(group.gameMode);
-      groupData.combinations.push({ locale: group.locale, gameMode: group.gameMode });
+      const groupData = availability.get(group.name);
+      if (groupData) {
+        groupData.locales.add(group.locale);
+        groupData.gameModes.add(group.gameMode);
+        groupData.combinations.push({ locale: group.locale, gameMode: group.gameMode });
+      } else {
+        console.error(`Unexpected error: group data not found for group: ${group.name}`);
+      }
     });
 
     return Array.from(availability.entries())

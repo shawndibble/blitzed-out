@@ -43,11 +43,14 @@ describe('validationService', () => {
       expect(constants).toHaveProperty('MAX_INTENSITIES_COUNT');
       expect(constants).toHaveProperty('MAX_GROUP_LABEL_LENGTH');
       expect(constants).toHaveProperty('MAX_INTENSITY_LABEL_LENGTH');
+      expect(constants).toHaveProperty('VALID_GROUP_TYPES');
 
       expect(typeof constants.MIN_INTENSITIES_COUNT).toBe('number');
       expect(typeof constants.MAX_INTENSITIES_COUNT).toBe('number');
       expect(typeof constants.MAX_GROUP_LABEL_LENGTH).toBe('number');
       expect(typeof constants.MAX_INTENSITY_LABEL_LENGTH).toBe('number');
+      expect(Array.isArray(constants.VALID_GROUP_TYPES)).toBe(true);
+      expect(constants.VALID_GROUP_TYPES).toEqual(['solo', 'foreplay', 'sex', 'consumption']);
 
       expect(constants.MIN_INTENSITIES_COUNT).toBeGreaterThan(0);
       expect(constants.MAX_INTENSITIES_COUNT).toBeGreaterThan(constants.MIN_INTENSITIES_COUNT);
@@ -220,7 +223,7 @@ describe('validationService', () => {
 
     it('should reject group with invalid type', async () => {
       vi.mocked(getAllAvailableGroups).mockResolvedValue([]);
-      const invalidGroup = { ...validGroup, type: 'invalid-type' };
+      const invalidGroup = { ...validGroup, type: 'invalid-type' as any };
 
       const result = await validateCustomGroup(invalidGroup);
 
@@ -230,9 +233,9 @@ describe('validationService', () => {
 
     it('should accept group with valid type', async () => {
       vi.mocked(getAllAvailableGroups).mockResolvedValue([]);
-      const validTypes = ['solo', 'foreplay', 'sex', 'consumption'];
+      const constants = getValidationConstants();
 
-      for (const type of validTypes) {
+      for (const type of constants.VALID_GROUP_TYPES) {
         const testGroup = { ...validGroup, type };
         const result = await validateCustomGroup(testGroup);
 

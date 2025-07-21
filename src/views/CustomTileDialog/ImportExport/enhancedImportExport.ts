@@ -103,8 +103,10 @@ export async function importEnhancedData(
     const mergeStrategy = options.mergeStrategy || 'skip';
 
     // Import custom groups first
-    for (const group of importData.customGroups) {
+    for (const originalGroup of importData.customGroups) {
       try {
+        let group = originalGroup;
+
         // Check if group already exists
         const existingGroup = await getCustomGroupByName(group.name, targetLocale, targetGameMode);
 
@@ -132,8 +134,9 @@ export async function importEnhancedData(
                 newName = `${group.name}_imported_${counter}`;
                 counter++;
               }
-              group.name = newName;
-              result.warnings.push(`Renamed group from ${group.name} to ${newName}`);
+              const oldName = group.name;
+              group = { ...group, name: newName };
+              result.warnings.push(`Renamed group from ${oldName} to ${newName}`);
               break;
             }
           }
@@ -162,7 +165,7 @@ export async function importEnhancedData(
           result.importedGroups++;
         }
       } catch (error) {
-        result.errors.push(`Error importing group ${group.name}: ${error}`);
+        result.errors.push(`Error importing group ${originalGroup.name}: ${error}`);
       }
     }
 

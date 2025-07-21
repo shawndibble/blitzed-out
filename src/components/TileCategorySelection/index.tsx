@@ -9,7 +9,7 @@ import {
   Theme,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { AllGameModeActions, MappedGroup, ProcessedGroups } from '@/types/customTiles';
 import { GameMode } from '@/types/Settings';
@@ -45,6 +45,60 @@ export default function TileCategorySelection({
   const { t } = useTranslation();
   const [uniqueGroups, setUniqueGroups] = useState<string[]>([]);
   const defaultIntensityFilter = hideAll ? 1 : 'all';
+
+  // Memoize the mapped groups folder to avoid repeated calls
+  const mappedGroupsFolder = useMemo(() => {
+    if (!mappedGroups?.[gameMode as GameMode]) return [];
+    const folder = groupActionsFolder(mappedGroups[gameMode as GameMode]);
+    return Array.isArray(folder) ? (folder as MappedGroup[]) : [];
+  }, [mappedGroups, gameMode]);
+
+  // Helper function to get group label
+  const getGroupLabel = useCallback(
+    (group: string): string => {
+      // First try to get label from Dexie groups
+      if (dexieGroups?.[group]) {
+        return dexieGroups[group].label || group;
+      }
+
+      // Fallback to mappedGroups for default groups
+      const folderGroup = mappedGroupsFolder.find((g) => g.value === group);
+      if (folderGroup?.groupLabel) {
+        return folderGroup.groupLabel;
+      }
+
+      // Final fallback to raw group name
+      return group;
+    },
+    [dexieGroups, mappedGroupsFolder]
+  );
+
+  // Helper function to get intensity label
+  const getIntensityLabel = useCallback(
+    (validGroupFilter: string, intensity: string): string => {
+      // First try to get intensity label from Dexie groups
+      if (dexieGroups?.[validGroupFilter]) {
+        const intensityData = dexieGroups[validGroupFilter].intensities.find(
+          (i) => i.value === Number(intensity)
+        );
+        if (intensityData?.label) {
+          return intensityData.label;
+        }
+      }
+
+      // Fallback to mappedGroups for default groups
+      const folderGroup = mappedGroupsFolder.find(
+        (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
+      );
+      if (folderGroup?.translatedIntensity) {
+        return folderGroup.translatedIntensity;
+      }
+
+      // Final fallback
+      return `Level ${Number(intensity) + 1}`;
+    },
+    [dexieGroups, mappedGroupsFolder]
+  );
 
   // Extract unique groups whenever groups or gameMode changes
   useEffect(() => {
@@ -115,28 +169,7 @@ export default function TileCategorySelection({
         >
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
-              {(() => {
-                // First try to get label from Dexie groups
-                if (dexieGroups?.[group]) {
-                  return dexieGroups[group].label || group;
-                }
-
-                // Fallback to mappedGroups for default groups
-                if (
-                  mappedGroups?.[gameMode as GameMode] &&
-                  Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
-                ) {
-                  const folderGroup = (
-                    groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]
-                  ).find((g) => g.value === group);
-                  if (folderGroup?.groupLabel) {
-                    return folderGroup.groupLabel;
-                  }
-                }
-
-                // Final fallback to raw group name
-                return group;
-              })()}
+              {getGroupLabel(group)}
               {!hideAll && groups[group] && ` (${groups[group].count})`}
             </MenuItem>
           ))}
@@ -169,35 +202,7 @@ export default function TileCategorySelection({
               .sort(([a], [b]) => Number(a) - Number(b))
               .map(([intensity, count]) => (
                 <MenuItem key={intensity} value={Number(intensity)}>
-                  {(() => {
-                    // First try to get intensity label from Dexie groups
-                    if (dexieGroups?.[validGroupFilter]) {
-                      const intensityData = dexieGroups[validGroupFilter].intensities.find(
-                        (i) => i.value === Number(intensity)
-                      );
-                      if (intensityData?.label) {
-                        return intensityData.label;
-                      }
-                    }
-
-                    // Fallback to mappedGroups for default groups
-                    if (
-                      mappedGroups?.[gameMode as GameMode] &&
-                      Array.isArray(groupActionsFolder(mappedGroups[gameMode as GameMode]))
-                    ) {
-                      const folderGroup = (
-                        groupActionsFolder(mappedGroups[gameMode as GameMode]) as MappedGroup[]
-                      ).find(
-                        (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
-                      );
-                      if (folderGroup?.translatedIntensity) {
-                        return folderGroup.translatedIntensity;
-                      }
-                    }
-
-                    // Final fallback
-                    return `Level ${Number(intensity) + 1}`;
-                  })()}
+                  {getIntensityLabel(validGroupFilter, intensity)}
                   {!hideAll && count !== undefined ? ` (${count})` : ''}
                 </MenuItem>
               ))}

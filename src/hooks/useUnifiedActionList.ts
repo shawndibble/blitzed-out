@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { GroupedActions } from '@/types/customTiles';
+import { DEFAULT_NONE_OPTION, UNIFIED_ACTION_CACHE_TTL } from '@/constants/actionConstants';
 
 interface UnifiedActionListResult {
   actionsList: GroupedActions;
@@ -10,11 +11,20 @@ interface UnifiedActionListResult {
 
 // Simple cache to prevent duplicate API calls
 const actionsCache = new Map<string, { data: GroupedActions; timestamp: number }>();
-const CACHE_TTL = 30000; // 30 seconds
+const CACHE_TTL = UNIFIED_ACTION_CACHE_TTL;
 
 /**
  * Hook that combines default actions from locale files with custom groups from Dexie
  * into a unified structure that can be used by the existing IncrementalSelect component
+ *
+ * @param gameMode - The game mode to filter groups by (e.g., 'online', 'local')
+ * @returns Object containing the unified actions list and loading state
+ *
+ * Features:
+ * - Caches results for 30 seconds to improve performance
+ * - Automatically handles locale changes
+ * - Filters groups by game mode
+ * - Converts custom groups to the expected format for UI components
  */
 export default function useUnifiedActionList(gameMode?: string): UnifiedActionListResult {
   const { i18n } = useTranslation();
@@ -28,7 +38,8 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
   }, [i18n.resolvedLanguage, gameMode]);
 
   // Check cache immediately on render to prevent unnecessary loading states
-  useMemo(() => {
+  // Using useEffect instead of useMemo to avoid side effects in useMemo
+  useEffect(() => {
     if (cacheKey) {
       const cached = actionsCache.get(cacheKey);
       if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -61,7 +72,7 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
       for (const group of allGroups) {
         // Convert group to the same structure as expected by components
         const actions: Record<string, string[]> = {
-          None: [], // Always include None option for consistency
+          [DEFAULT_NONE_OPTION]: [], // Always include None option for consistency
         };
 
         // Add intensity levels as action keys with empty arrays

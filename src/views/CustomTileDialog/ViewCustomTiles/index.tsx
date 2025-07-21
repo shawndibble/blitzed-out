@@ -56,8 +56,11 @@ export default function ViewCustomTiles({
       try {
         setLoading(true);
 
-        // Get all available groups from customGroups table (primary source)
-        const allGroups = await getAllAvailableGroups(i18n.resolvedLanguage, gameModeFilter);
+        // Execute both async operations concurrently
+        const [allGroups, tileCounts] = await Promise.all([
+          getAllAvailableGroups(i18n.resolvedLanguage, gameModeFilter),
+          getTileCountsByGroup(i18n.resolvedLanguage, gameModeFilter, tagFilter),
+        ]);
 
         // Also set dexieGroups for TileCategorySelection component
         const groupMap: Record<string, CustomGroupPull> = {};
@@ -65,13 +68,6 @@ export default function ViewCustomTiles({
           groupMap[group.name] = group;
         });
         setDexieGroups(groupMap);
-
-        // Get tile counts by group
-        const tileCounts = await getTileCountsByGroup(
-          i18n.resolvedLanguage,
-          gameModeFilter,
-          tagFilter
-        );
 
         // Merge group definitions with tile counts
         const groupData: CustomTileGroups = {};
@@ -229,6 +225,25 @@ export default function ViewCustomTiles({
     }
   }
 
+  function getSubheaderText(group: string, intensity: number): string {
+    // Get group and intensity labels from Dexie
+    const dexieGroup = dexieGroups[group];
+
+    if (dexieGroup) {
+      // Get the group label
+      const groupLabel = dexieGroup.label || group;
+
+      // Find the intensity label
+      const intensityData = dexieGroup.intensities.find((i) => i.value === Number(intensity));
+      const intensityLabel = intensityData?.label || `Level ${Number(intensity) + 1}`;
+
+      return `${groupLabel} - ${intensityLabel}`;
+    }
+
+    // Fallback if group not found in Dexie
+    return `${group} - Level ${Number(intensity) + 1}`;
+  }
+
   const tileList = tiles.items?.map(
     ({ id, group, intensity, action, tags, isEnabled = true, isCustom = true }) => (
       <Card sx={{ my: 2 }} key={id}>
@@ -239,26 +254,7 @@ export default function ViewCustomTiles({
             subheader: { variant: 'body2' },
             action: { 'aria-label': t('customTiles.actions') },
           }}
-          subheader={(() => {
-            // Get group and intensity labels from Dexie
-            const dexieGroup = dexieGroups[group];
-
-            if (dexieGroup) {
-              // Get the group label
-              const groupLabel = dexieGroup.label || group;
-
-              // Find the intensity label
-              const intensityData = dexieGroup.intensities.find(
-                (i) => i.value === Number(intensity)
-              );
-              const intensityLabel = intensityData?.label || `Level ${Number(intensity) + 1}`;
-
-              return `${groupLabel} - ${intensityLabel}`;
-            }
-
-            // Fallback if group not found in Dexie
-            return `${group} - Level ${Number(intensity) + 1}`;
-          })()}
+          subheader={getSubheaderText(group, intensity)}
           action={
             <>
               <Switch

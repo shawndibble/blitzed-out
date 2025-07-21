@@ -16,6 +16,7 @@ import { useCallback } from 'react';
 import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 import { GameBoardResult } from '@/types/gameBoard';
+import { getValidationConstants } from '@/services/validationService';
 
 interface RoomChangeResult {
   roomChanged: boolean;
@@ -46,13 +47,14 @@ function cleanFormData(formData: Settings): Settings {
   }
 
   // Remove any old root-level action keys (for migration cleanup)
+  const validationConstants = getValidationConstants();
   Object.keys(cleanedData).forEach((key) => {
     const entry = cleanedData[key] as any;
     if (
       entry &&
       typeof entry === 'object' &&
       entry.type &&
-      ['solo', 'foreplay', 'sex', 'consumption'].includes(entry.type)
+      validationConstants.VALID_GROUP_TYPES.includes(entry.type)
     ) {
       delete cleanedData[key];
     }

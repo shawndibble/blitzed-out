@@ -80,7 +80,7 @@ export const updateFormDataWithDefaults = (
       if (action === 'consumption') {
         data = {
           ...data,
-          variation: (newFormData as any).isAppend ? 'appendMost' : 'standalone',
+          variation: newFormData.isAppend ? 'appendMost' : 'standalone',
         };
       }
       newSelectedActions[option] = data;
@@ -119,6 +119,21 @@ export const handleChange = (
     };
     return { ...prevData, selectedActions: newSelectedActions };
   });
+};
+
+/**
+ * Checks if the user has made valid selections for actions
+ * @param selectedActions - The selected actions object from form data
+ * @returns boolean indicating if there are valid selections
+ */
+export const hasValidSelections = (selectedActions?: Record<string, any>): boolean => {
+  return Boolean(
+    selectedActions &&
+      Object.keys(selectedActions).some((key) => {
+        const action = selectedActions[key];
+        return (action?.level ?? 0) > 0 && action?.variation !== 'appendMost';
+      })
+  );
 };
 
 export const handleSelectionChange = (

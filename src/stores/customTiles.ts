@@ -92,6 +92,16 @@ export const getPaginatedTiles = async (
 };
 
 /**
+ * Helper function to create a base query for tiles by locale and gameMode
+ */
+const createBaseTileQuery = (locale = 'en', gameMode = 'online') => {
+  return customTiles
+    .where('locale')
+    .equals(locale)
+    .and((tile) => tile.gameMode === gameMode);
+};
+
+/**
  * Get tile counts and intensity distributions by group (without labels)
  * This should be merged with group definitions from customGroups table
  */
@@ -101,10 +111,7 @@ export const getTileCountsByGroup = async (
   tags: string[] | string | null = null
 ): Promise<Record<string, { count: number; intensities: Record<number, number> }>> => {
   // Get tiles with count of items in each group
-  let query = customTiles
-    .where('locale')
-    .equals(locale)
-    .and((tile) => tile.gameMode === gameMode);
+  let query = createBaseTileQuery(locale, gameMode);
 
   if (tags) {
     query = query.and((tile) => tile.tags.some((tag) => tags.includes(tag)));
@@ -188,6 +195,13 @@ export const deleteCustomTile = async (id: number): Promise<void> => {
 };
 
 /**
+ * Helper function to create a query for tiles by group, locale, and gameMode
+ */
+const createTilesByGroupQuery = (groupName: string, locale = 'en', gameMode = 'online') => {
+  return createBaseTileQuery(locale, gameMode).and((tile) => tile.group === groupName);
+};
+
+/**
  * Count custom tiles that belong to a specific group
  */
 export const countTilesByGroup = async (
@@ -196,11 +210,7 @@ export const countTilesByGroup = async (
   gameMode = 'online'
 ): Promise<number> => {
   try {
-    return await customTiles
-      .where('group')
-      .equals(groupName)
-      .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
-      .count();
+    return await createTilesByGroupQuery(groupName, locale, gameMode).count();
   } catch (error) {
     console.error('Error counting tiles by group:', error);
     return 0;
@@ -216,11 +226,7 @@ export const deleteCustomTilesByGroup = async (
   gameMode = 'online'
 ): Promise<number> => {
   try {
-    return await customTiles
-      .where('group')
-      .equals(groupName)
-      .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
-      .delete();
+    return await createTilesByGroupQuery(groupName, locale, gameMode).delete();
   } catch (error) {
     console.error('Error deleting tiles by group:', error);
     return 0;

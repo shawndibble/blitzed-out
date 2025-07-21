@@ -73,7 +73,7 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
       if (
         data?.boardUpdated ||
         settingsBoardUpdated ||
-        gameBoard?.tiles?.length !== boardResult.board.length
+        (gameBoard?.tiles?.length ?? 0) !== boardResult.board.length
       ) {
         await updateSettings(formData);
         await upsertBoard({ title: gameBoard?.title || '', tiles: boardResult.board });

@@ -4,7 +4,8 @@ import { importCustomTiles } from '@/stores/customTiles';
 import { CustomTileBase } from '@/types/customTiles';
 
 /**
- * Migration service to convert JSON action files to custom groups and custom tiles in Dexie
+ * Migration service to convert JSON action files to custom groups and custom tiles in Dexie.
+ * Uses Vite's import.meta.glob() for automatic file discovery at build time.
  */
 
 // Configuration
@@ -111,8 +112,9 @@ const importActionFile = async (
     }
 
     return { customGroup, customTiles };
-  } catch {
-    // File doesn't exist for this locale/gameMode combination
+  } catch (error) {
+    // Log import failures for better debugging
+    console.debug(`Failed to import action file ${groupName} for ${locale}/${gameMode}:`, error);
     return null;
   }
 };
@@ -129,8 +131,9 @@ const getAvailableLocales = async (): Promise<string[]> => {
       // Test if locale exists by trying to import translation file
       await import(`@/locales/${locale}/translation.json`);
       existingLocales.push(locale);
-    } catch {
+    } catch (error) {
       // Locale doesn't exist, skip it
+      console.debug(`Locale ${locale} not found:`, error);
     }
   }
 
@@ -149,8 +152,9 @@ const getAvailableGameModes = async (locale: string): Promise<string[]> => {
       // Test if gameMode exists by trying to import any known file
       await import(`@/locales/${locale}/${gameMode}/alcohol.json`);
       existingGameModes.push(gameMode);
-    } catch {
+    } catch (error) {
       // Game mode doesn't exist for this locale, skip it
+      console.debug(`Game mode ${gameMode} not found for locale ${locale}:`, error);
     }
   }
 
@@ -159,43 +163,41 @@ const getAvailableGameModes = async (locale: string): Promise<string[]> => {
 
 /**
  * Dynamically discover action group names for a specific locale and game mode
+ * Uses Vite's import.meta.glob to automatically discover all JSON files at build time
  */
 const getActionGroupNames = async (locale: string, gameMode: string): Promise<string[]> => {
-  // Potential group names to test - this is a comprehensive list from filesystem analysis
-  const potentialGroups = [
-    'alcohol',
-    'ballBusting',
-    'bating',
-    'bondage',
-    'breathPlay',
-    'buttPlay',
-    'electric',
-    'footPlay',
-    'gasMask',
-    'humiliation',
-    'kissing',
-    'pissPlay',
-    'poppers',
-    'spanking',
-    'throatTraining',
-    'tickling',
-    'titTorture',
-    'vaping',
-  ];
+  // Use Vite's glob import to get all action group files for all locales and game modes
+  // This automatically discovers files at build time, eliminating the need for hardcoded lists
+  // IMPROVEMENT: Replaced hardcoded array with dynamic discovery using import.meta.glob
+  const allActionFiles = import.meta.glob('@/locales/*/*/*.json');
 
   const existingGroups: string[] = [];
+  const targetPath = `/src/locales/${locale}/${gameMode}/`;
 
-  for (const groupName of potentialGroups) {
-    try {
-      // Try to import the specific group for this locale/gameMode combination
-      await import(`@/locales/${locale}/${gameMode}/${groupName}.json`);
-      existingGroups.push(groupName);
-    } catch {
-      // Group doesn't exist for this locale/gameMode, skip it
+  // Filter for files matching the current locale and game mode
+  for (const filePath of Object.keys(allActionFiles)) {
+    if (filePath.includes(targetPath)) {
+      // Extract the group name from the file path
+      const fileName = filePath.split('/').pop();
+      if (fileName && fileName.endsWith('.json')) {
+        const groupName = fileName.replace('.json', '');
+
+        try {
+          // Verify the file can be imported (additional safety check)
+          await allActionFiles[filePath]();
+          existingGroups.push(groupName);
+        } catch (error) {
+          // File exists but can't be imported, skip it
+          console.warn(
+            `Found ${groupName} file for ${locale}/${gameMode} but failed to import it:`,
+            error
+          );
+        }
+      }
     }
   }
 
-  return existingGroups;
+  return existingGroups.sort(); // Sort for consistent ordering
 };
 
 /**
@@ -209,7 +211,7 @@ const importGroupsForLocaleAndGameMode = async (
   let groupsImported = 0;
   let tilesImported = 0;
 
-  console.log(`Importing groups for ${locale}/${gameMode}: ${groupNames.join(', ')}`);
+  console.info(`Importing groups for ${locale}/${gameMode}: ${groupNames.join(', ')}`);
 
   for (const groupName of groupNames) {
     // Check if group already exists to prevent duplicates
@@ -249,11 +251,11 @@ const importGroupsForLocaleAndGameMode = async (
  */
 export const migrateActionGroups = async (): Promise<boolean> => {
   try {
-    console.log('Starting action groups migration...');
+    console.info('Starting action groups migration...');
 
     // Dynamically discover available locales
     const locales = await getAvailableLocales();
-    console.log('Available locales:', locales);
+    console.info('Available locales:', locales);
 
     let totalGroupsImported = 0;
     let totalTilesImported = 0;
@@ -261,14 +263,14 @@ export const migrateActionGroups = async (): Promise<boolean> => {
     for (const locale of locales) {
       // Dynamically discover available game modes for this locale
       const gameModes = await getAvailableGameModes(locale);
-      console.log(`Available game modes for ${locale}:`, gameModes);
+      console.info(`Available game modes for ${locale}:`, gameModes);
 
       for (const gameMode of gameModes) {
         try {
           const result = await importGroupsForLocaleAndGameMode(locale, gameMode);
           totalGroupsImported += result.groupsImported;
           totalTilesImported += result.tilesImported;
-          console.log(
+          console.info(
             `Imported ${result.groupsImported} groups and ${result.tilesImported} tiles for ${locale}/${gameMode}`
           );
         } catch (error) {
@@ -277,12 +279,12 @@ export const migrateActionGroups = async (): Promise<boolean> => {
       }
     }
 
-    console.log(
+    console.info(
       `Migration completed: ${totalGroupsImported} groups, ${totalTilesImported} tiles imported`
     );
 
     // Clean up any duplicates that might exist from previous migrations
-    console.log('Cleaning up duplicate groups...');
+    console.info('Cleaning up duplicate groups...');
     let totalDuplicatesRemoved = 0;
     for (const locale of locales) {
       const gameModes = await getAvailableGameModes(locale);
@@ -293,7 +295,7 @@ export const migrateActionGroups = async (): Promise<boolean> => {
     }
 
     if (totalDuplicatesRemoved > 0) {
-      console.log(`Removed ${totalDuplicatesRemoved} duplicate groups`);
+      console.info(`Removed ${totalDuplicatesRemoved} duplicate groups`);
     }
 
     // Migration completed successfully
@@ -314,20 +316,20 @@ export const cleanupDuplicateGroups = async (): Promise<number> => {
     const locales = await getAvailableLocales();
     let totalDuplicatesRemoved = 0;
 
-    console.log('Starting duplicate cleanup across all locales and game modes...');
+    console.info('Starting duplicate cleanup across all locales and game modes...');
 
     for (const locale of locales) {
       const gameModes = await getAvailableGameModes(locale);
       for (const gameMode of gameModes) {
         const duplicatesRemoved = await removeDuplicateGroups(locale, gameMode);
         if (duplicatesRemoved > 0) {
-          console.log(`Removed ${duplicatesRemoved} duplicates from ${locale}/${gameMode}`);
+          console.info(`Removed ${duplicatesRemoved} duplicates from ${locale}/${gameMode}`);
         }
         totalDuplicatesRemoved += duplicatesRemoved;
       }
     }
 
-    console.log(`Cleanup completed: removed ${totalDuplicatesRemoved} duplicate groups total`);
+    console.info(`Cleanup completed: removed ${totalDuplicatesRemoved} duplicate groups total`);
     return totalDuplicatesRemoved;
   } catch (error) {
     console.error('Error in cleanupDuplicateGroups:', error);

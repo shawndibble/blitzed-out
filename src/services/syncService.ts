@@ -1,6 +1,7 @@
 import { getAuth } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
+import { SYNC_DELAY_MS } from '@/constants/actionConstants';
 import {
   addCustomTile,
   deleteAllIsCustomTiles as deleteAllCustomTiles,
@@ -155,7 +156,7 @@ export async function syncDataFromFirebase(): Promise<boolean> {
       await deleteAllCustomTiles();
 
       // Add a delay after clearing custom tiles before syncing with remote server
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, SYNC_DELAY_MS));
 
       // Only import if there are tiles to import
       if (userData.customTiles && userData.customTiles.length > 0) {
@@ -175,9 +176,9 @@ export async function syncDataFromFirebase(): Promise<boolean> {
             console.error('Error importing custom tile:', tile, error);
           }
         }
-        // Custom tiles imported successfully
+        // Successfully processed and imported custom tiles from Firebase into local Dexie database
       } else {
-        // No custom tiles to import
+        // Firebase data contains empty custom tiles array - local database cleared but no new tiles to import
       }
     }
 
@@ -187,18 +188,18 @@ export async function syncDataFromFirebase(): Promise<boolean> {
       await deleteAllCustomGroups();
 
       // Add a delay after clearing custom groups before syncing with remote server
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, SYNC_DELAY_MS));
 
       // Only import if there are groups to import
       if (userData.customGroups && userData.customGroups.length > 0) {
         try {
           await importCustomGroups(userData.customGroups as CustomGroupPull[]);
-          // Custom groups imported successfully
+          // Successfully bulk imported custom groups from Firebase with validation and error handling
         } catch (error) {
           console.error('Error importing custom groups:', error);
         }
       } else {
-        // No custom groups to import
+        // Firebase data contains empty custom groups array - local database cleared but no new groups to import
       }
     }
 
@@ -213,7 +214,7 @@ export async function syncDataFromFirebase(): Promise<boolean> {
           isActive: board.isActive || 0,
         });
       }
-      // Game boards imported successfully
+      // Successfully imported all game boards from Firebase, upserting each board with proper defaults for missing fields
     }
 
     return true;
@@ -242,8 +243,8 @@ export function startPeriodicSync(intervalMinutes = 5): boolean {
     }
   }, intervalMs);
 
-  // Note: Immediate sync is handled by the caller (auth context)
-  // to prevent duplicate sync operations
+  // Note: Initial sync on auth state change is handled by AuthContext to prevent
+  // race conditions and duplicate API calls during user login/registration flow
 
   return true;
 }
