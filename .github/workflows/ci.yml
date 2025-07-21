@@ -30,7 +30,10 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        run: npm run test:run
+        run: npm run test:ci
+        env:
+          NODE_ENV: test
+          CI: true
 
       - name: Build project
         run: npm run build
