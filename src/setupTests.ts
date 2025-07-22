@@ -192,6 +192,7 @@ Object.defineProperty(window, 'matchMedia', {
 // Clean up after each test
 afterEach(() => {
   vi.clearAllMocks();
+  vi.clearAllTimers(); // Clear any remaining timers
   console.error = originalError;
   cleanup(); // Clean up DOM between tests
 });

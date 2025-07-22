@@ -104,7 +104,15 @@ export const getCustomGroupByName = async (
  */
 export const addCustomGroup = async (group: CustomGroupBase): Promise<string | undefined> => {
   try {
-    const id = await customGroups.add(group);
+    // The creating hook will add id, createdAt, and updatedAt fields
+    // We need to provide the required fields that the hook expects
+    const groupWithTimestamps = {
+      ...group,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Omit<CustomGroupPull, 'id'>;
+
+    const id = await customGroups.add(groupWithTimestamps);
     return id;
   } catch (error) {
     console.error('Error in addCustomGroup:', error);

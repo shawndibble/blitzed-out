@@ -72,31 +72,6 @@ import db from '../store';
 const mockDb = db as any;
 
 describe('customGroups store', () => {
-  // Helper functions for creating mock objects
-  const createMockCollection = () => {
-    const mockCollection = {
-      filter: vi.fn(),
-      toArray: vi.fn(),
-      first: vi.fn(),
-    };
-    mockCollection.filter.mockReturnValue(mockCollection);
-    mockCollection.toArray.mockResolvedValue([]);
-    mockCollection.first.mockResolvedValue(undefined);
-    return mockCollection;
-  };
-
-  const createMockWhere = () => {
-    const mockWhere = {
-      equals: vi.fn(),
-      and: vi.fn(),
-      first: vi.fn(),
-    };
-    mockWhere.equals.mockReturnValue(mockWhere);
-    mockWhere.and.mockReturnValue(mockWhere);
-    mockWhere.first.mockResolvedValue(undefined);
-    return mockWhere;
-  };
-
   const mockGroup: CustomGroupBase = {
     name: 'testGroup',
     label: 'Test Group',
@@ -183,16 +158,15 @@ describe('customGroups store', () => {
   });
 
   describe('getAllAvailableGroups', () => {
-    let mockCollection: any;
-
-    beforeEach(() => {
-      mockCollection = createMockCollection();
-      vi.mocked(mockDb.customGroups.toCollection).mockReturnValue(mockCollection);
-    });
-
     it('should get all groups for locale and gameMode', async () => {
       const expectedGroups = [mockGroupPull];
-      vi.mocked(mockCollection.toArray).mockResolvedValue(expectedGroups);
+      // Set up the mock to return the expected groups
+      const mockCollection = {
+        filter: vi.fn().mockReturnThis(),
+        toArray: vi.fn().mockResolvedValue(expectedGroups),
+        first: vi.fn().mockResolvedValue(undefined),
+      };
+      vi.mocked(mockDb.customGroups.toCollection).mockReturnValue(mockCollection);
 
       const result = await getAllAvailableGroups('en', 'online');
 
@@ -202,6 +176,7 @@ describe('customGroups store', () => {
     });
 
     it('should handle empty results', async () => {
+      const mockCollection = mockDb.customGroups.toCollection();
       vi.mocked(mockCollection.toArray).mockResolvedValue([]);
 
       const result = await getAllAvailableGroups('fr', 'local');
@@ -211,6 +186,7 @@ describe('customGroups store', () => {
 
     it('should handle errors when fetching fails', async () => {
       const error = new Error('Fetch failed');
+      const mockCollection = mockDb.customGroups.toCollection();
       vi.mocked(mockCollection.toArray).mockRejectedValue(error);
 
       await expect(getAllAvailableGroups('en', 'online')).resolves.toEqual([]);
@@ -218,15 +194,14 @@ describe('customGroups store', () => {
   });
 
   describe('getGroupIntensities', () => {
-    let mockWhere: any;
-
-    beforeEach(() => {
-      mockWhere = createMockWhere();
-      vi.mocked(mockDb.customGroups.where).mockReturnValue(mockWhere);
-    });
-
     it('should get intensities for a specific group', async () => {
-      vi.mocked(mockWhere.first).mockResolvedValue(mockGroupPull);
+      // Set up the mock to return the expected group
+      const mockWhere = {
+        equals: vi.fn().mockReturnThis(),
+        and: vi.fn().mockReturnThis(),
+        first: vi.fn().mockResolvedValue(mockGroupPull),
+      };
+      vi.mocked(mockDb.customGroups.where).mockReturnValue(mockWhere);
 
       const result = await getGroupIntensities('testGroup', 'en', 'online');
 
@@ -236,6 +211,7 @@ describe('customGroups store', () => {
     });
 
     it('should return empty array when group not found', async () => {
+      const mockWhere = mockDb.customGroups.where('name');
       vi.mocked(mockWhere.first).mockResolvedValue(undefined);
 
       const result = await getGroupIntensities('nonexistent', 'en', 'online');
@@ -245,6 +221,7 @@ describe('customGroups store', () => {
 
     it('should handle errors when fetching intensities fails', async () => {
       const error = new Error('Fetch intensities failed');
+      const mockWhere = mockDb.customGroups.where('name');
       vi.mocked(mockWhere.first).mockRejectedValue(error);
 
       await expect(getGroupIntensities('testGroup', 'en', 'online')).resolves.toEqual([]);
@@ -252,6 +229,7 @@ describe('customGroups store', () => {
 
     it('should return empty array when group has no intensities', async () => {
       const groupWithoutIntensities = { ...mockGroupPull, intensities: [] };
+      const mockWhere = mockDb.customGroups.where('name');
       vi.mocked(mockWhere.first).mockResolvedValue(groupWithoutIntensities);
 
       const result = await getGroupIntensities('testGroup', 'en', 'online');

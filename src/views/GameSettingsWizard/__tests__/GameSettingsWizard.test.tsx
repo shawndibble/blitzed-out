@@ -228,12 +228,8 @@ describe('GameSettingsWizard', () => {
 
       // PUBLIC room with close function skips to step 3 (actions-step)
       // because PUBLIC room forces online mode, skipping room and game mode steps
-      await waitFor(
-        () => {
-          expect(screen.getByTestId('actions-step')).toBeInTheDocument();
-        },
-        { timeout: 1000 }
-      );
+      // Should immediately render the actions step
+      expect(screen.getByTestId('actions-step')).toBeInTheDocument();
     });
 
     it('starts at step 1 for public room when no close function', () => {
@@ -249,12 +245,8 @@ describe('GameSettingsWizard', () => {
 
       // Private room with close function skips to step 3 (actions-step)
       // because the gameMode is already 'online' in the mocked form data
-      await waitFor(
-        () => {
-          expect(screen.getByTestId('actions-step')).toBeInTheDocument();
-        },
-        { timeout: 3000 }
-      );
+      // Should immediately render the actions step
+      expect(screen.getByTestId('actions-step')).toBeInTheDocument();
     });
 
     it('starts at step 1 for private room when no close function', () => {

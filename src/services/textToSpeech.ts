@@ -1,4 +1,4 @@
-import { languages } from './dexieActionImport';
+import { languages } from './i18nHelpers';
 
 export default function speak(message: string, language: string): void {
   const utterance = new SpeechSynthesisUtterance();

@@ -19,12 +19,15 @@ interface PickActionsProps {
 }
 
 const getAction = (formData: Settings): string => {
-  const action = !isOnlineMode(formData?.gameMode)
-    ? formData.isNaked
-      ? 'sex'
-      : 'foreplay'
-    : 'solo';
-  return action;
+  if (isOnlineMode(formData?.gameMode)) {
+    return 'solo';
+  }
+
+  if (formData.isNaked) {
+    return 'sex';
+  }
+
+  return 'foreplay';
 };
 
 export default function PickActions({

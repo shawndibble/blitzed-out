@@ -25,10 +25,7 @@ export default function ActionsStep({
   actionsList,
 }: ActionsStepProps): JSX.Element {
   function settingSelectLists(type: string): string[] {
-    const filteredOptions = Object.keys(actionsList).filter(
-      (option) => actionsList[option]?.type === type
-    );
-    return filteredOptions;
+    return Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
   }
 
   // on load, purge invalid actions.

@@ -101,6 +101,11 @@ describe('MessagesProvider', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.clearAllTimers(); // Clear any pending timers
+    // Ensure unsubscribe is called to clean up any listeners
+    if (mockUnsubscribe) {
+      mockUnsubscribe();
+    }
   });
 
   describe('Provider Setup', () => {

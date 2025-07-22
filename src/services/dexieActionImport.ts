@@ -1,22 +1,6 @@
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { CustomGroupPull } from '@/types/customGroups';
 
-// Languages data (extracted from languages.json for compatibility)
-export const languages: Record<string, { label: string; voice: string }> = {
-  en: {
-    label: 'English',
-    voice: 'Google UK English Male',
-  },
-  es: {
-    label: 'Español',
-    voice: 'Google español de Estados Unidos',
-  },
-  fr: {
-    label: 'Française',
-    voice: 'Google français',
-  },
-};
-
 /**
  * Convert Dexie custom groups to the format expected by the old importActions function
  */

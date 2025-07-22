@@ -11,9 +11,15 @@ export default mergeConfig(
       setupFiles: ['./src/setupTests.ts'],
       css: true,
       reporters: ['verbose'],
-      testTimeout: 10000,
-      hookTimeout: 10000,
+      slowTestThreshold: 1000, // Flag tests over 1 second as slow
+      testTimeout: 5000,
+      hookTimeout: 5000,
       pool: 'forks',
+      poolOptions: {
+        forks: {
+          isolate: true,
+        },
+      },
       coverage: {
         reporter: ['text', 'json', 'html'],
         exclude: [

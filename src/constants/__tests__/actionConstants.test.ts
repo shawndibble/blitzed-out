@@ -58,7 +58,7 @@ describe('actionConstants', () => {
       expect(DEFAULT_INTENSITY_LABELS.ADVANCED).toBe('intensityLabels.advanced');
     });
 
-    it('should be marked as readonly', () => {
+    it('should validate structure and values', () => {
       // The object is marked as const in TypeScript but not frozen in runtime
       // This test validates the structure is available
       expect(DEFAULT_INTENSITY_LABELS.BEGINNER).toBe('intensityLabels.beginner');
