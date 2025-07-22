@@ -12,8 +12,8 @@
     "start": "vite",
     "build": "tsc --project tsconfig.build.json && vite build",
     "prepare": "husky",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest",
+    "test:run": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit"

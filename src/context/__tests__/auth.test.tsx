@@ -57,7 +57,10 @@ describe('AuthProvider', () => {
 
   afterEach(() => {
     vi.clearAllTimers();
+    vi.clearAllMocks();
     (window as any).authContext = undefined;
+    // Reset auth state callback
+    authStateChangedCallback = null;
   });
 
   const wrapper = ({ children }: { children: ReactNode }) => (
