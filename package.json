@@ -97,17 +97,12 @@
     ]
   },
   "lint-staged": {
-    "src/**/*.(ts|tsx|js|jsx)": [
+    "**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "src/**/*.(json|css|scss|md)|.(babelrc|prettierrc|eslint.js|tsconfig.json)": [
+    "**/*.{json,css,scss,md,yml,yaml}": [
       "prettier --write"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }

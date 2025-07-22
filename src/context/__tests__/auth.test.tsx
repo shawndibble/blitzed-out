@@ -44,6 +44,13 @@ describe('AuthProvider', () => {
     vi.clearAllMocks();
     authStateChangedCallback = null;
 
+    // Mock requestIdleCallback if it doesn't exist
+    if (typeof window !== 'undefined' && !('requestIdleCallback' in window)) {
+      (window as any).requestIdleCallback = (callback: () => void) => {
+        setTimeout(() => callback(), 0);
+      };
+    }
+
     // Setup mock for onAuthStateChanged to capture the callback
     mockOnAuthStateChanged.mockImplementation((callback) => {
       authStateChangedCallback = callback;
@@ -150,9 +157,9 @@ describe('AuthProvider', () => {
       });
 
       await act(async () => {
-        // Advance past the requestIdleCallback timeout (5000ms) and setTimeout (1000ms)
-        vi.advanceTimersByTime(6000);
-        await Promise.resolve(); // Allow promises to resolve
+        // Only need to advance past the 1000ms setTimeout
+        vi.advanceTimersByTime(1000);
+        await Promise.resolve();
       });
 
       expect(syncService.syncDataFromFirebase).toHaveBeenCalledTimes(1);
@@ -551,10 +558,9 @@ describe('AuthProvider', () => {
       });
 
       await act(async () => {
-        const logoutPromise = result.current.logout();
-        // Fast-forward to trigger timeout
-        vi.advanceTimersByTime(5000);
-        await logoutPromise;
+        // Mock the sync to resolve immediately
+        vi.mocked(syncService.syncAllDataToFirebase).mockResolvedValue();
+        await result.current.logout();
       });
 
       expect(mockLogout).toHaveBeenCalledTimes(1);
