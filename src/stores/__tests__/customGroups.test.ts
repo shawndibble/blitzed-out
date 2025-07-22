@@ -110,7 +110,13 @@ describe('customGroups store', () => {
       const result = await addCustomGroup(mockGroup);
 
       expect(result).toBe('test-id-123');
-      expect(mockDb.customGroups.add).toHaveBeenCalledWith(mockGroup);
+      expect(mockDb.customGroups.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...mockGroup,
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+        })
+      );
     });
 
     it('should handle errors when adding fails', async () => {
