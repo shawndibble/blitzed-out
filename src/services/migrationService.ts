@@ -211,8 +211,6 @@ const importGroupsForLocaleAndGameMode = async (
   let groupsImported = 0;
   let tilesImported = 0;
 
-  console.info(`Importing groups for ${locale}/${gameMode}: ${groupNames.join(', ')}`);
-
   for (const groupName of groupNames) {
     // Check if group already exists to prevent duplicates
     const existingGroup = await getCustomGroupByName(groupName, locale, gameMode);
@@ -255,7 +253,6 @@ export const migrateActionGroups = async (): Promise<boolean> => {
 
     // Dynamically discover available locales
     const locales = await getAvailableLocales();
-    console.info('Available locales:', locales);
 
     let totalGroupsImported = 0;
     let totalTilesImported = 0;
@@ -263,16 +260,12 @@ export const migrateActionGroups = async (): Promise<boolean> => {
     for (const locale of locales) {
       // Dynamically discover available game modes for this locale
       const gameModes = await getAvailableGameModes(locale);
-      console.info(`Available game modes for ${locale}:`, gameModes);
 
       for (const gameMode of gameModes) {
         try {
           const result = await importGroupsForLocaleAndGameMode(locale, gameMode);
           totalGroupsImported += result.groupsImported;
           totalTilesImported += result.tilesImported;
-          console.info(
-            `Imported ${result.groupsImported} groups and ${result.tilesImported} tiles for ${locale}/${gameMode}`
-          );
         } catch (error) {
           console.error(`Error importing groups for ${locale}/${gameMode}:`, error);
         }
@@ -284,18 +277,11 @@ export const migrateActionGroups = async (): Promise<boolean> => {
     );
 
     // Clean up any duplicates that might exist from previous migrations
-    console.info('Cleaning up duplicate groups...');
-    let totalDuplicatesRemoved = 0;
     for (const locale of locales) {
       const gameModes = await getAvailableGameModes(locale);
       for (const gameMode of gameModes) {
-        const duplicatesRemoved = await removeDuplicateGroups(locale, gameMode);
-        totalDuplicatesRemoved += duplicatesRemoved;
+        await removeDuplicateGroups(locale, gameMode);
       }
-    }
-
-    if (totalDuplicatesRemoved > 0) {
-      console.info(`Removed ${totalDuplicatesRemoved} duplicate groups`);
     }
 
     // Migration completed successfully
