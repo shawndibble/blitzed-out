@@ -14,7 +14,7 @@ import CopyToClipboard from '@/components/CopyToClipboard';
 import { Share } from '@mui/icons-material';
 import ActionText from './actionText';
 import { Message as MessageType } from '@/types/Message';
-import { Timestamp } from 'firebase/firestore';
+import { parseMessageTimestamp } from '@/helpers/timestamp';
 
 const MILLISECONDS_IN_A_MINUTE = 60000;
 
@@ -65,7 +65,7 @@ export default function Message({
 
   // Memoize time formatting with 1-minute precision to reduce re-renders
   const ago = useMemo(() => {
-    const date = (timestamp as Timestamp)?.toDate();
+    const date = parseMessageTimestamp(timestamp);
     if (!date) return '';
 
     // Round to the nearest minute to reduce unnecessary re-renders
