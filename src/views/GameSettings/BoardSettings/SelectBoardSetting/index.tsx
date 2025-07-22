@@ -44,12 +44,17 @@ export default function SelectBoardSetting({
   const label = actionsFolder[option]?.label;
 
   function handleChange(event: SelectChangeEvent<any> | any, key: string, nestedKey: string): void {
+    const existingAction = settings.selectedActions?.[key];
     setSettings({
       ...settings,
-      [key]: {
-        ...settings[key],
-        type,
-        [nestedKey]: event?.target?.value,
+      selectedActions: {
+        ...settings.selectedActions,
+        [key]: {
+          type,
+          level: existingAction?.level ?? 0,
+          ...existingAction,
+          [nestedKey]: event?.target?.value,
+        },
       },
       boardUpdated: true,
     });
@@ -90,7 +95,7 @@ export default function SelectBoardSetting({
         <Grid size={6}>
           <SettingsSelect
             sx={{ ml: 1 }}
-            value={settings[option]?.role}
+            value={settings.selectedActions?.[option]?.role}
             onChange={(event: SelectChangeEvent<string>) => handleChange(event, option, 'role')}
             label={`${t('role')}: ${label}`}
             options={roleOptions}
@@ -125,7 +130,7 @@ export default function SelectBoardSetting({
                     <Help sx={{ ml: 1, fontSize: 16 }} />
                   </>
                 }
-                value={settings[option]?.variation || 'standalone'}
+                value={settings.selectedActions?.[option]?.variation || 'standalone'}
                 onChange={(event) => handleChange(event, option, 'variation')}
               >
                 <MenuItem value="standalone">
