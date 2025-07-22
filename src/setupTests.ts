@@ -1,12 +1,21 @@
-import '@testing-library/jest-dom';
-import React from 'react';
 import { afterEach, vi, beforeEach } from 'vitest';
 
+// Mock syncService to prevent auth context errors - must be before other imports
+vi.mock('@/services/syncService', () => ({
+  syncDataFromFirebase: () => Promise.resolve(true),
+  syncAllDataToFirebase: () => Promise.resolve(true),
+  startPeriodicSync: () => {},
+  stopPeriodicSync: () => {},
+}));
+
+import '@testing-library/jest-dom';
+import React from 'react';
+
 // Configure React Testing Library
-import { configure } from '@testing-library/react';
+import { configure, cleanup } from '@testing-library/react';
 configure({
   testIdAttribute: 'data-testid',
-  asyncUtilTimeout: 5000,
+  asyncUtilTimeout: 3000,
   computedStyleSupportsPseudoElements: false,
 });
 
@@ -35,8 +44,7 @@ vi.mock('firebase/app', () => ({
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({
     currentUser: null,
-    onAuthStateChanged: vi.fn((callback) => {
-      callback(null);
+    onAuthStateChanged: vi.fn(() => {
       return vi.fn(); // unsubscribe function
     }),
   })),
@@ -184,5 +192,7 @@ Object.defineProperty(window, 'matchMedia', {
 // Clean up after each test
 afterEach(() => {
   vi.clearAllMocks();
+  vi.clearAllTimers(); // Clear any remaining timers
   console.error = originalError;
+  cleanup(); // Clean up DOM between tests
 });

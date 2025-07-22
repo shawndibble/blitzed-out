@@ -16,6 +16,7 @@ import { useCallback } from 'react';
 import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 import { GameBoardResult } from '@/types/gameBoard';
+import { getValidationConstants } from '@/services/validationService';
 
 interface RoomChangeResult {
   roomChanged: boolean;
@@ -26,6 +27,42 @@ function updateRoomBackground(formData: Settings): void {
   if (!formData.roomBackgroundURL || !isValidURL(formData.roomBackgroundURL)) {
     formData.roomBackground = 'app';
   }
+}
+
+/**
+ * Clean form data by removing any action/consumption entries that have been deselected
+ * This ensures that the Zustand store doesn't retain stale action selections
+ */
+function cleanFormData(formData: Settings): Settings {
+  const cleanedData = { ...formData };
+  const cleanedSelectedActions: Record<string, any> = {};
+
+  // Clean the selectedActions object
+  if (formData.selectedActions) {
+    Object.entries(formData.selectedActions).forEach(([key, entry]) => {
+      if (entry && entry.level > 0) {
+        cleanedSelectedActions[key] = entry;
+      }
+    });
+  }
+
+  // Remove any old root-level action keys (for migration cleanup)
+  const validationConstants = getValidationConstants();
+  Object.keys(cleanedData).forEach((key) => {
+    const entry = cleanedData[key] as any;
+    if (
+      entry &&
+      typeof entry === 'object' &&
+      entry.type &&
+      validationConstants.VALID_GROUP_TYPES.includes(entry.type)
+    ) {
+      delete cleanedData[key];
+    }
+  });
+
+  cleanedData.selectedActions = cleanedSelectedActions;
+
+  return cleanedData;
 }
 
 export default function useSubmitGameSettings(): (
@@ -105,8 +142,11 @@ export default function useSubmitGameSettings(): (
         });
       }
 
+      // Clean the formData to remove any deselected actions/consumptions before storing
+      const cleanedFormData = cleanFormData(formData);
+
       updateSettings({
-        ...formData,
+        ...cleanedFormData,
         boardUpdated: false,
         roomUpdated: false,
         gameMode,

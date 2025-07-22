@@ -10,7 +10,7 @@ interface ActionTextProps {
 
 function ActionText({ text }: ActionTextProps): ReactNode {
   const { t } = useTranslation();
-  
+
   // Memoize the expensive text processing
   const processedText = useMemo(() => {
     const seconds = extractTime(text, t('seconds'));

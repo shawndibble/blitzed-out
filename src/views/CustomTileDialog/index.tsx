@@ -6,7 +6,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { importCustomTiles, getTiles } from '@/stores/customTiles';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import ToastAlert from '@/components/ToastAlert';
-import { importActions } from '@/services/importLocales';
+import { importActions } from '@/services/dexieActionImport';
 import ImportExport from '@/views/CustomTileDialog/ImportExport';
 import AddCustomTile from './AddCustomTile';
 import CustomTileHelp from './CustomTileHelp';
@@ -55,15 +55,16 @@ export default function CustomTileDialog({
     async function loadAllGameModeActions() {
       setIsLoadingActions(true);
       try {
-        const [onlineActions, localActions] = await Promise.all([
+        const [onlineActions, localActions, soloActions] = await Promise.all([
           importActions(i18n.resolvedLanguage, 'online'),
           importActions(i18n.resolvedLanguage, 'local'),
+          importActions(i18n.resolvedLanguage, 'solo'),
         ]);
 
         setAllGameModeActions({
           online: onlineActions,
           local: localActions,
-          solo: {}, // Initialize solo game mode actions
+          solo: soloActions,
         });
       } catch (error) {
         console.error('Error loading game mode actions:', error);

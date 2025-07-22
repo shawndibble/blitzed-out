@@ -19,19 +19,19 @@ interface MessagesProviderProps {
 
 export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
   const { id: room } = useParams<Params>();
-  const { 
-    messages, 
-    loading: isLoading, 
-    loadMessages, 
-    setLoading, 
+  const {
+    messages,
+    loading: isLoading,
+    loadMessages,
+    setLoading,
     setRoom,
-    clearMessages 
+    clearMessages,
   } = useMessagesStore();
 
   useEffect(() => {
     setLoading(true);
     setRoom(room || null);
-    
+
     if (!room) {
       clearMessages();
       return;

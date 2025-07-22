@@ -23,7 +23,10 @@ function separateConsumableFromValidRest(
   gameOptions: Settings,
   actionsList: Record<string, any>
 ): SeparatedOptions {
-  return Object.entries(gameOptions).reduce(
+  // Use selectedActions from the new structure
+  const selectedActions = gameOptions.selectedActions || {};
+
+  return Object.entries(selectedActions).reduce(
     (acc: SeparatedOptions, [key, value]: [string, any]) => {
       // Check if the key is in actionsList
       if (key in actionsList) {

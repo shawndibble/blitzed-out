@@ -6,6 +6,7 @@ import { CustomTilePull } from '@/types/customTiles';
 import { DocumentData, DocumentReference } from 'firebase/firestore';
 import { User } from '@/types';
 import { TileExport } from '@/types/gameBoard';
+import { getCustomGroupByName } from '@/stores/customGroups';
 
 interface ActionsList {
   [key: string]: {
@@ -20,15 +21,21 @@ function getCustomTileCount(
   customTiles: CustomTilePull[] | null | undefined,
   actionsList: ActionsList
 ): number {
+  // Use selectedActions structure only
+  const actionEntries = settings.selectedActions || {};
+
   const settingsDataFolder = Object.entries(actionsList)
-    .filter(([key]) => settings[key])
+    .filter(([key]) => actionEntries[key])
     .reduce<Record<string, string[]>>((acc, [key, value]) => {
-      acc[key] = Object.keys(value.actions).slice(1, settings[key] + 1);
+      acc[key] = Object.keys(value.actions).slice(1, actionEntries[key].level + 1);
       return acc;
     }, {});
 
   const usedCustomTiles =
     customTiles?.filter((entry) => {
+      // Only count tiles that are actually custom (not migrated defaults)
+      if (!entry.isCustom) return false;
+
       if (entry.group === 'misc') return true;
       const intensityArray = settingsDataFolder[entry.group];
       return intensityArray && intensityArray.length >= Number(entry.intensity);
@@ -37,12 +44,12 @@ function getCustomTileCount(
   return usedCustomTiles.length;
 }
 
-function getSettingsMessage(
+async function getSettingsMessage(
   settings: Settings,
   customTiles: CustomTilePull[] | null | undefined,
   actionsList: ActionsList,
   reason?: string
-): string {
+): Promise<string> {
   const { t } = i18next;
   let message = `### ${i18next.t('gameSettings')}\r\n`;
   if (reason) {
@@ -51,10 +58,13 @@ function getSettingsMessage(
   message += '--- \r\n';
 
   // output only settings that have a corresponding actionsList entry.
-  Object.entries(actionsList).forEach(([key, val]) => {
-    if (!settings[key]) return;
+  // Use selectedActions structure only
+  const actionEntries = settings.selectedActions || {};
 
-    const { role, variation, level } = settings[key];
+  Object.entries(actionsList).forEach(([key, val]) => {
+    if (!actionEntries[key]) return;
+
+    const { role, variation, level } = actionEntries[key];
     const actualRole = role || settings.role || 'sub';
 
     if (level > 0) {
@@ -74,6 +84,29 @@ function getSettingsMessage(
     }
   });
 
+  // Add custom groups from settings.customGroups
+  if (settings.customGroups && Array.isArray(settings.customGroups)) {
+    for (const customGroup of settings.customGroups) {
+      if (customGroup.groupName && customGroup.intensity) {
+        try {
+          // Get the actual custom group data to access the label
+          const groupData = await getCustomGroupByName(
+            customGroup.groupName,
+            settings.locale || 'en',
+            settings.gameMode || 'online'
+          );
+
+          const groupLabel = groupData?.label || customGroup.groupName;
+          message += `* ${groupLabel}: Level ${customGroup.intensity} (Custom)\r\n`;
+        } catch (error) {
+          console.error(`Error loading custom group ${customGroup.groupName}:`, error);
+          // Fallback to using groupName as label
+          message += `* ${customGroup.groupName}: Level ${customGroup.intensity} (Custom)\r\n`;
+        }
+      }
+    }
+  }
+
   // if our last line was the --- \r\n then return nothing because we have no settings.
   if (message.endsWith('--- \r\n')) {
     return '';
@@ -86,7 +119,7 @@ function getSettingsMessage(
   message += `* ${t('difficulty')}: ${t(difficulty ?? 'normal')} \r\n`;
 
   if (finishRange) {
-    message += `* ${t('finishSlider')} ${finishRange[0]}%  | ${finishRange[1] - finishRange[0]}% | ${100 - finishRange[1]}%`;
+    message += `* ${t('finishSlider')} ${finishRange[0]}%  | ${finishRange[1] - finishRange[0]}% | ${100 - finishRange[1]}% \r\n`;
   }
 
   const customTileCount = getCustomTileCount(settings, customTiles, actionsList);
@@ -149,7 +182,7 @@ export default async function sendGameSettingsMessage({
     settings,
   });
 
-  const text = getSettingsMessage(formData, customTiles, actionsList, reason);
+  const text = await getSettingsMessage(formData, customTiles, actionsList, reason);
 
   if (!gameBoard?.id || text === '') {
     return;

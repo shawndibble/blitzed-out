@@ -6,12 +6,31 @@ import useMessages from '@/context/hooks/useMessages';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
-import { importActions } from '@/services/importLocales';
+import { importActions } from '@/services/dexieActionImport';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/customTiles';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { RoomMessage } from '@/types/Message';
 import { GameBoard } from '@/types/gameBoard';
+import { parseMessageTimestamp } from '@/helpers/timestamp';
+
+// Debounce utility
+function useDebounce<T extends any[]>(
+  callback: (...args: T) => void,
+  delay: number
+): (...args: T) => void {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  return useCallback(
+    (...args: T) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => callback(...args), delay);
+    },
+    [callback, delay]
+  );
+}
 
 interface PrivateRoomMonitorResult {
   roller: string;
@@ -36,6 +55,9 @@ export default function usePrivateRoomMonitor(
 
   // Track if we've already rebuilt the board for this room change
   const hasRebuiltRef = useRef(false);
+
+  // Track if this is the first run to prevent false positives during page load
+  const isFirstRunRef = useRef(true);
 
   const rebuildGameBoard = useCallback(
     async (messageSettings: any, messageUser: string | null = null): Promise<void> => {
@@ -82,6 +104,9 @@ export default function usePrivateRoomMonitor(
     await rebuildGameBoard({ ...settings, roomUpdated: true, room });
   }, [settings, room, updateSettings, rebuildGameBoard]);
 
+  // Debounced version of roomChanged to prevent rapid-fire calls
+  const debouncedRoomChanged = useDebounce(roomChanged, 200);
+
   // Process room messages
   useEffect(() => {
     if (isLoading || !messages.length) return;
@@ -100,11 +125,17 @@ export default function usePrivateRoomMonitor(
         setRoller(dice);
         setRoomBackground(roomBackgroundURL || '');
 
+        // Only rebuild if the room message is recent (within last 5 minutes)
+        const messageDate = parseMessageTimestamp(roomMessage.timestamp);
+        const messageAge = messageDate ? Date.now() - messageDate.getTime() : Infinity;
+        const isRecentMessage = messageAge < 5 * 60 * 1000; // 5 minutes in milliseconds
+
         const shouldRebuildGameBoard =
           roomMessage.uid !== user?.uid &&
           roomTileCount &&
           gameBoard?.length &&
-          roomTileCount !== gameBoard?.length;
+          roomTileCount !== gameBoard?.length &&
+          isRecentMessage;
 
         if (shouldRebuildGameBoard && !hasRebuiltRef.current) {
           rebuildGameBoard(messageSettings, roomMessage.displayName);
@@ -136,9 +167,24 @@ export default function usePrivateRoomMonitor(
         return;
       }
 
-      // if I am changing the room and have a game board, announce the board.
-      if (room !== settings?.room && gameBoard?.length && !hasRebuiltRef.current) {
-        roomChanged();
+      // Skip room change detection on the very first run (page load)
+      if (isFirstRunRef.current) {
+        isFirstRunRef.current = false;
+        if (settings?.roomBackgroundURL?.length) {
+          setRoomBackground(settings.roomBackgroundURL);
+        }
+        return;
+      }
+
+      // Enhanced room change detection
+      const hasRoomChanged = room !== settings?.room;
+      const hasValidSettings = settings && typeof settings.room !== 'undefined';
+      const hasGameBoard = gameBoard?.length;
+      const canRebuild = !hasRebuiltRef.current;
+
+      // Only trigger room change if we have valid conditions
+      if (hasValidSettings && hasRoomChanged && hasGameBoard && canRebuild) {
+        debouncedRoomChanged();
         return;
       }
 
@@ -148,7 +194,7 @@ export default function usePrivateRoomMonitor(
     } catch (error) {
       console.error('Error in room change effect:', error);
     }
-  }, [room, settings, gameBoard, messages, isLoading, roomChanged]);
+  }, [room, settings, gameBoard, messages, isLoading, debouncedRoomChanged]);
 
   return { roller, roomBgUrl };
 }

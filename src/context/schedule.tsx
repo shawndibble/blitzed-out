@@ -18,7 +18,7 @@ export interface ScheduleContextType {
     dateTime: Date,
     url: string,
     room?: string
-  ) => Promise<void | DocumentReference<DocumentData>>;
+  ) => Promise<undefined | DocumentReference<DocumentData>>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -34,26 +34,32 @@ function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // Optimized schedule update handler
-  const handleScheduleUpdate = useCallback((newSchedule: ScheduleItem[]) => {
-    loadSchedule(newSchedule);
-  }, [loadSchedule]);
+  const handleScheduleUpdate = useCallback(
+    (newSchedule: ScheduleItem[]) => {
+      loadSchedule(newSchedule);
+    },
+    [loadSchedule]
+  );
 
   // Memoized addToSchedule function to prevent unnecessary re-renders
-  const memoizedAddToSchedule = useCallback(async (
-    dateTime: Date,
-    url: string,
-    room?: string
-  ): Promise<void | DocumentReference<DocumentData>> => {
-    try {
-      const result = await addSchedule(dateTime, url, room);
-      // Flush any pending updates after adding
-      flushPendingScheduleUpdates();
-      return result;
-    } catch (error) {
-      console.error('Error adding to schedule:', error);
-      throw error;
-    }
-  }, [flushPendingScheduleUpdates]);
+  const memoizedAddToSchedule = useCallback(
+    async (
+      dateTime: Date,
+      url: string,
+      room?: string
+    ): Promise<undefined | DocumentReference<DocumentData>> => {
+      try {
+        const result = await addSchedule(dateTime, url, room);
+        // Flush any pending updates after adding
+        flushPendingScheduleUpdates();
+        return result || undefined;
+      } catch (error) {
+        console.error('Error adding to schedule:', error);
+        throw error;
+      }
+    },
+    [flushPendingScheduleUpdates]
+  );
 
   // Cleanup function for Firebase listener
   const cleanup = useCallback(() => {

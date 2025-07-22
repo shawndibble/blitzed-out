@@ -1,8 +1,14 @@
 import { Message, MessageType } from '@/types/Message';
+import { parseMessageTimestamp } from '@/helpers/timestamp';
 
 // chat box
 export function normalSortedMessages(messages: Message[]): Message[] {
-  return messages.sort((a, b) => a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime());
+  return messages.sort((a, b) => {
+    const aDate = parseMessageTimestamp(a.timestamp);
+    const bDate = parseMessageTimestamp(b.timestamp);
+    if (!aDate || !bDate) return 0;
+    return aDate.getTime() - bDate.getTime();
+  });
 }
 
 // latest on top

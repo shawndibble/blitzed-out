@@ -15,7 +15,7 @@ import validateFormData from './validateForm';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useRoomNavigate from '@/hooks/useRoomNavigate';
-import useActionList from '@/hooks/useActionList';
+import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 
 interface GameSettingsProps {
   closeDialog?: () => void;
@@ -37,7 +37,7 @@ export default function GameSettings({
   const navigate = useRoomNavigate();
 
   const submitSettings = useSubmitGameSettings();
-  const { isLoading, actionsList } = useActionList(formData?.gameMode);
+  const { isLoading, actionsList } = useUnifiedActionList(formData?.gameMode);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number): void => {
     setValue(newValue);

@@ -9,7 +9,7 @@ import {
   Theme,
 } from '@mui/material';
 import { t } from 'i18next';
-import { forwardRef, ReactNode } from 'react';
+import { forwardRef, ReactNode, useMemo } from 'react';
 import { Trans } from 'react-i18next';
 
 interface OptionObject {
@@ -46,21 +46,24 @@ const SettingsSelect = forwardRef<HTMLDivElement, SettingsSelectProps>(
     },
     ref
   ) => {
-    const items = options.map((option: Option) => {
-      if (typeof option === 'string') {
+    // Memoize the items array to prevent unnecessary re-renders
+    const items = useMemo(() => {
+      return options.map((option: Option) => {
+        if (typeof option === 'string') {
+          return (
+            <MenuItem key={option} value={option}>
+              {t(option)}
+            </MenuItem>
+          );
+        }
+
         return (
-          <MenuItem key={option} value={option}>
-            {t(option)}
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
           </MenuItem>
         );
-      }
-
-      return (
-        <MenuItem key={option.value} value={option.value}>
-          {option.label}
-        </MenuItem>
-      );
-    });
+      });
+    }, [options]);
 
     return (
       <FormControl fullWidth={fullWidth} margin="normal" sx={sx} {...rest} ref={ref}>

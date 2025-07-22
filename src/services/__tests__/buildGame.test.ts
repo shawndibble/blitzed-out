@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import customizeBoard from '../buildGame';
+import buildGameBoard from '../buildGame';
 import { CustomTilePull } from '@/types/customTiles';
+import { CustomGroupPull } from '@/types/customGroups';
+import { Settings } from '@/types/Settings';
 
 // Mock i18next
 vi.mock('i18next', () => ({
@@ -11,491 +13,245 @@ vi.mock('i18next', () => ({
 
 // Mock array helpers
 vi.mock('@/helpers/arrays', () => ({
-  shuffleArray: vi.fn((arr) => [...arr]),
   cycleArray: vi.fn((arr) => arr),
 }));
 
-describe('buildGame service', () => {
-  const mockActionsFolder = {
-    teasing: {
+// Mock store functions
+vi.mock('@/stores/customGroups', () => ({
+  getCustomGroups: vi.fn(),
+}));
+
+vi.mock('@/stores/customTiles', () => ({
+  getTiles: vi.fn(),
+}));
+
+import { getCustomGroups } from '@/stores/customGroups';
+import { getTiles } from '@/stores/customTiles';
+
+describe('buildGameBoard service', () => {
+  const mockGroups: CustomGroupPull[] = [
+    {
+      id: '1',
+      name: 'teasing',
       label: 'Teasing',
-      actions: {
-        'Level 1': ['Light teasing action 1', 'Light teasing action 2'],
-        'Level 2': ['Medium teasing action 1', 'Medium teasing action 2'],
-        'Level 3': ['Intense teasing action 1', 'Intense teasing action 2'],
-      },
+      intensities: [
+        { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+        { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+        { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
+      ],
+      type: 'solo',
+      isDefault: true,
+      locale: 'en',
+      gameMode: 'online',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
-    edging: {
+    {
+      id: '2',
+      name: 'edging',
       label: 'Edging',
-      actions: {
-        'Level 1': ['Light edging action 1', 'Light edging action 2'],
-        'Level 2': ['Medium edging action 1', 'Medium edging action 2'],
-        'Level 3': ['Intense edging action 1', 'Intense edging action 2'],
-      },
+      intensities: [
+        { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+        { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+        { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
+      ],
+      type: 'solo',
+      isDefault: true,
+      locale: 'en',
+      gameMode: 'online',
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
-    denial: {
-      label: 'Denial',
-      actions: {
-        'Level 1': ['Light denial action 1'],
-        'Level 2': ['Medium denial action 1'],
-        'Level 3': ['Intense denial action 1'],
-      },
-    },
-  };
+  ];
 
-  const mockSettings = {
-    role: 'sub',
-    difficulty: 'normal',
-    finishRange: [33, 66] as [number, number],
-    teasing: { level: 2 },
-    edging: { level: 3, variation: 'append' },
-    denial: { level: 1, variation: 'standalone' },
-  };
-
-  const mockCustomTiles: CustomTilePull[] = [
+  const mockTiles: CustomTilePull[] = [
     {
       id: 1,
       group: 'teasing',
       intensity: 1,
-      action: 'Custom teasing action',
-      isEnabled: 1,
+      action: 'Light teasing action 1',
       tags: [],
-      gameMode: 'online',
-      isCustom: 1,
+      isEnabled: 1,
+      isCustom: 0,
       locale: 'en',
+      gameMode: 'online',
     },
     {
       id: 2,
-      group: 'misc',
-      intensity: 1,
-      action: 'Custom misc action',
-      isEnabled: 1,
+      group: 'teasing',
+      intensity: 2,
+      action: 'Medium teasing action 1',
       tags: [],
-      gameMode: 'online',
-      isCustom: 1,
+      isEnabled: 1,
+      isCustom: 0,
       locale: 'en',
+      gameMode: 'online',
+    },
+    {
+      id: 3,
+      group: 'edging',
+      intensity: 1,
+      action: 'Light edging action 1',
+      tags: [],
+      isEnabled: 1,
+      isCustom: 0,
+      locale: 'en',
+      gameMode: 'online',
     },
   ];
 
+  const mockSettings: Settings = {
+    gameMode: 'online',
+    boardUpdated: false,
+    room: 'TEST',
+    role: 'sub',
+    difficulty: 'normal',
+    finishRange: [33, 66],
+    selectedActions: {
+      teasing: { level: 2, type: 'action' },
+      edging: { level: 1, type: 'action' },
+    },
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Setup default mocks
+    vi.mocked(getCustomGroups).mockResolvedValue(mockGroups);
+    vi.mocked(getTiles).mockResolvedValue(mockTiles);
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.resetAllMocks();
   });
 
-  describe('basic board generation', () => {
-    it('should generate a board with correct size', () => {
-      const result = customizeBoard(mockSettings, mockActionsFolder, [], 10);
+  describe('Basic board building', () => {
+    it('should build a board with start and finish tiles', async () => {
+      const result = await buildGameBoard(mockSettings, 'en', 'online', 5);
 
-      expect(result).toHaveLength(10);
+      expect(result.board).toBeDefined();
+      expect(result.board.length).toBe(7); // 5 + start + finish
+      expect(result.board[0].title).toBe('start');
+      expect(result.board[result.board.length - 1].title).toBe('finish');
     });
 
-    it('should include start and finish tiles', () => {
-      const result = customizeBoard(mockSettings, mockActionsFolder, [], 5);
+    it('should include metadata about the board build', async () => {
+      const result = await buildGameBoard(mockSettings, 'en', 'online', 5);
 
-      expect(result[0].title).toBe('start');
-      expect(result[result.length - 1].title).toBe('finish');
+      expect(result.metadata).toBeDefined();
+      expect(result.metadata.totalTiles).toBe(7);
+      expect(result.metadata.selectedGroups).toEqual(['teasing', 'edging']);
+      expect(result.metadata.missingGroups).toEqual([]);
+      expect(result.metadata.availableTileCount).toBe(3);
     });
 
-    it('should generate finish tile with correct percentage ranges', () => {
-      const result = customizeBoard(mockSettings, mockActionsFolder, [], 5);
-      const finishTile = result[result.length - 1];
-
-      expect(finishTile.description).toContain('33%');
-      expect(finishTile.description).toContain('34%'); // 100 - 66 = 34%
-      expect(finishTile.description).toContain('noCum');
-      expect(finishTile.description).toContain('ruined');
-      expect(finishTile.description).toContain('cum');
-    });
-
-    it('should default board size to 40 when not specified', () => {
-      const result = customizeBoard(mockSettings, mockActionsFolder);
-
-      expect(result).toHaveLength(40);
-    });
-  });
-
-  describe('action filtering and role handling', () => {
-    it('should filter actions based on user level selections', () => {
-      const settingsWithLevels = {
+    it('should handle empty selected actions', async () => {
+      const emptySettings: Settings = {
         ...mockSettings,
-        teasing: { level: 1 },
-        edging: { level: 0 }, // Should be excluded
-        denial: { level: 2 },
+        selectedActions: {},
       };
 
-      const result = customizeBoard(settingsWithLevels, mockActionsFolder, [], 20); // Larger board for more variety
+      const result = await buildGameBoard(emptySettings, 'en', 'online', 5);
 
-      // Should only include teasing and denial actions, not edging
-      const actionTitles = result.slice(1, -1).map((tile) => tile.title);
-      expect(actionTitles).toContain('Teasing');
-      expect(actionTitles).not.toContain('Edging');
+      expect(result.board.length).toBe(2); // Just start and finish
+      expect(result.metadata.selectedGroups).toEqual([]);
+      expect(result.metadata.tilesWithContent).toBe(2); // Start and finish tiles
+    });
+  });
 
-      // Generate multiple times to check that denial can appear (due to randomness)
-      let foundDenial = false;
-      const allFoundTitles = new Set<string>();
+  describe('Error handling', () => {
+    it('should handle store errors gracefully', async () => {
+      vi.mocked(getCustomGroups).mockRejectedValue(new Error('Database error'));
 
-      for (let i = 0; i < 50; i++) {
-        // Increase attempts
-        const testResult = customizeBoard(settingsWithLevels, mockActionsFolder, [], 20);
-        const testTitles = testResult.slice(1, -1).map((tile) => tile.title);
-        testTitles.forEach((title) => allFoundTitles.add(title));
-        if (testTitles.includes('Denial')) {
-          foundDenial = true;
-          break;
-        }
-      }
+      const result = await buildGameBoard(mockSettings, 'en', 'online', 5);
 
-      // If denial is not appearing, let's at least verify the board is working correctly
-      if (!foundDenial) {
-        // Check that at least teasing appears and edging doesn't
-        expect(Array.from(allFoundTitles)).toContain('Teasing');
-        expect(Array.from(allFoundTitles)).not.toContain('Edging');
-      } else {
-        expect(foundDenial).toBe(true);
-      }
+      expect(result.board.length).toBe(2); // Empty board with start/finish
+      expect(result.metadata.totalTiles).toBe(2);
+      expect(result.metadata.selectedGroups).toEqual([]);
     });
 
-    it('should handle role-specific action filtering for sub role', () => {
-      const actionsWithRoles = {
-        roleSpecific: {
-          label: 'Role Specific',
-          actions: {
-            'Level 1': [
-              'Action for {sub} only',
-              'Action for {dom} only',
-              'Action for {player}',
-              'Action for both {sub} and {dom}',
-            ],
-          },
+    it('should handle missing groups', async () => {
+      const settingsWithMissingGroup: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          teasing: { level: 2, type: 'action' },
+          nonexistent: { level: 1, type: 'action' },
         },
       };
 
-      const settingsForSub = {
-        ...mockSettings,
-        role: 'sub',
-        roleSpecific: { level: 1 },
-      };
+      const result = await buildGameBoard(settingsWithMissingGroup, 'en', 'online', 5);
 
-      // This test would require mocking the internal role filtering function
-      // For now, we'll test that the function doesn't crash
-      const result = customizeBoard(settingsForSub, actionsWithRoles, [], 5);
-      expect(result).toHaveLength(5);
-    });
-
-    it('should handle vers role correctly', () => {
-      const settingsForVers = {
-        ...mockSettings,
-        role: 'vers',
-        teasing: { level: 1 },
-      };
-
-      const result = customizeBoard(settingsForVers, mockActionsFolder, [], 5);
-      expect(result).toHaveLength(5);
+      expect(result.metadata.missingGroups).toContain('nonexistent');
+      expect(result.metadata.selectedGroups).toEqual(['teasing', 'nonexistent']);
     });
   });
 
-  describe('custom tiles integration', () => {
-    it('should integrate custom tiles into existing categories', () => {
-      const result = customizeBoard(mockSettings, mockActionsFolder, mockCustomTiles, 10);
-
-      expect(result).toHaveLength(10);
-      // Custom tiles should be integrated into the board generation
-    });
-
-    it('should create misc category for misc custom tiles', () => {
-      const miscCustomTile: CustomTilePull[] = [
+  describe('Role filtering', () => {
+    it('should filter tiles by role', async () => {
+      const tilesWithRoles: CustomTilePull[] = [
         {
           id: 1,
-          group: 'misc',
+          group: 'teasing',
           intensity: 1,
-          action: 'Misc custom action',
-          isEnabled: 1,
+          action: 'Action for {sub} only',
           tags: [],
-          gameMode: 'online',
-          isCustom: 1,
+          isEnabled: 1,
+          isCustom: 0,
           locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'teasing',
+          intensity: 1,
+          action: 'Action for {dom} only',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
         },
       ];
 
-      const result = customizeBoard(mockSettings, mockActionsFolder, miscCustomTile, 5);
+      vi.mocked(getTiles).mockResolvedValue(tilesWithRoles);
 
-      expect(result).toHaveLength(5);
-      // Should create misc category and integrate the custom tile
-    });
+      const subSettings: Settings = {
+        ...mockSettings,
+        role: 'sub',
+      };
 
-    it('should handle empty custom tiles array', () => {
-      const result = customizeBoard(mockSettings, mockActionsFolder, [], 5);
+      const result = await buildGameBoard(subSettings, 'en', 'online', 5);
 
-      expect(result).toHaveLength(5);
+      // Should only use tiles appropriate for sub role
+      expect(result.metadata.availableTileCount).toBe(1);
     });
   });
 
-  describe('difficulty levels', () => {
-    it('should handle normal difficulty', () => {
-      const normalSettings = { ...mockSettings, difficulty: 'normal' };
-      const result = customizeBoard(normalSettings, mockActionsFolder, [], 5);
-
-      expect(result).toHaveLength(5);
-    });
-
-    it('should handle accelerated difficulty', () => {
-      const acceleratedSettings = { ...mockSettings, difficulty: 'accelerated' };
-      const result = customizeBoard(acceleratedSettings, mockActionsFolder, [], 5);
-
-      expect(result).toHaveLength(5);
-    });
-
-    it('should handle undefined difficulty (defaults to normal)', () => {
-      const { difficulty, ...settingsWithoutDifficulty } = mockSettings;
-      void difficulty; // Intentionally excluded from settings
-      const result = customizeBoard(settingsWithoutDifficulty, mockActionsFolder, [], 5);
-
-      expect(result).toHaveLength(5);
-    });
-  });
-
-  describe('variation handling', () => {
-    it('should handle standalone variations', () => {
-      const settingsWithStandalone = {
+  describe('Intensity calculation', () => {
+    it('should respect user-selected intensity levels', async () => {
+      const settingsWithHighIntensity: Settings = {
         ...mockSettings,
-        teasing: { level: 2, variation: 'standalone' },
-      };
-
-      const result = customizeBoard(settingsWithStandalone, mockActionsFolder, [], 10);
-
-      expect(result).toHaveLength(10);
-    });
-
-    it('should handle append variations', () => {
-      const settingsWithAppend = {
-        ...mockSettings,
-        teasing: { level: 2, variation: 'append' },
-        edging: { level: 1 },
-      };
-
-      const result = customizeBoard(settingsWithAppend, mockActionsFolder, [], 10);
-
-      expect(result).toHaveLength(10);
-    });
-
-    it('should handle appendSome variations', () => {
-      const settingsWithAppendSome = {
-        ...mockSettings,
-        teasing: { level: 2, variation: 'appendSome' },
-        edging: { level: 1 },
-      };
-
-      const result = customizeBoard(settingsWithAppendSome, mockActionsFolder, [], 10);
-
-      expect(result).toHaveLength(10);
-    });
-  });
-
-  describe('edge cases and error handling', () => {
-    it('should handle settings with no valid categories', () => {
-      const emptySettings = { role: 'sub' };
-
-      // This should trigger the localStorage clear and reload
-      const mockClear = vi.fn();
-      const mockReload = vi.fn();
-
-      Object.defineProperty(window, 'localStorage', {
-        value: { clear: mockClear },
-        writable: true,
-      });
-
-      Object.defineProperty(window, 'location', {
-        value: { reload: mockReload },
-        writable: true,
-      });
-
-      customizeBoard(emptySettings, mockActionsFolder, [], 5);
-
-      expect(mockClear).toHaveBeenCalled();
-      expect(mockReload).toHaveBeenCalled();
-    });
-
-    it('should handle actions with empty arrays', () => {
-      const actionsWithEmptyArrays = {
-        empty: {
-          label: 'Empty',
-          actions: {
-            'Level 1': [],
-            'Level 2': [],
-          },
+        selectedActions: {
+          teasing: { level: 3, type: 'action' }, // High intensity
         },
       };
 
-      const settingsWithEmpty = {
+      const result = await buildGameBoard(settingsWithHighIntensity, 'en', 'online', 5);
+
+      expect(result.board.length).toBe(7);
+      expect(result.metadata.selectedGroups).toEqual(['teasing']);
+    });
+
+    it('should handle difficulty settings', async () => {
+      const acceleratedSettings: Settings = {
         ...mockSettings,
-        empty: { level: 2 },
+        difficulty: 'accelerated',
       };
 
-      const result = customizeBoard(settingsWithEmpty, actionsWithEmptyArrays, [], 5);
+      const result = await buildGameBoard(acceleratedSettings, 'en', 'online', 5);
 
-      expect(result).toHaveLength(5);
-    });
-
-    it('should handle intensity calculation edge cases', () => {
-      const settingsWithHighIntensity = {
-        ...mockSettings,
-        teasing: { level: 10 }, // Very high level
-      };
-
-      const result = customizeBoard(settingsWithHighIntensity, mockActionsFolder, [], 5);
-
-      expect(result).toHaveLength(5);
-    });
-
-    it('should handle malformed finish range', () => {
-      const settingsWithBadFinishRange = {
-        ...mockSettings,
-        finishRange: undefined,
-      };
-
-      const result = customizeBoard(settingsWithBadFinishRange, mockActionsFolder, [], 5);
-
-      expect(result).toHaveLength(5);
-      // Should use default finish range [33, 66]
-      const finishTile = result[result.length - 1];
-      expect(finishTile.description).toContain('33%');
-      expect(finishTile.description).toContain('34%'); // 100 - 66 = 34%
-    });
-  });
-
-  describe('action description handling', () => {
-    it('should handle standalone actions correctly', () => {
-      const settingsWithStandalone = {
-        ...mockSettings,
-        teasing: { level: 1, variation: 'standalone' },
-      };
-
-      const result = customizeBoard(settingsWithStandalone, mockActionsFolder, [], 5);
-
-      // Standalone actions should not be appended to other actions
-      expect(result).toHaveLength(5);
-    });
-
-    it('should append actions correctly', () => {
-      const settingsWithAppend = {
-        ...mockSettings,
-        teasing: { level: 1 },
-        edging: { level: 1, variation: 'append' },
-      };
-
-      const result = customizeBoard(settingsWithAppend, mockActionsFolder, [], 10);
-
-      expect(result).toHaveLength(10);
-      // Some descriptions should be combinations of actions
-    });
-
-    it('should handle punctuation in appended actions', () => {
-      const actionsWithNoPunctuation = {
-        noPunctuation: {
-          label: 'No Punctuation',
-          actions: {
-            'Level 1': ['Action without punctuation'],
-          },
-        },
-      };
-
-      const settingsWithNoPunctuation = {
-        ...mockSettings,
-        teasing: { level: 1 },
-        noPunctuation: { level: 1, variation: 'append' },
-      };
-
-      const result = customizeBoard(settingsWithNoPunctuation, actionsWithNoPunctuation, [], 5);
-
-      expect(result).toHaveLength(5);
-      // Should add punctuation when appending
-    });
-  });
-
-  describe('performance and scalability', () => {
-    it('should handle large board sizes efficiently', () => {
-      const result = customizeBoard(mockSettings, mockActionsFolder, [], 1000);
-
-      expect(result).toHaveLength(1000);
-    });
-
-    it('should handle many custom tiles efficiently', () => {
-      const manyCustomTiles: CustomTilePull[] = Array.from({ length: 1000 }, (_, i) => ({
-        id: i + 1,
-        group: 'teasing',
-        intensity: (i % 3) + 1,
-        action: `Custom action ${i + 1}`,
-        isEnabled: 1,
-        tags: [],
-        gameMode: 'online',
-        isCustom: 1,
-        locale: 'en',
-      }));
-
-      const result = customizeBoard(mockSettings, mockActionsFolder, manyCustomTiles, 100);
-
-      expect(result).toHaveLength(100);
-    });
-
-    it('should handle many action categories efficiently', () => {
-      const manyActionsFolder = Object.fromEntries(
-        Array.from({ length: 100 }, (_, i) => [
-          `category${i}`,
-          {
-            label: `Category ${i}`,
-            actions: {
-              'Level 1': [`Action ${i}-1`, `Action ${i}-2`],
-              'Level 2': [`Action ${i}-3`, `Action ${i}-4`],
-            },
-          },
-        ])
-      );
-
-      const settingsWithManyCategories = Object.fromEntries([
-        ...Object.entries(mockSettings),
-        ...Array.from({ length: 100 }, (_, i) => [`category${i}`, { level: 1 }]),
-      ]);
-
-      const result = customizeBoard(settingsWithManyCategories, manyActionsFolder, [], 100);
-
-      expect(result).toHaveLength(100);
-    });
-  });
-
-  describe('randomization and distribution', () => {
-    it('should produce different results on multiple calls', () => {
-      const result1 = customizeBoard(mockSettings, mockActionsFolder, [], 20);
-      const result2 = customizeBoard(mockSettings, mockActionsFolder, [], 20);
-
-      expect(result1).toHaveLength(20);
-      expect(result2).toHaveLength(20);
-
-      // Start and finish should be the same
-      expect(result1[0]).toEqual(result2[0]);
-      expect(result1[19]).toEqual(result2[19]);
-
-      // But the middle tiles might differ due to randomization
-      // Note: This test might occasionally fail due to randomness
-    });
-
-    it('should distribute action types across the board', () => {
-      // Generate multiple boards to test distribution over time
-      const allTitles = new Set<string>();
-
-      for (let i = 0; i < 50; i++) {
-        // Increase attempts
-        const result = customizeBoard(mockSettings, mockActionsFolder, [], 30);
-        const actionTitles = result.slice(1, -1).map((tile) => tile.title);
-        actionTitles.forEach((title) => allTitles.add(title));
-      }
-
-      // Should have variety in action types across multiple generations
-      // If we only get one type, let's at least ensure it's working correctly
-      expect(allTitles.size).toBeGreaterThanOrEqual(1);
-      expect(Array.from(allTitles)).toContain('Teasing');
+      expect(result.board.length).toBe(7);
+      expect(result.metadata.totalTiles).toBe(7);
     });
   });
 });

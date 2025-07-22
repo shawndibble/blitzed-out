@@ -1,11 +1,11 @@
 import CustomTiles from '@/views/CustomTileDialog';
-import useActionList from '@/hooks/useActionList';
+import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import { CustomTilesDialogProps } from '@/types/customTilesDialog';
 
 export default function CustomTilesDialog({ open, close = null }: CustomTilesDialogProps) {
   const [formData] = useSettingsToFormData();
-  const { isLoading, actionsList } = useActionList(formData?.gameMode);
+  const { isLoading, actionsList } = useUnifiedActionList(formData?.gameMode);
 
   if (isLoading) return null;
 

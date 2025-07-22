@@ -10,12 +10,17 @@ export default function useSettingsToFormData<T extends Settings>(
   overrideSettings: Partial<T> = {}
 ): [T, Dispatch<SetStateAction<T>>] {
   const [settings] = useSettings();
-  // default < localstorage < override.
-  const [formData, setFormData] = useState<T>({
+
+  // Use settings directly with selectedActions structure only
+  const initialFormData = {
     ...defaultSettings,
-    ...(settings || {}),
+    ...settings,
+    // Ensure selectedActions is always defined
+    selectedActions: settings?.selectedActions || {},
     ...overrideSettings,
-  } as T);
+  } as T;
+
+  const [formData, setFormData] = useState<T>(initialFormData);
   const { messages } = useMessages();
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -37,29 +42,17 @@ export default function useSettingsToFormData<T extends Settings>(
             };
           }
 
-          // For subsequent updates, only merge settings that don't conflict with user selections
-          // Preserve any action/consumption selections that have been made
-          const hasUserSelections = Object.keys(previousFormData).some((key) => {
-            const entry = previousFormData[key] as any;
-            return entry?.type && ['solo', 'foreplay', 'sex', 'consumption'].includes(entry.type);
-          });
+          // For subsequent updates, preserve user action selections in selectedActions
+          const hasUserSelections =
+            previousFormData.selectedActions &&
+            Object.keys(previousFormData.selectedActions).length > 0;
 
           if (hasUserSelections) {
-            // Merge non-action settings but preserve user action selections
-            const nonActionSettings = Object.keys(messageSettings).reduce((acc, key) => {
-              const entry = messageSettings[key];
-              if (
-                !entry?.type ||
-                !['solo', 'foreplay', 'sex', 'consumption'].includes(entry.type)
-              ) {
-                acc[key] = entry;
-              }
-              return acc;
-            }, {} as any);
-
+            // Preserve selectedActions when merging new room settings
             return {
               ...previousFormData,
-              ...nonActionSettings,
+              ...messageSettings,
+              selectedActions: previousFormData.selectedActions, // Keep user's selections
             };
           }
 

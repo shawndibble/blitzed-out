@@ -7,9 +7,9 @@ import {
   useNavigate,
   useLocation,
 } from 'react-router-dom';
-import { lazy, Suspense, useEffect, useContext } from 'react';
+import { lazy, Suspense, useEffect, useContext, useState } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider, Box, CircularProgress, Typography } from '@mui/material';
 import { AuthContext } from '@/context/auth';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import './App.css';
@@ -17,8 +17,7 @@ import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
-import { setupDefaultActionsImport } from '@/services/defaultActionsImport';
-import i18next from 'i18next';
+import { runMigrationIfNeeded } from '@/services/migrationService';
 import { WindowWithAuth, ProvidersProps } from '@/types/app';
 import AppSkeleton from '@/components/AppSkeleton';
 
@@ -26,7 +25,6 @@ import AppSkeleton from '@/components/AppSkeleton';
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
 const Room = lazy(() => import('@/views/Room'));
-
 
 // Aggressive preloading to reduce subsequent requests
 const preloadChunks = () => {
@@ -51,7 +49,7 @@ if (typeof window !== 'undefined') {
       setTimeout(preloadChunks, 100);
     }
   };
-  
+
   if (document.readyState === 'loading') {
     window.addEventListener('DOMContentLoaded', schedulePreload);
   } else {
@@ -87,6 +85,9 @@ function UppercaseRedirect({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const auth = useContext(AuthContext);
+  const [migrationStatus, setMigrationStatus] = useState<
+    'pending' | 'running' | 'completed' | 'failed'
+  >('pending');
 
   // Make auth context available to the middleware
   useEffect(() => {
@@ -99,14 +100,51 @@ function AppRoutes() {
   }, [auth]);
 
   useEffect(() => {
-    i18next.on('languageChanged', (lng: string) => {
-      setupDefaultActionsImport(lng);
-    });
+    // Run migrations once at app startup with user feedback
+    const runMigration = async () => {
+      setMigrationStatus('running');
+      try {
+        const success = await runMigrationIfNeeded();
+        setMigrationStatus(success ? 'completed' : 'failed');
+      } catch (error) {
+        console.error('Migration failed:', error);
+        setMigrationStatus('failed');
+      }
+    };
+
+    runMigration();
   }, []);
 
   // Show skeleton during initial auth loading
   if (!auth || auth.initializing) {
     return <AppSkeleton />;
+  }
+
+  // Show migration status while running
+  if (migrationStatus === 'running') {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+        gap={2}
+      >
+        <CircularProgress size={40} />
+        <Typography variant="h6" color="primary">
+          Updating game data...
+        </Typography>
+        <Typography variant="body2" color="text.secondary" textAlign="center">
+          This may take a moment. Please don&apos;t close the app.
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Show error message if migration failed (but still allow app to continue)
+  if (migrationStatus === 'failed') {
+    console.warn('Migration failed, but continuing with app startup');
   }
 
   const room = auth.user ? <Room /> : <UnauthenticatedApp />;

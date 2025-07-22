@@ -156,3 +156,20 @@ export interface RollValueState {
   value: number;
   time: number;
 }
+
+// Re-export custom group types
+export type {
+  CustomGroup,
+  CustomGroupBase,
+  CustomGroupPush,
+  CustomGroupPull,
+  CustomGroupIntensity,
+  CustomGroupDialogProps,
+  CustomGroupSelectorProps,
+  IntensitySelectorProps,
+  CustomGroupFilters,
+  ValidationResult,
+  IntensityTemplate,
+  CustomGroupExportData,
+} from './customGroups';
+export { DEFAULT_INTENSITY_TEMPLATES } from './customGroups';

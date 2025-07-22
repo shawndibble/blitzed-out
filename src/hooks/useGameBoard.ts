@@ -2,9 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { isPublicRoom } from '@/helpers/strings';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
-import customizeBoard from '@/services/buildGame';
-import { importActions } from '@/services/importLocales';
-import { getActiveTiles } from '@/stores/customTiles';
+import buildGameBoard from '@/services/buildGame';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
 import { isOnlineMode } from '@/helpers/strings';
 import { useCallback } from 'react';
@@ -22,7 +20,18 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
 
   const updateGameBoard = useCallback(
     async (data: Settings): Promise<GameBoardResult> => {
-      const formData = data?.roomUpdate || data?.boardUpdated ? data : { ...settings, ...data };
+      // Ensure selectedActions is properly handled in formData
+      const formData =
+        data?.roomUpdate || data?.boardUpdated
+          ? data
+          : {
+              ...settings,
+              ...data,
+              selectedActions: {
+                ...settings.selectedActions,
+                ...data.selectedActions,
+              },
+            };
       let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
       const { roomTileCount = 40, finishRange, room } = formData;
       const isPublic = isPublicRoom(room || '');
@@ -40,25 +49,42 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
         settingsBoardUpdated = true;
       }
 
-      const tileActionList = await importActions(i18n.resolvedLanguage, gameMode || 'online');
-
+      const finalGameMode = gameMode || 'online';
+      const locale = i18n.resolvedLanguage || 'en';
       const tileCount = isPublic ? 40 : roomTileCount || 40;
 
-      const customTiles = await getActiveTiles(gameMode || 'online');
+      // Use the new streamlined buildGameBoard function
+      const boardResult = await buildGameBoard(formData, locale, finalGameMode, tileCount);
 
-      const newBoard = customizeBoard(formData, tileActionList, customTiles, tileCount);
+      // Log useful debug information
+      if (boardResult.metadata.missingGroups.length > 0) {
+        console.warn('Missing groups for board building:', boardResult.metadata.missingGroups);
+      }
+
+      if (boardResult.metadata.tilesWithContent < tileCount / 2) {
+        console.warn('Low tile content ratio:', {
+          tilesWithContent: boardResult.metadata.tilesWithContent,
+          totalTiles: boardResult.metadata.totalTiles,
+          availableTileCount: boardResult.metadata.availableTileCount,
+        });
+      }
 
       // if our board updated, then push those changes out.
       if (
         data?.boardUpdated ||
         settingsBoardUpdated ||
-        gameBoard?.tiles?.length !== newBoard.length
+        (gameBoard?.tiles?.length ?? 0) !== boardResult.board.length
       ) {
         await updateSettings(formData);
-        await upsertBoard({ title: gameBoard?.title || '', tiles: newBoard });
+        await upsertBoard({ title: gameBoard?.title || '', tiles: boardResult.board });
       }
 
-      return { settingsBoardUpdated, gameMode, newBoard };
+      return {
+        settingsBoardUpdated,
+        gameMode,
+        newBoard: boardResult.board,
+        metadata: boardResult.metadata,
+      };
     },
     [gameBoard, i18n.resolvedLanguage, settings, updateSettings]
   );

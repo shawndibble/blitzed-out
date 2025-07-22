@@ -195,7 +195,7 @@ export default function MenuDrawer(): JSX.Element {
     dialogKey: keyof DialogState,
     props: Partial<T> = {} as any
   ): JSX.Element => (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <Component
         open={open[dialogKey]}
         close={() => toggleDialog(dialogKey.toString(), false)}
@@ -272,7 +272,7 @@ export default function MenuDrawer(): JSX.Element {
       {open.settings && renderDialog(GameSettingsDialog, 'settings')}
       {open.appSettings && renderDialog(AppSettingsDialog, 'appSettings')}
       {open.about && (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={null}>
           <DialogWrapper open={open.about} close={() => toggleDialog('about', false)}>
             <GameGuide />
           </DialogWrapper>

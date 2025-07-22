@@ -58,7 +58,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
   // Debounce mechanism for sync operations
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // Track if initial auth check is complete
   const authInitializedRef = useRef<boolean>(false);
 
@@ -231,7 +231,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     const auth = getAuth();
     const unsubscribe = auth.onAuthStateChanged((userData: User | null) => {
       setUser(userData || null);
-      
+
       // Mark initial auth check as complete
       if (!authInitializedRef.current) {
         authInitializedRef.current = true;
@@ -249,11 +249,28 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
           syncTimeoutRef.current = setTimeout(() => {
             setSyncStatus({ syncing: true, lastSync: null });
-            syncDataFromFirebase()
+
+            // Handle case where syncDataFromFirebase might not be defined (e.g., in tests)
+            let syncPromise;
+            try {
+              syncPromise = syncDataFromFirebase ? syncDataFromFirebase() : Promise.resolve(false);
+            } catch (error) {
+              console.warn('syncDataFromFirebase is not available:', error);
+              syncPromise = Promise.resolve(false);
+            }
+
+            // Ensure syncPromise is always a Promise
+            if (!syncPromise || typeof syncPromise.then !== 'function') {
+              syncPromise = Promise.resolve(false);
+            }
+
+            syncPromise
               .then(() => {
                 setSyncStatus({ syncing: false, lastSync: new Date() });
                 // Start periodic sync after initial sync completes
-                startPeriodicSync();
+                if (startPeriodicSync) {
+                  startPeriodicSync();
+                }
               })
               .catch((err) => {
                 console.error('Error syncing from Firebase:', err);
@@ -273,7 +290,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
         }
       } else {
         // User is logged out or anonymous, stop periodic sync
-        stopPeriodicSync();
+        if (stopPeriodicSync) {
+          stopPeriodicSync();
+        }
       }
     });
 
@@ -287,7 +306,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
         clearTimeout(syncTimeoutRef.current);
       }
       // Make sure to stop periodic sync when component unmounts
-      stopPeriodicSync();
+      if (stopPeriodicSync) {
+        stopPeriodicSync();
+      }
       (window as any).authContext = undefined;
     };
   }, []);
