@@ -50,9 +50,9 @@ export default function SelectBoardSetting({
       selectedActions: {
         ...settings.selectedActions,
         [key]: {
+          ...existingAction,
           type,
           level: existingAction?.level ?? 0,
-          ...existingAction,
           [nestedKey]: event?.target?.value,
         },
       },
