@@ -344,5 +344,58 @@
   },
   "intensity": "Intensité",
   "soon": "Bientôt",
-  "noLinkProvided": "Aucun lien fourni"
+  "noLinkProvided": "Aucun lien fourni",
+  "exportFormat": {
+    "clean": "Propre (v2.0)",
+    "legacy": "Hérité"
+  },
+  "exportScope": {
+    "all": "Tout",
+    "default": "Groupes Par Défaut",
+    "single": "Groupe Unique"
+  },
+  "importStrategy": {
+    "skip": "Ignorer Existants",
+    "overwrite": "Écraser",
+    "rename": "Renommer Conflits"
+  },
+  "selectGroup": "Sélectionnez un groupe à exporter",
+  "labels": {
+    "exportFormat": "Format",
+    "exportScope": "Portée",
+    "importStrategy": "Stratégie",
+    "selectGroup": "Sélectionner Groupe"
+  },
+  "placeholder": {
+    "cleanFormat": "Collez ici les données JSON au format propre v2.0...",
+    "legacyFormat": "Collez ici les données au format hérité..."
+  },
+  "errors": {
+    "selectGroupToExport": "Veuillez sélectionner un groupe à exporter",
+    "exportFailed": "Échec de l'exportation : {{error}}",
+    "importFailed": "Échec de l'importation : {{errors}}"
+  },
+  "messages": {
+    "importing": "Importation des données...",
+    "importSuccess": "Importation terminée avec succès !",
+    "importedGroups": "{{count}} groupes personnalisés importés.",
+    "importedTiles": "{{count}} tuiles personnalisées importées."
+  },
+  "importResults": {
+    "title": "Résultats d'Importation :",
+    "groupsImported": "{{count}} groupes personnalisés importés",
+    "tilesImported": "{{count}} tuiles personnalisées importées",
+    "warnings": "Avertissements :",
+    "errors": "Erreurs :"
+  },
+  "formatGuide": {
+    "title": "Guide du Format Propre v2.0",
+    "description": "Le format Propre v2.0 sépare la structure de groupe du contenu personnalisé pour faciliter l'édition manuelle :",
+    "keySections": "Sections Clés :",
+    "keySectionsContent": "• <strong1>groups</strong1> : Définitions de groupes avec étiquettes, types et noms d'intensité<br />• <strong2>customTiles</strong2> : Vos tuiles personnalisées organisées par groupe et numéro d'intensité",
+    "manualEditing": "Édition Manuelle :",
+    "manualEditingContent": "• Modifiez les étiquettes de groupe et noms d'intensité en toute sécurité<br />• Ajoutez/supprimez des tuiles personnalisées dans la section customTiles<br />• Les tuiles personnalisées fonctionnent avec les groupes personnalisés et par défaut<br />• La langue doit être 'en', 'es' ou 'fr'<br />• Le type de groupe doit être 'solo', 'foreplay', 'sex' ou 'consumption'",
+    "customTilesFormat": "Format des Tuiles Personnalisées :",
+    "customTilesFormatContent": "Chaque tuile peut être une chaîne (action seule) ou un objet avec action et étiquettes :<br />• Simple : <code1>\"texte d'action\"</code1><br />• Avec étiquettes : <code2>{\"action\": \"texte\", \"tags\": [\"étiquette1\", \"étiquette2\"]}</code2>"
+  }
 }
