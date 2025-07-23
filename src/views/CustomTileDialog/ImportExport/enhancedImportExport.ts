@@ -15,6 +15,10 @@ import { validateCustomGroup } from '@/services/validationService';
 // Version identifier for export format
 const EXPORT_FORMAT_VERSION = '2.0.0';
 
+// Constants for better maintainability
+const JSON_INDENT_SPACES = 2;
+const NONE_INTENSITY_VALUE = 0;
+
 // Custom tile with optional tags
 export interface CleanCustomTile {
   action: string;
@@ -49,6 +53,12 @@ export interface ImportResult {
 
 /**
  * Export custom groups and tiles in clean v2.0 format (locale-inspired)
+ * @param locale - Target locale for export ('en', 'es', 'fr')
+ * @param options - Export configuration options
+ * @param options.singleGroup - Name of specific group to export (only for 'single' scope)
+ * @param options.exportScope - Scope of export: 'all' (everything), 'single' (one group), 'default' (custom tiles from default groups)
+ * @returns Promise<string> - JSON string of exported data
+ * @throws Error if export fails or validation errors occur
  */
 export async function exportCleanData(
   locale = 'en',
@@ -75,9 +85,9 @@ export async function exportCleanData(
     }
 
     // Get all groups to determine which are default vs custom
-    const allGroups = await getCustomGroups({ locale });
+    const allGroupsForLocale = await getCustomGroups({ locale });
     const defaultGroupNames = new Set(
-      allGroups.filter((group) => group.isDefault).map((group) => group.name)
+      allGroupsForLocale.filter((group) => group.isDefault).map((group) => group.name)
     );
 
     // Get ALL custom tiles for this locale
@@ -111,7 +121,7 @@ export async function exportCleanData(
         .map((intensity) => intensity.label);
 
       // Ensure "None" is at index 0 (intensity value 0)
-      const noneIntensity = group.intensities.find((i) => i.value === 0);
+      const noneIntensity = group.intensities.find((i) => i.value === NONE_INTENSITY_VALUE);
       const filteredLabels = intensityLabels.filter((label) => label !== noneIntensity?.label);
       const orderedLabels = noneIntensity
         ? [noneIntensity.label, ...filteredLabels]
@@ -162,10 +172,10 @@ export async function exportCleanData(
         sortedCustomTiles[groupName] = {};
         // Sort intensity levels numerically
         Object.keys(customTiles[groupName])
-          .sort((a, b) => parseInt(a) - parseInt(b))
+          .sort((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10))
           .forEach((intensity) => {
-            sortedCustomTiles[groupName][parseInt(intensity)] =
-              customTiles[groupName][parseInt(intensity)];
+            sortedCustomTiles[groupName][Number.parseInt(intensity, 10)] =
+              customTiles[groupName][Number.parseInt(intensity, 10)];
           });
       });
 
@@ -186,7 +196,7 @@ export async function exportCleanData(
         }
         return value;
       },
-      2
+      JSON_INDENT_SPACES
     );
   } catch (error) {
     console.error('Error exporting clean data:', error);
@@ -196,6 +206,11 @@ export async function exportCleanData(
 
 /**
  * Import custom groups and tiles from clean v2.0 format
+ * @param importDataString - JSON string containing export data
+ * @param options - Import configuration options
+ * @param options.locale - Target locale for import
+ * @param options.mergeStrategy - How to handle conflicts: 'skip', 'overwrite', or 'rename'
+ * @returns Promise<ImportResult> - Result object containing success status, counts, errors, and warnings
  */
 export async function importCleanData(
   importDataString: string,
@@ -273,7 +288,7 @@ export async function importCleanData(
           id: `intensity-${index}`,
           label: label,
           value: index, // Start from 0 for "None"
-          isDefault: false,
+          isDefault: index === NONE_INTENSITY_VALUE, // Mark "None" as default
         }));
 
         // Create the group object
@@ -318,7 +333,7 @@ export async function importCleanData(
 
         // Import tiles for each intensity
         for (const [intensityStr, actions] of Object.entries(tilesData)) {
-          const intensity = parseInt(intensityStr, 10);
+          const intensity = Number.parseInt(intensityStr, 10);
 
           // Verify intensity is valid for this group
           const validIntensity = group.intensities.find((i) => i.value === intensity);

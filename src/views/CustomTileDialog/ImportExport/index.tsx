@@ -70,7 +70,6 @@ export default function ImportExport({
               exportScope: 'default',
             });
             break;
-          case 'all':
           default:
             exportedData = await exportCleanData(settings.locale || 'en', { exportScope: 'all' });
             break;
