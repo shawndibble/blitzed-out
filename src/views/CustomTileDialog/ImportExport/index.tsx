@@ -18,7 +18,13 @@ import AccordionDetails from '@/components/Accordion/Details';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import groupActionsFolder from '@/helpers/actionsFolder';
 import { ImportExportProps } from '@/types/customTiles';
-import { exportEnhancedData, autoImportData, ImportResult } from './enhancedImportExport';
+import {
+  exportCleanData,
+  exportGroupData,
+  autoImportData,
+  ImportResult,
+  getAvailableGroupsForExport,
+} from './enhancedImportExport';
 import { useGameSettings } from '@/stores/settingsStore';
 
 export default function ImportExport({
@@ -35,18 +41,42 @@ export default function ImportExport({
   const [inputValue, setInputValue] = useState<string>('');
   // const [selectedTab, setSelectedTab] = useState(0); // Removed as tabs not implemented yet
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const [exportFormat, setExportFormat] = useState<'enhanced' | 'legacy'>('enhanced');
+  const [exportFormat, setExportFormat] = useState<'clean' | 'legacy'>('clean');
+  const [exportScope, setExportScope] = useState<'all' | 'single' | 'default'>('all');
+  const [singleGroup, setSingleGroup] = useState<string>('');
+  const [availableGroups, setAvailableGroups] = useState<
+    { name: string; label: string; tileCount: number }[]
+  >([]);
   const [mergeStrategy, setMergeStrategy] = useState<'skip' | 'overwrite' | 'rename'>('skip');
 
   const exportData = useCallback(async () => {
     try {
-      if (exportFormat === 'enhanced') {
-        // Use the new enhanced export format
-        const enhancedData = await exportEnhancedData(
-          settings.locale || 'en',
-          settings.gameMode || 'online'
-        );
-        setInputValue(enhancedData);
+      if (exportFormat === 'clean') {
+        let exportedData: string;
+
+        switch (exportScope) {
+          case 'single':
+            if (!singleGroup) {
+              setSubmitMessage({
+                message: t('errors.selectGroupToExport'),
+                type: 'error',
+              });
+              return;
+            }
+            exportedData = await exportGroupData(singleGroup, settings.locale || 'en');
+            break;
+          case 'default':
+            exportedData = await exportCleanData(settings.locale || 'en', {
+              exportScope: 'default',
+            });
+            break;
+          case 'all':
+          default:
+            exportedData = await exportCleanData(settings.locale || 'en', { exportScope: 'all' });
+            break;
+        }
+
+        setInputValue(exportedData);
       } else {
         // Use the legacy export format
         const userCustomTiles = customTiles.filter((tile) => tile.isCustom);
@@ -78,7 +108,7 @@ export default function ImportExport({
     } catch (error) {
       console.error('Error exporting data:', error);
       setSubmitMessage({
-        message: `Export failed: ${error}`,
+        message: t('errors.exportFailed', { error: error }),
         type: 'error',
       });
     }
@@ -87,9 +117,11 @@ export default function ImportExport({
     mappedGroups,
     setInputValue,
     exportFormat,
+    exportScope,
+    singleGroup,
     settings.locale,
-    settings.gameMode,
     setSubmitMessage,
+    t,
   ]);
 
   async function importTiles(formRef: React.RefObject<HTMLFormElement | null>) {
@@ -106,12 +138,11 @@ export default function ImportExport({
     }
 
     try {
-      setSubmitMessage({ type: 'info', message: 'Importing data...' });
+      setSubmitMessage({ type: 'info', message: t('messages.importing') });
 
       // Use the new auto-import function that detects format
       const result = await autoImportData(importDataValue, mappedGroups, {
         locale: settings.locale || 'en',
-        gameMode: settings.gameMode || 'online',
         mergeStrategy,
       });
 
@@ -130,12 +161,12 @@ export default function ImportExport({
           });
         }
 
-        let message = 'Import completed successfully!';
+        let message: string = t('messages.importSuccess');
         if (result.importedGroups > 0) {
-          message += ` Imported ${result.importedGroups} custom groups.`;
+          message += ` ${t('messages.importedGroups', { count: result.importedGroups })}`;
         }
         if (result.importedTiles > 0) {
-          message += ` Imported ${result.importedTiles} custom tiles.`;
+          message += ` ${t('messages.importedTiles', { count: result.importedTiles })}`;
         }
 
         setSubmitMessage({
@@ -148,24 +179,35 @@ export default function ImportExport({
       } else {
         setSubmitMessage({
           type: 'error',
-          message: `Import failed: ${result.errors.join(', ')}`,
+          message: t('errors.importFailed', { errors: result.errors.join(', ') }),
         });
       }
     } catch (error: any) {
       console.error('Import error:', error);
       setSubmitMessage({
         type: 'error',
-        message: `Import failed: ${error.message || error}`,
+        message: t('errors.importFailed', { errors: error.message || error }),
       });
       setImportResult(null);
     }
   }
 
+  // Load available groups when component opens
+  const loadAvailableGroups = useCallback(async () => {
+    try {
+      const groups = await getAvailableGroupsForExport(settings.locale || 'en');
+      setAvailableGroups(groups);
+    } catch (error) {
+      console.error('Error loading available groups:', error);
+    }
+  }, [settings.locale]);
+
   useEffect(() => {
     if (expanded === 'ctImport') {
+      loadAvailableGroups();
       exportData();
     }
-  }, [expanded, customTiles, exportData]);
+  }, [expanded, customTiles, exportData, loadAvailableGroups]);
 
   return (
     <Accordion expanded={expanded === 'ctImport'} onChange={handleChange('ctImport')}>
@@ -179,48 +221,86 @@ export default function ImportExport({
           <Trans i18nKey="ctImportDescription" />
         </Typography>
 
-        {/* Export Format Selection */}
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Export Format
-          </Typography>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Format</InputLabel>
+        {/* Compact Select Box Layout */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 2,
+            mb: 2,
+            '& .MuiFormControl-root': {
+              minWidth: 150,
+              flex: '1 1 auto',
+            },
+          }}
+        >
+          {/* Export Format Selection */}
+          <FormControl size="small">
+            <InputLabel>{t('labels.exportFormat')}</InputLabel>
             <Select
               value={exportFormat}
-              onChange={(e) => setExportFormat(e.target.value as 'enhanced' | 'legacy')}
-              label="Format"
+              onChange={(e) => setExportFormat(e.target.value as 'clean' | 'legacy')}
+              label={t('labels.exportFormat')}
             >
-              <MenuItem value="enhanced">Enhanced (v2.0)</MenuItem>
-              <MenuItem value="legacy">Legacy</MenuItem>
+              <MenuItem value="clean">{t('exportFormat.clean')}</MenuItem>
+              <MenuItem value="legacy">{t('exportFormat.legacy')}</MenuItem>
             </Select>
           </FormControl>
-          <Typography variant="caption" display="block" sx={{ mt: 0.5, color: 'text.secondary' }}>
-            Enhanced format includes custom groups. Legacy format is for backward compatibility.
-          </Typography>
-        </Box>
 
-        {/* Import Merge Strategy */}
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Import Strategy
-          </Typography>
-          <FormControl size="small" sx={{ minWidth: 150 }}>
-            <InputLabel>Strategy</InputLabel>
+          {/* Export Scope Selection */}
+          {exportFormat === 'clean' && (
+            <FormControl size="small">
+              <InputLabel>{t('labels.exportScope')}</InputLabel>
+              <Select
+                value={exportScope}
+                onChange={(e) => {
+                  setExportScope(e.target.value as 'all' | 'single' | 'default');
+                  // Reset selection when scope changes
+                  setSingleGroup('');
+                }}
+                label={t('labels.exportScope')}
+              >
+                <MenuItem value="all">{t('exportScope.all')}</MenuItem>
+                <MenuItem value="default">{t('exportScope.default')}</MenuItem>
+                <MenuItem value="single">{t('exportScope.single')}</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+
+          {/* Import Merge Strategy */}
+          <FormControl size="small">
+            <InputLabel>{t('labels.importStrategy')}</InputLabel>
             <Select
               value={mergeStrategy}
               onChange={(e) => setMergeStrategy(e.target.value as 'skip' | 'overwrite' | 'rename')}
-              label="Strategy"
+              label={t('labels.importStrategy')}
             >
-              <MenuItem value="skip">Skip Existing</MenuItem>
-              <MenuItem value="overwrite">Overwrite</MenuItem>
-              <MenuItem value="rename">Rename Conflicts</MenuItem>
+              <MenuItem value="skip">{t('importStrategy.skip')}</MenuItem>
+              <MenuItem value="overwrite">{t('importStrategy.overwrite')}</MenuItem>
+              <MenuItem value="rename">{t('importStrategy.rename')}</MenuItem>
             </Select>
           </FormControl>
-          <Typography variant="caption" display="block" sx={{ mt: 0.5, color: 'text.secondary' }}>
-            How to handle items that already exist during import.
-          </Typography>
         </Box>
+
+        {/* Single Group Selection - Only show when needed */}
+        {exportFormat === 'clean' && exportScope === 'single' && (
+          <Box sx={{ mb: 2 }}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>{t('labels.selectGroup')}</InputLabel>
+              <Select
+                value={singleGroup}
+                onChange={(e) => setSingleGroup(e.target.value)}
+                label={t('labels.selectGroup')}
+              >
+                {availableGroups.map((group) => (
+                  <MenuItem key={group.name} value={group.name}>
+                    {group.label} ({group.tileCount} tiles)
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        )}
 
         <Box component="form" method="post" ref={formData}>
           <TextField
@@ -234,9 +314,9 @@ export default function ImportExport({
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
             placeholder={
-              exportFormat === 'enhanced'
-                ? 'Paste enhanced format JSON data here...'
-                : 'Paste legacy format data here...'
+              exportFormat === 'clean'
+                ? t('placeholder.cleanFormat')
+                : t('placeholder.legacyFormat')
             }
             InputProps={{
               endAdornment: <CopyToClipboard text={inputValue} />,
@@ -252,22 +332,34 @@ export default function ImportExport({
               onClose={() => setImportResult(null)}
             >
               <Typography variant="body2">
-                <strong>Import Results:</strong>
+                <strong>
+                  <Trans i18nKey="importResults.title" />
+                </strong>
               </Typography>
               {importResult.importedGroups > 0 && (
                 <Typography variant="body2">
-                  • {importResult.importedGroups} custom groups imported
+                  •{' '}
+                  <Trans
+                    i18nKey="importResults.groupsImported"
+                    values={{ count: importResult.importedGroups }}
+                  />
                 </Typography>
               )}
               {importResult.importedTiles > 0 && (
                 <Typography variant="body2">
-                  • {importResult.importedTiles} custom tiles imported
+                  •{' '}
+                  <Trans
+                    i18nKey="importResults.tilesImported"
+                    values={{ count: importResult.importedTiles }}
+                  />
                 </Typography>
               )}
               {importResult.warnings.length > 0 && (
                 <Box sx={{ mt: 1 }}>
                   <Typography variant="body2" color="warning.main">
-                    <strong>Warnings:</strong>
+                    <strong>
+                      <Trans i18nKey="importResults.warnings" />
+                    </strong>
                   </Typography>
                   {importResult.warnings.map((warning, index) => (
                     <Typography key={index} variant="body2" color="warning.main">
@@ -279,7 +371,9 @@ export default function ImportExport({
               {importResult.errors.length > 0 && (
                 <Box sx={{ mt: 1 }}>
                   <Typography variant="body2" color="error.main">
-                    <strong>Errors:</strong>
+                    <strong>
+                      <Trans i18nKey="importResults.errors" />
+                    </strong>
                   </Typography>
                   {importResult.errors.map((error, index) => (
                     <Typography key={index} variant="body2" color="error.main">
@@ -295,6 +389,62 @@ export default function ImportExport({
             <Trans i18nKey="import" />
           </Button>
         </Box>
+
+        {/* Format Guide - Collapsed by default */}
+        {exportFormat === 'clean' && (
+          <Accordion sx={{ mt: 2 }}>
+            <AccordionSummary>
+              <Typography variant="subtitle2">
+                <Trans i18nKey="formatGuide.title" />
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography variant="body2" sx={{ mb: 2 }}>
+                <Trans i18nKey="formatGuide.description" />
+              </Typography>
+
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                <Trans i18nKey="formatGuide.keySections" />
+              </Typography>
+              <Typography variant="body2" component="div" sx={{ mb: 2, ml: 2 }}>
+                <Trans
+                  i18nKey="formatGuide.keySectionsContent"
+                  components={{
+                    strong1: <strong />,
+                    strong2: <strong />,
+                    br: <br />,
+                  }}
+                />
+              </Typography>
+
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                <Trans i18nKey="formatGuide.manualEditing" />
+              </Typography>
+              <Typography variant="body2" component="div" sx={{ mb: 2, ml: 2 }}>
+                <Trans
+                  i18nKey="formatGuide.manualEditingContent"
+                  components={{
+                    br: <br />,
+                  }}
+                />
+              </Typography>
+
+              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                <Trans i18nKey="formatGuide.customTilesFormat" />
+              </Typography>
+              <Typography variant="body2" component="div" sx={{ ml: 2 }}>
+                <Trans
+                  i18nKey="formatGuide.customTilesFormatContent"
+                  components={{
+                    br: <br />,
+                    code1: <code />,
+                    code2: <code />,
+                  }}
+                />
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+        )}
       </AccordionDetails>
     </Accordion>
   );

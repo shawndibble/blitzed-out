@@ -342,5 +342,58 @@
   },
   "intensity": "Intensity",
   "soon": "Soon",
-  "noLinkProvided": "No link provided"
+  "noLinkProvided": "No link provided",
+  "exportFormat": {
+    "clean": "Clean (v2.0)",
+    "legacy": "Legacy"
+  },
+  "exportScope": {
+    "all": "Everything",
+    "default": "Default Groups",
+    "single": "Single Group"
+  },
+  "importStrategy": {
+    "skip": "Skip Existing",
+    "overwrite": "Overwrite",
+    "rename": "Rename Conflicts"
+  },
+  "selectGroup": "Select a group to export",
+  "labels": {
+    "exportFormat": "Format",
+    "exportScope": "Scope",
+    "importStrategy": "Strategy",
+    "selectGroup": "Select Group"
+  },
+  "placeholder": {
+    "cleanFormat": "Paste clean v2.0 format JSON data here...",
+    "legacyFormat": "Paste legacy format data here..."
+  },
+  "errors": {
+    "selectGroupToExport": "Please select a group to export",
+    "exportFailed": "Export failed: {{error}}",
+    "importFailed": "Import failed: {{errors}}"
+  },
+  "messages": {
+    "importing": "Importing data...",
+    "importSuccess": "Import completed successfully!",
+    "importedGroups": "Imported {{count}} custom groups.",
+    "importedTiles": "Imported {{count}} custom tiles."
+  },
+  "importResults": {
+    "title": "Import Results:",
+    "groupsImported": "{{count}} custom groups imported",
+    "tilesImported": "{{count}} custom tiles imported",
+    "warnings": "Warnings:",
+    "errors": "Errors:"
+  },
+  "formatGuide": {
+    "title": "Clean v2.0 Format Guide",
+    "description": "The Clean v2.0 format separates group structure from custom content for easier manual editing:",
+    "keySections": "Key Sections:",
+    "keySectionsContent": "• <strong1>groups</strong1>: Group definitions with labels, types, and intensity names<br />• <strong2>customTiles</strong2>: Your custom tiles organized by group and intensity number",
+    "manualEditing": "Manual Editing:",
+    "manualEditingContent": "• Edit group labels and intensity names safely<br />• Add/remove custom tiles in the customTiles section<br />• Custom tiles work with both custom and default groups<br />• Locale must be 'en', 'es', or 'fr'<br />• Group type must be 'solo', 'foreplay', 'sex', or 'consumption'",
+    "customTilesFormat": "Custom Tiles Format:",
+    "customTilesFormatContent": "Each tile can be a string (action only) or object with action and tags:<br />• Simple: <code1>\"action text\"</code1><br />• With tags: <code2>{\"action\": \"text\", \"tags\": [\"tag1\", \"tag2\"]}</code2>"
+  }
 }

@@ -1,5 +1,4 @@
-import { CustomTile } from '@/types/customTiles';
-import { CustomGroup } from '@/types/customGroups';
+import { CustomGroupIntensity, CustomGroupPull } from '@/types/customGroups';
 import {
   getCustomGroups,
   addCustomGroup,
@@ -10,19 +9,34 @@ import { getTiles, addCustomTile, updateCustomTile } from '@/stores/customTiles'
 import { validateCustomGroup } from '@/services/validationService';
 
 /**
- * Enhanced import/export functionality that supports both custom groups and tiles
+ * Clean import/export functionality with locale-inspired format
  */
 
 // Version identifier for export format
 const EXPORT_FORMAT_VERSION = '2.0.0';
 
-export interface EnhancedExportData {
+// Custom tile with optional tags
+export interface CleanCustomTile {
+  action: string;
+  tags?: string[];
+}
+
+// Clean export data structure
+export interface CleanExportData {
   version: string;
-  exportedAt: string;
   locale: string;
-  gameMode: string;
-  customGroups: CustomGroup[];
-  customTiles: CustomTile[];
+  groups: {
+    [groupName: string]: {
+      label: string;
+      type: string;
+      intensities: string[];
+    };
+  };
+  customTiles: {
+    [groupName: string]: {
+      [intensityValue: number]: (string | CleanCustomTile)[];
+    };
+  };
 }
 
 export interface ImportResult {
@@ -34,40 +48,159 @@ export interface ImportResult {
 }
 
 /**
- * Export custom groups and tiles in the new enhanced format
+ * Export custom groups and tiles in clean v2.0 format (locale-inspired)
  */
-export async function exportEnhancedData(locale = 'en', gameMode = 'online'): Promise<string> {
+export async function exportCleanData(
+  locale = 'en',
+  options: {
+    singleGroup?: string;
+    exportScope?: 'all' | 'single' | 'default';
+  } = {}
+): Promise<string> {
   try {
-    // Get all custom groups for this locale/gameMode
-    const customGroups = await getCustomGroups({ locale, gameMode });
+    // Get custom groups based on scope
+    let customGroups: CustomGroupPull[];
 
-    // Get all custom tiles (we'll export all since they can be filtered on import)
-    const customTiles = await getTiles({ isCustom: 1 });
+    if (options.exportScope === 'single' && options.singleGroup) {
+      // Get only the single selected group
+      const group = await getCustomGroupByName(options.singleGroup, locale);
+      customGroups = group && !group.isDefault ? [group] : [];
+    } else if (options.exportScope === 'default') {
+      // Only export default groups (no custom groups, but their tiles)
+      customGroups = [];
+    } else {
+      // Get all custom groups for this locale (exclude defaults)
+      const allGroups = await getCustomGroups({ locale });
+      customGroups = allGroups.filter((group) => !group.isDefault);
+    }
 
-    const exportData: EnhancedExportData = {
+    // Get all groups to determine which are default vs custom
+    const allGroups = await getCustomGroups({ locale });
+    const defaultGroupNames = new Set(
+      allGroups.filter((group) => group.isDefault).map((group) => group.name)
+    );
+
+    // Get ALL custom tiles for this locale
+    const allCustomTiles = await getTiles({ isCustom: 1 });
+    const relevantTiles = allCustomTiles.filter((tile) => {
+      const matchesLocale = !tile.locale || tile.locale === locale;
+
+      // If exporting single group, only include tiles from that group
+      if (options.exportScope === 'single' && options.singleGroup) {
+        return matchesLocale && tile.group === options.singleGroup;
+      }
+
+      // If exporting default scope, only include tiles from default groups
+      if (options.exportScope === 'default') {
+        // Check if the tile's group is a default group
+        return matchesLocale && defaultGroupNames.has(tile.group);
+      }
+
+      // Otherwise include all custom tiles for this locale
+      return matchesLocale;
+    });
+
+    // Build the clean export format
+    const groups: CleanExportData['groups'] = {};
+
+    // Export custom groups with their structure
+    for (const group of customGroups) {
+      // Convert intensities to simple string array starting with "None"
+      const intensityLabels = group.intensities
+        .sort((a, b) => a.value - b.value)
+        .map((intensity) => intensity.label);
+
+      // Ensure "None" is at index 0 (intensity value 0)
+      const noneIntensity = group.intensities.find((i) => i.value === 0);
+      const filteredLabels = intensityLabels.filter((label) => label !== noneIntensity?.label);
+      const orderedLabels = noneIntensity
+        ? [noneIntensity.label, ...filteredLabels]
+        : intensityLabels;
+
+      groups[group.name] = {
+        label: group.label,
+        type: group.type || 'sex',
+        intensities: orderedLabels,
+      };
+    }
+
+    // Export custom tiles grouped by group name and intensity value
+    const customTiles: CleanExportData['customTiles'] = {};
+
+    for (const tile of relevantTiles) {
+      if (!customTiles[tile.group]) {
+        customTiles[tile.group] = {};
+      }
+      if (!customTiles[tile.group][tile.intensity]) {
+        customTiles[tile.group][tile.intensity] = [];
+      }
+
+      // Include tags if they exist, otherwise just export as string
+      if (tile.tags && tile.tags.length > 0) {
+        customTiles[tile.group][tile.intensity].push({
+          action: tile.action,
+          tags: tile.tags,
+        });
+      } else {
+        customTiles[tile.group][tile.intensity].push(tile.action);
+      }
+    }
+
+    // Sort groups alphabetically for better readability
+    const sortedGroups: CleanExportData['groups'] = {};
+    Object.keys(groups)
+      .sort()
+      .forEach((key) => {
+        sortedGroups[key] = groups[key];
+      });
+
+    // Sort custom tiles by group name and intensity for better organization
+    const sortedCustomTiles: CleanExportData['customTiles'] = {};
+    Object.keys(customTiles)
+      .sort()
+      .forEach((groupName) => {
+        sortedCustomTiles[groupName] = {};
+        // Sort intensity levels numerically
+        Object.keys(customTiles[groupName])
+          .sort((a, b) => parseInt(a) - parseInt(b))
+          .forEach((intensity) => {
+            sortedCustomTiles[groupName][parseInt(intensity)] =
+              customTiles[groupName][parseInt(intensity)];
+          });
+      });
+
+    const exportData: CleanExportData = {
       version: EXPORT_FORMAT_VERSION,
-      exportedAt: new Date().toISOString(),
       locale,
-      gameMode,
-      customGroups,
-      customTiles,
+      groups: sortedGroups,
+      customTiles: sortedCustomTiles,
     };
 
-    return JSON.stringify(exportData, null, 2);
+    // Use custom JSON formatting for better readability
+    return JSON.stringify(
+      exportData,
+      (_key, value) => {
+        // Keep arrays compact for tile actions to save space
+        if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'string') {
+          return value;
+        }
+        return value;
+      },
+      2
+    );
   } catch (error) {
-    console.error('Error exporting enhanced data:', error);
+    console.error('Error exporting clean data:', error);
     throw new Error(`Export failed: ${error}`);
   }
 }
 
 /**
- * Import custom groups and tiles from enhanced format
+ * Import custom groups and tiles from clean v2.0 format
  */
-export async function importEnhancedData(
+export async function importCleanData(
   importDataString: string,
   options: {
     locale?: string;
-    gameMode?: string;
     mergeStrategy?: 'skip' | 'overwrite' | 'rename';
   } = {}
 ): Promise<ImportResult> {
@@ -81,7 +214,7 @@ export async function importEnhancedData(
 
   try {
     // Parse the import data
-    let importData: EnhancedExportData;
+    let importData: CleanExportData;
     try {
       importData = JSON.parse(importDataString);
     } catch {
@@ -90,8 +223,8 @@ export async function importEnhancedData(
     }
 
     // Validate the format
-    if (!importData.version || !importData.customGroups || !importData.customTiles) {
-      result.errors.push('Invalid export format');
+    if (!importData.version || !importData.groups || !importData.customTiles) {
+      result.errors.push('Invalid export format - missing version, groups, or customTiles');
       return result;
     }
 
@@ -103,120 +236,150 @@ export async function importEnhancedData(
     }
 
     const targetLocale = options.locale || importData.locale || 'en';
-    const targetGameMode = options.gameMode || importData.gameMode || 'online';
     const mergeStrategy = options.mergeStrategy || 'skip';
 
-    // Import custom groups first
-    for (const originalGroup of importData.customGroups) {
+    // Step 1: Import custom groups (if they don't exist)
+    for (const [groupName, groupData] of Object.entries(importData.groups)) {
       try {
-        let group = originalGroup;
-
         // Check if group already exists
-        const existingGroup = await getCustomGroupByName(group.name, targetLocale, targetGameMode);
+        const existingGroup = await getCustomGroupByName(groupName, targetLocale);
+        let finalGroupName = groupName;
 
         if (existingGroup) {
           switch (mergeStrategy) {
             case 'skip':
-              result.warnings.push(`Skipped existing group: ${group.name}`);
+              result.warnings.push(`Skipped existing group: ${groupName}`);
               continue;
             case 'overwrite':
-              // Update existing group
-              await updateCustomGroup(existingGroup.id, {
-                ...group,
-                locale: targetLocale,
-                gameMode: targetGameMode,
-              });
-              result.warnings.push(`Updated existing group: ${group.name}`);
+              // Will update the existing group
+              result.warnings.push(`Will update existing group: ${groupName}`);
               break;
             case 'rename': {
               // Create with a new name
-              let newName = `${group.name}_imported`;
               let counter = 1;
-              while (await getCustomGroupByName(newName, targetLocale, targetGameMode)) {
-                newName = `${group.name}_imported_${counter}`;
+              finalGroupName = `${groupName}_imported`;
+              while (await getCustomGroupByName(finalGroupName, targetLocale)) {
+                finalGroupName = `${groupName}_imported_${counter}`;
                 counter++;
               }
-              const oldName = group.name;
-              group = { ...group, name: newName };
-              result.warnings.push(`Renamed group from ${oldName} to ${newName}`);
+              result.warnings.push(`Renamed group from ${groupName} to ${finalGroupName}`);
               break;
             }
           }
         }
 
-        // Validate the group before importing
-        const validation = await validateCustomGroup({
-          ...group,
-          locale: targetLocale,
-          gameMode: targetGameMode,
-        });
+        // Convert intensities array back to CustomGroupIntensity objects
+        const intensities: CustomGroupIntensity[] = groupData.intensities.map((label, index) => ({
+          id: `intensity-${index}`,
+          label: label,
+          value: index, // Start from 0 for "None"
+          isDefault: false,
+        }));
 
+        // Create the group object
+        const customGroup = {
+          name: finalGroupName,
+          label: groupData.label,
+          intensities: intensities,
+          type: groupData.type as any,
+          locale: targetLocale,
+          isDefault: false,
+        };
+
+        // Validate the group before importing
+        const validation = await validateCustomGroup(customGroup);
         if (!validation.isValid) {
-          result.errors.push(`Invalid group ${group.name}: ${validation.errors.join(', ')}`);
+          result.errors.push(`Invalid group ${finalGroupName}: ${validation.errors.join(', ')}`);
           continue;
         }
 
-        // Import the group
-        const groupId = await addCustomGroup({
-          ...group,
-          locale: targetLocale,
-          gameMode: targetGameMode,
-        });
-
-        if (groupId) {
-          result.importedGroups++;
+        // Import or update the group
+        if (existingGroup && mergeStrategy === 'overwrite') {
+          await updateCustomGroup(existingGroup.id, customGroup);
+        } else {
+          await addCustomGroup(customGroup);
         }
+
+        result.importedGroups++;
       } catch (error) {
-        result.errors.push(`Error importing group ${originalGroup.name}: ${error}`);
+        result.errors.push(`Error importing group ${groupName}: ${error}`);
       }
     }
 
-    // Import custom tiles
-    const existingTiles = await getTiles();
-
-    for (const tile of importData.customTiles) {
+    // Step 2: Import custom tiles from customTiles section
+    for (const [groupName, tilesData] of Object.entries(importData.customTiles)) {
       try {
-        // Check if tile already exists
-        const existingTile = existingTiles.find(
-          (existing) =>
-            existing.group === tile.group &&
-            existing.intensity === tile.intensity &&
-            existing.action === tile.action &&
-            existing.gameMode === tile.gameMode
-        );
-
-        if (existingTile && mergeStrategy === 'skip') {
-          result.warnings.push(`Skipped existing tile: ${tile.action}`);
+        // Verify the group exists (could be custom or default)
+        const group = await getCustomGroupByName(groupName, targetLocale);
+        if (!group) {
+          result.warnings.push(`Group ${groupName} not found for custom tiles, skipping tiles`);
           continue;
         }
 
-        // Validate that the referenced group exists
-        const referencedGroup = await getCustomGroupByName(
-          tile.group,
-          targetLocale,
-          targetGameMode
-        );
-        if (!referencedGroup) {
-          result.errors.push(`Tile references non-existent group: ${tile.group}`);
-          continue;
+        // Import tiles for each intensity
+        for (const [intensityStr, actions] of Object.entries(tilesData)) {
+          const intensity = parseInt(intensityStr, 10);
+
+          // Verify intensity is valid for this group
+          const validIntensity = group.intensities.find((i) => i.value === intensity);
+          if (!validIntensity) {
+            result.warnings.push(
+              `Intensity ${intensity} not valid for group ${groupName}, skipping tiles`
+            );
+            continue;
+          }
+
+          for (const tileData of actions) {
+            try {
+              // Parse tile data - can be string or object with action and tags
+              let action: string;
+              let tags: string[] = [];
+
+              if (typeof tileData === 'string') {
+                action = tileData;
+              } else if (tileData && typeof tileData === 'object' && 'action' in tileData) {
+                action = tileData.action;
+                tags = tileData.tags || [];
+              } else {
+                result.warnings.push(`Invalid tile data format in group ${groupName}, skipping`);
+                continue;
+              }
+
+              // Check if tile already exists
+              const existingTiles = await getTiles();
+              const existingTile = existingTiles.find(
+                (existing) =>
+                  existing.group === groupName &&
+                  existing.intensity === intensity &&
+                  existing.action === action &&
+                  (!existing.locale || existing.locale === targetLocale)
+              );
+
+              if (existingTile && mergeStrategy === 'skip') {
+                result.warnings.push(`Skipped existing tile: ${action.substring(0, 50)}...`);
+                continue;
+              }
+
+              // Import the tile
+              await addCustomTile({
+                group: groupName,
+                intensity: intensity,
+                action: action,
+                tags: tags,
+                isCustom: 1,
+                locale: targetLocale,
+              });
+
+              result.importedTiles++;
+            } catch (error) {
+              result.errors.push(
+                `Error importing tile "${typeof tileData === 'string' ? tileData.substring(0, 30) : 'object'}...": ${error}`
+              );
+            }
+          }
         }
-
-        // Validate that the intensity exists in the group
-        const validIntensities = referencedGroup.intensities.map((i) => i.value);
-        if (!validIntensities.includes(tile.intensity)) {
-          result.errors.push(`Tile intensity ${tile.intensity} not valid for group ${tile.group}`);
-          continue;
-        }
-
-        // Import the tile
-        await addCustomTile({
-          ...tile,
-          gameMode: targetGameMode,
-        });
-
-        result.importedTiles++;
       } catch (error) {
-        result.errors.push(`Error importing tile: ${error}`);
+        result.errors.push(`Error importing tiles for group ${groupName}: ${error}`);
       }
     }
 
@@ -279,7 +442,7 @@ export async function importLegacyData(
 
     result.success = result.errors.length === 0;
     result.warnings.push(
-      'Imported using legacy format. Consider exporting in new format for better compatibility.'
+      'Imported using legacy format. Consider exporting in clean v2.0 format for better compatibility.'
     );
 
     return result;
@@ -287,6 +450,16 @@ export async function importLegacyData(
     result.errors.push(`Legacy import failed: ${error}`);
     return result;
   }
+}
+
+/**
+ * Export a single group in clean v2.0 format
+ */
+export async function exportGroupData(groupName: string, locale = 'en'): Promise<string> {
+  return exportCleanData(locale, {
+    singleGroup: groupName,
+    exportScope: 'single',
+  });
 }
 
 /**
@@ -303,11 +476,24 @@ export async function autoImportData(
 ): Promise<ImportResult> {
   const trimmedData = importDataString.trim();
 
-  // Try to parse as JSON (enhanced format)
+  // Try to parse as JSON
   try {
     const parsedData = JSON.parse(trimmedData);
+
+    // Check for clean v2.0 format (has groups object)
+    if (parsedData.version && parsedData.groups) {
+      return importCleanData(trimmedData, options);
+    }
+
+    // Check for old enhanced format (has customGroups array) - should not exist after our changes
     if (parsedData.version && parsedData.customGroups !== undefined) {
-      return importEnhancedData(trimmedData, options);
+      return {
+        success: false,
+        importedGroups: 0,
+        importedTiles: 0,
+        errors: ['Old enhanced format no longer supported. Please use clean v2.0 format.'],
+        warnings: [],
+      };
     }
   } catch {
     // Not JSON, probably legacy format
@@ -327,29 +513,71 @@ export async function autoImportData(
  */
 export function generateExportSummary(exportDataString: string): string {
   try {
-    const data: EnhancedExportData = JSON.parse(exportDataString);
+    const data: CleanExportData = JSON.parse(exportDataString);
 
-    const groupCount = data.customGroups.length;
-    const tileCount = data.customTiles.length;
-    const exportDate = new Date(data.exportedAt).toLocaleDateString();
+    const groupNames = Object.keys(data.groups);
+    const groupCount = groupNames.length;
+
+    // Count total tiles across all custom tiles
+    let totalTileCount = 0;
+    for (const groupTiles of Object.values(data.customTiles)) {
+      for (const intensityTiles of Object.values(groupTiles)) {
+        totalTileCount += intensityTiles.length;
+      }
+    }
 
     let summary = `Export Summary:\n`;
     summary += `• Format Version: ${data.version}\n`;
-    summary += `• Exported: ${exportDate}\n`;
     summary += `• Locale: ${data.locale}\n`;
-    summary += `• Game Mode: ${data.gameMode}\n`;
     summary += `• Custom Groups: ${groupCount}\n`;
-    summary += `• Custom Tiles: ${tileCount}\n`;
+    summary += `• Total Custom Tiles: ${totalTileCount}\n`;
 
     if (groupCount > 0) {
       summary += `\nCustom Groups:\n`;
-      data.customGroups.forEach((group) => {
-        summary += `• ${group.label} (${group.intensities.length} intensity levels)\n`;
+      groupNames.forEach((groupName) => {
+        const group = data.groups[groupName];
+        const groupTiles = data.customTiles[groupName] || {};
+        const groupTileCount = Object.values(groupTiles).reduce(
+          (sum, tiles) => sum + tiles.length,
+          0
+        );
+        summary += `• ${group.label} (${group.intensities.length} intensities, ${groupTileCount} tiles)\n`;
       });
     }
 
     return summary;
   } catch {
     return 'Unable to parse export data';
+  }
+}
+
+/**
+ * Get list of available custom groups for export selection
+ */
+export async function getAvailableGroupsForExport(
+  locale = 'en'
+): Promise<{ name: string; label: string; tileCount: number }[]> {
+  try {
+    // Get all custom groups (exclude defaults)
+    const customGroups = await getCustomGroups({ locale });
+    const nonDefaultGroups = customGroups.filter((group) => !group.isDefault);
+
+    // Get tile counts for each group
+    const allCustomTiles = await getTiles({ isCustom: 1 });
+
+    return nonDefaultGroups.map((group) => {
+      const groupTiles = allCustomTiles.filter(
+        (tile) => tile.group === group.name && (!tile.locale || tile.locale === locale)
+      );
+
+      return {
+        name: group.name,
+        label: group.label,
+        tileCount: groupTiles.length,
+      };
+    });
+  } catch (error) {
+    console.error('Error getting available groups for export:', error);
+    return [];
   }
 }

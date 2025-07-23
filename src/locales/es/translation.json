@@ -344,5 +344,58 @@
   },
   "intensity": "Intensidad",
   "soon": "Pronto",
-  "noLinkProvided": "Sin enlace"
+  "noLinkProvided": "Sin enlace",
+  "exportFormat": {
+    "clean": "Limpio (v2.0)",
+    "legacy": "Heredado"
+  },
+  "exportScope": {
+    "all": "Todo",
+    "default": "Grupos Predeterminados",
+    "single": "Grupo Único"
+  },
+  "importStrategy": {
+    "skip": "Omitir Existentes",
+    "overwrite": "Sobrescribir",
+    "rename": "Renombrar Conflictos"
+  },
+  "selectGroup": "Selecciona un grupo para exportar",
+  "labels": {
+    "exportFormat": "Formato",
+    "exportScope": "Alcance",
+    "importStrategy": "Estrategia",
+    "selectGroup": "Seleccionar Grupo"
+  },
+  "placeholder": {
+    "cleanFormat": "Pega aquí los datos JSON en formato limpio v2.0...",
+    "legacyFormat": "Pega aquí los datos en formato heredado..."
+  },
+  "errors": {
+    "selectGroupToExport": "Por favor selecciona un grupo para exportar",
+    "exportFailed": "Error en la exportación: {{error}}",
+    "importFailed": "Error en la importación: {{errors}}"
+  },
+  "messages": {
+    "importing": "Importando datos...",
+    "importSuccess": "¡Importación completada exitosamente!",
+    "importedGroups": "Se importaron {{count}} grupos personalizados.",
+    "importedTiles": "Se importaron {{count}} casillas personalizadas."
+  },
+  "importResults": {
+    "title": "Resultados de Importación:",
+    "groupsImported": "{{count}} grupos personalizados importados",
+    "tilesImported": "{{count}} casillas personalizadas importadas",
+    "warnings": "Advertencias:",
+    "errors": "Errores:"
+  },
+  "formatGuide": {
+    "title": "Guía del Formato Limpio v2.0",
+    "description": "El formato Limpio v2.0 separa la estructura de grupos del contenido personalizado para facilitar la edición manual:",
+    "keySections": "Secciones Clave:",
+    "keySectionsContent": "• <strong1>groups</strong1>: Definiciones de grupos con etiquetas, tipos y nombres de intensidad<br />• <strong2>customTiles</strong2>: Tus casillas personalizadas organizadas por grupo y número de intensidad",
+    "manualEditing": "Edición Manual:",
+    "manualEditingContent": "• Edita etiquetas de grupos y nombres de intensidad de forma segura<br />• Añade/elimina casillas personalizadas en la sección customTiles<br />• Las casillas personalizadas funcionan con grupos personalizados y predeterminados<br />• El idioma debe ser 'en', 'es' o 'fr'<br />• El tipo de grupo debe ser 'solo', 'foreplay', 'sex' o 'consumption'",
+    "customTilesFormat": "Formato de Casillas Personalizadas:",
+    "customTilesFormatContent": "Cada casilla puede ser una cadena (solo acción) u objeto con acción y etiquetas:<br />• Simple: <code1>\"texto de acción\"</code1><br />• Con etiquetas: <code2>{\"action\": \"texto\", \"tags\": [\"etiqueta1\", \"etiqueta2\"]}</code2>"
+  }
 }
