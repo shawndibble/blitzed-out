@@ -17,7 +17,11 @@ import { MessagesProvider } from '@/context/messages';
 import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from './theme';
-import { runMigrationIfNeeded } from '@/services/migrationService';
+import {
+  runMigrationWithCurrentLocale,
+  hasMultiLocaleData,
+  resetAndMigrateCurrentLocaleOnly,
+} from '@/services/migrationService';
 import { WindowWithAuth, ProvidersProps } from '@/types/app';
 import AppSkeleton from '@/components/AppSkeleton';
 
@@ -104,7 +108,20 @@ function AppRoutes() {
     const runMigration = async () => {
       setMigrationStatus('running');
       try {
-        const success = await runMigrationIfNeeded();
+        // Check if we have multi-locale data from the old migration system
+        const hasMultiLocale = await hasMultiLocaleData();
+
+        let success: boolean;
+        if (hasMultiLocale) {
+          console.info(
+            'Multi-locale data detected, performing clean migration for current locale only'
+          );
+          success = await resetAndMigrateCurrentLocaleOnly();
+        } else {
+          console.info('Running migration for current locale');
+          success = await runMigrationWithCurrentLocale();
+        }
+
         setMigrationStatus(success ? 'completed' : 'failed');
       } catch (error) {
         console.error('Migration failed:', error);

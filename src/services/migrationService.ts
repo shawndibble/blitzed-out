@@ -47,6 +47,14 @@ const markMigrationComplete = (): void => {
 };
 
 /**
+ * Reset migration status - forces re-migration on next run
+ */
+export const resetMigrationStatus = (): void => {
+  localStorage.removeItem(MIGRATION_KEY);
+  console.info('Migration status reset - will re-run on next startup');
+};
+
+/**
  * Import a single action file and convert it to a custom group with custom tiles
  */
 const importActionFile = async (
@@ -276,7 +284,7 @@ const importGroupsForLocaleAndGameMode = async (
 };
 
 /**
- * Main migration function with dynamic discovery
+ * Main migration function - migrates ALL locales (legacy function)
  */
 export const migrateActionGroups = async (): Promise<boolean> => {
   try {
@@ -325,6 +333,45 @@ export const migrateActionGroups = async (): Promise<boolean> => {
 };
 
 /**
+ * Migration function for a specific locale only
+ */
+export const migrateActionGroupsForLocale = async (targetLocale: string): Promise<boolean> => {
+  try {
+    console.info(`Starting action groups migration for locale: ${targetLocale}`);
+
+    let totalGroupsImported = 0;
+    let totalTilesImported = 0;
+
+    // Only migrate the target locale
+    const gameModes = await getAvailableGameModes(targetLocale);
+
+    for (const gameMode of gameModes) {
+      try {
+        const result = await importGroupsForLocaleAndGameMode(targetLocale, gameMode);
+        totalGroupsImported += result.groupsImported;
+        totalTilesImported += result.tilesImported;
+      } catch (error) {
+        console.error(`Error importing groups for ${targetLocale}/${gameMode}:`, error);
+      }
+    }
+
+    console.info(
+      `Migration completed for ${targetLocale}: ${totalGroupsImported} groups, ${totalTilesImported} tiles imported`
+    );
+
+    // Clean up any duplicates for this locale
+    for (const gameMode of gameModes) {
+      await removeDuplicateGroups(targetLocale, gameMode);
+    }
+
+    return true;
+  } catch (error) {
+    console.error(`Migration failed for locale ${targetLocale}:`, error);
+    return false;
+  }
+};
+
+/**
  * Clean up duplicate groups across all locales and game modes
  * Can be called independently of migration
  */
@@ -356,16 +403,103 @@ export const cleanupDuplicateGroups = async (): Promise<number> => {
 
 /**
  * Run migration if needed (safe to call multiple times)
+ * Uses locale-specific migration to only load current user's locale
  */
-export const runMigrationIfNeeded = async (): Promise<boolean> => {
+export const runMigrationIfNeeded = async (targetLocale?: string): Promise<boolean> => {
   try {
     if (isMigrationCompleted()) {
       return true;
     }
 
+    // If a specific locale is provided, only migrate that locale
+    if (targetLocale) {
+      const success = await migrateActionGroupsForLocale(targetLocale);
+      if (success) {
+        markMigrationComplete();
+      }
+      return success;
+    }
+
+    // Fallback to legacy migration (all locales) if no specific locale provided
     return await migrateActionGroups();
   } catch (error) {
     console.error('Error in runMigrationIfNeeded:', error);
+    return false;
+  }
+};
+
+/**
+ * Check if the database contains data for multiple locales
+ * This indicates the old migration system was used
+ */
+export const hasMultiLocaleData = async (): Promise<boolean> => {
+  try {
+    // Import directly from the store to bypass automatic locale filtering
+    const db = await import('@/stores/store');
+
+    // Get all groups directly from Dexie without any filtering
+    const allGroups = await db.default.customGroups.toArray();
+
+    // Extract unique locales
+    const locales = [...new Set(allGroups.map((group) => group.locale))];
+
+    console.debug(`Found locales in database: ${locales.join(', ')}`);
+
+    // If we have more than 1 locale, it's multi-locale data
+    return locales.length > 1;
+  } catch (error) {
+    console.error('Error checking for multi-locale data:', error);
+    return false;
+  }
+};
+
+/**
+ * Clear all existing locale data and reset migration status
+ * Forces a clean re-migration with only the current locale
+ */
+export const resetAndMigrateCurrentLocaleOnly = async (): Promise<boolean> => {
+  try {
+    console.info('Clearing existing locale data and resetting migration...');
+
+    // Clear all existing custom groups and tiles
+    const { deleteAllCustomGroups } = await import('@/stores/customGroups');
+    const { deleteAllIsCustomTiles } = await import('@/stores/customTiles');
+
+    await deleteAllCustomGroups();
+    await deleteAllIsCustomTiles();
+
+    // Reset migration status to force re-migration
+    resetMigrationStatus();
+
+    // Run migration with current locale only
+    return await runMigrationWithCurrentLocale();
+  } catch (error) {
+    console.error('Error in resetAndMigrateCurrentLocaleOnly:', error);
+    return false;
+  }
+};
+
+/**
+ * Run migration after i18next is ready with current locale
+ * This should be used instead of runMigrationIfNeeded when locale filtering is desired
+ */
+export const runMigrationWithCurrentLocale = async (): Promise<boolean> => {
+  try {
+    // Wait for i18next to be ready and detect current locale
+    const { default: i18next } = await import('i18next');
+    const localeService = await import('@/services/localeService');
+
+    // Ensure i18next is initialized
+    if (!i18next.isInitialized) {
+      console.warn('i18next not yet initialized, falling back to localeService');
+    }
+
+    const currentLocale = localeService.default.detectUserLocale();
+    console.info(`Running migration for current locale: ${currentLocale}`);
+
+    return await runMigrationIfNeeded(currentLocale);
+  } catch (error) {
+    console.error('Error in runMigrationWithCurrentLocale:', error);
     return false;
   }
 };

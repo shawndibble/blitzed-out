@@ -3,6 +3,7 @@ import db from './store';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
+import localeService from '@/services/localeService';
 
 const { customTiles } = db;
 
@@ -49,6 +50,11 @@ export const getTiles = async (
   filters: Omit<CustomTileFilters, 'page' | 'limit' | 'paginated'> = {}
 ): Promise<CustomTilePull[]> => {
   try {
+    // Automatically filter by current locale if not specified
+    if (!filters.locale) {
+      filters.locale = localeService.detectUserLocale();
+    }
+
     const query = createFilteredQuery(filters);
     return await query.toArray();
   } catch (error) {
@@ -63,6 +69,11 @@ export const getPaginatedTiles = async (
   const { page = 1, limit = 50 } = filters;
 
   try {
+    // Automatically filter by current locale if not specified
+    if (!filters.locale) {
+      filters.locale = localeService.detectUserLocale();
+    }
+
     const query = createFilteredQuery(filters);
 
     // Get total count for pagination

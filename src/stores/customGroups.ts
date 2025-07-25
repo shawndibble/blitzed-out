@@ -9,6 +9,7 @@ import {
   CustomGroupIntensity,
 } from '@/types/customGroups';
 import { Collection, Table } from 'dexie';
+import localeService from '@/services/localeService';
 
 const { customGroups } = db;
 
@@ -59,6 +60,11 @@ export const getCustomGroups = async (
   filters: Partial<CustomGroupFilters> = {}
 ): Promise<CustomGroupPull[]> => {
   try {
+    // Automatically filter by current locale if not specified
+    if (!filters.locale) {
+      filters.locale = localeService.detectUserLocale();
+    }
+
     const query = createFilteredQuery(filters);
     return await query.toArray();
   } catch (error) {

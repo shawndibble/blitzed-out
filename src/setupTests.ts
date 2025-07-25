@@ -1,5 +1,8 @@
 import { afterEach, vi, beforeEach } from 'vitest';
 
+// Setup fake IndexedDB
+import 'fake-indexeddb/auto';
+
 // Mock syncService to prevent auth context errors - must be before other imports
 vi.mock('@/services/syncService', () => ({
   syncDataFromFirebase: () => Promise.resolve(true),

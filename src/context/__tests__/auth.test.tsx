@@ -559,7 +559,7 @@ describe('AuthProvider', () => {
 
       await act(async () => {
         // Mock the sync to resolve immediately
-        vi.mocked(syncService.syncAllDataToFirebase).mockResolvedValue();
+        vi.mocked(syncService.syncAllDataToFirebase).mockResolvedValue(true);
         await result.current.logout();
       });
 
