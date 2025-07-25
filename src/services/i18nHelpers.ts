@@ -13,7 +13,7 @@ export const languages: Record<string, { label: string; voice: string }> = {
     voice: 'Google español de Estados Unidos',
   },
   fr: {
-    label: 'Française',
+    label: 'Français',
     voice: 'Google français',
   },
 };
