@@ -110,29 +110,45 @@ function buildTileContent(
 
   // Calculate intensity based on position and settings
   const maxIntensity = Math.max(...currentGroup.intensities.map((i) => i.value));
-  const targetIntensity = Math.min(
-    calculateIntensity(gameSize, maxIntensity, currentTile, settings.difficulty),
-    groupSelection.level
+  const calculatedIntensity = calculateIntensity(
+    gameSize,
+    maxIntensity,
+    currentTile,
+    settings.difficulty
   );
+  const targetIntensity = Math.min(calculatedIntensity, groupSelection.level);
+
+  // If no tiles at target intensity, try higher intensities up to the group's max
+  const availableIntensities = [
+    ...new Set(
+      allTiles.filter((t) => t.group === currentGroup.name && t.isEnabled).map((t) => t.intensity)
+    ),
+  ].sort((a, b) => a - b);
+  const lowestAvailableIntensity = availableIntensities[0] || 1;
 
   // Get available tiles for this group and intensity
-  const groupTiles = getGroupTiles(allTiles, currentGroup.name, targetIntensity);
-
+  let groupTiles = getGroupTiles(allTiles, currentGroup.name, targetIntensity);
   if (!groupTiles.length) {
-    // Try lower intensities if target not available
+    // Try lower intensities first
     for (let intensity = targetIntensity - 1; intensity >= 1; intensity--) {
       const fallbackTiles = getGroupTiles(allTiles, currentGroup.name, intensity);
       if (fallbackTiles.length > 0) {
-        cycleArray(fallbackTiles);
-        return {
-          title: currentGroup.label,
-          description: fallbackTiles[0].action,
-          standalone: groupSelection.variation === 'standalone',
-          role: settings.role || 'sub',
-        };
+        groupTiles = fallbackTiles;
+        break;
       }
     }
-    return { title: '', description: '' };
+
+    // If no lower intensities work, try the lowest available intensity even if it's higher
+    if (!groupTiles.length && lowestAvailableIntensity > targetIntensity) {
+      const fallbackTiles = getGroupTiles(allTiles, currentGroup.name, lowestAvailableIntensity);
+      if (fallbackTiles.length > 0) {
+        groupTiles = fallbackTiles;
+      }
+    }
+
+    if (!groupTiles.length) {
+      return { title: '', description: '' };
+    }
   }
 
   // Select random tile from available options
@@ -307,12 +323,6 @@ export default async function buildGameBoard(
 
     // If no selected groups or tiles available, return empty board
     if (!selectedGroups.length || !relevantTiles.length) {
-      console.warn('No available groups or tiles for board building', {
-        selectedGroups: selectedGroupNames,
-        availableGroups: availableGroupNames,
-        relevantTiles: relevantTiles.length,
-      });
-
       return {
         board: addStartAndFinishTiles([], settings),
         metadata: {

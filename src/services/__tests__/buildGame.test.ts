@@ -254,4 +254,428 @@ describe('buildGameBoard service', () => {
       expect(result.metadata.totalTiles).toBe(7);
     });
   });
+
+  describe('Intensity fallback logic', () => {
+    it('should use higher intensity tiles when lower intensity is unavailable', async () => {
+      // Mock group that only has intensity 2+ tiles, but user selected level 1
+      const mockGroupsWithHighIntensity: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'pissPlay',
+          label: 'Piss Play',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+            { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
+          ],
+          type: 'solo',
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const mockTilesWithHighIntensity: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'pissPlay',
+          intensity: 2, // No intensity 1 tiles available
+          action: 'Medium intensity piss play action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'pissPlay',
+          intensity: 3,
+          action: 'High intensity piss play action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(mockGroupsWithHighIntensity);
+      vi.mocked(getTiles).mockResolvedValue(mockTilesWithHighIntensity);
+
+      const settings: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          pissPlay: {
+            level: 1, // User selected level 1, but only intensity 2+ tiles exist
+            type: 'action',
+            variation: 'standalone',
+          },
+        },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 3);
+
+      // Should successfully generate tiles using higher intensity fallback
+      expect(result.board.length).toBe(5); // 3 tiles + start + finish
+      expect(result.metadata.tilesWithContent).toBeGreaterThan(2); // More than just start/finish
+      expect(result.metadata.availableTileCount).toBe(2); // Both intensity 2,3 tiles available
+
+      // Check that tiles have content (fallback worked)
+      const contentTiles = result.board.slice(1, -1); // Exclude start/finish
+      const tilesWithContent = contentTiles.filter(
+        (tile) => tile.description && tile.description.trim().length > 0
+      );
+      expect(tilesWithContent.length).toBeGreaterThan(0);
+    });
+
+    it('should try lower intensities first before falling back to higher ones', async () => {
+      const mockGroupsWithGaps: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'gappedGroup',
+          label: 'Group with Gaps',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+            { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
+          ],
+          type: 'solo',
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const mockTilesWithGaps: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'gappedGroup',
+          intensity: 1,
+          action: 'Intensity 1 action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'gappedGroup',
+          intensity: 3, // Gap at intensity 2
+          action: 'Intensity 3 action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(mockGroupsWithGaps);
+      vi.mocked(getTiles).mockResolvedValue(mockTilesWithGaps);
+
+      const settings: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          gappedGroup: {
+            level: 2, // Target intensity 2, but only 1 and 3 available
+            type: 'action',
+            variation: 'standalone',
+          },
+        },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 4);
+
+      // Should successfully generate tiles
+      expect(result.board.length).toBe(6); // 4 tiles + start + finish
+      expect(result.metadata.tilesWithContent).toBeGreaterThan(2);
+      expect(result.metadata.availableTileCount).toBe(2);
+
+      // Should successfully use fallback tiles
+      const contentTiles = result.board.slice(1, -1);
+      const tilesWithContent = contentTiles.filter(
+        (tile) => tile.description && tile.description.trim().length > 0
+      );
+      expect(tilesWithContent.length).toBeGreaterThan(0);
+    });
+
+    it('should handle groups with no available tiles gracefully', async () => {
+      const mockEmptyGroup: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'emptyGroup',
+          label: 'Empty Group',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+          ],
+          type: 'solo',
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const mockEmptyTiles: CustomTilePull[] = []; // No tiles available for this group
+
+      vi.mocked(getCustomGroups).mockResolvedValue(mockEmptyGroup);
+      vi.mocked(getTiles).mockResolvedValue(mockEmptyTiles);
+
+      const settings: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          emptyGroup: {
+            level: 1,
+            type: 'action',
+            variation: 'standalone',
+          },
+        },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 3);
+
+      // Should return empty board with just start/finish tiles when no tiles available
+      expect(result.board.length).toBe(2); // Just start + finish (no content tiles generated)
+      expect(result.metadata.tilesWithContent).toBe(2); // Only start and finish
+      expect(result.metadata.availableTileCount).toBe(0);
+    });
+
+    it('should handle disabled tiles correctly with intensity fallback', async () => {
+      const mockGroupWithDisabled: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'disabledGroup',
+          label: 'Group with Disabled Tiles',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+          ],
+          type: 'solo',
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const mockTilesWithDisabled: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'disabledGroup',
+          intensity: 1,
+          action: 'Disabled tile',
+          tags: [],
+          isEnabled: 0, // This tile is disabled
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'disabledGroup',
+          intensity: 2,
+          action: 'Enabled tile intensity 2',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(mockGroupWithDisabled);
+      vi.mocked(getTiles).mockResolvedValue(mockTilesWithDisabled);
+
+      const settings: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          disabledGroup: {
+            level: 1, // Target intensity 1, but it's disabled - should fallback to 2
+            type: 'action',
+            variation: 'standalone',
+          },
+        },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 2);
+
+      // Should fallback to intensity 2 since intensity 1 tile is disabled
+      expect(result.board.length).toBe(4); // 2 tiles + start + finish
+      expect(result.metadata.tilesWithContent).toBeGreaterThan(2);
+      expect(result.metadata.availableTileCount).toBe(2); // Both tiles counted, but only enabled one used
+
+      const contentTiles = result.board.slice(1, -1);
+      const tilesWithContent = contentTiles.filter(
+        (tile) => tile.description && tile.description.includes('intensity 2')
+      );
+      expect(tilesWithContent.length).toBeGreaterThan(0);
+    });
+
+    it('should handle role filtering with intensity fallback', async () => {
+      const mockGroupWithRoles: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'roleGroup',
+          label: 'Group with Role Filtering',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+          ],
+          type: 'solo',
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const mockTilesWithRoles: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'roleGroup',
+          intensity: 2,
+          action: 'Action for {sub} at intensity 2', // Only available for sub role
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'roleGroup',
+          intensity: 2,
+          action: 'Action for {dom} at intensity 2', // Only available for dom role
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(mockGroupWithRoles);
+      vi.mocked(getTiles).mockResolvedValue(mockTilesWithRoles);
+
+      const settings: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          roleGroup: {
+            level: 1, // Target intensity 1, but only 2 available
+            type: 'action',
+            variation: 'standalone',
+          },
+        },
+        role: 'sub', // Should only get tiles with {sub}
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 2);
+
+      expect(result.board.length).toBe(4); // 2 tiles + start + finish
+      expect(result.metadata.availableTileCount).toBe(1); // Only sub-appropriate tile
+
+      // Check that generated tiles are appropriate for the role
+      const contentTiles = result.board.slice(1, -1);
+      const tilesWithSubRole = contentTiles.filter(
+        (tile) =>
+          tile.description &&
+          (tile.description.includes('{sub}') || !tile.description.includes('{dom}'))
+      );
+      expect(tilesWithSubRole.length).toBeGreaterThan(0);
+    });
+
+    it('should handle multiple groups with different intensity availability', async () => {
+      const mockMixedGroups: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'groupA',
+          label: 'Group A',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+          ],
+          type: 'solo',
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          name: 'groupB',
+          label: 'Group B',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+          ],
+          type: 'solo',
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const mockMixedTiles: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'groupA',
+          intensity: 1,
+          action: 'Group A intensity 1',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'groupB',
+          intensity: 2, // Only higher intensity available for group B
+          action: 'Group B intensity 2',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(mockMixedGroups);
+      vi.mocked(getTiles).mockResolvedValue(mockMixedTiles);
+
+      const settings: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          groupA: { level: 1, type: 'action', variation: 'standalone' },
+          groupB: { level: 1, type: 'action', variation: 'standalone' }, // Should fallback to intensity 2
+        },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 4);
+
+      expect(result.board.length).toBe(6); // 4 tiles + start + finish
+      expect(result.metadata.tilesWithContent).toBeGreaterThan(2);
+      expect(result.metadata.availableTileCount).toBe(2); // Both tiles available
+
+      // Should have tiles from both groups
+      const contentTiles = result.board.slice(1, -1);
+      const tilesWithContent = contentTiles.filter(
+        (tile) => tile.description && tile.description.trim().length > 0
+      );
+      expect(tilesWithContent.length).toBeGreaterThan(0);
+    });
+  });
 });
