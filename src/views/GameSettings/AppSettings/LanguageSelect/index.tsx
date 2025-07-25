@@ -12,6 +12,7 @@ import {
 import { useState, useEffect, useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import localeService, { LocaleMetadata } from '@/services/localeService';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 interface LanguageSelectProps {
   boardUpdated: () => void;
@@ -19,6 +20,7 @@ interface LanguageSelectProps {
 
 export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): JSX.Element {
   const { i18n } = useTranslation();
+  const { setLocale } = useSettingsStore();
   const [language, setLanguage] = useState<string>(i18n.resolvedLanguage || 'en');
   const [availableLanguages, setAvailableLanguages] = useState<LocaleMetadata[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,6 +56,9 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
         if (!migrationSuccess) {
           console.warn(`Migration failed for locale ${value}, but continuing with language switch`);
         }
+
+        // Update settings store with new locale - this will trigger UI components to refresh
+        setLocale(value);
 
         // Update local state
         setLanguage(value);
