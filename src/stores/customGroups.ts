@@ -351,7 +351,11 @@ export const getAllAvailableGroups = async (
 
     return uniqueGroups;
   } catch (error) {
-    console.error('Error in getAllAvailableGroups:', error);
+    console.error('❌ getAllAvailableGroups: Database error', {
+      locale,
+      gameMode,
+      error,
+    });
     return [];
   }
 };

@@ -13,6 +13,14 @@ interface UnifiedActionListResult {
 const actionsCache = new Map<string, { data: GroupedActions; timestamp: number }>();
 const CACHE_TTL = UNIFIED_ACTION_CACHE_TTL;
 
+// Debug function to inspect cache
+(window as any).debugActionsCache = () => {};
+
+// Debug function to clear cache
+(window as any).clearActionsCache = () => {
+  actionsCache.clear();
+};
+
 /**
  * Hook that combines default actions from locale files with custom groups from Dexie
  * into a unified structure that can be used by the existing IncrementalSelect component
@@ -30,6 +38,27 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
   const { i18n } = useTranslation();
   const [actionsList, setActionsList] = useState<GroupedActions>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Track language changes for debugging
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      // Clear cache for all languages since the user changed language
+      if (gameMode) {
+        const oldCacheKeys = Array.from(actionsCache.keys()).filter((key) =>
+          key.endsWith(`-${gameMode}`)
+        );
+        oldCacheKeys.forEach((key) => {
+          actionsCache.delete(key);
+        });
+      }
+    };
+
+    i18n.on('languageChanged', handleLanguageChange);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n, gameMode]);
 
   // Memoize the cache key to prevent unnecessary recalculations
   const cacheKey = useMemo(() => {
@@ -50,7 +79,10 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
   }, [cacheKey]);
 
   const loadUnifiedActions = useCallback(async (): Promise<void> => {
-    if (!gameMode || !cacheKey) return;
+    if (!gameMode || !cacheKey) {
+      console.warn('⚠️ useUnifiedActionList: Missing required params', { gameMode, cacheKey });
+      return;
+    }
 
     // Check cache first
     const cached = actionsCache.get(cacheKey);
@@ -102,7 +134,12 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
 
       setActionsList(unifiedActions);
     } catch (error) {
-      console.error('Error loading unified actions:', error);
+      console.error('❌ useUnifiedActionList: Error loading unified actions', {
+        error,
+        locale: i18n.resolvedLanguage,
+        gameMode,
+        cacheKey,
+      });
       setActionsList({});
     } finally {
       setIsLoading(false);

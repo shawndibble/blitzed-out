@@ -280,10 +280,11 @@ const importGroupsForLocaleAndGameMode = async (
  */
 export const migrateActionGroups = async (): Promise<boolean> => {
   try {
-    console.info('Starting action groups migration...');
+    console.info('🚀 Migration: Starting action groups migration...');
 
     // Dynamically discover available locales
     const locales = await getAvailableLocales();
+    console.log('🌍 Migration: Available locales discovered', { locales });
 
     let totalGroupsImported = 0;
     let totalTilesImported = 0;
@@ -291,20 +292,23 @@ export const migrateActionGroups = async (): Promise<boolean> => {
     for (const locale of locales) {
       // Dynamically discover available game modes for this locale
       const gameModes = await getAvailableGameModes(locale);
+      console.log(`🎮 Migration: Game modes for ${locale}`, { gameModes });
 
       for (const gameMode of gameModes) {
         try {
+          console.log(`💼 Migration: Processing ${locale}/${gameMode}`);
           const result = await importGroupsForLocaleAndGameMode(locale, gameMode);
+          console.log(`✅ Migration: Completed ${locale}/${gameMode}`, result);
           totalGroupsImported += result.groupsImported;
           totalTilesImported += result.tilesImported;
         } catch (error) {
-          console.error(`Error importing groups for ${locale}/${gameMode}:`, error);
+          console.error(`❌ Migration: Error importing groups for ${locale}/${gameMode}:`, error);
         }
       }
     }
 
     console.info(
-      `Migration completed: ${totalGroupsImported} groups, ${totalTilesImported} tiles imported`
+      `✨ Migration: COMPLETED - ${totalGroupsImported} groups, ${totalTilesImported} tiles imported`
     );
 
     // Clean up any duplicates that might exist from previous migrations
