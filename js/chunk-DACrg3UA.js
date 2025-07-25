@@ -1,0 +1,1 @@
+import{a as s}from"./chunk-C88u9tZG.js";import{M as t}from"../assets/index-Bjnmik-V.js";function r(){const e=s.useContext(t);if(!e)throw new Error("MessagesContext's value is undefined.");return e}export{r as u};
