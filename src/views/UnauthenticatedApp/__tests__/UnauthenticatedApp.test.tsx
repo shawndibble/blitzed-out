@@ -65,7 +65,7 @@ const mockI18n = {
   changeLanguage: vi.fn((lng: string) => {
     mockI18n.language = lng;
     mockI18n.resolvedLanguage = lng;
-    Promise.resolve();
+    return Promise.resolve();
   }),
   t: vi.fn((key: string) => {
     const translations: Record<string, Record<string, string>> = {
@@ -121,7 +121,7 @@ describe('Language Switching Functionality', () => {
 
     expect(screen.getByTestId('language-en')).toHaveTextContent('English');
     expect(screen.getByTestId('language-es')).toHaveTextContent('Español');
-    expect(screen.getByTestId('language-fr')).toHaveTextContent('Française');
+    expect(screen.getByTestId('language-fr')).toHaveTextContent('Français');
   });
 
   it('should have English button disabled initially', () => {
@@ -187,6 +187,6 @@ describe('Language Switching Functionality', () => {
 
     expect(languages.en.label).toBe('English');
     expect(languages.es.label).toBe('Español');
-    expect(languages.fr.label).toBe('Française');
+    expect(languages.fr.label).toBe('Français');
   });
 });
