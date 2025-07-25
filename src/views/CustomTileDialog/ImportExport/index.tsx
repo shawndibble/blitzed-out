@@ -137,7 +137,7 @@ export default function ImportExport({
     }
 
     try {
-      setSubmitMessage({ type: 'info', message: t('messages.importing') });
+      setSubmitMessage({ type: 'info', message: t('importMessages.importing') });
 
       // Use the new auto-import function that detects format
       const result = await autoImportData(importDataValue, mappedGroups, {
@@ -160,12 +160,12 @@ export default function ImportExport({
           });
         }
 
-        let message: string = t('messages.importSuccess');
+        let message: string = t('importMessages.importSuccess');
         if (result.importedGroups > 0) {
-          message += ` ${t('messages.importedGroups', { count: result.importedGroups })}`;
+          message += ` ${t('importMessages.importedGroups', { count: result.importedGroups })}`;
         }
         if (result.importedTiles > 0) {
-          message += ` ${t('messages.importedTiles', { count: result.importedTiles })}`;
+          message += ` ${t('importMessages.importedTiles', { count: result.importedTiles })}`;
         }
 
         setSubmitMessage({

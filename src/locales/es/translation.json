@@ -375,7 +375,7 @@
     "exportFailed": "Error en la exportación: {{error}}",
     "importFailed": "Error en la importación: {{errors}}"
   },
-  "messages": {
+  "importMessages": {
     "importing": "Importando datos...",
     "importSuccess": "¡Importación completada exitosamente!",
     "importedGroups": "Se importaron {{count}} grupos personalizados.",
