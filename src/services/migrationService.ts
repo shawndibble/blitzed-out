@@ -10,7 +10,7 @@ import { CustomTileBase } from '@/types/customTiles';
 
 // Configuration
 const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
-const MIGRATION_VERSION = '2.0.0';
+const MIGRATION_VERSION = '2.1.0';
 
 interface MigrationStatus {
   version: string;
@@ -232,8 +232,39 @@ const importGroupsForLocaleAndGameMode = async (
 
         // Add the custom tiles if there are any
         if (customTiles.length > 0) {
-          await importCustomTiles(customTiles);
-          tilesImported += customTiles.length;
+          // Filter out any tiles that might already exist to prevent duplicates
+          try {
+            const { getTiles } = await import('@/stores/customTiles');
+            const existingTiles = await getTiles({
+              locale,
+              gameMode,
+              group: groupName,
+            });
+
+            const newTiles = customTiles.filter((tile) => {
+              return !existingTiles.some(
+                (existing) =>
+                  existing.group === tile.group &&
+                  existing.intensity === tile.intensity &&
+                  existing.action === tile.action &&
+                  existing.gameMode === tile.gameMode &&
+                  existing.locale === tile.locale
+              );
+            });
+
+            if (newTiles.length > 0) {
+              await importCustomTiles(newTiles);
+              tilesImported += newTiles.length;
+            }
+          } catch (tileError) {
+            // If tile checking fails, import anyway to ensure migration succeeds
+            console.warn(
+              `Tile deduplication failed for ${groupName}, importing all tiles:`,
+              tileError
+            );
+            await importCustomTiles(customTiles);
+            tilesImported += customTiles.length;
+          }
         }
       } catch (error) {
         console.error(`Failed to import group ${groupName} for ${locale}/${gameMode}:`, error);
