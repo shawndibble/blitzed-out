@@ -69,18 +69,19 @@ export default function UnauthenticatedApp() {
   );
 
   // Memoize language links to prevent re-rendering
+  const currentLanguage = i18n.resolvedLanguage;
   const languageLinks = useMemo(
     () =>
       Object.entries(languages).map(([key, obj]) => (
         <Button
           key={key}
           onClick={() => i18n.changeLanguage(key)}
-          disabled={i18n.resolvedLanguage === key}
+          disabled={currentLanguage === key}
         >
           {obj.label}
         </Button>
       )),
-    [i18n]
+    [i18n, currentLanguage]
   );
 
   return (

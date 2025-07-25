@@ -13,36 +13,12 @@ const i18nOptions: InitOptions = {
     escapeValue: false, // React already safes from XSS
   },
   react: {
-    useSuspense: true,
+    useSuspense: false, // Disable suspense to prevent issues with language switching
   },
   detection: {
     order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
     caches: ['localStorage', 'cookie'],
   },
-};
-
-// Preload only critical translation resources
-const preloadCriticalTranslations = async () => {
-  const language = localStorage.getItem('i18nextLng') || 'en';
-
-  try {
-    // Load only the main translation file initially
-    const mainTranslation = await import(`./locales/${language}/translation.json`);
-
-    return {
-      [language]: {
-        translation: mainTranslation.default || mainTranslation,
-      },
-    };
-  } catch {
-    // Fallback to English if language not found
-    const enTranslation = await import(`./locales/en/translation.json`);
-    return {
-      en: {
-        translation: enTranslation.default || enTranslation,
-      },
-    };
-  }
 };
 
 // Lazy loading function for additional resources
@@ -64,17 +40,7 @@ const i18n = i18next
   .use(LanguageDetector)
   .use(resourcesToBackend(lazyLoadTranslations));
 
-// Initialize with critical translations preloaded
-preloadCriticalTranslations()
-  .then((resources) => {
-    i18n.init({
-      ...i18nOptions,
-      resources, // Use preloaded resources
-    });
-  })
-  .catch(() => {
-    // Fallback to dynamic loading if preload fails
-    i18n.init(i18nOptions);
-  });
+// Initialize i18n synchronously for immediate availability
+i18n.init(i18nOptions);
 
 export default i18n;
