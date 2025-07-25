@@ -47,6 +47,14 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
         // Save preference
         localeService.saveLanguagePreference(value);
 
+        // Ensure the new locale's data is migrated
+        const { migrateLocaleIfNeeded } = await import('@/services/migrationService');
+        const migrationSuccess = await migrateLocaleIfNeeded(value);
+
+        if (!migrationSuccess) {
+          console.warn(`Migration failed for locale ${value}, but continuing with language switch`);
+        }
+
         // Update local state
         setLanguage(value);
 

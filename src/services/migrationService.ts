@@ -10,12 +10,19 @@ import { CustomTileBase } from '@/types/customTiles';
 
 // Configuration
 const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
+const LOCALE_MIGRATION_KEY = 'blitzed-out-locale-migrations';
 const MIGRATION_VERSION = '2.1.0';
 
 interface MigrationStatus {
   version: string;
   completed: boolean;
   completedAt?: Date;
+}
+
+interface LocaleMigrationStatus {
+  version: string;
+  migratedLocales: string[];
+  lastUpdated: Date;
 }
 
 /**
@@ -51,7 +58,76 @@ const markMigrationComplete = (): void => {
  */
 export const resetMigrationStatus = (): void => {
   localStorage.removeItem(MIGRATION_KEY);
+  localStorage.removeItem(LOCALE_MIGRATION_KEY);
   console.info('Migration status reset - will re-run on next startup');
+};
+
+/**
+ * Check if a specific locale has been migrated
+ */
+export const isLocaleMigrated = (locale: string): boolean => {
+  try {
+    const status = localStorage.getItem(LOCALE_MIGRATION_KEY);
+    if (!status) return false;
+
+    const localeStatus: LocaleMigrationStatus = JSON.parse(status);
+    return (
+      localeStatus.version === MIGRATION_VERSION && localeStatus.migratedLocales.includes(locale)
+    );
+  } catch (error) {
+    console.error('Error checking locale migration status:', error);
+    return false;
+  }
+};
+
+/**
+ * Mark a locale as migrated
+ */
+const markLocaleMigrated = (locale: string): void => {
+  try {
+    let localeStatus: LocaleMigrationStatus;
+
+    const existingStatus = localStorage.getItem(LOCALE_MIGRATION_KEY);
+    if (existingStatus) {
+      localeStatus = JSON.parse(existingStatus);
+      // Update version and add locale if not already present
+      localeStatus.version = MIGRATION_VERSION;
+      if (!localeStatus.migratedLocales.includes(locale)) {
+        localeStatus.migratedLocales.push(locale);
+      }
+      localeStatus.lastUpdated = new Date();
+    } else {
+      // Create new status
+      localeStatus = {
+        version: MIGRATION_VERSION,
+        migratedLocales: [locale],
+        lastUpdated: new Date(),
+      };
+    }
+
+    localStorage.setItem(LOCALE_MIGRATION_KEY, JSON.stringify(localeStatus));
+    console.debug(`Marked locale ${locale} as migrated`);
+  } catch (error) {
+    console.error('Error marking locale as migrated:', error);
+  }
+};
+
+/**
+ * Get all migrated locales
+ */
+export const getMigratedLocales = (): string[] => {
+  try {
+    const status = localStorage.getItem(LOCALE_MIGRATION_KEY);
+    if (!status) return [];
+
+    const localeStatus: LocaleMigrationStatus = JSON.parse(status);
+    if (localeStatus.version !== MIGRATION_VERSION) return [];
+
+    return localeStatus.migratedLocales;
+  } catch (error) {
+    console.error('Error getting migrated locales:', error);
+    return [];
+  }
 };
 
 /**
@@ -364,6 +440,9 @@ export const migrateActionGroupsForLocale = async (targetLocale: string): Promis
       await removeDuplicateGroups(targetLocale, gameMode);
     }
 
+    // Mark this locale as migrated
+    markLocaleMigrated(targetLocale);
+
     return true;
   } catch (error) {
     console.error(`Migration failed for locale ${targetLocale}:`, error);
@@ -475,6 +554,26 @@ export const resetAndMigrateCurrentLocaleOnly = async (): Promise<boolean> => {
     return await runMigrationWithCurrentLocale();
   } catch (error) {
     console.error('Error in resetAndMigrateCurrentLocaleOnly:', error);
+    return false;
+  }
+};
+
+/**
+ * Migrate a specific locale if it hasn't been migrated yet
+ * Used when switching locales to ensure new locale data is available
+ */
+export const migrateLocaleIfNeeded = async (locale: string): Promise<boolean> => {
+  try {
+    // Check if this locale has already been migrated
+    if (isLocaleMigrated(locale)) {
+      console.debug(`Locale ${locale} already migrated, skipping`);
+      return true;
+    }
+
+    console.info(`Migrating locale ${locale} for the first time`);
+    return await migrateActionGroupsForLocale(locale);
+  } catch (error) {
+    console.error(`Error migrating locale ${locale}:`, error);
     return false;
   }
 };
