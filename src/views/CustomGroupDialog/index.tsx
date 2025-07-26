@@ -63,6 +63,7 @@ export default function CustomGroupDialog({
   // Form state
   const [label, setLabel] = useState('');
   const [type, setType] = useState<string>('');
+  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(1); // Default to Simple (1-3) template
   const [intensityLabels, setIntensityLabels] = useState<string[]>([
     t('intensityLabels.beginner'),
     t('intensityLabels.intermediate'),
@@ -136,16 +137,27 @@ export default function CustomGroupDialog({
       setLabel(editingGroup.label);
       setType(editingGroup.type || '');
       setIntensityLabels(editingGroup.intensities.map((i) => i.label));
+      // Find matching template or reset to default
+      const matchingTemplateIndex = DEFAULT_INTENSITY_TEMPLATES.findIndex(
+        (template) => template.intensities.length === editingGroup.intensities.length
+      );
+      setSelectedTemplateIndex(matchingTemplateIndex >= 0 ? matchingTemplateIndex : 1);
     } else if (currentEditingGroup) {
       // Keep current editing group if we're in edit mode
       setLabel(currentEditingGroup.label);
       setType(currentEditingGroup.type || '');
       setIntensityLabels(currentEditingGroup.intensities.map((i) => i.label));
+      // Find matching template or reset to default
+      const matchingTemplateIndex = DEFAULT_INTENSITY_TEMPLATES.findIndex(
+        (template) => template.intensities.length === currentEditingGroup.intensities.length
+      );
+      setSelectedTemplateIndex(matchingTemplateIndex >= 0 ? matchingTemplateIndex : 1);
     } else {
       // Reset to defaults for new group
       setCurrentEditingGroup(null);
       setLabel('');
       setType('');
+      setSelectedTemplateIndex(1); // Default to Simple (1-3) template
       setIntensityLabels([
         t('intensityLabels.beginner'),
         t('intensityLabels.intermediate'),
@@ -158,6 +170,7 @@ export default function CustomGroupDialog({
   // Handle template selection
   const handleTemplateChange = (templateIndex: number) => {
     const template = DEFAULT_INTENSITY_TEMPLATES[templateIndex];
+    setSelectedTemplateIndex(templateIndex);
     setIntensityLabels(template.intensities.map((i) => t(i.label)));
   };
 
@@ -361,6 +374,7 @@ export default function CustomGroupDialog({
     setCurrentEditingGroup(null);
     setLabel('');
     setType('');
+    setSelectedTemplateIndex(1); // Reset to Simple (1-3) template
     setIntensityLabels([
       t('intensityLabels.beginner'),
       t('intensityLabels.intermediate'),
@@ -570,7 +584,7 @@ export default function CustomGroupDialog({
                 </Typography>
                 <TextField
                   select
-                  value={0}
+                  value={selectedTemplateIndex}
                   onChange={(e) => handleTemplateChange(Number(e.target.value))}
                   size="small"
                   sx={{ minWidth: 200 }}
