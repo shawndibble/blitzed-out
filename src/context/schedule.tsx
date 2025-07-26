@@ -1,4 +1,4 @@
-import { createContext, useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
+import React, { useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
 import { getSchedule, addSchedule } from '@/services/firebase';
 import { DocumentReference, DocumentData } from 'firebase/firestore';
 import dayjs from 'dayjs';
@@ -22,7 +22,7 @@ export interface ScheduleContextType {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
+export const ScheduleContext = React.createContext<ScheduleContextType | undefined>(undefined);
 
 interface ScheduleProviderProps {
   children: ReactNode;

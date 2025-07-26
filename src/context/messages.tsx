@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { Params, useParams } from 'react-router-dom';
 import { getMessages } from '@/services/firebase';
 import { Message } from '@/types/Message';
@@ -10,7 +10,7 @@ export interface MessagesContextType {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const MessagesContext = createContext<MessagesContextType | undefined>(undefined);
+export const MessagesContext = React.createContext<MessagesContextType | undefined>(undefined);
 
 interface MessagesProviderProps {
   children: ReactNode;

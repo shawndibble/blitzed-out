@@ -33,6 +33,10 @@ export default defineConfig({
             'react-dom',
             'react-router',
             'react-router-dom',
+            'i18next',
+            'react-i18next',
+            'i18next-browser-languagedetector',
+            'i18next-resources-to-backend',
             '@mui/material',
             '@emotion/react',
             '@emotion/styled',
@@ -48,19 +52,7 @@ export default defineConfig({
             'firebase/storage',
           ],
           // Bundle utilities together
-          utils: [
-            'zustand',
-            'dexie',
-            'dexie-react-hooks',
-            'dayjs',
-            'nanoid',
-            'clsx',
-            'js-sha256',
-            'i18next',
-            'react-i18next',
-            'i18next-browser-languagedetector',
-            'i18next-resources-to-backend',
-          ],
+          utils: ['zustand', 'dexie', 'dexie-react-hooks', 'dayjs', 'nanoid', 'clsx', 'js-sha256'],
         },
         // Optimize chunk sizes
         chunkFileNames: (chunkInfo) => {
