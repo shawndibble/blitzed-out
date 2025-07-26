@@ -3,9 +3,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AuthProvider } from './context/auth';
-import './i18n';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
+import './i18n';
 
 // Optimize font loading - only import essential weights initially
 import '@fontsource/roboto/400.css'; // Regular weight only for faster initial load

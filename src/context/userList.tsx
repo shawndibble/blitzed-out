@@ -1,4 +1,4 @@
-import { createContext, useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
+import React, { useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
 import { Params, useParams } from 'react-router-dom';
 import { getUserList } from '@/services/firebase';
 import { useUserListStore } from '@/stores/userListStore';
@@ -15,7 +15,7 @@ export interface UserListContextType {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const UserListContext = createContext<UserListContextType | undefined>(undefined);
+export const UserListContext = React.createContext<UserListContextType | undefined>(undefined);
 
 interface UserListProviderProps {
   children: ReactNode;

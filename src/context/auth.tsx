@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef, ReactNode, createContext, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useRef, ReactNode, useCallback } from 'react';
 import { getAuth } from 'firebase/auth';
 import {
   loginAnonymously,
@@ -42,7 +42,7 @@ export interface AuthContextType {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
