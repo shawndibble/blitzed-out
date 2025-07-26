@@ -80,7 +80,7 @@ export default function Cast() {
         <Box flex="1">
           {!isCastReceiver && !isFullscreen && (
             <Button variant="text" onClick={toggleFullscreen}>
-              Fullscreen
+              {t('fullscreen')}
             </Button>
           )}
         </Box>

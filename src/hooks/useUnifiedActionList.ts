@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { GroupedActions } from '@/types/customTiles';
-import { DEFAULT_NONE_OPTION, UNIFIED_ACTION_CACHE_TTL } from '@/constants/actionConstants';
+import { UNIFIED_ACTION_CACHE_TTL } from '@/constants/actionConstants';
 
 interface UnifiedActionListResult {
   actionsList: GroupedActions;
@@ -35,7 +35,7 @@ const CACHE_TTL = UNIFIED_ACTION_CACHE_TTL;
  * - Converts custom groups to the expected format for UI components
  */
 export default function useUnifiedActionList(gameMode?: string): UnifiedActionListResult {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [actionsList, setActionsList] = useState<GroupedActions>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -104,7 +104,7 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
       for (const group of allGroups) {
         // Convert group to the same structure as expected by components
         const actions: Record<string, string[]> = {
-          [DEFAULT_NONE_OPTION]: [], // Always include None option for consistency
+          [t('none')]: [], // Always include None option for consistency
         };
 
         // Add intensity levels as action keys with empty arrays
@@ -144,7 +144,7 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
     } finally {
       setIsLoading(false);
     }
-  }, [gameMode, i18n.resolvedLanguage, cacheKey]);
+  }, [gameMode, i18n.resolvedLanguage, cacheKey, t]);
 
   useEffect(() => {
     if (cacheKey) {

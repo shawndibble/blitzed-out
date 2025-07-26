@@ -201,11 +201,13 @@ export default function CustomGroupDialog({
       const errors: string[] = [];
 
       if (type && !validationConstants.VALID_GROUP_TYPES.includes(type as GroupType)) {
-        errors.push(`Type must be one of: ${validationConstants.VALID_GROUP_TYPES.join(', ')}`);
+        errors.push(
+          t('typeValidationError', { types: validationConstants.VALID_GROUP_TYPES.join(', ') })
+        );
       }
 
       if (label.trim() && !type) {
-        errors.push('Type is required when creating a group');
+        errors.push(t('typeRequiredError'));
       }
 
       if (errors.length > 0) {
@@ -347,7 +349,7 @@ export default function CustomGroupDialog({
       console.error('Error saving custom group:', error);
       setValidation({
         isValid: false,
-        errors: [`Failed to save group: ${error}`],
+        errors: [t('failedToSaveGroup', { error })],
       });
     } finally {
       setIsSubmitting(false);
@@ -377,9 +379,9 @@ export default function CustomGroupDialog({
         PaperProps={{ sx: { minHeight: '600px' } }}
       >
         <DialogTitle>
-          {t('Manage Custom Groups')}
+          {t('customGroups.manageCustomGroups')}
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            {t('Create new groups or manage existing custom groups')}
+            {t('customGroups.createNewGroupsDescription')}
           </Typography>
 
           {/* Tabs */}
@@ -394,8 +396,12 @@ export default function CustomGroupDialog({
             }}
             sx={{ mt: 2, borderBottom: 1, borderColor: 'divider' }}
           >
-            <Tab label={t('Existing Groups')} />
-            <Tab label={currentEditingGroup ? t('Edit Group') : t('Create New')} />
+            <Tab label={t('customGroups.existingGroups')} />
+            <Tab
+              label={
+                currentEditingGroup ? t('customGroups.editGroup') : t('customGroups.createNew')
+              }
+            />
           </Tabs>
         </DialogTitle>
 
@@ -407,7 +413,7 @@ export default function CustomGroupDialog({
                 <Typography>{t('Loading groups...')}</Typography>
               ) : existingGroups.length === 0 ? (
                 <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-                  {t('No custom groups found. Create your first group using the "Create New" tab.')}
+                  {t('customGroups.noCustomGroupsFound')}
                 </Typography>
               ) : (
                 <List>
@@ -572,7 +578,13 @@ export default function CustomGroupDialog({
                 >
                   {DEFAULT_INTENSITY_TEMPLATES.map((template, index) => (
                     <MenuItem key={index} value={index}>
-                      {template.name}
+                      {template.name === 'Basic (1-4)'
+                        ? t('templateBasic')
+                        : template.name === 'Simple (1-3)'
+                          ? t('templateSimple')
+                          : template.name === 'Extended (1-5)'
+                            ? t('templateExtended')
+                            : template.name}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -640,7 +652,7 @@ export default function CustomGroupDialog({
 
         <DialogActions>
           <Button onClick={onClose} disabled={isSubmitting}>
-            {t('Cancel')}
+            {t('cancel')}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -670,7 +682,7 @@ export default function CustomGroupDialog({
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>{t('Cancel')}</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)}>{t('cancel')}</Button>
           <Button onClick={confirmDelete} color="error" variant="contained">
             {t('Delete')}
           </Button>

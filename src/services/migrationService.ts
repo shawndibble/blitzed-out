@@ -1,7 +1,8 @@
 import { addCustomGroup, getCustomGroupByName, removeDuplicateGroups } from '@/stores/customGroups';
+
 import { CustomGroupBase } from '@/types/customGroups';
-import { importCustomTiles } from '@/stores/customTiles';
 import { CustomTileBase } from '@/types/customTiles';
+import { importCustomTiles } from '@/stores/customTiles';
 
 /**
  * Migration service to convert JSON action files to custom groups and custom tiles in Dexie.
@@ -10,7 +11,7 @@ import { CustomTileBase } from '@/types/customTiles';
 
 // Configuration
 const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
-const MIGRATION_VERSION = '2.1.0';
+const MIGRATION_VERSION = '2.1.1';
 
 interface MigrationStatus {
   version: string;
@@ -123,7 +124,7 @@ const importActionFile = async (
  * Dynamically discover available locales from the filesystem
  */
 const getAvailableLocales = async (): Promise<string[]> => {
-  const locales = ['en', 'es', 'fr']; // Known locales
+  const locales = ['en', 'es', 'fr', 'zh', 'hi']; // All supported locales
   const existingLocales: string[] = [];
 
   for (const locale of locales) {

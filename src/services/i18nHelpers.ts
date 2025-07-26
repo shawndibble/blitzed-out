@@ -16,4 +16,12 @@ export const languages: Record<string, { label: string; voice: string }> = {
     label: 'Français',
     voice: 'Google français',
   },
+  zh: {
+    label: '中文',
+    voice: 'Google 中文（中国大陆）',
+  },
+  hi: {
+    label: 'हिन्दी',
+    voice: 'Google हिन्दी',
+  },
 };

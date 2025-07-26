@@ -20,7 +20,10 @@
       "{dom} donne 2 claques rapides sur les couilles de {sub}.",
       "{dom} donne une petite claque à {sub} après qu'il ait joué un tour complet.",
       "{sub} retient son souffle pendant 10 secondes pendant que {dom} lui claque les couilles.",
-      "{dom} masse les couilles de {sub} pendant 15 secondes."
+      "{dom} masse les couilles de {sub} pendant 15 secondes.",
+      "{dom} donne une claque aux couilles de tous les soumis/switch.",
+      "{sub} reçoit une claque aux couilles de tous les dominants/switch.",
+      "{sub} se fait serrer les couilles par tous les dominants/switch."
     ],
     "Coups/Écrasement": [
       "{dom} donne 2 coups de poing sur les couilles de {sub}.",
@@ -33,7 +36,11 @@
       "{dom} donne 4 claques fortes sur les couilles de {sub}.",
       "{dom} écrase les couilles de {sub}.",
       "{dom} donne à {sub} une claque forte sur ses couilles.",
-      "{dom} donne à {sub} 5 claques sur les couilles."
+      "{dom} donne à {sub} 5 claques sur les couilles.",
+      "{dom} donne un coup de poing aux couilles de tous les soumis/switch.",
+      "{dom} écrase les couilles de tous les soumis/switch.",
+      "{sub} reçoit un coup de poing aux couilles de tous les dominants/switch.",
+      "{sub} se fait écraser les couilles par tous les dominants/switch."
     ],
     "Utiliser un objet": [
       "{dom} frappe les couilles de {sub} avec un objet.",
@@ -44,7 +51,9 @@
       "{dom} donne à {sub} 2 claques sur les couilles avec un objet.",
       "{dom} frappe les couilles de {sub} pendant 20 secondes avec un objet.",
       "{sub} porte des poids sur les couilles jusqu'à la prochaine action de Torture des couilles.",
-      "{dom} donne à {sub} 15 coups rapides sur les couilles avec un objet."
+      "{dom} donne à {sub} 15 coups rapides sur les couilles avec un objet.",
+      "{dom} utilise un objet pour frapper les couilles de tous les soumis/switch.",
+      "{sub} reçoit un coup aux couilles de tous les dominants/switch avec un objet."
     ],
     "Aussi fort que possible": [
       "{dom} donne 5 coups les plus forts possibles sur les couilles de {sub} avec un objet.",
@@ -53,7 +62,8 @@
       "{dom} tire fort sur les couilles de {sub} pendant 20 secondes.",
       "{dom} donne un coup de pied dans les couilles de {sub}.",
       "{dom} donne un coup de pied dans les couilles de {sub} pendant 15 secondes.",
-      "{dom} serre les couilles de {sub} avec son pied."
+      "{dom} serre les couilles de {sub} avec son pied.",
+      "{sub} se fait donner des coups de pied aux couilles par tous les dominants/switch."
     ]
   }
 }

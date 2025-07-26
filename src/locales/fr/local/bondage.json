@@ -12,7 +12,9 @@
       "{dom} attache les bras de {sub} dans son dos jusqu'à l'action suivante du receveur.",
       "{dom} attache les bras de {sub} à ses propres jambes jusqu'à ce qu'une action nécessite qu'ils soient libérés.",
       "{sub} s'attache les poignets et donne la clé/mécanisme de libération à un autre joueur.",
-      "{sub} s'attache les jambes ensemble et demande à un autre joueur de restreindre davantage ses mouvements."
+      "{sub} s'attache les jambes ensemble et demande à un autre joueur de restreindre davantage ses mouvements.",
+      "{sub} est attaché par tous les dominants/switch à la fois pendant au moins 60 secondes.",
+      "{dom} peut attacher autant de joueurs soumis/switch qu'il le souhaite jusqu'à ce qu'une action nécessite qu'ils soient libérés."
     ],
     "Privation sensorielle": [
       "{dom} bande les yeux de {sub} jusqu'à l'action suivante du receveur.",
@@ -21,7 +23,8 @@
       "{dom} prive {sub} d'un sens tout en stimulant un autre.",
       "{sub} se bande les yeux et demande à un autre joueur de guider ses mouvements.",
       "{sub} se baillonne et communique de manière non verbale pour le reste de la partie.",
-      "{sub} utilise des écouteurs pour bloquer son ouïe et se fie uniquement au toucher pour la communication."
+      "{sub} utilise des écouteurs pour bloquer son ouïe et se fie uniquement au toucher pour la communication.",
+      "Tous les joueurs dominants/switch peuvent bander les yeux/bâillonner/attacher {sub} comme ils le souhaitent."
     ],
     "Tension": [
       "{dom} applique une corde de tension à {sub}.",
@@ -29,7 +32,8 @@
       "{dom} attache {sub} dans une position de stress jusqu'à l'action suivante du receveur.",
       "{sub} s'applique une corde de tension à lui même et demande à un autre joueur de la resserrer.",
       "{sub} porte une barre d'écartement ou un autre dispositif et demande à un autre joueur de contrôler ses mouvements pendant le tour.",
-      "{sub} s'attache dans une position de stress et attend qu'un autre joueur le libère."
+      "{sub} s'attache dans une position de stress et attend qu'un autre joueur le libère.",
+      "Tous les joueurs dominants/switch peuvent attacher {sub} dans une position précaire jusqu'à son prochain tour."
     ]
   }
 }

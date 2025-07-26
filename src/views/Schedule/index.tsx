@@ -54,27 +54,27 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
       const url = urlInput.value;
 
       if (!dateTime || !(dateTime instanceof Date)) {
-        setAlert('Please select a date and time');
+        setAlert(t('scheduleValidation.selectDateTime'));
         return;
       }
 
       if (dateTime < dayjs().toDate()) {
-        setAlert('Please select a date and time in the future');
+        setAlert(t('scheduleValidation.selectFutureDateTime'));
         return;
       }
 
       if (schedule.find((s) => s.dateTime.toDate().toUTCString() === dateTime.toUTCString())) {
-        setAlert('A game is already scheduled for this date and time');
+        setAlert(t('scheduleValidation.gameAlreadyScheduled'));
         return;
       }
 
       if (dateTime > twoWeeksFromNow.toDate()) {
-        setAlert('Please select a date and time within the next two weeks');
+        setAlert(t('scheduleValidation.selectWithinTwoWeeks'));
         return;
       }
 
       if (url && !url.startsWith('http')) {
-        setAlert('Please enter a valid URL');
+        setAlert(t('scheduleValidation.enterValidUrl'));
         return;
       }
 
@@ -83,7 +83,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
       // Reset form fields
       formElements.reset();
     },
-    [schedule, addToSchedule, twoWeeksFromNow]
+    [schedule, addToSchedule, twoWeeksFromNow, t]
   );
 
   return (
@@ -120,7 +120,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <EventIcon color="primary" />
                     <Typography variant="h6" fontWeight="bold">
-                      Planned Games
+                      {t('upcomingGames')}
                     </Typography>
                   </Box>
                 }
@@ -148,9 +148,9 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                       background: alpha(theme.palette.background.paper, 0.5),
                     }}
                   >
-                    <Typography variant="body1">No Planned Games</Typography>
+                    <Typography variant="body1">{t('noPlannedGames')}</Typography>
                     <Typography variant="body2" sx={{ mt: 1, fontSize: '0.85rem' }}>
-                      Use the form below to schedule your first game
+                      {t('scheduleFirstGame')}
                     </Typography>
                   </Box>
                 )}
@@ -202,7 +202,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                     name="link"
                     fullWidth
                     placeholder="https://..."
-                    helperText="Optional: Link to your stream or meeting"
+                    helperText={t('optionalLinkHelper')}
                   />
 
                   <Button

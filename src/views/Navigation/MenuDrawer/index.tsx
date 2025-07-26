@@ -1,6 +1,7 @@
 import {
   AppRegistration,
   CalendarMonth,
+  Language,
   Link as LinkIcon,
   Logout,
   Tv,
@@ -13,12 +14,17 @@ import TuneIcon from '@mui/icons-material/Tune';
 import {
   Box,
   Drawer,
+  FormControl,
   IconButton,
+  InputLabel,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   SvgIcon,
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +35,7 @@ import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';
 import AuthDialog from '@/components/auth/AuthDialog';
 import { useSettings, useSettingsStore } from '@/stores/settingsStore';
+import { languages } from '@/services/i18nHelpers';
 
 // Lazy load dialogs
 const AppSettingsDialog = lazy(() => import('@/components/AppSettingsDialog'));
@@ -38,7 +45,7 @@ const ManageGameBoards = lazy(() => import('@/views/ManageGameBoards'));
 const Schedule = lazy(() => import('@/views/Schedule'));
 const CustomTileDialog = lazy(() => import('@/components/CustomTilesDialog'));
 
-interface MenuItem {
+interface MenuItemType {
   key: string;
   title: ReactNode;
   icon: ReactNode;
@@ -97,13 +104,28 @@ export default function MenuDrawer(): JSX.Element {
   );
 
   const { setLocale } = useSettingsStore();
-  const changeLanguage = (lng: string): void => {
-    i18n.changeLanguage(lng);
-    setLocale(lng);
-  };
 
-  const menuItems = useMemo<MenuItem[]>(() => {
-    const items: MenuItem[] = [
+  const handleLanguageChange = useCallback(
+    (event: SelectChangeEvent<string>): void => {
+      const newLanguage = event.target.value;
+      i18n.changeLanguage(newLanguage);
+      setLocale(newLanguage);
+    },
+    [i18n, setLocale]
+  );
+
+  const languageMenuItems = useMemo(
+    () =>
+      Object.entries(languages).map(([key, obj]) => (
+        <MenuItem value={key} key={key}>
+          {obj.label}
+        </MenuItem>
+      )),
+    []
+  );
+
+  const menuItems = useMemo<MenuItemType[]>(() => {
+    const items: MenuItemType[] = [
       {
         key: 'gameBoard',
         title: <Trans i18nKey="gameBoards" />,
@@ -226,46 +248,48 @@ export default function MenuDrawer(): JSX.Element {
             sx={{
               borderTop: '1px solid rgba(0, 0, 0, 0.12)',
               p: 2,
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 1,
             }}
           >
-            <Box
-              component="span"
-              onClick={() => changeLanguage('en')}
-              sx={{
-                cursor: 'pointer',
-                fontWeight: i18n.language === 'en' ? 'bold' : 'normal',
-                color: i18n.language === 'en' ? 'primary.main' : 'inherit',
-              }}
-            >
-              English
-            </Box>
-            <Box component="span">|</Box>
-            <Box
-              component="span"
-              onClick={() => changeLanguage('fr')}
-              sx={{
-                cursor: 'pointer',
-                fontWeight: i18n.language === 'fr' ? 'bold' : 'normal',
-                color: i18n.language === 'fr' ? 'primary.main' : 'inherit',
-              }}
-            >
-              Français
-            </Box>
-            <Box component="span">|</Box>
-            <Box
-              component="span"
-              onClick={() => changeLanguage('es')}
-              sx={{
-                cursor: 'pointer',
-                fontWeight: i18n.language === 'es' ? 'bold' : 'normal',
-                color: i18n.language === 'es' ? 'primary.main' : 'inherit',
-              }}
-            >
-              Español
-            </Box>
+            <FormControl fullWidth size="small" sx={{ maxWidth: 200 }}>
+              <InputLabel
+                id="drawer-language-label"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  '& .MuiInputLabel-root': {
+                    fontSize: '0.875rem',
+                  },
+                }}
+              >
+                <Language sx={{ mr: 0.5, fontSize: '1rem' }} />
+                <Trans i18nKey="language" />
+              </InputLabel>
+              <Select
+                labelId="drawer-language-label"
+                id="drawer-language-select"
+                value={i18n.resolvedLanguage || 'en'}
+                label={
+                  <>
+                    <Language sx={{ fontSize: '1rem' }} />
+                    <Trans i18nKey="language" />
+                  </>
+                }
+                onChange={handleLanguageChange}
+                size="small"
+                MenuProps={{
+                  anchorOrigin: {
+                    vertical: 'top',
+                    horizontal: 'left',
+                  },
+                  transformOrigin: {
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  },
+                }}
+              >
+                {languageMenuItems}
+              </Select>
+            </FormControl>
           </Box>
         </Box>
       </Drawer>

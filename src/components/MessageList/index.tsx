@@ -5,8 +5,6 @@ import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import useSendSettings from '@/hooks/useSendSettings';
-import 'moment/locale/es';
-import 'moment/locale/fr';
 import { useTranslation } from 'react-i18next';
 import Message from './Message';
 import MessageSkeleton from './MessageSkeleton';

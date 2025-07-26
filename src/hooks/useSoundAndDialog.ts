@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSettings } from '@/stores/settingsStore';
 import diceSound from '@/sounds/roll-dice.mp3';
 import messageSound from '@/sounds/message.mp3';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import useSound from 'use-sound';
 import speak from '@/services/textToSpeech';
 import { extractAction } from '@/helpers/strings';
@@ -11,6 +11,7 @@ import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 import { Message } from '@/types/Message';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
+import { setDayjsLocale } from '@/helpers/momentLocale';
 
 export interface DialogResult {
   message: Message | false;
@@ -43,7 +44,7 @@ export default function useSoundAndDialog(): DialogResult {
       return false;
     }
 
-    return moment(messageDate).diff(moment(), 'seconds') >= -2;
+    return dayjs(messageDate).diff(dayjs(), 'seconds') >= -2;
   }, [latestMessage]);
 
   const myMessage = useMemo(() => latestMessage?.uid === user?.uid, [latestMessage, user]);
@@ -55,7 +56,7 @@ export default function useSoundAndDialog(): DialogResult {
   const playMessageSoundCondition = chatSound && latestMessage?.type === 'chat';
 
   useEffect(() => {
-    moment.locale(i18n.resolvedLanguage);
+    setDayjsLocale(i18n.resolvedLanguage || i18n.language);
 
     if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
       setPopupMessage(latestMessage);
@@ -77,6 +78,7 @@ export default function useSoundAndDialog(): DialogResult {
     }
   }, [
     i18n.resolvedLanguage,
+    i18n.language,
     latestMessage,
     myMessage,
     showPlayerDialog,

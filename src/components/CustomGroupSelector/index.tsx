@@ -72,8 +72,8 @@ export default function CustomGroupSelector({
   return (
     <Box>
       <FormControl fullWidth disabled={disabled}>
-        <InputLabel>{t('Group')}</InputLabel>
-        <Select value={value} onChange={(e) => onChange(e.target.value)} label={t('Group')}>
+        <InputLabel>{t('group')}</InputLabel>
+        <Select value={value} onChange={(e) => onChange(e.target.value)} label={t('group')}>
           {groups.length === 0 ? (
             <MenuItem value="" disabled>
               <Typography color="text.secondary">

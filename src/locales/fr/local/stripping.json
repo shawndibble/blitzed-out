@@ -2,7 +2,7 @@
   "label": "Se Déshabiller",
   "type": "foreplay",
   "actions": {
-    "None": [],
+    "Aucune": [],
     "Vêtement": [
       "{sub} retire un vêtement.",
       "Enlève un vêtement de ton choix.",

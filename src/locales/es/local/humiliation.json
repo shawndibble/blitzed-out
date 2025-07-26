@@ -1,4 +1,4 @@
-﻿{
+{
   "label": "Humillación",
   "type": "foreplay",
   "actions": {
@@ -10,7 +10,10 @@
       "{sub} comparte una fantasía o deseo relacionado con la humillación.",
       "{sub} cuenta en alto una experiencia pasada que le hizo sentir humillado.",
       "{sub} dice por qué {dom} es superior a él.",
-      "{dom} elige afirmaciones degradantes para que {sub} las repita."
+      "{dom} elige afirmaciones degradantes para que {sub} las repita.",
+      "Cada jugador le da a {sub} una frase humillante que debe repetir dos veces.",
+      "{dom} hace que tantos jugadores sumisos/cambiantes como sea posible repitan un mantra de su elección 3 veces.",
+      "{sub} es humillado verbalmente por tantos jugadores como sea posible."
     ],
     "Físico": [
       "{dom} escribe palabras despectivas en el cuerpo de {sub}.",
@@ -28,7 +31,10 @@
       "{dom} elige una parte de su cuerpo para que {sub} la bese/adore.",
       "{dom} designa tareas o actos sexuales que enfaticen su sumisión y obediencia para que {sub} los complete.",
       "{sub} se pone la ropa interior de {dom} en la cara hasta que una acción requiera que se la quite.",
-      "{dom} escupe a {sub}."
+      "{dom} escupe a {sub}.",
+      "Todos los jugadores escriben una palabra o frase despectiva en el cuerpo de {sub}.",
+      "Todos los jugadores dominantes/cambiantes escupen a {sub}.",
+      "{sub} se masturba mientras huele la ropa de {dom} (zapato/ropa interior/etc...)."
     ]
   }
 }

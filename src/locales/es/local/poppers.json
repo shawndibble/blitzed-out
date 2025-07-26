@@ -1,4 +1,4 @@
-﻿{
+{
   "label": "Poppers",
   "type": "consumption",
   "actions": {
@@ -36,12 +36,13 @@
       "Inhala durante 8 segundos y aguanta la respiración."
     ],
     "Experto": [
-      "Inhala 10 veces.",
+      "Inhala 10 veces normales. Sin aguantar.",
       "Inhala 15 segundos. Aguanta 10 segundos.",
       "Inhala con un calcetín con popper todo el tiempo que puedas",
       "Vacía tus pulmones. Inhala lo más profundo que puedas y aguanta el aire 5 segundos.",
       "Vacía tus pulmones. Inhala 10 segundos. Aguanta 10 segundos. Repite 2 veces.",
-      "Inhala 15 segundos con calcetín/máscara. Aguanta 10 segundos."
+      "Vacía tus pulmones. Inhala 15 segundos profundamente. Aguanta 30 segundos.",
+      "Inhala 10 segundos con calcetín/máscara. Aguanta 10 segundos."
     ]
   }
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "label": "Azotes",
   "type": "sex",
   "dom": "Azotador",
@@ -16,7 +16,9 @@
       "{dom} azota a {sub} mientras está tumbado boca arriba.",
       "{dom} da azotes suaves a {sub} 6 veces, 3 en cada nalga.",
       "{sub} se arrodilla y suplica a {dom} un azote.",
-      "{dom} hace que cada jugador suplique uno a uno un azote suave."
+      "{dom} hace que cada jugador suplique uno a uno un azote suave.",
+      "Todos los jugadores dan a {sub} un azote suave.",
+      "{dom} azota suavemente a todos los azotados/cambiantes."
     ],
     "Azotes Fuertes": [
       "{dom} da un azote fuerte a {sub} en cada nalga.",
@@ -28,7 +30,10 @@
       "{dom} da azotes fuertes a {sub} durante 15 segundos.",
       "{sub} suplica 10 azotes fuertes y luego {dom} se las da.",
       "{dom} da 6 azotes fuertes a {sub} mientras están inclinados hacia adelante.",
-      "{dom} da azotes fuertes a {sub} hasta que suplique por clemencia."
+      "{dom} da azotes fuertes a {sub} hasta que suplique por clemencia.",
+      "Todos los azotadores/cambiantes dan a {sub} 20 azotes en total.",
+      "Todos los jugadores dan a {sub} un azote fuerte.",
+      "{dom} azota fuertemente a todos los azotados/cambiantes."
     ],
     "Varas y Paletas": [
       "{dom} azota a {sub} con un objeto de elección del azotador.",
@@ -41,7 +46,9 @@
       "{dom} azota a {sub} con un objeto durante 30 segundos.",
       "Cada jugador azota a {sub} con un objeto.",
       "{dom} azota a {sub} en las palmas de las manos con un objeto.",
-      "{dom} azota a {sub} en las plantas de los pies con un objeto."
+      "{dom} azota a {sub} en las plantas de los pies con un objeto.",
+      "Todos los jugadores usan un objeto para azotar a {sub}.",
+      "{dom} usa un objeto para azotar a cada azotado/cambiante."
     ],
     "Magulladuras": [
       "{dom} da 5 azotes a {sub} en cada nalga con suficiente fuerza para dejar una marca.",

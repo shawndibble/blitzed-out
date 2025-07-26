@@ -1,7 +1,7 @@
-﻿{
-  "etiqueta": "Pajas",
+{
+  "label": "Pajas",
   "type": "sex",
-  "acciones": {
+  "actions": {
     "Ninguna": [],
     "Masturbación": [
       "{sub} le hace a {dom} 30 movimientos lentos",
@@ -21,13 +21,16 @@
       "{player} usa la palma de su mano para frotar el glande durante 60 segundos.",
       "{player} usa dos dedos y se enfoca solo en el frenillo.",
       "{player} alterna entre movimientos rápidos y lentos hasta otra acción de Pajas.",
-      "{player} experimenta con diferentes agarres y presiones mientras se masturba."
+      "{player} experimenta con diferentes agarres y presiones mientras se masturba.",
+      "{dom} recibe 5 caricias de cada jugador sumiso.",
+      "{sub} debe acariciar a cada jugador dominante al menos 5 veces."
     ],
     "Edging": [
       "{player} se lleva a sí mismo al límite.",
       "{player} se masturba lo más rápido que pueda hasta su próximo turno.",
       "{player} se lleva a sí mismo al límite dos veces.",
       "{player} se lleva al límite con su mano no dominante.",
+      "{player} trata de llegar al límite tan rápido como sea posible",
       "{sub} lleva a {dom} al límite.",
       "{player} se lleva al límite usando solo unos pocos dedos.",
       "{sub} lleva a {dom} al límite usando la mano.",
@@ -36,7 +39,8 @@
       "{sub} lleva rápidamente a {dom} al límite con una mano mientras frota una zona erógena con la otra.",
       "{sub} se pone a cuatro patas. {dom} lo ordeña como una vaca hasta que se acerque a su límite.",
       "{player} practica el control de la respiración manteniendo la respiración mientras se lleva al límite.",
-      "{player} cambia de posición (de pie, de rodillas, sentado) mientras se lleva al límite"
+      "{player} cambia de posición (de pie, de rodillas, sentado) mientras se lleva al límite",
+      "{sub} debe llevar al límite a cada jugador dominante al menos una vez."
     ],
     "Juguetes": [
       "{player} usa un juguete en el pene.",

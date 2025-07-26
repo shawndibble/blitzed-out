@@ -1,4 +1,4 @@
-﻿{
+{
   "label": "Poppers",
   "type": "consumption",
   "actions": {
@@ -41,6 +41,7 @@
       "Inhala con un calcetín con popper todo el tiempo que puedas",
       "Vacia tus pulmones. El golpe más grande y profundo que puedas dar.",
       "Pulmones vacíos. Inhala 10 segundos. Aguanta 10 segundos. Repetir.",
+      "Pulmones vacíos. Inhala 15 segundos profundamente. Aguanta 30 segundos.",
       "Inhala 10 segundos con calcetín/máscara. Aguanta 10 segundos."
     ]
   }

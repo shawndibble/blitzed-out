@@ -12,7 +12,10 @@
       "{dom} donne à {sub} une série de baisers légers sur le visage.",
       "{dom} donne un baiser doux sur l'épaule de {sub}.",
       "{dom} demande à {sub} de s'asseoir sur ses genoux et de l'embrasser sur les lèvres.",
-      "{dom} embrasse les lobes d'oreilles de {sub}."
+      "{dom} embrasse les lobes d'oreilles de {sub}.",
+      "{dom} embrasse {sub} sur la nuque.",
+      "{dom} embrasse tous les joueurs soumis/switch.",
+      "{sub} demande un baiser à tous les joueurs dominants/switch. Un lancer de pièce secret détermine s'il l'obtient."
     ],
     "Baisers profonds": [
       "{dom} partage un long baiser avec {sub}.",
@@ -24,7 +27,8 @@
       "{dom} demande à {sub} de s'asseoir sur ses genoux et de l'embrasser avec la langue.",
       "{dom} attrape {sub} par les cheveux et l'embrasse profondément.",
       "{dom} demande à {sub} de s'agenouiller et de le supplier pour un baiser profond.",
-      "{sub} embrasse avec la langue autant de joueurs que possible avant leur prochain tour."
+      "{sub} embrasse avec la langue autant de joueurs que possible avant leur prochain tour.",
+      "{dom} peut embrasser avec la langue autant de joueurs soumis/switch qu'il le souhaite."
     ]
   }
 }

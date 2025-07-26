@@ -1,6 +1,7 @@
 import { ValidationResult, CustomGroupBase, CustomGroupIntensity } from '@/types/customGroups';
 import { CustomTile } from '@/types/customTiles';
 import { isGroupNameUnique, getCustomGroupByName } from '@/stores/customGroups';
+import { t } from 'i18next';
 
 /**
  * Validation service for custom groups and tiles
@@ -84,7 +85,7 @@ export const validateGroupLabel = (label: string): ValidationResult => {
 
   // Check if label is provided
   if (!label || label.trim().length === 0) {
-    errors.push('Group label is required');
+    errors.push(t('groupLabelRequired', 'Group label is required'));
     return { isValid: false, errors, warnings };
   }
 

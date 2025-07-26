@@ -1,25 +1,27 @@
+import './App.css';
+
+import { Box, CircularProgress, CssBaseline, ThemeProvider, Typography } from '@mui/material';
 import {
   BrowserRouter,
-  Routes,
-  Route,
   Navigate,
-  useParams,
-  useNavigate,
+  Route,
+  Routes,
   useLocation,
+  useNavigate,
+  useParams,
 } from 'react-router-dom';
-import { lazy, Suspense, useEffect, useContext, useState } from 'react';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { CssBaseline, ThemeProvider, Box, CircularProgress, Typography } from '@mui/material';
-import { AuthContext } from '@/context/auth';
+import { ProvidersProps, WindowWithAuth } from '@/types/app';
+import { Suspense, lazy, useContext, useEffect, useState } from 'react';
+
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import './App.css';
+import AppSkeleton from '@/components/AppSkeleton';
+import { AuthContext } from '@/context/auth';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import { MessagesProvider } from '@/context/messages';
-import { UserListProvider } from '@/context/userList';
 import { ScheduleProvider } from '@/context/schedule';
+import { UserListProvider } from '@/context/userList';
 import darkTheme from './theme';
 import { runMigrationIfNeeded } from '@/services/migrationService';
-import { WindowWithAuth, ProvidersProps } from '@/types/app';
-import AppSkeleton from '@/components/AppSkeleton';
 
 // Lazy load main views
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));

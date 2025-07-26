@@ -4,7 +4,7 @@
   "dom": "Chatouilleur",
   "sub": "Chatouillé",
   "actions": {
-    "None": [],
+    "Aucune": [],
     "Léger": [
       "{dom} frotte légèrement son doigt dans une zone chatouilleuse de {sub}.",
       "{dom} utilise un objet pour chatouiller {sub} pendant 15 secondes.",
