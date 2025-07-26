@@ -1,1 +1,0 @@
-import{j as o,K as t,ai as i}from"./chunk-Vuzv59E5.js";function a({close:s}){return o.jsx(t,{"aria-label":"close",onClick:s,sx:{position:"absolute",right:8,top:8},children:o.jsx(i,{})})}export{a as C};
