@@ -5,7 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 const i18nOptions: InitOptions = {
   fallbackLng: 'en',
-  supportedLngs: ['en', 'es', 'fr'], // Add all supported languages
+  supportedLngs: ['en', 'es', 'fr', 'zh', 'hi'], // Add all supported languages
   ns: ['translation', 'errors'], // Add namespaces if you have multiple JSON files per language
   defaultNS: 'translation',
   // debug: process.env.NODE_ENV === 'development',

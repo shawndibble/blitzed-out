@@ -95,7 +95,7 @@ export default function GameOverDialog({
       {!!openSettingsDialog && (
         <Dialog fullScreen={isMobile} open={openSettingsDialog} maxWidth="md">
           <DialogTitle>
-            <Trans i18nKey="gameSettings" />
+            <Trans i18nKey="gameSettingsHeading" />
             <CloseIcon close={closeSettings} />
           </DialogTitle>
           <DialogContent>

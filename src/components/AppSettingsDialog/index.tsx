@@ -30,7 +30,7 @@ export default function AppSettingsDialog({
   return (
     <Dialog fullScreen={isSmallScreen} open={open} maxWidth="md">
       <DialogTitle>
-        <Trans i18nKey="gameSettings" />
+        <Trans i18nKey="gameSettingsHeading" />
         {typeof close === 'function' && <CloseIcon close={close} />}
       </DialogTitle>
       <DialogContent>

@@ -13,6 +13,7 @@ const mockI18n = {
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     i18n: mockI18n,
+    t: (key: string) => (key === 'none' ? 'None' : key), // Mock that handles specific translations
   }),
 }));
 

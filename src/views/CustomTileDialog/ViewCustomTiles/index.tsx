@@ -284,7 +284,7 @@ export default function ViewCustomTiles({
         />
         <CardActions>
           {tags?.map((tag) => (
-            <Chip key={tag} label={tag} sx={{ m: 0.5 }} />
+            <Chip key={tag} label={tag === 'default' ? t('default') : tag} sx={{ m: 0.5 }} />
           ))}
         </CardActions>
       </Card>

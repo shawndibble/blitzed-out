@@ -100,7 +100,7 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
         <TextField
           fullWidth
           id="privateRoom"
-          label="Private Room"
+          label={t('privateRoom')}
           defaultValue={formData.room?.toUpperCase()}
           margin="normal"
           onBlur={handleBlur}

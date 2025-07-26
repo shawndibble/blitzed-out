@@ -1,16 +1,17 @@
-import { getAuth } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { getFirestore } from 'firebase/firestore';
-import { SYNC_DELAY_MS } from '@/constants/actionConstants';
 import {
   addCustomTile,
   deleteAllIsCustomTiles as deleteAllCustomTiles,
   getTiles,
 } from '@/stores/customTiles';
+import { deleteAllCustomGroups, getCustomGroups, importCustomGroups } from '@/stores/customGroups';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getBoards, upsertBoard } from '@/stores/gameBoard';
-import { getCustomGroups, deleteAllCustomGroups, importCustomGroups } from '@/stores/customGroups';
-import { CustomTilePull } from '@/types/customTiles';
+
 import { CustomGroupPull } from '@/types/customGroups';
+import { CustomTilePull } from '@/types/customTiles';
+import { SYNC_DELAY_MS } from '@/constants/actionConstants';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 interface GameBoard {
   title: string;
@@ -242,9 +243,6 @@ export function startPeriodicSync(intervalMinutes = 5): boolean {
       await syncDataFromFirebase();
     }
   }, intervalMs);
-
-  // Note: Initial sync on auth state change is handled by AuthContext to prevent
-  // race conditions and duplicate API calls during user login/registration flow
 
   return true;
 }

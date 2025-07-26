@@ -4,7 +4,7 @@
   "dom": "Controlador",
   "sub": "Receptor",
   "actions": {
-    "None": [],
+    "Ninguna": [],
     "Light": [
       "{dom} aplica una corriente eléctrica suave al brazo de {sub} usando una unidad TENS.",
       "{dom} usa una varita violeta en la espalda de {sub} en un ajuste bajo.",

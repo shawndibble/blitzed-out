@@ -2,7 +2,7 @@
   "label": "Se branler",
   "type": "sex",
   "actions": {
-    "None": [],
+    "Aucune": [],
     "Masturbation": [
       "{sub} caresse la bite de {dom} lentement 30 fois",
       "{sub} branle {dom} aussi vite qu'il peut pendant 30 secondes.",
@@ -21,13 +21,16 @@
       "{player} utilise sa paume pour frotter son gland pendant 60 secondes.",
       "{player} utilise deux doigts et se concentre uniquement sur le frein.",
       "{player} alterne entre branle rapide et lente jusqu'à la prochaine action de Gooning.",
-      "{player} expérimente différentes prises et pressions en se masturbant."
+      "{player} expérimente différentes prises et pressions en se masturbant.",
+      "{dom} se fait caresser la bite 5 fois par tous les joueurs soumis.",
+      "{sub} doit branler tous les joueurs dominants au moins 5 fois."
     ],
     "Edging": [
       "{player} se rapproche de l'éjaculation sans l'atteindre (edge).",
       "{player} se branle aussi vite qu'il peut jusqu'à son prochain tour.",
-      "{player} se rapproche deux fois de l'éjaculation .",
+      "{player} se rapproche deux fois de l'éjaculation.",
       "{player} se rapproche de l'éjaculation avec sa main non dominante.",
+      "{player} essaie d'atteindre le bord de l'éjaculation aussi vite que possible",
       "{sub} branle {dom} pour l'amener au bord de l'éjaculation.",
       "{player} se rapproche de l'éjaculation avec seulement quelques doigts.",
       "{sub} branle {dom} pour l'amener au bord de l'éjaculation en utilisant toute sa main.",
@@ -36,7 +39,8 @@
       "{sub} amène rapidement {dom} au bord de l'éjaculation tout en frottant une zone érogène avec l'autre main.",
       "{sub} se met à quatre pattes. {dom} le trait comme une vache jusqu'à ce qu'il soit au bord de l'éjaculation.",
       "{player} retient sa respiration pendant qu'il s'amène au bord de l'éjaculation (breath control).",
-      "{player} change de position (debout, à genoux, assis) tout en s'amenant au bord de l'éjaculation."
+      "{player} change de position (debout, à genoux, assis) tout en s'amenant au bord de l'éjaculation.",
+      "{sub} doit amener au bord de l'éjaculation tous les joueurs dominants au moins une fois."
     ],
     "Jouets": [
       "{player} utilise un jouet sur ses organes génitaux.",

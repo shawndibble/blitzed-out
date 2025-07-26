@@ -99,7 +99,6 @@ export interface CustomGroupFilters {
 }
 
 // Default intensity templates for common use cases
-// Note: These labels should be translated using i18next in components
 export const DEFAULT_INTENSITY_TEMPLATES: IntensityTemplate[] = [
   {
     name: 'Basic (1-4)',

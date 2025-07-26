@@ -1,4 +1,4 @@
-﻿{
+{
   "label": "Besos",
   "type": "foreplay",
   "actions": {
@@ -12,7 +12,10 @@
       "{dom} le da a {sub} una serie de besos suaves en la cara.",
       "{dom} le da a {sub} un beso suave en el hombro.",
       "{dom} le ordena a {sub} que se monte y lo bese en los labios.",
-      "{dom} besa los lóbulos de las orejas de {sub}."
+      "{dom} besa los lóbulos de las orejas de {sub}.",
+      "{dom} besa a {sub} en la nuca.",
+      "{dom} besa a cada jugador sumiso/cambiante.",
+      "{sub} pide a cada jugador dominante/cambiante un beso. Un lanzamiento de moneda secreto determina si lo obtiene."
     ],
     "Besos con lengua": [
       "{dom} comparte un beso con lengua con {sub}.",
@@ -24,7 +27,8 @@
       "{dom} ordena a {sub} que se monte encima y lo bese con lengua.",
       "{dom} agarra a {sub} por el cabello y lo besa con lengua.",
       "{dom} le dice a {sub} que se arrodille y suplique un beso.",
-      "{sub} pide y besa con lengua a tantos jugadores como sea posible antes de su próximo turno."
+      "{sub} pide y besa con lengua a tantos jugadores como sea posible antes de su próximo turno.",
+      "{dom} puede besar con lengua a tantos jugadores sumisos/cambiantes como elija."
     ]
   }
 }

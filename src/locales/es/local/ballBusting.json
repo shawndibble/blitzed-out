@@ -1,4 +1,4 @@
-﻿{
+{
   "label": "Golpes en los testículos",
   "type": "sex",
   "dom": "Castigador",
@@ -20,7 +20,10 @@
       "{dom} da 2 bofetadas rápidas en los testículos a {sub}.",
       "{dom} da una bofetada suave a {sub} después de cada tirada por una ronda completa.",
       "{sub} aguanta la respiración durante 10 segundos mientras recibe las bofetadas en los testículos de {dom}.",
-      "{dom} masajea los testículos de {sub} durante 15 segundos."
+      "{dom} masajea los testículos de {sub} durante 15 segundos.",
+      "{dom} da una bofetada en los testículos a cada castigado/cambiante.",
+      "{sub} recibe una bofetada en los testículos de cada castigador/cambiante.",
+      "{sub} tiene sus testículos apretados por cada castigador/cambiante."
     ],
     "Puñetazos/Aplastar": [
       "{dom} da 2 golpes en los testículos a {sub}.",
@@ -33,7 +36,11 @@
       "{dom} da 4 bofetadas fuertes en los testículos a {sub}.",
       "{dom} aplasta los testículos de {sub}.",
       "{dom} da 1 bofetada dura en los testículos a {sub}.",
-      "{dom} da 5 bofetadas en los testículos a {sub}."
+      "{dom} da 5 bofetadas en los testículos a {sub}.",
+      "{dom} golpea los testículos de cada castigado/cambiante.",
+      "{dom} aplasta los testículos de cada castigado/cambiante.",
+      "{sub} recibe un golpe en los testículos de cada castigador/cambiante.",
+      "{sub} tiene sus testículos aplastados por cada castigador/cambiante."
     ],
     "Utiliza un objeto": [
       "{dom} golpea los testículos a {sub} con un objeto.",
@@ -44,7 +51,9 @@
       "{dom} da 2 bofetadas en los testículos a {sub} con un objeto.",
       "{dom} golpea los testículos a {sub} con un objeto durante 20 segundos.",
       "{sub} usa pesas para los testículos hasta la próxima acción de Aplastamiento de testículos.",
-      "{dom} da 15 golpes rápidos en los testículos a {sub} con un objeto."
+      "{dom} da 15 golpes rápidos en los testículos a {sub} con un objeto.",
+      "{dom} usa un objeto para golpear los testículos de cada castigado/cambiante.",
+      "{sub} recibe un golpe en los testículos de cada castigador/cambiante con un objeto."
     ],
     "Tan duro como sea posible": [
       "{dom} da 5 golpes muy duros en los testículos a {sub} con un objeto.",
@@ -53,7 +62,8 @@
       "{dom} estira los testículos a {sub} fuerte durante 20 segundos.",
       "{dom} patea a {sub} en los testículos.",
       "{dom} patea a {sub} en los testículos durante 15 segundos.",
-      "{dom} aprieta los testículos de {sub} con su pie."
+      "{dom} aprieta los testículos de {sub} con su pie.",
+      "{sub} tiene sus testículos pateados por cada castigador/cambiante."
     ]
   }
 }

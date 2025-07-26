@@ -6,7 +6,12 @@ import {
   CardContent,
   Container,
   Divider,
+  FormControl,
   Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from '@mui/material';
@@ -68,20 +73,24 @@ export default function UnauthenticatedApp() {
     [handleSubmit]
   );
 
-  // Memoize language links to prevent re-rendering
-  const currentLanguage = i18n.resolvedLanguage;
-  const languageLinks = useMemo(
+  // Memoize language selection to prevent re-rendering
+  const currentLanguage = i18n.resolvedLanguage || 'en';
+
+  const handleLanguageChange = useCallback(
+    (event: SelectChangeEvent<string>): void => {
+      i18n.changeLanguage(event.target.value);
+    },
+    [i18n]
+  );
+
+  const languageMenuItems = useMemo(
     () =>
       Object.entries(languages).map(([key, obj]) => (
-        <Button
-          key={key}
-          onClick={() => i18n.changeLanguage(key)}
-          disabled={currentLanguage === key}
-        >
+        <MenuItem value={key} key={key}>
           {obj.label}
-        </Button>
+        </MenuItem>
       )),
-    [i18n, currentLanguage]
+    [languages]
   );
 
   return (
@@ -136,11 +145,37 @@ export default function UnauthenticatedApp() {
           <Grid className="language">
             <Card className="unauthenticated-card">
               <CardContent className="translation-card-content">
-                {!isMobile && <Language sx={{ mr: 1 }} />}
-                <Typography sx={{ mr: 1 }}>
-                  <Trans i18nKey="language" />:
-                </Typography>
-                {languageLinks}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {!isMobile && <Language />}
+                  <FormControl size="small" sx={{ minWidth: 160, flexGrow: 1 }}>
+                    <InputLabel
+                      id="unauth-language-label"
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      {isMobile && <Language sx={{ mr: 0.5, fontSize: '1rem' }} />}
+                      <Trans i18nKey="language" />
+                    </InputLabel>
+                    <Select
+                      labelId="unauth-language-label"
+                      id="unauth-language-select"
+                      value={currentLanguage}
+                      label={
+                        <>
+                          {isMobile && <Language sx={{ fontSize: '1rem' }} />}
+                          <Trans i18nKey="language" />
+                        </>
+                      }
+                      onChange={handleLanguageChange}
+                      size="small"
+                    >
+                      {languageMenuItems}
+                    </Select>
+                  </FormControl>
+                </Box>
               </CardContent>
             </Card>
           </Grid>

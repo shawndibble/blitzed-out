@@ -248,7 +248,7 @@ export default function AddCustomTile({
     } catch (error) {
       console.error('Error saving custom tile:', error);
       return setSubmitMessage({
-        message: t('Error saving tile'),
+        message: t('errorSavingTile'),
         type: 'error',
       });
     }
@@ -307,7 +307,7 @@ export default function AddCustomTile({
             {/* Game Mode Selection */}
             <TextField
               select
-              label={t('Game Mode')}
+              label={t('customTiles.gameMode')}
               value={formData.gameMode}
               onChange={(e) => {
                 setFormData((prev) => ({
@@ -320,9 +320,9 @@ export default function AddCustomTile({
               fullWidth
               sx={{ mb: 2 }}
             >
-              <option value="online">Online</option>
-              <option value="local">Local</option>
-              <option value="solo">Solo</option>
+              <option value="online">{t('online')}</option>
+              <option value="local">{t('local')}</option>
+              <option value="solo">{t('solo')}</option>
             </TextField>
 
             {/* Custom Group Selection */}
@@ -411,7 +411,7 @@ export default function AddCustomTile({
 
             <Box display="flex" justifyContent="space-evenly" gap={1}>
               <Button variant="outlined" type="button" onClick={() => setGroupDialogOpen(true)}>
-                {t('Manage Groups')}
+                {t('manageGroups')}
               </Button>
               <Button variant="contained" type="button" onClick={() => clear()}>
                 <Trans i18nKey="clear" />

@@ -3,9 +3,9 @@ import clsx from 'clsx';
 import DeleteMessageButton from '@/components/DeleteMessageButton';
 import GameOverDialog from '@/components/GameOverDialog';
 import TextAvatar from '@/components/TextAvatar';
-import moment from 'moment';
 import { useCallback, useState, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 import remarkGfm from 'remark-gfm';
@@ -15,6 +15,7 @@ import { Share } from '@mui/icons-material';
 import ActionText from './actionText';
 import { Message as MessageType } from '@/types/Message';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
+import { getDayjsWithLocale } from '@/helpers/momentLocale';
 
 const MILLISECONDS_IN_A_MINUTE = 60000;
 
@@ -33,7 +34,7 @@ export default function Message({
   currentGameBoardSize = 40,
   room,
 }: MessageProps): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [isOpenDialog, setDialog] = useState<boolean>(false);
   const closeDialog = useCallback(() => {
@@ -72,10 +73,19 @@ export default function Message({
     const roundedTime = new Date(
       Math.floor(date.getTime() / MILLISECONDS_IN_A_MINUTE) * MILLISECONDS_IN_A_MINUTE
     );
-    let result = moment(roundedTime).fromNow();
-    if (result === 'in a few seconds') result = 'a few seconds ago';
+
+    // Get dayjs instance with proper locale
+    const currentLanguage = i18n.resolvedLanguage || i18n.language;
+    const dayjsInstance = getDayjsWithLocale(roundedTime, currentLanguage);
+    let result = dayjsInstance.fromNow();
+
+    // Handle "in a few seconds" case by showing "a minute ago" instead
+    // This check works across languages since we're looking for seconds-based results
+    if (Math.abs(dayjsInstance.diff(dayjs(), 'seconds')) < 30) {
+      result = dayjsInstance.subtract(1, 'minute').fromNow();
+    }
     return result;
-  }, [timestamp]);
+  }, [timestamp, i18n.language, i18n.resolvedLanguage]);
 
   // Memoize image processing with precise dependencies
   const imageSrc = useMemo((): string | false => {

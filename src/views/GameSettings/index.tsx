@@ -119,7 +119,7 @@ export default function GameSettings({
       />
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleTabChange} aria-label="Game Settings" centered>
+        <Tabs value={value} onChange={handleTabChange} aria-label={t('gameSettings')} centered>
           <Tab label={t('gameboard')} {...a11yProps(0)} />
           <Tab label={t('room')} {...a11yProps(1)} />
           <Tab label={t('application')} {...a11yProps(2)} />

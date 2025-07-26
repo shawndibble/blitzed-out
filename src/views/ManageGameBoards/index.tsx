@@ -177,7 +177,9 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
               <AccordionSummary>
                 <Box>
                   <Typography variant="body1">{board.title}</Typography>
-                  <Typography variant="body2">{board.tiles?.length} tiles</Typography>
+                  <Typography variant="body2">
+                    {t('tilesCount', { count: board.tiles?.length || 0 })}
+                  </Typography>
                 </Box>
                 <Box style={{ marginLeft: 'auto' }} justifyContent="flex-end">
                   <Tooltip title={getSwitchTooltip(board)}>
@@ -224,19 +226,19 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
       </ToastAlert>
       <Dialog open={!!confirmDialog} onClose={() => setConfirmDialog(0)}>
         <DialogTitle>
-          Delete Board
+          {t('deleteBoard')}
           <CloseIcon close={() => setConfirmDialog(0)} />
         </DialogTitle>
         <DialogContent>
           <Typography variant="body1">
-            Are you sure you want to delete &quot;
-            {gameBoards.find((board) => board.id === confirmDialog)?.title}
-            &quot;?
+            {t('confirmDeleteBoard', {
+              title: gameBoards.find((board) => board.id === confirmDialog)?.title,
+            })}
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDialog(0)}>Cancel</Button>
-          <Button onClick={deleteGameBoard}>Delete</Button>
+          <Button onClick={() => setConfirmDialog(0)}>{t('cancel')}</Button>
+          <Button onClick={deleteGameBoard}>{t('delete')}</Button>
         </DialogActions>
       </Dialog>
     </>

@@ -132,7 +132,7 @@ export default function ImportExport({
     if (!importDataValue.trim()) {
       return setSubmitMessage({
         type: 'error',
-        message: t('Please enter data to import'),
+        message: t('enterDataToImport'),
       });
     }
 

@@ -4,7 +4,7 @@
   "dom": "Donneur",
   "sub": "Receveur",
   "actions": {
-    "None": [],
+    "Aucune": [],
     "Pincer/Frotter": [
       "{dom} joue avec les tétons de {sub}.",
       "{dom} pince les tétons de {sub}.",
@@ -12,7 +12,9 @@
       "{dom} suce les tétons de {sub}.",
       "{dom} frotte les tétons de {sub} pendant 15 secondes.",
       "{dom} pince les tétons de {sub} 10 fois.",
-      "{dom} presse/frotte les tétons de {sub} pendant 15 secondes."
+      "{dom} presse/frotte les tétons de {sub} pendant 15 secondes.",
+      "{sub} se fait jouer doucement les tétons par tous les donneurs/switch.",
+      "{dom} peut jouer avec les tétons de tous les receveurs/switch jusqu'à leur prochain tour."
     ],
     "Pincer/Tirer": [
       "{dom} pince les tétons de {sub} fort.",
@@ -22,7 +24,8 @@
       "{dom} tord les tétons de {sub} dans les deux sens.",
       "{dom} fait un hélicoptère avec les tétons de {sub} en les tirant.",
       "{dom} se montre brutal avec les tétons de {sub} pendant 20 secondes.",
-      "{dom} mord les tétons de {sub}."
+      "{dom} mord les tétons de {sub}.",
+      "Tous les joueurs donneurs/switch peuvent maltraiter les tétons de {sub} pendant 30 secondes chacun."
     ],
     "Pince/Jouets": [
       "{dom} utilise un jouet sur les tétons de {sub} pendant 10 secondes.",
