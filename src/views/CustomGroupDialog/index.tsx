@@ -44,6 +44,14 @@ import {
 } from '@/stores/customGroups';
 import { countTilesByGroup, deleteCustomTilesByGroup } from '@/stores/customTiles';
 
+// Helper function to find matching template index
+const findMatchingTemplateIndex = (intensities: CustomGroupIntensity[]) => {
+  const matchingTemplateIndex = DEFAULT_INTENSITY_TEMPLATES.findIndex(
+    (template) => template.intensities.length === intensities.length
+  );
+  return matchingTemplateIndex >= 0 ? matchingTemplateIndex : 1; // Default to Simple (1-3) template
+};
+
 export default function CustomGroupDialog({
   open,
   onClose,
@@ -138,20 +146,14 @@ export default function CustomGroupDialog({
       setType(editingGroup.type || '');
       setIntensityLabels(editingGroup.intensities.map((i) => i.label));
       // Find matching template or reset to default
-      const matchingTemplateIndex = DEFAULT_INTENSITY_TEMPLATES.findIndex(
-        (template) => template.intensities.length === editingGroup.intensities.length
-      );
-      setSelectedTemplateIndex(matchingTemplateIndex >= 0 ? matchingTemplateIndex : 1);
+      setSelectedTemplateIndex(findMatchingTemplateIndex(editingGroup.intensities));
     } else if (currentEditingGroup) {
       // Keep current editing group if we're in edit mode
       setLabel(currentEditingGroup.label);
       setType(currentEditingGroup.type || '');
       setIntensityLabels(currentEditingGroup.intensities.map((i) => i.label));
       // Find matching template or reset to default
-      const matchingTemplateIndex = DEFAULT_INTENSITY_TEMPLATES.findIndex(
-        (template) => template.intensities.length === currentEditingGroup.intensities.length
-      );
-      setSelectedTemplateIndex(matchingTemplateIndex >= 0 ? matchingTemplateIndex : 1);
+      setSelectedTemplateIndex(findMatchingTemplateIndex(currentEditingGroup.intensities));
     } else {
       // Reset to defaults for new group
       setCurrentEditingGroup(null);
