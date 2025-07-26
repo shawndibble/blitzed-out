@@ -57,7 +57,7 @@ export default function VoiceSelect({
 
           // Set default voice if none selected
           if (!selectedVoice && availableVoices.length > 0) {
-            const preferredVoice = await ttsManager.getPreferredVoice(currentLanguage, 'male');
+            const preferredVoice = await ttsManager.getPreferredVoice(currentLanguage);
             if (preferredVoice) {
               handleVoiceChange(preferredVoice);
             }
@@ -93,17 +93,8 @@ export default function VoiceSelect({
     const voiceToPlay = selectedVoice || (voices.length > 0 ? voices[0].name : '');
     if (!voiceToPlay) return;
 
-    // Sample texts for different languages
-    const sampleTexts: Record<string, string> = {
-      en: 'Take a drink and enjoy the game.',
-      es: 'Toma un trago y disfruta del juego.',
-      fr: 'Prenez une boisson et profitez du jeu.',
-      zh: '喝一杯，享受游戏。',
-      hi: 'एक पेय लें और खेल का आनंद लें।',
-    };
-
-    const languageCode = currentLanguage.split('-')[0];
-    const sampleText = sampleTexts[languageCode] || sampleTexts.en;
+    // Get sample text for the current language
+    const sampleText = ttsManager.getSampleText(currentLanguage);
 
     try {
       await speak(sampleText, {
@@ -116,13 +107,9 @@ export default function VoiceSelect({
     }
   };
 
-  // Get voice label with gender indicator and provider
+  // Get voice label without gender indicators
   const getVoiceLabel = (voice: TTSVoice): string => {
-    const genderIcon = voice.gender === 'MALE' ? '♂' : voice.gender === 'FEMALE' ? '♀' : '';
-    const providerIcon = voice.provider === 'google' ? '🌩️' : '🔊';
-    const qualityBadge =
-      voice.quality === 'neural2' ? ' (Neural2)' : voice.quality === 'wavenet' ? ' (WaveNet)' : '';
-    return `${providerIcon} ${voice.displayName}${qualityBadge} ${genderIcon}`.trim();
+    return voice.displayName;
   };
 
   if (isLoading) {

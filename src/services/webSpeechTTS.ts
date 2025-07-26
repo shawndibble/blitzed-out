@@ -1,5 +1,4 @@
 import { TTSService, TTSVoice, TTSOptions, TTSResponse } from '@/types/tts';
-import { getAvailableVoices as getWebVoices } from '@/services/voiceSelection';
 
 // Web Speech API implementation (fallback)
 export class WebSpeechTTSService implements TTSService {
@@ -43,130 +42,160 @@ export class WebSpeechTTSService implements TTSService {
   }
 
   async getAvailableVoices(languageCode?: string): Promise<TTSVoice[]> {
-    const webVoices = getWebVoices();
+    // Get voices directly from browser API
+    const browserVoices = window.speechSynthesis.getVoices();
 
-    return webVoices
-      .filter((voice) => !languageCode || voice.language.startsWith(languageCode))
+    return browserVoices
+      .filter((voice) => !languageCode || voice.lang.startsWith(languageCode))
       .filter((voice) => this.isNaturalVoice(voice.name)) // Filter out robotic voices
       .map((voice) => ({
         name: voice.name,
-        languageCode: voice.language,
-        gender:
-          voice.gender === 'male'
-            ? ('MALE' as const)
-            : voice.gender === 'female'
-              ? ('FEMALE' as const)
-              : ('NEUTRAL' as const),
-        displayName: voice.label,
+        languageCode: voice.lang,
+        gender: 'NEUTRAL' as const, // Simplified since we don't show gender in UI
+        displayName: voice.name,
         provider: 'browser' as const,
         quality: 'standard' as const,
       }));
   }
 
-  // Filter out robotic and low-quality voices
-  private isNaturalVoice(voiceName: string): boolean {
-    const name = voiceName.toLowerCase();
+  // Top 10 natural voices by language with quality rankings
+  private getTopNaturalVoices(): Record<string, string[]> {
+    return {
+      // English - Top natural voices
+      en: [
+        'alex',
+        'samantha',
+        'google uk english male',
+        'google uk english female',
+        'google us english male',
+        'google us english female',
+        'victoria',
+        'allison',
+        'ava',
+        'susan',
+        'daniel',
+        'karen',
+        'moira',
+        'fiona',
+      ],
 
-    // Known robotic/poor quality voice patterns to exclude
+      // Spanish - Top natural voices
+      es: [
+        'google español',
+        'google español de estados unidos',
+        'monica',
+        'jorge',
+        'diego',
+        'paulina',
+        'juan',
+        'esperanza',
+        'carlos',
+        'rosa',
+      ],
+
+      // French - Top natural voices
+      fr: [
+        'google français',
+        'amelie',
+        'thomas',
+        'aurelie',
+        'marie',
+        'pierre',
+        'brigitte',
+        'bernard',
+        'claire',
+        'sylvie',
+      ],
+
+      // Chinese - Top natural voices
+      zh: [
+        'google 中文',
+        'google 中文（中国大陆）',
+        'ting-ting',
+        'sin-ji',
+        'mei-jia',
+        'yu-shu',
+        'li-mu',
+        'ya-ling',
+        'xiao-bao',
+        'xiao-rong',
+      ],
+
+      // Hindi - Top natural voices
+      hi: [
+        'google हिन्दी',
+        'lekha',
+        'sangeeta',
+        'veena',
+        'rishi',
+        'kalpana',
+        'hemant',
+        'kavita',
+        'arun',
+        'shilpa',
+      ],
+    };
+  }
+
+  // Filter for top natural voices based on our curated list
+  private isNaturalVoice(voiceName: string): boolean {
+    const name = voiceName.toLowerCase().trim();
+
+    // Get all top voices across languages
+    const topVoices = this.getTopNaturalVoices();
+    const allTopVoices = Object.values(topVoices).flat();
+
+    // Check if this voice is in our top natural voices list
+    const isTopVoice = allTopVoices.some((voiceName) => name.includes(voiceName.toLowerCase()));
+
+    if (isTopVoice) {
+      return true;
+    }
+
+    // Known robotic patterns to exclude
     const roboticPatterns = [
       'microsoft',
-      'google',
       'speechsynthesis',
       'robot',
       'synthetic',
       'computer',
-      'tts',
-      'espeak',
-      'festival',
-      'mary',
-      'mbrola',
-      'cereproc',
-      'loquendo',
-      'nuance',
-      'realspeak',
-      'cereproc',
-      'ivona',
-      'amazon',
-      'aws',
-      'polly',
+      'artificial',
+      'generated',
       'default',
       'basic',
       'standard',
       'system',
       'built-in',
+      'espeak',
+      'festival',
+      'cereproc',
     ];
 
-    // Known high-quality voice patterns to include
-    const naturalPatterns = [
-      'alex',
-      'allison',
-      'ava',
-      'samantha',
-      'susan',
-      'victoria',
-      'karen',
-      'daniel',
-      'fred',
-      'junior',
-      'kathy',
-      'princess',
-      'ralph',
-      'trinoids',
-      'whisper',
-      'good news',
-      'bad news',
-      'bahh',
-      'bells',
-      'boing',
-      'bubbles',
-      'cellos',
-      'deranged',
-      'hysterical',
-      'pipe organ',
-      'zarvox',
-      'jorge',
-      'juan',
-      'diego',
-      'monica',
-      'paulina',
-      'amelie',
-      'aurelie',
-      'mariska',
-      'marie',
-      'thomas',
-      'xander',
-      'yelda',
-      'zosia',
-    ];
-
-    // If voice contains robotic patterns, exclude it
+    // Exclude robotic voices
     if (roboticPatterns.some((pattern) => name.includes(pattern))) {
       return false;
     }
 
-    // If voice contains natural patterns, include it
-    if (naturalPatterns.some((pattern) => name.includes(pattern))) {
-      return true;
-    }
-
-    // For other voices, use heuristics
-    // Include voices that don't have obvious synthetic markers
-    const syntheticMarkers = [
-      'tts',
-      'synthesis',
-      'artificial',
-      'generated',
-      'robot',
-      'computer',
-      'machine',
-      'automatic',
-      'digital',
-    ];
-
-    return !syntheticMarkers.some((marker) => name.includes(marker));
+    // For any other voices, be conservative and exclude them
+    // (Focus only on our curated top voices)
+    return false;
   }
 
   isAvailable(): boolean {
     return 'speechSynthesis' in window;
+  }
+
+  // Get sample text for a language
+  getSampleText(languageCode: string): string {
+    const sampleTexts: Record<string, string> = {
+      en: 'Take a drink and enjoy the game.',
+      es: 'Toma un trago y disfruta del juego.',
+      fr: 'Prenez une boisson et profitez du jeu.',
+      zh: '喝一杯，享受游戏。',
+      hi: 'एक पेय लें और खेल का आनंद लें।',
+    };
+
+    const langCode = languageCode.split('-')[0];
+    return sampleTexts[langCode] || sampleTexts.en;
   }
 }

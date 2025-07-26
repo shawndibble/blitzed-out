@@ -1,134 +1,96 @@
 import { TTSService, TTSVoice, TTSOptions, TTSResponse } from '@/types/tts';
-import { GoogleCloudTTSService, getGoogleVoicesForLanguage } from './googleCloudTTS';
 import { WebSpeechTTSService } from './webSpeechTTS';
 
 export class TTSManager implements TTSService {
-  private googleTTS: GoogleCloudTTSService;
   private webSpeechTTS: WebSpeechTTSService;
-  private preferredService: 'google' | 'browser' = 'google';
 
   constructor() {
-    this.googleTTS = new GoogleCloudTTSService();
     this.webSpeechTTS = new WebSpeechTTSService();
   }
 
-  setPreferredService(service: 'google' | 'browser'): void {
-    this.preferredService = service;
-  }
-
   async synthesizeSpeech(text: string, options: TTSOptions = {}): Promise<TTSResponse> {
-    // Try Google Cloud TTS first if preferred and available
-    if (this.preferredService === 'google') {
-      try {
-        return await this.googleTTS.synthesizeSpeech(text, options);
-      } catch (error) {
-        console.warn('Google Cloud TTS failed, falling back to Web Speech API:', error);
-
-        // Fallback to Web Speech API
-        if (this.webSpeechTTS.isAvailable()) {
-          return await this.webSpeechTTS.synthesizeSpeech(text, options);
-        }
-
-        throw error;
-      }
+    // Use Web Speech API (browser voices only)
+    if (this.webSpeechTTS.isAvailable()) {
+      return await this.webSpeechTTS.synthesizeSpeech(text, options);
     } else {
-      // Use Web Speech API if preferred
-      if (this.webSpeechTTS.isAvailable()) {
-        return await this.webSpeechTTS.synthesizeSpeech(text, options);
-      } else {
-        // Fallback to Google Cloud TTS
-        return await this.googleTTS.synthesizeSpeech(text, options);
-      }
+      throw new Error('Web Speech API not available');
     }
   }
 
   async getAvailableVoices(languageCode?: string): Promise<TTSVoice[]> {
-    const voices: TTSVoice[] = [];
-
-    // Get Google Cloud voices (always include these as they're high quality)
     try {
-      if (languageCode) {
-        const googleVoices = getGoogleVoicesForLanguage(languageCode);
-        voices.push(...googleVoices);
-      } else {
-        // Get all Google voices
-        Object.values(getGoogleVoicesForLanguage('en')).forEach((voiceList) => {
-          if (Array.isArray(voiceList)) {
-            voices.push(...voiceList);
-          }
-        });
-      }
-    } catch (error) {
-      console.warn('Failed to get Google Cloud voices:', error);
-    }
-
-    // Get Web Speech API voices as fallback (filtered for quality)
-    try {
+      // Get only Web Speech API voices (filtered for top quality)
       const webVoices = await this.webSpeechTTS.getAvailableVoices(languageCode);
-      voices.push(...webVoices);
+
+      // Sort by quality (higher quality scores first)
+      return webVoices.sort((a, b) => {
+        // Parse quality from voice name patterns (our curated list has quality scores)
+        const getQualityScore = (voice: TTSVoice): number => {
+          const name = voice.name.toLowerCase();
+
+          // Premium voices (highest quality)
+          if (name.includes('alex') || name.includes('samantha')) return 10;
+          if (
+            name.includes('google uk english') ||
+            name.includes('google español') ||
+            name.includes('google français') ||
+            name.includes('google 中文') ||
+            name.includes('google हिन्दी')
+          )
+            return 9;
+          if (name.includes('victoria') || name.includes('monica')) return 9;
+          if (
+            name.includes('allison') ||
+            name.includes('ava') ||
+            name.includes('jorge') ||
+            name.includes('thomas') ||
+            name.includes('amelie')
+          )
+            return 8;
+          if (
+            name.includes('karen') ||
+            name.includes('moira') ||
+            name.includes('fiona') ||
+            name.includes('juan') ||
+            name.includes('esperanza') ||
+            name.includes('pierre') ||
+            name.includes('brigitte')
+          )
+            return 6;
+
+          // Good quality voices
+          return 5;
+        };
+
+        const qualityDiff = getQualityScore(b) - getQualityScore(a);
+        if (qualityDiff !== 0) {
+          return qualityDiff;
+        }
+
+        // Final sort: Alphabetical by display name
+        return a.displayName.localeCompare(b.displayName);
+      });
     } catch (error) {
       console.warn('Failed to get Web Speech voices:', error);
+      return [];
     }
-
-    // Sort by quality priority: Google Neural2 > Google WaveNet > High-quality browser > Other browser
-    return voices.sort((a, b) => {
-      // Primary sort: Provider priority
-      if (a.provider !== b.provider) {
-        return a.provider === 'google' ? -1 : 1;
-      }
-
-      // Secondary sort: Quality within provider
-      const qualityOrder = { neural2: 0, wavenet: 1, standard: 2 };
-      const qualityDiff = qualityOrder[a.quality] - qualityOrder[b.quality];
-      if (qualityDiff !== 0) {
-        return qualityDiff;
-      }
-
-      // Tertiary sort: Gender preference (male first)
-      if (a.gender !== b.gender) {
-        if (a.gender === 'MALE') return -1;
-        if (b.gender === 'MALE') return 1;
-        if (a.gender === 'FEMALE') return -1;
-        if (b.gender === 'FEMALE') return 1;
-      }
-
-      // Final sort: Alphabetical by display name
-      return a.displayName.localeCompare(b.displayName);
-    });
   }
 
   isAvailable(): boolean {
-    return this.googleTTS.isAvailable() || this.webSpeechTTS.isAvailable();
+    return this.webSpeechTTS.isAvailable();
   }
 
-  // Get preferred voice for language (Google Cloud first, then fallback)
-  async getPreferredVoice(
-    languageCode: string,
-    gender: 'male' | 'female' = 'male'
-  ): Promise<string | null> {
+  // Get preferred voice for language (best browser voice)
+  async getPreferredVoice(languageCode: string): Promise<string | null> {
     const voices = await this.getAvailableVoices(languageCode);
 
-    // Prefer Google Cloud Neural2 male voices
-    const googleVoice = voices.find(
-      (v) =>
-        v.provider === 'google' &&
-        v.quality === 'neural2' &&
-        v.gender === (gender.toUpperCase() as 'MALE' | 'FEMALE')
-    );
+    // Return the first (highest quality) voice for the language
+    return voices.length > 0 ? voices[0].name : null;
+  }
 
-    if (googleVoice) {
-      return googleVoice.name;
-    }
-
-    // Fallback to any Google voice
-    const anyGoogleVoice = voices.find((v) => v.provider === 'google');
-    if (anyGoogleVoice) {
-      return anyGoogleVoice.name;
-    }
-
-    // Final fallback to browser voice
-    const browserVoice = voices.find((v) => v.provider === 'browser');
-    return browserVoice?.name || null;
+  // Get sample text for a language
+  getSampleText(languageCode: string): string {
+    return this.webSpeechTTS.getSampleText(languageCode);
   }
 }
 
