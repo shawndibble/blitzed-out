@@ -34,10 +34,10 @@ export default function useSoundAndDialog(): DialogResult {
   const latestMessage = useMemo(() => [...messages].pop(), [messages]);
 
   const speakText = useCallback(
-    async (text: string | undefined, language: string): Promise<void> => {
+    async (text: string | undefined): Promise<void> => {
       if (text) {
         try {
-          await speak(text, language, voicePreference);
+          await speak(text, voicePreference);
         } catch (error) {
           console.error('Failed to speak text:', error);
         }
@@ -79,7 +79,7 @@ export default function useSoundAndDialog(): DialogResult {
 
       if (speakTextCondition) {
         const text = extractAction(latestMessage?.text);
-        speakText(text, i18n.resolvedLanguage || 'en');
+        speakText(text);
       }
 
       if (playMessageSoundCondition) {

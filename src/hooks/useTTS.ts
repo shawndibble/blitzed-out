@@ -1,6 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import { TTSOptions } from '@/types/tts';
-import { ttsManager } from '@/services/ttsManager';
+import { tts } from '@/services/tts';
+
+interface TTSOptions {
+  voice?: string;
+  pitch?: number;
+}
 
 interface UseTTSReturn {
   speak: (text: string, options?: TTSOptions) => Promise<void>;
@@ -16,11 +20,7 @@ export const useTTS = (): UseTTSReturn => {
   const [error, setError] = useState<string | null>(null);
 
   const stop = useCallback(() => {
-    // Stop Web Speech API if active
-    if (window.speechSynthesis?.speaking) {
-      window.speechSynthesis.cancel();
-    }
-
+    tts.stop();
     setIsPlaying(false);
     setIsLoading(false);
   }, []);
@@ -34,9 +34,9 @@ export const useTTS = (): UseTTSReturn => {
         // Stop any current playback
         stop();
 
-        // Synthesize speech (Web Speech API only)
+        // Synthesize speech
         setIsPlaying(true);
-        await ttsManager.synthesizeSpeech(text, options);
+        await tts.speak(text, options.voice, options.pitch);
 
         setIsLoading(false);
         setIsPlaying(false);

@@ -12,8 +12,7 @@ import {
 import { PlayArrow } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { TTSVoice } from '@/types/tts';
-import { ttsManager } from '@/services/ttsManager';
+import { VoiceOption, tts } from '@/services/tts';
 import { useTTS } from '@/hooks/useTTS';
 import { Settings } from '@/types/Settings';
 
@@ -29,7 +28,7 @@ export default function VoiceSelect({
   onVoiceChange,
 }: VoiceSelectProps): JSX.Element {
   const { t, i18n } = useTranslation();
-  const [voices, setVoices] = useState<TTSVoice[]>([]);
+  const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { speak } = useTTS();
 
@@ -52,12 +51,12 @@ export default function VoiceSelect({
     const loadVoices = async () => {
       try {
         if (mounted) {
-          const availableVoices = await ttsManager.getAvailableVoices(currentLanguage);
+          const availableVoices = tts.getAvailableVoices(currentLanguage);
           setVoices(availableVoices);
 
           // Set default voice if none selected
           if (!selectedVoice && availableVoices.length > 0) {
-            const preferredVoice = await ttsManager.getPreferredVoice(currentLanguage);
+            const preferredVoice = tts.getPreferredVoice(currentLanguage);
             if (preferredVoice) {
               handleVoiceChange(preferredVoice);
             }
@@ -89,12 +88,11 @@ export default function VoiceSelect({
     if (!voiceToPlay) return;
 
     // Get sample text for the current language
-    const sampleText = ttsManager.getSampleText(currentLanguage);
+    const sampleText = tts.getSampleText(currentLanguage);
 
     try {
       await speak(sampleText, {
         voice: voiceToPlay,
-        languageCode: currentLanguage,
         pitch: -2.0, // Match the pitch from the main TTS
       });
     } catch (error) {
@@ -102,8 +100,8 @@ export default function VoiceSelect({
     }
   };
 
-  // Get voice label without gender indicators
-  const getVoiceLabel = (voice: TTSVoice): string => {
+  // Get voice label
+  const getVoiceLabel = (voice: VoiceOption): string => {
     return voice.displayName;
   };
 
