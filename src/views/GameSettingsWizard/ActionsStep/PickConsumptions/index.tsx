@@ -42,17 +42,25 @@ export default function PickConsumptions({
   };
 
   const variationChange = (event: ChangeEvent<HTMLInputElement>, selectedItems: string[]) => {
-    const updatedFormData = selectedItems.reduce<FormData>(
-      (acc, option) => {
-        acc[option] = {
-          ...((acc[option] as object) || {}),
-          type: action,
-          variation: event.target.checked ? 'appendMost' : 'standalone',
+    const newVariation = event.target.checked ? 'appendMost' : 'standalone';
+    const newIsAppend = event.target.checked;
+
+    // Update selectedActions for each consumption item
+    const updatedSelectedActions = { ...formData.selectedActions };
+    selectedItems.forEach((option) => {
+      if (updatedSelectedActions[option]) {
+        updatedSelectedActions[option] = {
+          ...updatedSelectedActions[option],
+          variation: newVariation,
         };
-        return acc;
-      },
-      { ...formData, isAppend: event.target.checked }
-    );
+      }
+    });
+
+    const updatedFormData = {
+      ...formData,
+      isAppend: newIsAppend,
+      selectedActions: updatedSelectedActions,
+    };
 
     setFormData(updatedFormData);
   };
