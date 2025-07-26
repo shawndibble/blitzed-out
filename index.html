@@ -28,17 +28,20 @@
 
     <!-- Roboto fonts are loaded via @fontsource in JavaScript for better bundling -->
 
-    <!-- Preconnect to external services to speed up requests -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <!-- Optimized preconnects - only for critical resources -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    
+    <!-- DNS prefetch for fonts - less critical -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
 
-    <!-- Load Material Icons asynchronously with preload -->
+    <!-- Defer Material Icons to avoid blocking critical path -->
     <link
       rel="preload"
       href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"
       as="style"
       onload="this.onload=null;this.rel='stylesheet'"
+      media="print"
     />
     <noscript
       ><link
@@ -46,7 +49,7 @@
         href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"
     /></noscript>
 
-    <!-- Critical CSS for font optimization -->
+    <!-- Critical CSS for performance -->
     <style>
       /* Roboto fallback fonts */
       @font-face {
@@ -57,6 +60,30 @@
         descent-override: 24%;
         line-gap-override: 0%;
         size-adjust: 100%;
+      }
+      
+      /* Critical app shell */
+      #root {
+        min-height: 100vh;
+        background: #0f172a;
+        color: #fff;
+      }
+      
+      /* Prevent layout shift */
+      body {
+        font-family: 'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        margin: 0;
+        padding: 0;
+        line-height: 1.5;
+      }
+      
+      /* Loading state */
+      .app-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-size: 18px;
       }
     </style>
 
