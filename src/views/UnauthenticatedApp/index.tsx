@@ -90,7 +90,7 @@ export default function UnauthenticatedApp() {
           {obj.label}
         </MenuItem>
       )),
-    []
+    [languages]
   );
 
   return (

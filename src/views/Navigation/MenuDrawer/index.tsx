@@ -121,7 +121,7 @@ export default function MenuDrawer(): JSX.Element {
           {obj.label}
         </MenuItem>
       )),
-    []
+    [languages]
   );
 
   const menuItems = useMemo<MenuItemType[]>(() => {

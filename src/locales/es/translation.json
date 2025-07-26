@@ -172,7 +172,6 @@
   "actionExists": "Esa acción ya existe.",
   "customAdded": "Casilla de juego añadida a tu juego.",
   "misc": "Misceláneo",
-  "addCustom": "Añadir casilla de juego.",
   "autoCloseModal": "Este cuadro de diálogo se cerrará automáticamente después de {{timeLeft}} segundos.",
   "autoCloseStopped": "Este cuadro de diálogo ya no se cerrará automáticamente.",
   "nextPlayersTurn": "Próximo jugador: {{player}}",

@@ -85,7 +85,7 @@ export const validateGroupLabel = (label: string): ValidationResult => {
 
   // Check if label is provided
   if (!label || label.trim().length === 0) {
-    errors.push(t('groupLabelRequired', 'Group label is required'));
+    errors.push(t('groupLabelRequired'));
     return { isValid: false, errors, warnings };
   }
 

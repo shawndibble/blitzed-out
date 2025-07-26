@@ -27,7 +27,7 @@
   "about": "About",
   "tvMode": "TV Mode",
   "schedule": "Schedule",
-  "gameSettings": "Game Settings",
+  "gameSettingsHeading": "Game Settings",
   "roomSettings": "Room Settings",
   "loading": "Loading",
   "clearStorage": "If it has been more than 2 seconds. Try clearing your cache/local storage.",
@@ -417,7 +417,7 @@
     "selectWithinTwoWeeks": "Please select a date and time within the next two weeks",
     "enterValidUrl": "Please enter a valid URL"
   },
-  "gameSettings": "Game Settings",
+  "gameSettingsHeading": "Game Settings",
   "errorSavingTile": "Error saving tile",
   "enterDataToImport": "Please enter data to import",
   "templateBasic": "Basic (1-4)",

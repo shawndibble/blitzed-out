@@ -72,14 +72,14 @@ describe('validationService', () => {
       const result = validateGroupLabel('');
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Group label is required');
+      expect(result.errors).toContain('groupLabelRequired');
     });
 
     it('should reject label with only whitespace', () => {
       const result = validateGroupLabel('   ');
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Group label is required');
+      expect(result.errors).toContain('groupLabelRequired');
     });
 
     it('should reject label that is too long', () => {
@@ -136,7 +136,7 @@ describe('validationService', () => {
       const result = await validateCustomGroup(invalidGroup);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toContain('Group label is required');
+      expect(result.errors).toContain('groupLabelRequired');
     });
 
     it('should reject group without name', async () => {

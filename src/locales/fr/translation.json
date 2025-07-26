@@ -172,7 +172,6 @@
   "actionExists": "Cette action existe déjà.",
   "customAdded": "Tuile de jeu ajoutée à votre jeu.",
   "misc": "Variable",
-  "addCustom": "Ajouter une tuile de jeu",
   "autoCloseModal": "Cette fenêtre se fermera automatiquement après {{timeLeft}} secondes.",
   "autoCloseStopped": "Cette fenêtre ne se fermera plus automatiquement.",
   "nextPlayersTurn": "Prochain joueur: {{player}}",

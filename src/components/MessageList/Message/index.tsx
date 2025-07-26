@@ -82,7 +82,7 @@ export default function Message({
     // Handle "in a few seconds" case by showing "a minute ago" instead
     // This check works across languages since we're looking for seconds-based results
     if (Math.abs(dayjsInstance.diff(dayjs(), 'seconds')) < 30) {
-      result = getDayjsWithLocale(roundedTime, currentLanguage).subtract(1, 'minute').fromNow();
+      result = dayjsInstance.subtract(1, 'minute').fromNow();
     }
     return result;
   }, [timestamp, i18n.language, i18n.resolvedLanguage]);
