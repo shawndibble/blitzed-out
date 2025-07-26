@@ -22,6 +22,7 @@ import { ScheduleProvider } from '@/context/schedule';
 import { UserListProvider } from '@/context/userList';
 import darkTheme from './theme';
 import { runMigrationIfNeeded, cleanupDuplicatesIfNeeded } from '@/services/migrationService';
+import { useTranslation } from 'react-i18next';
 
 // Lazy load main views
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
@@ -87,6 +88,7 @@ function UppercaseRedirect({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const auth = useContext(AuthContext);
+  const { t } = useTranslation();
   const [migrationStatus, setMigrationStatus] = useState<
     'pending' | 'running' | 'completed' | 'failed'
   >('pending');
@@ -141,13 +143,13 @@ function AppRoutes() {
       >
         <CircularProgress size={40} />
         <Typography variant="h6" color="primary">
-          Loading your language...
+          {t('loadingLanguage')}
         </Typography>
         <Typography variant="body2" color="text.secondary" textAlign="center">
-          Preparing game data...
+          {t('preparingGameData')}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          Other languages will load in the background
+          {t('otherLanguagesBackground')}
         </Typography>
       </Box>
     );

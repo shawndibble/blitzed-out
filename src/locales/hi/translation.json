@@ -430,5 +430,8 @@
   "typeRequiredError": "समूह बनाते समय प्रकार आवश्यक है",
   "typeValidationError": "प्रकार इनमें से एक होना चाहिए: {{types}}",
   "failedToSaveGroup": "समूह सेव करने में असफल: {{error}}",
-  "optionalLinkHelper": "वैकल्पिक: अपनी स्ट्रीम या मीटिंग का लिंक"
+  "optionalLinkHelper": "वैकल्पिक: अपनी स्ट्रीम या मीटिंग का लिंक",
+  "loadingLanguage": "आपकी भाषा लोड हो रही है...",
+  "preparingGameData": "गेम डेटा तैयार किया जा रहा है...",
+  "otherLanguagesBackground": "अन्य भाषाएं बैकग्राउंड में लोड होंगी"
 }

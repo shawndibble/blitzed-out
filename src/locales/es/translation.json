@@ -431,5 +431,8 @@
   "typeRequiredError": "Se requiere tipo al crear un grupo",
   "typeValidationError": "El tipo debe ser uno de: {{types}}",
   "failedToSaveGroup": "Error al guardar grupo: {{error}}",
-  "optionalLinkHelper": "Opcional: Enlace a tu transmisión o reunión"
+  "optionalLinkHelper": "Opcional: Enlace a tu transmisión o reunión",
+  "loadingLanguage": "Cargando tu idioma...",
+  "preparingGameData": "Preparando datos del juego...",
+  "otherLanguagesBackground": "Otros idiomas se cargarán en segundo plano"
 }
