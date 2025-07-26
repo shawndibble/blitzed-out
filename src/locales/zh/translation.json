@@ -430,5 +430,8 @@
   "typeRequiredError": "建立群組時需要類型",
   "typeValidationError": "類型必須是以下之一：{{types}}",
   "failedToSaveGroup": "儲存群組失敗：{{error}}",
-  "optionalLinkHelper": "可選：您的串流或會議鏈接"
+  "optionalLinkHelper": "可選：您的串流或會議鏈接",
+  "loadingLanguage": "正在載入您的語言...",
+  "preparingGameData": "正在準備遊戲數據...",
+  "otherLanguagesBackground": "其他語言將在後台載入"
 }

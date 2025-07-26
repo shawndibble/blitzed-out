@@ -21,7 +21,8 @@ import { MessagesProvider } from '@/context/messages';
 import { ScheduleProvider } from '@/context/schedule';
 import { UserListProvider } from '@/context/userList';
 import darkTheme from './theme';
-import { runMigrationIfNeeded } from '@/services/migrationService';
+import { runMigrationIfNeeded, cleanupDuplicatesIfNeeded } from '@/services/migrationService';
+import { useTranslation } from 'react-i18next';
 
 // Lazy load main views
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
@@ -87,6 +88,7 @@ function UppercaseRedirect({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const auth = useContext(AuthContext);
+  const { t } = useTranslation();
   const [migrationStatus, setMigrationStatus] = useState<
     'pending' | 'running' | 'completed' | 'failed'
   >('pending');
@@ -102,11 +104,17 @@ function AppRoutes() {
   }, [auth]);
 
   useEffect(() => {
-    // Run migrations once at app startup with user feedback
+    // Run optimized migration with current language first
     const runMigration = async () => {
       setMigrationStatus('running');
       try {
         const success = await runMigrationIfNeeded();
+
+        // Clean up any duplicates that may have been created in previous sessions
+        if (success) {
+          await cleanupDuplicatesIfNeeded();
+        }
+
         setMigrationStatus(success ? 'completed' : 'failed');
       } catch (error) {
         console.error('Migration failed:', error);
@@ -135,10 +143,13 @@ function AppRoutes() {
       >
         <CircularProgress size={40} />
         <Typography variant="h6" color="primary">
-          Updating game data...
+          {t('loadingLanguage')}
         </Typography>
         <Typography variant="body2" color="text.secondary" textAlign="center">
-          This may take a moment. Please don&apos;t close the app.
+          {t('preparingGameData')}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {t('otherLanguagesBackground')}
         </Typography>
       </Box>
     );
@@ -146,7 +157,8 @@ function AppRoutes() {
 
   // Show error message if migration failed (but still allow app to continue)
   if (migrationStatus === 'failed') {
-    console.warn('Migration failed, but continuing with app startup');
+    console.warn('Initial language migration failed, but continuing with app startup');
+    // The app can still function with default data or previously migrated data
   }
 
   const room = auth.user ? <Room /> : <UnauthenticatedApp />;

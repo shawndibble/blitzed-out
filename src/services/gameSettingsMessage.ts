@@ -51,7 +51,7 @@ async function getSettingsMessage(
   reason?: string
 ): Promise<string> {
   const { t } = i18next;
-  let message = `### ${i18next.t('gameSettings')}\r\n`;
+  let message = `### ${i18next.t('gameSettingsHeading')}\r\n`;
   if (reason) {
     message += `##### ${reason}\r\n`;
   }

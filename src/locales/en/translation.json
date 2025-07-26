@@ -430,5 +430,8 @@
   "typeRequiredError": "Type is required when creating a group",
   "typeValidationError": "Type must be one of: {{types}}",
   "failedToSaveGroup": "Failed to save group: {{error}}",
-  "optionalLinkHelper": "Optional: Link to your stream or meeting"
+  "optionalLinkHelper": "Optional: Link to your stream or meeting",
+  "loadingLanguage": "Loading your language...",
+  "preparingGameData": "Preparing game data...",
+  "otherLanguagesBackground": "Other languages will load in the background"
 }
