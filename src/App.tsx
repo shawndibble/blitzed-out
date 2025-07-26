@@ -90,11 +90,6 @@ function AppRoutes() {
   const [migrationStatus, setMigrationStatus] = useState<
     'pending' | 'running' | 'completed' | 'failed'
   >('pending');
-  const [migrationProgress, setMigrationProgress] = useState<{
-    current: number;
-    total: number;
-    groupName: string;
-  }>({ current: 0, total: 0, groupName: '' });
 
   // Make auth context available to the middleware
   useEffect(() => {
@@ -111,9 +106,7 @@ function AppRoutes() {
     const runMigration = async () => {
       setMigrationStatus('running');
       try {
-        const success = await runMigrationIfNeeded((current, total, groupName) => {
-          setMigrationProgress({ current, total, groupName });
-        });
+        const success = await runMigrationIfNeeded();
 
         // Clean up any duplicates that may have been created in previous sessions
         if (success) {
@@ -135,16 +128,8 @@ function AppRoutes() {
     return <AppSkeleton />;
   }
 
-  // Show migration status while running with progress
+  // Show migration status while running
   if (migrationStatus === 'running') {
-    const progressText =
-      migrationProgress.total > 0
-        ? `Loading ${migrationProgress.groupName}... (${migrationProgress.current}/${migrationProgress.total})`
-        : 'Preparing game data...';
-
-    const progressPercent =
-      migrationProgress.total > 0 ? (migrationProgress.current / migrationProgress.total) * 100 : 0;
-
     return (
       <Box
         display="flex"
@@ -154,22 +139,16 @@ function AppRoutes() {
         minHeight="100vh"
         gap={2}
       >
-        <CircularProgress
-          size={40}
-          variant={progressPercent > 0 ? 'determinate' : 'indeterminate'}
-          value={progressPercent}
-        />
+        <CircularProgress size={40} />
         <Typography variant="h6" color="primary">
           Loading your language...
         </Typography>
         <Typography variant="body2" color="text.secondary" textAlign="center">
-          {progressText}
+          Preparing game data...
         </Typography>
-        {migrationProgress.total > 0 && (
-          <Typography variant="caption" color="text.secondary">
-            Other languages will load in the background
-          </Typography>
-        )}
+        <Typography variant="caption" color="text.secondary">
+          Other languages will load in the background
+        </Typography>
       </Box>
     );
   }

@@ -9,7 +9,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm start` - Start development server (Vite)
 - `npm run build` - Build for production (includes TypeScript compilation)
 - `npm run type-check` - Run TypeScript type checking without compilation
-- `npm test` - Run tests (currently returns success without running tests)
+- `npm test` - Run tests with Vitest in watch mode
+- `npm run test:run` - Run tests once and exit (includes memory optimization)
+- `npm run test:ui` - Run tests with Vitest UI interface
+- `npm run test:coverage` - Run tests with coverage reporting
 
 ### Code Quality
 
@@ -124,3 +127,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Manual code splitting for vendor libraries, MUI, translations, and Firebase
 - Asset optimization including MP3 files
 - Dependency optimization for faster builds
+
+### Testing Configuration
+
+- **Test Framework**: Vitest with jsdom environment
+- **Test Setup**: `src/setupTests.ts` for global test configuration
+- **Testing Library**: React Testing Library with user-event
+- **Mocks**: Firebase and hooks mocks in `src/__mocks__/`
+- **Coverage**: Excludes mocks, setup files, and build directories
+- **Memory**: Configured with max old space size for large test suites
+
+### Testing Guidelines
+
+- Run `npm run test:run` for CI/CD and validation
+- Component tests use React Testing Library patterns
+- Services have comprehensive unit tests with Firebase mocking
+- Integration tests cover complete user workflows
+- Slow tests flagged at 1000ms threshold

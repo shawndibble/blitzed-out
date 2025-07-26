@@ -188,7 +188,9 @@ export default function UnauthenticatedApp() {
                       }
                       onChange={handleLanguageChange}
                       size="small"
-                      endAdornment={languageLoading && <CircularProgress size={16} />}
+                      inputProps={{
+                        endAdornment: languageLoading && <CircularProgress size={16} />,
+                      }}
                     >
                       {languageMenuItems}
                     </Select>

@@ -10,15 +10,18 @@ import i18n from '@/i18n';
  * Uses Vite's import.meta.glob() for automatic file discovery at build time.
  */
 
+// Supported languages for migration
+const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'] as const;
+
 // Configuration
 const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
 const MIGRATION_VERSION = '2.1.1';
 const BACKGROUND_MIGRATION_KEY = 'blitzed-out-background-migration';
 
-// In-memory flags to prevent concurrent migrations
-let migrationInProgress = false;
-let currentLanguageMigrationInProgress = new Set<string>();
-let backgroundMigrationInProgress = false;
+// localStorage-based concurrency control keys for better reliability in hot module reloading environments
+const MIGRATION_IN_PROGRESS_KEY = 'blitzed-out-migration-in-progress';
+const CURRENT_LANGUAGE_MIGRATION_KEY = 'blitzed-out-current-language-migration';
+const BACKGROUND_MIGRATION_IN_PROGRESS_KEY = 'blitzed-out-background-migration-in-progress';
 
 interface MigrationStatus {
   version: string;
@@ -34,6 +37,115 @@ interface BackgroundMigrationStatus {
   startedAt?: Date;
   completedAt?: Date;
 }
+
+// Helper functions for localStorage-based concurrency control
+const isMigrationInProgress = (): boolean => {
+  try {
+    const status = localStorage.getItem(MIGRATION_IN_PROGRESS_KEY);
+    if (!status) return false;
+    const data = JSON.parse(status);
+    // Auto-cleanup stale locks (older than 5 minutes)
+    if (Date.now() - new Date(data.startedAt).getTime() > 5 * 60 * 1000) {
+      localStorage.removeItem(MIGRATION_IN_PROGRESS_KEY);
+      return false;
+    }
+    return data.inProgress;
+  } catch {
+    return false;
+  }
+};
+
+const setMigrationInProgress = (inProgress: boolean): void => {
+  try {
+    if (inProgress) {
+      localStorage.setItem(
+        MIGRATION_IN_PROGRESS_KEY,
+        JSON.stringify({
+          inProgress: true,
+          startedAt: new Date().toISOString(),
+        })
+      );
+    } else {
+      localStorage.removeItem(MIGRATION_IN_PROGRESS_KEY);
+    }
+  } catch (error) {
+    console.warn('Failed to update migration in progress status:', error);
+  }
+};
+
+const isLanguageMigrationInProgress = (locale: string): boolean => {
+  try {
+    const status = localStorage.getItem(CURRENT_LANGUAGE_MIGRATION_KEY);
+    if (!status) return false;
+    const data = JSON.parse(status);
+    // Auto-cleanup stale locks (older than 5 minutes)
+    if (Date.now() - new Date(data.startedAt).getTime() > 5 * 60 * 1000) {
+      localStorage.removeItem(CURRENT_LANGUAGE_MIGRATION_KEY);
+      return false;
+    }
+    return data.locales && data.locales.includes(locale);
+  } catch {
+    return false;
+  }
+};
+
+const setLanguageMigrationInProgress = (locale: string, inProgress: boolean): void => {
+  try {
+    const status = localStorage.getItem(CURRENT_LANGUAGE_MIGRATION_KEY);
+    let data = status ? JSON.parse(status) : { locales: [], startedAt: new Date().toISOString() };
+
+    if (inProgress) {
+      if (!data.locales.includes(locale)) {
+        data.locales.push(locale);
+        data.startedAt = new Date().toISOString();
+      }
+    } else {
+      data.locales = data.locales.filter((l: string) => l !== locale);
+      if (data.locales.length === 0) {
+        localStorage.removeItem(CURRENT_LANGUAGE_MIGRATION_KEY);
+        return;
+      }
+    }
+
+    localStorage.setItem(CURRENT_LANGUAGE_MIGRATION_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.warn('Failed to update language migration in progress status:', error);
+  }
+};
+
+const isBackgroundMigrationInProgress = (): boolean => {
+  try {
+    const status = localStorage.getItem(BACKGROUND_MIGRATION_IN_PROGRESS_KEY);
+    if (!status) return false;
+    const data = JSON.parse(status);
+    // Auto-cleanup stale locks (older than 10 minutes)
+    if (Date.now() - new Date(data.startedAt).getTime() > 10 * 60 * 1000) {
+      localStorage.removeItem(BACKGROUND_MIGRATION_IN_PROGRESS_KEY);
+      return false;
+    }
+    return data.inProgress;
+  } catch {
+    return false;
+  }
+};
+
+const setBackgroundMigrationInProgress = (inProgress: boolean): void => {
+  try {
+    if (inProgress) {
+      localStorage.setItem(
+        BACKGROUND_MIGRATION_IN_PROGRESS_KEY,
+        JSON.stringify({
+          inProgress: true,
+          startedAt: new Date().toISOString(),
+        })
+      );
+    } else {
+      localStorage.removeItem(BACKGROUND_MIGRATION_IN_PROGRESS_KEY);
+    }
+  } catch (error) {
+    console.warn('Failed to update background migration in progress status:', error);
+  }
+};
 
 /**
  * Check if migration has been completed
@@ -109,8 +221,7 @@ const getCurrentLanguage = async (): Promise<string> => {
     // Fourth try: browser language with proper validation
     if (typeof navigator !== 'undefined' && navigator.language) {
       const browserLang = navigator.language.split('-')[0];
-      const supportedLanguages = ['en', 'es', 'fr', 'zh', 'hi'];
-      if (supportedLanguages.includes(browserLang)) {
+      if (SUPPORTED_LANGUAGES.includes(browserLang as (typeof SUPPORTED_LANGUAGES)[number])) {
         return browserLang;
       }
     }
@@ -272,7 +383,7 @@ const importActionFile = async (
  * Dynamically discover available locales from the filesystem
  */
 const getAvailableLocales = async (): Promise<string[]> => {
-  const locales = ['en', 'es', 'fr', 'zh', 'hi']; // All supported locales
+  const locales = [...SUPPORTED_LANGUAGES]; // All supported locales
   const existingLocales: string[] = [];
 
   for (const locale of locales) {
@@ -400,6 +511,11 @@ const importGroupsForLocaleAndGameMode = async (
             });
 
             const newTiles = customTiles.filter((tile) => {
+              // Handle case where existingTiles might be undefined or not an array
+              if (!existingTiles || !Array.isArray(existingTiles)) {
+                return true; // If no existing tiles, all tiles are new
+              }
+
               return !existingTiles.some(
                 (existing) =>
                   existing.group === tile.group &&
@@ -530,10 +646,7 @@ export const cleanupDuplicateGroups = async (): Promise<number> => {
 /**
  * Migration function for current language only (fast path)
  */
-export const migrateCurrentLanguage = async (
-  locale?: string,
-  _onProgress?: (current: number, total: number, groupName: string) => void
-): Promise<boolean> => {
+export const migrateCurrentLanguage = async (locale?: string): Promise<boolean> => {
   const currentLocale = locale || (await getCurrentLanguage());
 
   try {
@@ -543,16 +656,25 @@ export const migrateCurrentLanguage = async (
     }
 
     // Prevent concurrent migrations for the same language
-    if (currentLanguageMigrationInProgress.has(currentLocale)) {
-      // Wait for the current migration to complete
-      while (currentLanguageMigrationInProgress.has(currentLocale)) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+    if (isLanguageMigrationInProgress(currentLocale)) {
+      // Wait for the current migration to complete with timeout
+      const startTime = Date.now();
+      const timeoutMs = 30 * 1000; // 30 seconds
+
+      while (isLanguageMigrationInProgress(currentLocale)) {
+        if (Date.now() - startTime > timeoutMs) {
+          console.warn(
+            `Migration timeout: ${currentLocale} migration took longer than ${timeoutMs}ms, proceeding anyway`
+          );
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
       // Re-check if migration is now completed
       return isCurrentLanguageMigrationCompleted(currentLocale);
     }
 
-    currentLanguageMigrationInProgress.add(currentLocale);
+    setLanguageMigrationInProgress(currentLocale, true);
     console.info(`🚀 Migration: Starting current language migration for ${currentLocale}...`);
 
     try {
@@ -599,11 +721,11 @@ export const migrateCurrentLanguage = async (
 
       return true;
     } finally {
-      currentLanguageMigrationInProgress.delete(currentLocale);
+      setLanguageMigrationInProgress(currentLocale, false);
     }
   } catch (error) {
     console.error('Current language migration failed:', error);
-    currentLanguageMigrationInProgress.delete(currentLocale);
+    setLanguageMigrationInProgress(currentLocale, false);
     return false;
   }
 };
@@ -614,11 +736,11 @@ export const migrateCurrentLanguage = async (
 export const migrateRemainingLanguages = async (excludeLocale?: string): Promise<void> => {
   try {
     // Prevent concurrent background migrations
-    if (backgroundMigrationInProgress) {
+    if (isBackgroundMigrationInProgress()) {
       return;
     }
 
-    backgroundMigrationInProgress = true;
+    setBackgroundMigrationInProgress(true);
     const currentLocale = excludeLocale || (await getCurrentLanguage());
     markBackgroundMigrationInProgress(true);
 
@@ -660,7 +782,10 @@ export const migrateRemainingLanguages = async (excludeLocale?: string): Promise
 
     // Check if all languages are now migrated
     const bgStatus = JSON.parse(localStorage.getItem(BACKGROUND_MIGRATION_KEY) || '{}');
-    if (bgStatus.completedLanguages?.length === allLocales.length) {
+    const completedLanguages = new Set(bgStatus.completedLanguages || []);
+    const allLanguagesCompleted = SUPPORTED_LANGUAGES.every((lang) => completedLanguages.has(lang));
+
+    if (allLanguagesCompleted) {
       markMigrationComplete(); // Mark full migration as complete
     }
 
@@ -668,8 +793,9 @@ export const migrateRemainingLanguages = async (excludeLocale?: string): Promise
   } catch (error) {
     console.error('Background migration failed:', error);
     markBackgroundMigrationInProgress(false);
+    setBackgroundMigrationInProgress(false);
   } finally {
-    backgroundMigrationInProgress = false;
+    setBackgroundMigrationInProgress(false);
   }
 };
 
@@ -678,8 +804,8 @@ export const migrateRemainingLanguages = async (excludeLocale?: string): Promise
  */
 export const queueBackgroundMigration = (excludeLocale?: string): void => {
   try {
-    if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(
+    if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(
         () => migrateRemainingLanguages(excludeLocale),
         { timeout: 5000 } // 5 second timeout
       );
@@ -695,10 +821,7 @@ export const queueBackgroundMigration = (excludeLocale?: string): void => {
 /**
  * Force migration for a specific language (useful when switching languages)
  */
-export const ensureLanguageMigrated = async (
-  locale: string,
-  _onProgress?: (current: number, total: number, groupName: string) => void
-): Promise<boolean> => {
+export const ensureLanguageMigrated = async (locale: string): Promise<boolean> => {
   try {
     // Quick check first
     const isCompleted = isCurrentLanguageMigrationCompleted(locale);
@@ -708,15 +831,24 @@ export const ensureLanguageMigrated = async (
     }
 
     // If migration is in progress for this language, wait for it
-    if (currentLanguageMigrationInProgress.has(locale)) {
-      while (currentLanguageMigrationInProgress.has(locale)) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+    if (isLanguageMigrationInProgress(locale)) {
+      const startTime = Date.now();
+      const timeoutMs = 30 * 1000; // 30 seconds
+
+      while (isLanguageMigrationInProgress(locale)) {
+        if (Date.now() - startTime > timeoutMs) {
+          console.warn(
+            `Migration timeout: ${locale} migration took longer than ${timeoutMs}ms, proceeding anyway`
+          );
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
       return isCurrentLanguageMigrationCompleted(locale);
     }
 
     console.info(`🚀 Ensuring ${locale} is migrated...`);
-    return await migrateCurrentLanguage(locale, _onProgress);
+    return await migrateCurrentLanguage(locale);
   } catch (error) {
     console.error(`Error ensuring ${locale} migration:`, error);
 
@@ -729,9 +861,7 @@ export const ensureLanguageMigrated = async (
 /**
  * Run migration if needed (optimized for current language first)
  */
-export const runMigrationIfNeeded = async (
-  _onProgress?: (current: number, total: number, groupName: string) => void
-): Promise<boolean> => {
+export const runMigrationIfNeeded = async (): Promise<boolean> => {
   try {
     // Check if full migration is already completed
     if (isMigrationCompleted()) {
@@ -739,10 +869,19 @@ export const runMigrationIfNeeded = async (
     }
 
     // Prevent concurrent migrations
-    if (migrationInProgress) {
-      // Wait for the current migration to complete
-      while (migrationInProgress) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+    if (isMigrationInProgress()) {
+      // Wait for the current migration to complete with timeout
+      const startTime = Date.now();
+      const timeoutMs = 30 * 1000; // 30 seconds
+
+      while (isMigrationInProgress()) {
+        if (Date.now() - startTime > timeoutMs) {
+          console.warn(
+            `Migration timeout: main migration took longer than ${timeoutMs}ms, proceeding anyway`
+          );
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
       // Re-check if migration is now completed
       return (
@@ -750,26 +889,30 @@ export const runMigrationIfNeeded = async (
       );
     }
 
-    migrationInProgress = true;
+    setMigrationInProgress(true);
 
     try {
       const currentLocale = await getCurrentLanguage();
 
       // Fast path: migrate current language only
-      const success = await migrateCurrentLanguage(currentLocale, _onProgress);
+      const success = await migrateCurrentLanguage(currentLocale);
 
       if (success) {
+        // Mark main migration as complete for fresh user scenario
+        // This allows the app to proceed normally while background migration continues
+        markMigrationComplete();
+
         // Queue background migration for other languages
         queueBackgroundMigration(currentLocale);
       }
 
       return success;
     } finally {
-      migrationInProgress = false;
+      setMigrationInProgress(false);
     }
   } catch (error) {
     console.error('Error in runMigrationIfNeeded:', error);
-    migrationInProgress = false;
+    setMigrationInProgress(false);
     // Graceful fallback: allow app to continue even if migration fails
     console.warn('Migration failed, but app will continue with existing data');
     return false;

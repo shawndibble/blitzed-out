@@ -66,7 +66,9 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
             </>
           }
           onChange={(event: SelectChangeEvent<string>) => changeLanguage(event.target.value)}
-          endAdornment={loading && <CircularProgress size={20} />}
+          inputProps={{
+            endAdornment: loading && <CircularProgress size={20} />,
+          }}
         >
           {menuItems}
         </Select>
