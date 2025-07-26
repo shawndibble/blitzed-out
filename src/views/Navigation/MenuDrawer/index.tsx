@@ -135,8 +135,19 @@ export default function MenuDrawer(): JSX.Element {
         await i18n.changeLanguage(newLanguage);
         setLocale(newLanguage);
 
-        // Wait a tick for i18n to fully propagate
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Wait for i18n to fully propagate using the languageChanged event
+        await new Promise((resolve) => {
+          const onLanguageChanged = () => {
+            i18n.off('languageChanged', onLanguageChanged);
+            resolve(undefined);
+          };
+          i18n.on('languageChanged', onLanguageChanged);
+          // Fallback timeout in case event doesn't fire
+          setTimeout(() => {
+            i18n.off('languageChanged', onLanguageChanged);
+            resolve(undefined);
+          }, 500);
+        });
 
         // Set pending change and show modal in new language
         setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
@@ -147,8 +158,19 @@ export default function MenuDrawer(): JSX.Element {
         await i18n.changeLanguage(newLanguage);
         setLocale(newLanguage);
 
-        // Wait a tick for i18n to fully propagate
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Wait for i18n to fully propagate using the languageChanged event
+        await new Promise((resolve) => {
+          const onLanguageChanged = () => {
+            i18n.off('languageChanged', onLanguageChanged);
+            resolve(undefined);
+          };
+          i18n.on('languageChanged', onLanguageChanged);
+          // Fallback timeout in case event doesn't fire
+          setTimeout(() => {
+            i18n.off('languageChanged', onLanguageChanged);
+            resolve(undefined);
+          }, 500);
+        });
 
         setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
         toggleDialog('languageChange', true);
@@ -156,7 +178,7 @@ export default function MenuDrawer(): JSX.Element {
         setLanguageLoading(false);
       }
     },
-    [i18n, setLocale, toggleDialog, ensureLanguageMigrated]
+    [i18n, setLocale, toggleDialog]
   );
 
   const handleBoardRebuildDecision = useCallback(

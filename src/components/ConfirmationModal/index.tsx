@@ -14,7 +14,7 @@ import useBreakpoint from '@/hooks/useBreakpoint';
 export interface ConfirmationModalProps {
   open: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   onCancel?: () => void;
   title: ReactNode;
   message: ReactNode;
@@ -47,9 +47,14 @@ export default function ConfirmationModal({
     }
   };
 
-  const handleConfirm = (): void => {
-    onConfirm();
-    onClose();
+  const handleConfirm = async (): Promise<void> => {
+    try {
+      await onConfirm();
+      onClose();
+    } catch (error) {
+      console.error('Confirmation action failed:', error);
+      // Modal stays open if confirmation fails
+    }
   };
 
   return (
