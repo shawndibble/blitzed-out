@@ -1,6 +1,5 @@
 import {
   AppRegistration,
-  ArrowDropDown as ArrowDropDownIcon,
   CalendarMonth,
   Language,
   Link as LinkIcon,
@@ -27,7 +26,6 @@ import {
   Select,
   SelectChangeEvent,
   SvgIcon,
-  CircularProgress,
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -376,9 +374,6 @@ export default function MenuDrawer(): JSX.Element {
                 }
                 onChange={handleLanguageChange}
                 size="small"
-                IconComponent={() =>
-                  languageLoading ? <CircularProgress size={16} /> : <ArrowDropDownIcon />
-                }
                 MenuProps={{
                   anchorOrigin: {
                     vertical: 'top',
