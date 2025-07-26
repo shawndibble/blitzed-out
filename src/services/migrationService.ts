@@ -170,9 +170,11 @@ export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => 
   try {
     // First check background migration status for specific language
     const bgStatus = localStorage.getItem(BACKGROUND_MIGRATION_KEY);
+    let backgroundStatus: BackgroundMigrationStatus | null = null;
+
     if (bgStatus) {
-      const backgroundStatus: BackgroundMigrationStatus = JSON.parse(bgStatus);
-      const isCompleted = backgroundStatus.completedLanguages.includes(locale);
+      backgroundStatus = JSON.parse(bgStatus);
+      const isCompleted = backgroundStatus!.completedLanguages.includes(locale);
       if (isCompleted) {
         return true;
       }
@@ -186,10 +188,9 @@ export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => 
       if (migrationStatus.completed && migrationStatus.version === MIGRATION_VERSION) {
         // Only return true if this is a full migration (not just current language)
         // Check if background migration has completed all languages
-        if (bgStatus) {
-          const backgroundStatus: BackgroundMigrationStatus = JSON.parse(bgStatus);
+        if (backgroundStatus) {
           const allLanguagesCompleted = SUPPORTED_LANGUAGES.every((lang) =>
-            backgroundStatus.completedLanguages.includes(lang)
+            backgroundStatus!.completedLanguages.includes(lang)
           );
           return allLanguagesCompleted;
         }
@@ -855,8 +856,8 @@ export const runMigrationIfNeeded = async (): Promise<boolean> => {
   try {
     const currentLocale = await getCurrentLanguage();
 
-    // Check if full migration is already completed OR current language is already migrated
-    if (isMigrationCompleted() || isCurrentLanguageMigrationCompleted(currentLocale)) {
+    // Check if the current language is already migrated
+    if (isCurrentLanguageMigrationCompleted(currentLocale)) {
       return true;
     }
 
