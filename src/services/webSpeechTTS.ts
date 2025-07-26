@@ -24,13 +24,7 @@ export class WebSpeechTTSService implements TTSService {
 
       // Create a promise that resolves when speech ends
       utterance.onend = () => {
-        // For Web Speech API, we don't have actual audio data
-        // Return empty response that indicates speech completed
-        resolve({
-          audioContent: new ArrayBuffer(0),
-          audioUrl: '',
-          cleanup: () => {}, // No cleanup needed for Web Speech API
-        });
+        resolve({});
       };
 
       utterance.onerror = (event) => {

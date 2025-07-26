@@ -22,9 +22,6 @@
 .vscode
 .idea
 
-# Google Cloud credentials
-google-cloud-key.json
-
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

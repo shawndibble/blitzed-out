@@ -3,8 +3,8 @@ export interface TTSVoice {
   languageCode: string;
   gender: 'MALE' | 'FEMALE' | 'NEUTRAL';
   displayName: string;
-  provider: 'google' | 'browser';
-  quality: 'standard' | 'wavenet' | 'neural2';
+  provider: 'browser';
+  quality: 'standard';
 }
 
 export interface TTSOptions {
@@ -12,14 +12,11 @@ export interface TTSOptions {
   languageCode?: string;
   rate?: number;
   pitch?: number;
-  volumeGainDb?: number;
-  audioEncoding?: 'MP3' | 'LINEAR16' | 'OGG_OPUS';
 }
 
 export interface TTSResponse {
-  audioContent: ArrayBuffer;
-  audioUrl: string;
-  cleanup: () => void;
+  // Simplified for browser-only TTS - just an empty object
+  [key: string]: never;
 }
 
 export interface TTSService {
