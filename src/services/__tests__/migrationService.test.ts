@@ -159,7 +159,7 @@ describe('Migration Service', () => {
       expect(isMigrationCompleted()).toBe(false);
     });
 
-    it('should properly mark migration as completed after successful run', async () => {
+    it('should properly mark current language migration as completed after successful run', async () => {
       // Start with no migration status
       expect(isMigrationCompleted()).toBe(false);
 
@@ -170,8 +170,12 @@ describe('Migration Service', () => {
       const result = await runMigrationIfNeeded();
       expect(result).toBe(true);
 
-      // Check that migration was marked as completed
-      expect(isMigrationCompleted()).toBe(true);
+      // Check that current language was marked as migrated (not full migration yet)
+      const { isCurrentLanguageMigrationCompleted } = await import('../migrationService');
+      expect(isCurrentLanguageMigrationCompleted('en')).toBe(true);
+
+      // Main migration should not be marked complete yet (only when all languages are done)
+      expect(isMigrationCompleted()).toBe(false);
     });
   });
 
