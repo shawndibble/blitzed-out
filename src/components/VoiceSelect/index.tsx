@@ -1,0 +1,178 @@
+import { useState, useEffect, useCallback } from 'react';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  Box,
+  Typography,
+  Tooltip,
+} from '@mui/material';
+import { PlayArrow, Stop } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
+import { SelectChangeEvent } from '@mui/material/Select';
+import { TTSVoice } from '@/types/tts';
+import { ttsManager } from '@/services/ttsManager';
+import { useTTS } from '@/hooks/useTTS';
+import { Settings } from '@/types/Settings';
+
+interface VoiceSelectProps {
+  formData: Settings;
+  setFormData: (data: Settings) => void;
+  onVoiceChange?: (voiceName: string) => void;
+}
+
+export default function VoiceSelect({
+  formData,
+  setFormData,
+  onVoiceChange,
+}: VoiceSelectProps): JSX.Element {
+  const { t, i18n } = useTranslation();
+  const [voices, setVoices] = useState<TTSVoice[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { speak, stop, isPlaying } = useTTS();
+
+  const currentLanguage = formData.locale || i18n.language || 'en';
+  const selectedVoice = formData.voicePreference || '';
+
+  const handleVoiceChange = useCallback(
+    (voiceName: string) => {
+      const updatedFormData = { ...formData, voicePreference: voiceName };
+      setFormData(updatedFormData);
+      onVoiceChange?.(voiceName);
+    },
+    [formData, setFormData, onVoiceChange]
+  );
+
+  // Load available voices
+  useEffect(() => {
+    let mounted = true;
+
+    const loadVoices = async () => {
+      try {
+        if (mounted) {
+          const availableVoices = await ttsManager.getAvailableVoices(currentLanguage);
+          setVoices(availableVoices);
+
+          // Set default voice if none selected
+          if (!selectedVoice && availableVoices.length > 0) {
+            const preferredVoice = await ttsManager.getPreferredVoice(currentLanguage, 'male');
+            if (preferredVoice) {
+              handleVoiceChange(preferredVoice);
+            }
+          }
+
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to load voices:', error);
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadVoices();
+
+    return () => {
+      mounted = false;
+    };
+  }, [currentLanguage, selectedVoice, handleVoiceChange]);
+
+  const handleSelectChange = (event: SelectChangeEvent) => {
+    handleVoiceChange(event.target.value);
+  };
+
+  const handlePlaySample = async () => {
+    if (isPlaying) {
+      stop();
+      return;
+    }
+
+    const voiceToPlay = selectedVoice || (voices.length > 0 ? voices[0].name : '');
+    if (!voiceToPlay) return;
+
+    // Sample texts for different languages
+    const sampleTexts: Record<string, string> = {
+      en: 'Take a drink and enjoy the game.',
+      es: 'Toma un trago y disfruta del juego.',
+      fr: 'Prenez une boisson et profitez du jeu.',
+      zh: '喝一杯，享受游戏。',
+      hi: 'एक पेय लें और खेल का आनंद लें।',
+    };
+
+    const languageCode = currentLanguage.split('-')[0];
+    const sampleText = sampleTexts[languageCode] || sampleTexts.en;
+
+    try {
+      await speak(sampleText, {
+        voice: voiceToPlay,
+        languageCode: currentLanguage,
+        pitch: -2.0, // Match the pitch from the main TTS
+      });
+    } catch (error) {
+      console.error('Failed to play sample:', error);
+    }
+  };
+
+  // Get voice label with gender indicator and provider
+  const getVoiceLabel = (voice: TTSVoice): string => {
+    const genderIcon = voice.gender === 'MALE' ? '♂' : voice.gender === 'FEMALE' ? '♀' : '';
+    const providerIcon = voice.provider === 'google' ? '🌩️' : '🔊';
+    const qualityBadge =
+      voice.quality === 'neural2' ? ' (Neural2)' : voice.quality === 'wavenet' ? ' (WaveNet)' : '';
+    return `${providerIcon} ${voice.displayName}${qualityBadge} ${genderIcon}`.trim();
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ py: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          {t('loadingVoices', 'Loading voices...')}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (voices.length === 0) {
+    return (
+      <Box sx={{ py: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          {t('noVoicesAvailable', 'No voices available for this language')}
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1 }}>
+      <FormControl fullWidth size="small">
+        <InputLabel id="voice-select-label">{t('voiceSelection', 'Voice')}</InputLabel>
+        <Select
+          labelId="voice-select-label"
+          value={selectedVoice}
+          label={t('voiceSelection', 'Voice')}
+          onChange={handleSelectChange}
+        >
+          {voices.map((voice) => (
+            <MenuItem key={voice.name} value={voice.name}>
+              {getVoiceLabel(voice)}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <Tooltip title={isPlaying ? t('stopSample', 'Stop sample') : t('playSample', 'Play sample')}>
+        <IconButton
+          onClick={handlePlaySample}
+          color="primary"
+          disabled={!selectedVoice}
+          size="small"
+        >
+          {isPlaying ? <Stop /> : <PlayArrow />}
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+}
