@@ -26,7 +26,6 @@ import {
   Select,
   SelectChangeEvent,
   SvgIcon,
-  CircularProgress,
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -375,9 +374,6 @@ export default function MenuDrawer(): JSX.Element {
                 }
                 onChange={handleLanguageChange}
                 size="small"
-                inputProps={{
-                  endAdornment: languageLoading && <CircularProgress size={16} />,
-                }}
                 MenuProps={{
                   anchorOrigin: {
                     vertical: 'top',
