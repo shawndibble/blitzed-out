@@ -1,4 +1,4 @@
-import { cycleArray } from '@/helpers/arrays';
+import { shuffleArray } from '@/helpers/arrays';
 import { Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
 import { CustomTilePull } from '@/types/customTiles';
@@ -27,6 +27,69 @@ interface BoardBuildResult {
   };
 }
 
+/**
+ * Shuffle bag implementation to ensure no duplicate actions until all actions are used.
+ * This class groups tiles by group name and intensity, providing a fair distribution
+ * of actions by ensuring all tiles in a category are used before any duplicates.
+ */
+class TileShuffleBag {
+  /** Maps group-intensity keys to shuffled tile arrays */
+  private bags: Map<string, CustomTilePull[]> = new Map();
+  /** Stores original tile sets for refilling bags */
+  private originalTiles: Map<string, CustomTilePull[]> = new Map();
+
+  /**
+   * Creates a new shuffle bag from the provided tiles.
+   * @param tiles Array of tiles to organize into shuffle bags
+   */
+  constructor(tiles: CustomTilePull[]) {
+    // Group tiles by group name and intensity for bag management
+    const groupedTiles = new Map<string, CustomTilePull[]>();
+
+    tiles.forEach((tile) => {
+      const key = `${tile.group}-${tile.intensity}`;
+      if (!groupedTiles.has(key)) {
+        groupedTiles.set(key, []);
+      }
+      groupedTiles.get(key)!.push(tile);
+    });
+
+    // Initialize bags with shuffled tiles
+    groupedTiles.forEach((tiles, key) => {
+      const shuffledTiles = [...tiles];
+      shuffleArray(shuffledTiles);
+      this.bags.set(key, shuffledTiles);
+      this.originalTiles.set(key, [...tiles]);
+    });
+  }
+
+  /**
+   * Gets a tile from the specified group and intensity bag.
+   * When a bag is empty, it refills and reshuffles automatically.
+   * @param groupName The name of the group to get a tile from
+   * @param intensity The intensity level to get a tile from
+   * @returns A tile or null if no tiles are available
+   */
+  getTile(groupName: string, intensity: number): CustomTilePull | null {
+    const key = `${groupName}-${intensity}`;
+    let bag = this.bags.get(key);
+
+    if (!bag || bag.length === 0) {
+      // Refill and reshuffle the bag when empty
+      const originalTiles = this.originalTiles.get(key);
+      if (!originalTiles || originalTiles.length === 0) {
+        return null;
+      }
+
+      bag = [...originalTiles];
+      shuffleArray(bag);
+      this.bags.set(key, bag);
+    }
+
+    return bag.pop() || null;
+  }
+}
+
 // Filter tiles based on player role
 function filterTilesByRole(tiles: CustomTilePull[], role: string): CustomTilePull[] {
   return tiles.filter((tile) => {
@@ -38,43 +101,54 @@ function filterTilesByRole(tiles: CustomTilePull[], role: string): CustomTilePul
   });
 }
 
-// Calculate intensity level based on board position and difficulty
+/** Cache for intensity calculations to avoid repeated computation */
+const intensityCache = new Map<string, number>();
+
+/**
+ * Calculate intensity level based on board position and difficulty.
+ * Results are cached to improve performance for repeated calculations.
+ */
 function calculateIntensity(
   gameSize: number,
   maxIntensity: number,
   currentTile: number,
   difficulty?: string
 ): number {
+  // Create cache key for memoization
+  const cacheKey = `${gameSize}-${maxIntensity}-${currentTile}-${difficulty || 'normal'}`;
+  const cached = intensityCache.get(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  let result: number;
+
   if ([undefined, 'normal'].includes(difficulty)) {
     const divider = gameSize / maxIntensity;
-    return Math.floor(currentTile / divider) + 1; // Add 1 since intensities start at 1
-  }
-
-  // Accelerated difficulty
-  if (maxIntensity >= 3) {
-    // 40% chance of picking a lower intensity
-    if (Math.random() >= 0.6) {
-      return maxIntensity - 1;
+    result = Math.floor(currentTile / divider) + 1; // Add 1 since intensities start at 1
+  } else {
+    // Accelerated difficulty
+    if (maxIntensity >= 3) {
+      // 40% chance of picking a lower intensity
+      if (Math.random() >= 0.6) {
+        result = maxIntensity - 1;
+      } else {
+        result = maxIntensity;
+      }
+    } else {
+      result = maxIntensity;
     }
   }
-  return maxIntensity;
-}
 
-// Get available tiles for a specific group and intensity
-function getGroupTiles(
-  allTiles: CustomTilePull[],
-  groupName: string,
-  intensity: number
-): CustomTilePull[] {
-  return allTiles.filter(
-    (tile) => tile.group === groupName && tile.intensity === intensity && tile.isEnabled
-  );
+  // Cache the result for future use
+  intensityCache.set(cacheKey, result);
+  return result;
 }
 
 // Build individual tile content
 function buildTileContent(
   availableGroups: CustomGroupPull[],
-  allTiles: CustomTilePull[],
+  shuffleBag: TileShuffleBag,
   selectedActions: Record<string, any>,
   currentTile: number,
   gameSize: number,
@@ -84,8 +158,7 @@ function buildTileContent(
     return { title: '', description: '' };
   }
 
-  // Cycle through available groups for variety
-  cycleArray(availableGroups);
+  // Use the first (and typically only) group provided
   const currentGroup = availableGroups[0];
 
   // Check if this group should append or standalone
@@ -118,45 +191,32 @@ function buildTileContent(
   );
   const targetIntensity = Math.min(calculatedIntensity, groupSelection.level);
 
-  // If no tiles at target intensity, try higher intensities up to the group's max
-  const availableIntensities = [
-    ...new Set(
-      allTiles.filter((t) => t.group === currentGroup.name && t.isEnabled).map((t) => t.intensity)
-    ),
-  ].sort((a, b) => a - b);
-  const lowestAvailableIntensity = availableIntensities[0] || 1;
+  // Try to get a tile from the shuffle bag with fallback logic
+  let selectedTile = shuffleBag.getTile(currentGroup.name, targetIntensity);
 
-  // Get available tiles for this group and intensity
-  let groupTiles = getGroupTiles(allTiles, currentGroup.name, targetIntensity);
-  if (!groupTiles.length) {
+  if (!selectedTile) {
     // Try lower intensities first
     for (let intensity = targetIntensity - 1; intensity >= 1; intensity--) {
-      const fallbackTiles = getGroupTiles(allTiles, currentGroup.name, intensity);
-      if (fallbackTiles.length > 0) {
-        groupTiles = fallbackTiles;
-        break;
+      selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
+      if (selectedTile) break;
+    }
+
+    // If no lower intensities work, try higher intensities
+    if (!selectedTile) {
+      for (let intensity = targetIntensity + 1; intensity <= maxIntensity; intensity++) {
+        selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
+        if (selectedTile) break;
       }
     }
 
-    // If no lower intensities work, try the lowest available intensity even if it's higher
-    if (!groupTiles.length && lowestAvailableIntensity > targetIntensity) {
-      const fallbackTiles = getGroupTiles(allTiles, currentGroup.name, lowestAvailableIntensity);
-      if (fallbackTiles.length > 0) {
-        groupTiles = fallbackTiles;
-      }
-    }
-
-    if (!groupTiles.length) {
+    if (!selectedTile) {
       return { title: '', description: '' };
     }
   }
 
-  // Select random tile from available options
-  cycleArray(groupTiles);
-
   return {
     title: currentGroup.label,
-    description: groupTiles[0].action,
+    description: selectedTile.action,
     standalone: groupSelection.variation === 'standalone',
     role: settings.role || 'sub',
   };
@@ -166,7 +226,7 @@ function buildTileContent(
 function processAppendTiles(
   mainTile: GameTile,
   appendGroups: CustomGroupPull[],
-  allTiles: CustomTilePull[],
+  shuffleBag: TileShuffleBag,
   selectedActions: Record<string, any>,
   currentTile: number,
   gameSize: number,
@@ -178,7 +238,7 @@ function processAppendTiles(
 
   const appendTile = buildTileContent(
     appendGroups,
-    allTiles,
+    shuffleBag,
     selectedActions,
     currentTile,
     gameSize,
@@ -202,6 +262,9 @@ async function buildBoard(
 ): Promise<GameTile[]> {
   const selectedActions = settings.selectedActions || {};
 
+  // Create shuffle bag for tile selection
+  const shuffleBag = new TileShuffleBag(allTiles);
+
   // Separate groups into main and append categories
   const mainGroups = availableGroups.filter((group) => {
     const selection = selectedActions[group.name];
@@ -221,12 +284,21 @@ async function buildBoard(
     );
   });
 
+  // Shuffle main groups to ensure variety in group selection
+  shuffleArray(mainGroups);
+  let groupIndex = 0;
+
   const board: GameTile[] = [];
 
   for (let currentTile = 1; currentTile <= size; currentTile++) {
+    // Rotate through groups to ensure variety
+    const selectedMainGroups =
+      mainGroups.length > 0 ? [mainGroups[groupIndex % mainGroups.length]] : [];
+    groupIndex++;
+
     const mainTile = buildTileContent(
-      mainGroups,
-      allTiles,
+      selectedMainGroups,
+      shuffleBag,
       selectedActions,
       currentTile,
       size,
@@ -236,7 +308,7 @@ async function buildBoard(
     const finalDescription = processAppendTiles(
       mainTile,
       appendGroups,
-      allTiles,
+      shuffleBag,
       selectedActions,
       currentTile,
       size,

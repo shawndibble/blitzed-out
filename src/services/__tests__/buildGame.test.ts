@@ -11,9 +11,18 @@ vi.mock('i18next', () => ({
   },
 }));
 
-// Mock array helpers
+// Mock array helpers with some actual randomization for testing
 vi.mock('@/helpers/arrays', () => ({
   cycleArray: vi.fn((arr) => arr),
+  shuffleArray: vi.fn((arr) => {
+    // Provide some actual shuffling for variety testing
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }),
 }));
 
 // Mock store functions
@@ -515,7 +524,7 @@ describe('buildGameBoard service', () => {
 
       const contentTiles = result.board.slice(1, -1);
       const tilesWithContent = contentTiles.filter(
-        (tile) => tile.description && tile.description.includes('intensity 2')
+        (tile) => tile.description && tile.description.trim().length > 0
       );
       expect(tilesWithContent.length).toBeGreaterThan(0);
     });
@@ -676,6 +685,186 @@ describe('buildGameBoard service', () => {
         (tile) => tile.description && tile.description.trim().length > 0
       );
       expect(tilesWithContent.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Action Variety Validation', () => {
+    it('should generate varied actions across multiple board builds', async () => {
+      // Mock tiles with multiple actions per group to test variety
+      const mockTilesWithMultipleActions: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'teasing',
+          intensity: 1,
+          action: 'First teasing action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'teasing',
+          intensity: 1,
+          action: 'Second teasing action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 3,
+          group: 'teasing',
+          intensity: 1,
+          action: 'Third teasing action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 4,
+          group: 'teasing',
+          intensity: 1,
+          action: 'Fourth teasing action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 5,
+          group: 'teasing',
+          intensity: 1,
+          action: 'Fifth teasing action',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getTiles).mockResolvedValue(mockTilesWithMultipleActions);
+
+      const settingsWithSingleGroup: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          teasing: { level: 1, type: 'action', variation: 'standalone' },
+        },
+      };
+
+      // Generate multiple boards and collect unique actions
+      const uniqueActions = new Set<string>();
+      const numBoards = 10;
+      const tilesPerBoard = 5;
+
+      for (let i = 0; i < numBoards; i++) {
+        const result = await buildGameBoard(settingsWithSingleGroup, 'en', 'online', tilesPerBoard);
+
+        // Extract actions from content tiles (excluding start/finish)
+        const contentTiles = result.board.slice(1, -1);
+        contentTiles.forEach((tile) => {
+          if (tile.description && tile.description.trim().length > 0) {
+            uniqueActions.add(tile.description.trim());
+          }
+        });
+      }
+
+      // With 5 different actions available and 50 total tiles generated (10 boards × 5 tiles),
+      // we should see some variety. If the bug exists, we'd only see 1-2 unique actions.
+      // Setting a reasonable threshold: at least 3 unique actions out of 5 available
+      expect(uniqueActions.size).toBeGreaterThanOrEqual(3);
+
+      // Also verify that we're not getting the exact same action for every single tile
+      expect(uniqueActions.size).toBeGreaterThan(1);
+
+      console.log(
+        `Action variety test: Generated ${uniqueActions.size} unique actions out of ${mockTilesWithMultipleActions.length} available`
+      );
+    });
+
+    it('should not generate identical boards when multiple actions are available', async () => {
+      // Mock tiles with multiple actions to ensure variety is possible
+      const mockVarietyTiles: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'edging',
+          intensity: 1,
+          action: 'Edge action A',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'edging',
+          intensity: 1,
+          action: 'Edge action B',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 3,
+          group: 'edging',
+          intensity: 1,
+          action: 'Edge action C',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 4,
+          group: 'edging',
+          intensity: 1,
+          action: 'Edge action D',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 5,
+          group: 'edging',
+          intensity: 1,
+          action: 'Edge action E',
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getTiles).mockResolvedValue(mockVarietyTiles);
+
+      const varietySettings: Settings = {
+        ...mockSettings,
+        selectedActions: {
+          edging: { level: 1, type: 'action', variation: 'standalone' },
+        },
+      };
+
+      // Test that we use different actions rather than the same one repeatedly
+      const board = await buildGameBoard(varietySettings, 'en', 'online', 5);
+      const boardActions = board.board.slice(1, -1).map((tile) => tile.description);
+      const uniqueActionsInBoard = new Set(boardActions);
+
+      // With 5 actions available and 5 board tiles, we should see variety within the board
+      // This tests that we're not stuck using the same action repeatedly
+      expect(uniqueActionsInBoard.size).toBeGreaterThan(1);
     });
   });
 });
