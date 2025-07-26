@@ -38,6 +38,9 @@ import AuthDialog from '@/components/auth/AuthDialog';
 import { useSettings, useSettingsStore } from '@/stores/settingsStore';
 import { languages } from '@/services/i18nHelpers';
 import { ensureLanguageMigrated } from '@/services/migrationService';
+import LanguageChangeModal from '@/components/LanguageChangeModal';
+import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
+import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 
 // Lazy load dialogs
 const AppSettingsDialog = lazy(() => import('@/components/AppSettingsDialog'));
@@ -62,6 +65,7 @@ interface DialogState {
   customTiles: boolean;
   linkAccount: boolean;
   appSettings: boolean;
+  languageChange: boolean;
   [key: string]: boolean;
 }
 
@@ -82,6 +86,7 @@ export default function MenuDrawer(): JSX.Element {
     customTiles: false,
     linkAccount: false,
     appSettings: false,
+    languageChange: false,
   });
 
   const toggleDialog = useCallback(
@@ -105,30 +110,107 @@ export default function MenuDrawer(): JSX.Element {
     []
   );
 
-  const { setLocale } = useSettingsStore();
+  const { setLocale, updateSettings } = useSettingsStore();
   const [languageLoading, setLanguageLoading] = useState(false);
+  const [pendingLanguageChange, setPendingLanguageChange] = useState<{
+    from: string;
+    to: string;
+  } | null>(null);
+  const submitSettings = useSubmitGameSettings();
+  const { actionsList } = useUnifiedActionList(gameSettings?.gameMode);
 
   const handleLanguageChange = useCallback(
     async (event: SelectChangeEvent<string>): Promise<void> => {
       const newLanguage = event.target.value;
+      const currentLanguage = i18n.resolvedLanguage || 'en';
+
+      // If same language, do nothing
+      if (currentLanguage === newLanguage) return;
+
       setLanguageLoading(true);
 
       try {
-        // Ensure the new language is migrated before switching
+        // Immediately change the language so modal appears in new language
         await ensureLanguageMigrated(newLanguage);
         await i18n.changeLanguage(newLanguage);
         setLocale(newLanguage);
+
+        // Wait for i18n to fully propagate using the languageChanged event
+        await new Promise((resolve) => {
+          const onLanguageChanged = () => {
+            i18n.off('languageChanged', onLanguageChanged);
+            resolve(undefined);
+          };
+          i18n.on('languageChanged', onLanguageChanged);
+          // Fallback timeout in case event doesn't fire
+          setTimeout(() => {
+            i18n.off('languageChanged', onLanguageChanged);
+            resolve(undefined);
+          }, 500);
+        });
+
+        // Set pending change and show modal in new language
+        setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
+        toggleDialog('languageChange', true);
       } catch (error) {
         console.error('Error changing language:', error);
         // Still attempt to change language even if migration fails
         await i18n.changeLanguage(newLanguage);
         setLocale(newLanguage);
+
+        // Wait for i18n to fully propagate using the languageChanged event
+        await new Promise((resolve) => {
+          const onLanguageChanged = () => {
+            i18n.off('languageChanged', onLanguageChanged);
+            resolve(undefined);
+          };
+          i18n.on('languageChanged', onLanguageChanged);
+          // Fallback timeout in case event doesn't fire
+          setTimeout(() => {
+            i18n.off('languageChanged', onLanguageChanged);
+            resolve(undefined);
+          }, 500);
+        });
+
+        setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
+        toggleDialog('languageChange', true);
       } finally {
         setLanguageLoading(false);
       }
     },
-    [i18n, setLocale]
+    [i18n, setLocale, toggleDialog]
   );
+
+  const handleBoardRebuildDecision = useCallback(
+    async (shouldRebuildBoard: boolean): Promise<void> => {
+      // Language has already been changed, handle board rebuild properly
+      if (shouldRebuildBoard && actionsList) {
+        try {
+          // Use the complete settings submission flow to rebuild board and generate message
+          await submitSettings({ ...gameSettings, boardUpdated: true }, actionsList);
+        } catch (error) {
+          console.error('Error rebuilding board:', error);
+          // Fallback to simple board update
+          updateSettings({ boardUpdated: true });
+        }
+      }
+      setPendingLanguageChange(null);
+    },
+    [submitSettings, gameSettings, actionsList, updateSettings]
+  );
+
+  const handleRebuildBoard = useCallback(async (): Promise<void> => {
+    await handleBoardRebuildDecision(true);
+  }, [handleBoardRebuildDecision]);
+
+  const handleKeepBoard = useCallback(async (): Promise<void> => {
+    await handleBoardRebuildDecision(false);
+  }, [handleBoardRebuildDecision]);
+
+  const handleLanguageModalClose = useCallback((): void => {
+    setPendingLanguageChange(null);
+    toggleDialog('languageChange', false);
+  }, [toggleDialog]);
 
   const languageMenuItems = useMemo(
     () =>
@@ -137,7 +219,7 @@ export default function MenuDrawer(): JSX.Element {
           {obj.label}
         </MenuItem>
       )),
-    [languages]
+    []
   );
 
   const menuItems = useMemo<MenuItemType[]>(() => {
@@ -326,6 +408,16 @@ export default function MenuDrawer(): JSX.Element {
       {open.schedule && renderDialog(Schedule, 'schedule')}
       {open.customTiles && renderDialog(CustomTileDialog, 'customTiles')}
       {open.linkAccount && renderDialog(AuthDialog, 'linkAccount')}
+      {pendingLanguageChange && (
+        <LanguageChangeModal
+          open={open.languageChange}
+          onClose={handleLanguageModalClose}
+          onRebuildBoard={handleRebuildBoard}
+          onKeepBoard={handleKeepBoard}
+          fromLanguage={pendingLanguageChange.from}
+          toLanguage={pendingLanguageChange.to}
+        />
+      )}
     </>
   );
 }
