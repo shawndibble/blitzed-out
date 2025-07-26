@@ -1,5 +1,6 @@
 import {
   AppRegistration,
+  ArrowDropDown as ArrowDropDownIcon,
   CalendarMonth,
   Language,
   Link as LinkIcon,
@@ -375,7 +376,9 @@ export default function MenuDrawer(): JSX.Element {
                 }
                 onChange={handleLanguageChange}
                 size="small"
-                endAdornment={languageLoading && <CircularProgress size={16} />}
+                IconComponent={() =>
+                  languageLoading ? <CircularProgress size={16} /> : <ArrowDropDownIcon />
+                }
                 MenuProps={{
                   anchorOrigin: {
                     vertical: 'top',
