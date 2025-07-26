@@ -19,6 +19,7 @@ export interface Settings {
   roomTileCount?: number;
   roomDice?: string;
   readRoll?: boolean;
+  voicePreference?: string;
   displayName?: string;
   room: string;
   roomBackgroundURL?: string;

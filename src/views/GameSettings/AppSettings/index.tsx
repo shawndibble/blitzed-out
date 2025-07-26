@@ -1,6 +1,7 @@
 import { Divider, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import BackgroundSelect from '@/components/BackgroundSelect';
+import VoiceSelect from '@/components/VoiceSelect';
 import LanguageSelect from './LanguageSelect';
 import AppBoolSwitch from './AppBoolSwitch';
 import { useSettings } from '@/stores/settingsStore';
@@ -36,6 +37,11 @@ export default function AppSettings({
     updateSettings({ ...settings, [field]: event.target.checked });
   }
 
+  function handleVoiceChange(voiceName: string): void {
+    // Update local storage immediately for voice changes
+    updateSettings({ ...settings, voicePreference: voiceName });
+  }
+
   return (
     <>
       <LanguageSelect boardUpdated={boardUpdated} />
@@ -57,6 +63,14 @@ export default function AppSettings({
       <AppBoolSwitch field="otherSound" formData={formData} handleSwitch={handleSwitch} />
       <AppBoolSwitch field="chatSound" formData={formData} handleSwitch={handleSwitch} />
       <AppBoolSwitch field="readRoll" formData={formData} handleSwitch={handleSwitch} />
+
+      {formData.readRoll && (
+        <VoiceSelect
+          formData={formData}
+          setFormData={setFormData}
+          onVoiceChange={handleVoiceChange}
+        />
+      )}
 
       <Divider />
 
