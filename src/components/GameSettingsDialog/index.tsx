@@ -25,7 +25,7 @@ export default function GameSettingsDialog({
   return (
     <Dialog fullScreen={isMobile} open={open} maxWidth="md">
       <DialogTitle>
-        <Trans i18nKey="gameSettings" />
+        <Trans i18nKey="gameSettingsHeading" />
         {typeof close === 'function' && <CloseIcon close={close} />}
       </DialogTitle>
       <DialogContent>
