@@ -170,20 +170,31 @@ export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => 
   try {
     // First check background migration status for specific language
     const bgStatus = localStorage.getItem(BACKGROUND_MIGRATION_KEY);
+    let backgroundStatus: BackgroundMigrationStatus | null = null;
+
     if (bgStatus) {
-      const backgroundStatus: BackgroundMigrationStatus = JSON.parse(bgStatus);
-      const isCompleted = backgroundStatus.completedLanguages.includes(locale);
+      backgroundStatus = JSON.parse(bgStatus);
+      const isCompleted = backgroundStatus!.completedLanguages.includes(locale);
       if (isCompleted) {
         return true;
       }
     }
 
-    // Fallback: check if full migration is complete (this means ALL languages are done)
+    // Fallback: check if full migration is complete AND all languages are done
     const status = localStorage.getItem(MIGRATION_KEY);
     if (status) {
       const migrationStatus: MigrationStatus = JSON.parse(status);
 
       if (migrationStatus.completed && migrationStatus.version === MIGRATION_VERSION) {
+        // Only return true if this is a full migration (not just current language)
+        // Check if background migration has completed all languages
+        if (backgroundStatus) {
+          const allLanguagesCompleted = SUPPORTED_LANGUAGES.every((lang) =>
+            backgroundStatus!.completedLanguages.includes(lang)
+          );
+          return allLanguagesCompleted;
+        }
+        // If no background status, assume full migration means all languages are done
         return true;
       }
     }
@@ -843,8 +854,10 @@ export const ensureLanguageMigrated = async (locale: string): Promise<boolean> =
  */
 export const runMigrationIfNeeded = async (): Promise<boolean> => {
   try {
-    // Check if full migration is already completed
-    if (isMigrationCompleted()) {
+    const currentLocale = await getCurrentLanguage();
+
+    // Check if the current language is already migrated
+    if (isCurrentLanguageMigrationCompleted(currentLocale)) {
       return true;
     }
 
@@ -872,15 +885,12 @@ export const runMigrationIfNeeded = async (): Promise<boolean> => {
     setMigrationInProgress(true);
 
     try {
-      const currentLocale = await getCurrentLanguage();
-
       // Fast path: migrate current language only
       const success = await migrateCurrentLanguage(currentLocale);
 
       if (success) {
-        // Mark main migration as complete for fresh user scenario
-        // This allows the app to proceed normally while background migration continues
-        markMigrationComplete();
+        // Don't mark main migration as complete yet - only mark the current language as complete
+        // The main migration will be marked complete when all languages are done in background migration
 
         // Queue background migration for other languages
         queueBackgroundMigration(currentLocale);
