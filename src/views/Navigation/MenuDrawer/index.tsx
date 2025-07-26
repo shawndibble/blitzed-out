@@ -26,6 +26,7 @@ import {
   Select,
   SelectChangeEvent,
   SvgIcon,
+  CircularProgress,
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -36,6 +37,7 @@ import DialogWrapper from '@/components/DialogWrapper';
 import AuthDialog from '@/components/auth/AuthDialog';
 import { useSettings, useSettingsStore } from '@/stores/settingsStore';
 import { languages } from '@/services/i18nHelpers';
+import { ensureLanguageMigrated } from '@/services/migrationService';
 
 // Lazy load dialogs
 const AppSettingsDialog = lazy(() => import('@/components/AppSettingsDialog'));
@@ -104,12 +106,26 @@ export default function MenuDrawer(): JSX.Element {
   );
 
   const { setLocale } = useSettingsStore();
+  const [languageLoading, setLanguageLoading] = useState(false);
 
   const handleLanguageChange = useCallback(
-    (event: SelectChangeEvent<string>): void => {
+    async (event: SelectChangeEvent<string>): Promise<void> => {
       const newLanguage = event.target.value;
-      i18n.changeLanguage(newLanguage);
-      setLocale(newLanguage);
+      setLanguageLoading(true);
+
+      try {
+        // Ensure the new language is migrated before switching
+        await ensureLanguageMigrated(newLanguage);
+        await i18n.changeLanguage(newLanguage);
+        setLocale(newLanguage);
+      } catch (error) {
+        console.error('Error changing language:', error);
+        // Still attempt to change language even if migration fails
+        await i18n.changeLanguage(newLanguage);
+        setLocale(newLanguage);
+      } finally {
+        setLanguageLoading(false);
+      }
     },
     [i18n, setLocale]
   );
@@ -268,6 +284,7 @@ export default function MenuDrawer(): JSX.Element {
                 labelId="drawer-language-label"
                 id="drawer-language-select"
                 value={i18n.resolvedLanguage || 'en'}
+                disabled={languageLoading}
                 label={
                   <>
                     <Language sx={{ fontSize: '1rem' }} />
@@ -276,6 +293,7 @@ export default function MenuDrawer(): JSX.Element {
                 }
                 onChange={handleLanguageChange}
                 size="small"
+                endAdornment={languageLoading && <CircularProgress size={16} />}
                 MenuProps={{
                   anchorOrigin: {
                     vertical: 'top',

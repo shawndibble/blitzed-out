@@ -14,6 +14,7 @@ import {
   SelectChangeEvent,
   TextField,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import useAuth from '@/context/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -22,6 +23,7 @@ import usePlayerList from '@/hooks/usePlayerList';
 import { languages } from '@/services/i18nHelpers';
 import { useState, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { ensureLanguageMigrated } from '@/services/migrationService';
 import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from '@/views/Navigation';
 import './styles.css';
@@ -33,6 +35,7 @@ export default function UnauthenticatedApp() {
   const { login, user } = useAuth();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDialogView, setAuthDialogView] = useState<AuthView>('login');
+  const [languageLoading, setLanguageLoading] = useState(false);
 
   const handleOpenLogin = () => {
     setAuthDialogView('login');
@@ -77,8 +80,21 @@ export default function UnauthenticatedApp() {
   const currentLanguage = i18n.resolvedLanguage || 'en';
 
   const handleLanguageChange = useCallback(
-    (event: SelectChangeEvent<string>): void => {
-      i18n.changeLanguage(event.target.value);
+    async (event: SelectChangeEvent<string>): Promise<void> => {
+      const newLanguage = event.target.value;
+      setLanguageLoading(true);
+
+      try {
+        // Ensure the new language is migrated before switching
+        await ensureLanguageMigrated(newLanguage);
+        await i18n.changeLanguage(newLanguage);
+      } catch (error) {
+        console.error('Error changing language:', error);
+        // Still attempt to change language even if migration fails
+        await i18n.changeLanguage(newLanguage);
+      } finally {
+        setLanguageLoading(false);
+      }
     },
     [i18n]
   );
@@ -163,6 +179,7 @@ export default function UnauthenticatedApp() {
                       labelId="unauth-language-label"
                       id="unauth-language-select"
                       value={currentLanguage}
+                      disabled={languageLoading}
                       label={
                         <>
                           {isMobile && <Language sx={{ fontSize: '1rem' }} />}
@@ -171,6 +188,7 @@ export default function UnauthenticatedApp() {
                       }
                       onChange={handleLanguageChange}
                       size="small"
+                      endAdornment={languageLoading && <CircularProgress size={16} />}
                     >
                       {languageMenuItems}
                     </Select>

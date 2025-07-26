@@ -1,8 +1,17 @@
 import { Language } from '@mui/icons-material';
-import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  CircularProgress,
+} from '@mui/material';
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { languages } from '@/services/i18nHelpers';
+import { ensureLanguageMigrated } from '@/services/migrationService';
 
 interface LanguageSelectProps {
   boardUpdated: () => void;
@@ -11,11 +20,25 @@ interface LanguageSelectProps {
 export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): JSX.Element {
   const { i18n } = useTranslation();
   const [language, setLanguage] = useState<string>(i18n.resolvedLanguage || 'en');
+  const [loading, setLoading] = useState<boolean>(false);
 
-  function changeLanguage(value: string): void {
+  async function changeLanguage(value: string): Promise<void> {
+    setLoading(true);
     setLanguage(value);
-    i18n.changeLanguage(value);
-    boardUpdated();
+
+    try {
+      // Ensure the new language is migrated before switching
+      await ensureLanguageMigrated(value);
+      await i18n.changeLanguage(value);
+      boardUpdated();
+    } catch (error) {
+      console.error('Error changing language:', error);
+      // Still attempt to change language even if migration fails
+      await i18n.changeLanguage(value);
+      boardUpdated();
+    } finally {
+      setLoading(false);
+    }
   }
 
   const menuItems = Object.entries(languages).map(([key, obj]) => (
@@ -35,6 +58,7 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
           labelId="language-label"
           id="language-select"
           value={language}
+          disabled={loading}
           label={
             <>
               <Language />
@@ -42,6 +66,7 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
             </>
           }
           onChange={(event: SelectChangeEvent<string>) => changeLanguage(event.target.value)}
+          endAdornment={loading && <CircularProgress size={20} />}
         >
           {menuItems}
         </Select>

@@ -21,7 +21,7 @@ import { MessagesProvider } from '@/context/messages';
 import { ScheduleProvider } from '@/context/schedule';
 import { UserListProvider } from '@/context/userList';
 import darkTheme from './theme';
-import { runMigrationIfNeeded } from '@/services/migrationService';
+import { runMigrationIfNeeded, cleanupDuplicatesIfNeeded } from '@/services/migrationService';
 
 // Lazy load main views
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
@@ -90,6 +90,11 @@ function AppRoutes() {
   const [migrationStatus, setMigrationStatus] = useState<
     'pending' | 'running' | 'completed' | 'failed'
   >('pending');
+  const [migrationProgress, setMigrationProgress] = useState<{
+    current: number;
+    total: number;
+    groupName: string;
+  }>({ current: 0, total: 0, groupName: '' });
 
   // Make auth context available to the middleware
   useEffect(() => {
@@ -102,11 +107,19 @@ function AppRoutes() {
   }, [auth]);
 
   useEffect(() => {
-    // Run migrations once at app startup with user feedback
+    // Run optimized migration with current language first
     const runMigration = async () => {
       setMigrationStatus('running');
       try {
-        const success = await runMigrationIfNeeded();
+        const success = await runMigrationIfNeeded((current, total, groupName) => {
+          setMigrationProgress({ current, total, groupName });
+        });
+
+        // Clean up any duplicates that may have been created in previous sessions
+        if (success) {
+          await cleanupDuplicatesIfNeeded();
+        }
+
         setMigrationStatus(success ? 'completed' : 'failed');
       } catch (error) {
         console.error('Migration failed:', error);
@@ -122,8 +135,16 @@ function AppRoutes() {
     return <AppSkeleton />;
   }
 
-  // Show migration status while running
+  // Show migration status while running with progress
   if (migrationStatus === 'running') {
+    const progressText =
+      migrationProgress.total > 0
+        ? `Loading ${migrationProgress.groupName}... (${migrationProgress.current}/${migrationProgress.total})`
+        : 'Preparing game data...';
+
+    const progressPercent =
+      migrationProgress.total > 0 ? (migrationProgress.current / migrationProgress.total) * 100 : 0;
+
     return (
       <Box
         display="flex"
@@ -133,20 +154,30 @@ function AppRoutes() {
         minHeight="100vh"
         gap={2}
       >
-        <CircularProgress size={40} />
+        <CircularProgress
+          size={40}
+          variant={progressPercent > 0 ? 'determinate' : 'indeterminate'}
+          value={progressPercent}
+        />
         <Typography variant="h6" color="primary">
-          Updating game data...
+          Loading your language...
         </Typography>
         <Typography variant="body2" color="text.secondary" textAlign="center">
-          This may take a moment. Please don&apos;t close the app.
+          {progressText}
         </Typography>
+        {migrationProgress.total > 0 && (
+          <Typography variant="caption" color="text.secondary">
+            Other languages will load in the background
+          </Typography>
+        )}
       </Box>
     );
   }
 
   // Show error message if migration failed (but still allow app to continue)
   if (migrationStatus === 'failed') {
-    console.warn('Migration failed, but continuing with app startup');
+    console.warn('Initial language migration failed, but continuing with app startup');
+    // The app can still function with default data or previously migrated data
   }
 
   const room = auth.user ? <Room /> : <UnauthenticatedApp />;
