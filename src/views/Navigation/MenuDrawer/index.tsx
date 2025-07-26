@@ -375,9 +375,7 @@ export default function MenuDrawer(): JSX.Element {
                 }
                 onChange={handleLanguageChange}
                 size="small"
-                inputProps={{
-                  endAdornment: languageLoading && <CircularProgress size={16} />,
-                }}
+                endAdornment={languageLoading && <CircularProgress size={16} />}
                 MenuProps={{
                   anchorOrigin: {
                     vertical: 'top',
