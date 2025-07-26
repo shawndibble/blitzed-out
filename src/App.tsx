@@ -29,27 +29,30 @@ const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazy(() => import('@/views/Cast'));
 const Room = lazy(() => import('@/views/Room'));
 
-// Aggressive preloading to reduce subsequent requests
+// Smart preloading strategy - load most likely routes
 const preloadChunks = () => {
-  // Preload all critical app chunks immediately after main load
-  Promise.all([
-    import('@/views/Room'),
-    import('@/components/MessageList'),
-    import('@/views/Room/GameBoard'),
-    import('@/views/Navigation'),
-    import('@/components/MessageInput'),
-    import('@/components/PopupMessage'),
-  ]).catch(console.warn); // Don't fail if preload fails
+  // Most users go to Room, so preload it with high priority
+  Promise.all([import('@/views/Room'), import('@/views/UnauthenticatedApp')]).catch(console.warn);
+
+  // Preload secondary components after a delay
+  setTimeout(() => {
+    Promise.all([
+      import('@/components/MessageList'),
+      import('@/components/MessageInput'),
+      import('@/views/Navigation'),
+    ]).catch(console.warn);
+  }, 500);
 };
 
-// Preload critical chunks immediately after initial render
+// Intelligent preloading timing
 if (typeof window !== 'undefined') {
-  // Use requestIdleCallback for better performance
   const schedulePreload = () => {
     if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(preloadChunks, { timeout: 1000 });
+      // Use shorter timeout for faster preloading
+      (window as any).requestIdleCallback(preloadChunks, { timeout: 500 });
     } else {
-      setTimeout(preloadChunks, 100);
+      // Start preloading sooner
+      setTimeout(preloadChunks, 50);
     }
   };
 

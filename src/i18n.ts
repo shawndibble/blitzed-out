@@ -5,8 +5,8 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 const i18nOptions: InitOptions = {
   fallbackLng: 'en',
-  supportedLngs: ['en', 'es', 'fr', 'zh', 'hi'], // Add all supported languages
-  ns: ['translation', 'errors'], // Add namespaces if you have multiple JSON files per language
+  supportedLngs: ['en', 'es', 'fr', 'zh', 'hi'],
+  ns: ['translation', 'errors'],
   defaultNS: 'translation',
   // debug: process.env.NODE_ENV === 'development',
   interpolation: {
@@ -19,6 +19,10 @@ const i18nOptions: InitOptions = {
     order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
     caches: ['localStorage', 'cookie'],
   },
+  // Performance optimizations
+  load: 'currentOnly', // Only load current language initially
+  preload: false, // Don't preload all languages
+  cleanCode: true, // Clean language codes
 };
 
 // Lazy loading function for additional resources
@@ -40,7 +44,26 @@ const i18n = i18next
   .use(LanguageDetector)
   .use(resourcesToBackend(lazyLoadTranslations));
 
-// Initialize i18n synchronously for immediate availability
-i18n.init(i18nOptions);
+// Initialize i18n with background loading
+i18n
+  .init(i18nOptions)
+  .then(() => {
+    // Preload common languages in background after initial load
+    const currentLang = i18n.language;
+    const commonLangs = ['en', 'es', 'fr'].filter((lang) => lang !== currentLang);
+
+    setTimeout(() => {
+      commonLangs.forEach((lang) => {
+        if (
+          i18n.options.supportedLngs &&
+          Array.isArray(i18n.options.supportedLngs) &&
+          i18n.options.supportedLngs.includes(lang)
+        ) {
+          i18n.loadLanguages(lang).catch(console.warn);
+        }
+      });
+    }, 2000); // Load other languages after 2 seconds
+  })
+  .catch(console.error);
 
 export default i18n;

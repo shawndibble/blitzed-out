@@ -27,11 +27,40 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Use object-based chunking to avoid function issues
-          vendor: ['react', 'react-dom', 'react-router', 'react-router-dom'],
-          mui: ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-          utils: ['zustand', 'dexie', 'dayjs', 'nanoid', 'clsx'],
+          // Bundle core libraries together for faster loading
+          vendor: [
+            'react',
+            'react-dom',
+            'react-router',
+            'react-router-dom',
+            '@mui/material',
+            '@emotion/react',
+            '@emotion/styled',
+          ],
+          // Bundle MUI icons separately since they're used less frequently
+          'mui-icons': ['@mui/icons-material', '@mui/x-date-pickers'],
+          // Bundle data/state management together
+          data: [
+            'firebase/app',
+            'firebase/auth',
+            'firebase/firestore',
+            'firebase/database',
+            'firebase/storage',
+          ],
+          // Bundle utilities together
+          utils: [
+            'zustand',
+            'dexie',
+            'dexie-react-hooks',
+            'dayjs',
+            'nanoid',
+            'clsx',
+            'js-sha256',
+            'i18next',
+            'react-i18next',
+            'i18next-browser-languagedetector',
+            'i18next-resources-to-backend',
+          ],
         },
         // Optimize chunk sizes
         chunkFileNames: (chunkInfo) => {
@@ -61,12 +90,12 @@ export default defineConfig({
     target: 'es2020',
     // Reduce CSS chunking to minimize requests
     cssCodeSplit: false,
-    // Increase chunk size to bundle more aggressively
-    chunkSizeWarningLimit: 2000,
+    // Increase chunk size to bundle more aggressively - reduce waterfalls
+    chunkSizeWarningLimit: 5000,
     // Enable minification optimizations
     minify: 'esbuild',
-    // Compress assets
-    assetsInlineLimit: 8192, // Inline assets < 8KB
+    // Inline more assets to reduce HTTP requests
+    assetsInlineLimit: 16384, // Inline assets < 16KB
   },
   optimizeDeps: {
     include: [
