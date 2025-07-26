@@ -45,7 +45,7 @@ export class TTSManager implements TTSService {
   async getAvailableVoices(languageCode?: string): Promise<TTSVoice[]> {
     const voices: TTSVoice[] = [];
 
-    // Get Google Cloud voices
+    // Get Google Cloud voices (always include these as they're high quality)
     try {
       if (languageCode) {
         const googleVoices = getGoogleVoicesForLanguage(languageCode);
@@ -62,7 +62,7 @@ export class TTSManager implements TTSService {
       console.warn('Failed to get Google Cloud voices:', error);
     }
 
-    // Get Web Speech API voices as fallback
+    // Get Web Speech API voices as fallback (filtered for quality)
     try {
       const webVoices = await this.webSpeechTTS.getAvailableVoices(languageCode);
       voices.push(...webVoices);
@@ -70,15 +70,30 @@ export class TTSManager implements TTSService {
       console.warn('Failed to get Web Speech voices:', error);
     }
 
-    // Sort by quality (Google first, then browser)
+    // Sort by quality priority: Google Neural2 > Google WaveNet > High-quality browser > Other browser
     return voices.sort((a, b) => {
+      // Primary sort: Provider priority
       if (a.provider !== b.provider) {
         return a.provider === 'google' ? -1 : 1;
       }
 
-      // Within same provider, sort by quality
+      // Secondary sort: Quality within provider
       const qualityOrder = { neural2: 0, wavenet: 1, standard: 2 };
-      return qualityOrder[a.quality] - qualityOrder[b.quality];
+      const qualityDiff = qualityOrder[a.quality] - qualityOrder[b.quality];
+      if (qualityDiff !== 0) {
+        return qualityDiff;
+      }
+
+      // Tertiary sort: Gender preference (male first)
+      if (a.gender !== b.gender) {
+        if (a.gender === 'MALE') return -1;
+        if (b.gender === 'MALE') return 1;
+        if (a.gender === 'FEMALE') return -1;
+        if (b.gender === 'FEMALE') return 1;
+      }
+
+      // Final sort: Alphabetical by display name
+      return a.displayName.localeCompare(b.displayName);
     });
   }
 
