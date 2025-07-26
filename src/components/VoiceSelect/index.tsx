@@ -9,7 +9,7 @@ import {
   Typography,
   Tooltip,
 } from '@mui/material';
-import { PlayArrow, Stop } from '@mui/icons-material';
+import { PlayArrow } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { TTSVoice } from '@/types/tts';
@@ -31,7 +31,7 @@ export default function VoiceSelect({
   const { t, i18n } = useTranslation();
   const [voices, setVoices] = useState<TTSVoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { speak, stop, isPlaying } = useTTS();
+  const { speak } = useTTS();
 
   const currentLanguage = formData.locale || i18n.language || 'en';
   const selectedVoice = formData.voicePreference || '';
@@ -85,11 +85,6 @@ export default function VoiceSelect({
   };
 
   const handlePlaySample = async () => {
-    if (isPlaying) {
-      stop();
-      return;
-    }
-
     const voiceToPlay = selectedVoice || (voices.length > 0 ? voices[0].name : '');
     if (!voiceToPlay) return;
 
@@ -150,14 +145,14 @@ export default function VoiceSelect({
         </Select>
       </FormControl>
 
-      <Tooltip title={isPlaying ? t('stopSample', 'Stop sample') : t('playSample', 'Play sample')}>
+      <Tooltip title={t('playSample', 'Play sample')}>
         <IconButton
           onClick={handlePlaySample}
           color="primary"
           disabled={!selectedVoice}
           size="small"
         >
-          {isPlaying ? <Stop /> : <PlayArrow />}
+          <PlayArrow />
         </IconButton>
       </Tooltip>
     </Box>
