@@ -1,15 +1,6 @@
 import { Box, Card, CardContent, Typography, Grid, Chip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-
-interface PresetConfig {
-  id: string;
-  name: string;
-  description: string;
-  actions: string[];
-  consumptions: string[];
-  sampleTiles: string[];
-  intensities?: Record<string, number>;
-}
+import { PresetConfig } from '@/types/presets';
 
 interface PresetSelectorProps {
   gameMode: string;
@@ -34,7 +25,6 @@ export default function PresetSelector({
         description: 'Intense enhancement session',
         actions: ['bating'],
         consumptions: ['poppers'],
-        sampleTiles: [],
         intensities: {
           bating: 2,
           poppers: 1,
@@ -46,7 +36,6 @@ export default function PresetSelector({
         description: 'Enhanced sensation focus',
         actions: ['titTorture'],
         consumptions: ['vaping'],
-        sampleTiles: [],
         intensities: {
           titTorture: 2,
           vaping: 1,
@@ -58,7 +47,6 @@ export default function PresetSelector({
         description: 'Discover new sensations',
         actions: ['throatTraining', 'buttPlay', 'titTorture', 'ballBusting'],
         consumptions: [],
-        sampleTiles: [],
         intensities: {
           throatTraining: 1,
           buttPlay: 1,
@@ -72,7 +60,6 @@ export default function PresetSelector({
         description: 'Intense impact play',
         actions: ['ballBusting', 'bating'],
         consumptions: ['poppers'],
-        sampleTiles: [],
         intensities: {
           ballBusting: 2,
           bating: 2,
@@ -86,7 +73,6 @@ export default function PresetSelector({
         description: 'Gentle romantic beginning',
         actions: ['kissing', 'stripping'],
         consumptions: ['alcohol'],
-        sampleTiles: [],
         intensities: {
           kissing: 2,
           stripping: 1,
@@ -99,7 +85,6 @@ export default function PresetSelector({
         description: 'Humiliation and degradation play',
         actions: ['humiliation', 'footPlay', 'breathPlay'],
         consumptions: ['poppers'],
-        sampleTiles: [],
         intensities: {
           humiliation: 2,
           footPlay: 2,
@@ -113,7 +98,6 @@ export default function PresetSelector({
         description: 'Focus on touch and sensation',
         actions: ['kissing', 'footPlay', 'tickling'],
         consumptions: [],
-        sampleTiles: [],
         intensities: {
           kissing: 2,
           footPlay: 1,
@@ -126,7 +110,6 @@ export default function PresetSelector({
         description: 'Sensation play with intensity',
         actions: ['electric', 'bondage'],
         consumptions: ['vaping'],
-        sampleTiles: [],
         intensities: {
           electric: 1,
           bondage: 2,
@@ -141,7 +124,6 @@ export default function PresetSelector({
         description: 'Gentle intimate pleasure',
         actions: ['throatTraining', 'bating', 'buttPlay'],
         consumptions: ['alcohol'],
-        sampleTiles: [],
         intensities: {
           throatTraining: 1,
           bating: 1,
@@ -155,7 +137,6 @@ export default function PresetSelector({
         description: 'Extreme penetration play',
         actions: ['buttPlay'],
         consumptions: ['poppers'],
-        sampleTiles: [],
         intensities: {
           buttPlay: 4,
           poppers: 4,
@@ -167,7 +148,6 @@ export default function PresetSelector({
         description: 'Bondage and discipline play',
         actions: ['pissPlay', 'throatTraining', 'spanking', 'titTorture'],
         consumptions: [],
-        sampleTiles: [],
         intensities: {
           pissPlay: 2,
           throatTraining: 2,
@@ -181,7 +161,6 @@ export default function PresetSelector({
         description: 'Breath play and sensation',
         actions: ['bating'],
         consumptions: ['gasMask'],
-        sampleTiles: [],
         intensities: {
           bating: 2,
           gasMask: 2,

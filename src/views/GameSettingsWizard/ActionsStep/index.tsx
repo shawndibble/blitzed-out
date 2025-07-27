@@ -19,6 +19,7 @@ import { purgedFormData, hasValidSelections } from './helpers';
 import { isPublicRoom } from '@/helpers/strings';
 import { FormData, ActionEntry } from '@/types';
 import { Settings } from '@/types/Settings';
+import { PresetConfig } from '@/types/presets';
 
 interface ActionsStepProps {
   formData: FormData & Partial<Settings>;
@@ -26,16 +27,6 @@ interface ActionsStepProps {
   nextStep: () => void;
   prevStep: (count?: number) => void;
   actionsList: Record<string, any>;
-}
-
-interface PresetConfig {
-  id: string;
-  name: string;
-  description: string;
-  actions: string[];
-  consumptions: string[];
-  sampleTiles: string[];
-  intensities?: Record<string, number>;
 }
 
 export default function ActionsStep({
