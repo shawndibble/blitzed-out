@@ -69,13 +69,13 @@ export default function FinishStep({
     {
       id: 'noOrgasm',
       title: 'noOrgasm',
-      description: 'Focus on the journey, not the destination',
+      description: t('noOrgasmDesc'),
       isSelected: !yesFinishRange,
     },
     {
       id: 'yesOrgasm',
       title: 'yesOrgasm',
-      description: 'Build up to a satisfying climax',
+      description: t('yesOrgasmDesc'),
       isSelected: yesFinishRange,
     },
   ];

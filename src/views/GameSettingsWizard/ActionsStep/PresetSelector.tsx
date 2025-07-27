@@ -22,7 +22,7 @@ export default function PresetSelector({
       {
         id: 'popperbating',
         name: t('presetPopperbating'),
-        description: 'Intense enhancement session',
+        description: t('presetPopperbatingDesc'),
         actions: ['bating'],
         consumptions: ['poppers'],
         intensities: {
@@ -33,7 +33,7 @@ export default function PresetSelector({
       {
         id: 'smoking-tits',
         name: t('presetSmokingTits'),
-        description: 'Enhanced sensation focus',
+        description: t('presetSmokingTitsDesc'),
         actions: ['titTorture'],
         consumptions: ['vaping'],
         intensities: {
@@ -44,7 +44,7 @@ export default function PresetSelector({
       {
         id: 'exploration-solo',
         name: t('presetExplorationSolo'),
-        description: 'Discover new sensations',
+        description: t('presetExplorationSoloDesc'),
         actions: ['throatTraining', 'buttPlay', 'titTorture', 'ballBusting'],
         consumptions: [],
         intensities: {
@@ -57,7 +57,7 @@ export default function PresetSelector({
       {
         id: 'ball-busting',
         name: t('presetBallBusting'),
-        description: 'Intense impact play',
+        description: t('presetBallBustingDesc'),
         actions: ['ballBusting', 'bating'],
         consumptions: ['poppers'],
         intensities: {
@@ -70,7 +70,7 @@ export default function PresetSelector({
       {
         id: 'romantic-start',
         name: t('presetRomanticStart'),
-        description: 'Gentle romantic beginning',
+        description: t('presetRomanticStartDesc'),
         actions: ['kissing', 'stripping'],
         consumptions: ['alcohol'],
         intensities: {
@@ -82,7 +82,7 @@ export default function PresetSelector({
       {
         id: 'degrading',
         name: t('presetDegrading'),
-        description: 'Humiliation and degradation play',
+        description: t('presetDegradingDesc'),
         actions: ['humiliation', 'footPlay', 'breathPlay'],
         consumptions: ['poppers'],
         intensities: {
@@ -95,7 +95,7 @@ export default function PresetSelector({
       {
         id: 'sensual-touch',
         name: t('presetSensualTouch'),
-        description: 'Focus on touch and sensation',
+        description: t('presetSensualTouchDesc'),
         actions: ['kissing', 'footPlay', 'tickling'],
         consumptions: [],
         intensities: {
@@ -107,7 +107,7 @@ export default function PresetSelector({
       {
         id: 'electric-play',
         name: t('presetElectricPlay'),
-        description: 'Sensation play with intensity',
+        description: t('presetElectricPlayDesc'),
         actions: ['electric', 'bondage'],
         consumptions: ['vaping'],
         intensities: {
@@ -121,7 +121,7 @@ export default function PresetSelector({
       {
         id: 'gentle-sex',
         name: t('presetGentleSex'),
-        description: 'Gentle intimate pleasure',
+        description: t('presetGentleSexDesc'),
         actions: ['throatTraining', 'bating', 'buttPlay'],
         consumptions: ['alcohol'],
         intensities: {
@@ -134,7 +134,7 @@ export default function PresetSelector({
       {
         id: 'fisting',
         name: t('presetFisting'),
-        description: 'Extreme penetration play',
+        description: t('presetFistingDesc'),
         actions: ['buttPlay'],
         consumptions: ['poppers'],
         intensities: {
@@ -145,7 +145,7 @@ export default function PresetSelector({
       {
         id: 'bdsm',
         name: t('presetBdsm'),
-        description: 'Bondage and discipline play',
+        description: t('presetBdsmDesc'),
         actions: ['pissPlay', 'throatTraining', 'spanking', 'titTorture'],
         consumptions: [],
         intensities: {
@@ -158,7 +158,7 @@ export default function PresetSelector({
       {
         id: 'breath-control',
         name: t('presetBreathControl'),
-        description: 'Breath play and sensation',
+        description: t('presetBreathControlDesc'),
         actions: ['bating'],
         consumptions: ['gasMask'],
         intensities: {

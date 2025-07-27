@@ -59,12 +59,38 @@ export default function ActionsStep({
     }));
 
   // Determine game mode for preset selection
-  const gameMode =
-    formData.gameMode === 'online'
-      ? 'solo'
-      : formData.gameMode === 'local' && !formData.isNaked
-        ? 'foreplay'
-        : 'sex';
+  let gameMode: string;
+  if (formData.gameMode === 'online') {
+    gameMode = 'solo';
+  } else if (formData.gameMode === 'local' && !formData.isNaked) {
+    gameMode = 'foreplay';
+  } else {
+    gameMode = 'sex';
+  }
+
+  // Extract common logic for mapping preset items to selected actions
+  const mapPresetItems = (
+    items: string[],
+    defaultIntensity: number,
+    preset: PresetConfig,
+    targetActions: Record<string, ActionEntry>
+  ) => {
+    items.forEach((item) => {
+      if (actionsList[item]) {
+        // Use preset intensity if available, otherwise use default
+        const presetIntensity = preset.intensities?.[item] || defaultIntensity;
+        // Get max available intensity level (exclude 'None' option)
+        const availableIntensities = Object.keys(actionsList[item].intensities || {}).filter(
+          (key) => key !== 'None'
+        );
+        const maxLevel = availableIntensities.length;
+        targetActions[item] = {
+          type: actionsList[item].type,
+          level: Math.min(presetIntensity, maxLevel),
+        };
+      }
+    });
+  };
 
   // Handle preset selection
   const handlePresetSelect = (preset: PresetConfig) => {
@@ -73,39 +99,12 @@ export default function ActionsStep({
     // Apply preset to form data
     const newSelectedActions: Record<string, ActionEntry> = {};
 
-    // Map preset actions to form data structure
-    preset.actions.forEach((action) => {
-      if (actionsList[action]) {
-        // Use preset intensity if available, otherwise default to level 2
-        const presetIntensity = preset.intensities?.[action] || 2;
-        // Get max available intensity level (exclude 'None' option)
-        const availableIntensities = Object.keys(actionsList[action].intensities || {}).filter(
-          (key) => key !== 'None'
-        );
-        const maxLevel = availableIntensities.length;
-        newSelectedActions[action] = {
-          type: actionsList[action].type,
-          level: Math.min(presetIntensity, maxLevel),
-        };
-      }
-    });
+    // Map preset actions to form data structure (default intensity: 2)
+    mapPresetItems(preset.actions, 2, preset, newSelectedActions);
 
-    // Handle consumptions - merge with actions since consumptions are also actions
-    preset.consumptions.forEach((consumption) => {
-      if (actionsList[consumption]) {
-        // Use preset intensity if available, otherwise default to level 1
-        const presetIntensity = preset.intensities?.[consumption] || 1;
-        // Get max available intensity level (exclude 'None' option)
-        const availableIntensities = Object.keys(actionsList[consumption].intensities || {}).filter(
-          (key) => key !== 'None'
-        );
-        const maxLevel = availableIntensities.length;
-        newSelectedActions[consumption] = {
-          type: actionsList[consumption].type,
-          level: Math.min(presetIntensity, maxLevel),
-        };
-      }
-    });
+    // Handle consumptions - merge with actions since consumptions are also actions (default intensity: 1)
+    mapPresetItems(preset.consumptions, 1, preset, newSelectedActions);
+
     setFormData({
       ...formData,
       selectedActions: newSelectedActions,
@@ -143,7 +142,7 @@ export default function ActionsStep({
           </AccordionSummary>
           <AccordionDetails>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Users can fine-tune their action selection and intensity levels below.
+              {t('customizeActionsDesc')}
             </Typography>
 
             <PickActions
