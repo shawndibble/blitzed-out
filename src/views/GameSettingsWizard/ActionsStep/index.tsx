@@ -124,8 +124,6 @@ export default function ActionsStep({
   // Check if user has made selections
   const isNextDisabled = !hasValidSelections(formData.selectedActions);
 
-  // Check if user has any selections to show customization
-
   return (
     <Box>
       {/* Preset Selection */}

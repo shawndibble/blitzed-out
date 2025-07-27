@@ -40,8 +40,6 @@ export default function FinishStep({
   const submitSettings = useSubmitGameSettings();
   const { t } = useTranslation();
 
-  // Remove unused handleChange function since we're using card-based UI now
-
   // on load, if don't have a finishRange OR if it is something from advanced settings, replace it.
   useEffect(() => {
     let newData = {

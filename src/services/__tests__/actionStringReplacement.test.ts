@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import actionStringReplacement from '../actionStringReplacement';
+import actionStringReplacement from '@/services/actionStringReplacement';
 
 // Mock i18next
 vi.mock('i18next', () => ({
@@ -75,7 +75,7 @@ describe('actionStringReplacement', () => {
 
       const result = actionStringReplacement(action, 'sub', displayName);
 
-      expect(result).toBe('Another player tells TestPlayer what to do.');
+      expect(result).toBe('another player tells TestPlayer what to do.');
     });
 
     it('should replace multiple {sub} instances with player name', () => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
   Card,
@@ -31,68 +31,66 @@ export default function TilePreview({ formData, actionsList }: TilePreviewProps)
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [sampleTiles, setSampleTiles] = useState<SampleTile[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Generate realistic sample tiles based on current selections from actual Dexie data
-  const generateSampleTiles = useMemo(() => {
-    return () => {
-      if (!formData.selectedActions || Object.keys(formData.selectedActions).length === 0) {
-        setSampleTiles([]);
-        return;
-      }
+  const generateSampleTiles = useCallback(() => {
+    if (!formData.selectedActions || Object.keys(formData.selectedActions).length === 0) {
+      setSampleTiles([]);
+      return;
+    }
 
-      const tiles: SampleTile[] = [];
-      const selectedGroups = Object.keys(formData.selectedActions);
+    const tiles: SampleTile[] = [];
+    const selectedGroups = Object.keys(formData.selectedActions);
 
-      // Generate 4 sample tiles from selected actions using actual Dexie data
-      for (let i = 0; i < 4 && selectedGroups.length > 0; i++) {
-        const randomGroup = selectedGroups[Math.floor(Math.random() * selectedGroups.length)];
-        const groupData = actionsList[randomGroup];
+    // Generate 4 sample tiles from selected actions using actual Dexie data
+    for (let i = 0; i < 4 && selectedGroups.length > 0; i++) {
+      const randomGroup = selectedGroups[Math.floor(Math.random() * selectedGroups.length)];
+      const groupData = actionsList[randomGroup];
 
-        if (!groupData?.actions) continue;
+      if (!groupData?.actions) continue;
 
-        // Get the selected intensity level for this group
-        const selectedAction = formData.selectedActions[randomGroup];
-        const intensityLevel = selectedAction?.level || 1;
+      // Get the selected intensity level for this group
+      const selectedAction = formData.selectedActions[randomGroup];
+      const intensityLevel = selectedAction?.level || 1;
 
-        // Get the intensity name
-        const intensityName = groupData?.intensities?.[intensityLevel] || 'Beginner';
+      // Get the intensity name
+      const intensityName = groupData?.intensities?.[intensityLevel] || 'Beginner';
 
-        // Get all actions for this intensity level
-        const intensityActions = groupData.actions[intensityName] || [];
+      // Get all actions for this intensity level
+      const intensityActions = groupData.actions[intensityName] || [];
 
-        if (intensityActions.length === 0) {
-          // Fallback to any available intensity if selected one is empty
-          const availableIntensities = Object.keys(groupData.actions).filter(
-            (key) => key !== 'None' && groupData.actions[key].length > 0
-          );
-          if (availableIntensities.length > 0) {
-            const fallbackIntensity =
-              availableIntensities[Math.floor(Math.random() * availableIntensities.length)];
-            const fallbackActions = groupData.actions[fallbackIntensity];
-            if (fallbackActions.length > 0) {
-              const randomAction =
-                fallbackActions[Math.floor(Math.random() * fallbackActions.length)];
-              tiles.push({
-                action: randomAction,
-                group: groupData?.label || randomGroup,
-                intensity: fallbackIntensity,
-              });
-            }
+      if (intensityActions.length === 0) {
+        // Fallback to any available intensity if selected one is empty
+        const availableIntensities = Object.keys(groupData.actions).filter(
+          (key) => key !== 'None' && groupData.actions[key].length > 0
+        );
+        if (availableIntensities.length > 0) {
+          const fallbackIntensity =
+            availableIntensities[Math.floor(Math.random() * availableIntensities.length)];
+          const fallbackActions = groupData.actions[fallbackIntensity];
+          if (fallbackActions.length > 0) {
+            const randomAction =
+              fallbackActions[Math.floor(Math.random() * fallbackActions.length)];
+            tiles.push({
+              action: randomAction,
+              group: groupData?.label || randomGroup,
+              intensity: fallbackIntensity,
+            });
           }
-        } else {
-          // Use action from selected intensity
-          const randomAction =
-            intensityActions[Math.floor(Math.random() * intensityActions.length)];
-          tiles.push({
-            action: randomAction,
-            group: groupData?.label || randomGroup,
-            intensity: intensityName,
-          });
         }
+      } else {
+        // Use action from selected intensity
+        const randomAction = intensityActions[Math.floor(Math.random() * intensityActions.length)];
+        tiles.push({
+          action: randomAction,
+          group: groupData?.label || randomGroup,
+          intensity: intensityName,
+        });
       }
+    }
 
-      setSampleTiles(tiles);
-    };
+    setSampleTiles(tiles);
   }, [formData.selectedActions, actionsList]);
 
   // Generate initial tiles when selections change
@@ -102,12 +100,26 @@ export default function TilePreview({ formData, actionsList }: TilePreviewProps)
 
   const handleRefresh = async () => {
     setIsGenerating(true);
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
     // Add small delay for better UX
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       generateSampleTiles();
       setIsGenerating(false);
+      timeoutRef.current = null;
     }, 500);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!formData.selectedActions || Object.keys(formData.selectedActions).length === 0) {
     return (
