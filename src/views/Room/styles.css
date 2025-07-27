@@ -26,7 +26,7 @@
 .messages-container {
   min-width: 375px;
   max-width: 375px;
-  height: calc(100vh - 10rem); /* Fixed height to prevent page scroll */
+  min-height: calc(100vh - 12rem);
   padding: var(--spacing-sm);
   display: flex;
   flex-direction: column;

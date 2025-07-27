@@ -8,9 +8,13 @@ import { CustomTileHelpProps } from '@/types/customTiles';
 export default function CustomTileHelp({ expanded, handleChange }: CustomTileHelpProps) {
   return (
     <>
-      <Accordion expanded={expanded === 'help1'} onChange={handleChange('help1')}>
+      <Accordion
+        expanded={expanded === 'help1'}
+        onChange={handleChange('help1')}
+        className="about-accordion"
+      >
         <AccordionSummary aria-controls="help1-content" id="help1-header">
-          <Typography>
+          <Typography className="accordion-title">
             <Trans i18nKey="ctExplained" />
           </Typography>
         </AccordionSummary>
@@ -33,9 +37,13 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
           </Trans>
         </AccordionDetails>
       </Accordion>
-      <Accordion expanded={expanded === 'help2'} onChange={handleChange('help2')}>
+      <Accordion
+        expanded={expanded === 'help2'}
+        onChange={handleChange('help2')}
+        className="about-accordion"
+      >
         <AccordionSummary aria-controls="help2-content" id="help2-header">
-          <Typography>
+          <Typography className="accordion-title">
             <Trans i18nKey="ctIdeas" />
           </Typography>
         </AccordionSummary>

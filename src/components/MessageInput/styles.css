@@ -9,20 +9,10 @@
 
 .transparent .MuiOutlinedInput-root {
   background-color: rgba(75, 75, 75, 0.75);
-  text-shadow:
-    -1px 0 0 black,
-    1px 0 0 black,
-    0 -1px 0 black,
-    0 1px 0 black;
 }
 
 .transparent input::placeholder,
 .transparent,
 .transparent input {
   color: white;
-  text-shadow:
-    -1px 0 0 black,
-    1px 0 0 black,
-    0 -1px 0 black,
-    0 1px 0 black;
 }

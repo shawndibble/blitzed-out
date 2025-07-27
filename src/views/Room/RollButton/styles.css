@@ -3,6 +3,73 @@
   bottom: 50px;
   left: 50px;
   z-index: 999;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 12px !important;
+}
+
+.dice-roller button {
+  background: #0284c7 !important;
+  background-color: #0284c7 !important;
+  background-image: none !important;
+  border: 2px solid #0284c7 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.dice-roller button:hover {
+  background: #0369a1 !important;
+  background-color: #0369a1 !important;
+  background-image: none !important;
+  transform: translateY(0) !important;
+}
+
+.dice-roller button:active {
+  transform: translateY(0) !important;
+}
+
+.dice-roller button:disabled {
+  background: #475569 !important;
+  background-color: #475569 !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+  transform: none !important;
+}
+
+/* Main roll button */
+.dice-roller button:first-child {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: none !important;
+  position: relative !important;
+}
+
+/* Add subtle divider between buttons */
+.dice-roller button:first-child::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Dropdown arrow button */
+.dice-roller button:last-child {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  min-width: 40px !important;
+  padding: 0 8px !important;
+}
+
+/* Ensure icons maintain proper color */
+.dice-roller button .MuiSvgIcon-root {
+  color: white !important;
 }
 
 @media screen and (max-width: 600px) {

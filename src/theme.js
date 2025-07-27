@@ -183,13 +183,13 @@ let darkTheme = createTheme({
       styleOverrides: {
         body: {
           scrollbarWidth: 'thin',
-          scrollbarColor: '#4b5563 #1f2937',
+          scrollbarColor: '#4b5563 transparent',
           '&::-webkit-scrollbar': {
             width: '8px',
             height: '8px',
           },
           '&::-webkit-scrollbar-track': {
-            background: '#1f2937',
+            background: 'transparent',
           },
           '&::-webkit-scrollbar-thumb': {
             background: '#4b5563',
@@ -228,6 +228,7 @@ let darkTheme = createTheme({
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           border: '1px solid rgba(148, 163, 184, 0.3)',
+          borderRadius: '16px',
           boxShadow:
             '0 20px 80px rgba(0, 0, 0, 0.5), 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 211, 238, 0.1)',
         },

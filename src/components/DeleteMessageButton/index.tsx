@@ -14,11 +14,21 @@ export default function DeleteMessageButton({ room, id }: DeleteMessageButtonPro
       <IconButton
         onClick={() => deleteMessage(room, id)}
         aria-label="delete"
-        color="error"
         size="small"
-        sx={{ p: 0, ml: 1 }}
+        sx={{
+          p: 0.5,
+          ml: 1,
+          opacity: 0.6,
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            opacity: 1,
+            color: 'error.main',
+            backgroundColor: 'rgba(255, 82, 82, 0.1)',
+            transform: 'scale(1.1)',
+          },
+        }}
       >
-        <Delete fontSize="inherit" />
+        <Delete fontSize="small" />
       </IconButton>
     </Tooltip>
   );

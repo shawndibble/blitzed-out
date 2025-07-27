@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import clsx from 'clsx';
 import './styles.css';
 
 interface RoomBackgroundProps {
@@ -10,12 +11,17 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
   // Check if the URL is a direct video file (MP4, WebM, etc.)
   const isDirectVideo = url && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
 
+  // Show default background when no custom background is set OR when background is "color" or "gray"
+  const isNonImageBackground =
+    url && (url.includes('/images/color') || url.includes('/images/gray'));
+  const hasCustomBackground = url && !isNonImageBackground && (isVideo || (!isVideo && url));
+
   return (
     <Box
-      className="main-container"
+      className={clsx('main-container', !hasCustomBackground && 'default-background')}
       role="presentation"
       sx={{
-        backgroundImage: !isVideo && url ? `url(${url})` : 'none',
+        backgroundImage: !isVideo && url && !isNonImageBackground ? `url(${url})` : 'none',
       }}
     >
       {isVideo &&

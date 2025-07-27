@@ -203,7 +203,8 @@
   "privacyFeature": "<0>🔒</0><1>Complete Privacy Control</1><2>Private rooms, local play options, and anonymous sessions. Your privacy and comfort come first.</2>",
   "varietyFeature": "<0>🌟</0><1>Endless Variety</1><2>From gentle exploration to intense adventures — with community-created content and regular updates.</2>",
   "gettingStartedTitle": "Ready to Begin?",
-  "gettingStartedDescription": "<0>Enter your name above to start your session</0><1>Customize your experience in the setup wizard</1><2>Roll the dice and let the adventure begin</2><3>New to this? Start with lighter intensity levels and explore at your own pace. You can always adjust settings anytime.</3>",
+  "gettingStartedMainText": "Enter your name above to start your session. Customize your experience in the setup wizard. Roll the dice and let the adventure begin.",
+  "gettingStartedTip": "New to this? Start with lighter intensity levels and explore at your own pace. You can always adjust settings anytime.",
   "add": "Add",
   "delete": "Delete",
   "save": "Save",
@@ -282,7 +283,7 @@
   "forgotPassword": "Forgot Password?",
   "resetPassword": "Reset Password",
   "login": "Login",
-  "or": "Already have an account?",
+  "or": "or",
   "resetEmailSent": "Password reset email sent! Check your inbox.",
   "sendResetLink": "Send Reset Email",
   "backToLogin": "Back to Login",
@@ -502,5 +503,8 @@
   "Authentication": "Authentication",
   "minutes": "minutes",
   "customTiles.actions": "Actions",
-  "customUpdated": "Custom Updated"
+  "customUpdated": "Custom Updated",
+  "updatedGameSettings": "updated game settings",
+  "updatedRoomSettings": "updated room settings",
+  "updatedMultipleSettings": "updated {{count}} settings"
 }

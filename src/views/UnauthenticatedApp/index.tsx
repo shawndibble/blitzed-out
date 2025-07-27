@@ -111,9 +111,9 @@ export default function UnauthenticatedApp() {
       <Navigation room={room} playerList={playerList} />
       <Box className="unauthenticated-container gradient-background-vibrant">
         <Container maxWidth="lg" sx={{ pt: 8 }}>
-          <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
+          <Grid container spacing={4} justifyContent="center" alignItems="stretch">
             {/* Main Setup Card */}
-            <Grid item xs={12} md={6} lg={5}>
+            <Grid size={{ xs: 12, md: 4, lg: 4 }}>
               <Card className="unauthenticated-card main-setup-card">
                 <CardContent>
                   <h2 className="setup">
@@ -147,7 +147,7 @@ export default function UnauthenticatedApp() {
                       className="jump-in-button"
                       size="large"
                       startIcon={<Groups />}
-                      sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 600 }}
+                      sx={{ mt: 2, py: 1.25, fontSize: '1.1rem', fontWeight: 600 }}
                     >
                       {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="anonymousLogin" />}
                     </Button>
@@ -179,7 +179,7 @@ export default function UnauthenticatedApp() {
             </Grid>
 
             {/* Secondary Content Area for Desktop */}
-            <Grid item xs={12} md={6} lg={5}>
+            <Grid size={{ xs: 12, md: 8, lg: 8 }}>
               {/* Game Guide */}
               <Card className="unauthenticated-card">
                 <CardContent>
@@ -214,9 +214,7 @@ export default function UnauthenticatedApp() {
                     borderBottomColor: 'rgba(255, 255, 255, 0.5)',
                   },
                 }}
-                inputProps={{
-                  endAdornment: languageLoading && <CircularProgress size={14} />,
-                }}
+                endAdornment={languageLoading && <CircularProgress size={14} />}
               >
                 {languageMenuItems}
               </Select>

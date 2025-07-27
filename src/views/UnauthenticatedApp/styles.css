@@ -32,9 +32,9 @@
 }
 
 h2.setup {
-  padding: 0.5rem 0;
+  padding: 0.25rem 0;
   text-align: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
   font-size: 1.8rem;
   background: linear-gradient(135deg, #22d3ee 0%, #0891b2 25%, #48dbfb 50%, #0e7490 100%);
@@ -43,14 +43,15 @@ h2.setup {
   background-clip: text;
   filter: drop-shadow(0 2px 8px rgba(34, 211, 238, 0.4));
   letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .setup-subtitle {
   text-align: center;
   color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   font-size: 1rem;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 /* Footer Language Selector */
@@ -140,12 +141,13 @@ h2.setup {
 
 .auth-button-container {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .auth-button-container button {
-  flex: 1;
+  width: 100%;
   transition: all 0.2s ease;
 }
 
@@ -236,50 +238,56 @@ h2.setup {
   }
 
   h2.setup {
-    font-size: 2.2rem;
-    margin-bottom: 1rem;
+    font-size: 1.9rem;
+    margin-bottom: 0.75rem;
     letter-spacing: -0.02em;
+    line-height: 1.15;
   }
 
   .setup-subtitle {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
   }
 
   .main-setup-card {
-    padding: 1.5rem;
+    padding: 0.75rem;
   }
 
   .main-setup-card .MuiCardContent-root {
-    padding: 1.5rem;
+    padding: 0.75rem;
   }
 
   .auth-button-container {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
   }
 
   .jump-in-button {
     padding: 1rem 2rem;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 }
 
 @media screen and (min-width: 1024px) {
   h2.setup {
-    font-size: 2.5rem;
+    font-size: 2.1rem;
     letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
   }
 
   .setup-subtitle {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+    margin-bottom: 1rem;
   }
 
   .main-setup-card {
-    padding: 2rem;
+    padding: 1rem;
   }
 
   .main-setup-card .MuiCardContent-root {
-    padding: 2rem;
+    padding: 1rem;
   }
 }
 

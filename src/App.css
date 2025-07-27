@@ -45,3 +45,31 @@ button {
   border: none;
   border-radius: var(--border-radius);
 }
+
+/* Accordion Styling */
+.about-accordion {
+  margin-bottom: 1rem;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.about-accordion:before {
+  display: none;
+}
+
+.accordion-title {
+  font-weight: 600;
+  background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Light Mode Adjustments */
+[data-mui-color-scheme='light'] .about-accordion {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+}

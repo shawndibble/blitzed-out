@@ -24,6 +24,28 @@ describe('RoomBackground', () => {
       const container = screen.getByRole('presentation');
       expect(container).toHaveClass('main-container');
     });
+
+    it('applies default-background class when no custom background is set', () => {
+      render(<RoomBackground />);
+      const container = screen.getByRole('presentation');
+      expect(container).toHaveClass('main-container', 'default-background');
+    });
+
+    it('does not apply default-background class when image background is set', () => {
+      const imageUrl = 'https://example.com/image.jpg';
+      render(<RoomBackground url={imageUrl} isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).toHaveClass('main-container');
+      expect(container).not.toHaveClass('default-background');
+    });
+
+    it('does not apply default-background class when video background is set', () => {
+      const videoUrl = 'https://example.com/video.mp4';
+      render(<RoomBackground url={videoUrl} isVideo={true} />);
+      const container = screen.getByRole('presentation');
+      expect(container).toHaveClass('main-container');
+      expect(container).not.toHaveClass('default-background');
+    });
   });
 
   describe('Image background rendering', () => {

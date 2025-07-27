@@ -1,12 +1,13 @@
 import { Box, Typography, Divider } from '@mui/material';
 import './styles.css';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useState, SyntheticEvent } from 'react';
 import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 
 export default function GameGuide(): JSX.Element {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState<string | false>(false);
   const handleChange =
     (panel: string) => (_event: SyntheticEvent<Element, Event>, newExpanded: boolean) => {
@@ -95,28 +96,12 @@ export default function GameGuide(): JSX.Element {
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Trans i18nKey="gettingStartedDescription">
-            <Box className="steps-container">
-              <Box className="step-item">
-                <Box className="step-number">1</Box>
-                <Typography variant="body1">Enter your name above to start your session</Typography>
-              </Box>
-              <Box className="step-item">
-                <Box className="step-number">2</Box>
-                <Typography variant="body1">
-                  Customize your experience in the setup wizard
-                </Typography>
-              </Box>
-              <Box className="step-item">
-                <Box className="step-number">3</Box>
-                <Typography variant="body1">Roll the dice and let the adventure begin</Typography>
-              </Box>
-            </Box>
-            <Typography variant="body2" className="helpful-tip">
-              New to this? Start with lighter intensity levels and explore at your own pace. You can
-              always adjust settings anytime.
-            </Typography>
-          </Trans>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            {t('gettingStartedMainText')}
+          </Typography>
+          <Typography variant="body2" className="helpful-tip">
+            {t('gettingStartedTip')}
+          </Typography>
         </AccordionDetails>
       </Accordion>
     </Box>

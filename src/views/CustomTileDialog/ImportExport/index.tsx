@@ -209,9 +209,13 @@ export default function ImportExport({
   }, [expanded, customTiles, exportData, loadAvailableGroups]);
 
   return (
-    <Accordion expanded={expanded === 'ctImport'} onChange={handleChange('ctImport')}>
+    <Accordion
+      expanded={expanded === 'ctImport'}
+      onChange={handleChange('ctImport')}
+      className="about-accordion"
+    >
       <AccordionSummary aria-controls="ctImport-content" id="ctImport-header">
-        <Typography>
+        <Typography className="accordion-title">
           <Trans i18nKey="importExport" />
         </Typography>
       </AccordionSummary>
@@ -391,9 +395,9 @@ export default function ImportExport({
 
         {/* Format Guide - Collapsed by default */}
         {exportFormat === 'clean' && (
-          <Accordion sx={{ mt: 2 }}>
+          <Accordion sx={{ mt: 2 }} className="about-accordion">
             <AccordionSummary>
-              <Typography variant="subtitle2">
+              <Typography variant="subtitle2" className="accordion-title">
                 <Trans i18nKey="formatGuide.title" />
               </Typography>
             </AccordionSummary>

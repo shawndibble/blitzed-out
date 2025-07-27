@@ -1,4 +1,18 @@
 .main-container {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Default gradient background when no custom background is set */
+.main-container.default-background {
   background: linear-gradient(
     135deg,
     #0f172a 0%,
@@ -8,13 +22,6 @@
     #0f172a 80%,
     #020617 100%
   );
-  background-size: cover;
-  background-position: center;
-  height: 100vh;
-  width: 100vw;
-  position: fixed;
-  z-index: -10;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .main-container video,

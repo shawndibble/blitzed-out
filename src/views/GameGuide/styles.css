@@ -1,6 +1,19 @@
 /* Game Guide Container */
 .game-guide {
-  padding: 0;
+  padding: 0.75rem;
+}
+
+/* Desktop padding adjustments */
+@media screen and (min-width: 768px) {
+  .game-guide {
+    padding: 0.75rem;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .game-guide {
+    padding: 1rem;
+  }
 }
 
 /* Hero Section */
@@ -18,15 +31,17 @@
 
 .hero-description {
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
   line-height: 1.6;
   font-size: 1rem;
+  text-align: left;
 }
 
 .hero-subtitle {
   color: rgba(255, 255, 255, 0.7);
   line-height: 1.5;
   font-size: 0.9rem;
+  text-align: left;
 }
 
 /* Section Divider */
@@ -218,11 +233,16 @@
 /* Desktop Enhancements */
 @media screen and (min-width: 768px) {
   .hero-title {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
   }
 
   .hero-description {
     font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
   }
 
   .features-grid {
@@ -241,11 +261,16 @@
 
 @media screen and (min-width: 1024px) {
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.9rem;
   }
 
   .hero-description {
     font-size: 1.2rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
   }
 
   .features-section {

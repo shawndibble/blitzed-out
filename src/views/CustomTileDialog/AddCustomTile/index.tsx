@@ -296,9 +296,13 @@ export default function AddCustomTile({
 
   return (
     <>
-      <Accordion expanded={expanded === 'ctAdd'} onChange={handleChange('ctAdd')}>
+      <Accordion
+        expanded={expanded === 'ctAdd'}
+        onChange={handleChange('ctAdd')}
+        className="about-accordion"
+      >
         <AccordionSummary aria-controls="ctAdd-content" id="ctAdd-header">
-          <Typography>
+          <Typography className="accordion-title">
             <Trans i18nKey={updateTileId ? 'ctUpdate' : 'ctAdd'} />
           </Typography>
         </AccordionSummary>
@@ -409,7 +413,12 @@ export default function AddCustomTile({
               }}
             />
 
-            <Box display="flex" justifyContent="space-evenly" gap={1}>
+            <Box
+              display="flex"
+              flexDirection={{ xs: 'column', sm: 'row' }}
+              justifyContent={{ xs: 'stretch', sm: 'space-evenly' }}
+              gap={1}
+            >
               <Button variant="outlined" type="button" onClick={() => setGroupDialogOpen(true)}>
                 {t('manageGroups')}
               </Button>
