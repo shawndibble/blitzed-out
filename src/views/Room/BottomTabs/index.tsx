@@ -40,7 +40,7 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
         <TabPanel value={value} index={0}>
           {tab1}
         </TabPanel>
-        <TabPanel value={value} index={1}>
+        <TabPanel value={value} index={1} overflow="hidden">
           {tab2}
         </TabPanel>
       </Box>

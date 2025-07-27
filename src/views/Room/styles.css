@@ -10,10 +10,23 @@
   padding-top: 4rem; /* Account for fixed navbar */
 }
 
+/* Default gradient background when no custom background is set */
+.desktop-container.default-room-background {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 20%,
+    #334155 40%,
+    #1e293b 60%,
+    #0f172a 80%,
+    #020617 100%
+  );
+}
+
 .messages-container {
   min-width: 375px;
   max-width: 375px;
-  height: calc(100vh - 5rem); /* Fixed height to prevent page scroll */
+  height: calc(100vh - 10rem); /* Fixed height to prevent page scroll */
   padding: var(--spacing-sm);
   display: flex;
   flex-direction: column;
@@ -28,8 +41,7 @@
     0 4px 16px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   animation: slideIn 0.5s ease-out forwards;
-  overflow-x: hidden; /* Prevent horizontal overflow */
-  overflow-y: auto; /* Allow vertical scrolling */
+  overflow: hidden; /* Prevent scrolling on container */
 }
 
 .messages-container:hover {
