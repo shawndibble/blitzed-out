@@ -1,4 +1,4 @@
-import { Language, Login } from '@mui/icons-material';
+import { Language, Login, Groups } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -8,7 +8,6 @@ import {
   Divider,
   FormControl,
   Grid,
-  InputLabel,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -17,7 +16,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 import useAuth from '@/context/hooks/useAuth';
-import useBreakpoint from '@/hooks/useBreakpoint';
 import { useSettings } from '@/stores/settingsStore';
 import usePlayerList from '@/hooks/usePlayerList';
 import { languages } from '@/services/i18nHelpers';
@@ -52,7 +50,6 @@ export default function UnauthenticatedApp() {
   const hasImport = !!queryParams.get('importBoard');
   const room = params.id ?? 'PUBLIC';
   const playerList = usePlayerList();
-  const isMobile = useBreakpoint('sm');
   const [displayName, setDisplayName] = useState(user?.displayName || '');
 
   const [settings, updateSettings] = useSettings();
@@ -112,104 +109,121 @@ export default function UnauthenticatedApp() {
   return (
     <>
       <Navigation room={room} playerList={playerList} />
-      <Container maxWidth="sm" sx={{ mt: 8 }}>
-        <Grid container flexDirection="column">
-          <Card className="unauthenticated-card">
-            <CardContent>
-              <h2 className="setup">
-                <Trans i18nKey="setup" />
-              </h2>
-              <Box component="form" method="post" onSubmit={handleSubmit} className="settings-box">
-                <TextField
-                  fullWidth
-                  id="displayName"
-                  label={t('displayName')}
-                  value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
-                  required
-                  autoFocus
-                  onKeyDown={(event) => onEnterKey(event)}
-                  margin="normal"
-                />
-
-                <Button variant="contained" type="submit" sx={{ mr: 1 }} fullWidth>
-                  {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="anonymousLogin" />}
-                </Button>
-                <Divider sx={{ my: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    <Trans i18nKey="or">OR</Trans>
+      <Box className="unauthenticated-container gradient-background-vibrant">
+        <Container maxWidth="lg" sx={{ pt: 8 }}>
+          <Grid container spacing={4} justifyContent="center" alignItems="flex-start">
+            {/* Main Setup Card */}
+            <Grid item xs={12} md={6} lg={5}>
+              <Card className="unauthenticated-card main-setup-card">
+                <CardContent>
+                  <h2 className="setup">
+                    <Trans i18nKey="setup" />
+                  </h2>
+                  <Typography className="setup-subtitle" variant="body1">
+                    <Trans i18nKey="setupSubtitle" />
                   </Typography>
-                </Divider>
-                <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<Login />}
-                    onClick={handleOpenLogin}
-                    sx={{ mr: 1 }}
+                  <Box
+                    component="form"
+                    method="post"
+                    onSubmit={handleSubmit}
+                    className="settings-box"
                   >
-                    <Trans i18nKey="signIn" />
-                  </Button>
-                  <Button variant="outlined" onClick={handleOpenRegister}>
-                    <Trans i18nKey="createAccount" />
-                  </Button>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid container sx={{ mt: 1 }}>
-          <Grid className="language">
-            <Card className="unauthenticated-card">
-              <CardContent className="translation-card-content">
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {!isMobile && <Language />}
-                  <FormControl size="small" sx={{ minWidth: 160, flexGrow: 1 }}>
-                    <InputLabel
-                      id="unauth-language-label"
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        fontSize: '0.875rem',
-                      }}
+                    <TextField
+                      fullWidth
+                      id="displayName"
+                      label={t('displayName')}
+                      value={displayName}
+                      onChange={(event) => setDisplayName(event.target.value)}
+                      required
+                      autoFocus
+                      onKeyDown={(event) => onEnterKey(event)}
+                      margin="normal"
+                    />
+
+                    <Button
+                      variant="contained"
+                      type="submit"
+                      fullWidth
+                      className="jump-in-button"
+                      size="large"
+                      startIcon={<Groups />}
+                      sx={{ py: 1.5, fontSize: '1.1rem', fontWeight: 600 }}
                     >
-                      {isMobile && <Language sx={{ mr: 0.5, fontSize: '1rem' }} />}
-                      <Trans i18nKey="language" />
-                    </InputLabel>
-                    <Select
-                      labelId="unauth-language-label"
-                      id="unauth-language-select"
-                      value={currentLanguage}
-                      disabled={languageLoading}
-                      label={
-                        <>
-                          {isMobile && <Language sx={{ fontSize: '1rem' }} />}
-                          <Trans i18nKey="language" />
-                        </>
-                      }
-                      onChange={handleLanguageChange}
-                      size="small"
-                      inputProps={{
-                        endAdornment: languageLoading && <CircularProgress size={16} />,
-                      }}
-                    >
-                      {languageMenuItems}
-                    </Select>
-                  </FormControl>
-                </Box>
-              </CardContent>
-            </Card>
+                      {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="anonymousLogin" />}
+                    </Button>
+                    <Divider sx={{ my: 3 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: '0.9rem' }}
+                      >
+                        <Trans i18nKey="or" />
+                      </Typography>
+                    </Divider>
+                    <Box className="auth-button-container">
+                      <Button
+                        variant="outlined"
+                        startIcon={<Login />}
+                        onClick={handleOpenLogin}
+                        size="medium"
+                      >
+                        <Trans i18nKey="signIn" />
+                      </Button>
+                      <Button variant="outlined" onClick={handleOpenRegister} size="medium">
+                        <Trans i18nKey="createAccount" />
+                      </Button>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Secondary Content Area for Desktop */}
+            <Grid item xs={12} md={6} lg={5}>
+              {/* Game Guide */}
+              <Card className="unauthenticated-card">
+                <CardContent>
+                  <GameGuide />
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
-        <Grid container sx={{ mt: 1 }}>
-          <Grid className="language">
-            <Card className="unauthenticated-card">
-              <CardContent>
-                <GameGuide />
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Container>
+        </Container>
+
+        {/* Footer Language Selector */}
+        <Box className="footer-language-container">
+          <Box className="footer-language-selector">
+            <Language sx={{ fontSize: '1rem', color: 'rgba(255, 255, 255, 0.5)' }} />
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <Select
+                value={currentLanguage}
+                disabled={languageLoading}
+                onChange={handleLanguageChange}
+                size="small"
+                variant="standard"
+                sx={{
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  fontSize: '0.875rem',
+                  '& .MuiSelect-icon': {
+                    color: 'rgba(255, 255, 255, 0.5)',
+                  },
+                  '&:before': {
+                    borderBottomColor: 'rgba(255, 255, 255, 0.3)',
+                  },
+                  '&:hover:before': {
+                    borderBottomColor: 'rgba(255, 255, 255, 0.5)',
+                  },
+                }}
+                inputProps={{
+                  endAdornment: languageLoading && <CircularProgress size={14} />,
+                }}
+              >
+                {languageMenuItems}
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
+      </Box>
 
       <AuthDialog
         open={authDialogOpen}

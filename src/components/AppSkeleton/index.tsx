@@ -2,12 +2,13 @@ import { Box, CircularProgress, Typography, Fade } from '@mui/material';
 
 /**
  * Simple, elegant loading screen that works for all application states
- * Replaces complex skeleton that didn't match actual UI flow
+ * Now matches the vibrant design system used throughout the app
  */
 export default function AppSkeleton() {
   return (
     <Fade in timeout={300}>
       <Box
+        className="gradient-background-vibrant"
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -15,35 +16,60 @@ export default function AppSkeleton() {
           justifyContent: 'center',
           height: '100vh',
           width: '100vw',
-          backgroundColor: '#0f172a', // Match app background
-          color: '#f8fafc',
           position: 'fixed',
           top: 0,
           left: 0,
-          zIndex: 9999, // Ensure it's on top
+          zIndex: 9999,
         }}
       >
-        {/* Loading spinner */}
-        <CircularProgress
-          size={60}
-          thickness={4}
+        <Box
+          className="glass-light"
           sx={{
-            color: '#4f46e5', // Primary brand color
-            mb: 3,
-          }}
-        />
-
-        {/* Loading text */}
-        <Typography
-          variant="h6"
-          sx={{
-            opacity: 0.8,
-            fontWeight: 400,
-            letterSpacing: '0.02em',
+            padding: '2.5rem 2rem',
+            borderRadius: '16px',
+            textAlign: 'center',
+            maxWidth: '300px',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
           }}
         >
-          Loading...
-        </Typography>
+          {/* Loading spinner with gradient */}
+          <CircularProgress
+            size={60}
+            thickness={4}
+            sx={{
+              mb: 3,
+              display: 'block',
+              margin: '0 auto 1.5rem auto',
+              '& .MuiCircularProgress-circle': {
+                stroke: 'url(#ocean-gradient)',
+              },
+            }}
+          />
+          <svg width="0" height="0">
+            <defs>
+              <linearGradient id="ocean-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0abde3" />
+                <stop offset="50%" stopColor="#48dbfb" />
+                <stop offset="100%" stopColor="#00d2d3" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {/* Loading text with gradient */}
+          <Typography
+            variant="h6"
+            className="gradient-text-ocean"
+            sx={{
+              fontWeight: 600,
+              letterSpacing: '-0.025em',
+            }}
+          >
+            Loading...
+          </Typography>
+        </Box>
       </Box>
     </Fade>
   );

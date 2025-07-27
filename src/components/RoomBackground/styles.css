@@ -1,4 +1,13 @@
 .main-container {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 20%,
+    #334155 40%,
+    #1e293b 60%,
+    #0f172a 80%,
+    #020617 100%
+  );
   background-size: cover;
   background-position: center;
   height: 100vh;

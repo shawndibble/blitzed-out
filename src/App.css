@@ -6,7 +6,13 @@ html {
   --color-blue: hsl(224, 56%, 36%);
   --color-gray: hsl(210, 3%, 25%);
   --color-white: white;
-  --border-radius: 5px;
+  --border-radius: 12px;
+  --border-radius-lg: 16px;
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 16px 56px rgba(0, 0, 0, 0.5), 0 6px 24px rgba(0, 0, 0, 0.3);
+  --color-surface: rgba(15, 23, 42, 0.95);
+  --spacing-sm: 1rem;
   color: var(--color-white);
 }
 

@@ -24,3 +24,18 @@ label.settings-switch {
 .flex-buttons > button {
   margin-left: auto;
 }
+
+/* Enhanced settings styling for consistency */
+.settings-box {
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+/* Enhanced button styling */
+.flex-buttons button {
+  transition: all 0.3s ease;
+}
+
+.flex-buttons button:hover {
+  transform: translateY(-1px);
+}
