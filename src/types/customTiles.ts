@@ -42,6 +42,7 @@ export interface GroupedActions {
     actions?: {
       [key: string]: any;
     };
+    intensities?: Record<number, string>;
   };
 }
 

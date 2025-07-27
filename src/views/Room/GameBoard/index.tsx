@@ -45,7 +45,7 @@ export default function GameBoard({
 
     const description =
       !settings.hideBoardActions || index === 0 || current
-        ? actionStringReplacement(entry.description, entry.role, user.displayName || '')
+        ? actionStringReplacement(entry.description, settings.role || 'sub', user.displayName || '')
         : // replace only letters and numbers with question marks. Remove special characters.
           entry.description.replace(/[^\w\s]/g, '').replace(/[a-zA-Z0-9]/g, '?');
 

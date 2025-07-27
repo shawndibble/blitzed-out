@@ -5,6 +5,7 @@ import useAuth from '@/context/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import usePlayerList from './usePlayerList';
 import { Tile } from '@/types/gameBoard';
+import { useSettings } from '@/stores/settingsStore';
 
 interface RollValue {
   value: number | number[];
@@ -62,6 +63,7 @@ export default function usePlayerMove(
 ): PlayerMoveResult {
   const { user } = useAuth();
   const { t } = useTranslation();
+  const [settings] = useSettings();
   const playerList = usePlayerList();
   const total = gameBoard.length;
   const [tile, setTile] = useState<Tile>(gameBoard[0] || {});
@@ -79,7 +81,7 @@ export default function usePlayerMove(
       // Safely access newTile properties with default values if they don't exist
       const description = parseDescription(
         newTile.description || '',
-        newTile.role || '',
+        settings.role || 'sub',
         user?.displayName || ''
       );
       if (rollNumber !== -1) {
@@ -95,7 +97,7 @@ export default function usePlayerMove(
         type: 'actions',
       });
     },
-    [room, user, t]
+    [room, user, t, settings.role]
   );
 
   // Grab the new location.

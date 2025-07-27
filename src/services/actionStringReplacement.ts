@@ -37,10 +37,31 @@ export default function actionStringReplacement(
   role: string,
   displayName: string
 ): string {
-  const newAction = replaceWithPlayerName(action, role, displayName).replace(
-    /{(dom|sub)}/g,
-    t('anotherPlayer')
-  );
+  // First pass: replace player-specific placeholders with display name
+  let newAction = replaceWithPlayerName(action, role, displayName);
+
+  // Check if the player's name was successfully inserted
+  const hasPlayerName = newAction.includes(displayName);
+
+  // For non-switch roles, if no placeholders were replaced, ensure at least one is
+  // Switch role (vers) has its own random logic that we should respect
+  if (
+    !hasPlayerName &&
+    role !== 'vers' &&
+    (newAction.includes('{dom}') || newAction.includes('{sub}'))
+  ) {
+    // Replace the player's matching role first, or the first occurrence if their role isn't present
+    const playerRolePattern = new RegExp(`\\{${role}\\}`);
+    if (newAction.match(playerRolePattern)) {
+      newAction = newAction.replace(playerRolePattern, displayName);
+    } else {
+      // If player's specific role isn't in the action, replace the first occurrence
+      newAction = newAction.replace(/{(dom|sub)}/, displayName);
+    }
+  }
+
+  // Replace any remaining role placeholders with "another player"
+  newAction = newAction.replace(/{(dom|sub)}/g, t('anotherPlayer'));
 
   // capitalize the first letter or the first letter after a period if immediately proceeded by a curly brace.
   return capitalizeFirstLetterInCurlyBraces(newAction);

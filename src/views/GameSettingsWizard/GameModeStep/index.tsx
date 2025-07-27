@@ -1,9 +1,17 @@
-import { useState, useEffect, ChangeEvent } from 'react';
-import { Box, Button, Typography, Collapse, SelectChangeEvent } from '@mui/material';
-import { Trans } from 'react-i18next';
+import { useState, useEffect } from 'react';
+import {
+  Box,
+  Button,
+  Typography,
+  Collapse,
+  Card,
+  CardContent,
+  Grid,
+  Stack,
+  Chip,
+} from '@mui/material';
+import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
-import SettingsSelect from '@/components/SettingsSelect';
-import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
 import { isOnlineMode } from '@/helpers/strings';
 import { FormData } from '@/types';
 import { PlayerRole, Settings } from '@/types/Settings';
@@ -22,73 +30,193 @@ export default function GameModeStep({
   prevStep,
 }: GameModeStepProps): JSX.Element {
   const [visible, setVisible] = useState(!isOnlineMode(formData?.gameMode));
+  const { t } = useTranslation();
 
   // Update visibility when game mode changes
   useEffect(() => {
     setVisible(!isOnlineMode(formData?.gameMode));
   }, [formData?.gameMode]);
 
+  const interactionModes = [
+    {
+      id: 'local',
+      title: 'yesInteracting',
+      description: 'Physical interaction with people',
+      isSelected: !isOnlineMode(formData?.gameMode),
+    },
+    {
+      id: 'online',
+      title: 'noInteracting',
+      description: 'Solo online play',
+      isSelected: isOnlineMode(formData?.gameMode),
+    },
+  ];
+
+  const roleOptions = [
+    { value: 'dom', label: 'Dominant', description: 'Take control and lead' },
+    { value: 'vers', label: 'Switch', description: 'Flexible between roles' },
+    { value: 'sub', label: 'Submissive', description: 'Follow and receive' },
+  ];
+
+  const intensityModes = [
+    {
+      id: 'clothed',
+      title: 'noNaked',
+      description: 'Foreplay activities while clothed',
+      isSelected: !formData.isNaked,
+    },
+    {
+      id: 'naked',
+      title: 'yesNaked',
+      description: 'Intimate activities, nudity required',
+      isSelected: formData.isNaked,
+    },
+  ];
+
   return (
     <Box sx={{ minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h6">
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
         <Trans i18nKey="playingWithPeople" />
       </Typography>
-      <YesNoSwitch
-        trueCondition={!isOnlineMode(formData?.gameMode)}
-        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-          setFormData({
-            ...formData,
-            gameMode: event.target.checked ? 'local' : 'online',
-            roomRealtime: !event.target.checked,
-          })
-        }
-        yesLabel="yesInteracting"
-      />
 
-      <Collapse in={visible} timeout={500} sx={{ mt: visible ? 2 : 0 }}>
-        <Box>
-          <Typography variant="h6">
-            <Trans i18nKey="yourRole" />
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
-            <SettingsSelect
-              value={formData.role}
-              onChange={(event: SelectChangeEvent<string>) =>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        {interactionModes.map((mode) => (
+          <Grid size={{ xs: 12, sm: 6 }} key={mode.id}>
+            <Card
+              sx={{
+                cursor: 'pointer',
+                border: mode.isSelected ? '3px solid' : '1px solid',
+                borderColor: mode.isSelected ? 'primary.main' : 'divider',
+                backgroundColor: mode.isSelected ? 'primary.50' : 'background.paper',
+                transition: 'all 0.2s ease-in-out',
+                height: '100%',
+                transform: mode.isSelected ? 'scale(1.02)' : 'scale(1)',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  transform: 'scale(1.02)',
+                  boxShadow: 2,
+                },
+              }}
+              onClick={() =>
                 setFormData({
                   ...formData,
-                  role: event.target.value as PlayerRole,
+                  gameMode: mode.id === 'local' ? 'local' : 'online',
+                  roomRealtime: mode.id !== 'local',
                 })
               }
-              label="mainRole"
-              options={['dom', 'vers', 'sub']}
-              defaultValue="sub"
-              fullWidth={false}
-            />
-          </Box>
+            >
+              <CardContent sx={{ p: 3 }}>
+                <Stack spacing={1} alignItems="center" textAlign="center">
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {t(mode.title)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {mode.description}
+                  </Typography>
+                  {mode.isSelected && (
+                    <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 1 }} />
+                  )}
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
-          <Typography variant="h6" sx={{ mt: 1 }}>
+      <Collapse in={visible} timeout={500}>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+            <Trans i18nKey="yourRole" />
+          </Typography>
+
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            {roleOptions.map((role) => (
+              <Grid size={{ xs: 12, sm: 4 }} key={role.value}>
+                <Card
+                  sx={{
+                    cursor: 'pointer',
+                    border: formData.role === role.value ? '2px solid' : '1px solid',
+                    borderColor: formData.role === role.value ? 'primary.main' : 'divider',
+                    backgroundColor:
+                      formData.role === role.value ? 'primary.50' : 'background.paper',
+                    transition: 'all 0.2s ease-in-out',
+                    height: '100%',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      transform: 'translateY(-2px)',
+                      boxShadow: 2,
+                    },
+                  }}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      role: role.value as PlayerRole,
+                    })
+                  }
+                >
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Stack spacing={1} alignItems="center" textAlign="center">
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {t(role.value)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {role.description}
+                      </Typography>
+                      {formData.role === role.value && (
+                        <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 1 }} />
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
             <Trans i18nKey="areYouNaked" />
           </Typography>
 
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            <Trans i18nKey="nakedDisclaimer" />
-          </Typography>
-
-          <YesNoSwitch
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              setFormData({
-                ...formData,
-                isNaked: event.target.checked,
-              })
-            }
-            trueCondition={formData.isNaked}
-            yesLabel="yesNaked"
-          />
+          <Grid container spacing={2}>
+            {intensityModes.map((mode) => (
+              <Grid size={{ xs: 12, sm: 6 }} key={mode.id}>
+                <Card
+                  sx={{
+                    cursor: 'pointer',
+                    border: mode.isSelected ? '2px solid' : '1px solid',
+                    borderColor: mode.isSelected ? 'primary.main' : 'divider',
+                    backgroundColor: mode.isSelected ? 'primary.50' : 'background.paper',
+                    transition: 'all 0.2s ease-in-out',
+                    height: '100%',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      transform: 'translateY(-2px)',
+                      boxShadow: 2,
+                    },
+                  }}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      isNaked: mode.id === 'naked',
+                    })
+                  }
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Stack spacing={1} alignItems="center" textAlign="center">
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {t(mode.title)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {mode.description}
+                      </Typography>
+                      {mode.isSelected && (
+                        <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 1 }} />
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         </Box>
       </Collapse>
 

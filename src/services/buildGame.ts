@@ -91,9 +91,22 @@ class TileShuffleBag {
 }
 
 // Filter tiles based on player role
-function filterTilesByRole(tiles: CustomTilePull[], role: string): CustomTilePull[] {
+function filterTilesByRole(
+  tiles: CustomTilePull[],
+  role: string,
+  groups: CustomGroupPull[] = []
+): CustomTilePull[] {
   return tiles.filter((tile) => {
     const action = tile.action;
+
+    // Find the group for this tile to check its type
+    const group = groups.find((g) => g.name === tile.group);
+
+    // Consumption tiles should be available to all roles
+    if (group?.type === 'consumption') {
+      return true;
+    }
+
     if (role === 'vers') {
       return (action.includes('{sub}') && action.includes('{dom}')) || action.includes('{player}');
     }
@@ -388,7 +401,7 @@ export default async function buildGameBoard(
 
     // Filter tiles by role if specified
     const role = settings.role || 'sub';
-    const filteredTiles = filterTilesByRole(allTiles, role);
+    const filteredTiles = filterTilesByRole(allTiles, role, availableGroups);
 
     // Only get tiles for selected groups
     const relevantTiles = filteredTiles.filter((tile) => selectedGroupNames.includes(tile.group));

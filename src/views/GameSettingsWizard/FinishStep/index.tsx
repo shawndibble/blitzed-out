@@ -1,6 +1,16 @@
-import { useEffect, useState, ChangeEvent } from 'react';
-import { Box, Button, FormControlLabel, Switch, Typography, CircularProgress } from '@mui/material';
-import { Trans } from 'react-i18next';
+import { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Typography,
+  CircularProgress,
+  Card,
+  CardContent,
+  Grid,
+  Stack,
+  Chip,
+} from '@mui/material';
+import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
@@ -28,14 +38,9 @@ export default function FinishStep({
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const submitSettings = useSubmitGameSettings();
+  const { t } = useTranslation();
 
-  function handleChange(event: ChangeEvent<HTMLInputElement>): void {
-    setFormData({
-      ...formData,
-      finishRange: event.target.checked ? yes : no,
-    });
-    setYesFinishRange(event.target.checked);
-  }
+  // Remove unused handleChange function since we're using card-based UI now
 
   // on load, if don't have a finishRange OR if it is something from advanced settings, replace it.
   useEffect(() => {
@@ -62,28 +67,73 @@ export default function FinishStep({
     if (typeof close === 'function') close();
   }
 
+  const orgasmOptions = [
+    {
+      id: 'noOrgasm',
+      title: 'noOrgasm',
+      description: 'Focus on the journey, not the destination',
+      isSelected: !yesFinishRange,
+    },
+    {
+      id: 'yesOrgasm',
+      title: 'yesOrgasm',
+      description: 'Build up to a satisfying climax',
+      isSelected: yesFinishRange,
+    },
+  ];
+
   return (
-    <Box>
-      <Typography variant="h6" sx={{ my: 2 }}>
+    <Box sx={{ minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
         <Trans i18nKey="WillYouOrgasm" />
       </Typography>
-      <Typography variant="body2">
-        <Trans i18nKey="orgasmDisclaimer" />
-      </Typography>
 
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          my: 1,
-        }}
-      >
-        <FormControlLabel
-          control={<Switch checked={yesFinishRange} onChange={handleChange} />}
-          label={<Trans i18nKey={'yesOrgasm'} />}
-        />
-      </Box>
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        {orgasmOptions.map((option) => (
+          <Grid size={{ xs: 12, sm: 6 }} key={option.id}>
+            <Card
+              sx={{
+                cursor: 'pointer',
+                border: option.isSelected ? '3px solid' : '1px solid',
+                borderColor: option.isSelected ? 'primary.main' : 'divider',
+                backgroundColor: option.isSelected ? 'primary.50' : 'background.paper',
+                transition: 'all 0.2s ease-in-out',
+                height: '100%',
+                transform: option.isSelected ? 'scale(1.02)' : 'scale(1)',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  transform: 'scale(1.02)',
+                  boxShadow: 2,
+                },
+              }}
+              onClick={() => {
+                const newValue = option.id === 'yesOrgasm';
+                setFormData({
+                  ...formData,
+                  finishRange: newValue ? yes : no,
+                });
+                setYesFinishRange(newValue);
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
+                <Stack spacing={1} alignItems="center" textAlign="center">
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    {t(option.title)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {option.description}
+                  </Typography>
+                  {option.isSelected && (
+                    <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 1 }} />
+                  )}
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
+      <Box sx={{ flexGrow: 1 }} />
       <ButtonRow>
         <Button onClick={prevStep} disabled={isLoading}>
           <Trans i18nKey="previous" />
@@ -93,6 +143,8 @@ export default function FinishStep({
           onClick={handleSubmit}
           disabled={isLoading}
           startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+          size="large"
+          sx={{ px: 4 }}
         >
           <Trans i18nKey="buildGame" />
         </Button>
