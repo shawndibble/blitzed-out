@@ -1,21 +1,22 @@
+import './styles.css';
+
 import { Box, Button, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { FocusEvent, FormEvent, JSX, KeyboardEvent, ReactNode, useCallback, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+
+import AppSettings from './AppSettings';
+import BoardSettings from './BoardSettings';
+import CustomTileDialog from '@/views/CustomTileDialog';
+import RoomSettings from './RoomSettings';
 import TabPanel from '@/components/TabPanel';
 import ToastAlert from '@/components/ToastAlert';
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
 import { useSettings } from '@/stores/settingsStore';
-import { useCallback, useState, FormEvent, KeyboardEvent, ReactNode, FocusEvent, JSX } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
-import CustomTileDialog from '@/views/CustomTileDialog';
-import AppSettings from './AppSettings';
-import BoardSettings from './BoardSettings';
-import RoomSettings from './RoomSettings';
-import './styles.css';
-import validateFormData from './validateForm';
-import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
-import useRoomNavigate from '@/hooks/useRoomNavigate';
+import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
+import validateFormData from './validateForm';
 
 interface GameSettingsProps {
   closeDialog?: () => void;
@@ -34,14 +35,12 @@ export default function GameSettings({
   const [alert, setAlert] = useState<string | null>(null);
   const [openCustomTile, setOpenCustomTile] = useState<boolean>(false);
   const [formData, setFormData] = useSettingsToFormData();
-  const navigate = useRoomNavigate();
 
   const submitSettings = useSubmitGameSettings();
   const { isLoading, actionsList } = useUnifiedActionList(formData?.gameMode);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number): void => {
     setValue(newValue);
-    navigate(formData.room);
   };
 
   const boardUpdated = (): void => updateSettings({ ...settings, boardUpdated: true });
@@ -58,9 +57,11 @@ export default function GameSettings({
         return null;
       }
 
-      submitSettings(formData, actionsList);
+      await submitSettings(formData, actionsList);
 
-      if (typeof closeDialog === 'function') closeDialog();
+      if (typeof closeDialog === 'function') {
+        closeDialog();
+      }
 
       return null;
     },
