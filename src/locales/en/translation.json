@@ -496,5 +496,12 @@
   "switchRoleDesc": "Flexible between roles",
   "submissiveRoleDesc": "Follow and receive",
   "foreplayClothedDesc": "Foreplay activities while clothed",
-  "intimateNudityDesc": "Intimate activities, nudity required"
+  "intimateNudityDesc": "Intimate activities, nudity required",
+  "unknownTile": "Unknown tile",
+  "gameSettings": "Game Settings",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "Authentication": "Authentication",
+  "minutes": "minutes",
+  "customTiles.actions": "Actions",
+  "customUpdated": "Custom Updated"
 }

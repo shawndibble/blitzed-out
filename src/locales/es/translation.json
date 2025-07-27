@@ -510,5 +510,12 @@
   "switchRoleDesc": "Flexible entre roles",
   "submissiveRoleDesc": "Seguir y recibir",
   "foreplayClothedDesc": "Actividades de juegos previos vestido",
-  "intimateNudityDesc": "Actividades íntimas, se requiere desnudez"
+  "intimateNudityDesc": "Actividades íntimas, se requiere desnudez",
+  "unknownTile": "Mosaico desconocido",
+  "gameSettings": "Configuración del Juego",
+  "passwordsDoNotMatch": "Las contraseñas no coinciden",
+  "Authentication": "Autenticación",
+  "minutes": "minutos",
+  "customTiles.actions": "Acciones",
+  "customUpdated": "Personalizado Actualizado"
 }

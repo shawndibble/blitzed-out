@@ -510,5 +510,12 @@
   "switchRoleDesc": "Flexible entre les rôles",
   "submissiveRoleDesc": "Suivre et recevoir",
   "foreplayClothedDesc": "Activités de préliminaires habillés",
-  "intimateNudityDesc": "Activités intimes, nudité requise"
+  "intimateNudityDesc": "Activités intimes, nudité requise",
+  "unknownTile": "Tuile inconnue",
+  "gameSettings": "Paramètres du Jeu",
+  "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+  "Authentication": "Authentification",
+  "minutes": "minutes",
+  "customTiles.actions": "Actions",
+  "customUpdated": "Personnalisé Mis à Jour"
 }

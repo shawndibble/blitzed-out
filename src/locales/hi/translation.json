@@ -509,5 +509,12 @@
   "switchRoleDesc": "भूमिकाओं के बीच लचीला",
   "submissiveRoleDesc": "पालन करें और प्राप्त करें",
   "foreplayClothedDesc": "कपड़े पहने हुए फोरप्ले गतिविधियां",
-  "intimateNudityDesc": "अंतरंग गतिविधियां, नग्नता आवश्यक"
+  "intimateNudityDesc": "अंतरंग गतिविधियां, नग्नता आवश्यक",
+  "unknownTile": "अज्ञात टाइल",
+  "gameSettings": "खेल सेटिंग्स",
+  "passwordsDoNotMatch": "पासवर्ड मेल नहीं खाते",
+  "Authentication": "प्रमाणीकरण",
+  "minutes": "मिनट",
+  "customTiles.actions": "क्रियाएं",
+  "customUpdated": "कस्टम अपडेटेड"
 }
