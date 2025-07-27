@@ -95,19 +95,55 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
       </Stack>
 
       {showPrivateRoomField && !isPublic && (
-        <TextField
-          fullWidth
-          id="privateRoom"
-          label={t('privateRoomCode')}
-          defaultValue={formData.room?.toUpperCase()}
-          margin="normal"
-          onBlur={handleRoomBlur}
-          onKeyDown={handleRoomKeyDown}
-          onChange={handleRoomChange}
-          inputProps={{ style: { textTransform: 'uppercase' } }}
-          helperText={t('privateRoomCodeHelp')}
-          sx={{ mb: 2 }}
-        />
+        <Box
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            backgroundColor: 'primary.50',
+            mb: 2,
+          }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+            {t('privateRoomCode')}
+          </Typography>
+          <TextField
+            fullWidth
+            id="privateRoom"
+            defaultValue={formData.room?.toUpperCase()}
+            onBlur={handleRoomBlur}
+            onKeyDown={handleRoomKeyDown}
+            onChange={handleRoomChange}
+            inputProps={{
+              style: {
+                textTransform: 'uppercase',
+                fontFamily: 'monospace',
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                letterSpacing: '0.2em',
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'background.paper',
+                '& fieldset': {
+                  borderColor: 'divider',
+                  borderWidth: 2,
+                },
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: 'primary.main',
+                  borderWidth: 2,
+                },
+              },
+            }}
+          />
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, textAlign: 'center' }}>
+            {t('privateRoomCodeHelp')}
+          </Typography>
+        </Box>
       )}
 
       <ButtonRow>
