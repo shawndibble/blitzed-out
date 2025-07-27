@@ -1,4 +1,4 @@
-import { Card, CardContent, Stack, Typography, Box } from '@mui/material';
+import { Card, CardContent, Stack, Typography, Box, Chip } from '@mui/material';
 import { Public, Lock } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -47,31 +47,31 @@ export default function ValueProposition({
               transition: 'all 0.2s ease-in-out',
             }}
           >
-            {isPublic ? <Public sx={{ fontSize: 28 }} /> : <Lock sx={{ fontSize: 28 }} />}
+            {isPublic ? (
+              <Public sx={{ fontSize: 28 }} aria-label="Public" />
+            ) : (
+              <Lock sx={{ fontSize: 28 }} aria-label="Private" />
+            )}
           </Box>
 
           <Stack spacing={0.5} flex={1}>
-            <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
-              <Trans i18nKey={isPublic ? 'public' : 'private'} />
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
+                <Trans i18nKey={isPublic ? 'public' : 'private'} />
+              </Typography>
               {isSelected && (
-                <Typography
-                  component="span"
-                  variant="body2"
+                <Chip
+                  label={t('selected')}
+                  size="small"
+                  color="primary"
                   sx={{
-                    ml: 1,
-                    px: 1,
-                    py: 0.25,
-                    backgroundColor: 'primary.main',
-                    color: 'primary.contrastText',
-                    borderRadius: 1,
                     fontSize: '0.75rem',
                     fontWeight: 500,
+                    height: 20,
                   }}
-                >
-                  {t('selected')}
-                </Typography>
+                />
               )}
-            </Typography>
+            </Stack>
             <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.95rem' }}>
               <Trans i18nKey={isPublic ? 'publicRoomBenefit' : 'privateRoomBenefit'} />
             </Typography>

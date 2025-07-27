@@ -75,7 +75,7 @@ describe('actionStringReplacement', () => {
 
       const result = actionStringReplacement(action, 'sub', displayName);
 
-      expect(result).toBe('another player tells TestPlayer what to do.');
+      expect(result).toBe('Another player tells TestPlayer what to do.');
     });
 
     it('should replace multiple {sub} instances with player name', () => {

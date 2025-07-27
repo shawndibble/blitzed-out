@@ -41,34 +41,34 @@ export default function GameModeStep({
     {
       id: 'local',
       title: 'yesInteracting',
-      description: 'Physical interaction with people',
+      description: t('physicalInteractionDesc'),
       isSelected: !isOnlineMode(formData?.gameMode),
     },
     {
       id: 'online',
       title: 'noInteracting',
-      description: 'Solo online play',
+      description: t('soloOnlinePlayDesc'),
       isSelected: isOnlineMode(formData?.gameMode),
     },
   ];
 
   const roleOptions = [
-    { value: 'dom', label: 'Dominant', description: 'Take control and lead' },
-    { value: 'vers', label: 'Switch', description: 'Flexible between roles' },
-    { value: 'sub', label: 'Submissive', description: 'Follow and receive' },
+    { value: 'dom', label: 'Dominant', description: t('dominantRoleDesc') },
+    { value: 'vers', label: 'Switch', description: t('switchRoleDesc') },
+    { value: 'sub', label: 'Submissive', description: t('submissiveRoleDesc') },
   ];
 
   const intensityModes = [
     {
       id: 'clothed',
       title: 'noNaked',
-      description: 'Foreplay activities while clothed',
+      description: t('foreplayClothedDesc'),
       isSelected: !formData.isNaked,
     },
     {
       id: 'naked',
       title: 'yesNaked',
-      description: 'Intimate activities, nudity required',
+      description: t('intimateNudityDesc'),
       isSelected: formData.isNaked,
     },
   ];
