@@ -52,6 +52,16 @@ export default function ActionsStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- This should only run once on mount to clean initial data
   }, []);
 
+  // Auto-open accordion if there are selected actions on mount
+  useEffect(() => {
+    const hasSelectedActions =
+      formData.selectedActions && Object.keys(formData.selectedActions).length > 0;
+    if (hasSelectedActions) {
+      setShowCustomization(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only run on mount
+  }, []);
+
   const options = (key: string) =>
     settingSelectLists(key).map((option) => ({
       value: option,

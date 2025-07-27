@@ -87,6 +87,17 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
 
   const goToAdvanced = (): void => setStep(0); // Use 0 to represent 'advanced'
 
+  const goToSetupWizard = (): void => {
+    // Reset to the appropriate step based on a room type and current settings
+    if (isPublicRoom(room)) {
+      setStep(3); // Skip to the "actions" step for public rooms
+    } else if (formData.gameMode === 'online') {
+      setStep(3); // Skip to the "actions" step if already online
+    } else {
+      setStep(1); // Start from the beginning
+    }
+  };
+
   const renderStep = (): JSX.Element | null => {
     switch (step) {
       case 1:
@@ -125,7 +136,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     }
   };
 
-  if (step === 0) return <GameSettings closeDialog={close} />;
+  if (step === 0) return <GameSettings closeDialog={close} onOpenSetupWizard={goToSetupWizard} />;
 
   return (
     <Box>

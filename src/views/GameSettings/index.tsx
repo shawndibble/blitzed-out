@@ -21,11 +21,13 @@ import validateFormData from './validateForm';
 interface GameSettingsProps {
   closeDialog?: () => void;
   initialTab?: number;
+  onOpenSetupWizard?: () => void;
 }
 
 export default function GameSettings({
   closeDialog,
   initialTab = 0,
+  onOpenSetupWizard,
 }: GameSettingsProps): JSX.Element {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -140,9 +142,18 @@ export default function GameSettings({
       </TabPanel>
 
       <div className="flex-buttons">
-        <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
-          <Trans i18nKey="customTilesLabel">Game Tiles</Trans>
-        </Button>
+        <div className="left-buttons">
+          {onOpenSetupWizard && (
+            <Button variant="outlined" type="button" onClick={onOpenSetupWizard}>
+              <Trans i18nKey="setupWizard" />
+            </Button>
+          )}
+          {value === 0 && (
+            <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
+              <Trans i18nKey="customTilesLabel">Game Tiles</Trans>
+            </Button>
+          )}
+        </div>
         <Button variant="contained" type="submit">
           <Trans i18nKey="update" />
         </Button>
