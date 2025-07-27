@@ -5,8 +5,9 @@ import ValueProposition from '../components/ValueProposition';
 import useRoomNavigate from '@/hooks/useRoomNavigate';
 import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
-import { useState, useCallback, ChangeEvent, KeyboardEvent, FocusEvent } from 'react';
+import { useState, useCallback, ChangeEvent, KeyboardEvent } from 'react';
 import { Settings } from '@/types/Settings';
+import { getDatabase, ref, get } from 'firebase/database';
 
 interface RoomStepProps {
   formData: Settings;
@@ -18,6 +19,40 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
   const navigate = useRoomNavigate();
   const { t } = useTranslation();
   const [showPrivateRoomField, setShowPrivateRoomField] = useState(!isPublicRoom(formData.room));
+  const [roomInputValue, setRoomInputValue] = useState(formData.room?.toUpperCase() || '');
+
+  // Function to check if a room ID exists
+  const checkRoomExists = async (roomId: string): Promise<boolean> => {
+    try {
+      const database = getDatabase();
+      const roomRef = ref(database, `rooms/${roomId}/uids`);
+      const snapshot = await get(roomRef);
+      return snapshot.exists();
+    } catch (error) {
+      console.warn('Error checking room existence:', error);
+      return false; // Assume room doesn't exist if we can't check
+    }
+  };
+
+  // Generate a unique room ID
+  const generateUniqueRoomId = useCallback(async (): Promise<string> => {
+    const nanoid = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
+    let roomId: string;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    do {
+      roomId = nanoid();
+      attempts++;
+
+      if (attempts >= maxAttempts) {
+        console.warn('Max attempts reached for room ID generation, using generated ID');
+        break;
+      }
+    } while (await checkRoomExists(roomId));
+
+    return roomId;
+  }, []);
 
   const handlePublicRoomSelect = useCallback(() => {
     setFormData({
@@ -28,44 +63,45 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
     setShowPrivateRoomField(false);
   }, [formData, setFormData]);
 
-  const handlePrivateRoomSelect = useCallback(() => {
+  const handlePrivateRoomSelect = useCallback(async () => {
     if (isPublicRoom(formData.room)) {
-      const roomId = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5)();
+      const roomId = await generateUniqueRoomId();
       setFormData({
         ...formData,
-        room: roomId.toUpperCase(),
+        room: roomId,
       });
+      setRoomInputValue(roomId.toUpperCase());
     }
     setShowPrivateRoomField(true);
-  }, [formData, setFormData]);
+  }, [formData, setFormData, generateUniqueRoomId]);
 
-  const handleRoomChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const upperCaseValue = event.target.value.toUpperCase();
-    event.target.value = upperCaseValue;
-  }, []);
-
-  const handleRoomBlur = useCallback(
-    (event: FocusEvent<HTMLInputElement>) => {
+  const updateRoomData = useCallback(
+    (newRoomValue: string) => {
       setFormData({
         ...formData,
-        room: event.currentTarget.value,
+        room: newRoomValue,
         boardUpdated: true,
       });
     },
     [formData, setFormData]
   );
 
+  const handleRoomChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const upperCaseValue = event.target.value.toUpperCase();
+    setRoomInputValue(upperCaseValue);
+  }, []);
+
+  const handleRoomBlur = useCallback(() => {
+    updateRoomData(roomInputValue);
+  }, [updateRoomData, roomInputValue]);
+
   const handleRoomKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Enter') {
-        setFormData({
-          ...formData,
-          room: event.currentTarget.value,
-          boardUpdated: true,
-        });
+        updateRoomData(roomInputValue);
       }
     },
-    [formData, setFormData]
+    [updateRoomData, roomInputValue]
   );
 
   function handleNext(): void {
@@ -94,7 +130,7 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
         />
       </Stack>
 
-      {showPrivateRoomField && !isPublic && (
+      {showPrivateRoomField && (
         <Box
           sx={{
             p: 3,
@@ -109,7 +145,7 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
           <TextField
             fullWidth
             id="privateRoom"
-            defaultValue={formData.room?.toUpperCase()}
+            value={roomInputValue}
             onBlur={handleRoomBlur}
             onKeyDown={handleRoomKeyDown}
             onChange={handleRoomChange}
