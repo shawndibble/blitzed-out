@@ -109,11 +109,13 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
 
         // Add intensity levels as action keys with empty arrays
         // The IncrementalSelect component uses these keys as menu items
+        const intensities: Record<number, string> = {};
         if (group.intensities && Array.isArray(group.intensities)) {
           group.intensities
             .sort((a, b) => a.value - b.value)
             .forEach((intensity) => {
               actions[intensity.label] = []; // Empty array since custom groups don't have predefined actions
+              intensities[intensity.value] = intensity.label; // Map level to name
             });
         }
 
@@ -123,6 +125,7 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
           label: group.label || group.name,
           type: finalType, // Use the preserved type from migration
           actions,
+          intensities, // Add the intensities mapping
         };
       }
 

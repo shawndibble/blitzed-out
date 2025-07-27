@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Box, Button, Divider, Step, StepLabel, Stepper } from '@mui/material';
+import { Box, Button, Divider } from '@mui/material';
 import { Trans } from 'react-i18next';
 import RoomStep from './RoomStep';
 import GameModeStep from './GameModeStep';
 import ActionsStep from './ActionsStep';
 import FinishStep from './FinishStep';
+import DynamicStepper from './components/DynamicStepper';
 import GameSettings from '@/views/GameSettings';
 import { useParams } from 'react-router-dom';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
@@ -129,13 +130,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   return (
     <Box>
       <Box sx={{ width: '100%', mt: 2, mb: 4 }}>
-        <Stepper activeStep={step - 1} alternativeLabel>
-          {[1, 2, 3, 4].map((label) => (
-            <Step key={label}>
-              <StepLabel />
-            </Step>
-          ))}
-        </Stepper>
+        <DynamicStepper currentStep={step} isPublicRoom={isPublicRoom(room)} />
       </Box>
       {renderStep()}
 

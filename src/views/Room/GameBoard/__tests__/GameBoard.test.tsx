@@ -251,12 +251,48 @@ describe('GameBoard', () => {
 
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Welcome to the game! You are {player}.',
-        'player',
+        'sub', // Now uses settings.role instead of tile.role
         'Test User'
       );
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Take a gentle action as {sub}.',
-        'sub',
+        'sub', // Now uses settings.role instead of tile.role
+        'Test User'
+      );
+    });
+
+    it('should use different roles from settings', () => {
+      const domSettings = { ...mockSettings, role: 'dom' as const };
+
+      render(
+        <GameBoard
+          playerList={mockPlayerList}
+          isTransparent={false}
+          gameBoard={mockGameBoard}
+          settings={domSettings}
+        />
+      );
+
+      expect(actionStringReplacement).toHaveBeenCalledWith(
+        'Welcome to the game! You are {player}.',
+        'dom', // Uses settings.role = 'dom'
+        'Test User'
+      );
+
+      const versSettings = { ...mockSettings, role: 'vers' as const };
+
+      render(
+        <GameBoard
+          playerList={mockPlayerList}
+          isTransparent={false}
+          gameBoard={mockGameBoard}
+          settings={versSettings}
+        />
+      );
+
+      expect(actionStringReplacement).toHaveBeenCalledWith(
+        'Welcome to the game! You are {player}.',
+        'vers', // Uses settings.role = 'vers'
         'Test User'
       );
     });
@@ -276,7 +312,7 @@ describe('GameBoard', () => {
       // Should still call actionStringReplacement for tile where current player is located
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Perform an intense action as {dom}.',
-        'dom',
+        'sub', // Now uses settings.role instead of tile.role
         'Test User'
       );
     });
@@ -416,8 +452,8 @@ describe('GameBoard', () => {
         />
       );
 
-      expect(actionStringReplacement).toHaveBeenCalledWith('', undefined, 'Test User');
-      expect(actionStringReplacement).toHaveBeenCalledWith(undefined, undefined, 'Test User');
+      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User');
+      expect(actionStringReplacement).toHaveBeenCalledWith(undefined, 'sub', 'Test User');
     });
 
     it('should handle user without display name', () => {
@@ -443,7 +479,7 @@ describe('GameBoard', () => {
 
       expect(actionStringReplacement).toHaveBeenCalledWith(
         expect.any(String),
-        expect.any(String),
+        'sub', // Now uses settings.role instead of tile.role
         ''
       );
     });

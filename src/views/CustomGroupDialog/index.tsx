@@ -700,7 +700,7 @@ export default function CustomGroupDialog({
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>{t('cancel')}</Button>
           <Button onClick={confirmDelete} color="error" variant="contained">
-            {t('Delete')}
+            {t('delete')}
           </Button>
         </DialogActions>
       </Dialog>
