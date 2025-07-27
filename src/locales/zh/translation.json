@@ -489,5 +489,19 @@
   "presetBreathControlDesc": "呼吸遊戲和感覺",
   "customizeActionsDesc": "用戶可以在下面微調他們的動作選擇和強度等級。",
   "noOrgasmDesc": "專注於過程，而不是目標",
-  "yesOrgasmDesc": "建立到令人滿意的高潮"
+  "yesOrgasmDesc": "建立到令人滿意的高潮",
+  "physicalInteractionDesc": "與人進行身體互動",
+  "soloOnlinePlayDesc": "單人在線遊戲",
+  "dominantRoleDesc": "控制並領導",
+  "switchRoleDesc": "角色間靈活轉換",
+  "submissiveRoleDesc": "跟隨和接受",
+  "foreplayClothedDesc": "穿著衣服的前戲活動",
+  "intimateNudityDesc": "親密活動，需要裸體",
+  "unknownTile": "未知方塊",
+  "gameSettings": "遊戲設置",
+  "passwordsDoNotMatch": "密碼不匹配",
+  "Authentication": "身份驗證",
+  "minutes": "分鐘",
+  "customTiles.actions": "動作",
+  "customUpdated": "自定義已更新"
 }
