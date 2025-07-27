@@ -61,11 +61,6 @@ export default function GameSettings({
 
       if (typeof closeDialog === 'function') {
         closeDialog();
-      } else {
-        // Show success feedback when there's no dialog to close
-        setAlert(t('settingsUpdated') || 'Settings updated successfully!');
-        // Clear the alert after 3 seconds
-        setTimeout(() => setAlert(null), 3000);
       }
 
       return null;
