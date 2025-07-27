@@ -503,5 +503,12 @@
   "presetBreathControlDesc": "Jeu de respiration et de sensation",
   "customizeActionsDesc": "Les utilisateurs peuvent affiner leur sélection d'actions et leurs niveaux d'intensité ci-dessous.",
   "noOrgasmDesc": "Concentrez-vous sur le voyage, pas sur la destination",
-  "yesOrgasmDesc": "Construisez vers un climax satisfaisant"
+  "yesOrgasmDesc": "Construisez vers un climax satisfaisant",
+  "physicalInteractionDesc": "Interaction physique avec des personnes",
+  "soloOnlinePlayDesc": "Jeu solo en ligne",
+  "dominantRoleDesc": "Prendre le contrôle et diriger",
+  "switchRoleDesc": "Flexible entre les rôles",
+  "submissiveRoleDesc": "Suivre et recevoir",
+  "foreplayClothedDesc": "Activités de préliminaires habillés",
+  "intimateNudityDesc": "Activités intimes, nudité requise"
 }

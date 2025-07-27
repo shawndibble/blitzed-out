@@ -489,5 +489,12 @@
   "presetBreathControlDesc": "Breath play and sensation",
   "customizeActionsDesc": "Users can fine-tune their action selection and intensity levels below.",
   "noOrgasmDesc": "Focus on the journey, not the destination",
-  "yesOrgasmDesc": "Build up to a satisfying climax"
+  "yesOrgasmDesc": "Build up to a satisfying climax",
+  "physicalInteractionDesc": "Physical interaction with people",
+  "soloOnlinePlayDesc": "Solo online play",
+  "dominantRoleDesc": "Take control and lead",
+  "switchRoleDesc": "Flexible between roles",
+  "submissiveRoleDesc": "Follow and receive",
+  "foreplayClothedDesc": "Foreplay activities while clothed",
+  "intimateNudityDesc": "Intimate activities, nudity required"
 }
