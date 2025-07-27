@@ -90,10 +90,9 @@ export default function GameModeStep({
                 backgroundColor: mode.isSelected ? 'primary.50' : 'background.paper',
                 transition: 'all 0.2s ease-in-out',
                 height: '100%',
-                transform: mode.isSelected ? 'scale(1.02)' : 'scale(1)',
                 '&:hover': {
                   borderColor: 'primary.main',
-                  transform: 'scale(1.02)',
+                  transform: 'translateY(-2px)',
                   boxShadow: 2,
                 },
               }}

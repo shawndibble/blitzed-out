@@ -13,12 +13,14 @@ label.settings-switch {
   margin-top: 1rem;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.left-buttons {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .flex-buttons > button {
-  margin-right: 0.5rem;
-}
-
-.flex-buttons > button:last-child {
-  margin-right: 0;
+  margin-left: auto;
 }
