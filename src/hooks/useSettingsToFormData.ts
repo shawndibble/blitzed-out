@@ -17,6 +17,8 @@ export default function useSettingsToFormData<T extends Settings>(
     ...settings,
     // Ensure selectedActions is always defined
     selectedActions: settings?.selectedActions || {},
+    // Ensure finishRange has default values for board generation
+    finishRange: settings?.finishRange || [30, 70],
     ...overrideSettings,
   } as T;
 
