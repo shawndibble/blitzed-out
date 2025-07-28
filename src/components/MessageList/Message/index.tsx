@@ -17,6 +17,7 @@ import ActionText from './actionText';
 import { Message as MessageType } from '@/types/Message';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
 import { getDayjsWithLocale } from '@/helpers/momentLocale';
+import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
 
 const MILLISECONDS_IN_A_MINUTE = 60000;
 
@@ -114,21 +115,7 @@ export default function Message({
 
   // Generate smart summary for system messages
   const systemSummary = useMemo(() => {
-    if (type !== 'settings' && type !== 'room') return null;
-
-    if (type === 'settings') {
-      const settingsCount = (text.match(/\*/g) || []).length;
-      if (settingsCount > 1) {
-        return t('updatedMultipleSettings', { count: settingsCount });
-      }
-      return t('updatedGameSettings');
-    }
-
-    if (type === 'room') {
-      return t('updatedRoomSettings');
-    }
-
-    return null;
+    return generateSystemSummary(type, text, t);
   }, [type, text, t]);
 
   // Check if this is a system message that should use compact layout
@@ -136,10 +123,9 @@ export default function Message({
 
   // Check if text is likely to wrap (long text or contains multiple words)
   const isLikelyToWrap = useMemo(() => {
-    if (!isSystemMessage || !systemSummary) return false;
-    const fullText = `${displayName} ${systemSummary}`;
-    return fullText.length > 45 || fullText.split(' ').length > 6;
-  }, [isSystemMessage, systemSummary, displayName]);
+    if (!isSystemMessage) return false;
+    return isSystemMessageLikelyToWrap(displayName, systemSummary);
+  }, [isSystemMessage, displayName, systemSummary]);
 
   // Render system message (settings/room) with compact layout
   if (isSystemMessage) {

@@ -1,4 +1,4 @@
-import { Language, Login, Groups } from '@mui/icons-material';
+import { Language, Login, PersonAdd } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -146,7 +146,7 @@ export default function UnauthenticatedApp() {
                       fullWidth
                       className="jump-in-button"
                       size="large"
-                      startIcon={<Groups />}
+                      startIcon={<PersonAdd />}
                       sx={{ mt: 2, py: 1.25, fontSize: '1.1rem', fontWeight: 600 }}
                     >
                       {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="anonymousLogin" />}

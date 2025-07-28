@@ -356,8 +356,8 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      // Component should still render the tabs
-      expect(screen.getByRole('tablist')).toBeInTheDocument();
+      // Component should still render the filter button
+      expect(screen.getByLabelText('filter messages')).toBeInTheDocument();
     });
 
     it('should render messages even while loading', () => {
@@ -603,7 +603,7 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByRole('tablist')).toBeInTheDocument();
+      expect(screen.getByLabelText('filter messages')).toBeInTheDocument();
       // No messages should be displayed
       expect(screen.queryByTestId(/^message-/)).not.toBeInTheDocument();
     });

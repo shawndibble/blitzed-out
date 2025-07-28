@@ -27,7 +27,7 @@
   min-width: 375px;
   max-width: 375px;
   min-height: calc(100vh - 12rem);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
   margin-left: 1rem;

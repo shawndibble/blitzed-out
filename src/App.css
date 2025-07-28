@@ -12,7 +12,11 @@ html {
   --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2);
   --shadow-xl: 0 16px 56px rgba(0, 0, 0, 0.5), 0 6px 24px rgba(0, 0, 0, 0.3);
   --color-surface: rgba(15, 23, 42, 0.95);
-  --spacing-sm: 1rem;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
   color: var(--color-white);
 }
 

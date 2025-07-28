@@ -103,7 +103,8 @@
   border-color: rgba(34, 211, 238, 0.3);
 }
 
-.feature-item:hover::before {
+.feature-item:hover::before,
+.feature-item:focus-visible::before {
   opacity: 1;
 }
 
