@@ -52,10 +52,13 @@ function imgur(url: string): string {
   // For Discord proxy URLs that contain Imgur links, just return the URL directly
   try {
     const parsed = new URL(url);
-    // Check if the host is a discordapp proxy and the pathname contains imgur.com
+    // Check if this is a legitimate Discord external proxy URL for Imgur
+    // Discord external URLs follow the pattern: /external/{hash}/https/i.imgur.com/{id}.{ext}
     if (
       (parsed.host === 'discordapp.net' || parsed.host.endsWith('.discordapp.net')) &&
-      parsed.pathname.includes('imgur.com')
+      parsed.pathname.startsWith('/external/') &&
+      (parsed.pathname.includes('/https/i.imgur.com/') ||
+        parsed.pathname.includes('/https/imgur.com/'))
     ) {
       return url;
     }
