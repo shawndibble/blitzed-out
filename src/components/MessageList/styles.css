@@ -14,10 +14,16 @@
   }
 }
 
+.message-filter-header {
+  position: absolute;
+  top: -8px;
+  right: -16px;
+  z-index: 1001;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .message-filter-fab {
-  position: absolute !important;
-  bottom: 16px;
-  right: 16px;
   z-index: 1000;
 }
 
@@ -135,7 +141,7 @@
 }
 
 /* Regular message timestamps */
-.message:not(.system-message) .timestamp-chip {
+.message .timestamp-chip {
   font-size: 0.7rem !important;
   height: 20px !important;
 }
@@ -146,73 +152,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* System Message Styles */
-.system-message {
-  background: rgba(158, 158, 158, 0.1) !important;
-  border: none !important;
-  border-radius: 16px !important;
-  margin: 8px auto !important;
-  align-self: center !important;
-  padding: 8px 12px !important;
-  width: fit-content;
-}
-
-/* Full width for longer text that needs to wrap */
-.system-message.full-width {
-  max-width: 95% !important;
-  width: auto;
-}
-
-@media screen and (max-width: 600px) {
-  .system-message {
-    max-width: 95% !important;
-  }
-
-  .system-message.full-width {
-    max-width: 98% !important;
-  }
-}
-
-.system-message.transparent {
-  background: rgba(158, 158, 158, 0.2) !important;
-  backdrop-filter: blur(4px);
-}
-
-.system-message-content {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: center;
-}
-
-.system-icon {
-  color: rgba(158, 158, 158, 0.8);
-  display: flex;
-  align-items: center;
-}
-
-.system-text {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  justify-content: center;
-  flex-wrap: wrap;
-  word-break: break-word;
-}
-
-.system-text.wrapping {
-  justify-content: flex-start;
-  text-align: left;
-}
-
-.system-timestamp {
-  margin-left: 8px !important;
-  color: rgba(255, 255, 255, 0.6) !important;
-  font-size: 0.65rem !important;
-  font-weight: 400 !important;
-  opacity: 0.8;
-}
+/* System Message Styles - Now handled by MUI theme variant */
 
 .system-details-popover {
   padding: 16px;
@@ -259,22 +199,22 @@
   margin: 4px 0;
 }
 
-.own-message:not(.system-message) {
+.own-message:has(.message-header) {
   background: rgba(25, 118, 210, 0.1);
   border-left: 3px solid var(--color-blue);
   align-self: flex-end;
 }
 
-.own-message:not(.system-message):hover {
+.own-message:has(.message-header):hover {
   background: rgba(25, 118, 210, 0.15);
 }
 
-.own-message.transparent:not(.system-message) {
+.own-message.transparent:has(.message-header) {
   background: rgba(25, 118, 210, 0.2);
   backdrop-filter: blur(2px);
 }
 
-.own-message.transparent:not(.system-message):hover {
+.own-message.transparent:has(.message-header):hover {
   background: rgba(25, 118, 210, 0.3);
 }
 

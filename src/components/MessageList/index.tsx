@@ -94,16 +94,19 @@ export default function MessageList({
         </div>
       </div>
 
-      {/* Floating Filter Button */}
-      <Fab
-        size="small"
-        color="primary"
-        aria-label="filter messages"
-        onClick={handleFilterClick}
-        className="message-filter-fab"
-      >
-        <FilterList />
-      </Fab>
+      {/* Filter Button Overlay */}
+      <div className="message-filter-header">
+        <Fab
+          size="medium"
+          color="primary"
+          aria-label="filter messages"
+          onClick={handleFilterClick}
+          className="message-filter-fab"
+          sx={{ transform: 'scale(0.8)' }}
+        >
+          <FilterList />
+        </Fab>
+      </div>
 
       {/* Filter Menu */}
       <Menu
@@ -111,12 +114,20 @@ export default function MessageList({
         open={Boolean(filterAnchor)}
         onClose={handleFilterClose}
         anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
+          vertical: 'bottom',
+          horizontal: 'right',
         }}
         transformOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        slotProps={{
+          paper: {
+            style: {
+              maxHeight: '200px',
+              minWidth: '120px',
+            },
+          },
         }}
       >
         {filterOptions.map((option) => (

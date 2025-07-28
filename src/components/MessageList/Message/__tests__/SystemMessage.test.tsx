@@ -9,13 +9,12 @@ import { Timestamp } from 'firebase/firestore';
 // Mock dependencies
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, options?: any) => {
+    t: (key: string, _options?: any) => {
       const translations: Record<string, string> = {
         gameSettings: 'Game Settings',
         roomSettings: 'Room Settings',
-        updatedGameSettings: 'updated game settings',
+        updatedGameSettings: 'updated their personal game board settings',
         updatedRoomSettings: 'updated room settings',
-        updatedMultipleSettings: `updated ${options?.count || 0} settings`,
         importBoard: 'Import Board',
         incompatibleBoard: 'Incompatible board',
         room: 'Room',
@@ -29,12 +28,28 @@ vi.mock('react-i18next', () => ({
       resolvedLanguage: 'en',
     },
   }),
-  Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
+  Trans: ({ i18nKey }: { i18nKey: string }) => {
+    const translations: Record<string, string> = {
+      gameSettings: 'Game Settings',
+      roomSettings: 'Room Settings',
+      updatedGameSettings: 'updated their personal game board settings',
+      updatedRoomSettings: 'updated room settings',
+      importBoard: 'Import Board',
+      incompatibleBoard: 'Incompatible board',
+      room: 'Room',
+      copiedLink: 'Link copied',
+      finish: 'finish',
+      playAgain: 'Play Again',
+    };
+    return <span>{translations[i18nKey] || i18nKey}</span>;
+  },
 }));
 
 vi.mock('@/components/DeleteMessageButton', () => ({
   default: ({ id }: { room: string; id: string }) => (
-    <button data-testid={`delete-${id}`}>Delete</button>
+    <button type="button" data-testid={`delete-${id}`}>
+      Delete
+    </button>
   ),
 }));
 
@@ -51,7 +66,9 @@ vi.mock('@/components/TextAvatar', () => ({
 
 vi.mock('@/components/CopyToClipboard', () => ({
   default: ({ icon }: { text: string; icon: ReactNode }) => (
-    <button data-testid="copy-button">{icon}</button>
+    <button type="button" data-testid="copy-button">
+      {icon}
+    </button>
   ),
 }));
 
@@ -145,11 +162,14 @@ describe('System Message Component', () => {
         </TestWrapper>
       );
 
-      // Check system message structure
-      expect(screen.getByTestId('message-settings1')).toHaveClass('system-message');
+      // Check system message structure - should contain MUI Box with systemMessage variant
+      const systemMessage = screen.getByTestId('message-settings1');
+      expect(systemMessage).toBeInTheDocument();
+      // Check that it contains a Box element (MUI systemMessage variant)
+      expect(systemMessage.querySelector('[class*="MuiBox-root"]')).toBeInTheDocument();
       expect(
-        screen.getByText((content, element) => {
-          return element?.textContent === 'John updated 3 settings';
+        screen.getByText((_, element) => {
+          return element?.textContent === 'John updated their personal game board settings';
         })
       ).toBeInTheDocument();
       expect(screen.getByTestId('details-button-settings1')).toBeInTheDocument();
@@ -178,10 +198,13 @@ describe('System Message Component', () => {
         </TestWrapper>
       );
 
-      // Check system message structure
-      expect(screen.getByTestId('message-room1')).toHaveClass('system-message');
+      // Check system message structure - should contain MUI Box with systemMessage variant
+      const systemMessage = screen.getByTestId('message-room1');
+      expect(systemMessage).toBeInTheDocument();
+      // Check that it contains a Box element (MUI systemMessage variant)
+      expect(systemMessage.querySelector('[class*="MuiBox-root"]')).toBeInTheDocument();
       expect(
-        screen.getByText((content, element) => {
+        screen.getByText((_, element) => {
           return element?.textContent === 'Alice updated room settings';
         })
       ).toBeInTheDocument();
@@ -211,10 +234,10 @@ describe('System Message Component', () => {
         </TestWrapper>
       );
 
-      // Should show count-based summary for multiple settings
+      // Should show generic settings summary (no count)
       expect(
-        screen.getByText((content, element) => {
-          return element?.textContent === 'Bob updated 5 settings';
+        screen.getByText((_, element) => {
+          return element?.textContent === 'Bob updated their personal game board settings';
         })
       ).toBeInTheDocument();
     });
@@ -324,7 +347,7 @@ describe('System Message Component', () => {
       fireEvent.click(screen.getByTestId('details-button-settings6'));
 
       await waitFor(() => {
-        const importButton = screen.getByRole('link', { name: 'importBoard' });
+        const importButton = screen.getByRole('link', { name: 'Import Board' });
         expect(importButton).toBeInTheDocument();
         expect(screen.getByTestId('copy-button')).toBeInTheDocument();
       });
@@ -399,8 +422,9 @@ describe('System Message Component', () => {
         </TestWrapper>
       );
 
-      // System message should have system-message class
-      expect(screen.getByTestId('message-settings8')).toHaveClass('system-message');
+      // System message should contain MUI Box component
+      const systemMessage = screen.getByTestId('message-settings8');
+      expect(systemMessage.querySelector('[class*="MuiBox-root"]')).toBeInTheDocument();
 
       rerender(
         <TestWrapper>
@@ -413,8 +437,9 @@ describe('System Message Component', () => {
         </TestWrapper>
       );
 
-      // Regular message should NOT have system-message class
-      expect(screen.getByTestId('message-chat1')).not.toHaveClass('system-message');
+      // Regular message should have different structure (message-header instead of MUI Box variant)
+      const regularMessage = screen.getByTestId('message-chat1');
+      expect(regularMessage.querySelector('.message-header')).toBeInTheDocument();
     });
 
     it('should apply transparent styling when isTransparent prop is true', () => {
@@ -455,8 +480,9 @@ describe('System Message Component', () => {
       );
 
       // System messages should be centered, not aligned to right like own messages
-      expect(screen.getByTestId('message-settings10')).toHaveClass('system-message');
-      expect(screen.getByTestId('message-settings10')).not.toHaveClass('own-message');
+      const systemMessage = screen.getByTestId('message-settings10');
+      expect(systemMessage.querySelector('[class*="MuiBox-root"]')).toBeInTheDocument();
+      expect(systemMessage).not.toHaveClass('own-message');
     });
   });
 
@@ -602,8 +628,8 @@ describe('System Message Component', () => {
       );
 
       expect(
-        screen.getByText((content, element) => {
-          return element?.textContent === 'Test User updated game settings';
+        screen.getByText((_, element) => {
+          return element?.textContent === 'Test User updated their personal game board settings';
         })
       ).toBeInTheDocument();
     });
@@ -654,9 +680,10 @@ describe('System Message Component', () => {
       );
 
       expect(
-        screen.getByText((content, element) => {
+        screen.getByText((_, element) => {
           return (
-            element?.textContent === 'Very Long User Name That Might Overflow updated game settings'
+            element?.textContent ===
+            'Very Long User Name That Might Overflow updated their personal game board settings'
           );
         })
       ).toBeInTheDocument();
