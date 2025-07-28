@@ -159,6 +159,21 @@ let darkTheme = createTheme({
           },
         },
       },
+      defaultProps: {
+        // Disable backdrop for Select dropdowns
+        MenuProps: {
+          disableScrollLock: true,
+          BackdropProps: {
+            invisible: true,
+          },
+          PaperProps: {
+            style: {
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+            },
+          },
+        },
+      },
     },
     MuiSwitch: {
       styleOverrides: {
@@ -216,8 +231,23 @@ let darkTheme = createTheme({
     MuiModal: {
       styleOverrides: {
         root: {
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
+          // Only apply backdrop blur to modals that are NOT Select popover containers
+          '&:not(.MuiPopover-root)': {
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+          },
+        },
+      },
+    },
+    MuiPopover: {
+      styleOverrides: {
+        root: {
+          // Ensure popover (used by Select) doesn't have backdrop
+          '& .MuiModal-backdrop': {
+            backgroundColor: 'transparent',
+            backdropFilter: 'none',
+            WebkitBackdropFilter: 'none',
+          },
         },
       },
     },

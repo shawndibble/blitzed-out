@@ -67,6 +67,18 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
           }
           onChange={(event: SelectChangeEvent<string>) => changeLanguage(event.target.value)}
           endAdornment={loading && <CircularProgress size={20} />}
+          MenuProps={{
+            disableScrollLock: true,
+            BackdropProps: {
+              invisible: true,
+            },
+            PaperProps: {
+              style: {
+                backdropFilter: 'none',
+                WebkitBackdropFilter: 'none',
+              },
+            },
+          }}
         >
           {menuItems}
         </Select>

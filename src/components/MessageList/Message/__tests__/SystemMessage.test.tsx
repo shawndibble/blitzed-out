@@ -105,6 +105,7 @@ const createMockMessage = (
       ...baseMessage,
       boardSize: 40,
       gameBoardId: 'test-board-id',
+      ...additionalProps,
     } as MessageType;
   }
 
@@ -146,7 +147,11 @@ describe('System Message Component', () => {
 
       // Check system message structure
       expect(screen.getByTestId('message-settings1')).toHaveClass('system-message');
-      expect(screen.getByText('John updated game settings')).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return element?.textContent === 'John updated 3 settings';
+        })
+      ).toBeInTheDocument();
       expect(screen.getByTestId('details-button-settings1')).toBeInTheDocument();
 
       // Check system icon
@@ -175,7 +180,11 @@ describe('System Message Component', () => {
 
       // Check system message structure
       expect(screen.getByTestId('message-room1')).toHaveClass('system-message');
-      expect(screen.getByText('Alice updated room settings')).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return element?.textContent === 'Alice updated room settings';
+        })
+      ).toBeInTheDocument();
       expect(screen.getByTestId('details-button-room1')).toBeInTheDocument();
 
       // Check system icon
@@ -203,7 +212,11 @@ describe('System Message Component', () => {
       );
 
       // Should show count-based summary for multiple settings
-      expect(screen.getByText('Bob updated 5 settings')).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return element?.textContent === 'Bob updated 5 settings';
+        })
+      ).toBeInTheDocument();
     });
 
     it('should display timestamp in system message', () => {
@@ -274,8 +287,11 @@ describe('System Message Component', () => {
         expect(screen.getByTestId('details-popover-settings5')).toBeInTheDocument();
       });
 
-      // Click outside (simulate)
-      fireEvent.keyDown(document, { key: 'Escape' });
+      // Click on the backdrop to close popover
+      const backdrop = document.querySelector('.MuiBackdrop-root');
+      if (backdrop) {
+        fireEvent.click(backdrop);
+      }
 
       await waitFor(() => {
         expect(screen.queryByTestId('details-popover-settings5')).not.toBeInTheDocument();
@@ -308,7 +324,7 @@ describe('System Message Component', () => {
       fireEvent.click(screen.getByTestId('details-button-settings6'));
 
       await waitFor(() => {
-        const importButton = screen.getByRole('button', { name: 'importBoard' });
+        const importButton = screen.getByRole('link', { name: 'importBoard' });
         expect(importButton).toBeInTheDocument();
         expect(screen.getByTestId('copy-button')).toBeInTheDocument();
       });
@@ -340,7 +356,7 @@ describe('System Message Component', () => {
       fireEvent.click(screen.getByTestId('details-button-settings7'));
 
       await waitFor(() => {
-        expect(screen.getByText('incompatibleBoard')).toBeInTheDocument();
+        expect(screen.getByText('Incompatible board')).toBeInTheDocument();
       });
     });
 
@@ -585,7 +601,11 @@ describe('System Message Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByText('Test User updated game settings')).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return element?.textContent === 'Test User updated game settings';
+        })
+      ).toBeInTheDocument();
     });
 
     it('should handle missing boardSize gracefully', () => {
@@ -634,7 +654,11 @@ describe('System Message Component', () => {
       );
 
       expect(
-        screen.getByText('Very Long User Name That Might Overflow updated game settings')
+        screen.getByText((content, element) => {
+          return (
+            element?.textContent === 'Very Long User Name That Might Overflow updated game settings'
+          );
+        })
       ).toBeInTheDocument();
     });
   });
