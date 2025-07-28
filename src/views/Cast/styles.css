@@ -76,3 +76,9 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   font-size: 120%;
 }
+
+/* Ensure black background for TV mode when no custom background */
+.flex-column {
+  min-height: 100vh;
+  background-color: transparent;
+}

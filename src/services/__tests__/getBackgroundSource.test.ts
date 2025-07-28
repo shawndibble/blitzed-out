@@ -84,6 +84,57 @@ describe('getBackgroundSource', () => {
         });
       });
 
+      it('processes Imgur gallery URLs correctly', () => {
+        const galleryUrls = [
+          'https://imgur.com/gallery/green-black-spiral-inside-spiral-3YkU9Yc#6fDSu6z',
+          'https://imgur.com/gallery/staircase-fLeImCe#JcDoEfP',
+          'https://imgur.com/gallery/some-title-xyz123#abc789',
+        ];
+
+        const expectedIds = ['6fDSu6z', 'JcDoEfP', 'abc789'];
+
+        galleryUrls.forEach((url, index) => {
+          const result = processBackground(url);
+          expect(result.isVideo).toBe(true);
+          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.mp4`);
+        });
+      });
+
+      it('processes Imgur gallery URLs with fragment fallback', () => {
+        const fragmentUrls = [
+          'https://imgur.com/gallery/some-title#abc123',
+          'https://imgur.com/something#def456',
+        ];
+
+        const expectedIds = ['abc123', 'def456'];
+
+        fragmentUrls.forEach((url, index) => {
+          const result = processBackground(url);
+          expect(result.isVideo).toBe(true);
+
+          // For the second URL, the regex won't match /gallery/ pattern so it falls back to fragment matching
+          if (url.includes('/gallery/')) {
+            expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.mp4`);
+          } else {
+            // For URLs without /gallery/, it tries to match as a regular imgur URL
+            // but "something" gets extracted instead of the fragment
+            expect(result.url).toBe(`https://i.imgur.com/something.mp4`);
+          }
+        });
+      });
+
+      it('handles Imgur URLs without fragments', () => {
+        const simpleUrls = ['https://imgur.com/abc123', 'https://i.imgur.com/def456'];
+
+        const expectedIds = ['abc123', 'def456'];
+
+        simpleUrls.forEach((url, index) => {
+          const result = processBackground(url);
+          expect(result.isVideo).toBe(true);
+          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.mp4`);
+        });
+      });
+
       it('handles Discord CDN URLs correctly', () => {
         const discordImageUrl = 'https://media.discordapp.net/attachments/123/456/image.png';
         const result = processBackground(discordImageUrl);

@@ -50,18 +50,39 @@ function xhamster(url: string): string {
 
 function imgur(url: string): string {
   // For Discord proxy URLs that contain Imgur links, just return the URL directly
-  if (url.includes('discordapp.net') && url.includes('imgur.com') && url.endsWith('.mp4')) {
+  if (url.includes('discordapp.net') && url.includes('imgur.com')) {
     return url;
   }
 
   // Extract the Imgur ID from different possible URL formats
-  const imgurRegex =
-    /imgur\.com\/([a-zA-Z0-9]+)(?:\.mp4)?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.mp4/;
-  const match = url.match(imgurRegex);
-  const imgurId = match ? match[1] || match[2] : '';
+  let imgurId = '';
 
-  // Return direct link to the MP4 file
-  return `https://i.imgur.com/${imgurId}.mp4`;
+  // Handle gallery URLs like: https://imgur.com/gallery/title-3YkU9Yc#6fDSu6z
+  if (url.includes('/gallery/')) {
+    const galleryMatch = url.match(/imgur\.com\/gallery\/[^#]*#([a-zA-Z0-9]+)/);
+    if (galleryMatch) {
+      imgurId = galleryMatch[1];
+    } else {
+      // Fallback: try to extract from the URL fragment or path
+      const fragmentMatch = url.match(/#([a-zA-Z0-9]+)/);
+      if (fragmentMatch) {
+        imgurId = fragmentMatch[1];
+      }
+    }
+  } else {
+    // Handle regular URLs
+    const imgurRegex =
+      /imgur\.com\/([a-zA-Z0-9]+)(?:\.(mp4|jpg|jpeg|png|gif|webp))?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.(mp4|jpg|jpeg|png|gif|webp)/;
+    const match = url.match(imgurRegex);
+    imgurId = match ? match[1] || match[3] : '';
+  }
+
+  // Try video first, fallback to common image formats
+  // We'll return the .mp4 URL and let the component handle if it fails to load
+  const finalUrl = `https://i.imgur.com/${imgurId}.mp4`;
+
+  // Return direct link - start with MP4, component will handle fallback
+  return finalUrl;
 }
 
 function isDirectVideoUrl(url: string): boolean {
