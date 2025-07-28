@@ -7,6 +7,7 @@ interface PresetSelectorProps {
   onPresetSelect: (preset: PresetConfig) => void;
   selectedPreset?: string;
   actionsList: Record<string, any>;
+  showTitle?: boolean;
 }
 
 export default function PresetSelector({
@@ -14,6 +15,7 @@ export default function PresetSelector({
   onPresetSelect,
   selectedPreset,
   actionsList,
+  showTitle = true,
 }: PresetSelectorProps) {
   const { t } = useTranslation();
 
@@ -177,9 +179,11 @@ export default function PresetSelector({
 
   return (
     <Box>
-      <Typography variant="h6" gutterBottom>
-        {t('quickStart')}
-      </Typography>
+      {showTitle && (
+        <Typography variant="h6" gutterBottom>
+          {t('quickStart')}
+        </Typography>
+      )}
 
       <Grid container spacing={2}>
         {currentPresets.map((preset) => (
@@ -189,13 +193,15 @@ export default function PresetSelector({
                 cursor: 'pointer',
                 border: selectedPreset === preset.id ? 2 : 1,
                 borderColor: selectedPreset === preset.id ? 'primary.main' : 'divider',
-                backgroundColor: selectedPreset === preset.id ? 'primary.50' : 'background.paper',
+                backgroundColor: selectedPreset === preset.id ? 'primary.dark' : 'background.paper',
                 transition: 'all 0.2s ease-in-out',
                 height: '100%',
+                boxShadow: 1,
                 '&:hover': {
                   borderColor: 'primary.main',
                   transform: 'translateY(-2px)',
-                  boxShadow: 2,
+                  boxShadow: 3,
+                  backgroundColor: selectedPreset === preset.id ? 'primary.dark' : 'action.hover',
                 },
               }}
               onClick={() => handlePresetClick(preset)}

@@ -9,7 +9,7 @@ import {
   AccordionDetails,
   Stack,
 } from '@mui/material';
-import { ExpandMore, Tune } from '@mui/icons-material';
+import { ExpandMore, Tune, PlayArrow } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import PresetSelector from './PresetSelector';
@@ -39,6 +39,7 @@ export default function ActionsStep({
   const { t } = useTranslation();
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [showCustomization, setShowCustomization] = useState(false);
+  const [showQuickStart, setShowQuickStart] = useState(true);
 
   function settingSelectLists(type: string): string[] {
     return Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
@@ -58,6 +59,7 @@ export default function ActionsStep({
       formData.selectedActions && Object.keys(formData.selectedActions).length > 0;
     if (hasSelectedActions) {
       setShowCustomization(true);
+      setShowQuickStart(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only run on mount
   }, []);
@@ -119,6 +121,25 @@ export default function ActionsStep({
       ...formData,
       selectedActions: newSelectedActions,
     });
+
+    // After selecting a preset, switch to customization view
+    setShowQuickStart(false);
+    setShowCustomization(true);
+  };
+
+  // Handle accordion mutual exclusivity
+  const handleQuickStartChange = (_: React.SyntheticEvent, isExpanded: boolean) => {
+    setShowQuickStart(isExpanded);
+    if (isExpanded) {
+      setShowCustomization(false);
+    }
+  };
+
+  const handleCustomizationChange = (_: React.SyntheticEvent, isExpanded: boolean) => {
+    setShowCustomization(isExpanded);
+    if (isExpanded) {
+      setShowQuickStart(false);
+    }
   };
 
   // Check if user has made selections
@@ -126,53 +147,102 @@ export default function ActionsStep({
 
   return (
     <Box>
-      {/* Preset Selection */}
-      <PresetSelector
-        gameMode={gameMode}
-        onPresetSelect={handlePresetSelect}
-        selectedPreset={selectedPreset}
-        actionsList={actionsList}
-      />
+      {/* Quick Start Accordion */}
+      <Accordion
+        expanded={showQuickStart}
+        onChange={handleQuickStartChange}
+        sx={{
+          backgroundColor: 'background.default',
+          borderTop: 1,
+          borderBottom: 1,
+          borderColor: 'divider',
+          borderLeft: 'none',
+          borderRight: 'none',
+          borderRadius: 0,
+          '&:before': {
+            display: 'none',
+          },
+          boxShadow: 'none',
+        }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="quickstart-content"
+          id="quickstart-header"
+          sx={{
+            backgroundColor: 'background.default',
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <PlayArrow />
+            <Typography variant="h6">{t('quickStart')}</Typography>
+          </Stack>
+        </AccordionSummary>
+        <AccordionDetails sx={{ pb: 1 }}>
+          <PresetSelector
+            gameMode={gameMode}
+            onPresetSelect={handlePresetSelect}
+            selectedPreset={selectedPreset}
+            actionsList={actionsList}
+            showTitle={false}
+          />
+        </AccordionDetails>
+      </Accordion>
 
       {/* Custom Selection Accordion */}
-      <Box sx={{ mt: 4 }}>
-        <Accordion
-          expanded={showCustomization}
-          onChange={(_, isExpanded) => setShowCustomization(isExpanded)}
+      <Accordion
+        expanded={showCustomization}
+        onChange={handleCustomizationChange}
+        sx={{
+          backgroundColor: 'background.default',
+          borderTop: showQuickStart ? 'none' : 1,
+          borderBottom: 1,
+          borderColor: 'divider',
+          borderLeft: 'none',
+          borderRight: 'none',
+          borderRadius: 0,
+          marginTop: showQuickStart ? -1 : 0,
+          '&:before': {
+            display: 'none',
+          },
+          boxShadow: 'none',
+        }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMore />}
+          aria-controls="customization-content"
+          id="customization-header"
+          sx={{
+            backgroundColor: 'background.default',
+          }}
         >
-          <AccordionSummary
-            expandIcon={<ExpandMore />}
-            aria-controls="customization-content"
-            id="customization-header"
-          >
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Tune />
-              <Typography variant="h6">{t('customizeActions')}</Typography>
-            </Stack>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {t('customizeActionsDesc')}
-            </Typography>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Tune />
+            <Typography variant="h6">{t('customizeActions')}</Typography>
+          </Stack>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {t('customizeActionsDesc')}
+          </Typography>
 
-            <PickActions
-              formData={formData}
-              setFormData={setFormData}
-              options={options}
-              actionsList={actionsList}
-            />
+          <PickActions
+            formData={formData}
+            setFormData={setFormData}
+            options={options}
+            actionsList={actionsList}
+          />
 
-            <Divider sx={{ my: 3 }} />
+          <Divider sx={{ my: 3 }} />
 
-            <PickConsumptions
-              formData={formData}
-              setFormData={setFormData}
-              options={options}
-              actionsList={actionsList}
-            />
-          </AccordionDetails>
-        </Accordion>
-      </Box>
+          <PickConsumptions
+            formData={formData}
+            setFormData={setFormData}
+            options={options}
+            actionsList={actionsList}
+          />
+        </AccordionDetails>
+      </Accordion>
 
       <Box sx={{ mt: 4 }}>
         <ButtonRow>

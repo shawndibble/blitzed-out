@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Typography, Fade } from '@mui/material';
+import { Box, CircularProgress, Fade, Typography } from '@mui/material';
 
 /**
  * Simple, elegant loading screen that works for all application states
@@ -23,12 +23,8 @@ export default function AppSkeleton() {
         }}
       >
         <Box
-          className="glass-light"
           sx={{
-            padding: '2.5rem 2rem',
-            borderRadius: '16px',
             textAlign: 'center',
-            maxWidth: '300px',
             margin: '0 auto',
             display: 'flex',
             flexDirection: 'column',
