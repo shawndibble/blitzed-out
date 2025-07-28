@@ -1,4 +1,5 @@
 import { Box, CircularProgress } from '@mui/material';
+import clsx from 'clsx';
 import MessageInput from '@/components/MessageInput';
 import PopupMessage from '@/components/PopupMessage';
 import RoomBackground from '@/components/RoomBackground';
@@ -81,6 +82,10 @@ export default function Room() {
   const { isVideo, url } = getBackgroundSource(settings, room, roomBgUrl);
   const videoAdjust = isVideo ? 'video-adjust' : '';
 
+  // Apply default background to desktop-container when no custom background is set
+  const hasCustomBackground = url && (isVideo || (!isVideo && url));
+  const defaultRoomBackgroundClass = !hasCustomBackground ? 'default-room-background' : '';
+
   const { background, roomBackground } = settings;
   const isTransparent = (!isPublicRoom(room) && roomBackground !== 'app') || background !== 'color';
 
@@ -125,7 +130,7 @@ export default function Room() {
           <BottomTabs tab1={GameBoardComponent} tab2={messagesComponent} />
         </Suspense>
       ) : (
-        <Box className={`desktop-container ${videoAdjust}`}>
+        <Box className={clsx('desktop-container', videoAdjust, defaultRoomBackgroundClass)}>
           {GameBoardComponent}
           {messagesComponent}
         </Box>

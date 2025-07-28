@@ -14,12 +14,18 @@
   width: 100%;
   align-items: center;
   padding: 10px 32px;
-  background: var(--color-surface);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   justify-content: space-between;
-  box-shadow: var(--shadow-md);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(72, 219, 251, 0.1);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
   position: sticky;
   top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
 }
 
 @media screen and (max-width: 600px) {

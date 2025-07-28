@@ -1,4 +1,5 @@
-import { Box, Button, Divider, Typography } from '@mui/material';
+import { Box, Button, Typography, Chip, IconButton, Popover } from '@mui/material';
+import { Settings, Home, InfoOutlined } from '@mui/icons-material';
 import clsx from 'clsx';
 import DeleteMessageButton from '@/components/DeleteMessageButton';
 import GameOverDialog from '@/components/GameOverDialog';
@@ -16,6 +17,7 @@ import ActionText from './actionText';
 import { Message as MessageType } from '@/types/Message';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
 import { getDayjsWithLocale } from '@/helpers/momentLocale';
+import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
 
 const MILLISECONDS_IN_A_MINUTE = 60000;
 
@@ -37,8 +39,18 @@ export default function Message({
   const { t, i18n } = useTranslation();
 
   const [isOpenDialog, setDialog] = useState<boolean>(false);
+  const [detailsAnchor, setDetailsAnchor] = useState<HTMLElement | null>(null);
+
   const closeDialog = useCallback(() => {
     setDialog(false);
+  }, []);
+
+  const handleDetailsClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    setDetailsAnchor(event.currentTarget);
+  }, []);
+
+  const handleDetailsClose = useCallback(() => {
+    setDetailsAnchor(null);
   }, []);
 
   // Destructure common properties
@@ -101,6 +113,131 @@ export default function Message({
     return <Markdown remarkPlugins={[remarkGfm, remarkGemoji]}>{text}</Markdown>;
   }, [text, type]);
 
+  // Generate smart summary for system messages
+  const systemSummary = useMemo(() => {
+    return generateSystemSummary(type, text, t);
+  }, [type, text, t]);
+
+  // Check if this is a system message that should use compact layout
+  const isSystemMessage = type === 'settings' || type === 'room';
+
+  // Check if text is likely to wrap (long text or contains multiple words)
+  const isLikelyToWrap = useMemo(() => {
+    if (!isSystemMessage) return false;
+    return isSystemMessageLikelyToWrap(displayName, systemSummary);
+  }, [isSystemMessage, displayName, systemSummary]);
+
+  // Render system message (settings/room) with compact layout
+  if (isSystemMessage) {
+    return (
+      <li
+        className={clsx(
+          'message',
+          'system-message',
+          isTransparent && 'transparent',
+          isLikelyToWrap && 'full-width'
+        )}
+        data-testid={`message-${id}`}
+      >
+        <Box component="div" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Box
+            component="span"
+            sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}
+          >
+            {type === 'settings' ? <Settings fontSize="small" /> : <Home fontSize="small" />}
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0, ml: 0.5 }}>
+            <Typography variant="body2" component="span" sx={{ lineHeight: 1.2 }}>
+              <strong>{displayName}</strong> {systemSummary}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                display: 'block',
+                opacity: 0.7,
+                fontSize: '0.65rem',
+                mt: 0.25,
+              }}
+            >
+              {ago}
+            </Typography>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={handleDetailsClick}
+            aria-label="View details"
+            data-testid={`details-button-${id}`}
+          >
+            <InfoOutlined fontSize="small" />
+          </IconButton>
+        </Box>
+
+        {/* Details Popover */}
+        <Popover
+          open={Boolean(detailsAnchor)}
+          anchorEl={detailsAnchor}
+          onClose={handleDetailsClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+          data-testid={`details-popover-${id}`}
+        >
+          <Box className="system-details-popover">
+            <div className="system-details-content">{markdownContent}</div>
+
+            {type === 'settings' && (
+              <Box className="system-action-buttons">
+                {isImportable ? (
+                  <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
+                    <Button
+                      component={Link}
+                      to={`?importBoard=${gameBoardId}`}
+                      variant="contained"
+                      size="small"
+                      color="primary"
+                    >
+                      <Trans i18nKey="importBoard" />
+                    </Button>
+                    <CopyToClipboard
+                      text={`${window.location.href}?importBoard=${gameBoardId}`}
+                      copiedText={t('copiedLink')}
+                      icon={<Share />}
+                    />
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    <Trans i18nKey="incompatibleBoard" />
+                  </Typography>
+                )}
+              </Box>
+            )}
+
+            {type === 'room' && (
+              <Box className="system-action-buttons">
+                <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
+                  <Typography variant="body2">
+                    {t('room')}: <strong>{room}</strong>
+                  </Typography>
+                  <CopyToClipboard
+                    text={window.location.href}
+                    copiedText={t('copiedLink')}
+                    icon={<Share />}
+                  />
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Popover>
+      </li>
+    );
+  }
+
+  // Render regular message (chat, actions, media) with standard layout
   return (
     <li
       className={clsx('message', isOwnMessage && 'own-message', isTransparent && 'transparent')}
@@ -109,56 +246,21 @@ export default function Message({
       <div className="message-header">
         <div className="sender">
           <TextAvatar uid={uid} displayName={displayName} size="small" />
-          {displayName}
+          <span className="sender-name">{displayName}</span>
+          <Chip label={ago} size="small" variant="outlined" className="timestamp-chip" />
         </div>
-        <div className="timestamp">
-          {ago}
+        <div className="message-actions">
           {!!isOwnMessage && ['media', 'chat'].includes(type) && id && (
             <DeleteMessageButton room={room} id={id} />
           )}
         </div>
       </div>
-      <Divider sx={{ mb: 1 }} />
       <div className="message-message">
         {type === 'actions' ? <ActionText text={text} /> : markdownContent}
         {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
-        {type === 'settings' && (
-          <>
-            <Divider sx={{ my: 0.5 }} />
-            {isImportable ? (
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Link to={`?importBoard=${gameBoardId}`}>
-                  <Trans i18nKey="importBoard" />
-                </Link>
-
-                <CopyToClipboard
-                  text={`${window.location.href}?importBoard=${gameBoardId}`}
-                  copiedText={t('copiedLink')}
-                  icon={<Share />}
-                />
-              </Box>
-            ) : (
-              <Trans i18nKey="incompatibleBoard" />
-            )}
-          </>
-        )}
-        {type === 'room' && (
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="subtitle1">
-              {t('room')}: <a href={window.location.href}>{room}</a>
-            </Typography>
-
-            <CopyToClipboard
-              text={window.location.href}
-              copiedText={t('copiedLink')}
-              icon={<Share />}
-            />
-          </Box>
-        )}
         {text.includes(t('finish')) && isOwnMessage && (
-          <Box textAlign="center">
-            <Divider sx={{ mt: 1 }} />
-            <Button onClick={() => setDialog(true)}>
+          <Box textAlign="center" className="message-action-box">
+            <Button onClick={() => setDialog(true)} variant="outlined" size="small">
               <Typography>{t('playAgain')}</Typography>
             </Button>
             <GameOverDialog isOpen={isOpenDialog} close={closeDialog} />

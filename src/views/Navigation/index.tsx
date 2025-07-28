@@ -72,7 +72,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
       <Toolbar disableGutters variant="dense" component="nav" className="nav">
         <div className="site-name">
           <Box component="img" sx={{ height: 32 }} alt="Blitzed Out Logo" src={Logo} />
-          <h1>Blitzed Out</h1>
+          <h1 className="gradient-text">Blitzed Out</h1>
         </div>
         <div>
           <div className="nav-room-name">

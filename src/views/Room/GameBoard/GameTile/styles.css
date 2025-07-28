@@ -16,15 +16,50 @@
 
 .pulse-animation {
   scroll-margin-top: 5rem;
-  animation: pulse-white 1.5s 1;
-  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.7);
+  animation: pulse-brand 1.5s 1;
+  box-shadow: 0 0 10px 2px rgba(34, 211, 238, 0.7);
 }
 
 li.pulse-animation.gray-tiles {
-  animation: pulse-bright-white 1.5s 1;
-  box-shadow: 0 0 10px 10px rgba(255, 255, 255, 1);
+  animation: pulse-bright-brand 1.5s 1;
+  box-shadow: 0 0 10px 10px rgba(34, 211, 238, 0.8);
 }
 
+@keyframes pulse-brand {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 10px 10px rgba(34, 211, 238, 0.7);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px 2px rgba(34, 211, 238, 0.7);
+  }
+}
+
+@keyframes pulse-bright-brand {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.8);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 10px 15px rgba(34, 211, 238, 0.8);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px 10px rgba(34, 211, 238, 0.8);
+  }
+}
+
+/* Legacy animations for backwards compatibility */
 @keyframes pulse-white {
   0% {
     transform: scale(0.95);

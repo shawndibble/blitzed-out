@@ -4,6 +4,7 @@
   height: calc(100vh - 15rem);
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 @media screen and (max-width: 600px) {
@@ -11,6 +12,19 @@
     min-height: auto;
     max-height: calc(100vh - 20rem);
   }
+}
+
+.message-filter-header {
+  position: absolute;
+  top: -8px;
+  right: -16px;
+  z-index: 1001;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.message-filter-fab {
+  z-index: 1000;
 }
 
 .message-list-scroll {
@@ -35,18 +49,18 @@
   list-style: none;
 }
 
-.message-tabs button {
-  flex-shrink: 1;
-  min-width: 80px;
-}
-
 .message {
-  padding: 8px 16px;
-  margin-bottom: 8px;
-  background: var(--color-gray);
-  border-radius: var(--border-radius);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: 1px;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   text-align: left;
   width: 100%;
+  transition: background-color 0.2s ease;
+}
+
+.message:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .message-message {
@@ -58,16 +72,12 @@
 }
 
 .message.transparent {
-  background: rgba(75, 75, 75, 0.75);
-  text-shadow:
-    -1px 0 0 black,
-    1px 0 0 black,
-    0 -1px 0 black,
-    0 1px 0 black;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
 }
 
-.message.transparent .MuiAvatar-root {
-  text-shadow: none;
+.message.transparent:hover {
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .message td,
@@ -114,22 +124,112 @@
 .message-header {
   display: flex;
   justify-content: space-between;
-  font-size: 80%;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
-.own-message {
-  background: var(--color-blue);
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timestamp-chip {
+  margin-left: 8px !important;
+  font-size: 0.7rem !important;
+  height: 20px !important;
+}
+
+/* Regular message timestamps */
+.message .timestamp-chip {
+  font-size: 0.7rem !important;
+  height: 20px !important;
+}
+
+.message-action-box {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* System Message Styles - Now handled by MUI theme variant */
+
+.system-details-popover {
+  padding: 16px;
+  max-width: 400px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.system-details-content {
+  margin-bottom: 12px;
+}
+
+.system-action-buttons {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.system-action-buttons .MuiButton-root {
+  text-transform: none;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.system-action-buttons .MuiButton-root:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.system-details-popover h1,
+.system-details-popover h2,
+.system-details-popover h3 {
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.system-details-popover ul {
+  list-style: disc;
+  padding-left: 1rem;
+  margin: 8px 0;
+}
+
+.system-details-popover p {
+  margin: 4px 0;
+}
+
+.own-message:has(.message-header) {
+  background: rgba(25, 118, 210, 0.1);
+  border-left: 3px solid var(--color-blue);
   align-self: flex-end;
+}
+
+.own-message:has(.message-header):hover {
+  background: rgba(25, 118, 210, 0.15);
+}
+
+.own-message.transparent:has(.message-header) {
+  background: rgba(25, 118, 210, 0.2);
+  backdrop-filter: blur(2px);
+}
+
+.own-message.transparent:has(.message-header):hover {
+  background: rgba(25, 118, 210, 0.3);
 }
 
 .sender {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
 }
 
-.sender > div {
-  margin-right: 0.5rem;
+.sender-name {
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.sender > div:first-child {
+  margin-right: 0;
 }
 
 .sender small {

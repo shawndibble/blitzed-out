@@ -1,120 +1,109 @@
-import { Divider, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Box, Typography, Divider } from '@mui/material';
 import './styles.css';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useState, SyntheticEvent } from 'react';
 import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 
 export default function GameGuide(): JSX.Element {
-  const [expanded, setExpanded] = useState<string | false>('panel1');
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState<string | false>(false);
   const handleChange =
     (panel: string) => (_event: SyntheticEvent<Element, Event>, newExpanded: boolean) => {
       setExpanded(newExpanded ? panel : false);
     };
 
   return (
-    <>
-      <Trans i18nKey="gameDesc">
-        <Typography variant="h4" sx={{ textAlign: 'center' }}>
-          Blitzed Out
-        </Typography>
-        <Divider />
-        <Typography variant="body1" mt={2}>
-          An online adult sex board game for kinky people. Designed for solo play, couples or
-          parties.
-        </Typography>
-        <Typography variant="body1" my={2}>
-          Customize your own board or import someone else&apos;s, find your own room and play with
-          other people online.
-        </Typography>
-      </Trans>
+    <Box className="game-guide">
+      {/* Hero Section */}
+      <Box className="hero-section">
+        <Trans i18nKey="gameDesc">
+          <Typography variant="h5" className="hero-title gradient-text-flame">
+            Transform Your Intimate Adventures
+          </Typography>
+          <Typography variant="body1" className="hero-description">
+            Blitzed Out is the ultimate customizable adult experience platform. Whether you&apos;re
+            exploring solo, spicing things up as a couple, or hosting an unforgettable party — this
+            is your playground.
+          </Typography>
+          <Typography variant="body2" className="hero-subtitle">
+            Create personalized experiences with endless customization, join private rooms, or
+            discover new adventures with a vibrant community.
+          </Typography>
+        </Trans>
+      </Box>
 
-      <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+      <Divider className="section-divider" />
+
+      {/* Features Section */}
+      <Box className="features-section">
+        <Typography variant="h6" className="section-title">
+          <Trans i18nKey="whySpecialTitle" />
+        </Typography>
+
+        <Box className="features-grid">
+          <Box className="feature-item">
+            <Trans i18nKey="customizationFeature">
+              <Box className="feature-icon">🎲</Box>
+              <Typography variant="subtitle1" className="feature-title">
+                Unlimited Customization
+              </Typography>
+              <Typography variant="body2" className="feature-description">
+                Create your perfect experience with custom boards, actions, and intensity levels
+                tailored to your desires.
+              </Typography>
+            </Trans>
+          </Box>
+
+          <Box className="feature-item">
+            <Trans i18nKey="privacyFeature">
+              <Box className="feature-icon">🔒</Box>
+              <Typography variant="subtitle1" className="feature-title">
+                Complete Privacy Control
+              </Typography>
+              <Typography variant="body2" className="feature-description">
+                Private rooms, local play options, and anonymous sessions. Your privacy and comfort
+                come first.
+              </Typography>
+            </Trans>
+          </Box>
+
+          <Box className="feature-item">
+            <Trans i18nKey="varietyFeature">
+              <Box className="feature-icon">🌟</Box>
+              <Typography variant="subtitle1" className="feature-title">
+                Endless Variety
+              </Typography>
+              <Typography variant="body2" className="feature-description">
+                From gentle exploration to intense adventures — with community-created content and
+                regular updates.
+              </Typography>
+            </Trans>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Getting Started */}
+      <Accordion
+        expanded={expanded === 'panel1'}
+        onChange={handleChange('panel1')}
+        className="about-accordion"
+      >
         <AccordionSummary aria-controls="panel1-content" id="panel1-header">
-          <Typography>
+          <Typography className="accordion-title">
             <Trans i18nKey="gettingStartedTitle" />
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Trans i18nKey="gettingStartedDescription">
-            <ul>
-              <li>
-                <Typography variant="body1">Pick a display name</Typography>
-              </li>
-              <li>
-                <Typography variant="body1">
-                  Select your options. (append will add that option to other tiles).
-                </Typography>
-              </li>
-              <li>
-                <Typography variant="body1">Save changes/Access game.</Typography>
-              </li>
-              <li>
-                <Typography variant="body1">
-                  When it is your turn, click the roll button and follow the prompts.
-                </Typography>
-              </li>
-            </ul>
-
-            <Typography variant="body1" mt={2}>
-              New player suggestion: Limit your selections to less than 4 total options.
-            </Typography>
-
-            <Typography variant="body1" mt={2}>
-              Don&apos;t like your current board or some aspect of the game? Go to Menu, then
-              Settings and change it. Utilize custom tiles to make the game even more your own.
-            </Typography>
-          </Trans>
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
-        <AccordionSummary aria-controls="panel2-content" id="panel2-header">
-          <Typography>
-            <Trans i18nKey="couplesTitle" />
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            {t('gettingStartedMainText')}
           </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Trans i18nKey="couplesDescription">
-            <Typography variant="body1" />
-            <Typography variant="body1" sx={{ mt: 2 }} />
-            <Typography variant="body1" sx={{ mt: 2 }} />
-          </Trans>
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
-        <AccordionSummary aria-controls="panel3-content" id="panel3-header">
-          <Typography>
-            <Trans i18nKey="coachTitle" />
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Trans i18nKey="coachDescription">
-            <Typography variant="body1" />
-            <Typography variant="body1" sx={{ mt: 2 }} />
-          </Trans>
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')}>
-        <AccordionSummary aria-controls="panel4-content" id="panel4-header">
-          <Typography>
-            <Trans i18nKey="bugsTitle" />
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body1">
-            <Trans i18nKey="bugsDescription">
-              <Link className="discord-link" to="https://discord.gg/5dCH2WVsmX" target="_blank">
-                Discord server
-              </Link>
-            </Trans>
+          <Typography variant="body2" className="helpful-tip">
+            {t('gettingStartedTip')}
           </Typography>
         </AccordionDetails>
       </Accordion>
-    </>
+    </Box>
   );
 }

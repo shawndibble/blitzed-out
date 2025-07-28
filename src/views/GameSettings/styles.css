@@ -1,6 +1,8 @@
 .settings-box {
   min-width: 100%;
   /* max-width: 300; */
+  padding: 1rem;
+  border-radius: 12px;
 }
 
 label.settings-switch {
@@ -23,4 +25,13 @@ label.settings-switch {
 
 .flex-buttons > button {
   margin-left: auto;
+}
+
+/* Enhanced button styling */
+.flex-buttons button {
+  transition: all 0.3s ease;
+}
+
+.flex-buttons button:hover {
+  transform: translateY(-1px);
 }

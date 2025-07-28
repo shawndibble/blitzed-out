@@ -144,3 +144,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Services have comprehensive unit tests with Firebase mocking
 - Integration tests cover complete user workflows
 - Slow tests flagged at 1000ms threshold
+
+## Context7 MCP Integration
+
+### Available MCP Servers
+
+- **Context7**: Up-to-date documentation and code examples from official sources
+  - Status: ✓ Connected
+  - URL: https://mcp.context7.com/mcp
+
+### Using Context7
+
+To get current, version-specific documentation and code examples, add `use context7` to your prompts:
+
+**Examples:**
+
+- "Create a React 19 component with TypeScript. use context7"
+- "Show me how to implement Firebase v12 authentication. use context7"
+- "How to use Material-UI v7 with custom themes? use context7"
+- "Implement Zustand store with TypeScript. use context7"
+
+**Benefits:**
+
+- Real-time access to official documentation
+- Version-specific code examples for project dependencies
+- Reduces outdated or incorrect code suggestions
+- Eliminates need to manually reference documentation
+
+**Project-Specific Usage:**
+
+- When working with React 19.1.0 features
+- Material-UI v7 component implementations
+- Firebase v12 integration patterns
+- Vite build configuration
+- TypeScript strict mode patterns

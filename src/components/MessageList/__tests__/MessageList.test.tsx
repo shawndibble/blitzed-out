@@ -119,11 +119,8 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByRole('tablist')).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'All' })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'Settings' })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'Chat' })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'Actions' })).toBeInTheDocument();
+      // Check for filter FAB instead of tabs
+      expect(screen.getByLabelText('filter messages')).toBeInTheDocument();
     });
 
     it('should render with transparent prop', () => {
@@ -133,7 +130,7 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByRole('tablist')).toBeInTheDocument();
+      expect(screen.getByLabelText('filter messages')).toBeInTheDocument();
     });
 
     it('should render with custom game board size', () => {
@@ -143,7 +140,7 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByRole('tablist')).toBeInTheDocument();
+      expect(screen.getByLabelText('filter messages')).toBeInTheDocument();
     });
   });
 
@@ -178,14 +175,18 @@ describe('MessageList Component', () => {
       expect(screen.getByTestId('message-5')).toBeInTheDocument();
     });
 
-    it('should filter to settings and room messages when settings tab is clicked', async () => {
+    it('should filter to settings and room messages when settings filter is selected', async () => {
       render(
         <TestWrapper>
           <MessageList room="test-room" />
         </TestWrapper>
       );
 
-      fireEvent.click(screen.getByRole('tab', { name: 'Settings' }));
+      // Click filter FAB
+      fireEvent.click(screen.getByLabelText('filter messages'));
+
+      // Select Settings filter
+      fireEvent.click(screen.getByText('Settings'));
 
       await waitFor(() => {
         expect(screen.queryByTestId('message-1')).not.toBeInTheDocument(); // chat
@@ -196,14 +197,18 @@ describe('MessageList Component', () => {
       });
     });
 
-    it('should filter to chat and media messages when chat tab is clicked', async () => {
+    it('should filter to chat and media messages when chat filter is selected', async () => {
       render(
         <TestWrapper>
           <MessageList room="test-room" />
         </TestWrapper>
       );
 
-      fireEvent.click(screen.getByRole('tab', { name: 'Chat' }));
+      // Click filter FAB
+      fireEvent.click(screen.getByLabelText('filter messages'));
+
+      // Select Chat filter
+      fireEvent.click(screen.getByText('Chat'));
 
       await waitFor(() => {
         expect(screen.getByTestId('message-1')).toBeInTheDocument(); // chat
@@ -214,14 +219,18 @@ describe('MessageList Component', () => {
       });
     });
 
-    it('should filter to actions messages when actions tab is clicked', async () => {
+    it('should filter to actions messages when actions filter is selected', async () => {
       render(
         <TestWrapper>
           <MessageList room="test-room" />
         </TestWrapper>
       );
 
-      fireEvent.click(screen.getByRole('tab', { name: 'Actions' }));
+      // Click filter FAB
+      fireEvent.click(screen.getByLabelText('filter messages'));
+
+      // Select Actions filter
+      fireEvent.click(screen.getByText('Actions'));
 
       await waitFor(() => {
         expect(screen.queryByTestId('message-1')).not.toBeInTheDocument(); // chat
@@ -347,8 +356,8 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      // Component should still render the tabs
-      expect(screen.getByRole('tablist')).toBeInTheDocument();
+      // Component should still render the filter button
+      expect(screen.getByLabelText('filter messages')).toBeInTheDocument();
     });
 
     it('should render messages even while loading', () => {
@@ -424,8 +433,9 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      // Switch to actions tab to see turn order
-      fireEvent.click(screen.getByRole('tab', { name: 'Actions' }));
+      // Switch to actions filter to see turn order
+      fireEvent.click(screen.getByLabelText('filter messages'));
+      fireEvent.click(screen.getByText('Actions'));
 
       await waitFor(() => {
         expect(screen.getByTestId('message-1')).toBeInTheDocument();
@@ -459,8 +469,9 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      // Switch to chat tab
-      fireEvent.click(screen.getByRole('tab', { name: 'Chat' }));
+      // Switch to chat filter
+      fireEvent.click(screen.getByLabelText('filter messages'));
+      fireEvent.click(screen.getByText('Chat'));
 
       await waitFor(() => {
         expect(screen.getByTestId('message-1')).toBeInTheDocument();
@@ -477,8 +488,9 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      // Switch to chat tab
-      fireEvent.click(screen.getByRole('tab', { name: 'Chat' }));
+      // Switch to chat filter
+      fireEvent.click(screen.getByLabelText('filter messages'));
+      fireEvent.click(screen.getByText('Chat'));
 
       await waitFor(() => {
         const message1 = screen.getByTestId('message-1');
@@ -510,8 +522,9 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      // Switch to chat tab (media messages appear in chat)
-      fireEvent.click(screen.getByRole('tab', { name: 'Chat' }));
+      // Switch to chat filter (media messages appear in chat)
+      fireEvent.click(screen.getByLabelText('filter messages'));
+      fireEvent.click(screen.getByText('Chat'));
 
       await waitFor(() => {
         expect(screen.getByTestId('message-1')).toBeInTheDocument();
@@ -520,41 +533,40 @@ describe('MessageList Component', () => {
     });
   });
 
-  describe('Tab Navigation', () => {
-    it('should switch between tabs correctly', async () => {
+  describe('Filter Navigation', () => {
+    it('should switch between filters correctly', async () => {
       render(
         <TestWrapper>
           <MessageList room="test-room" />
         </TestWrapper>
       );
 
-      const allTab = screen.getByRole('tab', { name: 'All' });
-      const settingsTab = screen.getByRole('tab', { name: 'Settings' });
-      const chatTab = screen.getByRole('tab', { name: 'Chat' });
-      const actionsTab = screen.getByRole('tab', { name: 'Actions' });
+      const filterButton = screen.getByLabelText('filter messages');
+      expect(filterButton).toBeInTheDocument();
 
-      // Initially "All" tab should be selected
-      expect(allTab).toHaveAttribute('aria-selected', 'true');
+      // Open filter menu
+      fireEvent.click(filterButton);
 
-      // Click settings tab
-      fireEvent.click(settingsTab);
+      // Check filter options are available
+      expect(screen.getByText('All')).toBeInTheDocument();
+      expect(screen.getByText('Settings')).toBeInTheDocument();
+      expect(screen.getByText('Chat')).toBeInTheDocument();
+      expect(screen.getByText('Actions')).toBeInTheDocument();
+
+      // Select Settings filter
+      fireEvent.click(screen.getByText('Settings'));
+
+      // Menu should close after selection
       await waitFor(() => {
-        expect(settingsTab).toHaveAttribute('aria-selected', 'true');
-        expect(allTab).toHaveAttribute('aria-selected', 'false');
+        expect(screen.queryByText('All')).not.toBeInTheDocument();
       });
 
-      // Click chat tab
-      fireEvent.click(chatTab);
-      await waitFor(() => {
-        expect(chatTab).toHaveAttribute('aria-selected', 'true');
-        expect(settingsTab).toHaveAttribute('aria-selected', 'false');
-      });
+      // Reopen menu to test another filter
+      fireEvent.click(filterButton);
+      fireEvent.click(screen.getByText('Chat'));
 
-      // Click actions tab
-      fireEvent.click(actionsTab);
       await waitFor(() => {
-        expect(actionsTab).toHaveAttribute('aria-selected', 'true');
-        expect(chatTab).toHaveAttribute('aria-selected', 'false');
+        expect(screen.queryByText('All')).not.toBeInTheDocument();
       });
     });
   });
@@ -591,7 +603,7 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByRole('tablist')).toBeInTheDocument();
+      expect(screen.getByLabelText('filter messages')).toBeInTheDocument();
       // No messages should be displayed
       expect(screen.queryByTestId(/^message-/)).not.toBeInTheDocument();
     });
@@ -605,11 +617,7 @@ describe('MessageList Component', () => {
         </TestWrapper>
       );
 
-      expect(screen.getByRole('tablist')).toHaveAttribute('aria-label', 'chat filter');
-      expect(screen.getByRole('tab', { name: 'All' })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'Settings' })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'Chat' })).toBeInTheDocument();
-      expect(screen.getByRole('tab', { name: 'Actions' })).toBeInTheDocument();
+      expect(screen.getByLabelText('filter messages')).toBeInTheDocument();
     });
   });
 

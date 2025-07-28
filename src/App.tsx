@@ -137,23 +137,88 @@ function AppRoutes() {
   if (migrationStatus === 'running') {
     return (
       <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="100vh"
-        gap={2}
+        className="gradient-background-vibrant"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          width: '100vw',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 9999,
+        }}
       >
-        <CircularProgress size={40} />
-        <Typography variant="h6" color="primary">
-          {t('loadingLanguage')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" textAlign="center">
-          {t('preparingGameData')}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          {t('otherLanguagesBackground')}
-        </Typography>
+        <Box
+          className="glass-light"
+          sx={{
+            padding: '3rem 2rem',
+            borderRadius: '16px',
+            textAlign: 'center',
+            maxWidth: '400px',
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <CircularProgress
+            size={60}
+            thickness={4}
+            sx={{
+              mb: 3,
+              display: 'block',
+              margin: '0 auto 1.5rem auto',
+              '& .MuiCircularProgress-circle': {
+                stroke: 'url(#flame-gradient)',
+              },
+            }}
+          />
+          <svg width="0" height="0" aria-hidden="true">
+            <defs>
+              <linearGradient id="flame-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#22d3ee" />
+                <stop offset="50%" stopColor="#0891b2" />
+                <stop offset="100%" stopColor="#0e7490" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <Typography
+            variant="h5"
+            className="gradient-text-flame"
+            sx={{
+              mb: 2,
+              fontWeight: 600,
+              letterSpacing: '-0.025em',
+            }}
+          >
+            {t('loadingLanguage')}
+          </Typography>
+
+          <Typography
+            variant="body1"
+            sx={{
+              mb: 1.5,
+              color: 'rgba(255, 255, 255, 0.8)',
+              lineHeight: 1.6,
+            }}
+          >
+            {t('preparingGameData')}
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontStyle: 'italic',
+            }}
+          >
+            {t('otherLanguagesBackground')}
+          </Typography>
+        </Box>
       </Box>
     );
   }
