@@ -29,12 +29,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Framework**: React 19.1.0 with TypeScript
 - **Build Tool**: Vite with SWC plugin
-- **Styling**: Material-UI (MUI) v7 with Emotion
+- **Styling**: Material-UI (MUI) v7 with Emotion (Dark Mode Theme)
 - **State Management**: Zustand (stores in `src/stores/`)
 - **Database**: Dexie (IndexedDB wrapper) with Firebase sync
 - **Backend**: Firebase (Auth, Firestore, Realtime Database, Storage)
 - **Routing**: React Router DOM v7
 - **Internationalization**: i18next with React integration
+
+### UI/UX Notes
+
+- **Theme**: Application uses dark mode by default
+- **Design System**: Material-UI components with dark theme styling
+- **Colors**: Use theme-aware colors (avoid hardcoded light-mode colors like 'grey.50')
 
 ### Key Architecture Patterns
 

@@ -16,6 +16,8 @@ import {
 } from '@mui/material';
 
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import CloseIcon from '@/components/CloseIcon';
 import ToastAlert from '@/components/ToastAlert';
 import dayjs from 'dayjs';
@@ -88,152 +90,154 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
 
   return (
     <>
-      <Dialog fullScreen={isMobile} open={open} onClose={close} maxWidth="md">
-        <form onSubmit={scheduleEvent}>
-          <DialogTitle
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <CalendarMonthIcon color="primary" />
-            <Typography variant="h5" component="span" fontWeight="bold">
-              <Trans i18nKey="schedule" />
-            </Typography>
-            <CloseIcon close={close} />
-          </DialogTitle>
-          <DialogContent>
-            <Card
-              elevation={3}
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Dialog fullScreen={isMobile} open={open} onClose={close} maxWidth="md">
+          <form onSubmit={scheduleEvent}>
+            <DialogTitle
               sx={{
-                mb: 4,
-                background: alpha(theme.palette.primary.main, 0.05),
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                borderRadius: 2,
-                overflow: 'visible',
-                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
               }}
             >
-              <CardHeader
-                title={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <EventIcon color="primary" />
-                    <Typography variant="h6" fontWeight="bold">
-                      {t('upcomingGames')}
-                    </Typography>
-                  </Box>
-                }
+              <CalendarMonthIcon color="primary" />
+              <Typography variant="h5" component="span" fontWeight="bold">
+                <Trans i18nKey="schedule" />
+              </Typography>
+              <CloseIcon close={close} />
+            </DialogTitle>
+            <DialogContent>
+              <Card
+                elevation={3}
                 sx={{
-                  pb: 1,
-                  borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  mb: 4,
+                  background: alpha(theme.palette.primary.main, 0.05),
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                  borderRadius: 2,
+                  overflow: 'visible',
+                  position: 'relative',
                 }}
-              />
-              <CardContent sx={{ p: 2 }}>
-                {schedule.length ? (
-                  <Stack spacing={2}>
-                    {schedule?.map((game) => (
-                      <Paper key={game.id} elevation={1} sx={{ p: 1.5, borderRadius: 1.5 }}>
-                        <ScheduleItem game={game} />
-                      </Paper>
-                    ))}
+              >
+                <CardHeader
+                  title={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <EventIcon color="primary" />
+                      <Typography variant="h6" fontWeight="bold">
+                        {t('upcomingGames')}
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{
+                    pb: 1,
+                    borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  }}
+                />
+                <CardContent sx={{ p: 2 }}>
+                  {schedule.length ? (
+                    <Stack spacing={2}>
+                      {schedule?.map((game) => (
+                        <Paper key={game.id} elevation={1} sx={{ p: 1.5, borderRadius: 1.5 }}>
+                          <ScheduleItem game={game} />
+                        </Paper>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Box
+                      sx={{
+                        p: 3,
+                        textAlign: 'center',
+                        color: alpha(theme.palette.text.primary, 0.6),
+                        borderRadius: 1,
+                        background: alpha(theme.palette.background.paper, 0.5),
+                      }}
+                    >
+                      <Typography variant="body1">{t('noPlannedGames')}</Typography>
+                      <Typography variant="body2" sx={{ mt: 1, fontSize: '0.85rem' }}>
+                        {t('scheduleFirstGame')}
+                      </Typography>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card
+                elevation={2}
+                sx={{
+                  background: alpha(theme.palette.background.paper, 0.7),
+                  borderRadius: 2,
+                }}
+              >
+                <CardHeader
+                  title={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <AddIcon color="secondary" />
+                      <Typography variant="h6" fontWeight="bold">
+                        <Trans i18nKey="scheduleGame" />
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{
+                    pb: 1,
+                    borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  }}
+                />
+                <CardContent>
+                  <Stack spacing={3} sx={{ mt: 1 }}>
+                    <DateTimePicker
+                      name="date-time"
+                      label={t('dateTime')}
+                      closeOnSelect={false}
+                      disablePast
+                      maxDate={twoWeeksFromNow}
+                      timeSteps={{ minutes: 30 }}
+                      sx={{ width: '100%' }}
+                      slotProps={{
+                        textField: {
+                          variant: 'outlined',
+                          fullWidth: true,
+                        },
+                      }}
+                    />
+
+                    <TextField
+                      label={t('camUrl')}
+                      variant="outlined"
+                      name="link"
+                      fullWidth
+                      placeholder="https://..."
+                      helperText={t('optionalLinkHelper')}
+                    />
+
+                    <Button
+                      variant="contained"
+                      type="submit"
+                      fullWidth
+                      size="large"
+                      startIcon={<EventIcon />}
+                      sx={{
+                        mt: 2,
+                        py: 1.2,
+                        borderRadius: 1.5,
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        boxShadow: theme.shadows[4],
+                        '&:hover': {
+                          boxShadow: theme.shadows[8],
+                        },
+                      }}
+                    >
+                      <Trans i18nKey="schedule" />
+                    </Button>
                   </Stack>
-                ) : (
-                  <Box
-                    sx={{
-                      p: 3,
-                      textAlign: 'center',
-                      color: alpha(theme.palette.text.primary, 0.6),
-                      borderRadius: 1,
-                      background: alpha(theme.palette.background.paper, 0.5),
-                    }}
-                  >
-                    <Typography variant="body1">{t('noPlannedGames')}</Typography>
-                    <Typography variant="body2" sx={{ mt: 1, fontSize: '0.85rem' }}>
-                      {t('scheduleFirstGame')}
-                    </Typography>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card
-              elevation={2}
-              sx={{
-                background: alpha(theme.palette.background.paper, 0.7),
-                borderRadius: 2,
-              }}
-            >
-              <CardHeader
-                title={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <AddIcon color="secondary" />
-                    <Typography variant="h6" fontWeight="bold">
-                      <Trans i18nKey="scheduleGame" />
-                    </Typography>
-                  </Box>
-                }
-                sx={{
-                  pb: 1,
-                  borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                }}
-              />
-              <CardContent>
-                <Stack spacing={3} sx={{ mt: 1 }}>
-                  <DateTimePicker
-                    name="date-time"
-                    label={t('dateTime')}
-                    closeOnSelect={false}
-                    disablePast
-                    maxDate={twoWeeksFromNow}
-                    timeSteps={{ minutes: 30 }}
-                    sx={{ width: '100%' }}
-                    slotProps={{
-                      textField: {
-                        variant: 'outlined',
-                        fullWidth: true,
-                      },
-                    }}
-                  />
-
-                  <TextField
-                    label={t('camUrl')}
-                    variant="outlined"
-                    name="link"
-                    fullWidth
-                    placeholder="https://..."
-                    helperText={t('optionalLinkHelper')}
-                  />
-
-                  <Button
-                    variant="contained"
-                    type="submit"
-                    fullWidth
-                    size="large"
-                    startIcon={<EventIcon />}
-                    sx={{
-                      mt: 2,
-                      py: 1.2,
-                      borderRadius: 1.5,
-                      fontWeight: 'bold',
-                      textTransform: 'none',
-                      boxShadow: theme.shadows[4],
-                      '&:hover': {
-                        boxShadow: theme.shadows[8],
-                      },
-                    }}
-                  >
-                    <Trans i18nKey="schedule" />
-                  </Button>
-                </Stack>
-              </CardContent>
-            </Card>
-          </DialogContent>
-        </form>
-      </Dialog>
-      <ToastAlert open={!!alert} close={handleCloseAlert}>
-        {alert}
-      </ToastAlert>
+                </CardContent>
+              </Card>
+            </DialogContent>
+          </form>
+        </Dialog>
+        <ToastAlert open={!!alert} close={handleCloseAlert}>
+          {alert}
+        </ToastAlert>
+      </LocalizationProvider>
     </>
   );
 }

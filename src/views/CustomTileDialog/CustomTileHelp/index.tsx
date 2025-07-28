@@ -1,11 +1,143 @@
 import Typography from '@mui/material/Typography';
+import {
+  Box,
+  IconButton,
+  Collapse,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+} from '@mui/material';
+import {
+  ExpandMore,
+  ExpandLess,
+  Lightbulb,
+  TrendingUp,
+  Shuffle,
+  Category,
+  Psychology,
+  Share,
+  Extension,
+  Visibility,
+  Settings,
+} from '@mui/icons-material';
 import Accordion from '@/components/Accordion';
 import AccordionDetails from '@/components/Accordion/Details';
 import AccordionSummary from '@/components/Accordion/Summary';
 import { Trans } from 'react-i18next';
 import { CustomTileHelpProps } from '@/types/customTiles';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import { useState } from 'react';
 
 export default function CustomTileHelp({ expanded, handleChange }: CustomTileHelpProps) {
+  const isMobile = useBreakpoint();
+  const [expandedIdeas, setExpandedIdeas] = useState<{ [key: string]: boolean }>({});
+  const [expandedBasics, setExpandedBasics] = useState<{ [key: string]: boolean }>({});
+
+  const toggleIdea = (id: string) => {
+    setExpandedIdeas((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleBasic = (id: string) => {
+    setExpandedBasics((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const basicConcepts = [
+    {
+      id: 'custom-actions',
+      icon: <Extension />,
+      title: 'Custom Actions',
+      description: 'Add your own personalized activities to the game',
+      tip: 'Think of custom tiles as your personal touch - add activities that match your style and preferences perfectly.',
+      color: 'primary',
+    },
+    {
+      id: 'category-intensity',
+      icon: <Settings />,
+      title: 'Category & Intensity Rules',
+      description: 'Tiles appear based on your game settings',
+      tip: 'Your tiles only show up when you select their category and intensity level (or higher) in game settings.',
+      color: 'secondary',
+    },
+    {
+      id: 'miscellaneous-tiles',
+      icon: <Visibility />,
+      title: 'Always-Visible Tiles',
+      description: 'Miscellaneous tiles bypass category rules',
+      tip: "Misc tiles are perfect for unique activities that don't fit standard categories - they always appear regardless of settings.",
+      color: 'success',
+    },
+  ];
+
+  const creativeIdeas = [
+    {
+      id: 'new-activities',
+      icon: <Lightbulb />,
+      title: 'New Activities',
+      description: 'Create unique actions not in the default list',
+      tips: [
+        'Think outside the box - what creative activities would make your game more exciting?',
+        'Add themed tiles like "Movie Night Actions" or "Kitchen Adventures"',
+        'Create seasonal tiles for holidays or special occasions',
+        'Design role-play scenarios with specific character actions',
+      ],
+      color: 'primary',
+    },
+    {
+      id: 'intensity-boost',
+      icon: <TrendingUp />,
+      title: 'Early Intensity Boost',
+      description: 'Add advanced tiles to beginner levels',
+      tips: [
+        'Pro tip: Add exciting advanced tiles to lower intensities to start games with more energy.',
+        'Copy your favorite advanced tiles and add them to beginner categories',
+        'Create "gateway" tiles that introduce advanced concepts gradually',
+        'Mix easy and challenging elements in the same tile for variety',
+      ],
+      color: 'secondary',
+    },
+    {
+      id: 'mix-match',
+      icon: <Shuffle />,
+      title: 'Mix & Match',
+      description: 'Combine different activities into one tile',
+      tips: [
+        "Mix activities that don't usually go together for unexpected combinations.",
+        'Combine physical actions with mental challenges or games',
+        'Create multi-step tiles that build on each other',
+        'Blend different intensity levels within a single creative tile',
+      ],
+      color: 'success',
+    },
+    {
+      id: 'custom-groups',
+      icon: <Category />,
+      title: 'Custom Groups',
+      description: 'Create your own tile categories with unique intensities',
+      tips: [
+        'Design completely custom groups like "Couples Yoga" or "Adventure Challenges"',
+        'Set your own intensity progression from gentle to wild',
+        'Create themed collections that tell a story or follow a theme',
+        'Build niche categories that perfectly match your interests',
+      ],
+      color: 'warning',
+    },
+    {
+      id: 'share-creations',
+      icon: <Share />,
+      title: 'Share & Discover',
+      description: 'Import/export tiles to share with others',
+      tips: [
+        'Export your best tile collections to share with friends or partners',
+        'Import creative tiles from others to expand your game options',
+        'Create themed tile packs and share them in communities',
+        'Backup your custom tiles by exporting them regularly',
+      ],
+      color: 'info',
+    },
+  ];
+
   return (
     <>
       <Accordion
@@ -14,71 +146,212 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
         className="about-accordion"
       >
         <AccordionSummary aria-controls="help1-content" id="help1-header">
-          <Typography className="accordion-title">
-            <Trans i18nKey="ctExplained" />
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+            <Extension color="primary" />
+            <Typography className="accordion-title">
+              <Trans i18nKey="ctExplained" />
+            </Typography>
+          </Box>
         </AccordionSummary>
-        <AccordionDetails>
-          <Trans i18nKey="ctExplainedDescription">
-            <Typography sx={{ mb: 2 }}>
-              Custom tiles let you add your own variations to the game board. Utilize this dialog to
-              add and remove tiles as you see fit.
-            </Typography>
-            <Typography sx={{ mb: 2 }}>
-              Custom tiles are added based on the kink and intensity you pick from the drop down. As
-              such, you need to have that kink and intensity (or a higher intensity) selected for
-              your custom tiles to show on the board.
-            </Typography>
-            <Typography>
-              Miscellaneous tiles are the only exception to the above. Regardless of what other
-              options you pick, Miscellaneous tiles will show as their own group. If you use this
-              option, ensure that you add multiple tiles to minimize repeats.
-            </Typography>
-          </Trans>
+        <AccordionDetails sx={{ p: 0 }}>
+          <List dense>
+            {basicConcepts.map((concept, index) => (
+              <Box key={concept.id}>
+                <ListItem
+                  sx={{
+                    cursor: 'pointer',
+                    borderRadius: 1,
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                      transform: 'translateX(4px)',
+                      transition: 'all 0.2s ease-in-out',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                  }}
+                  onClick={() => toggleBasic(concept.id)}
+                >
+                  <ListItemIcon sx={{ minWidth: isMobile ? 36 : 40 }}>
+                    <Box
+                      sx={{
+                        color: `${concept.color}.main`,
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      {concept.icon}
+                    </Box>
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: isMobile ? '0.9rem' : '1rem',
+                        }}
+                      >
+                        {concept.title}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: isMobile ? '0.8rem' : '0.85rem',
+                          color: 'text.secondary',
+                        }}
+                      >
+                        {concept.description}
+                      </Typography>
+                    }
+                  />
+                  <IconButton size="small" sx={{ ml: 1 }}>
+                    {expandedBasics[concept.id] ? <ExpandLess /> : <ExpandMore />}
+                  </IconButton>
+                </ListItem>
+
+                <Collapse in={expandedBasics[concept.id]} timeout="auto" unmountOnExit>
+                  <Box
+                    sx={{
+                      ml: isMobile ? 4 : 6,
+                      mr: 2,
+                      mb: 1,
+                      p: 1.5,
+                      bgcolor: 'action.selected',
+                      borderRadius: 1,
+                      borderLeft: 3,
+                      borderLeftColor: `${concept.color}.main`,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: isMobile ? '0.8rem' : '0.85rem',
+                        fontStyle: 'italic',
+                        color: 'text.secondary',
+                      }}
+                    >
+                      💡 {concept.tip}
+                    </Typography>
+                  </Box>
+                </Collapse>
+
+                {index < basicConcepts.length - 1 && (
+                  <Divider variant="inset" sx={{ ml: isMobile ? 4 : 6 }} />
+                )}
+              </Box>
+            ))}
+          </List>
         </AccordionDetails>
       </Accordion>
+
       <Accordion
         expanded={expanded === 'help2'}
         onChange={handleChange('help2')}
         className="about-accordion"
       >
         <AccordionSummary aria-controls="help2-content" id="help2-header">
-          <Typography className="accordion-title">
-            <Trans i18nKey="ctIdeas" />
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+            <Psychology color="primary" />
+            <Typography className="accordion-title">
+              <Trans i18nKey="ctIdeas" />
+            </Typography>
+          </Box>
         </AccordionSummary>
-        <AccordionDetails>
-          <Trans i18nKey="ctIdeasDescription">
-            <Typography variant="h6">Add new Activities</Typography>
-            <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              Come up with new activities that are not part of the existing list
-            </Typography>
+        <AccordionDetails sx={{ p: 0 }}>
+          <List dense>
+            {creativeIdeas.map((idea, index) => (
+              <Box key={idea.id}>
+                <ListItem
+                  sx={{
+                    cursor: 'pointer',
+                    borderRadius: 1,
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                      transform: 'translateX(4px)',
+                      transition: 'all 0.2s ease-in-out',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                  }}
+                  onClick={() => toggleIdea(idea.id)}
+                >
+                  <ListItemIcon sx={{ minWidth: isMobile ? 36 : 40 }}>
+                    <Box
+                      sx={{
+                        color: `${idea.color}.main`,
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      {idea.icon}
+                    </Box>
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: isMobile ? '0.9rem' : '1rem',
+                        }}
+                      >
+                        {idea.title}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: isMobile ? '0.8rem' : '0.85rem',
+                          color: 'text.secondary',
+                        }}
+                      >
+                        {idea.description}
+                      </Typography>
+                    }
+                  />
+                  <IconButton size="small" sx={{ ml: 1 }}>
+                    {expandedIdeas[idea.id] ? <ExpandLess /> : <ExpandMore />}
+                  </IconButton>
+                </ListItem>
 
-            <Typography variant="h6">Add harder tiles to easier intensities</Typography>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              When you pick higher intensity levels, the game will use the earlier intensity level
-              and gradual move to whatyou picked. If you want harder tiles early on, add several to
-              lower intensities.
-            </Typography>
-            <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              Example: You play Poppers - Advanced. Add advanced tiles to Poppers - Beginner
-            </Typography>
+                <Collapse in={expandedIdeas[idea.id]} timeout="auto" unmountOnExit>
+                  <Box
+                    sx={{
+                      ml: isMobile ? 4 : 6,
+                      mr: 2,
+                      mb: 1,
+                      p: 1.5,
+                      bgcolor: 'action.selected',
+                      borderRadius: 1,
+                      borderLeft: 3,
+                      borderLeftColor: `${idea.color}.main`,
+                    }}
+                  >
+                    {idea.tips.map((tip, tipIndex) => (
+                      <Typography
+                        key={tipIndex}
+                        variant="body2"
+                        sx={{
+                          fontSize: isMobile ? '0.8rem' : '0.85rem',
+                          fontStyle: tipIndex === 0 ? 'italic' : 'normal',
+                          color: 'text.secondary',
+                          mb: tipIndex < idea.tips.length - 1 ? 1 : 0,
+                          '&:before': tipIndex === 0 ? { content: '"💡 "' } : { content: '"• "' },
+                        }}
+                      >
+                        {tip}
+                      </Typography>
+                    ))}
+                  </Box>
+                </Collapse>
 
-            <Typography variant="h6">Combine activities into a single tile</Typography>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Combine multiple activites together in a single tile that normally would not go
-              together.
-            </Typography>
-            <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              Example: Spit roast. Use a toy in your throat and ass at the same time.
-            </Typography>
-
-            <Typography variant="h6">Miscellaneous custom tiles</Typography>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Miscellaneous tiles allow you to add your own tiles without including other groups. Be
-              aware, you will want to add several options to this group to minimize repeats.
-            </Typography>
-          </Trans>
+                {index < creativeIdeas.length - 1 && (
+                  <Divider variant="inset" sx={{ ml: isMobile ? 4 : 6 }} />
+                )}
+              </Box>
+            ))}
+          </List>
         </AccordionDetails>
       </Accordion>
     </>
