@@ -114,11 +114,11 @@ let darkTheme = createTheme({
           },
         },
         contained: {
-          background: '#0891b2',
-          boxShadow: '0 4px 16px rgba(34, 211, 238, 0.4)',
+          background: '#22d3ee',
+          boxShadow: 'none',
           '&:hover': {
-            background: '#0e7490',
-            boxShadow: '0 6px 24px rgba(34, 211, 238, 0.5)',
+            background: '#0891b2',
+            boxShadow: 'none',
             transform: 'translateY(-2px)',
           },
         },
