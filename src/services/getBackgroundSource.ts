@@ -50,18 +50,66 @@ function xhamster(url: string): string {
 
 function imgur(url: string): string {
   // For Discord proxy URLs that contain Imgur links, just return the URL directly
-  if (url.includes('discordapp.net') && url.includes('imgur.com') && url.endsWith('.mp4')) {
-    return url;
+  try {
+    const parsed = new URL(url);
+    // Check if this is a legitimate Discord external proxy URL for Imgur
+    // Discord external URLs follow the pattern: /external/{hash}/https/i.imgur.com/{id}.{ext}
+    if (
+      (parsed.host === 'discordapp.net' || parsed.host.endsWith('.discordapp.net')) &&
+      parsed.pathname.startsWith('/external/') &&
+      (parsed.pathname.includes('/https/i.imgur.com/') ||
+        parsed.pathname.includes('/https/imgur.com/'))
+    ) {
+      return url;
+    }
+  } catch {
+    // If URL parsing fails, skip Discord proxy check for security
   }
 
   // Extract the Imgur ID from different possible URL formats
-  const imgurRegex =
-    /imgur\.com\/([a-zA-Z0-9]+)(?:\.mp4)?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.mp4/;
-  const match = url.match(imgurRegex);
-  const imgurId = match ? match[1] || match[2] : '';
+  let imgurId = '';
 
-  // Return direct link to the MP4 file
-  return `https://i.imgur.com/${imgurId}.mp4`;
+  // Validate that this is actually an Imgur URL for security
+  let isImgur = false;
+  try {
+    const parsed = new URL(url);
+    isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
+  } catch {
+    // If URL parsing fails, skip processing for security
+    return '';
+  }
+
+  if (!isImgur) {
+    // Not a valid Imgur URL, return empty string
+    return '';
+  }
+
+  // Handle gallery URLs like: https://imgur.com/gallery/title-3YkU9Yc#6fDSu6z
+  if (url.includes('/gallery/')) {
+    const galleryMatch = url.match(/imgur\.com\/gallery\/[^#]*#([a-zA-Z0-9]+)/);
+    if (galleryMatch) {
+      imgurId = galleryMatch[1];
+    } else {
+      // Fallback: try to extract from the URL fragment or path
+      const fragmentMatch = url.match(/#([a-zA-Z0-9]+)/);
+      if (fragmentMatch) {
+        imgurId = fragmentMatch[1];
+      }
+    }
+  } else {
+    // Handle regular URLs
+    const imgurRegex =
+      /imgur\.com\/([a-zA-Z0-9]+)(?:\.(mp4|jpg|jpeg|png|gif|webp))?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.(mp4|jpg|jpeg|png|gif|webp)/;
+    const match = url.match(imgurRegex);
+    imgurId = match ? match[1] || match[3] : '';
+  }
+
+  // Try video first, fallback to common image formats
+  // We'll return the .mp4 URL and let the component handle if it fails to load
+  const finalUrl = `https://i.imgur.com/${imgurId}.mp4`;
+
+  // Return direct link - start with MP4, component will handle fallback
+  return finalUrl;
 }
 
 function isDirectVideoUrl(url: string): boolean {
@@ -75,7 +123,13 @@ function isDiscordMediaUrl(url: string): boolean {
 }
 
 function urlContainsAny(url: string, domains: string[]): boolean {
-  return domains.some((domain) => url.includes(domain));
+  try {
+    const parsed = new URL(url);
+    return domains.some((domain) => parsed.host === domain || parsed.host.endsWith('.' + domain));
+  } catch {
+    // If URL parsing fails, use substring check as fallback (less secure but functional)
+    return domains.some((domain) => url.includes(domain));
+  }
 }
 
 interface BackgroundResult {
@@ -110,7 +164,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case url.includes('dropbox.com'):
       embedUrl = dropBox(url);
       break;
-    case urlContainsAny(url, ['imgur.com', 'i.imgur.com', 'discordapp.net', 'imgur.com']):
+    case urlContainsAny(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
       break;
     case urlContainsAny(url, ['thisvid.com', 'boyfriendtv.com']):

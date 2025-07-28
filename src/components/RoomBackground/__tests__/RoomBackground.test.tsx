@@ -1,4 +1,4 @@
-import { render, screen } from '@/test-utils';
+import { render, screen, fireEvent, waitFor } from '@/test-utils';
 import { describe, it, expect, beforeEach } from 'vitest';
 import RoomBackground from '../index';
 
@@ -271,6 +271,128 @@ describe('RoomBackground', () => {
       const iframes = screen.queryAllByTitle('video');
 
       expect(videos.length + iframes.length).toBe(1);
+    });
+  });
+
+  describe('DirectMediaHandler functionality', () => {
+    it('starts with video attempt for direct URLs', () => {
+      const videoUrl = 'https://example.com/video.mp4';
+      render(<RoomBackground url={videoUrl} isVideo={true} />);
+
+      const video = screen.getByRole('presentation').querySelector('video');
+      expect(video).toBeInTheDocument();
+      expect(video).toHaveAttribute('src', videoUrl);
+    });
+
+    it('falls back to image when video fails to load (Imgur)', async () => {
+      const imgurUrl = 'https://i.imgur.com/abc123.mp4';
+      render(<RoomBackground url={imgurUrl} isVideo={true} />);
+
+      const video = screen.getByRole('presentation').querySelector('video');
+      expect(video).toBeInTheDocument();
+
+      // Simulate video error
+      fireEvent.error(video!);
+
+      await waitFor(() => {
+        const imageBackground = screen.getByRole('presentation').querySelector('.image-background');
+        expect(imageBackground).toBeInTheDocument();
+        expect(imageBackground).toHaveStyle(
+          'background-image: url(https://i.imgur.com/abc123.jpg)'
+        );
+      });
+
+      // Video should no longer be visible
+      expect(screen.queryByRole('presentation')?.querySelector('video')).not.toBeInTheDocument();
+    });
+
+    it('falls back to image when video fails to load (generic URL)', async () => {
+      const genericUrl = 'https://example.com/media.mp4';
+      render(<RoomBackground url={genericUrl} isVideo={true} />);
+
+      const video = screen.getByRole('presentation').querySelector('video');
+      expect(video).toBeInTheDocument();
+
+      // Simulate video error
+      fireEvent.error(video!);
+
+      await waitFor(() => {
+        const imageBackground = screen.getByRole('presentation').querySelector('.image-background');
+        expect(imageBackground).toBeInTheDocument();
+        expect(imageBackground).toHaveStyle('background-image: url(https://example.com/media.jpg)');
+      });
+    });
+
+    it('tries different image formats when image fails (Imgur)', async () => {
+      const imgurUrl = 'https://i.imgur.com/abc123.mp4';
+      render(<RoomBackground url={imgurUrl} isVideo={true} />);
+
+      const video = screen.getByRole('presentation').querySelector('video');
+      fireEvent.error(video!);
+
+      await waitFor(() => {
+        const imageBackground = screen.getByRole('presentation').querySelector('.image-background');
+        expect(imageBackground).toBeInTheDocument();
+      });
+
+      // Simulate image error to trigger format fallback
+      const hiddenImg = screen
+        .getByRole('presentation')
+        .querySelector('img[style*="display: none"]');
+      expect(hiddenImg).toBeInTheDocument();
+
+      fireEvent.error(hiddenImg!);
+
+      await waitFor(() => {
+        const imageBackground = screen.getByRole('presentation').querySelector('.image-background');
+        expect(imageBackground).toHaveStyle(
+          'background-image: url(https://i.imgur.com/abc123.png)'
+        );
+      });
+    });
+
+    it('tries different image formats when image fails (generic URL)', async () => {
+      const genericUrl = 'https://example.com/media.mp4';
+      render(<RoomBackground url={genericUrl} isVideo={true} />);
+
+      const video = screen.getByRole('presentation').querySelector('video');
+      fireEvent.error(video!);
+
+      await waitFor(() => {
+        const imageBackground = screen.getByRole('presentation').querySelector('.image-background');
+        expect(imageBackground).toBeInTheDocument();
+      });
+
+      // Simulate image error to trigger format fallback
+      const hiddenImg = screen
+        .getByRole('presentation')
+        .querySelector('img[style*="display: none"]');
+      fireEvent.error(hiddenImg!);
+
+      await waitFor(() => {
+        const imageBackground = screen.getByRole('presentation').querySelector('.image-background');
+        expect(imageBackground).toHaveStyle('background-image: url(https://example.com/media.png)');
+      });
+    });
+  });
+
+  describe('Color/Gray background detection', () => {
+    it('shows default background for color URLs', () => {
+      render(<RoomBackground url="/images/color" isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).toHaveClass('default-background');
+    });
+
+    it('shows default background for gray URLs', () => {
+      render(<RoomBackground url="/images/gray" isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).toHaveClass('default-background');
+    });
+
+    it('does not show default background for real image URLs', () => {
+      render(<RoomBackground url="https://example.com/image.jpg" isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).not.toHaveClass('default-background');
     });
   });
 
