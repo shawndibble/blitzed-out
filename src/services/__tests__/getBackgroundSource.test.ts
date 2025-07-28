@@ -139,10 +139,9 @@ describe('getBackgroundSource', () => {
         const discordImageUrl = 'https://media.discordapp.net/attachments/123/456/image.png';
         const result = processBackground(discordImageUrl);
 
-        // Note: Due to the switch statement order, Discord URLs are caught by the imgur case
-        // This means they get processed through the imgur function which tries to extract an ID
-        expect(result.isVideo).toBe(true); // imgur function returns video=true
-        expect(result.url).toContain('i.imgur.com'); // imgur function processes it
+        // Discord image URLs should be handled by the isDiscordMediaUrl case
+        expect(result.isVideo).toBe(false); // Discord images are not videos
+        expect(result.url).toBe(discordImageUrl); // URL should be returned as-is
       });
     });
 

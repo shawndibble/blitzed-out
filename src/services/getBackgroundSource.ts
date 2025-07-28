@@ -50,12 +50,36 @@ function xhamster(url: string): string {
 
 function imgur(url: string): string {
   // For Discord proxy URLs that contain Imgur links, just return the URL directly
-  if (url.includes('discordapp.net') && url.includes('imgur.com')) {
-    return url;
+  try {
+    const parsed = new URL(url);
+    // Check if the host is a discordapp proxy and the pathname contains imgur.com
+    if (
+      (parsed.host === 'discordapp.net' || parsed.host.endsWith('.discordapp.net')) &&
+      parsed.pathname.includes('imgur.com')
+    ) {
+      return url;
+    }
+  } catch {
+    // If URL parsing fails, skip Discord proxy check for security
   }
 
   // Extract the Imgur ID from different possible URL formats
   let imgurId = '';
+
+  // Validate that this is actually an Imgur URL for security
+  let isImgur = false;
+  try {
+    const parsed = new URL(url);
+    isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
+  } catch {
+    // If URL parsing fails, skip processing for security
+    return '';
+  }
+
+  if (!isImgur) {
+    // Not a valid Imgur URL, return empty string
+    return '';
+  }
 
   // Handle gallery URLs like: https://imgur.com/gallery/title-3YkU9Yc#6fDSu6z
   if (url.includes('/gallery/')) {
@@ -96,7 +120,13 @@ function isDiscordMediaUrl(url: string): boolean {
 }
 
 function urlContainsAny(url: string, domains: string[]): boolean {
-  return domains.some((domain) => url.includes(domain));
+  try {
+    const parsed = new URL(url);
+    return domains.some((domain) => parsed.host === domain || parsed.host.endsWith('.' + domain));
+  } catch {
+    // If URL parsing fails, use substring check as fallback (less secure but functional)
+    return domains.some((domain) => url.includes(domain));
+  }
 }
 
 interface BackgroundResult {
@@ -131,7 +161,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case url.includes('dropbox.com'):
       embedUrl = dropBox(url);
       break;
-    case urlContainsAny(url, ['imgur.com', 'i.imgur.com', 'discordapp.net', 'imgur.com']):
+    case urlContainsAny(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
       break;
     case urlContainsAny(url, ['thisvid.com', 'boyfriendtv.com']):

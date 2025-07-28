@@ -29,7 +29,16 @@ function DirectMediaHandler({ url }: { url: string | null }) {
 
   const handleVideoError = () => {
     // Special handling for Imgur URLs
-    if (url.includes('imgur.com')) {
+    let isImgur = false;
+    try {
+      const parsed = new URL(url);
+      isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
+    } catch {
+      // If URL parsing fails, skip Imgur-specific logic for security
+      isImgur = false;
+    }
+
+    if (isImgur) {
       const imgurId = url.match(/imgur\.com\/([a-zA-Z0-9]+)/)?.[1];
       if (imgurId) {
         const imageUrl = `https://i.imgur.com/${imgurId}.jpg`;
@@ -47,7 +56,16 @@ function DirectMediaHandler({ url }: { url: string | null }) {
   };
 
   const handleImageError = () => {
-    if (url.includes('imgur.com')) {
+    let isImgur = false;
+    try {
+      const parsed = new URL(url);
+      isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
+    } catch {
+      // If URL parsing fails, skip Imgur-specific logic for security
+      isImgur = false;
+    }
+
+    if (isImgur) {
       // Imgur-specific format trying
       const imgurId = url.match(/imgur\.com\/([a-zA-Z0-9]+)/)?.[1];
       if (imgurId) {
