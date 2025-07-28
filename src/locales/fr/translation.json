@@ -518,7 +518,7 @@
   "minutes": "minutes",
   "customTiles.actions": "Actions",
   "customUpdated": "Personnalisé Mis à Jour",
-  "updatedGameSettings": "a mis à jour les paramètres du jeu",
+  "updatedGameSettings": "a mis à jour les paramètres de son plateau de jeu personnel",
   "updatedRoomSettings": "a mis à jour les paramètres de la salle",
-  "updatedMultipleSettings": "a mis à jour {{count}} paramètres"
+  "updatedMultipleSettings": "a mis à jour {{count}} paramètres sur son plateau de jeu personnel"
 }

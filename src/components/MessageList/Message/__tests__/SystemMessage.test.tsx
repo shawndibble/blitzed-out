@@ -41,7 +41,7 @@ vi.mock('react-i18next', () => ({
       finish: 'finish',
       playAgain: 'Play Again',
     };
-    return <span>{translations[i18nKey] || i18nKey}</span>;
+    return <>{translations[i18nKey] || i18nKey}</>;
   },
 }));
 

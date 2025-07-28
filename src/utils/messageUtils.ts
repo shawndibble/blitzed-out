@@ -1,5 +1,9 @@
 import { useTranslation } from 'react-i18next';
 
+// Constants for system message text wrapping thresholds
+const CHARACTER_LIMIT = 45;
+const WORD_LIMIT = 6;
+
 // Type for the translation function
 type TFunction = ReturnType<typeof useTranslation>['t'];
 
@@ -8,12 +12,9 @@ type TFunction = ReturnType<typeof useTranslation>['t'];
  */
 export function generateSystemSummary(type: string, text: string, t: TFunction): string | null {
   if (type !== 'settings' && type !== 'room') return null;
+  if (typeof text !== 'string') return null;
 
   if (type === 'settings') {
-    const settingsCount = (text.match(/\*/g) || []).length;
-    if (settingsCount > 1) {
-      return t('updatedMultipleSettings', { count: settingsCount });
-    }
     return t('updatedGameSettings');
   }
 
@@ -31,7 +32,14 @@ export function isSystemMessageLikelyToWrap(
   displayName: string,
   systemSummary: string | null
 ): boolean {
-  if (!systemSummary) return false;
+  if (!systemSummary?.trim() || !displayName?.trim()) return false;
+
   const fullText = `${displayName} ${systemSummary}`;
-  return fullText.length > 45 || fullText.split(' ').length > 6;
+
+  // Use early return for better performance
+  if (fullText.length > CHARACTER_LIMIT) return true;
+
+  // Count words more efficiently by splitting on whitespace
+  const wordCount = fullText.split(/\s+/).length;
+  return wordCount > WORD_LIMIT;
 }

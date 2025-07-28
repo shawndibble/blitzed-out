@@ -44,7 +44,7 @@ function getCustomTileCount(
   return usedCustomTiles.length;
 }
 
-async function getSettingsMessage(
+export async function getSettingsMessage(
   settings: Settings,
   customTiles: CustomTilePull[] | null | undefined,
   actionsList: ActionsList,
@@ -119,7 +119,36 @@ async function getSettingsMessage(
   message += `* ${t('difficulty')}: ${t(difficulty ?? 'normal')} \r\n`;
 
   if (finishRange) {
-    message += `* ${t('finishSlider')} ${finishRange[0]}%  | ${finishRange[1] - finishRange[0]}% | ${100 - finishRange[1]}% \r\n`;
+    const noCumPercent = finishRange[0];
+    const ruinedPercent = finishRange[1] - finishRange[0];
+    const normalPercent = 100 - finishRange[1];
+
+    // Count how many non-zero options we have
+    const optionList: Array<{ percent: number; text: string } | null> = [
+      noCumPercent > 0 ? { percent: noCumPercent, text: t('noCum') as string } : null,
+      ruinedPercent > 0 ? { percent: ruinedPercent, text: t('ruined') as string } : null,
+      normalPercent > 0 ? { percent: normalPercent, text: t('cum') as string } : null,
+    ];
+
+    const activeOptions = optionList.filter(
+      (option): option is { percent: number; text: string } => option !== null
+    );
+
+    if (activeOptions.length === 1 && activeOptions[0].percent === 100) {
+      // Single option at 100% - show inline without bullets
+      message += `* ${t('finishSlider')} ${activeOptions[0].text.replace(':', '')} \r\n`;
+    } else if (activeOptions.length > 0) {
+      // Multiple options or single option not at 100% - show with bullets
+      message += `* ${t('finishSlider')} \r\n\r\n`;
+
+      activeOptions.forEach((option) => {
+        const optionText =
+          option.percent === 100
+            ? option.text.replace(':', '')
+            : `${option.text} ${option.percent}%`;
+        message += `  - ${optionText} \r\n`;
+      });
+    }
   }
 
   const customTileCount = getCustomTileCount(settings, customTiles, actionsList);

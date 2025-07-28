@@ -504,7 +504,7 @@
   "minutes": "minutes",
   "customTiles.actions": "Actions",
   "customUpdated": "Custom Updated",
-  "updatedGameSettings": "updated game settings",
+  "updatedGameSettings": "updated their personal game board settings",
   "updatedRoomSettings": "updated room settings",
-  "updatedMultipleSettings": "updated {{count}} settings"
+  "updatedMultipleSettings": "updated {{count}} settings on their personal game board"
 }

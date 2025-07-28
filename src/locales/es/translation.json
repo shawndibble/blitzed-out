@@ -518,7 +518,7 @@
   "minutes": "minutos",
   "customTiles.actions": "Acciones",
   "customUpdated": "Personalizado Actualizado",
-  "updatedGameSettings": "actualizó la configuración del juego",
+  "updatedGameSettings": "actualizó la configuración de su tablero de juego personal",
   "updatedRoomSettings": "actualizó la configuración de la sala",
-  "updatedMultipleSettings": "actualizó {{count}} configuraciones"
+  "updatedMultipleSettings": "actualizó {{count}} configuraciones en su tablero de juego personal"
 }

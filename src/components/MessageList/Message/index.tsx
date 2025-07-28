@@ -139,18 +139,29 @@ export default function Message({
         )}
         data-testid={`message-${id}`}
       >
-        <div className="system-message-content">
-          <div className="system-icon">
+        <Box component="div" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Box
+            component="span"
+            sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}
+          >
             {type === 'settings' ? <Settings fontSize="small" /> : <Home fontSize="small" />}
-          </div>
-          <div className={clsx('system-text', isLikelyToWrap && 'wrapping')}>
-            <Typography variant="body2" component="span">
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0, ml: 0.5 }}>
+            <Typography variant="body2" component="span" sx={{ lineHeight: 1.2 }}>
               <strong>{displayName}</strong> {systemSummary}
             </Typography>
-            <Typography variant="caption" className="system-timestamp">
+            <Typography
+              variant="caption"
+              sx={{
+                display: 'block',
+                opacity: 0.7,
+                fontSize: '0.65rem',
+                mt: 0.25,
+              }}
+            >
               {ago}
             </Typography>
-          </div>
+          </Box>
           <IconButton
             size="small"
             onClick={handleDetailsClick}
@@ -159,7 +170,7 @@ export default function Message({
           >
             <InfoOutlined fontSize="small" />
           </IconButton>
-        </div>
+        </Box>
 
         {/* Details Popover */}
         <Popover

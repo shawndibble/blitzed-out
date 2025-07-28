@@ -504,7 +504,7 @@
   "minutes": "分鐘",
   "customTiles.actions": "動作",
   "customUpdated": "自定義已更新",
-  "updatedGameSettings": "更新了遊戲設置",
+  "updatedGameSettings": "更新了他們的個人遊戲板設置",
   "updatedRoomSettings": "更新了房間設置",
-  "updatedMultipleSettings": "更新了{{count}}個設置"
+  "updatedMultipleSettings": "在他們的個人遊戲板上更新了{{count}}個設置"
 }

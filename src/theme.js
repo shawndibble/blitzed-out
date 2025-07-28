@@ -28,6 +28,10 @@ let darkTheme = createTheme({
     warning: {
       main: '#b45309', // Darker amber
     },
+    systemMessage: {
+      main: 'rgba(148, 163, 184, 0.1)', // Slate 400 with low opacity
+      transparent: 'rgba(148, 163, 184, 0.2)', // Slate 400 with higher opacity for transparent mode
+    },
     info: {
       main: '#1d4ed8', // Darker blue
     },
@@ -63,6 +67,40 @@ let darkTheme = createTheme({
     },
   },
   components: {
+    MuiBox: {
+      variants: [
+        {
+          props: { variant: 'systemMessage' },
+          style: ({ theme, ownerState }) => {
+            const { transparent = false, fullWidth = false } = ownerState;
+
+            return {
+              background: transparent
+                ? theme.palette.systemMessage.transparent
+                : theme.palette.systemMessage.main,
+              border: 'none',
+              borderRadius: 16,
+              margin: '8px auto',
+              alignSelf: 'center',
+              padding: '8px 12px',
+              width: 'fit-content',
+              backdropFilter: transparent ? 'blur(4px)' : 'none',
+              WebkitBackdropFilter: transparent ? 'blur(4px)' : 'none',
+              transition: theme.transitions.create(['background-color', 'backdrop-filter'], {
+                duration: theme.transitions.duration.short,
+              }),
+              ...(fullWidth && {
+                maxWidth: '95%',
+                width: 'auto',
+              }),
+              [theme.breakpoints.down('sm')]: {
+                maxWidth: fullWidth ? '98%' : '95%',
+              },
+            };
+          },
+        },
+      ],
+    },
     MuiButton: {
       styleOverrides: {
         root: {
@@ -259,8 +297,7 @@ let darkTheme = createTheme({
           WebkitBackdropFilter: 'blur(20px)',
           border: '1px solid rgba(148, 163, 184, 0.3)',
           borderRadius: '16px',
-          boxShadow:
-            '0 20px 80px rgba(0, 0, 0, 0.5), 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 30px rgba(34, 211, 238, 0.1)',
+          boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)',
         },
       },
     },

@@ -517,7 +517,7 @@
   "minutes": "मिनट",
   "customTiles.actions": "क्रियाएं",
   "customUpdated": "कस्टम अपडेटेड",
-  "updatedGameSettings": "गेम सेटिंग्स अपडेट की गईं",
+  "updatedGameSettings": "अपने व्यक्तिगत गेम बोर्ड की सेटिंग्स अपडेट की गईं",
   "updatedRoomSettings": "रूम सेटिंग्स अपडेट की गईं",
-  "updatedMultipleSettings": "{{count}} सेटिंग्स अपडेट की गईं"
+  "updatedMultipleSettings": "अपने व्यक्तिगत गेम बोर्ड पर {{count}} सेटिंग्स अपडेट की गईं"
 }
