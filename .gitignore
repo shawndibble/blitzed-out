@@ -12,6 +12,17 @@
 # production
 /dist
 
+# Build output (copied to public for Firebase/GitHub Pages)
+/public/assets/
+/public/audio/
+/public/fonts/
+/public/img/
+/public/js/
+/public/index.html
+
+# Firebase
+.firebase/
+
 # misc
 .DS_Store
 .env
