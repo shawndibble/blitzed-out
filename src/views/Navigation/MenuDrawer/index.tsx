@@ -36,7 +36,6 @@ import DialogWrapper from '@/components/DialogWrapper';
 import AuthDialog from '@/components/auth/AuthDialog';
 import { useSettings, useSettingsStore } from '@/stores/settingsStore';
 import { languages } from '@/services/i18nHelpers';
-import { useDeferredMigration } from '@/hooks/useDeferredMigration';
 import LanguageChangeModal from '@/components/LanguageChangeModal';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
@@ -88,8 +87,6 @@ export default function MenuDrawer(): JSX.Element {
     languageChange: false,
   });
 
-  const { ensureLanguage } = useDeferredMigration();
-
   const toggleDialog = useCallback(
     (type: string, isOpen: boolean): void => setOpen((prev) => ({ ...prev, [type]: isOpen })),
     []
@@ -131,8 +128,7 @@ export default function MenuDrawer(): JSX.Element {
       setLanguageLoading(true);
 
       try {
-        // Immediately change the language so modal appears in new language
-        await ensureLanguage(newLanguage);
+        // Language change will automatically trigger migration via MigrationContext
         await i18n.changeLanguage(newLanguage);
         setLocale(newLanguage);
 
@@ -179,7 +175,7 @@ export default function MenuDrawer(): JSX.Element {
         setLanguageLoading(false);
       }
     },
-    [i18n, setLocale, toggleDialog, ensureLanguage]
+    [i18n, setLocale, toggleDialog]
   );
 
   const handleBoardRebuildDecision = useCallback(

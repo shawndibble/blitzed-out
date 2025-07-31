@@ -30,6 +30,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
   const [currentLanguageMigrated, setCurrentLanguageMigrated] = useState(false);
   const [isMigrationCompleted, setIsMigrationCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [languageChangeTimeout, setLanguageChangeTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Lazy load migration service to avoid blocking main bundle
   const loadMigrationService = useCallback(async () => {
@@ -87,6 +88,51 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
     }
   }, [isMigrationInProgress, loadMigrationService]);
 
+  // Debounced language change handler
+  const handleLanguageChange = useCallback(
+    (newLanguage: string) => {
+      // Clear any existing timeout
+      if (languageChangeTimeout) {
+        clearTimeout(languageChangeTimeout);
+      }
+
+      // Debounce language changes by 100ms to handle rapid switches
+      const timeout = setTimeout(async () => {
+        try {
+          const migrationService = await loadMigrationService();
+
+          // Check if this language is already migrated
+          if (migrationService.isCurrentLanguageMigrationCompleted(newLanguage)) {
+            setCurrentLanguageMigrated(true);
+            return;
+          }
+
+          // Trigger migration for the new language
+          setIsMigrationInProgress(true);
+          setError(null);
+
+          const success = await migrationService.ensureLanguageMigrated(newLanguage);
+
+          if (success) {
+            setCurrentLanguageMigrated(true);
+            // Update overall migration status
+            setIsMigrationCompleted(migrationService.isMigrationCompleted());
+          } else {
+            setError('Migration failed but app will continue with existing data');
+          }
+        } catch (error) {
+          console.error(`Failed to migrate language ${newLanguage}:`, error);
+          setError('Migration failed but app will continue with existing data');
+        } finally {
+          setIsMigrationInProgress(false);
+        }
+      }, 100);
+
+      setLanguageChangeTimeout(timeout);
+    },
+    [languageChangeTimeout, loadMigrationService]
+  );
+
   const ensureLanguageMigrated = useCallback(
     async (locale?: string): Promise<boolean> => {
       const targetLocale = locale || i18n.language || 'en';
@@ -119,33 +165,52 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
     [i18n.language, loadMigrationService]
   );
 
-  // Auto-trigger background migration after i18n is ready
+  // Listen for i18next language changes
   useEffect(() => {
-    const scheduleBackgroundMigration = async () => {
-      // Wait for i18n to be fully initialized
-      if (!i18n.language || i18n.language === 'undefined') return;
+    if (!i18n.language || i18n.language === 'undefined') return;
 
-      // Only run if current language hasn't been migrated yet
-      if (!currentLanguageMigrated && !isMigrationInProgress) {
-        // Use requestIdleCallback for better performance
-        if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-          window.requestIdleCallback(
-            () => {
-              triggerMigration();
-            },
-            { timeout: 3000 }
-          );
-        } else {
-          // Fallback for browsers without requestIdleCallback
-          setTimeout(() => {
-            triggerMigration();
-          }, 1000);
+    // Set up language change listener
+    const languageChangedHandler = (lng: string) => {
+      handleLanguageChange(lng);
+    };
+
+    // Subscribe to language change events
+    i18n.on('languageChanged', languageChangedHandler);
+
+    // Initial migration check for current language
+    const checkInitialLanguage = async () => {
+      try {
+        const migrationService = await loadMigrationService();
+        const currentLocale = i18n.language || 'en';
+
+        const isCompleted = migrationService.isCurrentLanguageMigrationCompleted(currentLocale);
+        setCurrentLanguageMigrated(isCompleted);
+
+        // If current language hasn't been migrated, trigger it
+        if (!isCompleted && !isMigrationInProgress) {
+          handleLanguageChange(currentLocale);
         }
+      } catch (error) {
+        console.warn('Failed to check initial migration status:', error);
       }
     };
 
-    scheduleBackgroundMigration();
-  }, [i18n.language, currentLanguageMigrated, isMigrationInProgress, triggerMigration]);
+    checkInitialLanguage();
+
+    // Cleanup subscription on unmount
+    return () => {
+      i18n.off('languageChanged', languageChangedHandler);
+      if (languageChangeTimeout) {
+        clearTimeout(languageChangeTimeout);
+      }
+    };
+  }, [
+    i18n,
+    handleLanguageChange,
+    isMigrationInProgress,
+    languageChangeTimeout,
+    loadMigrationService,
+  ]);
 
   const value: MigrationContextValue = {
     isMigrationCompleted,
