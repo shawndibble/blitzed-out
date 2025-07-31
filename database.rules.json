@@ -1,0 +1,22 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        "uids": {
+          ".read": true,
+          "$userId": {
+            ".read": true,
+            ".write": "auth != null && auth.uid == $userId",
+            "$connectionId": {
+              ".read": true,
+              ".write": "auth != null && auth.uid == $userId",
+              ".validate": "newData.hasChildren(['displayName', 'lastActive']) && newData.child('displayName').isString() && newData.child('lastActive').isNumber()"
+            }
+          }
+        }
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}
