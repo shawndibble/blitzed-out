@@ -35,8 +35,8 @@ function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
 
   // Optimized schedule update handler
   const handleScheduleUpdate = useCallback(
-    (newSchedule: ScheduleItem[]) => {
-      loadSchedule(newSchedule);
+    (newSchedule: Array<Record<string, unknown>>) => {
+      loadSchedule(newSchedule as unknown as ScheduleItem[]);
     },
     [loadSchedule]
   );

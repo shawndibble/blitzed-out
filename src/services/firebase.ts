@@ -74,7 +74,7 @@ const firebaseConfig: FirebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 export async function loginAnonymously(displayName = ''): Promise<User | null> {
   try {
@@ -288,10 +288,12 @@ export function getUserList(
       updateQueryMetrics(queryKey, Date.now() - startTime, true);
 
       // Still apply the existing data comparison logic
-      const dataString = Object.keys(cached.data).sort().join(',');
+      const dataString = Object.keys(cached.data as Record<string, unknown>)
+        .sort()
+        .join(',');
       const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
       if (dataString !== existingString) {
-        callback(cached.data);
+        callback(cached.data as Record<string, unknown>);
       }
       return;
     }
@@ -322,7 +324,7 @@ export function getUserList(
 
             const priority = getCachePriority(queryKey);
             queryCache.set(queryKey, {
-              data: [data],
+              data,
               timestamp: queryEndTime,
               queryCount: 1,
               priority,
@@ -398,7 +400,7 @@ async function getBoardByContent(checksum: string): Promise<DocumentData | null>
 interface BoardData {
   title: string;
   gameBoard: string;
-  settings: Record<string, unknown>;
+  settings: string;
 }
 
 export async function getOrCreateBoard({
@@ -469,7 +471,7 @@ let lastMessage: Record<string, unknown> = {};
 
 // Enhanced query optimization with smart caching and debouncing
 interface QueryCache {
-  data: unknown[];
+  data: unknown;
   timestamp: number;
   lastVisible?: QueryDocumentSnapshot<DocumentData>;
   queryCount: number; // Track access frequency for smart eviction
@@ -793,7 +795,7 @@ export async function uploadImage({ image, room, user }: UploadImageData): Promi
 
 export function getMessages(
   roomId: string | null | undefined,
-  callback: (messages: unknown[]) => void,
+  callback: (messages: Array<Record<string, unknown>>) => void,
   options: {
     limitCount?: number;
     startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
@@ -836,7 +838,7 @@ export function getMessages(
 
 function executeGetMessages(
   roomId: string,
-  callback: (messages: unknown[]) => void,
+  callback: (messages: Array<Record<string, unknown>>) => void,
   options: {
     limitCount?: number;
     startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
@@ -864,7 +866,7 @@ function executeGetMessages(
       queryCache.set(queryKey, cached);
 
       updateQueryMetrics(queryKey, Date.now() - startTime, true);
-      callback(cached.data);
+      callback(cached.data as Array<Record<string, unknown>>);
       return () => {}; // Return empty unsubscribe function for cached results
     }
   }
@@ -973,7 +975,10 @@ function executeGetMessages(
 // Enhanced pagination helper for messages
 export function getMessagesWithPagination(
   roomId: string | null | undefined,
-  callback: (messages: unknown[], lastVisible?: QueryDocumentSnapshot<DocumentData>) => void,
+  callback: (
+    messages: Array<Record<string, unknown>>,
+    lastVisible?: QueryDocumentSnapshot<DocumentData>
+  ) => void,
   limitCount: number = DEFAULT_LIMIT,
   startAfterDoc?: QueryDocumentSnapshot<DocumentData>
 ): (() => void) | undefined {
@@ -997,7 +1002,7 @@ export function getMessagesWithPagination(
 }
 
 export function getSchedule(
-  callback: (schedule: unknown[]) => void,
+  callback: (schedule: Array<Record<string, unknown>>) => void,
   options: {
     limitCount?: number;
     startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
@@ -1024,7 +1029,7 @@ export function getSchedule(
       queryCache.set(queryKey, cached);
 
       updateQueryMetrics(queryKey, Date.now() - startTime, true);
-      callback(cached.data);
+      callback(cached.data as Array<Record<string, unknown>>);
       return () => {}; // Return empty unsubscribe function for cached results
     }
   }
@@ -1133,7 +1138,10 @@ export function getSchedule(
 
 // Enhanced pagination helper for schedule
 export function getScheduleWithPagination(
-  callback: (schedule: unknown[], lastVisible?: QueryDocumentSnapshot<DocumentData>) => void,
+  callback: (
+    schedule: Array<Record<string, unknown>>,
+    lastVisible?: QueryDocumentSnapshot<DocumentData>
+  ) => void,
   limitCount: number = DEFAULT_LIMIT,
   startAfterDoc?: QueryDocumentSnapshot<DocumentData>
 ): () => void {

@@ -30,11 +30,11 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
 
   // Optimized user update handler with batching
   const handleUserUpdate = useCallback(
-    (newUsers: Record<string, OnlineUser> | null) => {
+    (newUsers: Record<string, unknown> | null) => {
       if (newUsers === null) {
         clearUsers();
       } else {
-        setUsers(newUsers);
+        setUsers(newUsers as unknown as Record<string, OnlineUser>);
       }
     },
     [setUsers, clearUsers]
@@ -67,7 +67,9 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
     cleanup();
 
     // Set up new listener
-    getUserList(room, handleUserUpdate);
+    getUserList(room, (data: Record<string, unknown>) => {
+      handleUserUpdate(data);
+    });
     unsubscribeRef.current = null; // TODO: getUserList should return unsubscribe function
 
     // Cleanup on unmount or room change
