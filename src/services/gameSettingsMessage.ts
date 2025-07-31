@@ -77,7 +77,7 @@ export async function getSettingsMessage(
 
       if (!isOnlineMode(settings.gameMode) && !variation) {
         // if we have a role from the translation files, use them first.
-        const roleText = val[actualRole] ?? t(actualRole);
+        const roleText = (val as any)[actualRole] ?? t(actualRole);
         message += ` (${roleText})`;
       }
       message += '\r\n';

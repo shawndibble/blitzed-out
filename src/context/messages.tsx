@@ -37,8 +37,8 @@ export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
       return;
     }
 
-    return getMessages(room, (newMessages: Message[]) => {
-      loadMessages(newMessages);
+    return getMessages(room, (newMessages: Array<Record<string, unknown>>) => {
+      loadMessages(newMessages as unknown as Message[]);
     });
   }, [room, loadMessages, setLoading, setRoom, clearMessages]);
 
