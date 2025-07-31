@@ -3,6 +3,9 @@ import { initReactI18next } from 'react-i18next';
 import resourcesToBackend from 'i18next-resources-to-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+// Configuration constants
+const LANGUAGE_PRELOAD_TIMEOUT = 5000; // 5 second timeout for requestIdleCallback
+
 const i18nOptions: InitOptions = {
   fallbackLng: 'en',
   supportedLngs: ['en', 'es', 'fr', 'zh', 'hi'],
@@ -67,8 +70,8 @@ i18n
               }
             });
           },
-          { timeout: 5000 }
-        ); // 5 second timeout
+          { timeout: LANGUAGE_PRELOAD_TIMEOUT }
+        ); // Timeout for requestIdleCallback
       } else {
         // Fallback with longer delay to allow app to become interactive first
         setTimeout(() => {
@@ -81,7 +84,7 @@ i18n
               i18n.loadLanguages(lang).catch(console.warn);
             }
           });
-        }, 5000); // Load other languages after 5 seconds
+        }, LANGUAGE_PRELOAD_TIMEOUT); // Load other languages after timeout
       }
     };
 

@@ -51,21 +51,66 @@ export interface DeferredMigrationResult {
 
 /**
  * Hook for components that need migrated data.
- * Provides deferred loading with graceful fallbacks.
+ * Provides deferred loading with graceful fallbacks and flexible migration strategies.
+ *
+ * ## Usage Patterns:
+ *
+ * **Background Migration (Recommended):**
+ * - `immediate: false, required: false` - Non-blocking, best for performance
+ * - Migration happens in background, component renders immediately
+ * - Use when component can function without migrated data initially
+ *
+ * **Required Migration:**
+ * - `immediate: false, required: true` - Shows loading state until migration completes
+ * - Use when component absolutely needs migrated data to function
+ * - Automatically triggers migration on mount if not already migrated
+ *
+ * **Immediate Migration:**
+ * - `immediate: true` - Forces migration to start immediately when hook is used
+ * - Use sparingly, can impact performance if used in multiple components
+ *
+ * ## Return Values:
+ * - `isLoading`: Only true when `required: true` and migration is in progress
+ * - `isReady`: Whether current language migration has completed successfully
+ * - `error`: Any error that occurred during migration (non-blocking)
+ * - `triggerMigration`: Manual function to start migration process
+ * - `ensureLanguage`: Function to migrate a specific language
+ *
+ * @param options - Configuration options for migration behavior
+ * @returns Migration state and control functions
  *
  * @example
  * ```tsx
+ * // Background migration (recommended for most components)
  * function GameSettings() {
- *   const { isReady, isLoading, triggerMigration } = useDeferredMigration({
- *     required: true, // This component needs migrated data
- *     immediate: false // Don't block rendering, load in background
+ *   const { isReady } = useDeferredMigration({
+ *     required: false // Component can render without migration
+ *   });
+ *
+ *   return <GameSettingsContent enhanced={isReady} />;
+ * }
+ *
+ * // Required migration with loading state
+ * function ActionsList() {
+ *   const { isReady, isLoading } = useDeferredMigration({
+ *     required: true // Component needs migrated data
  *   });
  *
  *   if (isLoading) {
- *     return <SettingsSkeleton />;
+ *     return <ActionsSkeleton />;
  *   }
  *
- *   return <GameSettingsContent />;
+ *   return <ActionsContent />;
+ * }
+ *
+ * // Specific language migration
+ * function LanguageSwitcher() {
+ *   const { ensureLanguage } = useDeferredMigration();
+ *
+ *   const handleLanguageChange = async (locale: string) => {
+ *     await ensureLanguage(locale);
+ *     // Language is now ready
+ *   };
  * }
  * ```
  */

@@ -99,7 +99,6 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
 
     // Wait for migration to complete before loading actions
     if (!currentLanguageMigrated) {
-      console.log('🔄 useUnifiedActionList: Waiting for language migration to complete');
       return;
     }
 
