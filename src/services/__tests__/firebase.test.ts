@@ -253,13 +253,14 @@ describe('Firebase Authentication Service', () => {
 
     it('should handle errors gracefully', async () => {
       const { loginAnonymously } = await import('../firebase');
+      const { AuthError } = await import('@/types/errors');
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockSignInAnonymously.mockRejectedValue(new Error('Sign in failed'));
 
-      const result = await loginAnonymously('Test User');
+      await expect(loginAnonymously('Test User')).rejects.toThrow(AuthError);
+      await expect(loginAnonymously('Test User')).rejects.toThrow('Sign in failed');
 
-      expect(result).toBe(null);
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
     });
