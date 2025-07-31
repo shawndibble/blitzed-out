@@ -31,7 +31,7 @@ const Room = lazy(() => import('@/views/Room'));
 // Smart preloading strategy - load most likely routes
 const preloadChunks = () => {
   // Most users go to Room, so preload it with high priority
-  Promise.all([import('@/views/Room'), import('@/views/UnauthenticatedApp')]).catch(console.warn);
+  Promise.all([import('@/views/Room'), import('@/views/UnauthenticatedApp')]).catch(() => {});
 
   // Preload secondary components after a delay
   setTimeout(() => {
@@ -39,7 +39,7 @@ const preloadChunks = () => {
       import('@/components/MessageList'),
       import('@/components/MessageInput'),
       import('@/views/Navigation'),
-    ]).catch(console.warn);
+    ]).catch(() => {});
   }, 500);
 };
 

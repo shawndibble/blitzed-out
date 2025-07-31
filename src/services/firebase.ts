@@ -51,6 +51,7 @@ import {
 import { getDownloadURL, getStorage, ref as storageRef, uploadString } from 'firebase/storage';
 import { sha256 } from 'js-sha256';
 import { User as UserType } from '@/types';
+import { AuthError, createStandardError, getFirebaseErrorMessage } from '@/types/errors';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -85,8 +86,12 @@ export async function loginAnonymously(displayName = ''): Promise<User | null> {
     }
     return null;
   } catch (error) {
-    console.error(error);
-    return null;
+    console.error('Anonymous login error:', error);
+    throw new AuthError(
+      getFirebaseErrorMessage(error),
+      'ANONYMOUS_LOGIN_FAILED',
+      createStandardError(error)
+    );
   }
 }
 
@@ -102,7 +107,11 @@ export async function registerWithEmail(
     return userCredential.user;
   } catch (error) {
     console.error('Registration error:', error);
-    throw error;
+    throw new AuthError(
+      getFirebaseErrorMessage(error),
+      'REGISTRATION_FAILED',
+      createStandardError(error)
+    );
   }
 }
 
@@ -113,7 +122,11 @@ export async function loginWithEmail(email: string, password: string): Promise<U
     return userCredential.user;
   } catch (error) {
     console.error('Email login error:', error);
-    throw error;
+    throw new AuthError(
+      getFirebaseErrorMessage(error),
+      'EMAIL_LOGIN_FAILED',
+      createStandardError(error)
+    );
   }
 }
 
@@ -125,7 +138,11 @@ export async function loginWithGoogle(): Promise<User> {
     return userCredential.user;
   } catch (error) {
     console.error('Google login error:', error);
-    throw error;
+    throw new AuthError(
+      getFirebaseErrorMessage(error),
+      'GOOGLE_LOGIN_FAILED',
+      createStandardError(error)
+    );
   }
 }
 
@@ -136,7 +153,11 @@ export async function resetPassword(email: string): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('Password reset error:', error);
-    throw error;
+    throw new AuthError(
+      getFirebaseErrorMessage(error),
+      'PASSWORD_RESET_FAILED',
+      createStandardError(error)
+    );
   }
 }
 
@@ -155,7 +176,11 @@ export async function convertAnonymousAccount(email: string, password: string): 
     }
   } catch (error) {
     console.error('Account conversion error:', error);
-    throw error;
+    throw new AuthError(
+      getFirebaseErrorMessage(error),
+      'ACCOUNT_CONVERSION_FAILED',
+      createStandardError(error)
+    );
   }
 }
 
@@ -237,8 +262,8 @@ export function setMyPresence({
 
 export function getUserList(
   roomId: string | null | undefined,
-  callback: (data: any) => void,
-  existingData: Record<string, any> = {},
+  callback: (data: Record<string, unknown>) => void,
+  existingData: Record<string, unknown> = {},
   options: {
     enableCache?: boolean;
     enableDebounce?: boolean;
@@ -287,7 +312,7 @@ export function getUserList(
         (snap: DataSnapshot) => {
           const queryEndTime = Date.now();
           const latency = queryEndTime - startTime;
-          const data = snap.val();
+          const data = snap.val() as Record<string, unknown> | null;
 
           if (!data) return;
 
@@ -297,7 +322,7 @@ export function getUserList(
 
             const priority = getCachePriority(queryKey);
             queryCache.set(queryKey, {
-              data,
+              data: [data],
               timestamp: queryEndTime,
               queryCount: 1,
               priority,
@@ -373,7 +398,7 @@ async function getBoardByContent(checksum: string): Promise<DocumentData | null>
 interface BoardData {
   title: string;
   gameBoard: string;
-  settings: any;
+  settings: Record<string, unknown>;
 }
 
 export async function getOrCreateBoard({
@@ -440,11 +465,11 @@ export async function getBoard(id: string): Promise<DocumentData | undefined> {
   }
 }
 
-let lastMessage: Record<string, any> = {};
+let lastMessage: Record<string, unknown> = {};
 
 // Enhanced query optimization with smart caching and debouncing
 interface QueryCache {
-  data: any[];
+  data: unknown[];
   timestamp: number;
   lastVisible?: QueryDocumentSnapshot<DocumentData>;
   queryCount: number; // Track access frequency for smart eviction
@@ -654,7 +679,7 @@ function isValidCache(cache: QueryCache, queryKey: string): boolean {
   return Date.now() - cache.timestamp < ttl;
 }
 
-function debounceQuery<T extends any[]>(
+function debounceQuery<T extends unknown[]>(
   queryKey: string,
   queryFn: (...args: T) => void,
   ...args: T
@@ -688,7 +713,7 @@ interface SendMessageOptions {
   user: UserType;
   text?: string;
   type: MessageType;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export async function sendMessage({
@@ -768,7 +793,7 @@ export async function uploadImage({ image, room, user }: UploadImageData): Promi
 
 export function getMessages(
   roomId: string | null | undefined,
-  callback: (messages: any[]) => void,
+  callback: (messages: unknown[]) => void,
   options: {
     limitCount?: number;
     startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
@@ -811,7 +836,7 @@ export function getMessages(
 
 function executeGetMessages(
   roomId: string,
-  callback: (messages: any[]) => void,
+  callback: (messages: unknown[]) => void,
   options: {
     limitCount?: number;
     startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
@@ -948,7 +973,7 @@ function executeGetMessages(
 // Enhanced pagination helper for messages
 export function getMessagesWithPagination(
   roomId: string | null | undefined,
-  callback: (messages: any[], lastVisible?: QueryDocumentSnapshot<DocumentData>) => void,
+  callback: (messages: unknown[], lastVisible?: QueryDocumentSnapshot<DocumentData>) => void,
   limitCount: number = DEFAULT_LIMIT,
   startAfterDoc?: QueryDocumentSnapshot<DocumentData>
 ): (() => void) | undefined {
@@ -972,7 +997,7 @@ export function getMessagesWithPagination(
 }
 
 export function getSchedule(
-  callback: (schedule: any[]) => void,
+  callback: (schedule: unknown[]) => void,
   options: {
     limitCount?: number;
     startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
@@ -1108,7 +1133,7 @@ export function getSchedule(
 
 // Enhanced pagination helper for schedule
 export function getScheduleWithPagination(
-  callback: (schedule: any[], lastVisible?: QueryDocumentSnapshot<DocumentData>) => void,
+  callback: (schedule: unknown[], lastVisible?: QueryDocumentSnapshot<DocumentData>) => void,
   limitCount: number = DEFAULT_LIMIT,
   startAfterDoc?: QueryDocumentSnapshot<DocumentData>
 ): () => void {
