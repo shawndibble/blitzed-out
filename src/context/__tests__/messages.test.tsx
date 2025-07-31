@@ -509,7 +509,7 @@ describe('MessagesProvider', () => {
                 displayName: 'User2',
                 timestamp: { toDate: () => new Date() },
               },
-            ].filter(Boolean)
+            ].filter(Boolean) as Record<string, unknown>[]
           );
         }, 0);
         return mockUnsubscribe;

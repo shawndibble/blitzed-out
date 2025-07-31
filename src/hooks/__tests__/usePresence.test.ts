@@ -274,7 +274,7 @@ describe('usePresence Hook', () => {
 
   describe('Realtime Room Behavior', () => {
     it('should set removeOnDisconnect to true for realtime rooms', () => {
-      renderHook(() => usePresence('test-room', true));
+      renderHook(() => usePresence('test-room'));
 
       expect(mockSetMyPresence).toHaveBeenCalledWith({
         newRoom: 'test-room',
@@ -322,7 +322,7 @@ describe('usePresence Hook', () => {
     });
 
     it('should override removeOnDisconnect for private rooms when roomRealtime is true', () => {
-      renderHook(() => usePresence('private-room', true));
+      renderHook(() => usePresence('private-room'));
 
       expect(mockSetMyPresence).toHaveBeenCalledWith({
         newRoom: 'private-room',
@@ -468,15 +468,12 @@ describe('usePresence Hook', () => {
 
   describe('Performance', () => {
     it('should not cause unnecessary re-renders', () => {
-      const { rerender } = renderHook(
-        ({ roomId, roomRealtime }) => usePresence(roomId, roomRealtime),
-        {
-          initialProps: {
-            roomId: 'test-room',
-            roomRealtime: false,
-          },
-        }
-      );
+      const { rerender } = renderHook(({ roomId }) => usePresence(roomId), {
+        initialProps: {
+          roomId: 'test-room',
+          roomRealtime: false,
+        },
+      });
 
       expect(mockSetMyPresence).toHaveBeenCalledTimes(1);
 

@@ -29,18 +29,11 @@ describe('GameTile', () => {
     },
   ];
 
-  const mockCurrentPlayer: Player = {
-    uid: 'currentPlayer',
-    displayName: 'Current Player',
-    isSelf: false,
-    isFinished: false,
-  };
-
   const baseTileProps: Tile = {
     title: 'Test Tile',
     description: 'This is a test tile description',
     players: mockPlayers,
-    current: null,
+    current: false,
     isTransparent: false,
     className: 'test-class',
   };
@@ -95,7 +88,7 @@ describe('GameTile', () => {
 
   describe('current player handling', () => {
     it('should apply pulse animation when current player is present', () => {
-      const propsWithCurrent = { ...baseTileProps, current: mockCurrentPlayer };
+      const propsWithCurrent = { ...baseTileProps, current: true };
       render(<GameTile {...propsWithCurrent} />);
 
       const listItem = screen.getByRole('listitem');
@@ -103,7 +96,7 @@ describe('GameTile', () => {
     });
 
     it('should scroll into view when current player is present', () => {
-      const propsWithCurrent = { ...baseTileProps, current: mockCurrentPlayer };
+      const propsWithCurrent = { ...baseTileProps, current: true };
       render(<GameTile {...propsWithCurrent} />);
 
       expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
@@ -162,7 +155,7 @@ describe('GameTile', () => {
     it('should combine multiple classes correctly', () => {
       const propsWithMultiple = {
         ...baseTileProps,
-        current: mockCurrentPlayer,
+        current: true,
         isTransparent: true,
         className: 'custom-class',
       };
@@ -337,7 +330,7 @@ describe('GameTile', () => {
 
       expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
 
-      rerender(<GameTile {...baseTileProps} current={mockCurrentPlayer} />);
+      rerender(<GameTile {...baseTileProps} current={true} />);
 
       expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
