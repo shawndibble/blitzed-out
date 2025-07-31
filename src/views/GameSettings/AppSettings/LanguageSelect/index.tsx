@@ -11,7 +11,7 @@ import {
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { languages } from '@/services/i18nHelpers';
-import { ensureLanguageMigrated } from '@/services/migrationService';
+import { useDeferredMigration } from '@/hooks/useDeferredMigration';
 
 interface LanguageSelectProps {
   boardUpdated: () => void;
@@ -21,6 +21,7 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
   const { i18n } = useTranslation();
   const [language, setLanguage] = useState<string>(i18n.resolvedLanguage || 'en');
   const [loading, setLoading] = useState<boolean>(false);
+  const { ensureLanguage } = useDeferredMigration();
 
   async function changeLanguage(value: string): Promise<void> {
     setLoading(true);
@@ -28,7 +29,7 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
 
     try {
       // Ensure the new language is migrated before switching
-      await ensureLanguageMigrated(value);
+      await ensureLanguage(value);
       await i18n.changeLanguage(value);
       boardUpdated();
     } catch (error) {

@@ -44,25 +44,49 @@ const i18n = i18next
   .use(LanguageDetector)
   .use(resourcesToBackend(lazyLoadTranslations));
 
-// Initialize i18n with background loading
+// Initialize i18n with optimized background loading
 i18n
   .init(i18nOptions)
   .then(() => {
-    // Preload common languages in background after initial load
-    const currentLang = i18n.language;
-    const commonLangs = ['en', 'es', 'fr'].filter((lang) => lang !== currentLang);
+    // Defer preloading other languages until after migration is handled
+    const scheduleLanguagePreloading = () => {
+      const currentLang = i18n.language;
+      const commonLangs = ['en', 'es', 'fr'].filter((lang) => lang !== currentLang);
 
-    setTimeout(() => {
-      commonLangs.forEach((lang) => {
-        if (
-          i18n.options.supportedLngs &&
-          Array.isArray(i18n.options.supportedLngs) &&
-          i18n.options.supportedLngs.includes(lang)
-        ) {
-          i18n.loadLanguages(lang).catch(console.warn);
-        }
-      });
-    }, 2000); // Load other languages after 2 seconds
+      // Use requestIdleCallback for better performance
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        window.requestIdleCallback(
+          () => {
+            commonLangs.forEach((lang) => {
+              if (
+                i18n.options.supportedLngs &&
+                Array.isArray(i18n.options.supportedLngs) &&
+                i18n.options.supportedLngs.includes(lang)
+              ) {
+                i18n.loadLanguages(lang).catch(console.warn);
+              }
+            });
+          },
+          { timeout: 5000 }
+        ); // 5 second timeout
+      } else {
+        // Fallback with longer delay to allow app to become interactive first
+        setTimeout(() => {
+          commonLangs.forEach((lang) => {
+            if (
+              i18n.options.supportedLngs &&
+              Array.isArray(i18n.options.supportedLngs) &&
+              i18n.options.supportedLngs.includes(lang)
+            ) {
+              i18n.loadLanguages(lang).catch(console.warn);
+            }
+          });
+        }, 5000); // Load other languages after 5 seconds
+      }
+    };
+
+    // Delay language preloading to prioritize app startup
+    scheduleLanguagePreloading();
   })
   .catch(console.error);
 
