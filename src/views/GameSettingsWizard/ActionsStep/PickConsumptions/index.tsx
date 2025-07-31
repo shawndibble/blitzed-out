@@ -46,7 +46,7 @@ export default function PickConsumptions({
     const newIsAppend = event.target.checked;
 
     // Update selectedActions for each consumption item
-    const updatedSelectedActions = { ...formData.selectedActions };
+    const updatedSelectedActions = { ...(formData.selectedActions as Record<string, any>) };
     selectedItems.forEach((option) => {
       if (updatedSelectedActions[option]) {
         updatedSelectedActions[option] = {

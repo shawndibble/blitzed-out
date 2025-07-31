@@ -1,20 +1,7 @@
-import { MessageType } from '@/types/Message';
-import { initializeApp } from 'firebase/app';
+import { AuthError, createStandardError, getFirebaseErrorMessage } from '@/types/errors';
 import {
-  createUserWithEmailAndPassword,
-  EmailAuthProvider,
-  getAuth,
-  GoogleAuthProvider,
-  linkWithCredential,
-  sendPasswordResetEmail,
-  signInAnonymously,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-  updateProfile,
-  User,
-} from 'firebase/auth';
-import {
+  DataSnapshot,
+  ThenableReference,
   getDatabase,
   onDisconnect,
   onValue,
@@ -22,10 +9,12 @@ import {
   ref,
   remove,
   set,
-  DataSnapshot,
-  ThenableReference,
 } from 'firebase/database';
 import {
+  DocumentData,
+  DocumentReference,
+  QueryDocumentSnapshot,
+  QuerySnapshot,
   Timestamp,
   addDoc,
   collection,
@@ -34,24 +23,35 @@ import {
   getDoc,
   getDocs,
   getFirestore,
+  limit,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
+  startAfter,
   updateDoc,
   where,
-  limit,
-  startAfter,
-  DocumentReference,
-  DocumentData,
-  QuerySnapshot,
-  QueryDocumentSnapshot,
 } from 'firebase/firestore';
-
+import {
+  EmailAuthProvider,
+  GoogleAuthProvider,
+  User,
+  createUserWithEmailAndPassword,
+  getAuth,
+  linkWithCredential,
+  sendPasswordResetEmail,
+  signInAnonymously,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
 import { getDownloadURL, getStorage, ref as storageRef, uploadString } from 'firebase/storage';
-import { sha256 } from 'js-sha256';
+
+import { MessageType } from '@/types/Message';
 import { User as UserType } from '@/types';
-import { AuthError, createStandardError, getFirebaseErrorMessage } from '@/types/errors';
+import { initializeApp } from 'firebase/app';
+import { sha256 } from 'js-sha256';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -307,16 +307,36 @@ export function getUserList(
       await acquireConnection();
 
       const database = getDatabase();
-      const roomRef = ref(database, `rooms/${roomUpper}/uids`);
+      const usersRef = ref(database, 'users');
 
       onValue(
-        roomRef,
+        usersRef,
         (snap: DataSnapshot) => {
           const queryEndTime = Date.now();
           const latency = queryEndTime - startTime;
-          const data = snap.val() as Record<string, unknown> | null;
+          const allUsers = snap.val() as Record<string, any> | null;
 
-          if (!data) return;
+          if (!allUsers) {
+            callback({});
+            return;
+          }
+
+          // Filter users by room and convert to expected format
+          const roomUsers: Record<string, unknown> = {};
+          Object.entries(allUsers).forEach(([uid, userData]) => {
+            if (userData.room === roomUpper) {
+              roomUsers[uid] = {
+                displayName: userData.displayName,
+                uid: uid,
+                lastSeen: userData.lastSeen ? new Date(userData.lastSeen) : new Date(),
+                isAnonymous: userData.isAnonymous,
+                joinedAt: userData.joinedAt ? new Date(userData.joinedAt) : new Date(),
+                room: userData.room,
+              };
+            }
+          });
+
+          const data = roomUsers;
 
           // Update cache with enhanced metadata
           if (enableCache) {

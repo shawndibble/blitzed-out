@@ -22,6 +22,8 @@
 
 # Firebase
 .firebase/
+/functions/node_modules/
+/functions/lib/
 
 # misc
 .DS_Store

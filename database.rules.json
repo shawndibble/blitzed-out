@@ -1,5 +1,17 @@
 {
   "rules": {
+    "users": {
+      ".read": true,
+      "$userId": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $userId",
+        ".validate": "newData.hasChildren(['displayName', 'lastSeen', 'room', 'isAnonymous']) && newData.child('displayName').isString() && newData.child('lastSeen').isNumber() && newData.child('room').isString() && newData.child('isAnonymous').isBoolean()",
+        "lastSeen": {
+          ".write": "auth != null && auth.uid == $userId",
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
     "rooms": {
       "$roomId": {
         "uids": {

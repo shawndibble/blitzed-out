@@ -16,7 +16,7 @@ export default function GameTile({
 }: Tile) {
   const playerIndicators = useMemo(
     () =>
-      players.map((p: Player) => (
+      (players as Player[]).map((p: Player) => (
         <TextAvatar key={p.uid} displayName={p.displayName || ''} uid={p.uid || ''} />
       )),
     [players]

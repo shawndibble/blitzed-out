@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Core Commands
 
-- `npm start` - Start development server (Vite)
+- `npm start` - Start development server (Vite) - **IMPORTANT**: DO NOT restart the development server during work sessions. Assume it is running.
 - `npm run build` - Build for production (includes TypeScript compilation)
 - `npm run type-check` - Run TypeScript type checking without compilation
 - `npm test` - Run tests with Vitest in watch mode

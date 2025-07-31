@@ -1,13 +1,15 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import usePresence from '../usePresence';
-import * as firebaseService from '@/services/firebase';
+import * as presenceService from '@/services/presence';
 import useAuth from '@/context/hooks/useAuth';
 import { User } from '@/types';
 
-// Mock the firebase service
-vi.mock('@/services/firebase', () => ({
+// Mock the presence service
+vi.mock('@/services/presence', () => ({
   setMyPresence: vi.fn(),
+  startPresenceHeartbeat: vi.fn(() => vi.fn()),
+  removeMyPresence: vi.fn(),
 }));
 
 // Mock the auth context with a controllable mock
@@ -24,7 +26,7 @@ vi.mock('@/context/hooks/useAuth', () => {
 });
 
 describe('usePresence Hook', () => {
-  const mockSetMyPresence = vi.mocked(firebaseService.setMyPresence);
+  const mockSetMyPresence = vi.mocked(presenceService.setMyPresence);
   const mockUseAuth = vi.mocked(useAuth);
 
   // Helper function to create complete User mock
@@ -90,7 +92,6 @@ describe('usePresence Hook', () => {
         newRoom: 'test-room',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -102,7 +103,6 @@ describe('usePresence Hook', () => {
         newRoom: '',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -138,7 +138,6 @@ describe('usePresence Hook', () => {
         newRoom: 'room1',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
 
@@ -151,7 +150,6 @@ describe('usePresence Hook', () => {
         newRoom: 'room2',
         oldRoom: 'room1',
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -187,7 +185,6 @@ describe('usePresence Hook', () => {
         newRoom: 'room4',
         oldRoom: 'room3',
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -266,7 +263,6 @@ describe('usePresence Hook', () => {
         newRoom: 'test-room',
         oldRoom: 'test-room',
         newDisplayName: '',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -280,7 +276,6 @@ describe('usePresence Hook', () => {
         newRoom: 'test-room',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: true,
       });
     });
@@ -292,7 +287,6 @@ describe('usePresence Hook', () => {
         newRoom: 'PUBLIC',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: true,
       });
     });
@@ -304,7 +298,6 @@ describe('usePresence Hook', () => {
         newRoom: 'public',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: true,
       });
     });
@@ -316,19 +309,17 @@ describe('usePresence Hook', () => {
         newRoom: 'private-room',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
 
     it('should override removeOnDisconnect for private rooms when roomRealtime is true', () => {
-      renderHook(() => usePresence('private-room'));
+      renderHook(() => usePresence('private-room', true));
 
       expect(mockSetMyPresence).toHaveBeenCalledWith({
         newRoom: 'private-room',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: true,
       });
     });
@@ -349,7 +340,6 @@ describe('usePresence Hook', () => {
         newRoom: '',
         oldRoom: 'room1',
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -419,7 +409,6 @@ describe('usePresence Hook', () => {
         newRoom: undefined,
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -431,7 +420,6 @@ describe('usePresence Hook', () => {
         newRoom: 'room-with-special-chars_123!@#',
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -444,7 +432,6 @@ describe('usePresence Hook', () => {
         newRoom: longRoomId,
         oldRoom: null,
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
@@ -468,19 +455,18 @@ describe('usePresence Hook', () => {
 
   describe('Performance', () => {
     it('should not cause unnecessary re-renders', () => {
-      const { rerender } = renderHook(({ roomId }) => usePresence(roomId), {
+      const { rerender } = renderHook(({ roomId }) => usePresence(roomId, false), {
         initialProps: {
           roomId: 'test-room',
-          roomRealtime: false,
         },
       });
 
       expect(mockSetMyPresence).toHaveBeenCalledTimes(1);
 
       // Multiple rerenders with same props should not trigger setMyPresence
-      rerender({ roomId: 'test-room', roomRealtime: false });
-      rerender({ roomId: 'test-room', roomRealtime: false });
-      rerender({ roomId: 'test-room', roomRealtime: false });
+      rerender({ roomId: 'test-room' });
+      rerender({ roomId: 'test-room' });
+      rerender({ roomId: 'test-room' });
 
       expect(mockSetMyPresence).toHaveBeenCalledTimes(1);
     });
@@ -512,7 +498,6 @@ describe('usePresence Hook', () => {
         newRoom: 'game-room-1',
         oldRoom: 'lobby',
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
 
@@ -522,7 +507,6 @@ describe('usePresence Hook', () => {
         newRoom: 'game-room-2',
         oldRoom: 'game-room-1',
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
 
@@ -532,7 +516,6 @@ describe('usePresence Hook', () => {
         newRoom: 'lobby',
         oldRoom: 'game-room-2',
         newDisplayName: 'Test User',
-        oldDisplayName: 'Test User',
         removeOnDisconnect: false,
       });
     });
