@@ -50,7 +50,7 @@ export default function Room() {
 
   const [settings, setSettings] = useSettings();
 
-  usePresence(room, settings?.roomRealtime);
+  usePresence(room);
 
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
   const gameBoard = useLiveQuery(getActiveBoard)?.tiles as GameTile[] | undefined;
@@ -94,7 +94,7 @@ export default function Room() {
       <GameBoard
         playerList={playerList as any}
         isTransparent={isTransparent}
-        gameBoard={gameBoard as Tile[]}
+        gameBoard={gameBoard as unknown as Tile[]}
         settings={settings as Settings}
       />
     </Suspense>

@@ -50,7 +50,7 @@ export const populateSelections = (
 // if prevData has a type of action that isn't in the value array, delete it.
 const deleteOldFormData = (prevData: FormData, action: string, value: string[]): FormData => {
   const newFormData = { ...prevData };
-  const newSelectedActions = { ...newFormData.selectedActions };
+  const newSelectedActions = { ...(newFormData.selectedActions as Record<string, ActionEntry>) };
 
   Object.keys(newSelectedActions).forEach((key) => {
     if ((newSelectedActions[key] as ActionEntry).type === action && !value.includes(key)) {
@@ -69,7 +69,7 @@ export const updateFormDataWithDefaults = (
 ): void => {
   setFormData((prevData) => {
     const newFormData = deleteOldFormData(prevData, action, value);
-    const newSelectedActions = { ...newFormData.selectedActions };
+    const newSelectedActions = { ...(newFormData.selectedActions as Record<string, ActionEntry>) };
 
     value.forEach((option) => {
       if (newSelectedActions[option]) {
@@ -103,18 +103,24 @@ export const handleChange = (
   if (value === 0) {
     setSelectedItems((prev) => prev.filter((x) => x !== key));
     return setFormData((prevData) => {
-      const newSelectedActions = { ...prevData.selectedActions };
+      const newSelectedActions = { ...(prevData.selectedActions || {}) } as Record<
+        string,
+        ActionEntry
+      >;
       delete newSelectedActions[key];
       return { ...prevData, selectedActions: newSelectedActions };
     });
   }
 
   setFormData((prevData) => {
-    const newSelectedActions = { ...prevData.selectedActions };
+    const newSelectedActions = { ...(prevData.selectedActions || {}) } as Record<
+      string,
+      ActionEntry
+    >;
     newSelectedActions[key] = {
       ...(newSelectedActions[key] || {}),
       type: action,
-      level: value,
+      level: typeof value === 'number' ? value : Number(value) || 0,
       ...(!!variation && { variation }),
     };
     return { ...prevData, selectedActions: newSelectedActions };

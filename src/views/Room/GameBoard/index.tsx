@@ -38,7 +38,7 @@ export default function GameBoard({
 
   const gameTiles = gameBoard.map((entry, index) => {
     const players = playerList.filter((player) => player.location === index);
-    const current = playerList.find(
+    const current = playerList.some(
       (player) => player.isSelf && player.location === index && index !== 0
     );
     const hueIndex = (Array.from(tileTypeArray).indexOf(entry.title) % 10) + 1;
