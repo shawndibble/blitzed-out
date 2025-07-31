@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { GroupedActions } from '@/types/customTiles';
 import { UNIFIED_ACTION_CACHE_TTL } from '@/constants/actionConstants';
+import { useMigration } from '@/context/migration';
 
 interface UnifiedActionListResult {
   actionsList: GroupedActions;
@@ -36,10 +37,11 @@ const CACHE_TTL = UNIFIED_ACTION_CACHE_TTL;
  */
 export default function useUnifiedActionList(gameMode?: string): UnifiedActionListResult {
   const { i18n, t } = useTranslation();
+  const { currentLanguageMigrated } = useMigration();
   const [actionsList, setActionsList] = useState<GroupedActions>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Track language changes for debugging
+  // Track language changes and migration status for debugging
   useEffect(() => {
     const handleLanguageChange = () => {
       // Clear cache for all languages since the user changed language
@@ -66,6 +68,17 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
     return `${i18n.resolvedLanguage}-${gameMode}`;
   }, [i18n.resolvedLanguage, gameMode]);
 
+  // Clear cache when migration status changes from false to true
+  useEffect(() => {
+    if (currentLanguageMigrated && cacheKey) {
+      // Migration just completed - clear cache to force fresh load
+      const cached = actionsCache.get(cacheKey);
+      if (cached) {
+        actionsCache.delete(cacheKey);
+      }
+    }
+  }, [currentLanguageMigrated, cacheKey]);
+
   // Check cache immediately on render to prevent unnecessary loading states
   // Using useEffect instead of useMemo to avoid side effects in useMemo
   useEffect(() => {
@@ -81,6 +94,12 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
   const loadUnifiedActions = useCallback(async (): Promise<void> => {
     if (!gameMode || !cacheKey) {
       console.warn('⚠️ useUnifiedActionList: Missing required params', { gameMode, cacheKey });
+      return;
+    }
+
+    // Wait for migration to complete before loading actions
+    if (!currentLanguageMigrated) {
+      console.log('🔄 useUnifiedActionList: Waiting for language migration to complete');
       return;
     }
 
@@ -147,13 +166,13 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
     } finally {
       setIsLoading(false);
     }
-  }, [gameMode, i18n.resolvedLanguage, cacheKey, t]);
+  }, [gameMode, i18n.resolvedLanguage, cacheKey, t, currentLanguageMigrated]);
 
   useEffect(() => {
-    if (cacheKey) {
+    if (cacheKey && currentLanguageMigrated) {
       loadUnifiedActions();
     }
-  }, [loadUnifiedActions, cacheKey]);
+  }, [loadUnifiedActions, cacheKey, currentLanguageMigrated]);
 
   return { actionsList, isLoading };
 }
