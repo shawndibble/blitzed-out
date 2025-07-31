@@ -188,8 +188,17 @@ export function setMyPresence({
   const database = getDatabase();
   const auth = getAuth();
   const uid = auth.currentUser?.uid;
-  const newRoomName = newRoom?.toUpperCase();
-  const oldRoomName = oldRoom?.toUpperCase();
+
+  // Default to 'PUBLIC' if room is null/undefined
+  const newRoomName = newRoom?.toUpperCase() || 'PUBLIC';
+  const oldRoomName = oldRoom?.toUpperCase() || 'PUBLIC';
+
+  // Only proceed if we have a valid uid
+  if (!uid) {
+    console.warn('Cannot set presence: User not authenticated');
+    return;
+  }
+
   const newRoomConnectionsRef = ref(database, `rooms/${newRoomName}/uids/${uid}`);
   const oldRoomConnectionsRef = ref(database, `rooms/${oldRoomName}/uids/${uid}`);
   const connectedRef = ref(database, '.info/connected');
@@ -769,6 +778,47 @@ export function getMessages(
 ): (() => void) | undefined {
   if (!roomId) return undefined;
 
+  const auth = getAuth();
+
+  // Wait for authentication before proceeding
+  if (!auth.currentUser) {
+    // Return a function that sets up auth listener and then executes query
+    let unsubscribeAuth: (() => void) | undefined;
+    let unsubscribeQuery: (() => void) | undefined;
+
+    unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is now authenticated, proceed with the query
+        unsubscribeQuery = executeGetMessages(roomId, callback, options);
+        // Clean up auth listener
+        if (unsubscribeAuth) {
+          unsubscribeAuth();
+          unsubscribeAuth = undefined;
+        }
+      }
+    });
+
+    // Return cleanup function
+    return () => {
+      if (unsubscribeAuth) unsubscribeAuth();
+      if (unsubscribeQuery) unsubscribeQuery();
+    };
+  }
+
+  // User is already authenticated, proceed normally
+  return executeGetMessages(roomId, callback, options);
+}
+
+function executeGetMessages(
+  roomId: string,
+  callback: (messages: any[]) => void,
+  options: {
+    limitCount?: number;
+    startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
+    enableCache?: boolean;
+    enableDebounce?: boolean;
+  } = {}
+): (() => void) | undefined {
   const {
     limitCount = DEFAULT_LIMIT,
     startAfterDoc,

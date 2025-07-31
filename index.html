@@ -20,7 +20,39 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self'; 
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' 
+        https://www.googletagmanager.com 
+        https://www.gstatic.com 
+        https://*.firebaseio.com 
+        https://*.googleapis.com; 
+      style-src 'self' 'unsafe-inline' 
+        https://fonts.googleapis.com; 
+      font-src 'self' 
+        https://fonts.gstatic.com 
+        data:; 
+      img-src 'self' 
+        https://*.googleapis.com 
+        https://*.firebaseapp.com 
+        https://firebasestorage.googleapis.com 
+        data: 
+        blob:; 
+      connect-src 'self' 
+        https://*.firebaseio.com 
+        https://*.googleapis.com 
+        https://*.firebaseapp.com 
+        https://www.google-analytics.com 
+        wss://*.firebaseio.com; 
+      media-src 'self' 
+        blob: 
+        data:; 
+      object-src 'none'; 
+      base-uri 'self'; 
+      form-action 'self' 
+        https://accounts.google.com; 
+      upgrade-insecure-requests;
+    " />
     <meta
       name="description"
       content="An adult multiplayer sex board game for those with various kinks. Great for solo play, couples or parties. Tailored primarily for men, but accessible by women too."
