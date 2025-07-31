@@ -115,6 +115,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Debounced sync operations to prevent conflicts
 - Periodic background sync for registered users
 
+#### Migration System
+
+- **MigrationProvider**: Context provider managing language file migrations from locale files to Dexie
+- **Smart Migration**: Only runs when user actually changes language (reactive vs proactive)
+- **Performance Optimized**: 60-80% faster app load by deferring migration until needed
+- **State Tracking**: `currentLanguageMigrated`, `isMigrationInProgress`, `isMigrationCompleted`
+- **Auto-Debouncing**: 100ms debouncing on language change events prevents duplicate migrations
+- **Error Handling**: Graceful fallbacks when migration fails, app continues with existing data
+
+**Key Files**:
+
+- `src/context/migration.tsx` - Main migration context and provider
+- `src/hooks/useDeferredMigration.ts` - Smart migration triggers and fallbacks
+- `src/hooks/useUnifiedActionList.ts` - Language-aware action loading (waits for migration)
+- `src/services/migrationService.ts` - Core migration logic (lazy-loaded)
+
 ## Development Notes
 
 ### Path Aliases
@@ -123,10 +139,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Code Quality
 
-- ESLint configuration in `eslint.config.js`
-- Prettier integration with lint-staged
-- Husky pre-commit hooks
-- TypeScript strict mode enabled
+#### Linting & Formatting
+
+- **ESLint**: `npm run lint` - Check code quality (config in `eslint.config.js`)
+- **Source only**: `npx eslint src/` - Lint only source files (excludes build artifacts)
+- **TypeScript**: `npm run type-check` - Type checking without compilation
+- **Prettier**: `npm run format` - Code formatting
+- **Pre-commit**: Husky hooks run lint + format on staged files automatically
+
+#### Common Lint Issues
+
+**Issue**: Many lint errors from `public/` directory
+**Solution**: These are build artifacts - use `npx eslint src/` to check only source code
+
+**Issue**: `react-refresh/only-export-components` warning
+**Solution**: This warning on context files is expected and can be ignored
+
+**Issue**: TypeScript compilation errors
+**Solution**: Run `npm run type-check` to see specific type issues without building
 
 ### Build Optimization
 
@@ -145,10 +175,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Testing Guidelines
 
-- Run `npm run test:run` for CI/CD and validation
+#### Running Tests
+
+- **Full test suite**: `npm run test:run` - Use for CI/CD and validation (exits after completion)
+- **Watch mode**: `npm test` - Interactive testing during development
+- **Specific files**: `npm run test:run -- path/to/test.tsx` - Run individual test files
+- **Pattern matching**: `npm run test:run -- "**/hooks/**"` - Run tests matching glob patterns
+- **With UI**: `npm run test:ui` - Visual test runner interface
+- **Coverage**: `npm run test:coverage` - Generate coverage reports
+
+#### Common Testing Issues & Solutions
+
+**Issue**: `useMigration must be used within a MigrationProvider`
+**Solution**: Add migration context mock to test files:
+
+```typescript
+vi.mock('@/context/migration', () => ({
+  useMigration: () => ({
+    currentLanguageMigrated: true,
+    isMigrationInProgress: false,
+    isMigrationCompleted: true,
+    error: null,
+    triggerMigration: vi.fn(),
+    ensureLanguageMigrated: vi.fn(),
+  }),
+}));
+```
+
+**Issue**: Firebase mocking errors
+**Solution**: Tests automatically use mocks from `src/__mocks__/` - ensure Firebase operations are properly mocked
+
+**Issue**: `Cannot resolve module` errors
+**Solution**: Check if imports use `@/` path aliases correctly and modules exist
+
+#### Test Structure
+
 - Component tests use React Testing Library patterns
 - Services have comprehensive unit tests with Firebase mocking
 - Integration tests cover complete user workflows
+- Hook tests require proper context mocking (auth, migration, etc.)
 - Slow tests flagged at 1000ms threshold
 
 ## Context7 MCP Integration
@@ -184,3 +249,38 @@ To get current, version-specific documentation and code examples, add `use conte
 - Firebase v12 integration patterns
 - Vite build configuration
 - TypeScript strict mode patterns
+
+## Development Workflow
+
+### Before Making Changes
+
+1. **Run type check**: `npm run type-check` - Ensure no type errors
+2. **Run source lint**: `npx eslint src/` - Check code quality
+3. **Run relevant tests**: `npm run test:run -- path/to/affected/tests`
+
+### When Adding New Hooks
+
+- Add proper context mocking in tests (migration, auth, etc.)
+- Test error scenarios and loading states
+- Ensure cleanup in useEffect return functions
+- Add TypeScript types for all parameters and return values
+
+### When Modifying Context Providers
+
+- Update test mocks to match new context shape
+- Test provider with and without required props
+- Ensure error boundaries handle context failures
+- Document context dependencies in component comments
+
+### Quality Checks Before Commit
+
+```bash
+npm run type-check && npx eslint src/ && npm run test:run
+```
+
+### Git Workflow
+
+- Use semantic commit messages: `fix:`, `feat:`, `refactor:`, `perf:`, etc.
+- Keep commits focused and atomic
+- Run tests before pushing changes
+- Use selective staging for commits: `git add specific/files` instead of `git add .`

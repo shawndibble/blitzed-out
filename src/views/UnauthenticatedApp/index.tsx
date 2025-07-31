@@ -21,7 +21,6 @@ import usePlayerList from '@/hooks/usePlayerList';
 import { languages } from '@/services/i18nHelpers';
 import { useState, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { ensureLanguageMigrated } from '@/services/migrationService';
 import { useParams, useSearchParams } from 'react-router-dom';
 import Navigation from '@/views/Navigation';
 import './styles.css';
@@ -82,8 +81,7 @@ export default function UnauthenticatedApp() {
       setLanguageLoading(true);
 
       try {
-        // Ensure the new language is migrated before switching
-        await ensureLanguageMigrated(newLanguage);
+        // Language change will automatically trigger migration via MigrationContext
         await i18n.changeLanguage(newLanguage);
       } catch (error) {
         console.error('Error changing language:', error);

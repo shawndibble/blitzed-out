@@ -22,6 +22,18 @@ vi.mock('@/stores/customGroups', () => ({
   getAllAvailableGroups: vi.fn(),
 }));
 
+// Mock migration context
+vi.mock('@/context/migration', () => ({
+  useMigration: () => ({
+    currentLanguageMigrated: true,
+    isMigrationInProgress: false,
+    isMigrationCompleted: true,
+    error: null,
+    triggerMigration: vi.fn(),
+    ensureLanguageMigrated: vi.fn(),
+  }),
+}));
+
 import { getAllAvailableGroups } from '@/stores/customGroups';
 
 describe('useUnifiedActionList - Core Functionality', () => {

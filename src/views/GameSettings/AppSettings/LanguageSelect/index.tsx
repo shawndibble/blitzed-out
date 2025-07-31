@@ -11,7 +11,6 @@ import {
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { languages } from '@/services/i18nHelpers';
-import { ensureLanguageMigrated } from '@/services/migrationService';
 
 interface LanguageSelectProps {
   boardUpdated: () => void;
@@ -27,8 +26,7 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
     setLanguage(value);
 
     try {
-      // Ensure the new language is migrated before switching
-      await ensureLanguageMigrated(value);
+      // Language change will automatically trigger migration via MigrationContext
       await i18n.changeLanguage(value);
       boardUpdated();
     } catch (error) {
