@@ -233,8 +233,9 @@ export const validateCustomGroup = async (
           `A group with the name "${group.name}" already exists for this locale and game mode`
         );
       }
-    } catch {
+    } catch (error) {
       warnings.push('Could not verify group name uniqueness');
+      console.warn('Failed to check group name uniqueness:', error);
     }
   }
 

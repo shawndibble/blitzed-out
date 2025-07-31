@@ -34,7 +34,8 @@ export default function useUrlImport(
     try {
       const gameBoard = JSON.parse(gameBoardString);
       return Array.isArray(gameBoard) ? gameBoard : null;
-    } catch {
+    } catch (error) {
+      console.warn('Failed to parse game board JSON:', error);
       return null;
     }
   }, []);
@@ -42,7 +43,8 @@ export default function useUrlImport(
   const parseSettings = useCallback((settingsString?: string): Settings => {
     try {
       return settingsString ? JSON.parse(settingsString) : {};
-    } catch {
+    } catch (error) {
+      console.warn('Failed to parse settings JSON:', error);
       return {};
     }
   }, []);

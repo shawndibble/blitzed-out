@@ -50,7 +50,8 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
         allowEditing: true,
         resultType: CameraResultType.Base64,
       });
-    } catch {
+    } catch (error) {
+      console.warn('Failed to take photo:', error);
       return '';
     }
 

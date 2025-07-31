@@ -1,5 +1,6 @@
 import { isPublicRoom } from '@/helpers/strings';
 import { getURLPath } from '@/helpers/urls';
+import { logger } from '@/utils/logger';
 
 function vimeo(url: string): string {
   const vimeoRegex = /vimeo\.com\/(\d+)/;
@@ -62,8 +63,9 @@ function imgur(url: string): string {
     ) {
       return url;
     }
-  } catch {
+  } catch (error) {
     // If URL parsing fails, skip Discord proxy check for security
+    logger.debug('URL parsing failed for Discord proxy check:', error);
   }
 
   // Extract the Imgur ID from different possible URL formats
@@ -74,8 +76,9 @@ function imgur(url: string): string {
   try {
     const parsed = new URL(url);
     isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
-  } catch {
+  } catch (error) {
     // If URL parsing fails, skip processing for security
+    logger.debug('URL parsing failed for Imgur processing:', error);
     return '';
   }
 
@@ -126,8 +129,9 @@ function urlContainsAny(url: string, domains: string[]): boolean {
   try {
     const parsed = new URL(url);
     return domains.some((domain) => parsed.host === domain || parsed.host.endsWith('.' + domain));
-  } catch {
+  } catch (error) {
     // If URL parsing fails, use substring check as fallback (less secure but functional)
+    logger.debug('URL parsing failed in urlContainsAny, using fallback:', error);
     return domains.some((domain) => url.includes(domain));
   }
 }
