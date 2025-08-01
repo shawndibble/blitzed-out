@@ -9,6 +9,10 @@
   border-radius: 12px !important;
 }
 
+.dice-roller > div {
+  width: 100%;
+}
+
 .dice-roller button {
   background: #0284c7 !important;
   background-color: #0284c7 !important;
