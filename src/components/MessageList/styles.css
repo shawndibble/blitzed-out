@@ -53,14 +53,14 @@
   padding: var(--spacing-sm) var(--spacing-md);
   margin-bottom: 1px;
   background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--message-border);
   text-align: left;
   width: 100%;
   transition: background-color 0.2s ease;
 }
 
 .message:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--message-hover);
 }
 
 .message-message {
@@ -69,6 +69,12 @@
 
 .message-message p {
   white-space: pre-wrap;
+}
+
+/* Light mode text color fixes */
+body.theme-light .message,
+[data-mui-color-scheme='light'] .message {
+  color: var(--color-white-95); /* Apply to entire message for simplicity */
 }
 
 .message.transparent {
@@ -113,8 +119,9 @@
 }
 
 .message code {
-  background-color: #222;
+  background-color: var(--message-hover);
   padding: 0.25rem;
+  border-radius: 4px;
 }
 
 .message img {
@@ -149,7 +156,7 @@
 .message-action-box {
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--message-border);
 }
 
 /* System Message Styles - Now handled by MUI theme variant */
@@ -167,7 +174,7 @@
 
 .system-action-buttons {
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--message-border);
 }
 
 .system-action-buttons .MuiButton-root {

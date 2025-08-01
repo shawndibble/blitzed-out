@@ -18,20 +18,18 @@ export default function GameGuide(): JSX.Element {
     <Box className="game-guide">
       {/* Hero Section */}
       <Box className="hero-section">
-        <Trans i18nKey="gameDesc">
-          <Typography variant="h5" className="hero-title gradient-text-flame">
-            Transform Your Intimate Adventures
-          </Typography>
-          <Typography variant="body1" className="hero-description">
-            Blitzed Out is the ultimate customizable adult experience platform. Whether you&apos;re
-            exploring solo, spicing things up as a couple, or hosting an unforgettable party — this
-            is your playground.
-          </Typography>
-          <Typography variant="body2" className="hero-subtitle">
-            Create personalized experiences with endless customization, join private rooms, or
-            discover new adventures with a vibrant community.
-          </Typography>
-        </Trans>
+        <Typography variant="h5" className="hero-title gradient-text-flame">
+          Transform Your Intimate Adventures
+        </Typography>
+        <Typography variant="body1" className="hero-subtitle">
+          Blitzed Out is the ultimate customizable adult experience platform. Whether you&apos;re
+          exploring solo, spicing things up as a couple, or hosting an unforgettable party — this is
+          your playground.
+        </Typography>
+        <Typography variant="body1" className="hero-subtitle">
+          Create personalized experiences with endless customization, join private rooms, or
+          discover new adventures with a vibrant community.
+        </Typography>
       </Box>
 
       <Divider className="section-divider" />

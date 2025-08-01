@@ -73,8 +73,20 @@ const firebaseConfig: FirebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
+// Check for missing environment variables
+const missingVars = Object.entries(firebaseConfig)
+  .filter(([_, value]) => !value)
+  .map(([key]) => key);
+
+if (missingVars.length > 0) {
+  console.error('Missing Firebase environment variables:', missingVars);
+  console.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
+}
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+
+// Test Firebase connectionconsole.log('Firestore database initialized:', !!db);
 
 export async function loginAnonymously(displayName = ''): Promise<User | null> {
   try {
@@ -754,6 +766,10 @@ export async function sendMessage({
     return console.error(message);
   }
 
+  if (!user?.uid) {
+    return;
+  }
+
   const newMessage = { room, user: user.uid, text, type, ...rest };
   if (JSON.stringify(newMessage) === JSON.stringify(lastMessage)) {
     return; // Duplicate message detected. Not sending.
@@ -761,9 +777,10 @@ export async function sendMessage({
   lastMessage = newMessage;
 
   const now = Date.now();
+  const roomName = room?.toUpperCase() || 'PUBLIC';
 
   try {
-    return await addDoc(collection(db, 'chat-rooms', room?.toUpperCase() || 'PUBLIC', 'messages'), {
+    const docRef = await addDoc(collection(db, 'chat-rooms', roomName, 'messages'), {
       text: text.trim(),
       ttl: new Date(now + 24 * 60 * 60 * 1000), // 24 hours
       type,
@@ -772,8 +789,11 @@ export async function sendMessage({
       displayName: user.displayName,
       timestamp: serverTimestamp(),
     });
+
+    return docRef;
   } catch (error) {
-    return console.error(error);
+    console.error('Failed to send message:', error);
+    return;
   }
 }
 

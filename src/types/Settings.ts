@@ -1,5 +1,7 @@
 import { ActionEntry } from './index';
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export interface Settings {
   advancedSettings?: boolean;
   gameMode: GameMode;
@@ -15,6 +17,8 @@ export interface Settings {
   hideBoardActions?: boolean;
   locale?: string;
   background?: string;
+  /** Theme preference: 'light', 'dark', or 'system' (follows OS preference) */
+  themeMode?: ThemeMode;
   finishRange?: [number, number];
   roomTileCount?: number;
   roomDice?: string;

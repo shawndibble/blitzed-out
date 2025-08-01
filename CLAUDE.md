@@ -141,6 +141,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 #### Linting & Formatting
 
+- **Quality Check**: `npm run check` - **Comprehensive verification** (TypeScript, tests, linting, debug cleanup, and build)
 - **ESLint**: `npm run lint` - Check code quality (config in `eslint.config.js`)
 - **Source only**: `npx eslint src/` - Lint only source files (excludes build artifacts)
 - **TypeScript**: `npm run type-check` - Type checking without compilation

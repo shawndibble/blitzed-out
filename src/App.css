@@ -2,22 +2,140 @@
   box-sizing: border-box;
 }
 
+/* Dark theme (default) */
 html {
   --color-blue: hsl(224, 56%, 36%);
   --color-gray: hsl(210, 3%, 25%);
   --color-white: white;
   --border-radius: 12px;
   --border-radius-lg: 16px;
+  --border-radius-sm: 8px;
+  --border-radius-xs: 6px;
   --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2);
   --shadow-xl: 0 16px 56px rgba(0, 0, 0, 0.5), 0 6px 24px rgba(0, 0, 0, 0.3);
   --color-surface: rgba(15, 23, 42, 0.95);
+  --nav-background: rgba(15, 23, 42, 0.95);
+  --nav-border: rgba(148, 163, 184, 0.2);
+  --nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px rgba(72, 219, 251, 0.1);
+  --container-background: rgba(30, 41, 59, 0.9);
+  --container-border: rgba(148, 163, 184, 0.2);
+  --message-border: rgba(255, 255, 255, 0.1);
+  --message-hover: rgba(255, 255, 255, 0.05);
+  --page-gradient: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 20%,
+    #334155 40%,
+    #1e293b 60%,
+    #0f172a 80%,
+    #020617 100%
+  );
+
+  /* Common gradients */
+  --gradient-primary: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+  --gradient-primary-alt: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+  --gradient-primary-button: linear-gradient(135deg, #22d3ee 0%, #0891b2 50%, #0e7490 100%);
+  --gradient-section-divider: linear-gradient(
+    90deg,
+    transparent,
+    rgba(34, 211, 238, 0.3),
+    transparent
+  );
+  --gradient-feature-item: linear-gradient(90deg, #22d3ee, #0891b2, #48dbfb);
+
+  /* Common color tokens */
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+  --color-cyan-600: #0891b2;
+  --color-cyan-700: #0e7490;
+  --color-brand-teal: #48dbfb;
+  --color-slate-400: rgba(148, 163, 184, 1);
+  --color-slate-400-20: rgba(148, 163, 184, 0.2);
+  --color-slate-400-15: rgba(148, 163, 184, 0.15);
+  --color-slate-400-08: rgba(148, 163, 184, 0.08);
+  --color-white-05: rgba(255, 255, 255, 0.05);
+  --color-white-10: rgba(255, 255, 255, 0.1);
+  --color-white-70: rgba(255, 255, 255, 0.7);
+  --color-white-80: rgba(255, 255, 255, 0.8);
+  --color-white-85: rgba(255, 255, 255, 0.85);
+  --color-white-95: rgba(255, 255, 255, 0.95);
+
+  /* Surface and background tokens */
+  --surface-dark-07: rgba(15, 23, 42, 0.7);
+  --surface-dark-08: rgba(15, 23, 42, 0.8);
+  --surface-secondary: rgba(30, 41, 59, 0.5);
+  --surface-secondary-hover: rgba(30, 41, 59, 0.7);
+
+  /* Button and interactive elements */
+  --button-glow-shadow: 0 4px 16px rgba(34, 211, 238, 0.4);
+  --button-glow-shadow-hover: 0 6px 24px rgba(34, 211, 238, 0.5);
+  --focus-ring-cyan: 0 0 0 2px rgba(34, 211, 238, 0.2);
+
   --spacing-xs: 0.5rem;
   --spacing-sm: 0.75rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   color: var(--color-white);
+}
+
+/* Light theme overrides */
+body.theme-light {
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 16px 56px rgba(0, 0, 0, 0.1), 0 6px 24px rgba(0, 0, 0, 0.08);
+  --color-surface: rgba(255, 255, 255, 0.95);
+  --nav-background: rgba(255, 255, 255, 0.95);
+  --nav-border: rgba(148, 163, 184, 0.3);
+  --nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 40px rgba(34, 211, 238, 0.1);
+  --container-background: rgba(255, 255, 255, 0.9);
+  --container-border: rgba(148, 163, 184, 0.3);
+  --message-border: rgba(0, 0, 0, 0.1);
+  --message-hover: rgba(0, 0, 0, 0.05);
+  --page-gradient: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #e2e8f0 20%,
+    #cbd5e1 40%,
+    #e2e8f0 60%,
+    #f8fafc 80%,
+    #ffffff 100%
+  );
+
+  /* Light mode gradient overrides */
+  --gradient-primary: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+  --gradient-primary-alt: linear-gradient(
+    135deg,
+    #0891b2 0%,
+    #06b6d4 25%,
+    #0e7490 50%,
+    #155e75 100%
+  );
+  --gradient-primary-button: linear-gradient(
+    135deg,
+    #0891b2 0%,
+    #06b6d4 25%,
+    #0e7490 50%,
+    #155e75 100%
+  );
+
+  /* Light mode color overrides */
+  --color-white-70: rgba(71, 85, 105, 0.8);
+  --color-white-80: rgba(71, 85, 105, 0.8);
+  --color-white-85: rgba(15, 23, 42, 0.85);
+  --color-white-95: rgba(15, 23, 42, 0.9);
+
+  /* Light mode surface overrides */
+  --surface-dark-07: rgba(255, 255, 255, 0.9);
+  --surface-dark-08: rgba(255, 255, 255, 0.95);
+  --surface-secondary: rgba(148, 163, 184, 0.08);
+  --surface-secondary-hover: rgba(148, 163, 184, 0.12);
+
+  /* Light mode button overrides */
+  --button-glow-shadow: 0 4px 16px rgba(8, 145, 178, 0.3);
+  --button-glow-shadow-hover: 0 6px 24px rgba(8, 145, 178, 0.4);
+  --focus-ring-cyan: 0 0 0 2px rgba(8, 145, 178, 0.2);
 }
 
 h1,
@@ -53,9 +171,9 @@ button {
 /* Accordion Styling */
 .about-accordion {
   margin-bottom: 1rem;
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--color-surface);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid var(--nav-border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -66,14 +184,17 @@ button {
 
 .accordion-title {
   font-weight: 600;
-  background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
+  background: var(--gradient-primary-alt);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Light Mode Adjustments */
-[data-mui-color-scheme='light'] .about-accordion {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
+/* Light theme accordion title adjustments */
+body.theme-light .accordion-title,
+[data-mui-color-scheme='light'] .accordion-title {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

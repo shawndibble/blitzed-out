@@ -30,25 +30,26 @@
 }
 
 .hero-description {
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1.25rem;
+  color: var(--color-white-85);
+  margin-bottom: 1.5rem;
   line-height: 1.6;
   font-size: 1rem;
   text-align: left;
 }
 
 .hero-subtitle {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--color-white-85);
   line-height: 1.5;
   font-size: 0.9rem;
   text-align: left;
+  margin-top: 1rem;
 }
 
 /* Section Divider */
 .section-divider {
   margin: 1.5rem 0;
-  border-color: rgba(148, 163, 184, 0.2);
-  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.3), transparent);
+  border-color: var(--color-slate-400-20);
+  background: var(--gradient-section-divider);
   height: 1px;
 }
 
@@ -61,7 +62,7 @@
   text-align: center;
   margin-bottom: 1.5rem;
   font-weight: 600;
-  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -74,10 +75,10 @@
 }
 
 .feature-item {
-  background: rgba(15, 23, 42, 0.7);
+  background: var(--surface-dark-07);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-  border-radius: 8px;
+  border: 1px solid var(--color-slate-400-15);
+  border-radius: var(--border-radius-sm);
   padding: 1rem;
   transition: all 0.3s ease;
   position: relative;
@@ -91,7 +92,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #22d3ee, #0891b2, #48dbfb);
+  background: var(--gradient-feature-item);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -117,38 +118,18 @@
 .feature-title {
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--color-white-95);
   text-align: center;
 }
 
 .feature-description {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-white-80);
   line-height: 1.5;
   text-align: center;
   font-size: 0.9rem;
 }
 
-/* Accordion Styling */
-.about-accordion {
-  margin-bottom: 1rem;
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.about-accordion:before {
-  display: none;
-}
-
-.accordion-title {
-  font-weight: 600;
-  background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+/* Accordion styles now handled in App.css */
 
 /* Steps Container */
 .steps-container {
@@ -161,19 +142,19 @@
   gap: 1rem;
   margin-bottom: 1rem;
   padding: 0.75rem;
-  background: rgba(30, 41, 59, 0.5);
-  border-radius: 6px;
+  background: var(--surface-secondary);
+  border-radius: var(--border-radius-xs);
   border-left: 3px solid rgba(34, 211, 238, 0.5);
   transition: all 0.3s ease;
 }
 
 .step-item:hover {
-  background: rgba(30, 41, 59, 0.7);
+  background: var(--surface-secondary-hover);
   border-left-color: rgba(34, 211, 238, 0.8);
 }
 
 .step-number {
-  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
+  background: var(--gradient-primary);
   color: white;
   width: 24px;
   height: 24px;
@@ -198,36 +179,61 @@
 }
 
 /* Light Mode Adjustments */
+body.theme-light .hero-description,
+body.theme-light .hero-subtitle,
 [data-mui-color-scheme='light'] .hero-description,
 [data-mui-color-scheme='light'] .hero-subtitle {
-  color: rgba(0, 0, 0, 0.7);
+  color: var(--color-white-85);
 }
 
+body.theme-light .feature-item,
 [data-mui-color-scheme='light'] .feature-item {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(0, 0, 0, 0.1);
+  background: var(--surface-dark-07);
+  border-color: var(--container-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
+body.theme-light .feature-item:hover,
+[data-mui-color-scheme='light'] .feature-item:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border-color: rgba(8, 145, 178, 0.4);
+}
+
+body.theme-light .feature-title,
 [data-mui-color-scheme='light'] .feature-title {
-  color: rgba(0, 0, 0, 0.9);
+  color: var(--color-white-95);
 }
 
+body.theme-light .feature-description,
 [data-mui-color-scheme='light'] .feature-description {
-  color: rgba(0, 0, 0, 0.7);
+  color: var(--color-white-80);
 }
 
-[data-mui-color-scheme='light'] .about-accordion {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
-}
-
+body.theme-light .step-item,
 [data-mui-color-scheme='light'] .step-item {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--surface-secondary);
+  border-left-color: rgba(8, 145, 178, 0.6);
 }
 
+body.theme-light .step-item:hover,
+[data-mui-color-scheme='light'] .step-item:hover {
+  background: var(--surface-secondary-hover);
+  border-left-color: rgba(8, 145, 178, 0.8);
+}
+
+body.theme-light .helpful-tip,
 [data-mui-color-scheme='light'] .helpful-tip {
-  background: rgba(72, 219, 251, 0.1);
-  color: rgba(0, 0, 0, 0.8);
+  background: rgba(8, 145, 178, 0.08);
+  border-color: rgba(8, 145, 178, 0.3);
+  color: rgba(15, 23, 42, 0.8);
+}
+
+body.theme-light .section-title,
+[data-mui-color-scheme='light'] .section-title {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Desktop Enhancements */

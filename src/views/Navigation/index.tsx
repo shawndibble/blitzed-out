@@ -16,6 +16,7 @@ import useBreakpoint from '@/hooks/useBreakpoint';
 import Logo from '@/images/blitzed-out.png';
 import { Trans, useTranslation } from 'react-i18next';
 import CastButton from '@/components/CastButton';
+import ThemeToggle from '@/components/ThemeToggle';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
 
@@ -100,6 +101,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
         </div>
 
         <div className="menu-drawer">
+          <ThemeToggle size="medium" variant="menu" />
           <CastButton />
           <Suspense fallback={null}>
             <MenuDrawer />

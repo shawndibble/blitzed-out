@@ -6,9 +6,11 @@ import {
 import { deleteAllCustomGroups, getCustomGroups, importCustomGroups } from '@/stores/customGroups';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getBoards, upsertBoard } from '@/stores/gameBoard';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
+import { Settings } from '@/types/Settings';
 import { SYNC_DELAY_MS } from '@/constants/actionConstants';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -122,11 +124,43 @@ export async function syncGameBoardsToFirebase(): Promise<boolean> {
   }
 }
 
+// Sync user settings (including theme preferences) to Firebase
+export async function syncSettingsToFirebase(): Promise<boolean> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    console.error('No user logged in');
+    return false;
+  }
+
+  try {
+    // Get current settings from store
+    const { settings } = useSettingsStore.getState();
+
+    // Create a document in Firebase with user settings
+    await setDoc(
+      doc(db, 'user-data', user.uid),
+      {
+        settings,
+        lastUpdated: new Date(),
+      },
+      { merge: true }
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Error syncing settings:', error);
+    return false;
+  }
+}
+
 // Sync all data to Firebase
 export async function syncAllDataToFirebase(): Promise<boolean> {
   await syncCustomTilesToFirebase();
   await syncCustomGroupsToFirebase();
   await syncGameBoardsToFirebase();
+  await syncSettingsToFirebase();
   return true;
 }
 
@@ -216,6 +250,22 @@ export async function syncDataFromFirebase(): Promise<boolean> {
         });
       }
       // Successfully imported all game boards from Firebase, upserting each board with proper defaults for missing fields
+    }
+
+    // Import user settings (including theme preferences)
+    if (userData.settings) {
+      try {
+        const { updateSettings } = useSettingsStore.getState();
+
+        // Merge Firebase settings with local settings
+        // Only update if the Firebase data is newer or has different values
+        const firebaseSettings = userData.settings as Partial<Settings>;
+        updateSettings(firebaseSettings);
+
+        // Successfully imported user settings from Firebase including theme preferences
+      } catch (error) {
+        console.error('Error importing settings:', error);
+      }
     }
 
     return true;

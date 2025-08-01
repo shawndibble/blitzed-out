@@ -506,5 +506,14 @@
   "customUpdated": "Custom Updated",
   "updatedGameSettings": "updated their personal game board settings",
   "updatedRoomSettings": "updated room settings",
-  "updatedMultipleSettings": "updated {{count}} settings on their personal game board"
+  "updatedMultipleSettings": "updated {{count}} settings on their personal game board",
+  "theme": {
+    "light": "Light theme",
+    "dark": "Dark theme",
+    "system": "Follow system",
+    "chooseTheme": "Choose theme",
+    "switchToLight": "Switch to light theme",
+    "switchToDark": "Switch to dark theme",
+    "currentTheme": "Current theme: {{theme}}"
+  }
 }

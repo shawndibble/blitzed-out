@@ -3,7 +3,7 @@ import MuiAccordionDetails, { AccordionDetailsProps } from '@mui/material/Accord
 
 const AccordionDetails = styled(MuiAccordionDetails)<AccordionDetailsProps>(({ theme }) => ({
   padding: theme.spacing(2),
-  borderTop: '1px solid rgba(0, 0, 0, .125)',
+  borderTop: `1px solid ${theme.palette.divider}`,
 }));
 
 export default AccordionDetails;
