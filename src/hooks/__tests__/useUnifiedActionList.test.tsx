@@ -29,8 +29,11 @@ vi.mock('@/context/migration', () => ({
     isMigrationInProgress: false,
     isMigrationCompleted: true,
     error: null,
+    isHealthy: true,
+    recoveryAttempted: false,
     triggerMigration: vi.fn(),
     ensureLanguageMigrated: vi.fn(),
+    forceRecovery: vi.fn(),
   }),
 }));
 

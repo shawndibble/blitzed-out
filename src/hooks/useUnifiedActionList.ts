@@ -37,9 +37,10 @@ const CACHE_TTL = UNIFIED_ACTION_CACHE_TTL;
  */
 export default function useUnifiedActionList(gameMode?: string): UnifiedActionListResult {
   const { i18n, t } = useTranslation();
-  const { currentLanguageMigrated } = useMigration();
+  const { currentLanguageMigrated, isHealthy, forceRecovery } = useMigration();
   const [actionsList, setActionsList] = useState<GroupedActions>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [recoveryAttempted, setRecoveryAttempted] = useState<boolean>(false);
 
   // Track language changes and migration status for debugging
   useEffect(() => {
@@ -100,6 +101,18 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
     // Wait for migration to complete before loading actions
     if (!currentLanguageMigrated) {
       return;
+    }
+
+    // If migration is complete but health check failed, attempt recovery once
+    if (currentLanguageMigrated && !isHealthy && !recoveryAttempted) {
+      setRecoveryAttempted(true);
+      try {
+        await forceRecovery();
+        // Recovery will trigger a re-render, so return and let the next call handle loading
+        return;
+      } catch {
+        // Continue with loading attempt even if recovery fails
+      }
     }
 
     // Check cache first
@@ -165,13 +178,22 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
     } finally {
       setIsLoading(false);
     }
-  }, [gameMode, i18n.resolvedLanguage, cacheKey, t, currentLanguageMigrated]);
+  }, [
+    gameMode,
+    i18n.resolvedLanguage,
+    cacheKey,
+    t,
+    currentLanguageMigrated,
+    isHealthy,
+    recoveryAttempted,
+    forceRecovery,
+  ]);
 
   useEffect(() => {
     if (cacheKey && currentLanguageMigrated) {
       loadUnifiedActions();
     }
-  }, [loadUnifiedActions, cacheKey, currentLanguageMigrated]);
+  }, [loadUnifiedActions, cacheKey, currentLanguageMigrated, isHealthy]);
 
   return { actionsList, isLoading };
 }
