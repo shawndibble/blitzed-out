@@ -12,15 +12,7 @@
 
 /* Default gradient background when no custom background is set */
 .desktop-container.default-room-background {
-  background: linear-gradient(
-    135deg,
-    #0f172a 0%,
-    #1e293b 20%,
-    #334155 40%,
-    #1e293b 60%,
-    #0f172a 80%,
-    #020617 100%
-  );
+  background: var(--page-gradient);
 }
 
 .messages-container {
@@ -31,23 +23,19 @@
   display: flex;
   flex-direction: column;
   margin-left: 1rem;
-  background: rgba(30, 41, 59, 0.9);
+  background: var(--container-background);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid var(--container-border);
   border-radius: 12px;
-  box-shadow:
-    0 12px 48px rgba(0, 0, 0, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   transition: all 0.3s ease;
   animation: slideIn 0.5s ease-out forwards;
   overflow: hidden; /* Prevent scrolling on container */
 }
 
 .messages-container:hover {
-  box-shadow:
-    0 16px 56px rgba(0, 0, 0, 0.5),
-    0 6px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xl);
   transform: translateY(-2px);
 }
 
@@ -68,21 +56,17 @@
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
-  background: rgba(30, 41, 59, 0.9);
+  background: var(--container-background);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  box-shadow:
-    0 12px 48px rgba(0, 0, 0, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--container-border);
+  box-shadow: var(--shadow-lg);
   animation: slideIn 0.5s ease-out 0.1s forwards;
   margin-bottom: 56px; /* Space for bottom tabs on mobile */
 }
 
 .game-board-container:hover {
-  box-shadow:
-    0 16px 56px rgba(0, 0, 0, 0.5),
-    0 6px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xl);
   transform: translateY(-2px);
 }
 
@@ -195,7 +179,7 @@
 .navigation {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background: rgba(15, 23, 42, 0.8);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--nav-background);
+  border-bottom: 1px solid var(--nav-border);
   transition: all 0.3s ease;
 }

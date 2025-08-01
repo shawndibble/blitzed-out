@@ -8,6 +8,24 @@
   white-space: pre-wrap;
 }
 
+/* Enhanced text styling for transparent tiles */
+.pop-text {
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.8);
+  font-weight: 600;
+}
+
+/* Light theme pop-text for transparent tiles */
+body.theme-light .pop-text {
+  text-shadow:
+    0 2px 4px rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(255, 255, 255, 0.8),
+    1px 1px 2px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
 .player-indicator {
   position: absolute;
   top: 0.5em;
@@ -23,6 +41,17 @@
 li.pulse-animation.gray-tiles {
   animation: pulse-bright-brand 1.5s 1;
   box-shadow: 0 0 10px 10px rgba(34, 211, 238, 0.8);
+}
+
+/* Light theme pulse animations */
+body.theme-light .pulse-animation {
+  box-shadow: 0 0 8px 2px rgba(34, 211, 238, 0.8);
+  animation: pulse-brand-light 1.5s 1;
+}
+
+body.theme-light li.pulse-animation.gray-tiles {
+  box-shadow: 0 0 8px 6px rgba(34, 211, 238, 0.9);
+  animation: pulse-bright-brand-light 1.5s 1;
 }
 
 @keyframes pulse-brand {
@@ -56,6 +85,41 @@ li.pulse-animation.gray-tiles {
   100% {
     transform: scale(1);
     box-shadow: 0 0 10px 10px rgba(34, 211, 238, 0.8);
+  }
+}
+
+/* Light theme animations */
+@keyframes pulse-brand-light {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.8);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 8px 8px rgba(34, 211, 238, 0.8);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px 2px rgba(34, 211, 238, 0.8);
+  }
+}
+
+@keyframes pulse-bright-brand-light {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.9);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 8px 10px rgba(34, 211, 238, 0.9);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px 6px rgba(34, 211, 238, 0.9);
   }
 }
 

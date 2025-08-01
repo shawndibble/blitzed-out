@@ -25,9 +25,19 @@ body {
     'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Dark theme body (default) */
+body:not(.theme-light) {
   background-color: #0f172a;
   color: #f8fafc;
-  overflow-x: hidden;
+}
+
+/* Light theme body */
+body.theme-light {
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
 code {
@@ -101,7 +111,7 @@ code {
   }
 }
 
-/* Enhanced Glass morphism effects */
+/* Enhanced Glass morphism effects - Dark theme (default) */
 .glass {
   background: rgba(30, 41, 59, 0.9);
   backdrop-filter: blur(15px);
@@ -128,6 +138,29 @@ code {
   box-shadow:
     0 20px 80px rgba(0, 0, 0, 0.5),
     0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Light theme glass effects */
+body.theme-light .glass {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.08),
+    0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+body.theme-light .glass-light {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+body.theme-light .glass-heavy {
+  background: rgba(248, 250, 252, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow:
+    0 20px 80px rgba(0, 0, 0, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 /* Logo-inspired gradient text - vibrant and readable */
@@ -284,6 +317,20 @@ code {
   );
 }
 
+/* Light theme gradient background */
+body.theme-light .gradient-background {
+  background: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #e2e8f0 20%,
+    #cbd5e1 40%,
+    #e2e8f0 60%,
+    #f8fafc 80%,
+    #ffffff 100%
+  );
+}
+
+/* Dark theme gradient background (default) */
 .gradient-background-vibrant {
   background:
     linear-gradient(
@@ -297,6 +344,22 @@ code {
     ),
     radial-gradient(ellipse at top left, rgba(34, 211, 238, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at bottom right, rgba(72, 219, 251, 0.15) 0%, transparent 50%);
+}
+
+/* Light theme gradient background */
+body.theme-light .gradient-background-vibrant {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(248, 250, 252, 0.9) 0%,
+      rgba(226, 232, 240, 0.95) 20%,
+      rgba(203, 213, 225, 0.9) 40%,
+      rgba(226, 232, 240, 0.95) 60%,
+      rgba(248, 250, 252, 0.9) 80%,
+      rgba(255, 255, 255, 0.95) 100%
+    ),
+    radial-gradient(ellipse at top left, rgba(34, 211, 238, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.1) 0%, transparent 50%);
 }
 
 /* Vibrant button gradients */

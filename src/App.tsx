@@ -1,6 +1,6 @@
 import './App.css';
 
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider as MuiThemeProvider } from '@mui/material';
 import {
   BrowserRouter,
   Navigate,
@@ -21,7 +21,7 @@ import { MessagesProvider } from '@/context/messages';
 import { ScheduleProvider } from '@/context/schedule';
 import { UserListProvider } from '@/context/userList';
 import { MigrationProvider } from '@/context/migration';
-import darkTheme from './theme';
+import { ThemeProvider, useTheme } from '@/context/theme';
 
 // Lazy load main views
 const UnauthenticatedApp = lazy(() => import('@/views/UnauthenticatedApp'));
@@ -66,9 +66,7 @@ function Providers({ children }: ProvidersProps) {
   return (
     <MigrationProvider>
       <UserListProvider>
-        <ScheduleProvider>
-          <MessagesProvider>{children}</MessagesProvider>
-        </ScheduleProvider>
+        <ScheduleProvider>{children}</ScheduleProvider>
       </UserListProvider>
     </MigrationProvider>
   );
@@ -117,11 +115,11 @@ function AppRoutes() {
         path="/:id/cast"
         element={
           <UppercaseRedirect>
-            <Providers>
+            <MessagesProvider>
               <Suspense fallback={<AppSkeleton />}>
                 <Cast />
               </Suspense>
-            </Providers>
+            </MessagesProvider>
           </UppercaseRedirect>
         }
       />
@@ -129,9 +127,9 @@ function AppRoutes() {
         path="/:id"
         element={
           <UppercaseRedirect>
-            <Providers>
+            <MessagesProvider>
               <Suspense fallback={<AppSkeleton />}>{room}</Suspense>
-            </Providers>
+            </MessagesProvider>
           </UppercaseRedirect>
         }
       />
@@ -139,15 +137,28 @@ function AppRoutes() {
   );
 }
 
-function App() {
+// Component that uses the theme from context
+function ThemedApp() {
+  const { theme } = useTheme();
+
   return (
-    <ThemeProvider theme={darkTheme}>
+    <MuiThemeProvider theme={theme}>
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
       </LocalizationProvider>
+    </MuiThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <Providers>
+        <ThemedApp />
+      </Providers>
     </ThemeProvider>
   );
 }
