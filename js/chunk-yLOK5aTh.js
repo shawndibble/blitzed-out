@@ -1,0 +1,1 @@
+const n=()=>({debug:(e,...o)=>{},info:(e,...o)=>{},warn:(e,o,...r)=>{const a=typeof o=="boolean"?r:[o,...r];(typeof o=="boolean"?o:!1)&&console.warn(`[WARN] ${e}`,...a)},critical:(e,...o)=>{console.warn(`[CRITICAL] ${e}`,...o)},error:(e,...o)=>{console.error(`[ERROR] ${e}`,...o)}}),s=n();export{s as l};

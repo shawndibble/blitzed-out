@@ -1,1 +1,0 @@
-import{r}from"./chunk-Crsl6-54.js";import{C as o}from"../assets/index-CJhYrxms.js";function n(){const t=r.useContext(o);if(t===void 0)throw new Error("useAuth must be used within an AuthProvider");return t}export{n as u};
