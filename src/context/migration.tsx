@@ -276,7 +276,8 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
           } else {
             setError('Migration failed but app will continue with existing data');
           }
-        } catch {
+        } catch (err) {
+          console.error('Error during language migration:', err);
           setError('Migration failed but app will continue with existing data');
         } finally {
           setIsMigrationInProgress(false);
@@ -368,7 +369,8 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
                 // Remove from attempted set if failed so it can be retried
                 migrationAttemptedRef.current.delete(migrationKey);
               }
-            } catch {
+            } catch (err) {
+              console.error('Error during migration execution:', err);
               setError('Migration failed but app will continue with existing data');
               // Remove from attempted set if failed so it can be retried
               migrationAttemptedRef.current.delete(migrationKey);
@@ -377,7 +379,8 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
             }
           }, 0);
         }
-      } catch {
+      } catch (err) {
+        console.error('Error during initial migration check:', err);
         setIsMigrationInProgress(false);
       }
     };
