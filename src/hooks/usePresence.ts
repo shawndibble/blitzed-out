@@ -10,25 +10,32 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [currentDisplayName, setCurrentDisplayName] = useState<string>(displayName || '');
 
-  // Set up presence when room or display name changes
+  // Set up presence when room or display name changes, then start heartbeat
   useEffect(() => {
+    let stopHeartbeat: (() => void) | null = null;
+
     if (currentRoom !== roomId || displayName !== currentDisplayName) {
+      // Set presence first
       setMyPresence({
         newRoom: roomId,
         oldRoom: currentRoom,
         newDisplayName: displayName || '',
         removeOnDisconnect: roomRealtime || roomId?.toUpperCase() === 'PUBLIC',
-      });
+      })
+        .then(() => {
+          // Start heartbeat after presence is set
+          if (roomId) {
+            stopHeartbeat = startPresenceHeartbeat();
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to set presence:', error);
+        });
+
       setCurrentRoom(roomId);
       setCurrentDisplayName(displayName || '');
-    }
-  }, [roomId, displayName, currentRoom, currentDisplayName, roomRealtime]);
-
-  // Set up heartbeat to prevent server-side cleanup
-  useEffect(() => {
-    let stopHeartbeat: (() => void) | null = null;
-
-    if (roomId) {
+    } else if (roomId && !stopHeartbeat) {
+      // If room/name haven't changed but we need heartbeat, start it
       stopHeartbeat = startPresenceHeartbeat();
     }
 
@@ -38,7 +45,7 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
         stopHeartbeat();
       }
     };
-  }, [roomId]);
+  }, [roomId, displayName, currentRoom, currentDisplayName, roomRealtime]);
 
   // Cleanup on component unmount
   useEffect(() => {

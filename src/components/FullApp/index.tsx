@@ -12,9 +12,7 @@ const ThemeProvider = lazy(() =>
 const MigrationProvider = lazy(() =>
   import('../../context/migration').then((m) => ({ default: m.MigrationProvider }))
 );
-const UserListProvider = lazy(() =>
-  import('../../context/userList').then((m) => ({ default: m.UserListProvider }))
-);
+// UserListProvider moved to RouterSetup to access route params
 const ScheduleProvider = lazy(() =>
   import('../../context/schedule').then((m) => ({ default: m.ScheduleProvider }))
 );
@@ -23,9 +21,7 @@ function Providers({ children }: ProvidersProps) {
   return (
     <Suspense fallback={<AppSkeleton />}>
       <MigrationProvider>
-        <UserListProvider>
-          <ScheduleProvider>{children}</ScheduleProvider>
-        </UserListProvider>
+        <ScheduleProvider>{children}</ScheduleProvider>
       </MigrationProvider>
     </Suspense>
   );

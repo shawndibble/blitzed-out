@@ -1,72 +1,56 @@
-import { lazy, Suspense, forwardRef, useState } from 'react';
+import { lazy, Suspense, useState, useRef } from 'react';
 import { CalendarMonth } from '@mui/icons-material';
-import {
-  AppBar,
-  Badge,
-  Box,
-  IconButton,
-  Portal,
-  Toolbar,
-  Tooltip,
-  Typography,
-  CircularProgress,
-} from '@mui/material';
+import { AppBar, Badge, Box, IconButton, Portal, Toolbar, CircularProgress } from '@mui/material';
 import useSchedule from '@/context/hooks/useSchedule';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import Logo from '@/images/blitzed-out.png';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import CastButton from '@/components/CastButton';
 import ThemeToggle from '@/components/ThemeToggle';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
+import { Player } from '@/types/player';
 
 // Lazy load heavy components
 const Schedule = lazy(() => import('@/views/Schedule'));
 const MenuDrawer = lazy(() => import('./MenuDrawer'));
+const UserPresenceOverlay = lazy(() => import('./UserPresenceOverlay'));
 import PlayersOnline from './PlayersOnline';
 
 function ComponentLoader() {
   return <CircularProgress size={16} />;
 }
 
-interface Player {
-  uid: string;
-  displayName: string;
+interface PlayerWithLocation extends Player {
   location?: number;
-  isSelf?: boolean;
 }
 
 interface NavigationProps {
   room?: string;
-  playerList?: Player[];
+  playerList?: PlayerWithLocation[];
 }
 
 export default function Navigation({ room, playerList = [] }: NavigationProps): JSX.Element {
   const { t } = useTranslation();
   const [openSchedule, setOpenSchedule] = useState<boolean>(false);
+  const [openUserPresence, setOpenUserPresence] = useState<boolean>(false);
   const [seen, setSeen] = useState<boolean>(false);
   const { schedule } = useSchedule();
   const isMobile = useBreakpoint();
+  const playersOnlineRef = useRef<HTMLButtonElement>(null);
 
   const handleScheduleClick = (): void => {
     setOpenSchedule(true);
     setSeen(true);
   };
 
-  const playersOnlineTooltip = (
-    <>
-      <Typography variant="h6">
-        <Trans i18nKey="online" />
-      </Typography>
-      <ul>
-        {playerList.map((player) => (
-          <li key={player.uid}>
-            <Typography variant="body1">{player.displayName}</Typography>
-          </li>
-        ))}
-      </ul>
-    </>
-  );
+  const handleUserPresenceClick = (): void => {
+    setOpenUserPresence(!openUserPresence);
+  };
+
+  const handleUserPresenceClose = (): void => {
+    setOpenUserPresence(false);
+  };
 
   return (
     <AppBar position="fixed">
@@ -78,9 +62,14 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
         <div>
           <div className="nav-room-name">
             <h2>{isPublicRoom(room) || room === undefined ? t('public') : room}</h2>
-            <Tooltip title={playersOnlineTooltip}>
-              <WrapPlayersOnline playerList={playerList} />
-            </Tooltip>
+            <PlayersOnline
+              playerList={playerList}
+              onClick={handleUserPresenceClick}
+              ref={playersOnlineRef}
+              aria-label={t('online')}
+              aria-expanded={openUserPresence}
+              aria-haspopup="dialog"
+            />
             <IconButton onClick={handleScheduleClick} aria-label="schedule game" sx={{ ml: 2 }}>
               <Badge color="primary" badgeContent={!seen ? schedule.length : null}>
                 <CalendarMonth />
@@ -96,6 +85,16 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
                   />
                 </Suspense>
               </Portal>
+            )}
+            {playerList.length > 0 && (
+              <Suspense fallback={null}>
+                <UserPresenceOverlay
+                  isOpen={openUserPresence}
+                  onClose={handleUserPresenceClose}
+                  playerList={playerList}
+                  anchorEl={playersOnlineRef.current}
+                />
+              </Suspense>
             )}
           </div>
         </div>
@@ -115,16 +114,3 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
     </AppBar>
   );
 }
-
-interface WrapPlayersOnlineProps {
-  playerList: Player[];
-  [key: string]: any;
-}
-
-const WrapPlayersOnline = forwardRef<HTMLDivElement, WrapPlayersOnlineProps>(
-  ({ playerList, ...rest }, ref) => (
-    <PlayersOnline playerList={playerList} {...rest} innerRef={ref} />
-  )
-);
-
-WrapPlayersOnline.displayName = 'WrapPlayersOnline';

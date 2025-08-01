@@ -7,7 +7,7 @@ import { User } from '@/types';
 
 // Mock the presence service
 vi.mock('@/services/presence', () => ({
-  setMyPresence: vi.fn(),
+  setMyPresence: vi.fn().mockResolvedValue(void 0),
   startPresenceHeartbeat: vi.fn(() => vi.fn()),
   removeMyPresence: vi.fn(),
 }));
@@ -536,6 +536,54 @@ describe('usePresence Hook', () => {
         newDisplayName: 'New Name',
         removeOnDisconnect: false,
       });
+    });
+  });
+
+  describe('Race Condition Prevention', () => {
+    it('should start heartbeat only after presence is set successfully', async () => {
+      // Mock setMyPresence to return a resolved promise
+      const mockStartPresenceHeartbeat = vi.mocked(presenceService.startPresenceHeartbeat);
+      mockSetMyPresence.mockResolvedValue();
+
+      renderHook(() => usePresence('test-room'));
+
+      // Verify that setMyPresence was called
+      expect(mockSetMyPresence).toHaveBeenCalledWith({
+        newRoom: 'test-room',
+        oldRoom: null,
+        newDisplayName: 'Test User',
+        removeOnDisconnect: false,
+      });
+
+      // Wait for the promise to resolve
+      await vi.waitFor(() => {
+        expect(mockStartPresenceHeartbeat).toHaveBeenCalled();
+      });
+    });
+
+    it('should handle presence setting errors gracefully', async () => {
+      // Mock setMyPresence to reject
+      const mockStartPresenceHeartbeat = vi.mocked(presenceService.startPresenceHeartbeat);
+      mockSetMyPresence.mockRejectedValue(new Error('Firebase error'));
+
+      // Mock console.error to avoid test noise
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      renderHook(() => usePresence('test-room'));
+
+      // Verify that setMyPresence was called
+      expect(mockSetMyPresence).toHaveBeenCalled();
+
+      // Wait a bit to ensure async operations complete
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Error should have been logged
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to set presence:', expect.any(Error));
+
+      // Heartbeat should still be started due to the fallback condition
+      expect(mockStartPresenceHeartbeat).toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
     });
   });
 });

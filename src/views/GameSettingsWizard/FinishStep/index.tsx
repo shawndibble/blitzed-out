@@ -1,20 +1,21 @@
-import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Typography,
-  CircularProgress,
   Card,
   CardContent,
+  Chip,
+  CircularProgress,
   Grid,
   Stack,
-  Chip,
+  Typography,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+
 import ButtonRow from '@/components/ButtonRow';
+import { Settings } from '@/types/Settings';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
-import { Settings } from '@/types/Settings';
 
 interface FinishStepProps {
   formData: Settings;
@@ -140,7 +141,7 @@ export default function FinishStep({
           variant="contained"
           onClick={handleSubmit}
           disabled={isLoading}
-          startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+          startIcon={isLoading ? <CircularProgress size={20} /> : null}
           size="large"
           sx={{ px: 4 }}
         >
