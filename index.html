@@ -317,17 +317,6 @@
         }
       })(window.location);
     </script>
-    <!-- Defer Cast SDK to not block initial render -->
-    <script>
-      // Load Cast SDK after page is interactive
-      window.addEventListener('load', function () {
-        setTimeout(function () {
-          var script = document.createElement('script');
-          script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
-          document.head.appendChild(script);
-        }, 2000);
-      });
-    </script>
     <script type="module" src="src/index"></script>
   </head>
   <body>
