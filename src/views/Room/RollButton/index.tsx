@@ -6,6 +6,7 @@ import './styles.css';
 import useCountdown from '@/hooks/useCountdown';
 import RollOptionsMenu from '../RollOptionsMenu';
 import CustomTimerDialog from '../CustomTimerDialog';
+import OnboardingWrapper from './OnboardingWrapper';
 
 interface RollButtonProps {
   setRollValue: (value: number) => void;
@@ -163,13 +164,15 @@ const RollButton = memo(function RollButton({
 
   return (
     <>
-      <ButtonGroup variant="contained" className="dice-roller">
-        <Button aria-label={t('roll')} onClick={handleClick} disabled={isDisabled} size="large">
-          <Casino sx={{ mr: 1 }} />
-          {rollText}
-        </Button>
-        <RollOptionsMenu selectedRoll={selectedRoll} handleMenuItemClick={handleMenuItemClick} />
-      </ButtonGroup>
+      <OnboardingWrapper className="dice-roller">
+        <ButtonGroup variant="contained">
+          <Button aria-label={t('roll')} onClick={handleClick} disabled={isDisabled} size="large">
+            <Casino sx={{ mr: 1 }} />
+            {rollText}
+          </Button>
+          <RollOptionsMenu selectedRoll={selectedRoll} handleMenuItemClick={handleMenuItemClick} />
+        </ButtonGroup>
+      </OnboardingWrapper>
       <CustomTimerDialog
         isOpen={isDialogOpen}
         onClose={handleDialogClose}
