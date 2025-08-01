@@ -13,6 +13,11 @@ import { AuthContext } from '../../context/auth';
 import { MessagesProvider } from '../../context/messages';
 import AppSkeleton from '../AppSkeleton';
 
+// Lazy load UserListProvider
+const UserListProvider = lazy(() =>
+  import('../../context/userList').then((m) => ({ default: m.UserListProvider }))
+);
+
 // Lazy load main views
 const UnauthenticatedApp = lazy(() => import('../../views/UnauthenticatedApp'));
 const Cast = lazy(() => import('../../views/Cast'));
@@ -61,11 +66,13 @@ function AppRoutes() {
         path="/:id/cast"
         element={
           <UppercaseRedirect>
-            <MessagesProvider>
-              <Suspense fallback={<AppSkeleton />}>
-                <Cast />
-              </Suspense>
-            </MessagesProvider>
+            <Suspense fallback={<AppSkeleton />}>
+              <UserListProvider>
+                <MessagesProvider>
+                  <Cast />
+                </MessagesProvider>
+              </UserListProvider>
+            </Suspense>
           </UppercaseRedirect>
         }
       />
@@ -73,9 +80,11 @@ function AppRoutes() {
         path="/:id"
         element={
           <UppercaseRedirect>
-            <MessagesProvider>
-              <Suspense fallback={<AppSkeleton />}>{room}</Suspense>
-            </MessagesProvider>
+            <Suspense fallback={<AppSkeleton />}>
+              <UserListProvider>
+                <MessagesProvider>{room}</MessagesProvider>
+              </UserListProvider>
+            </Suspense>
           </UppercaseRedirect>
         }
       />

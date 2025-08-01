@@ -1,9 +1,10 @@
-import CloseIcon from '@mui/icons-material/Close';
 import { Alert, Portal, Slide } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import IconButton from '@mui/material/IconButton';
-import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar';
 import { ReactNode, SyntheticEvent } from 'react';
+import Snackbar, { SnackbarOrigin } from '@mui/material/Snackbar';
+
+import CloseIcon from '@mui/icons-material/Close';
+import IconButton from '@mui/material/IconButton';
+import { useTranslation } from 'react-i18next';
 
 type AlertType = 'error' | 'warning' | 'info' | 'success';
 
@@ -39,7 +40,7 @@ export default function ToastAlert({
   };
 
   const action = !hideCloseButton && (
-    <IconButton size="small" aria-label={t('close')} color="inherit" onClick={handleClose}>
+    <IconButton size="small" aria-label={t('close')} onClick={handleClose}>
       <CloseIcon fontSize="small" />
     </IconButton>
   );
