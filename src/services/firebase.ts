@@ -825,8 +825,9 @@ export async function uploadImage({ image, room, user }: UploadImageData): Promi
     await sendMessage({
       room,
       user,
-      text: downloadURL,
+      text: '',
       type: 'media',
+      image: downloadURL,
     });
   } catch (error) {
     console.error('Error uploading image:', error);

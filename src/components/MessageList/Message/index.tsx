@@ -1,25 +1,38 @@
-import { Box, Button, Typography, Chip, IconButton, Popover } from '@mui/material';
-import { Settings, Home, InfoOutlined } from '@mui/icons-material';
-import clsx from 'clsx';
+import { Box, Button, Chip, IconButton, Popover, Typography } from '@mui/material';
+import { Home, InfoOutlined, Settings } from '@mui/icons-material';
+import { Trans, useTranslation } from 'react-i18next';
+import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
+import { useCallback, useMemo, useState } from 'react';
+
+import ActionText from './actionText';
+import CopyToClipboard from '@/components/CopyToClipboard';
 import DeleteMessageButton from '@/components/DeleteMessageButton';
 import GameOverDialog from '@/components/GameOverDialog';
-import TextAvatar from '@/components/TextAvatar';
-import { useCallback, useState, useMemo } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-import Markdown from 'react-markdown';
 import { Link } from 'react-router-dom';
-import remarkGfm from 'remark-gfm';
-import remarkGemoji from 'remark-gemoji';
-import CopyToClipboard from '@/components/CopyToClipboard';
+import Markdown from 'react-markdown';
+import { Message as MessageType, Base64ImageObject } from '@/types/Message';
 import { Share } from '@mui/icons-material';
-import ActionText from './actionText';
-import { Message as MessageType } from '@/types/Message';
-import { parseMessageTimestamp } from '@/helpers/timestamp';
+import TextAvatar from '@/components/TextAvatar';
+import clsx from 'clsx';
+import dayjs from 'dayjs';
 import { getDayjsWithLocale } from '@/helpers/momentLocale';
-import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
+import { parseMessageTimestamp } from '@/helpers/timestamp';
+import remarkGemoji from 'remark-gemoji';
+import remarkGfm from 'remark-gfm';
 
 const MILLISECONDS_IN_A_MINUTE = 60000;
+
+// Type guard to check if image is a Base64ImageObject
+function isBase64ImageObject(image: unknown): image is Base64ImageObject {
+  return (
+    typeof image === 'object' &&
+    image !== null &&
+    'base64String' in image &&
+    'format' in image &&
+    typeof (image as Base64ImageObject).base64String === 'string' &&
+    typeof (image as Base64ImageObject).format === 'string'
+  );
+}
 
 interface MessageProps {
   message: MessageType;
@@ -101,10 +114,25 @@ export default function Message({
 
   // Memoize image processing with precise dependencies
   const imageSrc = useMemo((): string | false => {
-    if (type !== 'media' || !image) return false;
-    // The image is already a data URL string
-    return image;
-  }, [type, image]);
+    if (type !== 'media') return false;
+
+    // Handle image object with base64String and format properties
+    if (isBase64ImageObject(image)) {
+      return `data:image/${image.format};base64,${image.base64String}`;
+    }
+
+    // Handle direct string URLs (fallback for old format or Firebase URLs)
+    if (typeof image === 'string' && image) {
+      return image;
+    }
+
+    // Handle old format where URL might be in text field
+    if (typeof text === 'string' && text && text.startsWith('http')) {
+      return text;
+    }
+
+    return false;
+  }, [type, image, text]);
 
   // Memoize markdown content rendering with text hash for better performance
   const markdownContent = useMemo(() => {
