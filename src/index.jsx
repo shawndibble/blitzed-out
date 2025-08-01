@@ -1,39 +1,69 @@
-import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AuthProvider } from './context/auth';
 import './index.css';
-import './i18n';
 
-// Optimize font loading - only import essential weights initially
-import '@fontsource/roboto/400.css'; // Regular weight only for faster initial load
-import '@fontsource/roboto/500.css'; // Medium weight for buttons/headers
+// Defer non-critical imports to reduce initial bundle size
+const loadNonCriticalResources = () => {
+  // Load i18n after initial render to reduce bundle
+  import('./i18n').catch(console.error);
 
-// Lazy load additional weights to reduce initial requests
-const loadAdditionalFonts = () => {
-  import('@fontsource/roboto/300.css').catch(() => {}); // Light weight
-  import('@fontsource/roboto/700.css').catch(() => {}); // Bold weight
+  // Load PWA elements after initial render
+  import('@ionic/pwa-elements/loader')
+    .then(({ defineCustomElements }) => {
+      defineCustomElements(window);
+    })
+    .catch(console.error);
+
+  // Load fonts after initial render
+  Promise.all([import('@fontsource/roboto/400.css'), import('@fontsource/roboto/500.css')]).catch(
+    console.error
+  );
+
+  // Load additional font weights after page is interactive
+  setTimeout(() => {
+    Promise.all([import('@fontsource/roboto/300.css'), import('@fontsource/roboto/700.css')]).catch(
+      console.error
+    );
+  }, 1000);
 };
 
-// Load additional fonts after page is interactive
+// Schedule non-critical resource loading
 if (typeof window !== 'undefined') {
   if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(loadAdditionalFonts, { timeout: 2000 });
+    window.requestIdleCallback(loadNonCriticalResources, { timeout: 500 });
   } else {
-    setTimeout(loadAdditionalFonts, 1000);
+    setTimeout(loadNonCriticalResources, 100);
   }
 }
+
+// Hide the instant loading screen once React is ready
+const hideInstantLoading = () => {
+  const instantLoading = document.getElementById('instant-loading');
+  if (instantLoading) {
+    // Add fade out transition
+    instantLoading.style.transition = 'opacity 200ms ease-out';
+    instantLoading.style.opacity = '0';
+    // Remove from DOM after fade out to free memory
+    setTimeout(() => {
+      if (instantLoading.parentNode) {
+        instantLoading.parentNode.removeChild(instantLoading);
+      }
+    }, 200);
+  }
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <AuthProvider>
-      <React.Suspense>
+      <React.Suspense fallback={null}>
         <App />
       </React.Suspense>
     </AuthProvider>
   </React.StrictMode>
 );
 
-defineCustomElements(window);
+// Hide instant loading immediately when React is ready to avoid double spinners
+hideInstantLoading();

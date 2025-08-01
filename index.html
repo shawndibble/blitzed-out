@@ -1,16 +1,24 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-93YN1YMTQ7"></script>
+    <!-- Defer Google Analytics to not block initial render -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag('js', new Date());
-
-      gtag('config', 'G-93YN1YMTQ7');
+      // Load Google Analytics after page is interactive
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-93YN1YMTQ7';
+          document.head.appendChild(script);
+          
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', 'G-93YN1YMTQ7');
+        }, 1000);
+      });
     </script>
 
     <meta charset="utf-8" />
@@ -78,6 +86,15 @@
     
     <!-- DNS prefetch for fonts - less critical -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    
+    <!-- Preload critical chunks for faster initial load -->
+    <link rel="modulepreload" href="/src/index.jsx" />
+    <link rel="modulepreload" href="/src/App.tsx" />
+    <link rel="modulepreload" href="/src/context/auth.tsx" />
+    
+    <!-- Prefetch likely next resources -->
+    <link rel="prefetch" href="/src/views/Room/index.tsx" />
+    <link rel="prefetch" href="/src/components/AppSkeleton/index.tsx" />
 
     <!-- Defer Material Icons to avoid blocking critical path -->
     <link
@@ -107,25 +124,81 @@
       }
       
       /* Critical app shell */
-      #root {
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        line-height: 1.5;
+        background: linear-gradient(
+          135deg,
+          rgba(15, 23, 42, 0.9) 0%,
+          rgba(30, 41, 59, 0.95) 20%,
+          rgba(51, 65, 85, 0.9) 40%,
+          rgba(30, 41, 59, 0.95) 60%,
+          rgba(15, 23, 42, 0.9) 80%,
+          rgba(2, 6, 23, 0.95) 100%
+        );
         color: #fff;
       }
       
-      /* Prevent layout shift */
-      body {
-        font-family: 'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-        margin: 0;
-        padding: 0;
-        line-height: 1.5;
+      #root {
+        height: 100%;
+        color: #fff;
       }
       
-      /* Loading state */
-      .app-loading {
+      /* Instant loading screen - shows immediately */
+      .instant-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
-        font-size: 18px;
+        background: linear-gradient(
+          135deg,
+          rgba(15, 23, 42, 0.9) 0%,
+          rgba(30, 41, 59, 0.95) 20%,
+          rgba(51, 65, 85, 0.9) 40%,
+          rgba(30, 41, 59, 0.95) 60%,
+          rgba(15, 23, 42, 0.9) 80%,
+          rgba(2, 6, 23, 0.95) 100%
+        );
+        z-index: 9999;
+        font-family: 'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      }
+      
+      /* Loading spinner - matches MUI CircularProgress styling */
+      .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left: 4px solid #0abde3;
+        border-radius: 50%;
+        animation: spin 1.4s linear infinite;
+        margin-bottom: 24px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        color: #0abde3;
+        text-align: center;
+        font-family: 'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      }
+      
+      /* Hide when React takes over */
+      .instant-loading.hidden {
+        display: none;
       }
     </style>
 
@@ -155,11 +228,28 @@
         }
       })(window.location);
     </script>
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <!-- Defer Cast SDK to not block initial render -->
+    <script>
+      // Load Cast SDK after page is interactive
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var script = document.createElement('script');
+          script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
+          document.head.appendChild(script);
+        }, 2000);
+      });
+    </script>
     <script type="module" src="src/index"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
+    
+    <!-- Instant loading screen - shows immediately before any JS loads -->
+    <div id="instant-loading" class="instant-loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading...</div>
+    </div>
+    
     <div id="root"></div>
     <!--
       This HTML file is a template.
