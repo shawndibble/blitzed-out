@@ -506,5 +506,14 @@
   "customUpdated": "自定義已更新",
   "updatedGameSettings": "更新了他們的個人遊戲板設置",
   "updatedRoomSettings": "更新了房間設置",
-  "updatedMultipleSettings": "在他們的個人遊戲板上更新了{{count}}個設置"
+  "updatedMultipleSettings": "在他們的個人遊戲板上更新了{{count}}個設置",
+  "theme": {
+    "light": "淺色主題",
+    "dark": "深色主題",
+    "system": "跟隨系統",
+    "chooseTheme": "選擇主題",
+    "switchToLight": "切換到淺色主題",
+    "switchToDark": "切換到深色主題",
+    "currentTheme": "當前主題：{{theme}}"
+  }
 }

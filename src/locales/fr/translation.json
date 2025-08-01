@@ -520,5 +520,14 @@
   "customUpdated": "Personnalisé Mis à Jour",
   "updatedGameSettings": "a mis à jour les paramètres de son plateau de jeu personnel",
   "updatedRoomSettings": "a mis à jour les paramètres de la salle",
-  "updatedMultipleSettings": "a mis à jour {{count}} paramètres sur son plateau de jeu personnel"
+  "updatedMultipleSettings": "a mis à jour {{count}} paramètres sur son plateau de jeu personnel",
+  "theme": {
+    "light": "Thème clair",
+    "dark": "Thème sombre",
+    "system": "Suivre le système",
+    "chooseTheme": "Choisir le thème",
+    "switchToLight": "Basculer vers le thème clair",
+    "switchToDark": "Basculer vers le thème sombre",
+    "currentTheme": "Thème actuel : {{theme}}"
+  }
 }

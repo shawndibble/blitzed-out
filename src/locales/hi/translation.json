@@ -519,5 +519,14 @@
   "customUpdated": "कस्टम अपडेटेड",
   "updatedGameSettings": "अपने व्यक्तिगत गेम बोर्ड की सेटिंग्स अपडेट की गईं",
   "updatedRoomSettings": "रूम सेटिंग्स अपडेट की गईं",
-  "updatedMultipleSettings": "अपने व्यक्तिगत गेम बोर्ड पर {{count}} सेटिंग्स अपडेट की गईं"
+  "updatedMultipleSettings": "अपने व्यक्तिगत गेम बोर्ड पर {{count}} सेटिंग्स अपडेट की गईं",
+  "theme": {
+    "light": "हल्की थीम",
+    "dark": "गहरी थीम",
+    "system": "सिस्टम का अनुसरण करें",
+    "chooseTheme": "थीम चुनें",
+    "switchToLight": "हल्की थीम पर स्विच करें",
+    "switchToDark": "गहरी थीम पर स्विच करें",
+    "currentTheme": "वर्तमान थीम: {{theme}}"
+  }
 }
