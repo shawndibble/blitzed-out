@@ -12,6 +12,8 @@ export default defineConfig({
     } as any),
   ],
   server: {
+    host: '0.0.0.0', // Allow access from network (including Android emulator)
+    https: false, // Explicitly disable HTTPS
     // Reduce HTTP/2 server push overhead in dev
     fs: {
       allow: ['..'],
