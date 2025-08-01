@@ -20,6 +20,7 @@
   "groupLabelRequired": "Se requiere etiqueta de grupo",
   "tilesCount": "{{count}} casillas",
   "online": "En línea",
+  "you": "tú",
   "setup": "Configuración del juego",
   "setupSubtitle": "Ingresa tu nombre y comienza la sesión",
   "buildGame": "Construir Juego",
