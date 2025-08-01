@@ -101,7 +101,11 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
         </div>
 
         <div className="menu-drawer">
-          <ThemeToggle size="medium" variant="menu" />
+          <ThemeToggle
+            size="medium"
+            variant="menu"
+            aria-label="Toggle theme menu - choose between light, dark, or system theme"
+          />
           <CastButton />
           <Suspense fallback={null}>
             <MenuDrawer />

@@ -27,6 +27,8 @@ interface ThemeToggleProps {
   tooltip?: string;
   /** Whether to show theme name in menu items */
   showLabels?: boolean;
+  /** Custom aria-label for accessibility */
+  'aria-label'?: string;
 }
 
 const themeIcons = {
@@ -46,6 +48,7 @@ export default function ThemeToggle({
   variant = 'menu',
   tooltip,
   showLabels = true,
+  'aria-label': ariaLabel,
 }: ThemeToggleProps) {
   const muiTheme = useMuiTheme();
   const { themeMode, resolvedThemeMode, setThemeMode, toggleTheme } = useTheme();
@@ -107,6 +110,8 @@ export default function ThemeToggle({
 
   // Get aria-label for accessibility
   const getAriaLabel = () => {
+    if (ariaLabel) return ariaLabel;
+
     if (variant === 'toggle') {
       return `Toggle theme, currently ${resolvedThemeMode}`;
     }

@@ -6,6 +6,18 @@ import {
   ComponentsOverrides,
 } from '@mui/material';
 
+// Color constants for better maintainability
+const COLOR_CONSTANTS = {
+  // Primary colors
+  LIGHT_CYAN: '8, 145, 178', // Light mode cyan
+  DARK_CYAN: '72, 219, 251', // Dark mode cyan
+  BRIGHT_CYAN: '34, 211, 238', // Bright cyan for focus states
+
+  // Border and text colors
+  LIGHT_BORDER: '75, 85, 99', // Light mode border
+  DARK_BORDER: '148, 163, 184', // Dark mode border
+} as const;
+
 // Base theme configuration shared between light and dark themes
 const baseTheme = {
   typography: {
@@ -102,12 +114,12 @@ const createComponents = (_mode: 'light' | 'dark'): ThemeOptions['components'] =
       outlined: ({ theme }: { theme: Theme }) => {
         const isLight = theme.palette.mode === 'light';
         return {
-          borderColor: `rgba(${isLight ? '8, 145, 178' : '72, 219, 251'}, 0.5)`, // Use darker cyan for light mode
+          borderColor: `rgba(${isLight ? COLOR_CONSTANTS.LIGHT_CYAN : COLOR_CONSTANTS.DARK_CYAN}, 0.5)`, // Use darker cyan for light mode
           color: theme.palette.primary.main,
           '&:hover': {
-            borderColor: `rgba(${isLight ? '8, 145, 178' : '72, 219, 251'}, 0.8)`,
-            background: `rgba(${isLight ? '8, 145, 178' : '72, 219, 251'}, 0.1)`,
-            boxShadow: `0 0 20px rgba(${isLight ? '8, 145, 178' : '72, 219, 251'}, 0.3)`,
+            borderColor: `rgba(${isLight ? COLOR_CONSTANTS.LIGHT_CYAN : COLOR_CONSTANTS.DARK_CYAN}, 0.8)`,
+            background: `rgba(${isLight ? COLOR_CONSTANTS.LIGHT_CYAN : COLOR_CONSTANTS.DARK_CYAN}, 0.1)`,
+            boxShadow: `0 0 20px rgba(${isLight ? COLOR_CONSTANTS.LIGHT_CYAN : COLOR_CONSTANTS.DARK_CYAN}, 0.3)`,
           },
         };
       },
@@ -172,26 +184,36 @@ const createComponents = (_mode: 'light' | 'dark'): ThemeOptions['components'] =
             transition: 'border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
             borderRadius: '8px',
             '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: isLight ? 'rgba(75, 85, 99, 0.4)' : 'rgba(148, 163, 184, 0.23)', // Darker border for light mode
+              borderColor: isLight
+                ? `rgba(${COLOR_CONSTANTS.LIGHT_BORDER}, 0.4)`
+                : `rgba(${COLOR_CONSTANTS.DARK_BORDER}, 0.23)`, // Darker border for light mode
             },
             '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: isLight ? 'rgba(75, 85, 99, 0.6)' : theme.palette.primary.main,
+              borderColor: isLight
+                ? `rgba(${COLOR_CONSTANTS.LIGHT_BORDER}, 0.6)`
+                : theme.palette.primary.main,
             },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
               borderColor: theme.palette.primary.main,
-              boxShadow: `0 0 0 2px rgba(${isLight ? '8, 145, 178' : '34, 211, 238'}, 0.2)`,
+              boxShadow: `0 0 0 2px rgba(${isLight ? COLOR_CONSTANTS.LIGHT_CYAN : COLOR_CONSTANTS.BRIGHT_CYAN}, 0.2)`,
             },
             '& input::placeholder': {
-              color: isLight ? 'rgba(75, 85, 99, 0.7)' : 'rgba(148, 163, 184, 0.5)', // Darker placeholder for light mode
+              color: isLight
+                ? `rgba(${COLOR_CONSTANTS.LIGHT_BORDER}, 0.7)`
+                : `rgba(${COLOR_CONSTANTS.DARK_BORDER}, 0.5)`, // Darker placeholder for light mode
               opacity: 1,
             },
             '& textarea::placeholder': {
-              color: isLight ? 'rgba(75, 85, 99, 0.7)' : 'rgba(148, 163, 184, 0.5)', // Darker placeholder for light mode
+              color: isLight
+                ? `rgba(${COLOR_CONSTANTS.LIGHT_BORDER}, 0.7)`
+                : `rgba(${COLOR_CONSTANTS.DARK_BORDER}, 0.5)`, // Darker placeholder for light mode
               opacity: 1,
             },
           },
           '& .MuiInputLabel-root': {
-            color: isLight ? 'rgba(75, 85, 99, 0.8)' : 'rgba(148, 163, 184, 0.7)', // Darker label for light mode
+            color: isLight
+              ? `rgba(${COLOR_CONSTANTS.LIGHT_BORDER}, 0.8)`
+              : `rgba(${COLOR_CONSTANTS.DARK_BORDER}, 0.7)`, // Darker label for light mode
             '&.Mui-focused': {
               color: theme.palette.primary.main,
             },
@@ -208,14 +230,18 @@ const createComponents = (_mode: 'light' | 'dark'): ThemeOptions['components'] =
           borderRadius: '8px',
           transition: 'border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: isLight ? 'rgba(75, 85, 99, 0.4)' : 'rgba(148, 163, 184, 0.23)', // Darker border for light mode
+            borderColor: isLight
+              ? `rgba(${COLOR_CONSTANTS.LIGHT_BORDER}, 0.4)`
+              : `rgba(${COLOR_CONSTANTS.DARK_BORDER}, 0.23)`, // Darker border for light mode
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: isLight ? 'rgba(75, 85, 99, 0.6)' : theme.palette.primary.main,
+            borderColor: isLight
+              ? `rgba(${COLOR_CONSTANTS.LIGHT_BORDER}, 0.6)`
+              : theme.palette.primary.main,
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
             borderColor: theme.palette.primary.main,
-            boxShadow: `0 0 0 2px rgba(${isLight ? '8, 145, 178' : '34, 211, 238'}, 0.2)`,
+            boxShadow: `0 0 0 2px rgba(${isLight ? COLOR_CONSTANTS.LIGHT_CYAN : COLOR_CONSTANTS.BRIGHT_CYAN}, 0.2)`,
           },
         };
       },
@@ -508,9 +534,6 @@ export const darkTheme = responsiveFontSizes(createThemeWithComponents(darkTheme
 
 // Export default dark theme for backward compatibility
 export default darkTheme;
-
-// Theme type for context
-export type ThemeMode = 'light' | 'dark' | 'system';
 
 // Helper function to get theme by mode
 export const getThemeByMode = (mode: 'light' | 'dark'): Theme => {

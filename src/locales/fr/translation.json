@@ -524,7 +524,7 @@
   "theme": {
     "light": "Thème clair",
     "dark": "Thème sombre",
-    "system": "Suivre le système",
+    "system": "Par défaut du système",
     "chooseTheme": "Choisir le thème",
     "switchToLight": "Basculer vers le thème clair",
     "switchToDark": "Basculer vers le thème sombre",

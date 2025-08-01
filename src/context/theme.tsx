@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
 import { Theme, useMediaQuery } from '@mui/material';
 import { getThemeByMode } from '@/theme';
 import { ThemeMode } from '@/types/Settings';
@@ -17,8 +17,6 @@ interface ThemeContextValue {
   setThemeMode: (mode: ThemeMode) => void;
   /** Function to toggle between light and dark (ignores system preference) */
   toggleTheme: () => void;
-  /** Whether theme is currently being determined (loading state) */
-  isLoading: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
@@ -31,7 +29,6 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children, defaultMode = 'system' }: ThemeProviderProps) {
   const { settings, updateSettings } = useSettingsStore();
-  const [isLoading, setIsLoading] = useState(true);
 
   // Detect system preference for dark mode
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)', {
@@ -65,15 +62,7 @@ export function ThemeProvider({ children, defaultMode = 'system' }: ThemeProvide
     setThemeMode(newMode);
   };
 
-  // Handle loading state - wait for initial system preference detection
-  useEffect(() => {
-    // Small delay to ensure useMediaQuery has properly initialized
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
+  // No longer needed - useMediaQuery with noSsr handles initialization properly
 
   // Listen for system theme changes and update if in system mode
   useEffect(() => {
@@ -107,7 +96,6 @@ export function ThemeProvider({ children, defaultMode = 'system' }: ThemeProvide
     prefersDarkMode,
     setThemeMode,
     toggleTheme,
-    isLoading,
   };
 
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;

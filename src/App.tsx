@@ -139,12 +139,7 @@ function AppRoutes() {
 
 // Component that uses the theme from context
 function ThemedApp() {
-  const { theme, isLoading } = useTheme();
-
-  // Show loading skeleton while theme is being determined
-  if (isLoading) {
-    return <AppSkeleton />;
-  }
+  const { theme } = useTheme();
 
   return (
     <MuiThemeProvider theme={theme}>

@@ -510,7 +510,7 @@
   "theme": {
     "light": "Light theme",
     "dark": "Dark theme",
-    "system": "Follow system",
+    "system": "System default",
     "chooseTheme": "Choose theme",
     "switchToLight": "Switch to light theme",
     "switchToDark": "Switch to dark theme",
