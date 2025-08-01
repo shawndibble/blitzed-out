@@ -14,8 +14,7 @@ export default function CastButton(): JSX.Element | null {
   const [castSession, setCastSession] = useState<any>(null);
   const { id: room } = useParams<Params>();
   const castButtonRef = useRef<HTMLButtonElement>(null);
-  const [castApiReady, setCastApiReady] = useState<boolean>(false);
-  const [castContextReady, setCastContextReady] = useState<boolean>(false);
+  const [castReady, setCastReady] = useState<boolean>(false);
 
   // Function to send a message to the cast session
   const sendCastMessage = useCallback(
@@ -48,8 +47,7 @@ export default function CastButton(): JSX.Element | null {
 
         // Only initialize once
         if (window.__castApiInitialized) {
-          setCastApiReady(true);
-          setCastContextReady(true);
+          setCastReady(true);
           setupSessionListener();
           return;
         }
@@ -63,8 +61,7 @@ export default function CastButton(): JSX.Element | null {
         });
 
         window.__castApiInitialized = true;
-        setCastApiReady(true);
-        setCastContextReady(true);
+        setCastReady(true);
         setupSessionListener();
       } catch (error) {
         console.error('Error initializing Cast API:', error);
@@ -153,8 +150,8 @@ export default function CastButton(): JSX.Element | null {
 
   // Function to toggle casting
   const toggleCasting = () => {
-    if (!castApiReady || !castContextReady) {
-      console.warn('Cast API or context not ready yet');
+    if (!castReady) {
+      console.warn('Cast API not ready yet');
       return;
     }
 
@@ -185,7 +182,7 @@ export default function CastButton(): JSX.Element | null {
     }
   }, [room, isCasting, castSession, sendCastMessage]);
 
-  if (!castApiReady || !castContextReady) return null;
+  if (!castReady) return null;
 
   return (
     <Tooltip title={isCasting ? t('stopCasting') : t('startCasting')}>
