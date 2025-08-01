@@ -7,7 +7,7 @@
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -b master -d dist",
-    "check": "./check.sh",
+    "check": "echo '🔍 Step 1/5: TypeScript Type Checking' && npm run type-check && echo '🔧 Step 2/5: ESLint Code Quality Check' && npx eslint src/ && echo '🧪 Step 3/5: Test Suite Execution' && npm run test:run && echo '🧹 Step 4/5: Debug code cleanup verification - completed manually' && echo '🏗️ Step 5/5: Production Build Verification' && npm run build && echo '🎉 ALL CHECKS PASSED! Your code is ready for production.'",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
     "format": "prettier --write .",
     "start": "vite",

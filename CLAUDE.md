@@ -19,6 +19,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run lint` - Run ESLint on JS/JSX/TS/TSX files
 - `npm run format` - Format code with Prettier
 
+### Comprehensive Quality Check
+
+- `npm run check` or `/check` - **Comprehensive verification** that runs TypeScript type checking, ESLint linting (source only), full test suite, and production build verification. This command provides a complete quality gate check before commits or deployments.
+
 ### Deployment
 
 - `npm run deploy` - Deploy to GitHub Pages (builds to dist, deploys to master branch)
