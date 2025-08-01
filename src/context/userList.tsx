@@ -10,6 +10,23 @@ export interface OnlineUser {
   [key: string]: any;
 }
 
+// Runtime validation function for OnlineUser objects
+function isValidOnlineUser(obj: unknown): obj is OnlineUser {
+  if (!obj || typeof obj !== 'object') {
+    return false;
+  }
+
+  const user = obj as Record<string, unknown>;
+
+  return (
+    typeof user.displayName === 'string' &&
+    typeof user.uid === 'string' &&
+    (user.lastSeen instanceof Date ||
+      typeof user.lastSeen === 'number' ||
+      typeof user.lastSeen === 'string')
+  );
+}
+
 export interface UserListContextType {
   onlineUsers: Record<string, OnlineUser>;
 }
@@ -34,7 +51,26 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
       if (newUsers === null) {
         clearUsers();
       } else {
-        setUsers(newUsers as unknown as Record<string, OnlineUser>);
+        // Validate and transform the users data
+        const validatedUsers: Record<string, OnlineUser> = {};
+
+        Object.entries(newUsers).forEach(([uid, userData]) => {
+          if (isValidOnlineUser(userData)) {
+            // Ensure lastSeen is a Date object
+            const user: OnlineUser = {
+              ...userData,
+              lastSeen:
+                userData.lastSeen instanceof Date
+                  ? userData.lastSeen
+                  : new Date(userData.lastSeen as string | number),
+            };
+            validatedUsers[uid] = user;
+          } else {
+            console.warn(`Invalid user data for uid ${uid}:`, userData);
+          }
+        });
+
+        setUsers(validatedUsers);
       }
     },
     [setUsers, clearUsers]
@@ -67,9 +103,7 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
     cleanup();
 
     // Set up new listener
-    getUserList(room, (data: Record<string, unknown>) => {
-      handleUserUpdate(data);
-    });
+    getUserList(room, handleUserUpdate);
     unsubscribeRef.current = null; // TODO: getUserList should return unsubscribe function
 
     // Cleanup on unmount or room change

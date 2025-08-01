@@ -26,8 +26,7 @@ import { getActiveBoard } from '@/stores/gameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
-import { RollValueState, Tile } from '@/types/index';
-import { Tile as GameTile } from '@/types/gameBoard';
+import { RollValueState } from '@/types/index';
 
 // Lazy load heavy components
 const MessageList = lazy(() => import('@/components/MessageList'));
@@ -53,7 +52,7 @@ export default function Room() {
   usePresence(room);
 
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
-  const gameBoard = useLiveQuery(getActiveBoard)?.tiles as GameTile[] | undefined;
+  const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
 
   // Use useCallback to memoize the setRollValue function
   const memoizedSetRollValue = useCallback((newValue: number) => {
@@ -94,7 +93,7 @@ export default function Room() {
       <GameBoard
         playerList={playerList as any}
         isTransparent={isTransparent}
-        gameBoard={gameBoard as unknown as Tile[]}
+        gameBoard={gameBoard}
         settings={settings as Settings}
       />
     </Suspense>

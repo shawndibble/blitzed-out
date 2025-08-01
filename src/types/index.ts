@@ -139,18 +139,10 @@ export interface ActionEntry {
 }
 
 // Game board types
-export interface Tile {
-  id?: number;
-  title: string;
-  description: string;
-  index?: number;
-  [key: string]: unknown;
-}
-
 export interface BoardType {
   id: number;
   title: string;
-  tiles?: Tile[];
+  tiles?: any[];
   isActive: number;
   tags?: string[];
   gameMode?: string;

@@ -9,7 +9,8 @@
 interface Logger {
   debug: (message: string, ...args: unknown[]) => void;
   info: (message: string, ...args: unknown[]) => void;
-  warn: (message: string, ...args: unknown[]) => void;
+  warn: (message: string, isCritical?: boolean, ...args: unknown[]) => void;
+  critical: (message: string, ...args: unknown[]) => void;
   error: (message: string, ...args: unknown[]) => void;
 }
 
@@ -28,11 +29,19 @@ const createLogger = (): Logger => ({
     }
   },
 
-  warn: (message: string, ...args: unknown[]) => {
-    if (!isProduction) {
-      console.warn(`[WARN] ${message}`, ...args);
+  warn: (message: string, isCritical?: boolean, ...args: unknown[]) => {
+    // Handle the case where isCritical is passed as a boolean
+    const actualArgs = typeof isCritical === 'boolean' ? args : [isCritical, ...args];
+    const critical = typeof isCritical === 'boolean' ? isCritical : false;
+
+    if (!isProduction || critical) {
+      console.warn(`[WARN] ${message}`, ...actualArgs);
     }
-    // In production, warnings are suppressed unless they're critical
+  },
+
+  critical: (message: string, ...args: unknown[]) => {
+    // Always log critical warnings, even in production
+    console.warn(`[CRITICAL] ${message}`, ...args);
   },
 
   error: (message: string, ...args: unknown[]) => {

@@ -3,7 +3,7 @@ import './styles.css';
 import { useEffect, useMemo, useRef } from 'react';
 
 import TextAvatar from '@/components/TextAvatar';
-import { Tile } from '@/types';
+import { Tile } from '@/types/gameBoard';
 import { Player } from '@/types/player';
 
 export default function GameTile({
@@ -16,7 +16,7 @@ export default function GameTile({
 }: Tile) {
   const playerIndicators = useMemo(
     () =>
-      (players as Player[]).map((p: Player) => (
+      players.map((p: Player) => (
         <TextAvatar key={p.uid} displayName={p.displayName || ''} uid={p.uid || ''} />
       )),
     [players]

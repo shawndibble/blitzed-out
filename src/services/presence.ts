@@ -1,6 +1,7 @@
 import { get, getDatabase, onDisconnect, onValue, ref, remove, set } from 'firebase/database';
 
 import { getAuth } from 'firebase/auth';
+import { logger } from '@/utils/logger';
 
 // ========================
 // USER PRESENCE SYSTEM
@@ -37,7 +38,7 @@ export async function setMyPresence({
   const user = auth.currentUser;
 
   if (!user) {
-    console.warn('Cannot set presence: user not authenticated');
+    logger.warn('Cannot set presence: user not authenticated');
     return;
   }
 
@@ -45,7 +46,11 @@ export async function setMyPresence({
 
   try {
     // Remove from old room if different
-    if (oldRoom && oldRoom !== newRoom && oldRoom.toUpperCase() !== newRoom.toUpperCase()) {
+    // Normalize room values to handle null/undefined cases
+    const normalizedOldRoom = (oldRoom || '').toUpperCase();
+    const normalizedNewRoom = (newRoom || '').toUpperCase();
+
+    if (oldRoom && normalizedOldRoom !== normalizedNewRoom) {
       const oldUserRef = ref(realtimeDb, `users/${user.uid}`);
       await remove(oldUserRef);
     }
@@ -55,7 +60,7 @@ export async function setMyPresence({
     const presenceData: UserPresenceData = {
       displayName: newDisplayName || 'Unknown',
       isAnonymous: user.isAnonymous,
-      room: newRoom.toUpperCase(),
+      room: normalizedNewRoom,
       joinedAt: Date.now(),
       lastSeen: Date.now(), // This will be managed by server timestamp
     };
@@ -67,7 +72,7 @@ export async function setMyPresence({
       onDisconnect(userRef).remove();
     }
   } catch (error) {
-    console.error('Error setting user presence:', error);
+    logger.error('Error setting user presence:', error);
   }
 }
 
@@ -104,10 +109,10 @@ export async function updatePresenceHeartbeat(): Promise<void> {
     } else {
       // If no existing data, skip the heartbeat update
       // This prevents errors when user data doesn't exist yet
-      console.warn('No existing user data found, skipping heartbeat update');
+      logger.warn('No existing user data found, skipping heartbeat update');
     }
   } catch (error) {
-    console.error('Error updating presence heartbeat:', error);
+    logger.error('Error updating presence heartbeat:', error);
   }
 }
 
@@ -127,9 +132,8 @@ export async function removeMyPresence(): Promise<void> {
 
   try {
     await remove(userRef);
-    console.log('User presence removed');
   } catch (error) {
-    console.error('Error removing user presence:', error);
+    logger.error('Error removing user presence:', error);
   }
 }
 
@@ -162,14 +166,15 @@ export function getUsersInRoom(
 
     if (snapshot.exists()) {
       const usersData = snapshot.val();
-      Object.entries(usersData).forEach(([uid, userData]: [string, any]) => {
-        if (userData.room === roomId.toUpperCase()) {
+      Object.entries(usersData).forEach(([uid, userData]) => {
+        const typedUserData = userData as UserPresenceData;
+        if (typedUserData.room === roomId.toUpperCase()) {
           users.push({
             uid,
-            displayName: userData.displayName,
-            isAnonymous: userData.isAnonymous,
-            joinedAt: userData.joinedAt,
-            lastSeen: userData.lastSeen,
+            displayName: typedUserData.displayName,
+            isAnonymous: typedUserData.isAnonymous,
+            joinedAt: typedUserData.joinedAt,
+            lastSeen: typedUserData.lastSeen,
           });
         }
       });
@@ -226,14 +231,15 @@ export function getAllOnlineUsers(
 
     if (snapshot.exists()) {
       const usersData = snapshot.val();
-      Object.entries(usersData).forEach(([uid, userData]: [string, any]) => {
+      Object.entries(usersData).forEach(([uid, userData]) => {
+        const typedUserData = userData as UserPresenceData;
         users.push({
           uid,
-          displayName: userData.displayName,
-          isAnonymous: userData.isAnonymous,
-          room: userData.room,
-          joinedAt: userData.joinedAt,
-          lastSeen: userData.lastSeen,
+          displayName: typedUserData.displayName,
+          isAnonymous: typedUserData.isAnonymous,
+          room: typedUserData.room,
+          joinedAt: typedUserData.joinedAt,
+          lastSeen: typedUserData.lastSeen,
         });
       });
     }

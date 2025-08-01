@@ -4,7 +4,7 @@ import { sendMessage } from '@/services/firebase';
 import useAuth from '@/context/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import usePlayerList from './usePlayerList';
-import { Tile } from '@/types/gameBoard';
+import { Tile, TileExport } from '@/types/gameBoard';
 import { useSettings } from '@/stores/settingsStore';
 
 interface RollValue {
@@ -59,20 +59,33 @@ function parseDescription(text: string | undefined, role: string, displayName: s
 export default function usePlayerMove(
   room: string,
   rollValue: RollValue,
-  gameBoard: Tile[] = []
+  gameBoard: TileExport[] = []
 ): PlayerMoveResult {
   const { user } = useAuth();
   const { t } = useTranslation();
   const [settings] = useSettings();
   const playerList = usePlayerList();
   const total = gameBoard.length;
-  const [tile, setTile] = useState<Tile>(gameBoard[0] || {});
+  const convertToTile = (tileExport: TileExport, index: number = 0): Tile => ({
+    id: index,
+    title: tileExport.title || '',
+    description: tileExport.description,
+    index,
+    players: [],
+    current: null,
+    isTransparent: false,
+    className: '',
+  });
+
+  const [tile, setTile] = useState<Tile>(
+    gameBoard[0] ? convertToTile(gameBoard[0], 0) : convertToTile({ title: '', description: '' }, 0)
+  );
   const lastTile = total - 1;
 
   const lastRollTimeRef = useRef<number>(0);
 
   const handleTextOutput = useCallback(
-    (newTile: Tile, rollNumber: number, newLocation: number, preMessage?: string): void => {
+    (newTile: TileExport, rollNumber: number, newLocation: number, preMessage?: string): void => {
       if (!newTile) {
         console.error('Tile not found at location:', newLocation);
         return;
@@ -148,7 +161,7 @@ export default function usePlayerMove(
     // Make sure we have a valid location and tile
     if (newLocation >= 0 && newLocation < gameBoard.length && gameBoard[newLocation]) {
       // update our tile that we will return.
-      setTile({ ...gameBoard[newLocation], index: newLocation });
+      setTile(convertToTile(gameBoard[newLocation], newLocation));
 
       // send our message.
       handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);

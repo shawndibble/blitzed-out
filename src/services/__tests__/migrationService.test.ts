@@ -33,14 +33,12 @@ vi.mock('@/stores/customTiles', () => ({
 
 // Mock dynamic imports for action files
 vi.mock('@/locales/en/online/bating.json', () => ({
-  default: {
-    label: 'Bating',
-    type: 'solo',
-    actions: {
-      None: [],
-      Masturbation: ['30 slow strokes.', 'Jerk as fast as you can for 30 seconds.'],
-      Edging: ['Bring yourself to the edge.', 'Get to the edge twice.'],
-    },
+  label: 'Bating',
+  type: 'solo',
+  actions: {
+    None: [],
+    Masturbation: ['30 slow strokes.', 'Jerk as fast as you can for 30 seconds.'],
+    Edging: ['Bring yourself to the edge.', 'Get to the edge twice.'],
   },
 }));
 

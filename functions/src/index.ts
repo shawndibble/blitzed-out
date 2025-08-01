@@ -7,7 +7,7 @@ import { ListUsersResult, UserRecord } from 'firebase-admin/auth';
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),
-    databaseURL: 'https://blitzed-out-default-rtdb.firebaseio.com/',
+    databaseURL: process.env.DATABASE_URL || 'https://blitzed-out-default-rtdb.firebaseio.com/',
   });
 }
 
@@ -40,13 +40,32 @@ export const cleanupStaleUsers = functions.pubsub.schedule('every 5 minutes').on
 
     functions.logger.info(`Found ${userCount} stale users to clean up`);
 
-    // Remove all stale users in a batch update
-    const updates: { [key: string]: null } = {};
-    userIds.forEach((userId) => {
-      updates[`users/${userId}`] = null;
-    });
+    // For large user counts or when atomicity is critical, use transaction
+    if (userCount > 100) {
+      functions.logger.info(
+        `Large user count (${userCount}), using transaction for atomic deletion`
+      );
 
-    await db.ref().update(updates);
+      await db.ref().transaction((currentData) => {
+        if (currentData && currentData.users) {
+          // Remove stale users from the current data
+          userIds.forEach((userId) => {
+            if (currentData.users[userId]) {
+              delete currentData.users[userId];
+            }
+          });
+        }
+        return currentData;
+      });
+    } else {
+      // For smaller user counts, use efficient batch update
+      const updates: { [key: string]: null } = {};
+      userIds.forEach((userId) => {
+        updates[`users/${userId}`] = null;
+      });
+
+      await db.ref().update(updates);
+    }
 
     functions.logger.info(`Successfully cleaned up ${userCount} stale users`);
     return null;
@@ -105,7 +124,8 @@ export const validateUserPresence = functions.database
  */
 export const manualCleanupStaleUsers = functions.https.onCall(async (data, context) => {
   // Only allow authenticated admin users to call this in production
-  if (process.env.NODE_ENV === 'production' && (!context.auth || !context.auth.token.admin)) {
+  const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true';
+  if (!isEmulator && (!context.auth || !context.auth.token.admin)) {
     throw new functions.https.HttpsError(
       'permission-denied',
       'Only admin users can trigger manual cleanup'

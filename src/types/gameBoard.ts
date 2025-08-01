@@ -24,7 +24,7 @@ export interface Tile {
 
 export type TileExport = Pick<Tile, 'title' | 'description'>;
 
-export type GameBoard = Tile[];
+export type GameBoard = TileExport[];
 
 export interface GameBoardResult {
   settingsBoardUpdated?: boolean;

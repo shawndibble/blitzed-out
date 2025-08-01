@@ -120,7 +120,7 @@ export const handleChange = (
     newSelectedActions[key] = {
       ...(newSelectedActions[key] || {}),
       type: action,
-      level: typeof value === 'number' ? value : Number(value) || 0,
+      level: typeof value === 'number' ? value : isNaN(Number(value)) ? 0 : Number(value),
       ...(!!variation && { variation }),
     };
     return { ...prevData, selectedActions: newSelectedActions };

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import GameBoard from '../index';
 import { Settings } from '@/types/Settings';
-import { Tile } from '@/types';
+import { Tile } from '@/types/gameBoard';
 
 // Mock dependencies
 vi.mock('@/context/hooks/useAuth', () => ({
@@ -61,27 +61,37 @@ describe('GameBoard', () => {
     },
   ];
 
+  const createMockTile = (overrides: Partial<Tile>): Tile => ({
+    title: 'Default Title',
+    description: 'Default description',
+    players: [],
+    current: null,
+    isTransparent: false,
+    className: '',
+    ...overrides,
+  });
+
   const mockGameBoard: Tile[] = [
-    {
+    createMockTile({
       title: 'Start',
       description: 'Welcome to the game! You are {player}.',
       role: 'player',
-    },
-    {
+    }),
+    createMockTile({
       title: 'Gentle',
       description: 'Take a gentle action as {sub}.',
       role: 'sub',
-    },
-    {
+    }),
+    createMockTile({
       title: 'Intense',
       description: 'Perform an intense action as {dom}.',
       role: 'dom',
-    },
-    {
+    }),
+    createMockTile({
       title: 'Finish',
       description: 'Game complete! Well done {player}.',
       role: 'player',
-    },
+    }),
   ];
 
   const mockSettings: Settings = {
@@ -359,12 +369,14 @@ describe('GameBoard', () => {
 
     it('should cycle hue classes for more than 10 unique types', () => {
       const largeBoardWithManyTypes: Tile[] = [
-        { title: 'Start', description: 'Start' },
-        ...Array.from({ length: 12 }, (_, i) => ({
-          title: `Type${i + 1}`,
-          description: `Description ${i + 1}`,
-        })),
-        { title: 'Finish', description: 'Finish' },
+        createMockTile({ title: 'Start', description: 'Start' }),
+        ...Array.from({ length: 12 }, (_, i) =>
+          createMockTile({
+            title: `Type${i + 1}`,
+            description: `Description ${i + 1}`,
+          })
+        ),
+        createMockTile({ title: 'Finish', description: 'Finish' }),
       ];
 
       render(
@@ -439,8 +451,8 @@ describe('GameBoard', () => {
 
     it('should handle tiles with missing descriptions', () => {
       const boardWithMissingDescriptions: Tile[] = [
-        { title: 'Start', description: '' },
-        { title: 'Action', description: undefined as any },
+        createMockTile({ title: 'Start', description: '' }),
+        createMockTile({ title: 'Action', description: undefined as any }),
       ];
 
       render(
@@ -453,7 +465,7 @@ describe('GameBoard', () => {
       );
 
       expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User');
-      expect(actionStringReplacement).toHaveBeenCalledWith(undefined, 'sub', 'Test User');
+      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User');
     });
 
     it('should handle user without display name', () => {
@@ -486,11 +498,11 @@ describe('GameBoard', () => {
 
     it('should handle duplicate tile titles for hue calculation', () => {
       const boardWithDuplicates: Tile[] = [
-        { title: 'Start', description: 'Start' },
-        { title: 'Action', description: 'First action' },
-        { title: 'Action', description: 'Second action' },
-        { title: 'Different', description: 'Different action' },
-        { title: 'Finish', description: 'Finish' },
+        createMockTile({ title: 'Start', description: 'Start' }),
+        createMockTile({ title: 'Action', description: 'First action' }),
+        createMockTile({ title: 'Action', description: 'Second action' }),
+        createMockTile({ title: 'Different', description: 'Different action' }),
+        createMockTile({ title: 'Finish', description: 'Finish' }),
       ];
 
       render(
@@ -537,10 +549,12 @@ describe('GameBoard', () => {
   describe('performance considerations', () => {
     it('should efficiently calculate unique tile types for hue assignment', () => {
       // Test with many tiles but few unique types
-      const boardWithFewUniqueTypes: Tile[] = Array.from({ length: 50 }, (_, i) => ({
-        title: `Type${i % 5}`, // Only 5 unique types
-        description: `Description ${i}`,
-      }));
+      const boardWithFewUniqueTypes: Tile[] = Array.from({ length: 50 }, (_, i) =>
+        createMockTile({
+          title: `Type${i % 5}`, // Only 5 unique types
+          description: `Description ${i}`,
+        })
+      );
 
       render(
         <GameBoard

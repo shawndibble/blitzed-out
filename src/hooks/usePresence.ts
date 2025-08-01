@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { setMyPresence, startPresenceHeartbeat, removeMyPresence } from '@/services/presence';
 import useAuth from '@/context/hooks/useAuth';
 
@@ -9,7 +9,6 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
 
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [currentDisplayName, setCurrentDisplayName] = useState<string>(displayName || '');
-  const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Set up presence when room or display name changes
   useEffect(() => {
@@ -51,11 +50,6 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
-      // Clean up heartbeat interval
-      if (heartbeatIntervalRef.current) {
-        clearInterval(heartbeatIntervalRef.current);
-      }
-
       window.removeEventListener('beforeunload', handleBeforeUnload);
       removeMyPresence();
     };

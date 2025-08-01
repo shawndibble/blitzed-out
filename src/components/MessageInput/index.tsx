@@ -8,6 +8,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Camera, CameraResultType, Photo as CameraPhoto } from '@capacitor/camera';
 import ToastAlert from '@/components/ToastAlert';
 import { Photo } from '@mui/icons-material';
+import { logger } from '@/utils/logger';
 
 interface MessageInputProps {
   room: string;
@@ -51,7 +52,7 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
         resultType: CameraResultType.Base64,
       });
     } catch (error) {
-      console.warn('Failed to take photo:', error);
+      logger.warn('Failed to take photo:', false, error);
       return '';
     }
 

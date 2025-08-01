@@ -4,7 +4,6 @@ import { orderedMessagesByType } from '@/helpers/messages';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useUserListStore } from '@/stores/userListStore';
-// import { User } from '@/types'; // Unused import
 import { Message } from '@/types/Message';
 
 interface Player {
@@ -59,7 +58,7 @@ export default function usePlayerList(): Player[] {
           location: userInfo.gameState?.location || location,
           isFinished: userInfo.gameState?.isFinished || isFinished,
           status: userInfo.status || 'away',
-          lastActivity: userInfo.lastSeen || new Date(),
+          lastActivity: userInfo.lastSeen || new Date(0),
         };
       })
       .sort((a, b) => {
