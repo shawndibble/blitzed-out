@@ -4,13 +4,13 @@
     <!-- Defer Google Analytics to not block initial render -->
     <script>
       // Load Google Analytics when browser is idle
-      window.addEventListener('load', function() {
-        var loadAnalytics = function() {
+      window.addEventListener('load', function () {
+        var loadAnalytics = function () {
           var script = document.createElement('script');
           script.async = true;
           script.src = 'https://www.googletagmanager.com/gtag/js?id=G-93YN1YMTQ7';
           document.head.appendChild(script);
-          
+
           window.dataLayer = window.dataLayer || [];
           function gtag() {
             dataLayer.push(arguments);
@@ -18,9 +18,9 @@
           gtag('js', new Date());
           gtag('config', 'G-93YN1YMTQ7');
         };
-        
+
         if ('requestIdleCallback' in window) {
-          requestIdleCallback(loadAnalytics, {timeout: 1000});
+          requestIdleCallback(loadAnalytics, { timeout: 1000 });
         } else {
           setTimeout(loadAnalytics, 1000);
         }
@@ -35,7 +35,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <!-- CSP with relaxed policies for mobile development testing -->
-    <meta http-equiv="Content-Security-Policy" content="
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
       default-src 'self' http://10.0.2.2:* http://localhost:* ws://localhost:* ws://10.0.2.2:*; 
       script-src 'self' 'unsafe-inline' 'unsafe-eval' 
         http://10.0.2.2:* http://localhost:*
@@ -78,7 +80,8 @@
       base-uri 'self'; 
       form-action 'self' 
         https://accounts.google.com;
-    " />
+    "
+    />
     <meta
       name="description"
       content="An adult multiplayer sex board game for those with various kinks. Great for solo play, couples or parties. Tailored primarily for men, but accessible by women too."
@@ -89,10 +92,10 @@
     <!-- Optimized preconnects - only for critical resources -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
-    
+
     <!-- DNS prefetch for fonts - less critical -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    
+
     <!-- Let Vite handle module preloading automatically via build optimization -->
 
     <!-- Defer Material Icons to avoid blocking critical path -->
@@ -121,14 +124,33 @@
         line-gap-override: 0%;
         size-adjust: 100%;
       }
-      
+
       /* Critical app shell */
-      html, body {
+      html,
+      body {
         margin: 0;
         padding: 0;
         height: 100%;
-        font-family: 'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        font-family:
+          'Roboto Fallback',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          system-ui,
+          sans-serif;
         line-height: 1.5;
+        color: #fff;
+      }
+
+      /* Fixed background gradient that adapts to system theme */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
         background: linear-gradient(
           135deg,
           rgba(15, 23, 42, 0.9) 0%,
@@ -138,14 +160,39 @@
           rgba(15, 23, 42, 0.9) 80%,
           rgba(2, 6, 23, 0.95) 100%
         );
-        color: #fff;
       }
-      
+
+      /* Light mode gradient for users with light color scheme preference */
+      @media (prefers-color-scheme: light) {
+        body::before {
+          background: linear-gradient(
+            135deg,
+            rgba(248, 250, 252, 0.9) 0%,
+            rgba(226, 232, 240, 0.95) 20%,
+            rgba(203, 213, 225, 0.9) 40%,
+            rgba(226, 232, 240, 0.95) 60%,
+            rgba(248, 250, 252, 0.9) 80%,
+            rgba(255, 255, 255, 0.95) 100%
+          );
+        }
+        
+        body {
+          color: #1e293b;
+        }
+      }
+
       #root {
         height: 100%;
         color: #fff;
       }
       
+      /* Light mode root element */
+      @media (prefers-color-scheme: light) {
+        #root {
+          color: #1e293b;
+        }
+      }
+
       /* Instant loading screen - shows immediately */
       .instant-loading {
         position: fixed;
@@ -167,9 +214,30 @@
           rgba(2, 6, 23, 0.95) 100%
         );
         z-index: 9999;
-        font-family: 'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        font-family:
+          'Roboto Fallback',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          system-ui,
+          sans-serif;
       }
       
+      /* Light mode loading screen */
+      @media (prefers-color-scheme: light) {
+        .instant-loading {
+          background: linear-gradient(
+            135deg,
+            rgba(248, 250, 252, 0.9) 0%,
+            rgba(226, 232, 240, 0.95) 20%,
+            rgba(203, 213, 225, 0.9) 40%,
+            rgba(226, 232, 240, 0.95) 60%,
+            rgba(248, 250, 252, 0.9) 80%,
+            rgba(255, 255, 255, 0.95) 100%
+          );
+        }
+      }
+
       /* Loading spinner - matches MUI CircularProgress styling */
       .loading-spinner {
         width: 60px;
@@ -180,21 +248,43 @@
         animation: spin 1.4s linear infinite;
         margin-bottom: 24px;
       }
-      
+
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
-      
+
       .loading-text {
         font-size: 1.25rem;
         font-weight: 600;
         letter-spacing: -0.025em;
         color: #0abde3;
         text-align: center;
-        font-family: 'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        font-family:
+          'Roboto Fallback',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          system-ui,
+          sans-serif;
       }
       
+      /* Light mode loading elements */
+      @media (prefers-color-scheme: light) {
+        .loading-spinner {
+          border: 4px solid rgba(0, 0, 0, 0.1);
+          border-left: 4px solid #0369a1;
+        }
+        
+        .loading-text {
+          color: #0369a1;
+        }
+      }
+
       /* Hide when React takes over */
       .instant-loading.hidden {
         display: none;
@@ -230,28 +320,28 @@
     <!-- Defer Cast SDK to not block initial render -->
     <script>
       // Load Cast SDK after page is interactive
-      window.addEventListener('load', function() {
-        setTimeout(function() {
+      window.addEventListener('load', function () {
+        setTimeout(function () {
           var script = document.createElement('script');
           script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
           document.head.appendChild(script);
         }, 2000);
       });
     </script>
-    <script type="module" crossorigin src="/assets/index-CIqJBtU-.js"></script>
-    <link rel="modulepreload" crossorigin href="/js/chunk-5s7Iwv9W.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-DvBFtIbM.js">
+    <script type="module" crossorigin src="/assets/index-CTtAlb83.js"></script>
+    <link rel="modulepreload" crossorigin href="/js/chunk-7OQk-BoX.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-DJZJtpVs.js">
     <link rel="stylesheet" crossorigin href="/assets/style-Cz82xMQi.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    
+
     <!-- Instant loading screen - shows immediately before any JS loads -->
     <div id="instant-loading" class="instant-loading">
       <div class="loading-spinner"></div>
       <div class="loading-text">Loading...</div>
     </div>
-    
+
     <div id="root"></div>
     <!--
       This HTML file is a template.
