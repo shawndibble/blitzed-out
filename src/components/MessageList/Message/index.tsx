@@ -10,7 +10,7 @@ import DeleteMessageButton from '@/components/DeleteMessageButton';
 import GameOverDialog from '@/components/GameOverDialog';
 import { Link } from 'react-router-dom';
 import Markdown from 'react-markdown';
-import { Message as MessageType } from '@/types/Message';
+import { Message as MessageType, Base64ImageObject } from '@/types/Message';
 import { Share } from '@mui/icons-material';
 import TextAvatar from '@/components/TextAvatar';
 import clsx from 'clsx';
@@ -21,6 +21,18 @@ import remarkGemoji from 'remark-gemoji';
 import remarkGfm from 'remark-gfm';
 
 const MILLISECONDS_IN_A_MINUTE = 60000;
+
+// Type guard to check if image is a Base64ImageObject
+function isBase64ImageObject(image: unknown): image is Base64ImageObject {
+  return (
+    typeof image === 'object' &&
+    image !== null &&
+    'base64String' in image &&
+    'format' in image &&
+    typeof (image as Base64ImageObject).base64String === 'string' &&
+    typeof (image as Base64ImageObject).format === 'string'
+  );
+}
 
 interface MessageProps {
   message: MessageType;
@@ -105,9 +117,8 @@ export default function Message({
     if (type !== 'media') return false;
 
     // Handle image object with base64String and format properties
-    if (image && typeof image === 'object' && 'base64String' in image && 'format' in image) {
-      const imageObj = image as { base64String: string; format: string };
-      return `data:image/${imageObj.format};base64,${imageObj.base64String}`;
+    if (isBase64ImageObject(image)) {
+      return `data:image/${image.format};base64,${image.base64String}`;
     }
 
     // Handle direct string URLs (fallback for old format or Firebase URLs)
