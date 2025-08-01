@@ -28,6 +28,16 @@ body {
   overflow-x: hidden;
 }
 
+/* Loading spinner animation for AppSkeleton */
+@keyframes app-skeleton-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 /* Dark theme body (default) */
 body:not(.theme-light) {
   background-color: #0f172a;
