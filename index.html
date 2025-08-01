@@ -3,9 +3,9 @@
   <head>
     <!-- Defer Google Analytics to not block initial render -->
     <script>
-      // Load Google Analytics after page is interactive
+      // Load Google Analytics when browser is idle
       window.addEventListener('load', function() {
-        setTimeout(function() {
+        var loadAnalytics = function() {
           var script = document.createElement('script');
           script.async = true;
           script.src = 'https://www.googletagmanager.com/gtag/js?id=G-93YN1YMTQ7';
@@ -17,7 +17,13 @@
           }
           gtag('js', new Date());
           gtag('config', 'G-93YN1YMTQ7');
-        }, 1000);
+        };
+        
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadAnalytics, {timeout: 1000});
+        } else {
+          setTimeout(loadAnalytics, 1000);
+        }
       });
     </script>
 
@@ -87,14 +93,7 @@
     <!-- DNS prefetch for fonts - less critical -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     
-    <!-- Preload critical chunks for faster initial load -->
-    <link rel="modulepreload" href="/src/index.jsx" />
-    <link rel="modulepreload" href="/src/App.tsx" />
-    <link rel="modulepreload" href="/src/context/auth.tsx" />
-    
-    <!-- Prefetch likely next resources -->
-    <link rel="prefetch" href="/src/views/Room/index.tsx" />
-    <link rel="prefetch" href="/src/components/AppSkeleton/index.tsx" />
+    <!-- Let Vite handle module preloading automatically via build optimization -->
 
     <!-- Defer Material Icons to avoid blocking critical path -->
     <link

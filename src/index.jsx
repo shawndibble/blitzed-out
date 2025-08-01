@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { AuthProvider } from './context/auth';
+import { MinimalAuthProvider } from './context/minimalAuth';
 import './index.css';
 
 // Defer non-critical imports to reduce initial bundle size
@@ -21,12 +21,18 @@ const loadNonCriticalResources = () => {
     console.error
   );
 
-  // Load additional font weights after page is interactive
-  setTimeout(() => {
+  // Load additional font weights after page is fully loaded
+  const loadAdditionalFontWeights = () => {
     Promise.all([import('@fontsource/roboto/300.css'), import('@fontsource/roboto/700.css')]).catch(
       console.error
     );
-  }, 1000);
+  };
+
+  if (document.readyState === 'complete') {
+    loadAdditionalFontWeights();
+  } else {
+    window.addEventListener('load', loadAdditionalFontWeights, { once: true });
+  }
 };
 
 // Schedule non-critical resource loading
@@ -57,11 +63,11 @@ const hideInstantLoading = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <AuthProvider>
+    <MinimalAuthProvider>
       <React.Suspense fallback={null}>
         <App />
       </React.Suspense>
-    </AuthProvider>
+    </MinimalAuthProvider>
   </React.StrictMode>
 );
 

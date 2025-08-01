@@ -37,7 +37,7 @@ export default function AppSkeleton() {
           border: '4px solid rgba(255, 255, 255, 0.1)',
           borderLeft: '4px solid #0abde3',
           borderRadius: '50%',
-          animation: 'spin 1.4s linear infinite',
+          animation: 'app-skeleton-spin 1.4s linear infinite',
           marginBottom: '24px',
         }}
       />
@@ -56,14 +56,6 @@ export default function AppSkeleton() {
       >
         Loading...
       </div>
-
-      {/* CSS animation styles */}
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }
