@@ -23,7 +23,6 @@
   "setup": "Configuración del juego",
   "setupSubtitle": "Ingresa tu nombre y comienza la sesión",
   "buildGame": "Construir Juego",
-  "access": "Acceder",
   "setupWizard": "Asist. Config.",
   "settings": "Config. Juego",
   "appSettings": "Config. App",

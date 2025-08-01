@@ -23,7 +23,6 @@
   "setup": "गेम सेटअप",
   "setupSubtitle": "अपना नाम दर्ज करें और सत्र शुरू करें",
   "buildGame": "गेम बनाएं",
-  "access": "गेम एक्सेस",
   "setupWizard": "सेटअप विज़ार्ड",
   "settings": "सेटिंग्स",
   "appSettings": "ऐप सेटिंग्स",
@@ -346,7 +345,8 @@
   "labels": {
     "exportFormat": "प्रारूप",
     "exportScope": "क्षेत्र",
-    "importStrategy": "रणनीति"
+    "importStrategy": "रणनीति",
+    "selectGroup": "समूह चुनें"
   },
   "placeholder": {
     "cleanFormat": "यहां साफ़ v2.0 प्रारूप JSON डेटा पेस्ट करें...",
