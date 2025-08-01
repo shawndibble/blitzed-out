@@ -79,7 +79,7 @@ export default function GameBoard({
   });
 
   return (
-    <div className="gameboard">
+    <div className="gameboard transparent-scrollbar">
       <ol>{gameTiles}</ol>
     </div>
   );
