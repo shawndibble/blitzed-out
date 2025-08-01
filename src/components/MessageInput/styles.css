@@ -7,12 +7,48 @@
   padding: 16.5px 5px;
 }
 
+/* Default transparency for custom backgrounds (dark mode) */
 .transparent .MuiOutlinedInput-root {
   background-color: rgba(75, 75, 75, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .transparent input::placeholder,
 .transparent,
 .transparent input {
   color: white;
+}
+
+/* Light mode transparency for custom backgrounds */
+body.theme-light .transparent .MuiOutlinedInput-root {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px) brightness(1.1);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+body.theme-light .transparent input::placeholder,
+body.theme-light .transparent,
+body.theme-light .transparent input {
+  color: black;
+}
+
+/* Lighter transparency for default gradient backgrounds */
+.default-background ~ * .transparent .MuiOutlinedInput-root {
+  background-color: rgba(75, 75, 75, 0.3);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Light mode with default gradient backgrounds */
+body.theme-light .default-background ~ * .transparent .MuiOutlinedInput-root {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .default-background ~ * .transparent input::placeholder,
+body.theme-light .default-background ~ * .transparent,
+body.theme-light .default-background ~ * .transparent input {
+  color: rgba(0, 0, 0, 0.87);
 }

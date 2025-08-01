@@ -47,16 +47,16 @@ body.theme-light .gameboard li {
 }
 
 .gameboard li.gray-tiles {
-  background-color: rgba(75, 75, 75, 0.75);
-  border-color: rgba(75, 75, 75, 0.75);
-  --connector-color: rgba(75, 75, 75, 0.75);
+  background-color: rgba(75, 75, 75, 0.8);
+  border-color: rgba(75, 75, 75, 0.8);
+  --connector-color: rgba(75, 75, 75, 0.8);
 }
 
 /* Light theme gray tiles */
 body.theme-light .gameboard li.gray-tiles {
-  background-color: rgba(200, 200, 200, 0.6);
-  border-color: rgba(200, 200, 200, 0.6);
-  --connector-color: rgba(200, 200, 200, 0.6);
+  background-color: rgba(200, 200, 200, 0.8);
+  border-color: rgba(200, 200, 200, 0.8);
+  --connector-color: rgba(200, 200, 200, 0.8);
   color: #3a3a3a;
   text-shadow: none;
 }

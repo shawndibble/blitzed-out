@@ -1,32 +1,34 @@
+import './styles.css';
+
 import { Box, CircularProgress } from '@mui/material';
-import clsx from 'clsx';
+import { Suspense, lazy, useCallback, useState } from 'react';
+import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+
+import GameSettingsDialog from '@/components/GameSettingsDialog';
 import MessageInput from '@/components/MessageInput';
+import Navigation from '@/views/Navigation';
 import PopupMessage from '@/components/PopupMessage';
+import RollButton from './RollButton';
+import { RollValueState } from '@/types/index';
 import RoomBackground from '@/components/RoomBackground';
+import { Settings } from '@/types/Settings';
 import ToastAlert from '@/components/ToastAlert';
 import TurnIndicator from '@/components/TurnIndicator';
-import GameSettingsDialog from '@/components/GameSettingsDialog';
-import { useSettings } from '@/stores/settingsStore';
+import clsx from 'clsx';
+import { getActiveBoard } from '@/stores/gameBoard';
+import getBackgroundSource from '@/services/getBackgroundSource';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useParams } from 'react-router-dom';
 import usePlayerMove from '@/hooks/usePlayerMove';
 import usePresence from '@/hooks/usePresence';
 import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
+import { useSettings } from '@/stores/settingsStore';
+import { useTranslation } from 'react-i18next';
 import useUrlImport from '@/hooks/useUrlImport';
-import useBreakpoint from '@/hooks/useBreakpoint';
-import { useParams } from 'react-router-dom';
-import getBackgroundSource from '@/services/getBackgroundSource';
-import Navigation from '@/views/Navigation';
-import RollButton from './RollButton';
-import './styles.css';
-import { useState, useCallback, lazy, Suspense } from 'react';
 
 // Lazy load mobile-specific component
 const BottomTabs = lazy(() => import('./BottomTabs'));
-import { useTranslation } from 'react-i18next';
-import { getActiveBoard } from '@/stores/gameBoard';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
-import { Settings } from '@/types/Settings';
-import { RollValueState } from '@/types/index';
 
 // Lazy load heavy components
 const MessageList = lazy(() => import('@/components/MessageList'));
@@ -86,7 +88,9 @@ export default function Room() {
   const defaultRoomBackgroundClass = !hasCustomBackground ? 'default-room-background' : '';
 
   const { background, roomBackground } = settings;
-  const isTransparent = (!isPublicRoom(room) && roomBackground !== 'app') || background !== 'color';
+  const isTransparent =
+    (!isPublicRoom(room) && roomBackground !== 'app') ||
+    !['color', 'gray'].includes(background || '');
 
   const GameBoardComponent = (
     <Suspense fallback={<ComponentLoader />}>
