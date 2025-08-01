@@ -1,1 +1,0 @@
-import{j as o,I as t}from"./chunk-B0_VBOvR.js";import{x as r}from"./chunk-DjfcUfB3.js";function e({close:s}){return o.jsx(t,{"aria-label":"close",onClick:s,sx:{position:"absolute",right:8,top:8},children:o.jsx(r,{})})}export{e as C};
