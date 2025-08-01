@@ -55,6 +55,24 @@ describe('Translation Usage Validation', () => {
       })
       .join('\n');
 
+    // Define dynamic keys used by various components
+    // These keys are constructed dynamically and may not appear in static searches
+    const dynamicKeys = [
+      // AppBoolSwitch component - uses field names directly as translation keys
+      'playerDialog',
+      'othersDialog',
+      'mySound',
+      'otherSound',
+      'chatSound',
+      'readRoll',
+      'hideBoardActions',
+      'advancedSettings',
+      // ThemeToggle component - uses theme.${mode} pattern
+      'theme.light',
+      'theme.dark',
+      'theme.system',
+    ];
+
     // Find unused translation keys
     const unusedKeys: string[] = [];
     const usedKeys: string[] = [];
@@ -72,8 +90,15 @@ describe('Translation Usage Validation', () => {
 
       const isUsed = patterns.some((pattern) => pattern.test(sourceContent));
 
-      if (isUsed) {
+      // Check if this is a dynamic key used by various components
+      const isDynamicKey = dynamicKeys.includes(key);
+
+      if (isUsed || isDynamicKey) {
         usedKeys.push(key);
+        if (isDynamicKey && !isUsed) {
+          const component = key.startsWith('theme.') ? 'ThemeToggle' : 'AppBoolSwitch';
+          console.log(`📝 Dynamic key detected: ${key} (used by ${component})`);
+        }
       } else {
         unusedKeys.push(key);
       }
@@ -142,6 +167,8 @@ describe('Translation Usage Validation', () => {
         // Find i18nKey="key" patterns - more precise regex
         const i18nPatterns =
           content.match(/i18nKey\s*=\s*['"`]([a-zA-Z][a-zA-Z0-9._]*?)['"`]/g) || [];
+        // Skip yesLabel patterns for missing key detection since they use dynamic variables
+        // We handle these in the unused key detection instead
 
         [...tPatterns, ...i18nPatterns].forEach((match) => {
           // Extract the key from the match
