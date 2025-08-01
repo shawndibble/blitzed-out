@@ -44,7 +44,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   );
 
   const initialLoad = useRef(true);
-  const { actionsList } = useUnifiedActionList(formData.gameMode);
+  const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(formData.gameMode);
 
   // on load, we want to guess what page we should be on.
   useEffect(() => {
@@ -119,6 +119,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
             nextStep={nextStep}
             prevStep={prevStep}
             actionsList={actionsList}
+            isActionsLoading={isActionsLoading}
           />
         );
       case 4:

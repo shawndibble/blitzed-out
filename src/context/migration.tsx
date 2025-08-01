@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   checkMigrationHealth,
@@ -97,6 +97,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
   const [isHealthy, setIsHealthy] = useState(false);
   const [recoveryAttempted, setRecoveryAttempted] = useState(false);
   const [languageChangeTimeout, setLanguageChangeTimeout] = useState<NodeJS.Timeout | null>(null);
+  const migrationAttemptedRef = useRef<Set<string>>(new Set());
 
   // Lazy load migration service to avoid blocking main bundle
   const loadMigrationService = useCallback(async () => {
@@ -110,6 +111,20 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
       try {
         const migrationService = await loadMigrationService();
         const currentLocale = i18n.language || 'en';
+
+        // First check if migration status is corrupted
+        const integrityOk = await migrationService.verifyMigrationIntegrity(
+          currentLocale,
+          'online'
+        );
+
+        if (!integrityOk) {
+          migrationService.fixMigrationStatusCorruption();
+          // After reset, re-check status
+          setCurrentLanguageMigrated(false);
+          setIsMigrationCompleted(false);
+          return;
+        }
 
         const isCurrentMigrated =
           migrationService.isCurrentLanguageMigrationCompleted(currentLocale);
@@ -261,8 +276,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
           } else {
             setError('Migration failed but app will continue with existing data');
           }
-        } catch (error) {
-          console.error(`Failed to migrate language ${newLanguage}:`, error);
+        } catch {
           setError('Migration failed but app will continue with existing data');
         } finally {
           setIsMigrationInProgress(false);
@@ -327,12 +341,44 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
         const isCompleted = migrationService.isCurrentLanguageMigrationCompleted(currentLocale);
         setCurrentLanguageMigrated(isCompleted);
 
-        // If current language hasn't been migrated, trigger it
-        if (!isCompleted && !isMigrationInProgress) {
-          handleLanguageChange(currentLocale);
+        // SAFETY: Only trigger migration if not already in progress, not completed, and not attempted
+        const migrationKey = `${currentLocale}-initial`;
+        if (
+          !isCompleted &&
+          !isMigrationInProgress &&
+          !migrationAttemptedRef.current.has(migrationKey)
+        ) {
+          // Mark as attempted to prevent React Strict Mode double-invoke
+          migrationAttemptedRef.current.add(migrationKey);
+
+          // Set in progress IMMEDIATELY to prevent infinite loop
+          setIsMigrationInProgress(true);
+
+          // Use setTimeout to break out of the current execution cycle
+          setTimeout(async () => {
+            try {
+              const migrationService = await loadMigrationService();
+              const success = await migrationService.ensureLanguageMigrated(currentLocale);
+
+              if (success) {
+                setCurrentLanguageMigrated(true);
+                setIsMigrationCompleted(migrationService.isMigrationCompleted());
+              } else {
+                setError('Migration failed but app will continue with existing data');
+                // Remove from attempted set if failed so it can be retried
+                migrationAttemptedRef.current.delete(migrationKey);
+              }
+            } catch {
+              setError('Migration failed but app will continue with existing data');
+              // Remove from attempted set if failed so it can be retried
+              migrationAttemptedRef.current.delete(migrationKey);
+            } finally {
+              setIsMigrationInProgress(false);
+            }
+          }, 0);
         }
-      } catch (error) {
-        console.warn('Failed to check initial migration status:', error);
+      } catch {
+        setIsMigrationInProgress(false);
       }
     };
 

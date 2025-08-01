@@ -31,6 +31,7 @@
   "schedule": "Calendrier",
   "roomSettings": "Paramètres de la salle",
   "loading": "Chargement",
+  "loadingAvailableActions": "Chargement des actions disponibles...",
   "clearStorage": "Si cela fait plus de 2 secondes. Essayez de vider votre cache local.",
   "displayName": "Nom du joueur",
   "gameboard": "Plateau",
