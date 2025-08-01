@@ -86,7 +86,7 @@ if (missingVars.length > 0) {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-// Test Firebase connectionconsole.log('Firestore database initialized:', !!db);
+// Firestore database initialized
 
 export async function loginAnonymously(displayName = ''): Promise<User | null> {
   try {

@@ -18,10 +18,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm run lint` - Run ESLint on JS/JSX/TS/TSX files
 - `npm run format` - Format code with Prettier
+- `npm run cleanup:debug` - Check for and fail on debug code (console.log, debugger, etc.)
+- `npm run cleanup:comments` - Check for TODO/FIXME comments that need attention
 
 ### Comprehensive Quality Check
 
-- `npm run check` or `/check` - **Comprehensive verification** that runs TypeScript type checking, ESLint linting (source only), full test suite, and production build verification. This command provides a complete quality gate check before commits or deployments.
+- `npm run check` or `/check` - **Comprehensive verification** that runs TypeScript type checking, ESLint linting (source only), full test suite, debug code cleanup verification, comment cleanup check, and production build verification. This command provides a complete quality gate check before commits or deployments.
+  - Automatically detects and fails on: `console.log`, `console.debug`, `console.warn`, `debugger` statements
+  - Warns about: `TODO`, `FIXME`, `HACK`, `XXX` comments that should be addressed
 
 ### Deployment
 

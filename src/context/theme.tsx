@@ -79,7 +79,7 @@ export function ThemeProvider({ children, defaultMode = 'system' }: ThemeProvide
   useEffect(() => {
     if (themeMode === 'system') {
       // Theme will automatically update due to resolvedThemeMode dependency
-      console.log('System theme preference changed:', prefersDarkMode ? 'dark' : 'light');
+      // System theme preference changed: prefersDarkMode ? 'dark' : 'light'
     }
   }, [prefersDarkMode, themeMode]);
 
