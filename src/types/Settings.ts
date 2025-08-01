@@ -28,6 +28,7 @@ export interface Settings {
     intensity: number;
   }>;
   selectedActions?: Record<string, ActionEntry>;
+  hasSeenRollButton?: boolean;
   [key: string]: any;
 }
 

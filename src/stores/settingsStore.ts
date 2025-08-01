@@ -10,6 +10,7 @@ const defaultSettings: Settings = {
   room: 'PUBLIC',
   background: 'color',
   selectedActions: {},
+  hasSeenRollButton: false,
 };
 
 interface SettingsStore {
