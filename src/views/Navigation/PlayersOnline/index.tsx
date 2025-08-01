@@ -1,16 +1,14 @@
 import CircleIcon from '@mui/icons-material/Circle';
 import { ButtonBase } from '@mui/material';
 import { ReactNode, forwardRef } from 'react';
+import { Player } from '@/types/player';
 
-interface Player {
-  uid: string;
-  displayName: string;
+interface PlayerWithLocation extends Player {
   location?: number;
-  isSelf?: boolean;
 }
 
 interface PlayersOnlineProps {
-  playerList: Player[];
+  playerList: PlayerWithLocation[];
   onClick?: () => void;
   innerRef?: React.Ref<HTMLButtonElement>;
   'aria-label'?: string;

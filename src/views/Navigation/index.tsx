@@ -9,6 +9,7 @@ import CastButton from '@/components/CastButton';
 import ThemeToggle from '@/components/ThemeToggle';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
+import { Player } from '@/types/player';
 
 // Lazy load heavy components
 const Schedule = lazy(() => import('@/views/Schedule'));
@@ -20,16 +21,13 @@ function ComponentLoader() {
   return <CircularProgress size={16} />;
 }
 
-interface Player {
-  uid: string;
-  displayName: string;
+interface PlayerWithLocation extends Player {
   location?: number;
-  isSelf?: boolean;
 }
 
 interface NavigationProps {
   room?: string;
-  playerList?: Player[];
+  playerList?: PlayerWithLocation[];
 }
 
 export default function Navigation({ room, playerList = [] }: NavigationProps): JSX.Element {

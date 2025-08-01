@@ -2,18 +2,16 @@ import { Box, Typography, Popover } from '@mui/material';
 import { useEffect, useRef } from 'react';
 import TextAvatar from '@/components/TextAvatar';
 import { useTranslation } from 'react-i18next';
+import { Player } from '@/types/player';
 
-interface Player {
-  uid: string;
-  displayName: string;
+interface PlayerWithLocation extends Player {
   location?: number;
-  isSelf?: boolean;
 }
 
 interface UserPresenceOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  playerList: Player[];
+  playerList: PlayerWithLocation[];
   anchorEl: HTMLElement | null;
 }
 
