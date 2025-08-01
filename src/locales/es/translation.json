@@ -31,6 +31,7 @@
   "schedule": "Cronograma",
   "roomSettings": "Configuración de la sala",
   "loading": "Cargando",
+  "loadingAvailableActions": "Cargando acciones disponibles...",
   "clearStorage": "Si han pasado más de 2 segundos. Intenta borrar tu caché/almacenamiento local.",
   "displayName": "Nombre de usuario",
   "gameboard": "Tablero",

@@ -1,25 +1,27 @@
-import { useEffect, useState } from 'react';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
   Button,
-  Typography,
+  CircularProgress,
   Divider,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Stack,
+  Typography,
 } from '@mui/material';
-import { ExpandMore, Tune, PlayArrow } from '@mui/icons-material';
+import { ActionEntry, FormData } from '@/types';
+import { ExpandMore, PlayArrow, Tune } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
+import { hasValidSelections, purgedFormData } from './helpers';
+import { useEffect, useState } from 'react';
+
 import ButtonRow from '@/components/ButtonRow';
-import PresetSelector from './PresetSelector';
-import PickConsumptions from './PickConsumptions/index';
 import PickActions from './PickActions';
-import { purgedFormData, hasValidSelections } from './helpers';
-import { isPublicRoom } from '@/helpers/strings';
-import { FormData, ActionEntry } from '@/types';
-import { Settings } from '@/types/Settings';
+import PickConsumptions from './PickConsumptions/index';
 import { PresetConfig } from '@/types/presets';
+import PresetSelector from './PresetSelector';
+import { Settings } from '@/types/Settings';
+import { isPublicRoom } from '@/helpers/strings';
 
 interface ActionsStepProps {
   formData: FormData & Partial<Settings>;
@@ -27,6 +29,7 @@ interface ActionsStepProps {
   nextStep: () => void;
   prevStep: (count?: number) => void;
   actionsList: Record<string, any>;
+  isActionsLoading?: boolean;
 }
 
 export default function ActionsStep({
@@ -35,6 +38,7 @@ export default function ActionsStep({
   nextStep,
   prevStep,
   actionsList,
+  isActionsLoading = false,
 }: ActionsStepProps): JSX.Element {
   const { t } = useTranslation();
   const [selectedPreset, setSelectedPreset] = useState<string>('');
@@ -144,6 +148,41 @@ export default function ActionsStep({
 
   // Check if user has made selections
   const isNextDisabled = !hasValidSelections(formData.selectedActions);
+
+  // Show loading state when actions are still being loaded from migration
+  if (isActionsLoading) {
+    return (
+      <Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: 300,
+            gap: 2,
+          }}
+        >
+          <CircularProgress size={48} />
+          <Typography variant="h6" color="text.secondary">
+            {t('loadingAvailableActions')}
+          </Typography>
+        </Box>
+
+        {/* Navigation buttons - disabled during loading */}
+        <Box sx={{ mt: 4 }}>
+          <ButtonRow>
+            <Button disabled>
+              <Trans i18nKey="previous" />
+            </Button>
+            <Button variant="contained" disabled size="large">
+              <Trans i18nKey="next" />
+            </Button>
+          </ButtonRow>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box>

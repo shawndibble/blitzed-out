@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { isMigrationCompleted, runMigrationIfNeeded } from '../migrationService';
+import {
+  isMigrationCompleted,
+  runMigrationIfNeeded,
+  verifyMigrationIntegrity,
+  fixMigrationStatusCorruption,
+  checkAndHandleVersionChange,
+} from '../migrationService';
 
 // Mock localStorage
 const mockLocalStorage = (() => {
@@ -48,7 +54,8 @@ vi.mock('@/locales/en/translation.json', () => ({
 
 describe('Migration Service', () => {
   const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
-  const MIGRATION_VERSION = '2.1.1';
+  const BACKGROUND_MIGRATION_KEY = 'blitzed-out-background-migration';
+  const MIGRATION_VERSION = '2.1.2';
 
   beforeEach(() => {
     // Set up localStorage mock
@@ -100,7 +107,14 @@ describe('Migration Service', () => {
         completed: true,
         completedAt: new Date().toISOString(),
       };
+      const backgroundStatus = {
+        completedLanguages: ['en', 'es', 'fr', 'zh', 'hi'],
+        inProgress: false,
+        startedAt: new Date(),
+        completedAt: new Date(),
+      };
       mockLocalStorage.setItem(MIGRATION_KEY, JSON.stringify(status));
+      mockLocalStorage.setItem(BACKGROUND_MIGRATION_KEY, JSON.stringify(backgroundStatus));
       expect(isMigrationCompleted()).toBe(true);
     });
   });
@@ -222,6 +236,104 @@ describe('Migration Service', () => {
 
       expect(() => isMigrationCompleted()).not.toThrow();
       expect(isMigrationCompleted()).toBe(false);
+    });
+  });
+
+  describe('verifyMigrationIntegrity', () => {
+    it('should return true when localStorage says not complete', async () => {
+      // No migration status set, so it should return true (no corruption)
+      const result = await verifyMigrationIntegrity('en', 'online');
+      expect(result).toBe(true);
+    });
+
+    it('should return false when localStorage says complete but database is empty', async () => {
+      // Mock getAllAvailableGroups to return empty array (no groups in database)
+      vi.doMock('@/stores/customGroups', () => ({
+        getAllAvailableGroups: vi.fn().mockResolvedValue([]),
+      }));
+
+      // Set up localStorage to claim migration is complete for 'en'
+      const backgroundStatus = {
+        completedLanguages: ['en'],
+        inProgress: false,
+        startedAt: new Date(),
+        completedAt: new Date(),
+      };
+      mockLocalStorage.setItem(BACKGROUND_MIGRATION_KEY, JSON.stringify(backgroundStatus));
+
+      const result = await verifyMigrationIntegrity('en', 'online');
+      expect(result).toBe(false);
+    });
+
+    it('should return true when localStorage and database are consistent', async () => {
+      // Mock getAllAvailableGroups to return some groups (database has data)
+      vi.doMock('@/stores/customGroups', () => ({
+        getAllAvailableGroups: vi.fn().mockResolvedValue([
+          { name: 'group1', label: 'Group 1' },
+          { name: 'group2', label: 'Group 2' },
+        ]),
+      }));
+
+      // Set up localStorage to claim migration is complete for 'en'
+      const backgroundStatus = {
+        completedLanguages: ['en'],
+        inProgress: false,
+        startedAt: new Date(),
+        completedAt: new Date(),
+      };
+      mockLocalStorage.setItem(BACKGROUND_MIGRATION_KEY, JSON.stringify(backgroundStatus));
+
+      const result = await verifyMigrationIntegrity('en', 'online');
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('fixMigrationStatusCorruption', () => {
+    it('should clear localStorage keys', () => {
+      // Set up some localStorage data
+      mockLocalStorage.setItem(MIGRATION_KEY, 'test');
+      mockLocalStorage.setItem(BACKGROUND_MIGRATION_KEY, 'test');
+
+      fixMigrationStatusCorruption();
+
+      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(MIGRATION_KEY);
+      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(BACKGROUND_MIGRATION_KEY);
+    });
+  });
+
+  describe('checkAndHandleVersionChange', () => {
+    it('should return versionChanged false when no migration status exists', () => {
+      const result = checkAndHandleVersionChange();
+      expect(result.versionChanged).toBe(false);
+    });
+
+    it('should return versionChanged true when version is different', () => {
+      const oldStatus = {
+        version: '2.1.1', // Different from current 2.1.2
+        completed: true,
+        completedAt: new Date(),
+      };
+      mockLocalStorage.setItem(MIGRATION_KEY, JSON.stringify(oldStatus));
+
+      const result = checkAndHandleVersionChange();
+      expect(result.versionChanged).toBe(true);
+      expect(result.oldVersion).toBe('2.1.1');
+
+      // Should clear localStorage
+      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(MIGRATION_KEY);
+      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(BACKGROUND_MIGRATION_KEY);
+    });
+
+    it('should return versionChanged false when version matches', () => {
+      const currentStatus = {
+        version: MIGRATION_VERSION, // Same as current
+        completed: true,
+        completedAt: new Date(),
+      };
+      mockLocalStorage.setItem(MIGRATION_KEY, JSON.stringify(currentStatus));
+
+      const result = checkAndHandleVersionChange();
+      expect(result.versionChanged).toBe(false);
     });
   });
 });

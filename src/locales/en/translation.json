@@ -28,6 +28,7 @@
   "schedule": "Schedule",
   "roomSettings": "Room Settings",
   "loading": "Loading",
+  "loadingAvailableActions": "Loading available actions...",
   "clearStorage": "If it has been more than 2 seconds. Try clearing your cache/local storage.",
   "displayName": "Display name",
   "gameboard": "Board",

@@ -13,9 +13,26 @@ import i18n from '@/i18n';
 // Supported languages for migration
 const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'] as const;
 
+// ============================================================================
+// MIGRATION VERSION CONFIGURATION
+// ============================================================================
+//
+// TO FORCE A NEW MIGRATION:
+// 1. Update MIGRATION_VERSION below (e.g., '2.1.1' -> '2.1.2')
+// 2. The system will automatically detect the version change
+// 3. All users will get fresh migration on next app load
+// 4. Previous localStorage data will be cleared automatically
+//
+// VERSION HISTORY:
+// - 2.1.0: Initial migration system
+// - 2.1.1: Fixed import path matching (@/locales vs /src/locales)
+// - 2.1.2: Added corruption detection and auto-recovery
+//
+const MIGRATION_VERSION = '2.1.2';
+// ============================================================================
+
 // Configuration
 const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
-const MIGRATION_VERSION = '2.1.1';
 const BACKGROUND_MIGRATION_KEY = 'blitzed-out-background-migration';
 
 // localStorage-based concurrency control keys for better reliability in hot module reloading environments
@@ -151,10 +168,48 @@ const setBackgroundMigrationInProgress = (inProgress: boolean): void => {
 };
 
 /**
+ * Check if migration version has changed and clear outdated data
+ */
+export const checkAndHandleVersionChange = (): { versionChanged: boolean; oldVersion?: string } => {
+  try {
+    const status = localStorage.getItem(MIGRATION_KEY);
+    if (!status) {
+      return { versionChanged: false };
+    }
+
+    const migrationStatus: MigrationStatus = JSON.parse(status);
+    const oldVersion = migrationStatus.version;
+    const versionChanged = oldVersion !== MIGRATION_VERSION;
+
+    if (versionChanged) {
+      // Clear all migration-related localStorage
+      localStorage.removeItem(MIGRATION_KEY);
+      localStorage.removeItem(BACKGROUND_MIGRATION_KEY);
+      localStorage.removeItem(MIGRATION_IN_PROGRESS_KEY);
+      localStorage.removeItem(CURRENT_LANGUAGE_MIGRATION_KEY);
+      localStorage.removeItem(BACKGROUND_MIGRATION_IN_PROGRESS_KEY);
+
+      return { versionChanged: true, oldVersion };
+    }
+
+    return { versionChanged: false, oldVersion };
+  } catch (error) {
+    console.error('Error checking migration version:', error);
+    return { versionChanged: false };
+  }
+};
+
+/**
  * Check if migration has been completed
  */
 export const isMigrationCompleted = (): boolean => {
   try {
+    // First check for version changes
+    const { versionChanged } = checkAndHandleVersionChange();
+    if (versionChanged) {
+      return false; // Force fresh migration after version change
+    }
+
     const status = localStorage.getItem(MIGRATION_KEY);
     if (!status) return false;
 
@@ -171,7 +226,13 @@ export const isMigrationCompleted = (): boolean => {
  */
 export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => {
   try {
-    // First check background migration status for specific language
+    // First check for version changes - this will clear outdated data automatically
+    const { versionChanged } = checkAndHandleVersionChange();
+    if (versionChanged) {
+      return false; // Force fresh migration after version change
+    }
+
+    // Check background migration status for specific language
     const bgStatus = localStorage.getItem(BACKGROUND_MIGRATION_KEY);
     let backgroundStatus: BackgroundMigrationStatus | null = null;
 
@@ -206,6 +267,51 @@ export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => 
   } catch (error) {
     console.error('Error checking current language migration status:', error);
     return false;
+  }
+};
+
+/**
+ * Verify that migration status matches actual database content
+ * This detects corrupted migration status where localStorage says complete but Dexie is empty
+ */
+export const verifyMigrationIntegrity = async (
+  locale: string,
+  gameMode: string = 'online'
+): Promise<boolean> => {
+  try {
+    // Check if localStorage claims migration is complete
+    const localStorageComplete = isCurrentLanguageMigrationCompleted(locale);
+
+    if (!localStorageComplete) {
+      // If localStorage says not complete, that's fine - migration will run
+      return true;
+    }
+
+    // If localStorage says complete, verify database actually has data
+    const { getAllAvailableGroups } = await import('@/stores/customGroups');
+    const groups = await getAllAvailableGroups(locale, gameMode);
+
+    // If localStorage says complete but database is empty, we have corruption
+    if (localStorageComplete && groups.length === 0) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Failed to verify migration integrity:', error);
+    return false;
+  }
+};
+
+/**
+ * Fix corrupted migration status by clearing localStorage
+ */
+export const fixMigrationStatusCorruption = (): void => {
+  try {
+    localStorage.removeItem(MIGRATION_KEY);
+    localStorage.removeItem(BACKGROUND_MIGRATION_KEY);
+  } catch (error) {
+    console.error('Failed to fix migration status corruption:', error);
   }
 };
 
@@ -444,11 +550,20 @@ const getActionGroupNames = async (locale: string, gameMode: string): Promise<st
   const allActionFiles = import.meta.glob('@/locales/*/*/*.json');
 
   const existingGroups: string[] = [];
-  const targetPath = `/src/locales/${locale}/${gameMode}/`;
+  const targetPath = `@/locales/${locale}/${gameMode}/`;
 
   // Filter for files matching the current locale and game mode
   for (const filePath of Object.keys(allActionFiles)) {
-    if (filePath.includes(targetPath)) {
+    // Check both @/ prefixed paths and resolved paths
+    const pathVariants = [
+      targetPath, // @/locales/en/online/
+      targetPath.replace('@/', '/src/'), // /src/locales/en/online/
+      `/${locale}/${gameMode}/`, // /en/online/
+      `locales/${locale}/${gameMode}/`, // locales/en/online/
+    ];
+
+    const pathMatches = pathVariants.some((variant) => filePath.includes(variant));
+    if (pathMatches) {
       // Extract the group name from the file path
       const fileName = filePath.split('/').pop();
       if (fileName?.endsWith('.json')) {
@@ -469,7 +584,8 @@ const getActionGroupNames = async (locale: string, gameMode: string): Promise<st
     }
   }
 
-  return existingGroups.sort(); // Sort for consistent ordering
+  const sortedGroups = existingGroups.sort(); // Sort for consistent ordering
+  return sortedGroups;
 };
 
 /**
@@ -480,6 +596,7 @@ const importGroupsForLocaleAndGameMode = async (
   gameMode: string
 ): Promise<{ groupsImported: number; tilesImported: number }> => {
   const groupNames = await getActionGroupNames(locale, gameMode);
+
   let groupsImported = 0;
   let tilesImported = 0;
 
@@ -941,11 +1058,38 @@ export const resetMigrationStatus = (): void => {
   try {
     localStorage.removeItem(MIGRATION_KEY);
     localStorage.removeItem(BACKGROUND_MIGRATION_KEY);
-    // Migration status reset
+    localStorage.removeItem(MIGRATION_IN_PROGRESS_KEY);
+    localStorage.removeItem(CURRENT_LANGUAGE_MIGRATION_KEY);
+    localStorage.removeItem(BACKGROUND_MIGRATION_IN_PROGRESS_KEY);
   } catch (error) {
     console.error('Error resetting migration status:', error);
   }
 };
+
+/**
+ * Developer utility: Force a fresh migration by clearing all data
+ * This is equivalent to bumping the migration version
+ */
+export const forceFreshMigration = async (): Promise<void> => {
+  try {
+    // Clear all localStorage
+    resetMigrationStatus();
+
+    // Optionally clear Dexie database too for a completely fresh start
+    const db = await import('@/stores/store');
+    await db.default.customGroups.clear();
+    await db.default.customTiles.clear();
+  } catch (error) {
+    console.error('Error forcing fresh migration:', error);
+  }
+};
+
+// Developer utilities: Expose migration tools globally in development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  (window as any).forceFreshMigration = forceFreshMigration;
+  (window as any).resetMigrationStatus = resetMigrationStatus;
+  (window as any).getMigrationStatus = getMigrationStatus;
+}
 
 /**
  * Clean up any potential duplicates that may have been created during concurrent migrations
