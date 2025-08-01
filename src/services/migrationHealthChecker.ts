@@ -18,7 +18,7 @@ export interface MigrationHealthReport {
 interface MigrationHealthState {
   [localeGameMode: string]: {
     failureCount: number;
-    lastValidation: Date;
+    lastValidation: string; // ISO string for JSON serialization
     consecutiveFailures: number;
   };
 }
@@ -55,7 +55,7 @@ const updateHealthState = (
     state[key] = {
       ...{
         failureCount: 0,
-        lastValidation: new Date(),
+        lastValidation: new Date().toISOString(),
         consecutiveFailures: 0,
       },
       ...state[key],
@@ -81,11 +81,11 @@ export const checkMigrationHealth = async (
   const healthState = getHealthState();
   const storedState = healthState[key] || {
     failureCount: 0,
-    lastValidation: new Date(0),
+    lastValidation: new Date(0).toISOString(),
     consecutiveFailures: 0,
   };
 
-  // Ensure lastValidation is a Date object
+  // Ensure lastValidation is a Date object for calculations
   const currentState = {
     ...storedState,
     lastValidation: new Date(storedState.lastValidation),
@@ -130,7 +130,7 @@ export const checkMigrationHealth = async (
       // Reset failure counters on success
       updateHealthState(targetLocale, gameMode, {
         consecutiveFailures: 0,
-        lastValidation: new Date(),
+        lastValidation: new Date().toISOString(),
       });
     } else {
       // Data is incomplete, check migration status
@@ -144,7 +144,7 @@ export const checkMigrationHealth = async (
       updateHealthState(targetLocale, gameMode, {
         failureCount: newFailureCount,
         consecutiveFailures: newConsecutiveFailures,
-        lastValidation: new Date(),
+        lastValidation: new Date().toISOString(),
       });
 
       report.failureCount = newFailureCount;
@@ -166,7 +166,7 @@ export const checkMigrationHealth = async (
     updateHealthState(targetLocale, gameMode, {
       failureCount: newFailureCount,
       consecutiveFailures: newConsecutiveFailures,
-      lastValidation: new Date(),
+      lastValidation: new Date().toISOString(),
     });
 
     report.failureCount = newFailureCount;
@@ -241,7 +241,7 @@ export const recoverFromFailedMigration = async (
       updateHealthState(targetLocale, gameMode, {
         failureCount: 0,
         consecutiveFailures: 0,
-        lastValidation: new Date(0), // Force revalidation
+        lastValidation: new Date(0).toISOString(), // Force revalidation
       });
     } catch (error) {
       console.warn('Failed to update health state:', error);
@@ -336,8 +336,8 @@ export const getMigrationHealthSummary = async (): Promise<string> => {
   }
 };
 
-// Expose functions to window for debugging
-if (typeof window !== 'undefined') {
+// Expose functions to window for debugging (development only)
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   (window as any).migrationHealth = {
     check: checkMigrationHealth,
     recover: recoverFromFailedMigration,
