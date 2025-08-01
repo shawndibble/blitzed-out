@@ -1,25 +1,10 @@
 import { t } from 'i18next';
-import { useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
 import { orderedMessagesByType } from '@/helpers/messages';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
-import useUserList from '@/context/hooks/useUserList';
-import { User } from '@/types';
+import { useUserListStore } from '@/stores/userListStore';
 import { Message } from '@/types/Message';
-
-interface UserEntry {
-  lastActive: number;
-  displayName: string;
-  [key: string]: any;
-}
-
-interface UserData {
-  [key: string]: UserEntry;
-}
-
-interface OnlineUsers {
-  [uid: string]: UserData;
-}
 
 interface Player {
   displayName: string;
@@ -27,6 +12,8 @@ interface Player {
   isSelf: boolean;
   location: number;
   isFinished: boolean;
+  status: 'active' | 'idle' | 'away';
+  lastActivity: Date;
 }
 
 function filteredGameMessages(messages: Message[]): Message[] {
@@ -34,107 +21,55 @@ function filteredGameMessages(messages: Message[]): Message[] {
   return [...new Map<string, Message>(filteredMessages.map((m: Message) => [m.uid, m])).values()];
 }
 
-// see if the realtime db connection is recent.
-function isRecentlyConnected(userObj: UserData): boolean {
-  const FIVE_MINUTES = 5 * 60 * 1000;
-  if (!userObj || Object.keys(userObj).length === 0) return false;
-
-  const entries = Object.values(userObj);
-  if (entries.length === 0) return false;
-
-  const mostRecentEntry = entries.sort((a, b) => b.lastActive - a.lastActive)[0];
-  return mostRecentEntry && Date.now() - mostRecentEntry.lastActive < FIVE_MINUTES;
-}
-
-// Check if the user sent a message recently.
-function isRecentlyActive(messages: Message[], onlineUid: string): boolean {
-  if (!messages || messages.length === 0 || !onlineUid) return false;
-
-  const TEN_MINUTES = 10 * 60 * 1000;
-  const lastActivity = messages
-    .sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis())
-    .find((m) => m.uid === onlineUid)
-    ?.timestamp.toMillis();
-  return lastActivity ? Date.now() - lastActivity < TEN_MINUTES : false;
-}
-
 export default function usePlayerList(): Player[] {
   const { user } = useAuth();
   const { messages, isLoading } = useMessages();
-  const { onlineUsers } = useUserList();
+  const { onlineUsers } = useUserListStore();
 
-  const getCurrentPlayers = useCallback(
-    (
-      onlineUsers: OnlineUsers | null,
-      user: User | null,
-      messages: Message[],
-      isLoading: boolean
-    ): Player[] => {
-      if (isLoading || !onlineUsers || !user) return [];
-      const uniqueGameActions = filteredGameMessages(messages);
+  const players = useMemo(() => {
+    if (isLoading || !user) return [];
 
-      return Object.entries(onlineUsers)
-        .filter(([onlineUid, data]) => {
-          // realtime database will remove users when they close their browser,
-          // but we need to handle inactive users and those with connection problems.
-          // For those who have been left behind:
-          // * Check if the user recently connected in the last 5 minutes, but haven't sent a message
-          // * Check if the user has done anything in the last 10 minutes.
-          // * Check if the user is himself (should always list)
-          const isSelf = onlineUid === user?.uid;
-          return isRecentlyConnected(data) || isRecentlyActive(messages, onlineUid) || isSelf;
-        })
-        .map(([onlineUid, data]) => {
-          if (!data || Object.keys(data).length === 0) {
-            return {
-              displayName: 'Unknown',
-              uid: onlineUid,
-              isSelf: onlineUid === user?.uid,
-              location: 0,
-              isFinished: false,
-            };
+    const uniqueGameActions = filteredGameMessages(messages);
+
+    return Object.values(onlineUsers)
+      .map((userInfo) => {
+        // Extract game location from messages
+        const userGameMessage = uniqueGameActions.find(
+          (message) => message.uid === userInfo.uid
+        )?.text;
+
+        const locationRegEx = /(?:#)[\d]*(?=:)/gs;
+        let currentLocation = 0;
+
+        if (userGameMessage && userGameMessage.match(locationRegEx)) {
+          const match = userGameMessage.match(locationRegEx);
+          if (match && match[0]) {
+            currentLocation = Number(match[0].replace('#', ''));
           }
+        }
 
-          const entries = Object.values(data);
-          const mostRecentEntry =
-            entries.length > 0
-              ? entries.sort((a, b) => b.lastActive - a.lastActive)[0]
-              : { displayName: 'Unknown' };
+        const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
+        const isFinished = Boolean(userGameMessage?.includes(t('finish')));
 
-          const { displayName = 'Unknown' } = mostRecentEntry;
-
-          const userGameMessage = uniqueGameActions.find(
-            (message) => message.uid === onlineUid
-          )?.text;
-          const locationRegEx = /(?:#)[\d]*(?=:)/gs;
-          let currentLocation = 0;
-
-          if (userGameMessage && userGameMessage.match(locationRegEx)) {
-            const match = userGameMessage.match(locationRegEx);
-            if (match && match[0]) {
-              currentLocation = Number(match[0].replace('#', ''));
-            }
-          }
-
-          const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
-          const isFinished = Boolean(userGameMessage?.includes(t('finish')));
-
-          return {
-            displayName,
-            uid: onlineUid,
-            isSelf: onlineUid === user?.uid,
-            location,
-            isFinished, // only the last tile has multiple percent values
-          };
-        });
-    },
-    []
-  );
-
-  const players = useMemo(
-    () => getCurrentPlayers(onlineUsers, user, [...messages], isLoading),
-    [getCurrentPlayers, onlineUsers, user, messages, isLoading]
-  );
+        return {
+          displayName: userInfo.displayName || 'Unknown',
+          uid: userInfo.uid,
+          isSelf: userInfo.uid === user.uid,
+          location: userInfo.gameState?.location || location,
+          isFinished: userInfo.gameState?.isFinished || isFinished,
+          status: userInfo.status || 'away',
+          lastActivity: userInfo.lastSeen || new Date(0),
+        };
+      })
+      .sort((a, b) => {
+        // Sort by: self first, then active status, then by name
+        if (a.isSelf) return -1;
+        if (b.isSelf) return 1;
+        if (a.status === 'active' && b.status !== 'active') return -1;
+        if (b.status === 'active' && a.status !== 'active') return 1;
+        return a.displayName.localeCompare(b.displayName);
+      });
+  }, [user, onlineUsers, messages, isLoading]);
 
   return players;
 }

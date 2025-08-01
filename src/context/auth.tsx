@@ -17,6 +17,7 @@ import {
   stopPeriodicSync,
 } from '@/services/syncService';
 import { User } from '@/types';
+import { getErrorMessage } from '@/types/errors';
 
 export interface SyncStatus {
   syncing: boolean;
@@ -46,7 +47,7 @@ export const AuthContext = React.createContext<AuthContextType | undefined>(unde
 
 interface AuthProviderProps {
   children: ReactNode;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 function AuthProvider(props: AuthProviderProps): JSX.Element {
@@ -97,8 +98,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       const loggedInUser = await loginAnonymously(displayName);
       setUser(loggedInUser);
       return loggedInUser;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
       throw err;
     }
   }
@@ -111,10 +113,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
       // Sync will happen via onAuthStateChanged
       return loggedInUser;
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -129,10 +130,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
       // Sync will happen via onAuthStateChanged
       return loggedInUser;
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -145,10 +145,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       const registeredUser = await registerWithEmail(email, password, displayName);
       setUser(registeredUser);
       return registeredUser;
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);
@@ -159,10 +158,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     try {
       await resetPassword(email);
       return true;
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
       throw err;
     }
   }
@@ -195,10 +193,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       const updatedUser = await updateDisplayName(displayName);
       setUser(updatedUser);
       return updatedUser;
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
       throw err;
     }
   }
@@ -215,10 +212,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
       await logout();
       setUser(null);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
       throw err;
     }
   }, [user, performSync, setUser, setError]);
@@ -283,7 +279,11 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
         };
 
         if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-          (window as any).requestIdleCallback(deferSync, { timeout: 5000 });
+          (
+            window as Window & {
+              requestIdleCallback: (callback: () => void, options?: { timeout: number }) => void;
+            }
+          ).requestIdleCallback(deferSync, { timeout: 5000 });
         } else {
           // Fallback for browsers without requestIdleCallback
           setTimeout(deferSync, 100);
@@ -297,7 +297,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     });
 
     // Make auth context available globally for middleware
-    (window as any).authContext = { user: null };
+    (window as Window & { authContext?: { user: User | null } }).authContext = { user: null };
 
     // Clean up function
     return () => {
@@ -309,14 +309,15 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       if (stopPeriodicSync) {
         stopPeriodicSync();
       }
-      (window as any).authContext = undefined;
+      (window as Window & { authContext?: { user: User | null } }).authContext = undefined;
     };
   }, []);
 
   // Update global auth context when user changes
   useEffect(() => {
-    if ((window as any).authContext) {
-      (window as any).authContext.user = user;
+    const globalWindow = window as Window & { authContext?: { user: User | null } };
+    if (globalWindow.authContext) {
+      globalWindow.authContext.user = user;
     }
   }, [user]);
   const value = useMemo(

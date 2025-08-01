@@ -50,7 +50,8 @@ const isMigrationInProgress = (): boolean => {
       return false;
     }
     return data.inProgress;
-  } catch {
+  } catch (error) {
+    console.warn('Failed to check migration in progress status:', error);
     return false;
   }
 };
@@ -84,7 +85,8 @@ const isLanguageMigrationInProgress = (locale: string): boolean => {
       return false;
     }
     return data.locales && data.locales.includes(locale);
-  } catch {
+  } catch (error) {
+    console.warn('Failed to check language migration in progress status:', error);
     return false;
   }
 };
@@ -124,7 +126,8 @@ const isBackgroundMigrationInProgress = (): boolean => {
       return false;
     }
     return data.inProgress;
-  } catch {
+  } catch (error) {
+    console.warn('Failed to check background migration in progress status:', error);
     return false;
   }
 };
@@ -383,8 +386,9 @@ const importActionFile = async (
     }
 
     return { customGroup, customTiles };
-  } catch {
+  } catch (error) {
     // Failed to import action file - skip silently
+    console.debug('Failed to import action file:', error);
     return null;
   }
 };

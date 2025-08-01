@@ -37,7 +37,10 @@ export interface YesNoSwitchProps {
 export interface GridItemProps {
   children: React.ReactNode;
   sm?: number;
-  [key: string]: any;
+  xs?: number;
+  md?: number;
+  lg?: number;
+  xl?: number;
 }
 
 export interface InvisibleAccordionGridProps {
@@ -45,11 +48,20 @@ export interface InvisibleAccordionGridProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
   defaultExpanded?: boolean;
-  [key: string]: any;
+  className?: string;
+  id?: string;
 }
 
 export interface MessageProps {
-  message: any; // Replace with specific message type when you have the structure
+  message: {
+    id: string;
+    text: string;
+    type: string;
+    uid: string;
+    displayName: string;
+    timestamp: unknown;
+    [key: string]: unknown;
+  };
   isOwnMessage: boolean;
   isTransparent: boolean;
   currentGameBoardSize: number;
@@ -106,7 +118,7 @@ export interface LocalStorageHookReturn<T> {
 
 // Form data types
 export interface FormData {
-  [key: string]: any;
+  [key: string]: unknown;
   gameMode: GameMode;
   isNaked?: boolean;
   isAppend?: boolean;
@@ -123,26 +135,18 @@ export interface ActionEntry {
   type: string;
   level: number;
   variation?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Game board types
-export interface Tile {
-  id?: number;
-  title: string;
-  description: string;
-  index?: number;
-  [key: string]: any;
-}
-
 export interface BoardType {
   id: number;
   title: string;
-  tiles?: Tile[];
+  tiles?: any[];
   isActive: number;
   tags?: string[];
   gameMode?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Alert state type

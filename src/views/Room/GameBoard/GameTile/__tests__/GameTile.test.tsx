@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import GameTile from '../index';
-import { Tile } from '@/types';
+import { Tile } from '@/types/gameBoard';
 import { Player } from '@/types/player';
 
 // Mock dependencies
@@ -28,13 +28,6 @@ describe('GameTile', () => {
       isFinished: false,
     },
   ];
-
-  const mockCurrentPlayer: Player = {
-    uid: 'currentPlayer',
-    displayName: 'Current Player',
-    isSelf: false,
-    isFinished: false,
-  };
 
   const baseTileProps: Tile = {
     title: 'Test Tile',
@@ -95,7 +88,7 @@ describe('GameTile', () => {
 
   describe('current player handling', () => {
     it('should apply pulse animation when current player is present', () => {
-      const propsWithCurrent = { ...baseTileProps, current: mockCurrentPlayer };
+      const propsWithCurrent = { ...baseTileProps, current: mockPlayers[0] };
       render(<GameTile {...propsWithCurrent} />);
 
       const listItem = screen.getByRole('listitem');
@@ -103,7 +96,7 @@ describe('GameTile', () => {
     });
 
     it('should scroll into view when current player is present', () => {
-      const propsWithCurrent = { ...baseTileProps, current: mockCurrentPlayer };
+      const propsWithCurrent = { ...baseTileProps, current: mockPlayers[0] };
       render(<GameTile {...propsWithCurrent} />);
 
       expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
@@ -162,7 +155,7 @@ describe('GameTile', () => {
     it('should combine multiple classes correctly', () => {
       const propsWithMultiple = {
         ...baseTileProps,
-        current: mockCurrentPlayer,
+        current: mockPlayers[0],
         isTransparent: true,
         className: 'custom-class',
       };
@@ -194,13 +187,12 @@ describe('GameTile', () => {
 
   describe('avatar group limits', () => {
     it('should handle max 4 avatars as specified in AvatarGroup', () => {
-      const manyPlayers: { uid: string; displayName: string }[] = Array.from(
-        { length: 10 },
-        (_, i) => ({
-          uid: `player${i + 1}`,
-          displayName: `Player ${i + 1}`,
-        })
-      );
+      const manyPlayers: Player[] = Array.from({ length: 10 }, (_, i) => ({
+        uid: `player${i + 1}`,
+        displayName: `Player ${i + 1}`,
+        isSelf: false,
+        isFinished: false,
+      }));
 
       const propsWithManyPlayers = { ...baseTileProps, players: manyPlayers };
       render(<GameTile {...propsWithManyPlayers} />);
@@ -337,7 +329,7 @@ describe('GameTile', () => {
 
       expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
 
-      rerender(<GameTile {...baseTileProps} current={mockCurrentPlayer} />);
+      rerender(<GameTile {...baseTileProps} current={mockPlayers[0]} />);
 
       expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
         behavior: 'smooth',
@@ -347,13 +339,12 @@ describe('GameTile', () => {
 
   describe('performance', () => {
     it('should render efficiently with many players', () => {
-      const manyPlayers: { uid: string; displayName: string }[] = Array.from(
-        { length: 100 },
-        (_, i) => ({
-          uid: `player${i}`,
-          displayName: `Player ${i}`,
-        })
-      );
+      const manyPlayers: Player[] = Array.from({ length: 100 }, (_, i) => ({
+        uid: `player${i}`,
+        displayName: `Player ${i}`,
+        isSelf: false,
+        isFinished: false,
+      }));
 
       render(<GameTile {...baseTileProps} players={manyPlayers} />);
 

@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { upsertBoard } from '@/stores/gameBoard';
+import { logger } from '@/utils/logger';
 
 interface Settings {
   [key: string]: any;
@@ -34,7 +35,8 @@ export default function useUrlImport(
     try {
       const gameBoard = JSON.parse(gameBoardString);
       return Array.isArray(gameBoard) ? gameBoard : null;
-    } catch {
+    } catch (error) {
+      logger.warn('Failed to parse game board JSON:', false, error);
       return null;
     }
   }, []);
@@ -42,7 +44,8 @@ export default function useUrlImport(
   const parseSettings = useCallback((settingsString?: string): Settings => {
     try {
       return settingsString ? JSON.parse(settingsString) : {};
-    } catch {
+    } catch (error) {
+      logger.warn('Failed to parse settings JSON:', false, error);
       return {};
     }
   }, []);

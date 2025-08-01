@@ -8,6 +8,16 @@ import { User } from '@/types';
 import { TileExport } from '@/types/gameBoard';
 import { getCustomGroupByName } from '@/stores/customGroups';
 
+/**
+ * Type guard to check if an object has a valid role property
+ * @param obj - The object to check
+ * @param role - The role key to look for
+ * @returns true if obj is an object and has the role property
+ */
+function isValidRole(obj: unknown, role: unknown): obj is Record<string, unknown> {
+  return obj !== null && typeof obj === 'object' && typeof role === 'string' && role in obj;
+}
+
 interface ActionsList {
   [key: string]: {
     label: string;
@@ -77,7 +87,9 @@ export async function getSettingsMessage(
 
       if (!isOnlineMode(settings.gameMode) && !variation) {
         // if we have a role from the translation files, use them first.
-        const roleText = val[actualRole] ?? t(actualRole);
+        const roleText = isValidRole(val, actualRole)
+          ? (val[actualRole as string] as string)
+          : t(actualRole as string);
         message += ` (${roleText})`;
       }
       message += '\r\n';

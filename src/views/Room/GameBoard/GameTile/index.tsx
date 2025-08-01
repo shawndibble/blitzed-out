@@ -3,7 +3,7 @@ import './styles.css';
 import { useEffect, useMemo, useRef } from 'react';
 
 import TextAvatar from '@/components/TextAvatar';
-import { Tile } from '@/types';
+import { Tile } from '@/types/gameBoard';
 import { Player } from '@/types/player';
 
 export default function GameTile({

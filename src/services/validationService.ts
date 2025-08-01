@@ -2,6 +2,7 @@ import { ValidationResult, CustomGroupBase, CustomGroupIntensity } from '@/types
 import { CustomTile } from '@/types/customTiles';
 import { isGroupNameUnique, getCustomGroupByName } from '@/stores/customGroups';
 import { t } from 'i18next';
+import { logger } from '@/utils/logger';
 
 /**
  * Validation service for custom groups and tiles
@@ -233,8 +234,13 @@ export const validateCustomGroup = async (
           `A group with the name "${group.name}" already exists for this locale and game mode`
         );
       }
-    } catch {
+    } catch (error) {
       warnings.push('Could not verify group name uniqueness');
+      logger.warn(
+        'Failed to check group name uniqueness:',
+        false,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
     }
   }
 

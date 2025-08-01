@@ -232,8 +232,9 @@ export async function importCleanData(
     let importData: CleanExportData;
     try {
       importData = JSON.parse(importDataString);
-    } catch {
+    } catch (error) {
       result.errors.push('Invalid JSON format');
+      console.warn('Failed to parse import data JSON:', error);
       return result;
     }
 
