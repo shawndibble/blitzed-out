@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  checkMigrationHealth,
+  recoverFromFailedMigration,
+} from '@/services/migrationHealthChecker';
 
 /**
  * Context value interface for migration state management.
@@ -14,10 +18,16 @@ interface MigrationContextValue {
   currentLanguageMigrated: boolean;
   /** Any error that occurred during migration (non-blocking) */
   error: string | null;
+  /** Whether the migration system is healthy and data is complete */
+  isHealthy: boolean;
+  /** Whether automatic recovery has been attempted */
+  recoveryAttempted: boolean;
   /** Trigger migration for the current language */
   triggerMigration: () => Promise<void>;
   /** Ensure a specific language is migrated */
   ensureLanguageMigrated: (locale?: string) => Promise<boolean>;
+  /** Force recovery from failed migration */
+  forceRecovery: () => Promise<void>;
 }
 
 const MigrationContext = createContext<MigrationContextValue | undefined>(undefined);
@@ -84,6 +94,8 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
   const [currentLanguageMigrated, setCurrentLanguageMigrated] = useState(false);
   const [isMigrationCompleted, setIsMigrationCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isHealthy, setIsHealthy] = useState(false);
+  const [recoveryAttempted, setRecoveryAttempted] = useState(false);
   const [languageChangeTimeout, setLanguageChangeTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Lazy load migration service to avoid blocking main bundle
@@ -92,26 +104,87 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
     return migrationService;
   }, []);
 
-  // Check migration status on mount
+  // Check migration status and health on mount
   useEffect(() => {
     const checkMigrationStatus = async () => {
       try {
         const migrationService = await loadMigrationService();
         const currentLocale = i18n.language || 'en';
 
-        setCurrentLanguageMigrated(
-          migrationService.isCurrentLanguageMigrationCompleted(currentLocale)
-        );
-        setIsMigrationCompleted(migrationService.isMigrationCompleted());
+        const isCurrentMigrated =
+          migrationService.isCurrentLanguageMigrationCompleted(currentLocale);
+        const isAllMigrated = migrationService.isMigrationCompleted();
+
+        setCurrentLanguageMigrated(isCurrentMigrated);
+        setIsMigrationCompleted(isAllMigrated);
+
+        // Perform health check if migration appears complete but we want to verify data integrity
+        if (isCurrentMigrated) {
+          const healthReport = await checkMigrationHealth(currentLocale, 'online');
+          setIsHealthy(healthReport.isHealthy);
+
+          // If migration claims to be complete but health check fails, attempt recovery
+          if (!healthReport.isHealthy && healthReport.requiresRecovery && !recoveryAttempted) {
+            setRecoveryAttempted(true);
+            const recovered = await recoverFromFailedMigration(currentLocale, 'online');
+
+            if (recovered) {
+              // Trigger a fresh migration attempt after recovery
+              setCurrentLanguageMigrated(false);
+              setError(null);
+            } else {
+              setError('Migration recovery failed. Some features may not work correctly.');
+            }
+          }
+        }
       } catch (error) {
         console.warn('Failed to check migration status:', error);
         setError('Failed to check migration status');
+        setIsHealthy(false);
       }
     };
 
     // Only check status after i18n is initialized
     if (i18n.language && i18n.language !== 'undefined') {
       checkMigrationStatus();
+    }
+  }, [i18n.language, loadMigrationService, recoveryAttempted]);
+
+  const forceRecovery = useCallback(async () => {
+    const currentLocale = i18n.language || 'en';
+
+    try {
+      setIsMigrationInProgress(true);
+      setError(null);
+
+      const recovered = await recoverFromFailedMigration(currentLocale, 'online');
+
+      if (recovered) {
+        setRecoveryAttempted(true);
+        setCurrentLanguageMigrated(false);
+        setIsHealthy(false);
+
+        // Trigger fresh migration after recovery
+        const migrationService = await loadMigrationService();
+        const success = await migrationService.runMigrationIfNeeded();
+
+        if (success) {
+          await migrationService.cleanupDuplicatesIfNeeded();
+          setCurrentLanguageMigrated(true);
+          setIsMigrationCompleted(migrationService.isMigrationCompleted());
+
+          // Re-check health after successful migration
+          const healthReport = await checkMigrationHealth(currentLocale, 'online');
+          setIsHealthy(healthReport.isHealthy);
+        }
+      } else {
+        setError('Force recovery failed. Please try refreshing the page.');
+      }
+    } catch (error) {
+      console.error('Force recovery failed:', error);
+      setError('Force recovery failed. Please try refreshing the page.');
+    } finally {
+      setIsMigrationInProgress(false);
     }
   }, [i18n.language, loadMigrationService]);
 
@@ -131,16 +204,30 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
 
         setCurrentLanguageMigrated(true);
         setIsMigrationCompleted(migrationService.isMigrationCompleted());
+
+        // Perform health check after successful migration
+        const currentLocale = i18n.language || 'en';
+        const healthReport = await checkMigrationHealth(currentLocale, 'online');
+        setIsHealthy(healthReport.isHealthy);
+
+        // If health check fails immediately after migration, something is wrong
+        if (!healthReport.isHealthy) {
+          setError(
+            'Migration completed but data validation failed. Some features may not work correctly.'
+          );
+        }
       } else {
         setError('Migration failed but app will continue with existing data');
+        setIsHealthy(false);
       }
     } catch (error) {
       console.error('Migration failed:', error);
       setError('Migration failed but app will continue with existing data');
+      setIsHealthy(false);
     } finally {
       setIsMigrationInProgress(false);
     }
-  }, [isMigrationInProgress, loadMigrationService]);
+  }, [isMigrationInProgress, loadMigrationService, i18n.language]);
 
   // Debounced language change handler
   const handleLanguageChange = useCallback(
@@ -271,8 +358,11 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
     isMigrationInProgress,
     currentLanguageMigrated,
     error,
+    isHealthy,
+    recoveryAttempted,
     triggerMigration,
     ensureLanguageMigrated,
+    forceRecovery,
   };
 
   return <MigrationContext.Provider value={value}>{children}</MigrationContext.Provider>;
