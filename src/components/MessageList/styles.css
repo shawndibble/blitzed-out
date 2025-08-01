@@ -72,8 +72,7 @@
 }
 
 /* Light mode text color fixes */
-body.theme-light .message,
-[data-mui-color-scheme='light'] .message {
+body.theme-light .message {
   color: var(--color-white-95); /* Apply to entire message for simplicity */
 }
 

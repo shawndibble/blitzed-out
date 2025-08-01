@@ -141,8 +141,7 @@ code {
 }
 
 /* Light theme glass effects */
-body.theme-light .glass,
-[data-mui-color-scheme='light'] .glass {
+body.theme-light .glass {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(148, 163, 184, 0.3);
   box-shadow:
@@ -150,15 +149,13 @@ body.theme-light .glass,
     0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
-body.theme-light .glass-light,
-[data-mui-color-scheme='light'] .glass-light {
+body.theme-light .glass-light {
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(148, 163, 184, 0.25);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 }
 
-body.theme-light .glass-heavy,
-[data-mui-color-scheme='light'] .glass-heavy {
+body.theme-light .glass-heavy {
   background: rgba(248, 250, 252, 0.95);
   border: 1px solid rgba(148, 163, 184, 0.4);
   box-shadow:
@@ -321,8 +318,7 @@ body.theme-light .glass-heavy,
 }
 
 /* Light theme gradient background */
-body.theme-light .gradient-background,
-[data-mui-color-scheme='light'] .gradient-background {
+body.theme-light .gradient-background {
   background: linear-gradient(
     135deg,
     #f8fafc 0%,
@@ -351,8 +347,7 @@ body.theme-light .gradient-background,
 }
 
 /* Light theme gradient background */
-body.theme-light .gradient-background-vibrant,
-[data-mui-color-scheme='light'] .gradient-background-vibrant {
+body.theme-light .gradient-background-vibrant {
   background:
     linear-gradient(
       135deg,

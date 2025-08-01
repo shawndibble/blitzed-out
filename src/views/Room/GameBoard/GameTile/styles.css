@@ -17,8 +17,7 @@
 }
 
 /* Light theme pop-text for transparent tiles */
-body.theme-light .pop-text,
-[data-mui-color-scheme='light'] .pop-text {
+body.theme-light .pop-text {
   text-shadow:
     0 2px 4px rgba(255, 255, 255, 0.9),
     0 1px 2px rgba(255, 255, 255, 0.8),
@@ -45,14 +44,12 @@ li.pulse-animation.gray-tiles {
 }
 
 /* Light theme pulse animations */
-body.theme-light .pulse-animation,
-[data-mui-color-scheme='light'] .pulse-animation {
+body.theme-light .pulse-animation {
   box-shadow: 0 0 8px 2px rgba(34, 211, 238, 0.8);
   animation: pulse-brand-light 1.5s 1;
 }
 
-body.theme-light li.pulse-animation.gray-tiles,
-[data-mui-color-scheme='light'] li.pulse-animation.gray-tiles {
+body.theme-light li.pulse-animation.gray-tiles {
   box-shadow: 0 0 8px 6px rgba(34, 211, 238, 0.9);
   animation: pulse-bright-brand-light 1.5s 1;
 }

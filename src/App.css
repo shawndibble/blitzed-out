@@ -191,8 +191,7 @@ button {
 }
 
 /* Light theme accordion title adjustments */
-body.theme-light .accordion-title,
-[data-mui-color-scheme='light'] .accordion-title {
+body.theme-light .accordion-title {
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

@@ -48,8 +48,7 @@
 }
 
 /* Light mode room name color */
-body.theme-light .nav-room-name h2,
-[data-mui-color-scheme='light'] .nav-room-name h2 {
+body.theme-light .nav-room-name h2 {
   color: var(--color-white-95);
 }
 

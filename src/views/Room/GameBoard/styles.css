@@ -35,8 +35,7 @@
 }
 
 /* Light theme tile styles */
-body.theme-light .gameboard li,
-[data-mui-color-scheme='light'] .gameboard li {
+body.theme-light .gameboard li {
   background-color: hsla(calc(var(--hue) * 360 / 10), 75%, 55%, 0.7);
   border-color: hsla(calc(var(--hue) * 360 / 10), 75%, 55%, 0.7);
   color: #1a1a1a;
@@ -54,8 +53,7 @@ body.theme-light .gameboard li,
 }
 
 /* Light theme gray tiles */
-body.theme-light .gameboard li.gray-tiles,
-[data-mui-color-scheme='light'] .gameboard li.gray-tiles {
+body.theme-light .gameboard li.gray-tiles {
   background-color: rgba(200, 200, 200, 0.6);
   border-color: rgba(200, 200, 200, 0.6);
   --connector-color: rgba(200, 200, 200, 0.6);

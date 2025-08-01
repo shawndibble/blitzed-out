@@ -11,8 +11,7 @@
 }
 
 /* Light mode gradient (for those who prefer it) */
-body.theme-light .unauthenticated-container,
-[data-mui-color-scheme='light'] .unauthenticated-container {
+body.theme-light .unauthenticated-container {
   background: var(--page-gradient);
 }
 
@@ -60,13 +59,11 @@ h2.setup {
 }
 
 /* Light mode text adjustments */
-body.theme-light .setup-subtitle,
-[data-mui-color-scheme='light'] .setup-subtitle {
+body.theme-light .setup-subtitle {
   color: var(--color-white-80);
 }
 
-body.theme-light h2.setup,
-[data-mui-color-scheme='light'] h2.setup {
+body.theme-light h2.setup {
   background: var(--gradient-primary-alt);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -75,18 +72,15 @@ body.theme-light h2.setup,
 }
 
 /* Light mode for footer language selector */
-body.theme-light .footer-language-selector svg,
-[data-mui-color-scheme='light'] .footer-language-selector svg {
+body.theme-light .footer-language-selector svg {
   color: rgba(71, 85, 105, 0.6) !important;
 }
 
-body.theme-light .footer-language-selector .MuiSelect-root,
-[data-mui-color-scheme='light'] .footer-language-selector .MuiSelect-root {
+body.theme-light .footer-language-selector .MuiSelect-root {
   color: rgba(71, 85, 105, 0.8);
 }
 
-body.theme-light .footer-language-selector .MuiSelect-icon,
-[data-mui-color-scheme='light'] .footer-language-selector .MuiSelect-icon {
+body.theme-light .footer-language-selector .MuiSelect-icon {
   color: rgba(71, 85, 105, 0.6) !important;
 }
 
@@ -100,8 +94,7 @@ body.theme-light .footer-language-selector .MuiSelect-icon,
     0 0 30px rgba(255, 107, 107, 0.1);
 }
 
-body.theme-light .main-setup-card,
-[data-mui-color-scheme='light'] .main-setup-card {
+body.theme-light .main-setup-card {
   background: var(--color-surface);
   border: 1px solid var(--container-border);
   box-shadow:
@@ -126,15 +119,13 @@ body.theme-light .main-setup-card,
 }
 
 /* Light mode adjustments */
-body.theme-light .unauthenticated-card,
-[data-mui-color-scheme='light'] .unauthenticated-card {
+body.theme-light .unauthenticated-card {
   background: var(--container-background);
   border: 1px solid var(--container-border);
   box-shadow: var(--shadow-lg);
 }
 
-body.theme-light .unauthenticated-card:hover,
-[data-mui-color-scheme='light'] .unauthenticated-card:hover {
+body.theme-light .unauthenticated-card:hover {
   box-shadow: 0 16px 56px rgba(0, 0, 0, 0.12);
 }
 

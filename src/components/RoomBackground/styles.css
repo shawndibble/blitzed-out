@@ -25,8 +25,7 @@
 }
 
 /* Light theme gradient background */
-body.theme-light .main-container.default-background,
-[data-mui-color-scheme='light'] .main-container.default-background {
+body.theme-light .main-container.default-background {
   background: linear-gradient(
     135deg,
     #f8fafc 0%,

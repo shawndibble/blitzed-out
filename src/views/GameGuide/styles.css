@@ -103,8 +103,7 @@
   border-color: rgba(34, 211, 238, 0.3);
 }
 
-.feature-item:hover::before,
-.feature-item:focus-visible::before {
+.feature-item:hover::before .feature-item:focus-visible::before {
   opacity: 1;
 }
 
@@ -180,56 +179,46 @@
 
 /* Light Mode Adjustments */
 body.theme-light .hero-description,
-body.theme-light .hero-subtitle,
-[data-mui-color-scheme='light'] .hero-description,
-[data-mui-color-scheme='light'] .hero-subtitle {
+body.theme-light .hero-subtitle {
   color: var(--color-white-85);
 }
 
-body.theme-light .feature-item,
-[data-mui-color-scheme='light'] .feature-item {
+body.theme-light .feature-item {
   background: var(--surface-dark-07);
   border-color: var(--container-border);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-body.theme-light .feature-item:hover,
-[data-mui-color-scheme='light'] .feature-item:hover {
+body.theme-light .feature-item:hover {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   border-color: rgba(8, 145, 178, 0.4);
 }
 
-body.theme-light .feature-title,
-[data-mui-color-scheme='light'] .feature-title {
+body.theme-light .feature-title {
   color: var(--color-white-95);
 }
 
-body.theme-light .feature-description,
-[data-mui-color-scheme='light'] .feature-description {
+body.theme-light .feature-description {
   color: var(--color-white-80);
 }
 
-body.theme-light .step-item,
-[data-mui-color-scheme='light'] .step-item {
+body.theme-light .step-item {
   background: var(--surface-secondary);
   border-left-color: rgba(8, 145, 178, 0.6);
 }
 
-body.theme-light .step-item:hover,
-[data-mui-color-scheme='light'] .step-item:hover {
+body.theme-light .step-item:hover {
   background: var(--surface-secondary-hover);
   border-left-color: rgba(8, 145, 178, 0.8);
 }
 
-body.theme-light .helpful-tip,
-[data-mui-color-scheme='light'] .helpful-tip {
+body.theme-light .helpful-tip {
   background: rgba(8, 145, 178, 0.08);
   border-color: rgba(8, 145, 178, 0.3);
   color: rgba(15, 23, 42, 0.8);
 }
 
-body.theme-light .section-title,
-[data-mui-color-scheme='light'] .section-title {
+body.theme-light .section-title {
   background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
