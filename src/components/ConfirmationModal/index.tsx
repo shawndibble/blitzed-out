@@ -1,15 +1,16 @@
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Alert,
 } from '@mui/material';
+
 import { ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
 import useBreakpoint from '@/hooks/useBreakpoint';
+import { useTranslation } from 'react-i18next';
 
 export interface ConfirmationModalProps {
   open: boolean;
@@ -79,7 +80,7 @@ export default function ConfirmationModal({
         <DialogContentText id="confirmation-dialog-description">{message}</DialogContentText>
       </DialogContent>
       <DialogActions sx={{ p: 2, gap: 1 }}>
-        <Button onClick={handleCancel} variant="outlined" color="inherit" fullWidth={isMobile}>
+        <Button onClick={handleCancel} variant="outlined" fullWidth={isMobile}>
           {cancelText || t('cancel')}
         </Button>
         <Button

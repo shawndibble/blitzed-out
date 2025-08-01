@@ -139,6 +139,18 @@
           system-ui,
           sans-serif;
         line-height: 1.5;
+        color: #fff;
+      }
+
+      /* Fixed background gradient that adapts to system theme */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -1;
         background: linear-gradient(
           135deg,
           rgba(15, 23, 42, 0.9) 0%,
@@ -148,12 +160,37 @@
           rgba(15, 23, 42, 0.9) 80%,
           rgba(2, 6, 23, 0.95) 100%
         );
-        color: #fff;
+      }
+
+      /* Light mode gradient for users with light color scheme preference */
+      @media (prefers-color-scheme: light) {
+        body::before {
+          background: linear-gradient(
+            135deg,
+            rgba(248, 250, 252, 0.9) 0%,
+            rgba(226, 232, 240, 0.95) 20%,
+            rgba(203, 213, 225, 0.9) 40%,
+            rgba(226, 232, 240, 0.95) 60%,
+            rgba(248, 250, 252, 0.9) 80%,
+            rgba(255, 255, 255, 0.95) 100%
+          );
+        }
+        
+        body {
+          color: #1e293b;
+        }
       }
 
       #root {
         height: 100%;
         color: #fff;
+      }
+      
+      /* Light mode root element */
+      @media (prefers-color-scheme: light) {
+        #root {
+          color: #1e293b;
+        }
       }
 
       /* Instant loading screen - shows immediately */
@@ -184,6 +221,21 @@
           'Segoe UI',
           system-ui,
           sans-serif;
+      }
+      
+      /* Light mode loading screen */
+      @media (prefers-color-scheme: light) {
+        .instant-loading {
+          background: linear-gradient(
+            135deg,
+            rgba(248, 250, 252, 0.9) 0%,
+            rgba(226, 232, 240, 0.95) 20%,
+            rgba(203, 213, 225, 0.9) 40%,
+            rgba(226, 232, 240, 0.95) 60%,
+            rgba(248, 250, 252, 0.9) 80%,
+            rgba(255, 255, 255, 0.95) 100%
+          );
+        }
       }
 
       /* Loading spinner - matches MUI CircularProgress styling */
@@ -219,6 +271,18 @@
           'Segoe UI',
           system-ui,
           sans-serif;
+      }
+      
+      /* Light mode loading elements */
+      @media (prefers-color-scheme: light) {
+        .loading-spinner {
+          border: 4px solid rgba(0, 0, 0, 0.1);
+          border-left: 4px solid #0369a1;
+        }
+        
+        .loading-text {
+          color: #0369a1;
+        }
       }
 
       /* Hide when React takes over */

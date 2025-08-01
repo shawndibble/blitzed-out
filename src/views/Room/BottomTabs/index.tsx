@@ -25,13 +25,7 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
   return (
     <>
       <AppBar position="fixed" sx={{ top: 'auto', bottom: 0 }}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="secondary"
-          textColor="inherit"
-          variant="fullWidth"
-        >
+        <Tabs value={value} onChange={handleChange} indicatorColor="secondary" variant="fullWidth">
           <Tab label={t('game')} {...a11yProps(0)} />
           <Tab label={t('messages')} {...a11yProps(1)} />
         </Tabs>
