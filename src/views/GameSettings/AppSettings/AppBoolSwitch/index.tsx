@@ -17,7 +17,7 @@ export default function AppBoolSwitch({
     <YesNoSwitch
       trueCondition={formData[field]}
       onChange={(event) => handleSwitch(event, field)}
-      yesLabel={`${field}Enable`}
+      yesLabel={field}
       sx={{ justifyContent: 'left' }}
     />
   );

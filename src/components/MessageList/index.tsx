@@ -69,7 +69,7 @@ export default function MessageList({
 
   return (
     <div className="message-list-container">
-      <div className="message-list-scroll" ref={containerRef}>
+      <div className="message-list-scroll transparent-scrollbar" ref={containerRef}>
         <div className="message-list-scroll-content">
           <ul className="message-list">
             {isLoading && updatedMessages.length === 0 ? (

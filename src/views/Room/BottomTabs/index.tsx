@@ -1,12 +1,13 @@
 import * as React from 'react';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import { a11yProps } from '@/helpers/strings';
-import TabPanel from '@/components/TabPanel';
-import { useTranslation } from 'react-i18next';
-import { ReactNode } from 'react';
+
 import { AppBar } from '@mui/material';
+import Box from '@mui/material/Box';
+import { ReactNode } from 'react';
+import Tab from '@mui/material/Tab';
+import TabPanel from '@/components/TabPanel';
+import Tabs from '@mui/material/Tabs';
+import { a11yProps } from '@/helpers/strings';
+import { useTranslation } from 'react-i18next';
 
 export interface BottomTabsProps {
   tab1: ReactNode;
@@ -40,7 +41,7 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
         <TabPanel value={value} index={0}>
           {tab1}
         </TabPanel>
-        <TabPanel value={value} index={1}>
+        <TabPanel value={value} index={1} style={{ p: 1 }}>
           {tab2}
         </TabPanel>
       </Box>
