@@ -191,8 +191,8 @@ export const checkSetupWizardReadiness = async (): Promise<{
   return result;
 };
 
-// Expose functions to window for debugging
-if (typeof window !== 'undefined') {
+// Expose functions to window for debugging (development only)
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
   (window as any).migrationDebug = {
     getInfo: getMigrationDebugInfo,
     simulateFailure: simulateMigrationFailure,
