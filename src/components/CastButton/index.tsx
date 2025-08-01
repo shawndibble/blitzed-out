@@ -5,8 +5,9 @@ import CastConnectedIcon from '@mui/icons-material/CastConnected';
 import { Params, useParams } from 'react-router-dom';
 import { t } from 'i18next';
 
-// Global flag to track if Cast API has been initialized
+// Global flags to track Cast API state
 window.__castApiInitialized = window.__castApiInitialized || false;
+window.__castScriptLoading = window.__castScriptLoading || false;
 
 export default function CastButton(): JSX.Element | null {
   const [isCasting, setIsCasting] = useState<boolean>(false);
@@ -14,6 +15,7 @@ export default function CastButton(): JSX.Element | null {
   const { id: room } = useParams<Params>();
   const castButtonRef = useRef<HTMLButtonElement>(null);
   const [castApiReady, setCastApiReady] = useState<boolean>(false);
+  const [castContextReady, setCastContextReady] = useState<boolean>(false);
 
   // Function to send a message to the cast session
   const sendCastMessage = useCallback(
@@ -47,6 +49,7 @@ export default function CastButton(): JSX.Element | null {
         // Only initialize once
         if (window.__castApiInitialized) {
           setCastApiReady(true);
+          setCastContextReady(true);
           setupSessionListener();
           return;
         }
@@ -61,6 +64,7 @@ export default function CastButton(): JSX.Element | null {
 
         window.__castApiInitialized = true;
         setCastApiReady(true);
+        setCastContextReady(true);
         setupSessionListener();
       } catch (error) {
         console.error('Error initializing Cast API:', error);
@@ -126,9 +130,17 @@ export default function CastButton(): JSX.Element | null {
       };
 
       // Load the Cast API script if it hasn't been loaded yet
-      if (!document.querySelector('script[src*="cast_sender.js"]')) {
+      if (!document.querySelector('script[src*="cast_sender.js"]') && !window.__castScriptLoading) {
+        window.__castScriptLoading = true;
         const script = document.createElement('script');
         script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1';
+        script.onload = () => {
+          window.__castScriptLoading = false;
+        };
+        script.onerror = () => {
+          window.__castScriptLoading = false;
+          console.error('Failed to load Cast SDK');
+        };
         document.head.appendChild(script);
       }
     }
@@ -141,7 +153,8 @@ export default function CastButton(): JSX.Element | null {
 
   // Function to toggle casting
   const toggleCasting = () => {
-    if (!castApiReady) {
+    if (!castApiReady || !castContextReady) {
+      console.warn('Cast API or context not ready yet');
       return;
     }
 
@@ -172,7 +185,7 @@ export default function CastButton(): JSX.Element | null {
     }
   }, [room, isCasting, castSession, sendCastMessage]);
 
-  if (!castApiReady) return null;
+  if (!castApiReady || !castContextReady) return null;
 
   return (
     <Tooltip title={isCasting ? t('stopCasting') : t('startCasting')}>
