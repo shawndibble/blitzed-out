@@ -1,10 +1,12 @@
-import { Box, Typography, Divider } from '@mui/material';
 import './styles.css';
+
+import { Box, Divider, Typography } from '@mui/material';
+import { SyntheticEvent, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useState, SyntheticEvent } from 'react';
+
 import Accordion from '@/components/Accordion';
-import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
+import AccordionSummary from '@/components/Accordion/Summary';
 
 export default function GameGuide(): JSX.Element {
   const { t } = useTranslation();

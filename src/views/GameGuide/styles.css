@@ -18,15 +18,15 @@
 
 /* Hero Section */
 .hero-section {
-  text-align: center;
-  margin-bottom: 2rem;
+  text-align: left;
 }
 
-.hero-title {
+.hero-section .hero-title {
   font-weight: 700;
-  margin-bottom: 1rem;
   font-size: 1.5rem;
   letter-spacing: -0.025em;
+  text-align: center;
+  width: 100%;
 }
 
 .hero-description {
@@ -37,17 +37,21 @@
   text-align: left;
 }
 
-.hero-subtitle {
+.hero-section .hero-subtitle {
   color: var(--color-white-85);
   line-height: 1.5;
   font-size: 0.9rem;
   text-align: left;
-  margin-top: 1rem;
+  margin: 1.5rem 0;
+}
+
+.hero-subtitle:first-of-type {
+  margin-top: 2rem;
 }
 
 /* Section Divider */
 .section-divider {
-  margin: 1.5rem 0;
+  margin: 2.5rem 0;
   border-color: var(--color-slate-400-20);
   background: var(--gradient-section-divider);
   height: 1px;
@@ -58,9 +62,9 @@
   margin-bottom: 2rem;
 }
 
-.section-title {
+.features-section .section-title {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin: 1rem 0;
   font-weight: 600;
   background: var(--gradient-primary);
   -webkit-background-clip: text;
@@ -251,7 +255,7 @@ body.theme-light .section-title {
   }
 
   .section-divider {
-    margin: 2rem 0;
+    margin: 3rem 0;
   }
 }
 
