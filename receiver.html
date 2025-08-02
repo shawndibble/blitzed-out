@@ -6,13 +6,7 @@
     <title>Blitzed Out Cast Receiver</title>
     <!-- Critical inline styles to prevent white flash - must be before any external CSS -->
     <style>
-      /* Immediate dark background - highest priority */
-      html {
-        background: #0f172a !important;
-        color: #fff !important;
-      }
-      
-      body {
+      html, body {
         background: linear-gradient(
           135deg,
           rgba(15, 23, 42, 0.9) 0%,
@@ -21,8 +15,11 @@
           rgba(30, 41, 59, 0.95) 60%,
           rgba(15, 23, 42, 0.9) 80%,
           rgba(2, 6, 23, 0.95) 100%
-        ) !important;
-        color: #fff !important;
+        );
+        color: #fff;
+      }
+      
+      body {
         margin: 0;
         padding: 0;
         overflow: hidden;
@@ -42,8 +39,6 @@
         width: 100%;
         height: 100%;
         border: none;
-        /* Start with dark background to prevent flash */
-        background: #0f172a;
         /* Remove any potential clipping */
         overflow: visible;
         /* Hide initially to prevent white flash */
@@ -54,18 +49,10 @@
       iframe.loaded {
         opacity: 1;
       }
-      
-      .receiver-loading {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        z-index: 10;
-        margin-top: 35vh;
-      }
     </style>
   </head>
   <body class="dark-gradient-bg cast-receiver-override">
-    <div class="loading-overlay receiver-loading loading-container fade-transition" id="loading-message">
+    <div id="loading-message" class="instant-loading loading-overlay loading-container dark-gradient-bg">
       <div class="loading-spinner"></div>
       <div class="loading-text">Loading...</div>
     </div>
