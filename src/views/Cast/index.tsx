@@ -14,6 +14,8 @@ import useFullscreenStatus from '@/hooks/useFullscreenStatus';
 import { ActionCard } from '@/types/cast';
 import { Message } from '@/types/Message';
 import '@/types/window';
+import { loginAnonymously } from '@/services/firebase';
+import { getAuth } from 'firebase/auth';
 
 const ACTION_TYPE = 'actions';
 
@@ -80,6 +82,27 @@ export default function Cast() {
   const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
   console.log('Fullscreen status:', isFullscreen);
 
+  // Auto-login anonymously for cast functionality
+  useEffect(() => {
+    const auth = getAuth();
+    console.log('=== AUTH CHECK FOR CAST ===');
+    console.log('Current user:', auth.currentUser?.uid || 'none');
+    console.log('Is anonymous:', auth.currentUser?.isAnonymous || false);
+
+    if (!auth.currentUser) {
+      console.log('No user found, attempting anonymous login...');
+      loginAnonymously('Cast Viewer')
+        .then((user) => {
+          console.log('Anonymous login successful:', user?.uid || 'failed');
+        })
+        .catch((error) => {
+          console.error('Anonymous login failed:', error);
+        });
+    } else {
+      console.log('User already authenticated, proceeding...');
+    }
+  }, []); // Run once on mount
+
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
     const isCastEnvironment = window.cast?.framework?.CastReceiverContext;
@@ -100,20 +123,31 @@ export default function Cast() {
 
     if (isActuallyCasting) {
       document.body.classList.add('cast-receiver-mode');
+      // Force remove light theme when casting
+      document.body.classList.remove('theme-light');
       setIsCastReceiver(true);
-      console.log('Cast receiver mode activated');
+      console.log('Cast receiver mode activated, light theme removed');
     }
 
     return () => {
       if (isActuallyCasting) {
         document.body.classList.remove('cast-receiver-mode');
+        // Note: We don't restore theme-light here because we don't know the original state
+        console.log('Cast receiver mode deactivated');
       }
     };
   }, []);
 
   useEffect(() => {
-    if (isLoading) return;
+    console.log('=== LOADING STATE MONITOR ===');
+    console.log('isLoading changed to:', isLoading);
 
+    if (isLoading) {
+      console.log('Still loading, skipping effects...');
+      return;
+    }
+
+    console.log('Loading finished, checking messages...');
     const latestMessage = messages[messages.length - 1];
 
     if (latestMessage?.type === 'settings') {
@@ -121,6 +155,18 @@ export default function Cast() {
       setAlertMessage(`${latestMessage.displayName} ${t('changedSettings')}`);
     }
   }, [messages, isLoading]);
+
+  // Add timeout to handle stuck loading state
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const timeout = setTimeout(() => {
+      console.log('=== LOADING TIMEOUT ===');
+      console.log('Messages have been loading for 10 seconds, this might indicate an auth issue');
+    }, 10000);
+
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
 
   console.log('=== RENDER STATE ===');
   console.log('Cast render state:', {
