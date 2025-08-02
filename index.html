@@ -100,6 +100,9 @@
 
     <!-- Let Vite handle module preloading automatically via build optimization -->
 
+    <!-- Shared loading styles -->
+    <link rel="stylesheet" href="/shared-loading.css" />
+
     <!-- Defer Material Icons to avoid blocking critical path -->
     <link
       rel="preload"
@@ -197,24 +200,6 @@
 
       /* Instant loading screen - shows immediately */
       .instant-loading {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(
-          135deg,
-          rgba(15, 23, 42, 0.9) 0%,
-          rgba(30, 41, 59, 0.95) 20%,
-          rgba(51, 65, 85, 0.9) 40%,
-          rgba(30, 41, 59, 0.95) 60%,
-          rgba(15, 23, 42, 0.9) 80%,
-          rgba(2, 6, 23, 0.95) 100%
-        );
         z-index: 9999;
         font-family:
           'Roboto Fallback',
@@ -224,68 +209,8 @@
           system-ui,
           sans-serif;
       }
-      
-      /* Light mode loading screen */
-      @media (prefers-color-scheme: light) {
-        .instant-loading {
-          background: linear-gradient(
-            135deg,
-            rgba(248, 250, 252, 0.9) 0%,
-            rgba(226, 232, 240, 0.95) 20%,
-            rgba(203, 213, 225, 0.9) 40%,
-            rgba(226, 232, 240, 0.95) 60%,
-            rgba(248, 250, 252, 0.9) 80%,
-            rgba(255, 255, 255, 0.95) 100%
-          );
-        }
-      }
 
-      /* Loading spinner - matches MUI CircularProgress styling */
-      .loading-spinner {
-        width: 60px;
-        height: 60px;
-        border: 4px solid rgba(255, 255, 255, 0.1);
-        border-left: 4px solid #0abde3;
-        border-radius: 50%;
-        animation: spin 1.4s linear infinite;
-        margin-bottom: 24px;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .loading-text {
-        font-size: 1.25rem;
-        font-weight: 600;
-        letter-spacing: -0.025em;
-        color: #0abde3;
-        text-align: center;
-        font-family:
-          'Roboto Fallback',
-          -apple-system,
-          BlinkMacSystemFont,
-          'Segoe UI',
-          system-ui,
-          sans-serif;
-      }
-      
-      /* Light mode loading elements */
-      @media (prefers-color-scheme: light) {
-        .loading-spinner {
-          border: 4px solid rgba(0, 0, 0, 0.1);
-          border-left: 4px solid #0369a1;
-        }
-        
-        .loading-text {
-          color: #0369a1;
-        }
-      }
+      /* Note: Loading spinner styles moved to /shared-loading.css */
 
       /* Hide when React takes over */
       .instant-loading.hidden {
@@ -325,7 +250,7 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
     <!-- Instant loading screen - shows immediately before any JS loads -->
-    <div id="instant-loading" class="instant-loading">
+    <div id="instant-loading" class="instant-loading loading-overlay loading-container dark-gradient-bg">
       <div class="loading-spinner"></div>
       <div class="loading-text">Loading...</div>
     </div>

@@ -16,6 +16,16 @@ export default function CastButton(): JSX.Element | null {
   const { id: room } = useParams<Params>();
   const castButtonRef = useRef<HTMLButtonElement>(null);
   const [castReady, setCastReady] = useState<boolean>(false);
+  const [userRequestedStop, setUserRequestedStop] = useState<boolean>(false);
+
+  // Reset casting state and session
+  const resetCastingState = useCallback((clearUserStopFlag = false) => {
+    setIsCasting(false);
+    setCastSession(null);
+    if (clearUserStopFlag) {
+      setUserRequestedStop(false);
+    }
+  }, []);
 
   // Function to send a message to the cast session
   const sendCastMessage = useCallback(
@@ -93,17 +103,23 @@ export default function CastButton(): JSX.Element | null {
             switch (event.sessionState) {
               case window.cast?.framework?.SessionState.SESSION_STARTED:
               case window.cast?.framework?.SessionState.SESSION_RESUMED:
-                setIsCasting(true);
-                setCastSession(session);
-                if (session && room) {
-                  sendCastMessage(session);
+                // Only set to casting if user didn't request stop
+                if (!userRequestedStop) {
+                  setIsCasting(true);
+                  setCastSession(session);
+                  if (session && room) {
+                    sendCastMessage(session);
+                  }
                 }
                 break;
               case window.cast?.framework?.SessionState.SESSION_ENDED:
-                setIsCasting(false);
-                setCastSession(null);
+                resetCastingState(true); // Clear user stop flag when session actually ends
                 break;
               default:
+                // Handle SESSION_STARTING and SESSION_ENDING states
+                if (event.sessionState === 'SESSION_ENDING') {
+                  resetCastingState();
+                }
                 break;
             }
           }
@@ -144,7 +160,7 @@ export default function CastButton(): JSX.Element | null {
     return () => {
       // Don't reset the global callback as other instances might need it
     };
-  }, [room, sendCastMessage]);
+  }, [room, sendCastMessage, userRequestedStop, resetCastingState]);
 
   // Function to toggle casting
   const toggleCasting = () => {
@@ -155,10 +171,27 @@ export default function CastButton(): JSX.Element | null {
 
     if (isCasting) {
       // Stop casting
-      if (castSession) {
-        castSession.endSession(true);
+      setUserRequestedStop(true);
+
+      // Immediately set state since user requested it - don't wait for API response
+      resetCastingState();
+
+      // Send the disconnect request but don't wait for response
+      try {
+        const castContext = window.cast?.framework?.CastContext.getInstance();
+        if (castContext) {
+          castContext.endCurrentSession(true);
+        }
+
+        if (castSession) {
+          castSession.endSession(true);
+        }
+      } catch {
+        // Silently ignore disconnect errors since we've already updated the UI
       }
     } else {
+      // Clear user stop flag when starting new session
+      setUserRequestedStop(false);
       // Start casting
       try {
         const castContext = window.cast?.framework?.CastContext.getInstance();
