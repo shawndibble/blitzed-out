@@ -76,20 +76,9 @@
           url.searchParams.set('receiver', 'true');
           url.searchParams.set('chromecast', 'true');
           
-          console.log('Loading cast URL:', url.toString());
-          
           iframe.src = url.toString();
           iframe.allow = 'autoplay; fullscreen';
           iframe.style.background = 'transparent';
-          
-          // Add load event listener for debugging
-          iframe.onload = function() {
-            console.log('Cast iframe loaded successfully');
-          };
-          
-          iframe.onerror = function(e) {
-            console.error('Cast iframe error:', e);
-          };
           
           container.appendChild(iframe);
         }
