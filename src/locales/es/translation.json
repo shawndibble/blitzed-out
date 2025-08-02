@@ -489,5 +489,8 @@
     "chooseTheme": "Elegir tema",
     "switchToLight": "Cambiar a tema claro",
     "switchToDark": "Cambiar a tema oscuro"
+  },
+  "tts": {
+    "sampleText": "Toma un trago y disfruta del juego."
   }
 }

@@ -4,111 +4,59 @@ export interface VoiceOption {
   displayName: string;
 }
 
-// Curated high-quality voices by language
-const QUALITY_VOICES: Record<string, string[]> = {
-  en: [
-    'alex',
-    'samantha',
-    'google uk english male',
-    'google uk english female',
-    'google us english male',
-    'google us english female',
-    'victoria',
-    'allison',
-    'ava',
-    'susan',
-    'daniel',
-    'karen',
-    'moira',
-    'fiona',
-  ],
-  es: [
-    'google español',
-    'google español de estados unidos',
-    'monica',
-    'jorge',
-    'diego',
-    'paulina',
-    'juan',
-    'esperanza',
-    'carlos',
-    'rosa',
-  ],
-  fr: [
-    'google français',
-    'amelie',
-    'thomas',
-    'aurelie',
-    'marie',
-    'pierre',
-    'brigitte',
-    'bernard',
-    'claire',
-    'sylvie',
-  ],
-  zh: [
-    'google 中文',
-    'google 中文（中国大陆）',
-    'ting-ting',
-    'sin-ji',
-    'mei-jia',
-    'yu-shu',
-    'li-mu',
-    'ya-ling',
-    'xiao-bao',
-    'xiao-rong',
-  ],
-  hi: [
-    'google हिन्दी',
-    'lekha',
-    'sangeeta',
-    'veena',
-    'rishi',
-    'kalpana',
-    'hemant',
-    'kavita',
-    'arun',
-    'shilpa',
-  ],
-};
-
-// Sample texts for different languages
-const SAMPLE_TEXTS: Record<string, string> = {
-  en: 'Take a drink and enjoy the game.',
-  es: 'Toma un trago y disfruta del juego.',
-  fr: 'Prenez une boisson et profitez du jeu.',
-  zh: '喝一杯，享受游戏。',
-  hi: 'एक पेय लें और खेल का आनंद लें।',
-};
-
 export class TTSService {
-  // Get available voices for a language
-  getAvailableVoices(languageCode?: string): VoiceOption[] {
-    const browserVoices = window.speechSynthesis.getVoices();
-    const langCode = languageCode?.split('-')[0] || 'en';
-    const qualityVoiceNames = QUALITY_VOICES[langCode] || QUALITY_VOICES.en;
+  private voiceLoadPromise?: Promise<SpeechSynthesisVoice[]>;
 
-    return browserVoices
-      .filter((voice) => {
-        const name = voice.name.toLowerCase();
-        return qualityVoiceNames.some((qualityName) => name.includes(qualityName.toLowerCase()));
-      })
-      .map((voice) => ({
-        name: voice.name,
-        displayName: voice.name,
-      }));
+  // Wait for voices to be loaded
+  private async waitForVoices(): Promise<SpeechSynthesisVoice[]> {
+    if (this.voiceLoadPromise) {
+      return this.voiceLoadPromise;
+    }
+
+    this.voiceLoadPromise = new Promise((resolve) => {
+      let voices = window.speechSynthesis.getVoices();
+
+      // If voices are already loaded, return them immediately
+      if (voices.length > 0) {
+        resolve(voices);
+        return;
+      }
+
+      // Otherwise, wait for the voiceschanged event
+      const handleVoicesChanged = () => {
+        voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          window.speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+          resolve(voices);
+        }
+      };
+
+      window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
+
+      // Fallback timeout - resolve with whatever we have after 3 seconds
+      setTimeout(() => {
+        window.speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+        resolve(window.speechSynthesis.getVoices());
+      }, 3000);
+    });
+
+    return this.voiceLoadPromise;
   }
 
-  // Get the best voice for a language
-  getPreferredVoice(languageCode: string): string | null {
-    const voices = this.getAvailableVoices(languageCode);
+  // Get all available voices (simplified to show all browser voices)
+  async getAvailableVoicesAsync(): Promise<VoiceOption[]> {
+    const browserVoices = await this.waitForVoices();
+
+    return browserVoices.map((voice) => ({
+      name: voice.name,
+      displayName: `${voice.name} (${voice.lang})`,
+    }));
+  }
+
+  // Get the first available voice (async version)
+  async getPreferredVoiceAsync(): Promise<string | null> {
+    const voices = await this.getAvailableVoicesAsync();
     return voices.length > 0 ? voices[0].name : null;
-  }
-
-  // Get sample text for a language
-  getSampleText(languageCode: string): string {
-    const langCode = languageCode.split('-')[0];
-    return SAMPLE_TEXTS[langCode] || SAMPLE_TEXTS.en;
   }
 
   // Speak text with specified voice

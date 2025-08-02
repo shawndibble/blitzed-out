@@ -476,5 +476,8 @@
     "chooseTheme": "選擇主題",
     "switchToLight": "切換到淺色主題",
     "switchToDark": "切換到深色主題"
+  },
+  "tts": {
+    "sampleText": "喝一杯，享受遊戲。"
   }
 }
