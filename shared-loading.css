@@ -2,8 +2,12 @@
 
 /* Loading spinner animation */
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Loading spinner component */
@@ -24,8 +28,14 @@
   letter-spacing: -0.025em;
   color: #0abde3;
   text-align: center;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    system-ui,
+    sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 /* Loading container for centered display */
@@ -35,7 +45,13 @@
   align-items: center;
   justify-content: center;
   color: #0abde3;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    system-ui,
+    sans-serif;
   text-align: center;
 }
 
@@ -69,15 +85,15 @@
     border: 4px solid rgba(0, 0, 0, 0.1);
     border-left: 4px solid #0369a1;
   }
-  
+
   .loading-text {
     color: #0369a1;
   }
-  
+
   .loading-container {
     color: #0369a1;
   }
-  
+
   .dark-gradient-bg {
     background: linear-gradient(
       135deg,
@@ -89,6 +105,33 @@
       rgba(255, 255, 255, 0.95) 100%
     );
   }
+}
+
+/* Cast receiver specific overrides - always dark regardless of system preference */
+.cast-receiver-override {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(30, 41, 59, 0.95) 20%,
+    rgba(51, 65, 85, 0.9) 40%,
+    rgba(30, 41, 59, 0.95) 60%,
+    rgba(15, 23, 42, 0.9) 80%,
+    rgba(2, 6, 23, 0.95) 100%
+  ) !important;
+  color: #fff !important;
+}
+
+.cast-receiver-override .loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1) !important;
+  border-left: 4px solid #0abde3 !important;
+}
+
+.cast-receiver-override .loading-text {
+  color: #0abde3 !important;
+}
+
+.cast-receiver-override .loading-container {
+  color: #0abde3 !important;
 }
 
 /* Utility classes */
