@@ -27,12 +27,11 @@ export default function VoiceSelect({
   setFormData,
   onVoiceChange,
 }: VoiceSelectProps): JSX.Element {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { speak } = useTTS();
 
-  const currentLanguage = formData.locale || i18n.language || 'en';
   const selectedVoice = formData.voicePreference || '';
 
   const handleVoiceChange = useCallback(
@@ -51,18 +50,22 @@ export default function VoiceSelect({
     const loadVoices = async () => {
       try {
         if (mounted) {
-          const availableVoices = tts.getAvailableVoices(currentLanguage);
-          setVoices(availableVoices);
+          setIsLoading(true);
+          const availableVoices = await tts.getAvailableVoicesAsync();
 
-          // Set default voice if none selected
-          if (!selectedVoice && availableVoices.length > 0) {
-            const preferredVoice = tts.getPreferredVoice(currentLanguage);
-            if (preferredVoice) {
-              handleVoiceChange(preferredVoice);
+          if (mounted) {
+            setVoices(availableVoices);
+
+            // Set default voice if none selected
+            if (!selectedVoice && availableVoices.length > 0) {
+              const preferredVoice = await tts.getPreferredVoiceAsync();
+              if (preferredVoice && mounted) {
+                handleVoiceChange(preferredVoice);
+              }
             }
-          }
 
-          setIsLoading(false);
+            setIsLoading(false);
+          }
         }
       } catch (error) {
         console.error('Failed to load voices:', error);
@@ -77,7 +80,7 @@ export default function VoiceSelect({
     return () => {
       mounted = false;
     };
-  }, [currentLanguage, selectedVoice, handleVoiceChange]);
+  }, [selectedVoice, handleVoiceChange]);
 
   const handleSelectChange = (event: SelectChangeEvent) => {
     handleVoiceChange(event.target.value);
@@ -87,8 +90,8 @@ export default function VoiceSelect({
     const voiceToPlay = selectedVoice || (voices.length > 0 ? voices[0].name : '');
     if (!voiceToPlay) return;
 
-    // Get sample text for the current language
-    const sampleText = tts.getSampleText(currentLanguage);
+    // Get sample text from i18next translations
+    const sampleText = t('tts.sampleText', 'Take a drink and enjoy the game.');
 
     try {
       await speak(sampleText, {
