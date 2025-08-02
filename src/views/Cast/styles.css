@@ -51,7 +51,14 @@
 
 .cast-receiver-mode {
   overflow: hidden;
-  background-color: #000;
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+/* Ensure the main container also has dark background in cast mode */
+.cast-receiver-mode .flex-column {
+  background-color: #000 !important;
+  color: #fff !important;
 }
 
 .cast-receiver-mode .cast-container {
