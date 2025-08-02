@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Blitzed Out Cast Receiver</title>
+    <link rel="stylesheet" href="/shared-loading.css" />
     <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
     <style>
       body {
@@ -11,44 +12,45 @@
         overflow: hidden;
         width: 100vw;
         height: 100vh;
-        /* Fallback background - will be overridden by iframe content */
-        background: linear-gradient(
-          135deg,
-          rgba(15, 23, 42, 0.9) 0%,
-          rgba(30, 41, 59, 0.95) 20%,
-          rgba(51, 65, 85, 0.9) 40%,
-          rgba(30, 41, 59, 0.95) 60%,
-          rgba(15, 23, 42, 0.9) 80%,
-          rgba(2, 6, 23, 0.95) 100%
-        );
       }
+      
       #iframe-container {
         width: 100%;
         height: 100%;
       }
+      
       iframe {
         width: 100%;
         height: 100%;
         border: none;
-        /* Allow iframe content to have its own background */
-        background: transparent;
+        /* Start with dark background to prevent flash */
+        background: #0f172a;
         /* Remove any potential clipping */
         overflow: visible;
+        /* Hide initially to prevent white flash */
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
       }
-      .loading {
-        color: white;
-        font-size: clamp(1.5rem, 4vw, 3rem);
-        font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-        text-align: center;
-        margin-top: 40vh;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+      
+      iframe.loaded {
+        opacity: 1;
+      }
+      
+      .receiver-loading {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        margin-top: 35vh;
       }
     </style>
   </head>
-  <body>
-    <div id="iframe-container">
-      <div class="loading">Waiting for content...</div>
+  <body class="dark-gradient-bg">
+    <div class="loading-overlay receiver-loading loading-container fade-transition" id="loading-message">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading...</div>
     </div>
+    <div id="iframe-container"></div>
 
     <script>
       // Initialize the receiver context
@@ -68,6 +70,7 @@
 
           // Create an iframe to load the specified URL
           const container = document.getElementById('iframe-container');
+          const loadingMessage = document.getElementById('loading-message');
           container.innerHTML = ''; // Clear any existing content
 
           const iframe = document.createElement('iframe');
@@ -78,7 +81,16 @@
           
           iframe.src = url.toString();
           iframe.allow = 'autoplay; fullscreen';
-          iframe.style.background = 'transparent';
+          
+          // Handle iframe loading
+          iframe.onload = function() {
+            console.log('Iframe loaded, hiding loading message');
+            // Wait a moment for React to initialize, then show iframe and hide loading
+            setTimeout(() => {
+              iframe.classList.add('loaded');
+              loadingMessage.classList.add('hidden');
+            }, 500);
+          };
           
           container.appendChild(iframe);
         }
