@@ -16,6 +16,7 @@ import { Message } from '@/types/Message';
 import '@/types/window';
 import { loginAnonymously } from '@/services/firebase';
 import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, query, limit, getDocs } from 'firebase/firestore';
 
 const ACTION_TYPE = 'actions';
 
@@ -70,6 +71,16 @@ export default function Cast() {
     lastMessage: messages?.[messages.length - 1] || null,
   });
 
+  // Additional Firebase debugging
+  console.log('=== FIREBASE DEBUG ===');
+  const auth = getAuth();
+  console.log('Firebase auth current user:', {
+    uid: auth.currentUser?.uid || 'none',
+    isAnonymous: auth.currentUser?.isAnonymous || false,
+    displayName: auth.currentUser?.displayName || 'none',
+    authReady: !!auth.currentUser,
+  });
+
   const { isVideo, url } = usePrivateRoomBackground(messages);
   console.log('Background info:', { isVideo, url: url || 'none' });
 
@@ -89,19 +100,54 @@ export default function Cast() {
     console.log('Current user:', auth.currentUser?.uid || 'none');
     console.log('Is anonymous:', auth.currentUser?.isAnonymous || false);
 
+    // Set up auth state change listener to monitor auth changes
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      console.log('=== AUTH STATE CHANGED ===');
+      console.log('New user:', user?.uid || 'none');
+      console.log('Is anonymous:', user?.isAnonymous || false);
+      console.log('Display name:', user?.displayName || 'none');
+    });
+
     if (!auth.currentUser) {
       console.log('No user found, attempting anonymous login...');
       loginAnonymously('Cast Viewer')
-        .then((user) => {
+        .then(async (user) => {
           console.log('Anonymous login successful:', user?.uid || 'failed');
+          console.log('User details:', {
+            uid: user?.uid,
+            isAnonymous: user?.isAnonymous,
+            displayName: user?.displayName,
+          });
+
+          // Test Firebase connection directly
+          if (user && room) {
+            console.log('=== DIRECT FIREBASE TEST ===');
+            try {
+              const db = getFirestore();
+              const messagesRef = collection(db, 'chat-rooms', room, 'messages');
+              const q = query(messagesRef, limit(5));
+              const snapshot = await getDocs(q);
+              console.log('Direct Firebase query successful, docs found:', snapshot.size);
+              snapshot.forEach((doc) => {
+                console.log('Message found:', doc.id, doc.data().type);
+              });
+            } catch (firebaseError) {
+              console.error('Direct Firebase query failed:', firebaseError);
+              console.error('Error code:', firebaseError.code);
+              console.error('Error message:', firebaseError.message);
+            }
+          }
         })
         .catch((error) => {
           console.error('Anonymous login failed:', error);
+          console.error('Error details:', error.code, error.message);
         });
     } else {
       console.log('User already authenticated, proceeding...');
     }
-  }, []); // Run once on mount
+
+    return () => unsubscribe();
+  }, [room]); // Include room in dependencies
 
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
