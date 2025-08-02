@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
 import { IconButton, Tooltip } from '@mui/material';
-import CastIcon from '@mui/icons-material/Cast';
-import CastConnectedIcon from '@mui/icons-material/CastConnected';
 import { Params, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import CastConnectedIcon from '@mui/icons-material/CastConnected';
+import CastIcon from '@mui/icons-material/Cast';
 import { t } from 'i18next';
 
 // Global flags to track Cast API state
@@ -21,9 +22,6 @@ export default function CastButton(): JSX.Element | null {
     (session: any) => {
       try {
         const castUrl = `${window.location.origin}/${room}/cast`;
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Sending cast message to URL:', castUrl);
-        }
 
         session.sendMessage('urn:x-cast:com.blitzedout.app', {
           type: 'LOAD',

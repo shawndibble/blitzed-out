@@ -31,16 +31,54 @@ const actionCard = (lastAction: Message): ActionCard => {
 
 export default function Cast() {
   const { id: room } = useParams<{ id: string }>();
-  const { messages, isLoading } = useMessages();
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [isCastReceiver, setIsCastReceiver] = useState<boolean>(false);
 
+  // Force early debugging - this should show up even if other code fails
+  try {
+    console.log('=== CAST COMPONENT LOADED ===');
+    console.log('Room:', room);
+    console.log('Window location:', window.location.href);
+    console.log('User agent:', navigator.userAgent);
+    console.log('Environment checks:', {
+      isProduction: process.env.NODE_ENV === 'production',
+      hasConsole: typeof console !== 'undefined',
+      hasAlert: typeof alert !== 'undefined',
+      hasDocument: typeof document !== 'undefined',
+      hasWindow: typeof window !== 'undefined',
+      documentTitle: document.title,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    // Even if console fails, try alert
+    if (typeof alert !== 'undefined') {
+      alert('Cast component loaded, room: ' + room + ' Error: ' + error);
+    }
+  }
+
+  // Get messages context - let it throw if context is not available, we'll catch it with error boundary
+  const { messages, isLoading } = useMessages();
+
+  console.log('=== HOOK RESULTS ===');
+  console.log('Messages loaded:', {
+    messagesCount: messages?.length || 0,
+    isLoading,
+    firstMessage: messages?.[0] || null,
+    lastMessage: messages?.[messages.length - 1] || null,
+  });
+
   const { isVideo, url } = usePrivateRoomBackground(messages);
+  console.log('Background info:', { isVideo, url: url || 'none' });
 
   const lastAction = latestMessageByType(messages, ACTION_TYPE);
+  console.log('Last action:', lastAction || 'none');
+
   const nextPlayer = useTurnIndicator(lastAction);
+  console.log('Next player:', nextPlayer || 'none');
+
   const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
+  console.log('Fullscreen status:', isFullscreen);
 
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
@@ -84,40 +122,61 @@ export default function Cast() {
     }
   }, [messages, isLoading]);
 
+  console.log('=== RENDER STATE ===');
   console.log('Cast render state:', {
     isLoading,
     messagesLength: messages?.length || 0,
     lastAction: !!lastAction,
     room,
     isCastReceiver,
+    url: window.location.href,
+    windowDimensions: { width: window.innerWidth, height: window.innerHeight },
+    bodyClasses: document.body.className,
+    hasRoomBackground: !!url,
   });
+
+  // Check DOM state
+  console.log('=== DOM DEBUG ===');
+  console.log('Document ready state:', document.readyState);
+  console.log('Body background color:', getComputedStyle(document.body).backgroundColor);
+  console.log('Cast container exists:', !!document.querySelector('.cast-container'));
 
   if (!lastAction) {
     console.log('No lastAction found, showing fallback');
     // Show fallback content instead of returning null
     return (
-      <Box className="flex-column">
-        {!!url && <RoomBackground url={url} isVideo={isVideo} />}
-        <Grid
-          container
-          spacing={0}
-          direction="column"
-          alignItems="center"
-          justifyContent="center"
-          className="cast-container"
-        >
-          <Grid container justifyContent="center">
-            <div className="action-box">
-              <Typography variant="h1" style={{ color: 'white' }}>
-                blitzedout.com/{room}
-              </Typography>
-              <Typography variant="h3" style={{ color: 'white', marginTop: '1rem' }}>
-                {isLoading ? 'Loading...' : 'Waiting for game to start'}
-              </Typography>
-            </div>
-          </Grid>
-        </Grid>
-      </Box>
+      <div
+        style={{
+          backgroundColor: '#000',
+          color: '#fff',
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '24px',
+          fontFamily: 'Arial, sans-serif',
+          textAlign: 'center',
+          padding: '20px',
+        }}
+      >
+        <div>
+          <div style={{ fontSize: '48px', marginBottom: '20px' }}>blitzedout.com/{room}</div>
+          <div style={{ fontSize: '24px' }}>
+            {isLoading ? 'Loading...' : 'Waiting for game to start'}
+          </div>
+          <div style={{ fontSize: '16px', marginTop: '20px', opacity: 0.7 }}>
+            DEBUG: Cast fallback mode - Room: {room} | Loading: {isLoading ? 'yes' : 'no'} |
+            Messages: {messages?.length || 0}
+          </div>
+          <div style={{ fontSize: '12px', marginTop: '10px', opacity: 0.5 }}>
+            Time: {new Date().toLocaleTimeString()} | UA: {navigator.userAgent.substring(0, 50)}...
+          </div>
+          <div style={{ fontSize: '12px', marginTop: '5px', opacity: 0.5 }}>
+            Cast Receiver: {isCastReceiver ? 'YES' : 'NO'} | Body Classes:{' '}
+            {document.body.className || 'none'}
+          </div>
+        </div>
+      </div>
     );
   }
 
