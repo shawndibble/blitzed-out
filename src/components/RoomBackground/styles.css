@@ -48,3 +48,22 @@ body.theme-light .main-container.default-background {
   transition: opacity 0.5s ease-in-out;
   border: none;
 }
+
+/* Fix for iframe/cast receiver environments */
+.cast-receiver-mode .main-container {
+  position: absolute !important;
+  /* Ensure it covers the full iframe */
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* Also handle cases where we detect we're in an iframe */
+body.in-iframe .main-container {
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+}

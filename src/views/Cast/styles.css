@@ -72,7 +72,9 @@
   padding: 2rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   background-color: rgba(0, 0, 0, 0.7);
-  max-width: 80%;
+  max-width: 95vw;
+  min-width: fit-content;
+  width: auto;
   margin: 0 auto;
   margin-top: 3rem;
 }
@@ -89,3 +91,32 @@
   min-height: 100vh;
   background-color: transparent;
 }
+
+/* Responsive cast box that adapts to any screen size */
+.responsive-cast-box {
+  /* Content-based sizing with responsive constraints */
+  min-height: fit-content;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Improve text readability on any screen size */
+.responsive-cast-box h1,
+.responsive-cast-box h2,
+.responsive-cast-box h3,
+.responsive-cast-box h4 {
+  word-wrap: normal;
+  hyphens: none;
+  max-width: 100%;
+  text-align: center;
+  /* Only break words if absolutely necessary */
+  overflow-wrap: normal;
+  /* For short text, try to keep it on one line */
+  min-width: fit-content;
+}
+
+/* Remove fixed height constraints - let content determine size */

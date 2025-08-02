@@ -1,0 +1,144 @@
+/* Shared loading styles for both main app and cast receiver */
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading spinner component */
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid #0abde3;
+  border-radius: 50%;
+  animation: spin 1.4s linear infinite;
+  margin-bottom: 24px;
+}
+
+/* Loading text styling */
+.loading-text {
+  font-size: clamp(1.25rem, 4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #0abde3;
+  text-align: center;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    system-ui,
+    sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Loading container for centered display */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #0abde3;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    system-ui,
+    sans-serif;
+  text-align: center;
+}
+
+/* Fullscreen loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Dark theme background gradient */
+.dark-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(30, 41, 59, 0.95) 20%,
+    rgba(51, 65, 85, 0.9) 40%,
+    rgba(30, 41, 59, 0.95) 60%,
+    rgba(15, 23, 42, 0.9) 80%,
+    rgba(2, 6, 23, 0.95) 100%
+  );
+}
+
+/* Light theme variations for better accessibility */
+@media (prefers-color-scheme: light) {
+  .loading-spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #0369a1;
+  }
+
+  .loading-text {
+    color: #0369a1;
+  }
+
+  .loading-container {
+    color: #0369a1;
+  }
+
+  .dark-gradient-bg {
+    background: linear-gradient(
+      135deg,
+      rgba(248, 250, 252, 0.9) 0%,
+      rgba(226, 232, 240, 0.95) 20%,
+      rgba(203, 213, 225, 0.9) 40%,
+      rgba(226, 232, 240, 0.95) 60%,
+      rgba(248, 250, 252, 0.9) 80%,
+      rgba(255, 255, 255, 0.95) 100%
+    );
+  }
+}
+
+/* Cast receiver specific overrides - always dark regardless of system preference */
+.cast-receiver-override {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(30, 41, 59, 0.95) 20%,
+    rgba(51, 65, 85, 0.9) 40%,
+    rgba(30, 41, 59, 0.95) 60%,
+    rgba(15, 23, 42, 0.9) 80%,
+    rgba(2, 6, 23, 0.95) 100%
+  ) !important;
+  color: #fff !important;
+}
+
+.cast-receiver-override .loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1) !important;
+  border-left: 4px solid #0abde3 !important;
+}
+
+.cast-receiver-override .loading-text {
+  color: #0abde3 !important;
+}
+
+.cast-receiver-override .loading-container {
+  color: #0abde3 !important;
+}
+
+/* Utility classes */
+.hidden {
+  opacity: 0;
+}
+
+.fade-transition {
+  transition: opacity 0.3s ease-in-out;
+}

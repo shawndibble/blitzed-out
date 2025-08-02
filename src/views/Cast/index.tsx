@@ -16,7 +16,6 @@ import { Message } from '@/types/Message';
 import '@/types/window';
 import { loginAnonymously } from '@/services/firebase';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, query, limit, getDocs } from 'firebase/firestore';
 
 const ACTION_TYPE = 'actions';
 
@@ -38,162 +37,64 @@ export default function Cast() {
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [isCastReceiver, setIsCastReceiver] = useState<boolean>(false);
 
-  // Force early debugging - this should show up even if other code fails
-  try {
-    console.log('=== CAST COMPONENT LOADED ===');
-    console.log('Room:', room);
-    console.log('Window location:', window.location.href);
-    console.log('User agent:', navigator.userAgent);
-    console.log('Environment checks:', {
-      isProduction: process.env.NODE_ENV === 'production',
-      hasConsole: typeof console !== 'undefined',
-      hasAlert: typeof alert !== 'undefined',
-      hasDocument: typeof document !== 'undefined',
-      hasWindow: typeof window !== 'undefined',
-      documentTitle: document.title,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    // Even if console fails, try alert
-    if (typeof alert !== 'undefined') {
-      alert('Cast component loaded, room: ' + room + ' Error: ' + error);
-    }
-  }
-
   // Get messages context - let it throw if context is not available, we'll catch it with error boundary
   const { messages, isLoading } = useMessages();
 
-  console.log('=== HOOK RESULTS ===');
-  console.log('Messages loaded:', {
-    messagesCount: messages?.length || 0,
-    isLoading,
-    firstMessage: messages?.[0] || null,
-    lastMessage: messages?.[messages.length - 1] || null,
-  });
-
-  // Additional Firebase debugging
-  console.log('=== FIREBASE DEBUG ===');
-  const auth = getAuth();
-  console.log('Firebase auth current user:', {
-    uid: auth.currentUser?.uid || 'none',
-    isAnonymous: auth.currentUser?.isAnonymous || false,
-    displayName: auth.currentUser?.displayName || 'none',
-    authReady: !!auth.currentUser,
-  });
-
   const { isVideo, url } = usePrivateRoomBackground(messages);
-  console.log('Background info:', { isVideo, url: url || 'none' });
 
   const lastAction = latestMessageByType(messages, ACTION_TYPE);
-  console.log('Last action:', lastAction || 'none');
-
   const nextPlayer = useTurnIndicator(lastAction);
-  console.log('Next player:', nextPlayer || 'none');
-
   const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
-  console.log('Fullscreen status:', isFullscreen);
 
   // Auto-login anonymously for cast functionality
   useEffect(() => {
     const auth = getAuth();
-    console.log('=== AUTH CHECK FOR CAST ===');
-    console.log('Current user:', auth.currentUser?.uid || 'none');
-    console.log('Is anonymous:', auth.currentUser?.isAnonymous || false);
-
-    // Set up auth state change listener to monitor auth changes
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log('=== AUTH STATE CHANGED ===');
-      console.log('New user:', user?.uid || 'none');
-      console.log('Is anonymous:', user?.isAnonymous || false);
-      console.log('Display name:', user?.displayName || 'none');
-    });
 
     if (!auth.currentUser) {
-      console.log('No user found, attempting anonymous login...');
-      loginAnonymously('Cast Viewer')
-        .then(async (user) => {
-          console.log('Anonymous login successful:', user?.uid || 'failed');
-          console.log('User details:', {
-            uid: user?.uid,
-            isAnonymous: user?.isAnonymous,
-            displayName: user?.displayName,
-          });
-
-          // Test Firebase connection directly
-          if (user && room) {
-            console.log('=== DIRECT FIREBASE TEST ===');
-            try {
-              const db = getFirestore();
-              const messagesRef = collection(db, 'chat-rooms', room, 'messages');
-              const q = query(messagesRef, limit(5));
-              const snapshot = await getDocs(q);
-              console.log('Direct Firebase query successful, docs found:', snapshot.size);
-              snapshot.forEach((doc) => {
-                console.log('Message found:', doc.id, doc.data().type);
-              });
-            } catch (firebaseError) {
-              console.error('Direct Firebase query failed:', firebaseError);
-              console.error('Error code:', firebaseError.code);
-              console.error('Error message:', firebaseError.message);
-            }
-          }
-        })
-        .catch((error) => {
-          console.error('Anonymous login failed:', error);
-          console.error('Error details:', error.code, error.message);
-        });
-    } else {
-      console.log('User already authenticated, proceeding...');
+      loginAnonymously('Cast Viewer').catch((error) => {
+        console.error('Anonymous login failed:', error);
+      });
     }
-
-    return () => unsubscribe();
-  }, [room]); // Include room in dependencies
+  }, [room]);
 
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
     const isCastEnvironment = window.cast?.framework?.CastReceiverContext;
     const userAgent = navigator.userAgent;
     const isChromecast = userAgent.includes('CrKey') || userAgent.includes('TV');
+    const isInIframe = window.self !== window.top;
 
     // More robust detection for cast environment
     const isActuallyCasting =
-      isCastEnvironment || isChromecast || window.location.search.includes('chromecast');
-
-    console.log('Cast detection:', {
-      isCastEnvironment: !!isCastEnvironment,
-      isChromecast,
-      userAgent,
-      isActuallyCasting,
-      url: window.location.href,
-    });
+      isCastEnvironment ||
+      isChromecast ||
+      window.location.search.includes('chromecast') ||
+      window.location.search.includes('receiver');
 
     if (isActuallyCasting) {
       document.body.classList.add('cast-receiver-mode');
-      // Force remove light theme when casting
       document.body.classList.remove('theme-light');
       setIsCastReceiver(true);
-      console.log('Cast receiver mode activated, light theme removed');
+    }
+
+    // Add iframe detection for background positioning
+    if (isInIframe) {
+      document.body.classList.add('in-iframe');
     }
 
     return () => {
       if (isActuallyCasting) {
         document.body.classList.remove('cast-receiver-mode');
-        // Note: We don't restore theme-light here because we don't know the original state
-        console.log('Cast receiver mode deactivated');
+      }
+      if (isInIframe) {
+        document.body.classList.remove('in-iframe');
       }
     };
   }, []);
 
   useEffect(() => {
-    console.log('=== LOADING STATE MONITOR ===');
-    console.log('isLoading changed to:', isLoading);
+    if (isLoading) return;
 
-    if (isLoading) {
-      console.log('Still loading, skipping effects...');
-      return;
-    }
-
-    console.log('Loading finished, checking messages...');
     const latestMessage = messages[messages.length - 1];
 
     if (latestMessage?.type === 'settings') {
@@ -202,73 +103,80 @@ export default function Cast() {
     }
   }, [messages, isLoading]);
 
-  // Add timeout to handle stuck loading state
-  useEffect(() => {
-    if (!isLoading) return;
-
-    const timeout = setTimeout(() => {
-      console.log('=== LOADING TIMEOUT ===');
-      console.log('Messages have been loading for 10 seconds, this might indicate an auth issue');
-    }, 10000);
-
-    return () => clearTimeout(timeout);
-  }, [isLoading]);
-
-  console.log('=== RENDER STATE ===');
-  console.log('Cast render state:', {
-    isLoading,
-    messagesLength: messages?.length || 0,
-    lastAction: !!lastAction,
-    room,
-    isCastReceiver,
-    url: window.location.href,
-    windowDimensions: { width: window.innerWidth, height: window.innerHeight },
-    bodyClasses: document.body.className,
-    hasRoomBackground: !!url,
-  });
-
-  // Check DOM state
-  console.log('=== DOM DEBUG ===');
-  console.log('Document ready state:', document.readyState);
-  console.log('Body background color:', getComputedStyle(document.body).backgroundColor);
-  console.log('Cast container exists:', !!document.querySelector('.cast-container'));
-
   if (!lastAction) {
-    console.log('No lastAction found, showing fallback');
-    // Show fallback content instead of returning null
     return (
-      <div
+      <Box
+        className="flex-column"
         style={{
-          backgroundColor: '#000',
-          color: '#fff',
+          backgroundColor: 'transparent',
+          color: 'white',
           minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '24px',
-          fontFamily: 'Arial, sans-serif',
-          textAlign: 'center',
-          padding: '20px',
+          backgroundImage: !isVideo && url ? `url(${url})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
         }}
       >
-        <div>
-          <div style={{ fontSize: '48px', marginBottom: '20px' }}>blitzedout.com/{room}</div>
-          <div style={{ fontSize: '24px' }}>
-            {isLoading ? 'Loading...' : 'Waiting for game to start'}
-          </div>
-          <div style={{ fontSize: '16px', marginTop: '20px', opacity: 0.7 }}>
-            DEBUG: Cast fallback mode - Room: {room} | Loading: {isLoading ? 'yes' : 'no'} |
-            Messages: {messages?.length || 0}
-          </div>
-          <div style={{ fontSize: '12px', marginTop: '10px', opacity: 0.5 }}>
-            Time: {new Date().toLocaleTimeString()} | UA: {navigator.userAgent.substring(0, 50)}...
-          </div>
-          <div style={{ fontSize: '12px', marginTop: '5px', opacity: 0.5 }}>
-            Cast Receiver: {isCastReceiver ? 'YES' : 'NO'} | Body Classes:{' '}
-            {document.body.className || 'none'}
-          </div>
-        </div>
-      </div>
+        {!!url && <RoomBackground url={url} isVideo={isVideo} />}
+        <Grid
+          container
+          spacing={0}
+          direction="column"
+          alignItems="center"
+          justifyContent="center"
+          className="cast-container"
+          style={{ minHeight: '100vh' }}
+        >
+          <Grid container justifyContent="center">
+            <div
+              className="action-box responsive-cast-box"
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.7)',
+                padding: 'clamp(1rem, 4vw, 4rem)',
+                borderRadius: 'clamp(0.5rem, 1vw, 1rem)',
+                textAlign: 'center',
+                width: 'clamp(320px, 90vw, 1400px)',
+                margin: '0 auto',
+              }}
+            >
+              <Typography
+                variant="h2"
+                style={{
+                  color: 'white',
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                  marginBottom: '1rem',
+                  fontSize: 'clamp(1.5rem, 6vw, 4rem)',
+                }}
+              >
+                blitzedout.com/{room}
+              </Typography>
+              {isLoading ? (
+                <Typography
+                  variant="h4"
+                  style={{
+                    color: '#90CAF9',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                    fontSize: 'clamp(1rem, 4vw, 2.5rem)',
+                  }}
+                >
+                  Connecting to game...
+                </Typography>
+              ) : (
+                <Typography
+                  variant="h4"
+                  style={{
+                    color: '#A5D6A7',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
+                    fontSize: 'clamp(1rem, 4vw, 2.5rem)',
+                  }}
+                >
+                  Ready for game to start
+                </Typography>
+              )}
+            </div>
+          </Grid>
+        </Grid>
+      </Box>
     );
   }
 
@@ -278,9 +186,13 @@ export default function Cast() {
     <Box
       className="flex-column"
       style={{
-        backgroundColor: isCastReceiver ? '#000' : 'transparent',
+        backgroundColor: 'transparent',
         color: 'white',
         minHeight: '100vh',
+        backgroundImage: !isVideo && url ? `url(${url})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
@@ -297,7 +209,11 @@ export default function Cast() {
           {!!nextPlayer?.displayName && (
             <Typography
               variant="h4"
-              style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}
+              style={{
+                color: 'white',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                fontSize: 'clamp(1rem, 3vw, 2rem)',
+              }}
             >
               <Trans i18nKey="nextPlayersTurn" values={{ player: nextPlayer.displayName }} />
             </Typography>
@@ -308,7 +224,11 @@ export default function Cast() {
           {activity && (
             <Typography
               variant="h4"
-              style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}
+              style={{
+                color: 'white',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                fontSize: 'clamp(0.8rem, 2.5vw, 1.5rem)',
+              }}
             >
               blitzedout.com/{room}
             </Typography>
@@ -330,18 +250,23 @@ export default function Cast() {
           {activity ? (
             <Grid
               size={12}
-              className="action-box"
+              className="action-box responsive-cast-box"
               style={{
                 backgroundColor: 'rgba(0,0,0,0.7)',
-                padding: '2rem',
-                borderRadius: '0.5rem',
-                maxWidth: '80%',
+                padding: 'clamp(1rem, 4vw, 4rem)',
+                borderRadius: 'clamp(0.5rem, 1vw, 1rem)',
+                maxWidth: '95vw',
+                minWidth: 'fit-content',
                 margin: '0 auto',
               }}
             >
               <Typography
                 variant="h3"
-                style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}
+                style={{
+                  color: 'white',
+                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                  fontSize: 'clamp(1.2rem, 5vw, 3rem)',
+                }}
               >
                 {`${type} ${t('for')} ${displayName}`}
               </Typography>
@@ -362,6 +287,8 @@ export default function Cast() {
                   color: 'white',
                   textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
                   fontWeight: 600,
+                  fontSize: 'clamp(1.8rem, 8vw, 6rem)',
+                  lineHeight: 1.2,
                 }}
               >
                 {activity}
@@ -369,12 +296,13 @@ export default function Cast() {
             </Grid>
           ) : (
             <div
-              className="action-box"
+              className="action-box responsive-cast-box"
               style={{
                 backgroundColor: 'rgba(0,0,0,0.7)',
-                padding: '2rem',
-                borderRadius: '0.5rem',
-                maxWidth: '80%',
+                padding: 'clamp(1rem, 4vw, 4rem)',
+                borderRadius: 'clamp(0.5rem, 1vw, 1rem)',
+                maxWidth: '95vw',
+                minWidth: 'fit-content',
                 margin: '0 auto',
               }}
             >
@@ -384,6 +312,8 @@ export default function Cast() {
                   color: 'white',
                   textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
                   fontWeight: 600,
+                  fontSize: 'clamp(1.8rem, 8vw, 6rem)',
+                  lineHeight: 1.2,
                 }}
               >
                 blitzedout.com/{room}
