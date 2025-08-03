@@ -105,6 +105,7 @@ export function ThemeProvider({ children, defaultMode = 'system' }: ThemeProvide
  * Hook to access theme context
  * @throws Error if used outside of ThemeProvider
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme(): ThemeContextValue {
   const context = useContext(ThemeContext);
 
@@ -118,6 +119,7 @@ export function useTheme(): ThemeContextValue {
 /**
  * Hook to get just the theme mode and setter (lighter alternative)
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useThemeMode(): [ThemeMode, (mode: ThemeMode) => void] {
   const { themeMode, setThemeMode } = useTheme();
   return [themeMode, setThemeMode];
@@ -126,6 +128,7 @@ export function useThemeMode(): [ThemeMode, (mode: ThemeMode) => void] {
 /**
  * Hook to get the resolved theme mode (always 'light' or 'dark')
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useResolvedThemeMode(): 'light' | 'dark' {
   const { resolvedThemeMode } = useTheme();
   return resolvedThemeMode;
@@ -134,6 +137,7 @@ export function useResolvedThemeMode(): 'light' | 'dark' {
 /**
  * Hook for theme toggle functionality
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useThemeToggle(): () => void {
   const { toggleTheme } = useTheme();
   return toggleTheme;

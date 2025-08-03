@@ -89,7 +89,7 @@ export default function LocalPlayerSetup({
     if (initialPlayers.length > 0) {
       setPlayers(initialPlayers);
     }
-  }, []); // Empty dependency array - run only on mount
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update validation when players change
   useEffect(() => {

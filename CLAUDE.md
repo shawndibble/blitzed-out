@@ -65,9 +65,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Issue**: Many lint errors from `public/` directory
 **Solution**: These are build artifacts - use `npx eslint src/` to check only source code
 
-**Issue**: `react-refresh/only-export-components` warning
-**Solution**: This warning on context files is expected and can be ignored
-
 **Issue**: TypeScript compilation errors
 **Solution**: Run `npm run type-check` to see specific type issues without building
 
@@ -167,7 +164,7 @@ Comprehensive product documentation is available in the `docs/` folder:
 This project follows **Test Driven Development**. Always write tests before implementing features:
 
 1. **Red**: Write a failing test describing desired functionality
-2. **Green**: Write minimal code to make the test pass  
+2. **Green**: Write minimal code to make the test pass
 3. **Refactor**: Improve code while keeping tests green
 
 ### Quality Checks Before Commit

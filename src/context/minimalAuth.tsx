@@ -11,6 +11,7 @@ const MinimalAuthContext = createContext<MinimalAuthContextType>({
   hasUser: false,
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useMinimalAuth = () => useContext(MinimalAuthContext);
 
 interface MinimalAuthProviderProps {

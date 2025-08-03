@@ -139,6 +139,7 @@ export async function syncSettingsToFirebase(): Promise<boolean> {
     const { settings } = useSettingsStore.getState();
 
     // Filter out local player settings - they should stay in React app only
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { localPlayers, ...settingsForFirebase } = settings;
 
     // Create a document in Firebase with filtered user settings
