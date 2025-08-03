@@ -1,9 +1,12 @@
-import { Language, Login, PersonAdd } from '@mui/icons-material';
+import './styles.css';
+
+import AuthDialog, { AuthView } from '@/components/auth/AuthDialog';
 import {
   Box,
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Container,
   Divider,
   FormControl,
@@ -13,19 +16,18 @@ import {
   SelectChangeEvent,
   TextField,
   Typography,
-  CircularProgress,
 } from '@mui/material';
-import useAuth from '@/context/hooks/useAuth';
-import { useSettings } from '@/stores/settingsStore';
-import usePlayerList from '@/hooks/usePlayerList';
-import { languages } from '@/services/i18nHelpers';
-import { useState, useCallback, useMemo } from 'react';
+import { Language, Login, PersonAdd } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
+import { useCallback, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import Navigation from '@/views/Navigation';
-import './styles.css';
+
 import GameGuide from '@/views/GameGuide';
-import AuthDialog, { AuthView } from '@/components/auth/AuthDialog';
+import Navigation from '@/views/Navigation';
+import { languages } from '@/services/i18nHelpers';
+import useAuth from '@/context/hooks/useAuth';
+import usePlayerList from '@/hooks/usePlayerList';
+import { useSettings } from '@/stores/settingsStore';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
@@ -111,7 +113,7 @@ export default function UnauthenticatedApp() {
         <Container maxWidth="lg" sx={{ pt: 8 }}>
           <Grid container spacing={4} justifyContent="center" alignItems="stretch">
             {/* Main Setup Card */}
-            <Grid size={{ xs: 12, md: 4, lg: 4 }}>
+            <Grid size={{ xs: 12, md: 6, lg: 4 }}>
               <Card className="unauthenticated-card main-setup-card">
                 <CardContent>
                   <h2 className="setup">
@@ -177,7 +179,7 @@ export default function UnauthenticatedApp() {
             </Grid>
 
             {/* Secondary Content Area for Desktop */}
-            <Grid size={{ xs: 12, md: 8, lg: 8 }}>
+            <Grid size={{ md: 12, lg: 8 }}>
               {/* Game Guide */}
               <Card className="unauthenticated-card">
                 <CardContent>

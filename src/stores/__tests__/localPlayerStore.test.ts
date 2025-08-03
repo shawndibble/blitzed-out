@@ -1,10 +1,11 @@
+import type { LocalPlayer, LocalSessionSettings } from '@/types';
+import { act, renderHook } from '@testing-library/react';
 /**
  * @vitest-environment jsdom
  */
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
 import { useLocalPlayerStore } from '../localPlayerStore';
-import type { LocalPlayer, LocalSessionSettings } from '@/types';
 
 // Mock the local player service
 vi.mock('@/services/localPlayerService', () => ({
@@ -31,6 +32,7 @@ describe('LocalPlayerStore', () => {
         deviceId: 'device-123',
         location: 0,
         isFinished: false,
+        sound: '',
       },
       {
         id: 'player-2',
@@ -41,6 +43,7 @@ describe('LocalPlayerStore', () => {
         deviceId: 'device-123',
         location: 0,
         isFinished: false,
+        sound: '',
       },
     ];
 
