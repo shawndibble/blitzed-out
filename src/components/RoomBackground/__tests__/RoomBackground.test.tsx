@@ -389,6 +389,18 @@ describe('RoomBackground', () => {
       expect(container).toHaveClass('default-background');
     });
 
+    it('shows default background for simple "color" string', () => {
+      render(<RoomBackground url="color" isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).toHaveClass('default-background');
+    });
+
+    it('shows default background for simple "gray" string', () => {
+      render(<RoomBackground url="gray" isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).toHaveClass('default-background');
+    });
+
     it('does not show default background for real image URLs', () => {
       render(<RoomBackground url="https://example.com/image.jpg" isVideo={false} />);
       const container = screen.getByRole('presentation');

@@ -86,7 +86,7 @@ describe('LocalPlayerStore', () => {
         result.current.setSession(mockSession);
       });
 
-      expect(result.current.session).toBe(mockSession);
+      expect(result.current.session).toStrictEqual(mockSession);
       expect(result.current.error).toBeNull();
     });
 
@@ -109,7 +109,7 @@ describe('LocalPlayerStore', () => {
         result.current.setSession(mockSession);
       });
 
-      expect(result.current.session).toBe(mockSession);
+      expect(result.current.session).toStrictEqual(mockSession);
 
       act(() => {
         result.current.clearSession();
@@ -230,7 +230,7 @@ describe('LocalPlayerStore', () => {
       });
 
       const currentPlayer = result.current.getCurrentPlayer();
-      expect(currentPlayer).toBe(mockPlayers[1]);
+      expect(currentPlayer).toStrictEqual(mockPlayers[1]);
     });
 
     test('getCurrentPlayer should return null for invalid index', () => {

@@ -1,15 +1,5 @@
 import { useState, useCallback } from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  Alert,
-  Chip,
-  Switch,
-  FormControlLabel,
-} from '@mui/material';
+import { Box, Typography, Button, Alert, Chip, Switch, FormControlLabel } from '@mui/material';
 import {
   People as PeopleIcon,
   Settings as SettingsIcon,
@@ -43,6 +33,7 @@ export default function LocalPlayerSettings({
     sessionSettings,
     clearLocalSession,
     updateSettings,
+    createLocalSession,
   } = useLocalPlayers();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -59,8 +50,10 @@ export default function LocalPlayerSettings({
   }, []);
 
   const handleSetupComplete = useCallback(
-    async (_players: LocalPlayer[], _settings: LocalSessionSettings) => {
+    async (players: LocalPlayer[], settings: LocalSessionSettings) => {
       try {
+        // Create or update the local session with the new players and settings
+        await createLocalSession(roomId, players, settings);
         setIsEditing(false);
         setError(null);
       } catch (error) {
@@ -69,7 +62,7 @@ export default function LocalPlayerSettings({
         );
       }
     },
-    []
+    [roomId, createLocalSession]
   );
 
   const handleClearSession = useCallback(async () => {
@@ -123,13 +116,6 @@ export default function LocalPlayerSettings({
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-        <PeopleIcon sx={{ color: 'primary.main' }} />
-        <Typography variant="h6" component="h3">
-          <Trans i18nKey="localPlayerSettings.title" />
-        </Typography>
-      </Box>
-
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -138,135 +124,112 @@ export default function LocalPlayerSettings({
 
       {!hasLocalPlayers ? (
         /* No Local Players State */
-        <Card variant="outlined">
-          <CardContent>
-            <Box sx={{ textAlign: 'center', py: 2 }}>
-              <PeopleIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-              <Typography variant="body1" color="text.secondary" paragraph>
-                <Trans i18nKey="localPlayerSettings.noPlayers.description" />
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<PlayArrowIcon />}
-                onClick={handleStartEdit}
-                size="large"
-              >
-                <Trans i18nKey="localPlayerSettings.noPlayers.setupButton" />
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
+        <Box sx={{ textAlign: 'center', py: 2 }}>
+          <PeopleIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+          <Typography variant="body1" color="text.secondary" paragraph>
+            <Trans i18nKey="localPlayerSettings.noPlayers.description" />
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<PlayArrowIcon />}
+            onClick={handleStartEdit}
+            size="large"
+          >
+            <Trans i18nKey="localPlayerSettings.noPlayers.setupButton" />
+          </Button>
+        </Box>
       ) : (
         /* Active Local Players State */
         <Box>
           {/* Session Overview */}
-          <Card variant="outlined" sx={{ mb: 2 }}>
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  mb: 2,
-                }}
-              >
-                <Typography variant="subtitle1" component="h4">
-                  <Trans i18nKey="localPlayerSettings.session.title" />
-                </Typography>
-              </Box>
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
-                {localPlayers.map((player) => (
-                  <Box
-                    key={player.id}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      p: 1,
-                      borderRadius: 1,
-                      bgcolor: player.isActive ? 'primary.50' : 'background.default',
-                      border: player.isActive ? '1px solid' : '1px solid transparent',
-                      borderColor: player.isActive ? 'primary.main' : 'transparent',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        #{player.order + 1}
-                      </Typography>
-                      <Typography variant="body1" fontWeight={player.isActive ? 'bold' : 'normal'}>
-                        {player.name}
-                      </Typography>
-                      <Chip label={t(`roles.${player.role}`)} size="small" variant="outlined" />
-                    </Box>
-                    {player.isActive && (
-                      <Chip
-                        label={t('localPlayerSettings.players.currentTurn')}
-                        color="primary"
-                        size="small"
-                      />
-                    )}
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+              {localPlayers.map((player) => (
+                <Box
+                  key={player.id}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    p: 1,
+                    borderRadius: 1,
+                    bgcolor: player.isActive ? 'primary.50' : 'background.default',
+                    border: player.isActive ? '1px solid' : '1px solid transparent',
+                    borderColor: player.isActive ? 'primary.main' : 'transparent',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      #{player.order + 1}
+                    </Typography>
+                    <Typography variant="body1" fontWeight={player.isActive ? 'bold' : 'normal'}>
+                      {player.name}
+                    </Typography>
+                    <Chip label={t(`roles.${player.role}`)} size="small" variant="outlined" />
                   </Box>
-                ))}
-              </Box>
+                  {player.isActive && (
+                    <Chip
+                      label={t('localPlayerSettings.players.currentTurn')}
+                      color="primary"
+                      size="small"
+                    />
+                  )}
+                </Box>
+              ))}
+            </Box>
 
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  onClick={handleStartEdit}
-                  size="small"
-                >
-                  <Trans i18nKey="localPlayerSettings.session.editButton" />
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  startIcon={<ClearIcon />}
-                  onClick={handleClearSession}
-                  size="small"
-                >
-                  <Trans i18nKey="localPlayerSettings.session.clearButton" />
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                onClick={handleStartEdit}
+                size="small"
+              >
+                <Trans i18nKey="localPlayerSettings.session.editButton" />
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<ClearIcon />}
+                onClick={handleClearSession}
+                size="small"
+              >
+                <Trans i18nKey="localPlayerSettings.session.clearButton" />
+              </Button>
+            </Box>
+          </Box>
 
           {/* Session Settings */}
           {session?.settings && (
-            <Card variant="outlined" sx={{ mt: 2 }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                  <SettingsIcon sx={{ color: 'text.secondary' }} />
-                  <Typography variant="subtitle1" component="h4">
-                    <Trans i18nKey="localPlayerSettings.settings.title" />
-                  </Typography>
-                </Box>
+            <Box sx={{ mt: 3, p: 2, borderRadius: 1, bgcolor: 'action.hover' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <SettingsIcon sx={{ color: 'text.secondary' }} />
+                <Typography variant="subtitle1" component="h4">
+                  <Trans i18nKey="localPlayerSettings.settings.title" />
+                </Typography>
+              </Box>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={session.settings.showTurnTransitions}
-                        onChange={(e) =>
-                          handleSettingChange('showTurnTransitions', e.target.checked)
-                        }
-                      />
-                    }
-                    label={t('localPlayerSettings.settings.showTurnTransitions')}
-                  />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={session.settings.enableTurnSounds}
-                        onChange={(e) => handleSettingChange('enableTurnSounds', e.target.checked)}
-                      />
-                    }
-                    label={t('localPlayerSettings.settings.playTurnSounds')}
-                  />
-                </Box>
-              </CardContent>
-            </Card>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={session.settings.showTurnTransitions}
+                      onChange={(e) => handleSettingChange('showTurnTransitions', e.target.checked)}
+                    />
+                  }
+                  label={t('localPlayerSettings.settings.showTurnTransitions')}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={session.settings.enableTurnSounds}
+                      onChange={(e) => handleSettingChange('enableTurnSounds', e.target.checked)}
+                    />
+                  }
+                  label={t('localPlayerSettings.settings.playTurnSounds')}
+                />
+              </Box>
+            </Box>
           )}
         </Box>
       )}

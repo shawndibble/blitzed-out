@@ -44,7 +44,6 @@ export default function ActionsStep({
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [showCustomization, setShowCustomization] = useState(false);
   const [showQuickStart, setShowQuickStart] = useState(true);
-
   function settingSelectLists(type: string): string[] {
     return Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
   }
@@ -285,7 +284,7 @@ export default function ActionsStep({
 
       <Box sx={{ mt: 4 }}>
         <ButtonRow>
-          <Button onClick={() => prevStep(isPublicRoom(formData.room) ? 2 : 1)}>
+          <Button onClick={() => prevStep(isPublicRoom(formData.room) ? 3 : 1)}>
             <Trans i18nKey="previous" />
           </Button>
           <Button variant="contained" disabled={isNextDisabled} onClick={nextStep} size="large">

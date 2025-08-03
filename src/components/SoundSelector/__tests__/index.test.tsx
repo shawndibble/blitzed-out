@@ -35,15 +35,30 @@ import { playSound, getSoundById } from '@/utils/gameSounds';
 
 describe('SoundSelector', () => {
   const mockSounds = [
-    { id: 'bell', name: 'Bell', frequency: 800, type: 'sine' as OscillatorType, duration: 200 },
+    {
+      id: 'bell',
+      name: 'Bell',
+      frequency: 800,
+      type: 'sine' as OscillatorType,
+      duration: 200,
+      category: 'test',
+    },
     {
       id: 'chime',
       name: 'Chime',
       frequency: 1000,
       type: 'triangle' as OscillatorType,
       duration: 300,
+      category: 'test',
     },
-    { id: 'ding', name: 'Ding', frequency: 1200, type: 'square' as OscillatorType, duration: 150 },
+    {
+      id: 'ding',
+      name: 'Ding',
+      frequency: 1200,
+      type: 'square' as OscillatorType,
+      duration: 150,
+      category: 'test',
+    },
   ];
 
   const defaultProps = {

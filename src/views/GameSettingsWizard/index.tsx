@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, Divider } from '@mui/material';
 import { Trans } from 'react-i18next';
 import RoomStep from './RoomStep';
@@ -23,13 +23,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const { id: room } = useParams<{ id: string }>();
   const [step, setStep] = useState<number>(1);
 
-  const overrideSettings: Record<string, any> = { room };
-
-  if (isPublicRoom(room)) {
-    // if we are in the public room, some settings are forced.
-    overrideSettings.gameMode = 'online';
-    overrideSettings.roomRealtime = true;
-  }
+  const overrideSettings: Record<string, any> = { room: room || 'PUBLIC' };
 
   const [formData, setFormData] = useSettingsToFormData<FormData & Partial<Settings>>(
     {
@@ -40,41 +34,15 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
       role: 'sub',
       boardUpdated: false,
       room: room || 'PUBLIC',
+      selectedActions: {},
     },
     overrideSettings
   );
 
-  const initialLoad = useRef(true);
   const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(formData.gameMode);
 
-  // on load, we want to guess what page we should be on.
-  useEffect(() => {
-    if (!initialLoad.current) return;
-    initialLoad.current = false;
-
-    if (formData.advancedSettings) {
-      goToAdvanced();
-      return;
-    }
-
-    // if we do not have a close() then this dialog opened b/c we need to set up a game.
-    // this also means we need to do all steps.
-    if (typeof close !== 'function') return;
-
-    // If we are in the public room, then we can skip to step 4 (actions step).
-    if (isPublicRoom(room)) {
-      setStep(4);
-      return;
-    }
-
-    // If the game mode is already set to 'online,' the game mode step can be skipped because the user has already selected this mode and doesn't need to choose again.
-    if (formData.gameMode === 'online') {
-      setStep(4);
-      return;
-    }
-
-    setStep(2); // Start with local players step for private rooms
-  }, [formData, close, room]);
+  // Note: Removed the useEffect that was syncing URL to formData as it was interfering
+  // with wizard selections. The wizard should be independent until form submission.
 
   const nextStep = (count?: number): void => {
     if (!Number.isInteger(count)) return setStep(step + 1);
@@ -86,16 +54,15 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     setStep(step - (count || 1));
   };
 
-  const goToAdvanced = (): void => setStep(0); // Use 0 to represent 'advanced'
+  const goToAdvanced = (): void => setStep(0);
 
   const goToSetupWizard = (): void => {
-    // Reset to the appropriate step based on a room type and current settings
-    if (isPublicRoom(room)) {
-      setStep(4); // Skip to the "actions" step for public rooms
+    if (isPublicRoom(formData.room)) {
+      setStep(4);
     } else if (formData.gameMode === 'online') {
-      setStep(4); // Skip to the "actions" step if already online
+      setStep(4);
     } else {
-      setStep(1); // Start from the beginning
+      setStep(1);
     }
   };
 
@@ -104,6 +71,10 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
       case 1:
         return <RoomStep formData={formData} setFormData={setFormData} nextStep={nextStep} />;
       case 2:
+        if (isPublicRoom(formData.room)) {
+          setStep(4);
+          return null;
+        }
         return (
           <LocalPlayersStep
             formData={formData}
@@ -113,6 +84,10 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
           />
         );
       case 3:
+        if (isPublicRoom(formData.room)) {
+          setStep(4);
+          return null;
+        }
         return (
           <GameModeStep
             formData={formData}
@@ -154,7 +129,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
       <Box sx={{ width: '100%', mt: 2, mb: 4 }}>
         <DynamicStepper
           currentStep={step}
-          isPublicRoom={isPublicRoom(room)}
+          isPublicRoom={isPublicRoom(formData.room)}
           onStepClick={setStep}
         />
       </Box>

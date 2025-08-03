@@ -18,6 +18,7 @@ export interface Settings {
   hideBoardActions?: boolean;
   locale?: string;
   background?: string;
+  roomBackground?: string;
   /** Theme preference: 'light', 'dark', or 'system' (follows OS preference) */
   themeMode?: ThemeMode;
   finishRange?: [number, number];

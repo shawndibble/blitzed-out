@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 const LocalPlayerSetupLazy = lazy(() => import('./index'));
 
 // Loading fallback component
-const LocalPlayerSetupLoading = () => {
+export const LocalPlayerSetupLoading = () => {
   const { t } = useTranslation();
 
   return (
@@ -29,7 +29,7 @@ const LocalPlayerSetupLoading = () => {
 };
 
 // Error boundary fallback
-const LocalPlayerSetupError = ({ error }: { error: Error }) => {
+export const LocalPlayerSetupError = ({ error }: { error: Error }) => {
   const { t } = useTranslation();
 
   return (

@@ -122,18 +122,31 @@ export default function Room() {
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const hybridPlayerList = useHybridPlayerList();
   const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
-  const [importResult, clearImportResult] = useUrlImport(settings, setSettings as any);
+  const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
 
   if (
-    !gameBoard ||
+    (!gameBoard ||
     !gameBoard.length ||
     !Object.keys(settings).length ||
-    (isPublicRoom(room) && !isOnlineMode(settings.gameMode))
+    (isPublicRoom(room) && !isOnlineMode(settings.gameMode))) &&
+    !isImporting
   ) {
     return (
       <>
         <Navigation room={params.id} playerList={playerList as any} />
         <GameSettingsDialog open={true} />
+      </>
+    );
+  }
+
+  // Show loading state during import
+  if (isImporting) {
+    return (
+      <>
+        <Navigation room={params.id} playerList={playerList as any} />
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+          <CircularProgress size={48} />
+        </Box>
       </>
     );
   }
@@ -146,16 +159,29 @@ export default function Room() {
   const defaultRoomBackgroundClass = !hasCustomBackground ? 'default-room-background' : '';
 
   const { background, roomBackground } = settings;
-  const isTransparent =
-    (!isPublicRoom(room) && roomBackground !== 'app') ||
-    !['color', 'gray'].includes(background || '');
+
+  // Helper function to get the actual resolved background value
+  const getActualBackground = (): string | null => {
+    if (background === 'useRoomBackground') {
+      return roomBackground || null;
+    }
+    return background || null;
+  };
+
+  const actualBackground = getActualBackground();
+
+  const isGameBoardTransparent = !['color'].includes(actualBackground || '');
+
+  const isMessageListTransparent = Boolean(
+    actualBackground && !['color', 'gray'].includes(actualBackground)
+  );
 
   const GameBoardComponent = (
     <Suspense fallback={<ComponentLoader />}>
       <GameBoard
         playerList={hybridPlayerList as any}
-        isTransparent={isTransparent}
-        gameBoard={gameBoard}
+        isTransparent={isGameBoardTransparent}
+        gameBoard={gameBoard || []}
         settings={settings as Settings}
       />
     </Suspense>
@@ -166,10 +192,10 @@ export default function Room() {
       <Suspense fallback={<ComponentLoader />}>
         <MessageList
           room={room}
-          isTransparent={isTransparent}
-          currentGameBoardSize={gameBoard.length}
+          isTransparent={isMessageListTransparent}
+          currentGameBoardSize={gameBoard?.length || 0}
         />
-        <MessageInput room={room} isTransparent={isTransparent} />
+        <MessageInput room={room} isTransparent={isMessageListTransparent} />
       </Suspense>
     </div>
   );

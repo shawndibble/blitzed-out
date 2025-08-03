@@ -516,6 +516,234 @@ describe('DynamicStepper', () => {
     });
   });
 
+  describe('FormData-Based Logic and Integration', () => {
+    it('correctly handles isPublicRoom prop based on formData evaluation', () => {
+      // Test with explicit public room
+      renderWithTheme(<DynamicStepper {...defaultProps} isPublicRoom={true} />);
+
+      let steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(3);
+
+      // Test with explicit private room
+      renderWithTheme(<DynamicStepper {...defaultProps} isPublicRoom={false} />);
+
+      steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(5);
+    });
+
+    it('updates stepper configuration when room type changes', () => {
+      const { rerender } = renderWithTheme(
+        <DynamicStepper {...defaultProps} isPublicRoom={false} />
+      );
+
+      // Start with private room (5 steps)
+      let steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(5);
+
+      // Change to public room (3 steps)
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={true} />);
+      steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(3);
+
+      // Change back to private room (5 steps)
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={false} />);
+      steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(5);
+    });
+
+    it('maintains correct active step mapping during room type transitions', () => {
+      const { rerender } = renderWithTheme(
+        <DynamicStepper {...defaultProps} currentStep={4} isPublicRoom={false} />
+      );
+
+      // Step 4 in private room should be the 4th stepper step (index 3)
+      let steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps[3]).toHaveClass('Mui-active');
+
+      // Step 4 in public room should be the 2nd stepper step (index 1)
+      rerender(<DynamicStepper {...defaultProps} currentStep={4} isPublicRoom={true} />);
+      steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps[1]).toHaveClass('Mui-active');
+    });
+
+    it('handles wizard step to stepper index mapping correctly for room type changes', async () => {
+      const user = userEvent.setup();
+      const { rerender } = renderWithTheme(
+        <DynamicStepper {...defaultProps} isPublicRoom={false} />
+      );
+
+      // Click on Actions step in private room (4th step, index 3)
+      await user.click(screen.getByText('Actions Selection'));
+      expect(mockOnStepClick).toHaveBeenCalledWith(4);
+
+      // Change to public room and click on Actions step (2nd step, index 1)
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={true} />);
+      await user.click(screen.getByText('Actions Selection'));
+      expect(mockOnStepClick).toHaveBeenCalledWith(4); // Should still map to wizard step 4
+    });
+
+    it('preserves step navigation logic across room type changes', async () => {
+      const user = userEvent.setup();
+      const { rerender } = renderWithTheme(
+        <DynamicStepper {...defaultProps} isPublicRoom={false} currentStep={2} />
+      );
+
+      // Verify Local Players step is clickable in private room
+      await user.click(screen.getByText('Local Players'));
+      expect(mockOnStepClick).toHaveBeenCalledWith(2);
+
+      // Change to public room - Local Players should not be available
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={true} currentStep={1} />);
+      expect(screen.queryByText('Local Players')).not.toBeInTheDocument();
+    });
+
+    it('handles currentStep prop changes correctly for both room types', () => {
+      const { rerender } = renderWithTheme(
+        <DynamicStepper {...defaultProps} currentStep={1} isPublicRoom={false} />
+      );
+
+      // Check step 1 is active
+      let steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps[0]).toHaveClass('Mui-active');
+
+      // Change to step 3
+      rerender(<DynamicStepper {...defaultProps} currentStep={3} isPublicRoom={false} />);
+      steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps[2]).toHaveClass('Mui-active');
+
+      // Switch to public room with step 4 (should map to index 1)
+      rerender(<DynamicStepper {...defaultProps} currentStep={4} isPublicRoom={true} />);
+      steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps[1]).toHaveClass('Mui-active');
+    });
+  });
+
+  describe('GameSettingsWizard Integration Scenarios', () => {
+    it('handles wizard step navigation patterns for public room workflow', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(<DynamicStepper {...defaultProps} isPublicRoom={true} currentStep={4} />);
+
+      // Public room workflow: Room Selection → Actions → Finish
+      expect(screen.getByText('Room Selection')).toBeInTheDocument();
+      expect(screen.getByText('Actions Selection')).toBeInTheDocument();
+      expect(screen.getByText('Finish Setup')).toBeInTheDocument();
+
+      // Click Room Selection (step 1)
+      await user.click(screen.getByText('Room Selection'));
+      expect(mockOnStepClick).toHaveBeenCalledWith(1);
+
+      // Click Finish Setup (step 5)
+      await user.click(screen.getByText('Finish Setup'));
+      expect(mockOnStepClick).toHaveBeenCalledWith(5);
+    });
+
+    it('handles wizard step navigation patterns for private room workflow', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(<DynamicStepper {...defaultProps} isPublicRoom={false} currentStep={2} />);
+
+      // Private room workflow: Room → Local Players → Game Mode → Actions → Finish
+      const expectedSteps = [
+        { label: 'Room Selection', wizardStep: 1 },
+        { label: 'Local Players', wizardStep: 2 },
+        { label: 'Game Mode Selection', wizardStep: 3 },
+        { label: 'Actions Selection', wizardStep: 4 },
+        { label: 'Finish Setup', wizardStep: 5 },
+      ];
+
+      // Verify all steps are present
+      expectedSteps.forEach(({ label }) => {
+        expect(screen.getByText(label)).toBeInTheDocument();
+      });
+
+      // Test navigation to each step
+      for (const { label, wizardStep } of expectedSteps) {
+        await user.click(screen.getByText(label));
+        expect(mockOnStepClick).toHaveBeenCalledWith(wizardStep);
+      }
+    });
+
+    it('correctly maps protected steps in public room scenarios', () => {
+      renderWithTheme(<DynamicStepper {...defaultProps} isPublicRoom={true} currentStep={2} />);
+
+      // Step 2 (Local Players) should not exist in public room
+      // The component should handle this by not having step 2 in the steps array
+      const steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(3); // Only 3 steps for public room
+
+      // No step should be active since step 2 doesn't exist in public room
+      const activeSteps = document.querySelectorAll('.MuiStep-root.Mui-active');
+      expect(activeSteps).toHaveLength(0);
+    });
+
+    it('handles step redirection scenarios correctly', () => {
+      // Test when wizard is on step 3 but room is public (should redirect)
+      renderWithTheme(<DynamicStepper {...defaultProps} isPublicRoom={true} currentStep={3} />);
+
+      // Step 3 should not exist in public room, so no step should be active
+      const activeSteps = document.querySelectorAll('.MuiStep-root.Mui-active');
+      expect(activeSteps).toHaveLength(0);
+    });
+
+    it('maintains step consistency during formData updates', () => {
+      const { rerender } = renderWithTheme(
+        <DynamicStepper {...defaultProps} isPublicRoom={false} currentStep={2} />
+      );
+
+      // Verify step 2 is active in private room
+      let steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps[1]).toHaveClass('Mui-active');
+
+      // Simulate formData change that switches to public room
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={true} currentStep={4} />);
+
+      // Should now show public room steps with step 4 active
+      steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(3);
+      expect(steps[1]).toHaveClass('Mui-active');
+    });
+  });
+
+  describe('Advanced Step Management', () => {
+    it('handles step validation and protection logic', () => {
+      // Test that component correctly handles invalid step combinations
+      renderWithTheme(<DynamicStepper {...defaultProps} isPublicRoom={true} currentStep={2} />);
+
+      // Step 2 is invalid for public room, should result in no active step
+      const activeSteps = document.querySelectorAll('.MuiStep-root.Mui-active');
+      expect(activeSteps).toHaveLength(0);
+    });
+
+    it('provides correct step feedback for navigation state', () => {
+      renderWithTheme(<DynamicStepper {...defaultProps} isPublicRoom={false} currentStep={3} />);
+
+      // Step 3 should be highlighted in private room
+      const steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps[2]).toHaveClass('Mui-active');
+
+      // Other steps should not be active
+      expect(steps[0]).not.toHaveClass('Mui-active');
+      expect(steps[1]).not.toHaveClass('Mui-active');
+      expect(steps[3]).not.toHaveClass('Mui-active');
+      expect(steps[4]).not.toHaveClass('Mui-active');
+    });
+
+    it('handles concurrent step and room type changes', () => {
+      const { rerender } = renderWithTheme(
+        <DynamicStepper {...defaultProps} isPublicRoom={false} currentStep={1} />
+      );
+
+      // Multiple rapid changes
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={true} currentStep={4} />);
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={false} currentStep={5} />);
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={true} currentStep={1} />);
+
+      // Final state should be correct
+      const steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(3); // Public room
+      expect(steps[0]).toHaveClass('Mui-active'); // Step 1 active
+    });
+  });
+
   describe('Styling and Accessibility', () => {
     it('applies correct stepper orientation', () => {
       renderWithTheme(<DynamicStepper {...defaultProps} />);
@@ -554,6 +782,21 @@ describe('DynamicStepper', () => {
       // Even on mobile, accessibility structure should be maintained
       const stepper = document.querySelector('.MuiStepper-root');
       expect(stepper).toBeInTheDocument();
+      expect(stepper).toHaveAttribute('aria-orientation', 'horizontal');
+    });
+
+    it('maintains accessibility during room type transitions', () => {
+      const { rerender } = renderWithTheme(
+        <DynamicStepper {...defaultProps} isPublicRoom={false} />
+      );
+
+      // Check initial accessibility
+      let stepper = document.querySelector('.MuiStepper-root');
+      expect(stepper).toHaveAttribute('aria-orientation', 'horizontal');
+
+      // Change room type and verify accessibility is maintained
+      rerender(<DynamicStepper {...defaultProps} isPublicRoom={true} />);
+      stepper = document.querySelector('.MuiStepper-root');
       expect(stepper).toHaveAttribute('aria-orientation', 'horizontal');
     });
   });

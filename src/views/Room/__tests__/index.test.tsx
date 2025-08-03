@@ -55,6 +55,7 @@ vi.mock('@/stores/gameBoard', () => ({
 
 vi.mock('@/stores/settingsStore', () => ({
   useSettings: vi.fn(),
+  useSettingsStore: vi.fn(),
 }));
 
 // Mock background service
@@ -106,7 +107,7 @@ vi.mock('@/components/GameSettingsDialog', () => ({
   ),
 }));
 
-vi.mock('./RollButton', () => ({
+vi.mock('../RollButton', () => ({
   default: vi.fn(({ setRollValue, dice, isEndOfBoard }) => (
     <div
       data-testid="roll-button"
@@ -139,6 +140,7 @@ vi.mock('@/views/Room/GameBoard', () => ({
       Game Board
     </div>
   )),
+  __esModule: true,
 }));
 
 vi.mock('@/components/MessageList', () => ({
@@ -152,6 +154,7 @@ vi.mock('@/components/MessageList', () => ({
       Message List
     </div>
   )),
+  __esModule: true,
 }));
 
 vi.mock('@/components/MessageInput', () => ({
@@ -188,7 +191,7 @@ vi.mock('@/components/ToastAlert', () => ({
 // Import mocked dependencies
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { getActiveBoard } from '@/stores/gameBoard';
-import { useSettings } from '@/stores/settingsStore';
+import { useSettings, useSettingsStore } from '@/stores/settingsStore';
 import getBackgroundSource from '@/services/getBackgroundSource';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import usePresence from '@/hooks/usePresence';
@@ -272,6 +275,10 @@ describe('Room Component', () => {
     // Setup default mock implementations
     vi.mocked(useLiveQuery).mockReturnValue({ tiles: mockTiles });
     vi.mocked(useSettings).mockReturnValue([mockSettings, vi.fn()]);
+    vi.mocked(useSettingsStore).mockReturnValue({
+      settings: mockSettings,
+      updateSettings: vi.fn(),
+    });
     vi.mocked(useBreakpoint).mockReturnValue(false); // Desktop by default
     vi.mocked(usePresence).mockReturnValue(undefined);
     vi.mocked(usePlayerMove).mockReturnValue({
@@ -290,7 +297,7 @@ describe('Room Component', () => {
       roller: '1d6',
       roomBgUrl: '',
     });
-    vi.mocked(useUrlImport).mockReturnValue([null, vi.fn()]);
+    vi.mocked(useUrlImport).mockReturnValue([null, vi.fn(), false]);
     vi.mocked(getBackgroundSource).mockReturnValue({
       isVideo: false,
       url: null,
@@ -580,7 +587,7 @@ describe('Room Component', () => {
 
   describe('Authentication Integration', () => {
     it('should handle URL import results', () => {
-      vi.mocked(useUrlImport).mockReturnValue(['Settings updated successfully', vi.fn()]);
+      vi.mocked(useUrlImport).mockReturnValue(['Settings updated successfully', vi.fn(), false]);
 
       renderRoomWithRouter();
 
@@ -590,7 +597,7 @@ describe('Room Component', () => {
     });
 
     it('should handle URL import errors', () => {
-      vi.mocked(useUrlImport).mockReturnValue(['Import failed', vi.fn()]);
+      vi.mocked(useUrlImport).mockReturnValue(['Import failed', vi.fn(), false]);
 
       renderRoomWithRouter();
 
@@ -600,7 +607,7 @@ describe('Room Component', () => {
     });
 
     it('should not show toast when no import result', () => {
-      vi.mocked(useUrlImport).mockReturnValue([null, vi.fn()]);
+      vi.mocked(useUrlImport).mockReturnValue([null, vi.fn(), false]);
 
       renderRoomWithRouter();
 
@@ -609,7 +616,7 @@ describe('Room Component', () => {
 
     it('should handle toast alert close action', () => {
       const mockClearImportResult = vi.fn();
-      vi.mocked(useUrlImport).mockReturnValue(['Some result', mockClearImportResult]);
+      vi.mocked(useUrlImport).mockReturnValue(['Some result', mockClearImportResult, false]);
 
       renderRoomWithRouter();
 
@@ -617,6 +624,28 @@ describe('Room Component', () => {
       toastAlert.click();
 
       expect(mockClearImportResult).toHaveBeenCalled();
+    });
+
+    it('should show loading state during board import', () => {
+      vi.mocked(useUrlImport).mockReturnValue([null, vi.fn(), true]);
+
+      renderRoomWithRouter();
+
+      expect(screen.getByTestId('navigation')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      expect(screen.queryByTestId('game-settings-dialog')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('game-board')).not.toBeInTheDocument();
+    });
+
+    it('should not show setup dialog during board import even with empty settings', () => {
+      vi.mocked(useSettings).mockReturnValue([{} as Settings, vi.fn()]);
+      vi.mocked(useLiveQuery).mockReturnValue({ tiles: [] });
+      vi.mocked(useUrlImport).mockReturnValue([null, vi.fn(), true]);
+
+      renderRoomWithRouter();
+
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      expect(screen.queryByTestId('game-settings-dialog')).not.toBeInTheDocument();
     });
   });
 

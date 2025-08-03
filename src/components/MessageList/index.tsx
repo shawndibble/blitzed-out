@@ -66,7 +66,6 @@ export default function MessageList({
         // Backup attempts with different timing
         requestAnimationFrame(scrollToBottom);
         setTimeout(scrollToBottom, 10);
-        setTimeout(scrollToBottom, 50);
       }
     }
   }, [messages.length, messages]);

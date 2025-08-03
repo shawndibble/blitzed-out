@@ -1,4 +1,10 @@
-import { Box, Divider } from '@mui/material';
+import { Box, Card, CardContent, Typography } from '@mui/material';
+import {
+  MeetingRoom as MeetingRoomIcon,
+  People as PeopleIcon,
+  Tune as TuneIcon,
+  Wallpaper as WallpaperIcon,
+} from '@mui/icons-material';
 import BackgroundSelect from '@/components/BackgroundSelect';
 import { useTranslation } from 'react-i18next';
 import GameSpeed from './GameSpeed';
@@ -18,32 +24,86 @@ export default function RoomSettings({ formData, setFormData }: RoomSettingsProp
   const { t } = useTranslation();
 
   const backgrounds: Record<string, string> = {
-    app: t('appBackground'),
+    useAppBackground: t('useAppBackground'),
+    color: t('color'),
+    gray: t('gray'),
+    'metronome.gif': t('hypnoDick'),
+    'pink-spiral.gif': t('pinkSpiral'),
     custom: t('customURL'),
   };
 
   return (
-    <Box sx={{ margin: '0.5rem' }}>
-      <RoomSwitch formData={formData} setFormData={setFormData} />
+    <Box sx={{ p: 2 }}>
+      {/* Room Type Section */}
+      <Card variant="outlined" sx={{ mb: 3 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <MeetingRoomIcon sx={{ color: 'primary.main' }} />
+            <Typography variant="h6" component="h3">
+              {t('roomType')}
+            </Typography>
+          </Box>
+          <RoomSwitch formData={formData} setFormData={setFormData} />
+        </CardContent>
+      </Card>
 
       {!isPublicRoom(formData.room) && (
         <>
-          <Divider sx={{ my: 1 }} />
-          <LocalPlayerSettings
-            roomId={formData.room}
-            isPrivateRoom={!isPublicRoom(formData.room)}
-          />
-          <Divider sx={{ my: 1 }} />
-          <GameSpeed formData={formData} setFormData={setFormData} />
-          <Divider sx={{ my: 1 }} />
-          <PlayerListOption formData={formData} setFormData={setFormData} />
-          <Divider sx={{ my: 1 }} />
-          <BackgroundSelect
-            formData={formData}
-            setFormData={setFormData}
-            backgrounds={backgrounds}
-            isRoom={true}
-          />
+          {/* Local Players Section */}
+          <Card variant="outlined" sx={{ mb: 3 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <PeopleIcon sx={{ color: 'primary.main' }} />
+                <Typography variant="h6" component="h3">
+                  {t('localPlayerSettings.title')}
+                </Typography>
+              </Box>
+              <LocalPlayerSettings
+                roomId={formData.room}
+                isPrivateRoom={!isPublicRoom(formData.room)}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Game Configuration Section */}
+          <Card variant="outlined" sx={{ mb: 3 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <TuneIcon sx={{ color: 'primary.main' }} />
+                <Typography variant="h6" component="h3">
+                  {t('gameConfiguration')}
+                </Typography>
+              </Box>
+
+              {/* Game Speed Subsection */}
+              <Box sx={{ mb: 3 }}>
+                <GameSpeed formData={formData} setFormData={setFormData} />
+              </Box>
+
+              {/* Player List Options Subsection */}
+              <Box sx={{ p: 2, borderRadius: 1, bgcolor: 'action.hover' }}>
+                <PlayerListOption formData={formData} setFormData={setFormData} />
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Visual Settings Section */}
+          <Card variant="outlined" sx={{ mb: 3 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <WallpaperIcon sx={{ color: 'primary.main' }} />
+                <Typography variant="h6" component="h3">
+                  {t('visualSettings')}
+                </Typography>
+              </Box>
+              <BackgroundSelect
+                formData={formData}
+                setFormData={setFormData}
+                backgrounds={backgrounds}
+                isRoom={true}
+              />
+            </CardContent>
+          </Card>
         </>
       )}
     </Box>

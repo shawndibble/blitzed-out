@@ -260,7 +260,7 @@ describe('LocalPlayerSettings', () => {
       );
 
       // Check for the main components - the translation mock returns simplified text
-      expect(screen.getByText('active')).toBeInTheDocument();
+      expect(screen.getByText('currentTurn')).toBeInTheDocument();
       expect(screen.getByText('playerCount')).toBeInTheDocument(); // This is what the mock returns
       expect(screen.getByText('Current: Player One')).toBeInTheDocument();
 

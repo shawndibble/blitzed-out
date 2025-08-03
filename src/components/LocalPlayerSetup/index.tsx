@@ -84,10 +84,12 @@ export default function LocalPlayerSetup({
     return valid;
   }, [players, t]);
 
-  // Update players state when initialPlayers prop changes
+  // Initialize players state only once when component mounts
   useEffect(() => {
-    setPlayers(initialPlayers);
-  }, [initialPlayers]);
+    if (initialPlayers.length > 0) {
+      setPlayers(initialPlayers);
+    }
+  }, []); // Empty dependency array - run only on mount
 
   // Update validation when players change
   useEffect(() => {

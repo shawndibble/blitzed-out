@@ -79,7 +79,7 @@ vi.mock('@/hooks/useSettingsToFormData', () => ({
       consumption: [],
       role: 'sub',
       boardUpdated: false,
-      room: overrides?.room || initialData?.room || 'TEST',
+      room: overrides?.room || initialData?.room,
       advancedSettings: false,
       ...overrides,
     };
@@ -90,6 +90,16 @@ vi.mock('@/hooks/useSettingsToFormData', () => ({
 vi.mock('@/hooks/useUnifiedActionList', () => ({
   default: () => ({ actionsList: {}, isLoading: false }),
 }));
+
+// Mock useParams to return the room from the URL
+let mockRoom = 'TEST';
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useParams: () => ({ id: mockRoom }),
+  };
+});
 
 vi.mock('@/helpers/strings', () => ({
   isPublicRoom: vi.fn((room?: string) => room?.toUpperCase() === 'PUBLIC'),
@@ -118,7 +128,8 @@ vi.mock('react-i18next', () => ({
 const renderWizard = (room = 'TEST', close?: () => void) => {
   // Set the route before rendering since test-utils already provides BrowserRouter
   window.history.pushState({}, 'Test page', `/${room}`);
-
+  // Update the mock room to match the URL
+  mockRoom = room;
   return render(<GameSettingsWizard close={close} />);
 };
 
@@ -142,9 +153,17 @@ describe('GameSettingsWizard', () => {
     it('shows correct step indicators', () => {
       renderWizard();
 
-      // Should show 4 steps in the stepper
+      // Should show 5 steps in the stepper for private room (TEST is not PUBLIC)
       const steps = document.querySelectorAll('.MuiStep-root');
-      expect(steps).toHaveLength(4);
+      expect(steps).toHaveLength(5);
+    });
+
+    it('shows correct step indicators for public room', () => {
+      renderWizard('PUBLIC');
+
+      // Should show 3 steps in the stepper for public room
+      const steps = document.querySelectorAll('.MuiStep-root');
+      expect(steps).toHaveLength(3);
     });
 
     it('has advanced setup button', () => {

@@ -1,6 +1,15 @@
-import { FormControl, InputLabel, Select, MenuItem, IconButton, Box, Tooltip } from '@mui/material';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  Box,
+  Tooltip,
+  ListSubheader,
+} from '@mui/material';
 import { PlayArrow, VolumeOff } from '@mui/icons-material';
-import { AVAILABLE_SOUNDS, playSound, getSoundById } from '@/utils/gameSounds';
+import { SOUND_CATEGORIES, playSound, getSoundById } from '@/utils/gameSounds';
 
 interface SoundSelectorProps {
   selectedSoundId?: string;
@@ -50,11 +59,16 @@ export default function SoundSelector({
             </Box>
           </MenuItem>
 
-          {AVAILABLE_SOUNDS.map((sound) => (
-            <MenuItem key={sound.id} value={sound.id}>
-              {sound.name}
-            </MenuItem>
-          ))}
+          {SOUND_CATEGORIES.map((category) => [
+            <ListSubheader key={`header-${category.id}`} sx={{ fontWeight: 'bold' }}>
+              {category.name}
+            </ListSubheader>,
+            ...category.sounds.map((sound) => (
+              <MenuItem key={sound.id} value={sound.id} sx={{ pl: 3 }}>
+                {sound.name}
+              </MenuItem>
+            )),
+          ])}
         </Select>
       </FormControl>
 

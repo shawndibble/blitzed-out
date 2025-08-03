@@ -107,6 +107,11 @@ function filterTilesByRole(
       return true;
     }
 
+    // Solo tiles should be available to all roles (self-directed activities)
+    if (group?.type === 'solo') {
+      return true;
+    }
+
     if (role === 'vers') {
       return (action.includes('{sub}') && action.includes('{dom}')) || action.includes('{player}');
     }
@@ -168,6 +173,7 @@ function buildTileContent(
   settings: Settings
 ): GameTile {
   if (!availableGroups.length) {
+    console.log(`buildTileContent tile ${currentTile}: No available groups`);
     return { title: '', description: '' };
   }
 
@@ -177,6 +183,10 @@ function buildTileContent(
   // Check if this group should append or standalone
   const groupSelection = selectedActions[currentGroup.name];
   if (!groupSelection || groupSelection.level <= 0) {
+    console.log(
+      `buildTileContent tile ${currentTile}: Group ${currentGroup.name} not selected or level <= 0`,
+      groupSelection
+    );
     return { title: '', description: '' };
   }
 
@@ -208,21 +218,31 @@ function buildTileContent(
   let selectedTile = shuffleBag.getTile(currentGroup.name, targetIntensity);
 
   if (!selectedTile) {
+    console.log(
+      `buildTileContent tile ${currentTile}: No tile found for ${currentGroup.name} at intensity ${targetIntensity}, trying fallbacks`
+    );
     // Try lower intensities first
     for (let intensity = targetIntensity - 1; intensity >= 1; intensity--) {
       selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
-      if (selectedTile) break;
+      if (selectedTile) {
+        break;
+      }
     }
 
     // If no lower intensities work, try higher intensities
     if (!selectedTile) {
       for (let intensity = targetIntensity + 1; intensity <= maxIntensity; intensity++) {
         selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
-        if (selectedTile) break;
+        if (selectedTile) {
+          break;
+        }
       }
     }
 
     if (!selectedTile) {
+      console.log(
+        `buildTileContent tile ${currentTile}: No tiles available for group ${currentGroup.name} at any intensity`
+      );
       return { title: '', description: '' };
     }
   }

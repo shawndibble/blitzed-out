@@ -44,6 +44,7 @@ describe('gameSounds utility', () => {
     frequency: 800,
     type: 'sine' as OscillatorType,
     duration: 200,
+    category: 'test',
   };
   const testChimeSound = {
     id: 'chime',
@@ -51,6 +52,7 @@ describe('gameSounds utility', () => {
     frequency: 1000,
     type: 'triangle' as OscillatorType,
     duration: 300,
+    category: 'test',
   };
 
   beforeEach(() => {
@@ -79,6 +81,7 @@ describe('gameSounds utility', () => {
         frequency: 0,
         type: 'sine' as OscillatorType,
         duration: 0,
+        category: 'test',
       };
       const result = await playSound(invalidSound);
 
@@ -367,6 +370,7 @@ describe('gameSounds utility', () => {
           frequency: 1200,
           type: 'square' as OscillatorType,
           duration: 150,
+          category: 'test',
         }),
       ];
 

@@ -197,20 +197,74 @@ interface BackgroundSettings {
   background?: string;
   backgroundURL?: string;
   roomBackground?: string;
+  roomBackgroundURL?: string;
 }
 
 export default function getBackgroundSource(
   settings: BackgroundSettings,
   room: string,
-  roomBackgroundUrl: string | null | undefined
+  _roomBackgroundUrl: string | null | undefined
 ): BackgroundResult {
-  const { background, backgroundURL, roomBackground } = settings;
-  const backgroundSource = background !== 'custom' ? background : backgroundURL;
-  const roomBackgroundSource = roomBackground === 'app' ? roomBackground : roomBackgroundUrl;
+  const { background, backgroundURL, roomBackground, roomBackgroundURL } = settings;
 
-  const bgSource =
-    !isPublicRoom(room) && roomBackground !== 'app' ? roomBackgroundSource : backgroundSource;
+  // Helper function to resolve a background value to its actual source
+  const resolveBackgroundSource = (bgValue: string | undefined, isRoom: boolean): string | null => {
+    if (!bgValue) return null;
 
-  if (!bgSource) return { url: null, isVideo: false };
-  return processBackground(bgSource);
+    if (bgValue === 'custom') {
+      return isRoom ? roomBackgroundURL || null : backgroundURL || null;
+    }
+
+    if (bgValue === 'useAppBackground') {
+      // Room trying to use app background - resolve app background (prevent circular reference)
+      const appBg = background || 'color';
+      if (appBg === 'useRoomBackground') {
+        // Circular reference - fallback to default
+        return 'color';
+      }
+      return appBg === 'custom' ? backgroundURL || null : appBg;
+    }
+
+    if (bgValue === 'useRoomBackground') {
+      // App trying to use room background - only valid in private rooms
+      if (isPublicRoom(room)) {
+        return 'color'; // Fallback for public rooms
+      }
+      const roomBg = roomBackground || 'useAppBackground';
+      if (roomBg === 'useAppBackground') {
+        // Circular reference - fallback to default
+        return 'color';
+      }
+      return roomBg === 'custom' ? roomBackgroundURL || null : roomBg;
+    }
+
+    // Regular background value (color, gray, metronome.gif, etc.)
+    return bgValue;
+  };
+
+  // Determine final background based on context and precedence
+  let finalBackground: string | null = null;
+
+  if (!isPublicRoom(room) && roomBackground && roomBackground !== 'useAppBackground') {
+    // Private room with specific room background preference
+    finalBackground = resolveBackgroundSource(roomBackground, true);
+  } else if (background) {
+    // Use app background (either public room or private room falling back to app)
+    finalBackground = resolveBackgroundSource(background, false);
+  } else {
+    // No preferences set, use default
+    finalBackground = 'color';
+  }
+
+  if (!finalBackground) return { url: null, isVideo: false };
+
+  // Handle built-in background types without processing
+  if (finalBackground === 'color' || finalBackground === 'gray') {
+    const result = { url: finalBackground, isVideo: false };
+    return result;
+  }
+
+  const result = processBackground(finalBackground);
+
+  return result;
 }

@@ -34,7 +34,7 @@ export default function LocalPlayersStep({
   prevStep,
 }: LocalPlayersStepProps): JSX.Element {
   const { t } = useTranslation();
-  const { hasLocalPlayers, clearLocalSession } = useLocalPlayers();
+  const { hasLocalPlayers: hasLocalPlayersValue, clearLocalSession } = useLocalPlayers();
 
   const [isSetupOpen, setIsSetupOpen] = useState(false);
   const [setupError, setSetupError] = useState<string | null>(null);
@@ -49,7 +49,7 @@ export default function LocalPlayersStep({
 
   const handleSkipLocalPlayers = useCallback(() => {
     // Clear any existing local session
-    if (hasLocalPlayers) {
+    if (hasLocalPlayersValue) {
       clearLocalSession();
     }
 
@@ -64,7 +64,7 @@ export default function LocalPlayersStep({
     }));
 
     nextStep();
-  }, [hasLocalPlayers, clearLocalSession, nextStep, setFormData]);
+  }, [hasLocalPlayersValue, clearLocalSession, nextStep, setFormData]);
 
   const handleLocalSetupComplete = useCallback(
     async (players: LocalPlayer[], settings: LocalSessionSettings) => {
@@ -185,7 +185,17 @@ export default function LocalPlayersStep({
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   <Trans i18nKey="localPlayersStep.setupOption.title" />
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    whiteSpace: 'pre-line',
+                    textAlign: 'left',
+                    width: '100%',
+                    lineHeight: 1.8,
+                    mb: 2,
+                  }}
+                >
                   <Trans i18nKey="localPlayersStep.setupOption.description" />
                 </Typography>
 
@@ -226,7 +236,17 @@ export default function LocalPlayersStep({
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                   <Trans i18nKey="localPlayersStep.skipOption.title" />
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    whiteSpace: 'pre-line',
+                    textAlign: 'left',
+                    width: '100%',
+                    lineHeight: 1.8,
+                    mb: 2,
+                  }}
+                >
                   <Trans i18nKey="localPlayersStep.skipOption.description" />
                 </Typography>
 
@@ -246,7 +266,7 @@ export default function LocalPlayersStep({
       </Grid>
 
       {/* Current local player status */}
-      {hasLocalPlayers && (
+      {hasLocalPlayersValue && (
         <Alert severity="info" sx={{ mb: 3 }}>
           <Typography variant="body2">
             <Trans i18nKey="localPlayersStep.currentStatus.hasPlayers" />

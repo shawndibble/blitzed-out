@@ -138,11 +138,14 @@ export async function syncSettingsToFirebase(): Promise<boolean> {
     // Get current settings from store
     const { settings } = useSettingsStore.getState();
 
-    // Create a document in Firebase with user settings
+    // Filter out local player settings - they should stay in React app only
+    const { localPlayers, ...settingsForFirebase } = settings;
+
+    // Create a document in Firebase with filtered user settings
     await setDoc(
       doc(db, 'user-data', user.uid),
       {
-        settings,
+        settings: settingsForFirebase,
         lastUpdated: new Date(),
       },
       { merge: true }
