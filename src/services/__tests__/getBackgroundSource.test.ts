@@ -245,7 +245,7 @@ describe('getBackgroundSource', () => {
           backgroundURL: 'https://example.com/bg.jpg',
         };
 
-        const result = getBackgroundSource(settings, 'PUBLIC', null);
+        const result = getBackgroundSource(settings, 'PUBLIC');
 
         expect(result.url).toBe('https://example.com/bg.jpg');
         expect(result.isVideo).toBe(false);
@@ -259,7 +259,7 @@ describe('getBackgroundSource', () => {
           roomBackground: 'custom',
         };
 
-        const result = getBackgroundSource(settings, 'PUBLIC', 'https://example.com/room-bg.jpg');
+        const result = getBackgroundSource(settings, 'PUBLIC');
 
         expect(result.url).toBe('https://example.com/app-bg.jpg');
       });
@@ -272,9 +272,10 @@ describe('getBackgroundSource', () => {
           background: 'custom',
           backgroundURL: 'https://example.com/app-bg.jpg',
           roomBackground: 'custom',
+          roomBackgroundURL: 'https://example.com/room-bg.jpg',
         };
 
-        const result = getBackgroundSource(settings, 'PRIVATE', 'https://example.com/room-bg.jpg');
+        const result = getBackgroundSource(settings, 'PRIVATE');
 
         expect(result.url).toBe('https://example.com/room-bg.jpg');
       });
@@ -284,10 +285,10 @@ describe('getBackgroundSource', () => {
           ...defaultSettings,
           background: 'custom',
           backgroundURL: 'https://example.com/app-bg.jpg',
-          roomBackground: 'app',
+          roomBackground: 'useAppBackground',
         };
 
-        const result = getBackgroundSource(settings, 'PRIVATE', 'https://example.com/room-bg.jpg');
+        const result = getBackgroundSource(settings, 'PRIVATE');
 
         expect(result.url).toBe('https://example.com/app-bg.jpg');
       });
@@ -300,7 +301,7 @@ describe('getBackgroundSource', () => {
           roomBackground: 'custom',
         };
 
-        const result = getBackgroundSource(settings, 'PRIVATE', null);
+        const result = getBackgroundSource(settings, 'PRIVATE');
 
         expect(result.url).toBeNull();
         expect(result.isVideo).toBe(false);
@@ -315,7 +316,7 @@ describe('getBackgroundSource', () => {
           backgroundURL: 'https://example.com/custom-bg.mp4',
         };
 
-        const result = getBackgroundSource(settings, 'PUBLIC', null);
+        const result = getBackgroundSource(settings, 'PUBLIC');
 
         expect(result.url).toBe('https://example.com/custom-bg.mp4');
         expect(result.isVideo).toBe(true);
@@ -328,7 +329,7 @@ describe('getBackgroundSource', () => {
           backgroundURL: 'https://example.com/custom-bg.jpg',
         };
 
-        const result = getBackgroundSource(settings, 'PUBLIC', null);
+        const result = getBackgroundSource(settings, 'PUBLIC');
 
         expect(result.url).toBe('https://example.com/preset-bg.jpg');
       });
@@ -340,9 +341,9 @@ describe('getBackgroundSource', () => {
           roomBackground: 'app',
         };
 
-        const result = getBackgroundSource(settings, 'PUBLIC', null);
+        const result = getBackgroundSource(settings, 'PUBLIC');
 
-        expect(result.url).toBeNull();
+        expect(result.url).toBe('color');
         expect(result.isVideo).toBe(false);
       });
     });
@@ -356,7 +357,7 @@ describe('getBackgroundSource', () => {
           roomBackground: 'custom',
         };
 
-        const result = getBackgroundSource(settings, 'PUBLIC', 'https://example.com/room-bg.jpg');
+        const result = getBackgroundSource(settings, 'PUBLIC');
 
         expect(result.url).toBe('https://example.com/app-bg.jpg'); // Should use app background
       });
@@ -367,9 +368,10 @@ describe('getBackgroundSource', () => {
           background: 'custom',
           backgroundURL: 'https://example.com/app-bg.jpg',
           roomBackground: 'custom',
+          roomBackgroundURL: 'https://example.com/room-bg.jpg',
         };
 
-        const result = getBackgroundSource(settings, 'MYROOM', 'https://example.com/room-bg.jpg');
+        const result = getBackgroundSource(settings, 'MYROOM');
 
         expect(result.url).toBe('https://example.com/room-bg.jpg'); // Should use room background
       });
@@ -380,10 +382,11 @@ describe('getBackgroundSource', () => {
           background: 'custom',
           backgroundURL: 'https://example.com/app-bg.jpg',
           roomBackground: 'custom',
+          roomBackgroundURL: 'https://example.com/room-bg.jpg',
         };
 
         // Even though room is lowercase, it should still be treated as private
-        const result = getBackgroundSource(settings, 'private', 'https://example.com/room-bg.jpg');
+        const result = getBackgroundSource(settings, 'private');
 
         expect(result.url).toBe('https://example.com/room-bg.jpg');
       });
@@ -397,7 +400,7 @@ describe('getBackgroundSource', () => {
           backgroundURL: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         };
 
-        const result = getBackgroundSource(settings, 'PUBLIC', null);
+        const result = getBackgroundSource(settings, 'PUBLIC');
 
         expect(result.isVideo).toBe(true);
         expect(result.url).toContain('youtube.com/embed/dQw4w9WgXcQ');
@@ -410,7 +413,7 @@ describe('getBackgroundSource', () => {
           backgroundURL: 'https://example.com/image.jpg',
         };
 
-        const result = getBackgroundSource(settings, 'PUBLIC', null);
+        const result = getBackgroundSource(settings, 'PUBLIC');
 
         expect(result.isVideo).toBe(false);
         expect(result.url).toBe('https://example.com/image.jpg');
@@ -419,9 +422,9 @@ describe('getBackgroundSource', () => {
 
     describe('Error handling and edge cases', () => {
       it('handles missing settings gracefully', () => {
-        const result = getBackgroundSource({}, 'PUBLIC', null);
+        const result = getBackgroundSource({}, 'PUBLIC');
 
-        expect(result.url).toBeNull();
+        expect(result.url).toBe('color');
         expect(result.isVideo).toBe(false);
       });
 
@@ -432,7 +435,7 @@ describe('getBackgroundSource', () => {
           backgroundURL: 'https://example.com/bg.jpg',
         };
 
-        const result = getBackgroundSource(settings, undefined as any, null);
+        const result = getBackgroundSource(settings, undefined as any);
 
         expect(result).toHaveProperty('url');
         expect(result).toHaveProperty('isVideo');
@@ -447,9 +450,9 @@ describe('getBackgroundSource', () => {
         };
 
         // @ts-expect-error Testing runtime behavior with invalid room type
-        const result = getBackgroundSource(settings, 'PRIVATE', 'https://example.com/room-bg.jpg');
+        const result = getBackgroundSource(settings, 'PRIVATE');
 
-        expect(result.url).toBe('https://example.com/room-bg.jpg');
+        expect(result.url).toBe('https://example.com/app-bg.jpg');
       });
     });
 
@@ -462,7 +465,7 @@ describe('getBackgroundSource', () => {
         };
         const settingsCopy = { ...originalSettings };
 
-        getBackgroundSource(settingsCopy, 'PUBLIC', null);
+        getBackgroundSource(settingsCopy, 'PUBLIC');
 
         expect(settingsCopy).toEqual(originalSettings);
       });
@@ -474,8 +477,8 @@ describe('getBackgroundSource', () => {
           backgroundURL: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         };
 
-        const result1 = getBackgroundSource(settings, 'PUBLIC', null);
-        const result2 = getBackgroundSource(settings, 'PUBLIC', null);
+        const result1 = getBackgroundSource(settings, 'PUBLIC');
+        const result2 = getBackgroundSource(settings, 'PUBLIC');
 
         expect(result1).toEqual(result2);
       });

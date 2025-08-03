@@ -844,7 +844,7 @@ describe('Room Component', () => {
 
       renderRoomWithRouter();
 
-      expect(getBackgroundSource).toHaveBeenCalledWith(mockSettings, 'TEST_ROOM', null);
+      expect(getBackgroundSource).toHaveBeenCalledWith(mockSettings, 'TEST_ROOM');
     });
   });
 

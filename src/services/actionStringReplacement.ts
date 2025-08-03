@@ -84,9 +84,9 @@ export default function actionStringReplacement(
 
   // Use generic placeholders for GameBoard display
   if (useGenericPlaceholders) {
-    newAction = newAction.replace(/{player}/g, 'the current player');
-    newAction = newAction.replace(/{dom}/g, 'a dominant');
-    newAction = newAction.replace(/{sub}/g, 'a submissive');
+    newAction = newAction.replace(/{player}/g, t('theCurrentPlayer'));
+    newAction = newAction.replace(/{dom}/g, t('aDominant'));
+    newAction = newAction.replace(/{sub}/g, t('aSubmissive'));
     return capitalizeFirstLetterInCurlyBraces(newAction);
   }
 

@@ -202,8 +202,7 @@ interface BackgroundSettings {
 
 export default function getBackgroundSource(
   settings: BackgroundSettings,
-  room: string,
-  _roomBackgroundUrl: string | null | undefined
+  room: string
 ): BackgroundResult {
   const { background, backgroundURL, roomBackground, roomBackgroundURL } = settings;
 

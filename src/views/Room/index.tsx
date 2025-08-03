@@ -121,14 +121,14 @@ export default function Room() {
   // Use usePlayerMove directly
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const hybridPlayerList = useHybridPlayerList();
-  const { roller, roomBgUrl } = usePrivateRoomMonitor(room, gameBoard);
+  const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
 
   if (
     (!gameBoard ||
-    !gameBoard.length ||
-    !Object.keys(settings).length ||
-    (isPublicRoom(room) && !isOnlineMode(settings.gameMode))) &&
+      !gameBoard.length ||
+      !Object.keys(settings).length ||
+      (isPublicRoom(room) && !isOnlineMode(settings.gameMode))) &&
     !isImporting
   ) {
     return (
@@ -151,7 +151,7 @@ export default function Room() {
     );
   }
 
-  const { isVideo, url } = getBackgroundSource(settings, room, roomBgUrl);
+  const { isVideo, url } = getBackgroundSource(settings, room);
   const videoAdjust = isVideo ? 'video-adjust' : '';
 
   // Apply default background to desktop-container when no custom background is set

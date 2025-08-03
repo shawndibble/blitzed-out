@@ -10,8 +10,12 @@ const MockLocalPlayerSetup = vi.fn(({ roomId, isPrivateRoom, onComplete, onCance
     <div>LocalPlayerSetup Component</div>
     <div>Room ID: {roomId}</div>
     <div>Private Room: {isPrivateRoom ? 'Yes' : 'No'}</div>
-    <button onClick={() => onComplete([], {})}>Complete</button>
-    <button onClick={onCancel}>Cancel</button>
+    <button type="button" onClick={() => onComplete([], {})}>
+      Complete
+    </button>
+    <button type="button" onClick={onCancel}>
+      Cancel
+    </button>
   </div>
 ));
 
