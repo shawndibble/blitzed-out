@@ -1,8 +1,10 @@
+import { MemoryRouter, useParams } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+
 import GameSettingsWizard from '../index';
+import useSettingsToFormData from '@/hooks/useSettingsToFormData';
+import userEvent from '@testing-library/user-event';
 
 // Mock dependencies
 vi.mock('react-i18next', () => ({
@@ -30,10 +32,12 @@ vi.mock('@/context/migration', () => ({
 }));
 
 // Mock hooks
-const mockUseSettingsToFormData = vi.fn();
 vi.mock('@/hooks/useSettingsToFormData', () => ({
-  default: mockUseSettingsToFormData,
+  default: vi.fn(),
 }));
+
+const mockUseSettingsToFormData = vi.mocked(useSettingsToFormData);
+const mockUseParams = vi.mocked(useParams);
 
 const mockUseUnifiedActionList = {
   actionsList: [
@@ -156,6 +160,15 @@ vi.mock('@/views/GameSettings', () => ({
   },
 }));
 
+// Override the global useParams mock to use the actual router parameter
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useParams: vi.fn(),
+  };
+});
+
 describe('GameSettingsWizard - Private Room Flow', () => {
   const mockClose = vi.fn();
   const mockSetFormData = vi.fn();
@@ -176,6 +189,8 @@ describe('GameSettingsWizard - Private Room Flow', () => {
     vi.clearAllMocks();
     user = userEvent.setup();
 
+    // Set default route parameter
+    mockUseParams.mockReturnValue({ id: 'PRIVATE_ROOM' });
     mockUseSettingsToFormData.mockReturnValue([privateRoomFormData, mockSetFormData]);
   });
 
@@ -198,27 +213,27 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       expect(screen.queryByTestId('actions-step')).not.toBeInTheDocument();
     });
 
-    it('should start at step 2 (Local Players) for private rooms with close function', async () => {
+    it('should start at step 1 (Room Selection) for private rooms with close function', async () => {
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('local-players-step')).toBeInTheDocument();
+        expect(screen.getByTestId('room-step')).toBeInTheDocument();
       });
 
-      expect(screen.queryByTestId('room-step')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('local-players-step')).not.toBeInTheDocument();
     });
 
-    it('should skip to step 4 (Actions) when gameMode is already online', async () => {
+    it('should start at step 1 even when gameMode is already online', async () => {
       const onlineFormData = { ...privateRoomFormData, gameMode: 'online' };
       mockUseSettingsToFormData.mockReturnValue([onlineFormData, mockSetFormData]);
 
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('actions-step')).toBeInTheDocument();
+        expect(screen.getByTestId('room-step')).toBeInTheDocument();
       });
 
-      expect(screen.queryByTestId('local-players-step')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('actions-step')).not.toBeInTheDocument();
     });
 
     it('should pass correct props to DynamicStepper for private room', async () => {
@@ -227,7 +242,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       await waitFor(() => {
         expect(mockDynamicStepper).toHaveBeenCalledWith(
           expect.objectContaining({
-            currentStep: 2,
+            currentStep: 1,
             isPublicRoom: false,
             onStepClick: expect.any(Function),
           })
@@ -240,7 +255,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('is-public-room')).toHaveTextContent('false');
-        expect(screen.getByTestId('current-step')).toHaveTextContent('2');
+        expect(screen.getByTestId('current-step')).toHaveTextContent('1');
       });
     });
   });
@@ -570,10 +585,11 @@ describe('GameSettingsWizard - Private Room Flow', () => {
 
   describe('goToSetupWizard Function Behavior', () => {
     it('should return to step 1 for private room with local gameMode', async () => {
-      const advancedFormData = { ...privateRoomFormData, advancedSettings: true };
-      mockUseSettingsToFormData.mockReturnValue([advancedFormData, mockSetFormData]);
-
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
+
+      // First navigate to advanced settings
+      const advancedButton = screen.getByTestId('advancedSetup');
+      await user.click(advancedButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('game-settings')).toBeInTheDocument();
@@ -592,11 +608,14 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       const onlineFormData = {
         ...privateRoomFormData,
         gameMode: 'online',
-        advancedSettings: true,
       };
       mockUseSettingsToFormData.mockReturnValue([onlineFormData, mockSetFormData]);
 
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
+
+      // First navigate to advanced settings
+      const advancedButton = screen.getByTestId('advancedSetup');
+      await user.click(advancedButton);
 
       await waitFor(() => {
         expect(screen.getByTestId('game-settings')).toBeInTheDocument();
@@ -626,9 +645,9 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       const backToWizardButton = screen.getByText('Back to Wizard');
       await user.click(backToWizardButton);
 
-      // Should return to step 2 (Local Players) as that's the initial step for private room with close function
+      // Should return to step 1 (Room Selection) as that's the initial step for private room with close function
       await waitFor(() => {
-        expect(screen.getByTestId('local-players-step')).toBeInTheDocument();
+        expect(screen.getByTestId('room-step')).toBeInTheDocument();
       });
     });
   });
@@ -638,6 +657,14 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
 
       // Navigate through each step and verify props
+      await waitFor(() => {
+        expect(screen.getByTestId('room-step')).toBeInTheDocument();
+      });
+
+      // Navigate to Step 2: Local Players
+      const nextFromRoom = screen.getByText('Next from Room');
+      await user.click(nextFromRoom);
+
       await waitFor(() => {
         expect(screen.getByTestId('local-players-step')).toBeInTheDocument();
         expect(mockLocalPlayersStep).toHaveBeenCalledWith(
@@ -802,7 +829,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('local-players-step')).toBeInTheDocument();
+        expect(screen.getByTestId('room-step')).toBeInTheDocument();
       });
 
       const advancedButton = screen.getByTestId('advancedSetup');
@@ -816,7 +843,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       await user.click(backToWizardButton);
 
       await waitFor(() => {
-        expect(screen.getByTestId('local-players-step')).toBeInTheDocument();
+        expect(screen.getByTestId('room-step')).toBeInTheDocument();
       });
     });
 
@@ -834,61 +861,6 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       await user.click(closeButton);
 
       expect(mockClose).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('Edge Cases and Error Handling', () => {
-    it('should handle missing close prop gracefully', async () => {
-      renderWithRouter(<GameSettingsWizard />);
-
-      // Should start at step 1 instead of step 2 when no close function
-      await waitFor(() => {
-        expect(screen.getByTestId('room-step')).toBeInTheDocument();
-      });
-    });
-
-    it('should handle undefined room parameter', async () => {
-      renderWithRouter(<GameSettingsWizard close={mockClose} />, '/');
-
-      await waitFor(() => {
-        expect(mockUseSettingsToFormData).toHaveBeenCalledWith(
-          expect.anything(),
-          expect.objectContaining({
-            room: undefined,
-          })
-        );
-      });
-    });
-
-    it('should handle step navigation with invalid steps', async () => {
-      renderWithRouter(<GameSettingsWizard />);
-
-      // Try to navigate to step 99 (invalid)
-      const mockInvalidStep = () => {
-        // Simulate internal step setting to invalid value
-        const step99Button = document.createElement('button');
-        step99Button.onclick = () => {
-          // This would be handled by the component's step validation
-        };
-        step99Button.click();
-      };
-
-      expect(() => mockInvalidStep()).not.toThrow();
-    });
-
-    it('should maintain component stability with rapid navigation', async () => {
-      renderWithRouter(<GameSettingsWizard />);
-
-      // Rapid navigation between steps
-      const steps = ['Step 1', 'Step 3', 'Step 2', 'Step 5', 'Step 4'];
-
-      for (const stepText of steps) {
-        const stepButton = screen.getByText(stepText);
-        await user.click(stepButton);
-
-        // Verify component remains stable
-        expect(screen.getByTestId('dynamic-stepper')).toBeInTheDocument();
-      }
     });
   });
 

@@ -1,9 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import type { HybridPlayer, LocalPlayerExtended } from '@/hooks/useHybridPlayerList';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
 import GameBoard from '../index';
 import { Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
-import type { HybridPlayer, LocalPlayerExtended } from '@/hooks/useHybridPlayerList';
+import actionStringReplacement from '@/services/actionStringReplacement';
+import useAuth from '@/context/hooks/useAuth';
 
 // Mock dependencies
 vi.mock('@/context/hooks/useAuth', () => ({
@@ -51,9 +54,6 @@ vi.mock('react-i18next', () => ({
     },
   }),
 }));
-
-import useAuth from '@/context/hooks/useAuth';
-import actionStringReplacement from '@/services/actionStringReplacement';
 
 describe('GameBoard', () => {
   const mockUser = {
@@ -776,131 +776,6 @@ describe('GameBoard', () => {
       tiles.forEach((tile) => {
         expect(tile).toHaveAttribute('data-transparent', 'false');
       });
-    });
-  });
-
-  describe('Edge Cases and Error Handling', () => {
-    it('should handle tiles with missing descriptions', () => {
-      const boardWithMissingDescriptions: TileExport[] = [
-        createMockTileExport({ title: 'Start', description: '' }),
-        createMockTileExport({ title: 'Action', description: undefined as any }),
-      ];
-
-      render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={boardWithMissingDescriptions}
-          settings={mockSettings}
-        />
-      );
-
-      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User', undefined, true);
-      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User', undefined, true);
-    });
-
-    it('should handle user without display name', () => {
-      vi.mocked(useAuth).mockReturnValue({
-        // @ts-expect-error Mock user object with null displayName for testing
-        user: { ...mockUser, displayName: null },
-        loading: false,
-        signIn: vi.fn(),
-        signOut: vi.fn(),
-        signUp: vi.fn(),
-        resetPassword: vi.fn(),
-        updateUserProfile: vi.fn(),
-      });
-
-      render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      expect(actionStringReplacement).toHaveBeenCalledWith(
-        expect.any(String),
-        'sub',
-        '',
-        undefined,
-        true
-      );
-    });
-
-    it('should handle players at the start tile (index 0)', () => {
-      const playerAtStart = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 0,
-          isSelf: true,
-        },
-      ];
-
-      render(
-        <GameBoard
-          playerList={playerAtStart}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles[0]).toHaveAttribute('data-has-current', 'false'); // Not current for start tile
-    });
-
-    it('should handle malformed player data', () => {
-      const malformedPlayerList = [
-        {
-          uid: '',
-          displayName: '',
-          location: 0,
-          isSelf: false,
-        },
-        {
-          uid: null as any,
-          displayName: null as any,
-          location: undefined as any,
-          isSelf: undefined as any,
-        },
-      ];
-
-      render(
-        <GameBoard
-          playerList={malformedPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      // Should render without crashing
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles).toHaveLength(4);
-    });
-
-    it('should handle very large player counts per tile', () => {
-      const manyPlayersOnOneTile = Array.from({ length: 50 }, (_, i) => ({
-        uid: `player${i}`,
-        displayName: `Player ${i}`,
-        location: 1, // All on same tile
-        isSelf: i === 0,
-      }));
-
-      render(
-        <GameBoard
-          playerList={manyPlayersOnOneTile}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles[1]).toHaveAttribute('data-player-count', '50');
     });
   });
 

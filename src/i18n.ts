@@ -1,7 +1,8 @@
 import i18next, { InitOptions } from 'i18next';
+
+import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 import resourcesToBackend from 'i18next-resources-to-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
 
 // Configuration constants
 const LANGUAGE_PRELOAD_TIMEOUT = 5000; // 5 second timeout for requestIdleCallback
@@ -62,7 +63,7 @@ i18n
           () => {
             commonLangs.forEach((lang) => {
               if (
-                i18n.options.supportedLngs &&
+                i18n?.options?.supportedLngs &&
                 Array.isArray(i18n.options.supportedLngs) &&
                 i18n.options.supportedLngs.includes(lang)
               ) {
@@ -77,7 +78,7 @@ i18n
         setTimeout(() => {
           commonLangs.forEach((lang) => {
             if (
-              i18n.options.supportedLngs &&
+              i18n?.options?.supportedLngs &&
               Array.isArray(i18n.options.supportedLngs) &&
               i18n.options.supportedLngs.includes(lang)
             ) {

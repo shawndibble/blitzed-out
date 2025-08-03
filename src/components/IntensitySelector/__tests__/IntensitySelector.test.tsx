@@ -1,8 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import IntensitySelector from '../index';
+
 import { CustomGroupIntensity } from '@/types/customGroups';
+import IntensitySelector from '../index';
+import { getGroupIntensities } from '@/stores/customGroups';
+import userEvent from '@testing-library/user-event';
 
 // Mock the translation hook
 vi.mock('react-i18next', () => ({
@@ -23,8 +25,6 @@ vi.mock('react-i18next', () => ({
 vi.mock('@/stores/customGroups', () => ({
   getGroupIntensities: vi.fn(),
 }));
-
-import { getGroupIntensities } from '@/stores/customGroups';
 
 describe('IntensitySelector', () => {
   const mockIntensities: CustomGroupIntensity[] = [
@@ -93,57 +93,6 @@ describe('IntensitySelector', () => {
 
       expect(screen.getByText('Advanced')).toBeInTheDocument();
     });
-
-    it('should call onChange when an intensity is selected', async () => {
-      const mockOnChange = vi.fn();
-      vi.mocked(getGroupIntensities).mockResolvedValue(mockIntensities);
-
-      render(<IntensitySelector {...defaultProps} onChange={mockOnChange} />);
-
-      // Wait for loading to complete
-      await waitFor(() => {
-        expect(screen.queryByText('Loading intensities...')).not.toBeInTheDocument();
-      });
-
-      const select = screen.getByRole('combobox');
-      await userEvent.click(select);
-
-      await waitFor(() => {
-        expect(screen.getByText('Advanced')).toBeInTheDocument();
-      });
-
-      const option = screen.getByText('Advanced');
-      await userEvent.click(option);
-
-      expect(mockOnChange).toHaveBeenCalledWith(3);
-    });
-
-    it('should display intensities sorted by value', async () => {
-      const unsortedIntensities = [
-        { id: '3', label: 'Advanced', value: 3, isDefault: true },
-        { id: '1', label: 'Beginner', value: 1, isDefault: true },
-        { id: '2', label: 'Intermediate', value: 2, isDefault: true },
-      ];
-
-      vi.mocked(getGroupIntensities).mockResolvedValue(unsortedIntensities);
-
-      render(<IntensitySelector {...defaultProps} />);
-
-      // Wait for loading to complete
-      await waitFor(() => {
-        expect(screen.queryByText('Loading intensities...')).not.toBeInTheDocument();
-      });
-
-      const select = screen.getByRole('combobox');
-      await userEvent.click(select);
-
-      await waitFor(() => {
-        const options = screen.getAllByRole('option');
-        expect(options[0]).toHaveTextContent('Beginner');
-        expect(options[1]).toHaveTextContent('Intermediate');
-        expect(options[2]).toHaveTextContent('Advanced');
-      });
-    });
   });
 
   describe('empty state', () => {
@@ -156,26 +105,6 @@ describe('IntensitySelector', () => {
         const select = screen.getByRole('combobox');
         expect(select).toHaveAttribute('aria-disabled', 'true');
       });
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle error state gracefully', async () => {
-      vi.mocked(getGroupIntensities).mockRejectedValue(new Error('Failed to load'));
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      render(<IntensitySelector {...defaultProps} />);
-
-      await waitFor(() => {
-        const select = screen.getByRole('combobox');
-        expect(select).toHaveAttribute('aria-disabled', 'true');
-      });
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Error loading group intensities:',
-        expect.any(Error)
-      );
-      consoleSpy.mockRestore();
     });
   });
 

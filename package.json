@@ -19,6 +19,7 @@
     "test:memory": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot",
     "test:focused": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --no-watch --reporter=verbose",
     "test:failures": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot --bail=10",
+    "test:ci": "NODE_OPTIONS='--max-old-space-size=1024' vitest run --no-watch --reporter=dot --bail=5 --pool=forks --poolOptions.forks.singleFork=true",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit"

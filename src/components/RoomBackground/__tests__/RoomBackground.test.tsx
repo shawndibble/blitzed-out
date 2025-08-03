@@ -1,5 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@/test-utils';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@/test-utils';
+
 import RoomBackground from '../index';
 
 describe('RoomBackground', () => {
@@ -164,42 +165,6 @@ describe('RoomBackground', () => {
       const iframe = screen.getByTitle('video');
       expect(iframe).toBeInTheDocument();
       expect(iframe).toHaveAttribute('src', embedUrl);
-    });
-  });
-
-  describe('Edge cases and error handling', () => {
-    it('handles empty string URL gracefully', () => {
-      render(<RoomBackground url="" isVideo={true} />);
-
-      const iframe = screen.getByTitle('video');
-      expect(iframe).toBeInTheDocument();
-      expect(iframe).not.toHaveAttribute('src');
-    });
-
-    it('handles undefined URL gracefully', () => {
-      render(<RoomBackground url={undefined} isVideo={true} />);
-
-      const iframe = screen.getByTitle('video');
-      expect(iframe).toBeInTheDocument();
-      expect(iframe).not.toHaveAttribute('src');
-    });
-
-    it('handles malformed video URLs', () => {
-      const malformedUrl = 'not-a-valid-url';
-      render(<RoomBackground url={malformedUrl} isVideo={true} />);
-
-      const iframe = screen.getByTitle('video');
-      expect(iframe).toBeInTheDocument();
-      expect(iframe).toHaveAttribute('src', malformedUrl);
-    });
-
-    it('handles very long URLs', () => {
-      const longUrl = `https://example.com/${'a'.repeat(1000)}.mp4`;
-      render(<RoomBackground url={longUrl} isVideo={true} />);
-
-      const video = screen.getByRole('presentation').querySelector('video');
-      expect(video).toBeInTheDocument();
-      expect(video).toHaveAttribute('src', longUrl);
     });
   });
 

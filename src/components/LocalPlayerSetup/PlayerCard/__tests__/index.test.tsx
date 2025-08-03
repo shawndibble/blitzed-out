@@ -58,7 +58,6 @@ describe('PlayerCard', () => {
     render(<PlayerCard {...defaultProps} />);
 
     expect(screen.getByText('Test Player')).toBeInTheDocument();
-    expect(screen.getByText('Turn 1')).toBeInTheDocument();
     expect(screen.getByText('vers')).toBeInTheDocument();
   });
 

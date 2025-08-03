@@ -46,6 +46,39 @@ const theme = createTheme({
 });
 ```
 
+##### TypeScript Module Augmentation
+
+The custom `intensity` palette property requires TypeScript module augmentation to avoid type errors. Create a `theme.d.ts` file in your `src/` directory:
+
+```typescript
+// src/theme.d.ts
+import '@mui/material/styles';
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    intensity: {
+      1: string;
+      2: string;
+      3: string;
+      4: string;
+      5: string;
+    };
+  }
+
+  interface PaletteOptions {
+    intensity?: {
+      1?: string;
+      2?: string;
+      3?: string;
+      4?: string;
+      5?: string;
+    };
+  }
+}
+```
+
+This augmentation extends MUI's default Palette and PaletteOptions interfaces to include the custom `intensity` property, enabling full TypeScript support for the intensity color system.
+
 #### Typography
 
 ```typescript

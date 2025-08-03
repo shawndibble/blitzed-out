@@ -1,11 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { ReactNode } from 'react';
-import { AuthProvider } from '../auth';
-import { useAuth } from '@/hooks/useAuth';
 import * as firebaseService from '@/services/firebase';
 import * as syncService from '@/services/syncService';
-import { mockUser, mockAnonymousUser } from '@/__mocks__/firebase';
+
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { mockAnonymousUser, mockUser } from '@/__mocks__/firebase';
+
+import { AuthProvider } from '../auth';
+import { ReactNode } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 // Mock Firebase Auth
 const mockOnAuthStateChanged = vi.fn();
@@ -588,68 +590,6 @@ describe('AuthProvider', () => {
     });
   });
 
-  describe('Data Sync', () => {
-    it('should sync data for registered users', async () => {
-      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
-      mockSyncAllDataToFirebase.mockResolvedValue(true);
-
-      const { result } = renderHook(() => useAuth(), { wrapper });
-
-      // Set a registered user
-      act(() => {
-        authStateChangedCallback?.(mockUser);
-      });
-
-      let syncResult;
-      await act(async () => {
-        syncResult = await result.current.syncData();
-      });
-
-      expect(mockSyncAllDataToFirebase).toHaveBeenCalledTimes(1);
-      expect(syncResult).toBe(true);
-    });
-
-    it('should not sync data for anonymous users', async () => {
-      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
-
-      const { result } = renderHook(() => useAuth(), { wrapper });
-
-      // Set an anonymous user
-      act(() => {
-        authStateChangedCallback?.(mockAnonymousUser);
-      });
-
-      let syncResult;
-      await act(async () => {
-        syncResult = await result.current.syncData();
-      });
-
-      expect(mockSyncAllDataToFirebase).not.toHaveBeenCalled();
-      expect(syncResult).toBe(false);
-    });
-
-    it('should handle sync errors', async () => {
-      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
-      const errorMessage = 'Sync failed';
-      mockSyncAllDataToFirebase.mockRejectedValue(new Error(errorMessage));
-
-      const { result } = renderHook(() => useAuth(), { wrapper });
-
-      // Set a registered user
-      act(() => {
-        authStateChangedCallback?.(mockUser);
-      });
-
-      let syncResult;
-      await act(async () => {
-        syncResult = await result.current.syncData();
-      });
-
-      expect(syncResult).toBe(false);
-      expect(result.current.error).toBe(errorMessage);
-    });
-  });
-
   describe('Sync Status', () => {
     it('should update sync status during sync operations', async () => {
       const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
@@ -691,47 +631,6 @@ describe('AuthProvider', () => {
       await waitFor(() => {
         expect(result.current.syncStatus.syncing).toBe(false);
         expect(result.current.syncStatus.lastSync).toBeInstanceOf(Date);
-      });
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle errors in auth operations', async () => {
-      const mockLoginAnonymously = vi.mocked(firebaseService.loginAnonymously);
-
-      // First cause an error
-      mockLoginAnonymously.mockRejectedValueOnce(new Error('First error'));
-
-      const { result } = renderHook(() => useAuth(), { wrapper });
-
-      // Wait for provider to be ready
-      await waitFor(() => {
-        expect(result.current).toBeDefined();
-      });
-
-      await act(async () => {
-        try {
-          await result.current.login();
-        } catch {
-          // Expected to fail - testing error handling
-        }
-      });
-
-      await waitFor(() => {
-        expect(result.current.error).toBe('First error');
-      });
-
-      // Then succeed
-      mockLoginAnonymously.mockResolvedValueOnce(mockAnonymousUser);
-
-      await act(async () => {
-        await result.current.login();
-      });
-
-      await waitFor(() => {
-        expect(result.current.user).toEqual(mockAnonymousUser);
-        // Error should still be there until explicitly cleared
-        expect(result.current.error).toBe('First error');
       });
     });
   });

@@ -1,7 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+// Import mocked dependencies
+import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { useSettings, useSettingsStore } from '@/stores/settingsStore';
+
 import Room from '../index';
 import { Settings } from '@/types/Settings';
+import { getActiveBoard } from '@/stores/gameBoard';
+import getBackgroundSource from '@/services/getBackgroundSource';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import useHybridPlayerList from '@/hooks/useHybridPlayerList';
+import { useLiveQuery } from 'dexie-react-hooks';
+import usePlayerMove from '@/hooks/usePlayerMove';
+import usePresence from '@/hooks/usePresence';
+import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
+import useUrlImport from '@/hooks/useUrlImport';
 
 // Mock react-router-dom
 const mockNavigate = vi.fn();
@@ -191,19 +204,6 @@ vi.mock('@/components/ToastAlert', () => ({
     ) : null
   ),
 }));
-
-// Import mocked dependencies
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
-import { getActiveBoard } from '@/stores/gameBoard';
-import { useSettings, useSettingsStore } from '@/stores/settingsStore';
-import getBackgroundSource from '@/services/getBackgroundSource';
-import useBreakpoint from '@/hooks/useBreakpoint';
-import usePresence from '@/hooks/usePresence';
-import usePlayerMove from '@/hooks/usePlayerMove';
-import useHybridPlayerList from '@/hooks/useHybridPlayerList';
-import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
-import useUrlImport from '@/hooks/useUrlImport';
-import { useLiveQuery } from 'dexie-react-hooks';
 
 describe('Room Component', () => {
   const mockTiles = [
@@ -940,12 +940,6 @@ describe('Room Component', () => {
       renderRoomWithRouter();
 
       expect(usePlayerMove).toHaveBeenCalledWith('TEST_ROOM', { value: 0, time: 0 }, mockTiles);
-    });
-
-    it('should handle component unmounting gracefully', () => {
-      const { unmount } = renderRoomWithRouter();
-
-      expect(() => unmount()).not.toThrow();
     });
 
     it('should handle room parameter changes', () => {

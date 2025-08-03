@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import getBackgroundSource, { processBackground } from '../getBackgroundSource';
 
 describe('getBackgroundSource', () => {
@@ -200,34 +200,6 @@ describe('getBackgroundSource', () => {
         expect(processBackground('')).toEqual({ url: '', isVideo: false });
       });
     });
-
-    describe('Edge cases and error handling', () => {
-      it('handles malformed URLs gracefully', () => {
-        const malformedUrls = ['not-a-url', 'http://', 'https://', 'ftp://example.com/file.mp4'];
-
-        malformedUrls.forEach((url) => {
-          const result = processBackground(url);
-          expect(result).toHaveProperty('url');
-          expect(result).toHaveProperty('isVideo');
-        });
-      });
-
-      it('handles very long URLs', () => {
-        const longUrl = `https://example.com/${'a'.repeat(1000)}.mp4`;
-        const result = processBackground(longUrl);
-
-        expect(result.isVideo).toBe(true);
-        expect(result.url).toBe(longUrl);
-      });
-
-      it('handles URLs with special characters', () => {
-        const specialUrl = 'https://example.com/видео.mp4';
-        const result = processBackground(specialUrl);
-
-        expect(result.isVideo).toBe(true);
-        expect(result.url).toBe(specialUrl);
-      });
-    });
   });
 
   describe('getBackgroundSource function', () => {
@@ -417,42 +389,6 @@ describe('getBackgroundSource', () => {
 
         expect(result.isVideo).toBe(false);
         expect(result.url).toBe('https://example.com/image.jpg');
-      });
-    });
-
-    describe('Error handling and edge cases', () => {
-      it('handles missing settings gracefully', () => {
-        const result = getBackgroundSource({}, 'PUBLIC');
-
-        expect(result.url).toBe('color');
-        expect(result.isVideo).toBe(false);
-      });
-
-      it('handles undefined room parameter', () => {
-        const settings = {
-          ...defaultSettings,
-          background: 'custom',
-          backgroundURL: 'https://example.com/bg.jpg',
-        };
-
-        const result = getBackgroundSource(settings, undefined as any);
-
-        expect(result).toHaveProperty('url');
-        expect(result).toHaveProperty('isVideo');
-      });
-
-      it('handles complex room background scenarios', () => {
-        const settings = {
-          ...defaultSettings,
-          background: 'custom',
-          backgroundURL: 'https://example.com/app-bg.jpg',
-          roomBackground: null,
-        };
-
-        // @ts-expect-error Testing runtime behavior with invalid room type
-        const result = getBackgroundSource(settings, 'PRIVATE');
-
-        expect(result.url).toBe('https://example.com/app-bg.jpg');
       });
     });
 

@@ -39,7 +39,6 @@
   "roomType": "Room Type",
   "gameConfiguration": "Game Configuration",
   "visualSettings": "Visual Settings",
-  "appBackground": "App Settings Background",
   "application": "App",
   "variation": "Variation",
   "variationTooltip": "<0>Standalone = Its own tile. </0><1>Append Some = 50% chance to add to another action.</1><2>Append Most = 90% chance to add to another action.</2>",
@@ -53,7 +52,6 @@
   "rebuildBoardAction": "Rebuild Board",
   "keepCurrentBoard": "Keep Current Board",
   "cancel": "Cancel",
-  "back": "Back",
   "skip": "Skip",
   "confirm": "Confirm",
   "warning": "Warning",
@@ -551,27 +549,6 @@
       }
     }
   },
-  "turnManager": {
-    "inactive": "Turn management is not active",
-    "remotePlayersOnly": "Turn management for remote players only",
-    "currentTurn": "Current Turn",
-    "controls": "Turn Controls",
-    "nextTurn": "Next Turn",
-    "skipTurn": "Skip Turn",
-    "pauseTurn": "Pause Turn",
-    "resumeTurn": "Resume Turn",
-    "turnType": "Turn Type",
-    "cycle": "Cycle",
-    "turn": "Turn",
-    "upNext": "Up Next"
-  },
-  "turnQueue": {
-    "noUpcomingTurns": "No upcoming turns",
-    "next": "Next",
-    "remotePlayers": "Remote Players",
-    "showing": "Showing {{count}} of {{total}} players",
-    "includesRemotePlayers": "Includes remote players in queue"
-  },
   "localPlayerSettings": {
     "title": "Local Players",
     "noPlayers": {
@@ -579,23 +556,16 @@
       "setupButton": "Set Up Local Players"
     },
     "session": {
-      "title": "Local Players",
-      "active": "Active",
-      "playerCount": "{{count}} player",
-      "currentPlayer": "Current: {{name}}",
       "editButton": "Edit Players",
       "clearButton": "Delete Players"
     },
     "players": {
-      "title": "Player List",
       "currentTurn": "Current Turn"
     },
     "settings": {
       "title": "Local Player Settings",
       "showTurnTransitions": "Show turn transitions",
-      "enableTurnTimer": "Enable turn timer",
-      "playTurnSounds": "Play turn sounds",
-      "editNote": "Edit players to change these settings"
+      "playTurnSounds": "Play turn sounds"
     }
   },
   "localPlayersStep": {
@@ -610,11 +580,6 @@
       "title": "Individual Devices",
       "description": "✅ Each player has their own device\n✅ Full access to advanced settings\n✅ Can play alone or with others\n✅ Personalized game experience\n❌ Requires multiple devices for multiplayer\n❌ Uses placeholder text in actions\n❌ Turn coordination can be trickier",
       "button": "Skip Local Players"
-    },
-    "features": {
-      "singleDevice": "Single Device",
-      "turnManagement": "Turn Management",
-      "privateRoomsOnly": "Private Rooms Only"
     },
     "currentStatus": {
       "hasPlayers": "You already have local players configured. You can set up new ones or continue with your current setup."

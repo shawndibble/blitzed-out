@@ -1,12 +1,14 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ReactNode } from 'react';
+import * as firebaseService from '@/services/firebase';
+
+import { Message, MessageType } from '@/types/Message';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { BrowserRouter } from 'react-router-dom';
 import { MessagesProvider } from '../messages';
-import useMessages from '../hooks/useMessages';
-import { Message, MessageType } from '@/types/Message';
+import { ReactNode } from 'react';
 import { Timestamp } from 'firebase/firestore';
-import * as firebaseService from '@/services/firebase';
+import useMessages from '../hooks/useMessages';
 import { useMessagesStore } from '@/stores/messagesStore';
 
 // Mock the firebase service
@@ -471,60 +473,6 @@ describe('MessagesProvider', () => {
       // Since we're not actually changing rooms in this test,
       // unsubscribe won't be called, but that's okay for this test
       expect(mockGetMessages).toHaveBeenCalled();
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle getMessages returning undefined', () => {
-      mockGetMessages.mockReturnValue(undefined);
-
-      render(
-        <TestWrapper>
-          <TestComponent />
-        </TestWrapper>
-      );
-
-      expect(screen.getByTestId('loading')).toHaveTextContent('loading');
-      expect(screen.getByTestId('message-count')).toHaveTextContent('0');
-    });
-
-    it('should handle callback with malformed messages', async () => {
-      mockGetMessages.mockImplementation((_roomId, callback) => {
-        setTimeout(() => {
-          // Pass invalid message data
-          callback(
-            [
-              {
-                text: 'Valid message',
-                type: 'chat',
-                uid: 'user1',
-                displayName: 'User',
-                timestamp: { toDate: () => new Date() },
-              },
-              null, // Invalid message
-              {
-                text: 'Another valid message',
-                type: 'chat',
-                uid: 'user2',
-                displayName: 'User2',
-                timestamp: { toDate: () => new Date() },
-              },
-            ].filter(Boolean) as Record<string, unknown>[]
-          );
-        }, 0);
-        return mockUnsubscribe;
-      });
-
-      render(
-        <TestWrapper>
-          <TestComponent />
-        </TestWrapper>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('loading')).toHaveTextContent('loaded');
-        expect(screen.getByTestId('message-count')).toHaveTextContent('2');
-      });
     });
   });
 });

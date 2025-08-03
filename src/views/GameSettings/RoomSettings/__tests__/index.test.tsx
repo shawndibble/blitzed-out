@@ -9,8 +9,16 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
-        appBackground: 'App Background',
+        useAppBackground: 'App Background',
         customURL: 'Custom URL',
+        color: 'color',
+        gray: 'gray',
+        hypnoDick: 'hypnoDick',
+        pinkSpiral: 'pinkSpiral',
+        roomType: 'roomType',
+        'localPlayerSettings.title': 'localPlayerSettings.title',
+        gameConfiguration: 'gameConfiguration',
+        visualSettings: 'visualSettings',
         // Add other translations used in child components
         gameSpeed: 'Game Speed',
         showPlayerList: 'Show Player List',
@@ -82,7 +90,7 @@ vi.mock('@/components/GameForm/RoomSwitch', () => ({
   ),
 }));
 
-vi.mock('../LocalPlayerSettings', () => ({
+vi.mock('@/views/GameSettings/LocalPlayerSettings', () => ({
   default: ({ roomId, isPrivateRoom }: any) => (
     <div data-testid="local-player-settings">
       <div data-testid="local-player-roomid">{roomId}</div>
@@ -122,13 +130,6 @@ describe('RoomSettings Component', () => {
       render(<RoomSettings {...defaultProps} />);
 
       expect(screen.getByTestId('room-switch')).toBeInTheDocument();
-    });
-
-    it('should render with proper container styling', () => {
-      const { container } = render(<RoomSettings {...defaultProps} />);
-
-      const boxElement = container.firstChild as HTMLElement;
-      expect(boxElement).toHaveStyle({ margin: '0.5rem' });
     });
 
     it('should always render RoomSwitch component', () => {
@@ -213,7 +214,7 @@ describe('RoomSettings Component', () => {
       expect(screen.getByTestId('background-select')).toBeInTheDocument();
     });
 
-    it('should show dividers between sections in private rooms', () => {
+    it('should show multiple cards in private rooms', () => {
       const privateRoomProps = {
         ...defaultProps,
         formData: createMockSettings({ room: 'private-room' }),
@@ -221,9 +222,9 @@ describe('RoomSettings Component', () => {
 
       const { container } = render(<RoomSettings {...privateRoomProps} />);
 
-      // Check for dividers (MUI Divider components)
-      const dividers = container.querySelectorAll('hr');
-      expect(dividers).toHaveLength(4); // There should be 4 dividers
+      // Check for multiple Card components
+      const cards = container.querySelectorAll('.MuiCard-root');
+      expect(cards.length).toBeGreaterThan(1); // Should have multiple cards
     });
   });
 
@@ -285,7 +286,14 @@ describe('RoomSettings Component', () => {
 
       // Check backgrounds object
       const backgroundsData = screen.getByTestId('background-select-backgrounds');
-      const expectedBackgrounds = { app: 'App Background', custom: 'Custom URL' };
+      const expectedBackgrounds = {
+        useAppBackground: 'App Background',
+        color: 'color',
+        gray: 'gray',
+        'metronome.gif': 'hypnoDick',
+        'pink-spiral.gif': 'pinkSpiral',
+        custom: 'Custom URL',
+      };
       expect(backgroundsData).toHaveTextContent(JSON.stringify(expectedBackgrounds));
 
       // Check isRoom flag
@@ -365,7 +373,11 @@ describe('RoomSettings Component', () => {
 
       const backgroundsData = screen.getByTestId('background-select-backgrounds');
       const expectedBackgrounds = {
-        app: 'App Background',
+        useAppBackground: 'App Background',
+        color: 'color',
+        gray: 'gray',
+        'metronome.gif': 'hypnoDick',
+        'pink-spiral.gif': 'pinkSpiral',
         custom: 'Custom URL',
       };
 
@@ -488,9 +500,9 @@ describe('RoomSettings Component', () => {
       // Should have a main container
       expect(container.firstChild).toBeInTheDocument();
 
-      // Should have dividers for proper content separation
-      const dividers = container.querySelectorAll('hr');
-      expect(dividers.length).toBeGreaterThan(0);
+      // Should have cards for proper content separation
+      const cards = container.querySelectorAll('.MuiCard-root');
+      expect(cards.length).toBeGreaterThan(0);
     });
 
     it('should maintain focus management through interactions', async () => {

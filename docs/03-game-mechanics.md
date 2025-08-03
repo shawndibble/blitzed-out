@@ -19,13 +19,13 @@ Blitzed Out is a board game-style experience where players progress through tile
 
 #### Single Player (Solo Mode)
 
-```
+```text
 Roll → Move → Action → Roll (repeat)
 ```
 
 #### Multiplayer (Online/Local)
 
-```
+```text
 Player A Roll → Move → Action →
 Player B Roll → Move → Action →
 Player C Roll → Move → Action →
@@ -550,7 +550,7 @@ interface GameStats {
 
 ### Quick Game Flow
 
-```
+```text
 1. Quick setup (10 tiles, intensity 1-2)
 2. Roll D4 for smaller moves
 3. Complete simple actions
@@ -560,7 +560,7 @@ interface GameStats {
 
 ### Standard Game Flow
 
-```
+```text
 1. Normal setup (30 tiles, intensity 2-4)
 2. Roll D6 standard dice
 3. Mixed action difficulty
@@ -570,7 +570,7 @@ interface GameStats {
 
 ### Extended Game Flow
 
-```
+```text
 1. Full setup (60+ tiles, intensity 1-5)
 2. Roll D8/D10 for variety
 3. Progressive difficulty

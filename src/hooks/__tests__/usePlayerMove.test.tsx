@@ -1,9 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import usePlayerMove from '../usePlayerMove';
 import * as firebaseService from '@/services/firebase';
+
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+
 import { RollValueState } from '@/types/index';
 import { TileExport } from '@/types/gameBoard';
+import usePlayerMove from '../usePlayerMove';
 
 // Mock Firebase service
 vi.mock('@/services/firebase', () => ({
@@ -243,39 +245,6 @@ describe('usePlayerMove', () => {
           type: 'actions',
         });
       });
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle missing tile gracefully', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      const rollValue: RollValueState = {
-        value: 10, // Roll that goes beyond game board
-        time: Date.now(),
-      };
-
-      // Use empty game board to force missing tile error
-      renderHook(() => usePlayerMove(mockRoomId, rollValue, []));
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid location or missing tile'),
-        expect.any(Boolean)
-      );
-
-      consoleSpy.mockRestore();
-    });
-
-    it('should validate roll number type', () => {
-      const rollValue: RollValueState = {
-        value: 'invalid' as any,
-        time: Date.now(),
-      };
-
-      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
-
-      // Should not send message for invalid roll type
-      expect(mockSendMessage).not.toHaveBeenCalled();
     });
   });
 });

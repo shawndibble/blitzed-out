@@ -63,18 +63,11 @@
       // Initialize the receiver context
       const context = cast.framework.CastReceiverContext.getInstance();
 
-      // Log startup
-      console.log('Blitzed Out Cast Receiver starting up');
-
       // Handle messages from sender
       context.addCustomMessageListener('urn:x-cast:com.blitzedout.app', function (event) {
-        console.log('Received message from sender:', event.data);
-
         const message = event.data;
 
         if (message.type === 'LOAD' && message.url) {
-          console.log('Loading URL:', message.url);
-
           // Create an iframe to load the specified URL
           const container = document.getElementById('iframe-container');
           const loadingMessage = document.getElementById('loading-message');
@@ -91,12 +84,16 @@
 
           // Handle iframe loading
           iframe.onload = function () {
-            console.log('Iframe loaded, hiding loading message');
             // Wait a moment for React to initialize, then show iframe and hide loading
             setTimeout(() => {
               iframe.classList.add('loaded');
               loadingMessage.classList.add('hidden');
             }, 500);
+          };
+
+          iframe.onerror = function (err) {
+            loadingMessage.classList.remove('hidden');
+            loadingMessage.querySelector('.loading-text').textContent = 'Failed to load receiver';
           };
 
           container.appendChild(iframe);
@@ -109,7 +106,6 @@
 
       // Start the receiver
       context.start(options);
-      console.log('Receiver started');
     </script>
   </body>
 </html>

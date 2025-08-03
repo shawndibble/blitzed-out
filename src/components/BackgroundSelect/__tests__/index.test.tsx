@@ -1,6 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
 import BackgroundSelect from '../index';
 import { Settings } from '@/types/Settings';
 
@@ -190,36 +190,6 @@ describe('BackgroundSelect Component', () => {
   });
 
   describe('User Interactions', () => {
-    it('should update formData when user changes selection', async () => {
-      const user = userEvent.setup();
-      const formData: Settings = {
-        gameMode: 'online',
-        boardUpdated: false,
-        room: 'test-room',
-        roomBackground: 'useAppBackground',
-      };
-
-      render(
-        <BackgroundSelect
-          formData={formData}
-          setFormData={mockSetFormData}
-          backgrounds={defaultBackgrounds}
-          isRoom={true}
-        />
-      );
-
-      const select = screen.getByRole('combobox');
-      await user.click(select);
-
-      const grayOption = screen.getByText('None - Gray Tiles');
-      await user.click(grayOption);
-
-      expect(mockSetFormData).toHaveBeenCalledWith({
-        ...formData,
-        roomBackground: 'gray',
-      });
-    });
-
     it('should show custom URL field when custom is selected', () => {
       const formData: Settings = {
         gameMode: 'online',

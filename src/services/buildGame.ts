@@ -1,11 +1,11 @@
-import { shuffleArray } from '@/helpers/arrays';
+import { CustomGroupPull } from '@/types/customGroups';
+import { CustomTilePull } from '@/types/customTiles';
 import { Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
-import { CustomTilePull } from '@/types/customTiles';
-import { CustomGroupPull } from '@/types/customGroups';
-import i18next from 'i18next';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
+import i18next from 'i18next';
+import { shuffleArray } from '@/helpers/arrays';
 
 const { t } = i18next;
 
@@ -173,7 +173,6 @@ function buildTileContent(
   settings: Settings
 ): GameTile {
   if (!availableGroups.length) {
-    console.log(`buildTileContent tile ${currentTile}: No available groups`);
     return { title: '', description: '' };
   }
 
@@ -183,10 +182,6 @@ function buildTileContent(
   // Check if this group should append or standalone
   const groupSelection = selectedActions[currentGroup.name];
   if (!groupSelection || groupSelection.level <= 0) {
-    console.log(
-      `buildTileContent tile ${currentTile}: Group ${currentGroup.name} not selected or level <= 0`,
-      groupSelection
-    );
     return { title: '', description: '' };
   }
 
@@ -218,9 +213,6 @@ function buildTileContent(
   let selectedTile = shuffleBag.getTile(currentGroup.name, targetIntensity);
 
   if (!selectedTile) {
-    console.log(
-      `buildTileContent tile ${currentTile}: No tile found for ${currentGroup.name} at intensity ${targetIntensity}, trying fallbacks`
-    );
     // Try lower intensities first
     for (let intensity = targetIntensity - 1; intensity >= 1; intensity--) {
       selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
@@ -240,9 +232,6 @@ function buildTileContent(
     }
 
     if (!selectedTile) {
-      console.log(
-        `buildTileContent tile ${currentTile}: No tiles available for group ${currentGroup.name} at any intensity`
-      );
       return { title: '', description: '' };
     }
   }

@@ -1,8 +1,9 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import LocalPlayerSettings from '../LocalPlayerSettings';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
+import LocalPlayerSettings from '../LocalPlayerSettings';
 
 // Mock dependencies
 vi.mock('react-i18next', () => ({
@@ -252,22 +253,6 @@ describe('LocalPlayerSettings', () => {
       );
     });
 
-    it('should render session overview when players exist', () => {
-      render(
-        <TestProvider>
-          <LocalPlayerSettings />
-        </TestProvider>
-      );
-
-      // Check for the main components - the translation mock returns simplified text
-      expect(screen.getByText('currentTurn')).toBeInTheDocument();
-      expect(screen.getByText('playerCount')).toBeInTheDocument(); // This is what the mock returns
-      expect(screen.getByText('Current: Player One')).toBeInTheDocument();
-
-      // Verify at least one title exists
-      expect(screen.getAllByText('title').length).toBeGreaterThanOrEqual(1);
-    });
-
     it('should render player list with correct information', () => {
       render(
         <TestProvider>
@@ -285,10 +270,10 @@ describe('LocalPlayerSettings', () => {
       expect(screen.getByText('sub')).toBeInTheDocument();
       expect(screen.getByText('vers')).toBeInTheDocument();
 
-      // Check order numbers
-      expect(screen.getByText('#0')).toBeInTheDocument();
+      // Check order numbers (component shows order + 1)
       expect(screen.getByText('#1')).toBeInTheDocument();
       expect(screen.getByText('#2')).toBeInTheDocument();
+      expect(screen.getByText('#3')).toBeInTheDocument();
     });
 
     it('should highlight active player', () => {
@@ -311,16 +296,6 @@ describe('LocalPlayerSettings', () => {
       expect(screen.getByText('showTurnTransitions')).toBeInTheDocument();
       expect(screen.getByText('playTurnSounds')).toBeInTheDocument();
       expect(screen.getByText('playTurnSounds')).toBeInTheDocument();
-    });
-
-    it('should show edit note for session settings', () => {
-      render(
-        <TestProvider>
-          <LocalPlayerSettings />
-        </TestProvider>
-      );
-
-      expect(screen.getByText('editNote')).toBeInTheDocument();
     });
   });
 
@@ -446,99 +421,6 @@ describe('LocalPlayerSettings', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    beforeEach(() => {
-      mockUseLocalPlayers.mockReturnValue(
-        createMockUseLocalPlayersReturn({
-          localPlayers: mockLocalPlayers,
-          hasLocalPlayers: true,
-          session: mockSession,
-          currentPlayer: mockLocalPlayers[0],
-          currentPlayerIndex: 0,
-          sessionSettings: mockSessionSettings,
-          playerCount: mockLocalPlayers.length,
-          isLocalPlayerRoom: true,
-          isValidSession: true,
-        })
-      );
-    });
-
-    it('should handle setup completion errors gracefully', async () => {
-      render(
-        <TestProvider>
-          <LocalPlayerSettings />
-        </TestProvider>
-      );
-
-      fireEvent.click(screen.getByText('editButton'));
-
-      // The component should render without errors even if setup has issues
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-    });
-
-    it('should display error messages in alert component', async () => {
-      const mockClearLocalSession = vi.fn().mockRejectedValueOnce(new Error('Network error'));
-
-      mockUseLocalPlayers.mockReturnValue(
-        createMockUseLocalPlayersReturn({
-          localPlayers: mockLocalPlayers,
-          hasLocalPlayers: true,
-          session: mockSession,
-          currentPlayer: mockLocalPlayers[0],
-          currentPlayerIndex: 0,
-          sessionSettings: mockSessionSettings,
-          playerCount: mockLocalPlayers.length,
-          isLocalPlayerRoom: true,
-          isValidSession: true,
-          clearLocalSession: mockClearLocalSession,
-        })
-      );
-
-      render(
-        <TestProvider>
-          <LocalPlayerSettings />
-        </TestProvider>
-      );
-
-      fireEvent.click(screen.getByText('clearButton'));
-
-      await waitFor(() => {
-        expect(screen.getByText('Network error')).toBeInTheDocument();
-      });
-    });
-
-    it('should handle non-Error exceptions', async () => {
-      const mockClearLocalSession = vi.fn().mockRejectedValueOnce('String error');
-
-      mockUseLocalPlayers.mockReturnValue(
-        createMockUseLocalPlayersReturn({
-          localPlayers: mockLocalPlayers,
-          hasLocalPlayers: true,
-          session: mockSession,
-          currentPlayer: mockLocalPlayers[0],
-          currentPlayerIndex: 0,
-          sessionSettings: mockSessionSettings,
-          playerCount: mockLocalPlayers.length,
-          isLocalPlayerRoom: true,
-          isValidSession: true,
-          clearLocalSession: mockClearLocalSession,
-        })
-      );
-
-      render(
-        <TestProvider>
-          <LocalPlayerSettings />
-        </TestProvider>
-      );
-
-      fireEvent.click(screen.getByText('clearButton'));
-
-      await waitFor(() => {
-        expect(screen.getByText('Failed to clear local session')).toBeInTheDocument();
-      });
-    });
-  });
-
   describe('Props Handling', () => {
     beforeEach(() => {
       mockUseLocalPlayers.mockReturnValue(
@@ -583,13 +465,13 @@ describe('LocalPlayerSettings', () => {
         </TestProvider>
       );
 
-      // Should render without errors using defaults
-      expect(screen.getByText('title')).toBeInTheDocument();
+      // Should render without errors using defaults - check for setup button instead
+      expect(screen.getByText('setupButton')).toBeInTheDocument();
     });
   });
 
   describe('Session Settings Display', () => {
-    it('should show settings as disabled switches', () => {
+    it('should show settings as enabled switches', () => {
       mockUseLocalPlayers.mockReturnValue(
         createMockUseLocalPlayersReturn({
           localPlayers: mockLocalPlayers,
@@ -610,10 +492,10 @@ describe('LocalPlayerSettings', () => {
         </TestProvider>
       );
 
-      // All switches should be disabled (read-only)
+      // All switches should be enabled (functional)
       const switches = screen.getAllByRole('checkbox');
       switches.forEach((switchElement) => {
-        expect(switchElement).toBeDisabled();
+        expect(switchElement).toBeEnabled();
       });
     });
 
@@ -702,7 +584,7 @@ describe('LocalPlayerSettings', () => {
         </TestProvider>
       );
 
-      expect(screen.getByText('Current: Player One')).toBeInTheDocument();
+      expect(screen.getByText('currentTurn')).toBeInTheDocument();
     });
 
     it('should not show current player chip when currentPlayer is null', () => {

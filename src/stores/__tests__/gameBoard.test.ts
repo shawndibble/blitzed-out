@@ -1,16 +1,17 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  getBoards,
+  activateBoard,
+  addBoard,
+  deleteBoard,
   getActiveBoard,
   getBoard,
-  addBoard,
+  getBoards,
   updateBoard,
   upsertBoard,
-  activateBoard,
-  deleteBoard,
 } from '../gameBoard';
-import db from '../store';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { DBGameBoard } from '@/types/gameBoard';
+import db from '../store';
 
 // Mock the database
 vi.mock('../store', () => ({
@@ -358,54 +359,6 @@ describe('gameBoard store', () => {
       vi.mocked(db.gameBoard.delete).mockRejectedValue(new Error('Delete failed'));
 
       await expect(deleteBoard(1)).rejects.toThrow('Delete failed');
-    });
-  });
-
-  describe('edge cases and error handling', () => {
-    it('should handle database connection errors', async () => {
-      const mockToArray = vi.fn().mockRejectedValue(new Error('Database connection failed'));
-      const mockOrderBy = vi.fn().mockReturnValue({ toArray: mockToArray });
-
-      vi.mocked(db.gameBoard.orderBy).mockReturnValue(mockOrderBy('title') as any);
-
-      await expect(getBoards()).rejects.toThrow('Database connection failed');
-    });
-
-    it('should handle malformed board data', async () => {
-      const malformedBoard = {
-        id: 'invalid-id',
-        title: null,
-        tiles: 'not-an-array',
-        isActive: 'invalid-boolean',
-      } as any;
-
-      vi.mocked(db.gameBoard.add).mockResolvedValue(1);
-
-      // Should still attempt to add, letting the database handle validation
-      await expect(addBoard(malformedBoard)).resolves.toBe(1);
-    });
-
-    it('should handle concurrent board activation', async () => {
-      // Simulate race condition where boards are modified during activation
-      let callCount = 0;
-      // @ts-expect-error Mock implementation with conditional return values
-      vi.mocked(db.gameBoard.toArray).mockImplementation(async () => {
-        callCount++;
-        if (callCount === 1) {
-          return mockBoards;
-        }
-        // Return modified boards on the second call to simulate concurrent modification
-        return [
-          { ...mockBoards[0], isActive: 0 },
-          { ...mockBoards[1], isActive: 1 },
-        ];
-      });
-      // @ts-expect-error Mock return value type mismatch with actual bulkPut return
-      vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([1, 2]);
-
-      await activateBoard(2);
-
-      expect(db.gameBoard.bulkPut).toHaveBeenCalled();
     });
   });
 

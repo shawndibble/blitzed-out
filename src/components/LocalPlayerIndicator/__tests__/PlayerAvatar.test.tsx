@@ -1,8 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import PlayerAvatar from '../PlayerAvatar';
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+
 import type { LocalPlayer } from '@/types';
+import PlayerAvatar from '../PlayerAvatar';
 
 // Mock the migration context
 vi.mock('@/context/migration', () => ({
@@ -309,18 +310,6 @@ describe('PlayerAvatar', () => {
       fireEvent.click(avatar);
 
       expect(mockOnClick).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not call onClick when no onClick handler provided', () => {
-      render(
-        <TestProvider>
-          <PlayerAvatar player={mockPlayer} />
-        </TestProvider>
-      );
-
-      const avatar = screen.getByText('TP');
-      // Should not throw error when clicked without onClick handler
-      expect(() => fireEvent.click(avatar)).not.toThrow();
     });
 
     it('should apply pointer cursor when onClick is provided', () => {

@@ -42,7 +42,6 @@
   "roomType": "रूम प्रकार",
   "gameConfiguration": "गेम कॉन्फ़िगरेशन",
   "visualSettings": "दृश्य सेटिंग्स",
-  "appBackground": "ऐप सेटिंग्स बैकग्राउंड",
   "application": "ऐप",
   "variation": "विविधता",
   "variationTooltip": "<0>स्टैंडअलोन = इसकी अपनी टाइल। </0><1>कुछ जोड़ें = अन्य क्रिया में जोड़ने की 50% संभावना।</1><2>अधिकतर जोड़ें = अन्य क्रिया में जोड़ने की 90% संभावना।</2>",
@@ -56,7 +55,6 @@
   "rebuildBoardAction": "बोर्ड पुनर्निर्माण",
   "keepCurrentBoard": "वर्तमान बोर्ड रखें",
   "cancel": "रद्द करें",
-  "back": "वापस",
   "skip": "छोड़ें",
   "confirm": "पुष्टि करें",
   "warning": "चेतावनी",
@@ -561,32 +559,6 @@
         "vers": "भूमिकाओं के बीच लचीला"
       }
     }
-  },
-  "turnManager": {
-    "inactive": "टर्न प्रबंधन सक्रिय नहीं है",
-    "remotePlayersOnly": "केवल दूरस्थ खिलाड़ियों के लिए टर्न प्रबंधन",
-    "currentTurn": "वर्तमान बारी",
-    "controls": "टर्न नियंत्रण",
-    "nextTurn": "अगली बारी",
-    "skipTurn": "बारी छोड़ें",
-    "pauseTurn": "बारी रोकें",
-    "resumeTurn": "बारी फिर से शुरू करें",
-    "turnType": "टर्न का प्रकार",
-    "cycle": "चक्र",
-    "turn": "बारी",
-    "upNext": "अगला",
-    "types": {
-      "local": "स्थानीय खिलाड़ी",
-      "remote": "दूरस्थ खिलाड़ी",
-      "none": "कोई टर्न नहीं"
-    }
-  },
-  "turnQueue": {
-    "noUpcomingTurns": "कोई आगामी बारी नहीं",
-    "next": "अगला",
-    "remotePlayers": "दूरस्थ खिलाड़ी",
-    "showing": "{{count}} में से {{total}} खिलाड़ी दिखा रहे हैं",
-    "includesRemotePlayers": "कतार में दूरस्थ खिलाड़ी शामिल हैं"
   },
   "localPlayerSettings": {
     "title": "स्थानीय खिलाड़ी",

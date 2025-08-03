@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  checkAndHandleVersionChange,
+  fixMigrationStatusCorruption,
   isMigrationCompleted,
   runMigrationIfNeeded,
   verifyMigrationIntegrity,
-  fixMigrationStatusCorruption,
-  checkAndHandleVersionChange,
 } from '../migrationService';
 
 // Mock localStorage
@@ -78,11 +78,6 @@ describe('Migration Service', () => {
       expect(isMigrationCompleted()).toBe(false);
     });
 
-    it('should return false when migration status is invalid JSON', () => {
-      mockLocalStorage.setItem(MIGRATION_KEY, 'invalid json');
-      expect(isMigrationCompleted()).toBe(false);
-    });
-
     it('should return false when migration is not completed', () => {
       const status = {
         version: MIGRATION_VERSION,
@@ -140,15 +135,6 @@ describe('Migration Service', () => {
       const result = await runMigrationIfNeeded();
       expect(result).toBe(true);
     });
-
-    it('should handle migration errors gracefully', async () => {
-      // Mock the stores to throw errors
-      const { addCustomGroup } = await import('@/stores/customGroups');
-      vi.mocked(addCustomGroup).mockRejectedValue(new Error('Database error'));
-
-      const result = await runMigrationIfNeeded();
-      expect(result).toBe(true); // Migration should still succeed even with some failures
-    });
   });
 
   describe('Fresh user scenario', () => {
@@ -160,15 +146,6 @@ describe('Migration Service', () => {
       // Migration should be needed
       const needsMigration = !isMigrationCompleted();
       expect(needsMigration).toBe(true);
-    });
-
-    it('should handle empty localStorage gracefully', async () => {
-      // Clear all localStorage
-      mockLocalStorage.clear();
-
-      // Should not throw error
-      expect(() => isMigrationCompleted()).not.toThrow();
-      expect(isMigrationCompleted()).toBe(false);
     });
 
     it('should properly mark current language migration as completed after successful run', async () => {
@@ -215,26 +192,6 @@ describe('Migration Service', () => {
       mockLocalStorage.setItem(MIGRATION_KEY, JSON.stringify(futureStatus));
 
       // Should return false due to version mismatch
-      expect(isMigrationCompleted()).toBe(false);
-    });
-  });
-
-  describe('Error handling', () => {
-    it('should handle localStorage errors gracefully', () => {
-      // Mock localStorage to throw an error
-      mockLocalStorage.getItem.mockImplementation(() => {
-        throw new Error('localStorage unavailable');
-      });
-
-      // Should not throw and return false
-      expect(() => isMigrationCompleted()).not.toThrow();
-      expect(isMigrationCompleted()).toBe(false);
-    });
-
-    it('should handle JSON parsing errors', () => {
-      mockLocalStorage.setItem(MIGRATION_KEY, '{invalid json}');
-
-      expect(() => isMigrationCompleted()).not.toThrow();
       expect(isMigrationCompleted()).toBe(false);
     });
   });

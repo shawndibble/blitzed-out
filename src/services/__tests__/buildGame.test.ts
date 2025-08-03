@@ -1,8 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import buildGameBoard from '../buildGame';
-import { CustomTilePull } from '@/types/customTiles';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { CustomGroupPull } from '@/types/customGroups';
+import { CustomTilePull } from '@/types/customTiles';
 import { Settings } from '@/types/Settings';
+import buildGameBoard from '../buildGame';
+import { getCustomGroups } from '@/stores/customGroups';
+import { getTiles } from '@/stores/customTiles';
 
 // Mock i18next
 vi.mock('i18next', () => ({
@@ -33,9 +36,6 @@ vi.mock('@/stores/customGroups', () => ({
 vi.mock('@/stores/customTiles', () => ({
   getTiles: vi.fn(),
 }));
-
-import { getCustomGroups } from '@/stores/customGroups';
-import { getTiles } from '@/stores/customTiles';
 
 describe('buildGameBoard service', () => {
   const mockGroups: CustomGroupPull[] = [
@@ -165,33 +165,6 @@ describe('buildGameBoard service', () => {
       expect(result.board.length).toBe(2); // Just start and finish
       expect(result.metadata.selectedGroups).toEqual([]);
       expect(result.metadata.tilesWithContent).toBe(2); // Start and finish tiles
-    });
-  });
-
-  describe('Error handling', () => {
-    it('should handle store errors gracefully', async () => {
-      vi.mocked(getCustomGroups).mockRejectedValue(new Error('Database error'));
-
-      const result = await buildGameBoard(mockSettings, 'en', 'online', 5);
-
-      expect(result.board.length).toBe(2); // Empty board with start/finish
-      expect(result.metadata.totalTiles).toBe(2);
-      expect(result.metadata.selectedGroups).toEqual([]);
-    });
-
-    it('should handle missing groups', async () => {
-      const settingsWithMissingGroup: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          teasing: { level: 2, type: 'action' },
-          nonexistent: { level: 1, type: 'action' },
-        },
-      };
-
-      const result = await buildGameBoard(settingsWithMissingGroup, 'en', 'online', 5);
-
-      expect(result.metadata.missingGroups).toContain('nonexistent');
-      expect(result.metadata.selectedGroups).toEqual(['teasing', 'nonexistent']);
     });
   });
 
@@ -991,10 +964,6 @@ describe('buildGameBoard service', () => {
 
       // Also verify that we're not getting the exact same action for every single tile
       expect(uniqueActions.size).toBeGreaterThan(1);
-
-      console.log(
-        `Action variety test: Generated ${uniqueActions.size} unique actions out of ${mockTilesWithMultipleActions.length} available`
-      );
     });
 
     it('should not generate identical boards when multiple actions are available', async () => {

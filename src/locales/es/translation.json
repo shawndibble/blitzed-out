@@ -42,7 +42,6 @@
   "roomType": "Tipo de Sala",
   "gameConfiguration": "Configuración del Juego",
   "visualSettings": "Configuración Visual",
-  "appBackground": "Fondo de configuración de la aplicación",
   "application": "App",
   "variation": "Variación",
   "variationTooltip": "<0>Independiente = La acción tiene su propia casilla. </0><1>Añadir a algunas = 50% de probabilidad. </1><2>Añadir a la mayoría = 90% de probabilidad.</2>",
@@ -56,7 +55,6 @@
   "rebuildBoardAction": "Reconstruir Tablero",
   "keepCurrentBoard": "Mantener Tablero Actual",
   "cancel": "Cancelar",
-  "back": "Atrás",
   "skip": "Saltar",
   "confirm": "Confirmar",
   "warning": "Advertencia",
@@ -562,27 +560,6 @@
         "vers": "Flexible entre roles"
       }
     }
-  },
-  "turnManager": {
-    "inactive": "La gestión de turnos no está activa",
-    "remotePlayersOnly": "Gestión de turnos solo para jugadores remotos",
-    "currentTurn": "Turno Actual",
-    "controls": "Controles de Turno",
-    "nextTurn": "Siguiente Turno",
-    "skipTurn": "Saltar Turno",
-    "pauseTurn": "Pausar Turno",
-    "resumeTurn": "Reanudar Turno",
-    "turnType": "Tipo de Turno",
-    "cycle": "Ciclo",
-    "turn": "Turno",
-    "upNext": "Siguiente"
-  },
-  "turnQueue": {
-    "noUpcomingTurns": "No hay turnos próximos",
-    "next": "Siguiente",
-    "remotePlayers": "Jugadores Remotos",
-    "showing": "Mostrando {{count}} de {{total}} jugadores",
-    "includesRemotePlayers": "Incluye jugadores remotos en la cola"
   },
   "localPlayerSettings": {
     "title": "Jugadores Locales",

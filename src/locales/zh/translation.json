@@ -42,7 +42,6 @@
   "roomType": "房間類型",
   "gameConfiguration": "遊戲設定",
   "visualSettings": "視覺設定",
-  "appBackground": "應用程式設定背景",
   "application": "應用程式",
   "variation": "變化",
   "variationTooltip": "<0>獨立 = 獨立磁磚。</0><1>附加部分 = 50%機會加入其他動作。</1><2>附加大部分 = 90%機會加入其他動作。</2>",
@@ -56,7 +55,6 @@
   "rebuildBoardAction": "重建遊戲板",
   "keepCurrentBoard": "保留當前遊戲板",
   "cancel": "取消",
-  "back": "返回",
   "skip": "跳過",
   "confirm": "確認",
   "warning": "警告",
@@ -551,32 +549,6 @@
         "vers": "在角色間靈活轉換"
       }
     }
-  },
-  "turnManager": {
-    "inactive": "回合管理未激活",
-    "remotePlayersOnly": "僅遠程玩家的回合管理",
-    "currentTurn": "當前回合",
-    "controls": "回合控制",
-    "nextTurn": "下一回合",
-    "skipTurn": "跳過回合",
-    "pauseTurn": "暫停回合",
-    "resumeTurn": "恢復回合",
-    "turnType": "回合類型",
-    "cycle": "循環",
-    "turn": "回合",
-    "upNext": "下一個",
-    "types": {
-      "local": "本地玩家",
-      "remote": "遠程玩家",
-      "none": "無回合"
-    }
-  },
-  "turnQueue": {
-    "noUpcomingTurns": "沒有即將到來的回合",
-    "next": "下一個",
-    "remotePlayers": "遠程玩家",
-    "showing": "顯示 {{count}} / {{total}} 玩家",
-    "includesRemotePlayers": "隊列中包含遠程玩家"
   },
   "localPlayerSettings": {
     "title": "本地玩家",

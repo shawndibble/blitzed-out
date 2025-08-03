@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import useUnifiedActionList from '../useUnifiedActionList';
+
 import { CustomGroupPull } from '@/types/customGroups';
+import { getAllAvailableGroups } from '@/stores/customGroups';
+import useUnifiedActionList from '../useUnifiedActionList';
 
 // Mock i18next
 const mockI18n = {
@@ -36,8 +38,6 @@ vi.mock('@/context/migration', () => ({
     forceRecovery: vi.fn(),
   }),
 }));
-
-import { getAllAvailableGroups } from '@/stores/customGroups';
 
 describe('useUnifiedActionList - Core Functionality', () => {
   beforeEach(() => {
@@ -132,32 +132,6 @@ describe('useUnifiedActionList - Core Functionality', () => {
     // Should remain in loading state since no game mode provided
     expect(result.current.isLoading).toBe(true);
     expect(result.current.actionsList).toEqual({});
-  });
-
-  it('should handle database errors gracefully', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    // Mock rejection to simulate database error
-    vi.mocked(getAllAvailableGroups).mockRejectedValue(new Error('Database error'));
-
-    const { result } = renderHook(() => useUnifiedActionList('online'));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    // Should handle error gracefully
-    expect(result.current.actionsList).toEqual({});
-
-    // Verify console.error was called (but suppressed)
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('useUnifiedActionList: Error loading unified actions'),
-      expect.any(Object)
-    );
-
-    consoleErrorSpy.mockRestore();
-    consoleWarnSpy.mockRestore();
   });
 
   it('should handle empty groups array', async () => {

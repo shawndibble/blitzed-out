@@ -42,7 +42,6 @@
   "roomType": "Type de Salle",
   "gameConfiguration": "Configuration du Jeu",
   "visualSettings": "Paramètres Visuels",
-  "appBackground": "Fond d'écran de l'application",
   "application": "App",
   "variation": "Variation",
   "variationTooltip": "<0>Autonome = aucune tuile combinée. </0><1>Ajouter certaines = 50% de chances.</1><2>Ajouter la plupart = 90% de chances.</2>",
@@ -56,7 +55,6 @@
   "rebuildBoardAction": "Reconstruire le Plateau",
   "keepCurrentBoard": "Garder le Plateau Actuel",
   "cancel": "Annuler",
-  "back": "Retour",
   "skip": "Ignorer",
   "confirm": "Confirmer",
   "warning": "Avertissement",
@@ -563,27 +561,6 @@
         "vers": "Flexible entre les rôles"
       }
     }
-  },
-  "turnManager": {
-    "inactive": "La gestion des tours n'est pas active",
-    "remotePlayersOnly": "Gestion des tours pour les joueurs distants uniquement",
-    "currentTurn": "Tour Actuel",
-    "controls": "Contrôles de Tour",
-    "nextTurn": "Tour Suivant",
-    "skipTurn": "Passer le Tour",
-    "pauseTurn": "Mettre en Pause le Tour",
-    "resumeTurn": "Reprendre le Tour",
-    "turnType": "Type de Tour",
-    "cycle": "Cycle",
-    "turn": "Tour",
-    "upNext": "Suivant"
-  },
-  "turnQueue": {
-    "noUpcomingTurns": "Aucun tour à venir",
-    "next": "Suivant",
-    "remotePlayers": "Joueurs Distants",
-    "showing": "Affichage de {{count}} sur {{total}} joueurs",
-    "includesRemotePlayers": "Inclut les joueurs distants dans la file"
   },
   "localPlayerSettings": {
     "title": "Joueurs Locaux",

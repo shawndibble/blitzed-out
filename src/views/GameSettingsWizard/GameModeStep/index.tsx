@@ -96,6 +96,7 @@ export default function GameModeStep({
               <Grid size={{ xs: 12, sm: 6 }} key={mode.id}>
                 <Card
                   role="button"
+                  tabIndex={0}
                   sx={{
                     cursor: 'pointer',
                     border: mode.isSelected ? '3px solid' : '1px solid',
@@ -116,6 +117,16 @@ export default function GameModeStep({
                       roomRealtime: mode.id !== 'local',
                     })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setFormData({
+                        ...formData,
+                        gameMode: mode.id === 'local' ? 'local' : 'online',
+                        roomRealtime: mode.id !== 'local',
+                      });
+                    }
+                  }}
                 >
                   <CardContent sx={{ p: 3 }}>
                     <Stack spacing={1} alignItems="center" textAlign="center">
@@ -156,6 +167,7 @@ export default function GameModeStep({
               <Grid size={{ xs: 12, sm: 4 }} key={role.value}>
                 <Card
                   role="button"
+                  tabIndex={0}
                   sx={{
                     cursor: 'pointer',
                     border: formData.role === role.value ? '2px solid' : '1px solid',
@@ -176,6 +188,15 @@ export default function GameModeStep({
                       role: role.value as PlayerRole,
                     })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setFormData({
+                        ...formData,
+                        role: role.value as PlayerRole,
+                      });
+                    }
+                  }}
                 >
                   <CardContent sx={{ p: 2.5 }}>
                     <Stack spacing={1} alignItems="center" textAlign="center">
@@ -209,6 +230,7 @@ export default function GameModeStep({
               <Grid size={{ xs: 12, sm: 6 }} key={mode.id}>
                 <Card
                   role="button"
+                  tabIndex={0}
                   sx={{
                     cursor: 'pointer',
                     border: mode.isSelected ? '2px solid' : '1px solid',
@@ -228,6 +250,15 @@ export default function GameModeStep({
                       isNaked: mode.id === 'naked',
                     })
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setFormData({
+                        ...formData,
+                        isNaked: mode.id === 'naked',
+                      });
+                    }
+                  }}
                 >
                   <CardContent sx={{ p: 3 }}>
                     <Stack spacing={1} alignItems="center" textAlign="center">

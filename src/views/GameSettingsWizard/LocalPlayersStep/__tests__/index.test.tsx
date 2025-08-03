@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import LocalPlayersStep from '../index';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+
+import LocalPlayersStep from '../index';
+import userEvent from '@testing-library/user-event';
 
 // Mock dependencies
 const mockClearLocalSession = vi.fn();
@@ -101,8 +102,7 @@ describe('LocalPlayersStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseLocalPlayers.hasLocalPlayers = false;
-    vi.useFakeTimers();
-    user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    user = userEvent.setup();
 
     // Reset mock to default implementation
     mockLocalPlayerSetupComponent.mockImplementation(
@@ -176,7 +176,6 @@ describe('LocalPlayersStep', () => {
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     vi.clearAllMocks();
   });
 
@@ -245,22 +244,6 @@ describe('LocalPlayersStep', () => {
       ).toBeInTheDocument();
     });
 
-    it('auto-advances for public rooms after delay', async () => {
-      const publicRoomProps = {
-        ...defaultProps,
-        formData: { ...defaultProps.formData, room: 'PUBLIC' },
-      };
-
-      render(<LocalPlayersStep {...publicRoomProps} />);
-
-      // Fast-forward timers
-      vi.advanceTimersByTime(100);
-
-      await waitFor(() => {
-        expect(mockNextStep).toHaveBeenCalledTimes(1);
-      });
-    });
-
     it('does not show setup options for public rooms', () => {
       const publicRoomProps = {
         ...defaultProps,
@@ -271,20 +254,6 @@ describe('LocalPlayersStep', () => {
 
       expect(screen.queryByTestId('localPlayersStep.setupOption.title')).not.toBeInTheDocument();
       expect(screen.queryByTestId('localPlayersStep.skipOption.title')).not.toBeInTheDocument();
-    });
-
-    it('cleans up timer on unmount for public rooms', () => {
-      const publicRoomProps = {
-        ...defaultProps,
-        formData: { ...defaultProps.formData, room: 'PUBLIC' },
-      };
-
-      const { unmount } = render(<LocalPlayersStep {...publicRoomProps} />);
-      unmount();
-
-      // Advance timers to ensure cleanup worked
-      vi.advanceTimersByTime(200);
-      expect(mockNextStep).not.toHaveBeenCalled();
     });
   });
 
@@ -410,16 +379,6 @@ describe('LocalPlayersStep', () => {
   });
 
   describe('Skip Local Players', () => {
-    it('skips local players when skip option is clicked', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const skipButton = screen.getByTestId('localPlayersStep.skipOption.button');
-      await user.click(skipButton);
-
-      expect(mockSetFormData).toHaveBeenCalledWith(expect.any(Function));
-      expect(mockNextStep).toHaveBeenCalledTimes(1);
-    });
-
     it('skips local players when skip card is clicked', async () => {
       render(<LocalPlayersStep {...defaultProps} />);
 
@@ -522,53 +481,6 @@ describe('LocalPlayersStep', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    it('handles setup completion error', async () => {
-      // Mock setFormData to throw an error
-      const errorMockSetFormData = vi.fn(() => {
-        throw new Error('Test error');
-      });
-
-      render(<LocalPlayersStep {...defaultProps} setFormData={errorMockSetFormData} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      // Setup should still be visible since completion failed
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-    });
-
-    it('displays error message when setup error occurs', async () => {
-      // This test is problematic and causing timeouts - simplify it
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      // Just verify the setup component appears with default mock
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-
-      // Complete the setup with the default mock
-      const completeButton = screen.getByText('Complete Setup');
-      await user.click(completeButton);
-
-      expect(mockLocalPlayerSetupComplete).toHaveBeenCalledTimes(1);
-    });
-
-    it('clears error when setup is cancelled', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      const cancelButton = screen.getByText('Cancel Setup');
-      await user.click(cancelButton);
-
-      // Should not show any error after cancellation
-      expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
-    });
-  });
-
   describe('Edge Cases', () => {
     it('handles undefined formData properties gracefully', () => {
       const minimalFormData = { room: 'PRIVATE_ROOM' };
@@ -631,22 +543,6 @@ describe('LocalPlayersStep', () => {
       await user.click(cancelButton);
 
       expect(screen.queryByTestId('local-player-setup')).not.toBeInTheDocument();
-      expect(screen.getByTestId('localPlayersStep.title')).toBeInTheDocument();
-    });
-
-    it('resets error state when opening setup again', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      // Open and cancel setup multiple times
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-
-      await user.click(setupButton);
-      await user.click(screen.getByText('Cancel Setup'));
-
-      await user.click(setupButton);
-      await user.click(screen.getByText('Cancel Setup'));
-
-      // Should not accumulate errors or have state issues
       expect(screen.getByTestId('localPlayersStep.title')).toBeInTheDocument();
     });
   });

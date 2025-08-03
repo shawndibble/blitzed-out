@@ -1,13 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  clearQueryCache,
+  getCacheStats,
   getMessages,
   getMessagesWithPagination,
-  getUserList,
+  getQueryPerformanceMetrics,
   getSchedule,
   getScheduleWithPagination,
-  getQueryPerformanceMetrics,
-  getCacheStats,
-  clearQueryCache,
 } from '../firebase';
 
 // Mock Firebase modules
@@ -104,41 +103,6 @@ describe('Firebase Query Optimizations', () => {
 
       expect(getMessages(null, mockCallback)).toBeUndefined();
       expect(getMessages(undefined, mockCallback)).toBeUndefined();
-    });
-  });
-
-  describe('getUserList optimization', () => {
-    it('should support backward compatibility', () => {
-      const mockCallback = vi.fn();
-      const existingData = {};
-
-      expect(() => {
-        getUserList('test-room', mockCallback, existingData);
-      }).not.toThrow();
-    });
-
-    it('should support optimization options', () => {
-      const mockCallback = vi.fn();
-      const existingData = {};
-
-      expect(() => {
-        getUserList('test-room', mockCallback, existingData, {
-          enableCache: true,
-          enableDebounce: false,
-        });
-      }).not.toThrow();
-    });
-
-    it('should handle null/undefined roomId gracefully', () => {
-      const mockCallback = vi.fn();
-
-      expect(() => {
-        getUserList(null, mockCallback);
-      }).not.toThrow();
-
-      expect(() => {
-        getUserList(undefined, mockCallback);
-      }).not.toThrow();
     });
   });
 

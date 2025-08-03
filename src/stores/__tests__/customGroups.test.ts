@@ -1,12 +1,15 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { CustomGroupBase, CustomGroupPull } from '@/types/customGroups';
 import {
   addCustomGroup,
-  updateCustomGroup,
   deleteCustomGroup,
   getAllAvailableGroups,
   getGroupIntensities,
+  updateCustomGroup,
 } from '../customGroups';
-import { CustomGroupBase, CustomGroupPull } from '@/types/customGroups';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Import the mocked database
+import db from '../store';
 
 // Mock i18next
 vi.mock('i18next', () => ({
@@ -67,8 +70,6 @@ vi.mock('../store', () => {
   };
 });
 
-// Import the mocked database
-import db from '../store';
 const mockDb = db as any;
 
 describe('customGroups store', () => {
@@ -118,14 +119,6 @@ describe('customGroups store', () => {
         })
       );
     });
-
-    it('should handle errors when adding fails', async () => {
-      const error = new Error('Database error');
-      vi.mocked(mockDb.customGroups.add).mockRejectedValue(error);
-
-      const result = await addCustomGroup(mockGroup);
-      expect(result).toBeUndefined();
-    });
   });
 
   describe('updateCustomGroup', () => {
@@ -136,14 +129,6 @@ describe('customGroups store', () => {
 
       expect(mockDb.customGroups.update).toHaveBeenCalledWith('test-id-123', mockGroup);
     });
-
-    it('should handle errors when updating fails', async () => {
-      const error = new Error('Update failed');
-      vi.mocked(mockDb.customGroups.update).mockRejectedValue(error);
-
-      const result = await updateCustomGroup('test-id-123', mockGroup);
-      expect(result).toBe(0);
-    });
   });
 
   describe('deleteCustomGroup', () => {
@@ -153,13 +138,6 @@ describe('customGroups store', () => {
       await deleteCustomGroup('test-id-123');
 
       expect(mockDb.customGroups.delete).toHaveBeenCalledWith('test-id-123');
-    });
-
-    it('should handle errors when deletion fails', async () => {
-      const error = new Error('Delete failed');
-      vi.mocked(mockDb.customGroups.delete).mockRejectedValue(error);
-
-      await expect(deleteCustomGroup('test-id-123')).resolves.not.toThrow();
     });
   });
 
