@@ -1,4 +1,5 @@
 import { ActionEntry } from './index';
+import { LocalSessionSettings } from './localPlayers';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -33,6 +34,8 @@ export interface Settings {
   }>;
   selectedActions?: Record<string, ActionEntry>;
   hasSeenRollButton?: boolean;
+  /** Local player settings for single-device multiplayer (optional) */
+  localPlayers?: LocalSessionSettings;
   [key: string]: any;
 }
 

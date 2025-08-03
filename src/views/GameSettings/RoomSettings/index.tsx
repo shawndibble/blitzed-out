@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import GameSpeed from './GameSpeed';
 import PlayerListOption from './PlayerListOption';
 import RoomSwitch from '@/components/GameForm/RoomSwitch';
+import LocalPlayerSettings from '../LocalPlayerSettings';
 import { isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
 import { JSX } from 'react';
@@ -27,6 +28,11 @@ export default function RoomSettings({ formData, setFormData }: RoomSettingsProp
 
       {!isPublicRoom(formData.room) && (
         <>
+          <Divider sx={{ my: 1 }} />
+          <LocalPlayerSettings
+            roomId={formData.room}
+            isPrivateRoom={!isPublicRoom(formData.room)}
+          />
           <Divider sx={{ my: 1 }} />
           <GameSpeed formData={formData} setFormData={setFormData} />
           <Divider sx={{ my: 1 }} />

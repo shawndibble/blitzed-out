@@ -20,6 +20,7 @@
   "groupLabelRequired": "需要群組標籤",
   "tilesCount": "{{count}} 磁磚",
   "online": "線上",
+  "localPlayer": "本地",
   "you": "你",
   "setup": "遊戲設置",
   "setupSubtitle": "輸入您的姓名並開始會話",
@@ -51,6 +52,8 @@
   "rebuildBoardAction": "重建遊戲板",
   "keepCurrentBoard": "保留當前遊戲板",
   "cancel": "取消",
+  "back": "返回",
+  "skip": "跳過",
   "confirm": "確認",
   "warning": "警告",
   "error": "錯誤",
@@ -81,6 +84,11 @@
   "sub": "服從",
   "vers": "切換",
   "dom": "支配",
+  "roles": {
+    "dom": "支配",
+    "sub": "服從",
+    "vers": "切換"
+  },
   "privateRequired": "請前往私人房間存取這些選項。",
   "consumption": "消費",
   "consumptionSubtitle": "飲酒、吸煙、poppers",
@@ -479,5 +487,136 @@
   },
   "tts": {
     "sampleText": "喝一杯，享受遊戲。"
+  },
+  "localPlayers": {
+    "privateRoomRequired": "本機玩家僅在私人房間中可用，以保持本機多人遊戲的社交性質。",
+    "setupTitle": "本機玩家設置",
+    "setupSubtitle": "為單設備多人遊戲配置玩家",
+    "playersTitle": "玩家",
+    "playersCount": "{{count}} 位玩家",
+    "playersCount_one": "{{count}} 位玩家",
+    "playersCount_other": "{{count}} 位玩家",
+    "noPlayersYet": "尚未添加玩家。至少添加 2 位玩家才能開始。",
+    "addFirstPlayer": "添加第一位玩家",
+    "currentPlayer": "當前回合",
+    "turnOrder": "第 {{order}} 回合",
+    "defaultPlayerName": "玩家 {{number}}",
+    "startSession": "確定玩家",
+    "creatingSession": "正在創建遊戲...",
+    "errors": {
+      "minimumPlayers": "至少需要 2 位玩家",
+      "maximumPlayers": "最多允許 4 位玩家",
+      "emptyNames": "所有玩家都必須有名字",
+      "duplicateNames": "玩家名字必須唯一",
+      "sessionCreation": "創建遊戲失敗"
+    },
+    "onThisDevice": "在此設備上",
+    "remoteDevice": "遠程設備",
+    "playerActions": "{{name}} 操作",
+    "editPlayer": "編輯玩家",
+    "deletePlayer": "刪除玩家",
+    "noActivePlayer": "沒有活躍玩家",
+    "currentTurn": "當前回合",
+    "clickToAdvance": "點擊推進回合",
+    "form": {
+      "editPlayerTitle": "編輯玩家",
+      "addPlayerTitle": "新增玩家",
+      "previewName": "玩家預覽",
+      "nameLabel": "玩家名稱",
+      "nameHelper": "輸入此玩家的唯一名稱（2-20個字元）",
+      "namePlaceholder": "輸入玩家名稱...",
+      "roleLabel": "玩家角色",
+      "helpText": "您可以在需要時稍後修改這些設定。",
+      "saving": "儲存中...",
+      "saveChanges": "儲存變更",
+      "addPlayer": "新增玩家",
+      "errors": {
+        "nameRequired": "玩家名稱是必填的",
+        "nameTooShort": "名稱必須至少 2 個字元",
+        "nameTooLong": "名稱必須不超過 20 個字元",
+        "nameDuplicate": "此名稱已被使用",
+        "roleRequired": "請選擇一個角色"
+      },
+      "roleDescriptions": {
+        "dom": "掌控和領導",
+        "sub": "跟隨和接受",
+        "vers": "在角色間靈活轉換"
+      }
+    }
+  },
+  "turnManager": {
+    "inactive": "回合管理未激活",
+    "remotePlayersOnly": "僅遠程玩家的回合管理",
+    "currentTurn": "當前回合",
+    "controls": "回合控制",
+    "nextTurn": "下一回合",
+    "skipTurn": "跳過回合",
+    "pauseTurn": "暫停回合",
+    "resumeTurn": "恢復回合",
+    "turnType": "回合類型",
+    "cycle": "循環",
+    "turn": "回合",
+    "upNext": "下一個",
+    "types": {
+      "local": "本地玩家",
+      "remote": "遠程玩家",
+      "none": "無回合"
+    }
+  },
+  "turnQueue": {
+    "noUpcomingTurns": "沒有即將到來的回合",
+    "next": "下一個",
+    "remotePlayers": "遠程玩家",
+    "showing": "顯示 {{count}} / {{total}} 玩家",
+    "includesRemotePlayers": "隊列中包含遠程玩家"
+  },
+  "localPlayerSettings": {
+    "title": "本地玩家",
+    "noPlayers": {
+      "description": "目前沒有配置本地玩家。設置本地玩家以允許多人共享此設備。",
+      "setupButton": "設置本地玩家"
+    },
+    "session": {
+      "title": "本地玩家",
+      "active": "活躍",
+      "playerCount": "{{count}} 位玩家",
+      "playerCount_other": "{{count}} 位玩家",
+      "currentPlayer": "當前：{{name}}",
+      "editButton": "編輯玩家",
+      "clearButton": "刪除玩家"
+    },
+    "players": {
+      "title": "玩家列表",
+      "currentTurn": "當前回合"
+    },
+    "settings": {
+      "title": "本地玩家設置",
+      "showTurnTransitions": "顯示回合轉換",
+      "enableTurnTimer": "啟用回合計時器",
+      "playTurnSounds": "播放回合聲音",
+      "editNote": "編輯玩家以更改這些設置"
+    }
+  },
+  "localPlayersStep": {
+    "title": "單設備多人遊戲",
+    "subtitle": "想要與多個玩家共享一個設備？設置本地玩家享受社交遊戲體驗。",
+    "setupOption": {
+      "title": "設置本地玩家",
+      "description": "在此設備上配置多個玩家。非常適合共享一個屏幕的情侶或團體。",
+      "button": "配置本地玩家"
+    },
+    "skipOption": {
+      "title": "不使用本地玩家繼續",
+      "description": "跳過此步驟，繼續標準在線多人遊戲設置。",
+      "button": "跳過本地玩家"
+    },
+    "features": {
+      "singleDevice": "單一設備",
+      "turnManagement": "回合管理",
+      "privateRoomsOnly": "僅私人房間"
+    },
+    "currentStatus": {
+      "hasPlayers": "您已經配置了本地玩家。您可以設置新的或繼續使用當前設置。"
+    }
   }
 }

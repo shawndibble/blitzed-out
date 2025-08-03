@@ -4,49 +4,43 @@ import { useTranslation } from 'react-i18next';
 interface DynamicStepperProps {
   currentStep: number;
   isPublicRoom: boolean;
+  onStepClick?: (step: number) => void;
 }
 
-export default function DynamicStepper({ currentStep, isPublicRoom }: DynamicStepperProps) {
+export default function DynamicStepper({
+  currentStep,
+  isPublicRoom,
+  onStepClick,
+}: DynamicStepperProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Public Room: 3 steps (Room → Actions → Finish)
-  // Private Room: 4 steps (Room → Game Mode → Actions → Finish)
+  // Private Room: 5 steps (Room → Local Players → Game Mode → Actions → Finish)
   const steps = isPublicRoom
     ? [
-        t('roomSelection', 'Room Selection'),
-        t('actionsSelection', 'Actions Selection'),
-        t('finishSetup', 'Finish Setup'),
+        { label: String(t('roomSelection', 'Room Selection')), wizardStep: 1 },
+        { label: String(t('actionsSelection', 'Actions Selection')), wizardStep: 4 },
+        { label: String(t('finishSetup', 'Finish Setup')), wizardStep: 5 },
       ]
     : [
-        t('roomSelection', 'Room Selection'),
-        t('gameModeSelection', 'Game Mode Selection'),
-        t('actionsSelection', 'Actions Selection'),
-        t('finishSetup', 'Finish Setup'),
+        { label: String(t('roomSelection', 'Room Selection')), wizardStep: 1 },
+        { label: String(t('localPlayersStep.title', 'Local Players')), wizardStep: 2 },
+        { label: String(t('gameModeSelection', 'Game Mode Selection')), wizardStep: 3 },
+        { label: String(t('actionsSelection', 'Actions Selection')), wizardStep: 4 },
+        { label: String(t('finishSetup', 'Finish Setup')), wizardStep: 5 },
       ];
 
-  // Adjust current step for public rooms
-  // For public rooms, step 2 (GameMode) is skipped, so:
-  // Wizard step 3 (Actions) becomes stepper step 2
-  // Wizard step 4 (Finish) becomes stepper step 3
-  const getStepperStep = (wizardStep: number): number => {
-    if (isPublicRoom) {
-      switch (wizardStep) {
-        case 1:
-          return 0; // Room step
-        case 3:
-          return 1; // Actions step (skipping GameMode)
-        case 4:
-          return 2; // Finish step
-        default:
-          return 0;
-      }
-    }
-    return wizardStep - 1; // Default 1-based to 0-based conversion
-  };
+  // Find which stepper step corresponds to current wizard step
+  const activeStep = steps.findIndex((step) => step.wizardStep === currentStep);
 
-  const activeStep = getStepperStep(currentStep);
+  const handleStepClick = (stepperIndex: number) => {
+    if (onStepClick) {
+      const wizardStep = steps[stepperIndex].wizardStep;
+      onStepClick(wizardStep);
+    }
+  };
 
   return (
     <Stepper
@@ -61,9 +55,23 @@ export default function DynamicStepper({ currentStep, isPublicRoom }: DynamicSte
         }),
       }}
     >
-      {steps.map((label, index) => (
+      {steps.map((step, index) => (
         <Step key={index}>
-          <StepLabel>{!isMobile ? label : ''}</StepLabel>
+          <StepLabel
+            onClick={() => handleStepClick(index)}
+            sx={{
+              cursor: onStepClick ? 'pointer' : 'default',
+              '&:hover': onStepClick
+                ? {
+                    '& .MuiStepLabel-label': {
+                      color: 'primary.main',
+                    },
+                  }
+                : {},
+            }}
+          >
+            {!isMobile ? step.label : null}
+          </StepLabel>
         </Step>
       ))}
     </Stepper>

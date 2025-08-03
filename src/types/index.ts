@@ -116,20 +116,8 @@ export interface LocalStorageHookReturn<T> {
   removeStorage: () => void;
 }
 
-// Form data types
-export interface FormData {
-  [key: string]: unknown;
-  gameMode: GameMode;
-  isNaked?: boolean;
-  isAppend?: boolean;
-  room: string;
-  roomRealtime?: boolean;
-  actions?: any[];
-  consumption?: any[];
-  role?: PlayerRole;
-  boardUpdated: boolean;
-  finishRange?: [number, number];
-}
+// Form data types (defined after local player exports)
+// Will be defined after exports...
 
 export interface ActionEntry {
   type: string;
@@ -177,3 +165,42 @@ export type {
   CustomGroupExportData,
 } from './customGroups';
 export { DEFAULT_INTENSITY_TEMPLATES } from './customGroups';
+
+// Re-export local player types
+export type { LocalPlayer, LocalPlayerSession, LocalSessionSettings } from './localPlayers';
+export type { DBLocalPlayerSession, DBLocalPlayerMove, DBLocalPlayerStats } from './localPlayerDB';
+
+// Re-export hybrid player types
+export type {
+  RemotePlayer,
+  HybridLocalPlayer,
+  HybridPlayer,
+  HybridPlayerList,
+} from './hybridPlayers';
+export {
+  isLocalPlayer,
+  isRemotePlayer,
+  toHybridLocalPlayer,
+  toRemotePlayer,
+} from './hybridPlayers';
+
+// Form data types (importing needed types for FormData)
+import type { LocalPlayer, LocalSessionSettings } from './localPlayers';
+
+export interface FormData {
+  [key: string]: unknown;
+  gameMode: GameMode;
+  isNaked?: boolean;
+  isAppend?: boolean;
+  room: string;
+  roomRealtime?: boolean;
+  actions?: any[];
+  consumption?: any[];
+  role?: PlayerRole;
+  boardUpdated: boolean;
+  finishRange?: [number, number];
+  // Local player support - using different field names to avoid conflicts with Settings
+  localPlayersData?: LocalPlayer[];
+  localPlayerSessionSettings?: LocalSessionSettings;
+  hasLocalPlayers?: boolean;
+}

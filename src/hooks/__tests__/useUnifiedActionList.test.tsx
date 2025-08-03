@@ -135,6 +135,10 @@ describe('useUnifiedActionList - Core Functionality', () => {
   });
 
   it('should handle database errors gracefully', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // Mock rejection to simulate database error
     vi.mocked(getAllAvailableGroups).mockRejectedValue(new Error('Database error'));
 
     const { result } = renderHook(() => useUnifiedActionList('online'));
@@ -145,6 +149,15 @@ describe('useUnifiedActionList - Core Functionality', () => {
 
     // Should handle error gracefully
     expect(result.current.actionsList).toEqual({});
+
+    // Verify console.error was called (but suppressed)
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('useUnifiedActionList: Error loading unified actions'),
+      expect.any(Object)
+    );
+
+    consoleErrorSpy.mockRestore();
+    consoleWarnSpy.mockRestore();
   });
 
   it('should handle empty groups array', async () => {

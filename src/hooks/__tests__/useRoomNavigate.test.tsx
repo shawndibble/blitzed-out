@@ -282,6 +282,42 @@ describe('useRoomNavigate', () => {
 
       expect(mockNavigate).toHaveBeenCalledWith('/MixedCaseRoom');
     });
+
+    it('should remove single leading slash from formRoom', () => {
+      mockParams = { id: 'CURRENT' };
+
+      const { result } = renderHook(() => useRoomNavigate(), {
+        wrapper: TestWrapper,
+      });
+
+      result.current('/TARGET');
+
+      expect(mockNavigate).toHaveBeenCalledWith('/TARGET');
+    });
+
+    it('should remove multiple leading slashes from formRoom', () => {
+      mockParams = { id: 'CURRENT' };
+
+      const { result } = renderHook(() => useRoomNavigate(), {
+        wrapper: TestWrapper,
+      });
+
+      result.current('///TARGET');
+
+      expect(mockNavigate).toHaveBeenCalledWith('/TARGET');
+    });
+
+    it('should handle formRoom with only slashes by defaulting to PUBLIC', () => {
+      mockParams = { id: 'CURRENT' };
+
+      const { result } = renderHook(() => useRoomNavigate(), {
+        wrapper: TestWrapper,
+      });
+
+      result.current('///');
+
+      expect(mockNavigate).toHaveBeenCalledWith('/PUBLIC');
+    });
   });
 
   describe('Case Sensitivity', () => {

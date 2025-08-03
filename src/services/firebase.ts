@@ -927,7 +927,7 @@ function executeGetMessages(
       let baseQuery = query(
         collection(db, 'chat-rooms', roomUpper, 'messages'),
         where('timestamp', '>', timeWindow),
-        orderBy('timestamp', 'asc'),
+        orderBy('timestamp', 'desc'),
         limit(limitCount)
       );
 
@@ -936,7 +936,7 @@ function executeGetMessages(
         baseQuery = query(
           collection(db, 'chat-rooms', roomUpper, 'messages'),
           where('timestamp', '>', timeWindow),
-          orderBy('timestamp', 'asc'),
+          orderBy('timestamp', 'desc'),
           startAfter(startAfterDoc),
           limit(limitCount)
         );

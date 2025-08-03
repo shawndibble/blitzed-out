@@ -4,6 +4,8 @@ import GameTile from './GameTile';
 import './styles.css';
 import { Settings } from '@/types/Settings';
 import { Tile, TileExport } from '@/types/gameBoard';
+import type { LocalPlayer } from '@/types/localPlayers';
+import { isLocalPlayer, type HybridPlayer } from '@/hooks/useHybridPlayerList';
 
 interface PlayerWithLocation {
   uid: string;
@@ -13,7 +15,7 @@ interface PlayerWithLocation {
 }
 
 interface GameBoardProps {
-  playerList: PlayerWithLocation[];
+  playerList: PlayerWithLocation[] | HybridPlayer[];
   isTransparent: boolean;
   gameBoard: TileExport[];
   settings: Settings;
@@ -27,6 +29,27 @@ export default function GameBoard({
 }: GameBoardProps): JSX.Element | null {
   const { user } = useAuth();
   if (!Array.isArray(gameBoard) || !gameBoard.length) return null;
+
+  // Extract local players if available for role-based player selection
+  const localPlayers: LocalPlayer[] = [];
+  if (playerList && Array.isArray(playerList)) {
+    // Check if we're dealing with HybridPlayer array (which includes local players)
+    const hybridPlayers = playerList as HybridPlayer[];
+    hybridPlayers.forEach((player) => {
+      if (isLocalPlayer(player)) {
+        localPlayers.push({
+          id: player.localId,
+          name: player.displayName,
+          role: player.role as any, // HybridPlayer role is string, LocalPlayer role is typed
+          order: player.order,
+          isActive: player.isSelf,
+          deviceId: 'local-device',
+          location: player.location,
+          isFinished: player.isFinished,
+        });
+      }
+    });
+  }
 
   const tileTypeArray = new Set<string>();
 
@@ -48,7 +71,9 @@ export default function GameBoard({
         ? actionStringReplacement(
             entry.description || '',
             settings.role || 'sub',
-            user.displayName || ''
+            user.displayName || '',
+            localPlayers.length > 0 ? localPlayers : undefined,
+            true // Use generic placeholders for GameBoard display
           )
         : // replace only letters and numbers with question marks. Remove special characters.
           (entry.description || '').replace(/[^\w\s]/g, '').replace(/[a-zA-Z0-9]/g, '?');

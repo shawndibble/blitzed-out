@@ -29,13 +29,32 @@ export default function GameModeStep({
   nextStep,
   prevStep,
 }: GameModeStepProps): JSX.Element {
-  const [visible, setVisible] = useState(!isOnlineMode(formData?.gameMode));
   const { t } = useTranslation();
 
-  // Update visibility when game mode changes
+  // Check if user has local players configured (single-device multiplayer)
+  const hasLocalPlayers = Boolean((formData as any).hasLocalPlayers);
+
+  // If local players are configured, force local mode and disable realtime
   useEffect(() => {
-    setVisible(!isOnlineMode(formData?.gameMode));
-  }, [formData?.gameMode]);
+    if (hasLocalPlayers) {
+      setFormData((prev) => ({
+        ...prev,
+        gameMode: 'local',
+        roomRealtime: false, // All players on same device, no need for real-time sync
+      }));
+    }
+  }, [hasLocalPlayers, setFormData]);
+
+  // Show role/intensity options only if in local mode without local players
+  // When local players are configured, we skip to intensity (clothed/naked) only
+  const [showRoleSelection, setShowRoleSelection] = useState(
+    !isOnlineMode(formData?.gameMode) && !hasLocalPlayers
+  );
+
+  // Update role selection visibility when game mode or local players change
+  useEffect(() => {
+    setShowRoleSelection(!isOnlineMode(formData?.gameMode) && !hasLocalPlayers);
+  }, [formData?.gameMode, hasLocalPlayers]);
 
   const interactionModes = [
     {
@@ -75,54 +94,68 @@ export default function GameModeStep({
 
   return (
     <Box sx={{ minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-        <Trans i18nKey="playingWithPeople" />
-      </Typography>
+      {/* Show the interaction question only if local players are NOT configured */}
+      {!hasLocalPlayers && (
+        <>
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+            <Trans i18nKey="playingWithPeople" />
+          </Typography>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        {interactionModes.map((mode) => (
-          <Grid size={{ xs: 12, sm: 6 }} key={mode.id}>
-            <Card
-              sx={{
-                cursor: 'pointer',
-                border: mode.isSelected ? '3px solid' : '1px solid',
-                borderColor: mode.isSelected ? 'primary.main' : 'divider',
-                backgroundColor: mode.isSelected ? 'primary.50' : 'background.paper',
-                transition: 'all 0.2s ease-in-out',
-                height: '100%',
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  transform: 'translateY(-2px)',
-                  boxShadow: 2,
-                },
-              }}
-              onClick={() =>
-                setFormData({
-                  ...formData,
-                  gameMode: mode.id === 'local' ? 'local' : 'online',
-                  roomRealtime: mode.id !== 'local',
-                })
-              }
-            >
-              <CardContent sx={{ p: 3 }}>
-                <Stack spacing={1} alignItems="center" textAlign="center">
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {t(mode.title)}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {mode.description}
-                  </Typography>
-                  {mode.isSelected && (
-                    <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 1 }} />
-                  )}
-                </Stack>
-              </CardContent>
-            </Card>
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            {interactionModes.map((mode) => (
+              <Grid size={{ xs: 12, sm: 6 }} key={mode.id}>
+                <Card
+                  role="button"
+                  sx={{
+                    cursor: 'pointer',
+                    border: mode.isSelected ? '3px solid' : '1px solid',
+                    borderColor: mode.isSelected ? 'primary.main' : 'divider',
+                    backgroundColor: mode.isSelected ? 'primary.50' : 'background.paper',
+                    transition: 'all 0.2s ease-in-out',
+                    height: '100%',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      transform: 'translateY(-2px)',
+                      boxShadow: 2,
+                    },
+                  }}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      gameMode: mode.id === 'local' ? 'local' : 'online',
+                      roomRealtime: mode.id !== 'local',
+                    })
+                  }
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Stack spacing={1} alignItems="center" textAlign="center">
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {t(mode.title)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {mode.description}
+                      </Typography>
+                      {mode.isSelected && (
+                        <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 1 }} />
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
+        </>
+      )}
 
-      <Collapse in={visible} timeout={500}>
+      {/* When local players are configured, show a title indicating game mode selection */}
+      {hasLocalPlayers && (
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+          <Trans i18nKey="gameModeSelection" />
+        </Typography>
+      )}
+
+      {/* Show role selection only for solo local mode (no local players) */}
+      <Collapse in={showRoleSelection} timeout={500}>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
             <Trans i18nKey="yourRole" />
@@ -132,6 +165,7 @@ export default function GameModeStep({
             {roleOptions.map((role) => (
               <Grid size={{ xs: 12, sm: 4 }} key={role.value}>
                 <Card
+                  role="button"
                   sx={{
                     cursor: 'pointer',
                     border: formData.role === role.value ? '2px solid' : '1px solid',
@@ -170,7 +204,12 @@ export default function GameModeStep({
               </Grid>
             ))}
           </Grid>
+        </Box>
+      </Collapse>
 
+      {/* Show intensity selection for local mode (both solo and local players) */}
+      {!isOnlineMode(formData?.gameMode) && (
+        <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
             <Trans i18nKey="areYouNaked" />
           </Typography>
@@ -179,6 +218,7 @@ export default function GameModeStep({
             {intensityModes.map((mode) => (
               <Grid size={{ xs: 12, sm: 6 }} key={mode.id}>
                 <Card
+                  role="button"
                   sx={{
                     cursor: 'pointer',
                     border: mode.isSelected ? '2px solid' : '1px solid',
@@ -217,7 +257,7 @@ export default function GameModeStep({
             ))}
           </Grid>
         </Box>
-      </Collapse>
+      )}
 
       <Box sx={{ flexGrow: 1 }} />
       <ButtonRow>

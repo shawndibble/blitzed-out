@@ -17,6 +17,7 @@
   "linkWithGoogle": "Link with Google",
   "signInWithGoogle": "Sign in with Google",
   "online": "Online",
+  "localPlayer": "Local",
   "you": "you",
   "setup": "Join the Experience",
   "setupSubtitle": "Enter your name and begin the session",
@@ -48,6 +49,8 @@
   "rebuildBoardAction": "Rebuild Board",
   "keepCurrentBoard": "Keep Current Board",
   "cancel": "Cancel",
+  "back": "Back",
+  "skip": "Skip",
   "confirm": "Confirm",
   "warning": "Warning",
   "error": "Error",
@@ -78,6 +81,11 @@
   "sub": "Submissive",
   "vers": "Switch",
   "dom": "Dominant",
+  "roles": {
+    "dom": "Dominant",
+    "sub": "Submissive",
+    "vers": "Switch"
+  },
   "privateRequired": "Please go to a private room to access these options.",
   "consumption": "Consume",
   "consumptionSubtitle": "Drinking, Smoking, Poppers",
@@ -479,5 +487,129 @@
   },
   "tts": {
     "sampleText": "Take a drink and enjoy the game."
+  },
+  "localPlayers": {
+    "privateRoomRequired": "Local players are only available in private rooms to maintain the social nature of local multiplayer.",
+    "setupTitle": "Local Player Setup",
+    "setupSubtitle": "Configure players for single-device multiplayer",
+    "playersTitle": "Players",
+    "playersCount": "{{count}} player",
+    "playersCount_other": "{{count}} players",
+    "noPlayersYet": "No players added yet. Add at least 2 players to begin.",
+    "addFirstPlayer": "Add First Player",
+    "currentPlayer": "Current Turn",
+    "turnOrder": "Turn {{order}}",
+    "defaultPlayerName": "Player {{number}}",
+    "startSession": "Finalize Players",
+    "creatingSession": "Creating Session...",
+    "errors": {
+      "minimumPlayers": "At least 2 players are required",
+      "maximumPlayers": "Maximum 4 players allowed",
+      "emptyNames": "All players must have names",
+      "duplicateNames": "Player names must be unique",
+      "sessionCreation": "Failed to create session"
+    },
+    "onThisDevice": "On this device",
+    "remoteDevice": "Remote device",
+    "playerActions": "{{name}} actions",
+    "editPlayer": "Edit Player",
+    "deletePlayer": "Delete Player",
+    "noActivePlayer": "No active player",
+    "currentTurn": "Current Turn",
+    "clickToAdvance": "Click to advance turn",
+    "form": {
+      "editPlayerTitle": "Edit Player",
+      "addPlayerTitle": "Add Player",
+      "previewName": "Player Preview",
+      "nameLabel": "Player Name",
+      "nameHelper": "Enter a unique name for this player (2-20 characters)",
+      "namePlaceholder": "Enter player name...",
+      "roleLabel": "Player Role",
+      "helpText": "You can change these settings later if needed.",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "addPlayer": "Add Player",
+      "errors": {
+        "nameRequired": "Player name is required",
+        "nameTooShort": "Name must be at least 2 characters",
+        "nameTooLong": "Name must be 20 characters or less",
+        "nameDuplicate": "This name is already taken",
+        "roleRequired": "Please select a role"
+      },
+      "roleDescriptions": {
+        "dom": "Takes control and leads",
+        "sub": "Follows and receives",
+        "vers": "Flexible between roles"
+      }
+    }
+  },
+  "turnManager": {
+    "inactive": "Turn management is not active",
+    "remotePlayersOnly": "Turn management for remote players only",
+    "currentTurn": "Current Turn",
+    "controls": "Turn Controls",
+    "nextTurn": "Next Turn",
+    "skipTurn": "Skip Turn",
+    "pauseTurn": "Pause Turn",
+    "resumeTurn": "Resume Turn",
+    "turnType": "Turn Type",
+    "cycle": "Cycle",
+    "turn": "Turn",
+    "upNext": "Up Next"
+  },
+  "turnQueue": {
+    "noUpcomingTurns": "No upcoming turns",
+    "next": "Next",
+    "remotePlayers": "Remote Players",
+    "showing": "Showing {{count}} of {{total}} players",
+    "includesRemotePlayers": "Includes remote players in queue"
+  },
+  "localPlayerSettings": {
+    "title": "Local Players",
+    "noPlayers": {
+      "description": "No local players are currently configured. Set up local players to enable multiple people to share this device.",
+      "setupButton": "Set Up Local Players"
+    },
+    "session": {
+      "title": "Local Players",
+      "active": "Active",
+      "playerCount": "{{count}} player",
+      "currentPlayer": "Current: {{name}}",
+      "editButton": "Edit Players",
+      "clearButton": "Delete Players"
+    },
+    "players": {
+      "title": "Player List",
+      "currentTurn": "Current Turn"
+    },
+    "settings": {
+      "title": "Local Player Settings",
+      "showTurnTransitions": "Show turn transitions",
+      "enableTurnTimer": "Enable turn timer",
+      "playTurnSounds": "Play turn sounds",
+      "editNote": "Edit players to change these settings"
+    }
+  },
+  "localPlayersStep": {
+    "title": "Single-Device Multiplayer",
+    "subtitle": "Want to share one device with multiple players? Set up local players for a social gaming experience.",
+    "setupOption": {
+      "title": "Set Up Local Players",
+      "description": "Configure multiple players on this device. Perfect for couples or groups sharing one screen.",
+      "button": "Configure Local Players"
+    },
+    "skipOption": {
+      "title": "Continue Without Local Players",
+      "description": "Skip this step and continue with standard online multiplayer setup.",
+      "button": "Skip Local Players"
+    },
+    "features": {
+      "singleDevice": "Single Device",
+      "turnManagement": "Turn Management",
+      "privateRoomsOnly": "Private Rooms Only"
+    },
+    "currentStatus": {
+      "hasPlayers": "You already have local players configured. You can set up new ones or continue with your current setup."
+    }
   }
 }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Box, Button, Divider } from '@mui/material';
 import { Trans } from 'react-i18next';
 import RoomStep from './RoomStep';
+import LocalPlayersStep from './LocalPlayersStep';
 import GameModeStep from './GameModeStep';
 import ActionsStep from './ActionsStep';
 import FinishStep from './FinishStep';
@@ -60,19 +61,19 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     // this also means we need to do all steps.
     if (typeof close !== 'function') return;
 
-    // If we are in the public room, then we can skip to step 3.
+    // If we are in the public room, then we can skip to step 4 (actions step).
     if (isPublicRoom(room)) {
-      setStep(3);
+      setStep(4);
       return;
     }
 
     // If the game mode is already set to 'online,' the game mode step can be skipped because the user has already selected this mode and doesn't need to choose again.
     if (formData.gameMode === 'online') {
-      setStep(3);
+      setStep(4);
       return;
     }
 
-    setStep(2);
+    setStep(2); // Start with local players step for private rooms
   }, [formData, close, room]);
 
   const nextStep = (count?: number): void => {
@@ -90,9 +91,9 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const goToSetupWizard = (): void => {
     // Reset to the appropriate step based on a room type and current settings
     if (isPublicRoom(room)) {
-      setStep(3); // Skip to the "actions" step for public rooms
+      setStep(4); // Skip to the "actions" step for public rooms
     } else if (formData.gameMode === 'online') {
-      setStep(3); // Skip to the "actions" step if already online
+      setStep(4); // Skip to the "actions" step if already online
     } else {
       setStep(1); // Start from the beginning
     }
@@ -104,7 +105,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
         return <RoomStep formData={formData} setFormData={setFormData} nextStep={nextStep} />;
       case 2:
         return (
-          <GameModeStep
+          <LocalPlayersStep
             formData={formData}
             setFormData={setFormData}
             nextStep={nextStep}
@@ -112,6 +113,15 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
           />
         );
       case 3:
+        return (
+          <GameModeStep
+            formData={formData}
+            setFormData={setFormData}
+            nextStep={nextStep}
+            prevStep={prevStep}
+          />
+        );
+      case 4:
         return (
           <ActionsStep
             formData={formData}
@@ -122,7 +132,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
             isActionsLoading={isActionsLoading}
           />
         );
-      case 4:
+      case 5:
         return (
           <FinishStep
             formData={formData}
@@ -142,7 +152,11 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   return (
     <Box>
       <Box sx={{ width: '100%', mt: 2, mb: 4 }}>
-        <DynamicStepper currentStep={step} isPublicRoom={isPublicRoom(room)} />
+        <DynamicStepper
+          currentStep={step}
+          isPublicRoom={isPublicRoom(room)}
+          onStepClick={setStep}
+        />
       </Box>
       {renderStep()}
 

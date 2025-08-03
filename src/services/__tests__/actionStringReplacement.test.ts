@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import actionStringReplacement from '@/services/actionStringReplacement';
+import type { LocalPlayer } from '@/types/localPlayers';
 
 // Mock i18next
 vi.mock('i18next', () => ({
@@ -219,6 +220,197 @@ describe('actionStringReplacement', () => {
 
       // Vers role should use its own logic, replacing {dom} with player name
       expect(result).toBe('TestPlayer gives instructions.');
+    });
+  });
+
+  describe('local multiplayer role-based selection', () => {
+    const localPlayers: LocalPlayer[] = [
+      {
+        id: '1',
+        name: 'Alice',
+        role: 'dom',
+        order: 0,
+        isActive: true,
+        deviceId: 'device1',
+        location: 0,
+        isFinished: false,
+      },
+      {
+        id: '2',
+        name: 'Bob',
+        role: 'sub',
+        order: 1,
+        isActive: false,
+        deviceId: 'device1',
+        location: 2,
+        isFinished: false,
+      },
+      {
+        id: '3',
+        name: 'Charlie',
+        role: 'vers',
+        order: 2,
+        isActive: false,
+        deviceId: 'device1',
+        location: 1,
+        isFinished: false,
+      },
+    ];
+
+    it('should replace {dom} with a random dom or vers player name (excluding current player)', () => {
+      const action = 'Current player follows {dom} instructions.';
+
+      const result = actionStringReplacement(action, 'sub', 'Bob', localPlayers);
+
+      // Should replace {dom} with either Alice or Charlie (both can be dom), but NOT Bob
+      expect(result).toMatch(/Current player follows (Alice|Charlie) instructions\./);
+      expect(result).not.toContain('{dom}');
+      expect(result).not.toContain('another player');
+      expect(result).not.toContain('Bob'); // Current player should not appear twice
+    });
+
+    it('should replace {sub} with a random sub or vers player name (excluding current player)', () => {
+      const action = 'Current player dominates {sub} completely.';
+
+      const result = actionStringReplacement(action, 'dom', 'Alice', localPlayers);
+
+      // Should replace {sub} with either Bob or Charlie (both can be sub), but NOT Alice
+      expect(result).toMatch(/Current player dominates (Bob|Charlie) completely\./);
+      expect(result).not.toContain('{sub}');
+      expect(result).not.toContain('another player');
+      expect(result).not.toContain('Alice'); // Current player should not appear twice
+    });
+
+    it('should handle multiple placeholders with different role requirements', () => {
+      const action = '{dom} instructs {sub} to obey.';
+
+      const result = actionStringReplacement(action, 'vers', 'Charlie', localPlayers);
+
+      // Charlie should take one role, and other players should take the remaining role
+      expect(result).toMatch(/(Alice|Charlie) instructs (Bob|Charlie) to obey\./);
+      expect(result).not.toContain('{dom}');
+      expect(result).not.toContain('{sub}');
+      expect(result).not.toContain('another player');
+
+      // Ensure Charlie doesn't appear twice
+      const charlieCount = (result.match(/Charlie/g) || []).length;
+      expect(charlieCount).toBeLessThanOrEqual(1);
+    });
+
+    it('should prioritize current player for their matching role', () => {
+      const action = '{dom} commands {sub} to submit.';
+
+      const result = actionStringReplacement(action, 'dom', 'Alice', localPlayers);
+
+      // Alice (dom) should be placed in the {dom} position first
+      expect(result).toMatch(/Alice commands (Bob|Charlie) to submit\./);
+      expect(result).not.toContain('{dom}');
+      expect(result).not.toContain('{sub}');
+
+      // Ensure Alice doesn't appear twice
+      const aliceCount = (result.match(/Alice/g) || []).length;
+      expect(aliceCount).toBe(1);
+    });
+
+    it('should fall back to "another player" when no suitable role found', () => {
+      const limitedPlayers: LocalPlayer[] = [
+        {
+          id: '1',
+          name: 'OnlyDom',
+          role: 'dom',
+          order: 0,
+          isActive: true,
+          deviceId: 'device1',
+          location: 0,
+          isFinished: false,
+        },
+      ];
+
+      const action = 'Current player follows {sub} instructions.';
+
+      const result = actionStringReplacement(action, 'dom', 'OnlyDom', limitedPlayers);
+
+      // Should fall back to "another player" since no sub/vers players available
+      expect(result).toBe('Current player follows another player instructions.');
+    });
+
+    it('should work without local players (backward compatibility)', () => {
+      const action = '{dom} gives instructions to {sub}.';
+
+      const result = actionStringReplacement(action, 'sub', 'TestPlayer');
+
+      // Should replace current player's role and use "another player" for others
+      expect(result).toBe('Another player gives instructions to TestPlayer.');
+    });
+
+    it('should handle empty local players array', () => {
+      const action = '{dom} gives instructions to {sub}.';
+
+      const result = actionStringReplacement(action, 'sub', 'TestPlayer', []);
+
+      // Should fall back to "another player" behavior
+      expect(result).toBe('Another player gives instructions to TestPlayer.');
+    });
+  });
+
+  describe('generic placeholders mode', () => {
+    it('should use generic placeholders when useGenericPlaceholders is true', () => {
+      const action = '{player} follows {dom} instructions and pleasures {sub}.';
+
+      const result = actionStringReplacement(action, 'dom', 'TestPlayer', undefined, true);
+
+      expect(result).toBe(
+        'The current player follows a dominant instructions and pleasures a submissive.'
+      );
+    });
+
+    it('should handle actions with only player placeholder', () => {
+      const action = 'Welcome {player}! You are ready to begin.';
+
+      const result = actionStringReplacement(action, 'sub', 'TestPlayer', undefined, true);
+
+      expect(result).toBe('Welcome the current player! You are ready to begin.');
+    });
+
+    it('should handle actions with only role placeholders', () => {
+      const action = '{dom} commands {sub} to submit completely.';
+
+      const result = actionStringReplacement(action, 'vers', 'TestPlayer', undefined, true);
+
+      expect(result).toBe('A dominant commands a submissive to submit completely.');
+    });
+
+    it('should not use actual player names when useGenericPlaceholders is true', () => {
+      const action = '{player} dominates {sub} while {dom} watches.';
+      const localPlayers = [
+        {
+          id: '1',
+          name: 'Alice',
+          role: 'dom' as const,
+          order: 0,
+          isActive: true,
+          deviceId: 'device1',
+          location: 0,
+          isFinished: false,
+        },
+        {
+          id: '2',
+          name: 'Bob',
+          role: 'sub' as const,
+          order: 1,
+          isActive: false,
+          deviceId: 'device1',
+          location: 1,
+          isFinished: false,
+        },
+      ];
+
+      const result = actionStringReplacement(action, 'dom', 'Alice', localPlayers, true);
+
+      // Should use generic placeholders instead of actual names
+      expect(result).toBe('The current player dominates a submissive while a dominant watches.');
+      expect(result).not.toContain('Alice');
+      expect(result).not.toContain('Bob');
     });
   });
 });

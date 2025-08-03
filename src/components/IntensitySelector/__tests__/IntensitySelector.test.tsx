@@ -182,6 +182,7 @@ describe('IntensitySelector', () => {
   describe('value validation', () => {
     it('should reset value when current value is not in intensities', async () => {
       const mockOnChange = vi.fn();
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       vi.mocked(getGroupIntensities).mockResolvedValue(mockIntensities);
 
       render(<IntensitySelector {...defaultProps} value={99} onChange={mockOnChange} />);
@@ -189,6 +190,8 @@ describe('IntensitySelector', () => {
       await waitFor(() => {
         expect(mockOnChange).toHaveBeenCalledWith(1); // Should reset to first intensity
       });
+
+      consoleSpy.mockRestore();
     });
 
     it('should not reset value when current value is valid', async () => {
