@@ -55,13 +55,9 @@
         https://fonts.gstatic.com 
         data:; 
       img-src 'self' 
-        http://10.0.2.2:* http://localhost:*
-        https://*.googleapis.com 
-        https://*.firebaseapp.com 
-        https://firebasestorage.googleapis.com 
-        https: http:
+        https: 
         data: 
-        blob:; 
+        blob:;
       connect-src 'self' 
         http://10.0.2.2:* http://localhost:*
         ws://localhost:* ws://10.0.2.2:*
@@ -71,8 +67,9 @@
         https://www.google-analytics.com 
         wss://*.firebaseio.com; 
       frame-src 'self' 
-        https://*.firebaseapp.com 
-        https://accounts.google.com;
+         https:
+         data:
+         blob:;
       media-src 'self' 
         http://10.0.2.2:* http://localhost:*
         https: http:
@@ -180,7 +177,7 @@
             rgba(255, 255, 255, 0.95) 100%
           );
         }
-        
+
         body {
           color: #1e293b;
         }
@@ -190,7 +187,7 @@
         height: 100%;
         color: #fff;
       }
-      
+
       /* Light mode root element */
       @media (prefers-color-scheme: light) {
         #root {
@@ -244,16 +241,19 @@
         }
       })(window.location);
     </script>
-    <script type="module" crossorigin src="/assets/index-J7LET0QR.js"></script>
-    <link rel="modulepreload" crossorigin href="/js/chunk-7OQk-BoX.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-DJZJtpVs.js">
+    <script type="module" crossorigin src="/assets/index-DHZ0xqMM.js"></script>
+    <link rel="modulepreload" crossorigin href="/js/chunk-B5PHAmSG.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-B8izEdPk.js">
     <link rel="stylesheet" crossorigin href="/assets/style-CA4yFovX.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
     <!-- Instant loading screen - shows immediately before any JS loads -->
-    <div id="instant-loading" class="instant-loading loading-overlay loading-container dark-gradient-bg">
+    <div
+      id="instant-loading"
+      class="instant-loading loading-overlay loading-container dark-gradient-bg"
+    >
       <div class="loading-spinner"></div>
       <div class="loading-text">Loading...</div>
     </div>
