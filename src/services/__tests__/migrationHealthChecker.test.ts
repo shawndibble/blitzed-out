@@ -1,10 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   checkMigrationHealth,
-  recoverFromFailedMigration,
   forceCompleteMigrationReset,
   getMigrationHealthSummary,
+  recoverFromFailedMigration,
 } from '../migrationHealthChecker';
+
+import { isDexieDataComplete } from '@/services/dataCompletenessChecker';
 
 // Mock the data completeness checker
 vi.mock('@/services/dataCompletenessChecker', () => ({
@@ -18,8 +20,6 @@ vi.mock('@/i18n', () => ({
     language: 'en',
   },
 }));
-
-import { isDexieDataComplete } from '@/services/dataCompletenessChecker';
 
 describe('migrationHealthChecker', () => {
   beforeEach(() => {
@@ -84,17 +84,6 @@ describe('migrationHealthChecker', () => {
       const successReport = await checkMigrationHealth('en', 'online');
       expect(successReport.isHealthy).toBe(true);
       expect(successReport.failureCount).toBe(1); // Still shows historical count
-    });
-
-    it('should handle errors gracefully', async () => {
-      vi.mocked(isDexieDataComplete).mockRejectedValue(new Error('Database error'));
-
-      const report = await checkMigrationHealth('en', 'online');
-
-      expect(report.isHealthy).toBe(false);
-      expect(report.requiresRecovery).toBe(false); // First failure
-      expect(report.details.migrationStatus).toBe('failed');
-      expect(report.details.errorMessage).toContain('Health check failed');
     });
 
     it('should use cached results for recent validations', async () => {

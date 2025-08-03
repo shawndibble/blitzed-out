@@ -1,8 +1,10 @@
-import { Box, Typography, Popover } from '@mui/material';
+import { Box, Typography, Popover, Chip } from '@mui/material';
 import { useEffect, useRef } from 'react';
 import TextAvatar from '@/components/TextAvatar';
 import { useTranslation } from 'react-i18next';
 import { Player } from '@/types/player';
+import type { HybridPlayer } from '@/hooks/useHybridPlayerList';
+import { isLocalPlayer } from '@/hooks/useHybridPlayerList';
 
 interface PlayerWithLocation extends Player {
   location?: number;
@@ -11,7 +13,7 @@ interface PlayerWithLocation extends Player {
 interface UserPresenceOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  playerList: PlayerWithLocation[];
+  playerList: (PlayerWithLocation | HybridPlayer)[];
   anchorEl: HTMLElement | null;
 }
 
@@ -48,8 +50,6 @@ export default function UserPresenceOverlay({
       slotProps={{
         paper: {
           sx: {
-            maxWidth: { xs: '95vw', sm: '90vw', md: '400px' },
-            minWidth: { xs: 260, sm: 280, md: 320 },
             borderRadius: 2,
             boxShadow: 3,
             p: { xs: 1.5, sm: 2 },
@@ -57,6 +57,8 @@ export default function UserPresenceOverlay({
           },
         },
       }}
+      disableRestoreFocus
+      disableEnforceFocus
     >
       <Box
         ref={contentRef}
@@ -80,59 +82,79 @@ export default function UserPresenceOverlay({
             letterSpacing: 0.5,
           }}
         >
-          {t('online')} ({playerList.length})
+          {/* Show different title for local vs online players */}
+          {playerList.some((p) => 'isLocal' in p && isLocalPlayer(p as HybridPlayer))
+            ? t('players')
+            : t('online')}{' '}
+          ({playerList.length})
         </Typography>
 
         <Box
           sx={{
             display: 'flex',
-            flexWrap: 'wrap',
+            flexDirection: 'column',
             gap: { xs: 1, sm: 1.5 },
-            alignItems: 'center',
-            justifyContent: { xs: 'center', sm: 'flex-start' },
+            alignItems: 'flex-start',
           }}
         >
-          {playerList.map((player) => (
-            <Box
-              key={player.uid}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: { xs: 0.75, sm: 1 },
-                minWidth: 0, // Allow text to truncate
-                flex: { xs: '1 1 auto', sm: '0 0 auto' },
-                maxWidth: { xs: '100%', sm: 'none' },
-              }}
-            >
-              <TextAvatar uid={player.uid} displayName={player.displayName} size="medium" />
-              <Typography
-                variant="body2"
+          {playerList.map((player) => {
+            const isLocal = 'isLocal' in player && player.isLocal;
+            const showLocalMode = playerList.some(
+              (p) => 'isLocal' in p && isLocalPlayer(p as HybridPlayer)
+            );
+
+            return (
+              <Box
+                key={player.uid}
                 sx={{
-                  fontSize: { xs: '0.8125rem', sm: '0.875rem' },
-                  color: player.isSelf ? 'primary.main' : 'text.primary',
-                  fontWeight: player.isSelf ? 600 : 400,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  maxWidth: { xs: 100, sm: 120 },
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: { xs: 0.75, sm: 1 },
+                  width: 'auto',
                 }}
               >
-                {player.displayName}
-                {player.isSelf && (
+                <TextAvatar uid={player.uid} displayName={player.displayName} size="medium" />
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, minWidth: 0 }}>
                   <Typography
-                    component="span"
+                    variant="body2"
                     sx={{
-                      ml: 0.5,
-                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                      color: 'text.secondary',
+                      fontSize: { xs: '0.8125rem', sm: '0.875rem' },
+                      color: player.isSelf ? 'primary.main' : 'text.primary',
+                      fontWeight: player.isSelf ? 600 : 400,
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    ({t('you')})
+                    {player.displayName}
+                    {player.isSelf && (
+                      <Typography
+                        component="span"
+                        sx={{
+                          ml: 0.5,
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                          color: 'text.secondary',
+                        }}
+                      >
+                        ({t('you')})
+                      </Typography>
+                    )}
                   </Typography>
-                )}
-              </Typography>
-            </Box>
-          ))}
+                  {isLocal && !showLocalMode && (
+                    <Chip
+                      label={t('localPlayer')}
+                      size="small"
+                      color="secondary"
+                      variant="outlined"
+                      sx={{
+                        fontSize: '0.625rem',
+                        height: '16px',
+                        alignSelf: 'flex-start',
+                      }}
+                    />
+                  )}
+                </Box>
+              </Box>
+            );
+          })}
         </Box>
       </Box>
     </Popover>

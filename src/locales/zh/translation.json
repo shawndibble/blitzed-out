@@ -20,6 +20,8 @@
   "groupLabelRequired": "需要群組標籤",
   "tilesCount": "{{count}} 磁磚",
   "online": "線上",
+  "players": "玩家",
+  "localPlayer": "本地",
   "you": "你",
   "setup": "遊戲設置",
   "setupSubtitle": "輸入您的姓名並開始會話",
@@ -37,7 +39,9 @@
   "displayName": "顯示名稱",
   "gameboard": "遊戲板",
   "room": "房間",
-  "appBackground": "應用程式設定背景",
+  "roomType": "房間類型",
+  "gameConfiguration": "遊戲設定",
+  "visualSettings": "視覺設定",
   "application": "應用程式",
   "variation": "變化",
   "variationTooltip": "<0>獨立 = 獨立磁磚。</0><1>附加部分 = 50%機會加入其他動作。</1><2>附加大部分 = 90%機會加入其他動作。</2>",
@@ -51,6 +55,7 @@
   "rebuildBoardAction": "重建遊戲板",
   "keepCurrentBoard": "保留當前遊戲板",
   "cancel": "取消",
+  "skip": "跳過",
   "confirm": "確認",
   "warning": "警告",
   "error": "錯誤",
@@ -81,6 +86,11 @@
   "sub": "服從",
   "vers": "切換",
   "dom": "支配",
+  "roles": {
+    "dom": "支配",
+    "sub": "服從",
+    "vers": "切換"
+  },
   "privateRequired": "請前往私人房間存取這些選項。",
   "consumption": "消費",
   "consumptionSubtitle": "飲酒、吸煙、poppers",
@@ -110,6 +120,8 @@
   "loadingVoices": "加載語音中...",
   "noVoicesAvailable": "此語言無可用語音",
   "background": "背景",
+  "useAppBackground": "使用應用程式背景",
+  "useRoomBackground": "使用房間背景",
   "color": "無 - 彩色磁磚",
   "gray": "無 - 灰色磁磚",
   "hypnoDick": "催眠陰莖",
@@ -154,6 +166,9 @@
   "messages": "訊息",
   "close": "關閉",
   "anotherPlayer": "另一位玩家",
+  "theCurrentPlayer": "當前玩家",
+  "aDominant": "一個支配者",
+  "aSubmissive": "一個順從者",
   "for": "為",
   "playAgain": "再玩一次",
   "gameOverPlayAgain": "遊戲結束：再玩一次？",
@@ -229,14 +244,13 @@
   "ctGroupError": "無效的群組。請確保您的群組符合「新增遊戲磁磚」中列出的格式並被包在括號中。",
   "ctActionError": "您需要確保每個有群組的條目也有動作",
   "advancedSetup": "進階設定",
-  "nextSkip": "下一步（跳過 #2）",
   "playingWithPeople": "您是在與人實際互動嗎？",
   "yesInteracting": "是的，我在與人遊玩。",
   "noInteracting": "不，我在與自己遊玩。",
   "yourRole": "您的角色是什麼？",
   "areYouNaked": "前戲（穿衣服）還是性愛（裸體）*？",
-  "yesNaked": "性愛，我裸體。",
-  "noNaked": "前戲，我仍然穿著衣服。",
+  "yesNaked": "性愛：我們都裸體。",
+  "noNaked": "前戲：我們仍然穿著衣服。",
   "pickActions": "選擇您的動作（最多4個）",
   "actionsLabel": "動作",
   "intensityTooltip": "在您遊玩時，動作將從最低等級變更到最高等級。",
@@ -479,5 +493,110 @@
   },
   "tts": {
     "sampleText": "喝一杯，享受遊戲。"
+  },
+  "localPlayers": {
+    "privateRoomRequired": "本機玩家僅在私人房間中可用，以保持本機多人遊戲的社交性質。",
+    "setupTitle": "本機玩家設置",
+    "setupSubtitle": "為單設備多人遊戲配置玩家",
+    "playersTitle": "玩家",
+    "playersCount": "{{count}} 位玩家",
+    "playersCount_one": "{{count}} 位玩家",
+    "playersCount_other": "{{count}} 位玩家",
+    "noPlayersYet": "尚未添加玩家。至少添加 2 位玩家才能開始。",
+    "addFirstPlayer": "添加第一位玩家",
+    "currentPlayer": "當前回合",
+    "turnOrder": "第 {{order}} 回合",
+    "defaultPlayerName": "玩家 {{number}}",
+    "startSession": "確定玩家",
+    "creatingSession": "正在創建遊戲...",
+    "errors": {
+      "minimumPlayers": "至少需要 2 位玩家",
+      "maximumPlayers": "最多允許 4 位玩家",
+      "emptyNames": "所有玩家都必須有名字",
+      "duplicateNames": "玩家名字必須唯一",
+      "sessionCreation": "創建遊戲失敗"
+    },
+    "onThisDevice": "在此設備上",
+    "remoteDevice": "遠程設備",
+    "playerActions": "{{name}} 操作",
+    "editPlayer": "編輯玩家",
+    "deletePlayer": "刪除玩家",
+    "noActivePlayer": "沒有活躍玩家",
+    "currentTurn": "當前回合",
+    "clickToAdvance": "點擊推進回合",
+    "form": {
+      "editPlayerTitle": "編輯玩家",
+      "addPlayerTitle": "新增玩家",
+      "previewName": "玩家預覽",
+      "nameLabel": "玩家名稱",
+      "nameHelper": "輸入此玩家的唯一名稱（2-20個字元）",
+      "namePlaceholder": "輸入玩家名稱...",
+      "roleLabel": "玩家角色",
+      "helpText": "您可以在需要時稍後修改這些設定。",
+      "saving": "儲存中...",
+      "saveChanges": "儲存變更",
+      "addPlayer": "新增玩家",
+      "errors": {
+        "nameRequired": "玩家名稱是必填的",
+        "nameTooShort": "名稱必須至少 2 個字元",
+        "nameTooLong": "名稱必須不超過 20 個字元",
+        "nameDuplicate": "此名稱已被使用",
+        "roleRequired": "請選擇一個角色"
+      },
+      "roleDescriptions": {
+        "dom": "掌控和領導",
+        "sub": "跟隨和接受",
+        "vers": "在角色間靈活轉換"
+      }
+    }
+  },
+  "localPlayerSettings": {
+    "title": "本地玩家",
+    "noPlayers": {
+      "description": "目前沒有配置本地玩家。設置本地玩家以允許多人共享此設備。",
+      "setupButton": "設置本地玩家"
+    },
+    "session": {
+      "title": "本地玩家",
+      "active": "活躍",
+      "playerCount": "{{count}} 位玩家",
+      "playerCount_other": "{{count}} 位玩家",
+      "currentPlayer": "當前：{{name}}",
+      "editButton": "編輯玩家",
+      "clearButton": "刪除玩家"
+    },
+    "players": {
+      "title": "玩家列表",
+      "currentTurn": "當前回合"
+    },
+    "settings": {
+      "title": "本地玩家設置",
+      "showTurnTransitions": "顯示回合轉換",
+      "enableTurnTimer": "啟用回合計時器",
+      "playTurnSounds": "播放回合聲音",
+      "editNote": "編輯玩家以更改這些設置"
+    }
+  },
+  "localPlayersStep": {
+    "title": "單設備多人遊戲",
+    "subtitle": "想要與多個玩家共享一個設備？設置本地玩家享受社交遊戲體驗。",
+    "setupOption": {
+      "title": "共享設備",
+      "description": "✅ 一起共享一個設備\n✅ 玩家姓名用於動作瓷磚\n✅ 非常適合情侶或親密團體\n✅ 更好的回合協調\n❌ 至少需要2名玩家\n❌ 可用的高級設置較少",
+      "button": "配置本地玩家"
+    },
+    "skipOption": {
+      "title": "個人設備",
+      "description": "✅ 每個玩家都有自己的設備\n✅ 完全訪問高級設置\n✅ 可以單獨或與他人一起遊戲\n✅ 個性化遊戲體驗\n❌ 多人遊戲需要多個設備\n❌ 在動作中使用佔位符文本\n❌ 回合協調可能更困難",
+      "button": "跳過本地玩家"
+    },
+    "features": {
+      "singleDevice": "單一設備",
+      "turnManagement": "回合管理",
+      "privateRoomsOnly": "僅私人房間"
+    },
+    "currentStatus": {
+      "hasPlayers": "您已經配置了本地玩家。您可以設置新的或繼續使用當前設置。"
+    }
   }
 }

@@ -23,6 +23,7 @@ export default function AppSettings({
 
   const { t } = useTranslation();
   const backgrounds: Record<string, string> = {
+    useRoomBackground: t('useRoomBackground'),
     color: t('color'),
     gray: t('gray'),
     'metronome.gif': t('hypnoDick'),

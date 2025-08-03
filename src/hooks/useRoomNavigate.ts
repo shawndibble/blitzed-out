@@ -5,8 +5,10 @@ export default function useRoomNavigate(): (formRoom?: string) => void {
   const navigate = useNavigate();
 
   return (formRoom?: string): void => {
-    if (room !== undefined && room?.toUpperCase() !== formRoom?.toUpperCase()) {
-      const noLeadingSlash = formRoom?.replace(/^\/+/, '') || 'PUBLIC';
+    const shouldNavigate = room !== undefined && room?.toUpperCase() !== formRoom?.toUpperCase();
+    const noLeadingSlash = formRoom?.replace(/^\/+/, '') || 'PUBLIC';
+
+    if (shouldNavigate) {
       navigate(`/${noLeadingSlash}`);
     }
   };

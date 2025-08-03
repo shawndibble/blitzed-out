@@ -2,12 +2,12 @@ import { Box, Button, Typography, Stack, TextField } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import ValueProposition from '../components/ValueProposition';
-import useRoomNavigate from '@/hooks/useRoomNavigate';
 import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
-import { useState, useCallback, ChangeEvent, KeyboardEvent } from 'react';
+import { useState, useCallback, ChangeEvent, KeyboardEvent, useEffect } from 'react';
 import { Settings } from '@/types/Settings';
 import { getDatabase, ref, get } from 'firebase/database';
+import { useParams } from 'react-router-dom';
 
 interface RoomStepProps {
   formData: Settings;
@@ -16,25 +16,34 @@ interface RoomStepProps {
 }
 
 export default function RoomStep({ formData, setFormData, nextStep }: RoomStepProps): JSX.Element {
-  const navigate = useRoomNavigate();
   const { t } = useTranslation();
-  const [showPrivateRoomField, setShowPrivateRoomField] = useState(!isPublicRoom(formData.room));
+  const { id: urlRoom } = useParams<{ id: string }>();
+  const [showPrivateRoomField, setShowPrivateRoomField] = useState(
+    !isPublicRoom(formData.room || urlRoom)
+  );
   const [roomInputValue, setRoomInputValue] = useState(formData.room?.toUpperCase() || '');
 
-  // Function to check if a room ID exists
+  // Update UI state when URL or formData.room changes
+  useEffect(() => {
+    // Use formData.room as the source of truth for the current room state
+    // Only fall back to urlRoom if formData.room is not set
+    const currentRoom = formData.room || urlRoom;
+    const shouldShowPrivateField = !isPublicRoom(currentRoom);
+    setShowPrivateRoomField(shouldShowPrivateField);
+    setRoomInputValue(currentRoom?.toUpperCase() || '');
+  }, [urlRoom, formData.room, showPrivateRoomField]);
+
   const checkRoomExists = async (roomId: string): Promise<boolean> => {
     try {
       const database = getDatabase();
       const roomRef = ref(database, `rooms/${roomId}/uids`);
       const snapshot = await get(roomRef);
       return snapshot.exists();
-    } catch (error) {
-      console.warn('Error checking room existence:', error);
-      return false; // Assume room doesn't exist if we can't check
+    } catch {
+      return false;
     }
   };
 
-  // Generate a unique room ID
   const generateUniqueRoomId = useCallback(async (): Promise<string> => {
     const nanoid = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
     let roomId: string;
@@ -46,7 +55,6 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
       attempts++;
 
       if (attempts >= maxAttempts) {
-        console.warn('Max attempts reached for room ID generation, using generated ID');
         break;
       }
     } while (await checkRoomExists(roomId));
@@ -59,19 +67,20 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
       ...formData,
       room: 'PUBLIC',
       gameMode: 'online',
+      roomRealtime: true,
     });
     setShowPrivateRoomField(false);
   }, [formData, setFormData]);
 
   const handlePrivateRoomSelect = useCallback(async () => {
-    if (isPublicRoom(formData.room)) {
-      const roomId = await generateUniqueRoomId();
-      setFormData({
-        ...formData,
-        room: roomId,
-      });
-      setRoomInputValue(roomId.toUpperCase());
-    }
+    const roomId = await generateUniqueRoomId();
+    setFormData({
+      ...formData,
+      room: roomId,
+      gameMode: 'online',
+      roomRealtime: false,
+    });
+    setRoomInputValue(roomId.toUpperCase());
     setShowPrivateRoomField(true);
   }, [formData, setFormData, generateUniqueRoomId]);
 
@@ -104,12 +113,11 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
     [updateRoomData, roomInputValue]
   );
 
-  function handleNext(): void {
-    navigate(formData.room);
-    nextStep(isPublicRoom(formData.room) ? 2 : 1);
-  }
+  const isPublic = isPublicRoom(formData.room || urlRoom);
 
-  const isPublic = isPublicRoom(formData.room);
+  function handleNext(): void {
+    nextStep(isPublic ? 3 : 1);
+  }
 
   return (
     <Box sx={{ m: 1 }}>
@@ -184,7 +192,7 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
 
       <ButtonRow>
         <Button variant="contained" onClick={handleNext} size="large">
-          <Trans i18nKey={isPublic ? 'nextSkip' : 'next'} />
+          <Trans i18nKey="next" />
         </Button>
       </ButtonRow>
     </Box>

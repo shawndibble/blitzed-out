@@ -17,6 +17,8 @@ import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 import { GameBoardResult } from '@/types/gameBoard';
 import { getValidationConstants } from '@/services/validationService';
+import { useLocalPlayers } from './useLocalPlayers';
+import type { LocalPlayer, LocalSessionSettings } from '@/types';
 
 interface RoomChangeResult {
   roomChanged: boolean;
@@ -78,13 +80,18 @@ export default function useSubmitGameSettings(): (
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();
+  const { createLocalSession } = useLocalPlayers();
 
   const handleRoomChange = useCallback(
     (formData: Settings): RoomChangeResult => {
-      const roomChanged = room?.toUpperCase() !== formData.room.toUpperCase();
+      // Handle the case where room might be undefined (original logic with safety check)
+      const currentRoomUpper = (room || '')?.toUpperCase();
+      const formDataRoomUpper = (formData.room || '').toUpperCase();
+      const roomChanged = currentRoomUpper !== formDataRoomUpper;
       const isPrivateRoom = Boolean(formData.room && !isPublicRoom(formData.room));
       const privateBoardSizeChanged =
         isPrivateRoom && formData.roomTileCount !== settings?.roomTileCount;
+
       return { roomChanged, isPrivateRoom, privateBoardSizeChanged };
     },
     [room, settings?.roomTileCount]
@@ -142,6 +149,25 @@ export default function useSubmitGameSettings(): (
         });
       }
 
+      // Handle local player session initialization if data exists
+      const typedFormData = formData as any; // Use any type to access wizard-specific properties
+      if (
+        typedFormData.hasLocalPlayers &&
+        typedFormData.localPlayersData &&
+        typedFormData.localPlayerSessionSettings
+      ) {
+        try {
+          await createLocalSession(
+            formData.room,
+            typedFormData.localPlayersData as LocalPlayer[],
+            typedFormData.localPlayerSessionSettings as LocalSessionSettings
+          );
+        } catch (error) {
+          console.error('Error creating local session:', error);
+          // Don't throw here to prevent blocking the settings save
+        }
+      }
+
       // Clean the formData to remove any deselected actions/consumptions before storing
       const cleanedFormData = cleanFormData(formData);
 
@@ -165,6 +191,7 @@ export default function useSubmitGameSettings(): (
       customTiles,
       updateSettings,
       navigate,
+      createLocalSession,
     ]
   );
 

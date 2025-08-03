@@ -8,12 +8,6 @@ interface RoomBackgroundProps {
   isVideo?: boolean | null;
 }
 
-// Enum for background types
-enum BackgroundType {
-  COLOR = '/images/color',
-  GRAY = '/images/gray',
-}
-
 // Component to handle direct media URLs with video/image fallback
 function DirectMediaHandler({ url }: { url: string | null }) {
   const [mediaType, setMediaType] = useState<'video' | 'image'>('video');
@@ -139,7 +133,7 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
 
   // Show default background when no custom background is set OR when background is "color" or "gray"
   const isNonImageBackground =
-    url && (url.includes(BackgroundType.COLOR) || url.includes(BackgroundType.GRAY));
+    url === 'color' || url === 'gray' || url?.includes('/color') || url?.includes('/gray');
   const hasCustomBackground = url && !isNonImageBackground && (isVideo || (!isVideo && url));
 
   return (

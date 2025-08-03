@@ -17,6 +17,8 @@
   "linkWithGoogle": "Link with Google",
   "signInWithGoogle": "Sign in with Google",
   "online": "Online",
+  "players": "Players",
+  "localPlayer": "Local",
   "you": "you",
   "setup": "Join the Experience",
   "setupSubtitle": "Enter your name and begin the session",
@@ -34,7 +36,9 @@
   "displayName": "Display name",
   "gameboard": "Board",
   "room": "Room",
-  "appBackground": "App Settings Background",
+  "roomType": "Room Type",
+  "gameConfiguration": "Game Configuration",
+  "visualSettings": "Visual Settings",
   "application": "App",
   "variation": "Variation",
   "variationTooltip": "<0>Standalone = Its own tile. </0><1>Append Some = 50% chance to add to another action.</1><2>Append Most = 90% chance to add to another action.</2>",
@@ -48,6 +52,7 @@
   "rebuildBoardAction": "Rebuild Board",
   "keepCurrentBoard": "Keep Current Board",
   "cancel": "Cancel",
+  "skip": "Skip",
   "confirm": "Confirm",
   "warning": "Warning",
   "error": "Error",
@@ -78,6 +83,11 @@
   "sub": "Submissive",
   "vers": "Switch",
   "dom": "Dominant",
+  "roles": {
+    "dom": "Dominant",
+    "sub": "Submissive",
+    "vers": "Switch"
+  },
   "privateRequired": "Please go to a private room to access these options.",
   "consumption": "Consume",
   "consumptionSubtitle": "Drinking, Smoking, Poppers",
@@ -107,6 +117,8 @@
   "loadingVoices": "Loading voices...",
   "noVoicesAvailable": "No voices available for this language",
   "background": "Background",
+  "useAppBackground": "Use App Background",
+  "useRoomBackground": "Use Room Background",
   "color": "None - Color Tiles",
   "gray": "None - Gray Tiles",
   "hypnoDick": "Hypno Dick",
@@ -154,6 +166,9 @@
   "messages": "Messages",
   "close": "Close",
   "anotherPlayer": "another player",
+  "theCurrentPlayer": "the current player",
+  "aDominant": "a dominant",
+  "aSubmissive": "a submissive",
   "for": "for",
   "playAgain": "Play Again",
   "gameOverPlayAgain": "Game Over: Play Again?",
@@ -229,14 +244,13 @@
   "ctGroupError": "Invalid group. Ensure your group matching a format listed in 'Add Game Tiles' and is wrapped in brackets.",
   "ctActionError": "You need to ensure each entry that has a group also has an action",
   "advancedSetup": "Advanced Settings",
-  "nextSkip": "Next (skip #2)",
   "playingWithPeople": "Are you physically interacting with people?",
   "yesInteracting": "Yes, I am playing with people.",
   "noInteracting": "No, I am playing with myself.",
   "yourRole": "What is your role?",
   "areYouNaked": "Foreplay (clothed) or Sex (naked)*?",
-  "yesNaked": "Sex, I'm naked.",
-  "noNaked": "Foreplay, I am still clothed.",
+  "yesNaked": "Sex: We are naked.",
+  "noNaked": "Foreplay: We are still clothed.",
   "pickActions": "Pick your actions (max 4)",
   "actionsLabel": "Actions",
   "intensityTooltip": "As you play, actions will change from lowest level to max level.",
@@ -479,5 +493,96 @@
   },
   "tts": {
     "sampleText": "Take a drink and enjoy the game."
+  },
+  "localPlayers": {
+    "privateRoomRequired": "Local players are only available in private rooms to maintain the social nature of local multiplayer.",
+    "setupTitle": "Local Player Setup",
+    "setupSubtitle": "Configure players for single-device multiplayer",
+    "playersTitle": "Players",
+    "playersCount": "{{count}} player",
+    "playersCount_other": "{{count}} players",
+    "noPlayersYet": "No players added yet. Add at least 2 players to begin.",
+    "addFirstPlayer": "Add First Player",
+    "currentPlayer": "Current Turn",
+    "turnOrder": "Turn {{order}}",
+    "defaultPlayerName": "Player {{number}}",
+    "startSession": "Finalize Players",
+    "creatingSession": "Creating Session...",
+    "errors": {
+      "minimumPlayers": "At least 2 players are required",
+      "maximumPlayers": "Maximum 4 players allowed",
+      "emptyNames": "All players must have names",
+      "duplicateNames": "Player names must be unique",
+      "sessionCreation": "Failed to create session"
+    },
+    "onThisDevice": "On this device",
+    "remoteDevice": "Remote device",
+    "playerActions": "{{name}} actions",
+    "editPlayer": "Edit Player",
+    "deletePlayer": "Delete Player",
+    "noActivePlayer": "No active player",
+    "currentTurn": "Current Turn",
+    "clickToAdvance": "Click to advance turn",
+    "form": {
+      "editPlayerTitle": "Edit Player",
+      "addPlayerTitle": "Add Player",
+      "previewName": "Player Preview",
+      "nameLabel": "Player Name",
+      "nameHelper": "Enter a unique name for this player (2-20 characters)",
+      "namePlaceholder": "Enter player name...",
+      "roleLabel": "Player Role",
+      "helpText": "You can change these settings later if needed.",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes",
+      "addPlayer": "Add Player",
+      "errors": {
+        "nameRequired": "Player name is required",
+        "nameTooShort": "Name must be at least 2 characters",
+        "nameTooLong": "Name must be 20 characters or less",
+        "nameDuplicate": "This name is already taken",
+        "roleRequired": "Please select a role"
+      },
+      "roleDescriptions": {
+        "dom": "Takes control and leads",
+        "sub": "Follows and receives",
+        "vers": "Flexible between roles"
+      }
+    }
+  },
+  "localPlayerSettings": {
+    "title": "Local Players",
+    "noPlayers": {
+      "description": "No local players are currently configured. Set up local players to enable multiple people to share this device.",
+      "setupButton": "Set Up Local Players"
+    },
+    "session": {
+      "editButton": "Edit Players",
+      "clearButton": "Delete Players"
+    },
+    "players": {
+      "currentTurn": "Current Turn"
+    },
+    "settings": {
+      "title": "Local Player Settings",
+      "showTurnTransitions": "Show turn transitions",
+      "playTurnSounds": "Play turn sounds"
+    }
+  },
+  "localPlayersStep": {
+    "title": "Single-Device Multiplayer",
+    "subtitle": "Want to share one device with multiple players? Set up local players for a social gaming experience.",
+    "setupOption": {
+      "title": "Shared Device",
+      "description": "✅ Share one device together\n✅ Player names used in action tiles\n✅ Perfect for couples or close groups\n✅ Better turn coordination\n❌ Requires at least 2 players\n❌ Fewer advanced settings available",
+      "button": "Configure Local Players"
+    },
+    "skipOption": {
+      "title": "Individual Devices",
+      "description": "✅ Each player has their own device\n✅ Full access to advanced settings\n✅ Can play alone or with others\n✅ Personalized game experience\n❌ Requires multiple devices for multiplayer\n❌ Uses placeholder text in actions\n❌ Turn coordination can be trickier",
+      "button": "Skip Local Players"
+    },
+    "currentStatus": {
+      "hasPlayers": "You already have local players configured. You can set up new ones or continue with your current setup."
+    }
   }
 }

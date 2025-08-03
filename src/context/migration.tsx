@@ -39,6 +39,7 @@ const MigrationContext = createContext<MigrationContextValue | undefined>(undefi
  * @throws {Error} When used outside of MigrationProvider
  * @returns Migration context value with state and control functions
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useMigration() {
   const context = useContext(MigrationContext);
   if (context === undefined) {

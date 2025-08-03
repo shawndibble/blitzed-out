@@ -11,7 +11,7 @@ const defaultSettings: Settings = {
   background: 'color',
   selectedActions: {},
   hasSeenRollButton: false,
-  themeMode: 'system', // Default to system preference
+  themeMode: 'system',
 };
 
 interface SettingsStore {

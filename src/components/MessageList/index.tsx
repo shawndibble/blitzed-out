@@ -1,6 +1,6 @@
 import { Fab, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { FilterList, Check } from '@mui/icons-material';
-import { useCallback, useMemo, useState, useRef, useLayoutEffect } from 'react';
+import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
@@ -41,11 +41,34 @@ export default function MessageList({
     });
   }, [messages, currentTab]);
 
-  useLayoutEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+  // Scroll to bottom when new messages are added
+  const lastMessageIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const latestMessage = messages[messages.length - 1];
+    const latestMessageId = latestMessage?.id || null;
+
+    // Only scroll if this is actually a new message
+    if (latestMessageId && latestMessageId !== lastMessageIdRef.current) {
+      lastMessageIdRef.current = latestMessageId;
+
+      if (containerRef.current) {
+        // Use multiple timing strategies to ensure scroll happens after DOM update
+        const scrollToBottom = () => {
+          if (containerRef.current) {
+            containerRef.current.scrollTop = containerRef.current.scrollHeight;
+          }
+        };
+
+        // Immediate attempt
+        scrollToBottom();
+
+        // Backup attempts with different timing
+        requestAnimationFrame(scrollToBottom);
+        setTimeout(scrollToBottom, 10);
+      }
     }
-  }, [updatedMessages.length]); // Only scroll when new messages are added
+  }, [messages.length, messages]);
 
   const handleFilterClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setFilterAnchor(event.currentTarget);

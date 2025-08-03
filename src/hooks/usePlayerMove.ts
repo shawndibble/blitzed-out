@@ -6,6 +6,8 @@ import actionStringReplacement from '@/services/actionStringReplacement';
 import usePlayerList from './usePlayerList';
 import { Tile, TileExport } from '@/types/gameBoard';
 import { useSettings } from '@/stores/settingsStore';
+import { useLocalPlayers } from './useLocalPlayers';
+import { localPlayerService } from '@/services/localPlayerService';
 
 interface RollValue {
   value: number | number[];
@@ -45,12 +47,17 @@ function getFinishResult(textArray: string[]): string {
   return finishValues.map(([action]) => action)[result]?.replace(/(\r\n|\n|\r)/gm, '') || '';
 }
 
-function parseDescription(text: string | undefined, role: string, displayName: string): string {
+function parseDescription(
+  text: string | undefined,
+  role: string,
+  displayName: string,
+  localPlayers?: import('@/types/localPlayers').LocalPlayer[]
+): string {
   if (!text) return '';
   // our finish tile has %, so if we have it, figure out the result.
   const textArray = text.split('%');
   if (textArray.length <= 1) {
-    return actionStringReplacement(text, role || '', displayName || '');
+    return actionStringReplacement(text, role || '', displayName || '', localPlayers, false);
   }
 
   return getFinishResult(textArray);
@@ -65,6 +72,8 @@ export default function usePlayerMove(
   const { t } = useTranslation();
   const [settings] = useSettings();
   const playerList = usePlayerList();
+  const { currentPlayer, hasLocalPlayers, isLocalPlayerRoom, advanceToNextPlayer, session } =
+    useLocalPlayers();
   const total = gameBoard.length;
   const convertToTile = (tileExport: TileExport, index: number = 0): Tile => ({
     id: index,
@@ -85,38 +94,93 @@ export default function usePlayerMove(
   const lastRollTimeRef = useRef<number>(0);
 
   const handleTextOutput = useCallback(
-    (newTile: TileExport, rollNumber: number, newLocation: number, preMessage?: string): void => {
+    async (
+      newTile: TileExport,
+      rollNumber: number,
+      newLocation: number,
+      preMessage?: string
+    ): Promise<void> => {
       if (!newTile) {
         console.error('Tile not found at location:', newLocation);
         return;
       }
       let message = '';
+
+      // Determine which player name to use - local player if in local multiplayer mode, otherwise user
+      const isInLocalMultiplayerMode = hasLocalPlayers && isLocalPlayerRoom;
+      const playerName =
+        isInLocalMultiplayerMode && currentPlayer ? currentPlayer.name : user?.displayName || '';
+      const playerRole =
+        isInLocalMultiplayerMode && currentPlayer ? currentPlayer.role : settings.role || 'sub';
+
       // Safely access newTile properties with default values if they don't exist
       const description = parseDescription(
         newTile.description || '',
-        settings.role || 'sub',
-        user?.displayName || ''
+        playerRole,
+        playerName,
+        isInLocalMultiplayerMode && session ? session.players : undefined
       );
+
       if (rollNumber !== -1) {
         message += `${t('roll')}: ${rollNumber}\n`;
       }
       message += `#${newLocation + 1}: ${newTile.title || t('unknownTile')}\n`;
       message += `${t('action')}: ${description}`;
 
-      sendMessage({
+      // Send message with the player's name (local player name or user display name)
+      const messagePayload = {
         room,
-        user,
+        user:
+          isInLocalMultiplayerMode && currentPlayer
+            ? {
+                ...user,
+                displayName: currentPlayer.name,
+              }
+            : user,
         text: preMessage ? preMessage + message : message,
-        type: 'actions',
-      });
+        type: 'actions' as const,
+      };
+
+      try {
+        const result = await sendMessage(messagePayload);
+        if (!result) {
+          console.error('Failed to send message - no result returned');
+        }
+      } catch (error) {
+        console.error('Failed to send message:', error);
+      }
+
+      // Advance to next player if in local multiplayer mode
+      if (isInLocalMultiplayerMode && rollNumber !== -1) {
+        // Add a small delay to ensure the message is sent first
+        setTimeout(() => {
+          advanceToNextPlayer();
+        }, 100);
+      }
     },
-    [room, user, t, settings.role]
+    [
+      room,
+      user,
+      t,
+      settings.role,
+      hasLocalPlayers,
+      isLocalPlayerRoom,
+      currentPlayer,
+      advanceToNextPlayer,
+      session,
+    ]
   );
 
   // Grab the new location.
   // In some instances, we also want to add a message with said location.
   const getNewLocation = useCallback(
     (rollNumber: number): LocationResult => {
+      // Validate rollNumber is a valid number
+      if (typeof rollNumber !== 'number' || isNaN(rollNumber)) {
+        console.warn('Invalid rollNumber detected, ignoring move:', rollNumber);
+        return { newLocation: 0 }; // Return current position (no movement)
+      }
+
       // -1 is used to restart the game.
       if (rollNumber === -1) {
         return {
@@ -125,7 +189,23 @@ export default function usePlayerMove(
         };
       }
 
-      const currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
+      // Get current location from local player if in local multiplayer mode, otherwise from remote player
+      const isInLocalMultiplayerMode = hasLocalPlayers && isLocalPlayerRoom;
+      let currentLocation = 0; // Default to starting position
+
+      if (isInLocalMultiplayerMode && currentPlayer) {
+        // Ensure location is a valid number for local players
+        currentLocation = typeof currentPlayer.location === 'number' ? currentPlayer.location : 0;
+      } else {
+        // Use remote player location or default to 0
+        currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
+      }
+
+      // Validate currentLocation is a number
+      if (typeof currentLocation !== 'number' || isNaN(currentLocation)) {
+        console.warn('Invalid currentLocation detected, defaulting to 0:', currentLocation);
+        currentLocation = 0;
+      }
 
       // restart game if we roll and are on the last tile.
       if (currentLocation === lastTile) {
@@ -142,15 +222,31 @@ export default function usePlayerMove(
       }
       return { newLocation };
     },
-    [t, playerList, lastTile]
+    [t, playerList, lastTile, hasLocalPlayers, isLocalPlayerRoom, currentPlayer]
   );
 
   useEffect(() => {
-    const rollNumber = Array.isArray(rollValue.value) ? rollValue.value[0] : rollValue.value;
+    let rollNumber: number;
+
+    // Extract roll number with validation
+    if (Array.isArray(rollValue.value)) {
+      rollNumber = rollValue.value[0];
+    } else {
+      rollNumber = rollValue.value;
+    }
+
     const currentTime = rollValue.time as number;
 
-    // a 0 means something went wrong. Give up.
-    if (rollNumber === 0 || currentTime <= lastRollTimeRef.current) {
+    // Validate roll number and time
+    if (
+      typeof rollNumber !== 'number' ||
+      isNaN(rollNumber) ||
+      rollNumber === 0 ||
+      currentTime <= lastRollTimeRef.current
+    ) {
+      if (typeof rollNumber !== 'number' || isNaN(rollNumber)) {
+        console.warn('Invalid rollNumber in useEffect:', rollNumber, 'rollValue:', rollValue);
+      }
       return;
     }
 
@@ -158,19 +254,50 @@ export default function usePlayerMove(
 
     const { preMessage, newLocation } = getNewLocation(rollNumber);
 
+    // Validate the new location
+    if (typeof newLocation !== 'number' || isNaN(newLocation)) {
+      console.error('Invalid newLocation calculated:', newLocation, 'rollNumber:', rollNumber);
+      return;
+    }
+
     // Make sure we have a valid location and tile
     if (newLocation >= 0 && newLocation < gameBoard.length && gameBoard[newLocation]) {
       // update our tile that we will return.
       setTile(convertToTile(gameBoard[newLocation], newLocation));
 
+      // Update local player position if in local multiplayer mode
+      const isInLocalMultiplayerMode = hasLocalPlayers && isLocalPlayerRoom;
+      if (isInLocalMultiplayerMode && currentPlayer && session) {
+        const isFinished = newLocation === gameBoard.length - 1; // Last tile = finished
+        localPlayerService
+          .updatePlayerPosition(session.id, currentPlayer.id, newLocation, isFinished)
+          .catch((error) => {
+            console.error('Failed to update local player position:', error);
+          });
+      }
+
       // send our message.
-      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage);
+      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage).catch(
+        (error) => {
+          console.error('Failed to send roll message:', error);
+        }
+      );
     } else {
       console.error(
-        `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}`
+        `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}, tile exists:`,
+        !!gameBoard[newLocation]
       );
     }
-  }, [rollValue, gameBoard, handleTextOutput, getNewLocation]);
+  }, [
+    rollValue,
+    gameBoard,
+    handleTextOutput,
+    getNewLocation,
+    hasLocalPlayers,
+    isLocalPlayerRoom,
+    currentPlayer,
+    session,
+  ]);
 
   return { tile, playerList };
 }

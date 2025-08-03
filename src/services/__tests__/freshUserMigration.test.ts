@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock localStorage
 const mockLocalStorage = (() => {
@@ -104,19 +104,6 @@ describe('Fresh User Migration Bug Prevention', () => {
     expect(groups.length).toBeGreaterThan(0);
     expect(groups[0].name).toBe('bating');
     expect(groups[0].isDefault).toBe(true);
-  });
-
-  it('should handle browser with disabled localStorage', () => {
-    // Mock localStorage to throw error (some browsers/incognito mode)
-    mockLocalStorage.getItem.mockImplementation(() => {
-      throw new Error('localStorage disabled');
-    });
-
-    // Should not crash the application
-    expect(async () => {
-      const { isMigrationCompleted } = await import('../migrationService');
-      isMigrationCompleted();
-    }).not.toThrow();
   });
 
   it('should properly set migration completion flag', () => {

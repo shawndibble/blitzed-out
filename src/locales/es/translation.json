@@ -20,6 +20,8 @@
   "groupLabelRequired": "Se requiere etiqueta de grupo",
   "tilesCount": "{{count}} casillas",
   "online": "En línea",
+  "players": "Jugadores",
+  "localPlayer": "Local",
   "you": "tú",
   "setup": "Configuración del juego",
   "setupSubtitle": "Ingresa tu nombre y comienza la sesión",
@@ -37,7 +39,9 @@
   "displayName": "Nombre de usuario",
   "gameboard": "Tablero",
   "room": "Sala",
-  "appBackground": "Fondo de configuración de la aplicación",
+  "roomType": "Tipo de Sala",
+  "gameConfiguration": "Configuración del Juego",
+  "visualSettings": "Configuración Visual",
   "application": "App",
   "variation": "Variación",
   "variationTooltip": "<0>Independiente = La acción tiene su propia casilla. </0><1>Añadir a algunas = 50% de probabilidad. </1><2>Añadir a la mayoría = 90% de probabilidad.</2>",
@@ -51,6 +55,7 @@
   "rebuildBoardAction": "Reconstruir Tablero",
   "keepCurrentBoard": "Mantener Tablero Actual",
   "cancel": "Cancelar",
+  "skip": "Saltar",
   "confirm": "Confirmar",
   "warning": "Advertencia",
   "error": "Error",
@@ -81,6 +86,11 @@
   "sub": "Sumiso",
   "vers": "Switch",
   "dom": "Dominante",
+  "roles": {
+    "dom": "Dominante",
+    "sub": "Sumiso",
+    "vers": "Switch"
+  },
   "privateRequired": "Por favor, entra en una sala privada para acceder a estas opciones.",
   "consumption": "Consumo",
   "consumptionSubtitle": "Beber, Fumar, Poppers...",
@@ -110,6 +120,8 @@
   "loadingVoices": "Cargando voces...",
   "noVoicesAvailable": "No hay voces disponibles para este idioma",
   "background": "Fondo",
+  "useAppBackground": "Usar Fondo de la Aplicación",
+  "useRoomBackground": "Usar Fondo de la Sala",
   "color": "Ninguno - Casillas de colores",
   "gray": "Ninguno - Casillas grises",
   "hypnoDick": "Hipno-Polla",
@@ -137,7 +149,6 @@
   "randomTimerRange": "Establece aleatoriamente la cuenta regresiva entre los valores seleccionados.",
   "minValue": "Valor mínimo",
   "maxValue": "Valor máximo",
-  "cancel": "Cancelar",
   "set": "Establecer",
   "alreadyFinished": "Has terminado. Empezar de nuevo",
   "messageInput": "Escribe un mensaje",
@@ -154,6 +165,9 @@
   "messages": "Mensajes",
   "close": "Cerrar",
   "anotherPlayer": "Otro jugador",
+  "theCurrentPlayer": "el jugador actual",
+  "aDominant": "un dominante",
+  "aSubmissive": "un sumiso",
   "for": "Para",
   "playAgain": "Jugar de nuevo",
   "gameOverPlayAgain": "Juego terminado: ¿Jugar de nuevo?",
@@ -229,14 +243,13 @@
   "ctGroupError": "Grupo no válido. Asegúrate de que tu grupo coincida con un formato listado en 'Agregar Casillas de Juego' y esté entre corchetes.",
   "ctActionError": "Debes asegurarte de que cada entrada que tenga un grupo también tenga una acción.",
   "advancedSetup": "Configuración avanzada",
-  "nextSkip": "Siguiente (saltar #2)",
   "playingWithPeople": "¿Estás interactuando físicamente con gente?",
   "yesInteracting": "Sí, estoy jugando con gente.",
   "noInteracting": "No, estoy jugando a solas.",
   "yourRole": "¿Cuál es tu rol?",
   "areYouNaked": "¿Preliminares (vestida) o sexo (desnudo)*?",
-  "yesNaked": "Sexo, estoy desnudo.",
-  "noNaked": "Preliminares, todavía estoy vestido.",
+  "yesNaked": "Sexo: Estamos desnudos.",
+  "noNaked": "Preliminares: Aún estamos vestidos.",
   "pickActions": "Elige tus acciones (máximo 4)",
   "actionsLabel": "Acciones",
   "intensityTooltip": "Mientras juegas, las acciones cambiarán del nivel más bajo al nivel máximo.",
@@ -492,5 +505,108 @@
   },
   "tts": {
     "sampleText": "Toma un trago y disfruta del juego."
+  },
+  "localPlayers": {
+    "privateRoomRequired": "Los jugadores locales solo están disponibles en salas privadas para mantener la naturaleza social del juego multijugador local.",
+    "setupTitle": "Configuración de Jugadores Locales",
+    "setupSubtitle": "Configurar jugadores para multijugador en un solo dispositivo",
+    "playersTitle": "Jugadores",
+    "playersCount": "{{count}} jugador",
+    "playersCount_other": "{{count}} jugadores",
+    "noPlayersYet": "Aún no se han agregado jugadores. Agrega al menos 2 jugadores para comenzar.",
+    "addFirstPlayer": "Agregar Primer Jugador",
+    "currentPlayer": "Turno Actual",
+    "turnOrder": "Turno {{order}}",
+    "defaultPlayerName": "Jugador {{number}}",
+    "startSession": "Finalizar Jugadores",
+    "creatingSession": "Creando Sesión...",
+    "errors": {
+      "minimumPlayers": "Se requieren al menos 2 jugadores",
+      "maximumPlayers": "Máximo 4 jugadores permitidos",
+      "emptyNames": "Todos los jugadores deben tener nombres",
+      "duplicateNames": "Los nombres de los jugadores deben ser únicos",
+      "sessionCreation": "Error al crear la sesión"
+    },
+    "onThisDevice": "En este dispositivo",
+    "remoteDevice": "Dispositivo remoto",
+    "playerActions": "Acciones de {{name}}",
+    "editPlayer": "Editar Jugador",
+    "deletePlayer": "Eliminar Jugador",
+    "noActivePlayer": "No hay jugador activo",
+    "currentTurn": "Turno Actual",
+    "clickToAdvance": "Haz clic para avanzar turno",
+    "form": {
+      "editPlayerTitle": "Editar Jugador",
+      "addPlayerTitle": "Agregar Jugador",
+      "previewName": "Vista Previa del Jugador",
+      "nameLabel": "Nombre del Jugador",
+      "nameHelper": "Ingresa un nombre único para este jugador (2-20 caracteres)",
+      "namePlaceholder": "Ingresa el nombre del jugador...",
+      "roleLabel": "Rol del Jugador",
+      "helpText": "Puedes cambiar estas configuraciones más tarde si es necesario.",
+      "saving": "Guardando...",
+      "saveChanges": "Guardar Cambios",
+      "addPlayer": "Agregar Jugador",
+      "errors": {
+        "nameRequired": "El nombre del jugador es requerido",
+        "nameTooShort": "El nombre debe tener al menos 2 caracteres",
+        "nameTooLong": "El nombre debe tener 20 caracteres o menos",
+        "nameDuplicate": "Este nombre ya está en uso",
+        "roleRequired": "Por favor selecciona un rol"
+      },
+      "roleDescriptions": {
+        "dom": "Toma control y lidera",
+        "sub": "Sigue y recibe",
+        "vers": "Flexible entre roles"
+      }
+    }
+  },
+  "localPlayerSettings": {
+    "title": "Jugadores Locales",
+    "noPlayers": {
+      "description": "No hay jugadores locales configurados actualmente. Configura jugadores locales para permitir que varias personas compartan este dispositivo.",
+      "setupButton": "Configurar Jugadores Locales"
+    },
+    "session": {
+      "title": "Jugadores Locales",
+      "active": "Activa",
+      "playerCount": "{{count}} jugador",
+      "currentPlayer": "Actual: {{name}}",
+      "editButton": "Editar Jugadores",
+      "clearButton": "Eliminar Jugadores"
+    },
+    "players": {
+      "title": "Lista de Jugadores",
+      "currentTurn": "Turno Actual"
+    },
+    "settings": {
+      "title": "Configuración de Jugadores Locales",
+      "showTurnTransitions": "Mostrar transiciones de turno",
+      "enableTurnTimer": "Habilitar temporizador de turno",
+      "playTurnSounds": "Reproducir sonidos de turno",
+      "editNote": "Edita jugadores para cambiar estas configuraciones"
+    }
+  },
+  "localPlayersStep": {
+    "title": "Multijugador en Un Solo Dispositivo",
+    "subtitle": "¿Quieres compartir un dispositivo con múltiples jugadores? Configura jugadores locales para una experiencia de juego social.",
+    "setupOption": {
+      "title": "Dispositivo Compartido",
+      "description": "✅ Compartir un dispositivo juntos\n✅ Nombres de jugadores en las fichas\n✅ Perfecto para parejas o grupos cercanos\n✅ Mejor coordinación de turnos\n❌ Requiere al menos 2 jugadores\n❌ Menos configuraciones avanzadas disponibles",
+      "button": "Configurar Jugadores Locales"
+    },
+    "skipOption": {
+      "title": "Dispositivos Individuales",
+      "description": "✅ Cada jugador tiene su propio dispositivo\n✅ Acceso completo a configuraciones avanzadas\n✅ Puede jugar solo o con otros\n✅ Experiencia de juego personalizada\n❌ Requiere múltiples dispositivos para multijugador\n❌ Usa texto de marcador en las acciones\n❌ La coordinación de turnos puede ser más complicada",
+      "button": "Omitir Jugadores Locales"
+    },
+    "features": {
+      "singleDevice": "Un Solo Dispositivo",
+      "turnManagement": "Gestión de Turnos",
+      "privateRoomsOnly": "Solo Salas Privadas"
+    },
+    "currentStatus": {
+      "hasPlayers": "Ya tienes jugadores locales configurados. Puedes configurar nuevos o continuar con tu configuración actual."
+    }
   }
 }

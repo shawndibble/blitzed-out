@@ -7,7 +7,6 @@
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -b master -d dist",
-    "check": "echo '🔍 Step 1/6: TypeScript Type Checking' && npm run type-check && echo '🔧 Step 2/6: ESLint Code Quality Check' && npx eslint src/ && echo '🧪 Step 3/6: Test Suite Execution' && npm run test:run && echo '🧹 Step 4/6: Debug Code Cleanup' && npm run cleanup:debug && echo '🧽 Step 5/6: Comment Cleanup' && npm run cleanup:comments && echo '🏗️ Step 6/6: Production Build Verification' && npm run build && echo '🎉 ALL CHECKS PASSED! Your code is ready for production.'",
     "cleanup:debug": "echo 'Checking for debug code...' && ! grep -r -B1 -A1 'console\\.log\\|debugger' src/ --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' --exclude-dir=__tests__ --exclude='*test*' --exclude='logger.ts' | grep -v 'NODE_ENV.*development' | grep -v '// to log results' | grep 'console\\.log\\|debugger' || (echo '✅ No problematic debug code found.' && exit 0)",
     "cleanup:comments": "echo 'Checking for excessive comments...' && ! grep -r '// TODO\\|// FIXME\\|// HACK\\|// XXX' src/ --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' || (echo '⚠️ TODO/FIXME comments found. Consider addressing or documenting them properly.' && exit 0)",
     "lint": "eslint --format=compact --ext .js,.jsx,.ts,.tsx .",
@@ -16,7 +15,11 @@
     "build": "tsc --project tsconfig.build.json && vite build",
     "prepare": "husky",
     "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest",
-    "test:run": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
+    "test:run": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --no-watch",
+    "test:memory": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot",
+    "test:focused": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --no-watch --reporter=verbose",
+    "test:failures": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot --bail=10",
+    "test:ci": "NODE_OPTIONS='--max-old-space-size=1024' vitest run --no-watch --reporter=dot --bail=5 --pool=forks --poolOptions.forks.singleFork=true",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit"

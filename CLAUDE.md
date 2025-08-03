@@ -9,8 +9,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm start` - Start development server (Vite) - **IMPORTANT**: DO NOT restart the development server during work sessions. Assume it is running.
 - `npm run build` - Build for production (includes TypeScript compilation)
 - `npm run type-check` - Run TypeScript type checking without compilation
-- `npm test` - Run tests with Vitest in watch mode
-- `npm run test:run` - Run tests once and exit (includes memory optimization)
+- `npm run test:failures` - **RECOMMENDED**: Memory-optimized, shows only failing tests, stops after 10 failures
+- `npm run test:focused` - Shows only failing tests with detailed output (higher memory usage)
+- `npm run test:memory` - Low-memory test run with basic reporting
+- `npm run test:run` - Run all tests once and exit (includes memory optimization)
+- `npm test` - Run tests with Vitest in watch mode (high memory usage - use sparingly)
 - `npm run test:ui` - Run tests with Vitest UI interface
 - `npm run test:coverage` - Run tests with coverage reporting
 
@@ -21,123 +24,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run cleanup:debug` - Check for and fail on debug code (console.log, debugger, etc.)
 - `npm run cleanup:comments` - Check for TODO/FIXME comments that need attention
 
-### Comprehensive Quality Check
-
-- `npm run check` or `/check` - **Comprehensive verification** that runs TypeScript type checking, ESLint linting (source only), full test suite, debug code cleanup verification, comment cleanup check, and production build verification. This command provides a complete quality gate check before commits or deployments.
-  - Automatically detects and fails on: `console.log`, `console.debug`, `console.warn`, `debugger` statements
-  - Warns about: `TODO`, `FIXME`, `HACK`, `XXX` comments that should be addressed
-
 ### Deployment
 
 - `npm run deploy` - Deploy to GitHub Pages (builds to dist, deploys to master branch)
 
-## Project Architecture
+## Quick Project Overview
 
-### Tech Stack
+### Tech Stack Essentials
 
-- **Framework**: React 19.1.0 with TypeScript
-- **Build Tool**: Vite with SWC plugin
-- **Styling**: Material-UI (MUI) v7 with Emotion (Dark Mode Theme)
-- **State Management**: Zustand (stores in `src/stores/`)
-- **Database**: Dexie (IndexedDB wrapper) with Firebase sync
-- **Backend**: Firebase (Auth, Firestore, Realtime Database, Storage)
-- **Routing**: React Router DOM v7
-- **Internationalization**: i18next with React integration
+- **React 19.1.0** with TypeScript, Vite build tool
+- **Material-UI v7** with dark mode theme (avoid hardcoded light colors like 'grey.50')
+- **Zustand** stores in `src/stores/` + **Dexie** (IndexedDB) + **Firebase** sync
+- **i18next** for English/Spanish/French/Chinese/Hindi localization
 
-### UI/UX Notes
+### Key Patterns
 
-- **Theme**: Application uses dark mode by default
-- **Design System**: Material-UI components with dark theme styling
-- **Colors**: Use theme-aware colors (avoid hardcoded light-mode colors like 'grey.50')
+- **Components**: Each in own directory with `index.tsx`
+- **State**: Zustand stores + Context providers for cross-component state
+- **Types**: Main types in `src/types/index.ts`, feature-specific in separate files
+- **Services**: Firebase operations in `src/services/firebase.ts`
+- **Migration**: Smart language file migration via `src/context/migration.tsx`
 
-### Key Architecture Patterns
-
-#### State Management
-
-- **Zustand stores** in `src/stores/` for client-side state
-- **Dexie database** for local persistence with sync middleware
-- **Firebase services** for cloud storage and real-time features
-- **Context providers** for cross-component state (auth, messages, userList, schedule)
-
-#### Authentication System
-
-- Multi-modal auth: anonymous, email/password, Google OAuth
-- Anonymous users can convert to registered accounts
-- Firebase Auth integration with custom context provider
-- Automatic data sync between local Dexie and Firebase on auth state changes
-
-#### Real-time Features
-
-- Firebase Realtime Database for user presence
-- Firestore for messages and game data
-- Automatic cleanup with TTL for messages (24 hours) and boards (30 days)
-
-#### Internationalization
-
-- Support for English, Spanish, French
-- Dynamic locale loading from `src/locales/`
-- Separate action/content files for local vs online game modes
-- Browser language detection with localStorage persistence
-
-### File Structure Patterns
-
-#### Component Organization
-
-- Each component in its own directory with `index.tsx`
-- Styles in separate CSS files or Material-UI styled components
-- Complex components have sub-components in nested directories
-
-#### Services Layer
-
-- `src/services/firebase.ts` - All Firebase operations
-- `src/services/syncService.ts` - Dexie/Firebase sync logic
-- `src/services/syncMiddleware.ts` - Dexie middleware for automatic sync
-
-#### Type Definitions
-
-- Main types in `src/types/index.ts`
-- Specific feature types in dedicated files (e.g., `Settings.ts`, `Message.ts`)
-- Firebase User type extended with custom properties
-
-### Key Features
-
-#### Game System
-
-- Multi-player board game with real-time updates
-- Custom tile creation and board management
-- Intensity-based action system with translations
-- Timer and countdown functionality
-- Cast mode for display on external screens
-
-#### Room Management
-
-- Public and private rooms with uppercase IDs
-- Real-time user presence tracking
-- Message history with automatic cleanup
-- Schedule system for planned games
-
-#### Data Sync
-
-- Offline-first with local Dexie database
-- Automatic sync to Firebase for registered users
-- Debounced sync operations to prevent conflicts
-- Periodic background sync for registered users
-
-#### Migration System
-
-- **MigrationProvider**: Context provider managing language file migrations from locale files to Dexie
-- **Smart Migration**: Only runs when user actually changes language (reactive vs proactive)
-- **Performance Optimized**: 60-80% faster app load by deferring migration until needed
-- **State Tracking**: `currentLanguageMigrated`, `isMigrationInProgress`, `isMigrationCompleted`
-- **Auto-Debouncing**: 100ms debouncing on language change events prevents duplicate migrations
-- **Error Handling**: Graceful fallbacks when migration fails, app continues with existing data
-
-**Key Files**:
-
-- `src/context/migration.tsx` - Main migration context and provider
-- `src/hooks/useDeferredMigration.ts` - Smart migration triggers and fallbacks
-- `src/hooks/useUnifiedActionList.ts` - Language-aware action loading (waits for migration)
-- `src/services/migrationService.ts` - Core migration logic (lazy-loaded)
+**📖 Full Architecture Details**: See [docs/04-technical-architecture.md](docs/04-technical-architecture.md)
 
 ## Development Notes
 
@@ -149,7 +57,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 #### Linting & Formatting
 
-- **Quality Check**: `npm run check` - **Comprehensive verification** (TypeScript, tests, linting, debug cleanup, and build)
 - **ESLint**: `npm run lint` - Check code quality (config in `eslint.config.js`)
 - **Source only**: `npx eslint src/` - Lint only source files (excludes build artifacts)
 - **TypeScript**: `npm run type-check` - Type checking without compilation
@@ -161,39 +68,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Issue**: Many lint errors from `public/` directory
 **Solution**: These are build artifacts - use `npx eslint src/` to check only source code
 
-**Issue**: `react-refresh/only-export-components` warning
-**Solution**: This warning on context files is expected and can be ignored
-
 **Issue**: TypeScript compilation errors
 **Solution**: Run `npm run type-check` to see specific type issues without building
 
-### Build Optimization
+### Testing Essentials
 
-- Manual code splitting for vendor libraries, MUI, translations, and Firebase
-- Asset optimization including MP3 files
-- Dependency optimization for faster builds
-
-### Testing Configuration
-
-- **Test Framework**: Vitest with jsdom environment
-- **Test Setup**: `src/setupTests.ts` for global test configuration
-- **Testing Library**: React Testing Library with user-event
+- **Test Framework**: Vitest with React Testing Library
 - **Mocks**: Firebase and hooks mocks in `src/__mocks__/`
-- **Coverage**: Excludes mocks, setup files, and build directories
-- **Memory**: Configured with max old space size for large test suites
+- **Memory-Safe Testing**: Use `npm run test:failures` to prevent system memory overload when fixing tests
+- **Key Commands**:
+  - `npm run test:failures` for memory-safe test validation (recommended)
+  - `npm run test:focused` for detailed failure output
+  - `npm run test:memory` for low-memory situations
 
-### Testing Guidelines
+**📖 Full Testing Details**: See [docs/04-technical-architecture.md](docs/04-technical-architecture.md)
 
-#### Running Tests
-
-- **Full test suite**: `npm run test:run` - Use for CI/CD and validation (exits after completion)
-- **Watch mode**: `npm test` - Interactive testing during development
-- **Specific files**: `npm run test:run -- path/to/test.tsx` - Run individual test files
-- **Pattern matching**: `npm run test:run -- "**/hooks/**"` - Run tests matching glob patterns
-- **With UI**: `npm run test:ui` - Visual test runner interface
-- **Coverage**: `npm run test:coverage` - Generate coverage reports
-
-#### Common Testing Issues & Solutions
+#### Critical Testing Issues & Solutions
 
 **Issue**: `useMigration must be used within a MigrationProvider`
 **Solution**: Add migration context mock to test files:
@@ -212,18 +102,10 @@ vi.mock('@/context/migration', () => ({
 ```
 
 **Issue**: Firebase mocking errors
-**Solution**: Tests automatically use mocks from `src/__mocks__/` - ensure Firebase operations are properly mocked
+**Solution**: Tests automatically use mocks from `src/__mocks__/`
 
-**Issue**: `Cannot resolve module` errors
-**Solution**: Check if imports use `@/` path aliases correctly and modules exist
-
-#### Test Structure
-
-- Component tests use React Testing Library patterns
-- Services have comprehensive unit tests with Firebase mocking
-- Integration tests cover complete user workflows
-- Hook tests require proper context mocking (auth, migration, etc.)
-- Slow tests flagged at 1000ms threshold
+**Issue**: `Cannot resolve module` errors  
+**Solution**: Check imports use `@/` path aliases correctly
 
 ## Context7 MCP Integration
 
@@ -259,37 +141,51 @@ To get current, version-specific documentation and code examples, add `use conte
 - Vite build configuration
 - TypeScript strict mode patterns
 
+## Product Documentation
+
+### Application Documentation
+
+Comprehensive product documentation is available in the `docs/` folder:
+
+- **📖 [docs/README.md](docs/README.md)** - Main documentation index and navigation
+- **🎯 [docs/01-application-overview.md](docs/01-application-overview.md)** - Business overview, product vision, and value propositions
+- **👥 [docs/02-user-features-workflows.md](docs/02-user-features-workflows.md)** - Complete feature documentation including:
+  - App settings and configuration
+  - Setup wizard workflow
+  - Local players functionality
+  - Solo mode features
+  - Custom tiles dialog
+  - Room management
+  - Cast mode
+- **🎲 [docs/03-game-mechanics.md](docs/03-game-mechanics.md)** - Game rules, mechanics, and player interactions
+- **🏗️ [docs/04-technical-architecture.md](docs/04-technical-architecture.md)** - System architecture and technical implementation
+- **💾 [docs/05-data-models.md](docs/05-data-models.md)** - Database schema, state management, and data models
+- **🎨 [docs/06-ui-ux-components.md](docs/06-ui-ux-components.md)** - UI/UX patterns, components, and design system
+
+**Usage:** These docs serve as a complete Business Requirements Document (BRD) and can answer all product questions with references to source code files.
+
 ## Development Workflow
 
-### Before Making Changes
+### Test Driven Development (TDD)
 
-1. **Run type check**: `npm run type-check` - Ensure no type errors
-2. **Run source lint**: `npx eslint src/` - Check code quality
-3. **Run relevant tests**: `npm run test:run -- path/to/affected/tests`
+This project follows **Test Driven Development**. Always write tests before implementing features:
 
-### When Adding New Hooks
-
-- Add proper context mocking in tests (migration, auth, etc.)
-- Test error scenarios and loading states
-- Ensure cleanup in useEffect return functions
-- Add TypeScript types for all parameters and return values
-
-### When Modifying Context Providers
-
-- Update test mocks to match new context shape
-- Test provider with and without required props
-- Ensure error boundaries handle context failures
-- Document context dependencies in component comments
+1. **Red**: Write a failing test describing desired functionality
+2. **Green**: Write minimal code to make the test pass
+3. **Refactor**: Improve code while keeping tests green
 
 ### Quality Checks Before Commit
 
 ```bash
-npm run type-check && npx eslint src/ && npm run test:run
+npm run type-check && npx eslint src/ && npm run test:failures
 ```
 
-### Git Workflow
+**Memory-Safe Testing**: Always use `npm run test:failures` when fixing tests or validating changes to prevent system memory overload.
 
-- Use semantic commit messages: `fix:`, `feat:`, `refactor:`, `perf:`, etc.
-- Keep commits focused and atomic
-- Run tests before pushing changes
-- Use selective staging for commits: `git add specific/files` instead of `git add .`
+**📖 Full Development Workflow**: See [docs/04-technical-architecture.md](docs/04-technical-architecture.md)
+
+## Internationalization (i18n)
+
+**CRITICAL RULE**: When updating translations, **ALWAYS** update all 5 language files: `en`, `es`, `fr`, `zh`, `hi` in `src/locales/*/translation.json`
+
+**📖 Full i18n Guidelines**: See [docs/07-internationalization-guidelines.md](docs/07-internationalization-guidelines.md)

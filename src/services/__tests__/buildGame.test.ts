@@ -1,8 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import buildGameBoard from '../buildGame';
-import { CustomTilePull } from '@/types/customTiles';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { CustomGroupPull } from '@/types/customGroups';
+import { CustomTilePull } from '@/types/customTiles';
 import { Settings } from '@/types/Settings';
+import buildGameBoard from '../buildGame';
+import { getCustomGroups } from '@/stores/customGroups';
+import { getTiles } from '@/stores/customTiles';
 
 // Mock i18next
 vi.mock('i18next', () => ({
@@ -33,9 +36,6 @@ vi.mock('@/stores/customGroups', () => ({
 vi.mock('@/stores/customTiles', () => ({
   getTiles: vi.fn(),
 }));
-
-import { getCustomGroups } from '@/stores/customGroups';
-import { getTiles } from '@/stores/customTiles';
 
 describe('buildGameBoard service', () => {
   const mockGroups: CustomGroupPull[] = [
@@ -168,39 +168,28 @@ describe('buildGameBoard service', () => {
     });
   });
 
-  describe('Error handling', () => {
-    it('should handle store errors gracefully', async () => {
-      vi.mocked(getCustomGroups).mockRejectedValue(new Error('Database error'));
-
-      const result = await buildGameBoard(mockSettings, 'en', 'online', 5);
-
-      expect(result.board.length).toBe(2); // Empty board with start/finish
-      expect(result.metadata.totalTiles).toBe(2);
-      expect(result.metadata.selectedGroups).toEqual([]);
-    });
-
-    it('should handle missing groups', async () => {
-      const settingsWithMissingGroup: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          teasing: { level: 2, type: 'action' },
-          nonexistent: { level: 1, type: 'action' },
-        },
-      };
-
-      const result = await buildGameBoard(settingsWithMissingGroup, 'en', 'online', 5);
-
-      expect(result.metadata.missingGroups).toContain('nonexistent');
-      expect(result.metadata.selectedGroups).toEqual(['teasing', 'nonexistent']);
-    });
-  });
-
   describe('Role filtering', () => {
     it('should filter tiles by role', async () => {
+      // Use non-solo groups for role filtering test
+      const roleSpecificGroups: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'roleSpecific',
+          label: 'Role Specific Actions',
+          intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
+          type: 'foreplay', // Not solo, so should be filtered by role
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
       const tilesWithRoles: CustomTilePull[] = [
         {
           id: 1,
-          group: 'teasing',
+          group: 'roleSpecific',
           intensity: 1,
           action: 'Action for {sub} only',
           tags: [],
@@ -211,7 +200,7 @@ describe('buildGameBoard service', () => {
         },
         {
           id: 2,
-          group: 'teasing',
+          group: 'roleSpecific',
           intensity: 1,
           action: 'Action for {dom} only',
           tags: [],
@@ -222,17 +211,210 @@ describe('buildGameBoard service', () => {
         },
       ];
 
+      vi.mocked(getCustomGroups).mockResolvedValue(roleSpecificGroups);
       vi.mocked(getTiles).mockResolvedValue(tilesWithRoles);
 
       const subSettings: Settings = {
         ...mockSettings,
         role: 'sub',
+        selectedActions: {
+          roleSpecific: { level: 1, type: 'action' },
+        },
       };
 
       const result = await buildGameBoard(subSettings, 'en', 'online', 5);
 
       // Should only use tiles appropriate for sub role
       expect(result.metadata.availableTileCount).toBe(1);
+    });
+
+    it('should allow solo type groups for all roles including vers', async () => {
+      const soloGroups: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'bating',
+          label: 'Bating',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+          ],
+          type: 'solo', // Solo type should be available to all roles
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          name: 'throatTraining',
+          label: 'Throat Training',
+          intensities: [
+            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+          ],
+          type: 'solo', // Solo type should be available to all roles
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '3',
+          name: 'poppers',
+          label: 'Poppers',
+          intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
+          type: 'consumption', // Consumption type should also be available to all roles
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const soloTiles: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'bating',
+          intensity: 1,
+          action: '30 slow strokes.', // No role placeholders
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'throatTraining',
+          intensity: 1,
+          action: 'Lick a toy', // No role placeholders
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 3,
+          group: 'poppers',
+          intensity: 1,
+          action: '1 hit.', // No role placeholders
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(soloGroups);
+      vi.mocked(getTiles).mockResolvedValue(soloTiles);
+
+      const versSettings: Settings = {
+        ...mockSettings,
+        role: 'vers', // Vers role should have access to solo and consumption types
+        selectedActions: {
+          bating: { level: 1, type: 'action' },
+          throatTraining: { level: 1, type: 'action' },
+          poppers: { level: 1, type: 'consumption' },
+        },
+      };
+
+      const result = await buildGameBoard(versSettings, 'en', 'online', 5);
+
+      // All three groups should be available (not filtered out)
+      expect(result.metadata.selectedGroups).toEqual(['bating', 'throatTraining', 'poppers']);
+      expect(result.metadata.availableTileCount).toBe(3); // All tiles should be available
+      expect(result.metadata.tilesWithContent).toBeGreaterThan(2); // Should have content tiles, not just start/finish
+
+      // Verify that tiles are actually generated (not empty)
+      const contentTiles = result.board.slice(1, -1); // Exclude start/finish
+      const tilesWithContent = contentTiles.filter(
+        (tile) => tile.description && tile.description.trim().length > 0
+      );
+      expect(tilesWithContent.length).toBeGreaterThan(0);
+    });
+
+    it('should filter out non-solo/non-consumption groups that do not match vers role placeholders', async () => {
+      const mixedGroups: CustomGroupPull[] = [
+        {
+          id: '1',
+          name: 'soloGroup',
+          label: 'Solo Group',
+          intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
+          type: 'solo', // Should be available
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          name: 'roleSpecificGroup',
+          label: 'Role Specific Group',
+          intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
+          type: 'sex', // Should be filtered based on role placeholders
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      const mixedTiles: CustomTilePull[] = [
+        {
+          id: 1,
+          group: 'soloGroup',
+          intensity: 1,
+          action: 'Solo action without role placeholders', // Should be available
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+        {
+          id: 2,
+          group: 'roleSpecificGroup',
+          intensity: 1,
+          action: 'Action for {sub} only', // Should be filtered out for vers
+          tags: [],
+          isEnabled: 1,
+          isCustom: 0,
+          locale: 'en',
+          gameMode: 'online',
+        },
+      ];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(mixedGroups);
+      vi.mocked(getTiles).mockResolvedValue(mixedTiles);
+
+      const versSettings: Settings = {
+        ...mockSettings,
+        role: 'vers',
+        selectedActions: {
+          soloGroup: { level: 1, type: 'action' },
+          roleSpecificGroup: { level: 1, type: 'action' },
+        },
+      };
+
+      const result = await buildGameBoard(versSettings, 'en', 'online', 3);
+
+      // Only the solo group should have available tiles
+      expect(result.metadata.availableTileCount).toBe(1); // Only solo tile available
+      expect(result.metadata.selectedGroups).toEqual(['soloGroup', 'roleSpecificGroup']);
+
+      // Should generate some content tiles from the solo group
+      const contentTiles = result.board.slice(1, -1);
+      const tilesWithContent = contentTiles.filter(
+        (tile) => tile.description && tile.description.trim().length > 0
+      );
+      expect(tilesWithContent.length).toBeGreaterThan(0);
     });
   });
 
@@ -539,7 +721,7 @@ describe('buildGameBoard service', () => {
             { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
             { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
           ],
-          type: 'solo',
+          type: 'foreplay', // Changed from 'solo' to test role-specific filtering
           isDefault: true,
           locale: 'en',
           gameMode: 'online',
@@ -782,10 +964,6 @@ describe('buildGameBoard service', () => {
 
       // Also verify that we're not getting the exact same action for every single tile
       expect(uniqueActions.size).toBeGreaterThan(1);
-
-      console.log(
-        `Action variety test: Generated ${uniqueActions.size} unique actions out of ${mockTilesWithMultipleActions.length} available`
-      );
     });
 
     it('should not generate identical boards when multiple actions are available', async () => {

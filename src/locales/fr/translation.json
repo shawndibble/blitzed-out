@@ -20,6 +20,8 @@
   "groupLabelRequired": "L'étiquette de groupe est requise",
   "tilesCount": "{{count}} tuiles",
   "online": "En ligne",
+  "players": "Joueurs",
+  "localPlayer": "Local",
   "you": "vous",
   "setup": "Configuration du jeu",
   "setupSubtitle": "Entrez votre nom et commencez la session",
@@ -37,7 +39,9 @@
   "displayName": "Nom du joueur",
   "gameboard": "Plateau",
   "room": "Salle",
-  "appBackground": "Fond d'écran de l'application",
+  "roomType": "Type de Salle",
+  "gameConfiguration": "Configuration du Jeu",
+  "visualSettings": "Paramètres Visuels",
   "application": "App",
   "variation": "Variation",
   "variationTooltip": "<0>Autonome = aucune tuile combinée. </0><1>Ajouter certaines = 50% de chances.</1><2>Ajouter la plupart = 90% de chances.</2>",
@@ -51,6 +55,7 @@
   "rebuildBoardAction": "Reconstruire le Plateau",
   "keepCurrentBoard": "Garder le Plateau Actuel",
   "cancel": "Annuler",
+  "skip": "Ignorer",
   "confirm": "Confirmer",
   "warning": "Avertissement",
   "error": "Erreur",
@@ -81,6 +86,11 @@
   "sub": "Soumis",
   "vers": "Switch",
   "dom": "Dominant",
+  "roles": {
+    "dom": "Dominant",
+    "sub": "Soumis",
+    "vers": "Switch"
+  },
   "privateRequired": "Veuillez vous rendre dans une salle privée pour accéder à ces options.",
   "consumption": "Consommer",
   "consumptionSubtitle": "Boire, Fumer, Poppers",
@@ -110,6 +120,8 @@
   "loadingVoices": "Chargement des voix...",
   "noVoicesAvailable": "Aucune voix disponible pour cette langue",
   "background": "Fond d'écran",
+  "useAppBackground": "Utiliser le Fond de l'Application",
+  "useRoomBackground": "Utiliser le Fond de la Salle",
   "color": "Aucun - Tuiles colorées",
   "gray": "Aucun - Carreaux gris",
   "hypnoDick": "Hypno Dick",
@@ -154,6 +166,9 @@
   "messages": "Messages",
   "close": "Fermer",
   "anotherPlayer": "un autre joueur",
+  "theCurrentPlayer": "le joueur actuel",
+  "aDominant": "un dominant",
+  "aSubmissive": "un soumis",
   "for": "pour",
   "playAgain": "Rejouer",
   "gameOverPlayAgain": "Game Over : rejouer ?",
@@ -229,14 +244,13 @@
   "ctGroupError": "Groupe non valide. Assurez-vous que votre groupe correspond à un format répertorié dans 'Ajouter des Tuiles de Jeu' et est encadré par des crochets.",
   "ctActionError": "Vous devez vous assurer que chaque entrée ayant un groupe a également une action.",
   "advancedSetup": "Paramètres avancés",
-  "nextSkip": "Suivant (sauter #2)",
   "playingWithPeople": "Interagissez-vous physiquement avec des gens?",
   "yesInteracting": "Oui, je joue avec des gens.",
   "noInteracting": "Non, je joue avec moi-même.",
   "yourRole": "Quel est votre rôle?",
   "areYouNaked": "Préliminaires (habillé) ou Sexe (nu)*?",
-  "yesNaked": "Sexe, je suis nue.",
-  "noNaked": "Préliminaires, je suis toujours habillé.",
+  "yesNaked": "Sexe: Nous sommes nus.",
+  "noNaked": "Préliminaires: Nous sommes encore habillés.",
   "pickActions": "Choisissez vos actions (max 4)",
   "actionsLabel": "Actions",
   "intensityTooltip": "Au fur et à mesure que vous jouez, les actions passeront du niveau le plus bas au niveau maximum.",
@@ -492,5 +506,108 @@
   },
   "tts": {
     "sampleText": "Prenez une boisson et profitez du jeu."
+  },
+  "localPlayers": {
+    "privateRoomRequired": "Les joueurs locaux ne sont disponibles que dans les salles privées pour maintenir la nature sociale du jeu multijoueur local.",
+    "setupTitle": "Configuration des Joueurs Locaux",
+    "setupSubtitle": "Configurer les joueurs pour le multijoueur sur un seul appareil",
+    "playersTitle": "Joueurs",
+    "playersCount": "{{count}} joueur",
+    "playersCount_other": "{{count}} joueurs",
+    "noPlayersYet": "Aucun joueur ajouté pour le moment. Ajoutez au moins 2 joueurs pour commencer.",
+    "addFirstPlayer": "Ajouter le Premier Joueur",
+    "currentPlayer": "Tour Actuel",
+    "turnOrder": "Tour {{order}}",
+    "defaultPlayerName": "Joueur {{number}}",
+    "startSession": "Finaliser les Joueurs",
+    "creatingSession": "Création de la Session...",
+    "errors": {
+      "minimumPlayers": "Au moins 2 joueurs sont requis",
+      "maximumPlayers": "Maximum 4 joueurs autorisés",
+      "emptyNames": "Tous les joueurs doivent avoir des noms",
+      "duplicateNames": "Les noms des joueurs doivent être uniques",
+      "sessionCreation": "Échec de la création de la session"
+    },
+    "onThisDevice": "Sur cet appareil",
+    "remoteDevice": "Appareil distant",
+    "playerActions": "Actions de {{name}}",
+    "editPlayer": "Modifier le Joueur",
+    "deletePlayer": "Supprimer le Joueur",
+    "noActivePlayer": "Aucun joueur actif",
+    "currentTurn": "Tour Actuel",
+    "clickToAdvance": "Cliquez pour avancer le tour",
+    "form": {
+      "editPlayerTitle": "Modifier le Joueur",
+      "addPlayerTitle": "Ajouter un Joueur",
+      "previewName": "Aperçu du Joueur",
+      "nameLabel": "Nom du Joueur",
+      "nameHelper": "Entrez un nom unique pour ce joueur (2-20 caractères)",
+      "namePlaceholder": "Entrez le nom du joueur...",
+      "roleLabel": "Rôle du Joueur",
+      "helpText": "Vous pouvez modifier ces paramètres plus tard si nécessaire.",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer les Modifications",
+      "addPlayer": "Ajouter un Joueur",
+      "errors": {
+        "nameRequired": "Le nom du joueur est requis",
+        "nameTooShort": "Le nom doit contenir au moins 2 caractères",
+        "nameTooLong": "Le nom doit contenir 20 caractères ou moins",
+        "nameDuplicate": "Ce nom est déjà pris",
+        "roleRequired": "Veuillez sélectionner un rôle"
+      },
+      "roleDescriptions": {
+        "dom": "Prend le contrôle et dirige",
+        "sub": "Suit et reçoit",
+        "vers": "Flexible entre les rôles"
+      }
+    }
+  },
+  "localPlayerSettings": {
+    "title": "Joueurs Locaux",
+    "noPlayers": {
+      "description": "Aucun joueur local n'est actuellement configuré. Configurez des joueurs locaux pour permettre à plusieurs personnes de partager cet appareil.",
+      "setupButton": "Configurer les Joueurs Locaux"
+    },
+    "session": {
+      "title": "Joueurs Locaux",
+      "active": "Active",
+      "playerCount": "{{count}} joueur",
+      "currentPlayer": "Actuel: {{name}}",
+      "editButton": "Modifier les Joueurs",
+      "clearButton": "Supprimer les Joueurs"
+    },
+    "players": {
+      "title": "Liste des Joueurs",
+      "currentTurn": "Tour Actuel"
+    },
+    "settings": {
+      "title": "Paramètres des Joueurs Locaux",
+      "showTurnTransitions": "Afficher les transitions de tour",
+      "enableTurnTimer": "Activer le minuteur de tour",
+      "playTurnSounds": "Jouer les sons de tour",
+      "editNote": "Modifiez les joueurs pour changer ces paramètres"
+    }
+  },
+  "localPlayersStep": {
+    "title": "Multijoueur sur Un Seul Appareil",
+    "subtitle": "Vous voulez partager un appareil avec plusieurs joueurs ? Configurez des joueurs locaux pour une expérience de jeu sociale.",
+    "setupOption": {
+      "title": "Appareil Partagé",
+      "description": "✅ Partager un appareil ensemble\n✅ Noms des joueurs dans les tuiles\n✅ Parfait pour les couples ou groupes proches\n✅ Meilleure coordination des tours\n❌ Nécessite au moins 2 joueurs\n❌ Moins de paramètres avancés disponibles",
+      "button": "Configurer les Joueurs Locaux"
+    },
+    "skipOption": {
+      "title": "Appareils Individuels",
+      "description": "✅ Chaque joueur a son propre appareil\n✅ Accès complet aux paramètres avancés\n✅ Peut jouer seul ou avec d'autres\n✅ Expérience de jeu personnalisée\n❌ Nécessite plusieurs appareils pour multijoueur\n❌ Utilise du texte d'espace réservé dans les actions\n❌ La coordination des tours peut être plus délicate",
+      "button": "Ignorer les Joueurs Locaux"
+    },
+    "features": {
+      "singleDevice": "Un Seul Appareil",
+      "turnManagement": "Gestion des Tours",
+      "privateRoomsOnly": "Salles Privées Uniquement"
+    },
+    "currentStatus": {
+      "hasPlayers": "Vous avez déjà des joueurs locaux configurés. Vous pouvez en configurer de nouveaux ou continuer avec votre configuration actuelle."
+    }
   }
 }

@@ -643,4 +643,107 @@ describe('MessageList Component', () => {
       expect(messageElements.length).toBeGreaterThanOrEqual(100);
     });
   });
+
+  describe('Scroll Behavior', () => {
+    beforeEach(() => {
+      // Mock scrollTo and scrollHeight/scrollTop properties
+      Object.defineProperty(HTMLElement.prototype, 'scrollTop', {
+        writable: true,
+        value: 0,
+      });
+      Object.defineProperty(HTMLElement.prototype, 'scrollHeight', {
+        writable: true,
+        value: 1000,
+      });
+    });
+
+    it('should scroll to bottom when new messages are added', async () => {
+      const initialMessages = [
+        createMockMessage('1', 'First message', 'chat'),
+        createMockMessage('2', 'Second message', 'chat'),
+      ];
+
+      const mockUseMessages = vi.mocked(useMessages);
+      mockUseMessages.mockReturnValue({
+        messages: initialMessages,
+        isLoading: false,
+      });
+
+      const { rerender } = render(
+        <TestWrapper>
+          <MessageList room="test-room" />
+        </TestWrapper>
+      );
+
+      // Get the scroll container
+      const scrollContainer = document.querySelector('.message-list-scroll');
+      expect(scrollContainer).toBeInTheDocument();
+
+      // Simulate adding a new message with different ID
+      const newMessages = [...initialMessages, createMockMessage('3', 'New message', 'chat')];
+
+      mockUseMessages.mockReturnValue({
+        messages: newMessages,
+        isLoading: false,
+      });
+
+      rerender(
+        <TestWrapper>
+          <MessageList room="test-room" />
+        </TestWrapper>
+      );
+
+      // Check that scroll was triggered (scrollTop should equal scrollHeight)
+      // Add a longer wait time to account for multiple scroll attempts
+      await waitFor(
+        () => {
+          expect(scrollContainer?.scrollTop).toBe(1000);
+        },
+        { timeout: 100 }
+      );
+    });
+
+    it('should scroll to bottom when messages are added regardless of filter', async () => {
+      const initialMessages = [
+        createMockMessage('1', 'Chat message', 'chat'),
+        createMockMessage('2', 'Action message', 'actions'),
+      ];
+
+      const mockUseMessages = vi.mocked(useMessages);
+      mockUseMessages.mockReturnValue({
+        messages: initialMessages,
+        isLoading: false,
+      });
+
+      const { rerender } = render(
+        <TestWrapper>
+          <MessageList room="test-room" />
+        </TestWrapper>
+      );
+
+      // Switch to actions filter
+      fireEvent.click(screen.getByLabelText('filter messages'));
+      fireEvent.click(screen.getByText('Actions'));
+
+      // Add a new chat message (which won't be visible in actions filter)
+      const newMessages = [...initialMessages, createMockMessage('3', 'New chat message', 'chat')];
+
+      mockUseMessages.mockReturnValue({
+        messages: newMessages,
+        isLoading: false,
+      });
+
+      rerender(
+        <TestWrapper>
+          <MessageList room="test-room" />
+        </TestWrapper>
+      );
+
+      // Should still scroll to bottom even though new message isn't visible
+      const scrollContainer = document.querySelector('.message-list-scroll');
+      await waitFor(() => {
+        expect(scrollContainer?.scrollTop).toBe(1000);
+      });
+    });
+  });
 });

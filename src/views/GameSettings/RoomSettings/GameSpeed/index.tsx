@@ -1,5 +1,6 @@
 import {
   Box,
+  Chip,
   FormControl,
   InputLabel,
   MenuItem,
@@ -38,12 +39,12 @@ export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JS
   ));
 
   return (
-    <>
-      <Typography>
+    <Box>
+      <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'medium' }}>
         <Trans i18nKey="gameSpeed" />
       </Typography>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <FormControl sx={{ m: 1 }} fullWidth>
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <FormControl sx={{ minWidth: 120, flex: 1 }}>
           <InputLabel id="diceRole-label">
             <Trans i18nKey="roomDice" />
           </InputLabel>
@@ -65,7 +66,7 @@ export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JS
             <MenuItem value="2d4">2d4</MenuItem>
           </Select>
         </FormControl>
-        <FormControl sx={{ m: 1 }} fullWidth>
+        <FormControl sx={{ minWidth: 120, flex: 1 }}>
           <InputLabel id="tile-count-label">
             <Trans i18nKey="roomTileCount" />
           </InputLabel>
@@ -85,13 +86,18 @@ export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JS
             {tileMenuItem}
           </Select>
         </FormControl>
-        <FormControl fullWidth>
-          <Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 120 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
             <Trans i18nKey="averageRolls" />
-            {rollAverage}
           </Typography>
-        </FormControl>
+          <Chip
+            label={rollAverage}
+            color="primary"
+            variant="outlined"
+            sx={{ minWidth: 50, fontWeight: 'bold' }}
+          />
+        </Box>
       </Box>
-    </>
+    </Box>
   );
 }

@@ -19,6 +19,7 @@ interface MessagesProviderProps {
 
 export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
   const { id: room } = useParams<Params>();
+
   const {
     messages,
     loading: isLoading,

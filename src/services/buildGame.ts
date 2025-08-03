@@ -1,11 +1,11 @@
-import { shuffleArray } from '@/helpers/arrays';
+import { CustomGroupPull } from '@/types/customGroups';
+import { CustomTilePull } from '@/types/customTiles';
 import { Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
-import { CustomTilePull } from '@/types/customTiles';
-import { CustomGroupPull } from '@/types/customGroups';
-import i18next from 'i18next';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
+import i18next from 'i18next';
+import { shuffleArray } from '@/helpers/arrays';
 
 const { t } = i18next;
 
@@ -104,6 +104,11 @@ function filterTilesByRole(
 
     // Consumption tiles should be available to all roles
     if (group?.type === 'consumption') {
+      return true;
+    }
+
+    // Solo tiles should be available to all roles (self-directed activities)
+    if (group?.type === 'solo') {
       return true;
     }
 
@@ -211,14 +216,18 @@ function buildTileContent(
     // Try lower intensities first
     for (let intensity = targetIntensity - 1; intensity >= 1; intensity--) {
       selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
-      if (selectedTile) break;
+      if (selectedTile) {
+        break;
+      }
     }
 
     // If no lower intensities work, try higher intensities
     if (!selectedTile) {
       for (let intensity = targetIntensity + 1; intensity <= maxIntensity; intensity++) {
         selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
-        if (selectedTile) break;
+        if (selectedTile) {
+          break;
+        }
       }
     }
 

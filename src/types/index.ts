@@ -3,6 +3,7 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
 import { GameMode, PlayerRole } from './Settings';
+import type { LocalPlayer, LocalSessionSettings } from './localPlayers';
 // Common types used throughout the application
 
 // Auth related types
@@ -117,19 +118,6 @@ export interface LocalStorageHookReturn<T> {
 }
 
 // Form data types
-export interface FormData {
-  [key: string]: unknown;
-  gameMode: GameMode;
-  isNaked?: boolean;
-  isAppend?: boolean;
-  room: string;
-  roomRealtime?: boolean;
-  actions?: any[];
-  consumption?: any[];
-  role?: PlayerRole;
-  boardUpdated: boolean;
-  finishRange?: [number, number];
-}
 
 export interface ActionEntry {
   type: string;
@@ -177,3 +165,39 @@ export type {
   CustomGroupExportData,
 } from './customGroups';
 export { DEFAULT_INTENSITY_TEMPLATES } from './customGroups';
+
+// Re-export local player types
+export type { LocalPlayer, LocalPlayerSession, LocalSessionSettings } from './localPlayers';
+export type { DBLocalPlayerSession, DBLocalPlayerMove, DBLocalPlayerStats } from './localPlayerDB';
+
+// Re-export hybrid player types
+export type {
+  RemotePlayer,
+  HybridLocalPlayer,
+  HybridPlayer,
+  HybridPlayerList,
+} from './hybridPlayers';
+export {
+  isLocalPlayer,
+  isRemotePlayer,
+  toHybridLocalPlayer,
+  toRemotePlayer,
+} from './hybridPlayers';
+
+export interface FormData {
+  [key: string]: unknown;
+  gameMode: GameMode;
+  isNaked?: boolean;
+  isAppend?: boolean;
+  room: string;
+  roomRealtime?: boolean;
+  actions?: any[];
+  consumption?: any[];
+  role?: PlayerRole;
+  boardUpdated: boolean;
+  finishRange?: [number, number];
+  // Local player support - using different field names to avoid conflicts with Settings
+  localPlayersData?: LocalPlayer[];
+  localPlayerSessionSettings?: LocalSessionSettings;
+  hasLocalPlayers?: boolean;
+}

@@ -16,16 +16,18 @@ interface Board {
   [key: string]: any;
 }
 
-type UrlImportResult = [string | null, () => void];
+type UrlImportResult = [string | null, () => void, boolean];
 
 export default function useUrlImport(
   settings: Settings,
   setSettings: (settings: Settings) => void
 ): UrlImportResult {
   const [alert, setAlert] = useState<string | null>(null);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
   const [queryParams, setParams] = useSearchParams();
   const importBoard = queryParams.get('importBoard');
   const { t } = useTranslation();
+
 
   const clearAlert = useCallback((): void => {
     setAlert(null);
@@ -54,21 +56,42 @@ export default function useUrlImport(
     setParams({});
     if (!importBoard) return;
 
-    const board = (await getBoard(importBoard)) as Board | null;
-    if (!board?.gameBoard) return setAlert(t('failedBoardImport'));
+    setIsImporting(true);
+    try {
+      const board = (await getBoard(importBoard)) as Board | null;
+      if (!board?.gameBoard) {
+        setAlert(t('failedBoardImport'));
+        return;
+      }
 
-    const importedGameBoard = parseGameBoard(board.gameBoard);
-    if (!importedGameBoard) return setAlert(t('failedBoardImport'));
+      const importedGameBoard = parseGameBoard(board.gameBoard);
+      if (!importedGameBoard) {
+        setAlert(t('failedBoardImport'));
+        return;
+      }
 
-    const title = board?.title !== t('settingsGenerated') ? board.title : t('importedBoard');
+      const title = board?.title !== t('settingsGenerated') ? board.title : t('importedBoard');
 
-    upsertBoard({ ...board, title, tiles: importedGameBoard, isActive: 1 });
-    const importSettings = parseSettings(board?.settings);
+      upsertBoard({ ...board, title, tiles: importedGameBoard, isActive: 1 });
+      
+      const importSettings = parseSettings(board?.settings);
 
-    setSettings({ ...settings, ...importSettings });
+      // For public rooms, ensure gameMode is online to prevent setup dialog
+      const currentUrl = new URL(window.location.href);
+      const roomId = currentUrl.pathname.split('/').pop() || '';
+      const finalSettings = { ...settings, ...importSettings };
+      
+      if (roomId.toUpperCase() === 'PUBLIC' && importSettings.gameMode === 'local') {
+        finalSettings.gameMode = 'online';
+      }
 
-    if (alert !== t('updated')) {
-      setAlert(t('updated'));
+      setSettings(finalSettings);
+
+      if (alert !== t('updated')) {
+        setAlert(t('updated'));
+      }
+    } finally {
+      setIsImporting(false);
     }
   }, [importBoard, parseGameBoard, parseSettings, settings, setSettings, t, alert, setParams]);
 
@@ -78,5 +101,5 @@ export default function useUrlImport(
     }
   }, [importBoard, importGameBoard]);
 
-  return [alert, clearAlert];
+  return [alert, clearAlert, isImporting || !!importBoard];
 }

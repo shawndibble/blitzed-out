@@ -119,12 +119,18 @@ describe('GameBoard', () => {
       updateUserProfile: vi.fn(),
     });
 
-    vi.mocked(actionStringReplacement).mockImplementation((description, _role, displayName) =>
-      description
-        ? description
-            .replace(/{player}/g, displayName || '')
-            .replace(/{(sub|dom)}/g, displayName || '')
-        : ''
+    vi.mocked(actionStringReplacement).mockImplementation(
+      (description, _role, displayName, _localPlayers, useGenericPlaceholders) =>
+        description
+          ? useGenericPlaceholders
+            ? description
+                .replace(/{player}/g, 'the current player')
+                .replace(/{dom}/g, 'a dominant')
+                .replace(/{sub}/g, 'a submissive')
+            : description
+                .replace(/{player}/g, displayName || '')
+                .replace(/{(sub|dom)}/g, displayName || '')
+          : ''
     );
   });
 
@@ -262,12 +268,16 @@ describe('GameBoard', () => {
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Welcome to the game! You are {player}.',
         'sub', // Now uses settings.role instead of tile.role
-        'Test User'
+        'Test User',
+        undefined,
+        true
       );
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Take a gentle action as {sub}.',
         'sub', // Now uses settings.role instead of tile.role
-        'Test User'
+        'Test User',
+        undefined,
+        true
       );
     });
 
@@ -286,7 +296,9 @@ describe('GameBoard', () => {
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Welcome to the game! You are {player}.',
         'dom', // Uses settings.role = 'dom'
-        'Test User'
+        'Test User',
+        undefined,
+        true
       );
 
       const versSettings = { ...mockSettings, role: 'vers' as const };
@@ -303,7 +315,9 @@ describe('GameBoard', () => {
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Welcome to the game! You are {player}.',
         'vers', // Uses settings.role = 'vers'
-        'Test User'
+        'Test User',
+        undefined,
+        true
       );
     });
 
@@ -323,7 +337,9 @@ describe('GameBoard', () => {
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Perform an intense action as {dom}.',
         'sub', // Now uses settings.role instead of tile.role
-        'Test User'
+        'Test User',
+        undefined,
+        true
       );
     });
 
@@ -464,8 +480,8 @@ describe('GameBoard', () => {
         />
       );
 
-      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User');
-      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User');
+      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User', undefined, true);
+      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User', undefined, true);
     });
 
     it('should handle user without display name', () => {
@@ -492,7 +508,9 @@ describe('GameBoard', () => {
       expect(actionStringReplacement).toHaveBeenCalledWith(
         expect.any(String),
         'sub', // Now uses settings.role instead of tile.role
-        ''
+        '',
+        undefined,
+        true
       );
     });
 

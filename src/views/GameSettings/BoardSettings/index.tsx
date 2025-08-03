@@ -8,6 +8,7 @@ import SelectBoardSetting from './SelectBoardSetting';
 import SoloSwitch from './SoloSwitch';
 import WarningAlert from './WarningAlert';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { useLocalPlayerStore } from '@/stores/localPlayerStore';
 
 import { Settings } from '@/types/Settings';
 
@@ -23,7 +24,9 @@ export default function BoardSettings({
   actionsList,
 }: BoardSettingsProps): JSX.Element {
   const { t } = useTranslation();
+  const { hasLocalPlayers } = useLocalPlayerStore();
   const isLocal = !isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode);
+  const shouldShowRoleSelect = isLocal && !hasLocalPlayers();
 
   function settingSelectLists(type: string, extraProps: Record<string, any> = {}): JSX.Element[] {
     return Object.keys(actionsList)
@@ -99,7 +102,7 @@ export default function BoardSettings({
             />
           </Tooltip>
         </GridItem>
-        {isLocal && (
+        {shouldShowRoleSelect && (
           <GridItem>
             <SettingsSelect
               value={formData.role}
@@ -123,10 +126,10 @@ export default function BoardSettings({
             {settingSelectLists('consumption', { showVariation: true })}
           </InvisibleAccordionGrid>
           <InvisibleAccordionGrid title={t('foreplay')} subtitle={t('foreplaySubtitle')}>
-            {settingSelectLists('foreplay', { showRole: isLocal })}
+            {settingSelectLists('foreplay', { showRole: shouldShowRoleSelect })}
           </InvisibleAccordionGrid>
           <InvisibleAccordionGrid title={t('sex')} subtitle={t('sexSubtitle')}>
-            {settingSelectLists('sex', { showRole: isLocal })}
+            {settingSelectLists('sex', { showRole: shouldShowRoleSelect })}
           </InvisibleAccordionGrid>
         </>
       ) : (
