@@ -63,7 +63,6 @@ export default function Room() {
   const [showTransition, setShowTransition] = useState(false);
   const [transitionPlayerName, setTransitionPlayerName] = useState('');
   const previousPlayerIndexRef = useRef(currentPlayerIndex);
-  const hasPlayedSoundRef = useRef(false);
 
   const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
 
@@ -91,27 +90,19 @@ export default function Room() {
         }
 
         // Play turn sound if enabled and player has a sound
-        if (
-          sessionSettings.enableTurnSounds &&
-          newCurrentPlayer.sound &&
-          !hasPlayedSoundRef.current
-        ) {
+        if (sessionSettings.enableTurnSounds && newCurrentPlayer.sound) {
           const sound = getSoundById(newCurrentPlayer.sound);
           if (sound) {
             playSound(sound).catch((error) => {
               console.warn('Failed to play turn sound:', error);
             });
           }
-          hasPlayedSoundRef.current = true;
         }
       }
     }
 
     // Update refs
     previousPlayerIndexRef.current = currentIndex;
-    if (currentIndex !== previousIndex) {
-      hasPlayedSoundRef.current = false; // Reset for next turn change
-    }
   }, [currentPlayerIndex, localPlayers, sessionSettings]);
 
   const handleTransitionComplete = useCallback(() => {
