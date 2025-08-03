@@ -205,6 +205,7 @@ export default function LocalPlayersStep({
                   size="large"
                   sx={{ mt: 2 }}
                   data-testid="localPlayersStep.setupOption.button"
+                  onClick={handleStartLocalSetup}
                 >
                   {t('localPlayersStep.setupOption.button')}
                 </Button>
@@ -256,6 +257,7 @@ export default function LocalPlayersStep({
                   size="large"
                   sx={{ mt: 2 }}
                   data-testid="localPlayersStep.skipOption.button"
+                  onClick={handleSkipLocalPlayers}
                 >
                   {t('localPlayersStep.skipOption.button')}
                 </Button>

@@ -57,6 +57,8 @@ export default function UserPresenceOverlay({
           },
         },
       }}
+      disableRestoreFocus
+      disableEnforceFocus
     >
       <Box
         ref={contentRef}

@@ -1,15 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Typography,
-  Collapse,
-  Card,
-  CardContent,
-  Grid,
-  Stack,
-  Chip,
-} from '@mui/material';
+import { Box, Button, Typography, Card, CardContent, Grid, Stack, Chip } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import { isOnlineMode } from '@/helpers/strings';
@@ -155,7 +145,7 @@ export default function GameModeStep({
       )}
 
       {/* Show role selection only for solo local mode (no local players) */}
-      <Collapse in={showRoleSelection} timeout={500}>
+      {showRoleSelection && (
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
             <Trans i18nKey="yourRole" />
@@ -205,7 +195,7 @@ export default function GameModeStep({
             ))}
           </Grid>
         </Box>
-      </Collapse>
+      )}
 
       {/* Show intensity selection for local mode (both solo and local players) */}
       {!isOnlineMode(formData?.gameMode) && (

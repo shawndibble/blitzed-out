@@ -132,7 +132,8 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
   const isDirectVideo = url && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
 
   // Show default background when no custom background is set OR when background is "color" or "gray"
-  const isNonImageBackground = url === 'color' || url === 'gray';
+  const isNonImageBackground =
+    url === 'color' || url === 'gray' || url?.includes('/color') || url?.includes('/gray');
   const hasCustomBackground = url && !isNonImageBackground && (isVideo || (!isVideo && url));
 
   return (

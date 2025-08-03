@@ -10,7 +10,9 @@ export default mergeConfig(
       environment: 'jsdom',
       setupFiles: ['./src/setupTests.ts'],
       css: true,
-      reporters: ['verbose'],
+      reporters: [
+        ['default', { summary: false }], // Replaces deprecated 'basic' reporter
+      ],
       slowTestThreshold: 1000, // Flag tests over 1 second as slow
       testTimeout: 5000,
       hookTimeout: 5000,
@@ -18,8 +20,14 @@ export default mergeConfig(
       poolOptions: {
         forks: {
           isolate: true,
+          maxForks: 4, // Limit concurrent processes
+          minForks: 1,
         },
       },
+      // Prevent memory leaks between test runs
+      clearMocks: true,
+      restoreMocks: true,
+      mockReset: true,
       coverage: {
         reporter: ['text', 'json', 'html'],
         exclude: [

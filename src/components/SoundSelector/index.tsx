@@ -7,6 +7,7 @@ import {
   Box,
   Tooltip,
   ListSubheader,
+  SelectChangeEvent,
 } from '@mui/material';
 import { PlayArrow, VolumeOff } from '@mui/icons-material';
 import { SOUND_CATEGORIES, playSound, getSoundById } from '@/utils/gameSounds';
@@ -38,7 +39,7 @@ export default function SoundSelector({
     }
   };
 
-  const handleSelectChange = (event: any) => {
+  const handleSelectChange = (event: SelectChangeEvent) => {
     onSoundChange(event.target.value as string);
   };
 

@@ -74,15 +74,16 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
         const player = session.players[currentIndex];
         if (!player) return null;
 
-        // Migration: Ensure player has required fields
-        if (typeof player.location !== 'number') {
-          player.location = 0;
+        // Migration: Ensure player has required fields (create copy to maintain immutability)
+        const migratedPlayer = { ...player };
+        if (typeof migratedPlayer.location !== 'number') {
+          migratedPlayer.location = 0;
         }
-        if (typeof player.isFinished !== 'boolean') {
-          player.isFinished = false;
+        if (typeof migratedPlayer.isFinished !== 'boolean') {
+          migratedPlayer.isFinished = false;
         }
 
-        return player;
+        return migratedPlayer;
       },
 
       // Basic actions

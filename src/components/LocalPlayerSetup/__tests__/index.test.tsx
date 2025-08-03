@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test-utils';
 import { describe, it, expect, vi } from 'vitest';
 import LocalPlayerSetup from '../index';
 
@@ -99,7 +99,10 @@ describe('LocalPlayerSetup', () => {
       expect(screen.getByText('Player 1')).toBeInTheDocument();
     });
 
-    // Add second player
+    // Add second player - wait for FAB button to appear
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Add player' })).toBeInTheDocument();
+    });
     const fabButton = screen.getByRole('button', { name: 'Add player' });
     fireEvent.click(fabButton);
 

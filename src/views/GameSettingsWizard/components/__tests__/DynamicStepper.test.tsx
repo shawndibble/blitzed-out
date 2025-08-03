@@ -86,7 +86,7 @@ describe('DynamicStepper', () => {
       // Check for horizontal orientation
       const stepper = document.querySelector('.MuiStepper-root');
       expect(stepper).toBeInTheDocument();
-      expect(stepper).toHaveAttribute('aria-orientation', 'horizontal');
+      expect(stepper).toHaveClass('MuiStepper-horizontal');
     });
   });
 

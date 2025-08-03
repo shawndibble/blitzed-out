@@ -18,7 +18,7 @@ vi.mock('@/hooks/useLocalPlayers', () => ({
 const mockLocalPlayerSetupComplete = vi.fn();
 const mockLocalPlayerSetupCancel = vi.fn();
 
-// Create a mock component that can be dynamically controlled  
+// Create a mock component that can be dynamically controlled
 const mockLocalPlayerSetupComponent = vi.fn();
 
 vi.mock('@/components/LocalPlayerSetup', () => ({
@@ -103,74 +103,76 @@ describe('LocalPlayersStep', () => {
     mockUseLocalPlayers.hasLocalPlayers = false;
     vi.useFakeTimers();
     user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    
+
     // Reset mock to default implementation
-    mockLocalPlayerSetupComponent.mockImplementation(({
-      onComplete,
-      onCancel,
-      initialPlayers,
-      initialSettings,
-      roomId,
-      isPrivateRoom,
-    }: {
-      onComplete: (players: LocalPlayer[], settings: LocalSessionSettings) => void;
-      onCancel: () => void;
-      initialPlayers?: LocalPlayer[];
-      initialSettings?: LocalSessionSettings;
-      roomId: string;
-      isPrivateRoom: boolean;
-    }) => (
-      <div data-testid="local-player-setup">
-        <div data-testid="room-id">{roomId}</div>
-        <div data-testid="is-private-room">{isPrivateRoom.toString()}</div>
-        <div data-testid="initial-players">{JSON.stringify(initialPlayers || [])}</div>
-        <div data-testid="initial-settings">{JSON.stringify(initialSettings || {})}</div>
-        <button
-          onClick={() => {
-            mockLocalPlayerSetupComplete();
-            onComplete(
-              [
+    mockLocalPlayerSetupComponent.mockImplementation(
+      ({
+        onComplete,
+        onCancel,
+        initialPlayers,
+        initialSettings,
+        roomId,
+        isPrivateRoom,
+      }: {
+        onComplete: (players: LocalPlayer[], settings: LocalSessionSettings) => void;
+        onCancel: () => void;
+        initialPlayers?: LocalPlayer[];
+        initialSettings?: LocalSessionSettings;
+        roomId: string;
+        isPrivateRoom: boolean;
+      }) => (
+        <div data-testid="local-player-setup">
+          <div data-testid="room-id">{roomId}</div>
+          <div data-testid="is-private-room">{isPrivateRoom.toString()}</div>
+          <div data-testid="initial-players">{JSON.stringify(initialPlayers || [])}</div>
+          <div data-testid="initial-settings">{JSON.stringify(initialSettings || {})}</div>
+          <button
+            onClick={() => {
+              mockLocalPlayerSetupComplete();
+              onComplete(
+                [
+                  {
+                    id: 'player-1',
+                    name: 'Test Player 1',
+                    role: 'dom',
+                    order: 0,
+                    isActive: true,
+                    deviceId: 'device-123',
+                    location: 0,
+                    isFinished: false,
+                  },
+                  {
+                    id: 'player-2',
+                    name: 'Test Player 2',
+                    role: 'sub',
+                    order: 1,
+                    isActive: false,
+                    deviceId: 'device-123',
+                    location: 0,
+                    isFinished: false,
+                  },
+                ],
                 {
-                  id: 'player-1',
-                  name: 'Test Player 1',
-                  role: 'dom',
-                  order: 0,
-                  isActive: true,
-                  deviceId: 'device-123',
-                  location: 0,
-                  isFinished: false,
-                },
-                {
-                  id: 'player-2',
-                  name: 'Test Player 2',
-                  role: 'sub',
-                  order: 1,
-                  isActive: false,
-                  deviceId: 'device-123',
-                  location: 0,
-                  isFinished: false,
-                },
-              ],
-              {
-                showTurnTransitions: true,
-                enableTurnSounds: true,
-                showPlayerAvatars: true,
-              }
-            );
-          }}
-        >
-          Complete Setup
-        </button>
-        <button
-          onClick={() => {
-            mockLocalPlayerSetupCancel();
-            onCancel();
-          }}
-        >
-          Cancel Setup
-        </button>
-      </div>
-    ));
+                  showTurnTransitions: true,
+                  enableTurnSounds: true,
+                  showPlayerAvatars: true,
+                }
+              );
+            }}
+          >
+            Complete Setup
+          </button>
+          <button
+            onClick={() => {
+              mockLocalPlayerSetupCancel();
+              onCancel();
+            }}
+          >
+            Cancel Setup
+          </button>
+        </div>
+      )
+    );
   });
 
   afterEach(() => {
@@ -238,7 +240,9 @@ describe('LocalPlayersStep', () => {
 
       render(<LocalPlayersStep {...publicRoomProps} />);
 
-      expect(screen.getByText('localPlayersStep.publicRoomMessage')).toBeInTheDocument();
+      expect(
+        screen.getByText('Local players are not available for public rooms. Continuing...')
+      ).toBeInTheDocument();
     });
 
     it('auto-advances for public rooms after delay', async () => {
@@ -543,7 +547,7 @@ describe('LocalPlayersStep', () => {
 
       // Just verify the setup component appears with default mock
       expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-      
+
       // Complete the setup with the default mock
       const completeButton = screen.getByText('Complete Setup');
       await user.click(completeButton);

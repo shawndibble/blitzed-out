@@ -15,7 +15,10 @@
     "build": "tsc --project tsconfig.build.json && vite build",
     "prepare": "husky",
     "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest",
-    "test:run": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
+    "test:run": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --no-watch",
+    "test:memory": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot",
+    "test:focused": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --no-watch --reporter=verbose",
+    "test:failures": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot --bail=10",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "type-check": "tsc --noEmit"

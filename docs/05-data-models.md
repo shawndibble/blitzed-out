@@ -33,6 +33,7 @@ Blitzed Out uses a hybrid data architecture combining local IndexedDB storage (v
 ## Database Schema
 
 ### Dexie Database Structure
+
 **File**: `/src/stores/store.ts`
 
 ```typescript
@@ -49,115 +50,124 @@ class BlitzedOutDatabase extends Dexie {
 ### Table Schemas
 
 #### Custom Tiles Table
+
 **Type**: `/src/types/customTiles.ts`
 
 ```typescript
 interface CustomTilePull {
   id?: number;
-  group: string;        // Action category
-  intensity: number;    // 1-5 scale
-  action: string;       // Action text
-  isEnabled: boolean;   // Active/inactive
-  tags?: string[];      // Categorization
-  gameMode?: GameMode;  // solo/online/local
-  isCustom: boolean;    // User-created flag
-  locale: string;       // Language code
+  group: string; // Action category
+  intensity: number; // 1-5 scale
+  action: string; // Action text
+  isEnabled: boolean; // Active/inactive
+  tags?: string[]; // Categorization
+  gameMode?: GameMode; // solo/online/local
+  isCustom: boolean; // User-created flag
+  locale: string; // Language code
 }
 ```
 
 **Indexes**:
+
 - `++id` (auto-increment primary key)
 - `group` (category filtering)
 - `intensity` (difficulty filtering)
 - `locale` (language filtering)
 
 #### Game Board Table
+
 **Type**: `/src/types/gameBoard.ts`
 
 ```typescript
 interface DBGameBoard {
   id?: number;
-  title: string;           // Board name
-  tiles: Tile[];          // Board configuration
-  tags?: string[];        // Categorization
-  gameMode?: string;      // Compatible modes
-  isActive: number;       // Active board flag
-  createdAt?: number;     // Creation timestamp
-  updatedAt?: number;     // Last modified
+  title: string; // Board name
+  tiles: Tile[]; // Board configuration
+  tags?: string[]; // Categorization
+  gameMode?: string; // Compatible modes
+  isActive: number; // Active board flag
+  createdAt?: number; // Creation timestamp
+  updatedAt?: number; // Last modified
 }
 ```
 
 **Indexes**:
+
 - `++id` (auto-increment primary key)
 - `title` (board search)
 - `isActive` (active board filtering)
 
 #### Custom Groups Table
+
 **Type**: `/src/types/customGroups.ts`
 
 ```typescript
 interface CustomGroupPull {
   id?: number;
-  name: string;           // Group identifier
-  label: string;          // Display name
-  locale: string;         // Language code
-  gameMode?: GameMode;    // Compatible modes
-  isDefault: boolean;     // System default flag
-  createdAt: number;      // Creation timestamp
-  intensity?: number;     // Default intensity
-  description?: string;   // Group description
+  name: string; // Group identifier
+  label: string; // Display name
+  locale: string; // Language code
+  gameMode?: GameMode; // Compatible modes
+  isDefault: boolean; // System default flag
+  createdAt: number; // Creation timestamp
+  intensity?: number; // Default intensity
+  description?: string; // Group description
 }
 ```
 
 **Indexes**:
+
 - `++id` (auto-increment primary key)
 - `[name+locale+gameMode]` (unique constraint)
 - `createdAt` (sorting)
 
 #### Local Player Sessions Table
+
 **Type**: `/src/types/localPlayerDB.ts`
 
 ```typescript
 interface DBLocalPlayerSession {
   id?: number;
-  sessionId: string;      // Unique session ID
-  roomId: string;         // Associated room
+  sessionId: string; // Unique session ID
+  roomId: string; // Associated room
   players: LocalPlayer[]; // Player list
   currentPlayerIndex: number;
-  isActive: boolean;      // Active session flag
-  createdAt: number;      // Session start
-  updatedAt: number;      // Last activity
+  isActive: boolean; // Active session flag
+  createdAt: number; // Session start
+  updatedAt: number; // Last activity
   settings: LocalSessionSettings;
 }
 ```
 
 #### Local Player Moves Table
+
 ```typescript
 interface DBLocalPlayerMove {
   id?: number;
-  sessionId: string;      // Parent session
-  playerId: string;       // Player reference
-  fromPosition: number;   // Starting tile
-  toPosition: number;     // Ending tile
-  diceRoll: number;       // Roll value
-  action?: string;        // Action taken
-  timestamp: number;      // Move time
-  sequence: number;       // Move order
+  sessionId: string; // Parent session
+  playerId: string; // Player reference
+  fromPosition: number; // Starting tile
+  toPosition: number; // Ending tile
+  diceRoll: number; // Roll value
+  action?: string; // Action taken
+  timestamp: number; // Move time
+  sequence: number; // Move order
 }
 ```
 
 #### Local Player Stats Table
+
 ```typescript
 interface DBLocalPlayerStats {
   id?: number;
-  sessionId: string;      // Parent session
-  playerId: string;       // Player reference
+  sessionId: string; // Parent session
+  playerId: string; // Player reference
   tilesCompleted: number; // Tiles visited
   actionsPerformed: number;
   actionsSkipped: number;
   totalRolls: number;
   averageRoll: number;
-  lastActive: number;     // Last activity
+  lastActive: number; // Last activity
 }
 ```
 
@@ -166,6 +176,7 @@ interface DBLocalPlayerStats {
 ### Zustand Stores
 
 #### Settings Store
+
 **File**: `/src/stores/settingsStore.ts`
 
 ```typescript
@@ -192,6 +203,7 @@ interface Settings {
 ```
 
 #### Game Board Store
+
 **File**: `/src/stores/gameBoard.ts`
 
 ```typescript
@@ -207,6 +219,7 @@ interface GameBoardStore {
 ```
 
 #### Custom Tiles Store
+
 **File**: `/src/stores/customTiles.ts`
 
 ```typescript
@@ -223,6 +236,7 @@ interface CustomTilesStore {
 ```
 
 #### Local Player Store
+
 **File**: `/src/stores/localPlayerStore.ts`
 
 ```typescript
@@ -241,6 +255,7 @@ interface LocalPlayerStore {
 ```
 
 #### User List Store
+
 **File**: `/src/stores/userListStore.ts`
 
 ```typescript
@@ -255,6 +270,7 @@ interface UserListStore {
 ```
 
 #### Schedule Store
+
 **File**: `/src/stores/scheduleStore.ts`
 
 ```typescript
@@ -271,6 +287,7 @@ interface ScheduleStore {
 ### React Context Providers
 
 #### Auth Context
+
 **File**: `/src/context/auth.tsx`
 
 ```typescript
@@ -289,6 +306,7 @@ interface AuthContextValue {
 ```
 
 #### Migration Context
+
 **File**: `/src/context/migration.tsx`
 
 ```typescript
@@ -303,6 +321,7 @@ interface MigrationContextValue {
 ```
 
 #### Messages Context
+
 **File**: `/src/context/messages.tsx`
 
 ```typescript
@@ -320,6 +339,7 @@ interface MessagesContextValue {
 ### Firestore Collections
 
 #### Users Collection
+
 ```typescript
 // Collection: users/{userId}
 interface FirestoreUser {
@@ -335,28 +355,30 @@ interface FirestoreUser {
 ```
 
 #### Custom Tiles Collection
+
 ```typescript
 // Collection: customTiles/{tileId}
 interface FirestoreCustomTile {
-  uid: string;           // Owner ID
+  uid: string; // Owner ID
   group: string;
   intensity: number;
   action: string;
-  isPublic: boolean;     // Shareable flag
+  isPublic: boolean; // Shareable flag
   tags: string[];
   locale: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  likes?: number;        // Community rating
-  reports?: number;      // Moderation flags
+  likes?: number; // Community rating
+  reports?: number; // Moderation flags
 }
 ```
 
 #### Game Boards Collection
+
 ```typescript
 // Collection: gameBoards/{boardId}
 interface FirestoreGameBoard {
-  uid: string;           // Owner ID
+  uid: string; // Owner ID
   title: string;
   tiles: Tile[];
   isPublic: boolean;
@@ -364,14 +386,15 @@ interface FirestoreGameBoard {
   gameMode: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  plays?: number;        // Usage count
-  rating?: number;       // Community rating
+  plays?: number; // Usage count
+  rating?: number; // Community rating
 }
 ```
 
 ### Realtime Database Structure
 
 #### Presence System
+
 ```javascript
 // Path: presence/{roomId}/{userId}
 {
@@ -386,6 +409,7 @@ interface FirestoreGameBoard {
 ```
 
 #### Messages System
+
 ```javascript
 // Path: messages/{roomId}/{messageId}
 {
@@ -404,6 +428,7 @@ interface FirestoreGameBoard {
 ```
 
 #### Room State
+
 ```javascript
 // Path: rooms/{roomId}
 {
@@ -429,13 +454,14 @@ interface FirestoreGameBoard {
 ## Data Synchronization
 
 ### Sync Middleware
+
 **File**: `/src/services/syncMiddleware.ts`
 
 ```typescript
 interface SyncMiddleware {
-  tables: string[];           // Tables to sync
-  debounceMs: number;        // Sync delay
-  batchSize: number;         // Batch upload size
+  tables: string[]; // Tables to sync
+  debounceMs: number; // Sync delay
+  batchSize: number; // Batch upload size
   conflictResolution: 'local' | 'remote' | 'merge';
 }
 ```
@@ -443,6 +469,7 @@ interface SyncMiddleware {
 ### Sync Flow
 
 #### Upload Flow
+
 ```
 1. Local Change → Dexie Hook
 2. Sync Middleware → Queue Change
@@ -452,6 +479,7 @@ interface SyncMiddleware {
 ```
 
 #### Download Flow
+
 ```
 1. Firebase Listener → Change Event
 2. Sync Service → Process Change
@@ -463,6 +491,7 @@ interface SyncMiddleware {
 ### Conflict Resolution
 
 #### Last-Write-Wins (Default)
+
 ```typescript
 // Compare timestamps
 if (remote.updatedAt > local.updatedAt) {
@@ -473,19 +502,21 @@ if (remote.updatedAt > local.updatedAt) {
 ```
 
 #### Merge Strategy
+
 ```typescript
 // Custom merge for specific fields
 const merged = {
   ...local,
   ...remote,
   tiles: mergeTiles(local.tiles, remote.tiles),
-  updatedAt: Math.max(local.updatedAt, remote.updatedAt)
+  updatedAt: Math.max(local.updatedAt, remote.updatedAt),
 };
 ```
 
 ## Type Definitions
 
 ### Core Types
+
 **File**: `/src/types/index.ts`
 
 ```typescript
@@ -506,6 +537,7 @@ type TileType = 'normal' | 'special' | 'start' | 'finish';
 ```
 
 ### Action Types
+
 ```typescript
 interface ActionEntry {
   type: string;
@@ -522,6 +554,7 @@ interface ActionGroup {
 ```
 
 ### Form Types
+
 ```typescript
 interface FormData {
   gameMode: GameMode;
@@ -543,6 +576,7 @@ interface FormData {
 ## Data Migration
 
 ### Migration System
+
 **Service**: `/src/services/migrationService.ts`
 
 ```typescript
@@ -557,6 +591,7 @@ interface Migration {
 ### Migration Process
 
 #### Version Check
+
 ```typescript
 const currentVersion = await db.version();
 const targetVersion = LATEST_VERSION;
@@ -567,6 +602,7 @@ if (currentVersion < targetVersion) {
 ```
 
 #### Migration Execution
+
 ```typescript
 async function runMigration(migration: Migration) {
   try {
@@ -582,6 +618,7 @@ async function runMigration(migration: Migration) {
 ```
 
 ### Language Migration
+
 **Context**: `/src/context/migration.tsx`
 
 ```typescript
@@ -596,6 +633,7 @@ async function migrateLanguageData(locale: string) {
 ## Data Validation
 
 ### Schema Validation
+
 ```typescript
 // Validation schemas using TypeScript
 interface ValidationResult {
@@ -613,6 +651,7 @@ function validateCustomTile(tile: unknown): ValidationResult {
 ```
 
 ### Import Validation
+
 **Helper**: `/src/views/CustomTileDialog/ImportExport/getUniqueImportRecords.ts`
 
 ```typescript
@@ -627,26 +666,30 @@ function validateImport(data: unknown): ImportValidation {
 ## Performance Optimizations
 
 ### Indexing Strategy
+
 - Primary keys for fast lookups
 - Composite indexes for complex queries
 - Covering indexes for common patterns
 
 ### Query Optimization
+
 ```typescript
 // Efficient queries with indexes
 db.customTiles
   .where('[group+locale]')
   .equals(['actions', 'en'])
-  .and(tile => tile.intensity >= 3)
+  .and((tile) => tile.intensity >= 3)
   .toArray();
 ```
 
 ### Caching Strategy
+
 - Memory cache for frequently accessed data
 - Session storage for temporary data
 - Local storage for user preferences
 
 ### Batch Operations
+
 ```typescript
 // Batch inserts for performance
 await db.transaction('rw', db.customTiles, async () => {
@@ -657,16 +700,19 @@ await db.transaction('rw', db.customTiles, async () => {
 ## Data Security
 
 ### Access Control
+
 - Row-level security in Firebase
 - User-owned data isolation
 - Role-based permissions
 
 ### Data Encryption
+
 - Sensitive data encrypted at rest
 - Secure transmission over HTTPS
 - Token-based authentication
 
 ### Privacy Protection
+
 - PII minimization
 - Anonymous mode support
 - Data retention policies
@@ -675,6 +721,7 @@ await db.transaction('rw', db.customTiles, async () => {
 ## Backup & Recovery
 
 ### Local Backup
+
 ```typescript
 // Export all data
 async function exportData() {
@@ -685,11 +732,13 @@ async function exportData() {
 ```
 
 ### Cloud Backup
+
 - Automatic Firebase backup
 - Point-in-time recovery
 - Cross-device sync
 
 ### Recovery Process
+
 ```typescript
 // Restore from backup
 async function restoreData(backup: Backup) {
@@ -704,12 +753,14 @@ async function restoreData(backup: Backup) {
 ## Analytics & Metrics
 
 ### Data Metrics
+
 - Table sizes and growth
 - Query performance
 - Sync latency
 - Cache hit rates
 
 ### Usage Analytics
+
 ```typescript
 interface DataAnalytics {
   totalRecords: number;

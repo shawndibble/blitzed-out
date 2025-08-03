@@ -202,7 +202,7 @@ describe('GameModeStep', () => {
 
       // Should show selected chip in the local mode card
       const selectedChips = screen.getAllByText('Selected');
-      expect(selectedChips).toHaveLength(2); // One for local mode, one for not naked
+      expect(selectedChips).toHaveLength(3); // One for local mode, one for role (sub), one for not naked
     });
 
     it('applies correct styling for selected and unselected cards', () => {
@@ -283,13 +283,22 @@ describe('GameModeStep', () => {
 
       // Wait for useEffect to trigger
       await waitFor(() => {
-        expect(mockSetFormData).toHaveBeenCalledWith(
-          expect.objectContaining({
-            gameMode: 'local',
-            roomRealtime: false,
-          })
-        );
+        expect(mockSetFormData).toHaveBeenCalled();
       });
+
+      // Verify the function was called with a function that updates the form data correctly
+      const updateFunction = mockSetFormData.mock.calls[0][0];
+      expect(typeof updateFunction).toBe('function');
+
+      // Test that the function produces the expected result
+      const testPrevState = { ...baseFormData, hasLocalPlayers: true };
+      const result = updateFunction(testPrevState);
+      expect(result).toEqual(
+        expect.objectContaining({
+          gameMode: 'local',
+          roomRealtime: false,
+        })
+      );
     });
 
     it('responds to changes in hasLocalPlayers prop', async () => {
@@ -315,13 +324,22 @@ describe('GameModeStep', () => {
       );
 
       await waitFor(() => {
-        expect(mockSetFormData).toHaveBeenCalledWith(
-          expect.objectContaining({
-            gameMode: 'local',
-            roomRealtime: false,
-          })
-        );
+        expect(mockSetFormData).toHaveBeenCalled();
       });
+
+      // Verify the function was called with a function that updates the form data correctly
+      const updateFunction = mockSetFormData.mock.calls[mockSetFormData.mock.calls.length - 1][0];
+      expect(typeof updateFunction).toBe('function');
+
+      // Test that the function produces the expected result
+      const testPrevState = { ...baseFormData, hasLocalPlayers: true };
+      const result = updateFunction(testPrevState);
+      expect(result).toEqual(
+        expect.objectContaining({
+          gameMode: 'local',
+          roomRealtime: false,
+        })
+      );
 
       expect(screen.queryByTestId('playingWithPeople')).not.toBeInTheDocument();
       expect(screen.getByTestId('gameModeSelection')).toBeInTheDocument();
@@ -664,7 +682,7 @@ describe('GameModeStep', () => {
       });
     });
 
-    it('shows correct content for different game mode combinations', () => {
+    it('shows correct content for different game mode combinations', async () => {
       const scenarios = [
         {
           name: 'Local mode without local players',
@@ -688,7 +706,7 @@ describe('GameModeStep', () => {
         },
       ];
 
-      scenarios.forEach((scenario) => {
+      for (const scenario of scenarios) {
         const { unmount } = render(
           <GameModeStep
             formData={scenario.formData}
@@ -697,6 +715,14 @@ describe('GameModeStep', () => {
             prevStep={mockPrevStep}
           />
         );
+
+        // Wait for useEffect to complete if needed
+        if (scenario.formData.hasLocalPlayers) {
+          await waitFor(() => {
+            expect(mockSetFormData).toHaveBeenCalled();
+          });
+          vi.clearAllMocks();
+        }
 
         // Check interaction question
         if (scenario.shouldShow.interaction) {
@@ -727,7 +753,7 @@ describe('GameModeStep', () => {
         }
 
         unmount();
-      });
+      }
     });
   });
 

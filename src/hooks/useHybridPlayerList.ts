@@ -36,7 +36,7 @@ export default function useHybridPlayerList(): HybridPlayer[] {
   const hybridPlayerList = useMemo(() => {
     const players: HybridPlayer[] = [];
 
-    // Always include remote players
+    // Include remote players (will be excluded in local multiplayer mode)
     const remotePlayersTyped: RemotePlayer[] = remotePlayerList.map((player) => ({
       ...player,
       isLocal: false as const,

@@ -3,6 +3,7 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
 import { GameMode, PlayerRole } from './Settings';
+import type { LocalPlayer, LocalSessionSettings } from './localPlayers';
 // Common types used throughout the application
 
 // Auth related types
@@ -116,8 +117,7 @@ export interface LocalStorageHookReturn<T> {
   removeStorage: () => void;
 }
 
-// Form data types (defined after local player exports)
-// Will be defined after exports...
+// Form data types
 
 export interface ActionEntry {
   type: string;
@@ -183,9 +183,6 @@ export {
   toHybridLocalPlayer,
   toRemotePlayer,
 } from './hybridPlayers';
-
-// Form data types (importing needed types for FormData)
-import type { LocalPlayer, LocalSessionSettings } from './localPlayers';
 
 export interface FormData {
   [key: string]: unknown;

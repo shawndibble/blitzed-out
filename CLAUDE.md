@@ -9,8 +9,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm start` - Start development server (Vite) - **IMPORTANT**: DO NOT restart the development server during work sessions. Assume it is running.
 - `npm run build` - Build for production (includes TypeScript compilation)
 - `npm run type-check` - Run TypeScript type checking without compilation
-- `npm test` - Run tests with Vitest in watch mode
-- `npm run test:run` - Run tests once and exit (includes memory optimization)
+- `npm run test:failures` - **RECOMMENDED**: Memory-optimized, shows only failing tests, stops after 10 failures
+- `npm run test:focused` - Shows only failing tests with detailed output (higher memory usage)
+- `npm run test:memory` - Low-memory test run with basic reporting
+- `npm run test:run` - Run all tests once and exit (includes memory optimization)
+- `npm test` - Run tests with Vitest in watch mode (high memory usage - use sparingly)
 - `npm run test:ui` - Run tests with Vitest UI interface
 - `npm run test:coverage` - Run tests with coverage reporting
 
@@ -72,7 +75,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Test Framework**: Vitest with React Testing Library
 - **Mocks**: Firebase and hooks mocks in `src/__mocks__/`
-- **Key Commands**: `npm run test:run` for CI/validation, `npm test` for development
+- **Memory-Safe Testing**: Use `npm run test:failures` to prevent system memory overload when fixing tests
+- **Key Commands**:
+  - `npm run test:failures` for memory-safe test validation (recommended)
+  - `npm run test:focused` for detailed failure output
+  - `npm run test:memory` for low-memory situations
 
 **📖 Full Testing Details**: See [docs/04-technical-architecture.md](docs/04-technical-architecture.md)
 
@@ -170,8 +177,10 @@ This project follows **Test Driven Development**. Always write tests before impl
 ### Quality Checks Before Commit
 
 ```bash
-npm run type-check && npx eslint src/ && npm run test:run
+npm run type-check && npx eslint src/ && npm run test:failures
 ```
+
+**Memory-Safe Testing**: Always use `npm run test:failures` when fixing tests or validating changes to prevent system memory overload.
 
 **📖 Full Development Workflow**: See [docs/04-technical-architecture.md](docs/04-technical-architecture.md)
 

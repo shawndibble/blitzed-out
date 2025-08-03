@@ -100,15 +100,15 @@ This documentation serves as a comprehensive Business Requirements Document (BRD
 
 ### Key Features at a Glance
 
-| Feature | Description | Key Files |
-|---------|-------------|-----------|
-| **Setup Wizard** | Guided onboarding for new users | `/src/views/GameSettingsWizard/` |
-| **Local Players** | Single-device multiplayer | `/src/hooks/useLocalPlayers.ts`, `/src/stores/localPlayerStore.ts` |
-| **Solo Mode** | Single-player experience | `/src/views/GameSettings/BoardSettings/SoloSwitch/` |
-| **Room System** | Real-time multiplayer rooms | `/src/views/Room/`, `/src/services/firebase.ts` |
-| **Custom Tiles** | User-generated content | `/src/views/CustomTileDialog/` |
-| **Cast Mode** | External display support | `/src/views/Cast/` |
-| **PWA Support** | Installable web app | `/public/manifest.json`, service workers |
+| Feature           | Description                     | Key Files                                                          |
+| ----------------- | ------------------------------- | ------------------------------------------------------------------ |
+| **Setup Wizard**  | Guided onboarding for new users | `/src/views/GameSettingsWizard/`                                   |
+| **Local Players** | Single-device multiplayer       | `/src/hooks/useLocalPlayers.ts`, `/src/stores/localPlayerStore.ts` |
+| **Solo Mode**     | Single-player experience        | `/src/views/GameSettings/BoardSettings/SoloSwitch/`                |
+| **Room System**   | Real-time multiplayer rooms     | `/src/views/Room/`, `/src/services/firebase.ts`                    |
+| **Custom Tiles**  | User-generated content          | `/src/views/CustomTileDialog/`                                     |
+| **Cast Mode**     | External display support        | `/src/views/Cast/`                                                 |
+| **PWA Support**   | Installable web app             | `/public/manifest.json`, service workers                           |
 
 ### Technology Stack
 
@@ -154,12 +154,14 @@ blitzed-out/
 ## Getting Started
 
 For developers new to the project:
+
 1. Start with the [Application Overview](./01-application-overview.md)
 2. Review [User Features & Workflows](./02-user-features-workflows.md)
 3. Understand the [Technical Architecture](./04-technical-architecture.md)
 4. Explore specific features as needed
 
 For product managers and stakeholders:
+
 1. Focus on [Application Overview](./01-application-overview.md)
 2. Review [User Features & Workflows](./02-user-features-workflows.md)
 3. Understand [Game Mechanics](./03-game-mechanics.md)

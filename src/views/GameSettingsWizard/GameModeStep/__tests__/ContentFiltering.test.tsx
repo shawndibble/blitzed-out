@@ -221,8 +221,22 @@ describe('GameModeStep Content Filtering', () => {
         />
       );
 
-      // Should show selected chip for dom role
-      expect(screen.getByText('selected')).toBeInTheDocument();
+      // Verify the dom role card has a selected chip
+      const domCard = screen.getByText('dom').closest('[role="button"]');
+      expect(domCard).toContainElement(screen.getByText('selected'));
+
+      // Verify that no other role cards have a selected chip (only dom should be selected)
+      const versCard = screen.getByText('vers').closest('[role="button"]');
+      const subCard = screen.getByText('sub').closest('[role="button"]');
+
+      expect(versCard).not.toContainElement(
+        screen.getAllByText('selected').find((el) => versCard?.contains(el)) ||
+          document.createElement('div')
+      );
+      expect(subCard).not.toContainElement(
+        screen.getAllByText('selected').find((el) => subCard?.contains(el)) ||
+          document.createElement('div')
+      );
     });
   });
 

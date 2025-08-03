@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import Room from '../index';
 import { Settings } from '@/types/Settings';
 
@@ -46,6 +46,10 @@ vi.mock('@/context/migration', () => ({
 vi.mock('@/helpers/strings', () => ({
   isOnlineMode: vi.fn(),
   isPublicRoom: vi.fn(),
+  a11yProps: vi.fn((index) => ({
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  })),
 }));
 
 // Mock stores
@@ -165,7 +169,7 @@ vi.mock('@/components/MessageInput', () => ({
   )),
 }));
 
-vi.mock('./BottomTabs', () => ({
+vi.mock('@/views/Room/BottomTabs', () => ({
   default: vi.fn(({ tab1, tab2 }) => (
     <div data-testid="bottom-tabs">
       <div data-testid="tab1">{tab1}</div>
@@ -311,15 +315,22 @@ describe('Room Component', () => {
   });
 
   describe('Component Rendering', () => {
-    it('should render room layout with required components when game is ready', () => {
-      renderRoomWithRouter();
+    it('should render room layout with required components when game is ready', async () => {
+      await act(async () => {
+        renderRoomWithRouter();
+      });
 
       expect(screen.getByTestId('navigation')).toBeInTheDocument();
       expect(screen.getByTestId('roll-button')).toBeInTheDocument();
       expect(screen.getByTestId('room-background')).toBeInTheDocument();
-      expect(screen.getByTestId('game-board')).toBeInTheDocument();
-      expect(screen.getByTestId('message-list')).toBeInTheDocument();
-      expect(screen.getByTestId('message-input')).toBeInTheDocument();
+
+      // Wait for lazy loaded components to render
+      await waitFor(() => {
+        expect(screen.getByTestId('game-board')).toBeInTheDocument();
+        expect(screen.getByTestId('message-list')).toBeInTheDocument();
+        expect(screen.getByTestId('message-input')).toBeInTheDocument();
+      });
+
       expect(screen.getByTestId('popup-message')).toBeInTheDocument();
     });
 
@@ -405,11 +416,13 @@ describe('Room Component', () => {
   });
 
   describe('User Interactions', () => {
-    it('should handle roll button interaction', () => {
+    it('should handle roll button interaction', async () => {
       renderRoomWithRouter();
 
       const rollButton = screen.getByTestId('roll-button');
-      rollButton.click();
+      await act(async () => {
+        rollButton.click();
+      });
 
       // The mocked component calls setRollValue with 3
       // In real implementation, this would update roll state
@@ -679,27 +692,36 @@ describe('Room Component', () => {
       expect(desktopContainer).toBeInTheDocument();
     });
 
-    it('should render mobile layout with bottom tabs on mobile devices', () => {
+    it('should render mobile layout with bottom tabs on mobile devices', async () => {
       vi.mocked(useBreakpoint).mockReturnValue(true);
 
-      renderRoomWithRouter();
+      await act(async () => {
+        renderRoomWithRouter();
+      });
 
-      expect(screen.getByTestId('bottom-tabs')).toBeInTheDocument();
-      expect(screen.getByTestId('tab1')).toBeInTheDocument();
-      expect(screen.getByTestId('tab2')).toBeInTheDocument();
+      // Wait for lazy loaded BottomTabs component
+      await waitFor(() => {
+        expect(screen.getByTestId('bottom-tabs')).toBeInTheDocument();
+        expect(screen.getByTestId('tab1')).toBeInTheDocument();
+        expect(screen.getByTestId('tab2')).toBeInTheDocument();
+      });
     });
 
-    it('should pass game board and messages to mobile tabs', () => {
+    it('should pass game board and messages to mobile tabs', async () => {
       vi.mocked(useBreakpoint).mockReturnValue(true);
 
-      renderRoomWithRouter();
+      await act(async () => {
+        renderRoomWithRouter();
+      });
 
-      const tab1 = screen.getByTestId('tab1');
-      const tab2 = screen.getByTestId('tab2');
-
-      expect(tab1.querySelector('[data-testid="game-board"]')).toBeInTheDocument();
-      expect(tab2.querySelector('[data-testid="message-list"]')).toBeInTheDocument();
-      expect(tab2.querySelector('[data-testid="message-input"]')).toBeInTheDocument();
+      // Wait for lazy loaded components
+      await waitFor(() => {
+        const tab1 = screen.getByTestId('tab1');
+        const tab2 = screen.getByTestId('tab2');
+        expect(tab1.querySelector('[data-testid="game-board"]')).toBeInTheDocument();
+        expect(tab2.querySelector('[data-testid="message-list"]')).toBeInTheDocument();
+        expect(tab2.querySelector('[data-testid="message-input"]')).toBeInTheDocument();
+      });
     });
   });
 
@@ -790,7 +812,7 @@ describe('Room Component', () => {
     });
 
     it('should handle null settings from store', () => {
-      vi.mocked(useSettings).mockReturnValue([null as any, vi.fn()]);
+      vi.mocked(useSettings).mockReturnValue([{} as Settings, vi.fn()]);
 
       renderRoomWithRouter();
 

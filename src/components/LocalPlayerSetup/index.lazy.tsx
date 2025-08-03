@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import type { LocalPlayer, LocalSessionSettings } from '@/types/localPlayers';
 
 // Lazy load the LocalPlayerSetup component
 const LocalPlayerSetupLazy = lazy(() => import('./index'));
@@ -59,7 +60,7 @@ export const LocalPlayerSetupError = ({ error }: { error: Error }) => {
 export interface LocalPlayerSetupProps {
   roomId: string;
   isPrivateRoom: boolean;
-  onComplete: (players: any[], settings: any) => void;
+  onComplete: (players: LocalPlayer[], settings: LocalSessionSettings) => void;
   onCancel: () => void;
 }
 

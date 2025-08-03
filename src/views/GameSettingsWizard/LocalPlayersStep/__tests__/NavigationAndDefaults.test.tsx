@@ -175,6 +175,7 @@ describe('LocalPlayersStep Navigation and Defaults', () => {
       fireEvent.click(screen.getByText('Complete Setup'));
 
       expect(mockSetFormData).toHaveBeenCalledWith({
+        ...baseFormData,
         localPlayersData: [],
         localPlayerSessionSettings: {},
         hasLocalPlayers: true,
@@ -209,7 +210,7 @@ describe('LocalPlayersStep Navigation and Defaults', () => {
   });
 
   describe('Public Room Handling', () => {
-    it('should auto-skip for public rooms', () => {
+    it('should auto-skip for public rooms', async () => {
       const publicRoomFormData = {
         ...baseFormData,
         room: 'PUBLIC',
@@ -224,7 +225,8 @@ describe('LocalPlayersStep Navigation and Defaults', () => {
         />
       );
 
-      // Should automatically call nextStep for public rooms
+      // Should automatically call nextStep for public rooms after a short delay
+      await new Promise((resolve) => setTimeout(resolve, 150)); // Wait for the timeout
       expect(mockNextStep).toHaveBeenCalled();
     });
   });

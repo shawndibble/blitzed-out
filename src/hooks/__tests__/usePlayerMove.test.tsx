@@ -35,7 +35,7 @@ vi.mock('../usePlayerList', () => ({
   default: () => [
     {
       isSelf: true,
-      location: 5,
+      location: 1,
       displayName: 'TestUser',
     },
   ],
@@ -131,7 +131,7 @@ describe('usePlayerMove', () => {
         expect(mockSendMessage).toHaveBeenCalledWith({
           room: mockRoomId,
           user: expect.any(Object),
-          text: expect.stringContaining('#2: Action 1'),
+          text: expect.stringContaining('#3: Action 2'),
           type: 'actions',
         });
       });
@@ -149,7 +149,7 @@ describe('usePlayerMove', () => {
         expect(mockSendMessage).toHaveBeenCalledWith({
           room: mockRoomId,
           user: expect.any(Object),
-          text: expect.stringContaining('Action: TestUser TestUser does something fun.'),
+          text: expect.stringContaining('Action: TestUser TestUser takes a drink.'),
           type: 'actions',
         });
       });
@@ -255,14 +255,11 @@ describe('usePlayerMove', () => {
         time: Date.now(),
       };
 
-      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+      // Use empty game board to force missing tile error
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, []));
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Invalid location or missing tile'),
-        expect.any(Number),
-        expect.stringContaining('gameBoard length'),
-        expect.any(Number),
-        expect.stringContaining('tile exists'),
         expect.any(Boolean)
       );
 

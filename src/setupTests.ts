@@ -174,19 +174,43 @@ vi.mock('use-sound', () => ({
   default: () => [vi.fn(), { stop: vi.fn() }],
 }));
 
+// Mock migration context
+vi.mock('@/context/migration', () => ({
+  useMigration: () => ({
+    currentLanguageMigrated: true,
+    isMigrationInProgress: false,
+    isMigrationCompleted: true,
+    error: null,
+    triggerMigration: vi.fn(),
+    ensureLanguageMigrated: vi.fn(),
+  }),
+  MigrationProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 // Mock window.matchMedia (for MUI responsive components)
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
+  value: vi.fn().mockImplementation((query) => {
+    // Mock different breakpoints for testing
+    const matches = (() => {
+      if (query.includes('(max-width: 599.95px)')) return false; // xs
+      if (query.includes('(max-width: 899.95px)')) return false; // sm and below
+      if (query.includes('(max-width: 1199.95px)')) return false; // md and below
+      if (query.includes('(max-width: 1535.95px)')) return false; // lg and below
+      return false; // Default to desktop
+    })();
+
+    return {
+      matches,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(), // deprecated
+      removeListener: vi.fn(), // deprecated
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    };
+  }),
 });
 
 // Clean up after each test

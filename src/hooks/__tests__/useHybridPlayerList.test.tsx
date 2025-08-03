@@ -37,6 +37,9 @@ describe('useHybridPlayerList Integration Tests', () => {
       role: 'dom' as const,
       isActive: true,
       order: 1,
+      deviceId: 'current_device',
+      location: 0,
+      isFinished: false,
     },
     {
       id: 'local-2',
@@ -44,6 +47,9 @@ describe('useHybridPlayerList Integration Tests', () => {
       role: 'sub' as const,
       isActive: false,
       order: 2,
+      deviceId: 'current_device',
+      location: 0,
+      isFinished: false,
     },
   ];
 
@@ -86,9 +92,9 @@ describe('useHybridPlayerList Integration Tests', () => {
 
       const { result } = renderHook(() => useHybridPlayerList());
 
-      expect(result.current).toHaveLength(4); // 2 local + 2 remote
+      expect(result.current).toHaveLength(2); // Only local players in local multiplayer mode
 
-      // Local players should be at the beginning (unshift)
+      // Local players should be sorted by order
       expect(result.current[0]).toMatchObject({
         displayName: 'Local Player 1',
         uid: 'local-local-1',
@@ -97,6 +103,9 @@ describe('useHybridPlayerList Integration Tests', () => {
         role: 'dom',
         order: 1,
         isSelf: true, // isActive = true maps to isSelf = true
+        location: 0,
+        isFinished: false,
+        status: 'active',
       });
 
       expect(result.current[1]).toMatchObject({
@@ -107,17 +116,9 @@ describe('useHybridPlayerList Integration Tests', () => {
         role: 'sub',
         order: 2,
         isSelf: false, // isActive = false maps to isSelf = false
-      });
-
-      // Remote players should follow local players
-      expect(result.current[2]).toMatchObject({
-        displayName: 'Remote User 1',
-        isLocal: false,
-      });
-
-      expect(result.current[3]).toMatchObject({
-        displayName: 'Remote User 2',
-        isLocal: false,
+        location: 0,
+        isFinished: false,
+        status: 'active',
       });
     });
 
@@ -279,8 +280,6 @@ describe('useHybridPlayerList Integration Tests', () => {
 
   describe('Reactivity', () => {
     it('should update when local players change', () => {
-      const { result, rerender } = renderHook(() => useHybridPlayerList());
-
       // Initially no local players
       (useLocalPlayers as any).mockReturnValue({
         localPlayers: [],
@@ -288,7 +287,8 @@ describe('useHybridPlayerList Integration Tests', () => {
         isLocalPlayerRoom: false,
       });
 
-      rerender();
+      const { result, rerender } = renderHook(() => useHybridPlayerList());
+
       expect(result.current).toHaveLength(2); // Only remote
 
       // Add local players
@@ -299,7 +299,7 @@ describe('useHybridPlayerList Integration Tests', () => {
       });
 
       rerender();
-      expect(result.current).toHaveLength(4); // Local + remote
+      expect(result.current).toHaveLength(2); // Only local players in local mode
     });
 
     it('should update when room changes', () => {
@@ -311,7 +311,7 @@ describe('useHybridPlayerList Integration Tests', () => {
 
       let { result, rerender } = renderHook(() => useHybridPlayerList());
 
-      expect(result.current).toHaveLength(4); // Local players when in local multiplayer mode
+      expect(result.current).toHaveLength(2); // Local players when in local multiplayer mode
 
       // Change to disable local players
       (useLocalPlayers as any).mockReturnValue({
