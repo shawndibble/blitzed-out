@@ -48,6 +48,9 @@ describe('gameSettingsMessage - Finish Options Formatting', () => {
       actions: {
         'teasing-1': { text: 'Light teasing', intensity: 1 },
       },
+      intensities: {
+        1: 'Level 1',
+      },
     },
   };
 
@@ -58,7 +61,9 @@ describe('gameSettingsMessage - Finish Options Formatting', () => {
 
       expect(result).toContain('* Finish options: No Orgasm');
       expect(result).not.toContain('100%');
-      expect(result).not.toContain('  -');
+      // Check that finish options specifically don't have bullets (not the entire message)
+      const finishOptionsSection = result.split('* Finish options:')[1];
+      expect(finishOptionsSection).not.toContain('  -');
     });
 
     it('should display single ruined orgasm option inline without bullets or percentage', async () => {
@@ -67,7 +72,9 @@ describe('gameSettingsMessage - Finish Options Formatting', () => {
 
       expect(result).toContain('* Finish options: Ruined Orgasm');
       expect(result).not.toContain('100%');
-      expect(result).not.toContain('  -');
+      // Check that finish options specifically don't have bullets (not the entire message)
+      const finishOptionsSection = result.split('* Finish options:')[1];
+      expect(finishOptionsSection).not.toContain('  -');
     });
 
     it('should display single normal orgasm option inline without bullets or percentage', async () => {
@@ -76,7 +83,9 @@ describe('gameSettingsMessage - Finish Options Formatting', () => {
 
       expect(result).toContain('* Finish options: Normal Orgasm');
       expect(result).not.toContain('100%');
-      expect(result).not.toContain('  -');
+      // Check that finish options specifically don't have bullets (not the entire message)
+      const finishOptionsSection = result.split('* Finish options:')[1];
+      expect(finishOptionsSection).not.toContain('  -');
     });
   });
 

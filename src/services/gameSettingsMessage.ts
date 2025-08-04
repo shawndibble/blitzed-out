@@ -80,22 +80,30 @@ export async function getSettingsMessage(
     const actualRole = role || settings.role || 'sub';
 
     if (levels && levels.length > 0) {
-      const actionsKeys = Object.keys(val?.actions || {});
-      // Get the max level for display purposes
-      const maxLevel = Math.max(...levels);
-      message += `* ${val?.label}: ${actionsKeys[maxLevel] || ''} (Levels: ${levels.join(', ')})`;
+      // Show group name with bulleted list of intensity level names
+      message += val?.label;
 
+      let modifier = null;
       if (variation) {
-        message += ` (${t(variation)})`;
-      }
-
-      if (!isOnlineMode(settings.gameMode) && !variation) {
-        // if we have a role from the translation files, use them first.
-        const roleText = isValidRole(val, actualRole)
+        modifier = t(variation);
+      } else if (!isOnlineMode(settings.gameMode)) {
+        modifier = isValidRole(val, actualRole)
           ? (val[actualRole as string] as string)
           : t(actualRole as string);
-        message += ` (${roleText})`;
       }
+
+      if (modifier) {
+        message += `: ${modifier}`;
+      }
+
+      message += '\r\n';
+
+      // Get intensity names for selected levels
+      const intensityNames = val?.intensities || {};
+      levels.forEach((level: number) => {
+        const levelName = intensityNames[level] || `Level ${level}`;
+        message += `* ${levelName}\r\n`;
+      });
       message += '\r\n';
     }
   });
