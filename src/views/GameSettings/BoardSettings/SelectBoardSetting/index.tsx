@@ -1,3 +1,5 @@
+import './style.css';
+
 import {
   FormControl,
   Grid,
@@ -7,20 +9,20 @@ import {
   SelectChangeEvent,
   Tooltip,
 } from '@mui/material';
-import Typography from '@mui/material/Typography';
 import { Trans, useTranslation } from 'react-i18next';
+
 import { Help } from '@mui/icons-material';
-import SettingsSelect from '@/components/SettingsSelect';
-import './style.css';
 import MultiSelectIntensity from '@/components/MultiSelectIntensity';
 import { Settings } from '@/types/Settings';
+import SettingsSelect from '@/components/SettingsSelect';
+import Typography from '@mui/material/Typography';
 
 interface SelectBoardSettingProps {
   option: string;
   settings: Settings;
   setSettings: (settings: Settings) => void;
   actionsFolder: Record<string, any>;
-  type: 'sex' | 'foreplay' | 'consumption';
+  type: 'sex' | 'foreplay' | 'consumption' | 'solo';
   showVariation?: boolean;
   showRole?: boolean;
 }

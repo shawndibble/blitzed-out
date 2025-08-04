@@ -25,11 +25,11 @@ export default function BoardSettings({
 }: BoardSettingsProps): JSX.Element {
   const { t } = useTranslation();
   const { hasLocalPlayers } = useLocalPlayerStore();
-  const isLocal = !isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode);
-  const shouldShowRoleSelect = isLocal && !hasLocalPlayers();
+  const isLocal = !isOnlineMode(formData.gameMode);
+  const shouldShowRoleSelect = !hasLocalPlayers();
 
   function settingSelectLists(
-    type: 'sex' | 'foreplay' | 'consumption',
+    type: 'sex' | 'foreplay' | 'consumption' | 'solo',
     extraProps: Record<string, any> = {}
   ): JSX.Element[] {
     return Object.keys(actionsList)
@@ -74,27 +74,26 @@ export default function BoardSettings({
         </Grid>
       )}
 
-      <Grid container columnSpacing={2} justifyContent="space-evenly">
-        {shouldShowRoleSelect && (
-          <GridItem>
-            <SettingsSelect
-              value={formData.role}
-              onChange={(event: SelectChangeEvent<string>) =>
-                setFormData({
-                  ...updateAllRoles(event.target.value),
-                  boardUpdated: true,
-                })
-              }
-              label="mainRole"
-              options={['dom', 'vers', 'sub']}
-              defaultValue="sub"
-            />
-          </GridItem>
-        )}
-      </Grid>
-
       {isLocal ? (
         <>
+          <Grid container columnSpacing={2} justifyContent="space-evenly">
+            {shouldShowRoleSelect && (
+              <GridItem>
+                <SettingsSelect
+                  value={formData.role}
+                  onChange={(event: SelectChangeEvent<string>) =>
+                    setFormData({
+                      ...updateAllRoles(event.target.value),
+                      boardUpdated: true,
+                    })
+                  }
+                  label="mainRole"
+                  options={['dom', 'vers', 'sub']}
+                  defaultValue="sub"
+                />
+              </GridItem>
+            )}
+          </Grid>
           <InvisibleAccordionGrid title={t('consumption')} subtitle={t('consumptionSubtitle')}>
             {settingSelectLists('consumption', { showVariation: true })}
           </InvisibleAccordionGrid>
@@ -112,7 +111,7 @@ export default function BoardSettings({
           </Grid>
           <Divider />
           <Grid container columnSpacing={2} justifyContent="center">
-            {settingSelectLists('sex')}
+            {settingSelectLists('solo')}
           </Grid>
         </>
       )}
