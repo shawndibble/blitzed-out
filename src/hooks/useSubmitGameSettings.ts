@@ -1,24 +1,25 @@
-import useAuth from '@/context/hooks/useAuth';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useTranslation } from 'react-i18next';
+import type { LocalPlayer, LocalSessionSettings } from '@/types';
 import { Params, useParams } from 'react-router-dom';
-import { getActiveTiles } from '@/stores/customTiles';
-import useGameBoard from './useGameBoard';
-import { useSettings } from '@/stores/settingsStore';
-import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
 import { handleUser, sendRoomSettingsMessage } from '@/views/GameSettings/submitForm';
-import useMessages from '@/context/hooks/useMessages';
-import useRoomNavigate from './useRoomNavigate';
-import { isPublicRoom } from '@/helpers/strings';
-import { isValidURL } from '@/helpers/urls';
-import { useCallback } from 'react';
+
+import { GameBoardResult } from '@/types/gameBoard';
 import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
-import { GameBoardResult } from '@/types/gameBoard';
+import { getActiveTiles } from '@/stores/customTiles';
 import { getValidationConstants } from '@/services/validationService';
+import { isPublicRoom } from '@/helpers/strings';
+import { isValidURL } from '@/helpers/urls';
+import sendGameSettingsMessage from '@/services/gameSettingsMessage';
+import useAuth from '@/context/hooks/useAuth';
+import { useCallback } from 'react';
+import useGameBoard from './useGameBoard';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { useLocalPlayers } from './useLocalPlayers';
-import type { LocalPlayer, LocalSessionSettings } from '@/types';
+import useMessages from '@/context/hooks/useMessages';
+import useRoomNavigate from './useRoomNavigate';
+import { useSettings } from '@/stores/settingsStore';
+import { useTranslation } from 'react-i18next';
 
 interface RoomChangeResult {
   roomChanged: boolean;
@@ -42,7 +43,7 @@ function cleanFormData(formData: Settings): Settings {
   // Clean the selectedActions object
   if (formData.selectedActions) {
     Object.entries(formData.selectedActions).forEach(([key, entry]) => {
-      if (entry && entry.level > 0) {
+      if (entry && entry.levels && entry.levels.length > 0) {
         cleanedSelectedActions[key] = entry;
       }
     });

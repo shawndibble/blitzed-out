@@ -12,7 +12,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Help } from '@mui/icons-material';
 import SettingsSelect from '@/components/SettingsSelect';
 import './style.css';
-import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
+import MultiSelectIntensity from '@/components/MultiSelectIntensity';
 import { Settings } from '@/types/Settings';
 
 interface SelectBoardSettingProps {
@@ -20,7 +20,7 @@ interface SelectBoardSettingProps {
   settings: Settings;
   setSettings: (settings: Settings) => void;
   actionsFolder: Record<string, any>;
-  type: string;
+  type: 'sex' | 'foreplay' | 'consumption';
   showVariation?: boolean;
   showRole?: boolean;
 }
@@ -52,8 +52,24 @@ export default function SelectBoardSetting({
         [key]: {
           ...existingAction,
           type,
-          level: existingAction?.level ?? 0,
+          levels: existingAction?.levels ?? [],
           [nestedKey]: event?.target?.value,
+        },
+      },
+      boardUpdated: true,
+    });
+  }
+
+  function handleLevelsChange(levels: number[], key: string): void {
+    const existingAction = settings.selectedActions?.[key];
+    setSettings({
+      ...settings,
+      selectedActions: {
+        ...settings.selectedActions,
+        [key]: {
+          ...existingAction,
+          type,
+          levels,
         },
       },
       boardUpdated: true,
@@ -84,12 +100,29 @@ export default function SelectBoardSetting({
   return (
     <Grid container key={option} justifyContent="center">
       <Grid size={gridSize}>
-        <IncrementalSelect
-          actionsFolder={actionsFolder}
-          settings={settings}
-          option={option}
-          onChange={(event) => handleChange(event as SelectChangeEvent<any>, option, 'level')}
-        />
+        {(() => {
+          const actionData = actionsFolder[option];
+          // Get available levels from the intensities mapping, excluding 0 (None)
+          const availableLevels = actionData?.intensities
+            ? Object.keys(actionData.intensities)
+                .map(Number)
+                .filter((level) => level > 0)
+                .sort((a, b) => a - b)
+            : [1, 2, 3, 4]; // Default levels if no specific intensities defined
+
+          const currentLevels = settings.selectedActions?.[option]?.levels || [];
+
+          return (
+            <MultiSelectIntensity
+              actionName={option}
+              actionLabel={actionData?.label || option}
+              selectedLevels={currentLevels}
+              availableLevels={availableLevels}
+              intensityNames={actionData?.intensities || {}}
+              onChange={(levels) => handleLevelsChange(levels, option)}
+            />
+          );
+        })()}
       </Grid>
       {!!showRole && (
         <Grid size={6}>

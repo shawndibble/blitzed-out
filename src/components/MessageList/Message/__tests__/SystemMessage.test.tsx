@@ -1,9 +1,10 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ReactNode } from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
 import { BrowserRouter } from 'react-router-dom';
 import Message from '../index';
 import { Message as MessageType } from '@/types/Message';
+import { ReactNode } from 'react';
 import { Timestamp } from 'firebase/firestore';
 
 // Mock dependencies
@@ -145,7 +146,7 @@ describe('System Message Component', () => {
     it('should render compact system notification for settings message', () => {
       const settingsMessage = createMockMessage(
         'settings1',
-        '### Room Settings\r\n* gameMode: online\r\n* boardSize: 40\r\n* difficulty: medium',
+        '### Room Settings\r\n* gameMode: online\r\n* boardSize: 40',
         'settings',
         'user1',
         'John'
@@ -217,7 +218,7 @@ describe('System Message Component', () => {
     it('should generate smart summary for multiple settings', () => {
       const multipleSettingsMessage = createMockMessage(
         'settings2',
-        '### Room Settings\r\n* gameMode: online\r\n* boardSize: 40\r\n* difficulty: medium\r\n* theme: dark\r\n* autoRoll: true',
+        '### Room Settings\r\n* gameMode: online\r\n* boardSize: 40\r\n* theme: dark\r\n* autoRoll: true',
         'settings',
         'user3',
         'Bob'

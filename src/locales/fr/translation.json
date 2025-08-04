@@ -98,10 +98,6 @@
   "foreplaySubtitle": "Jouable en étant habillé.",
   "sex": "Sexe",
   "sexSubtitle": "Nudité requise.",
-  "difficulty": "Courbe de difficulté",
-  "difficultyTooltip": "<0>Normal : augmentez progressivement jusqu'à l'option choisie la plus élevée. <br /><br />Accéléré : passez directement à l'option maximale choisie + 1 niveau en dessous. </0>",
-  "normal": "Normal",
-  "accelerated": "Accéléré",
   "finishSlider": "Options de fin du jeu:",
   "noCum": "Pas d'éjaculation:",
   "ruined": "Déni d'orgasme (ruined):",
@@ -176,8 +172,6 @@
   "sameBoardDescription": "Aucun changement. Revenir au début.",
   "rebuildBoard": "Reconstruire la carte",
   "rebuildBoardDescription": "Conservez les mêmes paramètres. Nouveau mélange d'actions.",
-  "finalDifficulty": "Utiliser la difficulté finale",
-  "finalDifficultyDescription": "Utilisez la difficulté de la fin du jeu pour créer un nouveau plateau.",
   "changeSettings": "Modifier les paramètres",
   "changeSettingsDescription": "Ouvrez la boîte de dialogue des paramètres pour modifier complètement le jeu.",
   "manageTiles": "Gérer les tuiles de jeu",
@@ -351,6 +345,8 @@
     "selectType": "Sélectionnez un type..."
   },
   "intensity": "Intensité",
+  "selectedLevels": "Niveaux sélectionnés",
+  "level": "Niveau",
   "soon": "Bientôt",
   "noLinkProvided": "Aucun lien fourni",
   "exportFormat": {
@@ -500,7 +496,6 @@
     "light": "Thème clair",
     "dark": "Thème sombre",
     "system": "Par défaut du système",
-    "chooseTheme": "Choisir le thème",
     "switchToLight": "Basculer vers le thème clair",
     "switchToDark": "Basculer vers le thème sombre"
   },

@@ -1,32 +1,32 @@
-import Typography from '@mui/material/Typography';
 import {
   Box,
-  IconButton,
   Collapse,
+  Divider,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
 } from '@mui/material';
 import {
-  ExpandMore,
-  ExpandLess,
-  Lightbulb,
-  TrendingUp,
-  Shuffle,
   Category,
-  Psychology,
-  Share,
+  ExpandLess,
+  ExpandMore,
   Extension,
-  Visibility,
+  Lightbulb,
+  Psychology,
   Settings,
+  Share,
+  Shuffle,
+  TrendingUp,
 } from '@mui/icons-material';
+
 import Accordion from '@/components/Accordion';
 import AccordionDetails from '@/components/Accordion/Details';
 import AccordionSummary from '@/components/Accordion/Summary';
-import { Trans } from 'react-i18next';
 import { CustomTileHelpProps } from '@/types/customTiles';
+import { Trans } from 'react-i18next';
+import Typography from '@mui/material/Typography';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useState } from 'react';
 
@@ -59,14 +59,6 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
       description: 'Tiles appear based on your game settings',
       tip: 'Your tiles only show up when you select their category and intensity level (or higher) in game settings.',
       color: 'secondary',
-    },
-    {
-      id: 'miscellaneous-tiles',
-      icon: <Visibility />,
-      title: 'Always-Visible Tiles',
-      description: 'Miscellaneous tiles bypass category rules',
-      tip: "Misc tiles are perfect for unique activities that don't fit standard categories - they always appear regardless of settings.",
-      color: 'success',
     },
   ];
 

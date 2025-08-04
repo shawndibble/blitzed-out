@@ -1,16 +1,16 @@
-import { Divider, Grid, SelectChangeEvent, Tooltip, Typography } from '@mui/material';
-import GridItem from '@/components/GridItem';
-import SettingsSelect from '@/components/SettingsSelect';
+import { Divider, Grid, SelectChangeEvent, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import InvisibleAccordionGrid from '@/components/InvisibleAccordionGrid';
+import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+
 import FinishSlider from './FinishSlider';
+import GridItem from '@/components/GridItem';
+import InvisibleAccordionGrid from '@/components/InvisibleAccordionGrid';
 import SelectBoardSetting from './SelectBoardSetting';
+import { Settings } from '@/types/Settings';
+import SettingsSelect from '@/components/SettingsSelect';
 import SoloSwitch from './SoloSwitch';
 import WarningAlert from './WarningAlert';
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 import { useLocalPlayerStore } from '@/stores/localPlayerStore';
-
-import { Settings } from '@/types/Settings';
 
 interface BoardSettingsProps {
   formData: Settings;
@@ -28,7 +28,10 @@ export default function BoardSettings({
   const isLocal = !isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode);
   const shouldShowRoleSelect = isLocal && !hasLocalPlayers();
 
-  function settingSelectLists(type: string, extraProps: Record<string, any> = {}): JSX.Element[] {
+  function settingSelectLists(
+    type: 'sex' | 'foreplay' | 'consumption',
+    extraProps: Record<string, any> = {}
+  ): JSX.Element[] {
     return Object.keys(actionsList)
       .filter((option) => actionsList[option]?.type === type)
       .map((option) => (
@@ -72,36 +75,6 @@ export default function BoardSettings({
       )}
 
       <Grid container columnSpacing={2} justifyContent="space-evenly">
-        <GridItem>
-          <Tooltip
-            placement="top"
-            title={
-              <Trans i18nKey="difficultyTooltip">
-                <Typography variant="body2">
-                  Normal = Slow ramp up. <br />
-                  <br />
-                  Accelerated = Straight to max level + the level prior to it.
-                </Typography>
-              </Trans>
-            }
-            arrow
-          >
-            <SettingsSelect
-              value={formData.difficulty}
-              onChange={(event: SelectChangeEvent<string>) =>
-                setFormData({
-                  ...formData,
-                  difficulty: event.target.value,
-                  boardUpdated: true,
-                })
-              }
-              label="difficulty"
-              options={['normal', 'accelerated']}
-              defaultValue="normal"
-              helpIcon
-            />
-          </Tooltip>
-        </GridItem>
         {shouldShowRoleSelect && (
           <GridItem>
             <SettingsSelect
@@ -139,7 +112,7 @@ export default function BoardSettings({
           </Grid>
           <Divider />
           <Grid container columnSpacing={2} justifyContent="center">
-            {settingSelectLists('solo')}
+            {settingSelectLists('sex')}
           </Grid>
         </>
       )}

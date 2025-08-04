@@ -1,8 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import useGameBoard from '../useGameBoard';
-import { Settings } from '@/types/Settings';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+
 import { DBGameBoard } from '@/types/gameBoard';
+import { Settings } from '@/types/Settings';
+import buildGameBoard from '@/services/buildGame';
+import { renderHook } from '@testing-library/react';
+import { upsertBoard } from '@/stores/gameBoard';
+import useGameBoard from '../useGameBoard';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { useSettings } from '@/stores/settingsStore';
 
 // Mock dependencies
 vi.mock('dexie-react-hooks', () => ({
@@ -36,12 +42,6 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-import { useLiveQuery } from 'dexie-react-hooks';
-import { isPublicRoom, isOnlineMode } from '@/helpers/strings';
-import buildGameBoard from '@/services/buildGame';
-import { upsertBoard } from '@/stores/gameBoard';
-import { useSettings } from '@/stores/settingsStore';
-
 describe('useGameBoard', () => {
   const mockGameBoard: DBGameBoard = {
     id: 1,
@@ -62,10 +62,9 @@ describe('useGameBoard', () => {
     room: 'testroom',
     gameMode: 'online',
     role: 'sub',
-    difficulty: 'normal',
     boardUpdated: false,
     selectedActions: {
-      teasing: { level: 2, type: 'action' },
+      teasing: { levels: [1, 2], type: 'sex' },
     },
   };
 
@@ -141,7 +140,7 @@ describe('useGameBoard', () => {
       expect(buildGameBoard).toHaveBeenCalledWith(
         expect.objectContaining({
           selectedActions: expect.objectContaining({
-            teasing: { level: 2, type: 'action' },
+            teasing: { levels: [1, 2], type: 'sex' },
           }),
         }),
         'en',
@@ -260,7 +259,7 @@ describe('useGameBoard', () => {
       const dataWithSelectedActions = {
         ...mockSettings,
         selectedActions: {
-          edging: { level: 3, type: 'action' },
+          edging: { levels: [1, 2, 3], type: 'sex' as const },
         },
       };
 
@@ -269,8 +268,8 @@ describe('useGameBoard', () => {
       expect(buildGameBoard).toHaveBeenCalledWith(
         expect.objectContaining({
           selectedActions: expect.objectContaining({
-            teasing: { level: 2, type: 'action' }, // From settings
-            edging: { level: 3, type: 'action' }, // From data
+            teasing: { levels: [1, 2], type: 'sex' }, // From settings
+            edging: { levels: [1, 2, 3], type: 'sex' }, // From data
           }),
         }),
         'en',

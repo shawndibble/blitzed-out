@@ -216,7 +216,6 @@ describe('Room Component', () => {
   const mockSettings: Settings = {
     gameMode: 'online',
     role: 'sub',
-    difficulty: 'normal',
     hideBoardActions: false,
     roomTileCount: 40,
     finishRange: [33, 66],

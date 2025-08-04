@@ -95,10 +95,6 @@
   "foreplaySubtitle": "Playable while clothed.",
   "sex": "Sex",
   "sexSubtitle": "Nudity required.",
-  "difficulty": "Difficulty Curve",
-  "difficultyTooltip": "<0>Normal: Gradually increase to your highest chosen option. <br /><br />Accelerated: Jump directly to your maximum chosen option + 1 level below. </0>",
-  "normal": "Normal",
-  "accelerated": "Accelerated",
   "finishSlider": "Finish options:",
   "noCum": "No Orgasm:",
   "ruined": "Ruined Orgasm:",
@@ -176,8 +172,6 @@
   "sameBoardDescription": "No changes. Return to start.",
   "rebuildBoard": "Rebuild Board",
   "rebuildBoardDescription": "Keep the same settings. New mix of actions.",
-  "finalDifficulty": "Use Final Difficulty",
-  "finalDifficultyDescription": "Use the difficulty from the end of the game to make a new board.",
   "changeSettings": "Change Settings",
   "changeSettingsDescription": "Open the settings dialog to fully change the game.",
   "manageTiles": "Manage Game Tiles",
@@ -350,6 +344,8 @@
     "selectType": "Select a type..."
   },
   "intensity": "Intensity",
+  "selectedLevels": "Selected levels",
+  "level": "Level",
   "soon": "Soon",
   "noLinkProvided": "No link provided",
   "exportFormat": {
@@ -487,7 +483,6 @@
     "light": "Light theme",
     "dark": "Dark theme",
     "system": "System default",
-    "chooseTheme": "Choose theme",
     "switchToLight": "Switch to light theme",
     "switchToDark": "Switch to dark theme"
   },

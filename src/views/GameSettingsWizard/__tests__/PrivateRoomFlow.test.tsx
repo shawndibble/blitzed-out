@@ -2,7 +2,9 @@ import { MemoryRouter, useParams } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 
+import { GameMode } from '@/types/Settings'; // Adjust the path if needed
 import GameSettingsWizard from '../index';
+import type { PlayerRole } from '@/types/Settings'; // Add this import at the top if not present
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import userEvent from '@testing-library/user-event';
 
@@ -176,11 +178,11 @@ describe('GameSettingsWizard - Private Room Flow', () => {
 
   const privateRoomFormData = {
     room: 'PRIVATE_ROOM',
-    gameMode: 'local',
+    gameMode: 'local' as GameMode,
     roomRealtime: false,
     actions: [],
     consumption: [],
-    role: 'sub',
+    role: 'sub' as PlayerRole,
     boardUpdated: false,
     advancedSettings: false,
   };
@@ -224,7 +226,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
     });
 
     it('should start at step 1 even when gameMode is already online', async () => {
-      const onlineFormData = { ...privateRoomFormData, gameMode: 'online' };
+      const onlineFormData = { ...privateRoomFormData, gameMode: 'online' as GameMode };
       mockUseSettingsToFormData.mockReturnValue([onlineFormData, mockSetFormData]);
 
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
@@ -588,7 +590,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
 
       // First navigate to advanced settings
-      const advancedButton = screen.getByTestId('advancedSetup');
+      const advancedButton = screen.getAllByTestId('advancedSetup')[0];
       await user.click(advancedButton);
 
       await waitFor(() => {
@@ -602,27 +604,24 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       await waitFor(() => {
         expect(screen.getByTestId('room-step')).toBeInTheDocument();
       });
-    });
-
-    it('should return to step 4 for private room with online gameMode', async () => {
       const onlineFormData = {
         ...privateRoomFormData,
-        gameMode: 'online',
+        gameMode: 'online' as GameMode,
       };
       mockUseSettingsToFormData.mockReturnValue([onlineFormData, mockSetFormData]);
 
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
 
       // First navigate to advanced settings
-      const advancedButton = screen.getByTestId('advancedSetup');
-      await user.click(advancedButton);
+      const advancedButtonOnline = screen.getAllByTestId('advancedSetup')[0];
+      await user.click(advancedButtonOnline);
 
       await waitFor(() => {
         expect(screen.getByTestId('game-settings')).toBeInTheDocument();
       });
 
-      const backToWizardButton = screen.getByText('Back to Wizard');
-      await user.click(backToWizardButton);
+      const backToWizardButtonOnline = screen.getByText('Back to Wizard');
+      await user.click(backToWizardButtonOnline);
 
       // Should skip to step 4 for online gameMode even in private room
       await waitFor(() => {
@@ -634,7 +633,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
 
       // Navigate to advanced settings
-      const advancedButton = screen.getByTestId('advancedSetup');
+      const advancedButton = screen.getAllByTestId('advancedSetup')[0];
       await user.click(advancedButton);
 
       await waitFor(() => {
@@ -832,7 +831,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
         expect(screen.getByTestId('room-step')).toBeInTheDocument();
       });
 
-      const advancedButton = screen.getByTestId('advancedSetup');
+      const advancedButton = screen.getAllByTestId('advancedSetup')[0];
       await user.click(advancedButton);
 
       await waitFor(() => {
@@ -850,7 +849,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
     it('should handle close from advanced settings', async () => {
       renderWithRouter(<GameSettingsWizard close={mockClose} />);
 
-      const advancedButton = screen.getByTestId('advancedSetup');
+      const advancedButton = screen.getAllByTestId('advancedSetup')[0];
       await user.click(advancedButton);
 
       await waitFor(() => {

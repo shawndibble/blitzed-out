@@ -8,7 +8,7 @@ vi.mock('@/stores/settingsStore', () => ({
   useSettings: () => [
     {
       gameMode: 'online',
-      selectedActions: { testAction: { level: 1 } },
+      selectedActions: { testAction: { levels: [1] } },
       // Note: finishRange is intentionally missing to test the default
     },
     vi.fn(),
@@ -36,7 +36,7 @@ describe('useSettingsToFormData', () => {
     expect(formData.finishRange).toEqual([30, 70]);
     // Should preserve other settings
     expect(formData.gameMode).toBe('online'); // from mocked settings
-    expect(formData.selectedActions).toEqual({ testAction: { level: 1 } });
+    expect(formData.selectedActions).toEqual({ testAction: { levels: [1] } });
   });
 
   it('should override finishRange with overrideSettings', () => {

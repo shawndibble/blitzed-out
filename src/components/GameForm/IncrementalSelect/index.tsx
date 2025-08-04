@@ -1,7 +1,12 @@
-import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material';
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
-import useHasMouse from '@/hooks/useHasMouse';
-import { useState } from 'react';
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Checkbox,
+  ListItemText,
+} from '@mui/material';
 import { GroupedActions } from '@/types/customTiles';
 import { Settings } from '@/types/Settings';
 
@@ -9,8 +14,8 @@ interface IncrementalSelectProps {
   actionsFolder: GroupedActions;
   settings: Settings;
   option: string;
-  onChange: (event: SelectChangeEvent<number>) => void;
-  initValue?: number;
+  onChange: (event: SelectChangeEvent<number[]>) => void;
+  initValue?: number[];
 }
 
 export default function IncrementalSelect({
@@ -18,54 +23,38 @@ export default function IncrementalSelect({
   settings,
   option,
   onChange,
-  initValue = 0,
+  initValue = [],
 }: IncrementalSelectProps): JSX.Element {
   const labelId = `${option}label`;
   const label = actionsFolder[option]?.label;
 
-  // Get current level from selectedActions structure only
-  const getCurrentLevel = (): number => {
-    return settings.selectedActions?.[option]?.level || initValue;
+  // Get current levels from selectedActions structure only
+  const getCurrentLevels = (): number[] => {
+    return settings.selectedActions?.[option]?.levels || initValue;
   };
 
-  const hasMouse = useHasMouse();
-  const [hoveredOption, setHoveredOption] = useState<number>(getCurrentLevel());
-
-  const handleChange = (event: SelectChangeEvent<number>) => {
+  const handleChange = (event: SelectChangeEvent<number[]>) => {
     onChange(event);
   };
 
-  const handleMouseOver = (index: number) => {
-    setHoveredOption(index);
-  };
-
-  const showCheckbox = (index: number): boolean => {
-    if (hoveredOption > 0 && index === 0) {
-      return false;
-    }
-    if (settings.difficulty === 'accelerated') {
-      if (hoveredOption <= 2) return hoveredOption === index;
-      return hoveredOption === index || hoveredOption - 1 === index;
-    }
-    return hoveredOption >= index;
-  };
-
   function getOptions(category: string) {
+    const currentLevels = getCurrentLevels();
     return Object.keys(actionsFolder[category]?.actions || {}).map((optionVal, index) => (
-      <MenuItem
-        value={index}
-        key={`${category}-${optionVal}`}
-        onMouseOver={() => handleMouseOver(index)}
-      >
-        {!!hasMouse && (
-          <span className="menu-item-icon">
-            {showCheckbox(index) ? <CheckBox /> : <CheckBoxOutlineBlank />}
-          </span>
-        )}
-        {optionVal}
+      <MenuItem value={index} key={`${category}-${optionVal}`}>
+        <Checkbox checked={currentLevels.includes(index)} />
+        <ListItemText primary={optionVal} />
       </MenuItem>
     ));
   }
+
+  // Custom render function to display selected intensity level names
+  const renderValue = (selected: number[]) => {
+    const actionKeys = Object.keys(actionsFolder[option]?.actions || {});
+    return selected
+      .map((levelIndex) => actionKeys[levelIndex])
+      .filter(Boolean)
+      .join(', ');
+  };
 
   return (
     <FormControl margin="normal" fullWidth>
@@ -74,10 +63,10 @@ export default function IncrementalSelect({
         labelId={labelId}
         id={option}
         label={label}
-        value={getCurrentLevel()}
+        multiple
+        value={getCurrentLevels()}
         onChange={handleChange}
-        onOpen={() => setHoveredOption(getCurrentLevel())}
-        onClose={() => setHoveredOption(getCurrentLevel())}
+        renderValue={renderValue}
       >
         {getOptions(option)}
       </Select>
