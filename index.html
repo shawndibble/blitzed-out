@@ -165,22 +165,20 @@
       }
 
       /* Light mode gradient for users with light color scheme preference */
-      @media (prefers-color-scheme: light) {
-        body::before {
-          background: linear-gradient(
-            135deg,
-            rgba(248, 250, 252, 0.9) 0%,
-            rgba(226, 232, 240, 0.95) 20%,
-            rgba(203, 213, 225, 0.9) 40%,
-            rgba(226, 232, 240, 0.95) 60%,
-            rgba(248, 250, 252, 0.9) 80%,
-            rgba(255, 255, 255, 0.95) 100%
-          );
-        }
+      body.theme-light::before {
+        background: linear-gradient(
+          135deg,
+          rgba(248, 250, 252, 0.9) 0%,
+          rgba(226, 232, 240, 0.95) 20%,
+          rgba(203, 213, 225, 0.9) 40%,
+          rgba(226, 232, 240, 0.95) 60%,
+          rgba(248, 250, 252, 0.9) 80%,
+          rgba(255, 255, 255, 0.95) 100%
+        );
+      }
 
-        body {
-          color: #1e293b;
-        }
+      body.theme-light {
+        color: #1e293b;
       }
 
       #root {
@@ -189,10 +187,8 @@
       }
 
       /* Light mode root element */
-      @media (prefers-color-scheme: light) {
-        #root {
-          color: #1e293b;
-        }
+      body.theme-light #root {
+        color: #1e293b;
       }
 
       /* Instant loading screen - shows immediately */
@@ -241,10 +237,10 @@
         }
       })(window.location);
     </script>
-    <script type="module" crossorigin src="/assets/index-DHZ0xqMM.js"></script>
-    <link rel="modulepreload" crossorigin href="/js/chunk-B5PHAmSG.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-B8izEdPk.js">
-    <link rel="stylesheet" crossorigin href="/assets/style-CA4yFovX.css">
+    <script type="module" crossorigin src="/assets/index-DHs8EHDD.js"></script>
+    <link rel="modulepreload" crossorigin href="/js/chunk-CwpkSHF3.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-CXdXj9vr.js">
+    <link rel="stylesheet" crossorigin href="/assets/style-C532YVYq.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
