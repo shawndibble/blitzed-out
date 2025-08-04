@@ -160,6 +160,7 @@ export default function LocalPlayerSetup({
           deviceId: 'current_device',
           location: 0, // Start at beginning of board
           isFinished: false, // Not finished yet
+          sound: playerData.sound, // Include the sound property
         };
         setPlayers((prev) => [...prev, newPlayer]);
       }

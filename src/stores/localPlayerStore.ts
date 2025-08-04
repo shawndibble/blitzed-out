@@ -1,7 +1,8 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { LocalPlayer, LocalPlayerSession, LocalSessionSettings } from '@/types';
+
+import { create } from 'zustand';
 import { localPlayerService } from '@/services/localPlayerService';
+import { persist } from 'zustand/middleware';
 
 /**
  * State interface for local player store
@@ -104,6 +105,7 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
           ...player,
           location: typeof player.location === 'number' ? player.location : 0,
           isFinished: typeof player.isFinished === 'boolean' ? player.isFinished : false,
+          sound: player.sound || '',
         }));
 
         return {

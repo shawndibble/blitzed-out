@@ -1,7 +1,8 @@
 import './styles.css';
 
 import { Box, CircularProgress } from '@mui/material';
-import { Suspense, lazy, useCallback, useState, useEffect, useRef } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { getSoundById, playSound } from '@/utils/gameSounds';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
 import GameSettingsDialog from '@/components/GameSettingsDialog';
@@ -13,11 +14,14 @@ import { RollValueState } from '@/types/index';
 import RoomBackground from '@/components/RoomBackground';
 import { Settings } from '@/types/Settings';
 import ToastAlert from '@/components/ToastAlert';
+import TurnTransition from '@/components/TurnTransition';
 import clsx from 'clsx';
 import { getActiveBoard } from '@/stores/gameBoard';
 import getBackgroundSource from '@/services/getBackgroundSource';
 import useBreakpoint from '@/hooks/useBreakpoint';
+import useHybridPlayerList from '@/hooks/useHybridPlayerList';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import { useParams } from 'react-router-dom';
 import usePlayerMove from '@/hooks/usePlayerMove';
 import usePresence from '@/hooks/usePresence';
@@ -25,10 +29,6 @@ import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import useUrlImport from '@/hooks/useUrlImport';
-import useHybridPlayerList from '@/hooks/useHybridPlayerList';
-import TurnTransition from '@/components/TurnTransition';
-import { useLocalPlayers } from '@/hooks/useLocalPlayers';
-import { playSound, getSoundById } from '@/utils/gameSounds';
 
 // Lazy load mobile-specific component
 const BottomTabs = lazy(() => import('./BottomTabs'));
