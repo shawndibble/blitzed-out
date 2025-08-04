@@ -28,6 +28,16 @@ export default function BoardSettings({
   const isLocal = !isOnlineMode(formData.gameMode);
   const shouldShowRoleSelect = !hasLocalPlayers();
 
+  // Helper function to check if any options are selected for a given type
+  function hasSelectedOptionsForType(type: 'sex' | 'foreplay' | 'consumption' | 'solo'): boolean {
+    return Object.keys(actionsList)
+      .filter((option) => actionsList[option]?.type === type)
+      .some((option) => {
+        const selectedAction = formData.selectedActions?.[option];
+        return selectedAction?.levels && selectedAction.levels.length > 0;
+      });
+  }
+
   function settingSelectLists(
     type: 'sex' | 'foreplay' | 'consumption' | 'solo',
     extraProps: Record<string, any> = {}
@@ -94,13 +104,25 @@ export default function BoardSettings({
               </GridItem>
             )}
           </Grid>
-          <InvisibleAccordionGrid title={t('consumption')} subtitle={t('consumptionSubtitle')}>
+          <InvisibleAccordionGrid
+            title={t('consumption')}
+            subtitle={t('consumptionSubtitle')}
+            hasSelectedOptions={hasSelectedOptionsForType('consumption')}
+          >
             {settingSelectLists('consumption', { showVariation: true })}
           </InvisibleAccordionGrid>
-          <InvisibleAccordionGrid title={t('foreplay')} subtitle={t('foreplaySubtitle')}>
+          <InvisibleAccordionGrid
+            title={t('foreplay')}
+            subtitle={t('foreplaySubtitle')}
+            hasSelectedOptions={hasSelectedOptionsForType('foreplay')}
+          >
             {settingSelectLists('foreplay', { showRole: shouldShowRoleSelect })}
           </InvisibleAccordionGrid>
-          <InvisibleAccordionGrid title={t('sex')} subtitle={t('sexSubtitle')}>
+          <InvisibleAccordionGrid
+            title={t('sex')}
+            subtitle={t('sexSubtitle')}
+            hasSelectedOptions={hasSelectedOptionsForType('sex')}
+          >
             {settingSelectLists('sex', { showRole: shouldShowRoleSelect })}
           </InvisibleAccordionGrid>
         </>
