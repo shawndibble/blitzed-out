@@ -119,6 +119,7 @@ export default function SelectBoardSetting({
         availableLevels={availableLevels}
         intensityNames={actionData?.intensities || {}}
         onChange={(levels) => handleLevelsChange(levels, option)}
+        showValueGlow={true}
       />
     );
   };

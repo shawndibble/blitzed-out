@@ -1,12 +1,15 @@
 import {
+  Checkbox,
   FormControl,
+  IconButton,
   InputLabel,
+  ListItemText,
   MenuItem,
   Select,
   SelectChangeEvent,
-  Checkbox,
-  ListItemText,
 } from '@mui/material';
+import { Clear } from '@mui/icons-material';
+import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 
 interface MultiSelectIntensityProps {
@@ -17,6 +20,7 @@ interface MultiSelectIntensityProps {
   intensityNames?: Record<number, string>; // Map level numbers to their display names
   onChange: (levels: number[]) => void;
   disabled?: boolean;
+  showValueGlow?: boolean; // Whether to show glow effect when values are selected
 }
 
 export default function MultiSelectIntensity({
@@ -27,10 +31,29 @@ export default function MultiSelectIntensity({
   intensityNames = {},
   onChange,
   disabled = false,
+  showValueGlow = false,
 }: MultiSelectIntensityProps): JSX.Element {
   const { t } = useTranslation();
+  const theme = useTheme();
 
   const labelId = `${actionName}-intensity-label`;
+
+  // Create glow styling when showValueGlow is true and there are selected levels
+  const shouldShowGlow = showValueGlow && selectedLevels.length > 0;
+  const glowSx = shouldShowGlow
+    ? {
+        boxShadow: `0 0 8px ${theme.palette.primary.main}`,
+      }
+    : {};
+
+  // Add background to label when glowing for better readability
+  const labelSx = shouldShowGlow
+    ? {
+        backgroundColor: 'var(--color-surface)',
+        borderRadius: '8px',
+        padding: '0 8px',
+      }
+    : {};
 
   const handleChange = (event: SelectChangeEvent<number[]>) => {
     const value = event.target.value;
@@ -38,6 +61,11 @@ export default function MultiSelectIntensity({
     const levels = (value as number[]).filter((n) => !isNaN(n)).sort((a, b) => a - b);
 
     onChange(levels);
+  };
+
+  const handleClear = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent opening the select dropdown
+    onChange([]);
   };
 
   // Custom render function to display selected intensity level names
@@ -54,7 +82,9 @@ export default function MultiSelectIntensity({
 
   return (
     <FormControl margin="normal" fullWidth disabled={disabled}>
-      <InputLabel id={labelId}>{actionLabel}</InputLabel>
+      <InputLabel id={labelId} sx={labelSx}>
+        {actionLabel}
+      </InputLabel>
       <Select
         labelId={labelId}
         id={actionName}
@@ -63,6 +93,27 @@ export default function MultiSelectIntensity({
         value={selectedLevels}
         onChange={handleChange}
         renderValue={renderValue}
+        sx={glowSx}
+        endAdornment={
+          selectedLevels.length > 0 && (
+            <IconButton
+              size="small"
+              onClick={handleClear}
+              sx={{
+                position: 'absolute',
+                right: 24, // Position to the left of the dropdown arrow
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
+              }}
+            >
+              <Clear fontSize="small" />
+            </IconButton>
+          )
+        }
       >
         {availableLevels.map((level) => (
           <MenuItem key={level} value={level}>
