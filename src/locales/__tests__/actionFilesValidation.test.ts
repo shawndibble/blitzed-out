@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+
 import { resolve } from 'path';
 
 const supportedLanguages = ['en', 'es', 'fr'];
@@ -152,7 +153,7 @@ describe('Action Files Validation', () => {
 
                     if (typeof baseAction === 'object' && typeof langAction === 'object') {
                       // Check non-translatable metadata
-                      ['duration', 'difficulty', 'type', 'category'].forEach((metaField) => {
+                      ['duration', 'type', 'category'].forEach((metaField) => {
                         if (baseAction[metaField] !== undefined) {
                           expect(langAction[metaField]).toBe(baseAction[metaField]);
                         }

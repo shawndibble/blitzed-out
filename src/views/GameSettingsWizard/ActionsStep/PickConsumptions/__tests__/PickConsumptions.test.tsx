@@ -1,8 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import PickConsumptions from '../index';
-import { FormData } from '@/types';
 import * as helpers from '@/views/GameSettingsWizard/ActionsStep/helpers';
+
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+
+import { FormData } from '@/types';
+import PickConsumptions from '../index';
 
 // Mock i18next
 vi.mock('i18next', () => ({
@@ -19,7 +21,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('@/views/GameSettingsWizard/ActionsStep/helpers', () => ({
   populateSelections: vi.fn(() => ['alcohol', 'poppers']),
   updateFormDataWithDefaults: vi.fn(),
-  handleChange: vi.fn(),
+  handleLevelsChange: vi.fn(),
 }));
 
 // Mock MultiSelect component
@@ -63,16 +65,29 @@ vi.mock('@/components/GameForm/YesNoSwitch', () => ({
   ),
 }));
 
-// Mock IncrementalSelect component
-vi.mock('@/components/GameForm/IncrementalSelect', () => ({
-  default: ({ option, onChange }: any) => (
-    <div data-testid={`incremental-select-${option}`}>
-      <label>{option}</label>
-      <input
-        type="number"
-        onChange={(e) => onChange({ target: { value: parseInt(e.target.value) } })}
-        data-testid={`intensity-input-${option}`}
-      />
+// Mock MultiSelectIntensity component
+vi.mock('@/components/MultiSelectIntensity', () => ({
+  default: ({ actionName, selectedLevels, onChange }: any) => (
+    <div data-testid={`multi-select-intensity-${actionName}`}>
+      <label>{actionName}</label>
+      <div>
+        {[1, 2, 3, 4].map((level) => (
+          <label key={level}>
+            <input
+              type="checkbox"
+              checked={selectedLevels.includes(level)}
+              onChange={() => {
+                const newLevels = selectedLevels.includes(level)
+                  ? selectedLevels.filter((l: number) => l !== level)
+                  : [...selectedLevels, level].sort();
+                onChange(newLevels);
+              }}
+              data-testid={`level-checkbox-${actionName}-${level}`}
+            />
+            Level {level}
+          </label>
+        ))}
+      </div>
     </div>
   ),
 }));
@@ -103,12 +118,12 @@ describe('PickConsumptions', () => {
     selectedActions: {
       alcohol: {
         type: 'consumption',
-        level: 2,
+        levels: [2],
         variation: 'standalone',
       },
       poppers: {
         type: 'consumption',
-        level: 1,
+        levels: [1],
         variation: 'standalone',
       },
     },
@@ -141,11 +156,11 @@ describe('PickConsumptions', () => {
       expect(screen.getByText('standaloneOrCombine')).toBeInTheDocument();
     });
 
-    it('should render incremental selects for each selected consumption', () => {
+    it('should render multi-select intensity components for each selected consumption', () => {
       render(<PickConsumptions {...defaultProps} />);
 
-      expect(screen.getByTestId('incremental-select-alcohol')).toBeInTheDocument();
-      expect(screen.getByTestId('incremental-select-poppers')).toBeInTheDocument();
+      expect(screen.getByTestId('multi-select-intensity-alcohol')).toBeInTheDocument();
+      expect(screen.getByTestId('multi-select-intensity-poppers')).toBeInTheDocument();
     });
   });
 
@@ -198,13 +213,13 @@ describe('PickConsumptions', () => {
         isAppend: true,
         selectedActions: {
           alcohol: {
-            type: 'consumption',
-            level: 2,
+            type: 'consumption' as const,
+            levels: [2],
             variation: 'appendMost',
           },
           poppers: {
-            type: 'consumption',
-            level: 1,
+            type: 'consumption' as const,
+            levels: [1],
             variation: 'appendMost',
           },
         },
@@ -244,12 +259,12 @@ describe('PickConsumptions', () => {
             selectedActions: expect.objectContaining({
               alcohol: expect.objectContaining({
                 type: 'consumption',
-                level: 2,
+                levels: [2],
                 variation: 'appendMost',
               }),
               poppers: expect.objectContaining({
                 type: 'consumption',
-                level: 1,
+                levels: [1],
                 variation: 'appendMost',
               }),
             }),
@@ -281,7 +296,7 @@ describe('PickConsumptions', () => {
         ...defaultFormData,
         selectedActions: {
           alcohol: {
-            type: 'consumption',
+            type: 'consumption' as const,
             level: 2,
             variation: 'standalone',
           },
@@ -313,12 +328,12 @@ describe('PickConsumptions', () => {
         ...defaultFormData,
         selectedActions: {
           alcohol: {
-            type: 'consumption',
+            type: 'consumption' as const,
             level: 2,
             variation: 'standalone',
           },
           someOtherAction: {
-            type: 'solo',
+            type: 'sex' as const,
             level: 1,
             variation: 'standalone',
           },
@@ -358,9 +373,9 @@ describe('PickConsumptions', () => {
       const formDataMultiple = {
         ...defaultFormData,
         selectedActions: {
-          alcohol: { type: 'consumption', level: 2, variation: 'standalone' },
-          poppers: { type: 'consumption', level: 1, variation: 'standalone' },
-          vaping: { type: 'consumption', level: 3, variation: 'standalone' },
+          alcohol: { type: 'consumption' as const, level: 2, variation: 'standalone' },
+          poppers: { type: 'consumption' as const, level: 1, variation: 'standalone' },
+          vaping: { type: 'consumption' as const, level: 3, variation: 'standalone' },
         },
       };
 

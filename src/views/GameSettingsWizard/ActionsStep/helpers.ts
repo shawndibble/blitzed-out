@@ -48,7 +48,11 @@ export const populateSelections = (
 };
 
 // if prevData has a type of action that isn't in the value array, delete it.
-const deleteOldFormData = (prevData: FormData, action: string, value: string[]): FormData => {
+const removeUnselectedActions = (
+  prevData: FormData,
+  action: 'sex' | 'foreplay' | 'consumption' | 'solo',
+  value: string[]
+): FormData => {
   const newFormData = { ...prevData };
   const newSelectedActions = { ...(newFormData.selectedActions as Record<string, ActionEntry>) };
 
@@ -64,11 +68,11 @@ const deleteOldFormData = (prevData: FormData, action: string, value: string[]):
 
 export const updateFormDataWithDefaults = (
   value: string[],
-  action: string,
+  action: 'sex' | 'foreplay' | 'consumption' | 'solo',
   setFormData: React.Dispatch<React.SetStateAction<Settings>>
 ): void => {
   setFormData((prevData) => {
-    const newFormData = deleteOldFormData(prevData, action, value);
+    const newFormData = removeUnselectedActions(prevData, action, value);
     const newSelectedActions = { ...(newFormData.selectedActions as Record<string, ActionEntry>) };
 
     value.forEach((option) => {
@@ -76,7 +80,7 @@ export const updateFormDataWithDefaults = (
         return;
       }
 
-      let data: ActionEntry = { type: action, level: 1 };
+      let data: ActionEntry = { type: action, levels: [1] };
       if (action === 'consumption') {
         data = {
           ...data,
@@ -93,7 +97,7 @@ export const updateFormDataWithDefaults = (
 export const handleChange = (
   event: ChangeEvent<HTMLInputElement> | { target: { value: number } } | null,
   key: string,
-  action: string,
+  action: 'sex' | 'foreplay' | 'consumption',
   setFormData: SetFormDataFunction,
   setSelectedItems: SetSelectedItemsFunction,
   variation: string | null = null
@@ -117,12 +121,52 @@ export const handleChange = (
       string,
       ActionEntry
     >;
+    let numValue: number;
+    if (typeof value === 'number') {
+      numValue = value;
+    } else if (isNaN(Number(value))) {
+      numValue = 0;
+    } else {
+      numValue = Number(value);
+    }
+    // Convert single level to levels array for backward compatibility
+    const levels = numValue > 0 ? Array.from({ length: numValue }, (_, i) => i + 1) : [];
+
     newSelectedActions[key] = {
       ...(newSelectedActions[key] || {}),
       type: action,
-      level: typeof value === 'number' ? value : isNaN(Number(value)) ? 0 : Number(value),
+      levels,
       ...(!!variation && { variation }),
     };
+    return { ...prevData, selectedActions: newSelectedActions };
+  });
+};
+
+export const handleLevelsChange = (
+  levels: number[],
+  key: string,
+  action: 'sex' | 'foreplay' | 'consumption' | 'solo',
+  setFormData: SetFormDataFunction,
+  variation: string | null = null
+): void => {
+  setFormData((prevData) => {
+    const newSelectedActions = { ...(prevData.selectedActions || {}) } as Record<
+      string,
+      ActionEntry
+    >;
+
+    if (levels.length === 0) {
+      // Remove action if no levels selected
+      delete newSelectedActions[key];
+    } else {
+      newSelectedActions[key] = {
+        ...(newSelectedActions[key] || {}),
+        type: action,
+        levels,
+        ...(!!variation && { variation }),
+      };
+    }
+
     return { ...prevData, selectedActions: newSelectedActions };
   });
 };
@@ -137,7 +181,8 @@ export const hasValidSelections = (selectedActions?: Record<string, any>): boole
     selectedActions &&
       Object.keys(selectedActions).some((key) => {
         const action = selectedActions[key];
-        return (action?.level ?? 0) > 0 && action?.variation !== 'appendMost';
+        const hasLevels = action?.levels && action.levels.length > 0;
+        return hasLevels && action?.variation !== 'appendMost';
       })
   );
 };
@@ -145,7 +190,7 @@ export const hasValidSelections = (selectedActions?: Record<string, any>): boole
 export const handleSelectionChange = (
   event: { target: { value: string[] } },
   maxItems: number,
-  action: string,
+  action: 'sex' | 'foreplay' | 'consumption',
   setSelectedItems: SetSelectedItemsFunction,
   setFormData: SetFormDataFunction
 ): void => {

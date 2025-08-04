@@ -15,10 +15,13 @@ export default function ConsumptionWarning({
   useEffect(() => {
     const consumptionCount = Object.values(formData).filter(
       (setting) =>
-        typeof setting === 'object' && setting?.type === 'consumption' && setting?.level > 0
+        typeof setting === 'object' &&
+        setting?.type === 'consumption' &&
+        setting?.levels &&
+        setting.levels.length > 0
     ).length;
     const totalCount = Object.values(formData).filter(
-      (setting) => typeof setting === 'object' && setting?.level > 0
+      (setting) => typeof setting === 'object' && setting?.levels && setting.levels.length > 0
     ).length;
 
     setShowWarning(consumptionCount > 1 && consumptionCount >= totalCount - consumptionCount);

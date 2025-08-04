@@ -98,10 +98,6 @@
   "foreplaySubtitle": "Se puede jugar con ropa puesta.",
   "sex": "Sexo",
   "sexSubtitle": "Es necesario estar desnudo",
-  "difficulty": "Curva de dificultad",
-  "difficultyTooltip": "<0>Normal: aumenta gradualmente hasta la opción más alta elegida. <br /><br />Acelerado: salta directamente a la opción máxima elegida + 1 nivel inferior. </0>",
-  "normal": "Normal",
-  "accelerated": "Acelerado",
   "finishSlider": "Opciones para acabar:",
   "noCum": "Sin orgasmo:",
   "ruined": "Orgasmo arruinado:",
@@ -175,8 +171,6 @@
   "sameBoardDescription": "Sin cambios. Volver al principio.",
   "rebuildBoard": "Rehacer Tablero",
   "rebuildBoardDescription": "Mantener la misma configuración con nueva combinación de acciones.",
-  "finalDifficulty": "Usar la máxima dificultad",
-  "finalDifficultyDescription": "Usa la máxima dificultad alcanzada al final del juego para crear un nuevo tablero.",
   "changeSettings": "Cambiar configuración",
   "changeSettingsDescription": "Abre el cuadro de diálogo de Configuración para cambiar los ajustes del juego.",
   "manageTiles": "Administrar casillas de juego",
@@ -350,6 +344,7 @@
     "selectType": "Selecciona un tipo..."
   },
   "intensity": "Intensidad",
+  "level": "Nivel",
   "soon": "Pronto",
   "noLinkProvided": "Sin enlace",
   "exportFormat": {
@@ -499,7 +494,6 @@
     "light": "Tema claro",
     "dark": "Tema oscuro",
     "system": "Predeterminado del sistema",
-    "chooseTheme": "Elegir tema",
     "switchToLight": "Cambiar a tema claro",
     "switchToDark": "Cambiar a tema oscuro"
   },

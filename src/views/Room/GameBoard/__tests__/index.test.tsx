@@ -70,7 +70,6 @@ describe('GameBoard', () => {
     room: 'testroom',
     gameMode: 'online',
     role: 'sub',
-    difficulty: 'normal',
     boardUpdated: false,
   };
 

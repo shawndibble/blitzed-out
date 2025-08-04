@@ -1,9 +1,11 @@
+import { GameMode, PlayerRole } from './Settings';
+import type { LocalPlayer, LocalSessionSettings } from './localPlayers';
+
 import { User as FirebaseUser } from 'firebase/auth';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
-import { GameMode, PlayerRole } from './Settings';
-import type { LocalPlayer, LocalSessionSettings } from './localPlayers';
+
 // Common types used throughout the application
 
 // Auth related types
@@ -120,8 +122,8 @@ export interface LocalStorageHookReturn<T> {
 // Form data types
 
 export interface ActionEntry {
-  type: string;
-  level: number;
+  type: 'sex' | 'foreplay' | 'consumption' | 'solo';
+  levels?: number[];
   variation?: string;
   [key: string]: unknown;
 }
@@ -200,4 +202,11 @@ export interface FormData {
   localPlayersData?: LocalPlayer[];
   localPlayerSessionSettings?: LocalSessionSettings;
   hasLocalPlayers?: boolean;
+  selectedActions?: {
+    [key: string]: {
+      type: 'sex' | 'foreplay' | 'consumption' | 'solo';
+      levels?: number[];
+      variation?: string;
+    };
+  };
 }

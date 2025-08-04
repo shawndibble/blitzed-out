@@ -445,8 +445,6 @@ const ruleTemplates = {
 
 ## Game Balance
 
-### Difficulty Curves
-
 #### Linear Progression
 
 - Steady intensity increase
@@ -472,32 +470,6 @@ const ruleTemplates = {
 - Actions shuffled fairly
 - No player advantage
 - Equal opportunity
-
-#### Catch-Up Mechanics
-
-- Bonus for trailing players
-- Reduced difficulty when behind
-- Comeback opportunities
-
-## Statistics & Tracking
-
-### Game Statistics
-
-**Service**: `/src/services/statisticsService.ts`
-
-#### Tracked Metrics
-
-```typescript
-interface GameStats {
-  gamesPlayed: number;
-  gamesWon: number;
-  tilesCompleted: number;
-  actionsPerformed: number;
-  averageIntensity: number;
-  totalPlayTime: number;
-  favoriteActions: string[];
-}
-```
 
 #### Session Statistics
 

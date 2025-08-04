@@ -1,24 +1,30 @@
 import { Typography, SelectChangeEvent } from '@mui/material';
-import IncrementalSelect from '@/components/GameForm/IncrementalSelect';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
 import { isOnlineMode } from '@/helpers/strings';
 import MultiSelect from '@/components/MultiSelect';
-import { handleChange, populateSelections, updateFormDataWithDefaults } from '../helpers';
+import MultiSelectIntensity from '@/components/MultiSelectIntensity';
+import { handleLevelsChange, populateSelections, updateFormDataWithDefaults } from '../helpers';
 import { Settings } from '@/types/Settings';
 import { Option } from '@/types/index';
 import { t } from 'i18next';
 
 const MAX_ACTIONS = 4;
 
+interface ActionData {
+  label?: string;
+  intensities?: Record<number, string>;
+  actions?: Record<string, any>;
+}
+
 interface PickActionsProps {
   formData: Settings;
   setFormData: React.Dispatch<React.SetStateAction<Settings>>;
   options: (action: string) => Option[];
-  actionsList: Record<string, any>;
+  actionsList: Record<string, ActionData>;
 }
 
-const getAction = (formData: Settings): string => {
+const getAction = (formData: Settings): 'sex' | 'foreplay' | 'consumption' | 'solo' => {
   if (isOnlineMode(formData?.gameMode)) {
     return 'solo';
   }
@@ -70,16 +76,30 @@ export default function PickActions({
           <IntensityTitle />
 
           {/* All Actions Intensity Controls (now includes custom groups seamlessly) */}
-          {selectedActions.map((option) => (
-            <IncrementalSelect
-              key={option}
-              actionsFolder={actionsList}
-              settings={formData}
-              option={option}
-              initValue={1}
-              onChange={(event) => handleChange(event, option, action, setFormData, () => {})}
-            />
-          ))}
+          {selectedActions.map((option) => {
+            const actionData = actionsList[option];
+            // Get available levels from the intensities mapping, excluding 0 (None)
+            const availableLevels = actionData?.intensities
+              ? Object.keys(actionData.intensities)
+                  .map(Number)
+                  .filter((level) => level > 0)
+                  .sort((a, b) => a - b)
+              : [1, 2, 3, 4]; // Default levels if no specific intensities defined
+
+            const currentLevels = formData.selectedActions?.[option]?.levels || [];
+
+            return (
+              <MultiSelectIntensity
+                key={option}
+                actionName={option}
+                actionLabel={actionData?.label || option}
+                selectedLevels={currentLevels}
+                availableLevels={availableLevels}
+                intensityNames={actionData?.intensities || {}}
+                onChange={(levels) => handleLevelsChange(levels, option, action, setFormData)}
+              />
+            );
+          })}
         </>
       )}
     </>

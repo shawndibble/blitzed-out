@@ -24,7 +24,7 @@ export default function GameOverDialog({
 
   const isMobile = useBreakpoint();
   const updateGameBoardTiles = useGameBoard();
-  const [settings, updateSettings] = useSettings();
+  const [settings] = useSettings();
 
   const returnToStart = useCallback(() => {
     sentUserToStart();
@@ -36,18 +36,6 @@ export default function GameOverDialog({
     sentUserToStart();
     close();
   }, [updateGameBoardTiles, settings, sentUserToStart, close]);
-
-  const acceleratedDifficulty = useCallback(async () => {
-    const newSettings = {
-      ...settings,
-      boardUpdated: true,
-      difficulty: 'accelerated',
-    };
-    await updateGameBoardTiles(newSettings);
-    updateSettings(newSettings);
-    sentUserToStart();
-    close();
-  }, [updateGameBoardTiles, settings, updateSettings, sentUserToStart, close]);
 
   const openSettings = useCallback(() => {
     setSettingsDialog(true);
@@ -75,14 +63,6 @@ export default function GameOverDialog({
 
             <GridItemActionCard title={t('rebuildBoard')} onClick={rebuild}>
               <Trans i18nKey="rebuildBoardDescription" />
-            </GridItemActionCard>
-
-            <GridItemActionCard
-              title={t('finalDifficulty')}
-              onClick={acceleratedDifficulty}
-              disabled={settings.difficulty === 'accelerated'}
-            >
-              <Trans i18nKey="finalDifficultyDescription" />
             </GridItemActionCard>
 
             <GridItemActionCard title={t('changeSettings')} onClick={openSettings}>

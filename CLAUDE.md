@@ -107,13 +107,16 @@ vi.mock('@/context/migration', () => ({
 **Issue**: `Cannot resolve module` errors  
 **Solution**: Check imports use `@/` path aliases correctly
 
-## Context7 MCP Integration
+## MCP Server Integration
 
 ### Available MCP Servers
 
 - **Context7**: Up-to-date documentation and code examples from official sources
   - Status: ✓ Connected
   - URL: https://mcp.context7.com/mcp
+- **Serena**: Advanced codebase analysis and semantic coding tools
+  - Status: ✓ Connected
+  - Provides intelligent code exploration, symbol analysis, and memory management
 
 ### Using Context7
 
@@ -140,6 +143,34 @@ To get current, version-specific documentation and code examples, add `use conte
 - Firebase v12 integration patterns
 - Vite build configuration
 - TypeScript strict mode patterns
+
+### Using Serena
+
+Serena provides advanced semantic code analysis and is automatically available. Key capabilities:
+
+**Symbol Analysis:**
+
+- Find and analyze functions, classes, components by name
+- Explore code relationships and dependencies
+- Navigate codebase structure intelligently
+
+**Memory Management:**
+
+- Maintains project context across sessions
+- Stores development patterns and conventions
+- Preserves onboarding information
+
+**Code Exploration:**
+
+- Search for patterns and implementations
+- Analyze code structure without reading entire files
+- Find references and usages efficiently
+
+**Best Practices:**
+
+- Serena prefers targeted symbol reading over full file reads
+- Use symbol-based operations for precise code modifications
+- Leverages project memory for consistent development patterns
 
 ## Product Documentation
 

@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { Settings } from '@/types/Settings';
 import { getSettingsMessage } from '../gameSettingsMessage';
 import i18next from 'i18next';
-import { Settings } from '@/types/Settings';
 
 // Mock i18next
 vi.mock('i18next', () => ({
@@ -14,7 +15,6 @@ vi.mock('i18next', () => ({
 describe('gameSettingsMessage - Finish Options Formatting', () => {
   const mockTranslations = {
     gameSettingsHeading: 'Game Settings',
-    difficulty: 'Difficulty Curve',
     normal: 'Normal',
     finishSlider: 'Finish options:',
     noCum: 'No Orgasm:',
@@ -35,10 +35,9 @@ describe('gameSettingsMessage - Finish Options Formatting', () => {
   const createMockSettings = (finishRange: [number, number]): Settings => ({
     room: 'TEST',
     gameMode: 'local',
-    difficulty: 'normal',
     finishRange,
     selectedActions: {
-      teasing: { level: 1, type: 'action' as const },
+      teasing: { levels: [1], type: 'sex' as const },
     },
     boardUpdated: false,
   });
@@ -156,7 +155,6 @@ describe('gameSettingsMessage - Finish Options Formatting', () => {
       const settings: Settings = {
         room: 'TEST',
         gameMode: 'local',
-        difficulty: 'normal',
         selectedActions: {},
         boardUpdated: false,
         // finishRange is undefined

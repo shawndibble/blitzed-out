@@ -1,8 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
 import GameBoard from '../index';
 import { Settings } from '@/types/Settings';
 import { Tile } from '@/types/gameBoard';
+import actionStringReplacement from '@/services/actionStringReplacement';
+import useAuth from '@/context/hooks/useAuth';
 
 // Mock dependencies
 vi.mock('@/context/hooks/useAuth', () => ({
@@ -28,9 +31,6 @@ vi.mock('../GameTile', () => ({
     </li>
   )),
 }));
-
-import useAuth from '@/context/hooks/useAuth';
-import actionStringReplacement from '@/services/actionStringReplacement';
 
 describe('GameBoard', () => {
   const mockUser = {
@@ -101,7 +101,6 @@ describe('GameBoard', () => {
     room: 'testroom',
     gameMode: 'online',
     role: 'sub',
-    difficulty: 'normal',
     boardUpdated: false,
   };
 

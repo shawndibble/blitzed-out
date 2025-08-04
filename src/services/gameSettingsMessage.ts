@@ -1,12 +1,13 @@
-import i18next from 'i18next';
-import { getOrCreateBoard, sendMessage } from './firebase';
-import { isOnlineMode } from '@/helpers/strings';
-import { Settings } from '@/types/Settings';
-import { CustomTilePull } from '@/types/customTiles';
 import { DocumentData, DocumentReference } from 'firebase/firestore';
-import { User } from '@/types';
+import { getOrCreateBoard, sendMessage } from './firebase';
+
+import { CustomTilePull } from '@/types/customTiles';
+import { Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
+import { User } from '@/types';
 import { getCustomGroupByName } from '@/stores/customGroups';
+import i18next from 'i18next';
+import { isOnlineMode } from '@/helpers/strings';
 
 /**
  * Type guard to check if an object has a valid role property
@@ -37,7 +38,9 @@ function getCustomTileCount(
   const settingsDataFolder = Object.entries(actionsList)
     .filter(([key]) => actionEntries[key])
     .reduce<Record<string, string[]>>((acc, [key, value]) => {
-      acc[key] = Object.keys(value.actions).slice(1, actionEntries[key].level + 1);
+      const levels = actionEntries[key].levels || [];
+      const actionKeys = Object.keys(value.actions);
+      acc[key] = levels.map((level) => actionKeys[level]).filter(Boolean);
       return acc;
     }, {});
 
@@ -46,7 +49,6 @@ function getCustomTileCount(
       // Only count tiles that are actually custom (not migrated defaults)
       if (!entry.isCustom) return false;
 
-      if (entry.group === 'misc') return true;
       const intensityArray = settingsDataFolder[entry.group];
       return intensityArray && intensityArray.length >= Number(entry.intensity);
     }) || [];
@@ -74,12 +76,14 @@ export async function getSettingsMessage(
   Object.entries(actionsList).forEach(([key, val]) => {
     if (!actionEntries[key]) return;
 
-    const { role, variation, level } = actionEntries[key];
+    const { role, variation, levels } = actionEntries[key];
     const actualRole = role || settings.role || 'sub';
 
-    if (level > 0) {
+    if (levels && levels.length > 0) {
       const actionsKeys = Object.keys(val?.actions || {});
-      message += `* ${val?.label}: ${actionsKeys[level] || ''}`;
+      // Get the max level for display purposes
+      const maxLevel = Math.max(...levels);
+      message += `* ${val?.label}: ${actionsKeys[maxLevel] || ''} (Levels: ${levels.join(', ')})`;
 
       if (variation) {
         message += ` (${t(variation)})`;
@@ -124,11 +128,9 @@ export async function getSettingsMessage(
     return '';
   }
 
-  const { finishRange, difficulty } = settings;
+  const { finishRange } = settings;
 
   message += '--- \r\n';
-
-  message += `* ${t('difficulty')}: ${t(difficulty ?? 'normal')} \r\n`;
 
   if (finishRange) {
     const noCumPercent = finishRange[0];

@@ -98,10 +98,6 @@
   "foreplaySubtitle": "穿著衣服時可進行。",
   "sex": "性愛",
   "sexSubtitle": "需要脫光衣服。",
-  "difficulty": "難度曲線",
-  "difficultyTooltip": "<0>正常：逐漸增加到您選擇的最高選項。<br /><br />加速：直接跳到您的最高選項 + 1級以下。</0>",
-  "normal": "正常",
-  "accelerated": "加速",
   "finishSlider": "結束選項：",
   "noCum": "無高潮：",
   "ruined": "毀掉的高潮：",
@@ -176,8 +172,6 @@
   "sameBoardDescription": "無變更。返回開始。",
   "rebuildBoard": "重建遊戲板",
   "rebuildBoardDescription": "保持相同設定。新的動作組合。",
-  "finalDifficulty": "使用最終難度",
-  "finalDifficultyDescription": "使用遊戲結束時的難度建立新遊戲板。",
   "changeSettings": "變更設定",
   "changeSettingsDescription": "開啟設定對話框以完全變更遊戲。",
   "manageTiles": "管理遊戲磁磚",
@@ -350,6 +344,7 @@
     "selectType": "選擇類型..."
   },
   "intensity": "強度",
+  "level": "級別",
   "soon": "即將推出",
   "noLinkProvided": "未提供連結",
   "exportFormat": {
@@ -487,7 +482,6 @@
     "light": "淺色主題",
     "dark": "深色主題",
     "system": "系統預設",
-    "chooseTheme": "選擇主題",
     "switchToLight": "切換到淺色主題",
     "switchToDark": "切換到深色主題"
   },

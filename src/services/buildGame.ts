@@ -123,40 +123,20 @@ function filterTilesByRole(
 const intensityCache = new Map<string, number>();
 
 /**
- * Calculate intensity level based on board position and difficulty.
+ * Calculate intensity level based on board position for progression.
  * Results are cached to improve performance for repeated calculations.
  */
-function calculateIntensity(
-  gameSize: number,
-  maxIntensity: number,
-  currentTile: number,
-  difficulty?: string
-): number {
+function calculateIntensity(gameSize: number, maxIntensity: number, currentTile: number): number {
   // Create cache key for memoization
-  const cacheKey = `${gameSize}-${maxIntensity}-${currentTile}-${difficulty || 'normal'}`;
+  const cacheKey = `${gameSize}-${maxIntensity}-${currentTile}`;
   const cached = intensityCache.get(cacheKey);
   if (cached !== undefined) {
     return cached;
   }
 
-  let result: number;
-
-  if ([undefined, 'normal'].includes(difficulty)) {
-    const divider = gameSize / maxIntensity;
-    result = Math.floor(currentTile / divider) + 1; // Add 1 since intensities start at 1
-  } else {
-    // Accelerated difficulty
-    if (maxIntensity >= 3) {
-      // 40% chance of picking a lower intensity
-      if (Math.random() >= 0.6) {
-        result = maxIntensity - 1;
-      } else {
-        result = maxIntensity;
-      }
-    } else {
-      result = maxIntensity;
-    }
-  }
+  // Simple linear progression from 1 to maxIntensity across the board
+  const divider = gameSize / maxIntensity;
+  const result = Math.floor(currentTile / divider) + 1; // Add 1 since intensities start at 1
 
   // Cache the result for future use
   intensityCache.set(cacheKey, result);
@@ -181,7 +161,7 @@ function buildTileContent(
 
   // Check if this group should append or standalone
   const groupSelection = selectedActions[currentGroup.name];
-  if (!groupSelection || groupSelection.level <= 0) {
+  if (!groupSelection || !groupSelection.levels || groupSelection.levels.length === 0) {
     return { title: '', description: '' };
   }
 
@@ -199,35 +179,34 @@ function buildTileContent(
     }
   }
 
-  // Calculate intensity based on position and settings
+  // Calculate intensity based on position for board progression
   const maxIntensity = Math.max(...currentGroup.intensities.map((i) => i.value));
-  const calculatedIntensity = calculateIntensity(
-    gameSize,
-    maxIntensity,
-    currentTile,
-    settings.difficulty
-  );
-  const targetIntensity = Math.min(calculatedIntensity, groupSelection.level);
+  const calculatedIntensity = calculateIntensity(gameSize, maxIntensity, currentTile);
+
+  // Find the target intensity from user's selected levels
+  const userSelectedLevels = groupSelection.levels;
+  let targetIntensity: number;
+
+  // Check if calculated intensity is in user's selection
+  if (userSelectedLevels.includes(calculatedIntensity)) {
+    targetIntensity = calculatedIntensity;
+  } else {
+    // Find closest available level
+    targetIntensity = userSelectedLevels.reduce((prev: number, curr: number) =>
+      Math.abs(curr - calculatedIntensity) < Math.abs(prev - calculatedIntensity) ? curr : prev
+    );
+  }
 
   // Try to get a tile from the shuffle bag with fallback logic
   let selectedTile = shuffleBag.getTile(currentGroup.name, targetIntensity);
 
   if (!selectedTile) {
-    // Try lower intensities first
-    for (let intensity = targetIntensity - 1; intensity >= 1; intensity--) {
+    // Try other selected levels if target intensity doesn't have tiles
+    const otherLevels = userSelectedLevels.filter((level: number) => level !== targetIntensity);
+    for (const intensity of otherLevels) {
       selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
       if (selectedTile) {
         break;
-      }
-    }
-
-    // If no lower intensities work, try higher intensities
-    if (!selectedTile) {
-      for (let intensity = targetIntensity + 1; intensity <= maxIntensity; intensity++) {
-        selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
-        if (selectedTile) {
-          break;
-        }
       }
     }
 
@@ -292,7 +271,8 @@ async function buildBoard(
     const selection = selectedActions[group.name];
     return (
       selection &&
-      selection.level > 0 &&
+      selection.levels &&
+      selection.levels.length > 0 &&
       (!selection.variation || selection.variation === 'standalone')
     );
   });
@@ -301,7 +281,8 @@ async function buildBoard(
     const selection = selectedActions[group.name];
     return (
       selection &&
-      selection.level > 0 &&
+      selection.levels &&
+      selection.levels.length > 0 &&
       (selection.variation === 'appendSome' || selection.variation === 'appendMost')
     );
   });
@@ -396,7 +377,8 @@ export default async function buildGameBoard(
     // Get selected action group names
     const selectedActions = settings.selectedActions || {};
     const selectedGroupNames = Object.keys(selectedActions).filter(
-      (groupName) => selectedActions[groupName]?.level > 0
+      (groupName) =>
+        selectedActions[groupName]?.levels && selectedActions[groupName].levels.length > 0
     );
 
     // Filter groups to only those selected by user

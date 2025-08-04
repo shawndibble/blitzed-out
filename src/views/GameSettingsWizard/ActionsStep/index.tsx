@@ -101,7 +101,7 @@ export default function ActionsStep({
         const maxLevel = availableIntensities.length;
         targetActions[item] = {
           type: actionsList[item].type,
-          level: Math.min(presetIntensity, maxLevel),
+          levels: Array.from({ length: Math.min(presetIntensity, maxLevel) }, (_, i) => i + 1),
         };
       }
     });
