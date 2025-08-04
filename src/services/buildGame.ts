@@ -184,15 +184,15 @@ function buildTileContent(
   const calculatedIntensity = calculateIntensity(gameSize, maxIntensity, currentTile);
 
   // Find the target intensity from user's selected levels
-  const selectedLevels = groupSelection.levels;
+  const userSelectedLevels = groupSelection.levels;
   let targetIntensity: number;
 
   // Check if calculated intensity is in user's selection
-  if (selectedLevels.includes(calculatedIntensity)) {
+  if (userSelectedLevels.includes(calculatedIntensity)) {
     targetIntensity = calculatedIntensity;
   } else {
     // Find closest available level
-    targetIntensity = selectedLevels.reduce((prev: number, curr: number) =>
+    targetIntensity = userSelectedLevels.reduce((prev: number, curr: number) =>
       Math.abs(curr - calculatedIntensity) < Math.abs(prev - calculatedIntensity) ? curr : prev
     );
   }
@@ -202,7 +202,7 @@ function buildTileContent(
 
   if (!selectedTile) {
     // Try other selected levels if target intensity doesn't have tiles
-    const otherLevels = selectedLevels.filter((level: number) => level !== targetIntensity);
+    const otherLevels = userSelectedLevels.filter((level: number) => level !== targetIntensity);
     for (const intensity of otherLevels) {
       selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
       if (selectedTile) {

@@ -11,16 +11,22 @@ import { t } from 'i18next';
 
 const MAX_ACTIONS = 4;
 
+interface ActionData {
+  label?: string;
+  intensities?: Record<number, string>;
+  actions?: Record<string, any>;
+}
+
 interface PickActionsProps {
   formData: Settings;
   setFormData: React.Dispatch<React.SetStateAction<Settings>>;
   options: (action: string) => Option[];
-  actionsList: Record<string, any>;
+  actionsList: Record<string, ActionData>;
 }
 
-const getAction = (formData: Settings): 'sex' | 'foreplay' | 'consumption' => {
+const getAction = (formData: Settings): 'sex' | 'foreplay' | 'consumption' | 'solo' => {
   if (isOnlineMode(formData?.gameMode)) {
-    return 'sex';
+    return 'solo';
   }
 
   if (formData.isNaked) {

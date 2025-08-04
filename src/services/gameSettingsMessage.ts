@@ -82,7 +82,6 @@ export async function getSettingsMessage(
     if (levels && levels.length > 0) {
       const actionsKeys = Object.keys(val?.actions || {});
       // Get the max level for display purposes
-      // const selectedActions = levels.map(level => actionsKeys[level] || '').filter(Boolean);
       const maxLevel = Math.max(...levels);
       message += `* ${val?.label}: ${actionsKeys[maxLevel] || ''} (Levels: ${levels.join(', ')})`;
 

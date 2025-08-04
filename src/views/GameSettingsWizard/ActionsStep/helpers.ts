@@ -48,9 +48,9 @@ export const populateSelections = (
 };
 
 // if prevData has a type of action that isn't in the value array, delete it.
-const deleteOldFormData = (
+const removeUnselectedActions = (
   prevData: FormData,
-  action: 'sex' | 'foreplay' | 'consumption',
+  action: 'sex' | 'foreplay' | 'consumption' | 'solo',
   value: string[]
 ): FormData => {
   const newFormData = { ...prevData };
@@ -68,11 +68,11 @@ const deleteOldFormData = (
 
 export const updateFormDataWithDefaults = (
   value: string[],
-  action: 'sex' | 'foreplay' | 'consumption',
+  action: 'sex' | 'foreplay' | 'consumption' | 'solo',
   setFormData: React.Dispatch<React.SetStateAction<Settings>>
 ): void => {
   setFormData((prevData) => {
-    const newFormData = deleteOldFormData(prevData, action, value);
+    const newFormData = removeUnselectedActions(prevData, action, value);
     const newSelectedActions = { ...(newFormData.selectedActions as Record<string, ActionEntry>) };
 
     value.forEach((option) => {
@@ -121,7 +121,14 @@ export const handleChange = (
       string,
       ActionEntry
     >;
-    const numValue = typeof value === 'number' ? value : isNaN(Number(value)) ? 0 : Number(value);
+    let numValue: number;
+    if (typeof value === 'number') {
+      numValue = value;
+    } else if (isNaN(Number(value))) {
+      numValue = 0;
+    } else {
+      numValue = Number(value);
+    }
     // Convert single level to levels array for backward compatibility
     const levels = numValue > 0 ? Array.from({ length: numValue }, (_, i) => i + 1) : [];
 
@@ -138,7 +145,7 @@ export const handleChange = (
 export const handleLevelsChange = (
   levels: number[],
   key: string,
-  action: 'sex' | 'foreplay' | 'consumption',
+  action: 'sex' | 'foreplay' | 'consumption' | 'solo',
   setFormData: SetFormDataFunction,
   variation: string | null = null
 ): void => {

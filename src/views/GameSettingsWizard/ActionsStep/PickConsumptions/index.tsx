@@ -11,11 +11,17 @@ import { Typography } from '@mui/material';
 import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
 import { t } from 'i18next';
 
+interface ActionData {
+  label?: string;
+  intensities?: Record<number, string>;
+  actions?: Record<string, any>;
+}
+
 interface PickConsumptionsProps {
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
   options: (actionType: string) => Array<{ value: string; label: string }>;
-  actionsList: Record<string, any>;
+  actionsList: Record<string, ActionData>;
 }
 
 const MAX_CONSUME = 2;
@@ -84,10 +90,10 @@ export default function PickConsumptions({
           <IntensityTitle />
 
           {selectedConsumptions.map((option) => {
-            const actionData = actionsList[option] as any;
+            const actionData = actionsList[option];
             // Get available levels from the intensities mapping, excluding 0 (None)
             const availableLevels = actionData?.intensities
-              ? Object.keys(actionData.intensities as Record<number, string>)
+              ? Object.keys(actionData.intensities)
                   .map(Number)
                   .filter((level) => level > 0)
                   .sort((a, b) => a - b)

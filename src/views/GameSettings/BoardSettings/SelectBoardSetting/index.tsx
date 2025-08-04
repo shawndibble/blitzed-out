@@ -97,33 +97,33 @@ export default function SelectBoardSetting({
     ];
   }
 
+  const renderMultiSelectIntensity = () => {
+    const actionData = actionsFolder[option];
+    // Get available levels from the intensities mapping, excluding 0 (None)
+    const availableLevels = actionData?.intensities
+      ? Object.keys(actionData.intensities)
+          .map(Number)
+          .filter((level) => level > 0)
+          .sort((a, b) => a - b)
+      : [1, 2, 3, 4]; // Default levels if no specific intensities defined
+
+    const currentLevels = settings.selectedActions?.[option]?.levels || [];
+
+    return (
+      <MultiSelectIntensity
+        actionName={option}
+        actionLabel={actionData?.label || option}
+        selectedLevels={currentLevels}
+        availableLevels={availableLevels}
+        intensityNames={actionData?.intensities || {}}
+        onChange={(levels) => handleLevelsChange(levels, option)}
+      />
+    );
+  };
+
   return (
     <Grid container key={option} justifyContent="center">
-      <Grid size={gridSize}>
-        {(() => {
-          const actionData = actionsFolder[option];
-          // Get available levels from the intensities mapping, excluding 0 (None)
-          const availableLevels = actionData?.intensities
-            ? Object.keys(actionData.intensities)
-                .map(Number)
-                .filter((level) => level > 0)
-                .sort((a, b) => a - b)
-            : [1, 2, 3, 4]; // Default levels if no specific intensities defined
-
-          const currentLevels = settings.selectedActions?.[option]?.levels || [];
-
-          return (
-            <MultiSelectIntensity
-              actionName={option}
-              actionLabel={actionData?.label || option}
-              selectedLevels={currentLevels}
-              availableLevels={availableLevels}
-              intensityNames={actionData?.intensities || {}}
-              onChange={(levels) => handleLevelsChange(levels, option)}
-            />
-          );
-        })()}
-      </Grid>
+      <Grid size={gridSize}>{renderMultiSelectIntensity()}</Grid>
       {!!showRole && (
         <Grid size={6}>
           <SettingsSelect

@@ -34,11 +34,8 @@ export default function MultiSelectIntensity({
 
   const handleChange = (event: SelectChangeEvent<number[]>) => {
     const value = event.target.value;
-    // Ensure we have an array of numbers
-    const levels = (typeof value === 'string' ? value.split(',') : value)
-      .map(Number)
-      .filter((n) => !isNaN(n))
-      .sort((a, b) => a - b);
+    // value should always be an array when multiple={true}
+    const levels = (value as number[]).filter((n) => !isNaN(n)).sort((a, b) => a - b);
 
     onChange(levels);
   };
