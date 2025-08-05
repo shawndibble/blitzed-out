@@ -96,6 +96,10 @@ function DirectMediaHandler({ url }: { url: string | null }) {
         src={currentUrl || undefined}
         className="video-background"
         onError={handleVideoError}
+        // Cast-specific optimizations
+        preload="auto"
+        crossOrigin="anonymous"
+        controls={false}
       />
     );
   }
@@ -128,8 +132,16 @@ function DirectMediaHandler({ url }: { url: string | null }) {
 }
 
 export default function RoomBackground({ url = null, isVideo = null }: RoomBackgroundProps) {
+  // Check if we're running in a Cast receiver environment
+  const isCastReceiver =
+    typeof window !== 'undefined' &&
+    (window.location.search.includes('receiver=true') ||
+      window.location.search.includes('chromecast=true') ||
+      navigator.userAgent.includes('CrKey') ||
+      navigator.userAgent.includes('TV'));
+
   // Check if the URL is a direct video file (MP4, WebM, etc.)
-  const isDirectVideo = url && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+  const isDirectVideo = url && /\.(mp4|webm|ogg|mov|gif)(\?.*)?$/i.test(url);
 
   // Show default background when no custom background is set OR when background is "color" or "gray"
   const isNonImageBackground =
@@ -145,7 +157,7 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
       }}
     >
       {isVideo &&
-        (isDirectVideo ? (
+        (isDirectVideo || isCastReceiver ? (
           <DirectMediaHandler url={url} />
         ) : (
           <iframe
@@ -153,8 +165,8 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
             height="100%"
             src={url || undefined}
             title="video"
-            allowFullScreen
-            allow="autoplay"
+            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+            sandbox="allow-same-origin allow-scripts allow-presentation"
             style={{ border: 0 }}
           />
         ))}

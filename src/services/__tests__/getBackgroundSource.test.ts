@@ -10,7 +10,7 @@ describe('getBackgroundSource', () => {
         const result = processBackground(workingUrl);
         expect(result.isVideo).toBe(true);
         expect(result.url).toBe(
-          'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&autostart=true'
+          'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&autostart=true&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3'
         );
       });
 
@@ -19,7 +19,9 @@ describe('getBackgroundSource', () => {
         const shortUrl = 'https://youtu.be/dQw4w9WgXcQ';
         const result = processBackground(shortUrl);
         expect(result.isVideo).toBe(true);
-        expect(result.url).toBe('https://www.youtube.com/embed/?autoplay=1&loop=1&autostart=true');
+        expect(result.url).toBe(
+          'https://www.youtube.com/embed/?autoplay=1&loop=1&autostart=true&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3'
+        );
       });
 
       it('processes Vimeo URLs correctly', () => {
@@ -206,7 +208,7 @@ describe('getBackgroundSource', () => {
     const defaultSettings = {
       background: 'color',
       backgroundURL: '',
-      roomBackground: 'app',
+      roomBackground: 'useAppBackground',
     };
 
     describe('Public room behavior', () => {
@@ -238,7 +240,7 @@ describe('getBackgroundSource', () => {
     });
 
     describe('Private room behavior', () => {
-      it('uses room background when roomBackground is not app', () => {
+      it('uses room background when roomBackground is not useAppBackground', () => {
         const settings = {
           ...defaultSettings,
           background: 'custom',
@@ -252,7 +254,7 @@ describe('getBackgroundSource', () => {
         expect(result.url).toBe('https://example.com/room-bg.jpg');
       });
 
-      it('falls back to app background when roomBackground is app', () => {
+      it('falls back to app background when roomBackground is useAppBackground', () => {
         const settings = {
           ...defaultSettings,
           background: 'custom',
@@ -310,7 +312,7 @@ describe('getBackgroundSource', () => {
         const settings = {
           background: '',
           backgroundURL: '',
-          roomBackground: 'app',
+          roomBackground: 'useAppBackground',
         };
 
         const result = getBackgroundSource(settings, 'PUBLIC');
@@ -397,7 +399,7 @@ describe('getBackgroundSource', () => {
         const originalSettings = {
           background: 'custom',
           backgroundURL: 'https://example.com/bg.jpg',
-          roomBackground: 'app',
+          roomBackground: 'useAppBackground',
         };
         const settingsCopy = { ...originalSettings };
 

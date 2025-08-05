@@ -207,6 +207,83 @@ export async function logout(): Promise<boolean> {
   }
 }
 
+/**
+ * Completely wipe all app data including localStorage, IndexedDB, sessionStorage, and cookies
+ * This provides a complete reset for users who want to start fresh
+ */
+export async function wipeAllAppData(): Promise<void> {
+  try {
+    // First sign out from Firebase
+    const auth = getAuth();
+    await signOut(auth);
+
+    // Clear all localStorage keys
+    const keysToRemove = [
+      'gameSettings',
+      'messages-storage',
+      'i18nextLng',
+      // Migration keys
+      'blitzed-out-action-groups-migration',
+      'blitzed-out-background-migration',
+      'blitzed-out-migration-in-progress',
+      'blitzed-out-current-language-migration',
+      'blitzed-out-background-migration-in-progress',
+      'blitzed-out-migration-health',
+    ];
+
+    keysToRemove.forEach((key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch (error) {
+        console.warn(`Failed to remove localStorage key: ${key}`, error);
+      }
+    });
+
+    // Clear any remaining localStorage keys that start with our app prefixes
+    const appPrefixes = ['gameSettings', 'messages-storage', 'blitzed-out-'];
+    Object.keys(localStorage).forEach((key) => {
+      if (appPrefixes.some((prefix) => key.startsWith(prefix))) {
+        try {
+          localStorage.removeItem(key);
+        } catch (error) {
+          console.warn(`Failed to remove localStorage key: ${key}`, error);
+        }
+      }
+    });
+
+    // Clear sessionStorage (Firebase auth data)
+    try {
+      sessionStorage.clear();
+    } catch (error) {
+      console.warn('Failed to clear sessionStorage:', error);
+    }
+
+    // Clear IndexedDB via Dexie
+    try {
+      const { default: db } = await import('@/stores/store');
+      await db.delete();
+      console.log('Successfully cleared IndexedDB');
+    } catch (error) {
+      console.warn('Failed to clear IndexedDB:', error);
+    }
+
+    // Clear cookies by setting them to expire
+    const cookiesToClear = ['i18next'];
+    cookiesToClear.forEach((cookieName) => {
+      try {
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      } catch (error) {
+        console.warn(`Failed to clear cookie: ${cookieName}`, error);
+      }
+    });
+
+    console.log('Successfully wiped all app data');
+  } catch (error) {
+    console.error('Error wiping app data:', error);
+    throw error;
+  }
+}
+
 interface PresenceOptions {
   newRoom: string | null;
   oldRoom: string | null;

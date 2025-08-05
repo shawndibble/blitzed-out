@@ -16,7 +16,7 @@ function youtube(url: string): string {
   const match = url.match(youtubeRegex);
   const videoId = match ? match[1] : '';
 
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&autostart=true`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&autostart=true&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3`;
 }
 
 function googleDrive(url: string): string {
@@ -47,6 +47,122 @@ function xhamster(url: string): string {
   const key = urlParts[urlParts.length - 1];
 
   return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true`;
+}
+
+function tenor(url: string): string {
+  // Handle direct media URLs: https://media.tenor.com/{id}/{filename}.mp4
+  const directMediaRegex = /media\.tenor\.com\/([a-zA-Z0-9_-]+)\/[^/]*\.(mp4|gif|webp)/;
+  const directMatch = url.match(directMediaRegex);
+
+  if (directMatch) {
+    // Return the direct media URL as-is for direct video playback
+    return url;
+  }
+
+  // Handle view URLs: https://tenor.com/view/{title}-{id}
+  const viewRegex = /tenor\.com\/view\/[^/]*-(\d+)/;
+  const viewMatch = url.match(viewRegex);
+  const gifId = viewMatch ? viewMatch[1] : '';
+
+  // Use Tenor's embed format with autoplay for view URLs
+  return `https://tenor.com/embed/${gifId}?autoplay=1`;
+}
+
+function giphy(url: string): string {
+  const giphyRegex = /giphy\.com\/gifs\/[^/]*-([a-zA-Z0-9]+)/;
+  const match = url.match(giphyRegex);
+  const gifId = match ? match[1] : '';
+
+  // For Cast compatibility, try direct media URL first, fallback to embed
+  // Giphy direct media format: https://media.giphy.com/media/{id}/giphy.gif
+  return `https://media.giphy.com/media/${gifId}/giphy.gif`;
+}
+
+function gfycat(url: string): string {
+  // Handle both gfycat.com and redgifs.com
+  const gfycatRegex = /(?:gfycat\.com|redgifs\.com)\/(?:watch\/)?([a-zA-Z0-9]+)/;
+  const match = url.match(gfycatRegex);
+  const gifId = match ? match[1] : '';
+
+  // For Cast compatibility, try direct video URLs
+  if (url.includes('redgifs.com')) {
+    // RedGifs direct video format
+    return `https://files.redgifs.com/${gifId}.mp4`;
+  }
+  // Gfycat direct video format
+  return `https://giant.gfycat.com/${gifId}.mp4`;
+}
+
+function redtube(url: string): string {
+  const redtubeRegex = /redtube\.com\/(\d+)/;
+  const match = url.match(redtubeRegex);
+  const videoId = match ? match[1] : '';
+
+  return `https://embed.redtube.com/?id=${videoId}&autoplay=1`;
+}
+
+function youporn(url: string): string {
+  const youpornRegex = /youporn\.com\/watch\/(\d+)/;
+  const match = url.match(youpornRegex);
+  const videoId = match ? match[1] : '';
+
+  return `https://www.youporn.com/embed/${videoId}?autoplay=1`;
+}
+
+function tube8(url: string): string {
+  const tube8Regex = /tube8\.com\/[^/]+\/[^/]+\/(\d+)/;
+  const match = url.match(tube8Regex);
+  const videoId = match ? match[1] : '';
+
+  return `https://www.tube8.com/embed/${videoId}?autoplay=1`;
+}
+
+function twitter(url: string): string {
+  // Twitter/X video URLs - use oEmbed approach or direct embed
+  // For now, return the original URL as Twitter handles embedding
+  return url;
+}
+
+function thisvid(url: string): string {
+  // Check if it's already an embed URL
+  if (url.includes('/embed/') || url.includes('/player/')) {
+    return url;
+  }
+
+  // Try to extract video ID from regular URLs
+  // Common patterns: thisvid.com/videos/{id}/ or thisvid.com/videos/{title}-{id}/
+  const videoRegex = /thisvid\.com\/videos\/(?:[^/]*-)?(\d+)/;
+  const match = url.match(videoRegex);
+  const videoId = match ? match[1] : '';
+
+  if (videoId) {
+    // Return embed URL format (common pattern for video sites)
+    return `https://thisvid.com/embed/${videoId}`;
+  }
+
+  // If we can't parse it, return original URL (user may have provided embed URL in different format)
+  return url;
+}
+
+function boyfriendtv(url: string): string {
+  // Check if it's already an embed URL
+  if (url.includes('/embed/') || url.includes('/player/')) {
+    return url;
+  }
+
+  // Try to extract video ID from regular URLs
+  // Common patterns: boyfriendtv.com/videos/{id}/ or boyfriendtv.com/videos/{title}-{id}/
+  const videoRegex = /boyfriendtv\.com\/videos\/(?:[^/]*-)?(\d+)/;
+  const match = url.match(videoRegex);
+  const videoId = match ? match[1] : '';
+
+  if (videoId) {
+    // Return embed URL format (common pattern for video sites)
+    return `https://boyfriendtv.com/embed/${videoId}`;
+  }
+
+  // If we can't parse it, return original URL (user may have provided embed URL in different format)
+  return url;
 }
 
 function imgur(url: string): string {
@@ -171,8 +287,36 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case urlContainsAny(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
       break;
-    case urlContainsAny(url, ['thisvid.com', 'boyfriendtv.com']):
-      embedUrl = url;
+    case urlContainsAny(url, ['tenor.com', 'media.tenor.com']):
+      embedUrl = tenor(url);
+      isVideo = true;
+      break;
+    case url.includes('giphy.com'):
+      embedUrl = giphy(url);
+      isVideo = true;
+      break;
+    case urlContainsAny(url, ['gfycat.com', 'redgifs.com']):
+      embedUrl = gfycat(url);
+      isVideo = true;
+      break;
+    case url.includes('redtube.com'):
+      embedUrl = redtube(url);
+      break;
+    case url.includes('youporn.com'):
+      embedUrl = youporn(url);
+      break;
+    case url.includes('tube8.com'):
+      embedUrl = tube8(url);
+      break;
+    case urlContainsAny(url, ['twitter.com', 'x.com']):
+      embedUrl = twitter(url);
+      isVideo = false;
+      break;
+    case url.includes('thisvid.com'):
+      embedUrl = thisvid(url);
+      break;
+    case url.includes('boyfriendtv.com'):
+      embedUrl = boyfriendtv(url);
       break;
     case isDiscordMediaUrl(url):
       embedUrl = url;

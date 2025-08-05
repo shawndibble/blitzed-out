@@ -80,7 +80,8 @@
           url.searchParams.set('chromecast', 'true');
 
           iframe.src = url.toString();
-          iframe.allow = 'autoplay; fullscreen';
+          iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture; camera; microphone';
+          iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-presentation allow-forms');
 
           // Handle iframe loading
           iframe.onload = function () {

@@ -36,6 +36,7 @@ export default function Cast() {
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [openAlert, setOpenAlert] = useState<boolean>(false);
   const [isCastReceiver, setIsCastReceiver] = useState<boolean>(false);
+  const [needsUserInteraction, setNeedsUserInteraction] = useState<boolean>(false);
 
   // Get messages context - let it throw if context is not available, we'll catch it with error boundary
   const { messages, isLoading } = useMessages();
@@ -56,6 +57,46 @@ export default function Cast() {
       });
     }
   }, [room]);
+
+  // Enhanced autoplay for Cast page
+  useEffect(() => {
+    if (!isVideo || !url) return;
+
+    // Multiple attempts to ensure autoplay works
+    const attemptAutoplay = () => {
+      const videos = document.querySelectorAll('video');
+      const iframes = document.querySelectorAll('iframe');
+
+      // Force play all video elements
+      videos.forEach((video) => {
+        if (video.paused) {
+          video.muted = true; // Ensure muted for autoplay policy
+          video.play().catch((error) => {
+            console.log('Video autoplay attempt failed:', error);
+            setNeedsUserInteraction(true);
+          });
+        }
+      });
+
+      // For YouTube and other iframe embeds, ensure they're loaded with autoplay
+      iframes.forEach((iframe) => {
+        if (iframe.src && !iframe.src.includes('autoplay=1')) {
+          const separator = iframe.src.includes('?') ? '&' : '?';
+          iframe.src += `${separator}autoplay=1&mute=1`;
+        }
+      });
+    };
+
+    // Initial attempt
+    const timer1 = setTimeout(attemptAutoplay, 500);
+    // Retry attempt
+    const timer2 = setTimeout(attemptAutoplay, 2000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [isVideo, url, messages.length]);
 
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
@@ -103,10 +144,22 @@ export default function Cast() {
     }
   }, [messages, isLoading]);
 
+  // Handle user interaction to start playback
+  const handleUserInteraction = () => {
+    const videos = document.querySelectorAll('video');
+    videos.forEach((video) => {
+      if (video.paused) {
+        video.play().catch(console.error);
+      }
+    });
+    setNeedsUserInteraction(false);
+  };
+
   if (!lastAction) {
     return (
       <Box
         className="flex-column"
+        onClick={needsUserInteraction ? handleUserInteraction : undefined}
         style={{
           backgroundColor: 'transparent',
           color: 'white',
@@ -115,6 +168,7 @@ export default function Cast() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+          cursor: needsUserInteraction ? 'pointer' : 'default',
         }}
       >
         {!!url && <RoomBackground url={url} isVideo={isVideo} />}
@@ -185,6 +239,7 @@ export default function Cast() {
   return (
     <Box
       className="flex-column"
+      onClick={needsUserInteraction ? handleUserInteraction : undefined}
       style={{
         backgroundColor: 'transparent',
         color: 'white',
@@ -193,6 +248,7 @@ export default function Cast() {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
+        cursor: needsUserInteraction ? 'pointer' : 'default',
       }}
     >
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
