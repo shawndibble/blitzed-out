@@ -85,7 +85,7 @@ function gfycat(url: string): string {
   const gifId = match ? match[1] : '';
 
   // For Cast compatibility, try direct video URLs
-  if (url.includes('redgifs.com')) {
+  if (isValidHost(url, ['redgifs.com'])) {
     // RedGifs direct video format
     return `https://files.redgifs.com/${gifId}.mp4`;
   }
@@ -98,7 +98,8 @@ function redtube(url: string): string {
   const match = url.match(redtubeRegex);
   const videoId = match ? match[1] : '';
 
-  return `https://embed.redtube.com/?id=${videoId}&autoplay=1&playsinline=1`;
+  // Try different RedTube embed formats for better autoplay support
+  return `https://embed.redtube.com/?id=${videoId}&autoplay=true&auto_play=1&playsinline=1&controls=1`;
 }
 
 function youporn(url: string): string {
@@ -206,19 +207,17 @@ function isDirectVideoUrl(url: string): boolean {
 }
 
 function isDiscordMediaUrl(url: string): boolean {
-  return (
-    urlContainsAny(url, ['media.discordapp.net', 'cdn.discordapp.com']) && !isDirectVideoUrl(url)
-  );
+  return isValidHost(url, ['media.discordapp.net', 'cdn.discordapp.com']) && !isDirectVideoUrl(url);
 }
 
-function urlContainsAny(url: string, domains: string[]): boolean {
+function isValidHost(url: string, allowedHosts: string[]): boolean {
   try {
     const parsed = new URL(url);
-    return domains.some((domain) => parsed.host === domain || parsed.host.endsWith('.' + domain));
+    return allowedHosts.some((host) => parsed.host === host || parsed.host.endsWith('.' + host));
   } catch (error) {
-    // If URL parsing fails, use substring check as fallback (less secure but functional)
-    logger.debug('URL parsing failed in urlContainsAny, using fallback:', error);
-    return domains.some((domain) => url.includes(domain));
+    // If URL parsing fails, reject for security
+    logger.debug('URL parsing failed in isValidHost, rejecting for security:', error);
+    return false;
   }
 }
 
@@ -236,56 +235,56 @@ export function processBackground(url: string | null | undefined): BackgroundRes
   }
 
   switch (true) {
-    case url.includes('vimeo.com'):
+    case isValidHost(url, ['vimeo.com']):
       embedUrl = vimeo(url);
       break;
-    case urlContainsAny(url, ['youtube.com', 'youtu.be']):
+    case isValidHost(url, ['youtube.com', 'youtu.be']):
       embedUrl = youtube(url);
       break;
-    case url.includes('drive.google.com'):
+    case isValidHost(url, ['drive.google.com']):
       embedUrl = googleDrive(url);
       break;
-    case url.includes('pornhub.com'):
+    case isValidHost(url, ['pornhub.com']):
       embedUrl = pornhub(url);
       break;
-    case url.includes('xhamster.com'):
+    case isValidHost(url, ['xhamster.com']):
       embedUrl = xhamster(url);
       break;
-    case url.includes('dropbox.com'):
+    case isValidHost(url, ['dropbox.com']):
       embedUrl = dropBox(url);
       break;
-    case urlContainsAny(url, ['imgur.com', 'i.imgur.com']):
+    case isValidHost(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
       break;
-    case urlContainsAny(url, ['tenor.com', 'media.tenor.com']):
+    case isValidHost(url, ['tenor.com', 'media.tenor.com']):
       embedUrl = tenor(url);
       isVideo = true;
       break;
-    case url.includes('giphy.com'):
+    case isValidHost(url, ['giphy.com']):
       embedUrl = giphy(url);
       isVideo = true;
       break;
-    case urlContainsAny(url, ['gfycat.com', 'redgifs.com']):
+    case isValidHost(url, ['gfycat.com', 'redgifs.com']):
       embedUrl = gfycat(url);
       isVideo = true;
       break;
-    case url.includes('redtube.com'):
+    case isValidHost(url, ['redtube.com']):
       embedUrl = redtube(url);
       break;
-    case url.includes('youporn.com'):
+    case isValidHost(url, ['youporn.com']):
       embedUrl = youporn(url);
       break;
-    case url.includes('tube8.com'):
+    case isValidHost(url, ['tube8.com']):
       embedUrl = tube8(url);
       break;
-    case urlContainsAny(url, ['twitter.com', 'x.com']):
+    case isValidHost(url, ['twitter.com', 'x.com']):
       embedUrl = twitter(url);
       isVideo = false;
       break;
-    case url.includes('thisvid.com'):
+    case isValidHost(url, ['thisvid.com']):
       embedUrl = thisvid(url);
       break;
-    case url.includes('boyfriendtv.com'):
+    case isValidHost(url, ['boyfriendtv.com']):
       embedUrl = boyfriendtv(url);
       break;
     case isDiscordMediaUrl(url):

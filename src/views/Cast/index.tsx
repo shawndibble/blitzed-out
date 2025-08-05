@@ -159,7 +159,6 @@ export default function Cast() {
     return (
       <Box
         className="flex-column"
-        onClick={needsUserInteraction ? handleUserInteraction : undefined}
         style={{
           backgroundColor: 'transparent',
           color: 'white',
@@ -168,10 +167,34 @@ export default function Cast() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          cursor: needsUserInteraction ? 'pointer' : 'default',
+          position: 'relative',
         }}
       >
         {!!url && <RoomBackground url={url} isVideo={isVideo} />}
+
+        {/* User interaction overlay - only when needed and positioned to not block video controls */}
+        {needsUserInteraction && (
+          <Box
+            onClick={handleUserInteraction}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: '80px', // Leave space for video controls at bottom
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              color: 'white',
+              fontSize: '1.5rem',
+              cursor: 'pointer',
+              zIndex: 1000,
+            }}
+          >
+            Click to enable autoplay
+          </Box>
+        )}
         <Grid
           container
           spacing={0}
