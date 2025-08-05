@@ -67,3 +67,17 @@ body.in-iframe .main-container {
   top: 0 !important;
   left: 0 !important;
 }
+
+/* Mobile video background adjustments to prevent overlap with bottom tabs */
+.main-container.mobile-video-background {
+  height: calc(100vh - 48px) !important;
+}
+
+.main-container.mobile-video-background video,
+.main-container.mobile-video-background .video-background {
+  height: calc(100vh - 48px) !important;
+}
+
+.main-container.mobile-video-background iframe {
+  height: calc(100vh - 48px) !important;
+}

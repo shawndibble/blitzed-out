@@ -1,5 +1,5 @@
-import { isPublicRoom } from '@/helpers/strings';
 import { getURLPath } from '@/helpers/urls';
+import { isPublicRoom } from '@/helpers/strings';
 import { logger } from '@/utils/logger';
 
 function vimeo(url: string): string {
@@ -97,8 +97,6 @@ function redtube(url: string): string {
   const redtubeRegex = /redtube\.com\/(\d+)/;
   const match = url.match(redtubeRegex);
   const videoId = match ? match[1] : '';
-
-  // Try different RedTube embed formats for better autoplay support
   return `https://embed.redtube.com/?id=${videoId}&autoplay=true&auto_play=1&playsinline=1&controls=1`;
 }
 

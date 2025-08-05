@@ -125,7 +125,7 @@
   "pinkSpiral": "Espiral rosa",
   "customURL": "URL personalizada",
   "url": "URL de imagen o enlace a página web",
-  "supportedSites": "Páginas web soportadas: YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Pornhub, xHamster, RedTube, YouPorn, Tube8, Twitter/X, ThisVid, BoyfriendTV, Discord CDN, archivos multimedia directos.",
+  "supportedSites": "Páginas web soportadas: YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Twitter/X, Discord CDN, archivos multimedia directos.",
   "requiresEmbeddedUrl": "Nota: ThisVid y BoyfriendTV funcionan mejor con URLs de inserción, pero también se admiten URLs de video regulares.",
   "upcomingGames": "Próximos juegos",
   "scheduleGame": "Programar juego",
