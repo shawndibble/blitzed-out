@@ -124,44 +124,14 @@ function twitter(url: string): string {
 }
 
 function thisvid(url: string): string {
-  // Check if it's already an embed URL
-  if (url.includes('/embed/') || url.includes('/player/')) {
-    return url;
-  }
-
-  // Try to extract video ID from regular URLs
-  // Common patterns: thisvid.com/videos/{id}/ or thisvid.com/videos/{title}-{id}/
-  const videoRegex = /thisvid\.com\/videos\/(?:[^/]*-)?(\d+)/;
-  const match = url.match(videoRegex);
-  const videoId = match ? match[1] : '';
-
-  if (videoId) {
-    // Return embed URL format (common pattern for video sites)
-    return `https://thisvid.com/embed/${videoId}`;
-  }
-
-  // If we can't parse it, return original URL (user may have provided embed URL in different format)
+  // Thisvid URLs don't have extractable IDs in a predictable format
+  // Return the original URL as-is since the site handles its own embedding
   return url;
 }
 
 function boyfriendtv(url: string): string {
-  // Check if it's already an embed URL
-  if (url.includes('/embed/') || url.includes('/player/')) {
-    return url;
-  }
-
-  // Try to extract video ID from regular URLs
-  // Common patterns: boyfriendtv.com/videos/{id}/ or boyfriendtv.com/videos/{title}-{id}/
-  const videoRegex = /boyfriendtv\.com\/videos\/(?:[^/]*-)?(\d+)/;
-  const match = url.match(videoRegex);
-  const videoId = match ? match[1] : '';
-
-  if (videoId) {
-    // Return embed URL format (common pattern for video sites)
-    return `https://boyfriendtv.com/embed/${videoId}`;
-  }
-
-  // If we can't parse it, return original URL (user may have provided embed URL in different format)
+  // BoyfriendTV URLs don't have extractable IDs in a predictable format
+  // Return the original URL as-is since the site handles its own embedding
   return url;
 }
 
