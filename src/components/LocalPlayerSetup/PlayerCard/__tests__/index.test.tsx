@@ -3,6 +3,14 @@ import { describe, it, expect, vi } from 'vitest';
 import PlayerCard from '../index';
 import type { LocalPlayer } from '@/types';
 
+// Mock Material-UI icons to prevent file handle overflow
+vi.mock('@mui/icons-material', () => ({
+  Edit: () => <div data-testid="EditIcon">EditIcon</div>,
+  Delete: () => <div data-testid="DeleteIcon">DeleteIcon</div>,
+  MoreVert: () => <div data-testid="MoreVertIcon">MoreVertIcon</div>,
+  Person: () => <div data-testid="PersonIcon">PersonIcon</div>,
+}));
+
 // Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

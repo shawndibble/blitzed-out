@@ -4,6 +4,14 @@ import userEvent from '@testing-library/user-event';
 import RoomSettings from '../index';
 import { Settings, GameMode } from '@/types/Settings';
 
+// Mock Material-UI icons to prevent file handle overflow
+vi.mock('@mui/icons-material', () => ({
+  MeetingRoom: () => <div data-testid="MeetingRoomIcon">MeetingRoomIcon</div>,
+  People: () => <div data-testid="PeopleIcon">PeopleIcon</div>,
+  Tune: () => <div data-testid="TuneIcon">TuneIcon</div>,
+  Wallpaper: () => <div data-testid="WallpaperIcon">WallpaperIcon</div>,
+}));
+
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

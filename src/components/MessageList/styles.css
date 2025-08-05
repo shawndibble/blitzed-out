@@ -78,7 +78,7 @@ body.theme-light .message {
 
 /* Default transparency styles for custom backgrounds (images/videos) */
 .message.transparent {
-  background: rgba(75, 75, 75, 0.95);
+  background: rgba(75, 75, 75, 0.8);
   backdrop-filter: blur(4px);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -90,7 +90,7 @@ body.theme-light .message {
 
 /* Light mode transparent styles for custom backgrounds - enhanced light overlay */
 body.theme-light .message.transparent {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.8);
   color: rgba(0, 0, 0, 0.9);
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -258,7 +258,7 @@ body.theme-light .default-background ~ * .message-list .message.transparent:hove
 
 /* Default own-message transparency for custom backgrounds */
 .own-message.transparent:has(.message-header) {
-  background: rgba(17, 78, 140, 0.9);
+  background: rgba(17, 78, 140, 0.8);
   backdrop-filter: blur(4px);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -270,7 +270,7 @@ body.theme-light .default-background ~ * .message-list .message.transparent:hove
 
 /* Light mode transparent own message for custom backgrounds - enhanced blue overlay */
 body.theme-light .own-message.transparent:has(.message-header) {
-  background: rgba(25, 118, 210, 0.95);
+  background: rgba(25, 118, 210, 0.8);
   color: rgba(255, 255, 255, 1);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.3);

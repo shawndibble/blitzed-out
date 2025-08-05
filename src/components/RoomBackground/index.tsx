@@ -1,7 +1,6 @@
 import { Box } from '@mui/material';
 import clsx from 'clsx';
 import { useState, useEffect } from 'react';
-import useBreakpoint from '@/hooks/useBreakpoint';
 import './styles.css';
 
 interface RoomBackgroundProps {
@@ -10,7 +9,7 @@ interface RoomBackgroundProps {
 }
 
 // Component to handle direct media URLs with video/image fallback
-function DirectMediaHandler({ url, isMobile }: { url: string | null; isMobile: boolean }) {
+function DirectMediaHandler({ url }: { url: string | null }) {
   const [mediaType, setMediaType] = useState<'video' | 'image'>('video');
   const [currentUrl, setCurrentUrl] = useState(url);
 
@@ -100,12 +99,7 @@ function DirectMediaHandler({ url, isMobile }: { url: string | null; isMobile: b
         // Cast-specific optimizations
         preload="auto"
         crossOrigin="anonymous"
-        controls={isMobile} // Show controls on mobile so users can access play button
-        style={{
-          // On mobile, add bottom margin to ensure controls are above bottom tabs
-          marginBottom: isMobile ? '48px' : '0',
-          height: isMobile ? 'calc(100vh - 48px)' : '100vh',
-        }}
+        controls={true}
       />
     );
   }
@@ -138,8 +132,6 @@ function DirectMediaHandler({ url, isMobile }: { url: string | null; isMobile: b
 }
 
 export default function RoomBackground({ url = null, isVideo = null }: RoomBackgroundProps) {
-  const isMobile = useBreakpoint();
-
   // Check if we're running in a Cast receiver environment
   const isCastReceiver =
     typeof window !== 'undefined' &&
@@ -158,22 +150,15 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
 
   return (
     <Box
-      className={clsx(
-        'main-container',
-        !hasCustomBackground && 'default-background',
-        isMobile && isVideo && 'mobile-video-background'
-      )}
+      className={clsx('main-container', !hasCustomBackground && 'default-background')}
       role="presentation"
       sx={{
         backgroundImage: !isVideo && url && !isNonImageBackground ? `url(${url})` : 'none',
-        // Add bottom padding on mobile when displaying videos to account for BottomTabs
-        paddingBottom: isMobile && isVideo ? '48px' : '0',
-        height: isMobile && isVideo ? 'calc(100vh - 48px)' : '100vh',
       }}
     >
       {isVideo &&
         (isDirectVideo || isCastReceiver ? (
-          <DirectMediaHandler url={url} isMobile={isMobile} />
+          <DirectMediaHandler url={url} />
         ) : (
           <iframe
             width="100%"
@@ -184,9 +169,6 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
             sandbox="allow-same-origin allow-scripts allow-presentation"
             style={{
               border: 0,
-              pointerEvents: 'auto',
-              position: 'relative',
-              zIndex: 1,
             }}
           />
         ))}

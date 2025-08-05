@@ -4,6 +4,12 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import LocalPlayerIndicator from '../index';
 import type { LocalPlayer } from '@/types';
 
+// Mock Material-UI icons to prevent file handle overflow
+vi.mock('@mui/icons-material', () => ({
+  Person: () => <div data-testid="PersonIcon">PersonIcon</div>,
+  PlayArrow: () => <div data-testid="PlayArrowIcon">PlayArrowIcon</div>,
+}));
+
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
