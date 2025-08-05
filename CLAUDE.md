@@ -45,8 +45,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Services**: Firebase operations in `src/services/firebase.ts`
 - **Migration**: Smart language file migration via `src/context/migration.tsx`
 
-**📖 Full Architecture Details**: See [docs/04-technical-architecture.md](docs/04-technical-architecture.md)
-
 ## Development Notes
 
 ### Path Aliases
@@ -80,8 +78,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `npm run test:failures` for memory-safe test validation (recommended)
   - `npm run test:focused` for detailed failure output
   - `npm run test:memory` for low-memory situations
-
-**📖 Full Testing Details**: See [docs/04-technical-architecture.md](docs/04-technical-architecture.md)
 
 #### Critical Testing Issues & Solutions
 
@@ -172,29 +168,6 @@ Serena provides advanced semantic code analysis and is automatically available. 
 - Use symbol-based operations for precise code modifications
 - Leverages project memory for consistent development patterns
 
-## Product Documentation
-
-### Application Documentation
-
-Comprehensive product documentation is available in the `docs/` folder:
-
-- **📖 [docs/README.md](docs/README.md)** - Main documentation index and navigation
-- **🎯 [docs/01-application-overview.md](docs/01-application-overview.md)** - Business overview, product vision, and value propositions
-- **👥 [docs/02-user-features-workflows.md](docs/02-user-features-workflows.md)** - Complete feature documentation including:
-  - App settings and configuration
-  - Setup wizard workflow
-  - Local players functionality
-  - Solo mode features
-  - Custom tiles dialog
-  - Room management
-  - Cast mode
-- **🎲 [docs/03-game-mechanics.md](docs/03-game-mechanics.md)** - Game rules, mechanics, and player interactions
-- **🏗️ [docs/04-technical-architecture.md](docs/04-technical-architecture.md)** - System architecture and technical implementation
-- **💾 [docs/05-data-models.md](docs/05-data-models.md)** - Database schema, state management, and data models
-- **🎨 [docs/06-ui-ux-components.md](docs/06-ui-ux-components.md)** - UI/UX patterns, components, and design system
-
-**Usage:** These docs serve as a complete Business Requirements Document (BRD) and can answer all product questions with references to source code files.
-
 ## Development Workflow
 
 ### Test Driven Development (TDD)
@@ -213,10 +186,6 @@ npm run type-check && npx eslint src/ && npm run test:failures
 
 **Memory-Safe Testing**: Always use `npm run test:failures` when fixing tests or validating changes to prevent system memory overload.
 
-**📖 Full Development Workflow**: See [docs/04-technical-architecture.md](docs/04-technical-architecture.md)
-
 ## Internationalization (i18n)
 
 **CRITICAL RULE**: When updating translations, **ALWAYS** update all 5 language files: `en`, `es`, `fr`, `zh`, `hi` in `src/locales/*/translation.json`
-
-**📖 Full i18n Guidelines**: See [docs/07-internationalization-guidelines.md](docs/07-internationalization-guidelines.md)
