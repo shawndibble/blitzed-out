@@ -39,14 +39,14 @@ function pornhub(url: string): string {
   const params = new URL(url);
   const viewKey = params.searchParams.get('viewkey') || '';
 
-  return `https://pornhub.com/embed/${viewKey}?autoplay=1&loop=1&autostart=true`;
+  return `https://pornhub.com/embed/${viewKey}?autoplay=1&loop=1&autostart=true&playsinline=1`;
 }
 
 function xhamster(url: string): string {
   const urlParts = url.split('-');
   const key = urlParts[urlParts.length - 1];
 
-  return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true`;
+  return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true&playsinline=1`;
 }
 
 function tenor(url: string): string {
@@ -98,7 +98,7 @@ function redtube(url: string): string {
   const match = url.match(redtubeRegex);
   const videoId = match ? match[1] : '';
 
-  return `https://embed.redtube.com/?id=${videoId}&autoplay=1`;
+  return `https://embed.redtube.com/?id=${videoId}&autoplay=1&playsinline=1`;
 }
 
 function youporn(url: string): string {
@@ -106,7 +106,7 @@ function youporn(url: string): string {
   const match = url.match(youpornRegex);
   const videoId = match ? match[1] : '';
 
-  return `https://www.youporn.com/embed/${videoId}?autoplay=1`;
+  return `https://www.youporn.com/embed/${videoId}?autoplay=1&playsinline=1`;
 }
 
 function tube8(url: string): string {
@@ -114,7 +114,7 @@ function tube8(url: string): string {
   const match = url.match(tube8Regex);
   const videoId = match ? match[1] : '';
 
-  return `https://www.tube8.com/embed/${videoId}?autoplay=1`;
+  return `https://www.tube8.com/embed/${videoId}?autoplay=1&playsinline=1`;
 }
 
 function twitter(url: string): string {
