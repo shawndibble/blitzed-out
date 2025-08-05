@@ -2,8 +2,8 @@ import { addCustomGroup, getCustomGroupByName, removeDuplicateGroups } from '@/s
 
 import { CustomGroupBase } from '@/types/customGroups';
 import { CustomTileBase } from '@/types/customTiles';
-import { importCustomTiles } from '@/stores/customTiles';
 import i18n from '@/i18n';
+import { importCustomTiles } from '@/stores/customTiles';
 
 /**
  * Migration service to convert JSON action files to custom groups and custom tiles in Dexie.
@@ -17,18 +17,13 @@ const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'] as const;
 // MIGRATION VERSION CONFIGURATION
 // ============================================================================
 //
-// TO FORCE A NEW MIGRATION:
-// 1. Update MIGRATION_VERSION below (e.g., '2.1.1' -> '2.1.2')
-// 2. The system will automatically detect the version change
-// 3. All users will get fresh migration on next app load
-// 4. Previous localStorage data will be cleared automatically
-//
 // VERSION HISTORY:
 // - 2.1.0: Initial migration system
 // - 2.1.1: Fixed import path matching (@/locales vs /src/locales)
 // - 2.1.2: Added corruption detection and auto-recovery
+// --2.2.0: Added body worship group
 //
-const MIGRATION_VERSION = '2.1.2';
+const MIGRATION_VERSION = '2.2.0';
 // ============================================================================
 
 // Configuration
