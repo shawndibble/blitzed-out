@@ -19,9 +19,11 @@
     "test:memory": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot",
     "test:focused": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --no-watch --reporter=verbose",
     "test:failures": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot --bail=10",
-    "test:ci": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --no-watch --reporter=dot --bail=3 --pool=threads --poolOptions.threads.singleThread=true",
+    "test:ci": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --config=vitest.ci.config.ts",
+    "test:ci-safe": "NODE_OPTIONS='--max-old-space-size=1024' vitest run --no-watch --config=vitest.ci.config.ts src/locales/__tests__/fileParity.test.ts src/services/__tests__/translationUsage.test.ts",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:diagnose": "node scripts/diagnose-hanging-tests.js",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
