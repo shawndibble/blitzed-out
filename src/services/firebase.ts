@@ -241,7 +241,8 @@ export async function wipeAllAppData(): Promise<void> {
 
     // Clear any remaining localStorage keys that start with our app prefixes
     const appPrefixes = ['gameSettings', 'messages-storage', 'blitzed-out-'];
-    Object.keys(localStorage).forEach((key) => {
+    const localStorageKeys = Object.keys(localStorage);
+    localStorageKeys.forEach((key) => {
       if (appPrefixes.some((prefix) => key.startsWith(prefix))) {
         try {
           localStorage.removeItem(key);
