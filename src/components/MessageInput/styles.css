@@ -9,7 +9,7 @@
 
 /* Default transparency for custom backgrounds (dark mode) */
 .transparent .MuiOutlinedInput-root {
-  background-color: rgba(75, 75, 75, 0.75);
+  background-color: rgba(99, 99, 99, 0.75);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }

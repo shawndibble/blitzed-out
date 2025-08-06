@@ -160,6 +160,7 @@ export default function Room() {
   };
 
   const actualBackground = getActualBackground();
+  console.log('Actual Background:', actualBackground);
 
   const isGameBoardTransparent = !['color'].includes(actualBackground || '');
 

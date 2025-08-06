@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import useHybridPlayerList, { type HybridPlayer } from './useHybridPlayerList';
 import { Player } from '@/types/player';
 
@@ -20,8 +20,23 @@ export default function useTurnIndicator(message?: Message): Player | null {
   const [turnIndicator, setTurnIndicator] = useState<Player | null>(null);
   const hybridPlayers = useHybridPlayerList();
 
+  // Create a stable representation of players to prevent infinite loops
+  const playersHash = useMemo(() => {
+    return hybridPlayers
+      .map((p) => `${p.uid}-${p.displayName}-${p.isFinished}-${p.isSelf}`)
+      .join('|');
+  }, [hybridPlayers]);
+
+  // Create a stable representation of the message to prevent infinite loops
+  const messageHash = useMemo(() => {
+    return message ? `${message.uid}-${message.displayName || ''}` : null;
+  }, [message]);
+
   useEffect(() => {
-    if (!message) return;
+    if (!message) {
+      setTurnIndicator(null);
+      return;
+    }
 
     // Single player or not enough players for turns
     if (hybridPlayers.length <= 1) {
@@ -63,7 +78,8 @@ export default function useTurnIndicator(message?: Message): Player | null {
     // Convert to Player format for the indicator
     const nextPlayer = convertHybridPlayerToPlayer(nextHybridPlayer);
     setTurnIndicator(nextPlayer);
-  }, [message, hybridPlayers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageHash, playersHash]);
 
   return turnIndicator;
 }

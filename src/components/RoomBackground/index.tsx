@@ -1,7 +1,9 @@
+import './styles.css';
+
+import { useEffect, useState } from 'react';
+
 import { Box } from '@mui/material';
 import clsx from 'clsx';
-import { useState, useEffect } from 'react';
-import './styles.css';
 
 interface RoomBackgroundProps {
   url?: string | null;
@@ -96,6 +98,10 @@ function DirectMediaHandler({ url }: { url: string | null }) {
         src={currentUrl || undefined}
         className="video-background"
         onError={handleVideoError}
+        // Cast-specific optimizations
+        preload="auto"
+        crossOrigin="anonymous"
+        controls={true}
       />
     );
   }
@@ -129,7 +135,7 @@ function DirectMediaHandler({ url }: { url: string | null }) {
 
 export default function RoomBackground({ url = null, isVideo = null }: RoomBackgroundProps) {
   // Check if the URL is a direct video file (MP4, WebM, etc.)
-  const isDirectVideo = url && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+  const isDirectVideo = url && /\.(mp4|webm|ogg|mov|gif)(\?.*)?$/i.test(url);
 
   // Show default background when no custom background is set OR when background is "color" or "gray"
   const isNonImageBackground =
@@ -145,6 +151,7 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
       }}
     >
       {isVideo &&
+        // Use DirectMediaHandler only for direct video files (e.g., mp4, webm, etc.)
         (isDirectVideo ? (
           <DirectMediaHandler url={url} />
         ) : (
@@ -153,9 +160,11 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
             height="100%"
             src={url || undefined}
             title="video"
-            allowFullScreen
-            allow="autoplay"
-            style={{ border: 0 }}
+            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+            sandbox="allow-same-origin allow-scripts allow-presentation"
+            style={{
+              border: 0,
+            }}
           />
         ))}
     </Box>

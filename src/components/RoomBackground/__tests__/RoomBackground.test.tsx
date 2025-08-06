@@ -144,8 +144,10 @@ describe('RoomBackground', () => {
       expect(iframe).toHaveAttribute('src', embedUrl);
       expect(iframe).toHaveAttribute('width', '100%');
       expect(iframe).toHaveAttribute('height', '100%');
-      expect(iframe).toHaveAttribute('allowfullscreen');
-      expect(iframe).toHaveAttribute('allow', 'autoplay');
+      expect(iframe).toHaveAttribute(
+        'allow',
+        'autoplay; fullscreen; encrypted-media; picture-in-picture'
+      );
       expect(iframe).toHaveStyle('border: 0px');
     });
 

@@ -69,7 +69,7 @@ interface DialogState {
 
 export default function MenuDrawer(): JSX.Element {
   const { id: room } = useParams<{ id: string }>();
-  const { user, logout, isAnonymous } = useAuth();
+  const { user, wipeAllData, isAnonymous } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
   const [menuOpen, setMenu] = useState<boolean>(false);
@@ -92,10 +92,10 @@ export default function MenuDrawer(): JSX.Element {
     []
   );
 
-  const handleLogout = useCallback(async (): Promise<void> => {
-    await logout();
+  const handleWipeData = useCallback(async (): Promise<void> => {
+    await wipeAllData();
     toggleDrawer(false);
-  }, [logout, toggleDrawer]);
+  }, [wipeAllData, toggleDrawer]);
 
   const openInNewTab = (url: string): Window | null => window.open(url, '_blank', 'noreferrer');
 
@@ -281,10 +281,10 @@ export default function MenuDrawer(): JSX.Element {
         });
       }
       items.push({
-        key: 'logout',
-        title: <Trans i18nKey="logout" />,
+        key: 'resetApp',
+        title: <Trans i18nKey="resetApp" />,
         icon: <Logout />,
-        onClick: () => handleLogout(),
+        onClick: () => handleWipeData(),
       });
     }
     return items;
@@ -294,7 +294,7 @@ export default function MenuDrawer(): JSX.Element {
     isAnonymous,
     gameSettings.advancedSettings,
     discordIcon,
-    handleLogout,
+    handleWipeData,
     toggleDialog,
   ]);
 

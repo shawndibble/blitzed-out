@@ -120,3 +120,19 @@
 }
 
 /* Remove fixed height constraints - let content determine size */
+
+/* Ensure video backgrounds autoplay on Cast page */
+.cast-receiver-mode iframe,
+.cast-container iframe {
+  /* Ensure iframe videos are prioritized for autoplay */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Optimize video display for cast devices */
+.cast-receiver-mode video,
+.cast-container video {
+  object-fit: cover;
+  width: 100% !important;
+  height: 100% !important;
+}

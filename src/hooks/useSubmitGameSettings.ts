@@ -28,7 +28,7 @@ interface RoomChangeResult {
 }
 function updateRoomBackground(formData: Settings): void {
   if (!formData.roomBackgroundURL || !isValidURL(formData.roomBackgroundURL)) {
-    formData.roomBackground = 'app';
+    formData.roomBackground = 'useAppBackground';
   }
 }
 

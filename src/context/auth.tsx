@@ -9,6 +9,7 @@ import {
   resetPassword,
   convertAnonymousAccount,
   logout,
+  wipeAllAppData,
 } from '@/services/firebase';
 import {
   syncDataFromFirebase,
@@ -38,6 +39,7 @@ export interface AuthContextType {
   forgotPassword: (email: string) => Promise<boolean>;
   convertToRegistered: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
+  wipeAllData: () => Promise<void>;
   syncData: () => Promise<boolean>;
   isAnonymous: boolean;
 }
@@ -219,6 +221,23 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     }
   }, [user, performSync, setUser, setError]);
 
+  const wipeAllAppDataAndReload = useCallback(async (): Promise<void> => {
+    try {
+      // Use the comprehensive wipe function from firebase service
+      await wipeAllAppData();
+
+      // Clear user state
+      setUser(null);
+
+      // Reload the page to ensure all React state is reset
+      window.location.reload();
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
+      throw err;
+    }
+  }, [setUser, setError]);
+
   const syncData = useCallback(async (): Promise<boolean> => {
     return performSync(syncAllDataToFirebase);
   }, [performSync]);
@@ -335,10 +354,21 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       forgotPassword,
       convertToRegistered,
       logout: logoutUser,
+      wipeAllData: wipeAllAppDataAndReload,
       syncData,
       isAnonymous: user?.isAnonymous || false,
     }),
-    [user, loading, initializing, error, syncStatus, convertToRegistered, logoutUser, syncData]
+    [
+      user,
+      loading,
+      initializing,
+      error,
+      syncStatus,
+      convertToRegistered,
+      logoutUser,
+      wipeAllAppDataAndReload,
+      syncData,
+    ]
   );
 
   return <AuthContext.Provider value={value} {...props} />;

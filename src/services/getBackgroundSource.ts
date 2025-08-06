@@ -1,5 +1,5 @@
-import { isPublicRoom } from '@/helpers/strings';
 import { getURLPath } from '@/helpers/urls';
+import { isPublicRoom } from '@/helpers/strings';
 import { logger } from '@/utils/logger';
 
 function vimeo(url: string): string {
@@ -16,7 +16,7 @@ function youtube(url: string): string {
   const match = url.match(youtubeRegex);
   const videoId = match ? match[1] : '';
 
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&autostart=true`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&autostart=true&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3`;
 }
 
 function googleDrive(url: string): string {
@@ -39,14 +39,99 @@ function pornhub(url: string): string {
   const params = new URL(url);
   const viewKey = params.searchParams.get('viewkey') || '';
 
-  return `https://pornhub.com/embed/${viewKey}?autoplay=1&loop=1&autostart=true`;
+  return `https://pornhub.com/embed/${viewKey}?autoplay=1&loop=1&autostart=true&playsinline=1`;
 }
 
 function xhamster(url: string): string {
   const urlParts = url.split('-');
   const key = urlParts[urlParts.length - 1];
 
-  return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true`;
+  return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true&playsinline=1`;
+}
+
+function tenor(url: string): string {
+  // Handle direct media URLs: https://media.tenor.com/{id}/{filename}.mp4
+  const directMediaRegex = /media\.tenor\.com\/([a-zA-Z0-9_-]+)\/[^/]*\.(mp4|gif|webp)/;
+  const directMatch = url.match(directMediaRegex);
+
+  if (directMatch) {
+    // Return the direct media URL as-is for direct video playback
+    return url;
+  }
+
+  // Handle view URLs: https://tenor.com/view/{title}-{id}
+  const viewRegex = /tenor\.com\/view\/[^/]*-(\d+)/;
+  const viewMatch = url.match(viewRegex);
+  const gifId = viewMatch ? viewMatch[1] : '';
+
+  // Use Tenor's embed format with autoplay for view URLs
+  return `https://tenor.com/embed/${gifId}?autoplay=1`;
+}
+
+function giphy(url: string): string {
+  const giphyRegex = /giphy\.com\/gifs\/[^/]*-([a-zA-Z0-9]+)/;
+  const match = url.match(giphyRegex);
+  const gifId = match ? match[1] : '';
+
+  // For Cast compatibility, try direct media URL first, fallback to embed
+  // Giphy direct media format: https://media.giphy.com/media/{id}/giphy.gif
+  return `https://media.giphy.com/media/${gifId}/giphy.gif`;
+}
+
+function gfycat(url: string): string {
+  // Handle both gfycat.com and redgifs.com
+  const gfycatRegex = /(?:gfycat\.com|redgifs\.com)\/(?:watch\/)?([a-zA-Z0-9]+)/;
+  const match = url.match(gfycatRegex);
+  const gifId = match ? match[1] : '';
+
+  // For Cast compatibility, try direct video URLs
+  if (isValidHost(url, ['redgifs.com'])) {
+    // RedGifs direct video format
+    return `https://files.redgifs.com/${gifId}.mp4`;
+  }
+  // Gfycat direct video format
+  return `https://giant.gfycat.com/${gifId}.mp4`;
+}
+
+function redtube(url: string): string {
+  const redtubeRegex = /redtube\.com\/(\d+)/;
+  const match = url.match(redtubeRegex);
+  const videoId = match ? match[1] : '';
+  return `https://embed.redtube.com/?id=${videoId}&autoplay=true&auto_play=1&playsinline=1&controls=1`;
+}
+
+function youporn(url: string): string {
+  const youpornRegex = /youporn\.com\/watch\/(\d+)/;
+  const match = url.match(youpornRegex);
+  const videoId = match ? match[1] : '';
+
+  return `https://www.youporn.com/embed/${videoId}?autoplay=1&playsinline=1`;
+}
+
+function tube8(url: string): string {
+  const tube8Regex = /tube8\.com\/[^/]+\/[^/]+\/(\d+)/;
+  const match = url.match(tube8Regex);
+  const videoId = match ? match[1] : '';
+
+  return `https://www.tube8.com/embed/${videoId}?autoplay=1&playsinline=1`;
+}
+
+function twitter(url: string): string {
+  // Twitter/X embed: use twitframe.com to generate an embeddable URL for the tweet
+  // This works for most public tweets and does not require API keys
+  return `https://twitframe.com/show?url=${encodeURIComponent(url)}`;
+}
+
+function thisvid(url: string): string {
+  // Thisvid URLs don't have extractable IDs in a predictable format
+  // Return the original URL as-is since the site handles its own embedding
+  return url;
+}
+
+function boyfriendtv(url: string): string {
+  // BoyfriendTV URLs don't have extractable IDs in a predictable format
+  // Return the original URL as-is since the site handles its own embedding
+  return url;
 }
 
 function imgur(url: string): string {
@@ -120,19 +205,17 @@ function isDirectVideoUrl(url: string): boolean {
 }
 
 function isDiscordMediaUrl(url: string): boolean {
-  return (
-    urlContainsAny(url, ['media.discordapp.net', 'cdn.discordapp.com']) && !isDirectVideoUrl(url)
-  );
+  return isValidHost(url, ['media.discordapp.net', 'cdn.discordapp.com']) && !isDirectVideoUrl(url);
 }
 
-function urlContainsAny(url: string, domains: string[]): boolean {
+function isValidHost(url: string, allowedHosts: string[]): boolean {
   try {
     const parsed = new URL(url);
-    return domains.some((domain) => parsed.host === domain || parsed.host.endsWith('.' + domain));
+    return allowedHosts.some((host) => parsed.host === host || parsed.host.endsWith('.' + host));
   } catch (error) {
-    // If URL parsing fails, use substring check as fallback (less secure but functional)
-    logger.debug('URL parsing failed in urlContainsAny, using fallback:', error);
-    return domains.some((domain) => url.includes(domain));
+    // If URL parsing fails, reject for security
+    logger.debug('URL parsing failed in isValidHost, rejecting for security:', error);
+    return false;
   }
 }
 
@@ -150,29 +233,57 @@ export function processBackground(url: string | null | undefined): BackgroundRes
   }
 
   switch (true) {
-    case url.includes('vimeo.com'):
+    case isValidHost(url, ['vimeo.com']):
       embedUrl = vimeo(url);
       break;
-    case urlContainsAny(url, ['youtube.com', 'youtu.be']):
+    case isValidHost(url, ['youtube.com', 'youtu.be']):
       embedUrl = youtube(url);
       break;
-    case url.includes('drive.google.com'):
+    case isValidHost(url, ['drive.google.com']):
       embedUrl = googleDrive(url);
       break;
-    case url.includes('pornhub.com'):
+    case isValidHost(url, ['pornhub.com']):
       embedUrl = pornhub(url);
       break;
-    case url.includes('xhamster.com'):
+    case isValidHost(url, ['xhamster.com']):
       embedUrl = xhamster(url);
       break;
-    case url.includes('dropbox.com'):
+    case isValidHost(url, ['dropbox.com']):
       embedUrl = dropBox(url);
       break;
-    case urlContainsAny(url, ['imgur.com', 'i.imgur.com']):
+    case isValidHost(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
       break;
-    case urlContainsAny(url, ['thisvid.com', 'boyfriendtv.com']):
-      embedUrl = url;
+    case isValidHost(url, ['tenor.com', 'media.tenor.com']):
+      embedUrl = tenor(url);
+      isVideo = true;
+      break;
+    case isValidHost(url, ['giphy.com']):
+      embedUrl = giphy(url);
+      isVideo = true;
+      break;
+    case isValidHost(url, ['gfycat.com', 'redgifs.com']):
+      embedUrl = gfycat(url);
+      isVideo = true;
+      break;
+    case isValidHost(url, ['redtube.com']):
+      embedUrl = redtube(url);
+      break;
+    case isValidHost(url, ['youporn.com']):
+      embedUrl = youporn(url);
+      break;
+    case isValidHost(url, ['tube8.com']):
+      embedUrl = tube8(url);
+      break;
+    case isValidHost(url, ['twitter.com', 'x.com']):
+      embedUrl = twitter(url);
+      isVideo = false;
+      break;
+    case isValidHost(url, ['thisvid.com']):
+      embedUrl = thisvid(url);
+      break;
+    case isValidHost(url, ['boyfriendtv.com']):
+      embedUrl = boyfriendtv(url);
       break;
     case isDiscordMediaUrl(url):
       embedUrl = url;
