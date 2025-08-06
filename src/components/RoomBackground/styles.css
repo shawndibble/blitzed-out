@@ -10,6 +10,13 @@
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Adjust height on mobile to account for BottomTabs */
+@media (max-width: 599.95px) {
+  .main-container {
+    height: calc(100vh - 3rem);
+  }
+}
+
 /* Default gradient background when no custom background is set */
 .main-container.default-background {
   background: linear-gradient(

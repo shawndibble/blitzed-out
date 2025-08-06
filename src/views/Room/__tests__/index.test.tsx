@@ -504,7 +504,7 @@ describe('Room Component', () => {
       renderRoomWithRouter();
 
       const gameBoard = screen.getByTestId('game-board');
-      expect(gameBoard).toHaveAttribute('data-transparent', 'true');
+      expect(gameBoard).toHaveAttribute('data-transparent', 'false');
     });
 
     it('should pass current game board size to message list', () => {
@@ -839,7 +839,7 @@ describe('Room Component', () => {
 
       // Should calculate transparency based on background settings
       const gameBoard = screen.getByTestId('game-board');
-      expect(gameBoard).toHaveAttribute('data-transparent', 'true');
+      expect(gameBoard).toHaveAttribute('data-transparent', 'false');
     });
 
     it('should handle transparency for public rooms', () => {

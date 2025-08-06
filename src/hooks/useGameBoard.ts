@@ -56,17 +56,21 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
       // Use the new streamlined buildGameBoard function
       const boardResult = await buildGameBoard(formData, locale, finalGameMode, tileCount);
 
-      // Log useful debug information
-      if (boardResult.metadata.missingGroups.length > 0) {
-        console.warn('Missing groups for board building:', boardResult.metadata.missingGroups);
-      }
+      // Log useful debug information (but not during tests to avoid stderr noise)
+      const isTestEnvironment = process.env.NODE_ENV === 'test' || process.env.VITEST;
 
-      if (boardResult.metadata.tilesWithContent < tileCount / 2) {
-        console.warn('Low tile content ratio:', {
-          tilesWithContent: boardResult.metadata.tilesWithContent,
-          totalTiles: boardResult.metadata.totalTiles,
-          availableTileCount: boardResult.metadata.availableTileCount,
-        });
+      if (!isTestEnvironment) {
+        if (boardResult.metadata.missingGroups.length > 0) {
+          console.warn('Missing groups for board building:', boardResult.metadata.missingGroups);
+        }
+
+        if (boardResult.metadata.tilesWithContent < tileCount / 2) {
+          console.warn('Low tile content ratio:', {
+            tilesWithContent: boardResult.metadata.tilesWithContent,
+            totalTiles: boardResult.metadata.totalTiles,
+            availableTileCount: boardResult.metadata.availableTileCount,
+          });
+        }
       }
 
       // if our board updated, then push those changes out.

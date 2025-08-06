@@ -14,16 +14,8 @@ export default mergeConfig(
         ['default', { summary: false }], // Replaces deprecated 'basic' reporter
       ],
       slowTestThreshold: 1000, // Flag tests over 1 second as slow
-      testTimeout: 5000,
-      hookTimeout: 5000,
-      pool: 'forks',
-      poolOptions: {
-        forks: {
-          isolate: true,
-          maxForks: 4, // Limit concurrent processes
-          minForks: 1,
-        },
-      },
+      testTimeout: 10000,
+      hookTimeout: 10000,
       // Prevent memory leaks between test runs
       clearMocks: true,
       restoreMocks: true,

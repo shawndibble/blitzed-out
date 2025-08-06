@@ -268,14 +268,55 @@ export async function wipeAllAppData(): Promise<void> {
       console.warn('Failed to clear IndexedDB:', error);
     }
 
-    // Clear cookies by setting them to expire
+    // Clear cookies comprehensively by trying multiple path and domain combinations
     const cookiesToClear = ['i18next'];
-    cookiesToClear.forEach((cookieName) => {
-      try {
-        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-      } catch (error) {
-        console.warn(`Failed to clear cookie: ${cookieName}`, error);
+    const currentHostname = window.location.hostname;
+
+    // Generate possible domains (current domain and its parent domains)
+    const domains = [currentHostname];
+    if (currentHostname.includes('.')) {
+      const parts = currentHostname.split('.');
+      // Add parent domains (e.g., for app.example.com, try .example.com)
+      for (let i = 1; i < parts.length - 1; i++) {
+        domains.push(`.${parts.slice(i).join('.')}`);
       }
+    }
+
+    // Common paths where cookies might be set
+    const paths = ['/', '/app', '/auth', '/login'];
+
+    cookiesToClear.forEach((cookieName) => {
+      // Try clearing with all combinations of domains and paths
+      domains.forEach((domain) => {
+        paths.forEach((path) => {
+          try {
+            // Clear regular cookie
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain};`;
+            // Clear secure cookie (if applicable)
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; secure;`;
+            // Clear httpOnly-accessible cookie (won't work from JS but attempt anyway)
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; httpOnly;`;
+            // Clear SameSite variants
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=Strict;`;
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=Lax;`;
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=None; secure;`;
+          } catch {
+            // Silently continue - many of these attempts will fail, which is expected
+          }
+        });
+      });
+
+      // Also try without specifying domain (for cookies set without explicit domain)
+      paths.forEach((path) => {
+        try {
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; secure;`;
+        } catch {
+          // Silently continue
+        }
+      });
+
+      console.log(`Attempted comprehensive clearing of cookie: ${cookieName}`);
     });
 
     console.log('Successfully wiped all app data');

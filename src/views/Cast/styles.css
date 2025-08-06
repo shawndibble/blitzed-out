@@ -130,9 +130,9 @@
 }
 
 /* Optimize video display for cast devices */
-.cast-receiver-mode video,
-.cast-container video {
+.cast-receiver-mode.cast-receiver-mode video,
+.cast-container.cast-container video {
   object-fit: cover;
-  width: 100% !important;
-  height: 100% !important;
+  width: 100%;
+  height: 100%;
 }
