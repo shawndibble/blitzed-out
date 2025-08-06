@@ -117,9 +117,9 @@ function tube8(url: string): string {
 }
 
 function twitter(url: string): string {
-  // Twitter/X video URLs - use oEmbed approach or direct embed
-  // For now, return the original URL as Twitter handles embedding
-  return url;
+  // Twitter/X embed: use twitframe.com to generate an embeddable URL for the tweet
+  // This works for most public tweets and does not require API keys
+  return `https://twitframe.com/show?url=${encodeURIComponent(url)}`;
 }
 
 function thisvid(url: string): string {

@@ -10,18 +10,21 @@ export default mergeConfig(
       environment: 'jsdom',
       setupFiles: ['./src/setupTests.ts'],
       css: true,
+      // Force timer mocking in CI to prevent hanging
+      fakeTimers: {
+        toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'Date'],
+      },
       reporters: [
         ['default', { summary: false }], // Replaces deprecated 'basic' reporter
       ],
       slowTestThreshold: 1000, // Flag tests over 1 second as slow
-      testTimeout: 5000,
-      hookTimeout: 5000,
-      pool: 'forks',
+      testTimeout: 2000,
+      hookTimeout: 2000,
+      pool: 'threads',
       poolOptions: {
-        forks: {
-          isolate: true,
-          maxForks: 4, // Limit concurrent processes
-          minForks: 1,
+        threads: {
+          singleThread: true, // Prevent race conditions
+          isolate: false, // Speed up execution
         },
       },
       // Prevent memory leaks between test runs

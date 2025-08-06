@@ -207,8 +207,14 @@ describe('useGameBoard', () => {
   });
 
   describe('metadata handling', () => {
-    it('should log warnings for missing groups', async () => {
+    it('should log warnings for missing groups in non-test environment', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const originalNodeEnv = process.env.NODE_ENV;
+      const originalVitest = process.env.VITEST;
+
+      // Temporarily disable test environment detection
+      process.env.NODE_ENV = 'development';
+      delete process.env.VITEST;
 
       const resultWithMissingGroups = {
         ...mockBoardResult,
@@ -227,11 +233,22 @@ describe('useGameBoard', () => {
         'nonexistent',
       ]);
 
+      // Restore environment
+      process.env.NODE_ENV = originalNodeEnv;
+      if (originalVitest !== undefined) {
+        process.env.VITEST = originalVitest;
+      }
       consoleSpy.mockRestore();
     });
 
-    it('should log warnings for low tile content ratio', async () => {
+    it('should log warnings for low tile content ratio in non-test environment', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const originalNodeEnv = process.env.NODE_ENV;
+      const originalVitest = process.env.VITEST;
+
+      // Temporarily disable test environment detection
+      process.env.NODE_ENV = 'development';
+      delete process.env.VITEST;
 
       const resultWithLowContent = {
         ...mockBoardResult,
@@ -247,6 +264,34 @@ describe('useGameBoard', () => {
       await result.current(mockSettings);
 
       expect(consoleSpy).toHaveBeenCalledWith('Low tile content ratio:', expect.any(Object));
+
+      // Restore environment
+      process.env.NODE_ENV = originalNodeEnv;
+      if (originalVitest !== undefined) {
+        process.env.VITEST = originalVitest;
+      }
+      consoleSpy.mockRestore();
+    });
+
+    it('should not log warnings in test environment', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      const resultWithMissingGroups = {
+        ...mockBoardResult,
+        metadata: {
+          ...mockBoardResult.metadata,
+          missingGroups: ['nonexistent'],
+          tilesWithContent: 1, // Also test low content
+        },
+      };
+      vi.mocked(buildGameBoard).mockResolvedValue(resultWithMissingGroups);
+
+      const { result } = renderHook(() => useGameBoard());
+
+      await result.current(mockSettings);
+
+      // Should not have been called because we're in test environment
+      expect(consoleSpy).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
     });

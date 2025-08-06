@@ -174,6 +174,23 @@ vi.mock('use-sound', () => ({
   default: () => [vi.fn(), { stop: vi.fn() }],
 }));
 
+// Mock all MUI icons globally using a factory pattern
+vi.mock('@mui/icons-material', () => {
+  return new Proxy(
+    {},
+    {
+      get(_target, prop) {
+        if (typeof prop === 'string') {
+          // Return a mock React component for any icon
+          return () =>
+            React.createElement('div', { 'data-testid': `mui-icon-${prop.toLowerCase()}` });
+        }
+        return undefined;
+      },
+    }
+  );
+});
+
 // Mock migration context
 vi.mock('@/context/migration', () => ({
   useMigration: () => ({

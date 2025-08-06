@@ -7,14 +7,6 @@ import { Message as MessageType } from '@/types/Message';
 import { ReactNode } from 'react';
 import { Timestamp } from 'firebase/firestore';
 
-// Mock Material-UI icons to prevent file handle overflow
-vi.mock('@mui/icons-material', () => ({
-  Home: () => <div data-testid="HomeIcon">HomeIcon</div>,
-  InfoOutlined: () => <div data-testid="InfoOutlinedIcon">InfoOutlinedIcon</div>,
-  Settings: () => <div data-testid="SettingsIcon">SettingsIcon</div>,
-  Share: () => <div data-testid="ShareIcon">ShareIcon</div>,
-}));
-
 // Mock dependencies
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

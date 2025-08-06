@@ -5,15 +5,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import LocalPlayerSettings from '../LocalPlayerSettings';
 
-// Mock Material-UI icons to prevent file handle overflow
-vi.mock('@mui/icons-material', () => ({
-  People: () => <div data-testid="PeopleIcon">PeopleIcon</div>,
-  Settings: () => <div data-testid="SettingsIcon">SettingsIcon</div>,
-  PlayArrow: () => <div data-testid="PlayArrowIcon">PlayArrowIcon</div>,
-  Edit: () => <div data-testid="EditIcon">EditIcon</div>,
-  Clear: () => <div data-testid="ClearIcon">ClearIcon</div>,
-}));
-
 // Mock dependencies
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

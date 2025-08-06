@@ -80,9 +80,30 @@ export default function Cast() {
 
       // For YouTube and other iframe embeds, ensure they're loaded with autoplay
       iframes.forEach((iframe) => {
-        if (iframe.src && !iframe.src.includes('autoplay=1')) {
-          const separator = iframe.src.includes('?') ? '&' : '?';
-          iframe.src += `${separator}autoplay=1&mute=1`;
+        if (iframe.src) {
+          try {
+            const urlObj = new URL(iframe.src, window.location.origin);
+            const params = urlObj.searchParams;
+            let changed = false;
+            if (params.get('autoplay') !== '1') {
+              params.set('autoplay', '1');
+              changed = true;
+            }
+            if (params.get('mute') !== '1') {
+              params.set('mute', '1');
+              changed = true;
+            }
+            if (changed) {
+              urlObj.search = params.toString();
+              iframe.src = urlObj.toString();
+            }
+          } catch {
+            // If URL parsing fails, fallback to original logic
+            if (!iframe.src.includes('autoplay=1')) {
+              const separator = iframe.src.includes('?') ? '&' : '?';
+              iframe.src += `${separator}autoplay=1&mute=1`;
+            }
+          }
         }
       });
     };
