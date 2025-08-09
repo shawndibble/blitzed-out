@@ -1,12 +1,11 @@
-// Service for fetching images from various sources
+// Dedicated service for fetching images from Reddit
 
-export interface ImageFeedConfig {
-  type: 'reddit' | 'custom';
-  url: string;
+export interface RedditFeedConfig {
+  subreddit: string;
   maxImages?: number;
 }
 
-export interface ImageFeedResult {
+export interface RedditFeedResult {
   images: string[];
   source: string;
 }
@@ -16,8 +15,23 @@ function decodeHtmlEntities(str: string): string {
   return str.replace(/&amp;/g, '&');
 }
 
-// Reddit-specific fetching logic (moved from RoomBackground)
-async function fetchRedditImages(
+// Multiple proxy services for CORS issues as fallbacks
+// cspell:ignore jina allorigins
+const PROXY_SERVICES = ['r.jina.ai', 'api.allorigins.win/get?url=', 'corsproxy.io/?'];
+
+const toProxyUrl = (url: string, serviceIndex: number = 0) => {
+  const service = PROXY_SERVICES[serviceIndex];
+  if (service === 'api.allorigins.win/get?url=') {
+    return `https://${service}${encodeURIComponent(url)}`;
+  }
+  if (service === 'corsproxy.io/?') {
+    return `https://${service}${encodeURIComponent(url)}`;
+  }
+  return `https://${service}/http://${url.replace(/^https?:\/\//, '')}`;
+};
+
+// Reddit-specific fetching logic
+export async function fetchRedditImages(
   subreddit: string,
   maxCount: number,
   signal: AbortSignal
@@ -26,26 +40,32 @@ async function fetchRedditImages(
   let after: string | null = null;
 
   const endpoints = [
+    // Use Reddit RSS/JSON feeds which are more permissive
     (a: string | null) =>
-      `https://api.reddit.com/r/${subreddit}/top.json?limit=100&t=year&raw_json=1${a ? `&after=${a}` : ''}`,
+      `https://www.reddit.com/r/${subreddit}/top.json?limit=100&t=year&raw_json=1${a ? `&after=${a}` : ''}`,
     (a: string | null) =>
-      `https://api.reddit.com/r/${subreddit}/hot.json?limit=100&raw_json=1${a ? `&after=${a}` : ''}`,
+      `https://www.reddit.com/r/${subreddit}/hot.json?limit=100&raw_json=1${a ? `&after=${a}` : ''}`,
   ];
 
-  // Configurable proxy service for CORS issues
-  // cspell:ignore jina
-  const REDDIT_PROXY_SERVICE = 'r.jina.ai';
-  const toProxyUrl = (url: string) =>
-    `https://${REDDIT_PROXY_SERVICE}/http://${url.replace(/^https?:\/\//, '')}`;
-
   const fetchJson = async (url: string): Promise<any | null> => {
+    // Try direct fetch with Reddit-friendly headers
     try {
-      const resp = await fetch(url, { signal, credentials: 'omit', mode: 'cors' });
+      const resp = await fetch(url, {
+        signal,
+        credentials: 'omit',
+        mode: 'cors',
+        headers: {
+          'User-Agent': 'BlitzedOut/1.0 (by /u/your_username)',
+          Accept: 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+      });
       if (resp.ok) {
         const text = await resp.text();
         try {
           return JSON.parse(text);
         } catch {
+          // Try to extract JSON from HTML response
           const start = text.indexOf('{');
           const end = text.lastIndexOf('}');
           if (start !== -1 && end !== -1 && end > start) {
@@ -58,31 +78,60 @@ async function fetchRedditImages(
           return null;
         }
       }
-    } catch {
+    } catch (error) {
+      console.warn('Direct Reddit fetch failed:', error);
       // fallthrough to proxy
     }
 
-    try {
-      const proxyResp = await fetch(toProxyUrl(url), { signal, credentials: 'omit', mode: 'cors' });
-      if (!proxyResp.ok) return null;
-      const text = await proxyResp.text();
+    // Try multiple CORS proxy services
+    for (let i = 0; i < PROXY_SERVICES.length; i++) {
       try {
-        return JSON.parse(text);
-      } catch {
-        const start = text.indexOf('{');
-        const end = text.lastIndexOf('}');
-        if (start !== -1 && end !== -1 && end > start) {
-          try {
-            return JSON.parse(text.slice(start, end + 1));
-          } catch {
-            return null;
+        const proxyResp = await fetch(toProxyUrl(url, i), {
+          signal,
+          credentials: 'omit',
+          mode: 'cors',
+          headers: {
+            'User-Agent': 'BlitzedOut/1.0 (by /u/your_username)',
+            Accept: 'application/json, text/plain, */*',
+          },
+        });
+
+        if (!proxyResp.ok) continue;
+
+        const text = await proxyResp.text();
+
+        // Handle different proxy response formats
+        let jsonData;
+        try {
+          const parsed = JSON.parse(text);
+          // AllOrigins wraps response in contents property
+          jsonData = parsed.contents ? JSON.parse(parsed.contents) : parsed;
+        } catch {
+          // Try to extract JSON from HTML response
+          const start = text.indexOf('{');
+          const end = text.lastIndexOf('}');
+          if (start !== -1 && end !== -1 && end > start) {
+            try {
+              jsonData = JSON.parse(text.slice(start, end + 1));
+            } catch {
+              continue;
+            }
+          } else {
+            continue;
           }
         }
-        return null;
+
+        if (jsonData) {
+          console.log(`Successfully fetched Reddit data using proxy service: ${PROXY_SERVICES[i]}`);
+          return jsonData;
+        }
+      } catch (error) {
+        console.warn(`Proxy service ${PROXY_SERVICES[i]} failed:`, error);
+        continue;
       }
-    } catch {
-      return null;
     }
+
+    return null;
   };
 
   let endpointIndex = 0;
@@ -141,46 +190,22 @@ async function fetchRedditImages(
   return Array.from(collected).slice(0, maxCount);
 }
 
-// Main service function
-export async function fetchImageFeed(
-  config: ImageFeedConfig,
+// Main Reddit service function
+export async function fetchRedditFeed(
+  config: RedditFeedConfig,
   signal: AbortSignal
-): Promise<ImageFeedResult> {
+): Promise<RedditFeedResult> {
   const maxImages = config.maxImages || 150;
+  const images = await fetchRedditImages(config.subreddit, maxImages, signal);
 
-  switch (config.type) {
-    case 'reddit': {
-      const subreddit = extractSubredditFromUrl(config.url);
-      if (!subreddit) {
-        throw new Error('Invalid Reddit URL');
-      }
-      const images = await fetchRedditImages(subreddit, maxImages, signal);
-      return {
-        images,
-        source: `r/${subreddit}`,
-      };
-    }
-
-    case 'custom': {
-      // For custom image arrays or other sources
-      return {
-        images: [config.url], // Single image for now
-        source: 'Custom',
-      };
-    }
-
-    default:
-      throw new Error(`Unsupported feed type: ${config.type}`);
-  }
+  return {
+    images,
+    source: `r/${config.subreddit}`,
+  };
 }
 
 // Helper functions
-export function detectFeedType(url: string): ImageFeedConfig['type'] | null {
-  if (isSubredditUrl(url)) return 'reddit';
-  return null;
-}
-
-export function isSubredditUrl(url: string): boolean {
+export function isRedditUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     return /(^|\.)reddit\.com$/i.test(parsed.hostname) && /\/r\//i.test(parsed.pathname);
@@ -199,15 +224,15 @@ export function extractSubredditFromUrl(url: string): string | null {
   }
 }
 
-// Cache management
+// Cache management for Reddit feeds
 const CACHE_TTL_MS = 300_000; // 300 seconds (5 minutes)
-const cache = new Map<string, { fetchedAt: number; result: ImageFeedResult }>();
-const inFlight = new Map<string, Promise<ImageFeedResult>>();
+const cache = new Map<string, { fetchedAt: number; result: RedditFeedResult }>();
+const inFlight = new Map<string, Promise<RedditFeedResult>>();
 
-export async function getCachedImageFeed(
-  config: ImageFeedConfig,
+export async function getCachedRedditFeed(
+  config: RedditFeedConfig,
   signal: AbortSignal
-): Promise<ImageFeedResult> {
+): Promise<RedditFeedResult> {
   const cacheKey = JSON.stringify(config);
   const now = Date.now();
 
@@ -225,7 +250,7 @@ export async function getCachedImageFeed(
     }
   }
 
-  const promise = fetchImageFeed(config, signal)
+  const promise = fetchRedditFeed(config, signal)
     .then((result) => {
       cache.set(cacheKey, { fetchedAt: Date.now(), result });
       return result;
