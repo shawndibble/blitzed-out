@@ -32,7 +32,11 @@ async function fetchRedditImages(
       `https://api.reddit.com/r/${subreddit}/hot.json?limit=100&raw_json=1${a ? `&after=${a}` : ''}`,
   ];
 
-  const toProxyUrl = (url: string) => `https://r.jina.ai/http://${url.replace(/^https?:\/\//, '')}`;
+  // Configurable proxy service for CORS issues
+  // cspell:ignore jina
+  const REDDIT_PROXY_SERVICE = 'r.jina.ai';
+  const toProxyUrl = (url: string) =>
+    `https://${REDDIT_PROXY_SERVICE}/http://${url.replace(/^https?:\/\//, '')}`;
 
   const fetchJson = async (url: string): Promise<any | null> => {
     try {
@@ -196,7 +200,7 @@ export function extractSubredditFromUrl(url: string): string | null {
 }
 
 // Cache management
-const CACHE_TTL_MS = 400_000; // 400 seconds
+const CACHE_TTL_MS = 300_000; // 300 seconds (5 minutes)
 const cache = new Map<string, { fetchedAt: number; result: ImageFeedResult }>();
 const inFlight = new Map<string, Promise<ImageFeedResult>>();
 
