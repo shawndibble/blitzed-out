@@ -55,7 +55,7 @@ export async function fetchRedditImages(
         credentials: 'omit',
         mode: 'cors',
         headers: {
-          'User-Agent': 'BlitzedOut/1.0 (by /u/your_username)',
+          'User-Agent': 'BlitzedOut/1.0',
           Accept: 'application/json, text/plain, */*',
           'Accept-Language': 'en-US,en;q=0.9',
         },
