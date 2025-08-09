@@ -124,7 +124,7 @@
   "pinkSpiral": "Spirale rose",
   "customURL": "URL personnalisée",
   "url": "URL de l'image ou lien du site",
-  "supportedSites": "Sites pris en charge: YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Twitter/X, Discord CDN, fichiers multimédias directs.",
+  "supportedSites": "Sites pris en charge: Reddit (URLs de subreddit), YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Twitter/X, Discord CDN, fichiers multimédias directs.",
   "requiresEmbeddedUrl": "Note: ThisVid et BoyfriendTV fonctionnent mieux avec les URLs d'intégration, mais les URLs vidéo régulières sont également prises en charge.",
   "upcomingGames": "Jeux à venir",
   "scheduleGame": "Planifier le jeu",

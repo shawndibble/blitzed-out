@@ -121,7 +121,7 @@
   "pinkSpiral": "Pink Spiral",
   "customURL": "Custom URL",
   "url": "Image URL or Site Link",
-  "supportedSites": "Supported Sites: YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Twitter/X, Discord CDN, direct media files.",
+  "supportedSites": "Supported Sites: Reddit (subreddit URLs), YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Twitter/X, Discord CDN, direct media files.",
   "requiresEmbeddedUrl": "Note: ThisVid and BoyfriendTV work best with embed URLs, but regular video URLs are also supported.",
   "upcomingGames": "Upcoming Games",
   "scheduleGame": "Schedule Game",

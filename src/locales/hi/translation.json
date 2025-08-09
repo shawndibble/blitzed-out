@@ -124,7 +124,7 @@
   "pinkSpiral": "गुलाबी सर्पिल",
   "customURL": "कस्टम URL",
   "url": "छवि URL या साइट लिंक",
-  "supportedSites": "समर्थित साइटें: YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Twitter/X, Discord CDN, प्रत्यक्ष मीडिया फ़ाइलें।",
+  "supportedSites": "समर्थित साइटें: Reddit (subreddit URLs), YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Twitter/X, Discord CDN, प्रत्यक्ष मीडिया फ़ाइलें।",
   "requiresEmbeddedUrl": "नोट: ThisVid और BoyfriendTV एम्बेड URLs के साथ सबसे अच्छा काम करते हैं, लेकिन नियमित वीडियो URLs भी समर्थित हैं।",
   "upcomingGames": "आगामी गेम्स",
   "scheduleGame": "गेम शेड्यूल करें",
