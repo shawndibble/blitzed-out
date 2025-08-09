@@ -96,7 +96,7 @@ export default function TransitionModal({
                 transition: 'transform 1000ms linear',
               },
             }}
-            aria-hidden
+            aria-label={t('autoCloseProgress')}
           />
         </Box>
         <DialogContent>

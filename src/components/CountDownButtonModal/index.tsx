@@ -30,7 +30,10 @@ export default function CountDownButtonModal({
   const isMobile = useBreakpoint();
 
   const [time, seconds] = textString.split(' ');
-  const totalSeconds = parseInt(time, 10);
+  let totalSeconds = parseInt(time, 10);
+  if (Number.isNaN(totalSeconds) || totalSeconds < 0) {
+    totalSeconds = 0;
+  }
   const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(totalSeconds, true);
 
   useEffect(() => togglePause(), [togglePause]);

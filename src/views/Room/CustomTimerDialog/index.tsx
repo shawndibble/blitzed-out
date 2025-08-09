@@ -11,11 +11,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { ReactNode, useState } from 'react';
 
 import { ChangeCircle } from '@mui/icons-material';
 import { CustomTimerDialogProps } from './types';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -31,6 +31,26 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
   const [isRangeMode, setIsRangeMode] = useState<boolean>(false);
   const [minTime, setMinTime] = useState<number | string>(20);
   const [maxTime, setMaxTime] = useState<number | string>(60);
+
+  const numberInputSx = {
+    '& input[type=number]': { MozAppearance: 'textfield' },
+    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+      {
+        WebkitAppearance: 'none',
+        margin: 0,
+      },
+  } as const;
+
+  const getNumberInputSlotProps = (endAdornment: ReactNode) =>
+    ({
+      input: {
+        endAdornment,
+        inputProps: {
+          inputMode: 'numeric' as const,
+          pattern: '[0-9]*' as const,
+        },
+      },
+    }) as const;
 
   const handleSubmit = (): void => {
     if (isRangeMode) {
@@ -154,27 +174,12 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
                   setMinTime(value);
                 }}
                 fullWidth
-                sx={{
-                  '& input[type=number]': { MozAppearance: 'textfield' },
-                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-                    {
-                      WebkitAppearance: 'none',
-                      margin: 0,
-                    },
-                }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {isMinutes ? t('minutes') : t('seconds')}
-                      </InputAdornment>
-                    ),
-                    inputProps: {
-                      inputMode: 'numeric',
-                      pattern: '[0-9]*',
-                    },
-                  },
-                }}
+                sx={numberInputSx}
+                slotProps={getNumberInputSlotProps(
+                  <InputAdornment position="end">
+                    {isMinutes ? t('minutes') : t('seconds')}
+                  </InputAdornment>
+                )}
               />
               <Typography variant="body1" sx={{ alignSelf: 'center' }}>
                 -
@@ -189,27 +194,12 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
                   setMaxTime(Math.max(Number(minTime), value));
                 }}
                 fullWidth
-                sx={{
-                  '& input[type=number]': { MozAppearance: 'textfield' },
-                  '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-                    {
-                      WebkitAppearance: 'none',
-                      margin: 0,
-                    },
-                }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {isMinutes ? t('minutes') : t('seconds')}
-                      </InputAdornment>
-                    ),
-                    inputProps: {
-                      inputMode: 'numeric',
-                      pattern: '[0-9]*',
-                    },
-                  },
-                }}
+                sx={numberInputSx}
+                slotProps={getNumberInputSlotProps(
+                  <InputAdornment position="end">
+                    {isMinutes ? t('minutes') : t('seconds')}
+                  </InputAdornment>
+                )}
               />
             </Box>
             <Button onClick={toggleTimeUnit} variant="outlined" size="small">
@@ -224,30 +214,15 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
             value={customTime}
             onChange={(e) => setCustomTime(e.target.value)}
             fullWidth
-            sx={{
-              '& input[type=number]': { MozAppearance: 'textfield' },
-              '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
-                {
-                  WebkitAppearance: 'none',
-                  margin: 0,
-                },
-            }}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Button onClick={toggleTimeUnit} variant="text">
-                      {isMinutes ? t('minutes') : t('seconds')}
-                      <ChangeCircle sx={{ ml: 1 }} />
-                    </Button>
-                  </InputAdornment>
-                ),
-                inputProps: {
-                  inputMode: 'numeric',
-                  pattern: '[0-9]*',
-                },
-              },
-            }}
+            sx={numberInputSx}
+            slotProps={getNumberInputSlotProps(
+              <InputAdornment position="end">
+                <Button onClick={toggleTimeUnit} variant="text">
+                  {isMinutes ? t('minutes') : t('seconds')}
+                  <ChangeCircle sx={{ ml: 1 }} />
+                </Button>
+              </InputAdornment>
+            )}
           />
         )}
       </DialogContent>
