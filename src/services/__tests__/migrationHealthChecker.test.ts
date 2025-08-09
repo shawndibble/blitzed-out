@@ -170,46 +170,4 @@ describe('migrationHealthChecker', () => {
       expect(summary).toContain('en/online');
     });
   });
-
-  describe('window debug functions', () => {
-    it('should expose debug functions to window in development mode', async () => {
-      // Mock development environment
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
-
-      // Clear any existing debug functions
-      delete (window as any).migrationHealth;
-
-      // Re-import the module to trigger window assignment
-      vi.resetModules();
-      await import('../migrationHealthChecker');
-
-      expect((window as any).migrationHealth).toBeDefined();
-      expect((window as any).migrationHealth.check).toBeDefined();
-      expect((window as any).migrationHealth.recover).toBeDefined();
-      expect((window as any).migrationHealth.reset).toBeDefined();
-      expect((window as any).migrationHealth.summary).toBeDefined();
-
-      // Restore original environment
-      process.env.NODE_ENV = originalEnv;
-    });
-
-    it('should not expose debug functions in production mode', async () => {
-      // Mock production environment
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
-
-      // Clear any existing debug functions
-      delete (window as any).migrationHealth;
-
-      // Re-import the module
-      vi.resetModules();
-      await import('../migrationHealthChecker');
-
-      expect((window as any).migrationHealth).toBeUndefined();
-
-      // Restore original environment
-      process.env.NODE_ENV = originalEnv;
-    });
-  });
 });

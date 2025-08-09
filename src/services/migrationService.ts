@@ -1079,13 +1079,6 @@ export const forceFreshMigration = async (): Promise<void> => {
   }
 };
 
-// Developer utilities: Expose migration tools globally in development
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).forceFreshMigration = forceFreshMigration;
-  (window as any).resetMigrationStatus = resetMigrationStatus;
-  (window as any).getMigrationStatus = getMigrationStatus;
-}
-
 /**
  * Clean up any potential duplicates that may have been created during concurrent migrations
  */

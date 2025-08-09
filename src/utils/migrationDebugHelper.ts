@@ -190,31 +190,3 @@ export const checkSetupWizardReadiness = async (): Promise<{
 
   return result;
 };
-
-// Expose functions to window for debugging (development only)
-if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
-  (window as any).migrationDebug = {
-    getInfo: getMigrationDebugInfo,
-    simulateFailure: simulateMigrationFailure,
-    testRecovery: testMigrationRecovery,
-    reset: resetMigrationSystem,
-    checkWizardReadiness: checkSetupWizardReadiness,
-  };
-
-  console.info(`
-🔧 Migration Debug Helper loaded!
-
-Available functions:
-• migrationDebug.getInfo() - Get comprehensive debug information
-• migrationDebug.simulateFailure() - Simulate a migration failure for testing
-• migrationDebug.testRecovery() - Test the automatic recovery system
-• migrationDebug.checkWizardReadiness() - Check if setup wizard should work
-• migrationDebug.reset() - Nuclear option: reset entire migration system
-
-The system will now automatically detect and recover from migration failures.
-If you get stuck in a state where the setup wizard won't work, try:
-1. migrationDebug.checkWizardReadiness()
-2. migrationDebug.testRecovery()
-3. migrationDebug.reset() (if needed)
-  `);
-}
