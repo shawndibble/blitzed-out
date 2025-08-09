@@ -512,7 +512,6 @@
     "noPlayersYet": "Aucun joueur ajouté pour le moment. Ajoutez au moins 2 joueurs pour commencer.",
     "addFirstPlayer": "Ajouter le Premier Joueur",
     "currentPlayer": "Tour Actuel",
-    "turnOrder": "Tour {{order}}",
     "defaultPlayerName": "Joueur {{number}}",
     "startSession": "Finaliser les Joueurs",
     "creatingSession": "Création de la Session...",
@@ -523,14 +522,9 @@
       "duplicateNames": "Les noms des joueurs doivent être uniques",
       "sessionCreation": "Échec de la création de la session"
     },
-    "onThisDevice": "Sur cet appareil",
-    "remoteDevice": "Appareil distant",
     "playerActions": "Actions de {{name}}",
     "editPlayer": "Modifier le Joueur",
     "deletePlayer": "Supprimer le Joueur",
-    "noActivePlayer": "Aucun joueur actif",
-    "currentTurn": "Tour Actuel",
-    "clickToAdvance": "Cliquez pour avancer le tour",
     "form": {
       "editPlayerTitle": "Modifier le Joueur",
       "addPlayerTitle": "Ajouter un Joueur",
