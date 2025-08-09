@@ -1,0 +1,1 @@
+const c=()=>({debug:(e,...o)=>{console.debug(`[DEBUG] ${e}`,...o)},info:(e,...o)=>{console.info(`[INFO] ${e}`,...o)},warn:(e,o,...n)=>{const r=typeof o=="boolean"?n:[o,...n];console.warn(`[WARN] ${e}`,...r)},critical:(e,...o)=>{console.warn(`[CRITICAL] ${e}`,...o)},error:(e,...o)=>{console.error(`[ERROR] ${e}`,...o)}}),l=c();export{l};
