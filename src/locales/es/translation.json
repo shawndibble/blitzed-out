@@ -184,6 +184,7 @@
   "advancedSettings": "Abrir configuraciones avanzadas por defecto",
   "autoCloseModal": "Este cuadro de diálogo se cerrará automáticamente después de {{timeLeft}} segundos.",
   "autoCloseStopped": "Este cuadro de diálogo ya no se cerrará automáticamente.",
+  "autoCloseProgress": "Progreso de cierre automático",
   "nextPlayersTurn": "Próximo jugador: {{player}}",
   "playersTurn": "Turno de {{player}}",
   "yourTurn": "¡¡¡TU TURNO!!!",

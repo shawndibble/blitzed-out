@@ -185,6 +185,7 @@
   "advancedSettings": "Ouvrir les paramètres avancés par défaut",
   "autoCloseModal": "Cette fenêtre se fermera automatiquement après {{timeLeft}} secondes.",
   "autoCloseStopped": "Cette fenêtre ne se fermera plus automatiquement.",
+  "autoCloseProgress": "Progression de la fermeture automatique",
   "nextPlayersTurn": "Prochain joueur: {{player}}",
   "playersTurn": "Tour de {{player}}",
   "yourTurn": "C'EST VOTRE TOUR!!!",

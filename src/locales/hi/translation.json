@@ -185,6 +185,7 @@
   "advancedSettings": "डिफ़ॉल्ट रूप से उन्नत सेटिंग्स खोलें",
   "autoCloseModal": "यह मॉडल {{timeLeft}} सेकंड बाद अपने आप बंद हो जाएगा।",
   "autoCloseStopped": "यह मॉडल अब अपने आप बंद नहीं होगा।",
+  "autoCloseProgress": "ऑटो क्लोज़ प्रगति",
   "nextPlayersTurn": "अगला खिलाड़ी: {{player}}",
   "playersTurn": "{{player}} की बारी",
   "yourTurn": "आपकी बारी!!!",

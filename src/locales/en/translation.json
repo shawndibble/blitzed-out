@@ -185,6 +185,7 @@
   "advancedSettings": "Open advanced settings by default",
   "autoCloseModal": "This modal will automatically close after {{timeLeft}} seconds.",
   "autoCloseStopped": "This modal will no longer automatically close.",
+  "autoCloseProgress": "Auto close progress",
   "nextPlayersTurn": "Next player: {{player}}",
   "playersTurn": "{{player}}'s Turn",
   "yourTurn": "YOUR TURN!!!",
