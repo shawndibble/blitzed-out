@@ -499,7 +499,6 @@
     "noPlayersYet": "尚未添加玩家。至少添加 2 位玩家才能開始。",
     "addFirstPlayer": "添加第一位玩家",
     "currentPlayer": "當前回合",
-    "turnOrder": "第 {{order}} 回合",
     "defaultPlayerName": "玩家 {{number}}",
     "startSession": "確定玩家",
     "creatingSession": "正在創建遊戲...",
@@ -510,14 +509,9 @@
       "duplicateNames": "玩家名字必須唯一",
       "sessionCreation": "創建遊戲失敗"
     },
-    "onThisDevice": "在此設備上",
-    "remoteDevice": "遠程設備",
     "playerActions": "{{name}} 操作",
     "editPlayer": "編輯玩家",
     "deletePlayer": "刪除玩家",
-    "noActivePlayer": "沒有活躍玩家",
-    "currentTurn": "當前回合",
-    "clickToAdvance": "點擊推進回合",
     "form": {
       "editPlayerTitle": "編輯玩家",
       "addPlayerTitle": "新增玩家",

@@ -510,7 +510,6 @@
     "noPlayersYet": "अभी तक कोई खिलाड़ी नहीं जोड़े गए। शुरू करने के लिए कम से कम 2 खिलाड़ी जोड़ें।",
     "addFirstPlayer": "पहला खिलाड़ी जोड़ें",
     "currentPlayer": "वर्तमान बारी",
-    "turnOrder": "बारी {{order}}",
     "defaultPlayerName": "खिलाड़ी {{number}}",
     "startSession": "खिलाड़ियों को अंतिम रूप दें",
     "creatingSession": "सत्र बना रहे हैं...",
@@ -521,14 +520,9 @@
       "duplicateNames": "खिलाड़ियों के नाम अद्वितीय होने चाहिए",
       "sessionCreation": "सत्र बनाने में विफल"
     },
-    "onThisDevice": "इस डिवाइस पर",
-    "remoteDevice": "रिमोट डिवाइस",
     "playerActions": "{{name}} क्रियाएं",
     "editPlayer": "खिलाड़ी संपादित करें",
     "deletePlayer": "खिलाड़ी हटाएं",
-    "noActivePlayer": "कोई सक्रिय खिलाड़ी नहीं",
-    "currentTurn": "वर्तमान बारी",
-    "clickToAdvance": "बारी आगे बढ़ाने के लिए क्लिक करें",
     "form": {
       "editPlayerTitle": "खिलाड़ी संपादित करें",
       "addPlayerTitle": "खिलाड़ी जोड़ें",

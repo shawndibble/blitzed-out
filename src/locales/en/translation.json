@@ -499,7 +499,6 @@
     "noPlayersYet": "No players added yet. Add at least 2 players to begin.",
     "addFirstPlayer": "Add First Player",
     "currentPlayer": "Current Turn",
-    "turnOrder": "Turn {{order}}",
     "defaultPlayerName": "Player {{number}}",
     "startSession": "Finalize Players",
     "creatingSession": "Creating Session...",
@@ -510,14 +509,9 @@
       "duplicateNames": "Player names must be unique",
       "sessionCreation": "Failed to create session"
     },
-    "onThisDevice": "On this device",
-    "remoteDevice": "Remote device",
     "playerActions": "{{name}} actions",
     "editPlayer": "Edit Player",
     "deletePlayer": "Delete Player",
-    "noActivePlayer": "No active player",
-    "currentTurn": "Current Turn",
-    "clickToAdvance": "Click to advance turn",
     "form": {
       "editPlayerTitle": "Edit Player",
       "addPlayerTitle": "Add Player",

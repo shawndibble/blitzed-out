@@ -511,7 +511,6 @@
     "noPlayersYet": "Aún no se han agregado jugadores. Agrega al menos 2 jugadores para comenzar.",
     "addFirstPlayer": "Agregar Primer Jugador",
     "currentPlayer": "Turno Actual",
-    "turnOrder": "Turno {{order}}",
     "defaultPlayerName": "Jugador {{number}}",
     "startSession": "Finalizar Jugadores",
     "creatingSession": "Creando Sesión...",
@@ -522,14 +521,9 @@
       "duplicateNames": "Los nombres de los jugadores deben ser únicos",
       "sessionCreation": "Error al crear la sesión"
     },
-    "onThisDevice": "En este dispositivo",
-    "remoteDevice": "Dispositivo remoto",
     "playerActions": "Acciones de {{name}}",
     "editPlayer": "Editar Jugador",
     "deletePlayer": "Eliminar Jugador",
-    "noActivePlayer": "No hay jugador activo",
-    "currentTurn": "Turno Actual",
-    "clickToAdvance": "Haz clic para avanzar turno",
     "form": {
       "editPlayerTitle": "Editar Jugador",
       "addPlayerTitle": "Agregar Jugador",

@@ -1,7 +1,19 @@
-import { Backdrop, Box, Button, Modal, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Typography,
+} from '@mui/material';
+import { Pause, PlayArrow, Replay } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
+
 import CloseIcon from '@/components/CloseIcon';
+import useBreakpoint from '@/hooks/useBreakpoint';
 import useCountdown from '@/hooks/useCountdown';
-import { useEffect, useState, useRef } from 'react';
 
 interface CountDownButtonModalProps {
   textString: string;
@@ -9,51 +21,36 @@ interface CountDownButtonModalProps {
   noPadding?: boolean;
 }
 
-const style = () => ({
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 180,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 2,
-  textAlign: 'right',
-});
-
 export default function CountDownButtonModal({
   textString,
   preventParentClose,
   noPadding = false,
 }: CountDownButtonModalProps): JSX.Element {
   const [open, setOpen] = useState<boolean>(false);
+  const isMobile = useBreakpoint();
 
   const [time, seconds] = textString.split(' ');
-  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(parseInt(time), true);
+  let totalSeconds = parseInt(time, 10);
+  if (Number.isNaN(totalSeconds) || totalSeconds < 0) {
+    totalSeconds = 0;
+  }
+  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(totalSeconds, true);
 
   useEffect(() => togglePause(), [togglePause]);
 
   const clickedButton = () => {
     preventParentClose();
     setOpen(true);
-    setTimeLeft(parseInt(time));
+    setTimeLeft(totalSeconds);
     if (isPaused) togglePause();
   };
 
-  // handle timeout
-  const timeoutId = useRef<NodeJS.Timeout | undefined>(undefined);
+  // Close when countdown completes
   useEffect(() => {
-    if (open) timeoutId.current = setTimeout(() => setOpen(false), parseInt(time) * 1000);
-    return () => {
-      if (timeoutId.current) clearTimeout(timeoutId.current);
-    };
-  }, [open, time]);
+    if (open && timeLeft <= 0) setOpen(false);
+  }, [open, timeLeft]);
 
-  const handleClose = () => {
-    if (timeoutId.current) clearTimeout(timeoutId.current);
-    setOpen(false);
-  };
+  const handleClose = () => setOpen(false);
 
   // end handle timeout of TransitionModal.
 
@@ -62,24 +59,79 @@ export default function CountDownButtonModal({
       <Button onClick={clickedButton} sx={{ p: noPadding ? 0 : 1 }} color="secondary">
         {textString}
       </Button>
-      <Modal
+      <Dialog
         open={open}
         onClose={handleClose}
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            timeout: 500,
-          },
-        }}
+        fullScreen={isMobile}
+        maxWidth="xs"
+        aria-labelledby="countdown-dialog-title"
       >
-        <Box sx={style}>
+        <DialogTitle id="countdown-dialog-title" sx={{ pr: 6 }}>
           <CloseIcon close={handleClose} />
-          <Typography variant="h2" sx={{ display: 'inline-block' }}>
-            {timeLeft}
-          </Typography>
-          <Typography sx={{ ml: 2, display: 'inline-block' }}>{seconds}</Typography>
-        </Box>
-      </Modal>
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              gap: 2,
+              py: 1,
+            }}
+          >
+            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+              <CircularProgress
+                variant="determinate"
+                value={Math.max(0, Math.min(100, (timeLeft / totalSeconds) * 100))}
+                size={96}
+                thickness={4}
+                color="primary"
+                sx={{
+                  '& .MuiCircularProgress-circle': {
+                    transition: 'stroke-dashoffset 1000ms linear',
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  right: 0,
+                  position: 'absolute',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography variant="h3" aria-live="polite">
+                  {timeLeft}
+                </Typography>
+              </Box>
+            </Box>
+            <Typography variant="body2" color="text.secondary">
+              {seconds}
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <IconButton
+                onClick={togglePause}
+                color="primary"
+                aria-label={isPaused ? 'resume countdown' : 'pause countdown'}
+              >
+                {isPaused ? <PlayArrow /> : <Pause />}
+              </IconButton>
+              <IconButton
+                onClick={() => setTimeLeft(totalSeconds)}
+                color="primary"
+                aria-label="restart countdown"
+              >
+                <Replay />
+              </IconButton>
+            </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

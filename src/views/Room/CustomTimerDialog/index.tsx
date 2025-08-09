@@ -1,21 +1,22 @@
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  InputAdornment,
-  TextField,
   FormControlLabel,
+  InputAdornment,
   Switch,
-  Box,
+  TextField,
   Typography,
 } from '@mui/material';
-import { ChangeCircle } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
+import { ChangeCircle } from '@mui/icons-material';
 import { CustomTimerDialogProps } from './types';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Dialog component for setting a custom timer value in seconds
@@ -24,11 +25,32 @@ const MIN_SECONDS = 10;
 
 const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps): JSX.Element => {
   const { t } = useTranslation();
+  const isMobile = useBreakpoint();
   const [customTime, setCustomTime] = useState<number | string>(30);
   const [isMinutes, setIsMinutes] = useState<boolean>(false);
   const [isRangeMode, setIsRangeMode] = useState<boolean>(false);
   const [minTime, setMinTime] = useState<number | string>(20);
   const [maxTime, setMaxTime] = useState<number | string>(60);
+
+  const numberInputSx = {
+    '& input[type=number]': { MozAppearance: 'textfield' },
+    '& input[type=number]::-webkit-outer-spin-button, & input[type=number]::-webkit-inner-spin-button':
+      {
+        WebkitAppearance: 'none',
+        margin: 0,
+      },
+  } as const;
+
+  const getNumberInputSlotProps = (endAdornment: ReactNode) =>
+    ({
+      input: {
+        endAdornment,
+        inputProps: {
+          inputMode: 'numeric' as const,
+          pattern: '[0-9]*' as const,
+        },
+      },
+    }) as const;
 
   const handleSubmit = (): void => {
     if (isRangeMode) {
@@ -121,8 +143,14 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="xs">
-      <DialogTitle>{t('setTimer')}</DialogTitle>
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      fullScreen={isMobile}
+      maxWidth="xs"
+      aria-labelledby="custom-timer-dialog-title"
+    >
+      <DialogTitle id="custom-timer-dialog-title">{t('setTimer')}</DialogTitle>
       <DialogContent>
         <Box sx={{ mb: 2 }}>
           <FormControlLabel
@@ -146,6 +174,12 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
                   setMinTime(value);
                 }}
                 fullWidth
+                sx={numberInputSx}
+                slotProps={getNumberInputSlotProps(
+                  <InputAdornment position="end">
+                    {isMinutes ? t('minutes') : t('seconds')}
+                  </InputAdornment>
+                )}
               />
               <Typography variant="body1" sx={{ alignSelf: 'center' }}>
                 -
@@ -160,6 +194,12 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
                   setMaxTime(Math.max(Number(minTime), value));
                 }}
                 fullWidth
+                sx={numberInputSx}
+                slotProps={getNumberInputSlotProps(
+                  <InputAdornment position="end">
+                    {isMinutes ? t('minutes') : t('seconds')}
+                  </InputAdornment>
+                )}
               />
             </Box>
             <Button onClick={toggleTimeUnit} variant="outlined" size="small">
@@ -173,25 +213,26 @@ const CustomTimerDialog = ({ isOpen, onClose, onSubmit }: CustomTimerDialogProps
             type="number"
             value={customTime}
             onChange={(e) => setCustomTime(e.target.value)}
-            sx={{ width: '15rem' }}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Button onClick={toggleTimeUnit} variant="text">
-                      {isMinutes ? t('minutes') : t('seconds')}
-                      <ChangeCircle sx={{ ml: 1 }} />
-                    </Button>
-                  </InputAdornment>
-                ),
-              },
-            }}
+            fullWidth
+            sx={numberInputSx}
+            slotProps={getNumberInputSlotProps(
+              <InputAdornment position="end">
+                <Button onClick={toggleTimeUnit} variant="text">
+                  {isMinutes ? t('minutes') : t('seconds')}
+                  <ChangeCircle sx={{ ml: 1 }} />
+                </Button>
+              </InputAdornment>
+            )}
           />
         )}
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>{t('cancel')}</Button>
-        <Button onClick={handleSubmit}>{t('set')}</Button>
+      <DialogActions sx={{ p: 2, gap: 1 }}>
+        <Button onClick={onClose} variant="outlined" fullWidth={isMobile}>
+          {t('cancel')}
+        </Button>
+        <Button onClick={handleSubmit} variant="contained" autoFocus fullWidth={isMobile}>
+          {t('set')}
+        </Button>
       </DialogActions>
     </Dialog>
   );
