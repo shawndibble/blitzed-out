@@ -120,7 +120,7 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
         className="image-background"
         style={{
           backgroundImage: currentUrl
-            ? `url("${String(currentUrl).replace(/"/g, '\\"')}")`
+            ? `url("${String(currentUrl).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}")`
             : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
