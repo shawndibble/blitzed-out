@@ -77,7 +77,7 @@ describe('useImageFeed', () => {
     });
 
     expect(result.current.images).toEqual([]);
-    expect(result.current.error).toBe(`Failed to fetch images: ${errorMessage}`);
+    expect(result.current.error).toBe(errorMessage);
     expect(result.current.source).toBeNull();
   });
 

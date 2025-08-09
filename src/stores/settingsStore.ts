@@ -1,7 +1,7 @@
+import { ActionEntry } from '@/types';
+import { Settings } from '@/types/Settings';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Settings } from '@/types/Settings';
-import { ActionEntry } from '@/types';
 
 const defaultSettings: Settings = {
   locale: 'en',
@@ -13,6 +13,7 @@ const defaultSettings: Settings = {
   selectedActions: {},
   hasSeenRollButton: false,
   themeMode: 'system',
+  playerDialog: true,
 };
 
 interface SettingsStore {

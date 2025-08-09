@@ -58,22 +58,26 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
       // Imgur-specific format trying
       const imgurId = url.match(/imgur\.com\/([a-zA-Z0-9]+)/)?.[1];
       if (imgurId) {
-        const formats = ['png', 'gif', 'jpeg', 'webp'];
+        const formats = ['jpg', 'png', 'gif', 'jpeg', 'webp'];
         const currentFormat = currentUrl?.split('.').pop();
-        const nextFormat = formats.find((f) => f !== currentFormat);
+        const currentIndex = formats.indexOf(currentFormat || '');
+        const nextIndex = currentIndex + 1;
 
-        if (nextFormat) {
+        if (nextIndex < formats.length) {
+          const nextFormat = formats[nextIndex];
           const nextUrl = `https://i.imgur.com/${imgurId}.${nextFormat}`;
           setCurrentUrl(nextUrl);
         }
       }
     } else {
       // For other URLs, try different image extensions
-      const formats = ['png', 'gif', 'jpeg', 'webp'];
+      const formats = ['jpg', 'png', 'gif', 'jpeg', 'webp'];
       const currentFormat = currentUrl?.split('.').pop();
-      const nextFormat = formats.find((f) => f !== currentFormat);
+      const currentIndex = formats.indexOf(currentFormat || '');
+      const nextIndex = currentIndex + 1;
 
-      if (nextFormat && currentUrl) {
+      if (nextIndex < formats.length && currentUrl) {
+        const nextFormat = formats[nextIndex];
         const baseUrl = currentUrl.replace(/\.[^.]+(\?.*)?$/, '');
         const nextUrl = `${baseUrl}.${nextFormat}`;
         setCurrentUrl(nextUrl);
