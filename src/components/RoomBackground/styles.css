@@ -55,6 +55,15 @@ body.theme-light .main-container.default-background {
   border: none;
 }
 
+.main-container iframe {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: none;
+}
+
 /* Fix for iframe/cast receiver environments */
 .cast-receiver-mode .main-container {
   position: absolute !important;

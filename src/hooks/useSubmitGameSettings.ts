@@ -27,8 +27,10 @@ interface RoomChangeResult {
   privateBoardSizeChanged: boolean;
 }
 function updateRoomBackground(formData: Settings): void {
-  // With new system, we don't need roomBackground setting
-  // Just validate and clean up the URL if it exists but is invalid
+  const url = formData.roomBackgroundURL?.trim();
+  if (url !== formData.roomBackgroundURL) {
+    formData.roomBackgroundURL = url || '';
+  }
   if (formData.roomBackgroundURL && !isValidURL(formData.roomBackgroundURL)) {
     formData.roomBackgroundURL = ''; // Clear invalid URL
   }

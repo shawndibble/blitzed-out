@@ -49,23 +49,39 @@ function xhamster(url: string): string {
   return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true&playsinline=1`;
 }
 
-function tenor(url: string): string {
-  // Handle direct media URLs: https://media.tenor.com/{id}/{filename}.mp4
-  const directMediaRegex = /media\.tenor\.com\/([a-zA-Z0-9_-]+)\/[^/]*\.(mp4|gif|webp)/;
+function tenor(url: string): { url: string; isVideo: boolean } {
+  // Handle direct media URLs: https://media.tenor.com/{id}/filename.{ext} or https://media1.tenor.com/m/{id}/filename.{ext}
+  const directMediaRegex =
+    /media1?\.tenor\.com\/(?:m\/)?([a-zA-Z0-9_-]+)\/[^/]*\.(mp4|gif|webp|webm)/;
   const directMatch = url.match(directMediaRegex);
 
   if (directMatch) {
-    // Return the direct media URL as-is for direct video playback
-    return url;
+    const extension = directMatch[2].toLowerCase();
+    // Return the direct media URL as-is for direct playback
+    return {
+      url,
+      isVideo: ['mp4', 'webm'].includes(extension),
+    };
   }
 
   // Handle view URLs: https://tenor.com/view/{title}-{id}
   const viewRegex = /tenor\.com\/view\/[^/]*-(\d+)/;
   const viewMatch = url.match(viewRegex);
-  const gifId = viewMatch ? viewMatch[1] : '';
 
-  // Use Tenor's embed format with autoplay for view URLs
-  return `https://tenor.com/embed/${gifId}?autoplay=1`;
+  if (viewMatch) {
+    const numericId = viewMatch[1];
+    // Use Tenor's embed endpoint which will be handled by iframe
+    return {
+      url: `https://tenor.com/embed/${numericId}`,
+      isVideo: true,
+    };
+  }
+
+  // If we can't match any pattern, return the original URL
+  return {
+    url,
+    isVideo: false,
+  };
 }
 
 function giphy(url: string): string {
@@ -281,18 +297,20 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case isValidHost(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
       break;
-    case isValidHost(url, ['tenor.com', 'media.tenor.com']):
-      embedUrl = tenor(url);
-      isVideo = true;
+    case isValidHost(url, ['tenor.com', 'media.tenor.com']): {
+      const tenorResult = tenor(url);
+      embedUrl = tenorResult.url;
+      isVideo = tenorResult.isVideo;
       break;
+    }
     case isValidHost(url, ['giphy.com']):
       embedUrl = giphy(url);
       isVideo = true;
       break;
     case isValidHost(url, ['tumblr.com', 'media.tumblr.com']) ||
-      /\\d+\\.media\\.tumblr\\.com/.test(url):
+      /\d+\.media\.tumblr\.com/.test(url):
       embedUrl = tumblr(url);
-      isVideo = false;
+      isVideo = embedUrl ? isDirectVideoUrl(embedUrl) : false;
       break;
     case isValidHost(url, ['gfycat.com', 'redgifs.com']):
       embedUrl = gfycat(url);

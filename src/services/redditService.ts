@@ -27,7 +27,9 @@ const toProxyUrl = (url: string, serviceIndex: number = 0) => {
   if (service === 'corsproxy.io/?') {
     return `https://${service}${encodeURIComponent(url)}`;
   }
-  return `https://${service}/http://${url.replace(/^https?:\/\//, '')}`;
+  const withoutScheme = url.replace(/^https?:\/\//, '');
+  const scheme = url.startsWith('https://') ? 'https' : 'http';
+  return `https://${service}/${scheme}://${withoutScheme}`;
 };
 
 // Reddit-specific fetching logic

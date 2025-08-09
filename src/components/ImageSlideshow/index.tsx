@@ -1,9 +1,9 @@
 import './styles.css';
 
 import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 interface ImageSlideshowProps {
   images: string[];
@@ -31,6 +31,11 @@ export default function ImageSlideshow({
   // Reset loading state when images change
   useEffect(() => {
     setHasLoadedFirstImage(false);
+    setPreloadedImages(new Set());
+    setImageLoadErrors(new Set());
+    preloadRef.current.clear();
+    setCurrentIndex(0);
+    setImageKey(0);
   }, [images]);
 
   // Preload images for smooth transitions

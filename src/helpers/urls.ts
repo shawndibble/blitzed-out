@@ -36,7 +36,9 @@ export function isValidURL(url: string): boolean {
   }
 
   try {
-    const parsed = new URL(url);
+    const trimmed = url.trim();
+    if (!trimmed) return false;
+    const parsed = new URL(trimmed);
 
     // Only allow HTTP and HTTPS protocols
     if (!['http:', 'https:'].includes(parsed.protocol)) {

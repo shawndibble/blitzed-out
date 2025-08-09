@@ -43,15 +43,10 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
           <DirectMediaHandler url={url} />
         ) : (
           <iframe
-            width="100%"
-            height="100%"
             src={url || undefined}
             title="video"
             allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
             sandbox="allow-same-origin allow-scripts allow-presentation"
-            style={{
-              border: 0,
-            }}
           />
         ))}
 

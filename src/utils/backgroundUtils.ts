@@ -24,7 +24,7 @@ export function filterBackgroundOptions(
 
   if (!isPrivateRoom) {
     // Public room - remove "Use Room Background" option since it's not available
-    delete filtered.useRoomBackground;
+    delete filtered['useRoomBackground'];
   }
 
   return filtered;

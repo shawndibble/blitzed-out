@@ -248,6 +248,18 @@ describe('useRedditFeed', () => {
         vi.advanceTimersByTime(300);
       });
 
+      // Capture the AbortSignal from the mock call
+      expect(mockGetCachedRedditFeed).toHaveBeenCalledWith(
+        {
+          subreddit: 'testsubreddit',
+          maxImages: 150,
+        },
+        expect.any(AbortSignal)
+      );
+
+      const capturedAbortSignal = mockGetCachedRedditFeed.mock.calls[0][1] as AbortSignal;
+      expect(capturedAbortSignal.aborted).toBe(false); // Initially not aborted
+
       // Unmount before request completes
       unmount();
 
@@ -257,13 +269,9 @@ describe('useRedditFeed', () => {
 
       // Should not update state after unmount
       expect(result.current.isLoading).toBe(true); // State should remain as it was before unmount
-      expect(mockGetCachedRedditFeed).toHaveBeenCalledWith(
-        {
-          subreddit: 'testsubreddit',
-          maxImages: 150,
-        },
-        expect.any(AbortSignal)
-      );
+
+      // Verify the AbortSignal is actually aborted after unmount
+      expect(capturedAbortSignal.aborted).toBe(true);
     });
 
     it('should abort and restart when URL changes', async () => {

@@ -73,17 +73,20 @@ describe('getBackgroundSource', () => {
       });
 
       it('processes Imgur URLs correctly', () => {
-        const imgurUrls = [
-          'https://imgur.com/abc123.mp4',
-          'https://i.imgur.com/abc123.mp4',
-          'https://images-ext-1.discordapp.net/external/xyz/https/i.imgur.com/def456.mp4',
-        ];
+        const imgurUrls = ['https://imgur.com/abc123.mp4', 'https://i.imgur.com/abc123.mp4'];
 
         imgurUrls.forEach((url) => {
           const result = processBackground(url);
           expect(result.isVideo).toBe(true);
-          expect(result.url).toMatch(/i\.imgur\.com\/[a-zA-Z0-9]+\.mp4/);
+          expect(result.url).toMatch(/i\.imgur\.com\/[a-zA-Z0-9]+\.gif/);
         });
+
+        // Discord proxy URLs are returned as-is
+        const discordProxyUrl =
+          'https://images-ext-1.discordapp.net/external/xyz/https/i.imgur.com/def456.mp4';
+        const discordResult = processBackground(discordProxyUrl);
+        expect(discordResult.isVideo).toBe(true);
+        expect(discordResult.url).toBe(discordProxyUrl);
       });
 
       it('processes Imgur gallery URLs correctly', () => {
@@ -98,7 +101,7 @@ describe('getBackgroundSource', () => {
         galleryUrls.forEach((url, index) => {
           const result = processBackground(url);
           expect(result.isVideo).toBe(true);
-          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.mp4`);
+          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.gif`);
         });
       });
 
@@ -116,11 +119,11 @@ describe('getBackgroundSource', () => {
 
           // For the second URL, the regex won't match /gallery/ pattern so it falls back to fragment matching
           if (url.includes('/gallery/')) {
-            expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.mp4`);
+            expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.gif`);
           } else {
             // For URLs without /gallery/, it tries to match as a regular imgur URL
             // but "something" gets extracted instead of the fragment
-            expect(result.url).toBe(`https://i.imgur.com/something.mp4`);
+            expect(result.url).toBe(`https://i.imgur.com/something.gif`);
           }
         });
       });
@@ -133,7 +136,7 @@ describe('getBackgroundSource', () => {
         simpleUrls.forEach((url, index) => {
           const result = processBackground(url);
           expect(result.isVideo).toBe(true);
-          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.mp4`);
+          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.gif`);
         });
       });
 
@@ -188,6 +191,44 @@ describe('getBackgroundSource', () => {
         });
       });
 
+      it('handles Tenor URLs correctly', () => {
+        // Test Tenor view URL (should be treated as video for iframe handling)
+        const tenorViewUrl = 'https://tenor.com/view/snowflake-gif-27204601';
+        const viewResult = processBackground(tenorViewUrl);
+        expect(viewResult.isVideo).toBe(true);
+        expect(viewResult.url).toBe('https://tenor.com/embed/27204601'); // Returns embed URL
+
+        // Test direct Tenor GIF URL (should be treated as image)
+        const tenorGifUrl = 'https://media.tenor.com/DooKzZYQ1ZcAAAAd/snowflake.gif';
+        const gifResult = processBackground(tenorGifUrl);
+        expect(gifResult.isVideo).toBe(false);
+        expect(gifResult.url).toBe(tenorGifUrl);
+
+        // Test direct Tenor HD GIF URL (should be treated as image)
+        const tenorHdGifUrl = 'https://media1.tenor.com/m/DooKzZYQ1ZcAAAAd/snowflake.gif';
+        const hdGifResult = processBackground(tenorHdGifUrl);
+        expect(hdGifResult.isVideo).toBe(false);
+        expect(hdGifResult.url).toBe(tenorHdGifUrl);
+
+        // Test direct Tenor MP4 URL (should be treated as video)
+        const tenorMp4Url = 'https://media.tenor.com/DooKzZYQ1ZcAAAPo/snowflake.mp4';
+        const mp4Result = processBackground(tenorMp4Url);
+        expect(mp4Result.isVideo).toBe(true);
+        expect(mp4Result.url).toBe(tenorMp4Url);
+
+        // Test direct Tenor WebM URL (should be treated as video)
+        const tenorWebmUrl = 'https://media.tenor.com/DooKzZYQ1ZcAAAPs/snowflake.webm';
+        const webmResult = processBackground(tenorWebmUrl);
+        expect(webmResult.isVideo).toBe(true);
+        expect(webmResult.url).toBe(tenorWebmUrl);
+
+        // Test direct Tenor WebP URL (should be treated as image)
+        const tenorWebpUrl = 'https://media.tenor.com/abc123/filename.webp';
+        const webpResult = processBackground(tenorWebpUrl);
+        expect(webpResult.isVideo).toBe(false);
+        expect(webpResult.url).toBe(tenorWebpUrl);
+      });
+
       it('handles generic URLs correctly', () => {
         const genericUrl = 'https://example.com/some-page.html';
         const result = processBackground(genericUrl);
@@ -240,7 +281,7 @@ describe('getBackgroundSource', () => {
     });
 
     describe('Private room behavior', () => {
-      it('uses room background when roomBackground is not useAppBackground', () => {
+      it('uses app background even when room background is set (app background takes priority)', () => {
         const settings = {
           ...defaultSettings,
           background: 'custom',
@@ -251,7 +292,7 @@ describe('getBackgroundSource', () => {
 
         const result = getBackgroundSource(settings, 'PRIVATE');
 
-        expect(result.url).toBe('https://example.com/room-bg.jpg');
+        expect(result.url).toBe('https://example.com/app-bg.jpg');
       });
 
       it('falls back to app background when roomBackground is useAppBackground', () => {
@@ -267,7 +308,7 @@ describe('getBackgroundSource', () => {
         expect(result.url).toBe('https://example.com/app-bg.jpg');
       });
 
-      it('handles missing room background URL', () => {
+      it('uses app background when room background is missing URL', () => {
         const settings = {
           ...defaultSettings,
           background: 'custom',
@@ -277,7 +318,7 @@ describe('getBackgroundSource', () => {
 
         const result = getBackgroundSource(settings, 'PRIVATE');
 
-        expect(result.url).toBeNull();
+        expect(result.url).toBe('https://example.com/app-bg.jpg');
         expect(result.isVideo).toBe(false);
       });
     });
@@ -347,7 +388,7 @@ describe('getBackgroundSource', () => {
 
         const result = getBackgroundSource(settings, 'MYROOM');
 
-        expect(result.url).toBe('https://example.com/room-bg.jpg'); // Should use room background
+        expect(result.url).toBe('https://example.com/app-bg.jpg'); // App background takes priority
       });
 
       it('handles lowercase room names', () => {
@@ -362,7 +403,7 @@ describe('getBackgroundSource', () => {
         // Even though room is lowercase, it should still be treated as private
         const result = getBackgroundSource(settings, 'private');
 
-        expect(result.url).toBe('https://example.com/room-bg.jpg');
+        expect(result.url).toBe('https://example.com/app-bg.jpg');
       });
     });
 

@@ -3,10 +3,10 @@ import { Message, RoomMessage } from '@/types/Message';
 import latestMessageByType from '@/helpers/messages';
 import { processBackground } from '@/services/getBackgroundSource';
 
-interface BackgroundSource {
-  isVideo?: boolean;
-  url?: string;
-}
+type ParsedRoom = {
+  roomBackground?: string;
+  roomBackgroundURL?: string;
+};
 
 interface BackgroundResult {
   isVideo: boolean;
@@ -19,7 +19,15 @@ export default function usePrivateRoomBackground(messages: Message[]): Backgroun
   let url = '';
 
   if (roomMessage) {
-    const { roomBackground, roomBackgroundURL } = JSON.parse(roomMessage.settings || '{}');
+    let roomBackground: string | undefined;
+    let roomBackgroundURL: string | undefined;
+    try {
+      const parsed = JSON.parse(roomMessage.settings || '{}') as ParsedRoom;
+      roomBackground = parsed.roomBackground;
+      roomBackgroundURL = parsed.roomBackgroundURL;
+    } catch {
+      // ignore invalid JSON and fall back to empty defaults
+    }
 
     // Prefer explicit roomBackground value. If custom, use URL; otherwise use the preset name.
     let backgroundInput: string | null = null;
@@ -32,9 +40,9 @@ export default function usePrivateRoomBackground(messages: Message[]): Backgroun
       backgroundInput = roomBackgroundURL as string;
     }
 
-    const backgroundSource = processBackground(backgroundInput) as BackgroundSource;
-    if (backgroundSource?.isVideo) isVideo = backgroundSource.isVideo;
-    if (backgroundSource?.url) url = backgroundSource.url;
+    const backgroundSource = processBackground(backgroundInput);
+    isVideo = !!backgroundSource.isVideo;
+    if (backgroundSource.url) url = backgroundSource.url;
   }
 
   if (['color', 'gray'].some((color) => url.includes(color))) url = '';

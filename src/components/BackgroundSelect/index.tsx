@@ -74,10 +74,13 @@ export default function BackgroundSelect({
   };
 
   useEffect(() => {
-    if (background !== (currentBackground || '')) {
-      setBackground(currentBackground || '');
+    const validBackground =
+      currentBackground && filteredBackgrounds[currentBackground] ? currentBackground : '';
+
+    if (background !== validBackground) {
+      setBackground(validBackground);
     }
-  }, [background, currentBackground]);
+  }, [background, currentBackground, filteredBackgrounds]);
 
   const handleURLChange = (event: ChangeEvent<HTMLInputElement>) => {
     const data = {

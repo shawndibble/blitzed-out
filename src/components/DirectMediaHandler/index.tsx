@@ -12,6 +12,16 @@ const inferMediaType = (u: string | null): 'video' | 'image' => {
   return 'video';
 };
 
+const cssUrl = (url: string): string => {
+  return `url("${String(url)
+    // Strip all control characters including line separators
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\x00-\x1F\x7F-\x9F\u2028\u2029]/g, '')
+    // Escape backslashes and double quotes
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')}")`;
+};
+
 function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
   const [mediaType, setMediaType] = useState<'video' | 'image'>(inferMediaType(url));
   const [currentUrl, setCurrentUrl] = useState(url);
@@ -119,13 +129,7 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
       <div
         className="image-background"
         style={{
-          backgroundImage: currentUrl
-            ? `url("${String(currentUrl)
-                .replace(/\\/g, '\\\\')
-                .replace(/"/g, '\\"')
-                .replace(/\n/g, '')
-                .replace(/\r/g, '')}")`
-            : undefined,
+          backgroundImage: currentUrl ? cssUrl(currentUrl) : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
