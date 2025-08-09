@@ -129,11 +129,15 @@ export default function ImageSlideshow({
   // Skip to next image if current image failed to load
   useEffect(() => {
     if (hasCurrentImageError && images.length > 1) {
-      const nextIndex = (currentIndex + 1) % images.length;
-      setCurrentIndex(nextIndex);
-      setImageKey((prev) => prev + 1);
+      // Check if all images have failed to prevent infinite loop
+      const allImagesFailed = images.every((img) => imageLoadErrors.has(img));
+      if (!allImagesFailed) {
+        const nextIndex = (currentIndex + 1) % images.length;
+        setCurrentIndex(nextIndex);
+        setImageKey((prev) => prev + 1);
+      }
     }
-  }, [hasCurrentImageError, currentIndex, images.length]);
+  }, [hasCurrentImageError, currentIndex, images.length, images, imageLoadErrors]);
 
   if (images.length === 0) {
     return null;

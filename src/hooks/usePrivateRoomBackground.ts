@@ -32,12 +32,12 @@ export default function usePrivateRoomBackground(messages: Message[]): Backgroun
     // Prefer explicit roomBackground value. If custom, use URL; otherwise use the preset name.
     let backgroundInput: string | null = null;
     if (roomBackground === 'custom' && roomBackgroundURL) {
-      backgroundInput = roomBackgroundURL as string;
+      backgroundInput = roomBackgroundURL;
     } else if (roomBackground && roomBackground !== 'useAppBackground') {
-      backgroundInput = roomBackground as string;
+      backgroundInput = roomBackground;
     } else if (roomBackgroundURL) {
       // Backward compatibility: fall back to URL if set
-      backgroundInput = roomBackgroundURL as string;
+      backgroundInput = roomBackgroundURL;
     }
 
     const backgroundSource = processBackground(backgroundInput);

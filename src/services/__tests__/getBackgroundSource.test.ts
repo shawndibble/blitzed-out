@@ -78,7 +78,8 @@ describe('getBackgroundSource', () => {
         imgurUrls.forEach((url) => {
           const result = processBackground(url);
           expect(result.isVideo).toBe(true);
-          expect(result.url).toMatch(/i\.imgur\.com\/[a-zA-Z0-9]+\.gif/);
+          // Should preserve the original .mp4 extension
+          expect(result.url).toMatch(/i\.imgur\.com\/[a-zA-Z0-9]+\.mp4/);
         });
 
         // Discord proxy URLs are returned as-is
@@ -101,7 +102,8 @@ describe('getBackgroundSource', () => {
         galleryUrls.forEach((url, index) => {
           const result = processBackground(url);
           expect(result.isVideo).toBe(true);
-          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.gif`);
+          // URLs without extensions should use .jpg as default (more reliable than .gif)
+          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.jpg`);
         });
       });
 
@@ -119,11 +121,11 @@ describe('getBackgroundSource', () => {
 
           // For the second URL, the regex won't match /gallery/ pattern so it falls back to fragment matching
           if (url.includes('/gallery/')) {
-            expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.gif`);
+            expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.jpg`);
           } else {
             // For URLs without /gallery/, it tries to match as a regular imgur URL
             // but "something" gets extracted instead of the fragment
-            expect(result.url).toBe(`https://i.imgur.com/something.gif`);
+            expect(result.url).toBe(`https://i.imgur.com/something.jpg`);
           }
         });
       });
@@ -136,7 +138,37 @@ describe('getBackgroundSource', () => {
         simpleUrls.forEach((url, index) => {
           const result = processBackground(url);
           expect(result.isVideo).toBe(true);
-          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.gif`);
+          // URLs without extensions should use .jpg as default
+          expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.jpg`);
+        });
+      });
+
+      it('preserves existing extensions in Imgur URLs', () => {
+        const testCases = [
+          { url: 'https://imgur.com/abc123.png', expectedUrl: 'https://i.imgur.com/abc123.png' },
+          { url: 'https://i.imgur.com/def456.gif', expectedUrl: 'https://i.imgur.com/def456.gif' },
+          { url: 'https://imgur.com/xyz789.webp', expectedUrl: 'https://i.imgur.com/xyz789.webp' },
+        ];
+
+        testCases.forEach(({ url, expectedUrl }) => {
+          const result = processBackground(url);
+          expect(result.isVideo).toBe(true);
+          expect(result.url).toBe(expectedUrl);
+        });
+      });
+
+      it('returns original URL for unparseable Imgur gallery URLs', () => {
+        // Test gallery URLs that can't have their image ID extracted (no dash-followed-by-ID pattern)
+        const unparsableGalleryUrls = [
+          'https://imgur.com/gallery/somecomplextitle',
+          'https://imgur.com/gallery/anothergallery',
+        ];
+
+        unparsableGalleryUrls.forEach((url) => {
+          const result = processBackground(url);
+          expect(result.isVideo).toBe(true);
+          // Should return the original URL for graceful handling downstream
+          expect(result.url).toBe(url);
         });
       });
 

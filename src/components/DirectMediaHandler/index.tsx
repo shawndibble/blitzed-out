@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { cssUrl } from '@/helpers/cssUrl';
+
 interface DirectMediaHandlerProps {
   url: string | null;
 }
@@ -10,16 +12,6 @@ const inferMediaType = (u: string | null): 'video' | 'image' => {
   if (/\.(jpe?g|png|webp|bmp|svg|gif)(\?.*)?$/i.test(u)) return 'image';
   // Default to video for video extensions or unknown URLs
   return 'video';
-};
-
-const cssUrl = (url: string): string => {
-  return `url("${String(url)
-    // Strip all control characters including line separators
-    // eslint-disable-next-line no-control-regex
-    .replace(/[\x00-\x1F\x7F-\x9F\u2028\u2029]/g, '')
-    // Escape backslashes and double quotes
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')}")`;
 };
 
 function DirectMediaHandler({ url }: DirectMediaHandlerProps) {

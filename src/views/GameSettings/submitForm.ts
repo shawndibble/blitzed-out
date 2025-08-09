@@ -29,8 +29,11 @@ function exportRoomSettings(formData: Settings): Partial<Settings> {
   const newSettings: Partial<Settings> = {};
   // Include only message-relevant room fields; omit control flags and deprecated roomBackground
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
-    if (settingKey.startsWith('room') && !['roomUpdated', 'roomBackground'].includes(settingKey)) {
-      newSettings[settingKey] = settingValue as any;
+    if (
+      settingKey.startsWith('room') &&
+      !['roomUpdated', 'roomBackground', 'roomBackgroundURL'].includes(settingKey)
+    ) {
+      newSettings[settingKey] = settingValue;
     }
   });
 

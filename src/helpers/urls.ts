@@ -51,7 +51,7 @@ export function isValidURL(url: string): boolean {
     }
 
     // Ensure hostname is not empty and doesn't contain suspicious characters
-    if (!parsed.hostname || parsed.hostname.includes('..') || parsed.hostname.length < 2) {
+    if (!parsed.hostname || parsed.hostname.includes('..')) {
       return false;
     }
 

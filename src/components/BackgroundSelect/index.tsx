@@ -45,29 +45,44 @@ export default function BackgroundSelect({
   const currentBackground = formData?.[backgroundKey];
   const [background, setBackground] = useState<string>(currentBackground || '');
 
-  const options = () =>
-    Object.entries(filteredBackgrounds).map(([file, label]) => (
-      <MenuItem value={file} key={file}>
-        {label}
-      </MenuItem>
-    ));
+  const options = () => {
+    const menuItems = [
+      // Placeholder option for empty value
+      <MenuItem value="" key="empty">
+        {isPrivateRoom ? t('useRoomBackground') : t('customTiles.color')}
+      </MenuItem>,
+      ...Object.entries(filteredBackgrounds).map(([file, label]) => (
+        <MenuItem value={file} key={file}>
+          {label}
+        </MenuItem>
+      )),
+    ];
+    return menuItems;
+  };
 
   const backgroundSelection = (event: SelectChangeEvent<string>) => {
     const value = event.target.value as string;
     const data = { ...formData, [backgroundKey]: value } as Settings;
+
+    // Clear stale URL when switching away from custom
+    if (value !== 'custom') {
+      // Type-safe property assignment using computed property syntax
+      const updatedData = {
+        ...data,
+        [backgroundURLKey]: '',
+      } as Settings;
+
+      if (isRoom) {
+        updatedData.roomUpdated = true;
+      }
+
+      setFormData(updatedData);
+      setBackground(value);
+      return;
+    }
+
     if (isRoom) {
       data.roomUpdated = true;
-      // Clear stale URL when switching away from custom
-      if (value !== 'custom') {
-        // Type-safe property assignment using computed property syntax
-        const updatedData = {
-          ...data,
-          [backgroundURLKey]: '',
-        } as Settings;
-        setFormData(updatedData);
-        setBackground(value);
-        return;
-      }
     }
     setFormData(data);
     setBackground(value);
@@ -105,6 +120,7 @@ export default function BackgroundSelect({
           label={t('background')}
           value={background}
           onChange={backgroundSelection}
+          displayEmpty
         >
           {options()}
         </Select>

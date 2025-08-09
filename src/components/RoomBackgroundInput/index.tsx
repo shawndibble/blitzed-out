@@ -16,13 +16,11 @@ export default function RoomBackgroundInput({
 
   const handleURLChange = (event: ChangeEvent<HTMLInputElement>) => {
     const roomBackgroundURL = event.target.value.trim();
-    const data = {
+    setFormData({
       ...formData,
       roomBackgroundURL,
       roomUpdated: true,
-    } as Settings;
-
-    setFormData(data);
+    });
   };
 
   return (
@@ -37,6 +35,8 @@ export default function RoomBackgroundInput({
       type="url"
       inputMode="url"
       autoComplete="off"
+      spellCheck={false}
+      autoCapitalize="none"
     />
   );
 }

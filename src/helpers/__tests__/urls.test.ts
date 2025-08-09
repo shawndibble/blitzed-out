@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isValidURL } from '../urls';
+import { isValidURL } from '@/helpers/urls';
 
 describe('isValidURL', () => {
   describe('Valid URLs', () => {
@@ -139,9 +139,9 @@ describe('isValidURL', () => {
       expect(isValidURL('https://sub..example.com/api')).toBe(false);
     });
 
-    it('should reject hostnames that are too short', () => {
-      expect(isValidURL('http://a/path')).toBe(false);
-      expect(isValidURL('https://x/api')).toBe(false);
+    it('should accept hostnames of any length (no minimum length restriction)', () => {
+      expect(isValidURL('http://a/path')).toBe(true);
+      expect(isValidURL('https://x/api')).toBe(true);
     });
 
     it('should accept valid short hostnames', () => {

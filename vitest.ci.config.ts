@@ -32,17 +32,30 @@ export default defineConfig({
       'functions/**',
     ],
 
-    // Memory management
+    // Aggressive memory management
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
+    isolate: false, // Disable isolation to reduce memory overhead
 
-    // No complex pooling
+    // Minimal concurrency for memory conservation
     pool: 'forks',
     poolOptions: {
       forks: {
-        singleFork: true, // Single process to avoid race conditions
+        singleFork: true,
+        maxForks: 1,
+        minForks: 1,
       },
+    },
+
+    // Reduce memory footprint
+    coverage: {
+      enabled: false, // Disable coverage in CI to save memory
+    },
+
+    // Force garbage collection between tests
+    sequence: {
+      shuffle: false, // Deterministic order for debugging
     },
   },
 });

@@ -19,7 +19,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
   const { t } = useTranslation();
   const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [source, setSource] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
@@ -32,7 +32,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
 
     // Reset state
     setImages([]);
-    setError(null);
+    setErrorCode(null);
     setSource(null);
 
     // Check if URL is a Reddit URL
@@ -43,7 +43,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
 
     const subreddit = extractSubredditFromUrl(url);
     if (!subreddit) {
-      setError(t('invalidRedditUrl'));
+      setErrorCode('invalidRedditUrl');
       setIsLoading(false);
       return;
     }
@@ -65,7 +65,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
 
         setImages(result.images);
         setSource(result.source);
-        setError(null);
+        setErrorCode(null);
         setIsLoading(false);
       } catch {
         if (controller.signal.aborted) return;
@@ -84,7 +84,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
         }
 
         // Final error after all retries
-        setError(t('redditBlocked'));
+        setErrorCode('redditBlocked');
         setImages([]);
         setSource(null);
         setIsLoading(false);
@@ -98,7 +98,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
       controller.abort();
       window.clearTimeout(timeoutId);
     };
-  }, [url, t]);
+  }, [url]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -112,7 +112,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
   return {
     images,
     isLoading,
-    error,
+    error: errorCode ? t(errorCode) : null,
     source,
   };
 }

@@ -218,9 +218,9 @@ function imgur(url: string): string {
         // Try the extracted ID but note this might not work for all galleries
         imgurId = pathMatch[1];
       } else {
-        // If we can't extract an ID, return empty - gallery URLs are complex
-        logger.debug('Could not extract image ID from gallery URL:', url);
-        return '';
+        // If we can't extract an ID, return the original URL for graceful handling
+        logger.debug('Could not extract image ID from gallery URL, returning original:', url);
+        return url;
       }
     }
   } else {
@@ -235,11 +235,22 @@ function imgur(url: string): string {
     return '';
   }
 
-  // For gallery-extracted IDs, try multiple formats since we're not sure what type it is
-  // Start with gif since many Imgur galleries contain gifs
-  const finalUrl = `https://i.imgur.com/${imgurId}.gif`;
+  // Check if the original URL already has an extension
+  const extensionMatch = url.match(/\.([a-zA-Z0-9]+)(?:\?.*)?$/);
+  let extension = 'jpg'; // Use .jpg as default instead of .gif for better compatibility
 
-  // Return direct link - start with GIF for galleries, component will handle fallback
+  if (extensionMatch && extensionMatch[1]) {
+    // Preserve the original extension if it exists
+    const originalExtension = extensionMatch[1].toLowerCase();
+    // Only use common image/video extensions for security
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4'].includes(originalExtension)) {
+      extension = originalExtension;
+    }
+  }
+
+  const finalUrl = `https://i.imgur.com/${imgurId}.${extension}`;
+
+  // Return direct link with preserved or default extension
   return finalUrl;
 }
 
@@ -297,7 +308,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case isValidHost(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
       break;
-    case isValidHost(url, ['tenor.com', 'media.tenor.com']): {
+    case isValidHost(url, ['tenor.com']): {
       const tenorResult = tenor(url);
       embedUrl = tenorResult.url;
       isVideo = tenorResult.isVideo;
