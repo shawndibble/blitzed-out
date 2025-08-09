@@ -136,3 +136,141 @@
   width: 100%;
   height: 100%;
 }
+
+/* Main container styles */
+.cast-main-container {
+  background-color: transparent;
+  color: white;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+/* Container with full height and centering */
+.cast-grid-container {
+  min-height: 100vh;
+}
+
+/* Container with adjusted height (for when header is present) */
+.cast-grid-container-adjusted {
+  min-height: calc(100vh - 5rem);
+  z-index: 10;
+}
+
+/* Action box variations */
+.action-box-large {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: clamp(1rem, 4vw, 4rem);
+  border-radius: clamp(0.5rem, 1vw, 1rem);
+  text-align: center;
+  width: clamp(320px, 90vw, 1400px);
+  margin: 0 auto;
+}
+
+.action-box-responsive {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: clamp(1rem, 4vw, 4rem);
+  border-radius: clamp(0.5rem, 1vw, 1rem);
+  max-width: 95vw;
+  min-width: fit-content;
+  margin: 0 auto;
+}
+
+/* Typography styles */
+.cast-title {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  margin-bottom: 1rem;
+  font-size: clamp(1.5rem, 6vw, 4rem);
+}
+
+.cast-loading-text {
+  color: #90caf9;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  font-size: clamp(1rem, 4vw, 2.5rem);
+}
+
+.cast-ready-text {
+  color: #a5d6a7;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  font-size: clamp(1rem, 4vw, 2.5rem);
+}
+
+.cast-next-player {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-size: clamp(1rem, 3vw, 2rem);
+}
+
+.cast-room-url {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-size: clamp(0.8rem, 2.5vw, 1.5rem);
+}
+
+.cast-type-text {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-size: clamp(1.2rem, 5vw, 3rem);
+}
+
+.cast-activity-text {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 8vw, 6rem);
+  line-height: 1.2;
+}
+
+.cast-room-main {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 8vw, 6rem);
+  line-height: 1.2;
+}
+
+/* User interaction overlay */
+.user-interaction-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 80px; /* Leave space for video controls at bottom */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+/* Header bar styling */
+.cast-header-bar {
+  margin-left: 1rem;
+  margin-right: 1rem;
+  margin-top: 1rem;
+  margin-bottom: -1rem;
+  z-index: 10;
+}
+
+.cast-fullscreen-button {
+  color: white;
+}
+
+/* Divider styling for cast */
+.cast-divider {
+  margin-top: -0.5rem;
+  height: 0.5rem;
+  background-color: white;
+  border: 2px solid black;
+}
+
+/* Alert text styling */
+.cast-alert-text {
+  color: white;
+}

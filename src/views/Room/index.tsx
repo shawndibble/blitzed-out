@@ -161,10 +161,8 @@ export default function Room() {
 
   const actualBackground = getActualBackground();
 
-  // Theme logic: gray tiles if private room has background but app background is default, otherwise colored tiles
-  const hasPrivateRoomBackground = Boolean(roomBackground && roomBackground !== '');
-  const appBackgroundIsDefault = !background || background === 'useRoomBackground';
-  const isGameBoardTransparent = hasPrivateRoomBackground && appBackgroundIsDefault;
+  // Theme logic: gray tiles for all backgrounds except 'color', colored tiles only for 'color' background
+  const isGameBoardTransparent = actualBackground !== 'color';
 
   const isMessageListTransparent = Boolean(
     actualBackground && !['color', 'gray'].includes(actualBackground)

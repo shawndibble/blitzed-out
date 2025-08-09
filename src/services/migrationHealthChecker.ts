@@ -335,13 +335,3 @@ export const getMigrationHealthSummary = async (): Promise<string> => {
     return `Error generating migration health summary: ${error}`;
   }
 };
-
-// Expose functions to window for debugging (development only)
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  (window as any).migrationHealth = {
-    check: checkMigrationHealth,
-    recover: recoverFromFailedMigration,
-    reset: forceCompleteMigrationReset,
-    summary: getMigrationHealthSummary,
-  };
-}

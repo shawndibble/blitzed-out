@@ -273,7 +273,7 @@ describe('useGameBoard', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should not log warnings in test environment', async () => {
+    it('should log warnings when there are missing groups or low content', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const resultWithMissingGroups = {
@@ -290,8 +290,11 @@ describe('useGameBoard', () => {
 
       await result.current(mockSettings);
 
-      // Should not have been called because we're in test environment
-      expect(consoleSpy).not.toHaveBeenCalled();
+      // Should log warnings about missing groups and low content ratio
+      expect(consoleSpy).toHaveBeenCalledWith('Missing groups for board building:', [
+        'nonexistent',
+      ]);
+      expect(consoleSpy).toHaveBeenCalledWith('Low tile content ratio:', expect.any(Object));
 
       consoleSpy.mockRestore();
     });
