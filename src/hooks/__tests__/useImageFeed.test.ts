@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@/test-utils';
 import { useImageFeed } from '../useImageFeed';
+import type { ImageFeedConfig } from '@/services/imageFeedService';
 
 // Mock the imageFeedService
 vi.mock('@/services/imageFeedService', () => ({
@@ -107,9 +108,12 @@ describe('useImageFeed', () => {
       maxImages: 10,
     };
 
-    const { result, rerender } = renderHook(({ config }: { config: any }) => useImageFeed(config), {
-      initialProps: { config: config1 },
-    });
+    const { result, rerender } = renderHook(
+      ({ config }: { config: ImageFeedConfig | null }) => useImageFeed(config),
+      {
+        initialProps: { config: config1 },
+      }
+    );
 
     // Wait for first fetch
     await waitFor(() => {
@@ -149,9 +153,12 @@ describe('useImageFeed', () => {
       maxImages: 10,
     };
 
-    const { result, rerender } = renderHook(({ config }: { config: any }) => useImageFeed(config), {
-      initialProps: { config },
-    });
+    const { result, rerender } = renderHook(
+      ({ config }: { config: ImageFeedConfig | null }) => useImageFeed(config),
+      {
+        initialProps: { config },
+      }
+    );
 
     // Wait for first fetch
     await waitFor(() => {

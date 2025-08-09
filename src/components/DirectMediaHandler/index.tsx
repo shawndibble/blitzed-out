@@ -4,23 +4,32 @@ interface DirectMediaHandlerProps {
   url: string | null;
 }
 
+const inferMediaType = (u: string | null): 'video' | 'image' => {
+  if (!u) return 'video';
+  // Only infer as image if it's clearly an image extension
+  if (/\.(jpe?g|png|gif|webp|bmp|svg)(\?.*)?$/i.test(u)) return 'image';
+  // Default to video for video extensions or unknown/ambiguous URLs
+  return 'video';
+};
+
 function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
-  const [mediaType, setMediaType] = useState<'video' | 'image'>('video');
+  const [mediaType, setMediaType] = useState<'video' | 'image'>(inferMediaType(url));
   const [currentUrl, setCurrentUrl] = useState(url);
 
   // Reset state when URL prop changes
   useEffect(() => {
     setCurrentUrl(url);
-    setMediaType('video');
+    setMediaType(inferMediaType(url));
   }, [url]);
 
-  if (!url) return null;
+  if (!currentUrl) return null;
 
   const handleVideoError = () => {
+    const failingUrl = currentUrl ?? url ?? '';
     // Special handling for Imgur URLs
     let isImgur = false;
     try {
-      const parsed = new URL(url);
+      const parsed = new URL(failingUrl);
       isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
     } catch {
       // If URL parsing fails, skip Imgur-specific logic for security
@@ -28,7 +37,7 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
     }
 
     if (isImgur) {
-      const imgurId = url.match(/imgur\.com\/([a-zA-Z0-9]+)/)?.[1];
+      const imgurId = failingUrl.match(/(?:i\.)?imgur\.com\/([a-zA-Z0-9]+)(?:\.[a-z]+)?/)?.[1];
       if (imgurId) {
         const imageUrl = `https://i.imgur.com/${imgurId}.jpg`;
         setCurrentUrl(imageUrl);
@@ -38,16 +47,17 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
     }
 
     // For other URLs, try changing extension from .mp4 to common image formats
-    const baseUrl = url.replace(/\.(mp4|webm|ogg|mov)(\?.*)?$/i, '');
+    const baseUrl = failingUrl.replace(/\.(mp4|webm|ogg|mov)(\?.*)?$/i, '');
     const imageUrl = `${baseUrl}.jpg`;
     setCurrentUrl(imageUrl);
     setMediaType('image');
   };
 
   const handleImageError = () => {
+    const failingUrl = currentUrl ?? url ?? '';
     let isImgur = false;
     try {
-      const parsed = new URL(url);
+      const parsed = new URL(failingUrl);
       isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
     } catch {
       // If URL parsing fails, skip Imgur-specific logic for security
@@ -56,7 +66,7 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
 
     if (isImgur) {
       // Imgur-specific format trying
-      const imgurId = url.match(/imgur\.com\/([a-zA-Z0-9]+)/)?.[1];
+      const imgurId = failingUrl.match(/(?:i\.)?imgur\.com\/([a-zA-Z0-9]+)(?:\.[a-z]+)?/)?.[1];
       if (imgurId) {
         const formats = ['jpg', 'png', 'gif', 'jpeg', 'webp'];
         const currentFormat = currentUrl?.split('.').pop();
@@ -109,7 +119,9 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
       <div
         className="image-background"
         style={{
-          backgroundImage: `url(${currentUrl})`,
+          backgroundImage: currentUrl
+            ? `url("${String(currentUrl).replace(/"/g, '\\"')}")`
+            : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
