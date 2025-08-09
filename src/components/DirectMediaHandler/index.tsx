@@ -6,9 +6,9 @@ interface DirectMediaHandlerProps {
 
 const inferMediaType = (u: string | null): 'video' | 'image' => {
   if (!u) return 'video';
-  // Only infer as image if it's clearly an image extension
-  if (/\.(jpe?g|png|gif|webp|bmp|svg)(\?.*)?$/i.test(u)) return 'image';
-  // Default to video for video extensions or unknown/ambiguous URLs
+  // Treat image formats as images (including GIFs)
+  if (/\.(jpe?g|png|webp|bmp|svg|gif)(\?.*)?$/i.test(u)) return 'image';
+  // Default to video for video extensions or unknown URLs
   return 'video';
 };
 
@@ -120,7 +120,11 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
         className="image-background"
         style={{
           backgroundImage: currentUrl
-            ? `url("${String(currentUrl).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}")`
+            ? `url("${String(currentUrl)
+                .replace(/\\/g, '\\\\')
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, '')
+                .replace(/\r/g, '')}")`
             : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',

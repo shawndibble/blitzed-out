@@ -1,6 +1,7 @@
+import { Message, RoomMessage } from '@/types/Message';
+
 import latestMessageByType from '@/helpers/messages';
 import { processBackground } from '@/services/getBackgroundSource';
-import { Message, RoomMessage } from '@/types/Message';
 
 interface BackgroundSource {
   isVideo?: boolean;
@@ -18,8 +19,20 @@ export default function usePrivateRoomBackground(messages: Message[]): Backgroun
   let url = '';
 
   if (roomMessage) {
-    const { roomBackgroundURL } = JSON.parse(roomMessage.settings);
-    const backgroundSource = processBackground(roomBackgroundURL) as BackgroundSource;
+    const { roomBackground, roomBackgroundURL } = JSON.parse(roomMessage.settings || '{}');
+
+    // Prefer explicit roomBackground value. If custom, use URL; otherwise use the preset name.
+    let backgroundInput: string | null = null;
+    if (roomBackground === 'custom' && roomBackgroundURL) {
+      backgroundInput = roomBackgroundURL as string;
+    } else if (roomBackground && roomBackground !== 'useAppBackground') {
+      backgroundInput = roomBackground as string;
+    } else if (roomBackgroundURL) {
+      // Backward compatibility: fall back to URL if set
+      backgroundInput = roomBackgroundURL as string;
+    }
+
+    const backgroundSource = processBackground(backgroundInput) as BackgroundSource;
     if (backgroundSource?.isVideo) isVideo = backgroundSource.isVideo;
     if (backgroundSource?.url) url = backgroundSource.url;
   }

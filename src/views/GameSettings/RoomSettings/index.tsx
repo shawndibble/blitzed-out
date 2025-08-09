@@ -5,7 +5,7 @@ import {
   Tune as TuneIcon,
   Wallpaper as WallpaperIcon,
 } from '@mui/icons-material';
-import BackgroundSelect from '@/components/BackgroundSelect';
+import RoomBackgroundInput from '@/components/RoomBackgroundInput';
 import { useTranslation } from 'react-i18next';
 import GameSpeed from './GameSpeed';
 import PlayerListOption from './PlayerListOption';
@@ -22,15 +22,6 @@ interface RoomSettingsProps {
 
 export default function RoomSettings({ formData, setFormData }: RoomSettingsProps): JSX.Element {
   const { t } = useTranslation();
-
-  const backgrounds: Record<string, string> = {
-    useAppBackground: t('useAppBackground'),
-    color: t('color'),
-    gray: t('gray'),
-    'metronome.gif': t('hypnoDick'),
-    'pink-spiral.gif': t('pinkSpiral'),
-    custom: t('customURL'),
-  };
 
   return (
     <Box sx={{ p: 2 }}>
@@ -96,12 +87,7 @@ export default function RoomSettings({ formData, setFormData }: RoomSettingsProp
                   {t('visualSettings')}
                 </Typography>
               </Box>
-              <BackgroundSelect
-                formData={formData}
-                setFormData={setFormData}
-                backgrounds={backgrounds}
-                isRoom={true}
-              />
+              <RoomBackgroundInput formData={formData} setFormData={setFormData} />
             </CardContent>
           </Card>
         </>

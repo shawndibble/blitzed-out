@@ -78,6 +78,19 @@ function giphy(url: string): string {
   return `https://media.giphy.com/media/${gifId}/giphy.gif`;
 }
 
+function tumblr(url: string): string {
+  // Handle direct Tumblr media URLs: https://64.media.tumblr.com/...
+  // These are already direct media URLs, so return as-is for GIF playback
+  const directMediaRegex = /\d+\.media\.tumblr\.com\/.*\.(gif|mp4|webm)(\?.*)?$/i;
+  if (directMediaRegex.test(url)) {
+    return url;
+  }
+
+  // Handle other Tumblr URL patterns if needed in the future
+  // For now, just return the URL as-is since most Tumblr media URLs are direct
+  return url;
+}
+
 function gfycat(url: string): string {
   // Handle both gfycat.com and redgifs.com
   const gfycatRegex = /(?:gfycat\.com|redgifs\.com)\/(?:watch\/)?([a-zA-Z0-9]+)/;
@@ -172,16 +185,26 @@ function imgur(url: string): string {
     return '';
   }
 
-  // Handle gallery URLs like: https://imgur.com/gallery/title-3YkU9Yc#6fDSu6z
+  // Handle gallery URLs like:
+  // https://imgur.com/gallery/title-3YkU9Yc#6fDSu6z (with fragment)
+  // https://imgur.com/gallery/fusion-friday-wIJ8AJs (without fragment)
   if (url.includes('/gallery/')) {
     const galleryMatch = url.match(/imgur\.com\/gallery\/[^#]*#([a-zA-Z0-9]+)/);
     if (galleryMatch) {
+      // Gallery URL with fragment - use the fragment ID (this is usually a direct image ID)
       imgurId = galleryMatch[1];
     } else {
-      // Fallback: try to extract from the URL fragment or path
-      const fragmentMatch = url.match(/#([a-zA-Z0-9]+)/);
-      if (fragmentMatch) {
-        imgurId = fragmentMatch[1];
+      // Gallery URL without fragment - these are tricky because the ID in the path
+      // is often a gallery ID, not a direct image ID. For galleries, we should
+      // return the original URL and let the browser handle it, or try common formats
+      const pathMatch = url.match(/imgur\.com\/gallery\/.*-([a-zA-Z0-9]+)/);
+      if (pathMatch) {
+        // Try the extracted ID but note this might not work for all galleries
+        imgurId = pathMatch[1];
+      } else {
+        // If we can't extract an ID, return empty - gallery URLs are complex
+        logger.debug('Could not extract image ID from gallery URL:', url);
+        return '';
       }
     }
   } else {
@@ -192,11 +215,15 @@ function imgur(url: string): string {
     imgurId = match ? match[1] || match[3] : '';
   }
 
-  // Try video first, fallback to common image formats
-  // We'll return the .mp4 URL and let the component handle if it fails to load
-  const finalUrl = `https://i.imgur.com/${imgurId}.mp4`;
+  if (!imgurId) {
+    return '';
+  }
 
-  // Return direct link - start with MP4, component will handle fallback
+  // For gallery-extracted IDs, try multiple formats since we're not sure what type it is
+  // Start with gif since many Imgur galleries contain gifs
+  const finalUrl = `https://i.imgur.com/${imgurId}.gif`;
+
+  // Return direct link - start with GIF for galleries, component will handle fallback
   return finalUrl;
 }
 
@@ -262,6 +289,11 @@ export function processBackground(url: string | null | undefined): BackgroundRes
       embedUrl = giphy(url);
       isVideo = true;
       break;
+    case isValidHost(url, ['tumblr.com', 'media.tumblr.com']) ||
+      /\\d+\\.media\\.tumblr\\.com/.test(url):
+      embedUrl = tumblr(url);
+      isVideo = false;
+      break;
     case isValidHost(url, ['gfycat.com', 'redgifs.com']):
       embedUrl = gfycat(url);
       isVideo = true;
@@ -297,7 +329,6 @@ export function processBackground(url: string | null | undefined): BackgroundRes
       isVideo = false;
       break;
   }
-
   return {
     url: embedUrl,
     isVideo,
@@ -315,58 +346,43 @@ export default function getBackgroundSource(
   settings: BackgroundSettings,
   room: string
 ): BackgroundResult {
-  const { background, backgroundURL, roomBackground, roomBackgroundURL } = settings;
+  const { background, backgroundURL, roomBackgroundURL } = settings;
 
-  // Helper function to resolve a background value to its actual source
-  const resolveBackgroundSource = (bgValue: string | undefined, isRoom: boolean): string | null => {
-    if (!bgValue) return null;
+  // New simplified background resolution logic:
+  // 1. User-set app background (always wins if set)
+  // 2. Private room with "Use Room Background" + room has URL → use room URL
+  // 3. Private room with "Use Room Background" + no room URL → "color"
+  // 4. Public room → "color" (no "Use Room Background" option)
+  // 5. No app background set → "color"
 
-    if (bgValue === 'custom') {
-      return isRoom ? roomBackgroundURL || null : backgroundURL || null;
-    }
-
-    if (bgValue === 'useAppBackground') {
-      // Room trying to use app background - resolve app background (prevent circular reference)
-      const appBg = background || 'color';
-      if (appBg === 'useRoomBackground') {
-        // Circular reference - fallback to default
-        return 'color';
-      }
-      return appBg === 'custom' ? backgroundURL || null : appBg;
-    }
-
-    if (bgValue === 'useRoomBackground') {
-      // App trying to use room background - only valid in private rooms
-      if (isPublicRoom(room)) {
-        return 'color'; // Fallback for public rooms
-      }
-      const roomBg = roomBackground || 'useAppBackground';
-      if (roomBg === 'useAppBackground') {
-        // Circular reference - fallback to default
-        return 'color';
-      }
-      return roomBg === 'custom' ? roomBackgroundURL || null : roomBg;
-    }
-
-    // Regular background value (color, gray, metronome.gif, etc.)
-    return bgValue;
-  };
-
-  // Determine final background based on context and precedence
   let finalBackground: string | null = null;
 
-  if (!isPublicRoom(room) && roomBackground && roomBackground !== 'useAppBackground') {
-    // Private room with specific room background preference
-    finalBackground = resolveBackgroundSource(roomBackground, true);
-  } else if (background) {
-    // Use app background (either public room or private room falling back to app)
-    finalBackground = resolveBackgroundSource(background, false);
+  // Priority 1: Check if user has set an app background preference
+  if (background) {
+    if (background === 'custom') {
+      // User wants custom app background
+      finalBackground = backgroundURL || null;
+    } else if (background === 'useRoomBackground') {
+      // User wants to use room background (only valid in private rooms)
+      if (!isPublicRoom(room) && roomBackgroundURL) {
+        // Private room with room background URL set
+        finalBackground = roomBackgroundURL;
+      } else {
+        // Public room or private room without room background URL
+        finalBackground = 'color';
+      }
+    } else {
+      // Built-in app background (color, gray, metronome.gif, etc.)
+      finalBackground = background;
+    }
   } else {
-    // No preferences set, use default
+    // No app background preference set - default to color tiles
     finalBackground = 'color';
   }
 
-  if (!finalBackground) return { url: null, isVideo: false };
+  if (!finalBackground) {
+    finalBackground = 'color';
+  }
 
   // Handle built-in background types without processing
   if (finalBackground === 'color' || finalBackground === 'gray') {

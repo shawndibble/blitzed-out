@@ -27,8 +27,10 @@ interface RoomChangeResult {
   privateBoardSizeChanged: boolean;
 }
 function updateRoomBackground(formData: Settings): void {
-  if (!formData.roomBackgroundURL || !isValidURL(formData.roomBackgroundURL)) {
-    formData.roomBackground = 'useAppBackground';
+  // With new system, we don't need roomBackground setting
+  // Just validate and clean up the URL if it exists but is invalid
+  if (formData.roomBackgroundURL && !isValidURL(formData.roomBackgroundURL)) {
+    formData.roomBackgroundURL = ''; // Clear invalid URL
   }
 }
 

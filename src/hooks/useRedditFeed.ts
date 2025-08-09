@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   type RedditFeedConfig,
@@ -15,6 +16,7 @@ interface UseRedditFeedResult {
 }
 
 export function useRedditFeed(url: string | null): UseRedditFeedResult {
+  const { t } = useTranslation();
   const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +43,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
 
     const subreddit = extractSubredditFromUrl(url);
     if (!subreddit) {
-      setError('Invalid Reddit URL format');
+      setError(t('invalidRedditUrl'));
       setIsLoading(false);
       return;
     }
@@ -64,17 +66,14 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
         setImages(result.images);
         setSource(result.source);
         setError(null);
-      } catch (err) {
+        setIsLoading(false);
+      } catch {
         if (controller.signal.aborted) return;
 
         // Retry logic for Reddit CORS/network issues
         const maxRetries = 2;
         if (retryCount < maxRetries) {
           const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
-          console.warn(
-            `Reddit fetch attempt ${retryCount + 1} failed, retrying in ${retryDelay}ms:`,
-            err
-          );
 
           setTimeout(() => {
             if (!controller.signal.aborted) {
@@ -85,13 +84,10 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
         }
 
         // Final error after all retries
-        setError('Reddit blocked by browser security. Try disabling Enhanced Tracking Protection.');
+        setError(t('redditBlocked'));
         setImages([]);
         setSource(null);
-      } finally {
-        if (!controller.signal.aborted && retryCount === 0) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       }
     };
 
@@ -102,7 +98,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
       controller.abort();
       window.clearTimeout(timeoutId);
     };
-  }, [url]);
+  }, [url, t]);
 
   // Cleanup on unmount
   useEffect(() => {

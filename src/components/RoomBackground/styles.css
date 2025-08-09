@@ -88,4 +88,5 @@ body.in-iframe .main-container {
   color: white;
   font-size: 1.2rem;
   opacity: 0.7;
+  position: relative;
 }

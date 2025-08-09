@@ -31,5 +31,35 @@ export function getSiteName(urlString: string): string {
 }
 
 export function isValidURL(url: string): boolean {
-  return /^https?:\/\/.+\/.+$/.test(url);
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(url);
+
+    // Only allow HTTP and HTTPS protocols
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return false;
+    }
+
+    // Check for path traversal attempts
+    if (parsed.pathname.includes('../') || parsed.pathname.includes('..\\')) {
+      return false;
+    }
+
+    // Ensure hostname is not empty and doesn't contain suspicious characters
+    if (!parsed.hostname || parsed.hostname.includes('..') || parsed.hostname.length < 2) {
+      return false;
+    }
+
+    // Basic format validation - must have a path or query
+    if (parsed.pathname === '/' && !parsed.search && !parsed.hash) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
 }

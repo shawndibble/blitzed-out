@@ -79,8 +79,9 @@ export async function fetchRedditImages(
         }
       }
     } catch (error) {
-      console.warn('Direct Reddit fetch failed:', error);
-      // fallthrough to proxy
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw error;
+      }
     }
 
     // Try multiple CORS proxy services
@@ -91,7 +92,7 @@ export async function fetchRedditImages(
           credentials: 'omit',
           mode: 'cors',
           headers: {
-            'User-Agent': 'BlitzedOut/1.0 (by /u/your_username)',
+            'User-Agent': 'BlitzedOut/1.0',
             Accept: 'application/json, text/plain, */*',
           },
         });
@@ -122,11 +123,12 @@ export async function fetchRedditImages(
         }
 
         if (jsonData) {
-          console.log(`Successfully fetched Reddit data using proxy service: ${PROXY_SERVICES[i]}`);
           return jsonData;
         }
       } catch (error) {
-        console.warn(`Proxy service ${PROXY_SERVICES[i]} failed:`, error);
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          throw error;
+        }
         continue;
       }
     }
