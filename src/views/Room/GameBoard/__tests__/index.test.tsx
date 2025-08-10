@@ -10,7 +10,15 @@ import useAuth from '@/context/hooks/useAuth';
 
 // Mock dependencies
 vi.mock('@/context/hooks/useAuth', () => ({
-  default: vi.fn(),
+  default: vi.fn(() => ({
+    user: null,
+    signInWithGoogle: vi.fn(),
+    linkWithGoogle: vi.fn(),
+    signInAnonymously: vi.fn(),
+    signOut: vi.fn(),
+    loading: false,
+    error: null,
+  })),
 }));
 
 vi.mock('@/services/actionStringReplacement', () => ({

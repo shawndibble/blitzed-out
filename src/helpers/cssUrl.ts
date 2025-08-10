@@ -5,26 +5,28 @@
  */
 export function cssUrl(url: string): string {
   // Convert to string and strip control characters by iterating over code points
-  const cleanedUrl = Array.from(String(url))
-    .filter((char) => {
-      const codePoint = char.codePointAt(0);
-      if (codePoint === undefined) return false;
+  let cleanedUrl = '';
+  for (const char of String(url)) {
+    const codePoint = char.codePointAt(0)!; // Non-null assertion safe here since char is from string iteration
 
-      // Filter out control characters:
-      // - C0 controls: U+0000 to U+001F
-      // - DEL: U+007F
-      // - C1 controls: U+0080 to U+009F
-      // - Line separator: U+2028
-      // - Paragraph separator: U+2029
-      return !(
+    // Filter out control characters:
+    // - C0 controls: U+0000 to U+001F
+    // - DEL: U+007F
+    // - C1 controls: U+0080 to U+009F
+    // - Line separator: U+2028
+    // - Paragraph separator: U+2029
+    if (
+      !(
         (codePoint >= 0x00 && codePoint <= 0x1f) ||
         codePoint === 0x7f ||
         (codePoint >= 0x80 && codePoint <= 0x9f) ||
         codePoint === 0x2028 ||
         codePoint === 0x2029
-      );
-    })
-    .join('');
+      )
+    ) {
+      cleanedUrl += char;
+    }
+  }
 
   // Escape backslashes and double quotes
   const escapedUrl = cleanedUrl.replace(/\\/g, '\\\\').replace(/"/g, '\\"');

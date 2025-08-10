@@ -1,5 +1,6 @@
 {
   "customTiles": {
+    "color": "ऐप बैकग्राउंड का उपयोग करें",
     "intensityLevel": "तीव्रता स्तर",
     "toggleTile": "टाइल टॉगल करें",
     "update": "अपडेट",
@@ -81,7 +82,6 @@
   "delayed": "विलंबित",
   "delayedTooltip": "व्यक्तिगत रूप से खेलने के लिए सबसे अच्छा जहां लोग राउंड के बीच अपना डिवाइस बंद कर देंगे।",
   "roomBackgroundURL": "रूम बैकग्राउंड URL",
-  "customRoomBackgroundHelp": "रूम बैकग्राउंड के लिए एक कस्टम URL दर्ज करें। यह इस रूम के सभी प्रतिभागियों को दिखाई देगा।",
   "roomBackgroundPlaceholder": "https://reddit.com/r/EarthPorn",
   "mainRole": "प्राथमिक भूमिका",
   "role": "भूमिका",

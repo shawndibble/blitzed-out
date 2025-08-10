@@ -182,6 +182,20 @@ function imgur(url: string): string {
     logger.debug('URL parsing failed for Discord proxy check:', error);
   }
 
+  // Check if URL is already a direct i.imgur.com link with parameters or extension and return unchanged
+  try {
+    const parsed = new URL(url);
+    if (parsed.host === 'i.imgur.com') {
+      // Only return unchanged if it has parameters or a file extension
+      if (parsed.search || parsed.pathname.match(/\.[a-zA-Z0-9]+$/)) {
+        return url;
+      }
+      // If it's a bare i.imgur.com URL without extension or parameters, continue processing
+    }
+  } catch (error) {
+    logger.debug('URL parsing failed for direct link check:', error);
+  }
+
   // Extract the Imgur ID from different possible URL formats
   let imgurId = '';
 
@@ -224,9 +238,9 @@ function imgur(url: string): string {
       }
     }
   } else {
-    // Handle regular URLs
+    // Handle regular URLs - enhanced regex to be more inclusive
     const imgurRegex =
-      /imgur\.com\/([a-zA-Z0-9]+)(?:\.(mp4|jpg|jpeg|png|gif|webp))?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.(mp4|jpg|jpeg|png|gif|webp)/;
+      /imgur\.com\/([a-zA-Z0-9]+)(?:\.(mp4|mov|avi|webm|mkv|flv|wmv|jpg|jpeg|png|gif|gifv|webp|bmp|tiff|svg))?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.(mp4|mov|avi|webm|mkv|flv|wmv|jpg|jpeg|png|gif|gifv|webp|bmp|tiff|svg)/;
     const match = url.match(imgurRegex);
     imgurId = match ? match[1] || match[3] : '';
   }
@@ -235,22 +249,50 @@ function imgur(url: string): string {
     return '';
   }
 
-  // Check if the original URL already has an extension
+  // Enhanced extension detection with more inclusive regex
   const extensionMatch = url.match(/\.([a-zA-Z0-9]+)(?:\?.*)?$/);
   let extension = 'jpg'; // Use .jpg as default instead of .gif for better compatibility
 
   if (extensionMatch && extensionMatch[1]) {
     // Preserve the original extension if it exists
-    const originalExtension = extensionMatch[1].toLowerCase();
+    let originalExtension = extensionMatch[1].toLowerCase();
+
+    // Extension mapping for compatibility - convert .gifv to .mp4
+    const extensionMap: { [key: string]: string } = {
+      gifv: 'mp4',
+    };
+
+    if (extensionMap[originalExtension]) {
+      originalExtension = extensionMap[originalExtension];
+    }
+
     // Only use common image/video extensions for security
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4'].includes(originalExtension)) {
+    if (
+      [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'mp4',
+        'mov',
+        'avi',
+        'webm',
+        'mkv',
+        'flv',
+        'wmv',
+        'bmp',
+        'tiff',
+        'svg',
+      ].includes(originalExtension)
+    ) {
       extension = originalExtension;
     }
   }
 
   const finalUrl = `https://i.imgur.com/${imgurId}.${extension}`;
 
-  // Return direct link with preserved or default extension
+  // Return direct link with preserved or converted extension
   return finalUrl;
 }
 

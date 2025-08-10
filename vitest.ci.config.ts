@@ -43,8 +43,6 @@ export default defineConfig({
     poolOptions: {
       forks: {
         singleFork: true,
-        maxForks: 1,
-        minForks: 1,
       },
     },
 
@@ -53,9 +51,9 @@ export default defineConfig({
       enabled: false, // Disable coverage in CI to save memory
     },
 
-    // Force garbage collection between tests
+    // Ensure deterministic test execution order
     sequence: {
-      shuffle: false, // Deterministic order for debugging
+      shuffle: false, // Deterministic order for debugging and reproducible results
     },
   },
 });

@@ -8,8 +8,39 @@ import userEvent from '@testing-library/user-event';
 // Mock dependencies
 const mockClearLocalSession = vi.fn();
 const mockUseLocalPlayers = {
+  // State
+  session: null,
+  localPlayers: [],
+  currentPlayer: null,
+  currentPlayerIndex: -1,
+  sessionSettings: undefined,
+  error: null,
+  isLoading: false,
+
+  // Computed state
   hasLocalPlayers: false,
+  isLocalPlayerRoom: false,
+  playerCount: 0,
+  isValidSession: false,
+
+  // Actions
+  createLocalSession: vi.fn(),
+  loadLocalSession: vi.fn(),
   clearLocalSession: mockClearLocalSession,
+  advanceToNextPlayer: vi.fn(),
+  updateSettings: vi.fn(),
+
+  // Utilities
+  getPlayerByIndex: vi.fn(),
+  getPlayerById: vi.fn(),
+  isPlayerActive: vi.fn(),
+  getNextPlayer: vi.fn(),
+  getPreviousPlayer: vi.fn(),
+
+  // Direct store access
+  setSession: vi.fn(),
+  setError: vi.fn(),
+  setLoading: vi.fn(),
 };
 
 vi.mock('@/hooks/useLocalPlayers', () => ({

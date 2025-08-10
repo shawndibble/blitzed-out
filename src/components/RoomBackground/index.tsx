@@ -45,8 +45,11 @@ export default function RoomBackground({ url = null, isVideo = null }: RoomBackg
           <iframe
             src={url || undefined}
             title="video"
+            width="100%"
+            height="100%"
             allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
             sandbox="allow-same-origin allow-scripts allow-presentation"
+            style={{ border: 'none' }}
           />
         ))}
 

@@ -45,8 +45,16 @@ export function isValidURL(url: string): boolean {
       return false;
     }
 
-    // Check for path traversal attempts
-    if (parsed.pathname.includes('../') || parsed.pathname.includes('..\\')) {
+    // Check for path traversal attempts - decode pathname to catch encoded sequences
+    let decodedPathname: string;
+    try {
+      decodedPathname = decodeURIComponent(parsed.pathname);
+    } catch {
+      // If decoding fails, reject the URL as potentially malicious
+      return false;
+    }
+
+    if (decodedPathname.includes('../') || decodedPathname.includes('..\\')) {
       return false;
     }
 

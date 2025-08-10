@@ -89,10 +89,10 @@ describe('MessagesProvider', () => {
   beforeEach(() => {
     mockUnsubscribe = vi.fn();
     mockGetMessages.mockImplementation((_roomId, callback) => {
-      // Simulate initial loading state
+      // Simulate initial loading state, then call callback with empty array
       setTimeout(() => {
         callback([]);
-      }, 0);
+      }, 10); // Increased timeout to ensure proper async handling
       return mockUnsubscribe;
     });
 
@@ -120,9 +120,12 @@ describe('MessagesProvider', () => {
 
       expect(screen.getByTestId('loading')).toHaveTextContent('loading');
 
-      await waitFor(() => {
-        expect(screen.getByTestId('loading')).toHaveTextContent('loaded');
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('loading')).toHaveTextContent('loaded');
+        },
+        { timeout: 1000 }
+      );
     });
 
     it('should call getMessages with correct room ID', () => {

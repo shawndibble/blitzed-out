@@ -76,6 +76,11 @@ describe('cssUrl', () => {
       const complexUrl = 'C:\\folder\\"name"\\file with\nnewline.jpg';
       expect(cssUrl(complexUrl)).toBe('url("C:\\\\folder\\\\\\"name\\"\\\\file withnewline.jpg")');
     });
+
+    it('prevents CSS-breaking payloads', () => {
+      const maliciousUrl = 'bad")};background:red;/*';
+      expect(cssUrl(maliciousUrl)).toBe('url("bad\\")};background:red;/*")');
+    });
   });
 
   describe('Edge cases', () => {

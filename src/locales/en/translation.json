@@ -1,5 +1,6 @@
 {
   "customTiles": {
+    "color": "Use App Background",
     "intensityLevel": "Intensity Level",
     "toggleTile": "Toggle tile",
     "update": "Update",
@@ -78,7 +79,6 @@
   "delayed": "Delayed",
   "delayedTooltip": "Best for playing in person where people will turn off their device between rounds.",
   "roomBackgroundURL": "Room Background URL",
-  "customRoomBackgroundHelp": "Enter a custom URL for the room background. This will be visible to all participants in this room.",
   "roomBackgroundPlaceholder": "https://reddit.com/r/EarthPorn",
   "mainRole": "Primary Role",
   "role": "Role",

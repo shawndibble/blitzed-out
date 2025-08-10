@@ -320,7 +320,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
     // Clean up function
     return () => {
-      unsubscribe();
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
       }

@@ -1,5 +1,6 @@
 {
   "customTiles": {
+    "color": "Usar Fondo de la Aplicación",
     "intensityLevel": "Nivel de intensidad",
     "toggleTile": "Alternar ficha",
     "update": "Actualizar",
@@ -81,7 +82,6 @@
   "delayed": "Con retraso",
   "delayedTooltip": "Ideal para jugar en persona, donde cada jugador apagará su dispositivo entre rondas.",
   "roomBackgroundURL": "URL de Fondo de Sala",
-  "customRoomBackgroundHelp": "Ingresa una URL personalizada para el fondo de la sala. Será visible para todos los participantes en esta sala.",
   "roomBackgroundPlaceholder": "https://reddit.com/r/EarthPorn",
   "mainRole": "Rol Principal",
   "role": "Rol",

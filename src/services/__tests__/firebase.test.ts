@@ -58,7 +58,6 @@ describe('Firebase Authentication Service', () => {
   };
 
   beforeEach(async () => {
-    vi.clearAllMocks();
     mockAuth.currentUser = null;
 
     // Setup the getAuth mock to return our mock auth object
@@ -75,6 +74,8 @@ describe('Firebase Authentication Service', () => {
       EmailAuthProvider,
       signInAnonymously,
     } = await import('firebase/auth');
+
+    vi.clearAllMocks();
     vi.mocked(getAuth).mockReturnValue(mockAuth as any);
 
     // Assign the mocked functions to our variables for easier access in tests

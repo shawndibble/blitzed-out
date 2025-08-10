@@ -102,6 +102,43 @@ describe('isValidURL', () => {
     });
   });
 
+  describe('Percent-Encoded Path Traversal Attempts', () => {
+    it('should reject URLs with percent-encoded ../ sequences', () => {
+      // %2e = '.', so %2e%2e%2f = '../'
+      expect(isValidURL('http://example.com/%2e%2e%2f')).toBe(false);
+      expect(isValidURL('https://example.com/path/%2e%2e%2fSecret')).toBe(false);
+      expect(isValidURL('http://example.com/%2e%2e%2f%2e%2e%2fSecret')).toBe(false);
+    });
+
+    it('should reject URLs with percent-encoded ..\\ sequences', () => {
+      // %2e = '.', %5c = '\', so %2e%2e%5c = '..\'
+      expect(isValidURL('http://example.com/%2e%2e%5c')).toBe(false);
+      expect(isValidURL('https://example.com/path/%2e%2e%5cSecret')).toBe(false);
+    });
+
+    it('should reject URLs with mixed case percent-encoding', () => {
+      // Test mixed case encoding: %2E%2e%2F and %2E%2E%5C
+      expect(isValidURL('http://example.com/%2E%2e%2F')).toBe(false);
+      expect(isValidURL('https://example.com/%2E%2E%5C')).toBe(false);
+    });
+
+    it('should handle double percent-encoded sequences correctly', () => {
+      // %252e = percent-encoded '%2e', which decodes once to %2e (not ..)
+      // This should be accepted because after one decode it's not a traversal sequence
+      expect(isValidURL('http://example.com/%252e%252e%252f')).toBe(true);
+
+      // But this should be rejected because it decodes to ../ after one decode
+      expect(isValidURL('http://example.com/%2e%2e%2f')).toBe(false);
+    });
+
+    it('should handle URLs with malformed percent encoding gracefully', () => {
+      // Malformed percent encoding should be rejected
+      expect(isValidURL('http://example.com/%2g%2h%2i')).toBe(false);
+      expect(isValidURL('https://example.com/path%')).toBe(false);
+      expect(isValidURL('http://example.com/path%2')).toBe(false);
+    });
+  });
+
   describe('Unsupported Protocols', () => {
     it('should reject ftp URLs', () => {
       expect(isValidURL('ftp://ftp.example.com/file.txt')).toBe(false);

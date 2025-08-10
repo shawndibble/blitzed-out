@@ -23,11 +23,21 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
   const [source, setSource] = useState<string | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Cleanup previous request
+    // Cleanup previous request and timeouts
     if (abortRef.current) {
       abortRef.current.abort();
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
     }
 
     // Reset state
@@ -75,7 +85,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
         if (retryCount < maxRetries) {
           const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
 
-          setTimeout(() => {
+          retryTimeoutRef.current = setTimeout(() => {
             if (!controller.signal.aborted) {
               loadRedditImages(retryCount + 1);
             }
@@ -92,11 +102,18 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
     };
 
     // Small delay to avoid rapid API calls during development
-    const timeoutId = window.setTimeout(loadRedditImages, 300);
+    timeoutRef.current = setTimeout(loadRedditImages, 300);
 
     return () => {
       controller.abort();
-      window.clearTimeout(timeoutId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
     };
   }, [url]);
 
@@ -105,6 +122,14 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
     return () => {
       if (abortRef.current) {
         abortRef.current.abort();
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
       }
     };
   }, []);

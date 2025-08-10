@@ -8,8 +8,8 @@ interface DirectMediaHandlerProps {
 
 const inferMediaType = (u: string | null): 'video' | 'image' => {
   if (!u) return 'video';
-  // Treat image formats as images (including GIFs)
-  if (/\.(jpe?g|png|webp|bmp|svg|gif)(\?.*)?$/i.test(u)) return 'image';
+  // Treat image formats as images (including GIFs and modern formats)
+  if (/\.(jpe?g|png|webp|bmp|svg|gif|avif|tiff?|heic|heif|jfif)(\?.*)?$/i.test(u)) return 'image';
   // Default to video for video extensions or unknown URLs
   return 'video';
 };

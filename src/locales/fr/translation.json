@@ -1,5 +1,6 @@
 {
   "customTiles": {
+    "color": "Utiliser l'Arrière-plan de l'Application",
     "intensityLevel": "Niveau d'intensité",
     "toggleTile": "Activer/désactiver la tuile",
     "update": "Mettre à jour",
@@ -80,8 +81,7 @@
   "playerList": "Liste de joueurs",
   "delayed": "Retardé",
   "delayedTooltip": "Idéal pour jouer en personne où les gens éteindront leur appareil entre les tours.",
-  "roomBackgroundURL": "URL d’arrière‑plan de la salle",
-  "customRoomBackgroundHelp": "Entrez une URL personnalisée pour l'arrière‑plan de la salle. Elle sera visible par tous les participants de cette salle.",
+  "roomBackgroundURL": "URL d'arrière‑plan de la salle",
   "roomBackgroundPlaceholder": "https://reddit.com/r/EarthPorn",
   "mainRole": "Rôle Principal",
   "role": "Rôle",
