@@ -49,23 +49,39 @@ function xhamster(url: string): string {
   return `https://xhamster.com/xembed.php?video=${key}?autoplay=1&loop=1&autostart=true&playsinline=1`;
 }
 
-function tenor(url: string): string {
-  // Handle direct media URLs: https://media.tenor.com/{id}/{filename}.mp4
-  const directMediaRegex = /media\.tenor\.com\/([a-zA-Z0-9_-]+)\/[^/]*\.(mp4|gif|webp)/;
+function tenor(url: string): { url: string; isVideo: boolean } {
+  // Handle direct media URLs: https://media.tenor.com/{id}/filename.{ext} or https://media1.tenor.com/m/{id}/filename.{ext}
+  const directMediaRegex =
+    /media1?\.tenor\.com\/(?:m\/)?([a-zA-Z0-9_-]+)\/[^/]*\.(mp4|gif|webp|webm)/;
   const directMatch = url.match(directMediaRegex);
 
   if (directMatch) {
-    // Return the direct media URL as-is for direct video playback
-    return url;
+    const extension = directMatch[2].toLowerCase();
+    // Return the direct media URL as-is for direct playback
+    return {
+      url,
+      isVideo: ['mp4', 'webm'].includes(extension),
+    };
   }
 
   // Handle view URLs: https://tenor.com/view/{title}-{id}
   const viewRegex = /tenor\.com\/view\/[^/]*-(\d+)/;
   const viewMatch = url.match(viewRegex);
-  const gifId = viewMatch ? viewMatch[1] : '';
 
-  // Use Tenor's embed format with autoplay for view URLs
-  return `https://tenor.com/embed/${gifId}?autoplay=1`;
+  if (viewMatch) {
+    const numericId = viewMatch[1];
+    // Use Tenor's embed endpoint which will be handled by iframe
+    return {
+      url: `https://tenor.com/embed/${numericId}`,
+      isVideo: true,
+    };
+  }
+
+  // If we can't match any pattern, return the original URL
+  return {
+    url,
+    isVideo: false,
+  };
 }
 
 function giphy(url: string): string {
@@ -76,6 +92,19 @@ function giphy(url: string): string {
   // For Cast compatibility, try direct media URL first, fallback to embed
   // Giphy direct media format: https://media.giphy.com/media/{id}/giphy.gif
   return `https://media.giphy.com/media/${gifId}/giphy.gif`;
+}
+
+function tumblr(url: string): string {
+  // Handle direct Tumblr media URLs: https://64.media.tumblr.com/...
+  // These are already direct media URLs, so return as-is for GIF playback
+  const directMediaRegex = /\d+\.media\.tumblr\.com\/.*\.(gif|mp4|webm)(\?.*)?$/i;
+  if (directMediaRegex.test(url)) {
+    return url;
+  }
+
+  // Handle other Tumblr URL patterns if needed in the future
+  // For now, just return the URL as-is since most Tumblr media URLs are direct
+  return url;
 }
 
 function gfycat(url: string): string {
@@ -153,6 +182,20 @@ function imgur(url: string): string {
     logger.debug('URL parsing failed for Discord proxy check:', error);
   }
 
+  // Check if URL is already a direct i.imgur.com link with parameters or extension and return unchanged
+  try {
+    const parsed = new URL(url);
+    if (parsed.host === 'i.imgur.com') {
+      // Only return unchanged if it has parameters or a file extension
+      if (parsed.search || parsed.pathname.match(/\.[a-zA-Z0-9]+$/)) {
+        return url;
+      }
+      // If it's a bare i.imgur.com URL without extension or parameters, continue processing
+    }
+  } catch (error) {
+    logger.debug('URL parsing failed for direct link check:', error);
+  }
+
   // Extract the Imgur ID from different possible URL formats
   let imgurId = '';
 
@@ -172,31 +215,84 @@ function imgur(url: string): string {
     return '';
   }
 
-  // Handle gallery URLs like: https://imgur.com/gallery/title-3YkU9Yc#6fDSu6z
+  // Handle gallery URLs like:
+  // https://imgur.com/gallery/title-3YkU9Yc#6fDSu6z (with fragment)
+  // https://imgur.com/gallery/fusion-friday-wIJ8AJs (without fragment)
   if (url.includes('/gallery/')) {
     const galleryMatch = url.match(/imgur\.com\/gallery\/[^#]*#([a-zA-Z0-9]+)/);
     if (galleryMatch) {
+      // Gallery URL with fragment - use the fragment ID (this is usually a direct image ID)
       imgurId = galleryMatch[1];
     } else {
-      // Fallback: try to extract from the URL fragment or path
-      const fragmentMatch = url.match(/#([a-zA-Z0-9]+)/);
-      if (fragmentMatch) {
-        imgurId = fragmentMatch[1];
+      // Gallery URL without fragment - these are tricky because the ID in the path
+      // is often a gallery ID, not a direct image ID. For galleries, we should
+      // return the original URL and let the browser handle it, or try common formats
+      const pathMatch = url.match(/imgur\.com\/gallery\/.*-([a-zA-Z0-9]+)/);
+      if (pathMatch) {
+        // Try the extracted ID but note this might not work for all galleries
+        imgurId = pathMatch[1];
+      } else {
+        // If we can't extract an ID, return the original URL for graceful handling
+        logger.debug('Could not extract image ID from gallery URL, returning original:', url);
+        return url;
       }
     }
   } else {
-    // Handle regular URLs
+    // Handle regular URLs - enhanced regex to be more inclusive
     const imgurRegex =
-      /imgur\.com\/([a-zA-Z0-9]+)(?:\.(mp4|jpg|jpeg|png|gif|webp))?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.(mp4|jpg|jpeg|png|gif|webp)/;
+      /imgur\.com\/([a-zA-Z0-9]+)(?:\.(mp4|mov|avi|webm|mkv|flv|wmv|jpg|jpeg|png|gif|gifv|webp|bmp|tiff|svg))?|images-ext-\d+\.discordapp\.net\/external\/[^/]+\/https\/i\.imgur\.com\/([a-zA-Z0-9]+)\.(mp4|mov|avi|webm|mkv|flv|wmv|jpg|jpeg|png|gif|gifv|webp|bmp|tiff|svg)/;
     const match = url.match(imgurRegex);
     imgurId = match ? match[1] || match[3] : '';
   }
 
-  // Try video first, fallback to common image formats
-  // We'll return the .mp4 URL and let the component handle if it fails to load
-  const finalUrl = `https://i.imgur.com/${imgurId}.mp4`;
+  if (!imgurId) {
+    return '';
+  }
 
-  // Return direct link - start with MP4, component will handle fallback
+  // Enhanced extension detection with more inclusive regex
+  const extensionMatch = url.match(/\.([a-zA-Z0-9]+)(?:\?.*)?$/);
+  let extension = 'jpg'; // Use .jpg as default instead of .gif for better compatibility
+
+  if (extensionMatch && extensionMatch[1]) {
+    // Preserve the original extension if it exists
+    let originalExtension = extensionMatch[1].toLowerCase();
+
+    // Extension mapping for compatibility - convert .gifv to .mp4
+    const extensionMap: { [key: string]: string } = {
+      gifv: 'mp4',
+    };
+
+    if (extensionMap[originalExtension]) {
+      originalExtension = extensionMap[originalExtension];
+    }
+
+    // Only use common image/video extensions for security
+    if (
+      [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'mp4',
+        'mov',
+        'avi',
+        'webm',
+        'mkv',
+        'flv',
+        'wmv',
+        'bmp',
+        'tiff',
+        'svg',
+      ].includes(originalExtension)
+    ) {
+      extension = originalExtension;
+    }
+  }
+
+  const finalUrl = `https://i.imgur.com/${imgurId}.${extension}`;
+
+  // Return direct link with preserved or converted extension
   return finalUrl;
 }
 
@@ -254,13 +350,20 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     case isValidHost(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
       break;
-    case isValidHost(url, ['tenor.com', 'media.tenor.com']):
-      embedUrl = tenor(url);
-      isVideo = true;
+    case isValidHost(url, ['tenor.com']): {
+      const tenorResult = tenor(url);
+      embedUrl = tenorResult.url;
+      isVideo = tenorResult.isVideo;
       break;
+    }
     case isValidHost(url, ['giphy.com']):
       embedUrl = giphy(url);
       isVideo = true;
+      break;
+    case isValidHost(url, ['tumblr.com', 'media.tumblr.com']) ||
+      /\d+\.media\.tumblr\.com/.test(url):
+      embedUrl = tumblr(url);
+      isVideo = embedUrl ? isDirectVideoUrl(embedUrl) : false;
       break;
     case isValidHost(url, ['gfycat.com', 'redgifs.com']):
       embedUrl = gfycat(url);
@@ -297,7 +400,6 @@ export function processBackground(url: string | null | undefined): BackgroundRes
       isVideo = false;
       break;
   }
-
   return {
     url: embedUrl,
     isVideo,
@@ -315,58 +417,43 @@ export default function getBackgroundSource(
   settings: BackgroundSettings,
   room: string
 ): BackgroundResult {
-  const { background, backgroundURL, roomBackground, roomBackgroundURL } = settings;
+  const { background, backgroundURL, roomBackgroundURL } = settings;
 
-  // Helper function to resolve a background value to its actual source
-  const resolveBackgroundSource = (bgValue: string | undefined, isRoom: boolean): string | null => {
-    if (!bgValue) return null;
+  // New simplified background resolution logic:
+  // 1. User-set app background (always wins if set)
+  // 2. Private room with "Use Room Background" + room has URL → use room URL
+  // 3. Private room with "Use Room Background" + no room URL → "color"
+  // 4. Public room → "color" (no "Use Room Background" option)
+  // 5. No app background set → "color"
 
-    if (bgValue === 'custom') {
-      return isRoom ? roomBackgroundURL || null : backgroundURL || null;
-    }
-
-    if (bgValue === 'useAppBackground') {
-      // Room trying to use app background - resolve app background (prevent circular reference)
-      const appBg = background || 'color';
-      if (appBg === 'useRoomBackground') {
-        // Circular reference - fallback to default
-        return 'color';
-      }
-      return appBg === 'custom' ? backgroundURL || null : appBg;
-    }
-
-    if (bgValue === 'useRoomBackground') {
-      // App trying to use room background - only valid in private rooms
-      if (isPublicRoom(room)) {
-        return 'color'; // Fallback for public rooms
-      }
-      const roomBg = roomBackground || 'useAppBackground';
-      if (roomBg === 'useAppBackground') {
-        // Circular reference - fallback to default
-        return 'color';
-      }
-      return roomBg === 'custom' ? roomBackgroundURL || null : roomBg;
-    }
-
-    // Regular background value (color, gray, metronome.gif, etc.)
-    return bgValue;
-  };
-
-  // Determine final background based on context and precedence
   let finalBackground: string | null = null;
 
-  if (!isPublicRoom(room) && roomBackground && roomBackground !== 'useAppBackground') {
-    // Private room with specific room background preference
-    finalBackground = resolveBackgroundSource(roomBackground, true);
-  } else if (background) {
-    // Use app background (either public room or private room falling back to app)
-    finalBackground = resolveBackgroundSource(background, false);
+  // Priority 1: Check if user has set an app background preference
+  if (background) {
+    if (background === 'custom') {
+      // User wants custom app background
+      finalBackground = backgroundURL || null;
+    } else if (background === 'useRoomBackground') {
+      // User wants to use room background (only valid in private rooms)
+      if (!isPublicRoom(room) && roomBackgroundURL) {
+        // Private room with room background URL set
+        finalBackground = roomBackgroundURL;
+      } else {
+        // Public room or private room without room background URL
+        finalBackground = 'color';
+      }
+    } else {
+      // Built-in app background (color, gray, metronome.gif, etc.)
+      finalBackground = background;
+    }
   } else {
-    // No preferences set, use default
+    // No app background preference set - default to color tiles
     finalBackground = 'color';
   }
 
-  if (!finalBackground) return { url: null, isVideo: false };
+  if (!finalBackground) {
+    finalBackground = 'color';
+  }
 
   // Handle built-in background types without processing
   if (finalBackground === 'color' || finalBackground === 'gray') {

@@ -27,8 +27,12 @@ interface RoomChangeResult {
   privateBoardSizeChanged: boolean;
 }
 function updateRoomBackground(formData: Settings): void {
-  if (!formData.roomBackgroundURL || !isValidURL(formData.roomBackgroundURL)) {
-    formData.roomBackground = 'useAppBackground';
+  const url = formData.roomBackgroundURL?.trim();
+  if (url !== formData.roomBackgroundURL) {
+    formData.roomBackgroundURL = url || '';
+  }
+  if (formData.roomBackgroundURL && !isValidURL(formData.roomBackgroundURL)) {
+    formData.roomBackgroundURL = ''; // Clear invalid URL
   }
 }
 

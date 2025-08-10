@@ -71,7 +71,7 @@ export default function GameBoard({
         ? actionStringReplacement(
             entry.description || '',
             settings.role || 'sub',
-            user.displayName || '',
+            user?.displayName || '',
             localPlayers.length > 0 ? localPlayers : undefined,
             true // Use generic placeholders for GameBoard display
           )

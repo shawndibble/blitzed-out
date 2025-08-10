@@ -43,16 +43,21 @@ body.theme-light .main-container.default-background {
   );
 }
 
+.main-container iframe,
 .main-container video,
 .video-background {
-  object-fit: cover;
   width: 100%;
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  transition: opacity 0.5s ease-in-out;
   border: none;
+}
+
+.main-container video,
+.video-background {
+  object-fit: cover;
+  transition: opacity 0.5s ease-in-out;
 }
 
 /* Fix for iframe/cast receiver environments */
@@ -88,4 +93,5 @@ body.in-iframe .main-container {
   color: white;
   font-size: 1.2rem;
   opacity: 0.7;
+  position: relative;
 }

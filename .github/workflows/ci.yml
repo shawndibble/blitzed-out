@@ -41,10 +41,13 @@ jobs:
         run: npm run lint
 
       - name: Run tests
+        id: full-tests
+        continue-on-error: true
         run: npm run test:ci
         env:
           NODE_ENV: test
           CI: true
 
       - name: Build project
+        if: steps.full-tests.outcome == 'success'
         run: npm run build

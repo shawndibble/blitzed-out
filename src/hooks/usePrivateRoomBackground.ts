@@ -1,11 +1,12 @@
-import latestMessageByType from '@/helpers/messages';
-import { processBackground } from '@/services/getBackgroundSource';
 import { Message, RoomMessage } from '@/types/Message';
 
-interface BackgroundSource {
-  isVideo?: boolean;
-  url?: string;
-}
+import latestMessageByType from '@/helpers/messages';
+import { processBackground } from '@/services/getBackgroundSource';
+
+type ParsedRoom = {
+  roomBackground?: string;
+  roomBackgroundURL?: string;
+};
 
 interface BackgroundResult {
   isVideo: boolean;
@@ -18,10 +19,30 @@ export default function usePrivateRoomBackground(messages: Message[]): Backgroun
   let url = '';
 
   if (roomMessage) {
-    const { roomBackgroundURL } = JSON.parse(roomMessage.settings);
-    const backgroundSource = processBackground(roomBackgroundURL) as BackgroundSource;
-    if (backgroundSource?.isVideo) isVideo = backgroundSource.isVideo;
-    if (backgroundSource?.url) url = backgroundSource.url;
+    let roomBackground: string | undefined;
+    let roomBackgroundURL: string | undefined;
+    try {
+      const parsed = JSON.parse(roomMessage.settings || '{}') as ParsedRoom;
+      roomBackground = parsed.roomBackground;
+      roomBackgroundURL = parsed.roomBackgroundURL;
+    } catch {
+      // ignore invalid JSON and fall back to empty defaults
+    }
+
+    // Prefer explicit roomBackground value. If custom, use URL; otherwise use the preset name.
+    let backgroundInput: string | null = null;
+    if (roomBackground === 'custom' && roomBackgroundURL) {
+      backgroundInput = roomBackgroundURL;
+    } else if (roomBackground && roomBackground !== 'useAppBackground') {
+      backgroundInput = roomBackground;
+    } else if (roomBackgroundURL) {
+      // Backward compatibility: fall back to URL if set
+      backgroundInput = roomBackgroundURL;
+    }
+
+    const backgroundSource = processBackground(backgroundInput);
+    isVideo = !!backgroundSource.isVideo;
+    if (backgroundSource.url) url = backgroundSource.url;
   }
 
   if (['color', 'gray'].some((color) => url.includes(color))) url = '';

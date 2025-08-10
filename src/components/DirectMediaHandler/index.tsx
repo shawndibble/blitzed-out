@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 
+import { cssUrl } from '@/helpers/cssUrl';
+
 interface DirectMediaHandlerProps {
   url: string | null;
 }
 
 const inferMediaType = (u: string | null): 'video' | 'image' => {
   if (!u) return 'video';
-  // Only infer as image if it's clearly an image extension
-  if (/\.(jpe?g|png|gif|webp|bmp|svg)(\?.*)?$/i.test(u)) return 'image';
-  // Default to video for video extensions or unknown/ambiguous URLs
+  // Treat image formats as images (including GIFs and modern formats)
+  if (/\.(jpe?g|png|webp|bmp|svg|gif|avif|tiff?|heic|heif|jfif)(\?.*)?$/i.test(u)) return 'image';
+  // Default to video for video extensions or unknown URLs
   return 'video';
 };
 
@@ -119,9 +121,7 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
       <div
         className="image-background"
         style={{
-          backgroundImage: currentUrl
-            ? `url("${String(currentUrl).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}")`
-            : undefined,
+          backgroundImage: currentUrl ? cssUrl(currentUrl) : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',

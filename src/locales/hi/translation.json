@@ -1,5 +1,6 @@
 {
   "customTiles": {
+    "color": "ऐप बैकग्राउंड का उपयोग करें",
     "intensityLevel": "तीव्रता स्तर",
     "toggleTile": "टाइल टॉगल करें",
     "update": "अपडेट",
@@ -80,7 +81,8 @@
   "playerList": "प्लेयर लिस्ट",
   "delayed": "विलंबित",
   "delayedTooltip": "व्यक्तिगत रूप से खेलने के लिए सबसे अच्छा जहां लोग राउंड के बीच अपना डिवाइस बंद कर देंगे।",
-  "roomBackgroundURL": "बैकग्राउंड URL",
+  "roomBackgroundURL": "रूम बैकग्राउंड URL",
+  "roomBackgroundPlaceholder": "https://reddit.com/r/EarthPorn",
   "mainRole": "प्राथमिक भूमिका",
   "role": "भूमिका",
   "sub": "आज्ञाकारी",
@@ -126,6 +128,11 @@
   "url": "छवि URL या साइट लिंक",
   "supportedSites": "समर्थित साइटें: Reddit (subreddit URLs), YouTube, Vimeo, Google Drive, Tenor, Giphy, Gfycat, RedGifs, Imgur, Dropbox, Twitter/X, Discord CDN, प्रत्यक्ष मीडिया फ़ाइलें।",
   "requiresEmbeddedUrl": "नोट: ThisVid और BoyfriendTV एम्बेड URLs के साथ सबसे अच्छा काम करते हैं, लेकिन नियमित वीडियो URLs भी समर्थित हैं।",
+  "loadingRedditImages": "Reddit छवियां लोड हो रही हैं…",
+  "loadingImages": "छवियां लोड हो रही हैं…",
+  "redditBackgroundNote": "Reddit पृष्ठभूमि नोट:",
+  "redditBlocked": "कुछ ब्राउज़र ट्रैकिंग सुरक्षा के कारण Reddit को ब्लॉक करते हैं। इस साइट के लिए उन्नत ट्रैकिंग सुरक्षा (Enhanced Tracking Protection) को अक्षम करने का प्रयास करें, या किसी अन्य पृष्ठभूमि स्रोत का उपयोग करें।",
+  "invalidRedditUrl": "अमान्य Reddit URL प्रारूप",
   "upcomingGames": "आगामी गेम्स",
   "scheduleGame": "गेम शेड्यूल करें",
   "dateTime": "दिनांक और समय",

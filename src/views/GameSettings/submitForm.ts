@@ -1,8 +1,8 @@
+import { Settings } from '@/types/Settings';
+import { User } from '@/types';
 import { getSiteName } from '@/helpers/urls';
 import i18next from 'i18next';
 import { sendMessage } from '@/services/firebase';
-import { Settings } from '@/types/Settings';
-import { User } from '@/types';
 
 function getRoomSettingsMessage(settings: Partial<Settings>): string {
   const { t } = i18next;
@@ -27,14 +27,21 @@ function getRoomSettingsMessage(settings: Partial<Settings>): string {
 
 function exportRoomSettings(formData: Settings): Partial<Settings> {
   const newSettings: Partial<Settings> = {};
+  // Include only message-relevant room fields; omit control flags and deprecated roomBackground
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     if (
       settingKey.startsWith('room') &&
-      !['roomUpdated', 'roomBackground'].some((key) => key === settingKey)
+      !['roomUpdated', 'roomBackground', 'roomBackgroundURL'].includes(settingKey)
     ) {
       newSettings[settingKey] = settingValue;
     }
   });
+
+  // Only include background URL if it exists and is valid
+  if (formData.roomBackgroundURL && formData.roomBackgroundURL.trim() !== '') {
+    newSettings.roomBackgroundURL = formData.roomBackgroundURL;
+  }
+
   return newSettings;
 }
 

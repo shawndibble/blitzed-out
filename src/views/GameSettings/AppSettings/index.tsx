@@ -6,6 +6,7 @@ import LanguageSelect from './LanguageSelect';
 import AppBoolSwitch from './AppBoolSwitch';
 import { useSettings } from '@/stores/settingsStore';
 import { Settings } from '@/types/Settings';
+import { isPublicRoom } from '@/helpers/strings';
 import { ChangeEvent } from 'react';
 
 interface AppSettingsProps {
@@ -20,6 +21,7 @@ export default function AppSettings({
   boardUpdated,
 }: AppSettingsProps): JSX.Element {
   const [settings, updateSettings] = useSettings();
+  const isPrivateRoom = Boolean(formData.room && !isPublicRoom(formData.room));
 
   const { t } = useTranslation();
   const backgrounds: Record<string, string> = {
@@ -82,7 +84,12 @@ export default function AppSettings({
       <AppBoolSwitch field="hideBoardActions" formData={formData} handleSwitch={handleSwitch} />
       <AppBoolSwitch field="advancedSettings" formData={formData} handleSwitch={handleSwitch} />
 
-      <BackgroundSelect formData={formData} setFormData={setFormData} backgrounds={backgrounds} />
+      <BackgroundSelect
+        formData={formData}
+        setFormData={setFormData}
+        backgrounds={backgrounds}
+        isPrivateRoom={isPrivateRoom}
+      />
       <Divider />
     </>
   );
