@@ -43,7 +43,6 @@ export default function VoiceSelect({
     [formData, setFormData, onVoiceChange]
   );
 
-  // Load available voices
   useEffect(() => {
     let mounted = true;
 
@@ -54,13 +53,24 @@ export default function VoiceSelect({
           const availableVoices = await tts.getAvailableVoicesAsync();
 
           if (mounted) {
-            setVoices(availableVoices);
+            // Filter to only show voices with "Google" in the name
+            const googleVoices = availableVoices.filter(
+              (voice) => voice.displayName.includes('Google') || voice.name.includes('Google')
+            );
+            setVoices(googleVoices);
 
             // Set default voice if none selected
-            if (!selectedVoice && availableVoices.length > 0) {
+            if (!selectedVoice && googleVoices.length > 0) {
               const preferredVoice = await tts.getPreferredVoiceAsync();
-              if (preferredVoice && mounted) {
+              // Use the preferred voice if it's a Google voice, otherwise use the first Google voice
+              if (
+                preferredVoice &&
+                googleVoices.some((voice) => voice.name === preferredVoice) &&
+                mounted
+              ) {
                 handleVoiceChange(preferredVoice);
+              } else if (mounted) {
+                handleVoiceChange(googleVoices[0].name);
               }
             }
 
@@ -90,7 +100,6 @@ export default function VoiceSelect({
     const voiceToPlay = selectedVoice || (voices.length > 0 ? voices[0].name : '');
     if (!voiceToPlay) return;
 
-    // Get sample text from i18next translations
     const sampleText = t('tts.sampleText', 'Take a drink and enjoy the game.');
 
     try {
@@ -103,9 +112,9 @@ export default function VoiceSelect({
     }
   };
 
-  // Get voice label
   const getVoiceLabel = (voice: VoiceOption): string => {
-    return voice.displayName;
+    // Remove "Google " from the beginning of the display name since all voices are Google
+    return voice.displayName.replace(/^Google\s+/i, '');
   };
 
   if (isLoading) {
