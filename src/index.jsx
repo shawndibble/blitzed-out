@@ -1,8 +1,35 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import './index.css';
+
+import * as Sentry from '@sentry/react';
+
 import App from './App';
 import { MinimalAuthProvider } from './context/minimalAuth';
-import './index.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+// Initialize Sentry
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  environment: import.meta.env.MODE, // 'development' or 'production'
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration({
+      maskAllText: false, // Set to true if you want to mask sensitive text
+      blockAllMedia: false, // Set to true if you want to block images/videos
+    }),
+  ],
+  tracesSampleRate: 0.2, // Capture 20% of transactions for performance monitoring
+  replaysSessionSampleRate: 0.1, // Capture 10% of sessions for replay
+  replaysOnErrorSampleRate: 1.0, // Capture 100% of sessions when errors occur
+  beforeSend(event) {
+    // Don't send events in development unless you want to
+    if (import.meta.env.MODE === 'development') {
+      console.log('Sentry Event:', event);
+      return null; // Don't send to Sentry in development
+    }
+    return event;
+  },
+});
 
 // Defer non-critical imports to reduce initial bundle size
 const loadNonCriticalResources = () => {
@@ -63,11 +90,36 @@ const hideInstantLoading = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <MinimalAuthProvider>
-      <React.Suspense fallback={null}>
-        <App />
-      </React.Suspense>
-    </MinimalAuthProvider>
+    <Sentry.ErrorBoundary
+      fallback={({ error, resetError }) => (
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <h2>Something went wrong</h2>
+          <p>The error has been reported to our team.</p>
+          <details style={{ marginTop: '10px' }}>
+            <summary>Error details</summary>
+            <pre
+              style={{
+                textAlign: 'left',
+                background: '#f5f5f5',
+                padding: '10px',
+                margin: '10px 0',
+              }}
+            >
+              {error.toString()}
+            </pre>
+          </details>
+          <button onClick={resetError} style={{ padding: '10px 20px', marginTop: '10px' }}>
+            Try again
+          </button>
+        </div>
+      )}
+    >
+      <MinimalAuthProvider>
+        <React.Suspense fallback={null}>
+          <App />
+        </React.Suspense>
+      </MinimalAuthProvider>
+    </Sentry.ErrorBoundary>
   </React.StrictMode>
 );
 
