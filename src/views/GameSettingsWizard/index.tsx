@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Button, Divider } from '@mui/material';
 import { Trans } from 'react-i18next';
 import RoomStep from './RoomStep';
@@ -41,6 +41,16 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
 
   const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(formData.gameMode);
 
+  // Handle step redirects for public rooms without causing DOM insertion errors
+  useEffect(() => {
+    const isPublic = isPublicRoom(formData.room);
+
+    // Only redirect if we're on a step that's invalid for public rooms
+    if (isPublic && (step === 2 || step === 3)) {
+      setStep(4);
+    }
+  }, [step, formData.room]);
+
   // Note: Removed the useEffect that was syncing URL to formData as it was interfering
   // with wizard selections. The wizard should be independent until form submission.
 
@@ -71,8 +81,9 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
       case 1:
         return <RoomStep formData={formData} setFormData={setFormData} nextStep={nextStep} />;
       case 2:
+        // Never render steps 2 or 3 for public rooms
+        // The useEffect above handles the redirect
         if (isPublicRoom(formData.room)) {
-          setStep(4);
           return null;
         }
         return (
@@ -84,8 +95,9 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
           />
         );
       case 3:
+        // Never render steps 2 or 3 for public rooms
+        // The useEffect above handles the redirect
         if (isPublicRoom(formData.room)) {
-          setStep(4);
           return null;
         }
         return (
