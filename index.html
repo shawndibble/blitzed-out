@@ -240,6 +240,29 @@
       })(window.location);
     </script>
     <script type="module" src="src/index"></script>
+    
+    <!-- Safari module loading fallback -->
+    <script>
+      // Handle module loading failures in Safari
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('module script failed')) {
+          console.warn('Module script loading failed - likely Safari compatibility issue');
+          // Optionally redirect to a fallback page or show error message
+          const loadingEl = document.getElementById('instant-loading');
+          if (loadingEl) {
+            loadingEl.innerHTML = '<div class="loading-text">Loading failed. Please refresh the page.</div>';
+          }
+        }
+      });
+      
+      // Handle unhandled promise rejections for module imports
+      window.addEventListener('unhandledrejection', function(e) {
+        if (e.reason && e.reason.message && e.reason.message.includes('module script failed')) {
+          console.warn('Module import failed - Safari compatibility issue');
+          e.preventDefault(); // Prevent the error from showing in console as unhandled
+        }
+      });
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

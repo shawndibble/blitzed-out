@@ -7,6 +7,24 @@ import { MinimalAuthProvider } from './context/minimalAuth';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
+// iOS Safari dynamic import polyfill - must run before any dynamic imports
+if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.importShim) {
+  // Add enhanced error handling for iOS Safari module loading
+  const originalError = window.onerror;
+  window.onerror = function (msg) {
+    if (msg && msg.includes && msg.includes('Importing a module script failed')) {
+      console.warn('iOS Safari module loading issue detected, attempting recovery...');
+      // Attempt to reload the page once to recover from module loading failure
+      if (!sessionStorage.getItem('ios_module_reload_attempted')) {
+        sessionStorage.setItem('ios_module_reload_attempted', '1');
+        setTimeout(() => window.location.reload(), 100);
+        return true;
+      }
+    }
+    return originalError ? originalError.apply(this, arguments) : false;
+  };
+}
+
 // Initialize Sentry
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -27,32 +45,54 @@ Sentry.init({
       console.log('Sentry Event:', event);
       return null; // Don't send to Sentry in development
     }
+
+    // Tag iOS Safari module errors for better tracking
+    if (event.exception?.values?.[0]?.value?.includes('Importing a module script failed')) {
+      event.tags = { ...event.tags, ios_safari_module_error: true };
+      event.fingerprint = ['ios-safari-module-loading-error'];
+    }
+
     return event;
   },
 });
 
 // Defer non-critical imports to reduce initial bundle size
 const loadNonCriticalResources = () => {
-  // Load i18n after initial render to reduce bundle
-  import('./i18n').catch(console.error);
+  // Wrap all dynamic imports with proper error handling for Safari compatibility
+  const safeDynamicImport = async (importPath) => {
+    try {
+      return await import(importPath);
+    } catch (error) {
+      // Safari-specific error handling for module loading failures
+      console.warn(`Failed to load module ${importPath}:`, error);
+      return null;
+    }
+  };
 
-  // Load PWA elements after initial render
-  import('@ionic/pwa-elements/loader')
-    .then(({ defineCustomElements }) => {
-      defineCustomElements(window);
+  // Load i18n after initial render to reduce bundle
+  safeDynamicImport('./i18n').catch(console.error);
+
+  // Load PWA elements after initial render with Safari compatibility
+  safeDynamicImport('@ionic/pwa-elements/loader')
+    .then((module) => {
+      if (module?.defineCustomElements) {
+        module.defineCustomElements(window);
+      }
     })
     .catch(console.error);
 
-  // Load fonts after initial render
-  Promise.all([import('@fontsource/roboto/400.css'), import('@fontsource/roboto/500.css')]).catch(
-    console.error
-  );
+  // Load fonts after initial render with Safari compatibility
+  Promise.all([
+    safeDynamicImport('@fontsource/roboto/400.css'),
+    safeDynamicImport('@fontsource/roboto/500.css'),
+  ]).catch(console.error);
 
   // Load additional font weights after page is fully loaded
   const loadAdditionalFontWeights = () => {
-    Promise.all([import('@fontsource/roboto/300.css'), import('@fontsource/roboto/700.css')]).catch(
-      console.error
-    );
+    Promise.all([
+      safeDynamicImport('@fontsource/roboto/300.css'),
+      safeDynamicImport('@fontsource/roboto/700.css'),
+    ]).catch(console.error);
   };
 
   if (document.readyState === 'complete') {
