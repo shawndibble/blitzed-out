@@ -1,6 +1,6 @@
-import { lazy, Suspense, useState, useRef } from 'react';
+import { Suspense, useState, useRef } from 'react';
 import { CalendarMonth } from '@mui/icons-material';
-import { AppBar, Badge, Box, IconButton, Portal, Toolbar, CircularProgress } from '@mui/material';
+import { AppBar, Badge, Box, IconButton, Portal, Toolbar } from '@mui/material';
 import useSchedule from '@/context/hooks/useSchedule';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import Logo from '@/images/blitzed-out.png';
@@ -10,16 +10,13 @@ import ThemeToggle from '@/components/ThemeToggle';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
 import { Player } from '@/types/player';
+import { lazyWithRetry } from '@/utils/lazyWithRetry';
 
-// Lazy load heavy components
-const Schedule = lazy(() => import('@/views/Schedule'));
-const MenuDrawer = lazy(() => import('./MenuDrawer'));
-const UserPresenceOverlay = lazy(() => import('./UserPresenceOverlay'));
+// Lazy load heavy components with retry logic
+const Schedule = lazyWithRetry(() => import('@/views/Schedule'));
+const MenuDrawer = lazyWithRetry(() => import('./MenuDrawer'));
+const UserPresenceOverlay = lazyWithRetry(() => import('./UserPresenceOverlay'));
 import PlayersOnline from './PlayersOnline';
-
-function ComponentLoader() {
-  return <CircularProgress size={16} />;
-}
 
 interface PlayerWithLocation extends Player {
   location?: number;
@@ -75,17 +72,17 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
                 <CalendarMonth />
               </Badge>
             </IconButton>
-            {openSchedule && (
-              <Portal>
-                <Suspense fallback={<ComponentLoader />}>
+            <Suspense fallback={null}>
+              {openSchedule && (
+                <Portal>
                   <Schedule
                     open={openSchedule}
                     close={() => setOpenSchedule(false)}
                     isMobile={isMobile}
                   />
-                </Suspense>
-              </Portal>
-            )}
+                </Portal>
+              )}
+            </Suspense>
             {playerList.length > 0 && (
               <Suspense fallback={null}>
                 <UserPresenceOverlay

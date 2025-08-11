@@ -113,7 +113,9 @@ export default defineConfig({
     minify: 'esbuild',
 
     // Enhanced compatibility settings for iOS Safari
-    polyfillModulePreload: true,
+    modulePreload: {
+      polyfill: true,
+    },
 
     // Inline more assets to reduce HTTP requests
     // Inline assets < 16KB

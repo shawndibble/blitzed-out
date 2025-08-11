@@ -399,8 +399,8 @@ export function getUserList(
     enableCache?: boolean;
     enableDebounce?: boolean;
   } = {}
-): void {
-  if (!roomId) return;
+): (() => void) | undefined {
+  if (!roomId) return undefined;
 
   const { enableCache = true, enableDebounce = true } = options;
 
@@ -426,9 +426,11 @@ export function getUserList(
       if (dataString !== existingString) {
         callback(cached.data as Record<string, unknown>);
       }
-      return;
+      return () => {}; // Return empty cleanup function for cached results
     }
   }
+
+  let unsubscribe: (() => void) | undefined;
 
   const executeQuery = async () => {
     let networkError = false;
@@ -440,7 +442,7 @@ export function getUserList(
       const database = getDatabase();
       const usersRef = ref(database, 'users');
 
-      onValue(
+      unsubscribe = onValue(
         usersRef,
         (snap: DataSnapshot) => {
           const queryEndTime = Date.now();
@@ -508,8 +510,20 @@ export function getUserList(
   // Apply smart debouncing based on priority
   if (enableDebounce) {
     debounceQuery(queryKey, executeQuery);
+    // Return a cleanup function that clears both debounce and unsubscribe
+    return () => {
+      const timeout = queryDebounceMap.get(queryKey);
+      if (timeout) {
+        clearTimeout(timeout);
+        queryDebounceMap.delete(queryKey);
+      }
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   } else {
     executeQuery();
+    return unsubscribe;
   }
 }
 

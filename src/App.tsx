@@ -1,10 +1,11 @@
 import './App.css';
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 import AppSkeleton from './components/AppSkeleton';
 import { useMinimalAuth } from './context/minimalAuth';
+import { lazyWithRetry } from './utils/lazyWithRetry';
 
 // Lazy load the ENTIRE app to reduce initial bundle to absolute minimum
-const FullApp = lazy(() => import('./components/FullApp'));
+const FullApp = lazyWithRetry(() => import('./components/FullApp'));
 
 function App() {
   const { initializing } = useMinimalAuth();

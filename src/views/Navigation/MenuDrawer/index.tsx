@@ -29,7 +29,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { lazy, Suspense, useMemo, useState, ReactNode, useCallback } from 'react';
+import { Suspense, useMemo, useState, ReactNode, useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';
@@ -39,14 +39,15 @@ import { languages } from '@/services/i18nHelpers';
 import LanguageChangeModal from '@/components/LanguageChangeModal';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
+import { lazyWithRetry } from '@/utils/lazyWithRetry';
 
-// Lazy load dialogs
-const AppSettingsDialog = lazy(() => import('@/components/AppSettingsDialog'));
-const GameSettingsDialog = lazy(() => import('@/components/GameSettingsDialog'));
-const GameGuide = lazy(() => import('@/views/GameGuide'));
-const ManageGameBoards = lazy(() => import('@/views/ManageGameBoards'));
-const Schedule = lazy(() => import('@/views/Schedule'));
-const CustomTileDialog = lazy(() => import('@/components/CustomTilesDialog'));
+// Lazy load dialogs with retry logic
+const AppSettingsDialog = lazyWithRetry(() => import('@/components/AppSettingsDialog'));
+const GameSettingsDialog = lazyWithRetry(() => import('@/components/GameSettingsDialog'));
+const GameGuide = lazyWithRetry(() => import('@/views/GameGuide'));
+const ManageGameBoards = lazyWithRetry(() => import('@/views/ManageGameBoards'));
+const Schedule = lazyWithRetry(() => import('@/views/Schedule'));
+const CustomTileDialog = lazyWithRetry(() => import('@/components/CustomTilesDialog'));
 
 interface MenuItemType {
   key: string;

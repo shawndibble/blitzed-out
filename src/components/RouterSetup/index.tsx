@@ -7,21 +7,22 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { Suspense, lazy, useContext, useEffect } from 'react';
+import { Suspense, useContext, useEffect } from 'react';
 import { WindowWithAuth } from '../../types/app';
 import { AuthContext } from '../../context/auth';
 import { MessagesProvider } from '../../context/messages';
 import AppSkeleton from '../AppSkeleton';
+import { lazyWithRetry } from '../../utils/lazyWithRetry';
 
-// Lazy load UserListProvider
-const UserListProvider = lazy(() =>
+// Lazy load UserListProvider with retry logic
+const UserListProvider = lazyWithRetry(() =>
   import('../../context/userList').then((m) => ({ default: m.UserListProvider }))
 );
 
-// Lazy load main views
-const UnauthenticatedApp = lazy(() => import('../../views/UnauthenticatedApp'));
-const Cast = lazy(() => import('../../views/Cast'));
-const Room = lazy(() => import('../../views/Room'));
+// Lazy load main views with retry logic
+const UnauthenticatedApp = lazyWithRetry(() => import('../../views/UnauthenticatedApp'));
+const Cast = lazyWithRetry(() => import('../../views/Cast'));
+const Room = lazyWithRetry(() => import('../../views/Room'));
 
 // Component to ensure the room ID is always uppercase
 function UppercaseRedirect({ children }: { children: React.ReactNode }) {

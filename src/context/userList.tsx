@@ -45,9 +45,12 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const prevRoomRef = useRef<string | undefined>(room);
 
-  // Optimized user update handler with batching
-  const handleUserUpdate = useCallback(
-    (newUsers: Record<string, unknown> | null) => {
+  // Stable callback ref to prevent infinite useEffect loops
+  const handleUserUpdateRef = useRef<(newUsers: Record<string, unknown> | null) => void>(() => {});
+
+  // Update the callback ref when dependencies change
+  useEffect(() => {
+    handleUserUpdateRef.current = (newUsers: Record<string, unknown> | null) => {
       if (newUsers === null) {
         clearUsers();
       } else {
@@ -72,9 +75,13 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
 
         setUsers(validatedUsers);
       }
-    },
-    [setUsers, clearUsers]
-  );
+    };
+  }, [setUsers, clearUsers]);
+
+  // Stable callback function that doesn't change reference
+  const handleUserUpdate = useCallback((newUsers: Record<string, unknown> | null) => {
+    handleUserUpdateRef.current?.(newUsers);
+  }, []);
 
   // Cleanup function for Firebase listener
   const cleanup = useCallback(() => {
@@ -103,8 +110,8 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
     cleanup();
 
     // Set up new listener
-    getUserList(room, handleUserUpdate);
-    unsubscribeRef.current = null; // TODO: getUserList should return unsubscribe function
+    const unsubscribe = getUserList(room, handleUserUpdate, onlineUsers);
+    unsubscribeRef.current = unsubscribe || null;
 
     // Cleanup on unmount or room change
     return cleanup;
