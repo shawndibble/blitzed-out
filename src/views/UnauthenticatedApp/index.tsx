@@ -146,16 +146,16 @@ export default function UnauthenticatedApp() {
   return (
     <>
       <Navigation room={room} playerList={playerList} />
-      <Box className="unauthenticated-container gradient-background-vibrant">
-        <Container maxWidth="lg" sx={{ pt: 8 }}>
+      <main className="unauthenticated-container gradient-background-vibrant">
+        <Container maxWidth="lg" sx={{ pt: 8 }} component="section">
           <Grid container spacing={4} justifyContent="center" alignItems="stretch">
             {/* Main Setup Card */}
             <Grid size={{ xs: 12, md: 6, lg: 4 }}>
               <Card className="unauthenticated-card main-setup-card">
                 <CardContent>
-                  <h2 className="setup">
+                  <h1 className="setup">
                     <Trans i18nKey="setup" />
-                  </h2>
+                  </h1>
                   <Typography className="setup-subtitle" variant="body1">
                     <Trans i18nKey="setupSubtitle" />
                   </Typography>
@@ -298,7 +298,7 @@ export default function UnauthenticatedApp() {
         </Container>
 
         {/* Footer Language Selector */}
-        <Box className="footer-language-container">
+        <footer className="footer-language-container">
           <Box className="footer-language-selector">
             <Language sx={{ fontSize: '1rem', color: 'rgba(255, 255, 255, 0.5)' }} />
             <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -327,8 +327,8 @@ export default function UnauthenticatedApp() {
               </Select>
             </FormControl>
           </Box>
-        </Box>
-      </Box>
+        </footer>
+      </main>
 
       <AuthDialog
         open={authDialogOpen}

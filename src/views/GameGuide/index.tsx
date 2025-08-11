@@ -21,13 +21,13 @@ export default function GameGuide(): JSX.Element {
       {/* Hero Section */}
       <Box className="hero-section">
         <Trans i18nKey="gameDesc">
-          <Typography variant="h5" className="hero-title gradient-text-flame">
-            Transform Your Intimate Adventures
+          <Typography component="h1" variant="h4" className="hero-title gradient-text-flame">
+            Transform Your Intimate Adventures - Blitzed Out Adult Board Game
           </Typography>
           <Typography variant="body1" className="hero-subtitle">
-            Blitzed Out is the ultimate customizable adult experience platform. Whether you&apos;re
-            exploring solo, spicing things up as a couple, or hosting an unforgettable party — this
-            is your playground.
+            Blitzed Out is a customizable adult experience platform. Whether you&apos;re exploring
+            solo, spicing things up as a couple, or hosting an unforgettable party — this is your
+            playground.
           </Typography>
           <Typography variant="body1" className="hero-subtitle">
             Create personalized experiences with endless customization, join private rooms, or
@@ -40,7 +40,7 @@ export default function GameGuide(): JSX.Element {
 
       {/* Features Section */}
       <Box className="features-section">
-        <Typography variant="h6" className="section-title">
+        <Typography component="h2" variant="h6" className="section-title">
           <Trans i18nKey="whySpecialTitle" />
         </Typography>
 
@@ -48,7 +48,7 @@ export default function GameGuide(): JSX.Element {
           <Box className="feature-item">
             <Trans i18nKey="customizationFeature">
               <Box className="feature-icon">🎲</Box>
-              <Typography variant="subtitle1" className="feature-title">
+              <Typography component="h3" variant="subtitle1" className="feature-title">
                 Unlimited Customization
               </Typography>
               <Typography variant="body2" className="feature-description">
@@ -61,7 +61,7 @@ export default function GameGuide(): JSX.Element {
           <Box className="feature-item">
             <Trans i18nKey="privacyFeature">
               <Box className="feature-icon">🔒</Box>
-              <Typography variant="subtitle1" className="feature-title">
+              <Typography component="h3" variant="subtitle1" className="feature-title">
                 Complete Privacy Control
               </Typography>
               <Typography variant="body2" className="feature-description">
@@ -74,7 +74,7 @@ export default function GameGuide(): JSX.Element {
           <Box className="feature-item">
             <Trans i18nKey="varietyFeature">
               <Box className="feature-icon">🌟</Box>
-              <Typography variant="subtitle1" className="feature-title">
+              <Typography component="h3" variant="subtitle1" className="feature-title">
                 Endless Variety
               </Typography>
               <Typography variant="body2" className="feature-description">
@@ -93,7 +93,7 @@ export default function GameGuide(): JSX.Element {
         className="about-accordion"
       >
         <AccordionSummary aria-controls="panel1-content" id="panel1-header">
-          <Typography className="accordion-title">
+          <Typography component="h3" className="accordion-title">
             <Trans i18nKey="gettingStartedTitle" />
           </Typography>
         </AccordionSummary>
