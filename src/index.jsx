@@ -1,9 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import './index.css';
+
 import * as Sentry from '@sentry/react';
+
 import App from './App';
 import { MinimalAuthProvider } from './context/minimalAuth';
-import './index.css';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
 // Initialize Sentry
 Sentry.init({
@@ -16,7 +18,7 @@ Sentry.init({
       blockAllMedia: false, // Set to true if you want to block images/videos
     }),
   ],
-  tracesSampleRate: 1.0, // Capture 100% of transactions for performance monitoring
+  tracesSampleRate: 0.2, // Capture 20% of transactions for performance monitoring
   replaysSessionSampleRate: 0.1, // Capture 10% of sessions for replay
   replaysOnErrorSampleRate: 1.0, // Capture 100% of sessions when errors occur
   beforeSend(event) {
