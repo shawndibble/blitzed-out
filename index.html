@@ -244,9 +244,15 @@
     <script>
       // Handle module loading failures in Safari
       window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('module script failed')) {
+        // Check for module script loading failure in error event
+        const errorMsg = 
+          (e.error && e.error.message) ||
+          (e.reason && typeof e.reason === 'string' ? e.reason : null) ||
+          (typeof e.message === 'string' ? e.message : null);
+        
+        if (errorMsg && errorMsg.includes('module script failed')) {
           console.warn('Module script loading failed - likely Safari compatibility issue');
-          // Optionally redirect to a fallback page or show error message
+          // Show error message to user
           const loadingEl = document.getElementById('instant-loading');
           if (loadingEl) {
             loadingEl.innerHTML = '<div class="loading-text">Loading failed. Please refresh the page.</div>';
@@ -262,12 +268,12 @@
         }
       });
     </script>
-    <script type="module" crossorigin src="/assets/index-CZH-e7F_.js"></script>
-    <link rel="modulepreload" crossorigin href="/js/chunk-CNqt7FHs.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-CVSdvP5Z.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-BVO8KFPS.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-_SwOSjSw.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-B-cyqPC2.js">
+    <script type="module" crossorigin src="/assets/index-CRbdjLFF.js"></script>
+    <link rel="modulepreload" crossorigin href="/js/chunk-rJHcTq4h.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-DCqCmTw7.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-BxyRzOKK.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-DyYP0jr7.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-5SGEHjMG.js">
     <link rel="stylesheet" crossorigin href="/assets/style-WeS7Xnl5.css">
   </head>
   <body>
