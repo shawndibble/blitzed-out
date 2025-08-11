@@ -29,7 +29,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { Suspense, useMemo, useState, ReactNode, useCallback } from 'react';
+import { useMemo, useState, ReactNode, useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import DialogWrapper from '@/components/DialogWrapper';
@@ -39,15 +39,12 @@ import { languages } from '@/services/i18nHelpers';
 import LanguageChangeModal from '@/components/LanguageChangeModal';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
-import { lazyWithRetry } from '@/utils/lazyWithRetry';
-
-// Lazy load dialogs with retry logic
-const AppSettingsDialog = lazyWithRetry(() => import('@/components/AppSettingsDialog'));
-const GameSettingsDialog = lazyWithRetry(() => import('@/components/GameSettingsDialog'));
-const GameGuide = lazyWithRetry(() => import('@/views/GameGuide'));
-const ManageGameBoards = lazyWithRetry(() => import('@/views/ManageGameBoards'));
-const Schedule = lazyWithRetry(() => import('@/views/Schedule'));
-const CustomTileDialog = lazyWithRetry(() => import('@/components/CustomTilesDialog'));
+import AppSettingsDialog from '@/components/AppSettingsDialog';
+import GameSettingsDialog from '@/components/GameSettingsDialog';
+import GameGuide from '@/views/GameGuide';
+import ManageGameBoards from '@/views/ManageGameBoards';
+import Schedule from '@/views/Schedule';
+import CustomTileDialog from '@/components/CustomTilesDialog';
 
 interface MenuItemType {
   key: string;
@@ -313,14 +310,12 @@ export default function MenuDrawer(): JSX.Element {
     dialogKey: keyof DialogState,
     props: Partial<T> = {} as any
   ): JSX.Element => (
-    <Suspense fallback={null}>
-      <Component
-        open={open[dialogKey]}
-        close={() => toggleDialog(dialogKey.toString(), false)}
-        isMobile={isMobile}
-        {...(props as any)}
-      />
-    </Suspense>
+    <Component
+      open={open[dialogKey]}
+      close={() => toggleDialog(dialogKey.toString(), false)}
+      isMobile={isMobile}
+      {...(props as any)}
+    />
   );
 
   return (
@@ -393,11 +388,9 @@ export default function MenuDrawer(): JSX.Element {
       {open.settings && renderDialog(GameSettingsDialog, 'settings')}
       {open.appSettings && renderDialog(AppSettingsDialog, 'appSettings')}
       {open.about && (
-        <Suspense fallback={null}>
-          <DialogWrapper open={open.about} close={() => toggleDialog('about', false)}>
-            <GameGuide />
-          </DialogWrapper>
-        </Suspense>
+        <DialogWrapper open={open.about} close={() => toggleDialog('about', false)}>
+          <GameGuide />
+        </DialogWrapper>
       )}
       {open.gameBoard && renderDialog(ManageGameBoards, 'gameBoard')}
       {open.schedule && renderDialog(Schedule, 'schedule')}

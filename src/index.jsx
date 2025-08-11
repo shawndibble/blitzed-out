@@ -4,7 +4,11 @@ import App from './App';
 import { MinimalAuthProvider } from './context/minimalAuth';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { initializeSentry, SentryErrorBoundary } from './services/sentry';
+import { initializeSentry, SentryErrorBoundary } from '@/services/sentry';
+import { logger } from '@/utils/logger';
+import ErrorBoundaryFallback from '@/components/ErrorBoundaryFallback';
+import './i18n'; // Load i18n statically
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
 // Enhanced module loading error handling - uses feature detection instead of user-agent sniffing
 if (typeof window !== 'undefined' && !window.importShim) {
@@ -17,7 +21,7 @@ if (typeof window !== 'undefined' && !window.importShim) {
         msg.includes('Failed to resolve module specifier') ||
         msg.includes('Method not found')
       ) {
-        console.warn('Module loading/resolution issue detected:', msg);
+        logger.warn('Module loading/resolution issue detected:', { message: msg, event });
         // Attempt to reload the page once to recover from module loading failure
         if (!sessionStorage.getItem('module_reload_attempted')) {
           sessionStorage.setItem('module_reload_attempted', '1');
@@ -39,7 +43,7 @@ if (typeof window !== 'undefined' && !window.importShim) {
         errorMsg.includes('Failed to resolve module specifier') ||
         errorMsg.includes('Method not found')
       ) {
-        console.warn('Dynamic import/method resolution failed:', errorMsg);
+        logger.warn('Dynamic import/method resolution failed:', { message: errorMsg, reason });
         event.preventDefault(); // Prevent the error from showing in console as unhandled
       }
     }
@@ -49,72 +53,72 @@ if (typeof window !== 'undefined' && !window.importShim) {
 // Initialize Sentry
 initializeSentry();
 
-// Defer non-critical imports to reduce initial bundle size
-const loadNonCriticalResources = () => {
-  // Load i18n after initial render to reduce bundle
-  import('./i18n').catch((error) => {
-    console.warn('Failed to load i18n module:', error);
-  });
-
-  // Load PWA elements with better error handling
-  import('@ionic/pwa-elements/loader')
-    .then((module) => {
-      if (module?.defineCustomElements) {
-        module.defineCustomElements(window);
-      }
-    })
-    .catch((error) => {
-      console.warn('Failed to load PWA elements:', error);
-    });
-
-  // Load fonts via stylesheet injection instead of dynamic imports (CSS cannot be dynamically imported in production)
-  const loadFontStylesheet = (weights, priority = false) => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `https://fonts.googleapis.com/css2?family=Roboto:wght@${weights.join(';')}&display=swap`;
-    link.crossOrigin = 'anonymous';
-
-    // Add error handling for font loading
-    link.onerror = () => {
-      console.warn(`Failed to load Roboto font weights: ${weights.join(', ')}`);
-    };
-
-    // Insert with appropriate priority
-    if (priority) {
-      document.head.insertBefore(link, document.head.firstChild);
-    } else {
-      document.head.appendChild(link);
-    }
-
-    return link;
-  };
-
-  // Load core font weights immediately
-  loadFontStylesheet(['400', '500'], true);
-
-  // Load additional font weights after page is fully loaded
-  const loadAdditionalFontWeights = () => {
-    // Only load additional weights if connection is reasonable
-    const connection =
-      navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (!connection || connection.effectiveType !== 'slow-2g') {
-      loadFontStylesheet(['300', '700']);
-    }
-  };
-
-  if (document.readyState === 'complete') {
-    loadAdditionalFontWeights();
-  } else {
-    window.addEventListener('load', loadAdditionalFontWeights, { once: true });
+// Initialize PWA elements
+const initializePWAElements = () => {
+  try {
+    defineCustomElements(window);
+  } catch (error) {
+    logger.warn('Failed to load PWA elements:', error);
   }
 };
 
-// Schedule non-critical resource loading
+// Load fonts via stylesheet injection instead of dynamic imports (CSS cannot be dynamically imported in production)
+const loadFontStylesheet = (weights, priority = false) => {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=Roboto:wght@${weights.join(';')}&display=swap`;
+  link.crossOrigin = 'anonymous';
+
+  // Add error handling for font loading
+  link.onerror = () => {
+    logger.warn('Failed to load Roboto font weights:', { weights });
+  };
+
+  // Insert with appropriate priority
+  if (priority) {
+    document.head.insertBefore(link, document.head.firstChild);
+  } else {
+    document.head.appendChild(link);
+  }
+
+  return link;
+};
+
+// Initialize PWA elements and fonts
 if (typeof window !== 'undefined') {
   if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(loadNonCriticalResources, { timeout: 500 });
+    window.requestIdleCallback(
+      () => {
+        initializePWAElements();
+        loadFontStylesheet(['400', '500'], true);
+        // Load additional font weights after page is fully loaded
+        if (document.readyState === 'complete') {
+          const connection =
+            navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+          if (!connection || connection.effectiveType !== 'slow-2g') {
+            loadFontStylesheet(['300', '700']);
+          }
+        } else {
+          window.addEventListener(
+            'load',
+            () => {
+              const connection =
+                navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+              if (!connection || connection.effectiveType !== 'slow-2g') {
+                loadFontStylesheet(['300', '700']);
+              }
+            },
+            { once: true }
+          );
+        }
+      },
+      { timeout: 500 }
+    );
   } else {
-    setTimeout(loadNonCriticalResources, 100);
+    setTimeout(() => {
+      initializePWAElements();
+      loadFontStylesheet(['400', '500'], true);
+    }, 100);
   }
 }
 
@@ -134,7 +138,7 @@ const hideInstantLoading = () => {
           try {
             element.parentNode.removeChild(element);
           } catch (error) {
-            console.warn('Failed to remove instant loading element:', error);
+            logger.warn('Failed to remove instant loading element:', error);
             // Fallback: just hide the element
             element.style.display = 'none';
           }
@@ -147,30 +151,7 @@ const hideInstantLoading = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <SentryErrorBoundary
-      fallback={({ error, resetError }) => (
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          <h2>Something went wrong</h2>
-          <p>The error has been reported to our team.</p>
-          <details style={{ marginTop: '10px' }}>
-            <summary>Error details</summary>
-            <pre
-              style={{
-                textAlign: 'left',
-                background: '#f5f5f5',
-                padding: '10px',
-                margin: '10px 0',
-              }}
-            >
-              {error.toString()}
-            </pre>
-          </details>
-          <button onClick={resetError} style={{ padding: '10px 20px', marginTop: '10px' }}>
-            Try again
-          </button>
-        </div>
-      )}
-    >
+    <SentryErrorBoundary fallback={ErrorBoundaryFallback}>
       <MinimalAuthProvider>
         <React.Suspense fallback={null}>
           <App />

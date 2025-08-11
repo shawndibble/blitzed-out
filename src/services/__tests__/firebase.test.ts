@@ -256,14 +256,10 @@ describe('Firebase Authentication Service', () => {
       const { loginAnonymously } = await import('../firebase');
       const { AuthError } = await import('@/types/errors');
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockSignInAnonymously.mockRejectedValue(new Error('Sign in failed'));
 
       await expect(loginAnonymously('Test User')).rejects.toThrow(AuthError);
       await expect(loginAnonymously('Test User')).rejects.toThrow('Sign in failed');
-
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
     });
 
     it('should return null when no current user exists for updateDisplayName', async () => {

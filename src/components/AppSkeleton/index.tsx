@@ -1,8 +1,11 @@
+import { useTranslation } from 'react-i18next';
+
 /**
  * Simple, elegant loading screen that matches the instant HTML loading screen
  * Uses pure CSS to avoid MUI loading issues and ensure consistent styling
  */
 export default function AppSkeleton() {
+  const { t } = useTranslation();
   return (
     <div
       style={{
@@ -54,7 +57,7 @@ export default function AppSkeleton() {
             "'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
         }}
       >
-        Loading...
+        {t('loadingEllipsis')}
       </div>
     </div>
   );

@@ -4,9 +4,15 @@ import * as Sentry from '@sentry/react';
  * Initialize Sentry error tracking and monitoring
  */
 export function initializeSentry(): void {
+  // Idempotency guard: prevent double initialization (HMR, repeated calls)
+  if (Sentry.getClient() !== undefined) {
+    return;
+  }
+
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.MODE, // 'development' or 'production'
+    debug: false, // Disable verbose debug logging to keep console clean
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
@@ -20,8 +26,18 @@ export function initializeSentry(): void {
     beforeSend(event) {
       // Don't send events in development unless you want to
       if (import.meta.env.MODE === 'development') {
-        console.log('Sentry Event:', event);
-        return null; // Don't send to Sentry in development
+        // Send events for Firefox mobile in development to help debug
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isFirefoxMobile =
+          userAgent.includes('firefox') &&
+          (userAgent.includes('mobile') || userAgent.includes('tablet'));
+
+        if (!isFirefoxMobile) {
+          return null; // Don't send to Sentry in development for other browsers
+        }
+
+        // Use Sentry context instead of console.log for debugging
+        Sentry.setTag('development_debug', 'firefox_mobile_detected');
       }
 
       // Tag iOS Safari module errors for better tracking
@@ -46,6 +62,28 @@ export function initializeSentry(): void {
       ) {
         event.tags = { ...event.tags, module_resolution_error: true };
         event.fingerprint = ['module-resolution-error'];
+      }
+
+      // Tag Firefox mobile specific errors
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isFirefoxMobile =
+        userAgent.includes('firefox') &&
+        (userAgent.includes('mobile') || userAgent.includes('tablet'));
+
+      if (isFirefoxMobile) {
+        event.tags = { ...event.tags, firefox_mobile: true };
+
+        // Tag authentication-related errors specifically
+        if (
+          event.exception?.values?.[0]?.value?.includes('login') ||
+          event.exception?.values?.[0]?.value?.includes('auth') ||
+          event.exception?.values?.[0]?.value?.includes('firebase') ||
+          event.message?.includes('login') ||
+          event.message?.includes('auth')
+        ) {
+          event.tags = { ...event.tags, firefox_mobile_auth_error: true };
+          event.fingerprint = ['firefox-mobile-auth-error'];
+        }
       }
 
       return event;

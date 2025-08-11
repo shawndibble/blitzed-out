@@ -1,8 +1,8 @@
-import { ProvidersProps } from '../../types/app';
-import { MigrationProvider } from '../../context/migration';
-import { ScheduleProvider } from '../../context/schedule';
-import { ThemeProvider } from '../../context/theme';
-import MuiProviders from '../MuiProviders';
+import { ProvidersProps } from '@/types/app';
+import { MigrationProvider } from '@/context/migration';
+import { ScheduleProvider } from '@/context/schedule';
+import { ThemeProvider } from '@/context/theme';
+import MuiProviders from '@/components/MuiProviders';
 
 /**
  * Consolidated providers component to reduce Suspense boundary nesting

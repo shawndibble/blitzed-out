@@ -28,13 +28,16 @@ import { languages } from '@/services/i18nHelpers';
 import useAuth from '@/context/hooks/useAuth';
 import usePlayerList from '@/hooks/usePlayerList';
 import { useSettings } from '@/stores/settingsStore';
+import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
-  const { login, user } = useAuth();
+  const { login, user, error: authError } = useAuth();
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [authDialogView, setAuthDialogView] = useState<AuthView>('login');
   const [languageLoading, setLanguageLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const handleOpenLogin = () => {
     setAuthDialogView('login');
@@ -57,10 +60,44 @@ export default function UnauthenticatedApp() {
 
   // Memoize handlers to prevent unnecessary re-renders
   const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLDivElement>) => {
+    async (
+      event:
+        | React.FormEvent<HTMLFormElement>
+        | React.KeyboardEvent<HTMLDivElement>
+        | React.MouseEvent<HTMLButtonElement>
+    ) => {
       event.preventDefault();
-      await updateSettings({ ...settings, displayName, room });
-      await login(displayName);
+
+      try {
+        setLoginLoading(true);
+        setLoginError(null);
+
+        // Update settings first, then login
+        await updateSettings({ ...settings, displayName, room });
+        await login(displayName);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+        // Report to Sentry for Firefox mobile users with detailed context
+        reportFirefoxMobileAuthError('unauthenticated_app_submit', error as Error, {
+          authentication: {
+            step: 'unauthenticated_app_submit',
+            displayName,
+            room,
+          },
+        });
+
+        setLoginError(errorMessage);
+
+        // Provide specific Firefox mobile guidance
+        if (navigator.userAgent.toLowerCase().includes('firefox')) {
+          setLoginError(
+            `${errorMessage}. If you're using Firefox mobile, try refreshing the page or temporarily disabling uBlock Origin.`
+          );
+        }
+      } finally {
+        setLoginLoading(false);
+      }
     },
     [displayName, login, room, settings, updateSettings]
   );
@@ -140,16 +177,86 @@ export default function UnauthenticatedApp() {
                       margin="normal"
                     />
 
+                    {/* Error Display */}
+                    {(loginError || authError) && (
+                      <Box
+                        sx={{
+                          mt: 2,
+                          p: 2,
+                          borderRadius: 1,
+                          backgroundColor: 'error.main',
+                          color: 'error.contrastText',
+                        }}
+                      >
+                        <Typography variant="body2">
+                          <strong>Error:</strong> {loginError || authError}
+                        </Typography>
+                        {navigator.userAgent.toLowerCase().includes('firefox') && (
+                          <Button
+                            size="small"
+                            variant="text"
+                            sx={{ mt: 1, color: 'inherit' }}
+                            onClick={() => {
+                              const diagnostics = {
+                                userAgent: navigator.userAgent,
+                                url: window.location.href,
+                                timestamp: new Date().toISOString(),
+                                cookiesEnabled: navigator.cookieEnabled,
+                                localStorageAvailable: typeof Storage !== 'undefined',
+                                error: loginError || authError,
+                              };
+                              navigator.clipboard?.writeText(JSON.stringify(diagnostics, null, 2));
+                              alert(t('debugInfoCopied'));
+                            }}
+                          >
+                            <Trans i18nKey="copyDebugInfo" />
+                          </Button>
+                        )}
+                      </Box>
+                    )}
+
                     <Button
                       variant="contained"
                       type="submit"
                       fullWidth
                       className="jump-in-button"
                       size="large"
-                      startIcon={<PersonAdd />}
-                      sx={{ mt: 2, py: 1.25, fontSize: '1.1rem', fontWeight: 600 }}
+                      disabled={loginLoading}
+                      startIcon={loginLoading ? <CircularProgress size={20} /> : <PersonAdd />}
+                      sx={{
+                        mt: 2,
+                        py: 1.25,
+                        fontSize: '1.1rem',
+                        fontWeight: 600,
+                        // Firefox mobile touch handling
+                        touchAction: 'manipulation',
+                        // Ensure button is clickable on all browsers
+                        cursor: loginLoading ? 'default' : 'pointer',
+                        // Prevent double-tap zoom on mobile
+                        userSelect: 'none',
+                        // Firefox-specific button styles
+                        '&:focus': {
+                          outline: '2px solid',
+                          outlineColor: 'primary.main',
+                          outlineOffset: '2px',
+                        },
+                      }}
+                      onClick={async (e) => {
+                        // Explicit click handler for better Firefox mobile support
+                        await handleSubmit(e);
+                      }}
+                      // Firefox mobile sometimes needs explicit pointer handling
+                      onPointerDown={() => {
+                        // Ensure button responsiveness on Firefox mobile
+                      }}
                     >
-                      {hasImport ? <Trans i18nKey="import" /> : <Trans i18nKey="anonymousLogin" />}
+                      {loginLoading ? (
+                        <Trans i18nKey="loadingEllipsis" />
+                      ) : hasImport ? (
+                        <Trans i18nKey="import" />
+                      ) : (
+                        <Trans i18nKey="anonymousLogin" />
+                      )}
                     </Button>
                     <Divider sx={{ my: 3 }}>
                       <Typography

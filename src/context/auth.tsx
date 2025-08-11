@@ -19,6 +19,7 @@ import {
 } from '@/services/syncService';
 import { User } from '@/types';
 import { getErrorMessage } from '@/types/errors';
+import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 
 export interface SyncStatus {
   syncing: boolean;
@@ -97,11 +98,34 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   );
   async function login(displayName = ''): Promise<User | null> {
     try {
+      setError(null); // Clear any previous errors
+
       const loggedInUser = await loginAnonymously(displayName);
+
+      if (!loggedInUser) {
+        const error = new Error('Login failed: No user returned from Firebase');
+        reportFirefoxMobileAuthError('auth_context_no_user', error, {
+          authentication: {
+            step: 'auth_context_no_user',
+            displayName,
+          },
+        });
+        setError(error.message);
+        throw error;
+      }
+
       setUser(loggedInUser);
       return loggedInUser;
     } catch (err: unknown) {
       const errorMessage = getErrorMessage(err);
+
+      reportFirefoxMobileAuthError('auth_context_login_failed', err as Error, {
+        authentication: {
+          step: 'auth_context_login_failed',
+          displayName,
+        },
+      });
+
       setError(errorMessage);
       throw err;
     }

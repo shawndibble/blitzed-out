@@ -1,4 +1,4 @@
-import { Suspense, useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { CalendarMonth } from '@mui/icons-material';
 import { AppBar, Badge, Box, IconButton, Portal, Toolbar } from '@mui/material';
 import useSchedule from '@/context/hooks/useSchedule';
@@ -10,12 +10,9 @@ import ThemeToggle from '@/components/ThemeToggle';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
 import { Player } from '@/types/player';
-import { lazyWithRetry } from '@/utils/lazyWithRetry';
-
-// Lazy load heavy components with retry logic
-const Schedule = lazyWithRetry(() => import('@/views/Schedule'));
-const MenuDrawer = lazyWithRetry(() => import('./MenuDrawer'));
-const UserPresenceOverlay = lazyWithRetry(() => import('./UserPresenceOverlay'));
+import Schedule from '@/views/Schedule';
+import MenuDrawer from './MenuDrawer';
+import UserPresenceOverlay from './UserPresenceOverlay';
 import PlayersOnline from './PlayersOnline';
 
 interface PlayerWithLocation extends Player {
@@ -72,26 +69,22 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
                 <CalendarMonth />
               </Badge>
             </IconButton>
-            <Suspense fallback={null}>
-              {openSchedule && (
-                <Portal>
-                  <Schedule
-                    open={openSchedule}
-                    close={() => setOpenSchedule(false)}
-                    isMobile={isMobile}
-                  />
-                </Portal>
-              )}
-            </Suspense>
-            {playerList.length > 0 && (
-              <Suspense fallback={null}>
-                <UserPresenceOverlay
-                  isOpen={openUserPresence}
-                  onClose={handleUserPresenceClose}
-                  playerList={playerList}
-                  anchorEl={playersOnlineRef.current}
+            {openSchedule && (
+              <Portal>
+                <Schedule
+                  open={openSchedule}
+                  close={() => setOpenSchedule(false)}
+                  isMobile={isMobile}
                 />
-              </Suspense>
+              </Portal>
+            )}
+            {playerList.length > 0 && (
+              <UserPresenceOverlay
+                isOpen={openUserPresence}
+                onClose={handleUserPresenceClose}
+                playerList={playerList}
+                anchorEl={playersOnlineRef.current}
+              />
             )}
           </div>
         </div>
@@ -99,9 +92,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
         <div className="menu-drawer">
           <ThemeToggle size="medium" aria-label="Toggle between light and dark theme" />
           <CastButton />
-          <Suspense fallback={null}>
-            <MenuDrawer />
-          </Suspense>
+          <MenuDrawer />
         </div>
       </Toolbar>
     </AppBar>

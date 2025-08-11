@@ -52,6 +52,10 @@ import { MessageType } from '@/types/Message';
 import { User as UserType } from '@/types';
 import { initializeApp } from 'firebase/app';
 import { sha256 } from 'js-sha256';
+import {
+  reportFirefoxMobileAuthError,
+  reportFirefoxMobileConnectivityIssue,
+} from '@/utils/firefoxMobileReporting';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -83,6 +87,29 @@ if (missingVars.length > 0) {
   console.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
+// Check if we can reach Firebase (potential uBlock Origin issue)
+const checkFirebaseConnectivity = async () => {
+  try {
+    const testUrl = `https://${firebaseConfig.authDomain}/`;
+    await fetch(testUrl, { method: 'HEAD', mode: 'no-cors' });
+    // Only report success if there were previous failures
+  } catch (error) {
+    reportFirefoxMobileConnectivityIssue({
+      testUrl: `https://${firebaseConfig.authDomain}/`,
+      error: error as Error,
+    });
+  }
+};
+
+// Run connectivity check for Firefox mobile users
+if (
+  navigator.userAgent.toLowerCase().includes('firefox') &&
+  (navigator.userAgent.toLowerCase().includes('mobile') ||
+    navigator.userAgent.toLowerCase().includes('tablet'))
+) {
+  checkFirebaseConnectivity();
+}
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
@@ -91,14 +118,31 @@ export const db = getFirestore(app);
 export async function loginAnonymously(displayName = ''): Promise<User | null> {
   try {
     const auth = getAuth();
+
     await signInAnonymously(auth);
+
     if (auth.currentUser) {
       await updateProfile(auth.currentUser, { displayName });
       return auth.currentUser;
+    } else {
+      const error = new Error('No current user after anonymous sign in');
+      reportFirefoxMobileAuthError('anonymous_login_no_user', error, {
+        authentication: {
+          step: 'anonymous_login_no_user',
+          displayName,
+        },
+      });
+      return null;
     }
-    return null;
   } catch (error) {
-    console.error('Anonymous login error:', error);
+    const authError = error as Error;
+    reportFirefoxMobileAuthError('anonymous_login_failed', authError, {
+      authentication: {
+        step: 'anonymous_login_failed',
+        displayName,
+      },
+    });
+
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'ANONYMOUS_LOGIN_FAILED',

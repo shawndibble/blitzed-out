@@ -1,10 +1,8 @@
-import { Suspense, lazy, useContext } from 'react';
+import { useContext } from 'react';
 import AppSkeleton from '../AppSkeleton';
 import { AuthContext, AuthProvider } from '../../context/auth';
-
-// Reduce nesting by consolidating providers and lazy loading only the router
-const AllProviders = lazy(() => import('../AllProviders'));
-const RouterSetup = lazy(() => import('../RouterSetup'));
+import AllProviders from '../AllProviders';
+import RouterSetup from '../RouterSetup';
 
 function AppContent() {
   const auth = useContext(AuthContext);
@@ -15,11 +13,9 @@ function AppContent() {
   }
 
   return (
-    <Suspense fallback={<AppSkeleton />}>
-      <AllProviders>
-        <RouterSetup />
-      </AllProviders>
-    </Suspense>
+    <AllProviders>
+      <RouterSetup />
+    </AllProviders>
   );
 }
 
