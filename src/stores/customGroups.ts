@@ -59,10 +59,30 @@ export const getCustomGroups = async (
   filters: Partial<CustomGroupFilters> = {}
 ): Promise<CustomGroupPull[]> => {
   try {
+    // Check if database is ready (skip in test environment)
+    if (typeof db.isOpen === 'function' && !db.isOpen()) {
+      await db.open();
+    }
+
     const query = createFilteredQuery(filters);
     return await query.toArray();
   } catch (error) {
     console.error('Error in getCustomGroups:', error);
+
+    // If it's a cursor error, try to recover by reopening the database
+    if (error instanceof Error && error.message.includes('cursor')) {
+      try {
+        if (typeof db.close === 'function' && typeof db.open === 'function') {
+          await db.close();
+          await db.open();
+          const query = createFilteredQuery(filters);
+          return await query.toArray();
+        }
+      } catch (retryError) {
+        console.error('Error retrying getCustomGroups after cursor error:', retryError);
+      }
+    }
+
     return [];
   }
 };
@@ -338,8 +358,17 @@ export const getAllAvailableGroups = async (
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
   try {
-    // Clean up any existing duplicates first
-    await removeDuplicateGroups(locale, gameMode);
+    // Ensure database is ready before any operations (skip in test environment)
+    if (typeof db.isOpen === 'function' && !db.isOpen()) {
+      await db.open();
+    }
+
+    // Clean up any existing duplicates first (but skip if cursor error)
+    try {
+      await removeDuplicateGroups(locale, gameMode);
+    } catch (duplicateError) {
+      console.warn('Skipping duplicate removal due to database error:', duplicateError);
+    }
 
     // Get all groups for this locale/gameMode from Dexie
     const groups = await getCustomGroups({ locale, gameMode });
@@ -356,6 +385,14 @@ export const getAllAvailableGroups = async (
       gameMode,
       error,
     });
+
+    // If it's a cursor error, provide better error context
+    if (error instanceof Error && error.message.includes('cursor')) {
+      console.warn(
+        'Database cursor error in getAllAvailableGroups, returning empty array to prevent crash'
+      );
+    }
+
     return [];
   }
 };
@@ -369,6 +406,11 @@ export const getCustomGroupsWithTiles = async (
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
   try {
+    // Ensure database is ready before any operations (skip in test environment)
+    if (typeof db.isOpen === 'function' && !db.isOpen()) {
+      await db.open();
+    }
+
     // Import getTiles from customTiles store
     const { getTiles } = await import('./customTiles');
 
@@ -393,6 +435,13 @@ export const getCustomGroupsWithTiles = async (
     return groupsWithTiles;
   } catch (error) {
     console.error('Error in getCustomGroupsWithTiles:', error);
+
+    // If it's a cursor error, return empty array to prevent app crash
+    if (error instanceof Error && error.message.includes('cursor')) {
+      console.warn('Database cursor error in getCustomGroupsWithTiles, returning empty array');
+      return [];
+    }
+
     return [];
   }
 };
