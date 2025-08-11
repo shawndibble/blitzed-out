@@ -239,10 +239,36 @@
         }
       })(window.location);
     </script>
-    <script type="module" crossorigin src="/assets/index-BHUshCQG.js"></script>
-    <link rel="modulepreload" crossorigin href="/js/chunk-CsdNKD0V.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-CJVoFoqV.js">
-    <link rel="stylesheet" crossorigin href="/assets/style-CkKZ52SU.css">
+    
+    <!-- Safari module loading fallback -->
+    <script>
+      // Handle module loading failures in Safari
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('module script failed')) {
+          console.warn('Module script loading failed - likely Safari compatibility issue');
+          // Optionally redirect to a fallback page or show error message
+          const loadingEl = document.getElementById('instant-loading');
+          if (loadingEl) {
+            loadingEl.innerHTML = '<div class="loading-text">Loading failed. Please refresh the page.</div>';
+          }
+        }
+      });
+      
+      // Handle unhandled promise rejections for module imports
+      window.addEventListener('unhandledrejection', function(e) {
+        if (e.reason && e.reason.message && e.reason.message.includes('module script failed')) {
+          console.warn('Module import failed - Safari compatibility issue');
+          e.preventDefault(); // Prevent the error from showing in console as unhandled
+        }
+      });
+    </script>
+    <script type="module" crossorigin src="/assets/index-CZH-e7F_.js"></script>
+    <link rel="modulepreload" crossorigin href="/js/chunk-CNqt7FHs.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-CVSdvP5Z.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-BVO8KFPS.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-_SwOSjSw.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-B-cyqPC2.js">
+    <link rel="stylesheet" crossorigin href="/assets/style-WeS7Xnl5.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
