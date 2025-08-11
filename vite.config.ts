@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
@@ -10,6 +11,10 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler']],
       },
     } as any),
+    sentryVitePlugin({
+      org: 'blitzedout',
+      project: 'javascript-react',
+    }),
   ],
   server: {
     host: '0.0.0.0', // Allow access from network (including Android emulator)
@@ -80,16 +85,24 @@ export default defineConfig({
         },
       },
     },
+
     // Target modern browsers for smaller bundles
     target: 'es2020',
+
     // Reduce CSS chunking to minimize requests
     cssCodeSplit: false,
+
     // Increase chunk size to bundle more aggressively - reduce waterfalls
     chunkSizeWarningLimit: 5000,
+
     // Enable minification optimizations
     minify: 'esbuild',
+
     // Inline more assets to reduce HTTP requests
-    assetsInlineLimit: 16384, // Inline assets < 16KB
+    // Inline assets < 16KB
+    assetsInlineLimit: 16384,
+
+    sourcemap: true,
   },
   optimizeDeps: {
     include: [

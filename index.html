@@ -46,7 +46,12 @@
         http://www.gstatic.com 
         https://*.firebaseio.com 
         https://*.googleapis.com
-        https://apis.google.com; 
+        https://apis.google.com
+        https://*.ingest.sentry.io
+        https://*.ingest.us.sentry.io
+        https://sentry.io
+        blob:; 
+      worker-src 'self' blob:; 
       style-src 'self' 'unsafe-inline' 
         http://10.0.2.2:* http://localhost:*
         https://fonts.googleapis.com; 
