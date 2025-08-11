@@ -7,22 +7,31 @@ import { MinimalAuthProvider } from './context/minimalAuth';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-// iOS Safari dynamic import polyfill - must run before any dynamic imports
-if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.importShim) {
-  // Add enhanced error handling for iOS Safari module loading
-  const originalError = window.onerror;
-  window.onerror = function (msg) {
-    if (msg && msg.includes && msg.includes('Importing a module script failed')) {
-      console.warn('iOS Safari module loading issue detected, attempting recovery...');
+// Enhanced module loading error handling - uses feature detection instead of user-agent sniffing
+if (typeof window !== 'undefined' && !window.importShim) {
+  // Add enhanced error handling for module loading failures (primarily Safari)
+  window.addEventListener('error', function (event) {
+    const msg = event.message || (event.error && event.error.message);
+    if (msg && typeof msg === 'string' && msg.includes('Importing a module script failed')) {
+      console.warn('Module loading issue detected, attempting recovery...');
       // Attempt to reload the page once to recover from module loading failure
-      if (!sessionStorage.getItem('ios_module_reload_attempted')) {
-        sessionStorage.setItem('ios_module_reload_attempted', '1');
+      if (!sessionStorage.getItem('module_reload_attempted')) {
+        sessionStorage.setItem('module_reload_attempted', '1');
         setTimeout(() => window.location.reload(), 100);
-        return true;
+        event.preventDefault();
+        return;
       }
     }
-    return originalError ? originalError.apply(this, arguments) : false;
-  };
+  });
+
+  // Handle unhandled promise rejections for dynamic imports
+  window.addEventListener('unhandledrejection', function (event) {
+    const reason = event.reason;
+    if (reason && reason.message && reason.message.includes('module script failed')) {
+      console.warn('Dynamic import failed, preventing error escalation');
+      event.preventDefault(); // Prevent the error from showing in console as unhandled
+    }
+  });
 }
 
 // Initialize Sentry

@@ -100,8 +100,8 @@ export default defineConfig({
       },
     },
 
-    // Target more compatible browsers for Safari iOS compatibility
-    target: ['es2015', 'edge88', 'firefox78', 'chrome87', 'safari14'],
+    // Target compatible browsers for Safari iOS compatibility
+    target: ['es2018', 'safari14', 'ios14'],
 
     // Reduce CSS chunking to minimize requests
     cssCodeSplit: false,
@@ -162,8 +162,8 @@ export default defineConfig({
 
   // Additional configuration for Safari/iOS compatibility
   esbuild: {
-    // Ensure compatibility with older Safari versions
-    target: 'es2015',
+    // Align with build target for consistency
+    target: 'es2018',
     // Safari sometimes has issues with top-level await and advanced features
     supported: {
       'top-level-await': false,

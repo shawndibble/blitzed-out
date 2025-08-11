@@ -245,9 +245,15 @@
     <script>
       // Handle module loading failures in Safari
       window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('module script failed')) {
+        // Check for module script loading failure in error event
+        const errorMsg = 
+          (e.error && e.error.message) ||
+          (e.reason && typeof e.reason === 'string' ? e.reason : null) ||
+          (typeof e.message === 'string' ? e.message : null);
+        
+        if (errorMsg && errorMsg.includes('module script failed')) {
           console.warn('Module script loading failed - likely Safari compatibility issue');
-          // Optionally redirect to a fallback page or show error message
+          // Show error message to user
           const loadingEl = document.getElementById('instant-loading');
           if (loadingEl) {
             loadingEl.innerHTML = '<div class="loading-text">Loading failed. Please refresh the page.</div>';
