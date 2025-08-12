@@ -25,10 +25,10 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import GameGuide from '@/views/GameGuide';
 import Navigation from '@/views/Navigation';
 import { languages } from '@/services/i18nHelpers';
+import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 import useAuth from '@/context/hooks/useAuth';
 import usePlayerList from '@/hooks/usePlayerList';
 import { useSettings } from '@/stores/settingsStore';
-import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
@@ -88,8 +88,6 @@ export default function UnauthenticatedApp() {
         });
 
         setLoginError(errorMessage);
-
-        // Provide specific mobile browser guidance
         const userAgent = navigator.userAgent.toLowerCase();
         const isFirefox = userAgent.includes('firefox');
         const isMobile =
@@ -200,27 +198,6 @@ export default function UnauthenticatedApp() {
                         <Typography variant="body2">
                           <strong>Error:</strong> {loginError || authError}
                         </Typography>
-                        {navigator.userAgent.toLowerCase().includes('firefox') && (
-                          <Button
-                            size="small"
-                            variant="text"
-                            sx={{ mt: 1, color: 'inherit' }}
-                            onClick={() => {
-                              const diagnostics = {
-                                userAgent: navigator.userAgent,
-                                url: window.location.href,
-                                timestamp: new Date().toISOString(),
-                                cookiesEnabled: navigator.cookieEnabled,
-                                localStorageAvailable: typeof Storage !== 'undefined',
-                                error: loginError || authError,
-                              };
-                              navigator.clipboard?.writeText(JSON.stringify(diagnostics, null, 2));
-                              alert(t('debugInfoCopied'));
-                            }}
-                          >
-                            <Trans i18nKey="copyDebugInfo" />
-                          </Button>
-                        )}
                       </Box>
                     )}
 
