@@ -87,9 +87,16 @@ export default function UnauthenticatedApp() {
           },
         });
 
-        setLoginError(errorMessage);
+        // Check for network/auth errors that could be caused by ad blockers
+        const isNetworkError =
+          errorMessage.includes('network') ||
+          errorMessage.includes('blocked') ||
+          errorMessage.includes('CORS') ||
+          errorMessage.includes('Failed to fetch') ||
+          (error instanceof Error &&
+            (error.message.includes('auth/network-request-failed') ||
+              error.message.includes('identitytoolkit')));
 
-        // Provide specific mobile browser guidance
         const userAgent = navigator.userAgent.toLowerCase();
         const isFirefox = userAgent.includes('firefox');
         const isMobile =
@@ -99,10 +106,16 @@ export default function UnauthenticatedApp() {
           userAgent.includes('android') ||
           userAgent.includes('iphone');
 
-        if (isFirefox && isMobile) {
+        if (isNetworkError) {
+          setLoginError(
+            `${errorMessage}. This may be caused by an ad blocker (like uBlock Origin). Please disable your ad blocker for this site or whitelist identitytoolkit.googleapis.com, then refresh and try again.`
+          );
+        } else if (isFirefox && isMobile) {
           setLoginError(
             `${errorMessage}. If you're using a mobile browser, try refreshing the page or temporarily disabling uBlock Origin.`
           );
+        } else {
+          setLoginError(errorMessage);
         }
       } finally {
         setLoginLoading(false);
