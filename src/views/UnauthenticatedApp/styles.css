@@ -15,7 +15,7 @@ body.theme-light .unauthenticated-container {
   background: var(--page-gradient);
 }
 
-h2.setup {
+h1.setup {
   padding: 0.25rem 0;
   text-align: center;
   margin-bottom: 0.5rem;
@@ -63,7 +63,7 @@ body.theme-light .setup-subtitle {
   color: var(--color-white-80);
 }
 
-body.theme-light h2.setup {
+body.theme-light h1.setup {
   background: var(--gradient-primary-alt);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -227,7 +227,7 @@ body.theme-light .unauthenticated-card:hover {
     padding: 3rem 0;
   }
 
-  h2.setup {
+  h1.setup {
     font-size: 1.9rem;
     margin-bottom: 0.75rem;
     letter-spacing: -0.02em;
@@ -259,7 +259,7 @@ body.theme-light .unauthenticated-card:hover {
 }
 
 @media screen and (min-width: 1024px) {
-  h2.setup {
+  h1.setup {
     font-size: 2.1rem;
     letter-spacing: -0.02em;
     line-height: 1.1;
@@ -292,7 +292,7 @@ body.theme-light .unauthenticated-card:hover {
     gap: 0.5rem;
   }
 
-  h2.setup {
+  h1.setup {
     font-size: 1.6rem;
     padding: 0.25rem 0;
   }
