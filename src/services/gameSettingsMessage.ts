@@ -101,7 +101,23 @@ export async function getSettingsMessage(
       // Get intensity names for selected levels
       const intensityNames = val?.intensities || {};
       levels.forEach((level: number) => {
-        const levelName = intensityNames[level] || `Level ${level}`;
+        let levelName = intensityNames[level];
+
+        // If no intensity name found, try to get it from the actions object
+        if (!levelName && val?.actions && typeof val.actions === 'object') {
+          const actionKeys = Object.keys(val.actions);
+          // Action keys are ordered, with level corresponding to index
+          // Level 1 = index 1 (skipping index 0 which is typically "None")
+          if (level < actionKeys.length && level > 0) {
+            levelName = actionKeys[level];
+          }
+        }
+
+        // Final fallback to Level X
+        if (!levelName) {
+          levelName = `Level ${level}`;
+        }
+
         message += `* ${levelName}\r\n`;
       });
       message += '\r\n';
