@@ -216,4 +216,67 @@ describe('gameSettingsMessage - Finish Options Formatting', () => {
       expect(result).not.toContain('Normal Orgasm');
     });
   });
+
+  describe('Intensity name fallback handling', () => {
+    it('should use action keys when intensities mapping is missing', async () => {
+      const settings = createMockSettings([0, 0]);
+      settings.selectedActions = {
+        poppers: { levels: [1], type: 'sex' as const },
+        bating: { levels: [1, 2], type: 'sex' as const },
+      };
+
+      // Mock actionsList with missing intensities but with action keys
+      const actionsListWithoutIntensities = {
+        poppers: {
+          label: 'Poppers',
+          actions: {
+            None: [],
+            Beginner: [],
+          },
+          // intensities property is missing or empty
+        },
+        bating: {
+          label: 'Bating',
+          actions: {
+            None: [],
+            Masturbation: [],
+            Edging: [],
+          },
+          // intensities property is missing or empty
+        },
+      };
+
+      const result = await getSettingsMessage(settings, [], actionsListWithoutIntensities);
+
+      // Should show action names instead of "Level 1", "Level 2"
+      expect(result).toContain('* Beginner'); // From poppers level 1
+      expect(result).toContain('* Masturbation'); // From bating level 1
+      expect(result).toContain('* Edging'); // From bating level 2
+      expect(result).not.toContain('Level 1');
+      expect(result).not.toContain('Level 2');
+    });
+
+    it('should fall back to Level X when both intensities and action keys are insufficient', async () => {
+      const settings = createMockSettings([0, 0]);
+      settings.selectedActions = {
+        minimal: { levels: [3], type: 'sex' as const },
+      };
+
+      // Mock actionsList with only "None" action
+      const minimalActionsList = {
+        minimal: {
+          label: 'Minimal',
+          actions: {
+            None: [],
+          },
+          // Only has "None", no action for level 3
+        },
+      };
+
+      const result = await getSettingsMessage(settings, [], minimalActionsList);
+
+      // Should fall back to "Level 3" since no appropriate action key exists
+      expect(result).toContain('* Level 3');
+    });
+  });
 });
