@@ -25,10 +25,10 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import GameGuide from '@/views/GameGuide';
 import Navigation from '@/views/Navigation';
 import { languages } from '@/services/i18nHelpers';
+import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 import useAuth from '@/context/hooks/useAuth';
 import usePlayerList from '@/hooks/usePlayerList';
 import { useSettings } from '@/stores/settingsStore';
-import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 
 export default function UnauthenticatedApp() {
   const { i18n, t } = useTranslation();
@@ -87,16 +87,7 @@ export default function UnauthenticatedApp() {
           },
         });
 
-        // Check for network/auth errors that could be caused by ad blockers
-        const isNetworkError =
-          errorMessage.includes('network') ||
-          errorMessage.includes('blocked') ||
-          errorMessage.includes('CORS') ||
-          errorMessage.includes('Failed to fetch') ||
-          (error instanceof Error &&
-            (error.message.includes('auth/network-request-failed') ||
-              error.message.includes('identitytoolkit')));
-
+        setLoginError(errorMessage);
         const userAgent = navigator.userAgent.toLowerCase();
         const isFirefox = userAgent.includes('firefox');
         const isMobile =
@@ -106,16 +97,10 @@ export default function UnauthenticatedApp() {
           userAgent.includes('android') ||
           userAgent.includes('iphone');
 
-        if (isNetworkError) {
-          setLoginError(
-            `${errorMessage}. This may be caused by an ad blocker (like uBlock Origin). Please disable your ad blocker for this site or whitelist identitytoolkit.googleapis.com, then refresh and try again.`
-          );
-        } else if (isFirefox && isMobile) {
+        if (isFirefox && isMobile) {
           setLoginError(
             `${errorMessage}. If you're using a mobile browser, try refreshing the page or temporarily disabling uBlock Origin.`
           );
-        } else {
-          setLoginError(errorMessage);
         }
       } finally {
         setLoginLoading(false);
@@ -213,27 +198,6 @@ export default function UnauthenticatedApp() {
                         <Typography variant="body2">
                           <strong>Error:</strong> {loginError || authError}
                         </Typography>
-                        {navigator.userAgent.toLowerCase().includes('firefox') && (
-                          <Button
-                            size="small"
-                            variant="text"
-                            sx={{ mt: 1, color: 'inherit' }}
-                            onClick={() => {
-                              const diagnostics = {
-                                userAgent: navigator.userAgent,
-                                url: window.location.href,
-                                timestamp: new Date().toISOString(),
-                                cookiesEnabled: navigator.cookieEnabled,
-                                localStorageAvailable: typeof Storage !== 'undefined',
-                                error: loginError || authError,
-                              };
-                              navigator.clipboard?.writeText(JSON.stringify(diagnostics, null, 2));
-                              alert(t('debugInfoCopied'));
-                            }}
-                          >
-                            <Trans i18nKey="copyDebugInfo" />
-                          </Button>
-                        )}
                       </Box>
                     )}
 
