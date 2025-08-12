@@ -52,6 +52,10 @@ import { MessageType } from '@/types/Message';
 import { User as UserType } from '@/types';
 import { initializeApp } from 'firebase/app';
 import { sha256 } from 'js-sha256';
+import {
+  reportFirefoxMobileAuthError,
+  reportFirefoxMobileConnectivityIssue,
+} from '@/utils/firefoxMobileReporting';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -83,6 +87,39 @@ if (missingVars.length > 0) {
   console.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
+// Check if we can reach Firebase (potential uBlock Origin issue)
+const checkFirebaseConnectivity = async () => {
+  try {
+    // Use Firebase Auth REST API endpoint for connectivity check
+    const testUrl = `https://identitytoolkit.googleapis.com/v1/projects/${firebaseConfig.projectId}`;
+    const response = await fetch(testUrl, { method: 'GET' });
+
+    if (!response.ok) {
+      // Report non-OK status as connectivity issue
+      const statusError = new Error(`HTTP ${response.status}: ${response.statusText}`);
+      reportFirefoxMobileConnectivityIssue({
+        testUrl,
+        error: statusError,
+      });
+    }
+    // Only report success if there were previous failures
+  } catch (error) {
+    reportFirefoxMobileConnectivityIssue({
+      testUrl: `https://identitytoolkit.googleapis.com/v1/projects/${firebaseConfig.projectId}`,
+      error: error as Error,
+    });
+  }
+};
+
+// Run connectivity check for Firefox mobile users
+if (
+  navigator.userAgent.toLowerCase().includes('firefox') &&
+  (navigator.userAgent.toLowerCase().includes('mobile') ||
+    navigator.userAgent.toLowerCase().includes('tablet'))
+) {
+  checkFirebaseConnectivity();
+}
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
@@ -91,14 +128,31 @@ export const db = getFirestore(app);
 export async function loginAnonymously(displayName = ''): Promise<User | null> {
   try {
     const auth = getAuth();
+
     await signInAnonymously(auth);
+
     if (auth.currentUser) {
       await updateProfile(auth.currentUser, { displayName });
       return auth.currentUser;
+    } else {
+      const error = new Error('No current user after anonymous sign in');
+      reportFirefoxMobileAuthError('anonymous_login_no_user', error, {
+        authentication: {
+          step: 'anonymous_login_no_user',
+          displayName,
+        },
+      });
+      return null;
     }
-    return null;
   } catch (error) {
-    console.error('Anonymous login error:', error);
+    const authError = error as Error;
+    reportFirefoxMobileAuthError('anonymous_login_failed', authError, {
+      authentication: {
+        step: 'anonymous_login_failed',
+        displayName,
+      },
+    });
+
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'ANONYMOUS_LOGIN_FAILED',
@@ -399,8 +453,8 @@ export function getUserList(
     enableCache?: boolean;
     enableDebounce?: boolean;
   } = {}
-): void {
-  if (!roomId) return;
+): (() => void) | undefined {
+  if (!roomId) return undefined;
 
   const { enableCache = true, enableDebounce = true } = options;
 
@@ -426,9 +480,11 @@ export function getUserList(
       if (dataString !== existingString) {
         callback(cached.data as Record<string, unknown>);
       }
-      return;
+      return () => {}; // Return empty cleanup function for cached results
     }
   }
+
+  let unsubscribe: (() => void) | undefined;
 
   const executeQuery = async () => {
     let networkError = false;
@@ -440,7 +496,7 @@ export function getUserList(
       const database = getDatabase();
       const usersRef = ref(database, 'users');
 
-      onValue(
+      unsubscribe = onValue(
         usersRef,
         (snap: DataSnapshot) => {
           const queryEndTime = Date.now();
@@ -508,8 +564,20 @@ export function getUserList(
   // Apply smart debouncing based on priority
   if (enableDebounce) {
     debounceQuery(queryKey, executeQuery);
+    // Return a cleanup function that clears both debounce and unsubscribe
+    return () => {
+      const timeout = queryDebounceMap.get(queryKey);
+      if (timeout) {
+        clearTimeout(timeout);
+        queryDebounceMap.delete(queryKey);
+      }
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   } else {
     executeQuery();
+    return unsubscribe;
   }
 }
 

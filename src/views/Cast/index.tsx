@@ -47,7 +47,7 @@ export default function Cast() {
 
   const lastAction = latestMessageByType(messages, ACTION_TYPE);
   const nextPlayer = useTurnIndicator(lastAction);
-  const { isFullscreen, toggleFullscreen } = useFullscreenStatus();
+  const { isFullscreen, toggleFullscreen, isSupported } = useFullscreenStatus();
 
   // Auto-login anonymously for cast functionality
   useEffect(() => {
@@ -237,7 +237,7 @@ export default function Cast() {
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
       <Box display="flex" justifyContent="space-between" className="cast-header-bar">
         <Box flex="1">
-          {!isCastReceiver && !isFullscreen && (
+          {!isCastReceiver && !isFullscreen && isSupported && (
             <Button variant="text" onClick={toggleFullscreen} className="cast-fullscreen-button">
               {t('fullscreen')}
             </Button>

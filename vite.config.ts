@@ -1,7 +1,8 @@
-import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
 import path from 'path';
+import react from '@vitejs/plugin-react-swc';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
+import { sitemapPlugin } from './scripts/sitemap-plugin';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,6 +16,7 @@ export default defineConfig({
       org: 'blitzedout',
       project: 'javascript-react',
     }),
+    sitemapPlugin(),
   ],
   server: {
     host: '0.0.0.0', // Allow access from network (including Android emulator)
@@ -33,6 +35,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        // Add format configuration for better Safari compatibility
+        format: 'es',
+        // Ensure proper module declaration for Safari
+        generatedCode: {
+          constBindings: true,
+          objectShorthand: false, // Avoid object shorthand for better compatibility
+        },
         manualChunks: {
           // Bundle core libraries together for faster loading
           vendor: [
@@ -47,6 +56,13 @@ export default defineConfig({
             '@mui/material',
             '@emotion/react',
             '@emotion/styled',
+          ],
+          // Bundle critical providers together for Safari compatibility
+          'critical-providers': [
+            'src/context/theme.tsx',
+            'src/context/migration.tsx',
+            'src/context/schedule.tsx',
+            'src/components/AllProviders/index.tsx',
           ],
           // Bundle MUI icons separately since they're used less frequently
           'mui-icons': ['@mui/icons-material', '@mui/x-date-pickers'],
@@ -86,8 +102,8 @@ export default defineConfig({
       },
     },
 
-    // Target modern browsers for smaller bundles
-    target: 'es2020',
+    // Target compatible browsers for Safari iOS compatibility
+    target: ['es2018', 'safari14', 'ios14'],
 
     // Reduce CSS chunking to minimize requests
     cssCodeSplit: false,
@@ -95,8 +111,13 @@ export default defineConfig({
     // Increase chunk size to bundle more aggressively - reduce waterfalls
     chunkSizeWarningLimit: 5000,
 
-    // Enable minification optimizations
+    // Enable minification optimizations with Safari compatibility
     minify: 'esbuild',
+
+    // Enhanced compatibility settings for iOS Safari
+    modulePreload: {
+      polyfill: true,
+    },
 
     // Inline more assets to reduce HTTP requests
     // Inline assets < 16KB
@@ -142,4 +163,14 @@ export default defineConfig({
     force: true,
   },
   assetsInclude: ['**/*.mp3'],
+
+  // Additional configuration for Safari/iOS compatibility
+  esbuild: {
+    // Align with build target for consistency
+    target: 'es2018',
+    // Safari sometimes has issues with top-level await and advanced features
+    supported: {
+      'top-level-await': false,
+    },
+  },
 });

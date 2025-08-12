@@ -1,7 +1,7 @@
 import './styles.css';
 
 import { Box, CircularProgress } from '@mui/material';
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSoundById, playSound } from '@/utils/gameSounds';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
@@ -30,21 +30,9 @@ import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import useUrlImport from '@/hooks/useUrlImport';
 
-// Lazy load mobile-specific component
-const BottomTabs = lazy(() => import('./BottomTabs'));
-
-// Lazy load heavy components
-const MessageList = lazy(() => import('@/components/MessageList'));
-const GameBoard = lazy(() => import('@/views/Room/GameBoard'));
-
-// Loading component for heavy components
-function ComponentLoader() {
-  return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100px">
-      <CircularProgress size={24} />
-    </Box>
-  );
-}
+import BottomTabs from './BottomTabs';
+import MessageList from '@/components/MessageList';
+import GameBoard from '@/views/Room/GameBoard';
 
 export default function Room() {
   const params = useParams<{ id: string }>();
@@ -169,26 +157,22 @@ export default function Room() {
   );
 
   const GameBoardComponent = (
-    <Suspense fallback={<ComponentLoader />}>
-      <GameBoard
-        playerList={hybridPlayerList as any}
-        isTransparent={isGameBoardTransparent}
-        gameBoard={gameBoard || []}
-        settings={settings as Settings}
-      />
-    </Suspense>
+    <GameBoard
+      playerList={hybridPlayerList as any}
+      isTransparent={isGameBoardTransparent}
+      gameBoard={gameBoard || []}
+      settings={settings as Settings}
+    />
   );
 
   const messagesComponent = (
     <div className="messages-container">
-      <Suspense fallback={<ComponentLoader />}>
-        <MessageList
-          room={room}
-          isTransparent={isMessageListTransparent}
-          currentGameBoardSize={gameBoard?.length || 0}
-        />
-        <MessageInput room={room} isTransparent={isMessageListTransparent} />
-      </Suspense>
+      <MessageList
+        room={room}
+        isTransparent={isMessageListTransparent}
+        currentGameBoardSize={gameBoard?.length || 0}
+      />
+      <MessageInput room={room} isTransparent={isMessageListTransparent} />
     </div>
   );
 
@@ -213,9 +197,7 @@ export default function Room() {
       />
 
       {isMobile ? (
-        <Suspense fallback={<ComponentLoader />}>
-          <BottomTabs tab1={GameBoardComponent} tab2={messagesComponent} />
-        </Suspense>
+        <BottomTabs tab1={GameBoardComponent} tab2={messagesComponent} />
       ) : (
         <Box className={clsx('desktop-container', videoAdjust, defaultRoomBackgroundClass)}>
           {GameBoardComponent}

@@ -34,61 +34,28 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <!-- CSP with relaxed policies for mobile development testing -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="
-      default-src 'self' http://10.0.2.2:* http://localhost:* ws://localhost:* ws://10.0.2.2:*; 
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' 
-        http://10.0.2.2:* http://localhost:*
-        https://www.googletagmanager.com 
-        https://www.gstatic.com 
-        http://www.gstatic.com 
-        https://*.firebaseio.com 
-        https://*.googleapis.com
-        https://apis.google.com
-        https://*.ingest.sentry.io
-        https://*.ingest.us.sentry.io
-        https://sentry.io
-        blob:; 
-      worker-src 'self' blob:; 
-      style-src 'self' 'unsafe-inline' 
-        http://10.0.2.2:* http://localhost:*
-        https://fonts.googleapis.com; 
-      font-src 'self' 
-        http://10.0.2.2:* http://localhost:*
-        https://fonts.gstatic.com 
-        data:; 
-      img-src 'self' 
-        https: 
-        data: 
-        blob:;
-      connect-src 'self' 
-        http://10.0.2.2:* http://localhost:*
-        ws://localhost:* ws://10.0.2.2:*
-        https: 
-        wss://*.firebaseio.com; 
-      frame-src 'self' 
-         https:
-         data:
-         blob:;
-      media-src 'self' 
-        http://10.0.2.2:* http://localhost:*
-        https: http:
-        blob: 
-        data:; 
-      object-src 'none'; 
-      base-uri 'self'; 
-      form-action 'self' 
-        https://accounts.google.com;
-    "
-    />
+    <!-- SEO Meta Tags -->
     <meta
       name="description"
-      content="An adult multiplayer sex board game for those with various kinks. Great for solo play, couples or parties. Tailored primarily for men, but accessible by women too."
+      content="Blitzed Out - The customizable adult board game experience. Perfect for couples, solo play, or parties. Create personalized adventures."
     />
+    <meta name="keywords" content="adult board game, couples game, party game, customizable, adult entertainment, intimate game, relationship game" />
+    <meta name="author" content="Blitzed Out" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Blitzed Out - An Adult Board Game Experience" />
+    <meta property="og:description" content="Transform your intimate adventures with a customizable adult experience platform. Perfect for couples, solo play, or unforgettable parties." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://blitzed-out.com/" />
+    <meta property="og:site_name" content="Blitzed Out" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Blitzed Out - An Adult Board Game Experience" />
+    <meta name="twitter:description" content="Transform your intimate adventures with a customizable adult experience platform." />
 
-    <!-- Roboto fonts are loaded via @fontsource in JavaScript for better bundling -->
+    <!-- Roboto fonts are loaded via Google Fonts CDN in JavaScript for better compatibility -->
 
     <!-- Optimized preconnects - only for critical resources -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
@@ -213,7 +180,38 @@
       }
     </style>
 
-    <title>Blitzed Out - an adult kink boardgame</title>
+    <title>Blitzed Out - An Adult Board Game Experience</title>
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Blitzed Out",
+      "alternateName": "Blitzed Out Adult Board Game",
+      "description": "A customizable adult board game experience. Perfect for couples, solo play, or parties with endless customization options.",
+      "url": "https://blitzed-out.com/",
+      "applicationCategory": "Game",
+      "operatingSystem": "Web Browser",
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Adults"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "keywords": [
+        "adult board game",
+        "couples game", 
+        "party game",
+        "customizable game",
+        "intimate game",
+        "relationship game"
+      ]
+    }
+    </script>
 
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
@@ -240,6 +238,35 @@
       })(window.location);
     </script>
     <script type="module" src="src/index"></script>
+    
+    <!-- Safari module loading fallback -->
+    <script>
+      // Handle module loading failures in Safari
+      window.addEventListener('error', function(e) {
+        // Check for module script loading failure in error event
+        const errorMsg = 
+          (e.error && e.error.message) ||
+          (e.reason && typeof e.reason === 'string' ? e.reason : null) ||
+          (typeof e.message === 'string' ? e.message : null);
+        
+        if (errorMsg && errorMsg.includes('module script failed')) {
+          console.warn('Module script loading failed - likely Safari compatibility issue');
+          // Show error message to user
+          const loadingEl = document.getElementById('instant-loading');
+          if (loadingEl) {
+            loadingEl.innerHTML = '<div class="loading-text">Loading failed. Please refresh the page.</div>';
+          }
+        }
+      });
+      
+      // Handle unhandled promise rejections for module imports
+      window.addEventListener('unhandledrejection', function(e) {
+        if (e.reason && e.reason.message && e.reason.message.includes('module script failed')) {
+          console.warn('Module import failed - Safari compatibility issue');
+          e.preventDefault(); // Prevent the error from showing in console as unhandled
+        }
+      });
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

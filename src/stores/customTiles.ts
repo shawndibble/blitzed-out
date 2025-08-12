@@ -3,6 +3,7 @@ import db from './store';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
+import { retryOnCursorError } from '@/utils/dbRecovery';
 
 const { customTiles } = db;
 
@@ -49,10 +50,18 @@ export const getTiles = async (
   filters: Omit<CustomTileFilters, 'page' | 'limit' | 'paginated'> = {}
 ): Promise<CustomTilePull[]> => {
   try {
-    const query = createFilteredQuery(filters);
-    return await query.toArray();
+    return await retryOnCursorError(
+      db,
+      async () => {
+        const query = createFilteredQuery(filters);
+        return await query.toArray();
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in getTiles: ${message}`, error);
+      }
+    );
   } catch (error) {
-    console.error('Error in getTiles:', error);
+    console.error('Final error in getTiles:', error);
     return [];
   }
 };

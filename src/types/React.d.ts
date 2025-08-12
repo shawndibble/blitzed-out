@@ -40,10 +40,4 @@ declare global {
   }
 }
 
-// Vite types for import.meta.glob
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface ImportMeta {
-  readonly glob: (pattern: string) => Record<string, () => Promise<any>>;
-}
-
 export {};

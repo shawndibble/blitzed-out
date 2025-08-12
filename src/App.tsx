@@ -1,10 +1,8 @@
 import './App.css';
-import { Suspense, lazy } from 'react';
-import AppSkeleton from './components/AppSkeleton';
-import { useMinimalAuth } from './context/minimalAuth';
 
-// Lazy load the ENTIRE app to reduce initial bundle to absolute minimum
-const FullApp = lazy(() => import('./components/FullApp'));
+import AppSkeleton from '@/components/AppSkeleton';
+import FullApp from '@/components/FullApp';
+import { useMinimalAuth } from '@/context/minimalAuth';
 
 function App() {
   const { initializing } = useMinimalAuth();
@@ -15,11 +13,7 @@ function App() {
   }
 
   // Load the full app only after initial auth check
-  return (
-    <Suspense fallback={<AppSkeleton />}>
-      <FullApp />
-    </Suspense>
-  );
+  return <FullApp />;
 }
 
 export default App;

@@ -256,14 +256,10 @@ describe('Firebase Authentication Service', () => {
       const { loginAnonymously } = await import('../firebase');
       const { AuthError } = await import('@/types/errors');
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockSignInAnonymously.mockRejectedValue(new Error('Sign in failed'));
 
       await expect(loginAnonymously('Test User')).rejects.toThrow(AuthError);
       await expect(loginAnonymously('Test User')).rejects.toThrow('Sign in failed');
-
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
     });
 
     it('should return null when no current user exists for updateDisplayName', async () => {
@@ -302,6 +298,34 @@ describe('Firebase Authentication Service', () => {
       );
 
       consoleSpy.mockRestore();
+    });
+  });
+
+  describe('getUserList', () => {
+    it('should return a function when called with valid parameters', async () => {
+      // Simple test to verify getUserList returns unsubscribe function
+      // This prevents regression of infinite loop bug where no cleanup was possible
+      const { getUserList } = await import('../firebase');
+
+      const callback = vi.fn();
+      const result = getUserList('TEST_ROOM', callback);
+
+      // The key fix: getUserList should return a cleanup function
+      // Before the fix, it returned void, making cleanup impossible
+      expect(typeof result).toBe('function');
+
+      // Verify the unsubscribe function is callable and safe to execute
+      expect(() => result?.()).not.toThrow();
+    });
+
+    it('should return undefined for invalid roomId to prevent unnecessary listeners', async () => {
+      const { getUserList } = await import('../firebase');
+
+      const callback = vi.fn();
+
+      expect(getUserList(null, callback)).toBeUndefined();
+      expect(getUserList(undefined, callback)).toBeUndefined();
+      expect(getUserList('', callback)).toBeUndefined();
     });
   });
 });

@@ -109,6 +109,7 @@ export interface CountdownHookReturn {
 }
 
 export interface FullscreenHookReturn {
+  isSupported: boolean;
   isFullscreen: boolean;
   toggleFullscreen: () => void;
 }

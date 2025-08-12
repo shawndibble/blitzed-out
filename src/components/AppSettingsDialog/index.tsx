@@ -3,9 +3,7 @@ import { Trans } from 'react-i18next';
 import CloseIcon from '@/components/CloseIcon';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useSearchParams } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
-
-const GameSettings = lazy(() => import('@/views/GameSettings'));
+import GameSettings from '@/views/GameSettings';
 
 interface AppSettingsDialogProps {
   open: boolean;
@@ -34,12 +32,10 @@ export default function AppSettingsDialog({
         {typeof close === 'function' && <CloseIcon close={close} />}
       </DialogTitle>
       <DialogContent>
-        <Suspense fallback={<div>Loading...</div>}>
-          <GameSettings
-            closeDialog={typeof close === 'function' ? close : undefined}
-            initialTab={2} // Open directly to App Settings tab (index 2)
-          />
-        </Suspense>
+        <GameSettings
+          closeDialog={typeof close === 'function' ? close : undefined}
+          initialTab={2} // Open directly to App Settings tab (index 2)
+        />
       </DialogContent>
     </Dialog>
   );

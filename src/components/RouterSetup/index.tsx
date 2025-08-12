@@ -7,21 +7,15 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { Suspense, lazy, useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { WindowWithAuth } from '../../types/app';
 import { AuthContext } from '../../context/auth';
 import { MessagesProvider } from '../../context/messages';
 import AppSkeleton from '../AppSkeleton';
-
-// Lazy load UserListProvider
-const UserListProvider = lazy(() =>
-  import('../../context/userList').then((m) => ({ default: m.UserListProvider }))
-);
-
-// Lazy load main views
-const UnauthenticatedApp = lazy(() => import('../../views/UnauthenticatedApp'));
-const Cast = lazy(() => import('../../views/Cast'));
-const Room = lazy(() => import('../../views/Room'));
+import { UserListProvider } from '../../context/userList';
+import UnauthenticatedApp from '../../views/UnauthenticatedApp';
+import Cast from '../../views/Cast';
+import Room from '../../views/Room';
 
 // Component to ensure the room ID is always uppercase
 function UppercaseRedirect({ children }: { children: React.ReactNode }) {
@@ -66,13 +60,11 @@ function AppRoutes() {
         path="/:id/cast"
         element={
           <UppercaseRedirect>
-            <Suspense fallback={<AppSkeleton />}>
-              <UserListProvider>
-                <MessagesProvider>
-                  <Cast />
-                </MessagesProvider>
-              </UserListProvider>
-            </Suspense>
+            <UserListProvider>
+              <MessagesProvider>
+                <Cast />
+              </MessagesProvider>
+            </UserListProvider>
           </UppercaseRedirect>
         }
       />
@@ -80,11 +72,9 @@ function AppRoutes() {
         path="/:id"
         element={
           <UppercaseRedirect>
-            <Suspense fallback={<AppSkeleton />}>
-              <UserListProvider>
-                <MessagesProvider>{room}</MessagesProvider>
-              </UserListProvider>
-            </Suspense>
+            <UserListProvider>
+              <MessagesProvider>{room}</MessagesProvider>
+            </UserListProvider>
           </UppercaseRedirect>
         }
       />

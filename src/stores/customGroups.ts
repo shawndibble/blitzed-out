@@ -1,6 +1,7 @@
 import i18next from 'i18next';
 import { nanoid } from 'nanoid';
 import db from './store';
+import { retryOnCursorError } from '@/utils/dbRecovery';
 import {
   CustomGroup,
   CustomGroupBase,
@@ -59,10 +60,18 @@ export const getCustomGroups = async (
   filters: Partial<CustomGroupFilters> = {}
 ): Promise<CustomGroupPull[]> => {
   try {
-    const query = createFilteredQuery(filters);
-    return await query.toArray();
+    return await retryOnCursorError(
+      db,
+      async () => {
+        const query = createFilteredQuery(filters);
+        return await query.toArray();
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in getCustomGroups: ${message}`, error);
+      }
+    );
   } catch (error) {
-    console.error('Error in getCustomGroups:', error);
+    console.error('Final error in getCustomGroups:', error);
     return [];
   }
 };
@@ -338,8 +347,17 @@ export const getAllAvailableGroups = async (
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
   try {
-    // Clean up any existing duplicates first
-    await removeDuplicateGroups(locale, gameMode);
+    // Ensure database is ready before any operations (skip in test environment)
+    if (typeof db.isOpen === 'function' && !db.isOpen()) {
+      await db.open();
+    }
+
+    // Clean up any existing duplicates first (but skip if cursor error)
+    try {
+      await removeDuplicateGroups(locale, gameMode);
+    } catch (duplicateError) {
+      console.warn('Skipping duplicate removal due to database error:', duplicateError);
+    }
 
     // Get all groups for this locale/gameMode from Dexie
     const groups = await getCustomGroups({ locale, gameMode });
@@ -356,6 +374,14 @@ export const getAllAvailableGroups = async (
       gameMode,
       error,
     });
+
+    // If it's a cursor error, provide better error context
+    if (error instanceof Error && error.message.includes('cursor')) {
+      console.warn(
+        'Database cursor error in getAllAvailableGroups, returning empty array to prevent crash'
+      );
+    }
+
     return [];
   }
 };
@@ -369,30 +395,38 @@ export const getCustomGroupsWithTiles = async (
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
   try {
-    // Import getTiles from customTiles store
-    const { getTiles } = await import('./customTiles');
+    return await retryOnCursorError(
+      db,
+      async () => {
+        // Import getTiles from customTiles store
+        const { getTiles } = await import('./customTiles');
 
-    // Get all custom groups for this locale/gameMode
-    const allGroups = await getCurrentGroups(gameMode);
+        // Get all custom groups for this locale/gameMode
+        const allGroups = await getCurrentGroups(gameMode);
 
-    // Get all custom tiles for this locale/gameMode (only custom tiles, not default)
-    const customTiles = await getTiles({
-      locale,
-      gameMode,
-      isCustom: 1,
-    });
+        // Get all custom tiles for this locale/gameMode (only custom tiles, not default)
+        const customTiles = await getTiles({
+          locale,
+          gameMode,
+          isCustom: 1,
+        });
 
-    // Get unique group names that have custom tiles
-    const groupNamesWithTiles = new Set(customTiles.map((tile) => tile.group));
+        // Get unique group names that have custom tiles
+        const groupNamesWithTiles = new Set(customTiles.map((tile) => tile.group));
 
-    // Filter groups to only include those with tiles and are not default groups
-    const groupsWithTiles = allGroups.filter(
-      (group) => !group.isDefault && groupNamesWithTiles.has(group.name)
+        // Filter groups to only include those with tiles and are not default groups
+        const groupsWithTiles = allGroups.filter(
+          (group) => !group.isDefault && groupNamesWithTiles.has(group.name)
+        );
+
+        return groupsWithTiles;
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in getCustomGroupsWithTiles: ${message}`, error);
+      }
     );
-
-    return groupsWithTiles;
   } catch (error) {
-    console.error('Error in getCustomGroupsWithTiles:', error);
+    console.error('Final error in getCustomGroupsWithTiles:', error);
     return [];
   }
 };
