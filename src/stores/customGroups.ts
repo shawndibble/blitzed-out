@@ -1,6 +1,7 @@
 import i18next from 'i18next';
 import { nanoid } from 'nanoid';
 import db from './store';
+import { retryOnCursorError } from '@/utils/dbRecovery';
 import {
   CustomGroup,
   CustomGroupBase,
@@ -59,30 +60,18 @@ export const getCustomGroups = async (
   filters: Partial<CustomGroupFilters> = {}
 ): Promise<CustomGroupPull[]> => {
   try {
-    // Check if database is ready (skip in test environment)
-    if (typeof db.isOpen === 'function' && !db.isOpen()) {
-      await db.open();
-    }
-
-    const query = createFilteredQuery(filters);
-    return await query.toArray();
-  } catch (error) {
-    console.error('Error in getCustomGroups:', error);
-
-    // If it's a cursor error, try to recover by reopening the database
-    if (error instanceof Error && error.message.includes('cursor')) {
-      try {
-        if (typeof db.close === 'function' && typeof db.open === 'function') {
-          await db.close();
-          await db.open();
-          const query = createFilteredQuery(filters);
-          return await query.toArray();
-        }
-      } catch (retryError) {
-        console.error('Error retrying getCustomGroups after cursor error:', retryError);
+    return await retryOnCursorError(
+      db,
+      async () => {
+        const query = createFilteredQuery(filters);
+        return await query.toArray();
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in getCustomGroups: ${message}`, error);
       }
-    }
-
+    );
+  } catch (error) {
+    console.error('Final error in getCustomGroups:', error);
     return [];
   }
 };
@@ -406,42 +395,38 @@ export const getCustomGroupsWithTiles = async (
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
   try {
-    // Ensure database is ready before any operations (skip in test environment)
-    if (typeof db.isOpen === 'function' && !db.isOpen()) {
-      await db.open();
-    }
+    return await retryOnCursorError(
+      db,
+      async () => {
+        // Import getTiles from customTiles store
+        const { getTiles } = await import('./customTiles');
 
-    // Import getTiles from customTiles store
-    const { getTiles } = await import('./customTiles');
+        // Get all custom groups for this locale/gameMode
+        const allGroups = await getCurrentGroups(gameMode);
 
-    // Get all custom groups for this locale/gameMode
-    const allGroups = await getCurrentGroups(gameMode);
+        // Get all custom tiles for this locale/gameMode (only custom tiles, not default)
+        const customTiles = await getTiles({
+          locale,
+          gameMode,
+          isCustom: 1,
+        });
 
-    // Get all custom tiles for this locale/gameMode (only custom tiles, not default)
-    const customTiles = await getTiles({
-      locale,
-      gameMode,
-      isCustom: 1,
-    });
+        // Get unique group names that have custom tiles
+        const groupNamesWithTiles = new Set(customTiles.map((tile) => tile.group));
 
-    // Get unique group names that have custom tiles
-    const groupNamesWithTiles = new Set(customTiles.map((tile) => tile.group));
+        // Filter groups to only include those with tiles and are not default groups
+        const groupsWithTiles = allGroups.filter(
+          (group) => !group.isDefault && groupNamesWithTiles.has(group.name)
+        );
 
-    // Filter groups to only include those with tiles and are not default groups
-    const groupsWithTiles = allGroups.filter(
-      (group) => !group.isDefault && groupNamesWithTiles.has(group.name)
+        return groupsWithTiles;
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in getCustomGroupsWithTiles: ${message}`, error);
+      }
     );
-
-    return groupsWithTiles;
   } catch (error) {
-    console.error('Error in getCustomGroupsWithTiles:', error);
-
-    // If it's a cursor error, return empty array to prevent app crash
-    if (error instanceof Error && error.message.includes('cursor')) {
-      console.warn('Database cursor error in getCustomGroupsWithTiles, returning empty array');
-      return [];
-    }
-
+    console.error('Final error in getCustomGroupsWithTiles:', error);
     return [];
   }
 };

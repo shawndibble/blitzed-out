@@ -3,6 +3,7 @@ import db from './store';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
+import { retryOnCursorError } from '@/utils/dbRecovery';
 
 const { customTiles } = db;
 
@@ -49,30 +50,18 @@ export const getTiles = async (
   filters: Omit<CustomTileFilters, 'page' | 'limit' | 'paginated'> = {}
 ): Promise<CustomTilePull[]> => {
   try {
-    // Check if database is ready (skip in test environment)
-    if (typeof db.isOpen === 'function' && !db.isOpen()) {
-      await db.open();
-    }
-
-    const query = createFilteredQuery(filters);
-    return await query.toArray();
-  } catch (error) {
-    console.error('Error in getTiles:', error);
-
-    // If it's a cursor error, try to recover by reopening the database
-    if (error instanceof Error && error.message.includes('cursor')) {
-      try {
-        if (typeof db.close === 'function' && typeof db.open === 'function') {
-          await db.close();
-          await db.open();
-          const query = createFilteredQuery(filters);
-          return await query.toArray();
-        }
-      } catch (retryError) {
-        console.error('Error retrying getTiles after cursor error:', retryError);
+    return await retryOnCursorError(
+      db,
+      async () => {
+        const query = createFilteredQuery(filters);
+        return await query.toArray();
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in getTiles: ${message}`, error);
       }
-    }
-
+    );
+  } catch (error) {
+    console.error('Final error in getTiles:', error);
     return [];
   }
 };

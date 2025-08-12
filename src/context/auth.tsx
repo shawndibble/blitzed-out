@@ -111,7 +111,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
           },
         });
         setError(error.message);
-        throw error;
+        return null;
       }
 
       setUser(loggedInUser);
@@ -119,7 +119,11 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     } catch (err: unknown) {
       const errorMessage = getErrorMessage(err);
 
-      reportFirefoxMobileAuthError('auth_context_login_failed', err as Error, {
+      // Normalize the error to ensure it's an Error object
+      const normalizedError =
+        err instanceof Error ? err : new Error(String(err || 'Unknown error'));
+
+      reportFirefoxMobileAuthError('auth_context_login_failed', normalizedError, {
         authentication: {
           step: 'auth_context_login_failed',
           displayName,

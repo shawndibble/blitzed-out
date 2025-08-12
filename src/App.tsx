@@ -1,7 +1,8 @@
 import './App.css';
-import AppSkeleton from './components/AppSkeleton';
-import { useMinimalAuth } from './context/minimalAuth';
-import FullApp from './components/FullApp';
+
+import AppSkeleton from '@/components/AppSkeleton';
+import FullApp from '@/components/FullApp';
+import { useMinimalAuth } from '@/context/minimalAuth';
 
 function App() {
   const { initializing } = useMinimalAuth();

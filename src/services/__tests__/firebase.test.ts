@@ -313,6 +313,9 @@ describe('Firebase Authentication Service', () => {
       // The key fix: getUserList should return a cleanup function
       // Before the fix, it returned void, making cleanup impossible
       expect(typeof result).toBe('function');
+
+      // Verify the unsubscribe function is callable and safe to execute
+      expect(() => result?.()).not.toThrow();
     });
 
     it('should return undefined for invalid roomId to prevent unnecessary listeners', async () => {

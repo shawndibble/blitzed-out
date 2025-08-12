@@ -108,11 +108,12 @@ export function reportFirefoxMobileAuthError(
     Sentry.captureException(error);
   });
 
-  // Also capture message for easier filtering
-  Sentry.captureMessage(
-    `Firefox Mobile Authentication Failure - ${step}: ${error.message}`,
-    'error'
-  );
+  // Add breadcrumb for easier filtering without duplicate notifications
+  Sentry.addBreadcrumb({
+    message: `Firefox Mobile Authentication Failure - ${step}: ${error.message}`,
+    level: 'error',
+    category: 'firefox_mobile_auth',
+  });
 }
 
 export function reportFirefoxMobileConnectivityIssue(details: {

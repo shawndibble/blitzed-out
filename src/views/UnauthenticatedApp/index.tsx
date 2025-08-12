@@ -89,10 +89,19 @@ export default function UnauthenticatedApp() {
 
         setLoginError(errorMessage);
 
-        // Provide specific Firefox mobile guidance
-        if (navigator.userAgent.toLowerCase().includes('firefox')) {
+        // Provide specific mobile browser guidance
+        const userAgent = navigator.userAgent.toLowerCase();
+        const isFirefox = userAgent.includes('firefox');
+        const isMobile =
+          userAgent.includes('mobile') ||
+          userAgent.includes('fennec') ||
+          userAgent.includes('fxios') ||
+          userAgent.includes('android') ||
+          userAgent.includes('iphone');
+
+        if (isFirefox && isMobile) {
           setLoginError(
-            `${errorMessage}. If you're using Firefox mobile, try refreshing the page or temporarily disabling uBlock Origin.`
+            `${errorMessage}. If you're using a mobile browser, try refreshing the page or temporarily disabling uBlock Origin.`
           );
         }
       } finally {
@@ -244,10 +253,6 @@ export default function UnauthenticatedApp() {
                       onClick={async (e) => {
                         // Explicit click handler for better Firefox mobile support
                         await handleSubmit(e);
-                      }}
-                      // Firefox mobile sometimes needs explicit pointer handling
-                      onPointerDown={() => {
-                        // Ensure button responsiveness on Firefox mobile
                       }}
                     >
                       {loginLoading ? (

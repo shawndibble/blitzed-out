@@ -90,12 +90,22 @@ if (missingVars.length > 0) {
 // Check if we can reach Firebase (potential uBlock Origin issue)
 const checkFirebaseConnectivity = async () => {
   try {
-    const testUrl = `https://${firebaseConfig.authDomain}/`;
-    await fetch(testUrl, { method: 'HEAD', mode: 'no-cors' });
+    // Use Firebase Auth REST API endpoint for connectivity check
+    const testUrl = `https://identitytoolkit.googleapis.com/v1/projects/${firebaseConfig.projectId}`;
+    const response = await fetch(testUrl, { method: 'GET' });
+
+    if (!response.ok) {
+      // Report non-OK status as connectivity issue
+      const statusError = new Error(`HTTP ${response.status}: ${response.statusText}`);
+      reportFirefoxMobileConnectivityIssue({
+        testUrl,
+        error: statusError,
+      });
+    }
     // Only report success if there were previous failures
   } catch (error) {
     reportFirefoxMobileConnectivityIssue({
-      testUrl: `https://${firebaseConfig.authDomain}/`,
+      testUrl: `https://identitytoolkit.googleapis.com/v1/projects/${firebaseConfig.projectId}`,
       error: error as Error,
     });
   }

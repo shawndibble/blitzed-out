@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import { sitemapPlugin } from './scripts/sitemap-plugin';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,6 +16,7 @@ export default defineConfig({
       org: 'blitzedout',
       project: 'javascript-react',
     }),
+    sitemapPlugin(),
   ],
   server: {
     host: '0.0.0.0', // Allow access from network (including Android emulator)
