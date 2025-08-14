@@ -25,12 +25,23 @@ export function MinimalAuthProvider({ children }: MinimalAuthProviderProps) {
   useEffect(() => {
     // Quick check for existing auth without loading Firebase
     const checkAuth = () => {
-      // Check if there's a stored user session or token
-      const hasStoredAuth = !!(
-        localStorage.getItem('firebase:authUser:') ||
-        sessionStorage.getItem('firebase:authUser:') ||
-        document.cookie.includes('firebase-auth')
-      );
+      let hasStoredAuth = false;
+
+      try {
+        // Check if there's a stored user session or token
+        hasStoredAuth = !!(
+          localStorage.getItem('firebase:authUser:') ||
+          sessionStorage.getItem('firebase:authUser:') ||
+          document.cookie.includes('firebase-auth')
+        );
+      } catch (error) {
+        // Handle SecurityError in iOS Safari private browsing or restricted contexts
+        console.warn(
+          'Authentication check failed due to storage restrictions (e.g., private browsing mode):',
+          error && error.message ? error.message : error
+        );
+        hasStoredAuth = false;
+      }
 
       setHasUser(hasStoredAuth);
       setInitializing(false);
