@@ -38,7 +38,7 @@ export function MinimalAuthProvider({ children }: MinimalAuthProviderProps) {
         // Handle SecurityError in iOS Safari private browsing or restricted contexts
         console.warn(
           'Authentication check failed due to storage restrictions (e.g., private browsing mode):',
-          error && error.message ? error.message : error
+          error
         );
         hasStoredAuth = false;
       }
