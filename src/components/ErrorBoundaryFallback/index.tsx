@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Button } from '@mui/material';
+import { Box, Button, ThemeProvider } from '@mui/material';
+import { useMemo } from 'react';
+import { getThemeByMode } from '@/theme';
 
 interface ErrorBoundaryFallbackProps {
   error: Error;
@@ -28,30 +30,55 @@ function getErrorDetails(error: unknown): string {
 export default function ErrorBoundaryFallback({ error, resetError }: ErrorBoundaryFallbackProps) {
   const { t } = useTranslation();
 
+  // Detect user's theme preference without relying on React context
+  // This works because error boundaries render outside the normal component tree
+  const theme = useMemo(() => {
+    try {
+      // Try to get theme from localStorage (user's saved preference)
+      const savedSettings = localStorage.getItem('gameSettings');
+      if (savedSettings) {
+        const settingsData = JSON.parse(savedSettings);
+        // Zustand persist stores data in a nested structure
+        const settings = settingsData.state?.settings || settingsData.settings;
+        if (settings?.themeMode) {
+          return getThemeByMode(settings.themeMode);
+        }
+      }
+    } catch (error) {
+      console.warn('Could not read theme from localStorage:', error);
+    }
+
+    // Fallback: detect system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return getThemeByMode(prefersDark ? 'dark' : 'light');
+  }, []);
+
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h2>{t('somethingWentWrong')}</h2>
-      <p>{t('errorReportedToTeam')}</p>
-      <p>{t('errorPersistsCheckBack')}</p>
-      <details style={{ marginTop: '10px' }}>
-        <summary>{t('errorDetails')}</summary>
-        <Box
-          component="pre"
-          sx={{
-            textAlign: 'left',
-            bgcolor: 'action.hover',
-            p: 1.25,
-            my: 1.25,
-            borderRadius: 1,
-            overflow: 'auto',
-          }}
-        >
-          {getErrorDetails(error)}
-        </Box>
-      </details>
-      <Button variant="contained" onClick={resetError} sx={{ mt: 1.25 }}>
-        {t('tryAgain')}
-      </Button>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h2>{t('somethingWentWrong')}</h2>
+        <p>{t('errorReportedToTeam')}</p>
+        <p>{t('errorPersistsCheckBack')}</p>
+        <details style={{ marginTop: '10px' }}>
+          <summary>{t('errorDetails')}</summary>
+          <Box
+            component="pre"
+            sx={{
+              textAlign: 'left',
+              bgcolor: 'action.hover',
+              p: 1.25,
+              my: 1.25,
+              borderRadius: 1,
+              overflow: 'auto',
+            }}
+          >
+            {getErrorDetails(error)}
+          </Box>
+        </details>
+        <Button variant="contained" onClick={resetError} sx={{ mt: 1.25 }}>
+          {t('tryAgain')}
+        </Button>
+      </div>
+    </ThemeProvider>
   );
 }
