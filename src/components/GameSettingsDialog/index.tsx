@@ -1,9 +1,10 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
-import { Trans } from 'react-i18next';
+
 import CloseIcon from '@/components/CloseIcon';
+import GameSettingsWizard from '@/views/GameSettingsWizard';
+import { Trans } from 'react-i18next';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useSearchParams } from 'react-router-dom';
-import GameSettingsWizard from '@/views/GameSettingsWizard';
 
 interface GameSettingsDialogProps {
   open: boolean;
@@ -12,7 +13,7 @@ interface GameSettingsDialogProps {
 
 export default function GameSettingsDialog({
   open,
-  close,
+  close = () => {},
 }: GameSettingsDialogProps): JSX.Element | null {
   const isMobile = useBreakpoint();
   const [queryParams] = useSearchParams();

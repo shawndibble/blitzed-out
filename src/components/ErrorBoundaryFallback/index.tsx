@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 
 interface ErrorBoundaryFallbackProps {
   error: Error;
@@ -32,6 +32,7 @@ export default function ErrorBoundaryFallback({ error, resetError }: ErrorBounda
     <div style={{ padding: '20px', textAlign: 'center' }}>
       <h2>{t('somethingWentWrong')}</h2>
       <p>{t('errorReportedToTeam')}</p>
+      <p>{t('errorPersistsCheckBack')}</p>
       <details style={{ marginTop: '10px' }}>
         <summary>{t('errorDetails')}</summary>
         <Box
@@ -48,13 +49,9 @@ export default function ErrorBoundaryFallback({ error, resetError }: ErrorBounda
           {getErrorDetails(error)}
         </Box>
       </details>
-      <button
-        type="button"
-        onClick={resetError}
-        style={{ padding: '10px 20px', marginTop: '10px' }}
-      >
+      <Button variant="contained" onClick={resetError} sx={{ mt: 1.25 }}>
         {t('tryAgain')}
-      </button>
+      </Button>
     </div>
   );
 }

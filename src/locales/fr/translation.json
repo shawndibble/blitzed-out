@@ -63,6 +63,7 @@
   "error": "Erreur",
   "somethingWentWrong": "Quelque chose s'est mal passé",
   "errorReportedToTeam": "L'erreur a été signalée à notre équipe.",
+  "errorPersistsCheckBack": "Si le problème persiste, veuillez revenir dans 24 heures.",
   "errorDetails": "Détails de l'erreur",
   "tryAgain": "Réessayer",
   "debugInfoCopied": "Informations de débogage copiées dans le presse-papiers. Veuillez les partager avec le support.",
