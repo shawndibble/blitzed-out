@@ -63,6 +63,7 @@
   "error": "Error",
   "somethingWentWrong": "Algo salió mal",
   "errorReportedToTeam": "El error ha sido reportado a nuestro equipo.",
+  "errorPersistsCheckBack": "Si el problema persiste, por favor vuelve a revisar en 24 horas.",
   "errorDetails": "Detalles del error",
   "tryAgain": "Intentar de nuevo",
   "debugInfoCopied": "Información de depuración copiada al portapapeles. Por favor comparte esto con soporte.",

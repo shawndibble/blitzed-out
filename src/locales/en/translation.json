@@ -60,6 +60,7 @@
   "error": "Error",
   "somethingWentWrong": "Something went wrong",
   "errorReportedToTeam": "The error has been reported to our team.",
+  "errorPersistsCheckBack": "If the problem persists, please check back in 24 hours.",
   "errorDetails": "Error details",
   "tryAgain": "Try again",
   "debugInfoCopied": "Debug info copied to clipboard. Please share this with support.",

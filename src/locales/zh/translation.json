@@ -63,6 +63,7 @@
   "error": "錯誤",
   "somethingWentWrong": "出現問題",
   "errorReportedToTeam": "錯誤已報告給我們的團隊。",
+  "errorPersistsCheckBack": "如果問題仍然存在，請在24小時後再次查看。",
   "errorDetails": "錯誤詳情",
   "tryAgain": "重試",
   "debugInfoCopied": "調試信息已復製到剪貼板。請與支持人員分享。",
