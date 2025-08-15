@@ -16,6 +16,7 @@ import ButtonRow from '@/components/ButtonRow';
 import { Settings } from '@/types/Settings';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
+import { useParams } from 'react-router-dom';
 
 interface FinishStepProps {
   formData: Settings;
@@ -40,6 +41,7 @@ export default function FinishStep({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const submitSettings = useSubmitGameSettings();
   const { t } = useTranslation();
+  const { id: currentRoom } = useParams<{ id: string }>();
 
   // on load, if don't have a finishRange OR if it is something from advanced settings, replace it.
   useEffect(() => {
@@ -56,14 +58,30 @@ export default function FinishStep({
 
   async function handleSubmit(): Promise<void> {
     setIsLoading(true);
+
     try {
       await submitSettings(formData, actionsList);
+
+      // Check if navigation will occur (room change)
+      const willNavigate =
+        currentRoom !== undefined && currentRoom?.toUpperCase() !== formData.room?.toUpperCase();
+
+      if (typeof close === 'function') {
+        if (willNavigate) {
+          // Delay closing to prevent race condition with navigation
+          setTimeout(() => close(), 100);
+        } else {
+          // No navigation, safe to close immediately
+          close();
+        }
+      }
     } catch (error) {
       console.error('Error submitting settings:', error);
+      // On error, close immediately since no navigation occurred
+      if (typeof close === 'function') close();
     } finally {
       setIsLoading(false);
     }
-    if (typeof close === 'function') close();
   }
 
   const orgasmOptions = [
