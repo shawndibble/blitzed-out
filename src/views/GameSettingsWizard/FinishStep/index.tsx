@@ -57,7 +57,7 @@ export default function FinishStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleSubmit(): Promise<void> {
+  const handleSubmit = async (): Promise<void> => {
     setIsLoading(true);
 
     try {
@@ -91,7 +91,7 @@ export default function FinishStep({
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const orgasmOptions = [
     {

@@ -33,9 +33,14 @@ export default function ErrorBoundaryFallback({ error, resetError }: ErrorBounda
   // Detect user's theme preference without relying on React context
   // This works because error boundaries render outside the normal component tree
   const theme = useMemo(() => {
+    const isBrowser = typeof window !== 'undefined';
+    // Fallback for SSR/tests
+    if (!isBrowser) {
+      return getThemeByMode('light');
+    }
     try {
       // Try to get theme from localStorage (user's saved preference)
-      const savedSettings = localStorage.getItem('gameSettings');
+      const savedSettings = window.localStorage?.getItem('gameSettings');
       if (savedSettings) {
         const settingsData = JSON.parse(savedSettings);
         // Zustand persist stores data in a nested structure
@@ -44,12 +49,13 @@ export default function ErrorBoundaryFallback({ error, resetError }: ErrorBounda
           return getThemeByMode(settings.themeMode);
         }
       }
-    } catch (error) {
-      console.warn('Could not read theme from localStorage:', error);
+    } catch {
+      // Intentionally swallow errors to keep fallback working
     }
 
-    // Fallback: detect system preference
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Fallback: detect system preference (if available)
+    const prefersDark =
+      !!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     return getThemeByMode(prefersDark ? 'dark' : 'light');
   }, []);
 
