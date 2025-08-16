@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Button, ThemeProvider } from '@mui/material';
+import { Box, Button } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import { useMemo } from 'react';
 import { getThemeByMode } from '@/theme';
 
@@ -61,12 +62,14 @@ export default function ErrorBoundaryFallback({ error, resetError }: ErrorBounda
 
   return (
     <ThemeProvider theme={theme}>
-      <div style={{ padding: '20px', textAlign: 'center' }}>
+      <Box sx={{ p: 2.5, textAlign: 'center' }}>
         <h2>{t('somethingWentWrong')}</h2>
         <p>{t('errorReportedToTeam')}</p>
         <p>{t('errorPersistsCheckBack')}</p>
-        <details style={{ marginTop: '10px' }}>
-          <summary>{t('errorDetails')}</summary>
+        <Box component="details" sx={{ mt: 1.25 }}>
+          <Box component="summary" sx={{ cursor: 'pointer' }}>
+            {t('errorDetails')}
+          </Box>
           <Box
             component="pre"
             sx={{
@@ -80,11 +83,11 @@ export default function ErrorBoundaryFallback({ error, resetError }: ErrorBounda
           >
             {getErrorDetails(error)}
           </Box>
-        </details>
+        </Box>
         <Button variant="contained" onClick={resetError} sx={{ mt: 1.25 }}>
           {t('tryAgain')}
         </Button>
-      </div>
+      </Box>
     </ThemeProvider>
   );
 }
