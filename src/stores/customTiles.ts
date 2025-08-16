@@ -4,6 +4,7 @@ import { CustomTile, CustomTilePull } from '@/types/customTiles';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
 import { retryOnCursorError } from '@/utils/dbRecovery';
+import { MIGRATION_IN_PROGRESS_KEY, MIGRATION_TIMEOUT } from '@/services/migration/constants';
 
 const { customTiles } = db;
 
@@ -50,6 +51,30 @@ export const getTiles = async (
   filters: Omit<CustomTileFilters, 'page' | 'limit' | 'paginated'> = {}
 ): Promise<CustomTilePull[]> => {
   try {
+    // Check if migration is in progress and wait if necessary
+    if (typeof window !== 'undefined') {
+      const migrationInProgress = localStorage.getItem(MIGRATION_IN_PROGRESS_KEY);
+      if (migrationInProgress) {
+        try {
+          const migrationData = JSON.parse(migrationInProgress);
+          const migrationAge = Date.now() - new Date(migrationData.startedAt).getTime();
+
+          // If migration is recent (less than timeout), wait for it to complete
+          if (migrationAge < MIGRATION_TIMEOUT) {
+            let waitCount = 0;
+            const maxWait = Math.ceil(MIGRATION_TIMEOUT / 50); // Maximum wait based on timeout (600 iterations for 30s)
+
+            while (localStorage.getItem(MIGRATION_IN_PROGRESS_KEY) && waitCount < maxWait) {
+              await new Promise((resolve) => setTimeout(resolve, 50));
+              waitCount++;
+            }
+          }
+        } catch {
+          // Ignore JSON parse errors and continue
+        }
+      }
+    }
+
     return await retryOnCursorError(
       db,
       async () => {

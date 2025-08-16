@@ -1,3 +1,4 @@
+import 'vite/modulepreload-polyfill';
 import './index.css';
 
 import App from './App';

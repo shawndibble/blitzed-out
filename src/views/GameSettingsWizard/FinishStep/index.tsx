@@ -11,12 +11,14 @@ import {
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 
 import ButtonRow from '@/components/ButtonRow';
 import { Settings } from '@/types/Settings';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import { useParams } from 'react-router-dom';
+import { logger } from '@/utils/logger';
 
 interface FinishStepProps {
   formData: Settings;
@@ -56,7 +58,7 @@ export default function FinishStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleSubmit(): Promise<void> {
+  const handleSubmit = async (): Promise<void> => {
     setIsLoading(true);
 
     try {
@@ -68,21 +70,32 @@ export default function FinishStep({
 
       if (typeof close === 'function') {
         if (willNavigate) {
-          // Delay closing to prevent race condition with navigation
-          setTimeout(() => close(), 100);
+          // Use flushSync to ensure DOM is properly reconciled before navigation
+          // https://reactjs.org/docs/flush-sync.html - Forces synchronous DOM updates
+          flushSync(() => {
+            close();
+          });
+          // Let the browser paint the close(), then the route change
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         } else {
           // No navigation, safe to close immediately
           close();
         }
       }
     } catch (error) {
-      console.error('Error submitting settings:', error);
+      logger.error('Error submitting settings:', error);
       // On error, close immediately since no navigation occurred
-      if (typeof close === 'function') close();
+      if (typeof close === 'function') {
+        // Ensure DOM is reconciled before closing on error
+        // https://reactjs.org/docs/flush-sync.html - Forces synchronous DOM updates
+        flushSync(() => {
+          close();
+        });
+      }
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const orgasmOptions = [
     {
