@@ -13,13 +13,13 @@ export const getCurrentLanguage = async (): Promise<string> => {
   try {
     // First try: get current language from i18next using proper API
     const resolved = i18n.resolvedLanguage;
-    if (resolved && resolved !== 'undefined') {
+    if (resolved !== undefined) {
       return resolved;
     }
 
     // Second try: get language from i18next instance
     const currentLang = i18n.language;
-    if (currentLang && currentLang !== 'undefined') {
+    if (currentLang !== undefined) {
       return currentLang;
     }
 
