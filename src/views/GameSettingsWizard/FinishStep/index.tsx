@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 
 import ButtonRow from '@/components/ButtonRow';
 import { Settings } from '@/types/Settings';
@@ -56,7 +57,7 @@ export default function FinishStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleSubmit(): Promise<void> {
+  const handleSubmit = async (): Promise<void> => {
     setIsLoading(true);
 
     try {
@@ -68,8 +69,12 @@ export default function FinishStep({
 
       if (typeof close === 'function') {
         if (willNavigate) {
-          // Delay closing to prevent race condition with navigation
-          setTimeout(() => close(), 100);
+          // Use flushSync to ensure DOM is properly reconciled before navigation
+          flushSync(() => {
+            close();
+          });
+          // Small delay to allow navigation to complete
+          await new Promise((resolve) => setTimeout(resolve, 50));
         } else {
           // No navigation, safe to close immediately
           close();
@@ -78,11 +83,15 @@ export default function FinishStep({
     } catch (error) {
       console.error('Error submitting settings:', error);
       // On error, close immediately since no navigation occurred
-      if (typeof close === 'function') close();
+      if (typeof close === 'function') {
+        flushSync(() => {
+          close();
+        });
+      }
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const orgasmOptions = [
     {
