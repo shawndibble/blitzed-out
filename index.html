@@ -39,21 +39,30 @@
       name="description"
       content="Blitzed Out - The customizable adult board game experience. Perfect for couples, solo play, or parties. Create personalized adventures."
     />
-    <meta name="keywords" content="adult board game, couples game, party game, customizable, adult entertainment, intimate game, relationship game" />
+    <meta
+      name="keywords"
+      content="adult board game, couples game, party game, customizable, adult entertainment, intimate game, relationship game"
+    />
     <meta name="author" content="Blitzed Out" />
     <meta name="robots" content="index, follow" />
-    
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Blitzed Out - An Adult Board Game Experience" />
-    <meta property="og:description" content="Transform your intimate adventures with a customizable adult experience platform. Perfect for couples, solo play, or unforgettable parties." />
+    <meta
+      property="og:description"
+      content="Transform your intimate adventures with a customizable adult experience platform. Perfect for couples, solo play, or unforgettable parties."
+    />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://blitzed-out.com/" />
     <meta property="og:site_name" content="Blitzed Out" />
-    
+
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Blitzed Out - An Adult Board Game Experience" />
-    <meta name="twitter:description" content="Transform your intimate adventures with a customizable adult experience platform." />
+    <meta
+      name="twitter:description"
+      content="Transform your intimate adventures with a customizable adult experience platform."
+    />
 
     <!-- Roboto fonts are loaded via Google Fonts CDN in JavaScript for better compatibility -->
 
@@ -181,36 +190,36 @@
     </style>
 
     <title>Blitzed Out - An Adult Board Game Experience</title>
-    
+
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Blitzed Out",
-      "alternateName": "Blitzed Out Adult Board Game",
-      "description": "A customizable adult board game experience. Perfect for couples, solo play, or parties with endless customization options.",
-      "url": "https://blitzed-out.com/",
-      "applicationCategory": "Game",
-      "operatingSystem": "Web Browser",
-      "audience": {
-        "@type": "Audience",
-        "audienceType": "Adults"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "keywords": [
-        "adult board game",
-        "couples game", 
-        "party game",
-        "customizable game",
-        "intimate game",
-        "relationship game"
-      ]
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Blitzed Out",
+        "alternateName": "Blitzed Out Adult Board Game",
+        "description": "A customizable adult board game experience. Perfect for couples, solo play, or parties with endless customization options.",
+        "url": "https://blitzed-out.com/",
+        "applicationCategory": "Game",
+        "operatingSystem": "Web Browser",
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Adults"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "keywords": [
+          "adult board game",
+          "couples game",
+          "party game",
+          "customizable game",
+          "intimate game",
+          "relationship game"
+        ]
+      }
     </script>
 
     <script type="text/javascript">
@@ -238,29 +247,30 @@
       })(window.location);
     </script>
     <script type="module" src="src/index"></script>
-    
+
     <!-- Safari module loading fallback -->
     <script>
       // Handle module loading failures in Safari
-      window.addEventListener('error', function(e) {
+      window.addEventListener('error', function (e) {
         // Check for module script loading failure in error event
-        const errorMsg = 
+        const errorMsg =
           (e.error && e.error.message) ||
           (e.reason && typeof e.reason === 'string' ? e.reason : null) ||
           (typeof e.message === 'string' ? e.message : null);
-        
+
         if (errorMsg && errorMsg.includes('module script failed')) {
           console.warn('Module script loading failed - likely Safari compatibility issue');
           // Show error message to user
           const loadingEl = document.getElementById('instant-loading');
           if (loadingEl) {
-            loadingEl.innerHTML = '<div class="loading-text">Loading failed. Please refresh the page.</div>';
+            loadingEl.innerHTML =
+              '<div class="loading-text">Loading failed. Please refresh the page.</div>';
           }
         }
       });
-      
+
       // Handle unhandled promise rejections for module imports
-      window.addEventListener('unhandledrejection', function(e) {
+      window.addEventListener('unhandledrejection', function (e) {
         if (e.reason && e.reason.message && e.reason.message.includes('module script failed')) {
           console.warn('Module import failed - Safari compatibility issue');
           e.preventDefault(); // Prevent the error from showing in console as unhandled

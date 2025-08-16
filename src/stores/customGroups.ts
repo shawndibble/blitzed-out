@@ -347,6 +347,24 @@ export const getAllAvailableGroups = async (
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
   try {
+    // Check if migration is in progress and wait if necessary
+    const migrationInProgress = localStorage.getItem('blitzed-out-migration-in-progress');
+    if (migrationInProgress) {
+      const migrationData = JSON.parse(migrationInProgress);
+      const migrationAge = Date.now() - new Date(migrationData.startedAt).getTime();
+
+      // If migration is recent (less than 30 seconds), wait for it to complete
+      if (migrationAge < 30000) {
+        let waitCount = 0;
+        const maxWait = 60; // Maximum 3 seconds wait (60 * 50ms)
+
+        while (localStorage.getItem('blitzed-out-migration-in-progress') && waitCount < maxWait) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          waitCount++;
+        }
+      }
+    }
+
     // Ensure database is ready before any operations (skip in test environment)
     if (typeof db.isOpen === 'function' && !db.isOpen()) {
       await db.open();

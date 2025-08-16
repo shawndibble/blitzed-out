@@ -28,7 +28,6 @@ export default function useUrlImport(
   const importBoard = queryParams.get('importBoard');
   const { t } = useTranslation();
 
-
   const clearAlert = useCallback((): void => {
     setAlert(null);
   }, []);
@@ -73,14 +72,14 @@ export default function useUrlImport(
       const title = board?.title !== t('settingsGenerated') ? board.title : t('importedBoard');
 
       upsertBoard({ ...board, title, tiles: importedGameBoard, isActive: 1 });
-      
+
       const importSettings = parseSettings(board?.settings);
 
       // For public rooms, ensure gameMode is online to prevent setup dialog
       const currentUrl = new URL(window.location.href);
       const roomId = currentUrl.pathname.split('/').pop() || '';
       const finalSettings = { ...settings, ...importSettings };
-      
+
       if (roomId.toUpperCase() === 'PUBLIC' && importSettings.gameMode === 'local') {
         finalSettings.gameMode = 'online';
       }

@@ -81,7 +81,10 @@
 
           iframe.src = url.toString();
           iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
-          iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts allow-presentation allow-forms');
+          iframe.setAttribute(
+            'sandbox',
+            'allow-same-origin allow-scripts allow-presentation allow-forms'
+          );
 
           // Handle iframe loading
           iframe.onload = function () {
