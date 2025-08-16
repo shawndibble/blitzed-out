@@ -43,4 +43,4 @@ export {
   type ImportResult,
   type VersionCheckResult,
   type MigrationStatusSnapshot,
-} from './migration';
+} from '@/services/migration';
