@@ -18,6 +18,7 @@ import { Settings } from '@/types/Settings';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import { useParams } from 'react-router-dom';
+import { logger } from '@/utils/logger';
 
 interface FinishStepProps {
   formData: Settings;
@@ -70,20 +71,23 @@ export default function FinishStep({
       if (typeof close === 'function') {
         if (willNavigate) {
           // Use flushSync to ensure DOM is properly reconciled before navigation
+          // https://reactjs.org/docs/flush-sync.html - Forces synchronous DOM updates
           flushSync(() => {
             close();
           });
-          // Small delay to allow navigation to complete
-          await new Promise((resolve) => setTimeout(resolve, 50));
+          // Let the browser paint the close(), then the route change
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         } else {
           // No navigation, safe to close immediately
           close();
         }
       }
     } catch (error) {
-      console.error('Error submitting settings:', error);
+      logger.error('Error submitting settings:', error);
       // On error, close immediately since no navigation occurred
       if (typeof close === 'function') {
+        // Ensure DOM is reconciled before closing on error
+        // https://reactjs.org/docs/flush-sync.html - Forces synchronous DOM updates
         flushSync(() => {
           close();
         });
