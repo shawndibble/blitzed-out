@@ -4,7 +4,7 @@ import { isExpectedDOMError } from '@/constants/errorPatterns';
 
 interface FilteredErrorBoundaryProps {
   children: React.ReactNode;
-  fallback: React.ComponentType<any>;
+  fallback: React.ComponentType<{ error: Error; resetError: () => void }>;
 }
 
 interface FilteredErrorBoundaryState {
@@ -25,9 +25,9 @@ export default class FilteredErrorBoundary extends React.Component<
     this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(error: unknown) {
     // Check if this is an expected React DOM reconciliation error
-    const errorMessage = error.message || '';
+    const errorMessage = error instanceof Error ? error.message : String(error ?? '');
 
     // If it's an expected DOM reconciliation error, don't show error boundary UI
     if (isExpectedDOMError(errorMessage)) {
@@ -35,7 +35,7 @@ export default class FilteredErrorBoundary extends React.Component<
     }
 
     // For other errors, show the error boundary
-    return { hasError: true, error };
+    return { hasError: true, error: error instanceof Error ? error : new Error(errorMessage) };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {

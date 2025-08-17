@@ -21,6 +21,7 @@ export const MODULE_LOADING_ERROR_PATTERNS = [
   'Importing a module script failed',
   'Failed to resolve module specifier',
   'Method not found',
+  'module script failed',
 ] as const;
 
 /**
@@ -28,11 +29,10 @@ export const MODULE_LOADING_ERROR_PATTERNS = [
  * @param errorMessage - The error message to check
  * @returns true if the error matches expected DOM reconciliation patterns
  */
-export function isExpectedDOMError(errorMessage: string): boolean {
-  if (!errorMessage || typeof errorMessage !== 'string') {
-    return false;
-  }
-  return EXPECTED_DOM_ERROR_PATTERNS.every((pattern) => errorMessage.includes(pattern));
+export function isExpectedDOMError(errorMessage: unknown): boolean {
+  const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
+  if (!msg) return false;
+  return EXPECTED_DOM_ERROR_PATTERNS.some((pattern) => msg.includes(pattern.toLowerCase()));
 }
 
 /**
@@ -40,11 +40,10 @@ export function isExpectedDOMError(errorMessage: string): boolean {
  * @param errorMessage - The error message to check
  * @returns true if the error matches module loading patterns
  */
-export function isModuleLoadingError(errorMessage: string): boolean {
-  if (!errorMessage || typeof errorMessage !== 'string') {
-    return false;
-  }
-  return MODULE_LOADING_ERROR_PATTERNS.some((pattern) => errorMessage.includes(pattern));
+export function isModuleLoadingError(errorMessage: unknown): boolean {
+  const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
+  if (!msg) return false;
+  return MODULE_LOADING_ERROR_PATTERNS.some((pattern) => msg.includes(pattern.toLowerCase()));
 }
 
 /**
@@ -56,3 +55,5 @@ export const ERROR_CATEGORIES = {
   IOS_SAFARI_MODULE: 'ios_safari_module_error',
   FIREFOX_MOBILE_AUTH: 'firefox_mobile_auth_error',
 } as const;
+
+export type ErrorCategory = keyof typeof ERROR_CATEGORIES;

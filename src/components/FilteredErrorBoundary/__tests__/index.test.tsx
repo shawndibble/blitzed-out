@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type React from 'react';
 import * as Sentry from '@sentry/react';
 import FilteredErrorBoundary from '../index';
 
@@ -22,6 +23,8 @@ vi.mock('@/constants/errorPatterns', () => ({
 import { isExpectedDOMError } from '@/constants/errorPatterns';
 
 describe('FilteredErrorBoundary', () => {
+  const DummyFallback: React.FC<{ error: Error; resetError: () => void }> = () => null;
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -73,7 +76,7 @@ describe('FilteredErrorBoundary', () => {
 
       vi.mocked(isExpectedDOMError).mockReturnValue(true);
 
-      const instance = new FilteredErrorBoundary({ children: null, fallback: vi.fn() });
+      const instance = new FilteredErrorBoundary({ children: null, fallback: DummyFallback });
       instance.componentDidCatch(domError, errorInfo);
 
       expect(Sentry.captureException).not.toHaveBeenCalled();
@@ -86,7 +89,7 @@ describe('FilteredErrorBoundary', () => {
 
       vi.mocked(isExpectedDOMError).mockReturnValue(false);
 
-      const instance = new FilteredErrorBoundary({ children: null, fallback: vi.fn() });
+      const instance = new FilteredErrorBoundary({ children: null, fallback: DummyFallback });
       instance.componentDidCatch(unexpectedError, errorInfo);
 
       expect(Sentry.captureException).toHaveBeenCalledWith(unexpectedError);
@@ -104,7 +107,7 @@ describe('FilteredErrorBoundary', () => {
 
       vi.mocked(isExpectedDOMError).mockReturnValue(true);
 
-      const instance = new FilteredErrorBoundary({ children: null, fallback: vi.fn() });
+      const instance = new FilteredErrorBoundary({ children: null, fallback: DummyFallback });
       instance.componentDidCatch(sentryError, errorInfo);
 
       expect(isExpectedDOMError).toHaveBeenCalledWith(sentryError.message);

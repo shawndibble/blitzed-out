@@ -46,12 +46,15 @@ export function initializeSentry(): void {
         Sentry.setTag('development_debug', 'firefox_mobile_detected');
       }
 
-      const errorMessage = event.exception?.values?.[0]?.value || '';
+      const errorMessage = event.exception?.values?.[0]?.value || event.message || '';
+      const errorMessageLower = errorMessage.toLowerCase();
 
       // Tag iOS Safari module errors for better tracking
       if (errorMessage.includes('Importing a module script failed')) {
-        event.tags = { ...event.tags, [ERROR_CATEGORIES.IOS_SAFARI_MODULE]: true };
-        event.fingerprint = ['ios-safari-module-loading-error'];
+        event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.IOS_SAFARI_MODULE]: true };
+        if (!event.fingerprint?.length) {
+          event.fingerprint = ['ios-safari-module-loading-error'];
+        }
       }
 
       // Filter out expected React DOM insertion errors during normal reconciliation
@@ -67,14 +70,18 @@ export function initializeSentry(): void {
         errorMessage.includes('insertBefore') ||
         errorMessage.includes('not a child of this node')
       ) {
-        event.tags = { ...event.tags, [ERROR_CATEGORIES.DOM_RECONCILIATION]: true };
-        event.fingerprint = ['react-dom-insertion-error'];
+        event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.DOM_RECONCILIATION]: true };
+        if (!event.fingerprint?.length) {
+          event.fingerprint = ['react-dom-insertion-error'];
+        }
       }
 
       // Tag module resolution and method not found errors
       if (isModuleLoadingError(errorMessage)) {
-        event.tags = { ...event.tags, [ERROR_CATEGORIES.MODULE_LOADING]: true };
-        event.fingerprint = ['module-resolution-error'];
+        event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.MODULE_LOADING]: true };
+        if (!event.fingerprint?.length) {
+          event.fingerprint = ['module-resolution-error'];
+        }
       }
 
       // Tag Firefox mobile specific errors
@@ -84,18 +91,18 @@ export function initializeSentry(): void {
         (userAgent.includes('mobile') || userAgent.includes('tablet'));
 
       if (isFirefoxMobile) {
-        event.tags = { ...event.tags, firefox_mobile: true };
+        event.tags = { ...(event.tags ?? {}), firefox_mobile: true };
 
         // Tag authentication-related errors specifically
         if (
-          errorMessage.includes('login') ||
-          errorMessage.includes('auth') ||
-          errorMessage.includes('firebase') ||
-          event.message?.includes('login') ||
-          event.message?.includes('auth')
+          errorMessageLower.includes('login') ||
+          errorMessageLower.includes('auth') ||
+          errorMessageLower.includes('firebase')
         ) {
-          event.tags = { ...event.tags, [ERROR_CATEGORIES.FIREFOX_MOBILE_AUTH]: true };
-          event.fingerprint = ['firefox-mobile-auth-error'];
+          event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.FIREFOX_MOBILE_AUTH]: true };
+          if (!event.fingerprint?.length) {
+            event.fingerprint = ['firefox-mobile-auth-error'];
+          }
         }
       }
 
