@@ -1,4 +1,4 @@
-import { useMediaQuery, useTheme, Portal } from '@mui/material';
+import { Portal, useMediaQuery, useTheme } from '@mui/material';
 import { ReactNode, useEffect, useState, useRef } from 'react';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,14 +10,14 @@ interface OnboardingWrapperProps {
 
 const OnboardingWrapper = ({ children, className }: OnboardingWrapperProps): JSX.Element => {
   const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { settings, updateSettings } = useSettingsStore();
   const [startAnimation, setStartAnimation] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
   const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
-  const shouldShowOnboarding = isDesktop && !settings.hasSeenRollButton && !hasInteracted;
+  const shouldShowOnboarding = !settings.hasSeenRollButton && !hasInteracted;
 
   // Calculate button position for spotlight effect
   useEffect(() => {
@@ -81,10 +81,10 @@ const OnboardingWrapper = ({ children, className }: OnboardingWrapperProps): JSX
                 background: `radial-gradient(
                   circle at ${buttonPosition.x + buttonPosition.width / 2}px ${buttonPosition.y + buttonPosition.height / 2}px,
                   transparent 0px,
-                  transparent ${Math.max(buttonPosition.width, buttonPosition.height) * 11.25}px,
-                  rgba(0, 0, 0, 0.2) ${Math.max(buttonPosition.width, buttonPosition.height) * 13.5}px,
-                  rgba(0, 0, 0, 0.5) ${Math.max(buttonPosition.width, buttonPosition.height) * 16.5}px,
-                  rgba(0, 0, 0, 0.7) ${Math.max(buttonPosition.width, buttonPosition.height) * 21}px,
+                  transparent ${Math.max(buttonPosition.width, buttonPosition.height) * (isMobile ? 5.5 : 11.25)}px,
+                  rgba(0, 0, 0, 0.2) ${Math.max(buttonPosition.width, buttonPosition.height) * (isMobile ? 6.5 : 13.5)}px,
+                  rgba(0, 0, 0, 0.5) ${Math.max(buttonPosition.width, buttonPosition.height) * (isMobile ? 8 : 16.5)}px,
+                  rgba(0, 0, 0, 0.7) ${Math.max(buttonPosition.width, buttonPosition.height) * (isMobile ? 10 : 21)}px,
                   rgba(0, 0, 0, 0.8) 100%
                 )`,
               }}
@@ -95,10 +95,10 @@ const OnboardingWrapper = ({ children, className }: OnboardingWrapperProps): JSX
                       background: `radial-gradient(
                   circle at ${buttonPosition.x + buttonPosition.width / 2}px ${buttonPosition.y + buttonPosition.height / 2}px,
                   transparent 0px,
-                  transparent ${Math.max(buttonPosition.width, buttonPosition.height) * 1.125}px,
-                  rgba(0, 0, 0, 0.2) ${Math.max(buttonPosition.width, buttonPosition.height) * 1.35}px,
-                  rgba(0, 0, 0, 0.5) ${Math.max(buttonPosition.width, buttonPosition.height) * 1.65}px,
-                  rgba(0, 0, 0, 0.7) ${Math.max(buttonPosition.width, buttonPosition.height) * 2.1}px,
+                  transparent ${Math.max(buttonPosition.width, buttonPosition.height) * (isMobile ? 0.55 : 1.125)}px,
+                  rgba(0, 0, 0, 0.2) ${Math.max(buttonPosition.width, buttonPosition.height) * (isMobile ? 0.65 : 1.35)}px,
+                  rgba(0, 0, 0, 0.5) ${Math.max(buttonPosition.width, buttonPosition.height) * (isMobile ? 0.8 : 1.65)}px,
+                  rgba(0, 0, 0, 0.7) ${Math.max(buttonPosition.width, buttonPosition.height) * (isMobile ? 1.0 : 2.1)}px,
                   rgba(0, 0, 0, 0.8) 100%
                 )`,
                     }
