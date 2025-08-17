@@ -5,9 +5,10 @@ import App from './App';
 import { MinimalAuthProvider } from './context/minimalAuth';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { initializeSentry, SentryErrorBoundary } from '@/services/sentry';
+import { initializeSentry } from '@/services/sentry';
 import { logger } from '@/utils/logger';
 import ErrorBoundaryFallback from '@/components/ErrorBoundaryFallback';
+import FilteredErrorBoundary from '@/components/FilteredErrorBoundary';
 import './i18n'; // Load i18n statically
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
@@ -152,13 +153,13 @@ const hideInstantLoading = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <SentryErrorBoundary fallback={ErrorBoundaryFallback}>
+    <FilteredErrorBoundary fallback={ErrorBoundaryFallback}>
       <MinimalAuthProvider>
         <React.Suspense fallback={null}>
           <App />
         </React.Suspense>
       </MinimalAuthProvider>
-    </SentryErrorBoundary>
+    </FilteredErrorBoundary>
   </React.StrictMode>
 );
 

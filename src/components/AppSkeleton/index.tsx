@@ -45,19 +45,20 @@ export default function AppSkeleton() {
         }}
       />
 
-      {/* Loading text - matches HTML version exactly */}
+      {/* Loading text - matches HTML version exactly with responsive clamp sizing */}
       <div
         style={{
-          fontSize: '1.25rem',
+          fontSize: 'clamp(1.25rem, 4vw, 3rem)',
           fontWeight: 600,
           letterSpacing: '-0.025em',
           color: '#0abde3',
           textAlign: 'center',
           fontFamily:
             "'Roboto Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif",
+          textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
         }}
       >
-        {t('loadingEllipsis')}
+        {t('loading')}...
       </div>
     </div>
   );

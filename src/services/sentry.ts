@@ -1,8 +1,14 @@
 import * as Sentry from '@sentry/react';
+import {
+  isExpectedDOMError,
+  isModuleLoadingError,
+  ERROR_CATEGORIES,
+} from '@/constants/errorPatterns';
 
 /**
  * Initialize Sentry error tracking and monitoring
  */
+
 export function initializeSentry(): void {
   // Idempotency guard: prevent double initialization (HMR, repeated calls)
   if (Sentry.getClient() !== undefined) {
@@ -24,13 +30,15 @@ export function initializeSentry(): void {
     replaysSessionSampleRate: 0.1, // Capture 10% of sessions for replay
     replaysOnErrorSampleRate: 1.0, // Capture 100% of sessions when errors occur
     beforeSend(event) {
+      // Compute user agent once and reuse
+      const userAgentLower = (navigator.userAgent || '').toLowerCase();
+      const isFirefoxMobile =
+        userAgentLower.includes('firefox') &&
+        (userAgentLower.includes('mobile') || userAgentLower.includes('tablet'));
+
       // Don't send events in development unless you want to
       if (import.meta.env.MODE === 'development') {
         // Send events for Firefox mobile in development to help debug
-        const userAgent = navigator.userAgent.toLowerCase();
-        const isFirefoxMobile =
-          userAgent.includes('firefox') &&
-          (userAgent.includes('mobile') || userAgent.includes('tablet'));
 
         if (!isFirefoxMobile) {
           return null; // Don't send to Sentry in development for other browsers
@@ -40,49 +48,58 @@ export function initializeSentry(): void {
         Sentry.setTag('development_debug', 'firefox_mobile_detected');
       }
 
+      const errorMessage = event.exception?.values?.[0]?.value || event.message || '';
+      const errorMessageLower = errorMessage.toLowerCase();
+
       // Tag iOS Safari module errors for better tracking
-      if (event.exception?.values?.[0]?.value?.includes('Importing a module script failed')) {
-        event.tags = { ...event.tags, ios_safari_module_error: true };
-        event.fingerprint = ['ios-safari-module-loading-error'];
+      if (errorMessageLower.includes('module script failed')) {
+        event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.IOS_SAFARI_MODULE]: true };
+        if (!event.fingerprint?.length) {
+          event.fingerprint = ['ios-safari-module-loading-error'];
+        }
       }
 
-      // Tag React DOM insertion errors for better tracking
+      // Filter out expected React DOM insertion errors during normal reconciliation
+      // These occur during state transitions when GameSettingsDialog unmounts and game board mounts
+      if (isExpectedDOMError(errorMessage)) {
+        // Don't send these expected React reconciliation errors to Sentry
+        // These happen during normal operation when transitioning from GameSettingsDialog to game board
+        return null;
+      }
+
+      // Tag other DOM insertion errors for tracking (unexpected ones)
       if (
-        event.exception?.values?.[0]?.value?.includes('insertBefore') ||
-        event.exception?.values?.[0]?.value?.includes('not a child of this node')
+        errorMessageLower.includes('insertbefore') ||
+        errorMessageLower.includes('not a child of this node')
       ) {
-        event.tags = { ...event.tags, react_dom_insertion_error: true };
-        event.fingerprint = ['react-dom-insertion-error'];
+        event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.DOM_RECONCILIATION]: true };
+        if (!event.fingerprint?.length) {
+          event.fingerprint = ['react-dom-insertion-error'];
+        }
       }
 
       // Tag module resolution and method not found errors
-      if (
-        event.exception?.values?.[0]?.value?.includes('Method not found') ||
-        event.exception?.values?.[0]?.value?.includes('Failed to resolve module specifier')
-      ) {
-        event.tags = { ...event.tags, module_resolution_error: true };
-        event.fingerprint = ['module-resolution-error'];
+      if (isModuleLoadingError(errorMessage)) {
+        event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.MODULE_LOADING]: true };
+        if (!event.fingerprint?.length) {
+          event.fingerprint = ['module-resolution-error'];
+        }
       }
 
       // Tag Firefox mobile specific errors
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isFirefoxMobile =
-        userAgent.includes('firefox') &&
-        (userAgent.includes('mobile') || userAgent.includes('tablet'));
-
       if (isFirefoxMobile) {
-        event.tags = { ...event.tags, firefox_mobile: true };
+        event.tags = { ...(event.tags ?? {}), firefox_mobile: true };
 
         // Tag authentication-related errors specifically
         if (
-          event.exception?.values?.[0]?.value?.includes('login') ||
-          event.exception?.values?.[0]?.value?.includes('auth') ||
-          event.exception?.values?.[0]?.value?.includes('firebase') ||
-          event.message?.includes('login') ||
-          event.message?.includes('auth')
+          errorMessageLower.includes('login') ||
+          errorMessageLower.includes('auth') ||
+          errorMessageLower.includes('firebase')
         ) {
-          event.tags = { ...event.tags, firefox_mobile_auth_error: true };
-          event.fingerprint = ['firefox-mobile-auth-error'];
+          event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.FIREFOX_MOBILE_AUTH]: true };
+          if (!event.fingerprint?.length) {
+            event.fingerprint = ['firefox-mobile-auth-error'];
+          }
         }
       }
 

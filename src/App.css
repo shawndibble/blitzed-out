@@ -197,3 +197,13 @@ body.theme-light .accordion-title {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* AppSkeleton spinner animation */
+@keyframes app-skeleton-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
