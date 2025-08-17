@@ -41,18 +41,45 @@ interface UserListProviderProps {
 
 function UserListProvider(props: UserListProviderProps): JSX.Element {
   const { id: room } = useParams<Params>();
-  const { onlineUsers, setUsers, setRoom, clearUsers, flushPendingUpdates } = useUserListStore();
+  const { onlineUsers } = useUserListStore();
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const prevRoomRef = useRef<string | undefined>(room);
+  const onlineUsersRef = useRef(onlineUsers);
+
+  // Keep ref updated with current onlineUsers for Firebase deduplication
+  // This prevents adding onlineUsers to useEffect deps (which would cause infinite loops)
+  useEffect(() => {
+    onlineUsersRef.current = onlineUsers;
+  }, [onlineUsers]);
 
   // Stable callback ref to prevent infinite useEffect loops
+  // This pattern ensures Firebase callback doesn't change reference on every render
   const handleUserUpdateRef = useRef<(newUsers: Record<string, unknown> | null) => void>(() => {});
+
+  // Get store methods - these change reference on every render in Zustand
+  const { setUsers, clearUsers, setRoom, flushPendingUpdates } = useUserListStore();
+
+  // Create stable reference to store methods to prevent infinite loops
+  // Without this, useEffect would re-run every time store methods change (every render)
+  const setUsersRef = useRef(setUsers);
+  const clearUsersRef = useRef(clearUsers);
+  const setRoomRef = useRef(setRoom);
+  const flushPendingUpdatesRef = useRef(flushPendingUpdates);
+
+  // Update refs when store methods change (but don't use in useEffect deps)
+  // This keeps refs current while preventing dependency loops
+  useEffect(() => {
+    setUsersRef.current = setUsers;
+    clearUsersRef.current = clearUsers;
+    setRoomRef.current = setRoom;
+    flushPendingUpdatesRef.current = flushPendingUpdates;
+  }, [setUsers, clearUsers, setRoom, flushPendingUpdates]);
 
   // Update the callback ref when dependencies change
   useEffect(() => {
     handleUserUpdateRef.current = (newUsers: Record<string, unknown> | null) => {
       if (newUsers === null) {
-        clearUsers();
+        clearUsersRef.current();
       } else {
         // Validate and transform the users data
         const validatedUsers: Record<string, OnlineUser> = {};
@@ -69,14 +96,16 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
             };
             validatedUsers[uid] = user;
           } else {
+            // Log invalid user data for debugging
+            // Note: In production, consider using a proper logging service instead
             console.warn(`Invalid user data for uid ${uid}:`, userData);
           }
         });
 
-        setUsers(validatedUsers);
+        setUsersRef.current(validatedUsers);
       }
     };
-  }, [setUsers, clearUsers]);
+  }, []);
 
   // Stable callback function that doesn't change reference
   const handleUserUpdate = useCallback((newUsers: Record<string, unknown> | null) => {
@@ -90,32 +119,35 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
       unsubscribeRef.current = null;
     }
     // Flush any pending updates before cleanup
-    flushPendingUpdates();
-  }, [flushPendingUpdates]);
+    flushPendingUpdatesRef.current();
+  }, []);
 
+  // Main effect: manages Firebase listener lifecycle
+  // Only depends on room and stable callbacks (NOT store methods or onlineUsers)
   useEffect(() => {
     // Only update room if it actually changed
     if (prevRoomRef.current !== room) {
-      setRoom(room || null);
+      setRoomRef.current(room || null);
       prevRoomRef.current = room;
     }
 
     if (!room) {
       cleanup();
-      clearUsers();
+      clearUsersRef.current();
       return;
     }
 
     // Clean up previous listener
     cleanup();
 
-    // Set up new listener
-    const unsubscribe = getUserList(room, handleUserUpdate, onlineUsers);
+    // Set up new listener - use ref to get current onlineUsers for deduplication
+    // This avoids adding onlineUsers to deps (which would cause infinite loops)
+    const unsubscribe = getUserList(room, handleUserUpdate, onlineUsersRef.current);
     unsubscribeRef.current = unsubscribe || null;
 
     // Cleanup on unmount or room change
     return cleanup;
-  }, [room, setRoom, clearUsers, handleUserUpdate, cleanup]);
+  }, [room, handleUserUpdate, cleanup]);
 
   // Cleanup on unmount
   useEffect(() => {
