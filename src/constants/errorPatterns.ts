@@ -7,11 +7,7 @@
  * DOM reconciliation error patterns
  * These occur when React transitions between components (e.g., GameSettingsDialog → GameBoard)
  */
-export const EXPECTED_DOM_ERROR_PATTERNS = [
-  'insertBefore',
-  'not a child of this node',
-  'Failed to execute',
-] as const;
+export const EXPECTED_DOM_ERROR_PATTERNS = ['insertBefore', 'not a child of this node'] as const;
 
 /**
  * Module loading error patterns
@@ -26,13 +22,22 @@ export const MODULE_LOADING_ERROR_PATTERNS = [
 
 /**
  * Check if an error message matches expected DOM reconciliation error patterns
+ * Requires the specific combination that characterizes React reconciliation insertBefore errors
  * @param errorMessage - The error message to check
  * @returns true if the error matches expected DOM reconciliation patterns
  */
 export function isExpectedDOMError(errorMessage: unknown): boolean {
   const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
   if (!msg) return false;
-  return EXPECTED_DOM_ERROR_PATTERNS.some((pattern) => msg.includes(pattern.toLowerCase()));
+
+  const hasInsertBefore = msg.includes('insertbefore');
+  const hasNotChild = msg.includes('not a child of this node');
+
+  // Typical reconciliation error: both tokens present (or the "failed to execute 'insertBefore'" variant)
+  if (hasInsertBefore && hasNotChild) return true;
+  if (msg.includes("failed to execute 'insertbefore'")) return true;
+
+  return false;
 }
 
 /**

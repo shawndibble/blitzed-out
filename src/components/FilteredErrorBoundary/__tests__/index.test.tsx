@@ -52,7 +52,8 @@ describe('FilteredErrorBoundary', () => {
 
       const result = FilteredErrorBoundary.getDerivedStateFromError(unexpectedError);
 
-      expect(result).toEqual({ hasError: true, error: unexpectedError });
+      expect(result.hasError).toBe(true);
+      expect(result.error).toBe(unexpectedError);
       expect(isExpectedDOMError).toHaveBeenCalledWith('Unexpected error occurred');
     });
 
@@ -64,7 +65,8 @@ describe('FilteredErrorBoundary', () => {
 
       const result = FilteredErrorBoundary.getDerivedStateFromError(errorWithoutMessage);
 
-      expect(result).toEqual({ hasError: true, error: errorWithoutMessage });
+      expect(result.hasError).toBe(true);
+      expect(result.error).toBe(errorWithoutMessage);
       expect(isExpectedDOMError).toHaveBeenCalledWith('');
     });
   });
@@ -97,6 +99,19 @@ describe('FilteredErrorBoundary', () => {
 
       // Verify Sentry scope configuration was called
       expect(Sentry.withScope).toHaveBeenCalled();
+
+      // Verify the scope callback sets the correct tags and context
+      const withScopeMock = vi.mocked(Sentry.withScope);
+      expect(withScopeMock).toHaveBeenCalled();
+      const lastCall = withScopeMock.mock.calls[withScopeMock.mock.calls.length - 1];
+      const callback = lastCall[0] as any;
+      const fakeScope = { setTag: vi.fn(), setContext: vi.fn() };
+      callback(fakeScope);
+
+      expect(fakeScope.setTag).toHaveBeenCalledWith('component_error_boundary', true);
+      expect(fakeScope.setContext).toHaveBeenCalledWith('errorInfo', {
+        componentStack: 'test stack',
+      });
     });
 
     it('correctly identifies the exact error from Sentry report', () => {

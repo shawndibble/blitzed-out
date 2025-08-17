@@ -50,7 +50,7 @@ export function initializeSentry(): void {
       const errorMessageLower = errorMessage.toLowerCase();
 
       // Tag iOS Safari module errors for better tracking
-      if (errorMessage.includes('Importing a module script failed')) {
+      if (errorMessageLower.includes('module script failed')) {
         event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.IOS_SAFARI_MODULE]: true };
         if (!event.fingerprint?.length) {
           event.fingerprint = ['ios-safari-module-loading-error'];
@@ -67,8 +67,8 @@ export function initializeSentry(): void {
 
       // Tag other DOM insertion errors for tracking (unexpected ones)
       if (
-        errorMessage.includes('insertBefore') ||
-        errorMessage.includes('not a child of this node')
+        errorMessageLower.includes('insertbefore') ||
+        errorMessageLower.includes('not a child of this node')
       ) {
         event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.DOM_RECONCILIATION]: true };
         if (!event.fingerprint?.length) {
