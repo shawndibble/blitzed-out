@@ -19,6 +19,9 @@ export const MODULE_LOADING_ERROR_PATTERNS = [
   'Method not found',
   'module script failed',
 ] as const;
+const MODULE_LOADING_ERROR_PATTERNS_LC = MODULE_LOADING_ERROR_PATTERNS.map((p) =>
+  p.toLowerCase()
+) as readonly string[];
 
 /**
  * Check if an error message matches expected DOM reconciliation error patterns
@@ -30,8 +33,9 @@ export function isExpectedDOMError(errorMessage: unknown): boolean {
   const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
   if (!msg) return false;
 
-  const hasInsertBefore = msg.includes('insertbefore');
-  const hasNotChild = msg.includes('not a child of this node');
+  const [insertBeforeToken, notChildToken] = EXPECTED_DOM_ERROR_PATTERNS;
+  const hasInsertBefore = msg.includes(insertBeforeToken.toLowerCase());
+  const hasNotChild = msg.includes(notChildToken.toLowerCase());
 
   // Typical reconciliation error: both tokens present (or the "failed to execute 'insertBefore'" variant)
   if (hasInsertBefore && hasNotChild) return true;
@@ -48,7 +52,7 @@ export function isExpectedDOMError(errorMessage: unknown): boolean {
 export function isModuleLoadingError(errorMessage: unknown): boolean {
   const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
   if (!msg) return false;
-  return MODULE_LOADING_ERROR_PATTERNS.some((pattern) => msg.includes(pattern.toLowerCase()));
+  return MODULE_LOADING_ERROR_PATTERNS_LC.some((pattern) => msg.includes(pattern));
 }
 
 /**

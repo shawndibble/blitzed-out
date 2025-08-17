@@ -30,13 +30,15 @@ export function initializeSentry(): void {
     replaysSessionSampleRate: 0.1, // Capture 10% of sessions for replay
     replaysOnErrorSampleRate: 1.0, // Capture 100% of sessions when errors occur
     beforeSend(event) {
+      // Compute user agent once and reuse
+      const userAgentLower = (navigator.userAgent || '').toLowerCase();
+      const isFirefoxMobile =
+        userAgentLower.includes('firefox') &&
+        (userAgentLower.includes('mobile') || userAgentLower.includes('tablet'));
+
       // Don't send events in development unless you want to
       if (import.meta.env.MODE === 'development') {
         // Send events for Firefox mobile in development to help debug
-        const userAgent = navigator.userAgent.toLowerCase();
-        const isFirefoxMobile =
-          userAgent.includes('firefox') &&
-          (userAgent.includes('mobile') || userAgent.includes('tablet'));
 
         if (!isFirefoxMobile) {
           return null; // Don't send to Sentry in development for other browsers
@@ -85,11 +87,6 @@ export function initializeSentry(): void {
       }
 
       // Tag Firefox mobile specific errors
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isFirefoxMobile =
-        userAgent.includes('firefox') &&
-        (userAgent.includes('mobile') || userAgent.includes('tablet'));
-
       if (isFirefoxMobile) {
         event.tags = { ...(event.tags ?? {}), firefox_mobile: true };
 
