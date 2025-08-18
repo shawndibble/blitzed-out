@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import TextAvatar from '@/components/TextAvatar';
 import type { FLIPData } from './TokenController';
+
+// Small buffer to ensure animation completion (kept for potential future use)
+// const ANIMATION_COMPLETION_BUFFER_MS = 100;
 
 export interface AnimatedTokenProps {
   id: string;
@@ -20,8 +22,9 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
   onAnimationComplete,
   onAnimationProgress,
 }) => {
-  // Motion values for position tracking
+  // Motion values for position tracking - bind to motion.div style for reactivity
   const x = useMotionValue(flipData.from.x);
+  const y = useMotionValue(flipData.from.y);
 
   // Transform values for visual effects during animation
   const scale = useTransform(
@@ -30,38 +33,16 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
     [1, isCurrent ? 1.15 : 1.05] // Current player gets bigger scale
   );
 
-  // Set up progress tracking
-  useEffect(() => {
-    if (!onAnimationProgress) return;
+  // Calculate progress tracking values for onUpdate callback
+  const fromX = flipData.from.x;
+  const toX = flipData.to.x;
+  const deltaX = toX - fromX || 1; // prevent div-by-zero
 
-    const startTime = Date.now();
-    const duration = flipData.duration;
-
-    const progressInterval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-
-      // Calculate current Y position based on progress
-      const currentY = flipData.from.y + (flipData.to.y - flipData.from.y) * progress;
-
-      onAnimationProgress(id, progress, currentY);
-
-      if (progress >= 1) {
-        clearInterval(progressInterval);
-      }
-    }, 16); // ~60fps updates
-
-    return () => clearInterval(progressInterval);
-  }, [id, flipData, onAnimationProgress]);
-
-  // Handle animation completion
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onAnimationComplete?.();
-    }, flipData.duration + 100); // Small delay to ensure animation completion
-
-    return () => clearTimeout(timer);
-  }, [flipData.duration, onAnimationComplete]);
+  // Calculate rotation angle for flight trail
+  const rotationAngle = Math.atan2(
+    flipData.to.y - flipData.from.y,
+    flipData.to.x - flipData.from.x
+  );
 
   return (
     <motion.div
@@ -86,7 +67,19 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
         duration: flipData.duration / 1000,
         ease: 'easeInOut',
       }}
+      onUpdate={(latest) => {
+        if (!onAnimationProgress) return;
+        const lx = typeof latest.x === 'number' ? latest.x : parseFloat(String(latest.x));
+        const ly = typeof latest.y === 'number' ? latest.y : parseFloat(String(latest.y));
+        const progress = Math.max(0, Math.min(1, (lx - fromX) / deltaX));
+        onAnimationProgress(id, progress, ly);
+      }}
+      onAnimationComplete={() => {
+        onAnimationComplete?.();
+      }}
       style={{
+        x,
+        y,
         position: 'absolute',
         zIndex: 1000,
         pointerEvents: 'none',
@@ -146,23 +139,22 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
           duration: flipData.duration / 1000,
           ease: 'easeInOut',
         }}
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          width: Math.min(flipData.distance, 200),
-          height: 2,
-          background: isCurrent
-            ? 'linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.6), transparent)'
-            : 'linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.4), transparent)',
-          transformOrigin: 'left center',
-          transform: `translate(-50%, -50%) rotate(${Math.atan2(
-            flipData.to.y - flipData.from.y,
-            flipData.to.x - flipData.from.x
-          )}rad)`,
-          zIndex: -2,
-          pointerEvents: 'none',
-        }}
+        style={
+          {
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            '--trail-distance': `${flipData.distance}px`,
+            height: 2,
+            background: isCurrent
+              ? 'linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.6), transparent)'
+              : 'linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.4), transparent)',
+            transformOrigin: 'left center',
+            transform: `translate(-50%, -50%) rotate(${rotationAngle}rad)`,
+            zIndex: -2,
+            pointerEvents: 'none',
+          } as React.CSSProperties
+        }
       />
     </motion.div>
   );

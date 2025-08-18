@@ -73,10 +73,14 @@ body.theme-dark .flight-trail {
   opacity: 0.8;
 }
 
+.flight-trail {
+  width: clamp(0px, var(--trail-distance, 0px), 200px);
+}
+
 /* Light theme adjustments */
 body.theme-light .animated-token.current-player {
   filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.7));
-  border-color: rgba(34, 211, 238, 1);
+  border: 2px solid rgba(34, 211, 238, 1);
 }
 
 body.theme-light .flight-trail {

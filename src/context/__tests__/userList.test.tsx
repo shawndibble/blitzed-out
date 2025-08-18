@@ -196,10 +196,11 @@ describe('UserListProvider', () => {
         });
       });
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid user data for uid invalidUser'),
-        expect.any(Object)
-      );
+      // Verify that invalid user data is properly filtered out (not added to the store)
+      // The invalid user should not appear in onlineUsers
+      expect(result.current.onlineUsers.invalidUser).toBeUndefined();
+      expect(result.current.onlineUsers.validUser).toBeDefined();
+      expect(result.current.onlineUsers.validUser.displayName).toBe('Valid User');
 
       consoleWarnSpy.mockRestore();
     });

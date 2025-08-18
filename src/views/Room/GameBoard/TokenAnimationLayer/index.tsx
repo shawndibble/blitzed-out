@@ -34,11 +34,20 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
     const { animatingTokens, addAnimatingToken, removeAnimatingToken, clearAllTokens } =
       useTokenAnimation();
 
-    // Initialize controller when gameBoard is available
+    // Initialize/rebind controller when gameBoard element changes
     useEffect(() => {
-      if (gameBoard && !controllerRef.current) {
-        controllerRef.current = new TokenController(gameBoard);
+      if (!gameBoard) {
+        controllerRef.current?.dispose();
+        controllerRef.current = null;
+        return;
       }
+      // If a different element instance is provided, re-create controller
+      controllerRef.current?.dispose();
+      controllerRef.current = new TokenController(gameBoard);
+      return () => {
+        controllerRef.current?.dispose();
+        controllerRef.current = null;
+      };
     }, [gameBoard]);
 
     // Expose animation methods to parent
@@ -47,7 +56,7 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
       () => ({
         animateTokenMovement: async (tokenPosition: TokenPosition) => {
           if (!controllerRef.current) {
-            console.warn('TokenController not initialized');
+            // TokenController not initialized - exit silently
             return;
           }
 
@@ -61,7 +70,7 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
             const flipData = await controllerRef.current.calculateFLIPPositions(fromTile, toTile);
 
             if (!flipData) {
-              console.warn(`Unable to calculate positions for player ${playerId}`);
+              // Unable to calculate positions - exit silently
               return;
             }
 
@@ -79,14 +88,8 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
 
             addAnimatingToken(tokenData);
 
-            // Wait for animation to complete (800ms default duration)
-            await new Promise((resolve) => setTimeout(resolve, 800));
-
-            // Remove token from animation state
-            removeAnimatingToken(playerId);
-
-            // Notify animation complete
-            onAnimationComplete?.(playerId);
+            // Defer completion/removal to AnimatedToken's onAnimationComplete
+            // (we pass a handler below that removes the token and notifies the parent)
           } catch (error) {
             console.error('Token animation failed:', error);
             removeAnimatingToken(playerId);
@@ -104,7 +107,6 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
         addAnimatingToken,
         removeAnimatingToken,
         clearAllTokens,
-        onAnimationComplete,
         onAnimationStart,
         onAnimationProgress,
       ]
@@ -123,6 +125,8 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
       <div
         ref={containerRef}
         className="token-animation-layer"
+        aria-hidden="true"
+        role="presentation"
         style={{
           position: 'absolute',
           top: 0,
@@ -142,7 +146,10 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
               displayName={token.displayName}
               isCurrent={token.isCurrent}
               flipData={token.flipData}
-              onAnimationComplete={() => removeAnimatingToken(token.id)}
+              onAnimationComplete={() => {
+                removeAnimatingToken(token.id);
+                onAnimationComplete?.(token.id);
+              }}
               onAnimationProgress={token.onAnimationProgress}
             />
           ))}

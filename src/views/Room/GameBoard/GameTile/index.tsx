@@ -13,6 +13,7 @@ export default function GameTile({
   current,
   isTransparent,
   className,
+  index,
 }: Tile) {
   const playerIndicators = useMemo(
     () =>
@@ -32,7 +33,7 @@ export default function GameTile({
     .trim();
 
   return (
-    <li className={liClass} ref={tileRef}>
+    <li className={liClass} ref={tileRef} data-tile-index={index}>
       <div className="tile-title-row">
         <div className={`tile-title ${isTransparent && 'pop-text'}`}>{title}</div>
         <div className="player-indicator">

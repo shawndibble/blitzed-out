@@ -47,15 +47,20 @@ describe('TabPanel', () => {
   });
 
   it('applies custom styles correctly', () => {
-    const customStyles = { backgroundColor: 'red' };
+    const customStyles = { backgroundColor: 'red', padding: '16px' };
 
     render(
       <TabPanel value={0} index={0} style={customStyles}>
-        <div>Test Content</div>
+        <div data-testid="tab-content">Test Content</div>
       </TabPanel>
     );
 
-    expect(screen.getByText('Test Content')).toBeInTheDocument();
+    const content = screen.getByTestId('tab-content');
+    expect(content).toBeInTheDocument();
+    // Verify the TabPanel renders correctly with custom styles prop
+    // (The actual styling is handled by Material-UI's Box component internally)
+    const tabpanel = screen.getByRole('tabpanel');
+    expect(tabpanel).toBeInTheDocument();
   });
 
   it('hides content with hidden attribute when not active', () => {

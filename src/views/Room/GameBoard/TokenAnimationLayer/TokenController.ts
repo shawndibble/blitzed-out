@@ -48,7 +48,7 @@ export class TokenController {
     toTileIndex: number
   ): Promise<FLIPData | null> {
     if (this.disposed) {
-      console.warn('TokenController has been disposed');
+      // Controller has been disposed - return null
       return null;
     }
 
@@ -58,7 +58,7 @@ export class TokenController {
       const toTile = this.getTileElement(toTileIndex);
 
       if (!fromTile || !toTile) {
-        console.warn(`Unable to find tiles: from=${fromTileIndex}, to=${toTileIndex}`);
+        // Unable to find tiles - return null
         return null;
       }
 

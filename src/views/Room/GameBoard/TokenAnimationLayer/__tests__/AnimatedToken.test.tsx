@@ -49,7 +49,7 @@ describe('AnimatedToken', () => {
   });
 
   it('should render current player token with special styling', () => {
-    render(
+    const { container } = render(
       <AnimatedToken
         id="player1"
         displayName="Test Player"
@@ -59,14 +59,15 @@ describe('AnimatedToken', () => {
       />
     );
 
-    const token = screen.getByTestId('motion-div');
+    const token = container.querySelector('.animated-token.current-player');
+    expect(token).toBeInTheDocument();
     expect(token).toHaveClass('animated-token', 'current-player');
     expect(screen.getByTestId('text-avatar-player1')).toBeInTheDocument();
     expect(screen.getByTestId('text-avatar-player1')).toHaveAttribute('data-size', 'medium');
   });
 
   it('should render other player token with standard styling', () => {
-    render(
+    const { container } = render(
       <AnimatedToken
         id="player2"
         displayName="Other Player"
@@ -76,7 +77,8 @@ describe('AnimatedToken', () => {
       />
     );
 
-    const token = screen.getByTestId('motion-div');
+    const token = container.querySelector('.animated-token.other-player');
+    expect(token).toBeInTheDocument();
     expect(token).toHaveClass('animated-token', 'other-player');
     expect(screen.getByTestId('text-avatar-player2')).toBeInTheDocument();
   });
@@ -115,7 +117,7 @@ describe('AnimatedToken', () => {
   });
 
   it('should have correct motion styles', () => {
-    render(
+    const { container } = render(
       <AnimatedToken
         id="player5"
         displayName="Test Player"
@@ -125,7 +127,8 @@ describe('AnimatedToken', () => {
       />
     );
 
-    const token = screen.getByTestId('motion-div');
+    const token = container.querySelector('.animated-token.other-player');
+    expect(token).toBeInTheDocument();
     expect(token).toHaveStyle({
       position: 'absolute',
       zIndex: '1000',
@@ -192,7 +195,7 @@ describe('AnimatedToken', () => {
   });
 
   it('should render glow effect for current player only', () => {
-    const { rerender } = render(
+    const { rerender, container } = render(
       <AnimatedToken
         id="player9"
         displayName="Test Player"
@@ -202,8 +205,9 @@ describe('AnimatedToken', () => {
       />
     );
 
-    // Check for glow element (would be rendered by Framer Motion)
-    const currentPlayerToken = screen.getByTestId('motion-div');
+    // Check for the main animated token with current-player class
+    const currentPlayerToken = container.querySelector('.animated-token.current-player');
+    expect(currentPlayerToken).toBeInTheDocument();
     expect(currentPlayerToken).toHaveClass('current-player');
 
     // Re-render as non-current player
@@ -217,7 +221,8 @@ describe('AnimatedToken', () => {
       />
     );
 
-    const otherPlayerToken = screen.getByTestId('motion-div');
+    const otherPlayerToken = container.querySelector('.animated-token.other-player');
+    expect(otherPlayerToken).toBeInTheDocument();
     expect(otherPlayerToken).toHaveClass('other-player');
     expect(otherPlayerToken).not.toHaveClass('current-player');
   });

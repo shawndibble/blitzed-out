@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import useAuth from '@/context/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import GameTile from './GameTile';
@@ -35,6 +35,7 @@ export default function GameBoard({
   const { user } = useAuth();
   const gameboardRef = useRef<HTMLDivElement>(null);
   const animationLayerRef = useRef<TokenAnimationLayerRef>(null);
+  const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
   const previousPlayerLocations = useRef<Map<string, number>>(new Map());
   const scrollTargetRef = useRef<{ playerId: string; targetTile: number } | null>(null);
   const animatingPlayerRef = useRef<{ playerId: string; targetTile: number } | null>(null);
@@ -104,7 +105,9 @@ export default function GameBoard({
       if (scrollTargetRef.current?.playerId !== playerId) return;
 
       const targetTile = scrollTargetRef.current.targetTile;
-      const targetElement = gameboardRef.current?.querySelector(`li:nth-child(${targetTile + 1})`);
+      const targetElement = gameboardRef.current?.querySelector(
+        `[data-tile-index="${targetTile}"]`
+      );
 
       if (!targetElement || !gameboardRef.current) return;
 
@@ -141,8 +144,8 @@ export default function GameBoard({
           // This avoids conflicts with touch scrolling
           gameboardRef.current.scrollTop = interpolatedScrollTop;
 
-          // Force a repaint to ensure scroll happens
-          void gameboardRef.current.offsetHeight;
+          // Force a layout recalculation to ensure scroll happens
+          gameboardRef.current.getBoundingClientRect();
         } else {
           // For desktop, use scrollTo with behavior auto
           gameboardRef.current.scrollTo({
@@ -150,9 +153,8 @@ export default function GameBoard({
             behavior: 'auto',
           });
         }
-      } catch (error) {
-        // Fallback for any scrolling errors
-        console.warn('Scroll animation failed:', error);
+      } catch {
+        // Fallback for any scrolling errors (silently handle)
         // Simple fallback - just set scroll position
         if (gameboardRef.current) {
           gameboardRef.current.scrollTop = interpolatedScrollTop;
@@ -200,12 +202,13 @@ export default function GameBoard({
     const isAnimationTargetTile = animatingPlayerRef.current?.targetTile === index;
     const animatingPlayerId = animatingPlayerRef.current?.playerId;
 
-    // Only show pulse animation on the destination tile during movement
-    // No pulse animation when not moving (single-device mode doesn't need current player indication)
+    // Pulse on destination tile during movement; otherwise mark the self tile as current (except start tile)
     const current =
       isAnimationTargetTile && animatingPlayerId
         ? playerList.find((player) => player.uid === animatingPlayerId) || null
-        : null;
+        : index > 0
+          ? (players.find((p) => p.isSelf) ?? null)
+          : null;
     const hueIndex = (Array.from(tileTypeArray).indexOf(entry.title) % 10) + 1;
 
     const description =
@@ -248,7 +251,10 @@ export default function GameBoard({
 
   return (
     <div
-      ref={gameboardRef}
+      ref={(el) => {
+        gameboardRef.current = el;
+        setContainerEl(el);
+      }}
       className="gameboard transparent-scrollbar"
       style={{ position: 'relative' }}
     >
@@ -256,7 +262,7 @@ export default function GameBoard({
         <ol>{gameTiles}</ol>
         <TokenAnimationLayer
           ref={animationLayerRef}
-          gameBoard={gameboardRef.current}
+          gameBoard={containerEl}
           onAnimationStart={handleAnimationStart}
           onAnimationComplete={handleAnimationComplete}
           onAnimationProgress={handleAnimationProgress}
