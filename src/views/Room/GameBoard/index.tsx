@@ -1,6 +1,11 @@
+import { useRef, useEffect, useCallback } from 'react';
 import useAuth from '@/context/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import GameTile from './GameTile';
+import TokenAnimationLayer, {
+  type TokenAnimationLayerRef,
+  type TokenPosition,
+} from './TokenAnimationLayer';
 import './styles.css';
 import { Settings } from '@/types/Settings';
 import { Tile, TileExport } from '@/types/gameBoard';
@@ -28,6 +33,126 @@ export default function GameBoard({
   settings,
 }: GameBoardProps): JSX.Element | null {
   const { user } = useAuth();
+  const gameboardRef = useRef<HTMLDivElement>(null);
+  const animationLayerRef = useRef<TokenAnimationLayerRef>(null);
+  const previousPlayerLocations = useRef<Map<string, number>>(new Map());
+  const scrollTargetRef = useRef<{ playerId: string; targetTile: number } | null>(null);
+
+  // Track player movement and trigger animations
+  const handlePlayerMovement = useCallback(() => {
+    if (!animationLayerRef.current) return;
+
+    playerList.forEach((player) => {
+      const currentLocation = player.location || 0;
+      const previousLocation = previousPlayerLocations.current.get(player.uid);
+
+      // Check if player moved to a new location
+      if (previousLocation !== undefined && previousLocation !== currentLocation) {
+        // Store scroll target for current player (self)
+        if (player.isSelf) {
+          scrollTargetRef.current = { playerId: player.uid, targetTile: currentLocation };
+        }
+
+        const tokenPosition: TokenPosition = {
+          playerId: player.uid,
+          displayName: player.displayName,
+          fromTile: previousLocation,
+          toTile: currentLocation,
+          isCurrent: player.isSelf || false,
+        };
+
+        // Trigger animation
+        animationLayerRef.current?.animateTokenMovement(tokenPosition);
+      }
+
+      // Update previous location
+      previousPlayerLocations.current.set(player.uid, currentLocation);
+    });
+  }, [playerList]);
+
+  // Monitor player list changes for movement detection
+  useEffect(() => {
+    handlePlayerMovement();
+  }, [handlePlayerMovement]);
+
+  // Animation event handlers
+  const handleAnimationStart = useCallback((_playerId: string) => {
+    // Animation state already set in handlePlayerMovement to prevent race condition
+    // This handler is now primarily for potential future enhancements
+  }, []);
+
+  const handleAnimationComplete = useCallback((playerId: string) => {
+    // Clear scroll target when animation completes
+    if (scrollTargetRef.current?.playerId === playerId) {
+      scrollTargetRef.current = null;
+    }
+  }, []);
+
+  // Handle animation progress for smooth scrolling
+  const handleAnimationProgress = useCallback(
+    (playerId: string, progress: number, _currentY: number) => {
+      // Only scroll for the current player's animation
+      if (scrollTargetRef.current?.playerId !== playerId) return;
+
+      const targetTile = scrollTargetRef.current.targetTile;
+      const targetElement = gameboardRef.current?.querySelector(`li:nth-child(${targetTile + 1})`);
+
+      if (!targetElement || !gameboardRef.current) return;
+
+      // Get the target element's position
+      const targetRect = targetElement.getBoundingClientRect();
+      const containerRect = gameboardRef.current.getBoundingClientRect();
+
+      // Calculate the target scroll position (center the target tile)
+      const targetScrollTop =
+        gameboardRef.current.scrollTop +
+        (targetRect.top - containerRect.top) -
+        containerRect.height / 2 +
+        targetRect.height / 2;
+
+      // Get current scroll position
+      const currentScrollTop = gameboardRef.current.scrollTop;
+
+      // Interpolate between current and target scroll position based on animation progress
+      const interpolatedScrollTop =
+        currentScrollTop + (targetScrollTop - currentScrollTop) * progress;
+
+      // Apply smooth scrolling with mobile compatibility
+      try {
+        // Detect mobile devices
+        const isMobile =
+          /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+            navigator.userAgent
+          ) ||
+          'ontouchstart' in window ||
+          window.innerWidth <= 768;
+
+        if (isMobile) {
+          // For mobile devices, use direct scrollTop assignment
+          // This avoids conflicts with touch scrolling
+          gameboardRef.current.scrollTop = interpolatedScrollTop;
+
+          // Force a repaint to ensure scroll happens
+          void gameboardRef.current.offsetHeight;
+        } else {
+          // For desktop, use scrollTo with behavior auto
+          gameboardRef.current.scrollTo({
+            top: interpolatedScrollTop,
+            behavior: 'auto',
+          });
+        }
+      } catch (error) {
+        // Fallback for any scrolling errors
+        console.warn('Scroll animation failed:', error);
+        // Simple fallback - just set scroll position
+        if (gameboardRef.current) {
+          gameboardRef.current.scrollTop = interpolatedScrollTop;
+        }
+      }
+    },
+    []
+  );
+
   if (!Array.isArray(gameBoard) || !gameBoard.length) return null;
 
   // Extract local players if available for role-based player selection
@@ -99,13 +224,27 @@ export default function GameBoard({
         current={tile.current}
         isTransparent={tile.isTransparent}
         className={tile.className}
+        // isPlayerAnimating prop removed - scroll logic moved to GameBoard component
       />
     );
   });
 
   return (
-    <div className="gameboard transparent-scrollbar">
-      <ol>{gameTiles}</ol>
+    <div
+      ref={gameboardRef}
+      className="gameboard transparent-scrollbar"
+      style={{ position: 'relative' }}
+    >
+      <div style={{ position: 'relative' }}>
+        <ol>{gameTiles}</ol>
+        <TokenAnimationLayer
+          ref={animationLayerRef}
+          gameBoard={gameboardRef.current}
+          onAnimationStart={handleAnimationStart}
+          onAnimationComplete={handleAnimationComplete}
+          onAnimationProgress={handleAnimationProgress}
+        />
+      </div>
     </div>
   );
 }

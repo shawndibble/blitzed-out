@@ -1,0 +1,88 @@
+/* Token Animation Layer Styles */
+
+.token-animation-layer {
+  contain: layout style;
+  pointer-events: none;
+}
+
+/* Animated Token Styles */
+.animated-token {
+  will-change: transform;
+  contain: layout style;
+}
+
+.animated-token.current-player {
+  z-index: 1001;
+}
+
+.animated-token.other-player {
+  z-index: 1000;
+}
+
+/* Token Glow Effect */
+.token-glow {
+  will-change: opacity;
+}
+
+/* Flight Trail */
+.flight-trail {
+  will-change: transform, opacity;
+  border-radius: 1px;
+}
+
+/* Performance Optimizations */
+@media (prefers-reduced-motion: reduce) {
+  .animated-token {
+    transition: none !important;
+  }
+
+  .token-glow {
+    animation: none !important;
+  }
+
+  .flight-trail {
+    display: none;
+  }
+}
+
+/* Mobile Performance Optimizations */
+@media (max-width: 768px) {
+  .flight-trail {
+    display: none; /* Hide trail on mobile for performance */
+  }
+
+  .token-glow {
+    filter: none; /* Reduce blur effects on mobile */
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .animated-token.current-player {
+    outline: 3px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+/* Dark theme adjustments */
+body.theme-dark .animated-token.current-player {
+  filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.9));
+}
+
+body.theme-dark .flight-trail {
+  opacity: 0.8;
+}
+
+/* Light theme adjustments */
+body.theme-light .animated-token.current-player {
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.7));
+  border-color: rgba(34, 211, 238, 1);
+}
+
+body.theme-light .flight-trail {
+  opacity: 0.6;
+}
+
+body.theme-light .token-glow {
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.4) 0%, transparent 70%);
+}

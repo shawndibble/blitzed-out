@@ -95,14 +95,8 @@ describe('GameTile', () => {
       expect(listItem).toHaveClass('pulse-animation');
     });
 
-    it('should scroll into view when current player is present', () => {
-      const propsWithCurrent = { ...baseTileProps, current: mockPlayers[0] };
-      render(<GameTile {...propsWithCurrent} />);
-
-      expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-        behavior: 'smooth',
-      });
-    });
+    // Note: Scroll behavior has been moved to GameBoard component with smooth animation tracking
+    // This test is no longer relevant as GameTile no longer handles scrolling directly
 
     it('should not apply pulse animation when no current player', () => {
       render(<GameTile {...baseTileProps} />);
@@ -114,6 +108,7 @@ describe('GameTile', () => {
     it('should not scroll when no current player', () => {
       render(<GameTile {...baseTileProps} />);
 
+      // Note: Scroll logic moved to GameBoard component - no scrolling occurs in GameTile
       expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
     });
   });
@@ -331,9 +326,8 @@ describe('GameTile', () => {
 
       rerender(<GameTile {...baseTileProps} current={mockPlayers[0]} />);
 
-      expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-        behavior: 'smooth',
-      });
+      // Note: Scroll logic moved to GameBoard component - no scrolling occurs in GameTile
+      expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
     });
   });
 
