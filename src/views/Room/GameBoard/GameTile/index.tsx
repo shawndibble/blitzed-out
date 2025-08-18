@@ -1,6 +1,6 @@
 import { AvatarGroup, Divider } from '@mui/material';
 import './styles.css';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
 import TextAvatar from '@/components/TextAvatar';
 import { Tile } from '@/types/gameBoard';
@@ -13,6 +13,7 @@ export default function GameTile({
   current,
   isTransparent,
   className,
+  index,
 }: Tile) {
   const playerIndicators = useMemo(
     () =>
@@ -23,18 +24,17 @@ export default function GameTile({
   );
 
   const tileRef = useRef<HTMLLIElement | null>(null);
-  useEffect(() => {
-    if (tileRef.current && current) {
-      tileRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [current]);
+
+  // Note: Scroll logic has been moved to GameBoard component to provide
+  // smooth scrolling that follows token animations
 
   const liClass = [current && 'pulse-animation', isTransparent && 'gray-tiles', className]
-    .join(' ')
-    .trim();
+    .filter((c): c is string => typeof c === 'string' && c.trim().length > 0)
+    .map((c: string) => c.trim())
+    .join(' ');
 
   return (
-    <li className={liClass} ref={tileRef}>
+    <li className={liClass} ref={tileRef} data-tile-index={index}>
       <div className="tile-title-row">
         <div className={`tile-title ${isTransparent && 'pop-text'}`}>{title}</div>
         <div className="player-indicator">

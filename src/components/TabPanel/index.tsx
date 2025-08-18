@@ -22,9 +22,22 @@ export default function TabPanel({
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
+      style={{ height: '100%', overflow: 'hidden' }}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3, ...style }}>{children}</Box>}
+      {value === index && (
+        <Box
+          sx={{
+            p: 3,
+            height: '100%',
+            overflow: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            ...style,
+          }}
+        >
+          {children}
+        </Box>
+      )}
     </div>
   );
 }

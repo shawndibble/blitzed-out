@@ -3,6 +3,9 @@
   height: 100%;
   overflow-y: auto;
   padding-bottom: 3rem;
+  /* Mobile scroll optimizations */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto; /* Prevent browser smooth scrolling from interfering */
 }
 
 .gameboard ol {

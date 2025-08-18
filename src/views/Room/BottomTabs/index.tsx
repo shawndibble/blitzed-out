@@ -31,11 +31,19 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
         </Tabs>
       </AppBar>
 
-      <Box sx={{ marginTop: '3rem', height: 'calc(100vh - 3rem)' }}>
-        <TabPanel value={value} index={0}>
+      <Box
+        sx={{
+          paddingTop: '4rem',
+          paddingBottom: '48px',
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <TabPanel value={value} index={0} style={{ flex: 1, overflow: 'hidden', p: 0 }}>
           {tab1}
         </TabPanel>
-        <TabPanel value={value} index={1} style={{ p: 1 }}>
+        <TabPanel value={value} index={1} style={{ flex: 1, overflow: 'hidden', p: 1 }}>
           {tab2}
         </TabPanel>
       </Box>

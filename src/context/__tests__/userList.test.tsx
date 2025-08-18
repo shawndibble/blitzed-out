@@ -1,8 +1,10 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { UserListProvider, UserListContext } from '../userList';
-import { useContext } from 'react';
 import * as firebase from '@/services/firebase';
+
+import { UserListContext, UserListProvider } from '../userList';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { useContext } from 'react';
 import { useUserListStore } from '@/stores/userListStore';
 
 // Mock Firebase
@@ -196,10 +198,12 @@ describe('UserListProvider', () => {
         });
       });
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid user data for uid invalidUser'),
-        expect.any(Object)
-      );
+      // Verify that invalid user data is filtered before updating the store
+      const lastCallArg = mockSetUsers.mock.calls.at(-1)?.[0];
+      expect(lastCallArg).toBeDefined();
+      expect(lastCallArg.validUser).toBeDefined();
+      expect(lastCallArg.validUser.displayName).toBe('Valid User');
+      expect(lastCallArg.invalidUser).toBeUndefined();
 
       consoleWarnSpy.mockRestore();
     });

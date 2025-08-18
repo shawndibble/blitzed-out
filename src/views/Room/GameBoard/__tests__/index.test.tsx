@@ -1,6 +1,7 @@
 import type { HybridPlayer, LocalPlayerExtended } from '@/hooks/useHybridPlayerList';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 
 import GameBoard from '../index';
 import { Settings } from '@/types/Settings';
@@ -41,6 +42,14 @@ vi.mock('../GameTile', () => ({
   )),
 }));
 
+vi.mock('./TokenAnimationLayer', () => ({
+  default: React.forwardRef<any, any>((props, ref) => (
+    <div data-testid="token-animation-layer" ref={ref}>
+      {/* Mock TokenAnimationLayer */}
+    </div>
+  )),
+}));
+
 // Mock the migration context
 vi.mock('@/context/migration', () => ({
   useMigration: () => ({
@@ -51,6 +60,38 @@ vi.mock('@/context/migration', () => ({
     triggerMigration: vi.fn(),
     ensureLanguageMigrated: vi.fn(),
   }),
+}));
+
+// Mock DOM methods needed by Framer Motion
+Object.defineProperty(window, 'addEventListener', {
+  writable: true,
+  value: vi.fn(),
+});
+
+Object.defineProperty(window, 'removeEventListener', {
+  writable: true,
+  value: vi.fn(),
+});
+
+// Mock document for Framer Motion
+Object.defineProperty(document, 'addEventListener', {
+  writable: true,
+  value: vi.fn(),
+});
+
+Object.defineProperty(document, 'removeEventListener', {
+  writable: true,
+  value: vi.fn(),
+});
+
+// Mock Framer Motion
+vi.mock('framer-motion', () => ({
+  motion: {
+    div: 'div',
+  },
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+  useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
+  useTransform: () => ({ get: () => 0 }),
 }));
 
 // Mock react-i18next
@@ -1110,6 +1151,71 @@ describe('GameBoard', () => {
       // Should handle gracefully
       const tiles = screen.getAllByTestId('game-tile');
       expect(tiles).toHaveLength(4);
+    });
+  });
+
+  describe('Single-Device Mode Pulse Animation Fix', () => {
+    it('should show pulse animation on destination tile during movement, not current player location', () => {
+      const playerList = [
+        { uid: 'player1', displayName: 'Player 1', location: 1, isSelf: true },
+        { uid: 'player2', displayName: 'Player 2', location: 2, isSelf: false },
+      ];
+
+      const { rerender } = render(
+        <GameBoard
+          playerList={playerList}
+          isTransparent={false}
+          gameBoard={mockGameBoard}
+          settings={mockSettings}
+        />
+      );
+
+      const tiles = screen.getAllByTestId('game-tile');
+
+      // Initially, player 1 is at tile 1, so tile 1 should have pulse
+      expect(tiles[1]).toHaveAttribute('data-has-current', 'true');
+      expect(tiles[3]).toHaveAttribute('data-has-current', 'false');
+
+      // Simulate player movement: player 1 moving from tile 1 to tile 3
+      // During animation, the scrollTargetRef would be set to target tile 3
+      // This simulates the state during token animation
+      const updatedPlayerList = [
+        { uid: 'player1', displayName: 'Player 1', location: 3, isSelf: true }, // Player moved to destination
+        { uid: 'player2', displayName: 'Player 2', location: 2, isSelf: false },
+      ];
+
+      rerender(
+        <GameBoard
+          playerList={updatedPlayerList}
+          isTransparent={false}
+          gameBoard={mockGameBoard}
+          settings={mockSettings}
+        />
+      );
+
+      const updatedTiles = screen.getAllByTestId('game-tile');
+
+      // After movement, tile 3 should have the pulse animation (where player 1 ended up)
+      expect(updatedTiles[1]).toHaveAttribute('data-has-current', 'false');
+      expect(updatedTiles[3]).toHaveAttribute('data-has-current', 'true');
+    });
+
+    it('should not show pulse animation on tile 0 (start tile)', () => {
+      const playerList = [{ uid: 'player1', displayName: 'Player 1', location: 0, isSelf: true }];
+
+      render(
+        <GameBoard
+          playerList={playerList}
+          isTransparent={false}
+          gameBoard={mockGameBoard}
+          settings={mockSettings}
+        />
+      );
+
+      const tiles = screen.getAllByTestId('game-tile');
+
+      // Tile 0 should never have pulse animation (index !== 0 condition)
+      expect(tiles[0]).toHaveAttribute('data-has-current', 'false');
     });
   });
 });
