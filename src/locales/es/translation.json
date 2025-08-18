@@ -66,8 +66,6 @@
   "errorPersistsCheckBack": "Si el problema persiste, por favor vuelve a revisar en 24 horas.",
   "errorDetails": "Detalles del error",
   "tryAgain": "Intentar de nuevo",
-  "debugInfoCopied": "Información de depuración copiada al portapapeles. Por favor comparte esto con soporte.",
-  "copyDebugInfo": "Copiar información de depuración",
   "success": "Éxito",
   "update": "Actualizar",
   "updated": "Tablero actualizado",

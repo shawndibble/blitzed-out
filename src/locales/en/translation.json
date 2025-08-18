@@ -63,8 +63,6 @@
   "errorPersistsCheckBack": "If the problem persists, please check back in 24 hours.",
   "errorDetails": "Error details",
   "tryAgain": "Try again",
-  "debugInfoCopied": "Debug info copied to clipboard. Please share this with support.",
-  "copyDebugInfo": "Copy Debug Info",
   "success": "Success",
   "update": "Update Game",
   "updated": "Board Updated",
