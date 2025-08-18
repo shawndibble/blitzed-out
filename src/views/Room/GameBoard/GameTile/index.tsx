@@ -29,8 +29,9 @@ export default function GameTile({
   // smooth scrolling that follows token animations
 
   const liClass = [current && 'pulse-animation', isTransparent && 'gray-tiles', className]
-    .join(' ')
-    .trim();
+    .filter((c): c is string => typeof c === 'string' && c.trim().length > 0)
+    .map((c: string) => c.trim())
+    .join(' ');
 
   return (
     <li className={liClass} ref={tileRef} data-tile-index={index}>

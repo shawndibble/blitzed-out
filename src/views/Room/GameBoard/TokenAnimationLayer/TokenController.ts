@@ -43,10 +43,7 @@ export class TokenController {
    * Calculate FLIP (First, Last, Invert, Play) animation data
    * for moving a token between tiles
    */
-  async calculateFLIPPositions(
-    fromTileIndex: number,
-    toTileIndex: number
-  ): Promise<FLIPData | null> {
+  calculateFLIPPositions(fromTileIndex: number, toTileIndex: number): FLIPData | null {
     if (this.disposed) {
       // Controller has been disposed - return null
       return null;
@@ -99,8 +96,8 @@ export class TokenController {
         distance,
         duration,
       };
-    } catch (error) {
-      console.error('Error calculating FLIP positions:', error);
+    } catch {
+      // Optionally route via app logger here
       return null;
     }
   }

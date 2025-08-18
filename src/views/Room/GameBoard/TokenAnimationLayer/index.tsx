@@ -1,9 +1,11 @@
-import { useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
+import './styles.css';
+
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+
 import { AnimatePresence } from 'framer-motion';
 import AnimatedToken from './AnimatedToken';
 import { TokenController } from './TokenController';
 import { useTokenAnimation } from './useTokenAnimation';
-import './styles.css';
 
 export interface TokenPosition {
   playerId: string;
@@ -67,7 +69,7 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
             onAnimationStart?.(playerId);
 
             // Calculate FLIP positions
-            const flipData = await controllerRef.current.calculateFLIPPositions(fromTile, toTile);
+            const flipData = controllerRef.current.calculateFLIPPositions(fromTile, toTile);
 
             if (!flipData) {
               // Unable to calculate positions - exit silently
@@ -90,8 +92,8 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
 
             // Defer completion/removal to AnimatedToken's onAnimationComplete
             // (we pass a handler below that removes the token and notifies the parent)
-          } catch (error) {
-            console.error('Token animation failed:', error);
+          } catch {
+            // Optionally route via app logger here
             removeAnimatingToken(playerId);
           }
         },

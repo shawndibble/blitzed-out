@@ -1,20 +1,35 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import AnimatedToken from '../AnimatedToken';
 import type { FLIPData } from '../TokenController';
+import { useEffect } from 'react';
 
 // Mock Framer Motion
-vi.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => (
+vi.mock('framer-motion', () => {
+  // Mock component that properly uses React hooks
+  const MockMotionDiv = ({ children, onAnimationComplete, transition, ...props }: any) => {
+    useEffect(() => {
+      if (typeof transition?.duration === 'number' && onAnimationComplete) {
+        const t = setTimeout(() => onAnimationComplete(), transition.duration * 1000);
+        return () => clearTimeout(t);
+      }
+    }, [transition?.duration, onAnimationComplete]);
+    return (
       <div {...props} data-testid="motion-div">
         {children}
       </div>
-    ),
-  },
-  useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
-  useTransform: () => ({ get: () => 0 }),
-}));
+    );
+  };
+
+  return {
+    motion: {
+      div: MockMotionDiv,
+    },
+    useMotionValue: () => ({ get: () => 0, set: () => {} }),
+    useTransform: () => ({ get: () => 0 }),
+  };
+});
 
 // Mock TextAvatar component
 vi.mock('@/components/TextAvatar', () => ({
@@ -110,8 +125,8 @@ describe('AnimatedToken', () => {
 
     expect(mockOnComplete).not.toHaveBeenCalled();
 
-    // Fast-forward past the animation duration + buffer
-    vi.advanceTimersByTime(900); // 800ms duration + 100ms buffer
+    // Fast-forward past the animation duration
+    vi.advanceTimersByTime(mockFLIPData.duration + 10);
 
     expect(mockOnComplete).toHaveBeenCalledOnce();
   });

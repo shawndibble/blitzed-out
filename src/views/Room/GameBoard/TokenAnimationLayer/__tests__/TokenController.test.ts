@@ -83,8 +83,8 @@ describe('TokenController', () => {
   });
 
   describe('calculateFLIPPositions', () => {
-    it('should calculate FLIP positions for valid tiles', async () => {
-      const result = await controller.calculateFLIPPositions(0, 1);
+    it('should calculate FLIP positions for valid tiles', () => {
+      const result = controller.calculateFLIPPositions(0, 1);
 
       expect(result).toBeDefined();
       expect(result).toMatchObject({
@@ -105,20 +105,20 @@ describe('TokenController', () => {
       });
     });
 
-    it('should return null for invalid tile indices', async () => {
-      const result = await controller.calculateFLIPPositions(0, 99);
+    it('should return null for invalid tile indices', () => {
+      const result = controller.calculateFLIPPositions(0, 99);
       expect(result).toBeNull();
     });
 
-    it('should return null when controller is disposed', async () => {
+    it('should return null when controller is disposed', () => {
       controller.dispose();
-      const result = await controller.calculateFLIPPositions(0, 1);
+      const result = controller.calculateFLIPPositions(0, 1);
       expect(result).toBeNull();
     });
 
-    it('should calculate different durations based on distance', async () => {
-      const shortMove = await controller.calculateFLIPPositions(0, 1);
-      const longMove = await controller.calculateFLIPPositions(0, 2);
+    it('should calculate different durations based on distance', () => {
+      const shortMove = controller.calculateFLIPPositions(0, 1);
+      const longMove = controller.calculateFLIPPositions(0, 2);
 
       expect(shortMove).toBeDefined();
       expect(longMove).toBeDefined();
@@ -195,27 +195,27 @@ describe('TokenController', () => {
   });
 
   describe('error handling', () => {
-    it('should handle errors gracefully during FLIP calculation', async () => {
+    it('should handle errors gracefully during FLIP calculation', () => {
       // Mock querySelector to throw an error
       mockQuerySelectorAll.mockImplementation(() => {
         throw new Error('DOM error');
       });
 
-      const result = await controller.calculateFLIPPositions(0, 1);
+      const result = controller.calculateFLIPPositions(0, 1);
       expect(result).toBeNull();
     });
 
-    it('should handle missing tiles gracefully', async () => {
+    it('should handle missing tiles gracefully', () => {
       mockQuerySelectorAll.mockReturnValue([]);
 
-      const result = await controller.calculateFLIPPositions(0, 1);
+      const result = controller.calculateFLIPPositions(0, 1);
       expect(result).toBeNull();
     });
   });
 
   describe('avatar position calculation', () => {
-    it('should calculate avatar position within tile bounds', async () => {
-      const result = await controller.calculateFLIPPositions(0, 1);
+    it('should calculate avatar position within tile bounds', () => {
+      const result = controller.calculateFLIPPositions(0, 1);
 
       expect(result).toBeDefined();
       if (result) {
@@ -229,13 +229,13 @@ describe('TokenController', () => {
   });
 
   describe('duration calculation', () => {
-    it('should respect minimum and maximum duration limits', async () => {
+    it('should respect minimum and maximum duration limits', () => {
       const customController = new TokenController(mockGameBoard, {
         minDuration: 500,
         maxDuration: 1000,
       });
 
-      const result = await customController.calculateFLIPPositions(0, 1);
+      const result = customController.calculateFLIPPositions(0, 1);
 
       expect(result).toBeDefined();
       if (result) {
@@ -248,12 +248,12 @@ describe('TokenController', () => {
   });
 
   describe('scroll position handling', () => {
-    it('should account for scroll position in calculations', async () => {
+    it('should account for scroll position in calculations', () => {
       // Set scroll position
       mockGameBoard.scrollTop = 200;
       mockGameBoard.scrollLeft = 50;
 
-      const result = await controller.calculateFLIPPositions(0, 1);
+      const result = controller.calculateFLIPPositions(0, 1);
 
       expect(result).toBeDefined();
       if (result) {
@@ -265,12 +265,12 @@ describe('TokenController', () => {
       }
     });
 
-    it('should handle zero scroll position', async () => {
+    it('should handle zero scroll position', () => {
       // Ensure scroll is zero
       mockGameBoard.scrollTop = 0;
       mockGameBoard.scrollLeft = 0;
 
-      const result = await controller.calculateFLIPPositions(0, 1);
+      const result = controller.calculateFLIPPositions(0, 1);
       expect(result).toBeDefined();
     });
   });

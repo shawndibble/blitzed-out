@@ -167,8 +167,8 @@ describe('GameTile', () => {
       render(<GameTile {...propsWithEmptyClass} />);
 
       const listItem = screen.getByRole('listitem');
-      // The component's class joining logic produces 'false' for empty className
-      expect(listItem.className.trim()).toBe('false');
+      // Empty className should be filtered out, leaving only other classes
+      expect(listItem.className.trim()).toBe('');
     });
 
     it('should trim whitespace from combined classes', () => {
@@ -176,7 +176,8 @@ describe('GameTile', () => {
       render(<GameTile {...propsWithSpaces} />);
 
       const listItem = screen.getByRole('listitem');
-      expect(listItem.className).not.toMatch(/^\s|\s$/); // No leading/trailing whitespace
+      // With filtering, the spaced class should be included and properly joined
+      expect(listItem.className).toBe('spaced-class');
     });
   });
 

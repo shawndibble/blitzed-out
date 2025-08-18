@@ -35,8 +35,12 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
 
   // Calculate progress tracking values for onUpdate callback
   const fromX = flipData.from.x;
+  const fromY = flipData.from.y;
   const toX = flipData.to.x;
-  const deltaX = toX - fromX || 1; // prevent div-by-zero
+  const toY = flipData.to.y;
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+  const denom = dx * dx + dy * dy; // squared length; 0 means no movement
 
   // Calculate rotation angle for flight trail
   const rotationAngle = Math.atan2(
@@ -71,8 +75,13 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
         if (!onAnimationProgress) return;
         const lx = typeof latest.x === 'number' ? latest.x : parseFloat(String(latest.x));
         const ly = typeof latest.y === 'number' ? latest.y : parseFloat(String(latest.y));
-        const progress = Math.max(0, Math.min(1, (lx - fromX) / deltaX));
-        onAnimationProgress(id, progress, ly);
+        let t = 1;
+        if (denom > 0) {
+          // Project current delta onto motion vector, clamp to [0,1]
+          t = ((lx - fromX) * dx + (ly - fromY) * dy) / denom;
+          t = Math.max(0, Math.min(1, t));
+        }
+        onAnimationProgress(id, t, ly);
       }}
       onAnimationComplete={() => {
         onAnimationComplete?.();

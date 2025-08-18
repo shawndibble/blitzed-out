@@ -1,6 +1,7 @@
 import type { HybridPlayer, LocalPlayerExtended } from '@/hooks/useHybridPlayerList';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 
 import GameBoard from '../index';
 import { Settings } from '@/types/Settings';
@@ -41,6 +42,14 @@ vi.mock('../GameTile', () => ({
   )),
 }));
 
+vi.mock('./TokenAnimationLayer', () => ({
+  default: React.forwardRef<any, any>((props, ref) => (
+    <div data-testid="token-animation-layer" ref={ref}>
+      {/* Mock TokenAnimationLayer */}
+    </div>
+  )),
+}));
+
 // Mock the migration context
 vi.mock('@/context/migration', () => ({
   useMigration: () => ({
@@ -51,6 +60,38 @@ vi.mock('@/context/migration', () => ({
     triggerMigration: vi.fn(),
     ensureLanguageMigrated: vi.fn(),
   }),
+}));
+
+// Mock DOM methods needed by Framer Motion
+Object.defineProperty(window, 'addEventListener', {
+  writable: true,
+  value: vi.fn(),
+});
+
+Object.defineProperty(window, 'removeEventListener', {
+  writable: true,
+  value: vi.fn(),
+});
+
+// Mock document for Framer Motion
+Object.defineProperty(document, 'addEventListener', {
+  writable: true,
+  value: vi.fn(),
+});
+
+Object.defineProperty(document, 'removeEventListener', {
+  writable: true,
+  value: vi.fn(),
+});
+
+// Mock Framer Motion
+vi.mock('framer-motion', () => ({
+  motion: {
+    div: 'div',
+  },
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+  useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
+  useTransform: () => ({ get: () => 0 }),
 }));
 
 // Mock react-i18next
