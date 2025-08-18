@@ -37,6 +37,7 @@ export default function GameBoard({
   const animationLayerRef = useRef<TokenAnimationLayerRef>(null);
   const previousPlayerLocations = useRef<Map<string, number>>(new Map());
   const scrollTargetRef = useRef<{ playerId: string; targetTile: number } | null>(null);
+  const animatingPlayerRef = useRef<{ playerId: string; targetTile: number } | null>(null);
 
   // Track player movement and trigger animations
   const handlePlayerMovement = useCallback(() => {
@@ -52,6 +53,9 @@ export default function GameBoard({
         if (player.isSelf) {
           scrollTargetRef.current = { playerId: player.uid, targetTile: currentLocation };
         }
+
+        // Track any player that's currently animating (for pulse animation)
+        animatingPlayerRef.current = { playerId: player.uid, targetTile: currentLocation };
 
         const tokenPosition: TokenPosition = {
           playerId: player.uid,
@@ -85,6 +89,11 @@ export default function GameBoard({
     // Clear scroll target when animation completes
     if (scrollTargetRef.current?.playerId === playerId) {
       scrollTargetRef.current = null;
+    }
+
+    // Clear animating player reference when animation completes
+    if (animatingPlayerRef.current?.playerId === playerId) {
+      animatingPlayerRef.current = null;
     }
   }, []);
 
@@ -186,9 +195,17 @@ export default function GameBoard({
 
   const gameTiles = gameBoard.map((entry, index) => {
     const players = playerList.filter((player) => player.location === index);
+
+    // Check if this tile is the target destination for any animating player
+    const isAnimationTargetTile = animatingPlayerRef.current?.targetTile === index;
+    const animatingPlayerId = animatingPlayerRef.current?.playerId;
+
+    // Only show pulse animation on the destination tile during movement
+    // No pulse animation when not moving (single-device mode doesn't need current player indication)
     const current =
-      playerList.find((player) => player.isSelf && player.location === index && index !== 0) ||
-      null;
+      isAnimationTargetTile && animatingPlayerId
+        ? playerList.find((player) => player.uid === animatingPlayerId) || null
+        : null;
     const hueIndex = (Array.from(tileTypeArray).indexOf(entry.title) % 10) + 1;
 
     const description =
