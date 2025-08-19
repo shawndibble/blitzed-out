@@ -4,6 +4,7 @@ import {
   checkMigrationHealth,
   recoverFromFailedMigration,
 } from '@/services/migrationHealthChecker';
+import { runSyncRecovery } from '@/services/syncRecoveryService';
 
 /**
  * Context value interface for migration state management.
@@ -211,6 +212,12 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
     setError(null);
 
     try {
+      // Run sync recovery first to detect and fix corrupted databases
+      const syncRecoveryTriggered = await runSyncRecovery();
+      if (syncRecoveryTriggered) {
+        // Sync recovery was triggered - migration will proceed due to version bump
+      }
+
       const migrationService = await loadMigrationService();
       const success = await migrationService.runMigrationIfNeeded();
 
