@@ -16,6 +16,7 @@ export interface CustomTileFilters {
   intensity?: string | number | null;
   tag?: string | null;
   isCustom?: number;
+  isEnabled?: number;
   action?: string;
 }
 

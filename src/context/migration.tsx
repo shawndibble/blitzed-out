@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   checkMigrationHealth,
   recoverFromFailedMigration,
 } from '@/services/migrationHealthChecker';
+
+import { runSyncRecovery } from '@/services/syncRecoveryService';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Context value interface for migration state management.
@@ -211,6 +213,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
     setError(null);
 
     try {
+      await runSyncRecovery();
       const migrationService = await loadMigrationService();
       const success = await migrationService.runMigrationIfNeeded();
 

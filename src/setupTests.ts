@@ -1,18 +1,24 @@
-import { afterEach, vi, beforeEach } from 'vitest';
+import '@testing-library/jest-dom';
+
+import { afterEach, beforeEach, vi } from 'vitest';
+// Configure React Testing Library
+import { cleanup, configure } from '@testing-library/react';
+
+import React from 'react';
 
 // Mock syncService to prevent auth context errors - must be before other imports
 vi.mock('@/services/syncService', () => ({
   syncDataFromFirebase: () => Promise.resolve(true),
+  syncCustomTilesToFirebase: () => Promise.resolve(true),
+  syncCustomGroupsToFirebase: () => Promise.resolve(true),
+  syncGameBoardsToFirebase: () => Promise.resolve(true),
+  syncSettingsToFirebase: () => Promise.resolve(true),
   syncAllDataToFirebase: () => Promise.resolve(true),
   startPeriodicSync: () => {},
   stopPeriodicSync: () => {},
+  isPeriodicSyncActive: () => false,
 }));
 
-import '@testing-library/jest-dom';
-import React from 'react';
-
-// Configure React Testing Library
-import { configure, cleanup } from '@testing-library/react';
 configure({
   testIdAttribute: 'data-testid',
   asyncUtilTimeout: 3000,
