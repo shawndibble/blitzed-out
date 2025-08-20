@@ -199,7 +199,7 @@ describe('UserListProvider', () => {
       });
 
       // Verify that invalid user data is filtered before updating the store
-      const lastCallArg = mockSetUsers.mock.calls.at(-1)?.[0];
+      const lastCallArg = mockSetUsers.mock.calls[mockSetUsers.mock.calls.length - 1]?.[0];
       expect(lastCallArg).toBeDefined();
       expect(lastCallArg.validUser).toBeDefined();
       expect(lastCallArg.validUser.displayName).toBe('Valid User');

@@ -2,18 +2,19 @@ import {
   addCustomTile,
   deleteAllIsCustomTiles as deleteAllCustomTiles,
   getTiles,
+  updateCustomTile,
 } from '@/stores/customTiles';
-import { deleteAllCustomGroups, getCustomGroups, importCustomGroups } from '@/stores/customGroups';
+import { deleteCustomGroup, getCustomGroups, importCustomGroups } from '@/stores/customGroups';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getBoards, upsertBoard } from '@/stores/gameBoard';
-import { useSettingsStore } from '@/stores/settingsStore';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
-import { Settings } from '@/types/Settings';
 import { SYNC_DELAY_MS } from '@/constants/actionConstants';
+import { Settings } from '@/types/Settings';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 interface GameBoard {
   title: string;
@@ -27,7 +28,75 @@ interface GameBoard {
 
 const db = getFirestore();
 
-// Sync custom tiles to Firebase
+// Helper function to clear only user-created custom groups (preserve default groups)
+async function clearUserCustomGroups(): Promise<boolean> {
+  try {
+    const userGroups = await getCustomGroups({ isDefault: false });
+
+    // Convert serial deleteCustomGroup calls to concurrent operations
+    const deletePromises = userGroups.map((group) => deleteCustomGroup(group.id));
+    await Promise.all(deletePromises);
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting user custom groups:', error);
+    return false;
+  }
+}
+
+// Helper function to reset disabled defaults back to enabled state before restoring from Firebase
+async function resetDisabledDefaults(): Promise<boolean> {
+  try {
+    const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
+
+    // Filter out tiles without IDs and batch updateCustomTile operations concurrently
+    const validTiles = disabledDefaults.filter((tile) => tile.id);
+    const updatePromises = validTiles.map(
+      (tile) => updateCustomTile(tile.id!, { isEnabled: 1 }) // Reset to enabled state - Firebase will restore the correct disabled state
+    );
+    await Promise.all(updatePromises);
+
+    return true;
+  } catch (error) {
+    console.error('Error resetting disabled default tiles:', error);
+    return false;
+  }
+}
+
+// Helper function to apply disabled defaults from Firebase to existing default tiles
+async function applyDisabledDefaults(disabledDefaults: CustomTilePull[]): Promise<boolean> {
+  try {
+    // Prefetch all existing default tiles in a single query
+    const allDefaultTiles = await getTiles({ isCustom: 0 });
+
+    // Build an in-memory map keyed by composite key (gameMode|group|intensity|action) for O(1) lookups
+    const defaultTilesMap = new Map<string, number>();
+    allDefaultTiles.forEach((tile) => {
+      const key = `${tile.gameMode || ''}|${tile.group}|${tile.intensity}|${tile.action}`;
+      defaultTilesMap.set(key, tile.id);
+    });
+
+    // Iterate disabledDefaults and collect update calls only for matched IDs
+    const updatePromises: Promise<number>[] = [];
+    disabledDefaults.forEach((disabledTile) => {
+      const key = `${disabledTile.gameMode || ''}|${disabledTile.group}|${disabledTile.intensity}|${disabledTile.action}`;
+      const matchedId = defaultTilesMap.get(key);
+
+      if (matchedId) {
+        updatePromises.push(updateCustomTile(matchedId, { isEnabled: 0 }));
+      }
+    });
+
+    // Run updates in a single batch using Promise.all
+    await Promise.all(updatePromises);
+    return true;
+  } catch (error) {
+    console.error('Error applying disabled defaults:', error);
+    return false;
+  }
+}
+
+// Sync custom tiles and disabled defaults to Firebase
 export async function syncCustomTilesToFirebase(): Promise<boolean> {
   const auth = getAuth();
   const user = auth.currentUser;
@@ -38,14 +107,18 @@ export async function syncCustomTilesToFirebase(): Promise<boolean> {
   }
 
   try {
-    // Get all custom tiles from Dexie
+    // Get custom tiles (user-created content)
     const customTiles = await getTiles({ isCustom: 1 });
 
-    // Create a document in Firebase with all custom tiles
+    // Get disabled default tiles (user disabled these defaults)
+    const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
+
+    // Create a document in Firebase with both custom tiles and disabled defaults
     await setDoc(
       doc(db, 'user-data', user.uid),
       {
         customTiles,
+        disabledDefaults,
         lastUpdated: new Date(),
       },
       { merge: true }
@@ -58,7 +131,7 @@ export async function syncCustomTilesToFirebase(): Promise<boolean> {
   }
 }
 
-// Sync custom groups to Firebase
+// Sync only user-created custom groups to Firebase (NOT default groups)
 export async function syncCustomGroupsToFirebase(): Promise<boolean> {
   const auth = getAuth();
   const user = auth.currentUser;
@@ -69,10 +142,10 @@ export async function syncCustomGroupsToFirebase(): Promise<boolean> {
   }
 
   try {
-    // Get all custom groups from Dexie
-    const customGroups = await getCustomGroups();
+    // Get only user-created custom groups (not default groups)
+    const customGroups = await getCustomGroups({ isDefault: false });
 
-    // Create a document in Firebase with all custom groups
+    // Create a document in Firebase with only user-created custom groups
     await setDoc(
       doc(db, 'user-data', user.uid),
       {
@@ -168,7 +241,7 @@ export async function syncAllDataToFirebase(): Promise<boolean> {
   return true;
 }
 
-// Sync data from Firebase to Dexie
+// Sync data from Firebase to Dexie (SURGICAL APPROACH - preserves default content)
 export async function syncDataFromFirebase(): Promise<boolean> {
   const auth = getAuth();
   const user = auth.currentUser;
@@ -189,9 +262,10 @@ export async function syncDataFromFirebase(): Promise<boolean> {
 
     const userData = userDoc.data();
 
-    // Import custom tiles
+    // SURGICAL APPROACH: Only clear user-created content, preserve defaults
+
+    // 1. Only clear custom tiles (preserve default tiles)
     if (userData.customTiles !== undefined) {
-      // Clear existing custom tiles before importing
       await deleteAllCustomTiles();
 
       // Add a delay after clearing custom tiles before syncing with remote server
@@ -221,10 +295,10 @@ export async function syncDataFromFirebase(): Promise<boolean> {
       }
     }
 
-    // Import custom groups
+    // 2. Only clear user-created custom groups (preserve default groups)
     if (userData.customGroups !== undefined) {
-      // Clear existing custom groups before importing
-      await deleteAllCustomGroups();
+      // Use surgical delete - only removes user-created groups, NOT default groups
+      await clearUserCustomGroups();
 
       // Add a delay after clearing custom groups before syncing with remote server
       await new Promise((resolve) => setTimeout(resolve, SYNC_DELAY_MS));
@@ -239,6 +313,25 @@ export async function syncDataFromFirebase(): Promise<boolean> {
         }
       } else {
         // Firebase data contains empty custom groups array - local database cleared but no new groups to import
+      }
+    }
+
+    // 3. Handle disabled defaults - restore user's disabled state preferences
+    if (userData.disabledDefaults !== undefined) {
+      // First reset all disabled defaults back to enabled
+      await resetDisabledDefaults();
+
+      // Add a delay before applying disabled state
+      await new Promise((resolve) => setTimeout(resolve, SYNC_DELAY_MS));
+
+      // Then apply the disabled state from Firebase
+      if (userData.disabledDefaults && userData.disabledDefaults.length > 0) {
+        try {
+          await applyDisabledDefaults(userData.disabledDefaults as CustomTilePull[]);
+          // Successfully restored user's disabled default action preferences from Firebase
+        } catch (error) {
+          console.error('Error applying disabled defaults:', error);
+        }
       }
     }
 

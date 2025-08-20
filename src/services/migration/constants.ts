@@ -13,9 +13,10 @@ export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'] as const;
 // - 2.1.0: Initial migration system
 // - 2.1.1: Fixed import path matching (@/locales vs /src/locales)
 // - 2.1.2: Added corruption detection and auto-recovery
-// --2.2.0: Added body worship group
+// - 2.2.0: Added body worship group
+// - 2.3.0: Fix syncing issues with custom groups and tiles
 //
-export const MIGRATION_VERSION = '2.2.0';
+export const MIGRATION_VERSION = '2.3.0';
 // ============================================================================
 
 // Configuration keys for localStorage

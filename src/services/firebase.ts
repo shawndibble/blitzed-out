@@ -317,7 +317,6 @@ export async function wipeAllAppData(): Promise<void> {
     try {
       const { default: db } = await import('@/stores/store');
       await db.delete();
-      console.log('Successfully cleared IndexedDB');
     } catch (error) {
       console.warn('Failed to clear IndexedDB:', error);
     }
@@ -369,11 +368,7 @@ export async function wipeAllAppData(): Promise<void> {
           // Silently continue
         }
       });
-
-      console.log(`Attempted comprehensive clearing of cookie: ${cookieName}`);
     });
-
-    console.log('Successfully wiped all app data');
   } catch (error) {
     console.error('Error wiping app data:', error);
     throw error;

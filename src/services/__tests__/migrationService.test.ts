@@ -55,7 +55,7 @@ vi.mock('@/locales/en/translation.json', () => ({
 describe('Migration Service', () => {
   const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
   const BACKGROUND_MIGRATION_KEY = 'blitzed-out-background-migration';
-  const MIGRATION_VERSION = '2.2.0';
+  const MIGRATION_VERSION = '2.3.0';
 
   beforeEach(() => {
     // Set up localStorage mock
