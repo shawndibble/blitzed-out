@@ -9,11 +9,13 @@ import {
 import { forceFreshMigration } from '@/services/migrationService';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
+import { logger } from '@/utils/logger';
 
 // Mock dependencies
 vi.mock('@/stores/customTiles');
 vi.mock('@/stores/customGroups');
 vi.mock('@/services/migrationService');
+vi.mock('@/utils/logger');
 
 describe('syncRecoveryService', () => {
   beforeEach(() => {
@@ -23,6 +25,10 @@ describe('syncRecoveryService', () => {
     // Mock console methods
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Mock logger methods
+    vi.mocked(logger.error).mockImplementation(() => {});
+    vi.mocked(logger.debug).mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -93,19 +99,23 @@ describe('syncRecoveryService', () => {
     });
 
     it('should handle detection errors gracefully', async () => {
+      // Ensure recovery status is cleared so detection logic runs
+      resetRecoveryStatus();
       vi.mocked(getCustomGroups).mockRejectedValue(new Error('Database error'));
 
       const result = await runSyncRecovery();
 
       expect(result).toBe(false);
       expect(forceFreshMigration).not.toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         expect.stringContaining('[Sync Recovery] Error detecting corruption:'),
         expect.any(Error)
       );
     });
 
     it('should handle recovery errors gracefully', async () => {
+      // Ensure recovery status is cleared so detection logic runs
+      resetRecoveryStatus();
       // Mock corrupted state
       vi.mocked(getCustomGroups).mockResolvedValue([]);
       vi.mocked(getTiles).mockResolvedValue([]);
@@ -116,7 +126,7 @@ describe('syncRecoveryService', () => {
       const result = await runSyncRecovery();
 
       expect(result).toBe(false);
-      expect(console.error).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         expect.stringContaining('[Sync Recovery] Error during recovery:'),
         expect.any(Error)
       );
@@ -125,6 +135,8 @@ describe('syncRecoveryService', () => {
 
   describe('corruption detection logic', () => {
     it('should identify corruption with multiple indicators', async () => {
+      // Ensure recovery status is cleared so detection logic runs
+      resetRecoveryStatus();
       // Mock state with multiple corruption indicators
       vi.mocked(getCustomGroups).mockImplementation(async (filters: any) => {
         if (filters?.isDefault === true) return []; // Indicator 1: No default groups
@@ -165,6 +177,8 @@ describe('syncRecoveryService', () => {
 
   describe('wasUserAffectedBySync', () => {
     it('should return true if user was affected by sync bug', async () => {
+      // Ensure recovery status is cleared so detection logic runs
+      resetRecoveryStatus();
       // Trigger recovery with corruption
       vi.mocked(getCustomGroups).mockResolvedValue([]);
       vi.mocked(getTiles).mockResolvedValue([]);

@@ -66,24 +66,28 @@ async function resetDisabledDefaults(): Promise<boolean> {
 // Helper function to apply disabled defaults from Firebase to existing default tiles
 async function applyDisabledDefaults(disabledDefaults: CustomTilePull[]): Promise<boolean> {
   try {
-    // Fix N+1 query pattern by converting for-loop to Promise.all() with concurrent operations
-    const updatePromises = disabledDefaults.map(async (disabledTile) => {
-      // Find the matching default tile in the database
-      const existingTiles = await getTiles({
-        isCustom: 0,
-        gameMode: disabledTile.gameMode,
-        group: disabledTile.group,
-        intensity: disabledTile.intensity,
-        action: disabledTile.action,
-      });
+    // Prefetch all existing default tiles in a single query
+    const allDefaultTiles = await getTiles({ isCustom: 0 });
 
-      // If we find a matching default tile, disable it
-      if (existingTiles.length > 0 && existingTiles[0].id) {
-        return updateCustomTile(existingTiles[0].id, { isEnabled: 0 });
-      }
-      return Promise.resolve();
+    // Build an in-memory map keyed by composite key (gameMode|group|intensity|action) for O(1) lookups
+    const defaultTilesMap = new Map<string, number>();
+    allDefaultTiles.forEach((tile) => {
+      const key = `${tile.gameMode || ''}|${tile.group}|${tile.intensity}|${tile.action}`;
+      defaultTilesMap.set(key, tile.id);
     });
 
+    // Iterate disabledDefaults and collect update calls only for matched IDs
+    const updatePromises: Promise<number>[] = [];
+    disabledDefaults.forEach((disabledTile) => {
+      const key = `${disabledTile.gameMode || ''}|${disabledTile.group}|${disabledTile.intensity}|${disabledTile.action}`;
+      const matchedId = defaultTilesMap.get(key);
+
+      if (matchedId) {
+        updatePromises.push(updateCustomTile(matchedId, { isEnabled: 0 }));
+      }
+    });
+
+    // Run updates in a single batch using Promise.all
     await Promise.all(updatePromises);
     return true;
   } catch (error) {

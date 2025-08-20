@@ -25,36 +25,52 @@ interface RecoveryStatus {
   recoveryTimestamp: number;
 }
 
+// Promise guard to prevent concurrent duplicate recoveries
+let recoveryInFlight: Promise<boolean> | null = null;
+
 /**
  * Main recovery function - call this on app startup
  */
 export async function runSyncRecovery(): Promise<boolean> {
-  try {
-    // Check if recovery already performed for this version
-    const recoveryStatus = getRecoveryStatus();
-    if (recoveryStatus?.recoveryPerformed && recoveryStatus?.version === RECOVERY_VERSION) {
-      return false; // Recovery already done
-    }
-
-    // Detect corruption
-    const isCorrupted = await detectDatabaseCorruption();
-
-    if (isCorrupted) {
-      // Force fresh migration to rebuild everything
-      await forceFreshMigration();
-
-      // Mark recovery as completed
-      markRecoveryCompleted(true);
-      return true;
-    } else {
-      // Mark recovery as checked (no corruption found)
-      markRecoveryCompleted(false);
-      return false;
-    }
-  } catch (error) {
-    logger.error('[Sync Recovery] Error during recovery:', error);
-    return false;
+  // Check if recovery is already in flight
+  if (recoveryInFlight) {
+    return await recoveryInFlight;
   }
+
+  // Create and assign new recovery promise
+  recoveryInFlight = (async (): Promise<boolean> => {
+    try {
+      // Check if recovery already performed for this version
+      const recoveryStatus = getRecoveryStatus();
+      if (recoveryStatus?.recoveryPerformed && recoveryStatus?.version === RECOVERY_VERSION) {
+        return false; // Recovery already done
+      }
+
+      // Detect corruption
+      const isCorrupted = await detectDatabaseCorruption();
+
+      if (isCorrupted) {
+        // Force fresh migration to rebuild everything
+        await forceFreshMigration();
+
+        // Mark recovery as completed
+        markRecoveryCompleted(true);
+        return true;
+      } else {
+        // Mark recovery as checked (no corruption found)
+        markRecoveryCompleted(false);
+        return false;
+      }
+    } catch (error) {
+      logger.error('[Sync Recovery] Error during recovery:', error);
+      return false;
+    } finally {
+      // Clear the in-flight promise so future calls can run
+      recoveryInFlight = null;
+    }
+  })();
+
+  return await recoveryInFlight;
 }
 
 /**
@@ -106,11 +122,7 @@ async function detectDatabaseCorruption(): Promise<boolean> {
  * Get recovery status from localStorage
  */
 function getRecoveryStatus(): RecoveryStatus | null {
-  try {
-    return safeLocalStorage.getJSON<RecoveryStatus>(RECOVERY_STATUS_KEY);
-  } catch {
-    return null;
-  }
+  return safeLocalStorage.getJSON<RecoveryStatus>(RECOVERY_STATUS_KEY);
 }
 
 /**
