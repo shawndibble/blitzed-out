@@ -43,7 +43,7 @@ vi.mock('../GameTile', () => ({
 }));
 
 vi.mock('./TokenAnimationLayer', () => ({
-  default: React.forwardRef<any, any>((props, ref) => (
+  default: React.forwardRef<any, any>((_props, ref) => (
     <div data-testid="token-animation-layer" ref={ref}>
       {/* Mock TokenAnimationLayer */}
     </div>

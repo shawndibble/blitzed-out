@@ -10,10 +10,13 @@ import { forceFreshMigration } from '@/services/migrationService';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
 import { safeLocalStorage } from '@/services/migration/errorHandling';
+import { MIGRATION_VERSION } from '@/services/migration/constants';
+import { logger } from '@/utils/logger';
 
 // Recovery tracking
 const RECOVERY_STATUS_KEY = 'blitzed-out-sync-recovery-status';
-const RECOVERY_VERSION = '1.0.0';
+const RECOVERY_VERSION = MIGRATION_VERSION;
+const MIN_DEFAULT_TILE_COUNT = 50; // Should have hundreds of default actions
 
 interface RecoveryStatus {
   version: string;
@@ -49,7 +52,7 @@ export async function runSyncRecovery(): Promise<boolean> {
       return false;
     }
   } catch (error) {
-    console.error('[Sync Recovery] Error during recovery:', error);
+    logger.error('[Sync Recovery] Error during recovery:', error);
     return false;
   }
 }
@@ -74,7 +77,7 @@ async function detectDatabaseCorruption(): Promise<boolean> {
     // Corruption indicators
     const corruptionIndicators = {
       noDefaultGroups: !hasDefaultGroups,
-      fewTotalActions: totalTileCount < 50, // Should have hundreds of default actions
+      fewTotalActions: totalTileCount < MIN_DEFAULT_TILE_COUNT,
       noEnabledDefaults: !hasEnabledDefaults,
     };
 
@@ -82,7 +85,7 @@ async function detectDatabaseCorruption(): Promise<boolean> {
 
     // Analysis for debugging in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('[Sync Recovery] Corruption analysis:', {
+      logger.debug('[Sync Recovery] Corruption analysis:', {
         defaultGroups: defaultGroups.length,
         totalTiles: totalTileCount,
         enabledDefaults: enabledDefaults.length,
@@ -94,7 +97,7 @@ async function detectDatabaseCorruption(): Promise<boolean> {
     // If 2 or more indicators, likely corrupted
     return corruptionScore >= 2;
   } catch (error) {
-    console.error('[Sync Recovery] Error detecting corruption:', error);
+    logger.error('[Sync Recovery] Error detecting corruption:', error);
     return false; // Don't trigger recovery if we can't detect properly
   }
 }

@@ -32,9 +32,11 @@ const db = getFirestore();
 async function clearUserCustomGroups(): Promise<boolean> {
   try {
     const userGroups = await getCustomGroups({ isDefault: false });
-    for (const group of userGroups) {
-      await deleteCustomGroup(group.id);
-    }
+
+    // Convert serial deleteCustomGroup calls to concurrent operations
+    const deletePromises = userGroups.map((group) => deleteCustomGroup(group.id));
+    await Promise.all(deletePromises);
+
     return true;
   } catch (error) {
     console.error('Error deleting user custom groups:', error);
@@ -46,12 +48,14 @@ async function clearUserCustomGroups(): Promise<boolean> {
 async function resetDisabledDefaults(): Promise<boolean> {
   try {
     const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
-    for (const tile of disabledDefaults) {
-      if (tile.id) {
-        // Reset to enabled state - Firebase will restore the correct disabled state
-        await updateCustomTile(tile.id, { isEnabled: 1 });
-      }
-    }
+
+    // Filter out tiles without IDs and batch updateCustomTile operations concurrently
+    const validTiles = disabledDefaults.filter((tile) => tile.id);
+    const updatePromises = validTiles.map(
+      (tile) => updateCustomTile(tile.id!, { isEnabled: 1 }) // Reset to enabled state - Firebase will restore the correct disabled state
+    );
+    await Promise.all(updatePromises);
+
     return true;
   } catch (error) {
     console.error('Error resetting disabled default tiles:', error);
@@ -62,7 +66,8 @@ async function resetDisabledDefaults(): Promise<boolean> {
 // Helper function to apply disabled defaults from Firebase to existing default tiles
 async function applyDisabledDefaults(disabledDefaults: CustomTilePull[]): Promise<boolean> {
   try {
-    for (const disabledTile of disabledDefaults) {
+    // Fix N+1 query pattern by converting for-loop to Promise.all() with concurrent operations
+    const updatePromises = disabledDefaults.map(async (disabledTile) => {
       // Find the matching default tile in the database
       const existingTiles = await getTiles({
         isCustom: 0,
@@ -74,9 +79,12 @@ async function applyDisabledDefaults(disabledDefaults: CustomTilePull[]): Promis
 
       // If we find a matching default tile, disable it
       if (existingTiles.length > 0 && existingTiles[0].id) {
-        await updateCustomTile(existingTiles[0].id, { isEnabled: 0 });
+        return updateCustomTile(existingTiles[0].id, { isEnabled: 0 });
       }
-    }
+      return Promise.resolve();
+    });
+
+    await Promise.all(updatePromises);
     return true;
   } catch (error) {
     console.error('Error applying disabled defaults:', error);

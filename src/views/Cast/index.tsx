@@ -73,8 +73,7 @@ export default function Cast() {
       videos.forEach((video) => {
         if (video.paused) {
           video.muted = true; // Ensure muted for autoplay policy
-          video.play().catch((error) => {
-            console.log('Video autoplay attempt failed:', error);
+          video.play().catch(() => {
             setNeedsUserInteraction(true);
           });
         }

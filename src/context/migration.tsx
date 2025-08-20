@@ -3,9 +3,8 @@ import {
   checkMigrationHealth,
   recoverFromFailedMigration,
 } from '@/services/migrationHealthChecker';
-
-import { runSyncRecovery } from '@/services/syncRecoveryService';
 import { useTranslation } from 'react-i18next';
+import { logger } from '@/utils/logger';
 
 /**
  * Context value interface for migration state management.
@@ -156,7 +155,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
           }
         }
       } catch (error) {
-        console.warn('Failed to check migration status:', error);
+        logger.warn('Failed to check migration status:', false, error);
         setError('Failed to check migration status');
         setIsHealthy(false);
       }
@@ -199,7 +198,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
         setError('Force recovery failed. Please try refreshing the page.');
       }
     } catch (error) {
-      console.error('Force recovery failed:', error);
+      logger.error('Force recovery failed:', error);
       setError('Force recovery failed. Please try refreshing the page.');
     } finally {
       setIsMigrationInProgress(false);
@@ -213,7 +212,10 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
     setError(null);
 
     try {
+      // Lazy load sync recovery service
+      const { runSyncRecovery } = await import('@/services/syncRecoveryService');
       await runSyncRecovery();
+
       const migrationService = await loadMigrationService();
       const success = await migrationService.runMigrationIfNeeded();
 
@@ -240,7 +242,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
         setIsHealthy(false);
       }
     } catch (error) {
-      console.error('Migration failed:', error);
+      logger.error('Migration failed:', error);
       setError('Migration failed but app will continue with existing data');
       setIsHealthy(false);
     } finally {
@@ -281,7 +283,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
             setError('Migration failed but app will continue with existing data');
           }
         } catch (err) {
-          console.error('Error during language migration:', err);
+          logger.error('Error during language migration:', err);
           setError('Migration failed but app will continue with existing data');
         } finally {
           setIsMigrationInProgress(false);
@@ -316,7 +318,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
 
         return success;
       } catch (error) {
-        console.error(`Failed to ensure ${targetLocale} migration:`, error);
+        logger.error(`Failed to ensure ${targetLocale} migration:`, error);
         return false;
       } finally {
         setIsMigrationInProgress(false);
@@ -374,7 +376,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
                 migrationAttemptedRef.current.delete(migrationKey);
               }
             } catch (err) {
-              console.error('Error during migration execution:', err);
+              logger.error('Error during migration execution:', err);
               setError('Migration failed but app will continue with existing data');
               // Remove from attempted set if failed so it can be retried
               migrationAttemptedRef.current.delete(migrationKey);
@@ -384,7 +386,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
           }, 0);
         }
       } catch (err) {
-        console.error('Error during initial migration check:', err);
+        logger.error('Error during initial migration check:', err);
         setIsMigrationInProgress(false);
       }
     };

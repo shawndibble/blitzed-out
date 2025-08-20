@@ -11,7 +11,7 @@ import {
   syncCustomGroupsToFirebase,
   syncCustomTilesToFirebase,
   syncDataFromFirebase,
-} from '../syncService';
+} from '@/services/syncService';
 
 import { getAuth } from 'firebase/auth';
 import { useSettingsStore } from '@/stores/settingsStore';
