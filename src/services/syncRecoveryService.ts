@@ -144,6 +144,7 @@ function markRecoveryCompleted(detectedCorruption: boolean): void {
  */
 export function resetRecoveryStatus(): void {
   safeLocalStorage.removeItem(RECOVERY_STATUS_KEY);
+  recoveryInFlight = null; // Also reset the in-flight promise
 }
 
 /**

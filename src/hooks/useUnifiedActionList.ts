@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getAllAvailableGroups } from '@/stores/customGroups';
+import { getAllAvailableGroups, getCustomGroupsWithTiles } from '@/stores/customGroups';
+import { getTileCountsByGroup } from '@/stores/customTiles';
 import { GroupedActions } from '@/types/customTiles';
 import { UNIFIED_ACTION_CACHE_TTL } from '@/constants/actionConstants';
 import { useMigration } from '@/context/migration';
@@ -27,15 +28,20 @@ const CACHE_TTL = UNIFIED_ACTION_CACHE_TTL;
  * into a unified structure that can be used by the existing IncrementalSelect component
  *
  * @param gameMode - The game mode to filter groups by (e.g., 'online', 'local')
+ * @param showOnlyGroupsWithTiles - Whether to only show groups that have tiles (for board building contexts)
  * @returns Object containing the unified actions list and loading state
  *
  * Features:
  * - Caches results for 30 seconds to improve performance
  * - Automatically handles locale changes
  * - Filters groups by game mode
+ * - Optionally filters to only show groups with tiles for board building contexts
  * - Converts custom groups to the expected format for UI components
  */
-export default function useUnifiedActionList(gameMode?: string): UnifiedActionListResult {
+export default function useUnifiedActionList(
+  gameMode?: string,
+  showOnlyGroupsWithTiles: boolean = false
+): UnifiedActionListResult {
   const { i18n, t } = useTranslation();
   const { currentLanguageMigrated, isHealthy, forceRecovery } = useMigration();
   const [actionsList, setActionsList] = useState<GroupedActions>({});
@@ -66,8 +72,8 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
   // Memoize the cache key to prevent unnecessary recalculations
   const cacheKey = useMemo(() => {
     if (!gameMode || !i18n.resolvedLanguage) return '';
-    return `${i18n.resolvedLanguage}-${gameMode}`;
-  }, [i18n.resolvedLanguage, gameMode]);
+    return `${i18n.resolvedLanguage}-${gameMode}-${showOnlyGroupsWithTiles ? 'withTiles' : 'all'}`;
+  }, [i18n.resolvedLanguage, gameMode, showOnlyGroupsWithTiles]);
 
   // Clear cache when migration status changes from false to true
   useEffect(() => {
@@ -126,8 +132,31 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
     setIsLoading(true);
 
     try {
-      // Load all available groups from Dexie (includes both default and custom groups)
-      const allGroups = await getAllAvailableGroups(i18n.resolvedLanguage, gameMode);
+      let allGroups;
+      let tileCounts: Record<
+        string,
+        { count: number; intensities: Record<number, number> }
+      > | null = null;
+
+      if (showOnlyGroupsWithTiles) {
+        // For board building contexts - only show groups with tiles
+        const groupsWithCustomTiles = await getCustomGroupsWithTiles(
+          i18n.resolvedLanguage,
+          gameMode
+        );
+        tileCounts = await getTileCountsByGroup(i18n.resolvedLanguage, gameMode, null);
+
+        // Get default groups that have tiles
+        const allAvailableGroups = await getAllAvailableGroups(i18n.resolvedLanguage, gameMode);
+        const defaultGroupsWithTiles = allAvailableGroups.filter(
+          (group) => group.isDefault && tileCounts?.[group.name]
+        );
+
+        allGroups = [...groupsWithCustomTiles, ...defaultGroupsWithTiles];
+      } else {
+        // For management contexts - show all groups
+        allGroups = await getAllAvailableGroups(i18n.resolvedLanguage, gameMode);
+      }
 
       // Convert all groups to unified actions structure
       const unifiedActions: GroupedActions = {};
@@ -142,7 +171,19 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
         // The IncrementalSelect component uses these keys as menu items
         const intensities: Record<number, string> = {};
         if (group.intensities && Array.isArray(group.intensities)) {
-          group.intensities
+          let intensitiesToShow = group.intensities;
+
+          // If we're filtering to only show groups with tiles, also filter intensities
+          if (showOnlyGroupsWithTiles && tileCounts && tileCounts[group.name]?.intensities) {
+            const availableIntensityValues = Object.keys(tileCounts[group.name].intensities).map(
+              Number
+            );
+            intensitiesToShow = group.intensities.filter((intensity) =>
+              availableIntensityValues.includes(intensity.value)
+            );
+          }
+
+          intensitiesToShow
             .sort((a, b) => a.value - b.value)
             .forEach((intensity) => {
               actions[intensity.label] = []; // Empty array since custom groups don't have predefined actions
@@ -187,6 +228,7 @@ export default function useUnifiedActionList(gameMode?: string): UnifiedActionLi
     isHealthy,
     recoveryAttempted,
     forceRecovery,
+    showOnlyGroupsWithTiles,
   ]);
 
   useEffect(() => {

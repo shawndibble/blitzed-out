@@ -21,13 +21,16 @@
   "groupLabelRequired": "समूह लेबल आवश्यक है",
   "tilesCount": "{{count}} टाइलें",
   "online": "ऑनलाइन",
+  "gameMode": {
+    "online": "ऑनलाइन",
+    "local": "व्यक्तिगत रूप से"
+  },
   "players": "खिलाड़ी",
   "localPlayer": "स्थानीय",
   "you": "आप",
   "setup": "गेम सेटअप",
   "setupSubtitle": "अपना नाम दर्ज करें और सत्र शुरू करें",
   "buildGame": "गेम बनाएं",
-  "setupWizard": "सेटअप विज़ार्ड",
   "settings": "सेटिंग्स",
   "appSettings": "उन्नत सेटिंग्स",
   "about": "के बारे में",
@@ -323,6 +326,7 @@
     "saving": "सेव हो रहा है...",
     "groupTypeHelp": "निर्धारित करता है कि यह समूह सेटअप विज़ार्ड में कब दिखाई देता है",
     "groupLabelHelp": "उपयोगकर्ताओं को दिखाया गया प्रदर्शन नाम (अधिकतम {{maxLength}} वर्ण)",
+    "gameModeHelp": "चुनें कि यह समूह ऑनलाइन या व्यक्तिगत रूप से गेम मोड के लिए है",
     "locale": "भाषा:",
     "gameMode": "गेम मोड:",
     "internalId": "आंतरिक ID:",
@@ -337,7 +341,8 @@
     "intensityLevelsCount": "{{count}} तीव्रता स्तर",
     "customTilesCount": "{{count}} कस्टम टाइलें",
     "levelLabel": "स्तर {{level}}",
-    "levelInputLabel": "स्तर {{level}} लेबल"
+    "levelInputLabel": "स्तर {{level}} लेबल",
+    "errorLoadingGroups": "ग्रुप लोड करने में त्रुटि"
   },
   "intensityLabels": {
     "beginner": "शुरुआती",
@@ -418,7 +423,6 @@
   "confirmDeleteBoard": "क्या आप वाकई \"{{title}}\" को हटाना चाहते हैं?",
   "noPlannedGames": "कोई नियोजित गेम नहीं",
   "scheduleFirstGame": "शुरुआत के लिए अपना पहला गेम निर्धारित करें!",
-  "manageGroups": "समूह प्रबंधन",
   "scheduleValidation": {
     "selectDateTime": "कृपया दिनांक और समय चुनें",
     "selectFutureDateTime": "कृपया भविष्य की तारीख और समय चुनें",
@@ -610,5 +614,11 @@
     "currentStatus": {
       "hasPlayers": "आपके पास पहले से ही स्थानीय खिलाड़ी कॉन्फ़िगर किए गए हैं। आप नए सेट कर सकते हैं या अपने वर्तमान सेटअप के साथ जारी रख सकते हैं।"
     }
+  },
+  "setupWizard": {
+    "title": "सेटअप विज़ार्ड"
+  },
+  "manageGroups": {
+    "title": "ग्रुप प्रबंधित करें"
   }
 }

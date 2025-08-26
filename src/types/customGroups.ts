@@ -83,6 +83,7 @@ export interface CustomGroupSelectorProps {
 
 export interface IntensitySelectorProps {
   groupName: string;
+  groupId?: string; // New normalized foreign key field
   value: number;
   onChange: (intensity: number) => void;
   locale: string;
@@ -101,20 +102,20 @@ export interface CustomGroupFilters {
 // Default intensity templates for common use cases
 export const DEFAULT_INTENSITY_TEMPLATES: IntensityTemplate[] = [
   {
+    name: 'Simple (1-3)',
+    intensities: [
+      { label: 'intensityLabels.beginner', value: 1, isDefault: true },
+      { label: 'intensityLabels.intermediate', value: 2, isDefault: true },
+      { label: 'intensityLabels.advanced', value: 3, isDefault: true },
+    ],
+  },
+  {
     name: 'Basic (1-4)',
     intensities: [
       { label: 'intensityLabels.light', value: 1, isDefault: true },
       { label: 'intensityLabels.medium', value: 2, isDefault: true },
       { label: 'intensityLabels.intense', value: 3, isDefault: true },
       { label: 'intensityLabels.extreme', value: 4, isDefault: true },
-    ],
-  },
-  {
-    name: 'Simple (1-3)',
-    intensities: [
-      { label: 'intensityLabels.beginner', value: 1, isDefault: true },
-      { label: 'intensityLabels.intermediate', value: 2, isDefault: true },
-      { label: 'intensityLabels.advanced', value: 3, isDefault: true },
     ],
   },
   {

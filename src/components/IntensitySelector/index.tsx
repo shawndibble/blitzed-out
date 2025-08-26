@@ -14,6 +14,7 @@ import { getGroupIntensities } from '@/stores/customGroups';
 
 export default function IntensitySelector({
   groupName,
+  groupId: _groupId,
   value,
   onChange,
   locale,

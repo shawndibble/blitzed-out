@@ -18,13 +18,16 @@
   "linkWithGoogle": "Link with Google",
   "signInWithGoogle": "Sign in with Google",
   "online": "Online",
+  "gameMode": {
+    "online": "Online",
+    "local": "In Person"
+  },
   "players": "Players",
   "localPlayer": "Local",
   "you": "you",
   "setup": "Join the Experience",
   "setupSubtitle": "Enter your name and begin the session",
   "buildGame": "Build Game",
-  "setupWizard": "Setup Wizard",
   "settings": "Settings",
   "appSettings": "Advanced Settings",
   "about": "About",
@@ -323,6 +326,7 @@
     "saving": "Saving...",
     "groupTypeHelp": "Determines when this group appears in the Setup Wizard",
     "groupLabelHelp": "Display name shown to users (max {{maxLength}} chars)",
+    "gameModeHelp": "Select whether this group is for online or in-person game modes",
     "locale": "Locale:",
     "gameMode": "Game Mode:",
     "internalId": "Internal ID:",
@@ -337,7 +341,8 @@
     "intensityLevelsCount": "{{count}} intensity levels",
     "customTilesCount": "{{count}} custom tiles",
     "levelLabel": "Level {{level}}",
-    "levelInputLabel": "Level {{level}} Label"
+    "levelInputLabel": "Level {{level}} Label",
+    "errorLoadingGroups": "Error loading groups"
   },
   "intensityLabels": {
     "beginner": "Beginner",
@@ -418,7 +423,6 @@
   "confirmDeleteBoard": "Are you sure you want to delete \"{{title}}\"?",
   "noPlannedGames": "No Planned Games",
   "scheduleFirstGame": "Schedule your first game to get started!",
-  "manageGroups": "Manage Groups",
   "scheduleValidation": {
     "selectDateTime": "Please select a date and time",
     "selectFutureDateTime": "Please select a date and time in the future",
@@ -586,5 +590,11 @@
     "currentStatus": {
       "hasPlayers": "You already have local players configured. You can set up new ones or continue with your current setup."
     }
+  },
+  "setupWizard": {
+    "title": "Setup Wizard"
+  },
+  "manageGroups": {
+    "title": "Manage Groups"
   }
 }

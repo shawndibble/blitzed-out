@@ -40,7 +40,7 @@ import {
   addCustomGroup,
   updateCustomGroup,
   deleteCustomGroup,
-  getAllAvailableGroups,
+  getCustomGroups,
 } from '@/stores/customGroups';
 import { countTilesByGroup, deleteCustomTilesByGroup } from '@/stores/customTiles';
 
@@ -49,7 +49,7 @@ const findMatchingTemplateIndex = (intensities: CustomGroupIntensity[]) => {
   const matchingTemplateIndex = DEFAULT_INTENSITY_TEMPLATES.findIndex(
     (template) => template.intensities.length === intensities.length
   );
-  return matchingTemplateIndex >= 0 ? matchingTemplateIndex : 1; // Default to Simple (1-3) template
+  return matchingTemplateIndex >= 0 ? matchingTemplateIndex : 0; // Default to Simple (1-3) template
 };
 
 export default function CustomGroupDialog({
@@ -62,6 +62,9 @@ export default function CustomGroupDialog({
   gameMode,
 }: CustomGroupDialogProps) {
   const { t } = useTranslation();
+
+  // No longer need manual refresh - reactive hooks automatically detect DB changes
+
   const [selectedTab, setSelectedTab] = useState(0);
   const [existingGroups, setExistingGroups] = useState<CustomGroupPull[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
@@ -71,7 +74,8 @@ export default function CustomGroupDialog({
   // Form state
   const [label, setLabel] = useState('');
   const [type, setType] = useState<string>('');
-  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(1); // Default to Simple (1-3) template
+  const [localGameMode, setLocalGameMode] = useState(gameMode);
+  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0); // Default to Simple (1-3) template
   const [intensityLabels, setIntensityLabels] = useState<string[]>([
     t('intensityLabels.beginner'),
     t('intensityLabels.intermediate'),
@@ -93,22 +97,28 @@ export default function CustomGroupDialog({
   // Reload groups and tile counts
   const reloadGroupsAndCounts = useCallback(async () => {
     try {
-      const groups = await getAllAvailableGroups(locale, gameMode);
-      const customGroups = groups.filter((group) => !group.isDefault);
+      // Get all custom groups (not default ones) regardless of game mode
+      const customGroups = await getCustomGroups({
+        locale,
+        isDefault: false,
+      });
       setExistingGroups(customGroups);
 
-      // Load tile counts for each custom group
+      // Load tile counts for each custom group across all game modes
       const counts: Record<string, number> = {};
       await Promise.all(
         customGroups.map(async (group) => {
-          counts[group.id] = await countTilesByGroup(group.name, locale, gameMode);
+          // Count tiles for this group across both online and local modes
+          const onlineCount = await countTilesByGroup(group.name, locale, 'online');
+          const localCount = await countTilesByGroup(group.name, locale, 'local');
+          counts[group.id] = onlineCount + localCount;
         })
       );
       setTileCounts(counts);
     } catch (error) {
       console.error('Error reloading groups:', error);
     }
-  }, [locale, gameMode]);
+  }, [locale]);
 
   // Load existing groups
   useEffect(() => {
@@ -126,7 +136,7 @@ export default function CustomGroupDialog({
     };
 
     loadGroups();
-  }, [open, locale, gameMode, reloadGroupsAndCounts]);
+  }, [open, locale, reloadGroupsAndCounts]);
 
   // Generate a unique name from label
   const generateGroupName = (displayLabel: string): string => {
@@ -138,19 +148,45 @@ export default function CustomGroupDialog({
     return sanitized || `group_${nanoid(6).toLowerCase()}`;
   };
 
+  // Get valid group types for current game mode
+  const getValidGroupTypes = (gameMode: string): string[] => {
+    if (gameMode === 'online') {
+      return ['solo', 'consumption'];
+    }
+    return ['solo', 'foreplay', 'sex', 'consumption'];
+  };
+
   // Initialize form with editing group data or defaults
   useEffect(() => {
     if (editingGroup) {
       setCurrentEditingGroup(editingGroup);
       setLabel(editingGroup.label);
-      setType(editingGroup.type || '');
+
+      // Set localGameMode to the group's actual game mode
+      const groupGameMode = editingGroup.gameMode || gameMode;
+      setLocalGameMode(groupGameMode);
+
+      // Check if the current type is valid for the group's game mode
+      const validTypes = getValidGroupTypes(groupGameMode);
+      const currentType = editingGroup.type || '';
+      setType(validTypes.includes(currentType) ? currentType : '');
+
       setIntensityLabels(editingGroup.intensities.map((i) => i.label));
       // Find matching template or reset to default
       setSelectedTemplateIndex(findMatchingTemplateIndex(editingGroup.intensities));
     } else if (currentEditingGroup) {
       // Keep current editing group if we're in edit mode
       setLabel(currentEditingGroup.label);
-      setType(currentEditingGroup.type || '');
+
+      // Set localGameMode to the current editing group's game mode
+      const groupGameMode = currentEditingGroup.gameMode || gameMode;
+      setLocalGameMode(groupGameMode);
+
+      // Check if the current type is valid for the group's game mode
+      const validTypes = getValidGroupTypes(groupGameMode);
+      const currentType = currentEditingGroup.type || '';
+      setType(validTypes.includes(currentType) ? currentType : '');
+
       setIntensityLabels(currentEditingGroup.intensities.map((i) => i.label));
       // Find matching template or reset to default
       setSelectedTemplateIndex(findMatchingTemplateIndex(currentEditingGroup.intensities));
@@ -159,7 +195,7 @@ export default function CustomGroupDialog({
       setCurrentEditingGroup(null);
       setLabel('');
       setType('');
-      setSelectedTemplateIndex(1); // Default to Simple (1-3) template
+      setSelectedTemplateIndex(0); // Default to Simple (1-3) template
       setIntensityLabels([
         t('intensityLabels.beginner'),
         t('intensityLabels.intermediate'),
@@ -167,7 +203,15 @@ export default function CustomGroupDialog({
       ]);
     }
     setValidation({ isValid: true, errors: [] });
-  }, [editingGroup, currentEditingGroup, open, t]);
+  }, [editingGroup, currentEditingGroup, open, gameMode, t]);
+
+  // Clear invalid group type when game mode changes
+  useEffect(() => {
+    const validTypes = getValidGroupTypes(localGameMode);
+    if (type && !validTypes.includes(type)) {
+      setType('');
+    }
+  }, [localGameMode, type]);
 
   // Handle template selection
   const handleTemplateChange = (templateIndex: number) => {
@@ -244,7 +288,7 @@ export default function CustomGroupDialog({
         intensities,
         type: (type as GroupType) || undefined,
         locale,
-        gameMode,
+        gameMode: localGameMode,
         isDefault: false,
       };
 
@@ -258,7 +302,7 @@ export default function CustomGroupDialog({
     type,
     intensityLabels,
     locale,
-    gameMode,
+    localGameMode,
     currentEditingGroup,
     t,
     validationConstants.VALID_GROUP_TYPES,
@@ -303,6 +347,7 @@ export default function CustomGroupDialog({
 
       // Notify parent if needed
       onGroupUpdated?.(null); // Trigger refresh in parent
+      // Groups will refresh automatically via reactive hooks
     } catch (error) {
       console.error('Error deleting group:', error);
     } finally {
@@ -334,7 +379,7 @@ export default function CustomGroupDialog({
         intensities,
         type: (type as GroupType) || undefined,
         locale,
-        gameMode,
+        gameMode: localGameMode,
         isDefault: false,
       };
 
@@ -342,6 +387,7 @@ export default function CustomGroupDialog({
         // Update existing group
         await updateCustomGroup(currentEditingGroup.id, groupData);
         onGroupUpdated?.(currentEditingGroup);
+        // Groups will be refreshed by the callback
       } else {
         // Create new group
         const groupId = await addCustomGroup(groupData);
@@ -353,8 +399,9 @@ export default function CustomGroupDialog({
             updatedAt: new Date(),
             isDefault: false,
             locale,
-            gameMode,
+            gameMode: localGameMode,
           });
+          // Groups will be refreshed by the callback
         }
       }
 
@@ -517,20 +564,23 @@ export default function CustomGroupDialog({
                   {t('customGroups.groupInformation')}
                 </Typography>
 
+                {/* Game Mode Dropdown */}
                 <TextField
-                  label={t('customGroups.groupLabel')}
-                  value={label}
-                  onChange={(e) => setLabel(e.target.value)}
-                  placeholder="e.g., My Custom Group"
-                  helperText={t('customGroups.groupLabelHelp', {
-                    maxLength: validationConstants.MAX_GROUP_LABEL_LENGTH,
-                  })}
+                  select
+                  label={t('customGroups.gameMode')}
+                  value={localGameMode}
+                  onChange={(e) => {
+                    setLocalGameMode(e.target.value);
+                  }}
+                  helperText={t('customGroups.gameModeHelp')}
                   fullWidth
-                  required
-                  error={label.trim().length > 0 && !validateGroupLabel(label).isValid}
                   sx={{ mb: 2 }}
-                />
+                >
+                  <MenuItem value="online">{t('gameMode.online')}</MenuItem>
+                  <MenuItem value="local">{t('gameMode.local')}</MenuItem>
+                </TextField>
 
+                {/* Group Type Dropdown */}
                 <TextField
                   select
                   label={t('customGroups.groupType')}
@@ -546,15 +596,35 @@ export default function CustomGroupDialog({
                     <em>{t('groupTypes.selectType')}</em>
                   </MenuItem>
                   <MenuItem value="solo">{t('groupTypes.solo')}</MenuItem>
-                  <MenuItem value="foreplay">{t('groupTypes.foreplay')}</MenuItem>
-                  <MenuItem value="sex">{t('groupTypes.sex')}</MenuItem>
+                  {localGameMode === 'local' && [
+                    <MenuItem key="foreplay" value="foreplay">
+                      {t('groupTypes.foreplay')}
+                    </MenuItem>,
+                    <MenuItem key="sex" value="sex">
+                      {t('groupTypes.sex')}
+                    </MenuItem>,
+                  ]}
                   <MenuItem value="consumption">{t('groupTypes.consumption')}</MenuItem>
                 </TextField>
 
+                {/* Group Label Field */}
+                <TextField
+                  label={t('customGroups.groupLabel')}
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
+                  placeholder="e.g., My Custom Group"
+                  helperText={t('customGroups.groupLabelHelp', {
+                    maxLength: validationConstants.MAX_GROUP_LABEL_LENGTH,
+                  })}
+                  fullWidth
+                  required
+                  error={label.trim().length > 0 && !validateGroupLabel(label).isValid}
+                  sx={{ mb: 2 }}
+                />
+
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                   <Typography variant="body2" color="text.secondary">
-                    <strong>{t('customGroups.locale')}</strong> {locale} |{' '}
-                    <strong>{t('customGroups.gameMode')}</strong> {gameMode}
+                    <strong>{t('customGroups.locale')}</strong> {locale}
                   </Typography>
                   {currentEditingGroup ? (
                     <Typography variant="body2" color="text.secondary">

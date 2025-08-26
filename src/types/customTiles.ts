@@ -1,12 +1,13 @@
 // Base CustomTile interface (for pushing)
 export interface CustomTileBase {
-  group: string;
+  group: string; // Keep for backward compatibility during migration
+  group_id?: string; // New foreign key field
   intensity: number;
   action: string;
   tags: string[];
   isEnabled?: number | boolean;
   isCustom: number;
-  gameMode?: string;
+  gameMode?: string; // Keep for backward compatibility during migration
   locale?: string;
 }
 
@@ -69,6 +70,13 @@ export interface SubmitMessage {
   type: 'error' | 'warning' | 'info' | 'success';
 }
 
+// Shared filter state for synchronization between AddCustomTile and ViewCustomTiles
+export interface SharedFilters {
+  gameMode: string;
+  groupName: string; // Group name for filter synchronization (ViewCustomTiles uses names)
+  intensity: string; // Empty string when ViewCustomTiles has 'All'
+}
+
 // Component Props Interfaces
 export interface CustomTileDialogProps {
   boardUpdated: () => void;
@@ -101,6 +109,8 @@ export interface AddCustomTileProps {
   tagList: string[];
   updateTileId: number | null;
   setUpdateTileId: (id: number | null) => void;
+  sharedFilters: SharedFilters;
+  setSharedFilters: (filters: SharedFilters) => void;
 }
 
 export interface ViewCustomTilesProps {
@@ -109,6 +119,8 @@ export interface ViewCustomTilesProps {
   mappedGroups: AllGameModeActions;
   updateTile: (id: number) => void;
   refreshTrigger: number;
+  sharedFilters: SharedFilters;
+  setSharedFilters: (filters: SharedFilters) => void;
 }
 
 export interface GetUniqueImportRecordsResult {

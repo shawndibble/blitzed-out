@@ -1,35 +1,77 @@
 import {
-  addCustomTile,
-  deleteAllIsCustomTiles as deleteAllCustomTiles,
+  deleteAllIsCustomTiles,
+  deleteCustomTile,
   getTiles,
   updateCustomTile,
 } from '@/stores/customTiles';
-import { deleteCustomGroup, getCustomGroups, importCustomGroups } from '@/stores/customGroups';
+import { deleteCustomGroup, getCustomGroups } from '@/stores/customGroups';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { getBoards, upsertBoard } from '@/stores/gameBoard';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
-import { SYNC_DELAY_MS } from '@/constants/actionConstants';
-import { Settings } from '@/types/Settings';
 import { getAuth } from 'firebase/auth';
+import { getBoards } from '@/stores/gameBoard';
 import { getFirestore } from 'firebase/firestore';
 import { useSettingsStore } from '@/stores/settingsStore';
-
-interface GameBoard {
-  title: string;
-  tiles: any[];
-  tags?: string[];
-  gameMode?: string;
-  isActive?: number;
-}
 
 // Updated to use inline type instead of separate interface to avoid unused warning
 
 const db = getFirestore();
 
+// Export function for sync modules (avoid naming conflict with import)
+export const deleteAllCustomTiles = deleteAllIsCustomTiles;
+
+// Helper function to clean up ALL duplicate tiles created by sync bug
+export async function cleanupDuplicateTiles(): Promise<boolean> {
+  try {
+    // Get all tiles to analyze duplicates
+    const allTiles = await getTiles({});
+
+    // Group tiles by composite key to find duplicates
+    const tileGroups = new Map<string, typeof allTiles>();
+
+    allTiles.forEach((tile) => {
+      const key = `${tile.gameMode || ''}|${tile.group}|${tile.intensity}|${tile.action}`;
+      if (!tileGroups.has(key)) {
+        tileGroups.set(key, []);
+      }
+      tileGroups.get(key)!.push(tile);
+    });
+
+    // For each group, keep only the original (lowest ID) and remove ALL duplicates
+    for (const [, tiles] of tileGroups) {
+      if (tiles.length > 1) {
+        // Sort by ID to find original (lowest ID)
+        tiles.sort((a, b) => (a.id || 0) - (b.id || 0));
+        const original = tiles[0];
+        const duplicates = tiles.slice(1);
+
+        // Check if any duplicate was disabled (user's intent)
+        const wasDisabled = duplicates.some((tile) => tile.isEnabled === 0);
+
+        // Delete ALL duplicates regardless of enabled state
+        for (const duplicate of duplicates) {
+          if (duplicate.id) {
+            await deleteCustomTile(duplicate.id);
+          }
+        }
+
+        // If any duplicate was disabled, disable the original (preserve user intent)
+        if (wasDisabled && original.isEnabled === 1) {
+          await updateCustomTile(original.id!, { isEnabled: 0 });
+        }
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error cleaning up duplicate tiles:', error);
+    return false;
+  }
+}
+
 // Helper function to clear only user-created custom groups (preserve default groups)
-async function clearUserCustomGroups(): Promise<boolean> {
+export async function clearUserCustomGroups(): Promise<boolean> {
   try {
     const userGroups = await getCustomGroups({ isDefault: false });
 
@@ -45,7 +87,7 @@ async function clearUserCustomGroups(): Promise<boolean> {
 }
 
 // Helper function to reset disabled defaults back to enabled state before restoring from Firebase
-async function resetDisabledDefaults(): Promise<boolean> {
+export async function resetDisabledDefaults(): Promise<boolean> {
   try {
     const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
 
@@ -64,7 +106,7 @@ async function resetDisabledDefaults(): Promise<boolean> {
 }
 
 // Helper function to apply disabled defaults from Firebase to existing default tiles
-async function applyDisabledDefaults(disabledDefaults: CustomTilePull[]): Promise<boolean> {
+export async function applyDisabledDefaults(disabledDefaults: CustomTilePull[]): Promise<boolean> {
   try {
     // Prefetch all existing default tiles in a single query
     const allDefaultTiles = await getTiles({ isCustom: 0 });
@@ -113,6 +155,20 @@ export async function syncCustomTilesToFirebase(): Promise<boolean> {
     // Get disabled default tiles (user disabled these defaults)
     const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
 
+    // Add validation to prevent uploading excessive disabled defaults
+    const MAX_REASONABLE_DISABLED_DEFAULTS = 100;
+    if (disabledDefaults.length > MAX_REASONABLE_DISABLED_DEFAULTS) {
+      console.warn(
+        `⚠️  Attempting to sync ${disabledDefaults.length} disabled defaults, which seems excessive.`
+      );
+      console.warn(
+        'This may indicate corrupted local data. Limiting to first 100 disabled defaults.'
+      );
+
+      // Limit to first 100 to prevent Firebase corruption
+      disabledDefaults.splice(MAX_REASONABLE_DISABLED_DEFAULTS);
+    }
+
     // Create a document in Firebase with both custom tiles and disabled defaults
     await setDoc(
       doc(db, 'user-data', user.uid),
@@ -127,6 +183,53 @@ export async function syncCustomTilesToFirebase(): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('Error syncing custom tiles:', error);
+    return false;
+  }
+}
+
+// Utility function to clean up corrupted disabled defaults in Firebase
+export async function cleanupCorruptedDisabledDefaults(): Promise<boolean> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    console.error('No user logged in');
+    return false;
+  }
+
+  try {
+    // Get only genuinely user-disabled tiles (reasonable count)
+    const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
+
+    // If still excessive, something is wrong locally too
+    if (disabledDefaults.length > 100) {
+      console.warn(
+        '⚠️  Local disabled defaults count is also excessive. This suggests system-wide data corruption.'
+      );
+      console.warn('Consider using the reset disabled defaults function in the app settings.');
+      return false;
+    }
+
+    // Get current Firebase data to preserve other fields
+    const userDocRef = doc(db, 'user-data', user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      return true;
+    }
+
+    const userData = userDoc.data();
+
+    // Update only the disabledDefaults field with the cleaned data
+    await setDoc(userDocRef, {
+      ...userData,
+      disabledDefaults,
+      lastUpdated: new Date(),
+    });
+
+    return true;
+  } catch (error) {
+    console.error('❌ Error cleaning up corrupted disabled defaults:', error);
     return false;
   }
 }
@@ -211,15 +314,20 @@ export async function syncSettingsToFirebase(): Promise<boolean> {
     // Get current settings from store
     const { settings } = useSettingsStore.getState();
 
-    // Filter out local player settings - they should stay in React app only
+    // Filter out local player settings and any undefined values - they should stay in React app only
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { localPlayers, ...settingsForFirebase } = settings;
+
+    // Remove any undefined values from settings to prevent Firebase errors
+    const cleanSettings = Object.fromEntries(
+      Object.entries(settingsForFirebase).filter(([, value]) => value !== undefined)
+    );
 
     // Create a document in Firebase with filtered user settings
     await setDoc(
       doc(db, 'user-data', user.uid),
       {
-        settings: settingsForFirebase,
+        settings: cleanSettings,
         lastUpdated: new Date(),
       },
       { merge: true }
@@ -241,135 +349,68 @@ export async function syncAllDataToFirebase(): Promise<boolean> {
   return true;
 }
 
-// Sync data from Firebase to Dexie (SURGICAL APPROACH - preserves default content)
-export async function syncDataFromFirebase(): Promise<boolean> {
+// Intelligent sync that handles conflicts - meant for user-initiated sync
+export async function intelligentSync(): Promise<{ success: boolean; conflicts?: string[] }> {
   const auth = getAuth();
   const user = auth.currentUser;
 
   if (!user) {
-    console.error('No user logged in');
-    return false;
+    return { success: false, conflicts: ['No user logged in'] };
   }
 
   try {
-    // Get user data from Firebase
+    // Get both local and Firebase data
     const userDocRef = doc(db, 'user-data', user.uid);
     const userDoc = await getDoc(userDocRef);
 
+    const localCustomTiles = await getTiles({ isCustom: 1 });
+    const localCustomGroups = await getCustomGroups({ isDefault: false });
+
+    const conflicts: string[] = [];
+
     if (!userDoc.exists()) {
-      return false;
+      // No Firebase data - sync local to Firebase
+      await syncAllDataToFirebase();
+      return { success: true };
     }
 
     const userData = userDoc.data();
+    const firebaseCustomTiles = (userData.customTiles as CustomTilePull[]) || [];
+    const firebaseCustomGroups = (userData.customGroups as CustomGroupPull[]) || [];
 
-    // SURGICAL APPROACH: Only clear user-created content, preserve defaults
-
-    // 1. Only clear custom tiles (preserve default tiles)
-    if (userData.customTiles !== undefined) {
-      await deleteAllCustomTiles();
-
-      // Add a delay after clearing custom tiles before syncing with remote server
-      await new Promise((resolve) => setTimeout(resolve, SYNC_DELAY_MS));
-
-      // Only import if there are tiles to import
-      if (userData.customTiles && userData.customTiles.length > 0) {
-        for (const tile of userData.customTiles as CustomTilePull[]) {
-          try {
-            const existingTile = await getTiles({
-              gameMode: tile.gameMode,
-              group: tile.group,
-              intensity: tile.intensity,
-              action: tile.action,
-            });
-
-            if (existingTile.length === 0) {
-              await addCustomTile(tile);
-            }
-          } catch (error) {
-            console.error('Error importing custom tile:', tile, error);
-          }
-        }
-        // Successfully processed and imported custom tiles from Firebase into local Dexie database
-      } else {
-        // Firebase data contains empty custom tiles array - local database cleared but no new tiles to import
-      }
+    // Check for conflicts
+    if (localCustomTiles.length > 0 && firebaseCustomTiles.length > 0) {
+      conflicts.push(
+        `Custom tiles: Local has ${localCustomTiles.length}, Firebase has ${firebaseCustomTiles.length}`
+      );
     }
 
-    // 2. Only clear user-created custom groups (preserve default groups)
-    if (userData.customGroups !== undefined) {
-      // Use surgical delete - only removes user-created groups, NOT default groups
-      await clearUserCustomGroups();
-
-      // Add a delay after clearing custom groups before syncing with remote server
-      await new Promise((resolve) => setTimeout(resolve, SYNC_DELAY_MS));
-
-      // Only import if there are groups to import
-      if (userData.customGroups && userData.customGroups.length > 0) {
-        try {
-          await importCustomGroups(userData.customGroups as CustomGroupPull[]);
-          // Successfully bulk imported custom groups from Firebase with validation and error handling
-        } catch (error) {
-          console.error('Error importing custom groups:', error);
-        }
-      } else {
-        // Firebase data contains empty custom groups array - local database cleared but no new groups to import
-      }
+    if (localCustomGroups.length > 0 && firebaseCustomGroups.length > 0) {
+      conflicts.push(
+        `Custom groups: Local has ${localCustomGroups.length}, Firebase has ${firebaseCustomGroups.length}`
+      );
     }
 
-    // 3. Handle disabled defaults - restore user's disabled state preferences
-    if (userData.disabledDefaults !== undefined) {
-      // First reset all disabled defaults back to enabled
-      await resetDisabledDefaults();
-
-      // Add a delay before applying disabled state
-      await new Promise((resolve) => setTimeout(resolve, SYNC_DELAY_MS));
-
-      // Then apply the disabled state from Firebase
-      if (userData.disabledDefaults && userData.disabledDefaults.length > 0) {
-        try {
-          await applyDisabledDefaults(userData.disabledDefaults as CustomTilePull[]);
-          // Successfully restored user's disabled default action preferences from Firebase
-        } catch (error) {
-          console.error('Error applying disabled defaults:', error);
-        }
-      }
+    if (conflicts.length > 0) {
+      return { success: false, conflicts };
     }
 
-    // Import game boards
-    if (userData.gameBoards && userData.gameBoards.length > 0) {
-      for (const board of userData.gameBoards as GameBoard[]) {
-        await upsertBoard({
-          title: board.title,
-          tiles: board.tiles,
-          tags: board.tags || [],
-          gameMode: board.gameMode || 'online',
-          isActive: board.isActive || 0,
-        });
-      }
-      // Successfully imported all game boards from Firebase, upserting each board with proper defaults for missing fields
-    }
-
-    // Import user settings (including theme preferences)
-    if (userData.settings) {
-      try {
-        const { updateSettings } = useSettingsStore.getState();
-
-        // Merge Firebase settings with local settings
-        // Only update if the Firebase data is newer or has different values
-        const firebaseSettings = userData.settings as Partial<Settings>;
-        updateSettings(firebaseSettings);
-
-        // Successfully imported user settings from Firebase including theme preferences
-      } catch (error) {
-        console.error('Error importing settings:', error);
-      }
-    }
-
-    return true;
+    // No conflicts - proceed with normal sync
+    const result = await syncDataFromFirebase();
+    return { success: result };
   } catch (error) {
-    console.error('Error syncing data:', error);
-    return false;
+    console.error('Error in intelligent sync:', error);
+    return { success: false, conflicts: ['Sync failed due to error'] };
   }
+}
+
+// Enhanced sync with conflict resolution - preserves local data when Firebase is empty
+export async function syncDataFromFirebase(
+  options: { forceSync?: boolean } = {}
+): Promise<boolean> {
+  // Use the new sync orchestrator for better maintainability
+  const { SyncOrchestrator } = await import('./sync/syncOrchestrator');
+  return await SyncOrchestrator.syncFromFirebase(options);
 }
 
 // Variable to store the interval ID for periodic syncing
@@ -408,3 +449,6 @@ export function stopPeriodicSync(): boolean {
 export function isPeriodicSyncActive(): boolean {
   return syncIntervalId !== null;
 }
+
+// Manual cleanup function that can be called from console for immediate cleanup
+(window as any).cleanupTiles = cleanupDuplicateTiles;

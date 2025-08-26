@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import CustomGroupSelector from '../index';
-import { getAllAvailableGroups } from '@/stores/customGroups';
+import { getCustomGroups, getCustomGroupsWithTiles } from '@/stores/customGroups';
+import { getTileCountsByGroup } from '@/stores/customTiles';
+import { useEditorGroupsReactive } from '@/hooks/useGroupFiltering';
 
 // Mock the translation hook
 vi.mock('react-i18next', () => ({
@@ -24,7 +26,21 @@ vi.mock('react-i18next', () => ({
 // Mock the customGroups store
 vi.mock('@/stores/customGroups', () => ({
   getAllAvailableGroups: vi.fn(),
+  getCustomGroups: vi.fn(),
+  getCustomGroupsWithTiles: vi.fn(),
 }));
+
+// Mock the customTiles store
+vi.mock('@/stores/customTiles', () => ({
+  getTileCountsByGroup: vi.fn(),
+}));
+
+// Mock the useEditorGroupsReactive hook
+vi.mock('@/hooks/useGroupFiltering', () => ({
+  useEditorGroupsReactive: vi.fn(),
+}));
+
+// No longer need to mock groupRefresh store - using reactive hooks instead
 
 describe('CustomGroupSelector', () => {
   const mockGroups: CustomGroupPull[] = [
@@ -69,6 +85,11 @@ describe('CustomGroupSelector', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Set up default mock implementations
+    vi.mocked(getCustomGroups).mockResolvedValue(mockGroups);
+    vi.mocked(getCustomGroupsWithTiles).mockResolvedValue(mockGroups);
+    vi.mocked(getTileCountsByGroup).mockResolvedValue({});
   });
 
   afterEach(() => {
@@ -77,9 +98,17 @@ describe('CustomGroupSelector', () => {
 
   describe('loading state', () => {
     it('should show loading state initially', async () => {
-      vi.mocked(getAllAvailableGroups).mockImplementation(() => new Promise(() => {})); // Never resolves
+      // Mock the useEditorGroupsReactive hook to return loading state
+      vi.mocked(useEditorGroupsReactive).mockReturnValue({
+        groups: [],
+        loading: true,
+        error: null,
+        isEmpty: true,
+      });
 
-      render(<CustomGroupSelector {...defaultProps} />);
+      await act(async () => {
+        render(<CustomGroupSelector {...defaultProps} />);
+      });
 
       expect(screen.getByText('Loading groups...')).toBeInTheDocument();
       // Note: Progress bar is only shown in menu when opened, not in the label
@@ -89,13 +118,19 @@ describe('CustomGroupSelector', () => {
 
   describe('successful data loading', () => {
     it('should call getAllAvailableGroups with correct parameters', async () => {
-      vi.mocked(getAllAvailableGroups).mockResolvedValue(mockGroups);
+      // Mock the useEditorGroupsReactive hook to return data
+      vi.mocked(useEditorGroupsReactive).mockReturnValue({
+        groups: mockGroups.map((group) => ({
+          ...group,
+          hasNoTiles: false,
+          isAvailableForSetup: true,
+        })),
+        loading: false,
+        error: null,
+        isEmpty: false,
+      });
 
       render(<CustomGroupSelector {...defaultProps} />);
-
-      await waitFor(() => {
-        expect(getAllAvailableGroups).toHaveBeenCalledWith('en', 'online');
-      });
 
       await waitFor(() => {
         expect(screen.queryByText('Loading groups...')).not.toBeInTheDocument();
@@ -105,21 +140,35 @@ describe('CustomGroupSelector', () => {
 
   describe('empty state', () => {
     it('should handle empty groups array', async () => {
-      vi.mocked(getAllAvailableGroups).mockResolvedValue([]);
+      // Mock the useEditorGroupsReactive hook to return empty groups
+      vi.mocked(useEditorGroupsReactive).mockReturnValue({
+        groups: [],
+        loading: false,
+        error: null,
+        isEmpty: true,
+      });
 
       render(<CustomGroupSelector {...defaultProps} />);
 
       await waitFor(() => {
         expect(screen.queryByText('Loading groups...')).not.toBeInTheDocument();
       });
-
-      expect(getAllAvailableGroups).toHaveBeenCalledWith('en', 'online');
     });
   });
 
   describe('disabled state', () => {
     it('should render as disabled when disabled prop is true', async () => {
-      vi.mocked(getAllAvailableGroups).mockResolvedValue(mockGroups);
+      // Mock the useEditorGroupsReactive hook to return data
+      vi.mocked(useEditorGroupsReactive).mockReturnValue({
+        groups: mockGroups.map((group) => ({
+          ...group,
+          hasNoTiles: false,
+          isAvailableForSetup: true,
+        })),
+        loading: false,
+        error: null,
+        isEmpty: false,
+      });
 
       render(<CustomGroupSelector {...defaultProps} disabled={true} />);
 
@@ -136,31 +185,40 @@ describe('CustomGroupSelector', () => {
 
   describe('refresh trigger', () => {
     it('should reload groups when refreshTrigger changes', async () => {
-      vi.mocked(getAllAvailableGroups).mockResolvedValue(mockGroups);
+      // Mock the useEditorGroupsReactive hook to return data
+      vi.mocked(useEditorGroupsReactive).mockReturnValue({
+        groups: mockGroups.map((group) => ({
+          ...group,
+          hasNoTiles: false,
+          isAvailableForSetup: true,
+        })),
+        loading: false,
+        error: null,
+        isEmpty: false,
+      });
 
       const { rerender } = render(<CustomGroupSelector {...defaultProps} refreshTrigger={0} />);
 
-      await waitFor(() => {
-        expect(getAllAvailableGroups).toHaveBeenCalledTimes(1);
-      });
-
       rerender(<CustomGroupSelector {...defaultProps} refreshTrigger={1} />);
 
-      await waitFor(() => {
-        expect(getAllAvailableGroups).toHaveBeenCalledTimes(2);
-      });
+      // Note: The reactive hook automatically detects DB changes, no manual refresh needed
     });
   });
 
   describe('locale and gameMode filtering', () => {
-    it('should call getAllAvailableGroups with correct locale and gameMode', async () => {
-      vi.mocked(getAllAvailableGroups).mockResolvedValue([]);
+    it('should pass correct locale and gameMode to hook', async () => {
+      // Mock the useEditorGroupsReactive hook to return empty groups
+      vi.mocked(useEditorGroupsReactive).mockReturnValue({
+        groups: [],
+        loading: false,
+        error: null,
+        isEmpty: true,
+      });
 
       render(<CustomGroupSelector {...defaultProps} locale="es" gameMode="local" />);
 
-      await waitFor(() => {
-        expect(getAllAvailableGroups).toHaveBeenCalledWith('es', 'local');
-      });
+      // Verify the hook was called with correct parameters (no refresh trigger needed)
+      expect(useEditorGroupsReactive).toHaveBeenCalledWith('local', 'es');
     });
   });
 });

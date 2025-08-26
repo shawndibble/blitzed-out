@@ -10,6 +10,7 @@ import { forceFreshMigration } from '@/services/migrationService';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
 import { logger } from '@/utils/logger';
+import { safeLocalStorage } from '@/services/migration/errorHandling';
 
 // Mock dependencies
 vi.mock('@/stores/customTiles');
@@ -17,9 +18,23 @@ vi.mock('@/stores/customGroups');
 vi.mock('@/services/migrationService');
 vi.mock('@/utils/logger');
 
+// Mock safeLocalStorage
+vi.mock('@/services/migration/errorHandling', () => ({
+  safeLocalStorage: {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    getJSON: vi.fn(),
+    setJSON: vi.fn(),
+  },
+}));
+
 describe('syncRecoveryService', () => {
+  let mockStorage: Record<string, any> = {};
+
   beforeEach(() => {
     vi.clearAllMocks();
+    mockStorage = {}; // Clear the mock storage
     resetRecoveryStatus();
 
     // Mock console methods
@@ -29,6 +44,19 @@ describe('syncRecoveryService', () => {
     // Mock logger methods
     vi.mocked(logger.error).mockImplementation(() => {});
     vi.mocked(logger.debug).mockImplementation(() => {});
+
+    // Mock safeLocalStorage with persistent behavior
+    vi.mocked(safeLocalStorage.getJSON).mockImplementation((key: string) => {
+      return mockStorage[key] || null;
+    });
+    vi.mocked(safeLocalStorage.setJSON).mockImplementation((key: string, value: any) => {
+      mockStorage[key] = value;
+      return true;
+    });
+    vi.mocked(safeLocalStorage.removeItem).mockImplementation((key: string) => {
+      delete mockStorage[key];
+      return true;
+    });
   });
 
   afterEach(() => {
@@ -100,8 +128,10 @@ describe('syncRecoveryService', () => {
 
     it('should handle detection errors gracefully', async () => {
       // Ensure recovery status is cleared so detection logic runs
+      mockStorage = {};
       resetRecoveryStatus();
       vi.mocked(getCustomGroups).mockRejectedValue(new Error('Database error'));
+      vi.mocked(getTiles).mockRejectedValue(new Error('Database error'));
 
       const result = await runSyncRecovery();
 
@@ -115,6 +145,7 @@ describe('syncRecoveryService', () => {
 
     it('should handle recovery errors gracefully', async () => {
       // Ensure recovery status is cleared so detection logic runs
+      mockStorage = {};
       resetRecoveryStatus();
       // Mock corrupted state
       vi.mocked(getCustomGroups).mockResolvedValue([]);
@@ -136,6 +167,7 @@ describe('syncRecoveryService', () => {
   describe('corruption detection logic', () => {
     it('should identify corruption with multiple indicators', async () => {
       // Ensure recovery status is cleared so detection logic runs
+      mockStorage = {};
       resetRecoveryStatus();
       // Mock state with multiple corruption indicators
       vi.mocked(getCustomGroups).mockImplementation(async (filters: any) => {
@@ -178,6 +210,7 @@ describe('syncRecoveryService', () => {
   describe('wasUserAffectedBySync', () => {
     it('should return true if user was affected by sync bug', async () => {
       // Ensure recovery status is cleared so detection logic runs
+      mockStorage = {};
       resetRecoveryStatus();
       // Trigger recovery with corruption
       vi.mocked(getCustomGroups).mockResolvedValue([]);
@@ -205,6 +238,7 @@ describe('syncRecoveryService', () => {
   describe('forceRecovery', () => {
     it('should force recovery even if already performed', async () => {
       // First run
+      mockStorage = {};
       vi.mocked(getCustomGroups).mockResolvedValue([{ id: '1' }] as any);
       vi.mocked(getTiles).mockResolvedValue([{ id: '1' }] as any);
       await runSyncRecovery();

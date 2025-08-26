@@ -45,6 +45,7 @@ export default function DialogWrapper({
       fullWidth={fullWidth}
       aria-labelledby={ariaLabelledby}
       aria-describedby={ariaDescribedby}
+      disableRestoreFocus
     >
       <DialogTitle>
         {title}

@@ -17,6 +17,7 @@ import {
   AllGameModeActions,
   SubmitMessage,
   CustomTilePull,
+  SharedFilters,
 } from '@/types/customTiles';
 
 export default function CustomTileDialog({
@@ -40,6 +41,18 @@ export default function CustomTileDialog({
     solo: {},
   });
   const [isLoadingActions, setIsLoadingActions] = useState<boolean>(true);
+
+  // Shared filter state between AddCustomTile and ViewCustomTiles components
+  const [sharedFilters, setSharedFiltersState] = useState<SharedFilters>({
+    gameMode: 'online',
+    groupName: '',
+    intensity: '', // Empty string when ViewCustomTiles has 'All'
+  });
+
+  // Wrap setSharedFilters in useCallback to prevent unnecessary re-renders
+  const setSharedFilters = useCallback((filters: SharedFilters) => {
+    setSharedFiltersState(filters);
+  }, []);
 
   // Create a function to trigger refresh of the ViewCustomTiles component
   const triggerRefresh = useCallback(() => {
@@ -120,6 +133,8 @@ export default function CustomTileDialog({
           tagList={tagList}
           updateTileId={tileId}
           setUpdateTileId={setTileId}
+          sharedFilters={sharedFilters}
+          setSharedFilters={setSharedFilters}
         />
 
         <ImportExport
@@ -147,6 +162,8 @@ export default function CustomTileDialog({
             setExpanded('ctAdd');
           }}
           refreshTrigger={refreshTrigger}
+          sharedFilters={sharedFilters}
+          setSharedFilters={setSharedFilters}
         />
       </Box>
     );
@@ -181,6 +198,7 @@ export default function CustomTileDialog({
         onClose={() => setOpen(false)}
         maxWidth={!isSmallScreen ? 'lg' : 'sm'}
         fullWidth={true}
+        disableRestoreFocus
       >
         <DialogTitle>
           <Trans i18nKey="manageTiles" />

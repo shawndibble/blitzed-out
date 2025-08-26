@@ -12,9 +12,22 @@ const { customTiles } = db;
 customTiles.hook(
   'creating',
   function (this: any, _primKey: number | undefined, obj: CustomTile, _transaction: any) {
+    // Set default values
     if (obj.locale === undefined) obj.locale = 'en';
     if (obj.gameMode === undefined) obj.gameMode = 'online';
     if (obj.isCustom === undefined) obj.isCustom = 1;
+
+    // For sync operations, group_id is required. For initial setup and default tile imports,
+    // we allow tiles without group_id temporarily but log a warning for monitoring
+    if (!obj.group_id || !obj.group_id.trim()) {
+      // Only enforce group_id for custom tiles (isCustom: 1) during sync operations
+      // Default tiles from JSON imports (isCustom: 0) can be imported without group_id initially
+      if (obj.isCustom === 1) {
+        console.warn(
+          `Custom tile missing group_id (sync may fail): ${obj.action} (group: ${obj.group})`
+        );
+      }
+    }
   }
 );
 
@@ -27,7 +40,16 @@ export const importCustomTiles = async (
 
 // Helper function to create and filter the query
 const createFilteredQuery = (filters: Partial<CustomTileFilters>) => {
-  const possibleFilters = ['locale', 'gameMode', 'group', 'intensity', 'tag', 'isCustom', 'action'];
+  const possibleFilters = [
+    'locale',
+    'gameMode',
+    'group',
+    'intensity',
+    'tag',
+    'isCustom',
+    'isEnabled',
+    'action',
+  ];
   let query: Collection<CustomTilePull, number | undefined> = (
     customTiles as Table<CustomTilePull, number>
   ).toCollection();
@@ -155,20 +177,21 @@ export const getTileCountsByGroup = async (
 
   return allTiles.reduce<Record<string, { count: number; intensities: Record<number, number> }>>(
     (groups, tile) => {
-      const group = tile.group;
-      if (!groups[group]) {
-        groups[group] = {
+      // Use group_id if available, fallback to group name for backward compatibility
+      const groupKey = tile.group_id || tile.group;
+      if (!groups[groupKey]) {
+        groups[groupKey] = {
           count: 0,
           intensities: {},
         };
       }
-      groups[group].count++;
+      groups[groupKey].count++;
 
       const intensity = Number(tile.intensity);
-      if (!groups[group].intensities[intensity]) {
-        groups[group].intensities[intensity] = 0;
+      if (!groups[groupKey].intensities[intensity]) {
+        groups[groupKey].intensities[intensity] = 0;
       }
-      groups[group].intensities[intensity]++;
+      groups[groupKey].intensities[intensity]++;
 
       return groups;
     },
@@ -207,11 +230,18 @@ export const updateCustomTile = async (
 
 export const toggleCustomTile = async (id: number): Promise<number> => {
   const tile = await customTiles.get(id);
-  if (!tile) throw new Error(`Custom tile with id ${id} not found`);
 
-  return await customTiles.update(id, {
-    isEnabled: !tile.isEnabled ? 1 : 0,
+  if (!tile) {
+    throw new Error(`Custom tile with id ${id} not found`);
+  }
+
+  const newEnabledState = !tile.isEnabled ? 1 : 0;
+
+  const result = await customTiles.update(id, {
+    isEnabled: newEnabledState,
   });
+
+  return result;
 };
 
 export async function deleteAllIsCustomTiles(): Promise<boolean> {
@@ -264,5 +294,107 @@ export const deleteCustomTilesByGroup = async (
   } catch (error) {
     console.error('Error deleting tiles by group:', error);
     return 0;
+  }
+};
+
+/**
+ * NEW: Get tiles by group ID (normalized approach)
+ * This uses the new group_id foreign key for better performance
+ */
+export const getTilesByGroupId = async (
+  groupId: string,
+  locale = 'en',
+  gameMode = 'online'
+): Promise<CustomTilePull[]> => {
+  try {
+    return await retryOnCursorError(
+      db,
+      async () => {
+        return await customTiles
+          .where('group_id')
+          .equals(groupId)
+          .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
+          .toArray();
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in getTilesByGroupId: ${message}`, error);
+      }
+    );
+  } catch (error) {
+    console.error('Final error in getTilesByGroupId:', error);
+    return [];
+  }
+};
+
+/**
+ * NEW: Count tiles by group ID (normalized approach)
+ */
+export const countTilesByGroupId = async (
+  groupId: string,
+  locale = 'en',
+  gameMode = 'online'
+): Promise<number> => {
+  try {
+    return await customTiles
+      .where('group_id')
+      .equals(groupId)
+      .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
+      .count();
+  } catch (error) {
+    console.error('Error counting tiles by group ID:', error);
+    return 0;
+  }
+};
+
+/**
+ * NEW: Delete tiles by group ID (normalized approach with cascading)
+ */
+export const deleteCustomTilesByGroupId = async (
+  groupId: string,
+  locale = 'en',
+  gameMode = 'online'
+): Promise<number> => {
+  try {
+    return await customTiles
+      .where('group_id')
+      .equals(groupId)
+      .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
+      .delete();
+  } catch (error) {
+    console.error('Error deleting tiles by group ID:', error);
+    return 0;
+  }
+};
+
+/**
+ * NEW: Get tiles with group information joined (efficient normalized query)
+ * Returns tiles with their associated group data
+ */
+export const getTilesWithGroups = async (
+  filters: Omit<CustomTileFilters, 'page' | 'limit' | 'paginated'> = {}
+): Promise<Array<CustomTilePull & { groupData?: any }>> => {
+  try {
+    const { getCustomGroups } = await import('./customGroups');
+
+    // Get tiles using existing filtering
+    const tiles = await getTiles(filters);
+
+    // Get all relevant groups for this locale/gameMode
+    const groups = await getCustomGroups({
+      locale: filters.locale,
+      gameMode: filters.gameMode,
+    });
+
+    // Create group lookup map
+    const groupMap = new Map(groups.map((g) => [g.id, g]));
+
+    // Join tiles with their group data
+    return tiles.map((tile) => ({
+      ...tile,
+      groupData: tile.group_id ? groupMap.get(tile.group_id) : null,
+    }));
+  } catch (error) {
+    console.error('Error in getTilesWithGroups:', error);
+    return [];
   }
 };

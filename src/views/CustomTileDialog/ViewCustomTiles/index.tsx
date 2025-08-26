@@ -35,13 +35,16 @@ export default function ViewCustomTiles({
   mappedGroups,
   updateTile,
   refreshTrigger,
+  sharedFilters,
+  setSharedFilters,
 }: ViewCustomTilesProps) {
   const { t, i18n } = useTranslation();
   const { settings } = useGameSettings();
   const [tagFilter, setTagFilter] = useState<string | null>(null);
-  const [gameModeFilter, setGameModeFilter] = useState<string>(settings.gameMode || 'online');
-  const [groupFilter, setGroupFilter] = useState<string>('');
-  const [intensityFilter, setIntensityFilter] = useState<string | number>('');
+  // Use shared filters instead of individual state
+  const gameModeFilter = sharedFilters.gameMode;
+  const groupFilter = sharedFilters.groupName;
+  const intensityFilter = sharedFilters.intensity || 'all'; // Default to 'all' when empty
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [tiles, setTiles] = useState<TileData>({ items: [], total: 0, totalPages: 1 });
@@ -72,7 +75,9 @@ export default function ViewCustomTiles({
         // Merge group definitions with tile counts
         const groupData: CustomTileGroups = {};
         allGroups.forEach((group) => {
-          const counts = tileCounts[group.name] || { count: 0, intensities: {} };
+          // Check both group.id and group.name since tiles might be stored with either
+          const counts = tileCounts[group.id] ||
+            tileCounts[group.name] || { count: 0, intensities: {} };
           groupData[group.name] = {
             label: group.label || group.name,
             count: counts.count,
@@ -85,20 +90,26 @@ export default function ViewCustomTiles({
         // Extract group names from all available groups (not just those with tiles)
         const groupNames = allGroups.map((group) => group.name);
 
-        // Check if current groupFilter is valid in the new list
+        // Check if current groupFilter (groupName) is valid in the new list
         const isCurrentGroupValid = groupNames.includes(groupFilter);
 
         // Set default group filter if not already set or if current is invalid
         if ((!groupFilter || !isCurrentGroupValid) && groupNames.length > 0) {
-          setGroupFilter(groupNames[0]);
-          setIntensityFilter('all');
+          setSharedFilters({
+            ...sharedFilters,
+            groupName: groupNames[0],
+            intensity: '', // Empty string for 'all' in AddCustomTile
+          });
         } else if (isCurrentGroupValid && intensityFilter !== 'all') {
           // Verify intensity is valid for this group - use the group definition, not tile data
           const selectedGroup = allGroups.find((g) => g.name === groupFilter);
           if (selectedGroup) {
             const validIntensityValues = selectedGroup.intensities.map((i) => i.value);
             if (!validIntensityValues.includes(Number(intensityFilter))) {
-              setIntensityFilter('all');
+              setSharedFilters({
+                ...sharedFilters,
+                intensity: '', // Empty string for 'all' in AddCustomTile
+              });
             }
           }
         }
@@ -110,7 +121,15 @@ export default function ViewCustomTiles({
     }
 
     loadGroupsAndCounts();
-  }, [gameModeFilter, i18n.resolvedLanguage, tagFilter, groupFilter, intensityFilter]);
+  }, [
+    gameModeFilter,
+    i18n.resolvedLanguage,
+    tagFilter,
+    groupFilter,
+    intensityFilter,
+    setSharedFilters,
+    sharedFilters,
+  ]);
 
   // Load tiles when filters change
   useEffect(() => {
@@ -321,17 +340,25 @@ export default function ViewCustomTiles({
           mappedGroups={mappedGroups}
           dexieGroups={dexieGroups}
           onGameModeChange={(value: string) => {
-            setGameModeFilter(value);
-            setGroupFilter('');
-            setIntensityFilter('');
+            setSharedFilters({
+              gameMode: value,
+              groupName: '',
+              intensity: '',
+            });
             setPage(1);
           }}
           onGroupChange={(value: string) => {
-            setGroupFilter(value);
+            setSharedFilters({
+              ...sharedFilters,
+              groupName: value,
+            });
             setPage(1);
           }}
           onIntensityChange={(value: string | number) => {
-            setIntensityFilter(value);
+            setSharedFilters({
+              ...sharedFilters,
+              intensity: value === 'all' ? '' : value.toString(), // Convert 'all' to empty string for AddCustomTile
+            });
             setPage(1);
           }}
         />

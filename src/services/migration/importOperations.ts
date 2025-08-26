@@ -9,6 +9,7 @@ import { CustomTileBase } from '@/types/customTiles';
 import { ImportResult } from './types';
 import { logError, withErrorHandling, isDuplicateError } from './errorHandling';
 import { getActionGroupNames } from './fileDiscovery';
+import { createDeterministicGroupId } from './groupIdMigration';
 
 /**
  * Import a single action file and convert it to a custom group with custom tiles
@@ -37,8 +38,12 @@ export const importActionFile = async (
         isDefault: true,
       }));
 
-    // Create the custom group
-    const customGroup: CustomGroupBase = {
+    // Create deterministic ID for default groups to ensure consistency across devices
+    const deterministicId = createDeterministicGroupId(groupName, locale, gameMode);
+
+    // Create the custom group with deterministic ID
+    const customGroup: CustomGroupBase & { id?: string } = {
+      id: deterministicId, // Set deterministic ID for sync consistency
       name: groupName,
       label,
       intensities,
@@ -63,6 +68,7 @@ export const importActionFile = async (
         if (typeof action === 'string' && action.trim()) {
           customTiles.push({
             group: groupName,
+            group_id: deterministicId, // Assign the deterministic group ID
             intensity: intensity.value,
             action: action.trim(),
             tags: ['default'], // Mark as default tiles from JSON files
@@ -96,7 +102,18 @@ const addCustomGroupSafely = async (customGroup: CustomGroupBase): Promise<boole
 };
 
 /**
- * Filter out existing tiles to prevent duplicates
+ * Validates that all tiles have proper group_id assignment
+ */
+const validateTilesHaveGroupId = (tiles: CustomTileBase[]): void => {
+  for (const tile of tiles) {
+    if (!tile.group_id || !tile.group_id.trim()) {
+      throw new Error(`Tile missing group_id during import: ${tile.action} (group: ${tile.group})`);
+    }
+  }
+};
+
+/**
+ * Filter out existing tiles to prevent duplicates using group_id-based matching
  */
 const getNewTiles = async (
   customTiles: CustomTileBase[],
@@ -105,6 +122,9 @@ const getNewTiles = async (
   groupName: string
 ): Promise<CustomTileBase[]> => {
   try {
+    // Validate all tiles have proper group_id
+    validateTilesHaveGroupId(customTiles);
+
     const existingTiles = await getTiles({ locale, gameMode, group: groupName });
 
     if (!existingTiles || !Array.isArray(existingTiles)) {
@@ -114,7 +134,7 @@ const getNewTiles = async (
     return customTiles.filter((tile) => {
       return !existingTiles.some(
         (existing) =>
-          existing.group === tile.group &&
+          existing.group_id === tile.group_id &&
           existing.intensity === tile.intensity &&
           existing.action === tile.action &&
           existing.gameMode === tile.gameMode &&

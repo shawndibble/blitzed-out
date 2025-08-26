@@ -73,40 +73,19 @@ export default function TileCategorySelection({
     [dexieGroups, mappedGroupsFolder]
   );
 
-  // Helper function to get intensity label
-  const getIntensityLabel = useCallback(
-    (validGroupFilter: string, intensity: string): string => {
-      // First try to get intensity label from Dexie groups
-      if (dexieGroups?.[validGroupFilter]) {
-        const intensityData = dexieGroups[validGroupFilter].intensities.find(
-          (i) => i.value === Number(intensity)
-        );
-        if (intensityData?.label) {
-          return intensityData.label;
-        }
-      }
-
-      // Fallback to mappedGroups for default groups
-      const folderGroup = mappedGroupsFolder.find(
-        (g) => g.value === validGroupFilter && g.intensity === Number(intensity)
-      );
-      if (folderGroup?.translatedIntensity) {
-        return folderGroup.translatedIntensity;
-      }
-
-      // Final fallback
-      return `Level ${Number(intensity) + 1}`;
-    },
-    [dexieGroups, mappedGroupsFolder]
-  );
-
   // Extract unique groups whenever groups or gameMode changes
   useEffect(() => {
-    if (groups) {
-      const groupNames = Object.keys(groups);
-      setUniqueGroups(groupNames);
+    // Get group names from groups data (with counts) or fall back to dexieGroups (all available)
+    let groupNames: string[] = [];
+
+    if (groups && Object.keys(groups).length > 0) {
+      groupNames = Object.keys(groups);
+    } else if (dexieGroups && Object.keys(dexieGroups).length > 0) {
+      groupNames = Object.keys(dexieGroups);
     }
-  }, [groups, gameMode]);
+
+    setUniqueGroups(groupNames);
+  }, [groups, dexieGroups, gameMode]);
 
   function handleGroupFilterChange(event: SelectChangeEvent<string>) {
     const newGroup = event.target.value;
@@ -170,7 +149,7 @@ export default function TileCategorySelection({
           {uniqueGroups.map((group) => (
             <MenuItem key={group} value={group}>
               {getGroupLabel(group)}
-              {!hideAll && groups[group] && ` (${groups[group].count})`}
+              {!hideAll && groups && groups[group] && ` (${groups[group].count})`}
             </MenuItem>
           ))}
         </Select>
@@ -196,16 +175,22 @@ export default function TileCategorySelection({
             </MenuItem>
           )}
           {validGroupFilter &&
-            groups &&
-            groups[validGroupFilter] &&
-            Object.entries(groups[validGroupFilter].intensities || {})
-              .sort(([a], [b]) => Number(a) - Number(b))
-              .map(([intensity, count]) => (
-                <MenuItem key={intensity} value={Number(intensity)}>
-                  {getIntensityLabel(validGroupFilter, intensity)}
-                  {!hideAll && count !== undefined ? ` (${count})` : ''}
-                </MenuItem>
-              ))}
+            dexieGroups &&
+            dexieGroups[validGroupFilter] &&
+            dexieGroups[validGroupFilter].intensities
+              .sort((a, b) => a.value - b.value)
+              .map((intensityObj) => {
+                const count =
+                  groups && groups[validGroupFilter] && groups[validGroupFilter].intensities
+                    ? groups[validGroupFilter].intensities[intensityObj.value] || 0
+                    : 0;
+                return (
+                  <MenuItem key={intensityObj.value} value={intensityObj.value}>
+                    {intensityObj.label}
+                    {!hideAll ? ` (${count})` : ''}
+                  </MenuItem>
+                );
+              })}
         </Select>
       </FormControl>
     </Box>

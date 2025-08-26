@@ -207,7 +207,7 @@ describe('syncService', () => {
       vi.mocked(getTiles).mockResolvedValue([]);
       vi.mocked(addCustomTile).mockResolvedValue(1);
       vi.mocked(updateCustomTile).mockResolvedValue(1);
-      vi.mocked(deleteCustomGroup).mockResolvedValue(undefined);
+      vi.mocked(deleteCustomGroup).mockResolvedValue({ success: true });
       vi.mocked(getCustomGroups).mockResolvedValue([]);
       vi.mocked(importCustomGroups).mockResolvedValue(undefined);
       vi.mocked(useSettingsStore.getState).mockReturnValue({
@@ -234,6 +234,20 @@ describe('syncService', () => {
         ) {
           return [{ id: 100, isEnabled: 1, isCustom: 0 }] as any;
         }
+        // For applyDisabledDefaults - return all default tiles
+        if (filters?.isCustom === 0 && !filters?.isEnabled) {
+          return [
+            {
+              id: 100,
+              isEnabled: 1,
+              isCustom: 0,
+              gameMode: 'online',
+              group: 'teasing',
+              intensity: 1,
+              action: 'Default action',
+            },
+          ] as any;
+        }
         return [];
       });
 
@@ -245,7 +259,10 @@ describe('syncService', () => {
       expect(deleteAllIsCustomTiles).toHaveBeenCalled();
 
       // Should import custom tiles (no duplicates found)
-      expect(addCustomTile).toHaveBeenCalledWith(mockFirebaseData.customTiles[0]);
+      // Note: ID is removed to prevent constraint errors with auto-increment primary key
+      const { id, ...expectedTile } = mockFirebaseData.customTiles[0];
+      void id; // Explicitly ignore the id
+      expect(addCustomTile).toHaveBeenCalledWith(expectedTile);
 
       // Should apply disabled defaults to existing default tiles (not add new ones)
       expect(updateCustomTile).toHaveBeenCalledWith(100, { isEnabled: 0 });
@@ -286,7 +303,8 @@ describe('syncService', () => {
       const result = await syncDataFromFirebase();
 
       expect(result).toBe(true);
-      expect(deleteAllIsCustomTiles).toHaveBeenCalled();
+      // Should NOT delete local tiles when Firebase has empty tiles (data loss prevention)
+      expect(deleteAllIsCustomTiles).not.toHaveBeenCalled();
       expect(addCustomTile).not.toHaveBeenCalled();
     });
 
@@ -298,7 +316,8 @@ describe('syncService', () => {
 
       const result = await syncDataFromFirebase();
 
-      expect(result).toBe(false);
+      // Now returns true because it syncs local data TO Firebase instead of returning false
+      expect(result).toBe(true);
       expect(deleteAllIsCustomTiles).not.toHaveBeenCalled();
     });
 
@@ -319,7 +338,7 @@ describe('syncService', () => {
       const result = await syncDataFromFirebase();
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Error syncing data:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith('Error in sync orchestrator:', expect.any(Error));
 
       consoleSpy.mockRestore();
     });
@@ -350,11 +369,54 @@ describe('syncService', () => {
         },
       ];
 
+      // Mock Firebase data with disabled defaults that should be applied
+      // Note: Empty arrays for customTiles and customGroups will trigger local preservation
+      const mockTestFirebaseData = {
+        customTiles: [
+          { id: 99, action: 'Firebase tile', group: 'test', intensity: 1, isCustom: 1 },
+        ],
+        disabledDefaults: [
+          {
+            group: 'teasing',
+            intensity: 1,
+            action: 'Default action',
+            gameMode: 'online',
+          },
+        ],
+        customGroups: [{ id: 88, name: 'Firebase Group', isDefault: false }],
+      };
+
+      const mockDoc = {
+        exists: () => true,
+        data: () => mockTestFirebaseData,
+      };
+      vi.mocked(getDoc).mockResolvedValue(mockDoc as any);
+
       // Mock getTiles calls for different scenarios
       vi.mocked(getTiles).mockImplementation(async (filters: any) => {
+        if (filters?.isCustom === 1) {
+          // Return local custom tiles for conflict resolution
+          return [
+            { id: 1, action: 'Local custom tile', group: 'local', intensity: 1, isCustom: 1 },
+          ] as any;
+        }
         if (filters?.isCustom === 0 && filters?.isEnabled === 0) return mockExistingDisabled;
+        if (filters?.isCustom === 0 && !('isEnabled' in filters)) {
+          // For applyDisabledDefaults - return all default tiles for map building
+          return [
+            {
+              id: 4,
+              isEnabled: 1,
+              isCustom: 0,
+              gameMode: 'online',
+              group: 'teasing',
+              intensity: 1,
+              action: 'Default action',
+            },
+          ] as any;
+        }
         if (filters?.gameMode && filters?.group && filters?.intensity && filters?.action) {
-          // For applyDisabledDefaults - finding matching tiles
+          // For applyDisabledDefaults - finding matching tiles (legacy - not used now)
           return [{ id: 4, isEnabled: 1, isCustom: 0 }] as any;
         }
         return [];
@@ -369,11 +431,15 @@ describe('syncService', () => {
 
       expect(result).toBe(true);
 
-      // Verify surgical approach: only custom tiles cleared (preserves defaults)
-      expect(deleteAllIsCustomTiles).toHaveBeenCalled();
+      // Verify merge approach: custom tiles are merged, not deleted (preserves local data)
+      expect(deleteAllIsCustomTiles).not.toHaveBeenCalled();
+      // Should have added the Firebase tile to the existing local tile
+      expect(addCustomTile).toHaveBeenCalled();
 
-      // Verify surgical approach: only user groups cleared (preserves default groups)
-      expect(deleteCustomGroup).toHaveBeenCalledWith(mockUserGroups[0].id);
+      // Verify merge approach: custom groups are merged, not deleted (preserves local data)
+      expect(deleteCustomGroup).not.toHaveBeenCalled();
+      // Should have added the Firebase group alongside existing local groups
+      expect(importCustomGroups).toHaveBeenCalled();
 
       // Verify disabled defaults were reset to enabled before applying Firebase data
       expect(updateCustomTile).toHaveBeenCalledWith(mockExistingDisabled[0].id, { isEnabled: 1 });
@@ -386,10 +452,44 @@ describe('syncService', () => {
       // Test the core bug: user disables a default action, logs out, logs back in
       // The disabled action should be preserved, not reset to enabled
 
+      // Mock Firebase data with disabled defaults
+      const mockTestFirebaseData = {
+        customTiles: [],
+        disabledDefaults: [
+          {
+            group: 'teasing',
+            intensity: 1,
+            action: 'Default action',
+            gameMode: 'online',
+          },
+        ],
+        customGroups: [],
+      };
+
+      const mockDoc = {
+        exists: () => true,
+        data: () => mockTestFirebaseData,
+      };
+      vi.mocked(getDoc).mockResolvedValue(mockDoc as any);
+
       // Mock existing default tile that matches the disabled default from Firebase
       vi.mocked(getTiles).mockImplementation(async (filters: any) => {
+        if (filters?.isCustom === 0 && !('isEnabled' in filters)) {
+          // For applyDisabledDefaults - return all default tiles for map building
+          return [
+            {
+              id: 200,
+              isEnabled: 1,
+              isCustom: 0,
+              gameMode: 'online',
+              group: 'teasing',
+              intensity: 1,
+              action: 'Default action',
+            },
+          ] as any;
+        }
         if (filters?.gameMode && filters?.group && filters?.intensity && filters?.action) {
-          // For applyDisabledDefaults - finding matching tiles
+          // For applyDisabledDefaults - finding matching tiles (legacy - not used now)
           return [{ id: 200, isEnabled: 1, isCustom: 0 }] as any;
         }
         return [];
@@ -606,13 +706,31 @@ describe('syncService', () => {
         ) {
           return [];
         }
-        // For disabled defaults matching - return existing default tile
+        // For applyDisabledDefaults - return all default tiles for map building
+        if (filters?.isCustom === 0 && !('isEnabled' in filters)) {
+          return [
+            {
+              id: 300,
+              isEnabled: 1,
+              isCustom: 0,
+              gameMode: 'online',
+              group: 'teasing',
+              intensity: 1,
+              action: 'User disabled this default',
+            },
+          ] as any;
+        }
+        // For disabled defaults matching - return existing default tile (legacy)
         if (
           filters?.gameMode === 'online' &&
           filters?.group === 'teasing' &&
           filters?.action === 'User disabled this default'
         ) {
           return [{ id: 300, isEnabled: 1, isCustom: 0 }] as any;
+        }
+        // For resetDisabledDefaults - return empty (no disabled tiles to reset)
+        if (filters?.isCustom === 0 && filters?.isEnabled === 0) {
+          return [];
         }
         return [];
       });
@@ -622,7 +740,10 @@ describe('syncService', () => {
       expect(downloadResult).toBe(true);
 
       // Verify custom tiles are restored
-      expect(addCustomTile).toHaveBeenCalledWith(mockCustomTiles[0]);
+      // Note: ID is removed to prevent constraint errors with auto-increment primary key
+      const { id, ...expectedTile } = mockCustomTiles[0];
+      void id; // Explicitly ignore the id
+      expect(addCustomTile).toHaveBeenCalledWith(expectedTile);
 
       // Verify disabled defaults are applied to existing default tiles
       expect(updateCustomTile).toHaveBeenCalledWith(300, { isEnabled: 0 });

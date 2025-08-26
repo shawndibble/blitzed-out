@@ -159,8 +159,8 @@ describe('AuthProvider', () => {
       });
 
       await act(async () => {
-        // Only need to advance past the 1000ms setTimeout
-        vi.advanceTimersByTime(1000);
+        // Need to advance past the 3000ms setTimeout (updated delay)
+        vi.advanceTimersByTime(3000);
         await Promise.resolve();
       });
 

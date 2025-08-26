@@ -21,13 +21,16 @@
   "groupLabelRequired": "Se requiere etiqueta de grupo",
   "tilesCount": "{{count}} casillas",
   "online": "En línea",
+  "gameMode": {
+    "online": "En línea",
+    "local": "En persona"
+  },
   "players": "Jugadores",
   "localPlayer": "Local",
   "you": "tú",
   "setup": "Configuración del juego",
   "setupSubtitle": "Ingresa tu nombre y comienza la sesión",
   "buildGame": "Construir Juego",
-  "setupWizard": "Asist. Config.",
   "settings": "Config. Juego",
   "appSettings": "Config. Avanzada",
   "about": "Acerca de",
@@ -323,6 +326,7 @@
     "saving": "Guardando...",
     "groupTypeHelp": "Determina cuándo aparece este grupo en el Asistente de configuración",
     "groupLabelHelp": "Nombre mostrado a los usuarios (máx. {{maxLength}} caracteres)",
+    "gameModeHelp": "Selecciona si este grupo es para modos de juego en línea o en persona",
     "locale": "Idioma:",
     "gameMode": "Modo de juego:",
     "internalId": "ID interno:",
@@ -337,7 +341,8 @@
     "intensityLevelsCount": "{{count}} niveles de intensidad",
     "customTilesCount": "{{count}} fichas personalizadas",
     "levelLabel": "Nivel {{level}}",
-    "levelInputLabel": "Etiqueta del nivel {{level}}"
+    "levelInputLabel": "Etiqueta del nivel {{level}}",
+    "errorLoadingGroups": "Error al cargar grupos"
   },
   "intensityLabels": {
     "beginner": "Principiante",
@@ -418,7 +423,6 @@
   "confirmDeleteBoard": "¿Estás seguro de que quieres eliminar \"{{title}}\"?",
   "noPlannedGames": "No Hay Juegos Programados",
   "scheduleFirstGame": "¡Programa tu primer juego para comenzar!",
-  "manageGroups": "Gestionar Grupos",
   "scheduleValidation": {
     "selectDateTime": "Por favor selecciona una fecha y hora",
     "selectFutureDateTime": "Por favor selecciona una fecha y hora en el futuro",
@@ -610,5 +614,11 @@
     "currentStatus": {
       "hasPlayers": "Ya tienes jugadores locales configurados. Puedes configurar nuevos o continuar con tu configuración actual."
     }
+  },
+  "setupWizard": {
+    "title": "Asistente de configuración"
+  },
+  "manageGroups": {
+    "title": "Gestionar grupos"
   }
 }

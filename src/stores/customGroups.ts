@@ -1,15 +1,16 @@
-import i18next from 'i18next';
-import { nanoid } from 'nanoid';
-import db from './store';
-import { retryOnCursorError } from '@/utils/dbRecovery';
+import { Collection, Table } from 'dexie';
 import {
   CustomGroup,
   CustomGroupBase,
-  CustomGroupPull,
   CustomGroupFilters,
   CustomGroupIntensity,
+  CustomGroupPull,
 } from '@/types/customGroups';
-import { Collection, Table } from 'dexie';
+
+import db from './store';
+import i18next from 'i18next';
+import { nanoid } from 'nanoid';
+import { retryOnCursorError } from '@/utils/dbRecovery';
 
 const { customGroups } = db;
 
@@ -64,7 +65,8 @@ export const getCustomGroups = async (
       db,
       async () => {
         const query = createFilteredQuery(filters);
-        return await query.toArray();
+        const arrayData = await query.toArray();
+        return arrayData.sort((a, b) => a.name.localeCompare(b.name));
       },
       (message: string, error?: Error) => {
         console.error(`Error in getCustomGroups: ${message}`, error);
@@ -145,13 +147,46 @@ export const updateCustomGroup = async (
 };
 
 /**
- * Delete a custom group
+ * Delete a custom group with cascading delete protection
+ * Prevents deletion if tiles exist, unless forced
  */
-export const deleteCustomGroup = async (id: string): Promise<void> => {
+export const deleteCustomGroup = async (
+  id: string,
+  options: { force?: boolean; cascadeDelete?: boolean } = {}
+): Promise<{ success: boolean; tilesDeleted?: number; error?: string }> => {
   try {
+    const { countTilesByGroupId, deleteCustomTilesByGroupId } = await import('./customTiles');
+
+    // Check if group has associated tiles
+    const group = await customGroups.get(id);
+    if (!group) {
+      return { success: false, error: 'Group not found' };
+    }
+
+    const tileCount = await countTilesByGroupId(id, group.locale, group.gameMode);
+
+    if (tileCount > 0) {
+      if (!options.force && !options.cascadeDelete) {
+        return {
+          success: false,
+          error: `Cannot delete group "${group.name}". It has ${tileCount} associated tiles. Use force or cascadeDelete option.`,
+        };
+      }
+
+      if (options.cascadeDelete) {
+        // Delete all associated tiles first
+        const deletedTiles = await deleteCustomTilesByGroupId(id, group.locale, group.gameMode);
+        await customGroups.delete(id);
+        return { success: true, tilesDeleted: deletedTiles };
+      }
+    }
+
+    // Safe to delete - no tiles or force option used
     await customGroups.delete(id);
+    return { success: true };
   } catch (error) {
     console.error('Error in deleteCustomGroup:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 };
 
@@ -381,9 +416,9 @@ export const getAllAvailableGroups = async (
     const groups = await getCustomGroups({ locale, gameMode });
 
     // Additional safety deduplication by name (keep the first occurrence)
-    const uniqueGroups = groups.filter(
-      (group, index, self) => self.findIndex((g) => g.name === group.name) === index
-    );
+    const uniqueGroups = groups
+      .filter((group, index, self) => self.findIndex((g) => g.name === group.name) === index)
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     return uniqueGroups;
   } catch (error) {
@@ -405,10 +440,11 @@ export const getAllAvailableGroups = async (
 };
 
 /**
- * Get custom groups that have associated custom tiles
- * Only returns groups that actually have tiles created for them
+ * Get all groups that have associated tiles (both default and custom groups)
+ * Returns groups that actually have tiles created for them, regardless of whether they're default or custom
+ * Used by setup wizard and other contexts that need groups with tiles
  */
-export const getCustomGroupsWithTiles = async (
+export const getGroupsWithTiles = async (
   locale = 'en',
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
@@ -419,35 +455,41 @@ export const getCustomGroupsWithTiles = async (
         // Import getTiles from customTiles store
         const { getTiles } = await import('./customTiles');
 
-        // Get all custom groups for this locale/gameMode
+        // Get all groups for this locale/gameMode (both default and custom)
         const allGroups = await getCurrentGroups(gameMode);
 
-        // Get all custom tiles for this locale/gameMode (only custom tiles, not default)
-        const customTiles = await getTiles({
+        // Get ALL tiles for this locale/gameMode (both default tiles isCustom: 0 and custom tiles isCustom: 1)
+        const allTiles = await getTiles({
           locale,
           gameMode,
-          isCustom: 1,
         });
 
-        // Get unique group names that have custom tiles
-        const groupNamesWithTiles = new Set(customTiles.map((tile) => tile.group));
-
-        // Filter groups to only include those with tiles and are not default groups
-        const groupsWithTiles = allGroups.filter(
-          (group) => !group.isDefault && groupNamesWithTiles.has(group.name)
+        // Get unique group IDs that have any tiles
+        // Use group_id when available, fallback to group name for backward compatibility
+        const groupIdsWithTiles = new Set(
+          allTiles.map((tile) => tile.group_id || tile.group).filter(Boolean)
         );
+
+        // Filter groups to only include those that have tiles
+        // Match using group.id (which is the group_id that tiles reference)
+        const groupsWithTiles = allGroups.filter((group) => groupIdsWithTiles.has(group.id));
 
         return groupsWithTiles;
       },
       (message: string, error?: Error) => {
-        console.error(`Error in getCustomGroupsWithTiles: ${message}`, error);
+        console.error(`Error in getGroupsWithTiles: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in getCustomGroupsWithTiles:', error);
+    console.error('Final error in getGroupsWithTiles:', error);
     return [];
   }
 };
+
+/**
+ * @deprecated Use getGroupsWithTiles instead - this now includes all groups with tiles, not just custom ones
+ */
+export const getCustomGroupsWithTiles = getGroupsWithTiles;
 
 /**
  * Utility functions for post-migration runtime queries

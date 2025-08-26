@@ -21,13 +21,16 @@
   "groupLabelRequired": "需要群組標籤",
   "tilesCount": "{{count}} 磁磚",
   "online": "線上",
+  "gameMode": {
+    "online": "線上",
+    "local": "面對面"
+  },
   "players": "玩家",
   "localPlayer": "本地",
   "you": "你",
   "setup": "遊戲設置",
   "setupSubtitle": "輸入您的姓名並開始會話",
   "buildGame": "建立遊戲",
-  "setupWizard": "設置精靈",
   "settings": "設定",
   "appSettings": "進階設定",
   "about": "關於",
@@ -321,6 +324,7 @@
     "saving": "儲存中...",
     "groupTypeHelp": "決定此群組何時出現在設置精靈中",
     "groupLabelHelp": "向使用者顯示的名稱（最多 {{maxLength}} 個字元）",
+    "gameModeHelp": "選擇此群組是用於線上還是面對面遊戲模式",
     "locale": "語言：",
     "gameMode": "遊戲模式：",
     "internalId": "內部 ID：",
@@ -335,7 +339,8 @@
     "intensityLevelsCount": "{{count}} 個強度等級",
     "customTilesCount": "{{count}} 個自訂磁磚",
     "levelLabel": "等級 {{level}}",
-    "levelInputLabel": "等級 {{level}} 標籤"
+    "levelInputLabel": "等級 {{level}} 標籤",
+    "errorLoadingGroups": "載入群組時出錯"
   },
   "intensityLabels": {
     "beginner": "初學者",
@@ -416,7 +421,6 @@
   "confirmDeleteBoard": "您確定要刪除「{{title}}」嗎？",
   "noPlannedGames": "沒有計劃的遊戲",
   "scheduleFirstGame": "安排您的第一個遊戲開始吧！",
-  "manageGroups": "管理群組",
   "scheduleValidation": {
     "selectDateTime": "請選擇日期和時間",
     "selectFutureDateTime": "請選擇未來的日期和時間",
@@ -598,5 +602,11 @@
     "currentStatus": {
       "hasPlayers": "您已經配置了本地玩家。您可以設置新的或繼續使用當前設置。"
     }
+  },
+  "setupWizard": {
+    "title": "設置嚮導"
+  },
+  "manageGroups": {
+    "title": "管理群組"
   }
 }

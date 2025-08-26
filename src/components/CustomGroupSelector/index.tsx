@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   FormControl,
   InputLabel,
@@ -10,9 +9,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { CustomGroupSelectorProps, CustomGroupPull } from '@/types/customGroups';
-import { getAllAvailableGroups } from '@/stores/customGroups';
-
+import { CustomGroupSelectorProps } from '@/types/customGroups';
+import { useEditorGroupsReactive } from '@/hooks/useGroupFiltering';
 export default function CustomGroupSelector({
   value,
   onChange,
@@ -20,38 +18,15 @@ export default function CustomGroupSelector({
   gameMode,
   includeDefault = true,
   disabled = false,
-  refreshTrigger = 0,
+  refreshTrigger: _refreshTrigger = 0, // Keep for backward compatibility but no longer used
 }: CustomGroupSelectorProps) {
   const { t } = useTranslation();
-  const [groups, setGroups] = useState<CustomGroupPull[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Load available groups
-  useEffect(() => {
-    const loadGroups = async () => {
-      setLoading(true);
-      try {
-        // Migration is handled at app level - no need to check here
+  // Use the new reactive hook for editor context (all groups) - automatically detects DB changes
+  const { groups, loading, error } = useEditorGroupsReactive(gameMode, locale);
 
-        // Get all available groups for the locale/gameMode
-        const availableGroups = await getAllAvailableGroups(locale, gameMode);
-
-        // Filter by includeDefault if needed
-        const filteredGroups = includeDefault
-          ? availableGroups
-          : availableGroups.filter((group) => !group.isDefault);
-
-        setGroups(filteredGroups);
-      } catch (error) {
-        console.error('Error loading custom groups:', error);
-        setGroups([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadGroups();
-  }, [locale, gameMode, includeDefault, refreshTrigger]);
+  // Filter by includeDefault if needed
+  const filteredGroups = includeDefault ? groups : groups.filter((group) => !group.isDefault);
 
   if (loading) {
     return (
@@ -79,15 +54,17 @@ export default function CustomGroupSelector({
           onChange={(e) => onChange(e.target.value)}
           label={t('group')}
         >
-          {groups.length === 0 ? (
+          {filteredGroups.length === 0 ? (
             <MenuItem value="" disabled>
               <Typography color="text.secondary">
-                {t('customGroups.noGroupsAvailable', { locale, gameMode })}
+                {error
+                  ? t('customGroups.errorLoadingGroups')
+                  : t('customGroups.noGroupsAvailable', { locale, gameMode })}
               </Typography>
             </MenuItem>
           ) : (
-            groups.map((group) => (
-              <MenuItem key={group.id} value={group.name}>
+            filteredGroups.map((group) => (
+              <MenuItem key={group.id} value={group.id}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <span>{group.label}</span>
                   {group.isDefault && <Chip label={t('default')} size="small" variant="outlined" />}

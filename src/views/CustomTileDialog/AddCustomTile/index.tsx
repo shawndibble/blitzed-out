@@ -1,19 +1,21 @@
-import { Autocomplete, Box, Button, TextField, Typography } from '@mui/material';
-import { submitCustomAction } from '@/services/firebase';
-import { useEffect, useState, KeyboardEvent, FocusEvent, useCallback } from 'react';
+import { AddCustomTileProps, CustomTile } from '@/types/customTiles';
+import { Autocomplete, Box, Button, MenuItem, TextField, Typography } from '@mui/material';
+import { FocusEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import Accordion from '@/components/Accordion';
-import AccordionSummary from '@/components/Accordion/Summary';
-import AccordionDetails from '@/components/Accordion/Details';
-import CustomGroupSelector from '@/components/CustomGroupSelector';
-import IntensitySelector from '@/components/IntensitySelector';
-import CustomGroupDialog from '@/views/CustomGroupDialog';
 import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
+
+import Accordion from '@/components/Accordion';
+import AccordionDetails from '@/components/Accordion/Details';
+import AccordionSummary from '@/components/Accordion/Summary';
+import CustomGroupDialog from '@/views/CustomGroupDialog';
+import { CustomGroupPull } from '@/types/customGroups';
+import CustomGroupSelector from '@/components/CustomGroupSelector';
+import { FormDataState } from '@/types/addCustomTile';
+import IntensitySelector from '@/components/IntensitySelector';
+import { submitCustomAction } from '@/services/firebase';
+import { useEditorGroupsReactive } from '@/hooks/useGroupFiltering';
 import { useGameSettings } from '@/stores/settingsStore';
 import { validateCustomTileWithGroups } from '@/services/validationService';
-import { AddCustomTileProps, CustomTile } from '@/types/customTiles';
-import { FormDataState } from '@/types/addCustomTile';
-import { CustomGroupPull } from '@/types/customGroups';
 
 export default function AddCustomTile({
   setSubmitMessage,
@@ -25,14 +27,17 @@ export default function AddCustomTile({
   tagList,
   updateTileId,
   setUpdateTileId,
+  sharedFilters,
+  setSharedFilters,
 }: AddCustomTileProps) {
   const { t } = useTranslation();
   const { settings } = useGameSettings();
 
   const [formData, setFormData] = useState<FormDataState>({
-    gameMode: settings.gameMode || 'online',
-    group: '',
-    intensity: '',
+    gameMode: sharedFilters.gameMode || settings.gameMode || 'online',
+    group: sharedFilters.groupName || '', // Initialize from shared filters
+    group_id: '', // Will be set when group is selected
+    intensity: sharedFilters.intensity || '',
     action: '',
     tags: [t('custom')],
   });
@@ -40,7 +45,9 @@ export default function AddCustomTile({
   // UI state for custom group management
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
-  const [groupsRefreshTrigger, setGroupsRefreshTrigger] = useState(0);
+
+  // Get groups for the current game mode using the reactive hook - automatically detects DB changes
+  const { groups } = useEditorGroupsReactive(formData.gameMode, settings.locale || 'en');
 
   // Migration is handled at app level - removed redundant migration call
 
@@ -103,6 +110,7 @@ export default function AddCustomTile({
       setFormData({
         gameMode: tileGameMode,
         group: editTile.group || '',
+        group_id: editTile.group_id || '', // Load existing group_id for editing
         intensity: editTile.intensity || '',
         action: editTile.action || '',
         tags: editTile.tags || [t('custom')],
@@ -112,9 +120,44 @@ export default function AddCustomTile({
       setFormData((prev) => ({
         ...prev,
         gameMode: settings.gameMode,
+        group_id: '', // Reset group_id for new tiles
       }));
     }
   }, [updateTileId, settings.gameMode, customTiles, t]);
+
+  // Sync formData changes to sharedFilters (when AddCustomTile changes filter values)
+  useEffect(() => {
+    // Convert group_id to group name for shared filters
+    const selectedGroup = groups.find((g) => g.id === formData.group_id);
+    setSharedFilters({
+      gameMode: formData.gameMode,
+      groupName: selectedGroup?.name || formData.group || '',
+      intensity: formData.intensity ? formData.intensity.toString() : '',
+    });
+  }, [
+    formData.gameMode,
+    formData.group_id,
+    formData.group,
+    formData.intensity,
+    setSharedFilters,
+    groups,
+  ]);
+
+  // Sync sharedFilters changes to formData (when ViewCustomTiles changes filter values)
+  useEffect(() => {
+    // Only update if not editing a tile to avoid overriding edit state
+    if (!updateTileId) {
+      // Convert group name to group_id for internal use
+      const selectedGroup = groups.find((g) => g.name === sharedFilters.groupName);
+      setFormData((prev) => ({
+        ...prev,
+        gameMode: sharedFilters.gameMode,
+        group: sharedFilters.groupName,
+        group_id: selectedGroup?.id || '',
+        intensity: sharedFilters.intensity,
+      }));
+    }
+  }, [sharedFilters, updateTileId, groups]);
 
   function tileExists(
     group: string,
@@ -129,12 +172,20 @@ export default function AddCustomTile({
 
   function clear(): void {
     setUpdateTileId(null);
-    setFormData({
+    const clearedFormData = {
       gameMode: settings.gameMode,
       group: '',
+      group_id: '', // Clear group_id as well
       intensity: '',
       action: '',
       tags: [t('custom')],
+    };
+    setFormData(clearedFormData);
+    // Also update shared filters
+    setSharedFilters({
+      gameMode: clearedFormData.gameMode,
+      groupName: '',
+      intensity: '',
     });
     setValidationMessage('');
   }
@@ -143,18 +194,17 @@ export default function AddCustomTile({
   const handleGroupCreated = (group: CustomGroupPull) => {
     setFormData((prev) => ({
       ...prev,
-      group: group.name,
+      group: group.name, // Keep for backward compatibility during migration
+      group_id: group.id, // Use normalized group_id
       intensity: '',
     }));
     setGroupDialogOpen(false);
-    // Trigger refresh of groups in selector
-    setGroupsRefreshTrigger((prev) => prev + 1);
+    // No need to trigger refresh - reactive hook automatically detects DB changes
   };
 
   // Handle custom group updates/deletions
   const handleGroupUpdated = () => {
-    // Trigger refresh of groups in selector
-    setGroupsRefreshTrigger((prev) => prev + 1);
+    // No need to trigger refresh - reactive hook automatically detects DB changes
   };
 
   // Memoized intensity change handler to prevent unnecessary re-renders
@@ -198,11 +248,12 @@ export default function AddCustomTile({
     }
 
     const data: CustomTile = {
-      group,
+      group, // Keep for backward compatibility during migration
+      group_id: formData.group_id, // Use normalized group_id
       intensity: Number(intensity),
       action,
       tags: currentTags,
-      gameMode,
+      gameMode, // Keep for backward compatibility during migration
       isCustom: 1,
     };
 
@@ -318,36 +369,39 @@ export default function AddCustomTile({
                   ...prev,
                   gameMode: e.target.value,
                   group: '',
+                  group_id: '', // Clear group_id when game mode changes
                   intensity: '',
                 }));
               }}
               fullWidth
               sx={{ mb: 2 }}
             >
-              <option value="online">{t('online')}</option>
-              <option value="local">{t('local')}</option>
-              <option value="solo">{t('solo')}</option>
+              <MenuItem value="online">{t('gameMode.online')}</MenuItem>
+              <MenuItem value="local">{t('gameMode.local')}</MenuItem>
             </TextField>
 
             {/* Custom Group Selection */}
             <CustomGroupSelector
-              value={formData.group}
-              onChange={(groupName) => {
+              value={formData.group_id || ''}
+              onChange={(groupId) => {
+                // Find the selected group to get both id and name
+                const selectedGroup = groups.find((g) => g.id === groupId);
                 setFormData((prev) => ({
                   ...prev,
-                  group: groupName,
+                  group: selectedGroup?.name || '', // Keep for backward compatibility
+                  group_id: groupId, // Use normalized group_id
                   intensity: '',
                 }));
               }}
               locale={settings.locale || 'en'}
               gameMode={formData.gameMode}
-              refreshTrigger={groupsRefreshTrigger}
             />
 
             {/* Intensity Selection */}
             <Box sx={{ mt: 2 }}>
               <IntensitySelector
                 groupName={formData.group}
+                groupId={formData.group_id} // Pass both for backward compatibility
                 value={Number(formData.intensity) || 0}
                 onChange={handleIntensityChange}
                 locale={settings.locale || 'en'}
@@ -374,6 +428,11 @@ export default function AddCustomTile({
               value={formData.action}
               onChange={(event) => {
                 setFormData({ ...formData, action: event.target.value });
+              }}
+              onKeyUp={(event) => {
+                if (event.key === 'Enter') {
+                  submitNewTile();
+                }
               }}
             />
 
@@ -420,7 +479,7 @@ export default function AddCustomTile({
               gap={1}
             >
               <Button variant="outlined" type="button" onClick={() => setGroupDialogOpen(true)}>
-                {t('manageGroups')}
+                {t('manageGroups.title')}
               </Button>
               <Button variant="contained" type="button" onClick={() => clear()}>
                 <Trans i18nKey="clear" />

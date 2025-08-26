@@ -13,6 +13,7 @@ export interface CustomTileFilters {
   locale?: string;
   gameMode?: string;
   group?: string;
+  group_id?: string;
   intensity?: string | number | null;
   tag?: string | null;
   isCustom?: number;

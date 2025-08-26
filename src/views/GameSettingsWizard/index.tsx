@@ -39,7 +39,10 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     overrideSettings
   );
 
-  const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(formData.gameMode);
+  const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(
+    formData.gameMode,
+    true
+  );
 
   // Compute isPublic once per render
   const isPublic = isPublicRoom(formData.room);

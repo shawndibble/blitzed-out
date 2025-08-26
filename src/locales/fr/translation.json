@@ -21,13 +21,16 @@
   "groupLabelRequired": "L'étiquette de groupe est requise",
   "tilesCount": "{{count}} tuiles",
   "online": "En ligne",
+  "gameMode": {
+    "online": "En ligne",
+    "local": "En personne"
+  },
   "players": "Joueurs",
   "localPlayer": "Local",
   "you": "vous",
   "setup": "Configuration du jeu",
   "setupSubtitle": "Entrez votre nom et commencez la session",
   "buildGame": "Créer un Jeu",
-  "setupWizard": "Assistant",
   "settings": "Paramètres Jeu",
   "appSettings": "Param. Avancés",
   "about": "À propos",
@@ -324,6 +327,7 @@
     "saving": "Enregistrement...",
     "groupTypeHelp": "Détermine quand ce groupe apparaît dans l'Assistant de configuration",
     "groupLabelHelp": "Nom affiché aux utilisateurs (max. {{maxLength}} caractères)",
+    "gameModeHelp": "Sélectionnez si ce groupe est pour les modes de jeu en ligne ou en personne",
     "locale": "Langue :",
     "gameMode": "Mode de jeu :",
     "internalId": "ID interne :",
@@ -338,7 +342,8 @@
     "intensityLevelsCount": "{{count}} niveaux d'intensité",
     "customTilesCount": "{{count}} tuiles personnalisées",
     "levelLabel": "Niveau {{level}}",
-    "levelInputLabel": "Étiquette du niveau {{level}}"
+    "levelInputLabel": "Étiquette du niveau {{level}}",
+    "errorLoadingGroups": "Erreur lors du chargement des groupes"
   },
   "intensityLabels": {
     "beginner": "Débutant",
@@ -419,7 +424,6 @@
   "confirmDeleteBoard": "Êtes-vous sûr de vouloir supprimer \"{{title}}\" ?",
   "noPlannedGames": "Aucun Jeu Planifié",
   "scheduleFirstGame": "Planifiez votre premier jeu pour commencer !",
-  "manageGroups": "Gérer les Groupes",
   "scheduleValidation": {
     "selectDateTime": "Veuillez sélectionner une date et une heure",
     "selectFutureDateTime": "Veuillez sélectionner une date et une heure dans le futur",
@@ -611,5 +615,11 @@
     "currentStatus": {
       "hasPlayers": "Vous avez déjà des joueurs locaux configurés. Vous pouvez en configurer de nouveaux ou continuer avec votre configuration actuelle."
     }
+  },
+  "setupWizard": {
+    "title": "Assistant de configuration"
+  },
+  "manageGroups": {
+    "title": "Gérer les groupes"
   }
 }

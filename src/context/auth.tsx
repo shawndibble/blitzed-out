@@ -14,6 +14,7 @@ import {
 import {
   syncDataFromFirebase,
   syncAllDataToFirebase,
+  intelligentSync,
   startPeriodicSync,
   stopPeriodicSync,
 } from '@/services/syncService';
@@ -42,6 +43,7 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   wipeAllData: () => Promise<void>;
   syncData: () => Promise<boolean>;
+  intelligentSync: () => Promise<{ success: boolean; conflicts?: string[] }>;
   isAnonymous: boolean;
 }
 
@@ -270,6 +272,30 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     return performSync(syncAllDataToFirebase);
   }, [performSync]);
 
+  const handleIntelligentSync = useCallback(async (): Promise<{
+    success: boolean;
+    conflicts?: string[];
+  }> => {
+    // Don't use performSync wrapper for intelligent sync as it needs custom return type
+    if (!user || user.isAnonymous) {
+      return { success: false, conflicts: ['User not logged in or is anonymous'] };
+    }
+
+    try {
+      setSyncStatus({ syncing: true, lastSync: syncStatus.lastSync });
+      const result = await intelligentSync();
+      setSyncStatus({ syncing: false, lastSync: new Date() });
+      return result;
+    } catch (err: unknown) {
+      console.error('Intelligent sync error:', err);
+      setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+      return { success: false, conflicts: ['Sync failed due to error'] };
+    }
+  }, [user, syncStatus.lastSync]);
+
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = auth.onAuthStateChanged((userData: User | null) => {
@@ -322,7 +348,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
               .finally(() => {
                 syncTimeoutRef.current = null;
               });
-          }, 1000); // Increased debounce to allow UI to render first
+          }, 3000); // Increased delay to 3 seconds to ensure UI is fully loaded first
         };
 
         if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
@@ -330,10 +356,10 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
             window as Window & {
               requestIdleCallback: (callback: () => void, options?: { timeout: number }) => void;
             }
-          ).requestIdleCallback(deferSync, { timeout: 5000 });
+          ).requestIdleCallback(deferSync, { timeout: 10000 });
         } else {
-          // Fallback for browsers without requestIdleCallback
-          setTimeout(deferSync, 100);
+          // Fallback for browsers without requestIdleCallback - wait longer to allow UI to fully load
+          setTimeout(deferSync, 5000);
         }
       } else {
         // User is logged out or anonymous, stop periodic sync
@@ -386,6 +412,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       logout: logoutUser,
       wipeAllData: wipeAllAppDataAndReload,
       syncData,
+      intelligentSync: handleIntelligentSync,
       isAnonymous: user?.isAnonymous || false,
     }),
     [
@@ -398,6 +425,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       logoutUser,
       wipeAllAppDataAndReload,
       syncData,
+      handleIntelligentSync,
     ]
   );
 
