@@ -9,7 +9,6 @@ import {
 import { forceFreshMigration } from '@/services/migrationService';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
-import { logger } from '@/utils/logger';
 import { safeLocalStorage } from '@/services/migration/errorHandling';
 
 // Mock dependencies
@@ -42,8 +41,8 @@ describe('syncRecoveryService', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Mock logger methods
-    vi.mocked(logger.error).mockImplementation(() => {});
-    vi.mocked(logger.debug).mockImplementation(() => {});
+    vi.mocked(console.error).mockImplementation(() => {});
+    vi.mocked(console.debug).mockImplementation(() => {});
 
     // Mock safeLocalStorage with persistent behavior
     vi.mocked(safeLocalStorage.getJSON).mockImplementation((key: string) => {
@@ -137,7 +136,7 @@ describe('syncRecoveryService', () => {
 
       expect(result).toBe(false);
       expect(forceFreshMigration).not.toHaveBeenCalled();
-      expect(logger.error).toHaveBeenCalledWith(
+      expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('[Sync Recovery] Error detecting corruption:'),
         expect.any(Error)
       );
@@ -157,7 +156,7 @@ describe('syncRecoveryService', () => {
       const result = await runSyncRecovery();
 
       expect(result).toBe(false);
-      expect(logger.error).toHaveBeenCalledWith(
+      expect(console.error).toHaveBeenCalledWith(
         expect.stringContaining('[Sync Recovery] Error during recovery:'),
         expect.any(Error)
       );

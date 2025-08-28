@@ -111,40 +111,40 @@ const generateRecommendations = (slowTests) => {
 
 // Main function
 const main = async () => {
-  console.log('🔍 Analyzing test performance...\n');
+  console.info('🔍 Analyzing test performance...\n');
 
   try {
-    console.log('Running tests with performance monitoring...');
+    console.info('Running tests with performance monitoring...');
     const results = await runTests();
 
-    console.log('📊 Analyzing results...');
+    console.info('📊 Analyzing results...');
     const slowTests = analyzeResults(results);
 
     if (slowTests.length === 0) {
-      console.log('✅ Great! No tests over 1 second found.');
+      console.info('✅ Great! No tests over 1 second found.');
       return;
     }
 
-    console.log(`\n⚠️  Found ${slowTests.length} slow tests:\n`);
+    console.info(`\n⚠️  Found ${slowTests.length} slow tests:\n`);
 
     // Sort by duration (slowest first)
     slowTests.sort((a, b) => b.duration - a.duration);
 
     const recommendations = generateRecommendations(slowTests);
-    recommendations.forEach((rec) => console.log(`  ${rec}`));
+    recommendations.forEach((rec) => console.info(`  ${rec}`));
 
-    console.log('\n💡 Recommendations:');
-    console.log('  • Tests over 5s: Remove or completely rewrite');
-    console.log('  • Tests over 3s: Major refactoring needed');
-    console.log('  • Tests over 2s: Optimize async operations');
-    console.log('  • Tests over 1s: Remove unnecessary waits, use fake timers');
+    console.info('\n💡 Recommendations:');
+    console.info('  • Tests over 5s: Remove or completely rewrite');
+    console.info('  • Tests over 3s: Major refactoring needed');
+    console.info('  • Tests over 2s: Optimize async operations');
+    console.info('  • Tests over 1s: Remove unnecessary waits, use fake timers');
 
-    console.log('\n🛠️  Common optimizations:');
-    console.log('  • Use vi.useFakeTimers() instead of real delays');
-    console.log('  • Mock heavy operations');
-    console.log('  • Reduce waitFor timeouts');
-    console.log('  • Use vi.advanceTimersByTime() for timer-based tests');
-    console.log('  • Replace setTimeout with immediate callbacks in mocks');
+    console.info('\n🛠️  Common optimizations:');
+    console.info('  • Use vi.useFakeTimers() instead of real delays');
+    console.info('  • Mock heavy operations');
+    console.info('  • Reduce waitFor timeouts');
+    console.info('  • Use vi.advanceTimersByTime() for timer-based tests');
+    console.info('  • Replace setTimeout with immediate callbacks in mocks');
   } catch (error) {
     console.error('❌ Error:', error.message);
     process.exit(1);

@@ -8,8 +8,8 @@
  */
 
 import db from '@/stores/store';
-import { updateCustomTile } from '@/stores/customTiles';
 import { getCustomGroups } from '@/stores/customGroups';
+import { updateCustomTile } from '@/stores/customTiles';
 
 /**
  * Creates a deterministic group ID for default groups
@@ -70,8 +70,6 @@ export interface AuditResult {
  * Audits the current state of group_id usage in tiles
  */
 export async function auditGroupIdUsage(): Promise<AuditResult> {
-  console.log('Starting group ID audit...');
-
   try {
     // Get all tiles
     const allTiles = await db.customTiles.toArray();
@@ -129,8 +127,6 @@ export async function auditGroupIdUsage(): Promise<AuditResult> {
       inconsistentMappings,
       orphanedTiles,
     };
-
-    console.log('Group ID audit complete:', result);
     return result;
   } catch (error) {
     console.error('Error during group ID audit:', error);
@@ -160,25 +156,12 @@ export async function resolveGroupId(
       }
 
       // Check if a default group with this name exists (might need ID migration)
-      const defaultGroups = await getCustomGroups({
+      await getCustomGroups({
         name: groupName,
         locale,
         gameMode,
         isDefault: true,
       });
-
-      if (defaultGroups.length > 0) {
-        // If found but has wrong ID, we should migrate it to use the deterministic ID
-        const group = defaultGroups[0];
-        if (group.id !== deterministicId) {
-          console.log(
-            `Migrating default group "${groupName}" from ID ${group.id} to deterministic ID ${deterministicId}`
-          );
-          // This would require a separate migration function to update the group ID
-          // For now, return the deterministic ID that should be used
-        }
-        return deterministicId;
-      }
 
       // If no default group exists, return the deterministic ID that should be created
       return deterministicId;
@@ -234,8 +217,6 @@ export async function migrateDefaultGroupIds(): Promise<{
   migratedCount: number;
   errors: Array<{ groupId: string; error: string }>;
 }> {
-  console.log('Starting default group ID migration...');
-
   const result = {
     migratedCount: 0,
     errors: [] as Array<{ groupId: string; error: string }>,
@@ -254,14 +235,9 @@ export async function migrateDefaultGroupIds(): Promise<{
         );
 
         if (group.id !== expectedId) {
-          console.log(`Migrating default group "${group.name}" from ${group.id} to ${expectedId}`);
-
           // Check if the target ID already exists
           const existingWithTargetId = await db.customGroups.where('id').equals(expectedId).first();
           if (existingWithTargetId) {
-            console.warn(
-              `Target ID ${expectedId} already exists, skipping migration for group ${group.id}`
-            );
             continue;
           }
 
@@ -289,10 +265,6 @@ export async function migrateDefaultGroupIds(): Promise<{
         });
       }
     }
-
-    console.log(
-      `Default group ID migration complete: ${result.migratedCount} groups migrated, ${result.errors.length} errors`
-    );
     return result;
   } catch (error) {
     console.error('Default group ID migration failed:', error);
@@ -315,8 +287,6 @@ export async function migrateGroupIds(
 ): Promise<MigrationResult> {
   const { dryRun = false, batchSize = 100 } = options;
 
-  console.log(`Starting group ID migration${dryRun ? ' (DRY RUN)' : ''}...`);
-
   const result: MigrationResult = {
     success: false,
     migratedCount: 0,
@@ -330,8 +300,6 @@ export async function migrateGroupIds(
     const tilesToMigrate = await db.customTiles
       .filter((tile) => !tile.group_id || !tile.group_id.trim())
       .toArray();
-
-    console.log(`Found ${tilesToMigrate.length} tiles to migrate`);
 
     // Process in batches to avoid overwhelming the database
     for (let i = 0; i < tilesToMigrate.length; i += batchSize) {
@@ -374,13 +342,6 @@ export async function migrateGroupIds(
           }
         })
       );
-
-      // Log progress
-      if ((i + batchSize) % (batchSize * 5) === 0 || i + batchSize >= tilesToMigrate.length) {
-        console.log(
-          `Migration progress: ${Math.min(i + batchSize, tilesToMigrate.length)}/${tilesToMigrate.length} tiles processed`
-        );
-      }
     }
 
     // Validate migration results
@@ -390,21 +351,12 @@ export async function migrateGroupIds(
 
       if (remainingTiles > 0) {
         console.warn(`Migration completed but ${remainingTiles} tiles still missing group_id`);
-      } else {
-        console.log('Migration validation passed: All tiles now have group_id');
       }
 
       result.skippedCount = remainingTiles;
     }
 
     result.success = result.errors.length === 0;
-
-    console.log(`Group ID migration ${dryRun ? 'simulation' : ''} complete:`, {
-      migrated: result.migratedCount,
-      orphaned: result.orphanedCount,
-      errors: result.errors.length,
-      skipped: result.skippedCount,
-    });
 
     return result;
   } catch (error) {
@@ -429,8 +381,6 @@ export async function validateGroupIdIntegrity(): Promise<{
     message: string;
   }>;
 }> {
-  console.log('Validating group ID integrity...');
-
   const issues: Array<{
     type: 'missing_group_id' | 'invalid_group_id' | 'orphaned_group';
     tileId?: number;
@@ -484,10 +434,6 @@ export async function validateGroupIdIntegrity(): Promise<{
 
     const isValid = issues.length === 0;
 
-    console.log(
-      `Group ID integrity validation ${isValid ? 'passed' : 'failed'} with ${issues.length} issues`
-    );
-
     return { isValid, issues };
   } catch (error) {
     console.error('Error during group ID integrity validation:', error);
@@ -519,8 +465,6 @@ export async function runFullGroupIdMigration(
 }> {
   const { dryRun = false, skipAudit = false } = options;
 
-  console.log('Running full group ID migration...');
-
   // Step 1: Audit current state (optional)
   let auditResult: AuditResult | undefined;
   if (!skipAudit) {
@@ -535,13 +479,6 @@ export async function runFullGroupIdMigration(
 
   // Step 4: Validate results
   const validationResult = await validateGroupIdIntegrity();
-
-  console.log('Full group ID migration complete:', {
-    defaultGroupsMigrated: defaultGroupMigrationResult.migratedCount,
-    tilesMigrated: migrationResult.migratedCount,
-    orphanedTiles: migrationResult.orphanedCount,
-    validationPassed: validationResult.isValid,
-  });
 
   return {
     auditResult,

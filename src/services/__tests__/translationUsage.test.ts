@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import fs from 'fs';
-import path from 'node:path';
 import { glob } from 'glob';
+import path from 'node:path';
 
 describe('Translation Usage Validation', () => {
   it('should ensure all translation keys are used in the codebase', async () => {
@@ -30,7 +31,6 @@ describe('Translation Usage Validation', () => {
     };
 
     const allTranslationKeys = extractKeys(translations);
-    console.log(`Found ${allTranslationKeys.length} translation keys to validate`);
 
     // Get all source files to search
     const sourceFiles = await glob('src/**/*.{ts,tsx,js,jsx}', {
@@ -40,8 +40,6 @@ describe('Translation Usage Validation', () => {
         'src/locales/**', // Don't search translation files themselves
       ],
     });
-
-    console.log(`Searching through ${sourceFiles.length} source files`);
 
     // Read all source file content
     const sourceContent = sourceFiles
@@ -97,22 +95,14 @@ describe('Translation Usage Validation', () => {
 
       if (isUsed || isDynamicKey) {
         usedKeys.push(key);
-        if (isDynamicKey && !isUsed) {
-          const component = key.startsWith('theme.') ? 'ThemeToggle' : 'AppBoolSwitch';
-          console.log(`📝 Dynamic key detected: ${key} (used by ${component})`);
-        }
       } else {
         unusedKeys.push(key);
       }
     }
 
-    console.log(`\nTranslation Usage Summary:`);
-    console.log(`✅ Used keys: ${usedKeys.length}`);
-    console.log(`❌ Unused keys: ${unusedKeys.length}`);
-
     if (unusedKeys.length > 0) {
-      console.log(`\nUnused translation keys:`);
-      unusedKeys.forEach((key) => console.log(`  - ${key}`));
+      console.error(`\nUnused translation keys:`);
+      unusedKeys.forEach((key) => console.error(`  - ${key}`));
     }
 
     // Make this a warning rather than a failure since some unused keys might be intentional
@@ -196,8 +186,8 @@ describe('Translation Usage Validation', () => {
     }
 
     if (missingKeys.length > 0) {
-      console.log(`\nMissing translation keys found:`);
-      missingKeys.forEach((key) => console.log(`  - ${key}`));
+      console.error(`\nMissing translation keys found:`);
+      missingKeys.forEach((key) => console.error(`  - ${key}`));
     }
 
     // This should fail if we find missing translation keys - these need to be added!

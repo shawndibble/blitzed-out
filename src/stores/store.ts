@@ -77,13 +77,9 @@ class BlitzedOutDatabase extends Dexie {
         localPlayerStats: '++id, sessionId, playerId, lastActive',
       })
       .upgrade(async (trans) => {
-        console.log('Starting migration to version 6: Adding group_id field to tiles');
-
         // Get all tiles and groups for migration
         const tiles = await trans.table('customTiles').toArray();
         const groups = await trans.table('customGroups').toArray();
-
-        console.log(`Migrating ${tiles.length} tiles with ${groups.length} groups`);
 
         // Create lookup map of group name + gameMode + locale -> group id
         const groupMap = new Map<string, string>();
@@ -91,10 +87,6 @@ class BlitzedOutDatabase extends Dexie {
           const key = `${group.name}|${group.gameMode}|${group.locale}`;
           groupMap.set(key, group.id);
         });
-
-        // Update each tile with group_id
-        let updatedCount = 0;
-        let orphanedCount = 0;
 
         for (const tile of tiles) {
           const key = `${tile.group}|${tile.gameMode}|${tile.locale}`;
@@ -104,18 +96,12 @@ class BlitzedOutDatabase extends Dexie {
             await trans.table('customTiles').update(tile.id, {
               group_id: groupId,
             });
-            updatedCount++;
           } else {
             console.warn(
               `Orphaned tile found: ${tile.id} with group "${tile.group}" in ${tile.gameMode}/${tile.locale}`
             );
-            orphanedCount++;
           }
         }
-
-        console.log(
-          `Migration complete: ${updatedCount} tiles updated, ${orphanedCount} orphaned tiles found`
-        );
       });
 
     // Version 17: Improve group_id indexing for better query performance

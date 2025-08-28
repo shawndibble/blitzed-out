@@ -10,6 +10,7 @@ import { ImportResult } from './types';
 import { logError, withErrorHandling, isDuplicateError } from './errorHandling';
 import { getActionGroupNames } from './fileDiscovery';
 import { createDeterministicGroupId } from './groupIdMigration';
+import { GAME_MODES, SUPPORTED_LANGUAGES } from './constants';
 
 /**
  * Import a single action file and convert it to a custom group with custom tiles
@@ -221,17 +222,14 @@ export const importGroupsForLocaleAndGameMode = async (
 /**
  * Clean up duplicate groups across all locales and game modes
  */
-export const cleanupDuplicateGroups = async (
-  getAvailableLocales: () => Promise<string[]>,
-  getAvailableGameModes: (locale: string) => Promise<string[]>
-): Promise<number> => {
+export const cleanupDuplicateGroups = async (): Promise<number> => {
   const result = await withErrorHandling(
     async () => {
-      const locales = await getAvailableLocales();
+      const locales = SUPPORTED_LANGUAGES;
       let totalDuplicatesRemoved = 0;
 
       for (const locale of locales) {
-        const gameModes = await getAvailableGameModes(locale);
+        const gameModes = GAME_MODES;
         for (const gameMode of gameModes) {
           const duplicatesRemoved = await removeDuplicateGroups(locale, gameMode);
           totalDuplicatesRemoved += duplicatesRemoved;

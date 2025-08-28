@@ -18,7 +18,6 @@ import { Settings } from '@/types/Settings';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import { useParams } from 'react-router-dom';
-import { logger } from '@/utils/logger';
 
 interface FinishStepProps {
   formData: Settings;
@@ -83,7 +82,7 @@ export default function FinishStep({
         }
       }
     } catch (error) {
-      logger.error('Error submitting settings:', error);
+      console.error('Error submitting settings:', error);
       // On error, close immediately since no navigation occurred
       if (typeof close === 'function') {
         // Ensure DOM is reconciled before closing on error

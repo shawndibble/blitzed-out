@@ -2,6 +2,7 @@
 
 // Extend the existing Vite ImportMetaEnv with our custom environment variables
 interface ImportMetaEnv {
+  readonly MODE: string;
   readonly VITE_SENTRY_DSN?: string;
 
   // Firebase environment variables

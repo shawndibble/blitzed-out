@@ -71,10 +71,9 @@ describe('File Parity Validation', () => {
         ).toEqual(referenceFiles);
       });
 
-      // Log the expected files for documentation
-      console.log(
-        `✅ Local mode file parity verified for ${referenceFiles.length} files:`,
-        referenceFiles
+      // Verify we have the expected number of files
+      expect(referenceFiles.length, 'Should have expected number of local files').toBeGreaterThan(
+        0
       );
     });
 
@@ -140,10 +139,9 @@ describe('File Parity Validation', () => {
         ).toEqual(referenceFiles);
       });
 
-      // Log the expected files for documentation
-      console.log(
-        `✅ Online mode file parity verified for ${referenceFiles.length} files:`,
-        referenceFiles
+      // Verify we have the expected number of files
+      expect(referenceFiles.length, 'Should have expected number of online files').toBeGreaterThan(
+        0
       );
     });
 
@@ -196,10 +194,9 @@ describe('File Parity Validation', () => {
           ).toBe(true);
         });
 
-        // Log the relationship for verification
-        console.log(
-          `✅ ${lang}: ${localFiles.length} local files, ${onlineFiles.length} online files`
-        );
+        // Verify file counts are reasonable
+        expect(localFiles.length, `${lang} should have local files`).toBeGreaterThan(0);
+        expect(onlineFiles.length, `${lang} should have online files`).toBeGreaterThan(0);
       });
     });
   });
@@ -267,21 +264,21 @@ describe('File Parity Validation', () => {
         ).toBe(englishOnline);
       });
 
-      // Log comprehensive summary
-      console.log('📊 COMPLETE FILE PARITY SUMMARY:');
-      console.log(`Total languages: ${languages.length}`);
-      console.log(`Total files: ${totalFiles}`);
-      console.log('Files per language:');
+      // Verify we have the expected total files across all languages
+      const expectedTotal = languages.length * (englishLocal + englishOnline);
+      expect(
+        totalFiles,
+        `Total files should be ${expectedTotal} (${languages.length} languages × ${englishLocal + englishOnline} files each)`
+      ).toBe(expectedTotal);
+
+      // Verify each language has consistent file counts
       Object.entries(summary).forEach(([lang, modes]) => {
         const total = Object.values(modes).reduce((sum, count) => sum + count, 0);
-        console.log(`  ${lang}: ${modes.local} local + ${modes.online} online = ${total} total`);
+        const expectedLangTotal = englishLocal + englishOnline;
+        expect(total, `${lang} should have ${expectedLangTotal} total files`).toBe(
+          expectedLangTotal
+        );
       });
-
-      // Verify we have the expected total (5 languages × (19 local + 10 online) = 145 files)
-      const expectedTotal = languages.length * (englishLocal + englishOnline);
-      expect(totalFiles).toBe(expectedTotal);
-
-      console.log(`✅ PERFECT PARITY: ${totalFiles}/${expectedTotal} files (100%)`);
     });
   });
 });

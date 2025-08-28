@@ -1,11 +1,12 @@
+import type { SyncOptions, SyncResult } from '@/types/sync';
+import { clearUserCustomGroups, syncCustomGroupsToFirebase } from '../syncService';
 /**
  * Custom groups synchronization logic
  */
 import { getCustomGroups, importCustomGroups } from '@/stores/customGroups';
-import { syncCustomGroupsToFirebase, clearUserCustomGroups } from '../syncService';
-import { SyncBase } from './base';
-import type { SyncOptions, SyncResult } from '@/types/sync';
+
 import type { CustomGroupPull } from '@/types/customGroups';
+import { SyncBase } from './base';
 
 export class CustomGroupsSync extends SyncBase {
   /**
@@ -20,7 +21,6 @@ export class CustomGroupsSync extends SyncBase {
 
       // Smart conflict resolution
       if (firebaseGroups.length === 0 && localGroups.length > 0 && !options.forceSync) {
-        console.log('Preserving local custom groups - Firebase is empty but local has data');
         await syncCustomGroupsToFirebase();
         return this.createSuccessResult(localGroups.length);
       }
@@ -46,10 +46,6 @@ export class CustomGroupsSync extends SyncBase {
     firebaseGroups: CustomGroupPull[],
     localGroups: any[]
   ): Promise<SyncResult> {
-    console.log(
-      `Merging groups: Local has ${localGroups.length}, Firebase has ${firebaseGroups.length}`
-    );
-
     let addedCount = 0;
 
     for (const group of firebaseGroups) {
@@ -70,10 +66,6 @@ export class CustomGroupsSync extends SyncBase {
       }
     }
 
-    console.log(
-      `Merged groups: Added ${addedCount} new groups from Firebase, preserved ${localGroups.length} local groups`
-    );
-
     // Sync the merged result back to Firebase
     await syncCustomGroupsToFirebase();
 
@@ -84,8 +76,6 @@ export class CustomGroupsSync extends SyncBase {
    * Replace local groups with Firebase groups
    */
   private static async replaceLocal(firebaseGroups: CustomGroupPull[]): Promise<SyncResult> {
-    console.log(`Syncing ${firebaseGroups.length} custom groups from Firebase`);
-
     await clearUserCustomGroups();
     await this.addSyncDelay();
 
@@ -93,7 +83,6 @@ export class CustomGroupsSync extends SyncBase {
       const groupsWithoutIds = firebaseGroups.map((group) => this.removeId(group));
       await importCustomGroups(groupsWithoutIds);
 
-      console.log(`Successfully imported ${firebaseGroups.length} custom groups from Firebase`);
       return this.createSuccessResult(firebaseGroups.length);
     } catch (error) {
       console.error('Error importing custom groups:', error);

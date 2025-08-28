@@ -18,6 +18,7 @@ import {
   QUEUE_BACKGROUND_MIGRATION_DELAY,
   IDLE_CALLBACK_TIMEOUT,
   SUPPORTED_LANGUAGES,
+  GAME_MODES,
 } from './constants';
 import {
   isMigrationInProgress,
@@ -35,7 +36,7 @@ import {
   resetMigrationStatus,
 } from './statusManager';
 import { checkAndHandleVersionChange } from './versionManager';
-import { getCurrentLanguage, getAvailableLocales, getAvailableGameModes } from './fileDiscovery';
+import { getCurrentLanguage } from './fileDiscovery';
 import { importGroupsForLocaleAndGameMode, cleanupDuplicateGroups } from './importOperations';
 import { withErrorHandling, logError, safeLocalStorage } from './errorHandling';
 
@@ -65,12 +66,12 @@ export { verifyMigrationIntegrity, fixMigrationStatusCorruption } from './valida
 export const migrateActionGroups = async (): Promise<boolean> => {
   const result = await withErrorHandling(
     async () => {
-      // Dynamically discover available locales
-      const locales = await getAvailableLocales();
+      // Get available locales
+      const locales = SUPPORTED_LANGUAGES;
 
       for (const locale of locales) {
-        // Dynamically discover available game modes for this locale
-        const gameModes = await getAvailableGameModes(locale);
+        // Use known game modes
+        const gameModes = GAME_MODES;
 
         for (const gameMode of gameModes) {
           try {
@@ -82,7 +83,7 @@ export const migrateActionGroups = async (): Promise<boolean> => {
       }
 
       // Clean up any duplicates that might exist from previous migrations
-      await cleanupDuplicateGroups(getAvailableLocales, getAvailableGameModes);
+      await cleanupDuplicateGroups();
 
       markMigrationComplete();
       return true;
@@ -103,7 +104,7 @@ export const cleanupDuplicatesIfNeeded = async (): Promise<number> => {
     async () => {
       const status = getMigrationStatus();
       if (status.main?.completed || status.background?.completedLanguages?.length) {
-        return await cleanupDuplicateGroups(getAvailableLocales, getAvailableGameModes);
+        return await cleanupDuplicateGroups();
       }
       return 0;
     },
@@ -140,7 +141,7 @@ export const migrateCurrentLanguage = async (locale?: string): Promise<boolean> 
     setLanguageMigrationInProgress(currentLocale, true);
 
     try {
-      const gameModes = await getAvailableGameModes(currentLocale);
+      const gameModes = GAME_MODES;
 
       for (const gameMode of gameModes) {
         try {
@@ -187,7 +188,7 @@ export const migrateRemainingLanguages = async (excludeLocale?: string): Promise
     const currentLocale = excludeLocale || (await getCurrentLanguage());
     markBackgroundMigrationInProgress(true);
 
-    const allLocales = await getAvailableLocales();
+    const allLocales = SUPPORTED_LANGUAGES;
     const remainingLocales = allLocales.filter((locale) => locale !== currentLocale);
 
     for (const locale of remainingLocales) {
@@ -197,7 +198,7 @@ export const migrateRemainingLanguages = async (excludeLocale?: string): Promise
       }
 
       try {
-        const gameModes = await getAvailableGameModes(locale);
+        const gameModes = GAME_MODES;
 
         for (const gameMode of gameModes) {
           await importGroupsForLocaleAndGameMode(locale, gameMode);

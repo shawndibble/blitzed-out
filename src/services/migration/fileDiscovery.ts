@@ -2,7 +2,7 @@
  * File discovery utilities for dynamic locale and game mode detection
  */
 
-import { SUPPORTED_LANGUAGES, GAME_MODES } from './constants';
+import { SUPPORTED_LANGUAGES } from './constants';
 import { logError } from './errorHandling';
 import i18n from '@/i18n';
 
@@ -43,46 +43,6 @@ export const getCurrentLanguage = async (): Promise<string> => {
     logError('error', 'getCurrentLanguage', error);
     return 'en'; // Safe fallback
   }
-};
-
-/**
- * Dynamically discover available locales from the filesystem
- */
-export const getAvailableLocales = async (): Promise<string[]> => {
-  const locales = [...SUPPORTED_LANGUAGES];
-  const existingLocales: string[] = [];
-
-  for (const locale of locales) {
-    try {
-      // Test if locale exists by trying to import translation file
-      await import(`@/locales/${locale}/translation.json`);
-      existingLocales.push(locale);
-    } catch {
-      // Locale doesn't exist, skip it
-    }
-  }
-
-  return existingLocales;
-};
-
-/**
- * Dynamically discover available game modes for a locale
- */
-export const getAvailableGameModes = async (locale: string): Promise<string[]> => {
-  const gameModes = [...GAME_MODES];
-  const existingGameModes: string[] = [];
-
-  for (const gameMode of gameModes) {
-    try {
-      // Test if gameMode exists by trying to import any known file
-      await import(`@/locales/${locale}/${gameMode}/alcohol.json`);
-      existingGameModes.push(gameMode);
-    } catch {
-      // Game mode doesn't exist for this locale, skip it
-    }
-  }
-
-  return existingGameModes;
 };
 
 /**

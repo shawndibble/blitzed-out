@@ -1,13 +1,14 @@
+import type { SyncOptions, SyncResult } from '@/types/sync';
 /**
  * Custom tiles synchronization logic
  * Updated to use group_id-based matching for improved sync reliability
  */
-import { getTiles, addCustomTile, updateCustomTile } from '@/stores/customTiles';
-import { syncCustomTilesToFirebase, deleteAllCustomTiles } from '../syncService';
+import { addCustomTile, getTiles, updateCustomTile } from '@/stores/customTiles';
+import { deleteAllCustomTiles, syncCustomTilesToFirebase } from '../syncService';
+
+import type { CustomTilePull } from '@/types/customTiles';
 import { SyncBase } from './base';
 import { TileMatcher } from './tileMatcher';
-import type { SyncOptions, SyncResult } from '@/types/sync';
-import type { CustomTilePull } from '@/types/customTiles';
 
 export class CustomTilesSync extends SyncBase {
   /**
@@ -22,7 +23,6 @@ export class CustomTilesSync extends SyncBase {
 
       // Smart conflict resolution
       if (firebaseTiles.length === 0 && localTiles.length > 0 && !options.forceSync) {
-        console.log('Preserving local custom tiles - Firebase is empty but local has data');
         await syncCustomTilesToFirebase();
         return this.createSuccessResult(localTiles.length);
       }
@@ -48,10 +48,6 @@ export class CustomTilesSync extends SyncBase {
     firebaseTiles: CustomTilePull[],
     localTiles: any[]
   ): Promise<SyncResult> {
-    console.log(
-      `Merging tiles: Local has ${localTiles.length}, Firebase has ${firebaseTiles.length}`
-    );
-
     let addedCount = 0;
     let updatedCount = 0;
 
@@ -90,10 +86,6 @@ export class CustomTilesSync extends SyncBase {
       }
     }
 
-    console.log(
-      `Merged tiles: Added ${addedCount} new tiles, updated ${updatedCount} tiles from Firebase, preserved ${localTiles.length} local tiles`
-    );
-
     // Sync the merged result back to Firebase
     await syncCustomTilesToFirebase();
 
@@ -104,8 +96,6 @@ export class CustomTilesSync extends SyncBase {
    * Replace local tiles with Firebase tiles using group_id-based matching
    */
   private static async replaceLocal(firebaseTiles: CustomTilePull[]): Promise<SyncResult> {
-    console.log(`Syncing ${firebaseTiles.length} custom tiles from Firebase`);
-
     await deleteAllCustomTiles();
     await this.addSyncDelay();
 
@@ -139,7 +129,6 @@ export class CustomTilesSync extends SyncBase {
       }
     }
 
-    console.log(`Successfully imported ${importedCount} custom tiles from Firebase`);
     return this.createSuccessResult(importedCount);
   }
 }

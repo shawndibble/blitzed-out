@@ -497,37 +497,6 @@ export const getCustomGroupsWithTiles = getGroupsWithTiles;
  */
 
 /**
- * Get all available locales from migrated data
- */
-export const getAvailableLocales = async (): Promise<string[]> => {
-  try {
-    const groups = await getCustomGroups({ isDefault: true });
-    const locales = [...new Set(groups.map((g) => g.locale))].sort();
-    return locales;
-  } catch (error) {
-    console.error('Error getting available locales:', error);
-    return ['en']; // fallback
-  }
-};
-
-/**
- * Get all available game modes for a specific locale
- */
-export const getAvailableGameModes = async (locale?: string): Promise<string[]> => {
-  try {
-    const filters: Partial<CustomGroupFilters> = { isDefault: true };
-    if (locale) filters.locale = locale;
-
-    const groups = await getCustomGroups(filters);
-    const gameModes = [...new Set(groups.map((g) => g.gameMode))].sort();
-    return gameModes;
-  } catch (error) {
-    console.error('Error getting available game modes:', error);
-    return ['online']; // fallback
-  }
-};
-
-/**
  * Get all action group names for a specific locale and game mode
  */
 export const getActionGroupsForMode = async (
