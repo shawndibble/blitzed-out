@@ -417,6 +417,11 @@ export default function AddCustomTile({
               onChange={(event) => {
                 setLocalTileData({ ...localTileData, action: event.target.value });
               }}
+              onKeyUp={(event) => {
+                if (event.key === 'Enter') {
+                  submitNewTile();
+                }
+              }}
             />
 
             <Autocomplete

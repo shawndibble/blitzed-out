@@ -349,36 +349,20 @@ export default function ViewCustomTiles({
           mappedGroups={mappedGroups}
           dexieGroups={dexieGroups}
           onGameModeChange={(value: string) => {
-            console.log('🎮 DEBUG onGameModeChange: received value:', value);
-            console.log('🎮 DEBUG onGameModeChange: current sharedFilters:', sharedFilters);
             const newFilters = {
               gameMode: value,
               groupName: '',
               intensity: '',
             };
-            console.log('🎮 DEBUG onGameModeChange: calling setSharedFilters with:', newFilters);
             setSharedFilters(newFilters);
             setPage(1);
           }}
           onGroupChange={(value: string) => {
-            console.log('DEBUG ViewCustomTiles onGroupChange: received value:', value);
-            console.log(
-              'DEBUG ViewCustomTiles onGroupChange: current sharedFilters:',
-              sharedFilters
-            );
-            console.log(
-              'DEBUG ViewCustomTiles onGroupChange: setSharedFilters function:',
-              typeof setSharedFilters
-            );
             const newFilters = {
               ...sharedFilters,
               groupName: value,
               intensity: '', // Reset intensity when group changes
             };
-            console.log(
-              'DEBUG ViewCustomTiles onGroupChange: calling setSharedFilters with:',
-              newFilters
-            );
             setSharedFilters(newFilters);
             setPage(1);
           }}
