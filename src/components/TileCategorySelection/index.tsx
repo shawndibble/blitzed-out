@@ -1,3 +1,4 @@
+import { AllGameModeActions, MappedGroup, ProcessedGroups } from '@/types/customTiles';
 import {
   Box,
   FormControl,
@@ -9,11 +10,11 @@ import {
   Theme,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import groupActionsFolder from '@/helpers/actionsFolder';
-import { AllGameModeActions, MappedGroup, ProcessedGroups } from '@/types/customTiles';
-import { GameMode } from '@/types/Settings';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { CustomGroupPull } from '@/types/customGroups';
+import { GameMode } from '@/types/Settings';
+import groupActionsFolder from '@/helpers/actionsFolder';
 
 interface TileCategorySelectionProps {
   gameMode: GameMode | string;
@@ -44,7 +45,6 @@ export default function TileCategorySelection({
 }: TileCategorySelectionProps): JSX.Element | null {
   const { t } = useTranslation();
   const [uniqueGroups, setUniqueGroups] = useState<string[]>([]);
-  const defaultIntensityFilter = hideAll ? 1 : 'all';
 
   // Memoize the mapped groups folder to avoid repeated calls
   const mappedGroupsFolder = useMemo(() => {
@@ -78,10 +78,12 @@ export default function TileCategorySelection({
     // Get group names from groups data (with counts) or fall back to dexieGroups (all available)
     let groupNames: string[] = [];
 
-    if (groups && Object.keys(groups).length > 0) {
-      groupNames = Object.keys(groups);
-    } else if (dexieGroups && Object.keys(dexieGroups).length > 0) {
+    // Always use dexieGroups (all available groups) instead of groups (only groups with tiles)
+    // This ensures users can select any valid group, even if it doesn't have tiles yet
+    if (dexieGroups && Object.keys(dexieGroups).length > 0) {
       groupNames = Object.keys(dexieGroups);
+    } else if (groups && Object.keys(groups).length > 0) {
+      groupNames = Object.keys(groups);
     }
 
     setUniqueGroups(groupNames);
@@ -90,9 +92,9 @@ export default function TileCategorySelection({
   function handleGroupFilterChange(event: SelectChangeEvent<string>) {
     const newGroup = event.target.value;
 
-    // Call the parent handlers
+    // Only call onGroupChange - let it handle setting the default intensity
+    // Don't call onIntensityChange here as it uses stale closure of sharedFilters
     onGroupChange(newGroup);
-    onIntensityChange(defaultIntensityFilter);
   }
 
   if (!uniqueGroups?.length) return null;
@@ -124,10 +126,10 @@ export default function TileCategorySelection({
           }}
         >
           <MenuItem value="online">
-            <Trans i18nKey="online" />
+            <Trans i18nKey="gameMode.online" />
           </MenuItem>
           <MenuItem value="local">
-            <Trans i18nKey="local" />
+            <Trans i18nKey="gameMode.local" />
           </MenuItem>
         </Select>
       </FormControl>

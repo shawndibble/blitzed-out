@@ -3,6 +3,7 @@ import {
   validateCustomGroup,
   validateGroupLabel,
   MAX_GROUP_LABEL_LENGTH,
+  getValidationConstants,
 } from '../validationService';
 import { CustomGroupBase } from '@/types/customGroups';
 
@@ -88,7 +89,7 @@ describe('validationService', () => {
 
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        `Group label must be ${constants.MAX_GROUP_LABEL_LENGTH} characters or less`
+        `Group label must be ${MAX_GROUP_LABEL_LENGTH} characters or less`
       );
     });
 

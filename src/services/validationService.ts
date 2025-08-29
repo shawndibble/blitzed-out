@@ -1,6 +1,6 @@
 import { ValidationResult, CustomGroupBase, CustomGroupIntensity } from '@/types/customGroups';
 import { CustomTile } from '@/types/customTiles';
-import { isGroupNameUnique, getCustomGroupByName } from '@/stores/customGroups';
+import { isGroupNameUnique, getCustomGroupByName, getCustomGroup } from '@/stores/customGroups';
 import { t } from 'i18next';
 
 /**
@@ -250,23 +250,23 @@ export const validateCustomGroup = async (
  */
 export const validateCustomTileWithGroups = async (
   tile: CustomTile,
-  locale = 'en',
-  gameMode = 'online'
+  _locale = 'en',
+  _gameMode = 'online'
 ): Promise<ValidationResult> => {
   const errors: string[] = [];
   const warnings: string[] = [];
 
   // Check if group exists
-  if (!tile.group || tile.group.trim().length === 0) {
+  if (!tile.group_id || tile.group_id.trim().length === 0) {
     errors.push('Tile must belong to a group');
     return { isValid: false, errors, warnings };
   }
 
   try {
-    const group = await getCustomGroupByName(tile.group, locale, gameMode);
+    const group = await getCustomGroup(tile.group_id);
 
     if (!group) {
-      errors.push(`Group "${tile.group}" does not exist for ${locale}/${gameMode}`);
+      errors.push(`Group with ID "${tile.group_id}" does not exist`);
       return { isValid: false, errors, warnings };
     }
 
@@ -274,7 +274,7 @@ export const validateCustomTileWithGroups = async (
     const validIntensityValues = group.intensities.map((i) => i.value);
     if (!validIntensityValues.includes(tile.intensity)) {
       errors.push(
-        `Intensity ${tile.intensity} is not valid for group "${tile.group}". Valid intensities: ${validIntensityValues.join(', ')}`
+        `Intensity ${tile.intensity} is not valid for group "${group.name}". Valid intensities: ${validIntensityValues.join(', ')}`
       );
     }
 
@@ -335,4 +335,21 @@ export const formatValidationErrors = (validation: ValidationResult): string => 
   }
 
   return message;
+};
+
+/**
+ * Get all validation constants in a single object
+ */
+export const getValidationConstants = () => {
+  return {
+    MIN_INTENSITIES_COUNT,
+    MAX_INTENSITIES_COUNT,
+    MAX_GROUP_LABEL_LENGTH,
+    MAX_INTENSITY_LABEL_LENGTH,
+    VALID_GROUP_TYPES,
+    MAX_GROUP_NAME_LENGTH,
+    MIN_INTENSITY_VALUE,
+    MAX_INTENSITY_VALUE,
+    RESERVED_GROUP_NAMES,
+  };
 };

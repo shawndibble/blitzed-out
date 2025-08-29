@@ -81,31 +81,13 @@ export async function auditGroupIdUsage(): Promise<AuditResult> {
     ).length;
     const tilesMissingGroupId = totalTiles - tilesWithGroupId;
 
-    // Find inconsistent mappings (same group name with different group_ids)
-    const groupMappings: Record<string, Set<string>> = {};
-    allTiles.forEach((tile) => {
-      if (tile.group && tile.group_id && tile.group_id.trim()) {
-        const key = `${tile.group}|${tile.locale || 'en'}|${tile.gameMode || 'online'}`;
-        if (!groupMappings[key]) {
-          groupMappings[key] = new Set();
-        }
-        groupMappings[key].add(tile.group_id);
-      }
-    });
-
-    const inconsistentMappings = Object.entries(groupMappings)
-      .filter(([, groupIds]) => groupIds.size > 1)
-      .map(([key, groupIds]) => {
-        const [group] = key.split('|');
-        const count = allTiles.filter(
-          (tile) => tile.group === group && groupIds.has(tile.group_id || '')
-        ).length;
-        return {
-          group,
-          groupIds: Array.from(groupIds),
-          count,
-        };
-      });
+    // Find inconsistent mappings (tiles with invalid group_ids)
+    // Since migration is complete, we now check for group_id consistency
+    const inconsistentMappings: Array<{
+      group: string;
+      groupIds: string[];
+      count: number;
+    }> = []; // Empty since all tiles should now have valid group_ids
 
     // Find orphaned tiles (tiles without matching groups)
     const allGroups = await db.customGroups.toArray();
@@ -115,9 +97,9 @@ export async function auditGroupIdUsage(): Promise<AuditResult> {
       .filter((tile) => tile.group_id && tile.group_id.trim() && !validGroupIds.has(tile.group_id))
       .map((tile) => ({
         id: tile.id!,
-        group: tile.group,
-        locale: tile.locale || 'en',
-        gameMode: tile.gameMode || 'online',
+        group: tile.group_id || 'unknown', // Use group_id since group name no longer exists on tiles
+        locale: 'unknown', // Locale is now on groups, not tiles
+        gameMode: 'unknown', // GameMode is now on groups, not tiles
       }));
 
     const result: AuditResult = {
@@ -305,43 +287,14 @@ export async function migrateGroupIds(
     for (let i = 0; i < tilesToMigrate.length; i += batchSize) {
       const batch = tilesToMigrate.slice(i, i + batchSize);
 
-      await Promise.all(
-        batch.map(async (tile) => {
-          try {
-            // Determine if this is a default tile (isCustom = 0)
-            const isDefault = tile.isCustom === 0;
-
-            const groupId = await resolveGroupId(
-              tile.group,
-              tile.locale || 'en',
-              tile.gameMode || 'online',
-              isDefault // Pass isDefault flag for deterministic ID handling
-            );
-
-            if (groupId) {
-              if (!dryRun) {
-                await updateCustomTile(tile.id!, {
-                  group_id: groupId,
-                  // Keep the group name for backward compatibility
-                  group: tile.group,
-                });
-              }
-              result.migratedCount++;
-            } else {
-              console.warn(
-                `Could not resolve group ID for tile ${tile.id} with group "${tile.group}" (isDefault: ${isDefault})`
-              );
-              result.orphanedCount++;
-            }
-          } catch (error) {
-            console.error(`Error migrating tile ${tile.id}:`, error);
-            result.errors.push({
-              tileId: tile.id!,
-              error: error instanceof Error ? error.message : String(error),
-            });
-          }
-        })
-      );
+      // Since migration is complete, tiles without group_id are likely corrupted
+      // Skip migration for tiles that don't have the old properties
+      batch.forEach((tile) => {
+        console.warn(
+          `Found tile ${tile.id} without group_id but migration has already completed. This may indicate data corruption.`
+        );
+        result.orphanedCount++;
+      });
     }
 
     // Validate migration results
@@ -401,7 +354,7 @@ export async function validateGroupIdIntegrity(): Promise<{
         issues.push({
           type: 'missing_group_id',
           tileId: tile.id,
-          message: `Tile ${tile.id} (${tile.group}) missing group_id`,
+          message: `Tile ${tile.id} missing group_id`,
         });
         continue;
       }

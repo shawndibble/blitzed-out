@@ -8,13 +8,11 @@ import { MIGRATION_IN_PROGRESS_KEY, MIGRATION_TIMEOUT } from '@/services/migrati
 
 const { customTiles } = db;
 
-// Index the customTiles table by locale, gameMode, and isCustom for faster queries
+// Index the customTiles table by isCustom for faster queries
 customTiles.hook(
   'creating',
   function (this: any, _primKey: number | undefined, obj: CustomTile, _transaction: any) {
     // Set default values
-    if (obj.locale === undefined) obj.locale = 'en';
-    if (obj.gameMode === undefined) obj.gameMode = 'online';
     if (obj.isCustom === undefined) obj.isCustom = 1;
 
     // For sync operations, group_id is required. For initial setup and default tile imports,
@@ -24,7 +22,7 @@ customTiles.hook(
       // Default tiles from JSON imports (isCustom: 0) can be imported without group_id initially
       if (obj.isCustom === 1) {
         console.warn(
-          `Custom tile missing group_id (sync may fail): ${obj.action} (group: ${obj.group})`
+          `Custom tile missing group_id (sync may fail): ${obj.action} (group_id: ${obj.group_id})`
         );
       }
     }
@@ -61,6 +59,15 @@ const createFilteredQuery = (filters: Partial<CustomTileFilters>) => {
 
     if (key === 'tag') {
       query = query.filter((tile) => tile.tags.includes(value as string));
+    } else if (key === 'group') {
+      // Map 'group' filter to 'group_id' field
+      query = query.filter((tile) => tile.group_id === value);
+    } else if (key === 'intensity') {
+      // Convert intensity filter to number for proper comparison
+      const intensityNum = Number(value);
+      query = query.filter((tile) => {
+        return tile.intensity === intensityNum;
+      });
     } else {
       query = query.filter((tile) => tile[key as keyof CustomTile] === value);
     }
@@ -148,37 +155,45 @@ export const getPaginatedTiles = async (
 };
 
 /**
- * Helper function to create a base query for tiles by locale and gameMode
- */
-const createBaseTileQuery = (locale = 'en', gameMode = 'online') => {
-  return customTiles
-    .where('locale')
-    .equals(locale)
-    .and((tile) => tile.gameMode === gameMode);
-};
-
-/**
  * Get tile counts and intensity distributions by group (without labels)
  * This should be merged with group definitions from customGroups table
+ * Optimized: filters by relevant group IDs first instead of loading all tiles
  */
 export const getTileCountsByGroup = async (
   locale = 'en',
   gameMode = 'online',
   tags: string[] | string | null = null
 ): Promise<Record<string, { count: number; intensities: Record<number, number> }>> => {
-  // Get tiles with count of items in each group
-  let query = createBaseTileQuery(locale, gameMode);
+  try {
+    // Step 1: Get relevant group IDs first (much smaller dataset - ~15-20 groups vs 4000+ tiles)
+    const { getCustomGroups } = await import('./customGroups');
+    const relevantGroups = await getCustomGroups({ locale, gameMode });
+    const groupIds = new Set(relevantGroups.map((group) => group.id));
 
-  if (tags) {
-    query = query.and((tile) => tile.tags.some((tag) => tags.includes(tag)));
-  }
+    if (groupIds.size === 0) {
+      return {};
+    }
 
-  const allTiles = await query.toArray();
+    // Step 2: Only get tiles that belong to these specific groups
+    let relevantTiles: any[] = [];
+    for (const groupId of groupIds) {
+      const tilesInGroup = await customTiles.where('group_id').equals(groupId).toArray();
+      relevantTiles.push(...tilesInGroup);
+    }
 
-  return allTiles.reduce<Record<string, { count: number; intensities: Record<number, number> }>>(
-    (groups, tile) => {
-      // Use group_id if available, fallback to group name for backward compatibility
-      const groupKey = tile.group_id || tile.group;
+    // Step 3: Apply tag filtering if specified
+    if (tags) {
+      const tagsArray = Array.isArray(tags) ? tags : [tags];
+      relevantTiles = relevantTiles.filter((tile) =>
+        tile.tags.some((tag: string) => tagsArray.includes(tag))
+      );
+    }
+
+    // Step 4: Build the counts using group IDs as keys
+    return relevantTiles.reduce<
+      Record<string, { count: number; intensities: Record<number, number> }>
+    >((groups, tile) => {
+      const groupKey = tile.group_id;
       if (!groups[groupKey]) {
         groups[groupKey] = {
           count: 0,
@@ -194,24 +209,36 @@ export const getTileCountsByGroup = async (
       groups[groupKey].intensities[intensity]++;
 
       return groups;
-    },
-    {}
-  );
+    }, {});
+  } catch (error) {
+    console.error('Error in getTileCountsByGroup:', error);
+    return {};
+  }
 };
 
-export const getActiveTiles = (gameMode: string | null = null): Promise<CustomTilePull[]> => {
-  const currentLocale = i18next.resolvedLanguage || i18next.language || 'en';
+export const getActiveTiles = async (
+  gameMode: string | null = null,
+  locale: string | null = null
+): Promise<CustomTilePull[]> => {
+  const currentLocale = locale || i18next.resolvedLanguage || i18next.language || 'en';
 
-  let tiles = customTiles
-    .where('locale')
-    .equals(currentLocale)
-    .and((tile) => tile.isEnabled === 1);
+  // Get all enabled tiles first
+  const allEnabledTiles = await customTiles.where('isEnabled').equals(1).toArray();
 
-  if (gameMode) {
-    tiles = tiles.and((tile) => tile.gameMode === gameMode);
+  // If we need to filter by gameMode or locale, we need to join with groups
+  if (gameMode || locale) {
+    const { getCustomGroups } = await import('./customGroups');
+    const groupsQuery: any = {};
+    if (gameMode) groupsQuery.gameMode = gameMode;
+    if (locale) groupsQuery.locale = currentLocale;
+
+    const matchingGroups = await getCustomGroups(groupsQuery);
+    const groupIds = new Set(matchingGroups.map((group) => group.id));
+
+    return allEnabledTiles.filter((tile) => tile.group_id && groupIds.has(tile.group_id));
   }
 
-  return tiles.toArray();
+  return allEnabledTiles;
 };
 
 export const addCustomTile = async (record: Partial<CustomTile>): Promise<number | undefined> => {
@@ -259,14 +286,8 @@ export const deleteCustomTile = async (id: number): Promise<void> => {
 };
 
 /**
- * Helper function to create a query for tiles by group, locale, and gameMode
- */
-const createTilesByGroupQuery = (groupName: string, locale = 'en', gameMode = 'online') => {
-  return createBaseTileQuery(locale, gameMode).and((tile) => tile.group === groupName);
-};
-
-/**
  * Count custom tiles that belong to a specific group
+ * @deprecated Use countTilesByGroupId instead for better performance
  */
 export const countTilesByGroup = async (
   groupName: string,
@@ -274,7 +295,12 @@ export const countTilesByGroup = async (
   gameMode = 'online'
 ): Promise<number> => {
   try {
-    return await createTilesByGroupQuery(groupName, locale, gameMode).count();
+    // Since we need to work with group names, look up the group first
+    const { getCustomGroupByName } = await import('./customGroups');
+    const group = await getCustomGroupByName(groupName, locale, gameMode);
+    if (!group) return 0;
+
+    return await countTilesByGroupId(group.id, locale, gameMode);
   } catch (error) {
     console.error('Error counting tiles by group:', error);
     return 0;
@@ -283,6 +309,7 @@ export const countTilesByGroup = async (
 
 /**
  * Delete all custom tiles that belong to a specific group
+ * @deprecated Use deleteCustomTilesByGroupId instead for better performance
  */
 export const deleteCustomTilesByGroup = async (
   groupName: string,
@@ -290,7 +317,12 @@ export const deleteCustomTilesByGroup = async (
   gameMode = 'online'
 ): Promise<number> => {
   try {
-    return await createTilesByGroupQuery(groupName, locale, gameMode).delete();
+    // Since we need to work with group names, look up the group first
+    const { getCustomGroupByName } = await import('./customGroups');
+    const group = await getCustomGroupByName(groupName, locale, gameMode);
+    if (!group) return 0;
+
+    return await deleteCustomTilesByGroupId(group.id, locale, gameMode);
   } catch (error) {
     console.error('Error deleting tiles by group:', error);
     return 0;
@@ -303,18 +335,14 @@ export const deleteCustomTilesByGroup = async (
  */
 export const getTilesByGroupId = async (
   groupId: string,
-  locale = 'en',
-  gameMode = 'online'
+  _locale = 'en',
+  _gameMode = 'online'
 ): Promise<CustomTilePull[]> => {
   try {
     return await retryOnCursorError(
       db,
       async () => {
-        return await customTiles
-          .where('group_id')
-          .equals(groupId)
-          .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
-          .toArray();
+        return await customTiles.where('group_id').equals(groupId).toArray();
       },
       (message: string, error?: Error) => {
         console.error(`Error in getTilesByGroupId: ${message}`, error);
@@ -325,21 +353,42 @@ export const getTilesByGroupId = async (
     return [];
   }
 };
+/**
+ * NEW: Get tiles by multiple group IDs efficiently
+ * This is the proper way to find tiles for multiple groups without locale/gameMode filtering
+ */
+export const getTilesByGroupIds = async (groupIds: string[]): Promise<CustomTilePull[]> => {
+  try {
+    if (groupIds.length === 0) {
+      return [];
+    }
+
+    return await retryOnCursorError(
+      db,
+      async () => {
+        // Use Dexie's anyOf for efficient multiple group ID lookup
+        return await customTiles.where('group_id').anyOf(groupIds).toArray();
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in getTilesByGroupIds: ${message}`, error);
+      }
+    );
+  } catch (error) {
+    console.error('Final error in getTilesByGroupIds:', error);
+    return [];
+  }
+};
 
 /**
  * NEW: Count tiles by group ID (normalized approach)
  */
 export const countTilesByGroupId = async (
   groupId: string,
-  locale = 'en',
-  gameMode = 'online'
+  _locale = 'en',
+  _gameMode = 'online'
 ): Promise<number> => {
   try {
-    return await customTiles
-      .where('group_id')
-      .equals(groupId)
-      .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
-      .count();
+    return await customTiles.where('group_id').equals(groupId).count();
   } catch (error) {
     console.error('Error counting tiles by group ID:', error);
     return 0;
@@ -351,15 +400,11 @@ export const countTilesByGroupId = async (
  */
 export const deleteCustomTilesByGroupId = async (
   groupId: string,
-  locale = 'en',
-  gameMode = 'online'
+  _locale = 'en',
+  _gameMode = 'online'
 ): Promise<number> => {
   try {
-    return await customTiles
-      .where('group_id')
-      .equals(groupId)
-      .and((tile) => tile.locale === locale && tile.gameMode === gameMode)
-      .delete();
+    return await customTiles.where('group_id').equals(groupId).delete();
   } catch (error) {
     console.error('Error deleting tiles by group ID:', error);
     return 0;

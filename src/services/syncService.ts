@@ -31,7 +31,7 @@ export async function cleanupDuplicateTiles(): Promise<boolean> {
     const tileGroups = new Map<string, typeof allTiles>();
 
     allTiles.forEach((tile) => {
-      const key = `${tile.gameMode || ''}|${tile.group}|${tile.intensity}|${tile.action}`;
+      const key = `${tile.group_id}|${tile.intensity}|${tile.action}`;
       if (!tileGroups.has(key)) {
         tileGroups.set(key, []);
       }
@@ -114,14 +114,14 @@ export async function applyDisabledDefaults(disabledDefaults: CustomTilePull[]):
     // Build an in-memory map keyed by composite key (gameMode|group|intensity|action) for O(1) lookups
     const defaultTilesMap = new Map<string, number>();
     allDefaultTiles.forEach((tile) => {
-      const key = `${tile.gameMode || ''}|${tile.group}|${tile.intensity}|${tile.action}`;
+      const key = `${tile.group_id}|${tile.intensity}|${tile.action}`;
       defaultTilesMap.set(key, tile.id);
     });
 
     // Iterate disabledDefaults and collect update calls only for matched IDs
     const updatePromises: Promise<number>[] = [];
     disabledDefaults.forEach((disabledTile) => {
-      const key = `${disabledTile.gameMode || ''}|${disabledTile.group}|${disabledTile.intensity}|${disabledTile.action}`;
+      const key = `${disabledTile.group_id}|${disabledTile.intensity}|${disabledTile.action}`;
       const matchedId = defaultTilesMap.get(key);
 
       if (matchedId) {

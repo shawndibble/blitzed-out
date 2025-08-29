@@ -22,8 +22,8 @@
   "tilesCount": "{{count}} tuiles",
   "online": "En ligne",
   "gameMode": {
-    "online": "En ligne",
-    "local": "En personne"
+    "online": "Solo",
+    "local": "Avec des Gens"
   },
   "players": "Joueurs",
   "localPlayer": "Local",
@@ -79,7 +79,7 @@
   "solo": "Solo",
   "soloTooltip": "Jouer seul",
   "local": "En personne",
-  "localTooltip": "Jouer avec d'autres personnes en présentiel",
+  "localTooltip": "Jouer avec d'autres personnes ensemble",
   "gameSpeed": "Vitesse de jeu",
   "averageRolls": "Lancers moyens par match:",
   "roomDice": "Dé",

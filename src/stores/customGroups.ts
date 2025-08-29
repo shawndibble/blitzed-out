@@ -444,34 +444,29 @@ export const getAllAvailableGroups = async (
  * Returns groups that actually have tiles created for them, regardless of whether they're default or custom
  * Used by setup wizard and other contexts that need groups with tiles
  */
-export const getGroupsWithTiles = async (
-  locale = 'en',
-  gameMode = 'online'
-): Promise<CustomGroupPull[]> => {
+export const getGroupsWithTiles = async (gameMode = 'online'): Promise<CustomGroupPull[]> => {
   try {
     return await retryOnCursorError(
       db,
       async () => {
-        // Import getTiles from customTiles store
-        const { getTiles } = await import('./customTiles');
+        // Import the new efficient function
+        const { getTilesByGroupIds } = await import('./customTiles');
 
         // Get all groups for this locale/gameMode (both default and custom)
         const allGroups = await getCurrentGroups(gameMode);
 
-        // Get ALL tiles for this locale/gameMode (both default tiles isCustom: 0 and custom tiles isCustom: 1)
-        const allTiles = await getTiles({
-          locale,
-          gameMode,
-        });
+        // Extract group IDs for efficient tile lookup
+        const groupIds = allGroups.map((group) => group.id);
 
-        // Get unique group IDs that have any tiles
-        // Use group_id when available, fallback to group name for backward compatibility
+        // Get tiles for these specific group IDs only (no locale/gameMode filtering)
+        const tilesForGroups = await getTilesByGroupIds(groupIds);
+
+        // Get unique group IDs that actually have tiles
         const groupIdsWithTiles = new Set(
-          allTiles.map((tile) => tile.group_id || tile.group).filter(Boolean)
+          tilesForGroups.map((tile) => tile.group_id).filter(Boolean)
         );
 
         // Filter groups to only include those that have tiles
-        // Match using group.id (which is the group_id that tiles reference)
         const groupsWithTiles = allGroups.filter((group) => groupIdsWithTiles.has(group.id));
 
         return groupsWithTiles;
@@ -485,11 +480,6 @@ export const getGroupsWithTiles = async (
     return [];
   }
 };
-
-/**
- * @deprecated Use getGroupsWithTiles instead - this now includes all groups with tiles, not just custom ones
- */
-export const getCustomGroupsWithTiles = getGroupsWithTiles;
 
 /**
  * Utility functions for post-migration runtime queries

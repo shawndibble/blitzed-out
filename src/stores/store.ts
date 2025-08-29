@@ -16,98 +16,10 @@ class BlitzedOutDatabase extends Dexie {
   constructor() {
     super('blitzedOut');
 
-    // Version 2: Original schema
-    this.version(2).stores({
-      customTiles: '++id, group, intensity, action, isEnabled, tags, gameMode, isCustom, locale',
-      gameBoard: '++id, title, tiles, tags, gameMode, isActive',
-    });
-
-    // Version 3: Add custom groups table
-    this.version(3).stores({
-      customTiles: '++id, group, intensity, action, isEnabled, tags, gameMode, isCustom, locale',
-      gameBoard: '++id, title, tiles, tags, gameMode, isActive',
-      customGroups: '++id, name, label, locale, gameMode, isDefault, createdAt',
-    });
-
-    // Version 4: Add unique constraint on custom groups
-    this.version(4)
-      .stores({
-        customTiles: '++id, group, intensity, action, isEnabled, tags, gameMode, isCustom, locale',
-        gameBoard: '++id, title, tiles, tags, gameMode, isActive',
-        customGroups:
-          '++id, name, label, locale, gameMode, isDefault, createdAt, [name+locale+gameMode]',
-      })
-      .upgrade(async (trans) => {
-        // Remove duplicates during upgrade
-        const groups = await trans.table('customGroups').toArray();
-        const seen = new Set<string>();
-
-        for (const group of groups) {
-          const key = `${group.name}-${group.locale}-${group.gameMode}`;
-          if (seen.has(key)) {
-            // Delete duplicate
-            await trans.table('customGroups').delete(group.id);
-          } else {
-            seen.add(key);
-          }
-        }
-      });
-
-    // Version 5: Add local player tables for single-device multiplayer
-    this.version(5).stores({
-      customTiles: '++id, group, intensity, action, isEnabled, tags, gameMode, isCustom, locale',
-      gameBoard: '++id, title, tiles, tags, gameMode, isActive',
-      customGroups:
-        '++id, name, label, locale, gameMode, isDefault, createdAt, [name+locale+gameMode]',
-      localPlayerSessions: '++id, sessionId, roomId, isActive, createdAt, updatedAt',
-      localPlayerMoves: '++id, sessionId, playerId, timestamp, sequence',
-      localPlayerStats: '++id, sessionId, playerId, lastActive',
-    });
-
-    // Version 6: Add group_id foreign key to tiles for normalized relationship
-    this.version(6)
-      .stores({
-        customTiles:
-          '++id, group, group_id, intensity, action, isEnabled, tags, gameMode, isCustom, locale',
-        gameBoard: '++id, title, tiles, tags, gameMode, isActive',
-        customGroups:
-          '++id, name, label, locale, gameMode, isDefault, createdAt, [name+locale+gameMode]',
-        localPlayerSessions: '++id, sessionId, roomId, isActive, createdAt, updatedAt',
-        localPlayerMoves: '++id, sessionId, playerId, timestamp, sequence',
-        localPlayerStats: '++id, sessionId, playerId, lastActive',
-      })
-      .upgrade(async (trans) => {
-        // Get all tiles and groups for migration
-        const tiles = await trans.table('customTiles').toArray();
-        const groups = await trans.table('customGroups').toArray();
-
-        // Create lookup map of group name + gameMode + locale -> group id
-        const groupMap = new Map<string, string>();
-        groups.forEach((group: any) => {
-          const key = `${group.name}|${group.gameMode}|${group.locale}`;
-          groupMap.set(key, group.id);
-        });
-
-        for (const tile of tiles) {
-          const key = `${tile.group}|${tile.gameMode}|${tile.locale}`;
-          const groupId = groupMap.get(key);
-
-          if (groupId) {
-            await trans.table('customTiles').update(tile.id, {
-              group_id: groupId,
-            });
-          } else {
-            console.warn(
-              `Orphaned tile found: ${tile.id} with group "${tile.group}" in ${tile.gameMode}/${tile.locale}`
-            );
-          }
-        }
-      });
-
-    // Version 17: Improve group_id indexing for better query performance
-    this.version(17).stores({
+    // Version 1: Modern normalized schema with group_id relationships
+    this.version(1).stores({
       customTiles:
-        '++id, group, group_id, [group_id+intensity+action+gameMode+locale], intensity, action, isEnabled, tags, gameMode, isCustom, locale',
+        '++id, group_id, [group_id+intensity+action], intensity, action, isEnabled, tags, isCustom',
       gameBoard: '++id, title, tiles, tags, gameMode, isActive',
       customGroups:
         '++id, name, label, locale, gameMode, isDefault, createdAt, [name+locale+gameMode]',

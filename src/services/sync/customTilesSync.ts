@@ -61,7 +61,9 @@ export class CustomTilesSync extends SyncBase {
 
         // Validate tile has group_id (required for new sync system)
         if (!tile.group_id || !tile.group_id.trim()) {
-          console.error(`Tile missing group_id during sync: ${tile.action} (group: ${tile.group})`);
+          console.error(
+            `Tile missing group_id during sync: ${tile.action} (group_id: ${tile.group_id})`
+          );
           throw new Error(`All tiles must have group_id for sync. Tile: ${tile.action}`);
         }
 
@@ -112,7 +114,7 @@ export class CustomTilesSync extends SyncBase {
         // Validate tile has group_id (required for new sync system)
         if (!tile.group_id || !tile.group_id.trim()) {
           console.error(
-            `Tile missing group_id during import: ${tile.action} (group: ${tile.group})`
+            `Tile missing group_id during import: ${tile.action} (group_id: ${tile.group_id})`
           );
           throw new Error(`All tiles must have group_id for sync. Tile: ${tile.action}`);
         }

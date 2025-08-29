@@ -1,9 +1,10 @@
-import { useMemo, useEffect, useState } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import i18next from 'i18next';
+import { getCustomGroups, getGroupsWithTiles } from '@/stores/customGroups';
+import { useEffect, useMemo, useState } from 'react';
+
 import { CustomGroupPull } from '@/types/customGroups';
-import { getCustomGroups, getCustomGroupsWithTiles } from '@/stores/customGroups';
 import { getTileCountsByGroup } from '@/stores/customTiles';
+import i18next from 'i18next';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 export type GroupFilterContext = 'setup' | 'advanced' | 'manage' | 'editor';
 
@@ -53,7 +54,7 @@ export const useContextualGroups = (
           case 'setup':
           case 'advanced':
             // Only groups that have tiles
-            groupsData = await getCustomGroupsWithTiles(locale, mode);
+            groupsData = await getGroupsWithTiles(mode);
             break;
 
           case 'manage':
@@ -81,8 +82,6 @@ export const useContextualGroups = (
           const tileCounts = await getTileCountsByGroup(locale, mode);
 
           const groupsWithCounts: GroupWithTileInfo[] = groupsData.map((group) => {
-            // Key lookup: getTileCountsByGroup uses group_id as key (tile.group_id || tile.group)
-            // So we need to look up using group.id (which is the group_id that tiles reference)
             const tileCountData = tileCounts[group.id];
 
             return {

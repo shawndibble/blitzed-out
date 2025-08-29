@@ -52,7 +52,7 @@ describe('syncService', () => {
       const mockCustomTiles = [
         {
           id: 1,
-          group: 'custom-group',
+          group_id: 'custom-group-id',
           intensity: 1,
           action: 'Custom action',
           tags: [],
@@ -66,7 +66,7 @@ describe('syncService', () => {
       const mockDisabledDefaults = [
         {
           id: 2,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'Default action',
           tags: [],
@@ -106,7 +106,7 @@ describe('syncService', () => {
       const mockCustomTiles = [
         {
           id: 1,
-          group: 'custom-group',
+          group_id: 'custom-group-id',
           intensity: 1,
           action: 'Custom action',
           tags: [],
@@ -169,7 +169,7 @@ describe('syncService', () => {
       customTiles: [
         {
           id: 1,
-          group: 'custom-group',
+          group_id: 'custom-group-id',
           intensity: 1,
           action: 'Custom action',
           tags: [],
@@ -182,7 +182,7 @@ describe('syncService', () => {
       disabledDefaults: [
         {
           id: 2,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'Default action',
           tags: [],
@@ -221,7 +221,7 @@ describe('syncService', () => {
         // For custom tiles duplication check - return empty (no existing duplicates)
         if (
           filters?.gameMode === 'online' &&
-          filters?.group === 'custom-group' &&
+          filters?.group_id === 'custom-group-id' &&
           filters?.action === 'Custom action'
         ) {
           return [];
@@ -229,7 +229,7 @@ describe('syncService', () => {
         // For disabled defaults matching - return existing default tile
         if (
           filters?.gameMode === 'online' &&
-          filters?.group === 'teasing' &&
+          filters?.group_id === 'teasing-group-id' &&
           filters?.action === 'Default action'
         ) {
           return [{ id: 100, isEnabled: 1, isCustom: 0 }] as any;
@@ -242,7 +242,7 @@ describe('syncService', () => {
               isEnabled: 1,
               isCustom: 0,
               gameMode: 'online',
-              group: 'teasing',
+              group_id: 'teasing-group-id',
               intensity: 1,
               action: 'Default action',
             },
@@ -348,7 +348,7 @@ describe('syncService', () => {
       const mockExistingDisabled = [
         {
           id: 3,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'Some old disabled action',
           tags: [],
@@ -373,11 +373,11 @@ describe('syncService', () => {
       // Note: Empty arrays for customTiles and customGroups will trigger local preservation
       const mockTestFirebaseData = {
         customTiles: [
-          { id: 99, action: 'Firebase tile', group: 'test', intensity: 1, isCustom: 1 },
+          { id: 99, action: 'Firebase tile', group_id: 'test-group-id', intensity: 1, isCustom: 1 },
         ],
         disabledDefaults: [
           {
-            group: 'teasing',
+            group_id: 'teasing-group-id',
             intensity: 1,
             action: 'Default action',
             gameMode: 'online',
@@ -397,7 +397,13 @@ describe('syncService', () => {
         if (filters?.isCustom === 1) {
           // Return local custom tiles for conflict resolution
           return [
-            { id: 1, action: 'Local custom tile', group: 'local', intensity: 1, isCustom: 1 },
+            {
+              id: 1,
+              action: 'Local custom tile',
+              group_id: 'local-group-id',
+              intensity: 1,
+              isCustom: 1,
+            },
           ] as any;
         }
         if (filters?.isCustom === 0 && filters?.isEnabled === 0) return mockExistingDisabled;
@@ -409,7 +415,7 @@ describe('syncService', () => {
               isEnabled: 1,
               isCustom: 0,
               gameMode: 'online',
-              group: 'teasing',
+              group_id: 'teasing-group-id',
               intensity: 1,
               action: 'Default action',
             },
@@ -457,7 +463,7 @@ describe('syncService', () => {
         customTiles: [],
         disabledDefaults: [
           {
-            group: 'teasing',
+            group_id: 'teasing-group-id',
             intensity: 1,
             action: 'Default action',
             gameMode: 'online',
@@ -482,7 +488,7 @@ describe('syncService', () => {
               isEnabled: 1,
               isCustom: 0,
               gameMode: 'online',
-              group: 'teasing',
+              group_id: 'teasing-group-id',
               intensity: 1,
               action: 'Default action',
             },
@@ -643,7 +649,7 @@ describe('syncService', () => {
       const mockCustomTiles = [
         {
           id: 1,
-          group: 'custom-group',
+          group_id: 'custom-group-id',
           intensity: 1,
           action: 'User created action',
           tags: [],
@@ -657,7 +663,7 @@ describe('syncService', () => {
       const mockDisabledDefaults = [
         {
           id: 2,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'User disabled this default',
           tags: [],
@@ -714,7 +720,7 @@ describe('syncService', () => {
               isEnabled: 1,
               isCustom: 0,
               gameMode: 'online',
-              group: 'teasing',
+              group_id: 'teasing-group-id',
               intensity: 1,
               action: 'User disabled this default',
             },

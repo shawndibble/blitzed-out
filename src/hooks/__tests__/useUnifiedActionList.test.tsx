@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 
 import { CustomGroupPull } from '@/types/customGroups';
-import { getAllAvailableGroups, getCustomGroupsWithTiles } from '@/stores/customGroups';
+import { getAllAvailableGroups, getGroupsWithTiles } from '@/stores/customGroups';
 import { getTileCountsByGroup } from '@/stores/customTiles';
 import useUnifiedActionList from '../useUnifiedActionList';
 
@@ -23,7 +23,7 @@ vi.mock('react-i18next', () => ({
 // Mock customGroups store
 vi.mock('@/stores/customGroups', () => ({
   getAllAvailableGroups: vi.fn(),
-  getCustomGroupsWithTiles: vi.fn(),
+  getGroupsWithTiles: vi.fn(),
 }));
 
 // Mock customTiles store
@@ -133,11 +133,14 @@ describe('useUnifiedActionList - Core Functionality', () => {
     expect(batingGroup.actions).toHaveProperty('Masturbation');
   });
 
-  it('should handle fresh user with no game mode', () => {
+  it('should handle fresh user with no game mode', async () => {
     const { result } = renderHook(() => useUnifiedActionList());
 
-    // Should remain in loading state since no game mode provided
-    expect(result.current.isLoading).toBe(true);
+    // Wait for loading to complete - with no gameMode it should return empty immediately
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
     expect(result.current.actionsList).toEqual({});
   });
 
@@ -256,7 +259,7 @@ describe('useUnifiedActionList - Filtering Functionality', () => {
       },
     ];
 
-    const mockCustomGroupsWithTiles: CustomGroupPull[] = [mockAllGroups[0]]; // Only custom group with tiles
+    const mockCustomGroupsWithTiles: CustomGroupPull[] = mockAllGroups; // Both groups have tiles according to tileCounts
 
     const mockTileCounts = {
       'group-with-tiles': {
@@ -269,7 +272,7 @@ describe('useUnifiedActionList - Filtering Functionality', () => {
       },
     };
 
-    vi.mocked(getCustomGroupsWithTiles).mockResolvedValue(mockCustomGroupsWithTiles);
+    vi.mocked(getGroupsWithTiles).mockResolvedValue(mockCustomGroupsWithTiles);
     vi.mocked(getTileCountsByGroup).mockResolvedValue(mockTileCounts);
     vi.mocked(getAllAvailableGroups).mockResolvedValue(mockAllGroups);
 
@@ -319,13 +322,13 @@ describe('useUnifiedActionList - Filtering Functionality', () => {
     const mockCustomGroupsWithTiles: CustomGroupPull[] = [mockAllGroups[0]];
 
     const mockTileCounts = {
-      'partial-tiles-group': {
+      '1': {
         count: 8,
         intensities: { 1: 3, 3: 5 }, // Only intensities 1 and 3 have tiles (2 and 4 are missing)
       },
     };
 
-    vi.mocked(getCustomGroupsWithTiles).mockResolvedValue(mockCustomGroupsWithTiles);
+    vi.mocked(getGroupsWithTiles).mockResolvedValue(mockCustomGroupsWithTiles);
     vi.mocked(getTileCountsByGroup).mockResolvedValue(mockTileCounts);
     vi.mocked(getAllAvailableGroups).mockResolvedValue(mockAllGroups);
 
@@ -377,7 +380,7 @@ describe('useUnifiedActionList - Filtering Functionality', () => {
       // Note: group-no-tiles is not in tileCounts, so it won't be returned by getCustomGroupsWithTiles
     };
 
-    vi.mocked(getCustomGroupsWithTiles).mockResolvedValue(mockCustomGroupsWithTiles);
+    vi.mocked(getGroupsWithTiles).mockResolvedValue(mockCustomGroupsWithTiles);
     vi.mocked(getTileCountsByGroup).mockResolvedValue(mockTileCounts);
     vi.mocked(getAllAvailableGroups).mockResolvedValue(mockAllGroups);
 
@@ -410,26 +413,30 @@ describe('useUnifiedActionList - Filtering Functionality', () => {
     ];
 
     vi.mocked(getAllAvailableGroups).mockResolvedValue(mockGroups);
-    vi.mocked(getCustomGroupsWithTiles).mockResolvedValue(mockGroups);
+    vi.mocked(getGroupsWithTiles).mockResolvedValue(mockGroups);
     vi.mocked(getTileCountsByGroup).mockResolvedValue({
       'test-group': { count: 1, intensities: { 1: 1 } },
     });
 
     // First call without filtering
-    const { result: unfilteredResult } = renderHook(() => useUnifiedActionList('online', false));
+    const { result: unfilteredResult, unmount: unmount1 } = renderHook(() =>
+      useUnifiedActionList('online', false)
+    );
     await waitFor(() => expect(unfilteredResult.current.isLoading).toBe(false));
+    expect(unfilteredResult.current.actionsList).toHaveProperty('test-group');
+    unmount1();
 
     // Second call with filtering
-    const { result: filteredResult } = renderHook(() => useUnifiedActionList('online', true));
+    const { result: filteredResult, unmount: unmount2 } = renderHook(() =>
+      useUnifiedActionList('online', true)
+    );
     await waitFor(() => expect(filteredResult.current.isLoading).toBe(false));
-
-    // Both should have results (this tests that they don't interfere with each other's cache)
-    expect(unfilteredResult.current.actionsList).toHaveProperty('test-group');
     expect(filteredResult.current.actionsList).toHaveProperty('test-group');
+    unmount2();
 
     // Verify the functions were called appropriately
-    expect(vi.mocked(getAllAvailableGroups)).toHaveBeenCalledTimes(2); // Once for each mode
-    expect(vi.mocked(getCustomGroupsWithTiles)).toHaveBeenCalledTimes(1); // Only for filtered mode
+    expect(vi.mocked(getAllAvailableGroups)).toHaveBeenCalledTimes(1); // Once for unfiltered mode
+    expect(vi.mocked(getGroupsWithTiles)).toHaveBeenCalledTimes(1); // Once for filtered mode
     expect(vi.mocked(getTileCountsByGroup)).toHaveBeenCalledTimes(1); // Only for filtered mode
   });
 });

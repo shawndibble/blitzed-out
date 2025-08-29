@@ -19,8 +19,8 @@
   "signInWithGoogle": "Sign in with Google",
   "online": "Online",
   "gameMode": {
-    "online": "Online",
-    "local": "In Person"
+    "online": "Solo",
+    "local": "With People"
   },
   "players": "Players",
   "localPlayer": "Local",
@@ -76,7 +76,7 @@
   "solo": "Solo",
   "soloTooltip": "Play with yourself",
   "local": "In Person",
-  "localTooltip": "Playing with other people in person",
+  "localTooltip": "Playing with other people together",
   "gameSpeed": "Game Speed",
   "averageRolls": "Average rolls per game: ",
   "roomDice": "Dice",
@@ -432,6 +432,13 @@
   },
   "gameSettingsHeading": "Game Settings",
   "errorSavingTile": "Error saving tile",
+  "tileUpdatedSuccessfully": "Tile updated successfully",
+  "tileAddedSuccessfully": "Tile added successfully",
+  "updateTile": "Update Tile",
+  "addTile": "Add Tile",
+  "createNewGroup": "Create New Group",
+  "enterTileAction": "Enter the action text for this tile",
+  "addTags": "Add tags to categorize this tile",
   "enterDataToImport": "Please enter data to import",
   "templateBasic": "Basic (1-4)",
   "templateSimple": "Simple (1-3)",

@@ -16,7 +16,6 @@ import Accordion from '@/components/Accordion';
 import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 import CopyToClipboard from '@/components/CopyToClipboard';
-import groupActionsFolder from '@/helpers/actionsFolder';
 import { ImportExportProps } from '@/types/customTiles';
 import {
   exportCleanData,
@@ -26,12 +25,13 @@ import {
   getAvailableGroupsForExport,
 } from './enhancedImportExport';
 import { useGameSettings } from '@/stores/settingsStore';
+import { getCustomGroups } from '@/stores/customGroups';
 
 export default function ImportExport({
   expanded,
   handleChange,
   customTiles,
-  mappedGroups,
+  mappedGroups: _mappedGroups,
   setSubmitMessage,
   bulkImport: _bulkImport,
 }: ImportExportProps) {
@@ -39,7 +39,6 @@ export default function ImportExport({
   const { t } = useTranslation();
   const { settings } = useGameSettings();
   const [inputValue, setInputValue] = useState<string>('');
-  // const [selectedTab, setSelectedTab] = useState(0); // Removed as tabs not implemented yet
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [exportFormat, setExportFormat] = useState<'clean' | 'legacy'>('clean');
   const [exportScope, setExportScope] = useState<'all' | 'single' | 'default'>('all');
@@ -66,43 +65,53 @@ export default function ImportExport({
             exportedData = await exportGroupData(singleGroup, settings.locale || 'en');
             break;
           case 'default':
-            exportedData = await exportCleanData(settings.locale || 'en', {
-              exportScope: 'default',
-            });
+            exportedData = await exportCleanData(
+              settings.locale || 'en',
+              settings.gameMode || 'online',
+              {
+                exportScope: 'default',
+              }
+            );
             break;
           default:
-            exportedData = await exportCleanData(settings.locale || 'en', { exportScope: 'all' });
+            exportedData = await exportCleanData(
+              settings.locale || 'en',
+              settings.gameMode || 'online',
+              { exportScope: 'all' }
+            );
             break;
         }
 
         setInputValue(exportedData);
       } else {
-        // Use the legacy export format
+        // Legacy export format - need to get group data for tiles
         const userCustomTiles = customTiles.filter((tile) => tile.isCustom);
 
-        const customString = userCustomTiles.map(
-          ({ group, intensity, action, tags, gameMode = 'online' }) => {
-            // Get the appropriate groups for this tile's game mode
-            const gameModeGroups = groupActionsFolder(
-              mappedGroups[gameMode as keyof typeof mappedGroups] || {}
-            );
+        // Get all groups to resolve tile group_ids
+        const allGroups = await getCustomGroups({});
+        const groupMap = new Map(allGroups.map((group) => [group.id, group]));
 
-            // Find the matching group data
-            const userData = gameModeGroups.find(
-              (entry) => entry?.intensity === Number(intensity) && entry?.value === group
-            );
+        const customString = await Promise.all(
+          userCustomTiles.map(async (tile) => {
+            const group = groupMap.get(tile.group_id || '');
+            if (!group) {
+              return `[Unknown Group - ${tile.intensity}]\n${tile.action}\nTags: ${tile.tags?.join(', ') || ''}\nGameMode: unknown`;
+            }
+
+            const intensityData = group.intensities.find((i) => i.value === tile.intensity);
+            const intensityLabel = intensityData?.label || `Level ${tile.intensity + 1}`;
 
             let actionText = '';
-            actionText += `[${userData?.group || group} - ${userData?.translatedIntensity || intensity}]\n`;
-            actionText += action;
-            actionText += tags?.length ? `\nTags: ` + tags?.join(', ') : '';
-            actionText += `\nGameMode: ${gameMode}`;
+            actionText += `[${group.label || group.name} - ${intensityLabel}]\n`;
+            actionText += tile.action;
+            actionText += tile.tags?.length ? `\nTags: ` + tile.tags.join(', ') : '';
+            actionText += `\nGameMode: ${group.gameMode}`;
 
             return actionText;
-          }
+          })
         );
 
-        setInputValue(customString.join('\n---\n'));
+        setInputValue((await Promise.all(customString)).join('\n---\n'));
       }
     } catch (error) {
       console.error('Error exporting data:', error);
@@ -113,12 +122,12 @@ export default function ImportExport({
     }
   }, [
     customTiles,
-    mappedGroups,
     setInputValue,
     exportFormat,
     exportScope,
     singleGroup,
     settings.locale,
+    settings.gameMode,
     setSubmitMessage,
     t,
   ]);
@@ -140,10 +149,14 @@ export default function ImportExport({
       setSubmitMessage({ type: 'info', message: t('importMessages.importing') });
 
       // Use the new auto-import function that detects format
-      const result = await autoImportData(importDataValue, mappedGroups, {
-        locale: settings.locale || 'en',
-        mergeStrategy,
-      });
+      const result = await autoImportData(
+        importDataValue,
+        {},
+        {
+          locale: settings.locale || 'en',
+          mergeStrategy,
+        }
+      );
 
       setImportResult(result);
 
@@ -154,9 +167,18 @@ export default function ImportExport({
             module.getTiles({ isCustom: 1 })
           );
 
+          // Get groups to resolve group names for Firebase submission
+          const allGroups = await getCustomGroups({});
+          const groupMap = new Map(allGroups.map((group) => [group.id, group]));
+
           // Submit the most recent tiles (simplified approach)
           customTilesFromImport.slice(-result.importedTiles).forEach(async (record) => {
-            submitCustomAction(`${record.group} - ${record.intensity}`, record.action);
+            const group = groupMap.get(record.group_id || '');
+            const groupName = group?.name || 'Unknown Group';
+            const intensityData = group?.intensities.find((i) => i.value === record.intensity);
+            const intensityLabel = intensityData?.label || `Level ${record.intensity + 1}`;
+
+            submitCustomAction(`${groupName} - ${intensityLabel}`, record.action);
           });
         }
 

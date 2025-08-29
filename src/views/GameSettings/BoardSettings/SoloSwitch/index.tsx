@@ -39,7 +39,7 @@ export default function SoloSwitch({ formData, setFormData }: SoloSwitchProps): 
         inputProps={{ 'aria-label': 'Game Type' }}
       />
       <Typography>
-        <Trans i18nKey="local" />
+        <Trans i18nKey="gameMode.local" />
       </Typography>
       <Tooltip
         title={

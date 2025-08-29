@@ -1,6 +1,7 @@
-import { Box, Card, CardContent, Typography, Grid, Chip } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
+
 import { PresetConfig } from '@/types/presets';
+import { useTranslation } from 'react-i18next';
 
 interface PresetSelectorProps {
   gameMode: string;

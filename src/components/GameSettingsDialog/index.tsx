@@ -13,7 +13,7 @@ interface GameSettingsDialogProps {
 
 export default function GameSettingsDialog({
   open,
-  close = () => {},
+  close = null,
 }: GameSettingsDialogProps): JSX.Element | null {
   const isMobile = useBreakpoint();
   const [queryParams] = useSearchParams();

@@ -22,8 +22,8 @@
   "tilesCount": "{{count}} casillas",
   "online": "En línea",
   "gameMode": {
-    "online": "En línea",
-    "local": "En persona"
+    "online": "Solo",
+    "local": "Con Gente"
   },
   "players": "Jugadores",
   "localPlayer": "Local",
@@ -79,7 +79,7 @@
   "solo": "Individual",
   "soloTooltip": "Juega a solas",
   "local": "En persona",
-  "localTooltip": "Juega con otros en persona",
+  "localTooltip": "Jugar con otras personas juntas",
   "gameSpeed": "Velocidad del juego",
   "averageRolls": "Tiradas promedio por juego: ",
   "roomDice": "Dado",
@@ -431,6 +431,13 @@
     "enterValidUrl": "Por favor ingresa una URL válida"
   },
   "errorSavingTile": "Error al guardar el tile",
+  "tileUpdatedSuccessfully": "Casilla actualizada exitosamente",
+  "tileAddedSuccessfully": "Casilla agregada exitosamente",
+  "updateTile": "Actualizar Casilla",
+  "addTile": "Agregar Casilla",
+  "createNewGroup": "Crear Nuevo Grupo",
+  "enterTileAction": "Ingresa el texto de la acción para esta casilla",
+  "addTags": "Agregar etiquetas para categorizar esta casilla",
   "enterDataToImport": "Por favor ingresa datos para importar",
   "templateBasic": "Básico (1-4)",
   "gameSettingsHeading": "Configuración del Juego",

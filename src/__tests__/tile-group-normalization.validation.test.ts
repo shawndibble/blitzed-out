@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the required modules
 vi.mock('i18next', () => ({
@@ -38,11 +38,9 @@ describe('Tile-Group Normalization Validation Tests', () => {
     };
 
     // Verify the object structure is correct
-    expect(mockTile).toHaveProperty('group');
     expect(mockTile).toHaveProperty('group_id');
     expect(mockTile).toHaveProperty('gameMode');
     expect(mockTile.group_id).toBe('group-123');
-    expect(mockTile.group).toBe('test-group');
   });
 
   it('should validate context-aware filtering requirements', () => {

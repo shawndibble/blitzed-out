@@ -1,24 +1,25 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { Dialog, DialogContent, DialogTitle, Divider, IconButton, Grid, Box } from '@mui/material';
-import { Close } from '@mui/icons-material';
-import { Trans, useTranslation } from 'react-i18next';
-import { importCustomTiles, getTiles } from '@/stores/customTiles';
-import useBreakpoint from '@/hooks/useBreakpoint';
-import ToastAlert from '@/components/ToastAlert';
-import { importActions } from '@/services/dexieActionImport';
-import ImportExport from '@/views/CustomTileDialog/ImportExport';
-import AddCustomTile from './AddCustomTile';
-import CustomTileHelp from './CustomTileHelp';
-import ViewCustomTiles from './ViewCustomTiles';
 import {
-  CustomTileDialogProps,
-  CustomTile,
   AllGameModeActions,
-  SubmitMessage,
+  CustomTile,
+  CustomTileDialogProps,
   CustomTilePull,
   SharedFilters,
+  SubmitMessage,
 } from '@/types/customTiles';
+import { Box, Dialog, DialogContent, DialogTitle, Divider, Grid, IconButton } from '@mui/material';
+import { Trans, useTranslation } from 'react-i18next';
+import { getTiles, importCustomTiles } from '@/stores/customTiles';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import AddCustomTile from './AddCustomTile';
+import { Close } from '@mui/icons-material';
+import CustomTileHelp from './CustomTileHelp';
+import ImportExport from '@/views/CustomTileDialog/ImportExport';
+import ToastAlert from '@/components/ToastAlert';
+import ViewCustomTiles from './ViewCustomTiles';
+import { importActions } from '@/services/dexieActionImport';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 export default function CustomTileDialog({
   boardUpdated,
@@ -43,16 +44,11 @@ export default function CustomTileDialog({
   const [isLoadingActions, setIsLoadingActions] = useState<boolean>(true);
 
   // Shared filter state between AddCustomTile and ViewCustomTiles components
-  const [sharedFilters, setSharedFiltersState] = useState<SharedFilters>({
+  const [sharedFilters, setSharedFilters] = useState<SharedFilters>({
     gameMode: 'online',
     groupName: '',
     intensity: '', // Empty string when ViewCustomTiles has 'All'
   });
-
-  // Wrap setSharedFilters in useCallback to prevent unnecessary re-renders
-  const setSharedFilters = useCallback((filters: SharedFilters) => {
-    setSharedFiltersState(filters);
-  }, []);
 
   // Create a function to trigger refresh of the ViewCustomTiles component
   const triggerRefresh = useCallback(() => {
@@ -148,7 +144,7 @@ export default function CustomTileDialog({
       </>
     );
 
-    const rightColumnContent = Array.isArray(allTiles) && allTiles.length > 0 && (
+    const rightColumnContent = (
       <Box>
         <ViewCustomTiles
           tagList={tagList}

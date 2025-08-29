@@ -27,11 +27,11 @@ interface ActionsList {
   };
 }
 
-function getCustomTileCount(
+async function getCustomTileCount(
   settings: Settings,
   customTiles: CustomTilePull[] | null | undefined,
   actionsList: ActionsList
-): number {
+): Promise<number> {
   // Use selectedActions structure only
   const actionEntries = settings.selectedActions || {};
 
@@ -44,12 +44,21 @@ function getCustomTileCount(
       return acc;
     }, {});
 
+  // Get all groups to resolve group_ids to names
+  const { getCustomGroups } = await import('@/stores/customGroups');
+  const allGroups = await getCustomGroups({});
+  const groupIdToName = new Map(allGroups.map((group) => [group.id, group.name]));
+
   const usedCustomTiles =
     customTiles?.filter((entry) => {
       // Only count tiles that are actually custom (not migrated defaults)
       if (!entry.isCustom) return false;
 
-      const intensityArray = settingsDataFolder[entry.group];
+      // Get group name from group_id
+      const groupName = groupIdToName.get(entry.group_id || '');
+      if (!groupName) return false;
+
+      const intensityArray = settingsDataFolder[groupName];
       return intensityArray && intensityArray.length >= Number(entry.intensity);
     }) || [];
 
@@ -189,7 +198,7 @@ export async function getSettingsMessage(
     }
   }
 
-  const customTileCount = getCustomTileCount(settings, customTiles, actionsList);
+  const customTileCount = await getCustomTileCount(settings, customTiles, actionsList);
   if (customTileCount) {
     message += `* ${t('customTilesLabel')}: ${customTileCount} \r\n`;
   }

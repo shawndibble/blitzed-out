@@ -22,8 +22,8 @@
   "tilesCount": "{{count}} 磁磚",
   "online": "線上",
   "gameMode": {
-    "online": "線上",
-    "local": "面對面"
+    "online": "單人",
+    "local": "與他人"
   },
   "players": "玩家",
   "localPlayer": "本地",
@@ -79,7 +79,7 @@
   "solo": "單人",
   "soloTooltip": "與自己遊玩",
   "local": "面對面",
-  "localTooltip": "與其他人面對面遊玩",
+  "localTooltip": "與其他人一起遊玩",
   "gameSpeed": "遊戲速度",
   "averageRolls": "平均每場遊戲擲骰次數：",
   "roomDice": "骰子",

@@ -31,13 +31,13 @@ export class TileMatcher {
       throw new Error(
         `Tile missing group_id for matching: ${JSON.stringify({
           id: (tile as CustomTilePull).id,
-          group: tile.group,
+          group_id: tile.group_id,
           action: tile.action,
         })}`
       );
     }
 
-    return `${tile.group_id}|${tile.intensity}|${tile.action}|${tile.gameMode || 'online'}|${tile.locale || 'en'}`;
+    return `${tile.group_id}|${tile.intensity}|${tile.action}`;
   }
 
   /**
@@ -47,7 +47,7 @@ export class TileMatcher {
     if (!tile.group_id) {
       throw new Error(
         `Cannot match tile without group_id: ${JSON.stringify({
-          group: tile.group,
+          group_id: tile.group_id,
           action: tile.action,
         })}`
       );
@@ -59,8 +59,6 @@ export class TileMatcher {
         group_id: tile.group_id,
         intensity: tile.intensity,
         action: tile.action,
-        gameMode: tile.gameMode || 'online',
-        locale: tile.locale || 'en',
       });
 
       if (existingTiles.length > 0) {
@@ -97,7 +95,7 @@ export class TileMatcher {
       if (!tile.group_id) {
         throw new Error(
           `Tile missing group_id: ${JSON.stringify({
-            group: tile.group,
+            group_id: tile.group_id,
             action: tile.action,
           })}`
         );
@@ -160,10 +158,6 @@ export class TileMatcher {
       errors.push('Missing group_id');
     }
 
-    if (!tile.group || !tile.group.trim()) {
-      errors.push('Missing group name');
-    }
-
     if (tile.intensity === undefined || tile.intensity === null) {
       errors.push('Missing intensity');
     }
@@ -192,9 +186,7 @@ export class TileMatcher {
     return (
       tile1.group_id === tile2.group_id &&
       tile1.intensity === tile2.intensity &&
-      tile1.action === tile2.action &&
-      (tile1.gameMode || 'online') === (tile2.gameMode || 'online') &&
-      (tile1.locale || 'en') === (tile2.locale || 'en')
+      tile1.action === tile2.action
     );
   }
 

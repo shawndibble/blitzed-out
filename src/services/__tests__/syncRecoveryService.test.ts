@@ -39,10 +39,7 @@ describe('syncRecoveryService', () => {
     // Mock console methods
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    // Mock logger methods
-    vi.mocked(console.error).mockImplementation(() => {});
-    vi.mocked(console.debug).mockImplementation(() => {});
+    vi.spyOn(console, 'debug').mockImplementation(() => {});
 
     // Mock safeLocalStorage with persistent behavior
     vi.mocked(safeLocalStorage.getJSON).mockImplementation((key: string) => {

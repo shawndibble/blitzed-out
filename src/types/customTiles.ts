@@ -1,14 +1,11 @@
 // Base CustomTile interface (for pushing)
 export interface CustomTileBase {
-  group: string; // Keep for backward compatibility during migration
   group_id?: string; // New foreign key field
   intensity: number;
   action: string;
   tags: string[];
   isEnabled?: number | boolean;
   isCustom: number;
-  gameMode?: string; // Keep for backward compatibility during migration
-  locale?: string;
 }
 
 // CustomTile interface for pushing (id is optional)

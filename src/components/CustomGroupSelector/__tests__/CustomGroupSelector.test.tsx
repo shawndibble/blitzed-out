@@ -3,7 +3,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import CustomGroupSelector from '../index';
-import { getCustomGroups, getCustomGroupsWithTiles } from '@/stores/customGroups';
+import { getCustomGroups, getGroupsWithTiles } from '@/stores/customGroups';
 import { getTileCountsByGroup } from '@/stores/customTiles';
 import { useEditorGroupsReactive } from '@/hooks/useGroupFiltering';
 
@@ -27,7 +27,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('@/stores/customGroups', () => ({
   getAllAvailableGroups: vi.fn(),
   getCustomGroups: vi.fn(),
-  getCustomGroupsWithTiles: vi.fn(),
+  getGroupsWithTiles: vi.fn(),
 }));
 
 // Mock the customTiles store
@@ -88,7 +88,7 @@ describe('CustomGroupSelector', () => {
 
     // Set up default mock implementations
     vi.mocked(getCustomGroups).mockResolvedValue(mockGroups);
-    vi.mocked(getCustomGroupsWithTiles).mockResolvedValue(mockGroups);
+    vi.mocked(getGroupsWithTiles).mockResolvedValue(mockGroups);
     vi.mocked(getTileCountsByGroup).mockResolvedValue({});
   });
 

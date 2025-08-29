@@ -22,8 +22,8 @@
   "tilesCount": "{{count}} टाइलें",
   "online": "ऑनलाइन",
   "gameMode": {
-    "online": "ऑनलाइन",
-    "local": "व्यक्तिगत रूप से"
+    "online": "एकल",
+    "local": "लोगों के साथ"
   },
   "players": "खिलाड़ी",
   "localPlayer": "स्थानीय",
@@ -79,7 +79,7 @@
   "solo": "सोलो",
   "soloTooltip": "अपने साथ खेलें",
   "local": "व्यक्तिगत रूप से",
-  "localTooltip": "व्यक्तिगत रूप से अन्य लोगों के साथ खेलना",
+  "localTooltip": "अन्य लोगों के साथ मिलकर खेलना",
   "gameSpeed": "गेम स्पीड",
   "averageRolls": "प्रति गेम औसत रोल: ",
   "roomDice": "पासा",

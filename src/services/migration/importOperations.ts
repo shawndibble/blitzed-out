@@ -68,15 +68,12 @@ export const importActionFile = async (
       for (const action of actionList) {
         if (typeof action === 'string' && action.trim()) {
           customTiles.push({
-            group: groupName,
             group_id: deterministicId, // Assign the deterministic group ID
             intensity: intensity.value,
             action: action.trim(),
             tags: ['default'], // Mark as default tiles from JSON files
             isEnabled: 1,
             isCustom: 0, // These are default tiles, not custom
-            gameMode,
-            locale,
           });
         }
       }
@@ -108,7 +105,7 @@ const addCustomGroupSafely = async (customGroup: CustomGroupBase): Promise<boole
 const validateTilesHaveGroupId = (tiles: CustomTileBase[]): void => {
   for (const tile of tiles) {
     if (!tile.group_id || !tile.group_id.trim()) {
-      throw new Error(`Tile missing group_id during import: ${tile.action} (group: ${tile.group})`);
+      throw new Error(`Tile missing group_id during import: ${tile.action}`);
     }
   }
 };
@@ -137,9 +134,7 @@ const getNewTiles = async (
         (existing) =>
           existing.group_id === tile.group_id &&
           existing.intensity === tile.intensity &&
-          existing.action === tile.action &&
-          existing.gameMode === tile.gameMode &&
-          existing.locale === tile.locale
+          existing.action === tile.action
       );
     });
   } catch (error) {

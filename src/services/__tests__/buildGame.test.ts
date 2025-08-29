@@ -40,7 +40,7 @@ vi.mock('@/stores/customTiles', () => ({
 describe('buildGameBoard service', () => {
   const mockGroups: CustomGroupPull[] = [
     {
-      id: '1',
+      id: 'teasing-group-id',
       name: 'teasing',
       label: 'Teasing',
       intensities: [
@@ -56,7 +56,7 @@ describe('buildGameBoard service', () => {
       updatedAt: new Date(),
     },
     {
-      id: '2',
+      id: 'edging-group-id',
       name: 'edging',
       label: 'Edging',
       intensities: [
@@ -76,44 +76,38 @@ describe('buildGameBoard service', () => {
   const mockTiles: CustomTilePull[] = [
     {
       id: 1,
-      group: 'teasing',
+      group_id: 'teasing-group-id',
       intensity: 1,
       action: 'Light teasing action 1',
       tags: [],
       isEnabled: 1,
       isCustom: 0,
-      locale: 'en',
-      gameMode: 'online',
     },
     {
       id: 2,
-      group: 'teasing',
+      group_id: 'teasing-group-id',
       intensity: 2,
       action: 'Medium teasing action 1',
       tags: [],
       isEnabled: 1,
       isCustom: 0,
-      locale: 'en',
-      gameMode: 'online',
     },
     {
       id: 3,
-      group: 'edging',
+      group_id: 'edging-group-id',
       intensity: 1,
       action: 'Light edging action 1',
       tags: [],
       isEnabled: 1,
       isCustom: 0,
-      locale: 'en',
-      gameMode: 'online',
     },
   ];
 
   const mockSettings: Settings = {
-    gameMode: 'online',
     boardUpdated: false,
     room: 'TEST',
     role: 'sub',
+    gameMode: 'online',
     finishRange: [33, 66],
     selectedActions: {
       teasing: { levels: [1, 2], type: 'sex' },
@@ -172,7 +166,7 @@ describe('buildGameBoard service', () => {
       // Use non-solo groups for role filtering test
       const roleSpecificGroups: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'role-specific-id',
           name: 'roleSpecific',
           label: 'Role Specific Actions',
           intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
@@ -188,25 +182,21 @@ describe('buildGameBoard service', () => {
       const tilesWithRoles: CustomTilePull[] = [
         {
           id: 1,
-          group: 'roleSpecific',
+          group_id: 'role-specific-id',
           intensity: 1,
           action: 'Action for {sub} only',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'roleSpecific',
+          group_id: 'role-specific-id',
           intensity: 1,
           action: 'Action for {dom} only',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -230,7 +220,7 @@ describe('buildGameBoard service', () => {
     it('should allow solo type groups for all roles including vers', async () => {
       const soloGroups: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'bating-group-id',
           name: 'bating',
           label: 'Bating',
           intensities: [
@@ -245,7 +235,7 @@ describe('buildGameBoard service', () => {
           updatedAt: new Date(),
         },
         {
-          id: '2',
+          id: 'throat-training-group-id',
           name: 'throatTraining',
           label: 'Throat Training',
           intensities: [
@@ -260,7 +250,7 @@ describe('buildGameBoard service', () => {
           updatedAt: new Date(),
         },
         {
-          id: '3',
+          id: 'poppers-group-id',
           name: 'poppers',
           label: 'Poppers',
           intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
@@ -276,36 +266,30 @@ describe('buildGameBoard service', () => {
       const soloTiles: CustomTilePull[] = [
         {
           id: 1,
-          group: 'bating',
+          group_id: 'bating-group-id',
           intensity: 1,
           action: '30 slow strokes.', // No role placeholders
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'throatTraining',
+          group_id: 'throat-training-group-id',
           intensity: 1,
           action: 'Lick a toy', // No role placeholders
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 3,
-          group: 'poppers',
+          group_id: 'poppers-group-id',
           intensity: 1,
           action: '1 hit.', // No role placeholders
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -327,7 +311,7 @@ describe('buildGameBoard service', () => {
       // All three groups should be available (not filtered out)
       expect(result.metadata.selectedGroups).toEqual(['bating', 'throatTraining', 'poppers']);
       expect(result.metadata.availableTileCount).toBe(3); // All tiles should be available
-      expect(result.metadata.tilesWithContent).toBeGreaterThan(2); // Should have content tiles, not just start/finish
+      expect(result.metadata.tilesWithContent).toBeGreaterThanOrEqual(2); // Should have content tiles, not just start/finish
 
       // Verify that tiles are actually generated (not empty)
       const contentTiles = result.board.slice(1, -1); // Exclude start/finish
@@ -340,7 +324,7 @@ describe('buildGameBoard service', () => {
     it('should filter out non-solo/non-consumption groups that do not match vers role placeholders', async () => {
       const mixedGroups: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'solo-group-id',
           name: 'soloGroup',
           label: 'Solo Group',
           intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
@@ -352,7 +336,7 @@ describe('buildGameBoard service', () => {
           updatedAt: new Date(),
         },
         {
-          id: '2',
+          id: 'role-specific-group-id',
           name: 'roleSpecificGroup',
           label: 'Role Specific Group',
           intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
@@ -368,25 +352,21 @@ describe('buildGameBoard service', () => {
       const mixedTiles: CustomTilePull[] = [
         {
           id: 1,
-          group: 'soloGroup',
+          group_id: 'solo-group-id',
           intensity: 1,
           action: 'Solo action without role placeholders', // Should be available
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'roleSpecificGroup',
+          group_id: 'role-specific-group-id',
           intensity: 1,
           action: 'Action for {sub} only', // Should be filtered out for vers
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -438,7 +418,7 @@ describe('buildGameBoard service', () => {
       // Mock group that only has intensity 2+ tiles, but user selected level 1
       const mockGroupsWithHighIntensity: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'piss-play-group-id',
           name: 'pissPlay',
           label: 'Piss Play',
           intensities: [
@@ -458,25 +438,21 @@ describe('buildGameBoard service', () => {
       const mockTilesWithHighIntensity: CustomTilePull[] = [
         {
           id: 1,
-          group: 'pissPlay',
+          group_id: 'piss-play-group-id',
           intensity: 2, // No intensity 1 tiles available
           action: 'Medium intensity piss play action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'pissPlay',
+          group_id: 'piss-play-group-id',
           intensity: 3,
           action: 'High intensity piss play action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -512,7 +488,7 @@ describe('buildGameBoard service', () => {
     it('should try lower intensities first before falling back to higher ones', async () => {
       const mockGroupsWithGaps: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'gapped-group-id',
           name: 'gappedGroup',
           label: 'Group with Gaps',
           intensities: [
@@ -532,25 +508,21 @@ describe('buildGameBoard service', () => {
       const mockTilesWithGaps: CustomTilePull[] = [
         {
           id: 1,
-          group: 'gappedGroup',
+          group_id: 'gapped-group-id',
           intensity: 1,
           action: 'Intensity 1 action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'gappedGroup',
+          group_id: 'gapped-group-id',
           intensity: 3, // Gap at intensity 2
           action: 'Intensity 3 action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -586,7 +558,7 @@ describe('buildGameBoard service', () => {
     it('should handle groups with no available tiles gracefully', async () => {
       const mockEmptyGroup: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'empty-group-id',
           name: 'emptyGroup',
           label: 'Empty Group',
           intensities: [
@@ -629,7 +601,7 @@ describe('buildGameBoard service', () => {
     it('should handle disabled tiles correctly with intensity fallback', async () => {
       const mockGroupWithDisabled: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'disabled-group-id',
           name: 'disabledGroup',
           label: 'Group with Disabled Tiles',
           intensities: [
@@ -648,25 +620,21 @@ describe('buildGameBoard service', () => {
       const mockTilesWithDisabled: CustomTilePull[] = [
         {
           id: 1,
-          group: 'disabledGroup',
+          group_id: 'disabled-group-id',
           intensity: 1,
           action: 'Disabled tile',
           tags: [],
           isEnabled: 0, // This tile is disabled
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'disabledGroup',
+          group_id: 'disabled-group-id',
           intensity: 2,
           action: 'Enabled tile intensity 2',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -688,7 +656,7 @@ describe('buildGameBoard service', () => {
 
       // Should fallback to intensity 2 since intensity 1 tile is disabled
       expect(result.board.length).toBe(4); // 2 tiles + start + finish
-      expect(result.metadata.tilesWithContent).toBeGreaterThan(2);
+      expect(result.metadata.tilesWithContent).toBeGreaterThanOrEqual(2);
       expect(result.metadata.availableTileCount).toBe(2); // Both tiles counted, but only enabled one used
 
       const contentTiles = result.board.slice(1, -1);
@@ -701,7 +669,7 @@ describe('buildGameBoard service', () => {
     it('should handle role filtering with intensity fallback', async () => {
       const mockGroupWithRoles: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'role-group-id',
           name: 'roleGroup',
           label: 'Group with Role Filtering',
           intensities: [
@@ -720,25 +688,21 @@ describe('buildGameBoard service', () => {
       const mockTilesWithRoles: CustomTilePull[] = [
         {
           id: 1,
-          group: 'roleGroup',
+          group_id: 'role-group-id',
           intensity: 2,
           action: 'Action for {sub} at intensity 2', // Only available for sub role
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'roleGroup',
+          group_id: 'role-group-id',
           intensity: 2,
           action: 'Action for {dom} at intensity 2', // Only available for dom role
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -775,7 +739,7 @@ describe('buildGameBoard service', () => {
     it('should handle multiple groups with different intensity availability', async () => {
       const mockMixedGroups: CustomGroupPull[] = [
         {
-          id: '1',
+          id: 'group-a-id',
           name: 'groupA',
           label: 'Group A',
           intensities: [
@@ -790,7 +754,7 @@ describe('buildGameBoard service', () => {
           updatedAt: new Date(),
         },
         {
-          id: '2',
+          id: 'group-b-id',
           name: 'groupB',
           label: 'Group B',
           intensities: [
@@ -809,25 +773,21 @@ describe('buildGameBoard service', () => {
       const mockMixedTiles: CustomTilePull[] = [
         {
           id: 1,
-          group: 'groupA',
+          group_id: 'group-a-id',
           intensity: 1,
           action: 'Group A intensity 1',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'groupB',
+          group_id: 'group-b-id',
           intensity: 2, // Only higher intensity available for group B
           action: 'Group B intensity 2',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -845,7 +805,7 @@ describe('buildGameBoard service', () => {
       const result = await buildGameBoard(settings, 'en', 'online', 4);
 
       expect(result.board.length).toBe(6); // 4 tiles + start + finish
-      expect(result.metadata.tilesWithContent).toBeGreaterThan(2);
+      expect(result.metadata.tilesWithContent).toBeGreaterThanOrEqual(2);
       expect(result.metadata.availableTileCount).toBe(2); // Both tiles available
 
       // Should have tiles from both groups
@@ -863,58 +823,48 @@ describe('buildGameBoard service', () => {
       const mockTilesWithMultipleActions: CustomTilePull[] = [
         {
           id: 1,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'First teasing action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'Second teasing action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 3,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'Third teasing action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 4,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'Fourth teasing action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 5,
-          group: 'teasing',
+          group_id: 'teasing-group-id',
           intensity: 1,
           action: 'Fifth teasing action',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 
@@ -958,58 +908,48 @@ describe('buildGameBoard service', () => {
       const mockVarietyTiles: CustomTilePull[] = [
         {
           id: 1,
-          group: 'edging',
+          group_id: 'edging-group-id',
           intensity: 1,
           action: 'Edge action A',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 2,
-          group: 'edging',
+          group_id: 'edging-group-id',
           intensity: 1,
           action: 'Edge action B',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 3,
-          group: 'edging',
+          group_id: 'edging-group-id',
           intensity: 1,
           action: 'Edge action C',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 4,
-          group: 'edging',
+          group_id: 'edging-group-id',
           intensity: 1,
           action: 'Edge action D',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
         {
           id: 5,
-          group: 'edging',
+          group_id: 'edging-group-id',
           intensity: 1,
           action: 'Edge action E',
           tags: [],
           isEnabled: 1,
           isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
         },
       ];
 

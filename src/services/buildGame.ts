@@ -47,7 +47,7 @@ class TileShuffleBag {
     const groupedTiles = new Map<string, CustomTilePull[]>();
 
     tiles.forEach((tile) => {
-      const key = `${tile.group}-${tile.intensity}`;
+      const key = `${tile.group_id}-${tile.intensity}`;
       if (!groupedTiles.has(key)) {
         groupedTiles.set(key, []);
       }
@@ -100,7 +100,7 @@ function filterTilesByRole(
     const action = tile.action;
 
     // Find the group for this tile to check its type
-    const group = groups.find((g) => g.name === tile.group);
+    const group = groups.find((g) => g.id === tile.group_id);
 
     // Consumption tiles should be available to all roles
     if (group?.type === 'consumption') {
@@ -198,13 +198,13 @@ function buildTileContent(
   }
 
   // Try to get a tile from the shuffle bag with fallback logic
-  let selectedTile = shuffleBag.getTile(currentGroup.name, targetIntensity);
+  let selectedTile = shuffleBag.getTile(currentGroup.id, targetIntensity);
 
   if (!selectedTile) {
     // Try other selected levels if target intensity doesn't have tiles
     const otherLevels = userSelectedLevels.filter((level: number) => level !== targetIntensity);
     for (const intensity of otherLevels) {
-      selectedTile = shuffleBag.getTile(currentGroup.name, intensity);
+      selectedTile = shuffleBag.getTile(currentGroup.id, intensity);
       if (selectedTile) {
         break;
       }
@@ -368,11 +368,20 @@ export default async function buildGameBoard(
   tileCount = 40
 ): Promise<BoardBuildResult> {
   try {
-    // Fetch all required data from Dexie in parallel
-    const [availableGroups, allTiles] = await Promise.all([
-      getCustomGroups({ locale, gameMode }), // Include both default and custom groups
-      getTiles({ locale, gameMode }),
-    ]);
+    // Fetch available groups first since tiles are linked to groups
+    const availableGroups = await getCustomGroups({ locale, gameMode }); // Include both default and custom groups
+    const groupIds = availableGroups.map((group) => group.id);
+
+    // Get all tiles that belong to these groups
+    const allTiles =
+      groupIds.length > 0
+        ? await getTiles({}) // Get all tiles, we'll filter by group_id below
+        : [];
+
+    // Filter tiles to only those belonging to available groups
+    const groupFilteredTiles = allTiles.filter(
+      (tile) => tile.group_id && groupIds.includes(tile.group_id)
+    );
 
     // Get selected action group names
     const selectedActions = settings.selectedActions || {};
@@ -392,10 +401,12 @@ export default async function buildGameBoard(
 
     // Filter tiles by role if specified
     const role = settings.role || 'sub';
-    const filteredTiles = filterTilesByRole(allTiles, role, availableGroups);
+    const roleFilteredTiles = filterTilesByRole(groupFilteredTiles, role, availableGroups);
 
     // Only get tiles for selected groups
-    const relevantTiles = filteredTiles.filter((tile) => selectedGroupNames.includes(tile.group));
+    const relevantTiles = roleFilteredTiles.filter((tile) =>
+      availableGroups.find((g) => g.id === tile.group_id)
+    );
 
     // If no selected groups or tiles available, return empty board
     if (!selectedGroups.length || !relevantTiles.length) {
