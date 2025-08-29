@@ -30,8 +30,9 @@ export const importActionFile = async (
     const actions = actionFile.actions || {};
 
     // Convert actions object to intensities array
+    // Skip the first entry as it's always the "None" equivalent across all languages
     const intensities = Object.keys(actions)
-      .filter((key) => key !== 'None') // Skip 'None' as it's always included
+      .slice(1) // Skip first entry (None/Ninguna/Aucun/etc.)
       .map((intensityName, index) => ({
         id: `${groupName}-${index + 1}`,
         label: intensityName,
@@ -58,7 +59,7 @@ export const importActionFile = async (
     const customTiles: CustomTileBase[] = [];
 
     for (const [intensityName, actionList] of Object.entries(actions)) {
-      if (intensityName === 'None' || !Array.isArray(actionList)) continue;
+      if (intensityName === Object.keys(actions)[0] || !Array.isArray(actionList)) continue; // Skip first entry (None equivalent)
 
       // Find the intensity value for this intensity name
       const intensity = intensities.find((i) => i.label === intensityName);
