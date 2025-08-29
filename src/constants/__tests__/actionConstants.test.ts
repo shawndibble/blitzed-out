@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  DEFAULT_NONE_OPTION,
-  UNIFIED_ACTION_CACHE_TTL,
-  SYNC_DELAY_MS,
-  DEFAULT_INTENSITY_LABELS,
-} from '../actionConstants';
+import { DEFAULT_NONE_OPTION, SYNC_DELAY_MS, DEFAULT_INTENSITY_LABELS } from '../actionConstants';
 
 describe('actionConstants', () => {
   describe('DEFAULT_NONE_OPTION', () => {
@@ -14,20 +9,6 @@ describe('actionConstants', () => {
 
     it('should be a string', () => {
       expect(typeof DEFAULT_NONE_OPTION).toBe('string');
-    });
-  });
-
-  describe('UNIFIED_ACTION_CACHE_TTL', () => {
-    it('should be defined as 30000 milliseconds', () => {
-      expect(UNIFIED_ACTION_CACHE_TTL).toBe(30000);
-    });
-
-    it('should be a number', () => {
-      expect(typeof UNIFIED_ACTION_CACHE_TTL).toBe('number');
-    });
-
-    it('should be positive', () => {
-      expect(UNIFIED_ACTION_CACHE_TTL).toBeGreaterThan(0);
     });
   });
 

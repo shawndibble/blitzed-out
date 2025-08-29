@@ -21,13 +21,16 @@
   "groupLabelRequired": "需要群組標籤",
   "tilesCount": "{{count}} 磁磚",
   "online": "線上",
+  "gameMode": {
+    "online": "單人",
+    "local": "與他人"
+  },
   "players": "玩家",
   "localPlayer": "本地",
   "you": "你",
   "setup": "遊戲設置",
   "setupSubtitle": "輸入您的姓名並開始會話",
   "buildGame": "建立遊戲",
-  "setupWizard": "設置精靈",
   "settings": "設定",
   "appSettings": "進階設定",
   "about": "關於",
@@ -59,6 +62,8 @@
   "cancel": "取消",
   "skip": "跳過",
   "confirm": "確認",
+  "yes": "是",
+  "no": "否",
   "warning": "警告",
   "error": "錯誤",
   "somethingWentWrong": "出現問題",
@@ -76,7 +81,7 @@
   "solo": "單人",
   "soloTooltip": "與自己遊玩",
   "local": "面對面",
-  "localTooltip": "與其他人面對面遊玩",
+  "localTooltip": "與其他人一起遊玩",
   "gameSpeed": "遊戲速度",
   "averageRolls": "平均每場遊戲擲骰次數：",
   "roomDice": "骰子",
@@ -321,6 +326,7 @@
     "saving": "儲存中...",
     "groupTypeHelp": "決定此群組何時出現在設置精靈中",
     "groupLabelHelp": "向使用者顯示的名稱（最多 {{maxLength}} 個字元）",
+    "gameModeHelp": "選擇此群組是用於線上還是面對面遊戲模式",
     "locale": "語言：",
     "gameMode": "遊戲模式：",
     "internalId": "內部 ID：",
@@ -335,7 +341,8 @@
     "intensityLevelsCount": "{{count}} 個強度等級",
     "customTilesCount": "{{count}} 個自訂磁磚",
     "levelLabel": "等級 {{level}}",
-    "levelInputLabel": "等級 {{level}} 標籤"
+    "levelInputLabel": "等級 {{level}} 標籤",
+    "errorLoadingGroups": "載入群組時出錯"
   },
   "intensityLabels": {
     "beginner": "初學者",
@@ -359,29 +366,20 @@
   "level": "級別",
   "soon": "即將推出",
   "noLinkProvided": "未提供連結",
-  "exportFormat": {
-    "clean": "清潔（v2.0）",
-    "legacy": "舊版"
-  },
   "exportScope": {
-    "all": "全部",
+    "all": "所有數據",
+    "custom": "僅自定義",
     "default": "預設群組",
-    "single": "單一群組"
-  },
-  "importStrategy": {
-    "skip": "跳過現有",
-    "overwrite": "覆寫",
-    "rename": "重新命名衝突"
+    "single": "單一群組",
+    "disabled": "默認禁用項"
   },
   "labels": {
-    "exportFormat": "格式",
     "exportScope": "範圍",
-    "importStrategy": "策略",
     "selectGroup": "選擇群組"
   },
   "placeholder": {
     "cleanFormat": "在此貼上清潔 v2.0 格式的 JSON 資料...",
-    "legacyFormat": "在此貼上舊版格式資料..."
+    "importData": "在此貼上導入數據..."
   },
   "errors": {
     "selectGroupToExport": "請選擇要匯出的群組",
@@ -391,6 +389,7 @@
   "importMessages": {
     "importing": "匯入資料中...",
     "importSuccess": "匯入成功完成！",
+    "importFailed": "匯入失敗！",
     "importedGroups": "已匯入 {{count}} 個自訂群組。",
     "importedTiles": "已匯入 {{count}} 個自訂磁磚。"
   },
@@ -416,7 +415,6 @@
   "confirmDeleteBoard": "您確定要刪除「{{title}}」嗎？",
   "noPlannedGames": "沒有計劃的遊戲",
   "scheduleFirstGame": "安排您的第一個遊戲開始吧！",
-  "manageGroups": "管理群組",
   "scheduleValidation": {
     "selectDateTime": "請選擇日期和時間",
     "selectFutureDateTime": "請選擇未來的日期和時間",
@@ -598,5 +596,15 @@
     "currentStatus": {
       "hasPlayers": "您已經配置了本地玩家。您可以設置新的或繼續使用當前設置。"
     }
-  }
+  },
+  "setupWizard": {
+    "title": "設置嚮導"
+  },
+  "manageGroups": {
+    "title": "管理群組"
+  },
+  "export": "導出",
+  "export.scope": "導出範圍",
+  "export.selectGroup": "選擇群組",
+  "export.includeDisabled": "包括默認禁用項"
 }

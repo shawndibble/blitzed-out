@@ -1,33 +1,34 @@
-import { Delete, Edit } from '@mui/icons-material';
 import {
   Box,
   Card,
   CardActions,
   CardHeader,
   Chip,
-  IconButton,
-  Switch,
-  Pagination,
-  Typography,
   CircularProgress,
   Fade,
+  IconButton,
+  Pagination,
+  Switch,
+  Typography,
 } from '@mui/material';
-import TileCategorySelection from '@/components/TileCategorySelection';
-import { useState, useEffect } from 'react';
+import { Delete, Edit } from '@mui/icons-material';
 import {
   deleteCustomTile,
-  toggleCustomTile,
-  getTileCountsByGroup,
   getPaginatedTiles,
+  getTileCountsByGroup,
+  toggleCustomTile,
 } from '@/stores/customTiles';
-import { Trans } from 'react-i18next';
-import { useTranslation } from 'react-i18next';
-import { useGameSettings } from '@/stores/settingsStore';
-import { ViewCustomTilesProps } from '@/types/customTiles';
-import { TileData } from '@/types/viewCustomTiles';
-import { CustomTileGroups } from '@/types/dexieTypes';
-import { getAllAvailableGroups } from '@/stores/customGroups';
+import { useEffect, useState } from 'react';
+
 import { CustomGroupPull } from '@/types/customGroups';
+import { CustomTileGroups } from '@/types/dexieTypes';
+import TileCategorySelection from '@/components/TileCategorySelection';
+import { TileData } from '@/types/viewCustomTiles';
+import { Trans } from 'react-i18next';
+import { ViewCustomTilesProps } from '@/types/customTiles';
+import { getAllAvailableGroups } from '@/stores/customGroups';
+import { useGameSettings } from '@/stores/settingsStore';
+import { useTranslation } from 'react-i18next';
 
 export default function ViewCustomTiles({
   tagList,
@@ -35,13 +36,17 @@ export default function ViewCustomTiles({
   mappedGroups,
   updateTile,
   refreshTrigger,
+  sharedFilters,
+  setSharedFilters,
 }: ViewCustomTilesProps) {
   const { t, i18n } = useTranslation();
   const { settings } = useGameSettings();
   const [tagFilter, setTagFilter] = useState<string | null>(null);
-  const [gameModeFilter, setGameModeFilter] = useState<string>(settings.gameMode || 'online');
-  const [groupFilter, setGroupFilter] = useState<string>('');
-  const [intensityFilter, setIntensityFilter] = useState<string | number>('');
+  // Use shared filters instead of individual state
+  const gameModeFilter = sharedFilters.gameMode;
+  const groupFilter = sharedFilters.groupName;
+  const intensityFilter = sharedFilters.intensity || 'all'; // Default to 'all' when empty
+
   const [page, setPage] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [tiles, setTiles] = useState<TileData>({ items: [], total: 0, totalPages: 1 });
@@ -72,7 +77,9 @@ export default function ViewCustomTiles({
         // Merge group definitions with tile counts
         const groupData: CustomTileGroups = {};
         allGroups.forEach((group) => {
-          const counts = tileCounts[group.name] || { count: 0, intensities: {} };
+          // Check both group.id and group.name since tiles might be stored with either
+          const counts = tileCounts[group.id] ||
+            tileCounts[group.name] || { count: 0, intensities: {} };
           groupData[group.name] = {
             label: group.label || group.name,
             count: counts.count,
@@ -85,20 +92,26 @@ export default function ViewCustomTiles({
         // Extract group names from all available groups (not just those with tiles)
         const groupNames = allGroups.map((group) => group.name);
 
-        // Check if current groupFilter is valid in the new list
+        // Check if current groupFilter (groupName) is valid in the new list
         const isCurrentGroupValid = groupNames.includes(groupFilter);
 
         // Set default group filter if not already set or if current is invalid
         if ((!groupFilter || !isCurrentGroupValid) && groupNames.length > 0) {
-          setGroupFilter(groupNames[0]);
-          setIntensityFilter('all');
+          setSharedFilters({
+            ...sharedFilters,
+            groupName: groupNames[0],
+            intensity: '', // Empty string for 'all' in AddCustomTile
+          });
         } else if (isCurrentGroupValid && intensityFilter !== 'all') {
           // Verify intensity is valid for this group - use the group definition, not tile data
           const selectedGroup = allGroups.find((g) => g.name === groupFilter);
           if (selectedGroup) {
             const validIntensityValues = selectedGroup.intensities.map((i) => i.value);
             if (!validIntensityValues.includes(Number(intensityFilter))) {
-              setIntensityFilter('all');
+              setSharedFilters({
+                ...sharedFilters,
+                intensity: '', // Empty string for 'all' in AddCustomTile
+              });
             }
           }
         }
@@ -110,7 +123,15 @@ export default function ViewCustomTiles({
     }
 
     loadGroupsAndCounts();
-  }, [gameModeFilter, i18n.resolvedLanguage, tagFilter, groupFilter, intensityFilter]);
+  }, [
+    gameModeFilter,
+    i18n.resolvedLanguage,
+    tagFilter,
+    groupFilter,
+    intensityFilter,
+    setSharedFilters,
+    sharedFilters,
+  ]);
 
   // Load tiles when filters change
   useEffect(() => {
@@ -119,12 +140,17 @@ export default function ViewCustomTiles({
     async function loadTiles() {
       try {
         setLoading(true);
+        // Convert group name to group ID for filtering
+        const groupId = dexieGroups[groupFilter]?.id || groupFilter;
+
+        // Apply server-side filtering for proper pagination
+        const intensityValue =
+          intensityFilter === 'all' || intensityFilter === '' ? null : intensityFilter;
+
         const filters = {
-          group: groupFilter,
-          intensity: intensityFilter === 'all' ? null : Number(intensityFilter), // Send empty string for 'all'
+          group: groupId,
           tag: tagFilter,
-          gameMode: gameModeFilter,
-          locale: settings.locale,
+          intensity: intensityValue,
           page,
           limit,
           paginated: true,
@@ -150,8 +176,8 @@ export default function ViewCustomTiles({
       }
     }
 
-    // Only load if we have a group filter
-    if (groupFilter) {
+    // Only load if we have a group filter and groups are loaded
+    if (groupFilter && Object.keys(dexieGroups).length > 0) {
       loadTiles();
     } else {
       setLoading(false);
@@ -170,6 +196,7 @@ export default function ViewCustomTiles({
     limit,
     refreshTrigger,
     settings.locale,
+    dexieGroups,
   ]);
 
   function toggleTagFilter(tag: string): void {
@@ -190,12 +217,11 @@ export default function ViewCustomTiles({
     await deleteCustomTile(index);
     boardUpdated();
     // Refresh the current page
+    const groupId = dexieGroups[groupFilter]?.id || groupFilter;
     const filters = {
-      group: groupFilter,
-      intensity: intensityFilter === 'all' ? null : intensityFilter, // Send empty string for 'all'
+      group: groupId,
       tag: tagFilter,
-      gameMode: gameModeFilter,
-      locale: settings.locale,
+      intensity: intensityFilter === 'all' || intensityFilter === '' ? null : intensityFilter,
       page,
       limit,
       paginated: true,
@@ -225,13 +251,14 @@ export default function ViewCustomTiles({
     }
   }
 
-  function getSubheaderText(group: string, intensity: number): string {
-    // Get group and intensity labels from Dexie
-    const dexieGroup = dexieGroups[group];
+  function getSubheaderText(groupId: string, intensity: number): string {
+    // Find the group by ID first, then look up in dexieGroups by name
+    const groupByIdEntry = Object.entries(dexieGroups).find(([_, group]) => group.id === groupId);
 
-    if (dexieGroup) {
+    if (groupByIdEntry) {
+      const [groupName, dexieGroup] = groupByIdEntry;
       // Get the group label
-      const groupLabel = dexieGroup.label || group;
+      const groupLabel = dexieGroup.label || groupName;
 
       // Find the intensity label
       const intensityData = dexieGroup.intensities.find((i) => i.value === Number(intensity));
@@ -240,12 +267,13 @@ export default function ViewCustomTiles({
       return `${groupLabel} - ${intensityLabel}`;
     }
 
-    // Fallback if group not found in Dexie
-    return `${group} - Level ${Number(intensity) + 1}`;
+    // Fallback if group not found
+    return `Unknown Group - Level ${Number(intensity) + 1}`;
   }
 
+  // No need for client-side filtering - server handles it now
   const tileList = tiles.items?.map(
-    ({ id, group, intensity, action, tags, isEnabled = true, isCustom = true }) => (
+    ({ id, group_id, intensity, action, tags, isEnabled = true, isCustom = true }) => (
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
           title={action}
@@ -254,7 +282,7 @@ export default function ViewCustomTiles({
             subheader: { variant: 'body2' },
             action: { 'aria-label': t('customTiles.actions') },
           }}
-          subheader={getSubheaderText(group, intensity)}
+          subheader={getSubheaderText(group_id || '', intensity)}
           action={
             <>
               <Switch
@@ -321,17 +349,28 @@ export default function ViewCustomTiles({
           mappedGroups={mappedGroups}
           dexieGroups={dexieGroups}
           onGameModeChange={(value: string) => {
-            setGameModeFilter(value);
-            setGroupFilter('');
-            setIntensityFilter('');
+            const newFilters = {
+              gameMode: value,
+              groupName: '',
+              intensity: '',
+            };
+            setSharedFilters(newFilters);
             setPage(1);
           }}
           onGroupChange={(value: string) => {
-            setGroupFilter(value);
+            const newFilters = {
+              ...sharedFilters,
+              groupName: value,
+              intensity: '', // Reset intensity when group changes
+            };
+            setSharedFilters(newFilters);
             setPage(1);
           }}
           onIntensityChange={(value: string | number) => {
-            setIntensityFilter(value);
+            setSharedFilters({
+              ...sharedFilters,
+              intensity: value === 'all' ? '' : value.toString(), // Convert 'all' to empty string for AddCustomTile
+            });
             setPage(1);
           }}
         />
@@ -367,7 +406,7 @@ export default function ViewCustomTiles({
             pointerEvents: loading ? 'none' : 'auto',
           }}
         >
-          {tiles.items.length === 0 ? (
+          {tiles.items?.length === 0 ? (
             <Typography variant="body1" sx={{ textAlign: 'center', my: 4 }}>
               <Trans i18nKey="customTiles.noTilesFound">
                 No tiles found with the selected filters.
@@ -395,9 +434,9 @@ export default function ViewCustomTiles({
               >
                 <Trans
                   i18nKey="customTiles.showingTiles"
-                  values={{ shown: tiles.items.length, total: tiles.total }}
+                  values={{ shown: tiles.items?.length || 0, total: tiles.total }}
                 >
-                  Showing {{ shown: tiles.items.length }} of {{ total: tiles.total }} tiles
+                  Showing {{ shown: tiles.items?.length || 0 }} of {{ total: tiles.total }} tiles
                 </Trans>
               </Typography>
             </>

@@ -6,6 +6,10 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
 
+// Export organized type modules
+export * from './components';
+export * from './sync';
+
 // Common types used throughout the application
 
 // Auth related types

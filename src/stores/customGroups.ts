@@ -1,15 +1,16 @@
-import i18next from 'i18next';
-import { nanoid } from 'nanoid';
-import db from './store';
-import { retryOnCursorError } from '@/utils/dbRecovery';
+import { Collection, Table } from 'dexie';
 import {
   CustomGroup,
   CustomGroupBase,
-  CustomGroupPull,
   CustomGroupFilters,
   CustomGroupIntensity,
+  CustomGroupPull,
 } from '@/types/customGroups';
-import { Collection, Table } from 'dexie';
+
+import db from './store';
+import i18next from 'i18next';
+import { nanoid } from 'nanoid';
+import { retryOnCursorError } from '@/utils/dbRecovery';
 
 const { customGroups } = db;
 
@@ -64,7 +65,8 @@ export const getCustomGroups = async (
       db,
       async () => {
         const query = createFilteredQuery(filters);
-        return await query.toArray();
+        const arrayData = await query.toArray();
+        return arrayData.sort((a, b) => a.name.localeCompare(b.name));
       },
       (message: string, error?: Error) => {
         console.error(`Error in getCustomGroups: ${message}`, error);
@@ -145,13 +147,46 @@ export const updateCustomGroup = async (
 };
 
 /**
- * Delete a custom group
+ * Delete a custom group with cascading delete protection
+ * Prevents deletion if tiles exist, unless forced
  */
-export const deleteCustomGroup = async (id: string): Promise<void> => {
+export const deleteCustomGroup = async (
+  id: string,
+  options: { force?: boolean; cascadeDelete?: boolean } = {}
+): Promise<{ success: boolean; tilesDeleted?: number; error?: string }> => {
   try {
+    const { countTilesByGroupId, deleteCustomTilesByGroupId } = await import('./customTiles');
+
+    // Check if group has associated tiles
+    const group = await customGroups.get(id);
+    if (!group) {
+      return { success: false, error: 'Group not found' };
+    }
+
+    const tileCount = await countTilesByGroupId(id, group.locale, group.gameMode);
+
+    if (tileCount > 0) {
+      if (!options.force && !options.cascadeDelete) {
+        return {
+          success: false,
+          error: `Cannot delete group "${group.name}". It has ${tileCount} associated tiles. Use force or cascadeDelete option.`,
+        };
+      }
+
+      if (options.cascadeDelete) {
+        // Delete all associated tiles first
+        const deletedTiles = await deleteCustomTilesByGroupId(id, group.locale, group.gameMode);
+        await customGroups.delete(id);
+        return { success: true, tilesDeleted: deletedTiles };
+      }
+    }
+
+    // Safe to delete - no tiles or force option used
     await customGroups.delete(id);
+    return { success: true };
   } catch (error) {
     console.error('Error in deleteCustomGroup:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 };
 
@@ -381,9 +416,9 @@ export const getAllAvailableGroups = async (
     const groups = await getCustomGroups({ locale, gameMode });
 
     // Additional safety deduplication by name (keep the first occurrence)
-    const uniqueGroups = groups.filter(
-      (group, index, self) => self.findIndex((g) => g.name === group.name) === index
-    );
+    const uniqueGroups = groups
+      .filter((group, index, self) => self.findIndex((g) => g.name === group.name) === index)
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     return uniqueGroups;
   } catch (error) {
@@ -405,46 +440,43 @@ export const getAllAvailableGroups = async (
 };
 
 /**
- * Get custom groups that have associated custom tiles
- * Only returns groups that actually have tiles created for them
+ * Get all groups that have associated tiles (both default and custom groups)
+ * Returns groups that actually have tiles created for them, regardless of whether they're default or custom
+ * Used by setup wizard and other contexts that need groups with tiles
  */
-export const getCustomGroupsWithTiles = async (
-  locale = 'en',
-  gameMode = 'online'
-): Promise<CustomGroupPull[]> => {
+export const getGroupsWithTiles = async (gameMode = 'online'): Promise<CustomGroupPull[]> => {
   try {
     return await retryOnCursorError(
       db,
       async () => {
-        // Import getTiles from customTiles store
-        const { getTiles } = await import('./customTiles');
+        // Import the new efficient function
+        const { getTilesByGroupIds } = await import('./customTiles');
 
-        // Get all custom groups for this locale/gameMode
+        // Get all groups for this locale/gameMode (both default and custom)
         const allGroups = await getCurrentGroups(gameMode);
 
-        // Get all custom tiles for this locale/gameMode (only custom tiles, not default)
-        const customTiles = await getTiles({
-          locale,
-          gameMode,
-          isCustom: 1,
-        });
+        // Extract group IDs for efficient tile lookup
+        const groupIds = allGroups.map((group) => group.id);
 
-        // Get unique group names that have custom tiles
-        const groupNamesWithTiles = new Set(customTiles.map((tile) => tile.group));
+        // Get tiles for these specific group IDs only (no locale/gameMode filtering)
+        const tilesForGroups = await getTilesByGroupIds(groupIds);
 
-        // Filter groups to only include those with tiles and are not default groups
-        const groupsWithTiles = allGroups.filter(
-          (group) => !group.isDefault && groupNamesWithTiles.has(group.name)
+        // Get unique group IDs that actually have tiles
+        const groupIdsWithTiles = new Set(
+          tilesForGroups.map((tile) => tile.group_id).filter(Boolean)
         );
+
+        // Filter groups to only include those that have tiles
+        const groupsWithTiles = allGroups.filter((group) => groupIdsWithTiles.has(group.id));
 
         return groupsWithTiles;
       },
       (message: string, error?: Error) => {
-        console.error(`Error in getCustomGroupsWithTiles: ${message}`, error);
+        console.error(`Error in getGroupsWithTiles: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in getCustomGroupsWithTiles:', error);
+    console.error('Final error in getGroupsWithTiles:', error);
     return [];
   }
 };
@@ -453,37 +485,6 @@ export const getCustomGroupsWithTiles = async (
  * Utility functions for post-migration runtime queries
  * These query Dexie instead of reading JSON files
  */
-
-/**
- * Get all available locales from migrated data
- */
-export const getAvailableLocales = async (): Promise<string[]> => {
-  try {
-    const groups = await getCustomGroups({ isDefault: true });
-    const locales = [...new Set(groups.map((g) => g.locale))].sort();
-    return locales;
-  } catch (error) {
-    console.error('Error getting available locales:', error);
-    return ['en']; // fallback
-  }
-};
-
-/**
- * Get all available game modes for a specific locale
- */
-export const getAvailableGameModes = async (locale?: string): Promise<string[]> => {
-  try {
-    const filters: Partial<CustomGroupFilters> = { isDefault: true };
-    if (locale) filters.locale = locale;
-
-    const groups = await getCustomGroups(filters);
-    const gameModes = [...new Set(groups.map((g) => g.gameMode))].sort();
-    return gameModes;
-  } catch (error) {
-    console.error('Error getting available game modes:', error);
-    return ['online']; // fallback
-  }
-};
 
 /**
  * Get all action group names for a specific locale and game mode

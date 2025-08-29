@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   validateCustomGroup,
   validateGroupLabel,
+  MAX_GROUP_LABEL_LENGTH,
   getValidationConstants,
 } from '../validationService';
 import { CustomGroupBase } from '@/types/customGroups';
@@ -83,19 +84,17 @@ describe('validationService', () => {
     });
 
     it('should reject label that is too long', () => {
-      const constants = getValidationConstants();
-      const longLabel = 'a'.repeat(constants.MAX_GROUP_LABEL_LENGTH + 1);
+      const longLabel = 'a'.repeat(MAX_GROUP_LABEL_LENGTH + 1);
       const result = validateGroupLabel(longLabel);
 
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        `Group label must be ${constants.MAX_GROUP_LABEL_LENGTH} characters or less`
+        `Group label must be ${MAX_GROUP_LABEL_LENGTH} characters or less`
       );
     });
 
     it('should accept label at maximum length', () => {
-      const constants = getValidationConstants();
-      const maxLabel = 'a'.repeat(constants.MAX_GROUP_LABEL_LENGTH);
+      const maxLabel = 'a'.repeat(MAX_GROUP_LABEL_LENGTH);
       const result = validateGroupLabel(maxLabel);
 
       expect(result.isValid).toBe(true);

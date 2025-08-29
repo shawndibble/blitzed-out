@@ -58,7 +58,8 @@ describe('Action Count Parity Validation', () => {
       };
     } catch (error) {
       console.error(`Error parsing ${filePath}:`, error);
-      return { intensityLevels: 0, totalActions: 0, actionBreakdown: {}, actionsByPosition: [] };
+      // Throw the error to fail the test instead of returning zeros
+      throw new Error(`Failed to parse ${filePath}: ${error}`);
     }
   };
 
@@ -147,20 +148,18 @@ describe('Action Count Parity Validation', () => {
           });
         });
 
-      // Only log summary if there are issues (for debugging)
+      // Fail the test if there are inconsistencies with detailed error message
       if (inconsistencies.length > 0) {
-        console.log(`\n❌ FOUND ${inconsistencies.length} ACTION COUNT INCONSISTENCIES:`);
-        inconsistencies.slice(0, 10).forEach((issue) => console.log(issue));
-        if (inconsistencies.length > 10) {
-          console.log(`... and ${inconsistencies.length - 10} more issues`);
-        }
-      }
+        const errorMessage = [
+          `Found ${inconsistencies.length} action count inconsistencies:`,
+          ...inconsistencies.slice(0, 10),
+          ...(inconsistencies.length > 10
+            ? [`... and ${inconsistencies.length - 10} more issues`]
+            : []),
+        ].join('\n');
 
-      // Fail the test if there are inconsistencies
-      if (inconsistencies.length > 0) {
-        throw new Error(
-          `Found ${inconsistencies.length} action count inconsistencies. See console output for details.`
-        );
+        console.error('❌ ACTION COUNT INCONSISTENCIES FOUND:', errorMessage);
+        throw new Error(errorMessage);
       }
     });
   });

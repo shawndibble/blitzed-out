@@ -39,7 +39,7 @@ export default function GameSettings({
   const [formData, setFormData] = useSettingsToFormData();
 
   const submitSettings = useSubmitGameSettings();
-  const { isLoading, actionsList } = useUnifiedActionList(formData?.gameMode);
+  const { isLoading, actionsList } = useUnifiedActionList(formData?.gameMode, true);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number): void => {
     setValue(newValue);
@@ -145,7 +145,7 @@ export default function GameSettings({
         <div className="left-buttons">
           {onOpenSetupWizard && (
             <Button variant="outlined" type="button" onClick={onOpenSetupWizard}>
-              <Trans i18nKey="setupWizard" />
+              <Trans i18nKey="setupWizard.title" />
             </Button>
           )}
           {value === 0 && (

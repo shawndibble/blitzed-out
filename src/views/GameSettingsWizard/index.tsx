@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react';
 import { Box, Button, Divider } from '@mui/material';
-import { Trans } from 'react-i18next';
-import RoomStep from './RoomStep';
-import LocalPlayersStep from './LocalPlayersStep';
-import GameModeStep from './GameModeStep';
+import { useEffect, useState } from 'react';
+
 import ActionsStep from './ActionsStep';
-import FinishStep from './FinishStep';
 import DynamicStepper from './components/DynamicStepper';
+import FinishStep from './FinishStep';
+import { FormData } from '@/types';
+import GameModeStep from './GameModeStep';
 import GameSettings from '@/views/GameSettings';
+import LocalPlayersStep from './LocalPlayersStep';
+import RoomStep from './RoomStep';
+import { Settings } from '@/types/Settings';
+import { Trans } from 'react-i18next';
+import { isPublicRoom } from '@/helpers/strings';
 import { useParams } from 'react-router-dom';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
-import { isPublicRoom } from '@/helpers/strings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
-import { FormData } from '@/types';
-import { Settings } from '@/types/Settings';
 
 interface GameSettingsWizardProps {
   close?: () => void;
@@ -39,7 +40,10 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     overrideSettings
   );
 
-  const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(formData.gameMode);
+  const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(
+    formData.gameMode,
+    true
+  );
 
   // Compute isPublic once per render
   const isPublic = isPublicRoom(formData.room);

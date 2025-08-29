@@ -1,6 +1,7 @@
 import { Box, Divider, Slider, Typography } from '@mui/material';
-import { Trans } from 'react-i18next';
+
 import { Settings } from '@/types/Settings';
+import { Trans } from 'react-i18next';
 
 interface FinishSliderProps {
   formData: Settings;

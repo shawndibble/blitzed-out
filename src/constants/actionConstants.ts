@@ -9,12 +9,6 @@
 export const DEFAULT_NONE_OPTION = 'None';
 
 /**
- * Cache time-to-live for unified action list in milliseconds
- * Actions are cached for 30 seconds to improve performance
- */
-export const UNIFIED_ACTION_CACHE_TTL = 30000;
-
-/**
  * Delay in milliseconds between clearing data and syncing with remote server
  * This prevents race conditions during data sync operations
  */

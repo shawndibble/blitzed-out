@@ -1,4 +1,4 @@
-import { Divider, Grid, SelectChangeEvent, Typography } from '@mui/material';
+import { Box, Divider, Grid, SelectChangeEvent, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
@@ -71,7 +71,7 @@ export default function BoardSettings({
   };
 
   return (
-    <>
+    <Box maxWidth="97%">
       <SoloSwitch formData={formData} setFormData={setFormData} />
 
       {isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode) && (
@@ -141,6 +141,6 @@ export default function BoardSettings({
       <FinishSlider setFormData={setFormData} formData={formData} />
 
       <WarningAlert formData={formData} />
-    </>
+    </Box>
   );
 }

@@ -24,6 +24,12 @@ vi.mock('nanoid', () => ({
   nanoid: () => 'test-id-123',
 }));
 
+// Mock customTiles for cascade delete functionality
+vi.mock('./customTiles', () => ({
+  countTilesByGroupId: vi.fn(() => Promise.resolve(0)),
+  deleteCustomTilesByGroupId: vi.fn(() => Promise.resolve(0)),
+}));
+
 // Mock the database with proper chaining - defined at module level for hoisting
 vi.mock('../store', () => {
   const createMockCollection = () => {
@@ -44,11 +50,13 @@ vi.mock('../store', () => {
       equals: vi.fn(),
       and: vi.fn(),
       first: vi.fn(),
+      count: vi.fn(),
     };
     // Make methods return themselves for chaining
     mockWhere.equals.mockReturnValue(mockWhere);
     mockWhere.and.mockReturnValue(mockWhere);
     mockWhere.first.mockResolvedValue(undefined);
+    mockWhere.count.mockResolvedValue(0);
     return mockWhere;
   };
 
@@ -65,6 +73,16 @@ vi.mock('../store', () => {
         toArray: vi.fn(),
         toCollection: vi.fn(() => createMockCollection()),
         hook: vi.fn(),
+      },
+      customTiles: {
+        hook: vi.fn(() => vi.fn()), // Mock hook to return a function
+        add: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+        clear: vi.fn(),
+        where: vi.fn(() => createMockWhere()),
+        toArray: vi.fn(),
+        toCollection: vi.fn(() => createMockCollection()),
       },
     },
   };
@@ -133,10 +151,24 @@ describe('customGroups store', () => {
 
   describe('deleteCustomGroup', () => {
     it('should delete a custom group successfully', async () => {
+      // Mock get to return a group
+      vi.mocked(mockDb.customGroups.get).mockResolvedValue({
+        id: 'test-id-123',
+        name: 'test-group',
+        label: 'Test Group',
+        locale: 'en',
+        gameMode: 'online',
+        intensities: [],
+        isDefault: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
       vi.mocked(mockDb.customGroups.delete).mockResolvedValue(undefined);
 
-      await deleteCustomGroup('test-id-123');
+      const result = await deleteCustomGroup('test-id-123');
 
+      expect(result.success).toBe(true);
+      expect(mockDb.customGroups.get).toHaveBeenCalledWith('test-id-123');
       expect(mockDb.customGroups.delete).toHaveBeenCalledWith('test-id-123');
     });
   });

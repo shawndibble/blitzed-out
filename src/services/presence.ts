@@ -1,7 +1,6 @@
 import { get, getDatabase, onDisconnect, onValue, ref, remove, set } from 'firebase/database';
 
 import { getAuth } from 'firebase/auth';
-import { logger } from '@/utils/logger';
 
 // ========================
 // USER PRESENCE SYSTEM
@@ -38,7 +37,7 @@ export async function setMyPresence({
   const user = auth.currentUser;
 
   if (!user) {
-    logger.warn('Cannot set presence: user not authenticated');
+    console.warn('Cannot set presence: user not authenticated');
     return;
   }
 
@@ -72,7 +71,7 @@ export async function setMyPresence({
       onDisconnect(userRef).remove();
     }
   } catch (error) {
-    logger.error('Error setting user presence:', error);
+    console.error('Error setting user presence:', error);
   }
 }
 
@@ -109,10 +108,10 @@ export async function updatePresenceHeartbeat(): Promise<void> {
     } else {
       // If no existing data, skip the heartbeat update
       // This prevents errors when user data doesn't exist yet
-      logger.warn('No existing user data found, skipping heartbeat update');
+      console.warn('No existing user data found, skipping heartbeat update');
     }
   } catch (error) {
-    logger.error('Error updating presence heartbeat:', error);
+    console.error('Error updating presence heartbeat:', error);
   }
 }
 
@@ -133,7 +132,7 @@ export async function removeMyPresence(): Promise<void> {
   try {
     await remove(userRef);
   } catch (error) {
-    logger.error('Error removing user presence:', error);
+    console.error('Error removing user presence:', error);
   }
 }
 

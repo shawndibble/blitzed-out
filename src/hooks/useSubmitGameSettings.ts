@@ -7,7 +7,7 @@ import { GameBoardResult } from '@/types/gameBoard';
 import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 import { getActiveTiles } from '@/stores/customTiles';
-import { getValidationConstants } from '@/services/validationService';
+import { VALID_GROUP_TYPES } from '@/services/validationService';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
@@ -54,14 +54,13 @@ function cleanFormData(formData: Settings): Settings {
   }
 
   // Remove any old root-level action keys (for migration cleanup)
-  const validationConstants = getValidationConstants();
   Object.keys(cleanedData).forEach((key) => {
     const entry = cleanedData[key] as any;
     if (
       entry &&
       typeof entry === 'object' &&
       entry.type &&
-      validationConstants.VALID_GROUP_TYPES.includes(entry.type)
+      VALID_GROUP_TYPES.includes(entry.type)
     ) {
       delete cleanedData[key];
     }

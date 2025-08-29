@@ -18,13 +18,16 @@
   "linkWithGoogle": "Link with Google",
   "signInWithGoogle": "Sign in with Google",
   "online": "Online",
+  "gameMode": {
+    "online": "Solo",
+    "local": "With People"
+  },
   "players": "Players",
   "localPlayer": "Local",
   "you": "you",
   "setup": "Join the Experience",
   "setupSubtitle": "Enter your name and begin the session",
   "buildGame": "Build Game",
-  "setupWizard": "Setup Wizard",
   "settings": "Settings",
   "appSettings": "Advanced Settings",
   "about": "About",
@@ -56,6 +59,8 @@
   "cancel": "Cancel",
   "skip": "Skip",
   "confirm": "Confirm",
+  "yes": "Yes",
+  "no": "No",
   "warning": "Warning",
   "error": "Error",
   "somethingWentWrong": "Something went wrong",
@@ -73,7 +78,7 @@
   "solo": "Solo",
   "soloTooltip": "Play with yourself",
   "local": "In Person",
-  "localTooltip": "Playing with other people in person",
+  "localTooltip": "Playing with other people together",
   "gameSpeed": "Game Speed",
   "averageRolls": "Average rolls per game: ",
   "roomDice": "Dice",
@@ -233,6 +238,10 @@
   "boardWrongSize": "Board is the wrong size. {{size}} tiles required.",
   "importExport": "Import/Export",
   "import": "Import",
+  "export": "Export",
+  "export.scope": "Export Scope",
+  "export.selectGroup": "Select Group",
+  "export.includeDisabled": "Include Disabled Defaults",
   "copyShareLink": "Copy link to clipboard",
   "copyToClipboard": "Copy to clipboard",
   "copied": "Copied to clipboard",
@@ -323,6 +332,7 @@
     "saving": "Saving...",
     "groupTypeHelp": "Determines when this group appears in the Setup Wizard",
     "groupLabelHelp": "Display name shown to users (max {{maxLength}} chars)",
+    "gameModeHelp": "Select whether this group is for online or in-person game modes",
     "locale": "Locale:",
     "gameMode": "Game Mode:",
     "internalId": "Internal ID:",
@@ -337,7 +347,8 @@
     "intensityLevelsCount": "{{count}} intensity levels",
     "customTilesCount": "{{count}} custom tiles",
     "levelLabel": "Level {{level}}",
-    "levelInputLabel": "Level {{level}} Label"
+    "levelInputLabel": "Level {{level}} Label",
+    "errorLoadingGroups": "Error loading groups"
   },
   "intensityLabels": {
     "beginner": "Beginner",
@@ -361,29 +372,20 @@
   "level": "Level",
   "soon": "Soon",
   "noLinkProvided": "No link provided",
-  "exportFormat": {
-    "clean": "Clean (v2.0)",
-    "legacy": "Legacy"
-  },
   "exportScope": {
-    "all": "Everything",
+    "all": "All Data",
+    "custom": "Custom Only",
     "default": "Default Groups",
-    "single": "Single Group"
-  },
-  "importStrategy": {
-    "skip": "Skip Existing",
-    "overwrite": "Overwrite",
-    "rename": "Rename Conflicts"
+    "single": "Single Group",
+    "disabled": "Disabled Defaults"
   },
   "labels": {
-    "exportFormat": "Format",
     "exportScope": "Scope",
-    "importStrategy": "Strategy",
     "selectGroup": "Select Group"
   },
   "placeholder": {
     "cleanFormat": "Paste clean v2.0 format JSON data here...",
-    "legacyFormat": "Paste legacy format data here..."
+    "importData": "Paste import data here..."
   },
   "errors": {
     "selectGroupToExport": "Please select a group to export",
@@ -393,6 +395,7 @@
   "importMessages": {
     "importing": "Importing data...",
     "importSuccess": "Import completed successfully!",
+    "importFailed": "Import failed!",
     "importedGroups": "Imported {{count}} custom groups.",
     "importedTiles": "Imported {{count}} custom tiles."
   },
@@ -418,7 +421,6 @@
   "confirmDeleteBoard": "Are you sure you want to delete \"{{title}}\"?",
   "noPlannedGames": "No Planned Games",
   "scheduleFirstGame": "Schedule your first game to get started!",
-  "manageGroups": "Manage Groups",
   "scheduleValidation": {
     "selectDateTime": "Please select a date and time",
     "selectFutureDateTime": "Please select a date and time in the future",
@@ -428,6 +430,13 @@
   },
   "gameSettingsHeading": "Game Settings",
   "errorSavingTile": "Error saving tile",
+  "tileUpdatedSuccessfully": "Tile updated successfully",
+  "tileAddedSuccessfully": "Tile added successfully",
+  "updateTile": "Update Tile",
+  "addTile": "Add Tile",
+  "createNewGroup": "Create New Group",
+  "enterTileAction": "Enter the action text for this tile",
+  "addTags": "Add tags to categorize this tile",
   "enterDataToImport": "Please enter data to import",
   "templateBasic": "Basic (1-4)",
   "templateSimple": "Simple (1-3)",
@@ -586,5 +595,11 @@
     "currentStatus": {
       "hasPlayers": "You already have local players configured. You can set up new ones or continue with your current setup."
     }
+  },
+  "setupWizard": {
+    "title": "Setup Wizard"
+  },
+  "manageGroups": {
+    "title": "Manage Groups"
   }
 }

@@ -1,6 +1,7 @@
-import { Box, Card, CardContent, Typography, Grid, Chip } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
+
 import { PresetConfig } from '@/types/presets';
+import { useTranslation } from 'react-i18next';
 
 interface PresetSelectorProps {
   gameMode: string;
@@ -73,11 +74,12 @@ export default function PresetSelector({
         id: 'romantic-start',
         name: t('presetRomanticStart'),
         description: t('presetRomanticStartDesc'),
-        actions: ['kissing', 'stripping'],
+        actions: ['kissing', 'stripping', 'confessions'],
         consumptions: ['alcohol'],
         intensities: {
           kissing: 2,
           stripping: 1,
+          confessions: 1,
           alcohol: 1,
         },
       },
@@ -85,37 +87,38 @@ export default function PresetSelector({
         id: 'degrading',
         name: t('presetDegrading'),
         description: t('presetDegradingDesc'),
-        actions: ['humiliation', 'footPlay', 'breathPlay'],
+        actions: ['humiliation', 'footPlay', 'confessions'],
         consumptions: ['poppers'],
         intensities: {
           humiliation: 2,
           footPlay: 2,
-          breathPlay: 2,
+          confessions: 3,
           poppers: 2,
         },
       },
       {
-        id: 'sensual-touch',
-        name: t('presetSensualTouch'),
-        description: t('presetSensualTouchDesc'),
-        actions: ['kissing', 'footPlay', 'tickling'],
+        id: 'body-worship',
+        name: t('presetBodyWorship'),
+        description: t('presetBodyWorshipDesc'),
+        actions: ['bodyWorship', 'kissing', 'footPlay'],
         consumptions: [],
         intensities: {
-          kissing: 2,
-          footPlay: 1,
-          tickling: 1,
+          bodyWorship: 2,
+          kissing: 1,
+          footPlay: 2,
         },
       },
       {
-        id: 'electric-play',
-        name: t('presetElectricPlay'),
-        description: t('presetElectricPlayDesc'),
-        actions: ['electric', 'bondage'],
-        consumptions: ['vaping'],
+        id: 'control-breath',
+        name: t('presetControlBreath'),
+        description: t('presetControlBreathDesc'),
+        actions: ['breathPlay', 'bondage', 'humiliation'],
+        consumptions: ['poppers'],
         intensities: {
-          electric: 1,
+          breathPlay: 2,
           bondage: 2,
-          vaping: 1,
+          humiliation: 1,
+          poppers: 1,
         },
       },
     ],

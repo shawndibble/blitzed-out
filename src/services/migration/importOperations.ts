@@ -9,6 +9,8 @@ import { CustomTileBase } from '@/types/customTiles';
 import { ImportResult } from './types';
 import { logError, withErrorHandling, isDuplicateError } from './errorHandling';
 import { getActionGroupNames } from './fileDiscovery';
+import { createDeterministicGroupId } from './groupIdMigration';
+import { GAME_MODES, SUPPORTED_LANGUAGES } from './constants';
 
 /**
  * Import a single action file and convert it to a custom group with custom tiles
@@ -28,8 +30,9 @@ export const importActionFile = async (
     const actions = actionFile.actions || {};
 
     // Convert actions object to intensities array
+    // Skip the first entry as it's always the "None" equivalent across all languages
     const intensities = Object.keys(actions)
-      .filter((key) => key !== 'None') // Skip 'None' as it's always included
+      .slice(1) // Skip first entry (None/Ninguna/Aucun/etc.)
       .map((intensityName, index) => ({
         id: `${groupName}-${index + 1}`,
         label: intensityName,
@@ -37,8 +40,12 @@ export const importActionFile = async (
         isDefault: true,
       }));
 
-    // Create the custom group
-    const customGroup: CustomGroupBase = {
+    // Create deterministic ID for default groups to ensure consistency across devices
+    const deterministicId = createDeterministicGroupId(groupName, locale, gameMode);
+
+    // Create the custom group with deterministic ID
+    const customGroup: CustomGroupBase & { id?: string } = {
+      id: deterministicId, // Set deterministic ID for sync consistency
       name: groupName,
       label,
       intensities,
@@ -52,7 +59,7 @@ export const importActionFile = async (
     const customTiles: CustomTileBase[] = [];
 
     for (const [intensityName, actionList] of Object.entries(actions)) {
-      if (intensityName === 'None' || !Array.isArray(actionList)) continue;
+      if (intensityName === Object.keys(actions)[0] || !Array.isArray(actionList)) continue; // Skip first entry (None equivalent)
 
       // Find the intensity value for this intensity name
       const intensity = intensities.find((i) => i.label === intensityName);
@@ -62,14 +69,12 @@ export const importActionFile = async (
       for (const action of actionList) {
         if (typeof action === 'string' && action.trim()) {
           customTiles.push({
-            group: groupName,
+            group_id: deterministicId, // Assign the deterministic group ID
             intensity: intensity.value,
             action: action.trim(),
             tags: ['default'], // Mark as default tiles from JSON files
             isEnabled: 1,
             isCustom: 0, // These are default tiles, not custom
-            gameMode,
-            locale,
           });
         }
       }
@@ -96,7 +101,18 @@ const addCustomGroupSafely = async (customGroup: CustomGroupBase): Promise<boole
 };
 
 /**
- * Filter out existing tiles to prevent duplicates
+ * Validates that all tiles have proper group_id assignment
+ */
+const validateTilesHaveGroupId = (tiles: CustomTileBase[]): void => {
+  for (const tile of tiles) {
+    if (!tile.group_id || !tile.group_id.trim()) {
+      throw new Error(`Tile missing group_id during import: ${tile.action}`);
+    }
+  }
+};
+
+/**
+ * Filter out existing tiles to prevent duplicates using group_id-based matching
  */
 const getNewTiles = async (
   customTiles: CustomTileBase[],
@@ -105,6 +121,9 @@ const getNewTiles = async (
   groupName: string
 ): Promise<CustomTileBase[]> => {
   try {
+    // Validate all tiles have proper group_id
+    validateTilesHaveGroupId(customTiles);
+
     const existingTiles = await getTiles({ locale, gameMode, group: groupName });
 
     if (!existingTiles || !Array.isArray(existingTiles)) {
@@ -114,11 +133,9 @@ const getNewTiles = async (
     return customTiles.filter((tile) => {
       return !existingTiles.some(
         (existing) =>
-          existing.group === tile.group &&
+          existing.group_id === tile.group_id &&
           existing.intensity === tile.intensity &&
-          existing.action === tile.action &&
-          existing.gameMode === tile.gameMode &&
-          existing.locale === tile.locale
+          existing.action === tile.action
       );
     });
   } catch (error) {
@@ -201,17 +218,14 @@ export const importGroupsForLocaleAndGameMode = async (
 /**
  * Clean up duplicate groups across all locales and game modes
  */
-export const cleanupDuplicateGroups = async (
-  getAvailableLocales: () => Promise<string[]>,
-  getAvailableGameModes: (locale: string) => Promise<string[]>
-): Promise<number> => {
+export const cleanupDuplicateGroups = async (): Promise<number> => {
   const result = await withErrorHandling(
     async () => {
-      const locales = await getAvailableLocales();
+      const locales = SUPPORTED_LANGUAGES;
       let totalDuplicatesRemoved = 0;
 
       for (const locale of locales) {
-        const gameModes = await getAvailableGameModes(locale);
+        const gameModes = GAME_MODES;
         for (const gameMode of gameModes) {
           const duplicatesRemoved = await removeDuplicateGroups(locale, gameMode);
           totalDuplicatesRemoved += duplicatesRemoved;

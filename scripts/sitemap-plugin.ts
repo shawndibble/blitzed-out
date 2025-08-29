@@ -1,6 +1,6 @@
+import type { Plugin } from 'vite';
 import fs from 'fs';
 import path from 'path';
-import type { Plugin } from 'vite';
 
 export function sitemapPlugin(): Plugin {
   return {
@@ -24,8 +24,6 @@ export function sitemapPlugin(): Plugin {
 
         // Write the updated sitemap back
         fs.writeFileSync(sitemapPath, updatedSitemap, 'utf8');
-
-        console.log(`✓ Sitemap updated with lastmod: ${currentDate}`);
       } catch (error) {
         console.warn('Warning: Could not update sitemap lastmod dates:', error);
       }

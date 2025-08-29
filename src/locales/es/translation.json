@@ -21,13 +21,16 @@
   "groupLabelRequired": "Se requiere etiqueta de grupo",
   "tilesCount": "{{count}} casillas",
   "online": "En línea",
+  "gameMode": {
+    "online": "Solo",
+    "local": "Con Gente"
+  },
   "players": "Jugadores",
   "localPlayer": "Local",
   "you": "tú",
   "setup": "Configuración del juego",
   "setupSubtitle": "Ingresa tu nombre y comienza la sesión",
   "buildGame": "Construir Juego",
-  "setupWizard": "Asist. Config.",
   "settings": "Config. Juego",
   "appSettings": "Config. Avanzada",
   "about": "Acerca de",
@@ -59,6 +62,8 @@
   "cancel": "Cancelar",
   "skip": "Saltar",
   "confirm": "Confirmar",
+  "yes": "Sí",
+  "no": "No",
   "warning": "Advertencia",
   "error": "Error",
   "somethingWentWrong": "Algo salió mal",
@@ -76,7 +81,7 @@
   "solo": "Individual",
   "soloTooltip": "Juega a solas",
   "local": "En persona",
-  "localTooltip": "Juega con otros en persona",
+  "localTooltip": "Jugar con otras personas juntas",
   "gameSpeed": "Velocidad del juego",
   "averageRolls": "Tiradas promedio por juego: ",
   "roomDice": "Dado",
@@ -323,6 +328,7 @@
     "saving": "Guardando...",
     "groupTypeHelp": "Determina cuándo aparece este grupo en el Asistente de configuración",
     "groupLabelHelp": "Nombre mostrado a los usuarios (máx. {{maxLength}} caracteres)",
+    "gameModeHelp": "Selecciona si este grupo es para modos de juego en línea o en persona",
     "locale": "Idioma:",
     "gameMode": "Modo de juego:",
     "internalId": "ID interno:",
@@ -337,7 +343,8 @@
     "intensityLevelsCount": "{{count}} niveles de intensidad",
     "customTilesCount": "{{count}} fichas personalizadas",
     "levelLabel": "Nivel {{level}}",
-    "levelInputLabel": "Etiqueta del nivel {{level}}"
+    "levelInputLabel": "Etiqueta del nivel {{level}}",
+    "errorLoadingGroups": "Error al cargar grupos"
   },
   "intensityLabels": {
     "beginner": "Principiante",
@@ -361,29 +368,20 @@
   "level": "Nivel",
   "soon": "Pronto",
   "noLinkProvided": "Sin enlace",
-  "exportFormat": {
-    "clean": "Limpio (v2.0)",
-    "legacy": "Heredado"
-  },
   "exportScope": {
-    "all": "Todo",
+    "all": "Todos los Datos",
+    "custom": "Solo Personalizados",
     "default": "Grupos Predeterminados",
-    "single": "Grupo Único"
-  },
-  "importStrategy": {
-    "skip": "Omitir Existentes",
-    "overwrite": "Sobrescribir",
-    "rename": "Renombrar Conflictos"
+    "single": "Grupo Único",
+    "disabled": "Predeterminados Deshabilitados"
   },
   "labels": {
-    "exportFormat": "Formato",
     "exportScope": "Alcance",
-    "importStrategy": "Estrategia",
     "selectGroup": "Seleccionar Grupo"
   },
   "placeholder": {
     "cleanFormat": "Pega aquí los datos JSON en formato limpio v2.0...",
-    "legacyFormat": "Pega aquí los datos en formato heredado..."
+    "importData": "Pega los datos de importación aquí..."
   },
   "errors": {
     "selectGroupToExport": "Por favor selecciona un grupo para exportar",
@@ -393,6 +391,7 @@
   "importMessages": {
     "importing": "Importando datos...",
     "importSuccess": "¡Importación completada exitosamente!",
+    "importFailed": "¡Error en la importación!",
     "importedGroups": "Se importaron {{count}} grupos personalizados.",
     "importedTiles": "Se importaron {{count}} casillas personalizadas."
   },
@@ -418,7 +417,6 @@
   "confirmDeleteBoard": "¿Estás seguro de que quieres eliminar \"{{title}}\"?",
   "noPlannedGames": "No Hay Juegos Programados",
   "scheduleFirstGame": "¡Programa tu primer juego para comenzar!",
-  "manageGroups": "Gestionar Grupos",
   "scheduleValidation": {
     "selectDateTime": "Por favor selecciona una fecha y hora",
     "selectFutureDateTime": "Por favor selecciona una fecha y hora en el futuro",
@@ -427,6 +425,13 @@
     "enterValidUrl": "Por favor ingresa una URL válida"
   },
   "errorSavingTile": "Error al guardar el tile",
+  "tileUpdatedSuccessfully": "Casilla actualizada exitosamente",
+  "tileAddedSuccessfully": "Casilla agregada exitosamente",
+  "updateTile": "Actualizar Casilla",
+  "addTile": "Agregar Casilla",
+  "createNewGroup": "Crear Nuevo Grupo",
+  "enterTileAction": "Ingresa el texto de la acción para esta casilla",
+  "addTags": "Agregar etiquetas para categorizar esta casilla",
   "enterDataToImport": "Por favor ingresa datos para importar",
   "templateBasic": "Básico (1-4)",
   "gameSettingsHeading": "Configuración del Juego",
@@ -610,5 +615,15 @@
     "currentStatus": {
       "hasPlayers": "Ya tienes jugadores locales configurados. Puedes configurar nuevos o continuar con tu configuración actual."
     }
-  }
+  },
+  "setupWizard": {
+    "title": "Asistente de configuración"
+  },
+  "manageGroups": {
+    "title": "Gestionar grupos"
+  },
+  "export": "Exportar",
+  "export.scope": "Alcance de exportación",
+  "export.selectGroup": "Seleccionar grupo",
+  "export.includeDisabled": "Incluir deshabilitados por defecto"
 }

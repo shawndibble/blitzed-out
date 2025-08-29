@@ -266,7 +266,7 @@ export default function MenuDrawer(): JSX.Element {
       });
       items.unshift({
         key: 'settings',
-        title: <Trans i18nKey={gameSettings.advancedSettings ? 'settings' : 'setupWizard'} />,
+        title: <Trans i18nKey={gameSettings.advancedSettings ? 'settings' : 'setupWizard.title'} />,
         icon: <SettingsIcon />,
         onClick: () => toggleDialog('settings', true),
       });

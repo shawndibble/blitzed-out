@@ -1,53 +1,41 @@
 /**
- * Production-safe logging utility
- * In development: logs to console
- * In production: only logs errors to console, other levels are suppressed
+ * Simple logger utility for client-side logging
+ * Provides console logging with optional Sentry integration for production
  */
-
-// type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface Logger {
-  debug: (message: string, ...args: unknown[]) => void;
-  info: (message: string, ...args: unknown[]) => void;
-  warn: (message: string, isCritical?: boolean, ...args: unknown[]) => void;
-  critical: (message: string, ...args: unknown[]) => void;
-  error: (message: string, ...args: unknown[]) => void;
+  debug: (message: string, data?: any) => void;
+  info: (message: string, data?: any) => void;
+  warn: (message: string, data?: any) => void;
+  error: (message: string, data?: any) => void;
 }
 
-const createLogger = (): Logger => ({
-  debug: (message: string, ...args: unknown[]) => {
-    console.debug(`[DEBUG] ${message}`, ...args);
-  },
+const isDevelopment = ['development', 'test'].includes(import.meta.env.MODE);
 
-  info: (message: string, ...args: unknown[]) => {
-    console.info(`[INFO] ${message}`, ...args);
-  },
+const createLogger = (): Logger => {
+  const log = (level: 'debug' | 'info' | 'warn' | 'error', message: string, data?: any) => {
+    // Always log to console in development, only warn/error in production
+    if (isDevelopment || level === 'warn' || level === 'error') {
+      const logFn = console[level] || console.log;
+      if (data) {
+        logFn(`[${level.toUpperCase()}] ${message}`, data);
+      } else {
+        logFn(`[${level.toUpperCase()}] ${message}`);
+      }
+    }
 
-  warn: (message: string, isCritical?: boolean, ...args: unknown[]) => {
-    // Handle the case where isCritical is passed as a boolean
-    const actualArgs = typeof isCritical === 'boolean' ? args : [isCritical, ...args];
-    console.warn(`[WARN] ${message}`, ...actualArgs);
-  },
+    // In production, you could also send errors to Sentry here
+    // if (level === 'error' && window.Sentry) {
+    //   window.Sentry.captureMessage(message, 'error');
+    // }
+  };
 
-  critical: (message: string, ...args: unknown[]) => {
-    console.warn(`[CRITICAL] ${message}`, ...args);
-  },
-
-  error: (message: string, ...args: unknown[]) => {
-    console.error(`[ERROR] ${message}`, ...args);
-  },
-});
+  return {
+    debug: (message: string, data?: any) => log('debug', message, data),
+    info: (message: string, data?: any) => log('info', message, data),
+    warn: (message: string, data?: any) => log('warn', message, data),
+    error: (message: string, data?: any) => log('error', message, data),
+  };
+};
 
 export const logger = createLogger();
-
-/**
- * Legacy console replacement for gradual migration
- * TODO: Replace all instances with proper logger methods
- */
-export const safeConsole = {
-  log: console.log,
-  warn: console.warn,
-  info: console.info,
-  debug: console.debug,
-  error: console.error,
-};

@@ -189,3 +189,10 @@ npm run type-check && npx eslint src/ && npm run test:failures
 ## Internationalization (i18n)
 
 **CRITICAL RULE**: When updating translations, **ALWAYS** update all 5 language files: `en`, `es`, `fr`, `zh`, `hi` in `src/locales/*/translation.json`
+
+## Coding Standards
+
+- Do not comment out variables that are no longer used. Instead remove the variable entirely.
+- Do not leave comments for code that is removed/replaced.
+- Logging should only ever be used for troubleshooting. We should not have it in production code.
+- If a comment is added, it shouldn't be telling what the code is doing but rather why it was coded that way. Concise functions, helpers, hooks and components should be used to help document the code as to what it is doing.

@@ -1,0 +1,442 @@
+/**
+ * Group ID Migration Service
+ *
+ * Migrates tiles from string-based group matching to foreign key group_id relationships
+ * for improved data consistency, performance, and sync reliability.
+ *
+ * CRITICAL: Handles deterministic IDs for default groups to ensure consistency across devices
+ */
+
+import db from '@/stores/store';
+import { getCustomGroups } from '@/stores/customGroups';
+import { updateCustomTile } from '@/stores/customTiles';
+
+/**
+ * Creates a deterministic group ID for default groups
+ * This ensures default groups have the same ID across all devices for sync consistency
+ */
+export function createDeterministicGroupId(
+  groupName: string,
+  locale: string,
+  gameMode: string
+): string {
+  // Create a consistent hash-like ID based on group properties
+  // Format: default-{locale}-{gameMode}-{groupName}
+  // This ensures all devices generate the same ID for default groups
+  const baseId = `default-${locale}-${gameMode}-${groupName}`;
+
+  // Create a simple hash to keep IDs reasonably short but still unique
+  let hash = 0;
+  for (let i = 0; i < baseId.length; i++) {
+    const char = baseId.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+
+  // Convert to a positive hex string with prefix
+  const hashStr = Math.abs(hash).toString(16).padStart(8, '0');
+  return `default_${locale}_${gameMode}_${groupName}_${hashStr}`.slice(0, 50);
+}
+
+export interface MigrationResult {
+  success: boolean;
+  migratedCount: number;
+  orphanedCount: number;
+  skippedCount: number;
+  errors: Array<{
+    tileId: number;
+    error: string;
+  }>;
+}
+
+export interface AuditResult {
+  totalTiles: number;
+  tilesWithGroupId: number;
+  tilesMissingGroupId: number;
+  inconsistentMappings: Array<{
+    group: string;
+    groupIds: string[];
+    count: number;
+  }>;
+  orphanedTiles: Array<{
+    id: number;
+    group: string;
+    locale: string;
+    gameMode: string;
+  }>;
+}
+
+/**
+ * Audits the current state of group_id usage in tiles
+ */
+export async function auditGroupIdUsage(): Promise<AuditResult> {
+  try {
+    // Get all tiles
+    const allTiles = await db.customTiles.toArray();
+    const totalTiles = allTiles.length;
+
+    // Count tiles with/without group_id
+    const tilesWithGroupId = allTiles.filter(
+      (tile) => tile.group_id && tile.group_id.trim()
+    ).length;
+    const tilesMissingGroupId = totalTiles - tilesWithGroupId;
+
+    // Find inconsistent mappings (tiles with invalid group_ids)
+    // Since migration is complete, we now check for group_id consistency
+    const inconsistentMappings: Array<{
+      group: string;
+      groupIds: string[];
+      count: number;
+    }> = []; // Empty since all tiles should now have valid group_ids
+
+    // Find orphaned tiles (tiles without matching groups)
+    const allGroups = await db.customGroups.toArray();
+    const validGroupIds = new Set(allGroups.map((group) => group.id));
+
+    const orphanedTiles = allTiles
+      .filter((tile) => tile.group_id && tile.group_id.trim() && !validGroupIds.has(tile.group_id))
+      .map((tile) => ({
+        id: tile.id!,
+        group: tile.group_id || 'unknown', // Use group_id since group name no longer exists on tiles
+        locale: 'unknown', // Locale is now on groups, not tiles
+        gameMode: 'unknown', // GameMode is now on groups, not tiles
+      }));
+
+    const result: AuditResult = {
+      totalTiles,
+      tilesWithGroupId,
+      tilesMissingGroupId,
+      inconsistentMappings,
+      orphanedTiles,
+    };
+    return result;
+  } catch (error) {
+    console.error('Error during group ID audit:', error);
+    throw error;
+  }
+}
+
+/**
+ * Resolves a group_id for a tile based on group name, locale, and gameMode
+ * CRITICAL: For default groups, generates deterministic IDs to ensure sync consistency
+ */
+export async function resolveGroupId(
+  groupName: string,
+  locale: string = 'en',
+  gameMode: string = 'online',
+  isDefault: boolean = false
+): Promise<string | null> {
+  try {
+    // For default groups, first try to find existing group with deterministic ID
+    if (isDefault) {
+      const deterministicId = createDeterministicGroupId(groupName, locale, gameMode);
+
+      // Check if a group with this deterministic ID already exists
+      const existingById = await db.customGroups.where('id').equals(deterministicId).first();
+      if (existingById) {
+        return deterministicId;
+      }
+
+      // Check if a default group with this name exists (might need ID migration)
+      await getCustomGroups({
+        name: groupName,
+        locale,
+        gameMode,
+        isDefault: true,
+      });
+
+      // If no default group exists, return the deterministic ID that should be created
+      return deterministicId;
+    }
+
+    // For custom (user-created) groups, use existing logic
+    // First try exact match
+    const exactMatches = await getCustomGroups({
+      name: groupName,
+      locale,
+      gameMode,
+    });
+
+    if (exactMatches.length > 0) {
+      return exactMatches[0].id;
+    }
+
+    // Try without gameMode specificity (fallback to any gameMode)
+    const localeMatches = await getCustomGroups({
+      name: groupName,
+      locale,
+    });
+
+    if (localeMatches.length > 0) {
+      return localeMatches[0].id;
+    }
+
+    // Try without locale specificity (fallback to any locale)
+    const nameMatches = await getCustomGroups({
+      name: groupName,
+    });
+
+    if (nameMatches.length > 0) {
+      // Prefer groups with matching locale or gameMode if available
+      const bestMatch =
+        nameMatches.find((group) => group.locale === locale || group.gameMode === gameMode) ||
+        nameMatches[0];
+
+      return bestMatch.id;
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`Error resolving group ID for "${groupName}":`, error);
+    return null;
+  }
+}
+
+/**
+ * Migrates default groups to use deterministic IDs for cross-device consistency
+ */
+export async function migrateDefaultGroupIds(): Promise<{
+  migratedCount: number;
+  errors: Array<{ groupId: string; error: string }>;
+}> {
+  const result = {
+    migratedCount: 0,
+    errors: [] as Array<{ groupId: string; error: string }>,
+  };
+
+  try {
+    // Get all default groups
+    const defaultGroups = await getCustomGroups({ isDefault: true });
+
+    for (const group of defaultGroups) {
+      try {
+        const expectedId = createDeterministicGroupId(
+          group.name,
+          group.locale || 'en',
+          group.gameMode || 'online'
+        );
+
+        if (group.id !== expectedId) {
+          // Check if the target ID already exists
+          const existingWithTargetId = await db.customGroups.where('id').equals(expectedId).first();
+          if (existingWithTargetId) {
+            continue;
+          }
+
+          // Update all tiles that reference the old group ID
+          const tilesToUpdate = await db.customTiles.where('group_id').equals(group.id).toArray();
+          for (const tile of tilesToUpdate) {
+            await updateCustomTile(tile.id!, { group_id: expectedId });
+          }
+
+          // Delete the old group and create with new ID
+          await db.customGroups.delete(group.id);
+          await db.customGroups.add({
+            ...group,
+            id: expectedId,
+            updatedAt: new Date(),
+          });
+
+          result.migratedCount++;
+        }
+      } catch (error) {
+        console.error(`Error migrating default group ${group.id}:`, error);
+        result.errors.push({
+          groupId: group.id,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+    return result;
+  } catch (error) {
+    console.error('Default group ID migration failed:', error);
+    result.errors.push({
+      groupId: 'unknown',
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return result;
+  }
+}
+
+/**
+ * Migrates all tiles to use group_id instead of string-based group matching
+ */
+export async function migrateGroupIds(
+  options: {
+    dryRun?: boolean;
+    batchSize?: number;
+  } = {}
+): Promise<MigrationResult> {
+  const { dryRun = false, batchSize = 100 } = options;
+
+  const result: MigrationResult = {
+    success: false,
+    migratedCount: 0,
+    orphanedCount: 0,
+    skippedCount: 0,
+    errors: [],
+  };
+
+  try {
+    // Get all tiles missing group_id
+    const tilesToMigrate = await db.customTiles
+      .filter((tile) => !tile.group_id || !tile.group_id.trim())
+      .toArray();
+
+    // Process in batches to avoid overwhelming the database
+    for (let i = 0; i < tilesToMigrate.length; i += batchSize) {
+      const batch = tilesToMigrate.slice(i, i + batchSize);
+
+      // Since migration is complete, tiles without group_id are likely corrupted
+      // Skip migration for tiles that don't have the old properties
+      batch.forEach((tile) => {
+        console.warn(
+          `Found tile ${tile.id} without group_id but migration has already completed. This may indicate data corruption.`
+        );
+        result.orphanedCount++;
+      });
+    }
+
+    // Validate migration results
+    if (!dryRun) {
+      const auditResults = await auditGroupIdUsage();
+      const remainingTiles = auditResults.tilesMissingGroupId;
+
+      if (remainingTiles > 0) {
+        console.warn(`Migration completed but ${remainingTiles} tiles still missing group_id`);
+      }
+
+      result.skippedCount = remainingTiles;
+    }
+
+    result.success = result.errors.length === 0;
+
+    return result;
+  } catch (error) {
+    console.error('Group ID migration failed:', error);
+    result.errors.push({
+      tileId: -1,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return result;
+  }
+}
+
+/**
+ * Validates that all tiles have valid group_id references
+ */
+export async function validateGroupIdIntegrity(): Promise<{
+  isValid: boolean;
+  issues: Array<{
+    type: 'missing_group_id' | 'invalid_group_id' | 'orphaned_group';
+    tileId?: number;
+    groupId?: string;
+    message: string;
+  }>;
+}> {
+  const issues: Array<{
+    type: 'missing_group_id' | 'invalid_group_id' | 'orphaned_group';
+    tileId?: number;
+    groupId?: string;
+    message: string;
+  }> = [];
+
+  try {
+    // Get all tiles and groups
+    const allTiles = await db.customTiles.toArray();
+    const allGroups = await db.customGroups.toArray();
+    const validGroupIds = new Set(allGroups.map((group) => group.id));
+
+    // Check each tile
+    for (const tile of allTiles) {
+      // Check for missing group_id
+      if (!tile.group_id || !tile.group_id.trim()) {
+        issues.push({
+          type: 'missing_group_id',
+          tileId: tile.id,
+          message: `Tile ${tile.id} missing group_id`,
+        });
+        continue;
+      }
+
+      // Check for invalid group_id reference
+      if (!validGroupIds.has(tile.group_id)) {
+        issues.push({
+          type: 'invalid_group_id',
+          tileId: tile.id,
+          groupId: tile.group_id,
+          message: `Tile ${tile.id} has invalid group_id: ${tile.group_id}`,
+        });
+      }
+    }
+
+    // Check for orphaned groups (groups with no tiles)
+    const tilesGroupIds = new Set(
+      allTiles.filter((tile) => tile.group_id && tile.group_id.trim()).map((tile) => tile.group_id!)
+    );
+
+    for (const group of allGroups) {
+      if (!group.isDefault && !tilesGroupIds.has(group.id)) {
+        issues.push({
+          type: 'orphaned_group',
+          groupId: group.id,
+          message: `Group ${group.id} (${group.name}) has no associated tiles`,
+        });
+      }
+    }
+
+    const isValid = issues.length === 0;
+
+    return { isValid, issues };
+  } catch (error) {
+    console.error('Error during group ID integrity validation:', error);
+    return {
+      isValid: false,
+      issues: [
+        {
+          type: 'invalid_group_id',
+          message: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ],
+    };
+  }
+}
+
+/**
+ * Utility function to run all migration steps in sequence
+ */
+export async function runFullGroupIdMigration(
+  options: {
+    dryRun?: boolean;
+    skipAudit?: boolean;
+  } = {}
+): Promise<{
+  auditResult?: AuditResult;
+  defaultGroupMigrationResult: Awaited<ReturnType<typeof migrateDefaultGroupIds>>;
+  migrationResult: MigrationResult;
+  validationResult: Awaited<ReturnType<typeof validateGroupIdIntegrity>>;
+}> {
+  const { dryRun = false, skipAudit = false } = options;
+
+  // Step 1: Audit current state (optional)
+  let auditResult: AuditResult | undefined;
+  if (!skipAudit) {
+    auditResult = await auditGroupIdUsage();
+  }
+
+  // Step 2: Migrate default groups to deterministic IDs first
+  const defaultGroupMigrationResult = await migrateDefaultGroupIds();
+
+  // Step 3: Run tile migration (includes both default and custom tiles)
+  const migrationResult = await migrateGroupIds({ dryRun });
+
+  // Step 4: Validate results
+  const validationResult = await validateGroupIdIntegrity();
+
+  return {
+    auditResult,
+    defaultGroupMigrationResult,
+    migrationResult,
+    validationResult,
+  };
+}

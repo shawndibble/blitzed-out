@@ -65,11 +65,10 @@ function parseTile(tile: string, mappedGroups: AllGameModeActions): CustomTile {
   }
 
   return {
-    group: appGroup.value,
+    group_id: '', // Will need to be resolved from group name
     intensity: appGroup.intensity,
     action,
     tags,
-    gameMode,
     isCustom: 1,
   };
 }
@@ -97,10 +96,9 @@ export default function getUniqueImportRecords(
   result.forEach((entry) => {
     const existingRecord = customTiles.find(
       (existing) =>
-        existing.group === entry.group &&
+        existing.group_id === entry.group_id &&
         existing.intensity === entry.intensity &&
-        existing.action === entry.action &&
-        existing.gameMode === entry.gameMode
+        existing.action === entry.action
     );
 
     if (!existingRecord) {

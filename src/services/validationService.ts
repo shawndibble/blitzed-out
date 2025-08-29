@@ -1,25 +1,24 @@
 import { ValidationResult, CustomGroupBase, CustomGroupIntensity } from '@/types/customGroups';
 import { CustomTile } from '@/types/customTiles';
-import { isGroupNameUnique, getCustomGroupByName } from '@/stores/customGroups';
+import { isGroupNameUnique, getCustomGroupByName, getCustomGroup } from '@/stores/customGroups';
 import { t } from 'i18next';
-import { logger } from '@/utils/logger';
 
 /**
  * Validation service for custom groups and tiles
  */
 
-// Constants for validation rules
-const MAX_GROUP_NAME_LENGTH = 50;
-const MAX_GROUP_LABEL_LENGTH = 100;
-const MAX_INTENSITY_LABEL_LENGTH = 50;
-const MIN_INTENSITY_VALUE = 1;
-const MAX_INTENSITY_VALUE = 10;
-const MIN_INTENSITIES_COUNT = 1;
-const MAX_INTENSITIES_COUNT = 10;
+// Constants for validation rules - exported for direct use
+export const MAX_GROUP_NAME_LENGTH = 50;
+export const MAX_GROUP_LABEL_LENGTH = 100;
+export const MAX_INTENSITY_LABEL_LENGTH = 50;
+export const MIN_INTENSITY_VALUE = 1;
+export const MAX_INTENSITY_VALUE = 10;
+export const MIN_INTENSITIES_COUNT = 1;
+export const MAX_INTENSITIES_COUNT = 10;
 
 // Reserved group names that cannot be used for custom groups
 // Only includes names that would cause technical issues or UX confusion
-const RESERVED_GROUP_NAMES = [
+export const RESERVED_GROUP_NAMES = [
   'none', // Used in UI for "select none" operations
   'all', // Used in UI for "select all" operations
   'default', // Aligns with isDefault system property
@@ -28,7 +27,7 @@ const RESERVED_GROUP_NAMES = [
 ];
 
 // Valid group types for custom groups
-const VALID_GROUP_TYPES = ['solo', 'foreplay', 'sex', 'consumption'] as const;
+export const VALID_GROUP_TYPES = ['solo', 'foreplay', 'sex', 'consumption'] as const;
 
 // Export type for group types
 export type GroupType = (typeof VALID_GROUP_TYPES)[number];
@@ -236,9 +235,8 @@ export const validateCustomGroup = async (
       }
     } catch (error) {
       warnings.push('Could not verify group name uniqueness');
-      logger.warn(
+      console.warn(
         'Failed to check group name uniqueness:',
-        false,
         error instanceof Error ? error.message : 'Unknown error'
       );
     }
@@ -252,23 +250,23 @@ export const validateCustomGroup = async (
  */
 export const validateCustomTileWithGroups = async (
   tile: CustomTile,
-  locale = 'en',
-  gameMode = 'online'
+  _locale = 'en',
+  _gameMode = 'online'
 ): Promise<ValidationResult> => {
   const errors: string[] = [];
   const warnings: string[] = [];
 
   // Check if group exists
-  if (!tile.group || tile.group.trim().length === 0) {
+  if (!tile.group_id || tile.group_id.trim().length === 0) {
     errors.push('Tile must belong to a group');
     return { isValid: false, errors, warnings };
   }
 
   try {
-    const group = await getCustomGroupByName(tile.group, locale, gameMode);
+    const group = await getCustomGroup(tile.group_id);
 
     if (!group) {
-      errors.push(`Group "${tile.group}" does not exist for ${locale}/${gameMode}`);
+      errors.push(`Group with ID "${tile.group_id}" does not exist`);
       return { isValid: false, errors, warnings };
     }
 
@@ -276,7 +274,7 @@ export const validateCustomTileWithGroups = async (
     const validIntensityValues = group.intensities.map((i) => i.value);
     if (!validIntensityValues.includes(tile.intensity)) {
       errors.push(
-        `Intensity ${tile.intensity} is not valid for group "${tile.group}". Valid intensities: ${validIntensityValues.join(', ')}`
+        `Intensity ${tile.intensity} is not valid for group "${group.name}". Valid intensities: ${validIntensityValues.join(', ')}`
       );
     }
 
@@ -325,21 +323,6 @@ export const validateIntensityForGroup = async (
 };
 
 /**
- * Get validation constants for use in components
- */
-export const getValidationConstants = () => ({
-  MAX_GROUP_NAME_LENGTH,
-  MAX_GROUP_LABEL_LENGTH,
-  MAX_INTENSITY_LABEL_LENGTH,
-  MIN_INTENSITY_VALUE,
-  MAX_INTENSITY_VALUE,
-  MIN_INTENSITIES_COUNT,
-  MAX_INTENSITIES_COUNT,
-  RESERVED_GROUP_NAMES,
-  VALID_GROUP_TYPES,
-});
-
-/**
  * Helper function to format validation errors for display
  */
 export const formatValidationErrors = (validation: ValidationResult): string => {
@@ -352,4 +335,21 @@ export const formatValidationErrors = (validation: ValidationResult): string => 
   }
 
   return message;
+};
+
+/**
+ * Get all validation constants in a single object
+ */
+export const getValidationConstants = () => {
+  return {
+    MIN_INTENSITIES_COUNT,
+    MAX_INTENSITIES_COUNT,
+    MAX_GROUP_LABEL_LENGTH,
+    MAX_INTENSITY_LABEL_LENGTH,
+    VALID_GROUP_TYPES,
+    MAX_GROUP_NAME_LENGTH,
+    MIN_INTENSITY_VALUE,
+    MAX_INTENSITY_VALUE,
+    RESERVED_GROUP_NAMES,
+  };
 };

@@ -21,13 +21,16 @@
   "groupLabelRequired": "समूह लेबल आवश्यक है",
   "tilesCount": "{{count}} टाइलें",
   "online": "ऑनलाइन",
+  "gameMode": {
+    "online": "एकल",
+    "local": "लोगों के साथ"
+  },
   "players": "खिलाड़ी",
   "localPlayer": "स्थानीय",
   "you": "आप",
   "setup": "गेम सेटअप",
   "setupSubtitle": "अपना नाम दर्ज करें और सत्र शुरू करें",
   "buildGame": "गेम बनाएं",
-  "setupWizard": "सेटअप विज़ार्ड",
   "settings": "सेटिंग्स",
   "appSettings": "उन्नत सेटिंग्स",
   "about": "के बारे में",
@@ -59,6 +62,8 @@
   "cancel": "रद्द करें",
   "skip": "छोड़ें",
   "confirm": "पुष्टि करें",
+  "yes": "हाँ",
+  "no": "नहीं",
   "warning": "चेतावनी",
   "error": "त्रुटि",
   "somethingWentWrong": "कुछ गलत हुआ",
@@ -76,7 +81,7 @@
   "solo": "सोलो",
   "soloTooltip": "अपने साथ खेलें",
   "local": "व्यक्तिगत रूप से",
-  "localTooltip": "व्यक्तिगत रूप से अन्य लोगों के साथ खेलना",
+  "localTooltip": "अन्य लोगों के साथ मिलकर खेलना",
   "gameSpeed": "गेम स्पीड",
   "averageRolls": "प्रति गेम औसत रोल: ",
   "roomDice": "पासा",
@@ -323,6 +328,7 @@
     "saving": "सेव हो रहा है...",
     "groupTypeHelp": "निर्धारित करता है कि यह समूह सेटअप विज़ार्ड में कब दिखाई देता है",
     "groupLabelHelp": "उपयोगकर्ताओं को दिखाया गया प्रदर्शन नाम (अधिकतम {{maxLength}} वर्ण)",
+    "gameModeHelp": "चुनें कि यह समूह ऑनलाइन या व्यक्तिगत रूप से गेम मोड के लिए है",
     "locale": "भाषा:",
     "gameMode": "गेम मोड:",
     "internalId": "आंतरिक ID:",
@@ -337,7 +343,8 @@
     "intensityLevelsCount": "{{count}} तीव्रता स्तर",
     "customTilesCount": "{{count}} कस्टम टाइलें",
     "levelLabel": "स्तर {{level}}",
-    "levelInputLabel": "स्तर {{level}} लेबल"
+    "levelInputLabel": "स्तर {{level}} लेबल",
+    "errorLoadingGroups": "ग्रुप लोड करने में त्रुटि"
   },
   "intensityLabels": {
     "beginner": "शुरुआती",
@@ -361,29 +368,20 @@
   "level": "स्तर",
   "soon": "जल्द ही",
   "noLinkProvided": "कोई लिंक प्रदान नहीं किया गया",
-  "exportFormat": {
-    "clean": "साफ़ (v2.0)",
-    "legacy": "पुराना"
-  },
   "exportScope": {
-    "all": "सब कुछ",
+    "all": "सभी डेटा",
+    "custom": "केवल कस्टम",
     "default": "डिफ़ॉल्ट समूह",
-    "single": "एकल समूह"
-  },
-  "importStrategy": {
-    "skip": "मौजूदा छोड़ें",
-    "overwrite": "अधिलेखित करें",
-    "rename": "संघर्ष का नाम बदलें"
+    "single": "एकल समूह",
+    "disabled": "डिफ़ॉल्ट अक्षम"
   },
   "labels": {
-    "exportFormat": "प्रारूप",
     "exportScope": "क्षेत्र",
-    "importStrategy": "रणनीति",
     "selectGroup": "समूह चुनें"
   },
   "placeholder": {
     "cleanFormat": "यहां साफ़ v2.0 प्रारूप JSON डेटा पेस्ट करें...",
-    "legacyFormat": "यहां पुराना प्रारूप डेटा पेस्ट करें..."
+    "importData": "यहां आयात डेटा पेस्ट करें..."
   },
   "errors": {
     "selectGroupToExport": "कृपया निर्यात के लिए एक समूह चुनें",
@@ -393,6 +391,7 @@
   "importMessages": {
     "importing": "डेटा आयात हो रहा है...",
     "importSuccess": "आयात सफलतापूर्वक पूरा हुआ!",
+    "importFailed": "आयात विफल!",
     "importedGroups": "{{count}} कस्टम समूह आयात किए गए।",
     "importedTiles": "{{count}} कस्टम टाइलें आयात की गईं।"
   },
@@ -418,7 +417,6 @@
   "confirmDeleteBoard": "क्या आप वाकई \"{{title}}\" को हटाना चाहते हैं?",
   "noPlannedGames": "कोई नियोजित गेम नहीं",
   "scheduleFirstGame": "शुरुआत के लिए अपना पहला गेम निर्धारित करें!",
-  "manageGroups": "समूह प्रबंधन",
   "scheduleValidation": {
     "selectDateTime": "कृपया दिनांक और समय चुनें",
     "selectFutureDateTime": "कृपया भविष्य की तारीख और समय चुनें",
@@ -610,5 +608,15 @@
     "currentStatus": {
       "hasPlayers": "आपके पास पहले से ही स्थानीय खिलाड़ी कॉन्फ़िगर किए गए हैं। आप नए सेट कर सकते हैं या अपने वर्तमान सेटअप के साथ जारी रख सकते हैं।"
     }
-  }
+  },
+  "setupWizard": {
+    "title": "सेटअप विज़ार्ड"
+  },
+  "manageGroups": {
+    "title": "ग्रुप प्रबंधित करें"
+  },
+  "export": "निर्यात",
+  "export.scope": "निर्यात क्षेत्र",
+  "export.selectGroup": "समूह चुनें",
+  "export.includeDisabled": "डिफ़ॉल्ट अक्षम शामिल करें"
 }
