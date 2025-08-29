@@ -3,8 +3,15 @@
  * Handles streaming, batching, and efficient memory usage
  */
 
-import { CleanExportData, ExportOptions, ExportContext, EXPORT_FORMAT_VERSION } from './types';
+import {
+  CleanExportData,
+  ExportOptions,
+  ExportContext,
+  EXPORT_FORMAT_VERSION,
+  ExportableGroupStats,
+} from './types';
 import { batchFetchGroups, streamTilesForExport, getTileStatistics } from './databaseOperations';
+import { getTiles } from '@/stores/customTiles';
 
 const JSON_INDENT_SPACES = 2;
 
@@ -180,6 +187,100 @@ export async function exportGroupData(
   return exportData(locale, gameMode, {
     exportScope: 'single',
     singleGroup: groupName,
+  });
+}
+
+/**
+ * Get exportable groups with accurate counts for each export category
+ * Only returns groups that have exportable content in any category
+ * Uses the same 3-query approach as exportAllData for consistency
+ */
+export async function getExportableGroupStats(
+  locale = 'en',
+  gameMode = 'online',
+  includeDisabledDefaults = false,
+  exportScope: 'all' | 'custom' | 'single' | 'disabled' = 'all'
+): Promise<ExportableGroupStats[]> {
+  // Use the same 3-query approach as exportAllData, but filter based on export scope
+
+  // Query 1: Get all custom groups (isDefault = false) - only for 'all', 'custom', and 'single' scopes
+  const customGroups =
+    exportScope === 'disabled'
+      ? []
+      : (await batchFetchGroups(locale, gameMode)).filter((g) => !g.isDefault);
+
+  // Query 2: Get all custom tiles (isCustom = true) - only for 'all', 'custom', and 'single' scopes
+  const allCustomTiles = exportScope === 'disabled' ? [] : await getTiles({ isCustom: 1 });
+
+  // Query 3: Get all disabled default tiles (isCustom = false, isEnabled = false)
+  // For 'disabled' scope, always include. For 'custom' scope, never include. For others, based on includeDisabledDefaults flag
+  const allDisabledDefaults = await (async () => {
+    if (exportScope === 'disabled') return await getTiles({ isCustom: 0, isEnabled: 0 });
+    if (exportScope === 'custom') return [];
+    return includeDisabledDefaults ? await getTiles({ isCustom: 0, isEnabled: 0 }) : [];
+  })();
+
+  // Get all groups that have exportable content (union of group IDs from all queries)
+  const customGroupIds = new Set(customGroups.map((g) => g.id));
+  const tilesGroupIds = new Set(allCustomTiles.map((t) => t.group_id).filter(Boolean));
+  const disabledGroupIds = new Set(allDisabledDefaults.map((t) => t.group_id).filter(Boolean));
+
+  const allRelevantGroupIds = new Set([...customGroupIds, ...tilesGroupIds, ...disabledGroupIds]);
+
+  // Get all groups (both custom and default) that have exportable content
+  const allGroups = await batchFetchGroups(locale, gameMode);
+  const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
+
+  // Deduplicate groups by name, keeping the first occurrence
+  const uniqueGroups = relevantGroups.filter(
+    (group, index, self) => self.findIndex((g) => g.name === group.name) === index
+  );
+
+  const exportableGroups: ExportableGroupStats[] = [];
+
+  for (const group of uniqueGroups) {
+    let customGroups = 0;
+    let customTiles = 0;
+    let disabledDefaults = 0;
+
+    // Check if group itself is custom (non-default) - only count for non-disabled scopes
+    if (exportScope !== 'disabled' && !group.isDefault) {
+      customGroups = 1;
+    }
+
+    // Count custom tiles in this group - only count for non-disabled scopes
+    if (exportScope !== 'disabled') {
+      customTiles = allCustomTiles.filter((t) => t.group_id === group.id).length;
+    }
+
+    // Count disabled default tiles - only for non-custom scopes
+    if (exportScope !== 'custom') {
+      disabledDefaults = allDisabledDefaults.filter((t) => t.group_id === group.id).length;
+    }
+
+    const total = customGroups + customTiles + disabledDefaults;
+
+    // Only include groups that have exportable content (should always be > 0 due to filtering)
+    if (total > 0) {
+      exportableGroups.push({
+        name: group.name,
+        label: group.label || group.name,
+        exportCount: {
+          customGroups,
+          customTiles,
+          disabledDefaults,
+          total,
+        },
+      });
+    }
+  }
+
+  // Sort by total count (descending) then by name
+  return exportableGroups.sort((a, b) => {
+    if (a.exportCount.total !== b.exportCount.total) {
+      return b.exportCount.total - a.exportCount.total;
+    }
+    return a.name.localeCompare(b.name);
   });
 }
 

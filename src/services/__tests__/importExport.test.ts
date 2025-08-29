@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { exportAllData, importData, analyzeImportConflicts, importFromJson } from '../importExport';
+import { getExportableGroupStats } from '../importExport/exportService';
 import type { ExportData } from '@/types/importExport';
 import type { CustomGroupPull } from '@/types/customGroups';
 import type { CustomTile } from '@/types/customTiles';
@@ -23,6 +24,10 @@ vi.mock('../contentHashing', () => ({
   generateDisabledDefaultContentHash: vi.fn(),
 }));
 
+vi.mock('../importExport/databaseOperations', () => ({
+  batchFetchGroups: vi.fn(),
+}));
+
 // Import mocked functions
 import { getCustomGroups, addCustomGroup, updateCustomGroup } from '@/stores/customGroups';
 import { getTiles, addCustomTile, updateCustomTile } from '@/stores/customTiles';
@@ -31,6 +36,7 @@ import {
   generateTileContentHash,
   generateDisabledDefaultContentHash,
 } from '../contentHashing';
+import { batchFetchGroups } from '../importExport/databaseOperations';
 
 describe('ImportExport Service', () => {
   const mockGroup: CustomGroupPull = {
@@ -114,13 +120,18 @@ describe('ImportExport Service', () => {
     it('should export data successfully with default options', async () => {
       const result = await exportAllData();
 
+      // Should call getCustomGroups twice: once with isDefault: false, once without filters
       expect(getCustomGroups).toHaveBeenCalledWith({
         locale: 'en',
         gameMode: 'online',
         isDefault: false,
       });
+      expect(getCustomGroups).toHaveBeenCalledWith({
+        locale: 'en',
+        gameMode: 'online',
+      });
+      // Should call getTiles with isCustom: 1 to get all custom tiles
       expect(getTiles).toHaveBeenCalledWith({
-        group_id: 'test-group-1',
         isCustom: 1,
       });
 
@@ -131,7 +142,7 @@ describe('ImportExport Service', () => {
       expect(exportData.data.disabledDefaultTiles).toHaveLength(0);
     });
 
-    it('should include disabled defaults when requested', async () => {
+    it('should include disabled defaults by default for all exports', async () => {
       const disabledTile = { ...mockTile, id: 2, isEnabled: 0 };
       vi.mocked(getTiles)
         .mockResolvedValueOnce([mockTile as any]) // Regular tiles
@@ -162,7 +173,7 @@ describe('ImportExport Service', () => {
 
       await exportAllData({}, progressCallback);
 
-      expect(progressCallback).toHaveBeenCalledWith('Fetching groups', 0, 100);
+      expect(progressCallback).toHaveBeenCalledWith('Analyzing exportable data', 0, 100);
       expect(progressCallback).toHaveBeenCalledWith('Finalizing export', 100, 100);
     });
 
@@ -484,7 +495,7 @@ describe('ImportExport Service', () => {
 
   describe('Type Safety', () => {
     it('should handle partial options correctly', async () => {
-      // Test with minimal options
+      // Test with minimal options (includeDisabledDefaults now defaults to true)
       const result = await exportAllData({ includeDisabledDefaults: true });
       expect(typeof result).toBe('string');
 
@@ -506,6 +517,122 @@ describe('ImportExport Service', () => {
       };
 
       await expect(importData(invalidExportData as any)).rejects.toThrow('Import failed');
+    });
+  });
+
+  describe('Export Service', () => {
+    describe('getExportableGroupStats', () => {
+      it('should return only groups with exportable content', async () => {
+        // Mock groups data
+        const mockGroups = [
+          {
+            id: 'custom-group-1',
+            name: 'customGroup',
+            label: 'Custom Group',
+            isDefault: false,
+          },
+          {
+            id: 'default-group-1',
+            name: 'defaultGroup',
+            label: 'Default Group',
+            isDefault: true,
+          },
+          {
+            id: 'empty-group',
+            name: 'emptyGroup',
+            label: 'Empty Group',
+            isDefault: true,
+          },
+        ];
+
+        // Mock the batchFetchGroups function
+        vi.mocked(batchFetchGroups).mockResolvedValue(mockGroups as any);
+
+        // Mock getTiles to return different data based on new query approach
+        vi.mocked(getTiles).mockImplementation((filters: any) => {
+          if (filters.isCustom === 1) {
+            // Return all custom tiles with group_id references
+            return Promise.resolve([
+              { id: 1, action: 'Custom tile', group_id: 'custom-group-1' },
+            ] as any);
+          }
+          if (filters.isCustom === 0 && filters.isEnabled === 0) {
+            // Return all disabled default tiles with group_id references
+            return Promise.resolve([
+              { id: 2, action: 'Disabled default', group_id: 'default-group-1' },
+            ] as any);
+          }
+          return Promise.resolve([]);
+        });
+
+        const result = await getExportableGroupStats('en', 'online', true);
+
+        expect(result).toHaveLength(2); // Only groups with content
+
+        const customGroup = result.find((g) => g.name === 'customGroup');
+        expect(customGroup).toBeDefined();
+        expect(customGroup?.exportCount.customGroups).toBe(1); // Group itself is custom
+        expect(customGroup?.exportCount.customTiles).toBe(1); // Has 1 custom tile
+        expect(customGroup?.exportCount.total).toBe(2); // Total: 1 + 1
+
+        const defaultGroup = result.find((g) => g.name === 'defaultGroup');
+        expect(defaultGroup).toBeDefined();
+        expect(defaultGroup?.exportCount.customGroups).toBe(0); // Group is default
+        expect(defaultGroup?.exportCount.disabledDefaults).toBe(1); // Has 1 disabled default
+        expect(defaultGroup?.exportCount.total).toBe(1); // Total: 0 + 0 + 1
+
+        // Empty group should not be included
+        const emptyGroup = result.find((g) => g.name === 'emptyGroup');
+        expect(emptyGroup).toBeUndefined();
+      });
+
+      it('should exclude disabled defaults when includeDisabledDefaults is false', async () => {
+        const mockGroups = [
+          {
+            id: 'default-group-1',
+            name: 'defaultGroup',
+            label: 'Default Group',
+            isDefault: true,
+          },
+        ];
+
+        vi.mocked(batchFetchGroups).mockResolvedValue(mockGroups as any);
+        vi.mocked(getTiles).mockResolvedValue([]);
+
+        const result = await getExportableGroupStats('en', 'online', false);
+
+        expect(result).toHaveLength(0); // No exportable content when disabled defaults excluded
+      });
+
+      it('should handle export scope filtering correctly', async () => {
+        const mockGroups = [
+          {
+            id: 'default-group-1',
+            name: 'defaultGroup',
+            label: 'Default Group',
+            isDefault: true,
+          },
+        ];
+
+        vi.mocked(batchFetchGroups).mockResolvedValue(mockGroups as any);
+        vi.mocked(getTiles).mockImplementation((filters: any) => {
+          if (filters.isCustom === 0 && filters.isEnabled === 0) {
+            return Promise.resolve([
+              { id: 1, action: 'Disabled', group_id: 'default-group-1' },
+            ] as any);
+          }
+          return Promise.resolve([]);
+        });
+
+        // Test 'disabled' scope - should include disabled defaults
+        const disabledResult = await getExportableGroupStats('en', 'online', false, 'disabled');
+        expect(disabledResult).toHaveLength(1);
+        expect(disabledResult[0].exportCount.disabledDefaults).toBe(1);
+
+        // Test 'custom' scope - should exclude disabled defaults
+        const customResult = await getExportableGroupStats('en', 'online', false, 'custom');
+        expect(customResult).toHaveLength(0);
+      });
     });
   });
 });

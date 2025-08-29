@@ -94,6 +94,7 @@ export interface ImportExportProps {
   mappedGroups: AllGameModeActions;
   setSubmitMessage: (message: SubmitMessage) => void;
   bulkImport: (records: CustomTile[]) => Promise<void>;
+  onImportSuccess?: () => void;
 }
 
 export interface AddCustomTileProps {

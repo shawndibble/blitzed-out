@@ -96,9 +96,10 @@ export async function exportSingleGroup(
   _locale = 'en',
   _gameMode = 'online'
 ): Promise<string> {
-  return exportCleanData(_locale, _gameMode, {
-    singleGroup: groupName,
-    exportScope: 'single',
+  // Use the old export format for consistency, but with proper group filtering
+  return exportAllData({
+    singleGroupName: groupName,
+    includeDisabledDefaults: true,
   });
 }
 
@@ -109,9 +110,21 @@ export async function exportSingleGroup(
  * @returns Promise<string> - JSON string of exported data
  */
 export async function exportCustomData(_locale = 'en', _gameMode = 'online'): Promise<string> {
-  return exportCleanData(_locale, _gameMode, {
-    exportScope: 'all',
-  });
+  try {
+    const result = await exportCleanData(_locale, _gameMode, {
+      exportScope: 'all',
+    });
+
+    // Parse the result and filter to only include custom data (no disabled defaults)
+    const exportData = JSON.parse(result);
+    exportData.data.disabledDefaultTiles = [];
+    // Keep customGroups and customTiles
+
+    return JSON.stringify(exportData, null, 2);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Export failed: ${message}`);
+  }
 }
 
 /**
@@ -129,7 +142,15 @@ export async function exportDisabledDefaults(
       includeDisabledDefaults: true,
     };
 
-    return await exportAllData(exportOptions);
+    const result = await exportAllData(exportOptions);
+
+    // Parse the result and filter to only include disabled defaults
+    const exportData = JSON.parse(result);
+    exportData.data.customGroups = [];
+    exportData.data.customTiles = [];
+    // Keep only disabledDefaultTiles
+
+    return JSON.stringify(exportData, null, 2);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`Export failed: ${message}`);

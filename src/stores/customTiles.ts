@@ -42,6 +42,7 @@ const createFilteredQuery = (filters: Partial<CustomTileFilters>) => {
     'locale',
     'gameMode',
     'group',
+    'group_id', // Add group_id as a valid filter
     'intensity',
     'tag',
     'isCustom',
@@ -59,8 +60,8 @@ const createFilteredQuery = (filters: Partial<CustomTileFilters>) => {
 
     if (key === 'tag') {
       query = query.filter((tile) => tile.tags.includes(value as string));
-    } else if (key === 'group') {
-      // Map 'group' filter to 'group_id' field
+    } else if (key === 'group' || key === 'group_id') {
+      // Map both 'group' and 'group_id' filters to 'group_id' field
       query = query.filter((tile) => tile.group_id === value);
     } else if (key === 'intensity') {
       // Convert intensity filter to number for proper comparison

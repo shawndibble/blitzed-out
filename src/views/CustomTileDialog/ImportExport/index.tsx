@@ -18,6 +18,8 @@ import CopyToClipboard from '@/components/CopyToClipboard';
 import { ImportExportProps } from '@/types/customTiles';
 import { ImportResult } from '@/types/importExport';
 import { exportAllData, importData } from '@/services/importExport';
+import { getExportableGroupStats } from '@/services/importExport/exportService';
+import { batchFetchGroups } from '@/services/importExport/databaseOperations';
 import {
   exportSingleGroup,
   exportCustomData,
@@ -35,6 +37,7 @@ export default function ImportExport({
   mappedGroups: _mappedGroups,
   setSubmitMessage,
   bulkImport: _bulkImport,
+  onImportSuccess,
 }: ImportExportProps) {
   const formData = useRef<HTMLFormElement | null>(null);
   const { t } = useTranslation();
@@ -44,9 +47,43 @@ export default function ImportExport({
   const [exportScope, setExportScope] = useState<'all' | 'custom' | 'single' | 'disabled'>('all');
   const [singleGroup, setSingleGroup] = useState<string>('');
   const [availableGroups, setAvailableGroups] = useState<
-    { name: string; label: string; tileCount: number }[]
+    {
+      name: string;
+      label: string;
+      exportCount: {
+        total: number;
+        customGroups: number;
+        customTiles: number;
+        disabledDefaults: number;
+      };
+    }[]
   >([]);
-  const [includeDisabledDefaults, setIncludeDisabledDefaults] = useState<boolean>(true);
+  const [groupIdMap, setGroupIdMap] = useState<Map<string, string>>(new Map());
+
+  // Helper function to format export count breakdown
+  const formatExportBreakdown = (exportCount: {
+    customGroups: number;
+    customTiles: number;
+    disabledDefaults: number;
+  }) => {
+    const parts: string[] = [];
+
+    if (exportCount.customGroups > 0) {
+      parts.push(
+        `${exportCount.customGroups} ${exportCount.customGroups === 1 ? 'group' : 'groups'}`
+      );
+    }
+
+    if (exportCount.customTiles > 0) {
+      parts.push(`${exportCount.customTiles} ${exportCount.customTiles === 1 ? 'tile' : 'tiles'}`);
+    }
+
+    if (exportCount.disabledDefaults > 0) {
+      parts.push(`${exportCount.disabledDefaults} disabled`);
+    }
+
+    return parts.length > 0 ? `(${parts.join(', ')})` : '';
+  };
 
   const exportData = useCallback(async () => {
     try {
@@ -73,7 +110,7 @@ export default function ImportExport({
           break;
         default: // 'all'
           exportedData = await exportAllData({
-            includeDisabledDefaults,
+            includeDisabledDefaults: true,
           });
           break;
       }
@@ -90,15 +127,7 @@ export default function ImportExport({
         type: 'error',
       });
     }
-  }, [
-    exportScope,
-    singleGroup,
-    includeDisabledDefaults,
-    settings.locale,
-    settings.gameMode,
-    setSubmitMessage,
-    t,
-  ]);
+  }, [exportScope, singleGroup, settings.locale, settings.gameMode, setSubmitMessage, t]);
 
   async function importTiles(formRef: React.RefObject<HTMLFormElement | null>) {
     if (!formRef.current) return;
@@ -165,6 +194,9 @@ export default function ImportExport({
 
         // Refresh the export data to show the new content
         await exportData();
+
+        // Trigger ViewCustomTiles refresh
+        onImportSuccess?.();
       } else {
         setSubmitMessage({
           type: 'error',
@@ -184,29 +216,35 @@ export default function ImportExport({
   // Load available groups when component opens
   const loadAvailableGroups = useCallback(async () => {
     try {
-      const groups = await getCustomGroups({ locale: settings.locale || 'en' });
-      const groupsWithCounts = await Promise.all(
-        groups.map(async (group) => {
-          const tiles = await getTiles({ group_id: group.id });
-          return {
-            name: group.name,
-            label: group.label,
-            tileCount: tiles.length,
-          };
-        })
+      // For single group exports, always include disabled defaults in the count
+      const shouldIncludeDisabled = exportScope === 'single' || exportScope === 'all';
+
+      // Fetch all groups to create ID mapping
+      const allGroups = await batchFetchGroups(settings.locale || 'en', 'online');
+      const idMap = new Map();
+      allGroups.forEach((group) => {
+        idMap.set(group.name, group.id);
+      });
+      setGroupIdMap(idMap);
+
+      const groupStats = await getExportableGroupStats(
+        settings.locale || 'en',
+        'online',
+        shouldIncludeDisabled,
+        exportScope
       );
-      setAvailableGroups(groupsWithCounts);
+      setAvailableGroups(groupStats);
     } catch (error) {
       console.error('Error loading available groups:', error);
     }
-  }, [settings.locale]);
+  }, [settings.locale, exportScope]);
 
   useEffect(() => {
     if (expanded === 'ctImport') {
       loadAvailableGroups();
       exportData();
     }
-  }, [expanded, customTiles, exportData, loadAvailableGroups]);
+  }, [expanded, customTiles, exportData, loadAvailableGroups, exportScope]);
 
   return (
     <Accordion
@@ -245,26 +283,17 @@ export default function ImportExport({
                 onChange={(e) => setSingleGroup(e.target.value)}
                 label={t('export.selectGroup')}
               >
-                {availableGroups.map((group) => (
-                  <MenuItem key={group.name} value={group.name}>
-                    {group.label} ({group.tileCount} tiles)
+                {availableGroups.map((group, index) => (
+                  <MenuItem
+                    key={
+                      groupIdMap.get(group.name) ||
+                      `${group.name}-${settings.locale}-${settings.gameMode}-${index}`
+                    }
+                    value={group.name}
+                  >
+                    {group.label} {formatExportBreakdown(group.exportCount)}
                   </MenuItem>
                 ))}
-              </Select>
-            </FormControl>
-          )}
-
-          {/* Include Disabled Defaults */}
-          {exportScope === 'all' && (
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>{t('export.includeDisabled')}</InputLabel>
-              <Select
-                value={includeDisabledDefaults.toString()}
-                onChange={(e) => setIncludeDisabledDefaults(e.target.value === 'true')}
-                label={t('export.includeDisabled')}
-              >
-                <MenuItem value="true">{t('yes')}</MenuItem>
-                <MenuItem value="false">{t('no')}</MenuItem>
               </Select>
             </FormControl>
           )}

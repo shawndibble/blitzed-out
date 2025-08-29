@@ -140,6 +140,7 @@ export default function CustomTileDialog({
           mappedGroups={allGameModeActions}
           setSubmitMessage={setSubmitMessage}
           bulkImport={bulkImport}
+          onImportSuccess={triggerRefresh}
         />
       </>
     );

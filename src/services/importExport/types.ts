@@ -116,3 +116,14 @@ export interface ExportContext {
     tilesExported: number;
   };
 }
+
+export interface ExportableGroupStats {
+  name: string;
+  label: string;
+  exportCount: {
+    customGroups: number; // 1 if group itself is custom, 0 if default
+    customTiles: number; // Count of custom tiles in this group
+    disabledDefaults: number; // Count of disabled default tiles (if includeDisabled)
+    total: number; // Sum of all above
+  };
+}

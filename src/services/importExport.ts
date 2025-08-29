@@ -1,5 +1,6 @@
 import { getCustomGroups, addCustomGroup, updateCustomGroup } from '@/stores/customGroups';
 import { getTiles, addCustomTile, updateCustomTile } from '@/stores/customTiles';
+import { createDeterministicGroupId } from './migration/groupIdMigration';
 import {
   generateGroupContentHash,
   generateTileContentHash,
@@ -42,33 +43,6 @@ class ImportExportError extends Error {
   ) {
     super(message);
     this.name = 'ImportExportError';
-  }
-}
-
-// Smart data fetching with database-level filtering
-async function fetchGroupsForExport(
-  locale: string,
-  gameMode: string,
-  groupNames?: string[]
-): Promise<CustomGroupPull[]> {
-  const filters: any = { locale, gameMode, isDefault: false };
-  if (groupNames?.length) {
-    // Filter by specific group names if provided
-    const allGroups = await getCustomGroups(filters);
-    return allGroups.filter((g) => groupNames.includes(g.name));
-  }
-  return getCustomGroups(filters);
-}
-
-async function* streamTilesForGroups(
-  groupIds: string[]
-): AsyncGenerator<CustomTile[], void, unknown> {
-  for (let i = 0; i < groupIds.length; i += BATCH_SIZE) {
-    const batchIds = groupIds.slice(i, i + BATCH_SIZE);
-    for (const groupId of batchIds) {
-      const tiles = await getTiles({ group_id: groupId, isCustom: 1 });
-      if (tiles.length > 0) yield tiles;
-    }
   }
 }
 
@@ -167,54 +141,6 @@ async function createExportDisabled(
   };
 }
 
-// Streaming export processing
-async function* processGroupsForExport(
-  groups: CustomGroupPull[],
-  progressCallback?: ProgressCallback
-): AsyncGenerator<ExportGroup[], void, unknown> {
-  const batches: ExportGroup[][] = [];
-
-  for (let i = 0; i < groups.length; i += BATCH_SIZE) {
-    const batch = groups.slice(i, i + BATCH_SIZE);
-    const exportGroups = await Promise.all(batch.map((group) => createExportGroup(group)));
-
-    progressCallback?.('Processing groups', i + batch.length, groups.length);
-    batches.push(exportGroups);
-  }
-
-  for (const batch of batches) {
-    yield batch;
-  }
-}
-
-async function* processTilesForExport(
-  groupIds: string[],
-  groupMap: Map<string, CustomGroupPull>,
-  progressCallback?: ProgressCallback
-): AsyncGenerator<ExportTile[], void, unknown> {
-  let processedCount = 0;
-  let totalEstimate = groupIds.length * 10; // Rough estimate
-
-  for await (const tileBatch of streamTilesForGroups(groupIds)) {
-    const exportTiles: ExportTile[] = [];
-
-    for (const tile of tileBatch) {
-      const group = groupMap.get(tile.group_id || '');
-      if (group) {
-        const exportTile = await createExportTile(tile, group);
-        exportTiles.push(exportTile);
-      }
-    }
-
-    processedCount += tileBatch.length;
-    progressCallback?.('Processing tiles', processedCount, totalEstimate);
-
-    if (exportTiles.length > 0) {
-      yield exportTiles;
-    }
-  }
-}
-
 // Import processing
 async function processGroupImport(ctx: ImportContext): Promise<void> {
   for (const importedGroup of ctx.importData.data.customGroups) {
@@ -272,14 +198,37 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
 
     for (const importedTile of batch) {
       try {
-        const groupId = ctx.groupIdMap.get(importedTile.groupName);
-        const group = ctx.groupMap.get(importedTile.groupName);
+        let groupId = ctx.groupIdMap.get(importedTile.groupName);
+        let group = ctx.groupMap.get(importedTile.groupName);
 
+        // If group not found, try to calculate the ID for default groups
         if (!groupId || !group) {
-          ctx.result.warnings.push(
-            `Skipped tile for missing group: ${importedTile.groupName} (${importedTile.locale}/${importedTile.gameMode})`
+          // Calculate deterministic ID for default groups
+          const calculatedGroupId = createDeterministicGroupId(
+            importedTile.groupName,
+            importedTile.locale,
+            importedTile.gameMode
           );
-          continue;
+
+          // Check if this calculated ID exists in our system
+          const allGroups = await getCustomGroups({
+            locale: importedTile.locale,
+            gameMode: importedTile.gameMode,
+          });
+          const defaultGroup = allGroups.find((g) => g.id === calculatedGroupId);
+
+          if (defaultGroup) {
+            groupId = calculatedGroupId;
+            group = defaultGroup;
+            // Add to maps for future lookups in this import session
+            ctx.groupIdMap.set(importedTile.groupName, groupId);
+            ctx.groupMap.set(importedTile.groupName, group);
+          } else {
+            ctx.result.warnings.push(
+              `Skipped tile for missing group: ${importedTile.groupName} (${importedTile.locale}/${importedTile.gameMode})`
+            );
+            continue;
+          }
         }
 
         // Validate intensity exists in group
@@ -338,13 +287,35 @@ async function processDisabledDefaultImport(ctx: ImportContext): Promise<void> {
   // Process disabled default tiles by setting them to disabled in the database
   for (const disabledTile of ctx.importData.data.disabledDefaultTiles) {
     try {
-      const groupId = ctx.groupIdMap.get(disabledTile.groupName);
+      let groupId = ctx.groupIdMap.get(disabledTile.groupName);
 
+      // If group not found, try to calculate the ID for default groups
       if (!groupId) {
-        ctx.result.warnings.push(
-          `Skipped disabled default for missing group: ${disabledTile.groupName}`
+        // Calculate deterministic ID for default groups
+        const calculatedGroupId = createDeterministicGroupId(
+          disabledTile.groupName,
+          'en', // Default to 'en' if not provided in disabledTile
+          disabledTile.gameMode
         );
-        continue;
+
+        // Check if this calculated ID exists in our system
+        const allGroups = await getCustomGroups({
+          locale: 'en', // Default to 'en' if not provided
+          gameMode: disabledTile.gameMode,
+        });
+        const defaultGroup = allGroups.find((g) => g.id === calculatedGroupId);
+
+        if (defaultGroup) {
+          groupId = calculatedGroupId;
+          // Add to map for future lookups in this import session
+          ctx.groupIdMap.set(disabledTile.groupName, groupId);
+          ctx.groupMap.set(disabledTile.groupName, defaultGroup);
+        } else {
+          ctx.result.warnings.push(
+            `Skipped disabled default for missing group: ${disabledTile.groupName}`
+          );
+          continue;
+        }
       }
 
       // Find existing default tile and disable it
@@ -426,39 +397,74 @@ export async function exportAllData(
 
     const locale = 'en'; // Default locale
     const gameMode = 'online'; // Default game mode
-    const groupNames = singleGroupName ? [singleGroupName] : undefined;
 
-    progressCallback?.('Fetching groups', 0, 100);
-    const groups = await fetchGroupsForExport(locale, gameMode, groupNames);
-    const groupMap = new Map(groups.map((g) => [g.id, g]));
-    const groupIds = groups.map((g) => g.id);
+    progressCallback?.('Analyzing exportable data', 0, 100);
 
+    // Query 1: Get all custom groups (isDefault = false)
+    const customGroups = await getCustomGroups({ locale, gameMode, isDefault: false });
+
+    // Query 2: Get all custom tiles (isCustom = true) - includes tiles in both custom and default groups
+    const allCustomTiles = await getTiles({ isCustom: 1 });
+
+    // Query 3: Get all disabled default tiles (isCustom = false, isEnabled = false)
+    const allDisabledDefaults = includeDisabledDefaults
+      ? await getTiles({ isCustom: 0, isEnabled: 0 })
+      : [];
+
+    // Get all groups that have exportable content (union of group IDs from all queries)
+    const customGroupIds = new Set(customGroups.map((g) => g.id));
+    const tilesGroupIds = new Set(allCustomTiles.map((t) => t.group_id).filter(Boolean));
+    const disabledGroupIds = new Set(allDisabledDefaults.map((t) => t.group_id).filter(Boolean));
+
+    const allRelevantGroupIds = new Set([...customGroupIds, ...tilesGroupIds, ...disabledGroupIds]);
+
+    // Get all groups (both custom and default) that have exportable content
+    const allGroups = await getCustomGroups({ locale, gameMode });
+    const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
+
+    // Filter by single group if specified
+    const groupsToExport = singleGroupName
+      ? relevantGroups.filter((g) => g.name === singleGroupName)
+      : relevantGroups;
+
+    const groupMap = new Map(groupsToExport.map((g) => [g.id, g]));
+    const exportGroupIds = new Set(groupsToExport.map((g) => g.id));
+
+    progressCallback?.('Processing groups', 20, 100);
+
+    // Process groups for export - only custom groups
     const exportGroups: ExportGroup[] = [];
+    for (const group of groupsToExport.filter((g) => !g.isDefault)) {
+      exportGroups.push(await createExportGroup(group));
+    }
+
+    progressCallback?.('Processing custom tiles', 50, 100);
+
+    // Process custom tiles - only those belonging to groups we're exporting
     const exportTiles: ExportTile[] = [];
+    const customTilesToExport = allCustomTiles.filter(
+      (t) => t.group_id && exportGroupIds.has(t.group_id)
+    );
+
+    for (const tile of customTilesToExport) {
+      const group = groupMap.get(tile.group_id!);
+      if (group) {
+        exportTiles.push(await createExportTile(tile, group));
+      }
+    }
+
+    progressCallback?.('Processing disabled defaults', 80, 100);
+
+    // Process disabled default tiles - only those belonging to groups we're exporting
     const exportDisabled: ExportDisabledDefault[] = [];
+    const disabledTilesToExport = allDisabledDefaults.filter(
+      (t) => t.group_id && exportGroupIds.has(t.group_id)
+    );
 
-    // Process groups
-    for await (const groupBatch of processGroupsForExport(groups, progressCallback)) {
-      exportGroups.push(...groupBatch);
-    }
-
-    // Process tiles
-    for await (const tileBatch of processTilesForExport(groupIds, groupMap, progressCallback)) {
-      exportTiles.push(...tileBatch);
-    }
-
-    // Process disabled tiles if requested
-    if (includeDisabledDefaults) {
-      progressCallback?.('Processing disabled tiles', 0, 100);
-      for (const groupId of groupIds) {
-        const group = groupMap.get(groupId);
-        if (group) {
-          const disabledTiles = await getTiles({ group_id: groupId, isCustom: 0, isEnabled: 0 });
-          for (const tile of disabledTiles) {
-            const exportDisabledTile = await createExportDisabled(tile, group);
-            exportDisabled.push(exportDisabledTile);
-          }
-        }
+    for (const tile of disabledTilesToExport) {
+      const group = groupMap.get(tile.group_id!);
+      if (group) {
+        exportDisabled.push(await createExportDisabled(tile, group));
       }
     }
 
