@@ -9,7 +9,6 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { submitCustomAction } from '@/services/firebase';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import Accordion from '@/components/Accordion';
@@ -17,15 +16,17 @@ import AccordionSummary from '@/components/Accordion/Summary';
 import AccordionDetails from '@/components/Accordion/Details';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import { ImportExportProps } from '@/types/customTiles';
+import { ImportResult } from '@/types/importExport';
+import { exportAllData, importData } from '@/services/importExport';
 import {
-  exportCleanData,
-  exportGroupData,
-  autoImportData,
-  ImportResult,
-  getAvailableGroupsForExport,
+  exportSingleGroup,
+  exportCustomData,
+  exportDisabledDefaults,
 } from './enhancedImportExport';
 import { useGameSettings } from '@/stores/settingsStore';
 import { getCustomGroups } from '@/stores/customGroups';
+import { submitCustomAction } from '@/services/firebase';
+import { getTiles } from '@/stores/customTiles';
 
 export default function ImportExport({
   expanded,
@@ -40,92 +41,59 @@ export default function ImportExport({
   const { settings } = useGameSettings();
   const [inputValue, setInputValue] = useState<string>('');
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const [exportFormat, setExportFormat] = useState<'clean' | 'legacy'>('clean');
-  const [exportScope, setExportScope] = useState<'all' | 'single' | 'default'>('all');
+  const [exportScope, setExportScope] = useState<'all' | 'custom' | 'single' | 'disabled'>('all');
   const [singleGroup, setSingleGroup] = useState<string>('');
   const [availableGroups, setAvailableGroups] = useState<
     { name: string; label: string; tileCount: number }[]
   >([]);
-  const [mergeStrategy, setMergeStrategy] = useState<'skip' | 'overwrite' | 'rename'>('skip');
+  const [includeDisabledDefaults, setIncludeDisabledDefaults] = useState<boolean>(true);
 
   const exportData = useCallback(async () => {
     try {
-      if (exportFormat === 'clean') {
-        let exportedData: string;
+      let exportedData: string;
+      const locale = settings.locale || 'en';
+      const gameMode = settings.gameMode || 'online';
 
-        switch (exportScope) {
-          case 'single':
-            if (!singleGroup) {
-              setSubmitMessage({
-                message: t('errors.selectGroupToExport'),
-                type: 'error',
-              });
-              return;
-            }
-            exportedData = await exportGroupData(singleGroup, settings.locale || 'en');
-            break;
-          case 'default':
-            exportedData = await exportCleanData(
-              settings.locale || 'en',
-              settings.gameMode || 'online',
-              {
-                exportScope: 'default',
-              }
-            );
-            break;
-          default:
-            exportedData = await exportCleanData(
-              settings.locale || 'en',
-              settings.gameMode || 'online',
-              { exportScope: 'all' }
-            );
-            break;
-        }
-
-        setInputValue(exportedData);
-      } else {
-        // Legacy export format - need to get group data for tiles
-        const userCustomTiles = customTiles.filter((tile) => tile.isCustom);
-
-        // Get all groups to resolve tile group_ids
-        const allGroups = await getCustomGroups({});
-        const groupMap = new Map(allGroups.map((group) => [group.id, group]));
-
-        const customString = await Promise.all(
-          userCustomTiles.map(async (tile) => {
-            const group = groupMap.get(tile.group_id || '');
-            if (!group) {
-              return `[Unknown Group - ${tile.intensity}]\n${tile.action}\nTags: ${tile.tags?.join(', ') || ''}\nGameMode: unknown`;
-            }
-
-            const intensityData = group.intensities.find((i) => i.value === tile.intensity);
-            const intensityLabel = intensityData?.label || `Level ${tile.intensity + 1}`;
-
-            let actionText = '';
-            actionText += `[${group.label || group.name} - ${intensityLabel}]\n`;
-            actionText += tile.action;
-            actionText += tile.tags?.length ? `\nTags: ` + tile.tags.join(', ') : '';
-            actionText += `\nGameMode: ${group.gameMode}`;
-
-            return actionText;
-          })
-        );
-
-        setInputValue((await Promise.all(customString)).join('\n---\n'));
+      switch (exportScope) {
+        case 'single':
+          if (!singleGroup) {
+            setSubmitMessage({
+              message: t('errors.selectGroupToExport'),
+              type: 'error',
+            });
+            return;
+          }
+          exportedData = await exportSingleGroup(singleGroup, locale, gameMode);
+          break;
+        case 'custom':
+          exportedData = await exportCustomData(locale, gameMode);
+          break;
+        case 'disabled':
+          exportedData = await exportDisabledDefaults(locale, gameMode);
+          break;
+        default: // 'all'
+          exportedData = await exportAllData({
+            includeDisabledDefaults,
+          });
+          break;
       }
+
+      setInputValue(exportedData);
+      setSubmitMessage({
+        message: 'Export successful!',
+        type: 'success',
+      });
     } catch (error) {
       console.error('Error exporting data:', error);
       setSubmitMessage({
-        message: t('errors.exportFailed', { error: error }),
+        message: `Export failed: ${error instanceof Error ? error.message : String(error)}`,
         type: 'error',
       });
     }
   }, [
-    customTiles,
-    setInputValue,
-    exportFormat,
     exportScope,
     singleGroup,
+    includeDisabledDefaults,
     settings.locale,
     settings.gameMode,
     setSubmitMessage,
@@ -146,26 +114,20 @@ export default function ImportExport({
     }
 
     try {
-      setSubmitMessage({ type: 'info', message: t('importMessages.importing') });
+      setSubmitMessage({ type: 'info', message: 'Importing data...' });
 
-      // Use the new auto-import function that detects format
-      const result = await autoImportData(
-        importDataValue,
-        {},
-        {
-          locale: settings.locale || 'en',
-          mergeStrategy,
-        }
-      );
+      // Use the new import system
+      const result = await importData(importDataValue, {
+        validateContent: true,
+        preserveDisabledDefaults: true,
+      });
 
       setImportResult(result);
 
       if (result.success) {
         // Submit custom actions for tracking if tiles were imported
         if (result.importedTiles > 0) {
-          const customTilesFromImport = await import('@/stores/customTiles').then((module) =>
-            module.getTiles({ isCustom: 1 })
-          );
+          const customTilesFromImport = await getTiles({ isCustom: 1 });
 
           // Get groups to resolve group names for Firebase submission
           const allGroups = await getCustomGroups({});
@@ -182,12 +144,18 @@ export default function ImportExport({
           });
         }
 
-        let message: string = t('importMessages.importSuccess');
+        let message: string = 'Import successful!';
         if (result.importedGroups > 0) {
-          message += ` ${t('importMessages.importedGroups', { count: result.importedGroups })}`;
+          message += ` Imported ${result.importedGroups} groups.`;
         }
         if (result.importedTiles > 0) {
-          message += ` ${t('importMessages.importedTiles', { count: result.importedTiles })}`;
+          message += ` Imported ${result.importedTiles} tiles.`;
+        }
+        if (result.importedDisabledDefaults > 0) {
+          message += ` Imported ${result.importedDisabledDefaults} disabled defaults.`;
+        }
+        if (result.skippedItems > 0) {
+          message += ` Skipped ${result.skippedItems} items.`;
         }
 
         setSubmitMessage({
@@ -200,14 +168,14 @@ export default function ImportExport({
       } else {
         setSubmitMessage({
           type: 'error',
-          message: t('errors.importFailed', { errors: result.errors.join(', ') }),
+          message: `Import failed: ${result.errors.join(', ')}`,
         });
       }
     } catch (error: any) {
       console.error('Import error:', error);
       setSubmitMessage({
         type: 'error',
-        message: t('errors.importFailed', { errors: error.message || error }),
+        message: `Import failed: ${error.message || error}`,
       });
       setImportResult(null);
     }
@@ -216,8 +184,18 @@ export default function ImportExport({
   // Load available groups when component opens
   const loadAvailableGroups = useCallback(async () => {
     try {
-      const groups = await getAvailableGroupsForExport(settings.locale || 'en');
-      setAvailableGroups(groups);
+      const groups = await getCustomGroups({ locale: settings.locale || 'en' });
+      const groupsWithCounts = await Promise.all(
+        groups.map(async (group) => {
+          const tiles = await getTiles({ group_id: group.id });
+          return {
+            name: group.name,
+            label: group.label,
+            tileCount: tiles.length,
+          };
+        })
+      );
+      setAvailableGroups(groupsWithCounts);
     } catch (error) {
       console.error('Error loading available groups:', error);
     }
@@ -242,80 +220,30 @@ export default function ImportExport({
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          <Trans i18nKey="ctImportDescription" />
-        </Typography>
-
-        {/* Compact Select Box Layout */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 2,
-            mb: 2,
-            '& .MuiFormControl-root': {
-              minWidth: 150,
-              flex: '1 1 auto',
-            },
-          }}
-        >
-          {/* Export Format Selection */}
-          <FormControl size="small">
-            <InputLabel>{t('labels.exportFormat')}</InputLabel>
+        <Box component="form" method="post" className="settings-box" ref={formData}>
+          {/* Export Scope */}
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>{t('export.scope')}</InputLabel>
             <Select
-              value={exportFormat}
-              onChange={(e) => setExportFormat(e.target.value as 'clean' | 'legacy')}
-              label={t('labels.exportFormat')}
+              value={exportScope}
+              onChange={(e) => setExportScope(e.target.value as any)}
+              label={t('export.scope')}
             >
-              <MenuItem value="clean">{t('exportFormat.clean')}</MenuItem>
-              <MenuItem value="legacy">{t('exportFormat.legacy')}</MenuItem>
+              <MenuItem value="all">{t('exportScope.all')}</MenuItem>
+              <MenuItem value="custom">{t('exportScope.custom')}</MenuItem>
+              <MenuItem value="single">{t('exportScope.single')}</MenuItem>
+              <MenuItem value="disabled">{t('exportScope.disabled')}</MenuItem>
             </Select>
           </FormControl>
 
-          {/* Export Scope Selection */}
-          {exportFormat === 'clean' && (
-            <FormControl size="small">
-              <InputLabel>{t('labels.exportScope')}</InputLabel>
-              <Select
-                value={exportScope}
-                onChange={(e) => {
-                  setExportScope(e.target.value as 'all' | 'single' | 'default');
-                  // Reset selection when scope changes
-                  setSingleGroup('');
-                }}
-                label={t('labels.exportScope')}
-              >
-                <MenuItem value="all">{t('exportScope.all')}</MenuItem>
-                <MenuItem value="default">{t('exportScope.default')}</MenuItem>
-                <MenuItem value="single">{t('exportScope.single')}</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-
-          {/* Import Merge Strategy */}
-          <FormControl size="small">
-            <InputLabel>{t('labels.importStrategy')}</InputLabel>
-            <Select
-              value={mergeStrategy}
-              onChange={(e) => setMergeStrategy(e.target.value as 'skip' | 'overwrite' | 'rename')}
-              label={t('labels.importStrategy')}
-            >
-              <MenuItem value="skip">{t('importStrategy.skip')}</MenuItem>
-              <MenuItem value="overwrite">{t('importStrategy.overwrite')}</MenuItem>
-              <MenuItem value="rename">{t('importStrategy.rename')}</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-
-        {/* Single Group Selection - Only show when needed */}
-        {exportFormat === 'clean' && exportScope === 'single' && (
-          <Box sx={{ mb: 2 }}>
-            <FormControl size="small" fullWidth>
-              <InputLabel>{t('labels.selectGroup')}</InputLabel>
+          {/* Single Group Selector */}
+          {exportScope === 'single' && (
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>{t('export.selectGroup')}</InputLabel>
               <Select
                 value={singleGroup}
                 onChange={(e) => setSingleGroup(e.target.value)}
-                label={t('labels.selectGroup')}
+                label={t('export.selectGroup')}
               >
                 {availableGroups.map((group) => (
                   <MenuItem key={group.name} value={group.name}>
@@ -324,152 +252,77 @@ export default function ImportExport({
                 ))}
               </Select>
             </FormControl>
-          </Box>
-        )}
+          )}
 
-        <Box component="form" method="post" ref={formData}>
+          {/* Include Disabled Defaults */}
+          {exportScope === 'all' && (
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>{t('export.includeDisabled')}</InputLabel>
+              <Select
+                value={includeDisabledDefaults.toString()}
+                onChange={(e) => setIncludeDisabledDefaults(e.target.value === 'true')}
+                label={t('export.includeDisabled')}
+              >
+                <MenuItem value="true">{t('yes')}</MenuItem>
+                <MenuItem value="false">{t('no')}</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+
           <TextField
-            id="importData"
             name="importData"
+            label={t('importExport')}
             multiline
-            required
+            rows={8}
             fullWidth
-            rows={6}
-            sx={{ pb: 2 }}
+            variant="outlined"
+            placeholder={t('placeholder.importData')}
             value={inputValue}
-            onChange={(event) => setInputValue(event.target.value)}
-            placeholder={
-              exportFormat === 'clean'
-                ? t('placeholder.cleanFormat')
-                : t('placeholder.legacyFormat')
-            }
-            InputProps={{
-              endAdornment: <CopyToClipboard text={inputValue} />,
-              sx: { alignItems: 'flex-start' },
-            }}
+            onChange={(e) => setInputValue(e.target.value)}
+            sx={{ mb: 2 }}
           />
 
-          {/* Import Result Display */}
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <Button variant="contained" onClick={() => importTiles(formData)}>
+              {t('import')}
+            </Button>
+
+            <CopyToClipboard text={inputValue} />
+          </Box>
+
+          {/* Import Results */}
           {importResult && (
-            <Alert
-              severity={importResult.success ? 'success' : 'error'}
-              sx={{ mb: 2 }}
-              onClose={() => setImportResult(null)}
-            >
-              <Typography variant="body2">
-                <strong>
-                  <Trans i18nKey="importResults.title" />
-                </strong>
-              </Typography>
-              {importResult.importedGroups > 0 && (
-                <Typography variant="body2">
-                  •{' '}
-                  <Trans
-                    i18nKey="importResults.groupsImported"
-                    values={{ count: importResult.importedGroups }}
-                  />
-                </Typography>
-              )}
-              {importResult.importedTiles > 0 && (
-                <Typography variant="body2">
-                  •{' '}
-                  <Trans
-                    i18nKey="importResults.tilesImported"
-                    values={{ count: importResult.importedTiles }}
-                  />
-                </Typography>
-              )}
+            <Box sx={{ mt: 2 }}>
+              <Alert severity={importResult.success ? 'success' : 'error'}>
+                {importResult.success
+                  ? t('importMessages.importSuccess')
+                  : t('importMessages.importFailed')}
+              </Alert>
+
               {importResult.warnings.length > 0 && (
-                <Box sx={{ mt: 1 }}>
-                  <Typography variant="body2" color="warning.main">
-                    <strong>
-                      <Trans i18nKey="importResults.warnings" />
-                    </strong>
-                  </Typography>
+                <Alert severity="warning" sx={{ mt: 1 }}>
+                  <Typography variant="subtitle2">Warnings:</Typography>
                   {importResult.warnings.map((warning, index) => (
-                    <Typography key={index} variant="body2" color="warning.main">
+                    <Typography key={index} variant="body2">
                       • {warning}
                     </Typography>
                   ))}
-                </Box>
+                </Alert>
               )}
+
               {importResult.errors.length > 0 && (
-                <Box sx={{ mt: 1 }}>
-                  <Typography variant="body2" color="error.main">
-                    <strong>
-                      <Trans i18nKey="importResults.errors" />
-                    </strong>
-                  </Typography>
+                <Alert severity="error" sx={{ mt: 1 }}>
+                  <Typography variant="subtitle2">Errors:</Typography>
                   {importResult.errors.map((error, index) => (
-                    <Typography key={index} variant="body2" color="error.main">
+                    <Typography key={index} variant="body2">
                       • {error}
                     </Typography>
                   ))}
-                </Box>
+                </Alert>
               )}
-            </Alert>
+            </Box>
           )}
-
-          <Button fullWidth variant="contained" type="button" onClick={() => importTiles(formData)}>
-            <Trans i18nKey="import" />
-          </Button>
         </Box>
-
-        {/* Format Guide - Collapsed by default */}
-        {exportFormat === 'clean' && (
-          <Accordion sx={{ mt: 2 }} className="about-accordion">
-            <AccordionSummary>
-              <Typography variant="subtitle2" className="accordion-title">
-                <Trans i18nKey="formatGuide.title" />
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                <Trans i18nKey="formatGuide.description" />
-              </Typography>
-
-              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
-                <Trans i18nKey="formatGuide.keySections" />
-              </Typography>
-              <Typography variant="body2" component="div" sx={{ mb: 2, ml: 2 }}>
-                <Trans
-                  i18nKey="formatGuide.keySectionsContent"
-                  components={{
-                    strong1: <strong />,
-                    strong2: <strong />,
-                    br: <br />,
-                  }}
-                />
-              </Typography>
-
-              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
-                <Trans i18nKey="formatGuide.manualEditing" />
-              </Typography>
-              <Typography variant="body2" component="div" sx={{ mb: 2, ml: 2 }}>
-                <Trans
-                  i18nKey="formatGuide.manualEditingContent"
-                  components={{
-                    br: <br />,
-                  }}
-                />
-              </Typography>
-
-              <Typography variant="body2" sx={{ mb: 1, fontWeight: 'bold' }}>
-                <Trans i18nKey="formatGuide.customTilesFormat" />
-              </Typography>
-              <Typography variant="body2" component="div" sx={{ ml: 2 }}>
-                <Trans
-                  i18nKey="formatGuide.customTilesFormatContent"
-                  components={{
-                    br: <br />,
-                    code1: <code />,
-                    code2: <code />,
-                  }}
-                />
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-        )}
       </AccordionDetails>
     </Accordion>
   );

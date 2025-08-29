@@ -59,6 +59,8 @@
   "cancel": "Cancel",
   "skip": "Skip",
   "confirm": "Confirm",
+  "yes": "Yes",
+  "no": "No",
   "warning": "Warning",
   "error": "Error",
   "somethingWentWrong": "Something went wrong",
@@ -236,6 +238,10 @@
   "boardWrongSize": "Board is the wrong size. {{size}} tiles required.",
   "importExport": "Import/Export",
   "import": "Import",
+  "export": "Export",
+  "export.scope": "Export Scope",
+  "export.selectGroup": "Select Group",
+  "export.includeDisabled": "Include Disabled Defaults",
   "copyShareLink": "Copy link to clipboard",
   "copyToClipboard": "Copy to clipboard",
   "copied": "Copied to clipboard",
@@ -366,29 +372,20 @@
   "level": "Level",
   "soon": "Soon",
   "noLinkProvided": "No link provided",
-  "exportFormat": {
-    "clean": "Clean (v2.0)",
-    "legacy": "Legacy"
-  },
   "exportScope": {
-    "all": "Everything",
+    "all": "All Data",
+    "custom": "Custom Only",
     "default": "Default Groups",
-    "single": "Single Group"
-  },
-  "importStrategy": {
-    "skip": "Skip Existing",
-    "overwrite": "Overwrite",
-    "rename": "Rename Conflicts"
+    "single": "Single Group",
+    "disabled": "Disabled Defaults"
   },
   "labels": {
-    "exportFormat": "Format",
     "exportScope": "Scope",
-    "importStrategy": "Strategy",
     "selectGroup": "Select Group"
   },
   "placeholder": {
     "cleanFormat": "Paste clean v2.0 format JSON data here...",
-    "legacyFormat": "Paste legacy format data here..."
+    "importData": "Paste import data here..."
   },
   "errors": {
     "selectGroupToExport": "Please select a group to export",
@@ -398,6 +395,7 @@
   "importMessages": {
     "importing": "Importing data...",
     "importSuccess": "Import completed successfully!",
+    "importFailed": "Import failed!",
     "importedGroups": "Imported {{count}} custom groups.",
     "importedTiles": "Imported {{count}} custom tiles."
   },

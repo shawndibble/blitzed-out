@@ -62,6 +62,8 @@
   "cancel": "Cancelar",
   "skip": "Saltar",
   "confirm": "Confirmar",
+  "yes": "Sí",
+  "no": "No",
   "warning": "Advertencia",
   "error": "Error",
   "somethingWentWrong": "Algo salió mal",
@@ -366,29 +368,20 @@
   "level": "Nivel",
   "soon": "Pronto",
   "noLinkProvided": "Sin enlace",
-  "exportFormat": {
-    "clean": "Limpio (v2.0)",
-    "legacy": "Heredado"
-  },
   "exportScope": {
-    "all": "Todo",
+    "all": "Todos los Datos",
+    "custom": "Solo Personalizados",
     "default": "Grupos Predeterminados",
-    "single": "Grupo Único"
-  },
-  "importStrategy": {
-    "skip": "Omitir Existentes",
-    "overwrite": "Sobrescribir",
-    "rename": "Renombrar Conflictos"
+    "single": "Grupo Único",
+    "disabled": "Predeterminados Deshabilitados"
   },
   "labels": {
-    "exportFormat": "Formato",
     "exportScope": "Alcance",
-    "importStrategy": "Estrategia",
     "selectGroup": "Seleccionar Grupo"
   },
   "placeholder": {
     "cleanFormat": "Pega aquí los datos JSON en formato limpio v2.0...",
-    "legacyFormat": "Pega aquí los datos en formato heredado..."
+    "importData": "Pega los datos de importación aquí..."
   },
   "errors": {
     "selectGroupToExport": "Por favor selecciona un grupo para exportar",
@@ -398,6 +391,7 @@
   "importMessages": {
     "importing": "Importando datos...",
     "importSuccess": "¡Importación completada exitosamente!",
+    "importFailed": "¡Error en la importación!",
     "importedGroups": "Se importaron {{count}} grupos personalizados.",
     "importedTiles": "Se importaron {{count}} casillas personalizadas."
   },
@@ -627,5 +621,9 @@
   },
   "manageGroups": {
     "title": "Gestionar grupos"
-  }
+  },
+  "export": "Exportar",
+  "export.scope": "Alcance de exportación",
+  "export.selectGroup": "Seleccionar grupo",
+  "export.includeDisabled": "Incluir deshabilitados por defecto"
 }

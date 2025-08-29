@@ -62,6 +62,8 @@
   "cancel": "रद्द करें",
   "skip": "छोड़ें",
   "confirm": "पुष्टि करें",
+  "yes": "हाँ",
+  "no": "नहीं",
   "warning": "चेतावनी",
   "error": "त्रुटि",
   "somethingWentWrong": "कुछ गलत हुआ",
@@ -366,29 +368,20 @@
   "level": "स्तर",
   "soon": "जल्द ही",
   "noLinkProvided": "कोई लिंक प्रदान नहीं किया गया",
-  "exportFormat": {
-    "clean": "साफ़ (v2.0)",
-    "legacy": "पुराना"
-  },
   "exportScope": {
-    "all": "सब कुछ",
+    "all": "सभी डेटा",
+    "custom": "केवल कस्टम",
     "default": "डिफ़ॉल्ट समूह",
-    "single": "एकल समूह"
-  },
-  "importStrategy": {
-    "skip": "मौजूदा छोड़ें",
-    "overwrite": "अधिलेखित करें",
-    "rename": "संघर्ष का नाम बदलें"
+    "single": "एकल समूह",
+    "disabled": "डिफ़ॉल्ट अक्षम"
   },
   "labels": {
-    "exportFormat": "प्रारूप",
     "exportScope": "क्षेत्र",
-    "importStrategy": "रणनीति",
     "selectGroup": "समूह चुनें"
   },
   "placeholder": {
     "cleanFormat": "यहां साफ़ v2.0 प्रारूप JSON डेटा पेस्ट करें...",
-    "legacyFormat": "यहां पुराना प्रारूप डेटा पेस्ट करें..."
+    "importData": "यहां आयात डेटा पेस्ट करें..."
   },
   "errors": {
     "selectGroupToExport": "कृपया निर्यात के लिए एक समूह चुनें",
@@ -398,6 +391,7 @@
   "importMessages": {
     "importing": "डेटा आयात हो रहा है...",
     "importSuccess": "आयात सफलतापूर्वक पूरा हुआ!",
+    "importFailed": "आयात विफल!",
     "importedGroups": "{{count}} कस्टम समूह आयात किए गए।",
     "importedTiles": "{{count}} कस्टम टाइलें आयात की गईं।"
   },
@@ -620,5 +614,9 @@
   },
   "manageGroups": {
     "title": "ग्रुप प्रबंधित करें"
-  }
+  },
+  "export": "निर्यात",
+  "export.scope": "निर्यात क्षेत्र",
+  "export.selectGroup": "समूह चुनें",
+  "export.includeDisabled": "डिफ़ॉल्ट अक्षम शामिल करें"
 }
