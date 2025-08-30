@@ -27,6 +27,31 @@ class BlitzedOutDatabase extends Dexie {
       localPlayerMoves: '++id, sessionId, playerId, timestamp, sequence',
       localPlayerStats: '++id, sessionId, playerId, lastActive',
     });
+
+    // Version 2: Force database reset to clear transaction conflicts
+    this.version(2)
+      .stores({
+        customTiles:
+          '++id, group_id, [group_id+intensity+action], intensity, action, isEnabled, tags, isCustom',
+        gameBoard: '++id, title, tiles, tags, gameMode, isActive',
+        customGroups:
+          '++id, name, label, locale, gameMode, isDefault, createdAt, [name+locale+gameMode]',
+        localPlayerSessions: '++id, sessionId, roomId, isActive, createdAt, updatedAt',
+        localPlayerMoves: '++id, sessionId, playerId, timestamp, sequence',
+        localPlayerStats: '++id, sessionId, playerId, lastActive',
+      })
+      .upgrade(async (_tx) => {
+        // Clear migration status to prevent conflicts
+        try {
+          localStorage.removeItem('blitzed-out-migration-in-progress');
+          localStorage.removeItem('blitzed-out-current-language-migration');
+          localStorage.removeItem('blitzed-out-background-migration-in-progress');
+        } catch {
+          // Ignore errors during migration status cleanup
+        }
+
+        // The upgrade will automatically handle the schema transition
+      });
   }
 }
 

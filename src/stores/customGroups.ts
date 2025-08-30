@@ -114,21 +114,25 @@ export const getCustomGroupByName = async (
  * Add a new custom group
  */
 export const addCustomGroup = async (group: CustomGroupBase): Promise<string | undefined> => {
-  try {
-    // The creating hook will add id, createdAt, and updatedAt fields
-    // We need to provide the required fields that the hook expects
-    const groupWithTimestamps = {
-      ...group,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as Omit<CustomGroupPull, 'id'>;
+  return await retryOnCursorError(
+    db,
+    async () => {
+      // The creating hook will add id, createdAt, and updatedAt fields
+      // We need to provide the required fields that the hook expects
+      const groupWithTimestamps = {
+        ...group,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as Omit<CustomGroupPull, 'id'>;
 
-    const id = await customGroups.add(groupWithTimestamps);
-    return id;
-  } catch (error) {
-    console.error('Error in addCustomGroup:', error);
-    return undefined;
-  }
+      const id = await customGroups.add(groupWithTimestamps);
+      return id;
+    },
+    (message: string, error?: Error) => {
+      console.error(`Error in addCustomGroup: ${message}`, error);
+      return undefined; // Return fallback value on error
+    }
+  ).catch(() => undefined); // Final fallback if retry fails
 };
 
 /**
@@ -428,10 +432,16 @@ export const getAllAvailableGroups = async (
       error,
     });
 
-    // If it's a cursor error, provide better error context
-    if (error instanceof Error && error.message.includes('cursor')) {
+    // If it's a recoverable database error, provide better error context
+    if (
+      error instanceof Error &&
+      (error.message.includes('cursor') ||
+        error.message.includes('transaction has finished') ||
+        error.name === 'InvalidStateError')
+    ) {
       console.warn(
-        'Database cursor error in getAllAvailableGroups, returning empty array to prevent crash'
+        'Database error in getAllAvailableGroups, returning empty array to prevent crash:',
+        error.message
       );
     }
 

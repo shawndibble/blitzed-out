@@ -65,6 +65,11 @@ export default function useUnifiedActionList(
           allGroups = await getAllAvailableGroups(locale, gameMode);
         }
 
+        // If no groups found with tiles, try getting all groups as fallback
+        if (showOnlyGroupsWithTiles && allGroups.length === 0) {
+          allGroups = await getAllAvailableGroups(locale, gameMode);
+        }
+
         // Convert groups to unified actions structure
         const unifiedActions: GroupedActions = {};
 
