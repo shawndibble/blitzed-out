@@ -86,7 +86,7 @@
     "prettier": "^3.3.3",
     "typescript": "^5.8.2",
     "vite": "^7.0.0",
-    "vite-plugin-compression": "^0.5.1",
+    "vite-plugin-compression2": "^2.2.1",
     "vitest": "^3.2.4"
   },
   "browserslist": {

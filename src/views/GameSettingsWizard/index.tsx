@@ -31,6 +31,8 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
 
   // One-shot guard to prevent multiple reload triggers
   const hasReloadedRef = useRef(false);
+  // Track previous migration state to detect transitions
+  const prevIsMigrationInProgressRef = useRef(isMigrationInProgress);
 
   const overrideSettings: Record<string, any> = { room: room || 'PUBLIC' };
 
@@ -50,7 +52,15 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
 
   // Toggle when migration completes to force reload (with one-shot guard)
   useEffect(() => {
-    if (!hasReloadedRef.current && !isMigrationInProgress && currentLanguageMigrated) {
+    const prevIsMigrationInProgress = prevIsMigrationInProgressRef.current;
+
+    // Only trigger reload on transition from migration in-progress → finished
+    if (
+      prevIsMigrationInProgress === true &&
+      isMigrationInProgress === false &&
+      currentLanguageMigrated &&
+      !hasReloadedRef.current
+    ) {
       setReloadToggle((prev) => !prev);
       hasReloadedRef.current = true;
     }
@@ -59,6 +69,9 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     if (isMigrationInProgress && hasReloadedRef.current) {
       hasReloadedRef.current = false;
     }
+
+    // Update previous state for next render
+    prevIsMigrationInProgressRef.current = isMigrationInProgress;
   }, [isMigrationInProgress, currentLanguageMigrated]);
 
   const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(

@@ -29,12 +29,8 @@ export default function BrokenActionsState({
 
   const handleReset = async (): Promise<void> => {
     setIsResetting(true);
-    try {
-      await wipeAllData();
-    } catch {
-      // wipeAllData already handles errors, but just in case
-      setIsResetting(false);
-    }
+    // wipeAllData reloads the app on success, so no need to reset state
+    await wipeAllData();
   };
 
   return (

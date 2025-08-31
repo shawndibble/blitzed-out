@@ -14,6 +14,7 @@ import { ExpandMore, PlayArrow, Tune } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { hasValidSelections, purgedFormData } from './helpers';
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
+import { GroupType } from '@/services/validationService';
 import { useEffect, useState } from 'react';
 import type { GroupedActions } from '@/types/customTiles';
 
@@ -104,7 +105,7 @@ export default function ActionsStep({
         const availableIntensities = Object.keys(actionsList[item].intensities || {});
         const maxLevel = availableIntensities.length;
         targetActions[item] = {
-          type: actionsList[item].type,
+          type: (actionsList[item].type || 'solo') as GroupType,
           levels: Array.from({ length: Math.min(presetIntensity, maxLevel) }, (_, i) => i + 1),
         };
       }

@@ -14,8 +14,8 @@ const SAFARI_IDB_POST_OPEN_DELAY_MS = 50;
 
 interface DatabaseLike {
   isOpen?(): boolean;
-  open?(): void | Promise<void>;
-  close?(): void | Promise<void>;
+  open?(): any;
+  close?(): any;
 }
 
 /**
@@ -157,8 +157,9 @@ export async function retryOnCursorError<T>(
 
     // Try recovery strategies in order of priority
     const recoveryErrors: Error[] = [];
+    const strategies: RecoveryStrategy<T>[] = recoveryStrategies;
 
-    for (const strategy of recoveryStrategies) {
+    for (const strategy of strategies) {
       if (strategy.canHandle(errorInstance)) {
         try {
           return await strategy.recover(db, operation, log);
