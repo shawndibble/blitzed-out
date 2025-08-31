@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import fs from 'fs';
 import { glob } from 'glob';
 import path from 'node:path';
+import { SUPPORTED_LANGUAGES } from '@/services/migration/constants';
 
 describe('Translation Usage Validation', () => {
   it('should ensure all translation keys are used in the codebase', async () => {
@@ -200,7 +201,6 @@ describe('Translation Usage Validation', () => {
   });
 
   it('should ensure all translation files have identical keys', () => {
-    const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'];
     const translations: Record<string, any> = {};
     const keysByLanguage: Record<string, Set<string>> = {};
 

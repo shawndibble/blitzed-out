@@ -118,13 +118,22 @@ export const addCustomGroup = async (group: CustomGroupBase): Promise<string | u
     return await retryOnCursorError(
       db,
       async () => {
-        // The creating hook will add id, createdAt, and updatedAt fields
-        // We need to provide the required fields that the hook expects
-        const groupWithTimestamps = {
-          ...group,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        } as Omit<CustomGroupPull, 'id'>;
+        // Create a proper CustomGroupPull object with all required fields
+        const now = new Date();
+        const groupWithTimestamps: Omit<CustomGroupPull, 'id'> = {
+          // Copy all properties from the input group
+          name: group.name,
+          label: group.label,
+          intensities: group.intensities,
+          type: group.type,
+          // Set required fields with defaults if not provided
+          isDefault: group.isDefault ?? false,
+          locale: group.locale ?? i18next.resolvedLanguage ?? i18next.language ?? 'en',
+          gameMode: group.gameMode ?? 'online',
+          // Timestamps
+          createdAt: now,
+          updatedAt: now,
+        };
 
         const id = await customGroups.add(groupWithTimestamps);
         return id;

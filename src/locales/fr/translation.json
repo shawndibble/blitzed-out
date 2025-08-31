@@ -559,8 +559,8 @@
       "setupButton": "Configurer les Joueurs Locaux"
     },
     "session": {
-      "editButton": "Éditer Joueurs",
-      "clearButton": "Supprimer Joueurs"
+      "editButton": "Modifier les joueurs",
+      "clearButton": "Supprimer les joueurs"
     },
     "players": {
       "currentTurn": "Tour Actuel"
@@ -568,7 +568,7 @@
     "settings": {
       "title": "Paramètres des Joueurs Locaux",
       "showTurnTransitions": "Afficher les transitions de tour",
-      "playTurnSounds": "Jouer les sons de tour"
+      "playTurnSounds": "Activer les sons de tour"
     }
   },
   "localPlayersStep": {
@@ -588,13 +588,13 @@
       "hasPlayers": "Vous avez déjà des joueurs locaux configurés. Vous pouvez en configurer de nouveaux ou continuer avec votre configuration actuelle."
     }
   },
-  "addTags": "Ajouter Étiquettes",
-  "addTile": "Ajouter Tuile",
-  "createNewGroup": "Créer Nouveau Groupe",
-  "enterTileAction": "Saisir Action de Tuile",
-  "tileAddedSuccessfully": "Tuile Ajoutée avec Succès",
-  "tileUpdatedSuccessfully": "Tuile Mise à Jour avec Succès",
-  "updateTile": "Mettre à Jour Tuile",
+  "addTags": "Ajouter des étiquettes",
+  "addTile": "Ajouter une tuile",
+  "createNewGroup": "Créer un nouveau groupe",
+  "enterTileAction": "Saisir l'action de la tuile",
+  "tileAddedSuccessfully": "Tuile ajoutée avec succès",
+  "tileUpdatedSuccessfully": "Tuile mise à jour avec succès",
+  "updateTile": "Mettre à jour la tuile",
   "setupWizard": {
     "title": "Assistant de configuration"
   },
