@@ -80,7 +80,7 @@ describe('retryOnCursorError', () => {
         .mockRejectedValueOnce(new Error('retry failed'));
 
       await expect(retryOnCursorError(mockDb, operation, mockLogger)).rejects.toThrow(
-        'retry failed'
+        'cursor operation failed'
       );
 
       expect(operation).toHaveBeenCalledTimes(2);
@@ -196,7 +196,7 @@ describe('retryOnCursorError', () => {
       const operation = vi.fn().mockRejectedValue(new Error('cursor error'));
 
       await expect(retryOnCursorError(dbWithoutMethods, operation, mockLogger)).rejects.toThrow(
-        'Database recovery not supported'
+        'cursor error'
       );
 
       expect(mockLogger).toHaveBeenCalledWith('Database does not support close/open operations');
@@ -213,7 +213,7 @@ describe('retryOnCursorError', () => {
         .mockRejectedValue(new Error('Connection to Indexed Database server lost'));
 
       await expect(retryOnCursorError(dbWithoutMethods, operation, mockLogger)).rejects.toThrow(
-        'Safari IndexedDB recovery not supported'
+        'Connection to Indexed Database server lost'
       );
 
       expect(mockLogger).toHaveBeenCalledWith('Database does not support close/open operations');

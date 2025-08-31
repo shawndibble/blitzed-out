@@ -15,8 +15,9 @@ export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'] as const;
 // - 2.1.2: Added corruption detection and auto-recovery
 // - 2.2.0: Added body worship group
 // - 2.3.0: Fix syncing issues with custom groups and tiles
+// - 2.4.0: Added clit training category
 //
-export const MIGRATION_VERSION = '2.3.0';
+export const MIGRATION_VERSION = '2.4.0';
 // ============================================================================
 
 // Configuration keys for localStorage

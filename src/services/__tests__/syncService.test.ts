@@ -35,16 +35,37 @@ vi.mock('@/stores/settingsStore');
 describe('syncService', () => {
   const mockUser = { uid: 'test-user-123', isAnonymous: false };
   const mockAuth = { currentUser: mockUser };
+  let consoleErrorSpy: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getAuth).mockReturnValue(mockAuth as any);
+
+    // Suppress expected console.error messages during tests
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((message: string) => {
+      // Allow these specific error messages to be suppressed during testing
+      const expectedErrors = [
+        'No user logged in',
+        'Error syncing game boards:',
+        'Error syncing settings:',
+        'Error in sync orchestrator:',
+      ];
+
+      if (!expectedErrors.some((error) => message.includes(error))) {
+        // Only show unexpected errors
+        console.warn('Unexpected error in test:', message);
+      }
+    });
 
     // Mock Firestore doc to return a proper document reference
     vi.mocked(doc).mockReturnValue({
       id: 'test-user-123',
       path: 'user-data/test-user-123',
     } as any);
+  });
+
+  afterEach(() => {
+    consoleErrorSpy?.mockRestore();
   });
 
   describe('syncCustomTilesToFirebase', () => {

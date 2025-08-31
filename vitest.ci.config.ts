@@ -15,36 +15,31 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
 
-    // Aggressive timeouts to prevent hanging
+    // Fast timeouts for CI
     testTimeout: 5000,
-    hookTimeout: 5000,
+    hookTimeout: 2000,
 
-    // Simple, fast execution
+    // Simple, fast execution with early bail
     reporter: 'dot',
-    bail: 3,
+    bail: 3, // Allow a few failures but stop early
 
-    // Standard exclusions only
-    exclude: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      // Exclude functions folder tests (not part of our codebase)
-      'functions/**',
-    ],
+    // Focus on performance optimization rather than test exclusion
 
-    // Aggressive memory management
+    // Aggressive memory and performance management
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
     isolate: false, // Disable isolation to reduce memory overhead
+    css: false, // Skip CSS processing for faster tests
 
-    // Minimal concurrency for memory conservation
+    // Optimized concurrency for CI
     pool: 'forks',
     poolOptions: {
       forks: {
         singleFork: true,
       },
     },
+    fileParallelism: false, // Process files sequentially to reduce memory overhead
 
     // Reduce memory footprint
     coverage: {
@@ -55,5 +50,10 @@ export default defineConfig({
     sequence: {
       shuffle: false, // Deterministic order for debugging and reproducible results
     },
+
+    // Include all tests but run them efficiently
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+
+    exclude: ['node_modules/**', 'dist/**', 'build/**', 'functions/**'],
   },
 });

@@ -14,7 +14,7 @@
     "prepare": "husky",
     "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest",
     "test:failures": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot --bail=10 --silent=passed-only",
-    "test:ci": "NODE_OPTIONS='--max-old-space-size=3072' vitest run --no-watch --config=vitest.ci.config.ts",
+    "test:ci": "NODE_OPTIONS='--max-old-space-size=2048 --no-experimental-fetch' vitest run --no-watch --reporter=dot --bail=3 --config=vitest.ci.config.ts",
     "type-check": "tsc --noEmit",
     "cleanup:debug": "eslint --rule 'no-console: error' src/",
     "cleanup:comments": "eslint --rule 'no-warning-comments: [error, { terms: [todo, fixme, hack, bug], location: anywhere }]' src/",

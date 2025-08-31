@@ -107,7 +107,6 @@ export const useUserListStore = create<UserListStore>((set, get) => ({
 
       Object.entries(updates).forEach(([uid, user]) => {
         if (user === null) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [uid]: _, ...remaining } = newUsers;
           Object.assign(newUsers, remaining);
         } else {

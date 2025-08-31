@@ -31,6 +31,12 @@ vi.mock('@/services/firebase', () => ({
   logout: vi.fn(),
 }));
 
+// Mock lazy Firebase loading to return the service mocks
+vi.mock('@/utils/lazyFirebase', () => ({
+  loadFirebase: () => Promise.resolve(firebaseService),
+  preloadFirebase: vi.fn(),
+}));
+
 // Mock sync services
 vi.mock('@/services/syncService', () => ({
   syncDataFromFirebase: vi.fn().mockResolvedValue(true),
@@ -53,12 +59,18 @@ describe('AuthProvider', () => {
       };
     }
 
-    // Setup mock for onAuthStateChanged to capture the callback
+    // Setup mock for onAuthStateChanged to capture the callback and call it immediately
     mockOnAuthStateChanged.mockImplementation((callback) => {
       authStateChangedCallback = callback;
+      // Simulate immediate call to callback as Firebase would do
+      setTimeout(() => {
+        callback(null); // Start with null user
+      }, 0);
       // Return unsubscribe function
       return vi.fn();
     });
+
+    // Firebase service mocks are handled at service level
 
     // Clear window auth context
     (window as any).authContext = undefined;
@@ -86,17 +98,25 @@ describe('AuthProvider', () => {
       expect(result.current.isAnonymous).toBe(false);
     });
 
-    it('should set up auth state listener on mount', () => {
+    it('should set up auth state listener on mount', async () => {
       renderHook(() => useAuth(), { wrapper });
 
-      expect(mockOnAuthStateChanged).toHaveBeenCalledTimes(1);
+      // Wait for async initialization
+      await waitFor(() => {
+        expect(mockOnAuthStateChanged).toHaveBeenCalledTimes(1);
+      });
+
       expect(typeof authStateChangedCallback).toBe('function');
     });
 
-    it('should set up global auth context', () => {
+    it('should set up global auth context', async () => {
       renderHook(() => useAuth(), { wrapper });
 
-      expect((window as any).authContext).toBeDefined();
+      // Wait for async initialization
+      await waitFor(() => {
+        expect((window as any).authContext).toBeDefined();
+      });
+
       expect((window as any).authContext.user).toBe(null);
     });
   });
@@ -104,6 +124,11 @@ describe('AuthProvider', () => {
   describe('Auth State Changes', () => {
     it('should update user state when auth state changes to authenticated user', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
+
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
 
       await act(async () => {
         authStateChangedCallback?.(mockUser);
@@ -118,6 +143,11 @@ describe('AuthProvider', () => {
 
     it('should update user state when auth state changes to anonymous user', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
+
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
 
       await act(async () => {
         authStateChangedCallback?.(mockAnonymousUser);
@@ -154,6 +184,11 @@ describe('AuthProvider', () => {
       vi.useFakeTimers();
       renderHook(() => useAuth(), { wrapper });
 
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
+
       await act(async () => {
         authStateChangedCallback?.(mockUser);
       });
@@ -174,6 +209,11 @@ describe('AuthProvider', () => {
       vi.useFakeTimers();
       renderHook(() => useAuth(), { wrapper });
 
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
+
       await act(async () => {
         authStateChangedCallback?.(mockAnonymousUser);
       });
@@ -192,6 +232,11 @@ describe('AuthProvider', () => {
     it('should stop periodic sync when user logs out', async () => {
       renderHook(() => useAuth(), { wrapper });
 
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
+
       // First set a user
       await act(async () => {
         authStateChangedCallback?.(mockUser);
@@ -208,11 +253,18 @@ describe('AuthProvider', () => {
     it('should update global auth context when user changes', async () => {
       renderHook(() => useAuth(), { wrapper });
 
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
+
       await act(async () => {
         authStateChangedCallback?.(mockUser);
       });
 
-      expect((window as any).authContext.user).toEqual(mockUser);
+      await waitFor(() => {
+        expect((window as any).authContext.user).toEqual(mockUser);
+      });
     });
   });
 
@@ -247,8 +299,8 @@ describe('AuthProvider', () => {
     });
 
     it('should handle anonymous login error', async () => {
-      const mockLoginAnonymously = vi.mocked(firebaseService.loginAnonymously);
       const errorMessage = 'Anonymous login failed';
+      const mockLoginAnonymously = vi.mocked(firebaseService.loginAnonymously);
       mockLoginAnonymously.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -283,8 +335,8 @@ describe('AuthProvider', () => {
     });
 
     it('should handle email login error', async () => {
-      const mockLoginWithEmail = vi.mocked(firebaseService.loginWithEmail);
       const errorMessage = 'Invalid credentials';
+      const mockLoginWithEmail = vi.mocked(firebaseService.loginWithEmail);
       mockLoginWithEmail.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -326,8 +378,8 @@ describe('AuthProvider', () => {
     });
 
     it('should handle registration error', async () => {
-      const mockRegisterWithEmail = vi.mocked(firebaseService.registerWithEmail);
       const errorMessage = 'Email already in use';
+      const mockRegisterWithEmail = vi.mocked(firebaseService.registerWithEmail);
       mockRegisterWithEmail.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -363,8 +415,8 @@ describe('AuthProvider', () => {
     });
 
     it('should handle Google login error', async () => {
-      const mockLoginWithGoogle = vi.mocked(firebaseService.loginWithGoogle);
       const errorMessage = 'Google login cancelled';
+      const mockLoginWithGoogle = vi.mocked(firebaseService.loginWithGoogle);
       mockLoginWithGoogle.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -399,8 +451,8 @@ describe('AuthProvider', () => {
     });
 
     it('should handle password reset error', async () => {
-      const mockResetPassword = vi.mocked(firebaseService.resetPassword);
       const errorMessage = 'Email not found';
+      const mockResetPassword = vi.mocked(firebaseService.resetPassword);
       mockResetPassword.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -420,18 +472,25 @@ describe('AuthProvider', () => {
   describe('Convert Anonymous Account', () => {
     it('should convert anonymous account to registered account', async () => {
       const mockConvertAnonymousAccount = vi.mocked(firebaseService.convertAnonymousAccount);
-      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
       mockConvertAnonymousAccount.mockResolvedValue(mockUser);
+      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
       mockSyncAllDataToFirebase.mockResolvedValue(true);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
+
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
 
       // First set anonymous user
       await act(async () => {
         authStateChangedCallback?.(mockAnonymousUser);
       });
 
-      expect(result.current.user).toEqual(mockAnonymousUser);
+      await waitFor(() => {
+        expect(result.current.user).toEqual(mockAnonymousUser);
+      });
 
       let convertResult;
       await act(async () => {
@@ -444,8 +503,8 @@ describe('AuthProvider', () => {
     });
 
     it('should handle convert anonymous account error', async () => {
-      const mockConvertAnonymousAccount = vi.mocked(firebaseService.convertAnonymousAccount);
       const errorMessage = 'Email already in use';
+      const mockConvertAnonymousAccount = vi.mocked(firebaseService.convertAnonymousAccount);
       mockConvertAnonymousAccount.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -465,8 +524,8 @@ describe('AuthProvider', () => {
 
   describe('Update Display Name', () => {
     it('should update display name', async () => {
-      const mockUpdateDisplayName = vi.mocked(firebaseService.updateDisplayName);
       const updatedUser = { ...mockUser, displayName: 'Updated Name' };
+      const mockUpdateDisplayName = vi.mocked(firebaseService.updateDisplayName);
       mockUpdateDisplayName.mockResolvedValue(updatedUser);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -482,8 +541,8 @@ describe('AuthProvider', () => {
     });
 
     it('should handle update display name error', async () => {
-      const mockUpdateDisplayName = vi.mocked(firebaseService.updateDisplayName);
       const errorMessage = 'Update failed';
+      const mockUpdateDisplayName = vi.mocked(firebaseService.updateDisplayName);
       mockUpdateDisplayName.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -503,15 +562,24 @@ describe('AuthProvider', () => {
   describe('Logout', () => {
     it('should logout and sync data for registered users', async () => {
       const mockLogout = vi.mocked(firebaseService.logout);
-      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
       mockLogout.mockResolvedValue(true);
+      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
       mockSyncAllDataToFirebase.mockResolvedValue(true);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
+
       // First set a registered user
-      act(() => {
+      await act(async () => {
         authStateChangedCallback?.(mockUser);
+      });
+
+      await waitFor(() => {
+        expect(result.current.user).toEqual(mockUser);
       });
 
       await act(async () => {
@@ -525,13 +593,18 @@ describe('AuthProvider', () => {
 
     it('should logout without syncing data for anonymous users', async () => {
       const mockLogout = vi.mocked(firebaseService.logout);
-      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
       mockLogout.mockResolvedValue(true);
+      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
 
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
+
       // First set an anonymous user
-      act(() => {
+      await act(async () => {
         authStateChangedCallback?.(mockAnonymousUser);
       });
 
@@ -547,12 +620,17 @@ describe('AuthProvider', () => {
     it('should logout even if sync fails', async () => {
       vi.useFakeTimers();
       const mockLogout = vi.mocked(firebaseService.logout);
-      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
       mockLogout.mockResolvedValue(true);
+      const mockSyncAllDataToFirebase = vi.mocked(syncService.syncAllDataToFirebase);
       // Mock sync to hang and timeout
       mockSyncAllDataToFirebase.mockImplementation(() => new Promise(() => {}));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
+
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
 
       // First set a registered user
       await act(async () => {
@@ -572,8 +650,8 @@ describe('AuthProvider', () => {
     });
 
     it('should handle logout error', async () => {
-      const mockLogout = vi.mocked(firebaseService.logout);
       const errorMessage = 'Logout failed';
+      const mockLogout = vi.mocked(firebaseService.logout);
       mockLogout.mockRejectedValue(new Error(errorMessage));
 
       const { result } = renderHook(() => useAuth(), { wrapper });
@@ -600,6 +678,11 @@ describe('AuthProvider', () => {
       mockSyncAllDataToFirebase.mockReturnValue(syncPromise);
 
       const { result } = renderHook(() => useAuth(), { wrapper });
+
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
 
       // Set a registered user
       await act(async () => {
@@ -636,7 +719,7 @@ describe('AuthProvider', () => {
   });
 
   describe('Cleanup', () => {
-    it('should cleanup on unmount', () => {
+    it('should cleanup on unmount', async () => {
       const unsubscribeMock = vi.fn();
 
       // Mock the auth state changed to return our unsubscribe function
@@ -647,7 +730,12 @@ describe('AuthProvider', () => {
         return unsubscribeMock;
       });
 
-      const { unmount } = renderHook(() => useAuth(), { wrapper });
+      const { result: _result, unmount } = renderHook(() => useAuth(), { wrapper });
+
+      // Wait for auth initialization to complete
+      await waitFor(() => {
+        expect(authStateChangedCallback).not.toBe(null);
+      });
 
       unmount();
 
