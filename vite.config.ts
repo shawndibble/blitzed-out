@@ -4,10 +4,27 @@ import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { sitemapPlugin } from './scripts/sitemap-plugin';
+import { execSync } from 'child_process';
+
+// Translation bundling plugin
+function translationBundlePlugin() {
+  return {
+    name: 'translation-bundle',
+    buildStart() {
+      // Generate translation bundles before build starts
+      try {
+        execSync('node scripts/bundle-translations.js', { stdio: 'inherit' });
+      } catch (error) {
+        throw error;
+      }
+    },
+  };
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    translationBundlePlugin(),
     react({
       babel: {
         plugins: [['babel-plugin-react-compiler']],

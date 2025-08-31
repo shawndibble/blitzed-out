@@ -21,8 +21,13 @@ export const importActionFile = async (
   gameMode: string
 ): Promise<{ customGroup: CustomGroupBase; customTiles: CustomTileBase[] } | null> => {
   return withErrorHandling(async () => {
-    // Import the action file
-    const actionFile = await import(`@/locales/${locale}/${gameMode}/${groupName}.json`);
+    // Import from bundled translation files for better performance
+    const bundleFile = await import(`@/locales/${locale}/${gameMode}-bundle.json`);
+    const actionFile = bundleFile[groupName];
+
+    if (!actionFile) {
+      throw new Error(`Game mode "${groupName}" not found in ${locale}/${gameMode} bundle`);
+    }
 
     // Extract data from the JSON file
     const label = actionFile.label || groupName;

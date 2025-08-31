@@ -1,0 +1,469 @@
+{
+  "alcohol": {
+    "label": "Alcool",
+    "type": "consumption",
+    "actions": {
+      "Aucune": [],
+      "Boire": [
+        "Prends une gorgée de ta boisson.",
+        "Bois une gorgée.",
+        "Prends 2 gorgées.",
+        "Fais boire une gorgée.",
+        "Bois une gorgée."
+      ],
+      "Shots": [
+        "1 shot.",
+        "Prends 2 shots.",
+        "Fais boire 1 shot.",
+        "Tout le monde boit.",
+        "Bois une gorgée."
+      ],
+      "Cul sec": [
+        "Bois la moitié de ta boisson.",
+        "Bois cul sec.",
+        "Prends une gorgée",
+        "Prends 2 shots.",
+        "Fais boire quelqu'un cul sec.",
+        "Fais boire une gorgée."
+      ]
+    }
+  },
+  "ballBusting": {
+    "label": "Torture des couilles",
+    "type": "solo",
+    "actions": {
+      "Aucun": [],
+      "Claques/Pression": [
+        "Masses tes couilles.",
+        "2 claques sur tes couilles.",
+        "10 petites tapes sur tes couilles.",
+        "Comprimes tes couilles pendant 15 secondes.",
+        "3 claques sur tes couilles.",
+        "Tires sur tes couilles pendant 15 secondes.",
+        "Fais claquer tes couilles pendant 10 secondes.",
+        "Tires sur tes couilles jusqu'au prochain tour.",
+        "Tires sur tes couilles pendant 10 secondes.",
+        "Claques rapidement tes couilles pendant 15 secondes.",
+        "Petite claque à chaque fois que quelqu'un ait lancé les dés.",
+        "5 claques sur tes couilles.",
+        "Bloques ta respiration pendant 10 secondes tout en te claquant les couilles.",
+        "Claques sur tes couilles.",
+        "Masser tes couilles pendant 15 secondes."
+      ],
+      "Coups/Écrasement": [
+        "2 coups sur les couilles.",
+        "Écrases tes couilles.",
+        "4 coups sur tes couilles.",
+        "Claques tes couilles pendant 10 secondes.",
+        "1 claque forte sur tes couilles.",
+        "5 claques sur tes couilles.",
+        "Écrases tes couilles jusqu'au prochain tour.",
+        "4 claques fortes sur tes couilles."
+      ],
+      "Utiliser un objet": [
+        "Coup de poing sur les couilles.",
+        "Écrases les couilles avec un objet.",
+        "Claques sur les couilles pendant 15 secondes.",
+        "5 claques fortes sur les couilles.",
+        "Frappes tes couilles à chaque fois que que quelqu'un lance le dés.",
+        "2 claques sur les couilles avec un objet.",
+        "Coups sur les couilles pendant 20 secondes.",
+        "Écraser les couilles avec un objet.",
+        "Claques rapides sur les couilles pendant 15 secondes avec un objet."
+      ],
+      "Aussi fort que possible": [
+        "Reçois 5 coups les plus forts possibles sur les couilles avec un objet.",
+        "Frappes 5 coups les plus forts possibles sur tes propres couilles.",
+        "Écrases tes couilles aussi fort que possible.",
+        "Reçois des coups forts sur tes couilles pendant 20 secondes avec un objet.",
+        "Fais-toi tirer les couilles très fort pendant 20 secondes."
+      ]
+    }
+  },
+  "bating": {
+    "label": "Se masturber",
+    "type": "solo",
+    "actions": {
+      "Aucun": [],
+      "Masturbation/Branle": [
+        "Branles-toi par 30 caresses lentes.",
+        "Branles-toi aussi rapidement que possible pendant 30 secondes.",
+        "Branles-toi en synchronisation avec ta respiration jusqu'à votre prochain tour.",
+        "Mets du lubrifiant sur ta bite.",
+        "30 caresses associées à une respiration profonde.",
+        "Frottes ton doigt légèrement sur ta bite.",
+        "Masturbes-toi avec ta main non dominante.",
+        "Contractes ton cul (Kegel) à chaque mouvement de branle jusqu'à ton prochain tour.",
+        "30 mouvements de branle fermes sur toi.",
+        "Craches sur ta bite.",
+        "Masturbes-toi jusqu'à ton prochain tour tout en utilisant ton autre main sur une zone érogène.",
+        "Branlez-vous avec un mouvement de torsion de la main. ",
+        "Utilisez votre paume pour frotter la tête pendant 60 secondes.",
+        "Utilisez deux doigts et concentrez-vous uniquement sur le frein.",
+        "Branles-toi jusqu'à ton prochain tour ou jusqu'à ce que tu sois proche.",
+        "Joues avec ton frein.",
+        "Alternez entre des coups rapides et lents jusqu'à une autre action Gooning.",
+        "Expérimentez différentes prises et pressions en vous masturbant."
+      ],
+      "Edging": [
+        "Amènes-toi au bord de l'orgasme (edging).",
+        "Branles-toi aussi rapidement que possible jusqu'à ton prochain tour.",
+        "Amènes-toi au bord de l'orgasme (edging) deux fois.",
+        "Amènes-toi au bord de l'orgasme (edging) en te branlant avec ta main non dominante.",
+        "Amènes-toi au bord de l'orgasme (edging) en utilisant seulement quelques doigts.",
+        "Amènes-toi au bord de l'orgasme (edging) en utilisant toute ta main.",
+        "Amènes-toi rapidement au bord de l'orgasme (edging), puis contracte ton cul (Kegel) aussi longtemps que possible.",
+        "Amènes-toi au bord de l'orgasme aussi vite que possible.",
+        "Frottes ton périnée tout en te branlant.",
+        "Pratiques le contrôle de la respiration en retenant ta respiration pendant l'edging.",
+        "Changes de position (debout, agenouillé, assis) en te masturbant jusqu'au bord."
+      ],
+      "Jouets": [
+        "Utilises un jouet sur le corps de ta boite.",
+        "Utilises un jouet sur ton gland.",
+        "Caresses ta bite lentement avec un jouet jusqu'à ton prochain tour.",
+        "Utilises un jouet tout en caressant une autre partie de ton corps.",
+        "Utilises un jouet sur ta bite pendant 30 secondes les yeux fermés.",
+        "Utilises un jouet sur ton périnée.",
+        "Masturbes-toi en reniflant des vêtements (chaussure/sous-vêtement/etc...).",
+        "Masturbes-toi en utilisant du tissu (sous-vêtement/chiffon/etc...).",
+        "Utilises un jouet vibrant sur tes parties génitales.",
+        "25 mouvements de ton jouet actuel. Entrée et sortie."
+      ]
+    }
+  },
+  "bodyWorship": {
+    "label": "Adoration Corporelle",
+    "type": "solo",
+    "actions": {
+      "None": [],
+      "Auto-Admiration Douce": [
+        "Regardez-vous dans le miroir et dites trois choses que vous trouvez belles chez vous.",
+        "Posez pour vous-même et admirez votre reflet pendant 30 secondes.",
+        "Tracez vos bras doucement avec le bout des doigts en vous regardant dans le miroir.",
+        "Embrassez vos propres mains et dites-vous que vous êtes beau.",
+        "Montrez votre partie du corps préférée dans le miroir.",
+        "Regardez-vous dans les yeux dans le miroir et complimentez-les.",
+        "Caressez doucement votre visage en vous disant que vous êtes magnifique.",
+        "Tenez-vous debout et admirez votre silhouette dans le miroir.",
+        "Tracez votre clavicule avec de douces caresses.",
+        "Donnez-vous de doux compliments sur votre sourire.",
+        "Tenez vos mains et dites-vous à quel point vous êtes parfait.",
+        "Tournez lentement et admirez votre silhouette sous différents angles."
+      ],
+      "Auto-Adoration Dévouée": [
+        "Passez du temps à admirer vos bras en vous donnant des compliments.",
+        "Regardez votre ventre dans le miroir et louez votre corps.",
+        "Massez vos épaules en vous disant à quel point vous êtes parfait.",
+        "Déshabillez-vous lentement devant le miroir, en complimentant chaque révélation.",
+        "Passez vos mains dans vos cheveux avec adoration.",
+        "Regardez votre cou dans le miroir et dites-vous que vous êtes fait pour être adoré.",
+        "Posez dans différentes positions en louant votre beauté à voix haute.",
+        "Touchez doucement vos cuisses en les admirant.",
+        "Passez du temps à admirer et toucher doucement vos pieds.",
+        "Tracez des motifs sur votre peau avec amour.",
+        "Passez du temps à admirer et toucher doucement votre dos dans le miroir.",
+        "Donnez-vous des touches d'adoration le long de votre colonne vertébrale."
+      ],
+      "Auto-Adoration Complète": [
+        "Passez 2 minutes à regarder tout votre corps et à vous adorer avec des mots.",
+        "Allongez-vous et adorez votre corps avec des auto-caresses douces.",
+        "Fermez les yeux et adorez votre corps en silence par le toucher.",
+        "Tenez-vous nu et adorez votre corps en vous regardant dans un miroir en pied.",
+        "Donnez-vous une appréciation corporelle totale - admirez chaque centimètre que vous pouvez voir.",
+        "Adorez votre corps en vous disant que vous êtes une déesse/un dieu.",
+        "Passez du temps à toucher doucement vos zones les plus sensibles avec appréciation.",
+        "Bandez-vous les yeux et adorez votre corps avec plusieurs sensations douces.",
+        "Adorez votre corps en utilisant seulement des touches et caresses douces.",
+        "Donnez-vous une dévotion complète - adorez-vous de la tête aux pieds.",
+        "Prenez votre temps pour explorer chaque courbe de votre corps avec adoration.",
+        "Restez immobile et couvrez votre corps de touches douces et adoratrices."
+      ]
+    }
+  },
+  "buttPlay": {
+    "label": "Jeu anal",
+    "type": "solo",
+    "actions": {
+      "Aucun": [],
+      "Doigt(s)": [
+        "Masser ton trou.",
+        "Doigtes-toi.",
+        "Écartes tes fesses.",
+        "Doigtes-toi.",
+        "Frottes autour de ton trou.",
+        "Doigtes-toi avec deux doigts.",
+        "Tapes sur ton trou pendant 15 secondes.",
+        "Doigtes-toi très rapidement (finger-fuck).",
+        "Doigtage à plusieurs doigts."
+      ],
+      "Gode": [
+        "Places le gode à l'entrée de ton trou.",
+        "Insères un gode dans ton trou.",
+        "Godes-toi pendant 10 secondes.",
+        "Places le gode.",
+        "10 pénétrations lentes avec le gode.",
+        "20 pénétrations avec le gode.",
+        "5 pénétrations rapides avec le gode.",
+        "Mets le gode sur le sol ou contre le mur, et empales-toi dessus.",
+        "15 secondes de pénétrations rapides avec le gode.",
+        "Pluges-toi jusqu'à ta prochaine activité de Jeu anal.",
+        "Godes-toi pour le reste du jeu."
+      ],
+      "Étirement": [
+        "Place un ou plusieurs doigt(s) en plus du gode dans ton cul.",
+        "Godes-toi avec un jouet plus gros.",
+        "Enfonces ton gode à fond 15 fois.",
+        "Fais entrer/sortir le gode rapidement pendant 20 secondes.",
+        "Insères le maximum de doigts possibles en 30 secondes.",
+        "Stimules ton trou avec le bout de ton gros gode",
+        "Tournes le gode dans ton cul 3 fois.",
+        "Contractes ton cul (Kegel) pendant 30 secondes sur le gros gode.",
+        "Godes-toi jusqu'à la fin du jeu.",
+        "Insères ton plus gros jouet jusqu'à la prochaine activité de Jeu anal.",
+        "Doigtes-toi avec le maximum de doigts, entres-et-sors aussi vite et violemment que possible."
+      ],
+      "Poing/Fist": [
+        "Fistes-toi.",
+        "Maintenir le poing à l'intérieur pendant 30 secondes.",
+        "5 pénétrations lentes avec le poing.",
+        "Fistes-toi jusqu'à la fin/éjaculation.",
+        "10 pénétrations rapides avec le poing.",
+        "Utilises ton plus gros jouet ou ton poing (le plus gros des deux) jusqu'à ton prochain tour.",
+        "Fistes-toi ou utilises ton jouet le plus gros pendant 60 secondes."
+      ]
+    }
+  },
+  "gasMask": {
+    "label": "Masque à gaz",
+    "type": "consumption",
+    "actions": {
+      "Aucun": [],
+      "Débutant": [
+        "Prenez 3 respirations du flacon via le tuyau.",
+        "Prenez 6 respirations du flacon via le tuyau.",
+        "Mettez 1 dose de substance inhalée sur une boule de coton, mettez le filtre et respirez pendant 15 secondes.",
+        "Mettez 2 shakes de produit à inhaler sur une boule de coton, mettez le filtre et respirez pendant 15 secondes.",
+        "Restriction de l'air pendant 5 secondes.",
+        "Restriction de l'air pendant 10 secondes.",
+        "Respirez profondément à travers le filtre pendant 60 secondes."
+      ],
+      "Intermédiaire": [
+        "Prenez 7 respirations du flacon via le tuyau.",
+        "Prenez 10 respirations du flacon via le tuyau.",
+        "Mettez 5 shakes de produit à inhaler sur une boule de coton, mettez le filtre et respirez pendant 30 secondes.",
+        "Mettez 10 shakes de produit inhalé sur une boule de coton, mettez le filtre et respirez pendant 15 secondes.",
+        "Restriction de l'air pendant 15 secondes.",
+        "Restriction de l'air pendant 20 secondes.",
+        "Respirez profondément à travers le filtre pendant 90 secondes.",
+        "Respirez à travers le filtre aussi longtemps que vous le pouvez sans le retirer."
+      ],
+      "Avancé": [
+        "Prenez 15 respirations du flacon via le tuyau.",
+        "Prenez 20 respirations du flacon via le tuyau.",
+        "Mettez 10 shakes de produit à inhaler sur une boule de coton, mettez-le dans un filtre et respirez pendant 30 secondes.",
+        "Mettez 15 shakes de substance inhalée sur une boule de coton, mettez le filtre et respirez pendant 45 secondes.",
+        "Restriction de l'air pendant 30 secondes.",
+        "Restriction de l'air pendant 25 secondes.",
+        "Respirez profondément à travers le filtre pendant 120 secondes (2 minutes).",
+        "Respirez à travers le filtre aussi longtemps que vous le pouvez sans le retirer, puis prenez 10 respirations profondes.",
+        "Respirez à travers le filtre aussi longtemps que vous le pouvez sans le retirer, puis prenez 20 respirations profondes."
+      ]
+    }
+  },
+  "pissPlay": {
+    "label": "Plan pisse",
+    "type": "solo",
+    "actions": {
+      "Aucun": [],
+      "Pisser dans un verre": [
+        "Bois de l'eau",
+        "Pisses dans un récipient",
+        "Bois de l'eau à petites gorgées",
+        "Renifles ta propre pisse",
+        "Pisses dans un récipient",
+        "Prends une gorgée d'eau"
+      ],
+      "Douche dorée": [
+        "Pisses-toi dessus",
+        "Pisses en visant ton propre visage",
+        "Mets ta bite et tes couilles dans un récipient plein de pisse",
+        "Bois de l'eau à petites gorgées",
+        "Verses un récipient de pisse sur toi-même",
+        "Bois de l'eau"
+      ],
+      "Boire": [
+        "Bois ta propre pisse",
+        "Boiq de l'eau",
+        "Boiq de l'eau à petites gorgées",
+        "Essayer de pisser dans ta bouche. Avales."
+      ]
+    }
+  },
+  "poppers": {
+    "label": "Poppers",
+    "type": "consumption",
+    "actions": {
+      "Aucun": [],
+      "Débutant": [
+        "1 hit.",
+        "2 hits.",
+        "1 hit long.",
+        "2 hits.",
+        "3 hits.",
+        "1 hit pour chaque narine.",
+        "2 hits longs.",
+        "1 hit.",
+        "2 hits rapides."
+      ],
+      "Intermédiaire": [
+        "3 hits.",
+        "4 hits.",
+        "2 hits pour chaque narine.",
+        "1 hit bucal.",
+        "Hit bucal de 5 secondes.",
+        "4 hits.",
+        "Sniffes pendant 5 secondes. Bloques ta respiration 5 secondes.",
+        "5 hits rapides."
+      ],
+      "Avancé": [
+        "Sniffes 10 secondes. Bloques 1O secondes.",
+        "4 hits buccaux.",
+        "Sniffes et bloques aussi longtemps que possible.",
+        "Respires avec un masque à poppers ou un chaussette pendant 15 secondes.",
+        "8 hits.",
+        "4 hits buccaux.",
+        "6 hits longs.",
+        "5 hits de chaque côté.",
+        "Sniffes 8 secondes. Bloques 8 secondes."
+      ],
+      "Expert": [
+        "10 coups normaux. Pas de retenue.",
+        "15 secondes touchées. 10 secondes maintenues.",
+        "Respirez avec des chaussettes à pression aussi longtemps que vous le pouvez",
+        "Videz vos poumons. Le coup le plus puissant et le plus profond que vous puissiez faire.",
+        "Poumons vides. Coup profond pendant 10 secondes. Maintien pendant 10 secondes. Répétez.",
+        "Poumons vides. Coup profond pendant 15 secondes. Maintien pendant 30 secondes.",
+        "10s de chaussettes/masques frappés. 10s de maintien."
+      ]
+    }
+  },
+  "throatTraining": {
+    "label": "Entraînement de la gorge",
+    "type": "solo",
+    "actions": {
+      "Aucun": [],
+      "Lécher un gode": [
+        "Lèches un gode.",
+        "Joues avec le bout du gode.",
+        "Mouilles bien le gode avec un maximum de salive et travailles-le avec la langue.",
+        "Suces le bout du gode.",
+        "Fais le tour du le gland du gode avec la langue.",
+        "Lèches le corps du gode.",
+        "Joues avec le bout du gode pendant 15 secondes.",
+        "Mouilles toute le gode avec la langue."
+      ],
+      "Sucer le gode": [
+        "Suces le gode pendant 10 secondes.",
+        "Garde le gode dans la bouche.",
+        "Baises-ta bouche avec le gode.",
+        "Suces le gode pendant 20 secondes.",
+        "Suces le gode entre deux respirations.",
+        "Fais un spectacle de suce du gode.",
+        "Donnes des coups de langue sur le bout tout en suçant le gode.",
+        "Suces le bout du gode pendant 30 secondes."
+      ],
+      "Gorge profonde": [
+        "Gardes le gode dans la gorge pendant 5 secondes.",
+        "Fais une gorge profonde entre deux respirations.",
+        "Lèches les couilles tout en faisant une gorge profonde.",
+        "Fais une gorge profonde pendant 10 secondes. Relâches.",
+        "10 gorges profondes.",
+        "Suces le gode.",
+        "Baises-toi la gorge avec le gode."
+      ],
+      "Jeux de respiration": [
+        "Gorge profonde avec le gode pendant 20 secondes.",
+        "Fais une gorge profonde avec le gode aussi longtemps que possible.",
+        "Gorge profonde pendant 30 secondes.",
+        "Fais une gorge profonde pendant 15 secondes.",
+        "Cinq gorges profondes lentes jusqu'aux couilles."
+      ]
+    }
+  },
+  "titTorture": {
+    "label": "Torture des tétons",
+    "type": "solo",
+    "actions": {
+      "Aucun": [],
+      "Pression/Frottement": [
+        "Frottes tes tétons.",
+        "Joues avec tes tétons.",
+        "Tapotes tes tétons.",
+        "Pinces tes tétons.",
+        "Mouilles tes tétons.",
+        "Frottes tes tétons pendant 15 secondes.",
+        "Fais claquer tes tétons 10 fois.",
+        "Presses/frottes tes tétons pendant 15 secondes."
+      ],
+      "Pincement/Tirage": [
+        "Pinces fort tes tétons.",
+        "Tires sur tes tétons.",
+        "Frottes tes tétons pendant 15 secondes.",
+        "Fais tourner tes tétons dans les deux directions.",
+        "Fais tourner tes tétons en faisant des mouvements circulaires.",
+        "Joues violemment avec tes tétons pendant 20 secondes."
+      ],
+      "Pinces/Jouets": [
+        "Attaches des pinces à tes tétons pendant 10 secondes.",
+        "Avec des pinces sur tes tétons, tires dessus.",
+        "Torsades tes tétons fort.",
+        "Fais claquer ton jouet sur tes tétons 10 fois.",
+        "Sois violent avec tes tétons."
+      ],
+      "Aussi fort que possible": [
+        "Pinces tes tétons aussi fort que possible.",
+        "Tires sur tes tétons aussi loin que tu peux supporter.",
+        "Fais tourner tes tétons jusqu'à ce que tu cries.",
+        "Masses-toi les tétons.",
+        "Frappes ta poitrine/tétons."
+      ]
+    }
+  },
+  "vaping": {
+    "label": "Vapoter",
+    "type": "consumption",
+    "actions": {
+      "Aucun": [],
+      "Débutant": [
+        "Prends une bouffée.",
+        "Prenez une longue bouffée.",
+        "Créez le plus gros nuage possible.",
+        "Tirez une bouffée pendant 3 secondes.",
+        "Retenez la vapeur pendant 3 secondes avant d'expirer.",
+        "Essayez d'expirer la vapeur par le nez.",
+        "Prenez une bouffée et essayez de créer une forme de 'O' avec la vapeur.",
+        "Trouvez une surface et faites le tour de la vape en cascade."
+      ],
+      "Intermédiaire": [
+        "Faire un rond de fumée.",
+        "Expirez lentement, en formant un mince nuage.",
+        "Tirez une bouffée pendant 5 secondes.",
+        "Prenez 4 à 6 bouffées.",
+        "Essayez de souffler de la vapeur à travers une paille.",
+        "Retenez la vapeur pendant 5 secondes avant d'expirer.",
+        "Créez un nuage de vape, puis faites-le tourner avec votre main pour réaliser le tour de la tornade."
+      ],
+      "Expert": [
+        "Tirez une bouffée, expirez et essayez de réinspirer la fumée.",
+        "Prenez la plus longue traînée possible.",
+        "Tirez une bouffée pendant 10 secondes.",
+        "Prenez 8 bouffées ou plus.",
+        "Essayez d'expirer la vapeur par les lèvres pincées.",
+        "Retenez la vapeur pendant 10 secondes avant d'expirer.",
+        "Effectuez l'astuce française d'inhalation de vapeur.",
+        "Effectuez le tour de vapeur Bane"
+      ]
+    }
+  }
+}
