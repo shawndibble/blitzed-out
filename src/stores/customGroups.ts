@@ -118,15 +118,16 @@ export const addCustomGroup = async (group: CustomGroupBase): Promise<string | u
     return await retryOnCursorError(
       db,
       async () => {
-        // The creating hook will add id, createdAt, and updatedAt fields
-        // We need to provide the required fields that the hook expects
-        const groupWithTimestamps = {
+        // The creating hook will add/overwrite id, locale, gameMode, isDefault, and updatedAt fields
+        // We provide required timestamps here (hook will overwrite updatedAt)
+        const timestamp = new Date();
+        const groupWithTimestamp = {
           ...group,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: timestamp,
+          updatedAt: timestamp, // Hook will overwrite this
         } as Omit<CustomGroupPull, 'id'>;
 
-        const id = await customGroups.add(groupWithTimestamps);
+        const id = await customGroups.add(groupWithTimestamp);
         return id;
       },
       (message: string, error?: Error) => {
