@@ -87,6 +87,7 @@ describe('File Parity Validation', () => {
         'bondage.json',
         'breathPlay.json',
         'buttPlay.json',
+        'confessions.json',
         'electric.json',
         'footPlay.json',
         'gasMask.json',

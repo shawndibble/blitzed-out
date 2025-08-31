@@ -175,9 +175,9 @@ export const importGroupsForLocaleAndGameMode = async (
   // Import Dexie database for transaction usage
   const db = await import('@/stores/store').then((module) => module.default);
 
-  // Use transaction to prevent cursor invalidation
-  return await db.transaction('rw', [db.customGroups, db.customTiles], async () => {
-    for (const groupName of groupNames) {
+  // Process each group individually to avoid transaction timeouts
+  for (const groupName of groupNames) {
+    try {
       // Check if group already exists to prevent duplicates
       const existingGroup = await getCustomGroupByName(groupName, locale, gameMode);
       if (existingGroup) {
@@ -189,7 +189,8 @@ export const importGroupsForLocaleAndGameMode = async (
 
       const { customGroup, customTiles } = result;
 
-      try {
+      // Process each group in its own transaction to prevent timeouts
+      await db.transaction('rw', [db.customGroups, db.customTiles], async () => {
         // Add the custom group with error handling for duplicates
         const groupAdded = await addCustomGroupSafely(customGroup);
         if (groupAdded) {
@@ -202,17 +203,17 @@ export const importGroupsForLocaleAndGameMode = async (
           const tilesAdded = await importCustomTilesSafely(newTiles);
           tilesImported += tilesAdded;
         }
-      } catch (error) {
-        logError(
-          'error',
-          `importGroupsForLocaleAndGameMode:${groupName}:${locale}/${gameMode}`,
-          error
-        );
-      }
+      });
+    } catch (error) {
+      logError(
+        'error',
+        `importGroupsForLocaleAndGameMode:${groupName}:${locale}/${gameMode}`,
+        error
+      );
     }
+  }
 
-    return { groupsImported, tilesImported };
-  });
+  return { groupsImported, tilesImported };
 };
 
 /**

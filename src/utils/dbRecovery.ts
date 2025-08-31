@@ -40,20 +40,27 @@ export async function retryOnCursorError<T>(
     return await operation();
   } catch (error) {
     const errorInstance = error instanceof Error ? error : new Error(String(error));
-    log('Database operation failed:', errorInstance);
+    log(`Database operation failed: ${errorInstance.message}`, errorInstance);
 
     // If it's a cursor error, try to recover by reopening the database
     if (errorInstance.message.includes('cursor')) {
+      log('Attempting database recovery for cursor error:', errorInstance);
       try {
         if (typeof db.close === 'function' && typeof db.open === 'function') {
           await db.close();
           await db.open();
+          log('Database reopened successfully, retrying operation');
           return await operation();
+        } else {
+          log('Database does not support close/open operations');
         }
       } catch (retryError) {
         const retryErrorInstance =
           retryError instanceof Error ? retryError : new Error(String(retryError));
-        log('Error retrying operation after cursor error:', retryErrorInstance);
+        log(
+          `Error retrying operation after database recovery: ${retryErrorInstance.message}`,
+          retryErrorInstance
+        );
         throw retryErrorInstance;
       }
     }
