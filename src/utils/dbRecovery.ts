@@ -6,22 +6,28 @@
  * IndexedDB issues and cursor-related errors.
  */
 
+// Safari IndexedDB stabilization delays (in milliseconds)
+// Safari requires time for IndexedDB to stabilize after connection loss
+const SAFARI_IDB_STABILIZE_DELAY_MS = 100;
+// Additional delay after reopening to ensure connection is stable before retry
+const SAFARI_IDB_POST_OPEN_DELAY_MS = 50;
+
 interface DatabaseLike {
   isOpen?(): boolean;
-  open?(): any;
-  close?(): any;
+  open?(): void | Promise<void>;
+  close?(): void | Promise<void>;
 }
 
 /**
  * Recovery strategy interface for different error types
  */
-interface RecoveryStrategy {
+interface RecoveryStrategy<T> {
   canHandle(error: Error): boolean;
   recover(
     db: DatabaseLike,
-    operation: () => Promise<any>,
+    operation: () => Promise<T>,
     logger: (message: string, error?: Error) => void
-  ): Promise<any>;
+  ): Promise<T>;
 }
 
 /**
@@ -38,16 +44,16 @@ function isSafari(): boolean {
 /**
  * Recovery strategy for cursor-related errors
  */
-class CursorErrorStrategy implements RecoveryStrategy {
+class CursorErrorStrategy implements RecoveryStrategy<any> {
   canHandle(error: Error): boolean {
-    return error.message.includes('cursor');
+    return error.message.toLowerCase().includes('cursor');
   }
 
-  async recover(
+  async recover<T>(
     db: DatabaseLike,
-    operation: () => Promise<any>,
+    operation: () => Promise<T>,
     logger: (message: string, error?: Error) => void
-  ): Promise<any> {
+  ): Promise<T> {
     logger('Attempting database recovery for cursor error');
 
     if (typeof db.close === 'function' && typeof db.open === 'function') {
@@ -65,7 +71,7 @@ class CursorErrorStrategy implements RecoveryStrategy {
 /**
  * Recovery strategy for Safari IndexedDB connection issues
  */
-class SafariConnectionStrategy implements RecoveryStrategy {
+class SafariConnectionStrategy implements RecoveryStrategy<any> {
   canHandle(error: Error): boolean {
     if (!isSafari()) {
       return false;
@@ -80,23 +86,23 @@ class SafariConnectionStrategy implements RecoveryStrategy {
     );
   }
 
-  async recover(
+  async recover<T>(
     db: DatabaseLike,
-    operation: () => Promise<any>,
+    operation: () => Promise<T>,
     logger: (message: string, error?: Error) => void
-  ): Promise<any> {
+  ): Promise<T> {
     logger('Attempting Safari IndexedDB connection recovery');
 
     if (typeof db.close === 'function' && typeof db.open === 'function') {
       await db.close();
 
       // Safari-specific delay to allow IndexedDB to stabilize
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, SAFARI_IDB_STABILIZE_DELAY_MS));
 
       await db.open();
 
       // Additional small delay before retry to ensure connection is stable
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, SAFARI_IDB_POST_OPEN_DELAY_MS));
 
       logger('Safari IndexedDB connection recovered, retrying operation');
       return await operation();
@@ -110,7 +116,7 @@ class SafariConnectionStrategy implements RecoveryStrategy {
 /**
  * Recovery strategies registry
  */
-const recoveryStrategies: RecoveryStrategy[] = [
+const recoveryStrategies: RecoveryStrategy<any>[] = [
   new SafariConnectionStrategy(),
   new CursorErrorStrategy(),
 ];
@@ -139,7 +145,7 @@ export async function retryOnCursorError<T>(
     });
 
   try {
-    // Check if database is ready (skip in test environment)
+    // If DB exposes isOpen, open it when not ready
     if (typeof db.isOpen === 'function' && !db.isOpen()) {
       await db.open?.();
     }
@@ -150,6 +156,8 @@ export async function retryOnCursorError<T>(
     log(`Database operation failed: ${errorInstance.message}`, errorInstance);
 
     // Try recovery strategies in order of priority
+    const recoveryErrors: Error[] = [];
+
     for (const strategy of recoveryStrategies) {
       if (strategy.canHandle(errorInstance)) {
         try {
@@ -161,9 +169,16 @@ export async function retryOnCursorError<T>(
             `Error retrying operation after ${strategy.constructor.name}: ${retryErrorInstance.message}`,
             retryErrorInstance
           );
-          throw retryErrorInstance;
+          recoveryErrors.push(retryErrorInstance);
+          // Continue to next strategy instead of throwing
         }
       }
+    }
+
+    // If recovery strategies were attempted but all failed, log aggregate error info
+    if (recoveryErrors.length > 0) {
+      const aggregateMessage = `All recovery strategies failed: ${recoveryErrors.map((e) => e.message).join('; ')}`;
+      log(aggregateMessage);
     }
 
     // No recovery strategy found, re-throw original error

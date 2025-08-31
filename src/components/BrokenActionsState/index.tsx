@@ -59,11 +59,13 @@ export default function BrokenActionsState({
         </Typography>
 
         <Button
+          type="button"
           variant="contained"
           onClick={handleReset}
           disabled={isResetting}
           startIcon={isResetting ? <CircularProgress size={20} /> : <Refresh />}
           size="large"
+          aria-busy={isResetting}
         >
           {t('resetApp')}
         </Button>

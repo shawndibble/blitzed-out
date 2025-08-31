@@ -3,6 +3,7 @@ import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { sitemapPlugin } from './scripts/sitemap-plugin';
+import compression from 'vite-plugin-compression';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,10 +18,27 @@ export default defineConfig({
       project: 'javascript-react',
     }),
     sitemapPlugin(),
+    // Brotli compression (best compression, modern browsers)
+    compression({
+      algorithm: 'brotliCompress',
+      ext: '.br',
+      threshold: 1024, // Only compress files > 1KB
+      compressionOptions: {
+        level: 11, // Maximum compression
+      },
+    }),
+    // Gzip compression (fallback for older browsers)
+    compression({
+      algorithm: 'gzip',
+      ext: '.gz',
+      threshold: 1024, // Only compress files > 1KB
+      compressionOptions: {
+        level: 9, // Maximum compression
+      },
+    }),
   ],
   server: {
     host: '0.0.0.0', // Allow access from network (including Android emulator)
-    https: false, // Explicitly disable HTTPS
     // Reduce HTTP/2 server push overhead in dev
     fs: {
       allow: ['..'],
@@ -86,7 +104,8 @@ export default defineConfig({
         },
         // Optimize asset naming
         assetFileNames: (assetInfo) => {
-          const info = assetInfo.name?.split('.') || [];
+          const fileName = assetInfo.names?.[0] || 'asset';
+          const info = fileName.split('.');
           const extType = info[info.length - 1];
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType || '')) {
             return `img/[name]-[hash][extname]`;

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { GroupedActions } from '@/types/customTiles';
 import { useMigration } from '@/context/migration';
 
-interface BrokenActionsState {
+interface UseBrokenActionsStateReturn {
   isBroken: boolean;
   hasNoActions: boolean;
 }
@@ -15,7 +15,7 @@ interface BrokenActionsState {
 export default function useBrokenActionsState(
   actionsList: GroupedActions,
   isLoading: boolean
-): BrokenActionsState {
+): UseBrokenActionsStateReturn {
   const { isMigrationInProgress, currentLanguageMigrated } = useMigration();
 
   return useMemo(() => {

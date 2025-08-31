@@ -110,6 +110,7 @@ vi.mock('@/context/migration', () => ({
 - **Context7**: Up-to-date documentation and code examples from official sources
   - Status: ✓ Connected
   - URL: https://mcp.context7.com/mcp
+
 - **Claude Context**: Semantic code search and analysis for the entire codebase
   - Status: ✓ Connected
   - Provides natural language code search, intelligent indexing, and contextual code retrieval

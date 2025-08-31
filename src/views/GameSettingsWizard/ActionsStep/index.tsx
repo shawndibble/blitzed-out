@@ -15,6 +15,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { hasValidSelections, purgedFormData } from './helpers';
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
 import { useEffect, useState } from 'react';
+import type { GroupedActions } from '@/types/customTiles';
 
 import ButtonRow from '@/components/ButtonRow';
 import BrokenActionsState from '@/components/BrokenActionsState';
@@ -30,7 +31,7 @@ interface ActionsStepProps {
   setFormData: React.Dispatch<React.SetStateAction<FormData & Partial<Settings>>>;
   nextStep: () => void;
   prevStep: (count?: number) => void;
-  actionsList: Record<string, any>;
+  actionsList: GroupedActions;
   isActionsLoading?: boolean;
   isMigrationInProgress?: boolean;
 }
@@ -99,10 +100,8 @@ export default function ActionsStep({
       if (actionsList[item]) {
         // Use preset intensity if available, otherwise use default
         const presetIntensity = preset.intensities?.[item] || defaultIntensity;
-        // Get max available intensity level (exclude 'None' option)
-        const availableIntensities = Object.keys(actionsList[item].intensities || {}).filter(
-          (key) => key !== 'None'
-        );
+        // Get max available intensity level
+        const availableIntensities = Object.keys(actionsList[item].intensities || {});
         const maxLevel = availableIntensities.length;
         targetActions[item] = {
           type: actionsList[item].type,

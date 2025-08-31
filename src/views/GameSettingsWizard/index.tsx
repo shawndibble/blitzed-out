@@ -1,5 +1,10 @@
 import { Box, Button, Divider } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Trans } from 'react-i18next';
+import { useEffect, useState, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import { useMigration } from '@/context/migration';
+import useSettingsToFormData from '@/hooks/useSettingsToFormData';
+import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 
 import ActionsStep from './ActionsStep';
 import DynamicStepper from './components/DynamicStepper';
@@ -10,12 +15,7 @@ import GameSettings from '@/views/GameSettings';
 import LocalPlayersStep from './LocalPlayersStep';
 import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
-import { Trans } from 'react-i18next';
 import { isPublicRoom } from '@/helpers/strings';
-import { useParams } from 'react-router-dom';
-import useSettingsToFormData from '@/hooks/useSettingsToFormData';
-import useUnifiedActionList from '@/hooks/useUnifiedActionList';
-import { useMigration } from '@/context/migration';
 
 interface GameSettingsWizardProps {
   close?: () => void;
@@ -28,6 +28,9 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
 
   // Simple toggle to force useUnifiedActionList to reload when migration completes
   const [reloadToggle, setReloadToggle] = useState(false);
+
+  // One-shot guard to prevent multiple reload triggers
+  const hasReloadedRef = useRef(false);
 
   const overrideSettings: Record<string, any> = { room: room || 'PUBLIC' };
 
@@ -45,10 +48,16 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     overrideSettings
   );
 
-  // Toggle when migration completes to force reload
+  // Toggle when migration completes to force reload (with one-shot guard)
   useEffect(() => {
-    if (!isMigrationInProgress && currentLanguageMigrated) {
+    if (!hasReloadedRef.current && !isMigrationInProgress && currentLanguageMigrated) {
       setReloadToggle((prev) => !prev);
+      hasReloadedRef.current = true;
+    }
+
+    // Reset the guard when a new migration starts so reload can happen again
+    if (isMigrationInProgress && hasReloadedRef.current) {
+      hasReloadedRef.current = false;
     }
   }, [isMigrationInProgress, currentLanguageMigrated]);
 
