@@ -1,10 +1,9 @@
+import { compression } from 'vite-plugin-compression2';
 import { defineConfig } from 'vite';
 import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { sitemapPlugin } from './scripts/sitemap-plugin';
-import { compression } from 'vite-plugin-compression2';
-import zlib from 'zlib';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -19,25 +18,11 @@ export default defineConfig({
       project: 'javascript-react',
     }),
     sitemapPlugin(),
-    // Brotli compression (best compression, modern browsers)
+    // Enable both Brotli and Gzip compression
     compression({
-      algorithm: 'brotliCompress',
+      algorithms: ['gzip', 'brotliCompress'],
       exclude: [/\.(br)$ /, /\.(gz)$/],
       threshold: 1024, // Only compress files > 1KB
-      compressionOptions: {
-        params: {
-          [zlib.constants.BROTLI_PARAM_QUALITY]: 11, // Maximum compression quality
-        },
-      },
-    }),
-    // Gzip compression (fallback for older browsers)
-    compression({
-      algorithm: 'gzip',
-      exclude: [/\.(br)$ /, /\.(gz)$/],
-      threshold: 1024, // Only compress files > 1KB
-      compressionOptions: {
-        level: 9, // Maximum compression
-      },
     }),
   ],
   server: {
@@ -127,14 +112,25 @@ export default defineConfig({
     // Target compatible browsers for Safari iOS compatibility
     target: ['es2018', 'safari14', 'ios14'],
 
-    // Reduce CSS chunking to minimize requests
-    cssCodeSplit: false,
+    // Enable CSS code splitting for better caching
+    cssCodeSplit: true,
 
-    // Increase chunk size to bundle more aggressively - reduce waterfalls
-    chunkSizeWarningLimit: 5000,
+    // Optimize chunk size for better tree shaking
+    chunkSizeWarningLimit: 1000,
 
-    // Enable minification optimizations with Safari compatibility
-    minify: 'esbuild',
+    // Enable advanced minification for smaller bundles
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.log in production
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        passes: 2, // Multiple passes for better compression
+      },
+      mangle: {
+        safari10: true, // Safari compatibility
+      },
+    },
 
     // Enhanced compatibility settings for iOS Safari
     modulePreload: {

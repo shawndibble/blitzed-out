@@ -1,12 +1,10 @@
-import {
-  AppRegistration,
-  CalendarMonth,
-  Language,
-  Link as LinkIcon,
-  Logout,
-  Tv,
-  ViewModule,
-} from '@mui/icons-material';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LanguageIcon from '@mui/icons-material/Language';
+import LinkIcon from '@mui/icons-material/Link';
+import LogoutIcon from '@mui/icons-material/Logout';
+import TvIcon from '@mui/icons-material/Tv';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -222,25 +220,25 @@ export default function MenuDrawer(): JSX.Element {
       {
         key: 'gameBoard',
         title: <Trans i18nKey="gameBoards" />,
-        icon: <AppRegistration />,
+        icon: <AppRegistrationIcon />,
         onClick: () => toggleDialog('gameBoard', true),
       },
       {
         key: 'customTiles',
         title: <Trans i18nKey="customTilesLabel" />,
-        icon: <ViewModule />,
+        icon: <ViewModuleIcon />,
         onClick: () => toggleDialog('customTiles', true),
       },
       {
         key: 'cast',
         title: <Trans i18nKey="tvMode" />,
-        icon: <Tv />,
+        icon: <TvIcon />,
         onClick: () => openInNewTab(`/${room?.toUpperCase()}/cast`),
       },
       {
         key: 'schedule',
         title: <Trans i18nKey="schedule" />,
-        icon: <CalendarMonth />,
+        icon: <CalendarMonthIcon />,
         onClick: () => toggleDialog('schedule', true),
       },
       {
@@ -281,7 +279,7 @@ export default function MenuDrawer(): JSX.Element {
       items.push({
         key: 'resetApp',
         title: <Trans i18nKey="resetApp" />,
-        icon: <Logout />,
+        icon: <LogoutIcon />,
         onClick: () => handleWipeData(),
       });
     }
@@ -352,7 +350,7 @@ export default function MenuDrawer(): JSX.Element {
                   },
                 }}
               >
-                <Language sx={{ mr: 0.5, fontSize: '1rem' }} />
+                <LanguageIcon sx={{ mr: 0.5, fontSize: '1rem' }} />
                 <Trans i18nKey="language" />
               </InputLabel>
               <Select
@@ -362,7 +360,7 @@ export default function MenuDrawer(): JSX.Element {
                 disabled={languageLoading}
                 label={
                   <>
-                    <Language sx={{ fontSize: '1rem' }} />
+                    <LanguageIcon sx={{ fontSize: '1rem' }} />
                     <Trans i18nKey="language" />
                   </>
                 }

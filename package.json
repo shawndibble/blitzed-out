@@ -84,6 +84,7 @@
     "msw": "^2.10.2",
     "path": "^0.12.7",
     "prettier": "^3.3.3",
+    "terser": "^5.43.1",
     "typescript": "^5.8.2",
     "vite": "^7.0.0",
     "vite-plugin-compression2": "^2.2.1",

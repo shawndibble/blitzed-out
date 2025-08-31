@@ -1,5 +1,7 @@
 import { Box, Button, Chip, IconButton, Popover, Typography } from '@mui/material';
-import { Home, InfoOutlined, Settings } from '@mui/icons-material';
+import HomeIcon from '@mui/icons-material/Home';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { Trans, useTranslation } from 'react-i18next';
 import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
 import { useCallback, useMemo, useState } from 'react';
@@ -172,7 +174,11 @@ export default function Message({
             component="span"
             sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}
           >
-            {type === 'settings' ? <Settings fontSize="small" /> : <Home fontSize="small" />}
+            {type === 'settings' ? (
+              <SettingsIcon fontSize="small" />
+            ) : (
+              <HomeIcon fontSize="small" />
+            )}
           </Box>
           <Box sx={{ flex: 1, minWidth: 0, ml: 0.5 }}>
             <Typography variant="body2" component="span" sx={{ lineHeight: 1.2 }}>
@@ -196,7 +202,7 @@ export default function Message({
             aria-label="View details"
             data-testid={`details-button-${id}`}
           >
-            <InfoOutlined fontSize="small" />
+            <InfoOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>
 
