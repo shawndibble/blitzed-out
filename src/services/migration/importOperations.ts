@@ -23,10 +23,11 @@ export const importActionFile = async (
   return withErrorHandling(async () => {
     // Import from bundled translation files for better performance
     const bundleFile = await import(`@/locales/${locale}/${gameMode}-bundle.json`);
-    const actionFile = bundleFile[groupName];
+    const bundle = bundleFile.default;
+    const actionFile = bundle[groupName];
 
     if (!actionFile) {
-      throw new Error(`Game mode "${groupName}" not found in ${locale}/${gameMode} bundle`);
+      throw new Error(`Group "${groupName}" not found in ${locale}/${gameMode} bundle`);
     }
 
     // Extract data from the JSON file

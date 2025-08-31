@@ -45,7 +45,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ syncing: false, lastSync: null });
 
   // Debounce mechanism for sync operations
-  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track if initial auth check is complete
   const authInitializedRef = useRef<boolean>(false);

@@ -8,7 +8,7 @@
         "Dale un sorbo a tu bebida.",
         "Tómate un trago.",
         "Toma 2 sorbos.",
-        "Haz que otro jugador de un sorbo a su bebida.",
+        "Haz que otro jugador dé un sorbo a su bebida.",
         "Tómate un trago."
       ],
       "Shots": [
@@ -25,6 +25,58 @@
         "2 shots.",
         "Haz que otro jugador se beba su copa de un trago.",
         "Haz que otro jugador se tome un trago"
+      ]
+    }
+  },
+  "ballBusting": {
+    "label": "Golpear los testículos",
+    "type": "solo",
+    "actions": {
+      "Ninguna": [],
+      "Bofetada/Apretón": [
+        "Masajea los testículos.",
+        "Date 2 palmadas en los testículos.",
+        "Date 10 palmaditas en los testículos.",
+        "Apriétate los testículos 15 segundos.",
+        "3 palmadas en los testículos.",
+        "Estírate los testículos 15 segundos.",
+        "Golpéate los testículos con los dedos 10 segundos.",
+        "Apriétate los testículos hasta el próximo turno.",
+        "Apriétate los testículos durante 10 segundos.",
+        "Golpes rápidos en los testículos 15 segundos.",
+        "Date una palmadita después de que alguien tire los dados.",
+        "Date 5 bofetadas en los testículos.",
+        "Mantén la respiración 10 segundos mientras te das palmadas en los testículos.",
+        "Palmadas en los testículos.",
+        "Masajea los testículos 15 segundos."
+      ],
+      "Golpear/Aplastar": [
+        "2 puñetazos en los testículos.",
+        "Aplasta los testículos.",
+        "4 puñetazos en los testículos.",
+        "Puñetazos en los testículos durante 10 segundos.",
+        "1 fuerte golpe en los testículos.",
+        "5 golpes en los testículos.",
+        "Aplasta los testículos hasta el próximo turno.",
+        "4 golpes fuertes en los testículos."
+      ],
+      "Utiliza un objeto": [
+        "Golpea los testículos.",
+        "Aplasta los testículos con un objeto.",
+        "Golpea los testículos durante 15 segundos.",
+        "5 golpes fuertes en los testículos.",
+        "Golpea los testículos después de que alguien tire los dados.",
+        "2 golpes en los testículos con un objeto.",
+        "Golpea los testículos 20 segundos.",
+        "Aplasta los testículos con un objeto.",
+        "Golpes rápidos en los testículos 15 segundos con un objeto."
+      ],
+      "Tan duro como sea posible": [
+        "5 golpes muy fuertes en los testículos con un objeto.",
+        "5 puñetazos muy fuertes en los testículos.",
+        "Aplasta los testículos con toda tu fuerza.",
+        "Golpea fuerte los testículos 20 segundos con un objeto.",
+        "Tira fuertemente de los testículos 20 segundos."
       ]
     }
   },
@@ -182,6 +234,54 @@
       ]
     }
   },
+  "clitTraining": {
+    "label": "Entrenamiento del Clítoris",
+    "type": "solo",
+    "actions": {
+      "None": [],
+      "Toque Ligero": [
+        "Traza círculos alrededor de tu clítoris con tu dedo.",
+        "Acaricia suavemente tu clítoris con una pluma o tela suave.",
+        "Usa las yemas de los dedos para apenas rozar tu clítoris por 10 segundos.",
+        "Respira aire caliente sobre tu clítoris.",
+        "Abre tus piernas y provoca ligeramente tu clítoris.",
+        "Usa un cepillo suave para estimular ligeramente tu clítoris.",
+        "Pellizca suavemente el capuchón alrededor de tu clítoris.",
+        "Quédate perfectamente quieta mientras apenas tocas tu clítoris por 15 segundos.",
+        "Alterna entre toques ligeros y alejarte de tu clítoris."
+      ],
+      "Estimulación Directa": [
+        "Frota tu clítoris en círculos lentos por 15 segundos.",
+        "Aplica presión constante a tu clítoris por 10 segundos.",
+        "Golpea tu clítoris repetidamente con dedos húmedos.",
+        "Frótate contra tu dedo por 20 segundos.",
+        "Usa tu pulgar para masajear tu clítoris.",
+        "Cuenta hasta 30 mientras estimulas tu clítoris.",
+        "Alterna entre estimulación rápida y lenta del clítoris.",
+        "Permanece en silencio mientras te das estimulación intensa del clítoris.",
+        "Estimula tu clítoris mientras realizas otra tarea."
+      ],
+      "Enfoque Intenso": [
+        "Aplica presión intensa a tu clítoris por 30 segundos.",
+        "Quédate quieta mientras golpeas rápidamente tu clítoris.",
+        "Usa movimiento circular con presión firme en tu clítoris.",
+        "Date 2 minutos de estimulación continua del clítoris.",
+        "Usa movimiento rápido en tu clítoris sin parar.",
+        "Alterna entre estimulación intensa y parar completamente.",
+        "Mantén el enfoque durante la estimulación intensa del clítoris.",
+        "Usa un vibrador en configuración alta por 45 segundos."
+      ],
+      "Desafío de Resistencia": [
+        "Estimula tu clítoris continuamente por 5 minutos sin terminar.",
+        "Llévate al borde 3 veces antes de parar.",
+        "Soporta estimulación alternante intensa y gentil del clítoris por 3 minutos.",
+        "Estimula tu clítoris mientras completas otro desafío.",
+        "Aplica estimulación de máxima intensidad del clítoris tanto como puedas soportar.",
+        "Llévate al borde repetidamente hasta que supliques por liberación.",
+        "Usa un temporizador y estimula tu clítoris por toda la duración sin permiso para terminar."
+      ]
+    }
+  },
   "gasMask": {
     "label": "Máscara de gas",
     "type": "consumption",
@@ -216,6 +316,35 @@
         "Respire profundamente a través del filtro durante 120 segundos (2 minutos)",
         "Respire a través del filtro todo el tiempo que pueda sin quitarlo, luego respire profundamente 10 veces.",
         "Respire a través del filtro todo el tiempo que pueda sin quitarlo, luego respire profundamente 20 veces."
+      ]
+    }
+  },
+  "pissPlay": {
+    "label": "Juegos con Orina",
+    "type": "solo",
+    "actions": {
+      "Ninguna": [],
+      "Orinar en un Vaso": [
+        "Bebe agua",
+        "Orina en un recipiente",
+        "Bebe mucha agua",
+        "Huele tu propia orina",
+        "Orina en un recipiente",
+        "Toma un sorbo de agua"
+      ],
+      "Lluvia dorada": [
+        "Orina sobre ti mismo",
+        "Orina en tu cara",
+        "Pon el pene y los testículos en un recipiente con orina",
+        "Bebe mucha agua",
+        "Vierte el contenido del recipiente con orina encima de ti",
+        "Bebe agua"
+      ],
+      "Bebe": [
+        "Bébete tu propia orina",
+        "Bebe agua",
+        "Bebe mucha agua",
+        "Intentar orinar en tu boca. Trágatelo."
       ]
     }
   },
@@ -257,13 +386,131 @@
         "Inhala durante 8 segundos y aguanta la respiración."
       ],
       "Experto": [
-        "Inhala 10 veces. Sin aguanta.",
+        "Inhala 10 veces. Sin aguantar.",
         "Inhala 15 segundos. Aguanta 10 segundos.",
         "Inhala con un calcetín con popper todo el tiempo que puedas",
-        "Vacia tus pulmones. El golpe más grande y profundo que puedas dar.",
+        "Vacía tus pulmones. El golpe más grande y profundo que puedas dar.",
         "Pulmones vacíos. Inhala 10 segundos. Aguanta 10 segundos. Repetir.",
         "Pulmones vacíos. Inhala 15 segundos profundamente. Aguanta 30 segundos.",
         "Inhala 10 segundos con calcetín/máscara. Aguanta 10 segundos."
+      ]
+    }
+  },
+  "throatTraining": {
+    "label": "Entrenamiento de garganta",
+    "type": "solo",
+    "actions": {
+      "Ninguna": [],
+      "Lamer": [
+        "Lame un juguete.",
+        "Juega con la punta del juguete.",
+        "Baña el juguete con tu lengua.",
+        "Chupa la punta del juguete.",
+        "Haz círculos en la punta del juguete con tu lengua.",
+        "Lame el tronco del juguete.",
+        "Juega con la punta del juguete durante 15 segundos.",
+        "Humedece todo el juguete con tu lengua."
+      ],
+      "Chupar": [
+        "Chupa el juguete durante 10 segundos.",
+        "Mantén el juguete en tu boca.",
+        "Fóllate la boca con el juguete.",
+        "Chupa el juguete durante 20 segundos.",
+        "Chupa el juguete entre respiraciones cortas.",
+        "Haz un espectáculo chupando el juguete.",
+        "Mueve rápidamente la lengua en la punta del juguete mientras chupas.",
+        "Chupa la punta del juguete durante 30 segundos."
+      ],
+      "Garganta profunda": [
+        "Mantén el juguete en tu garganta durante 5 segundos.",
+        "Haz garganta profunda entre respiraciones.",
+        "Lame los testículos mientras haces garganta profunda.",
+        "Haz garganta profunda durante 10 segundos. Luego, para.",
+        "Haz 10 gargantas profundas.",
+        "Chupa el juguete.",
+        "Fóllate la garganta."
+      ],
+      "Juego de respiración": [
+        "Haz garganta profunda durante 20 segundos.",
+        "Haz garganta profunda todo el tiempo que puedas.",
+        "Haz garganta profunda duro durante 30 segundos.",
+        "Cuenta 15s mientras haces garganta profunda.",
+        "Haz garganta profunda lentamente 5 veces hasta los testículos."
+      ]
+    }
+  },
+  "titTorture": {
+    "label": "Tortura de pezones",
+    "type": "solo",
+    "actions": {
+      "Ninguna": [],
+      "Apretar/Acariciar": [
+        "Acaricia los pezones.",
+        "Juega con los pezones.",
+        "Golpea suavemente los pezones.",
+        "Aprieta los pezones.",
+        "Moja los pezones.",
+        "Acaricia los pezones 15 segundos.",
+        "Golpea los pezones con el dedo 10 veces.",
+        "Aprieta los pezones 15 segundos."
+      ],
+      "Pellizcar/Tirar": [
+        "Pellizca los pezones con fuerza.",
+        "Tira de los pezones.",
+        "Frota los pezones durante 15 segundos.",
+        "Gira los pezones en ambas direcciones.",
+        "Retuerce los pezones mientras los estiras.",
+        "Sé duro con tus pezones durante 20 segundos."
+      ],
+      "Pinzas/Juguetes": [
+        "Pon un juguete en tus pezones 10 segundos.",
+        "Con el juguete en los pezones, tira de ellos.",
+        "Gira tus pezones con fuerza.",
+        "Golpea tu juguete para pezones 10 veces.",
+        "Sé duro con tus pezones."
+      ],
+      "Lo más fuerte posible": [
+        "Pellizca los pezones con la mayor fuerza posible.",
+        "Tira de los pezones lo más lejos que puedas.",
+        "Retuerce tus pezones hasta que llores.",
+        "Masajea tus pezones.",
+        "Golpea tu pecho/pezones."
+      ]
+    }
+  },
+  "vaping": {
+    "label": "Vapeo",
+    "type": "consumption",
+    "actions": {
+      "Ninguna": [],
+      "Principiante": [
+        "Da una calada.",
+        "Da una calada larga.",
+        "Crea la nube lo más grande que puedas.",
+        "Da una calada durante 3 segundos.",
+        "Mantén el humo dentro durante 3 segundos antes de soltar.",
+        "Intenta exhalar el humo por la nariz.",
+        "Da una calada e intenta hacer un anillo con el humo.",
+        "Busca una superficie y haz el truco del vapeo en cascada."
+      ],
+      "Intermedio": [
+        "Haz un anillo de humo.",
+        "Exhala lentamente, formando una fina nube.",
+        "Da una calada durante 5 segundos.",
+        "Toma 4-6 caladas.",
+        "Intenta expulsar humo a través de una pajita.",
+        "Mantén el humo dentro durante 5 segundos antes de soltar.",
+        "Haz una nube de humo y luego gírala con la mano para hacer un tornado."
+      ],
+      "Experto": [
+        "Da una calada, exhala e intenta volver a inhalar el humo.",
+        "Da la calada más larga que puedas.",
+        "Da una calada durante 10 segundos.",
+        "Da 8 o más caladas.",
+        "Intenta exhalar el vapor con los labios fruncidos.",
+        "Mantén el vapor dentro durante 10 segundos antes de exhalarlo.",
+        "Realiza el truco francés para inhalar el humo.",
+        "Realiza el truco “Bane” con el humo "
       ]
     }
   }

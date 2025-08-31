@@ -13,7 +13,7 @@ import GameOverDialog from '@/components/GameOverDialog';
 import { Link } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import { Message as MessageType, Base64ImageObject } from '@/types/Message';
-import { Share } from '@mui/icons-material';
+import ShareIcon from '@mui/icons-material/Share';
 import TextAvatar from '@/components/TextAvatar';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
@@ -74,7 +74,7 @@ export default function Message({
   // Then conditionally access type-specific properties
   let boardSize: number | undefined;
   let gameBoardId: string | undefined;
-  let image: string | undefined;
+  let image: Base64ImageObject | string | undefined;
 
   if (type === 'settings' || type === 'room') {
     // TypeScript knows these properties exist on settings and room messages
@@ -85,7 +85,7 @@ export default function Message({
 
   if (type === 'media') {
     // TypeScript knows this property exists on media messages
-    const typedMessage = message as MessageType & { image: string };
+    const typedMessage = message as MessageType & { image?: Base64ImageObject | string };
     image = typedMessage.image;
   }
 
@@ -240,7 +240,7 @@ export default function Message({
                     <CopyToClipboard
                       text={`${window.location.href}?importBoard=${gameBoardId}`}
                       copiedText={t('copiedLink')}
-                      icon={<Share />}
+                      icon={<ShareIcon />}
                     />
                   </Box>
                 ) : (
@@ -260,7 +260,7 @@ export default function Message({
                   <CopyToClipboard
                     text={window.location.href}
                     copiedText={t('copiedLink')}
-                    icon={<Share />}
+                    icon={<ShareIcon />}
                   />
                 </Box>
               </Box>
@@ -292,7 +292,7 @@ export default function Message({
       <div className="message-message">
         {type === 'actions' ? <ActionText text={text} /> : markdownContent}
         {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
-        {text.includes(t('finish')) && isOwnMessage && (
+        {typeof text === 'string' && text.includes(t('finish')) && isOwnMessage && (
           <Box textAlign="center" className="message-action-box">
             <Button onClick={() => setDialog(true)} variant="outlined" size="small">
               <Typography>{t('playAgain')}</Typography>

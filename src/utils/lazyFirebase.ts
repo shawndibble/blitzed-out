@@ -11,12 +11,12 @@ let firebaseLoaded = false;
  * @returns Promise that resolves to Firebase service functions
  */
 export const loadFirebase = async () => {
-  if (firebaseLoaded) {
-    return await import('@/services/firebase');
-  }
-
   if (!firebasePromise) {
     firebasePromise = import('@/services/firebase');
+  }
+
+  if (firebaseLoaded) {
+    return await firebasePromise;
   }
 
   const firebase = await firebasePromise;
@@ -40,14 +40,14 @@ export const preloadFirebase = () => {
     if ('requestIdleCallback' in window) {
       requestIdleCallback(
         () => {
-          loadFirebase();
+          void loadFirebase();
         },
         { timeout: 2000 }
       );
     } else {
       // Fallback for browsers without requestIdleCallback
       setTimeout(() => {
-        loadFirebase();
+        void loadFirebase();
       }, 100);
     }
   }

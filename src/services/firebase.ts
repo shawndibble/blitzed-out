@@ -631,7 +631,7 @@ export async function getOrCreateBoard({
     const board = await getBoardByContent(checksum);
     if (board) {
       // update the ttl for another 30 days.
-      updateDoc(board.ref, {
+      await updateDoc(board.ref, {
         ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       }); // 30 days
 
@@ -700,7 +700,7 @@ interface ConnectionPool {
 
 // Advanced cache configuration
 const queryCache = new Map<string, QueryCache>();
-const queryDebounceMap = new Map<string, NodeJS.Timeout>();
+const queryDebounceMap = new Map<string, ReturnType<typeof setTimeout>>();
 // Priority query queue for future advanced scheduling (currently unused)
 
 // Optimized cache settings for 60-80% performance improvement
@@ -981,7 +981,7 @@ export async function sendMessage({
 }
 
 export async function deleteMessage(room: string, messageId: string): Promise<void> {
-  return deleteDoc(doc(db, `/chat-rooms/${room.toUpperCase()}/messages/${messageId}`));
+  return deleteDoc(doc(db, 'chat-rooms', room.toUpperCase(), 'messages', messageId));
 }
 
 interface ImageData {

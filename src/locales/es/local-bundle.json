@@ -8,7 +8,7 @@
         "Dale un sorbo a tu bebida.",
         "Tómate un trago.",
         "Toma 2 sorbos.",
-        "Haz que otro jugador de un sorbo.",
+        "Haz que otro jugador dé un sorbo.",
         "Tómate un trago.",
         "Dale un sorbo a la bebida de tu vecino.",
         "Intercambia bebidas con alguien."
@@ -149,7 +149,7 @@
       ],
       "Juguetes": [
         "{player} usa un juguete en el pene.",
-        "{sub} usa un juguete en el peen de {dom}.",
+        "{sub} usa un juguete en el pene de {dom}.",
         "{player} usa lentamente un juguete en el pene hasta su próximo turno.",
         "{sub} usa el juguete en {dom} mientras también se masturba.",
         "{player} usa un juguete en su pene durante 30 segundos con los ojos cerrados.",
@@ -366,6 +366,67 @@
       ]
     }
   },
+  "clitTraining": {
+    "label": "Entrenamiento del Clítoris",
+    "type": "sex",
+    "dom": "Dueña del Clítoris",
+    "sub": "Proveedor de Placer",
+    "actions": {
+      "None": [],
+      "Toque Ligero": [
+        "{sub} traza círculos alrededor del clítoris de {dom} con su dedo.",
+        "{sub} acaricia suavemente el clítoris de {dom} con una pluma o tela suave.",
+        "{dom} guía el dedo de {sub} a su clítoris por 10 segundos de toque gentil.",
+        "{sub} usa la punta de su lengua para apenas rozar el clítoris de {dom}.",
+        "{sub} respira aire caliente sobre el clítoris de {dom}.",
+        "{dom} abre sus piernas mientras {sub} provoca ligeramente su clítoris.",
+        "{sub} usa un cepillo suave para estimular ligeramente el clítoris de {dom}.",
+        "{sub} pellizca suavemente el capuchón alrededor del clítoris de {dom}.",
+        "{dom} ordena a {sub} tocar apenas su clítoris por 15 segundos mientras {dom} se queda quieta.",
+        "{sub} alterna entre toques ligeros y alejarse del clítoris de {dom}.",
+        "{dom} hace que cada proveedor de placer/switch provoque ligeramente su clítoris por turnos."
+      ],
+      "Estimulación Directa": [
+        "{sub} frota el clítoris de {dom} en círculos lentos por 15 segundos.",
+        "{dom} mantiene la mano de {sub} contra su clítoris hasta su próximo turno.",
+        "{sub} golpea el clítoris de {dom} repetidamente con su lengua.",
+        "{dom} se frota contra el dedo de {sub} por 20 segundos.",
+        "{sub} aplica presión constante al clítoris de {dom} por 10 segundos.",
+        "{dom} se exhibe frotándose contra la mano de {sub}.",
+        "{sub} usa su pulgar para masajear el clítoris de {dom}.",
+        "{dom} hace que {sub} estimule su clítoris mientras {dom} cuenta hasta 30.",
+        "{sub} alterna entre estimulación rápida y lenta del clítoris.",
+        "{dom} recibe estimulación del clítoris de cada jugador antes de su próximo turno.",
+        "{dom} hace que cada proveedor de placer/switch estimule su clítoris por 15 segundos cada uno.",
+        "{dom} ordena a {sub} permanecer en silencio mientras da estimulación intensa del clítoris.",
+        "{sub} estimula el clítoris de {dom} mientras {dom} realiza otra tarea.",
+        "{dom} hace que cada proveedor de placer/switch trabaje en su clítoris simultáneamente.",
+        "{dom} compite con otro jugador para ver quién puede manejar más estimulación del clítoris."
+      ],
+      "Enfoque Intenso": [
+        "{sub} enfoca presión intensa en el clítoris de {dom} por 30 segundos.",
+        "{dom} se queda quieta mientras {sub} golpea rápidamente su clítoris.",
+        "{sub} chupa el clítoris de {dom} mientras aplica presión.",
+        "{dom} recibe 2 minutos de estimulación continua del clítoris.",
+        "{sub} usa vibración o movimiento rápido de lengua en el clítoris de {dom}.",
+        "{dom} controla cuándo {sub} puede moverse durante el enfoque del clítoris.",
+        "{sub} alterna entre estimulación intensa y parar completamente.",
+        "{dom} recibe enfoque intenso del clítoris de cada jugador por 45 segundos cada uno.",
+        "{dom} hace que cada proveedor de placer/switch se turne dando estimulación intensa del clítoris.",
+        "{dom} mantiene contacto visual mientras recibe estimulación intensa del clítoris."
+      ],
+      "Desafío de Resistencia": [
+        "{dom} recibe 5 minutos de estimulación continua del clítoris sin liberación.",
+        "{sub} lleva a {dom} al borde 3 veces antes de parar.",
+        "{dom} soporta estimulación alternante intensa y gentil del clítoris por 3 minutos.",
+        "{sub} estimula el clítoris de {dom} mientras {dom} completa un desafío.",
+        "{dom} recibe estimulación de máxima intensidad del clítoris tanto como quiera.",
+        "{sub} lleva a {dom} al borde repetidamente hasta que {dom} decide terminar.",
+        "{dom} soporta estimulación del clítoris de múltiples jugadores y controla cuándo terminar.",
+        "{dom} hace que cada proveedor de placer/switch compita para ver quién puede complacerla más tiempo."
+      ]
+    }
+  },
   "confessions": {
     "label": "Confesiones",
     "type": "foreplay",
@@ -440,7 +501,7 @@
     "sub": "Receptor",
     "actions": {
       "Ninguna": [],
-      "Light": [
+      "Ligero": [
         "{dom} aplica una corriente eléctrica suave al brazo de {sub} usando una unidad TENS.",
         "{dom} usa una varita violeta en la espalda de {sub} en un ajuste bajo.",
         "{dom} conecta electrodos a los muslos de {sub} y enciende el dispositivo en su ajuste más bajo.",
@@ -448,7 +509,7 @@
         "{dom} usa un bolígrafo de estimulación eléctrica para trazar ligeramente sobre la piel de {sub}.",
         "{dom} conecta electrodos a las pantorrillas de {sub} y enciende el dispositivo en un ajuste bajo."
       ],
-      "Medium": [
+      "Medio": [
         "{dom} aumenta la intensidad de la corriente eléctrica en el brazo de {sub} usando una unidad TENS.",
         "{dom} usa una varita violeta en el estómago de {sub} en un ajuste medio.",
         "{dom} conecta electrodos a los pezones de {sub} y enciende el dispositivo en un ajuste medio.",
@@ -456,7 +517,7 @@
         "{dom} usa un bolígrafo de estimulación eléctrica para trazar sobre los músculos de {sub}.",
         "{dom} conecta electrodos a los brazos superiores de {sub} y enciende el dispositivo en un ajuste medio."
       ],
-      "High": [
+      "Alto": [
         "{dom} pone la intensidad de la corriente eléctrica en el brazo de {sub} en su ajuste seguro más alto usando una unidad TENS.",
         "{dom} usa una varita violeta en los genitales de {sub} en un ajuste alto.",
         "{dom} conecta electrodos a la parte interna de los muslos de {sub} y enciende el dispositivo en su ajuste seguro más alto.",
@@ -464,7 +525,7 @@
         "{dom} usa un bolígrafo de estimulación eléctrica para trazar sobre las terminaciones nerviosas de {sub}.",
         "{dom} conecta electrodos a la parte baja de la espalda de {sub} y enciende el dispositivo en un ajuste alto."
       ],
-      "Challenging": [
+      "Desafiante": [
         "{dom} usa una varita violeta en la lengua de {sub} en un ajuste bajo.",
         "{dom} conecta electrodos a los pies de {sub} y enciende el dispositivo en un ajuste desafiante pero seguro.",
         "{dom} aplica corriente eléctrica a múltiples áreas del cuerpo de {sub} al mismo tiempo usando múltiples dispositivos.",
@@ -558,7 +619,7 @@
       "Verbal": [
         "{dom} asigna un término despectivo a {sub} y le hace repetir 'Soy un <término>' 10 veces.",
         "{dom} asigna un apodo degradante a {sub} al que debe responder durante el resto del juego.",
-        "{dom} hace que {todos los subs} se refieran a ellos como señor/a o amo/a durante el resto del juego.",
+        "{dom} hace que todos los sumisos se refieran a {dom} como señor/a o amo/a durante el resto del juego.",
         "{sub} comparte una fantasía o deseo relacionado con la humillación.",
         "{sub} cuenta en alto una experiencia pasada que le hizo sentir humillado.",
         "{sub} dice por qué {dom} es superior a él.",
@@ -624,6 +685,42 @@
       ]
     }
   },
+  "pissPlay": {
+    "label": "Juegos con Orina",
+    "type": "sex",
+    "dom": "Orinador",
+    "sub": "Orinado",
+    "actions": {
+      "Ninguna": [],
+      "Orinar en un vaso": [
+        "{sub} bebe agua",
+        "{sub} da un trago grande de agua",
+        "{dom} orina en un recipiente",
+        "{sub} huele tu propia orina",
+        "{sub} huele la orina de {dom}",
+        "{dom} orina en un recipiente y hace que {sub} sujete su pene mientras",
+        "{sub} toma un sorbo de agua",
+        "{dom} le da a {sub} un recipiente con su orina"
+      ],
+      "Lluvia dorada": [
+        "{dom} orina encima de {sub}",
+        "{sub} se orina encima",
+        "{sub} pone su pene y testículos en un recipiente con orina",
+        "{sub} bebe agua",
+        "{dom} orina en la cara de {sub}",
+        "{sub} se orina en su propia cara",
+        "{sub} da un trago grande de agua"
+      ],
+      "Bebe": [
+        "{sub} bebe su propia orina",
+        "{sub} bebe la orina de {dom} desde la distancia",
+        "{sub} bebe la orina de {dom} directamente del pene",
+        "{sub} bebe agua",
+        "{dom} bebe agua mientras {sub} mira",
+        "{sub} intenta orinar en su propia boca y tragar."
+      ]
+    }
+  },
   "poppers": {
     "label": "Poppers",
     "type": "consumption",
@@ -635,7 +732,7 @@
         "Inhala 1 vez profundamente.",
         "Inhala 2 veces.",
         "Inhala 3 veces.",
-        "Inhala 1 veces con cada fosa nasal profundamente.",
+        "Inhala 1 vez profundamente por cada fosa nasal.",
         "Inhala 2 veces profundamente.",
         "Inhala 1 vez y aguanta la respiración.",
         "Inhala 2 veces rápidamente."
@@ -827,6 +924,64 @@
       ]
     }
   },
+  "tickling": {
+    "label": "Cosquillas",
+    "type": "foreplay",
+    "dom": "Hace cosquillas",
+    "sub": "Cosquilleado",
+    "actions": {
+      "Ninguno": [],
+      "Ligero": [
+        "{dom} frota suavemente su dedo en una zona sensible de {sub}.",
+        "{dom} usa un objeto para hacer cosquillas a {sub} durante 15 segundos.",
+        "{dom} roza suavemente las axilas de {sub} durante 10 segundos.",
+        "{dom} roza suavemente las plantas de los pies de {sub}.",
+        "{dom} da besos o sopla suavemente en una zona sensible de {sub} durante 15 segundos.",
+        "{dom} traza 3 formas con su dedo en una zona sensible de {sub}.",
+        "{dom} hace cosquillas suavemente a {sub} durante 10 segundos.",
+        "{sub} mantiene la cara seria mientras {dom} frota suavemente una zona sensible durante 10 segundos.",
+        "{dom} da besos suaves en 3 áreas diferentes de {sub} para ver si tiene cosquillas allí.",
+        "{dom} hace cosquillas en el ombligo de {sub} durante 15 segundos.",
+        "{dom} acaricia suavemente el cuello de {sub} con un objeto suave (como una pluma).",
+        "{dom} hace cosquillas en los lóbulos de las orejas de {sub} durante 10 segundos.",
+        "{dom} traza un círculo alrededor del ombligo de {sub} durante 15 segundos."
+      ],
+      "Normal": [
+        "{dom} hace cosquillas a {sub} durante 30 segundos.",
+        "{dom} da empujoncitos juguetones a {sub}.",
+        "{dom} usa un objeto para hacer cosquillas a {sub} durante 30 segundos.",
+        "{dom} hace cosquillas a {sub} en una misma zona mientras tiene vendados los ojos durante 30 segundos.",
+        "{dom} besa/sopla una zona sensible de {sub}.",
+        "{dom} busca tantas zonas con cosquillas de {sub} como pueda durante 15 segundos.",
+        "{sub} mantiene la cara seria mientras {dom} frota suavemente una zona sensible durante 30 segundos.",
+        "{dom} hace cosquillas en los costados de {sub} durante 30 segundos.",
+        "{dom} hace cosquillas la parte posterior de las rodillas de {sub} durante 30 segundos.",
+        "{dom} hace cosquillas en los pies de {sub} durante 30 segundos.",
+        "{dom} hace cosquillas en las axilas de {sub} durante 30 segundos."
+      ],
+      "Intenso": [
+        "{dom} da a {sub} una frase de seguridad y luego le hace cosquillas hasta que diga la frase.",
+        "{dom} hace cosquillas a {sub} bruscamente durante 45 segundos.",
+        "{dom} besa/chupa agresivamente una zona sensible de {sub}.",
+        "{dom} frota una zona sensible de {sub} durante 45 segundos.",
+        "{dom} hace cosquillas a {sub} bruscamente durante 20 segundos.",
+        "{dom} hace cosquillas en los pies a {sub} con un objeto suave (como una pluma) durante 45 segundos.",
+        "{dom} cosquillea las axilas de {sub} con los dedos durante 45 segundos.",
+        "{dom} cosquillea el cuello de {sub} con la lengua durante 45 segundos.",
+        "{dom} cosquillea los muslos internos de {sub} durante 45 segundos."
+      ],
+      "Sobrecarga sensorial": [
+        "{dom} cosquillea a {sub} durante 60 segundos.",
+        "{sub} se acuesta en estrella (atado si es necesario) y {dom} lo cosquillea de cualquier manera durante 60 segundos.",
+        "{sub} cierra los ojos y tiene tantas manos/objetos como sea posible cosquilleándolo durante 60 segundos.",
+        "{dom} cosquillea rápidamente a {sub} en sus 3 zonas más cosquillosas durante 60 segundos.",
+        "{dom} da a {sub} una frase para detenerse y luego lo cosquillea hasta que diga la frase 3 veces",
+        "{dom} cosquillea a {sub} como quiera (mínimo de 15 segundos) hasta el próximo turno del cosquilleado.",
+        "{dom} cosquillea las axilas de {sub} con un objeto suave (como una pluma) durante 60 segundos.",
+        "{dom} cosquillea a {sub} con varios objetos suaves (como plumas) a la vez durante 60 segundos."
+      ]
+    }
+  },
   "titTorture": {
     "label": "Tortura de pezones",
     "type": "sex",
@@ -869,6 +1024,42 @@
         "{dom} retuerce los pezones de {sub} hasta que grite.",
         "{dom} da a {sub} una agradable chupada/masaje en los pezones.",
         "{dom} golpea el pecho/los pezones de {sub}."
+      ]
+    }
+  },
+  "vaping": {
+    "label": "Vapeo",
+    "type": "consumption",
+    "actions": {
+      "Ninguna": [],
+      "Principiante": [
+        "Da una calada.",
+        "Da una calada larga.",
+        "Crea la nube lo más grande que puedas.",
+        "Da una calada durante 3 segundos.",
+        "Aguanta el humo dentro durante 3 segundos antes de soltarlo.",
+        "Intenta exhalar el humo por la nariz.",
+        "Da una calada e intenta hacer un anillo con el humo.",
+        "Busca una superficie y haz el truco del vapeo en cascada."
+      ],
+      "Intermedio": [
+        "Haz un anillo de humo.",
+        "Exhala lentamente, formando una fina nube.",
+        "Da una calada durante 5 segundos.",
+        "Toma 4-6 caladas.",
+        "Intenta expulsar humo a través de una pajita.",
+        "Aguanta el humo dentro durante 5 segundos antes de soltarlo.",
+        "Haz una nube de humo y luego gírala con la mano para hacer un tornado."
+      ],
+      "Experto": [
+        "Da una calada, exhala e intenta volver a inhalar el humo.",
+        "Da una calada lo más larga que puedas.",
+        "Da una calada durante 10 segundos.",
+        "Da 8 o más caladas.",
+        "Intenta exhalar el vapor con los labios fruncidos.",
+        "Aguanta el humo dentro durante 10 segundos antes de exhalarlo.",
+        "Exhala el humo por la boca e inhálalo por la nariz.",
+        "Realiza el truco “Bane” con el humo "
       ]
     }
   }

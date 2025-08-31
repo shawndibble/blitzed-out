@@ -38,7 +38,7 @@ export default defineConfig({
     // Enable both Brotli and Gzip compression
     compression({
       algorithms: ['gzip', 'brotliCompress'],
-      exclude: [/\.(br)$ /, /\.(gz)$/],
+      exclude: [/\.(br|gz)$/],
       threshold: 1024, // Only compress files > 1KB
     }),
   ],

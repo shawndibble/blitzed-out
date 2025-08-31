@@ -146,7 +146,7 @@ export default function MenuDrawer(): JSX.Element {
         setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
         toggleDialog('languageChange', true);
       } catch (error) {
-        console.error('Error changing language:', error);
+        if (import.meta.env.DEV) console.error('Error changing language:', error);
         // Still attempt to change language even if migration fails
         await i18n.changeLanguage(newLanguage);
         setLocale(newLanguage);
@@ -182,7 +182,7 @@ export default function MenuDrawer(): JSX.Element {
           // Use the complete settings submission flow to rebuild board and generate message
           await submitSettings({ ...gameSettings, boardUpdated: true }, actionsList);
         } catch (error) {
-          console.error('Error rebuilding board:', error);
+          if (import.meta.env.DEV) console.error('Error rebuilding board:', error);
           // Fallback to simple board update
           updateSettings({ boardUpdated: true });
         }
@@ -335,7 +335,7 @@ export default function MenuDrawer(): JSX.Element {
           <List sx={{ flexGrow: 1 }}>{menuList}</List>
           <Box
             sx={{
-              borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+              borderTop: (theme) => `1px solid ${theme.palette.divider}`,
               p: 2,
             }}
           >

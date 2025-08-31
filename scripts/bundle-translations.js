@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global process */
 
 /**
  * Bundle Translation Generator
@@ -43,8 +44,10 @@ function bundleGameModeFiles(languageDir, gameMode) {
     try {
       const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
       bundle[groupName] = content;
-    } catch {
-      // Skip files with errors
+    } catch (e) {
+      console.error(`Failed to parse JSON in translation file: ${filePath}`);
+      console.error(`Parse error: ${e.message}`);
+      process.exit(1);
     }
   });
 

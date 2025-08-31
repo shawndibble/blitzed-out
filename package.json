@@ -17,7 +17,8 @@
     "test:ci": "NODE_OPTIONS='--max-old-space-size=3072' vitest run --no-watch --config=vitest.ci.config.ts",
     "type-check": "tsc --noEmit",
     "cleanup:debug": "eslint --rule 'no-console: error' src/",
-    "cleanup:comments": "eslint --rule 'no-warning-comments: [error, { terms: [todo, fixme, hack, bug], location: anywhere }]' src/"
+    "cleanup:comments": "eslint --rule 'no-warning-comments: [error, { terms: [todo, fixme, hack, bug], location: anywhere }]' src/",
+    "validate:placeholders": "node scripts/validate-placeholders.cjs"
   },
   "dependencies": {
     "@capacitor/camera": "^7.0.0",

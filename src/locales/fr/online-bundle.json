@@ -234,6 +234,54 @@
       ]
     }
   },
+  "clitTraining": {
+    "label": "Entraînement du Clitoris",
+    "type": "solo",
+    "actions": {
+      "None": [],
+      "Toucher Léger": [
+        "Trace des cercles autour de ton clitoris avec ton doigt.",
+        "Caresse doucement ton clitoris avec une plume ou un tissu doux.",
+        "Utilise le bout des doigts pour effleurer à peine ton clitoris pendant 10 secondes.",
+        "Souffle de l'air chaud sur ton clitoris.",
+        "Écarte tes jambes et taquine légèrement ton clitoris.",
+        "Utilise une brosse douce pour stimuler légèrement ton clitoris.",
+        "Pince délicatement le capuchon autour de ton clitoris.",
+        "Reste parfaitement immobile en touchant à peine ton clitoris pendant 15 secondes.",
+        "Alterne entre des touches légères et t'éloigner de ton clitoris."
+      ],
+      "Stimulation Directe": [
+        "Frotte ton clitoris en cercles lents pendant 15 secondes.",
+        "Applique une pression constante sur ton clitoris pendant 10 secondes.",
+        "Tapote ton clitoris de façon répétée avec des doigts humides.",
+        "Frotte-toi contre ton doigt pendant 20 secondes.",
+        "Utilise ton pouce pour masser ton clitoris.",
+        "Compte jusqu'à 30 en stimulant ton clitoris.",
+        "Alterne entre stimulation rapide et lente du clitoris.",
+        "Reste silencieuse en te donnant une stimulation intense du clitoris.",
+        "Stimule ton clitoris en effectuant une autre tâche."
+      ],
+      "Focus Intense": [
+        "Applique une pression intense sur ton clitoris pendant 30 secondes.",
+        "Reste immobile en tapotant rapidement ton clitoris.",
+        "Utilise un mouvement circulaire avec une pression ferme sur ton clitoris.",
+        "Donne-toi 2 minutes de stimulation continue du clitoris.",
+        "Utilise un mouvement rapide sur ton clitoris sans arrêter.",
+        "Alterne entre stimulation intense et arrêt complet.",
+        "Maintiens la concentration pendant la stimulation intense du clitoris.",
+        "Utilise un vibrateur sur réglage élevé pendant 45 secondes."
+      ],
+      "Défi d'Endurance": [
+        "Stimule ton clitoris continuellement pendant 5 minutes sans finir.",
+        "Amène-toi au bord 3 fois avant d'arrêter.",
+        "Endure une stimulation alternée intense et douce du clitoris pendant 3 minutes.",
+        "Stimule ton clitoris en complétant un autre défi.",
+        "Applique une stimulation d'intensité maximale du clitoris aussi longtemps que tu peux supporter.",
+        "Amène-toi au bord de façon répétée jusqu'à ce que tu supplies pour la libération.",
+        "Utilise un minuteur et stimule ton clitoris pendant toute la durée sans permission de finir."
+      ]
+    }
+  },
   "gasMask": {
     "label": "Masque à gaz",
     "type": "consumption",
@@ -294,8 +342,8 @@
       ],
       "Boire": [
         "Bois ta propre pisse",
-        "Boiq de l'eau",
-        "Boiq de l'eau à petites gorgées",
+        "Bois de l'eau",
+        "Bois de l'eau à petites gorgées",
         "Essayer de pisser dans ta bouche. Avales."
       ]
     }
@@ -306,45 +354,45 @@
     "actions": {
       "Aucun": [],
       "Débutant": [
-        "1 hit.",
-        "2 hits.",
-        "1 hit long.",
-        "2 hits.",
-        "3 hits.",
-        "1 hit pour chaque narine.",
-        "2 hits longs.",
-        "1 hit.",
-        "2 hits rapides."
+        "1 bouffée.",
+        "2 bouffées.",
+        "1 longue bouffée.",
+        "2 bouffées.",
+        "3 bouffées.",
+        "1 bouffée pour chaque narine.",
+        "2 longues bouffées.",
+        "1 bouffée.",
+        "2 bouffées rapides."
       ],
       "Intermédiaire": [
-        "3 hits.",
-        "4 hits.",
-        "2 hits pour chaque narine.",
-        "1 hit bucal.",
-        "Hit bucal de 5 secondes.",
-        "4 hits.",
-        "Sniffes pendant 5 secondes. Bloques ta respiration 5 secondes.",
-        "5 hits rapides."
+        "3 bouffées.",
+        "4 bouffées.",
+        "2 bouffées pour chaque narine.",
+        "1 bouffée buccale.",
+        "Bouffée buccale de 5 secondes.",
+        "4 bouffées.",
+        "Inhales pendant 5 secondes. Retiens ta respiration 5 secondes.",
+        "5 bouffées rapides."
       ],
       "Avancé": [
-        "Sniffes 10 secondes. Bloques 1O secondes.",
-        "4 hits buccaux.",
-        "Sniffes et bloques aussi longtemps que possible.",
-        "Respires avec un masque à poppers ou un chaussette pendant 15 secondes.",
-        "8 hits.",
-        "4 hits buccaux.",
-        "6 hits longs.",
-        "5 hits de chaque côté.",
-        "Sniffes 8 secondes. Bloques 8 secondes."
+        "Inhales 10 secondes. Retiens 10 secondes.",
+        "4 bouffées buccales.",
+        "Inhales et retiens aussi longtemps que possible.",
+        "Respire avec un masque à poppers ou une chaussette pendant 15 secondes.",
+        "8 bouffées.",
+        "4 bouffées buccales.",
+        "6 longues bouffées.",
+        "5 bouffées de chaque côté.",
+        "Inhales 8 secondes. Retiens 8 secondes."
       ],
       "Expert": [
-        "10 coups normaux. Pas de retenue.",
-        "15 secondes touchées. 10 secondes maintenues.",
-        "Respirez avec des chaussettes à pression aussi longtemps que vous le pouvez",
-        "Videz vos poumons. Le coup le plus puissant et le plus profond que vous puissiez faire.",
-        "Poumons vides. Coup profond pendant 10 secondes. Maintien pendant 10 secondes. Répétez.",
-        "Poumons vides. Coup profond pendant 15 secondes. Maintien pendant 30 secondes.",
-        "10s de chaussettes/masques frappés. 10s de maintien."
+        "10 bouffées normales. Sans retenir.",
+        "Inhales 15 secondes. Retiens 10 secondes.",
+        "Respires avec une chaussette à poppers aussi longtemps que tu peux",
+        "Vides tes poumons. La bouffée la plus grande et profonde que tu puisses faire.",
+        "Poumons vides. Inhales profondément 10 secondes. Retiens 10 secondes. Répète.",
+        "Poumons vides. Inhales profondément 15 secondes. Retiens 30 secondes.",
+        "10 secondes chaussette/masque. Retiens 10 secondes."
       ]
     }
   },
@@ -437,32 +485,32 @@
       "Aucun": [],
       "Débutant": [
         "Prends une bouffée.",
-        "Prenez une longue bouffée.",
-        "Créez le plus gros nuage possible.",
-        "Tirez une bouffée pendant 3 secondes.",
-        "Retenez la vapeur pendant 3 secondes avant d'expirer.",
-        "Essayez d'expirer la vapeur par le nez.",
-        "Prenez une bouffée et essayez de créer une forme de 'O' avec la vapeur.",
-        "Trouvez une surface et faites le tour de la vape en cascade."
+        "Prends une longue bouffée.",
+        "Crée le plus gros nuage possible.",
+        "Tire une bouffée pendant 3 secondes.",
+        "Retiens la vapeur pendant 3 secondes avant d'expirer.",
+        "Essaie d'expirer la vapeur par le nez.",
+        "Prends une bouffée et essaie de créer une forme de 'O' avec la vapeur.",
+        "Trouve une surface et fais le tour de la vape en cascade."
       ],
       "Intermédiaire": [
         "Faire un rond de fumée.",
-        "Expirez lentement, en formant un mince nuage.",
-        "Tirez une bouffée pendant 5 secondes.",
-        "Prenez 4 à 6 bouffées.",
-        "Essayez de souffler de la vapeur à travers une paille.",
-        "Retenez la vapeur pendant 5 secondes avant d'expirer.",
-        "Créez un nuage de vape, puis faites-le tourner avec votre main pour réaliser le tour de la tornade."
+        "Expire lentement, en formant un mince nuage.",
+        "Tire une bouffée pendant 5 secondes.",
+        "Prends 4 à 6 bouffées.",
+        "Essaie de souffler de la vapeur à travers une paille.",
+        "Retiens la vapeur pendant 5 secondes avant d'expirer.",
+        "Crée un nuage de vape, puis fais-le tourner avec ta main pour réaliser le tour de la tornade."
       ],
       "Expert": [
-        "Tirez une bouffée, expirez et essayez de réinspirer la fumée.",
-        "Prenez la plus longue traînée possible.",
-        "Tirez une bouffée pendant 10 secondes.",
-        "Prenez 8 bouffées ou plus.",
-        "Essayez d'expirer la vapeur par les lèvres pincées.",
-        "Retenez la vapeur pendant 10 secondes avant d'expirer.",
-        "Effectuez l'astuce française d'inhalation de vapeur.",
-        "Effectuez le tour de vapeur Bane"
+        "Tire une bouffée, expire et essaie de réinspirer la fumée.",
+        "Prends la plus longue traînée possible.",
+        "Tire une bouffée pendant 10 secondes.",
+        "Prends 8 bouffées ou plus.",
+        "Essaie d'expirer la vapeur par les lèvres pincées.",
+        "Retiens la vapeur pendant 10 secondes avant d'expirer.",
+        "Effectue l'astuce française d'inhalation de vapeur.",
+        "Effectue le tour de vapeur Bane"
       ]
     }
   }
