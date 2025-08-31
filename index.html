@@ -64,18 +64,21 @@
       content="Transform your intimate adventures with a customizable adult experience platform."
     />
 
-    <!-- Roboto fonts are loaded via Google Fonts CDN in JavaScript for better compatibility -->
+    <!-- Preload critical fonts for faster LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" as="style" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" /></noscript>
 
     <!-- Optimized preconnects - only for critical resources -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
-    <!-- DNS prefetch for fonts - less critical -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-
     <!-- Let Vite handle module preloading automatically via build optimization -->
-
-    <!-- Shared loading styles -->
+    
+    <!-- Preload critical CSS for instant styling -->
+    <link rel="preload" href="/shared-loading.css" as="style" />
     <link rel="stylesheet" href="/shared-loading.css" />
 
     <!-- Defer Material Icons to avoid blocking critical path -->
@@ -276,13 +279,13 @@
         }
       });
     </script>
-    <script type="module" crossorigin src="/assets/index-BwCKi13u.js"></script>
-    <link rel="modulepreload" crossorigin href="/js/chunk-IKWv-kc7.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-CGxrUmmO.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-B02e1Wac.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-B-WiPcoy.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-Cd9zmNqH.js">
-    <link rel="stylesheet" crossorigin href="/assets/style-DKbdyQom.css">
+    <script type="module" crossorigin src="/assets/index-D1v3TBDu.js"></script>
+    <link rel="modulepreload" crossorigin href="/js/chunk-DjorLCXt.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-7Mx4odO2.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-CbTFf4Zt.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-CIoF-0oK.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-DYx4VvzO.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DKbdyQom.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
