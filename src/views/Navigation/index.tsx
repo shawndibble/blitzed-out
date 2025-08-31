@@ -3,7 +3,7 @@ import { CalendarMonth } from '@mui/icons-material';
 import { AppBar, Badge, Box, IconButton, Portal, Toolbar } from '@mui/material';
 import useSchedule from '@/context/hooks/useSchedule';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import Logo from '@/images/blitzed-out.png';
+import Logo from '@/images/blitzed-out-optimized.png';
 import { useTranslation } from 'react-i18next';
 import CastButton from '@/components/CastButton';
 import ThemeToggle from '@/components/ThemeToggle';
