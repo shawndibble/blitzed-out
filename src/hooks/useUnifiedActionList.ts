@@ -19,7 +19,8 @@ interface UnifiedActionListResult {
  */
 export default function useUnifiedActionList(
   gameMode?: string,
-  showOnlyGroupsWithTiles: boolean = false
+  showOnlyGroupsWithTiles: boolean = false,
+  refreshKey?: any
 ): UnifiedActionListResult {
   const { i18n } = useTranslation();
   const [actionsList, setActionsList] = useState<GroupedActions>({});
@@ -111,7 +112,7 @@ export default function useUnifiedActionList(
     };
 
     loadUnifiedActions();
-  }, [gameMode, i18n.resolvedLanguage, showOnlyGroupsWithTiles]);
+  }, [gameMode, i18n.resolvedLanguage, showOnlyGroupsWithTiles, refreshKey]);
 
   return { actionsList, isLoading };
 }

@@ -13,9 +13,11 @@ import { ActionEntry, FormData } from '@/types';
 import { ExpandMore, PlayArrow, Tune } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { hasValidSelections, purgedFormData } from './helpers';
+import useBrokenActionsState from '@/hooks/useBrokenActionsState';
 import { useEffect, useState } from 'react';
 
 import ButtonRow from '@/components/ButtonRow';
+import BrokenActionsState from '@/components/BrokenActionsState';
 import PickActions from './PickActions';
 import PickConsumptions from './PickConsumptions/index';
 import { PresetConfig } from '@/types/presets';
@@ -30,6 +32,7 @@ interface ActionsStepProps {
   prevStep: (count?: number) => void;
   actionsList: Record<string, any>;
   isActionsLoading?: boolean;
+  isMigrationInProgress?: boolean;
 }
 
 export default function ActionsStep({
@@ -39,8 +42,10 @@ export default function ActionsStep({
   prevStep,
   actionsList,
   isActionsLoading = false,
+  isMigrationInProgress = false,
 }: ActionsStepProps): JSX.Element {
   const { t } = useTranslation();
+  const { isBroken } = useBrokenActionsState(actionsList, isActionsLoading);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [showCustomization, setShowCustomization] = useState(false);
   const [showQuickStart, setShowQuickStart] = useState(true);
@@ -148,7 +153,7 @@ export default function ActionsStep({
   // Check if user has made selections
   const isNextDisabled = !hasValidSelections(formData.selectedActions);
 
-  // Show loading state when actions are still being loaded from migration
+  // Show loading state when actions are being loaded (now includes migration awareness)
   if (isActionsLoading) {
     return (
       <Box>
@@ -164,7 +169,7 @@ export default function ActionsStep({
         >
           <CircularProgress size={48} />
           <Typography variant="h6" color="text.secondary">
-            {t('loadingAvailableActions')}
+            {isMigrationInProgress ? t('migratingDefaultActions') : t('loadingAvailableActions')}
           </Typography>
         </Box>
 
@@ -181,6 +186,11 @@ export default function ActionsStep({
         </Box>
       </Box>
     );
+  }
+
+  // Show broken state when no actions are available after loading completes
+  if (isBroken) {
+    return <BrokenActionsState />;
   }
 
   return (
