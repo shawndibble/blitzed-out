@@ -440,6 +440,8 @@
   "presetBallBusting": "睾丸虐待",
   "presetBdsm": "BDSM",
   "presetBreathControl": "呼吸控制",
+  "presetBodyWorship": "身體崇拜",
+  "presetControlBreath": "控制呼吸",
   "presetDegrading": "羞辱",
   "presetElectricPlay": "電刺激",
   "presetExplorationSolo": "探索",
@@ -457,18 +459,6 @@
   "roomSelection": "房間選擇",
   "roomTypeDescription": "選擇最適合您遊戲風格的房間類型。",
   "selected": "已選擇",
-  "presetPopperbatingDesc": "強化增強訓練",
-  "presetSmokingTitsDesc": "增強感官專注",
-  "presetExplorationSoloDesc": "發現新感覺",
-  "presetBallBustingDesc": "強烈衝擊遊戲",
-  "presetRomanticStartDesc": "溫柔浪漫開始",
-  "presetDegradingDesc": "羞辱和降級遊戲",
-  "presetSensualTouchDesc": "專注觸摸和感覺",
-  "presetElectricPlayDesc": "感覺遊戲與強度",
-  "presetGentleSexDesc": "溫柔親密愉悅",
-  "presetFistingDesc": "極端穿透遊戲",
-  "presetBdsmDesc": "束縛和紀律遊戲",
-  "presetBreathControlDesc": "呼吸遊戲和感覺",
   "customizeActionsDesc": "用戶可以在下面微調他們的動作選擇和強度等級。",
   "noOrgasmDesc": "專注於過程，而不是目標",
   "yesOrgasmDesc": "建立到令人滿意的高潮",
@@ -504,7 +494,6 @@
     "setupSubtitle": "為單設備多人遊戲配置玩家",
     "playersTitle": "玩家",
     "playersCount": "{{count}} 位玩家",
-    "playersCount_one": "{{count}} 位玩家",
     "playersCount_other": "{{count}} 位玩家",
     "noPlayersYet": "尚未添加玩家。至少添加 2 位玩家才能開始。",
     "addFirstPlayer": "添加第一位玩家",
@@ -555,24 +544,16 @@
       "setupButton": "設置本地玩家"
     },
     "session": {
-      "title": "本地玩家",
-      "active": "活躍",
-      "playerCount": "{{count}} 位玩家",
-      "playerCount_other": "{{count}} 位玩家",
-      "currentPlayer": "當前：{{name}}",
       "editButton": "編輯玩家",
       "clearButton": "刪除玩家"
     },
     "players": {
-      "title": "玩家列表",
       "currentTurn": "當前回合"
     },
     "settings": {
       "title": "本地玩家設置",
       "showTurnTransitions": "顯示回合轉換",
-      "enableTurnTimer": "啟用回合計時器",
-      "playTurnSounds": "播放回合聲音",
-      "editNote": "編輯玩家以更改這些設置"
+      "playTurnSounds": "播放回合聲音"
     }
   },
   "localPlayersStep": {
@@ -588,15 +569,19 @@
       "description": "✅ 每個玩家都有自己的設備\n✅ 完全訪問高級設置\n✅ 可以單獨或與他人一起遊戲\n✅ 個性化遊戲體驗\n❌ 多人遊戲需要多個設備\n❌ 在動作中使用佔位符文本\n❌ 回合協調可能更困難",
       "button": "跳過本地玩家"
     },
-    "features": {
-      "singleDevice": "單一設備",
-      "turnManagement": "回合管理",
-      "privateRoomsOnly": "僅私人房間"
-    },
     "currentStatus": {
       "hasPlayers": "您已經配置了本地玩家。您可以設置新的或繼續使用當前設置。"
     }
   },
+  "autoCloseProgress": "自動關閉進度",
+  "invalidRedditUrl": "無效的Reddit URL格式",
+  "addTags": "添加標籤",
+  "addTile": "添加磁貼",
+  "createNewGroup": "創建新群組",
+  "enterTileAction": "輸入磁貼動作",
+  "tileAddedSuccessfully": "磁貼添加成功",
+  "tileUpdatedSuccessfully": "磁貼更新成功",
+  "updateTile": "更新磁貼",
   "setupWizard": {
     "title": "設置嚮導"
   },

@@ -565,23 +565,16 @@
       "setupButton": "Configurar Jugadores Locales"
     },
     "session": {
-      "title": "Jugadores Locales",
-      "active": "Activa",
-      "playerCount": "{{count}} jugador",
-      "currentPlayer": "Actual: {{name}}",
       "editButton": "Editar Jugadores",
       "clearButton": "Eliminar Jugadores"
     },
     "players": {
-      "title": "Lista de Jugadores",
       "currentTurn": "Turno Actual"
     },
     "settings": {
       "title": "Configuración de Jugadores Locales",
       "showTurnTransitions": "Mostrar transiciones de turno",
-      "enableTurnTimer": "Habilitar temporizador de turno",
-      "playTurnSounds": "Reproducir sonidos de turno",
-      "editNote": "Edita jugadores para cambiar estas configuraciones"
+      "playTurnSounds": "Reproducir sonidos de turno"
     }
   },
   "localPlayersStep": {
@@ -597,15 +590,17 @@
       "description": "✅ Cada jugador tiene su propio dispositivo\n✅ Acceso completo a configuraciones avanzadas\n✅ Puede jugar solo o con otros\n✅ Experiencia de juego personalizada\n❌ Requiere múltiples dispositivos para multijugador\n❌ Usa texto de marcador en las acciones\n❌ La coordinación de turnos puede ser más complicada",
       "button": "Omitir Jugadores Locales"
     },
-    "features": {
-      "singleDevice": "Un Solo Dispositivo",
-      "turnManagement": "Gestión de Turnos",
-      "privateRoomsOnly": "Solo Salas Privadas"
-    },
     "currentStatus": {
       "hasPlayers": "Ya tienes jugadores locales configurados. Puedes configurar nuevos o continuar con tu configuración actual."
     }
   },
+  "addTags": "Agregar Etiquetas",
+  "addTile": "Agregar Ficha",
+  "createNewGroup": "Crear Nuevo Grupo",
+  "enterTileAction": "Ingresar Acción de Ficha",
+  "tileAddedSuccessfully": "Ficha Agregada Exitosamente",
+  "tileUpdatedSuccessfully": "Ficha Actualizada Exitosamente",
+  "updateTile": "Actualizar Ficha",
   "setupWizard": {
     "title": "Asistente de configuración"
   },

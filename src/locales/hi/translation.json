@@ -471,18 +471,8 @@
   "presetFisting": "फिस्टिंग",
   "presetBdsm": "BDSM",
   "presetBreathControl": "सांस नियंत्रण",
-  "presetPopperbatingDesc": "तीव्र वृद्धि सत्र",
-  "presetSmokingTitsDesc": "बेहतर संवेदना पर ध्यान",
-  "presetExplorationSoloDesc": "नई संवेदनाओं की खोज करें",
-  "presetBallBustingDesc": "तीव्र प्रभाव खेल",
-  "presetRomanticStartDesc": "कोमल रोमांटिक शुरुआत",
-  "presetDegradingDesc": "अपमान और अवमानना खेल",
-  "presetSensualTouchDesc": "स्पर्श और संवेदना पर ध्यान",
-  "presetElectricPlayDesc": "तीव्रता के साथ संवेदना खेल",
-  "presetGentleSexDesc": "कोमल अंतरंग आनंद",
-  "presetFistingDesc": "अत्यधिक प्रवेश खेल",
-  "presetBdsmDesc": "बंधन और अनुशासन खेल",
-  "presetBreathControlDesc": "सांस और संवेदना खेल",
+  "presetBodyWorship": "शरीर पूजा",
+  "presetControlBreath": "सांस नियंत्रण",
   "customizeActionsDesc": "उपयोगकर्ता नीचे अपने कार्य चयन और तीव्रता स्तरों को ठीक कर सकते हैं।",
   "noOrgasmDesc": "यात्रा पर ध्यान दें, गंतव्य पर नहीं",
   "yesOrgasmDesc": "संतोषजनक चरमोत्कर्ष की ओर निर्माण करें",
@@ -518,6 +508,7 @@
     "setupSubtitle": "एकल-डिवाइस मल्टीप्लेयर के लिए खिलाड़ियों को कॉन्फ़िगर करें",
     "playersTitle": "खिलाड़ी",
     "playersCount": "{{count}} खिलाड़ी",
+    "playersCount_other": "{{count}} खिलाड़ी",
     "noPlayersYet": "अभी तक कोई खिलाड़ी नहीं जोड़े गए। शुरू करने के लिए कम से कम 2 खिलाड़ी जोड़ें।",
     "addFirstPlayer": "पहला खिलाड़ी जोड़ें",
     "currentPlayer": "वर्तमान बारी",
@@ -567,24 +558,16 @@
       "setupButton": "स्थानीय खिलाड़ी सेट करें"
     },
     "session": {
-      "title": "स्थानीय खिलाड़ी",
-      "active": "सक्रिय",
-      "playerCount": "{{count}} खिलाड़ी",
-      "playerCount_other": "{{count}} खिलाड़ी",
-      "currentPlayer": "वर्तमान: {{name}}",
       "editButton": "खिलाड़ी संपादित करें",
       "clearButton": "खिलाड़ियों को हटाएं"
     },
     "players": {
-      "title": "खिलाड़ी सूची",
       "currentTurn": "वर्तमान बारी"
     },
     "settings": {
       "title": "स्थानीय खिलाड़ी सेटिंग्स",
       "showTurnTransitions": "टर्न ट्रांज़िशन दिखाएं",
-      "enableTurnTimer": "टर्न टाइमर सक्षम करें",
-      "playTurnSounds": "टर्न ध्वनियां चलाएं",
-      "editNote": "इन सेटिंग्स को बदलने के लिए खिलाड़ियों को संपादित करें"
+      "playTurnSounds": "टर्न ध्वनियां चलाएं"
     }
   },
   "localPlayersStep": {
@@ -600,15 +583,17 @@
       "description": "✅ प्रत्येक खिलाड़ी का अपना डिवाइस\n✅ उन्नत सेटिंग्स तक पूर्ण पहुंच\n✅ अकेले या दूसरों के साथ खेल सकते हैं\n✅ व्यक्तिगत गेम अनुभव\n❌ मल्टीप्लेयर के लिए कई डिवाइसेस की आवश्यकता\n❌ क्रियाओं में प्लेसहोल्डर टेक्स्ट का उपयोग\n❌ टर्न समन्वय अधिक मुश्किल हो सकता है",
       "button": "स्थानीय खिलाड़ी छोड़ें"
     },
-    "features": {
-      "singleDevice": "एक डिवाइस",
-      "turnManagement": "टर्न प्रबंधन",
-      "privateRoomsOnly": "केवल निजी कमरे"
-    },
     "currentStatus": {
       "hasPlayers": "आपके पास पहले से ही स्थानीय खिलाड़ी कॉन्फ़िगर किए गए हैं। आप नए सेट कर सकते हैं या अपने वर्तमान सेटअप के साथ जारी रख सकते हैं।"
     }
   },
+  "addTags": "टैग जोड़ें",
+  "addTile": "टाइल जोड़ें",
+  "createNewGroup": "नया समूह बनाएं",
+  "enterTileAction": "टाइल क्रिया दर्ज करें",
+  "tileAddedSuccessfully": "टाइल सफलतापूर्वक जोड़ा गया",
+  "tileUpdatedSuccessfully": "टाइल सफलतापूर्वक अपडेट किया गया",
+  "updateTile": "टाइल अपडेट करें",
   "setupWizard": {
     "title": "सेटअप विज़ार्ड"
   },

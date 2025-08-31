@@ -586,6 +586,13 @@
       "hasPlayers": "You already have local players configured. You can set up new ones or continue with your current setup."
     }
   },
+  "addTags": "Add Tags",
+  "addTile": "Add Tile",
+  "createNewGroup": "Create New Group",
+  "enterTileAction": "Enter Tile Action",
+  "tileAddedSuccessfully": "Tile Added Successfully",
+  "tileUpdatedSuccessfully": "Tile Updated Successfully",
+  "updateTile": "Update Tile",
   "setupWizard": {
     "title": "Setup Wizard"
   },
