@@ -110,9 +110,10 @@ vi.mock('@/context/migration', () => ({
 - **Context7**: Up-to-date documentation and code examples from official sources
   - Status: ✓ Connected
   - URL: https://mcp.context7.com/mcp
-- **Serena**: Advanced codebase analysis and semantic coding tools
+
+- **Claude Context**: Semantic code search and analysis for the entire codebase
   - Status: ✓ Connected
-  - Provides intelligent code exploration, symbol analysis, and memory management
+  - Provides natural language code search, intelligent indexing, and contextual code retrieval
 
 ### Using Context7
 
@@ -140,33 +141,31 @@ To get current, version-specific documentation and code examples, add `use conte
 - Vite build configuration
 - TypeScript strict mode patterns
 
-### Using Serena
+### Using Claude Context
 
-Serena provides advanced semantic code analysis and is automatically available. Key capabilities:
+Claude Context enables semantic search across the entire codebase using natural language queries. It's automatically indexed and ready to use.
 
-**Symbol Analysis:**
+**Key Capabilities:**
 
-- Find and analyze functions, classes, components by name
-- Explore code relationships and dependencies
-- Navigate codebase structure intelligently
+- **Semantic Search**: Find code using natural language descriptions
+- **Hybrid Search**: Combines BM25 and dense vector techniques for accurate results
+- **Multi-Language Support**: Works with TypeScript, JavaScript, React components, and more
+- **Contextual Retrieval**: Returns relevant code snippets with surrounding context
 
-**Memory Management:**
+**Usage Examples:**
 
-- Maintains project context across sessions
-- Stores development patterns and conventions
-- Preserves onboarding information
-
-**Code Exploration:**
-
-- Search for patterns and implementations
-- Analyze code structure without reading entire files
-- Find references and usages efficiently
+- "Find components that handle user authentication"
+- "Show me how state management is implemented with Zustand"
+- "Locate Firebase integration code for data synchronization"
+- "Find TypeScript interfaces for user data structures"
+- "Search for Material-UI theme customizations"
 
 **Best Practices:**
 
-- Serena prefers targeted symbol reading over full file reads
-- Use symbol-based operations for precise code modifications
-- Leverages project memory for consistent development patterns
+- Use descriptive, natural language queries for better results
+- Search for functionality rather than specific file names
+- Combine with Context7 for comprehensive development workflow
+- Leverage semantic search before creating new implementations to avoid duplication
 
 ## Development Workflow
 

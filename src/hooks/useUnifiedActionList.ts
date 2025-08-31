@@ -15,25 +15,33 @@ interface UnifiedActionListResult {
  *
  * @param gameMode - The game mode to filter groups by (e.g., 'online', 'local')
  * @param showOnlyGroupsWithTiles - Whether to only show groups that have tiles
+ * @param refreshKey - Value that can be toggled (e.g., boolean or counter) to force reload
  * @returns Object containing the unified actions list and loading state
  */
 export default function useUnifiedActionList(
   gameMode?: string,
-  showOnlyGroupsWithTiles: boolean = false
+  showOnlyGroupsWithTiles: boolean = false,
+  refreshKey?: unknown
 ): UnifiedActionListResult {
   const { i18n } = useTranslation();
   const [actionsList, setActionsList] = useState<GroupedActions>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadUnifiedActions = async (): Promise<void> => {
       if (!gameMode) {
-        setActionsList({});
-        setIsLoading(false);
+        if (!cancelled) {
+          setActionsList({});
+          setIsLoading(false);
+        }
         return;
       }
 
-      setIsLoading(true);
+      if (!cancelled) {
+        setIsLoading(true);
+      }
 
       try {
         const locale = i18n.resolvedLanguage || 'en';
@@ -94,7 +102,9 @@ export default function useUnifiedActionList(
           };
         }
 
-        setActionsList(unifiedActions);
+        if (!cancelled) {
+          setActionsList(unifiedActions);
+        }
       } catch (error) {
         console.error('Error loading unified actions:', {
           error,
@@ -104,14 +114,22 @@ export default function useUnifiedActionList(
         });
 
         // Set empty object on error to prevent UI breaks
-        setActionsList({});
+        if (!cancelled) {
+          setActionsList({});
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadUnifiedActions();
-  }, [gameMode, i18n.resolvedLanguage, showOnlyGroupsWithTiles]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [gameMode, i18n.resolvedLanguage, showOnlyGroupsWithTiles, refreshKey]);
 
   return { actionsList, isLoading };
 }

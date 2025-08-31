@@ -1,5 +1,10 @@
 import { Box, Button, Divider } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Trans } from 'react-i18next';
+import { useEffect, useState, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import { useMigration } from '@/context/migration';
+import useSettingsToFormData from '@/hooks/useSettingsToFormData';
+import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 
 import ActionsStep from './ActionsStep';
 import DynamicStepper from './components/DynamicStepper';
@@ -10,11 +15,7 @@ import GameSettings from '@/views/GameSettings';
 import LocalPlayersStep from './LocalPlayersStep';
 import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
-import { Trans } from 'react-i18next';
 import { isPublicRoom } from '@/helpers/strings';
-import { useParams } from 'react-router-dom';
-import useSettingsToFormData from '@/hooks/useSettingsToFormData';
-import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 
 interface GameSettingsWizardProps {
   close?: () => void;
@@ -23,6 +24,15 @@ interface GameSettingsWizardProps {
 export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const { id: room } = useParams<{ id: string }>();
   const [step, setStep] = useState<number>(1);
+  const { isMigrationInProgress, currentLanguageMigrated } = useMigration();
+
+  // Simple toggle to force useUnifiedActionList to reload when migration completes
+  const [reloadToggle, setReloadToggle] = useState(false);
+
+  // One-shot guard to prevent multiple reload triggers
+  const hasReloadedRef = useRef(false);
+  // Track previous migration state to detect transitions
+  const prevIsMigrationInProgressRef = useRef(isMigrationInProgress);
 
   const overrideSettings: Record<string, any> = { room: room || 'PUBLIC' };
 
@@ -40,10 +50,38 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     overrideSettings
   );
 
+  // Toggle when migration completes to force reload (with one-shot guard)
+  useEffect(() => {
+    const prevIsMigrationInProgress = prevIsMigrationInProgressRef.current;
+
+    // Only trigger reload on transition from migration in-progress → finished
+    if (
+      prevIsMigrationInProgress === true &&
+      isMigrationInProgress === false &&
+      currentLanguageMigrated &&
+      !hasReloadedRef.current
+    ) {
+      setReloadToggle((prev) => !prev);
+      hasReloadedRef.current = true;
+    }
+
+    // Reset the guard when a new migration starts so reload can happen again
+    if (isMigrationInProgress && hasReloadedRef.current) {
+      hasReloadedRef.current = false;
+    }
+
+    // Update previous state for next render
+    prevIsMigrationInProgressRef.current = isMigrationInProgress;
+  }, [isMigrationInProgress, currentLanguageMigrated]);
+
   const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(
     formData.gameMode,
-    true
+    true,
+    reloadToggle // This will force reload when migration completes
   );
+
+  // Include migration state in loading condition
+  const isActionsLoadingWithMigration = isActionsLoading || isMigrationInProgress;
 
   // Compute isPublic once per render
   const isPublic = isPublicRoom(formData.room);
@@ -132,7 +170,8 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
             nextStep={nextStep}
             prevStep={prevStep}
             actionsList={actionsList}
-            isActionsLoading={isActionsLoading}
+            isActionsLoading={isActionsLoadingWithMigration}
+            isMigrationInProgress={isMigrationInProgress}
           />
         );
       case 5:

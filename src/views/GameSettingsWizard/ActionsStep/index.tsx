@@ -13,9 +13,13 @@ import { ActionEntry, FormData } from '@/types';
 import { ExpandMore, PlayArrow, Tune } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { hasValidSelections, purgedFormData } from './helpers';
+import useBrokenActionsState from '@/hooks/useBrokenActionsState';
+import { GroupType } from '@/services/validationService';
 import { useEffect, useState } from 'react';
+import type { GroupedActions } from '@/types/customTiles';
 
 import ButtonRow from '@/components/ButtonRow';
+import BrokenActionsState from '@/components/BrokenActionsState';
 import PickActions from './PickActions';
 import PickConsumptions from './PickConsumptions/index';
 import { PresetConfig } from '@/types/presets';
@@ -28,8 +32,9 @@ interface ActionsStepProps {
   setFormData: React.Dispatch<React.SetStateAction<FormData & Partial<Settings>>>;
   nextStep: () => void;
   prevStep: (count?: number) => void;
-  actionsList: Record<string, any>;
+  actionsList: GroupedActions;
   isActionsLoading?: boolean;
+  isMigrationInProgress?: boolean;
 }
 
 export default function ActionsStep({
@@ -39,8 +44,10 @@ export default function ActionsStep({
   prevStep,
   actionsList,
   isActionsLoading = false,
+  isMigrationInProgress = false,
 }: ActionsStepProps): JSX.Element {
   const { t } = useTranslation();
+  const { isBroken } = useBrokenActionsState(actionsList, isActionsLoading);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [showCustomization, setShowCustomization] = useState(false);
   const [showQuickStart, setShowQuickStart] = useState(true);
@@ -94,13 +101,11 @@ export default function ActionsStep({
       if (actionsList[item]) {
         // Use preset intensity if available, otherwise use default
         const presetIntensity = preset.intensities?.[item] || defaultIntensity;
-        // Get max available intensity level (exclude 'None' option)
-        const availableIntensities = Object.keys(actionsList[item].intensities || {}).filter(
-          (key) => key !== 'None'
-        );
+        // Get max available intensity level
+        const availableIntensities = Object.keys(actionsList[item].intensities || {});
         const maxLevel = availableIntensities.length;
         targetActions[item] = {
-          type: actionsList[item].type,
+          type: (actionsList[item].type || 'solo') as GroupType,
           levels: Array.from({ length: Math.min(presetIntensity, maxLevel) }, (_, i) => i + 1),
         };
       }
@@ -148,7 +153,7 @@ export default function ActionsStep({
   // Check if user has made selections
   const isNextDisabled = !hasValidSelections(formData.selectedActions);
 
-  // Show loading state when actions are still being loaded from migration
+  // Show loading state when actions are being loaded (now includes migration awareness)
   if (isActionsLoading) {
     return (
       <Box>
@@ -164,7 +169,7 @@ export default function ActionsStep({
         >
           <CircularProgress size={48} />
           <Typography variant="h6" color="text.secondary">
-            {t('loadingAvailableActions')}
+            {isMigrationInProgress ? t('migratingDefaultActions') : t('loadingAvailableActions')}
           </Typography>
         </Box>
 
@@ -181,6 +186,11 @@ export default function ActionsStep({
         </Box>
       </Box>
     );
+  }
+
+  // Show broken state when no actions are available after loading completes
+  if (isBroken) {
+    return <BrokenActionsState />;
   }
 
   return (
