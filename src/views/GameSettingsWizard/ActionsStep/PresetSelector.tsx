@@ -25,7 +25,6 @@ export default function PresetSelector({
       {
         id: 'popperbating',
         name: t('presetPopperbating'),
-        description: t('presetPopperbatingDesc'),
         actions: ['bating'],
         consumptions: ['poppers'],
         intensities: {
@@ -36,7 +35,6 @@ export default function PresetSelector({
       {
         id: 'smoking-tits',
         name: t('presetSmokingTits'),
-        description: t('presetSmokingTitsDesc'),
         actions: ['titTorture'],
         consumptions: ['vaping'],
         intensities: {
@@ -47,7 +45,6 @@ export default function PresetSelector({
       {
         id: 'exploration-solo',
         name: t('presetExplorationSolo'),
-        description: t('presetExplorationSoloDesc'),
         actions: ['throatTraining', 'buttPlay', 'titTorture', 'ballBusting'],
         consumptions: [],
         intensities: {
@@ -60,7 +57,6 @@ export default function PresetSelector({
       {
         id: 'ball-busting',
         name: t('presetBallBusting'),
-        description: t('presetBallBustingDesc'),
         actions: ['ballBusting', 'bating'],
         consumptions: ['poppers'],
         intensities: {
@@ -73,7 +69,6 @@ export default function PresetSelector({
       {
         id: 'romantic-start',
         name: t('presetRomanticStart'),
-        description: t('presetRomanticStartDesc'),
         actions: ['kissing', 'stripping', 'confessions'],
         consumptions: ['alcohol'],
         intensities: {
@@ -86,7 +81,6 @@ export default function PresetSelector({
       {
         id: 'degrading',
         name: t('presetDegrading'),
-        description: t('presetDegradingDesc'),
         actions: ['humiliation', 'footPlay', 'confessions'],
         consumptions: ['poppers'],
         intensities: {
@@ -99,7 +93,6 @@ export default function PresetSelector({
       {
         id: 'body-worship',
         name: t('presetBodyWorship'),
-        description: t('presetBodyWorshipDesc'),
         actions: ['bodyWorship', 'kissing', 'footPlay'],
         consumptions: [],
         intensities: {
@@ -111,7 +104,6 @@ export default function PresetSelector({
       {
         id: 'control-breath',
         name: t('presetControlBreath'),
-        description: t('presetControlBreathDesc'),
         actions: ['breathPlay', 'bondage', 'humiliation'],
         consumptions: ['poppers'],
         intensities: {
@@ -126,7 +118,6 @@ export default function PresetSelector({
       {
         id: 'gentle-sex',
         name: t('presetGentleSex'),
-        description: t('presetGentleSexDesc'),
         actions: ['throatTraining', 'bating', 'buttPlay'],
         consumptions: ['alcohol'],
         intensities: {
@@ -139,7 +130,6 @@ export default function PresetSelector({
       {
         id: 'fisting',
         name: t('presetFisting'),
-        description: t('presetFistingDesc'),
         actions: ['buttPlay'],
         consumptions: ['poppers'],
         intensities: {
@@ -150,7 +140,6 @@ export default function PresetSelector({
       {
         id: 'bdsm',
         name: t('presetBdsm'),
-        description: t('presetBdsmDesc'),
         actions: ['pissPlay', 'throatTraining', 'spanking', 'titTorture'],
         consumptions: [],
         intensities: {
@@ -163,7 +152,6 @@ export default function PresetSelector({
       {
         id: 'breath-control',
         name: t('presetBreathControl'),
-        description: t('presetBreathControlDesc'),
         actions: ['bating'],
         consumptions: ['gasMask'],
         intensities: {

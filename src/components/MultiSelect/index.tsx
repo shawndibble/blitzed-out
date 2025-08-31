@@ -10,7 +10,6 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material';
-import { Trans } from 'react-i18next';
 import { ReactNode, useCallback } from 'react';
 
 interface Option {
@@ -61,7 +60,7 @@ export default function MultiSelect({
         value={values}
         onChange={onChange}
         fullWidth
-        input={<OutlinedInput label={<Trans i18nKey="actionsLabel" />} />}
+        input={<OutlinedInput label={label} />}
         renderValue={renderValue}
       >
         {options?.map(({ label, value }) => (

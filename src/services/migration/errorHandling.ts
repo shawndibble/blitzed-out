@@ -5,18 +5,6 @@
 export type ErrorLevel = 'debug' | 'warn' | 'error';
 
 /**
- * Check if an error should be silenced (non-critical Dexie timing issues)
- */
-const shouldSilenceError = (error: unknown): boolean => {
-  if (error instanceof Error) {
-    // Silence Dexie "Transaction committed too early" errors
-    // This is a timing issue that doesn't affect functionality
-    return error.message.includes('Transaction committed too early');
-  }
-  return false;
-};
-
-/**
  * Standardized error logging with consistent format
  */
 export const logError = (
@@ -25,11 +13,6 @@ export const logError = (
   error: unknown,
   details?: any
 ): void => {
-  // Silence specific non-critical errors
-  if (shouldSilenceError(error)) {
-    return;
-  }
-
   const errorMessage = error instanceof Error ? error.message : String(error);
   const logMessage = `[Migration ${context}] ${errorMessage}`;
 
@@ -111,31 +94,6 @@ export const withErrorHandling = async <T>(
 };
 
 /**
- * Retry wrapper for potentially failing operations
- */
-export const withRetry = async <T>(
-  operation: () => Promise<T>,
-  maxRetries: number = 3,
-  delay: number = 100
-): Promise<T> => {
-  let lastError: any;
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await operation();
-    } catch (error) {
-      lastError = error;
-      if (attempt === maxRetries) {
-        throw error;
-      }
-      await new Promise((resolve) => setTimeout(resolve, delay * attempt));
-    }
-  }
-
-  throw lastError;
-};
-
-/**
  * Check if an error indicates a duplicate/conflict that can be safely ignored
  */
 export const isDuplicateError = (error: unknown): boolean => {
@@ -147,18 +105,4 @@ export const isDuplicateError = (error: unknown): boolean => {
     );
   }
   return false;
-};
-
-/**
- * Safe timeout wrapper for promises
- */
-export const withTimeout = <T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  errorMessage: string = 'Operation timed out'
-): Promise<T> => {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) => setTimeout(() => reject(new Error(errorMessage)), timeoutMs)),
-  ]);
 };

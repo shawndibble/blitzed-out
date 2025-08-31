@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import fs from 'fs';
 import { glob } from 'glob';
 import path from 'node:path';
+import { SUPPORTED_LANGUAGES } from '@/services/migration/constants';
 
 describe('Translation Usage Validation', () => {
   it('should ensure all translation keys are used in the codebase', async () => {
@@ -197,5 +198,82 @@ describe('Translation Usage Validation', () => {
       );
     }
     expect(missingKeys).toHaveLength(0);
+  });
+
+  it('should ensure all translation files have identical keys', () => {
+    const translations: Record<string, any> = {};
+    const keysByLanguage: Record<string, Set<string>> = {};
+
+    // Helper function to extract all keys (including nested) from a translation object
+    const extractAllKeys = (obj: any, prefix = ''): Set<string> => {
+      const keys = new Set<string>();
+
+      for (const [key, value] of Object.entries(obj)) {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        keys.add(fullKey);
+
+        if (typeof value === 'object' && value !== null) {
+          // Add nested keys
+          extractAllKeys(value, fullKey).forEach((k) => keys.add(k));
+        }
+      }
+
+      return keys;
+    };
+
+    // Load all translation files
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const translationPath = path.join(process.cwd(), `src/locales/${lang}/translation.json`);
+
+      expect(fs.existsSync(translationPath), `Translation file should exist for ${lang}`).toBe(
+        true
+      );
+
+      const content = fs.readFileSync(translationPath, 'utf-8');
+      translations[lang] = JSON.parse(content);
+      keysByLanguage[lang] = extractAllKeys(translations[lang]);
+    }
+
+    // Use English as the reference
+    const referenceKeys = keysByLanguage['en'];
+    const referenceKeysArray = Array.from(referenceKeys).sort();
+
+    // Check each language has exactly the same keys as English
+    for (const lang of SUPPORTED_LANGUAGES) {
+      if (lang === 'en') continue; // Skip comparing English to itself
+
+      const langKeys = keysByLanguage[lang];
+      const langKeysArray = Array.from(langKeys).sort();
+
+      // Find missing keys (in English but not in this language)
+      const missingKeys = referenceKeysArray.filter((key) => !langKeys.has(key));
+
+      // Find extra keys (in this language but not in English)
+      const extraKeys = langKeysArray.filter((key) => !referenceKeys.has(key));
+
+      // Report missing keys
+      if (missingKeys.length > 0) {
+        console.error(`\n❌ ${lang} is missing these translation keys:`);
+        missingKeys.forEach((key) => console.error(`  - ${key}`));
+      }
+
+      // Report extra keys
+      if (extraKeys.length > 0) {
+        console.error(`\n❌ ${lang} has these extra translation keys not in English:`);
+        extraKeys.forEach((key) => console.error(`  - ${key}`));
+      }
+
+      expect(missingKeys, `${lang} should have all keys from English translation`).toHaveLength(0);
+      expect(
+        extraKeys,
+        `${lang} should not have extra keys beyond English translation`
+      ).toHaveLength(0);
+      expect(langKeysArray, `${lang} should have identical keys to English`).toEqual(
+        referenceKeysArray
+      );
+    }
+
+    // Verify we have a reasonable number of keys
+    expect(referenceKeysArray.length).toBeGreaterThan(400);
   });
 });

@@ -115,18 +115,35 @@ export const getCustomGroupByName = async (
  */
 export const addCustomGroup = async (group: CustomGroupBase): Promise<string | undefined> => {
   try {
-    // The creating hook will add id, createdAt, and updatedAt fields
-    // We need to provide the required fields that the hook expects
-    const groupWithTimestamps = {
-      ...group,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    } as Omit<CustomGroupPull, 'id'>;
+    return await retryOnCursorError(
+      db,
+      async () => {
+        // Create a proper CustomGroupPull object with all required fields
+        const now = new Date();
+        const groupWithTimestamps: Omit<CustomGroupPull, 'id'> = {
+          // Copy all properties from the input group
+          name: group.name,
+          label: group.label,
+          intensities: group.intensities,
+          type: group.type,
+          // Set required fields with defaults if not provided
+          isDefault: group.isDefault ?? false,
+          locale: group.locale ?? i18next.resolvedLanguage ?? i18next.language ?? 'en',
+          gameMode: group.gameMode ?? 'online',
+          // Timestamps
+          createdAt: now,
+          updatedAt: now,
+        };
 
-    const id = await customGroups.add(groupWithTimestamps);
-    return id;
+        const id = await customGroups.add(groupWithTimestamps);
+        return id;
+      },
+      (message: string, error?: Error) => {
+        console.error(`Error in addCustomGroup: ${message}`, error);
+      }
+    );
   } catch (error) {
-    console.error('Error in addCustomGroup:', error);
+    console.error('Final error in addCustomGroup:', error);
     return undefined;
   }
 };
@@ -139,6 +156,11 @@ export const updateCustomGroup = async (
   updates: Partial<CustomGroupBase>
 ): Promise<number> => {
   try {
+    // Ensure database is open before operation
+    if (typeof db.isOpen === 'function' && !db.isOpen()) {
+      await db.open();
+    }
+
     return await customGroups.update(id, updates);
   } catch (error) {
     console.error('Error in updateCustomGroup:', error);
