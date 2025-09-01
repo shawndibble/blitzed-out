@@ -2,7 +2,6 @@
   "label": "Stripping",
   "type": "foreplay",
   "actions": {
-    "None": [],
     "Article of Clothing": [
       "{sub} removes one article of clothing.",
       "Take off an article of clothing of your choice.",

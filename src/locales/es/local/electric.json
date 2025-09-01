@@ -3,9 +3,15 @@
   "type": "foreplay",
   "dom": "Controlador",
   "sub": "Receptor",
+  "actionDisplayNames": {
+    "None": "Ninguna",
+    "Light": "Ligero",
+    "Medium": "Medio",
+    "High": "Alto",
+    "Challenging": "Desafiante"
+  },
   "actions": {
-    "Ninguna": [],
-    "Ligero": [
+    "Light": [
       "{dom} aplica una corriente eléctrica suave al brazo de {sub} usando una unidad TENS.",
       "{dom} usa una varita violeta en la espalda de {sub} en un ajuste bajo.",
       "{dom} conecta electrodos a los muslos de {sub} y enciende el dispositivo en su ajuste más bajo.",
@@ -13,7 +19,7 @@
       "{dom} usa un bolígrafo de estimulación eléctrica para trazar ligeramente sobre la piel de {sub}.",
       "{dom} conecta electrodos a las pantorrillas de {sub} y enciende el dispositivo en un ajuste bajo."
     ],
-    "Medio": [
+    "Medium": [
       "{dom} aumenta la intensidad de la corriente eléctrica en el brazo de {sub} usando una unidad TENS.",
       "{dom} usa una varita violeta en el estómago de {sub} en un ajuste medio.",
       "{dom} conecta electrodos a los pezones de {sub} y enciende el dispositivo en un ajuste medio.",
@@ -21,7 +27,7 @@
       "{dom} usa un bolígrafo de estimulación eléctrica para trazar sobre los músculos de {sub}.",
       "{dom} conecta electrodos a los brazos superiores de {sub} y enciende el dispositivo en un ajuste medio."
     ],
-    "Alto": [
+    "High": [
       "{dom} pone la intensidad de la corriente eléctrica en el brazo de {sub} en su ajuste seguro más alto usando una unidad TENS.",
       "{dom} usa una varita violeta en los genitales de {sub} en un ajuste alto.",
       "{dom} conecta electrodos a la parte interna de los muslos de {sub} y enciende el dispositivo en su ajuste seguro más alto.",
@@ -29,7 +35,7 @@
       "{dom} usa un bolígrafo de estimulación eléctrica para trazar sobre las terminaciones nerviosas de {sub}.",
       "{dom} conecta electrodos a la parte baja de la espalda de {sub} y enciende el dispositivo en un ajuste alto."
     ],
-    "Desafiante": [
+    "Challenging": [
       "{dom} usa una varita violeta en la lengua de {sub} en un ajuste bajo.",
       "{dom} conecta electrodos a los pies de {sub} y enciende el dispositivo en un ajuste desafiante pero seguro.",
       "{dom} aplica corriente eléctrica a múltiples áreas del cuerpo de {sub} al mismo tiempo usando múltiples dispositivos.",

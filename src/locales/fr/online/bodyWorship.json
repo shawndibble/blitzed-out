@@ -2,7 +2,6 @@
   "label": "Adoration Corporelle",
   "type": "solo",
   "actions": {
-    "None": [],
     "Auto-Admiration Douce": [
       "Regardez-vous dans le miroir et dites trois choses que vous trouvez belles chez vous.",
       "Posez pour vous-même et admirez votre reflet pendant 30 secondes.",

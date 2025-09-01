@@ -4,7 +4,6 @@
   "dom": "Orinador",
   "sub": "Orinado",
   "actions": {
-    "Ninguna": [],
     "Orinar en un vaso": [
       "{sub} bebe agua",
       "{sub} da un trago grande de agua",

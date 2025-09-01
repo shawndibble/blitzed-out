@@ -69,27 +69,33 @@ export default function Message({
   }, []);
 
   // Destructure common properties
-  const { id, displayName, text, uid, timestamp, type } = message;
+  const { id, displayName, text, uid, timestamp } = message;
 
-  // Then conditionally access type-specific properties
+  // Then conditionally access type-specific properties using discriminated union
   let boardSize: number | undefined;
   let gameBoardId: string | undefined;
-  let image: Base64ImageObject | string | undefined;
 
-  if (type === 'settings' || type === 'room') {
+  if (message.type === 'settings' || message.type === 'room') {
     // TypeScript knows these properties exist on settings and room messages
-    const typedMessage = message as MessageType & { boardSize: number; gameBoardId: string };
-    boardSize = typedMessage.boardSize;
-    gameBoardId = typedMessage.gameBoardId;
+    boardSize = message.boardSize;
+    gameBoardId = message.gameBoardId;
   }
 
-  if (type === 'media') {
-    // TypeScript knows this property exists on media messages
-    const typedMessage = message as MessageType & { image?: Base64ImageObject | string };
-    image = typedMessage.image;
-  }
+  const isImportable = message.type === 'settings' && boardSize === currentGameBoardSize;
 
-  const isImportable = type === 'settings' && boardSize === currentGameBoardSize;
+  // Memoize import board URL construction
+  const importBoardUrl = useMemo(() => {
+    if (!gameBoardId) {
+      return undefined;
+    }
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('importBoard', gameBoardId);
+      return url.toString();
+    } catch {
+      return undefined;
+    }
+  }, [gameBoardId]);
 
   // Memoize time formatting with 1-minute precision to reduce re-renders
   const ago = useMemo(() => {
@@ -116,16 +122,19 @@ export default function Message({
 
   // Memoize image processing with precise dependencies
   const imageSrc = useMemo((): string | false => {
-    if (type !== 'media') return false;
+    if (message.type !== 'media') return false;
+
+    const media = message;
+    const mediaImage = media.image;
 
     // Handle image object with base64String and format properties
-    if (isBase64ImageObject(image)) {
-      return `data:image/${image.format};base64,${image.base64String}`;
+    if (isBase64ImageObject(mediaImage)) {
+      return `data:image/${mediaImage.format};base64,${mediaImage.base64String}`;
     }
 
     // Handle direct string URLs (fallback for old format or Firebase URLs)
-    if (typeof image === 'string' && image) {
-      return image;
+    if (typeof mediaImage === 'string' && mediaImage) {
+      return mediaImage;
     }
 
     // Handle old format where URL might be in text field
@@ -134,22 +143,22 @@ export default function Message({
     }
 
     return false;
-  }, [type, image, text]);
+  }, [message, text]);
 
   // Memoize markdown content rendering with text hash for better performance
   const markdownContent = useMemo(() => {
-    if (type === 'actions') return null;
+    if (message.type === 'actions') return null;
     if (!text || text.trim() === '') return null;
     return <Markdown remarkPlugins={[remarkGfm, remarkGemoji]}>{text}</Markdown>;
-  }, [text, type]);
+  }, [text, message.type]);
 
   // Generate smart summary for system messages
   const systemSummary = useMemo(() => {
-    return generateSystemSummary(type, text, t);
-  }, [type, text, t]);
+    return generateSystemSummary(message.type, text, t);
+  }, [message.type, text, t]);
 
   // Check if this is a system message that should use compact layout
-  const isSystemMessage = type === 'settings' || type === 'room';
+  const isSystemMessage = message.type === 'settings' || message.type === 'room';
 
   // Check if text is likely to wrap (long text or contains multiple words)
   const isLikelyToWrap = useMemo(() => {
@@ -174,7 +183,7 @@ export default function Message({
             component="span"
             sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}
           >
-            {type === 'settings' ? (
+            {message.type === 'settings' ? (
               <SettingsIcon fontSize="small" />
             ) : (
               <HomeIcon fontSize="small" />
@@ -224,7 +233,7 @@ export default function Message({
           <Box className="system-details-popover">
             <div className="system-details-content">{markdownContent}</div>
 
-            {type === 'settings' && (
+            {message.type === 'settings' && (
               <Box className="system-action-buttons">
                 {isImportable ? (
                   <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
@@ -238,7 +247,7 @@ export default function Message({
                       <Trans i18nKey="importBoard" />
                     </Button>
                     <CopyToClipboard
-                      text={`${window.location.href}?importBoard=${gameBoardId}`}
+                      text={importBoardUrl || ''}
                       copiedText={t('copiedLink')}
                       icon={<ShareIcon />}
                     />
@@ -251,7 +260,7 @@ export default function Message({
               </Box>
             )}
 
-            {type === 'room' && (
+            {message.type === 'room' && (
               <Box className="system-action-buttons">
                 <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
                   <Typography variant="body2">
@@ -284,13 +293,13 @@ export default function Message({
           <Chip label={ago} size="small" variant="outlined" className="timestamp-chip" />
         </div>
         <div className="message-actions">
-          {!!isOwnMessage && ['media', 'chat'].includes(type) && id && (
+          {!!isOwnMessage && ['media', 'chat'].includes(message.type) && id && (
             <DeleteMessageButton room={room} id={id} />
           )}
         </div>
       </div>
       <div className="message-message">
-        {type === 'actions' ? <ActionText text={text} /> : markdownContent}
+        {message.type === 'actions' ? <ActionText text={text} /> : markdownContent}
         {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
         {typeof text === 'string' && text.includes(t('finish')) && isOwnMessage && (
           <Box textAlign="center" className="message-action-box">

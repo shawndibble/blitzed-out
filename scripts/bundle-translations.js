@@ -71,7 +71,22 @@ function generateBundles() {
 
       if (bundleCount > 0) {
         const bundlePath = path.join(languageDir, `${gameMode}-bundle.json`);
-        fs.writeFileSync(bundlePath, JSON.stringify(bundle, null, 2));
+        const newContent = JSON.stringify(bundle, null, 2);
+
+        let shouldWrite = true;
+        if (fs.existsSync(bundlePath)) {
+          try {
+            const existingContent = fs.readFileSync(bundlePath, 'utf8');
+            shouldWrite = existingContent !== newContent;
+          } catch {
+            // If we can't read the existing file, write the new one
+            shouldWrite = true;
+          }
+        }
+
+        if (shouldWrite) {
+          fs.writeFileSync(bundlePath, newContent);
+        }
       }
     });
   });

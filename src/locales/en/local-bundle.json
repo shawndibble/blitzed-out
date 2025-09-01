@@ -3,7 +3,6 @@
     "label": "Alcohol",
     "type": "consumption",
     "actions": {
-      "None": [],
       "Sip/Drink": [
         "Sip your drink.",
         "Take a drink.",
@@ -40,7 +39,6 @@
     "dom": "Buster",
     "sub": "Bustee",
     "actions": {
-      "None": [],
       "Slap/Squeeze": [
         "{dom} gives a light slap to {sub} after anyone rolls.",
         "{dom} gives 5 ball slaps to {sub}.",
@@ -107,7 +105,6 @@
     "label": "Bating",
     "type": "sex",
     "actions": {
-      "None": [],
       "Masturbation": [
         "{sub} gives {dom} 30 slow strokes",
         "{sub} jerks {dom} as fast as they can for 30 seconds.",
@@ -165,7 +162,6 @@
     "label": "Body Worship",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Gentle Worship": [
         "{dom} tells {sub} to worship every inch of their perfect body.",
         "{dom} poses while {sub} kneels and admires their superior form.",
@@ -214,7 +210,6 @@
     "label": "Bondage",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Restrain": [
         "{dom} restrains {sub}'s wrists together.",
         "{dom} binds {sub} to a piece of furniture until recipient's next action.",
@@ -253,7 +248,6 @@
     "label": "Breath Play",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Light/15 seconds": [
         "{dom} covers {sub}'s nose and mouth with their hand for 15 seconds.",
         "{dom} lightly squeezes {sub}'s throat for 15 seconds.",
@@ -297,7 +291,6 @@
     "dom": "Top",
     "sub": "Bottom",
     "actions": {
-      "None": [],
       "Finger(s)/Rimmed": [
         "{dom} rubs {sub}'s butt.",
         "{dom} massages {sub}'s hole.",
@@ -372,7 +365,6 @@
     "dom": "Clit Owner",
     "sub": "Pleasure Giver",
     "actions": {
-      "None": [],
       "Light Touch": [
         "{sub} traces circles around {dom}'s clit with their finger.",
         "{sub} gently brushes {dom}'s clit with a feather or soft fabric.",
@@ -431,7 +423,6 @@
     "label": "Confessions",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Preferences & Experiences": [
         "{player} ranks everyone in the room from most to least attractive.",
         "{player} confesses which player they'd most want to kiss right now.",
@@ -500,7 +491,6 @@
     "dom": "Controller",
     "sub": "Receiver",
     "actions": {
-      "None": [],
       "Light": [
         "{dom} applies a gentle electrical current to {sub}'s arm using a TENS unit.",
         "{dom} uses a violet wand on {sub}'s back at a low setting.",
@@ -538,7 +528,6 @@
     "label": "Foot Play",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Kiss": [
         "{sub} kisses the tops of {dom}'s feet for 30 seconds.",
         "{sub} kisses the bottoms of {dom}'s feet for 30 seconds.",
@@ -578,7 +567,6 @@
     "label": "Gas Mask",
     "type": "consumption",
     "actions": {
-      "None": [],
       "Beginner": [
         "Take 3 breaths from bottle via hose.",
         "Take 6 breaths from bottle via hose.",
@@ -615,7 +603,6 @@
     "label": "Humiliation",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Verbal": [
         "{dom} assigns a derogatory title to {sub} and has them repeat 'I am a <term>' 10 times.",
         "{dom} assigns a demeaning nickname to {sub} that they must answer to for the rest of the game.",
@@ -632,7 +619,7 @@
         "{dom} writes derogatory words on {sub}'s body.",
         "{sub} gets on their knees, head down in front of {dom} until {player}'s next turn.",
         "{dom} uses {sub} as furniture until {player}'s next turn.",
-        "{sub} to be {dom}'s errand boy/girl for the rest of the game.",
+        "{sub} {dom}'s errand boy/girl for the rest of the game.",
         "{dom} gives {sub} a face slap, spanking, or flogging.",
         "{sub} worship/sniff {dom}'s pits.",
         "{dom} makes {sub} wear something that makes them feel humiliated for the remainder of the game.",
@@ -655,7 +642,6 @@
     "label": "Kissing",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Gentle Kisses": [
         "{dom} kisses {sub} on the cheek.",
         "{dom} gives {sub} a kiss on the forehead.",
@@ -691,7 +677,6 @@
     "dom": "Pisser",
     "sub": "Pissee",
     "actions": {
-      "None": [],
       "Pee in a Cup": [
         "{sub} drinks water",
         "{sub} gulps water",
@@ -704,12 +689,12 @@
       ],
       "Peed on": [
         "{dom} pees on {sub}'s body",
-        "{sub} pees on themselves",
+        "{sub} pees on their own body",
         "{sub} puts their cock and ball in a piss container",
         "{sub} gulps water",
         "{dom} pees on {sub}'s face",
         "{sub} pees on their own face",
-        "{sub} drink water"
+        "{sub} drinks water"
       ],
       "Drink": [
         "{sub} drinks their own piss",
@@ -717,7 +702,7 @@
         "{sub} drinks {dom}'s piss directly with their mouth on the source",
         "{sub} drinks water",
         "{dom} gulps water while {sub} watches",
-        "{sub} try to pee in their own mouth and swallow."
+        "{sub} tries to pee in their own mouth and swallow."
       ]
     }
   },
@@ -725,7 +710,6 @@
     "label": "Poppers",
     "type": "consumption",
     "actions": {
-      "None": [],
       "Beginner": [
         "1 hit.",
         "2 hits.",
@@ -775,7 +759,6 @@
     "dom": "Spanker",
     "sub": "Spankee",
     "actions": {
-      "None": [],
       "Light Hand": [
         "{dom} lightly spanks {sub} on each cheek.",
         "{dom} spanks {sub} over the knee.",
@@ -834,7 +817,6 @@
     "label": "Stripping",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Article of Clothing": [
         "{sub} removes one article of clothing.",
         "Take off an article of clothing of your choice.",
@@ -869,7 +851,6 @@
     "dom": "Receive Head",
     "sub": "Cock Sucker",
     "actions": {
-      "None": [],
       "Lick dick": [
         "{sub} licks {dom}'s dick.",
         "{sub} plays with the tip of {dom}'s dick.",
@@ -930,7 +911,6 @@
     "dom": "Tickler",
     "sub": "Ticklee",
     "actions": {
-      "None": [],
       "Light": [
         "{dom} lightly rubs their finger in a ticklish zone of {sub}.",
         "{dom} uses an item to tickle {sub} for 15 seconds.",
@@ -988,7 +968,6 @@
     "dom": "Torturer",
     "sub": "Receiver",
     "actions": {
-      "None": [],
       "Squeeze/Rub/Lick": [
         "{dom} plays with {sub}'s nipples.",
         "{dom} flicks {sub}'s nipples.",
@@ -1031,7 +1010,6 @@
     "label": "Vaping",
     "type": "consumption",
     "actions": {
-      "None": [],
       "Beginner": [
         "Take a drag.",
         "Take a long drag.",

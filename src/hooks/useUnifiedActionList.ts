@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { getAllAvailableGroups, getGroupsWithTiles } from '@/stores/customGroups';
 import { getTileCountsByGroup } from '@/stores/customTiles';
 import { GroupedActions } from '@/types/customTiles';
-import { DEFAULT_NONE_OPTION } from '@/constants/actionConstants';
 
 interface UnifiedActionListResult {
   actionsList: GroupedActions;
@@ -77,9 +76,7 @@ export default function useUnifiedActionList(
         const unifiedActions: GroupedActions = {};
 
         for (const group of allGroups) {
-          const actions: Record<string, string[]> = {
-            [DEFAULT_NONE_OPTION]: [],
-          };
+          const actions: Record<string, string[]> = {};
 
           const intensities: Record<number, string> = {};
 

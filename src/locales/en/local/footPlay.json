@@ -2,7 +2,6 @@
   "label": "Foot Play",
   "type": "foreplay",
   "actions": {
-    "None": [],
     "Kiss": [
       "{sub} kisses the tops of {dom}'s feet for 30 seconds.",
       "{sub} kisses the bottoms of {dom}'s feet for 30 seconds.",

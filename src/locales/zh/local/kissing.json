@@ -2,7 +2,6 @@
   "label": "接吻",
   "type": "foreplay",
   "actions": {
-    "无": [],
     "轻吻": [
       "{dom} 吻 {sub} 的脸颊。",
       "{dom} 吻 {sub} 的额头。",

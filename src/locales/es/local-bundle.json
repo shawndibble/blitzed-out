@@ -3,12 +3,11 @@
     "label": "Alcohol",
     "type": "consumption",
     "actions": {
-      "Ninguna": [],
       "Bebe": [
         "Dale un sorbo a tu bebida.",
         "Tómate un trago.",
         "Toma 2 sorbos.",
-        "Haz que otro jugador dé un sorbo.",
+        "Haz que otro jugador dé un sorbo a su bebida.",
         "Tómate un trago.",
         "Dale un sorbo a la bebida de tu vecino.",
         "Intercambia bebidas con alguien."
@@ -40,7 +39,6 @@
     "dom": "Castigador",
     "sub": "Castigado",
     "actions": {
-      "Ninguna": [],
       "Bofetadas/Apretones": [
         "{dom} da una bofetada suave en los testículos a {sub} después de una tirada.",
         "{dom} da 5 bofetadas en los testículos a {sub}.",
@@ -107,7 +105,6 @@
     "label": "Pajas",
     "type": "sex",
     "actions": {
-      "Ninguna": [],
       "Masturbación": [
         "{sub} le hace a {dom} 30 movimientos lentos",
         "{sub} masturba a {dom} lo más rápido que pueda durante 30 segundos.",
@@ -165,7 +162,6 @@
     "label": "Adoración Corporal",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Adoración Suave": [
         "{dom} le dice a {sub} que adore cada centímetro de su cuerpo perfecto.",
         "{dom} posa mientras {sub} se arrodilla y admira su forma superior.",
@@ -214,7 +210,6 @@
     "label": "Esclavitud",
     "type": "foreplay",
     "actions": {
-      "Ninguna": [],
       "Restringir": [
         "{dom} sujeta las muñecas de {sub} juntas.",
         "{dom} ata a {sub} un mueble hasta su próxima acción.",
@@ -253,7 +248,6 @@
     "label": "Juegos de respiración",
     "type": "foreplay",
     "actions": {
-      "Ninguna": [],
       "Suave": [
         "{dom} cubre la nariz y la boca de {sub} con su mano durante 15 segundos.",
         "{dom} aprieta suavemente el cuello de {sub} durante 15 segundos.",
@@ -297,7 +291,6 @@
     "dom": "Activo",
     "sub": "Pasivo",
     "actions": {
-      "Ninguna": [],
       "Dedo(s)": [
         "{dom} frota las nalgas de {sub}.",
         "{dom} masajea el ano de {sub}.",
@@ -372,7 +365,6 @@
     "dom": "Dueña del Clítoris",
     "sub": "Proveedor de Placer",
     "actions": {
-      "None": [],
       "Toque Ligero": [
         "{sub} traza círculos alrededor del clítoris de {dom} con su dedo.",
         "{sub} acaricia suavemente el clítoris de {dom} con una pluma o tela suave.",
@@ -384,12 +376,12 @@
         "{sub} pellizca suavemente el capuchón alrededor del clítoris de {dom}.",
         "{dom} ordena a {sub} tocar apenas su clítoris por 15 segundos mientras {dom} se queda quieta.",
         "{sub} alterna entre toques ligeros y alejarse del clítoris de {dom}.",
-        "{dom} hace que cada proveedor de placer/switch provoque ligeramente su clítoris por turnos."
+        "{dom} hace que cada proveedor de placer/cambiante provoque ligeramente su clítoris por turnos."
       ],
       "Estimulación Directa": [
         "{sub} frota el clítoris de {dom} en círculos lentos por 15 segundos.",
         "{dom} mantiene la mano de {sub} contra su clítoris hasta su próximo turno.",
-        "{sub} golpea el clítoris de {dom} repetidamente con su lengua.",
+        "{sub} roza el clítoris de {dom} repetidamente con su lengua.",
         "{dom} se frota contra el dedo de {sub} por 20 segundos.",
         "{sub} aplica presión constante al clítoris de {dom} por 10 segundos.",
         "{dom} se exhibe frotándose contra la mano de {sub}.",
@@ -397,22 +389,22 @@
         "{dom} hace que {sub} estimule su clítoris mientras {dom} cuenta hasta 30.",
         "{sub} alterna entre estimulación rápida y lenta del clítoris.",
         "{dom} recibe estimulación del clítoris de cada jugador antes de su próximo turno.",
-        "{dom} hace que cada proveedor de placer/switch estimule su clítoris por 15 segundos cada uno.",
+        "{dom} hace que cada proveedor de placer/cambiante estimule su clítoris por 15 segundos cada uno.",
         "{dom} ordena a {sub} permanecer en silencio mientras da estimulación intensa del clítoris.",
         "{sub} estimula el clítoris de {dom} mientras {dom} realiza otra tarea.",
-        "{dom} hace que cada proveedor de placer/switch trabaje en su clítoris simultáneamente.",
-        "{dom} compite con otro jugador para ver quién puede manejar más estimulación del clítoris."
+        "{dom} hace que cada proveedor de placer/cambiante trabaje en su clítoris simultáneamente.",
+        "{dom} compite con otro jugador para ver quién puede aguantar más estimulación del clítoris."
       ],
       "Enfoque Intenso": [
         "{sub} enfoca presión intensa en el clítoris de {dom} por 30 segundos.",
-        "{dom} se queda quieta mientras {sub} golpea rápidamente su clítoris.",
+        "{dom} se queda quieta mientras {sub} roza rápidamente su clítoris.",
         "{sub} chupa el clítoris de {dom} mientras aplica presión.",
         "{dom} recibe 2 minutos de estimulación continua del clítoris.",
         "{sub} usa vibración o movimiento rápido de lengua en el clítoris de {dom}.",
         "{dom} controla cuándo {sub} puede moverse durante el enfoque del clítoris.",
         "{sub} alterna entre estimulación intensa y parar completamente.",
         "{dom} recibe enfoque intenso del clítoris de cada jugador por 45 segundos cada uno.",
-        "{dom} hace que cada proveedor de placer/switch se turne dando estimulación intensa del clítoris.",
+        "{dom} hace que cada proveedor de placer/cambiante se turne dando estimulación intensa del clítoris.",
         "{dom} mantiene contacto visual mientras recibe estimulación intensa del clítoris."
       ],
       "Desafío de Resistencia": [
@@ -423,7 +415,7 @@
         "{dom} recibe estimulación de máxima intensidad del clítoris tanto como quiera.",
         "{sub} lleva a {dom} al borde repetidamente hasta que {dom} decide terminar.",
         "{dom} soporta estimulación del clítoris de múltiples jugadores y controla cuándo terminar.",
-        "{dom} hace que cada proveedor de placer/switch compita para ver quién puede complacerla más tiempo."
+        "{dom} hace que cada proveedor de placer/cambiante compita para ver quién puede complacerla más tiempo."
       ]
     }
   },
@@ -431,7 +423,6 @@
     "label": "Confesiones",
     "type": "foreplay",
     "actions": {
-      "Ninguna": [],
       "Preferencias y Experiencias": [
         "{player} clasifica a todos en la habitación de más a menos atractivo.",
         "{player} confiesa a qué jugador le gustaría besar más ahora mismo.",
@@ -499,9 +490,15 @@
     "type": "foreplay",
     "dom": "Controlador",
     "sub": "Receptor",
+    "actionDisplayNames": {
+      "None": "Ninguna",
+      "Light": "Ligero",
+      "Medium": "Medio",
+      "High": "Alto",
+      "Challenging": "Desafiante"
+    },
     "actions": {
-      "Ninguna": [],
-      "Ligero": [
+      "Light": [
         "{dom} aplica una corriente eléctrica suave al brazo de {sub} usando una unidad TENS.",
         "{dom} usa una varita violeta en la espalda de {sub} en un ajuste bajo.",
         "{dom} conecta electrodos a los muslos de {sub} y enciende el dispositivo en su ajuste más bajo.",
@@ -509,7 +506,7 @@
         "{dom} usa un bolígrafo de estimulación eléctrica para trazar ligeramente sobre la piel de {sub}.",
         "{dom} conecta electrodos a las pantorrillas de {sub} y enciende el dispositivo en un ajuste bajo."
       ],
-      "Medio": [
+      "Medium": [
         "{dom} aumenta la intensidad de la corriente eléctrica en el brazo de {sub} usando una unidad TENS.",
         "{dom} usa una varita violeta en el estómago de {sub} en un ajuste medio.",
         "{dom} conecta electrodos a los pezones de {sub} y enciende el dispositivo en un ajuste medio.",
@@ -517,7 +514,7 @@
         "{dom} usa un bolígrafo de estimulación eléctrica para trazar sobre los músculos de {sub}.",
         "{dom} conecta electrodos a los brazos superiores de {sub} y enciende el dispositivo en un ajuste medio."
       ],
-      "Alto": [
+      "High": [
         "{dom} pone la intensidad de la corriente eléctrica en el brazo de {sub} en su ajuste seguro más alto usando una unidad TENS.",
         "{dom} usa una varita violeta en los genitales de {sub} en un ajuste alto.",
         "{dom} conecta electrodos a la parte interna de los muslos de {sub} y enciende el dispositivo en su ajuste seguro más alto.",
@@ -525,7 +522,7 @@
         "{dom} usa un bolígrafo de estimulación eléctrica para trazar sobre las terminaciones nerviosas de {sub}.",
         "{dom} conecta electrodos a la parte baja de la espalda de {sub} y enciende el dispositivo en un ajuste alto."
       ],
-      "Desafiante": [
+      "Challenging": [
         "{dom} usa una varita violeta en la lengua de {sub} en un ajuste bajo.",
         "{dom} conecta electrodos a los pies de {sub} y enciende el dispositivo en un ajuste desafiante pero seguro.",
         "{dom} aplica corriente eléctrica a múltiples áreas del cuerpo de {sub} al mismo tiempo usando múltiples dispositivos.",
@@ -538,7 +535,6 @@
     "label": "Pies",
     "type": "foreplay",
     "actions": {
-      "Ninguno": [],
       "Beso": [
         "{sub} besa el empeine a {dom} durante 30 segundos.",
         "{sub} besa la planta de los pies a {dom} durante 30 segundos.",
@@ -578,7 +574,6 @@
     "label": "Máscara de gas",
     "type": "consumption",
     "actions": {
-      "Ninguna": [],
       "Principiante": [
         "Tome 3 respiraciones de la botella a través de la manguera.",
         "Tome 6 respiraciones de la botella a través de la manguera.",
@@ -615,7 +610,6 @@
     "label": "Humillación",
     "type": "foreplay",
     "actions": {
-      "Ninguna": [],
       "Verbal": [
         "{dom} asigna un término despectivo a {sub} y le hace repetir 'Soy un <término>' 10 veces.",
         "{dom} asigna un apodo degradante a {sub} al que debe responder durante el resto del juego.",
@@ -655,7 +649,6 @@
     "label": "Besos",
     "type": "foreplay",
     "actions": {
-      "Ninguno": [],
       "Besos tiernos": [
         "{dom} besa a {sub} en la mejilla.",
         "{dom} le da a {sub} un beso en la frente.",
@@ -691,7 +684,6 @@
     "dom": "Orinador",
     "sub": "Orinado",
     "actions": {
-      "Ninguna": [],
       "Orinar en un vaso": [
         "{sub} bebe agua",
         "{sub} da un trago grande de agua",
@@ -725,7 +717,6 @@
     "label": "Poppers",
     "type": "consumption",
     "actions": {
-      "Ninguna": [],
       "Principiante": [
         "Inhala 1 vez.",
         "Inhala 2 veces.",
@@ -775,7 +766,6 @@
     "dom": "Azotador",
     "sub": "Azotado",
     "actions": {
-      "Ninguna": [],
       "Azotes Suaves": [
         "{dom} da azotes suaves a {sub} en cada nalga.",
         "{dom} azota a {sub} sobre sus rodillas.",
@@ -834,7 +824,6 @@
     "label": "Desnudarse",
     "type": "foreplay",
     "actions": {
-      "Ninguna": [],
       "Prenda de Vestir": [
         "{sub} se quita una prenda de vestir.",
         "Retira una prenda de vestir de tu elección.",
@@ -869,7 +858,6 @@
     "dom": "Recibir oral",
     "sub": "Mamón",
     "actions": {
-      "Ninguna": [],
       "Lamer": [
         "{sub} lame el pene de {dom}.",
         "{sub} juega con la punta del pene de {dom}.",
@@ -930,7 +918,6 @@
     "dom": "Hace cosquillas",
     "sub": "Cosquilleado",
     "actions": {
-      "Ninguno": [],
       "Ligero": [
         "{dom} frota suavemente su dedo en una zona sensible de {sub}.",
         "{dom} usa un objeto para hacer cosquillas a {sub} durante 15 segundos.",
@@ -988,7 +975,6 @@
     "dom": "Torturador",
     "sub": "Torturado",
     "actions": {
-      "Ninguno": [],
       "Apretar/Frotar": [
         "{dom} juega con los pezones de {sub}.",
         "{dom} da capirotazos en los pezones a {sub}.",
@@ -1031,7 +1017,6 @@
     "label": "Vapeo",
     "type": "consumption",
     "actions": {
-      "Ninguna": [],
       "Principiante": [
         "Da una calada.",
         "Da una calada larga.",

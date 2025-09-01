@@ -1,17 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { DEFAULT_NONE_OPTION, SYNC_DELAY_MS, DEFAULT_INTENSITY_LABELS } from '../actionConstants';
+import { SYNC_DELAY_MS, DEFAULT_INTENSITY_LABELS } from '../actionConstants';
 
 describe('actionConstants', () => {
-  describe('DEFAULT_NONE_OPTION', () => {
-    it('should be defined as "None"', () => {
-      expect(DEFAULT_NONE_OPTION).toBe('None');
-    });
-
-    it('should be a string', () => {
-      expect(typeof DEFAULT_NONE_OPTION).toBe('string');
-    });
-  });
-
   describe('SYNC_DELAY_MS', () => {
     it('should be defined as 500 milliseconds', () => {
       expect(SYNC_DELAY_MS).toBe(500);

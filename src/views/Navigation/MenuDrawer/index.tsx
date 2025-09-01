@@ -358,12 +358,7 @@ export default function MenuDrawer(): JSX.Element {
                 id="drawer-language-select"
                 value={i18n.resolvedLanguage || 'en'}
                 disabled={languageLoading}
-                label={
-                  <>
-                    <LanguageIcon sx={{ fontSize: '1rem' }} />
-                    <Trans i18nKey="language" />
-                  </>
-                }
+                label={<Trans i18nKey="language" />}
                 onChange={handleLanguageChange}
                 size="small"
                 MenuProps={{

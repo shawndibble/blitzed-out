@@ -3,7 +3,6 @@
     "label": "Alcool",
     "type": "consumption",
     "actions": {
-      "Aucune": [],
       "Boire": [
         "Bois un petit coup de ton verre.",
         "Bois une gorgée.",
@@ -11,7 +10,7 @@
         "Fais boire un petit coup à quelqu'un.",
         "Bois une gorgée.",
         "Bois une gorgée du verre de ton voisin.",
-        "Échanges ton verre avec ton voisin."
+        "Échange ton verre avec ton voisin."
       ],
       "Shots": [
         "1 shot.",
@@ -40,7 +39,6 @@
     "dom": "Dominateur",
     "sub": "Soumis",
     "actions": {
-      "Aucun": [],
       "Claques/Pression": [
         "{dom} donne une petite claque à {sub} après que quelqu'un ait lancé les dés.",
         "{dom} donne 5 claques sur les couilles de {sub}.",
@@ -107,7 +105,6 @@
     "label": "Se branler",
     "type": "sex",
     "actions": {
-      "Aucune": [],
       "Masturbation": [
         "{sub} caresse la bite de {dom} lentement 30 fois",
         "{sub} branle {dom} aussi vite qu'il peut pendant 30 secondes.",
@@ -165,7 +162,6 @@
     "label": "Adoration Corporelle",
     "type": "foreplay",
     "actions": {
-      "None": [],
       "Adoration Douce": [
         "{dom} dit à {sub} d'adorer chaque centimètre de son corps parfait.",
         "{dom} pose pendant que {sub} s'agenouille et admire sa forme supérieure.",
@@ -214,7 +210,6 @@
     "label": "Ligotage (Bondage)",
     "type": "foreplay",
     "actions": {
-      "Aucun": [],
       "Attacher": [
         "{dom} attache les poignets de {sub} ensemble.",
         "{dom} attache {sub} à un meuble jusqu'à l'action suivante du receveur.",
@@ -253,7 +248,6 @@
     "label": "Jeux de respiration",
     "type": "foreplay",
     "actions": {
-      "Aucun": [],
       "Léger/15 secondes": [
         "{dom} couvre le nez et la bouche de {sub} avec sa main pendant 15 secondes.",
         "{dom} serre légèrement la gorge de {sub} pendant 15 secondes.",
@@ -297,7 +291,6 @@
     "dom": "Actif",
     "sub": "Passif",
     "actions": {
-      "Aucun": [],
       "Doigt(s)/Anulingus": [
         "{dom} caresse les fesses de {sub}.",
         "{dom} masse le trou de {sub}.",
@@ -369,10 +362,9 @@
   "clitTraining": {
     "label": "Entraînement du Clitoris",
     "type": "sex",
-    "dom": "Propriétaire du Clitoris",
-    "sub": "Donneur de Plaisir",
+    "dom": "Propriétaire du clitoris",
+    "sub": "Donneur de plaisir",
     "actions": {
-      "None": [],
       "Toucher Léger": [
         "{sub} trace des cercles autour du clitoris de {dom} avec son doigt.",
         "{sub} caresse doucement le clitoris de {dom} avec une plume ou un tissu doux.",
@@ -383,7 +375,7 @@
         "{sub} utilise une brosse douce pour stimuler légèrement le clitoris de {dom}.",
         "{sub} pince délicatement le capuchon autour du clitoris de {dom}.",
         "{dom} ordonne à {sub} de toucher à peine son clitoris pendant 15 secondes pendant que {dom} reste immobile.",
-        "{sub} alterne entre des touches légères et s'éloigner du clitoris de {dom}.",
+        "{sub} alterne entre des touches légères et s'éloigne du clitoris de {dom}.",
         "{dom} fait que chaque donneur de plaisir/switch taquine légèrement son clitoris à tour de rôle."
       ],
       "Stimulation Directe": [
@@ -431,7 +423,6 @@
     "label": "Confessions",
     "type": "foreplay",
     "actions": {
-      "Aucune": [],
       "Préférences et Expériences": [
         "{player} classe tout le monde dans la pièce du plus au moins attirant.",
         "{player} avoue quel joueur il/elle aimerait le plus embrasser maintenant.",
@@ -500,7 +491,6 @@
     "dom": "Contrôleur",
     "sub": "Récepteur",
     "actions": {
-      "Aucun": [],
       "Faible": [
         "{dom} applique un courant électrique doux sur le bras de {sub} à l'aide d'un appareil TENS.",
         "{dom} utilise une baguette violette sur le dos de {sub} à un niveau faible.",
@@ -538,7 +528,6 @@
     "label": "Jeu de pieds",
     "type": "foreplay",
     "actions": {
-      "Aucun": [],
       "Embrasser": [
         "{sub} embrasse le haut des pieds de {dom} pendant 30 secondes.",
         "{sub} embrasse la plante du pied droit de {dom} pendant 30 secondes.",
@@ -578,7 +567,6 @@
     "label": "Masque à Gaz",
     "type": "consumption",
     "actions": {
-      "Aucun": [],
       "Débutant": [
         "Prenez 3 respirations de la bouteille via le tuyau.",
         "Prenez 6 respirations de la bouteille via le tuyau.",
@@ -615,7 +603,6 @@
     "label": "Humiliation",
     "type": "foreplay",
     "actions": {
-      "Aucun": [],
       "Verbal": [
         "{dom} attribue un titre péjoratif à {sub} et lui fait répéter 'Je suis un(e) <terme>' 10 fois.",
         "{dom} attribue un surnom dégradant à {sub} qu'il doit utiliser pour le reste de la partie.",
@@ -655,7 +642,6 @@
     "label": "Embrasser",
     "type": "foreplay",
     "actions": {
-      "Aucun": [],
       "Baisers doux": [
         "{dom} embrasse {sub} sur la joue.",
         "{dom} donne un baiser sur le front de {sub}.",
@@ -691,7 +677,6 @@
     "dom": "Donneur",
     "sub": "Receveur",
     "actions": {
-      "Aucun": [],
       "Pisser dans un verre": [
         "{sub} boit de l'eau",
         "{sub} avale de l'eau",
@@ -725,7 +710,6 @@
     "label": "Poppers",
     "type": "consumption",
     "actions": {
-      "Aucun": [],
       "Débutant": [
         "1 hit.",
         "2 hits.",
@@ -775,7 +759,6 @@
     "dom": "Donneur",
     "sub": "Receveur",
     "actions": {
-      "Aucun": [],
       "Fessées légères": [
         "{dom} donne une fessée légère à {sub} sur chaque fesse.",
         "{dom} fesse {sub} sur ses genoux.",
@@ -834,7 +817,6 @@
     "label": "Se Déshabiller",
     "type": "foreplay",
     "actions": {
-      "Aucune": [],
       "Vêtement": [
         "{sub} retire un vêtement.",
         "Enlève un vêtement de ton choix.",
@@ -869,7 +851,6 @@
     "dom": "Sucé",
     "sub": "Suceur",
     "actions": {
-      "Aucun": [],
       "Lécher": [
         "{sub} lèche la bite de {dom}.",
         "{sub} joue avec le gland de {dom}.",
@@ -930,7 +911,6 @@
     "dom": "Chatouilleur",
     "sub": "Chatouillé",
     "actions": {
-      "Aucune": [],
       "Léger": [
         "{dom} frotte légèrement son doigt dans une zone chatouilleuse de {sub}.",
         "{dom} utilise un objet pour chatouiller {sub} pendant 15 secondes.",
@@ -988,7 +968,6 @@
     "dom": "Donneur",
     "sub": "Receveur",
     "actions": {
-      "Aucune": [],
       "Pincer/Frotter": [
         "{dom} joue avec les tétons de {sub}.",
         "{dom} pince les tétons de {sub}.",
@@ -1031,7 +1010,6 @@
     "label": "Vapoter/Narguilé",
     "type": "consumption",
     "actions": {
-      "Aucun": [],
       "Débutant": [
         "Prends une bouffée.",
         "Prends une longue bouffée.",

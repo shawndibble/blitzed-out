@@ -2,7 +2,6 @@
   "label": "Jeu de pieds",
   "type": "foreplay",
   "actions": {
-    "Aucun": [],
     "Embrasser": [
       "{sub} embrasse le haut des pieds de {dom} pendant 30 secondes.",
       "{sub} embrasse la plante du pied droit de {dom} pendant 30 secondes.",

@@ -4,7 +4,6 @@
   "dom": "Spanker",
   "sub": "Spankee",
   "actions": {
-    "None": [],
     "Light Hand": [
       "{dom} lightly spanks {sub} on each cheek.",
       "{dom} spanks {sub} over the knee.",

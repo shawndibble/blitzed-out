@@ -2,7 +2,6 @@
   "label": "Alcool",
   "type": "consumption",
   "actions": {
-    "Aucune": [],
     "Boire": [
       "Bois un petit coup de ton verre.",
       "Bois une gorgée.",
@@ -10,7 +9,7 @@
       "Fais boire un petit coup à quelqu'un.",
       "Bois une gorgée.",
       "Bois une gorgée du verre de ton voisin.",
-      "Échanges ton verre avec ton voisin."
+      "Échange ton verre avec ton voisin."
     ],
     "Shots": [
       "1 shot.",

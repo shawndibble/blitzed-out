@@ -2,7 +2,6 @@
   "label": "Pajas",
   "type": "sex",
   "actions": {
-    "Ninguna": [],
     "Masturbación": [
       "{sub} le hace a {dom} 30 movimientos lentos",
       "{sub} masturba a {dom} lo más rápido que pueda durante 30 segundos.",

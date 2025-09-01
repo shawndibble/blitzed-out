@@ -4,7 +4,6 @@
   "dom": "Donneur",
   "sub": "Receveur",
   "actions": {
-    "Aucun": [],
     "Fessées légères": [
       "{dom} donne une fessée légère à {sub} sur chaque fesse.",
       "{dom} fesse {sub} sur ses genoux.",

@@ -2,7 +2,6 @@
   "label": "Confessions",
   "type": "foreplay",
   "actions": {
-    "Aucune": [],
     "Préférences et Expériences": [
       "{player} classe tout le monde dans la pièce du plus au moins attirant.",
       "{player} avoue quel joueur il/elle aimerait le plus embrasser maintenant.",

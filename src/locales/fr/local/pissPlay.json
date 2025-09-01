@@ -4,7 +4,6 @@
   "dom": "Donneur",
   "sub": "Receveur",
   "actions": {
-    "Aucun": [],
     "Pisser dans un verre": [
       "{sub} boit de l'eau",
       "{sub} avale de l'eau",

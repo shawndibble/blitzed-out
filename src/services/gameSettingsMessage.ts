@@ -116,9 +116,10 @@ export async function getSettingsMessage(
         if (!levelName && val?.actions && typeof val.actions === 'object') {
           const actionKeys = Object.keys(val.actions);
           // Action keys are ordered, with level corresponding to index
-          // Level 1 = index 1 (skipping index 0 which is typically "None")
-          if (level < actionKeys.length && level > 0) {
-            levelName = actionKeys[level];
+          // Level 1 = index 0
+          const actionIndex = level - 1; // Convert 1-based level to 0-based index
+          if (actionIndex >= 0 && actionIndex < actionKeys.length) {
+            levelName = actionKeys[actionIndex];
           }
         }
 

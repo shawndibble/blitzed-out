@@ -2,14 +2,13 @@
   "label": "Poppers",
   "type": "consumption",
   "actions": {
-    "Aucun": [],
     "Débutant": [
       "1 bouffée.",
       "2 bouffées.",
       "1 longue bouffée.",
       "2 bouffées.",
       "3 bouffées.",
-      "1 bouffée pour chaque narine.",
+      "1 bouffée dans chaque narine.",
       "2 longues bouffées.",
       "1 bouffée.",
       "2 bouffées rapides."
@@ -17,31 +16,31 @@
     "Intermédiaire": [
       "3 bouffées.",
       "4 bouffées.",
-      "2 bouffées pour chaque narine.",
+      "2 bouffées dans chaque narine.",
       "1 bouffée buccale.",
       "Bouffée buccale de 5 secondes.",
       "4 bouffées.",
-      "Inhales pendant 5 secondes. Retiens ta respiration 5 secondes.",
+      "Inspire pendant 5 secondes. Retiens ta respiration 5 secondes.",
       "5 bouffées rapides."
     ],
     "Avancé": [
-      "Inhales 10 secondes. Retiens 10 secondes.",
+      "Inspire 10 secondes. Retiens 10 secondes.",
       "4 bouffées buccales.",
-      "Inhales et retiens aussi longtemps que possible.",
+      "Inspire et retiens aussi longtemps que possible.",
       "Respire avec un masque à poppers ou une chaussette pendant 15 secondes.",
       "8 bouffées.",
       "4 bouffées buccales.",
       "6 longues bouffées.",
       "5 bouffées de chaque côté.",
-      "Inhales 8 secondes. Retiens 8 secondes."
+      "Inspire 8 secondes. Retiens 8 secondes."
     ],
     "Expert": [
       "10 bouffées normales. Sans retenir.",
-      "Inhales 15 secondes. Retiens 10 secondes.",
+      "Inspire 15 secondes. Retiens 10 secondes.",
       "Respires avec une chaussette à poppers aussi longtemps que tu peux",
       "Vides tes poumons. La bouffée la plus grande et profonde que tu puisses faire.",
-      "Poumons vides. Inhales profondément 10 secondes. Retiens 10 secondes. Répète.",
-      "Poumons vides. Inhales profondément 15 secondes. Retiens 30 secondes.",
+      "Poumons vides. Inspire profondément 10 secondes. Retiens 10 secondes. Répète.",
+      "Poumons vides. Inspire profondément 15 secondes. Retiens 30 secondes.",
       "10 secondes chaussette/masque. Retiens 10 secondes."
     ]
   }

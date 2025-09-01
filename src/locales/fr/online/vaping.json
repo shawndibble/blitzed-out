@@ -2,7 +2,6 @@
   "label": "Vapoter",
   "type": "consumption",
   "actions": {
-    "Aucun": [],
     "Débutant": [
       "Prends une bouffée.",
       "Prends une longue bouffée.",
@@ -11,16 +10,16 @@
       "Retiens la vapeur pendant 3 secondes avant d'expirer.",
       "Essaie d'expirer la vapeur par le nez.",
       "Prends une bouffée et essaie de créer une forme de 'O' avec la vapeur.",
-      "Trouve une surface et fais le tour de la vape en cascade."
+      "Trouve une surface et fais le tour de la vapeur en cascade."
     ],
     "Intermédiaire": [
-      "Faire un rond de fumée.",
+      "Fais un rond de fumée.",
       "Expire lentement, en formant un mince nuage.",
       "Tire une bouffée pendant 5 secondes.",
       "Prends 4 à 6 bouffées.",
       "Essaie de souffler de la vapeur à travers une paille.",
       "Retiens la vapeur pendant 5 secondes avant d'expirer.",
-      "Crée un nuage de vape, puis fais-le tourner avec ta main pour réaliser le tour de la tornade."
+      "Crée un nuage de vapeur, puis fais-le tourner avec ta main pour réaliser le tour de la tornade."
     ],
     "Expert": [
       "Tire une bouffée, expire et essaie de réinspirer la fumée.",
@@ -30,7 +29,7 @@
       "Essaie d'expirer la vapeur par les lèvres pincées.",
       "Retiens la vapeur pendant 10 secondes avant d'expirer.",
       "Effectue l'astuce française d'inhalation de vapeur.",
-      "Effectue le tour de vapeur Bane"
+      "Effectue le tour de vapeur Bane."
     ]
   }
 }

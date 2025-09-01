@@ -15,9 +15,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
 
-    // Fast timeouts for CI
-    testTimeout: 5000,
-    hookTimeout: 2000,
+    // Reasonable timeouts for CI - match regular config
+    testTimeout: 10000,
+    hookTimeout: 10000,
 
     // Simple, fast execution with early bail
     reporter: 'dot',
@@ -29,7 +29,7 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
-    isolate: false, // Disable isolation to reduce memory overhead
+    isolate: true, // Enable isolation to prevent context sharing issues
     css: false, // Skip CSS processing for faster tests
 
     // Optimized concurrency for CI

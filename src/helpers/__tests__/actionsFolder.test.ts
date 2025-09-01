@@ -21,13 +21,12 @@ vi.mock('@/helpers/strings', () => ({
 }));
 
 describe('groupActionsFolder', () => {
-  it('should filter out None option and create mapped groups', () => {
+  it('should create mapped groups from actions', () => {
     const actionsFolder: GroupedActions = {
       testGroup: {
         label: 'Test Group',
         type: 'sex',
         actions: {
-          None: [],
           Beginner: ['action1'],
           Advanced: ['action2'],
         },
@@ -39,7 +38,7 @@ describe('groupActionsFolder', () => {
     // Should have 2 intensity levels
     expect(result).toHaveLength(2);
 
-    // Check that None is filtered out
+    // Check mapping structure
     const testGroupEntries = result.filter((item) => item.value === 'testGroup');
     expect(testGroupEntries).toHaveLength(2);
 

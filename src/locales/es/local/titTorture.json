@@ -4,7 +4,6 @@
   "dom": "Torturador",
   "sub": "Torturado",
   "actions": {
-    "Ninguno": [],
     "Apretar/Frotar": [
       "{dom} juega con los pezones de {sub}.",
       "{dom} da capirotazos en los pezones a {sub}.",

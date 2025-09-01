@@ -1,10 +1,9 @@
 {
   "label": "Entraînement du Clitoris",
   "type": "sex",
-  "dom": "Propriétaire du Clitoris",
-  "sub": "Donneur de Plaisir",
+  "dom": "Propriétaire du clitoris",
+  "sub": "Donneur de plaisir",
   "actions": {
-    "None": [],
     "Toucher Léger": [
       "{sub} trace des cercles autour du clitoris de {dom} avec son doigt.",
       "{sub} caresse doucement le clitoris de {dom} avec une plume ou un tissu doux.",
@@ -15,7 +14,7 @@
       "{sub} utilise une brosse douce pour stimuler légèrement le clitoris de {dom}.",
       "{sub} pince délicatement le capuchon autour du clitoris de {dom}.",
       "{dom} ordonne à {sub} de toucher à peine son clitoris pendant 15 secondes pendant que {dom} reste immobile.",
-      "{sub} alterne entre des touches légères et s'éloigner du clitoris de {dom}.",
+      "{sub} alterne entre des touches légères et s'éloigne du clitoris de {dom}.",
       "{dom} fait que chaque donneur de plaisir/switch taquine légèrement son clitoris à tour de rôle."
     ],
     "Stimulation Directe": [

@@ -63,8 +63,6 @@
   "cancel": "取消",
   "skip": "跳過",
   "confirm": "確認",
-  "yes": "是",
-  "no": "否",
   "warning": "警告",
   "error": "錯誤",
   "somethingWentWrong": "出現問題",
@@ -165,7 +163,6 @@
   "randomTimerRange": "在選定的數值之間隨機設定擲骰倒計時。",
   "minValue": "最小值",
   "maxValue": "最大值",
-  "cancel": "取消",
   "set": "設定",
   "alreadyFinished": "您已經完成了。重新開始。",
   "messageInput": "輸入訊息",
@@ -253,7 +250,6 @@
   "ctIdeas": "創意想法",
   "ctAdd": "新增遊戲磁磚",
   "ctUpdate": "更新遊戲磁磚",
-  "ctImportDescription": "顯示所有遊戲磁磚的清單。匯入將從提供的清單中新增新條目。",
   "ctSeparatorError": "請確保在遊戲磁磚之間的新行上加入 ---，並且您的群組被包在括號中。",
   "ctGroupError": "無效的群組。請確保您的群組符合「新增遊戲磁磚」中列出的格式並被包在括號中。",
   "ctActionError": "您需要確保每個有群組的條目也有動作",
@@ -372,46 +368,20 @@
   "exportScope": {
     "all": "所有數據",
     "custom": "僅自定義",
-    "default": "預設群組",
     "single": "單一群組",
     "disabled": "默認禁用項"
   },
-  "labels": {
-    "exportScope": "範圍",
-    "selectGroup": "選擇群組"
-  },
+  "export.scope": "導出範圍",
+  "export.selectGroup": "選擇群組",
   "placeholder": {
-    "cleanFormat": "在此貼上清潔 v2.0 格式的 JSON 資料...",
     "importData": "在此貼上導入數據..."
   },
   "errors": {
-    "selectGroupToExport": "請選擇要匯出的群組",
-    "exportFailed": "匯出失敗：{{error}}",
-    "importFailed": "匯入失敗：{{errors}}"
+    "selectGroupToExport": "請選擇要匯出的群組"
   },
   "importMessages": {
-    "importing": "匯入資料中...",
     "importSuccess": "匯入成功完成！",
-    "importFailed": "匯入失敗！",
-    "importedGroups": "已匯入 {{count}} 個自訂群組。",
-    "importedTiles": "已匯入 {{count}} 個自訂磁磚。"
-  },
-  "importResults": {
-    "title": "匯入結果：",
-    "groupsImported": "已匯入 {{count}} 個自訂群組",
-    "tilesImported": "已匯入 {{count}} 個自訂磁磚",
-    "warnings": "警告：",
-    "errors": "錯誤："
-  },
-  "formatGuide": {
-    "title": "清潔 v2.0 格式指南",
-    "description": "清潔 v2.0 格式將群組結構與自訂內容分離，便於手動編輯：",
-    "keySections": "主要部分：",
-    "keySectionsContent": "• <strong1>groups</strong1>：帶有標籤、類型和強度名稱的群組定義<br />• <strong2>customTiles</strong2>：按群組和強度編號組織的自訂磁磚",
-    "manualEditing": "手動編輯：",
-    "manualEditingContent": "• 安全地編輯群組標籤和強度名稱<br />• 在 customTiles 部分新增/移除自訂磁磚<br />• 自訂磁磚適用於自訂和預設群組<br />• 語言必須是 'en'、'es' 或 'fr'<br />• 群組類型必須是 'solo'、'foreplay'、'sex' 或 'consumption'",
-    "customTilesFormat": "自訂磁磚格式：",
-    "customTilesFormatContent": "每個磁磚可以是字串（僅動作）或包含動作和標籤的物件：<br />• 簡單：<code1>\"動作文字\"</code1><br />• 帶標籤：<code2>{\"action\": \"文字\", \"tags\": [\"標籤1\", \"標籤2\"]}</code2>"
+    "importFailed": "匯入失敗！"
   },
   "privateRoom": "私人房間",
   "deleteBoard": "刪除遊戲板",
@@ -446,13 +416,11 @@
   "presetBodyWorship": "身體崇拜",
   "presetControlBreath": "控制呼吸",
   "presetDegrading": "羞辱",
-  "presetElectricPlay": "電刺激",
   "presetExplorationSolo": "探索",
   "presetFisting": "拳交",
   "presetGentleSex": "溫柔性愛",
   "presetPopperbating": "Poppers自慰",
   "presetRomanticStart": "浪漫開始",
-  "presetSensualTouch": "感官觸摸",
   "presetSmokingTits": "吸煙乳房",
   "privateRoomBenefit": "單人、情侶或團體遊戲",
   "privateRoomCode": "私人房間代碼",
@@ -578,21 +546,10 @@
   },
   "autoCloseProgress": "自動關閉進度",
   "invalidRedditUrl": "無效的Reddit URL格式",
-  "addTags": "添加標籤",
-  "addTile": "添加磁貼",
-  "createNewGroup": "創建新群組",
-  "enterTileAction": "輸入磁貼動作",
-  "tileAddedSuccessfully": "磁貼添加成功",
-  "tileUpdatedSuccessfully": "磁貼更新成功",
-  "updateTile": "更新磁貼",
   "setupWizard": {
     "title": "設置嚮導"
   },
   "manageGroups": {
     "title": "管理群組"
-  },
-  "export": "導出",
-  "export.scope": "導出範圍",
-  "export.selectGroup": "選擇群組",
-  "export.includeDisabled": "包括默認禁用項"
+  }
 }

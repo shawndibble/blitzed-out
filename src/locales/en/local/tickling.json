@@ -4,7 +4,6 @@
   "dom": "Tickler",
   "sub": "Ticklee",
   "actions": {
-    "None": [],
     "Light": [
       "{dom} lightly rubs their finger in a ticklish zone of {sub}.",
       "{dom} uses an item to tickle {sub} for 15 seconds.",

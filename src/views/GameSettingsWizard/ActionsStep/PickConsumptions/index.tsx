@@ -91,11 +91,10 @@ export default function PickConsumptions({
 
           {selectedConsumptions.map((option) => {
             const actionData = actionsList[option];
-            // Get available levels from the intensities mapping, excluding 0 (None)
+            // Get available levels from the intensities mapping
             const availableLevels = actionData?.intensities
               ? Object.keys(actionData.intensities)
                   .map(Number)
-                  .filter((level) => level > 0)
                   .sort((a, b) => a - b)
               : [1, 2, 3, 4]; // Default levels if no specific intensities defined
 

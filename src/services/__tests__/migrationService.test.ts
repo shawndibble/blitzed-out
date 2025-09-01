@@ -6,6 +6,7 @@ import {
   runMigrationIfNeeded,
   verifyMigrationIntegrity,
 } from '../migrationService';
+import { MIGRATION_KEY, BACKGROUND_MIGRATION_KEY, MIGRATION_VERSION } from '../migration/constants';
 
 // Mock localStorage
 const mockLocalStorage = (() => {
@@ -53,10 +54,6 @@ vi.mock('@/locales/en/translation.json', () => ({
 }));
 
 describe('Migration Service', () => {
-  const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
-  const BACKGROUND_MIGRATION_KEY = 'blitzed-out-background-migration';
-  const MIGRATION_VERSION = '2.3.0';
-
   beforeEach(() => {
     // Set up localStorage mock
     Object.defineProperty(window, 'localStorage', {

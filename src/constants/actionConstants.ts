@@ -3,12 +3,6 @@
  */
 
 /**
- * Default option that appears in all action groups for consistency
- * This ensures all action groups have a "None" option available
- */
-export const DEFAULT_NONE_OPTION = 'None';
-
-/**
  * Delay in milliseconds between clearing data and syncing with remote server
  * This prevents race conditions during data sync operations
  */

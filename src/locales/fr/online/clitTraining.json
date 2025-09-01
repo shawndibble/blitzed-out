@@ -2,7 +2,6 @@
   "label": "Entraînement du Clitoris",
   "type": "solo",
   "actions": {
-    "None": [],
     "Toucher Léger": [
       "Trace des cercles autour de ton clitoris avec ton doigt.",
       "Caresse doucement ton clitoris avec une plume ou un tissu doux.",
@@ -12,7 +11,7 @@
       "Utilise une brosse douce pour stimuler légèrement ton clitoris.",
       "Pince délicatement le capuchon autour de ton clitoris.",
       "Reste parfaitement immobile en touchant à peine ton clitoris pendant 15 secondes.",
-      "Alterne entre des touches légères et t'éloigner de ton clitoris."
+      "Alterne entre toucher légèrement et t'éloigner de ton clitoris."
     ],
     "Stimulation Directe": [
       "Frotte ton clitoris en cercles lents pendant 15 secondes.",
@@ -25,7 +24,7 @@
       "Reste silencieuse en te donnant une stimulation intense du clitoris.",
       "Stimule ton clitoris en effectuant une autre tâche."
     ],
-    "Focus Intense": [
+    "Concentration intense": [
       "Applique une pression intense sur ton clitoris pendant 30 secondes.",
       "Reste immobile en tapotant rapidement ton clitoris.",
       "Utilise un mouvement circulaire avec une pression ferme sur ton clitoris.",

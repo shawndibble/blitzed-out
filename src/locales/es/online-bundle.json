@@ -3,7 +3,6 @@
     "label": "Alcohol",
     "type": "consumption",
     "actions": {
-      "Ninguna": [],
       "Bebe": [
         "Dale un sorbo a tu bebida.",
         "Tómate un trago.",
@@ -32,7 +31,6 @@
     "label": "Golpear los testículos",
     "type": "solo",
     "actions": {
-      "Ninguna": [],
       "Bofetada/Apretón": [
         "Masajea los testículos.",
         "Date 2 palmadas en los testículos.",
@@ -84,7 +82,6 @@
     "label": "Masturbándose",
     "type": "solo",
     "actions": {
-      "Ninguna": [],
       "Masturbación": [
         "30 movimientos lentos.",
         "Mastúrbate tan rápido como puedas 30 segundos.",
@@ -136,7 +133,6 @@
     "label": "Adoración Corporal",
     "type": "solo",
     "actions": {
-      "None": [],
       "Auto-Adoración Suave": [
         "Mírate en el espejo y dite que vas a adorar tu propio cuerpo sexy.",
         "Posa seductoramente y admira lo follable que te ves por 30 segundos.",
@@ -185,7 +181,6 @@
     "label": "Juego anal",
     "type": "solo",
     "actions": {
-      "Ninguna": [],
       "Dedo(s)": [
         "Masajea tu ano.",
         "Mete un dedo en el ano.",
@@ -238,7 +233,6 @@
     "label": "Entrenamiento del Clítoris",
     "type": "solo",
     "actions": {
-      "None": [],
       "Toque Ligero": [
         "Traza círculos alrededor de tu clítoris con tu dedo.",
         "Acaricia suavemente tu clítoris con una pluma o tela suave.",
@@ -286,7 +280,6 @@
     "label": "Máscara de gas",
     "type": "consumption",
     "actions": {
-      "Ninguna": [],
       "Principiante": [
         "Tome 3 respiraciones de la botella a través de la manguera.",
         "Tome 6 respiraciones de la botella a través de la manguera.",
@@ -323,7 +316,6 @@
     "label": "Juegos con Orina",
     "type": "solo",
     "actions": {
-      "Ninguna": [],
       "Orinar en un Vaso": [
         "Bebe agua",
         "Orina en un recipiente",
@@ -352,7 +344,6 @@
     "label": "Poppers",
     "type": "consumption",
     "actions": {
-      "Ninguna": [],
       "Principiante": [
         "Inhala 1 vez.",
         "Inhala 2 veces.",
@@ -400,7 +391,6 @@
     "label": "Entrenamiento de garganta",
     "type": "solo",
     "actions": {
-      "Ninguna": [],
       "Lamer": [
         "Lame un juguete.",
         "Juega con la punta del juguete.",
@@ -443,7 +433,6 @@
     "label": "Tortura de pezones",
     "type": "solo",
     "actions": {
-      "Ninguna": [],
       "Apretar/Acariciar": [
         "Acaricia los pezones.",
         "Juega con los pezones.",
@@ -482,7 +471,6 @@
     "label": "Vapeo",
     "type": "consumption",
     "actions": {
-      "Ninguna": [],
       "Principiante": [
         "Da una calada.",
         "Da una calada larga.",

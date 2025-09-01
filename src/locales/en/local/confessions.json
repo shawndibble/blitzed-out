@@ -2,7 +2,6 @@
   "label": "Confessions",
   "type": "foreplay",
   "actions": {
-    "None": [],
     "Preferences & Experiences": [
       "{player} ranks everyone in the room from most to least attractive.",
       "{player} confesses which player they'd most want to kiss right now.",

@@ -4,7 +4,6 @@
   "dom": "Pisser",
   "sub": "Pissee",
   "actions": {
-    "None": [],
     "Pee in a Cup": [
       "{sub} drinks water",
       "{sub} gulps water",
@@ -17,12 +16,12 @@
     ],
     "Peed on": [
       "{dom} pees on {sub}'s body",
-      "{sub} pees on themselves",
+      "{sub} pees on their own body",
       "{sub} puts their cock and ball in a piss container",
       "{sub} gulps water",
       "{dom} pees on {sub}'s face",
       "{sub} pees on their own face",
-      "{sub} drink water"
+      "{sub} drinks water"
     ],
     "Drink": [
       "{sub} drinks their own piss",
@@ -30,7 +29,7 @@
       "{sub} drinks {dom}'s piss directly with their mouth on the source",
       "{sub} drinks water",
       "{dom} gulps water while {sub} watches",
-      "{sub} try to pee in their own mouth and swallow."
+      "{sub} tries to pee in their own mouth and swallow."
     ]
   }
 }

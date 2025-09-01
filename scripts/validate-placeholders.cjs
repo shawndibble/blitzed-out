@@ -9,24 +9,24 @@ const fs = require('fs');
 const path = require('path');
 
 // Valid placeholders that are allowed in locale files
-const VALID_PLACEHOLDERS = [
+const VALID_PLACEHOLDERS = new Set([
   '{dom}',      // Dominant player
   '{sub}',      // Submissive player  
   '{player}',   // Generic player
   '{anotherPlayer}' // Another player
-];
+]);
 
 // Common invalid placeholders to catch
-const INVALID_PATTERNS = [
+const INVALID_PATTERNS = new Set([
   '{todos los subs}',  // Spanish: invalid placeholder
   '{tous les subs}',   // French: invalid placeholder
   '{all subs}',        // English: invalid placeholder
   '{others}',          // Generic: should be more specific
   '{everyone}',        // Generic: should be more specific
-];
+]);
 
 // Directory to search for bundle files
-const LOCALES_DIR = 'src/locales';
+const LOCALES_DIR = path.resolve(__dirname, '../src/locales');
 
 let hasErrors = false;
 
@@ -44,17 +44,17 @@ function validatePlaceholders(text) {
   
   placeholderMatches.forEach(placeholder => {
     // Check if it's a valid placeholder
-    if (!VALID_PLACEHOLDERS.includes(placeholder)) {
+    if (!VALID_PLACEHOLDERS.has(placeholder)) {
       errors.push(`Invalid placeholder: ${placeholder}`);
     }
   });
   
   // Check for known invalid patterns
-  INVALID_PATTERNS.forEach(pattern => {
+  for (const pattern of INVALID_PATTERNS) {
     if (text.includes(pattern)) {
       errors.push(`Found invalid pattern: ${pattern}`);
     }
-  });
+  }
   
   // Check for common translation issues
   if (text.includes('dock sucker')) {

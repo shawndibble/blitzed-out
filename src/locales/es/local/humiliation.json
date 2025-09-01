@@ -2,7 +2,6 @@
   "label": "Humillación",
   "type": "foreplay",
   "actions": {
-    "Ninguna": [],
     "Verbal": [
       "{dom} asigna un término despectivo a {sub} y le hace repetir 'Soy un <término>' 10 veces.",
       "{dom} asigna un apodo degradante a {sub} al que debe responder durante el resto del juego.",

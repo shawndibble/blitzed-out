@@ -3,7 +3,6 @@
     "label": "Alcool",
     "type": "consumption",
     "actions": {
-      "Aucune": [],
       "Boire": [
         "Prends une gorgée de ta boisson.",
         "Bois une gorgée.",
@@ -32,7 +31,6 @@
     "label": "Torture des couilles",
     "type": "solo",
     "actions": {
-      "Aucun": [],
       "Claques/Pression": [
         "Masses tes couilles.",
         "2 claques sur tes couilles.",
@@ -84,7 +82,6 @@
     "label": "Se masturber",
     "type": "solo",
     "actions": {
-      "Aucun": [],
       "Masturbation/Branle": [
         "Branles-toi par 30 caresses lentes.",
         "Branles-toi aussi rapidement que possible pendant 30 secondes.",
@@ -136,7 +133,6 @@
     "label": "Adoration Corporelle",
     "type": "solo",
     "actions": {
-      "None": [],
       "Auto-Admiration Douce": [
         "Regardez-vous dans le miroir et dites trois choses que vous trouvez belles chez vous.",
         "Posez pour vous-même et admirez votre reflet pendant 30 secondes.",
@@ -185,7 +181,6 @@
     "label": "Jeu anal",
     "type": "solo",
     "actions": {
-      "Aucun": [],
       "Doigt(s)": [
         "Masser ton trou.",
         "Doigtes-toi.",
@@ -238,7 +233,6 @@
     "label": "Entraînement du Clitoris",
     "type": "solo",
     "actions": {
-      "None": [],
       "Toucher Léger": [
         "Trace des cercles autour de ton clitoris avec ton doigt.",
         "Caresse doucement ton clitoris avec une plume ou un tissu doux.",
@@ -248,7 +242,7 @@
         "Utilise une brosse douce pour stimuler légèrement ton clitoris.",
         "Pince délicatement le capuchon autour de ton clitoris.",
         "Reste parfaitement immobile en touchant à peine ton clitoris pendant 15 secondes.",
-        "Alterne entre des touches légères et t'éloigner de ton clitoris."
+        "Alterne entre toucher légèrement et t'éloigner de ton clitoris."
       ],
       "Stimulation Directe": [
         "Frotte ton clitoris en cercles lents pendant 15 secondes.",
@@ -261,7 +255,7 @@
         "Reste silencieuse en te donnant une stimulation intense du clitoris.",
         "Stimule ton clitoris en effectuant une autre tâche."
       ],
-      "Focus Intense": [
+      "Concentration intense": [
         "Applique une pression intense sur ton clitoris pendant 30 secondes.",
         "Reste immobile en tapotant rapidement ton clitoris.",
         "Utilise un mouvement circulaire avec une pression ferme sur ton clitoris.",
@@ -286,7 +280,6 @@
     "label": "Masque à gaz",
     "type": "consumption",
     "actions": {
-      "Aucun": [],
       "Débutant": [
         "Prenez 3 respirations du flacon via le tuyau.",
         "Prenez 6 respirations du flacon via le tuyau.",
@@ -323,7 +316,6 @@
     "label": "Plan pisse",
     "type": "solo",
     "actions": {
-      "Aucun": [],
       "Pisser dans un verre": [
         "Bois de l'eau",
         "Pisses dans un récipient",
@@ -344,7 +336,7 @@
         "Bois ta propre pisse",
         "Bois de l'eau",
         "Bois de l'eau à petites gorgées",
-        "Essayer de pisser dans ta bouche. Avales."
+        "Essaie de pisser dans ta bouche. Avale."
       ]
     }
   },
@@ -352,14 +344,13 @@
     "label": "Poppers",
     "type": "consumption",
     "actions": {
-      "Aucun": [],
       "Débutant": [
         "1 bouffée.",
         "2 bouffées.",
         "1 longue bouffée.",
         "2 bouffées.",
         "3 bouffées.",
-        "1 bouffée pour chaque narine.",
+        "1 bouffée dans chaque narine.",
         "2 longues bouffées.",
         "1 bouffée.",
         "2 bouffées rapides."
@@ -367,31 +358,31 @@
       "Intermédiaire": [
         "3 bouffées.",
         "4 bouffées.",
-        "2 bouffées pour chaque narine.",
+        "2 bouffées dans chaque narine.",
         "1 bouffée buccale.",
         "Bouffée buccale de 5 secondes.",
         "4 bouffées.",
-        "Inhales pendant 5 secondes. Retiens ta respiration 5 secondes.",
+        "Inspire pendant 5 secondes. Retiens ta respiration 5 secondes.",
         "5 bouffées rapides."
       ],
       "Avancé": [
-        "Inhales 10 secondes. Retiens 10 secondes.",
+        "Inspire 10 secondes. Retiens 10 secondes.",
         "4 bouffées buccales.",
-        "Inhales et retiens aussi longtemps que possible.",
+        "Inspire et retiens aussi longtemps que possible.",
         "Respire avec un masque à poppers ou une chaussette pendant 15 secondes.",
         "8 bouffées.",
         "4 bouffées buccales.",
         "6 longues bouffées.",
         "5 bouffées de chaque côté.",
-        "Inhales 8 secondes. Retiens 8 secondes."
+        "Inspire 8 secondes. Retiens 8 secondes."
       ],
       "Expert": [
         "10 bouffées normales. Sans retenir.",
-        "Inhales 15 secondes. Retiens 10 secondes.",
+        "Inspire 15 secondes. Retiens 10 secondes.",
         "Respires avec une chaussette à poppers aussi longtemps que tu peux",
         "Vides tes poumons. La bouffée la plus grande et profonde que tu puisses faire.",
-        "Poumons vides. Inhales profondément 10 secondes. Retiens 10 secondes. Répète.",
-        "Poumons vides. Inhales profondément 15 secondes. Retiens 30 secondes.",
+        "Poumons vides. Inspire profondément 10 secondes. Retiens 10 secondes. Répète.",
+        "Poumons vides. Inspire profondément 15 secondes. Retiens 30 secondes.",
         "10 secondes chaussette/masque. Retiens 10 secondes."
       ]
     }
@@ -400,7 +391,6 @@
     "label": "Entraînement de la gorge",
     "type": "solo",
     "actions": {
-      "Aucun": [],
       "Lécher un gode": [
         "Lèches un gode.",
         "Joues avec le bout du gode.",
@@ -443,7 +433,6 @@
     "label": "Torture des tétons",
     "type": "solo",
     "actions": {
-      "Aucun": [],
       "Pression/Frottement": [
         "Frottes tes tétons.",
         "Joues avec tes tétons.",
@@ -482,7 +471,6 @@
     "label": "Vapoter",
     "type": "consumption",
     "actions": {
-      "Aucun": [],
       "Débutant": [
         "Prends une bouffée.",
         "Prends une longue bouffée.",
@@ -491,16 +479,16 @@
         "Retiens la vapeur pendant 3 secondes avant d'expirer.",
         "Essaie d'expirer la vapeur par le nez.",
         "Prends une bouffée et essaie de créer une forme de 'O' avec la vapeur.",
-        "Trouve une surface et fais le tour de la vape en cascade."
+        "Trouve une surface et fais le tour de la vapeur en cascade."
       ],
       "Intermédiaire": [
-        "Faire un rond de fumée.",
+        "Fais un rond de fumée.",
         "Expire lentement, en formant un mince nuage.",
         "Tire une bouffée pendant 5 secondes.",
         "Prends 4 à 6 bouffées.",
         "Essaie de souffler de la vapeur à travers une paille.",
         "Retiens la vapeur pendant 5 secondes avant d'expirer.",
-        "Crée un nuage de vape, puis fais-le tourner avec ta main pour réaliser le tour de la tornade."
+        "Crée un nuage de vapeur, puis fais-le tourner avec ta main pour réaliser le tour de la tornade."
       ],
       "Expert": [
         "Tire une bouffée, expire et essaie de réinspirer la fumée.",
@@ -510,7 +498,7 @@
         "Essaie d'expirer la vapeur par les lèvres pincées.",
         "Retiens la vapeur pendant 10 secondes avant d'expirer.",
         "Effectue l'astuce française d'inhalation de vapeur.",
-        "Effectue le tour de vapeur Bane"
+        "Effectue le tour de vapeur Bane."
       ]
     }
   }

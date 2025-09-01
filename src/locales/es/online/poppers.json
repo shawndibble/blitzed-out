@@ -2,7 +2,6 @@
   "label": "Poppers",
   "type": "consumption",
   "actions": {
-    "Ninguna": [],
     "Principiante": [
       "Inhala 1 vez.",
       "Inhala 2 veces.",

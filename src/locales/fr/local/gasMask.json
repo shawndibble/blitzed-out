@@ -2,7 +2,6 @@
   "label": "Masque à Gaz",
   "type": "consumption",
   "actions": {
-    "Aucun": [],
     "Débutant": [
       "Prenez 3 respirations de la bouteille via le tuyau.",
       "Prenez 6 respirations de la bouteille via le tuyau.",

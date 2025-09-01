@@ -2,7 +2,6 @@
   "label": "Pies",
   "type": "foreplay",
   "actions": {
-    "Ninguno": [],
     "Beso": [
       "{sub} besa el empeine a {dom} durante 30 segundos.",
       "{sub} besa la planta de los pies a {dom} durante 30 segundos.",

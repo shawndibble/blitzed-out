@@ -2,7 +2,6 @@
   "label": "Alcohol",
   "type": "consumption",
   "actions": {
-    "Ninguna": [],
     "Bebe": [
       "Dale un sorbo a tu bebida.",
       "Tómate un trago.",

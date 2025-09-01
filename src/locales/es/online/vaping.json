@@ -2,7 +2,6 @@
   "label": "Vapeo",
   "type": "consumption",
   "actions": {
-    "Ninguna": [],
     "Principiante": [
       "Da una calada.",
       "Da una calada larga.",

@@ -2,7 +2,6 @@
   "label": "Máscara de gas",
   "type": "consumption",
   "actions": {
-    "Ninguna": [],
     "Principiante": [
       "Tome 3 respiraciones de la botella a través de la manguera.",
       "Tome 6 respiraciones de la botella a través de la manguera.",
