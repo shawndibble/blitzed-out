@@ -36,8 +36,6 @@ export default function CountDownButtonModal({
   }
   const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(totalSeconds, true);
 
-  useEffect(() => togglePause(), [togglePause]);
-
   const clickedButton = () => {
     preventParentClose();
     setOpen(true);
@@ -83,7 +81,7 @@ export default function CountDownButtonModal({
             <Box sx={{ position: 'relative', display: 'inline-flex' }}>
               <CircularProgress
                 variant="determinate"
-                value={Math.max(0, Math.min(100, (timeLeft / totalSeconds) * 100))}
+                value={Math.max(0, Math.min(100, ((timeLeft - 1) / (totalSeconds - 1)) * 100))}
                 size={96}
                 thickness={4}
                 color="primary"
