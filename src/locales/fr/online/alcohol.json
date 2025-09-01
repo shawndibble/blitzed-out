@@ -2,7 +2,6 @@
   "label": "Alcool",
   "type": "consumption",
   "actions": {
-    "Aucune": [],
     "Boire": [
       "Prends une gorgée de ta boisson.",
       "Bois une gorgée.",

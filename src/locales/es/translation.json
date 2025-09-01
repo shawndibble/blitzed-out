@@ -63,8 +63,6 @@
   "cancel": "Cancelar",
   "skip": "Saltar",
   "confirm": "Confirmar",
-  "yes": "Sí",
-  "no": "No",
   "warning": "Advertencia",
   "error": "Error",
   "somethingWentWrong": "Algo salió mal",
@@ -254,7 +252,6 @@
   "ctIdeas": "Ideas Creativas",
   "ctAdd": "Agregar Casillas de Juego",
   "ctUpdate": "Actualizar Casillas de Juego",
-  "ctImportDescription": "Muestra una lista de todas las casillas de juego. La importación AGREGARÁ nuevas entradas desde la lista proporcionada.",
   "ctSeparatorError": "Asegúrate de agregar --- en una nueva línea entre las casillas de juego, y que tus grupos estén entre corchetes.",
   "ctGroupError": "Grupo no válido. Asegúrate de que tu grupo coincida con un formato listado en 'Agregar Casillas de Juego' y esté entre corchetes.",
   "ctActionError": "Debes asegurarte de que cada entrada que tenga un grupo también tenga una acción.",
@@ -298,7 +295,6 @@
   "convertAccount": "Convertir cuenta",
   "startCasting": "Iniciar transmisión",
   "stopCasting": "Detener transmisión",
-
   "calendar": {
     "addToCalendar": "Calendario",
     "downloadIcs": "Descargar archivo ICS",
@@ -374,46 +370,20 @@
   "exportScope": {
     "all": "Todos los Datos",
     "custom": "Solo Personalizados",
-    "default": "Grupos Predeterminados",
     "single": "Grupo Único",
     "disabled": "Predeterminados Deshabilitados"
   },
-  "labels": {
-    "exportScope": "Alcance",
-    "selectGroup": "Seleccionar Grupo"
-  },
+  "export.scope": "Alcance de Exportación",
+  "export.selectGroup": "Seleccionar Grupo",
   "placeholder": {
-    "cleanFormat": "Pega aquí los datos JSON en formato limpio v2.0...",
     "importData": "Pega los datos de importación aquí..."
   },
   "errors": {
-    "selectGroupToExport": "Por favor selecciona un grupo para exportar",
-    "exportFailed": "Error en la exportación: {{error}}",
-    "importFailed": "Error en la importación: {{errors}}"
+    "selectGroupToExport": "Por favor selecciona un grupo para exportar"
   },
   "importMessages": {
-    "importing": "Importando datos...",
     "importSuccess": "¡Importación completada exitosamente!",
-    "importFailed": "¡Error en la importación!",
-    "importedGroups": "Se importaron {{count}} grupos personalizados.",
-    "importedTiles": "Se importaron {{count}} casillas personalizadas."
-  },
-  "importResults": {
-    "title": "Resultados de Importación:",
-    "groupsImported": "{{count}} grupos personalizados importados",
-    "tilesImported": "{{count}} casillas personalizadas importadas",
-    "warnings": "Advertencias:",
-    "errors": "Errores:"
-  },
-  "formatGuide": {
-    "title": "Guía del Formato Limpio v2.0",
-    "description": "El formato Limpio v2.0 separa la estructura de grupos del contenido personalizado para facilitar la edición manual:",
-    "keySections": "Secciones Clave:",
-    "keySectionsContent": "• <strong1>groups</strong1>: Definiciones de grupos con etiquetas, tipos y nombres de intensidad<br />• <strong2>customTiles</strong2>: Tus casillas personalizadas organizadas por grupo y número de intensidad",
-    "manualEditing": "Edición Manual:",
-    "manualEditingContent": "• Edita etiquetas de grupos y nombres de intensidad de forma segura<br />• Añade/elimina casillas personalizadas en la sección customTiles<br />• Las casillas personalizadas funcionan con grupos personalizados y predeterminados<br />• El idioma debe ser 'en', 'es' o 'fr'<br />• El tipo de grupo debe ser 'solo', 'foreplay', 'sex' o 'consumption'",
-    "customTilesFormat": "Formato de Casillas Personalizadas:",
-    "customTilesFormatContent": "Cada casilla puede ser una cadena (solo acción) u objeto con acción y etiquetas:<br />• Simple: <code1>\"texto de acción\"</code1><br />• Con etiquetas: <code2>{\"action\": \"texto\", \"tags\": [\"etiqueta1\", \"etiqueta2\"]}</code2>"
+    "importFailed": "¡Error en la importación!"
   },
   "privateRoom": "Sala Privada",
   "deleteBoard": "Eliminar Tablero",
@@ -428,13 +398,6 @@
     "enterValidUrl": "Por favor ingresa una URL válida"
   },
   "errorSavingTile": "Error al guardar el tile",
-  "tileUpdatedSuccessfully": "Casilla actualizada exitosamente",
-  "tileAddedSuccessfully": "Casilla agregada exitosamente",
-  "updateTile": "Actualizar Casilla",
-  "addTile": "Agregar Casilla",
-  "createNewGroup": "Crear Nuevo Grupo",
-  "enterTileAction": "Ingresa el texto de la acción para esta casilla",
-  "addTags": "Agregar etiquetas para categorizar esta casilla",
   "enterDataToImport": "Por favor ingresa datos para importar",
   "templateBasic": "Básico (1-4)",
   "gameSettingsHeading": "Configuración del Juego",
@@ -449,18 +412,16 @@
   "customizeActions": "Personalizar Acciones",
   "finishSetup": "Finalizar Configuración",
   "gameModeSelection": "Selección de Modo de Juego",
-  "presetBallBusting": "Tortura de Testículos",
+  "presetBallBusting": "Ball Busting",
   "presetBdsm": "BDSM",
   "presetBreathControl": "Control de Respiración",
   "presetDegrading": "Degradante",
-  "presetElectricPlay": "Juego Eléctrico",
-  "presetExplorationSolo": "Exploración",
+  "presetExplorationSolo": "Exploración Solo",
   "presetFisting": "Fisting",
   "presetGentleSex": "Sexo Suave",
   "presetPopperbating": "Popperbating",
   "presetRomanticStart": "Inicio Romántico",
-  "presetSensualTouch": "Toque Sensual",
-  "presetSmokingTits": "Tetas Fumando",
+  "presetSmokingTits": "Fumar y Pechos",
   "privateRoomBenefit": "Juego en solitario, pareja o grupo",
   "privateRoomCode": "Código de Sala Privada",
   "privateRoomCodeHelp": "Comparte este código con otros para unirse a tu sala privada",
@@ -469,18 +430,6 @@
   "roomSelection": "Selección de Sala",
   "roomTypeDescription": "Selecciona el tipo de sala que mejor se adapte a tu estilo de juego.",
   "selected": "Seleccionado",
-  "presetPopperbating": "Popperbating",
-  "presetSmokingTits": "Fumar y Pechos",
-  "presetExplorationSolo": "Exploración Solo",
-  "presetBallBusting": "Ball Busting",
-  "presetRomanticStart": "Inicio Romántico",
-  "presetDegrading": "Degradante",
-  "presetSensualTouch": "Toque Sensual",
-  "presetElectricPlay": "Juego Eléctrico",
-  "presetGentleSex": "Sexo Suave",
-  "presetFisting": "Fisting",
-  "presetBdsm": "BDSM",
-  "presetBreathControl": "Control de Respiración",
   "presetBodyWorship": "Adoración Corporal",
   "presetControlBreath": "Control de Respiración",
   "customizeActionsDesc": "Los usuarios pueden ajustar su selección de acciones y niveles de intensidad a continuación.",
@@ -597,21 +546,10 @@
       "hasPlayers": "Ya tienes jugadores locales configurados. Puedes configurar nuevos o continuar con tu configuración actual."
     }
   },
-  "addTags": "Agregar Etiquetas",
-  "addTile": "Agregar Ficha",
-  "createNewGroup": "Crear Nuevo Grupo",
-  "enterTileAction": "Ingresar Acción de Ficha",
-  "tileAddedSuccessfully": "Ficha Agregada Exitosamente",
-  "tileUpdatedSuccessfully": "Ficha Actualizada Exitosamente",
-  "updateTile": "Actualizar Ficha",
   "setupWizard": {
     "title": "Asistente de configuración"
   },
   "manageGroups": {
     "title": "Gestionar grupos"
-  },
-  "export": "Exportar",
-  "export.scope": "Alcance de exportación",
-  "export.selectGroup": "Seleccionar grupo",
-  "export.includeDisabled": "Incluir deshabilitados por defecto"
+  }
 }

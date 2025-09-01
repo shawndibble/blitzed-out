@@ -2,14 +2,13 @@
   "label": "Poppers",
   "type": "consumption",
   "actions": {
-    "Ninguna": [],
     "Principiante": [
       "Inhala 1 vez.",
       "Inhala 2 veces.",
       "Inhala 1 vez profundamente.",
       "Inhala 2 veces.",
       "Inhala 3 veces.",
-      "Inhala 1 veces con cada fosa nasal profundamente.",
+      "Inhala 1 vez profundamente por cada fosa nasal.",
       "Inhala 2 veces profundamente.",
       "Inhala 1 vez y aguanta la respiración.",
       "Inhala 2 veces rápidamente."

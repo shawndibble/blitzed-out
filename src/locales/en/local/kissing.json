@@ -2,7 +2,6 @@
   "label": "Kissing",
   "type": "foreplay",
   "actions": {
-    "None": [],
     "Gentle Kisses": [
       "{dom} kisses {sub} on the cheek.",
       "{dom} gives {sub} a kiss on the forehead.",

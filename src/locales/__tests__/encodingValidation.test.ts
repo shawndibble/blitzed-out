@@ -15,15 +15,6 @@ describe('Character Encoding Validation', () => {
       expect(alcohol.default.label).toMatch(/[\u4e00-\u9fff]/);
     });
 
-    it('should properly encode "None" option in Chinese', async () => {
-      const kissing = await import('../zh/local/kissing.json');
-      const actions = kissing.default.actions;
-
-      expect(actions).toHaveProperty('无');
-      expect(Array.isArray(actions['无'])).toBe(true);
-      expect(actions['无']).toHaveLength(0);
-    });
-
     it('should maintain placeholder variables in Chinese text', async () => {
       const kissing = await import('../zh/local/kissing.json');
       const actions = Object.values(kissing.default.actions).flat() as string[];
@@ -55,15 +46,6 @@ describe('Character Encoding Validation', () => {
       // Verify Devanagari encoding range
       expect(kissing.default.label).toMatch(/[\u0900-\u097F]/);
       expect(alcohol.default.label).toMatch(/[\u0900-\u097F]/);
-    });
-
-    it('should properly encode "None" option in Hindi', async () => {
-      const kissing = await import('../hi/local/kissing.json');
-      const actions = kissing.default.actions;
-
-      expect(actions).toHaveProperty('कोई नहीं');
-      expect(Array.isArray(actions['कोई नहीं'])).toBe(true);
-      expect(actions['कोई नहीं']).toHaveLength(0);
     });
 
     it('should maintain placeholder variables in Devanagari text', async () => {
@@ -117,19 +99,6 @@ describe('Character Encoding Validation', () => {
       expect(hiKissing.default.type).toBe(enKissing.default.type);
     });
 
-    it('should have translated "None" options in all languages', async () => {
-      const zhKissing = await import('../zh/local/kissing.json');
-      const hiKissing = await import('../hi/local/kissing.json');
-
-      // Chinese should have "无"
-      expect(zhKissing.default.actions).toHaveProperty('无');
-      expect(zhKissing.default.actions).not.toHaveProperty('None');
-
-      // Hindi should have "कोई नहीं"
-      expect(hiKissing.default.actions).toHaveProperty('कोई नहीं');
-      expect(hiKissing.default.actions).not.toHaveProperty('None');
-    });
-
     it('should maintain UTF-8 encoding integrity', async () => {
       const zhSpanking = await import('../zh/local/spanking.json');
       const hiTickling = await import('../hi/local/tickling.json');
@@ -157,8 +126,8 @@ describe('Character Encoding Validation', () => {
       expect(hiCategories.length).toBeGreaterThan(1);
 
       // Categories should contain appropriate scripts
-      const zhNonEmptyCategories = zhCategories.filter((cat) => cat !== '无');
-      const hiNonEmptyCategories = hiCategories.filter((cat) => cat !== 'कोई नहीं');
+      const zhNonEmptyCategories = zhCategories.filter((cat) => cat !== '__NONE__');
+      const hiNonEmptyCategories = hiCategories.filter((cat) => cat !== '__NONE__');
 
       expect(zhNonEmptyCategories.some((cat) => /[\u4e00-\u9fff]/.test(cat))).toBe(true);
       expect(hiNonEmptyCategories.some((cat) => /[\u0900-\u097F]/.test(cat))).toBe(true);

@@ -1,4 +1,6 @@
-import { Box, Button, Divider } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 import { Trans } from 'react-i18next';
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';

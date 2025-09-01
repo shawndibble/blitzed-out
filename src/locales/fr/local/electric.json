@@ -4,7 +4,6 @@
   "dom": "Contrôleur",
   "sub": "Récepteur",
   "actions": {
-    "Aucun": [],
     "Faible": [
       "{dom} applique un courant électrique doux sur le bras de {sub} à l'aide d'un appareil TENS.",
       "{dom} utilise une baguette violette sur le dos de {sub} à un niveau faible.",

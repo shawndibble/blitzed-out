@@ -3,7 +3,7 @@ import { CalendarMonth } from '@mui/icons-material';
 import { AppBar, Badge, Box, IconButton, Portal, Toolbar } from '@mui/material';
 import useSchedule from '@/context/hooks/useSchedule';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import Logo from '@/images/blitzed-out.png';
+import Logo from '@/images/blitzed-out-optimized.png';
 import { useTranslation } from 'react-i18next';
 import CastButton from '@/components/CastButton';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -50,7 +50,15 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
     <AppBar position="fixed">
       <Toolbar disableGutters variant="dense" component="nav" className="nav">
         <div className="site-name">
-          <Box component="img" sx={{ height: 32 }} alt="Blitzed Out Logo" src={Logo} />
+          <Box
+            component="img"
+            sx={{ height: 32 }}
+            alt="Blitzed Out Logo"
+            src={Logo}
+            decoding="async"
+            loading="eager"
+            fetchPriority="high"
+          />
           <h1 className="gradient-text">Blitzed Out</h1>
         </div>
         <div>

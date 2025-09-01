@@ -2,7 +2,6 @@
   "label": "Alcohol",
   "type": "consumption",
   "actions": {
-    "None": [],
     "Sip/Drink": [
       "Sip your drink.",
       "Take a drink.",

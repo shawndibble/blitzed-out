@@ -4,7 +4,6 @@
   "dom": "Controller",
   "sub": "Receiver",
   "actions": {
-    "None": [],
     "Light": [
       "{dom} applies a gentle electrical current to {sub}'s arm using a TENS unit.",
       "{dom} uses a violet wand on {sub}'s back at a low setting.",

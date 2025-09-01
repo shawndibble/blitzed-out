@@ -63,8 +63,6 @@
   "cancel": "रद्द करें",
   "skip": "छोड़ें",
   "confirm": "पुष्टि करें",
-  "yes": "हाँ",
-  "no": "नहीं",
   "warning": "चेतावनी",
   "error": "त्रुटि",
   "somethingWentWrong": "कुछ गलत हुआ",
@@ -166,7 +164,6 @@
   "randomTimerRange": "चुने गए मानों के बीच रोल काउंटडाउन को रैंडम रूप से सेट करता है।",
   "minValue": "न्यूनतम",
   "maxValue": "अधिकतम",
-  "cancel": "रद्द करें",
   "set": "सेट करें",
   "alreadyFinished": "आप पहले से ही समाप्त हो गए हैं। फिर से शुरू कर रहे हैं।",
   "messageInput": "एक संदेश दर्ज करें",
@@ -255,7 +252,6 @@
   "ctIdeas": "रचनात्मक विचार",
   "ctAdd": "गेम टाइल जोड़ें",
   "ctUpdate": "गेम टाइल अपडेट करें",
-  "ctImportDescription": "सभी गेम टाइलों की सूची दिखाएं। आयात प्रदान की गई सूची से नई प्रविष्टियां जोड़ेगा।",
   "ctSeparatorError": "सुनिश्चित करें कि आप गेम टाइलों के बीच एक नई लाइन पर --- जोड़ें और आपके समूह ब्रैकेट में लपेटे गए हैं।",
   "ctGroupError": "अमान्य समूह। सुनिश्चित करें कि आपका समूह 'गेम टाइलें जोड़ें' में सूचीबद्ध प्रारूप से मेल खाता है और ब्रैकेट में लपेटा गया है।",
   "ctActionError": "आपको यह सुनिश्चित करने की आवश्यकता है कि प्रत्येक प्रविष्टि जिसका एक समूह है, उसमें एक क्रिया भी है",
@@ -374,46 +370,20 @@
   "exportScope": {
     "all": "सभी डेटा",
     "custom": "केवल कस्टम",
-    "default": "डिफ़ॉल्ट समूह",
     "single": "एकल समूह",
     "disabled": "डिफ़ॉल्ट अक्षम"
   },
-  "labels": {
-    "exportScope": "क्षेत्र",
-    "selectGroup": "समूह चुनें"
-  },
+  "export.scope": "निर्यात स्कोप",
+  "export.selectGroup": "समूह चुनें",
   "placeholder": {
-    "cleanFormat": "यहां साफ़ v2.0 प्रारूप JSON डेटा पेस्ट करें...",
     "importData": "यहां आयात डेटा पेस्ट करें..."
   },
   "errors": {
-    "selectGroupToExport": "कृपया निर्यात के लिए एक समूह चुनें",
-    "exportFailed": "निर्यात विफल: {{error}}",
-    "importFailed": "आयात विफल: {{errors}}"
+    "selectGroupToExport": "कृपया निर्यात के लिए एक समूह चुनें"
   },
   "importMessages": {
-    "importing": "डेटा आयात हो रहा है...",
     "importSuccess": "आयात सफलतापूर्वक पूरा हुआ!",
-    "importFailed": "आयात विफल!",
-    "importedGroups": "{{count}} कस्टम समूह आयात किए गए।",
-    "importedTiles": "{{count}} कस्टम टाइलें आयात की गईं।"
-  },
-  "importResults": {
-    "title": "आयात परिणाम:",
-    "groupsImported": "{{count}} कस्टम समूह आयात किए गए",
-    "tilesImported": "{{count}} कस्टम टाइलें आयात की गईं",
-    "warnings": "चेतावनियां:",
-    "errors": "त्रुटियां:"
-  },
-  "formatGuide": {
-    "title": "साफ़ v2.0 प्रारूप गाइड",
-    "description": "साफ़ v2.0 प्रारूप आसान मैन्युअल संपादन के लिए समूह संरचना को कस्टम सामग्री से अलग करता है:",
-    "keySections": "मुख्य अनुभाग:",
-    "keySectionsContent": "• <strong1>groups</strong1>: लेबल, प्रकार और तीव्रता नामों के साथ समूह परिभाषाएं<br />• <strong2>customTiles</strong2>: समूह और तीव्रता संख्या के अनुसार व्यवस्थित आपकी कस्टम टाइलें",
-    "manualEditing": "मैन्युअल संपादन:",
-    "manualEditingContent": "• समूह लेबल और तीव्रता नाम सुरक्षित रूप से संपादित करें<br />• customTiles अनुभाग में कस्टम टाइलें जोड़ें/हटाएं<br />• कस्टम टाइलें कस्टम और डिफ़ॉल्ट दोनों समूहों के साथ काम करती हैं<br />• भाषा 'en', 'es', या 'fr' होनी चाहिए<br />• समूह प्रकार 'solo', 'foreplay', 'sex', या 'consumption' होना चाहिए",
-    "customTilesFormat": "कस्टम टाइलें प्रारूप:",
-    "customTilesFormatContent": "प्रत्येक टाइल एक स्ट्रिंग (केवल क्रिया) या टैग के साथ ऑब्जेक्ट हो सकती है:<br />• सरल: <code1>\"क्रिया टेक्स्ट\"</code1><br />• टैग के साथ: <code2>{\"action\": \"टेक्स्ट\", \"tags\": [\"tag1\", \"tag2\"]}</code2>"
+    "importFailed": "आयात विफल!"
   },
   "privateRoom": "निजी कमरा",
   "deleteBoard": "बोर्ड हटाएं",
@@ -442,18 +412,16 @@
   "customizeActions": "क्रियाओं को अनुकूलित करें",
   "finishSetup": "सेटअप पूरा करें",
   "gameModeSelection": "गेम मोड चयन",
-  "presetBallBusting": "गेंद दबाना",
+  "presetBallBusting": "बॉल बस्टिंग",
   "presetBdsm": "BDSM",
   "presetBreathControl": "सांस नियंत्रण",
   "presetDegrading": "अपमानजनक",
-  "presetElectricPlay": "विद्युत खेल",
-  "presetExplorationSolo": "अन्वेषण",
+  "presetExplorationSolo": "एकल अन्वेषण",
   "presetFisting": "फिस्टिंग",
   "presetGentleSex": "कोमल सेक्स",
-  "presetPopperbating": "पॉपरबेटिंग",
+  "presetPopperbating": "पॉप्परबेटिंग",
   "presetRomanticStart": "रोमांटिक शुरुआत",
-  "presetSensualTouch": "कामुक स्पर्श",
-  "presetSmokingTits": "धूम्रपान स्तन",
+  "presetSmokingTits": "स्मोकिंग और स्तन",
   "privateRoomBenefit": "एकल, जोड़े या समूह खेल",
   "privateRoomCode": "निजी कमरा कोड",
   "privateRoomCodeHelp": "अपने निजी कमरे में शामिल होने के लिए इस कोड को दूसरों के साथ साझा करें",
@@ -462,18 +430,6 @@
   "roomSelection": "कमरा चयन",
   "roomTypeDescription": "अपनी खेल शैली के लिए सबसे उपयुक्त कमरे का प्रकार चुनें।",
   "selected": "चुना गया",
-  "presetPopperbating": "पॉप्परबेटिंग",
-  "presetSmokingTits": "स्मोकिंग और स्तन",
-  "presetExplorationSolo": "एकल अन्वेषण",
-  "presetBallBusting": "बॉल बस्टिंग",
-  "presetRomanticStart": "रोमांटिक शुरुआत",
-  "presetDegrading": "अपमानजनक",
-  "presetSensualTouch": "कामुक स्पर्श",
-  "presetElectricPlay": "इलेक्ट्रिक खेल",
-  "presetGentleSex": "कोमल सेक्स",
-  "presetFisting": "फिस्टिंग",
-  "presetBdsm": "BDSM",
-  "presetBreathControl": "सांस नियंत्रण",
   "presetBodyWorship": "शरीर पूजा",
   "presetControlBreath": "सांस नियंत्रण",
   "customizeActionsDesc": "उपयोगकर्ता नीचे अपने कार्य चयन और तीव्रता स्तरों को ठीक कर सकते हैं।",
@@ -590,21 +546,10 @@
       "hasPlayers": "आपके पास पहले से ही स्थानीय खिलाड़ी कॉन्फ़िगर किए गए हैं। आप नए सेट कर सकते हैं या अपने वर्तमान सेटअप के साथ जारी रख सकते हैं।"
     }
   },
-  "addTags": "टैग जोड़ें",
-  "addTile": "टाइल जोड़ें",
-  "createNewGroup": "नया समूह बनाएं",
-  "enterTileAction": "टाइल क्रिया दर्ज करें",
-  "tileAddedSuccessfully": "टाइल सफलतापूर्वक जोड़ा गया",
-  "tileUpdatedSuccessfully": "टाइल सफलतापूर्वक अपडेट किया गया",
-  "updateTile": "टाइल अपडेट करें",
   "setupWizard": {
     "title": "सेटअप विज़ार्ड"
   },
   "manageGroups": {
     "title": "ग्रुप प्रबंधित करें"
-  },
-  "export": "निर्यात",
-  "export.scope": "निर्यात क्षेत्र",
-  "export.selectGroup": "समूह चुनें",
-  "export.includeDisabled": "डिफ़ॉल्ट अक्षम शामिल करें"
+  }
 }

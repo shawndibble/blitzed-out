@@ -93,9 +93,9 @@ describe('useUnifiedActionList - Core Functionality', () => {
     const batingGroup = result.current.actionsList.bating;
     expect(batingGroup.label).toBe('Bating');
     expect(batingGroup.type).toBe('solo');
-    expect(batingGroup.actions).toHaveProperty('None');
     expect(batingGroup.actions).toHaveProperty('Masturbation');
     expect(batingGroup.actions).toHaveProperty('Edging');
+    expect(batingGroup.actions).not.toHaveProperty('None');
   });
 
   it('should handle migration scenario correctly', async () => {
@@ -129,8 +129,8 @@ describe('useUnifiedActionList - Core Functionality', () => {
 
     const batingGroup = result.current.actionsList.bating;
     expect(batingGroup.label).toBe('Bating');
-    expect(batingGroup.actions).toHaveProperty('None');
     expect(batingGroup.actions).toHaveProperty('Masturbation');
+    expect(batingGroup.actions).not.toHaveProperty('None');
   });
 
   it('should handle fresh user with no game mode', async () => {
@@ -220,11 +220,11 @@ describe('useUnifiedActionList - Filtering Functionality', () => {
 
     // Should show all intensities for each group
     const groupWithTiles = result.current.actionsList['group-with-tiles'];
-    expect(Object.keys(groupWithTiles.actions || {})).toEqual(['None', 'Easy', 'Medium', 'Hard']);
+    expect(Object.keys(groupWithTiles.actions || {})).toEqual(['Easy', 'Medium', 'Hard']);
     expect(groupWithTiles.intensities).toEqual({ 1: 'Easy', 2: 'Medium', 3: 'Hard' });
 
     const groupNoTiles = result.current.actionsList['group-no-tiles'];
-    expect(Object.keys(groupNoTiles.actions || {})).toEqual(['None', 'Level 1', 'Level 2']);
+    expect(Object.keys(groupNoTiles.actions || {})).toEqual(['Level 1', 'Level 2']);
     expect(groupNoTiles.intensities).toEqual({ 1: 'Level 1', 2: 'Level 2' });
   });
 
@@ -289,12 +289,12 @@ describe('useUnifiedActionList - Filtering Functionality', () => {
 
     // Custom group should show all intensities that have tiles
     const customGroup = result.current.actionsList['group-with-tiles'];
-    expect(Object.keys(customGroup.actions || {})).toEqual(['None', 'Easy', 'Medium']);
+    expect(Object.keys(customGroup.actions || {})).toEqual(['Easy', 'Medium']);
     expect(customGroup.intensities).toEqual({ 1: 'Easy', 2: 'Medium' });
 
     // Default group should only show intensities that have tiles
     const defaultGroup = result.current.actionsList['default-group-with-tiles'];
-    expect(Object.keys(defaultGroup.actions || {})).toEqual(['None', 'Level 1']);
+    expect(Object.keys(defaultGroup.actions || {})).toEqual(['Level 1']);
     expect(defaultGroup.intensities).toEqual({ 1: 'Level 1' });
   });
 
@@ -344,7 +344,7 @@ describe('useUnifiedActionList - Filtering Functionality', () => {
 
     // Should only show intensities that have tiles (1 and 3, not 2 and 4)
     const group = result.current.actionsList['partial-tiles-group'];
-    expect(Object.keys(group.actions || {})).toEqual(['None', 'Easy', 'Hard']); // Only Easy (1) and Hard (3)
+    expect(Object.keys(group.actions || {})).toEqual(['Easy', 'Hard']); // Only Easy (1) and Hard (3)
     expect(group.intensities).toEqual({ 1: 'Easy', 3: 'Hard' });
 
     // Should not include Medium (2) or Expert (4) since they have no tiles

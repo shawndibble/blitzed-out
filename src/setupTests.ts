@@ -25,7 +25,7 @@ configure({
   computedStyleSupportsPseudoElements: false,
 });
 
-// Suppress React 18 act warnings in tests
+// Suppress React 18 act warnings and test-related warnings in tests
 const originalError = console.error;
 beforeEach(() => {
   console.error = (...args: any[]) => {
@@ -34,7 +34,10 @@ beforeEach(() => {
         args[0].includes('Warning: An update to') &&
         args[0].includes('was not wrapped in act')) ||
       args[0].includes('Warning: React does not recognize') ||
-      args[0].includes('Warning: validateDOMNesting')
+      args[0].includes('Warning: validateDOMNesting') ||
+      args[0].includes('Unknown event handler property') ||
+      args[0].includes('No user logged in') ||
+      args[0].includes('Error syncing')
     ) {
       return;
     }
@@ -178,6 +181,70 @@ vi.mock('i18next-resources-to-backend', () => ({
 // Mock use-sound
 vi.mock('use-sound', () => ({
   default: () => [vi.fn(), { stop: vi.fn() }],
+}));
+
+// Mock Framer Motion globally to prevent unknown event handler warnings
+vi.mock('framer-motion', () => ({
+  motion: {
+    div: React.forwardRef<any, any>((props, ref) => {
+      // Filter out framer-motion specific props that React doesn't recognize
+      const {
+        onUpdate: _onUpdate,
+        onAnimationComplete: _onAnimationComplete,
+        onAnimationStart: _onAnimationStart,
+        onDrag: _onDrag,
+        onDragEnd: _onDragEnd,
+        onDragStart: _onDragStart,
+        onHoverStart: _onHoverStart,
+        onHoverEnd: _onHoverEnd,
+        onTap: _onTap,
+        onTapStart: _onTapStart,
+        onTapCancel: _onTapCancel,
+        onPan: _onPan,
+        onPanStart: _onPanStart,
+        onPanEnd: _onPanEnd,
+        animate: _animate,
+        initial: _initial,
+        exit: _exit,
+        transition: _transition,
+        variants: _variants,
+        custom: _custom,
+        style,
+        ...restProps
+      } = props;
+      return React.createElement('div', { ...restProps, ref, style });
+    }),
+    li: React.forwardRef<any, any>((props, ref) => {
+      const {
+        onUpdate: _onUpdate,
+        onAnimationComplete: _onAnimationComplete,
+        onAnimationStart: _onAnimationStart,
+        onDrag: _onDrag,
+        onDragEnd: _onDragEnd,
+        onDragStart: _onDragStart,
+        onHoverStart: _onHoverStart,
+        onHoverEnd: _onHoverEnd,
+        onTap: _onTap,
+        onTapStart: _onTapStart,
+        onTapCancel: _onTapCancel,
+        onPan: _onPan,
+        onPanStart: _onPanStart,
+        onPanEnd: _onPanEnd,
+        animate: _animate,
+        initial: _initial,
+        exit: _exit,
+        transition: _transition,
+        variants: _variants,
+        custom: _custom,
+        style,
+        ...restProps
+      } = props;
+      return React.createElement('li', { ...restProps, ref, style });
+    }),
+  },
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+  useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
+  useTransform: () => ({ get: () => 0 }),
 }));
 
 // Mock all MUI icons globally using a factory pattern

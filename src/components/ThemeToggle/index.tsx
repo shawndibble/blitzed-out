@@ -1,5 +1,7 @@
-import { DarkMode as DarkModeIcon, LightMode as LightModeIcon } from '@mui/icons-material';
-import { IconButton, Tooltip } from '@mui/material';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 
 import { useTheme } from '@/context/theme';
 import { useTranslation } from 'react-i18next';

@@ -4,7 +4,6 @@
   "dom": "Dominateur",
   "sub": "Soumis",
   "actions": {
-    "Aucun": [],
     "Claques/Pression": [
       "{dom} donne une petite claque à {sub} après que quelqu'un ait lancé les dés.",
       "{dom} donne 5 claques sur les couilles de {sub}.",

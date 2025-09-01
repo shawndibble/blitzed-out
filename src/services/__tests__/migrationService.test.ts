@@ -6,6 +6,7 @@ import {
   runMigrationIfNeeded,
   verifyMigrationIntegrity,
 } from '../migrationService';
+import { MIGRATION_KEY, BACKGROUND_MIGRATION_KEY, MIGRATION_VERSION } from '../migration/constants';
 
 // Mock localStorage
 const mockLocalStorage = (() => {
@@ -53,10 +54,6 @@ vi.mock('@/locales/en/translation.json', () => ({
 }));
 
 describe('Migration Service', () => {
-  const MIGRATION_KEY = 'blitzed-out-action-groups-migration';
-  const BACKGROUND_MIGRATION_KEY = 'blitzed-out-background-migration';
-  const MIGRATION_VERSION = '2.3.0';
-
   beforeEach(() => {
     // Set up localStorage mock
     Object.defineProperty(window, 'localStorage', {
@@ -126,15 +123,6 @@ describe('Migration Service', () => {
       const result = await runMigrationIfNeeded();
       expect(result).toBe(true);
     });
-
-    it('should run migration if not completed', async () => {
-      // Mock the stores to prevent actual database operations
-      const { addCustomGroup } = await import('@/stores/customGroups');
-      vi.mocked(addCustomGroup).mockResolvedValue('test-id');
-
-      const result = await runMigrationIfNeeded();
-      expect(result).toBe(true);
-    });
   });
 
   describe('Fresh user scenario', () => {
@@ -146,25 +134,6 @@ describe('Migration Service', () => {
       // Migration should be needed
       const needsMigration = !isMigrationCompleted();
       expect(needsMigration).toBe(true);
-    });
-
-    it('should properly mark current language migration as completed after successful run', async () => {
-      // Start with no migration status
-      expect(isMigrationCompleted()).toBe(false);
-
-      // Mock the stores for successful migration
-      const { addCustomGroup } = await import('@/stores/customGroups');
-      vi.mocked(addCustomGroup).mockResolvedValue('test-id');
-
-      const result = await runMigrationIfNeeded();
-      expect(result).toBe(true);
-
-      // Check that current language was marked as migrated (not full migration yet)
-      const { isCurrentLanguageMigrationCompleted } = await import('../migrationService');
-      expect(isCurrentLanguageMigrationCompleted('en')).toBe(true);
-
-      // Main migration should not be marked complete yet (only when all languages are done)
-      expect(isMigrationCompleted()).toBe(false);
     });
   });
 

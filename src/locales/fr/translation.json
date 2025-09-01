@@ -63,8 +63,6 @@
   "cancel": "Annuler",
   "skip": "Ignorer",
   "confirm": "Confirmer",
-  "yes": "Oui",
-  "no": "Non",
   "warning": "Avertissement",
   "error": "Erreur",
   "somethingWentWrong": "Quelque chose s'est mal passé",
@@ -166,7 +164,6 @@
   "randomTimerRange": "Définit aléatoirement le compte à rebours entre les valeurs choisies.",
   "minValue": "Minimum",
   "maxValue": "Maximum",
-  "cancel": "Annuler",
   "set": "Définir",
   "alreadyFinished": "Vous avez déjà terminé. Recommencement.",
   "messageInput": "Saisir un message",
@@ -255,7 +252,6 @@
   "ctIdeas": "Idées Créatives",
   "ctAdd": "Ajouter des Tuiles de Jeu",
   "ctUpdate": "Mettre à jour les Tuiles de Jeu",
-  "ctImportDescription": "Affichez une liste de toutes les tuiles de jeu. L'importation AJOUTERA de nouvelles entrées à partir de la liste fournie.",
   "ctSeparatorError": "Assurez-vous d'ajouter un --- sur une nouvelle ligne entre les tuiles de jeu et que vos groupes sont encadrés par des crochets.",
   "ctGroupError": "Groupe non valide. Assurez-vous que votre groupe correspond à un format répertorié dans 'Ajouter des Tuiles de Jeu' et est encadré par des crochets.",
   "ctActionError": "Vous devez vous assurer que chaque entrée ayant un groupe a également une action.",
@@ -299,7 +295,6 @@
   "convertAccount": "Convertir le compte",
   "startCasting": "Démarrer la diffusion",
   "stopCasting": "Arrêter la diffusion",
-
   "calendar": {
     "addToCalendar": "Ajouter au calendrier",
     "downloadIcs": "Télécharger le fichier ICS",
@@ -375,46 +370,20 @@
   "exportScope": {
     "all": "Toutes les Données",
     "custom": "Personnalisés Seulement",
-    "default": "Groupes Par Défaut",
     "single": "Groupe Unique",
     "disabled": "Valeurs Par Défaut Désactivées"
   },
-  "labels": {
-    "exportScope": "Portée",
-    "selectGroup": "Sélectionner un Groupe"
-  },
+  "export.scope": "Portée d'Exportation",
+  "export.selectGroup": "Sélectionner un Groupe",
   "placeholder": {
-    "cleanFormat": "Collez ici les données JSON au format propre v2.0...",
     "importData": "Collez les données d'importation ici..."
   },
   "errors": {
-    "selectGroupToExport": "Veuillez sélectionner un groupe à exporter",
-    "exportFailed": "Échec de l'exportation : {{error}}",
-    "importFailed": "Échec de l'importation : {{errors}}"
+    "selectGroupToExport": "Veuillez sélectionner un groupe à exporter"
   },
   "importMessages": {
-    "importing": "Importation des données...",
     "importSuccess": "Importation terminée avec succès !",
-    "importFailed": "Échec de l'importation !",
-    "importedGroups": "{{count}} groupes personnalisés importés.",
-    "importedTiles": "{{count}} tuiles personnalisées importées."
-  },
-  "importResults": {
-    "title": "Résultats d'Importation :",
-    "groupsImported": "{{count}} groupes personnalisés importés",
-    "tilesImported": "{{count}} tuiles personnalisées importées",
-    "warnings": "Avertissements :",
-    "errors": "Erreurs :"
-  },
-  "formatGuide": {
-    "title": "Guide du Format Propre v2.0",
-    "description": "Le format Propre v2.0 sépare la structure de groupe du contenu personnalisé pour faciliter l'édition manuelle :",
-    "keySections": "Sections Clés :",
-    "keySectionsContent": "• <strong1>groups</strong1> : Définitions de groupes avec étiquettes, types et noms d'intensité<br />• <strong2>customTiles</strong2> : Vos tuiles personnalisées organisées par groupe et numéro d'intensité",
-    "manualEditing": "Édition Manuelle :",
-    "manualEditingContent": "• Modifiez les étiquettes de groupe et noms d'intensité en toute sécurité<br />• Ajoutez/supprimez des tuiles personnalisées dans la section customTiles<br />• Les tuiles personnalisées fonctionnent avec les groupes personnalisés et par défaut<br />• La langue doit être 'en', 'es' ou 'fr'<br />• Le type de groupe doit être 'solo', 'foreplay', 'sex' ou 'consumption'",
-    "customTilesFormat": "Format des Tuiles Personnalisées :",
-    "customTilesFormatContent": "Chaque tuile peut être une chaîne (action seule) ou un objet avec action et étiquettes :<br />• Simple : <code1>\"texte d'action\"</code1><br />• Avec étiquettes : <code2>{\"action\": \"texte\", \"tags\": [\"étiquette1\", \"étiquette2\"]}</code2>"
+    "importFailed": "Échec de l'importation !"
   },
   "privateRoom": "Salle Privée",
   "deleteBoard": "Supprimer le Plateau",
@@ -443,18 +412,16 @@
   "customizeActions": "Personnaliser les Actions",
   "finishSetup": "Finaliser la Configuration",
   "gameModeSelection": "Sélection du Mode de Jeu",
-  "presetBallBusting": "Torture des Testicules",
+  "presetBallBusting": "Ball Busting",
   "presetBdsm": "BDSM",
   "presetBreathControl": "Contrôle de la Respiration",
   "presetDegrading": "Dégradant",
-  "presetElectricPlay": "Jeu Électrique",
-  "presetExplorationSolo": "Exploration",
+  "presetExplorationSolo": "Exploration Solo",
   "presetFisting": "Fisting",
   "presetGentleSex": "Sexe Doux",
   "presetPopperbating": "Popperbating",
   "presetRomanticStart": "Début Romantique",
-  "presetSensualTouch": "Toucher Sensuel",
-  "presetSmokingTits": "Seins Fumeurs",
+  "presetSmokingTits": "Fumer et Seins",
   "privateRoomBenefit": "Jeu solo, en couple ou en groupe",
   "privateRoomCode": "Code de Salle Privée",
   "privateRoomCodeHelp": "Partagez ce code avec d'autres pour rejoindre votre salle privée",
@@ -463,18 +430,6 @@
   "roomSelection": "Sélection de Salle",
   "roomTypeDescription": "Sélectionnez le type de salle qui correspond le mieux à votre style de jeu.",
   "selected": "Sélectionné",
-  "presetPopperbating": "Popperbating",
-  "presetSmokingTits": "Fumer et Seins",
-  "presetExplorationSolo": "Exploration Solo",
-  "presetBallBusting": "Ball Busting",
-  "presetRomanticStart": "Début Romantique",
-  "presetDegrading": "Dégradant",
-  "presetSensualTouch": "Toucher Sensuel",
-  "presetElectricPlay": "Jeu Électrique",
-  "presetGentleSex": "Sexe Doux",
-  "presetFisting": "Fisting",
-  "presetBdsm": "BDSM",
-  "presetBreathControl": "Contrôle de la Respiration",
   "presetBodyWorship": "Adoration du Corps",
   "presetControlBreath": "Contrôle de la Respiration",
   "customizeActionsDesc": "Les utilisateurs peuvent affiner leur sélection d'actions et leurs niveaux d'intensité ci-dessous.",
@@ -591,21 +546,10 @@
       "hasPlayers": "Vous avez déjà des joueurs locaux configurés. Vous pouvez en configurer de nouveaux ou continuer avec votre configuration actuelle."
     }
   },
-  "addTags": "Ajouter des étiquettes",
-  "addTile": "Ajouter une tuile",
-  "createNewGroup": "Créer un nouveau groupe",
-  "enterTileAction": "Saisir l'action de la tuile",
-  "tileAddedSuccessfully": "Tuile ajoutée avec succès",
-  "tileUpdatedSuccessfully": "Tuile mise à jour avec succès",
-  "updateTile": "Mettre à jour la tuile",
   "setupWizard": {
     "title": "Assistant de configuration"
   },
   "manageGroups": {
     "title": "Gérer les groupes"
-  },
-  "export": "Exporter",
-  "export.scope": "Portée d'exportation",
-  "export.selectGroup": "Sélectionner le groupe",
-  "export.includeDisabled": "Inclure les valeurs par défaut désactivées"
+  }
 }

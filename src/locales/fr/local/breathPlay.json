@@ -2,7 +2,6 @@
   "label": "Jeux de respiration",
   "type": "foreplay",
   "actions": {
-    "Aucun": [],
     "Léger/15 secondes": [
       "{dom} couvre le nez et la bouche de {sub} avec sa main pendant 15 secondes.",
       "{dom} serre légèrement la gorge de {sub} pendant 15 secondes.",

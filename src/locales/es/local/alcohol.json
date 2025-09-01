@@ -2,12 +2,11 @@
   "label": "Alcohol",
   "type": "consumption",
   "actions": {
-    "Ninguna": [],
     "Bebe": [
       "Dale un sorbo a tu bebida.",
       "Tómate un trago.",
       "Toma 2 sorbos.",
-      "Haz que otro jugador de un sorbo.",
+      "Haz que otro jugador dé un sorbo a su bebida.",
       "Tómate un trago.",
       "Dale un sorbo a la bebida de tu vecino.",
       "Intercambia bebidas con alguien."

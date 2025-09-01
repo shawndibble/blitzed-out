@@ -2,7 +2,6 @@
   "label": "足部游戏",
   "type": "foreplay",
   "actions": {
-    "无": [],
     "亲吻": [
       "{sub} 亲吻 {dom} 的脚背30秒。",
       "{sub} 亲吻 {dom} 的脚底30秒。",

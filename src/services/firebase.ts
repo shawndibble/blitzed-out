@@ -83,7 +83,7 @@ const missingVars = Object.entries(firebaseConfig)
   .map(([key]) => key);
 
 if (missingVars.length > 0) {
-  console.error('Missing Firebase environment variables:', missingVars);
+  console.error('Missing Firebase environment variables', missingVars);
   console.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
@@ -172,7 +172,7 @@ export async function registerWithEmail(
     await updateProfile(userCredential.user, { displayName });
     return userCredential.user;
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Registration error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'REGISTRATION_FAILED',
@@ -187,7 +187,7 @@ export async function loginWithEmail(email: string, password: string): Promise<U
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
-    console.error('Email login error:', error);
+    console.error('Email login error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'EMAIL_LOGIN_FAILED',
@@ -203,7 +203,7 @@ export async function loginWithGoogle(): Promise<User> {
     const userCredential = await signInWithPopup(auth, provider);
     return userCredential.user;
   } catch (error) {
-    console.error('Google login error:', error);
+    console.error('Google login error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'GOOGLE_LOGIN_FAILED',
@@ -218,7 +218,7 @@ export async function resetPassword(email: string): Promise<boolean> {
     await sendPasswordResetEmail(auth, email);
     return true;
   } catch (error) {
-    console.error('Password reset error:', error);
+    console.error('Password reset error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'PASSWORD_RESET_FAILED',
@@ -241,7 +241,7 @@ export async function convertAnonymousAccount(email: string, password: string): 
       throw new Error('User is not anonymous or not logged in');
     }
   } catch (error) {
-    console.error('Account conversion error:', error);
+    console.error('Account conversion error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'ACCOUNT_CONVERSION_FAILED',
@@ -256,7 +256,7 @@ export async function logout(): Promise<boolean> {
     await signOut(auth);
     return true;
   } catch (error) {
-    console.error(error);
+    console.error('Firebase operation failed', error);
     throw error;
   }
 }
@@ -310,7 +310,7 @@ export async function wipeAllAppData(): Promise<void> {
     try {
       sessionStorage.clear();
     } catch (error) {
-      console.warn('Failed to clear sessionStorage:', error);
+      console.warn('Failed to clear sessionStorage', error);
     }
 
     // Clear IndexedDB via Dexie
@@ -318,7 +318,7 @@ export async function wipeAllAppData(): Promise<void> {
       const { default: db } = await import('@/stores/store');
       await db.delete();
     } catch (error) {
-      console.warn('Failed to clear IndexedDB:', error);
+      console.warn('Failed to clear IndexedDB', error);
     }
 
     // Clear cookies comprehensively by trying multiple path and domain combinations
@@ -543,13 +543,13 @@ export function getUserList(
         },
         (error) => {
           networkError = true;
-          console.error('getUserList error:', error);
+          console.error('getUserList error', error);
           updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
         }
       );
     } catch (error) {
       networkError = true;
-      console.error('getUserList connection error:', error);
+      console.error('getUserList connection error', error);
       updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
     } finally {
       releaseConnection();
@@ -585,7 +585,7 @@ export async function updateDisplayName(displayName = ''): Promise<User | null> 
     }
     return null;
   } catch (error) {
-    console.error(error);
+    console.error('Firebase operation failed', error);
     return null;
   }
 }
@@ -598,7 +598,7 @@ export async function submitCustomAction(grouping: string, customAction: string)
       ttl: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days
     });
   } catch (error) {
-    console.error(error);
+    console.error('Firebase operation failed', error);
   }
 }
 
@@ -631,7 +631,7 @@ export async function getOrCreateBoard({
     const board = await getBoardByContent(checksum);
     if (board) {
       // update the ttl for another 30 days.
-      updateDoc(board.ref, {
+      await updateDoc(board.ref, {
         ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       }); // 30 days
 
@@ -639,7 +639,7 @@ export async function getOrCreateBoard({
     }
     return await storeBoard({ title, gameBoard, settings, checksum });
   } catch (error) {
-    console.error(error);
+    console.error('Firebase operation failed', error);
   }
 }
 
@@ -662,7 +662,7 @@ async function storeBoard({
       ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     });
   } catch (error) {
-    console.error(error);
+    console.error('Firebase operation failed', error);
     return undefined;
   }
 }
@@ -676,7 +676,7 @@ export async function getBoard(id: string): Promise<DocumentData | undefined> {
     }
     return undefined;
   } catch (error) {
-    console.error(error);
+    console.error('Firebase operation failed', error);
     return undefined;
   }
 }
@@ -700,7 +700,7 @@ interface ConnectionPool {
 
 // Advanced cache configuration
 const queryCache = new Map<string, QueryCache>();
-const queryDebounceMap = new Map<string, NodeJS.Timeout>();
+const queryDebounceMap = new Map<string, ReturnType<typeof setTimeout>>();
 // Priority query queue for future advanced scheduling (currently unused)
 
 // Optimized cache settings for 60-80% performance improvement
@@ -914,7 +914,7 @@ function debounceQuery<T extends unknown[]>(
       await acquireConnection();
       queryFn(...args);
     } catch (error) {
-      console.error('Query execution error:', error);
+      console.error('Query execution error', error);
     } finally {
       releaseConnection();
       queryDebounceMap.delete(queryKey);
@@ -945,7 +945,8 @@ export async function sendMessage({
     message += allowedTypes.join(', ');
     message += ` but got ${type}`;
 
-    return console.error(message);
+    console.error('Type validation error', message);
+    return;
   }
 
   if (!user?.uid) {
@@ -974,13 +975,13 @@ export async function sendMessage({
 
     return docRef;
   } catch (error) {
-    console.error('Failed to send message:', error);
+    console.error('Failed to send message', error);
     return;
   }
 }
 
 export async function deleteMessage(room: string, messageId: string): Promise<void> {
-  return deleteDoc(doc(db, `/chat-rooms/${room.toUpperCase()}/messages/${messageId}`));
+  return deleteDoc(doc(db, 'chat-rooms', room.toUpperCase(), 'messages', messageId));
 }
 
 interface ImageData {
@@ -1012,7 +1013,7 @@ export async function uploadImage({ image, room, user }: UploadImageData): Promi
       image: downloadURL,
     });
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error('Error uploading image', error);
   }
 }
 
@@ -1156,7 +1157,7 @@ function executeGetMessages(
         },
         (error) => {
           networkError = true;
-          console.error('getMessages error:', error);
+          console.error('getMessages error', error);
           updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
         }
       );
@@ -1164,7 +1165,7 @@ function executeGetMessages(
       return unsubscribe;
     } catch (error) {
       networkError = true;
-      console.error('getMessages connection error:', error);
+      console.error('getMessages connection error', error);
       updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
       return () => {};
     } finally {
@@ -1319,7 +1320,7 @@ export function getSchedule(
         },
         (error) => {
           networkError = true;
-          console.error('getSchedule error:', error);
+          console.error('getSchedule error', error);
           updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
         }
       );
@@ -1327,7 +1328,7 @@ export function getSchedule(
       return unsubscribe || (() => {});
     } catch (error) {
       networkError = true;
-      console.error('getSchedule connection error:', error);
+      console.error('getSchedule connection error', error);
       updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
       return () => {};
     } finally {
@@ -1558,6 +1559,7 @@ export async function addSchedule(
       room,
     });
   } catch (error) {
-    return console.error(error);
+    console.error('Schedule operation failed', error);
+    return;
   }
 }

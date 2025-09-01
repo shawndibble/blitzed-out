@@ -4,7 +4,6 @@
   "dom": "Buster",
   "sub": "Bustee",
   "actions": {
-    "None": [],
     "Slap/Squeeze": [
       "{dom} gives a light slap to {sub} after anyone rolls.",
       "{dom} gives 5 ball slaps to {sub}.",

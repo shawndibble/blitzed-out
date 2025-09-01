@@ -87,7 +87,15 @@ Object.defineProperty(document, 'removeEventListener', {
 // Mock Framer Motion
 vi.mock('framer-motion', () => ({
   motion: {
-    div: 'div',
+    div: React.forwardRef<any, any>((props, ref) => {
+      // Filter out framer-motion specific props that React doesn't recognize
+      const {
+        onUpdate: _onUpdate,
+        onAnimationComplete: _onAnimationComplete,
+        ...restProps
+      } = props;
+      return React.createElement('div', { ...restProps, ref });
+    }),
   },
   AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
   useMotionValue: () => ({ get: () => 0, set: vi.fn() }),

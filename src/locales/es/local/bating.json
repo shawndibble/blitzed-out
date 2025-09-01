@@ -2,7 +2,6 @@
   "label": "Pajas",
   "type": "sex",
   "actions": {
-    "Ninguna": [],
     "Masturbación": [
       "{sub} le hace a {dom} 30 movimientos lentos",
       "{sub} masturba a {dom} lo más rápido que pueda durante 30 segundos.",
@@ -44,7 +43,7 @@
     ],
     "Juguetes": [
       "{player} usa un juguete en el pene.",
-      "{sub} usa un juguete en el peen de {dom}.",
+      "{sub} usa un juguete en el pene de {dom}.",
       "{player} usa lentamente un juguete en el pene hasta su próximo turno.",
       "{sub} usa el juguete en {dom} mientras también se masturba.",
       "{player} usa un juguete en su pene durante 30 segundos con los ojos cerrados.",

@@ -4,7 +4,6 @@
   "dom": "Activo",
   "sub": "Pasivo",
   "actions": {
-    "Ninguna": [],
     "Dedo(s)": [
       "{dom} frota las nalgas de {sub}.",
       "{dom} masajea el ano de {sub}.",

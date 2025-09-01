@@ -2,7 +2,6 @@
   "label": "Ligotage (Bondage)",
   "type": "foreplay",
   "actions": {
-    "Aucun": [],
     "Attacher": [
       "{dom} attache les poignets de {sub} ensemble.",
       "{dom} attache {sub} à un meuble jusqu'à l'action suivante du receveur.",

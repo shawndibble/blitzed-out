@@ -1,10 +1,9 @@
-﻿{
+{
   "label": "Cosquillas",
   "type": "foreplay",
   "dom": "Hace cosquillas",
   "sub": "Cosquilleado",
   "actions": {
-    "Ninguno": [],
     "Ligero": [
       "{dom} frota suavemente su dedo en una zona sensible de {sub}.",
       "{dom} usa un objeto para hacer cosquillas a {sub} durante 15 segundos.",

@@ -2,7 +2,6 @@
   "label": "Desnudarse",
   "type": "foreplay",
   "actions": {
-    "Ninguna": [],
     "Prenda de Vestir": [
       "{sub} se quita una prenda de vestir.",
       "Retira una prenda de vestir de tu elección.",

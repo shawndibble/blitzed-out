@@ -2,7 +2,6 @@
   "label": "Gas Mask",
   "type": "consumption",
   "actions": {
-    "None": [],
     "Beginner": [
       "Take 3 breaths from bottle via hose.",
       "Take 6 breaths from bottle via hose.",

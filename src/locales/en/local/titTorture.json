@@ -4,7 +4,6 @@
   "dom": "Torturer",
   "sub": "Receiver",
   "actions": {
-    "None": [],
     "Squeeze/Rub/Lick": [
       "{dom} plays with {sub}'s nipples.",
       "{dom} flicks {sub}'s nipples.",

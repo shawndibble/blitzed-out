@@ -1,5 +1,6 @@
 import { Box, Typography, TextField, Button, IconButton, Alert, MenuItem } from '@mui/material';
-import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_INTENSITY_TEMPLATES } from '@/types/customGroups';
 import {

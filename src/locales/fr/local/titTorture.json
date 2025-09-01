@@ -4,7 +4,6 @@
   "dom": "Donneur",
   "sub": "Receveur",
   "actions": {
-    "Aucune": [],
     "Pincer/Frotter": [
       "{dom} joue avec les tétons de {sub}.",
       "{dom} pince les tétons de {sub}.",

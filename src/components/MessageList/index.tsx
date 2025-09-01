@@ -1,5 +1,10 @@
-import { Fab, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
-import { FilterList, Check } from '@mui/icons-material';
+import Fab from '@mui/material/Fab';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import CheckIcon from '@mui/icons-material/Check';
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 
 import useAuth from '@/context/hooks/useAuth';
@@ -127,7 +132,7 @@ export default function MessageList({
           className="message-filter-fab"
           sx={{ transform: 'scale(0.8)' }}
         >
-          <FilterList />
+          <FilterListIcon />
         </Fab>
       </div>
 
@@ -159,7 +164,7 @@ export default function MessageList({
             onClick={() => handleFilterSelect(option.value)}
             selected={currentTab === option.value}
           >
-            <ListItemIcon>{currentTab === option.value && <Check />}</ListItemIcon>
+            <ListItemIcon>{currentTab === option.value && <CheckIcon />}</ListItemIcon>
             <ListItemText primary={option.label} />
           </MenuItem>
         ))}

@@ -4,7 +4,6 @@
   "dom": "Tickler",
   "sub": "Ticklee",
   "actions": {
-    "None": [],
     "Light": [
       "{dom} lightly rubs their finger in a ticklish zone of {sub}.",
       "{dom} uses an item to tickle {sub} for 15 seconds.",
@@ -13,10 +12,10 @@
       "{dom} gives light kisses or blows on a sensitive area of {sub} for 15 seconds.",
       "{dom} traces 3 shapes with their finger in a sensitive area of {sub}.",
       "{dom} lightly tickles {sub} for 10 seconds.",
-      "{sub} keep a straight face as {dom} lightly rub a sensitive area for 10 seconds.",
+      "{sub} keeps a straight face as {dom} lightly rubs a sensitive area for 10 seconds.",
       "{dom} gives light kisses to 3 different areas of {sub} to see if they are ticklish there.",
       "{dom} tickles the belly button of {sub} for 15 seconds.",
-      "{dom} lightly soft item (like a feather) the neck of {sub}.",
+      "{dom} lightly brushes a soft item (like a feather) against {sub}'s neck.",
       "{dom} tickles the earlobes of {sub} for 10 seconds.",
       "{dom} traces a circle around the navel of {sub} for 15 seconds."
     ],
@@ -27,7 +26,7 @@
       "{dom} tickles {sub} in a single spot while {sub} is blindfolded for 30 seconds.",
       "{dom} kisses/blows a sensitive zone of {sub}.",
       "{dom} finds as many ticklish zones as they can on {sub} within 15 seconds.",
-      "{sub} keep a straight face as {dom} lightly rub a sensitive area for 30 seconds.",
+      "{sub} keeps a straight face as {dom} lightly rubs a sensitive area for 30 seconds.",
       "{dom} tickles the sides of {sub} for 30 seconds.",
       "{dom} tickles the back of the knees of {sub} for 30 seconds.",
       "{dom} tickles the feet of {sub} with their fingers for 30 seconds.",

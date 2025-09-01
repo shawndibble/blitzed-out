@@ -2,7 +2,6 @@
   "label": "Embrasser",
   "type": "foreplay",
   "actions": {
-    "Aucun": [],
     "Baisers doux": [
       "{dom} embrasse {sub} sur la joue.",
       "{dom} donne un baiser sur le front de {sub}.",

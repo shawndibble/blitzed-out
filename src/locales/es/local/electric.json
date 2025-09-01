@@ -3,8 +3,14 @@
   "type": "foreplay",
   "dom": "Controlador",
   "sub": "Receptor",
+  "actionDisplayNames": {
+    "None": "Ninguna",
+    "Light": "Ligero",
+    "Medium": "Medio",
+    "High": "Alto",
+    "Challenging": "Desafiante"
+  },
   "actions": {
-    "Ninguna": [],
     "Light": [
       "{dom} aplica una corriente eléctrica suave al brazo de {sub} usando una unidad TENS.",
       "{dom} usa una varita violeta en la espalda de {sub} en un ajuste bajo.",

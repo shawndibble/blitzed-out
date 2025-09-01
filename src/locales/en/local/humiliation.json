@@ -2,7 +2,6 @@
   "label": "Humiliation",
   "type": "foreplay",
   "actions": {
-    "None": [],
     "Verbal": [
       "{dom} assigns a derogatory title to {sub} and has them repeat 'I am a <term>' 10 times.",
       "{dom} assigns a demeaning nickname to {sub} that they must answer to for the rest of the game.",
@@ -17,9 +16,9 @@
     ],
     "Physical": [
       "{dom} writes derogatory words on {sub}'s body.",
-      "{sub} get on their knees, head down in front of {dom} until {player}'s next turn.",
+      "{sub} gets on their knees, head down in front of {dom} until {player}'s next turn.",
       "{dom} uses {sub} as furniture until {player}'s next turn.",
-      "{sub} to be {dom}'s errand boy/girl for the rest of the game.",
+      "{sub} {dom}'s errand boy/girl for the rest of the game.",
       "{dom} gives {sub} a face slap, spanking, or flogging.",
       "{sub} worship/sniff {dom}'s pits.",
       "{dom} makes {sub} wear something that makes them feel humiliated for the remainder of the game.",
@@ -30,9 +29,9 @@
       "{sub} wears a collar/leash of {dom}'s choosing for the remainder of the game.",
       "{dom} picks a body part for {sub} to kiss/worship.",
       "{dom} designates sexual tasks or acts for {sub} to complete that emphasize their submission and obedience.",
-      "{sub} to wears {dom}'s underwear on their face until an action would require them to remove it.",
+      "{sub} wears {dom}'s underwear on their face until an action requires them to remove it.",
       "{dom} spits on {sub}.",
-      "All players writes a derogatory word or phrase on {sub}'s body.",
+      "All players write a derogatory word or phrase on {sub}'s body.",
       "All dominant/switch players spit on {sub}.",
       "{sub} masturbates while sniffing {dom}'s clothing (shoe/underwear/etc...)."
     ]

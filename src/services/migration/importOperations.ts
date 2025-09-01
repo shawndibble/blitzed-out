@@ -21,8 +21,14 @@ export const importActionFile = async (
   gameMode: string
 ): Promise<{ customGroup: CustomGroupBase; customTiles: CustomTileBase[] } | null> => {
   return withErrorHandling(async () => {
-    // Import the action file
-    const actionFile = await import(`@/locales/${locale}/${gameMode}/${groupName}.json`);
+    // Import from bundled translation files for better performance
+    const bundleFile = await import(`@/locales/${locale}/${gameMode}-bundle.json`);
+    const bundle = bundleFile.default;
+    const actionFile = bundle[groupName];
+
+    if (!actionFile) {
+      throw new Error(`Group "${groupName}" not found in ${locale}/${gameMode} bundle`);
+    }
 
     // Extract data from the JSON file
     const label = actionFile.label || groupName;
@@ -30,15 +36,12 @@ export const importActionFile = async (
     const actions = actionFile.actions || {};
 
     // Convert actions object to intensities array
-    // Skip the first entry as it's always the "None" equivalent across all languages
-    const intensities = Object.keys(actions)
-      .slice(1) // Skip first entry (None/Ninguna/Aucun/etc.)
-      .map((intensityName, index) => ({
-        id: `${groupName}-${index + 1}`,
-        label: intensityName,
-        value: index + 1,
-        isDefault: true,
-      }));
+    const intensities = Object.keys(actions).map((intensityName, index) => ({
+      id: `${groupName}-${index + 1}`,
+      label: intensityName,
+      value: index + 1,
+      isDefault: true,
+    }));
 
     // Create deterministic ID for default groups to ensure consistency across devices
     const deterministicId = createDeterministicGroupId(groupName, locale, gameMode);
@@ -59,7 +62,7 @@ export const importActionFile = async (
     const customTiles: CustomTileBase[] = [];
 
     for (const [intensityName, actionList] of Object.entries(actions)) {
-      if (intensityName === Object.keys(actions)[0] || !Array.isArray(actionList)) continue; // Skip first entry (None equivalent)
+      if (!Array.isArray(actionList)) continue;
 
       // Find the intensity value for this intensity name
       const intensity = intensities.find((i) => i.label === intensityName);

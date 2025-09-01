@@ -2,7 +2,6 @@
   "label": "Vaping",
   "type": "consumption",
   "actions": {
-    "None": [],
     "Beginner": [
       "Take a drag.",
       "Take a long drag.",
@@ -10,7 +9,7 @@
       "Take a drag for 3 seconds.",
       "Hold the vapor in for 3 seconds before exhaling.",
       "Try to exhale the vapor through your nose.",
-      "Take a drag and try to make a 'O' shape with the vapor.",
+      "Take a drag and try to make an 'O' shape with the vapor.",
       "Find a surface and do the waterfall vape trick."
     ],
     "Intermediate": [

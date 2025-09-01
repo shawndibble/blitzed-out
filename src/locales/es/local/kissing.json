@@ -2,7 +2,6 @@
   "label": "Besos",
   "type": "foreplay",
   "actions": {
-    "Ninguno": [],
     "Besos tiernos": [
       "{dom} besa a {sub} en la mejilla.",
       "{dom} le da a {sub} un beso en la frente.",

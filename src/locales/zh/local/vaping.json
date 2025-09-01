@@ -2,7 +2,6 @@
   "label": "电子烟",
   "type": "consumption",
   "actions": {
-    "无": [],
     "初学者": [
       "吸一口。",
       "深吸一口。",

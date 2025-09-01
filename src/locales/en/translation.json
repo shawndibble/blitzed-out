@@ -60,8 +60,6 @@
   "cancel": "Cancel",
   "skip": "Skip",
   "confirm": "Confirm",
-  "yes": "Yes",
-  "no": "No",
   "warning": "Warning",
   "error": "Error",
   "somethingWentWrong": "Something went wrong",
@@ -163,7 +161,6 @@
   "randomTimerRange": "Randomly sets the roll countdown between the picked values.",
   "minValue": "Minimum",
   "maxValue": "Maximum",
-  "cancel": "Cancel",
   "fullscreen": "Fullscreen",
   "groupLabelRequired": "Group label is required",
   "tilesCount": "{{count}} tiles",
@@ -241,10 +238,8 @@
   "boardWrongSize": "Board is the wrong size. {{size}} tiles required.",
   "importExport": "Import/Export",
   "import": "Import",
-  "export": "Export",
   "export.scope": "Export Scope",
   "export.selectGroup": "Select Group",
-  "export.includeDisabled": "Include Disabled Defaults",
   "copyShareLink": "Copy link to clipboard",
   "copyToClipboard": "Copy to clipboard",
   "copied": "Copied to clipboard",
@@ -259,7 +254,6 @@
   "ctIdeas": "Creative Ideas",
   "ctAdd": "Add Game Tile",
   "ctUpdate": "Update Game Tile",
-  "ctImportDescription": "Show a list of all game tiles. Import will ADD new entries from provided list.",
   "ctSeparatorError": "Make sure that you add a --- on a new line between game tiles and your groups are wrapped in brackets.",
   "ctGroupError": "Invalid group. Ensure your group matching a format listed in 'Add Game Tiles' and is wrapped in brackets.",
   "ctActionError": "You need to ensure each entry that has a group also has an action",
@@ -378,46 +372,18 @@
   "exportScope": {
     "all": "All Data",
     "custom": "Custom Only",
-    "default": "Default Groups",
     "single": "Single Group",
     "disabled": "Disabled Defaults"
   },
-  "labels": {
-    "exportScope": "Scope",
-    "selectGroup": "Select Group"
-  },
   "placeholder": {
-    "cleanFormat": "Paste clean v2.0 format JSON data here...",
     "importData": "Paste import data here..."
   },
   "errors": {
-    "selectGroupToExport": "Please select a group to export",
-    "exportFailed": "Export failed: {{error}}",
-    "importFailed": "Import failed: {{errors}}"
+    "selectGroupToExport": "Please select a group to export"
   },
   "importMessages": {
-    "importing": "Importing data...",
     "importSuccess": "Import completed successfully!",
-    "importFailed": "Import failed!",
-    "importedGroups": "Imported {{count}} custom groups.",
-    "importedTiles": "Imported {{count}} custom tiles."
-  },
-  "importResults": {
-    "title": "Import Results:",
-    "groupsImported": "{{count}} custom groups imported",
-    "tilesImported": "{{count}} custom tiles imported",
-    "warnings": "Warnings:",
-    "errors": "Errors:"
-  },
-  "formatGuide": {
-    "title": "Clean v2.0 Format Guide",
-    "description": "The Clean v2.0 format separates group structure from custom content for easier manual editing:",
-    "keySections": "Key Sections:",
-    "keySectionsContent": "• <strong1>groups</strong1>: Group definitions with labels, types, and intensity names<br />• <strong2>customTiles</strong2>: Your custom tiles organized by group and intensity number",
-    "manualEditing": "Manual Editing:",
-    "manualEditingContent": "• Edit group labels and intensity names safely<br />• Add/remove custom tiles in the customTiles section<br />• Custom tiles work with both custom and default groups<br />• Locale must be 'en', 'es', or 'fr'<br />• Group type must be 'solo', 'foreplay', 'sex', or 'consumption'",
-    "customTilesFormat": "Custom Tiles Format:",
-    "customTilesFormatContent": "Each tile can be a string (action only) or object with action and tags:<br />• Simple: <code1>\"action text\"</code1><br />• With tags: <code2>{\"action\": \"text\", \"tags\": [\"tag1\", \"tag2\"]}</code2>"
+    "importFailed": "Import failed!"
   },
   "privateRoom": "Private Room",
   "deleteBoard": "Delete Board",
@@ -433,13 +399,6 @@
   },
   "gameSettingsHeading": "Game Settings",
   "errorSavingTile": "Error saving tile",
-  "tileUpdatedSuccessfully": "Tile updated successfully",
-  "tileAddedSuccessfully": "Tile added successfully",
-  "updateTile": "Update Tile",
-  "addTile": "Add Tile",
-  "createNewGroup": "Create New Group",
-  "enterTileAction": "Enter the action text for this tile",
-  "addTags": "Add tags to categorize this tile",
   "enterDataToImport": "Please enter data to import",
   "templateBasic": "Basic (1-4)",
   "templateSimple": "Simple (1-3)",
@@ -467,8 +426,6 @@
   "presetBallBusting": "Ball Busting",
   "presetRomanticStart": "Romantic Start",
   "presetDegrading": "Degrading",
-  "presetSensualTouch": "Sensual Touch",
-  "presetElectricPlay": "Electric Play",
   "presetGentleSex": "Gentle Sex",
   "presetFisting": "Fisting",
   "presetBdsm": "BDSM",
@@ -589,13 +546,6 @@
       "hasPlayers": "You already have local players configured. You can set up new ones or continue with your current setup."
     }
   },
-  "addTags": "Add Tags",
-  "addTile": "Add Tile",
-  "createNewGroup": "Create New Group",
-  "enterTileAction": "Enter Tile Action",
-  "tileAddedSuccessfully": "Tile Added Successfully",
-  "tileUpdatedSuccessfully": "Tile Updated Successfully",
-  "updateTile": "Update Tile",
   "setupWizard": {
     "title": "Setup Wizard"
   },

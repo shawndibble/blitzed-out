@@ -2,7 +2,6 @@
   "label": "Plan pisse",
   "type": "solo",
   "actions": {
-    "Aucun": [],
     "Pisser dans un verre": [
       "Bois de l'eau",
       "Pisses dans un récipient",
@@ -21,9 +20,9 @@
     ],
     "Boire": [
       "Bois ta propre pisse",
-      "Boiq de l'eau",
-      "Boiq de l'eau à petites gorgées",
-      "Essayer de pisser dans ta bouche. Avales."
+      "Bois de l'eau",
+      "Bois de l'eau à petites gorgées",
+      "Essaie de pisser dans ta bouche. Avale."
     ]
   }
 }

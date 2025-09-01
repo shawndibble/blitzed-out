@@ -2,7 +2,6 @@
   "label": "Esclavitud",
   "type": "foreplay",
   "actions": {
-    "Ninguna": [],
     "Restringir": [
       "{dom} sujeta las muñecas de {sub} juntas.",
       "{dom} ata a {sub} un mueble hasta su próxima acción.",

@@ -4,7 +4,6 @@
   "dom": "Azotador",
   "sub": "Azotado",
   "actions": {
-    "Ninguna": [],
     "Azotes Suaves": [
       "{dom} da azotes suaves a {sub} en cada nalga.",
       "{dom} azota a {sub} sobre sus rodillas.",

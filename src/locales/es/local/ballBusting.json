@@ -4,7 +4,6 @@
   "dom": "Castigador",
   "sub": "Castigado",
   "actions": {
-    "Ninguna": [],
     "Bofetadas/Apretones": [
       "{dom} da una bofetada suave en los testículos a {sub} después de una tirada.",
       "{dom} da 5 bofetadas en los testículos a {sub}.",

@@ -9,7 +9,7 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
 
     strategy:
       matrix:
@@ -41,7 +41,7 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        id: full-tests
+        id: tests
         continue-on-error: true
         run: npm run test:ci
         env:
@@ -49,5 +49,5 @@ jobs:
           CI: true
 
       - name: Build project
-        if: steps.full-tests.outcome == 'success'
+        if: steps.tests.outcome == 'success'
         run: npm run build

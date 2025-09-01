@@ -46,7 +46,7 @@ export type ImageData = string | Base64ImageObject;
 
 interface MediaMessage extends BaseMessage {
   type: 'media';
-  image: ImageData;
+  image?: ImageData;
 }
 
 export type Message = ChatMessage | ActionsMessage | SettingsMessage | RoomMessage | MediaMessage;
