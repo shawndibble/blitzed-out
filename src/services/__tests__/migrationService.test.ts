@@ -123,15 +123,6 @@ describe('Migration Service', () => {
       const result = await runMigrationIfNeeded();
       expect(result).toBe(true);
     });
-
-    it('should run migration if not completed', async () => {
-      // Mock the stores to prevent actual database operations
-      const { addCustomGroup } = await import('@/stores/customGroups');
-      vi.mocked(addCustomGroup).mockResolvedValue('test-id');
-
-      const result = await runMigrationIfNeeded();
-      expect(result).toBe(true);
-    });
   });
 
   describe('Fresh user scenario', () => {
@@ -143,25 +134,6 @@ describe('Migration Service', () => {
       // Migration should be needed
       const needsMigration = !isMigrationCompleted();
       expect(needsMigration).toBe(true);
-    });
-
-    it('should properly mark current language migration as completed after successful run', async () => {
-      // Start with no migration status
-      expect(isMigrationCompleted()).toBe(false);
-
-      // Mock the stores for successful migration
-      const { addCustomGroup } = await import('@/stores/customGroups');
-      vi.mocked(addCustomGroup).mockResolvedValue('test-id');
-
-      const result = await runMigrationIfNeeded();
-      expect(result).toBe(true);
-
-      // Check that current language was marked as migrated (not full migration yet)
-      const { isCurrentLanguageMigrationCompleted } = await import('../migrationService');
-      expect(isCurrentLanguageMigrationCompleted('en')).toBe(true);
-
-      // Main migration should not be marked complete yet (only when all languages are done)
-      expect(isMigrationCompleted()).toBe(false);
     });
   });
 

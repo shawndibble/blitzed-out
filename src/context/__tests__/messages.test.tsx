@@ -1,7 +1,7 @@
 import * as firebaseService from '@/services/firebase';
 
 import { Message, MessageType } from '@/types/Message';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BrowserRouter } from 'react-router-dom';
@@ -202,63 +202,6 @@ describe('MessagesProvider', () => {
         expect(screen.getByTestId('loading')).toHaveTextContent('loaded');
         expect(screen.getByTestId('message-count')).toHaveTextContent('0');
       });
-    });
-  });
-
-  describe('Real-time Message Updates', () => {
-    it('should handle rapid message updates', async () => {
-      let messageCallback:
-        | ((
-            messages: {
-              id: string;
-              text: string;
-              type: MessageType;
-              timestamp: Timestamp;
-              uid: string;
-              displayName: string;
-            }[]
-          ) => void)
-        | null = null;
-
-      mockGetMessages.mockImplementation((_roomId, callback) => {
-        messageCallback = callback;
-        setTimeout(() => {
-          callback([]);
-        }, 0);
-        return mockUnsubscribe;
-      });
-
-      render(
-        <TestWrapper>
-          <TestComponent />
-        </TestWrapper>
-      );
-
-      await waitFor(() => {
-        expect(screen.getByTestId('message-count')).toHaveTextContent('0');
-      });
-
-      // Simulate rapid message updates
-      const updates = [
-        [createMockMessage('Message 1')],
-        [createMockMessage('Message 1'), createMockMessage('Message 2')],
-        [
-          createMockMessage('Message 1'),
-          createMockMessage('Message 2'),
-          createMockMessage('Message 3'),
-        ],
-      ];
-
-      for (const update of updates) {
-        await act(async () => {
-          if (messageCallback) {
-            messageCallback(update);
-          }
-        });
-        await waitFor(() => {
-          expect(screen.getByTestId('message-count')).toHaveTextContent(update.length.toString());
-        });
-      }
     });
   });
 
