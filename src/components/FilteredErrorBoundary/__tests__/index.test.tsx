@@ -18,9 +18,10 @@ vi.mock('@sentry/react', () => ({
 // Mock the error patterns
 vi.mock('@/constants/errorPatterns', () => ({
   isExpectedDOMError: vi.fn(),
+  isMinifiedError: vi.fn(),
 }));
 
-import { isExpectedDOMError } from '@/constants/errorPatterns';
+import { isExpectedDOMError, isMinifiedError } from '@/constants/errorPatterns';
 
 describe('FilteredErrorBoundary', () => {
   const DummyFallback: React.FC<{ error: Error; resetError: () => void }> = () => null;
@@ -44,10 +45,23 @@ describe('FilteredErrorBoundary', () => {
       expect(isExpectedDOMError).toHaveBeenCalledWith(domError.message);
     });
 
+    it('returns error state for minified errors (no longer suppressed)', () => {
+      const minifiedError = new Error('bb');
+
+      // Mock to show minified errors are no longer suppressed
+      vi.mocked(isExpectedDOMError).mockReturnValue(false);
+
+      const result = FilteredErrorBoundary.getDerivedStateFromError(minifiedError);
+
+      expect(result.hasError).toBe(true);
+      expect(result.error).toBe(minifiedError);
+      expect(isExpectedDOMError).toHaveBeenCalledWith('bb');
+    });
+
     it('returns error state for unexpected errors', () => {
       const unexpectedError = new Error('Unexpected error occurred');
 
-      // Mock the function to return false for unexpected errors
+      // Mock to return false for expected DOM errors
       vi.mocked(isExpectedDOMError).mockReturnValue(false);
 
       const result = FilteredErrorBoundary.getDerivedStateFromError(unexpectedError);
@@ -85,17 +99,47 @@ describe('FilteredErrorBoundary', () => {
       expect(isExpectedDOMError).toHaveBeenCalledWith('DOM reconciliation error');
     });
 
+    it('sends minified errors to Sentry with enhanced context', () => {
+      const minifiedError = new Error('bb');
+      const errorInfo = { componentStack: 'test stack' } as React.ErrorInfo;
+
+      vi.mocked(isExpectedDOMError).mockReturnValue(false);
+      vi.mocked(isMinifiedError).mockReturnValue(true);
+
+      const instance = new FilteredErrorBoundary({ children: null, fallback: DummyFallback });
+      instance.componentDidCatch(minifiedError, errorInfo);
+
+      expect(Sentry.captureException).toHaveBeenCalledWith(minifiedError);
+      expect(isExpectedDOMError).toHaveBeenCalledWith('bb');
+      expect(isMinifiedError).toHaveBeenCalledWith('bb');
+
+      // Verify Sentry scope includes minified error context
+      expect(Sentry.withScope).toHaveBeenCalled();
+      const withScopeMock = vi.mocked(Sentry.withScope);
+      const callback = withScopeMock.mock.calls[0][0] as any;
+      const fakeScope = { setTag: vi.fn(), setContext: vi.fn() };
+      callback(fakeScope);
+
+      expect(fakeScope.setTag).toHaveBeenCalledWith('minified_error', true);
+      expect(fakeScope.setContext).toHaveBeenCalledWith('minifiedContext', {
+        originalMessage: 'bb',
+        note: 'Minified error - check source maps for original location',
+      });
+    });
+
     it('sends unexpected errors to Sentry with correct context', () => {
       const unexpectedError = new Error('Unexpected error');
       const errorInfo = { componentStack: 'test stack' } as React.ErrorInfo;
 
       vi.mocked(isExpectedDOMError).mockReturnValue(false);
+      vi.mocked(isMinifiedError).mockReturnValue(false);
 
       const instance = new FilteredErrorBoundary({ children: null, fallback: DummyFallback });
       instance.componentDidCatch(unexpectedError, errorInfo);
 
       expect(Sentry.captureException).toHaveBeenCalledWith(unexpectedError);
       expect(isExpectedDOMError).toHaveBeenCalledWith('Unexpected error');
+      expect(isMinifiedError).toHaveBeenCalledWith('Unexpected error');
 
       // Verify Sentry scope configuration was called
       expect(Sentry.withScope).toHaveBeenCalled();
@@ -121,11 +165,13 @@ describe('FilteredErrorBoundary', () => {
       const errorInfo = { componentStack: 'test stack' } as React.ErrorInfo;
 
       vi.mocked(isExpectedDOMError).mockReturnValue(true);
+      vi.mocked(isMinifiedError).mockReturnValue(false);
 
       const instance = new FilteredErrorBoundary({ children: null, fallback: DummyFallback });
       instance.componentDidCatch(sentryError, errorInfo);
 
       expect(isExpectedDOMError).toHaveBeenCalledWith(sentryError.message);
+      // isMinifiedError won't be called due to short-circuit evaluation
       expect(Sentry.captureException).not.toHaveBeenCalled();
     });
   });
@@ -146,6 +192,7 @@ describe('FilteredErrorBoundary', () => {
         FilteredErrorBoundary.getDerivedStateFromError(error);
 
         expect(isExpectedDOMError).toHaveBeenCalledWith(message);
+        // Note: isMinifiedError is only called in componentDidCatch for Sentry context
       });
     });
   });

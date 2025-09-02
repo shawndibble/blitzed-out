@@ -7,7 +7,11 @@
  * DOM reconciliation error patterns
  * These occur when React transitions between components (e.g., GameSettingsDialog → GameBoard)
  */
-export const EXPECTED_DOM_ERROR_PATTERNS = ['insertBefore', 'not a child of this node'] as const;
+export const EXPECTED_DOM_ERROR_PATTERNS = [
+  'insertBefore',
+  'not a child of this node',
+  'The object can not be found here',
+] as const;
 
 /**
  * Module loading error patterns
@@ -19,7 +23,18 @@ export const MODULE_LOADING_ERROR_PATTERNS = [
   'Method not found',
   'module script failed',
 ] as const;
+
+/**
+ * Generic minified error patterns - now for context only, not suppression
+ * These help identify minified errors so we can add debugging context
+ */
+export const MINIFIED_ERROR_PATTERNS = [
+  'bb', // Generic minified error code - likely from React internals
+] as const;
 const MODULE_LOADING_ERROR_PATTERNS_LC = MODULE_LOADING_ERROR_PATTERNS.map((p) =>
+  p.toLowerCase()
+) as readonly string[];
+const MINIFIED_ERROR_PATTERNS_LC = MINIFIED_ERROR_PATTERNS.map((p) =>
   p.toLowerCase()
 ) as readonly string[];
 
@@ -33,13 +48,17 @@ export function isExpectedDOMError(errorMessage: unknown): boolean {
   const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
   if (!msg) return false;
 
-  const [insertBeforeToken, notChildToken] = EXPECTED_DOM_ERROR_PATTERNS;
+  const [insertBeforeToken, notChildToken, notFoundToken] = EXPECTED_DOM_ERROR_PATTERNS;
   const hasInsertBefore = msg.includes(insertBeforeToken.toLowerCase());
   const hasNotChild = msg.includes(notChildToken.toLowerCase());
+  const hasNotFound = msg.includes(notFoundToken.toLowerCase());
 
   // Typical reconciliation error: both tokens present (or the "failed to execute 'insertBefore'" variant)
   if (hasInsertBefore && hasNotChild) return true;
+  // cspell:disable-next-line
   if (msg.includes("failed to execute 'insertbefore'")) return true;
+  // NotFoundError from DOM insertBefore operations
+  if (hasNotFound && hasInsertBefore) return true;
 
   return false;
 }
@@ -53,6 +72,19 @@ export function isModuleLoadingError(errorMessage: unknown): boolean {
   const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
   if (!msg) return false;
   return MODULE_LOADING_ERROR_PATTERNS_LC.some((pattern) => msg.includes(pattern));
+}
+
+/**
+ * Check if an error message matches known minified code patterns
+ * Used for adding context to Sentry, not for suppression
+ * @param errorMessage - The error message to check
+ * @returns true if the error matches minified code patterns
+ */
+export function isMinifiedError(errorMessage: unknown): boolean {
+  const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
+  if (!msg) return false;
+
+  return MINIFIED_ERROR_PATTERNS_LC.some((pattern) => msg === pattern);
 }
 
 /**

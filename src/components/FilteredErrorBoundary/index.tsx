@@ -1,6 +1,8 @@
-import React from 'react';
 import * as Sentry from '@sentry/react';
-import { isExpectedDOMError } from '@/constants/errorPatterns';
+
+import { isExpectedDOMError, isMinifiedError } from '@/constants/errorPatterns';
+
+import React from 'react';
 
 interface FilteredErrorBoundaryProps {
   children: React.ReactNode;
@@ -29,12 +31,12 @@ export default class FilteredErrorBoundary extends React.Component<
     // Check if this is an expected React DOM reconciliation error
     const errorMessage = error instanceof Error ? error.message : String(error ?? '');
 
-    // If it's an expected DOM reconciliation error, don't show error boundary UI
+    // Only suppress DOM reconciliation errors - minified errors now go through
     if (isExpectedDOMError(errorMessage)) {
       return { hasError: false, error: null };
     }
 
-    // For other errors, show the error boundary
+    // For all other errors (including minified), show the error boundary
     return { hasError: true, error: error instanceof Error ? error : new Error(errorMessage) };
   }
 
@@ -43,9 +45,19 @@ export default class FilteredErrorBoundary extends React.Component<
     const errorMessage = error.message || '';
 
     if (!isExpectedDOMError(errorMessage)) {
-      // Only send unexpected errors to Sentry
+      // Send all other errors to Sentry (including minified with context)
       Sentry.withScope((scope) => {
         scope.setTag('component_error_boundary', true);
+
+        // Add context for minified errors
+        if (isMinifiedError(errorMessage)) {
+          scope.setTag('minified_error', true);
+          scope.setContext('minifiedContext', {
+            originalMessage: errorMessage,
+            note: 'Minified error - check source maps for original location',
+          });
+        }
+
         scope.setContext('errorInfo', {
           componentStack: errorInfo.componentStack,
         });
