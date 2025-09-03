@@ -76,8 +76,9 @@ function generateBundles() {
         let shouldWrite = true;
         if (fs.existsSync(bundlePath)) {
           try {
-            const existingContent = fs.readFileSync(bundlePath, 'utf8');
-            shouldWrite = existingContent !== newContent;
+            const existingContent = fs.readFileSync(bundlePath, 'utf8').trim();
+            const normalizedNewContent = newContent.trim();
+            shouldWrite = existingContent !== normalizedNewContent;
           } catch {
             // If we can't read the existing file, write the new one
             shouldWrite = true;
@@ -85,7 +86,7 @@ function generateBundles() {
         }
 
         if (shouldWrite) {
-          fs.writeFileSync(bundlePath, newContent);
+          fs.writeFileSync(bundlePath, newContent + '\n');
         }
       }
     });
