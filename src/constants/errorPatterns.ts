@@ -25,6 +25,16 @@ export const MODULE_LOADING_ERROR_PATTERNS = [
 ] as const;
 
 /**
+ * Network/loading error patterns that are usually temporary and not actionable
+ * These occur due to network issues, browser quirks, or temporary connection problems
+ */
+export const NETWORK_LOADING_ERROR_PATTERNS = [
+  'Load failed', // Generic Safari loading error
+  'Failed to fetch', // Network request failures
+  'Network request failed',
+] as const;
+
+/**
  * Generic minified error patterns - now for context only, not suppression
  * These help identify minified errors so we can add debugging context
  */
@@ -32,6 +42,9 @@ export const MINIFIED_ERROR_PATTERNS = [
   'bb', // Generic minified error code - likely from React internals
 ] as const;
 const MODULE_LOADING_ERROR_PATTERNS_LC = MODULE_LOADING_ERROR_PATTERNS.map((p) =>
+  p.toLowerCase()
+) as readonly string[];
+const NETWORK_LOADING_ERROR_PATTERNS_LC = NETWORK_LOADING_ERROR_PATTERNS.map((p) =>
   p.toLowerCase()
 ) as readonly string[];
 const MINIFIED_ERROR_PATTERNS_LC = MINIFIED_ERROR_PATTERNS.map((p) =>
@@ -72,6 +85,18 @@ export function isModuleLoadingError(errorMessage: unknown): boolean {
   const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
   if (!msg) return false;
   return MODULE_LOADING_ERROR_PATTERNS_LC.some((pattern) => msg.includes(pattern));
+}
+
+/**
+ * Check if an error message matches network/loading error patterns
+ * These are usually temporary network issues and not actionable bugs
+ * @param errorMessage - The error message to check
+ * @returns true if the error matches network loading patterns
+ */
+export function isNetworkLoadingError(errorMessage: unknown): boolean {
+  const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
+  if (!msg) return false;
+  return NETWORK_LOADING_ERROR_PATTERNS_LC.some((pattern) => msg.includes(pattern));
 }
 
 /**

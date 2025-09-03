@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/react';
 import {
   isExpectedDOMError,
   isModuleLoadingError,
+  isNetworkLoadingError,
   ERROR_CATEGORIES,
 } from '@/constants/errorPatterns';
 
@@ -64,6 +65,12 @@ export function initializeSentry(): void {
       if (isExpectedDOMError(errorMessage)) {
         // Don't send these expected React reconciliation errors to Sentry
         // These happen during normal operation when transitioning from GameSettingsDialog to game board
+        return null;
+      }
+
+      // Filter out generic network/loading errors that are usually temporary
+      // These are often Safari "Load failed" errors or network hiccups, not actionable bugs
+      if (isNetworkLoadingError(errorMessage)) {
         return null;
       }
 

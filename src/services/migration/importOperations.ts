@@ -8,6 +8,23 @@ import { CustomGroupBase } from '@/types/customGroups';
 import { CustomTileBase } from '@/types/customTiles';
 import { ImportResult } from './types';
 import { logError, withErrorHandling, isDuplicateError } from './errorHandling';
+
+/**
+ * Retry dynamic import with exponential backoff
+ */
+const retryImport = async <T>(importFn: () => Promise<T>, retries = 3): Promise<T> => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await importFn();
+    } catch (error) {
+      if (attempt === retries) throw error;
+
+      // Wait before retry with exponential backoff
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+    }
+  }
+  throw new Error('All import attempts failed');
+};
 import { getActionGroupNames } from './fileDiscovery';
 import { createDeterministicGroupId } from './groupIdMigration';
 import { GAME_MODES, SUPPORTED_LANGUAGES } from './constants';
@@ -21,8 +38,10 @@ export const importActionFile = async (
   gameMode: string
 ): Promise<{ customGroup: CustomGroupBase; customTiles: CustomTileBase[] } | null> => {
   return withErrorHandling(async () => {
-    // Import from bundled translation files for better performance
-    const bundleFile = await import(`@/locales/${locale}/${gameMode}-bundle.json`);
+    // Import from bundled translation files for better performance with retry
+    const bundleFile = await retryImport(
+      () => import(`@/locales/${locale}/${gameMode}-bundle.json`)
+    );
     const bundle = bundleFile.default;
     const actionFile = bundle[groupName];
 
@@ -175,8 +194,8 @@ export const importGroupsForLocaleAndGameMode = async (
   let groupsImported = 0;
   let tilesImported = 0;
 
-  // Import Dexie database for transaction usage
-  const db = await import('@/stores/store').then((module) => module.default);
+  // Import Dexie database for transaction usage with retry
+  const db = await retryImport(() => import('@/stores/store')).then((module) => module.default);
 
   // Process each group individually to avoid transaction timeouts
   for (const groupName of groupNames) {

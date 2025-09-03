@@ -73,7 +73,7 @@ export default function Room() {
       if (newCurrentPlayer) {
         // Show turn transition if enabled
         if (sessionSettings.showTurnTransitions) {
-          setTransitionPlayerName(newCurrentPlayer.name);
+          setTransitionPlayerName(`Player ${currentIndex + 1}`);
           setShowTransition(true);
         }
 

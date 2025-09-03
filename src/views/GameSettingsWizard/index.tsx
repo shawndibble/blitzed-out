@@ -4,6 +4,7 @@ import Divider from '@mui/material/Divider';
 import { Trans } from 'react-i18next';
 import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { flushSync } from 'react-dom';
 import { useMigration } from '@/context/migration';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
@@ -92,7 +93,9 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   useEffect(() => {
     // Only redirect if we're on a step that's invalid for public rooms
     if (isPublic && (step === 2 || step === 3)) {
-      setStep(4);
+      flushSync(() => {
+        setStep(4);
+      });
     }
   }, [step, isPublic]);
 
