@@ -29,6 +29,9 @@ import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import useUrlImport from '@/hooks/useUrlImport';
+import useMessages from '@/context/hooks/useMessages';
+import useTurnIndicator from '@/hooks/useTurnIndicator';
+import latestMessageByType from '@/helpers/messages';
 
 import BottomTabs from './BottomTabs';
 import MessageList from '@/components/MessageList';
@@ -47,9 +50,11 @@ export default function Room() {
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
 
   // Local player integration for turn transitions and sounds
-  const { localPlayers, sessionSettings, currentPlayerIndex } = useLocalPlayers();
+  const { localPlayers, sessionSettings, currentPlayerIndex, isLocalPlayerRoom } =
+    useLocalPlayers();
   const [showTransition, setShowTransition] = useState(false);
   const [transitionPlayerName, setTransitionPlayerName] = useState('');
+  const [isTransitionForCurrentUser, setIsTransitionForCurrentUser] = useState(false);
   const previousPlayerIndexRef = useRef(currentPlayerIndex);
 
   const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
@@ -59,9 +64,9 @@ export default function Room() {
     setRollValue({ value: newValue, time: Date.now() });
   }, []);
 
-  // Turn change detection for local players
+  // Turn change detection for local players (only in pure local multiplayer mode)
   useEffect(() => {
-    if (!localPlayers.length || !sessionSettings) return;
+    if (!localPlayers.length || !sessionSettings || !isLocalPlayerRoom) return;
 
     const currentIndex = currentPlayerIndex ?? 0;
     const previousIndex = previousPlayerIndexRef.current;
@@ -73,7 +78,8 @@ export default function Room() {
       if (newCurrentPlayer) {
         // Show turn transition if enabled
         if (sessionSettings.showTurnTransitions) {
-          setTransitionPlayerName(`Player ${currentIndex + 1}`);
+          setTransitionPlayerName(newCurrentPlayer.name);
+          setIsTransitionForCurrentUser(false); // Always show player name for local multiplayer
           setShowTransition(true);
         }
 
@@ -92,6 +98,43 @@ export default function Room() {
     // Update refs
     previousPlayerIndexRef.current = currentIndex;
   }, [currentPlayerIndex, localPlayers, sessionSettings]);
+
+  // Multi-device turn transitions (only when others' dialog is disabled)
+  const { messages } = useMessages();
+  const latestActionMessage = latestMessageByType(messages, 'actions');
+  const nextPlayer = useTurnIndicator(latestActionMessage);
+  const previousMessageRef = useRef(latestActionMessage);
+  const previousNextPlayerRef = useRef(nextPlayer);
+
+  useEffect(() => {
+    // Only show transitions for multi-device when NOT in local player room
+    // AND when "show others' dialog" is disabled (so users still get turn awareness)
+    if (isLocalPlayerRoom || !nextPlayer || !latestActionMessage) return;
+
+    const { othersDialog } = settings;
+    if (othersDialog) return; // Skip if others' dialog is enabled
+
+    // Check if this is a new message (different from previous)
+    const isNewMessage = latestActionMessage !== previousMessageRef.current;
+
+    // Only show transition if it's a new message AND nextPlayer changed to be yourself
+    if (isNewMessage && nextPlayer.isSelf && !previousNextPlayerRef.current?.isSelf) {
+      // Show turn transition when it's your turn (multi-device)
+      setTransitionPlayerName(nextPlayer.displayName);
+      setIsTransitionForCurrentUser(true); // Show "Your Turn" for multi-device
+      setShowTransition(true);
+    }
+
+    // Update refs to track changes
+    previousMessageRef.current = latestActionMessage;
+    previousNextPlayerRef.current = nextPlayer;
+  }, [
+    latestActionMessage,
+    nextPlayer?.uid,
+    nextPlayer?.isSelf,
+    isLocalPlayerRoom,
+    settings.othersDialog,
+  ]); // Stabilized dependencies
 
   const handleTransitionComplete = useCallback(() => {
     setShowTransition(false);
@@ -193,7 +236,7 @@ export default function Room() {
         playerName={transitionPlayerName}
         show={showTransition}
         onComplete={handleTransitionComplete}
-        duration={2000}
+        isCurrentUser={isTransitionForCurrentUser}
       />
 
       {isMobile ? (

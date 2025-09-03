@@ -1,12 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Box, Typography, Fade } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useTranslation } from 'react-i18next';
 
 interface TurnTransitionProps {
   playerName: string;
   show: boolean;
   onComplete: () => void;
   duration?: number; // default 3000ms
+  isCurrentUser?: boolean; // whether this is the current user's turn
 }
 
 export default function TurnTransition({
@@ -14,19 +16,30 @@ export default function TurnTransition({
   show,
   onComplete,
   duration = 3000,
+  isCurrentUser = false,
 }: TurnTransitionProps): JSX.Element {
   const theme = useTheme();
+  const { t } = useTranslation();
+  const onCompleteRef = useRef(onComplete);
+
+  // Keep the ref updated with the latest callback
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     if (show) {
-      const timer = setTimeout(onComplete, duration);
+      const timer = setTimeout(() => {
+        onCompleteRef.current();
+      }, duration);
       return () => clearTimeout(timer);
     }
-  }, [show, duration, onComplete]);
+  }, [show, duration]);
 
   return (
     <Fade in={show} timeout={300}>
       <Box
+        onClick={() => onCompleteRef.current()}
         sx={{
           position: 'fixed',
           top: '50%',
@@ -37,10 +50,11 @@ export default function TurnTransition({
           borderRadius: 2,
           p: 3,
           textAlign: 'center',
+          cursor: 'pointer',
         }}
       >
         <Typography variant="h5" sx={{ color: 'white', fontWeight: 600 }}>
-          {playerName}&apos;s Turn
+          {isCurrentUser ? t('yourTurn') : t('playersTurn', { player: playerName })}
         </Typography>
       </Box>
     </Fade>

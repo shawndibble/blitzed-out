@@ -70,8 +70,20 @@ export function initializeSentry(): void {
 
       // Filter out generic network/loading errors that are usually temporary
       // These are often Safari "Load failed" errors or network hiccups, not actionable bugs
+      // Only suppress on Safari or when there's no stacktrace to avoid masking real backend/CORS failures
       if (isNetworkLoadingError(errorMessage)) {
-        return null;
+        const isSafari = userAgentLower.includes('safari') && !userAgentLower.includes('chrome');
+        const hasNoStacktrace = !event.exception?.values?.[0]?.stacktrace?.frames?.length;
+
+        if (isSafari || hasNoStacktrace) {
+          return null;
+        }
+
+        // For non-Safari browsers with stacktrace, tag but don't suppress
+        event.tags = { ...(event.tags ?? {}), network_loading_error: true };
+        if (!event.fingerprint?.length) {
+          event.fingerprint = ['network-loading-error-with-trace'];
+        }
       }
 
       // Tag other DOM insertion errors for tracking (unexpected ones)

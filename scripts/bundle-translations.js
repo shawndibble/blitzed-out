@@ -24,6 +24,13 @@ const LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'];
 const GAME_MODES = ['local', 'online'];
 
 /**
+ * Normalize content by replacing CRLF with LF and trimming
+ */
+function normalizeContent(content) {
+  return content.replace(/\r\n/g, '\n').trim();
+}
+
+/**
  * Read all JSON files in a directory and return as an object
  */
 function bundleGameModeFiles(languageDir, gameMode) {
@@ -35,7 +42,10 @@ function bundleGameModeFiles(languageDir, gameMode) {
   }
 
   const bundle = {};
-  const files = fs.readdirSync(gameModeDir).filter((file) => file.endsWith('.json'));
+  const files = fs
+    .readdirSync(gameModeDir)
+    .filter((file) => file.endsWith('.json'))
+    .sort(); // Ensure deterministic order
 
   files.forEach((file) => {
     const filePath = path.join(gameModeDir, file);
@@ -51,7 +61,15 @@ function bundleGameModeFiles(languageDir, gameMode) {
     }
   });
 
-  return bundle;
+  // Sort bundle keys for deterministic output
+  const sortedBundle = {};
+  Object.keys(bundle)
+    .sort()
+    .forEach((key) => {
+      sortedBundle[key] = bundle[key];
+    });
+
+  return sortedBundle;
 }
 
 /**
@@ -76,9 +94,8 @@ function generateBundles() {
         let shouldWrite = true;
         if (fs.existsSync(bundlePath)) {
           try {
-            const existingContent = fs.readFileSync(bundlePath, 'utf8').trim();
-            const normalizedNewContent = newContent.trim();
-            shouldWrite = existingContent !== normalizedNewContent;
+            const existingContent = fs.readFileSync(bundlePath, 'utf8');
+            shouldWrite = normalizeContent(existingContent) !== normalizeContent(newContent);
           } catch {
             // If we can't read the existing file, write the new one
             shouldWrite = true;
