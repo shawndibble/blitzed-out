@@ -45,6 +45,14 @@ export default function AppSettings({
     updateSettings({ ...settings, voicePreference: voiceName });
   }
 
+  function handlePitchChange(pitch: number): void {
+    // Update local storage immediately for pitch changes
+    // Only update if the pitch actually changed to avoid unnecessary re-renders
+    if (settings?.voicePitch !== pitch) {
+      updateSettings({ ...settings, voicePitch: pitch });
+    }
+  }
+
   return (
     <>
       <LanguageSelect boardUpdated={boardUpdated} />
@@ -72,6 +80,7 @@ export default function AppSettings({
           formData={formData}
           setFormData={setFormData}
           onVoiceChange={handleVoiceChange}
+          onPitchChange={handlePitchChange}
         />
       )}
 

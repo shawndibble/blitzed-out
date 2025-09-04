@@ -28,8 +28,16 @@ export default function useSoundAndDialog(): DialogResult {
   const [playMessageSound] = useSound(messageSound);
   const [settings] = useSettings();
 
-  const { playerDialog, othersDialog, mySound, otherSound, chatSound, readRoll, voicePreference } =
-    settings || {};
+  const {
+    playerDialog,
+    othersDialog,
+    mySound,
+    otherSound,
+    chatSound,
+    readRoll,
+    voicePreference,
+    voicePitch,
+  } = settings || {};
 
   const latestMessage = useMemo(() => [...messages].pop(), [messages]);
 
@@ -37,13 +45,13 @@ export default function useSoundAndDialog(): DialogResult {
     async (text: string | undefined): Promise<void> => {
       if (text) {
         try {
-          await speak(text, voicePreference);
+          await speak(text, voicePreference, voicePitch ?? 1.0);
         } catch (error) {
           console.error('Failed to speak text:', error);
         }
       }
     },
-    [voicePreference]
+    [voicePreference, voicePitch]
   );
 
   const newMessage = useMemo(() => {
