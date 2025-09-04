@@ -52,9 +52,9 @@ export default function VoiceSelect({
       const pitch = Array.isArray(newPitch) ? newPitch[0] : newPitch;
 
       // Only update UI state for smooth slider interaction - don't save to app yet
-      setFormData((prevData) => ({ ...prevData, voicePitch: pitch }));
+      setFormData({ ...formData, voicePitch: pitch });
     },
-    [setFormData]
+    [formData, setFormData]
   );
 
   const handlePitchCommit = useCallback(
@@ -63,10 +63,10 @@ export default function VoiceSelect({
       const clampedPitch = Math.max(0.5, Math.min(2.0, pitch));
 
       // Save the final clamped value to app state
-      setFormData((prevData) => ({ ...prevData, voicePitch: clampedPitch }));
+      setFormData({ ...formData, voicePitch: clampedPitch });
       onPitchChange?.(clampedPitch);
     },
-    [setFormData, onPitchChange]
+    [formData, setFormData, onPitchChange]
   );
 
   useEffect(() => {
