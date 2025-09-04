@@ -70,7 +70,7 @@ export default function AddCustomTile({
         intensity: '',
       });
     }
-  }, [updateTileId, groups[0]?.id, sharedFilters.groupName, setSharedFilters, sharedFilters]); // React to first group identity changes
+  }, [updateTileId, groups, sharedFilters, setSharedFilters]); // React to groups and filters changes
 
   // Find the selected group by name from shared filters
   const selectedGroup = groups.find((group) => group.name === sharedFilters.groupName);
