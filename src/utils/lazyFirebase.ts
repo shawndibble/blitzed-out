@@ -7,12 +7,29 @@ let firebasePromise: Promise<typeof import('@/services/firebase')> | null = null
 let firebaseLoaded = false;
 
 /**
+ * Retry dynamic import with exponential backoff
+ */
+const importWithRetry = async (retries = 3): Promise<typeof import('@/services/firebase')> => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await import('@/services/firebase');
+    } catch (error) {
+      if (attempt === retries) throw error;
+
+      // Wait before retry with exponential backoff
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+    }
+  }
+  throw new Error('All import attempts failed');
+};
+
+/**
  * Lazy load Firebase services
  * @returns Promise that resolves to Firebase service functions
  */
 export const loadFirebase = async () => {
   if (!firebasePromise) {
-    firebasePromise = import('@/services/firebase');
+    firebasePromise = importWithRetry();
   }
 
   if (firebaseLoaded) {

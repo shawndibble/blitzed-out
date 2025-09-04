@@ -2,7 +2,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import { Trans } from 'react-i18next';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useMigration } from '@/context/migration';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
@@ -89,7 +89,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const isPublic = isPublicRoom(formData.room);
 
   // Handle step redirects for public rooms without causing DOM insertion errors
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Only redirect if we're on a step that's invalid for public rooms
     if (isPublic && (step === 2 || step === 3)) {
       setStep(4);

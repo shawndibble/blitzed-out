@@ -52,16 +52,26 @@ export default function useTurnIndicator(message?: Message): Player | null {
       return;
     }
 
+    // Sort players by displayName for consistent turn order across all devices
+    // This ensures all devices calculate the same turn sequence
+    // Use 'en-US' locale and numeric sorting for consistent international character handling
+    const stableTurnOrder = [...stillPlaying].sort((a, b) =>
+      a.displayName.localeCompare(b.displayName, 'en-US', {
+        numeric: true,
+        sensitivity: 'base',
+      })
+    );
+
     // For local players, we need to find by displayName since message.uid might not match
     // For remote players, we find by uid
     let currentPlayerIndex = -1;
 
     // First try to find by uid (works for remote players)
-    currentPlayerIndex = stillPlaying.findIndex((player) => player.uid === message.uid);
+    currentPlayerIndex = stableTurnOrder.findIndex((player) => player.uid === message.uid);
 
     // If not found and we have local players, try finding by displayName
     if (currentPlayerIndex === -1) {
-      currentPlayerIndex = stillPlaying.findIndex(
+      currentPlayerIndex = stableTurnOrder.findIndex(
         (player) => player.displayName === message.displayName
       );
     }
@@ -71,9 +81,9 @@ export default function useTurnIndicator(message?: Message): Player | null {
       currentPlayerIndex = 0;
     }
 
-    // Get the next player in turn order
-    const nextIndex = (currentPlayerIndex + 1) % stillPlaying.length;
-    const nextHybridPlayer = stillPlaying[nextIndex];
+    // Get the next player in stable turn order
+    const nextIndex = (currentPlayerIndex + 1) % stableTurnOrder.length;
+    const nextHybridPlayer = stableTurnOrder[nextIndex];
 
     // Convert to Player format for the indicator
     const nextPlayer = convertHybridPlayerToPlayer(nextHybridPlayer);

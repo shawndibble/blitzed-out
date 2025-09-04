@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/react';
 import {
   isExpectedDOMError,
   isModuleLoadingError,
+  isNetworkLoadingError,
   ERROR_CATEGORIES,
 } from '@/constants/errorPatterns';
 
@@ -65,6 +66,24 @@ export function initializeSentry(): void {
         // Don't send these expected React reconciliation errors to Sentry
         // These happen during normal operation when transitioning from GameSettingsDialog to game board
         return null;
+      }
+
+      // Filter out generic network/loading errors that are usually temporary
+      // These are often Safari "Load failed" errors or network hiccups, not actionable bugs
+      // Only suppress on Safari or when there's no stacktrace to avoid masking real backend/CORS failures
+      if (isNetworkLoadingError(errorMessage)) {
+        const isSafari = userAgentLower.includes('safari') && !userAgentLower.includes('chrome');
+        const hasNoStacktrace = !event.exception?.values?.[0]?.stacktrace?.frames?.length;
+
+        if (isSafari || hasNoStacktrace) {
+          return null;
+        }
+
+        // For non-Safari browsers with stacktrace, tag but don't suppress
+        event.tags = { ...(event.tags ?? {}), network_loading_error: true };
+        if (!event.fingerprint?.length) {
+          event.fingerprint = ['network-loading-error-with-trace'];
+        }
       }
 
       // Tag other DOM insertion errors for tracking (unexpected ones)

@@ -282,11 +282,33 @@ export async function playSound(sound: GameSound): Promise<boolean> {
       return false;
     }
 
-    const audioContext = new AudioContextClass();
+    let audioContext: AudioContext;
+    try {
+      audioContext = new AudioContextClass();
+
+      // iOS requires resuming if suspended
+      if (audioContext.state === 'suspended') {
+        try {
+          await audioContext.resume();
+        } catch (resumeError) {
+          console.warn('Audio context resume failed:', resumeError);
+          return false;
+        }
+      }
+    } catch (error) {
+      // If AudioContext creation fails (likely iOS without user gesture), fail silently
+      console.warn('Audio context creation failed (likely iOS without user gesture):', error);
+      return false;
+    }
 
     // If sound has multiple frequencies (melody), play them sequentially
     if (sound.frequencies && sound.frequencies.length > 1) {
-      return playMelody(audioContext, sound);
+      try {
+        return await playMelody(audioContext, sound);
+      } catch (melodyError) {
+        console.warn('Melody playback failed:', melodyError);
+        return false;
+      }
     }
 
     // Single note playback
