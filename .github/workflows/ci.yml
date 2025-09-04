@@ -51,3 +51,5 @@ jobs:
       - name: Build project
         if: steps.tests.outcome == 'success'
         run: npm run build
+        env:
+          SENTRY_TELEMETRY: false
