@@ -19,7 +19,7 @@ import { ImportExportProps } from '@/types/customTiles';
 import { ImportResult } from '@/types/importExport';
 import { exportAllData, importData } from '@/services/importExport';
 import { getExportableGroupStats } from '@/services/importExport/exportService';
-import { batchFetchGroups } from '@/services/importExport/databaseOperations';
+import { batchFetchAllGroups } from '@/services/importExport/databaseOperations';
 import {
   exportSingleGroup,
   exportCustomData,
@@ -219,25 +219,22 @@ export default function ImportExport({
       // For single group exports, always include disabled defaults in the count
       const shouldIncludeDisabled = exportScope === 'single' || exportScope === 'all';
 
-      // Fetch all groups to create ID mapping
-      const allGroups = await batchFetchGroups(settings.locale || 'en', 'online');
+      // Fetch all custom groups (regardless of locale/gameMode) for export
+      const allGroups = await batchFetchAllGroups();
+
       const idMap = new Map();
       allGroups.forEach((group) => {
         idMap.set(group.name, group.id);
       });
       setGroupIdMap(idMap);
 
-      const groupStats = await getExportableGroupStats(
-        settings.locale || 'en',
-        'online',
-        shouldIncludeDisabled,
-        exportScope
-      );
+      // Get exportable groups (all custom groups regardless of locale/gameMode)
+      const groupStats = await getExportableGroupStats(shouldIncludeDisabled, exportScope);
       setAvailableGroups(groupStats);
     } catch (error) {
       console.error('Error loading available groups:', error);
     }
-  }, [settings.locale, exportScope]);
+  }, [exportScope]);
 
   useEffect(() => {
     if (expanded === 'ctImport') {

@@ -35,6 +35,7 @@ export default function CustomTileDialog({
   });
   const [expanded, setExpanded] = useState<string>('ctAdd');
   const [tileId, setTileId] = useState<number | null>(null);
+  const [editTileData, setEditTileData] = useState<Partial<CustomTilePull> | undefined>(undefined);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [allGameModeActions, setAllGameModeActions] = useState<AllGameModeActions>({
     online: {},
@@ -129,6 +130,8 @@ export default function CustomTileDialog({
           tagList={tagList}
           updateTileId={tileId}
           setUpdateTileId={setTileId}
+          editTileData={editTileData}
+          setEditTileData={setEditTileData}
           sharedFilters={sharedFilters}
           setSharedFilters={setSharedFilters}
         />
@@ -154,8 +157,9 @@ export default function CustomTileDialog({
             triggerRefresh();
           }}
           mappedGroups={allGameModeActions}
-          updateTile={(id: number) => {
+          updateTile={(id: number, tileData?: any) => {
             setTileId(id);
+            setEditTileData(tileData);
             setExpanded('ctAdd');
           }}
           refreshTrigger={refreshTrigger}

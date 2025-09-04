@@ -9,6 +9,23 @@ import { CustomTilePull } from '@/types/customTiles';
 import { GroupMapping } from './types';
 
 /**
+ * Fetch all custom groups regardless of locale or game mode
+ * For export purposes - get everything the user created
+ */
+export async function batchFetchAllGroups(groupNames?: string[]): Promise<CustomGroupPull[]> {
+  // Get all groups first, then filter for custom groups (non-default)
+  const allGroups = await db.customGroups.toArray();
+  const customGroups = allGroups.filter((g) => !g.isDefault);
+
+  if (groupNames && groupNames.length > 0) {
+    // Filter by specific group names if provided
+    return customGroups.filter((g) => groupNames.includes(g.name));
+  }
+
+  return customGroups;
+}
+
+/**
  * Batch fetch groups with efficient querying
  * Uses compound index [name+locale+gameMode] for optimal performance
  */

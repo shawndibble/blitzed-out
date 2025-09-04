@@ -55,6 +55,14 @@ vi.mock('@/context/migration', () => ({
   }),
 }));
 
+// Mock messages context
+vi.mock('@/context/hooks/useMessages', () => ({
+  default: () => ({
+    messages: [],
+    isLoading: false,
+  }),
+}));
+
 // Mock helper functions
 vi.mock('@/helpers/strings', () => ({
   isOnlineMode: vi.fn(),

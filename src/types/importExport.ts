@@ -75,8 +75,12 @@ export interface ConflictAnalysis {
   }>;
 }
 
+import type { GameMode, SupportedLanguage } from '@/services/migration/constants';
+
 export interface ExportOptions {
   scope: 'all' | 'custom' | 'single' | 'disabled';
   singleGroupName?: string;
   includeDisabledDefaults: boolean;
+  locales?: SupportedLanguage[];
+  gameModes?: GameMode[];
 }
