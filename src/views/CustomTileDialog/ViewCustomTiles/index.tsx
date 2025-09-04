@@ -242,8 +242,8 @@ export default function ViewCustomTiles({
     }));
   }
 
-  function handleUpdateTile(id: number): void {
-    updateTile(id);
+  function handleUpdateTile(id: number, tileData?: any): void {
+    updateTile(id, tileData);
     // Scroll to the top of the dialog where the AddCustomTile component is
     const dialogContent = document.querySelector('.MuiDialogContent-root');
     if (dialogContent) {
@@ -272,8 +272,9 @@ export default function ViewCustomTiles({
   }
 
   // No need for client-side filtering - server handles it now
-  const tileList = tiles.items?.map(
-    ({ id, group_id, intensity, action, tags, isEnabled = true, isCustom = true }) => (
+  const tileList = tiles.items?.map((tile) => {
+    const { id, group_id, intensity, action, tags, isEnabled = true, isCustom = true } = tile;
+    return (
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
           title={action}
@@ -293,7 +294,7 @@ export default function ViewCustomTiles({
               {!!isCustom && (
                 <>
                   <IconButton
-                    onClick={() => id !== undefined && handleUpdateTile(id)}
+                    onClick={() => id !== undefined && handleUpdateTile(id, tile)}
                     aria-label={t('customTiles.update')}
                   >
                     <Edit />
@@ -316,8 +317,8 @@ export default function ViewCustomTiles({
           ))}
         </CardActions>
       </Card>
-    )
-  );
+    );
+  });
 
   return (
     <Box>

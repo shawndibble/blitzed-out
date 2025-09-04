@@ -97,7 +97,7 @@ export default function Room() {
 
     // Update refs
     previousPlayerIndexRef.current = currentIndex;
-  }, [currentPlayerIndex, localPlayers, sessionSettings]);
+  }, [currentPlayerIndex, localPlayers, sessionSettings, isLocalPlayerRoom]);
 
   // Multi-device turn transitions (only when others' dialog is disabled)
   const { messages } = useMessages();
@@ -128,13 +128,15 @@ export default function Room() {
     // Update refs to track changes
     previousMessageRef.current = latestActionMessage;
     previousNextPlayerRef.current = nextPlayer;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     latestActionMessage,
     nextPlayer?.uid,
     nextPlayer?.isSelf,
+    nextPlayer?.displayName,
     isLocalPlayerRoom,
     settings.othersDialog,
-  ]); // Stabilized dependencies
+  ]); // Stabilized dependencies with eslint-disable for performance
 
   const handleTransitionComplete = useCallback(() => {
     setShowTransition(false);

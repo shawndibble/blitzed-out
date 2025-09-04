@@ -10,7 +10,12 @@ import {
   EXPORT_FORMAT_VERSION,
   ExportableGroupStats,
 } from './types';
-import { batchFetchGroups, streamTilesForExport, getTileStatistics } from './databaseOperations';
+import {
+  batchFetchGroups,
+  batchFetchAllGroups,
+  streamTilesForExport,
+  getTileStatistics,
+} from './databaseOperations';
 import { getTiles } from '@/stores/customTiles';
 
 const JSON_INDENT_SPACES = 2;
@@ -92,19 +97,20 @@ export async function exportData(
  * Optimized to only fetch what's needed
  */
 async function fetchGroupsForExport(context: ExportContext) {
-  const { locale, gameMode, options } = context;
+  const { options } = context;
 
   if (options.exportScope === 'single' && options.singleGroup) {
-    // Fetch only the specific group
-    const groups = await batchFetchGroups(locale, gameMode, [options.singleGroup]);
+    // Fetch only the specific group (from all custom groups)
+    const groups = await batchFetchAllGroups([options.singleGroup]);
     return groups.filter((g) => !g.isDefault || options.exportScope === 'default');
   } else if (options.exportScope === 'default') {
-    // Fetch only default groups
+    // For default groups, we still need to filter by locale/gameMode (but this is rarely used for custom exports)
+    const { locale, gameMode } = context;
     const allGroups = await batchFetchGroups(locale, gameMode);
     return allGroups.filter((g) => g.isDefault);
   } else {
-    // Fetch all groups for this locale/gameMode
-    const allGroups = await batchFetchGroups(locale, gameMode);
+    // Fetch ALL custom groups regardless of locale/gameMode
+    const allGroups = await batchFetchAllGroups();
     return options.exportScope === 'all' ? allGroups : allGroups.filter((g) => !g.isDefault);
   }
 }
@@ -192,27 +198,22 @@ export async function exportGroupData(
 
 /**
  * Get exportable groups with accurate counts for each export category
- * Only returns groups that have exportable content in any category
+ * Gets ALL user custom groups regardless of locale/gameMode for export
  * Uses the same 3-query approach as exportAllData for consistency
  */
 export async function getExportableGroupStats(
-  locale = 'en',
-  gameMode = 'online',
   includeDisabledDefaults = false,
   exportScope: 'all' | 'custom' | 'single' | 'disabled' = 'all'
 ): Promise<ExportableGroupStats[]> {
   // Use the same 3-query approach as exportAllData, but filter based on export scope
 
-  // Query 1: Get all custom groups (isDefault = false) - only for 'all', 'custom', and 'single' scopes
-  const customGroups =
-    exportScope === 'disabled'
-      ? []
-      : (await batchFetchGroups(locale, gameMode)).filter((g) => !g.isDefault);
+  // Query 1: Get ALL custom groups (regardless of locale/gameMode) - only for 'all', 'custom', and 'single' scopes
+  const customGroups = exportScope === 'disabled' ? [] : await batchFetchAllGroups();
 
-  // Query 2: Get all custom tiles (isCustom = true) - only for 'all', 'custom', and 'single' scopes
+  // Query 2: Get ALL custom tiles (isCustom = true) regardless of locale/gameMode - only for 'all', 'custom', and 'single' scopes
   const allCustomTiles = exportScope === 'disabled' ? [] : await getTiles({ isCustom: 1 });
 
-  // Query 3: Get all disabled default tiles (isCustom = false, isEnabled = false)
+  // Query 3: Get ALL disabled default tiles (isCustom = false, isEnabled = false) regardless of locale/gameMode
   // For 'disabled' scope, always include. For 'custom' scope, never include. For others, based on includeDisabledDefaults flag
   const allDisabledDefaults = await (async () => {
     if (exportScope === 'disabled') return await getTiles({ isCustom: 0, isEnabled: 0 });
@@ -228,7 +229,7 @@ export async function getExportableGroupStats(
   const allRelevantGroupIds = new Set([...customGroupIds, ...tilesGroupIds, ...disabledGroupIds]);
 
   // Get all groups (both custom and default) that have exportable content
-  const allGroups = await batchFetchGroups(locale, gameMode);
+  const allGroups = await batchFetchAllGroups();
   const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
 
   // Deduplicate groups by name, keeping the first occurrence

@@ -35,6 +35,8 @@ export default function AddCustomTile({
   tagList,
   updateTileId,
   setUpdateTileId,
+  editTileData,
+  setEditTileData,
   sharedFilters,
   setSharedFilters,
 }: AddCustomTileProps) {
@@ -58,17 +60,18 @@ export default function AddCustomTile({
   // Get groups for current locale/gameMode using shared filters
   const { groups } = useEditorGroupsReactive(sharedFilters.gameMode, settings.locale || 'en');
 
-  // Auto-select first group if none selected and groups are available
+  // Auto-select first group if none selected and groups are available (only for new tiles)
   useEffect(() => {
-    if (groups.length > 0 && !sharedFilters.groupName) {
+    if (!updateTileId && groups.length > 0 && !sharedFilters.groupName) {
       const firstGroup = groups[0];
       setSharedFilters({
         ...sharedFilters,
-        groupName: firstGroup.name, // Use group name for shared filters
-        intensity: '', // Reset intensity when group changes
+        groupName: firstGroup.name,
+        intensity: '',
       });
     }
-  }, [groups, sharedFilters, setSharedFilters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateTileId, groups.length, sharedFilters.groupName]); // Only depend on specific values that matter for this logic
 
   // Find the selected group by name from shared filters
   const selectedGroup = groups.find((group) => group.name === sharedFilters.groupName);
@@ -123,36 +126,36 @@ export default function AddCustomTile({
 
   // Handle editing a tile
   useEffect(() => {
-    const tilesArray = Array.isArray(customTiles) ? customTiles : [];
-    const editTile = tilesArray.find(({ id }) => id === updateTileId);
+    if (!updateTileId) return;
+
+    // Use editTileData if available (passed from ViewCustomTiles), otherwise fallback to searching customTiles
+    const editTile =
+      editTileData ||
+      (Array.isArray(customTiles) ? customTiles.find(({ id }) => id === updateTileId) : null);
 
     if (editTile) {
       // Find the group by ID to get its name for shared filters
       const tileGroup = groups.find((group) => group.id === editTile.group_id);
 
-      setSharedFilters({
-        ...sharedFilters, // Preserve existing gameMode
-        groupName: tileGroup?.name || '', // Convert group_id to group name
-        intensity: editTile.intensity ? editTile.intensity.toString() : '',
-      });
+      // Only update if values are different to prevent loops
+      const newGroupName = tileGroup?.name || '';
+      const newIntensity = editTile.intensity ? editTile.intensity.toString() : '';
+
+      if (sharedFilters.groupName !== newGroupName || sharedFilters.intensity !== newIntensity) {
+        setSharedFilters({
+          ...sharedFilters,
+          groupName: newGroupName,
+          intensity: newIntensity,
+        });
+      }
 
       setLocalTileData({
         action: editTile.action || '',
         tags: editTile.tags || [t('custom')],
       });
-    } else {
-      // For new tiles, don't override the shared gameMode - let ViewCustomTiles manage it
-      // Just ensure we have a groupName if none is selected
-      if (!sharedFilters.groupName && groups.length > 0) {
-        const firstGroup = groups[0];
-        setSharedFilters({
-          ...sharedFilters,
-          groupName: firstGroup.name,
-          intensity: '',
-        });
-      }
     }
-  }, [updateTileId, customTiles, groups, t, setSharedFilters, sharedFilters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateTileId, editTileData, customTiles, groups, t]); // Remove sharedFilters and setSharedFilters to prevent interference with user input
 
   function tileExists(
     group_id: string,
@@ -167,17 +170,18 @@ export default function AddCustomTile({
   }
 
   function clear(): void {
+    // Exit edit mode
     setUpdateTileId(null);
-    setSharedFilters({
-      gameMode: settings.gameMode,
-      groupName: '',
-      intensity: '',
-    });
+    setEditTileData?.(null);
+
+    // Only clear form fields (action and tags), preserve filters
     setLocalTileData({
       action: '',
       tags: [t('custom')],
     });
     setValidationMessage('');
+
+    // Don't reset sharedFilters - user's selected gameMode, group, and intensity should remain
   }
 
   // Handle custom group creation
@@ -268,10 +272,13 @@ export default function AddCustomTile({
 
       boardUpdated();
 
+      // Clear form after successful submission
       setLocalTileData({
         action: '',
         tags: [t('custom')],
       });
+      setUpdateTileId(null);
+      setEditTileData?.(null);
 
       return setSubmitMessage({
         message: updateTileId ? t('customUpdated') : t('customAdded'),

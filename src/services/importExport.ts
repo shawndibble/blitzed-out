@@ -395,18 +395,17 @@ export async function exportAllData(
   try {
     const { includeDisabledDefaults = false, singleGroupName } = options;
 
-    const locale = 'en'; // Default locale
-    const gameMode = 'online'; // Default game mode
+    // Note: We export ALL user data regardless of locale/gameMode
 
     progressCallback?.('Analyzing exportable data', 0, 100);
 
-    // Query 1: Get all custom groups (isDefault = false)
-    const customGroups = await getCustomGroups({ locale, gameMode, isDefault: false });
+    // Query 1: Get ALL custom groups (regardless of locale/gameMode)
+    const customGroups = await getCustomGroups({ isDefault: false });
 
-    // Query 2: Get all custom tiles (isCustom = true) - includes tiles in both custom and default groups
+    // Query 2: Get ALL custom tiles (isCustom = true) - regardless of locale/gameMode - includes tiles in both custom and default groups
     const allCustomTiles = await getTiles({ isCustom: 1 });
 
-    // Query 3: Get all disabled default tiles (isCustom = false, isEnabled = false)
+    // Query 3: Get ALL disabled default tiles (isCustom = false, isEnabled = false) - regardless of locale/gameMode
     const allDisabledDefaults = includeDisabledDefaults
       ? await getTiles({ isCustom: 0, isEnabled: 0 })
       : [];
@@ -418,8 +417,8 @@ export async function exportAllData(
 
     const allRelevantGroupIds = new Set([...customGroupIds, ...tilesGroupIds, ...disabledGroupIds]);
 
-    // Get all groups (both custom and default) that have exportable content
-    const allGroups = await getCustomGroups({ locale, gameMode });
+    // Get ALL groups (both custom and default) that have exportable content - regardless of locale/gameMode
+    const allGroups = await getCustomGroups({});
     const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
 
     // Filter by single group if specified
