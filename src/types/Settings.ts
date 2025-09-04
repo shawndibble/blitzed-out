@@ -26,6 +26,7 @@ export interface Settings {
   roomDice?: string;
   readRoll?: boolean;
   voicePreference?: string;
+  voicePitch?: number;
   displayName?: string;
   room: string;
   roomBackgroundURL?: string;

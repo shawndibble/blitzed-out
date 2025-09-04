@@ -25,12 +25,21 @@ export default function YesNoSwitch({
         display: 'flex',
         justifyContent: 'center',
         my: 1,
+        width: '100%',
         ...sx,
       }}
     >
       <FormControlLabel
         control={<Switch checked={trueCondition || false} onChange={onChange} />}
         label={t(trueCondition ? yesLabel : actuallyNoLabel)}
+        sx={{
+          width: '100%',
+          mx: 0,
+          '& .MuiFormControlLabel-label': {
+            flex: 1,
+            ml: 1,
+          },
+        }}
       />
     </Box>
   );
