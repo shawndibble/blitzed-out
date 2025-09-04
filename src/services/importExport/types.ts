@@ -46,6 +46,8 @@ export interface ExportOptions {
   singleGroup?: string;
   exportScope?: 'all' | 'single' | 'default';
   includeDisabled?: boolean;
+  locales?: string[];
+  gameModes?: Array<'online' | 'local'>;
 }
 
 export interface ImportOptions {

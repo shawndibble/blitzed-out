@@ -70,8 +70,7 @@ export default function AddCustomTile({
         intensity: '',
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updateTileId, groups.length, sharedFilters.groupName]); // Only depend on specific values that matter for this logic
+  }, [updateTileId, groups[0]?.id, sharedFilters.groupName, setSharedFilters, sharedFilters]); // React to first group identity changes
 
   // Find the selected group by name from shared filters
   const selectedGroup = groups.find((group) => group.name === sharedFilters.groupName);
@@ -172,7 +171,7 @@ export default function AddCustomTile({
   function clear(): void {
     // Exit edit mode
     setUpdateTileId(null);
-    setEditTileData?.(null);
+    setEditTileData?.(undefined);
 
     // Only clear form fields (action and tags), preserve filters
     setLocalTileData({
@@ -278,7 +277,7 @@ export default function AddCustomTile({
         tags: [t('custom')],
       });
       setUpdateTileId(null);
-      setEditTileData?.(null);
+      setEditTileData?.(undefined);
 
       return setSubmitMessage({
         message: updateTileId ? t('customUpdated') : t('customAdded'),

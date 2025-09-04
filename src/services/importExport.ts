@@ -2,6 +2,12 @@ import { getCustomGroups, addCustomGroup, updateCustomGroup } from '@/stores/cus
 import { getTiles, addCustomTile, updateCustomTile } from '@/stores/customTiles';
 import { createDeterministicGroupId } from './migration/groupIdMigration';
 import {
+  SUPPORTED_LANGUAGES,
+  GAME_MODES,
+  type SupportedLanguage,
+  type GameMode,
+} from './migration/constants';
+import {
   generateGroupContentHash,
   generateTileContentHash,
   generateDisabledDefaultContentHash,
@@ -291,16 +297,22 @@ async function processDisabledDefaultImport(ctx: ImportContext): Promise<void> {
 
       // If group not found, try to calculate the ID for default groups
       if (!groupId) {
-        // Calculate deterministic ID for default groups
+        // Find the locale from the corresponding imported group, fallback to 'en'
+        const importedGroup = ctx.importData.data.customGroups.find(
+          (g) => g.name === disabledTile.groupName && g.gameMode === disabledTile.gameMode
+        );
+        const groupLocale = importedGroup?.locale || 'en';
+
+        // Calculate deterministic ID for default groups using correct locale
         const calculatedGroupId = createDeterministicGroupId(
           disabledTile.groupName,
-          'en', // Default to 'en' if not provided in disabledTile
+          groupLocale,
           disabledTile.gameMode
         );
 
         // Check if this calculated ID exists in our system
         const allGroups = await getCustomGroups({
-          locale: 'en', // Default to 'en' if not provided
+          locale: groupLocale,
           gameMode: disabledTile.gameMode,
         });
         const defaultGroup = allGroups.find((g) => g.id === calculatedGroupId);
@@ -393,32 +405,91 @@ export async function exportAllData(
   progressCallback?: ProgressCallback
 ): Promise<string> {
   try {
-    const { includeDisabledDefaults = false, singleGroupName } = options;
+    const { includeDisabledDefaults = false, singleGroupName, locales, gameModes } = options;
 
-    // Note: We export ALL user data regardless of locale/gameMode
+    // Validate filter arrays
+    const validatedLocales = locales?.filter((locale) => SUPPORTED_LANGUAGES.includes(locale));
+    const validatedGameModes = gameModes?.filter((gameMode) => GAME_MODES.includes(gameMode));
 
     progressCallback?.('Analyzing exportable data', 0, 100);
 
-    // Query 1: Get ALL custom groups (regardless of locale/gameMode)
-    const customGroups = await getCustomGroups({ isDefault: false });
+    // Build filters for custom groups query
+    const groupFilters: any = { isDefault: false };
 
-    // Query 2: Get ALL custom tiles (isCustom = true) - regardless of locale/gameMode - includes tiles in both custom and default groups
-    const allCustomTiles = await getTiles({ isCustom: 1 });
+    // Apply locale filter if provided and has valid values
+    if (validatedLocales && validatedLocales.length > 0) {
+      // Note: Dexie doesn't support IN queries directly, so we'll filter after fetching
+      // or we need to make multiple queries and combine results
+      // For now, we'll fetch all and filter in memory for simplicity
+    }
 
-    // Query 3: Get ALL disabled default tiles (isCustom = false, isEnabled = false) - regardless of locale/gameMode
-    const allDisabledDefaults = includeDisabledDefaults
+    if (validatedGameModes && validatedGameModes.length > 0) {
+      // Same approach for gameMode
+    }
+
+    // Query 1: Get custom groups with potential filtering
+    let customGroups = await getCustomGroups(groupFilters);
+
+    // Apply locale/gameMode filtering in memory if needed
+    if (validatedLocales && validatedLocales.length > 0) {
+      customGroups = customGroups.filter(
+        (group) => group.locale && validatedLocales.includes(group.locale as SupportedLanguage)
+      );
+    }
+    if (validatedGameModes && validatedGameModes.length > 0) {
+      customGroups = customGroups.filter(
+        (group) => group.gameMode && validatedGameModes.includes(group.gameMode as GameMode)
+      );
+    }
+
+    // Query 2: Get ALL custom tiles (isCustom = true) - filter will be applied later based on group filtering
+    let allCustomTiles = await getTiles({ isCustom: 1 });
+
+    // Query 3: Get ALL disabled default tiles (isCustom = false, isEnabled = false) - filter will be applied later
+    let allDisabledDefaults = includeDisabledDefaults
       ? await getTiles({ isCustom: 0, isEnabled: 0 })
       : [];
 
     // Get all groups that have exportable content (union of group IDs from all queries)
     const customGroupIds = new Set(customGroups.map((g) => g.id));
+
+    // If we have locale/gameMode filters, we need to also get relevant default groups that match the filters
+    // to ensure we include tiles from default groups that match the criteria
+    let allGroups = await getCustomGroups({});
+
+    // Apply locale/gameMode filtering to all groups as well
+    if (validatedLocales && validatedLocales.length > 0) {
+      allGroups = allGroups.filter(
+        (group) => group.locale && validatedLocales.includes(group.locale as SupportedLanguage)
+      );
+    }
+    if (validatedGameModes && validatedGameModes.length > 0) {
+      allGroups = allGroups.filter(
+        (group) => group.gameMode && validatedGameModes.includes(group.gameMode as GameMode)
+      );
+    }
+
+    // Get all group IDs that match our filters (both custom and default)
+    const filteredGroupIds = new Set(allGroups.map((g) => g.id));
+
+    // Filter tiles to only include those from groups that match our locale/gameMode filters
+    if (
+      (validatedLocales && validatedLocales.length > 0) ||
+      (validatedGameModes && validatedGameModes.length > 0)
+    ) {
+      allCustomTiles = allCustomTiles.filter(
+        (tile) => tile.group_id && filteredGroupIds.has(tile.group_id)
+      );
+      allDisabledDefaults = allDisabledDefaults.filter(
+        (tile) => tile.group_id && filteredGroupIds.has(tile.group_id)
+      );
+    }
+
     const tilesGroupIds = new Set(allCustomTiles.map((t) => t.group_id).filter(Boolean));
     const disabledGroupIds = new Set(allDisabledDefaults.map((t) => t.group_id).filter(Boolean));
 
     const allRelevantGroupIds = new Set([...customGroupIds, ...tilesGroupIds, ...disabledGroupIds]);
 
-    // Get ALL groups (both custom and default) that have exportable content - regardless of locale/gameMode
-    const allGroups = await getCustomGroups({});
     const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
 
     // Filter by single group if specified

@@ -35,7 +35,7 @@ export default function CustomTileDialog({
   });
   const [expanded, setExpanded] = useState<string>('ctAdd');
   const [tileId, setTileId] = useState<number | null>(null);
-  const [editTileData, setEditTileData] = useState<any>(null);
+  const [editTileData, setEditTileData] = useState<Partial<CustomTilePull> | undefined>(undefined);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [allGameModeActions, setAllGameModeActions] = useState<AllGameModeActions>({
     online: {},

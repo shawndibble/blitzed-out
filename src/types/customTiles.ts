@@ -107,8 +107,8 @@ export interface AddCustomTileProps {
   tagList: string[];
   updateTileId: number | null;
   setUpdateTileId: (id: number | null) => void;
-  editTileData?: any;
-  setEditTileData?: (data: any) => void;
+  editTileData?: Partial<CustomTilePull>;
+  setEditTileData?: (data: Partial<CustomTilePull> | undefined) => void;
   sharedFilters: SharedFilters;
   setSharedFilters: (filters: SharedFilters) => void;
 }
@@ -117,7 +117,7 @@ export interface ViewCustomTilesProps {
   tagList: string[];
   boardUpdated: () => void;
   mappedGroups: AllGameModeActions;
-  updateTile: (id: number, tileData?: any) => void;
+  updateTile: (id: number, tileData?: Partial<CustomTilePull>) => void;
   refreshTrigger: number;
   sharedFilters: SharedFilters;
   setSharedFilters: (filters: SharedFilters) => void;
