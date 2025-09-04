@@ -45,7 +45,10 @@ export default function useSoundAndDialog(): DialogResult {
     async (text: string | undefined): Promise<void> => {
       if (text) {
         try {
-          await speak(text, voicePreference, voicePitch ?? 1.0);
+          // Coerce voicePitch to number and clamp to Web Speech API valid range
+          const pitch = typeof voicePitch === 'number' && !isNaN(voicePitch) ? voicePitch : 1.0;
+          const clampedPitch = Math.max(0.5, Math.min(2.0, pitch));
+          await speak(text, voicePreference, clampedPitch);
         } catch (error) {
           console.error('Failed to speak text:', error);
         }

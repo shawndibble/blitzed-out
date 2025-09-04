@@ -51,13 +51,22 @@ export default function VoiceSelect({
     (_event: Event, newPitch: number | number[]) => {
       const pitch = Array.isArray(newPitch) ? newPitch[0] : newPitch;
 
-      // Update UI immediately for smooth slider interaction
-      setFormData({ ...formData, voicePitch: pitch });
-
-      // Save immediately so it's available for roll reading
-      onPitchChange?.(pitch);
+      // Only update UI state for smooth slider interaction - don't save to app yet
+      setFormData((prevData) => ({ ...prevData, voicePitch: pitch }));
     },
-    [formData, setFormData, onPitchChange]
+    [setFormData]
+  );
+
+  const handlePitchCommit = useCallback(
+    (_event: Event | React.SyntheticEvent, newPitch: number | number[]) => {
+      const pitch = Array.isArray(newPitch) ? newPitch[0] : newPitch;
+      const clampedPitch = Math.max(0.5, Math.min(2.0, pitch));
+
+      // Save the final clamped value to app state
+      setFormData((prevData) => ({ ...prevData, voicePitch: clampedPitch }));
+      onPitchChange?.(clampedPitch);
+    },
+    [setFormData, onPitchChange]
   );
 
   useEffect(() => {
@@ -76,6 +85,18 @@ export default function VoiceSelect({
             );
             const voicesToUse = googleVoices.length > 0 ? googleVoices : availableVoices;
             setVoices(voicesToUse);
+
+            // Validate selectedVoice against filtered voicesToUse and reset if not present
+            if (selectedVoice && !voicesToUse.some((voice) => voice.name === selectedVoice)) {
+              if (mounted) {
+                const preferredVoice = await tts.getPreferredVoiceAsync();
+                if (preferredVoice && voicesToUse.some((voice) => voice.name === preferredVoice)) {
+                  handleVoiceChange(preferredVoice);
+                } else if (voicesToUse.length > 0) {
+                  handleVoiceChange(voicesToUse[0].name);
+                }
+              }
+            }
 
             // Set default voice if none selected
             if (!selectedVoice && voicesToUse.length > 0) {
@@ -191,6 +212,7 @@ export default function VoiceSelect({
           <Slider
             value={selectedPitch}
             onChange={handlePitchChange}
+            onChangeCommitted={handlePitchCommit}
             min={0.5}
             max={2.0}
             step={0.1}

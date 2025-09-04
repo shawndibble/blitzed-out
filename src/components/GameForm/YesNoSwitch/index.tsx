@@ -34,11 +34,10 @@ export default function YesNoSwitch({
         label={t(trueCondition ? yesLabel : actuallyNoLabel)}
         sx={{
           width: '100%',
-          marginLeft: 0,
-          marginRight: 0,
+          mx: 0,
           '& .MuiFormControlLabel-label': {
             flex: 1,
-            marginLeft: '8px',
+            ml: 1,
           },
         }}
       />
