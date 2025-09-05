@@ -1,6 +1,5 @@
 {
   "customTiles": {
-    "color": "Utiliser l'Arrière-plan de l'Application",
     "intensityLevel": "Niveau d'intensité",
     "toggleTile": "Activer/désactiver la tuile",
     "update": "Mettre à jour",
@@ -133,7 +132,6 @@
   "loadingVoices": "Chargement des voix...",
   "noVoicesAvailable": "Aucune voix disponible pour cette langue",
   "background": "Arrière‑plan",
-  "useAppBackground": "Utiliser l'Arrière‑plan de l'Application",
   "useRoomBackground": "Utiliser l'Arrière‑plan de la Salle",
   "color": "Aucun - Tuiles colorées",
   "gray": "Aucun - Carreaux gris",
@@ -203,7 +201,6 @@
   "customAdded": "Tuile de jeu ajoutée à votre jeu.",
   "misc": "Variable",
   "hideBoardActions": "Masquer les actions du plateau de jeu",
-  "advancedSettings": "Ouvrir les paramètres avancés par défaut",
   "autoCloseModal": "Cette fenêtre se fermera automatiquement après {{timeLeft}} secondes.",
   "autoCloseStopped": "Cette fenêtre ne se fermera plus automatiquement.",
   "autoCloseProgress": "Progression de la fermeture automatique",

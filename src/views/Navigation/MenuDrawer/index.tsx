@@ -264,7 +264,7 @@ export default function MenuDrawer(): JSX.Element {
       });
       items.unshift({
         key: 'settings',
-        title: <Trans i18nKey={gameSettings.advancedSettings ? 'settings' : 'setupWizard.title'} />,
+        title: <Trans i18nKey="setupWizard.title" />,
         icon: <SettingsIcon />,
         onClick: () => toggleDialog('settings', true),
       });
@@ -284,15 +284,7 @@ export default function MenuDrawer(): JSX.Element {
       });
     }
     return items;
-  }, [
-    user,
-    room,
-    isAnonymous,
-    gameSettings.advancedSettings,
-    discordIcon,
-    handleWipeData,
-    toggleDialog,
-  ]);
+  }, [user, room, isAnonymous, discordIcon, handleWipeData, toggleDialog]);
 
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
     <ListItem key={key} disablePadding onClick={onClick}>

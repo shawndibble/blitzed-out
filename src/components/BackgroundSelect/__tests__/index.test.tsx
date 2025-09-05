@@ -10,9 +10,7 @@ vi.mock('react-i18next', () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
         background: 'Background',
-        useAppBackground: 'Use App Background',
         useRoomBackground: 'Use Room Background',
-        'customTiles.color': 'Use App Background',
         color: 'None - Color Tiles',
         gray: 'None - Gray Tiles',
         hypnoDick: 'Hypno Dick',
@@ -31,7 +29,6 @@ describe('BackgroundSelect Component', () => {
   const mockSetFormData = vi.fn();
 
   const defaultBackgrounds = {
-    useAppBackground: 'Use App Background',
     color: 'None - Color Tiles',
     gray: 'None - Gray Tiles',
     'metronome.gif': 'Hypno Dick',
@@ -44,33 +41,8 @@ describe('BackgroundSelect Component', () => {
   });
 
   describe('Default Value Behavior', () => {
-    it('should show default room background when roomBackground is undefined', () => {
-      const formData: Settings = {
-        gameMode: 'online',
-        boardUpdated: false,
-        room: 'test-room',
-        // roomBackground is undefined
-      };
-
-      render(
-        <BackgroundSelect
-          formData={formData}
-          setFormData={mockSetFormData}
-          backgrounds={defaultBackgrounds}
-          isRoom={true}
-        />
-      );
-
-      // Check that the select shows the correct placeholder text
-      const selectElement = screen.getByRole('combobox');
-      expect(selectElement).toHaveTextContent('Use App Background');
-
-      // Check the hidden input has empty value (this is the expected behavior for unset background)
-      const hiddenInput = screen.getByDisplayValue('');
-      expect(hiddenInput).toBeInTheDocument();
-    });
-
-    it('should show default app background when background is undefined', () => {
+    it('should handle empty/undefined backgrounds correctly', () => {
+      // Test with undefined background - just verify the component renders without errors
       const formData: Settings = {
         gameMode: 'online',
         boardUpdated: false,
@@ -87,39 +59,8 @@ describe('BackgroundSelect Component', () => {
         />
       );
 
-      // Check that the select shows the correct placeholder text
-      const selectElement = screen.getByRole('combobox');
-      expect(selectElement).toHaveTextContent('Use App Background');
-
-      // Check the hidden input has empty value (this is the expected behavior for unset background)
-      const hiddenInput = screen.getByDisplayValue('');
-      expect(hiddenInput).toBeInTheDocument();
-    });
-
-    it('should show placeholder when empty string is provided', () => {
-      const formData: Settings = {
-        gameMode: 'online',
-        boardUpdated: false,
-        room: 'test-room',
-        roomBackground: '', // Empty string
-      };
-
-      render(
-        <BackgroundSelect
-          formData={formData}
-          setFormData={mockSetFormData}
-          backgrounds={defaultBackgrounds}
-          isRoom={true}
-        />
-      );
-
-      // Should show placeholder text for empty value
-      const selectElement = screen.getByRole('combobox');
-      expect(selectElement).toHaveTextContent('Use App Background');
-
-      // Hidden input should have the empty string value that was provided
-      const hiddenInput = screen.getByDisplayValue('');
-      expect(hiddenInput).toBeInTheDocument();
+      // Component should render successfully with hidden input having empty value
+      expect(screen.getByDisplayValue('')).toBeInTheDocument();
     });
   });
 
@@ -225,7 +166,7 @@ describe('BackgroundSelect Component', () => {
         gameMode: 'online',
         boardUpdated: false,
         room: 'test-room',
-        roomBackground: 'useAppBackground',
+        roomBackground: 'color',
       };
 
       const { rerender } = render(
@@ -239,9 +180,9 @@ describe('BackgroundSelect Component', () => {
 
       // Verify initial value
       const initialSelect = screen.getByRole('combobox');
-      expect(initialSelect).toHaveTextContent('Use App Background');
+      expect(initialSelect).toHaveTextContent('None - Color Tiles');
 
-      // Change formData externally
+      // Change formData externally to a different background
       const updatedFormData: Settings = {
         ...initialFormData,
         roomBackground: 'gray',
@@ -260,56 +201,9 @@ describe('BackgroundSelect Component', () => {
       const updatedSelect = screen.getByRole('combobox');
       expect(updatedSelect).toHaveTextContent('None - Gray Tiles');
     });
-
-    it('should handle formData prop changes gracefully', () => {
-      const formData: Settings = {
-        gameMode: 'online',
-        boardUpdated: false,
-        room: 'test-room',
-        roomBackground: 'color',
-      };
-
-      const { rerender } = render(
-        <BackgroundSelect
-          formData={formData}
-          setFormData={mockSetFormData}
-          backgrounds={defaultBackgrounds}
-          isRoom={true}
-        />
-      );
-
-      // Change to undefined (should fallback to default)
-      rerender(
-        <BackgroundSelect
-          formData={{ ...formData, roomBackground: undefined }}
-          setFormData={mockSetFormData}
-          backgrounds={defaultBackgrounds}
-          isRoom={true}
-        />
-      );
-
-      // Should show default, not empty
-      const selectElement = screen.getByRole('combobox');
-      expect(selectElement).toHaveTextContent('Use App Background');
-    });
   });
 
   describe('Edge Cases', () => {
-    it('should handle null formData gracefully', () => {
-      render(
-        <BackgroundSelect
-          formData={null as any}
-          setFormData={mockSetFormData}
-          backgrounds={defaultBackgrounds}
-          isRoom={true}
-        />
-      );
-
-      // Should still render with default
-      const selectElement = screen.getByRole('combobox');
-      expect(selectElement).toHaveTextContent('Use App Background');
-    });
-
     it('should handle missing backgroundURL field', () => {
       const formData: Settings = {
         gameMode: 'online',

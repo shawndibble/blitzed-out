@@ -1,6 +1,5 @@
 {
   "customTiles": {
-    "color": "使用應用程式背景",
     "intensityLevel": "強度等級",
     "toggleTile": "切換磁磚",
     "update": "更新",
@@ -133,7 +132,6 @@
   "loadingVoices": "加載語音中...",
   "noVoicesAvailable": "此語言無可用語音",
   "background": "背景",
-  "useAppBackground": "使用應用程式背景",
   "useRoomBackground": "使用房間背景",
   "color": "無 - 彩色磁磚",
   "gray": "無 - 灰色磁磚",
@@ -202,7 +200,6 @@
   "customAdded": "遊戲磁磚已加入您的遊戲。",
   "misc": "雜項",
   "hideBoardActions": "隱藏遊戲板動作",
-  "advancedSettings": "預設開啟進階設定",
   "autoCloseModal": "此對話框將在 {{timeLeft}} 秒後自動關閉。",
   "autoCloseStopped": "此對話框將不再自動關閉。",
   "nextPlayersTurn": "下一位玩家：{{player}}",

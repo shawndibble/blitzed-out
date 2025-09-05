@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import {
   FormControl,
   InputLabel,
@@ -7,14 +7,14 @@ import {
   SelectChangeEvent,
   TextField,
 } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-
-import { Settings } from '@/types/Settings';
 import {
   filterBackgroundOptions,
   getBackgroundKey,
   getBackgroundURLKey,
 } from '@/utils/backgroundUtils';
+
+import { Settings } from '@/types/Settings';
+import { useTranslation } from 'react-i18next';
 
 interface BackgroundSelectProps {
   formData: Settings;
@@ -22,6 +22,12 @@ interface BackgroundSelectProps {
   backgrounds: Record<string, string>;
   isRoom?: boolean;
   isPrivateRoom?: boolean;
+  onBackgroundChange?: (
+    backgroundKey: string,
+    backgroundValue: string,
+    backgroundURLKey?: string,
+    backgroundURLValue?: string
+  ) => void;
 }
 
 export default function BackgroundSelect({
@@ -30,16 +36,12 @@ export default function BackgroundSelect({
   backgrounds,
   isRoom = false,
   isPrivateRoom = false,
+  onBackgroundChange,
 }: BackgroundSelectProps): JSX.Element {
   const { t } = useTranslation();
   const backgroundKey = getBackgroundKey(isRoom);
   const backgroundURLKey = getBackgroundURLKey(isRoom);
-
-  // Memoized background filtering to prevent unnecessary re-renders
-  const filteredBackgrounds = useMemo(
-    () => filterBackgroundOptions(backgrounds, isRoom, isPrivateRoom),
-    [backgrounds, isRoom, isPrivateRoom]
-  );
+  const filteredBackgrounds = filterBackgroundOptions(backgrounds, isRoom, isPrivateRoom);
 
   // No defaults - let background be undefined/null if not set
   const currentBackground = formData?.[backgroundKey];
@@ -47,10 +49,6 @@ export default function BackgroundSelect({
 
   const options = () => {
     const menuItems = [
-      // Placeholder option for empty value
-      <MenuItem value="" key="empty">
-        {isPrivateRoom ? t('useRoomBackground') : t('customTiles.color')}
-      </MenuItem>,
       ...Object.entries(filteredBackgrounds).map(([file, label]) => (
         <MenuItem value={file} key={file}>
           {label}
@@ -78,6 +76,9 @@ export default function BackgroundSelect({
 
       setFormData(updatedData);
       setBackground(value);
+
+      // Update settings immediately
+      onBackgroundChange?.(backgroundKey, value, backgroundURLKey, '');
       return;
     }
 
@@ -86,16 +87,29 @@ export default function BackgroundSelect({
     }
     setFormData(data);
     setBackground(value);
+
+    // Update settings immediately for custom background
+    onBackgroundChange?.(backgroundKey, value);
   };
 
   useEffect(() => {
-    const validBackground =
-      currentBackground && filteredBackgrounds[currentBackground] ? currentBackground : '';
+    // Handle special case where useRoomBackground is the selected value but not in filteredBackgrounds
+    const validBackground = (() => {
+      if (!currentBackground) return '';
+
+      // If it's useRoomBackground and we're in a private room, it's valid even if not in filteredBackgrounds
+      if (currentBackground === 'useRoomBackground' && isPrivateRoom) {
+        return currentBackground;
+      }
+
+      // Otherwise, check if it exists in filteredBackgrounds
+      return filteredBackgrounds[currentBackground] ? currentBackground : '';
+    })();
 
     if (background !== validBackground) {
       setBackground(validBackground);
     }
-  }, [background, currentBackground, filteredBackgrounds]);
+  }, [background, currentBackground, filteredBackgrounds, isPrivateRoom]);
 
   const handleURLChange = (event: ChangeEvent<HTMLInputElement>) => {
     const data = {
@@ -108,6 +122,9 @@ export default function BackgroundSelect({
       data.roomUpdated = true;
     }
     setFormData(data);
+
+    // Update settings immediately for URL changes
+    onBackgroundChange?.(backgroundKey, 'custom', backgroundURLKey, event.target.value);
   };
 
   return (

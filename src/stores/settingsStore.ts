@@ -9,7 +9,7 @@ const defaultSettings: Settings = {
   boardUpdated: false,
   room: 'PUBLIC',
   background: 'color',
-  roomBackground: 'useAppBackground',
+  roomBackground: '',
   selectedActions: {},
   hasSeenRollButton: false,
   themeMode: 'system',

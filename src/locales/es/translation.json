@@ -1,6 +1,5 @@
 {
   "customTiles": {
-    "color": "Usar Fondo de la Aplicación",
     "intensityLevel": "Nivel de intensidad",
     "toggleTile": "Alternar ficha",
     "update": "Actualizar",
@@ -133,7 +132,6 @@
   "loadingVoices": "Cargando voces...",
   "noVoicesAvailable": "No hay voces disponibles para este idioma",
   "background": "Fondo",
-  "useAppBackground": "Usar Fondo de la Aplicación",
   "useRoomBackground": "Usar Fondo de la Sala",
   "color": "Ninguno - Casillas de colores",
   "gray": "Ninguno - Casillas grises",
@@ -203,7 +201,6 @@
   "customAdded": "Casilla de juego añadida a tu juego.",
   "misc": "Misceláneo",
   "hideBoardActions": "Ocultar acciones del tablero de juego",
-  "advancedSettings": "Abrir configuraciones avanzadas por defecto",
   "autoCloseModal": "Este cuadro de diálogo se cerrará automáticamente después de {{timeLeft}} segundos.",
   "autoCloseStopped": "Este cuadro de diálogo ya no se cerrará automáticamente.",
   "autoCloseProgress": "Progreso de cierre automático",

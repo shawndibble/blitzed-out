@@ -222,7 +222,6 @@ function exportSettings(formData: Settings): Record<string, any> {
       'playerDialog',
       'readRoll',
       'hideBoardActions',
-      'advancedSettings',
     ];
     // don't export personal settings nor room specific settings.
     if (!personalSettings.includes(settingKey) && !settingKey.startsWith('room')) {

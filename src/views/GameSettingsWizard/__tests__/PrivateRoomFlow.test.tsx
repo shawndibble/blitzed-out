@@ -184,7 +184,6 @@ describe('GameSettingsWizard - Private Room Flow', () => {
     consumption: [],
     role: 'sub' as PlayerRole,
     boardUpdated: false,
-    advancedSettings: false,
   };
 
   beforeEach(() => {

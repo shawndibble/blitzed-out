@@ -230,7 +230,7 @@ describe('Room Component', () => {
     room: 'TEST_ROOM',
     boardUpdated: false,
     background: 'color',
-    roomBackground: 'useAppBackground',
+    roomBackground: '',
   };
 
   const mockPlayerList = [
@@ -860,7 +860,7 @@ describe('Room Component', () => {
 
       renderRoomWithRouter('PUBLIC');
 
-      // Public rooms should not be transparent when roomBackground is not 'useAppBackground'
+      // Public rooms should not be transparent when roomBackground is set
       const gameBoard = screen.getByTestId('game-board');
       expect(gameBoard).toHaveAttribute('data-transparent', 'false');
     });
