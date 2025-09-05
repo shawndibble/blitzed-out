@@ -65,7 +65,6 @@ describe('Translation Usage Validation', () => {
       'chatSound',
       'readRoll',
       'hideBoardActions',
-      'advancedSettings',
       // ThemeToggle component - uses theme.${mode} pattern
       'theme.light',
       'theme.dark',

@@ -33,7 +33,7 @@ export default function usePrivateRoomBackground(messages: Message[]): Backgroun
     let backgroundInput: string | null = null;
     if (roomBackground === 'custom' && roomBackgroundURL) {
       backgroundInput = roomBackgroundURL;
-    } else if (roomBackground && roomBackground !== 'useAppBackground') {
+    } else if (roomBackground) {
       backgroundInput = roomBackground;
     } else if (roomBackgroundURL) {
       // Backward compatibility: fall back to URL if set

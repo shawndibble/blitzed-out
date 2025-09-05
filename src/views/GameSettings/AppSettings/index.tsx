@@ -1,13 +1,14 @@
+import { ChangeEvent, useCallback, useRef } from 'react';
 import { Divider, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import BackgroundSelect from '@/components/BackgroundSelect';
-import VoiceSelect from '@/components/VoiceSelect';
-import LanguageSelect from './LanguageSelect';
+
 import AppBoolSwitch from './AppBoolSwitch';
-import { useSettings } from '@/stores/settingsStore';
+import BackgroundSelect from '@/components/BackgroundSelect';
+import LanguageSelect from './LanguageSelect';
 import { Settings } from '@/types/Settings';
+import VoiceSelect from '@/components/VoiceSelect';
 import { isPublicRoom } from '@/helpers/strings';
-import { ChangeEvent, useCallback, useRef } from 'react';
+import { useSettings } from '@/stores/settingsStore';
 
 // Debounce utility
 function useDebounce<T extends any[]>(
@@ -87,6 +88,23 @@ export default function AppSettings({
     [settings?.voicePitch, debouncedPitchUpdate]
   );
 
+  const handleBackgroundChange = useCallback(
+    (
+      backgroundKey: string,
+      backgroundValue: string,
+      backgroundURLKey?: string,
+      backgroundURLValue?: string
+    ): void => {
+      // Update local storage immediately for background changes
+      const updates: Partial<Settings> = { [backgroundKey]: backgroundValue };
+      if (backgroundURLKey && backgroundURLValue !== undefined) {
+        updates[backgroundURLKey] = backgroundURLValue;
+      }
+      updateSettings(updates);
+    },
+    [updateSettings]
+  );
+
   return (
     <>
       <LanguageSelect boardUpdated={boardUpdated} />
@@ -125,13 +143,13 @@ export default function AppSettings({
       </Typography>
 
       <AppBoolSwitch field="hideBoardActions" formData={formData} handleSwitch={handleSwitch} />
-      <AppBoolSwitch field="advancedSettings" formData={formData} handleSwitch={handleSwitch} />
 
       <BackgroundSelect
         formData={formData}
         setFormData={setFormData}
         backgrounds={backgrounds}
         isPrivateRoom={isPrivateRoom}
+        onBackgroundChange={handleBackgroundChange}
       />
       <Divider />
     </>

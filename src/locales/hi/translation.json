@@ -1,6 +1,5 @@
 {
   "customTiles": {
-    "color": "ऐप बैकग्राउंड का उपयोग करें",
     "intensityLevel": "तीव्रता स्तर",
     "toggleTile": "टाइल टॉगल करें",
     "update": "अपडेट",
@@ -133,7 +132,6 @@
   "loadingVoices": "आवाज़ें लोड हो रही हैं...",
   "noVoicesAvailable": "इस भाषा के लिए कोई आवाज़ उपलब्ध नहीं",
   "background": "बैकग्राउंड",
-  "useAppBackground": "ऐप बैकग्राउंड का उपयोग करें",
   "useRoomBackground": "रूम बैकग्राउंड का उपयोग करें",
   "color": "कोई नहीं - रंगीन टाइलें",
   "gray": "कोई नहीं - स्लेटी टाइलें",
@@ -203,7 +201,6 @@
   "customAdded": "गेम टाइल आपके गेम में जोड़ी गई।",
   "misc": "विविध",
   "hideBoardActions": "गेमबोर्ड क्रियाएं छुपाएं",
-  "advancedSettings": "डिफ़ॉल्ट रूप से उन्नत सेटिंग्स खोलें",
   "autoCloseModal": "यह मॉडल {{timeLeft}} सेकंड बाद अपने आप बंद हो जाएगा।",
   "autoCloseStopped": "यह मॉडल अब अपने आप बंद नहीं होगा।",
   "autoCloseProgress": "ऑटो क्लोज़ प्रगति",

@@ -281,7 +281,7 @@ describe('getBackgroundSource', () => {
     const defaultSettings = {
       background: 'color',
       backgroundURL: '',
-      roomBackground: 'useAppBackground',
+      roomBackground: '',
     };
 
     describe('Public room behavior', () => {
@@ -327,12 +327,12 @@ describe('getBackgroundSource', () => {
         expect(result.url).toBe('https://example.com/app-bg.jpg');
       });
 
-      it('falls back to app background when roomBackground is useAppBackground', () => {
+      it('falls back to app background when roomBackground is empty', () => {
         const settings = {
           ...defaultSettings,
           background: 'custom',
           backgroundURL: 'https://example.com/app-bg.jpg',
-          roomBackground: 'useAppBackground',
+          roomBackground: '',
         };
 
         const result = getBackgroundSource(settings, 'PRIVATE');
@@ -385,7 +385,7 @@ describe('getBackgroundSource', () => {
         const settings = {
           background: '',
           backgroundURL: '',
-          roomBackground: 'useAppBackground',
+          roomBackground: '',
         };
 
         const result = getBackgroundSource(settings, 'PUBLIC');
@@ -472,7 +472,7 @@ describe('getBackgroundSource', () => {
         const originalSettings = {
           background: 'custom',
           backgroundURL: 'https://example.com/bg.jpg',
-          roomBackground: 'useAppBackground',
+          roomBackground: '',
         };
         const settingsCopy = { ...originalSettings };
 

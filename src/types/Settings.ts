@@ -4,7 +4,6 @@ import { LocalSessionSettings } from './localPlayers';
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 export interface Settings {
-  advancedSettings?: boolean;
   gameMode: GameMode;
   roomRealtime?: boolean;
   role?: PlayerRole;

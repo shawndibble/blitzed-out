@@ -1,6 +1,5 @@
 {
   "customTiles": {
-    "color": "Use App Background",
     "intensityLevel": "Intensity Level",
     "toggleTile": "Toggle tile",
     "update": "Update",
@@ -130,7 +129,6 @@
   "loadingVoices": "Loading voices...",
   "noVoicesAvailable": "No voices available for this language",
   "background": "Background",
-  "useAppBackground": "Use App Background",
   "useRoomBackground": "Use Room Background",
   "color": "None - Color Tiles",
   "gray": "None - Gray Tiles",
@@ -203,7 +201,6 @@
   "customAdded": "Game tile added to your game.",
   "misc": "Miscellaneous",
   "hideBoardActions": "Hide gameboard actions",
-  "advancedSettings": "Open advanced settings by default",
   "autoCloseModal": "This modal will automatically close after {{timeLeft}} seconds.",
   "autoCloseStopped": "This modal will no longer automatically close.",
   "autoCloseProgress": "Auto close progress",
