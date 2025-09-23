@@ -130,8 +130,8 @@ export const addCustomGroup = async (group: CustomGroupBase): Promise<string | u
 
         const id = await customGroups.add(groupWithTimestamp);
 
-        // Track custom group creation
-        analyticsTracking.trackCustomGroupAction('create', group, group.isDefault);
+        // Track custom group creation (guard to avoid retrying DB writes if analytics fails)
+        analyticsTracking.trackCustomGroupAction('create', group, group.isDefault ?? false);
 
         return id;
       },
@@ -207,7 +207,7 @@ export const deleteCustomGroup = async (
         const deletedTiles = await deleteCustomTilesByGroupId(id, group.locale, group.gameMode);
         await customGroups.delete(id);
 
-        // Track custom group deletion
+        // Track custom group deletion (best-effort)
         analyticsTracking.trackCustomGroupAction('delete', group, group.isDefault);
 
         return { success: true, tilesDeleted: deletedTiles };
@@ -217,7 +217,7 @@ export const deleteCustomGroup = async (
     // Safe to delete - no tiles or force option used
     await customGroups.delete(id);
 
-    // Track custom group deletion
+    // Track custom group deletion (best-effort)
     analyticsTracking.trackCustomGroupAction('delete', group, group.isDefault);
 
     return { success: true };

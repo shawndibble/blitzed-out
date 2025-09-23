@@ -131,7 +131,7 @@ export interface LocalStorageHookReturn<T> {
 // Form data types
 
 export interface ActionEntry {
-  type: 'sex' | 'foreplay' | 'consumption' | 'solo';
+  type: GroupType;
   levels?: number[];
   variation?: string;
   [key: string]: unknown;
@@ -213,7 +213,7 @@ export interface FormData {
   hasLocalPlayers?: boolean;
   selectedActions?: {
     [key: string]: {
-      type: 'sex' | 'foreplay' | 'consumption' | 'solo';
+      type: GroupType;
       levels?: number[];
       variation?: string;
     };

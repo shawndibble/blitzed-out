@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { analytics } from '../analytics';
-import { GroupType } from '@/types/analytics';
+import { GroupType } from '@/types';
 
 // Mock window.gtag
 const mockGtag = vi.fn();
@@ -188,7 +188,7 @@ describe('Analytics Service', () => {
         expect.objectContaining({
           event_category: 'settings',
           event_label: 'voice_commands',
-          custom_parameter_1: 'enable',
+          interaction_type: 'enable',
         })
       );
     });

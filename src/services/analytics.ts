@@ -38,17 +38,10 @@ class AnalyticsService {
   // Generic event tracking
   private trackEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
     if (!this.canTrack()) {
-      if (this.isDevelopment) {
-        console.log(`[Analytics] ${eventName}:`, parameters);
-      }
       return;
     }
 
-    try {
-      window.gtag!('event', eventName, parameters);
-    } catch (error) {
-      console.warn('Analytics tracking error:', error);
-    }
+    window.gtag?.('event', eventName, parameters);
   }
 
   // Settings change tracking
@@ -81,7 +74,6 @@ class AnalyticsService {
     this.trackEvent('feature_usage', {
       event_category: params.feature_category,
       event_label: params.feature_name,
-      custom_parameter_1: params.interaction_type,
       ...params,
     });
   }

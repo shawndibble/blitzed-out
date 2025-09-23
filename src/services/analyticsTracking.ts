@@ -13,7 +13,12 @@ class AnalyticsTrackingService {
   /**
    * Track settings changes with automatic categorization
    */
-  trackSettingsChange(key: keyof Settings, oldValue: any, newValue: any, newSettings: Settings) {
+  trackSettingsChange<K extends keyof Settings>(
+    key: K,
+    oldValue: Settings[K],
+    newValue: Settings[K],
+    newSettings: Settings
+  ) {
     if (oldValue === newValue || newValue === undefined) return;
 
     switch (key) {
