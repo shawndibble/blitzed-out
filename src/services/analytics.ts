@@ -28,28 +28,17 @@ class AnalyticsService {
     this.isDevelopment = import.meta.env.MODE === 'development';
   }
 
-  // Wait for gtag to be available
-  private async waitForGtag(maxWait: number = 5000): Promise<boolean> {
-    const startTime = Date.now();
-    while (Date.now() - startTime < maxWait) {
-      if (typeof window.gtag === 'function') {
-        return true;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-    return false;
+  // Check if analytics is available
+  private canTrack(): boolean {
+    if (this.isDevelopment) return false;
+    if (typeof window === 'undefined') return false;
+    return typeof window.gtag === 'function';
   }
 
   // Generic event tracking
-  private async trackEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
-    if (this.isDevelopment) return;
-    if (typeof window === 'undefined') return;
-
-    // Wait for gtag to be available
-    const gtagReady = await this.waitForGtag();
-    if (gtagReady) {
-      window.gtag!('event', eventName, parameters);
-    }
+  private trackEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
+    if (!this.canTrack()) return;
+    window.gtag!('event', eventName, parameters);
   }
 
   // Settings change tracking
