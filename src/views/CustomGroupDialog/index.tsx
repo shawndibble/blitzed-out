@@ -18,11 +18,8 @@ import {
   CustomGroupPull,
   DEFAULT_INTENSITY_TEMPLATES,
 } from '@/types/customGroups';
-import {
-  validateCustomGroup,
-  type GroupType,
-  VALID_GROUP_TYPES,
-} from '@/services/validationService';
+import { validateCustomGroup } from '@/services/validationService';
+import { GroupType, VALID_GROUP_TYPES } from '@/types';
 import {
   addCustomGroup,
   updateCustomGroup,

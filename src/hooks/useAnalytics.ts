@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { analyticsTracking } from '@/services/analyticsTracking';
 import { CustomGroupIntensity } from '@/types/customGroups';
 import { FeatureCategory, InteractionType, GroupType } from '@/types/analytics';
@@ -70,16 +70,29 @@ export const useAnalytics = () => {
     []
   );
 
-  return {
-    trackFeature,
-    trackIntensitySelection,
-    trackUserFlow,
-    trackFeatureDiscovery,
-    trackClick,
-    trackDialog,
-    trackNavigation,
-    trackError,
-  };
+  const api = useMemo(
+    () => ({
+      trackFeature,
+      trackIntensitySelection,
+      trackUserFlow,
+      trackFeatureDiscovery,
+      trackClick,
+      trackDialog,
+      trackNavigation,
+      trackError,
+    }),
+    [
+      trackFeature,
+      trackIntensitySelection,
+      trackUserFlow,
+      trackFeatureDiscovery,
+      trackClick,
+      trackDialog,
+      trackNavigation,
+      trackError,
+    ]
+  );
+  return api;
 };
 
 /**
@@ -102,5 +115,6 @@ export const withAnalytics = <P extends object>(
     return React.createElement(Component, props);
   };
 
-  return WrappedComponent;
+  WrappedComponent.displayName = `withAnalytics(${Component.displayName || Component.name || 'Component'})`;
+  return React.memo(WrappedComponent) as React.ComponentType<P>;
 };

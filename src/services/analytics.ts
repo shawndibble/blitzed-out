@@ -30,7 +30,9 @@ class AnalyticsService {
 
   // Check if analytics is available (disabled only in development)
   private canTrack(): boolean {
-    return !this.isDevelopment && typeof window.gtag === 'function';
+    if (this.isDevelopment) return false;
+    if (typeof window === 'undefined') return false;
+    return typeof window.gtag === 'function';
   }
 
   // Generic event tracking

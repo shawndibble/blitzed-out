@@ -164,7 +164,8 @@ export const updateCustomGroup = async (
 
     // Track custom group modification
     if (result > 0 && group) {
-      analyticsTracking.trackCustomGroupAction('modify', { ...group, ...updates }, group.isDefault);
+      const isDefault = (updates as Partial<CustomGroupBase>).isDefault ?? group.isDefault;
+      analyticsTracking.trackCustomGroupAction('modify', { ...group, ...updates }, isDefault);
     }
 
     return result;

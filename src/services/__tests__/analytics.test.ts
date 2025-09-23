@@ -142,7 +142,7 @@ describe('Analytics Service', () => {
   });
 
   describe('Development Mode', () => {
-    it('should not track in development mode', () => {
+    it('should not track when gtag is missing', () => {
       // Simulate development mode by removing gtag
       const originalGtag = window.gtag;
       (window as any).gtag = undefined;

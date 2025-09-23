@@ -1,13 +1,13 @@
 // Analytics-specific types that extend existing domain types
 import { GameMode, PlayerRole, ThemeMode } from './Settings';
-import { GroupType } from '@/services/validationService';
+import type { GroupType } from '@/types';
 
 // Common analytics interaction types
 export type InteractionType = 'enable' | 'disable' | 'configure' | 'use';
 export type CrudAction = 'create' | 'modify' | 'delete' | 'use';
 export type FeatureCategory = 'game_mode' | 'customization' | 'social' | 'settings' | 'ui';
 export type SettingCategory = 'user_preference' | 'game_config' | 'ui_setting';
-export type RoomType = 'public' | 'private';
+export type RoomType = 'public' | 'private' | 'unknown';
 
 // Base analytics event structure
 export interface BaseAnalyticsEvent {

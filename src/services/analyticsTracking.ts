@@ -2,6 +2,7 @@ import { ActionEntry } from '@/types';
 import { Settings } from '@/types/Settings';
 import { CustomGroupBase, CustomGroupIntensity } from '@/types/customGroups';
 import { FeatureCategory, InteractionType, GroupType, CrudAction } from '@/types/analytics';
+import { isPublicRoom } from '@/helpers/strings';
 import { analytics } from './analytics';
 
 /**
@@ -29,7 +30,7 @@ class AnalyticsTrackingService {
         analytics.trackGameModeSelection({
           game_mode: newValue,
           has_custom_actions: Object.keys(newSettings.selectedActions || {}).length > 0,
-          room_type: newSettings.room === 'PUBLIC' ? 'public' : 'private',
+          room_type: isPublicRoom(newSettings.room) ? 'public' : 'private',
         });
         break;
       case 'mySound':
@@ -45,7 +46,7 @@ class AnalyticsTrackingService {
         analytics.trackBackgroundChange(newValue);
         break;
       case 'voicePreference':
-        analytics.trackVoicePreference(newValue, newSettings.voicePitch || 1);
+        analytics.trackVoicePreference(newValue, newSettings.voicePitch ?? 1);
         break;
       case 'roomRealtime':
         analytics.trackRoomConfiguration(
@@ -54,9 +55,19 @@ class AnalyticsTrackingService {
           newValue
         );
         break;
-      default:
-        // Track general setting changes, excluding internal flags
-        if (!['boardUpdated', 'roomUpdated', 'hasSeenRollButton'].includes(String(key))) {
+      default: {
+        // Track general setting changes, excluding internal flags and sensitive data
+        const doNotTrack = [
+          'boardUpdated',
+          'roomUpdated',
+          'hasSeenRollButton',
+          'displayName',
+          'roomBackgroundURL',
+          'selectedActions',
+          'localPlayers',
+          'customGroups',
+        ];
+        if (!doNotTrack.includes(String(key))) {
           analytics.trackSettingChange({
             setting_name: String(key),
             old_value: String(oldValue || ''),
@@ -65,6 +76,7 @@ class AnalyticsTrackingService {
           });
         }
         break;
+      }
     }
   }
 

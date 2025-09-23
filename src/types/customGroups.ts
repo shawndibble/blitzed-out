@@ -1,5 +1,5 @@
 // Custom group and intensity management type definitions
-import type { GroupType } from '@/services/validationService';
+import type { GroupType } from '@/types';
 
 // Individual intensity level within a custom group
 export interface CustomGroupIntensity {
