@@ -11,6 +11,7 @@ import db from './store';
 import i18next from 'i18next';
 import { nanoid } from 'nanoid';
 import { retryOnCursorError } from '@/utils/dbRecovery';
+import { analyticsTracking } from '@/services/analyticsTracking';
 
 const { customGroups } = db;
 
@@ -128,6 +129,10 @@ export const addCustomGroup = async (group: CustomGroupBase): Promise<string | u
         } as Omit<CustomGroupPull, 'id'>;
 
         const id = await customGroups.add(groupWithTimestamp);
+
+        // Track custom group creation
+        analyticsTracking.trackCustomGroupAction('create', group, group.isDefault);
+
         return id;
       },
       (message: string, error?: Error) => {
@@ -153,7 +158,16 @@ export const updateCustomGroup = async (
       await db.open();
     }
 
-    return await customGroups.update(id, updates);
+    // Get the group before updating for analytics
+    const group = await customGroups.get(id);
+    const result = await customGroups.update(id, updates);
+
+    // Track custom group modification
+    if (result > 0 && group) {
+      analyticsTracking.trackCustomGroupAction('modify', { ...group, ...updates }, group.isDefault);
+    }
+
+    return result;
   } catch (error) {
     console.error('Error in updateCustomGroup:', error);
     return 0;
@@ -191,12 +205,20 @@ export const deleteCustomGroup = async (
         // Delete all associated tiles first
         const deletedTiles = await deleteCustomTilesByGroupId(id, group.locale, group.gameMode);
         await customGroups.delete(id);
+
+        // Track custom group deletion
+        analyticsTracking.trackCustomGroupAction('delete', group, group.isDefault);
+
         return { success: true, tilesDeleted: deletedTiles };
       }
     }
 
     // Safe to delete - no tiles or force option used
     await customGroups.delete(id);
+
+    // Track custom group deletion
+    analyticsTracking.trackCustomGroupAction('delete', group, group.isDefault);
+
     return { success: true };
   } catch (error) {
     console.error('Error in deleteCustomGroup:', error);
