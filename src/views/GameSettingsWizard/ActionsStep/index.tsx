@@ -14,7 +14,7 @@ import { ExpandMore, PlayArrow, Tune } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { hasValidSelections, purgedFormData } from './helpers';
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
-import { GroupType } from '@/services/validationService';
+import { GroupType } from '@/types';
 import { useEffect, useState } from 'react';
 import type { GroupedActions } from '@/types/customTiles';
 

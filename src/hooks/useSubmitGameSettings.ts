@@ -7,7 +7,7 @@ import { GameBoardResult } from '@/types/gameBoard';
 import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 import { getActiveTiles } from '@/stores/customTiles';
-import { VALID_GROUP_TYPES } from '@/services/validationService';
+import { VALID_GROUP_TYPES } from '@/types';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';

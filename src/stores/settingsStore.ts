@@ -2,6 +2,7 @@ import { ActionEntry } from '@/types';
 import { Settings } from '@/types/Settings';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { analyticsTracking } from '@/services/analyticsTracking';
 
 const defaultSettings: Settings = {
   locale: 'en',
@@ -32,22 +33,49 @@ export const useSettingsStore = create<SettingsStore>()(
     (set) => ({
       settings: defaultSettings,
       updateSettings: (partial) =>
-        set((state) => ({
-          settings: { ...state.settings, ...partial },
-        })),
+        set((state) => {
+          const oldSettings = state.settings;
+          const newSettings = { ...oldSettings, ...partial };
+
+          // Track setting changes using centralized service
+          Object.entries(partial).forEach(([key, newValue]) => {
+            const oldValue = oldSettings[key as keyof Settings];
+            analyticsTracking.trackSettingsChange(
+              key as keyof Settings,
+              oldValue,
+              newValue,
+              newSettings
+            );
+          });
+
+          return { settings: newSettings };
+        }),
       setLocale: (locale) =>
-        set((state) => ({
-          settings: { ...state.settings, locale },
-        })),
+        set((state) => {
+          const oldLocale = state.settings.locale;
+          analyticsTracking.trackSettingsChange('locale', oldLocale, locale, {
+            ...state.settings,
+            locale,
+          });
+          return {
+            settings: { ...state.settings, locale },
+          };
+        }),
       resetSettings: () => set({ settings: defaultSettings }),
       updateSelectedAction: (key, actionEntry) =>
         set((state) => {
           const newSelectedActions = { ...state.settings.selectedActions };
-          if (actionEntry === null) {
+          const isRemoving = actionEntry === null;
+          const currentAction = newSelectedActions[key];
+
+          if (isRemoving) {
+            analyticsTracking.trackActionChange(currentAction, true);
             delete newSelectedActions[key];
           } else {
             newSelectedActions[key] = actionEntry;
+            analyticsTracking.trackActionChange(actionEntry, false);
           }
+
           return {
             settings: { ...state.settings, selectedActions: newSelectedActions },
           };
@@ -61,9 +89,13 @@ export const useSettingsStore = create<SettingsStore>()(
           };
         }),
       clearSelectedActions: () =>
-        set((state) => ({
-          settings: { ...state.settings, selectedActions: {} },
-        })),
+        set((state) => {
+          const actionCount = Object.keys(state.settings.selectedActions || {}).length;
+          analyticsTracking.trackBulkAction('clear_all_actions', actionCount);
+          return {
+            settings: { ...state.settings, selectedActions: {} },
+          };
+        }),
       getSelectedActionsByType: (type: string): Record<string, ActionEntry> => {
         const { selectedActions = {} } = useSettingsStore.getState().settings;
         const actions: Record<string, ActionEntry> = selectedActions || {};

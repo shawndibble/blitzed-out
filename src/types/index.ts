@@ -10,6 +10,10 @@ import { Theme } from '@mui/material/styles';
 export * from './components';
 export * from './sync';
 
+// Group types
+export const VALID_GROUP_TYPES = ['solo', 'foreplay', 'sex', 'consumption'] as const;
+export type GroupType = (typeof VALID_GROUP_TYPES)[number];
+
 // Common types used throughout the application
 
 // Auth related types
@@ -127,7 +131,7 @@ export interface LocalStorageHookReturn<T> {
 // Form data types
 
 export interface ActionEntry {
-  type: 'sex' | 'foreplay' | 'consumption' | 'solo';
+  type: GroupType;
   levels?: number[];
   variation?: string;
   [key: string]: unknown;
@@ -209,7 +213,7 @@ export interface FormData {
   hasLocalPlayers?: boolean;
   selectedActions?: {
     [key: string]: {
-      type: 'sex' | 'foreplay' | 'consumption' | 'solo';
+      type: GroupType;
       levels?: number[];
       variation?: string;
     };

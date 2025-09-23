@@ -1,4 +1,5 @@
 import { ValidationResult, CustomGroupBase, CustomGroupIntensity } from '@/types/customGroups';
+import { VALID_GROUP_TYPES } from '@/types';
 import { CustomTile } from '@/types/customTiles';
 import { isGroupNameUnique, getCustomGroupByName, getCustomGroup } from '@/stores/customGroups';
 import { t } from 'i18next';
@@ -26,11 +27,7 @@ export const RESERVED_GROUP_NAMES = [
   'null', // JavaScript reserved word
 ];
 
-// Valid group types for custom groups
-export const VALID_GROUP_TYPES = ['solo', 'foreplay', 'sex', 'consumption'] as const;
-
-// Export type for group types
-export type GroupType = (typeof VALID_GROUP_TYPES)[number];
+// Group types are now centrally defined in @/types
 
 /**
  * Validate a custom group name
