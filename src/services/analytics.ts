@@ -28,7 +28,7 @@ class AnalyticsService {
     this.isDevelopment = import.meta.env.MODE === 'development';
   }
 
-  // Check if analytics is available (disabled only in development)
+  // Check if analytics is available
   private canTrack(): boolean {
     if (this.isDevelopment) return false;
     if (typeof window === 'undefined') return false;
@@ -37,11 +37,8 @@ class AnalyticsService {
 
   // Generic event tracking
   private trackEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
-    if (!this.canTrack()) {
-      return;
-    }
-
-    window.gtag?.('event', eventName, parameters);
+    if (!this.canTrack()) return;
+    window.gtag!('event', eventName, parameters);
   }
 
   // Settings change tracking
