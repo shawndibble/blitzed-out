@@ -94,9 +94,14 @@ class AnalyticsTrackingService {
     analytics.trackActionSelection({
       action_type: actionEntry.type,
       intensity_level: actionEntry.levels?.[0],
+      intensity_label: `Level ${actionEntry.levels?.[0] || 1}`,
       variation: actionEntry.variation,
       is_custom_action: false,
       event_category: isRemoving ? 'action_removal' : 'action_selection',
+      custom_parameter_1: actionEntry.levels?.length
+        ? `${actionEntry.levels.length} levels`
+        : '1 level',
+      custom_parameter_2: actionEntry.levels?.join(',') || '1',
     });
   }
 
@@ -104,12 +109,18 @@ class AnalyticsTrackingService {
    * Track custom group operations (create, update, delete, use)
    */
   trackCustomGroupAction(action: CrudAction, group: CustomGroupBase, isDefaultTemplate?: boolean) {
+    const intensityValues = group.intensities.map((i) => i.value).join(',');
+    const intensityLabels = group.intensities.map((i) => i.label).join(' | ');
+
     analytics.trackCustomGroupUsage({
       group_name: group.name,
       group_type: (group.type as GroupType) || 'solo',
       intensity_count: group.intensities.length,
       is_default_template: isDefaultTemplate || false,
       action_type: action,
+      custom_parameter_1: `Values: ${intensityValues}`,
+      custom_parameter_2: `Labels: ${intensityLabels}`,
+      custom_parameter_3: `Min: ${Math.min(...group.intensities.map((i) => i.value))}, Max: ${Math.max(...group.intensities.map((i) => i.value))}`,
     });
   }
 
@@ -123,13 +134,19 @@ class AnalyticsTrackingService {
   ) {
     analytics.trackIntensityPattern(actionType, intensity.value, customGroupName);
 
-    // Track specific intensity usage
+    // Track specific intensity usage with enhanced details
     analytics.trackActionSelection({
       action_type: actionType,
       intensity_level: intensity.value,
       intensity_label: intensity.label,
       custom_group: customGroupName,
       is_custom_action: !!customGroupName,
+      event_category: customGroupName
+        ? 'custom_intensity_selection'
+        : 'default_intensity_selection',
+      custom_parameter_1: `${actionType}_${intensity.value}`,
+      custom_parameter_2: customGroupName || 'default_group',
+      custom_parameter_3: `intensity_${intensity.value}_${intensity.label}`,
     });
   }
 
@@ -156,6 +173,15 @@ class AnalyticsTrackingService {
   trackBulkAction(actionName: string, itemCount: number) {
     if (itemCount > 0) {
       this.trackFeatureUsage(actionName, 'customization', 'use', itemCount);
+
+      analytics.trackCustomEvent('bulk_action', {
+        event_category: 'bulk_operations',
+        event_label: actionName,
+        value: itemCount,
+        custom_parameter_1: `${actionName}_${itemCount}_items`,
+        custom_parameter_2:
+          itemCount > 10 ? 'high_volume' : itemCount > 5 ? 'medium_volume' : 'low_volume',
+      });
     }
   }
 

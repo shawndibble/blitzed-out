@@ -222,6 +222,11 @@ class AnalyticsService {
       custom_parameter_2: success.toString(),
     });
   }
+
+  // Track custom events with parameters
+  trackCustomEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
+    this.trackEvent(eventName, parameters);
+  }
 }
 
 // Create and export singleton instance
