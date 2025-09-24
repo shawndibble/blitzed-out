@@ -10,7 +10,9 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { IntensitySelectorProps, CustomGroupIntensity } from '@/types/customGroups';
+import { GroupType } from '@/types';
 import { getGroupIntensities } from '@/stores/customGroups';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function IntensitySelector({
   groupName,
@@ -22,6 +24,7 @@ export default function IntensitySelector({
   disabled = false,
 }: IntensitySelectorProps) {
   const { t } = useTranslation();
+  const { trackIntensitySelection } = useAnalytics();
   const [intensities, setIntensities] = useState<CustomGroupIntensity[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -113,7 +116,16 @@ export default function IntensitySelector({
         <InputLabel>{t('intensity')}</InputLabel>
         <Select
           value={value || ''}
-          onChange={(e) => onChange(Number(e.target.value))}
+          onChange={(e) => {
+            const selectedValue = Number(e.target.value);
+            const selectedIntensity = intensities.find((i) => i.value === selectedValue);
+
+            if (selectedIntensity) {
+              trackIntensitySelection(gameMode as GroupType, selectedIntensity, groupName);
+            }
+
+            onChange(selectedValue);
+          }}
           label={t('intensity')}
         >
           {sortedIntensities.map((intensity) => (
