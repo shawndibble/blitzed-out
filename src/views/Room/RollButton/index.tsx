@@ -173,8 +173,9 @@ const RollButton = memo(function RollButton({
 
   // Track engagement session on component unmount
   useEffect(() => {
+    const start = componentMountTime.current;
     return () => {
-      const duration = Date.now() - componentMountTime.current;
+      const duration = Date.now() - start;
       analytics.trackEngagement('roll_button_session', duration, interactionCount.current);
     };
   }, []);

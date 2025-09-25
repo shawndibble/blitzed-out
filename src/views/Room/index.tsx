@@ -3,7 +3,7 @@ import './styles.css';
 import { Box, CircularProgress } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSoundById, playSound } from '@/utils/gameSounds';
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { getGameSessionAnalytics, isRoomReady } from './roomHelpers';
 
 import GameSettingsDialog from '@/components/GameSettingsDialog';
 import MessageInput from '@/components/MessageInput';
@@ -154,25 +154,33 @@ export default function Room() {
   const hybridPlayerList = useHybridPlayerList();
 
   // Track game session on component unmount
-  useEffect(() => {
-    return () => {
-      const duration = Date.now() - sessionStartTime.current;
-      const gameMode = isOnlineMode(room) ? 'online' : 'local';
-      const playerCount = hybridPlayerList?.length || localPlayers.length || 1;
+  // Use refs to track latest values without retriggering the cleanup effect
+  const lastCountsRef = useRef(
+    getGameSessionAnalytics(settings, hybridPlayerList, localPlayers.length)
+  );
 
+  // Keep latest values up to date
+  useEffect(() => {
+    lastCountsRef.current = getGameSessionAnalytics(
+      settings,
+      hybridPlayerList,
+      localPlayers.length
+    );
+  }, [settings, hybridPlayerList, localPlayers.length]);
+
+  // Track game session on component unmount only
+  useEffect(() => {
+    const start = sessionStartTime.current;
+    return () => {
+      const duration = Date.now() - start;
+      const { gameMode, playerCount } = lastCountsRef.current;
       analytics.trackGameSession(duration, actionCount.current, gameMode, playerCount);
     };
-  }, [room, hybridPlayerList?.length, localPlayers.length]);
+  }, []);
   const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
 
-  if (
-    (!gameBoard ||
-      !gameBoard.length ||
-      !Object.keys(settings).length ||
-      (isPublicRoom(room) && !isOnlineMode(settings.gameMode))) &&
-    !isImporting
-  ) {
+  if (!isRoomReady(gameBoard, settings, room, settings.gameMode, isImporting)) {
     return (
       <>
         <Navigation room={params.id} playerList={playerList as any} />

@@ -106,8 +106,8 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const nextStep = (count?: number): void => {
     const newStep = !Number.isInteger(count) ? step + 1 : step + (count || 1);
 
-    // Track step progression
-    trackStepNavigation(step);
+    // Track step progression to the destination step
+    trackStepNavigation(step, newStep);
 
     setStep(newStep);
   };

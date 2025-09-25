@@ -32,7 +32,25 @@ class AnalyticsService {
 
   // Generate unique session ID for tracking user sessions
   private generateSessionId(): string {
-    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = Date.now();
+
+    // Try crypto.randomUUID() first (most secure and simple)
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return `${timestamp}-${crypto.randomUUID()}`;
+    }
+
+    // Fallback to crypto.getRandomValues() for secure random bytes
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const arr = new Uint8Array(9);
+      crypto.getRandomValues(arr);
+      const randomStr = Array.from(arr, (byte) => byte.toString(36))
+        .join('')
+        .slice(0, 9);
+      return `${timestamp}-${randomStr}`;
+    }
+
+    // Last resort fallback (non-cryptographic)
+    return `${timestamp}-${Math.random().toString(36).slice(2, 11)}`;
   }
 
   // Check if analytics is available

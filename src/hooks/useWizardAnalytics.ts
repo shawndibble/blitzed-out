@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { analytics } from '@/services/analytics';
+import { getWizardStepName } from '@/views/GameSettingsWizard/stepConfig';
 
 interface UseWizardAnalyticsProps {
   gameMode?: string;
@@ -24,22 +25,7 @@ export function useWizardAnalytics({
   }, [gameMode, isPublicRoom]);
 
   const getStepName = useCallback((stepNumber: number): string => {
-    switch (stepNumber) {
-      case 0:
-        return 'advanced_settings';
-      case 1:
-        return 'room_setup';
-      case 2:
-        return 'local_players';
-      case 3:
-        return 'game_mode';
-      case 4:
-        return 'actions';
-      case 5:
-        return 'finish';
-      default:
-        return `step_${stepNumber}`;
-    }
+    return getWizardStepName(stepNumber);
   }, []);
 
   const trackStepNavigation = useCallback(
