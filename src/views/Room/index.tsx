@@ -3,7 +3,7 @@ import './styles.css';
 import { Box, CircularProgress } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSoundById, playSound } from '@/utils/gameSounds';
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { getGameSessionAnalytics, isRoomReady } from './roomHelpers';
 
 import GameSettingsDialog from '@/components/GameSettingsDialog';
 import MessageInput from '@/components/MessageInput';
@@ -32,6 +32,7 @@ import useUrlImport from '@/hooks/useUrlImport';
 import useMessages from '@/context/hooks/useMessages';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import latestMessageByType from '@/helpers/messages';
+import { analytics } from '@/services/analytics';
 
 import BottomTabs from './BottomTabs';
 import MessageList from '@/components/MessageList';
@@ -46,6 +47,10 @@ export default function Room() {
   const [settings, setSettings] = useSettings();
 
   usePresence(room);
+
+  // Game session tracking
+  const sessionStartTime = useRef<number>(Date.now());
+  const actionCount = useRef<number>(0);
 
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
 
@@ -62,6 +67,8 @@ export default function Room() {
   // Use useCallback to memoize the setRollValue function
   const memoizedSetRollValue = useCallback((newValue: number) => {
     setRollValue({ value: newValue, time: Date.now() });
+    // Track action for session analytics
+    actionCount.current += 1;
   }, []);
 
   // Turn change detection for local players (only in pure local multiplayer mode)
@@ -145,16 +152,35 @@ export default function Room() {
   // Use usePlayerMove directly
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const hybridPlayerList = useHybridPlayerList();
+
+  // Track game session on component unmount
+  // Use refs to track latest values without retriggering the cleanup effect
+  const lastCountsRef = useRef(
+    getGameSessionAnalytics(settings, hybridPlayerList, localPlayers.length)
+  );
+
+  // Keep latest values up to date
+  useEffect(() => {
+    lastCountsRef.current = getGameSessionAnalytics(
+      settings,
+      hybridPlayerList,
+      localPlayers.length
+    );
+  }, [settings, hybridPlayerList, localPlayers.length]);
+
+  // Track game session on component unmount only
+  useEffect(() => {
+    const start = sessionStartTime.current;
+    return () => {
+      const duration = Date.now() - start;
+      const { gameMode, playerCount } = lastCountsRef.current;
+      analytics.trackGameSession(duration, actionCount.current, gameMode, playerCount);
+    };
+  }, []);
   const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
 
-  if (
-    (!gameBoard ||
-      !gameBoard.length ||
-      !Object.keys(settings).length ||
-      (isPublicRoom(room) && !isOnlineMode(settings.gameMode))) &&
-    !isImporting
-  ) {
+  if (!isRoomReady(gameBoard, settings, room, settings.gameMode, isImporting)) {
     return (
       <>
         <Navigation room={params.id} playerList={playerList as any} />

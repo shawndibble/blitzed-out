@@ -113,6 +113,16 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
         const migrationService = await loadMigrationService();
         const currentLocale = i18n.language || 'en';
 
+        // Track app startup BEFORE any migration operations (best-effort, don't block migration)
+        try {
+          const hasMigrationData = localStorage.getItem('blitzed-out-action-groups-migration');
+          const userType: 'new' | 'returning' = hasMigrationData ? 'returning' : 'new';
+          const { analytics } = await import('@/services/analytics');
+          analytics.trackAppStart(performance.now(), userType);
+        } catch {
+          // Analytics failure should not block migration status checks
+        }
+
         // First check if migration status is corrupted
         const integrityOk = await migrationService.verifyMigrationIntegrity(
           currentLocale,

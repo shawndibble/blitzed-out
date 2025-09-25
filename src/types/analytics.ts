@@ -17,6 +17,8 @@ export interface BaseAnalyticsEvent {
   custom_parameter_1?: string;
   custom_parameter_2?: string;
   custom_parameter_3?: string;
+  session_id?: string;
+  timestamp?: number;
 }
 
 // Specific analytics event types using domain types

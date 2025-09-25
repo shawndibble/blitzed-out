@@ -1,14 +1,9 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+import ActionsStep from './ActionsStep';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
-import { Trans } from 'react-i18next';
-import { useEffect, useState, useRef, useLayoutEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useMigration } from '@/context/migration';
-import useSettingsToFormData from '@/hooks/useSettingsToFormData';
-import useUnifiedActionList from '@/hooks/useUnifiedActionList';
-
-import ActionsStep from './ActionsStep';
 import DynamicStepper from './components/DynamicStepper';
 import FinishStep from './FinishStep';
 import { FormData } from '@/types';
@@ -17,7 +12,13 @@ import GameSettings from '@/views/GameSettings';
 import LocalPlayersStep from './LocalPlayersStep';
 import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
+import { Trans } from 'react-i18next';
 import { isPublicRoom } from '@/helpers/strings';
+import { useMigration } from '@/context/migration';
+import { useParams } from 'react-router-dom';
+import useSettingsToFormData from '@/hooks/useSettingsToFormData';
+import useUnifiedActionList from '@/hooks/useUnifiedActionList';
+import { useWizardAnalytics } from '@/hooks/useWizardAnalytics';
 
 interface GameSettingsWizardProps {
   close?: () => void;
@@ -88,6 +89,12 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   // Compute isPublic once per render
   const isPublic = isPublicRoom(formData.room);
 
+  // Analytics tracking for wizard funnel
+  const { trackStepNavigation } = useWizardAnalytics({
+    gameMode: formData.gameMode,
+    isPublicRoom: isPublic,
+  });
+
   // Handle step redirects for public rooms without causing DOM insertion errors
   useLayoutEffect(() => {
     // Only redirect if we're on a step that's invalid for public rooms
@@ -96,12 +103,13 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     }
   }, [step, isPublic]);
 
-  // Note: Removed the useEffect that was syncing URL to formData as it was interfering
-  // with wizard selections. The wizard should be independent until form submission.
-
   const nextStep = (count?: number): void => {
-    if (!Number.isInteger(count)) return setStep(step + 1);
-    setStep(step + (count || 1));
+    const newStep = !Number.isInteger(count) ? step + 1 : step + (count || 1);
+
+    // Track step progression to the destination step
+    trackStepNavigation(step, newStep);
+
+    setStep(newStep);
   };
 
   // Guarded step click handler to prevent navigation to invalid steps for public rooms
@@ -110,6 +118,10 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     if (isPublic && (targetStep === 2 || targetStep === 3)) {
       return;
     }
+
+    // Track step navigation
+    trackStepNavigation(step, targetStep);
+
     setStep(targetStep);
   };
 
