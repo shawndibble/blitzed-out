@@ -23,9 +23,16 @@ declare global {
 // Analytics service class
 class AnalyticsService {
   private isDevelopment: boolean = false;
+  private sessionId: string;
 
   constructor() {
     this.isDevelopment = import.meta.env.MODE === 'development';
+    this.sessionId = this.generateSessionId();
+  }
+
+  // Generate unique session ID for tracking user sessions
+  private generateSessionId(): string {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   // Check if analytics is available
@@ -38,7 +45,15 @@ class AnalyticsService {
   // Generic event tracking
   private trackEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
     if (!this.canTrack()) return;
-    window.gtag!('event', eventName, parameters);
+
+    // Add session context to all events for better user journey analysis
+    const enrichedParameters = {
+      ...parameters,
+      session_id: this.sessionId,
+      timestamp: Date.now(),
+    };
+
+    window.gtag!('event', eventName, enrichedParameters);
   }
 
   // Settings change tracking
@@ -71,6 +86,7 @@ class AnalyticsService {
     this.trackEvent('feature_usage', {
       event_category: params.feature_category,
       event_label: params.feature_name,
+      custom_parameter_1: params.interaction_type,
       ...params,
     });
   }
@@ -148,7 +164,13 @@ class AnalyticsService {
       feature_name: 'background_selection',
       feature_category: 'customization',
       interaction_type: 'configure',
-      custom_parameter_1: backgroundType,
+    });
+    // Also track as setting change for consistency
+    this.trackSettingChange({
+      setting_name: 'background_type',
+      old_value: 'unknown',
+      new_value: backgroundType,
+      setting_category: 'ui_setting',
     });
   }
 
@@ -226,6 +248,64 @@ class AnalyticsService {
   // Track custom events with parameters
   trackCustomEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
     this.trackEvent(eventName, parameters);
+  }
+
+  // Track performance metrics for UX optimization
+  trackPerformance(metricName: string, value: number, context?: string) {
+    this.trackEvent('performance_metric', {
+      event_category: 'performance',
+      event_label: metricName,
+      value: Math.round(value),
+      custom_parameter_1: context || 'unknown',
+    });
+  }
+
+  // Track user engagement patterns
+  trackEngagement(engagementType: string, duration?: number, interactionCount?: number) {
+    this.trackEvent('user_engagement', {
+      event_category: 'engagement',
+      event_label: engagementType,
+      value: duration,
+      custom_parameter_1: interactionCount?.toString() || '0',
+    });
+  }
+
+  // Track feature adoption funnel
+  trackFunnelStep(funnelName: string, step: string, stepNumber: number, success: boolean) {
+    this.trackEvent('funnel_step', {
+      event_category: 'conversion',
+      event_label: funnelName,
+      value: stepNumber,
+      custom_parameter_1: step,
+      custom_parameter_2: success.toString(),
+    });
+  }
+
+  // Track app startup and initialization
+  trackAppStart(loadTime: number, userType: 'new' | 'returning' = 'returning') {
+    this.trackPerformance('app_startup', loadTime, 'initialization');
+    this.trackEngagement('app_session_start', 0, 0);
+
+    // Track user type for cohort analysis
+    this.trackEvent('app_lifecycle', {
+      event_category: 'lifecycle',
+      event_label: 'app_start',
+      custom_parameter_1: userType,
+      custom_parameter_2: loadTime.toString(),
+    });
+  }
+
+  // Track game session metrics
+  trackGameSession(duration: number, actionsCount: number, gameMode: string, playerCount?: number) {
+    this.trackEngagement('game_session', duration, actionsCount);
+
+    this.trackEvent('game_session_complete', {
+      event_category: 'gameplay',
+      event_label: gameMode,
+      value: duration,
+      custom_parameter_1: actionsCount.toString(),
+      custom_parameter_2: playerCount?.toString() || '1',
+    });
   }
 }
 

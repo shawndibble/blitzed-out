@@ -1,12 +1,13 @@
 import { Casino } from '@mui/icons-material';
 import { Button, ButtonGroup } from '@mui/material';
-import { useCallback, useEffect, useState, memo } from 'react';
+import { useCallback, useEffect, useState, memo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from '@/hooks/useCountdown';
 import RollOptionsMenu from '../RollOptionsMenu';
 import CustomTimerDialog from '../CustomTimerDialog';
 import OnboardingWrapper from './OnboardingWrapper';
+import { analytics } from '@/services/analytics';
 
 interface RollButtonProps {
   setRollValue: (value: number) => void;
@@ -54,6 +55,10 @@ const RollButton = memo(function RollButton({
     max: 120,
   });
 
+  // Engagement tracking
+  const componentMountTime = useRef<number>(Date.now());
+  const interactionCount = useRef<number>(0);
+
   const updateRollValue = useCallback(
     (value: number): void => {
       setRollValue(value);
@@ -64,6 +69,10 @@ const RollButton = memo(function RollButton({
   const [rollCount, diceSide] = dice.split('d');
 
   const handleClick = (): void => {
+    // Track engagement
+    interactionCount.current += 1;
+    analytics.trackEngagement('roll_button_click', 0, interactionCount.current);
+
     if (selectedRoll === 'manual') {
       rollDice(rollCount, diceSide, updateRollValue);
       setDisabled(true);
@@ -161,6 +170,14 @@ const RollButton = memo(function RollButton({
     updateRollValue,
     setTimeLeft,
   ]);
+
+  // Track engagement session on component unmount
+  useEffect(() => {
+    return () => {
+      const duration = Date.now() - componentMountTime.current;
+      analytics.trackEngagement('roll_button_session', duration, interactionCount.current);
+    };
+  }, []);
 
   return (
     <>

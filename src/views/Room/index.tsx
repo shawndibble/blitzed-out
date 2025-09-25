@@ -32,6 +32,7 @@ import useUrlImport from '@/hooks/useUrlImport';
 import useMessages from '@/context/hooks/useMessages';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import latestMessageByType from '@/helpers/messages';
+import { analytics } from '@/services/analytics';
 
 import BottomTabs from './BottomTabs';
 import MessageList from '@/components/MessageList';
@@ -46,6 +47,10 @@ export default function Room() {
   const [settings, setSettings] = useSettings();
 
   usePresence(room);
+
+  // Game session tracking
+  const sessionStartTime = useRef<number>(Date.now());
+  const actionCount = useRef<number>(0);
 
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
 
@@ -62,6 +67,8 @@ export default function Room() {
   // Use useCallback to memoize the setRollValue function
   const memoizedSetRollValue = useCallback((newValue: number) => {
     setRollValue({ value: newValue, time: Date.now() });
+    // Track action for session analytics
+    actionCount.current += 1;
   }, []);
 
   // Turn change detection for local players (only in pure local multiplayer mode)
@@ -145,6 +152,17 @@ export default function Room() {
   // Use usePlayerMove directly
   const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
   const hybridPlayerList = useHybridPlayerList();
+
+  // Track game session on component unmount
+  useEffect(() => {
+    return () => {
+      const duration = Date.now() - sessionStartTime.current;
+      const gameMode = isOnlineMode(room) ? 'online' : 'local';
+      const playerCount = hybridPlayerList?.length || localPlayers.length || 1;
+
+      analytics.trackGameSession(duration, actionCount.current, gameMode, playerCount);
+    };
+  }, [room, hybridPlayerList?.length, localPlayers.length]);
   const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
 
