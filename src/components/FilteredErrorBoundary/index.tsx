@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/react';
 
 import { isExpectedDOMError, isMinifiedError } from '@/constants/errorPatterns';
+import { isUnsupportedBrowser } from '@/utils/browserDetection';
 
 import React from 'react';
 
@@ -41,29 +42,32 @@ export default class FilteredErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Check if this is an expected React DOM reconciliation error
     const errorMessage = error.message || '';
 
-    if (!isExpectedDOMError(errorMessage)) {
-      // Send all other errors to Sentry (including minified with context)
-      Sentry.withScope((scope) => {
-        scope.setTag('component_error_boundary', true);
+    // Skip Sentry reporting for expected DOM errors
+    if (isExpectedDOMError(errorMessage)) return;
 
-        // Add context for minified errors
-        if (isMinifiedError(errorMessage)) {
-          scope.setTag('minified_error', true);
-          scope.setContext('minifiedContext', {
-            originalMessage: errorMessage,
-            note: 'Minified error - check source maps for original location',
-          });
-        }
+    // Skip Sentry reporting for unsupported browsers
+    if (isUnsupportedBrowser()) return;
 
-        scope.setContext('errorInfo', {
-          componentStack: errorInfo.componentStack,
+    // Send all other errors to Sentry (including minified with context)
+    Sentry.withScope((scope) => {
+      scope.setTag('component_error_boundary', true);
+
+      // Add context for minified errors
+      if (isMinifiedError(errorMessage)) {
+        scope.setTag('minified_error', true);
+        scope.setContext('minifiedContext', {
+          originalMessage: errorMessage,
+          note: 'Minified error - check source maps for original location',
         });
-        Sentry.captureException(error);
+      }
+
+      scope.setContext('errorInfo', {
+        componentStack: errorInfo.componentStack,
       });
-    }
+      Sentry.captureException(error);
+    });
   }
 
   render() {

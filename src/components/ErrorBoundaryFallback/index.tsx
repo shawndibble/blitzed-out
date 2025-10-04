@@ -3,6 +3,7 @@ import { Box, Button } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 import { useMemo } from 'react';
 import { getThemeByMode } from '@/theme';
+import { detectBrowser } from '@/utils/browserDetection';
 
 interface ErrorBoundaryFallbackProps {
   error: Error;
@@ -60,33 +61,46 @@ export default function ErrorBoundaryFallback({ error, resetError }: ErrorBounda
     return getThemeByMode(prefersDark ? 'dark' : 'light');
   }, []);
 
+  const browserInfo = useMemo(() => detectBrowser(), []);
+  const isUnsupportedBrowser = !browserInfo.isSupported;
+
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ p: 2.5, textAlign: 'center' }}>
-        <h2>{t('somethingWentWrong')}</h2>
-        <p>{t('errorReportedToTeam')}</p>
-        <p>{t('errorPersistsCheckBack')}</p>
-        <Box component="details" sx={{ mt: 1.25 }}>
-          <Box component="summary" sx={{ cursor: 'pointer' }}>
-            {t('errorDetails')}
-          </Box>
-          <Box
-            component="pre"
-            sx={{
-              textAlign: 'left',
-              bgcolor: 'action.hover',
-              p: 1.25,
-              my: 1.25,
-              borderRadius: 1,
-              overflow: 'auto',
-            }}
-          >
-            {getErrorDetails(error)}
-          </Box>
-        </Box>
-        <Button variant="contained" onClick={resetError} sx={{ mt: 1.25 }}>
-          {t('tryAgain')}
-        </Button>
+        {isUnsupportedBrowser ? (
+          <>
+            <h2>{t('unsupportedBrowser')}</h2>
+            <p>{t('unsupportedBrowserMessage')}</p>
+            <p>{t('unsupportedBrowserAction')}</p>
+          </>
+        ) : (
+          <>
+            <h2>{t('somethingWentWrong')}</h2>
+            <p>{t('errorReportedToTeam')}</p>
+            <p>{t('errorPersistsCheckBack')}</p>
+            <Box component="details" sx={{ mt: 1.25 }}>
+              <Box component="summary" sx={{ cursor: 'pointer' }}>
+                {t('errorDetails')}
+              </Box>
+              <Box
+                component="pre"
+                sx={{
+                  textAlign: 'left',
+                  bgcolor: 'action.hover',
+                  p: 1.25,
+                  my: 1.25,
+                  borderRadius: 1,
+                  overflow: 'auto',
+                }}
+              >
+                {getErrorDetails(error)}
+              </Box>
+            </Box>
+            <Button variant="contained" onClick={resetError} sx={{ mt: 1.25 }}>
+              {t('tryAgain')}
+            </Button>
+          </>
+        )}
       </Box>
     </ThemeProvider>
   );
