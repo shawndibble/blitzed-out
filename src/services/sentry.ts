@@ -52,12 +52,11 @@ export function initializeSentry(): void {
       const errorMessage = event.exception?.values?.[0]?.value || event.message || '';
       const errorMessageLower = errorMessage.toLowerCase();
 
-      // Tag iOS Safari module errors for better tracking
+      // Filter out iOS Safari module loading errors - not actionable, iOS Safari bug
+      // Users experience this when iOS aggressively kills network requests or has cache issues
+      // Solution: user refreshes the page
       if (errorMessageLower.includes('module script failed')) {
-        event.tags = { ...(event.tags ?? {}), [ERROR_CATEGORIES.IOS_SAFARI_MODULE]: true };
-        if (!event.fingerprint?.length) {
-          event.fingerprint = ['ios-safari-module-loading-error'];
-        }
+        return null;
       }
 
       // Filter out expected React DOM insertion errors during normal reconciliation
@@ -84,6 +83,18 @@ export function initializeSentry(): void {
         if (!event.fingerprint?.length) {
           event.fingerprint = ['network-loading-error-with-trace'];
         }
+      }
+
+      // Filter out rare Safari IndexedDB cursor errors (private browsing, quota issues)
+      // Only 1 occurrence in last 30 days - not actionable, Safari browser quirk
+      if (errorMessageLower.includes('cannot open cursor to perform index gets')) {
+        return null;
+      }
+
+      // Filter out user-initiated database deletions (Safari: Clear History and Website Data)
+      // Not an error - expected behavior when users clear browser data
+      if (errorMessageLower.includes('database deleted by request of the user')) {
+        return null;
       }
 
       // Tag other DOM insertion errors for tracking (unexpected ones)
