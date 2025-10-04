@@ -9,6 +9,7 @@
  */
 export const EXPECTED_DOM_ERROR_PATTERNS = [
   'insertBefore',
+  'removeChild',
   'not a child of this node',
   'The object can not be found here',
 ] as const;
@@ -53,7 +54,8 @@ const MINIFIED_ERROR_PATTERNS_LC = MINIFIED_ERROR_PATTERNS.map((p) =>
 
 /**
  * Check if an error message matches expected DOM reconciliation error patterns
- * Requires the specific combination that characterizes React reconciliation insertBefore errors
+ * Requires the specific combination that characterizes React reconciliation errors
+ * (insertBefore or removeChild with "not a child" message)
  * @param errorMessage - The error message to check
  * @returns true if the error matches expected DOM reconciliation patterns
  */
@@ -61,17 +63,21 @@ export function isExpectedDOMError(errorMessage: unknown): boolean {
   const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
   if (!msg) return false;
 
-  const [insertBeforeToken, notChildToken, notFoundToken] = EXPECTED_DOM_ERROR_PATTERNS;
+  const [insertBeforeToken, removeChildToken, notChildToken, notFoundToken] =
+    EXPECTED_DOM_ERROR_PATTERNS;
   const hasInsertBefore = msg.includes(insertBeforeToken.toLowerCase());
+  const hasRemoveChild = msg.includes(removeChildToken.toLowerCase());
   const hasNotChild = msg.includes(notChildToken.toLowerCase());
   const hasNotFound = msg.includes(notFoundToken.toLowerCase());
 
-  // Typical reconciliation error: both tokens present (or the "failed to execute 'insertBefore'" variant)
-  if (hasInsertBefore && hasNotChild) return true;
+  // Typical reconciliation error: insertBefore or removeChild with "not a child"
+  if ((hasInsertBefore || hasRemoveChild) && hasNotChild) return true;
   // cspell:disable-next-line
   if (msg.includes("failed to execute 'insertbefore'")) return true;
-  // NotFoundError from DOM insertBefore operations
-  if (hasNotFound && hasInsertBefore) return true;
+  // cspell:disable-next-line
+  if (msg.includes("failed to execute 'removechild'")) return true;
+  // NotFoundError from DOM insertBefore or removeChild operations
+  if (hasNotFound && (hasInsertBefore || hasRemoveChild)) return true;
 
   return false;
 }
