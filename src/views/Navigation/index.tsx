@@ -28,6 +28,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
   const { t } = useTranslation();
   const [openSchedule, setOpenSchedule] = useState<boolean>(false);
   const [openUserPresence, setOpenUserPresence] = useState<boolean>(false);
+  const [userPresenceAnchor, setUserPresenceAnchor] = useState<HTMLElement | null>(null);
   const [seen, setSeen] = useState<boolean>(false);
   const { schedule } = useSchedule();
   const isMobile = useBreakpoint();
@@ -39,11 +40,13 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
   };
 
   const handleUserPresenceClick = (): void => {
+    setUserPresenceAnchor(playersOnlineRef.current);
     setOpenUserPresence(!openUserPresence);
   };
 
   const handleUserPresenceClose = (): void => {
     setOpenUserPresence(false);
+    setUserPresenceAnchor(null);
   };
 
   return (
@@ -91,7 +94,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
                 isOpen={openUserPresence}
                 onClose={handleUserPresenceClose}
                 playerList={playerList}
-                anchorEl={playersOnlineRef.current}
+                anchorEl={userPresenceAnchor}
               />
             )}
           </div>

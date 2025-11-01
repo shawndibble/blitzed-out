@@ -38,7 +38,10 @@ export default function GameBoard({
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
   const previousPlayerLocations = useRef<Map<string, number>>(new Map());
   const scrollTargetRef = useRef<{ playerId: string; targetTile: number } | null>(null);
-  const animatingPlayerRef = useRef<{ playerId: string; targetTile: number } | null>(null);
+  const [animatingPlayer, setAnimatingPlayer] = useState<{
+    playerId: string;
+    targetTile: number;
+  } | null>(null);
 
   // Track player movement and trigger animations
   const handlePlayerMovement = useCallback(() => {
@@ -55,8 +58,7 @@ export default function GameBoard({
           scrollTargetRef.current = { playerId: player.uid, targetTile: currentLocation };
         }
 
-        // Track any player that's currently animating (for pulse animation)
-        animatingPlayerRef.current = { playerId: player.uid, targetTile: currentLocation };
+        setAnimatingPlayer({ playerId: player.uid, targetTile: currentLocation });
 
         const tokenPosition: TokenPosition = {
           playerId: player.uid,
@@ -66,11 +68,9 @@ export default function GameBoard({
           isCurrent: player.isSelf || false,
         };
 
-        // Trigger animation
         animationLayerRef.current?.animateTokenMovement(tokenPosition);
       }
 
-      // Update previous location
       previousPlayerLocations.current.set(player.uid, currentLocation);
     });
   }, [playerList]);
@@ -87,15 +87,11 @@ export default function GameBoard({
   }, []);
 
   const handleAnimationComplete = useCallback((playerId: string) => {
-    // Clear scroll target when animation completes
     if (scrollTargetRef.current?.playerId === playerId) {
       scrollTargetRef.current = null;
     }
 
-    // Clear animating player reference when animation completes
-    if (animatingPlayerRef.current?.playerId === playerId) {
-      animatingPlayerRef.current = null;
-    }
+    setAnimatingPlayer((current) => (current?.playerId === playerId ? null : current));
   }, []);
 
   // Handle animation progress for smooth scrolling
@@ -198,9 +194,8 @@ export default function GameBoard({
   const gameTiles = gameBoard.map((entry, index) => {
     const players = playerList.filter((player) => player.location === index);
 
-    // Check if this tile is the target destination for any animating player
-    const isAnimationTargetTile = animatingPlayerRef.current?.targetTile === index;
-    const animatingPlayerId = animatingPlayerRef.current?.playerId;
+    const isAnimationTargetTile = animatingPlayer?.targetTile === index;
+    const animatingPlayerId = animatingPlayer?.playerId;
 
     // Pulse on destination tile during movement; otherwise mark the self tile as current (except start tile)
     const current =

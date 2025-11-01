@@ -30,11 +30,16 @@ export default function ImageSlideshow({
 
   // Reset loading state when images change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasLoadedFirstImage(false);
+
     setPreloadedImages(new Set());
+
     setImageLoadErrors(new Set());
     preloadRef.current.clear();
+
     setCurrentIndex(0);
+
     setImageKey(0);
   }, [images]);
 
@@ -122,18 +127,19 @@ export default function ImageSlideshow({
   }, []);
 
   const currentImage = images[currentIndex] || '';
-  const isCurrentImagePreloaded =
-    preloadedImages.has(currentImage) || preloadRef.current.has(currentImage);
   const hasCurrentImageError = imageLoadErrors.has(currentImage);
+
+  const isCurrentImagePreloaded = preloadedImages.has(currentImage);
 
   // Skip to next image if current image failed to load
   useEffect(() => {
     if (hasCurrentImageError && images.length > 1) {
-      // Check if all images have failed to prevent infinite loop
       const allImagesFailed = images.every((img) => imageLoadErrors.has(img));
       if (!allImagesFailed) {
         const nextIndex = (currentIndex + 1) % images.length;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentIndex(nextIndex);
+
         setImageKey((prev) => prev + 1);
       }
     }

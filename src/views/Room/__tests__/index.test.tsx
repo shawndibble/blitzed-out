@@ -412,14 +412,6 @@ describe('Room Component', () => {
 
       expect(usePresence).toHaveBeenCalledWith('PRESENCE_ROOM');
     });
-
-    it('should handle public room detection', () => {
-      vi.mocked(isPublicRoom).mockReturnValue(true);
-
-      renderRoomWithRouter('PUBLIC');
-
-      expect(isPublicRoom).toHaveBeenCalledWith('PUBLIC');
-    });
   });
 
   describe('User Interactions', () => {

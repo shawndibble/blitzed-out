@@ -247,8 +247,15 @@ export const useCachedGroups = (
     >
   >(new Map());
 
-  const cacheKey = `${context}-${gameMode || 'online'}-${i18next.resolvedLanguage || 'en'}`;
+  const [validatedResult, setValidatedResult] = useState<{
+    groups: GroupWithTileInfo[];
+    loading: boolean;
+    error: string | null;
+    isEmpty: boolean;
+    fromCache: boolean;
+  } | null>(null);
 
+  const cacheKey = `${context}-${gameMode || 'online'}-${i18next.resolvedLanguage || 'en'}`;
   const result = useContextualGroups(context, gameMode, { includeTileCounts: true });
 
   useEffect(() => {
@@ -265,20 +272,31 @@ export const useCachedGroups = (
     }
   }, [result.groups, result.loading, cacheKey]);
 
-  // Check cache first
-  const cachedData = cache.get(cacheKey);
-  const isCacheValid = cachedData && Date.now() - cachedData.timestamp < cacheTime;
+  useEffect(() => {
+    const cachedData = cache.get(cacheKey);
+    const isCacheValid = cachedData && Date.now() - cachedData.timestamp < cacheTime;
 
-  if (isCacheValid && !result.loading) {
-    return {
-      ...result,
-      groups: cachedData.data,
-      fromCache: true,
-    };
-  }
+    if (isCacheValid && !result.loading) {
+      setValidatedResult({
+        ...result,
+        groups: cachedData.data,
+        fromCache: true,
+      });
+    } else {
+      setValidatedResult({
+        ...result,
+        fromCache: false,
+      });
+    }
+  }, [result, cacheKey, cacheTime, cache]);
 
-  return {
-    ...result,
-    fromCache: false,
-  };
+  return (
+    validatedResult ?? {
+      groups: [],
+      loading: true,
+      error: null,
+      isEmpty: true,
+      fromCache: false,
+    }
+  );
 };

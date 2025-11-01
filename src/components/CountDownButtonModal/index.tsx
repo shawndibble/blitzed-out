@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Pause, PlayArrow, Replay } from '@mui/icons-material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import CloseIcon from '@/components/CloseIcon';
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -34,7 +34,14 @@ export default function CountDownButtonModal({
   if (Number.isNaN(totalSeconds) || totalSeconds < 0) {
     totalSeconds = 0;
   }
-  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(totalSeconds, true);
+
+  const handleClose = () => setOpen(false);
+
+  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(
+    totalSeconds,
+    true,
+    handleClose
+  );
 
   const clickedButton = () => {
     preventParentClose();
@@ -42,13 +49,6 @@ export default function CountDownButtonModal({
     setTimeLeft(totalSeconds);
     if (isPaused) togglePause();
   };
-
-  // Close when countdown completes
-  useEffect(() => {
-    if (open && timeLeft <= 0) setOpen(false);
-  }, [open, timeLeft]);
-
-  const handleClose = () => setOpen(false);
 
   // end handle timeout of TransitionModal.
 

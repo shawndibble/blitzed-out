@@ -9,7 +9,8 @@ interface CountdownResult {
 
 export default function useCountdown(
   startSeconds: number,
-  startPaused: boolean = true
+  startPaused: boolean = true,
+  onComplete?: () => void
 ): CountdownResult {
   const [timeLeft, setTimeLeft] = useState<number>(startSeconds);
   const [isPaused, setPause] = useState<boolean>(startPaused);
@@ -19,20 +20,27 @@ export default function useCountdown(
   useEffect(() => {
     if (timeLeft === -1) {
       setTimeLeft(0);
+      return;
     }
 
-    // exit early when we reach 0
+    if (timeLeft === 0 && onComplete) {
+      onComplete();
+      return;
+    }
+
     if (timeLeft <= 0 || isPaused) return;
 
-    // save intervalId to clear the interval when the
-    // component re-renders
     const intervalId = setInterval(() => {
-      setTimeLeft((currentTime) => currentTime - 1);
+      setTimeLeft((currentTime) => {
+        if (currentTime <= 1) {
+          return 0;
+        }
+        return currentTime - 1;
+      });
     }, 1000);
 
-    // clear interval on re-render to avoid memory leaks
     return () => clearInterval(intervalId);
-  }, [timeLeft, isPaused]);
+  }, [timeLeft, isPaused, onComplete]);
 
   return {
     timeLeft,

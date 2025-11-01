@@ -55,9 +55,12 @@ const RollButton = memo(function RollButton({
     max: 120,
   });
 
-  // Engagement tracking
-  const componentMountTime = useRef<number>(Date.now());
+  const componentMountTime = useRef<number>(0);
   const interactionCount = useRef<number>(0);
+
+  useEffect(() => {
+    componentMountTime.current = Date.now();
+  }, []);
 
   const updateRollValue = useCallback(
     (value: number): void => {
