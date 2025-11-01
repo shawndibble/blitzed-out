@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent } from 'react';
 import {
   FormControl,
   InputLabel,
@@ -45,7 +45,18 @@ export default function BackgroundSelect({
 
   // No defaults - let background be undefined/null if not set
   const currentBackground = formData?.[backgroundKey];
-  const [background, setBackground] = useState<string>(currentBackground || '');
+
+  const getValidBackground = (bg: string | undefined): string => {
+    if (!bg) return '';
+
+    if (bg === 'useRoomBackground' && isPrivateRoom) {
+      return bg;
+    }
+
+    return filteredBackgrounds[bg] ? bg : '';
+  };
+
+  const background = getValidBackground(currentBackground);
 
   const options = () => {
     const menuItems = [
@@ -62,9 +73,7 @@ export default function BackgroundSelect({
     const value = event.target.value as string;
     const data = { ...formData, [backgroundKey]: value } as Settings;
 
-    // Clear stale URL when switching away from custom
     if (value !== 'custom') {
-      // Type-safe property assignment using computed property syntax
       const updatedData = {
         ...data,
         [backgroundURLKey]: '',
@@ -75,9 +84,7 @@ export default function BackgroundSelect({
       }
 
       setFormData(updatedData);
-      setBackground(value);
 
-      // Update settings immediately
       onBackgroundChange?.(backgroundKey, value, backgroundURLKey, '');
       return;
     }
@@ -86,30 +93,9 @@ export default function BackgroundSelect({
       data.roomUpdated = true;
     }
     setFormData(data);
-    setBackground(value);
 
-    // Update settings immediately for custom background
     onBackgroundChange?.(backgroundKey, value);
   };
-
-  useEffect(() => {
-    // Handle special case where useRoomBackground is the selected value but not in filteredBackgrounds
-    const validBackground = (() => {
-      if (!currentBackground) return '';
-
-      // If it's useRoomBackground and we're in a private room, it's valid even if not in filteredBackgrounds
-      if (currentBackground === 'useRoomBackground' && isPrivateRoom) {
-        return currentBackground;
-      }
-
-      // Otherwise, check if it exists in filteredBackgrounds
-      return filteredBackgrounds[currentBackground] ? currentBackground : '';
-    })();
-
-    if (background !== validBackground) {
-      setBackground(validBackground);
-    }
-  }, [background, currentBackground, filteredBackgrounds, isPrivateRoom]);
 
   const handleURLChange = (event: ChangeEvent<HTMLInputElement>) => {
     const data = {

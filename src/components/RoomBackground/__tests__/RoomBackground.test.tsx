@@ -66,11 +66,11 @@ describe('RoomBackground', () => {
       expect(container).toHaveStyle(`background-image: url(${imageUrl})`);
     });
 
-    it('does not set background image when url is null', () => {
+    it('applies default gradient background when url is null', () => {
       render(<RoomBackground url={null} isVideo={false} />);
 
       const container = screen.getByRole('presentation');
-      expect(container).toHaveStyle('background-image: none');
+      expect(container).toHaveClass('default-background');
     });
 
     it('does not set background image when isVideo is true', () => {

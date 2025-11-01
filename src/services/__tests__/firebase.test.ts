@@ -11,7 +11,9 @@ vi.mock('firebase/auth', () => ({
   updateProfile: vi.fn(),
   sendPasswordResetEmail: vi.fn(),
   linkWithCredential: vi.fn(),
-  GoogleAuthProvider: vi.fn(),
+  GoogleAuthProvider: vi.fn(function GoogleAuthProvider() {
+    return {};
+  }),
   EmailAuthProvider: {
     credential: vi.fn(),
   },
@@ -186,14 +188,12 @@ describe('Firebase Authentication Service', () => {
     it('should handle Google login', async () => {
       const { loginWithGoogle } = await import('../firebase');
 
-      const mockProvider = {};
-      mockGoogleAuthProvider.mockReturnValue(mockProvider);
       mockSignInWithPopup.mockResolvedValue({ user: mockUser });
 
       const result = await loginWithGoogle();
 
       expect(mockGoogleAuthProvider).toHaveBeenCalledTimes(1);
-      expect(mockSignInWithPopup).toHaveBeenCalledWith(mockAuth, mockProvider);
+      expect(mockSignInWithPopup).toHaveBeenCalledWith(mockAuth, {});
       expect(result).toEqual(mockUser);
     });
 

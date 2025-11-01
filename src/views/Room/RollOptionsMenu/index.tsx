@@ -13,9 +13,11 @@ const RollOptionsMenu = ({
   handleMenuItemClick,
 }: RollOptionsMenuProps): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const anchorRef = useRef<HTMLButtonElement>(null);
 
   const handleToggle = (): void => {
+    setAnchorEl(anchorRef.current);
     setOpen((prevOpen) => !prevOpen);
   };
 
@@ -24,6 +26,7 @@ const RollOptionsMenu = ({
       return;
     }
     setOpen(false);
+    setAnchorEl(null);
   };
 
   const options = new Map<string, string>();
@@ -51,7 +54,7 @@ const RollOptionsMenu = ({
       <Popper
         sx={{ zIndex: 1 }}
         open={open}
-        anchorEl={anchorRef.current}
+        anchorEl={anchorEl}
         transition
         disablePortal
         placement="top-end"

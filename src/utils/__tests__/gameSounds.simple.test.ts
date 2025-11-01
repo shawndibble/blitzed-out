@@ -25,7 +25,9 @@ const mockAudioContext = {
 // Mock global AudioContext
 Object.defineProperty(window, 'AudioContext', {
   writable: true,
-  value: vi.fn(() => mockAudioContext),
+  value: vi.fn(function AudioContext() {
+    return mockAudioContext;
+  }),
 });
 
 describe('gameSounds utility - simple tests', () => {

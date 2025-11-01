@@ -10,7 +10,7 @@ import {
   Theme,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { GameMode } from '@/types/Settings';
@@ -44,50 +44,40 @@ export default function TileCategorySelection({
   sx = {},
 }: TileCategorySelectionProps): JSX.Element | null {
   const { t } = useTranslation();
-  const [uniqueGroups, setUniqueGroups] = useState<string[]>([]);
 
-  // Memoize the mapped groups folder to avoid repeated calls
   const mappedGroupsFolder = useMemo(() => {
     if (!mappedGroups?.[gameMode as GameMode]) return [];
     const folder = groupActionsFolder(mappedGroups[gameMode as GameMode]);
     return Array.isArray(folder) ? (folder as MappedGroup[]) : [];
   }, [mappedGroups, gameMode]);
 
-  // Helper function to get group label
-  const getGroupLabel = useCallback(
-    (group: string): string => {
-      // First try to get label from Dexie groups
-      if (dexieGroups?.[group]) {
-        return dexieGroups[group].label || group;
-      }
-
-      // Fallback to mappedGroups for default groups
-      const folderGroup = mappedGroupsFolder.find((g) => g.value === group);
-      if (folderGroup?.groupLabel) {
-        return folderGroup.groupLabel;
-      }
-
-      // Final fallback to raw group name
-      return group;
-    },
-    [dexieGroups, mappedGroupsFolder]
-  );
-
-  // Extract unique groups whenever groups or gameMode changes
-  useEffect(() => {
-    // Get group names from groups data (with counts) or fall back to dexieGroups (all available)
+  const uniqueGroups = useMemo(() => {
     let groupNames: string[] = [];
 
-    // Always use dexieGroups (all available groups) instead of groups (only groups with tiles)
-    // This ensures users can select any valid group, even if it doesn't have tiles yet
     if (dexieGroups && Object.keys(dexieGroups).length > 0) {
       groupNames = Object.keys(dexieGroups);
     } else if (groups && Object.keys(groups).length > 0) {
       groupNames = Object.keys(groups);
     }
 
-    setUniqueGroups(groupNames);
-  }, [groups, dexieGroups, gameMode]);
+    return groupNames;
+  }, [groups, dexieGroups]);
+
+  const getGroupLabel = useCallback(
+    (group: string): string => {
+      if (dexieGroups?.[group]) {
+        return dexieGroups[group].label || group;
+      }
+
+      const folderGroup = mappedGroupsFolder.find((g) => g.value === group);
+      if (folderGroup?.groupLabel) {
+        return folderGroup.groupLabel;
+      }
+
+      return group;
+    },
+    [dexieGroups, mappedGroupsFolder]
+  );
 
   function handleGroupFilterChange(event: SelectChangeEvent<string>) {
     const newGroup = event.target.value;
