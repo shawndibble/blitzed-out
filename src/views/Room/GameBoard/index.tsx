@@ -245,23 +245,25 @@ export default function GameBoard({
   });
 
   return (
-    <div
-      ref={(el) => {
-        gameboardRef.current = el;
-        setContainerEl(el);
-      }}
-      className="gameboard transparent-scrollbar"
-      style={{ position: 'relative' }}
-    >
-      <div style={{ position: 'relative' }}>
-        <ol>{gameTiles}</ol>
-        <TokenAnimationLayer
-          ref={animationLayerRef}
-          gameBoard={containerEl}
-          onAnimationStart={handleAnimationStart}
-          onAnimationComplete={handleAnimationComplete}
-          onAnimationProgress={handleAnimationProgress}
-        />
+    <div className="gameboard-container-query-wrapper">
+      <div
+        ref={(el) => {
+          gameboardRef.current = el;
+          setContainerEl(el);
+        }}
+        className="gameboard transparent-scrollbar"
+        style={{ position: 'relative' }}
+      >
+        <div style={{ position: 'relative' }}>
+          <ol>{gameTiles}</ol>
+          <TokenAnimationLayer
+            ref={animationLayerRef}
+            gameBoard={containerEl}
+            onAnimationStart={handleAnimationStart}
+            onAnimationComplete={handleAnimationComplete}
+            onAnimationProgress={handleAnimationProgress}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { Box, Typography, Fade } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next';
 
 interface TurnTransitionProps {
@@ -18,7 +17,6 @@ export default function TurnTransition({
   duration = 3000,
   isCurrentUser = false,
 }: TurnTransitionProps): JSX.Element {
-  const theme = useTheme();
   const { t } = useTranslation();
   const onCompleteRef = useRef(onComplete);
 
@@ -45,7 +43,7 @@ export default function TurnTransition({
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          zIndex: theme.zIndex.modal - 1,
+          zIndex: 3500,
           bgcolor: 'rgba(0, 0, 0, 0.8)',
           borderRadius: 2,
           p: 3,

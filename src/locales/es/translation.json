@@ -554,5 +554,19 @@
   },
   "manageGroups": {
     "title": "Gestionar grupos"
+  },
+  "videoCall": {
+    "title": "Video",
+    "muteButton": "Silenciar micrófono",
+    "unmuteButton": "Activar micrófono",
+    "videoOnButton": "Encender cámara",
+    "videoOffButton": "Apagar cámara",
+    "endCallButton": "Finalizar llamada",
+    "startCall": "Iniciar llamada",
+    "participantCount": "{{count}} participante",
+    "participantCount_plural": "{{count}} participantes",
+    "muted": "Silenciado",
+    "cameraOff": "Cámara apagada",
+    "waitingForOthers": "Esperando a que otros se unan..."
   }
 }
