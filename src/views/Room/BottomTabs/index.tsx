@@ -12,9 +12,10 @@ import { useTranslation } from 'react-i18next';
 export interface BottomTabsProps {
   tab1: ReactNode;
   tab2: ReactNode;
+  tab3?: ReactNode;
 }
 
-export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element {
+export default function BottomTabs({ tab1, tab2, tab3 }: BottomTabsProps): JSX.Element {
   const [value, setValue] = React.useState<number>(0);
   const { t } = useTranslation();
 
@@ -28,6 +29,7 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
         <Tabs value={value} onChange={handleChange} indicatorColor="secondary" variant="fullWidth">
           <Tab label={t('game')} {...a11yProps(0)} />
           <Tab label={t('messages')} {...a11yProps(1)} />
+          {tab3 && <Tab label={t('videoCall.title')} {...a11yProps(2)} />}
         </Tabs>
       </AppBar>
 
@@ -46,6 +48,11 @@ export default function BottomTabs({ tab1, tab2 }: BottomTabsProps): JSX.Element
         <TabPanel value={value} index={1} style={{ flex: 1, overflow: 'hidden', p: 1 }}>
           {tab2}
         </TabPanel>
+        {tab3 && (
+          <TabPanel value={value} index={2} style={{ flex: 1, overflow: 'hidden', p: 1 }}>
+            {tab3}
+          </TabPanel>
+        )}
       </Box>
     </>
   );

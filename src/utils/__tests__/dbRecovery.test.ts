@@ -18,7 +18,7 @@ const mockUserAgent = (userAgent: string) => {
 
 describe('retryOnCursorError', () => {
   let mockDb: ReturnType<typeof createMockDb>;
-  let mockLogger: ReturnType<typeof vi.fn>;
+  let mockLogger: (message: string, error?: Error) => void;
 
   beforeEach(() => {
     mockDb = createMockDb();

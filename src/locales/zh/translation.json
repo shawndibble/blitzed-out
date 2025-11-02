@@ -554,5 +554,20 @@
   },
   "manageGroups": {
     "title": "管理群組"
+  },
+  "videoCall": {
+    "title": "視訊",
+    "muteButton": "靜音麥克風",
+    "unmuteButton": "取消靜音麥克風",
+    "videoOnButton": "開啟攝影機",
+    "videoOffButton": "關閉攝影機",
+    "endCallButton": "結束通話",
+    "startCall": "開始通話",
+    "participantCount": "{{count}} 位參與者",
+    "participantCount_plural": "{{count}} 位參與者",
+    "muted": "已靜音",
+    "cameraOff": "攝影機已關閉",
+    "waitingForOthers": "等待其他人加入...",
+    "peerLimitReached": "已達到最大參與者限制（4人）。對於更大的群組，請使用 Discord、Jitsi、Zoom 或 Telegram。"
   }
 }

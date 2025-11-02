@@ -554,5 +554,20 @@
   },
   "manageGroups": {
     "title": "ग्रुप प्रबंधित करें"
+  },
+  "videoCall": {
+    "title": "वीडियो",
+    "muteButton": "माइक्रोफ़ोन म्यूट करें",
+    "unmuteButton": "माइक्रोफ़ोन अनम्यूट करें",
+    "videoOnButton": "कैमरा चालू करें",
+    "videoOffButton": "कैमरा बंद करें",
+    "endCallButton": "कॉल समाप्त करें",
+    "startCall": "कॉल प्रारंभ करें",
+    "participantCount": "{{count}} प्रतिभागी",
+    "participantCount_plural": "{{count}} प्रतिभागी",
+    "muted": "म्यूट किया गया",
+    "cameraOff": "कैमरा बंद",
+    "waitingForOthers": "दूसरों के शामिल होने की प्रतीक्षा में...",
+    "peerLimitReached": "अधिकतम प्रतिभागी सीमा (4) पहुँच गई। बड़े समूहों के लिए, कृपया Discord, Jitsi, Zoom या Telegram का उपयोग करें।"
   }
 }

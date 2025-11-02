@@ -28,6 +28,40 @@
         }
       }
     },
+    "video-calls": {
+      "$roomId": {
+        ".read": "auth != null",
+        "users": {
+          ".read": "auth != null",
+          "$userId": {
+            ".read": "auth != null",
+            ".write": "auth != null && auth.uid == $userId",
+            ".validate": "newData.hasChildren(['joinedAt', 'status']) && newData.child('joinedAt').isNumber() && newData.child('status').isString()"
+          }
+        },
+        "offers": {
+          ".read": "auth != null",
+          "$targetUserId": {
+            ".read": "auth != null && auth.uid == $targetUserId",
+            ".write": "auth != null"
+          }
+        },
+        "answers": {
+          ".read": "auth != null",
+          "$targetUserId": {
+            ".read": "auth != null && auth.uid == $targetUserId",
+            ".write": "auth != null"
+          }
+        },
+        "ice-candidates": {
+          ".read": "auth != null",
+          "$targetUserId": {
+            ".read": "auth != null && auth.uid == $targetUserId",
+            ".write": "auth != null"
+          }
+        }
+      }
+    },
     ".read": false,
     ".write": false
   }

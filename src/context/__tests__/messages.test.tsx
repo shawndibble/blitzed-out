@@ -84,7 +84,7 @@ const createMockMessage = (
 
 describe('MessagesProvider', () => {
   const mockGetMessages = vi.mocked(firebaseService.getMessages);
-  let mockUnsubscribe: ReturnType<typeof vi.fn>;
+  let mockUnsubscribe: () => void;
 
   beforeEach(() => {
     mockUnsubscribe = vi.fn();

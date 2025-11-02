@@ -15,9 +15,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
 
-    // Reasonable timeouts for CI - match regular config
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    // Aggressive timeouts for CI to prevent hanging
+    testTimeout: 5000, // Reduced from 10000 to catch hanging tests faster
+    hookTimeout: 5000, // Reduced from 10000
 
     // Simple, fast execution with early bail
     reporter: 'dot',
@@ -37,9 +37,11 @@ export default defineConfig({
     poolOptions: {
       forks: {
         singleFork: true,
+        maxForks: 1, // Only one fork at a time
       },
     },
     fileParallelism: false, // Process files sequentially to reduce memory overhead
+    maxConcurrency: 1, // Run tests one at a time to prevent memory issues
 
     // Reduce memory footprint
     coverage: {

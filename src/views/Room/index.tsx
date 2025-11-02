@@ -37,6 +37,9 @@ import { analytics } from '@/services/analytics';
 import BottomTabs from './BottomTabs';
 import MessageList from '@/components/MessageList';
 import GameBoard from '@/views/Room/GameBoard';
+import VideoCallProvider from '@/components/VideoCall';
+import VideoCallPanel from '@/components/VideoCall/VideoCallPanel';
+import VideoSidebar from '@/components/VideoCall/VideoSidebar';
 
 export default function Room() {
   const params = useParams<{ id: string }>();
@@ -45,6 +48,8 @@ export default function Room() {
   const { t } = useTranslation();
 
   const [settings, setSettings] = useSettings();
+  const [isVideoSidebarOpen, setIsVideoSidebarOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(320);
 
   usePresence(room);
 
@@ -247,9 +252,19 @@ export default function Room() {
     </div>
   );
 
+  const videoCallComponent = <VideoCallPanel showLocalVideo={true} />;
+
   return (
     <>
       <Navigation room={room} playerList={hybridPlayerList as any} />
+
+      <style>
+        {`
+          .dice-roller {
+            left: ${!isMobile && isVideoSidebarOpen ? `${sidebarWidth + 50}px` : '50px'} !important;
+          }
+        `}
+      </style>
 
       <RollButton
         setRollValue={memoizedSetRollValue}
@@ -268,13 +283,35 @@ export default function Room() {
       />
 
       {isMobile ? (
-        <BottomTabs tab1={GameBoardComponent} tab2={messagesComponent} />
+        <VideoCallProvider roomId={room}>
+          <BottomTabs
+            tab1={GameBoardComponent}
+            tab2={messagesComponent}
+            tab3={videoCallComponent}
+          />
+        </VideoCallProvider>
       ) : (
-        <Box className={clsx('desktop-container', videoAdjust, defaultRoomBackgroundClass)}>
-          {GameBoardComponent}
-          {messagesComponent}
-        </Box>
+        <>
+          <VideoSidebar
+            roomId={room}
+            onToggle={setIsVideoSidebarOpen}
+            onWidthChange={setSidebarWidth}
+          />
+          <Box
+            className={clsx('desktop-container', videoAdjust, defaultRoomBackgroundClass)}
+            sx={{
+              marginLeft: isVideoSidebarOpen ? `${sidebarWidth}px` : 0,
+              width: isVideoSidebarOpen ? `calc(100vw - ${sidebarWidth}px)` : '100vw',
+              transition: 'margin-left 0.2s ease, width 0.2s ease',
+              overflowX: 'visible',
+            }}
+          >
+            {GameBoardComponent}
+            {messagesComponent}
+          </Box>
+        </>
       )}
+
       <PopupMessage />
       <ToastAlert
         type={importResult === t('updated') ? 'success' : 'error'}

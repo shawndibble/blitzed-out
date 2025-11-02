@@ -554,5 +554,20 @@
   },
   "manageGroups": {
     "title": "Manage Groups"
+  },
+  "videoCall": {
+    "title": "Video",
+    "muteButton": "Mute microphone",
+    "unmuteButton": "Unmute microphone",
+    "videoOnButton": "Turn camera on",
+    "videoOffButton": "Turn camera off",
+    "endCallButton": "End call",
+    "startCall": "Start call",
+    "participantCount": "{{count}} participant",
+    "participantCount_plural": "{{count}} participants",
+    "muted": "Muted",
+    "cameraOff": "Camera off",
+    "waitingForOthers": "Waiting for others to join...",
+    "peerLimitReached": "Maximum participant limit reached (4). For larger groups, please use Discord, Jitsi, Zoom, or Telegram."
   }
 }

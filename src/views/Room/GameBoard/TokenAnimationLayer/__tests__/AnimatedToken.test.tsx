@@ -42,7 +42,7 @@ vi.mock('@/components/TextAvatar', () => ({
 
 describe('AnimatedToken', () => {
   let mockFLIPData: FLIPData;
-  let mockOnComplete: ReturnType<typeof vi.fn>;
+  let mockOnComplete: () => void;
 
   beforeEach(() => {
     mockFLIPData = {
