@@ -28,7 +28,15 @@ describe('webrtc configuration', () => {
   });
 
   test('Includes Google STUN servers', () => {
-    const hasGoogleStun = ICE_SERVERS.some((server) => server.urls.includes('stun.l.google.com'));
+    const hasGoogleStun = ICE_SERVERS.some((server) => {
+      // Parse the URL to safely check the hostname
+      try {
+        const url = new URL(server.urls);
+        return url.hostname === 'stun.l.google.com' || url.hostname === 'stun1.l.google.com';
+      } catch {
+        return false;
+      }
+    });
     expect(hasGoogleStun).toBe(true);
   });
 });
