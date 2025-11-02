@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { getAuth } from 'firebase/auth';
 import { useVideoCallStore } from '@/stores/videoCallStore';
 
 interface VideoCallProviderProps {
@@ -10,7 +11,12 @@ const VideoCallProvider = ({ roomId, children }: VideoCallProviderProps) => {
   const { initialize, cleanup } = useVideoCallStore();
 
   useEffect(() => {
-    initialize(roomId);
+    const auth = getAuth();
+    const userId = auth.currentUser?.uid;
+
+    if (userId) {
+      initialize(roomId, userId);
+    }
 
     return () => {
       cleanup();

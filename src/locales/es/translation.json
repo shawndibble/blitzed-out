@@ -567,6 +567,7 @@
     "participantCount_plural": "{{count}} participantes",
     "muted": "Silenciado",
     "cameraOff": "Cámara apagada",
-    "waitingForOthers": "Esperando a que otros se unan..."
+    "waitingForOthers": "Esperando a que otros se unan...",
+    "peerLimitReached": "Límite máximo de participantes alcanzado (4). Para grupos más grandes, use Discord, Jitsi, Zoom o Telegram."
   }
 }

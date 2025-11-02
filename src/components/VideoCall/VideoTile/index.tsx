@@ -8,17 +8,47 @@ interface VideoTileProps {
   participantId: string;
   isSpeaking: boolean;
   isMuted: boolean;
+  isLocal?: boolean;
 }
 
-const VideoTile = ({ stream, participantId, isSpeaking, isMuted }: VideoTileProps) => {
+const VideoTile = ({
+  stream,
+  participantId,
+  isSpeaking,
+  isMuted,
+  isLocal = false,
+}: VideoTileProps) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
+    const videoElement = videoRef.current;
+
+    if (videoElement && stream) {
+      const hasValidTracks =
+        stream.getVideoTracks().length > 0 || stream.getAudioTracks().length > 0;
+
+      if (hasValidTracks) {
+        const oldStream = videoElement.srcObject as MediaStream | null;
+        if (oldStream && oldStream !== stream) {
+          videoElement.srcObject = null;
+        }
+
+        videoElement.srcObject = stream;
+      } else {
+        videoElement.srcObject = null;
+      }
     }
-  }, [stream]);
+
+    return () => {
+      if (videoElement) {
+        const currentStream = videoElement.srcObject as MediaStream | null;
+        if (currentStream) {
+          videoElement.srcObject = null;
+        }
+      }
+    };
+  }, [stream, participantId]);
 
   const videoTrack = stream?.getVideoTracks()[0];
   const isVideoOff = !videoTrack || !videoTrack.enabled;
@@ -41,7 +71,7 @@ const VideoTile = ({ stream, participantId, isSpeaking, isMuted }: VideoTileProp
         ref={videoRef}
         autoPlay
         playsInline
-        muted
+        muted={isLocal}
         style={{
           position: 'absolute',
           top: 0,

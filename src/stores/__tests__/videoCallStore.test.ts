@@ -26,6 +26,19 @@ vi.mock('@/context/migration', () => ({
   }),
 }));
 
+vi.mock('firebase/database', () => ({
+  getDatabase: vi.fn(() => ({})),
+  ref: vi.fn(() => ({})),
+  onValue: vi.fn((ref, callback) => {
+    // Immediately call callback with empty data to simulate Firebase
+    setTimeout(() => {
+      callback({ val: () => null });
+    }, 0);
+    return vi.fn(); // Return unsubscribe function
+  }),
+  off: vi.fn(),
+}));
+
 describe('VideoCallStore', () => {
   let mockMediaStream: MediaStream;
   let mockVideoTrack: MediaStreamTrack;
@@ -53,9 +66,12 @@ describe('VideoCallStore', () => {
       getAudioTracks: vi.fn(() => [mockAudioTrack]),
     } as unknown as MediaStream;
 
-    global.navigator.mediaDevices = {
-      getUserMedia: vi.fn().mockResolvedValue(mockMediaStream),
-    } as unknown as MediaDevices;
+    Object.defineProperty(global.navigator, 'mediaDevices', {
+      writable: true,
+      value: {
+        getUserMedia: vi.fn().mockResolvedValue(mockMediaStream),
+      },
+    });
   });
 
   afterEach(() => {
@@ -86,12 +102,20 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
-        video: true,
-        audio: true,
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 24, max: 30 },
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
       });
       expect(result.current.localStream).toBe(mockMediaStream);
       expect(result.current.isInitialized).toBe(true);
@@ -102,7 +126,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       expect(result.current.isInitialized).toBe(true);
@@ -115,7 +139,9 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await expect(result.current.initialize('test-room')).rejects.toThrow('Permission denied');
+        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
+          'Permission denied'
+        );
       });
 
       expect(result.current.localStream).toBeNull();
@@ -128,7 +154,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -146,7 +172,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -172,7 +198,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -206,7 +232,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -240,7 +266,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -254,7 +280,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -265,14 +291,15 @@ describe('VideoCallStore', () => {
         result.current.handleVisibilityChange(false);
       });
 
-      expect(mockVideoTrack.enabled).toBe(true);
+      const videoTrack = result.current.localStream?.getVideoTracks()[0];
+      expect(videoTrack?.enabled).toBe(true);
     });
 
     test('should not resume if video was manually turned off', async () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -296,7 +323,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       expect(result.current.isInitialized).toBe(true);
@@ -306,7 +333,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -322,7 +349,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -336,7 +363,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -352,7 +379,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       expect(result.current.isCallActive).toBe(true);
@@ -383,7 +410,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -408,7 +435,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {
@@ -430,8 +457,16 @@ describe('VideoCallStore', () => {
       });
 
       expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
-        video: true,
-        audio: true,
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 24, max: 30 },
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
       });
       expect(result.current.localStream).toBe(newMockStream);
       expect(result.current.isCallActive).toBe(true);
@@ -454,7 +489,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room');
+        await result.current.initialize('test-room', 'test-user-id');
       });
 
       act(() => {

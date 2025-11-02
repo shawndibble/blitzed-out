@@ -130,7 +130,7 @@ export class MockPeer {
 
   call(
     peerId: string,
-    stream: MediaStream,
+    _stream: MediaStream,
     metadata?: Record<string, unknown>
   ): MockMediaConnection {
     const connection = new MockMediaConnection(peerId, metadata);
@@ -226,8 +226,8 @@ export function createMockMediaStreamTrack(kind: 'audio' | 'video'): MediaStream
     enabled: true,
     muted: false,
     readyState: 'live' as MediaStreamTrackState,
-    stop: vi.fn(function (this: MediaStreamTrack) {
-      this.readyState = 'ended' as MediaStreamTrackState;
+    stop: vi.fn(function (this: { readyState: string }) {
+      this.readyState = 'ended';
     }),
     clone: vi.fn(() => createMockMediaStreamTrack(kind)),
     getSettings: vi.fn(() => ({

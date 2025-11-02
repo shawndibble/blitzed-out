@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Box } from '@mui/material';
 import { useVideoCallStore } from '@/stores/videoCallStore';
 import VideoGrid from './VideoGrid';
@@ -9,27 +10,38 @@ interface VideoCallPanelProps {
 }
 
 const VideoCallPanel = ({ showLocalVideo = false, onEndCall }: VideoCallPanelProps) => {
-  const { peers, localStream } = useVideoCallStore();
+  const peers = useVideoCallStore((state) => state.peers);
+  const localStream = useVideoCallStore((state) => state.localStream);
 
-  const participantsMap = new Map(
-    Array.from(peers.entries()).map(([peerId, peerData]) => [
-      peerId,
-      {
-        stream: peerData.stream,
+  const participantsMap = useMemo(() => {
+    const map = new Map(
+      Array.from(peers.entries())
+        .filter(([, peerData]) => {
+          const stream = peerData.stream;
+          return (
+            stream && (stream.getVideoTracks().length > 0 || stream.getAudioTracks().length > 0)
+          );
+        })
+        .map(([peerId, peerData]) => [
+          peerId,
+          {
+            stream: peerData.stream,
+            isSpeaking: false,
+            isMuted: false,
+          },
+        ])
+    );
+
+    if (showLocalVideo && localStream) {
+      map.set('local', {
+        stream: localStream,
         isSpeaking: false,
         isMuted: false,
-      },
-    ])
-  );
+      });
+    }
 
-  // Add local video last if requested (so it appears at the bottom)
-  if (showLocalVideo && localStream) {
-    participantsMap.set('local', {
-      stream: localStream,
-      isSpeaking: false,
-      isMuted: false,
-    });
-  }
+    return map;
+  }, [peers, localStream, showLocalVideo]);
 
   return (
     <Box
@@ -37,8 +49,8 @@ const VideoCallPanel = ({ showLocalVideo = false, onEndCall }: VideoCallPanelPro
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        p: { xs: 1, sm: 2 }, // Less padding on mobile
-        pb: { xs: '70px', sm: 2 }, // Extra padding on mobile to push controls above roll button
+        p: { xs: 1, sm: 2 },
+        pb: { xs: '70px', sm: 2 },
       }}
     >
       <Box sx={{ flexGrow: 1, overflow: 'hidden', mb: 2, minHeight: 0 }}>

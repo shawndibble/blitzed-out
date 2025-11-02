@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import VideoTile from '../VideoTile';
 
@@ -34,12 +34,33 @@ const VideoGrid = ({ participants }: VideoGridProps) => {
     );
   }
 
+  const MAX_PEERS = 4;
+  const isAtLimit = participantCount >= MAX_PEERS;
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ mb: 2, flexShrink: 0 }}>
-        <Typography variant="body2" color="text.secondary">
-          {t('videoCall.participantCount', { count: participantCount })}
-        </Typography>
+        <Tooltip
+          title={
+            isAtLimit
+              ? t('videoCall.peerLimitReached', {
+                  defaultValue:
+                    'Maximum participant limit reached (4). For larger groups, please use Discord, Jitsi, Zoom, or Telegram.',
+                })
+              : ''
+          }
+          arrow
+          placement="top"
+        >
+          <Typography
+            variant="body2"
+            color={isAtLimit ? 'error' : 'text.secondary'}
+            sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}
+          >
+            {t('videoCall.participantCount', { count: participantCount })}
+            {isAtLimit && ' ⚠️'}
+          </Typography>
+        </Tooltip>
       </Box>
 
       <Box
@@ -58,6 +79,7 @@ const VideoGrid = ({ participants }: VideoGridProps) => {
             participantId={participantId}
             isSpeaking={data.isSpeaking}
             isMuted={data.isMuted}
+            isLocal={participantId === 'local'}
           />
         ))}
       </Box>

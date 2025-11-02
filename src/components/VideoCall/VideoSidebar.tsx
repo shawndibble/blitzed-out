@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { IconButton, Drawer, Box } from '@mui/material';
 import { Videocam, VideocamOff } from '@mui/icons-material';
+import { getAuth } from 'firebase/auth';
 import { useVideoCallStore } from '@/stores/videoCallStore';
 import VideoCallPanel from './VideoCallPanel';
 
@@ -28,7 +29,11 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
     onToggle?.(newState);
 
     if (newState) {
-      initialize(roomId);
+      const auth = getAuth();
+      const userId = auth.currentUser?.uid;
+      if (userId) {
+        initialize(roomId, userId);
+      }
     } else {
       if (isInitialized) {
         cleanup();

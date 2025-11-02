@@ -567,6 +567,7 @@
     "participantCount_plural": "{{count}} प्रतिभागी",
     "muted": "म्यूट किया गया",
     "cameraOff": "कैमरा बंद",
-    "waitingForOthers": "दूसरों के शामिल होने की प्रतीक्षा में..."
+    "waitingForOthers": "दूसरों के शामिल होने की प्रतीक्षा में...",
+    "peerLimitReached": "अधिकतम प्रतिभागी सीमा (4) पहुँच गई। बड़े समूहों के लिए, कृपया Discord, Jitsi, Zoom या Telegram का उपयोग करें।"
   }
 }

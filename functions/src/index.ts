@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 
 import { ListUsersResult, UserRecord } from 'firebase-admin/auth';
 
@@ -249,6 +249,124 @@ export const cleanupInactiveAnonymousAccounts = functions.pubsub
       return { success: true, deletedCount: totalDeleted };
     } catch (error) {
       functions.logger.error('Error cleaning up inactive anonymous accounts:', error);
+      throw error;
+    }
+  });
+
+/**
+ * Scheduled function to clean up stale video call signaling data
+ * Runs every 5 minutes and removes offers, answers, and ICE candidates older than 2 minutes
+ */
+export const cleanupVideoCallSignaling = functions.pubsub
+  .schedule('every 5 minutes')
+  .onRun(async () => {
+    const db = admin.database();
+    const twoMinutesAgo = Date.now() - 2 * 60 * 1000; // 2 minutes in milliseconds
+
+    try {
+      functions.logger.info('Starting video call signaling cleanup process');
+
+      // Get all video call rooms
+      const videoCallsSnapshot = await db.ref('video-calls').once('value');
+
+      if (!videoCallsSnapshot.exists()) {
+        functions.logger.info('No video call rooms found to clean up');
+        return null;
+      }
+
+      const videoCallRooms = videoCallsSnapshot.val();
+      const roomIds = Object.keys(videoCallRooms);
+      let totalCleaned = 0;
+
+      for (const roomId of roomIds) {
+        const roomData = videoCallRooms[roomId];
+
+        // Check if room has any active users
+        const hasActiveUsers = roomData.users && Object.keys(roomData.users).length > 0;
+
+        // If no active users, delete the entire room
+        if (!hasActiveUsers) {
+          await db.ref(`video-calls/${roomId}`).remove();
+          functions.logger.info(`Removed empty video call room: ${roomId}`);
+          totalCleaned++;
+          continue;
+        }
+
+        // Clean up old offers
+        if (roomData.offers) {
+          const updates: { [key: string]: null } = {};
+          Object.entries(roomData.offers).forEach(([userId, userOffers]: [string, any]) => {
+            if (userOffers) {
+              Object.entries(userOffers).forEach(([offerId, offer]: [string, any]) => {
+                if (offer?.timestamp && offer.timestamp < twoMinutesAgo) {
+                  updates[`video-calls/${roomId}/offers/${userId}/${offerId}`] = null;
+                }
+              });
+            }
+          });
+
+          if (Object.keys(updates).length > 0) {
+            await db.ref().update(updates);
+            functions.logger.info(
+              `Cleaned ${Object.keys(updates).length} old offers from room ${roomId}`
+            );
+          }
+        }
+
+        // Clean up old answers
+        if (roomData.answers) {
+          const updates: { [key: string]: null } = {};
+          Object.entries(roomData.answers).forEach(([userId, userAnswers]: [string, any]) => {
+            if (userAnswers) {
+              Object.entries(userAnswers).forEach(([answerId, answer]: [string, any]) => {
+                if (answer?.timestamp && answer.timestamp < twoMinutesAgo) {
+                  updates[`video-calls/${roomId}/answers/${userId}/${answerId}`] = null;
+                }
+              });
+            }
+          });
+
+          if (Object.keys(updates).length > 0) {
+            await db.ref().update(updates);
+            functions.logger.info(
+              `Cleaned ${Object.keys(updates).length} old answers from room ${roomId}`
+            );
+          }
+        }
+
+        // Clean up old ICE candidates
+        if (roomData['ice-candidates']) {
+          const updates: { [key: string]: null } = {};
+          Object.entries(roomData['ice-candidates']).forEach(
+            ([userId, userCandidates]: [string, any]) => {
+              if (userCandidates) {
+                Object.entries(userCandidates).forEach(
+                  ([candidateId, candidate]: [string, any]) => {
+                    if (candidate?.timestamp && candidate.timestamp < twoMinutesAgo) {
+                      updates[`video-calls/${roomId}/ice-candidates/${userId}/${candidateId}`] =
+                        null;
+                    }
+                  }
+                );
+              }
+            }
+          );
+
+          if (Object.keys(updates).length > 0) {
+            await db.ref().update(updates);
+            functions.logger.info(
+              `Cleaned ${Object.keys(updates).length} old ICE candidates from room ${roomId}`
+            );
+          }
+        }
+      }
+
+      functions.logger.info(
+        `Video call signaling cleanup completed. Rooms processed: ${roomIds.length}, empty rooms removed: ${totalCleaned}`
+      );
+      return null;
+    } catch (error) {
+      functions.logger.error('Error cleaning up video call signaling data:', error);
       throw error;
     }
   });
