@@ -133,7 +133,7 @@ describe('VideoCallStore', () => {
     });
 
     test('should handle getUserMedia errors', async () => {
-      const error = new Error('Permission denied');
+      const error = new DOMException('Permission denied', 'NotAllowedError');
       (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
 
       const { result } = renderHook(() => useVideoCallStore());
@@ -146,6 +146,10 @@ describe('VideoCallStore', () => {
 
       expect(result.current.localStream).toBeNull();
       expect(result.current.isInitialized).toBe(false);
+      expect(result.current.error).toEqual({
+        type: 'NotAllowedError',
+        message: 'videoCall.errors.permissionDenied',
+      });
     });
   });
 
@@ -496,7 +500,7 @@ describe('VideoCallStore', () => {
         result.current.disconnectCall();
       });
 
-      const error = new Error('Permission denied');
+      const error = new DOMException('Permission denied', 'NotAllowedError');
       (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
 
       await act(async () => {
@@ -505,6 +509,121 @@ describe('VideoCallStore', () => {
 
       expect(result.current.localStream).toBeNull();
       expect(result.current.isCallActive).toBe(false);
+      expect(result.current.error).toEqual({
+        type: 'NotAllowedError',
+        message: 'videoCall.errors.permissionDenied',
+      });
+    });
+  });
+
+  describe('Error Handling', () => {
+    test('should set error for NotFoundError', async () => {
+      const error = new DOMException('Device not found', 'NotFoundError');
+      (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
+
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
+          'Device not found'
+        );
+      });
+
+      expect(result.current.error).toEqual({
+        type: 'NotFoundError',
+        message: 'videoCall.errors.deviceNotFound',
+      });
+    });
+
+    test('should set error for NotReadableError', async () => {
+      const error = new DOMException('Device in use', 'NotReadableError');
+      (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
+
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
+          'Device in use'
+        );
+      });
+
+      expect(result.current.error).toEqual({
+        type: 'NotReadableError',
+        message: 'videoCall.errors.deviceInUse',
+      });
+    });
+
+    test('should set error for OverconstrainedError', async () => {
+      const error = new DOMException('Constraints not satisfied', 'OverconstrainedError');
+      (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
+
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
+          'Constraints not satisfied'
+        );
+      });
+
+      expect(result.current.error).toEqual({
+        type: 'OverconstrainedError',
+        message: 'videoCall.errors.constraintsNotSatisfied',
+      });
+    });
+
+    test('should set error for unknown errors', async () => {
+      const error = new Error('Unknown error');
+      (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
+
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
+          'Unknown error'
+        );
+      });
+
+      expect(result.current.error).toEqual({
+        type: 'Unknown',
+        message: 'videoCall.errors.unknown',
+      });
+    });
+
+    test('should clear error with clearError', async () => {
+      const error = new DOMException('Permission denied', 'NotAllowedError');
+      (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
+
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
+          'Permission denied'
+        );
+      });
+
+      expect(result.current.error).not.toBeNull();
+
+      act(() => {
+        result.current.clearError();
+      });
+
+      expect(result.current.error).toBeNull();
+    });
+
+    test('should clear error when initialize succeeds', async () => {
+      const { result } = renderHook(() => useVideoCallStore());
+
+      act(() => {
+        result.current.clearError();
+      });
+
+      expect(result.current.error).toBeNull();
+
+      await act(async () => {
+        await result.current.initialize('test-room', 'test-user');
+      });
+
+      expect(result.current.error).toBeNull();
     });
   });
 });

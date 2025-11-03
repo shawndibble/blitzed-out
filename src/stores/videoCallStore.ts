@@ -4,6 +4,52 @@ import { getDatabase, ref, onValue, off } from 'firebase/database';
 import { firebaseSignaling, SignalData } from '@/services/firebaseSignaling';
 import { ICE_SERVERS } from '@/config/webrtc';
 
+const createMediaError = (
+  error: unknown
+): {
+  type:
+    | 'NotAllowedError'
+    | 'NotFoundError'
+    | 'NotReadableError'
+    | 'OverconstrainedError'
+    | 'Unknown';
+  message: string;
+} => {
+  if (error instanceof DOMException) {
+    switch (error.name) {
+      case 'NotAllowedError':
+        return {
+          type: 'NotAllowedError',
+          message: 'videoCall.errors.permissionDenied',
+        };
+      case 'NotFoundError':
+        return {
+          type: 'NotFoundError',
+          message: 'videoCall.errors.deviceNotFound',
+        };
+      case 'NotReadableError':
+        return {
+          type: 'NotReadableError',
+          message: 'videoCall.errors.deviceInUse',
+        };
+      case 'OverconstrainedError':
+        return {
+          type: 'OverconstrainedError',
+          message: 'videoCall.errors.constraintsNotSatisfied',
+        };
+      default:
+        return {
+          type: 'Unknown',
+          message: 'videoCall.errors.unknown',
+        };
+    }
+  }
+  return {
+    type: 'Unknown',
+    message: 'videoCall.errors.unknown',
+  };
+};
+
 export interface PeerConnection {
   peer: SimplePeer.Instance;
   stream: MediaStream;
@@ -11,6 +57,16 @@ export interface PeerConnection {
   lastProcessedOffer?: string; // Track last offer SDP to prevent duplicates
   lastProcessedAnswer?: string; // Track last answer SDP to prevent duplicates
   processingOffer?: boolean; // Lock to prevent concurrent offer processing
+}
+
+export interface VideoCallError {
+  type:
+    | 'NotAllowedError'
+    | 'NotFoundError'
+    | 'NotReadableError'
+    | 'OverconstrainedError'
+    | 'Unknown';
+  message: string;
 }
 
 export interface VideoCallState {
@@ -24,6 +80,7 @@ export interface VideoCallState {
   cleanupInterval: number | null;
   roomId: string | null;
   userId: string | null;
+  error: VideoCallError | null;
 
   initialize: (roomId: string, userId: string) => Promise<void>;
   cleanup: () => void;
@@ -32,6 +89,7 @@ export interface VideoCallState {
   handleVisibilityChange: (isHidden: boolean) => void;
   disconnectCall: () => void;
   reconnectCall: () => Promise<void>;
+  clearError: () => void;
 }
 
 export const useVideoCallStore = create<VideoCallState>((set, get) => ({
@@ -45,6 +103,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
   cleanupInterval: null,
   roomId: null,
   userId: null,
+  error: null,
 
   initialize: async (roomId: string, userId: string) => {
     const { isInitialized } = get();
@@ -52,18 +111,27 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       return;
     }
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-        frameRate: { ideal: 24, max: 30 },
-      },
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      },
-    });
+    set({ error: null });
+
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 24, max: 30 },
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+    } catch (error) {
+      const mediaError = createMediaError(error);
+      set({ error: mediaError });
+      throw error;
+    }
 
     const createPeerConnection = (
       targetUserId: string,
@@ -517,18 +585,27 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     const { isInitialized } = get();
     if (!isInitialized) return;
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-        frameRate: { ideal: 24, max: 30 },
-      },
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      },
-    });
+    set({ error: null });
+
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 24, max: 30 },
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+    } catch (error) {
+      const mediaError = createMediaError(error);
+      set({ error: mediaError });
+      throw error;
+    }
 
     set({
       localStream: stream,
@@ -536,5 +613,9 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       isMuted: false,
       isVideoOff: false,
     });
+  },
+
+  clearError: () => {
+    set({ error: null });
   },
 }));

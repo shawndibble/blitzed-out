@@ -568,6 +568,13 @@
     "muted": "已靜音",
     "cameraOff": "攝影機已關閉",
     "waitingForOthers": "等待其他人加入...",
-    "peerLimitReached": "已達到最大參與者限制（4人）。對於更大的群組，請使用 Discord、Jitsi、Zoom 或 Telegram。"
+    "peerLimitReached": "已達到最大參與者限制（4人）。對於更大的群組，請使用 Discord、Jitsi、Zoom 或 Telegram。",
+    "errors": {
+      "permissionDenied": "攝影機和麥克風存取被拒絕。請在瀏覽器設定中允許權限，然後重試。",
+      "deviceNotFound": "未偵測到攝影機或麥克風。請連接裝置後重試。",
+      "deviceInUse": "攝影機或麥克風已被其他應用程式使用。請關閉其他應用程式後重試。",
+      "constraintsNotSatisfied": "您的攝影機或麥克風不符合所需設定。請嘗試使用其他裝置。",
+      "unknown": "無法存取攝影機或麥克風。請檢查您的裝置後重試。"
+    }
   }
 }

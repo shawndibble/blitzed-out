@@ -568,6 +568,13 @@
     "muted": "Silenciado",
     "cameraOff": "Cámara apagada",
     "waitingForOthers": "Esperando a que otros se unan...",
-    "peerLimitReached": "Límite máximo de participantes alcanzado (4). Para grupos más grandes, use Discord, Jitsi, Zoom o Telegram."
+    "peerLimitReached": "Límite máximo de participantes alcanzado (4). Para grupos más grandes, use Discord, Jitsi, Zoom o Telegram.",
+    "errors": {
+      "permissionDenied": "Acceso a la cámara y el micrófono denegado. Permita los permisos en la configuración de su navegador e intente nuevamente.",
+      "deviceNotFound": "No se detectó ninguna cámara o micrófono. Conecte un dispositivo e intente nuevamente.",
+      "deviceInUse": "La cámara o el micrófono ya está en uso por otra aplicación. Cierre otras aplicaciones e intente nuevamente.",
+      "constraintsNotSatisfied": "Su cámara o micrófono no cumple con la configuración requerida. Intente usar un dispositivo diferente.",
+      "unknown": "No se pudo acceder a la cámara o al micrófono. Verifique su dispositivo e intente nuevamente."
+    }
   }
 }
