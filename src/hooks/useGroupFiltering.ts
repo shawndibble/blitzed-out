@@ -259,36 +259,43 @@ export const useCachedGroups = (
   const result = useContextualGroups(context, gameMode, { includeTileCounts: true });
 
   useEffect(() => {
-    if (!result.loading && result.groups.length > 0) {
-      setCache(
-        (prev) =>
-          new Map(
-            prev.set(cacheKey, {
-              data: result.groups,
-              timestamp: Date.now(),
-            })
-          )
-      );
-    }
-  }, [result.groups, result.loading, cacheKey]);
-
-  useEffect(() => {
     const cachedData = cache.get(cacheKey);
     const isCacheValid = cachedData && Date.now() - cachedData.timestamp < cacheTime;
 
-    if (isCacheValid && !result.loading) {
-      setValidatedResult({
-        ...result,
-        groups: cachedData.data,
-        fromCache: true,
-      });
-    } else {
-      setValidatedResult({
-        ...result,
-        fromCache: false,
-      });
+    if (!result.loading && result.groups.length > 0) {
+      const needsCacheUpdate =
+        !cachedData || JSON.stringify(cachedData.data) !== JSON.stringify(result.groups);
+
+      if (needsCacheUpdate) {
+        queueMicrotask(() => {
+          setCache(
+            (prev) =>
+              new Map(
+                prev.set(cacheKey, {
+                  data: result.groups,
+                  timestamp: Date.now(),
+                })
+              )
+          );
+        });
+      }
     }
-  }, [result, cacheKey, cacheTime, cache]);
+
+    queueMicrotask(() => {
+      if (isCacheValid && !result.loading) {
+        setValidatedResult({
+          ...result,
+          groups: cachedData.data,
+          fromCache: true,
+        });
+      } else {
+        setValidatedResult({
+          ...result,
+          fromCache: false,
+        });
+      }
+    });
+  }, [result.groups, result.loading, result, cacheKey, cacheTime, cache]);
 
   return (
     validatedResult ?? {

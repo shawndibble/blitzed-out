@@ -94,6 +94,8 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
 
   // populate the room and game settings if they are not part of the message list.
   useEffect(() => {
-    sendSettings();
+    queueMicrotask(() => {
+      sendSettings();
+    });
   }, [sendSettings]);
 }

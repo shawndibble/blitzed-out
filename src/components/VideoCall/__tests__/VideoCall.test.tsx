@@ -2,8 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import VideoCallProvider from '../index';
 import { useVideoCallStore } from '@/stores/videoCallStore';
+import useBreakpoint from '@/hooks/useBreakpoint';
 
 vi.mock('@/stores/videoCallStore');
+vi.mock('@/hooks/useBreakpoint');
+
+// Mock Firebase auth with a current user
+vi.mock('firebase/auth', async () => {
+  const actual = await vi.importActual('firebase/auth');
+  return {
+    ...actual,
+    getAuth: vi.fn(() => ({
+      currentUser: { uid: 'test-user-id' },
+      onAuthStateChanged: vi.fn(() => vi.fn()),
+    })),
+  };
+});
 
 describe('VideoCallProvider', () => {
   const mockInitialize = vi.fn();
@@ -12,6 +26,7 @@ describe('VideoCallProvider', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    (useBreakpoint as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
     (useVideoCallStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       localStream: null,
       peers: new Map(),
@@ -24,7 +39,7 @@ describe('VideoCallProvider', () => {
   it('initializes video call on mount', () => {
     render(<VideoCallProvider roomId="test-room">{testChildren}</VideoCallProvider>);
 
-    expect(mockInitialize).toHaveBeenCalledWith('test-room');
+    expect(mockInitialize).toHaveBeenCalledWith('test-room', 'test-user-id');
   });
 
   it('cleans up on unmount', () => {
@@ -47,7 +62,7 @@ describe('VideoCallProvider', () => {
     rerender(<VideoCallProvider roomId="room-2">{testChildren}</VideoCallProvider>);
 
     expect(mockCleanup).toHaveBeenCalled();
-    expect(mockInitialize).toHaveBeenCalledWith('room-2');
+    expect(mockInitialize).toHaveBeenCalledWith('room-2', 'test-user-id');
   });
 
   it('renders children', () => {

@@ -40,16 +40,20 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
       retryTimeoutRef.current = null;
     }
 
-    // Reset state
-    setImages([]);
-    setErrorCode(null);
-    setSource(null);
-
-    // Check if URL is a Reddit URL
+    // Check if URL is a Reddit URL - early return before state updates
     if (!url || !isRedditUrl(url)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setImages([]);
+      setErrorCode(null);
+      setSource(null);
       setIsLoading(false);
       return;
     }
+
+    // Reset state for new URL
+    setImages([]);
+    setErrorCode(null);
+    setSource(null);
 
     const subreddit = extractSubredditFromUrl(url);
     if (!subreddit) {

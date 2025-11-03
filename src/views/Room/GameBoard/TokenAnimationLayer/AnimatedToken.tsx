@@ -27,8 +27,9 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
   const y = useMotionValue(flipData.from.y);
 
   useEffect(() => {
+    const container = containerRef.current;
     return () => {
-      if (!isCompletedRef.current && containerRef.current?.isConnected) {
+      if (!isCompletedRef.current && container?.isConnected) {
         isCompletedRef.current = true;
         onAnimationComplete?.();
       }

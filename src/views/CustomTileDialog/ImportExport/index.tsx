@@ -238,8 +238,10 @@ export default function ImportExport({
 
   useEffect(() => {
     if (expanded === 'ctImport') {
-      loadAvailableGroups();
-      exportData();
+      queueMicrotask(() => {
+        loadAvailableGroups();
+        exportData();
+      });
     }
   }, [expanded, customTiles, exportData, loadAvailableGroups, exportScope]);
 

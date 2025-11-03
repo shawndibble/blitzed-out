@@ -123,33 +123,32 @@ export function useDeferredMigration(
   const [hasTriggered, setHasTriggered] = useState(false);
 
   useEffect(() => {
-    // If immediate mode is requested, trigger migration right away
-    if (immediate && !hasTriggered) {
-      setHasTriggered(true);
-      if (locale) {
-        migration.ensureLanguageMigrated(locale);
-      } else {
-        migration.triggerMigration();
-      }
-    }
-  }, [immediate, locale, hasTriggered, migration]);
+    let shouldTrigger = false;
 
-  // Auto-trigger migration when component mounts if required
-  useEffect(() => {
+    if (immediate && !hasTriggered) {
+      shouldTrigger = true;
+    }
+
     if (
       required &&
       !migration.currentLanguageMigrated &&
       !migration.isMigrationInProgress &&
       !hasTriggered
     ) {
-      setHasTriggered(true);
-      if (locale) {
-        migration.ensureLanguageMigrated(locale);
-      } else {
-        migration.triggerMigration();
-      }
+      shouldTrigger = true;
     }
-  }, [required, locale, hasTriggered, migration]);
+
+    if (shouldTrigger) {
+      queueMicrotask(() => {
+        setHasTriggered(true);
+        if (locale) {
+          migration.ensureLanguageMigrated(locale);
+        } else {
+          migration.triggerMigration();
+        }
+      });
+    }
+  }, [immediate, required, locale, hasTriggered, migration]);
 
   const triggerMigration = async () => {
     setHasTriggered(true);

@@ -14,14 +14,17 @@ vi.mock('@/context/migration', () => ({
 }));
 
 vi.mock('@/stores/videoCallStore', () => ({
-  useVideoCallStore: () => ({
-    peers: new Map(),
-    localStream: null,
-    isMuted: false,
-    isVideoOff: false,
-    toggleMute: vi.fn(),
-    toggleVideo: vi.fn(),
-  }),
+  useVideoCallStore: (selector: any) => {
+    const state = {
+      peers: new Map(),
+      localStream: null,
+      isMuted: false,
+      isVideoOff: false,
+      toggleMute: vi.fn(),
+      toggleVideo: vi.fn(),
+    };
+    return selector ? selector(state) : state;
+  },
 }));
 
 vi.mock('../VideoGrid', () => ({

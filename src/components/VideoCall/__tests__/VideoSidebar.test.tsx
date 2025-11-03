@@ -13,6 +13,18 @@ vi.mock('@/context/migration', () => ({
   }),
 }));
 
+// Mock Firebase auth with a current user
+vi.mock('firebase/auth', async () => {
+  const actual = await vi.importActual('firebase/auth');
+  return {
+    ...actual,
+    getAuth: vi.fn(() => ({
+      currentUser: { uid: 'test-user-id' },
+      onAuthStateChanged: vi.fn(() => vi.fn()),
+    })),
+  };
+});
+
 const mockInitialize = vi.fn();
 const mockCleanup = vi.fn();
 
@@ -46,7 +58,7 @@ describe('VideoSidebar', () => {
     fireEvent.click(toggleButton);
 
     expect(screen.getByTestId('video-call-panel')).toBeInTheDocument();
-    expect(mockInitialize).toHaveBeenCalledWith('test-room');
+    expect(mockInitialize).toHaveBeenCalledWith('test-room', 'test-user-id');
   });
 
   it('calls onToggle callback when sidebar is opened', () => {

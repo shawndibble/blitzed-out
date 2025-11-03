@@ -29,9 +29,17 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
     // Only fall back to urlRoom if formData.room is not set
     const currentRoom = formData.room || urlRoom;
     const shouldShowPrivateField = !isPublicRoom(currentRoom);
-    setShowPrivateRoomField(shouldShowPrivateField);
-    setRoomInputValue(currentRoom?.toUpperCase() || '');
-  }, [urlRoom, formData.room, showPrivateRoomField]);
+    const newRoomInputValue = currentRoom?.toUpperCase() || '';
+
+    queueMicrotask(() => {
+      if (shouldShowPrivateField !== showPrivateRoomField) {
+        setShowPrivateRoomField(shouldShowPrivateField);
+      }
+      if (newRoomInputValue !== roomInputValue) {
+        setRoomInputValue(newRoomInputValue);
+      }
+    });
+  }, [urlRoom, formData.room, showPrivateRoomField, roomInputValue]);
 
   const checkRoomExists = async (roomId: string): Promise<boolean> => {
     try {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { setMyPresence, startPresenceHeartbeat, removeMyPresence } from '@/services/presence';
 import useAuth from '@/context/hooks/useAuth';
 
@@ -7,23 +7,27 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
     user: { displayName },
   } = useAuth();
 
-  const [currentRoom, setCurrentRoom] = useState<string | null>(null);
-  const [currentDisplayName, setCurrentDisplayName] = useState<string>(displayName || '');
+  const currentRoomRef = useRef<string | null>(null);
+  const currentDisplayNameRef = useRef<string>(displayName || '');
 
   // Set up presence when room or display name changes, then start heartbeat
   useEffect(() => {
     let stopHeartbeat: (() => void) | null = null;
+    const needsPresenceUpdate =
+      currentRoomRef.current !== roomId || displayName !== currentDisplayNameRef.current;
 
-    if (currentRoom !== roomId || displayName !== currentDisplayName) {
-      // Set presence first
+    if (needsPresenceUpdate) {
+      const oldRoom = currentRoomRef.current;
+      currentRoomRef.current = roomId;
+      currentDisplayNameRef.current = displayName || '';
+
       setMyPresence({
         newRoom: roomId,
-        oldRoom: currentRoom,
+        oldRoom,
         newDisplayName: displayName || '',
         removeOnDisconnect: roomRealtime || roomId?.toUpperCase() === 'PUBLIC',
       })
         .then(() => {
-          // Start heartbeat after presence is set
           if (roomId) {
             stopHeartbeat = startPresenceHeartbeat();
           }
@@ -31,21 +35,16 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
         .catch((error) => {
           console.error('Failed to set presence:', error);
         });
-
-      setCurrentRoom(roomId);
-      setCurrentDisplayName(displayName || '');
     } else if (roomId && !stopHeartbeat) {
-      // If room/name haven't changed but we need heartbeat, start it
       stopHeartbeat = startPresenceHeartbeat();
     }
 
-    // Cleanup function
     return () => {
       if (stopHeartbeat) {
         stopHeartbeat();
       }
     };
-  }, [roomId, displayName, currentRoom, currentDisplayName, roomRealtime]);
+  }, [roomId, displayName, roomRealtime]);
 
   // Cleanup on component unmount
   useEffect(() => {

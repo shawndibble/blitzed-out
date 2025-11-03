@@ -87,7 +87,9 @@ export default function useSoundAndDialog(): DialogResult {
 
   useEffect(() => {
     if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
-      setPopupMessage(latestMessage);
+      queueMicrotask(() => {
+        setPopupMessage(latestMessage);
+      });
     }
   }, [newMessage, latestMessage, showPlayerDialog, showOthersDialog]);
 

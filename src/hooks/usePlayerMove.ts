@@ -262,8 +262,11 @@ export default function usePlayerMove(
 
     // Make sure we have a valid location and tile
     if (newLocation >= 0 && newLocation < gameBoard.length && gameBoard[newLocation]) {
-      // update our tile that we will return.
-      setTile(convertToTile(gameBoard[newLocation], newLocation));
+      const newTile = convertToTile(gameBoard[newLocation], newLocation);
+
+      queueMicrotask(() => {
+        setTile(newTile);
+      });
 
       // Update local player position if in local multiplayer mode
       const isInLocalMultiplayerMode = hasLocalPlayers && isLocalPlayerRoom;

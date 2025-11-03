@@ -136,19 +136,21 @@ const RollButton = memo(function RollButton({
   }, [isEndOfBoard, togglePause]);
 
   useEffect(() => {
-    if (isDisabled) {
-      setRollText(t('wait'));
-    } else if (selectedRoll === 'manual') {
-      setRollText(t('roll'));
-    } else if (isPaused) {
-      setRollText(`${t('play')} (${timeLeft})`);
-    } else if (timeLeft > 0) {
-      setRollText(`${t('pause')} (${timeLeft})`);
-    } else if (timeLeft === 0 && !isPaused && selectedRoll !== 'manual') {
-      // Only roll and reset timer if we're not paused and not in manual mode
-      rollDice(rollCount, diceSide, updateRollValue);
+    let newRollText: string;
+    let shouldRollDice = false;
+    let newTime: number | null = null;
 
-      let newTime: number;
+    if (isDisabled) {
+      newRollText = t('wait');
+    } else if (selectedRoll === 'manual') {
+      newRollText = t('roll');
+    } else if (isPaused) {
+      newRollText = `${t('play')} (${timeLeft})`;
+    } else if (timeLeft > 0) {
+      newRollText = `${t('pause')} (${timeLeft})`;
+    } else if (timeLeft === 0 && !isPaused && selectedRoll !== 'manual') {
+      shouldRollDice = true;
+
       if (timerSettings.isRange) {
         const { min, max } = timerSettings;
         newTime = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -156,10 +158,19 @@ const RollButton = memo(function RollButton({
         newTime = autoTime;
       }
 
-      setAutoTime(newTime);
-      setTimeLeft(newTime);
-      setRollText(`${t('pause')} (${newTime})`);
+      newRollText = `${t('pause')} (${newTime})`;
+    } else {
+      return;
     }
+
+    queueMicrotask(() => {
+      if (shouldRollDice && newTime !== null) {
+        rollDice(rollCount, diceSide, updateRollValue);
+        setAutoTime(newTime);
+        setTimeLeft(newTime);
+      }
+      setRollText(newRollText);
+    });
   }, [
     isDisabled,
     selectedRoll,
