@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Message } from '@/types/Message';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
 import { setDayjsLocale } from '@/helpers/momentLocale';
+import { setupAudioUnlock } from '@/utils/audioContext';
 
 export interface DialogResult {
   message: Message | false;
@@ -75,6 +76,10 @@ export default function useSoundAndDialog(): DialogResult {
     ((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions';
   const speakTextCondition = myMessage && readRoll && latestMessage?.type === 'actions';
   const playMessageSoundCondition = chatSound && latestMessage?.type === 'chat';
+
+  useEffect(() => {
+    setupAudioUnlock();
+  }, []);
 
   useEffect(() => {
     setDayjsLocale(i18n.resolvedLanguage || i18n.language);
