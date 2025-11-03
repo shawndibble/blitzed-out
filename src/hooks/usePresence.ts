@@ -13,6 +13,7 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
   // Set up presence when room or display name changes, then start heartbeat
   useEffect(() => {
     let stopHeartbeat: (() => void) | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
     const needsPresenceUpdate =
       currentRoomRef.current !== roomId || displayName !== currentDisplayNameRef.current;
 
@@ -29,7 +30,10 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
       })
         .then(() => {
           if (roomId) {
-            stopHeartbeat = startPresenceHeartbeat();
+            // Add a small delay to ensure Firebase write has propagated before starting heartbeat
+            timeoutId = setTimeout(() => {
+              stopHeartbeat = startPresenceHeartbeat();
+            }, 100);
           }
         })
         .catch((error) => {
@@ -40,6 +44,9 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
     }
 
     return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       if (stopHeartbeat) {
         stopHeartbeat();
       }

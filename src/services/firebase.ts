@@ -390,7 +390,7 @@ export function setMyPresence({
   oldDisplayName,
   removeOnDisconnect = true,
 }: PresenceOptions): void {
-  const database = getDatabase();
+  const database = getDatabase(app);
   const auth = getAuth();
   const uid = auth.currentUser?.uid;
 
@@ -488,7 +488,7 @@ export function getUserList(
       // Use connection pooling for optimal Firebase performance
       await acquireConnection();
 
-      const database = getDatabase();
+      const database = getDatabase(app);
       const usersRef = ref(database, 'users');
 
       unsubscribe = onValue(
