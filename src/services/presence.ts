@@ -1,6 +1,7 @@
 import { get, getDatabase, onDisconnect, onValue, ref, remove, set } from 'firebase/database';
 
 import { getAuth } from 'firebase/auth';
+import { getApp } from 'firebase/app';
 
 // ========================
 // USER PRESENCE SYSTEM
@@ -37,11 +38,11 @@ export async function setMyPresence({
   const user = auth.currentUser;
 
   if (!user) {
-    console.warn('Cannot set presence: user not authenticated');
     return;
   }
 
-  const realtimeDb = getDatabase();
+  const app = getApp();
+  const realtimeDb = getDatabase(app);
 
   try {
     // Remove from old room if different
@@ -61,7 +62,7 @@ export async function setMyPresence({
       isAnonymous: user.isAnonymous,
       room: normalizedNewRoom,
       joinedAt: Date.now(),
-      lastSeen: Date.now(), // This will be managed by server timestamp
+      lastSeen: Date.now(),
     };
 
     await set(userRef, presenceData);
@@ -72,6 +73,7 @@ export async function setMyPresence({
     }
   } catch (error) {
     console.error('Error setting user presence:', error);
+    throw error;
   }
 }
 
@@ -88,27 +90,21 @@ export async function updatePresenceHeartbeat(): Promise<void> {
     return;
   }
 
-  const realtimeDb = getDatabase();
+  const app = getApp();
+  const realtimeDb = getDatabase(app);
   const userRef = ref(realtimeDb, `users/${user.uid}`);
 
   try {
-    // Get current user data first to preserve all required fields
     const currentUserRef = ref(realtimeDb, `users/${user.uid}`);
     const snapshot = await get(currentUserRef);
 
     if (snapshot.exists()) {
       const currentData = snapshot.val();
-      // Update the entire user object with new lastSeen timestamp
-      // This satisfies the validation rule that requires all children
       const updatedData = {
         ...currentData,
         lastSeen: Date.now(),
       };
       await set(userRef, updatedData);
-    } else {
-      // If no existing data, skip the heartbeat update
-      // This prevents errors when user data doesn't exist yet
-      console.warn('No existing user data found, skipping heartbeat update');
     }
   } catch (error) {
     console.error('Error updating presence heartbeat:', error);
@@ -126,7 +122,8 @@ export async function removeMyPresence(): Promise<void> {
     return;
   }
 
-  const realtimeDb = getDatabase();
+  const app = getApp();
+  const realtimeDb = getDatabase(app);
   const userRef = ref(realtimeDb, `users/${user.uid}`);
 
   try {
@@ -151,7 +148,8 @@ export function getUsersInRoom(
     }>
   ) => void
 ): () => void {
-  const realtimeDb = getDatabase();
+  const app = getApp();
+  const realtimeDb = getDatabase(app);
   const usersRef = ref(realtimeDb, 'users');
 
   const unsubscribe = onValue(usersRef, (snapshot) => {
@@ -189,7 +187,8 @@ export function getUsersInRoom(
  * Get total count of online users across all rooms
  */
 export function getOnlineUserCount(callback: (count: number) => void): () => void {
-  const realtimeDb = getDatabase();
+  const app = getApp();
+  const realtimeDb = getDatabase(app);
   const usersRef = ref(realtimeDb, 'users');
 
   const unsubscribe = onValue(usersRef, (snapshot) => {
@@ -215,7 +214,8 @@ export function getAllOnlineUsers(
     }>
   ) => void
 ): () => void {
-  const realtimeDb = getDatabase();
+  const app = getApp();
+  const realtimeDb = getDatabase(app);
   const usersRef = ref(realtimeDb, 'users');
 
   const unsubscribe = onValue(usersRef, (snapshot) => {
