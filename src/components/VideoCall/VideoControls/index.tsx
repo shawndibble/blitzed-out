@@ -81,7 +81,7 @@ const VideoControls = ({ roomId, onEndCall }: VideoControlsProps) => {
       >
         <IconButton
           onClick={toggleMute}
-          aria-label={isMuted ? t('videoCall.muteButton') : t('videoCall.unmuteButton')}
+          aria-label={isMuted ? t('videoCall.unmuteButton') : t('videoCall.muteButton')}
           disabled={!isCallActive}
           sx={{
             bgcolor: isMuted ? 'error.main' : 'action.hover',
@@ -95,7 +95,7 @@ const VideoControls = ({ roomId, onEndCall }: VideoControlsProps) => {
 
         <IconButton
           onClick={toggleVideo}
-          aria-label={isVideoOff ? t('videoCall.videoOnButton') : t('videoCall.videoOffButton')}
+          aria-label={isVideoOff ? t('videoCall.videoOffButton') : t('videoCall.videoOnButton')}
           disabled={!isCallActive}
           sx={{
             bgcolor: isVideoOff ? 'error.main' : 'action.hover',

@@ -11,6 +11,7 @@ import ErrorBoundaryFallback from '@/components/ErrorBoundaryFallback';
 import FilteredErrorBoundary from '@/components/FilteredErrorBoundary';
 import './i18n'; // Load i18n statically
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
+import { setupAudioUnlock } from '@/utils/audioContext';
 
 // Enhanced module loading error handling - uses feature detection instead of user-agent sniffing
 if (typeof window !== 'undefined' && !window.importShim) {
@@ -54,6 +55,9 @@ if (typeof window !== 'undefined' && !window.importShim) {
 
 // Initialize Sentry
 initializeSentry();
+
+// Initialize audio unlock for sound playback
+setupAudioUnlock();
 
 // Initialize PWA elements
 const initializePWAElements = () => {

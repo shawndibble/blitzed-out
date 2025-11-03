@@ -4,7 +4,7 @@ import ButtonRow from '@/components/ButtonRow';
 import ValueProposition from '../components/ValueProposition';
 import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
-import { useState, useCallback, ChangeEvent, KeyboardEvent, useEffect } from 'react';
+import { useState, useCallback, ChangeEvent, KeyboardEvent, useEffect, useRef } from 'react';
 import { Settings } from '@/types/Settings';
 import { getDatabase, ref, get } from 'firebase/database';
 import { useParams } from 'react-router-dom';
@@ -23,23 +23,25 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
   );
   const [roomInputValue, setRoomInputValue] = useState(formData.room?.toUpperCase() || '');
 
-  // Update UI state when URL or formData.room changes
+  // Prevent unnecessary state updates by comparing against previous derived values
+  const previousShowPrivateFieldRef = useRef<boolean | undefined>(undefined);
+  const previousRoomInputValueRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
-    // Use formData.room as the source of truth for the current room state
-    // Only fall back to urlRoom if formData.room is not set
     const currentRoom = formData.room || urlRoom;
     const shouldShowPrivateField = !isPublicRoom(currentRoom);
     const newRoomInputValue = currentRoom?.toUpperCase() || '';
 
-    queueMicrotask(() => {
-      if (shouldShowPrivateField !== showPrivateRoomField) {
-        setShowPrivateRoomField(shouldShowPrivateField);
-      }
-      if (newRoomInputValue !== roomInputValue) {
-        setRoomInputValue(newRoomInputValue);
-      }
-    });
-  }, [urlRoom, formData.room, showPrivateRoomField, roomInputValue]);
+    if (shouldShowPrivateField !== previousShowPrivateFieldRef.current) {
+      previousShowPrivateFieldRef.current = shouldShowPrivateField;
+      setShowPrivateRoomField(shouldShowPrivateField);
+    }
+
+    if (newRoomInputValue !== previousRoomInputValueRef.current) {
+      previousRoomInputValueRef.current = newRoomInputValue;
+      setRoomInputValue(newRoomInputValue);
+    }
+  }, [urlRoom, formData.room]);
 
   const checkRoomExists = async (roomId: string): Promise<boolean> => {
     try {

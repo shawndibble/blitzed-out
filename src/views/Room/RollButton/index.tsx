@@ -163,6 +163,10 @@ const RollButton = memo(function RollButton({
       return;
     }
 
+    // Defer state updates and rollDice into a microtask to avoid performing React state updates
+    // (or side effects) during the current render/event phase, which caused Sentry noise/duplicate
+    // errors in previous implementations. This pattern mirrors deferral used elsewhere in the codebase.
+    // WARNING: Removing queueMicrotask may reintroduce Sentry errors or render-timing issues.
     queueMicrotask(() => {
       if (shouldRollDice && newTime !== null) {
         rollDice(rollCount, diceSide, updateRollValue);

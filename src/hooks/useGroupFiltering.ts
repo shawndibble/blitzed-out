@@ -107,7 +107,6 @@ export const useContextualGroups = (
         }
       } catch (err) {
         if (!mounted) return;
-        console.error(`Error loading groups for context ${context}:`, err);
         setError(err instanceof Error ? err.message : 'Failed to load groups');
       } finally {
         if (mounted) {
@@ -259,29 +258,40 @@ export const useCachedGroups = (
   const result = useContextualGroups(context, gameMode, { includeTileCounts: true });
 
   useEffect(() => {
+    let mounted = true;
+
     const cachedData = cache.get(cacheKey);
     const isCacheValid = cachedData && Date.now() - cachedData.timestamp < cacheTime;
 
-    if (!result.loading && result.groups.length > 0) {
+    if (!result.loading) {
+      const nextEntry = {
+        data: result.groups,
+        timestamp: Date.now(),
+      };
       const needsCacheUpdate =
-        !cachedData || JSON.stringify(cachedData.data) !== JSON.stringify(result.groups);
+        !cachedData ||
+        cachedData.data.length !== nextEntry.data.length ||
+        cachedData.data.some((cached, idx) => {
+          const current = nextEntry.data[idx];
+          if (!current) return true;
+          return (
+            cached.id !== current.id ||
+            cached.tileCount !== current.tileCount ||
+            cached.intensities !== current.intensities
+          );
+        });
 
       if (needsCacheUpdate) {
-        queueMicrotask(() => {
-          setCache(
-            (prev) =>
-              new Map(
-                prev.set(cacheKey, {
-                  data: result.groups,
-                  timestamp: Date.now(),
-                })
-              )
-          );
+        setCache((prev) => {
+          const next = new Map(prev);
+          next.set(cacheKey, nextEntry);
+          return next;
         });
       }
     }
 
-    queueMicrotask(() => {
+    // Synchronous state update with mounted guard
+    if (mounted) {
       if (isCacheValid && !result.loading) {
         setValidatedResult({
           ...result,
@@ -294,8 +304,12 @@ export const useCachedGroups = (
           fromCache: false,
         });
       }
-    });
-  }, [result.groups, result.loading, result, cacheKey, cacheTime, cache]);
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [result.groups, result.loading, result.error, cacheKey, cacheTime]);
 
   return (
     validatedResult ?? {

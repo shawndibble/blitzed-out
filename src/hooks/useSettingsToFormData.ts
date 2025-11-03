@@ -63,8 +63,8 @@ export default function useSettingsToFormData<T extends Settings>(
             ...messageSettings,
           };
         });
-      } catch (error) {
-        console.error('Error parsing message settings:', error);
+      } catch {
+        // Silently fail: invalid message settings will be ignored
       }
     } else if (!isInitializedRef.current) {
       isInitializedRef.current = true;

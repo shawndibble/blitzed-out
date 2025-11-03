@@ -20,8 +20,7 @@ export async function unlockAudioContext(): Promise<boolean> {
     try {
       await ctx.resume();
       return true;
-    } catch (error) {
-      console.warn('Failed to resume AudioContext:', error);
+    } catch {
       return false;
     }
   }
@@ -31,20 +30,15 @@ export async function unlockAudioContext(): Promise<boolean> {
 
 export function setupAudioUnlock(): void {
   if (unlockAttempted) return;
-  unlockAttempted = true;
 
   const unlockEvents = ['touchstart', 'touchend', 'mousedown', 'keydown', 'click'];
 
   const unlock = async () => {
-    const success = await unlockAudioContext();
-    if (success) {
-      unlockEvents.forEach((event) => {
-        document.removeEventListener(event, unlock);
-      });
-    }
+    unlockAttempted = true;
+    await unlockAudioContext();
   };
 
   unlockEvents.forEach((event) => {
-    document.addEventListener(event, unlock, { once: false, passive: true });
+    document.addEventListener(event, unlock, { passive: true, once: true });
   });
 }

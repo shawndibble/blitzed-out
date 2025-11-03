@@ -613,16 +613,28 @@ describe('VideoCallStore', () => {
     test('should clear error when initialize succeeds', async () => {
       const { result } = renderHook(() => useVideoCallStore());
 
-      act(() => {
-        result.current.clearError();
+      // First, force an error by making getUserMedia reject
+      const error = new DOMException('Permission denied', 'NotAllowedError');
+      (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
+
+      await act(async () => {
+        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
+          'Permission denied'
+        );
       });
 
-      expect(result.current.error).toBeNull();
+      // Verify error was set
+      expect(result.current.error).not.toBeNull();
 
+      // Now mock getUserMedia to resolve successfully
+      (navigator.mediaDevices.getUserMedia as any).mockResolvedValueOnce(mockMediaStream);
+
+      // Call initialize again - should succeed and clear the error
       await act(async () => {
         await result.current.initialize('test-room', 'test-user');
       });
 
+      // Verify error was cleared on successful initialization
       expect(result.current.error).toBeNull();
     });
   });

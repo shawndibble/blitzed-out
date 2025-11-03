@@ -24,6 +24,8 @@ const VideoCallProvider = ({ roomId, children }: VideoCallProviderProps) => {
     return () => {
       cleanup();
     };
+    // Intentionally omit initialize and cleanup from dependencies - they are Zustand store methods
+    // that are stable references and don't need to trigger re-initialization
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, isMobile]);
 
