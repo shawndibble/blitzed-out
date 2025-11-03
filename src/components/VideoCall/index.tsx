@@ -24,7 +24,8 @@ const VideoCallProvider = ({ roomId, children }: VideoCallProviderProps) => {
     return () => {
       cleanup();
     };
-  }, [roomId, initialize, cleanup, isMobile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, isMobile]);
 
   return <>{children}</>;
 };

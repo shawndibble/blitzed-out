@@ -83,11 +83,15 @@ export default function useSoundAndDialog(): DialogResult {
 
   useEffect(() => {
     setDayjsLocale(i18n.resolvedLanguage || i18n.language);
+  }, [i18n.resolvedLanguage, i18n.language]);
 
+  useEffect(() => {
     if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
       setPopupMessage(latestMessage);
     }
+  }, [newMessage, latestMessage, showPlayerDialog, showOthersDialog]);
 
+  useEffect(() => {
     if (newMessage && latestMessage) {
       if (playDiceSoundCondition) {
         playDiceSound();
@@ -103,19 +107,14 @@ export default function useSoundAndDialog(): DialogResult {
       }
     }
   }, [
-    i18n.resolvedLanguage,
-    i18n.language,
+    newMessage,
     latestMessage,
-    myMessage,
-    showPlayerDialog,
-    showOthersDialog,
     playDiceSoundCondition,
     speakTextCondition,
     playMessageSoundCondition,
     playDiceSound,
     playMessageSound,
     speakText,
-    newMessage,
   ]);
 
   return {
