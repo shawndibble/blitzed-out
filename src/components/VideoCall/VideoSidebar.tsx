@@ -126,7 +126,7 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
           },
         }}
       >
-        <VideoCallPanel showLocalVideo={true} onEndCall={handleToggle} />
+        <VideoCallPanel roomId={roomId} showLocalVideo={true} onEndCall={handleToggle} />
 
         {/* Resize Handle */}
         <Box

@@ -7,6 +7,7 @@ const mockRef = vi.fn();
 const mockSet = vi.fn();
 const mockPush = vi.fn();
 const mockOnValue = vi.fn();
+const mockOnChildAdded = vi.fn();
 const mockOff = vi.fn();
 const mockOnDisconnect = vi.fn();
 const mockGetDatabase = vi.fn();
@@ -17,6 +18,7 @@ vi.mock('firebase/database', () => ({
   set: (...args: any[]) => mockSet(...args),
   push: (...args: any[]) => mockPush(...args),
   onValue: (...args: any[]) => mockOnValue(...args),
+  onChildAdded: (...args: any[]) => mockOnChildAdded(...args),
   off: (...args: any[]) => mockOff(...args),
   onDisconnect: (...args: any[]) => mockOnDisconnect(...args),
 }));
@@ -97,7 +99,7 @@ describe('firebaseSignaling', () => {
       firebaseSignaling.initialize(roomId, userId, vi.fn());
       await firebaseSignaling.sendOffer(targetUserId, offer);
 
-      expect(mockSet).toHaveBeenCalledWith(
+      expect(mockPush).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
           type: 'offer',
@@ -129,7 +131,7 @@ describe('firebaseSignaling', () => {
       firebaseSignaling.initialize(roomId, userId, vi.fn());
       await firebaseSignaling.sendAnswer(targetUserId, answer);
 
-      expect(mockSet).toHaveBeenCalledWith(
+      expect(mockPush).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
           type: 'answer',

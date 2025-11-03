@@ -252,7 +252,7 @@ export default function Room() {
     </div>
   );
 
-  const videoCallComponent = <VideoCallPanel showLocalVideo={true} />;
+  const videoCallComponent = <VideoCallPanel roomId={room} showLocalVideo={true} />;
 
   return (
     <>

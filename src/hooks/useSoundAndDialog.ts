@@ -49,8 +49,8 @@ export default function useSoundAndDialog(): DialogResult {
           const pitch = typeof voicePitch === 'number' && !isNaN(voicePitch) ? voicePitch : 1.0;
           const clampedPitch = Math.max(0.5, Math.min(2.0, pitch));
           await speak(text, voicePreference, clampedPitch);
-        } catch (error) {
-          console.error('Failed to speak text:', error);
+        } catch {
+          // Speech synthesis failed silently
         }
       }
     },
@@ -78,11 +78,17 @@ export default function useSoundAndDialog(): DialogResult {
 
   useEffect(() => {
     setDayjsLocale(i18n.resolvedLanguage || i18n.language);
+  }, [i18n.resolvedLanguage, i18n.language]);
 
+  useEffect(() => {
     if (newMessage && latestMessage?.type === 'actions' && (showPlayerDialog || showOthersDialog)) {
-      setPopupMessage(latestMessage);
+      queueMicrotask(() => {
+        setPopupMessage(latestMessage);
+      });
     }
+  }, [newMessage, latestMessage, showPlayerDialog, showOthersDialog]);
 
+  useEffect(() => {
     if (newMessage && latestMessage) {
       if (playDiceSoundCondition) {
         playDiceSound();
@@ -98,19 +104,14 @@ export default function useSoundAndDialog(): DialogResult {
       }
     }
   }, [
-    i18n.resolvedLanguage,
-    i18n.language,
+    newMessage,
     latestMessage,
-    myMessage,
-    showPlayerDialog,
-    showOthersDialog,
     playDiceSoundCondition,
     speakTextCondition,
     playMessageSoundCondition,
     playDiceSound,
     playMessageSound,
     speakText,
-    newMessage,
   ]);
 
   return {

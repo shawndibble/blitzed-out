@@ -40,21 +40,31 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
       retryTimeoutRef.current = null;
     }
 
-    // Reset state
-    setImages([]);
-    setErrorCode(null);
-    setSource(null);
-
     // Check if URL is a Reddit URL
     if (!url || !isRedditUrl(url)) {
-      setIsLoading(false);
+      // Clear state for non-Reddit URLs
+      queueMicrotask(() => {
+        setImages([]);
+        setErrorCode(null);
+        setSource(null);
+        setIsLoading(false);
+      });
       return;
     }
 
+    // Reset state for new URL - deferred to avoid cascading renders
+    queueMicrotask(() => {
+      setImages([]);
+      setErrorCode(null);
+      setSource(null);
+    });
+
     const subreddit = extractSubredditFromUrl(url);
     if (!subreddit) {
-      setErrorCode('invalidRedditUrl');
-      setIsLoading(false);
+      queueMicrotask(() => {
+        setErrorCode('invalidRedditUrl');
+        setIsLoading(false);
+      });
       return;
     }
 
@@ -63,7 +73,9 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
       maxImages: 150,
     };
 
-    setIsLoading(true);
+    queueMicrotask(() => {
+      setIsLoading(true);
+    });
     const controller = new AbortController();
     abortRef.current = controller;
 

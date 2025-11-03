@@ -1,9 +1,7 @@
+import { useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import TextAvatar from '@/components/TextAvatar';
 import type { FLIPData } from './TokenController';
-
-// Small buffer to ensure animation completion (kept for potential future use)
-// const ANIMATION_COMPLETION_BUFFER_MS = 100;
 
 export interface AnimatedTokenProps {
   id: string;
@@ -22,9 +20,21 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
   onAnimationComplete,
   onAnimationProgress,
 }) => {
-  // Motion values for position tracking - bind to motion.div style for reactivity
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isCompletedRef = useRef(false);
+
   const x = useMotionValue(flipData.from.x);
   const y = useMotionValue(flipData.from.y);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    return () => {
+      if (!isCompletedRef.current && container?.isConnected) {
+        isCompletedRef.current = true;
+        onAnimationComplete?.();
+      }
+    };
+  }, [onAnimationComplete]);
 
   // Transform values for visual effects during animation
   const scale = useTransform(
@@ -72,20 +82,23 @@ const AnimatedToken: React.FC<AnimatedTokenProps> = ({
         ease: 'easeInOut',
       }}
       onUpdate={(latest) => {
-        if (!onAnimationProgress) return;
+        if (!onAnimationProgress || !containerRef.current?.isConnected) return;
         const lx = typeof latest.x === 'number' ? latest.x : parseFloat(String(latest.x));
         const ly = typeof latest.y === 'number' ? latest.y : parseFloat(String(latest.y));
         let t = 1;
         if (denom > 0) {
-          // Project current delta onto motion vector, clamp to [0,1]
           t = ((lx - fromX) * dx + (ly - fromY) * dy) / denom;
           t = Math.max(0, Math.min(1, t));
         }
         onAnimationProgress(id, t, ly);
       }}
       onAnimationComplete={() => {
-        onAnimationComplete?.();
+        if (!isCompletedRef.current && containerRef.current?.isConnected) {
+          isCompletedRef.current = true;
+          onAnimationComplete?.();
+        }
       }}
+      ref={containerRef}
       style={{
         x,
         y,

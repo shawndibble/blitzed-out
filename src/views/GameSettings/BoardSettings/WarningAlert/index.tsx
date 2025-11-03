@@ -10,22 +10,28 @@ interface ConsumptionWarningProps {
 export default function ConsumptionWarning({
   formData,
 }: ConsumptionWarningProps): JSX.Element | null {
-  const [showWarning, setShowWarning] = useState<boolean>(false);
+  const consumptionCount = Object.values(formData).filter(
+    (setting) =>
+      typeof setting === 'object' &&
+      setting?.type === 'consumption' &&
+      setting?.levels &&
+      setting.levels.length > 0
+  ).length;
+  const totalCount = Object.values(formData).filter(
+    (setting) => typeof setting === 'object' && setting?.levels && setting.levels.length > 0
+  ).length;
+
+  const shouldShowWarning =
+    consumptionCount > 1 && consumptionCount >= totalCount - consumptionCount;
+  const [showWarning, setShowWarning] = useState<boolean>(shouldShowWarning);
 
   useEffect(() => {
-    const consumptionCount = Object.values(formData).filter(
-      (setting) =>
-        typeof setting === 'object' &&
-        setting?.type === 'consumption' &&
-        setting?.levels &&
-        setting.levels.length > 0
-    ).length;
-    const totalCount = Object.values(formData).filter(
-      (setting) => typeof setting === 'object' && setting?.levels && setting.levels.length > 0
-    ).length;
-
-    setShowWarning(consumptionCount > 1 && consumptionCount >= totalCount - consumptionCount);
-  }, [formData]);
+    if (shouldShowWarning !== showWarning) {
+      queueMicrotask(() => {
+        setShowWarning(shouldShowWarning);
+      });
+    }
+  }, [shouldShowWarning, showWarning]);
 
   if (!showWarning) return null;
 

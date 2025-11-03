@@ -91,14 +91,11 @@ const getFullscreenChangeEventName = (): string => {
 export default function useFullscreenStatus(): FullscreenStatusResult {
   const isSupported = isFullscreenSupported();
   const [isFullscreen, setIsFullscreen] = useState<boolean>(() => {
-    // Only check if supported, otherwise return false
     return isSupported ? getFullscreenElement() != null : false;
   });
 
   useEffect(() => {
-    // Early return if fullscreen is not supported
     if (!isSupported) {
-      setIsFullscreen(false);
       return;
     }
 

@@ -8,16 +8,21 @@ import { Trans } from 'react-i18next';
 
 export default function TurnIndicator(): JSX.Element | null {
   const { messages } = useMessages();
-  const [showToast, setShowToast] = useState<boolean>(false);
   const message = latestMessageByType(messages, 'actions');
   const lastMessage = latestMessage(messages);
   const player = useTurnIndicator(message);
   const { playerDialog, othersDialog } = useSettings()[0];
 
+  const shouldShowToast = Boolean(player && lastMessage === message);
+  const [showToast, setShowToast] = useState<boolean>(shouldShowToast);
+
   useEffect(() => {
-    if (!player || lastMessage !== message) return;
-    setShowToast(true);
-  }, [player, lastMessage, message]);
+    if (shouldShowToast && !showToast) {
+      queueMicrotask(() => {
+        setShowToast(true);
+      });
+    }
+  }, [shouldShowToast, showToast]);
 
   if (!message || !player) return null;
 

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { useVideoCallStore } from '@/stores/videoCallStore';
+import useBreakpoint from '@/hooks/useBreakpoint';
 
 interface VideoCallProviderProps {
   roomId: string;
@@ -9,19 +10,24 @@ interface VideoCallProviderProps {
 
 const VideoCallProvider = ({ roomId, children }: VideoCallProviderProps) => {
   const { initialize, cleanup } = useVideoCallStore();
+  const isMobile = useBreakpoint();
 
   useEffect(() => {
     const auth = getAuth();
     const userId = auth.currentUser?.uid;
 
-    if (userId) {
+    // Only auto-initialize on desktop, mobile requires explicit call button click
+    if (userId && !isMobile) {
       initialize(roomId, userId);
     }
 
     return () => {
       cleanup();
     };
-  }, [roomId, initialize, cleanup]);
+    // Intentionally omit initialize and cleanup from dependencies - they are Zustand store methods
+    // that are stable references and don't need to trigger re-initialization
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, isMobile]);
 
   return <>{children}</>;
 };

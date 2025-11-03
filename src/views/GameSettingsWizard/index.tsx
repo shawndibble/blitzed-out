@@ -57,24 +57,28 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   useEffect(() => {
     const prevIsMigrationInProgress = prevIsMigrationInProgressRef.current;
 
-    // Only trigger reload on transition from migration in-progress → finished
-    if (
-      prevIsMigrationInProgress === true &&
-      isMigrationInProgress === false &&
-      currentLanguageMigrated &&
-      !hasReloadedRef.current
-    ) {
-      setReloadToggle((prev) => !prev);
-      hasReloadedRef.current = true;
-    }
+    if (prevIsMigrationInProgress !== isMigrationInProgress) {
+      // Only trigger reload on transition from migration in-progress → finished
+      if (
+        prevIsMigrationInProgress === true &&
+        isMigrationInProgress === false &&
+        currentLanguageMigrated &&
+        !hasReloadedRef.current
+      ) {
+        queueMicrotask(() => {
+          setReloadToggle((prev) => !prev);
+        });
+        hasReloadedRef.current = true;
+      }
 
-    // Reset the guard when a new migration starts so reload can happen again
-    if (isMigrationInProgress && hasReloadedRef.current) {
-      hasReloadedRef.current = false;
-    }
+      // Reset the guard when a new migration starts so reload can happen again
+      if (isMigrationInProgress && hasReloadedRef.current) {
+        hasReloadedRef.current = false;
+      }
 
-    // Update previous state for next render
-    prevIsMigrationInProgressRef.current = isMigrationInProgress;
+      // Update previous state for next render
+      prevIsMigrationInProgressRef.current = isMigrationInProgress;
+    }
   }, [isMigrationInProgress, currentLanguageMigrated]);
 
   const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(
@@ -99,7 +103,9 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   useLayoutEffect(() => {
     // Only redirect if we're on a step that's invalid for public rooms
     if (isPublic && (step === 2 || step === 3)) {
-      setStep(4);
+      queueMicrotask(() => {
+        setStep(4);
+      });
     }
   }, [step, isPublic]);
 

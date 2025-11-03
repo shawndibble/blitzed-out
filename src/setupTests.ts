@@ -98,6 +98,7 @@ vi.mock('firebase/database', () => ({
   set: vi.fn(),
   remove: vi.fn(),
   onValue: vi.fn(),
+  onChildAdded: vi.fn(),
   onDisconnect: vi.fn(() => ({
     remove: vi.fn(),
     set: vi.fn(),

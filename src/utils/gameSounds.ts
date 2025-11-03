@@ -269,10 +269,8 @@ export const AVAILABLE_SOUNDS: GameSound[] = [
   ...GAME_SOUNDS,
 ];
 
-// Enhanced sound playback with melody support
 export async function playSound(sound: GameSound): Promise<boolean> {
   try {
-    // Check if sound is valid
     if (!sound || !sound.frequency || !sound.type || !sound.duration) {
       return false;
     }
@@ -286,32 +284,25 @@ export async function playSound(sound: GameSound): Promise<boolean> {
     try {
       audioContext = new AudioContextClass();
 
-      // iOS requires resuming if suspended
       if (audioContext.state === 'suspended') {
         try {
           await audioContext.resume();
-        } catch (resumeError) {
-          console.warn('Audio context resume failed:', resumeError);
+        } catch {
           return false;
         }
       }
-    } catch (error) {
-      // If AudioContext creation fails (likely iOS without user gesture), fail silently
-      console.warn('Audio context creation failed (likely iOS without user gesture):', error);
+    } catch {
       return false;
     }
 
-    // If sound has multiple frequencies (melody), play them sequentially
     if (sound.frequencies && sound.frequencies.length > 1) {
       try {
         return await playMelody(audioContext, sound);
-      } catch (melodyError) {
-        console.warn('Melody playback failed:', melodyError);
+      } catch {
         return false;
       }
     }
 
-    // Single note playback
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
@@ -321,7 +312,6 @@ export async function playSound(sound: GameSound): Promise<boolean> {
     oscillator.frequency.value = sound.frequency;
     oscillator.type = sound.type;
 
-    // Handle both real AudioContext and mock
     if (gainNode.gain.setValueAtTime) {
       gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(
@@ -329,26 +319,22 @@ export async function playSound(sound: GameSound): Promise<boolean> {
         audioContext.currentTime + sound.duration / 1000
       );
     } else {
-      // Fallback for testing environment
       gainNode.gain.value = 0.3;
     }
 
     oscillator.start();
     oscillator.stop(audioContext.currentTime + sound.duration / 1000);
 
-    // Clean up after sound finishes
     setTimeout(() => {
       audioContext.close();
     }, sound.duration + 100);
 
     return true;
-  } catch (error) {
-    console.warn('Sound playback failed:', error);
+  } catch {
     return false;
   }
 }
 
-// Play melody with multiple frequencies
 async function playMelody(audioContext: AudioContext, sound: GameSound): Promise<boolean> {
   try {
     const frequencies = sound.frequencies!;
@@ -356,7 +342,6 @@ async function playMelody(audioContext: AudioContext, sound: GameSound): Promise
     const masterGain = audioContext.createGain();
     masterGain.connect(audioContext.destination);
 
-    // Handle both real AudioContext and mock
     if (masterGain.gain.setValueAtTime) {
       masterGain.gain.setValueAtTime(0.3, audioContext.currentTime);
     } else {
@@ -376,7 +361,6 @@ async function playMelody(audioContext: AudioContext, sound: GameSound): Promise
       const startTime = audioContext.currentTime + (index * noteDuration) / 1000;
       const endTime = startTime + noteDuration / 1000;
 
-      // Handle both real AudioContext and mock
       if (noteGain.gain.setValueAtTime) {
         noteGain.gain.setValueAtTime(1, startTime);
         noteGain.gain.exponentialRampToValueAtTime(0.01, endTime);
@@ -388,14 +372,12 @@ async function playMelody(audioContext: AudioContext, sound: GameSound): Promise
       oscillator.stop(endTime);
     });
 
-    // Clean up after melody finishes
     setTimeout(() => {
       audioContext.close();
     }, sound.duration + 100);
 
     return true;
-  } catch (error) {
-    console.warn('Melody playback failed:', error);
+  } catch {
     return false;
   }
 }

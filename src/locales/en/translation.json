@@ -568,6 +568,13 @@
     "muted": "Muted",
     "cameraOff": "Camera off",
     "waitingForOthers": "Waiting for others to join...",
-    "peerLimitReached": "Maximum participant limit reached (4). For larger groups, please use Discord, Jitsi, Zoom, or Telegram."
+    "peerLimitReached": "Maximum participant limit reached (4). For larger groups, please use Discord, Jitsi, Zoom, or Telegram.",
+    "errors": {
+      "permissionDenied": "Camera and microphone access denied. Please allow permissions in your browser settings and try again.",
+      "deviceNotFound": "No camera or microphone detected. Please connect a device and try again.",
+      "deviceInUse": "Camera or microphone is already in use by another application. Please close other apps and try again.",
+      "constraintsNotSatisfied": "Your camera or microphone doesn't meet the required settings. Try using a different device.",
+      "unknown": "Failed to access camera or microphone. Please check your device and try again."
+    }
   }
 }

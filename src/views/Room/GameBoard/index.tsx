@@ -42,8 +42,10 @@ export default function GameBoard({
     playerId: string;
     targetTile: number;
   } | null>(null);
+  const animationDebounceTimer = useRef<number | null>(null);
+  const pendingAnimations = useRef<Map<string, TokenPosition>>(new Map());
 
-  // Track player movement and trigger animations
+  // Track player movement and trigger animations with debouncing
   const handlePlayerMovement = useCallback(() => {
     if (!animationLayerRef.current) return;
 
@@ -51,14 +53,10 @@ export default function GameBoard({
       const currentLocation = player.location || 0;
       const previousLocation = previousPlayerLocations.current.get(player.uid);
 
-      // Check if player moved to a new location
       if (previousLocation !== undefined && previousLocation !== currentLocation) {
-        // Store scroll target for current player (self)
         if (player.isSelf) {
           scrollTargetRef.current = { playerId: player.uid, targetTile: currentLocation };
         }
-
-        setAnimatingPlayer({ playerId: player.uid, targetTile: currentLocation });
 
         const tokenPosition: TokenPosition = {
           playerId: player.uid,
@@ -68,16 +66,34 @@ export default function GameBoard({
           isCurrent: player.isSelf || false,
         };
 
-        animationLayerRef.current?.animateTokenMovement(tokenPosition);
+        pendingAnimations.current.set(player.uid, tokenPosition);
       }
 
       previousPlayerLocations.current.set(player.uid, currentLocation);
     });
+
+    if (animationDebounceTimer.current) {
+      clearTimeout(animationDebounceTimer.current);
+    }
+
+    animationDebounceTimer.current = window.setTimeout(() => {
+      pendingAnimations.current.forEach((tokenPosition) => {
+        setAnimatingPlayer({ playerId: tokenPosition.playerId, targetTile: tokenPosition.toTile });
+        animationLayerRef.current?.animateTokenMovement(tokenPosition);
+      });
+      pendingAnimations.current.clear();
+      animationDebounceTimer.current = null;
+    }, 100);
   }, [playerList]);
 
-  // Monitor player list changes for movement detection
   useEffect(() => {
     handlePlayerMovement();
+
+    return () => {
+      if (animationDebounceTimer.current) {
+        clearTimeout(animationDebounceTimer.current);
+      }
+    };
   }, [handlePlayerMovement]);
 
   // Animation event handlers

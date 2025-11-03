@@ -137,7 +137,9 @@ export default function Cast() {
     if (isActuallyCasting) {
       document.body.classList.add('cast-receiver-mode');
       document.body.classList.remove('theme-light');
-      setIsCastReceiver(true);
+      queueMicrotask(() => {
+        setIsCastReceiver(true);
+      });
     }
 
     // Add iframe detection for background positioning
@@ -161,8 +163,10 @@ export default function Cast() {
     const latestMessage = messages[messages.length - 1];
 
     if (latestMessage?.type === 'settings') {
-      setOpenAlert(true);
-      setAlertMessage(`${latestMessage.displayName} ${t('changedSettings')}`);
+      queueMicrotask(() => {
+        setOpenAlert(true);
+        setAlertMessage(`${latestMessage.displayName} ${t('changedSettings')}`);
+      });
     }
   }, [messages, isLoading]);
 

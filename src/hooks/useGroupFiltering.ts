@@ -107,7 +107,6 @@ export const useContextualGroups = (
         }
       } catch (err) {
         if (!mounted) return;
-        console.error(`Error loading groups for context ${context}:`, err);
         setError(err instanceof Error ? err.message : 'Failed to load groups');
       } finally {
         if (mounted) {
@@ -259,36 +258,58 @@ export const useCachedGroups = (
   const result = useContextualGroups(context, gameMode, { includeTileCounts: true });
 
   useEffect(() => {
-    if (!result.loading && result.groups.length > 0) {
-      setCache(
-        (prev) =>
-          new Map(
-            prev.set(cacheKey, {
-              data: result.groups,
-              timestamp: Date.now(),
-            })
-          )
-      );
-    }
-  }, [result.groups, result.loading, cacheKey]);
+    let mounted = true;
 
-  useEffect(() => {
     const cachedData = cache.get(cacheKey);
     const isCacheValid = cachedData && Date.now() - cachedData.timestamp < cacheTime;
 
-    if (isCacheValid && !result.loading) {
-      setValidatedResult({
-        ...result,
-        groups: cachedData.data,
-        fromCache: true,
-      });
-    } else {
-      setValidatedResult({
-        ...result,
-        fromCache: false,
-      });
+    if (!result.loading) {
+      const nextEntry = {
+        data: result.groups,
+        timestamp: Date.now(),
+      };
+      const needsCacheUpdate =
+        !cachedData ||
+        cachedData.data.length !== nextEntry.data.length ||
+        cachedData.data.some((cached, idx) => {
+          const current = nextEntry.data[idx];
+          if (!current) return true;
+          return (
+            cached.id !== current.id ||
+            cached.tileCount !== current.tileCount ||
+            cached.intensities !== current.intensities
+          );
+        });
+
+      if (needsCacheUpdate) {
+        setCache((prev) => {
+          const next = new Map(prev);
+          next.set(cacheKey, nextEntry);
+          return next;
+        });
+      }
     }
-  }, [result, cacheKey, cacheTime, cache]);
+
+    // Synchronous state update with mounted guard
+    if (mounted) {
+      if (isCacheValid && !result.loading) {
+        setValidatedResult({
+          ...result,
+          groups: cachedData.data,
+          fromCache: true,
+        });
+      } else {
+        setValidatedResult({
+          ...result,
+          fromCache: false,
+        });
+      }
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [result.groups, result.loading, result.error, cacheKey, cacheTime]);
 
   return (
     validatedResult ?? {

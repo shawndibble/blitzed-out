@@ -85,49 +85,55 @@ export default function ImportExport({
     return parts.length > 0 ? `(${parts.join(', ')})` : '';
   };
 
-  const exportData = useCallback(async () => {
-    try {
-      let exportedData: string;
-      const locale = settings.locale || 'en';
-      const gameMode = settings.gameMode || 'online';
+  const exportData = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        let exportedData: string;
+        const locale = settings.locale || 'en';
+        const gameMode = settings.gameMode || 'online';
 
-      switch (exportScope) {
-        case 'single':
-          if (!singleGroup) {
-            setSubmitMessage({
-              message: t('errors.selectGroupToExport'),
-              type: 'error',
+        switch (exportScope) {
+          case 'single':
+            if (!singleGroup) {
+              setSubmitMessage({
+                message: t('errors.selectGroupToExport'),
+                type: 'error',
+              });
+              return;
+            }
+            exportedData = await exportSingleGroup(singleGroup, locale, gameMode);
+            break;
+          case 'custom':
+            exportedData = await exportCustomData(locale, gameMode);
+            break;
+          case 'disabled':
+            exportedData = await exportDisabledDefaults(locale, gameMode);
+            break;
+          default: // 'all'
+            exportedData = await exportAllData({
+              includeDisabledDefaults: true,
             });
-            return;
-          }
-          exportedData = await exportSingleGroup(singleGroup, locale, gameMode);
-          break;
-        case 'custom':
-          exportedData = await exportCustomData(locale, gameMode);
-          break;
-        case 'disabled':
-          exportedData = await exportDisabledDefaults(locale, gameMode);
-          break;
-        default: // 'all'
-          exportedData = await exportAllData({
-            includeDisabledDefaults: true,
-          });
-          break;
-      }
+            break;
+        }
 
-      setInputValue(exportedData);
-      setSubmitMessage({
-        message: 'Export successful!',
-        type: 'success',
-      });
-    } catch (error) {
-      console.error('Error exporting data:', error);
-      setSubmitMessage({
-        message: `Export failed: ${error instanceof Error ? error.message : String(error)}`,
-        type: 'error',
-      });
-    }
-  }, [exportScope, singleGroup, settings.locale, settings.gameMode, setSubmitMessage, t]);
+        if (signal?.aborted) return;
+
+        setInputValue(exportedData);
+        setSubmitMessage({
+          message: 'Export successful!',
+          type: 'success',
+        });
+      } catch (error) {
+        if (signal?.aborted) return;
+
+        setSubmitMessage({
+          message: `Export failed: ${error instanceof Error ? error.message : String(error)}`,
+          type: 'error',
+        });
+      }
+    },
+    [exportScope, singleGroup, settings.locale, settings.gameMode, setSubmitMessage, t]
+  );
 
   async function importTiles(formRef: React.RefObject<HTMLFormElement | null>) {
     if (!formRef.current) return;
@@ -162,14 +168,18 @@ export default function ImportExport({
           const allGroups = await getCustomGroups({});
           const groupMap = new Map(allGroups.map((group) => [group.id, group]));
 
-          // Submit the most recent tiles (simplified approach)
-          customTilesFromImport.slice(-result.importedTiles).forEach(async (record) => {
-            const group = groupMap.get(record.group_id || '');
-            const groupName = group?.name || 'Unknown Group';
-            const intensityData = group?.intensities.find((i) => i.value === record.intensity);
-            const intensityLabel = intensityData?.label || `Level ${record.intensity + 1}`;
+          // Submit the most recent tiles
+          await Promise.all(
+            customTilesFromImport.slice(-result.importedTiles).map(async (record) => {
+              const group = groupMap.get(record.group_id || '');
+              const groupName = group?.name || 'Unknown Group';
+              const intensityData = group?.intensities.find((i) => i.value === record.intensity);
+              const intensityLabel = intensityData?.label || `Level ${record.intensity + 1}`;
 
-            submitCustomAction(`${groupName} - ${intensityLabel}`, record.action);
+              return submitCustomAction(`${groupName} - ${intensityLabel}`, record.action);
+            })
+          ).catch(() => {
+            // Silently fail: submission errors don't prevent import success
           });
         }
 
@@ -204,7 +214,6 @@ export default function ImportExport({
         });
       }
     } catch (error: any) {
-      console.error('Import error:', error);
       setSubmitMessage({
         type: 'error',
         message: `Import failed: ${error.message || error}`,
@@ -213,34 +222,54 @@ export default function ImportExport({
     }
   }
 
-  // Load available groups when component opens
-  const loadAvailableGroups = useCallback(async () => {
-    try {
-      // For single group exports, always include disabled defaults in the count
-      const shouldIncludeDisabled = exportScope === 'single' || exportScope === 'all';
+  const loadAvailableGroups = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const shouldIncludeDisabled = exportScope === 'single' || exportScope === 'all';
 
-      // Fetch all custom groups (regardless of locale/gameMode) for export
-      const allGroups = await batchFetchAllGroups();
+        const allGroups = await batchFetchAllGroups();
 
-      const idMap = new Map();
-      allGroups.forEach((group) => {
-        idMap.set(group.name, group.id);
-      });
-      setGroupIdMap(idMap);
+        if (signal?.aborted) return;
 
-      // Get exportable groups (all custom groups regardless of locale/gameMode)
-      const groupStats = await getExportableGroupStats(shouldIncludeDisabled, exportScope);
-      setAvailableGroups(groupStats);
-    } catch (error) {
-      console.error('Error loading available groups:', error);
-    }
-  }, [exportScope]);
+        const idMap = new Map();
+        allGroups.forEach((group) => {
+          idMap.set(group.name, group.id);
+        });
+        setGroupIdMap(idMap);
+
+        const groupStats = await getExportableGroupStats(shouldIncludeDisabled, exportScope);
+
+        if (signal?.aborted) return;
+
+        setAvailableGroups(groupStats);
+      } catch {
+        // Silently fail: group loading errors don't prevent exports
+      }
+    },
+    [exportScope]
+  );
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     if (expanded === 'ctImport') {
-      loadAvailableGroups();
-      exportData();
+      const loadData = async () => {
+        if (abortController.signal.aborted) return;
+
+        await Promise.all([
+          loadAvailableGroups(abortController.signal),
+          exportData(abortController.signal),
+        ]).catch(() => {
+          // Silently fail: loading errors are handled by individual functions
+        });
+      };
+
+      loadData();
     }
+
+    return () => {
+      abortController.abort();
+    };
   }, [expanded, customTiles, exportData, loadAvailableGroups, exportScope]);
 
   return (

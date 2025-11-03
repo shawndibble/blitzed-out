@@ -37,14 +37,17 @@ export default function GameModeStep({
 
   // Show role/intensity options only if in local mode without local players
   // When local players are configured, we skip to intensity (clothed/naked) only
-  const [showRoleSelection, setShowRoleSelection] = useState(
-    !isOnlineMode(formData?.gameMode) && !hasLocalPlayers
-  );
+  const shouldShowRoleSelection = !isOnlineMode(formData?.gameMode) && !hasLocalPlayers;
+  const [showRoleSelection, setShowRoleSelection] = useState(shouldShowRoleSelection);
 
   // Update role selection visibility when game mode or local players change
   useEffect(() => {
-    setShowRoleSelection(!isOnlineMode(formData?.gameMode) && !hasLocalPlayers);
-  }, [formData?.gameMode, hasLocalPlayers]);
+    if (shouldShowRoleSelection !== showRoleSelection) {
+      queueMicrotask(() => {
+        setShowRoleSelection(shouldShowRoleSelection);
+      });
+    }
+  }, [shouldShowRoleSelection, showRoleSelection]);
 
   const interactionModes = [
     {

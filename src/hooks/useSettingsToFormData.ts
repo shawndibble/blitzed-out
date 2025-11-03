@@ -1,6 +1,6 @@
 import useMessages from '@/context/hooks/useMessages';
 import latestMessageByType from '@/helpers/messages';
-import { useEffect, useState, Dispatch, SetStateAction } from 'react';
+import { useEffect, useState, Dispatch, SetStateAction, useRef } from 'react';
 import { useSettings } from '@/stores/settingsStore';
 import { RoomMessage } from '@/types/Message';
 import { Settings } from '@/types/Settings';
@@ -24,7 +24,7 @@ export default function useSettingsToFormData<T extends Settings>(
 
   const [formData, setFormData] = useState<T>(initialFormData);
   const { messages } = useMessages();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitializedRef = useRef(false);
 
   // Import our private room settings into the form data.
   useEffect(() => {
@@ -36,8 +36,8 @@ export default function useSettingsToFormData<T extends Settings>(
 
         setFormData((previousFormData) => {
           // Only apply message settings on initial load or if no user modifications exist
-          if (!isInitialized) {
-            setIsInitialized(true);
+          if (!isInitializedRef.current) {
+            isInitializedRef.current = true;
             return {
               ...previousFormData,
               ...messageSettings,
@@ -63,13 +63,13 @@ export default function useSettingsToFormData<T extends Settings>(
             ...messageSettings,
           };
         });
-      } catch (error) {
-        console.error('Error parsing message settings:', error);
+      } catch {
+        // Silently fail: invalid message settings will be ignored
       }
-    } else if (!isInitialized) {
-      setIsInitialized(true);
+    } else if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
     }
-  }, [messages, isInitialized]);
+  }, [messages]);
 
   return [formData, setFormData];
 }
