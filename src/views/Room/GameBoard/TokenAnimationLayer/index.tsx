@@ -140,10 +140,10 @@ const TokenAnimationLayer = forwardRef<TokenAnimationLayerRef, TokenAnimationLay
           overflow: 'hidden', // Prevent animation tokens from going outside bounds
         }}
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {animatingTokens.map((token) => (
             <AnimatedToken
-              key={token.id}
+              key={`${token.id}-${token.startTime}`}
               id={token.id}
               displayName={token.displayName}
               isCurrent={token.isCurrent}
