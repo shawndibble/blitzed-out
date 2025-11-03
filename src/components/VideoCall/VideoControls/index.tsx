@@ -1,32 +1,62 @@
 import { IconButton, Box } from '@mui/material';
 import { Mic, MicOff, Videocam, VideocamOff, CallEnd, Call } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { getAuth } from 'firebase/auth';
 import { useVideoCallStore } from '@/stores/videoCallStore';
 import useBreakpoint from '@/hooks/useBreakpoint';
 
 interface VideoControlsProps {
+  roomId?: string;
   onEndCall?: () => void;
 }
 
-const VideoControls = ({ onEndCall }: VideoControlsProps) => {
+const VideoControls = ({ roomId, onEndCall }: VideoControlsProps) => {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
   const {
     isMuted,
     isVideoOff,
     isCallActive,
+    isInitialized,
     toggleMute,
     toggleVideo,
     disconnectCall,
     reconnectCall,
+    initialize,
   } = useVideoCallStore();
 
-  const handleCallToggle = () => {
+  const handleCallToggle = async () => {
+    console.log('Call button clicked', { isMobile, isCallActive, isInitialized, roomId });
+
     if (isMobile) {
       if (isCallActive) {
+        console.log('Disconnecting call');
         disconnectCall();
       } else {
-        reconnectCall();
+        // If not initialized yet, initialize first (first time call on mobile)
+        if (!isInitialized && roomId) {
+          const auth = getAuth();
+          const userId = auth.currentUser?.uid;
+          console.log('Attempting to initialize', { roomId, userId });
+          if (userId) {
+            try {
+              await initialize(roomId, userId);
+              console.log('Initialize completed');
+            } catch (error) {
+              console.error('Failed to initialize video call:', error);
+            }
+          } else {
+            console.error('No userId found');
+          }
+        } else {
+          console.log('Attempting to reconnect', { isInitialized });
+          try {
+            await reconnectCall();
+            console.log('Reconnect completed');
+          } catch (error) {
+            console.error('Failed to reconnect video call:', error);
+          }
+        }
       }
     } else {
       onEndCall?.();

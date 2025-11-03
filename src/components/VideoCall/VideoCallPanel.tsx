@@ -5,11 +5,12 @@ import VideoGrid from './VideoGrid';
 import VideoControls from './VideoControls';
 
 interface VideoCallPanelProps {
+  roomId?: string;
   showLocalVideo?: boolean;
   onEndCall?: () => void;
 }
 
-const VideoCallPanel = ({ showLocalVideo = false, onEndCall }: VideoCallPanelProps) => {
+const VideoCallPanel = ({ roomId, showLocalVideo = false, onEndCall }: VideoCallPanelProps) => {
   const peers = useVideoCallStore((state) => state.peers);
   const localStream = useVideoCallStore((state) => state.localStream);
 
@@ -56,7 +57,7 @@ const VideoCallPanel = ({ showLocalVideo = false, onEndCall }: VideoCallPanelPro
       <Box sx={{ flexGrow: 1, overflow: 'hidden', mb: 2, minHeight: 0 }}>
         <VideoGrid participants={participantsMap} />
       </Box>
-      <VideoControls onEndCall={onEndCall} />
+      <VideoControls roomId={roomId} onEndCall={onEndCall} />
     </Box>
   );
 };

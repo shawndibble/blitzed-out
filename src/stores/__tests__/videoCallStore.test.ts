@@ -29,7 +29,7 @@ vi.mock('@/context/migration', () => ({
 vi.mock('firebase/database', () => ({
   getDatabase: vi.fn(() => ({})),
   ref: vi.fn(() => ({})),
-  onValue: vi.fn((ref, callback) => {
+  onValue: vi.fn((_ref, callback) => {
     // Immediately call callback with empty data to simulate Firebase
     setTimeout(() => {
       callback({ val: () => null });
