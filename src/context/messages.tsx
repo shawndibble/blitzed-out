@@ -41,7 +41,8 @@ export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
     return getMessages(room, (newMessages: Array<Record<string, unknown>>) => {
       loadMessages(newMessages as unknown as Message[]);
     });
-  }, [room, loadMessages, setLoading, setRoom, clearMessages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room]); // Only depend on room - Zustand actions are stable
 
   const value = { messages, isLoading };
 

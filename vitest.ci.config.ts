@@ -2,7 +2,7 @@
 import { defineConfig } from 'vite';
 import path from 'path';
 
-// CI configuration with proper path resolution
+// CI configuration optimized for GitHub Actions (2 cores available)
 export default defineConfig({
   resolve: {
     alias: {
@@ -15,47 +15,49 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
 
-    // Aggressive timeouts for CI to prevent hanging
-    testTimeout: 5000, // Reduced from 10000 to catch hanging tests faster
-    hookTimeout: 5000, // Reduced from 10000
+    // Balanced timeouts for CI
+    testTimeout: 10000,
+    hookTimeout: 10000,
 
     // Simple, fast execution with early bail
     reporter: 'dot',
-    bail: 3, // Allow a few failures but stop early
+    bail: 3, // Stop after 3 failures to save time
 
-    // Focus on performance optimization rather than test exclusion
-
-    // Aggressive memory and performance management
+    // Memory management without sacrificing too much speed
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
-    isolate: true, // Enable isolation to prevent context sharing issues
     css: false, // Skip CSS processing for faster tests
 
-    // Optimized concurrency for CI
-    pool: 'forks',
+    // Use threads pool for better performance (faster than forks)
+    pool: 'threads',
     poolOptions: {
-      forks: {
-        singleFork: true,
-        maxForks: 1, // Only one fork at a time
+      threads: {
+        // Conservative thread count for CI (GitHub Actions has 2 cores)
+        minThreads: 1,
+        maxThreads: 2,
       },
     },
-    fileParallelism: false, // Process files sequentially to reduce memory overhead
-    maxConcurrency: 1, // Run tests one at a time to prevent memory issues
 
-    // Reduce memory footprint
+    // Enable file parallelism for faster execution
+    fileParallelism: true,
+
+    // Keep isolation enabled to prevent test contamination
+    // Disabling can cause timeout issues if tests share state
+    isolate: true,
+
+    // Disable coverage in CI to save time and memory
     coverage: {
-      enabled: false, // Disable coverage in CI to save memory
+      enabled: false,
     },
 
-    // Ensure deterministic test execution order
+    // Deterministic test execution order
     sequence: {
-      shuffle: false, // Deterministic order for debugging and reproducible results
+      shuffle: false,
     },
 
-    // Include all tests but run them efficiently
+    // Include all tests
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-
     exclude: ['node_modules/**', 'dist/**', 'build/**', 'functions/**'],
   },
 });
