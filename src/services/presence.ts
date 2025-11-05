@@ -1,7 +1,7 @@
 import { get, getDatabase, onDisconnect, onValue, ref, remove, set } from 'firebase/database';
 
-import { getAuth } from 'firebase/auth';
 import { getApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 
 // ========================
 // USER PRESENCE SYSTEM
@@ -69,7 +69,29 @@ export async function setMyPresence({
 
     // Set up automatic removal on disconnect
     if (removeOnDisconnect) {
-      onDisconnect(userRef).remove();
+      try {
+        await onDisconnect(userRef).remove();
+      } catch (disconnectError) {
+        // Browsers can block onDisconnect in private browsing or with strict privacy settings
+        // This is a user permission issue we can't control, so handle it gracefully
+        if (disconnectError instanceof Error) {
+          const errorName = disconnectError.name;
+          const errorMessage = disconnectError.message?.toLowerCase() || '';
+
+          // Check for various permission denied error patterns
+          const isPermissionError =
+            errorName === 'NotAllowedError' ||
+            errorMessage.includes('not allowed') ||
+            errorMessage.includes('permission');
+
+          if (isPermissionError) {
+            // Silently handle permission denial - this is expected behavior in some browsers
+            return;
+          }
+        }
+        // Re-throw other unexpected errors
+        throw disconnectError;
+      }
     }
   } catch (error) {
     console.error('Error setting user presence:', error);
