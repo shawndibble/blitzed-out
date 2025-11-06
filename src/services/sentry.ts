@@ -20,6 +20,11 @@ const IGNORED_ERROR_PATTERNS = [
   /cannot open cursor to perform index gets/i,
   // User-initiated browser data deletion
   /database deleted by request of the user/i,
+  // User dismissed permission prompts (camera, microphone, etc.)
+  /NotAllowedError/i,
+  /permission denied/i,
+  /user denied permission/i,
+  /not allowed by the user agent/i,
 ];
 
 /**
