@@ -238,7 +238,6 @@ export default function GameModeStep({
                 gender,
               })
             }
-            showInfoTooltip={true}
           />
         </Box>
       )}

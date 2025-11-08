@@ -338,7 +338,6 @@ export default function PlayerForm({
           <GenderSelector
             selectedGender={formData.gender}
             onGenderChange={handleGenderChange}
-            showInfoTooltip={true}
           />
 
           {/* Sound Selection */}

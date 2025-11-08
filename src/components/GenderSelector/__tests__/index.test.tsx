@@ -13,8 +13,6 @@ vi.mock('react-i18next', () => ({
         'localPlayers.gender.male': 'Male',
         'localPlayers.gender.female': 'Female',
         'localPlayers.gender.preferNotSay': 'Non-Binary / Prefer Not to Say',
-        'localPlayers.gender.whyWeAsk':
-          'Gender helps personalize action text with appropriate anatomy terms. This is completely optional and only affects how actions are worded.',
       };
       return translations[key] || key;
     },
@@ -70,36 +68,6 @@ describe('GenderSelector', () => {
     expect(await screen.findByText('Male')).toBeInTheDocument();
     expect(await screen.findByText('Female')).toBeInTheDocument();
     expect(await screen.findByText('Non-Binary / Prefer Not to Say')).toBeInTheDocument();
-  });
-
-  it('should show info tooltip when showInfoTooltip is true', async () => {
-    const user = userEvent.setup();
-    const mockOnChange = vi.fn();
-
-    render(<GenderSelector onGenderChange={mockOnChange} showInfoTooltip={true} />);
-
-    // Should have an info icon button
-    const infoButton = screen.getByRole('button');
-    expect(infoButton).toBeInTheDocument();
-
-    // Hover over info button to show tooltip
-    await user.hover(infoButton);
-
-    // Tooltip text should appear (may need to wait for it)
-    const tooltipText = await screen.findByText(
-      'Gender helps personalize action text with appropriate anatomy terms. This is completely optional and only affects how actions are worded.'
-    );
-    expect(tooltipText).toBeInTheDocument();
-  });
-
-  it('should not show info tooltip when showInfoTooltip is false', () => {
-    const mockOnChange = vi.fn();
-
-    render(<GenderSelector onGenderChange={mockOnChange} showInfoTooltip={false} />);
-
-    // Should not have any buttons (no info icon)
-    const buttons = screen.queryAllByRole('button');
-    expect(buttons).toHaveLength(0);
   });
 
   it('should be disabled when disabled prop is true', () => {

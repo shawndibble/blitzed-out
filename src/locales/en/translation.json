@@ -537,8 +537,7 @@
     "gender": {
       "male": "Male",
       "female": "Female",
-      "preferNotSay": "Non-Binary / Prefer Not to Say",
-      "whyWeAsk": "Gender helps personalize action text with appropriate anatomy terms. This is completely optional and only affects how actions are worded."
+      "preferNotSay": "Non-Binary / Prefer Not to Say"
     }
   },
   "localPlayerSettings": {

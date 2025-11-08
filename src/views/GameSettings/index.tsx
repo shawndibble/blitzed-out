@@ -137,7 +137,6 @@ export default function GameSettings({
         <GenderSelector
           selectedGender={formData.gender || 'prefer-not-say'}
           onGenderChange={handleGenderChange}
-          showInfoTooltip={true}
         />
       </Box>
 
