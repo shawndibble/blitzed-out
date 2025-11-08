@@ -1,7 +1,7 @@
 import i18next from 'i18next';
 import type { LocalPlayer } from '@/types/localPlayers';
 import type { PlayerGender } from '@/types/localPlayers';
-import { replaceAnatomyPlaceholders } from './anatomyPlaceholderService';
+import { replaceAnatomyPlaceholders, getAnatomyMappings } from './anatomyPlaceholderService';
 
 const { t } = i18next;
 
@@ -111,10 +111,23 @@ export default function actionStringReplacement(
     const currentPlayer = localPlayers.find((p) => p.name === displayName);
     const currentLocale = locale || i18next.language || 'en';
 
-    // First replace {player} with current player
+    // STEP 1: Handle contextual anatomy placeholders (e.g., "{dom}'s {genital}")
+    // Replace anatomy placeholders that are associated with a specific role
+    const contextualAnatomyPattern = /\{(dom|sub)\}'s \{(genital|hole|chest|pronoun_\w+)\}/g;
+    newAction = newAction.replace(contextualAnatomyPattern, (match, roleType, anatomyType) => {
+      const rolePlayer = localPlayers.find((p) => p.role === roleType);
+      if (rolePlayer) {
+        const anatomyMappings = getAnatomyMappings(currentLocale, rolePlayer.gender);
+        const anatomyTerm = anatomyMappings[anatomyType as keyof typeof anatomyMappings];
+        return `{${roleType}}'s ${anatomyTerm || anatomyType}`;
+      }
+      return match;
+    });
+
+    // STEP 2: Replace {player} with current player
     newAction = newAction.replace(/{player}/g, displayName);
 
-    // Then replace the current player's role with their name (if present)
+    // STEP 3: Replace the current player's role with their name (if present)
     if (role === 'dom' && newAction.includes('{dom}')) {
       newAction = newAction.replace(/{dom}/, displayName);
     } else if (role === 'sub' && newAction.includes('{sub}')) {
@@ -136,7 +149,7 @@ export default function actionStringReplacement(
       }
     }
 
-    // Replace any remaining {dom} and {sub} placeholders with other players (excluding current player)
+    // STEP 4: Replace any remaining {dom} and {sub} placeholders with other players (excluding current player)
     newAction = newAction.replace(/{dom}/g, () =>
       selectRandomPlayerByRole(localPlayers, 'dom', displayName)
     );
@@ -144,7 +157,7 @@ export default function actionStringReplacement(
       selectRandomPlayerByRole(localPlayers, 'sub', displayName)
     );
 
-    // Replace anatomy placeholders based on current player's gender
+    // STEP 5: Replace remaining anatomy placeholders based on current player's gender
     if (currentPlayer) {
       newAction = replaceAnatomyPlaceholders(
         newAction,
