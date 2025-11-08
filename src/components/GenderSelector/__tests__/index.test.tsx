@@ -12,12 +12,7 @@ vi.mock('react-i18next', () => ({
         'localPlayers.form.genderLabel': 'Gender (Optional)',
         'localPlayers.gender.male': 'Male',
         'localPlayers.gender.female': 'Female',
-        'localPlayers.gender.nonBinary': 'Non-Binary',
-        'localPlayers.gender.preferNotSay': 'Prefer Not to Say',
-        'localPlayers.gender.maleDescription': 'Uses male anatomy terms in actions',
-        'localPlayers.gender.femaleDescription': 'Uses female anatomy terms in actions',
-        'localPlayers.gender.nonBinaryDescription': 'Uses neutral anatomy terms in actions',
-        'localPlayers.gender.preferNotSayDescription': 'Uses neutral terms (default)',
+        'localPlayers.gender.preferNotSay': 'Non-Binary / Prefer Not to Say',
         'localPlayers.gender.whyWeAsk':
           'Gender helps personalize action text with appropriate anatomy terms. This is completely optional and only affects how actions are worded.',
       };
@@ -71,28 +66,10 @@ describe('GenderSelector', () => {
     const selectButton = screen.getByRole('combobox');
     await user.click(selectButton);
 
-    // Should show all 4 gender options
+    // Should show all 3 gender options
     expect(await screen.findByText('Male')).toBeInTheDocument();
     expect(await screen.findByText('Female')).toBeInTheDocument();
-    expect(await screen.findByText('Non-Binary')).toBeInTheDocument();
-    expect(await screen.findByText('Prefer Not to Say')).toBeInTheDocument();
-  });
-
-  it('should display gender descriptions', async () => {
-    const user = userEvent.setup();
-    const mockOnChange = vi.fn();
-
-    render(<GenderSelector onGenderChange={mockOnChange} />);
-
-    // Open the dropdown
-    const selectButton = screen.getByRole('combobox');
-    await user.click(selectButton);
-
-    // Should show descriptions for each option
-    expect(await screen.findByText('Uses male anatomy terms in actions')).toBeInTheDocument();
-    expect(await screen.findByText('Uses female anatomy terms in actions')).toBeInTheDocument();
-    expect(await screen.findByText('Uses neutral anatomy terms in actions')).toBeInTheDocument();
-    expect(await screen.findByText('Uses neutral terms (default)')).toBeInTheDocument();
+    expect(await screen.findByText('Non-Binary / Prefer Not to Say')).toBeInTheDocument();
   });
 
   it('should show info tooltip when showInfoTooltip is true', async () => {
@@ -148,7 +125,7 @@ describe('GenderSelector', () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
 
-    const genders: PlayerGender[] = ['male', 'female', 'non-binary', 'prefer-not-say'];
+    const genders: PlayerGender[] = ['male', 'female', 'prefer-not-say'];
 
     for (const gender of genders) {
       mockOnChange.mockClear();
@@ -165,8 +142,8 @@ describe('GenderSelector', () => {
       const genderLabels: Record<PlayerGender, string> = {
         male: 'Male',
         female: 'Female',
-        'non-binary': 'Non-Binary',
-        'prefer-not-say': 'Prefer Not to Say',
+        'non-binary': 'Non-Binary / Prefer Not to Say',
+        'prefer-not-say': 'Non-Binary / Prefer Not to Say',
       };
 
       const option = await screen.findByText(genderLabels[gender]);

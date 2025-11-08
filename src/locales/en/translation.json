@@ -284,6 +284,7 @@
   "yesInteracting": "Yes, I am playing with people.",
   "noInteracting": "No, I am playing with myself.",
   "yourRole": "What is your role?",
+  "yourGender": "What is your gender? (Optional)",
   "areYouNaked": "Foreplay (clothed) or Sex (naked)*?",
   "yesNaked": "Sex: We are naked.",
   "noNaked": "Foreplay: We are still clothed.",
@@ -536,12 +537,7 @@
     "gender": {
       "male": "Male",
       "female": "Female",
-      "nonBinary": "Non-Binary",
-      "preferNotSay": "Prefer Not to Say",
-      "maleDescription": "Uses male anatomy terms in actions",
-      "femaleDescription": "Uses female anatomy terms in actions",
-      "nonBinaryDescription": "Uses neutral anatomy terms in actions",
-      "preferNotSayDescription": "Uses neutral terms (default)",
+      "preferNotSay": "Non-Binary / Prefer Not to Say",
       "whyWeAsk": "Gender helps personalize action text with appropriate anatomy terms. This is completely optional and only affects how actions are worded."
     }
   },

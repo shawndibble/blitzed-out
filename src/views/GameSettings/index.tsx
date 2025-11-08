@@ -10,6 +10,7 @@ import CustomTileDialog from '@/views/CustomTileDialog';
 import RoomSettings from './RoomSettings';
 import TabPanel from '@/components/TabPanel';
 import ToastAlert from '@/components/ToastAlert';
+import GenderSelector from '@/components/GenderSelector';
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
 import { useSettings } from '@/stores/settingsStore';
@@ -17,6 +18,7 @@ import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import validateFormData from './validateForm';
+import type { PlayerGender } from '@/types/localPlayers';
 
 interface GameSettingsProps {
   closeDialog?: () => void;
@@ -93,6 +95,16 @@ export default function GameSettings({
     [handleSubmit, setFormData]
   );
 
+  const handleGenderChange = useCallback(
+    (gender: PlayerGender): void => {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        gender,
+      }));
+    },
+    [setFormData]
+  );
+
   if (!formData.room || isLoading) {
     return (
       <Box>
@@ -120,6 +132,14 @@ export default function GameSettings({
         onKeyDown={onEnterKey}
         margin="normal"
       />
+
+      <Box sx={{ mt: 2, mb: 2 }}>
+        <GenderSelector
+          selectedGender={formData.gender || 'prefer-not-say'}
+          onGenderChange={handleGenderChange}
+          showInfoTooltip={true}
+        />
+      </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleTabChange} aria-label={t('gameSettings')} centered>

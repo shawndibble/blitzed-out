@@ -47,26 +47,18 @@ export default function GenderSelector({
     [onGenderChange]
   );
 
-  const genderOptions: { value: PlayerGender; labelKey: string; descriptionKey: string }[] = [
+  const genderOptions: { value: PlayerGender; labelKey: string }[] = [
     {
       value: 'male',
       labelKey: 'localPlayers.gender.male',
-      descriptionKey: 'localPlayers.gender.maleDescription',
     },
     {
       value: 'female',
       labelKey: 'localPlayers.gender.female',
-      descriptionKey: 'localPlayers.gender.femaleDescription',
-    },
-    {
-      value: 'non-binary',
-      labelKey: 'localPlayers.gender.nonBinary',
-      descriptionKey: 'localPlayers.gender.nonBinaryDescription',
     },
     {
       value: 'prefer-not-say',
       labelKey: 'localPlayers.gender.preferNotSay',
-      descriptionKey: 'localPlayers.gender.preferNotSayDescription',
     },
   ];
 
@@ -97,12 +89,7 @@ export default function GenderSelector({
       >
         {genderOptions.map((option) => (
           <MenuItem key={option.value} value={option.value}>
-            <Box>
-              <Typography variant="body1">{t(option.labelKey)}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                {t(option.descriptionKey)}
-              </Typography>
-            </Box>
+            <Typography variant="body1">{t(option.labelKey)}</Typography>
           </MenuItem>
         ))}
       </Select>

@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Box, Button, Typography, Card, CardContent, Grid, Stack, Chip } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
+import GenderSelector from '@/components/GenderSelector';
 import { isOnlineMode } from '@/helpers/strings';
 import { FormData } from '@/types';
 import { PlayerRole, Settings } from '@/types/Settings';
+import type { PlayerGender } from '@/types/localPlayers';
 
 interface GameModeStepProps {
   formData: FormData & Partial<Settings>;
@@ -218,6 +220,26 @@ export default function GameModeStep({
               </Grid>
             ))}
           </Grid>
+        </Box>
+      )}
+
+      {/* Show gender selection only for solo local mode (no local players) */}
+      {showRoleSelection && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+            <Trans i18nKey="yourGender" />
+          </Typography>
+
+          <GenderSelector
+            selectedGender={formData.gender || 'prefer-not-say'}
+            onGenderChange={(gender: PlayerGender) =>
+              setFormData({
+                ...formData,
+                gender,
+              })
+            }
+            showInfoTooltip={true}
+          />
         </Box>
       )}
 
