@@ -65,36 +65,28 @@ export default function GenderSelector({
   const labelText = label || t('localPlayers.form.genderLabel');
 
   return (
-    <Box sx={{ position: 'relative' }}>
-      <FormControl fullWidth disabled={disabled}>
-        <InputLabel>{labelText}</InputLabel>
-        <Select value={selectedGender} onChange={handleChange} label={labelText}>
-          {genderOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              <Typography variant="body1">{t(option.labelKey)}</Typography>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      {showInfoTooltip && (
-        <Tooltip
-          title={<Typography variant="body2">{t('localPlayers.gender.whyWeAsk')}</Typography>}
-          arrow
-          placement="top"
-        >
-          <IconButton
-            size="small"
-            sx={{
-              position: 'absolute',
-              right: -8,
-              top: 8,
-              p: 0.5,
-            }}
-          >
-            <InfoOutlinedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Box>
+    <FormControl fullWidth disabled={disabled}>
+      <InputLabel shrink={selectedGender !== 'prefer-not-say'}>
+        <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+          {labelText}
+          {showInfoTooltip && (
+            <Tooltip
+              title={<Typography variant="body2">{t('localPlayers.gender.whyWeAsk')}</Typography>}
+              arrow
+              placement="top"
+            >
+              <InfoOutlinedIcon sx={{ fontSize: 16, cursor: 'help' }} />
+            </Tooltip>
+          )}
+        </Box>
+      </InputLabel>
+      <Select value={selectedGender} onChange={handleChange} label={labelText}>
+        {genderOptions.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            <Typography variant="body1">{t(option.labelKey)}</Typography>
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 }
