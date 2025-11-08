@@ -30,6 +30,7 @@
   "ballBusting": {
     "label": "Ball Busting",
     "type": "solo",
+    "anatomyRequirement": "penis",
     "actions": {
       "Slap/Squeeze": [
         "Massage balls.",
@@ -233,6 +234,7 @@
   "clitTraining": {
     "label": "Clit Training",
     "type": "solo",
+    "anatomyRequirement": "vulva",
     "actions": {
       "Light Touch": [
         "Trace circles around your clit with your finger.",
