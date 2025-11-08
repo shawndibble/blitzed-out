@@ -62,37 +62,39 @@ export default function GenderSelector({
     },
   ];
 
+  const labelText = label || t('localPlayers.form.genderLabel');
+
   return (
-    <FormControl fullWidth disabled={disabled}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <InputLabel>{label || t('localPlayers.form.genderLabel')}</InputLabel>
-        {showInfoTooltip && (
-          <Tooltip
-            title={
-              <Typography variant="body2">
-                {t('localPlayers.gender.whyWeAsk')}
-              </Typography>
-            }
-            arrow
-            placement="top"
+    <Box sx={{ position: 'relative' }}>
+      <FormControl fullWidth disabled={disabled}>
+        <InputLabel>{labelText}</InputLabel>
+        <Select value={selectedGender} onChange={handleChange} label={labelText}>
+          {genderOptions.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              <Typography variant="body1">{t(option.labelKey)}</Typography>
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      {showInfoTooltip && (
+        <Tooltip
+          title={<Typography variant="body2">{t('localPlayers.gender.whyWeAsk')}</Typography>}
+          arrow
+          placement="top"
+        >
+          <IconButton
+            size="small"
+            sx={{
+              position: 'absolute',
+              right: -8,
+              top: 8,
+              p: 0.5,
+            }}
           >
-            <IconButton size="small" sx={{ p: 0.5 }}>
-              <InfoOutlinedIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
-      </Box>
-      <Select
-        value={selectedGender}
-        onChange={handleChange}
-        label={label || t('localPlayers.form.genderLabel')}
-      >
-        {genderOptions.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            <Typography variant="body1">{t(option.labelKey)}</Typography>
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+            <InfoOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
+    </Box>
   );
 }
