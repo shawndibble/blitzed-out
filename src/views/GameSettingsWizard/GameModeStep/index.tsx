@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Box, Button, Typography, Card, CardContent, Grid, Stack, Chip } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
-import GenderSelector from '@/components/GenderSelector';
 import { isOnlineMode } from '@/helpers/strings';
 import { FormData } from '@/types';
 import { PlayerRole, Settings } from '@/types/Settings';
@@ -230,15 +229,60 @@ export default function GameModeStep({
             <Trans i18nKey="yourGender" />
           </Typography>
 
-          <GenderSelector
-            selectedGender={formData.gender || 'prefer-not-say'}
-            onGenderChange={(gender: PlayerGender) =>
-              setFormData({
-                ...formData,
-                gender,
-              })
-            }
-          />
+          <Grid container spacing={2}>
+            {[
+              { value: 'male', label: 'Male' },
+              { value: 'female', label: 'Female' },
+              { value: 'prefer-not-say', label: 'Non-Binary / Prefer Not to Say' },
+            ].map((option) => (
+              <Grid size={{ xs: 12, sm: 4 }} key={option.value}>
+                <Card
+                  role="button"
+                  tabIndex={0}
+                  sx={{
+                    cursor: 'pointer',
+                    border: formData.gender === option.value ? '2px solid' : '1px solid',
+                    borderColor: formData.gender === option.value ? 'primary.main' : 'divider',
+                    backgroundColor:
+                      formData.gender === option.value ? 'primary.50' : 'background.paper',
+                    transition: 'all 0.2s ease-in-out',
+                    height: '100%',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      transform: 'translateY(-2px)',
+                      boxShadow: 2,
+                    },
+                  }}
+                  onClick={() =>
+                    setFormData({
+                      ...formData,
+                      gender: option.value as PlayerGender,
+                    })
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setFormData({
+                        ...formData,
+                        gender: option.value as PlayerGender,
+                      });
+                    }
+                  }}
+                >
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Stack spacing={1} alignItems="center" textAlign="center">
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {option.label}
+                      </Typography>
+                      {formData.gender === option.value && (
+                        <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 1 }} />
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         </Box>
       )}
 
