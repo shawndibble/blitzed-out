@@ -263,6 +263,7 @@
   "yesInteracting": "Oui, je joue avec des gens.",
   "noInteracting": "Non, je joue avec moi-même.",
   "yourRole": "Quel est votre rôle?",
+  "yourGender": "Quel est votre genre? (Optionnel)",
   "areYouNaked": "Préliminaires (habillé) ou Sexe (nu)*?",
   "yesNaked": "Sexe: Nous sommes nus.",
   "noNaked": "Préliminaires: Nous sommes encore habillés.",
@@ -495,6 +496,8 @@
       "nameHelper": "Entrez un nom unique pour ce joueur (2-20 caractères)",
       "namePlaceholder": "Entrez le nom du joueur...",
       "roleLabel": "Rôle du Joueur",
+      "genderLabel": "Genre (Optionnel)",
+      "soundLabel": "Son de Tour",
       "helpText": "Vous pouvez modifier ces paramètres plus tard si nécessaire.",
       "saving": "Enregistrement...",
       "saveChanges": "Enregistrer les Modifications",
@@ -511,6 +514,11 @@
         "sub": "Suit et reçoit",
         "vers": "Flexible entre les rôles"
       }
+    },
+    "gender": {
+      "male": "Masculin",
+      "female": "Féminin",
+      "preferNotSay": "Non-Binaire / Préfère Ne Pas Dire"
     }
   },
   "localPlayerSettings": {
