@@ -514,6 +514,8 @@
       "nameHelper": "Enter a unique name for this player (2-20 characters)",
       "namePlaceholder": "Enter player name...",
       "roleLabel": "Player Role",
+      "genderLabel": "Gender (Optional)",
+      "soundLabel": "Turn Sound",
       "helpText": "You can change these settings later if needed.",
       "saving": "Saving...",
       "saveChanges": "Save Changes",
@@ -530,6 +532,17 @@
         "sub": "Follows and receives",
         "vers": "Flexible between roles"
       }
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "nonBinary": "Non-Binary",
+      "preferNotSay": "Prefer Not to Say",
+      "maleDescription": "Uses male anatomy terms in actions",
+      "femaleDescription": "Uses female anatomy terms in actions",
+      "nonBinaryDescription": "Uses neutral anatomy terms in actions",
+      "preferNotSayDescription": "Uses neutral terms (default)",
+      "whyWeAsk": "Gender helps personalize action text with appropriate anatomy terms. This is completely optional and only affects how actions are worded."
     }
   },
   "localPlayerSettings": {
