@@ -18,7 +18,9 @@ const VideoCallProvider = ({ roomId, children }: VideoCallProviderProps) => {
 
     // Only auto-initialize on desktop, mobile requires explicit call button click
     if (userId && !isMobile) {
-      initialize(roomId, userId);
+      initialize(roomId, userId).catch(() => {
+        // Error is already stored in videoCallStore state and will be displayed to user
+      });
     }
 
     return () => {

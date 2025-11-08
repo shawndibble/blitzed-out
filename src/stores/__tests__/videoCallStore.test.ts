@@ -139,9 +139,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
-          'Permission denied'
-        );
+        await result.current.initialize('test-room', 'test-user');
       });
 
       expect(result.current.localStream).toBeNull();
@@ -504,7 +502,7 @@ describe('VideoCallStore', () => {
       (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
 
       await act(async () => {
-        await expect(result.current.reconnectCall()).rejects.toThrow('Permission denied');
+        await result.current.reconnectCall();
       });
 
       expect(result.current.localStream).toBeNull();
@@ -524,9 +522,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
-          'Device not found'
-        );
+        await result.current.initialize('test-room', 'test-user');
       });
 
       expect(result.current.error).toEqual({
@@ -542,9 +538,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
-          'Device in use'
-        );
+        await result.current.initialize('test-room', 'test-user');
       });
 
       expect(result.current.error).toEqual({
@@ -560,9 +554,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
-          'Constraints not satisfied'
-        );
+        await result.current.initialize('test-room', 'test-user');
       });
 
       expect(result.current.error).toEqual({
@@ -578,9 +570,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
-          'Unknown error'
-        );
+        await result.current.initialize('test-room', 'test-user');
       });
 
       expect(result.current.error).toEqual({
@@ -596,9 +586,7 @@ describe('VideoCallStore', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
-          'Permission denied'
-        );
+        await result.current.initialize('test-room', 'test-user');
       });
 
       expect(result.current.error).not.toBeNull();
@@ -618,9 +606,7 @@ describe('VideoCallStore', () => {
       (navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(error);
 
       await act(async () => {
-        await expect(result.current.initialize('test-room', 'test-user')).rejects.toThrow(
-          'Permission denied'
-        );
+        await result.current.initialize('test-room', 'test-user');
       });
 
       // Verify error was set

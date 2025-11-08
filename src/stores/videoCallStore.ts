@@ -130,7 +130,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     } catch (error) {
       const mediaError = createMediaError(error);
       set({ error: mediaError });
-      throw error;
+      return;
     }
 
     const createPeerConnection = (
@@ -604,7 +604,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     } catch (error) {
       const mediaError = createMediaError(error);
       set({ error: mediaError });
-      throw error;
+      return;
     }
 
     set({
