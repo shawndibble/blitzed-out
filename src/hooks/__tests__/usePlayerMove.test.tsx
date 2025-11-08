@@ -73,7 +73,16 @@ vi.mock('react-i18next', () => ({
 // Mock action string replacement
 vi.mock('@/services/actionStringReplacement', () => ({
   default: (action: string, _role: string, displayName: string) =>
-    `${displayName} ${action.replace('{player}', displayName).replace('{sub}', displayName)}`,
+    `${displayName} ${action
+      .replace('{player}', displayName)
+      .replace('{sub}', displayName)
+      .replace('{genital}', 'genitals')
+      .replace('{hole}', 'hole')
+      .replace('{chest}', 'chest')
+      .replace('{pronoun_subject}', 'they')
+      .replace('{pronoun_object}', 'them')
+      .replace('{pronoun_possessive}', 'their')
+      .replace('{pronoun_reflexive}', 'themselves')}`,
 }));
 
 describe('usePlayerMove', () => {

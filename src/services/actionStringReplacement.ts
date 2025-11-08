@@ -1,5 +1,7 @@
 import i18next from 'i18next';
 import type { LocalPlayer } from '@/types/localPlayers';
+import type { PlayerGender } from '@/types/localPlayers';
+import { replaceAnatomyPlaceholders } from './anatomyPlaceholderService';
 
 const { t } = i18next;
 
@@ -78,7 +80,9 @@ export default function actionStringReplacement(
   role: string,
   displayName: string,
   localPlayers?: LocalPlayer[],
-  useGenericPlaceholders?: boolean
+  useGenericPlaceholders?: boolean,
+  currentPlayerGender?: PlayerGender,
+  locale?: string
 ): string {
   let newAction = action;
 
@@ -87,11 +91,25 @@ export default function actionStringReplacement(
     newAction = newAction.replace(/{player}/g, t('theCurrentPlayer'));
     newAction = newAction.replace(/{dom}/g, t('aDominant'));
     newAction = newAction.replace(/{sub}/g, t('aSubmissive'));
+
+    // Replace anatomy placeholders with generic terms
+    newAction = newAction.replace(/{genital}/g, 'genitals');
+    newAction = newAction.replace(/{hole}/g, 'hole');
+    newAction = newAction.replace(/{chest}/g, 'chest');
+    newAction = newAction.replace(/{pronoun_subject}/g, 'they');
+    newAction = newAction.replace(/{pronoun_object}/g, 'them');
+    newAction = newAction.replace(/{pronoun_possessive}/g, 'their');
+    newAction = newAction.replace(/{pronoun_reflexive}/g, 'themselves');
+
     return capitalizeFirstLetterInCurlyBraces(newAction);
   }
 
   if (localPlayers && localPlayers.length > 0) {
     // Local multiplayer mode: use role-based selection for all placeholders
+
+    // Find current player to get their gender
+    const currentPlayer = localPlayers.find((p) => p.name === displayName);
+    const currentLocale = locale || i18next.language || 'en';
 
     // First replace {player} with current player
     newAction = newAction.replace(/{player}/g, displayName);
@@ -125,6 +143,16 @@ export default function actionStringReplacement(
     newAction = newAction.replace(/{sub}/g, () =>
       selectRandomPlayerByRole(localPlayers, 'sub', displayName)
     );
+
+    // Replace anatomy placeholders based on current player's gender
+    if (currentPlayer) {
+      newAction = replaceAnatomyPlaceholders(
+        newAction,
+        currentPlayer.gender,
+        currentPlayer.role,
+        currentLocale
+      );
+    }
   } else {
     // Non-local modes: use original logic
     // First pass: replace player-specific placeholders with display name
@@ -152,6 +180,10 @@ export default function actionStringReplacement(
 
     // Replace any remaining role placeholders with "another player"
     newAction = newAction.replace(/{(dom|sub)}/g, t('anotherPlayer'));
+
+    // Replace anatomy placeholders based on current player's gender (online/solo mode)
+    const currentLocale = locale || i18next.language || 'en';
+    newAction = replaceAnatomyPlaceholders(newAction, currentPlayerGender, role, currentLocale);
   }
 
   // capitalize the first letter or the first letter after a period if immediately proceeded by a curly brace.

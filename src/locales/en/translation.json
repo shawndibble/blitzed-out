@@ -6,7 +6,26 @@
     "delete": "Delete",
     "noTilesFound": "No tiles found with the selected filters.",
     "showingTiles": "Showing {{shown}} of {{total}} tiles",
-    "gameMode": "Game Mode"
+    "gameMode": "Game Mode",
+    "placeholderHelp": {
+      "title": "Available Placeholders",
+      "description": "Use placeholders to create gender-inclusive actions that adapt to each player.",
+      "rolePlaceholders": "Role Placeholders",
+      "anatomyPlaceholders": "Anatomy Placeholders (Gender-Aware)",
+      "player": "The current player's name",
+      "dom": "A dominant/switch player's name",
+      "sub": "A submissive/switch player's name",
+      "genital": "Adapts to player gender (dick/pussy/genitals)",
+      "hole": "Adapts to player gender (hole/pussy/hole)",
+      "chest": "Adapts to player gender (chest/breasts/chest)",
+      "pronounSubject": "Adapts to player gender (he/she/they)",
+      "pronounObject": "Adapts to player gender (him/her/them)",
+      "pronounPossessive": "Adapts to player gender (his/her/their)",
+      "pronounReflexive": "Adapts to player gender (himself/herself/themselves)",
+      "examples": "See Examples",
+      "exampleAction": "{dom} kisses {sub} on the {chest}",
+      "exampleResult": "Mike kisses Jessica on the breasts"
+    }
   },
   "customTilesLabel": "Game Tiles",
   "custom": "Custom",
