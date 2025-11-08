@@ -229,7 +229,9 @@ export default function GameBoard({
             settings.role || 'sub',
             user?.displayName || '',
             localPlayers.length > 0 ? localPlayers : undefined,
-            true // Use generic placeholders for GameBoard display
+            true, // Use generic placeholders for GameBoard display
+            settings.gender,
+            settings.locale
           )
         : // replace only letters and numbers with question marks. Remove special characters.
           (entry.description || '').replace(/[^\w\s]/g, '').replace(/[a-zA-Z0-9]/g, '?');
