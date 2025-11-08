@@ -6,10 +6,10 @@ import type { GroupType } from '@/types';
  * Determines which anatomical features are needed to perform actions in this group
  */
 export type AnatomyRequirement =
-  | 'any'      // Works for anyone (universal)
-  | 'penis'    // Requires penis (male, some non-binary)
-  | 'vulva'    // Requires vulva/vagina (female, some non-binary)
-  | 'anus'     // Everyone has one (universal)
+  | 'any' // Works for anyone (universal)
+  | 'penis' // Requires penis (male, some non-binary)
+  | 'pussy' // Requires pussy (female, some non-binary)
+  | 'anus' // Everyone has one (universal)
   | 'breasts'; // Requires breasts (female, some male/non-binary)
 
 // Individual intensity level within a custom group

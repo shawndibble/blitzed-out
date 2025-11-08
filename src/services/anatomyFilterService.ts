@@ -40,7 +40,7 @@ export function isAnatomyCompatible(
   // Map genders to their compatible anatomy requirements
   const anatomyMap: Record<PlayerGender, AnatomyRequirement[]> = {
     male: ['any', 'penis', 'anus'],
-    female: ['any', 'vulva', 'anus', 'breasts'],
+    female: ['any', 'pussy', 'anus', 'breasts'],
     'non-binary': ['any', 'anus'], // Conservative default for non-binary
     'prefer-not-say': ['any', 'anus'], // Only universal actions
   };
@@ -55,7 +55,7 @@ export function isAnatomyCompatible(
  * @returns Array of anatomy requirement values
  */
 export function getSupportedAnatomyRequirements(): AnatomyRequirement[] {
-  return ['any', 'penis', 'vulva', 'anus', 'breasts'];
+  return ['any', 'penis', 'pussy', 'anus', 'breasts'];
 }
 
 /**
@@ -68,7 +68,7 @@ export function getAnatomyRequirementDescription(requirement: AnatomyRequirement
   const descriptions: Record<AnatomyRequirement, string> = {
     any: 'Universal (all players)',
     penis: 'Requires male anatomy',
-    vulva: 'Requires female anatomy',
+    pussy: 'Requires female anatomy',
     anus: 'Universal (all players)',
     breasts: 'Requires breasts',
   };
@@ -119,7 +119,7 @@ export function getIncompatibilityReason(
   const reasonMap: Record<AnatomyRequirement, string | null> = {
     any: null,
     penis: 'Requires male anatomy',
-    vulva: 'Requires female anatomy',
+    pussy: 'Requires female anatomy',
     anus: null, // Universal, should never be incompatible
     breasts: 'Requires breasts',
   };
