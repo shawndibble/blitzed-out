@@ -1,5 +1,12 @@
 import { useCallback } from 'react';
-import { FormControl, InputLabel, Select, MenuItem, Typography } from '@mui/material';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Typography,
+  type SelectChangeEvent,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { PlayerGender } from '@/types/localPlayers';
 
@@ -14,12 +21,18 @@ interface GenderSelectorProps {
   disabled?: boolean;
 }
 
+const GENDER_OPTIONS = [
+  { value: 'male', labelKey: 'localPlayers.gender.male' },
+  { value: 'female', labelKey: 'localPlayers.gender.female' },
+  { value: 'non-binary', labelKey: 'localPlayers.gender.nonBinary' },
+] as const satisfies ReadonlyArray<{ value: PlayerGender; labelKey: string }>;
+
 /**
  * GenderSelector component for privacy-focused gender selection
  * Used to personalize action text with appropriate anatomy terms
  */
 export default function GenderSelector({
-  selectedGender = 'prefer-not-say',
+  selectedGender = 'non-binary',
   onGenderChange,
   label,
   disabled = false,
@@ -27,27 +40,13 @@ export default function GenderSelector({
   const { t } = useTranslation();
 
   const handleChange = useCallback(
-    (event: any) => {
-      const value = event.target.value as PlayerGender;
-      onGenderChange(value);
+    (event: SelectChangeEvent<PlayerGender>) => {
+      onGenderChange(event.target.value as PlayerGender);
     },
     [onGenderChange]
   );
 
-  const genderOptions: { value: PlayerGender; labelKey: string }[] = [
-    {
-      value: 'male',
-      labelKey: 'localPlayers.gender.male',
-    },
-    {
-      value: 'female',
-      labelKey: 'localPlayers.gender.female',
-    },
-    {
-      value: 'prefer-not-say',
-      labelKey: 'localPlayers.gender.preferNotSay',
-    },
-  ];
+  const genderOptions = GENDER_OPTIONS;
 
   const labelText = label || t('localPlayers.form.genderLabel');
 

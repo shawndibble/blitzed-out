@@ -284,7 +284,7 @@
   "yesInteracting": "Yes, I am playing with people.",
   "noInteracting": "No, I am playing with myself.",
   "yourRole": "What is your role?",
-  "yourGender": "What is your gender? (Optional)",
+  "yourGender": "What is your gender?",
   "areYouNaked": "Foreplay (clothed) or Sex (naked)*?",
   "yesNaked": "Sex: We are naked.",
   "noNaked": "Foreplay: We are still clothed.",
@@ -537,7 +537,8 @@
     "gender": {
       "male": "Male",
       "female": "Female",
-      "preferNotSay": "Non-Binary / Prefer Not to Say"
+      "nonBinary": "Non-Binary",
+      "preferNotSay": "Prefer Not to Say"
     }
   },
   "localPlayerSettings": {

@@ -5,8 +5,39 @@ import { replaceAnatomyPlaceholders, getAnatomyMappings } from './anatomyPlaceho
 
 const { t } = i18next;
 
+const PLACEHOLDER_FALLBACKS = {
+  player: () => t('theCurrentPlayer'),
+  dom: () => t('aDominant'),
+  sub: () => t('aSubmissive'),
+  anotherPlayer: () => t('anotherPlayer'),
+} as const;
+
+const GENERIC_ANATOMY_TERMS = {
+  genital: 'genitals',
+  hole: 'hole',
+  chest: 'chest',
+  pronoun_subject: 'they',
+  pronoun_object: 'them',
+  pronoun_possessive: 'their',
+  pronoun_reflexive: 'themselves',
+} as const;
+
 function capitalizeFirstLetterInCurlyBraces(string: string): string {
   return string.replace(/(?:^|\.\s|!\s)(\w)/g, (match) => match.toUpperCase());
+}
+
+/**
+ * Replace generic anatomy placeholders with neutral terms
+ * Used for GameBoard preview display
+ */
+function replaceGenericAnatomyPlaceholders(action: string): string {
+  let result = action;
+
+  Object.entries(GENERIC_ANATOMY_TERMS).forEach(([placeholder, term]) => {
+    result = result.replace(new RegExp(`\\{${placeholder}\\}`, 'g'), term);
+  });
+
+  return result;
 }
 
 /**
@@ -22,7 +53,7 @@ function selectRandomPlayerByRole(
   excludePlayerName?: string
 ): string {
   if (!players || players.length === 0) {
-    return t('anotherPlayer');
+    return PLACEHOLDER_FALLBACKS.anotherPlayer();
   }
 
   // Filter players that can fulfill the required role and exclude current player
@@ -41,7 +72,7 @@ function selectRandomPlayerByRole(
   });
 
   if (eligiblePlayers.length === 0) {
-    return t('anotherPlayer');
+    return PLACEHOLDER_FALLBACKS.anotherPlayer();
   }
 
   // Randomly select from eligible players
@@ -88,18 +119,12 @@ export default function actionStringReplacement(
 
   // Use generic placeholders for GameBoard display
   if (useGenericPlaceholders) {
-    newAction = newAction.replace(/{player}/g, t('theCurrentPlayer'));
-    newAction = newAction.replace(/{dom}/g, t('aDominant'));
-    newAction = newAction.replace(/{sub}/g, t('aSubmissive'));
+    newAction = newAction.replace(/{player}/g, PLACEHOLDER_FALLBACKS.player());
+    newAction = newAction.replace(/{dom}/g, PLACEHOLDER_FALLBACKS.dom());
+    newAction = newAction.replace(/{sub}/g, PLACEHOLDER_FALLBACKS.sub());
 
     // Replace anatomy placeholders with generic terms
-    newAction = newAction.replace(/{genital}/g, 'genitals');
-    newAction = newAction.replace(/{hole}/g, 'hole');
-    newAction = newAction.replace(/{chest}/g, 'chest');
-    newAction = newAction.replace(/{pronoun_subject}/g, 'they');
-    newAction = newAction.replace(/{pronoun_object}/g, 'them');
-    newAction = newAction.replace(/{pronoun_possessive}/g, 'their');
-    newAction = newAction.replace(/{pronoun_reflexive}/g, 'themselves');
+    newAction = replaceGenericAnatomyPlaceholders(newAction);
 
     return capitalizeFirstLetterInCurlyBraces(newAction);
   }
@@ -192,7 +217,7 @@ export default function actionStringReplacement(
     }
 
     // Replace any remaining role placeholders with "another player"
-    newAction = newAction.replace(/{(dom|sub)}/g, t('anotherPlayer'));
+    newAction = newAction.replace(/{(dom|sub)}/g, PLACEHOLDER_FALLBACKS.anotherPlayer());
 
     // Replace anatomy placeholders based on current player's gender (online/solo mode)
     const currentLocale = locale || i18next.language || 'en';

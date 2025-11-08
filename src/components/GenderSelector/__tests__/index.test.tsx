@@ -9,10 +9,11 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
-        'localPlayers.form.genderLabel': 'Gender (Optional)',
+        'localPlayers.form.genderLabel': 'Gender',
         'localPlayers.gender.male': 'Male',
         'localPlayers.gender.female': 'Female',
-        'localPlayers.gender.preferNotSay': 'Non-Binary / Prefer Not to Say',
+        'localPlayers.gender.nonBinary': 'Non-Binary',
+        'localPlayers.gender.preferNotSay': 'Prefer Not to Say',
       };
       return translations[key] || key;
     },
@@ -25,7 +26,7 @@ describe('GenderSelector', () => {
     render(<GenderSelector onGenderChange={mockOnChange} />);
 
     // Should show gender label
-    expect(screen.getByText('Gender (Optional)')).toBeInTheDocument();
+    expect(screen.getByText('Gender')).toBeInTheDocument();
   });
 
   it('should render with selected gender', () => {
@@ -33,14 +34,14 @@ describe('GenderSelector', () => {
     render(<GenderSelector selectedGender="female" onGenderChange={mockOnChange} />);
 
     // The component should be rendered (we can't easily check the selected value in MUI Select without opening it)
-    expect(screen.getByText('Gender (Optional)')).toBeInTheDocument();
+    expect(screen.getByText('Gender')).toBeInTheDocument();
   });
 
   it('should call onGenderChange when selection changes', async () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
 
-    render(<GenderSelector selectedGender="prefer-not-say" onGenderChange={mockOnChange} />);
+    render(<GenderSelector selectedGender="non-binary" onGenderChange={mockOnChange} />);
 
     // Click on the select to open dropdown
     const selectButton = screen.getByRole('combobox');
@@ -67,7 +68,7 @@ describe('GenderSelector', () => {
     // Should show all 3 gender options
     expect(await screen.findByText('Male')).toBeInTheDocument();
     expect(await screen.findByText('Female')).toBeInTheDocument();
-    expect(await screen.findByText('Non-Binary / Prefer Not to Say')).toBeInTheDocument();
+    expect(await screen.findByText('Non-Binary')).toBeInTheDocument();
   });
 
   it('should be disabled when disabled prop is true', () => {
@@ -93,13 +94,13 @@ describe('GenderSelector', () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
 
-    const genders: PlayerGender[] = ['male', 'female', 'prefer-not-say'];
+    const genders: PlayerGender[] = ['male', 'female', 'non-binary'];
 
     for (const gender of genders) {
       mockOnChange.mockClear();
 
       const { unmount } = render(
-        <GenderSelector selectedGender="prefer-not-say" onGenderChange={mockOnChange} />
+        <GenderSelector selectedGender="non-binary" onGenderChange={mockOnChange} />
       );
 
       // Open dropdown
@@ -110,8 +111,8 @@ describe('GenderSelector', () => {
       const genderLabels: Record<PlayerGender, string> = {
         male: 'Male',
         female: 'Female',
-        'non-binary': 'Non-Binary / Prefer Not to Say',
-        'prefer-not-say': 'Non-Binary / Prefer Not to Say',
+        'non-binary': 'Non-Binary',
+        'prefer-not-say': 'Prefer Not to Say',
       };
 
       const option = await screen.findByText(genderLabels[gender]);

@@ -46,6 +46,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
       actions: [],
       consumption: [],
       role: 'sub',
+      gender: 'non-binary',
       boardUpdated: false,
       room: room || 'PUBLIC',
       selectedActions: {},

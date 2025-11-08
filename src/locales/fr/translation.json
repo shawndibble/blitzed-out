@@ -263,7 +263,7 @@
   "yesInteracting": "Oui, je joue avec des gens.",
   "noInteracting": "Non, je joue avec moi-même.",
   "yourRole": "Quel est votre rôle?",
-  "yourGender": "Quel est votre genre? (Optionnel)",
+  "yourGender": "Quel est votre genre?",
   "areYouNaked": "Préliminaires (habillé) ou Sexe (nu)*?",
   "yesNaked": "Sexe: Nous sommes nus.",
   "noNaked": "Préliminaires: Nous sommes encore habillés.",
@@ -518,7 +518,8 @@
     "gender": {
       "male": "Masculin",
       "female": "Féminin",
-      "preferNotSay": "Non-Binaire / Préfère Ne Pas Dire"
+      "nonBinary": "Non-Binaire",
+      "preferNotSay": "Préfère Ne Pas Dire"
     }
   },
   "localPlayerSettings": {

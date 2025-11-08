@@ -346,15 +346,20 @@ export function replaceAnatomyPlaceholders(
     result = result.replace(/{genital}/g, genitalTerm);
   }
 
-  // Replace other anatomy placeholders
-  result = result.replace(/{hole}/g, mappings.hole);
-  result = result.replace(/{chest}/g, mappings.chest);
+  // Replace all anatomy and pronoun placeholders using a single pattern
+  const placeholderMap: Record<string, string> = {
+    hole: mappings.hole,
+    chest: mappings.chest,
+    pronoun_subject: mappings.pronoun_subject,
+    pronoun_object: mappings.pronoun_object,
+    pronoun_possessive: mappings.pronoun_possessive,
+    pronoun_reflexive: mappings.pronoun_reflexive,
+  };
 
-  // Replace pronoun placeholders
-  result = result.replace(/{pronoun_subject}/g, mappings.pronoun_subject);
-  result = result.replace(/{pronoun_object}/g, mappings.pronoun_object);
-  result = result.replace(/{pronoun_possessive}/g, mappings.pronoun_possessive);
-  result = result.replace(/{pronoun_reflexive}/g, mappings.pronoun_reflexive);
+  result = result.replace(
+    /{(hole|chest|pronoun_subject|pronoun_object|pronoun_possessive|pronoun_reflexive)}/g,
+    (_, placeholder) => placeholderMap[placeholder] || placeholder
+  );
 
   return result;
 }

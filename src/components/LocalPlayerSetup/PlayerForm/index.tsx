@@ -66,7 +66,7 @@ export default function PlayerForm({
   const [formData, setFormData] = useState<FormData>({
     name: '',
     role: 'vers',
-    gender: 'prefer-not-say',
+    gender: 'non-binary',
     sound: getRandomSound().id,
   });
 
@@ -79,14 +79,14 @@ export default function PlayerForm({
       setFormData({
         name: player.name,
         role: player.role,
-        gender: player.gender || 'prefer-not-say',
+        gender: player.gender || 'non-binary',
         sound: player.sound || getRandomSound().id,
       });
     } else {
       setFormData({
         name: '',
         role: 'vers',
-        gender: 'prefer-not-say',
+        gender: 'non-binary',
         sound: getRandomSound().id,
       });
     }
@@ -188,7 +188,7 @@ export default function PlayerForm({
     setFormData({
       name: '',
       role: 'vers',
-      gender: 'prefer-not-say',
+      gender: 'non-binary',
       sound: getRandomSound().id,
     });
     setErrors({});
@@ -335,10 +335,7 @@ export default function PlayerForm({
           </FormControl>
 
           {/* Gender Selection */}
-          <GenderSelector
-            selectedGender={formData.gender}
-            onGenderChange={handleGenderChange}
-          />
+          <GenderSelector selectedGender={formData.gender} onGenderChange={handleGenderChange} />
 
           {/* Sound Selection */}
           <SoundSelector
