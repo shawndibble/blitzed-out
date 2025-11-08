@@ -513,7 +513,9 @@ describe('GameBoard', () => {
             isFinished: false,
           }),
         ]),
-        true
+        true,
+        undefined,
+        undefined
       );
     });
 
@@ -552,7 +554,9 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true
+        true,
+        undefined,
+        undefined
       );
     });
 
@@ -607,7 +611,9 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true // useGenericPlaceholders should be true for GameBoard
+        true, // useGenericPlaceholders should be true for GameBoard
+        undefined,
+        undefined
       );
     });
 
@@ -628,7 +634,9 @@ describe('GameBoard', () => {
         'dom',
         'Test User',
         undefined,
-        true
+        true,
+        undefined,
+        undefined
       );
     });
 
@@ -649,7 +657,9 @@ describe('GameBoard', () => {
         'vers',
         'Test User',
         undefined,
-        true
+        true,
+        undefined,
+        undefined
       );
     });
 
@@ -671,7 +681,9 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true
+        true,
+        undefined,
+        undefined
       );
     });
 
@@ -713,7 +725,9 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true
+        true,
+        undefined,
+        undefined
       );
     });
   });

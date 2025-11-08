@@ -177,6 +177,8 @@ export default function usePlayerMove(
       user,
       t,
       settings.role,
+      settings.gender,
+      settings.locale,
       hasLocalPlayers,
       isLocalPlayerRoom,
       currentPlayer,

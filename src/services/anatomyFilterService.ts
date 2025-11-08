@@ -34,13 +34,13 @@ export function isAnatomyCompatible(
   // If gender not specified, default to allowing universal actions only
   if (!gender || gender === 'prefer-not-say') {
     // Only allow universal actions for unspecified gender
-    return requirement === 'any' || requirement === 'anus';
+    return false; // Conservative - require gender for anatomy-specific actions
   }
 
   // Map genders to their compatible anatomy requirements
   const anatomyMap: Record<PlayerGender, AnatomyRequirement[]> = {
-    'male': ['any', 'penis', 'anus'],
-    'female': ['any', 'vulva', 'anus', 'breasts'],
+    male: ['any', 'penis', 'anus'],
+    female: ['any', 'vulva', 'anus', 'breasts'],
     'non-binary': ['any', 'anus'], // Conservative default for non-binary
     'prefer-not-say': ['any', 'anus'], // Only universal actions
   };
@@ -66,11 +66,11 @@ export function getSupportedAnatomyRequirements(): AnatomyRequirement[] {
  */
 export function getAnatomyRequirementDescription(requirement: AnatomyRequirement): string {
   const descriptions: Record<AnatomyRequirement, string> = {
-    'any': 'Universal (all players)',
-    'penis': 'Requires male anatomy',
-    'vulva': 'Requires female anatomy',
-    'anus': 'Universal (all players)',
-    'breasts': 'Requires breasts',
+    any: 'Universal (all players)',
+    penis: 'Requires male anatomy',
+    vulva: 'Requires female anatomy',
+    anus: 'Universal (all players)',
+    breasts: 'Requires breasts',
   };
 
   return descriptions[requirement];
@@ -116,12 +116,12 @@ export function getIncompatibilityReason(
     return `Requires specific anatomy (${requirement})`;
   }
 
-  const reasonMap: Record<AnatomyRequirement, string> = {
-    'any': null,
-    'penis': 'Requires male anatomy',
-    'vulva': 'Requires female anatomy',
-    'anus': null, // Universal, should never be incompatible
-    'breasts': 'Requires breasts',
+  const reasonMap: Record<AnatomyRequirement, string | null> = {
+    any: null,
+    penis: 'Requires male anatomy',
+    vulva: 'Requires female anatomy',
+    anus: null, // Universal, should never be incompatible
+    breasts: 'Requires breasts',
   };
 
   return reasonMap[requirement || 'any'] || null;

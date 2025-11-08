@@ -411,8 +411,24 @@ describe('GameBoard', () => {
         />
       );
 
-      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User', undefined, true);
-      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User', undefined, true);
+      expect(actionStringReplacement).toHaveBeenCalledWith(
+        '',
+        'sub',
+        'Test User',
+        undefined,
+        true,
+        undefined,
+        undefined
+      );
+      expect(actionStringReplacement).toHaveBeenCalledWith(
+        '',
+        'sub',
+        'Test User',
+        undefined,
+        true,
+        undefined,
+        undefined
+      );
     });
 
     it('should handle user without display name', () => {
@@ -441,7 +457,9 @@ describe('GameBoard', () => {
         'sub', // Now uses settings.role instead of tile.role
         '',
         undefined,
-        true
+        true,
+        undefined,
+        undefined
       );
     });
 

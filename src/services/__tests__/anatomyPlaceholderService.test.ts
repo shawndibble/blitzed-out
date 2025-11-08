@@ -7,8 +7,6 @@ import {
   hasAnatomyPlaceholders,
   getSupportedPlaceholders,
 } from '../anatomyPlaceholderService';
-import type { PlayerGender } from '@/types/localPlayers';
-import type { PlayerRole } from '@/types/Settings';
 
 describe('anatomyPlaceholderService', () => {
   describe('getAnatomyMappings', () => {
@@ -130,52 +128,27 @@ describe('anatomyPlaceholderService', () => {
 
   describe('replaceAnatomyPlaceholders', () => {
     it('replaces {genital} for male', () => {
-      const result = replaceAnatomyPlaceholders(
-        'Touch your {genital}.',
-        'male',
-        'sub',
-        'en'
-      );
+      const result = replaceAnatomyPlaceholders('Touch your {genital}.', 'male', 'sub', 'en');
       expect(result).toBe('Touch your dick.');
     });
 
     it('replaces {genital} for female', () => {
-      const result = replaceAnatomyPlaceholders(
-        'Touch your {genital}.',
-        'female',
-        'sub',
-        'en'
-      );
+      const result = replaceAnatomyPlaceholders('Touch your {genital}.', 'female', 'sub', 'en');
       expect(result).toBe('Touch your pussy.');
     });
 
     it('replaces {genital} with strapon for female dom', () => {
-      const result = replaceAnatomyPlaceholders(
-        'Use your {genital}.',
-        'female',
-        'dom',
-        'en'
-      );
+      const result = replaceAnatomyPlaceholders('Use your {genital}.', 'female', 'dom', 'en');
       expect(result).toBe('Use your strapon.');
     });
 
     it('replaces {hole} placeholder', () => {
-      const result = replaceAnatomyPlaceholders(
-        'Insert into {hole}.',
-        'female',
-        'sub',
-        'en'
-      );
+      const result = replaceAnatomyPlaceholders('Insert into {hole}.', 'female', 'sub', 'en');
       expect(result).toBe('Insert into pussy.');
     });
 
     it('replaces {chest} placeholder', () => {
-      const result = replaceAnatomyPlaceholders(
-        'Touch your {chest}.',
-        'female',
-        'sub',
-        'en'
-      );
+      const result = replaceAnatomyPlaceholders('Touch your {chest}.', 'female', 'sub', 'en');
       expect(result).toBe('Touch your breasts.');
     });
 
@@ -210,12 +183,7 @@ describe('anatomyPlaceholderService', () => {
     });
 
     it('handles undefined gender gracefully', () => {
-      const result = replaceAnatomyPlaceholders(
-        'Touch your {genital}.',
-        undefined,
-        'sub',
-        'en'
-      );
+      const result = replaceAnatomyPlaceholders('Touch your {genital}.', undefined, 'sub', 'en');
       expect(result).toBe('Touch your genitals.');
     });
 
@@ -225,12 +193,7 @@ describe('anatomyPlaceholderService', () => {
     });
 
     it('works with Spanish locale', () => {
-      const result = replaceAnatomyPlaceholders(
-        'Toca tu {genital}.',
-        'male',
-        'sub',
-        'es'
-      );
+      const result = replaceAnatomyPlaceholders('Toca tu {genital}.', 'male', 'sub', 'es');
       expect(result).toBe('Toca tu polla.');
     });
   });
@@ -300,12 +263,7 @@ describe('anatomyPlaceholderService', () => {
     });
 
     it('handles mixed role and anatomy placeholders', () => {
-      const result = replaceAnatomyPlaceholders(
-        '{dom} touches {genital}.',
-        'male',
-        'sub',
-        'en'
-      );
+      const result = replaceAnatomyPlaceholders('{dom} touches {genital}.', 'male', 'sub', 'en');
       // Role placeholders are not replaced by anatomy service
       expect(result).toBe('{dom} touches dick.');
     });

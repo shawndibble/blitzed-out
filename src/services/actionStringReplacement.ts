@@ -183,7 +183,13 @@ export default function actionStringReplacement(
 
     // Replace anatomy placeholders based on current player's gender (online/solo mode)
     const currentLocale = locale || i18next.language || 'en';
-    newAction = replaceAnatomyPlaceholders(newAction, currentPlayerGender, role, currentLocale);
+    const validRole = role === 'sub' || role === 'dom' || role === 'vers' ? role : undefined;
+    newAction = replaceAnatomyPlaceholders(
+      newAction,
+      currentPlayerGender,
+      validRole,
+      currentLocale
+    );
   }
 
   // capitalize the first letter or the first letter after a period if immediately proceeded by a curly brace.

@@ -106,55 +106,55 @@
     "type": "sex",
     "actions": {
       "Masturbation": [
-        "{sub} gives {dom} 30 slow strokes",
-        "{sub} jerks {dom} as fast as they can for 30 seconds.",
-        "{player} times their self strokes with their breathing until their next turn.",
+        "{sub} touches {dom}'s {genital} 30 times slowly.",
+        "{sub} touches {dom}'s {genital} as fast as they can for 30 seconds.",
+        "{player} times their touches with their breathing until their next turn.",
         "{sub} applies lube/spit to all player's genitals.",
-        "{sub} spends 30 seconds stroking up to 2 players.",
-        "{player} performs 30 self strokes each paired with a deep breath.",
-        "{sub} lightly rubs their finger over {dom}'s dick.",
-        "{player} jerks themselves with their non-dominant hand.",
-        "{sub} performs a kegal each time they stroke {dom} until their next turn.",
-        "{player} performs 30 self hard squeeze strokes.",
-        "{sub} jerks themselves while using their other hand on {dom}'s erogenous zone.",
-        "{player} strokes themselves and {dom} at the same time.",
-        "{sub} plays with {dom}'s genitals with both hands.",
-        "{player} jerks themselves with a twisting hand motion.",
-        "{player} uses their palm to rub their cock head for 60 seconds.",
-        "{player} uses two fingers and focuses only on the frenulum.",
-        "{player} alternates between fast and slow strokes until another Gooning action.",
-        "{player} experiments with different grips and pressures while masturbating.",
-        "{dom} has their cock stroked 5 times by every submissive player.",
-        "{sub} must stroke every dominant player at least 5 times."
+        "{sub} spends 30 seconds touching up to 2 players' {genital}.",
+        "{player} performs 30 touches to their {genital}, each paired with a deep breath.",
+        "{sub} lightly rubs their finger over {dom}'s {genital}.",
+        "{player} touches their {genital} with their non-dominant hand.",
+        "{sub} performs a kegal each time they touch {dom} until their next turn.",
+        "{player} performs 30 firm squeezes to their {genital}.",
+        "{sub} touches themselves while using their other hand on {dom}'s erogenous zone.",
+        "{player} touches themselves and {dom} at the same time.",
+        "{sub} plays with {dom}'s {genital} with both hands.",
+        "{player} touches their {genital} with a circular motion.",
+        "{player} uses their palm to rub their {genital} for 60 seconds.",
+        "{player} uses two fingers and focuses on the most sensitive areas of their {genital}.",
+        "{player} alternates between fast and slow touches until another Bating action.",
+        "{player} experiments with different touches and pressures while masturbating.",
+        "{dom} has their {genital} touched 5 times by every submissive player.",
+        "{sub} must touch every dominant player's {genital} at least 5 times."
       ],
       "Edging": [
         "{player} brings themselves to the edge.",
-        "{player} jerks off as quickly as they can until their next turn.",
+        "{player} touches themselves as quickly as they can until their next turn.",
         "{player} gets themselves to the edge twice.",
         "{player} edges with their non-dominant hand.",
-        "{player} tries to reach the edge as fast and as quickly as possible",
+        "{player} tries to reach the edge as fast as possible.",
         "{sub} brings {dom} to the edge.",
         "{player} edges using only a few fingers.",
         "{sub} edges {dom} using their whole hand.",
-        "{player} rapidly jerks to the edge, then holds a kegal as long as possible.",
-        "{player} rubs their perineum while jerking",
+        "{player} rapidly touches to the edge, then holds a kegal as long as possible.",
+        "{player} touches below their {genital} while edging.",
         "{sub} rapidly edges {dom} with one hand while rubbing an erogenous zone with the other.",
-        "{sub} gets on all fours. {dom} milks them like a cow until they near their edge.",
+        "{sub} gets on all fours. {dom} edges them repeatedly until they near climax.",
         "{player} practices breath control by holding their breath while edging.",
-        "{player} shifts positions (stand, kneel, sit) while edging themselves",
+        "{player} shifts positions (stand, kneel, sit) while edging themselves.",
         "{sub} must edge each dominant player at least once."
       ],
       "Toys": [
-        "{player} uses toy on their genital.",
-        "{sub} uses a toy on {dom}'s genital.",
-        "{player} slowly uses toy over their entire cock until their next turn.",
+        "{player} uses toy on their {genital}.",
+        "{sub} uses a toy on {dom}'s {genital}.",
+        "{player} slowly uses toy over their entire {genital} until their next turn.",
         "{sub} uses the toy on {dom} while also masturbating.",
-        "{player} uses toy on their cock for 30 seconds with eyes closed.",
-        "{player} uses toy on their perineum",
-        "{player} strokes their cock 25 times with toy.",
+        "{player} uses toy on their {genital} for 30 seconds with eyes closed.",
+        "{player} uses toy below their {genital}.",
+        "{player} uses toy on their {genital} 25 times.",
         "{sub} masturbates while utilizing some cloth (underwear/rag/etc...).",
-        "{player} uses a vibrating toy on their genitals.",
-        "{dom} closes his eyes while a random player strokes their cock until an action interrupts one of them."
+        "{player} uses a vibrating toy on their {genital}.",
+        "{dom} closes their eyes while a random player touches their {genital} until an action interrupts one of them."
       ]
     }
   },
@@ -290,6 +290,7 @@
     "type": "sex",
     "dom": "Top",
     "sub": "Bottom",
+    "anatomyRequirement": "any",
     "actions": {
       "Finger(s)/Rimmed": [
         "{dom} rubs {sub}'s butt.",
@@ -310,11 +311,11 @@
         "{dom} may finger all bottoms/switches."
       ],
       "Fucking": [
-        "{dom} rubs their dick around {sub}'s hole.",
+        "{dom} rubs their {genital} around {sub}'s hole.",
         "{dom} inserts a toy into {sub}'s hole.",
         "{dom} fucks {sub} for 30 seconds.",
-        "{dom} inserts just the tip of their dick into {sub}'s hole.",
-        "{sub} sits on {dom}'s dick.",
+        "{dom} inserts just the tip of their {genital} into {sub}'s hole.",
+        "{sub} sits on {dom}'s {genital}.",
         "{dom} gives {sub} 10 slow, deep fucks.",
         "{dom} gives {sub} 20 fucks.",
         "{dom} fucks {sub} doggy style.",
@@ -323,7 +324,7 @@
         "{sub} fucks themselves with a toy for 15 seconds.",
         "{dom} gives {sub} 15 fast toy fucks.",
         "{dom} gives {sub} a deep fast fuck.",
-        "{sub} rides {dom}'s dick until another action (for either).",
+        "{sub} rides {dom}'s {genital} until another action (for either).",
         "{sub} gets fucked by any and all tops/switches until their next turn."
       ],
       "Stretch/Large Toys": [
@@ -336,11 +337,11 @@
         "{dom} inserts the maximum number of fingers into {sub} within 30 seconds.",
         "{dom} spins a toy inside {sub} 3x.",
         "{sub} does 30 seconds of kegels while a large toy is in them.",
-        "{sub} sits on {dom}'s dick and perform 10 kegels.",
+        "{sub} sits on {dom}'s {genital} and perform 10 kegels.",
         "{dom} destroys {sub}'s hole.",
         "{sub} to insert their largest toy until the next Butt Play activity.",
         "{dom} gives {sub} multiple full in and out fucks as fast and as hard as they can for 90 seconds.",
-        "{dom} inserts the maximum number of fingers in {sub} and then flicks their prostate.",
+        "{dom} inserts the maximum number of fingers in {sub} and massages their sensitive internal spot.",
         "Each top/switch sees how many fingers they can insert into {sub}.",
         "{dom} tests how many fingers they can get into each bottom/switch."
       ],
@@ -362,8 +363,9 @@
   "clitTraining": {
     "label": "Clit Training",
     "type": "sex",
-    "dom": "Clit Owner",
-    "sub": "Pleasure Giver",
+    "dom": "Receiver",
+    "sub": "Giver",
+    "anatomyRequirement": "vulva",
     "actions": {
       "Light Touch": [
         "{sub} traces circles around {dom}'s clit with their finger.",
@@ -373,10 +375,10 @@
         "{sub} breathes warm air on {dom}'s clit.",
         "{dom} spreads {dom}'s legs while {sub} lightly teases {dom}'s clit.",
         "{sub} uses a soft brush to lightly stimulate {dom}'s clit.",
-        "{sub} gently pinches the hood around {dom}'s clit.",
+        "{sub} gently touches the sensitive areas around {dom}'s clit.",
         "{dom} orders {sub} to barely touch {dom}'s clit for 15 seconds while {dom} stays still.",
         "{sub} alternates between light touches and pulling away from {dom}'s clit.",
-        "{dom} has every pleasure giver/switch lightly tease {dom}'s clit in turn."
+        "{dom} has every giver/switch lightly tease {dom}'s clit in turn."
       ],
       "Direct Stimulation": [
         "{sub} rubs {dom}'s clit in slow circles for 15 seconds.",
@@ -389,10 +391,10 @@
         "{dom} makes {sub} stimulate {dom}'s clit while {dom} counts to 30.",
         "{sub} alternates between fast and slow clit stimulation.",
         "{dom} receives clit stimulation from each player before {dom}'s next turn.",
-        "{dom} has every pleasure giver/switch stimulate {dom}'s clit for 15 seconds each.",
+        "{dom} has every giver/switch stimulate {dom}'s clit for 15 seconds each.",
         "{dom} orders {sub} to remain quiet while giving intense clit stimulation.",
         "{sub} stimulates {dom}'s clit while {dom} performs another task.",
-        "{dom} has every pleasure giver/switch work on {dom}'s clit simultaneously.",
+        "{dom} has every giver/switch work on {dom}'s clit simultaneously.",
         "{dom} competes with another player to see who can handle clit stimulation longest."
       ],
       "Intense Focus": [
@@ -404,7 +406,7 @@
         "{dom} controls when {sub} can move during clit focus.",
         "{sub} alternates between intense stimulation and stopping completely.",
         "{dom} receives intense clit focus from each player for 45 seconds each.",
-        "{dom} has every pleasure giver/switch take turns giving intense clit stimulation.",
+        "{dom} has every giver/switch take turns giving intense clit stimulation.",
         "{dom} maintains eye contact while receiving intense clit stimulation."
       ],
       "Endurance Challenge": [
@@ -415,7 +417,7 @@
         "{dom} receives maximum intensity clit stimulation for as long as they want.",
         "{sub} edges {dom} repeatedly until {dom} decides to finish.",
         "{dom} endures clit stimulation from multiple players and controls when to finish.",
-        "{dom} has every pleasure giver/switch compete to see who can please them longest."
+        "{dom} has every giver/switch compete to see who can please them longest."
       ]
     }
   },
@@ -690,7 +692,7 @@
       "Peed on": [
         "{dom} pees on {sub}'s body",
         "{sub} pees on their own body",
-        "{sub} puts their cock and ball in a piss container",
+        "{sub} puts their {genital} in a piss container",
         "{sub} gulps water",
         "{dom} pees on {sub}'s face",
         "{sub} pees on their own face",
@@ -846,62 +848,62 @@
     }
   },
   "throatTraining": {
-    "label": "Throat Training",
+    "label": "Oral Play",
     "type": "sex",
-    "dom": "Receive Head",
-    "sub": "Cock Sucker",
+    "dom": "Receive Oral",
+    "sub": "Give Oral",
     "actions": {
-      "Lick dick": [
-        "{sub} licks {dom}'s dick.",
-        "{sub} plays with the tip of {dom}'s dick.",
-        "{sub} tongue bathes {dom}'s dick.",
-        "{sub} sucks {dom}'s dick tip.",
-        "{sub} traces {dom}'s dick head with their tongue.",
-        "{dom} slaps their dick against {sub}'s face several times.",
-        "{sub} licks {dom}'s dick shaft.",
-        "{sub} plays with the tip of {dom}'s dick for 15 seconds.",
-        "{sub} wets {dom}'s whole dick with their tongue.",
-        "{sub} must lick the dick of as many players as possible before their next turn.",
-        "{dom} has every cock sucker/switch lick his dick."
+      "Licking": [
+        "{sub} licks {dom}'s {genital}.",
+        "{sub} plays with the tip of {dom}'s {genital}.",
+        "{sub} tongue bathes {dom}'s {genital}.",
+        "{sub} sucks {dom}'s {genital} tip.",
+        "{sub} traces {dom}'s {genital} with their tongue.",
+        "{dom} presses their {genital} against {sub}'s face several times.",
+        "{sub} licks {dom}'s {genital} thoroughly.",
+        "{sub} plays with the tip of {dom}'s {genital} for 15 seconds.",
+        "{sub} wets {dom}'s whole {genital} with their tongue.",
+        "{sub} must lick the {genital} of as many players as possible before their next turn.",
+        "{dom} has every oral giver/switch lick their {genital}."
       ],
-      "Suck dick": [
-        "{sub} sucks {dom}'s dick for 10 seconds.",
-        "{sub} holds {dom}'s dick in their mouth until {sub}'s next turn.",
-        "{dom} fucks {sub}'s mouth.",
-        "{sub} sucks {dom}'s dick for 20 seconds.",
-        "{sub} sucks {dom}'s dick between short breaths. x10. | Down, Up, Breathe. Repeat.",
-        "{sub} puts on a show sucking {dom}'s dick.",
-        "{dom} face fucks {sub}.",
-        "{sub} flicks the head tip of {dom}'s dick with their tongue while sucking.",
-        "{sub} sucks the head of {dom}'s dick for 30 seconds.",
-        "{sub} sucks each player's dick before their next turn.",
-        "{dom} face fucks each player for 30 seconds.",
+      "Oral": [
+        "{sub} gives oral to {dom} for 10 seconds.",
+        "{sub} holds {dom}'s {genital} in their mouth until {sub}'s next turn.",
+        "{dom} thrusts into {sub}'s mouth.",
+        "{sub} gives oral to {dom} for 20 seconds.",
+        "{sub} gives oral to {dom} between short breaths. x10. | Down, Up, Breathe. Repeat.",
+        "{sub} puts on a show giving oral to {dom}.",
+        "{dom} thrusts into {sub}'s mouth rhythmically.",
+        "{sub} flicks the tip of {dom}'s {genital} with their tongue during oral.",
+        "{sub} focuses on the tip of {dom}'s {genital} for 30 seconds.",
+        "{sub} gives oral to each player before their next turn.",
+        "{dom} thrusts into each player's mouth for 30 seconds.",
         "{sub} 69s with a player.",
-        "{sub} must suck the dick of as many players as possible before their next turn.",
-        "{dom} has every cock sucker/switch suck his dick one at a time.",
-        "{dom} has every cock sucker/switch work to suck his dick/work his genitals simultaneously."
+        "{sub} must give oral to as many players as possible before their next turn.",
+        "{dom} has every oral giver/switch give them oral one at a time.",
+        "{dom} has every oral giver/switch pleasure their {genital} simultaneously."
       ],
-      "Deepthroat": [
-        "{sub} holds {dom}'s dick in their throat for 5 seconds.",
-        "{sub} deepthroats {dom} between breaths. x10. | Down, Up, Breathe. Repeat.",
-        "{sub} licks {dom}'s balls while deep throating {dom}.",
-        "{sub} deepthroats {dom} for 10 seconds.",
-        "{sub} gives {dom} 10 deep throats.",
-        "{sub} sucks {dom}'s dick.",
-        "{dom} throat fucks {sub}.",
-        "{sub} deep throats each player once for as long as possible.",
-        "{sub} must deep throat the dick of as many players as possible before their next turn.",
-        "{dom} has every cock sucker/switch deepthroat his dick."
+      "Deep oral": [
+        "{sub} takes {dom}'s {genital} deep in their throat for 5 seconds.",
+        "{sub} takes {dom} deep between breaths. x10. | Down, Up, Breathe. Repeat.",
+        "{sub} takes {dom} as deep as possible.",
+        "{sub} takes {dom} deep for 10 seconds.",
+        "{sub} takes {dom} deep 10 times.",
+        "{sub} gives {dom} oral.",
+        "{dom} thrusts deep into {sub}'s mouth.",
+        "{sub} takes each player deep once for as long as possible.",
+        "{sub} must take as many players as possible deep before their next turn.",
+        "{dom} has every oral giver/switch take them deep."
       ],
       "Breath Play": [
-        "{sub} deepthroats {dom} for 20 seconds.",
-        "{sub} deepthroats {dom} as long as possible.",
-        "{sub} deepthroats {dom} at least 4 times for as long as possible.",
-        "{dom} throat fucks {sub} for 30 seconds.",
-        "{dom} deepthroat fucks {sub} for 15 seconds.",
-        "{sub} gives {dom} a nice slow deep throat to the balls 5 times.",
-        "{sub} must deepthroat each player's cock for as long as possible.",
-        "{dom} has every cock sucker/switch compete for who can deepthroat him the longest. Max of 60 seconds."
+        "{sub} takes {dom} deep for 20 seconds.",
+        "{sub} takes {dom} as deep as possible for as long as they can.",
+        "{sub} takes {dom} deep at least 4 times for as long as possible.",
+        "{dom} thrusts deep into {sub} for 30 seconds.",
+        "{dom} thrusts deep into {sub} for 15 seconds.",
+        "{sub} takes {dom} slowly and deeply 5 times.",
+        "{sub} must take each player deep for as long as possible.",
+        "{dom} has every oral giver/switch compete for who can take them deepest the longest. Max of 60 seconds."
       ]
     }
   },
