@@ -88,8 +88,9 @@ export default function Room() {
       const newCurrentPlayer = localPlayers[currentIndex];
 
       if (newCurrentPlayer) {
-        // Show turn transition if enabled
-        if (sessionSettings.showTurnTransitions) {
+        // Show turn transition if enabled AND playerDialog is disabled
+        // (to avoid showing both roll dialog and turn transition)
+        if (sessionSettings.showTurnTransitions && !settings.playerDialog) {
           setTransitionPlayerName(newCurrentPlayer.name);
           setIsTransitionForCurrentUser(false); // Always show player name for local multiplayer
           setShowTransition(true);
@@ -130,7 +131,13 @@ export default function Room() {
     const isNewMessage = latestActionMessage !== previousMessageRef.current;
 
     // Only show transition if it's a new message AND nextPlayer changed to be yourself
-    if (isNewMessage && nextPlayer.isSelf && !previousNextPlayerRef.current?.isSelf) {
+    // AND playerDialog is disabled (to avoid showing both roll dialog and turn transition)
+    if (
+      isNewMessage &&
+      nextPlayer.isSelf &&
+      !previousNextPlayerRef.current?.isSelf &&
+      !settings.playerDialog
+    ) {
       // Show turn transition when it's your turn (multi-device)
       setTransitionPlayerName(nextPlayer.displayName);
       setIsTransitionForCurrentUser(true); // Show "Your Turn" for multi-device
