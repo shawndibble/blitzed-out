@@ -3,13 +3,17 @@ import {
   Autocomplete,
   Box,
   Button,
+  Chip,
+  Collapse,
   FormControl,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
   TextField,
   Typography,
 } from '@mui/material';
+import { HelpOutline, ExpandMore } from '@mui/icons-material';
 import { FocusEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
@@ -56,6 +60,7 @@ export default function AddCustomTile({
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
   const [groupsRefreshTrigger, setGroupsRefreshTrigger] = useState(0);
+  const [placeholderHelpOpen, setPlaceholderHelpOpen] = useState(false);
 
   // Get groups for current locale/gameMode using shared filters
   const { groups } = useEditorGroupsReactive(sharedFilters.gameMode, settings.locale || 'en');
@@ -429,6 +434,147 @@ export default function AddCustomTile({
                 }
               }}
             />
+
+            {/* Placeholder Help Section */}
+            <Box sx={{ mb: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  mb: 1,
+                  '&:hover': { bgcolor: 'action.hover' },
+                  borderRadius: 1,
+                  p: 0.5,
+                }}
+                onClick={() => setPlaceholderHelpOpen(!placeholderHelpOpen)}
+              >
+                <HelpOutline sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="body2" sx={{ flexGrow: 1, color: 'primary.main' }}>
+                  {t('placeholderHelp.title')}
+                </Typography>
+                <IconButton
+                  size="small"
+                  sx={{
+                    transform: placeholderHelpOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s',
+                  }}
+                >
+                  <ExpandMore />
+                </IconButton>
+              </Box>
+
+              <Collapse in={placeholderHelpOpen}>
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: 'action.selected',
+                    borderRadius: 1,
+                    borderLeft: 3,
+                    borderLeftColor: 'primary.main',
+                  }}
+                >
+                  <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+                    {t('placeholderHelp.description')}
+                  </Typography>
+
+                  {/* Role Placeholders */}
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                    {t('placeholderHelp.rolePlaceholders')}
+                  </Typography>
+                  <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <Chip
+                      label="{player}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.player')}
+                    />
+                    <Chip
+                      label="{dom}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.dom')}
+                    />
+                    <Chip
+                      label="{sub}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.sub')}
+                    />
+                  </Box>
+
+                  {/* Anatomy Placeholders */}
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                    {t('placeholderHelp.anatomyPlaceholders')}
+                  </Typography>
+                  <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <Chip
+                      label="{genital}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.genital')}
+                    />
+                    <Chip
+                      label="{hole}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.hole')}
+                    />
+                    <Chip
+                      label="{chest}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.chest')}
+                    />
+                    <Chip
+                      label="{pronoun_subject}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.pronounSubject')}
+                    />
+                    <Chip
+                      label="{pronoun_object}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.pronounObject')}
+                    />
+                    <Chip
+                      label="{pronoun_possessive}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.pronounPossessive')}
+                    />
+                    <Chip
+                      label="{pronoun_reflexive}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      title={t('placeholderHelp.pronounReflexive')}
+                    />
+                  </Box>
+
+                  {/* Example */}
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                    {t('placeholderHelp.examples')}
+                  </Typography>
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      bgcolor: 'background.paper',
+                      borderRadius: 1,
+                      fontFamily: 'monospace',
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
+                      {t('placeholderHelp.exampleAction')}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 'bold' }}>
+                      → {t('placeholderHelp.exampleResult')}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Collapse>
+            </Box>
 
             <Autocomplete
               id="tags"

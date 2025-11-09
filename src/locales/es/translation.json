@@ -6,7 +6,26 @@
     "delete": "Eliminar",
     "noTilesFound": "No se encontraron fichas con los filtros seleccionados.",
     "showingTiles": "Mostrando {{shown}} de {{total}} fichas",
-    "gameMode": "Modo de juego"
+    "gameMode": "Modo de juego",
+    "placeholderHelp": {
+      "title": "Marcadores de Posición Disponibles",
+      "description": "Usa marcadores de posición para crear acciones inclusivas de género que se adapten a cada jugador.",
+      "rolePlaceholders": "Marcadores de Rol",
+      "anatomyPlaceholders": "Marcadores de Anatomía (Adaptables al Género)",
+      "player": "El nombre del jugador actual",
+      "dom": "El nombre de un jugador dominante/cambiante",
+      "sub": "El nombre de un jugador sumiso/cambiante",
+      "genital": "Se adapta al género del jugador (polla/coño/genitales)",
+      "hole": "Se adapta al género del jugador (agujero/coño/agujero)",
+      "chest": "Se adapta al género del jugador (pecho/pechos/pecho)",
+      "pronounSubject": "Se adapta al género del jugador (él/ella/elle)",
+      "pronounObject": "Se adapta al género del jugador (él/ella/elle)",
+      "pronounPossessive": "Se adapta al género del jugador (su/su/su)",
+      "pronounReflexive": "Se adapta al género del jugador (sí mismo/sí misma/sí misme)",
+      "examples": "Ver Ejemplos",
+      "exampleAction": "{dom} besa a {sub} en el {chest}",
+      "exampleResult": "Miguel besa a Jessica en los pechos"
+    }
   },
   "customTilesLabel": "Casillas de Juego",
   "custom": "Personalizado",
