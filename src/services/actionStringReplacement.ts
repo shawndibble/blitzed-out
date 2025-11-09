@@ -136,6 +136,15 @@ export default function actionStringReplacement(
     const currentPlayer = localPlayers.find((p) => p.name === displayName);
     const currentLocale = locale || i18next.language || 'en';
 
+    // Debug logging to identify gender issues
+    if (currentPlayer) {
+      console.log('[ActionString] Current player:', {
+        name: currentPlayer.name,
+        gender: currentPlayer.gender,
+        role: currentPlayer.role,
+      });
+    }
+
     // STEP 1: Handle contextual anatomy placeholders (e.g., "{dom}'s {genital}")
     // Replace anatomy placeholders that are associated with a specific role
     const contextualAnatomyPattern = /\{(dom|sub)\}'s \{(genital|hole|chest|pronoun_\w+)\}/g;

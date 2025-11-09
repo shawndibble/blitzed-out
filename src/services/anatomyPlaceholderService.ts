@@ -246,6 +246,11 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
   // Default to English if locale not found
   const localeData = anatomyMappings[locale] || anatomyMappings.en;
 
+  // Debug logging to help identify gender issues
+  if (gender === undefined || gender === null) {
+    console.warn('[Anatomy] Gender is undefined or null:', { gender, locale });
+  }
+
   // Default to prefer-not-say if gender not specified
   const genderKey = gender || 'prefer-not-say';
 
