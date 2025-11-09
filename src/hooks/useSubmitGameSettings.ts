@@ -164,11 +164,21 @@ export default function useSubmitGameSettings(): (
       // Only create a NEW session if one doesn't already exist (wizard flow)
       // Do NOT re-create existing sessions when clicking "Update Game"
       const typedFormData = formData as any; // Use any type to access wizard-specific properties
+
+      // IMPORTANT: Check settings store, not formData, for wizard fields
+      // formData is React state and may be stale after session deletion
+      // Only create session if wizard fields exist in BOTH formData AND settings store
+      const settingsHasWizardFields =
+        'localPlayersData' in settings ||
+        'localPlayerSessionSettings' in settings ||
+        'hasLocalPlayers' in settings;
+
       if (
         typedFormData.hasLocalPlayers &&
         typedFormData.localPlayersData &&
         typedFormData.localPlayerSessionSettings &&
-        !hasLocalPlayers // Only create if no session exists
+        !hasLocalPlayers && // No current session
+        settingsHasWizardFields // Settings also have wizard fields (not stale formData)
       ) {
         try {
           await createLocalSession(
@@ -207,6 +217,7 @@ export default function useSubmitGameSettings(): (
       navigate,
       createLocalSession,
       hasLocalPlayers,
+      settings,
     ]
   );
 

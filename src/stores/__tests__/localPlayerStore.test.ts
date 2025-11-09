@@ -31,7 +31,7 @@ vi.mock('@/stores/store', () => ({
 vi.mock('@/stores/settingsStore', () => ({
   useSettingsStore: {
     getState: vi.fn(() => ({
-      settings: { gameMode: 'online' as const, room: 'PUBLIC' },
+      settings: { gameMode: 'online' as const, room: 'PUBLIC', boardUpdated: false },
       updateSettings: vi.fn(),
       setLocale: vi.fn(),
       resetSettings: vi.fn(),
@@ -533,6 +533,7 @@ describe('LocalPlayerStore', () => {
       const mockSettingsWithWizardFields = {
         gameMode: 'local' as const,
         room: 'TEST',
+        boardUpdated: false,
         localPlayersData: [{ id: '1', name: 'Test' }],
         localPlayerSessionSettings: { showTurnTransitions: true },
         hasLocalPlayers: true,
@@ -595,6 +596,7 @@ describe('LocalPlayerStore', () => {
       const mockCleanSettings = {
         gameMode: 'local' as const,
         room: 'TEST',
+        boardUpdated: false,
       };
 
       const { useSettingsStore } = await import('@/stores/settingsStore');
