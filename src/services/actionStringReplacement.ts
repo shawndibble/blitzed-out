@@ -230,6 +230,19 @@ export default function actionStringReplacement(
     const contextualAnatomyPattern = /\{(dom|sub)\}'s \{(genital|hole|chest|pronoun_\w+)\}/g;
     newAction = newAction.replace(contextualAnatomyPattern, (match, roleType, anatomyType) => {
       const rolePlayer = localPlayers.find((p) => p.role === roleType);
+      console.log('[ActionString] Contextual anatomy replacement:', {
+        match,
+        roleType,
+        anatomyType,
+        rolePlayer: rolePlayer
+          ? { name: rolePlayer.name, gender: rolePlayer.gender, role: rolePlayer.role }
+          : null,
+        allPlayers: localPlayers.map((p) => ({
+          name: p.name,
+          gender: p.gender,
+          role: p.role,
+        })),
+      });
       if (rolePlayer) {
         const anatomyTerm = getContextualAnatomyTerm(
           anatomyType,
@@ -238,6 +251,7 @@ export default function actionStringReplacement(
           newAction,
           currentLocale
         );
+        console.log('[ActionString] Anatomy term result:', { anatomyTerm });
         return `{${roleType}}'s ${anatomyTerm}`;
       }
       return match;
