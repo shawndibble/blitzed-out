@@ -9,6 +9,7 @@ import { create } from 'zustand';
 import { localPlayerService } from '@/services/localPlayerService';
 import { persist } from 'zustand/middleware';
 import db from '@/stores/store';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 /**
  * State interface for local player store
@@ -137,6 +138,23 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
           } catch {
             // Silently fail - session might not exist in database
           }
+        }
+
+        // Clear wizard fields from settings store to prevent resurrection
+        // These fields may have been saved by accident during wizard flow
+        const settingsState = useSettingsStore.getState();
+        const currentSettings = settingsState.settings;
+        const hasWizardFields =
+          'localPlayersData' in currentSettings ||
+          'localPlayerSessionSettings' in currentSettings ||
+          'hasLocalPlayers' in currentSettings;
+
+        if (hasWizardFields) {
+          const cleanedSettings = { ...currentSettings };
+          delete (cleanedSettings as any).localPlayersData;
+          delete (cleanedSettings as any).localPlayerSessionSettings;
+          delete (cleanedSettings as any).hasLocalPlayers;
+          settingsState.updateSettings(cleanedSettings);
         }
 
         // Clear from service and store

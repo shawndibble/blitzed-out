@@ -68,6 +68,13 @@ function cleanFormData(formData: Settings): Settings {
 
   cleanedData.selectedActions = cleanedSelectedActions;
 
+  // Remove wizard-specific fields that should not persist in settings store
+  // These fields are only used during wizard flow to create local player sessions
+  const wizardFields = ['localPlayersData', 'localPlayerSessionSettings', 'hasLocalPlayers'];
+  wizardFields.forEach((field) => {
+    delete (cleanedData as any)[field];
+  });
+
   return cleanedData;
 }
 

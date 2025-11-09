@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useLocalPlayers } from './useLocalPlayers';
 import usePlayerList from './usePlayerList';
+import useAuth from '@/context/hooks/useAuth';
 
 interface BasePlayer {
   displayName: string;
@@ -28,21 +29,14 @@ export type HybridPlayer = LocalPlayerExtended | RemotePlayer;
 /**
  * Hook that provides a combined list of local and remote players
  * Shows local players when in local multiplayer mode, otherwise shows remote players
+ * Always ensures at least the current user is shown
  */
 export default function useHybridPlayerList(): HybridPlayer[] {
+  const { user } = useAuth();
   const remotePlayerList = usePlayerList();
   const { localPlayers, hasLocalPlayers, isLocalPlayerRoom } = useLocalPlayers();
 
   const hybridPlayerList = useMemo(() => {
-    const players: HybridPlayer[] = [];
-
-    // Include remote players (will be excluded in local multiplayer mode)
-    const remotePlayersTyped: RemotePlayer[] = remotePlayerList.map((player) => ({
-      ...player,
-      isLocal: false as const,
-    }));
-    players.push(...remotePlayersTyped);
-
     // Use local players when in local multiplayer mode (multiple players on single device)
     if (hasLocalPlayers && isLocalPlayerRoom) {
       const localPlayersTyped: LocalPlayerExtended[] = localPlayers
@@ -66,8 +60,29 @@ export default function useHybridPlayerList(): HybridPlayer[] {
       return localPlayersTyped;
     }
 
-    return players;
-  }, [remotePlayerList, localPlayers, hasLocalPlayers, isLocalPlayerRoom]);
+    // Not in local multiplayer mode - show remote players
+    const remotePlayersTyped: RemotePlayer[] = remotePlayerList.map((player) => ({
+      ...player,
+      isLocal: false as const,
+    }));
+
+    // If no players and user exists, ensure current user is in the list
+    // This prevents empty player list after deleting local session
+    if (remotePlayersTyped.length === 0 && user) {
+      remotePlayersTyped.push({
+        displayName: user.displayName || 'You',
+        uid: user.uid,
+        isSelf: true,
+        location: 0,
+        isFinished: false,
+        status: 'active',
+        lastActivity: new Date(),
+        isLocal: false as const,
+      });
+    }
+
+    return remotePlayersTyped;
+  }, [user, remotePlayerList, localPlayers, hasLocalPlayers, isLocalPlayerRoom]);
 
   return hybridPlayerList;
 }
