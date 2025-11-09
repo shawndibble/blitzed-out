@@ -18,10 +18,14 @@ import {
   Delete as DeleteIcon,
   MoreVert as MoreVertIcon,
   Person as PersonIcon,
+  Male as MaleIcon,
+  Female as FemaleIcon,
+  Transgender as TransgenderIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import type { LocalPlayer } from '@/types';
 import type { PlayerRole } from '@/types/Settings';
+import type { PlayerGender } from '@/types/localPlayers';
 
 interface PlayerCardProps {
   /** The player data to display */
@@ -98,15 +102,19 @@ export default function PlayerCard({
     onRoleChange?.(player.id, newRole);
   };
 
-  const getPlayerInitials = (name: string): string => {
-    return (
-      name
-        .split(' ')
-        .map((word) => word.charAt(0))
-        .join('')
-        .toUpperCase()
-        .slice(0, 2) || 'P'
-    );
+  const getGenderIcon = (gender?: PlayerGender): JSX.Element => {
+    switch (gender) {
+      case 'male':
+        return <MaleIcon fontSize="small" />;
+      case 'female':
+        return <FemaleIcon fontSize="small" />;
+      case 'non-binary':
+        return <TransgenderIcon fontSize="small" />;
+      case 'prefer-not-say':
+        return <PersonIcon fontSize="small" />;
+      default:
+        return <PersonIcon fontSize="small" />;
+    }
   };
 
   const getRoleColor = (role: PlayerRole): 'primary' | 'secondary' | 'default' => {
@@ -137,17 +145,16 @@ export default function PlayerCard({
     >
       <CardContentPadding>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-          {/* Player Avatar */}
+          {/* Player Avatar with Gender Icon */}
           <Avatar
             sx={{
               bgcolor: isActive ? 'primary.main' : 'grey.500',
               marginTop: 0.5,
-              width: 24,
-              height: 24,
-              fontWeight: 'bold',
+              width: 32,
+              height: 32,
             }}
           >
-            {getPlayerInitials(player.name)}
+            {getGenderIcon(player.gender)}
           </Avatar>
 
           {/* Player Info */}
