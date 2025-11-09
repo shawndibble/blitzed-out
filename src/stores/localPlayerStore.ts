@@ -83,7 +83,8 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
         if (typeof migratedPlayer.isFinished !== 'boolean') {
           migratedPlayer.isFinished = false;
         }
-        if (!migratedPlayer.gender) {
+        // Only set default gender if it's explicitly undefined or null (not empty string)
+        if (migratedPlayer.gender === undefined || migratedPlayer.gender === null) {
           migratedPlayer.gender = 'non-binary';
         }
 
@@ -109,7 +110,9 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
           location: typeof player.location === 'number' ? player.location : 0,
           isFinished: typeof player.isFinished === 'boolean' ? player.isFinished : false,
           sound: player.sound || '',
-          gender: player.gender || 'non-binary',
+          // Only set default gender if it's explicitly undefined or null
+          gender:
+            player.gender !== undefined && player.gender !== null ? player.gender : 'non-binary',
         }));
 
         return {
