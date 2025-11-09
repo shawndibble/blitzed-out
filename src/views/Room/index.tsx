@@ -131,13 +131,8 @@ export default function Room() {
     const isNewMessage = latestActionMessage !== previousMessageRef.current;
 
     // Only show transition if it's a new message AND nextPlayer changed to be yourself
-    // AND playerDialog is disabled (to avoid showing both roll dialog and turn transition)
-    if (
-      isNewMessage &&
-      nextPlayer.isSelf &&
-      !previousNextPlayerRef.current?.isSelf &&
-      !settings.playerDialog
-    ) {
+    // In multi-device mode, playerDialog only affects YOUR rolls, not the "Your Turn" transition
+    if (isNewMessage && nextPlayer.isSelf && !previousNextPlayerRef.current?.isSelf) {
       // Show turn transition when it's your turn (multi-device)
       setTransitionPlayerName(nextPlayer.displayName);
       setIsTransitionForCurrentUser(true); // Show "Your Turn" for multi-device
