@@ -1,8 +1,14 @@
-import type { LocalPlayer, LocalPlayerSession, LocalSessionSettings } from '@/types';
+import type {
+  LocalPlayer,
+  LocalPlayerSession,
+  LocalSessionSettings,
+  DBLocalPlayerSession,
+} from '@/types';
 
 import { create } from 'zustand';
 import { localPlayerService } from '@/services/localPlayerService';
 import { persist } from 'zustand/middleware';
+import db from '@/stores/store';
 
 /**
  * State interface for local player store
@@ -242,11 +248,41 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
         session: state.session,
       }),
       // Migrate session data on rehydration and reset loading/error states
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => async (state) => {
         if (state) {
           // Migrate session if it exists to ensure all fields are present
           if (state.session) {
-            state.session = state._migrateSession(state.session);
+            const migratedSession = state._migrateSession(state.session);
+            if (!migratedSession) {
+              state.session = null;
+              state.isLoading = false;
+              state.error = null;
+              return;
+            }
+
+            state.session = migratedSession;
+
+            // IMPORTANT: Sync session to database after rehydration
+            // The persist middleware saves to localStorage, but we also need it in Dexie
+            try {
+              const dbSession = await localPlayerService.getSession(migratedSession.id);
+              if (!dbSession) {
+                // Session exists in localStorage but not in database - save it
+                const dbSessionData: DBLocalPlayerSession = {
+                  sessionId: migratedSession.id,
+                  roomId: migratedSession.roomId,
+                  players: migratedSession.players,
+                  currentPlayerIndex: migratedSession.currentPlayerIndex,
+                  isActive: migratedSession.isActive,
+                  createdAt: migratedSession.createdAt,
+                  updatedAt: migratedSession.updatedAt,
+                  settings: migratedSession.settings,
+                };
+                await db.localPlayerSessions.add(dbSessionData);
+              }
+            } catch (error) {
+              console.error('Failed to sync session to database:', error);
+            }
           }
           state.isLoading = false;
           state.error = null;
