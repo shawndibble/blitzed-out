@@ -84,7 +84,7 @@ export default function useSubmitGameSettings(): (
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();
-  const { createLocalSession } = useLocalPlayers();
+  const { createLocalSession, hasLocalPlayers } = useLocalPlayers();
 
   const handleRoomChange = useCallback(
     (formData: Settings): RoomChangeResult => {
@@ -153,12 +153,15 @@ export default function useSubmitGameSettings(): (
         });
       }
 
-      // Handle local player session initialization if data exists
+      // Handle local player session initialization if data exists from wizard
+      // Only create a NEW session if one doesn't already exist (wizard flow)
+      // Do NOT re-create existing sessions when clicking "Update Game"
       const typedFormData = formData as any; // Use any type to access wizard-specific properties
       if (
         typedFormData.hasLocalPlayers &&
         typedFormData.localPlayersData &&
-        typedFormData.localPlayerSessionSettings
+        typedFormData.localPlayerSessionSettings &&
+        !hasLocalPlayers // Only create if no session exists
       ) {
         try {
           await createLocalSession(
@@ -196,6 +199,7 @@ export default function useSubmitGameSettings(): (
       updateSettings,
       navigate,
       createLocalSession,
+      hasLocalPlayers,
     ]
   );
 
