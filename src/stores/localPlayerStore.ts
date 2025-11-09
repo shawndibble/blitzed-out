@@ -241,9 +241,13 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
       partialize: (state) => ({
         session: state.session,
       }),
-      // Skip hydration of loading/error states
+      // Migrate session data on rehydration and reset loading/error states
       onRehydrateStorage: () => (state) => {
         if (state) {
+          // Migrate session if it exists to ensure all fields are present
+          if (state.session) {
+            state.session = state._migrateSession(state.session);
+          }
           state.isLoading = false;
           state.error = null;
         }
