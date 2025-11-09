@@ -1,30 +1,17 @@
 import { useState, useCallback } from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  Alert,
-  Chip,
-  Switch,
-  FormControlLabel,
-  Avatar,
-} from '@mui/material';
+import { Box, Typography, Button, Alert, Chip, Switch, FormControlLabel } from '@mui/material';
 import {
   People as PeopleIcon,
   Settings as SettingsIcon,
   PlayArrow as PlayArrowIcon,
   Edit as EditIcon,
   Clear as ClearIcon,
-  Male as MaleIcon,
-  Female as FemaleIcon,
-  Transgender as TransgenderIcon,
-  Person as PersonIcon,
 } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import LocalPlayerSetup from '@/components/LocalPlayerSetup';
+import PlayerGenderAvatar from '@/components/PlayerGenderAvatar';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
-import type { PlayerGender } from '@/types/localPlayers';
 
 interface LocalPlayerSettingsProps {
   roomId?: string;
@@ -106,21 +93,6 @@ export default function LocalPlayerSettings({
     [sessionSettings, updateSettings]
   );
 
-  const getGenderIcon = (gender?: PlayerGender): JSX.Element => {
-    switch (gender) {
-      case 'male':
-        return <MaleIcon fontSize="small" />;
-      case 'female':
-        return <FemaleIcon fontSize="small" />;
-      case 'non-binary':
-        return <TransgenderIcon fontSize="small" />;
-      case 'prefer-not-say':
-        return <PersonIcon fontSize="small" />;
-      default:
-        return <PersonIcon fontSize="small" />;
-    }
-  };
-
   // Show setup component when editing
   if (isEditing) {
     return (
@@ -191,15 +163,11 @@ export default function LocalPlayerSettings({
                     <Typography variant="body2" color="text.secondary">
                       #{player.order + 1}
                     </Typography>
-                    <Avatar
-                      sx={{
-                        bgcolor: player.isActive ? 'primary.main' : 'grey.500',
-                        width: 32,
-                        height: 32,
-                      }}
-                    >
-                      {getGenderIcon(player.gender)}
-                    </Avatar>
+                    <PlayerGenderAvatar
+                      gender={player.gender}
+                      isActive={player.isActive}
+                      size={32}
+                    />
                     <Typography variant="body1" fontWeight={player.isActive ? 'bold' : 'normal'}>
                       {player.name}
                     </Typography>

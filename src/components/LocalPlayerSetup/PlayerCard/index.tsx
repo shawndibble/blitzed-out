@@ -6,7 +6,6 @@ import {
   Typography,
   IconButton,
   Chip,
-  Avatar,
   Menu,
   MenuItem,
   ListItemIcon,
@@ -18,14 +17,11 @@ import {
   Delete as DeleteIcon,
   MoreVert as MoreVertIcon,
   Person as PersonIcon,
-  Male as MaleIcon,
-  Female as FemaleIcon,
-  Transgender as TransgenderIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import PlayerGenderAvatar from '@/components/PlayerGenderAvatar';
 import type { LocalPlayer } from '@/types';
 import type { PlayerRole } from '@/types/Settings';
-import type { PlayerGender } from '@/types/localPlayers';
 
 interface PlayerCardProps {
   /** The player data to display */
@@ -102,21 +98,6 @@ export default function PlayerCard({
     onRoleChange?.(player.id, newRole);
   };
 
-  const getGenderIcon = (gender?: PlayerGender): JSX.Element => {
-    switch (gender) {
-      case 'male':
-        return <MaleIcon fontSize="small" />;
-      case 'female':
-        return <FemaleIcon fontSize="small" />;
-      case 'non-binary':
-        return <TransgenderIcon fontSize="small" />;
-      case 'prefer-not-say':
-        return <PersonIcon fontSize="small" />;
-      default:
-        return <PersonIcon fontSize="small" />;
-    }
-  };
-
   const getRoleColor = (role: PlayerRole): 'primary' | 'secondary' | 'default' => {
     switch (role) {
       case 'dom':
@@ -146,16 +127,9 @@ export default function PlayerCard({
       <CardContentPadding>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
           {/* Player Avatar with Gender Icon */}
-          <Avatar
-            sx={{
-              bgcolor: isActive ? 'primary.main' : 'grey.500',
-              marginTop: 0.5,
-              width: 32,
-              height: 32,
-            }}
-          >
-            {getGenderIcon(player.gender)}
-          </Avatar>
+          <Box sx={{ marginTop: 0.5 }}>
+            <PlayerGenderAvatar gender={player.gender} isActive={isActive} size={32} />
+          </Box>
 
           {/* Player Info */}
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
