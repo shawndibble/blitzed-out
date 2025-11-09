@@ -273,6 +273,98 @@ vi.mock('i18next', () => {
         },
       },
     },
+    zh: {
+      anatomy: {
+        penetrativeKeywords: ['深', '喉', '插入', '里面', '进入'],
+        anatomyMappings: {
+          male: {
+            genital: '鸡巴',
+            hole: '洞',
+            chest: '胸部',
+            pronoun_subject: '他',
+            pronoun_object: '他',
+            pronoun_possessive: '他的',
+            pronoun_reflexive: '他自己',
+          },
+          female: {
+            genital: '阴蒂',
+            hole: '阴道',
+            chest: '乳房',
+            pronoun_subject: '她',
+            pronoun_object: '她',
+            pronoun_possessive: '她的',
+            pronoun_reflexive: '她自己',
+          },
+          'non-binary': {
+            genital: '生殖器',
+            hole: '洞',
+            chest: '胸部',
+            pronoun_subject: '他们',
+            pronoun_object: '他们',
+            pronoun_possessive: '他们的',
+            pronoun_reflexive: '他们自己',
+          },
+          'prefer-not-say': {
+            genital: '生殖器',
+            hole: '洞',
+            chest: '胸部',
+            pronoun_subject: '他们',
+            pronoun_object: '他们',
+            pronoun_possessive: '他们的',
+            pronoun_reflexive: '他们自己',
+          },
+        },
+        straponTerms: {
+          strapon: '假阳具',
+        },
+      },
+    },
+    hi: {
+      anatomy: {
+        penetrativeKeywords: ['गहरा', 'गला', 'घुसना', 'अंदर', 'प्रवेश'],
+        anatomyMappings: {
+          male: {
+            genital: 'लिंग',
+            hole: 'छेद',
+            chest: 'छाती',
+            pronoun_subject: 'वह',
+            pronoun_object: 'उसे',
+            pronoun_possessive: 'उसका',
+            pronoun_reflexive: 'स्वयं',
+          },
+          female: {
+            genital: 'योनि',
+            hole: 'योनि',
+            chest: 'स्तन',
+            pronoun_subject: 'वह',
+            pronoun_object: 'उसे',
+            pronoun_possessive: 'उसका',
+            pronoun_reflexive: 'स्वयं',
+          },
+          'non-binary': {
+            genital: 'जननांग',
+            hole: 'छेद',
+            chest: 'छाती',
+            pronoun_subject: 'वे',
+            pronoun_object: 'उन्हें',
+            pronoun_possessive: 'उनका',
+            pronoun_reflexive: 'स्वयं',
+          },
+          'prefer-not-say': {
+            genital: 'जननांग',
+            hole: 'छेद',
+            chest: 'छाती',
+            pronoun_subject: 'वे',
+            pronoun_object: 'उन्हें',
+            pronoun_possessive: 'उनका',
+            pronoun_reflexive: 'स्वयं',
+          },
+        },
+        straponTerms: {
+          strapon: 'स्ट्रैपऑन',
+        },
+      },
+    },
   };
 
   const mockI18n = {
