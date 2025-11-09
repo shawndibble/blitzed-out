@@ -1,44 +1,44 @@
 {
   "label": "乳房折磨",
   "type": "sex",
-  "dom": "Torturer",
-  "sub": "Receiver",
+  "dom": "折磨者",
+  "sub": "接受者",
   "actions": {
-    "Squeeze/Rub/Lick": [
-      "{dom} plays with {sub}'s nipples.",
-      "{dom} flicks {sub}'s nipples.",
-      "{dom} squeezes {sub}'s nipples.",
-      "{dom} sucks {sub}'s nipples.",
-      "{dom} rubs {sub}'s nipples for 15 seconds.",
-      "{dom} flicks {sub}'s nipples 10 times.",
-      "{dom} squeezes/rubs {sub}'s nipples for 15 seconds.",
-      "{sub} has their nipples played with gently by each Torturer/Switch.",
-      "{dom} may play with each receiver/switch's nipples until their next turn."
+    "挤压/摩擦/舔舐": [
+      "{dom} 玩弄 {sub} 的乳头。",
+      "{dom} 弹击 {sub} 的乳头。",
+      "{dom} 挤压 {sub} 的乳头。",
+      "{dom} 吸吮 {sub} 的乳头。",
+      "{dom} 摩擦 {sub} 的乳头15秒。",
+      "{dom} 弹击 {sub} 的乳头10次。",
+      "{dom} 挤压/摩擦 {sub} 的乳头15秒。",
+      "{sub} 的乳头被每个折磨者/转换者轻柔地玩弄。",
+      "{dom} 可以玩弄每个接受者/转换者的乳头直到他们的下一轮。"
     ],
-    "Pinch/Pull/Suck": [
-      "{dom} pinches {sub}'s nipples hard.",
-      "{dom} sucks {sub}'s nipples hard.",
-      "{dom} pulls {sub}'s nipples.",
-      "{dom} nibbles on {sub}'s nipples.",
-      "{dom} twists {sub}'s nipples in both directions.",
-      "{dom} does a helicopter with {sub}'s nipples while pulling them.",
-      "{dom} gets rough with {sub}'s nipples for 20 seconds.",
-      "{dom} bites {sub}'s nipples.",
-      "All torturer/switch players may get rough with {sub}'s nipples for 30 seconds each."
+    "捏/拉/吸": [
+      "{dom} 用力捏 {sub} 的乳头。",
+      "{dom} 用力吸吮 {sub} 的乳头。",
+      "{dom} 拉扯 {sub} 的乳头。",
+      "{dom} 轻咬 {sub} 的乳头。",
+      "{dom} 向两个方向扭转 {sub} 的乳头。",
+      "{dom} 拉扯 {sub} 的乳头并做直升机动作。",
+      "{dom} 粗暴地对待 {sub} 的乳头20秒。",
+      "{dom} 咬 {sub} 的乳头。",
+      "所有折磨者/转换者玩家可以粗暴地对待 {sub} 的乳头，每人30秒。"
     ],
-    "Clips/Toys": [
-      "{dom} uses a toy on {sub}'s nipples for 10 seconds.",
-      "{dom} pulls {sub}'s nipples with a toy attached.",
-      "{dom} twists {sub}'s nipples hard.",
-      "{dom} flicks {sub}'s tit toy 10 times.",
-      "{dom} gets rough with {sub}'s nipples."
+    "夹子/玩具": [
+      "{dom} 在 {sub} 的乳头上使用玩具10秒。",
+      "{dom} 用附着的玩具拉扯 {sub} 的乳头。",
+      "{dom} 用力扭转 {sub} 的乳头。",
+      "{dom} 弹击 {sub} 的乳房玩具10次。",
+      "{dom} 粗暴地对待 {sub} 的乳头。"
     ],
-    "As Hard As Possible": [
-      "{dom} pinches {sub}'s nipples as hard as possible.",
-      "{dom} pulls {sub}'s nipples as far as they can handle.",
-      "{dom} twists {sub}'s nipples until they cry out.",
-      "{dom} gives {sub} a nice nipple suck/massage.",
-      "{dom} beats {sub}'s chest/nipples."
+    "尽可能用力": [
+      "{dom} 尽可能用力捏 {sub} 的乳头。",
+      "{dom} 尽可能远地拉扯 {sub} 的乳头。",
+      "{dom} 扭转 {sub} 的乳头直到他们叫出声。",
+      "{dom} 给 {sub} 一个舒适的乳头吸吮/按摩。",
+      "{dom} 拍打 {sub} 的胸部/乳头。"
     ]
   }
 }

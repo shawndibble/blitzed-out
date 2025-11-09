@@ -2,35 +2,35 @@
   "label": "Masque à Gaz",
   "type": "consumption",
   "actions": {
-    "Beginner": [
-      "Take 3 breaths from bottle via hose.",
-      "Take 6 breaths from bottle via hose.",
-      "Put 1 shake of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
-      "Put 2 shakes of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
-      "Restrict air for 5 seconds.",
-      "Restrict air for 10 seconds.",
-      "Take deep breaths through filter for 60 seconds."
+    "Débutant": [
+      "Prenez 3 respirations de la bouteille via le tuyau.",
+      "Prenez 6 respirations de la bouteille via le tuyau.",
+      "Mettez 1 secousse d'inhalant sur une boule de coton, mettez dans le filtre et respirez pendant 15 secondes.",
+      "Mettez 2 secousses d'inhalant sur une boule de coton, mettez dans le filtre et respirez pendant 15 secondes.",
+      "Restreignez l'air pendant 5 secondes.",
+      "Restreignez l'air pendant 10 secondes.",
+      "Prenez des respirations profondes à travers le filtre pendant 60 secondes."
     ],
-    "Intermediate": [
-      "Take 7 breaths from bottle via hose.",
-      "Take 10 breaths from bottle via hose.",
-      "Put 5 shakes of inhalant onto cotton ball, put in filter and breathe for 30 seconds.",
-      "Put 10 shakes of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
-      "Restrict air for 15 seconds.",
-      "Restrict air for 20 seconds.",
-      "Take deep breaths through filter for 90 seconds.",
-      "Breathe through filter for as long as you can without removing it."
+    "Intermédiaire": [
+      "Prenez 7 respirations de la bouteille via le tuyau.",
+      "Prenez 10 respirations de la bouteille via le tuyau.",
+      "Mettez 5 secousses d'inhalant sur une boule de coton, mettez dans le filtre et respirez pendant 30 secondes.",
+      "Mettez 10 secousses d'inhalant sur une boule de coton, mettez dans le filtre et respirez pendant 15 secondes.",
+      "Restreignez l'air pendant 15 secondes.",
+      "Restreignez l'air pendant 20 secondes.",
+      "Prenez des respirations profondes à travers le filtre pendant 90 secondes.",
+      "Respirez à travers le filtre aussi longtemps que vous le pouvez sans l'enlever."
     ],
-    "Advanced": [
-      "Take 15 breaths from bottle via hose.",
-      "Take 20 breaths from bottle via hose.",
-      "Put 10 shakes of inhalant onto cotton ball, put in filter and breathe for 30 seconds.",
-      "Put 15 shakes of inhalant onto cotton ball, put in filter and breathe for 45 seconds.",
-      "Restrict air for 30 seconds.",
-      "Restrict air for 25 seconds.",
-      "Take deep breaths through filter for 120 seconds (2 minutes).",
-      "Breathe through filter for as long as you can without removing it, then take 10 deep breaths.",
-      "Breathe through filter for as long as you can without removing it, then take 20 deep breaths."
+    "Avancé": [
+      "Prenez 15 respirations de la bouteille via le tuyau.",
+      "Prenez 20 respirations de la bouteille via le tuyau.",
+      "Mettez 10 secousses d'inhalant sur une boule de coton, mettez dans le filtre et respirez pendant 30 secondes.",
+      "Mettez 15 secousses d'inhalant sur une boule de coton, mettez dans le filtre et respirez pendant 45 secondes.",
+      "Restreignez l'air pendant 30 secondes.",
+      "Restreignez l'air pendant 25 secondes.",
+      "Prenez des respirations profondes à travers le filtre pendant 120 secondes (2 minutes).",
+      "Respirez à travers le filtre aussi longtemps que vous le pouvez sans l'enlever, puis prenez 10 respirations profondes.",
+      "Respirez à travers le filtre aussi longtemps que vous le pouvez sans l'enlever, puis prenez 20 respirations profondes."
     ]
   }
 }

@@ -2,33 +2,33 @@
   "label": "Alcool",
   "type": "consumption",
   "actions": {
-    "Sip/Drink": [
-      "Sip your drink.",
-      "Take a drink.",
-      "Take 2 sips.",
-      "Give a sip.",
-      "Take a drink.",
-      "Sip your neighbor's drink.",
-      "Swap drinks with someone."
+    "Boire": [
+      "Bois un petit coup de ton verre.",
+      "Bois une gorgée.",
+      "Bois 2 petits coups.",
+      "Fais boire un petit coup à quelqu'un.",
+      "Bois une gorgée.",
+      "Bois une gorgée du verre de ton voisin.",
+      "Échange ton verre avec ton voisin."
     ],
     "Shots": [
-      "Take 1 shot.",
-      "Take 2 drinks.",
-      "Give 1 shot.",
-      "All drink.",
-      "Take a drink.",
-      "Take a mystery shot.",
-      "Take a shot without using your hands."
+      "1 shot.",
+      "Prends 2 shots.",
+      "Fais boire 1 shot à quelqu'un.",
+      "Tout le monde boit son shot.",
+      "Bois un shot.",
+      "Bois un shot mystère.",
+      "Bois un shot sans utiliser tes mains."
     ],
-    "Chug": [
-      "Drink half your drink.",
-      "Chug your drink.",
-      "Take a drink.",
-      "Take 2 shots.",
-      "Have someone chug their drink.",
-      "Give a drink.",
-      "Chug a drink of the group's choosing.",
-      "Chug your drink without taking a breath."
+    "Cul sec": [
+      "Bois la moitié de ton verre.",
+      "Bois cul sec.",
+      "Prends une gorgée.",
+      "Prends 2 shots.",
+      "Fais boire quelqu'un cul sec.",
+      "Fais boire une gorgée à quelqu'un.",
+      "Bois cul sec un verre choisi par le groupe.",
+      "Bois cul sec sans respirer."
     ]
   }
 }

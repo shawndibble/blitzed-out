@@ -2,34 +2,34 @@
   "label": "Vapoter/Narguilé",
   "type": "consumption",
   "actions": {
-    "Beginner": [
-      "Take a drag.",
-      "Take a long drag.",
-      "Make the biggest cloud you can.",
-      "Take a drag for 3 seconds.",
-      "Hold the vapor in for 3 seconds before exhaling.",
-      "Try to exhale the vapor through your nose.",
-      "Take a drag and try to make a 'O' shape with the vapor.",
-      "Find a surface and do the waterfall vape trick."
+    "Débutant": [
+      "Prends une bouffée.",
+      "Prends une longue bouffée.",
+      "Crées le plus gros nuage possible.",
+      "Tires une bouffée pendant 3 secondes.",
+      "Retiens la vapeur pendant 3 secondes avant d'expirer.",
+      "Essayes d'expirer la vapeur par le nez.",
+      "Prends une bouffée et essayez de créer une forme de 'O' avec la vapeur.",
+      "Prends une bouffée et fais une cascade avec la vapeur (waterfall)."
     ],
-    "Intermediate": [
-      "Make a smoke ring.",
-      "Exhale slowly, making a thin cloud.",
-      "Take a drag for 5 seconds.",
-      "Take 4-6 drags.",
-      "Try to blow vapor through a straw.",
-      "Hold the vapor in for 5 seconds before exhaling.",
-      "Make a vape cloud, then spin it with your hand to do the tornado trick."
+    "Intermédiaire": [
+      "Fais un rond de fumée.",
+      "Expires lentement, en formant un mince nuage.",
+      "Tires une bouffée pendant 5 secondes.",
+      "Prends 4 à 6 bouffées.",
+      "Essayes de souffler de la vapeur à travers une paille.",
+      "Retiens la vapeur pendant 5 secondes avant d'expirer.",
+      "Crées un nuage de vape, puis faites-le tourner avec ta main pour réaliser une tornade."
     ],
     "Expert": [
-      "Take a drag, exhale, and try to re-inhale the smoke.",
-      "Take the longest drag you can manage.",
-      "Take a drag for 10 seconds.",
-      "Take 8 or more drags.",
-      "Try to exhale the vapor through pursed lips.",
-      "Hold the vapor in for 10 seconds before exhaling.",
-      "Perform the French inhale vapor trick.",
-      "Perform the Bane vapor trick"
+      "Tires une bouffée, expires et essayes de ré-inspirer la fumée.",
+      "Prends la plus longue traînée possible.",
+      "Tires une bouffée pendant 10 secondes.",
+      "Prends 8 bouffées ou plus.",
+      "Essayes d'expirer la vapeur par les lèvres pincées.",
+      "Retiens la vapeur pendant 10 secondes avant d'expirer.",
+      "Effectues un 'French inhale' (inhaler par le nez la vapeur qui sort de la bouche).",
+      "Effectues un 'Bane vapor trick' (inhaler par le nez la vapeur qui sort de la bouche, en serrant les dents pour faire un masque) "
     ]
   }
 }

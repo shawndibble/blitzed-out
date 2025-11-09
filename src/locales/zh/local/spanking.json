@@ -1,60 +1,60 @@
 {
   "label": "拍打",
   "type": "sex",
-  "dom": "Spanker",
-  "sub": "Spankee",
+  "dom": "拍打者",
+  "sub": "被拍打者",
   "actions": {
-    "Light Hand": [
-      "{dom} lightly spanks {sub} on each cheek.",
-      "{dom} spanks {sub} over the knee.",
-      "{dom} lightly spanks {sub} 10 times while the receiver counts them.",
-      "{dom} gives each player a light spanking.",
-      "{dom} rubs their hand down {sub}'s back and then lightly spanks them.",
-      "{dom} spanks {sub} while they are on all fours.",
-      "{dom} quickly but lightly spanks {sub} for 15 seconds.",
-      "{dom} spanks {sub} while they are on their back.",
-      "{dom} lightly spanks {sub} 6 times, 3 on each cheek.",
-      "{sub} gets on their knees and begs {dom} for a spanking.",
-      "{dom} has each player beg for a light spanking, one at a time.",
-      "All players gives {sub} a light spank.",
-      "{dom} spanks all spankee/switch players lightly."
+    "轻拍": [
+      "{dom} 轻拍 {sub} 的双颊。",
+      "{dom} 让 {sub} 趴在膝盖上轻拍。",
+      "{dom} 轻拍 {sub} 10次，让接受者数数。",
+      "{dom} 给每个玩家轻拍。",
+      "{dom} 用手抚摸 {sub} 的背部，然后轻拍。",
+      "{dom} 在 {sub} 四肢着地时轻拍。",
+      "{dom} 快速但轻柔地拍打 {sub} 15秒。",
+      "{dom} 在 {sub} 仰卧时轻拍。",
+      "{dom} 轻拍 {sub} 6次，每边3次。",
+      "{sub} 跪下向 {dom} 请求拍打。",
+      "{dom} 让每个玩家轮流请求轻拍。",
+      "所有玩家给 {sub} 轻拍。",
+      "{dom} 轻拍所有被拍打者/转换者玩家。"
     ],
-    "Hard Spankings": [
-      "{dom} gives {sub} a hard spanking on each cheek.",
-      "{dom} heavily spanks {sub} while they are over the knee.",
-      "{dom} gives {sub} 10 hard spankings while the receiver counts the hits.",
-      "{dom} gives {sub} 2 hard spankings.",
-      "{dom} gives {sub} as many hard spankings as they can handle for 20 seconds.",
-      "{dom} gives {sub} 4 hard spankings while they are on all fours.",
-      "{dom} gives {sub} hard spankings for 15 seconds.",
-      "{sub} begs for 10 hard spankings and then {dom} gives them.",
-      "{dom} gives {sub} 6 hard spankings while they are bent over.",
-      "{dom} gives {sub} hard spankings until they beg for mercy.",
-      "All spanker/switch players give {sub} 20 spankings total.",
-      "All players gives {sub} a hard spanking.",
-      "{dom} spanks all spankee/switch players lightly."
+    "重拍": [
+      "{dom} 重拍 {sub} 的双颊。",
+      "{dom} 让 {sub} 趴在膝盖上重拍。",
+      "{dom} 重拍 {sub} 10次，让接受者数击打次数。",
+      "{dom} 给 {sub} 2次重拍。",
+      "{dom} 在20秒内给 {sub} 尽可能多的重拍。",
+      "{dom} 在 {sub} 四肢着地时给4次重拍。",
+      "{dom} 重拍 {sub} 15秒。",
+      "{sub} 请求10次重拍，然后 {dom} 给予。",
+      "{dom} 让 {sub} 弯腰后给6次重拍。",
+      "{dom} 重拍 {sub} 直到他们求饶。",
+      "所有拍打者/转换者玩家总共给 {sub} 20次拍打。",
+      "所有玩家给 {sub} 重拍。",
+      "{dom} 轻拍所有被拍打者/转换者玩家。"
     ],
-    "Canes & Paddles": [
-      "{dom} spanks {sub} with an implement of the spanker's choice.",
-      "{dom} gives {sub} 20 spankings with an implement while the receiver counts.",
-      "{dom} spanks {sub} with an implement while they are over the knee.",
-      "{dom} spanks {sub} with an implement while they are on all fours.",
-      "{dom} spanks {sub} with an implement while they are on their back.",
-      "{sub} finds an implement of their choice and then {dom} spanks them with it.",
-      "{sub} begs for a number of spankings with an implement and then {dom} gives them.",
-      "{dom} spanks {sub} with an implement for 30 seconds.",
-      "Each player spanks {sub} with an implement.",
-      "{dom} lashes {sub} with an implement on the palms of their hands.",
-      "{dom} lashes {sub} with an implement on the soles of their feet.",
-      "All players use an implement to spank {sub}",
-      "{dom} uses an implement to spank each spankee/switch player."
+    "工具拍打": [
+      "{dom} 用拍打者选择的工具拍打 {sub}。",
+      "{dom} 用工具拍打 {sub} 20次，让接受者数数。",
+      "{dom} 让 {sub} 趴在膝盖上用工具拍打。",
+      "{dom} 在 {sub} 四肢着地时用工具拍打。",
+      "{dom} 在 {sub} 仰卧时用工具拍打。",
+      "{sub} 找一个自己选择的工具，然后 {dom} 用它拍打。",
+      "{sub} 请求用工具拍打若干次，然后 {dom} 给予。",
+      "{dom} 用工具拍打 {sub} 30秒。",
+      "每个玩家用工具拍打 {sub}。",
+      "{dom} 用工具拍打 {sub} 的手掌。",
+      "{dom} 用工具拍打 {sub} 的脚底。",
+      "所有玩家用工具拍打 {sub}。",
+      "{dom} 用工具拍打每个被拍打者/转换者玩家。"
     ],
-    "Bruising": [
-      "{dom} gives {sub} 5 spankings on each cheek hard enough to leave a mark.",
-      "{dom} gives {sub} 10 bruise inducing spankings.",
-      "{dom} gives {sub} as many painful spankings as they can handle for 30 seconds.",
-      "{dom} gives {sub} 10 spankings using a can or other hard implement.",
-      "{dom} leaves a hand print on {sub}."
+    "留痕": [
+      "{dom} 在 {sub} 的每边给5次拍打，力度足以留下痕迹。",
+      "{dom} 给 {sub} 10次留瘀痕的拍打。",
+      "{dom} 在30秒内给 {sub} 尽可能多的疼痛拍打。",
+      "{dom} 用罐子或其他硬物给 {sub} 10次拍打。",
+      "{dom} 在 {sub} 身上留下手印。"
     ]
   }
 }

@@ -2,35 +2,35 @@
   "label": "गैस मास्क",
   "type": "consumption",
   "actions": {
-    "Beginner": [
-      "Take 3 breaths from bottle via hose.",
-      "Take 6 breaths from bottle via hose.",
-      "Put 1 shake of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
-      "Put 2 shakes of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
-      "Restrict air for 5 seconds.",
-      "Restrict air for 10 seconds.",
-      "Take deep breaths through filter for 60 seconds."
+    "शुरुआती": [
+      "होज़ के जरिए बोतल से 3 सांसें लें।",
+      "होज़ के जरिए बोतल से 6 सांसें लें।",
+      "कॉटन बॉल पर इनहेलेंट की 1 बूंद डालें, फिल्टर में डालें और 15 सेकंड तक सांस लें।",
+      "कॉटन बॉल पर इनहेलेंट की 2 बूंद डालें, फिल्टर में डालें और 15 सेकंड तक सांस लें।",
+      "5 सेकंड के लिए हवा बंद करें।",
+      "10 सेकंड के लिए हवा बंद करें।",
+      "60 सेकंड तक फिल्टर के जरिए गहरी सांसें लें।"
     ],
-    "Intermediate": [
-      "Take 7 breaths from bottle via hose.",
-      "Take 10 breaths from bottle via hose.",
-      "Put 5 shakes of inhalant onto cotton ball, put in filter and breathe for 30 seconds.",
-      "Put 10 shakes of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
-      "Restrict air for 15 seconds.",
-      "Restrict air for 20 seconds.",
-      "Take deep breaths through filter for 90 seconds.",
-      "Breathe through filter for as long as you can without removing it."
+    "मध्यम": [
+      "होज़ के जरिए बोतल से 7 सांसें लें।",
+      "होज़ के जरिए बोतल से 10 सांसें लें।",
+      "कॉटन बॉल पर इनहेलेंट की 5 बूंद डालें, फिल्टर में डालें और 30 सेकंड तक सांस लें।",
+      "कॉटन बॉल पर इनहेलेंट की 10 बूंद डालें, फिल्टर में डालें और 15 सेकंड तक सांस लें।",
+      "15 सेकंड के लिए हवा बंद करें।",
+      "20 सेकंड के लिए हवा बंद करें।",
+      "90 सेकंड तक फिल्टर के जरिए गहरी सांसें लें।",
+      "जब तक हटा न सकें तब तक फिल्टर के जरिए सांस लें।"
     ],
-    "Advanced": [
-      "Take 15 breaths from bottle via hose.",
-      "Take 20 breaths from bottle via hose.",
-      "Put 10 shakes of inhalant onto cotton ball, put in filter and breathe for 30 seconds.",
-      "Put 15 shakes of inhalant onto cotton ball, put in filter and breathe for 45 seconds.",
-      "Restrict air for 30 seconds.",
-      "Restrict air for 25 seconds.",
-      "Take deep breaths through filter for 120 seconds (2 minutes).",
-      "Breathe through filter for as long as you can without removing it, then take 10 deep breaths.",
-      "Breathe through filter for as long as you can without removing it, then take 20 deep breaths."
+    "उन्नत": [
+      "होज़ के जरिए बोतल से 15 सांसें लें।",
+      "होज़ के जरिए बोतल से 20 सांसें लें।",
+      "कॉटन बॉल पर इनहेलेंट की 10 बूंद डालें, फिल्टर में डालें और 30 सेकंड तक सांस लें।",
+      "कॉटन बॉल पर इनहेलेंट की 15 बूंद डालें, फिल्टर में डालें और 45 सेकंड तक सांस लें।",
+      "30 सेकंड के लिए हवा बंद करें।",
+      "25 सेकंड के लिए हवा बंद करें।",
+      "120 सेकंड (2 मिनट) तक फिल्टर के जरिए गहरी सांसें लें।",
+      "जब तक हटा न सकें तब तक फिल्टर के जरिए सांस लें, फिर 10 गहरी सांसें लें।",
+      "जब तक हटा न सकें तब तक फिल्टर के जरिए सांस लें, फिर 20 गहरी सांसें लें।"
     ]
   }
 }

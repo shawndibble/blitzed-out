@@ -2,32 +2,32 @@
   "label": "Embrasser",
   "type": "foreplay",
   "actions": {
-    "Gentle Kisses": [
-      "{dom} kisses {sub} on the cheek.",
-      "{dom} gives {sub} a kiss on the forehead.",
-      "{dom} gives {sub} a gentle peck on the lips.",
-      "{dom} has {sub} kiss their hand.",
-      "{dom} gives {sub} a kiss on the neck.",
-      "{dom} gives {sub} a series of light kisses on the face.",
-      "{dom} gives {sub} a gentle kiss on the shoulder.",
-      "{dom} tells {sub} to straddle and kiss them on the lips.",
-      "{dom} kisses {sub}'s earlobes.",
-      "{dom} kisses {sub} on the back of the neck.",
-      "{dom} kisses every submissive/switch player.",
-      "{sub} asks every dominant/switch player for a kiss. A secret coin flip determines if they get one."
+    "Baisers doux": [
+      "{dom} embrasse {sub} sur la joue.",
+      "{dom} donne un baiser sur le front de {sub}.",
+      "{dom} donne un baiser léger sur les lèvres de {sub}.",
+      "{dom} fait embrasser sa main par {sub}.",
+      "{dom} donne un baiser dans le cou de {sub}.",
+      "{dom} donne à {sub} une série de baisers légers sur le visage.",
+      "{dom} donne un baiser doux sur l'épaule de {sub}.",
+      "{dom} demande à {sub} de s'asseoir sur ses genoux et de l'embrasser sur les lèvres.",
+      "{dom} embrasse les lobes d'oreilles de {sub}.",
+      "{dom} embrasse {sub} sur la nuque.",
+      "{dom} embrasse tous les joueurs soumis/switch.",
+      "{sub} demande un baiser à tous les joueurs dominants/switch. Un lancer de pièce secret détermine s'il l'obtient."
     ],
-    "Deep Kisses": [
-      "{dom} shares a deep kiss with {sub}.",
-      "{dom} gives {sub} a deep kiss with tongue.",
-      "{dom} gives {sub} a deep kiss while holding their face.",
-      "{sub} sits on {dom}'s lap and they share a deep kiss.",
-      "{dom} gives {sub} a deep kiss while they're both standing.",
-      "{dom} kisses {sub} while holding their hands above their head.",
-      "{dom} assigns {sub} to straddle them and french kiss them.",
-      "{dom} grabs {sub} by the hair and kisses them deeply.",
-      "{dom} tells {sub} to get on their knees and beg for a deep kiss.",
-      "{sub} asks and french kisses as many players as possible before their next turn.",
-      "{dom} may french kiss as many submissive/switch players as they choose."
+    "Baisers profonds": [
+      "{dom} partage un long baiser avec {sub}.",
+      "{dom} donne un baiser avec la langue à {sub}.",
+      "{dom} donne un long baiser à {sub} tout en lui tenant le visage.",
+      "{sub} s'assoit sur les genoux de {dom} et ils partagent un baiser profond.",
+      "{dom} donne un baiser profond à {sub} tandis qu'ils sont tous les deux debout.",
+      "{dom} embrasse {sub} tout en tenant leurs mains au-dessus de leurs têtes.",
+      "{dom} demande à {sub} de s'asseoir sur ses genoux et de l'embrasser avec la langue.",
+      "{dom} attrape {sub} par les cheveux et l'embrasse profondément.",
+      "{dom} demande à {sub} de s'agenouiller et de le supplier pour un baiser profond.",
+      "{sub} embrasse avec la langue autant de joueurs que possible avant leur prochain tour.",
+      "{dom} peut embrasser avec la langue autant de joueurs soumis/switch qu'il le souhaite."
     ]
   }
 }

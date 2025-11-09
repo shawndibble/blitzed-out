@@ -1,57 +1,57 @@
 {
   "label": "挠痒",
   "type": "foreplay",
-  "dom": "Tickler",
-  "sub": "Ticklee",
+  "dom": "挠痒者",
+  "sub": "被挠痒者",
   "actions": {
-    "Light": [
-      "{dom} lightly rubs their finger in a ticklish zone of {sub}.",
-      "{dom} uses an item to tickle {sub} for 15 seconds.",
-      "{dom} lightly grazes the armpits of {sub} for 10 seconds.",
-      "{dom} lightly scratches the soles of {sub}'s feet.",
-      "{dom} gives light kisses or blows on a sensitive area of {sub} for 15 seconds.",
-      "{dom} traces 3 shapes with their finger in a sensitive area of {sub}.",
-      "{dom} lightly tickles {sub} for 10 seconds.",
-      "{sub} keeps a straight face as {dom} lightly rubs a sensitive area for 10 seconds.",
-      "{dom} gives light kisses to 3 different areas of {sub} to see if they are ticklish there.",
-      "{dom} tickles the belly button of {sub} for 15 seconds.",
-      "{dom} lightly brushes a soft item (like a feather) against {sub}'s neck.",
-      "{dom} tickles the earlobes of {sub} for 10 seconds.",
-      "{dom} traces a circle around the navel of {sub} for 15 seconds."
+    "轻度": [
+      "{dom} 用手指轻轻摩擦 {sub} 的痒痒部位。",
+      "{dom} 用物品挠 {sub} 的痒痒15秒。",
+      "{dom} 轻轻掠过 {sub} 的腋下10秒。",
+      "{dom} 轻轻挠 {sub} 的脚底。",
+      "{dom} 在 {sub} 的敏感部位轻吻或吹气15秒。",
+      "{dom} 用手指在 {sub} 的敏感部位画3个图形。",
+      "{dom} 轻轻挠 {sub} 的痒痒10秒。",
+      "{sub} 保持面无表情，当 {dom} 轻摩敏感部位10秒。",
+      "{dom} 轻吻 {sub} 的3个不同部位看是否痒痒。",
+      "{dom} 挠 {sub} 的肚脐15秒。",
+      "{dom} 用柔软物品（如羽毛）轻抚 {sub} 的脖子。",
+      "{dom} 挠 {sub} 的耳垂10秒。",
+      "{dom} 在 {sub} 的肚脐周围画圈15秒。"
     ],
-    "Normal": [
-      "{dom} tickles {sub} for 30 seconds.",
-      "{dom} playfully pokes {sub}.",
-      "{dom} uses an item to tickle {sub} for 30 seconds.",
-      "{dom} tickles {sub} in a single spot while {sub} is blindfolded for 30 seconds.",
-      "{dom} kisses/blows a sensitive zone of {sub}.",
-      "{dom} finds as many ticklish zones as they can on {sub} within 15 seconds.",
-      "{sub} keeps a straight face as {dom} lightly rubs a sensitive area for 30 seconds.",
-      "{dom} tickles the sides of {sub} for 30 seconds.",
-      "{dom} tickles the back of the knees of {sub} for 30 seconds.",
-      "{dom} tickles the feet of {sub} with their fingers for 30 seconds.",
-      "{dom} tickles the ribs of {sub} for 30 seconds."
+    "普通": [
+      "{dom} 挠 {sub} 的痒痒30秒。",
+      "{dom} 玩笑式地戳 {sub}。",
+      "{dom} 用物品挠 {sub} 的痒痒30秒。",
+      "{dom} 在 {sub} 蒙眼时挠单一部位30秒。",
+      "{dom} 亲吻/吹 {sub} 的敏感区域。",
+      "{dom} 在15秒内找到 {sub} 尽可能多的痒痒部位。",
+      "{sub} 保持面无表情，当 {dom} 轻摩敏感部位30秒。",
+      "{dom} 挠 {sub} 的腰侧30秒。",
+      "{dom} 挠 {sub} 的膝盖后面30秒。",
+      "{dom} 用手指挠 {sub} 的脚30秒。",
+      "{dom} 挠 {sub} 的肋骨30秒。"
     ],
-    "Intense": [
-      "{dom} gives {sub} a phrase to stop and then tickles that player until they say the phrase.",
-      "{dom} tickles {sub} roughly for 45 seconds.",
-      "{dom} aggressively kisses/sucks a ticklish zone on {sub}.",
-      "{dom} rubs a ticklish zone of {sub} for 45 seconds.",
-      "{dom} tickles {sub} for 20 seconds.",
-      "{dom} tickles the feet of {sub} with a soft item (like a feather) for 45 seconds.",
-      "{dom} tickles the armpits of {sub} with their fingers for 45 seconds.",
-      "{dom} tickles the neck of {sub} with their tongue for 45 seconds.",
-      "{dom} tickles the inner thighs of {sub} for 45 seconds."
+    "强烈": [
+      "{dom} 给 {sub} 一个停止短语，然后挠痒直到他们说出短语。",
+      "{dom} 用力挠 {sub} 的痒痒45秒。",
+      "{dom} 激烈地亲吻/吸吮 {sub} 的痒痒部位。",
+      "{dom} 摩擦 {sub} 的痒痒部位45秒。",
+      "{dom} 挠 {sub} 的痒痒20秒。",
+      "{dom} 用柔软物品（如羽毛）挠 {sub} 的脚45秒。",
+      "{dom} 用手指挠 {sub} 的腋下45秒。",
+      "{dom} 用舌头挠 {sub} 的脖子45秒。",
+      "{dom} 挠 {sub} 的大腿内侧45秒。"
     ],
-    "Sensory Overload": [
-      "{dom} tickles {sub} for 60 seconds.",
-      "{sub} lay spread eagle (bound if needed) and {dom} tickles them any way for 60 seconds.",
-      "{sub} closes their eyes and has as many hands/items as possible tickle them for 60 seconds.",
-      "{dom} rapidly tickles {sub} in their 3 most ticklish zones for 60 seconds.",
-      "{dom} gives {sub} a phrase to stop and then tickles until the phrase is said 3 times",
-      "{dom} tickles {sub} as they wish (minimum of 15 seconds) until the ticklee's next turn.",
-      "{dom} tickles the armpits of {sub} with a soft item (like a feather) for 60 seconds.",
-      "{dom} tickles {sub} with multiple soft items (like a feather) at once for 60 seconds."
+    "感官超载": [
+      "{dom} 挠 {sub} 的痒痒60秒。",
+      "{sub} 躺成大字形（必要时绑住），{dom} 以任何方式挠痒60秒。",
+      "{sub} 闭眼，让尽可能多的手/物品挠痒60秒。",
+      "{dom} 快速挠 {sub} 最痒的3个部位60秒。",
+      "{dom} 给 {sub} 一个停止短语，然后挠痒直到短语被说3次。",
+      "{dom} 随意挠 {sub}（至少15秒）直到被挠痒者的下一轮。",
+      "{dom} 用柔软物品（如羽毛）挠 {sub} 的腋下60秒。",
+      "{dom} 同时用多个柔软物品（如羽毛）挠 {sub} 60秒。"
     ]
   }
 }

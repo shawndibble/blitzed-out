@@ -2,34 +2,34 @@
   "label": "电子烟",
   "type": "consumption",
   "actions": {
-    "Beginner": [
-      "Take a drag.",
-      "Take a long drag.",
-      "Make the biggest cloud you can.",
-      "Take a drag for 3 seconds.",
-      "Hold the vapor in for 3 seconds before exhaling.",
-      "Try to exhale the vapor through your nose.",
-      "Take a drag and try to make a 'O' shape with the vapor.",
-      "Find a surface and do the waterfall vape trick."
+    "初学者": [
+      "吸一口。",
+      "深吸一口。",
+      "制造你能做出的最大烟雾。",
+      "吸3秒钟。",
+      "呼出前憋气3秒钟。",
+      "尝试通过鼻子呼出烟雾。",
+      "吸一口并尝试用烟雾做出'O'形。",
+      "找个表面做瀑布电子烟技巧。"
     ],
-    "Intermediate": [
-      "Make a smoke ring.",
-      "Exhale slowly, making a thin cloud.",
-      "Take a drag for 5 seconds.",
-      "Take 4-6 drags.",
-      "Try to blow vapor through a straw.",
-      "Hold the vapor in for 5 seconds before exhaling.",
-      "Make a vape cloud, then spin it with your hand to do the tornado trick."
+    "中级": [
+      "做一个烟圈。",
+      "慢慢呼出，制造细烟雾。",
+      "吸5秒钟。",
+      "吸4-6口。",
+      "尝试通过吸管吹出烟雾。",
+      "呼出前憋气5秒钟。",
+      "制造电子烟云，然后用手旋转做龙卷风技巧。"
     ],
-    "Expert": [
-      "Take a drag, exhale, and try to re-inhale the smoke.",
-      "Take the longest drag you can manage.",
-      "Take a drag for 10 seconds.",
-      "Take 8 or more drags.",
-      "Try to exhale the vapor through pursed lips.",
-      "Hold the vapor in for 10 seconds before exhaling.",
-      "Perform the French inhale vapor trick.",
-      "Perform the Bane vapor trick"
+    "专家": [
+      "吸一口，呼出，然后尝试重新吸入烟雾。",
+      "尽可能深吸一口。",
+      "吸10秒钟。",
+      "吸8口或更多。",
+      "尝试通过撅起的嘴唇呼出烟雾。",
+      "呼出前憋气10秒钟。",
+      "表演法式吸入电子烟技巧。",
+      "表演贝恩电子烟技巧。"
     ]
   }
 }

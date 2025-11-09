@@ -2,37 +2,37 @@
   "label": "Esclavitud",
   "type": "foreplay",
   "actions": {
-    "Restrain": [
-      "{dom} restrains {sub}'s wrists together.",
-      "{dom} binds {sub} to a piece of furniture until recipient's next action.",
-      "{dom} binds {sub}'s wrists around another player's body until an action requires one of them to be freed.",
-      "{dom} restrains {sub} to a piece of furniture until an action requires them to be freed.",
-      "{dom} hog ties {sub} until recipient's next action.",
-      "{dom} binds {sub}'s arms behind their back until recipient's next action.",
-      "{dom} binds {sub}'s arms to their legs until an action requires them to be freed.",
-      "{sub} self-binds their own wrists and gives the key/release mechanism to another player.",
-      "{sub} ties their own legs together and has another player restrict their movement further.",
-      "{sub} is restrained by every dominant/switch at once for at least 60 seconds.",
-      "{dom} may restrain as many submissive/switch players as desired until an action requires them to be freed."
+    "Restringir": [
+      "{dom} sujeta las muñecas de {sub} juntas.",
+      "{dom} ata a {sub} un mueble hasta su próxima acción.",
+      "{dom} ata las muñecas de {sub} al cuerpo de otro jugador hasta que una acción requiera que uno de ellos sea liberado.",
+      "{dom} ata a {sub} a un de mueble hasta que una acción requiera que sea liberado.",
+      "{dom} ata a pies y manos de {sub} juntos por detrás de la espalda hasta su próxima acción.",
+      "{dom} ata los brazos de {sub} detrás de su espalda hasta su próxima acción.",
+      "{dom} ata los brazos de {sub} a sus piernas hasta que una acción requiera que sean liberados.",
+      "{sub} se ata muñecas y entrega la llave/mecanismo de liberación a otro jugador.",
+      "{sub} se ata las piernas y deja que otro jugador restrinja su movimiento aún más.",
+      "{sub} es restringido por cada dominante/cambiante a la vez durante al menos 60 segundos.",
+      "{dom} puede restringir a tantos jugadores sumisos/cambiantes como desee hasta que una acción requiera que sean liberados."
     ],
-    "Sensory Deprivation": [
-      "{dom} blindfolds {sub} until recipient's next action.",
-      "{dom} gags {sub} until recipient's next action.",
-      "{dom} blindfolds and gags {sub} until recipient's next action.",
-      "{dom} deprives {sub} of one sense while stimulating another.",
-      "{sub} blindfolds themselves and has another player guide their movements.",
-      "{sub} gags themselves and communicates non-verbally for the rest of the game.",
-      "{sub} uses headphones to block their hearing and relies on touch for communication.",
-      "All dominant/switch players may blindfold/gag/restrain {sub} as desired."
+    "Privación sensorial": [
+      "{dom} venda los ojos de {sub} hasta su próxima acción.",
+      "{dom} amordaza a {sub} hasta su próxima acción.",
+      "{dom} venda los ojos y amordaza a {sub} hasta su próxima acción.",
+      "{dom} priva a {sub} de un sentido mientras estimula otro.",
+      "{sub} se venda los ojos y deja a otro jugador guiar sus movimientos.",
+      "{sub} se amordaza y se comunica de forma no verbal el resto del juego.",
+      "{sub} usa auriculares para bloquear su audición y se basa en el tacto para la comunicación.",
+      "Todos los jugadores dominantes/cambiantes pueden vendar los ojos/amordazar/restringir a {sub} como deseen."
     ],
-    "Tension": [
-      "{dom} applies a tension rope to {sub}.",
-      "{dom} uses a spreader bar or improvised device on {sub}.",
-      "{dom} ties {sub} in a stress position until recipient's next action.",
-      "{sub} applies a tension rope to themselves and has another player tighten it.",
-      "{sub} wears a spreader bar or other device and has another player control their movements for the round.",
-      "{sub} ties themselves in a stress position and waits for another player to release them.",
-      "All dominant/switch players may bind {sub} in a precarious position until their next turn."
+    "Tensión": [
+      "{dom} pone una cuerda en tensión a {sub}.",
+      "{dom} utiliza una barra para separar las extremidades de {sub}.",
+      "{dom} ata a {sub} en una posición incómoda hasta la próxima acción del receptor.",
+      "{sub} se coloca una cuerda en tensión a sí mismo y hace que otro jugador la apriete.",
+      "{sub} usa una barra para separar sus extremidades y deja a otro jugador controlar sus movimientos durante la ronda.",
+      "{sub} se ata a sí mismo en una posición incómoda y espera a que otro jugador lo libere.",
+      "Todos los jugadores dominantes/cambiantes pueden atar a {sub} en una posición precaria hasta su próximo turno."
     ]
   }
 }

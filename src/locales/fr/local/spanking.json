@@ -1,60 +1,60 @@
 {
   "label": "Fessées",
   "type": "sex",
-  "dom": "Spanker",
-  "sub": "Spankee",
+  "dom": "Donneur",
+  "sub": "Receveur",
   "actions": {
-    "Light Hand": [
-      "{dom} lightly spanks {sub} on each cheek.",
-      "{dom} spanks {sub} over the knee.",
-      "{dom} lightly spanks {sub} 10 times while the receiver counts them.",
-      "{dom} gives each player a light spanking.",
-      "{dom} rubs their hand down {sub}'s back and then lightly spanks them.",
-      "{dom} spanks {sub} while they are on all fours.",
-      "{dom} quickly but lightly spanks {sub} for 15 seconds.",
-      "{dom} spanks {sub} while they are on their back.",
-      "{dom} lightly spanks {sub} 6 times, 3 on each cheek.",
-      "{sub} gets on their knees and begs {dom} for a spanking.",
-      "{dom} has each player beg for a light spanking, one at a time.",
-      "All players gives {sub} a light spank.",
-      "{dom} spanks all spankee/switch players lightly."
+    "Fessées légères": [
+      "{dom} donne une fessée légère à {sub} sur chaque fesse.",
+      "{dom} fesse {sub} sur ses genoux.",
+      "{dom} donne une fessée légère à {sub} 10 fois tout en comptant les coups.",
+      "{dom} donne une fessée légère à chaque joueur.",
+      "{dom} frotte sa main sur le dos de {sub} puis lui donne une fessée légère.",
+      "{dom} fesse {sub} alors qu'il est à quatre pattes.",
+      "{dom} donne rapidement mais légèrement une fessée à {sub} pendant 15 secondes.",
+      "{dom} fesse {sub} alors qu'il est allongé sur le dos.",
+      "{dom} donne une fessée légère à {sub} 6 fois, 3 fois sur chaque fesse.",
+      "{sub} s'agenouille et supplie {dom} de lui donner une fessée.",
+      "{dom} fait en sorte que chaque joueur supplie pour une fessée légère, un par un.",
+      "Tous les joueurs donnent une fessée légère à {sub}.",
+      "{dom} donne une fessée légère à tous les joueurs receveurs/switch."
     ],
-    "Hard Spankings": [
-      "{dom} gives {sub} a hard spanking on each cheek.",
-      "{dom} heavily spanks {sub} while they are over the knee.",
-      "{dom} gives {sub} 10 hard spankings while the receiver counts the hits.",
-      "{dom} gives {sub} 2 hard spankings.",
-      "{dom} gives {sub} as many hard spankings as they can handle for 20 seconds.",
-      "{dom} gives {sub} 4 hard spankings while they are on all fours.",
-      "{dom} gives {sub} hard spankings for 15 seconds.",
-      "{sub} begs for 10 hard spankings and then {dom} gives them.",
-      "{dom} gives {sub} 6 hard spankings while they are bent over.",
-      "{dom} gives {sub} hard spankings until they beg for mercy.",
-      "All spanker/switch players give {sub} 20 spankings total.",
-      "All players gives {sub} a hard spanking.",
-      "{dom} spanks all spankee/switch players lightly."
+    "Fessées Fortes": [
+      "{dom} donne une fessée sévère à {sub} sur chaque fesse.",
+      "{dom} fesse sévèrement {sub} alors qu'il est sur les genoux.",
+      "{dom} donne 10 fessées sévères à {sub} tout en comptant les coups.",
+      "{dom} donne 2 fessées sévères à {sub}.",
+      "{dom} donne autant de fessées sévères que {sub} peut supporter pendant 20 secondes.",
+      "{dom} donne 4 fessées sévères à {sub} alors qu'il est à quatre pattes.",
+      "{dom} donne des fessées sévères à {sub} pendant 15 secondes.",
+      "{sub} supplie pour 10 fessées sévères et ensuite {dom} les lui donne.",
+      "{dom} donne 6 fessées sévères à {sub} alors qu'il est penché en avant.",
+      "{dom} donne des fessées sévères à {sub} jusqu'à ce qu'il supplie pour qu'on lui fasse grâce.",
+      "Tous les joueurs donneurs/switch donnent au total 20 fessées à {sub}.",
+      "Tous les joueurs donnent une fessée forte à {sub}.",
+      "{dom} donne une fessée légère à tous les joueurs receveurs/switch."
     ],
-    "Canes & Paddles": [
-      "{dom} spanks {sub} with an implement of the spanker's choice.",
-      "{dom} gives {sub} 20 spankings with an implement while the receiver counts.",
-      "{dom} spanks {sub} with an implement while they are over the knee.",
-      "{dom} spanks {sub} with an implement while they are on all fours.",
-      "{dom} spanks {sub} with an implement while they are on their back.",
-      "{sub} finds an implement of their choice and then {dom} spanks them with it.",
-      "{sub} begs for a number of spankings with an implement and then {dom} gives them.",
-      "{dom} spanks {sub} with an implement for 30 seconds.",
-      "Each player spanks {sub} with an implement.",
-      "{dom} lashes {sub} with an implement on the palms of their hands.",
-      "{dom} lashes {sub} with an implement on the soles of their feet.",
-      "All players use an implement to spank {sub}",
-      "{dom} uses an implement to spank each spankee/switch player."
+    "Bâton, fouet et paddle": [
+      "{dom} fesse {sub} avec un instrument de son choix.",
+      "{dom} donne 20 fessées à {sub} avec un instrument tout en comptant les coups.",
+      "{dom} fesse {sub} avec un instrument alors qu'il est sur les genoux.",
+      "{dom} fesse {sub} avec un instrument alors qu'il est à quatre pattes.",
+      "{dom} fesse {sub} avec un instrument alors qu'il est allongé sur le dos.",
+      "{sub} trouve un instrument de son choix et ensuite {dom} le fesse avec.",
+      "{sub} supplie pour un nombre de fessées avec un instrument et ensuite {dom} les lui donne.",
+      "{dom} fesse {sub} avec un instrument pendant 30 secondes.",
+      "Chaque joueur fesse {sub} avec un instrument.",
+      "{dom} fouette {sub} avec un instrument sur les paumes de ses mains.",
+      "{dom} fouette {sub} avec un instrument sur la plante de ses pieds.",
+      "Tous les joueurs utilisent un instrument pour fesser {sub}.",
+      "{dom} utilise un instrument pour fesser tous les joueurs receveurs/switch."
     ],
-    "Bruising": [
-      "{dom} gives {sub} 5 spankings on each cheek hard enough to leave a mark.",
-      "{dom} gives {sub} 10 bruise inducing spankings.",
-      "{dom} gives {sub} as many painful spankings as they can handle for 30 seconds.",
-      "{dom} gives {sub} 10 spankings using a can or other hard implement.",
-      "{dom} leaves a hand print on {sub}."
+    "Marques et Ecchymoses": [
+      "{dom} donne 5 fessées sur chaque fesse assez fort pour laisser une marque.",
+      "{dom} donne 10 fessées à {sub} assez fort pour laisser des bleus.",
+      "{dom} donne autant de fessées douloureuses que {sub} peut supporter pendant 30 secondes.",
+      "{dom} donne 10 fessées à {sub} en utilisant une canne ou un autre instrument dur.",
+      "{dom} laisse une empreinte de main sur {sub}."
     ]
   }
 }

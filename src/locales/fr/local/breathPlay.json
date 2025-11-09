@@ -2,40 +2,40 @@
   "label": "Jeux de respiration",
   "type": "foreplay",
   "actions": {
-    "Light/15 seconds": [
-      "{dom} covers {sub}'s nose and mouth with their hand for 15 seconds.",
-      "{dom} lightly squeezes {sub}'s throat for 15 seconds.",
-      "{dom} lightly chokes {sub} with their hand for 15 seconds.",
-      "{dom} holds their hand over {sub}'s mouth for 15 seconds.",
-      "{dom} lightly squeezes {sub}'s neck with their fingers for 15 seconds.",
-      "{dom} lightly presses a pillow against {sub}'s face for 15 seconds.",
-      "{dom} lightly presses their forearm against {sub}'s throat for 15 seconds.",
-      "All dominant/switch players may choke {sub} for up to 15 seconds.",
-      "{dom} may lightly choke all submissive/switch players for up to 15 seconds."
+    "Léger/15 secondes": [
+      "{dom} couvre le nez et la bouche de {sub} avec sa main pendant 15 secondes.",
+      "{dom} serre légèrement la gorge de {sub} pendant 15 secondes.",
+      "{dom} étrangle légèrement {sub} avec sa main pendant 15 secondes.",
+      "{dom} tient sa main sur la bouche de {sub} pendant 15 secondes.",
+      "{dom} serre légèrement le cou de {sub} avec ses doigts pendant 15 secondes.",
+      "{dom} appuie légèrement un coussin sur le visage de {sub} pendant 15 secondes.",
+      "{dom} appuie légèrement son avant-bras contre la gorge de {sub} pendant 15 secondes.",
+      "Tous les joueurs dominants/switch peuvent étrangler {sub} légèrement pendant 15 secondes maximum.",
+      "{dom} peut étrangler légèrement tous les joueurs soumis/switch pendant 15 secondes maximum."
     ],
-    "Normal/30 seconds": [
-      "{dom} covers {sub}'s nose and mouth with their hand for 30 seconds.",
-      "{dom} squeezes {sub}'s throat for 30 seconds.",
-      "{dom} chokes {sub} with their hand for 30 seconds.",
-      "{dom} holds their hand over {sub}'s mouth for 30 seconds.",
-      "{dom} squeezes {sub}'s neck with their fingers for 30 seconds.",
-      "{dom} presses a pillow against {sub}'s face for 30 seconds.",
-      "{dom} presses their forearm against {sub}'s throat for 30 seconds.",
-      "{dom} may choke all submissive/switch players as desired for up to 30 seconds each.",
-      "All players may choke {sub} for up to 30 seconds each."
+    "Normal/30 secondes": [
+      "{dom} couvre le nez et la bouche de {sub} avec sa main pendant 30 secondes.",
+      "{dom} serre la gorge de {sub} pendant 30 secondes.",
+      "{dom} étrangle {sub} avec sa main pendant 30 secondes.",
+      "{dom} tient sa main sur la bouche de {sub} pendant 30 secondes.",
+      "{dom} serre le cou de {sub} avec ses doigts pendant 30 secondes.",
+      "{dom} appuie un coussin sur le visage de {sub} pendant 30 secondes.",
+      "{dom} appuie son avant-bras contre la gorge de {sub} pendant 30 secondes.",
+      "{dom} peut étrangler tous les joueurs soumis/switch comme il le souhaite pendant 30 secondes maximum chacun.",
+      "Tous les joueurs peuvent étrangler {sub} pendant 30 secondes maximum chacun."
     ],
-    "Intense/60 seconds": [
-      "{dom} covers {sub}'s nose and mouth with their hand for 60 seconds.",
-      "{dom} squeezes {sub}'s throat for 60 seconds.",
-      "{dom} chokes {sub} with their hand for 60 seconds.",
-      "{dom} holds their hand over {sub}'s mouth for 60 seconds.",
-      "{dom} squeezes {sub}'s neck with their fingers for 60 seconds.",
-      "{dom} presses a pillow against {sub}'s face for 60 seconds.",
-      "{dom} restricts {sub}'s breathing with a belt or firm item for 60 seconds.",
-      "{dom} presses their forearm against {sub}'s throat for 60 seconds.",
-      "{dom} uses a gas mask to control {sub}'s breathing for 60 seconds.",
-      "{dom} uses a plastic bag to restrict {sub}'s breathing for a few seconds with proper safety precautions and recovery time in between.",
-      "{sub} may be choked by {dom} until their face turns red."
+    "Intense/60 secondes": [
+      "{dom} couvre le nez et la bouche de {sub} avec sa main pendant 60 secondes.",
+      "{dom} serre la gorge de {sub} pendant 60 secondes.",
+      "{dom} étrangle {sub} avec sa main pendant 60 secondes.",
+      "{dom} tient sa main sur la bouche de {sub} pendant 60 secondes.",
+      "{dom} serre le cou de {sub} avec ses doigts pendant 60 secondes.",
+      "{dom} appuie un coussin sur le visage de {sub} pendant 60 secondes.",
+      "{dom} restreint la respiration de {sub} avec une ceinture ou un objet ferme pendant 60 secondes.",
+      "{dom} appuie son avant-bras contre la gorge de {sub} pendant 60 secondes.",
+      "{dom} utilise un masque à gaz pour contrôler la respiration de {sub} pendant 60 secondes.",
+      "{dom} utilise un sac en plastique pour restreindre la respiration de {sub} pendant quelques secondes avec les précautions de sécurité appropriées et un temps de récupération entre les deux.",
+      "{sub} peut être étranglé par {dom} jusqu'à ce que son visage devienne rouge."
     ]
   }
 }
