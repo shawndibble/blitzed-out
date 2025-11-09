@@ -537,7 +537,7 @@
     "gender": {
       "male": "Masculin",
       "female": "Féminin",
-      "nonBinary": "Non-Binaire / Préfère Ne Pas Dire",
+      "nonBinary": "Non-Binaire",
       "preferNotSay": "Préfère Ne Pas Dire"
     }
   },
