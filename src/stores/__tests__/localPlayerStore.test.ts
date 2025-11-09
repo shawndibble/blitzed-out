@@ -17,6 +17,16 @@ vi.mock('@/services/localPlayerService', () => ({
   },
 }));
 
+// Mock the database
+vi.mock('@/stores/store', () => ({
+  default: {
+    localPlayerSessions: {
+      where: vi.fn(),
+      add: vi.fn(),
+    },
+  },
+}));
+
 describe('LocalPlayerStore', () => {
   let mockPlayers: LocalPlayer[];
   let mockSettings: LocalSessionSettings;
@@ -33,6 +43,7 @@ describe('LocalPlayerStore', () => {
         location: 0,
         isFinished: false,
         sound: '',
+        gender: 'non-binary',
       },
       {
         id: 'player-2',
@@ -44,6 +55,7 @@ describe('LocalPlayerStore', () => {
         location: 0,
         isFinished: false,
         sound: '',
+        gender: 'non-binary',
       },
     ];
 
@@ -372,8 +384,8 @@ describe('LocalPlayerStore', () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
       // Ensure we start with no session
-      act(() => {
-        result.current.clearSession();
+      await act(async () => {
+        await result.current.clearSession();
       });
 
       expect(result.current.session).toBeNull();
@@ -384,6 +396,102 @@ describe('LocalPlayerStore', () => {
 
       expect(result.current.error).toBe('No active session');
       expect(result.current.isLoading).toBe(false);
+    });
+  });
+
+  describe('Session Persistence', () => {
+    test('clearSession should delete session from Dexie database', async () => {
+      const { result } = renderHook(() => useLocalPlayerStore());
+
+      const mockSession = {
+        id: 'test-session-123',
+        roomId: 'TEST-ROOM',
+        players: mockPlayers,
+        currentPlayerIndex: 0,
+        isActive: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        settings: mockSettings,
+      };
+
+      // Set a session first
+      act(() => {
+        result.current.setSession(mockSession);
+      });
+
+      expect(result.current.session).toStrictEqual(mockSession);
+
+      // Mock database delete chain
+      const mockDelete = vi.fn().mockResolvedValue(undefined);
+      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
+      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
+
+      const db = await import('@/stores/store');
+      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
+
+      // Clear the session
+      await act(async () => {
+        await result.current.clearSession();
+      });
+
+      // Verify session was cleared
+      expect(result.current.session).toBeNull();
+      expect(result.current.error).toBeNull();
+
+      // Verify database delete was called
+      expect(mockWhere).toHaveBeenCalledWith('sessionId');
+      expect(mockEquals).toHaveBeenCalledWith('test-session-123');
+      expect(mockDelete).toHaveBeenCalled();
+    });
+
+    test('clearSession should handle database deletion errors gracefully', async () => {
+      const { result } = renderHook(() => useLocalPlayerStore());
+
+      const mockSession = {
+        id: 'test-session-456',
+        roomId: 'TEST-ROOM',
+        players: mockPlayers,
+        currentPlayerIndex: 0,
+        isActive: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        settings: mockSettings,
+      };
+
+      act(() => {
+        result.current.setSession(mockSession);
+      });
+
+      // Mock database delete to fail
+      const mockDelete = vi.fn().mockRejectedValue(new Error('Database error'));
+      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
+      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
+
+      const db = await import('@/stores/store');
+      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
+
+      // Clear should still succeed even if database delete fails
+      await act(async () => {
+        await result.current.clearSession();
+      });
+
+      expect(result.current.session).toBeNull();
+      expect(result.current.error).toBeNull();
+    });
+
+    test('clearSession should handle null session gracefully', async () => {
+      const { result } = renderHook(() => useLocalPlayerStore());
+
+      // Ensure no session exists
+      expect(result.current.session).toBeNull();
+
+      // Clear should not throw
+      await act(async () => {
+        await result.current.clearSession();
+      });
+
+      expect(result.current.session).toBeNull();
+      expect(result.current.error).toBeNull();
     });
   });
 });
