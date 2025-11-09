@@ -83,6 +83,9 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
         if (typeof migratedPlayer.isFinished !== 'boolean') {
           migratedPlayer.isFinished = false;
         }
+        if (!migratedPlayer.gender) {
+          migratedPlayer.gender = 'non-binary';
+        }
 
         return migratedPlayer;
       },
@@ -106,6 +109,7 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
           location: typeof player.location === 'number' ? player.location : 0,
           isFinished: typeof player.isFinished === 'boolean' ? player.isFinished : false,
           sound: player.sound || '',
+          gender: player.gender || 'non-binary',
         }));
 
         return {

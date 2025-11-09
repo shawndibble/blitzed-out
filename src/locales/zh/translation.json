@@ -516,7 +516,7 @@
     "gender": {
       "male": "男性",
       "female": "女性",
-      "nonBinary": "非二元",
+      "nonBinary": "非二元 / 不願透露",
       "preferNotSay": "不願透露"
     }
   },

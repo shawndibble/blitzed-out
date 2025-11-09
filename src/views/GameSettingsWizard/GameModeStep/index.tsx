@@ -233,7 +233,7 @@ export default function GameModeStep({
             {[
               { value: 'male', label: 'Male' },
               { value: 'female', label: 'Female' },
-              { value: 'non-binary', label: 'Non-Binary' },
+              { value: 'non-binary', label: 'Non-Binary / Prefer Not to Say' },
             ].map((option) => (
               <Grid size={{ xs: 12, sm: 4 }} key={option.value}>
                 <Card
