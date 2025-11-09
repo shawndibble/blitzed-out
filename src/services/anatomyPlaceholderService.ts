@@ -3,10 +3,12 @@
  *
  * Provides gender-aware anatomy term mappings for inclusive action text.
  * Supports 5 languages: EN, ES, FR, ZH, HI
+ * All mappings are loaded from translation files (anatomy.json)
  *
  * @module anatomyPlaceholderService
  */
 
+import i18next from 'i18next';
 import type { PlayerGender, AnatomyPlaceholder } from '@/types/localPlayers';
 import type { PlayerRole } from '@/types/Settings';
 
@@ -34,200 +36,15 @@ export interface LocaleAnatomyMappings {
 }
 
 /**
- * All anatomy mappings organized by locale
+ * Load anatomy mappings from translation files
+ *
+ * @param locale - Language code (en, es, fr, zh, hi)
+ * @returns Anatomy mappings for all genders in the specified locale
  */
-const anatomyMappings: Record<string, LocaleAnatomyMappings> = {
-  en: {
-    male: {
-      genital: 'dick',
-      hole: 'hole',
-      chest: 'chest',
-      pronoun_subject: 'he',
-      pronoun_object: 'him',
-      pronoun_possessive: 'his',
-      pronoun_reflexive: 'himself',
-    },
-    female: {
-      genital: 'pussy',
-      hole: 'pussy',
-      chest: 'breasts',
-      pronoun_subject: 'she',
-      pronoun_object: 'her',
-      pronoun_possessive: 'her',
-      pronoun_reflexive: 'herself',
-    },
-    'non-binary': {
-      genital: 'genitals',
-      hole: 'hole',
-      chest: 'chest',
-      pronoun_subject: 'they',
-      pronoun_object: 'them',
-      pronoun_possessive: 'their',
-      pronoun_reflexive: 'themselves',
-    },
-    'prefer-not-say': {
-      genital: 'genitals',
-      hole: 'hole',
-      chest: 'chest',
-      pronoun_subject: 'they',
-      pronoun_object: 'them',
-      pronoun_possessive: 'their',
-      pronoun_reflexive: 'themselves',
-    },
-  },
-  es: {
-    male: {
-      genital: 'polla',
-      hole: 'agujero',
-      chest: 'pecho',
-      pronoun_subject: 'él',
-      pronoun_object: 'él',
-      pronoun_possessive: 'su',
-      pronoun_reflexive: 'sí mismo',
-    },
-    female: {
-      genital: 'coño',
-      hole: 'coño',
-      chest: 'pechos',
-      pronoun_subject: 'ella',
-      pronoun_object: 'ella',
-      pronoun_possessive: 'su',
-      pronoun_reflexive: 'sí misma',
-    },
-    'non-binary': {
-      genital: 'genitales',
-      hole: 'agujero',
-      chest: 'pecho',
-      pronoun_subject: 'elle',
-      pronoun_object: 'elle',
-      pronoun_possessive: 'su',
-      pronoun_reflexive: 'sí misme',
-    },
-    'prefer-not-say': {
-      genital: 'genitales',
-      hole: 'agujero',
-      chest: 'pecho',
-      pronoun_subject: 'elle',
-      pronoun_object: 'elle',
-      pronoun_possessive: 'su',
-      pronoun_reflexive: 'sí misme',
-    },
-  },
-  fr: {
-    male: {
-      genital: 'bite',
-      hole: 'trou',
-      chest: 'torse',
-      pronoun_subject: 'il',
-      pronoun_object: 'lui',
-      pronoun_possessive: 'son',
-      pronoun_reflexive: 'lui-même',
-    },
-    female: {
-      genital: 'chatte',
-      hole: 'chatte',
-      chest: 'seins',
-      pronoun_subject: 'elle',
-      pronoun_object: 'elle',
-      pronoun_possessive: 'sa',
-      pronoun_reflexive: 'elle-même',
-    },
-    'non-binary': {
-      genital: 'organes génitaux',
-      hole: 'trou',
-      chest: 'torse',
-      pronoun_subject: 'iel',
-      pronoun_object: 'iel',
-      pronoun_possessive: 'son',
-      pronoun_reflexive: 'soi-même',
-    },
-    'prefer-not-say': {
-      genital: 'organes génitaux',
-      hole: 'trou',
-      chest: 'torse',
-      pronoun_subject: 'iel',
-      pronoun_object: 'iel',
-      pronoun_possessive: 'son',
-      pronoun_reflexive: 'soi-même',
-    },
-  },
-  zh: {
-    male: {
-      genital: '鸡巴',
-      hole: '洞',
-      chest: '胸部',
-      pronoun_subject: '他',
-      pronoun_object: '他',
-      pronoun_possessive: '他的',
-      pronoun_reflexive: '他自己',
-    },
-    female: {
-      genital: '阴道',
-      hole: '阴道',
-      chest: '乳房',
-      pronoun_subject: '她',
-      pronoun_object: '她',
-      pronoun_possessive: '她的',
-      pronoun_reflexive: '她自己',
-    },
-    'non-binary': {
-      genital: '生殖器',
-      hole: '洞',
-      chest: '胸部',
-      pronoun_subject: '他们',
-      pronoun_object: '他们',
-      pronoun_possessive: '他们的',
-      pronoun_reflexive: '他们自己',
-    },
-    'prefer-not-say': {
-      genital: '生殖器',
-      hole: '洞',
-      chest: '胸部',
-      pronoun_subject: '他们',
-      pronoun_object: '他们',
-      pronoun_possessive: '他们的',
-      pronoun_reflexive: '他们自己',
-    },
-  },
-  hi: {
-    male: {
-      genital: 'लिंग',
-      hole: 'छेद',
-      chest: 'छाती',
-      pronoun_subject: 'वह',
-      pronoun_object: 'उसे',
-      pronoun_possessive: 'उसका',
-      pronoun_reflexive: 'खुद',
-    },
-    female: {
-      genital: 'योनि',
-      hole: 'योनि',
-      chest: 'स्तन',
-      pronoun_subject: 'वह',
-      pronoun_object: 'उसे',
-      pronoun_possessive: 'उसकी',
-      pronoun_reflexive: 'खुद',
-    },
-    'non-binary': {
-      genital: 'जननांग',
-      hole: 'छेद',
-      chest: 'छाती',
-      pronoun_subject: 'वे',
-      pronoun_object: 'उन्हें',
-      pronoun_possessive: 'उनका',
-      pronoun_reflexive: 'खुद',
-    },
-    'prefer-not-say': {
-      genital: 'जननांग',
-      hole: 'छेद',
-      chest: 'छाती',
-      pronoun_subject: 'वे',
-      pronoun_object: 'उन्हें',
-      pronoun_possessive: 'उनका',
-      pronoun_reflexive: 'खुद',
-    },
-  },
-};
+function loadAnatomyMappingsForLocale(locale: string): LocaleAnatomyMappings {
+  const mappings = i18next.t('anatomy.anatomyMappings', { lng: locale, returnObjects: true });
+  return mappings as LocaleAnatomyMappings;
+}
 
 /**
  * Get anatomy mapping for a specific gender and locale
@@ -243,8 +60,8 @@ const anatomyMappings: Record<string, LocaleAnatomyMappings> = {
  * ```
  */
 export function getAnatomyMappings(locale: string, gender?: PlayerGender): AnatomyMapping {
-  // Default to English if locale not found
-  const localeData = anatomyMappings[locale] || anatomyMappings.en;
+  // Load mappings from translations
+  const localeData = loadAnatomyMappingsForLocale(locale);
 
   // Default to prefer-not-say if gender not specified
   const genderKey = gender || 'prefer-not-say';
@@ -297,14 +114,8 @@ export function getGenitalTermForRole(
 ): string {
   // Special case: female dom uses strapon in penetrative contexts
   if (gender === 'female' && role === 'dom') {
-    const straponTerms: Record<string, string> = {
-      en: 'strapon',
-      es: 'arnés',
-      fr: 'gode-ceinture',
-      zh: '绑带假阳具',
-      hi: 'स्ट्रैपआन',
-    };
-    return straponTerms[locale] || straponTerms.en;
+    const straponTerm = i18next.t('anatomy.straponTerms.strapon', { lng: locale });
+    return straponTerm;
   }
 
   // Standard genital term

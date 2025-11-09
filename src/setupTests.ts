@@ -124,10 +124,182 @@ vi.mock('react-router-dom', async () => {
 
 // Mock i18next
 vi.mock('i18next', () => {
+  const anatomyMappingsEn = {
+    male: {
+      genital: 'dick',
+      hole: 'hole',
+      chest: 'chest',
+      pronoun_subject: 'he',
+      pronoun_object: 'him',
+      pronoun_possessive: 'his',
+      pronoun_reflexive: 'himself',
+    },
+    female: {
+      genital: 'pussy',
+      hole: 'pussy',
+      chest: 'breasts',
+      pronoun_subject: 'she',
+      pronoun_object: 'her',
+      pronoun_possessive: 'her',
+      pronoun_reflexive: 'herself',
+    },
+    'non-binary': {
+      genital: 'genitals',
+      hole: 'hole',
+      chest: 'chest',
+      pronoun_subject: 'they',
+      pronoun_object: 'them',
+      pronoun_possessive: 'their',
+      pronoun_reflexive: 'themselves',
+    },
+    'prefer-not-say': {
+      genital: 'genitals',
+      hole: 'hole',
+      chest: 'chest',
+      pronoun_subject: 'they',
+      pronoun_object: 'them',
+      pronoun_possessive: 'their',
+      pronoun_reflexive: 'themselves',
+    },
+  };
+
+  const mockTranslationsByLocale: any = {
+    en: {
+      anatomy: {
+        penetrativeKeywords: ['deep', 'throat', 'penetrate', 'inside', 'enters'],
+        genericAnatomyTerms: {
+          genital: 'genitals',
+          hole: 'hole',
+          chest: 'chest',
+          pronoun_subject: 'they',
+          pronoun_object: 'them',
+          pronoun_possessive: 'their',
+          pronoun_reflexive: 'themselves',
+        },
+        anatomyMappings: anatomyMappingsEn,
+        straponTerms: {
+          strapon: 'strapon',
+        },
+      },
+    },
+    es: {
+      anatomy: {
+        penetrativeKeywords: ['profundo', 'garganta', 'penetrar', 'dentro', 'entra'],
+        anatomyMappings: {
+          male: {
+            genital: 'polla',
+            hole: 'agujero',
+            chest: 'pecho',
+            pronoun_subject: 'él',
+            pronoun_object: 'él',
+            pronoun_possessive: 'su',
+            pronoun_reflexive: 'sí mismo',
+          },
+          female: {
+            genital: 'coño',
+            hole: 'coño',
+            chest: 'pechos',
+            pronoun_subject: 'ella',
+            pronoun_object: 'ella',
+            pronoun_possessive: 'su',
+            pronoun_reflexive: 'sí misma',
+          },
+          'non-binary': {
+            genital: 'genitales',
+            hole: 'agujero',
+            chest: 'pecho',
+            pronoun_subject: 'elle',
+            pronoun_object: 'elle',
+            pronoun_possessive: 'su',
+            pronoun_reflexive: 'sí misme',
+          },
+          'prefer-not-say': {
+            genital: 'genitales',
+            hole: 'agujero',
+            chest: 'pecho',
+            pronoun_subject: 'elle',
+            pronoun_object: 'elle',
+            pronoun_possessive: 'su',
+            pronoun_reflexive: 'sí misme',
+          },
+        },
+        straponTerms: {
+          strapon: 'arnés',
+        },
+      },
+    },
+    fr: {
+      anatomy: {
+        anatomyMappings: {
+          male: {
+            genital: 'bite',
+            hole: 'trou',
+            chest: 'torse',
+            pronoun_subject: 'il',
+            pronoun_object: 'lui',
+            pronoun_possessive: 'son',
+            pronoun_reflexive: 'lui-même',
+          },
+          female: {
+            genital: 'chatte',
+            hole: 'chatte',
+            chest: 'seins',
+            pronoun_subject: 'elle',
+            pronoun_object: 'elle',
+            pronoun_possessive: 'sa',
+            pronoun_reflexive: 'elle-même',
+          },
+          'non-binary': {
+            genital: 'organes génitaux',
+            hole: 'trou',
+            chest: 'torse',
+            pronoun_subject: 'iel',
+            pronoun_object: 'iel',
+            pronoun_possessive: 'son',
+            pronoun_reflexive: 'soi-même',
+          },
+          'prefer-not-say': {
+            genital: 'organes génitaux',
+            hole: 'trou',
+            chest: 'torse',
+            pronoun_subject: 'iel',
+            pronoun_object: 'iel',
+            pronoun_possessive: 'son',
+            pronoun_reflexive: 'soi-même',
+          },
+        },
+        straponTerms: {
+          strapon: 'gode-ceinture',
+        },
+      },
+    },
+  };
+
   const mockI18n = {
     init: vi.fn(() => Promise.resolve()),
     use: vi.fn(),
-    t: vi.fn((key: string) => key),
+    t: vi.fn((key: string, options?: any) => {
+      const locale = options?.lng || 'en';
+      const translations = mockTranslationsByLocale[locale] || mockTranslationsByLocale.en;
+
+      // Handle returnObjects option for nested structures
+      if (options?.returnObjects) {
+        const parts = key.split('.');
+        let value: any = translations;
+        for (const part of parts) {
+          value = value?.[part];
+        }
+        return value || {};
+      }
+
+      // Handle normal translations
+      const parts = key.split('.');
+      let value: any = translations;
+      for (const part of parts) {
+        value = value?.[part];
+      }
+      return value !== undefined ? value : key;
+    }),
     on: vi.fn(),
     off: vi.fn(),
     changeLanguage: vi.fn(),

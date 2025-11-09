@@ -3,8 +3,10 @@
  *
  * Determines which action groups are compatible with a player's gender.
  * Filters out anatomy-specific action groups for players without the required anatomy.
+ * All descriptions loaded from translation files (anatomy.json)
  */
 
+import i18next from 'i18next';
 import type { PlayerGender } from '@/types/localPlayers';
 import type { AnatomyRequirement } from '@/types/customGroups';
 
@@ -60,20 +62,18 @@ export function getSupportedAnatomyRequirements(): AnatomyRequirement[] {
 
 /**
  * Get human-readable description of anatomy requirement
+ * Loaded from translation files
  *
  * @param requirement - Anatomy requirement
+ * @param locale - Language code (optional, defaults to current language)
  * @returns Description for UI display
  */
-export function getAnatomyRequirementDescription(requirement: AnatomyRequirement): string {
-  const descriptions: Record<AnatomyRequirement, string> = {
-    any: 'Universal (all players)',
-    penis: 'Requires male anatomy',
-    pussy: 'Requires female anatomy',
-    anus: 'Universal (all players)',
-    breasts: 'Requires breasts',
-  };
-
-  return descriptions[requirement];
+export function getAnatomyRequirementDescription(
+  requirement: AnatomyRequirement,
+  locale?: string
+): string {
+  const lng = locale || i18next.language || 'en';
+  return i18next.t(`anatomy.anatomyRequirements.${requirement}`, { lng });
 }
 
 /**
@@ -99,30 +99,43 @@ export function shouldShowActionGroup(
 
 /**
  * Get incompatibility reason for display to user
+ * Loaded from translation files
  *
  * @param gender - Player's gender
  * @param requirement - Action group's anatomy requirement
+ * @param locale - Language code (optional, defaults to current language)
  * @returns Reason string for UI, or null if compatible
  */
 export function getIncompatibilityReason(
   gender: PlayerGender | undefined,
-  requirement: AnatomyRequirement | undefined
+  requirement: AnatomyRequirement | undefined,
+  locale?: string
 ): string | null {
   if (isAnatomyCompatible(gender, requirement)) {
     return null; // Compatible
   }
 
+  const lng = locale || i18next.language || 'en';
+
   if (!gender || gender === 'prefer-not-say') {
-    return `Requires specific anatomy (${requirement})`;
+    return i18next.t('anatomy.incompatibilityReasons.requiresSpecificAnatomy', {
+      lng,
+      requirement,
+    });
   }
 
-  const reasonMap: Record<AnatomyRequirement, string | null> = {
+  const reasonKey: Record<AnatomyRequirement, string | null> = {
     any: null,
-    penis: 'Requires male anatomy',
-    pussy: 'Requires female anatomy',
+    penis: 'requiresMaleAnatomy',
+    pussy: 'requiresFemaleAnatomy',
     anus: null, // Universal, should never be incompatible
-    breasts: 'Requires breasts',
+    breasts: 'requiresBreasts',
   };
 
-  return reasonMap[requirement || 'any'] || null;
+  const key = reasonKey[requirement || 'any'];
+  if (!key) {
+    return null;
+  }
+
+  return i18next.t(`anatomy.incompatibilityReasons.${key}`, { lng });
 }
