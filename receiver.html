@@ -2,104 +2,63 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="color-scheme" content="dark only" />
     <title>Blitzed Out Cast Receiver</title>
-    <!-- Critical inline styles to prevent white flash - must be before any external CSS -->
+    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
     <style>
-      html,
-      body {
-        background: linear-gradient(
-          135deg,
-          rgba(15, 23, 42, 0.9) 0%,
-          rgba(30, 41, 59, 0.95) 20%,
-          rgba(51, 65, 85, 0.9) 40%,
-          rgba(30, 41, 59, 0.95) 60%,
-          rgba(15, 23, 42, 0.9) 80%,
-          rgba(2, 6, 23, 0.95) 100%
-        );
-        color: #fff;
-      }
-
       body {
         margin: 0;
         padding: 0;
         overflow: hidden;
         width: 100vw;
         height: 100vh;
+        background-color: #000;
       }
-    </style>
-    <link rel="stylesheet" href="/shared-loading.css" />
-    <script src="//www.gstatic.com/cast/sdk/libs/caf_receiver/v3/cast_receiver_framework.js"></script>
-    <style>
       #iframe-container {
         width: 100%;
         height: 100%;
       }
-
       iframe {
         width: 100%;
         height: 100%;
         border: none;
-        /* Remove any potential clipping */
-        overflow: visible;
-        /* Hide initially to prevent white flash */
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out;
       }
-
-      iframe.loaded {
-        opacity: 1;
+      .loading {
+        color: white;
+        font-size: 24px;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 40vh;
       }
     </style>
   </head>
-  <body class="cast-receiver-override">
-    <div id="loading-message" class="instant-loading loading-overlay loading-container">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Loading...</div>
+  <body>
+    <div id="iframe-container">
+      <div class="loading">Waiting for content...</div>
     </div>
-    <div id="iframe-container"></div>
 
     <script>
       // Initialize the receiver context
       const context = cast.framework.CastReceiverContext.getInstance();
 
+      // Log startup
+      console.log('Blitzed Out Cast Receiver starting up');
+
       // Handle messages from sender
       context.addCustomMessageListener('urn:x-cast:com.blitzedout.app', function (event) {
+        console.log('Received message from sender:', event.data);
+
         const message = event.data;
 
         if (message.type === 'LOAD' && message.url) {
+          console.log('Loading URL:', message.url);
+
           // Create an iframe to load the specified URL
           const container = document.getElementById('iframe-container');
-          const loadingMessage = document.getElementById('loading-message');
           container.innerHTML = ''; // Clear any existing content
 
           const iframe = document.createElement('iframe');
-          // Add cast receiver parameter to the URL
-          const url = new URL(message.url);
-          url.searchParams.set('receiver', 'true');
-          url.searchParams.set('chromecast', 'true');
-
-          iframe.src = url.toString();
-          iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
-          iframe.setAttribute(
-            'sandbox',
-            'allow-same-origin allow-scripts allow-presentation allow-forms'
-          );
-
-          // Handle iframe loading
-          iframe.onload = function () {
-            // Wait a moment for React to initialize, then show iframe and hide loading
-            setTimeout(() => {
-              iframe.classList.add('loaded');
-              loadingMessage.classList.add('hidden');
-            }, 500);
-          };
-
-          iframe.onerror = function (err) {
-            loadingMessage.classList.remove('hidden');
-            loadingMessage.querySelector('.loading-text').textContent = 'Failed to load receiver';
-          };
-
+          iframe.src = message.url;
+          iframe.allow = 'autoplay; fullscreen';
           container.appendChild(iframe);
         }
       });
@@ -110,6 +69,7 @@
 
       // Start the receiver
       context.start(options);
+      console.log('Receiver started');
     </script>
   </body>
 </html>

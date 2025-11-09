@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google Analytics 4 -->
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-93YN1YMTQ7"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -9,6 +9,7 @@
         dataLayer.push(arguments);
       }
       gtag('js', new Date());
+
       gtag('config', 'G-93YN1YMTQ7');
     </script>
 
@@ -19,59 +20,25 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <!-- SEO Meta Tags -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
     <meta
       name="description"
-      content="Blitzed Out - The customizable adult board game experience. Perfect for couples, solo play, or parties. Create personalized adventures."
-    />
-    <meta
-      name="keywords"
-      content="adult board game, couples game, party game, customizable, adult entertainment, intimate game, relationship game"
-    />
-    <meta name="author" content="Blitzed Out" />
-    <meta name="robots" content="index, follow" />
-
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="Blitzed Out - An Adult Board Game Experience" />
-    <meta
-      property="og:description"
-      content="Transform your intimate adventures with a customizable adult experience platform. Perfect for couples, solo play, or unforgettable parties."
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://blitzed-out.com/" />
-    <meta property="og:site_name" content="Blitzed Out" />
-
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Blitzed Out - An Adult Board Game Experience" />
-    <meta
-      name="twitter:description"
-      content="Transform your intimate adventures with a customizable adult experience platform."
+      content="An adult multiplayer sex board game for those with various kinks. Great for solo play, couples or parties. Tailored primarily for men, but accessible by women too."
     />
 
-    <!-- Preload critical fonts for faster LCP -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" as="style" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" /></noscript>
+    <!-- Roboto fonts are loaded via @fontsource in JavaScript for better bundling -->
 
-    <!-- Optimized preconnects - only for critical resources -->
+    <!-- Preconnect to external services to speed up requests -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
-    <!-- Let Vite handle module preloading automatically via build optimization -->
-    
-    <!-- Preload critical CSS for instant styling -->
-    <link rel="preload" href="/shared-loading.css" as="style" />
-    <link rel="stylesheet" href="/shared-loading.css" />
-
-    <!-- Defer Material Icons to avoid blocking critical path -->
+    <!-- Load Material Icons asynchronously with preload -->
     <link
       rel="preload"
       href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"
       as="style"
       onload="this.onload=null;this.rel='stylesheet'"
-      media="print"
     />
     <noscript
       ><link
@@ -79,135 +46,21 @@
         href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"
     /></noscript>
 
-    <!-- Critical CSS for performance -->
+    <!-- Critical CSS for font optimization -->
     <style>
       /* Roboto fallback fonts */
       @font-face {
         font-family: 'Roboto Fallback';
-        src: local('Arial'), local('Helvetica');
+        src: local('Arial'), local('Helvetica'), local(sans-serif);
         font-display: swap;
         ascent-override: 92%;
         descent-override: 24%;
         line-gap-override: 0%;
         size-adjust: 100%;
       }
-
-      /* Critical app shell */
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        font-family:
-          'Roboto Fallback',
-          -apple-system,
-          BlinkMacSystemFont,
-          'Segoe UI',
-          system-ui,
-          sans-serif;
-        line-height: 1.5;
-        color: #fff;
-      }
-
-      /* Fixed background gradient that adapts to system theme */
-      body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: -1;
-        background: linear-gradient(
-          135deg,
-          rgba(15, 23, 42, 0.9) 0%,
-          rgba(30, 41, 59, 0.95) 20%,
-          rgba(51, 65, 85, 0.9) 40%,
-          rgba(30, 41, 59, 0.95) 60%,
-          rgba(15, 23, 42, 0.9) 80%,
-          rgba(2, 6, 23, 0.95) 100%
-        );
-      }
-
-      /* Light mode gradient for users with light color scheme preference */
-      body.theme-light::before {
-        background: linear-gradient(
-          135deg,
-          rgba(248, 250, 252, 0.9) 0%,
-          rgba(226, 232, 240, 0.95) 20%,
-          rgba(203, 213, 225, 0.9) 40%,
-          rgba(226, 232, 240, 0.95) 60%,
-          rgba(248, 250, 252, 0.9) 80%,
-          rgba(255, 255, 255, 0.95) 100%
-        );
-      }
-
-      body.theme-light {
-        color: #1e293b;
-      }
-
-      #root {
-        height: 100%;
-        color: #fff;
-      }
-
-      /* Light mode root element */
-      body.theme-light #root {
-        color: #1e293b;
-      }
-
-      /* Instant loading screen - shows immediately */
-      .instant-loading {
-        z-index: 9999;
-        font-family:
-          'Roboto Fallback',
-          -apple-system,
-          BlinkMacSystemFont,
-          'Segoe UI',
-          system-ui,
-          sans-serif;
-      }
-
-      /* Note: Loading spinner styles moved to /shared-loading.css */
-
-      /* Hide when React takes over */
-      .instant-loading.hidden {
-        display: none;
-      }
     </style>
 
-    <title>Blitzed Out - An Adult Board Game Experience</title>
-
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "Blitzed Out",
-        "alternateName": "Blitzed Out Adult Board Game",
-        "description": "A customizable adult board game experience. Perfect for couples, solo play, or parties with endless customization options.",
-        "url": "https://blitzed-out.com/",
-        "applicationCategory": "Game",
-        "operatingSystem": "Web Browser",
-        "audience": {
-          "@type": "Audience",
-          "audienceType": "Adults"
-        },
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "keywords": [
-          "adult board game",
-          "couples game",
-          "party game",
-          "customizable game",
-          "intimate game",
-          "relationship game"
-        ]
-      }
-    </script>
+    <title>Blitzed Out - an adult kink boardgame</title>
 
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
@@ -233,56 +86,16 @@
         }
       })(window.location);
     </script>
-
-    <!-- Safari module loading fallback -->
-    <script>
-      // Handle module loading failures in Safari
-      window.addEventListener('error', function (e) {
-        // Check for module script loading failure in error event
-        const errorMsg =
-          (e.error && e.error.message) ||
-          (e.reason && typeof e.reason === 'string' ? e.reason : null) ||
-          (typeof e.message === 'string' ? e.message : null);
-
-        if (errorMsg && errorMsg.includes('module script failed')) {
-          console.warn('Module script loading failed - likely Safari compatibility issue');
-          // Show error message to user
-          const loadingEl = document.getElementById('instant-loading');
-          if (loadingEl) {
-            loadingEl.innerHTML =
-              '<div class="loading-text">Loading failed. Please refresh the page.</div>';
-          }
-        }
-      });
-
-      // Handle unhandled promise rejections for module imports
-      window.addEventListener('unhandledrejection', function (e) {
-        if (e.reason && e.reason.message && e.reason.message.includes('module script failed')) {
-          console.warn('Module import failed - Safari compatibility issue');
-          e.preventDefault(); // Prevent the error from showing in console as unhandled
-        }
-      });
-    </script>
-    <script type="module" crossorigin src="/assets/index-D4SnpjX8.js"></script>
-    <link rel="modulepreload" crossorigin href="/js/chunk-VsOfzH7G.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-DIyxQ5mU.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-DFwmc2A_.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-BId0uGXO.js">
-    <link rel="modulepreload" crossorigin href="/js/chunk-C7azIqB0.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-C3HF6PXQ.css">
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <script type="module" crossorigin src="/assets/index-iNPYMOsW.js"></script>
+    <link rel="modulepreload" crossorigin href="/js/chunk-BHSFqGHu.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-DXd3GHw1.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-BoIRgPCP.js">
+    <link rel="modulepreload" crossorigin href="/js/chunk-Bde8qXua.js">
+    <link rel="stylesheet" crossorigin href="/assets/style-DkR3moOQ.css">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-
-    <!-- Instant loading screen - shows immediately before any JS loads -->
-    <div
-      id="instant-loading"
-      class="instant-loading loading-overlay loading-container dark-gradient-bg"
-    >
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Loading...</div>
-    </div>
-
     <div id="root"></div>
     <!--
       This HTML file is a template.
