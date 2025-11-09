@@ -94,46 +94,6 @@ function replaceGenericAnatomyPlaceholders(action: string): string {
   return result;
 }
 
-/**
- * Randomly selects a player from the provided list that matches the required role
- * @param players - Array of local players to choose from
- * @param requiredRole - The role needed ('sub' or 'dom')
- * @param excludePlayerName - Player name to exclude from selection (to avoid duplicates)
- * @returns A random player name matching the role, or 'another player' if none found
- */
-function selectRandomPlayerByRole(
-  players: LocalPlayer[],
-  requiredRole: 'sub' | 'dom',
-  excludePlayerName?: string
-): string {
-  if (!players || players.length === 0) {
-    return PLACEHOLDER_FALLBACKS.anotherPlayer();
-  }
-
-  // Filter players that can fulfill the required role and exclude current player
-  const eligiblePlayers = players.filter((player) => {
-    // Exclude the current player to avoid duplicates
-    if (excludePlayerName && player.name === excludePlayerName) {
-      return false;
-    }
-
-    if (requiredRole === 'sub') {
-      return player.role === 'sub' || player.role === 'vers';
-    } else if (requiredRole === 'dom') {
-      return player.role === 'dom' || player.role === 'vers';
-    }
-    return false;
-  });
-
-  if (eligiblePlayers.length === 0) {
-    return PLACEHOLDER_FALLBACKS.anotherPlayer();
-  }
-
-  // Randomly select from eligible players
-  const randomIndex = Math.floor(Math.random() * eligiblePlayers.length);
-  return eligiblePlayers[randomIndex].name;
-}
-
 function replaceWithPlayerName(string: string, role: string, displayName: string): string {
   const chance = Math.random();
   const hasBothDomAndSub = string.includes('{dom}') && string.includes('{sub}');
@@ -190,6 +150,61 @@ export default function actionStringReplacement(
     const currentPlayer = localPlayers.find((p) => p.name === displayName);
     const currentLocale = locale || i18next.language || 'en';
 
+    // STEP -1: Determine role assignments for this action
+    // Create a map of which player is playing which role (handles vers players)
+    const roleAssignments: { dom?: LocalPlayer; sub?: LocalPlayer } = {};
+
+    // Check if action needs dom and/or sub roles
+    const needsDom = newAction.includes('{dom}');
+    const needsSub = newAction.includes('{sub}');
+
+    if (needsDom || needsSub) {
+      // First, check if current player takes a role
+      if (role === 'dom' && needsDom) {
+        roleAssignments.dom = currentPlayer;
+      } else if (role === 'sub' && needsSub) {
+        roleAssignments.sub = currentPlayer;
+      } else if (role === 'vers' && currentPlayer) {
+        // Vers player randomly chooses role
+        if (needsDom && needsSub) {
+          const shouldTakeDom = Math.random() < 0.5;
+          if (shouldTakeDom) {
+            roleAssignments.dom = currentPlayer;
+          } else {
+            roleAssignments.sub = currentPlayer;
+          }
+        } else if (needsDom) {
+          roleAssignments.dom = currentPlayer;
+        } else if (needsSub) {
+          roleAssignments.sub = currentPlayer;
+        }
+      }
+
+      // Fill remaining roles with other players
+      if (needsDom && !roleAssignments.dom) {
+        // Look for a dom player, or any vers player
+        const domPlayer =
+          localPlayers.find((p) => p.role === 'dom' && p.name !== displayName) ||
+          localPlayers.find((p) => p.role === 'vers' && p.name !== displayName);
+        if (domPlayer) roleAssignments.dom = domPlayer;
+      }
+
+      if (needsSub && !roleAssignments.sub) {
+        // Look for a sub player, or any vers player not already assigned
+        const subPlayer =
+          localPlayers.find((p) => p.role === 'sub' && p.name !== displayName) ||
+          localPlayers.find(
+            (p) => p.role === 'vers' && p.name !== displayName && p !== roleAssignments.dom
+          );
+        if (subPlayer) roleAssignments.sub = subPlayer;
+      }
+    }
+
+    console.log('[ActionString] Role assignments:', {
+      dom: roleAssignments.dom ? roleAssignments.dom.name : null,
+      sub: roleAssignments.sub ? roleAssignments.sub.name : null,
+    });
+
     // STEP 0: Handle new pipe syntax {anatomy|role} (e.g., "{genital|dom}", "{hole|other}")
     const pipedAnatomyPattern = /\{(genital|hole|chest|pronoun_\w+)\|(dom|sub|other|self)\}/g;
     newAction = newAction.replace(pipedAnatomyPattern, (_match, anatomyType, targetRole) => {
@@ -205,8 +220,8 @@ export default function actionStringReplacement(
           targetPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
         }
       } else {
-        // targetRole is 'dom' or 'sub'
-        targetPlayer = localPlayers.find((p) => p.role === targetRole);
+        // targetRole is 'dom' or 'sub' - use role assignments
+        targetPlayer = roleAssignments[targetRole as 'dom' | 'sub'];
       }
 
       if (targetPlayer) {
@@ -229,7 +244,8 @@ export default function actionStringReplacement(
     // Replace anatomy placeholders that are associated with a specific role
     const contextualAnatomyPattern = /\{(dom|sub)\}'s \{(genital|hole|chest|pronoun_\w+)\}/g;
     newAction = newAction.replace(contextualAnatomyPattern, (match, roleType, anatomyType) => {
-      const rolePlayer = localPlayers.find((p) => p.role === roleType);
+      // Use role assignments instead of looking for player by role
+      const rolePlayer = roleAssignments[roleType as 'dom' | 'sub'];
       console.log('[ActionString] Contextual anatomy replacement:', {
         match,
         roleType,
@@ -237,11 +253,10 @@ export default function actionStringReplacement(
         rolePlayer: rolePlayer
           ? { name: rolePlayer.name, gender: rolePlayer.gender, role: rolePlayer.role }
           : null,
-        allPlayers: localPlayers.map((p) => ({
-          name: p.name,
-          gender: p.gender,
-          role: p.role,
-        })),
+        roleAssignments: {
+          dom: roleAssignments.dom?.name || 'none',
+          sub: roleAssignments.sub?.name || 'none',
+        },
       });
       if (rolePlayer) {
         const anatomyTerm = getContextualAnatomyTerm(
@@ -260,35 +275,13 @@ export default function actionStringReplacement(
     // STEP 2: Replace {player} with current player
     newAction = newAction.replace(/{player}/g, displayName);
 
-    // STEP 3: Replace the current player's role with their name (if present)
-    if (role === 'dom' && newAction.includes('{dom}')) {
-      newAction = newAction.replace(/{dom}/, displayName);
-    } else if (role === 'sub' && newAction.includes('{sub}')) {
-      newAction = newAction.replace(/{sub}/, displayName);
-    } else if (role === 'vers') {
-      // For vers players, randomly choose which role they take if both are present
-      const hasBothDomAndSub = newAction.includes('{dom}') && newAction.includes('{sub}');
-      if (hasBothDomAndSub) {
-        const shouldTakeDom = Math.random() < 0.5;
-        if (shouldTakeDom && newAction.includes('{dom}')) {
-          newAction = newAction.replace(/{dom}/, displayName);
-        } else if (newAction.includes('{sub}')) {
-          newAction = newAction.replace(/{sub}/, displayName);
-        }
-      } else if (newAction.includes('{dom}')) {
-        newAction = newAction.replace(/{dom}/, displayName);
-      } else if (newAction.includes('{sub}')) {
-        newAction = newAction.replace(/{sub}/, displayName);
-      }
+    // STEP 3: Replace role placeholders with assigned player names
+    if (roleAssignments.dom) {
+      newAction = newAction.replace(/{dom}/g, roleAssignments.dom.name);
     }
-
-    // STEP 4: Replace any remaining {dom} and {sub} placeholders with other players (excluding current player)
-    newAction = newAction.replace(/{dom}/g, () =>
-      selectRandomPlayerByRole(localPlayers, 'dom', displayName)
-    );
-    newAction = newAction.replace(/{sub}/g, () =>
-      selectRandomPlayerByRole(localPlayers, 'sub', displayName)
-    );
+    if (roleAssignments.sub) {
+      newAction = newAction.replace(/{sub}/g, roleAssignments.sub.name);
+    }
 
     // STEP 5: Replace remaining anatomy placeholders based on current player's gender
     if (currentPlayer) {
