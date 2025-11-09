@@ -155,7 +155,7 @@ export default function Room() {
   }, []);
 
   // Use usePlayerMove directly
-  const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
+  const { tile } = usePlayerMove(room, rollValue, gameBoard);
   const hybridPlayerList = useHybridPlayerList();
 
   // Track game session on component unmount
@@ -188,7 +188,7 @@ export default function Room() {
   if (!isRoomReady(gameBoard, settings, room, settings.gameMode, isImporting)) {
     return (
       <>
-        <Navigation room={params.id} playerList={playerList as any} />
+        <Navigation room={params.id} playerList={hybridPlayerList as any} />
         <GameSettingsDialog open={true} />
       </>
     );
@@ -198,7 +198,7 @@ export default function Room() {
   if (isImporting) {
     return (
       <>
-        <Navigation room={params.id} playerList={playerList as any} />
+        <Navigation room={params.id} playerList={hybridPlayerList as any} />
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
           <CircularProgress size={48} />
         </Box>
