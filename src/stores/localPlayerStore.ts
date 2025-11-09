@@ -131,12 +131,14 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
       clearSession: async () => {
         const currentSession = get().session;
 
-        // Delete from Dexie database if session exists
-        if (currentSession?.id) {
+        // Delete ALL sessions for this room from Dexie database
+        // This clears out any stale sessions that might be lingering
+        if (currentSession?.roomId) {
           try {
-            await db.localPlayerSessions.where('sessionId').equals(currentSession.id).delete();
+            // Delete all sessions for this room, not just current session
+            await db.localPlayerSessions.where('roomId').equals(currentSession.roomId).delete();
           } catch {
-            // Silently fail - session might not exist in database
+            // Silently fail - sessions might not exist in database
           }
         }
 
@@ -297,7 +299,14 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
             try {
               const dbSession = await localPlayerService.getSession(migratedSession.id);
               if (!dbSession) {
-                // Session exists in localStorage but not in database - save it
+                // Session exists in localStorage but not in database
+                // First, clean up any old sessions for this room to prevent duplicates
+                await db.localPlayerSessions
+                  .where('roomId')
+                  .equals(migratedSession.roomId)
+                  .delete();
+
+                // Now save the current session
                 const dbSessionData: DBLocalPlayerSession = {
                   sessionId: migratedSession.id,
                   roomId: migratedSession.roomId,

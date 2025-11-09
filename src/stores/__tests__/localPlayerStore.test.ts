@@ -454,9 +454,9 @@ describe('LocalPlayerStore', () => {
       expect(result.current.session).toBeNull();
       expect(result.current.error).toBeNull();
 
-      // Verify database delete was called
-      expect(mockWhere).toHaveBeenCalledWith('sessionId');
-      expect(mockEquals).toHaveBeenCalledWith('test-session-123');
+      // Verify database delete was called for the room (not just session ID)
+      expect(mockWhere).toHaveBeenCalledWith('roomId');
+      expect(mockEquals).toHaveBeenCalledWith('TEST-ROOM');
       expect(mockDelete).toHaveBeenCalled();
     });
 
