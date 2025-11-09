@@ -22,8 +22,62 @@ const GENERIC_ANATOMY_TERMS = {
   pronoun_reflexive: 'themselves',
 } as const;
 
+/**
+ * Keywords that indicate penetrative sexual context
+ * Used to determine when to use "strapon" for female doms
+ */
+const PENETRATIVE_KEYWORDS = [
+  'deep',
+  'throat',
+  'penetrate',
+  'inside',
+  'enters',
+  'pushes into',
+  'slides in',
+  'fills',
+  'stretches',
+  'takes',
+  'rides',
+  'bounces on',
+  'impales',
+];
+
+/**
+ * Detect if action text contains penetrative context
+ */
+function isPenetrativeContext(action: string): boolean {
+  const lowerAction = action.toLowerCase();
+  return PENETRATIVE_KEYWORDS.some((keyword) => lowerAction.includes(keyword));
+}
+
 function capitalizeFirstLetterInCurlyBraces(string: string): string {
   return string.replace(/(?:^|\.\s|!\s)(\w)/g, (match) => match.toUpperCase());
+}
+
+/**
+ * Get anatomy term with context awareness (e.g., strapon for female doms in penetrative contexts)
+ */
+function getContextualAnatomyTerm(
+  anatomyType: string,
+  gender: PlayerGender | undefined,
+  role: string | undefined,
+  action: string,
+  locale: string
+): string {
+  const anatomyMappings = getAnatomyMappings(locale, gender);
+  let term = anatomyMappings[anatomyType as keyof typeof anatomyMappings] as string;
+
+  // Use strapon for female doms in penetrative contexts
+  if (
+    anatomyType === 'genital' &&
+    gender === 'female' &&
+    role === 'dom' &&
+    isPenetrativeContext(action)
+  ) {
+    term = 'strapon';
+  }
+
+  return term || anatomyType;
 }
 
 /**
@@ -136,15 +190,55 @@ export default function actionStringReplacement(
     const currentPlayer = localPlayers.find((p) => p.name === displayName);
     const currentLocale = locale || i18next.language || 'en';
 
+    // STEP 0: Handle new pipe syntax {anatomy|role} (e.g., "{genital|dom}", "{hole|other}")
+    const pipedAnatomyPattern = /\{(genital|hole|chest|pronoun_\w+)\|(dom|sub|other|self)\}/g;
+    newAction = newAction.replace(pipedAnatomyPattern, (_match, anatomyType, targetRole) => {
+      let targetPlayer: LocalPlayer | undefined;
+
+      if (targetRole === 'self') {
+        targetPlayer = currentPlayer;
+      } else if (targetRole === 'other') {
+        // Select random player who is NOT the current player
+        const otherPlayers = localPlayers.filter((p) => p.name !== displayName);
+        if (otherPlayers.length > 0) {
+          // Randomly select from other players (can be any gender)
+          targetPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+        }
+      } else {
+        // targetRole is 'dom' or 'sub'
+        targetPlayer = localPlayers.find((p) => p.role === targetRole);
+      }
+
+      if (targetPlayer) {
+        return getContextualAnatomyTerm(
+          anatomyType,
+          targetPlayer.gender,
+          targetPlayer.role,
+          newAction,
+          currentLocale
+        );
+      }
+
+      // Fallback to generic term
+      return (
+        GENERIC_ANATOMY_TERMS[anatomyType as keyof typeof GENERIC_ANATOMY_TERMS] || anatomyType
+      );
+    });
+
     // STEP 1: Handle contextual anatomy placeholders (e.g., "{dom}'s {genital}")
     // Replace anatomy placeholders that are associated with a specific role
     const contextualAnatomyPattern = /\{(dom|sub)\}'s \{(genital|hole|chest|pronoun_\w+)\}/g;
     newAction = newAction.replace(contextualAnatomyPattern, (match, roleType, anatomyType) => {
       const rolePlayer = localPlayers.find((p) => p.role === roleType);
       if (rolePlayer) {
-        const anatomyMappings = getAnatomyMappings(currentLocale, rolePlayer.gender);
-        const anatomyTerm = anatomyMappings[anatomyType as keyof typeof anatomyMappings];
-        return `{${roleType}}'s ${anatomyTerm || anatomyType}`;
+        const anatomyTerm = getContextualAnatomyTerm(
+          anatomyType,
+          rolePlayer.gender,
+          rolePlayer.role,
+          newAction,
+          currentLocale
+        );
+        return `{${roleType}}'s ${anatomyTerm}`;
       }
       return match;
     });

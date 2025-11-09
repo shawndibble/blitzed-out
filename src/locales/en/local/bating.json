@@ -7,21 +7,21 @@
       "{sub} touches {dom}'s {genital} as fast as they can for 30 seconds.",
       "{player} times their touches with their breathing until their next turn.",
       "{sub} applies lube/spit to all player's genitals.",
-      "{sub} spends 30 seconds touching up to 2 players' {genital}.",
-      "{player} performs 30 touches to their {genital}, each paired with a deep breath.",
+      "{sub} spends 30 seconds touching {genital|other}.",
+      "{player} performs 30 touches to {genital|self}, each paired with a deep breath.",
       "{sub} lightly rubs their finger over {dom}'s {genital}.",
-      "{player} touches their {genital} with their non-dominant hand.",
+      "{player} touches {genital|self} with their non-dominant hand.",
       "{sub} performs a kegal each time they touch {dom} until their next turn.",
-      "{player} performs 30 firm squeezes to their {genital}.",
+      "{player} performs 30 firm squeezes to {genital|self}.",
       "{sub} touches themselves while using their other hand on {dom}'s erogenous zone.",
       "{player} touches themselves and {dom} at the same time.",
       "{sub} plays with {dom}'s {genital} with both hands.",
-      "{player} touches their {genital} with a circular motion.",
-      "{player} uses their palm to rub their {genital} for 60 seconds.",
-      "{player} uses two fingers and focuses on the most sensitive areas of their {genital}.",
+      "{player} touches {genital|self} with a circular motion.",
+      "{player} uses their palm to rub {genital|self} for 60 seconds.",
+      "{player} uses two fingers and focuses on the most sensitive areas of {genital|self}.",
       "{player} alternates between fast and slow touches until another Bating action.",
       "{player} experiments with different touches and pressures while masturbating.",
-      "{dom} has their {genital} touched 5 times by every submissive player.",
+      "{dom} has {genital|dom} touched 5 times by every submissive player.",
       "{sub} must touch every dominant player's {genital} at least 5 times."
     ],
     "Edging": [
@@ -34,7 +34,7 @@
       "{player} edges using only a few fingers.",
       "{sub} edges {dom} using their whole hand.",
       "{player} rapidly touches to the edge, then holds a kegal as long as possible.",
-      "{player} touches below their {genital} while edging.",
+      "{player} touches below {genital|self} while edging.",
       "{sub} rapidly edges {dom} with one hand while rubbing an erogenous zone with the other.",
       "{sub} gets on all fours. {dom} edges them repeatedly until they near climax.",
       "{player} practices breath control by holding their breath while edging.",
@@ -42,16 +42,16 @@
       "{sub} must edge each dominant player at least once."
     ],
     "Toys": [
-      "{player} uses toy on their {genital}.",
+      "{player} uses toy on {genital|self}.",
       "{sub} uses a toy on {dom}'s {genital}.",
-      "{player} slowly uses toy over their entire {genital} until their next turn.",
+      "{player} slowly uses toy over {genital|self} until their next turn.",
       "{sub} uses the toy on {dom} while also masturbating.",
-      "{player} uses toy on their {genital} for 30 seconds with eyes closed.",
-      "{player} uses toy below their {genital}.",
-      "{player} uses toy on their {genital} 25 times.",
+      "{player} uses toy on {genital|self} for 30 seconds with eyes closed.",
+      "{player} uses toy below {genital|self}.",
+      "{player} uses toy on {genital|self} 25 times.",
       "{sub} masturbates while utilizing some cloth (underwear/rag/etc...).",
-      "{player} uses a vibrating toy on their {genital}.",
-      "{dom} closes their eyes while a random player touches their {genital} until an action interrupts one of them."
+      "{player} uses a vibrating toy on {genital|self}.",
+      "{dom} closes their eyes while a random player touches {genital|dom} until an action interrupts one of them."
     ]
   }
 }
