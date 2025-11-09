@@ -1,44 +1,44 @@
 {
   "label": "Tortura de pezones",
   "type": "sex",
-  "dom": "Torturador",
-  "sub": "Torturado",
+  "dom": "Torturer",
+  "sub": "Receiver",
   "actions": {
-    "Apretar/Frotar": [
-      "{dom} juega con los pezones de {sub}.",
-      "{dom} da capirotazos en los pezones a {sub}.",
-      "{dom} aprieta los pezones de {sub}.",
-      "{dom} chupa los pezones de {sub}.",
-      "{dom} frota los pezones de {sub} durante 15 segundos.",
-      "{dom} da capirotazos en los pezones a {sub} 10 veces.",
-      "{dom} aprieta/frota los pezones a {sub} durante 15 segundos.",
-      "{sub} tiene sus pezones acariciados suavemente por cada Torturador/Cambiante.",
-      "{dom} puede jugar con los pezones de cada torturado/cambiante hasta su próximo turno."
+    "Squeeze/Rub/Lick": [
+      "{dom} plays with {sub}'s nipples.",
+      "{dom} flicks {sub}'s nipples.",
+      "{dom} squeezes {sub}'s nipples.",
+      "{dom} sucks {sub}'s nipples.",
+      "{dom} rubs {sub}'s nipples for 15 seconds.",
+      "{dom} flicks {sub}'s nipples 10 times.",
+      "{dom} squeezes/rubs {sub}'s nipples for 15 seconds.",
+      "{sub} has their nipples played with gently by each Torturer/Switch.",
+      "{dom} may play with each receiver/switch's nipples until their next turn."
     ],
-    "Pellizcar/Estirar": [
-      "{dom} pellizca los pezones a {sub} fuerte.",
-      "{dom} chupa los pezones a {sub} con intensidad.",
-      "{dom} estira los pezones a {sub}.",
-      "{dom} mordisquea los pezones a {sub}.",
-      "{dom} retuerce los pezones a {sub} en ambas direcciones.",
-      "{dom} retuerce los pezones a {sub} mientras los estira.",
-      "{dom} trabaja duro los pezones a {sub} durante 20 segundos.",
-      "{dom} muerde los pezones a {sub}.",
-      "Todos los jugadores torturadores/cambiantes pueden trabajar duro con los pezones de {sub} durante 30 segundos cada uno."
+    "Pinch/Pull/Suck": [
+      "{dom} pinches {sub}'s nipples hard.",
+      "{dom} sucks {sub}'s nipples hard.",
+      "{dom} pulls {sub}'s nipples.",
+      "{dom} nibbles on {sub}'s nipples.",
+      "{dom} twists {sub}'s nipples in both directions.",
+      "{dom} does a helicopter with {sub}'s nipples while pulling them.",
+      "{dom} gets rough with {sub}'s nipples for 20 seconds.",
+      "{dom} bites {sub}'s nipples.",
+      "All torturer/switch players may get rough with {sub}'s nipples for 30 seconds each."
     ],
-    "Pinzas/Juguetes": [
-      "{dom} usa un juguete en los pezones de {sub} durante 10 segundos.",
-      "{dom} estira los pezones de {sub} con un juguete.",
-      "{dom} retuerce los pezones de {sub} fuerte.",
-      "{dom} da golpes en el juguete de {sub} 10 veces.",
-      "{dom} trabaja duro con los pezones de {sub}."
+    "Clips/Toys": [
+      "{dom} uses a toy on {sub}'s nipples for 10 seconds.",
+      "{dom} pulls {sub}'s nipples with a toy attached.",
+      "{dom} twists {sub}'s nipples hard.",
+      "{dom} flicks {sub}'s tit toy 10 times.",
+      "{dom} gets rough with {sub}'s nipples."
     ],
-    "Lo más duro posible": [
-      "{dom} pellizca los pezones de {sub} lo más fuerte posible.",
-      "{dom} estira los pezones de {sub} lo más lejos que pueda soportar.",
-      "{dom} retuerce los pezones de {sub} hasta que grite.",
-      "{dom} da a {sub} una agradable chupada/masaje en los pezones.",
-      "{dom} golpea el pecho/los pezones de {sub}."
+    "As Hard As Possible": [
+      "{dom} pinches {sub}'s nipples as hard as possible.",
+      "{dom} pulls {sub}'s nipples as far as they can handle.",
+      "{dom} twists {sub}'s nipples until they cry out.",
+      "{dom} gives {sub} a nice nipple suck/massage.",
+      "{dom} beats {sub}'s chest/nipples."
     ]
   }
 }

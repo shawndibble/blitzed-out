@@ -1,35 +1,35 @@
 {
   "label": "मूत्र खेल",
   "type": "sex",
-  "dom": "मूत्र करने वाला",
-  "sub": "मूत्र प्राप्त करने वाला",
+  "dom": "Pisser",
+  "sub": "Pissee",
   "actions": {
-    "कप में मूत्र": [
-      "{sub} पानी पीते हैं।",
-      "{sub} पानी का घूंट भरते हैं।",
-      "{dom} एक कंटेनर में मूत्र करते हैं।",
-      "{sub} अपने मूत्र की गंध सूंघते हैं।",
-      "{sub} {dom} के मूत्र की गंध सूंघते हैं।",
-      "{dom} एक कंटेनर में मूत्र करके {sub} से पकड़वाते हैं।",
-      "{sub} पानी का घूंट लेते हैं।",
-      "{dom} {sub} को अपने मूत्र का कंटेनर देते हैं।"
+    "Pee in a Cup": [
+      "{sub} drinks water",
+      "{sub} gulps water",
+      "{dom} pees in a container",
+      "{sub} smells their own pee",
+      "{sub} smells {dom}'s pee",
+      "{dom} pees in a container and has {sub} hold it",
+      "{sub} takes a sip of water",
+      "{dom} gives {sub} a container of their pee"
     ],
-    "मूत्र डालना": [
-      "{dom} {sub} के शरीर पर मूत्र करते हैं।",
-      "{sub} अपने ऊपर मूत्र करते हैं।",
-      "{sub} अपने गुप्तांग को मूत्र कंटेनर में डालते हैं।",
-      "{sub} पानी का घूंट भरते हैं।",
-      "{dom} {sub} के चेहरे पर मूत्र करते हैं।",
-      "{sub} अपने चेहरे पर मूत्र करते हैं।",
-      "{sub} पानी पीते हैं।"
+    "Peed on": [
+      "{dom} pees on {sub}'s body",
+      "{sub} pees on their own body",
+      "{sub} puts their {genital|sub} in a piss container",
+      "{sub} gulps water",
+      "{dom} pees on {sub}'s face",
+      "{sub} pees on their own face",
+      "{sub} drinks water"
     ],
-    "पीना": [
-      "{sub} अपना मूत्र पीते हैं।",
-      "{sub} दूरी से {dom} का मूत्र पीते हैं।",
-      "{sub} अपना मुंह स्रोत पर रखकर सीधे {dom} का मूत्र पीते हैं।",
-      "{sub} पानी पीते हैं।",
-      "{dom} {sub} के देखते हुए पानी का घूंट भरते हैं।",
-      "{sub} अपने मुंह में मूत्र करके निगलने की कोशिश करते हैं।"
+    "Drink": [
+      "{sub} drinks their own piss",
+      "{sub} drinks {dom}'s piss from a distance",
+      "{sub} drinks {dom}'s piss directly with their mouth on the source",
+      "{sub} drinks water",
+      "{dom} gulps water while {sub} watches",
+      "{sub} tries to pee in their own mouth and swallow."
     ]
   }
 }

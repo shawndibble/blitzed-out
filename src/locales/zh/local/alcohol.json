@@ -2,33 +2,33 @@
   "label": "酒精",
   "type": "consumption",
   "actions": {
-    "小酌/饮用": [
-      "小酌一口。",
-      "喝一杯。",
-      "喝两口。",
-      "给别人一口。",
-      "喝一杯。",
-      "喝邻座的酒。",
-      "和某人交换酒杯。"
+    "Sip/Drink": [
+      "Sip your drink.",
+      "Take a drink.",
+      "Take 2 sips.",
+      "Give a sip.",
+      "Take a drink.",
+      "Sip your neighbor's drink.",
+      "Swap drinks with someone."
     ],
-    "烈酒": [
-      "喝1杯烈酒。",
-      "喝2杯。",
-      "给1杯烈酒。",
-      "大家一起喝。",
-      "喝一杯。",
-      "喝神秘烈酒。",
-      "不用手喝烈酒。"
+    "Shots": [
+      "Take 1 shot.",
+      "Take 2 drinks.",
+      "Give 1 shot.",
+      "All drink.",
+      "Take a drink.",
+      "Take a mystery shot.",
+      "Take a shot without using your hands."
     ],
-    "豪饮": [
-      "喝掉一半酒。",
-      "一口气喝完。",
-      "喝一杯。",
-      "喝2杯烈酒。",
-      "让某人一口气喝完。",
-      "给别人一杯。",
-      "一口气喝完团体选择的酒。",
-      "不换气一口气喝完。"
+    "Chug": [
+      "Drink half your drink.",
+      "Chug your drink.",
+      "Take a drink.",
+      "Take 2 shots.",
+      "Have someone chug their drink.",
+      "Give a drink.",
+      "Chug a drink of the group's choosing.",
+      "Chug your drink without taking a breath."
     ]
   }
 }

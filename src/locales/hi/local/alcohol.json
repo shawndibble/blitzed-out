@@ -2,33 +2,33 @@
   "label": "मदिरा",
   "type": "consumption",
   "actions": {
-    "घूंट/पीना": [
-      "अपने पेय का घूंट लें।",
-      "एक पेग लें।",
-      "दो घूंट लें।",
-      "किसी को एक घूंट दें।",
-      "एक पेग लें।",
-      "पास बैठे व्यक्ति का पेय पिएं।",
-      "किसी के साथ पेय बदलें।"
+    "Sip/Drink": [
+      "Sip your drink.",
+      "Take a drink.",
+      "Take 2 sips.",
+      "Give a sip.",
+      "Take a drink.",
+      "Sip your neighbor's drink.",
+      "Swap drinks with someone."
     ],
-    "शॉट्स": [
-      "1 शॉट लें।",
-      "2 पेग लें।",
-      "1 शॉट दें।",
-      "सभी पिएं।",
-      "एक पेग लें।",
-      "रहस्यमय शॉट लें।",
-      "हाथ इस्तेमाल किए बिना शॉट लें।"
+    "Shots": [
+      "Take 1 shot.",
+      "Take 2 drinks.",
+      "Give 1 shot.",
+      "All drink.",
+      "Take a drink.",
+      "Take a mystery shot.",
+      "Take a shot without using your hands."
     ],
-    "गटकना": [
-      "आधा पेय खत्म करें।",
-      "पूरा पेय एक सांस में खत्म करें।",
-      "एक पेग लें।",
-      "2 शॉट लें।",
-      "किसी से उनका पेय गटकवाएं।",
-      "एक पेग दें।",
-      "समूह द्वारा चुना गया पेय गटकें।",
-      "सांस रोके बिना पूरा पेय खत्म करें।"
+    "Chug": [
+      "Drink half your drink.",
+      "Chug your drink.",
+      "Take a drink.",
+      "Take 2 shots.",
+      "Have someone chug their drink.",
+      "Give a drink.",
+      "Chug a drink of the group's choosing.",
+      "Chug your drink without taking a breath."
     ]
   }
 }

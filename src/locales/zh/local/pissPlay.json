@@ -1,35 +1,35 @@
 {
   "label": "尿液游戏",
   "type": "sex",
-  "dom": "撒尿者",
-  "sub": "接受者",
+  "dom": "Pisser",
+  "sub": "Pissee",
   "actions": {
-    "杯中尿尿": [
-      "{sub} 喝水",
-      "{sub} 大口喝水",
-      "{dom} 在容器中撒尿",
-      "{sub} 闻自己的尿",
-      "{sub} 闻 {dom} 的尿",
-      "{dom} 在容器中撒尿并让 {sub} 拿着",
-      "{sub} 喝一口水",
-      "{dom} 给 {sub} 一个装着自己尿液的容器"
+    "Pee in a Cup": [
+      "{sub} drinks water",
+      "{sub} gulps water",
+      "{dom} pees in a container",
+      "{sub} smells their own pee",
+      "{sub} smells {dom}'s pee",
+      "{dom} pees in a container and has {sub} hold it",
+      "{sub} takes a sip of water",
+      "{dom} gives {sub} a container of their pee"
     ],
-    "被尿在身上": [
-      "{dom} 在 {sub} 的身体上撒尿",
-      "{sub} 在自己身上撒尿",
-      "{sub} 把自己的阴茎和蛋蛋放在尿液容器中",
-      "{sub} 大口喝水",
-      "{dom} 在 {sub} 的脸上撒尿",
-      "{sub} 在自己的脸上撒尿",
-      "{sub} 喝水"
+    "Peed on": [
+      "{dom} pees on {sub}'s body",
+      "{sub} pees on their own body",
+      "{sub} puts their {genital|sub} in a piss container",
+      "{sub} gulps water",
+      "{dom} pees on {sub}'s face",
+      "{sub} pees on their own face",
+      "{sub} drinks water"
     ],
-    "饮用": [
-      "{sub} 喝自己的尿",
-      "{sub} 从远处喝 {dom} 的尿",
-      "{sub} 直接用嘴对准源头喝 {dom} 的尿",
-      "{sub} 喝水",
-      "{dom} 大口喝水让 {sub} 观看",
-      "{sub} 试着在自己嘴里撒尿并吞咽。"
+    "Drink": [
+      "{sub} drinks their own piss",
+      "{sub} drinks {dom}'s piss from a distance",
+      "{sub} drinks {dom}'s piss directly with their mouth on the source",
+      "{sub} drinks water",
+      "{dom} gulps water while {sub} watches",
+      "{sub} tries to pee in their own mouth and swallow."
     ]
   }
 }

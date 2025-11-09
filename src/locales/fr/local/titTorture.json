@@ -1,44 +1,44 @@
 {
   "label": "Torture des tétons",
   "type": "sex",
-  "dom": "Donneur",
-  "sub": "Receveur",
+  "dom": "Torturer",
+  "sub": "Receiver",
   "actions": {
-    "Pincer/Frotter": [
-      "{dom} joue avec les tétons de {sub}.",
-      "{dom} pince les tétons de {sub}.",
-      "{dom} presse les tétons de {sub}.",
-      "{dom} suce les tétons de {sub}.",
-      "{dom} frotte les tétons de {sub} pendant 15 secondes.",
-      "{dom} pince les tétons de {sub} 10 fois.",
-      "{dom} presse/frotte les tétons de {sub} pendant 15 secondes.",
-      "{sub} se fait jouer doucement les tétons par tous les donneurs/switch.",
-      "{dom} peut jouer avec les tétons de tous les receveurs/switch jusqu'à leur prochain tour."
+    "Squeeze/Rub/Lick": [
+      "{dom} plays with {sub}'s nipples.",
+      "{dom} flicks {sub}'s nipples.",
+      "{dom} squeezes {sub}'s nipples.",
+      "{dom} sucks {sub}'s nipples.",
+      "{dom} rubs {sub}'s nipples for 15 seconds.",
+      "{dom} flicks {sub}'s nipples 10 times.",
+      "{dom} squeezes/rubs {sub}'s nipples for 15 seconds.",
+      "{sub} has their nipples played with gently by each Torturer/Switch.",
+      "{dom} may play with each receiver/switch's nipples until their next turn."
     ],
-    "Pincer/Tirer": [
-      "{dom} pince les tétons de {sub} fort.",
-      "{dom} suce les tétons de {sub} fort.",
-      "{dom} tire les tétons de {sub}.",
-      "{dom} mordille les tétons de {sub}.",
-      "{dom} tord les tétons de {sub} dans les deux sens.",
-      "{dom} fait un hélicoptère avec les tétons de {sub} en les tirant.",
-      "{dom} se montre brutal avec les tétons de {sub} pendant 20 secondes.",
-      "{dom} mord les tétons de {sub}.",
-      "Tous les joueurs donneurs/switch peuvent maltraiter les tétons de {sub} pendant 30 secondes chacun."
+    "Pinch/Pull/Suck": [
+      "{dom} pinches {sub}'s nipples hard.",
+      "{dom} sucks {sub}'s nipples hard.",
+      "{dom} pulls {sub}'s nipples.",
+      "{dom} nibbles on {sub}'s nipples.",
+      "{dom} twists {sub}'s nipples in both directions.",
+      "{dom} does a helicopter with {sub}'s nipples while pulling them.",
+      "{dom} gets rough with {sub}'s nipples for 20 seconds.",
+      "{dom} bites {sub}'s nipples.",
+      "All torturer/switch players may get rough with {sub}'s nipples for 30 seconds each."
     ],
-    "Pince/Jouets": [
-      "{dom} utilise un jouet sur les tétons de {sub} pendant 10 secondes.",
-      "{dom} tire les tétons de {sub} avec un jouet attaché.",
-      "{dom} tord les tétons de {sub} fort.",
-      "{dom} claque le jouet de {sub} sur ses tétons 10 fois.",
-      "{dom} se montre brutal avec les tétons de {sub}."
+    "Clips/Toys": [
+      "{dom} uses a toy on {sub}'s nipples for 10 seconds.",
+      "{dom} pulls {sub}'s nipples with a toy attached.",
+      "{dom} twists {sub}'s nipples hard.",
+      "{dom} flicks {sub}'s tit toy 10 times.",
+      "{dom} gets rough with {sub}'s nipples."
     ],
-    "Aussi fort que possible": [
-      "{dom} pince les tétons de {sub} aussi fort que possible.",
-      "{dom} tire les tétons de {sub} aussi loin qu'ils peuvent supporter.",
-      "{dom} tord les tétons de {sub} jusqu'à ce qu'ils crient.",
-      "{dom} donne à {sub} une belle succion/massage des tétons.",
-      "{dom} frappe la poitrine/les tétons de {sub}."
+    "As Hard As Possible": [
+      "{dom} pinches {sub}'s nipples as hard as possible.",
+      "{dom} pulls {sub}'s nipples as far as they can handle.",
+      "{dom} twists {sub}'s nipples until they cry out.",
+      "{dom} gives {sub} a nice nipple suck/massage.",
+      "{dom} beats {sub}'s chest/nipples."
     ]
   }
 }

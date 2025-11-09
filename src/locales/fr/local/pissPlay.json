@@ -1,35 +1,35 @@
 {
-  "label": "Plan pisse",
+  "label": "Jeux de pisse",
   "type": "sex",
-  "dom": "Donneur",
-  "sub": "Receveur",
+  "dom": "Pisser",
+  "sub": "Pissee",
   "actions": {
-    "Pisser dans un verre": [
-      "{sub} boit de l'eau",
-      "{sub} avale de l'eau",
-      "{dom} pisse dans un récipient",
-      "{sub} sent sa propre urine",
-      "{sub} sent l'urine de {dom}",
-      "{dom} pisse dans un récipient et fait tenir {sub} le récipient",
-      "{sub} prend une gorgée d'eau",
-      "{dom} donne à {sub} un récipient de son urine"
+    "Pee in a Cup": [
+      "{sub} drinks water",
+      "{sub} gulps water",
+      "{dom} pees in a container",
+      "{sub} smells their own pee",
+      "{sub} smells {dom}'s pee",
+      "{dom} pees in a container and has {sub} hold it",
+      "{sub} takes a sip of water",
+      "{dom} gives {sub} a container of their pee"
     ],
-    "Douche dorée": [
-      "{dom} pisse sur le corps de {sub}",
-      "{sub} pisse sur soi-même",
-      "{sub} met sa bite et ses couilles dans un récipient d'urine",
-      "{sub} avale de l'eau",
-      "{dom} pisse sur le visage de {sub}",
-      "{sub} pisse sur son propre visage",
-      "{sub} boit de l'eau"
+    "Peed on": [
+      "{dom} pees on {sub}'s body",
+      "{sub} pees on their own body",
+      "{sub} puts their {genital|sub} in a piss container",
+      "{sub} gulps water",
+      "{dom} pees on {sub}'s face",
+      "{sub} pees on their own face",
+      "{sub} drinks water"
     ],
-    "Boire": [
-      "{sub} boit sa propre urine",
-      "{sub} boit l'urine de {dom} à distance",
-      "{sub} boit l'urine de {dom} directement avec à la source",
-      "{sub} boit de l'eau",
-      "{dom} avale de l'eau pendant que {sub} regarde",
-      "{sub} essaye de pisser dans sa propre bouche et d'avaler."
+    "Drink": [
+      "{sub} drinks their own piss",
+      "{sub} drinks {dom}'s piss from a distance",
+      "{sub} drinks {dom}'s piss directly with their mouth on the source",
+      "{sub} drinks water",
+      "{dom} gulps water while {sub} watches",
+      "{sub} tries to pee in their own mouth and swallow."
     ]
   }
 }

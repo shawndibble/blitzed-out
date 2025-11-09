@@ -2,32 +2,32 @@
   "label": "接吻",
   "type": "foreplay",
   "actions": {
-    "轻吻": [
-      "{dom} 吻 {sub} 的脸颊。",
-      "{dom} 吻 {sub} 的额头。",
-      "{dom} 轻吻 {sub} 的唇。",
-      "{dom} 让 {sub} 吻他们的手。",
-      "{dom} 吻 {sub} 的脖子。",
-      "{dom} 在 {sub} 脸上轻吻一连串。",
-      "{dom} 轻吻 {sub} 的肩膀。",
-      "{dom} 告诉 {sub} 跨坐并亲吻他们的唇。",
-      "{dom} 吻 {sub} 的耳垂。",
-      "{dom} 吻 {sub} 的后颈。",
-      "{dom} 吻每个臣服/转换玩家。",
-      "{sub} 向每个支配/转换玩家要求一个吻。秘密投币决定是否得到。"
+    "Gentle Kisses": [
+      "{dom} kisses {sub} on the cheek.",
+      "{dom} gives {sub} a kiss on the forehead.",
+      "{dom} gives {sub} a gentle peck on the lips.",
+      "{dom} has {sub} kiss their hand.",
+      "{dom} gives {sub} a kiss on the neck.",
+      "{dom} gives {sub} a series of light kisses on the face.",
+      "{dom} gives {sub} a gentle kiss on the shoulder.",
+      "{dom} tells {sub} to straddle and kiss them on the lips.",
+      "{dom} kisses {sub}'s earlobes.",
+      "{dom} kisses {sub} on the back of the neck.",
+      "{dom} kisses every submissive/switch player.",
+      "{sub} asks every dominant/switch player for a kiss. A secret coin flip determines if they get one."
     ],
-    "深吻": [
-      "{dom} 与 {sub} 深吻。",
-      "{dom} 用舌头深吻 {sub}。",
-      "{dom} 托着 {sub} 的脸深吻。",
-      "{sub} 坐在 {dom} 腿上深吻。",
-      "{dom} 站着深吻 {sub}。",
-      "{dom} 举起 {sub} 的手臂深吻。",
-      "{dom} 指派 {sub} 跨坐并法式热吻。",
-      "{dom} 抓住 {sub} 的头发深吻。",
-      "{dom} 让 {sub} 跪下请求深吻。",
-      "{sub} 在下回合前请求并法式热吻尽可能多的玩家。",
-      "{dom} 可以法式热吻任意多个臣服/转换玩家。"
+    "Deep Kisses": [
+      "{dom} shares a deep kiss with {sub}.",
+      "{dom} gives {sub} a deep kiss with tongue.",
+      "{dom} gives {sub} a deep kiss while holding their face.",
+      "{sub} sits on {dom}'s lap and they share a deep kiss.",
+      "{dom} gives {sub} a deep kiss while they're both standing.",
+      "{dom} kisses {sub} while holding their hands above their head.",
+      "{dom} assigns {sub} to straddle them and french kiss them.",
+      "{dom} grabs {sub} by the hair and kisses them deeply.",
+      "{dom} tells {sub} to get on their knees and beg for a deep kiss.",
+      "{sub} asks and french kisses as many players as possible before their next turn.",
+      "{dom} may french kiss as many submissive/switch players as they choose."
     ]
   }
 }

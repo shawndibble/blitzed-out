@@ -1,60 +1,60 @@
 {
   "label": "Entraînement de gorge",
   "type": "sex",
-  "dom": "Sucé",
-  "sub": "Suceur",
+  "dom": "Receive Oral",
+  "sub": "Give Oral",
   "actions": {
-    "Lécher": [
-      "{sub} lèche la bite de {dom}.",
-      "{sub} joue avec le gland de {dom}.",
-      "{sub} salive abondamment sur la bite de {dom} et lèche avec sa langue.",
-      "{sub} suce le gland de {dom}.",
-      "{sub} effleure le bord du gland de {dom} avec sa langue.",
-      "{dom} bifle le visage de {sub} plusieurs fois.",
-      "{sub} lèche la hampe de la bite de {dom}.",
-      "{sub} joue avec le gland de {dom} pendant 15 secondes.",
-      "{sub} mouille toute la bite de {dom} avec sa langue.",
-      "{sub} doit lécher la bite d'autant de joueurs que possible avant son prochain tour.",
-      "{dom} fait lécher sa bite par tous les suceurs/switch."
+    "Licking": [
+      "{sub} licks {dom}'s {genital}.",
+      "{sub} plays with the tip of {dom}'s {genital}.",
+      "{sub} tongue bathes {dom}'s {genital}.",
+      "{sub} sucks {dom}'s {genital} tip.",
+      "{sub} traces {dom}'s {genital} with their tongue.",
+      "{dom} presses {pronoun_possessive|dom} {genital|dom} against {sub}'s face several times.",
+      "{sub} licks {dom}'s {genital} thoroughly.",
+      "{sub} plays with the tip of {dom}'s {genital} for 15 seconds.",
+      "{sub} wets {dom}'s whole {genital} with their tongue.",
+      "{sub} must lick {genital|other} as many times as possible before their next turn.",
+      "{dom} has every oral giver/switch lick their {genital}."
     ],
-    "Sucer": [
-      "{sub} suce la bite de {dom} pendant 10 secondes.",
-      "{sub} garde la bite de {dom} dans sa bouche jusqu'au prochain tour de {sub}.",
-      "{dom} baise la bouche de {sub}.",
-      "{sub} suce la bite de {dom} pendant 20 secondes.",
-      "{sub} suce la bite de {dom} entre des respirations courtes. x10. | Descendre, remonter, respirer. Répéter.",
-      "{sub} fait un spectacle en suçant la bite de {dom}.",
-      "{dom} baise le visage de {sub}.",
-      "{sub} donne des petits coup de langue sur le gland de {dom} tout en suçant.",
-      "{sub} suce le gland de {dom} pendant 30 secondes.",
-      "{sub} suce la bite de chaque joueur avant leur prochain tour.",
-      "{dom} baise la bouche de chaque joueur pendant 30 secondes.",
-      "{sub} fait un 69 avec un autre joueur.",
-      "{sub} doit sucer la bite d'autant de joueurs que possible avant son prochain tour.",
-      "{dom} fait sucer sa bite à tous les suceurs/switch un par un.",
-      "{dom} fait travailler sa bite/ses organes génitaux simultanément par tous les suceurs/switch."
+    "Oral (Penetrative)": [
+      "{sub} gives oral to {dom} for 10 seconds.",
+      "{sub} holds {dom}'s {genital} in their mouth until {sub}'s next turn.",
+      "{dom} thrusts into {sub}'s mouth.",
+      "{sub} gives oral to {dom} for 20 seconds.",
+      "{sub} gives oral to {dom} between short breaths. x10. | Down, Up, Breathe. Repeat.",
+      "{sub} puts on a show giving oral to {dom}.",
+      "{dom} thrusts into {sub}'s mouth rhythmically.",
+      "{sub} flicks the tip of {dom}'s {genital} with their tongue during oral.",
+      "{sub} focuses on the tip of {dom}'s {genital} for 30 seconds.",
+      "{sub} gives oral to each player before their next turn.",
+      "{dom} thrusts into each player's mouth for 30 seconds.",
+      "{sub} 69s with a player.",
+      "{sub} must give oral to as many players as possible before their next turn.",
+      "{dom} has every oral giver/switch give them oral one at a time.",
+      "{dom} has every oral giver/switch pleasure their {genital} simultaneously."
     ],
-    "Gorge profonde": [
-      "{sub} garde la bite de {dom} dans sa gorge pendant 5 secondes.",
-      "{sub} fait une gorge profonde à {dom} entre des respirations courtes. x10. | Descendre, remonter, respirer. Répéter.",
-      "{sub} fait une gorge profonde à {dom} tout sortant la langue pour lui lécher les couilles.",
-      "{sub} fait une gorge profonde à {dom} pendant 10 secondes.",
-      "{sub} donne 10 gorges profondes à {dom}.",
-      "{sub} suce la bite de {dom}.",
-      "{dom} baise la gorge de {sub}.",
-      "{sub} fait une gorge profonde à chaque joueur une fois le plus longtemps possible.",
-      "{sub} doit faire une gorge profonde à autant de joueurs que possible avant son prochain tour.",
-      "{dom} fait faire une gorge profonde de sa bite à tous les suceurs/switch."
+    "Penetrative Oral": [
+      "{sub} pleasures {dom} with deep oral for 5 seconds.",
+      "{sub} takes {dom} deep between breaths. x10. | Down, Up, Breathe. Repeat.",
+      "{sub} takes {dom} as deep as possible.",
+      "{sub} takes {dom} deep for 10 seconds.",
+      "{sub} takes {dom} deep 10 times.",
+      "{sub} gives {dom} oral.",
+      "{dom} thrusts deep into {sub}'s mouth.",
+      "{sub} takes each player deep once for as long as possible.",
+      "{sub} must take as many players as possible deep before their next turn.",
+      "{dom} has every oral giver/switch take them deep."
     ],
-    "Jeu de respiration": [
-      "{sub} fait une gorge profonde à {dom} pendant 20 secondes.",
-      "{sub} fait une gorge profonde à {dom} aussi longtemps que possible.",
-      "{sub} fait au moins 4 gorges profondes à {dom} aussi longtemps que possible.",
-      "{dom} baise la gorge de {sub} pendant 30 secondes.",
-      "{dom} baise la gorge profonde de {sub} pendant 15 secondes.",
-      "{sub} donne à {dom} une gorge profonde lente et agréable jusqu'aux couilles 5 fois.",
-      "{sub} doit faire une gorge profonde de la bite de chaque joueur aussi longtemps que possible.",
-      "{dom} fait concourir tous les suceurs/switch pour savoir qui peut lui faire une gorge profonde le plus longtemps. Maximum de 60 secondes."
+    "Penetrative Breath Play": [
+      "{sub} takes {dom} deep for 20 seconds.",
+      "{sub} takes {dom} as deep as possible for as long as they can.",
+      "{sub} takes {dom} deep at least 4 times for as long as possible.",
+      "{dom} thrusts deep into {sub} for 30 seconds.",
+      "{dom} thrusts deep into {sub} for 15 seconds.",
+      "{sub} takes {dom} slowly and deeply 5 times.",
+      "{sub} must take each player deep for as long as possible.",
+      "{dom} has every oral giver/switch compete for who can take them deepest the longest. Max of 60 seconds."
     ]
   }
 }

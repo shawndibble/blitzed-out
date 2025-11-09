@@ -1,39 +1,39 @@
 {
   "label": "विद्युत उत्तेजना",
   "type": "foreplay",
-  "dom": "नियंत्रक",
-  "sub": "प्राप्तकर्ता",
+  "dom": "Controller",
+  "sub": "Receiver",
   "actions": {
-    "हल्का": [
-      "{dom} TENS यूनिट का उपयोग करके {sub} की बांह पर हल्का विद्युत करंट लगाते हैं।",
-      "{dom} {sub} की पीठ पर कम सेटिंग पर वायलेट वैंड का उपयोग करते हैं।",
-      "{dom} {sub} की जांघों पर इलेक्ट्रोड लगाकर डिवाइस को सबसे कम सेटिंग पर चालू करते हैं।",
-      "{dom} कंडक्टिव ग्लव का उपयोग करके {sub} के कंधों पर हल्की विद्युत मालिश करते हैं।",
-      "{dom} इलेक्ट्रो स्टिमुलेशन पेन का उपयोग करके {sub} की त्वचा पर हल्के से ट्रेस करते हैं।",
-      "{dom} {sub} की पिंडलियों पर इलेक्ट्रोड लगाकर डिवाइस को कम सेटिंग पर चालू करते हैं।"
+    "Light": [
+      "{dom} applies a gentle electrical current to {sub}'s arm using a TENS unit.",
+      "{dom} uses a violet wand on {sub}'s back at a low setting.",
+      "{dom} attaches electrodes to {sub}'s thighs and turns on the device at its lowest setting.",
+      "{dom} gives {sub} a light electrical massage on their shoulders using a conductive glove.",
+      "{dom} uses an electro stimulation pen to lightly trace along {sub}'s skin.",
+      "{dom} attaches electrodes to {sub}'s calves and turns on the device at a low setting."
     ],
-    "मध्यम": [
-      "{dom} TENS यूनिट का उपयोग करके {sub} की बांह पर विद्युत करंट की तीव्रता बढ़ाते हैं।",
-      "{dom} {sub} के पेट पर मध्यम सेटिंग पर वायलेट वैंड का उपयोग करते हैं।",
-      "{dom} {sub} के निप्पल पर इलेक्ट्रोड लगाकर डिवाइस को मध्यम सेटिंग पर चालू करते हैं।",
-      "{dom} कंडक्टिव पैड का उपयोग करके {sub} के नितंबों पर विद्युत करंट लगाते हैं।",
-      "{dom} इलेक्ट्रो स्टिमुलेशन पेन का उपयोग करके {sub} की मांसपेशियों पर ट्रेस करते हैं।",
-      "{dom} {sub} की ऊपरी बांहों पर इलेक्ट्रोड लगाकर डिवाइस को मध्यम सेटिंग पर चालू करते हैं।"
+    "Medium": [
+      "{dom} increases the intensity of the electrical current on {sub}'s arm using a TENS unit.",
+      "{dom} uses a violet wand on {sub}'s stomach at a medium setting.",
+      "{dom} attaches electrodes to {sub}'s nipples and turns on the device at a medium setting.",
+      "{dom} applies an electrical current to {sub}'s buttocks using a conductive pad.",
+      "{dom} uses an electro stimulation pen to trace along {sub}'s muscles.",
+      "{dom} attaches electrodes to {sub}'s upper arms and turns on the device at a medium setting."
     ],
-    "तेज़": [
-      "{dom} TENS यूनिट का उपयोग करके {sub} की बांह पर विद्युत करंट की तीव्रता को सबसे ज्यादा सुरक्षित सेटिंग पर करते हैं।",
-      "{dom} {sub} के गुप्तांग पर तेज़ सेटिंग पर वायलेट वैंड का उपयोग करते हैं।",
-      "{dom} {sub} की भीतरी जांघों पर इलेक्ट्रोड लगाकर डिवाइस को सबसे ज्यादा सुरक्षित सेटिंग पर चालू करते हैं।",
-      "{dom} कंडक्टिव ग्लव का उपयोग करके {sub} की पीठ पर तेज़ विद्युत मालिश करते हैं।",
-      "{dom} इलेक्ट्रो स्टिमुलेशन पेन का उपयोग करके {sub} की तंत्रिका अंत पर ट्रेस करते हैं।",
-      "{dom} {sub} की पीठ के निचले हिस्से पर इलेक्ट्रोड लगाकर डिवाइस को तेज़ सेटिंग पर चालू करते हैं।"
+    "High": [
+      "{dom} turns the intensity of the electrical current on {sub}'s arm to its highest safe setting using a TENS unit.",
+      "{dom} uses a violet wand on {sub}'s genitals at a high setting.",
+      "{dom} attaches electrodes to {sub}'s inner thighs and turns on the device at its highest safe setting.",
+      "{dom} gives {sub} a high-intensity electrical massage on their back using a conductive glove.",
+      "{dom} uses an electro stimulation pen to trace along {sub}'s nerve endings.",
+      "{dom} attaches electrodes to {sub}'s lower back and turns on the device at a high setting."
     ],
-    "चुनौतीपूर्ण": [
-      "{dom} {sub} की जीभ पर कम सेटिंग पर वायलेट वैंड का उपयोग करते हैं।",
-      "{dom} {sub} के पैरों पर इलेक्ट्रोड लगाकर डिवाइस को चुनौतीपूर्ण लेकिन सुरक्षित सेटिंग पर चालू करते हैं।",
-      "{dom} कई डिवाइस का उपयोग करके एक साथ {sub} के शरीर के कई हिस्सों पर विद्युत करंट लगाते हैं।",
-      "{dom} इलेक्ट्रो स्टिमुलेशन पेन का उपयोग करके {sub} के संवेदनशील हिस्सों पर ट्रेस करते हैं।",
-      "{dom} {sub} के पेट पर इलेक्ट्रोड लगाकर डिवाइस को चुनौतीपूर्ण लेकिन सुरक्षित सेटिंग पर चालू करते हैं।"
+    "Challenging": [
+      "{dom} uses a violet wand on {sub}'s tongue at a low setting.",
+      "{dom} attaches electrodes to {sub}'s feet and turns on the device at a challenging but safe setting.",
+      "{dom} applies electrical current to multiple areas of {sub}'s body at once using multiple devices.",
+      "{dom} uses an electro stimulation pen to trace along {sub}'s sensitive areas.",
+      "{dom} attaches electrodes to {sub}'s abdomen and turns on the device at a challenging but safe setting."
     ]
   }
 }

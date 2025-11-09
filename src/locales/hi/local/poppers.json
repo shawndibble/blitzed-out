@@ -2,46 +2,46 @@
   "label": "पॉपर्स",
   "type": "consumption",
   "actions": {
-    "शुरुआती": [
-      "1 सांस।",
-      "2 सांस।",
-      "1 गहरी सांस।",
-      "2 सांस।",
-      "3 सांस।",
-      "हर नाक के छेद में 1 सांस।",
-      "2 गहरी सांस।",
-      "1 सांस।",
-      "2 तेज़ सांस।"
+    "Beginner": [
+      "1 hit.",
+      "2 hits.",
+      "1 deep hit.",
+      "2 hits.",
+      "3 hits.",
+      "1 hit each nostril.",
+      "2 deep hits.",
+      "1 hit.",
+      "2 quick hits."
     ],
-    "मध्यम": [
-      "3 सांस।",
-      "4 सांस।",
-      "हर नाक के छेद में 2 सांस।",
-      "1 मुंह की सांस।",
-      "5 सेकंड मुंह की सांस।",
-      "4 सांस।",
-      "5 सेकंड सांस। 5 सेकंड रोकें।",
-      "5 तेज़ सांस।"
+    "Intermediate": [
+      "3 hits.",
+      "4 hits.",
+      "2 hits per nostril.",
+      "1 mouth hit.",
+      "5 seconds mouth hit.",
+      "4 hits.",
+      "Hit 5 seconds. Hold 5 seconds.",
+      "5 quick hits."
     ],
-    "उन्नत": [
-      "10 सेकंड सांस। 10 सेकंड रोकें।",
-      "4 मुंह की सांस।",
-      "जितनी देर हो सके सांस करें और रोकें।",
-      "पॉपर सॉक/मास्क के साथ 15 सेकंड सांस लें।",
-      "8 सांस।",
-      "4 मुंह की सांस।",
-      "6 गहरी सांस।",
-      "हर तरफ 3 सांस।",
-      "8 सेकंड सांस। 8 सेकंड रोकें।"
+    "Advance": [
+      "10 seconds hit. 10s hold.",
+      "4 mouth hits.",
+      "Hit and hold as long as you can.",
+      "Breathe with popper sock/mask 15 seconds.",
+      "8 hits.",
+      "4 mouth hits.",
+      "6 deep hits.",
+      "3 hits each side.",
+      "8 seconds hit. 8 seconds hold."
     ],
-    "विशेषज्ञ": [
-      "10 सामान्य सांस। बिना रोके।",
-      "15 सेकंड सांस। 10 सेकंड रोकें।",
-      "जितनी देर हो सके पॉपर सॉक के साथ सांस लें।",
-      "अपने फेफड़े खाली करें। सबसे बड़ी और गहरी सांस करें।",
-      "फेफड़े खाली करें। 10 सेकंड गहरी सांस। 10 सेकंड रोकें। दोहराएं।",
-      "फेफड़े खाली करें। 15 सेकंड गहरी सांस। 30 सेकंड रोकें।",
-      "10 सेकंड सॉक/मास्क सांस। 10 सेकंड रोकें।"
+    "Expert": [
+      "10 normal hits. No holding.",
+      "15 seconds hit. 10 seconds hold.",
+      "Breathe with popper sock for as long as you can",
+      "Empty your lungs. Biggest and deepest hit you can do.",
+      "Empty lungs. 10 seconds deep hit. 10 seconds hold. Repeat.",
+      "Empty lungs. 15 seconds deep hit. 30 seconds hold.",
+      "10 seconds sock/mask hit. 10 seconds hold."
     ]
   }
 }

@@ -1,60 +1,61 @@
 {
   "label": "Entrenamiento del Clítoris",
   "type": "sex",
-  "dom": "Dueña del Clítoris",
-  "sub": "Proveedor de Placer",
+  "dom": "Receiver",
+  "sub": "Giver",
+  "anatomyRequirement": "pussy",
   "actions": {
-    "Toque Ligero": [
-      "{sub} traza círculos alrededor del clítoris de {dom} con su dedo.",
-      "{sub} acaricia suavemente el clítoris de {dom} con una pluma o tela suave.",
-      "{dom} guía el dedo de {sub} a su clítoris por 10 segundos de toque gentil.",
-      "{sub} usa la punta de su lengua para apenas rozar el clítoris de {dom}.",
-      "{sub} respira aire caliente sobre el clítoris de {dom}.",
-      "{dom} abre sus piernas mientras {sub} provoca ligeramente su clítoris.",
-      "{sub} usa un cepillo suave para estimular ligeramente el clítoris de {dom}.",
-      "{sub} pellizca suavemente el capuchón alrededor del clítoris de {dom}.",
-      "{dom} ordena a {sub} tocar apenas su clítoris por 15 segundos mientras {dom} se queda quieta.",
-      "{sub} alterna entre toques ligeros y alejarse del clítoris de {dom}.",
-      "{dom} hace que cada proveedor de placer/cambiante provoque ligeramente su clítoris por turnos."
+    "Light Touch": [
+      "{sub} traces circles around {dom}'s clit with their finger.",
+      "{sub} gently brushes {dom}'s clit with a feather or soft fabric.",
+      "{dom} guides {sub}'s finger to {dom}'s clit for 10 seconds of gentle touching.",
+      "{sub} uses the tip of their tongue to barely graze {dom}'s clit.",
+      "{sub} breathes warm air on {dom}'s clit.",
+      "{dom} spreads {dom}'s legs while {sub} lightly teases {dom}'s clit.",
+      "{sub} uses a soft brush to lightly stimulate {dom}'s clit.",
+      "{sub} gently touches the sensitive areas around {dom}'s clit.",
+      "{dom} orders {sub} to barely touch {dom}'s clit for 15 seconds while {dom} stays still.",
+      "{sub} alternates between light touches and pulling away from {dom}'s clit.",
+      "{dom} has every giver/switch lightly tease {dom}'s clit in turn."
     ],
-    "Estimulación Directa": [
-      "{sub} frota el clítoris de {dom} en círculos lentos por 15 segundos.",
-      "{dom} mantiene la mano de {sub} contra su clítoris hasta su próximo turno.",
-      "{sub} roza el clítoris de {dom} repetidamente con su lengua.",
-      "{dom} se frota contra el dedo de {sub} por 20 segundos.",
-      "{sub} aplica presión constante al clítoris de {dom} por 10 segundos.",
-      "{dom} se exhibe frotándose contra la mano de {sub}.",
-      "{sub} usa su pulgar para masajear el clítoris de {dom}.",
-      "{dom} hace que {sub} estimule su clítoris mientras {dom} cuenta hasta 30.",
-      "{sub} alterna entre estimulación rápida y lenta del clítoris.",
-      "{dom} recibe estimulación del clítoris de cada jugador antes de su próximo turno.",
-      "{dom} hace que cada proveedor de placer/cambiante estimule su clítoris por 15 segundos cada uno.",
-      "{dom} ordena a {sub} permanecer en silencio mientras da estimulación intensa del clítoris.",
-      "{sub} estimula el clítoris de {dom} mientras {dom} realiza otra tarea.",
-      "{dom} hace que cada proveedor de placer/cambiante trabaje en su clítoris simultáneamente.",
-      "{dom} compite con otro jugador para ver quién puede aguantar más estimulación del clítoris."
+    "Direct Stimulation": [
+      "{sub} rubs {dom}'s clit in slow circles for 15 seconds.",
+      "{dom} holds {sub}'s hand against {dom}'s clit until {dom}'s next turn.",
+      "{sub} flicks {dom}'s clit with their tongue repeatedly.",
+      "{dom} grinds against {sub}'s finger for 20 seconds.",
+      "{sub} applies steady pressure to {dom}'s clit for 10 seconds.",
+      "{dom} puts on a show grinding against {sub}'s hand.",
+      "{sub} uses their thumb to massage {dom}'s clit.",
+      "{dom} makes {sub} stimulate {dom}'s clit while {dom} counts to 30.",
+      "{sub} alternates between fast and slow clit stimulation.",
+      "{dom} receives clit stimulation from each player before {dom}'s next turn.",
+      "{dom} has every giver/switch stimulate {dom}'s clit for 15 seconds each.",
+      "{dom} orders {sub} to remain quiet while giving intense clit stimulation.",
+      "{sub} stimulates {dom}'s clit while {dom} performs another task.",
+      "{dom} has every giver/switch work on {dom}'s clit simultaneously.",
+      "{dom} competes with another player to see who can handle clit stimulation longest."
     ],
-    "Enfoque Intenso": [
-      "{sub} enfoca presión intensa en el clítoris de {dom} por 30 segundos.",
-      "{dom} se queda quieta mientras {sub} roza rápidamente su clítoris.",
-      "{sub} chupa el clítoris de {dom} mientras aplica presión.",
-      "{dom} recibe 2 minutos de estimulación continua del clítoris.",
-      "{sub} usa vibración o movimiento rápido de lengua en el clítoris de {dom}.",
-      "{dom} controla cuándo {sub} puede moverse durante el enfoque del clítoris.",
-      "{sub} alterna entre estimulación intensa y parar completamente.",
-      "{dom} recibe enfoque intenso del clítoris de cada jugador por 45 segundos cada uno.",
-      "{dom} hace que cada proveedor de placer/cambiante se turne dando estimulación intensa del clítoris.",
-      "{dom} mantiene contacto visual mientras recibe estimulación intensa del clítoris."
+    "Intense Focus": [
+      "{sub} focuses intense pressure on {dom}'s clit for 30 seconds.",
+      "{dom} stays still while {sub} rapidly flicks {dom}'s clit.",
+      "{sub} sucks on {dom}'s clit while applying pressure.",
+      "{dom} receives 2 minutes of continuous clit stimulation.",
+      "{sub} uses vibration or rapid tongue movement on {dom}'s clit.",
+      "{dom} controls when {sub} can move during clit focus.",
+      "{sub} alternates between intense stimulation and stopping completely.",
+      "{dom} receives intense clit focus from each player for 45 seconds each.",
+      "{dom} has every giver/switch take turns giving intense clit stimulation.",
+      "{dom} maintains eye contact while receiving intense clit stimulation."
     ],
-    "Desafío de Resistencia": [
-      "{dom} recibe 5 minutos de estimulación continua del clítoris sin liberación.",
-      "{sub} lleva a {dom} al borde 3 veces antes de parar.",
-      "{dom} soporta estimulación alternante intensa y gentil del clítoris por 3 minutos.",
-      "{sub} estimula el clítoris de {dom} mientras {dom} completa un desafío.",
-      "{dom} recibe estimulación de máxima intensidad del clítoris tanto como quiera.",
-      "{sub} lleva a {dom} al borde repetidamente hasta que {dom} decide terminar.",
-      "{dom} soporta estimulación del clítoris de múltiples jugadores y controla cuándo terminar.",
-      "{dom} hace que cada proveedor de placer/cambiante compita para ver quién puede complacerla más tiempo."
+    "Endurance Challenge": [
+      "{dom} receives 5 minutes of continuous clit stimulation without release.",
+      "{sub} brings {dom} to the edge 3 times before stopping.",
+      "{dom} endures alternating intense and gentle clit stimulation for 3 minutes.",
+      "{sub} stimulates {dom}'s clit while {dom} completes a challenge.",
+      "{dom} receives maximum intensity clit stimulation for as long as they want.",
+      "{sub} edges {dom} repeatedly until {dom} decides to finish.",
+      "{dom} endures clit stimulation from multiple players and controls when to finish.",
+      "{dom} has every giver/switch compete to see who can please them longest."
     ]
   }
 }

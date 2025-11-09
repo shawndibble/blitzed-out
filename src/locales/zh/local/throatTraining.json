@@ -1,60 +1,60 @@
 {
-  "label": "喉部训练",
+  "label": "喉咙训练",
   "type": "sex",
-  "dom": "接受口交者",
-  "sub": "口交者",
+  "dom": "Receive Oral",
+  "sub": "Give Oral",
   "actions": {
-    "舔舐阴茎": [
-      "{sub} 舔 {dom} 的阴茎。",
-      "{sub} 玩弄 {dom} 阴茎的顶端。",
-      "{sub} 用舌头清洗 {dom} 的阴茎。",
-      "{sub} 吸吮 {dom} 的阴茎头。",
-      "{sub} 用舌头描绘 {dom} 阴茎头的轮廓。",
-      "{dom} 用阴茎拍打 {sub} 的脸几次。",
-      "{sub} 舔 {dom} 的阴茎杆。",
-      "{sub} 玩弄 {dom} 阴茎的顶端15秒。",
-      "{sub} 用舌头弄湿 {dom} 的整个阴茎。",
-      "{sub} 必须在下一轮之前舔尽可能多玩家的阴茎。",
-      "{dom} 让每个口交者/转换者舔他的阴茎。"
+    "Licking": [
+      "{sub} licks {dom}'s {genital}.",
+      "{sub} plays with the tip of {dom}'s {genital}.",
+      "{sub} tongue bathes {dom}'s {genital}.",
+      "{sub} sucks {dom}'s {genital} tip.",
+      "{sub} traces {dom}'s {genital} with their tongue.",
+      "{dom} presses {pronoun_possessive|dom} {genital|dom} against {sub}'s face several times.",
+      "{sub} licks {dom}'s {genital} thoroughly.",
+      "{sub} plays with the tip of {dom}'s {genital} for 15 seconds.",
+      "{sub} wets {dom}'s whole {genital} with their tongue.",
+      "{sub} must lick {genital|other} as many times as possible before their next turn.",
+      "{dom} has every oral giver/switch lick their {genital}."
     ],
-    "吸吮阴茎": [
-      "{sub} 吸吮 {dom} 的阴茎10秒。",
-      "{sub} 将 {dom} 的阴茎含在嘴里直到 {sub} 的下一轮。",
-      "{dom} 操 {sub} 的嘴。",
-      "{sub} 吸吮 {dom} 的阴茎20秒。",
-      "{sub} 在短暂呼吸间吸吮 {dom} 的阴茎。x10。| 下去，上来，呼吸。重复。",
-      "{sub} 表演吸吮 {dom} 的阴茎。",
-      "{dom} 面部操 {sub}。",
-      "{sub} 吸吮时用舌头弹击 {dom} 阴茎头的顶端。",
-      "{sub} 吸吮 {dom} 的阴茎头30秒。",
-      "{sub} 在下一轮之前吸吮每个玩家的阴茎。",
-      "{dom} 面部操每个玩家30秒。",
-      "{sub} 与一个玩家69。",
-      "{sub} 必须在下一轮之前吸吮尽可能多玩家的阴茎。",
-      "{dom} 让每个口交者/转换者轮流吸吮他的阴茎。",
-      "{dom} 让每个口交者/转换者同时合作吸吮他的阴茎/服务他的生殖器。"
+    "Oral (Penetrative)": [
+      "{sub} gives oral to {dom} for 10 seconds.",
+      "{sub} holds {dom}'s {genital} in their mouth until {sub}'s next turn.",
+      "{dom} thrusts into {sub}'s mouth.",
+      "{sub} gives oral to {dom} for 20 seconds.",
+      "{sub} gives oral to {dom} between short breaths. x10. | Down, Up, Breathe. Repeat.",
+      "{sub} puts on a show giving oral to {dom}.",
+      "{dom} thrusts into {sub}'s mouth rhythmically.",
+      "{sub} flicks the tip of {dom}'s {genital} with their tongue during oral.",
+      "{sub} focuses on the tip of {dom}'s {genital} for 30 seconds.",
+      "{sub} gives oral to each player before their next turn.",
+      "{dom} thrusts into each player's mouth for 30 seconds.",
+      "{sub} 69s with a player.",
+      "{sub} must give oral to as many players as possible before their next turn.",
+      "{dom} has every oral giver/switch give them oral one at a time.",
+      "{dom} has every oral giver/switch pleasure their {genital} simultaneously."
     ],
-    "深喉": [
-      "{sub} 将 {dom} 的阴茎在喉咙里保持5秒。",
-      "{sub} 在呼吸间深喉 {dom}。x10。| 下去，上来，呼吸。重复。",
-      "{sub} 深喉 {dom} 时舔他的蛋蛋。",
-      "{sub} 深喉 {dom} 10秒。",
-      "{sub} 给 {dom} 10次深喉。",
-      "{sub} 吸吮 {dom} 的阴茎。",
-      "{dom} 喉咙操 {sub}。",
-      "{sub} 对每个玩家深喉一次，尽可能长时间。",
-      "{sub} 必须在下一轮之前深喉尽可能多玩家的阴茎。",
-      "{dom} 让每个口交者/转换者深喉他的阴茎。"
+    "Penetrative Oral": [
+      "{sub} pleasures {dom} with deep oral for 5 seconds.",
+      "{sub} takes {dom} deep between breaths. x10. | Down, Up, Breathe. Repeat.",
+      "{sub} takes {dom} as deep as possible.",
+      "{sub} takes {dom} deep for 10 seconds.",
+      "{sub} takes {dom} deep 10 times.",
+      "{sub} gives {dom} oral.",
+      "{dom} thrusts deep into {sub}'s mouth.",
+      "{sub} takes each player deep once for as long as possible.",
+      "{sub} must take as many players as possible deep before their next turn.",
+      "{dom} has every oral giver/switch take them deep."
     ],
-    "呼吸控制": [
-      "{sub} 深喉 {dom} 20秒。",
-      "{sub} 尽可能长时间深喉 {dom}。",
-      "{sub} 至少深喉 {dom} 4次，每次尽可能长时间。",
-      "{dom} 喉咙操 {sub} 30秒。",
-      "{dom} 深喉操 {sub} 15秒。",
-      "{sub} 给 {dom} 5次缓慢深喉到蛋蛋。",
-      "{sub} 必须尽可能长时间深喉每个玩家的阴茎。",
-      "{dom} 让每个口交者/转换者比赛看谁能深喉他最长时间。最多60秒。"
+    "Penetrative Breath Play": [
+      "{sub} takes {dom} deep for 20 seconds.",
+      "{sub} takes {dom} as deep as possible for as long as they can.",
+      "{sub} takes {dom} deep at least 4 times for as long as possible.",
+      "{dom} thrusts deep into {sub} for 30 seconds.",
+      "{dom} thrusts deep into {sub} for 15 seconds.",
+      "{sub} takes {dom} slowly and deeply 5 times.",
+      "{sub} must take each player deep for as long as possible.",
+      "{dom} has every oral giver/switch compete for who can take them deepest the longest. Max of 60 seconds."
     ]
   }
 }

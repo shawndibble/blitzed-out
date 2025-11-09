@@ -2,37 +2,37 @@
   "label": "बंधन",
   "type": "foreplay",
   "actions": {
-    "बांधना": [
-      "{dom} {sub} की कलाइयों को एक साथ बांधते हैं।",
-      "{dom} {sub} को फर्नीचर से अगली कार्रवाई तक बांधते हैं।",
-      "{dom} {sub} की कलाइयों को दूसरे खिलाड़ी के शरीर के चारों ओर तब तक बांधते हैं जब तक कोई कार्रवाई उन्हें मुक्त करने की आवश्यकता न हो।",
-      "{dom} {sub} को फर्नीचर से तब तक बांधते हैं जब तक कोई कार्रवाई उन्हें मुक्त करने की आवश्यकता न हो।",
-      "{dom} {sub} को अगली कार्रवाई तक पूरी तरह बांधते हैं।",
-      "{dom} {sub} की बाहों को अगली कार्रवाई तक पीठ के पीछे बांधते हैं।",
-      "{dom} {sub} की बाहों को उनके पैरों से तब तक बांधते हैं जब तक कोई कार्रवाई उन्हें मुक्त करने की आवश्यकता न हो।",
-      "{sub} अपनी कलाइयों को खुद बांधते हैं और चाबी/मुक्ति तंत्र दूसरे खिलाड़ी को देते हैं।",
-      "{sub} अपने पैरों को एक साथ बांधते हैं और दूसरे खिलाड़ी से अपनी गति को और सीमित करने को कहते हैं।",
-      "{sub} को कम से कम 60 सेकंड के लिए सभी प्रभुत्वशाली/परिवर्तनशील खिलाड़ियों द्वारा एक साथ बांधा जाता है।",
-      "{dom} जितने चाहें आज्ञाकारी/परिवर्तनशील खिलाड़ियों को तब तक बांध सकते हैं जब तक कोई कार्रवाई उन्हें मुक्त करने की आवश्यकता न हो।"
+    "Restrain": [
+      "{dom} restrains {sub}'s wrists together.",
+      "{dom} binds {sub} to a piece of furniture until recipient's next action.",
+      "{dom} binds {sub}'s wrists around another player's body until an action requires one of them to be freed.",
+      "{dom} restrains {sub} to a piece of furniture until an action requires them to be freed.",
+      "{dom} hog ties {sub} until recipient's next action.",
+      "{dom} binds {sub}'s arms behind their back until recipient's next action.",
+      "{dom} binds {sub}'s arms to their legs until an action requires them to be freed.",
+      "{sub} self-binds their own wrists and gives the key/release mechanism to another player.",
+      "{sub} ties their own legs together and has another player restrict their movement further.",
+      "{sub} is restrained by every dominant/switch at once for at least 60 seconds.",
+      "{dom} may restrain as many submissive/switch players as desired until an action requires them to be freed."
     ],
-    "संवेदी वंचना": [
-      "{dom} {sub} की आंखों पर अगली कार्रवाई तक पट्टी बांधते हैं।",
-      "{dom} {sub} का मुंह अगली कार्रवाई तक बंद करते हैं।",
-      "{dom} {sub} की आंखों पर पट्टी बांधते हैं और अगली कार्रवाई तक मुंह बंद करते हैं।",
-      "{dom} {sub} की एक इंद्रिय को वंचित करते हुए दूसरी को उत्तेजित करते हैं।",
-      "{sub} अपनी आंखों पर खुद पट्टी बांधते हैं और दूसरे खिलाड़ी से अपनी गतिविधियों का मार्गदर्शन करने को कहते हैं।",
-      "{sub} अपना मुंह खुद बंद करते हैं और बाकी खेल के लिए गैर-मौखिक संवाद करते हैं।",
-      "{sub} अपनी सुनने की क्षमता को रोकने के लिए हेडफोन का उपयोग करते हैं और संवाद के लिए स्पर्श पर निर्भर रहते हैं।",
-      "सभी प्रभुत्वशाली/परिवर्तनशील खिलाड़ी {sub} की आंखों पर पट्टी बांध/मुंह बंद/बांध सकते हैं जैसा चाहें।"
+    "Sensory Deprivation": [
+      "{dom} blindfolds {sub} until recipient's next action.",
+      "{dom} gags {sub} until recipient's next action.",
+      "{dom} blindfolds and gags {sub} until recipient's next action.",
+      "{dom} deprives {sub} of one sense while stimulating another.",
+      "{sub} blindfolds themselves and has another player guide their movements.",
+      "{sub} gags themselves and communicates non-verbally for the rest of the game.",
+      "{sub} uses headphones to block their hearing and relies on touch for communication.",
+      "All dominant/switch players may blindfold/gag/restrain {sub} as desired."
     ],
-    "तनाव": [
-      "{dom} {sub} पर तनाव रस्सी लगाते हैं।",
-      "{dom} {sub} पर स्प्रेडर बार या सुधारित उपकरण का उपयोग करते हैं।",
-      "{dom} {sub} को अगली कार्रवाई तक तनावपूर्ण स्थिति में बांधते हैं।",
-      "{sub} अपने ऊपर तनाव रस्सी लगाते हैं और दूसरे खिलाड़ी से इसे कसने को कहते हैं।",
-      "{sub} स्प्रेडर बार या अन्य उपकरण पहनते हैं और दूसरे खिलाड़ी से राउंड के लिए अपनी गतिविधियों को नियंत्रित करने को कहते हैं।",
-      "{sub} खुद को तनावपूर्ण स्थिति में बांधते हैं और दूसरे खिलाड़ी के उन्हें मुक्त करने का इंतजार करते हैं।",
-      "सभी प्रभुत्वशाली/परिवर्तनशील खिलाड़ी {sub} को अगली बारी तक खतरनाक स्थिति में बांध सकते हैं।"
+    "Tension": [
+      "{dom} applies a tension rope to {sub}.",
+      "{dom} uses a spreader bar or improvised device on {sub}.",
+      "{dom} ties {sub} in a stress position until recipient's next action.",
+      "{sub} applies a tension rope to themselves and has another player tighten it.",
+      "{sub} wears a spreader bar or other device and has another player control their movements for the round.",
+      "{sub} ties themselves in a stress position and waits for another player to release them.",
+      "All dominant/switch players may bind {sub} in a precarious position until their next turn."
     ]
   }
 }

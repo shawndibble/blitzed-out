@@ -1,60 +1,60 @@
 {
   "label": "Azotes",
   "type": "sex",
-  "dom": "Azotador",
-  "sub": "Azotado",
+  "dom": "Spanker",
+  "sub": "Spankee",
   "actions": {
-    "Azotes Suaves": [
-      "{dom} da azotes suaves a {sub} en cada nalga.",
-      "{dom} azota a {sub} sobre sus rodillas.",
-      "{dom} azota suave a {sub} 10 veces mientras él las cuenta.",
-      "{dom} da a cada jugador un azote suave.",
-      "{dom} frota su mano por la espalda de {sub} y luego le da una palmada suave.",
-      "{dom} azota a {sub} mientras está a cuatro patas.",
-      "{dom} da palmadas suaves y rápidas a {sub} durante 15 segundos.",
-      "{dom} azota a {sub} mientras está tumbado boca arriba.",
-      "{dom} da azotes suaves a {sub} 6 veces, 3 en cada nalga.",
-      "{sub} se arrodilla y suplica a {dom} un azote.",
-      "{dom} hace que cada jugador suplique uno a uno un azote suave.",
-      "Todos los jugadores dan a {sub} un azote suave.",
-      "{dom} azota suavemente a todos los azotados/cambiantes."
+    "Light Hand": [
+      "{dom} lightly spanks {sub} on each cheek.",
+      "{dom} spanks {sub} over the knee.",
+      "{dom} lightly spanks {sub} 10 times while the receiver counts them.",
+      "{dom} gives each player a light spanking.",
+      "{dom} rubs their hand down {sub}'s back and then lightly spanks them.",
+      "{dom} spanks {sub} while they are on all fours.",
+      "{dom} quickly but lightly spanks {sub} for 15 seconds.",
+      "{dom} spanks {sub} while they are on their back.",
+      "{dom} lightly spanks {sub} 6 times, 3 on each cheek.",
+      "{sub} gets on their knees and begs {dom} for a spanking.",
+      "{dom} has each player beg for a light spanking, one at a time.",
+      "All players gives {sub} a light spank.",
+      "{dom} spanks all spankee/switch players lightly."
     ],
-    "Azotes Fuertes": [
-      "{dom} da un azote fuerte a {sub} en cada nalga.",
-      "{dom} azota fuertemente a {sub} mientras está sobre sus rodillas.",
-      "{dom} da 10 azotes fuertes a {sub} mientras él cuenta los golpes.",
-      "{dom} da 2 azotes fuertes a {sub}.",
-      "{dom} da a {sub} tantos azotes fuertes como pueda soportar durante 20 segundos.",
-      "{dom} da 4 azotes fuertes a {sub} mientras está a cuatro patas.",
-      "{dom} da azotes fuertes a {sub} durante 15 segundos.",
-      "{sub} suplica 10 azotes fuertes y luego {dom} se las da.",
-      "{dom} da 6 azotes fuertes a {sub} mientras están inclinados hacia adelante.",
-      "{dom} da azotes fuertes a {sub} hasta que suplique por clemencia.",
-      "Todos los azotadores/cambiantes dan a {sub} 20 azotes en total.",
-      "Todos los jugadores dan a {sub} un azote fuerte.",
-      "{dom} azota fuertemente a todos los azotados/cambiantes."
+    "Hard Spankings": [
+      "{dom} gives {sub} a hard spanking on each cheek.",
+      "{dom} heavily spanks {sub} while they are over the knee.",
+      "{dom} gives {sub} 10 hard spankings while the receiver counts the hits.",
+      "{dom} gives {sub} 2 hard spankings.",
+      "{dom} gives {sub} as many hard spankings as they can handle for 20 seconds.",
+      "{dom} gives {sub} 4 hard spankings while they are on all fours.",
+      "{dom} gives {sub} hard spankings for 15 seconds.",
+      "{sub} begs for 10 hard spankings and then {dom} gives them.",
+      "{dom} gives {sub} 6 hard spankings while they are bent over.",
+      "{dom} gives {sub} hard spankings until they beg for mercy.",
+      "All spanker/switch players give {sub} 20 spankings total.",
+      "All players gives {sub} a hard spanking.",
+      "{dom} spanks all spankee/switch players lightly."
     ],
-    "Varas y Paletas": [
-      "{dom} azota a {sub} con un objeto de elección del azotador.",
-      "{dom} da 20 azotes a {sub} con un objeto mientras él las cuenta.",
-      "{dom} azota a {sub} con un objeto mientras está sobre sus rodillas.",
-      "{dom} azota a {sub} con un objeto mientras están a cuatro patas.",
-      "{dom} azota a {sub} con un implemento mientras está tumbado boca arriba.",
-      "{sub} busca un objeto de su elección y luego {dom} lo azota con él.",
-      "{sub} suplica por un número de azotes con un objeto y luego {dom} se los da.",
-      "{dom} azota a {sub} con un objeto durante 30 segundos.",
-      "Cada jugador azota a {sub} con un objeto.",
-      "{dom} azota a {sub} en las palmas de las manos con un objeto.",
-      "{dom} azota a {sub} en las plantas de los pies con un objeto.",
-      "Todos los jugadores usan un objeto para azotar a {sub}.",
-      "{dom} usa un objeto para azotar a cada azotado/cambiante."
+    "Canes & Paddles": [
+      "{dom} spanks {sub} with an implement of the spanker's choice.",
+      "{dom} gives {sub} 20 spankings with an implement while the receiver counts.",
+      "{dom} spanks {sub} with an implement while they are over the knee.",
+      "{dom} spanks {sub} with an implement while they are on all fours.",
+      "{dom} spanks {sub} with an implement while they are on their back.",
+      "{sub} finds an implement of their choice and then {dom} spanks them with it.",
+      "{sub} begs for a number of spankings with an implement and then {dom} gives them.",
+      "{dom} spanks {sub} with an implement for 30 seconds.",
+      "Each player spanks {sub} with an implement.",
+      "{dom} lashes {sub} with an implement on the palms of their hands.",
+      "{dom} lashes {sub} with an implement on the soles of their feet.",
+      "All players use an implement to spank {sub}",
+      "{dom} uses an implement to spank each spankee/switch player."
     ],
-    "Magulladuras": [
-      "{dom} da 5 azotes a {sub} en cada nalga con suficiente fuerza para dejar una marca.",
-      "{dom} da 10 azotes a {sub} lo suficientemente fuerte como para dejar moretones.",
-      "{dom} da a {sub} tantos azotes dolorosos como pueda soportar durante 30 segundos.",
-      "{dom} da 10 azotes a {sub} usando un objeto duro.",
-      "{dom} deja la huella de su mano en las nalgas de {sub}."
+    "Bruising": [
+      "{dom} gives {sub} 5 spankings on each cheek hard enough to leave a mark.",
+      "{dom} gives {sub} 10 bruise inducing spankings.",
+      "{dom} gives {sub} as many painful spankings as they can handle for 30 seconds.",
+      "{dom} gives {sub} 10 spankings using a can or other hard implement.",
+      "{dom} leaves a hand print on {sub}."
     ]
   }
 }

@@ -2,35 +2,35 @@
   "label": "防毒面具",
   "type": "consumption",
   "actions": {
-    "初学者": [
-      "通过软管从瓶中呼吸3次。",
-      "通过软管从瓶中呼吸6次。",
-      "在棉球上滴入1滴吸入剂，放入过滤器并呼吸15秒。",
-      "在棉球上滴入2滴吸入剂，放入过滤器并呼吸15秒。",
-      "限制空气5秒。",
-      "限制空气10秒。",
-      "通过过滤器深呼吸60秒。"
+    "Beginner": [
+      "Take 3 breaths from bottle via hose.",
+      "Take 6 breaths from bottle via hose.",
+      "Put 1 shake of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
+      "Put 2 shakes of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
+      "Restrict air for 5 seconds.",
+      "Restrict air for 10 seconds.",
+      "Take deep breaths through filter for 60 seconds."
     ],
-    "中级": [
-      "通过软管从瓶中呼吸7次。",
-      "通过软管从瓶中呼吸10次。",
-      "在棉球上滴入5滴吸入剂，放入过滤器并呼吸30秒。",
-      "在棉球上滴入10滴吸入剂，放入过滤器并呼吸15秒。",
-      "限制空气15秒。",
-      "限制空气20秒。",
-      "通过过滤器深呼吸90秒。",
-      "通过过滤器呼吸尽可能长时间，不要摘下。"
+    "Intermediate": [
+      "Take 7 breaths from bottle via hose.",
+      "Take 10 breaths from bottle via hose.",
+      "Put 5 shakes of inhalant onto cotton ball, put in filter and breathe for 30 seconds.",
+      "Put 10 shakes of inhalant onto cotton ball, put in filter and breathe for 15 seconds.",
+      "Restrict air for 15 seconds.",
+      "Restrict air for 20 seconds.",
+      "Take deep breaths through filter for 90 seconds.",
+      "Breathe through filter for as long as you can without removing it."
     ],
-    "高级": [
-      "通过软管从瓶中呼吸15次。",
-      "通过软管从瓶中呼吸20次。",
-      "在棉球上滴入10滴吸入剂，放入过滤器并呼吸30秒。",
-      "在棉球上滴入15滴吸入剂，放入过滤器并呼吸45秒。",
-      "限制空气30秒。",
-      "限制空气25秒。",
-      "通过过滤器深呼吸120秒（2分钟）。",
-      "通过过滤器呼吸尽可能长时间，不要摘下，然后深呼吸10次。",
-      "通过过滤器呼吸尽可能长时间，不要摘下，然后深呼吸20次。"
+    "Advanced": [
+      "Take 15 breaths from bottle via hose.",
+      "Take 20 breaths from bottle via hose.",
+      "Put 10 shakes of inhalant onto cotton ball, put in filter and breathe for 30 seconds.",
+      "Put 15 shakes of inhalant onto cotton ball, put in filter and breathe for 45 seconds.",
+      "Restrict air for 30 seconds.",
+      "Restrict air for 25 seconds.",
+      "Take deep breaths through filter for 120 seconds (2 minutes).",
+      "Breathe through filter for as long as you can without removing it, then take 10 deep breaths.",
+      "Breathe through filter for as long as you can without removing it, then take 20 deep breaths."
     ]
   }
 }

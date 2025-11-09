@@ -2,32 +2,32 @@
   "label": "चुंबन",
   "type": "foreplay",
   "actions": {
-    "कोमल चुंबन": [
-      "{dom} {sub} के गाल पर चुंबन करते हैं।",
-      "{dom} {sub} के माथे पर चुंबन देते हैं।",
-      "{dom} {sub} के होंठों पर हल्का चुंबन देते हैं।",
-      "{dom} {sub} से अपने हाथ पर चुंबन करने को कहते हैं।",
-      "{dom} {sub} की गर्दन पर चुंबन करते हैं।",
-      "{dom} {sub} के चेहरे पर कई हल्के चुंबन देते हैं।",
-      "{dom} {sub} के कंधे पर कोमल चुंबन देते हैं।",
-      "{dom} {sub} से कहते हैं कि वे उनकी गोद में बैठकर चुंबन करें।",
-      "{dom} {sub} के कानों पर चुंबन करते हैं।",
-      "{dom} {sub} की गर्दन के पीछे चुंबन करते हैं।",
-      "{dom} हर आज्ञाकारी/परिवर्तनशील खिलाड़ी को चुंबन करते हैं।",
-      "{sub} हर प्रभुत्वशाली/परिवर्तनशील खिलाड़ी से चुंबन माँगते हैं। गुप्त सिक्का उछाल तय करता है कि मिलेगा या नहीं।"
+    "Gentle Kisses": [
+      "{dom} kisses {sub} on the cheek.",
+      "{dom} gives {sub} a kiss on the forehead.",
+      "{dom} gives {sub} a gentle peck on the lips.",
+      "{dom} has {sub} kiss their hand.",
+      "{dom} gives {sub} a kiss on the neck.",
+      "{dom} gives {sub} a series of light kisses on the face.",
+      "{dom} gives {sub} a gentle kiss on the shoulder.",
+      "{dom} tells {sub} to straddle and kiss them on the lips.",
+      "{dom} kisses {sub}'s earlobes.",
+      "{dom} kisses {sub} on the back of the neck.",
+      "{dom} kisses every submissive/switch player.",
+      "{sub} asks every dominant/switch player for a kiss. A secret coin flip determines if they get one."
     ],
-    "गहरे चुंबन": [
-      "{dom} {sub} के साथ गहरा चुंबन साझा करते हैं।",
-      "{dom} {sub} को जीभ के साथ गहरा चुंबन देते हैं।",
-      "{dom} {sub} का चेहरा पकड़कर गहरा चुंबन देते हैं।",
-      "{sub} {dom} की गोद में बैठकर गहरा चुंबन करते हैं।",
-      "{dom} खड़े होकर {sub} को गहरा चुंबन देते हैं।",
-      "{dom} {sub} के हाथ ऊपर पकड़कर चुंबन करते हैं।",
-      "{dom} {sub} को गोद में बैठाकर फ्रेंच किस करने को कहते हैं।",
-      "{dom} {sub} के बाल पकड़कर गहरा चुंबन करते हैं।",
-      "{dom} {sub} से घुटनों पर बैठकर गहरा चुंबन माँगने को कहते हैं।",
-      "{sub} अगली बारी तक जितने खिलाड़ियों से हो सके फ्रेंच किस करते हैं।",
-      "{dom} जितने चाहें आज्ञाकारी/परिवर्तनशील खिलाड़ियों से फ्रेंच किस कर सकते हैं।"
+    "Deep Kisses": [
+      "{dom} shares a deep kiss with {sub}.",
+      "{dom} gives {sub} a deep kiss with tongue.",
+      "{dom} gives {sub} a deep kiss while holding their face.",
+      "{sub} sits on {dom}'s lap and they share a deep kiss.",
+      "{dom} gives {sub} a deep kiss while they're both standing.",
+      "{dom} kisses {sub} while holding their hands above their head.",
+      "{dom} assigns {sub} to straddle them and french kiss them.",
+      "{dom} grabs {sub} by the hair and kisses them deeply.",
+      "{dom} tells {sub} to get on their knees and beg for a deep kiss.",
+      "{sub} asks and french kisses as many players as possible before their next turn.",
+      "{dom} may french kiss as many submissive/switch players as they choose."
     ]
   }
 }

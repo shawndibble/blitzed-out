@@ -1,44 +1,44 @@
 {
   "label": "स्तन उत्पीड़न",
   "type": "sex",
-  "dom": "उत्पीड़क",
-  "sub": "प्राप्तकर्ता",
+  "dom": "Torturer",
+  "sub": "Receiver",
   "actions": {
-    "दबाना/रगड़ना/चाटना": [
-      "{dom} {sub} के निप्पल के साथ खेलते हैं।",
-      "{dom} {sub} के निप्पल को झटका देते हैं।",
-      "{dom} {sub} के निप्पल को दबाते हैं।",
-      "{dom} {sub} के निप्पल को चूसते हैं।",
-      "{dom} 15 सेकंड तक {sub} के निप्पल को रगड़ते हैं।",
-      "{dom} {sub} के निप्पल को 10 बार झटका देते हैं।",
-      "{dom} 15 सेकंड तक {sub} के निप्पल को दबाते/रगड़ते हैं।",
-      "{sub} के निप्पल के साथ हर उत्पीड़क/परिवर्तनशील द्वारा कोमलता से खेला जाता है।",
-      "{dom} अपनी अगली बारी तक हर प्राप्तकर्ता/परिवर्तनशील के निप्पल के साथ खेल सकते हैं।"
+    "Squeeze/Rub/Lick": [
+      "{dom} plays with {sub}'s nipples.",
+      "{dom} flicks {sub}'s nipples.",
+      "{dom} squeezes {sub}'s nipples.",
+      "{dom} sucks {sub}'s nipples.",
+      "{dom} rubs {sub}'s nipples for 15 seconds.",
+      "{dom} flicks {sub}'s nipples 10 times.",
+      "{dom} squeezes/rubs {sub}'s nipples for 15 seconds.",
+      "{sub} has their nipples played with gently by each Torturer/Switch.",
+      "{dom} may play with each receiver/switch's nipples until their next turn."
     ],
-    "चिकोटी/खींचना/चूसना": [
-      "{dom} {sub} के निप्पल को जोर से चिकोटी काटते हैं।",
-      "{dom} {sub} के निप्पल को जोर से चूसते हैं।",
-      "{dom} {sub} के निप्पल को खींचते हैं।",
-      "{dom} {sub} के निप्पल को हल्के से काटते हैं।",
-      "{dom} {sub} के निप्पल को दोनों दिशाओं में मोड़ते हैं।",
-      "{dom} {sub} के निप्पल को खींचते हुए हेलीकॉप्टर की तरह घुमाते हैं।",
-      "{dom} 20 सेकंड तक {sub} के निप्पल के साथ कठोरता से पेश आते हैं।",
-      "{dom} {sub} के निप्पल को काटते हैं।",
-      "सभी उत्पीड़क/परिवर्तनशील खिलाड़ी 30 सेकंड तक {sub} के निप्पल के साथ कठोरता से पेश आ सकते हैं।"
+    "Pinch/Pull/Suck": [
+      "{dom} pinches {sub}'s nipples hard.",
+      "{dom} sucks {sub}'s nipples hard.",
+      "{dom} pulls {sub}'s nipples.",
+      "{dom} nibbles on {sub}'s nipples.",
+      "{dom} twists {sub}'s nipples in both directions.",
+      "{dom} does a helicopter with {sub}'s nipples while pulling them.",
+      "{dom} gets rough with {sub}'s nipples for 20 seconds.",
+      "{dom} bites {sub}'s nipples.",
+      "All torturer/switch players may get rough with {sub}'s nipples for 30 seconds each."
     ],
-    "क्लिप/खिलौने": [
-      "{dom} 10 सेकंड तक {sub} के निप्पल पर खिलौना इस्तेमाल करते हैं।",
-      "{dom} खिलौना लगाकर {sub} के निप्पल को खींचते हैं।",
-      "{dom} {sub} के निप्पल को जोर से मोड़ते हैं।",
-      "{dom} {sub} के स्तन खिलौने को 10 बार झटका देते हैं।",
-      "{dom} {sub} के निप्पल के साथ कठोरता से पेश आते हैं।"
+    "Clips/Toys": [
+      "{dom} uses a toy on {sub}'s nipples for 10 seconds.",
+      "{dom} pulls {sub}'s nipples with a toy attached.",
+      "{dom} twists {sub}'s nipples hard.",
+      "{dom} flicks {sub}'s tit toy 10 times.",
+      "{dom} gets rough with {sub}'s nipples."
     ],
-    "जितना जोर से हो सके": [
-      "{dom} {sub} के निप्पल को जितना जोर से हो सके चिकोटी काटते हैं।",
-      "{dom} {sub} के निप्पल को जितना वे सह सकते हैं उतना खींचते हैं।",
-      "{dom} {sub} के निप्पल को तब तक मोड़ते हैं जब तक वे चिल्ला न उठें।",
-      "{dom} {sub} को अच्छा निप्पल चूसना/मालिश देते हैं।",
-      "{dom} {sub} की छाती/निप्पल को पीटते हैं।"
+    "As Hard As Possible": [
+      "{dom} pinches {sub}'s nipples as hard as possible.",
+      "{dom} pulls {sub}'s nipples as far as they can handle.",
+      "{dom} twists {sub}'s nipples until they cry out.",
+      "{dom} gives {sub} a nice nipple suck/massage.",
+      "{dom} beats {sub}'s chest/nipples."
     ]
   }
 }

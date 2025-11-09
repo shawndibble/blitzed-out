@@ -2,38 +2,38 @@
   "label": "Pies",
   "type": "foreplay",
   "actions": {
-    "Beso": [
-      "{sub} besa el empeine a {dom} durante 30 segundos.",
-      "{sub} besa la planta de los pies a {dom} durante 30 segundos.",
-      "{sub} besa cada uno de los dedos de los pies a {dom} durante 15 segundos.",
-      "{sub} besa los arcos de los pies a {dom} durante 30 segundos.",
-      "{sub} besa los talones a {dom} durante 30 segundos.",
-      "{sub} besa los tobillos a {dom} durante 30 segundos.",
-      "{sub} besa el pie de cada jugador dominante.",
-      "Cada jugador sumiso/cambiante debe besar el pie de {dom}.",
-      "{sub} frota los pies de {dom} en su cara durante 15 segundos."
+    "Kiss": [
+      "{sub} kisses the tops of {dom}'s feet for 30 seconds.",
+      "{sub} kisses the bottoms of {dom}'s feet for 30 seconds.",
+      "{sub} kisses each of {dom}'s toes for 15 seconds.",
+      "{sub} kisses the arches of {dom}'s feet for 30 seconds.",
+      "{sub} kisses the heels of {dom}'s feet for 30 seconds.",
+      "{sub} kisses the ankles of {dom}'s feet for 30 seconds.",
+      "{sub} kisses the foot of every dominant player.",
+      "Every submissive/switch player must kiss {dom}'s foot.",
+      "{sub} rubs {dom}'s feet on their face for 15 seconds."
     ],
-    "Chupar": [
-      "{sub} chupa los dedos de los pies a {dom} durante 30 segundos.",
-      "{sub} lame los arcos de los pies a {dom} durante 30 segundos.",
-      "{sub} chupa los talones a {dom} durante 30 segundos.",
-      "{sub} chupa los tobillos a {dom} durante 30 segundos.",
-      "{sub} chupa las plantas de los pies a {dom} durante 30 segundos.",
-      "{sub} chupa las puntas de los dedos de los pies a {dom} durante 15 segundos.",
-      "Cada jugador sumiso debe chupar uno de los dedos de los pies de {dom}.",
-      "{sub} chupa los dedos de los pies de cada jugador dominante.",
-      "{sub} debe lamer el pie de cada jugador dominante.",
-      "{sub} trata de meter el pie de {dom} en su boca.",
-      "Cada jugador sumiso debe lamer el pie de {dom}."
+    "Suck/Licks": [
+      "{sub} sucks on {dom}'s toes for 30 seconds.",
+      "{sub} licks the arches of {dom}'s feet for 30 seconds.",
+      "{sub} licks the heels of {dom}'s feet for 30 seconds.",
+      "{sub} sucks on the ankles of {dom}'s feet for 30 seconds.",
+      "{sub} licks the soles of {dom}'s feet for 30 seconds.",
+      "{sub} sucks on the tips of {dom}'s toes for 15 seconds.",
+      "Every submissive player must suck on one of {dom}'s toes.",
+      "{sub} sucks the toes of every dominant player.",
+      "{sub} must lick the foot of every dominant player.",
+      "{sub} tries to fit {dom}'s foot in their mouth.",
+      "Every submissive player must lick {dom}'s foot."
     ],
-    "Adoración": [
-      "{sub} adora los pies de {dom} durante 60 segundos (1m).",
-      "{sub} da a {dom} un masaje en los pies durante 120 segundos (2m).",
-      "{sub} besa y lame las plantas de los pies de {dom} durante 60 segundos (1m).",
-      "{sub} chupa los dedos de los pies a {dom} mientras le da un masaje en los pies durante 120 segundos (2m).",
-      "{sub} masajea los pies de {dom} con aceite/loción durante 120 segundos (2m).",
-      "{sub} usa sus manos y boca para adorar los pies de {dom} durante 180 segundos (3m).",
-      "{dom} tiene tantos jugadores sumisos/cambiantes como sea posible adorando sus pies durante 60 segundos (1m)."
+    "Worship": [
+      "{sub} worships {dom}'s feet for 60 seconds (1m).",
+      "{sub} gives {dom} a foot massage for 120 seconds (2m).",
+      "{sub} kisses and licks the soles of {dom}'s feet for 60 seconds (1m).",
+      "{sub} sucks on {dom}'s toes while massaging their feet for 120 seconds (2m).",
+      "{sub} massages {dom}'s feet with oil/lotion for 120 seconds (2m).",
+      "{sub} uses their hands and mouth to worship {dom}'s feet for 180 seconds (3m).",
+      "{dom} has as many submissive/switch players worship their feet for 60 seconds (1m)."
     ]
   }
 }

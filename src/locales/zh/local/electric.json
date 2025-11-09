@@ -1,39 +1,39 @@
 {
   "label": "电刺激",
   "type": "foreplay",
-  "dom": "控制者",
-  "sub": "接受者",
+  "dom": "Controller",
+  "sub": "Receiver",
   "actions": {
-    "轻度": [
-      "{dom} 使用TENS设备对 {sub} 的手臂施加温和的电流。",
-      "{dom} 在低设置下使用紫罗兰魔棒刺激 {sub} 的背部。",
-      "{dom} 将电极贴在 {sub} 的大腿上，以最低设置打开设备。",
-      "{dom} 使用导电手套给 {sub} 的肩膀做轻柔的电按摩。",
-      "{dom} 使用电刺激笔轻轻在 {sub} 的皮肤上划过。",
-      "{dom} 将电极贴在 {sub} 的小腿上，以低设置打开设备。"
+    "Light": [
+      "{dom} applies a gentle electrical current to {sub}'s arm using a TENS unit.",
+      "{dom} uses a violet wand on {sub}'s back at a low setting.",
+      "{dom} attaches electrodes to {sub}'s thighs and turns on the device at its lowest setting.",
+      "{dom} gives {sub} a light electrical massage on their shoulders using a conductive glove.",
+      "{dom} uses an electro stimulation pen to lightly trace along {sub}'s skin.",
+      "{dom} attaches electrodes to {sub}'s calves and turns on the device at a low setting."
     ],
-    "中度": [
-      "{dom} 使用TENS设备增加对 {sub} 手臂的电流强度。",
-      "{dom} 在中等设置下使用紫罗兰魔棒刺激 {sub} 的腹部。",
-      "{dom} 将电极贴在 {sub} 的乳头上，以中等设置打开设备。",
-      "{dom} 使用导电垫对 {sub} 的臀部施加电流。",
-      "{dom} 使用电刺激笔沿着 {sub} 的肌肉划过。",
-      "{dom} 将电极贴在 {sub} 的上臂，以中等设置打开设备。"
+    "Medium": [
+      "{dom} increases the intensity of the electrical current on {sub}'s arm using a TENS unit.",
+      "{dom} uses a violet wand on {sub}'s stomach at a medium setting.",
+      "{dom} attaches electrodes to {sub}'s nipples and turns on the device at a medium setting.",
+      "{dom} applies an electrical current to {sub}'s buttocks using a conductive pad.",
+      "{dom} uses an electro stimulation pen to trace along {sub}'s muscles.",
+      "{dom} attaches electrodes to {sub}'s upper arms and turns on the device at a medium setting."
     ],
-    "高强度": [
-      "{dom} 使用TENS设备将对 {sub} 手臂的电流强度调到最高安全设置。",
-      "{dom} 在高设置下使用紫罗兰魔棒刺激 {sub} 的生殖器。",
-      "{dom} 将电极贴在 {sub} 的大腿内侧，以最高安全设置打开设备。",
-      "{dom} 使用导电手套给 {sub} 的背部做高强度电按摩。",
-      "{dom} 使用电刺激笔沿着 {sub} 的神经末梢划过。",
-      "{dom} 将电极贴在 {sub} 的下背部，以高设置打开设备。"
+    "High": [
+      "{dom} turns the intensity of the electrical current on {sub}'s arm to its highest safe setting using a TENS unit.",
+      "{dom} uses a violet wand on {sub}'s genitals at a high setting.",
+      "{dom} attaches electrodes to {sub}'s inner thighs and turns on the device at its highest safe setting.",
+      "{dom} gives {sub} a high-intensity electrical massage on their back using a conductive glove.",
+      "{dom} uses an electro stimulation pen to trace along {sub}'s nerve endings.",
+      "{dom} attaches electrodes to {sub}'s lower back and turns on the device at a high setting."
     ],
-    "挑战性": [
-      "{dom} 在低设置下使用紫罗兰魔棒刺激 {sub} 的舌头。",
-      "{dom} 将电极贴在 {sub} 的脚上，以具有挑战性但安全的设置打开设备。",
-      "{dom} 使用多个设备同时对 {sub} 身体的多个部位施加电流。",
-      "{dom} 使用电刺激笔沿着 {sub} 的敏感部位划过。",
-      "{dom} 将电极贴在 {sub} 的腹部，以具有挑战性但安全的设置打开设备。"
+    "Challenging": [
+      "{dom} uses a violet wand on {sub}'s tongue at a low setting.",
+      "{dom} attaches electrodes to {sub}'s feet and turns on the device at a challenging but safe setting.",
+      "{dom} applies electrical current to multiple areas of {sub}'s body at once using multiple devices.",
+      "{dom} uses an electro stimulation pen to trace along {sub}'s sensitive areas.",
+      "{dom} attaches electrodes to {sub}'s abdomen and turns on the device at a challenging but safe setting."
     ]
   }
 }

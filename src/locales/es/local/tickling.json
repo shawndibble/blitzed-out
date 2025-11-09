@@ -1,57 +1,57 @@
 {
   "label": "Cosquillas",
   "type": "foreplay",
-  "dom": "Hace cosquillas",
-  "sub": "Cosquilleado",
+  "dom": "Tickler",
+  "sub": "Ticklee",
   "actions": {
-    "Ligero": [
-      "{dom} frota suavemente su dedo en una zona sensible de {sub}.",
-      "{dom} usa un objeto para hacer cosquillas a {sub} durante 15 segundos.",
-      "{dom} roza suavemente las axilas de {sub} durante 10 segundos.",
-      "{dom} roza suavemente las plantas de los pies de {sub}.",
-      "{dom} da besos o sopla suavemente en una zona sensible de {sub} durante 15 segundos.",
-      "{dom} traza 3 formas con su dedo en una zona sensible de {sub}.",
-      "{dom} hace cosquillas suavemente a {sub} durante 10 segundos.",
-      "{sub} mantiene la cara seria mientras {dom} frota suavemente una zona sensible durante 10 segundos.",
-      "{dom} da besos suaves en 3 áreas diferentes de {sub} para ver si tiene cosquillas allí.",
-      "{dom} hace cosquillas en el ombligo de {sub} durante 15 segundos.",
-      "{dom} acaricia suavemente el cuello de {sub} con un objeto suave (como una pluma).",
-      "{dom} hace cosquillas en los lóbulos de las orejas de {sub} durante 10 segundos.",
-      "{dom} traza un círculo alrededor del ombligo de {sub} durante 15 segundos."
+    "Light": [
+      "{dom} lightly rubs their finger in a ticklish zone of {sub}.",
+      "{dom} uses an item to tickle {sub} for 15 seconds.",
+      "{dom} lightly grazes the armpits of {sub} for 10 seconds.",
+      "{dom} lightly scratches the soles of {sub}'s feet.",
+      "{dom} gives light kisses or blows on a sensitive area of {sub} for 15 seconds.",
+      "{dom} traces 3 shapes with their finger in a sensitive area of {sub}.",
+      "{dom} lightly tickles {sub} for 10 seconds.",
+      "{sub} keeps a straight face as {dom} lightly rubs a sensitive area for 10 seconds.",
+      "{dom} gives light kisses to 3 different areas of {sub} to see if they are ticklish there.",
+      "{dom} tickles the belly button of {sub} for 15 seconds.",
+      "{dom} lightly brushes a soft item (like a feather) against {sub}'s neck.",
+      "{dom} tickles the earlobes of {sub} for 10 seconds.",
+      "{dom} traces a circle around the navel of {sub} for 15 seconds."
     ],
     "Normal": [
-      "{dom} hace cosquillas a {sub} durante 30 segundos.",
-      "{dom} da empujoncitos juguetones a {sub}.",
-      "{dom} usa un objeto para hacer cosquillas a {sub} durante 30 segundos.",
-      "{dom} hace cosquillas a {sub} en una misma zona mientras tiene vendados los ojos durante 30 segundos.",
-      "{dom} besa/sopla una zona sensible de {sub}.",
-      "{dom} busca tantas zonas con cosquillas de {sub} como pueda durante 15 segundos.",
-      "{sub} mantiene la cara seria mientras {dom} frota suavemente una zona sensible durante 30 segundos.",
-      "{dom} hace cosquillas en los costados de {sub} durante 30 segundos.",
-      "{dom} hace cosquillas la parte posterior de las rodillas de {sub} durante 30 segundos.",
-      "{dom} hace cosquillas en los pies de {sub} durante 30 segundos.",
-      "{dom} hace cosquillas en las axilas de {sub} durante 30 segundos."
+      "{dom} tickles {sub} for 30 seconds.",
+      "{dom} playfully pokes {sub}.",
+      "{dom} uses an item to tickle {sub} for 30 seconds.",
+      "{dom} tickles {sub} in a single spot while {sub} is blindfolded for 30 seconds.",
+      "{dom} kisses/blows a sensitive zone of {sub}.",
+      "{dom} finds as many ticklish zones as they can on {sub} within 15 seconds.",
+      "{sub} keeps a straight face as {dom} lightly rubs a sensitive area for 30 seconds.",
+      "{dom} tickles the sides of {sub} for 30 seconds.",
+      "{dom} tickles the back of the knees of {sub} for 30 seconds.",
+      "{dom} tickles the feet of {sub} with their fingers for 30 seconds.",
+      "{dom} tickles the ribs of {sub} for 30 seconds."
     ],
-    "Intenso": [
-      "{dom} da a {sub} una frase de seguridad y luego le hace cosquillas hasta que diga la frase.",
-      "{dom} hace cosquillas a {sub} bruscamente durante 45 segundos.",
-      "{dom} besa/chupa agresivamente una zona sensible de {sub}.",
-      "{dom} frota una zona sensible de {sub} durante 45 segundos.",
-      "{dom} hace cosquillas a {sub} bruscamente durante 20 segundos.",
-      "{dom} hace cosquillas en los pies a {sub} con un objeto suave (como una pluma) durante 45 segundos.",
-      "{dom} cosquillea las axilas de {sub} con los dedos durante 45 segundos.",
-      "{dom} cosquillea el cuello de {sub} con la lengua durante 45 segundos.",
-      "{dom} cosquillea los muslos internos de {sub} durante 45 segundos."
+    "Intense": [
+      "{dom} gives {sub} a phrase to stop and then tickles that player until they say the phrase.",
+      "{dom} tickles {sub} roughly for 45 seconds.",
+      "{dom} aggressively kisses/sucks a ticklish zone on {sub}.",
+      "{dom} rubs a ticklish zone of {sub} for 45 seconds.",
+      "{dom} tickles {sub} for 20 seconds.",
+      "{dom} tickles the feet of {sub} with a soft item (like a feather) for 45 seconds.",
+      "{dom} tickles the armpits of {sub} with their fingers for 45 seconds.",
+      "{dom} tickles the neck of {sub} with their tongue for 45 seconds.",
+      "{dom} tickles the inner thighs of {sub} for 45 seconds."
     ],
-    "Sobrecarga sensorial": [
-      "{dom} cosquillea a {sub} durante 60 segundos.",
-      "{sub} se acuesta en estrella (atado si es necesario) y {dom} lo cosquillea de cualquier manera durante 60 segundos.",
-      "{sub} cierra los ojos y tiene tantas manos/objetos como sea posible cosquilleándolo durante 60 segundos.",
-      "{dom} cosquillea rápidamente a {sub} en sus 3 zonas más cosquillosas durante 60 segundos.",
-      "{dom} da a {sub} una frase para detenerse y luego lo cosquillea hasta que diga la frase 3 veces",
-      "{dom} cosquillea a {sub} como quiera (mínimo de 15 segundos) hasta el próximo turno del cosquilleado.",
-      "{dom} cosquillea las axilas de {sub} con un objeto suave (como una pluma) durante 60 segundos.",
-      "{dom} cosquillea a {sub} con varios objetos suaves (como plumas) a la vez durante 60 segundos."
+    "Sensory Overload": [
+      "{dom} tickles {sub} for 60 seconds.",
+      "{sub} lay spread eagle (bound if needed) and {dom} tickles them any way for 60 seconds.",
+      "{sub} closes their eyes and has as many hands/items as possible tickle them for 60 seconds.",
+      "{dom} rapidly tickles {sub} in their 3 most ticklish zones for 60 seconds.",
+      "{dom} gives {sub} a phrase to stop and then tickles until the phrase is said 3 times",
+      "{dom} tickles {sub} as they wish (minimum of 15 seconds) until the ticklee's next turn.",
+      "{dom} tickles the armpits of {sub} with a soft item (like a feather) for 60 seconds.",
+      "{dom} tickles {sub} with multiple soft items (like a feather) at once for 60 seconds."
     ]
   }
 }
