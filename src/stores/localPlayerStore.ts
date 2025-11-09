@@ -93,8 +93,14 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
 
       // Basic actions
       setSession: (session) => {
+        console.log('[LocalPlayerStore] setSession called:', {
+          players: session?.players.map((p: any) => ({ name: p.name, gender: p.gender })),
+        });
         // Migrate session if needed
         const migratedSession = session ? get()._migrateSession(session) : null;
+        console.log('[LocalPlayerStore] After migration in setSession:', {
+          players: migratedSession?.players.map((p: any) => ({ name: p.name, gender: p.gender })),
+        });
         set({ session: migratedSession, error: null });
       },
 
@@ -137,9 +143,16 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
       // Async actions
       initSession: async (roomId, players, settings) => {
         try {
+          console.log('[LocalPlayerStore] initSession called:', {
+            roomId,
+            players: players.map((p: any) => ({ name: p.name, gender: p.gender })),
+          });
           set({ isLoading: true, error: null });
 
           const session = await localPlayerService.createSession(roomId, players, settings);
+          console.log('[LocalPlayerStore] Session created from service:', {
+            players: session.players.map((p: any) => ({ name: p.name, gender: p.gender })),
+          });
 
           set({
             session,
@@ -246,7 +259,19 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
         if (state) {
           // Migrate session if it exists to ensure all fields are present
           if (state.session) {
+            console.log('[LocalPlayerStore] Rehydrating session from localStorage:', {
+              playersBeforeMigration: state.session.players.map((p: any) => ({
+                name: p.name,
+                gender: p.gender,
+              })),
+            });
             state.session = state._migrateSession(state.session);
+            console.log('[LocalPlayerStore] After migration:', {
+              playersAfterMigration: state.session.players.map((p: any) => ({
+                name: p.name,
+                gender: p.gender,
+              })),
+            });
           }
           state.isLoading = false;
           state.error = null;
