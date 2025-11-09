@@ -30,7 +30,7 @@ interface LocalPlayerState {
 
   // Actions
   setSession: (session: LocalPlayerSession | null) => void;
-  clearSession: () => void;
+  clearSession: () => Promise<void>;
   setError: (error: string | null) => void;
   setLoading: (loading: boolean) => void;
 
@@ -127,7 +127,19 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
         };
       },
 
-      clearSession: () => {
+      clearSession: async () => {
+        const currentSession = get().session;
+
+        // Delete from Dexie database if session exists
+        if (currentSession?.id) {
+          try {
+            await db.localPlayerSessions.where('sessionId').equals(currentSession.id).delete();
+          } catch {
+            // Silently fail - session might not exist in database
+          }
+        }
+
+        // Clear from service and store
         localPlayerService.clearCurrentSession();
         set({ session: null, error: null });
       },
@@ -280,8 +292,8 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
                 };
                 await db.localPlayerSessions.add(dbSessionData);
               }
-            } catch (error) {
-              console.error('Failed to sync session to database:', error);
+            } catch {
+              // Silently fail - session will be recreated if needed
             }
           }
           state.isLoading = false;

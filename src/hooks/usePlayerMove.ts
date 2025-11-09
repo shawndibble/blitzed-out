@@ -290,17 +290,15 @@ export default function usePlayerMove(
         const isFinished = newLocation === gameBoard.length - 1; // Last tile = finished
         localPlayerService
           .updatePlayerPosition(session.id, currentPlayer.id, newLocation, isFinished)
-          .catch((error) => {
-            console.error('Failed to update local player position:', error);
+          .catch(() => {
+            // Silently handle - session sync will recover on next reload
           });
       }
 
       // send our message.
-      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage).catch(
-        (error) => {
-          console.error('Failed to send roll message:', error);
-        }
-      );
+      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage).catch(() => {
+        // Silently handle message send failures
+      });
     } else {
       console.error(
         `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}, tile exists:`,

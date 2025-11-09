@@ -200,11 +200,6 @@ export default function actionStringReplacement(
       }
     }
 
-    console.log('[ActionString] Role assignments:', {
-      dom: roleAssignments.dom ? roleAssignments.dom.name : null,
-      sub: roleAssignments.sub ? roleAssignments.sub.name : null,
-    });
-
     // STEP 0: Handle new pipe syntax {anatomy|role} (e.g., "{genital|dom}", "{hole|other}")
     const pipedAnatomyPattern = /\{(genital|hole|chest|pronoun_\w+)\|(dom|sub|other|self)\}/g;
     newAction = newAction.replace(pipedAnatomyPattern, (_match, anatomyType, targetRole) => {
@@ -246,18 +241,6 @@ export default function actionStringReplacement(
     newAction = newAction.replace(contextualAnatomyPattern, (match, roleType, anatomyType) => {
       // Use role assignments instead of looking for player by role
       const rolePlayer = roleAssignments[roleType as 'dom' | 'sub'];
-      console.log('[ActionString] Contextual anatomy replacement:', {
-        match,
-        roleType,
-        anatomyType,
-        rolePlayer: rolePlayer
-          ? { name: rolePlayer.name, gender: rolePlayer.gender, role: rolePlayer.role }
-          : null,
-        roleAssignments: {
-          dom: roleAssignments.dom?.name || 'none',
-          sub: roleAssignments.sub?.name || 'none',
-        },
-      });
       if (rolePlayer) {
         const anatomyTerm = getContextualAnatomyTerm(
           anatomyType,
@@ -266,7 +249,6 @@ export default function actionStringReplacement(
           newAction,
           currentLocale
         );
-        console.log('[ActionString] Anatomy term result:', { anatomyTerm });
         return `{${roleType}}'s ${anatomyTerm}`;
       }
       return match;
