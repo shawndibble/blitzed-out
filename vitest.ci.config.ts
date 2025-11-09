@@ -36,6 +36,8 @@ export default defineConfig({
         // Conservative thread count for CI (GitHub Actions has 2 cores)
         minThreads: 1,
         maxThreads: 2,
+        // Increase teardown timeout to prevent worker timeout issues
+        teardownTimeout: 30000,
       },
     },
 
