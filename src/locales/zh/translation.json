@@ -535,8 +535,7 @@
     "gender": {
       "male": "男性",
       "female": "女性",
-      "nonBinary": "非二元",
-      "preferNotSay": "不願透露"
+      "nonBinary": "非二元"
     }
   },
   "localPlayerSettings": {
@@ -595,7 +594,6 @@
     "endCallButton": "結束通話",
     "startCall": "開始通話",
     "participantCount": "{{count}} 位參與者",
-    "participantCount_plural": "{{count}} 位參與者",
     "muted": "已靜音",
     "cameraOff": "攝影機已關閉",
     "waitingForOthers": "等待其他人加入...",
