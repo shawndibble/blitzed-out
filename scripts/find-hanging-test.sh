@@ -16,7 +16,7 @@ for test_file in $test_files; do
   echo "[$current/$total] Testing: $test_file"
 
   # Run with 5 second timeout
-  timeout 5s npx vitest run "$test_file" --reporter=dot --no-coverage 2>&1 > /dev/null
+  timeout 5s npx vitest run "$test_file" --reporter=dot --no-coverage > /dev/null 2>&1
 
   exit_code=$?
 
