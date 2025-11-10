@@ -3,6 +3,8 @@ import {
   Autocomplete,
   Box,
   Button,
+  Chip,
+  Collapse,
   FormControl,
   InputLabel,
   MenuItem,
@@ -10,6 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { ExpandMore, HelpOutline } from '@mui/icons-material';
 import { FocusEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
@@ -56,6 +59,7 @@ export default function AddCustomTile({
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
   const [groupsRefreshTrigger, setGroupsRefreshTrigger] = useState(0);
+  const [placeholderHelpOpen, setPlaceholderHelpOpen] = useState(false);
 
   // Get groups for current locale/gameMode using shared filters
   const { groups } = useEditorGroupsReactive(sharedFilters.gameMode, settings.locale || 'en');
@@ -103,8 +107,7 @@ export default function AddCustomTile({
         } else {
           setValidationMessage('');
         }
-      } catch (error) {
-        console.error('Error validating tile:', error);
+      } catch {
         setValidationMessage('');
       }
     };
@@ -429,6 +432,152 @@ export default function AddCustomTile({
                 }
               }}
             />
+
+            {/* Placeholder Help Section */}
+            <Box sx={{ mb: 2 }}>
+              <Button
+                fullWidth
+                variant="text"
+                onClick={() => setPlaceholderHelpOpen(!placeholderHelpOpen)}
+                aria-expanded={placeholderHelpOpen}
+                aria-controls="placeholder-help-content"
+                sx={{
+                  justifyContent: 'flex-start',
+                  textTransform: 'none',
+                  mb: 1,
+                  '&:hover': { bgcolor: 'action.hover' },
+                  borderRadius: 1,
+                  p: 0.5,
+                }}
+              >
+                <HelpOutline sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography
+                  variant="body2"
+                  sx={{ flexGrow: 1, color: 'primary.main', textAlign: 'left' }}
+                >
+                  {t('customTiles.placeholderHelp.title')}
+                </Typography>
+                <ExpandMore
+                  sx={{
+                    transform: placeholderHelpOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s',
+                    color: 'primary.main',
+                  }}
+                  aria-hidden="true"
+                />
+              </Button>
+
+              <Collapse in={placeholderHelpOpen} id="placeholder-help-content">
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: 'action.selected',
+                    borderRadius: 1,
+                    borderLeft: 3,
+                    borderLeftColor: 'primary.main',
+                  }}
+                >
+                  <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+                    {t('customTiles.placeholderHelp.description')}
+                  </Typography>
+
+                  {/* Role Placeholders */}
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                    {t('customTiles.placeholderHelp.rolePlaceholders')}
+                  </Typography>
+                  <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <Chip
+                      label="{player}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.player')}
+                    />
+                    <Chip
+                      label="{dom}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.dom')}
+                    />
+                    <Chip
+                      label="{sub}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.sub')}
+                    />
+                  </Box>
+
+                  {/* Anatomy Placeholders */}
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                    {t('customTiles.placeholderHelp.anatomyPlaceholders')}
+                  </Typography>
+                  <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <Chip
+                      label="{genital}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.genital')}
+                    />
+                    <Chip
+                      label="{hole}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.hole')}
+                    />
+                    <Chip
+                      label="{chest}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.chest')}
+                    />
+                    <Chip
+                      label="{pronoun_subject}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.pronounSubject')}
+                    />
+                    <Chip
+                      label="{pronoun_object}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.pronounObject')}
+                    />
+                    <Chip
+                      label="{pronoun_possessive}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.pronounPossessive')}
+                    />
+                    <Chip
+                      label="{pronoun_reflexive}"
+                      size="small"
+                      sx={{ fontFamily: 'monospace' }}
+                      aria-label={t('customTiles.placeholderHelp.pronounReflexive')}
+                    />
+                  </Box>
+
+                  {/* Example */}
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                    {t('customTiles.placeholderHelp.examples')}
+                  </Typography>
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      bgcolor: 'background.paper',
+                      borderRadius: 1,
+                      fontFamily: 'monospace',
+                      fontSize: '0.85rem',
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
+                      {t('customTiles.placeholderHelp.exampleAction')}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 'bold' }}>
+                      → {t('customTiles.placeholderHelp.exampleResult')}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Collapse>
+            </Box>
 
             <Autocomplete
               id="tags"

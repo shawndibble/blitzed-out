@@ -119,16 +119,30 @@ describe('GameBoard', () => {
     });
 
     vi.mocked(actionStringReplacement).mockImplementation(
-      (description, _role, displayName, _localPlayers, useGenericPlaceholders) =>
+      (description, _role, displayName, _localPlayers, useGenericPlaceholders, _gender, _locale) =>
         description
           ? useGenericPlaceholders
             ? description
                 .replace(/{player}/g, 'the current player')
                 .replace(/{dom}/g, 'a dominant')
                 .replace(/{sub}/g, 'a submissive')
+                .replace(/{genital}/g, 'genitals')
+                .replace(/{hole}/g, 'hole')
+                .replace(/{chest}/g, 'chest')
+                .replace(/{pronoun_subject}/g, 'they')
+                .replace(/{pronoun_object}/g, 'them')
+                .replace(/{pronoun_possessive}/g, 'their')
+                .replace(/{pronoun_reflexive}/g, 'themselves')
             : description
                 .replace(/{player}/g, displayName || '')
                 .replace(/{(sub|dom)}/g, displayName || '')
+                .replace(/{genital}/g, 'genitals')
+                .replace(/{hole}/g, 'hole')
+                .replace(/{chest}/g, 'chest')
+                .replace(/{pronoun_subject}/g, 'they')
+                .replace(/{pronoun_object}/g, 'them')
+                .replace(/{pronoun_possessive}/g, 'their')
+                .replace(/{pronoun_reflexive}/g, 'themselves')
           : ''
     );
   });
@@ -397,8 +411,24 @@ describe('GameBoard', () => {
         />
       );
 
-      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User', undefined, true);
-      expect(actionStringReplacement).toHaveBeenCalledWith('', 'sub', 'Test User', undefined, true);
+      expect(actionStringReplacement).toHaveBeenCalledWith(
+        '',
+        'sub',
+        'Test User',
+        undefined,
+        true,
+        undefined,
+        undefined
+      );
+      expect(actionStringReplacement).toHaveBeenCalledWith(
+        '',
+        'sub',
+        'Test User',
+        undefined,
+        true,
+        undefined,
+        undefined
+      );
     });
 
     it('should handle user without display name', () => {
@@ -427,7 +457,9 @@ describe('GameBoard', () => {
         'sub', // Now uses settings.role instead of tile.role
         '',
         undefined,
-        true
+        true,
+        undefined,
+        undefined
       );
     });
 

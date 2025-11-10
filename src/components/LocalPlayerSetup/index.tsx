@@ -155,12 +155,13 @@ export default function LocalPlayerSetup({
           id: generatePlayerId(),
           name: playerData.name || generateDefaultName(),
           role: playerData.role || 'vers',
+          gender: playerData.gender || 'non-binary',
           order: players.length,
           isActive: players.length === 0, // First player is active
           deviceId: 'current_device',
           location: 0, // Start at beginning of board
           isFinished: false, // Not finished yet
-          sound: playerData.sound, // Include the sound property
+          sound: playerData.sound,
         };
         setPlayers((prev) => [...prev, newPlayer]);
       }

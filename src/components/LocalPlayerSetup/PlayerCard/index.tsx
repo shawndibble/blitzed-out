@@ -6,7 +6,6 @@ import {
   Typography,
   IconButton,
   Chip,
-  Avatar,
   Menu,
   MenuItem,
   ListItemIcon,
@@ -20,6 +19,7 @@ import {
   Person as PersonIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import PlayerGenderAvatar from '@/components/PlayerGenderAvatar';
 import type { LocalPlayer } from '@/types';
 import type { PlayerRole } from '@/types/Settings';
 
@@ -98,17 +98,6 @@ export default function PlayerCard({
     onRoleChange?.(player.id, newRole);
   };
 
-  const getPlayerInitials = (name: string): string => {
-    return (
-      name
-        .split(' ')
-        .map((word) => word.charAt(0))
-        .join('')
-        .toUpperCase()
-        .slice(0, 2) || 'P'
-    );
-  };
-
   const getRoleColor = (role: PlayerRole): 'primary' | 'secondary' | 'default' => {
     switch (role) {
       case 'dom':
@@ -137,18 +126,10 @@ export default function PlayerCard({
     >
       <CardContentPadding>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-          {/* Player Avatar */}
-          <Avatar
-            sx={{
-              bgcolor: isActive ? 'primary.main' : 'grey.500',
-              marginTop: 0.5,
-              width: 24,
-              height: 24,
-              fontWeight: 'bold',
-            }}
-          >
-            {getPlayerInitials(player.name)}
-          </Avatar>
+          {/* Player Avatar with Gender Icon */}
+          <Box sx={{ marginTop: 0.5 }}>
+            <PlayerGenderAvatar gender={player.gender} isActive={isActive} size={32} />
+          </Box>
 
           {/* Player Info */}
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>

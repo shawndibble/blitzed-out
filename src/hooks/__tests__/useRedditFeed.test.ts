@@ -40,6 +40,7 @@ describe('useRedditFeed', () => {
   });
 
   afterEach(() => {
+    vi.clearAllTimers();
     vi.useRealTimers();
   });
 

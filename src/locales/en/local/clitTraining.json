@@ -1,8 +1,9 @@
 {
   "label": "Clit Training",
   "type": "sex",
-  "dom": "Clit Owner",
-  "sub": "Pleasure Giver",
+  "dom": "Receiver",
+  "sub": "Giver",
+  "anatomyRequirement": "pussy",
   "actions": {
     "Light Touch": [
       "{sub} traces circles around {dom}'s clit with their finger.",
@@ -12,10 +13,10 @@
       "{sub} breathes warm air on {dom}'s clit.",
       "{dom} spreads {dom}'s legs while {sub} lightly teases {dom}'s clit.",
       "{sub} uses a soft brush to lightly stimulate {dom}'s clit.",
-      "{sub} gently pinches the hood around {dom}'s clit.",
+      "{sub} gently touches the sensitive areas around {dom}'s clit.",
       "{dom} orders {sub} to barely touch {dom}'s clit for 15 seconds while {dom} stays still.",
       "{sub} alternates between light touches and pulling away from {dom}'s clit.",
-      "{dom} has every pleasure giver/switch lightly tease {dom}'s clit in turn."
+      "{dom} has every giver/switch lightly tease {dom}'s clit in turn."
     ],
     "Direct Stimulation": [
       "{sub} rubs {dom}'s clit in slow circles for 15 seconds.",
@@ -28,10 +29,10 @@
       "{dom} makes {sub} stimulate {dom}'s clit while {dom} counts to 30.",
       "{sub} alternates between fast and slow clit stimulation.",
       "{dom} receives clit stimulation from each player before {dom}'s next turn.",
-      "{dom} has every pleasure giver/switch stimulate {dom}'s clit for 15 seconds each.",
+      "{dom} has every giver/switch stimulate {dom}'s clit for 15 seconds each.",
       "{dom} orders {sub} to remain quiet while giving intense clit stimulation.",
       "{sub} stimulates {dom}'s clit while {dom} performs another task.",
-      "{dom} has every pleasure giver/switch work on {dom}'s clit simultaneously.",
+      "{dom} has every giver/switch work on {dom}'s clit simultaneously.",
       "{dom} competes with another player to see who can handle clit stimulation longest."
     ],
     "Intense Focus": [
@@ -43,7 +44,7 @@
       "{dom} controls when {sub} can move during clit focus.",
       "{sub} alternates between intense stimulation and stopping completely.",
       "{dom} receives intense clit focus from each player for 45 seconds each.",
-      "{dom} has every pleasure giver/switch take turns giving intense clit stimulation.",
+      "{dom} has every giver/switch take turns giving intense clit stimulation.",
       "{dom} maintains eye contact while receiving intense clit stimulation."
     ],
     "Endurance Challenge": [
@@ -54,7 +55,7 @@
       "{dom} receives maximum intensity clit stimulation for as long as they want.",
       "{sub} edges {dom} repeatedly until {dom} decides to finish.",
       "{dom} endures clit stimulation from multiple players and controls when to finish.",
-      "{dom} has every pleasure giver/switch compete to see who can please them longest."
+      "{dom} has every giver/switch compete to see who can please them longest."
     ]
   }
 }

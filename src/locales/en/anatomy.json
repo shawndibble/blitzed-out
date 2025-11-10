@@ -1,0 +1,80 @@
+{
+  "penetrativeKeywords": [
+    "deep",
+    "throat",
+    "penetrate",
+    "inside",
+    "enters",
+    "pushes into",
+    "slides in",
+    "fills",
+    "stretches",
+    "takes",
+    "rides",
+    "bounces on",
+    "impales"
+  ],
+  "genericAnatomyTerms": {
+    "genital": "genitals",
+    "hole": "hole",
+    "chest": "chest",
+    "pronoun_subject": "they",
+    "pronoun_object": "them",
+    "pronoun_possessive": "their",
+    "pronoun_reflexive": "themselves"
+  },
+  "anatomyRequirements": {
+    "any": "Universal (all players)",
+    "penis": "Requires male anatomy",
+    "pussy": "Requires female anatomy",
+    "anus": "Universal (all players)",
+    "breasts": "Requires breasts"
+  },
+  "incompatibilityReasons": {
+    "requiresSpecificAnatomy": "Requires specific anatomy ({{requirement}})",
+    "requiresMaleAnatomy": "Requires male anatomy",
+    "requiresFemaleAnatomy": "Requires female anatomy",
+    "requiresBreasts": "Requires breasts"
+  },
+  "anatomyMappings": {
+    "male": {
+      "genital": "dick",
+      "hole": "hole",
+      "chest": "chest",
+      "pronoun_subject": "he",
+      "pronoun_object": "him",
+      "pronoun_possessive": "his",
+      "pronoun_reflexive": "himself"
+    },
+    "female": {
+      "genital": "pussy",
+      "hole": "pussy",
+      "chest": "breasts",
+      "pronoun_subject": "she",
+      "pronoun_object": "her",
+      "pronoun_possessive": "her",
+      "pronoun_reflexive": "herself"
+    },
+    "non-binary": {
+      "genital": "genitals",
+      "hole": "hole",
+      "chest": "chest",
+      "pronoun_subject": "they",
+      "pronoun_object": "them",
+      "pronoun_possessive": "their",
+      "pronoun_reflexive": "themselves"
+    },
+    "prefer-not-say": {
+      "genital": "genitals",
+      "hole": "hole",
+      "chest": "chest",
+      "pronoun_subject": "they",
+      "pronoun_object": "them",
+      "pronoun_possessive": "their",
+      "pronoun_reflexive": "themselves"
+    }
+  },
+  "straponTerms": {
+    "strapon": "strapon"
+  }
+}

@@ -51,13 +51,23 @@ function parseDescription(
   text: string | undefined,
   role: string,
   displayName: string,
-  localPlayers?: import('@/types/localPlayers').LocalPlayer[]
+  localPlayers?: import('@/types/localPlayers').LocalPlayer[],
+  gender?: import('@/types/localPlayers').PlayerGender,
+  locale?: string
 ): string {
   if (!text) return '';
   // our finish tile has %, so if we have it, figure out the result.
   const textArray = text.split('%');
   if (textArray.length <= 1) {
-    return actionStringReplacement(text, role || '', displayName || '', localPlayers, false);
+    return actionStringReplacement(
+      text,
+      role || '',
+      displayName || '',
+      localPlayers,
+      false,
+      gender,
+      locale
+    );
   }
 
   return getFinishResult(textArray);
@@ -112,13 +122,17 @@ export default function usePlayerMove(
         isInLocalMultiplayerMode && currentPlayer ? currentPlayer.name : user?.displayName || '';
       const playerRole =
         isInLocalMultiplayerMode && currentPlayer ? currentPlayer.role : settings.role || 'sub';
+      const playerGender =
+        isInLocalMultiplayerMode && currentPlayer ? currentPlayer.gender : settings.gender;
 
       // Safely access newTile properties with default values if they don't exist
       const description = parseDescription(
         newTile.description || '',
         playerRole,
         playerName,
-        isInLocalMultiplayerMode && session ? session.players : undefined
+        isInLocalMultiplayerMode && session ? session.players : undefined,
+        playerGender,
+        settings.locale
       );
 
       if (rollNumber !== -1) {
@@ -163,6 +177,8 @@ export default function usePlayerMove(
       user,
       t,
       settings.role,
+      settings.gender,
+      settings.locale,
       hasLocalPlayers,
       isLocalPlayerRoom,
       currentPlayer,
@@ -274,17 +290,15 @@ export default function usePlayerMove(
         const isFinished = newLocation === gameBoard.length - 1; // Last tile = finished
         localPlayerService
           .updatePlayerPosition(session.id, currentPlayer.id, newLocation, isFinished)
-          .catch((error) => {
-            console.error('Failed to update local player position:', error);
+          .catch(() => {
+            // Silently handle - session sync will recover on next reload
           });
       }
 
       // send our message.
-      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage).catch(
-        (error) => {
-          console.error('Failed to send roll message:', error);
-        }
-      );
+      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage).catch(() => {
+        // Silently handle message send failures
+      });
     } else {
       console.error(
         `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}, tile exists:`,

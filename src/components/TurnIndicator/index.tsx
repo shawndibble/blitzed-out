@@ -27,8 +27,8 @@ export default function TurnIndicator(): JSX.Element | null {
   if (!message || !player) return null;
 
   const isYourTurn = player?.isSelf;
-  const showOnMyTurn = !othersDialog && isYourTurn;
-  const showOnOthersTurn = !playerDialog && !isYourTurn;
+  const showOnMyTurn = !playerDialog && isYourTurn;
+  const showOnOthersTurn = !othersDialog && !isYourTurn;
 
   if (showOnMyTurn || showOnOthersTurn) {
     return (

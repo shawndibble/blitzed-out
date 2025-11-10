@@ -3,6 +3,7 @@
   "type": "sex",
   "dom": "Buster",
   "sub": "Bustee",
+  "anatomyRequirement": "penis",
   "actions": {
     "Slap/Squeeze": [
       "{dom} gives a light slap to {sub} after anyone rolls.",

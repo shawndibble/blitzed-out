@@ -88,8 +88,9 @@ export default function Room() {
       const newCurrentPlayer = localPlayers[currentIndex];
 
       if (newCurrentPlayer) {
-        // Show turn transition if enabled
-        if (sessionSettings.showTurnTransitions) {
+        // Show turn transition if enabled AND playerDialog is disabled
+        // (to avoid showing both roll dialog and turn transition)
+        if (sessionSettings.showTurnTransitions && !settings.playerDialog) {
           setTransitionPlayerName(newCurrentPlayer.name);
           setIsTransitionForCurrentUser(false); // Always show player name for local multiplayer
           setShowTransition(true);
@@ -130,6 +131,7 @@ export default function Room() {
     const isNewMessage = latestActionMessage !== previousMessageRef.current;
 
     // Only show transition if it's a new message AND nextPlayer changed to be yourself
+    // In multi-device mode, playerDialog only affects YOUR rolls, not the "Your Turn" transition
     if (isNewMessage && nextPlayer.isSelf && !previousNextPlayerRef.current?.isSelf) {
       // Show turn transition when it's your turn (multi-device)
       setTransitionPlayerName(nextPlayer.displayName);
@@ -155,7 +157,7 @@ export default function Room() {
   }, []);
 
   // Use usePlayerMove directly
-  const { playerList, tile } = usePlayerMove(room, rollValue, gameBoard);
+  const { tile } = usePlayerMove(room, rollValue, gameBoard);
   const hybridPlayerList = useHybridPlayerList();
 
   // Track game session on component unmount
@@ -188,7 +190,7 @@ export default function Room() {
   if (!isRoomReady(gameBoard, settings, room, settings.gameMode, isImporting)) {
     return (
       <>
-        <Navigation room={params.id} playerList={playerList as any} />
+        <Navigation room={params.id} playerList={hybridPlayerList as any} />
         <GameSettingsDialog open={true} />
       </>
     );
@@ -198,7 +200,7 @@ export default function Room() {
   if (isImporting) {
     return (
       <>
-        <Navigation room={params.id} playerList={playerList as any} />
+        <Navigation room={params.id} playerList={hybridPlayerList as any} />
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
           <CircularProgress size={48} />
         </Box>

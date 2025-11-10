@@ -3,25 +3,25 @@
   "type": "sex",
   "actions": {
     "Masturbation": [
-      "{sub} caresse la bite de {dom} lentement 30 fois",
+      "{sub} caresse le {genital} de {dom} lentement 30 fois",
       "{sub} branle {dom} aussi vite qu'il peut pendant 30 secondes.",
       "{player} synchronise sa branle avec sa respiration jusqu'à son prochain tour.",
-      "{sub} applique du lubrifiant/salive sur les bites de tous les autres joueurs.",
+      "{sub} applique du lubrifiant/salive sur le {genital} de tous les autres joueurs.",
       "{sub} passe 30 secondes à branler jusqu'à 2 autres joueurs.",
-      "{player} se caresse la bite 30 fois, en respirant profondément à chaque coup.",
-      "{sub} frotte légèrement son doigt sur la bite de {dom}.",
+      "{player} se caresse le {genital|self} 30 fois, en respirant profondément à chaque coup.",
+      "{sub} frotte légèrement son doigt sur le {genital} de {dom}.",
       "{player} se branle avec sa main non dominante.",
       "{sub} effectue un kegel à chaque mouvement de branle qu'il donne à {dom} jusqu'à son prochain tour.",
       "{player} se branle en serrant très fort 30 fois.",
       "{sub} se branle tout en utilisant son autre main sur une zone érogène de {dom}.",
       "{player} se branle et branle {dom} en même temps.",
-      "{sub} joue avec la bite de {dom} avec ses deux mains.",
+      "{sub} joue avec le {genital} de {dom} avec ses deux mains.",
       "{player} se branle avec un mouvement de torsion de la main.",
-      "{player} utilise sa paume pour frotter son gland pendant 60 secondes.",
-      "{player} utilise deux doigts et se concentre uniquement sur le frein.",
+      "{player} utilise sa paume pour frotter son {genital|self} pendant 60 secondes.",
+      "{player} utilise deux doigts et se concentre sur les zones les plus sensibles de son {genital|self}.",
       "{player} alterne entre branle rapide et lente jusqu'à la prochaine action de Gooning.",
       "{player} expérimente différentes prises et pressions en se masturbant.",
-      "{dom} se fait caresser la bite 5 fois par tous les joueurs soumis.",
+      "{dom} se fait caresser le {genital|dom} 5 fois par tous les joueurs soumis.",
       "{sub} doit branler tous les joueurs dominants au moins 5 fois."
     ],
     "Edging": [
@@ -42,16 +42,16 @@
       "{sub} doit amener au bord de l'éjaculation tous les joueurs dominants au moins une fois."
     ],
     "Jouets": [
-      "{player} utilise un jouet sur ses organes génitaux.",
-      "{sub} utilise un jouet sur l'organe génital de {dom}.",
-      "{player} utilise lentement un jouet sur tout son pénis jusqu'à son prochain tour.",
+      "{player} utilise un jouet sur son {genital|self}.",
+      "{sub} utilise un jouet sur le {genital} de {dom}.",
+      "{player} utilise lentement un jouet sur son {genital|self} jusqu'à son prochain tour.",
       "{sub} utilise le jouet sur {dom} tout en se masturbant.",
-      "{player} utilise un jouet sur sa bite pendant 30 secondes les yeux fermés.",
-      "{player} utilise un jouet sur son périnée",
+      "{player} utilise un jouet sur son {genital|self} pendant 30 secondes les yeux fermés.",
+      "{player} utilise un jouet sous son {genital|self}",
       "{sub} se masturbe en reniflant les vêtements de {dom} (chaussure/sous-vêtements/etc...).",
       "{sub} se masturbe en utilisant un tissu (sous-vêtement/cumrag/etc...).",
-      "{player} utilise un jouet vibrant sur ses organes génitaux.",
-      "{dom} ferme les yeux tandis qu'un autre joueur au hasard caresse sa bite jusqu'à ce qu'une action du jeu interrompe l'un d'entre eux."
+      "{player} utilise un jouet vibrant sur son {genital|self}.",
+      "{dom} ferme les yeux tandis qu'un autre joueur au hasard caresse son {genital|dom} jusqu'à ce qu'une action du jeu interrompe l'un d'entre eux."
     ]
   }
 }

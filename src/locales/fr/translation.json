@@ -6,7 +6,26 @@
     "delete": "Supprimer",
     "noTilesFound": "Aucune tuile trouvée avec les filtres sélectionnés.",
     "showingTiles": "Affichage de {{shown}} sur {{total}} tuiles",
-    "gameMode": "Mode de jeu"
+    "gameMode": "Mode de jeu",
+    "placeholderHelp": {
+      "title": "Espaces Réservés Disponibles",
+      "description": "Utilisez des espaces réservés pour créer des actions inclusives qui s'adaptent à chaque joueur.",
+      "rolePlaceholders": "Espaces Réservés de Rôle",
+      "anatomyPlaceholders": "Espaces Réservés Anatomiques (Sensibles au Genre)",
+      "player": "Le nom du joueur actuel",
+      "dom": "Le nom d'un joueur dominant/switch",
+      "sub": "Le nom d'un joueur soumis/switch",
+      "genital": "S'adapte au genre du joueur (bite/chatte/organes génitaux)",
+      "hole": "S'adapte au genre du joueur (trou/chatte/trou)",
+      "chest": "S'adapte au genre du joueur (torse/seins/torse)",
+      "pronounSubject": "S'adapte au genre du joueur (il/elle/iel)",
+      "pronounObject": "S'adapte au genre du joueur (lui/elle/iel)",
+      "pronounPossessive": "S'adapte au genre du joueur (son/sa/son)",
+      "pronounReflexive": "S'adapte au genre du joueur (lui-même/elle-même/soi-même)",
+      "examples": "Voir les Exemples",
+      "exampleAction": "{dom} embrasse {sub} sur le {chest}",
+      "exampleResult": "Michel embrasse Jessica sur les seins"
+    }
   },
   "customTilesLabel": "Tuiles de jeu",
   "custom": "Personnalisé",
@@ -263,6 +282,7 @@
   "yesInteracting": "Oui, je joue avec des gens.",
   "noInteracting": "Non, je joue avec moi-même.",
   "yourRole": "Quel est votre rôle?",
+  "yourGender": "Quel est votre genre?",
   "areYouNaked": "Préliminaires (habillé) ou Sexe (nu)*?",
   "yesNaked": "Sexe: Nous sommes nus.",
   "noNaked": "Préliminaires: Nous sommes encore habillés.",
@@ -495,6 +515,8 @@
       "nameHelper": "Entrez un nom unique pour ce joueur (2-20 caractères)",
       "namePlaceholder": "Entrez le nom du joueur...",
       "roleLabel": "Rôle du Joueur",
+      "genderLabel": "Genre (Optionnel)",
+      "soundLabel": "Son de Tour",
       "helpText": "Vous pouvez modifier ces paramètres plus tard si nécessaire.",
       "saving": "Enregistrement...",
       "saveChanges": "Enregistrer les Modifications",
@@ -511,6 +533,12 @@
         "sub": "Suit et reçoit",
         "vers": "Flexible entre les rôles"
       }
+    },
+    "gender": {
+      "male": "Masculin",
+      "female": "Féminin",
+      "nonBinary": "Non-Binaire",
+      "preferNotSay": "Préfère Ne Pas Dire"
     }
   },
   "localPlayerSettings": {

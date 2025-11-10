@@ -1,0 +1,80 @@
+{
+  "penetrativeKeywords": [
+    "profundo",
+    "garganta",
+    "penetrar",
+    "dentro",
+    "entra",
+    "empuja dentro",
+    "se desliza",
+    "llena",
+    "estira",
+    "toma",
+    "cabalga",
+    "rebota sobre",
+    "empala"
+  ],
+  "genericAnatomyTerms": {
+    "genital": "genitales",
+    "hole": "agujero",
+    "chest": "pecho",
+    "pronoun_subject": "elle",
+    "pronoun_object": "elle",
+    "pronoun_possessive": "su",
+    "pronoun_reflexive": "sí misme"
+  },
+  "anatomyRequirements": {
+    "any": "Universal (todos los jugadores)",
+    "penis": "Requiere anatomía masculina",
+    "pussy": "Requiere anatomía femenina",
+    "anus": "Universal (todos los jugadores)",
+    "breasts": "Requiere pechos"
+  },
+  "incompatibilityReasons": {
+    "requiresSpecificAnatomy": "Requiere anatomía específica ({{requirement}})",
+    "requiresMaleAnatomy": "Requiere anatomía masculina",
+    "requiresFemaleAnatomy": "Requiere anatomía femenina",
+    "requiresBreasts": "Requiere pechos"
+  },
+  "anatomyMappings": {
+    "male": {
+      "genital": "polla",
+      "hole": "agujero",
+      "chest": "pecho",
+      "pronoun_subject": "él",
+      "pronoun_object": "él",
+      "pronoun_possessive": "su",
+      "pronoun_reflexive": "sí mismo"
+    },
+    "female": {
+      "genital": "coño",
+      "hole": "coño",
+      "chest": "pechos",
+      "pronoun_subject": "ella",
+      "pronoun_object": "ella",
+      "pronoun_possessive": "su",
+      "pronoun_reflexive": "sí misma"
+    },
+    "non-binary": {
+      "genital": "genitales",
+      "hole": "agujero",
+      "chest": "pecho",
+      "pronoun_subject": "elle",
+      "pronoun_object": "elle",
+      "pronoun_possessive": "su",
+      "pronoun_reflexive": "sí misme"
+    },
+    "prefer-not-say": {
+      "genital": "genitales",
+      "hole": "agujero",
+      "chest": "pecho",
+      "pronoun_subject": "elle",
+      "pronoun_object": "elle",
+      "pronoun_possessive": "su",
+      "pronoun_reflexive": "sí misme"
+    }
+  },
+  "straponTerms": {
+    "strapon": "arnés"
+  }
+}

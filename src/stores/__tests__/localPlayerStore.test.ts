@@ -17,6 +17,32 @@ vi.mock('@/services/localPlayerService', () => ({
   },
 }));
 
+// Mock the database
+vi.mock('@/stores/store', () => ({
+  default: {
+    localPlayerSessions: {
+      where: vi.fn(),
+      add: vi.fn(),
+    },
+  },
+}));
+
+// Mock the settings store
+vi.mock('@/stores/settingsStore', () => ({
+  useSettingsStore: {
+    getState: vi.fn(() => ({
+      settings: { gameMode: 'online' as const, room: 'PUBLIC', boardUpdated: false },
+      updateSettings: vi.fn(),
+      setLocale: vi.fn(),
+      resetSettings: vi.fn(),
+      updateSelectedAction: vi.fn(),
+      removeSelectedAction: vi.fn(),
+      clearSelectedActions: vi.fn(),
+      getSelectedActionsByType: vi.fn(),
+    })),
+  },
+}));
+
 describe('LocalPlayerStore', () => {
   let mockPlayers: LocalPlayer[];
   let mockSettings: LocalSessionSettings;
@@ -33,6 +59,7 @@ describe('LocalPlayerStore', () => {
         location: 0,
         isFinished: false,
         sound: '',
+        gender: 'non-binary',
       },
       {
         id: 'player-2',
@@ -44,6 +71,7 @@ describe('LocalPlayerStore', () => {
         location: 0,
         isFinished: false,
         sound: '',
+        gender: 'non-binary',
       },
     ];
 
@@ -372,8 +400,8 @@ describe('LocalPlayerStore', () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
       // Ensure we start with no session
-      act(() => {
-        result.current.clearSession();
+      await act(async () => {
+        await result.current.clearSession();
       });
 
       expect(result.current.session).toBeNull();
@@ -384,6 +412,219 @@ describe('LocalPlayerStore', () => {
 
       expect(result.current.error).toBe('No active session');
       expect(result.current.isLoading).toBe(false);
+    });
+  });
+
+  describe('Session Persistence', () => {
+    test('clearSession should delete session from Dexie database', async () => {
+      const { result } = renderHook(() => useLocalPlayerStore());
+
+      const mockSession = {
+        id: 'test-session-123',
+        roomId: 'TEST-ROOM',
+        players: mockPlayers,
+        currentPlayerIndex: 0,
+        isActive: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        settings: mockSettings,
+      };
+
+      // Set a session first
+      act(() => {
+        result.current.setSession(mockSession);
+      });
+
+      expect(result.current.session).toStrictEqual(mockSession);
+
+      // Mock database delete chain
+      const mockDelete = vi.fn().mockResolvedValue(undefined);
+      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
+      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
+
+      const db = await import('@/stores/store');
+      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
+
+      // Clear the session
+      await act(async () => {
+        await result.current.clearSession();
+      });
+
+      // Verify session was cleared
+      expect(result.current.session).toBeNull();
+      expect(result.current.error).toBeNull();
+
+      // Verify database delete was called for the room (not just session ID)
+      expect(mockWhere).toHaveBeenCalledWith('roomId');
+      expect(mockEquals).toHaveBeenCalledWith('TEST-ROOM');
+      expect(mockDelete).toHaveBeenCalled();
+    });
+
+    test('clearSession should handle database deletion errors gracefully', async () => {
+      const { result } = renderHook(() => useLocalPlayerStore());
+
+      const mockSession = {
+        id: 'test-session-456',
+        roomId: 'TEST-ROOM',
+        players: mockPlayers,
+        currentPlayerIndex: 0,
+        isActive: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        settings: mockSettings,
+      };
+
+      act(() => {
+        result.current.setSession(mockSession);
+      });
+
+      // Mock database delete to fail
+      const mockDelete = vi.fn().mockRejectedValue(new Error('Database error'));
+      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
+      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
+
+      const db = await import('@/stores/store');
+      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
+
+      // Clear should still succeed even if database delete fails
+      await act(async () => {
+        await result.current.clearSession();
+      });
+
+      expect(result.current.session).toBeNull();
+      expect(result.current.error).toBeNull();
+    });
+
+    test('clearSession should handle null session gracefully', async () => {
+      const { result } = renderHook(() => useLocalPlayerStore());
+
+      // Ensure no session exists
+      expect(result.current.session).toBeNull();
+
+      // Clear should not throw
+      await act(async () => {
+        await result.current.clearSession();
+      });
+
+      expect(result.current.session).toBeNull();
+      expect(result.current.error).toBeNull();
+    });
+
+    test('clearSession should remove wizard fields from settings store', async () => {
+      const { result } = renderHook(() => useLocalPlayerStore());
+
+      const mockSession = {
+        id: 'test-session-789',
+        roomId: 'TEST-ROOM',
+        players: mockPlayers,
+        currentPlayerIndex: 0,
+        isActive: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        settings: mockSettings,
+      };
+
+      act(() => {
+        result.current.setSession(mockSession);
+      });
+
+      // Mock settings store with wizard fields
+      const mockUpdateSettings = vi.fn();
+      const mockSettingsWithWizardFields = {
+        gameMode: 'local' as const,
+        room: 'TEST',
+        boardUpdated: false,
+        localPlayersData: [{ id: '1', name: 'Test' }],
+        localPlayerSessionSettings: { showTurnTransitions: true },
+        hasLocalPlayers: true,
+      };
+
+      const { useSettingsStore } = await import('@/stores/settingsStore');
+      vi.mocked(useSettingsStore.getState).mockReturnValue({
+        settings: mockSettingsWithWizardFields,
+        updateSettings: mockUpdateSettings,
+        setLocale: vi.fn(),
+        resetSettings: vi.fn(),
+        updateSelectedAction: vi.fn(),
+        removeSelectedAction: vi.fn(),
+        clearSelectedActions: vi.fn(),
+        getSelectedActionsByType: vi.fn(),
+      });
+
+      // Mock database delete
+      const mockDelete = vi.fn().mockResolvedValue(undefined);
+      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
+      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
+      const db = await import('@/stores/store');
+      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
+
+      // Clear session
+      await act(async () => {
+        await result.current.clearSession();
+      });
+
+      // Verify wizard fields were removed from settings
+      expect(mockUpdateSettings).toHaveBeenCalled();
+      const updatedSettings = mockUpdateSettings.mock.calls[0][0];
+      expect(updatedSettings).not.toHaveProperty('localPlayersData');
+      expect(updatedSettings).not.toHaveProperty('localPlayerSessionSettings');
+      expect(updatedSettings).not.toHaveProperty('hasLocalPlayers');
+      expect(updatedSettings).toHaveProperty('gameMode', 'local');
+      expect(updatedSettings).toHaveProperty('room', 'TEST');
+    });
+
+    test('clearSession should not call updateSettings if no wizard fields present', async () => {
+      const { result } = renderHook(() => useLocalPlayerStore());
+
+      const mockSession = {
+        id: 'test-session-999',
+        roomId: 'TEST-ROOM',
+        players: mockPlayers,
+        currentPlayerIndex: 0,
+        isActive: true,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        settings: mockSettings,
+      };
+
+      act(() => {
+        result.current.setSession(mockSession);
+      });
+
+      // Mock settings store WITHOUT wizard fields
+      const mockUpdateSettings = vi.fn();
+      const mockCleanSettings = {
+        gameMode: 'local' as const,
+        room: 'TEST',
+        boardUpdated: false,
+      };
+
+      const { useSettingsStore } = await import('@/stores/settingsStore');
+      vi.mocked(useSettingsStore.getState).mockReturnValue({
+        settings: mockCleanSettings,
+        updateSettings: mockUpdateSettings,
+        setLocale: vi.fn(),
+        resetSettings: vi.fn(),
+        updateSelectedAction: vi.fn(),
+        removeSelectedAction: vi.fn(),
+        clearSelectedActions: vi.fn(),
+        getSelectedActionsByType: vi.fn(),
+      });
+
+      // Mock database delete
+      const mockDelete = vi.fn().mockResolvedValue(undefined);
+      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
+      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
+      const db = await import('@/stores/store');
+      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
+
+      // Clear session
+      await act(async () => {
+        await result.current.clearSession();
+      });
+
+      // Verify updateSettings was NOT called since no wizard fields exist
+      expect(mockUpdateSettings).not.toHaveBeenCalled();
     });
   });
 });

@@ -3,12 +3,20 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import useHybridPlayerList, { isLocalPlayer, isRemotePlayer } from '../useHybridPlayerList';
 import { useLocalPlayers } from '../useLocalPlayers';
 import usePlayerList from '../usePlayerList';
+import useAuth from '@/context/hooks/useAuth';
 
 // Mock dependencies
 vi.mock('../useLocalPlayers');
 vi.mock('../usePlayerList');
+vi.mock('@/context/hooks/useAuth');
 
 describe('useHybridPlayerList Integration Tests', () => {
+  const mockUser = {
+    uid: 'test-user-123',
+    displayName: 'Test User',
+    email: 'test@example.com',
+  };
+
   const mockRemotePlayerList = [
     {
       displayName: 'Remote User 1',
@@ -56,6 +64,7 @@ describe('useHybridPlayerList Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (usePlayerList as any).mockReturnValue(mockRemotePlayerList);
+    (useAuth as any).mockReturnValue({ user: mockUser });
   });
 
   describe('Remote Players Only', () => {
@@ -230,7 +239,31 @@ describe('useHybridPlayerList Integration Tests', () => {
       expect(result.current.every((player) => !player.isLocal)).toBe(true);
     });
 
-    it('should handle completely empty state', () => {
+    it('should handle completely empty state by showing current user', () => {
+      (usePlayerList as any).mockReturnValue([]);
+      (useLocalPlayers as any).mockReturnValue({
+        localPlayers: [],
+        hasLocalPlayers: false,
+        isLocalPlayerRoom: false,
+      });
+
+      const { result } = renderHook(() => useHybridPlayerList());
+
+      // Should show current user as fallback to prevent empty list
+      expect(result.current).toHaveLength(1);
+      expect(result.current[0]).toMatchObject({
+        displayName: 'Test User',
+        uid: 'test-user-123',
+        isSelf: true,
+        isLocal: false,
+        location: 0,
+        isFinished: false,
+        status: 'active',
+      });
+    });
+
+    it('should not show fallback when user is null', () => {
+      (useAuth as any).mockReturnValue({ user: null });
       (usePlayerList as any).mockReturnValue([]);
       (useLocalPlayers as any).mockReturnValue({
         localPlayers: [],

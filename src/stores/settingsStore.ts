@@ -110,6 +110,23 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       name: 'gameSettings', // localStorage key
       partialize: (state) => ({ settings: state.settings }),
+      // Clean up wizard fields on rehydration from localStorage
+      onRehydrateStorage: () => (state) => {
+        if (state?.settings) {
+          // Remove wizard-specific fields that should never persist
+          const wizardFields = [
+            'localPlayersData',
+            'localPlayerSessionSettings',
+            'hasLocalPlayers',
+          ];
+
+          wizardFields.forEach((field) => {
+            if (field in state.settings) {
+              delete (state.settings as any)[field];
+            }
+          });
+        }
+      },
     }
   )
 );

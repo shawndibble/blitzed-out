@@ -61,14 +61,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Prettier**: `npm run format` - Code formatting
 - **Pre-commit**: Husky hooks run lint + format on staged files automatically
 
-#### Common Lint Issues
-
-**Issue**: Many lint errors from `public/` directory
-**Solution**: These are build artifacts - use `npx eslint src/` to check only source code
-
-**Issue**: TypeScript compilation errors
-**Solution**: Run `npm run type-check` to see specific type issues without building
-
 ### Testing Essentials
 
 - **Test Framework**: Vitest with React Testing Library
@@ -188,6 +180,26 @@ npm run type-check && npx eslint src/ && npm run test:failures
 ## Internationalization (i18n)
 
 **CRITICAL RULE**: When updating translations, **ALWAYS** update all 5 language files: `en`, `es`, `fr`, `zh`, `hi` in `src/locales/*/translation.json`
+
+When adding anatomy-specific language to action files:
+
+1. Replace hardcoded anatomy terms with placeholders
+2. Use `{genital}` instead of dick/pussy/cock/clit
+3. Use `{hole}` instead of pussy/ass/hole
+4. Use `{chest}` instead of breasts/chest/pecs
+5. Use pronouns for gender-neutral phrasing
+
+**Before:**
+
+```json
+"{dom} rubs their dick on {sub}'s pussy."
+```
+
+**After:**
+
+```json
+"{dom} rubs their {genital} on {sub}'s {hole}."
+```
 
 ## Coding Standards
 

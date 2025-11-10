@@ -1,0 +1,80 @@
+{
+  "penetrativeKeywords": [
+    "profond",
+    "gorge",
+    "pénétrer",
+    "dedans",
+    "entre",
+    "pousse dans",
+    "glisse dans",
+    "remplit",
+    "étire",
+    "prend",
+    "chevauche",
+    "rebondit sur",
+    "empale"
+  ],
+  "genericAnatomyTerms": {
+    "genital": "organes génitaux",
+    "hole": "trou",
+    "chest": "torse",
+    "pronoun_subject": "iel",
+    "pronoun_object": "iel",
+    "pronoun_possessive": "son",
+    "pronoun_reflexive": "soi-même"
+  },
+  "anatomyRequirements": {
+    "any": "Universel (tous les joueurs)",
+    "penis": "Nécessite anatomie masculine",
+    "pussy": "Nécessite anatomie féminine",
+    "anus": "Universel (tous les joueurs)",
+    "breasts": "Nécessite seins"
+  },
+  "incompatibilityReasons": {
+    "requiresSpecificAnatomy": "Nécessite anatomie spécifique ({{requirement}})",
+    "requiresMaleAnatomy": "Nécessite anatomie masculine",
+    "requiresFemaleAnatomy": "Nécessite anatomie féminine",
+    "requiresBreasts": "Nécessite seins"
+  },
+  "anatomyMappings": {
+    "male": {
+      "genital": "bite",
+      "hole": "trou",
+      "chest": "torse",
+      "pronoun_subject": "il",
+      "pronoun_object": "lui",
+      "pronoun_possessive": "son",
+      "pronoun_reflexive": "lui-même"
+    },
+    "female": {
+      "genital": "chatte",
+      "hole": "chatte",
+      "chest": "seins",
+      "pronoun_subject": "elle",
+      "pronoun_object": "elle",
+      "pronoun_possessive": "sa",
+      "pronoun_reflexive": "elle-même"
+    },
+    "non-binary": {
+      "genital": "organes génitaux",
+      "hole": "trou",
+      "chest": "torse",
+      "pronoun_subject": "iel",
+      "pronoun_object": "iel",
+      "pronoun_possessive": "son",
+      "pronoun_reflexive": "soi-même"
+    },
+    "prefer-not-say": {
+      "genital": "organes génitaux",
+      "hole": "trou",
+      "chest": "torse",
+      "pronoun_subject": "iel",
+      "pronoun_object": "iel",
+      "pronoun_possessive": "son",
+      "pronoun_reflexive": "soi-même"
+    }
+  },
+  "straponTerms": {
+    "strapon": "gode-ceinture"
+  }
+}

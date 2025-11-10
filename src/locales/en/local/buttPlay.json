@@ -3,6 +3,7 @@
   "type": "sex",
   "dom": "Top",
   "sub": "Bottom",
+  "anatomyRequirement": "any",
   "actions": {
     "Finger(s)/Rimmed": [
       "{dom} rubs {sub}'s butt.",
@@ -23,11 +24,11 @@
       "{dom} may finger all bottoms/switches."
     ],
     "Fucking": [
-      "{dom} rubs their dick around {sub}'s hole.",
+      "{dom} rubs {pronoun_possessive|dom} {genital|dom} around {sub}'s hole.",
       "{dom} inserts a toy into {sub}'s hole.",
       "{dom} fucks {sub} for 30 seconds.",
-      "{dom} inserts just the tip of their dick into {sub}'s hole.",
-      "{sub} sits on {dom}'s dick.",
+      "{dom} inserts just the tip of {pronoun_possessive|dom} {genital|dom} into {sub}'s hole.",
+      "{sub} sits on {dom}'s {genital}.",
       "{dom} gives {sub} 10 slow, deep fucks.",
       "{dom} gives {sub} 20 fucks.",
       "{dom} fucks {sub} doggy style.",
@@ -36,7 +37,7 @@
       "{sub} fucks themselves with a toy for 15 seconds.",
       "{dom} gives {sub} 15 fast toy fucks.",
       "{dom} gives {sub} a deep fast fuck.",
-      "{sub} rides {dom}'s dick until another action (for either).",
+      "{sub} rides {dom}'s {genital} until another action (for either).",
       "{sub} gets fucked by any and all tops/switches until their next turn."
     ],
     "Stretch/Large Toys": [
@@ -49,11 +50,11 @@
       "{dom} inserts the maximum number of fingers into {sub} within 30 seconds.",
       "{dom} spins a toy inside {sub} 3x.",
       "{sub} does 30 seconds of kegels while a large toy is in them.",
-      "{sub} sits on {dom}'s dick and perform 10 kegels.",
+      "{sub} sits on {dom}'s {genital} and perform 10 kegels.",
       "{dom} destroys {sub}'s hole.",
       "{sub} to insert their largest toy until the next Butt Play activity.",
       "{dom} gives {sub} multiple full in and out fucks as fast and as hard as they can for 90 seconds.",
-      "{dom} inserts the maximum number of fingers in {sub} and then flicks their prostate.",
+      "{dom} inserts the maximum number of fingers in {sub} and massages their sensitive internal spot.",
       "Each top/switch sees how many fingers they can insert into {sub}.",
       "{dom} tests how many fingers they can get into each bottom/switch."
     ],

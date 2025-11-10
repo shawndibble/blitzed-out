@@ -27,7 +27,17 @@ configure({
 
 // Suppress React 18 act warnings and test-related warnings in tests
 const originalError = console.error;
+const originalLog = console.log;
+const originalWarn = console.warn;
+
 beforeEach(() => {
+  // Suppress all console.log in tests to reduce noise
+  console.log = vi.fn();
+
+  // Suppress all console.warn in tests
+  console.warn = vi.fn();
+
+  // Suppress specific console.error patterns
   console.error = (...args: any[]) => {
     if (
       (typeof args[0] === 'string' &&
@@ -37,7 +47,16 @@ beforeEach(() => {
       args[0].includes('Warning: validateDOMNesting') ||
       args[0].includes('Unknown event handler property') ||
       args[0].includes('No user logged in') ||
-      args[0].includes('Error syncing')
+      args[0].includes('Error syncing') ||
+      args[0].includes('Missing Firebase environment variables') ||
+      args[0].includes('Could not extract image ID') ||
+      args[0].includes('Found tile') ||
+      args[0].includes('Error during group ID audit') ||
+      args[0].includes('Error finding existing tile') ||
+      args[0].includes('Error batch matching tiles') ||
+      args[0].includes('Unexpected error in test') ||
+      args[0].includes('Fullscreen API is not supported') ||
+      args[0].includes('Note: iOS Safari')
     ) {
       return;
     }
@@ -124,10 +143,274 @@ vi.mock('react-router-dom', async () => {
 
 // Mock i18next
 vi.mock('i18next', () => {
+  const anatomyMappingsEn = {
+    male: {
+      genital: 'dick',
+      hole: 'hole',
+      chest: 'chest',
+      pronoun_subject: 'he',
+      pronoun_object: 'him',
+      pronoun_possessive: 'his',
+      pronoun_reflexive: 'himself',
+    },
+    female: {
+      genital: 'pussy',
+      hole: 'pussy',
+      chest: 'breasts',
+      pronoun_subject: 'she',
+      pronoun_object: 'her',
+      pronoun_possessive: 'her',
+      pronoun_reflexive: 'herself',
+    },
+    'non-binary': {
+      genital: 'genitals',
+      hole: 'hole',
+      chest: 'chest',
+      pronoun_subject: 'they',
+      pronoun_object: 'them',
+      pronoun_possessive: 'their',
+      pronoun_reflexive: 'themselves',
+    },
+    'prefer-not-say': {
+      genital: 'genitals',
+      hole: 'hole',
+      chest: 'chest',
+      pronoun_subject: 'they',
+      pronoun_object: 'them',
+      pronoun_possessive: 'their',
+      pronoun_reflexive: 'themselves',
+    },
+  };
+
+  const mockTranslationsByLocale: any = {
+    en: {
+      anatomy: {
+        penetrativeKeywords: ['deep', 'throat', 'penetrate', 'inside', 'enters'],
+        genericAnatomyTerms: {
+          genital: 'genitals',
+          hole: 'hole',
+          chest: 'chest',
+          pronoun_subject: 'they',
+          pronoun_object: 'them',
+          pronoun_possessive: 'their',
+          pronoun_reflexive: 'themselves',
+        },
+        anatomyMappings: anatomyMappingsEn,
+        straponTerms: {
+          strapon: 'strapon',
+        },
+      },
+    },
+    es: {
+      anatomy: {
+        penetrativeKeywords: ['profundo', 'garganta', 'penetrar', 'dentro', 'entra'],
+        anatomyMappings: {
+          male: {
+            genital: 'polla',
+            hole: 'agujero',
+            chest: 'pecho',
+            pronoun_subject: 'él',
+            pronoun_object: 'él',
+            pronoun_possessive: 'su',
+            pronoun_reflexive: 'sí mismo',
+          },
+          female: {
+            genital: 'coño',
+            hole: 'coño',
+            chest: 'pechos',
+            pronoun_subject: 'ella',
+            pronoun_object: 'ella',
+            pronoun_possessive: 'su',
+            pronoun_reflexive: 'sí misma',
+          },
+          'non-binary': {
+            genital: 'genitales',
+            hole: 'agujero',
+            chest: 'pecho',
+            pronoun_subject: 'elle',
+            pronoun_object: 'elle',
+            pronoun_possessive: 'su',
+            pronoun_reflexive: 'sí misme',
+          },
+          'prefer-not-say': {
+            genital: 'genitales',
+            hole: 'agujero',
+            chest: 'pecho',
+            pronoun_subject: 'elle',
+            pronoun_object: 'elle',
+            pronoun_possessive: 'su',
+            pronoun_reflexive: 'sí misme',
+          },
+        },
+        straponTerms: {
+          strapon: 'arnés',
+        },
+      },
+    },
+    fr: {
+      anatomy: {
+        anatomyMappings: {
+          male: {
+            genital: 'bite',
+            hole: 'trou',
+            chest: 'torse',
+            pronoun_subject: 'il',
+            pronoun_object: 'lui',
+            pronoun_possessive: 'son',
+            pronoun_reflexive: 'lui-même',
+          },
+          female: {
+            genital: 'chatte',
+            hole: 'chatte',
+            chest: 'seins',
+            pronoun_subject: 'elle',
+            pronoun_object: 'elle',
+            pronoun_possessive: 'sa',
+            pronoun_reflexive: 'elle-même',
+          },
+          'non-binary': {
+            genital: 'organes génitaux',
+            hole: 'trou',
+            chest: 'torse',
+            pronoun_subject: 'iel',
+            pronoun_object: 'iel',
+            pronoun_possessive: 'son',
+            pronoun_reflexive: 'soi-même',
+          },
+          'prefer-not-say': {
+            genital: 'organes génitaux',
+            hole: 'trou',
+            chest: 'torse',
+            pronoun_subject: 'iel',
+            pronoun_object: 'iel',
+            pronoun_possessive: 'son',
+            pronoun_reflexive: 'soi-même',
+          },
+        },
+        straponTerms: {
+          strapon: 'gode-ceinture',
+        },
+      },
+    },
+    zh: {
+      anatomy: {
+        penetrativeKeywords: ['深', '喉', '插入', '里面', '进入'],
+        anatomyMappings: {
+          male: {
+            genital: '鸡巴',
+            hole: '洞',
+            chest: '胸部',
+            pronoun_subject: '他',
+            pronoun_object: '他',
+            pronoun_possessive: '他的',
+            pronoun_reflexive: '他自己',
+          },
+          female: {
+            genital: '阴蒂',
+            hole: '阴道',
+            chest: '乳房',
+            pronoun_subject: '她',
+            pronoun_object: '她',
+            pronoun_possessive: '她的',
+            pronoun_reflexive: '她自己',
+          },
+          'non-binary': {
+            genital: '生殖器',
+            hole: '洞',
+            chest: '胸部',
+            pronoun_subject: '他们',
+            pronoun_object: '他们',
+            pronoun_possessive: '他们的',
+            pronoun_reflexive: '他们自己',
+          },
+          'prefer-not-say': {
+            genital: '生殖器',
+            hole: '洞',
+            chest: '胸部',
+            pronoun_subject: '他们',
+            pronoun_object: '他们',
+            pronoun_possessive: '他们的',
+            pronoun_reflexive: '他们自己',
+          },
+        },
+        straponTerms: {
+          strapon: '假阳具',
+        },
+      },
+    },
+    hi: {
+      anatomy: {
+        penetrativeKeywords: ['गहरा', 'गला', 'घुसना', 'अंदर', 'प्रवेश'],
+        anatomyMappings: {
+          male: {
+            genital: 'लिंग',
+            hole: 'छेद',
+            chest: 'छाती',
+            pronoun_subject: 'वह',
+            pronoun_object: 'उसे',
+            pronoun_possessive: 'उसका',
+            pronoun_reflexive: 'स्वयं',
+          },
+          female: {
+            genital: 'योनि',
+            hole: 'योनि',
+            chest: 'स्तन',
+            pronoun_subject: 'वह',
+            pronoun_object: 'उसे',
+            pronoun_possessive: 'उसका',
+            pronoun_reflexive: 'स्वयं',
+          },
+          'non-binary': {
+            genital: 'जननांग',
+            hole: 'छेद',
+            chest: 'छाती',
+            pronoun_subject: 'वे',
+            pronoun_object: 'उन्हें',
+            pronoun_possessive: 'उनका',
+            pronoun_reflexive: 'स्वयं',
+          },
+          'prefer-not-say': {
+            genital: 'जननांग',
+            hole: 'छेद',
+            chest: 'छाती',
+            pronoun_subject: 'वे',
+            pronoun_object: 'उन्हें',
+            pronoun_possessive: 'उनका',
+            pronoun_reflexive: 'स्वयं',
+          },
+        },
+        straponTerms: {
+          strapon: 'स्ट्रैपऑन',
+        },
+      },
+    },
+  };
+
   const mockI18n = {
     init: vi.fn(() => Promise.resolve()),
     use: vi.fn(),
-    t: vi.fn((key: string) => key),
+    t: vi.fn((key: string, options?: any) => {
+      const locale = options?.lng || 'en';
+      const translations = mockTranslationsByLocale[locale] || mockTranslationsByLocale.en;
+
+      // Handle returnObjects option for nested structures
+      if (options?.returnObjects) {
+        const parts = key.split('.');
+        let value: any = translations;
+        for (const part of parts) {
+          value = value?.[part];
+        }
+        return value || {};
+      }
+
+      // Handle normal translations
+      const parts = key.split('.');
+      let value: any = translations;
+      for (const part of parts) {
+        value = value?.[part];
+      }
+      return value !== undefined ? value : key;
+    }),
     on: vi.fn(),
     off: vi.fn(),
     changeLanguage: vi.fn(),
@@ -309,5 +592,7 @@ afterEach(() => {
   vi.clearAllMocks();
   vi.clearAllTimers(); // Clear any remaining timers
   console.error = originalError;
+  console.log = originalLog;
+  console.warn = originalWarn;
   cleanup(); // Clean up DOM between tests
 });

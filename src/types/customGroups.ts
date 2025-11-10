@@ -1,6 +1,17 @@
 // Custom group and intensity management type definitions
 import type { GroupType } from '@/types';
 
+/**
+ * Anatomy requirement for action groups
+ * Determines which anatomical features are needed to perform actions in this group
+ */
+export type AnatomyRequirement =
+  | 'any' // Works for anyone (universal)
+  | 'penis' // Requires penis (male, some non-binary)
+  | 'pussy' // Requires pussy (female, some non-binary)
+  | 'anus' // Everyone has one (universal)
+  | 'breasts'; // Requires breasts (female, some male/non-binary)
+
 // Individual intensity level within a custom group
 export interface CustomGroupIntensity {
   id: string;
@@ -15,6 +26,7 @@ export interface CustomGroupBase {
   label: string; // Display label for the group
   intensities: CustomGroupIntensity[];
   type?: GroupType; // Action type (e.g., 'solo', 'consumption', 'action')
+  anatomyRequirement?: AnatomyRequirement; // Required anatomy for this action group
   isDefault?: boolean; // Whether this is a system default group
   locale?: string; // Locale this group belongs to
   gameMode?: string; // Game mode this group applies to

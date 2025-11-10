@@ -1,6 +1,25 @@
 import { PlayerRole } from './Settings';
 
 /**
+ * Player gender options for anatomy placeholder replacement
+ * Used to adapt action text to be gender-inclusive
+ */
+export type PlayerGender = 'male' | 'female' | 'non-binary' | 'prefer-not-say';
+
+/**
+ * Anatomy placeholder types supported in action text
+ * These placeholders are replaced based on player gender
+ */
+export type AnatomyPlaceholder =
+  | 'genital'
+  | 'hole'
+  | 'chest'
+  | 'pronoun_subject'
+  | 'pronoun_object'
+  | 'pronoun_possessive'
+  | 'pronoun_reflexive';
+
+/**
  * Core local player interface for single-device multiplayer
  * Represents a player on the current device
  */
@@ -9,6 +28,8 @@ export interface LocalPlayer {
   id: string;
   /** Display name for the player */
   name: string;
+  /** Player gender for anatomy placeholder replacement (optional) */
+  gender?: PlayerGender;
   /** Player role (sub/dom/vers) */
   role: PlayerRole;
   /** Turn order (0-based index) */

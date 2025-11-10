@@ -1,5 +1,5 @@
 import { ActionEntry } from './index';
-import { LocalSessionSettings } from './localPlayers';
+import { LocalSessionSettings, PlayerGender } from './localPlayers';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -7,6 +7,7 @@ export interface Settings {
   gameMode: GameMode;
   roomRealtime?: boolean;
   role?: PlayerRole;
+  gender?: PlayerGender;
   boardUpdated: boolean;
   roomUpdated?: boolean;
   playerDialog?: boolean;

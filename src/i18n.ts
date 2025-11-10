@@ -10,7 +10,7 @@ const LANGUAGE_PRELOAD_TIMEOUT = 5000; // 5 second timeout for requestIdleCallba
 const i18nOptions: InitOptions = {
   fallbackLng: 'en',
   supportedLngs: ['en', 'es', 'fr', 'zh', 'hi'],
-  ns: ['translation', 'errors'],
+  ns: ['translation', 'errors', 'anatomy'],
   defaultNS: 'translation',
   // debug: process.env.NODE_ENV === 'development',
   interpolation: {

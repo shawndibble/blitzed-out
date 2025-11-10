@@ -78,7 +78,11 @@ export class LocalPlayerService {
         settings: session.settings,
       };
 
-      // Save to database
+      // Clean up any old sessions for this room before creating new one
+      // This prevents duplicate sessions from accumulating
+      await db.localPlayerSessions.where('roomId').equals(session.roomId).delete();
+
+      // Save new session to database
       await db.localPlayerSessions.add(dbSession);
 
       // Set as current session

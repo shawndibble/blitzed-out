@@ -10,6 +10,7 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import LocalPlayerSetup from '@/components/LocalPlayerSetup';
+import PlayerGenderAvatar from '@/components/PlayerGenderAvatar';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
 
 interface LocalPlayerSettingsProps {
@@ -162,6 +163,11 @@ export default function LocalPlayerSettings({
                     <Typography variant="body2" color="text.secondary">
                       #{player.order + 1}
                     </Typography>
+                    <PlayerGenderAvatar
+                      gender={player.gender}
+                      isActive={player.isActive}
+                      size={32}
+                    />
                     <Typography variant="body1" fontWeight={player.isActive ? 'bold' : 'normal'}>
                       {player.name}
                     </Typography>

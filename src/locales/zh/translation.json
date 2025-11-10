@@ -6,7 +6,26 @@
     "delete": "刪除",
     "noTilesFound": "未找到符合所選篩選條件的磁磚。",
     "showingTiles": "顯示 {{shown}} / {{total}} 磁磚",
-    "gameMode": "遊戲模式"
+    "gameMode": "遊戲模式",
+    "placeholderHelp": {
+      "title": "可用的占位符",
+      "description": "使用占位符創建適應每個玩家的性別包容性動作。",
+      "rolePlaceholders": "角色占位符",
+      "anatomyPlaceholders": "解剖占位符（性別感知）",
+      "player": "當前玩家的名字",
+      "dom": "主導者/切換者玩家的名字",
+      "sub": "服從者/切換者玩家的名字",
+      "genital": "根據玩家性別調整（鸡巴/阴道/生殖器）",
+      "hole": "根據玩家性別調整（洞/阴道/洞）",
+      "chest": "根據玩家性別調整（胸部/乳房/胸部）",
+      "pronounSubject": "根據玩家性別調整（他/她/他们）",
+      "pronounObject": "根據玩家性別調整（他/她/他们）",
+      "pronounPossessive": "根據玩家性別調整（他的/她的/他们的）",
+      "pronounReflexive": "根據玩家性別調整（他自己/她自己/他们自己）",
+      "examples": "查看示例",
+      "exampleAction": "{dom} 親吻 {sub} 的 {chest}",
+      "exampleResult": "小明親吻小美的乳房"
+    }
   },
   "customTilesLabel": "遊戲磁磚",
   "custom": "自訂",
@@ -261,6 +280,7 @@
   "yesInteracting": "是的，我在與人遊玩。",
   "noInteracting": "不，我在與自己遊玩。",
   "yourRole": "您的角色是什麼？",
+  "yourGender": "您的性別是什麼？",
   "areYouNaked": "前戲（穿衣服）還是性愛（裸體）*？",
   "yesNaked": "性愛：我們都裸體。",
   "noNaked": "前戲：我們仍然穿著衣服。",
@@ -493,6 +513,8 @@
       "nameHelper": "輸入此玩家的唯一名稱（2-20個字元）",
       "namePlaceholder": "輸入玩家名稱...",
       "roleLabel": "玩家角色",
+      "genderLabel": "性別（選填）",
+      "soundLabel": "回合音效",
       "helpText": "您可以在需要時稍後修改這些設定。",
       "saving": "儲存中...",
       "saveChanges": "儲存變更",
@@ -509,6 +531,12 @@
         "sub": "跟隨和接受",
         "vers": "在角色間靈活轉換"
       }
+    },
+    "gender": {
+      "male": "男性",
+      "female": "女性",
+      "nonBinary": "非二元",
+      "preferNotSay": "不願透露"
     }
   },
   "localPlayerSettings": {

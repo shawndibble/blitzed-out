@@ -19,7 +19,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { LocalPlayer } from '@/types';
 import type { PlayerRole } from '@/types/Settings';
+import type { PlayerGender } from '@/types/localPlayers';
 import SoundSelector from '@/components/SoundSelector';
+import GenderSelector from '@/components/GenderSelector';
 import { getRandomSound } from '@/utils/gameSounds';
 
 interface PlayerFormProps {
@@ -38,6 +40,7 @@ interface PlayerFormProps {
 interface FormData {
   name: string;
   role: PlayerRole;
+  gender: PlayerGender;
   sound: string;
 }
 
@@ -63,6 +66,7 @@ export default function PlayerForm({
   const [formData, setFormData] = useState<FormData>({
     name: '',
     role: 'vers',
+    gender: 'non-binary',
     sound: getRandomSound().id,
   });
 
@@ -75,12 +79,14 @@ export default function PlayerForm({
       setFormData({
         name: player.name,
         role: player.role,
+        gender: player.gender || 'non-binary',
         sound: player.sound || getRandomSound().id,
       });
     } else {
       setFormData({
         name: '',
         role: 'vers',
+        gender: 'non-binary',
         sound: getRandomSound().id,
       });
     }
@@ -145,6 +151,10 @@ export default function PlayerForm({
     [errors.role]
   );
 
+  const handleGenderChange = useCallback((gender: PlayerGender) => {
+    setFormData((prev) => ({ ...prev, gender }));
+  }, []);
+
   const handleSoundChange = useCallback((soundId: string) => {
     setFormData((prev) => ({ ...prev, sound: soundId }));
   }, []);
@@ -160,6 +170,7 @@ export default function PlayerForm({
       const playerData: Partial<LocalPlayer> = {
         name: formData.name.trim(),
         role: formData.role,
+        gender: formData.gender,
         sound: formData.sound,
       };
 
@@ -177,6 +188,7 @@ export default function PlayerForm({
     setFormData({
       name: '',
       role: 'vers',
+      gender: 'non-binary',
       sound: getRandomSound().id,
     });
     setErrors({});
@@ -321,6 +333,9 @@ export default function PlayerForm({
               </Typography>
             )}
           </FormControl>
+
+          {/* Gender Selection */}
+          <GenderSelector selectedGender={formData.gender} onGenderChange={handleGenderChange} />
 
           {/* Sound Selection */}
           <SoundSelector

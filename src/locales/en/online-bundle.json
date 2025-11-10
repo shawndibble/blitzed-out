@@ -30,6 +30,7 @@
   "ballBusting": {
     "label": "Ball Busting",
     "type": "solo",
+    "anatomyRequirement": "penis",
     "actions": {
       "Slap/Squeeze": [
         "Massage balls.",
@@ -83,49 +84,49 @@
     "type": "solo",
     "actions": {
       "Masturbation": [
-        "30 slow strokes.",
-        "Jerk as fast as you can for 30 seconds.",
-        "Time your strokes with your breathing until your next turn.",
-        "Apply lube to your dick.",
-        "30 strokes each paired with a deep breath.",
-        "Lightly rub your finger over your dick.",
-        "Jerk with your non-dominant hand.",
-        "Perform a kegel with every stroke until your next turn.",
-        "30 hard squeeze strokes.",
-        "Spit on your cock.",
-        "Jerk as fast as you can until your next turn or until you get close.",
-        "Jerk until your next turn while using your other hand on an erogenous zone.",
-        "Jerk yourself with a twisting hand motion.",
-        "Use your palm to rub the head for a 60 seconds.",
-        "Use two fingers and focus only on the frenulum.",
-        "Play with your frenulum",
-        "Alternate between fast and slow strokes until another Gooning action.",
-        "Experiment with different grips and pressures while masturbating."
+        "30 slow touches to your {genital}.",
+        "Touch as fast as you can for 30 seconds.",
+        "Time your touches with your breathing until your next turn.",
+        "Apply lube to your {genital}.",
+        "30 touches to your {genital}, each paired with a deep breath.",
+        "Lightly rub your finger over your {genital}.",
+        "Touch with your non-dominant hand.",
+        "Perform a kegel with every touch until your next turn.",
+        "30 firm squeezes to your {genital}.",
+        "Spit on your {genital}.",
+        "Touch as fast as you can until your next turn or until you get close.",
+        "Stimulate yourself until your next turn while using your other hand on an erogenous zone.",
+        "Touch your {genital} with a circular motion.",
+        "Use your palm to rub your {genital} for 60 seconds.",
+        "Use two fingers and focus on sensitive areas of your {genital}.",
+        "Play with your {genital}.",
+        "Alternate between fast and slow touches until another Bating action.",
+        "Experiment with different touches and pressures while masturbating."
       ],
       "Edging": [
         "Bring yourself to the edge.",
-        "Jerk off as quickly as you can until your next turn.",
+        "Touch yourself as quickly as you can until your next turn.",
         "Get to the edge twice.",
         "Get to the edge as fast as possible.",
         "Edge with your non-dominant hand.",
         "Edge using only a few fingers.",
         "Edge using your whole hand.",
-        "Rapidly jerk to the edge, then hold a kegal as long as possible.",
-        "Rub your perineum while jerking",
+        "Rapidly stimulate to the edge, then hold a kegal as long as possible.",
+        "Touch yourself below your {genital} while edging.",
         "Practice breath control by holding your breath while edging.",
-        "Shift positions (stand, kneel, sit) while edging yourself"
+        "Shift positions (stand, kneel, sit) while edging yourself."
       ],
       "Toys": [
-        "Use toy on your shaft.",
-        "Use toy on your cock head.",
-        "Slowly use toy over entire cock until next turn.",
+        "Use toy on your {genital}.",
+        "Use toy on your sensitive areas.",
+        "Slowly use toy over entire {genital} until next turn.",
         "Use the toy while also rubbing another part of your body.",
-        "Use toy on your cock for 30 seconds with eyes closed.",
-        "Use toy on your perineum",
+        "Use toy on your {genital} for 30 seconds with eyes closed.",
+        "Use toy below your {genital}.",
         "Masturbate while sniffing clothing (shoe/underwear/etc...).",
         "Masturbate while utilizing some cloth (underwear/rag/etc...).",
-        "Use a vibrating toy on your genitals.",
-        "25 strokes of current toy. In and out."
+        "Use a vibrating toy on your {genital}.",
+        "Use toy 25 times. In and out."
       ]
     }
   },
@@ -180,21 +181,22 @@
   "buttPlay": {
     "label": "Butt Play",
     "type": "solo",
+    "anatomyRequirement": "any",
     "actions": {
       "Finger(s)": [
-        "Massage hole",
+        "Massage your hole",
         "Hotdog your hole with finger.",
         "Spread your ass.",
-        "Finger hole.",
-        "Rub around hole.",
-        "Insert 2 fingers in hole.",
-        "Flick hole for 15 seconds",
-        "Finger fuck hole.",
-        "Multi-finger hole."
+        "Finger your hole.",
+        "Rub around your hole.",
+        "Insert 2 fingers in your hole.",
+        "Flick your hole for 15 seconds",
+        "Finger fuck your hole.",
+        "Multi-finger your hole."
       ],
       "Dildo/Plug": [
-        "Toy on the edge of hole.",
-        "Insert toy into hole.",
+        "Toy on the edge of your hole.",
+        "Insert toy into your hole.",
         "Fuck yourself with toy 10 seconds.",
         "Insert toy.",
         "10 Slow toy fucks.",
@@ -232,6 +234,7 @@
   "clitTraining": {
     "label": "Clit Training",
     "type": "solo",
+    "anatomyRequirement": "pussy",
     "actions": {
       "Light Touch": [
         "Trace circles around your clit with your finger.",
@@ -327,7 +330,7 @@
       "Pee on self": [
         "Pee on yourself",
         "Pee on your face",
-        "Put cock and ball in piss container",
+        "Put your {genital} in piss container",
         "Gulp water",
         "Pour piss container on yourself",
         "Drink water"
@@ -414,7 +417,7 @@
       "Deepthroat": [
         "Hold toy in your throat for 5 seconds.",
         "Deepthroat between breaths.",
-        "Lick balls while deepthroating.",
+        "Lick the base of the toy while deepthroating.",
         "Deepthroat 10 seconds. Release.",
         "10 deepthroats.",
         "Suck toy",
@@ -425,45 +428,45 @@
         "Deep throat as long as you can.",
         "Deepthroat fucking for 30 seconds.",
         "Count 15 seconds while deepthroating.",
-        "Slow deepthroat 5 times down to balls."
+        "Slow deepthroat 5 times down to the base."
       ]
     }
   },
   "titTorture": {
-    "label": "Tit Torture",
+    "label": "Chest Play",
     "type": "solo",
     "actions": {
       "Squeeze/Rub": [
-        "Rub your tits.",
-        "Play with tits.",
-        "Flick your tits.",
-        "Squeeze your tits.",
-        "Wet your tits",
-        "Rub your tits for 15 seconds.",
-        "Flick your tits 10x",
-        "Squeeze your tits for 15 seconds."
+        "Rub your {chest}.",
+        "Play with your {chest}.",
+        "Flick your nipples.",
+        "Squeeze your {chest}.",
+        "Wet your {chest}.",
+        "Rub your {chest} for 15 seconds.",
+        "Flick your nipples 10x.",
+        "Squeeze your {chest} for 15 seconds."
       ],
       "Pinch/Pull": [
-        "Pinch your tits hard",
-        "Pull your tits",
-        "Rub your tits for 15 seconds.",
-        "Twist your tits in both directions.",
-        "Do a helicopter with your tits while pulling them.",
-        "Get rough with your tits for 20 seconds."
+        "Pinch your nipples hard.",
+        "Pull your nipples.",
+        "Rub your {chest} for 15 seconds.",
+        "Twist your nipples in both directions.",
+        "Circle your nipples while pulling them.",
+        "Get rough with your {chest} for 20 seconds."
       ],
       "Clips/Toys": [
-        "Toy to your nips for 10 seconds",
-        "With toy on tits, pull them.",
-        "Twist your tits hard.",
-        "Flick your tit toy 10x.",
-        "Get rough with your tits."
+        "Use toy on your nipples for 10 seconds.",
+        "With toy on nipples, pull them.",
+        "Twist your nipples hard.",
+        "Flick your nipple toy 10x.",
+        "Get rough with your {chest}."
       ],
       "As Hard As Possible": [
-        "Pinch your tits as hard as possible.",
-        "Pull those tits as far as you can.",
-        "Twist your tits until you cry.",
-        "Massage your tits.",
-        "Beat your chest/tits."
+        "Pinch your nipples as hard as possible.",
+        "Pull your nipples as far as you can.",
+        "Twist your nipples until you cry.",
+        "Massage your {chest}.",
+        "Slap your {chest}."
       ]
     }
   },
