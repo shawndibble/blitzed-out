@@ -9,7 +9,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
-        'localPlayers.form.genderLabel': 'Gender',
+        'localPlayers.form.genderLabel': 'Anatomy',
         'localPlayers.gender.male': 'Male',
         'localPlayers.gender.female': 'Female',
         'localPlayers.gender.nonBinary': 'Non-Binary',
@@ -25,16 +25,16 @@ describe('GenderSelector', () => {
     const mockOnChange = vi.fn();
     render(<GenderSelector onGenderChange={mockOnChange} />);
 
-    // Should show gender label
-    expect(screen.getByText('Gender')).toBeInTheDocument();
+    // Should show anatomy label
+    expect(screen.getByText('Anatomy')).toBeInTheDocument();
   });
 
-  it('should render with selected gender', () => {
+  it('should render with selected anatomy', () => {
     const mockOnChange = vi.fn();
     render(<GenderSelector selectedGender="female" onGenderChange={mockOnChange} />);
 
     // The component should be rendered (we can't easily check the selected value in MUI Select without opening it)
-    expect(screen.getByText('Gender')).toBeInTheDocument();
+    expect(screen.getByText('Anatomy')).toBeInTheDocument();
   });
 
   it('should call onGenderChange when selection changes', async () => {
@@ -55,7 +55,7 @@ describe('GenderSelector', () => {
     expect(mockOnChange).toHaveBeenCalledWith('male');
   });
 
-  it('should display all gender options', async () => {
+  it('should display all anatomy options', async () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
 
@@ -65,7 +65,7 @@ describe('GenderSelector', () => {
     const selectButton = screen.getByRole('combobox');
     await user.click(selectButton);
 
-    // Should show all 3 gender options
+    // Should show all 3 anatomy options
     expect(await screen.findByText('Male')).toBeInTheDocument();
     expect(await screen.findByText('Female')).toBeInTheDocument();
     expect(await screen.findByText('Non-Binary')).toBeInTheDocument();
@@ -84,13 +84,13 @@ describe('GenderSelector', () => {
   it('should use custom label when provided', () => {
     const mockOnChange = vi.fn();
 
-    render(<GenderSelector onGenderChange={mockOnChange} label="Custom Gender Label" />);
+    render(<GenderSelector onGenderChange={mockOnChange} label="Custom Anatomy Label" />);
 
     // Should show custom label
-    expect(screen.getByText('Custom Gender Label')).toBeInTheDocument();
+    expect(screen.getByText('Custom Anatomy Label')).toBeInTheDocument();
   });
 
-  it('should handle all gender values correctly', async () => {
+  it('should handle all anatomy values correctly', async () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
 

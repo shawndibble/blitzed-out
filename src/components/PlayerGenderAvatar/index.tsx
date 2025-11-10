@@ -8,7 +8,7 @@ import {
 import type { PlayerGender } from '@/types/localPlayers';
 
 interface PlayerGenderAvatarProps {
-  /** The player's gender */
+  /** The player's anatomy */
   gender?: PlayerGender;
   /** Whether this player is currently active */
   isActive?: boolean;
@@ -17,8 +17,8 @@ interface PlayerGenderAvatarProps {
 }
 
 /**
- * PlayerGenderAvatar displays a gender-specific icon in an Avatar
- * Used for showing player gender in local multiplayer mode
+ * PlayerGenderAvatar displays an anatomy-specific icon in an Avatar
+ * Used for showing player anatomy in local multiplayer mode
  */
 export default function PlayerGenderAvatar({
   gender,

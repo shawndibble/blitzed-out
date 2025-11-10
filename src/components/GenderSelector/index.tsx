@@ -11,9 +11,9 @@ import { useTranslation } from 'react-i18next';
 import type { PlayerGender } from '@/types/localPlayers';
 
 interface GenderSelectorProps {
-  /** Currently selected gender */
+  /** Currently selected anatomy */
   selectedGender?: PlayerGender;
-  /** Callback when gender selection changes */
+  /** Callback when anatomy selection changes */
   onGenderChange: (gender: PlayerGender) => void;
   /** Label for the form control */
   label?: string;
@@ -28,7 +28,7 @@ const GENDER_OPTIONS = [
 ] as const satisfies ReadonlyArray<{ value: PlayerGender; labelKey: string }>;
 
 /**
- * GenderSelector component for privacy-focused gender selection
+ * GenderSelector component for privacy-focused anatomy selection
  * Used to personalize action text with appropriate anatomy terms
  */
 export default function GenderSelector({
