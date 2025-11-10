@@ -1,6 +1,6 @@
 import { Casino } from '@mui/icons-material';
 import { Button, ButtonGroup } from '@mui/material';
-import { useCallback, useEffect, useState, memo, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from '@/hooks/useCountdown';
@@ -37,11 +37,7 @@ function rollDice(
   updateRollValue(total);
 }
 
-const RollButton = memo(function RollButton({
-  setRollValue,
-  dice,
-  isEndOfBoard,
-}: RollButtonProps): JSX.Element {
+function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.Element {
   const { t } = useTranslation();
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [selectedRoll, setSelectedRoll] = useState<string>('manual');
@@ -62,13 +58,6 @@ const RollButton = memo(function RollButton({
     componentMountTime.current = Date.now();
   }, []);
 
-  const updateRollValue = useCallback(
-    (value: number): void => {
-      setRollValue(value);
-    },
-    [setRollValue]
-  );
-
   const [rollCount, diceSide] = dice.split('d');
 
   const handleClick = (): void => {
@@ -77,14 +66,14 @@ const RollButton = memo(function RollButton({
     analytics.trackEngagement('roll_button_click', 0, interactionCount.current);
 
     if (selectedRoll === 'manual') {
-      rollDice(rollCount, diceSide, updateRollValue);
+      rollDice(rollCount, diceSide, setRollValue);
       setDisabled(true);
       setTimeout(() => setDisabled(false), 4000);
       return;
     }
 
     if (isPaused && timeLeft === autoTime) {
-      rollDice(rollCount, diceSide, updateRollValue);
+      rollDice(rollCount, diceSide, setRollValue);
     }
     togglePause();
   };
@@ -92,7 +81,7 @@ const RollButton = memo(function RollButton({
   const handleMenuItemClick = useCallback(
     (key: string | number): void => {
       if (key === 'restart') {
-        updateRollValue(-1);
+        setRollValue(-1);
         return;
       }
 
@@ -110,7 +99,7 @@ const RollButton = memo(function RollButton({
         setTimeLeft(numericKey);
       }
     },
-    [isPaused, setTimeLeft, togglePause, updateRollValue]
+    [isPaused, setTimeLeft, togglePause, setRollValue]
   );
 
   const handleDialogClose = (): void => {
@@ -169,7 +158,7 @@ const RollButton = memo(function RollButton({
     // WARNING: Removing queueMicrotask may reintroduce Sentry errors or render-timing issues.
     queueMicrotask(() => {
       if (shouldRollDice && newTime !== null) {
-        rollDice(rollCount, diceSide, updateRollValue);
+        rollDice(rollCount, diceSide, setRollValue);
         setAutoTime(newTime);
         setTimeLeft(newTime);
       }
@@ -185,7 +174,7 @@ const RollButton = memo(function RollButton({
     t,
     rollCount,
     diceSide,
-    updateRollValue,
+    setRollValue,
     setTimeLeft,
   ]);
 
@@ -216,6 +205,6 @@ const RollButton = memo(function RollButton({
       />
     </>
   );
-});
+}
 
 export default RollButton;
