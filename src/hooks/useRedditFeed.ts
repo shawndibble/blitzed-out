@@ -15,18 +15,61 @@ interface UseRedditFeedResult {
   source: string | null;
 }
 
+interface RedditFeedState {
+  images: string[];
+  isLoading: boolean;
+  errorCode: string | null;
+  source: string | null;
+}
+
 export function useRedditFeed(url: string | null): UseRedditFeedResult {
   const { t } = useTranslation();
-  const [images, setImages] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorCode, setErrorCode] = useState<string | null>(null);
-  const [source, setSource] = useState<string | null>(null);
+  const [state, setState] = useState<RedditFeedState>({
+    images: [],
+    isLoading: false,
+    errorCode: null,
+    source: null,
+  });
 
   const abortRef = useRef<AbortController | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Derive validity without causing effects
+  const isValidRedditUrl = url && isRedditUrl(url);
+  const subreddit = isValidRedditUrl ? extractSubredditFromUrl(url) : null;
+
   useEffect(() => {
+    // Handle invalid URLs by resetting state
+    if (!isValidRedditUrl) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing with external URL changes
+      setState({
+        images: [],
+        errorCode: null,
+        source: null,
+        isLoading: false,
+      });
+      return;
+    }
+
+    if (!subreddit) {
+      setState({
+        images: [],
+        errorCode: 'invalidRedditUrl',
+        source: null,
+        isLoading: false,
+      });
+      return;
+    }
+
+    // Reset state for valid URL before loading
+    setState({
+      images: [],
+      errorCode: null,
+      source: null,
+      isLoading: true,
+    });
+
     // Cleanup previous request and timeouts
     if (abortRef.current) {
       abortRef.current.abort();
@@ -40,34 +83,11 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
       retryTimeoutRef.current = null;
     }
 
-    // Check if URL is a Reddit URL
-    if (!url || !isRedditUrl(url)) {
-      // Clear state for non-Reddit URLs
-      setImages([]);
-      setErrorCode(null);
-      setSource(null);
-      setIsLoading(false);
-      return;
-    }
-
-    // Reset state for new URL
-    setImages([]);
-    setErrorCode(null);
-    setSource(null);
-
-    const subreddit = extractSubredditFromUrl(url);
-    if (!subreddit) {
-      setErrorCode('invalidRedditUrl');
-      setIsLoading(false);
-      return;
-    }
-
     const config: RedditFeedConfig = {
       subreddit,
       maxImages: 150,
     };
 
-    setIsLoading(true);
     const controller = new AbortController();
     abortRef.current = controller;
 
@@ -77,10 +97,12 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
 
         if (controller.signal.aborted) return;
 
-        setImages(result.images);
-        setSource(result.source);
-        setErrorCode(null);
-        setIsLoading(false);
+        setState({
+          images: result.images,
+          source: result.source,
+          errorCode: null,
+          isLoading: false,
+        });
       } catch {
         if (controller.signal.aborted) return;
 
@@ -98,10 +120,12 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
         }
 
         // Final error after all retries
-        setErrorCode('redditBlocked');
-        setImages([]);
-        setSource(null);
-        setIsLoading(false);
+        setState({
+          errorCode: 'redditBlocked',
+          images: [],
+          source: null,
+          isLoading: false,
+        });
       }
     };
 
@@ -119,7 +143,7 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
         retryTimeoutRef.current = null;
       }
     };
-  }, [url]);
+  }, [url, isValidRedditUrl, subreddit]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -139,9 +163,9 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
   }, []);
 
   return {
-    images,
-    isLoading,
-    error: errorCode ? t(errorCode) : null,
-    source,
+    images: state.images,
+    isLoading: state.isLoading,
+    error: state.errorCode ? t(state.errorCode) : null,
+    source: state.source,
   };
 }

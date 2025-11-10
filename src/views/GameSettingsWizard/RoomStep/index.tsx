@@ -4,7 +4,7 @@ import ButtonRow from '@/components/ButtonRow';
 import ValueProposition from '../components/ValueProposition';
 import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
-import { useState, useCallback, ChangeEvent, KeyboardEvent, useEffect, useRef } from 'react';
+import { useState, useCallback, ChangeEvent, KeyboardEvent, useEffect, useMemo } from 'react';
 import { Settings } from '@/types/Settings';
 import { getDatabase, ref, get } from 'firebase/database';
 import { useParams } from 'react-router-dom';
@@ -18,30 +18,23 @@ interface RoomStepProps {
 export default function RoomStep({ formData, setFormData, nextStep }: RoomStepProps): JSX.Element {
   const { t } = useTranslation();
   const { id: urlRoom } = useParams<{ id: string }>();
-  const [showPrivateRoomField, setShowPrivateRoomField] = useState(
-    !isPublicRoom(formData.room || urlRoom)
-  );
-  const [roomInputValue, setRoomInputValue] = useState(formData.room?.toUpperCase() || '');
 
-  // Prevent unnecessary state updates by comparing against previous derived values
-  const previousShowPrivateFieldRef = useRef<boolean | undefined>(undefined);
-  const previousRoomInputValueRef = useRef<string | undefined>(undefined);
+  // Derive showPrivateRoomField from formData/urlRoom
+  const currentRoom = formData.room || urlRoom;
+  const showPrivateRoomField = useMemo(() => !isPublicRoom(currentRoom), [currentRoom]);
 
+  // Use state key pattern to reset roomInputValue when currentRoom changes externally
+  const roomInputKey = currentRoom;
+  const [localInputValue, setLocalInputValue] = useState('');
+
+  // Derive the displayed value (prioritize local input, fallback to currentRoom)
+  const roomInputValue = localInputValue || currentRoom?.toUpperCase() || '';
+
+  // Reset local input when currentRoom changes from external source
   useEffect(() => {
-    const currentRoom = formData.room || urlRoom;
-    const shouldShowPrivateField = !isPublicRoom(currentRoom);
-    const newRoomInputValue = currentRoom?.toUpperCase() || '';
-
-    if (shouldShowPrivateField !== previousShowPrivateFieldRef.current) {
-      previousShowPrivateFieldRef.current = shouldShowPrivateField;
-      setShowPrivateRoomField(shouldShowPrivateField);
-    }
-
-    if (newRoomInputValue !== previousRoomInputValueRef.current) {
-      previousRoomInputValueRef.current = newRoomInputValue;
-      setRoomInputValue(newRoomInputValue);
-    }
-  }, [urlRoom, formData.room]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing controlled input with external prop changes
+    setLocalInputValue('');
+  }, [roomInputKey]);
 
   const checkRoomExists = async (roomId: string): Promise<boolean> => {
     try {
@@ -79,7 +72,6 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
       gameMode: 'online',
       roomRealtime: true,
     });
-    setShowPrivateRoomField(false);
   }, [formData, setFormData]);
 
   const handlePrivateRoomSelect = useCallback(async () => {
@@ -90,8 +82,6 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
       gameMode: 'online',
       roomRealtime: false,
     });
-    setRoomInputValue(roomId.toUpperCase());
-    setShowPrivateRoomField(true);
   }, [formData, setFormData, generateUniqueRoomId]);
 
   const updateRoomData = useCallback(
@@ -107,7 +97,7 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
 
   const handleRoomChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const upperCaseValue = event.target.value.toUpperCase();
-    setRoomInputValue(upperCaseValue);
+    setLocalInputValue(upperCaseValue);
   }, []);
 
   const handleRoomBlur = useCallback(() => {
