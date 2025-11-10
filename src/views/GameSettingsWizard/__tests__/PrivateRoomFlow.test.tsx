@@ -195,6 +195,7 @@ describe('GameSettingsWizard - Private Room Flow', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    mockUseUnifiedActionList.isLoading = false;
   });
 
   const renderWithRouter = (component: React.ReactElement) => {
