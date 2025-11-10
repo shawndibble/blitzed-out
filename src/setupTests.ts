@@ -27,7 +27,17 @@ configure({
 
 // Suppress React 18 act warnings and test-related warnings in tests
 const originalError = console.error;
+const originalLog = console.log;
+const originalWarn = console.warn;
+
 beforeEach(() => {
+  // Suppress all console.log in tests to reduce noise
+  console.log = vi.fn();
+
+  // Suppress all console.warn in tests
+  console.warn = vi.fn();
+
+  // Suppress specific console.error patterns
   console.error = (...args: any[]) => {
     if (
       (typeof args[0] === 'string' &&
@@ -37,7 +47,16 @@ beforeEach(() => {
       args[0].includes('Warning: validateDOMNesting') ||
       args[0].includes('Unknown event handler property') ||
       args[0].includes('No user logged in') ||
-      args[0].includes('Error syncing')
+      args[0].includes('Error syncing') ||
+      args[0].includes('Missing Firebase environment variables') ||
+      args[0].includes('Could not extract image ID') ||
+      args[0].includes('Found tile') ||
+      args[0].includes('Error during group ID audit') ||
+      args[0].includes('Error finding existing tile') ||
+      args[0].includes('Error batch matching tiles') ||
+      args[0].includes('Unexpected error in test') ||
+      args[0].includes('Fullscreen API is not supported') ||
+      args[0].includes('Note: iOS Safari')
     ) {
       return;
     }
@@ -573,5 +592,7 @@ afterEach(() => {
   vi.clearAllMocks();
   vi.clearAllTimers(); // Clear any remaining timers
   console.error = originalError;
+  console.log = originalLog;
+  console.warn = originalWarn;
   cleanup(); // Clean up DOM between tests
 });

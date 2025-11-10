@@ -29,23 +29,21 @@ export default defineConfig({
     mockReset: true,
     css: false, // Skip CSS processing for faster tests
 
-    // Use threads pool for better performance (faster than forks)
-    pool: 'threads',
+    // Use forks pool for stability in CI
+    // Threads can cause worker timeout issues in CI environments
+    pool: 'forks',
     poolOptions: {
-      threads: {
-        // Conservative thread count for CI (GitHub Actions has 2 cores)
-        minThreads: 1,
-        maxThreads: 2,
-        // Increase teardown timeout to prevent worker timeout issues
-        teardownTimeout: 30000,
+      forks: {
+        // Single fork to prevent worker coordination issues
+        singleFork: true,
       },
     },
 
-    // Enable file parallelism for faster execution
-    fileParallelism: true,
+    // Disable file parallelism to prevent worker timeout
+    // Tests run sequentially but more reliably in CI
+    fileParallelism: false,
 
     // Keep isolation enabled to prevent test contamination
-    // Disabling can cause timeout issues if tests share state
     isolate: true,
 
     // Disable coverage in CI to save time and memory
