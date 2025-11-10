@@ -61,14 +61,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Prettier**: `npm run format` - Code formatting
 - **Pre-commit**: Husky hooks run lint + format on staged files automatically
 
-#### Common Lint Issues
-
-**Issue**: Many lint errors from `public/` directory
-**Solution**: These are build artifacts - use `npx eslint src/` to check only source code
-
-**Issue**: TypeScript compilation errors
-**Solution**: Run `npm run type-check` to see specific type issues without building
-
 ### Testing Essentials
 
 - **Test Framework**: Vitest with React Testing Library
@@ -189,55 +181,6 @@ npm run type-check && npx eslint src/ && npm run test:failures
 
 **CRITICAL RULE**: When updating translations, **ALWAYS** update all 5 language files: `en`, `es`, `fr`, `zh`, `hi` in `src/locales/*/translation.json`
 
-## Gender-Inclusive Action System
-
-### Anatomy Placeholders
-
-To make actions gender-inclusive, use anatomy placeholders that adapt based on player gender:
-
-**Available Placeholders:**
-
-| Placeholder | Male | Female | Non-Binary |
-|------------|------|--------|------------|
-| `{genital}` | dick | pussy | genitals |
-| `{hole}` | hole | pussy | hole |
-| `{chest}` | chest | breasts | chest |
-| `{pronoun_subject}` | he | she | they |
-| `{pronoun_object}` | him | her | them |
-| `{pronoun_possessive}` | his | her | their |
-| `{pronoun_reflexive}` | himself | herself | themselves |
-
-**Usage Example:**
-
-```json
-{
-  "actions": {
-    "Light Touch": [
-      "{dom} touches {sub}'s {chest}.",
-      "{player} rubs their {genital} for 30 seconds."
-    ]
-  }
-}
-```
-
-**Result:**
-- Male player: "Mike rubs his dick for 30 seconds."
-- Female player: "Jessica rubs her pussy for 30 seconds."
-- Non-binary player: "Alex rubs their genitals for 30 seconds."
-
-**Special Cases:**
-
-- **Female Dom + {genital}**: Automatically uses "strapon" in penetrative contexts
-- **Undefined Gender**: Defaults to neutral terms (they/them/their/genitals)
-
-**Implementation:**
-
-- Service: `src/services/anatomyPlaceholderService.ts`
-- Integration: `src/services/actionStringReplacement.ts`
-- Type definitions: `src/types/localPlayers.ts`
-
-### Updating Action Files
-
 When adding anatomy-specific language to action files:
 
 1. Replace hardcoded anatomy terms with placeholders
@@ -247,11 +190,13 @@ When adding anatomy-specific language to action files:
 5. Use pronouns for gender-neutral phrasing
 
 **Before:**
+
 ```json
 "{dom} rubs their dick on {sub}'s pussy."
 ```
 
 **After:**
+
 ```json
 "{dom} rubs their {genital} on {sub}'s {hole}."
 ```
