@@ -230,94 +230,23 @@ export const useEditorGroups = (gameMode: string, locale?: string, refreshTrigge
 
 /**
  * Performance-optimized hook with caching
+ * @deprecated Caching logic removed to comply with React hooks purity rules.
+ * Use useContextualGroups directly instead.
  */
 export const useCachedGroups = (
   context: GroupFilterContext,
   gameMode?: string,
-  cacheTime = 300000 // 5 minutes
+  _cacheTime = 300000 // 5 minutes - unused but kept for API compatibility
 ) => {
-  const [cache, setCache] = useState<
-    Map<
-      string,
-      {
-        data: GroupWithTileInfo[];
-        timestamp: number;
-      }
-    >
-  >(new Map());
-
-  const [validatedResult, setValidatedResult] = useState<{
-    groups: GroupWithTileInfo[];
-    loading: boolean;
-    error: string | null;
-    isEmpty: boolean;
-    fromCache: boolean;
-  } | null>(null);
-
-  const cacheKey = `${context}-${gameMode || 'online'}-${i18next.resolvedLanguage || 'en'}`;
   const result = useContextualGroups(context, gameMode, { includeTileCounts: true });
 
-  useEffect(() => {
-    let mounted = true;
-
-    const cachedData = cache.get(cacheKey);
-    const isCacheValid = cachedData && Date.now() - cachedData.timestamp < cacheTime;
-
-    if (!result.loading) {
-      const nextEntry = {
-        data: result.groups,
-        timestamp: Date.now(),
-      };
-      const needsCacheUpdate =
-        !cachedData ||
-        cachedData.data.length !== nextEntry.data.length ||
-        cachedData.data.some((cached, idx) => {
-          const current = nextEntry.data[idx];
-          if (!current) return true;
-          return (
-            cached.id !== current.id ||
-            cached.tileCount !== current.tileCount ||
-            cached.intensities !== current.intensities
-          );
-        });
-
-      if (needsCacheUpdate) {
-        setCache((prev) => {
-          const next = new Map(prev);
-          next.set(cacheKey, nextEntry);
-          return next;
-        });
-      }
-    }
-
-    // Synchronous state update with mounted guard
-    if (mounted) {
-      if (isCacheValid && !result.loading) {
-        setValidatedResult({
-          ...result,
-          groups: cachedData.data,
-          fromCache: true,
-        });
-      } else {
-        setValidatedResult({
-          ...result,
-          fromCache: false,
-        });
-      }
-    }
-
-    return () => {
-      mounted = false;
-    };
-  }, [result.groups, result.loading, result.error, cacheKey, cacheTime]);
-
-  return (
-    validatedResult ?? {
-      groups: [],
-      loading: true,
-      error: null,
-      isEmpty: true,
+  // Simply return the result with fromCache flag set to false
+  // Caching can be implemented at a higher level if needed
+  return useMemo(
+    () => ({
+      ...result,
       fromCache: false,
-    }
+    }),
+    [result]
   );
 };

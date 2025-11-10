@@ -110,7 +110,7 @@ export default function Room() {
 
     // Update refs
     previousPlayerIndexRef.current = currentIndex;
-  }, [currentPlayerIndex, localPlayers, sessionSettings, isLocalPlayerRoom]);
+  }, [currentPlayerIndex, localPlayers, sessionSettings, isLocalPlayerRoom, settings.playerDialog]);
 
   // Multi-device turn transitions (only when others' dialog is disabled)
   const { messages } = useMessages();
