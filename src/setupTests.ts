@@ -393,9 +393,21 @@ vi.mock('i18next', () => {
       const locale = options?.lng || 'en';
       const translations = mockTranslationsByLocale[locale] || mockTranslationsByLocale.en;
 
+      // Handle namespace:key notation (e.g., 'anatomy:anatomyMappings')
+      let namespace = null;
+      let actualKey = key;
+      if (key.includes(':')) {
+        const parts = key.split(':');
+        namespace = parts[0];
+        actualKey = parts.slice(1).join(':');
+      }
+
+      // Build the full path including namespace
+      const fullPath = namespace ? `${namespace}.${actualKey}` : actualKey;
+
       // Handle returnObjects option for nested structures
       if (options?.returnObjects) {
-        const parts = key.split('.');
+        const parts = fullPath.split('.');
         let value: any = translations;
         for (const part of parts) {
           value = value?.[part];
@@ -404,7 +416,7 @@ vi.mock('i18next', () => {
       }
 
       // Handle normal translations
-      const parts = key.split('.');
+      const parts = fullPath.split('.');
       let value: any = translations;
       for (const part of parts) {
         value = value?.[part];

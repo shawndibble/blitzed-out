@@ -8,9 +8,10 @@
  * @module anatomyPlaceholderService
  */
 
-import i18next from 'i18next';
-import type { PlayerGender, AnatomyPlaceholder } from '@/types/localPlayers';
+import type { AnatomyPlaceholder, PlayerGender } from '@/types/localPlayers';
+
 import type { PlayerRole } from '@/types/Settings';
+import i18next from 'i18next';
 
 /**
  * Anatomy term mapping for a specific gender
@@ -42,7 +43,7 @@ export interface LocaleAnatomyMappings {
  * @returns Anatomy mappings for all genders in the specified locale
  */
 function loadAnatomyMappingsForLocale(locale: string): LocaleAnatomyMappings {
-  const mappings = i18next.t('anatomy.anatomyMappings', { lng: locale, returnObjects: true });
+  const mappings = i18next.t('anatomy:anatomyMappings', { lng: locale, returnObjects: true });
   return mappings as LocaleAnatomyMappings;
 }
 
@@ -66,7 +67,20 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
   // Default to prefer-not-say if gender not specified
   const genderKey = gender || 'prefer-not-say';
 
-  return localeData[genderKey];
+  const mapping = localeData?.[genderKey];
+
+  // If mapping is undefined, use generic anatomy terms from translations as fallback
+  if (!mapping) {
+    console.warn(`No anatomy mapping found for locale: ${locale}, gender: ${genderKey}`);
+    const genericTerms = i18next.t('anatomy:genericAnatomyTerms', {
+      lng: locale,
+      returnObjects: true,
+    }) as AnatomyMapping;
+
+    return genericTerms;
+  }
+
+  return mapping;
 }
 
 /**
@@ -114,7 +128,7 @@ export function getGenitalTermForRole(
 ): string {
   // Special case: female dom uses strapon in penetrative contexts
   if (gender === 'female' && role === 'dom') {
-    const straponTerm = i18next.t('anatomy.straponTerms.strapon', { lng: locale });
+    const straponTerm = i18next.t('anatomy:straponTerms.strapon', { lng: locale });
     return straponTerm;
   }
 
