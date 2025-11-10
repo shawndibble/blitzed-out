@@ -558,6 +558,9 @@
       "playTurnSounds": "播放回合聲音"
     }
   },
+  "localPlayerMode": {
+    "activeNotice": "本地多人遊戲已啟用。玩家設置在房間標籤中配置。"
+  },
   "localPlayersStep": {
     "title": "單設備多人遊戲",
     "subtitle": "想要與多個玩家共享一個設備？設置本地玩家享受社交遊戲體驗。",

@@ -1,6 +1,6 @@
 import './styles.css';
 
-import { Box, Button, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Tab, Tabs, TextField, Typography } from '@mui/material';
 import { FocusEvent, FormEvent, JSX, KeyboardEvent, ReactNode, useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -17,6 +17,7 @@ import { useSettings } from '@/stores/settingsStore';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
+import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import validateFormData from './validateForm';
 import type { PlayerGender } from '@/types/localPlayers';
 
@@ -42,6 +43,7 @@ export default function GameSettings({
 
   const submitSettings = useSubmitGameSettings();
   const { isLoading, actionsList } = useUnifiedActionList(formData?.gameMode, true);
+  const { hasLocalPlayers } = useLocalPlayers();
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number): void => {
     setValue(newValue);
@@ -121,24 +123,34 @@ export default function GameSettings({
 
   return (
     <Box component="form" method="post" onSubmit={handleSubmit} className="settings-box">
-      <TextField
-        fullWidth
-        id="displayName"
-        label={t('displayName')}
-        defaultValue={user?.displayName || formData.displayName || ''}
-        required
-        autoFocus
-        onBlur={handleBlur}
-        onKeyDown={onEnterKey}
-        margin="normal"
-      />
+      {hasLocalPlayers && (
+        <Alert severity="info" sx={{ mt: 2, mb: 2 }}>
+          <Trans i18nKey="localPlayerMode.activeNotice" />
+        </Alert>
+      )}
 
-      <Box sx={{ mt: 2, mb: 2 }}>
-        <GenderSelector
-          selectedGender={formData.gender || 'prefer-not-say'}
-          onGenderChange={handleGenderChange}
-        />
-      </Box>
+      {!hasLocalPlayers && (
+        <>
+          <TextField
+            fullWidth
+            id="displayName"
+            label={t('displayName')}
+            defaultValue={user?.displayName || formData.displayName || ''}
+            required
+            autoFocus
+            onBlur={handleBlur}
+            onKeyDown={onEnterKey}
+            margin="normal"
+          />
+
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <GenderSelector
+              selectedGender={formData.gender || 'prefer-not-say'}
+              onGenderChange={handleGenderChange}
+            />
+          </Box>
+        </>
+      )}
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleTabChange} aria-label={t('gameSettings')} centered>
