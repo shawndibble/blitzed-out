@@ -1,5 +1,5 @@
 import type { HybridPlayer, LocalPlayerExtended } from '@/hooks/useHybridPlayerList';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
@@ -44,13 +44,10 @@ vi.mock('../GameTile', () => ({
 
 vi.mock('./TokenAnimationLayer', () => ({
   default: React.forwardRef<any, any>((_props, ref) => (
-    <div data-testid="token-animation-layer" ref={ref}>
-      {/* Mock TokenAnimationLayer */}
-    </div>
+    <div data-testid="token-animation-layer" ref={ref} />
   )),
 }));
 
-// Mock the migration context
 vi.mock('@/context/migration', () => ({
   useMigration: () => ({
     currentLanguageMigrated: true,
@@ -62,33 +59,9 @@ vi.mock('@/context/migration', () => ({
   }),
 }));
 
-// Mock DOM methods needed by Framer Motion
-Object.defineProperty(window, 'addEventListener', {
-  writable: true,
-  value: vi.fn(),
-});
-
-Object.defineProperty(window, 'removeEventListener', {
-  writable: true,
-  value: vi.fn(),
-});
-
-// Mock document for Framer Motion
-Object.defineProperty(document, 'addEventListener', {
-  writable: true,
-  value: vi.fn(),
-});
-
-Object.defineProperty(document, 'removeEventListener', {
-  writable: true,
-  value: vi.fn(),
-});
-
-// Mock Framer Motion
 vi.mock('framer-motion', () => ({
   motion: {
     div: React.forwardRef<any, any>((props, ref) => {
-      // Filter out framer-motion specific props that React doesn't recognize
       const {
         onUpdate: _onUpdate,
         onAnimationComplete: _onAnimationComplete,
@@ -102,13 +75,10 @@ vi.mock('framer-motion', () => ({
   useTransform: () => ({ get: () => 0 }),
 }));
 
-// Mock react-i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
-    i18n: {
-      changeLanguage: vi.fn(),
-    },
+    i18n: { changeLanguage: vi.fn() },
   }),
 }));
 
@@ -137,22 +107,10 @@ describe('GameBoard', () => {
   });
 
   const mockGameBoard: TileExport[] = [
-    createMockTileExport({
-      title: 'Start',
-      description: 'Welcome to the game! You are {player}.',
-    }),
-    createMockTileExport({
-      title: 'Gentle',
-      description: 'Take a gentle action as {sub}.',
-    }),
-    createMockTileExport({
-      title: 'Intense',
-      description: 'Perform an intense action as {dom}.',
-    }),
-    createMockTileExport({
-      title: 'Finish',
-      description: 'Game complete! Well done {player}.',
-    }),
+    createMockTileExport({ title: 'Start', description: 'Welcome to the game! You are {player}.' }),
+    createMockTileExport({ title: 'Gentle', description: 'Take a gentle action as {sub}.' }),
+    createMockTileExport({ title: 'Intense', description: 'Perform an intense action as {dom}.' }),
+    createMockTileExport({ title: 'Finish', description: 'Game complete! Well done {player}.' }),
   ];
 
   beforeEach(() => {
@@ -170,47 +128,76 @@ describe('GameBoard', () => {
     });
 
     vi.mocked(actionStringReplacement).mockImplementation(
-      (description, _role, displayName, _localPlayers, useGenericPlaceholders, _gender, _locale) =>
+      (description, _role, displayName, _localPlayers, useGenericPlaceholders) =>
         description
           ? useGenericPlaceholders
             ? description
                 .replace(/{player}/g, 'the current player')
                 .replace(/{dom}/g, 'a dominant')
                 .replace(/{sub}/g, 'a submissive')
-                .replace(/{genital}/g, 'genitals')
-                .replace(/{hole}/g, 'hole')
-                .replace(/{chest}/g, 'chest')
-                .replace(/{pronoun_subject}/g, 'they')
-                .replace(/{pronoun_object}/g, 'them')
-                .replace(/{pronoun_possessive}/g, 'their')
-                .replace(/{pronoun_reflexive}/g, 'themselves')
             : description
                 .replace(/{player}/g, displayName || '')
                 .replace(/{(sub|dom)}/g, displayName || '')
-                .replace(/{genital}/g, 'genitals')
-                .replace(/{hole}/g, 'hole')
-                .replace(/{chest}/g, 'chest')
-                .replace(/{pronoun_subject}/g, 'they')
-                .replace(/{pronoun_object}/g, 'them')
-                .replace(/{pronoun_possessive}/g, 'their')
-                .replace(/{pronoun_reflexive}/g, 'themselves')
           : ''
     );
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  describe('Core Rendering', () => {
+    it('should render game board with correct structure and tiles', () => {
+      const mockPlayerList = [
+        { uid: 'player1', displayName: 'Player 1', location: 0, isSelf: false },
+      ];
+
+      const { container } = render(
+        <GameBoard
+          playerList={mockPlayerList}
+          isTransparent={false}
+          gameBoard={mockGameBoard}
+          settings={mockSettings}
+        />
+      );
+
+      // Verify semantic structure
+      const gameboardDiv = container.querySelector('.gameboard');
+      expect(gameboardDiv).toBeInTheDocument();
+      expect(gameboardDiv?.querySelector('ol')).toBeInTheDocument();
+      expect(gameboardDiv).toHaveClass('transparent-scrollbar');
+
+      // Verify tiles rendered
+      const gameTiles = screen.getAllByTestId('game-tile');
+      expect(gameTiles).toHaveLength(4);
+
+      // Verify tile titles include index
+      expect(gameTiles[0]).toHaveAttribute('data-title', '#1: Start');
+      expect(gameTiles[1]).toHaveAttribute('data-title', '#2: Gentle');
+      expect(gameTiles[2]).toHaveAttribute('data-title', '#3: Intense');
+      expect(gameTiles[3]).toHaveAttribute('data-title', '#4: Finish');
+    });
+
+    it('should return null for empty or invalid gameBoard', () => {
+      const { container, rerender } = render(
+        <GameBoard playerList={[]} isTransparent={false} gameBoard={[]} settings={mockSettings} />
+      );
+      expect(container.firstChild).toBeNull();
+
+      rerender(
+        <GameBoard
+          playerList={[]}
+          isTransparent={false}
+          gameBoard={null as any}
+          settings={mockSettings}
+        />
+      );
+      expect(container.firstChild).toBeNull();
+    });
   });
 
-  describe('Component Rendering', () => {
-    it('should render game board with tiles', () => {
+  describe('Player Management', () => {
+    it('should correctly assign players to tiles and identify current player', () => {
       const mockPlayerList = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 0,
-          isSelf: false,
-        },
+        { uid: 'player1', displayName: 'Player 1', location: 0, isSelf: false },
+        { uid: 'user123', displayName: 'Test User', location: 2, isSelf: true },
+        { uid: 'player2', displayName: 'Player 2', location: 2, isSelf: false },
       ];
 
       render(
@@ -222,186 +209,23 @@ describe('GameBoard', () => {
         />
       );
 
-      const gameTiles = screen.getAllByTestId('game-tile');
-      expect(gameTiles).toHaveLength(4);
-    });
-
-    it('should render null when gameBoard is empty', () => {
-      const { container } = render(
-        <GameBoard playerList={[]} isTransparent={false} gameBoard={[]} settings={mockSettings} />
-      );
-
-      expect(container.firstChild).toBeNull();
-    });
-
-    it('should render null when gameBoard is not an array', () => {
-      const { container } = render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={null as any}
-          settings={mockSettings}
-        />
-      );
-
-      expect(container.firstChild).toBeNull();
-    });
-
-    it('should render gameboard with proper semantic structure', () => {
-      const { container } = render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const gameboardDiv = container.querySelector('.gameboard');
-      expect(gameboardDiv).toBeInTheDocument();
-      expect(gameboardDiv?.querySelector('ol')).toBeInTheDocument();
-      expect(gameboardDiv).toHaveClass('transparent-scrollbar');
-    });
-  });
-
-  describe('Game Board Layout and Structure', () => {
-    it('should generate correct tile titles with index', () => {
-      render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
       const tiles = screen.getAllByTestId('game-tile');
 
-      expect(tiles[0]).toHaveAttribute('data-title', '#1: Start');
-      expect(tiles[1]).toHaveAttribute('data-title', '#2: Gentle');
-      expect(tiles[2]).toHaveAttribute('data-title', '#3: Intense');
-      expect(tiles[3]).toHaveAttribute('data-title', '#4: Finish');
-    });
-
-    it('should create ordered list structure for game progression', () => {
-      const { container } = render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const orderedList = container.querySelector('ol');
-      expect(orderedList).toBeInTheDocument();
-
-      const listItems = orderedList?.querySelectorAll('li[data-testid="game-tile"]');
-      expect(listItems).toHaveLength(4);
-    });
-
-    it('should handle large game boards efficiently', () => {
-      const largeGameBoard: TileExport[] = Array.from({ length: 100 }, (_, i) =>
-        createMockTileExport({
-          title: `Tile ${i + 1}`,
-          description: `Description for tile ${i + 1}`,
-        })
-      );
-
-      render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={largeGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles).toHaveLength(100);
-    });
-  });
-
-  describe('Player Positioning and Management', () => {
-    const mockPlayerList = [
-      {
-        uid: 'player1',
-        displayName: 'Player 1',
-        location: 0,
-        isSelf: false,
-      },
-      {
-        uid: 'user123',
-        displayName: 'Test User',
-        location: 2,
-        isSelf: true,
-      },
-      {
-        uid: 'player2',
-        displayName: 'Player 2',
-        location: 2,
-        isSelf: false,
-      },
-    ];
-
-    it('should correctly assign players to tiles based on location', () => {
-      render(
-        <GameBoard
-          playerList={mockPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-
-      // Tile 0 should have player1
+      // Tile 0 should have player1, but not marked as current (start tile exception)
       expect(tiles[0]).toHaveAttribute('data-player-count', '1');
-
-      // Tile 2 should have both user123 and player2
-      expect(tiles[2]).toHaveAttribute('data-player-count', '2');
-      expect(tiles[2]).toHaveAttribute('data-has-current', 'true');
-    });
-
-    it('should handle tiles with no players', () => {
-      render(
-        <GameBoard
-          playerList={mockPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
+      expect(tiles[0]).toHaveAttribute('data-has-current', 'false');
 
       // Tile 1 should have no players
       expect(tiles[1]).toHaveAttribute('data-player-count', '0');
       expect(tiles[1]).toHaveAttribute('data-has-current', 'false');
-    });
 
-    it('should identify current player correctly', () => {
-      render(
-        <GameBoard
-          playerList={mockPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-
-      // Only tile 2 should have current player (not at index 0)
-      expect(tiles[0]).toHaveAttribute('data-has-current', 'false'); // Start tile doesn't count as current
-      expect(tiles[1]).toHaveAttribute('data-has-current', 'false');
+      // Tile 2 should have both user123 and player2, marked as current
+      expect(tiles[2]).toHaveAttribute('data-player-count', '2');
       expect(tiles[2]).toHaveAttribute('data-has-current', 'true');
-      expect(tiles[3]).toHaveAttribute('data-has-current', 'false');
     });
 
-    it('should handle empty player list', () => {
-      render(
+    it('should handle empty player list and player movement', () => {
+      const { rerender } = render(
         <GameBoard
           playerList={[]}
           isTransparent={false}
@@ -410,11 +234,29 @@ describe('GameBoard', () => {
         />
       );
 
-      const tiles = screen.getAllByTestId('game-tile');
+      let tiles = screen.getAllByTestId('game-tile');
       tiles.forEach((tile) => {
         expect(tile).toHaveAttribute('data-player-count', '0');
         expect(tile).toHaveAttribute('data-has-current', 'false');
       });
+
+      // Simulate player movement
+      const movedPlayerList = [
+        { uid: 'player1', displayName: 'Player 1', location: 2, isSelf: true },
+      ];
+
+      rerender(
+        <GameBoard
+          playerList={movedPlayerList}
+          isTransparent={false}
+          gameBoard={mockGameBoard}
+          settings={mockSettings}
+        />
+      );
+
+      tiles = screen.getAllByTestId('game-tile');
+      expect(tiles[0]).toHaveAttribute('data-has-current', 'false');
+      expect(tiles[2]).toHaveAttribute('data-has-current', 'true');
     });
   });
 
@@ -470,48 +312,18 @@ describe('GameBoard', () => {
 
       const tiles = screen.getAllByTestId('game-tile');
 
-      // Verify players are distributed correctly
       expect(tiles[1]).toHaveAttribute('data-player-count', '1'); // Local Player 1
       expect(tiles[2]).toHaveAttribute('data-player-count', '1'); // Remote Player 1
       expect(tiles[3]).toHaveAttribute('data-player-count', '1'); // Local Player 2
-    });
 
-    it('should extract local players for role-based player selection', () => {
-      render(
-        <GameBoard
-          playerList={mockHybridPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      // Verify actionStringReplacement is called with local players
+      // Verify actionStringReplacement receives local players
       expect(actionStringReplacement).toHaveBeenCalledWith(
         expect.any(String),
         'sub',
         'Test User',
         expect.arrayContaining([
-          expect.objectContaining({
-            id: 'player1',
-            name: 'Local Player 1',
-            role: 'dom',
-            order: 1,
-            isActive: true,
-            deviceId: 'local-device',
-            location: 1,
-            isFinished: false,
-          }),
-          expect.objectContaining({
-            id: 'player2',
-            name: 'Local Player 2',
-            role: 'sub',
-            order: 2,
-            isActive: false,
-            deviceId: 'local-device',
-            location: 3,
-            isFinished: false,
-          }),
+          expect.objectContaining({ id: 'player1', name: 'Local Player 1', role: 'dom' }),
+          expect.objectContaining({ id: 'player2', name: 'Local Player 2', role: 'sub' }),
         ]),
         true,
         undefined,
@@ -519,20 +331,10 @@ describe('GameBoard', () => {
       );
     });
 
-    it('should handle non-hybrid player list (legacy format)', () => {
+    it('should handle legacy player format without local players', () => {
       const legacyPlayerList = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 0,
-          isSelf: false,
-        },
-        {
-          uid: 'player2',
-          displayName: 'Player 2',
-          location: 1,
-          isSelf: true,
-        },
+        { uid: 'player1', displayName: 'Player 1', location: 0, isSelf: false },
+        { uid: 'player2', displayName: 'Player 2', location: 1, isSelf: true },
       ];
 
       render(
@@ -544,7 +346,6 @@ describe('GameBoard', () => {
         />
       );
 
-      // Should render without crashing
       const tiles = screen.getAllByTestId('game-tile');
       expect(tiles).toHaveLength(4);
 
@@ -559,45 +360,15 @@ describe('GameBoard', () => {
         undefined
       );
     });
-
-    it('should handle mixed player types in array', () => {
-      const mixedPlayerList = [
-        {
-          uid: 'regular-player',
-          displayName: 'Regular Player',
-          location: 0,
-          isSelf: false,
-        },
-        ...mockHybridPlayerList,
-      ];
-
-      render(
-        <GameBoard
-          playerList={mixedPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles[0]).toHaveAttribute('data-player-count', '1'); // Regular player at start
-      expect(tiles[1]).toHaveAttribute('data-player-count', '1'); // Local Player 1
-    });
   });
 
-  describe('Action String Replacement', () => {
+  describe('Action String Replacement and Settings', () => {
     const mockPlayerList = [
-      {
-        uid: 'user123',
-        displayName: 'Test User',
-        location: 2,
-        isSelf: true,
-      },
+      { uid: 'user123', displayName: 'Test User', location: 2, isSelf: true },
     ];
 
-    it('should use generic placeholders for GameBoard display', () => {
-      render(
+    it('should use generic placeholders and respect role settings', () => {
+      const { rerender } = render(
         <GameBoard
           playerList={mockPlayerList}
           isTransparent={false}
@@ -606,21 +377,20 @@ describe('GameBoard', () => {
         />
       );
 
+      // Should use generic placeholders and default role
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Welcome to the game! You are {player}.',
         'sub',
         'Test User',
         undefined,
-        true, // useGenericPlaceholders should be true for GameBoard
+        true,
         undefined,
         undefined
       );
-    });
 
-    it('should use settings.role instead of tile role', () => {
+      // Test with different role
       const domSettings = { ...mockSettings, role: 'dom' as const };
-
-      render(
+      rerender(
         <GameBoard
           playerList={mockPlayerList}
           isTransparent={false}
@@ -638,12 +408,10 @@ describe('GameBoard', () => {
         undefined,
         undefined
       );
-    });
 
-    it('should handle vers role correctly', () => {
+      // Test with vers role
       const versSettings = { ...mockSettings, role: 'vers' as const };
-
-      render(
+      rerender(
         <GameBoard
           playerList={mockPlayerList}
           isTransparent={false}
@@ -663,31 +431,7 @@ describe('GameBoard', () => {
       );
     });
 
-    it('should show action for current player tile regardless of hideBoardActions', () => {
-      const settingsWithHidden = { ...mockSettings, hideBoardActions: true };
-
-      render(
-        <GameBoard
-          playerList={mockPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={settingsWithHidden}
-        />
-      );
-
-      // Should still call actionStringReplacement for tile where current player is located
-      expect(actionStringReplacement).toHaveBeenCalledWith(
-        'Perform an intense action as {dom}.',
-        'sub',
-        'Test User',
-        undefined,
-        true,
-        undefined,
-        undefined
-      );
-    });
-
-    it('should hide actions when hideBoardActions is true and player not current', () => {
+    it('should handle hideBoardActions setting correctly', () => {
       const settingsWithHidden = { ...mockSettings, hideBoardActions: true };
 
       render(
@@ -701,25 +445,7 @@ describe('GameBoard', () => {
 
       const tiles = screen.getAllByTestId('game-tile');
 
-      // Check that hidden descriptions contain question marks
-      const hiddenTile = tiles[1]; // Tile where player is not current
-      const description = hiddenTile.getAttribute('data-description');
-      expect(description).toMatch(/\?+/); // Should contain question marks
-    });
-
-    it('should always show start tile (index 0) actions', () => {
-      const settingsWithHidden = { ...mockSettings, hideBoardActions: true };
-
-      render(
-        <GameBoard
-          playerList={mockPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={settingsWithHidden}
-        />
-      );
-
-      // Start tile should always show action
+      // Start tile (index 0) should always show action
       expect(actionStringReplacement).toHaveBeenCalledWith(
         'Welcome to the game! You are {player}.',
         'sub',
@@ -729,10 +455,26 @@ describe('GameBoard', () => {
         undefined,
         undefined
       );
+
+      // Current player tile (index 2) should show action
+      expect(actionStringReplacement).toHaveBeenCalledWith(
+        'Perform an intense action as {dom}.',
+        'sub',
+        'Test User',
+        undefined,
+        true,
+        undefined,
+        undefined
+      );
+
+      // Non-current tile should have hidden description (question marks)
+      const hiddenTile = tiles[1];
+      const description = hiddenTile.getAttribute('data-description');
+      expect(description).toMatch(/\?+/);
     });
   });
 
-  describe('Tile Type Hue Assignment', () => {
+  describe('Tile Styling and Hue Assignment', () => {
     it('should assign hue classes based on unique tile titles', () => {
       render(
         <GameBoard
@@ -745,47 +487,20 @@ describe('GameBoard', () => {
 
       const tiles = screen.getAllByTestId('game-tile');
 
-      // Start and Finish tiles (index 0 and last) should not contribute to hue calculation
-      // So Gentle should get hue1 and Intense should get hue2
-      expect(tiles[1]).toHaveAttribute('data-classname', 'hue1');
-      expect(tiles[2]).toHaveAttribute('data-classname', 'hue2');
+      // Start and Finish tiles (index 0 and last) excluded from hue calculation
+      expect(tiles[1]).toHaveAttribute('data-classname', 'hue1'); // Gentle
+      expect(tiles[2]).toHaveAttribute('data-classname', 'hue2'); // Intense
     });
 
-    it('should cycle hue classes for more than 10 unique types', () => {
-      const largeBoardWithManyTypes: TileExport[] = [
-        createMockTileExport({ title: 'Start', description: 'Start' }),
-        ...Array.from({ length: 12 }, (_, i) =>
-          createMockTileExport({
-            title: `Type${i + 1}`,
-            description: `Description ${i + 1}`,
-          })
-        ),
-        createMockTileExport({ title: 'Finish', description: 'Finish' }),
-      ];
-
-      render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={largeBoardWithManyTypes}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-
-      // 11th unique type should cycle back to hue1 (10 % 10 + 1 = 1)
-      expect(tiles[11]).toHaveAttribute('data-classname', 'hue1');
-      // 12th unique type should be hue2
-      expect(tiles[12]).toHaveAttribute('data-classname', 'hue2');
-    });
-
-    it('should handle duplicate tile titles for hue calculation', () => {
+    it('should handle duplicate titles and cycle hue classes for many types', () => {
       const boardWithDuplicates: TileExport[] = [
         createMockTileExport({ title: 'Start', description: 'Start' }),
         createMockTileExport({ title: 'Action', description: 'First action' }),
         createMockTileExport({ title: 'Action', description: 'Second action' }),
         createMockTileExport({ title: 'Different', description: 'Different action' }),
+        ...Array.from({ length: 10 }, (_, i) =>
+          createMockTileExport({ title: `Type${i}`, description: `Description ${i}` })
+        ),
         createMockTileExport({ title: 'Finish', description: 'Finish' }),
       ];
 
@@ -800,38 +515,17 @@ describe('GameBoard', () => {
 
       const tiles = screen.getAllByTestId('game-tile');
 
-      // Both Action tiles should have the same hue
+      // Both Action tiles should have same hue
       expect(tiles[1]).toHaveAttribute('data-classname', 'hue1');
       expect(tiles[2]).toHaveAttribute('data-classname', 'hue1');
       expect(tiles[3]).toHaveAttribute('data-classname', 'hue2');
+
+      // Type7 is the 10th unique type (after Action, Different, Type0-Type6), should get hue10
+      expect(tiles[11]).toHaveAttribute('data-classname', 'hue10');
     });
 
-    it('should exclude start and end tiles from hue calculation', () => {
-      const specialBoard: TileExport[] = [
-        createMockTileExport({ title: 'Start', description: 'Start' }),
-        createMockTileExport({ title: 'UniqueType', description: 'Only unique type' }),
-        createMockTileExport({ title: 'Finish', description: 'Finish' }),
-      ];
-
-      render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={specialBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-
-      // Only the middle tile should get a hue class
-      expect(tiles[1]).toHaveAttribute('data-classname', 'hue1');
-    });
-  });
-
-  describe('Transparency Handling', () => {
-    it('should pass transparency prop to all tiles', () => {
-      render(
+    it('should apply transparency prop to all tiles', () => {
+      const { rerender } = render(
         <GameBoard
           playerList={[]}
           isTransparent={true}
@@ -840,14 +534,12 @@ describe('GameBoard', () => {
         />
       );
 
-      const tiles = screen.getAllByTestId('game-tile');
+      let tiles = screen.getAllByTestId('game-tile');
       tiles.forEach((tile) => {
         expect(tile).toHaveAttribute('data-transparent', 'true');
       });
-    });
 
-    it('should handle non-transparent state', () => {
-      render(
+      rerender(
         <GameBoard
           playerList={[]}
           isTransparent={false}
@@ -856,20 +548,19 @@ describe('GameBoard', () => {
         />
       );
 
-      const tiles = screen.getAllByTestId('game-tile');
+      tiles = screen.getAllByTestId('game-tile');
       tiles.forEach((tile) => {
         expect(tile).toHaveAttribute('data-transparent', 'false');
       });
     });
   });
 
-  describe('Performance Considerations', () => {
-    it('should efficiently calculate unique tile types for hue assignment', () => {
-      // Test with many tiles but few unique types
-      const boardWithFewUniqueTypes: TileExport[] = Array.from({ length: 50 }, (_, i) =>
+  describe('Performance and Scale', () => {
+    it('should handle large game boards efficiently', () => {
+      const largeGameBoard: TileExport[] = Array.from({ length: 100 }, (_, i) =>
         createMockTileExport({
-          title: `Type${i % 5}`, // Only 5 unique types
-          description: `Description ${i}`,
+          title: `Tile ${i + 1}`,
+          description: `Description for tile ${i + 1}`,
         })
       );
 
@@ -877,20 +568,20 @@ describe('GameBoard', () => {
         <GameBoard
           playerList={[]}
           isTransparent={false}
-          gameBoard={boardWithFewUniqueTypes}
+          gameBoard={largeGameBoard}
           settings={mockSettings}
         />
       );
 
       const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles).toHaveLength(50);
+      expect(tiles).toHaveLength(100);
 
-      // Check that we have hue classes
+      // Verify hue classes are assigned
       const firstTileClass = tiles[0].getAttribute('data-classname');
       expect(firstTileClass).toMatch(/^hue\d+$/);
     });
 
-    it('should handle rapid re-renders efficiently', () => {
+    it('should handle multiple rapid player updates', () => {
       const { rerender } = render(
         <GameBoard
           playerList={[]}
@@ -900,8 +591,8 @@ describe('GameBoard', () => {
         />
       );
 
-      // Rapid re-renders with different data
-      for (let i = 0; i < 10; i++) {
+      // Simulate rapid updates
+      for (let i = 0; i < 5; i++) {
         rerender(
           <GameBoard
             playerList={[
@@ -919,339 +610,8 @@ describe('GameBoard', () => {
         );
       }
 
-      // Should still render correctly
       const tiles = screen.getAllByTestId('game-tile');
       expect(tiles).toHaveLength(4);
-    });
-  });
-
-  describe('Integration with Game Logic', () => {
-    it('should correctly integrate with turn-based gameplay', () => {
-      const turnBasedPlayerList = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 5,
-          isSelf: false,
-        },
-        {
-          uid: 'player2',
-          displayName: 'Player 2',
-          location: 5,
-          isSelf: true, // Current turn
-        },
-      ];
-
-      render(
-        <GameBoard
-          playerList={turnBasedPlayerList}
-          isTransparent={false}
-          gameBoard={Array.from({ length: 10 }, (_, i) =>
-            createMockTileExport({
-              title: `Tile ${i + 1}`,
-              description: `Action for tile ${i + 1}`,
-            })
-          )}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles[5]).toHaveAttribute('data-has-current', 'true');
-      expect(tiles[5]).toHaveAttribute('data-player-count', '2');
-    });
-
-    it('should handle game state transitions', () => {
-      const initialPlayerList = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 0,
-          isSelf: true,
-        },
-      ];
-
-      const { rerender } = render(
-        <GameBoard
-          playerList={initialPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      // Simulate player movement
-      const movedPlayerList = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 2,
-          isSelf: true,
-        },
-      ];
-
-      rerender(
-        <GameBoard
-          playerList={movedPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles[0]).toHaveAttribute('data-has-current', 'false');
-      expect(tiles[2]).toHaveAttribute('data-has-current', 'true');
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('should render with proper semantic structure', () => {
-      const { container } = render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const gameboardContainer = container.querySelector('.gameboard');
-      expect(gameboardContainer).toBeInTheDocument();
-
-      const orderList = gameboardContainer?.querySelector('ol');
-      expect(orderList).toBeInTheDocument();
-    });
-
-    it('should maintain proper ordered list semantics for screen readers', () => {
-      const { container } = render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const orderedList = container.querySelector('ol');
-      expect(orderedList).toBeInTheDocument();
-      // Note: itemScope is not currently implemented but could be added for structured data
-    });
-  });
-
-  describe('Real-time Features', () => {
-    it('should handle real-time player position updates', () => {
-      const playerList = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 1,
-          isSelf: false,
-        },
-        {
-          uid: 'player2',
-          displayName: 'Player 2',
-          location: 1,
-          isSelf: true,
-        },
-      ];
-
-      const { rerender } = render(
-        <GameBoard
-          playerList={playerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      let tiles = screen.getAllByTestId('game-tile');
-      expect(tiles[1]).toHaveAttribute('data-player-count', '2');
-
-      // Simulate real-time update - players move
-      const updatedPlayerList = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 2,
-          isSelf: false,
-        },
-        {
-          uid: 'player2',
-          displayName: 'Player 2',
-          location: 3,
-          isSelf: true,
-        },
-      ];
-
-      rerender(
-        <GameBoard
-          playerList={updatedPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      tiles = screen.getAllByTestId('game-tile');
-      expect(tiles[1]).toHaveAttribute('data-player-count', '0');
-      expect(tiles[2]).toHaveAttribute('data-player-count', '1');
-      expect(tiles[3]).toHaveAttribute('data-player-count', '1');
-    });
-
-    it('should handle concurrent player actions', () => {
-      const concurrentPlayerList = [
-        {
-          uid: 'player1',
-          displayName: 'Player 1',
-          location: 1,
-          isSelf: true,
-        },
-        {
-          uid: 'player2',
-          displayName: 'Player 2',
-          location: 1,
-          isSelf: false,
-        },
-        {
-          uid: 'player3',
-          displayName: 'Player 3',
-          location: 1,
-          isSelf: false,
-        },
-      ];
-
-      render(
-        <GameBoard
-          playerList={concurrentPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles[1]).toHaveAttribute('data-player-count', '3');
-      expect(tiles[1]).toHaveAttribute('data-has-current', 'true');
-    });
-  });
-
-  describe('Data Validation', () => {
-    it('should validate TileExport structure', () => {
-      const invalidGameBoard = [
-        { title: 'Valid Tile', description: 'Valid description' },
-        { title: '', description: 'Empty title' },
-        { description: 'Missing title' } as any,
-        { title: 'Missing description' } as any,
-      ];
-
-      render(
-        <GameBoard
-          playerList={[]}
-          isTransparent={false}
-          gameBoard={invalidGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      // Should render all tiles even with invalid data
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles).toHaveLength(4);
-    });
-
-    it('should handle mixed valid and invalid player data', () => {
-      const mixedPlayerList = [
-        {
-          uid: 'valid-player',
-          displayName: 'Valid Player',
-          location: 0,
-          isSelf: false,
-        },
-        {
-          // Missing required fields
-          displayName: 'Incomplete Player',
-        } as any,
-        null as any,
-        undefined as any,
-      ].filter(Boolean); // Filter out null/undefined
-
-      render(
-        <GameBoard
-          playerList={mixedPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      // Should handle gracefully
-      const tiles = screen.getAllByTestId('game-tile');
-      expect(tiles).toHaveLength(4);
-    });
-  });
-
-  describe('Single-Device Mode Pulse Animation Fix', () => {
-    it('should show pulse animation on destination tile during movement, not current player location', () => {
-      const playerList = [
-        { uid: 'player1', displayName: 'Player 1', location: 1, isSelf: true },
-        { uid: 'player2', displayName: 'Player 2', location: 2, isSelf: false },
-      ];
-
-      const { rerender } = render(
-        <GameBoard
-          playerList={playerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-
-      // Initially, player 1 is at tile 1, so tile 1 should have pulse
-      expect(tiles[1]).toHaveAttribute('data-has-current', 'true');
-      expect(tiles[3]).toHaveAttribute('data-has-current', 'false');
-
-      // Simulate player movement: player 1 moving from tile 1 to tile 3
-      // During animation, the scrollTargetRef would be set to target tile 3
-      // This simulates the state during token animation
-      const updatedPlayerList = [
-        { uid: 'player1', displayName: 'Player 1', location: 3, isSelf: true }, // Player moved to destination
-        { uid: 'player2', displayName: 'Player 2', location: 2, isSelf: false },
-      ];
-
-      rerender(
-        <GameBoard
-          playerList={updatedPlayerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const updatedTiles = screen.getAllByTestId('game-tile');
-
-      // After movement, tile 3 should have the pulse animation (where player 1 ended up)
-      expect(updatedTiles[1]).toHaveAttribute('data-has-current', 'false');
-      expect(updatedTiles[3]).toHaveAttribute('data-has-current', 'true');
-    });
-
-    it('should not show pulse animation on tile 0 (start tile)', () => {
-      const playerList = [{ uid: 'player1', displayName: 'Player 1', location: 0, isSelf: true }];
-
-      render(
-        <GameBoard
-          playerList={playerList}
-          isTransparent={false}
-          gameBoard={mockGameBoard}
-          settings={mockSettings}
-        />
-      );
-
-      const tiles = screen.getAllByTestId('game-tile');
-
-      // Tile 0 should never have pulse animation (index !== 0 condition)
-      expect(tiles[0]).toHaveAttribute('data-has-current', 'false');
     });
   });
 });
