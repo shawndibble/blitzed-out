@@ -560,6 +560,9 @@
       "playTurnSounds": "Play turn sounds"
     }
   },
+  "localPlayerMode": {
+    "activeNotice": "Local multiplayer active. Player settings configured in Room tab."
+  },
   "localPlayersStep": {
     "title": "Single-Device Multiplayer",
     "subtitle": "Want to share one device with multiple players? Set up local players for a social gaming experience.",

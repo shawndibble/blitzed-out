@@ -560,6 +560,9 @@
       "playTurnSounds": "Activer les sons de tour"
     }
   },
+  "localPlayerMode": {
+    "activeNotice": "Multijoueur local actif. Paramètres des joueurs configurés dans l'onglet Salle."
+  },
   "localPlayersStep": {
     "title": "Multijoueur sur Un Seul Appareil",
     "subtitle": "Vous voulez partager un appareil avec plusieurs joueurs ? Configurez des joueurs locaux pour une expérience de jeu sociale.",

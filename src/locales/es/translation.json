@@ -560,6 +560,9 @@
       "playTurnSounds": "Reproducir sonidos de turno"
     }
   },
+  "localPlayerMode": {
+    "activeNotice": "Multijugador local activo. Configuración de jugadores en la pestaña Sala."
+  },
   "localPlayersStep": {
     "title": "Multijugador en Un Solo Dispositivo",
     "subtitle": "¿Quieres compartir un dispositivo con múltiples jugadores? Configura jugadores locales para una experiencia de juego social.",
