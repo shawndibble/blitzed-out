@@ -6,6 +6,9 @@ import { renderHook } from '@testing-library/react';
 import useHybridPlayerList from '@/hooks/useHybridPlayerList';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
 import type { TileExport } from '@/types/gameBoard';
+import { ReactNode } from 'react';
+import { MessagesProvider } from '@/context/messages';
+import { AuthProvider } from '@/context/auth';
 
 // Mock migration context
 vi.mock('@/context/migration', () => ({
@@ -34,14 +37,6 @@ vi.mock('@/stores/settingsStore', () => ({
   useSettings: () => [{ role: 'sub' }],
 }));
 
-// Mock messages
-vi.mock('@/context/hooks/useMessages', () => ({
-  default: () => ({
-    messages: [],
-    isLoading: false,
-  }),
-}));
-
 // Mock user list
 vi.mock('@/stores/userListStore', () => ({
   useUserListStore: () => ({
@@ -49,14 +44,11 @@ vi.mock('@/stores/userListStore', () => ({
   }),
 }));
 
-// Mock player list
-vi.mock('@/hooks/usePlayerList', () => ({
-  default: () => [],
-}));
-
 // Mock firebase
 vi.mock('@/services/firebase', () => ({
   sendMessage: vi.fn(),
+  getMessages: vi.fn(() => vi.fn()),
+  getMessagesWithPagination: vi.fn(() => vi.fn()),
 }));
 
 // Mock i18next
@@ -83,20 +75,27 @@ vi.mock('@/stores/store', () => ({
   default: mockDb,
 }));
 
-// Mock local player store
-let mockSession: any = null;
+// Mock local player store with a global state object for isolate: false compatibility
+const mockLocalPlayerState = {
+  session: null as any,
+};
 
 vi.mock('@/stores/localPlayerStore', () => ({
   useLocalPlayerStore: () => ({
-    session: mockSession,
+    get session() {
+      return mockLocalPlayerState.session;
+    },
     error: null,
     isLoading: false,
-    hasLocalPlayers: () => mockSession?.isActive === true && mockSession?.players?.length > 0,
-    isLocalPlayerRoom: () => mockSession?.isActive === true,
+    hasLocalPlayers: () =>
+      mockLocalPlayerState.session?.isActive === true &&
+      mockLocalPlayerState.session?.players?.length > 0,
+    isLocalPlayerRoom: () => mockLocalPlayerState.session?.isActive === true,
     getCurrentPlayer: () => {
-      if (!mockSession?.isActive || !mockSession?.players) return null;
-      const index = mockSession.currentPlayerIndex || 0;
-      return mockSession.players[index] || null;
+      if (!mockLocalPlayerState.session?.isActive || !mockLocalPlayerState.session?.players)
+        return null;
+      const index = mockLocalPlayerState.session.currentPlayerIndex || 0;
+      return mockLocalPlayerState.session.players[index] || null;
     },
     setSession: vi.fn(),
     clearSession: vi.fn(),
@@ -108,13 +107,22 @@ vi.mock('@/stores/localPlayerStore', () => ({
   }),
 }));
 
+// Wrapper component that provides necessary context
+function TestWrapper({ children }: { children: ReactNode }) {
+  return (
+    <AuthProvider>
+      <MessagesProvider>{children}</MessagesProvider>
+    </AuthProvider>
+  );
+}
+
 describe('Multi-Player Single Device Mode', () => {
   let testPlayers: LocalPlayer[];
   let gameBoard: TileExport[];
 
   beforeEach(() => {
     // Reset mock session
-    mockSession = null;
+    mockLocalPlayerState.session = null;
 
     // Create 3 test players
     testPlayers = [
@@ -161,7 +169,7 @@ describe('Multi-Player Single Device Mode', () => {
     ];
 
     // Set up session
-    mockSession = {
+    mockLocalPlayerState.session = {
       id: 'test-session',
       roomId: 'test-room',
       players: [...testPlayers],
@@ -179,7 +187,7 @@ describe('Multi-Player Single Device Mode', () => {
 
   test('should show 3 different player avatars/tokens on the game board', () => {
     // Given: 3 local players in single device mode
-    const { result } = renderHook(() => useHybridPlayerList());
+    const { result } = renderHook(() => useHybridPlayerList(), { wrapper: TestWrapper });
 
     // When: We get the hybrid player list
     const players = result.current;
@@ -206,11 +214,11 @@ describe('Multi-Player Single Device Mode', () => {
 
   test('should show all players on the game board simultaneously', () => {
     // Given: Players at different positions
-    mockSession.players[0].location = 1; // Alice at position 1
-    mockSession.players[1].location = 3; // Bob at position 3
-    mockSession.players[2].location = 2; // Charlie at position 2
+    mockLocalPlayerState.session.players[0].location = 1; // Alice at position 1
+    mockLocalPlayerState.session.players[1].location = 3; // Bob at position 3
+    mockLocalPlayerState.session.players[2].location = 2; // Charlie at position 2
 
-    const { result } = renderHook(() => useHybridPlayerList());
+    const { result } = renderHook(() => useHybridPlayerList(), { wrapper: TestWrapper });
     const players = result.current;
 
     // When: We check which tiles have players
@@ -240,79 +248,79 @@ describe('Multi-Player Single Device Mode', () => {
 
   test('should track independent movement for each player when they roll', () => {
     // Given: 3 local players starting at position 0
-    expect(mockSession.players[0].location).toBe(0); // Alice
-    expect(mockSession.players[1].location).toBe(0); // Bob
-    expect(mockSession.players[2].location).toBe(0); // Charlie
+    expect(mockLocalPlayerState.session.players[0].location).toBe(0); // Alice
+    expect(mockLocalPlayerState.session.players[1].location).toBe(0); // Bob
+    expect(mockLocalPlayerState.session.players[2].location).toBe(0); // Charlie
 
     // When: Alice (player-1) rolls a 3 and moves
-    mockSession.players[0].location = 3;
+    mockLocalPlayerState.session.players[0].location = 3;
 
     // Then: Alice should be at position 3, others still at 0
-    expect(mockSession.players[0].location).toBe(3); // Alice moved
-    expect(mockSession.players[1].location).toBe(0); // Bob didn't move
-    expect(mockSession.players[2].location).toBe(0); // Charlie didn't move
+    expect(mockLocalPlayerState.session.players[0].location).toBe(3); // Alice moved
+    expect(mockLocalPlayerState.session.players[1].location).toBe(0); // Bob didn't move
+    expect(mockLocalPlayerState.session.players[2].location).toBe(0); // Charlie didn't move
 
     // When: Switch to Bob (player-2) and he rolls a 2 and moves
-    mockSession.currentPlayerIndex = 1;
-    mockSession.players[1].isActive = true;
-    mockSession.players[0].isActive = false;
-    mockSession.players[1].location = 2;
+    mockLocalPlayerState.session.currentPlayerIndex = 1;
+    mockLocalPlayerState.session.players[1].isActive = true;
+    mockLocalPlayerState.session.players[0].isActive = false;
+    mockLocalPlayerState.session.players[1].location = 2;
 
     // Then: Bob should be at position 2, Alice still at 3, Charlie still at 0
-    expect(mockSession.players[0].location).toBe(3); // Alice unchanged
-    expect(mockSession.players[1].location).toBe(2); // Bob moved
-    expect(mockSession.players[2].location).toBe(0); // Charlie still at start
+    expect(mockLocalPlayerState.session.players[0].location).toBe(3); // Alice unchanged
+    expect(mockLocalPlayerState.session.players[1].location).toBe(2); // Bob moved
+    expect(mockLocalPlayerState.session.players[2].location).toBe(0); // Charlie still at start
 
     // When: Switch to Charlie (player-3) and he rolls a 4 and moves
-    mockSession.currentPlayerIndex = 2;
-    mockSession.players[2].isActive = true;
-    mockSession.players[1].isActive = false;
-    mockSession.players[2].location = 4;
+    mockLocalPlayerState.session.currentPlayerIndex = 2;
+    mockLocalPlayerState.session.players[2].isActive = true;
+    mockLocalPlayerState.session.players[1].isActive = false;
+    mockLocalPlayerState.session.players[2].location = 4;
 
     // Then: Each player should be at their individual position
-    expect(mockSession.players[0].location).toBe(3); // Alice unchanged
-    expect(mockSession.players[1].location).toBe(2); // Bob unchanged
-    expect(mockSession.players[2].location).toBe(4); // Charlie moved
+    expect(mockLocalPlayerState.session.players[0].location).toBe(3); // Alice unchanged
+    expect(mockLocalPlayerState.session.players[1].location).toBe(2); // Bob unchanged
+    expect(mockLocalPlayerState.session.players[2].location).toBe(4); // Charlie moved
   });
 
   test('should continue from previous position when player rolls again', () => {
     // Given: Alice starts at position 3 (from previous move)
-    mockSession.players[0].location = 3;
+    mockLocalPlayerState.session.players[0].location = 3;
 
     // When: Alice rolls again with a 2
     const expectedNewPosition = 3 + 2; // Previous position + roll
 
     // Simulate the movement
-    mockSession.players[0].location = expectedNewPosition;
+    mockLocalPlayerState.session.players[0].location = expectedNewPosition;
 
     // Then: Alice should be at position 5 (3 + 2)
-    expect(mockSession.players[0].location).toBe(5);
+    expect(mockLocalPlayerState.session.players[0].location).toBe(5);
 
     // And: Other players should remain at their previous positions
-    expect(mockSession.players[1].location).toBe(0); // Bob still at start
-    expect(mockSession.players[2].location).toBe(0); // Charlie still at start
+    expect(mockLocalPlayerState.session.players[1].location).toBe(0); // Bob still at start
+    expect(mockLocalPlayerState.session.players[2].location).toBe(0); // Charlie still at start
   });
 
   test('should handle finish condition independently per player', () => {
     // Given: Players at different positions near the end
-    mockSession.players[0].location = 4; // Alice near finish
-    mockSession.players[1].location = 2; // Bob in middle
-    mockSession.players[2].location = 1; // Charlie near start
+    mockLocalPlayerState.session.players[0].location = 4; // Alice near finish
+    mockLocalPlayerState.session.players[1].location = 2; // Bob in middle
+    mockLocalPlayerState.session.players[2].location = 1; // Charlie near start
 
     const finishPosition = gameBoard.length - 1; // Position 5 (last tile)
 
     // When: Alice rolls enough to reach finish
-    mockSession.players[0].location = finishPosition;
-    mockSession.players[0].isFinished = true;
+    mockLocalPlayerState.session.players[0].location = finishPosition;
+    mockLocalPlayerState.session.players[0].isFinished = true;
 
     // Then: Alice should be finished, others should not
-    expect(mockSession.players[0].location).toBe(finishPosition);
-    expect(mockSession.players[0].isFinished).toBe(true);
-    expect(mockSession.players[1].isFinished).toBe(false);
-    expect(mockSession.players[2].isFinished).toBe(false);
+    expect(mockLocalPlayerState.session.players[0].location).toBe(finishPosition);
+    expect(mockLocalPlayerState.session.players[0].isFinished).toBe(true);
+    expect(mockLocalPlayerState.session.players[1].isFinished).toBe(false);
+    expect(mockLocalPlayerState.session.players[2].isFinished).toBe(false);
 
     // And: Other players should maintain their positions
-    expect(mockSession.players[1].location).toBe(2);
-    expect(mockSession.players[2].location).toBe(1);
+    expect(mockLocalPlayerState.session.players[1].location).toBe(2);
+    expect(mockLocalPlayerState.session.players[2].location).toBe(1);
   });
 });

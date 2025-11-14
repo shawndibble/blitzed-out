@@ -4,7 +4,8 @@ import { Message, MessageType } from '@/types/Message';
 import { render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { BrowserRouter } from 'react-router-dom';
+import * as ReactRouterDom from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { MessagesProvider } from '../messages';
 import { ReactNode } from 'react';
 import { Timestamp } from 'firebase/firestore';
@@ -15,16 +16,6 @@ import { useMessagesStore } from '@/stores/messagesStore';
 vi.mock('@/services/firebase', () => ({
   getMessages: vi.fn(),
 }));
-
-// Mock the router - must be done before the component import
-let mockRoomId = 'test-room';
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useParams: () => ({ id: mockRoomId }),
-  };
-});
 
 // Mock the message helpers
 vi.mock('@/helpers/messages', () => ({
@@ -53,10 +44,18 @@ const TestComponent = () => {
 };
 
 // Test wrapper component
-const TestWrapper = ({ children }: { children: ReactNode }) => (
-  <BrowserRouter>
-    <MessagesProvider>{children}</MessagesProvider>
-  </BrowserRouter>
+const TestWrapper = ({
+  children,
+  roomId = 'test-room',
+}: {
+  children: ReactNode;
+  roomId?: string;
+}) => (
+  <MemoryRouter initialEntries={[`/room/${roomId}`]}>
+    <Routes>
+      <Route path="/room/:id" element={<MessagesProvider>{children}</MessagesProvider>} />
+    </Routes>
+  </MemoryRouter>
 );
 
 // Helper function to create mock messages
@@ -88,20 +87,33 @@ describe('MessagesProvider', () => {
   let mockUnsubscribe: () => void;
 
   beforeEach(() => {
+    // Clear all mocks first
+    vi.clearAllMocks();
+
     // Clear localStorage to prevent persist middleware interference
     localStorage.clear();
 
-    mockUnsubscribe = vi.fn();
-    mockGetMessages.mockImplementation((_roomId, callback) => {
-      // Call callback synchronously to simulate Firebase realtime listener
-      // Firebase listeners call the callback synchronously on subscription
-      callback([]);
-      return mockUnsubscribe;
+    // Remove the specific storage key used by the messages store
+    localStorage.removeItem('messages-storage');
+
+    // Completely reset the store state to initial values
+    useMessagesStore.setState({
+      messages: [],
+      loading: true,
+      error: null,
+      room: null,
+      paginationCursor: null,
     });
 
-    // Clear the messages store before each test
-    useMessagesStore.getState().clearMessages();
-    useMessagesStore.getState().setLoading(true);
+    // Override the global useParams mock to return test-room by default
+    vi.spyOn(ReactRouterDom, 'useParams').mockReturnValue({ id: 'test-room' });
+
+    mockUnsubscribe = vi.fn();
+    mockGetMessages.mockImplementation((_roomId, callback) => {
+      // Firebase listeners call the callback asynchronously (at least a microtask delay)
+      queueMicrotask(() => callback([]));
+      return mockUnsubscribe;
+    });
   });
 
   afterEach(() => {
@@ -140,15 +152,25 @@ describe('MessagesProvider', () => {
       expect(mockGetMessages).toHaveBeenCalledWith('test-room', expect.any(Function));
     });
 
-    it('should handle undefined room ID', () => {
+    it('should handle undefined room ID', async () => {
+      // Override useParams to return undefined room ID
+      vi.spyOn(ReactRouterDom, 'useParams').mockReturnValue({ id: undefined });
+
       render(
         <TestWrapper>
           <TestComponent />
         </TestWrapper>
       );
 
-      // Just verify that the function is called, the actual room ID depends on the mock
-      expect(mockGetMessages).toHaveBeenCalled();
+      // When room ID is undefined, getMessages should not be called
+      // and messages should be cleared
+      await waitFor(() => {
+        expect(screen.getByTestId('loading')).toHaveTextContent('loaded');
+        expect(screen.getByTestId('message-count')).toHaveTextContent('0');
+      });
+
+      // getMessages should not be called when room is undefined
+      expect(mockGetMessages).not.toHaveBeenCalled();
     });
   });
 
@@ -168,7 +190,7 @@ describe('MessagesProvider', () => {
       const mockMessages = [createMockMessage('Hello world!'), createMockMessage('How are you?')];
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        callback(mockMessages);
+        queueMicrotask(() => callback(mockMessages));
         return mockUnsubscribe;
       });
 
@@ -186,7 +208,7 @@ describe('MessagesProvider', () => {
 
     it('should handle empty message list', async () => {
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        callback([]);
+        queueMicrotask(() => callback([]));
         return mockUnsubscribe;
       });
 
@@ -210,7 +232,7 @@ describe('MessagesProvider', () => {
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
         // Pass messages in reverse chronological order
-        callback([newMessage, oldMessage]);
+        queueMicrotask(() => callback([newMessage, oldMessage]));
         return mockUnsubscribe;
       });
 
@@ -240,7 +262,7 @@ describe('MessagesProvider', () => {
       ];
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        callback(messages);
+        queueMicrotask(() => callback(messages));
         return mockUnsubscribe;
       });
 
@@ -264,7 +286,7 @@ describe('MessagesProvider', () => {
   describe('Room Changes', () => {
     it('should reset loading state when room changes', async () => {
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        callback([createMockMessage('Message in room1')]);
+        queueMicrotask(() => callback([createMockMessage('Message in room1')]));
         return mockUnsubscribe;
       });
 
