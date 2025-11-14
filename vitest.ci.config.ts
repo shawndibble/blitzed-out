@@ -29,22 +29,23 @@ export default defineConfig({
     mockReset: true,
     css: false, // Skip CSS processing for faster tests
 
-    // Use forks pool for stability in CI
-    // Threads can cause worker timeout issues in CI environments
+    // Use forks pool with limited concurrency
     pool: 'forks',
     poolOptions: {
       forks: {
-        // Single fork to prevent worker coordination issues
-        singleFork: true,
+        maxForks: 2,
+        minForks: 1,
       },
     },
 
-    // Disable file parallelism to prevent worker timeout
-    // Tests run sequentially but more reliably in CI
-    fileParallelism: false,
+    // Enable file parallelism for faster execution
+    fileParallelism: true,
+    maxConcurrency: 5,
 
-    // Keep isolation enabled to prevent test contamination
-    isolate: true,
+    // Disable isolation for better performance
+    // isolate: true was causing extreme slowness (2+ minutes for shard 2/3 to timeout)
+    // All tests have been verified to work correctly with isolate: false
+    isolate: false,
 
     // Disable coverage in CI to save time and memory
     coverage: {

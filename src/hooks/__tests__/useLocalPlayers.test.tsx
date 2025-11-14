@@ -6,35 +6,14 @@ import { renderHook, act } from '@testing-library/react';
 import { useLocalPlayers } from '../useLocalPlayers';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
 
-// Mock the local player store
-vi.mock('@/stores/localPlayerStore', () => ({
-  useLocalPlayerStore: () => ({
-    session: mockSession,
-    error: mockError,
-    isLoading: mockIsLoading,
-    hasLocalPlayers: vi.fn(() => mockSession?.isActive === true && mockSession?.players.length > 0),
-    isLocalPlayerRoom: vi.fn(() => mockSession?.isActive === true),
-    getCurrentPlayer: vi.fn(() => {
-      if (!mockSession || !mockSession.isActive) return null;
-      const index = mockSession.currentPlayerIndex;
-      return mockSession.players[index] || null;
-    }),
-    setSession: mockSetSession,
-    clearSession: mockClearSession,
-    setError: mockSetError,
-    setLoading: mockSetLoading,
-    initSession: mockInitSession,
-    loadSession: mockLoadSession,
-    nextLocalPlayer: mockNextLocalPlayer,
-  }),
-}));
+// Global mock state object - this approach works better with isolate: false
+const mockState = {
+  session: null as any,
+  error: null as string | null,
+  isLoading: false,
+};
 
-// Mock state variables
-let mockSession: any = null;
-let mockError: string | null = null;
-let mockIsLoading: boolean = false;
-
-// Mock functions
+// Mock functions - must be declared before the mock
 const mockSetSession = vi.fn();
 const mockClearSession = vi.fn();
 const mockSetError = vi.fn();
@@ -42,6 +21,37 @@ const mockSetLoading = vi.fn();
 const mockInitSession = vi.fn();
 const mockLoadSession = vi.fn();
 const mockNextLocalPlayer = vi.fn();
+
+// Mock the local player store
+vi.mock('@/stores/localPlayerStore', () => ({
+  useLocalPlayerStore: () => ({
+    get session() {
+      return mockState.session;
+    },
+    get error() {
+      return mockState.error;
+    },
+    get isLoading() {
+      return mockState.isLoading;
+    },
+    hasLocalPlayers: () =>
+      mockState.session?.isActive === true && mockState.session?.players.length > 0,
+    isLocalPlayerRoom: () => mockState.session?.isActive === true,
+    getCurrentPlayer: () => {
+      if (!mockState.session || !mockState.session.isActive) return null;
+      const index = mockState.session.currentPlayerIndex;
+      return mockState.session.players[index] || null;
+    },
+    setSession: mockSetSession,
+    clearSession: mockClearSession,
+    setError: mockSetError,
+    setLoading: mockSetLoading,
+    initSession: mockInitSession,
+    loadSession: mockLoadSession,
+    nextLocalPlayer: mockNextLocalPlayer,
+    updateSessionSettings: vi.fn(),
+  }),
+}));
 
 describe('useLocalPlayers', () => {
   let mockPlayers: LocalPlayer[];
@@ -78,9 +88,9 @@ describe('useLocalPlayers', () => {
     };
 
     // Reset mock state
-    mockSession = null;
-    mockError = null;
-    mockIsLoading = false;
+    mockState.session = null;
+    mockState.error = null;
+    mockState.isLoading = false;
 
     // Clear all mock calls
     vi.clearAllMocks();
@@ -104,7 +114,7 @@ describe('useLocalPlayers', () => {
     });
 
     test('should return correct state with active session', () => {
-      mockSession = {
+      mockState.session = {
         id: 'test-session',
         roomId: 'TEST-ROOM',
         players: mockPlayers,
@@ -117,7 +127,7 @@ describe('useLocalPlayers', () => {
 
       const { result } = renderHook(() => useLocalPlayers());
 
-      expect(result.current.session).toBe(mockSession);
+      expect(result.current.session).toBe(mockState.session);
       expect(result.current.localPlayers).toEqual(mockPlayers);
       expect(result.current.currentPlayer).toBe(mockPlayers[0]);
       expect(result.current.currentPlayerIndex).toBe(0);
@@ -173,7 +183,7 @@ describe('useLocalPlayers', () => {
 
   describe('Utility Functions', () => {
     beforeEach(() => {
-      mockSession = {
+      mockState.session = {
         id: 'test-session',
         roomId: 'TEST-ROOM',
         players: mockPlayers,
@@ -217,7 +227,7 @@ describe('useLocalPlayers', () => {
     });
 
     test('getNextPlayer should wrap around to first player', () => {
-      mockSession.currentPlayerIndex = 1; // Set to last player
+      mockState.session.currentPlayerIndex = 1; // Set to last player
 
       const { result } = renderHook(() => useLocalPlayers());
 
@@ -225,7 +235,7 @@ describe('useLocalPlayers', () => {
     });
 
     test('getPreviousPlayer should return previous player in order', () => {
-      mockSession.currentPlayerIndex = 1; // Set to second player
+      mockState.session.currentPlayerIndex = 1; // Set to second player
 
       const { result } = renderHook(() => useLocalPlayers());
 
@@ -233,7 +243,7 @@ describe('useLocalPlayers', () => {
     });
 
     test('getPreviousPlayer should wrap around to last player', () => {
-      mockSession.currentPlayerIndex = 0; // Set to first player
+      mockState.session.currentPlayerIndex = 0; // Set to first player
 
       const { result } = renderHook(() => useLocalPlayers());
 
@@ -241,8 +251,8 @@ describe('useLocalPlayers', () => {
     });
 
     test('utility functions should handle empty player list', () => {
-      mockSession.players = [];
-      mockSession.currentPlayerIndex = 0;
+      mockState.session.players = [];
+      mockState.session.currentPlayerIndex = 0;
 
       const { result } = renderHook(() => useLocalPlayers());
 
@@ -255,7 +265,7 @@ describe('useLocalPlayers', () => {
 
   describe('Computed Properties', () => {
     test('isValidSession should be true for active session with 2+ players', () => {
-      mockSession = {
+      mockState.session = {
         id: 'test-session',
         roomId: 'TEST-ROOM',
         players: mockPlayers,
@@ -272,7 +282,7 @@ describe('useLocalPlayers', () => {
     });
 
     test('isValidSession should be false for inactive session', () => {
-      mockSession = {
+      mockState.session = {
         id: 'test-session',
         roomId: 'TEST-ROOM',
         players: mockPlayers,
@@ -289,7 +299,7 @@ describe('useLocalPlayers', () => {
     });
 
     test('isValidSession should be false for session with < 2 players', () => {
-      mockSession = {
+      mockState.session = {
         id: 'test-session',
         roomId: 'TEST-ROOM',
         players: [mockPlayers[0]], // Only 1 player

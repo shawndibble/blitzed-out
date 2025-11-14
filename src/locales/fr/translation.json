@@ -537,8 +537,7 @@
     "gender": {
       "male": "Masculin",
       "female": "Féminin",
-      "nonBinary": "Non-Binaire",
-      "preferNotSay": "Préfère Ne Pas Dire"
+      "nonBinary": "Non-Binaire"
     }
   },
   "localPlayerSettings": {
@@ -595,7 +594,6 @@
     "endCallButton": "Terminer l'appel",
     "startCall": "Démarrer l'appel",
     "participantCount": "{{count}} participant",
-    "participantCount_plural": "{{count}} participants",
     "muted": "En sourdine",
     "cameraOff": "Caméra éteinte",
     "waitingForOthers": "En attente que d'autres se joignent...",
