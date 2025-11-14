@@ -6,29 +6,19 @@ import { LocalPlayerService, localPlayerService } from '../localPlayerService';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
 import db from '@/stores/store';
 
-// Mock the database
-vi.mock('@/stores/store', () => ({
-  default: {
-    localPlayerSessions: {
-      add: vi.fn(),
-      where: vi.fn(() => ({
-        equals: vi.fn(() => ({
-          first: vi.fn(),
-          modify: vi.fn(),
-        })),
-      })),
-    },
-  },
-}));
-
 describe('LocalPlayerService', () => {
   let service: LocalPlayerService;
   let mockPlayers: LocalPlayer[];
   let mockSettings: LocalSessionSettings;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     service = LocalPlayerService.getInstance();
     service.clearCurrentSession();
+
+    // Clear the database before each test
+    await db.localPlayerSessions.clear();
+    await db.localPlayerMoves.clear();
+    await db.localPlayerStats.clear();
 
     mockPlayers = [
       {
@@ -63,8 +53,12 @@ describe('LocalPlayerService', () => {
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     service.clearCurrentSession();
+    // Clear the database after each test
+    await db.localPlayerSessions.clear();
+    await db.localPlayerMoves.clear();
+    await db.localPlayerStats.clear();
   });
 
   describe('Singleton Pattern', () => {
@@ -82,9 +76,6 @@ describe('LocalPlayerService', () => {
 
   describe('Session Creation', () => {
     test('should create a valid session with correct data', async () => {
-      const mockAdd = vi.mocked(db.localPlayerSessions.add);
-      mockAdd.mockResolvedValue(1);
-
       const session = await service.createSession('TEST-ROOM', mockPlayers, mockSettings);
 
       expect(session).toBeDefined();
@@ -99,21 +90,18 @@ describe('LocalPlayerService', () => {
       expect(typeof session.createdAt).toBe('number');
       expect(typeof session.updatedAt).toBe('number');
 
-      // Should call database add
-      expect(mockAdd).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sessionId: session.id,
-          roomId: 'TEST-ROOM',
-          players: mockPlayers,
-          isActive: true,
-        })
-      );
+      // Verify it was saved to the database
+      const savedSession = await db.localPlayerSessions
+        .where('sessionId')
+        .equals(session.id)
+        .first();
+      expect(savedSession).toBeDefined();
+      expect(savedSession?.roomId).toBe('TEST-ROOM');
+      expect(savedSession?.players).toEqual(mockPlayers);
+      expect(savedSession?.isActive).toBe(true);
     });
 
     test('should set session as current session', async () => {
-      const mockAdd = vi.mocked(db.localPlayerSessions.add);
-      mockAdd.mockResolvedValue(1);
-
       const session = await service.createSession('TEST-ROOM', mockPlayers, mockSettings);
       const currentSession = service.getCurrentSession();
 
@@ -179,39 +167,19 @@ describe('LocalPlayerService', () => {
 
   describe('Session Retrieval', () => {
     test('should return null for non-existent session', async () => {
-      const mockFirst = vi.fn().mockResolvedValue(null);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
-      const mockWhere = vi.mocked(db.localPlayerSessions.where);
-      mockWhere.mockReturnValue({ equals: mockEquals } as any);
-
       const session = await service.getSession('non-existent');
       expect(session).toBeNull();
-      expect(mockWhere).toHaveBeenCalledWith('sessionId');
-      expect(mockEquals).toHaveBeenCalledWith('non-existent');
     });
 
     test('should retrieve existing session', async () => {
-      const mockDbSession = {
-        id: 1,
-        sessionId: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
+      // Create a session first
+      const createdSession = await service.createSession('TEST-ROOM', mockPlayers, mockSettings);
 
-      const mockFirst = vi.fn().mockResolvedValue(mockDbSession);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
-      const mockWhere = vi.mocked(db.localPlayerSessions.where);
-      mockWhere.mockReturnValue({ equals: mockEquals } as any);
-
-      const session = await service.getSession('test-session');
+      // Now retrieve it
+      const session = await service.getSession(createdSession.id);
 
       expect(session).toBeDefined();
-      expect(session?.id).toBe('test-session');
+      expect(session?.id).toBe(createdSession.id);
       expect(session?.roomId).toBe('TEST-ROOM');
       expect(session?.players).toEqual(mockPlayers);
     });
@@ -223,87 +191,53 @@ describe('LocalPlayerService', () => {
 
   describe('Turn Advancement', () => {
     test('should advance to next player', async () => {
-      // Setup existing session
-      const mockDbSession = {
-        id: 1,
-        sessionId: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
+      // Create a real session
+      const session = await service.createSession('TEST-ROOM', mockPlayers, mockSettings);
 
-      const mockFirst = vi.fn().mockResolvedValue(mockDbSession);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
-      const mockModify = vi.fn().mockResolvedValue(1);
-      const mockWhere = vi.mocked(db.localPlayerSessions.where);
-
-      // Mock both retrieval calls
-      mockWhere.mockReturnValue({ equals: mockEquals } as any);
-      mockEquals.mockReturnValue({
-        first: mockFirst,
-        modify: mockModify,
-      } as any);
-
-      const nextPlayer = await service.advanceLocalTurn('test-session');
+      const nextPlayer = await service.advanceLocalTurn(session.id);
 
       expect(nextPlayer).toBeDefined();
       expect(nextPlayer.name).toBe('Player Two'); // Should be second player
-      expect(mockModify).toHaveBeenCalled();
+
+      // Verify the database was updated
+      const updatedSession = await db.localPlayerSessions
+        .where('sessionId')
+        .equals(session.id)
+        .first();
+      expect(updatedSession?.currentPlayerIndex).toBe(1);
     });
 
     test('should wrap around to first player', async () => {
-      // Setup session with second player active
-      const mockDbSession = {
-        id: 1,
-        sessionId: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 1, // Second player is current
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
+      // Create a session
+      const session = await service.createSession('TEST-ROOM', mockPlayers, mockSettings);
 
-      const mockFirst = vi.fn().mockResolvedValue(mockDbSession);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
-      const mockModify = vi.fn().mockResolvedValue(1);
-      const mockWhere = vi.mocked(db.localPlayerSessions.where);
+      // Advance to second player
+      await service.advanceLocalTurn(session.id);
 
-      mockWhere.mockReturnValue({ equals: mockEquals } as any);
-      mockEquals.mockReturnValue({
-        first: mockFirst,
-        modify: mockModify,
-      } as any);
-
-      const nextPlayer = await service.advanceLocalTurn('test-session');
+      // Advance again - should wrap to first player
+      const nextPlayer = await service.advanceLocalTurn(session.id);
 
       expect(nextPlayer.name).toBe('Player One'); // Should wrap to first player
+
+      // Verify the database was updated
+      const updatedSession = await db.localPlayerSessions
+        .where('sessionId')
+        .equals(session.id)
+        .first();
+      expect(updatedSession?.currentPlayerIndex).toBe(0);
     });
 
     test('should reject inactive session', async () => {
-      const mockDbSession = {
-        id: 1,
-        sessionId: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: false, // Inactive session
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
+      // Create a session
+      const session = await service.createSession('TEST-ROOM', mockPlayers, mockSettings);
 
-      const mockFirst = vi.fn().mockResolvedValue(mockDbSession);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
-      const mockWhere = vi.mocked(db.localPlayerSessions.where);
-      mockWhere.mockReturnValue({ equals: mockEquals } as any);
+      // Mark it as inactive in the database
+      await db.localPlayerSessions
+        .where('sessionId')
+        .equals(session.id)
+        .modify({ isActive: false });
 
-      await expect(service.advanceLocalTurn('test-session')).rejects.toThrow(
+      await expect(service.advanceLocalTurn(session.id)).rejects.toThrow(
         'Cannot advance turn on inactive session'
       );
     });

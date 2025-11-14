@@ -20,12 +20,13 @@ vi.mock('firebase/auth', async () => {
 });
 
 describe('VideoCallProvider', () => {
-  const mockInitialize = vi.fn();
+  const mockInitialize = vi.fn().mockResolvedValue(undefined);
   const mockCleanup = vi.fn();
   const testChildren = <div data-testid="test-children">Test Children</div>;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockInitialize.mockResolvedValue(undefined);
     (useBreakpoint as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
     (useVideoCallStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       localStream: null,

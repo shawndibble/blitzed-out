@@ -1,22 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import actionStringReplacement from '../actionStringReplacement';
 import type { LocalPlayer } from '@/types/localPlayers';
 
-// Mock i18next
-vi.mock('i18next', () => ({
-  default: {
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        theCurrentPlayer: 'the current player',
-        aDominant: 'a dominant',
-        aSubmissive: 'a submissive',
-        anotherPlayer: 'another player',
-      };
-      return translations[key] || key;
-    },
-    language: 'en',
-  },
-}));
+// Use the global i18next mock from setupTests.ts which has anatomy data
 
 describe('actionStringReplacement', () => {
   describe('generic placeholders mode', () => {
@@ -144,26 +130,26 @@ describe('actionStringReplacement', () => {
 
     it('replaces {hole} placeholder appropriately', () => {
       const result = actionStringReplacement(
-        'Finger {sub}\'s {hole}.',
+        "Finger {sub}'s {hole}.",
         'dom',
         'Mike',
         localPlayers,
         false
       );
 
-      expect(result).toBe('Finger Jessica\'s pussy.');
+      expect(result).toBe("Finger Jessica's pussy.");
     });
 
     it('replaces {chest} placeholder for female', () => {
       const result = actionStringReplacement(
-        'Touch {sub}\'s {chest}.',
+        "Touch {sub}'s {chest}.",
         'dom',
         'Mike',
         localPlayers,
         false
       );
 
-      expect(result).toBe('Touch Jessica\'s breasts.');
+      expect(result).toBe("Touch Jessica's breasts.");
     });
 
     it('handles non-binary player', () => {
@@ -205,13 +191,7 @@ describe('actionStringReplacement', () => {
       };
       const players = [playerNoGender];
 
-      const result = actionStringReplacement(
-        'Touch your {genital}.',
-        'sub',
-        'Sam',
-        players,
-        false
-      );
+      const result = actionStringReplacement('Touch your {genital}.', 'sub', 'Sam', players, false);
 
       expect(result).toBe('Touch your genitals.');
     });
@@ -231,13 +211,7 @@ describe('actionStringReplacement', () => {
       const players = [versPlayer, localPlayers[1]];
 
       // This should randomly choose dom or sub, but name should always appear
-      const result = actionStringReplacement(
-        '{dom} touches {sub}.',
-        'vers',
-        'Pat',
-        players,
-        false
-      );
+      const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', players, false);
 
       expect(result).toContain('Pat');
     });

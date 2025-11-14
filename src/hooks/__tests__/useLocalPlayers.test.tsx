@@ -6,12 +6,23 @@ import { renderHook, act } from '@testing-library/react';
 import { useLocalPlayers } from '../useLocalPlayers';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
 
+// Mock state variables - must be declared before the mock
+let mockSession: any = null;
+let mockError: string | null = null;
+let mockIsLoading: boolean = false;
+
 // Mock the local player store
 vi.mock('@/stores/localPlayerStore', () => ({
-  useLocalPlayerStore: () => ({
-    session: mockSession,
-    error: mockError,
-    isLoading: mockIsLoading,
+  useLocalPlayerStore: vi.fn(() => ({
+    get session() {
+      return mockSession;
+    },
+    get error() {
+      return mockError;
+    },
+    get isLoading() {
+      return mockIsLoading;
+    },
     hasLocalPlayers: vi.fn(() => mockSession?.isActive === true && mockSession?.players.length > 0),
     isLocalPlayerRoom: vi.fn(() => mockSession?.isActive === true),
     getCurrentPlayer: vi.fn(() => {
@@ -26,13 +37,8 @@ vi.mock('@/stores/localPlayerStore', () => ({
     initSession: mockInitSession,
     loadSession: mockLoadSession,
     nextLocalPlayer: mockNextLocalPlayer,
-  }),
+  })),
 }));
-
-// Mock state variables
-let mockSession: any = null;
-let mockError: string | null = null;
-let mockIsLoading: boolean = false;
 
 // Mock functions
 const mockSetSession = vi.fn();
