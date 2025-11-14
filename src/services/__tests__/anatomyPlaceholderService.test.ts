@@ -46,14 +46,7 @@ describe('anatomyPlaceholderService', () => {
       expect(mappings.pronoun_reflexive).toBe('themselves');
     });
 
-    it('returns neutral mappings for prefer-not-say', () => {
-      const mappings = getAnatomyMappings('en', 'prefer-not-say');
-
-      expect(mappings.genital).toBe('genitals');
-      expect(mappings.pronoun_subject).toBe('they');
-    });
-
-    it('defaults to prefer-not-say when gender is undefined', () => {
+    it('defaults to non-binary when gender is undefined', () => {
       const mappings = getAnatomyMappings('en', undefined);
 
       expect(mappings.genital).toBe('genitals');

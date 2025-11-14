@@ -7,6 +7,18 @@ import useHybridPlayerList from '@/hooks/useHybridPlayerList';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
 import type { TileExport } from '@/types/gameBoard';
 
+// Mock migration context
+vi.mock('@/context/migration', () => ({
+  useMigration: () => ({
+    currentLanguageMigrated: true,
+    isMigrationInProgress: false,
+    isMigrationCompleted: true,
+    error: null,
+    triggerMigration: vi.fn(),
+    ensureLanguageMigrated: vi.fn(),
+  }),
+}));
+
 // Mock authentication
 vi.mock('@/context/hooks/useAuth', () => ({
   default: () => ({

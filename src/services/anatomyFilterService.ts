@@ -34,7 +34,7 @@ export function isAnatomyCompatible(
   }
 
   // If gender not specified, default to allowing universal actions only
-  if (!gender || gender === 'prefer-not-say') {
+  if (!gender) {
     // Only allow universal actions for unspecified gender
     return false; // Conservative - require gender for anatomy-specific actions
   }
@@ -44,7 +44,6 @@ export function isAnatomyCompatible(
     male: ['any', 'penis', 'anus'],
     female: ['any', 'pussy', 'anus', 'breasts'],
     'non-binary': ['any', 'anus'], // Conservative default for non-binary
-    'prefer-not-say': ['any', 'anus'], // Only universal actions
   };
 
   const compatibleAnatomies = anatomyMap[gender];
@@ -117,7 +116,7 @@ export function getIncompatibilityReason(
 
   const lng = locale || i18next.language || 'en';
 
-  if (!gender || gender === 'prefer-not-say') {
+  if (!gender) {
     return i18next.t('anatomy.incompatibilityReasons.requiresSpecificAnatomy', {
       lng,
       requirement,

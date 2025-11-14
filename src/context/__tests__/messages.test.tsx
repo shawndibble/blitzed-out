@@ -93,9 +93,9 @@ describe('MessagesProvider', () => {
 
     mockUnsubscribe = vi.fn();
     mockGetMessages.mockImplementation((_roomId, callback) => {
-      // Call callback immediately to simulate Firebase realtime listener
+      // Call callback synchronously to simulate Firebase realtime listener
       // Firebase listeners call the callback synchronously on subscription
-      queueMicrotask(() => callback([]));
+      callback([]);
       return mockUnsubscribe;
     });
 
@@ -168,7 +168,7 @@ describe('MessagesProvider', () => {
       const mockMessages = [createMockMessage('Hello world!'), createMockMessage('How are you?')];
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        queueMicrotask(() => callback(mockMessages));
+        callback(mockMessages);
         return mockUnsubscribe;
       });
 
@@ -186,7 +186,7 @@ describe('MessagesProvider', () => {
 
     it('should handle empty message list', async () => {
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        queueMicrotask(() => callback([]));
+        callback([]);
         return mockUnsubscribe;
       });
 
@@ -209,10 +209,8 @@ describe('MessagesProvider', () => {
       const newMessage = createMockMessage('New message', 'chat', new Date(2023, 0, 2));
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        queueMicrotask(() => {
-          // Pass messages in reverse chronological order
-          callback([newMessage, oldMessage]);
-        });
+        // Pass messages in reverse chronological order
+        callback([newMessage, oldMessage]);
         return mockUnsubscribe;
       });
 
@@ -242,7 +240,7 @@ describe('MessagesProvider', () => {
       ];
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        queueMicrotask(() => callback(messages));
+        callback(messages);
         return mockUnsubscribe;
       });
 
@@ -266,7 +264,7 @@ describe('MessagesProvider', () => {
   describe('Room Changes', () => {
     it('should reset loading state when room changes', async () => {
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        queueMicrotask(() => callback([createMockMessage('Message in room1')]));
+        callback([createMockMessage('Message in room1')]);
         return mockUnsubscribe;
       });
 

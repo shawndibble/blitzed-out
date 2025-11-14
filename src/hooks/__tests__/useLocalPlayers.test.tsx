@@ -13,7 +13,7 @@ let mockIsLoading: boolean = false;
 
 // Mock the local player store
 vi.mock('@/stores/localPlayerStore', () => ({
-  useLocalPlayerStore: vi.fn(() => ({
+  useLocalPlayerStore: () => ({
     get session() {
       return mockSession;
     },
@@ -37,7 +37,8 @@ vi.mock('@/stores/localPlayerStore', () => ({
     initSession: mockInitSession,
     loadSession: mockLoadSession,
     nextLocalPlayer: mockNextLocalPlayer,
-  })),
+    updateSessionSettings: vi.fn(),
+  }),
 }));
 
 // Mock functions

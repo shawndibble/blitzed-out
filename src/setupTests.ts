@@ -174,15 +174,6 @@ vi.mock('i18next', () => {
       pronoun_possessive: 'their',
       pronoun_reflexive: 'themselves',
     },
-    'prefer-not-say': {
-      genital: 'genitals',
-      hole: 'hole',
-      chest: 'chest',
-      pronoun_subject: 'they',
-      pronoun_object: 'them',
-      pronoun_possessive: 'their',
-      pronoun_reflexive: 'themselves',
-    },
   };
 
   const mockTranslationsByLocale: any = {
@@ -239,15 +230,6 @@ vi.mock('i18next', () => {
             pronoun_possessive: 'su',
             pronoun_reflexive: 'sí misme',
           },
-          'prefer-not-say': {
-            genital: 'genitales',
-            hole: 'agujero',
-            chest: 'pecho',
-            pronoun_subject: 'elle',
-            pronoun_object: 'elle',
-            pronoun_possessive: 'su',
-            pronoun_reflexive: 'sí misme',
-          },
         },
         straponTerms: {
           strapon: 'arnés',
@@ -276,15 +258,6 @@ vi.mock('i18next', () => {
             pronoun_reflexive: 'elle-même',
           },
           'non-binary': {
-            genital: 'organes génitaux',
-            hole: 'trou',
-            chest: 'torse',
-            pronoun_subject: 'iel',
-            pronoun_object: 'iel',
-            pronoun_possessive: 'son',
-            pronoun_reflexive: 'soi-même',
-          },
-          'prefer-not-say': {
             genital: 'organes génitaux',
             hole: 'trou',
             chest: 'torse',
@@ -330,15 +303,6 @@ vi.mock('i18next', () => {
             pronoun_possessive: '他们的',
             pronoun_reflexive: '他们自己',
           },
-          'prefer-not-say': {
-            genital: '生殖器',
-            hole: '洞',
-            chest: '胸部',
-            pronoun_subject: '他们',
-            pronoun_object: '他们',
-            pronoun_possessive: '他们的',
-            pronoun_reflexive: '他们自己',
-          },
         },
         straponTerms: {
           strapon: '假阳具',
@@ -368,15 +332,6 @@ vi.mock('i18next', () => {
             pronoun_reflexive: 'स्वयं',
           },
           'non-binary': {
-            genital: 'जननांग',
-            hole: 'छेद',
-            chest: 'छाती',
-            pronoun_subject: 'वे',
-            pronoun_object: 'उन्हें',
-            pronoun_possessive: 'उनका',
-            pronoun_reflexive: 'स्वयं',
-          },
-          'prefer-not-say': {
             genital: 'जननांग',
             hole: 'छेद',
             chest: 'छाती',

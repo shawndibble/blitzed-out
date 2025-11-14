@@ -33,7 +33,6 @@ export interface LocaleAnatomyMappings {
   male: AnatomyMapping;
   female: AnatomyMapping;
   'non-binary': AnatomyMapping;
-  'prefer-not-say': AnatomyMapping;
 }
 
 /**
@@ -64,8 +63,8 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
   // Load mappings from translations
   const localeData = loadAnatomyMappingsForLocale(locale);
 
-  // Default to prefer-not-say if gender not specified
-  const genderKey = gender || 'prefer-not-say';
+  // Default to non-binary if gender not specified
+  const genderKey = gender || 'non-binary';
 
   const mapping = localeData?.[genderKey];
 
