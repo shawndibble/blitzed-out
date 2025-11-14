@@ -125,6 +125,11 @@ export const useSettingsStore = create<SettingsStore>()(
               delete (state.settings as any)[field];
             }
           });
+
+          // Migrate 'prefer-not-say' gender to 'non-binary'
+          if (state.settings.gender === ('prefer-not-say' as any)) {
+            state.settings.gender = 'non-binary';
+          }
         }
       },
     }

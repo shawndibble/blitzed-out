@@ -368,14 +368,14 @@ describe('actionStringReplacement', () => {
       expect(result).toBe('Mike touches his dick.');
     });
 
-    it('handles prefer-not-say gender', () => {
+    it('handles non-binary gender when explicitly specified', () => {
       const result = actionStringReplacement(
         'Touch {pronoun_possessive} {genital}.',
         'sub',
         'Player',
         undefined,
         false,
-        'prefer-not-say',
+        'non-binary',
         'en'
       );
 

@@ -33,8 +33,6 @@ export default function PlayerGenderAvatar({
         return <FemaleIcon fontSize="small" />;
       case 'non-binary':
         return <TransgenderIcon fontSize="small" />;
-      case 'prefer-not-say':
-        return <PersonIcon fontSize="small" />;
       default:
         return <PersonIcon fontSize="small" />;
     }
