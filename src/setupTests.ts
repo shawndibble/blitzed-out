@@ -6,6 +6,9 @@ import { cleanup, configure } from '@testing-library/react';
 
 import React from 'react';
 
+// Setup fake-indexeddb for Dexie/IndexedDB tests
+import 'fake-indexeddb/auto';
+
 // Mock syncService to prevent auth context errors - must be before other imports
 vi.mock('@/services/syncService', () => ({
   syncDataFromFirebase: () => Promise.resolve(true),
@@ -184,6 +187,10 @@ vi.mock('i18next', () => {
 
   const mockTranslationsByLocale: any = {
     en: {
+      theCurrentPlayer: 'the current player',
+      aDominant: 'a dominant',
+      aSubmissive: 'a submissive',
+      anotherPlayer: 'another player',
       anatomy: {
         penetrativeKeywords: ['deep', 'throat', 'penetrate', 'inside', 'enters'],
         genericAnatomyTerms: {

@@ -16,12 +16,13 @@ vi.mock('@/services/firebase', () => ({
   getMessages: vi.fn(),
 }));
 
-// Mock the router
+// Mock the router - must be done before the component import
+let mockRoomId = 'test-room';
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useParams: vi.fn(() => ({ id: 'test-room' })),
+    useParams: () => ({ id: mockRoomId }),
   };
 });
 
@@ -87,12 +88,14 @@ describe('MessagesProvider', () => {
   let mockUnsubscribe: () => void;
 
   beforeEach(() => {
+    // Clear localStorage to prevent persist middleware interference
+    localStorage.clear();
+
     mockUnsubscribe = vi.fn();
     mockGetMessages.mockImplementation((_roomId, callback) => {
-      // Simulate initial loading state, then call callback with empty array
-      setTimeout(() => {
-        callback([]);
-      }, 10); // Increased timeout to ensure proper async handling
+      // Call callback immediately to simulate Firebase realtime listener
+      // Firebase listeners call the callback synchronously on subscription
+      queueMicrotask(() => callback([]));
       return mockUnsubscribe;
     });
 
@@ -103,7 +106,6 @@ describe('MessagesProvider', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-    vi.clearAllTimers(); // Clear any pending timers
     // Ensure unsubscribe is called to clean up any listeners
     if (mockUnsubscribe) {
       mockUnsubscribe();
@@ -166,9 +168,7 @@ describe('MessagesProvider', () => {
       const mockMessages = [createMockMessage('Hello world!'), createMockMessage('How are you?')];
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        setTimeout(() => {
-          callback(mockMessages);
-        }, 0);
+        queueMicrotask(() => callback(mockMessages));
         return mockUnsubscribe;
       });
 
@@ -186,9 +186,7 @@ describe('MessagesProvider', () => {
 
     it('should handle empty message list', async () => {
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        setTimeout(() => {
-          callback([]);
-        }, 0);
+        queueMicrotask(() => callback([]));
         return mockUnsubscribe;
       });
 
@@ -211,10 +209,10 @@ describe('MessagesProvider', () => {
       const newMessage = createMockMessage('New message', 'chat', new Date(2023, 0, 2));
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        setTimeout(() => {
+        queueMicrotask(() => {
           // Pass messages in reverse chronological order
           callback([newMessage, oldMessage]);
-        }, 0);
+        });
         return mockUnsubscribe;
       });
 
@@ -244,9 +242,7 @@ describe('MessagesProvider', () => {
       ];
 
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        setTimeout(() => {
-          callback(messages);
-        }, 0);
+        queueMicrotask(() => callback(messages));
         return mockUnsubscribe;
       });
 
@@ -270,9 +266,7 @@ describe('MessagesProvider', () => {
   describe('Room Changes', () => {
     it('should reset loading state when room changes', async () => {
       mockGetMessages.mockImplementation((_roomId, callback) => {
-        setTimeout(() => {
-          callback([createMockMessage('Message in room1')]);
-        }, 0);
+        queueMicrotask(() => callback([createMockMessage('Message in room1')]));
         return mockUnsubscribe;
       });
 
