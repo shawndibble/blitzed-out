@@ -1,14 +1,3 @@
-import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import LanguageIcon from '@mui/icons-material/Language';
-import LinkIcon from '@mui/icons-material/Link';
-import LogoutIcon from '@mui/icons-material/Logout';
-import TvIcon from '@mui/icons-material/Tv';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import InfoIcon from '@mui/icons-material/Info';
-import MenuIcon from '@mui/icons-material/Menu';
-import SettingsIcon from '@mui/icons-material/Settings';
-import TuneIcon from '@mui/icons-material/Tune';
 import {
   Box,
   Drawer,
@@ -25,24 +14,36 @@ import {
   SelectChangeEvent,
   SvgIcon,
 } from '@mui/material';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useSettings, useSettingsStore } from '@/stores/settingsStore';
+
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import AppSettingsDialog from '@/components/AppSettingsDialog';
+import AuthDialog from '@/components/auth/AuthDialog';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CustomTileDialog from '@/components/CustomTilesDialog';
+import DialogWrapper from '@/components/DialogWrapper';
+import GameGuide from '@/views/GameGuide';
+import GameSettingsDialog from '@/components/GameSettingsDialog';
+import InfoIcon from '@mui/icons-material/Info';
+import LanguageChangeModal from '@/components/LanguageChangeModal';
+import LanguageIcon from '@mui/icons-material/Language';
+import LinkIcon from '@mui/icons-material/Link';
+import LogoutIcon from '@mui/icons-material/Logout';
+import ManageGameBoards from '@/views/ManageGameBoards';
+import MenuIcon from '@mui/icons-material/Menu';
+import Schedule from '@/views/Schedule';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TuneIcon from '@mui/icons-material/Tune';
+import TvIcon from '@mui/icons-material/Tv';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import { languages } from '@/services/i18nHelpers';
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { useMemo, useState, ReactNode, useCallback } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import DialogWrapper from '@/components/DialogWrapper';
-import AuthDialog from '@/components/auth/AuthDialog';
-import { useSettings, useSettingsStore } from '@/stores/settingsStore';
-import { languages } from '@/services/i18nHelpers';
-import LanguageChangeModal from '@/components/LanguageChangeModal';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
-import AppSettingsDialog from '@/components/AppSettingsDialog';
-import GameSettingsDialog from '@/components/GameSettingsDialog';
-import GameGuide from '@/views/GameGuide';
-import ManageGameBoards from '@/views/ManageGameBoards';
-import Schedule from '@/views/Schedule';
-import CustomTileDialog from '@/components/CustomTilesDialog';
 
 interface MenuItemType {
   key: string;
@@ -245,7 +246,7 @@ export default function MenuDrawer(): JSX.Element {
         key: 'discord',
         title: 'Discord',
         icon: discordIcon,
-        onClick: () => openInNewTab('https://discord.gg/mSPBE2hFef'),
+        onClick: () => openInNewTab('https://discord.gg/4G9g5Np5cb'),
       },
       {
         key: 'about',
