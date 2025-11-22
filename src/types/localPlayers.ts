@@ -4,7 +4,7 @@ import { PlayerRole } from './Settings';
  * Player gender options for anatomy placeholder replacement
  * Used to adapt action text to be gender-inclusive
  */
-export type PlayerGender = 'male' | 'female' | 'non-binary' | 'prefer-not-say';
+export type PlayerGender = 'male' | 'female' | 'non-binary';
 
 /**
  * Anatomy placeholder types supported in action text

@@ -90,8 +90,8 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
         if (typeof migratedPlayer.isFinished !== 'boolean') {
           migratedPlayer.isFinished = false;
         }
-        // Only set default gender if it's explicitly undefined or null (not empty string)
-        if (migratedPlayer.gender === undefined || migratedPlayer.gender === null) {
+        // Migrate undefined, null, or 'prefer-not-say' to 'non-binary'
+        if ([undefined, null, 'prefer-not-say'].includes(migratedPlayer.gender as any)) {
           migratedPlayer.gender = 'non-binary';
         }
 
@@ -112,15 +112,20 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
         }
 
         // Migrate players to ensure they have required fields
-        const migratedPlayers = rawSession.players.map((player: any) => ({
-          ...player,
-          location: typeof player.location === 'number' ? player.location : 0,
-          isFinished: typeof player.isFinished === 'boolean' ? player.isFinished : false,
-          sound: player.sound || '',
-          // Only set default gender if it's explicitly undefined or null
-          gender:
-            player.gender !== undefined && player.gender !== null ? player.gender : 'non-binary',
-        }));
+        const migratedPlayers = rawSession.players.map((player: any) => {
+          // Migrate undefined, null, or 'prefer-not-say' to 'non-binary'
+          const gender = [undefined, null, 'prefer-not-say'].includes(player.gender)
+            ? 'non-binary'
+            : player.gender;
+
+          return {
+            ...player,
+            location: typeof player.location === 'number' ? player.location : 0,
+            isFinished: typeof player.isFinished === 'boolean' ? player.isFinished : false,
+            sound: player.sound || '',
+            gender,
+          };
+        });
 
         return {
           ...rawSession,

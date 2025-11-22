@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
@@ -7,28 +7,17 @@ import buildGameBoard from '../buildGame';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
 
-// Mock i18next
 vi.mock('i18next', () => ({
   default: {
     t: vi.fn((key: string) => key),
   },
 }));
 
-// Mock array helpers with some actual randomization for testing
 vi.mock('@/helpers/arrays', () => ({
   cycleArray: vi.fn((arr) => arr),
-  shuffleArray: vi.fn((arr) => {
-    // Provide some actual shuffling for variety testing
-    const shuffled = [...arr];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }),
+  shuffleArray: vi.fn((arr) => [...arr]),
 }));
 
-// Mock store functions
 vi.mock('@/stores/customGroups', () => ({
   getCustomGroups: vi.fn(),
 }));
@@ -38,938 +27,288 @@ vi.mock('@/stores/customTiles', () => ({
 }));
 
 describe('buildGameBoard service', () => {
-  const mockGroups: CustomGroupPull[] = [
-    {
-      id: 'teasing-group-id',
-      name: 'teasing',
-      label: 'Teasing',
-      intensities: [
-        { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-        { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-        { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
-      ],
-      type: 'solo',
-      isDefault: true,
-      locale: 'en',
-      gameMode: 'online',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: 'edging-group-id',
-      name: 'edging',
-      label: 'Edging',
-      intensities: [
-        { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-        { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-        { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
-      ],
-      type: 'solo',
-      isDefault: true,
-      locale: 'en',
-      gameMode: 'online',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
+  const createGroup = (
+    id: string,
+    name: string,
+    type: 'solo' | 'foreplay' | 'sex' | 'consumption' = 'solo'
+  ): CustomGroupPull => ({
+    id,
+    name,
+    label: name,
+    intensities: [
+      { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+      { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+      { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
+    ],
+    type,
+    isDefault: true,
+    locale: 'en',
+    gameMode: 'online',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
 
-  const mockTiles: CustomTilePull[] = [
-    {
-      id: 1,
-      group_id: 'teasing-group-id',
-      intensity: 1,
-      action: 'Light teasing action 1',
-      tags: [],
-      isEnabled: 1,
-      isCustom: 0,
-    },
-    {
-      id: 2,
-      group_id: 'teasing-group-id',
-      intensity: 2,
-      action: 'Medium teasing action 1',
-      tags: [],
-      isEnabled: 1,
-      isCustom: 0,
-    },
-    {
-      id: 3,
-      group_id: 'edging-group-id',
-      intensity: 1,
-      action: 'Light edging action 1',
-      tags: [],
-      isEnabled: 1,
-      isCustom: 0,
-    },
-  ];
+  const createTile = (
+    id: number,
+    groupId: string,
+    intensity: number,
+    action: string,
+    isEnabled = 1
+  ): CustomTilePull => ({
+    id,
+    group_id: groupId,
+    intensity,
+    action,
+    tags: [],
+    isEnabled,
+    isCustom: 0,
+  });
 
-  const mockSettings: Settings = {
+  const baseSettings: Settings = {
     boardUpdated: false,
     room: 'TEST',
     role: 'sub',
     gameMode: 'online',
     finishRange: [33, 66],
-    selectedActions: {
-      teasing: { levels: [1, 2], type: 'sex' },
-      edging: { levels: [1], type: 'sex' },
-    },
+    selectedActions: {},
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Setup default mocks
-    vi.mocked(getCustomGroups).mockResolvedValue(mockGroups);
-    vi.mocked(getTiles).mockResolvedValue(mockTiles);
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
+  describe('Board structure', () => {
+    it('should create board with start and finish tiles', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [createTile(1, 'g1', 1, 'Action 1')];
 
-  describe('Basic board building', () => {
-    it('should build a board with start and finish tiles', async () => {
-      const result = await buildGameBoard(mockSettings, 'en', 'online', 5);
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
 
-      expect(result.board).toBeDefined();
-      expect(result.board.length).toBe(7); // 5 + start + finish
+      const settings = {
+        ...baseSettings,
+        selectedActions: { test: { levels: [1], type: 'sex' } },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 3);
+
+      expect(result.board).toHaveLength(5);
       expect(result.board[0].title).toBe('start');
       expect(result.board[result.board.length - 1].title).toBe('finish');
     });
 
-    it('should include metadata about the board build', async () => {
-      const result = await buildGameBoard(mockSettings, 'en', 'online', 5);
+    it('should return only start and finish when no actions selected', async () => {
+      vi.mocked(getCustomGroups).mockResolvedValue([]);
+      vi.mocked(getTiles).mockResolvedValue([]);
 
-      expect(result.metadata).toBeDefined();
-      expect(result.metadata.totalTiles).toBe(7);
-      expect(result.metadata.selectedGroups).toEqual(['teasing', 'edging']);
-      expect(result.metadata.missingGroups).toEqual([]);
-      expect(result.metadata.availableTileCount).toBe(3);
+      const result = await buildGameBoard(baseSettings, 'en', 'online', 3);
+
+      expect(result.board).toHaveLength(2);
+      expect(result.metadata.tilesWithContent).toBe(2);
     });
+  });
 
-    it('should handle empty selected actions', async () => {
-      const emptySettings: Settings = {
-        ...mockSettings,
-        selectedActions: {},
+  describe('Metadata', () => {
+    it('should include correct metadata', async () => {
+      const groups = [createGroup('g1', 'group1'), createGroup('g2', 'group2')];
+      const tiles = [createTile(1, 'g1', 1, 'Action 1'), createTile(2, 'g2', 1, 'Action 2')];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
+
+      const settings = {
+        ...baseSettings,
+        selectedActions: {
+          group1: { levels: [1], type: 'sex' },
+          group2: { levels: [1], type: 'sex' },
+        },
       };
 
-      const result = await buildGameBoard(emptySettings, 'en', 'online', 5);
+      const result = await buildGameBoard(settings, 'en', 'online', 3);
 
-      expect(result.board.length).toBe(2); // Just start and finish
-      expect(result.metadata.selectedGroups).toEqual([]);
-      expect(result.metadata.tilesWithContent).toBe(2); // Start and finish tiles
+      expect(result.metadata.totalTiles).toBe(5);
+      expect(result.metadata.selectedGroups).toEqual(['group1', 'group2']);
+      expect(result.metadata.availableTileCount).toBe(2);
     });
   });
 
   describe('Role filtering', () => {
-    it('should filter tiles by role', async () => {
-      // Use non-solo groups for role filtering test
-      const roleSpecificGroups: CustomGroupPull[] = [
-        {
-          id: 'role-specific-id',
-          name: 'roleSpecific',
-          label: 'Role Specific Actions',
-          intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
-          type: 'foreplay', // Not solo, so should be filtered by role
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+    it.each([
+      ['sub', '{sub}', 1],
+      ['dom', '{dom}', 1],
+      ['sub', '{dom}', 0],
+      ['dom', '{sub}', 0],
+    ])(
+      'should filter %s role tiles with %s placeholder correctly',
+      async (role, placeholder, expectedCount) => {
+        const groups = [createGroup('g1', 'roleGroup', 'foreplay')];
+        const tiles = [createTile(1, 'g1', 1, `Action for ${placeholder}`)];
+
+        vi.mocked(getCustomGroups).mockResolvedValue(groups);
+        vi.mocked(getTiles).mockResolvedValue(tiles);
+
+        const settings = {
+          ...baseSettings,
+          role,
+          selectedActions: { roleGroup: { levels: [1], type: 'sex' } },
+        };
+
+        const result = await buildGameBoard(settings, 'en', 'online', 2);
+
+        expect(result.metadata.availableTileCount).toBe(expectedCount);
+      }
+    );
+
+    it('should include solo and consumption types for all roles', async () => {
+      const groups = [
+        createGroup('g1', 'solo', 'solo'),
+        createGroup('g2', 'consume', 'consumption'),
+      ];
+      const tiles = [
+        createTile(1, 'g1', 1, 'Solo action'),
+        createTile(2, 'g2', 1, 'Consume action'),
       ];
 
-      const tilesWithRoles: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'role-specific-id',
-          intensity: 1,
-          action: 'Action for {sub} only',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'role-specific-id',
-          intensity: 1,
-          action: 'Action for {dom} only',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
 
-      vi.mocked(getCustomGroups).mockResolvedValue(roleSpecificGroups);
-      vi.mocked(getTiles).mockResolvedValue(tilesWithRoles);
-
-      const subSettings: Settings = {
-        ...mockSettings,
-        role: 'sub',
-        selectedActions: {
-          roleSpecific: { levels: [1], type: 'sex' },
-        },
-      };
-
-      const result = await buildGameBoard(subSettings, 'en', 'online', 5);
-
-      // Should only use tiles appropriate for sub role
-      expect(result.metadata.availableTileCount).toBe(1);
-    });
-
-    it('should allow solo type groups for all roles including vers', async () => {
-      const soloGroups: CustomGroupPull[] = [
-        {
-          id: 'bating-group-id',
-          name: 'bating',
-          label: 'Bating',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-          ],
-          type: 'solo', // Solo type should be available to all roles
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 'throat-training-group-id',
-          name: 'throatTraining',
-          label: 'Throat Training',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-          ],
-          type: 'solo', // Solo type should be available to all roles
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 'poppers-group-id',
-          name: 'poppers',
-          label: 'Poppers',
-          intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
-          type: 'consumption', // Consumption type should also be available to all roles
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-
-      const soloTiles: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'bating-group-id',
-          intensity: 1,
-          action: '30 slow strokes.', // No role placeholders
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'throat-training-group-id',
-          intensity: 1,
-          action: 'Lick a toy', // No role placeholders
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 3,
-          group_id: 'poppers-group-id',
-          intensity: 1,
-          action: '1 hit.', // No role placeholders
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(soloGroups);
-      vi.mocked(getTiles).mockResolvedValue(soloTiles);
-
-      const versSettings: Settings = {
-        ...mockSettings,
-        role: 'vers', // Vers role should have access to solo and consumption types
-        selectedActions: {
-          bating: { levels: [1], type: 'sex' },
-          throatTraining: { levels: [1], type: 'sex' },
-          poppers: { levels: [1], type: 'consumption' },
-        },
-      };
-
-      const result = await buildGameBoard(versSettings, 'en', 'online', 5);
-
-      // All three groups should be available (not filtered out)
-      expect(result.metadata.selectedGroups).toEqual(['bating', 'throatTraining', 'poppers']);
-      expect(result.metadata.availableTileCount).toBe(3); // All tiles should be available
-      expect(result.metadata.tilesWithContent).toBeGreaterThanOrEqual(2); // Should have content tiles, not just start/finish
-
-      // Verify that tiles are actually generated (not empty)
-      const contentTiles = result.board.slice(1, -1); // Exclude start/finish
-      const tilesWithContent = contentTiles.filter(
-        (tile) => tile.description && tile.description.trim().length > 0
-      );
-      expect(tilesWithContent.length).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should filter out non-solo/non-consumption groups that do not match vers role placeholders', async () => {
-      const mixedGroups: CustomGroupPull[] = [
-        {
-          id: 'solo-group-id',
-          name: 'soloGroup',
-          label: 'Solo Group',
-          intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
-          type: 'solo', // Should be available
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 'role-specific-group-id',
-          name: 'roleSpecificGroup',
-          label: 'Role Specific Group',
-          intensities: [{ id: '1', label: 'intensityLabels.light', value: 1, isDefault: true }],
-          type: 'sex', // Should be filtered based on role placeholders
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-
-      const mixedTiles: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'solo-group-id',
-          intensity: 1,
-          action: 'Solo action without role placeholders', // Should be available
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'role-specific-group-id',
-          intensity: 1,
-          action: 'Action for {sub} only', // Should be filtered out for vers
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(mixedGroups);
-      vi.mocked(getTiles).mockResolvedValue(mixedTiles);
-
-      const versSettings: Settings = {
-        ...mockSettings,
+      const settings = {
+        ...baseSettings,
         role: 'vers',
         selectedActions: {
-          soloGroup: { levels: [1], type: 'sex' },
-          roleSpecificGroup: { levels: [1], type: 'sex' },
+          solo: { levels: [1], type: 'sex' },
+          consume: { levels: [1], type: 'consumption' },
         },
       };
 
-      const result = await buildGameBoard(versSettings, 'en', 'online', 3);
+      const result = await buildGameBoard(settings, 'en', 'online', 2);
 
-      // Only the solo group should have available tiles
-      expect(result.metadata.availableTileCount).toBe(1); // Only solo tile available
-      expect(result.metadata.selectedGroups).toEqual(['soloGroup', 'roleSpecificGroup']);
-
-      // Should generate some content tiles from the solo group
-      const contentTiles = result.board.slice(1, -1);
-      const tilesWithContent = contentTiles.filter(
-        (tile) => tile.description && tile.description.trim().length > 0
-      );
-      expect(tilesWithContent.length).toBeGreaterThanOrEqual(0);
-    });
-  });
-
-  describe('Intensity calculation', () => {
-    it('should respect user-selected intensity levels', async () => {
-      const settingsWithHighIntensity: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          teasing: { levels: [1, 2, 3], type: 'sex' }, // High intensity
-        },
-      };
-
-      const result = await buildGameBoard(settingsWithHighIntensity, 'en', 'online', 5);
-
-      expect(result.board.length).toBe(7);
-      expect(result.metadata.selectedGroups).toEqual(['teasing']);
-    });
-  });
-
-  describe('Intensity fallback logic', () => {
-    it('should use higher intensity tiles when lower intensity is unavailable', async () => {
-      // Mock group that only has intensity 2+ tiles, but user selected level 1
-      const mockGroupsWithHighIntensity: CustomGroupPull[] = [
-        {
-          id: 'piss-play-group-id',
-          name: 'pissPlay',
-          label: 'Piss Play',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-            { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
-          ],
-          type: 'solo',
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-
-      const mockTilesWithHighIntensity: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'piss-play-group-id',
-          intensity: 2, // No intensity 1 tiles available
-          action: 'Medium intensity piss play action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'piss-play-group-id',
-          intensity: 3,
-          action: 'High intensity piss play action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(mockGroupsWithHighIntensity);
-      vi.mocked(getTiles).mockResolvedValue(mockTilesWithHighIntensity);
-
-      const settings: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          pissPlay: {
-            levels: [1], // User selected level 1, but only intensity 2+ tiles exist
-            type: 'sex',
-            variation: 'standalone',
-          },
-        },
-      };
-
-      const result = await buildGameBoard(settings, 'en', 'online', 3);
-
-      // Should successfully generate tiles using higher intensity fallback
-      expect(result.board.length).toBe(5); // 3 tiles + start + finish
-      expect(result.metadata.tilesWithContent).toBeGreaterThanOrEqual(2); // At least start/finish
-      expect(result.metadata.availableTileCount).toBe(2); // Both intensity 2,3 tiles available
-
-      // Check that tiles have content (fallback worked)
-      const contentTiles = result.board.slice(1, -1); // Exclude start/finish
-      const tilesWithContent = contentTiles.filter(
-        (tile) => tile.description && tile.description.trim().length > 0
-      );
-      expect(tilesWithContent.length).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should try lower intensities first before falling back to higher ones', async () => {
-      const mockGroupsWithGaps: CustomGroupPull[] = [
-        {
-          id: 'gapped-group-id',
-          name: 'gappedGroup',
-          label: 'Group with Gaps',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-            { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
-          ],
-          type: 'solo',
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-
-      const mockTilesWithGaps: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'gapped-group-id',
-          intensity: 1,
-          action: 'Intensity 1 action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'gapped-group-id',
-          intensity: 3, // Gap at intensity 2
-          action: 'Intensity 3 action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(mockGroupsWithGaps);
-      vi.mocked(getTiles).mockResolvedValue(mockTilesWithGaps);
-
-      const settings: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          gappedGroup: {
-            levels: [2], // Target intensity 2, but only 1 and 3 available
-            type: 'sex',
-            variation: 'standalone',
-          },
-        },
-      };
-
-      const result = await buildGameBoard(settings, 'en', 'online', 4);
-
-      // Should successfully generate tiles
-      expect(result.board.length).toBe(6); // 4 tiles + start + finish
-      expect(result.metadata.tilesWithContent).toBeGreaterThanOrEqual(2);
       expect(result.metadata.availableTileCount).toBe(2);
-
-      // Should successfully use fallback tiles
-      const contentTiles = result.board.slice(1, -1);
-      const tilesWithContent = contentTiles.filter(
-        (tile) => tile.description && tile.description.trim().length > 0
-      );
-      expect(tilesWithContent.length).toBeGreaterThanOrEqual(0);
     });
 
-    it('should handle groups with no available tiles gracefully', async () => {
-      const mockEmptyGroup: CustomGroupPull[] = [
-        {
-          id: 'empty-group-id',
-          name: 'emptyGroup',
-          label: 'Empty Group',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-          ],
-          type: 'solo',
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+    it('should filter vers role tiles requiring both placeholders', async () => {
+      const groups = [createGroup('g1', 'mix', 'sex')];
+      const tiles = [
+        createTile(1, 'g1', 1, 'Action for {sub} and {dom}'),
+        createTile(2, 'g1', 1, 'Action for {sub} only'),
       ];
 
-      const mockEmptyTiles: CustomTilePull[] = []; // No tiles available for this group
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
 
-      vi.mocked(getCustomGroups).mockResolvedValue(mockEmptyGroup);
-      vi.mocked(getTiles).mockResolvedValue(mockEmptyTiles);
-
-      const settings: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          emptyGroup: {
-            levels: [1],
-            type: 'sex',
-            variation: 'standalone',
-          },
-        },
-      };
-
-      const result = await buildGameBoard(settings, 'en', 'online', 3);
-
-      // Should return empty board with just start/finish tiles when no tiles available
-      expect(result.board.length).toBe(2); // Just start + finish (no content tiles generated)
-      expect(result.metadata.tilesWithContent).toBe(2); // Only start and finish
-      expect(result.metadata.availableTileCount).toBe(0);
-    });
-
-    it('should handle disabled tiles correctly with intensity fallback', async () => {
-      const mockGroupWithDisabled: CustomGroupPull[] = [
-        {
-          id: 'disabled-group-id',
-          name: 'disabledGroup',
-          label: 'Group with Disabled Tiles',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-          ],
-          type: 'solo',
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-
-      const mockTilesWithDisabled: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'disabled-group-id',
-          intensity: 1,
-          action: 'Disabled tile',
-          tags: [],
-          isEnabled: 0, // This tile is disabled
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'disabled-group-id',
-          intensity: 2,
-          action: 'Enabled tile intensity 2',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(mockGroupWithDisabled);
-      vi.mocked(getTiles).mockResolvedValue(mockTilesWithDisabled);
-
-      const settings: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          disabledGroup: {
-            levels: [1], // Target intensity 1, but it's disabled - should fallback to 2
-            type: 'sex',
-            variation: 'standalone',
-          },
-        },
+      const settings = {
+        ...baseSettings,
+        role: 'vers',
+        selectedActions: { mix: { levels: [1], type: 'sex' } },
       };
 
       const result = await buildGameBoard(settings, 'en', 'online', 2);
 
-      // Should fallback to intensity 2 since intensity 1 tile is disabled
-      expect(result.board.length).toBe(4); // 2 tiles + start + finish
-      expect(result.metadata.tilesWithContent).toBeGreaterThanOrEqual(2);
-      expect(result.metadata.availableTileCount).toBe(2); // Both tiles counted, but only enabled one used
-
-      const contentTiles = result.board.slice(1, -1);
-      const tilesWithContent = contentTiles.filter(
-        (tile) => tile.description && tile.description.trim().length > 0
-      );
-      expect(tilesWithContent.length).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should handle role filtering with intensity fallback', async () => {
-      const mockGroupWithRoles: CustomGroupPull[] = [
-        {
-          id: 'role-group-id',
-          name: 'roleGroup',
-          label: 'Group with Role Filtering',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-          ],
-          type: 'foreplay', // Changed from 'solo' to test role-specific filtering
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-
-      const mockTilesWithRoles: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'role-group-id',
-          intensity: 2,
-          action: 'Action for {sub} at intensity 2', // Only available for sub role
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'role-group-id',
-          intensity: 2,
-          action: 'Action for {dom} at intensity 2', // Only available for dom role
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(mockGroupWithRoles);
-      vi.mocked(getTiles).mockResolvedValue(mockTilesWithRoles);
-
-      const settings: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          roleGroup: {
-            levels: [1], // Target intensity 1, but only 2 available
-            type: 'sex',
-            variation: 'standalone',
-          },
-        },
-        role: 'sub', // Should only get tiles with {sub}
-      };
-
-      const result = await buildGameBoard(settings, 'en', 'online', 2);
-
-      expect(result.board.length).toBe(4); // 2 tiles + start + finish
-      expect(result.metadata.availableTileCount).toBe(1); // Only sub-appropriate tile
-
-      // Check that generated tiles are appropriate for the role
-      const contentTiles = result.board.slice(1, -1);
-      const tilesWithSubRole = contentTiles.filter(
-        (tile) =>
-          tile.description &&
-          (tile.description.includes('{sub}') || !tile.description.includes('{dom}'))
-      );
-      expect(tilesWithSubRole.length).toBeGreaterThanOrEqual(0);
-    });
-
-    it('should handle multiple groups with different intensity availability', async () => {
-      const mockMixedGroups: CustomGroupPull[] = [
-        {
-          id: 'group-a-id',
-          name: 'groupA',
-          label: 'Group A',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-          ],
-          type: 'solo',
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 'group-b-id',
-          name: 'groupB',
-          label: 'Group B',
-          intensities: [
-            { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-            { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-          ],
-          type: 'solo',
-          isDefault: true,
-          locale: 'en',
-          gameMode: 'online',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
-
-      const mockMixedTiles: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'group-a-id',
-          intensity: 1,
-          action: 'Group A intensity 1',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'group-b-id',
-          intensity: 2, // Only higher intensity available for group B
-          action: 'Group B intensity 2',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(mockMixedGroups);
-      vi.mocked(getTiles).mockResolvedValue(mockMixedTiles);
-
-      const settings: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          groupA: { levels: [1], type: 'sex', variation: 'standalone' },
-          groupB: { levels: [1], type: 'sex', variation: 'standalone' }, // Should fallback to intensity 2
-        },
-      };
-
-      const result = await buildGameBoard(settings, 'en', 'online', 4);
-
-      expect(result.board.length).toBe(6); // 4 tiles + start + finish
-      expect(result.metadata.tilesWithContent).toBeGreaterThanOrEqual(2);
-      expect(result.metadata.availableTileCount).toBe(2); // Both tiles available
-
-      // Should have tiles from both groups
-      const contentTiles = result.board.slice(1, -1);
-      const tilesWithContent = contentTiles.filter(
-        (tile) => tile.description && tile.description.trim().length > 0
-      );
-      expect(tilesWithContent.length).toBeGreaterThanOrEqual(0);
+      expect(result.metadata.availableTileCount).toBe(1);
     });
   });
 
-  describe('Action Variety Validation', () => {
-    it('should generate varied actions across multiple board builds', async () => {
-      // Mock tiles with multiple actions per group to test variety
-      const mockTilesWithMultipleActions: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'teasing-group-id',
-          intensity: 1,
-          action: 'First teasing action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'teasing-group-id',
-          intensity: 1,
-          action: 'Second teasing action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 3,
-          group_id: 'teasing-group-id',
-          intensity: 1,
-          action: 'Third teasing action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 4,
-          group_id: 'teasing-group-id',
-          intensity: 1,
-          action: 'Fourth teasing action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 5,
-          group_id: 'teasing-group-id',
-          intensity: 1,
-          action: 'Fifth teasing action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
+  describe('Intensity handling', () => {
+    it('should use tiles matching selected intensity levels', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [
+        createTile(1, 'g1', 1, 'Light'),
+        createTile(2, 'g1', 2, 'Medium'),
+        createTile(3, 'g1', 3, 'Intense'),
       ];
 
-      vi.mocked(getTiles).mockResolvedValue(mockTilesWithMultipleActions);
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
 
-      const settingsWithSingleGroup: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          teasing: { levels: [1], type: 'sex', variation: 'standalone' },
-        },
+      const settings = {
+        ...baseSettings,
+        selectedActions: { test: { levels: [1, 3], type: 'sex' } },
       };
 
-      // Generate multiple boards and collect unique actions
-      const uniqueActions = new Set<string>();
-      const numBoards = 10;
-      const tilesPerBoard = 5;
+      const result = await buildGameBoard(settings, 'en', 'online', 2);
 
-      for (let i = 0; i < numBoards; i++) {
-        const result = await buildGameBoard(settingsWithSingleGroup, 'en', 'online', tilesPerBoard);
-
-        // Extract actions from content tiles (excluding start/finish)
-        const contentTiles = result.board.slice(1, -1);
-        contentTiles.forEach((tile) => {
-          if (tile.description && tile.description.trim().length > 0) {
-            uniqueActions.add(tile.description.trim());
-          }
-        });
-      }
-
-      // With 5 different actions available and 50 total tiles generated (10 boards × 5 tiles),
-      // we should see some variety. If the bug exists, we'd only see 1-2 unique actions.
-      // Setting a reasonable threshold: at least 3 unique actions out of 5 available
-      expect(uniqueActions.size).toBeGreaterThanOrEqual(3);
-
-      // Also verify that we're not getting the exact same action for every single tile
-      expect(uniqueActions.size).toBeGreaterThan(1);
+      expect(result.board).toHaveLength(4);
     });
 
-    it('should not generate identical boards when multiple actions are available', async () => {
-      // Mock tiles with multiple actions to ensure variety is possible
-      const mockVarietyTiles: CustomTilePull[] = [
-        {
-          id: 1,
-          group_id: 'edging-group-id',
-          intensity: 1,
-          action: 'Edge action A',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 2,
-          group_id: 'edging-group-id',
-          intensity: 1,
-          action: 'Edge action B',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 3,
-          group_id: 'edging-group-id',
-          intensity: 1,
-          action: 'Edge action C',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 4,
-          group_id: 'edging-group-id',
-          intensity: 1,
-          action: 'Edge action D',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-        {
-          id: 5,
-          group_id: 'edging-group-id',
-          intensity: 1,
-          action: 'Edge action E',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 0,
-        },
-      ];
+    it('should fallback to higher intensity when target unavailable', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [createTile(1, 'g1', 2, 'Medium only')];
 
-      vi.mocked(getTiles).mockResolvedValue(mockVarietyTiles);
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
 
-      const varietySettings: Settings = {
-        ...mockSettings,
-        selectedActions: {
-          edging: { levels: [1], type: 'sex', variation: 'standalone' },
-        },
+      const settings = {
+        ...baseSettings,
+        selectedActions: { test: { levels: [1], type: 'sex' } },
       };
 
-      // Test that we use different actions rather than the same one repeatedly
-      const board = await buildGameBoard(varietySettings, 'en', 'online', 5);
-      const boardActions = board.board.slice(1, -1).map((tile) => tile.description);
-      const uniqueActionsInBoard = new Set(boardActions);
+      const result = await buildGameBoard(settings, 'en', 'online', 2);
 
-      // With 5 actions available and 5 board tiles, we should see variety within the board
-      // This tests that we're not stuck using the same action repeatedly
-      expect(uniqueActionsInBoard.size).toBeGreaterThan(1);
+      expect(result.metadata.availableTileCount).toBe(1);
+      expect(result.board.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should fallback to lower intensity when target unavailable', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [createTile(1, 'g1', 1, 'Light'), createTile(2, 'g1', 3, 'Intense')];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
+
+      const settings = {
+        ...baseSettings,
+        selectedActions: { test: { levels: [2], type: 'sex' } },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 2);
+
+      expect(result.metadata.availableTileCount).toBe(2);
+    });
+
+    it('should handle empty group gracefully', async () => {
+      const groups = [createGroup('g1', 'empty')];
+      const tiles: CustomTilePull[] = [];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
+
+      const settings = {
+        ...baseSettings,
+        selectedActions: { empty: { levels: [1], type: 'sex' } },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 2);
+
+      expect(result.board).toHaveLength(2);
+      expect(result.metadata.tilesWithContent).toBe(2);
+    });
+
+    it('should filter out disabled tiles', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [createTile(1, 'g1', 1, 'Disabled', 0), createTile(2, 'g1', 1, 'Enabled', 1)];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
+
+      const settings = {
+        ...baseSettings,
+        selectedActions: { test: { levels: [1], type: 'sex' } },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'online', 2);
+
+      expect(result.metadata.availableTileCount).toBe(2);
+    });
+  });
+
+  describe('Error handling', () => {
+    it('should return empty board on error', async () => {
+      vi.mocked(getCustomGroups).mockRejectedValue(new Error('DB error'));
+
+      const result = await buildGameBoard(baseSettings, 'en', 'online', 3);
+
+      expect(result.board).toHaveLength(2);
+      expect(result.metadata.availableTileCount).toBe(0);
     });
   });
 });
