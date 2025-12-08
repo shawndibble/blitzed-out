@@ -565,8 +565,12 @@ Object.defineProperty(window, 'matchMedia', {
 afterEach(() => {
   vi.clearAllMocks();
   vi.clearAllTimers(); // Clear any remaining timers
+  vi.useRealTimers(); // Reset to real timers
   console.error = originalError;
   console.log = originalLog;
   console.warn = originalWarn;
   cleanup(); // Clean up DOM between tests
+
+  // Note: IndexedDB cleanup removed to prevent conflicts during parallel test execution
+  // Each test that uses IndexedDB should handle its own cleanup or use mocks
 });

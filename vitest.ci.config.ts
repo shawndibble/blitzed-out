@@ -29,7 +29,7 @@ export default defineConfig({
     mockReset: true,
     css: false, // Skip CSS processing for faster tests
 
-    // Use forks pool with limited concurrency
+    // Use forks pool for proper isolation
     pool: 'forks',
     poolOptions: {
       forks: {
@@ -42,10 +42,8 @@ export default defineConfig({
     fileParallelism: true,
     maxConcurrency: 5,
 
-    // Disable isolation for better performance
-    // isolate: true was causing extreme slowness (2+ minutes for shard 2/3 to timeout)
-    // All tests have been verified to work correctly with isolate: false
-    isolate: false,
+    // Enable isolation to prevent mock bleed between tests
+    isolate: true,
 
     // Disable coverage in CI to save time and memory
     coverage: {

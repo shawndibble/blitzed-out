@@ -27,11 +27,6 @@ jobs:
     timeout-minutes: 10
     needs: lint
 
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1/3, 2/3, 3/3]
-
     steps:
       - uses: actions/checkout@v6
 
@@ -66,9 +61,10 @@ jobs:
           echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID || '1:123456789:web:abcdefghijklmnop' }}" >> .env
           echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID || 'G-ABCDEFGHIJ' }}" >> .env
 
-      - name: Run tests (shard ${{ matrix.shard }})
+      # Run all tests without sharding - sharding causes worker timeout issues with vitest forks pool
+      - name: Run tests
         timeout-minutes: 5
-        run: npm run test:ci -- --shard=${{ matrix.shard }}
+        run: npm run test:ci
         env:
           NODE_ENV: test
           CI: true
