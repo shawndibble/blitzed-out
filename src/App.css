@@ -184,18 +184,12 @@ button {
 
 .accordion-title {
   font-weight: 600;
-  background: var(--gradient-primary-alt);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #22d3ee;
 }
 
 /* Light theme accordion title adjustments */
 body.theme-light .accordion-title {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0891b2;
 }
 
 /* AppSkeleton spinner animation */

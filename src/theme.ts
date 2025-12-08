@@ -135,11 +135,6 @@ const createComponents = (_mode: 'light' | 'dark'): ThemeOptions['components'] =
           WebkitBackdropFilter: 'blur(15px)',
           border: '1px solid var(--container-border)',
           boxShadow: 'var(--shadow-lg)',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            transform: 'translateY(-2px)',
-            boxShadow: 'var(--shadow-xl)',
-          },
         };
       },
     },

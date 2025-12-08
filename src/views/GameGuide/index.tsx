@@ -21,7 +21,7 @@ export default function GameGuide(): JSX.Element {
       {/* Hero Section */}
       <Box className="hero-section">
         <Trans i18nKey="gameDesc">
-          <Typography component="h1" variant="h4" className="hero-title gradient-text-flame">
+          <Typography component="h1" variant="h4" className="hero-title">
             Transform Your Intimate Adventures - Blitzed Out Adult Board Game
           </Typography>
           <Typography variant="body1" className="hero-subtitle">

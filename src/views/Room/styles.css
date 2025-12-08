@@ -45,7 +45,6 @@
 .game-board-container {
   border-radius: 12px;
   overflow: hidden;
-  transition: all 0.3s ease;
   background: var(--container-background);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
@@ -53,11 +52,6 @@
   box-shadow: var(--shadow-lg);
   animation: slideIn 0.5s ease-out 0.1s forwards;
   margin-bottom: 56px; /* Space for bottom tabs on mobile */
-}
-
-.game-board-container:hover {
-  box-shadow: var(--shadow-xl);
-  transform: translateY(-2px);
 }
 
 /* Tab styling */
