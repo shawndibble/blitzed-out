@@ -4,13 +4,13 @@
 }
 
 .site-title {
-  color: #22d3ee;
+  color: var(--color-cyan-400, #22d3ee);
   display: inline-block;
   margin: 0;
 }
 
 body.theme-light .site-title {
-  color: #0891b2;
+  color: var(--color-cyan-600, #0891b2);
 }
 
 @media screen and (max-width: 270px) {
