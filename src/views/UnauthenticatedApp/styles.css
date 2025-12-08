@@ -21,11 +21,7 @@ h1.setup {
   margin-bottom: 0.5rem;
   font-weight: 600;
   font-size: 1.8rem;
-  background: var(--gradient-primary-button);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 8px rgba(34, 211, 238, 0.4));
+  color: #22d3ee;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
@@ -64,11 +60,7 @@ body.theme-light .setup-subtitle {
 }
 
 body.theme-light h1.setup {
-  background: var(--gradient-primary-alt);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 8px rgba(8, 145, 178, 0.3));
+  color: #0891b2;
 }
 
 /* Light mode for footer language selector */
@@ -110,12 +102,6 @@ body.theme-light .main-setup-card {
   backdrop-filter: blur(15px);
   border: 1px solid var(--container-border);
   box-shadow: var(--shadow-lg);
-  transition: all 0.3s ease;
-}
-
-.unauthenticated-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
 }
 
 /* Light mode adjustments */
@@ -123,10 +109,6 @@ body.theme-light .unauthenticated-card {
   background: var(--container-background);
   border: 1px solid var(--container-border);
   box-shadow: var(--shadow-lg);
-}
-
-body.theme-light .unauthenticated-card:hover {
-  box-shadow: 0 16px 56px rgba(0, 0, 0, 0.12);
 }
 
 .auth-button-container {
@@ -207,8 +189,6 @@ body.theme-light .unauthenticated-card:hover {
     animation: none;
   }
 
-  .unauthenticated-card,
-  .unauthenticated-card:hover,
   .auth-button-container button,
   .auth-button-container button:hover,
   .jump-in-button:hover {

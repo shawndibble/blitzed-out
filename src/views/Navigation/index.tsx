@@ -62,7 +62,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
             loading="eager"
             fetchPriority="high"
           />
-          <h1 className="gradient-text">Blitzed Out</h1>
+          <h1 className="site-title">Blitzed Out</h1>
         </div>
         <div>
           <div className="nav-room-name">
