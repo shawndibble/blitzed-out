@@ -145,7 +145,7 @@ export default function GameSettings({
 
           <Box sx={{ mt: 2, mb: 2 }}>
             <GenderSelector
-              selectedGender={formData.gender || 'prefer-not-say'}
+              selectedGender={formData.gender || 'non-binary'}
               onGenderChange={handleGenderChange}
             />
           </Box>

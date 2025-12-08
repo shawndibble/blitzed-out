@@ -181,6 +181,11 @@ export const syncAllDataToFirebase = vi.fn().mockResolvedValue(true);
 export const startPeriodicSync = vi.fn();
 export const stopPeriodicSync = vi.fn();
 
+// Message service functions
+export const getMessages = vi.fn(() => vi.fn());
+export const getMessagesWithPagination = vi.fn(() => vi.fn());
+export const sendMessage = vi.fn().mockResolvedValue(undefined);
+
 // Default export for easy importing
 export default {
   mockAuth,
@@ -201,4 +206,7 @@ export default {
   syncAllDataToFirebase,
   startPeriodicSync,
   stopPeriodicSync,
+  getMessages,
+  getMessagesWithPagination,
+  sendMessage,
 };

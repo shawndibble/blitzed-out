@@ -1,23 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TokenAnimationLayer, { type TokenAnimationLayerRef } from '../index';
 
-// Mock Framer Motion
-vi.mock('framer-motion', () => ({
-  AnimatePresence: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="animate-presence">{children}</div>
-  ),
-  motion: {
-    div: ({ children, ...props }: any) => (
-      <div {...props} data-testid="motion-div">
-        {children}
-      </div>
-    ),
-  },
-  useMotionValue: () => ({ get: () => 0, set: vi.fn() }),
-  useTransform: () => ({ get: () => 0 }),
-}));
+// Note: framer-motion is mocked globally in setupTests.ts
+// The global mock renders AnimatePresence children directly without a wrapper div
 
 // Mock TokenController
 vi.mock('../TokenController', () => ({
@@ -58,16 +45,17 @@ describe('TokenAnimationLayer', () => {
   });
 
   it('should render without crashing', () => {
-    render(<TokenAnimationLayer gameBoard={mockGameBoard} />);
+    const { container } = render(<TokenAnimationLayer gameBoard={mockGameBoard} />);
 
-    expect(screen.getByTestId('animate-presence')).toBeInTheDocument();
+    // The layer should render with the token-animation-layer class
+    expect(container.querySelector('.token-animation-layer')).toBeInTheDocument();
   });
 
   it('should render with correct styles and structure', () => {
-    render(<TokenAnimationLayer gameBoard={mockGameBoard} />);
+    const { container } = render(<TokenAnimationLayer gameBoard={mockGameBoard} />);
 
-    const layer = screen.getByTestId('animate-presence').parentElement;
-    expect(layer).toHaveClass('token-animation-layer');
+    const layer = container.querySelector('.token-animation-layer');
+    expect(layer).toBeInTheDocument();
     expect(layer).toHaveStyle({
       position: 'absolute',
       top: '0',
@@ -89,7 +77,7 @@ describe('TokenAnimationLayer', () => {
     const mockOnStart = vi.fn();
     const mockOnComplete = vi.fn();
 
-    render(
+    const { container } = render(
       <TokenAnimationLayer
         gameBoard={mockGameBoard}
         onAnimationStart={mockOnStart}
@@ -98,7 +86,7 @@ describe('TokenAnimationLayer', () => {
     );
 
     // The component should render without errors
-    expect(screen.getByTestId('animate-presence')).toBeInTheDocument();
+    expect(container.querySelector('.token-animation-layer')).toBeInTheDocument();
   });
 
   it('should expose ref methods correctly', () => {

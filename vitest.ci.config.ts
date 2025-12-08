@@ -29,21 +29,20 @@ export default defineConfig({
     mockReset: true,
     css: false, // Skip CSS processing for faster tests
 
-    // Use forks pool for stability in CI
-    // Threads can cause worker timeout issues in CI environments
+    // Use forks pool for proper isolation
     pool: 'forks',
     poolOptions: {
       forks: {
-        // Single fork to prevent worker coordination issues
-        singleFork: true,
+        maxForks: 2,
+        minForks: 1,
       },
     },
 
-    // Disable file parallelism to prevent worker timeout
-    // Tests run sequentially but more reliably in CI
-    fileParallelism: false,
+    // Enable file parallelism for faster execution
+    fileParallelism: true,
+    maxConcurrency: 5,
 
-    // Keep isolation enabled to prevent test contamination
+    // Enable isolation to prevent mock bleed between tests
     isolate: true,
 
     // Disable coverage in CI to save time and memory
