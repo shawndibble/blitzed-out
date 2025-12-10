@@ -297,7 +297,13 @@ describe('buildGameBoard service', () => {
 
       const result = await buildGameBoard(settings, 'en', 'online', 2);
 
-      expect(result.metadata.availableTileCount).toBe(2);
+      // Should only count enabled tiles (isEnabled: 1)
+      expect(result.metadata.availableTileCount).toBe(1);
+
+      // The enabled tile content should appear in the board
+      const boardDescriptions = result.board.map((tile) => tile.description);
+      expect(boardDescriptions.some((desc) => desc.includes('Enabled'))).toBe(true);
+      expect(boardDescriptions.some((desc) => desc.includes('Disabled'))).toBe(false);
     });
   });
 

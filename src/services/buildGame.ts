@@ -378,9 +378,9 @@ export default async function buildGameBoard(
         ? await getTiles({}) // Get all tiles, we'll filter by group_id below
         : [];
 
-    // Filter tiles to only those belonging to available groups
+    // Filter tiles to only those belonging to available groups and enabled
     const groupFilteredTiles = allTiles.filter(
-      (tile) => tile.group_id && groupIds.includes(tile.group_id)
+      (tile) => tile.group_id && groupIds.includes(tile.group_id) && tile.isEnabled !== 0
     );
 
     // Get selected action group names
