@@ -22,7 +22,7 @@
     "validate:placeholders": "node scripts/validate-placeholders.cjs"
   },
   "dependencies": {
-    "@capacitor/camera": "^7.0.0",
+    "@capacitor/camera": "^8.0.0",
     "@capacitor/core": "^8.0.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
