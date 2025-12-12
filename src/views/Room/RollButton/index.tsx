@@ -8,6 +8,7 @@ import RollOptionsMenu from '../RollOptionsMenu';
 import CustomTimerDialog from '../CustomTimerDialog';
 import OnboardingWrapper from './OnboardingWrapper';
 import { analytics } from '@/services/analytics';
+import DiceRoller from '@/components/DiceRoller';
 
 interface RollButtonProps {
   setRollValue: (value: number) => void;
@@ -21,20 +22,33 @@ interface TimerSettings {
   max: number;
 }
 
+interface PendingRoll {
+  notation: string;
+  values: number | number[];
+  total: number;
+}
+
 function isNumeric(value: string | number): boolean {
   return /^-?\d+$/.test(String(value));
 }
 
-function rollDice(
-  rollCount: string,
-  diceSide: string,
-  updateRollValue: (value: number) => void
-): void {
-  let total = 0;
-  for (let i = 0; i < Number(rollCount); i += 1) {
-    total += Math.floor(Math.random() * Number(diceSide)) + 1;
+function calculateDiceRoll(rollCount: string, diceSide: string): PendingRoll {
+  const count = Number(rollCount);
+  const sides = Number(diceSide);
+  const values: number[] = [];
+
+  for (let i = 0; i < count; i += 1) {
+    values.push(Math.floor(Math.random() * sides) + 1);
   }
-  updateRollValue(total);
+
+  const total = values.reduce((sum, val) => sum + val, 0);
+  const notation = `${rollCount}d${diceSide}`;
+
+  return {
+    notation,
+    values: count === 1 ? values[0] : values,
+    total,
+  };
 }
 
 function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.Element {
@@ -50,6 +64,7 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
     min: 30,
     max: 120,
   });
+  const [pendingRoll, setPendingRoll] = useState<PendingRoll | null>(null);
 
   const componentMountTime = useRef<number>(0);
   const interactionCount = useRef<number>(0);
@@ -60,20 +75,33 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
 
   const [rollCount, diceSide] = dice.split('d');
 
+  const triggerDiceAnimation = useCallback((): void => {
+    const roll = calculateDiceRoll(rollCount, diceSide);
+    setPendingRoll(roll);
+  }, [rollCount, diceSide]);
+
+  const handleDiceAnimationComplete = useCallback(
+    (value: number): void => {
+      setPendingRoll(null);
+      setRollValue(value);
+    },
+    [setRollValue]
+  );
+
   const handleClick = (): void => {
     // Track engagement
     interactionCount.current += 1;
     analytics.trackEngagement('roll_button_click', 0, interactionCount.current);
 
     if (selectedRoll === 'manual') {
-      rollDice(rollCount, diceSide, setRollValue);
+      triggerDiceAnimation();
       setDisabled(true);
       setTimeout(() => setDisabled(false), 4000);
       return;
     }
 
     if (isPaused && timeLeft === autoTime) {
-      rollDice(rollCount, diceSide, setRollValue);
+      triggerDiceAnimation();
     }
     togglePause();
   };
@@ -152,13 +180,13 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
       return;
     }
 
-    // Defer state updates and rollDice into a microtask to avoid performing React state updates
+    // Defer state updates and dice animation into a microtask to avoid performing React state updates
     // (or side effects) during the current render/event phase, which caused Sentry noise/duplicate
     // errors in previous implementations. This pattern mirrors deferral used elsewhere in the codebase.
     // WARNING: Removing queueMicrotask may reintroduce Sentry errors or render-timing issues.
     queueMicrotask(() => {
       if (shouldRollDice && newTime !== null) {
-        rollDice(rollCount, diceSide, setRollValue);
+        triggerDiceAnimation();
         setAutoTime(newTime);
         setTimeLeft(newTime);
       }
@@ -172,9 +200,7 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
     autoTime,
     timerSettings,
     t,
-    rollCount,
-    diceSide,
-    setRollValue,
+    triggerDiceAnimation,
     setTimeLeft,
   ]);
 
@@ -203,6 +229,13 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
         onClose={handleDialogClose}
         onSubmit={handleDialogSubmit}
       />
+      {pendingRoll && (
+        <DiceRoller
+          diceNotation={pendingRoll.notation}
+          targetValue={pendingRoll.values}
+          onComplete={handleDiceAnimationComplete}
+        />
+      )}
     </>
   );
 }

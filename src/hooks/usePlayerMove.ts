@@ -8,6 +8,9 @@ import { Tile, TileExport } from '@/types/gameBoard';
 import { useSettings } from '@/stores/settingsStore';
 import { useLocalPlayers } from './useLocalPlayers';
 import { localPlayerService } from '@/services/localPlayerService';
+import { useMessagesStore } from '@/stores/messagesStore';
+import { Message } from '@/types/Message';
+import { Timestamp } from 'firebase/firestore';
 
 interface RollValue {
   value: number | number[];
@@ -84,6 +87,7 @@ export default function usePlayerMove(
   const playerList = usePlayerList();
   const { currentPlayer, hasLocalPlayers, isLocalPlayerRoom, advanceToNextPlayer, session } =
     useLocalPlayers();
+  const addMessage = useMessagesStore((state) => state.addMessage);
   const total = gameBoard.length;
   const convertToTile = (tileExport: TileExport, index: number = 0): Tile => ({
     id: index,
@@ -142,27 +146,40 @@ export default function usePlayerMove(
       message += `${t('action')}: ${description}`;
 
       // Send message with the player's name (local player name or user display name)
+      const messageUser =
+        isInLocalMultiplayerMode && currentPlayer
+          ? {
+              ...user,
+              displayName: currentPlayer.name,
+            }
+          : user;
+
+      const messageText = preMessage ? preMessage + message : message;
+
+      // Create optimistic message for immediate display
+      const optimisticMessage: Message = {
+        id: `optimistic-${Date.now()}`,
+        uid: messageUser?.uid || '',
+        displayName: messageUser?.displayName || '',
+        text: messageText,
+        type: 'actions',
+        timestamp: Timestamp.now(),
+      };
+
+      // Add message to store immediately for instant UI feedback
+      addMessage(optimisticMessage);
+
       const messagePayload = {
         room,
-        user:
-          isInLocalMultiplayerMode && currentPlayer
-            ? {
-                ...user,
-                displayName: currentPlayer.name,
-              }
-            : user,
-        text: preMessage ? preMessage + message : message,
+        user: messageUser,
+        text: messageText,
         type: 'actions' as const,
       };
 
-      try {
-        const result = await sendMessage(messagePayload);
-        if (!result) {
-          console.error('Failed to send message - no result returned');
-        }
-      } catch (error) {
-        console.error('Failed to send message:', error);
-      }
+      // Send to Firebase in background (will replace optimistic message when received)
+      sendMessage(messagePayload).catch(() => {
+        // Silently handle - optimistic message already shown
+      });
 
       // Advance to next player if in local multiplayer mode
       if (isInLocalMultiplayerMode && rollNumber !== -1) {
@@ -184,6 +201,7 @@ export default function usePlayerMove(
       currentPlayer,
       advanceToNextPlayer,
       session,
+      addMessage,
     ]
   );
 
