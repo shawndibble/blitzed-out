@@ -275,6 +275,7 @@ export async function wipeAllAppData(): Promise<void> {
     const keysToRemove = [
       'gameSettings',
       'messages-storage',
+      'local-player-store',
       'i18nextLng',
       // Migration keys
       'blitzed-out-action-groups-migration',
@@ -294,7 +295,7 @@ export async function wipeAllAppData(): Promise<void> {
     });
 
     // Clear any remaining localStorage keys that start with our app prefixes
-    const appPrefixes = ['gameSettings', 'messages-storage', 'blitzed-out-'];
+    const appPrefixes = ['gameSettings', 'messages-storage', 'local-player-store', 'blitzed-out-'];
     const localStorageKeys = Object.keys(localStorage);
     localStorageKeys.forEach((key) => {
       if (appPrefixes.some((prefix) => key.startsWith(prefix))) {
@@ -316,6 +317,8 @@ export async function wipeAllAppData(): Promise<void> {
     // Clear IndexedDB via Dexie
     try {
       const { default: db } = await import('@/stores/store');
+      // Close the database first to prevent blocked delete operations
+      db.close();
       await db.delete();
     } catch (error) {
       console.warn('Failed to clear IndexedDB', error);
