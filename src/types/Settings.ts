@@ -36,6 +36,8 @@ export interface Settings {
   }>;
   selectedActions?: Record<string, ActionEntry>;
   hasSeenRollButton?: boolean;
+  /** Show 3D dice animation when rolling */
+  showDiceAnimation?: boolean;
   /** Local player settings for single-device multiplayer (optional) */
   localPlayers?: LocalSessionSettings;
   [key: string]: any;

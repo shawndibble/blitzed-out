@@ -9,6 +9,12 @@ import useAuth from '@/context/hooks/useAuth';
 vi.mock('../useLocalPlayers');
 vi.mock('../usePlayerList');
 vi.mock('@/context/hooks/useAuth');
+vi.mock('@/context/hooks/useMessages', () => ({
+  default: () => ({
+    messages: [],
+    loading: false,
+  }),
+}));
 
 describe('useHybridPlayerList Integration Tests', () => {
   const mockUser = {

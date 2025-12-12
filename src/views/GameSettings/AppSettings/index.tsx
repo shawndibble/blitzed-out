@@ -142,6 +142,12 @@ export default function AppSettings({
         <Trans i18nKey="misc" />
       </Typography>
 
+      <AppBoolSwitch
+        field="showDiceAnimation"
+        formData={formData}
+        handleSwitch={handleSwitch}
+        defaultValue={true}
+      />
       <AppBoolSwitch field="hideBoardActions" formData={formData} handleSwitch={handleSwitch} />
 
       <BackgroundSelect

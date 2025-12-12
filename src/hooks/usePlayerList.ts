@@ -18,7 +18,14 @@ interface Player {
 
 function filteredGameMessages(messages: Message[]): Message[] {
   const filteredMessages = orderedMessagesByType(messages, 'actions', 'DESC');
-  return [...new Map<string, Message>(filteredMessages.map((m: Message) => [m.uid, m])).values()];
+  // Keep first occurrence (newest) for each uid by only adding if not already present
+  const uniqueMap = new Map<string, Message>();
+  for (const m of filteredMessages) {
+    if (!uniqueMap.has(m.uid)) {
+      uniqueMap.set(m.uid, m);
+    }
+  }
+  return [...uniqueMap.values()];
 }
 
 export default function usePlayerList(): Player[] {
@@ -48,6 +55,7 @@ export default function usePlayerList(): Player[] {
           }
         }
 
+        // Messages show 1-indexed position, convert to 0-indexed for GameBoard
         const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
         const isFinished = Boolean(userGameMessage?.includes(t('finish')));
 

@@ -222,6 +222,7 @@
   "actionExists": "Esa acción ya existe.",
   "customAdded": "Casilla de juego añadida a tu juego.",
   "misc": "Misceláneo",
+  "showDiceAnimation": "Mostrar animación de dados 3D",
   "hideBoardActions": "Ocultar acciones del tablero de juego",
   "autoCloseModal": "Este cuadro de diálogo se cerrará automáticamente después de {{timeLeft}} segundos.",
   "autoCloseStopped": "Este cuadro de diálogo ya no se cerrará automáticamente.",

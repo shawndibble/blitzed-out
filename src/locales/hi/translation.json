@@ -223,6 +223,7 @@
   "actionExists": "वह क्रिया पहले से मौजूद है।",
   "customAdded": "गेम टाइल आपके गेम में जोड़ी गई।",
   "misc": "विविध",
+  "showDiceAnimation": "3D पासा एनीमेशन दिखाएं",
   "hideBoardActions": "गेमबोर्ड क्रियाएं छुपाएं",
   "autoCloseModal": "यह मॉडल {{timeLeft}} सेकंड बाद अपने आप बंद हो जाएगा।",
   "autoCloseStopped": "यह मॉडल अब अपने आप बंद नहीं होगा।",

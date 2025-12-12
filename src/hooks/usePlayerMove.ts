@@ -8,6 +8,11 @@ import { Tile, TileExport } from '@/types/gameBoard';
 import { useSettings } from '@/stores/settingsStore';
 import { useLocalPlayers } from './useLocalPlayers';
 import { localPlayerService } from '@/services/localPlayerService';
+import { useMessagesStore } from '@/stores/messagesStore';
+import { Message } from '@/types/Message';
+import { Timestamp } from 'firebase/firestore';
+import useMessages from '@/context/hooks/useMessages';
+import { orderedMessagesByType } from '@/helpers/messages';
 
 interface RollValue {
   value: number | number[];
@@ -84,6 +89,8 @@ export default function usePlayerMove(
   const playerList = usePlayerList();
   const { currentPlayer, hasLocalPlayers, isLocalPlayerRoom, advanceToNextPlayer, session } =
     useLocalPlayers();
+  const addMessage = useMessagesStore((state) => state.addMessage);
+  const { messages } = useMessages();
   const total = gameBoard.length;
   const convertToTile = (tileExport: TileExport, index: number = 0): Tile => ({
     id: index,
@@ -142,26 +149,41 @@ export default function usePlayerMove(
       message += `${t('action')}: ${description}`;
 
       // Send message with the player's name (local player name or user display name)
+      const messageUser =
+        isInLocalMultiplayerMode && currentPlayer
+          ? {
+              ...user,
+              displayName: currentPlayer.name,
+            }
+          : user;
+
+      const messageText = preMessage ? preMessage + message : message;
+
+      // Create optimistic message for immediate display
+      const optimisticMessage: Message = {
+        id: `optimistic-${Date.now()}`,
+        uid: messageUser?.uid || '',
+        displayName: messageUser?.displayName || '',
+        text: messageText,
+        type: 'actions',
+        timestamp: Timestamp.now(),
+      };
+
+      // Add message to store immediately for instant UI feedback
+      addMessage(optimisticMessage);
+
       const messagePayload = {
         room,
-        user:
-          isInLocalMultiplayerMode && currentPlayer
-            ? {
-                ...user,
-                displayName: currentPlayer.name,
-              }
-            : user,
-        text: preMessage ? preMessage + message : message,
+        user: messageUser,
+        text: messageText,
         type: 'actions' as const,
       };
 
+      // Send to Firebase (real message will replace optimistic when received)
       try {
-        const result = await sendMessage(messagePayload);
-        if (!result) {
-          console.error('Failed to send message - no result returned');
-        }
-      } catch (error) {
-        console.error('Failed to send message:', error);
+        await sendMessage(messagePayload);
+      } catch {
+        // Silently handle - optimistic message already shown
       }
 
       // Advance to next player if in local multiplayer mode
@@ -184,6 +206,7 @@ export default function usePlayerMove(
       currentPlayer,
       advanceToNextPlayer,
       session,
+      addMessage,
     ]
   );
 
@@ -214,7 +237,21 @@ export default function usePlayerMove(
         currentLocation = typeof currentPlayer.location === 'number' ? currentPlayer.location : 0;
       } else {
         // Use remote player location or default to 0
-        currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
+        const selfPlayer = playerList.find((p) => p.isSelf);
+        if (selfPlayer) {
+          currentLocation = selfPlayer.location || 0;
+        } else if (user?.uid) {
+          // Fallback: get location from messages if playerList is empty
+          const userActions = orderedMessagesByType(messages, 'actions', 'DESC');
+          const lastAction = userActions.find((m) => m.uid === user.uid);
+          if (lastAction?.text) {
+            const match = lastAction.text.match(/#(\d+):/);
+            if (match) {
+              // Messages show 1-indexed position, convert to 0-indexed
+              currentLocation = Number(match[1]) - 1;
+            }
+          }
+        }
       }
 
       // Validate currentLocation is a number
@@ -238,7 +275,7 @@ export default function usePlayerMove(
       }
       return { newLocation };
     },
-    [t, playerList, lastTile, hasLocalPlayers, isLocalPlayerRoom, currentPlayer]
+    [t, playerList, lastTile, hasLocalPlayers, isLocalPlayerRoom, currentPlayer, user, messages]
   );
 
   useEffect(() => {

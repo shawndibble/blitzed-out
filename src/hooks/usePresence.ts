@@ -53,9 +53,10 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
     };
   }, [roomId, displayName, roomRealtime]);
 
-  // Cleanup on component unmount
+  // Set up cleanup on page unload only
+  // Note: We don't call removeMyPresence in the cleanup function because
+  // React 18 Strict Mode double-mounts components, which would remove presence immediately
   useEffect(() => {
-    // Set up cleanup on page unload
     const handleBeforeUnload = () => {
       removeMyPresence();
     };
@@ -64,7 +65,6 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      removeMyPresence();
     };
   }, []);
 }
