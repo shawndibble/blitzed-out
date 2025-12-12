@@ -68,9 +68,14 @@ export default function DiceRoller({
           const total = calculateTotal(targetValue);
           setIsFadingOut(true);
 
+          // Short delay to let fade animation start, then trigger onComplete
+          // This is much faster than before but still allows fade to be visible
+          setTimeout(() => {
+            onComplete(total);
+          }, 100);
+
           setTimeout(() => {
             setIsVisible(false);
-            onComplete(total);
           }, 400);
         },
       }) as DiceBoxInstance;

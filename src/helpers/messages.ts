@@ -29,11 +29,15 @@ export function orderedMessagesByType(
   type: string,
   order: 'ASC' | 'DESC' = 'ASC'
 ): Message[] {
-  let sorted = sortedMessages(messages);
-  if (order === 'DESC') {
-    sorted = sorted.reverse();
-  }
-  return sorted.filter((m) => m.type === type);
+  // Sort by timestamp properly
+  const filtered = messages.filter((m) => m.type === type);
+  return filtered.sort((a, b) => {
+    const aDate = parseMessageTimestamp(a.timestamp);
+    const bDate = parseMessageTimestamp(b.timestamp);
+    if (!aDate || !bDate) return 0;
+    // ASC = oldest first, DESC = newest first
+    return order === 'DESC' ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+  });
 }
 
 export function latestMessageBy(

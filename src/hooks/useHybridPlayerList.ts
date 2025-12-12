@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { useLocalPlayers } from './useLocalPlayers';
 import usePlayerList from './usePlayerList';
 import useAuth from '@/context/hooks/useAuth';
+import useMessages from '@/context/hooks/useMessages';
+import { orderedMessagesByType } from '@/helpers/messages';
 
 interface BasePlayer {
   displayName: string;
@@ -35,6 +37,7 @@ export default function useHybridPlayerList(): HybridPlayer[] {
   const { user } = useAuth();
   const remotePlayerList = usePlayerList();
   const { localPlayers, hasLocalPlayers, isLocalPlayerRoom } = useLocalPlayers();
+  const { messages } = useMessages();
 
   const hybridPlayerList = useMemo(() => {
     // Use local players when in local multiplayer mode (multiple players on single device)
@@ -69,11 +72,24 @@ export default function useHybridPlayerList(): HybridPlayer[] {
     // If no players and user exists, ensure current user is in the list
     // This prevents empty player list after deleting local session
     if (remotePlayersTyped.length === 0 && user) {
+      // Try to get location from messages
+      const userActions = orderedMessagesByType(messages, 'actions', 'DESC');
+      const lastAction = userActions.find((m) => m.uid === user.uid);
+      let location = 0;
+
+      if (lastAction?.text) {
+        const match = lastAction.text.match(/#(\d+):/);
+        if (match) {
+          // Messages show 1-indexed position, convert to 0-indexed for GameBoard
+          location = Math.max(0, Number(match[1]) - 1);
+        }
+      }
+
       remotePlayersTyped.push({
         displayName: user.displayName || 'You',
         uid: user.uid,
         isSelf: true,
-        location: 0,
+        location,
         isFinished: false,
         status: 'active',
         lastActivity: new Date(),
@@ -82,7 +98,7 @@ export default function useHybridPlayerList(): HybridPlayer[] {
     }
 
     return remotePlayersTyped;
-  }, [user, remotePlayerList, localPlayers, hasLocalPlayers, isLocalPlayerRoom]);
+  }, [user, remotePlayerList, localPlayers, hasLocalPlayers, isLocalPlayerRoom, messages]);
 
   return hybridPlayerList;
 }

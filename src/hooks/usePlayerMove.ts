@@ -11,6 +11,8 @@ import { localPlayerService } from '@/services/localPlayerService';
 import { useMessagesStore } from '@/stores/messagesStore';
 import { Message } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
+import useMessages from '@/context/hooks/useMessages';
+import { orderedMessagesByType } from '@/helpers/messages';
 
 interface RollValue {
   value: number | number[];
@@ -88,6 +90,7 @@ export default function usePlayerMove(
   const { currentPlayer, hasLocalPlayers, isLocalPlayerRoom, advanceToNextPlayer, session } =
     useLocalPlayers();
   const addMessage = useMessagesStore((state) => state.addMessage);
+  const { messages } = useMessages();
   const total = gameBoard.length;
   const convertToTile = (tileExport: TileExport, index: number = 0): Tile => ({
     id: index,
@@ -176,10 +179,12 @@ export default function usePlayerMove(
         type: 'actions' as const,
       };
 
-      // Send to Firebase in background (will replace optimistic message when received)
-      sendMessage(messagePayload).catch(() => {
+      // Send to Firebase (real message will replace optimistic when received)
+      try {
+        await sendMessage(messagePayload);
+      } catch {
         // Silently handle - optimistic message already shown
-      });
+      }
 
       // Advance to next player if in local multiplayer mode
       if (isInLocalMultiplayerMode && rollNumber !== -1) {
@@ -232,7 +237,21 @@ export default function usePlayerMove(
         currentLocation = typeof currentPlayer.location === 'number' ? currentPlayer.location : 0;
       } else {
         // Use remote player location or default to 0
-        currentLocation = playerList.find((p) => p.isSelf)?.location || 0;
+        const selfPlayer = playerList.find((p) => p.isSelf);
+        if (selfPlayer) {
+          currentLocation = selfPlayer.location || 0;
+        } else if (user?.uid) {
+          // Fallback: get location from messages if playerList is empty
+          const userActions = orderedMessagesByType(messages, 'actions', 'DESC');
+          const lastAction = userActions.find((m) => m.uid === user.uid);
+          if (lastAction?.text) {
+            const match = lastAction.text.match(/#(\d+):/);
+            if (match) {
+              // Messages show 1-indexed position, convert to 0-indexed
+              currentLocation = Number(match[1]) - 1;
+            }
+          }
+        }
       }
 
       // Validate currentLocation is a number
@@ -256,7 +275,7 @@ export default function usePlayerMove(
       }
       return { newLocation };
     },
-    [t, playerList, lastTile, hasLocalPlayers, isLocalPlayerRoom, currentPlayer]
+    [t, playerList, lastTile, hasLocalPlayers, isLocalPlayerRoom, currentPlayer, user, messages]
   );
 
   useEffect(() => {
