@@ -5,6 +5,7 @@ export interface DiceRollerProps {
   diceNotation: string;
   targetValue: number | number[];
   onComplete: (value: number) => void;
+  onFinished?: () => void;
   onError?: (error: Error) => void;
 }
 
@@ -20,6 +21,7 @@ export default function DiceRoller({
   diceNotation,
   targetValue,
   onComplete,
+  onFinished,
   onError,
 }: DiceRollerProps): JSX.Element | null {
   const diceBoxRef = useRef<DiceBoxInstance | null>(null);
@@ -66,17 +68,18 @@ export default function DiceRoller({
         strength: 2,
         onRollComplete: () => {
           const total = calculateTotal(targetValue);
+
+          // Trigger modal immediately
+          onComplete(total);
+
+          // Start fade animation
           setIsFadingOut(true);
 
-          // Short delay to let fade animation start, then trigger onComplete
-          // This is much faster than before but still allows fade to be visible
-          setTimeout(() => {
-            onComplete(total);
-          }, 100);
-
+          // Signal parent to unmount after fade completes
           setTimeout(() => {
             setIsVisible(false);
-          }, 400);
+            onFinished?.();
+          }, 800);
         },
       }) as DiceBoxInstance;
 
@@ -149,10 +152,10 @@ export default function DiceRoller({
           left: 0,
           width: '100vw',
           height: '100vh',
-          zIndex: 9999,
+          zIndex: 1299, // Below MUI Dialog (1300)
           pointerEvents: 'none',
           opacity: isFadingOut ? 0 : 1,
-          transition: 'opacity 0.4s ease-out',
+          transition: 'opacity 0.8s ease-out',
           '& canvas': {
             width: '100% !important',
             height: '100% !important',

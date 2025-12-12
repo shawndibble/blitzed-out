@@ -82,11 +82,14 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
 
   const handleDiceAnimationComplete = useCallback(
     (value: number): void => {
-      setPendingRoll(null);
       setRollValue(value);
     },
     [setRollValue]
   );
+
+  const handleDiceAnimationFinished = useCallback((): void => {
+    setPendingRoll(null);
+  }, []);
 
   const handleClick = (): void => {
     // Track engagement
@@ -234,6 +237,7 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
           diceNotation={pendingRoll.notation}
           targetValue={pendingRoll.values}
           onComplete={handleDiceAnimationComplete}
+          onFinished={handleDiceAnimationFinished}
         />
       )}
     </>
