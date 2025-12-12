@@ -222,6 +222,7 @@
   "actionExists": "Cette action existe déjà.",
   "customAdded": "Tuile de jeu ajoutée à votre jeu.",
   "misc": "Variable",
+  "showDiceAnimation": "Afficher l'animation des dés 3D",
   "hideBoardActions": "Masquer les actions du plateau de jeu",
   "autoCloseModal": "Cette fenêtre se fermera automatiquement après {{timeLeft}} secondes.",
   "autoCloseStopped": "Cette fenêtre ne se fermera plus automatiquement.",

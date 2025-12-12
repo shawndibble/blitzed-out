@@ -222,6 +222,7 @@
   "actionExists": "That action already exists.",
   "customAdded": "Game tile added to your game.",
   "misc": "Miscellaneous",
+  "showDiceAnimation": "Show 3D dice animation",
   "hideBoardActions": "Hide gameboard actions",
   "autoCloseModal": "This modal will automatically close after {{timeLeft}} seconds.",
   "autoCloseStopped": "This modal will no longer automatically close.",

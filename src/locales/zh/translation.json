@@ -221,6 +221,7 @@
   "actionExists": "該動作已經存在。",
   "customAdded": "遊戲磁磚已加入您的遊戲。",
   "misc": "雜項",
+  "showDiceAnimation": "顯示3D骰子動畫",
   "hideBoardActions": "隱藏遊戲板動作",
   "autoCloseModal": "此對話框將在 {{timeLeft}} 秒後自動關閉。",
   "autoCloseStopped": "此對話框將不再自動關閉。",

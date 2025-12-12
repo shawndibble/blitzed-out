@@ -9,6 +9,7 @@ import CustomTimerDialog from '../CustomTimerDialog';
 import OnboardingWrapper from './OnboardingWrapper';
 import { analytics } from '@/services/analytics';
 import DiceRoller from '@/components/DiceRoller';
+import { useSettings } from '@/stores/settingsStore';
 
 interface RollButtonProps {
   setRollValue: (value: number) => void;
@@ -53,6 +54,7 @@ function calculateDiceRoll(rollCount: string, diceSide: string): PendingRoll {
 
 function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.Element {
   const { t } = useTranslation();
+  const [settings] = useSettings();
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [selectedRoll, setSelectedRoll] = useState<string>('manual');
   const [autoTime, setAutoTime] = useState<number>(0);
@@ -77,8 +79,15 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
 
   const triggerDiceAnimation = useCallback((): void => {
     const roll = calculateDiceRoll(rollCount, diceSide);
+
+    // If dice animation is disabled, immediately set the roll value
+    if (settings.showDiceAnimation === false) {
+      setRollValue(roll.total);
+      return;
+    }
+
     setPendingRoll(roll);
-  }, [rollCount, diceSide]);
+  }, [rollCount, diceSide, settings.showDiceAnimation, setRollValue]);
 
   const handleDiceAnimationComplete = useCallback(
     (value: number): void => {

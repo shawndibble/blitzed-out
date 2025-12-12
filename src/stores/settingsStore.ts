@@ -15,6 +15,7 @@ const defaultSettings: Settings = {
   hasSeenRollButton: false,
   themeMode: 'system',
   playerDialog: true,
+  showDiceAnimation: true,
 };
 
 interface SettingsStore {
