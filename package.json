@@ -56,7 +56,7 @@
     "react-i18next": "^16.0.0",
     "react-markdown": "^10.0.0",
     "react-router-dom": "^7.0.0",
-    "react-string-replace": "^1.1.1",
+    "react-string-replace": "^2.0.0",
     "remark-gemoji": "^8.0.0",
     "remark-gfm": "^4.0.1",
     "simple-peer": "^9.11.1",
