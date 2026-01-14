@@ -1,3 +1,3 @@
 # Blitzed Out
 
-A kinky adult multiplayer boardgame.
+Boardgame built using React and Firebase.
