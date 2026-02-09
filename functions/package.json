@@ -18,8 +18,8 @@
     "firebase-functions": "^7.0.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
-    "typescript": "^5.0.0"
+    "@types/node": "24.10.11",
+    "typescript": "5.9.3"
   },
   "private": true
 }
