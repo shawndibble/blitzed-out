@@ -88,7 +88,7 @@ export async function exportData(
     return JSON.stringify(exportData, null, JSON_INDENT_SPACES);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Export failed: ${message}`);
+    throw new Error(`Export failed: ${message}`, { cause: error });
   }
 }
 

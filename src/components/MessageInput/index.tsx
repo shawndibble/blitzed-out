@@ -43,7 +43,7 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
   };
 
   const attachFile = async () => {
-    let image: CameraPhoto | '' = '';
+    let image: CameraPhoto | '';
     try {
       image = await Camera.getPhoto({
         quality: 90,

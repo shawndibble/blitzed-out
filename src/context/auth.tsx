@@ -46,6 +46,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
   // Debounce mechanism for sync operations
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const deferTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track if initial auth check is complete
   const authInitializedRef = useRef<boolean>(false);
@@ -328,9 +329,8 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
                 try {
                   // Load sync services lazily
-                  const { syncDataFromFirebase, startPeriodicSync } = await import(
-                    '@/services/syncService'
-                  );
+                  const { syncDataFromFirebase, startPeriodicSync } =
+                    await import('@/services/syncService');
 
                   await syncDataFromFirebase();
                   setSyncStatus({ syncing: false, lastSync: new Date() });
@@ -357,7 +357,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
               ).requestIdleCallback(deferSync, { timeout: 10000 });
             } else {
               // Fallback for browsers without requestIdleCallback - wait longer to allow UI to fully load
-              setTimeout(deferSync, 5000);
+              deferTimeoutRef.current = setTimeout(deferSync, 5000);
             }
           } else {
             // User is logged out or anonymous, stop periodic sync
@@ -396,6 +396,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       }
       if (syncTimeoutRef.current) {
         clearTimeout(syncTimeoutRef.current);
+      }
+      if (deferTimeoutRef.current) {
+        clearTimeout(deferTimeoutRef.current);
       }
       (window as Window & { authContext?: { user: User | null } }).authContext = undefined;
     };

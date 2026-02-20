@@ -99,6 +99,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
   const [recoveryAttempted, setRecoveryAttempted] = useState(false);
   const [languageChangeTimeout, setLanguageChangeTimeout] = useState<NodeJS.Timeout | null>(null);
   const migrationAttemptedRef = useRef<Set<string>>(new Set());
+  const initialMigrationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Lazy load migration service to avoid blocking main bundle
   const loadMigrationService = useCallback(async () => {
@@ -371,7 +372,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
           setIsMigrationInProgress(true);
 
           // Use setTimeout to break out of the current execution cycle
-          setTimeout(async () => {
+          initialMigrationTimeoutRef.current = setTimeout(async () => {
             try {
               const migrationService = await loadMigrationService();
               const success = await migrationService.ensureLanguageMigrated(currentLocale);
@@ -391,6 +392,7 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
               migrationAttemptedRef.current.delete(migrationKey);
             } finally {
               setIsMigrationInProgress(false);
+              initialMigrationTimeoutRef.current = null;
             }
           }, 0);
         }
@@ -407,6 +409,9 @@ export function MigrationProvider({ children }: MigrationProviderProps) {
       i18n.off('languageChanged', languageChangedHandler);
       if (languageChangeTimeout) {
         clearTimeout(languageChangeTimeout);
+      }
+      if (initialMigrationTimeoutRef.current) {
+        clearTimeout(initialMigrationTimeoutRef.current);
       }
     };
   }, [

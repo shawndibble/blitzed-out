@@ -14,9 +14,9 @@ export default function useCountdown(
 ): CountdownResult {
   const normalizedStartSeconds = startSeconds === -1 ? 0 : startSeconds;
   const [timeLeft, setTimeLeft] = useState<number>(normalizedStartSeconds);
-  const [isPaused, setPause] = useState<boolean>(startPaused);
+  const [isPaused, setIsPaused] = useState<boolean>(startPaused);
 
-  const togglePause = useCallback((): void => setPause((prev) => !prev), []);
+  const togglePause = useCallback((): void => setIsPaused((prev) => !prev), []);
 
   useEffect(() => {
     if (timeLeft === 0 && onComplete) {

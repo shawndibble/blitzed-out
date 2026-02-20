@@ -19,7 +19,7 @@ export default function GameOverDialog({
   close,
 }: GameOverDialogProps): JSX.Element {
   const { t } = useTranslation();
-  const [openSettingsDialog, setSettingsDialog] = useState<boolean>(false);
+  const [openSettingsDialog, setOpenSettingsDialog] = useState<boolean>(false);
   const sentUserToStart = useReturnToStart();
 
   const isMobile = useBreakpoint();
@@ -38,12 +38,12 @@ export default function GameOverDialog({
   }, [updateGameBoardTiles, settings, sentUserToStart, close]);
 
   const openSettings = useCallback(() => {
-    setSettingsDialog(true);
+    setOpenSettingsDialog(true);
     close();
   }, [close]);
 
   const closeSettings = useCallback(() => {
-    setSettingsDialog(false);
+    setOpenSettingsDialog(false);
     sentUserToStart();
   }, [sentUserToStart]);
 

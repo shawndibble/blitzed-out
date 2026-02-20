@@ -39,7 +39,7 @@ export default function ImportExport({
   bulkImport: _bulkImport,
   onImportSuccess,
 }: ImportExportProps) {
-  const formData = useRef<HTMLFormElement | null>(null);
+  const formDataRef = useRef<HTMLFormElement | null>(null);
   const { t } = useTranslation();
   const { settings } = useGameSettings();
   const [inputValue, setInputValue] = useState<string>('');
@@ -284,7 +284,7 @@ export default function ImportExport({
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
-        <Box component="form" method="post" className="settings-box" ref={formData}>
+        <Box component="form" method="post" className="settings-box" ref={formDataRef}>
           {/* Export Scope */}
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>{t('export.scope')}</InputLabel>
@@ -338,7 +338,7 @@ export default function ImportExport({
           />
 
           <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-            <Button variant="contained" onClick={() => importTiles(formData)}>
+            <Button variant="contained" onClick={() => importTiles(formDataRef)}>
               {t('import')}
             </Button>
 

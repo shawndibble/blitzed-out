@@ -64,10 +64,8 @@ export default function useTurnIndicator(message?: Message): Player | null {
 
     // For local players, we need to find by displayName since message.uid might not match
     // For remote players, we find by uid
-    let currentPlayerIndex = -1;
-
     // First try to find by uid (works for remote players)
-    currentPlayerIndex = stableTurnOrder.findIndex((player) => player.uid === message.uid);
+    let currentPlayerIndex = stableTurnOrder.findIndex((player) => player.uid === message.uid);
 
     // If not found and we have local players, try finding by displayName
     if (currentPlayerIndex === -1) {

@@ -40,7 +40,7 @@ export default function TransitionModal({
 }: TransitionModalProps): JSX.Element {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
-  const [isGameOverOpen, setGameOverDialog] = useState<boolean>(false);
+  const [isGameOverOpen, setIsGameOverOpen] = useState<boolean>(false);
 
   const title = text?.match(/#\d*:.*(?=\n)/gs);
 
@@ -50,23 +50,23 @@ export default function TransitionModal({
 
   const AUTO_CLOSE_SECONDS = 20;
   const { timeLeft, togglePause } = useCountdown(AUTO_CLOSE_SECONDS, false);
-  const [showAutoCloseText, setAutoCloseText] = useState<boolean>(true);
+  const [showAutoCloseText, setShowAutoCloseText] = useState<boolean>(true);
 
   const player = nextPlayer?.displayName;
 
   const preventClose = useCallback(() => {
     togglePause();
     stopAutoClose();
-    setAutoCloseText(false);
-  }, [togglePause, stopAutoClose, setAutoCloseText]);
+    setShowAutoCloseText(false);
+  }, [togglePause, stopAutoClose]);
 
   const openGameOver = useCallback(() => {
     preventClose();
-    setGameOverDialog(true);
+    setIsGameOverOpen(true);
   }, [preventClose]);
 
   const closeGameOver = useCallback(() => {
-    setGameOverDialog(false);
+    setIsGameOverOpen(false);
   }, []);
 
   return (

@@ -15,6 +15,7 @@ export default function CastButton(): JSX.Element | null {
   const [castSession, setCastSession] = useState<any>(null);
   const { id: room } = useParams<Params>();
   const castButtonRef = useRef<HTMLButtonElement>(null);
+  const sessionListenerRef = useRef<((event: { sessionState: string }) => void) | null>(null);
   const [castReady, setCastReady] = useState<boolean>(false);
   const [userRequestedStop, setUserRequestedStop] = useState<boolean>(false);
 
@@ -94,35 +95,42 @@ export default function CastButton(): JSX.Element | null {
 
         if (!window?.cast?.framework) return;
 
+        // Create and store the session state listener
+        const handleSessionStateChanged = (event: { sessionState: string }) => {
+          const session = castContext.getCurrentSession();
+
+          switch (event.sessionState) {
+            case window.cast?.framework?.SessionState.SESSION_STARTED:
+            case window.cast?.framework?.SessionState.SESSION_RESUMED:
+              // Only set to casting if user didn't request stop
+              if (!userRequestedStop) {
+                setIsCasting(true);
+                setCastSession(session);
+                if (session && room) {
+                  sendCastMessage(session);
+                }
+              }
+              break;
+            case window.cast?.framework?.SessionState.SESSION_ENDED:
+              resetCastingState(true); // Clear user stop flag when session actually ends
+              break;
+            default:
+              // Handle SESSION_STARTING and SESSION_ENDING states
+              if (event.sessionState === 'SESSION_ENDING') {
+                resetCastingState();
+              }
+              break;
+          }
+        };
+
+        // Store the listener for cleanup
+        sessionListenerRef.current = handleSessionStateChanged;
+
         // Set up session state listener
+        // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener -- Cleanup handled via sessionListenerRef
         castContext.addEventListener(
           window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-          (event: { sessionState: string }) => {
-            const session = castContext.getCurrentSession();
-
-            switch (event.sessionState) {
-              case window.cast?.framework?.SessionState.SESSION_STARTED:
-              case window.cast?.framework?.SessionState.SESSION_RESUMED:
-                // Only set to casting if user didn't request stop
-                if (!userRequestedStop) {
-                  setIsCasting(true);
-                  setCastSession(session);
-                  if (session && room) {
-                    sendCastMessage(session);
-                  }
-                }
-                break;
-              case window.cast?.framework?.SessionState.SESSION_ENDED:
-                resetCastingState(true); // Clear user stop flag when session actually ends
-                break;
-              default:
-                // Handle SESSION_STARTING and SESSION_ENDING states
-                if (event.sessionState === 'SESSION_ENDING') {
-                  resetCastingState();
-                }
-                break;
-            }
-          }
+          handleSessionStateChanged
         );
       } catch (error) {
         console.error('Error setting up session listener:', error);
@@ -158,7 +166,19 @@ export default function CastButton(): JSX.Element | null {
 
     // Cleanup function
     return () => {
-      // Don't reset the global callback as other instances might need it
+      // Remove the session state listener if it was added
+      if (sessionListenerRef.current && window.cast?.framework) {
+        try {
+          const castContext = window.cast.framework.CastContext.getInstance();
+          castContext.removeEventListener(
+            window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+            sessionListenerRef.current
+          );
+          sessionListenerRef.current = null;
+        } catch {
+          // Ignore errors during cleanup
+        }
+      }
     };
   }, [room, sendCastMessage, userRequestedStop, resetCastingState]);
 

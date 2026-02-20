@@ -54,8 +54,8 @@ export default function Room() {
   usePresence(room);
 
   // Game session tracking
-  const sessionStartTime = useRef<number>(Date.now());
-  const actionCount = useRef<number>(0);
+  const sessionStartTimeRef = useRef<number>(Date.now());
+  const actionCountRef = useRef<number>(0);
 
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
 
@@ -73,7 +73,7 @@ export default function Room() {
   const memoizedSetRollValue = useCallback((newValue: number) => {
     setRollValue({ value: newValue, time: Date.now() });
     // Track action for session analytics
-    actionCount.current += 1;
+    actionCountRef.current += 1;
   }, []);
 
   // Turn change detection for local players (only in pure local multiplayer mode)
@@ -177,11 +177,11 @@ export default function Room() {
 
   // Track game session on component unmount only
   useEffect(() => {
-    const start = sessionStartTime.current;
+    const start = sessionStartTimeRef.current;
     return () => {
       const duration = Date.now() - start;
       const { gameMode, playerCount } = lastCountsRef.current;
-      analytics.trackGameSession(duration, actionCount.current, gameMode, playerCount);
+      analytics.trackGameSession(duration, actionCountRef.current, gameMode, playerCount);
     };
   }, []);
   const { roller } = usePrivateRoomMonitor(room, gameBoard);

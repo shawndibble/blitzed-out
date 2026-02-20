@@ -136,6 +136,7 @@ export default function ViewCustomTiles({
   // Load tiles when filters change
   useEffect(() => {
     let isMounted = true;
+    let loadingTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
     async function loadTiles() {
       try {
@@ -162,7 +163,7 @@ export default function ViewCustomTiles({
         if (isMounted) {
           setTiles(tileData as unknown as TileData);
           // Add a small delay before removing loading state for smoother transitions
-          setTimeout(() => {
+          loadingTimeoutId = setTimeout(() => {
             if (isMounted) {
               setLoading(false);
             }
@@ -186,6 +187,7 @@ export default function ViewCustomTiles({
     // Cleanup function to prevent state updates after unmount
     return () => {
       isMounted = false;
+      if (loadingTimeoutId) clearTimeout(loadingTimeoutId);
     };
   }, [
     groupFilter,

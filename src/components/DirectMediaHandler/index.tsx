@@ -29,7 +29,7 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
   const handleVideoError = () => {
     const failingUrl = currentUrl ?? url ?? '';
     // Special handling for Imgur URLs
-    let isImgur = false;
+    let isImgur: boolean;
     try {
       const parsed = new URL(failingUrl);
       isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
@@ -57,7 +57,7 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
 
   const handleImageError = () => {
     const failingUrl = currentUrl ?? url ?? '';
-    let isImgur = false;
+    let isImgur: boolean;
     try {
       const parsed = new URL(failingUrl);
       isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';

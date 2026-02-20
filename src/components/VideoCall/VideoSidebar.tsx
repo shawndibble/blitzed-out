@@ -20,8 +20,8 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
   const { initialize, cleanup, isInitialized } = useVideoCallStore();
-  const resizeStartX = useRef(0);
-  const resizeStartWidth = useRef(DEFAULT_WIDTH);
+  const resizeStartXRef = useRef(0);
+  const resizeStartWidthRef = useRef(DEFAULT_WIDTH);
 
   const handleToggle = () => {
     const newState = !isOpen;
@@ -44,16 +44,19 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
   const handleResizeStart = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
-    resizeStartX.current = e.clientX;
-    resizeStartWidth.current = width;
+    resizeStartXRef.current = e.clientX;
+    resizeStartWidthRef.current = width;
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
 
-      const delta = e.clientX - resizeStartX.current;
-      const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, resizeStartWidth.current + delta));
+      const delta = e.clientX - resizeStartXRef.current;
+      const newWidth = Math.min(
+        MAX_WIDTH,
+        Math.max(MIN_WIDTH, resizeStartWidthRef.current + delta)
+      );
       setWidth(newWidth);
       onWidthChange?.(newWidth);
     };

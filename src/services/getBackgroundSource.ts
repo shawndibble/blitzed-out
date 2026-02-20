@@ -195,16 +195,13 @@ function imgur(url: string): string {
     console.debug('URL parsing failed for direct link check:', error);
   }
 
-  // Extract the Imgur ID from different possible URL formats
-  let imgurId = '';
-
   // Validate that this is actually an Imgur URL for security
-  let isImgur = false;
+  let isImgur: boolean;
   try {
     const parsed = new URL(url);
     isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
   } catch (error) {
-    // If URL parsing fails, skip processing for security
+    // If URL parsing failed, skip processing for security
     console.debug('URL parsing failed for Imgur processing:', error);
     return '';
   }
@@ -213,6 +210,9 @@ function imgur(url: string): string {
     // Not a valid Imgur URL, return empty string
     return '';
   }
+
+  // Extract the Imgur ID from different possible URL formats
+  let imgurId: string;
 
   // Handle gallery URLs like:
   // https://imgur.com/gallery/title-3YkU9Yc#6fDSu6z (with fragment)
@@ -320,12 +320,12 @@ interface BackgroundResult {
 }
 
 export function processBackground(url: string | null | undefined): BackgroundResult {
-  let embedUrl: string | null = null;
-  let isVideo = true;
-
   if (!url) {
     return { url: '', isVideo: false };
   }
+
+  let embedUrl: string | null;
+  let isVideo = true;
 
   switch (true) {
     case isValidHost(url, ['vimeo.com']):
@@ -425,9 +425,8 @@ export default function getBackgroundSource(
   // 4. Public room → "color" (no "Use Room Background" option)
   // 5. No app background set → "color"
 
-  let finalBackground: string | null = null;
-
   // Priority 1: Check if user has set an app background preference
+  let finalBackground: string | null;
   if (background) {
     if (background === 'custom') {
       // User wants custom app background

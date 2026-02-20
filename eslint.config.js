@@ -86,42 +86,50 @@ export default [
       // Disable React Compiler rules - not using React Compiler yet
       'react-hooks/purity': 'off',
       'react-hooks/preserve-manual-memoization': 'off',
-      // Disable strict naming conventions
-      '@eslint-react/naming-convention/ref-name': 'off',
+      // Warn on ref naming convention - refs should end with "Ref"
+      '@eslint-react/naming-convention/ref-name': 'warn',
       // Disable hooks-extra rules that are too strict for existing code
       '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
-      // Disable web-api rules that are too strict
-      '@eslint-react/web-api/no-leaked-event-listener': 'off',
+      // Warn on leaked event listeners - should have cleanup
+      '@eslint-react/web-api/no-leaked-event-listener': 'warn',
       // Disable lazy initialization suggestion
       '@eslint-react/prefer-use-state-lazy-initialization': 'off',
       // Disable useContext deprecation warning - React 19 migration concern
       '@eslint-react/no-use-context': 'off',
       // Disable forwardRef deprecation warning - React 19 migration concern
       '@eslint-react/no-forward-ref': 'off',
-      // Disable use-state naming convention - too strict for existing code
-      '@eslint-react/naming-convention/use-state': 'off',
+      // Warn on useState naming convention - setters should be named setX
+      '@eslint-react/naming-convention/use-state': 'warn',
       // Disable array index key warning - sometimes unavoidable
       '@eslint-react/no-array-index-key': 'off',
-      // Disable leaked timeout warning - handled in existing cleanup patterns
-      '@eslint-react/web-api/no-leaked-timeout': 'off',
+      // Warn on leaked timeouts - should have cleanup
+      '@eslint-react/web-api/no-leaked-timeout': 'warn',
       // Disable iframe sandbox warning - needed for embeds
       '@eslint-react/dom/no-unsafe-iframe-sandbox': 'off',
       // Disable Context.Provider deprecation warning - React 19 migration concern
       '@eslint-react/no-context-provider': 'off',
-      // Disable unnecessary use prefix warning - naming convention preference
-      '@eslint-react/no-unnecessary-use-prefix': 'off',
+      // Warn on unnecessary use prefix - functions without hooks shouldn't use "use" prefix
+      '@eslint-react/no-unnecessary-use-prefix': 'warn',
       // Disable set-state-in-effect - valid pattern in many cases
       'react-hooks/set-state-in-effect': 'off',
-      // Disable flushSync warning - sometimes necessary
-      '@eslint-react/dom/no-flush-sync': 'off',
-      // Disable createRef warning in tests
-      '@eslint-react/no-create-ref': 'off',
-      // Disable no-useless-assignment - sometimes used for debugging
-      'no-useless-assignment': 'off',
-      // Disable preserve-caught-error - would require large refactoring
-      'preserve-caught-error': 'off',
+      // Warn on flushSync usage - should be rare
+      '@eslint-react/dom/no-flush-sync': 'warn',
+      // Enable createRef warning (except in tests where it's appropriate)
+      '@eslint-react/no-create-ref': 'warn',
+      // Warn on useless assignments
+      'no-useless-assignment': 'warn',
+      // Warn on errors without cause chain
+      'preserve-caught-error': 'warn',
       // Disable immutability check for event.target.value - valid DOM pattern
       'react-hooks/immutability': 'off',
+    },
+  },
+  // Test file overrides
+  {
+    files: ['**/*.test.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
+    rules: {
+      // createRef is appropriate in test files for testing refs
+      '@eslint-react/no-create-ref': 'off',
     },
   },
   eslintConfigPrettier,

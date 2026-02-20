@@ -32,7 +32,7 @@ export default function MessageList({
   const { messages, isLoading } = useMessages();
   useSendSettings(user, messages, isLoading);
 
-  const [currentTab, setTab] = useState<number>(0);
+  const [currentTab, setCurrentTab] = useState<number>(0);
   const [filterAnchor, setFilterAnchor] = useState<null | HTMLElement>(null);
   const { t } = useTranslation();
 
@@ -53,6 +53,9 @@ export default function MessageList({
     const latestMessage = messages[messages.length - 1];
     const latestMessageId = latestMessage?.id || null;
 
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let rafId: number | null = null;
+
     // Only scroll if this is actually a new message
     if (latestMessageId && latestMessageId !== lastMessageIdRef.current) {
       lastMessageIdRef.current = latestMessageId;
@@ -69,10 +72,15 @@ export default function MessageList({
         scrollToBottom();
 
         // Backup attempts with different timing
-        requestAnimationFrame(scrollToBottom);
-        setTimeout(scrollToBottom, 10);
+        rafId = requestAnimationFrame(scrollToBottom);
+        timeoutId = setTimeout(scrollToBottom, 10);
       }
     }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [messages.length, messages]);
 
   const handleFilterClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
@@ -84,7 +92,7 @@ export default function MessageList({
   }, []);
 
   const handleFilterSelect = useCallback((filterIndex: number) => {
-    setTab(filterIndex);
+    setCurrentTab(filterIndex);
     setFilterAnchor(null);
   }, []);
 

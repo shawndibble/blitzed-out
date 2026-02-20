@@ -55,12 +55,12 @@ function calculateDiceRoll(rollCount: string, diceSide: string): PendingRoll {
 function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.Element {
   const { t } = useTranslation();
   const [settings] = useSettings();
-  const [isDisabled, setDisabled] = useState<boolean>(false);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [selectedRoll, setSelectedRoll] = useState<string>('manual');
   const [autoTime, setAutoTime] = useState<number>(0);
   const [rollText, setRollText] = useState<string>(t('roll'));
   const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(autoTime);
-  const [isDialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [timerSettings, setTimerSettings] = useState<TimerSettings>({
     isRange: false,
     min: 30,
@@ -68,11 +68,11 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
   });
   const [pendingRoll, setPendingRoll] = useState<PendingRoll | null>(null);
 
-  const componentMountTime = useRef<number>(0);
-  const interactionCount = useRef<number>(0);
+  const componentMountTimeRef = useRef<number>(0);
+  const interactionCountRef = useRef<number>(0);
 
   useEffect(() => {
-    componentMountTime.current = Date.now();
+    componentMountTimeRef.current = Date.now();
   }, []);
 
   const [rollCount, diceSide] = dice.split('d');
@@ -102,13 +102,13 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
 
   const handleClick = (): void => {
     // Track engagement
-    interactionCount.current += 1;
-    analytics.trackEngagement('roll_button_click', 0, interactionCount.current);
+    interactionCountRef.current += 1;
+    analytics.trackEngagement('roll_button_click', 0, interactionCountRef.current);
 
     if (selectedRoll === 'manual') {
       triggerDiceAnimation();
-      setDisabled(true);
-      setTimeout(() => setDisabled(false), 4000);
+      setIsDisabled(true);
+      setTimeout(() => setIsDisabled(false), 4000);
       return;
     }
 
@@ -128,7 +128,7 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
       setSelectedRoll(String(key));
 
       if (key === 'custom') {
-        setDialogOpen(true);
+        setIsDialogOpen(true);
         return;
       }
 
@@ -143,7 +143,7 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
   );
 
   const handleDialogClose = (): void => {
-    setDialogOpen(false);
+    setIsDialogOpen(false);
   };
 
   const handleDialogSubmit = (
@@ -155,7 +155,7 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
     setTimeLeft(time);
     setTimerSettings({ ...timerSettings, ...settings });
     setSelectedRoll('custom');
-    setDialogOpen(false);
+    setIsDialogOpen(false);
   };
 
   useEffect(() => {
@@ -218,10 +218,10 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
 
   // Track engagement session on component unmount
   useEffect(() => {
-    const start = componentMountTime.current;
+    const start = componentMountTimeRef.current;
     return () => {
       const duration = Date.now() - start;
-      analytics.trackEngagement('roll_button_session', duration, interactionCount.current);
+      analytics.trackEngagement('roll_button_session', duration, interactionCountRef.current);
     };
   }, []);
 

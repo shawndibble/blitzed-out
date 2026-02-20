@@ -50,7 +50,7 @@ export default function usePrivateRoomMonitor(
   const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
   const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState<string>(DEFAULT_DIEM);
-  const [roomBgUrl, setRoomBackground] = useState<string>('');
+  const [roomBgUrl, setRoomBgUrl] = useState<string>('');
   const updateGameBoardTiles = useGameBoard();
 
   // Track if we've already rebuilt the board for this room change
@@ -123,7 +123,7 @@ export default function usePrivateRoomMonitor(
         }
 
         setRoller(dice);
-        setRoomBackground(roomBackgroundURL || '');
+        setRoomBgUrl(roomBackgroundURL || '');
 
         // Only rebuild if the room message is recent (within last 5 minutes)
         const messageDate = parseMessageTimestamp(roomMessage.timestamp);
@@ -171,7 +171,7 @@ export default function usePrivateRoomMonitor(
       if (isFirstRunRef.current) {
         isFirstRunRef.current = false;
         if (settings?.roomBackgroundURL?.length) {
-          setRoomBackground(settings.roomBackgroundURL);
+          setRoomBgUrl(settings.roomBackgroundURL);
         }
         return;
       }
@@ -189,7 +189,7 @@ export default function usePrivateRoomMonitor(
       }
 
       if (settings?.roomBackgroundURL?.length) {
-        setRoomBackground(settings.roomBackgroundURL);
+        setRoomBgUrl(settings.roomBackgroundURL);
       }
     } catch (error) {
       console.error('Error in room change effect:', error);

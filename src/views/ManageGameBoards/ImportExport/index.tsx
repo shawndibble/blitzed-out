@@ -21,7 +21,7 @@ export default function ImportExport({
   board,
 }: ImportExportProps): JSX.Element {
   const { t } = useTranslation();
-  const [textValue, setTextField] = useState<string>('');
+  const [textValue, setTextValue] = useState<string>('');
   const [boardTitle, setBoardTitle] = useState<string>(board.title || '');
 
   function getGameTiles(entries: string[]): TileExport[] | null {
@@ -112,7 +112,7 @@ export default function ImportExport({
       })
       .filter(Boolean);
 
-    setTextField(arrayExport?.join('\n~~\n') || '');
+    setTextValue(arrayExport?.join('\n~~\n') || '');
   };
 
   const changeTitle = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -154,7 +154,7 @@ export default function ImportExport({
         multiline
         fullWidth
         value={textValue}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => setTextField(event.target.value)}
+        onChange={(event: ChangeEvent<HTMLInputElement>) => setTextValue(event.target.value)}
         InputProps={{
           endAdornment: (
             <div
