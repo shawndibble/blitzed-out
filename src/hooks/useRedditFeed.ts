@@ -42,7 +42,6 @@ export function useRedditFeed(url: string | null): UseRedditFeedResult {
   useEffect(() => {
     // Handle invalid URLs by resetting state
     if (!isValidRedditUrl) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing with external URL changes
       setState({
         images: [],
         errorCode: null,

@@ -5,7 +5,6 @@
  * Runs each test file individually to identify problematic ones
  */
 
-/* eslint-env node */
 /* global process */
 
 import { readdirSync, statSync } from 'fs';

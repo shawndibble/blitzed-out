@@ -30,7 +30,6 @@ export default function ImageSlideshow({
 
   // Reset loading state when images change
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasLoadedFirstImage(false);
 
     setPreloadedImages(new Set());
@@ -137,7 +136,6 @@ export default function ImageSlideshow({
       const allImagesFailed = images.every((img) => imageLoadErrors.has(img));
       if (!allImagesFailed) {
         const nextIndex = (currentIndex + 1) % images.length;
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentIndex(nextIndex);
 
         setImageKey((prev) => prev + 1);

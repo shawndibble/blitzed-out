@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-env node */
 /* global require, process, module */
 /**
  * Script to identify slow-running tests

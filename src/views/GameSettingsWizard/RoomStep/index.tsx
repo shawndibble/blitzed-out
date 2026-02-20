@@ -32,7 +32,6 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
 
   // Reset local input when currentRoom changes from external source
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronizing controlled input with external prop changes
     setLocalInputValue('');
   }, [roomInputKey]);
 
