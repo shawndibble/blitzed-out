@@ -607,5 +607,14 @@
       "constraintsNotSatisfied": "आपका कैमरा या माइक्रोफ़ोन आवश्यक सेटिंग्स को पूरा नहीं करता। कृपया एक अलग डिवाइस का उपयोग करने का प्रयास करें।",
       "unknown": "कैमरा या माइक्रोफ़ोन तक पहुँचने में विफल। कृपया अपना डिवाइस जाँचें और पुनः प्रयास करें।"
     }
-  }
+  },
+  "scanToJoin": "शामिल होने के लिए स्कैन करें",
+  "hapticFeedback": "कंपन प्रतिक्रिया",
+  "ambientMusic": "परिवेशी संगीत",
+  "ambientMusicEnabled": "परिवेशी संगीत सक्षम करें",
+  "ambientSoundscape": "ध्वनिदृश्य",
+  "ambientVolume": "आवाज़",
+  "soundscapeLounge": "लाउंज",
+  "soundscapeIntimate": "अंतरंग",
+  "soundscapeParty": "पार्टी ऊर्जा"
 }

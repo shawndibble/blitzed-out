@@ -606,5 +606,14 @@
       "constraintsNotSatisfied": "Your camera or microphone doesn't meet the required settings. Try using a different device.",
       "unknown": "Failed to access camera or microphone. Please check your device and try again."
     }
-  }
+  },
+  "scanToJoin": "Scan to join",
+  "hapticFeedback": "Vibration feedback",
+  "ambientMusic": "Ambient Music",
+  "ambientMusicEnabled": "Enable ambient music",
+  "ambientSoundscape": "Soundscape",
+  "ambientVolume": "Volume",
+  "soundscapeLounge": "Lounge",
+  "soundscapeIntimate": "Intimate",
+  "soundscapeParty": "Party Energy"
 }

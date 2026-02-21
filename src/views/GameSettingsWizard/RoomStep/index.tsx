@@ -1,6 +1,7 @@
 import { Box, Button, Typography, Stack, TextField } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
+import RoomQRCode from '@/components/RoomQRCode';
 import ValueProposition from '../components/ValueProposition';
 import { isPublicRoom } from '@/helpers/strings';
 import { customAlphabet } from 'nanoid';
@@ -186,6 +187,7 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, textAlign: 'center' }}>
             {t('privateRoomCodeHelp')}
           </Typography>
+          <RoomQRCode roomCode={roomInputValue} />
         </Box>
       )}
 

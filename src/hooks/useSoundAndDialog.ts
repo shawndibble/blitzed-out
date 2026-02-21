@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Message } from '@/types/Message';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
 import { setDayjsLocale } from '@/helpers/momentLocale';
+import { vibrate } from '@/utils/haptics';
 
 export interface DialogResult {
   message: Message | false;
@@ -37,6 +38,7 @@ export default function useSoundAndDialog(): DialogResult {
     readRoll,
     voicePreference,
     voicePitch,
+    hapticFeedback,
   } = settings || {};
 
   const latestMessage = useMemo(() => [...messages].pop(), [messages]);
@@ -92,6 +94,9 @@ export default function useSoundAndDialog(): DialogResult {
     if (newMessage && latestMessage) {
       if (playDiceSoundCondition) {
         playDiceSound();
+        if (hapticFeedback) {
+          vibrate('short');
+        }
       }
 
       if (speakTextCondition) {
@@ -101,6 +106,10 @@ export default function useSoundAndDialog(): DialogResult {
 
       if (playMessageSoundCondition) {
         playMessageSound();
+      }
+
+      if (hapticFeedback && showPlayerDialog && latestMessage?.type === 'actions') {
+        vibrate('medium');
       }
     }
   }, [
@@ -112,6 +121,8 @@ export default function useSoundAndDialog(): DialogResult {
     playDiceSound,
     playMessageSound,
     speakText,
+    hapticFeedback,
+    showPlayerDialog,
   ]);
 
   return {

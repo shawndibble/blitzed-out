@@ -2,10 +2,16 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
-import { Settings } from '@/types/Settings';
+import { PlayerRole, Settings } from '@/types/Settings';
+import { ActionEntry } from '@/types';
 import buildGameBoard from '../buildGame';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
+
+const createActionEntry = (
+  levels: number[],
+  type: 'solo' | 'foreplay' | 'sex' | 'consumption'
+): ActionEntry => ({ levels, type });
 
 vi.mock('i18next', () => ({
   default: {
@@ -87,7 +93,7 @@ describe('buildGameBoard service', () => {
 
       const settings = {
         ...baseSettings,
-        selectedActions: { test: { levels: [1], type: 'sex' } },
+        selectedActions: { test: createActionEntry([1], 'sex') },
       };
 
       const result = await buildGameBoard(settings, 'en', 'online', 3);
@@ -119,8 +125,8 @@ describe('buildGameBoard service', () => {
       const settings = {
         ...baseSettings,
         selectedActions: {
-          group1: { levels: [1], type: 'sex' },
-          group2: { levels: [1], type: 'sex' },
+          group1: createActionEntry([1], 'sex'),
+          group2: createActionEntry([1], 'sex'),
         },
       };
 
@@ -133,7 +139,7 @@ describe('buildGameBoard service', () => {
   });
 
   describe('Role filtering', () => {
-    it.each([
+    it.each<[PlayerRole, string, number]>([
       ['sub', '{sub}', 1],
       ['dom', '{dom}', 1],
       ['sub', '{dom}', 0],
@@ -147,10 +153,10 @@ describe('buildGameBoard service', () => {
         vi.mocked(getCustomGroups).mockResolvedValue(groups);
         vi.mocked(getTiles).mockResolvedValue(tiles);
 
-        const settings = {
+        const settings: Settings = {
           ...baseSettings,
           role,
-          selectedActions: { roleGroup: { levels: [1], type: 'sex' } },
+          selectedActions: { roleGroup: createActionEntry([1], 'sex') },
         };
 
         const result = await buildGameBoard(settings, 'en', 'online', 2);
@@ -172,12 +178,12 @@ describe('buildGameBoard service', () => {
       vi.mocked(getCustomGroups).mockResolvedValue(groups);
       vi.mocked(getTiles).mockResolvedValue(tiles);
 
-      const settings = {
+      const settings: Settings = {
         ...baseSettings,
         role: 'vers',
         selectedActions: {
-          solo: { levels: [1], type: 'sex' },
-          consume: { levels: [1], type: 'consumption' },
+          solo: createActionEntry([1], 'sex'),
+          consume: createActionEntry([1], 'consumption'),
         },
       };
 
@@ -196,10 +202,10 @@ describe('buildGameBoard service', () => {
       vi.mocked(getCustomGroups).mockResolvedValue(groups);
       vi.mocked(getTiles).mockResolvedValue(tiles);
 
-      const settings = {
+      const settings: Settings = {
         ...baseSettings,
         role: 'vers',
-        selectedActions: { mix: { levels: [1], type: 'sex' } },
+        selectedActions: { mix: createActionEntry([1], 'sex') },
       };
 
       const result = await buildGameBoard(settings, 'en', 'online', 2);
@@ -222,7 +228,7 @@ describe('buildGameBoard service', () => {
 
       const settings = {
         ...baseSettings,
-        selectedActions: { test: { levels: [1, 3], type: 'sex' } },
+        selectedActions: { test: createActionEntry([1, 3], 'sex') },
       };
 
       const result = await buildGameBoard(settings, 'en', 'online', 2);
@@ -239,7 +245,7 @@ describe('buildGameBoard service', () => {
 
       const settings = {
         ...baseSettings,
-        selectedActions: { test: { levels: [1], type: 'sex' } },
+        selectedActions: { test: createActionEntry([1], 'sex') },
       };
 
       const result = await buildGameBoard(settings, 'en', 'online', 2);
@@ -257,7 +263,7 @@ describe('buildGameBoard service', () => {
 
       const settings = {
         ...baseSettings,
-        selectedActions: { test: { levels: [2], type: 'sex' } },
+        selectedActions: { test: createActionEntry([2], 'sex') },
       };
 
       const result = await buildGameBoard(settings, 'en', 'online', 2);
@@ -274,7 +280,7 @@ describe('buildGameBoard service', () => {
 
       const settings = {
         ...baseSettings,
-        selectedActions: { empty: { levels: [1], type: 'sex' } },
+        selectedActions: { empty: createActionEntry([1], 'sex') },
       };
 
       const result = await buildGameBoard(settings, 'en', 'online', 2);
@@ -292,7 +298,7 @@ describe('buildGameBoard service', () => {
 
       const settings = {
         ...baseSettings,
-        selectedActions: { test: { levels: [1], type: 'sex' } },
+        selectedActions: { test: createActionEntry([1], 'sex') },
       };
 
       const result = await buildGameBoard(settings, 'en', 'online', 2);

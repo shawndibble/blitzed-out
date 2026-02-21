@@ -606,5 +606,14 @@
       "constraintsNotSatisfied": "Votre caméra ou microphone ne répond pas aux paramètres requis. Essayez d'utiliser un autre appareil.",
       "unknown": "Impossible d'accéder à la caméra ou au microphone. Veuillez vérifier votre appareil et réessayer."
     }
-  }
+  },
+  "scanToJoin": "Scanner pour rejoindre",
+  "hapticFeedback": "Retour vibratoire",
+  "ambientMusic": "Musique d'ambiance",
+  "ambientMusicEnabled": "Activer la musique d'ambiance",
+  "ambientSoundscape": "Ambiance sonore",
+  "ambientVolume": "Volume",
+  "soundscapeLounge": "Lounge",
+  "soundscapeIntimate": "Intime",
+  "soundscapeParty": "Energie festive"
 }
