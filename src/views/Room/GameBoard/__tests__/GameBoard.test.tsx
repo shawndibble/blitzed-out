@@ -416,7 +416,7 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );
@@ -425,7 +425,7 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );
@@ -457,7 +457,7 @@ describe('GameBoard', () => {
         'sub', // Now uses settings.role instead of tile.role
         '',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );
