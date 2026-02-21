@@ -1,11 +1,28 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, MockedFunction } from 'vitest';
+import { haptic } from 'ios-haptics';
 import { isHapticSupported, vibrate } from '../haptics';
+
+vi.mock('ios-haptics', () => {
+  const mockFn = vi.fn() as MockedFunction<() => void> & {
+    error: MockedFunction<() => void>;
+    confirm: MockedFunction<() => void>;
+  };
+  mockFn.error = vi.fn();
+  mockFn.confirm = vi.fn();
+  return { haptic: mockFn };
+});
+
+const mockedHaptic = haptic as MockedFunction<() => void> & {
+  error: MockedFunction<() => void>;
+  confirm: MockedFunction<() => void>;
+};
 
 describe('haptics', () => {
   let originalNavigator: Navigator;
 
   beforeEach(() => {
     originalNavigator = global.navigator;
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -13,21 +30,36 @@ describe('haptics', () => {
       value: originalNavigator,
       writable: true,
     });
-    vi.restoreAllMocks();
   });
 
   describe('isHapticSupported', () => {
     it('returns true when navigator.vibrate exists', () => {
       Object.defineProperty(global, 'navigator', {
-        value: { vibrate: vi.fn() },
+        value: { vibrate: vi.fn(), userAgent: '' },
         writable: true,
       });
       expect(isHapticSupported()).toBe(true);
     });
 
-    it('returns false when navigator.vibrate does not exist', () => {
+    it('returns true for iOS devices', () => {
       Object.defineProperty(global, 'navigator', {
-        value: {},
+        value: { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)' },
+        writable: true,
+      });
+      expect(isHapticSupported()).toBe(true);
+    });
+
+    it('returns true for iPad devices', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: { userAgent: 'Mozilla/5.0 (iPad; CPU OS 17_0)' },
+        writable: true,
+      });
+      expect(isHapticSupported()).toBe(true);
+    });
+
+    it('returns false when navigator.vibrate does not exist and not iOS', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: { userAgent: 'Mozilla/5.0 (Windows NT 10.0)' },
         writable: true,
       });
       expect(isHapticSupported()).toBe(false);
@@ -43,80 +75,27 @@ describe('haptics', () => {
   });
 
   describe('vibrate', () => {
-    it('calls navigator.vibrate with 50ms for short pattern', () => {
-      const mockVibrate = vi.fn().mockReturnValue(true);
-      Object.defineProperty(global, 'navigator', {
-        value: { vibrate: mockVibrate },
-        writable: true,
-      });
-
-      const result = vibrate('short');
-
-      expect(mockVibrate).toHaveBeenCalledWith(50);
-      expect(result).toBe(true);
+    it('calls haptic once for short pattern', () => {
+      vibrate('short');
+      expect(mockedHaptic).toHaveBeenCalledTimes(1);
     });
 
-    it('calls navigator.vibrate with 100ms for medium pattern', () => {
-      const mockVibrate = vi.fn().mockReturnValue(true);
-      Object.defineProperty(global, 'navigator', {
-        value: { vibrate: mockVibrate },
-        writable: true,
-      });
-
-      const result = vibrate('medium');
-
-      expect(mockVibrate).toHaveBeenCalledWith(100);
-      expect(result).toBe(true);
+    it('calls haptic twice for medium pattern', () => {
+      vibrate('medium');
+      expect(mockedHaptic).toHaveBeenCalledTimes(2);
     });
 
-    it('calls navigator.vibrate with [100, 50, 100] for warning pattern', () => {
-      const mockVibrate = vi.fn().mockReturnValue(true);
-      Object.defineProperty(global, 'navigator', {
-        value: { vibrate: mockVibrate },
-        writable: true,
-      });
-
-      const result = vibrate('warning');
-
-      expect(mockVibrate).toHaveBeenCalledWith([100, 50, 100]);
-      expect(result).toBe(true);
+    it('calls haptic.error for warning pattern', () => {
+      vibrate('warning');
+      expect(mockedHaptic.error).toHaveBeenCalledTimes(1);
     });
 
-    it('returns false when haptic is not supported', () => {
-      Object.defineProperty(global, 'navigator', {
-        value: {},
-        writable: true,
+    it('does not throw when haptic fails', () => {
+      mockedHaptic.mockImplementationOnce(() => {
+        throw new Error('Haptic failed');
       });
 
-      const result = vibrate('short');
-
-      expect(result).toBe(false);
-    });
-
-    it('returns false when navigator.vibrate throws an error', () => {
-      const mockVibrate = vi.fn().mockImplementation(() => {
-        throw new Error('Vibrate failed');
-      });
-      Object.defineProperty(global, 'navigator', {
-        value: { vibrate: mockVibrate },
-        writable: true,
-      });
-
-      const result = vibrate('short');
-
-      expect(result).toBe(false);
-    });
-
-    it('returns false when navigator.vibrate returns false', () => {
-      const mockVibrate = vi.fn().mockReturnValue(false);
-      Object.defineProperty(global, 'navigator', {
-        value: { vibrate: mockVibrate },
-        writable: true,
-      });
-
-      const result = vibrate('medium');
-
-      expect(result).toBe(false);
+      expect(() => vibrate('short')).not.toThrow();
     });
   });
 });

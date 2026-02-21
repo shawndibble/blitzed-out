@@ -1,20 +1,30 @@
+import { haptic } from 'ios-haptics';
+
 export type HapticPattern = 'short' | 'medium' | 'warning';
 
-const PATTERNS: Record<HapticPattern, number | number[]> = {
-  short: 50,
-  medium: 100,
-  warning: [100, 50, 100],
-};
-
 export function isHapticSupported(): boolean {
-  return typeof navigator !== 'undefined' && 'vibrate' in navigator;
+  if (typeof navigator === 'undefined') return false;
+  if ('vibrate' in navigator) return true;
+  const userAgent = (navigator as Navigator).userAgent || '';
+  if (/iPhone|iPad|iPod/.test(userAgent)) return true;
+  return false;
 }
 
-export function vibrate(pattern: HapticPattern): boolean {
-  if (!isHapticSupported()) return false;
+export function vibrate(pattern: HapticPattern): void {
   try {
-    return navigator.vibrate(PATTERNS[pattern]);
+    switch (pattern) {
+      case 'short':
+        haptic();
+        break;
+      case 'medium':
+        haptic();
+        haptic();
+        break;
+      case 'warning':
+        haptic.error();
+        break;
+    }
   } catch {
-    return false;
+    // Haptic not supported or failed - silent fallback
   }
 }

@@ -8,6 +8,8 @@ import TabPanel from '@/components/TabPanel';
 import Tabs from '@mui/material/Tabs';
 import { a11yProps } from '@/helpers/strings';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '@/stores/settingsStore';
+import { vibrate } from '@/utils/haptics';
 
 export interface BottomTabsProps {
   tab1: ReactNode;
@@ -18,8 +20,12 @@ export interface BottomTabsProps {
 export default function BottomTabs({ tab1, tab2, tab3 }: BottomTabsProps): JSX.Element {
   const [value, setValue] = React.useState<number>(0);
   const { t } = useTranslation();
+  const [settings] = useSettings();
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number): void => {
+    if (settings?.hapticFeedback) {
+      vibrate('short');
+    }
     setValue(newValue);
   };
 

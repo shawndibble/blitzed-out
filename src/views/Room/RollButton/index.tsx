@@ -11,6 +11,7 @@ import { analytics } from '@/services/analytics';
 import DiceRoller from '@/components/DiceRoller';
 import { useSettings } from '@/stores/settingsStore';
 import { useDiceAnimationStore } from '@/stores/diceAnimationStore';
+import { vibrate } from '@/utils/haptics';
 
 interface RollButtonProps {
   setRollValue: (value: number) => void;
@@ -109,6 +110,10 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
     // Track engagement
     interactionCountRef.current += 1;
     analytics.trackEngagement('roll_button_click', 0, interactionCountRef.current);
+
+    if (settings.hapticFeedback) {
+      vibrate('short');
+    }
 
     if (selectedRoll === 'manual') {
       triggerDiceAnimation();
