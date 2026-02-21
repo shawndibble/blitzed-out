@@ -325,7 +325,7 @@ describe('GameBoard', () => {
           expect.objectContaining({ id: 'player1', name: 'Local Player 1', role: 'dom' }),
           expect.objectContaining({ id: 'player2', name: 'Local Player 2', role: 'sub' }),
         ]),
-        true,
+        false,
         undefined,
         undefined
       );
@@ -355,7 +355,7 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );
@@ -383,7 +383,7 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );
@@ -404,7 +404,7 @@ describe('GameBoard', () => {
         'dom',
         'Test User',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );
@@ -425,7 +425,7 @@ describe('GameBoard', () => {
         'vers',
         'Test User',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );
@@ -451,7 +451,7 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );
@@ -462,7 +462,7 @@ describe('GameBoard', () => {
         'sub',
         'Test User',
         undefined,
-        true,
+        false,
         undefined,
         undefined
       );

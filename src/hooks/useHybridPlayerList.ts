@@ -4,6 +4,7 @@ import usePlayerList from './usePlayerList';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { orderedMessagesByType } from '@/helpers/messages';
+import type { PlayerGender } from '@/types/localPlayers';
 
 interface BasePlayer {
   displayName: string;
@@ -20,6 +21,7 @@ export interface LocalPlayerExtended extends BasePlayer {
   localId: string;
   role: string;
   order: number;
+  gender?: PlayerGender;
 }
 
 interface RemotePlayer extends BasePlayer {
@@ -55,6 +57,7 @@ export default function useHybridPlayerList(): HybridPlayer[] {
           localId: localPlayer.id,
           role: localPlayer.role,
           order: localPlayer.order,
+          gender: localPlayer.gender,
         }))
         .sort((a, b) => a.order - b.order); // Sort by turn order
 

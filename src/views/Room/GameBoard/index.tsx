@@ -194,6 +194,7 @@ export default function GameBoard({
           deviceId: 'local-device',
           location: player.location,
           isFinished: player.isFinished,
+          gender: player.gender,
         });
       }
     });
@@ -229,7 +230,7 @@ export default function GameBoard({
             settings.role || 'sub',
             user?.displayName || '',
             localPlayers.length > 0 ? localPlayers : undefined,
-            true, // Use generic placeholders for GameBoard display
+            false,
             settings.gender,
             settings.locale
           )
