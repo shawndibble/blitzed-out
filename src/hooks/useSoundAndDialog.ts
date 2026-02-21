@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useSettings } from '@/stores/settingsStore';
 import diceSound from '@/sounds/roll-dice.mp3';
 import messageSound from '@/sounds/message.mp3';
@@ -13,6 +13,7 @@ import { Message } from '@/types/Message';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
 import { setDayjsLocale } from '@/helpers/momentLocale';
 import { vibrate } from '@/utils/haptics';
+import { useDiceAnimationStore } from '@/stores/diceAnimationStore';
 
 export interface DialogResult {
   message: Message | false;
@@ -28,6 +29,8 @@ export default function useSoundAndDialog(): DialogResult {
   const [playDiceSound] = useSound(diceSound);
   const [playMessageSound] = useSound(messageSound);
   const [settings] = useSettings();
+  const wasRecentAnimationSound = useDiceAnimationStore((state) => state.wasRecentAnimationSound);
+  const lastPlayedMessageIdRef = useRef<string | null>(null);
 
   const {
     playerDialog,
@@ -74,7 +77,9 @@ export default function useSoundAndDialog(): DialogResult {
   const showPlayerDialog = Boolean(playerDialog && myMessage);
   const showOthersDialog = Boolean(othersDialog && !myMessage);
   const playDiceSoundCondition =
-    ((myMessage && mySound) || (!myMessage && otherSound)) && latestMessage?.type === 'actions';
+    ((myMessage && mySound) || (!myMessage && otherSound)) &&
+    latestMessage?.type === 'actions' &&
+    !(myMessage && wasRecentAnimationSound());
   const speakTextCondition = myMessage && readRoll && latestMessage?.type === 'actions';
   const playMessageSoundCondition = chatSound && latestMessage?.type === 'chat';
 
@@ -91,26 +96,35 @@ export default function useSoundAndDialog(): DialogResult {
   }, [newMessage, latestMessage, showPlayerDialog, showOthersDialog]);
 
   useEffect(() => {
-    if (newMessage && latestMessage) {
-      if (playDiceSoundCondition) {
-        playDiceSound();
-        if (hapticFeedback) {
-          vibrate('short');
-        }
-      }
+    if (!newMessage || !latestMessage) return;
 
-      if (speakTextCondition) {
-        const text = extractAction(latestMessage?.text);
-        speakText(text);
-      }
+    // Skip sounds for optimistic messages - wait for the real Firebase message
+    if (latestMessage.id?.startsWith('optimistic-')) return;
 
-      if (playMessageSoundCondition) {
-        playMessageSound();
-      }
+    const parsedTimestamp = parseMessageTimestamp(latestMessage.timestamp);
+    const messageId = latestMessage.id ?? parsedTimestamp?.getTime().toString();
+    if (!messageId || lastPlayedMessageIdRef.current === messageId) return;
 
-      if (hapticFeedback && showPlayerDialog && latestMessage?.type === 'actions') {
-        vibrate('medium');
+    lastPlayedMessageIdRef.current = messageId;
+
+    if (playDiceSoundCondition) {
+      playDiceSound();
+      if (hapticFeedback) {
+        vibrate('short');
       }
+    }
+
+    if (speakTextCondition) {
+      const text = extractAction(latestMessage?.text);
+      speakText(text);
+    }
+
+    if (playMessageSoundCondition) {
+      playMessageSound();
+    }
+
+    if (hapticFeedback && showPlayerDialog && latestMessage?.type === 'actions') {
+      vibrate('medium');
     }
   }, [
     newMessage,

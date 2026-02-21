@@ -4,9 +4,10 @@ import { Box, Portal } from '@mui/material';
 export interface DiceRollerProps {
   diceNotation: string;
   targetValue: number | number[];
-  onComplete: (value: number) => void;
+  onComplete: (value: number, playedSound: boolean) => void;
   onFinished?: () => void;
   onError?: (error: Error) => void;
+  soundEnabled?: boolean;
 }
 
 type DiceBoxInstance = {
@@ -23,6 +24,7 @@ export default function DiceRoller({
   onComplete,
   onFinished,
   onError,
+  soundEnabled = false,
 }: DiceRollerProps): JSX.Element | null {
   const diceBoxRef = useRef<DiceBoxInstance | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -66,11 +68,14 @@ export default function DiceRoller({
         gravity_multiplier: 400,
         baseScale: 100,
         strength: 2,
+        sounds: soundEnabled,
+        sound_dieMaterial: 'plastic',
+        assetPath: '/sounds/dicebox/',
         onRollComplete: () => {
           const total = calculateTotal(targetValue);
 
-          // Trigger modal immediately
-          onComplete(total);
+          // Trigger modal immediately, passing whether sound was played during animation
+          onComplete(total, soundEnabled);
 
           // Start fade animation
           setIsFadingOut(true);
@@ -91,9 +96,9 @@ export default function DiceRoller({
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Failed to initialize dice');
       onError?.(err);
-      onComplete(calculateTotal(targetValue));
+      onComplete(calculateTotal(targetValue), false);
     }
-  }, [calculateTotal, onComplete, onError, targetValue]);
+  }, [calculateTotal, onComplete, onError, onFinished, targetValue, soundEnabled]);
 
   const containerRefCallback = useCallback(
     (node: HTMLDivElement | null) => {
@@ -126,7 +131,7 @@ export default function DiceRoller({
     diceBoxRef.current.roll(notation).catch((error: unknown) => {
       const err = error instanceof Error ? error : new Error('Roll failed');
       onError?.(err);
-      onComplete(calculateTotal(targetValue));
+      onComplete(calculateTotal(targetValue), false);
     });
   }, [
     isInitialized,

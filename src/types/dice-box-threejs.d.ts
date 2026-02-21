@@ -11,6 +11,9 @@ declare module '@3d-dice/dice-box-threejs' {
     baseScale?: number;
     strength?: number;
     sounds?: boolean;
+    volume?: number;
+    sound_dieMaterial?: 'plastic' | 'metal' | 'wood' | 'glass';
+    assetPath?: string;
     shadows?: boolean;
     onRollComplete?: (results: DiceRollResult) => void;
   }
