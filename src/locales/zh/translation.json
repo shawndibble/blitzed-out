@@ -142,8 +142,8 @@
   "playerDialog": "顯示我的擲骰對話框",
   "othersDialog": "顯示其他玩家的擲骰對話框",
   "sounds": "聲音",
-  "mySound": "啟用我的設定/任務聲音",
-  "otherSound": "啟用其他玩家的設定/任務聲音",
+  "mySound": "我的骰子声音",
+  "otherSound": "其他玩家的骰子声音",
   "chatSound": "啟用聊天訊息聲音",
   "readRoll": "閱讀我的擲骰動作",
   "voiceSelection": "語音",
@@ -606,5 +606,14 @@
       "constraintsNotSatisfied": "您的攝影機或麥克風不符合所需設定。請嘗試使用其他裝置。",
       "unknown": "無法存取攝影機或麥克風。請檢查您的裝置後重試。"
     }
-  }
+  },
+  "scanToJoin": "扫描加入",
+  "hapticFeedback": "震动反馈",
+  "ambientMusic": "环境音乐",
+  "ambientMusicEnabled": "启用环境音乐",
+  "ambientSoundscape": "音景",
+  "ambientVolume": "音量",
+  "soundscapeLounge": "休闲",
+  "soundscapeIntimate": "亲密",
+  "soundscapeParty": "派对能量"
 }

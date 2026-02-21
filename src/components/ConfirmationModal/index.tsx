@@ -11,6 +11,8 @@ import {
 import { ReactNode } from 'react';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useTranslation } from 'react-i18next';
+import { useSettings } from '@/stores/settingsStore';
+import { vibrate } from '@/utils/haptics';
 
 export interface ConfirmationModalProps {
   open: boolean;
@@ -39,6 +41,7 @@ export default function ConfirmationModal({
 }: ConfirmationModalProps): JSX.Element {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
+  const [settings] = useSettings();
 
   const handleCancel = (): void => {
     if (onCancel) {
@@ -49,11 +52,13 @@ export default function ConfirmationModal({
   };
 
   const handleConfirm = async (): Promise<void> => {
+    if (settings?.hapticFeedback) {
+      vibrate('short');
+    }
     try {
       await onConfirm();
       onClose();
-    } catch (error) {
-      console.error('Confirmation action failed:', error);
+    } catch {
       // Modal stays open if confirmation fails
     }
   };

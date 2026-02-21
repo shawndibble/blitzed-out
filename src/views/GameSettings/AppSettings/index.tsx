@@ -1,16 +1,25 @@
 import { ChangeEvent, useCallback, useRef } from 'react';
-import { Divider, Typography } from '@mui/material';
+import {
+  Box,
+  Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Slider,
+  Typography,
+} from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 
 import AppBoolSwitch from './AppBoolSwitch';
 import BackgroundSelect from '@/components/BackgroundSelect';
 import LanguageSelect from './LanguageSelect';
-import { Settings } from '@/types/Settings';
+import { AmbientSoundscape, Settings } from '@/types/Settings';
 import VoiceSelect from '@/components/VoiceSelect';
 import { isPublicRoom } from '@/helpers/strings';
 import { useSettings } from '@/stores/settingsStore';
 
-// Debounce utility
 function useDebounce<T extends any[]>(
   callback: (...args: T) => void,
   delay: number
@@ -55,8 +64,6 @@ export default function AppSettings({
   const handleSwitch = useCallback(
     (event: ChangeEvent<HTMLInputElement>, field: string): void => {
       setFormData({ ...formData, [field]: event.target.checked });
-      // normally we wouldn't update settings as it can be very slow, but for switch toggles,
-      // I want to ensure the local storage is updated immediately
       updateSettings({ [field]: event.target.checked });
     },
     [formData, setFormData, updateSettings]
@@ -64,23 +71,19 @@ export default function AppSettings({
 
   const handleVoiceChange = useCallback(
     (voiceName: string): void => {
-      // Update local storage immediately for voice changes
       updateSettings({ voicePreference: voiceName });
     },
     [updateSettings]
   );
 
-  // Debounced version of pitch update to reduce write churn
   const debouncedPitchUpdate = useDebounce((pitch: number) => {
     updateSettings({ voicePitch: pitch });
   }, 300);
 
   const handlePitchChange = useCallback(
     (pitch: number): void => {
-      // Clamp pitch to supported range (0.5-2.0)
       const clampedPitch = Math.max(0.5, Math.min(2.0, pitch));
 
-      // Only update if the pitch actually changed to avoid unnecessary writes
       if (settings?.voicePitch !== clampedPitch) {
         debouncedPitchUpdate(clampedPitch);
       }
@@ -95,7 +98,6 @@ export default function AppSettings({
       backgroundURLKey?: string,
       backgroundURLValue?: string
     ): void => {
-      // Update local storage immediately for background changes
       const updates: Partial<Settings> = { [backgroundKey]: backgroundValue };
       if (backgroundURLKey && backgroundURLValue !== undefined) {
         updates[backgroundURLKey] = backgroundURLValue;
@@ -104,6 +106,40 @@ export default function AppSettings({
     },
     [updateSettings]
   );
+
+  const handleAmbientSoundscapeChange = useCallback(
+    (event: SelectChangeEvent): void => {
+      const soundscape = event.target.value as AmbientSoundscape;
+      setFormData({ ...formData, ambientSoundscape: soundscape });
+      updateSettings({ ambientSoundscape: soundscape });
+    },
+    [formData, setFormData, updateSettings]
+  );
+
+  const debouncedAmbientVolumeUpdate = useDebounce((volume: number) => {
+    updateSettings({ ambientVolume: volume });
+  }, 300);
+
+  const handleAmbientVolumeChange = useCallback(
+    (_event: Event, newVolume: number | number[]): void => {
+      const volume = Array.isArray(newVolume) ? newVolume[0] : newVolume;
+      setFormData({ ...formData, ambientVolume: volume });
+    },
+    [formData, setFormData]
+  );
+
+  const handleAmbientVolumeCommit = useCallback(
+    (_event: Event | React.SyntheticEvent, newVolume: number | number[]): void => {
+      const volume = Array.isArray(newVolume) ? newVolume[0] : newVolume;
+      const clampedVolume = Math.max(0, Math.min(1, volume));
+      setFormData({ ...formData, ambientVolume: clampedVolume });
+      debouncedAmbientVolumeUpdate(clampedVolume);
+    },
+    [formData, setFormData, debouncedAmbientVolumeUpdate]
+  );
+
+  const ambientVolume = formData.ambientVolume ?? 0.3;
+  const ambientSoundscape = formData.ambientSoundscape ?? 'lounge';
 
   return (
     <>
@@ -134,6 +170,53 @@ export default function AppSettings({
           onVoiceChange={handleVoiceChange}
           onPitchChange={handlePitchChange}
         />
+      )}
+
+      <AppBoolSwitch field="hapticFeedback" formData={formData} handleSwitch={handleSwitch} />
+
+      <Divider />
+
+      <Typography variant="h5" sx={{ mt: 2 }}>
+        <Trans i18nKey="ambientMusic" />
+      </Typography>
+
+      <AppBoolSwitch field="ambientMusicEnabled" formData={formData} handleSwitch={handleSwitch} />
+
+      {formData.ambientMusicEnabled && (
+        <Box sx={{ py: 1 }}>
+          <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+            <InputLabel id="ambient-soundscape-label">{t('ambientSoundscape')}</InputLabel>
+            <Select
+              labelId="ambient-soundscape-label"
+              value={ambientSoundscape}
+              label={t('ambientSoundscape')}
+              onChange={handleAmbientSoundscapeChange}
+            >
+              <MenuItem value="lounge">{t('soundscapeLounge')}</MenuItem>
+              <MenuItem value="intimate">{t('soundscapeIntimate')}</MenuItem>
+              <MenuItem value="party">{t('soundscapeParty')}</MenuItem>
+            </Select>
+          </FormControl>
+
+          <Box sx={{ px: 2 }}>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              {t('ambientVolume')}
+            </Typography>
+            <Box sx={{ px: 1 }}>
+              <Slider
+                value={ambientVolume}
+                onChange={handleAmbientVolumeChange}
+                onChangeCommitted={handleAmbientVolumeCommit}
+                min={0}
+                max={1}
+                step={0.05}
+                valueLabelDisplay="auto"
+                valueLabelFormat={(value) => `${Math.round(value * 100)}%`}
+                size="small"
+              />
+            </Box>
+          </Box>
+        </Box>
       )}
 
       <Divider />

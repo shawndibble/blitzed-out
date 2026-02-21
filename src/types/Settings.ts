@@ -3,6 +3,8 @@ import { LocalSessionSettings, PlayerGender } from './localPlayers';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
+export type AmbientSoundscape = 'lounge' | 'intimate' | 'party';
+
 export interface Settings {
   gameMode: GameMode;
   roomRealtime?: boolean;
@@ -15,6 +17,7 @@ export interface Settings {
   mySound?: boolean;
   otherSound?: boolean;
   chatSound?: boolean;
+  hapticFeedback?: boolean;
   hideBoardActions?: boolean;
   locale?: string;
   background?: string;
@@ -40,6 +43,12 @@ export interface Settings {
   showDiceAnimation?: boolean;
   /** Local player settings for single-device multiplayer (optional) */
   localPlayers?: LocalSessionSettings;
+  /** Enable ambient background music */
+  ambientMusicEnabled?: boolean;
+  /** Selected ambient soundscape */
+  ambientSoundscape?: AmbientSoundscape;
+  /** Ambient music volume (0-1) */
+  ambientVolume?: number;
   [key: string]: any;
 }
 

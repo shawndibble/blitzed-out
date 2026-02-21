@@ -54,7 +54,9 @@ export const useMessagesStore = create<MessagesStore>()(
       loadMessages: (messages) => {
         // Cast messages to proper type since Firebase returns any[]
         const typedMessages = messages as Message[];
-        const sortedMessages = normalSortedMessages(typedMessages);
+        // Filter out any optimistic messages when loading real messages from Firebase
+        const filteredMessages = typedMessages.filter((msg) => !msg.id?.startsWith('optimistic-'));
+        const sortedMessages = normalSortedMessages(filteredMessages);
         set({
           messages: sortedMessages,
           loading: false,

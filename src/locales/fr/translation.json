@@ -142,8 +142,8 @@
   "playerDialog": "Afficher mon dialogue de lancer",
   "othersDialog": "Afficher le dialogue de lancer des autres joueurs",
   "sounds": "Sons",
-  "mySound": "Activer les sons de mes paramètres/tâches",
-  "otherSound": "Activer les sons des paramètres/tâches des autres joueurs",
+  "mySound": "Mes lancers de dés",
+  "otherSound": "Lancers des autres joueurs",
   "chatSound": "Activer les sons des messages de chat",
   "readRoll": "Lire mes actions de lancer",
   "voiceSelection": "Voix",
@@ -606,5 +606,14 @@
       "constraintsNotSatisfied": "Votre caméra ou microphone ne répond pas aux paramètres requis. Essayez d'utiliser un autre appareil.",
       "unknown": "Impossible d'accéder à la caméra ou au microphone. Veuillez vérifier votre appareil et réessayer."
     }
-  }
+  },
+  "scanToJoin": "Scanner pour rejoindre",
+  "hapticFeedback": "Retour vibratoire",
+  "ambientMusic": "Musique d'ambiance",
+  "ambientMusicEnabled": "Activer la musique d'ambiance",
+  "ambientSoundscape": "Ambiance sonore",
+  "ambientVolume": "Volume",
+  "soundscapeLounge": "Lounge",
+  "soundscapeIntimate": "Intime",
+  "soundscapeParty": "Energie festive"
 }

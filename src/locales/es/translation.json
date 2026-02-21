@@ -142,8 +142,8 @@
   "playerDialog": "Mostrar mi diálogo de tirada",
   "othersDialog": "Mostrar diálogo de tirada de otros jugadores",
   "sounds": "Sonidos",
-  "mySound": "Habilitar sonidos de mis configuraciones/tareas",
-  "otherSound": "Habilitar sonidos de configuraciones/tareas de otros jugadores",
+  "mySound": "Mis tiradas de dados",
+  "otherSound": "Tiradas de otros jugadores",
   "chatSound": "Habilitar sonidos de mensajes de chat",
   "readRoll": "Leer mis acciones de tirada",
   "voiceSelection": "Voz",
@@ -606,5 +606,14 @@
       "constraintsNotSatisfied": "Su cámara o micrófono no cumple con la configuración requerida. Intente usar un dispositivo diferente.",
       "unknown": "No se pudo acceder a la cámara o al micrófono. Verifique su dispositivo e intente nuevamente."
     }
-  }
+  },
+  "scanToJoin": "Escanear para unirse",
+  "hapticFeedback": "Retroalimentacion vibratoria",
+  "ambientMusic": "Musica Ambiental",
+  "ambientMusicEnabled": "Habilitar musica ambiental",
+  "ambientSoundscape": "Paisaje sonoro",
+  "ambientVolume": "Volumen",
+  "soundscapeLounge": "Lounge",
+  "soundscapeIntimate": "Intimo",
+  "soundscapeParty": "Energia de fiesta"
 }

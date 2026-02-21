@@ -66,40 +66,38 @@ export default defineConfig({
           constBindings: true,
           objectShorthand: false, // Avoid object shorthand for better compatibility
         },
-        manualChunks: {
-          // Bundle core libraries together for faster loading
-          vendor: [
-            'react',
-            'react-dom',
-            'react-router',
-            'react-router-dom',
-            'i18next',
-            'react-i18next',
-            'i18next-browser-languagedetector',
-            'i18next-resources-to-backend',
-            '@mui/material',
-            '@emotion/react',
-            '@emotion/styled',
-          ],
-          // Bundle critical providers together for Safari compatibility
-          'critical-providers': [
-            'src/context/theme.tsx',
-            'src/context/migration.tsx',
-            'src/context/schedule.tsx',
-            'src/components/AllProviders/index.tsx',
-          ],
-          // Bundle MUI icons separately since they're used less frequently
-          'mui-icons': ['@mui/icons-material', '@mui/x-date-pickers'],
-          // Bundle data/state management together
-          data: [
-            'firebase/app',
-            'firebase/auth',
-            'firebase/firestore',
-            'firebase/database',
-            'firebase/storage',
-          ],
-          // Bundle utilities together
-          utils: ['zustand', 'dexie', 'dexie-react-hooks', 'dayjs', 'nanoid', 'clsx', 'js-sha256'],
+        manualChunks: (id) => {
+          if (!id.includes('node_modules/')) return;
+
+          // Chunk mapping: pattern -> chunk name
+          const chunkMap: [string[], string][] = [
+            [['react/', 'react-dom/'], 'react-core'],
+            [['@mui/icons-material/'], 'mui-icons'],
+            [['@mui/x-date-pickers/'], 'mui-date'],
+            [
+              [
+                '@mui/material/',
+                '@mui/system/',
+                '@mui/utils/',
+                '@mui/private-theming/',
+                '@mui/styled-engine/',
+              ],
+              'mui',
+            ],
+            [['@emotion/'], 'emotion'],
+            [['react-router'], 'router'],
+            [['i18next', 'react-i18next'], 'i18n'],
+            [['firebase/', '@firebase/'], 'firebase'],
+            [['zustand/'], 'state'],
+            [['dexie'], 'db'],
+            [['dayjs/', 'nanoid/', 'clsx/', 'js-sha256/'], 'utils'],
+          ];
+
+          for (const [patterns, chunk] of chunkMap) {
+            if (patterns.some((p) => id.includes(`node_modules/${p}`))) {
+              return chunk;
+            }
+          }
         },
         // Optimize chunk sizes
         chunkFileNames: (chunkInfo) => {

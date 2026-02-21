@@ -8,6 +8,7 @@ import useReturnToStart from '@/hooks/useReturnToStart';
 import { useCallback, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import GameSettings from '@/views/GameSettings';
+import { vibrate } from '@/utils/haptics';
 
 interface GameOverDialogProps {
   isOpen?: boolean;
@@ -27,20 +28,29 @@ export default function GameOverDialog({
   const [settings] = useSettings();
 
   const returnToStart = useCallback(() => {
+    if (settings?.hapticFeedback) {
+      vibrate('short');
+    }
     sentUserToStart();
     close();
-  }, [sentUserToStart, close]);
+  }, [sentUserToStart, close, settings?.hapticFeedback]);
 
   const rebuild = useCallback(async () => {
+    if (settings?.hapticFeedback) {
+      vibrate('short');
+    }
     await updateGameBoardTiles({ ...settings, boardUpdated: true });
     sentUserToStart();
     close();
   }, [updateGameBoardTiles, settings, sentUserToStart, close]);
 
   const openSettings = useCallback(() => {
+    if (settings?.hapticFeedback) {
+      vibrate('short');
+    }
     setOpenSettingsDialog(true);
     close();
-  }, [close]);
+  }, [close, settings?.hapticFeedback]);
 
   const closeSettings = useCallback(() => {
     setOpenSettingsDialog(false);

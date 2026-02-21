@@ -9,11 +9,13 @@ import {
   Typography,
 } from '@mui/material';
 import { Pause, PlayArrow, Replay } from '@mui/icons-material';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import CloseIcon from '@/components/CloseIcon';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import useCountdown from '@/hooks/useCountdown';
+import { useSettings } from '@/stores/settingsStore';
+import { vibrate } from '@/utils/haptics';
 
 interface CountDownButtonModalProps {
   textString: string;
@@ -28,6 +30,8 @@ export default function CountDownButtonModal({
 }: CountDownButtonModalProps): JSX.Element {
   const [open, setOpen] = useState<boolean>(false);
   const isMobile = useBreakpoint();
+  const [settings] = useSettings();
+  const warningFiredRef = useRef<boolean>(false);
 
   const [time, seconds] = textString.split(' ');
   let totalSeconds = parseInt(time, 10);
@@ -43,14 +47,23 @@ export default function CountDownButtonModal({
     handleClose
   );
 
+  useEffect(() => {
+    if (timeLeft === 10 && settings?.hapticFeedback && !warningFiredRef.current) {
+      vibrate('warning');
+      warningFiredRef.current = true;
+    }
+    if (timeLeft > 10) {
+      warningFiredRef.current = false;
+    }
+  }, [timeLeft, settings?.hapticFeedback]);
+
   const clickedButton = () => {
     preventParentClose();
     setOpen(true);
     setTimeLeft(totalSeconds);
+    warningFiredRef.current = false;
     if (isPaused) togglePause();
   };
-
-  // end handle timeout of TransitionModal.
 
   return (
     <>
@@ -120,7 +133,10 @@ export default function CountDownButtonModal({
                 {isPaused ? <PlayArrow /> : <Pause />}
               </IconButton>
               <IconButton
-                onClick={() => setTimeLeft(totalSeconds)}
+                onClick={() => {
+                  setTimeLeft(totalSeconds);
+                  warningFiredRef.current = false;
+                }}
                 color="primary"
                 aria-label="restart countdown"
               >

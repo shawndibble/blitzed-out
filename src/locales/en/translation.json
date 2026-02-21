@@ -139,8 +139,8 @@
   "playerDialog": "Show my roll dialog",
   "othersDialog": "Show other players' roll dialog",
   "sounds": "Sounds",
-  "mySound": "Enable my setup/tasks sounds",
-  "otherSound": "Enable other player's setup/tasks sounds",
+  "mySound": "My dice rolls",
+  "otherSound": "Other player's dice rolls",
   "chatSound": "Enable chat message sounds",
   "readRoll": "Read my roll actions",
   "voiceSelection": "Voice",
@@ -606,5 +606,14 @@
       "constraintsNotSatisfied": "Your camera or microphone doesn't meet the required settings. Try using a different device.",
       "unknown": "Failed to access camera or microphone. Please check your device and try again."
     }
-  }
+  },
+  "scanToJoin": "Scan to join",
+  "hapticFeedback": "Vibration feedback",
+  "ambientMusic": "Ambient Music",
+  "ambientMusicEnabled": "Enable ambient music",
+  "ambientSoundscape": "Soundscape",
+  "ambientVolume": "Volume",
+  "soundscapeLounge": "Lounge",
+  "soundscapeIntimate": "Intimate",
+  "soundscapeParty": "Party Energy"
 }
