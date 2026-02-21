@@ -53,11 +53,11 @@ export default function Message({
 }: MessageProps): JSX.Element {
   const { t, i18n } = useTranslation();
 
-  const [isOpenDialog, setDialog] = useState<boolean>(false);
+  const [isOpenDialog, setIsOpenDialog] = useState<boolean>(false);
   const [detailsAnchor, setDetailsAnchor] = useState<HTMLElement | null>(null);
 
   const closeDialog = useCallback(() => {
-    setDialog(false);
+    setIsOpenDialog(false);
   }, []);
 
   const handleDetailsClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
@@ -303,7 +303,7 @@ export default function Message({
         {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
         {typeof text === 'string' && text.includes(t('finish')) && isOwnMessage && (
           <Box textAlign="center" className="message-action-box">
-            <Button onClick={() => setDialog(true)} variant="outlined" size="small">
+            <Button onClick={() => setIsOpenDialog(true)} variant="outlined" size="small">
               <Typography>{t('playAgain')}</Typography>
             </Button>
             <GameOverDialog isOpen={isOpenDialog} close={closeDialog} />

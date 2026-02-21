@@ -13,7 +13,7 @@ interface BackgroundResult {
   url: string;
 }
 
-export default function usePrivateRoomBackground(messages: Message[]): BackgroundResult {
+export default function getPrivateRoomBackground(messages: Message[]): BackgroundResult {
   const roomMessage = latestMessageByType(messages, 'room') as RoomMessage | undefined;
   let isVideo = false;
   let url = '';

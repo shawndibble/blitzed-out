@@ -16,7 +16,7 @@ import { t } from 'i18next';
 import useFullscreenStatus from '@/hooks/useFullscreenStatus';
 import useMessages from '@/context/hooks/useMessages';
 import { useParams } from 'react-router-dom';
-import usePrivateRoomBackground from '@/hooks/usePrivateRoomBackground';
+import getPrivateRoomBackground from '@/helpers/getPrivateRoomBackground';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 
 const ACTION_TYPE = 'actions';
@@ -43,7 +43,7 @@ export default function Cast() {
   // Get messages context - let it throw if context is not available, we'll catch it with error boundary
   const { messages, isLoading } = useMessages();
 
-  const { isVideo, url } = usePrivateRoomBackground(messages);
+  const { isVideo, url } = getPrivateRoomBackground(messages);
 
   const lastAction = latestMessageByType(messages, ACTION_TYPE);
   const nextPlayer = useTurnIndicator(lastAction);

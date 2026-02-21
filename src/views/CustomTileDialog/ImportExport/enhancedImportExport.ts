@@ -45,7 +45,7 @@ export async function exportCleanData(
     return await exportAllData(exportOptions);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Export failed: ${message}`);
+    throw new Error(`Export failed: ${message}`, { cause: error });
   }
 }
 
@@ -80,7 +80,7 @@ export async function importCleanData(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Import failed: ${message}`);
+    throw new Error(`Import failed: ${message}`, { cause: error });
   }
 }
 
@@ -123,7 +123,7 @@ export async function exportCustomData(_locale = 'en', _gameMode = 'online'): Pr
     return JSON.stringify(exportData, null, 2);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Export failed: ${message}`);
+    throw new Error(`Export failed: ${message}`, { cause: error });
   }
 }
 
@@ -153,7 +153,7 @@ export async function exportDisabledDefaults(
     return JSON.stringify(exportData, null, 2);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Export failed: ${message}`);
+    throw new Error(`Export failed: ${message}`, { cause: error });
   }
 }
 
@@ -203,7 +203,7 @@ export async function autoImportData(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Import failed: ${message}`);
+    throw new Error(`Import failed: ${message}`, { cause: error });
   }
 }
 

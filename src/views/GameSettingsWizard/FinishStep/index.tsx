@@ -71,6 +71,7 @@ export default function FinishStep({
         if (willNavigate) {
           // Use flushSync to ensure DOM is properly reconciled before navigation
           // https://reactjs.org/docs/flush-sync.html - Forces synchronous DOM updates
+          // eslint-disable-next-line @eslint-react/dom/no-flush-sync -- Intentional: ensures DOM is reconciled before route change
           flushSync(() => {
             close();
           });
@@ -83,13 +84,8 @@ export default function FinishStep({
       }
     } catch (error) {
       console.error('Error submitting settings:', error);
-      // On error, close immediately since no navigation occurred
       if (typeof close === 'function') {
-        // Ensure DOM is reconciled before closing on error
-        // https://reactjs.org/docs/flush-sync.html - Forces synchronous DOM updates
-        flushSync(() => {
-          close();
-        });
+        close();
       }
     } finally {
       setIsLoading(false);

@@ -11,24 +11,24 @@ const PopupMessage = (): JSX.Element | null => {
   const nextPlayer = useTurnIndicator(message as Message);
 
   // handle timeout of TransitionModal
-  const timeoutId = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timeoutIdRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     if (message) {
-      timeoutId.current = setTimeout(() => setMessage(false), 21000);
+      timeoutIdRef.current = setTimeout(() => setMessage(false), 21000);
     }
     return () => {
-      if (timeoutId.current) clearTimeout(timeoutId.current);
+      if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
     };
   }, [message, setMessage]);
 
   const closeTransitionModal = useCallback(() => {
-    if (timeoutId.current) clearTimeout(timeoutId.current);
+    if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
     setMessage(false);
   }, [setMessage]);
 
   const stopAutoClose = useCallback(() => {
-    if (timeoutId.current) clearTimeout(timeoutId.current);
+    if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
   }, []);
   // end handle timeout of TransitionModal.
 

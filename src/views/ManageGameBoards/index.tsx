@@ -37,7 +37,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   const gameBoards = useLiveQuery(getBoards);
   const [alert, setAlert] = useState<AlertState | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<number>(0);
-  const [expandedElement, setExpanded] = useState<number>(0);
+  const [expandedElement, setExpandedElement] = useState<number>(0);
   const settings = useSettings()[0];
   const { user } = useAuth();
 
@@ -98,7 +98,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
 
   const addBoard = async () => {
     const boardId = (await upsertBoard({ isActive: 0 })) || 0;
-    setExpanded(boardId);
+    setExpandedElement(boardId);
   };
 
   const enableBoard = (board: any) => {
@@ -120,7 +120,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   };
 
   const handleExpand = (panel: number) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
-    setExpanded(newExpanded ? panel : 0);
+    setExpandedElement(newExpanded ? panel : 0);
   };
 
   const invalidBoard = (board: any) =>

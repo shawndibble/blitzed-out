@@ -15,15 +15,16 @@ export default function CastButton(): JSX.Element | null {
   const [castSession, setCastSession] = useState<any>(null);
   const { id: room } = useParams<Params>();
   const castButtonRef = useRef<HTMLButtonElement>(null);
+  const sessionListenerRef = useRef<((event: { sessionState: string }) => void) | null>(null);
   const [castReady, setCastReady] = useState<boolean>(false);
-  const [userRequestedStop, setUserRequestedStop] = useState<boolean>(false);
+  const userRequestedStopRef = useRef<boolean>(false);
 
   // Reset casting state and session
   const resetCastingState = useCallback((clearUserStopFlag = false) => {
     setIsCasting(false);
     setCastSession(null);
     if (clearUserStopFlag) {
-      setUserRequestedStop(false);
+      userRequestedStopRef.current = false;
     }
   }, []);
 
@@ -94,36 +95,40 @@ export default function CastButton(): JSX.Element | null {
 
         if (!window?.cast?.framework) return;
 
-        // Set up session state listener
+        const handleSessionStateChanged = (event: { sessionState: string }) => {
+          const session = castContext.getCurrentSession();
+
+          switch (event.sessionState) {
+            case window.cast?.framework?.SessionState.SESSION_STARTED:
+            case window.cast?.framework?.SessionState.SESSION_RESUMED:
+              if (!userRequestedStopRef.current) {
+                setIsCasting(true);
+                setCastSession(session);
+                if (session && room) {
+                  sendCastMessage(session);
+                }
+              }
+              break;
+            case window.cast?.framework?.SessionState.SESSION_ENDED:
+              resetCastingState(true); // Clear user stop flag when session actually ends
+              break;
+            default:
+              // Handle SESSION_STARTING and SESSION_ENDING states
+              if (event.sessionState === 'SESSION_ENDING') {
+                resetCastingState();
+              }
+              break;
+          }
+        };
+
+        // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener -- Cleanup handled via sessionListenerRef
         castContext.addEventListener(
           window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-          (event: { sessionState: string }) => {
-            const session = castContext.getCurrentSession();
-
-            switch (event.sessionState) {
-              case window.cast?.framework?.SessionState.SESSION_STARTED:
-              case window.cast?.framework?.SessionState.SESSION_RESUMED:
-                // Only set to casting if user didn't request stop
-                if (!userRequestedStop) {
-                  setIsCasting(true);
-                  setCastSession(session);
-                  if (session && room) {
-                    sendCastMessage(session);
-                  }
-                }
-                break;
-              case window.cast?.framework?.SessionState.SESSION_ENDED:
-                resetCastingState(true); // Clear user stop flag when session actually ends
-                break;
-              default:
-                // Handle SESSION_STARTING and SESSION_ENDING states
-                if (event.sessionState === 'SESSION_ENDING') {
-                  resetCastingState();
-                }
-                break;
-            }
-          }
+          handleSessionStateChanged
         );
+
+        // Store reference only after successful registration for cleanup
+        sessionListenerRef.current = handleSessionStateChanged;
       } catch (error) {
         console.error('Error setting up session listener:', error);
       }
@@ -156,11 +161,21 @@ export default function CastButton(): JSX.Element | null {
       }
     }
 
-    // Cleanup function
     return () => {
-      // Don't reset the global callback as other instances might need it
+      if (sessionListenerRef.current && window.cast?.framework) {
+        try {
+          const castContext = window.cast.framework.CastContext.getInstance();
+          castContext.removeEventListener(
+            window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+            sessionListenerRef.current
+          );
+          sessionListenerRef.current = null;
+        } catch {
+          // Ignore errors during cleanup
+        }
+      }
     };
-  }, [room, sendCastMessage, userRequestedStop, resetCastingState]);
+  }, [room, sendCastMessage, resetCastingState]);
 
   // Function to toggle casting
   const toggleCasting = () => {
@@ -171,7 +186,7 @@ export default function CastButton(): JSX.Element | null {
 
     if (isCasting) {
       // Stop casting
-      setUserRequestedStop(true);
+      userRequestedStopRef.current = true;
 
       // Immediately set state since user requested it - don't wait for API response
       resetCastingState();
@@ -190,8 +205,7 @@ export default function CastButton(): JSX.Element | null {
         // Silently ignore disconnect errors since we've already updated the UI
       }
     } else {
-      // Clear user stop flag when starting new session
-      setUserRequestedStop(false);
+      userRequestedStopRef.current = false;
       // Start casting
       try {
         const castContext = window.cast?.framework?.CastContext.getInstance();

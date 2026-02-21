@@ -39,7 +39,6 @@ export async function fetchRedditImages(
   signal: AbortSignal
 ): Promise<string[]> {
   const collected = new Set<string>();
-  let after: string | null = null;
 
   const endpoints = [
     // Use Reddit RSS/JSON feeds which are more permissive
@@ -140,7 +139,7 @@ export async function fetchRedditImages(
 
   let endpointIndex = 0;
   while (collected.size < maxCount && endpointIndex < endpoints.length) {
-    after = null;
+    let after: string | null = null;
     for (let page = 0; page < 5 && collected.size < maxCount; page += 1) {
       const url = endpoints[endpointIndex](after);
       const json = await fetchJson(url);

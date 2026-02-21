@@ -91,7 +91,8 @@ export class LocalPlayerService {
       return session;
     } catch (error) {
       throw new Error(
-        `Failed to create local player session: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to create local player session: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { cause: error }
       );
     }
   }
@@ -116,7 +117,8 @@ export class LocalPlayerService {
       return this.convertDbSessionToSession(dbSession);
     } catch (error) {
       throw new Error(
-        `Failed to get session: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to get session: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { cause: error }
       );
     }
   }
@@ -170,7 +172,8 @@ export class LocalPlayerService {
       return updatedSession;
     } catch (error) {
       throw new Error(
-        `Failed to update session: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to update session: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { cause: error }
       );
     }
   }
@@ -217,7 +220,8 @@ export class LocalPlayerService {
       return updatedSession.players[nextIndex];
     } catch (error) {
       throw new Error(
-        `Failed to advance turn: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to advance turn: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { cause: error }
       );
     }
   }
@@ -285,7 +289,8 @@ export class LocalPlayerService {
       return updatedPlayers[playerIndex];
     } catch (error) {
       throw new Error(
-        `Failed to update player position: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to update player position: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { cause: error }
       );
     }
   }

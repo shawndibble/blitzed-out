@@ -25,7 +25,7 @@ export function MinimalAuthProvider({ children }: MinimalAuthProviderProps) {
   useEffect(() => {
     // Quick check for existing auth without loading Firebase
     const checkAuth = () => {
-      let hasStoredAuth = false;
+      let hasStoredAuth: boolean;
 
       try {
         // Check if there's a stored user session or token
@@ -48,7 +48,9 @@ export function MinimalAuthProvider({ children }: MinimalAuthProviderProps) {
     };
 
     // Small delay to allow instant loading screen to show
-    setTimeout(checkAuth, 50);
+    const timeoutId = setTimeout(checkAuth, 50);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (

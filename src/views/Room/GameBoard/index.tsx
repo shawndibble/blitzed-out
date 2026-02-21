@@ -36,14 +36,14 @@ export default function GameBoard({
   const gameboardRef = useRef<HTMLDivElement>(null);
   const animationLayerRef = useRef<TokenAnimationLayerRef>(null);
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
-  const previousPlayerLocations = useRef<Map<string, number>>(new Map());
+  const previousPlayerLocationsRef = useRef<Map<string, number>>(new Map());
   const scrollTargetRef = useRef<{ playerId: string; targetTile: number } | null>(null);
   const [animatingPlayer, setAnimatingPlayer] = useState<{
     playerId: string;
     targetTile: number;
   } | null>(null);
-  const animationDebounceTimer = useRef<number | null>(null);
-  const pendingAnimations = useRef<Map<string, TokenPosition>>(new Map());
+  const animationDebounceTimerRef = useRef<number | null>(null);
+  const pendingAnimationsRef = useRef<Map<string, TokenPosition>>(new Map());
 
   // Track player movement and trigger animations with debouncing
   const handlePlayerMovement = useCallback(() => {
@@ -51,7 +51,7 @@ export default function GameBoard({
 
     playerList.forEach((player) => {
       const currentLocation = player.location || 0;
-      const previousLocation = previousPlayerLocations.current.get(player.uid);
+      const previousLocation = previousPlayerLocationsRef.current.get(player.uid);
 
       if (previousLocation !== undefined && previousLocation !== currentLocation) {
         if (player.isSelf) {
@@ -66,23 +66,23 @@ export default function GameBoard({
           isCurrent: player.isSelf || false,
         };
 
-        pendingAnimations.current.set(player.uid, tokenPosition);
+        pendingAnimationsRef.current.set(player.uid, tokenPosition);
       }
 
-      previousPlayerLocations.current.set(player.uid, currentLocation);
+      previousPlayerLocationsRef.current.set(player.uid, currentLocation);
     });
 
-    if (animationDebounceTimer.current) {
-      clearTimeout(animationDebounceTimer.current);
+    if (animationDebounceTimerRef.current) {
+      clearTimeout(animationDebounceTimerRef.current);
     }
 
-    animationDebounceTimer.current = window.setTimeout(() => {
-      pendingAnimations.current.forEach((tokenPosition) => {
+    animationDebounceTimerRef.current = window.setTimeout(() => {
+      pendingAnimationsRef.current.forEach((tokenPosition) => {
         setAnimatingPlayer({ playerId: tokenPosition.playerId, targetTile: tokenPosition.toTile });
         animationLayerRef.current?.animateTokenMovement(tokenPosition);
       });
-      pendingAnimations.current.clear();
-      animationDebounceTimer.current = null;
+      pendingAnimationsRef.current.clear();
+      animationDebounceTimerRef.current = null;
     }, 100);
   }, [playerList]);
 
@@ -90,8 +90,8 @@ export default function GameBoard({
     handlePlayerMovement();
 
     return () => {
-      if (animationDebounceTimer.current) {
-        clearTimeout(animationDebounceTimer.current);
+      if (animationDebounceTimerRef.current) {
+        clearTimeout(animationDebounceTimerRef.current);
       }
     };
   }, [handlePlayerMovement]);

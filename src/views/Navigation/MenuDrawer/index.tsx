@@ -69,8 +69,8 @@ export default function MenuDrawer(): JSX.Element {
   const { user, wipeAllData, isAnonymous } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
-  const [menuOpen, setMenu] = useState<boolean>(false);
-  const toggleDrawer = useCallback((isOpen: boolean): void => setMenu(isOpen), []);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const toggleDrawer = useCallback((isOpen: boolean): void => setMenuOpen(isOpen), []);
   const gameSettings = useSettings()[0];
 
   const [open, setOpen] = useState<DialogState>({

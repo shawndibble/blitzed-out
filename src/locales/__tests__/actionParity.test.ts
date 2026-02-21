@@ -58,8 +58,7 @@ describe('Action Count Parity Validation', () => {
       };
     } catch (error) {
       console.error(`Error parsing ${filePath}:`, error);
-      // Throw the error to fail the test instead of returning zeros
-      throw new Error(`Failed to parse ${filePath}: ${error}`);
+      throw new Error(`Failed to parse ${filePath}: ${error}`, { cause: error });
     }
   };
 

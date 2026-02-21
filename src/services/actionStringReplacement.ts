@@ -321,10 +321,8 @@ function replaceNonLocalPlaceholders(
   currentPlayerGender: PlayerGender | undefined,
   locale: string
 ): string {
-  let result = action;
-
   // First pass: replace player-specific placeholders with display name
-  result = replaceWithPlayerName(action, role, displayName);
+  let result = replaceWithPlayerName(action, role, displayName);
 
   // Check if the player's name was successfully inserted
   const hasPlayerName = result.includes(displayName);
