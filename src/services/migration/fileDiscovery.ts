@@ -54,8 +54,9 @@ export const getActionGroupNames = async (locale: string, gameMode: string): Pro
     // Import the bundle for the specified locale and game mode
     const bundleFile = await import(`@/locales/${locale}/${gameMode}-bundle.json`);
 
-    // Return all keys (group names) from the bundle
-    return Object.keys(bundleFile).sort(); // Sort for consistent ordering
+    // Access .default for ES module namespace, fallback to bundleFile for direct imports
+    const bundle = bundleFile.default || bundleFile;
+    return Object.keys(bundle).sort();
   } catch (error) {
     // Bundle doesn't exist or can't be imported
     logError('warn', `getActionGroupNames: Bundle not found for ${locale}/${gameMode}`, error);
