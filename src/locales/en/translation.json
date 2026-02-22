@@ -617,5 +617,20 @@
   "ambientVolume": "Volume",
   "soundscapeLounge": "Lounge",
   "soundscapeIntimate": "Intimate",
-  "soundscapeParty": "Party Energy"
+  "soundscapeParty": "Party Energy",
+  "statistics": "Statistics",
+  "statsGames": "Games",
+  "statsGamesStarted": "Games Started",
+  "statsGamesCompleted": "Games Completed",
+  "statsTime": "Time",
+  "statsTotalPlayTime": "Total Play Time",
+  "statsAverageGame": "Average Game",
+  "statsDice": "Dice",
+  "statsTotalRolls": "Total Rolls",
+  "statsAverageRoll": "Average Roll",
+  "statsDiceDistribution": "Dice Distribution",
+  "statsCategoriesLanded": "Categories Landed On",
+  "statsBoardCategories": "Board Categories Played",
+  "statsIntensitiesPlayed": "Intensity Levels Played",
+  "statsNoData": "No statistics yet. Start playing to track your progress!"
 }

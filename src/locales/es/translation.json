@@ -617,5 +617,20 @@
   "ambientVolume": "Volumen",
   "soundscapeLounge": "Lounge",
   "soundscapeIntimate": "Intimo",
-  "soundscapeParty": "Energia de fiesta"
+  "soundscapeParty": "Energía de fiesta",
+  "statistics": "Estadísticas",
+  "statsGames": "Juegos",
+  "statsGamesStarted": "Juegos Iniciados",
+  "statsGamesCompleted": "Juegos Completados",
+  "statsTime": "Tiempo",
+  "statsTotalPlayTime": "Tiempo Total de Juego",
+  "statsAverageGame": "Juego Promedio",
+  "statsDice": "Dados",
+  "statsTotalRolls": "Tiradas Totales",
+  "statsAverageRoll": "Tirada Promedio",
+  "statsDiceDistribution": "Distribución de Dados",
+  "statsCategoriesLanded": "Categorías Aterrizadas",
+  "statsBoardCategories": "Categorías del Tablero Jugadas",
+  "statsIntensitiesPlayed": "Niveles de Intensidad Jugados",
+  "statsNoData": "Sin estadísticas aún. ¡Comienza a jugar para seguir tu progreso!"
 }

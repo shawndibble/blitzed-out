@@ -617,5 +617,20 @@
   "ambientVolume": "音量",
   "soundscapeLounge": "休闲",
   "soundscapeIntimate": "亲密",
-  "soundscapeParty": "派对能量"
+  "soundscapeParty": "派对能量",
+  "statistics": "统计数据",
+  "statsGames": "游戏",
+  "statsGamesStarted": "已开始游戏",
+  "statsGamesCompleted": "已完成游戏",
+  "statsTime": "时间",
+  "statsTotalPlayTime": "总游戏时间",
+  "statsAverageGame": "平均游戏时长",
+  "statsDice": "骰子",
+  "statsTotalRolls": "总投掷次数",
+  "statsAverageRoll": "平均投掷值",
+  "statsDiceDistribution": "骰子分布",
+  "statsCategoriesLanded": "落在的类别",
+  "statsBoardCategories": "已玩游戏板类别",
+  "statsIntensitiesPlayed": "已玩强度等级",
+  "statsNoData": "暂无统计数据。开始游戏以跟踪您的进度！"
 }

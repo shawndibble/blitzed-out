@@ -617,5 +617,20 @@
   "ambientVolume": "Volume",
   "soundscapeLounge": "Lounge",
   "soundscapeIntimate": "Intime",
-  "soundscapeParty": "Energie festive"
+  "soundscapeParty": "Énergie festive",
+  "statistics": "Statistiques",
+  "statsGames": "Parties",
+  "statsGamesStarted": "Parties Lancées",
+  "statsGamesCompleted": "Parties Terminées",
+  "statsTime": "Temps",
+  "statsTotalPlayTime": "Temps de Jeu Total",
+  "statsAverageGame": "Partie Moyenne",
+  "statsDice": "Dés",
+  "statsTotalRolls": "Lancers Totaux",
+  "statsAverageRoll": "Lancer Moyen",
+  "statsDiceDistribution": "Distribution des Dés",
+  "statsCategoriesLanded": "Catégories Atterries",
+  "statsBoardCategories": "Catégories du Plateau Jouées",
+  "statsIntensitiesPlayed": "Niveaux d'Intensité Joués",
+  "statsNoData": "Pas encore de statistiques. Commencez à jouer pour suivre votre progression !"
 }

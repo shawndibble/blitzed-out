@@ -16,6 +16,7 @@ export function useWakeLock(enabled: boolean = true): void {
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   useEffect(() => {
+    // Check for browser support
     if (!enabled || !('wakeLock' in navigator)) {
       return;
     }

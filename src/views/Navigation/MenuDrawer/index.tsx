@@ -21,11 +21,13 @@ import { useSettings, useSettingsStore } from '@/stores/settingsStore';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import AppSettingsDialog from '@/components/AppSettingsDialog';
 import AuthDialog from '@/components/auth/AuthDialog';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CustomTileDialog from '@/components/CustomTilesDialog';
 import DialogWrapper from '@/components/DialogWrapper';
 import GameGuide from '@/views/GameGuide';
 import GameSettingsDialog from '@/components/GameSettingsDialog';
+import GameStatistics from '@/views/GameStatistics';
 import InfoIcon from '@mui/icons-material/Info';
 import LanguageChangeModal from '@/components/LanguageChangeModal';
 import LanguageIcon from '@mui/icons-material/Language';
@@ -61,6 +63,7 @@ interface DialogState {
   linkAccount: boolean;
   appSettings: boolean;
   languageChange: boolean;
+  statistics: boolean;
   [key: string]: boolean;
 }
 
@@ -82,6 +85,7 @@ export default function MenuDrawer(): JSX.Element {
     linkAccount: false,
     appSettings: false,
     languageChange: false,
+    statistics: false,
   });
 
   const toggleDialog = useCallback(
@@ -237,6 +241,12 @@ export default function MenuDrawer(): JSX.Element {
         onClick: () => openInNewTab(`/${room?.toUpperCase()}/cast`),
       },
       {
+        key: 'statistics',
+        title: <Trans i18nKey="statistics" />,
+        icon: <BarChartIcon />,
+        onClick: () => toggleDialog('statistics', true),
+      },
+      {
         key: 'schedule',
         title: <Trans i18nKey="schedule" />,
         icon: <CalendarMonthIcon />,
@@ -382,6 +392,7 @@ export default function MenuDrawer(): JSX.Element {
       {open.schedule && renderDialog(Schedule, 'schedule')}
       {open.customTiles && renderDialog(CustomTileDialog, 'customTiles')}
       {open.linkAccount && renderDialog(AuthDialog, 'linkAccount')}
+      {open.statistics && renderDialog(GameStatistics, 'statistics')}
       {pendingLanguageChange && (
         <LanguageChangeModal
           open={open.languageChange}

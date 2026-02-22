@@ -77,3 +77,40 @@ export interface DBLocalPlayerStats {
   /** Additional stats data */
   statsData?: LocalPlayerStatsData;
 }
+
+/**
+ * Aggregated statistics for displaying in the statistics dashboard
+ * Stored globally (not per-session) for the current user
+ */
+export interface GlobalPlayerStats {
+  /** Auto-generated database ID */
+  id?: number;
+  /** User identifier (Firebase UID or 'anonymous') */
+  ownerId: string;
+  /** Total dice rolls made */
+  diceRollCount: number;
+  /** Sum of all dice roll values (for calculating average) */
+  diceRollSum: number;
+  /** Distribution of dice values (value -> count) */
+  diceDistribution: Record<number, number>;
+  /** Total games started */
+  totalGamesStarted: number;
+  /** Total games completed */
+  totalGamesCompleted: number;
+  /** Total play time in milliseconds */
+  totalPlayTimeMs: number;
+  /** Last active timestamp */
+  lastActive: number;
+  /** Current win streak */
+  currentStreak: number;
+  /** Best win streak ever achieved */
+  bestStreak: number;
+  /** Distribution of tile categories landed on (category -> count) */
+  categoriesLandedOn: Record<string, number>;
+  /** Distribution of board categories from completed games (category -> count) */
+  boardCategoriesPlayed: Record<string, number>;
+  /** Distribution of intensity levels played (intensity name -> count) */
+  intensitiesPlayed: Record<string, number>;
+  /** Timestamp when current game started (for tracking play time) */
+  currentGameStartTime?: number | null;
+}

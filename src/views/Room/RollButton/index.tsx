@@ -13,6 +13,8 @@ import DiceRoller from '@/components/DiceRoller';
 import { useSettings } from '@/stores/settingsStore';
 import { useDiceAnimationStore } from '@/stores/diceAnimationStore';
 import { vibrate } from '@/utils/haptics';
+import { useAuth } from '@/hooks/useAuth';
+import { recordDiceRoll } from '@/services/playerStatsService';
 
 interface RollButtonProps {
   setRollValue: (value: number) => void;
@@ -66,6 +68,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   const { t } = useTranslation();
   const [settings] = useSettings();
   const isMobile = useBreakpoint();
+  const { user } = useAuth();
   const setAnimationSoundPlayed = useDiceAnimationStore((state) => state.setAnimationSoundPlayed);
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [selectedRoll, setSelectedRoll] = useState<string>('manual');
@@ -92,6 +95,14 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   const triggerDiceAnimation = useCallback((): void => {
     const roll = calculateDiceRoll(rollCount, diceSide);
 
+    // Record dice roll statistics
+    const ownerId = user?.uid || 'anonymous';
+    if (Array.isArray(roll.values)) {
+      roll.values.forEach((value) => recordDiceRoll(ownerId, value));
+    } else {
+      recordDiceRoll(ownerId, roll.values);
+    }
+
     // If dice animation is disabled, immediately set the roll value
     if (settings.showDiceAnimation === false) {
       setRollValue(roll.total);
@@ -99,7 +110,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
     }
 
     setPendingRoll(roll);
-  }, [rollCount, diceSide, settings.showDiceAnimation, setRollValue]);
+  }, [rollCount, diceSide, settings.showDiceAnimation, setRollValue, user?.uid]);
 
   const handleDiceAnimationComplete = useCallback(
     (value: number, playedSound: boolean): void => {
