@@ -8,7 +8,11 @@ import {
   recordIntensities,
 } from '@/services/playerStatsService';
 
-interface UseStatsTrackingResult {
+const noopStatsErrorHandler = (): void => {
+  // Stats are non-critical - silently ignore errors
+};
+
+export interface UseStatsTrackingResult {
   trackTileLanding: (category: string) => void;
   trackGameComplete: (boardCategories: string[], intensities?: string[]) => void;
   trackGameStart: () => void;
@@ -16,47 +20,37 @@ interface UseStatsTrackingResult {
 
 export function useStatsTracking(): UseStatsTrackingResult {
   const { user } = useAuth();
-  const oderId = user?.uid || 'anonymous';
+  const ownerId = user?.uid || 'anonymous';
 
   const trackTileLanding = useCallback(
     (category: string) => {
       if (category && category !== 'START' && category !== 'FINISH') {
-        recordTileLanding(oderId, category).catch(() => {
-          // Silently handle - stats are non-critical
-        });
+        recordTileLanding(ownerId, category).catch(noopStatsErrorHandler);
       }
     },
-    [oderId]
+    [ownerId]
   );
 
   const trackGameComplete = useCallback(
     (boardCategories: string[], intensities?: string[]) => {
-      recordGameComplete(oderId).catch(() => {
-        // Silently handle - stats are non-critical
-      });
+      recordGameComplete(ownerId).catch(noopStatsErrorHandler);
 
       const filteredCategories = boardCategories.filter(
         (title) => title && title !== 'START' && title !== 'FINISH'
       );
 
-      recordBoardCategories(oderId, filteredCategories).catch(() => {
-        // Silently handle - stats are non-critical
-      });
+      recordBoardCategories(ownerId, filteredCategories).catch(noopStatsErrorHandler);
 
       if (intensities?.length) {
-        recordIntensities(oderId, intensities).catch(() => {
-          // Silently handle - stats are non-critical
-        });
+        recordIntensities(ownerId, intensities).catch(noopStatsErrorHandler);
       }
     },
-    [oderId]
+    [ownerId]
   );
 
   const trackGameStart = useCallback(() => {
-    recordGameStart(oderId).catch(() => {
-      // Silently handle - stats are non-critical
-    });
-  }, [oderId]);
+    recordGameStart(ownerId).catch(noopStatsErrorHandler);
+  }, [ownerId]);
 
   return {
     trackTileLanding,

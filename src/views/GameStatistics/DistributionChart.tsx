@@ -1,5 +1,4 @@
-import { Box, LinearProgress, Paper } from '@mui/material';
-import { Typography } from '@mui/material';
+import { Box, LinearProgress, Paper, Typography } from '@mui/material';
 
 interface DistributionChartProps {
   data: [string | number, number][];
@@ -20,7 +19,7 @@ export default function DistributionChart({
     <Paper sx={{ p: 2 }} elevation={2}>
       <Box>
         {data.map(([label, count]) => {
-          const percentage = (count / maxValue) * 100;
+          const percentage = maxValue > 0 ? (count / maxValue) * 100 : 0;
           return (
             <Box key={label} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <Typography

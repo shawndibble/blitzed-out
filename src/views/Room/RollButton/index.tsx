@@ -96,11 +96,11 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
     const roll = calculateDiceRoll(rollCount, diceSide);
 
     // Record dice roll statistics
-    const oderId = user?.uid || 'anonymous';
+    const ownerId = user?.uid || 'anonymous';
     if (Array.isArray(roll.values)) {
-      roll.values.forEach((value) => recordDiceRoll(oderId, value));
+      roll.values.forEach((value) => recordDiceRoll(ownerId, value));
     } else {
-      recordDiceRoll(oderId, roll.values);
+      recordDiceRoll(ownerId, roll.values);
     }
 
     // If dice animation is disabled, immediately set the roll value

@@ -4,9 +4,9 @@ import { fetchPlayerStats } from '@/services/playerStatsService';
 
 export function usePlayerStats() {
   const { user } = useAuth();
-  const oderId = user?.uid || 'anonymous';
+  const ownerId = user?.uid || 'anonymous';
 
-  const stats = useLiveQuery(() => fetchPlayerStats(oderId), [oderId]);
+  const stats = useLiveQuery(() => fetchPlayerStats(ownerId), [ownerId]);
 
   return {
     stats,

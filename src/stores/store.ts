@@ -44,7 +44,7 @@ class BlitzedOutDatabase extends Dexie {
       localPlayerSessions: '++id, sessionId, roomId, isActive, createdAt, updatedAt',
       localPlayerMoves: '++id, sessionId, playerId, timestamp, sequence',
       localPlayerStats: '++id, sessionId, playerId, lastActive',
-      globalPlayerStats: '++id, oderId, lastActive',
+      globalPlayerStats: '++id, ownerId, lastActive',
     });
   }
 }

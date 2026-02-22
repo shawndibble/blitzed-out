@@ -1,7 +1,7 @@
 import db from '@/stores/store';
 import { GlobalPlayerStats } from '@/types/localPlayerDB';
 
-const DEFAULT_STATS: Omit<GlobalPlayerStats, 'id' | 'oderId'> = {
+const DEFAULT_STATS: Omit<GlobalPlayerStats, 'id' | 'ownerId'> = {
   diceRollCount: 0,
   diceRollSum: 0,
   diceDistribution: {},
@@ -16,20 +16,20 @@ const DEFAULT_STATS: Omit<GlobalPlayerStats, 'id' | 'oderId'> = {
   intensitiesPlayed: {},
 };
 
-async function getOrCreateStats(oderId: string): Promise<GlobalPlayerStats> {
-  const existing = await db.globalPlayerStats.where('oderId').equals(oderId).first();
+async function getOrCreateStats(ownerId: string): Promise<GlobalPlayerStats> {
+  const existing = await db.globalPlayerStats.where('ownerId').equals(ownerId).first();
 
   if (existing) {
     return { ...DEFAULT_STATS, ...existing };
   }
 
-  const newStats = { oderId, ...DEFAULT_STATS };
+  const newStats = { ownerId, ...DEFAULT_STATS };
   const id = await db.globalPlayerStats.add(newStats);
   return { ...newStats, id };
 }
 
-export async function recordDiceRoll(oderId: string, rollValue: number): Promise<void> {
-  const stats = await getOrCreateStats(oderId);
+export async function recordDiceRoll(ownerId: string, rollValue: number): Promise<void> {
+  const stats = await getOrCreateStats(ownerId);
 
   const newDistribution = { ...stats.diceDistribution };
   newDistribution[rollValue] = (newDistribution[rollValue] || 0) + 1;
@@ -42,8 +42,8 @@ export async function recordDiceRoll(oderId: string, rollValue: number): Promise
   });
 }
 
-export async function recordGameStart(oderId: string): Promise<void> {
-  const stats = await getOrCreateStats(oderId);
+export async function recordGameStart(ownerId: string): Promise<void> {
+  const stats = await getOrCreateStats(ownerId);
 
   await db.globalPlayerStats.update(stats.id!, {
     totalGamesStarted: stats.totalGamesStarted + 1,
@@ -52,8 +52,8 @@ export async function recordGameStart(oderId: string): Promise<void> {
   });
 }
 
-export async function recordGameComplete(oderId: string): Promise<void> {
-  const stats = await getOrCreateStats(oderId);
+export async function recordGameComplete(ownerId: string): Promise<void> {
+  const stats = await getOrCreateStats(ownerId);
 
   const newStreak = stats.currentStreak + 1;
   const playTimeMs = stats.currentGameStartTime ? Date.now() - stats.currentGameStartTime : 0;
@@ -68,10 +68,10 @@ export async function recordGameComplete(oderId: string): Promise<void> {
   });
 }
 
-export async function recordTileLanding(oderId: string, category: string): Promise<void> {
+export async function recordTileLanding(ownerId: string, category: string): Promise<void> {
   if (!category) return;
 
-  const stats = await getOrCreateStats(oderId);
+  const stats = await getOrCreateStats(ownerId);
 
   const newCategories = { ...stats.categoriesLandedOn };
   newCategories[category] = (newCategories[category] || 0) + 1;
@@ -82,10 +82,10 @@ export async function recordTileLanding(oderId: string, category: string): Promi
   });
 }
 
-export async function recordBoardCategories(oderId: string, categories: string[]): Promise<void> {
+export async function recordBoardCategories(ownerId: string, categories: string[]): Promise<void> {
   if (!categories?.length) return;
 
-  const stats = await getOrCreateStats(oderId);
+  const stats = await getOrCreateStats(ownerId);
 
   const newBoardCategories = { ...stats.boardCategoriesPlayed };
   const uniqueCategories = [...new Set(categories)];
@@ -102,10 +102,10 @@ export async function recordBoardCategories(oderId: string, categories: string[]
   });
 }
 
-export async function recordIntensities(oderId: string, intensities: string[]): Promise<void> {
+export async function recordIntensities(ownerId: string, intensities: string[]): Promise<void> {
   if (!intensities?.length) return;
 
-  const stats = await getOrCreateStats(oderId);
+  const stats = await getOrCreateStats(ownerId);
 
   const newIntensities = { ...stats.intensitiesPlayed };
 
@@ -121,6 +121,6 @@ export async function recordIntensities(oderId: string, intensities: string[]): 
   });
 }
 
-export async function fetchPlayerStats(oderId: string): Promise<GlobalPlayerStats> {
-  return getOrCreateStats(oderId);
+export async function fetchPlayerStats(ownerId: string): Promise<GlobalPlayerStats> {
+  return getOrCreateStats(ownerId);
 }

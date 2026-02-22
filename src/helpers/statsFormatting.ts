@@ -26,7 +26,7 @@ export function getSortedCategories(distribution: Record<string, number>): [stri
 }
 
 export function calculateAverageRoll(sum: number, count: number): string {
-  return count > 0 ? (sum / count).toFixed(1) : '0';
+  return count > 0 ? (sum / count).toFixed(1) : '0.0';
 }
 
 export function calculateAverageGameTime(totalMs: number, gamesCompleted: number): string {

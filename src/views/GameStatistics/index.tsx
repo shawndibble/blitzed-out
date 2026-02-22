@@ -2,6 +2,7 @@ import { Box, CircularProgress, Divider, Grid, Paper, Typography } from '@mui/ma
 import { Trans } from 'react-i18next';
 import DialogWrapper from '@/components/DialogWrapper';
 import usePlayerStats from '@/hooks/usePlayerStats';
+import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import StatCard from './StatCard';
 import DistributionChart from './DistributionChart';
 import {
@@ -11,6 +12,9 @@ import {
   calculateAverageRoll,
   calculateAverageGameTime,
 } from '@/helpers/statsFormatting';
+import { useSettings } from '@/stores/settingsStore';
+import { ActionEntry } from '@/types';
+import { GroupedActions } from '@/types/customTiles';
 
 interface GameStatisticsProps {
   open: boolean;
@@ -46,12 +50,44 @@ function SectionCard({ titleKey, borderColor, children }: SectionCardProps): JSX
   );
 }
 
+function mergeCurrentBoardData(
+  historicalCategories: Record<string, number>,
+  historicalIntensities: Record<string, number>,
+  selectedActions: Record<string, ActionEntry> | undefined,
+  actionsList: GroupedActions
+): {
+  mergedCategories: Record<string, number>;
+  mergedIntensities: Record<string, number>;
+} {
+  const mergedCategories = { ...historicalCategories };
+  const mergedIntensities = { ...historicalIntensities };
+
+  if (!selectedActions) {
+    return { mergedCategories, mergedIntensities };
+  }
+
+  Object.entries(selectedActions).forEach(([groupKey, entry]) => {
+    if (entry.levels && entry.levels.length > 0) {
+      const label = actionsList[groupKey]?.label || groupKey;
+      mergedCategories[label] = (mergedCategories[label] || 0) + 1;
+      entry.levels.forEach((level) => {
+        const levelKey = `Level ${level}`;
+        mergedIntensities[levelKey] = (mergedIntensities[levelKey] || 0) + 1;
+      });
+    }
+  });
+
+  return { mergedCategories, mergedIntensities };
+}
+
 export default function GameStatistics({
   open,
   close,
   isMobile = false,
 }: GameStatisticsProps): JSX.Element {
   const { stats, isLoading } = usePlayerStats();
+  const [settings] = useSettings();
+  const { actionsList } = useUnifiedActionList(settings.gameMode);
 
   if (isLoading || !stats) {
     return (
@@ -68,6 +104,13 @@ export default function GameStatistics({
     );
   }
 
+  const { mergedCategories, mergedIntensities } = mergeCurrentBoardData(
+    stats.boardCategoriesPlayed || {},
+    stats.intensitiesPlayed || {},
+    settings.selectedActions,
+    actionsList
+  );
+
   const averageRoll = calculateAverageRoll(stats.diceRollSum, stats.diceRollCount);
   const averageGameTime = calculateAverageGameTime(
     stats.totalPlayTimeMs,
@@ -80,8 +123,8 @@ export default function GameStatistics({
     .map((value) => [value, stats.diceDistribution[value]] as [number, number]);
 
   const sortedCategoriesLanded = getSortedCategories(stats.categoriesLandedOn || {});
-  const sortedBoardCategories = getSortedCategories(stats.boardCategoriesPlayed || {});
-  const sortedIntensities = getSortedCategories(stats.intensitiesPlayed || {});
+  const sortedBoardCategories = getSortedCategories(mergedCategories);
+  const sortedIntensities = getSortedCategories(mergedIntensities);
 
   const hasDistributionData =
     sortedDiceValues.length > 0 ||
@@ -99,9 +142,7 @@ export default function GameStatistics({
       fullWidth
     >
       <Box sx={{ p: { xs: 1, sm: 2 } }}>
-        {/* Top Stats - Games, Time, Dice in separate colored sections */}
         <Grid container spacing={2} sx={{ alignItems: 'stretch' }}>
-          {/* Games Section - Cyan */}
           <Grid size={{ xs: 12, md: 4 }}>
             <SectionCard titleKey="statsGames" borderColor="#22d3ee">
               <Grid size={6}>
@@ -113,7 +154,6 @@ export default function GameStatistics({
             </SectionCard>
           </Grid>
 
-          {/* Time Section - Amber */}
           <Grid size={{ xs: 12, md: 4 }}>
             <SectionCard titleKey="statsTime" borderColor="#fbbf24">
               <Grid size={6}>
@@ -128,7 +168,6 @@ export default function GameStatistics({
             </SectionCard>
           </Grid>
 
-          {/* Dice Section - Purple */}
           <Grid size={{ xs: 12, md: 4 }}>
             <SectionCard titleKey="statsDice" borderColor="#a78bfa">
               <Grid size={6}>
@@ -141,11 +180,9 @@ export default function GameStatistics({
           </Grid>
         </Grid>
 
-        {/* Distribution Charts */}
         {hasDistributionData && <Divider sx={{ my: 3 }} />}
 
         <Grid container spacing={2}>
-          {/* Left Column: Dice Distribution + Intensity Levels */}
           <Grid size={{ xs: 12, md: 6 }}>
             {sortedDiceValues.length > 0 && (
               <Box sx={{ mb: sortedIntensities.length > 0 ? 2 : 0 }}>
@@ -167,7 +204,7 @@ export default function GameStatistics({
                 </Typography>
                 <DistributionChart
                   data={sortedIntensities}
-                  maxValue={getMaxDistributionValue(stats.intensitiesPlayed || {})}
+                  maxValue={getMaxDistributionValue(mergedIntensities)}
                   barColor="#f472b6"
                   labelWidth={80}
                 />
@@ -175,7 +212,6 @@ export default function GameStatistics({
             )}
           </Grid>
 
-          {/* Right Column: Categories Landed On + Board Categories */}
           <Grid size={{ xs: 12, md: 6 }}>
             {sortedCategoriesLanded.length > 0 && (
               <Box sx={{ mb: sortedBoardCategories.length > 0 ? 2 : 0 }}>
@@ -198,7 +234,7 @@ export default function GameStatistics({
                 </Typography>
                 <DistributionChart
                   data={sortedBoardCategories.slice(0, 10)}
-                  maxValue={getMaxDistributionValue(stats.boardCategoriesPlayed || {})}
+                  maxValue={getMaxDistributionValue(mergedCategories)}
                   barColor="#4ade80"
                   labelWidth={120}
                 />

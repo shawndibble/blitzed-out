@@ -86,7 +86,7 @@ export interface GlobalPlayerStats {
   /** Auto-generated database ID */
   id?: number;
   /** User identifier (Firebase UID or 'anonymous') */
-  oderId: string;
+  ownerId: string;
   /** Total dice rolls made */
   diceRollCount: number;
   /** Sum of all dice roll values (for calculating average) */
