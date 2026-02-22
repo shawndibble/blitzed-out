@@ -98,6 +98,15 @@ vi.mock('@/context/hooks/useMessages', () => ({
   }),
 }));
 
+// Mock stats tracking
+vi.mock('../useStatsTracking', () => ({
+  useStatsTracking: () => ({
+    trackTileLanding: vi.fn(),
+    trackGameComplete: vi.fn(),
+    trackGameStart: vi.fn(),
+  }),
+}));
+
 describe('usePlayerMove', () => {
   const mockSendMessage = vi.mocked(firebaseService.sendMessage);
 

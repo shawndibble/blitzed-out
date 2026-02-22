@@ -631,5 +631,8 @@
   "statsTotalRolls": "Total Rolls",
   "statsAverageRoll": "Average Roll",
   "statsDiceDistribution": "Dice Distribution",
+  "statsCategoriesLanded": "Categories Landed On",
+  "statsBoardCategories": "Board Categories Played",
+  "statsIntensitiesPlayed": "Intensity Levels Played",
   "statsNoData": "No statistics yet. Start playing to track your progress!"
 }

@@ -105,4 +105,12 @@ export interface GlobalPlayerStats {
   currentStreak: number;
   /** Best win streak ever achieved */
   bestStreak: number;
+  /** Distribution of tile categories landed on (category -> count) */
+  categoriesLandedOn: Record<string, number>;
+  /** Distribution of board categories from completed games (category -> count) */
+  boardCategoriesPlayed: Record<string, number>;
+  /** Distribution of intensity levels played (intensity name -> count) */
+  intensitiesPlayed: Record<string, number>;
+  /** Timestamp when current game started (for tracking play time) */
+  currentGameStartTime?: number;
 }

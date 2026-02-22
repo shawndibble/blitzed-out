@@ -20,6 +20,7 @@ import useMessages from '@/context/hooks/useMessages';
 import useRoomNavigate from './useRoomNavigate';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
+import { recordGameStart } from '@/services/playerStatsService';
 
 interface RoomChangeResult {
   roomChanged: boolean;
@@ -201,6 +202,13 @@ export default function useSubmitGameSettings(): (
         roomUpdated: false,
         gameMode,
       });
+
+      // Record game start for statistics when board is updated (new game starting)
+      if (settingsBoardUpdated && user?.uid) {
+        recordGameStart(user.uid).catch(() => {
+          // Silently handle - stats are non-critical
+        });
+      }
 
       navigate(formData.room);
     },

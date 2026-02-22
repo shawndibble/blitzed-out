@@ -631,5 +631,8 @@
   "statsTotalRolls": "Lancers Totaux",
   "statsAverageRoll": "Lancer Moyen",
   "statsDiceDistribution": "Distribution des Dés",
+  "statsCategoriesLanded": "Catégories Atterries",
+  "statsBoardCategories": "Catégories du Plateau Jouées",
+  "statsIntensitiesPlayed": "Niveaux d'Intensité Joués",
   "statsNoData": "Pas encore de statistiques. Commencez à jouer pour suivre votre progression !"
 }

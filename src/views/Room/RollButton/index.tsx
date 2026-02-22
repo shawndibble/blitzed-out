@@ -14,7 +14,7 @@ import { useSettings } from '@/stores/settingsStore';
 import { useDiceAnimationStore } from '@/stores/diceAnimationStore';
 import { vibrate } from '@/utils/haptics';
 import { useAuth } from '@/hooks/useAuth';
-import { recordDiceRoll } from '@/hooks/usePlayerStats';
+import { recordDiceRoll } from '@/services/playerStatsService';
 
 interface RollButtonProps {
   setRollValue: (value: number) => void;

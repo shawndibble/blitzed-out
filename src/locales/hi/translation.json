@@ -632,5 +632,8 @@
   "statsTotalRolls": "कुल रोल",
   "statsAverageRoll": "औसत रोल",
   "statsDiceDistribution": "पासा वितरण",
+  "statsCategoriesLanded": "उतरी हुई श्रेणियां",
+  "statsBoardCategories": "खेले गए बोर्ड श्रेणियां",
+  "statsIntensitiesPlayed": "खेली गई तीव्रता स्तर",
   "statsNoData": "अभी तक कोई आंकड़े नहीं। अपनी प्रगति को ट्रैक करने के लिए खेलना शुरू करें!"
 }

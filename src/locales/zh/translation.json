@@ -631,5 +631,8 @@
   "statsTotalRolls": "总投掷次数",
   "statsAverageRoll": "平均投掷值",
   "statsDiceDistribution": "骰子分布",
+  "statsCategoriesLanded": "落在的类别",
+  "statsBoardCategories": "已玩游戏板类别",
+  "statsIntensitiesPlayed": "已玩强度等级",
   "statsNoData": "暂无统计数据。开始游戏以跟踪您的进度！"
 }

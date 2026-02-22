@@ -13,6 +13,7 @@ import { Message } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
 import useMessages from '@/context/hooks/useMessages';
 import { orderedMessagesByType } from '@/helpers/messages';
+import { useStatsTracking } from '@/hooks/useStatsTracking';
 
 interface RollValue {
   value: number | number[];
@@ -91,6 +92,7 @@ export default function usePlayerMove(
     useLocalPlayers();
   const addMessage = useMessagesStore((state) => state.addMessage);
   const { messages } = useMessages();
+  const { trackTileLanding, trackGameComplete, trackGameStart } = useStatsTracking();
   const total = gameBoard.length;
   const convertToTile = (tileExport: TileExport, index: number = 0): Tile => ({
     id: index,
@@ -109,6 +111,7 @@ export default function usePlayerMove(
   const lastTile = total - 1;
 
   const lastRollTimeRef = useRef<number>(0);
+  const hasCompletedGameRef = useRef<boolean>(false);
 
   const handleTextOutput = useCallback(
     async (
@@ -332,6 +335,37 @@ export default function usePlayerMove(
           });
       }
 
+      // Track statistics for tile landing and game completion
+      const tileCategory = gameBoard[newLocation]?.title;
+      const isFinishedTile = newLocation === gameBoard.length - 1;
+
+      trackTileLanding(tileCategory);
+
+      if (isFinishedTile && !hasCompletedGameRef.current) {
+        hasCompletedGameRef.current = true;
+        const boardCategories = gameBoard.map((tile) => tile.title);
+
+        // Extract selected intensity levels from settings
+        const intensityLevels: string[] = [];
+        if (settings.selectedActions) {
+          Object.values(settings.selectedActions).forEach((entry) => {
+            if (entry.levels) {
+              entry.levels.forEach((level) => {
+                intensityLevels.push(`Level ${level}`);
+              });
+            }
+          });
+        }
+
+        trackGameComplete(boardCategories, intensityLevels);
+      }
+
+      if (newLocation === 0) {
+        hasCompletedGameRef.current = false;
+        // Track game start when restarting (going back to position 0)
+        trackGameStart();
+      }
+
       // send our message.
       handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage).catch(() => {
         // Silently handle message send failures
@@ -351,6 +385,10 @@ export default function usePlayerMove(
     isLocalPlayerRoom,
     currentPlayer,
     session,
+    trackTileLanding,
+    trackGameComplete,
+    trackGameStart,
+    settings.selectedActions,
   ]);
 
   return { tile, playerList };

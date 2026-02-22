@@ -631,5 +631,8 @@
   "statsTotalRolls": "Tiradas Totales",
   "statsAverageRoll": "Tirada Promedio",
   "statsDiceDistribution": "Distribución de Dados",
+  "statsCategoriesLanded": "Categorías Aterrizadas",
+  "statsBoardCategories": "Categorías del Tablero Jugadas",
+  "statsIntensitiesPlayed": "Niveles de Intensidad Jugados",
   "statsNoData": "Sin estadísticas aún. ¡Comienza a jugar para seguir tu progreso!"
 }
