@@ -232,6 +232,12 @@ export default function AppSettings({
         defaultValue={true}
       />
       <AppBoolSwitch field="hideBoardActions" formData={formData} handleSwitch={handleSwitch} />
+      <AppBoolSwitch
+        field="wakeLockEnabled"
+        formData={formData}
+        handleSwitch={handleSwitch}
+        defaultValue={true}
+      />
 
       <BackgroundSelect
         formData={formData}

@@ -1,6 +1,7 @@
 import { Casino } from '@mui/icons-material';
-import { Button, ButtonGroup } from '@mui/material';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { Button, ButtonGroup, Tooltip } from '@mui/material';
+import useBreakpoint from '@/hooks/useBreakpoint';
+import { forwardRef, useCallback, useEffect, useState, useRef, useImperativeHandle } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from '@/hooks/useCountdown';
@@ -17,6 +18,10 @@ interface RollButtonProps {
   setRollValue: (value: number) => void;
   dice: string;
   isEndOfBoard: boolean;
+}
+
+export interface RollButtonHandle {
+  triggerRoll: () => void;
 }
 
 interface TimerSettings {
@@ -54,9 +59,13 @@ function calculateDiceRoll(rollCount: string, diceSide: string): PendingRoll {
   };
 }
 
-function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.Element {
+const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollButton(
+  { setRollValue, dice, isEndOfBoard },
+  ref
+) {
   const { t } = useTranslation();
   const [settings] = useSettings();
+  const isMobile = useBreakpoint();
   const setAnimationSoundPlayed = useDiceAnimationStore((state) => state.setAnimationSoundPlayed);
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [selectedRoll, setSelectedRoll] = useState<string>('manual');
@@ -106,7 +115,10 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
     setPendingRoll(null);
   }, []);
 
-  const handleClick = (): void => {
+  const handleClick = useCallback((): void => {
+    // Don't trigger if already disabled (prevents rapid clicks)
+    if (isDisabled) return;
+
     // Track engagement
     interactionCountRef.current += 1;
     analytics.trackEngagement('roll_button_click', 0, interactionCountRef.current);
@@ -126,7 +138,25 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
       triggerDiceAnimation();
     }
     togglePause();
-  };
+  }, [
+    isDisabled,
+    settings.hapticFeedback,
+    selectedRoll,
+    triggerDiceAnimation,
+    isPaused,
+    timeLeft,
+    autoTime,
+    togglePause,
+  ]);
+
+  // Expose triggerRoll for keyboard shortcuts
+  useImperativeHandle(
+    ref,
+    () => ({
+      triggerRoll: handleClick,
+    }),
+    [handleClick]
+  );
 
   const handleMenuItemClick = useCallback(
     (key: string | number): void => {
@@ -238,13 +268,30 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
   return (
     <>
       <OnboardingWrapper className="dice-roller">
-        <ButtonGroup variant="contained">
-          <Button aria-label={t('roll')} onClick={handleClick} disabled={isDisabled} size="large">
-            <Casino sx={{ mr: 1 }} />
-            {rollText}
-          </Button>
-          <RollOptionsMenu selectedRoll={selectedRoll} handleMenuItemClick={handleMenuItemClick} />
-        </ButtonGroup>
+        <Tooltip
+          title={t('pressSpacebarToRoll')}
+          placement="top"
+          disableHoverListener={isMobile}
+          disableFocusListener={isMobile}
+          disableTouchListener
+        >
+          <ButtonGroup variant="contained">
+            <Button
+              aria-label={t('roll')}
+              aria-keyshortcuts="Space"
+              onClick={handleClick}
+              disabled={isDisabled}
+              size="large"
+            >
+              <Casino sx={{ mr: 1 }} />
+              {rollText}
+            </Button>
+            <RollOptionsMenu
+              selectedRoll={selectedRoll}
+              handleMenuItemClick={handleMenuItemClick}
+            />
+          </ButtonGroup>
+        </Tooltip>
       </OnboardingWrapper>
       <CustomTimerDialog
         isOpen={isDialogOpen}
@@ -262,6 +309,6 @@ function RollButton({ setRollValue, dice, isEndOfBoard }: RollButtonProps): JSX.
       )}
     </>
   );
-}
+});
 
 export default RollButton;

@@ -41,6 +41,7 @@ export default function DialogWrapper({
     <Dialog
       fullScreen={isMobileBreakpoint}
       open={open}
+      onClose={close ?? undefined}
       maxWidth={maxWidth}
       fullWidth={fullWidth}
       aria-labelledby={ariaLabelledby}

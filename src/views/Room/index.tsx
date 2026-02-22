@@ -9,7 +9,7 @@ import GameSettingsDialog from '@/components/GameSettingsDialog';
 import MessageInput from '@/components/MessageInput';
 import Navigation from '@/views/Navigation';
 import PopupMessage from '@/components/PopupMessage';
-import RollButton from './RollButton';
+import RollButton, { RollButtonHandle } from './RollButton';
 import { RollValueState } from '@/types/index';
 import RoomBackground from '@/components/RoomBackground';
 import { Settings } from '@/types/Settings';
@@ -29,6 +29,7 @@ import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import useUrlImport from '@/hooks/useUrlImport';
+import useWakeLock from '@/hooks/useWakeLock';
 import useMessages from '@/context/hooks/useMessages';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import latestMessageByType from '@/helpers/messages';
@@ -53,9 +54,15 @@ export default function Room() {
 
   usePresence(room);
 
+  // Prevent screen from sleeping during gameplay (mobile)
+  useWakeLock(settings.wakeLockEnabled ?? true);
+
   // Game session tracking
   const sessionStartTimeRef = useRef<number>(Date.now());
   const actionCountRef = useRef<number>(0);
+
+  // Roll button ref for keyboard shortcuts
+  const rollButtonRef = useRef<RollButtonHandle>(null);
 
   const [rollValue, setRollValue] = useState<RollValueState>({ value: 0, time: 0 });
 
@@ -187,6 +194,25 @@ export default function Room() {
   const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
 
+  // Keyboard shortcuts for desktop users (Spacebar to roll, Escape to close dialogs)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Spacebar to roll (without modifier keys)
+      if (e.key === ' ' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        rollButtonRef.current?.triggerRoll();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   if (!isRoomReady(gameBoard, settings, room, settings.gameMode, isImporting)) {
     return (
       <>
@@ -269,6 +295,7 @@ export default function Room() {
       </style>
 
       <RollButton
+        ref={rollButtonRef}
         setRollValue={memoizedSetRollValue}
         dice={roller}
         isEndOfBoard={tile?.index !== undefined && tile.index >= (gameBoard?.length ?? 0) - 1}

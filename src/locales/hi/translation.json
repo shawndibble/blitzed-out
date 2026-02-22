@@ -225,6 +225,8 @@
   "misc": "विविध",
   "showDiceAnimation": "3D पासा एनीमेशन दिखाएं",
   "hideBoardActions": "गेमबोर्ड क्रियाएं छुपाएं",
+  "wakeLockEnabled": "गेमप्ले के दौरान स्क्रीन जगाए रखें",
+  "pressSpacebarToRoll": "रोल करने के लिए स्पेसबार दबाएं",
   "autoCloseModal": "यह मॉडल {{timeLeft}} सेकंड बाद अपने आप बंद हो जाएगा।",
   "autoCloseStopped": "यह मॉडल अब अपने आप बंद नहीं होगा।",
   "autoCloseProgress": "ऑटो क्लोज़ प्रगति",

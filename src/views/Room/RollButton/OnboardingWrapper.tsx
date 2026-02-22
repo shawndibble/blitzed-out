@@ -1,5 +1,5 @@
 import { Portal, useMediaQuery, useTheme } from '@mui/material';
-import { ReactNode, useEffect, useState, useRef } from 'react';
+import { ReactNode, useCallback, useEffect, useState, useRef } from 'react';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -56,14 +56,28 @@ const OnboardingWrapper = ({ children, className }: OnboardingWrapperProps): JSX
     }
   }, [shouldShowOnboarding]);
 
-  const handleInteraction = () => {
+  const handleInteraction = useCallback(() => {
     if (!settings.hasSeenRollButton) {
       setHasInteracted(true);
       setStartAnimation(false);
       updateSettings({ hasSeenRollButton: true });
     }
     // Don't prevent the event from bubbling to the actual button
-  };
+  }, [settings.hasSeenRollButton, updateSettings]);
+
+  // Dismiss on spacebar (keyboard shortcut for rolling)
+  useEffect(() => {
+    if (!shouldShowOnboarding) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ' ') {
+        handleInteraction();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [shouldShowOnboarding, handleInteraction]);
 
   if (!shouldShowOnboarding) {
     return <div className={className}>{children}</div>;

@@ -224,6 +224,8 @@
   "misc": "Misceláneo",
   "showDiceAnimation": "Mostrar animación de dados 3D",
   "hideBoardActions": "Ocultar acciones del tablero de juego",
+  "wakeLockEnabled": "Mantener la pantalla encendida durante el juego",
+  "pressSpacebarToRoll": "Presiona la barra espaciadora para tirar",
   "autoCloseModal": "Este cuadro de diálogo se cerrará automáticamente después de {{timeLeft}} segundos.",
   "autoCloseStopped": "Este cuadro de diálogo ya no se cerrará automáticamente.",
   "autoCloseProgress": "Progreso de cierre automático",

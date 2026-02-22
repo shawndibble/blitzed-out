@@ -224,6 +224,8 @@
   "misc": "Variable",
   "showDiceAnimation": "Afficher l'animation des dés 3D",
   "hideBoardActions": "Masquer les actions du plateau de jeu",
+  "wakeLockEnabled": "Garder l'écran allumé pendant le jeu",
+  "pressSpacebarToRoll": "Appuyez sur Espace pour lancer",
   "autoCloseModal": "Cette fenêtre se fermera automatiquement après {{timeLeft}} secondes.",
   "autoCloseStopped": "Cette fenêtre ne se fermera plus automatiquement.",
   "autoCloseProgress": "Progression de la fermeture automatique",

@@ -49,6 +49,8 @@ export interface Settings {
   ambientSoundscape?: AmbientSoundscape;
   /** Ambient music volume (0-1) */
   ambientVolume?: number;
+  /** Enable wake lock to prevent screen sleep during gameplay (default: true) */
+  wakeLockEnabled?: boolean;
   [key: string]: any;
 }
 
