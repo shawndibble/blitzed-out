@@ -197,13 +197,21 @@ export default function Room() {
   // Keyboard shortcuts for desktop users (Spacebar to roll, Escape to close dialogs)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts when typing in inputs
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      const target = e.target as HTMLElement;
+
+      // Don't trigger shortcuts when typing in inputs or when a button has focus
+      // (buttons handle Space natively, so we avoid double-triggering the roll)
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLButtonElement ||
+        target.closest('button')
+      ) {
         return;
       }
 
       // Spacebar to roll (without modifier keys)
-      if (e.key === ' ' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+      if (e.code === 'Space' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         rollButtonRef.current?.triggerRoll();
       }

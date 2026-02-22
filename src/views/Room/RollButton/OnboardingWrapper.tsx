@@ -65,12 +65,26 @@ const OnboardingWrapper = ({ children, className }: OnboardingWrapperProps): JSX
     // Don't prevent the event from bubbling to the actual button
   }, [settings.hasSeenRollButton, updateSettings]);
 
-  // Dismiss on spacebar (keyboard shortcut for rolling)
+  // Sync onboarding dismissal with the global spacebar roll shortcut in Room/index.tsx
+  // so the overlay doesn't block or desync when users press space to roll
   useEffect(() => {
     if (!shouldShowOnboarding) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === ' ') {
+      const target = e.target as HTMLElement;
+
+      // Skip if user is typing in form elements
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
         handleInteraction();
       }
     };
