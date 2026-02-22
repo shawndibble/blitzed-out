@@ -112,5 +112,5 @@ export interface GlobalPlayerStats {
   /** Distribution of intensity levels played (intensity name -> count) */
   intensitiesPlayed: Record<string, number>;
   /** Timestamp when current game started (for tracking play time) */
-  currentGameStartTime?: number;
+  currentGameStartTime?: number | null;
 }

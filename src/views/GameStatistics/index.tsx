@@ -3,8 +3,8 @@ import { Trans } from 'react-i18next';
 import DialogWrapper from '@/components/DialogWrapper';
 import usePlayerStats from '@/hooks/usePlayerStats';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
-import StatCard from './StatCard';
-import DistributionChart from './DistributionChart';
+import StatCard from '@/views/GameStatistics/StatCard';
+import DistributionChart from '@/views/GameStatistics/DistributionChart';
 import {
   formatDuration,
   getMaxDistributionValue,
@@ -126,11 +126,13 @@ export default function GameStatistics({
   const sortedBoardCategories = getSortedCategories(mergedCategories);
   const sortedIntensities = getSortedCategories(mergedIntensities);
 
+  const hasPlayedData = stats.diceRollCount > 0;
   const hasDistributionData =
-    sortedDiceValues.length > 0 ||
-    sortedCategoriesLanded.length > 0 ||
-    sortedBoardCategories.length > 0 ||
-    sortedIntensities.length > 0;
+    hasPlayedData &&
+    (sortedDiceValues.length > 0 ||
+      sortedCategoriesLanded.length > 0 ||
+      sortedBoardCategories.length > 0 ||
+      sortedIntensities.length > 0);
 
   return (
     <DialogWrapper
@@ -243,7 +245,7 @@ export default function GameStatistics({
           </Grid>
         </Grid>
 
-        {stats.diceRollCount === 0 && (
+        {!hasPlayedData && (
           <Paper sx={{ p: 3, textAlign: 'center' }} elevation={2}>
             <Typography color="text.secondary">
               <Trans i18nKey="statsNoData" />

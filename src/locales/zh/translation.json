@@ -622,8 +622,6 @@
   "statsGames": "游戏",
   "statsGamesStarted": "已开始游戏",
   "statsGamesCompleted": "已完成游戏",
-  "statsCurrentStreak": "当前连胜",
-  "statsBestStreak": "最佳连胜",
   "statsTime": "时间",
   "statsTotalPlayTime": "总游戏时间",
   "statsAverageGame": "平均游戏时长",

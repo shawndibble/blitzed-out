@@ -1,29 +1,31 @@
 import db from '@/stores/store';
 import { GlobalPlayerStats } from '@/types/localPlayerDB';
 
-const DEFAULT_STATS: Omit<GlobalPlayerStats, 'id' | 'ownerId'> = {
-  diceRollCount: 0,
-  diceRollSum: 0,
-  diceDistribution: {},
-  totalGamesStarted: 0,
-  totalGamesCompleted: 0,
-  totalPlayTimeMs: 0,
-  lastActive: Date.now(),
-  currentStreak: 0,
-  bestStreak: 0,
-  categoriesLandedOn: {},
-  boardCategoriesPlayed: {},
-  intensitiesPlayed: {},
-};
+function createDefaultStats(): Omit<GlobalPlayerStats, 'id' | 'ownerId'> {
+  return {
+    diceRollCount: 0,
+    diceRollSum: 0,
+    diceDistribution: {},
+    totalGamesStarted: 0,
+    totalGamesCompleted: 0,
+    totalPlayTimeMs: 0,
+    lastActive: Date.now(),
+    currentStreak: 0,
+    bestStreak: 0,
+    categoriesLandedOn: {},
+    boardCategoriesPlayed: {},
+    intensitiesPlayed: {},
+  };
+}
 
 async function getOrCreateStats(ownerId: string): Promise<GlobalPlayerStats> {
   const existing = await db.globalPlayerStats.where('ownerId').equals(ownerId).first();
 
   if (existing) {
-    return { ...DEFAULT_STATS, ...existing };
+    return { ...createDefaultStats(), ...existing };
   }
 
-  const newStats = { ownerId, ...DEFAULT_STATS };
+  const newStats = { ownerId, ...createDefaultStats() };
   const id = await db.globalPlayerStats.add(newStats);
   return { ...newStats, id };
 }
@@ -63,7 +65,7 @@ export async function recordGameComplete(ownerId: string): Promise<void> {
     totalPlayTimeMs: stats.totalPlayTimeMs + playTimeMs,
     currentStreak: newStreak,
     bestStreak: Math.max(stats.bestStreak, newStreak),
-    currentGameStartTime: undefined,
+    currentGameStartTime: null,
     lastActive: Date.now(),
   });
 }
