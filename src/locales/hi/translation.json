@@ -618,5 +618,19 @@
   "ambientVolume": "आवाज़",
   "soundscapeLounge": "लाउंज",
   "soundscapeIntimate": "अंतरंग",
-  "soundscapeParty": "पार्टी ऊर्जा"
+  "soundscapeParty": "पार्टी ऊर्जा",
+  "statistics": "आंकड़े",
+  "statsGames": "खेल",
+  "statsGamesStarted": "शुरू किए गए खेल",
+  "statsGamesCompleted": "पूर्ण किए गए खेल",
+  "statsCurrentStreak": "वर्तमान श्रृंखला",
+  "statsBestStreak": "सर्वश्रेष्ठ श्रृंखला",
+  "statsTime": "समय",
+  "statsTotalPlayTime": "कुल खेल समय",
+  "statsAverageGame": "औसत खेल",
+  "statsDice": "पासा",
+  "statsTotalRolls": "कुल रोल",
+  "statsAverageRoll": "औसत रोल",
+  "statsDiceDistribution": "पासा वितरण",
+  "statsNoData": "अभी तक कोई आंकड़े नहीं। अपनी प्रगति को ट्रैक करने के लिए खेलना शुरू करें!"
 }
