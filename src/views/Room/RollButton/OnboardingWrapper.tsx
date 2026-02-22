@@ -1,5 +1,5 @@
 import { Portal, useMediaQuery, useTheme } from '@mui/material';
-import { ReactNode, useEffect, useState, useRef } from 'react';
+import { ReactNode, useCallback, useEffect, useState, useRef } from 'react';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -56,14 +56,42 @@ const OnboardingWrapper = ({ children, className }: OnboardingWrapperProps): JSX
     }
   }, [shouldShowOnboarding]);
 
-  const handleInteraction = () => {
+  const handleInteraction = useCallback(() => {
     if (!settings.hasSeenRollButton) {
       setHasInteracted(true);
       setStartAnimation(false);
       updateSettings({ hasSeenRollButton: true });
     }
     // Don't prevent the event from bubbling to the actual button
-  };
+  }, [settings.hasSeenRollButton, updateSettings]);
+
+  // Sync onboarding dismissal with the global spacebar roll shortcut in Room/index.tsx
+  // so the overlay doesn't block or desync when users press space to roll
+  useEffect(() => {
+    if (!shouldShowOnboarding) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+
+      // Avoid dismissing the overlay while the user is typing
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handleInteraction();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [shouldShowOnboarding, handleInteraction]);
 
   if (!shouldShowOnboarding) {
     return <div className={className}>{children}</div>;

@@ -16,6 +16,7 @@ const defaultSettings: Settings = {
   themeMode: 'system',
   playerDialog: true,
   showDiceAnimation: true,
+  wakeLockEnabled: true,
 };
 
 interface SettingsStore {
