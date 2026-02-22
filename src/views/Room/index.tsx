@@ -54,7 +54,8 @@ export default function Room() {
 
   usePresence(room);
 
-  // Prevent screen from sleeping during gameplay (mobile)
+  // Keeps the screen awake so gameplay controls and connections aren't interrupted
+  // (Chromium-based browsers; controlled by settings.wakeLockEnabled)
   useWakeLock(settings.wakeLockEnabled ?? true);
 
   // Game session tracking
@@ -194,7 +195,7 @@ export default function Room() {
   const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
 
-  // Keyboard shortcuts for desktop users (Spacebar to roll, Escape to close dialogs)
+  // Keyboard shortcut: Spacebar to roll
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;

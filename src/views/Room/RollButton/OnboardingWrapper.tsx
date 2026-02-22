@@ -73,7 +73,7 @@ const OnboardingWrapper = ({ children, className }: OnboardingWrapperProps): JSX
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
 
-      // Skip if user is typing in form elements
+      // Avoid dismissing the overlay while the user is typing
       if (
         target instanceof HTMLInputElement ||
         target instanceof HTMLTextAreaElement ||

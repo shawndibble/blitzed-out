@@ -16,38 +16,40 @@ export function useWakeLock(enabled: boolean = true): void {
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   useEffect(() => {
-    // Check for browser support
     if (!enabled || !('wakeLock' in navigator)) {
       return;
     }
 
+    let active = true;
+
     const requestWakeLock = async (): Promise<void> => {
       try {
-        wakeLockRef.current = await navigator.wakeLock.request('screen');
+        const sentinel = await navigator.wakeLock.request('screen');
+        // Effect may have cleaned up while awaiting the API response
+        if (!active) {
+          sentinel.release();
+          return;
+        }
+        wakeLockRef.current = sentinel;
       } catch {
-        // Wake lock request can fail if:
-        // - Page is not visible
-        // - System denies the request (low battery, etc.)
-        // This is expected behavior, so we fail silently.
+        // Expected failures: page not visible, low battery, etc.
       }
     };
 
+    // The Wake Lock API automatically releases locks when the tab loses visibility,
+    // so we must re-acquire when the user returns to maintain uninterrupted behavior
     const handleVisibilityChange = (): void => {
-      // Re-acquire wake lock when tab becomes visible
-      if (document.visibilityState === 'visible' && enabled) {
+      if (document.visibilityState === 'visible') {
         requestWakeLock();
       }
     };
 
-    // Initial request
     requestWakeLock();
-
-    // Re-acquire when tab becomes visible again
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
+      active = false;
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      // Release wake lock on cleanup
       wakeLockRef.current?.release();
       wakeLockRef.current = null;
     };
