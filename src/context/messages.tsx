@@ -41,8 +41,7 @@ export function MessagesProvider(props: MessagesProviderProps): JSX.Element {
     return getMessages(room, (newMessages: Array<Record<string, unknown>>) => {
       loadMessages(newMessages as unknown as Message[]);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [room]); // Only depend on room - Zustand actions are stable
+  }, [room]);
 
   const value = { messages, isLoading };
 

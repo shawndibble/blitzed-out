@@ -54,7 +54,6 @@ export default function FinishStep({
       newData.finishRange = no;
     }
     setFormData(newData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (): Promise<void> => {

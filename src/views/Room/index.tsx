@@ -150,7 +150,6 @@ export default function Room() {
     // Update refs to track changes
     previousMessageRef.current = latestActionMessage;
     previousNextPlayerRef.current = nextPlayer;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     latestActionMessage,
     nextPlayer?.uid,

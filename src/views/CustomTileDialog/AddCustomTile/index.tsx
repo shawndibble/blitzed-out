@@ -156,8 +156,7 @@ export default function AddCustomTile({
         tags: editTile.tags || [t('custom')],
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updateTileId, editTileData, customTiles, groups, t]); // Remove sharedFilters and setSharedFilters to prevent interference with user input
+  }, [updateTileId, editTileData, customTiles, groups, t]);
 
   function tileExists(
     group_id: string,

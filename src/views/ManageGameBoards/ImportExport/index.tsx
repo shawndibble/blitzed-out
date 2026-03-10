@@ -132,8 +132,7 @@ export default function ImportExport({
     if (open) {
       exportBoard();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]); // Removed board dependency to avoid circular reference
+  }, [open]);
 
   // Sync boardTitle state with board.title prop when it changes
   useEffect(() => {

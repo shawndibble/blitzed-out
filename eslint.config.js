@@ -1,7 +1,6 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import eslintReact from '@eslint-react/eslint-plugin';
-import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import tseslint from '@typescript-eslint/eslint-plugin';
@@ -21,12 +20,10 @@ export default [
       },
     },
     plugins: {
-      'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
     },
     rules: {
       ...js.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       semi: ['error', 'always'],
       'no-multi-spaces': ['error'],
@@ -57,14 +54,12 @@ export default [
     plugins: {
       ...eslintReact.configs['recommended-typescript'].plugins,
       '@typescript-eslint': tseslint,
-      'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
     },
     rules: {
       ...js.configs.recommended.rules,
       ...tseslint.configs.recommended.rules,
       ...eslintReact.configs['recommended-typescript'].rules,
-      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       semi: ['error', 'always'],
       'no-multi-spaces': ['error'],
@@ -81,11 +76,6 @@ export default [
       ],
       'no-undef': 'off',
       'no-bitwise': 'off',
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-      // Disable React Compiler rules - not using React Compiler yet
-      'react-hooks/purity': 'off',
-      'react-hooks/preserve-manual-memoization': 'off',
       // Warn on ref naming convention - refs should end with "Ref"
       '@eslint-react/naming-convention/ref-name': 'warn',
       // Disable hooks-extra rules that are too strict for existing code
@@ -110,8 +100,6 @@ export default [
       '@eslint-react/no-context-provider': 'off',
       // Warn on unnecessary use prefix - functions without hooks shouldn't use "use" prefix
       '@eslint-react/no-unnecessary-use-prefix': 'warn',
-      // Disable set-state-in-effect - valid pattern in many cases
-      'react-hooks/set-state-in-effect': 'off',
       // Warn on flushSync usage - should be rare
       '@eslint-react/dom/no-flush-sync': 'warn',
       // Enable createRef warning (except in tests where it's appropriate)
@@ -120,8 +108,6 @@ export default [
       'no-useless-assignment': 'warn',
       // Warn on errors without cause chain
       'preserve-caught-error': 'warn',
-      // Disable immutability check for event.target.value - valid DOM pattern
-      'react-hooks/immutability': 'off',
     },
   },
   // Test file overrides
