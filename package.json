@@ -82,7 +82,6 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-formatter-compact": "9.0.1",
     "eslint-plugin-prettier": "5.5.5",
-    "eslint-plugin-react-hooks": "7.1.0-canary-fd524fe0-20251121",
     "eslint-plugin-react-refresh": "0.5.2",
     "fake-indexeddb": "6.2.5",
     "globals": "17.4.0",

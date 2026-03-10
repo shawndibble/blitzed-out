@@ -86,7 +86,6 @@ export default function useTurnIndicator(message?: Message): Player | null {
     // Convert to Player format for the indicator
     const nextPlayer = convertHybridPlayerToPlayer(nextHybridPlayer);
     setTurnIndicator(nextPlayer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageHash, playersHash]);
 
   return turnIndicator;

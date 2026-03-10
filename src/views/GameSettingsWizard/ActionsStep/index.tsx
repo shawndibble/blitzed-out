@@ -60,7 +60,6 @@ export default function ActionsStep({
     // purge actions that we shouldn't be able to access.
     const newFormData = purgedFormData(formData);
     setFormData(newFormData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- This should only run once on mount to clean initial data
   }, []);
 
   // Auto-open accordion if there are selected actions on mount
@@ -71,7 +70,6 @@ export default function ActionsStep({
       setShowCustomization(true);
       setShowQuickStart(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only run on mount
   }, []);
 
   const options = (key: string) =>
