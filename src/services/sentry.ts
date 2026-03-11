@@ -25,6 +25,8 @@ const IGNORED_ERROR_PATTERNS = [
   /permission denied/i,
   /user denied permission/i,
   /not allowed by the user agent/i,
+  // Sentry Replay rrweb internal feature errors (DuckDuckGo/privacy browsers)
+  /feature named.*was not found/i,
 ];
 
 /**
