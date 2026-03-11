@@ -25,8 +25,6 @@ const IGNORED_ERROR_PATTERNS = [
   /permission denied/i,
   /user denied permission/i,
   /not allowed by the user agent/i,
-  // Sentry Replay rrweb internal feature errors (DuckDuckGo/privacy browsers)
-  /feature named.*was not found/i,
 ];
 
 /**
@@ -47,11 +45,34 @@ function isNetworkError(message: string): boolean {
 }
 
 /**
+ * Check if error originates from Sentry Replay/rrweb by inspecting stack frames
+ */
+function isRrwebReplayError(event: Sentry.ErrorEvent): boolean {
+  const frames = event.exception?.values?.[0]?.stacktrace?.frames || [];
+  return frames.some((frame) => {
+    const filename = frame.filename || '';
+    const module = frame.module || '';
+    return (
+      filename.includes('rrweb') ||
+      filename.includes('replay') ||
+      module.includes('rrweb') ||
+      module.includes('replay')
+    );
+  });
+}
+
+/**
  * Simplified beforeSend - only handle complex contextual filtering
  */
 function beforeSendHandler(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
   const errorMessage = event.exception?.values?.[0]?.value || event.message || '';
   const userAgent = navigator.userAgent.toLowerCase();
+
+  // Filter rrweb/Replay internal feature errors (DuckDuckGo/privacy browsers)
+  // Only suppress when both the message matches AND the error comes from rrweb
+  if (/feature named.*was not found/i.test(errorMessage) && isRrwebReplayError(event)) {
+    return null;
+  }
 
   // Filter network errors only on Safari or when no stack trace exists
   if (isNetworkError(errorMessage)) {
