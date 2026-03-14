@@ -2,7 +2,7 @@
 import { defineConfig } from 'vite';
 import path from 'path';
 
-// CI configuration optimized for GitHub Actions (2 cores available)
+// CI/local configuration optimized for speed while maintaining test isolation
 export default defineConfig({
   resolve: {
     alias: {
@@ -15,42 +15,35 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
 
-    // Balanced timeouts for CI
+    // Reasonable timeouts
     testTimeout: 10000,
     hookTimeout: 10000,
 
     // Simple, fast execution with early bail
     reporter: 'dot',
-    bail: 3, // Stop after 3 failures to save time
+    bail: 3,
 
-    // Memory management without sacrificing too much speed
+    // Memory management
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
-    css: false, // Skip CSS processing for faster tests
+    css: false,
 
-    // Use forks pool for proper isolation
-    pool: 'forks',
-    poolOptions: {
-      forks: {
-        maxForks: 2,
-        minForks: 1,
-      },
-    },
+    // Use threads pool (faster than forks, fixed deprecated poolOptions)
+    pool: 'threads',
+    minWorkers: 1,
+    maxWorkers: 2,
 
-    // Enable file parallelism for faster execution
-    fileParallelism: true,
-    maxConcurrency: 5,
-
-    // Enable isolation to prevent mock bleed between tests
+    // Keep isolation for CI safety
     isolate: true,
+    fileParallelism: true,
 
-    // Disable coverage in CI to save time and memory
+    // Disable coverage
     coverage: {
       enabled: false,
     },
 
-    // Deterministic test execution order
+    // Deterministic test order
     sequence: {
       shuffle: false,
     },

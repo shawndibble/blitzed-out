@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
-import TransitionModal from '@/components/TransitionModal';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import ActionCard from '@/components/ActionCard';
 import useSoundAndDialog, { DialogResult } from '@/hooks/useSoundAndDialog';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,24 @@ const PopupMessage = (): JSX.Element | null => {
   const { message, setMessage, isMyMessage }: DialogResult = useSoundAndDialog();
   const nextPlayer = useTurnIndicator(message as Message);
 
-  // handle timeout of TransitionModal
+  // Keep track of the last valid message for exit animation
+  const [lastMessage, setLastMessage] = useState<Message | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Update last message when we get a valid new message
+  useEffect(() => {
+    if (
+      message &&
+      typeof message === 'object' &&
+      message.text &&
+      !message.text.includes(t('start'))
+    ) {
+      setLastMessage(message);
+      setIsOpen(true);
+    }
+  }, [message, t]);
+
+  // handle timeout of ActionCard
   const timeoutIdRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
@@ -22,31 +39,28 @@ const PopupMessage = (): JSX.Element | null => {
     };
   }, [message, setMessage]);
 
-  const closeTransitionModal = useCallback(() => {
+  const closeActionCard = useCallback(() => {
     if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
-    setMessage(false);
+    setIsOpen(false);
+    // Delay clearing the message to allow exit animation
+    setTimeout(() => setMessage(false), 500);
   }, [setMessage]);
 
   const stopAutoClose = useCallback(() => {
     if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
   }, []);
-  // end handle timeout of TransitionModal.
 
-  if (
-    !message ||
-    typeof message !== 'object' ||
-    !message.text ||
-    message.text.includes(t('start'))
-  ) {
+  // Don't render if we never had a valid message
+  if (!lastMessage) {
     return null;
   }
 
   return (
-    <TransitionModal
-      text={message?.text}
-      displayName={message?.displayName}
-      open
-      handleClose={closeTransitionModal}
+    <ActionCard
+      text={lastMessage.text}
+      displayName={lastMessage.displayName}
+      open={isOpen}
+      handleClose={closeActionCard}
       stopAutoClose={stopAutoClose}
       nextPlayer={nextPlayer}
       isMyMessage={isMyMessage}
