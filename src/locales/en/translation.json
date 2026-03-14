@@ -288,6 +288,7 @@
   "noInteracting": "No, I am playing with myself.",
   "yourRole": "What is your role?",
   "yourGender": "What is your anatomy?",
+  "anatomyDescription": "This personalizes action text to match your body",
   "areYouNaked": "Foreplay (clothed) or Sex (naked)*?",
   "yesNaked": "Sex: We are naked.",
   "noNaked": "Foreplay: We are still clothed.",

@@ -12,6 +12,7 @@ import FilteredErrorBoundary from '@/components/FilteredErrorBoundary';
 import './i18n'; // Load i18n statically
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { setupAudioUnlock } from '@/utils/audioContext';
+import { preloadDiceBox } from '@/services/diceBoxPreloader';
 
 // Enhanced module loading error handling - uses feature detection instead of user-agent sniffing
 if (typeof window !== 'undefined' && !window.importShim) {
@@ -58,6 +59,9 @@ initializeSentry();
 
 // Initialize audio unlock for sound playback
 setupAudioUnlock();
+
+// Preload 3D dice library to eliminate first-roll delay
+preloadDiceBox();
 
 // Initialize PWA elements
 const initializePWAElements = () => {

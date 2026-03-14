@@ -284,6 +284,7 @@
   "noInteracting": "不，我在與自己遊玩。",
   "yourRole": "您的角色是什麼？",
   "yourGender": "您的解剖是什麼？",
+  "anatomyDescription": "这将根据您的身体个性化动作文本",
   "areYouNaked": "前戲（穿衣服）還是性愛（裸體）*？",
   "yesNaked": "性愛：我們都裸體。",
   "noNaked": "前戲：我們仍然穿著衣服。",
