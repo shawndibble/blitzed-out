@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Box, Portal } from '@mui/material';
+import { getPreloadedDiceBox } from '@/services/diceBoxPreloader';
 
 export interface DiceRollerProps {
   diceNotation: string;
@@ -56,7 +57,7 @@ export default function DiceRoller({
     isInitializingRef.current = true;
 
     try {
-      const DiceBox = (await import('@3d-dice/dice-box-threejs')).default;
+      const DiceBox = await getPreloadedDiceBox();
 
       const diceBox = new DiceBox(`#${DICE_CONTAINER_ID}`, {
         theme_customColorset: {
