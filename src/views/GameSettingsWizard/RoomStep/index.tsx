@@ -1,4 +1,14 @@
-import { Box, Button, Typography, Stack, TextField } from '@mui/material';
+import {
+  Box,
+  Button,
+  Typography,
+  Stack,
+  TextField,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+} from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import RoomQRCode from '@/components/RoomQRCode';
@@ -8,6 +18,7 @@ import { customAlphabet } from 'nanoid';
 import { useState, useCallback, ChangeEvent, KeyboardEvent, useEffect, useMemo } from 'react';
 import { Settings } from '@/types/Settings';
 import { getDatabase, ref, get } from 'firebase/database';
+import type { PlayerGender } from '@/types/localPlayers';
 import { useParams } from 'react-router-dom';
 
 interface RoomStepProps {
@@ -15,6 +26,12 @@ interface RoomStepProps {
   setFormData: (data: Settings) => void;
   nextStep: (step: number) => void;
 }
+
+const genderOptions = [
+  { value: 'male', labelKey: 'localPlayers.gender.male' },
+  { value: 'female', labelKey: 'localPlayers.gender.female' },
+  { value: 'non-binary', labelKey: 'localPlayers.gender.nonBinary' },
+] as const;
 
 export default function RoomStep({ formData, setFormData, nextStep }: RoomStepProps): JSX.Element {
   const { t } = useTranslation();
@@ -137,6 +154,66 @@ export default function RoomStep({ formData, setFormData, nextStep }: RoomStepPr
           isSelected={!isPublic}
         />
       </Stack>
+
+      {/* Gender Selection */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
+          <Trans i18nKey="yourGender" />
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Trans i18nKey="anatomyDescription" />
+        </Typography>
+        <Grid container spacing={2}>
+          {genderOptions.map((option) => (
+            <Grid size={{ xs: 12, sm: 4 }} key={option.value}>
+              <Card
+                role="button"
+                tabIndex={0}
+                sx={{
+                  cursor: 'pointer',
+                  border: formData.gender === option.value ? '2px solid' : '1px solid',
+                  borderColor: formData.gender === option.value ? 'primary.main' : 'divider',
+                  backgroundColor:
+                    formData.gender === option.value ? 'primary.50' : 'background.paper',
+                  transition: 'all 0.2s ease-in-out',
+                  height: '100%',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    transform: 'translateY(-2px)',
+                    boxShadow: 2,
+                  },
+                }}
+                onClick={() =>
+                  setFormData({
+                    ...formData,
+                    gender: option.value as PlayerGender,
+                  })
+                }
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setFormData({
+                      ...formData,
+                      gender: option.value as PlayerGender,
+                    });
+                  }
+                }}
+              >
+                <CardContent sx={{ p: 2.5 }}>
+                  <Stack spacing={1} alignItems="center" textAlign="center">
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {t(option.labelKey)}
+                    </Typography>
+                    {formData.gender === option.value && (
+                      <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 1 }} />
+                    )}
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
 
       {showPrivateRoomField && (
         <Box

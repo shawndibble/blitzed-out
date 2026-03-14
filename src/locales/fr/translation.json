@@ -286,6 +286,7 @@
   "noInteracting": "Non, je joue avec moi-même.",
   "yourRole": "Quel est votre rôle?",
   "yourGender": "Quelle est votre anatomie?",
+  "anatomyDescription": "Cela personnalise le texte des actions pour votre corps",
   "areYouNaked": "Préliminaires (habillé) ou Sexe (nu)*?",
   "yesNaked": "Sexe: Nous sommes nus.",
   "noNaked": "Préliminaires: Nous sommes encore habillés.",
