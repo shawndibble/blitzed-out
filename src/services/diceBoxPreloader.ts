@@ -31,10 +31,17 @@ function startPreload(): Promise<DiceBoxConstructor> {
 export function preloadDiceBox(): void {
   if (typeof window === 'undefined') return;
 
+  const handlePreload = () => {
+    startPreload().catch(() => {
+      // Silently ignore preload failures - the error will surface
+      // when getPreloadedDiceBox() is called and retries the import
+    });
+  };
+
   if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(() => startPreload(), { timeout: 3000 });
+    window.requestIdleCallback(handlePreload, { timeout: 3000 });
   } else {
-    setTimeout(() => startPreload(), 100);
+    setTimeout(handlePreload, 100);
   }
 }
 
