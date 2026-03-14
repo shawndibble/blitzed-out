@@ -12,7 +12,7 @@ vi.mock('ios-haptics', () => {
   return { haptic: mockFn };
 });
 
-const mockedHaptic = haptic as MockedFunction<() => void> & {
+const mockedHaptic = haptic as unknown as MockedFunction<() => void> & {
   error: MockedFunction<() => void>;
   confirm: MockedFunction<() => void>;
 };

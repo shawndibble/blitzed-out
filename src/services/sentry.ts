@@ -106,6 +106,11 @@ function beforeSendHandler(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
  * Initialize Sentry error tracking and monitoring
  */
 export function initializeSentry(): void {
+  // Skip Sentry in test environment
+  if (import.meta.env.MODE === 'test') {
+    return;
+  }
+
   // Idempotency guard: prevent double initialization (HMR, repeated calls)
   if (Sentry.getClient() !== undefined) {
     return;
