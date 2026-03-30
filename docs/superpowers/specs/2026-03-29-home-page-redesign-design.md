@@ -73,12 +73,12 @@ The current home page uses generic marketing copy ("Transform Your Intimate Adve
 
 ## Screenshots Required
 
-The page will reference static screenshots stored as assets. These need to be captured and saved:
+Static screenshots stored in `public/screenshots/` as optimized WebP images. Below-fold images should use `loading="lazy"` for performance. On mobile, screenshots should scale to full container width with `max-width: 100%`.
 
-1. **Board view (dark theme)** — the colorful tile board showing action categories
-2. **Setup wizard** — the Game Mode Selection step showing intensity/role options
-3. **Action card modal** — a dare popup overlaying the board during gameplay
-4. **Manage Game Tiles** — the customization panel showing categories and custom tile creation
+1. **Board view (dark theme)** — `hero-board.webp` — the colorful tile board showing action categories
+2. **Setup wizard** — `setup-wizard.webp` — the Game Mode Selection step showing intensity/role options
+3. **Action card modal** — `action-card.webp` — a dare popup overlaying the board during gameplay
+4. **Manage Game Tiles** — `custom-tiles.webp` — the customization panel showing categories and custom tile creation
 
 ## i18n Impact
 
