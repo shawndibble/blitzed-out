@@ -33,34 +33,33 @@ export default function GameGuide() {
         {t('howItWorksTitle')}
       </Typography>
 
-      {steps.map((step, index) => (
-        <Box
-          key={step.titleKey}
-          className={`how-it-works-step ${index % 2 === 1 ? 'step-reverse' : ''}`}
-        >
-          <Box className="step-image-container">
-            <img
-              src={step.image}
-              alt={t(step.altKey)}
-              className="step-image"
-              loading="lazy"
-              width={600}
-              height={400}
-            />
-          </Box>
-          <Box className="step-content">
-            <Box className="step-header">
-              <Box className="step-number-badge">{index + 1}</Box>
-              <Typography component="h3" variant="h6" className="step-title">
-                {t(step.titleKey)}
+      <Box className="how-it-works-steps">
+        {steps.map((step, index) => (
+          <Box key={step.titleKey} className="how-it-works-step">
+            <Box className="step-image-container">
+              <img
+                src={step.image}
+                alt={t(step.altKey)}
+                className="step-image"
+                loading="lazy"
+                width={600}
+                height={400}
+              />
+            </Box>
+            <Box className="step-content">
+              <Box className="step-header">
+                <Box className="step-number-badge">{index + 1}</Box>
+                <Typography component="h3" variant="h6" className="step-title">
+                  {t(step.titleKey)}
+                </Typography>
+              </Box>
+              <Typography variant="body1" className="step-description">
+                {t(step.descKey)}
               </Typography>
             </Box>
-            <Typography variant="body1" className="step-description">
-              {t(step.descKey)}
-            </Typography>
           </Box>
-        </Box>
-      ))}
+        ))}
+      </Box>
     </Box>
   );
 }

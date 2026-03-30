@@ -61,6 +61,10 @@ body.theme-light .unauthenticated-container {
     0 0 30px rgba(255, 107, 107, 0.1);
 }
 
+.main-setup-card .MuiCardContent-root {
+  padding: 1rem 1.5rem;
+}
+
 body.theme-light .main-setup-card {
   background: var(--color-surface);
   border: 1px solid var(--container-border);
