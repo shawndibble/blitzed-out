@@ -12,9 +12,12 @@ vi.mock('@/context/migration', () => ({
     currentLanguageMigrated: true,
     isMigrationInProgress: false,
     isMigrationCompleted: true,
+    isHealthy: true,
+    recoveryAttempted: false,
     error: null,
     triggerMigration: vi.fn(),
     ensureLanguageMigrated: vi.fn(),
+    forceRecovery: vi.fn(),
   }),
 }));
 
@@ -42,12 +45,11 @@ describe('GameGuide (HowItWorks)', () => {
 
   it('renders 3 clickable screenshot images with alt text', () => {
     render(<GameGuide />);
-    const images = screen.getAllByRole('button');
-    const imgButtons = images.filter((el) => el.tagName === 'IMG');
-    expect(imgButtons).toHaveLength(3);
-    expect(imgButtons[0]).toHaveAttribute('alt', 'howItWorksStep1Alt');
-    expect(imgButtons[1]).toHaveAttribute('alt', 'howItWorksStep2Alt');
-    expect(imgButtons[2]).toHaveAttribute('alt', 'howItWorksStep3Alt');
+    const images = screen.getAllByRole('img');
+    expect(images).toHaveLength(3);
+    expect(images[0]).toHaveAttribute('alt', 'howItWorksStep1Alt');
+    expect(images[1]).toHaveAttribute('alt', 'howItWorksStep2Alt');
+    expect(images[2]).toHaveAttribute('alt', 'howItWorksStep3Alt');
   });
 
   it('renders step numbers 1, 2, 3', () => {

@@ -47,6 +47,12 @@ body.theme-light .how-it-works-title {
   opacity: 0.85;
 }
 
+.step-image:focus-visible {
+  opacity: 0.85;
+  outline: 2px solid var(--color-accent, #22d3ee);
+  outline-offset: 2px;
+}
+
 .step-content {
   display: flex;
   flex-direction: column;

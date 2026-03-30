@@ -27,9 +27,9 @@ const steps = [
 
 export default function GameGuide() {
   const { t } = useTranslation();
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
 
-  const closeLightbox = useCallback(() => setLightboxImage(null), []);
+  const closeLightbox = useCallback(() => setLightbox(null), []);
 
   return (
     <Box className="how-it-works">
@@ -48,11 +48,13 @@ export default function GameGuide() {
                 loading="lazy"
                 width={600}
                 height={400}
-                onClick={() => setLightboxImage(step.image)}
-                role="button"
+                onClick={() => setLightbox({ src: step.image, alt: t(step.altKey) })}
                 tabIndex={0}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') setLightboxImage(step.image);
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === ' ') e.preventDefault();
+                    setLightbox({ src: step.image, alt: t(step.altKey) });
+                  }
                 }}
               />
             </Box>
@@ -72,7 +74,7 @@ export default function GameGuide() {
       </Box>
 
       <Dialog
-        open={!!lightboxImage}
+        open={!!lightbox}
         onClose={closeLightbox}
         maxWidth={false}
         slotProps={{
@@ -90,10 +92,10 @@ export default function GameGuide() {
           },
         }}
       >
-        {lightboxImage && (
+        {lightbox && (
           <img
-            src={lightboxImage}
-            alt=""
+            src={lightbox.src}
+            alt={lightbox.alt}
             style={{
               maxWidth: '90vw',
               maxHeight: '90vh',

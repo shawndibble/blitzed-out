@@ -123,8 +123,6 @@ export default function UnauthenticatedApp() {
 
       try {
         await i18n.changeLanguage(newLanguage);
-      } catch {
-        await i18n.changeLanguage(newLanguage);
       } finally {
         setLanguageLoading(false);
       }
