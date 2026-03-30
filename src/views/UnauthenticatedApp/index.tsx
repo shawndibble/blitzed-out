@@ -10,7 +10,6 @@ import {
   Container,
   Divider,
   FormControl,
-  Grid,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -147,147 +146,120 @@ export default function UnauthenticatedApp() {
     <>
       <Navigation room={room} playerList={playerList} />
       <main className="unauthenticated-container gradient-background-vibrant">
-        <Container maxWidth="lg" sx={{ pt: 8 }} component="section">
-          <Grid container spacing={4} justifyContent="center" alignItems="center">
-            {/* Hero Screenshot */}
-            <Grid size={{ xs: 12, md: 6, lg: 7 }}>
-              <Box className="hero-screenshot-container">
-                <Typography component="h1" variant="h4" className="hero-headline">
-                  {t('heroHeadline')}
-                </Typography>
-                <Typography variant="body1" className="hero-subheadline">
-                  {t('heroSubheadline')}
-                </Typography>
-                <img
-                  src="/screenshots/hero-board.webp"
-                  alt={t('heroScreenshotAlt')}
-                  className="hero-screenshot"
-                  loading="eager"
-                  fetchPriority="high"
-                  width={800}
-                  height={500}
-                />
-              </Box>
-            </Grid>
+        <section className="hero-section">
+          <Box className="hero-content">
+            <Typography component="h1" variant="h3" className="hero-headline">
+              {t('heroHeadline')}
+            </Typography>
+            <Typography variant="h6" className="hero-subheadline">
+              {t('heroSubheadline')}
+            </Typography>
 
-            {/* Main Setup Card */}
-            <Grid size={{ xs: 12, md: 6, lg: 5 }}>
-              <Card className="unauthenticated-card main-setup-card">
-                <CardContent>
-                  <Box className="mobile-hero-text">
-                    <Typography component="h1" variant="h5" className="hero-headline">
-                      {t('heroHeadline')}
-                    </Typography>
-                    <Typography variant="body1" className="hero-subheadline">
-                      {t('heroSubheadline')}
-                    </Typography>
-                  </Box>
+            <Card className="main-setup-card">
+              <CardContent>
+                <Box
+                  component="form"
+                  method="post"
+                  onSubmit={handleSubmit}
+                  className="settings-box"
+                >
+                  <TextField
+                    fullWidth
+                    id="displayName"
+                    label={t('displayName')}
+                    value={displayName}
+                    onChange={(event) => setDisplayName(event.target.value)}
+                    required
+                    autoFocus
+                    onKeyDown={(event) => onEnterKey(event)}
+                    margin="normal"
+                  />
 
-                  <Box
-                    component="form"
-                    method="post"
-                    onSubmit={handleSubmit}
-                    className="settings-box"
-                  >
-                    <TextField
-                      fullWidth
-                      id="displayName"
-                      label={t('displayName')}
-                      value={displayName}
-                      onChange={(event) => setDisplayName(event.target.value)}
-                      required
-                      autoFocus
-                      onKeyDown={(event) => onEnterKey(event)}
-                      margin="normal"
-                    />
-
-                    {(loginError || authError) && (
-                      <Box
-                        sx={{
-                          mt: 2,
-                          p: 2,
-                          borderRadius: 1,
-                          backgroundColor: 'error.main',
-                          color: 'error.contrastText',
-                        }}
-                      >
-                        <Typography variant="body2">
-                          <strong>Error:</strong> {loginError || authError}
-                        </Typography>
-                      </Box>
-                    )}
-
-                    <Button
-                      variant="contained"
-                      type="submit"
-                      fullWidth
-                      className="jump-in-button"
-                      size="large"
-                      disabled={loginLoading}
-                      startIcon={loginLoading ? <CircularProgress size={20} /> : undefined}
+                  {(loginError || authError) && (
+                    <Box
                       sx={{
                         mt: 2,
-                        py: 1.25,
-                        fontSize: '1.1rem',
-                        fontWeight: 600,
-                        touchAction: 'manipulation',
-                        cursor: loginLoading ? 'default' : 'pointer',
-                        userSelect: 'none',
-                        '&:focus': {
-                          outline: '2px solid',
-                          outlineColor: 'primary.main',
-                          outlineOffset: '2px',
-                        },
-                      }}
-                      onClick={async (e) => {
-                        await handleSubmit(e);
+                        p: 2,
+                        borderRadius: 1,
+                        backgroundColor: 'error.main',
+                        color: 'error.contrastText',
                       }}
                     >
-                      {loginLoading ? (
-                        <Trans i18nKey="loadingEllipsis" />
-                      ) : hasImport ? (
-                        <Trans i18nKey="import" />
-                      ) : (
-                        <Trans i18nKey="playNow" />
-                      )}
-                    </Button>
-                  </Box>
+                      <Typography variant="body2">
+                        <strong>Error:</strong> {loginError || authError}
+                      </Typography>
+                    </Box>
+                  )}
 
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 1, textAlign: 'center' }}
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    fullWidth
+                    className="jump-in-button"
+                    size="large"
+                    disabled={loginLoading}
+                    startIcon={loginLoading ? <CircularProgress size={20} /> : undefined}
+                    sx={{
+                      mt: 2,
+                      py: 1.25,
+                      fontSize: '1.1rem',
+                      fontWeight: 600,
+                      touchAction: 'manipulation',
+                      cursor: loginLoading ? 'default' : 'pointer',
+                      userSelect: 'none',
+                      '&:focus': {
+                        outline: '2px solid',
+                        outlineColor: 'primary.main',
+                        outlineOffset: '2px',
+                      },
+                    }}
+                    onClick={async (e) => {
+                      await handleSubmit(e);
+                    }}
                   >
-                    {t('noAccountRequired')}
+                    {loginLoading ? (
+                      <Trans i18nKey="loadingEllipsis" />
+                    ) : hasImport ? (
+                      <Trans i18nKey="import" />
+                    ) : (
+                      <Trans i18nKey="playNow" />
+                    )}
+                  </Button>
+                </Box>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1, textAlign: 'center' }}
+                >
+                  {t('noAccountRequired')}
+                </Typography>
+
+                <Divider sx={{ my: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    <Trans i18nKey="or" />
                   </Typography>
+                </Divider>
 
-                  <Divider sx={{ my: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <Trans i18nKey="or" />
-                    </Typography>
-                  </Divider>
+                <Box className="auth-button-container">
+                  <Button variant="text" onClick={handleOpenLogin} size="medium">
+                    <Trans i18nKey="signIn" />
+                  </Button>
+                  <Button variant="text" onClick={handleOpenRegister} size="medium">
+                    <Trans i18nKey="createAccount" />
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        </section>
 
-                  <Box className="auth-button-container">
-                    <Button variant="text" onClick={handleOpenLogin} size="medium">
-                      <Trans i18nKey="signIn" />
-                    </Button>
-                    <Button variant="text" onClick={handleOpenRegister} size="medium">
-                      <Trans i18nKey="createAccount" />
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* How It Works - Below the fold */}
-            <Grid size={12}>
-              <Card className="unauthenticated-card">
-                <CardContent>
-                  <GameGuide />
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+        <Container maxWidth="lg" component="section" sx={{ mt: 6 }}>
+          <Card className="unauthenticated-card">
+            <CardContent>
+              <GameGuide />
+            </CardContent>
+          </Card>
         </Container>
 
         {/* Footer Language Selector */}

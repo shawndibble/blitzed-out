@@ -49,10 +49,12 @@ export default function GameGuide() {
             />
           </Box>
           <Box className="step-content">
-            <Box className="step-number-badge">{index + 1}</Box>
-            <Typography component="h3" variant="h6" className="step-title">
-              {t(step.titleKey)}
-            </Typography>
+            <Box className="step-header">
+              <Box className="step-number-badge">{index + 1}</Box>
+              <Typography component="h3" variant="h6" className="step-title">
+                {t(step.titleKey)}
+              </Typography>
+            </Box>
             <Typography variant="body1" className="step-description">
               {t(step.descKey)}
             </Typography>
