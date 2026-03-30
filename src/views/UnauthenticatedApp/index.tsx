@@ -254,7 +254,7 @@ export default function UnauthenticatedApp() {
           </Box>
         </section>
 
-        <Container maxWidth="lg" component="section" sx={{ mt: 6 }}>
+        <Container maxWidth="lg" component="section" sx={{ mt: 2 }}>
           <Card className="unauthenticated-card">
             <CardContent>
               <GameGuide />

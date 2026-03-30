@@ -1,6 +1,7 @@
 import './styles.css';
 
-import { Box, Typography } from '@mui/material';
+import { Box, Dialog, Typography } from '@mui/material';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const steps = [
@@ -26,6 +27,9 @@ const steps = [
 
 export default function GameGuide() {
   const { t } = useTranslation();
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  const closeLightbox = useCallback(() => setLightboxImage(null), []);
 
   return (
     <Box className="how-it-works">
@@ -44,6 +48,12 @@ export default function GameGuide() {
                 loading="lazy"
                 width={600}
                 height={400}
+                onClick={() => setLightboxImage(step.image)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') setLightboxImage(step.image);
+                }}
               />
             </Box>
             <Box className="step-content">
@@ -60,6 +70,39 @@ export default function GameGuide() {
           </Box>
         ))}
       </Box>
+
+      <Dialog
+        open={!!lightboxImage}
+        onClose={closeLightbox}
+        maxWidth={false}
+        slotProps={{
+          paper: {
+            sx: {
+              background: 'transparent',
+              boxShadow: 'none',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              overflow: 'visible',
+            },
+          },
+          backdrop: {
+            sx: { backgroundColor: 'rgba(0, 0, 0, 0.85)' },
+          },
+        }}
+      >
+        {lightboxImage && (
+          <img
+            src={lightboxImage}
+            alt=""
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              borderRadius: 8,
+              display: 'block',
+            }}
+          />
+        )}
+      </Dialog>
     </Box>
   );
 }
