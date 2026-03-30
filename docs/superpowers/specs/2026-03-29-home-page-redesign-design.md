@@ -94,10 +94,6 @@ All new copy must be added to all 5 translation files (en, es, fr, zh, hi). The 
 
 ## UI/UX Guidelines (from UI/UX Pro Max analysis)
 
-### Icons
-
-- Replace emoji icons (current: dice emoji, lock emoji, star emoji) with SVG icons from a consistent icon set (e.g., Lucide or MUI icons). Emojis render inconsistently across platforms.
-
 ### Accessibility
 
 - All screenshots must have descriptive `alt` text (e.g., "Game board showing colorful tiles with action categories like Kissing, Alcohol, and Confessions")
