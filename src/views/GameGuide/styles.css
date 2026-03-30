@@ -1,261 +1,133 @@
-/* Game Guide Container */
-.game-guide {
-  padding: 0.75rem;
+.how-it-works {
+  padding: 1rem 0 2rem;
 }
 
-/* Desktop padding adjustments */
-@media screen and (min-width: 768px) {
-  .game-guide {
-    padding: 0.75rem;
-  }
-}
-
-@media screen and (min-width: 1024px) {
-  .game-guide {
-    padding: 1rem;
-  }
-}
-
-/* Hero Section */
-.hero-section {
-  text-align: left;
-}
-
-.hero-section .hero-title {
+.how-it-works-title {
+  text-align: center;
   font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: -0.025em;
-  text-align: center;
-  width: 100%;
-  color: #22d3ee;
+  color: var(--color-accent, #22d3ee);
+  padding-bottom: 2rem;
+  font-size: 1.75rem;
 }
 
-body.theme-light .hero-section .hero-title {
-  color: #0891b2;
+body.theme-light .how-it-works-title {
+  color: var(--color-accent-light, #0891b2);
 }
 
-.hero-description {
-  color: var(--color-white-85);
-  margin-bottom: 1.5rem;
-  line-height: 1.6;
-  font-size: 1rem;
-  text-align: left;
-}
-
-.hero-section .hero-subtitle {
-  color: var(--color-white-85);
-  line-height: 1.5;
-  font-size: 0.9rem;
-  text-align: left;
-  margin: 1.5rem 0;
-}
-
-.hero-subtitle:first-of-type {
-  margin-top: 2rem;
-}
-
-/* Section Divider */
-.section-divider {
-  margin: 2.5rem 0;
-  border-color: var(--color-slate-400-20);
-  background: var(--gradient-section-divider);
-  height: 1px;
-}
-
-/* Features Section */
-.features-section {
-  margin-bottom: 2rem;
-}
-
-.features-section .section-title {
-  text-align: center;
-  margin: 1rem 0;
-  font-weight: 600;
-  color: #22d3ee;
-}
-
-body.theme-light .features-section .section-title {
-  color: #0891b2;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-.feature-item {
-  background: var(--surface-dark-07);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--color-slate-400-15);
-  border-radius: var(--border-radius-sm);
-  padding: 1rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.feature-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+.how-it-works-steps {
   display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.how-it-works-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.step-image-container {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
   justify-content: center;
 }
 
-.feature-title {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--color-white-95);
-  text-align: center;
+.step-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--container-border);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
 }
 
-.feature-description {
-  color: var(--color-white-80);
-  line-height: 1.5;
-  text-align: center;
-  font-size: 0.9rem;
+.step-image:hover {
+  opacity: 0.85;
 }
 
-/* Accordion styles now handled in App.css */
-
-/* Steps Container */
-.steps-container {
-  margin-bottom: 1.5rem;
+.step-image:focus-visible {
+  opacity: 0.85;
+  outline: 2px solid var(--color-accent, #22d3ee);
+  outline-offset: 2px;
 }
 
-.step-item {
+.step-content {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: var(--surface-secondary);
-  border-radius: var(--border-radius-xs);
-  border-left: 3px solid rgba(34, 211, 238, 0.5);
-  transition: all 0.3s ease;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.step-item:hover {
-  background: var(--surface-secondary-hover);
-  border-left-color: rgba(34, 211, 238, 0.8);
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.step-number {
+.step-number-badge {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
   background: var(--gradient-primary);
   color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.1rem;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
-.helpful-tip {
-  background: rgba(72, 219, 251, 0.1);
-  border: 1px solid rgba(72, 219, 251, 0.3);
-  border-radius: 6px;
-  padding: 1rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-style: italic;
-  line-height: 1.5;
-}
-
-/* Light Mode Adjustments */
-body.theme-light .hero-description,
-body.theme-light .hero-subtitle {
-  color: var(--color-white-85);
-}
-
-body.theme-light .feature-item {
-  background: var(--surface-dark-07);
-  border-color: var(--container-border);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
-body.theme-light .feature-item:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border-color: rgba(8, 145, 178, 0.4);
-}
-
-body.theme-light .feature-title {
+.step-title {
+  font-weight: 700;
+  font-size: 1.25rem;
   color: var(--color-white-95);
 }
 
-body.theme-light .feature-description {
+.step-description {
   color: var(--color-white-80);
+  line-height: 1.6;
+  font-size: 1rem;
 }
 
-body.theme-light .step-item {
-  background: var(--surface-secondary);
-  border-left-color: rgba(8, 145, 178, 0.6);
+body.theme-light .step-image {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
-body.theme-light .step-item:hover {
-  background: var(--surface-secondary-hover);
-  border-left-color: rgba(8, 145, 178, 0.8);
-}
-
-body.theme-light .helpful-tip {
-  background: rgba(8, 145, 178, 0.08);
-  border-color: rgba(8, 145, 178, 0.3);
-  color: rgba(15, 23, 42, 0.8);
-}
-
-body.theme-light .section-title {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Desktop Enhancements */
-@media screen and (min-width: 768px) {
-  .hero-title {
-    font-size: 1.7rem;
-  }
-
-  .hero-description {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
-  }
-
-  .features-grid {
+/* Desktop: 3-column grid with aligned rows */
+@media screen and (min-width: 900px) {
+  .how-it-works-steps {
+    display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 2rem;
+    align-items: start;
   }
 
-  .feature-item {
-    padding: 1.5rem;
+  .how-it-works-step {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
 
-  .section-divider {
-    margin: 3rem 0;
-  }
-}
-
-@media screen and (min-width: 1024px) {
-  .hero-title {
-    font-size: 1.9rem;
+  .step-image-container {
+    height: 320px;
+    align-items: center;
   }
 
-  .hero-description {
-    font-size: 1.2rem;
-    margin-bottom: 1.75rem;
+  .step-image {
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
   }
 
-  .hero-subtitle {
-    font-size: 1.05rem;
+  .step-title {
+    font-size: 1.15rem;
   }
 
-  .features-section {
-    margin-bottom: 2.5rem;
+  .step-description {
+    font-size: 0.9rem;
   }
 }

@@ -1,111 +1,110 @@
 import './styles.css';
 
-import { Box, Divider, Typography } from '@mui/material';
-import { SyntheticEvent, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { Box, Dialog, Typography } from '@mui/material';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import Accordion from '@/components/Accordion';
-import AccordionDetails from '@/components/Accordion/Details';
-import AccordionSummary from '@/components/Accordion/Summary';
+const steps = [
+  {
+    titleKey: 'howItWorksStep1Title',
+    descKey: 'howItWorksStep1Desc',
+    altKey: 'howItWorksStep1Alt',
+    image: '/screenshots/setup-wizard.webp',
+  },
+  {
+    titleKey: 'howItWorksStep2Title',
+    descKey: 'howItWorksStep2Desc',
+    altKey: 'howItWorksStep2Alt',
+    image: '/screenshots/action-card.webp',
+  },
+  {
+    titleKey: 'howItWorksStep3Title',
+    descKey: 'howItWorksStep3Desc',
+    altKey: 'howItWorksStep3Alt',
+    image: '/screenshots/custom-tiles.webp',
+  },
+];
 
-export default function GameGuide(): JSX.Element {
+export default function GameGuide() {
   const { t } = useTranslation();
-  const [expanded, setExpanded] = useState<string | false>(false);
-  const handleChange =
-    (panel: string) => (_event: SyntheticEvent<Element, Event>, newExpanded: boolean) => {
-      setExpanded(newExpanded ? panel : false);
-    };
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+
+  const closeLightbox = useCallback(() => setLightbox(null), []);
 
   return (
-    <Box className="game-guide">
-      {/* Hero Section */}
-      <Box className="hero-section">
-        <Trans i18nKey="gameDesc">
-          <Typography component="h1" variant="h4" className="hero-title">
-            Transform Your Intimate Adventures - Blitzed Out Adult Board Game
-          </Typography>
-          <Typography variant="body1" className="hero-subtitle">
-            Blitzed Out is a customizable adult experience platform. Whether you&apos;re exploring
-            solo, spicing things up as a couple, or hosting an unforgettable party — this is your
-            playground.
-          </Typography>
-          <Typography variant="body1" className="hero-subtitle">
-            Create personalized experiences with endless customization, join private rooms, or
-            discover new adventures with a vibrant community.
-          </Typography>
-        </Trans>
+    <Box className="how-it-works">
+      <Typography component="h2" variant="h5" className="how-it-works-title">
+        {t('howItWorksTitle')}
+      </Typography>
+
+      <Box className="how-it-works-steps">
+        {steps.map((step, index) => (
+          <Box key={step.titleKey} className="how-it-works-step">
+            <Box className="step-image-container">
+              <img
+                src={step.image}
+                alt={t(step.altKey)}
+                className="step-image"
+                loading="lazy"
+                width={600}
+                height={400}
+                onClick={() => setLightbox({ src: step.image, alt: t(step.altKey) })}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === ' ') e.preventDefault();
+                    setLightbox({ src: step.image, alt: t(step.altKey) });
+                  }
+                }}
+              />
+            </Box>
+            <Box className="step-content">
+              <Box className="step-header">
+                <Box className="step-number-badge">{index + 1}</Box>
+                <Typography component="h3" variant="h6" className="step-title">
+                  {t(step.titleKey)}
+                </Typography>
+              </Box>
+              <Typography variant="body1" className="step-description">
+                {t(step.descKey)}
+              </Typography>
+            </Box>
+          </Box>
+        ))}
       </Box>
 
-      <Divider className="section-divider" />
-
-      {/* Features Section */}
-      <Box className="features-section">
-        <Typography component="h2" variant="h6" className="section-title">
-          <Trans i18nKey="whySpecialTitle" />
-        </Typography>
-
-        <Box className="features-grid">
-          <Box className="feature-item">
-            <Trans i18nKey="customizationFeature">
-              <Box className="feature-icon">🎲</Box>
-              <Typography component="h3" variant="subtitle1" className="feature-title">
-                Unlimited Customization
-              </Typography>
-              <Typography variant="body2" className="feature-description">
-                Create your perfect experience with custom boards, actions, and intensity levels
-                tailored to your desires.
-              </Typography>
-            </Trans>
-          </Box>
-
-          <Box className="feature-item">
-            <Trans i18nKey="privacyFeature">
-              <Box className="feature-icon">🔒</Box>
-              <Typography component="h3" variant="subtitle1" className="feature-title">
-                Complete Privacy Control
-              </Typography>
-              <Typography variant="body2" className="feature-description">
-                Private rooms, local play options, and anonymous sessions. Your privacy and comfort
-                come first.
-              </Typography>
-            </Trans>
-          </Box>
-
-          <Box className="feature-item">
-            <Trans i18nKey="varietyFeature">
-              <Box className="feature-icon">🌟</Box>
-              <Typography component="h3" variant="subtitle1" className="feature-title">
-                Endless Variety
-              </Typography>
-              <Typography variant="body2" className="feature-description">
-                From gentle exploration to intense adventures — with community-created content and
-                regular updates.
-              </Typography>
-            </Trans>
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Getting Started */}
-      <Accordion
-        expanded={expanded === 'panel1'}
-        onChange={handleChange('panel1')}
-        className="about-accordion"
+      <Dialog
+        open={!!lightbox}
+        onClose={closeLightbox}
+        maxWidth={false}
+        slotProps={{
+          paper: {
+            sx: {
+              background: 'transparent',
+              boxShadow: 'none',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              overflow: 'visible',
+            },
+          },
+          backdrop: {
+            sx: { backgroundColor: 'rgba(0, 0, 0, 0.85)' },
+          },
+        }}
       >
-        <AccordionSummary aria-controls="panel1-content" id="panel1-header">
-          <Typography component="h3" className="accordion-title">
-            <Trans i18nKey="gettingStartedTitle" />
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            {t('gettingStartedMainText')}
-          </Typography>
-          <Typography variant="body2" className="helpful-tip">
-            {t('gettingStartedTip')}
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
+        {lightbox && (
+          <img
+            src={lightbox.src}
+            alt={lightbox.alt}
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              borderRadius: 8,
+              display: 'block',
+            }}
+          />
+        )}
+      </Dialog>
     </Box>
   );
 }

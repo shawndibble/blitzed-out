@@ -10,14 +10,13 @@ import {
   Container,
   Divider,
   FormControl,
-  Grid,
   MenuItem,
   Select,
   SelectChangeEvent,
   TextField,
   Typography,
 } from '@mui/material';
-import { Language, Login, PersonAdd } from '@mui/icons-material';
+import { Language } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { useCallback, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -58,7 +57,6 @@ export default function UnauthenticatedApp() {
 
   const [settings, updateSettings] = useSettings();
 
-  // Memoize handlers to prevent unnecessary re-renders
   const handleSubmit = useCallback(
     async (
       event:
@@ -72,13 +70,11 @@ export default function UnauthenticatedApp() {
         setLoginLoading(true);
         setLoginError(null);
 
-        // Update settings first, then login
         await updateSettings({ ...settings, displayName, room });
         await login(displayName);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
-        // Report to Sentry for Firefox mobile users with detailed context
         reportFirefoxMobileAuthError('unauthenticated_app_submit', error as Error, {
           authentication: {
             step: 'unauthenticated_app_submit',
@@ -118,7 +114,6 @@ export default function UnauthenticatedApp() {
     [handleSubmit]
   );
 
-  // Memoize language selection to prevent re-rendering
   const currentLanguage = i18n.resolvedLanguage || 'en';
 
   const handleLanguageChange = useCallback(
@@ -127,11 +122,6 @@ export default function UnauthenticatedApp() {
       setLanguageLoading(true);
 
       try {
-        // Language change will automatically trigger migration via MigrationContext
-        await i18n.changeLanguage(newLanguage);
-      } catch (error) {
-        console.error('Error changing language:', error);
-        // Still attempt to change language even if migration fails
         await i18n.changeLanguage(newLanguage);
       } finally {
         setLanguageLoading(false);
@@ -154,129 +144,120 @@ export default function UnauthenticatedApp() {
     <>
       <Navigation room={room} playerList={playerList} />
       <main className="unauthenticated-container gradient-background-vibrant">
-        <Container maxWidth="lg" sx={{ pt: 8 }} component="section">
-          <Grid container spacing={4} justifyContent="center" alignItems="stretch">
-            {/* Main Setup Card */}
-            <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-              <Card className="unauthenticated-card main-setup-card">
-                <CardContent>
-                  <h1 className="setup">
-                    <Trans i18nKey="setup" />
-                  </h1>
-                  <Typography className="setup-subtitle" variant="body1">
-                    <Trans i18nKey="setupSubtitle" />
-                  </Typography>
-                  <Box
-                    component="form"
-                    method="post"
-                    onSubmit={handleSubmit}
-                    className="settings-box"
-                  >
-                    <TextField
-                      fullWidth
-                      id="displayName"
-                      label={t('displayName')}
-                      value={displayName}
-                      onChange={(event) => setDisplayName(event.target.value)}
-                      required
-                      autoFocus
-                      onKeyDown={(event) => onEnterKey(event)}
-                      margin="normal"
-                    />
+        <section className="hero-section">
+          <Box className="hero-content">
+            <Typography component="h1" variant="h3" className="hero-headline">
+              {t('heroHeadline')}
+            </Typography>
+            <Typography variant="h6" className="hero-subheadline">
+              {t('heroSubheadline')}
+            </Typography>
 
-                    {/* Error Display */}
-                    {(loginError || authError) && (
-                      <Box
-                        sx={{
-                          mt: 2,
-                          p: 2,
-                          borderRadius: 1,
-                          backgroundColor: 'error.main',
-                          color: 'error.contrastText',
-                        }}
-                      >
-                        <Typography variant="body2">
-                          <strong>Error:</strong> {loginError || authError}
-                        </Typography>
-                      </Box>
-                    )}
+            <Card className="main-setup-card">
+              <CardContent>
+                <Box
+                  component="form"
+                  method="post"
+                  onSubmit={handleSubmit}
+                  className="settings-box"
+                >
+                  <TextField
+                    fullWidth
+                    id="displayName"
+                    label={t('displayName')}
+                    value={displayName}
+                    onChange={(event) => setDisplayName(event.target.value)}
+                    required
+                    autoFocus
+                    onKeyDown={(event) => onEnterKey(event)}
+                    margin="normal"
+                  />
 
-                    <Button
-                      variant="contained"
-                      type="submit"
-                      fullWidth
-                      className="jump-in-button"
-                      size="large"
-                      disabled={loginLoading}
-                      startIcon={loginLoading ? <CircularProgress size={20} /> : <PersonAdd />}
+                  {(loginError || authError) && (
+                    <Box
                       sx={{
                         mt: 2,
-                        py: 1.25,
-                        fontSize: '1.1rem',
-                        fontWeight: 600,
-                        // Firefox mobile touch handling
-                        touchAction: 'manipulation',
-                        // Ensure button is clickable on all browsers
-                        cursor: loginLoading ? 'default' : 'pointer',
-                        // Prevent double-tap zoom on mobile
-                        userSelect: 'none',
-                        // Firefox-specific button styles
-                        '&:focus': {
-                          outline: '2px solid',
-                          outlineColor: 'primary.main',
-                          outlineOffset: '2px',
-                        },
-                      }}
-                      onClick={async (e) => {
-                        // Explicit click handler for better Firefox mobile support
-                        await handleSubmit(e);
+                        p: 2,
+                        borderRadius: 1,
+                        backgroundColor: 'error.main',
+                        color: 'error.contrastText',
                       }}
                     >
-                      {loginLoading ? (
-                        <Trans i18nKey="loadingEllipsis" />
-                      ) : hasImport ? (
-                        <Trans i18nKey="import" />
-                      ) : (
-                        <Trans i18nKey="anonymousLogin" />
-                      )}
-                    </Button>
-                    <Divider sx={{ my: 3 }}>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ fontSize: '0.9rem' }}
-                      >
-                        <Trans i18nKey="or" />
+                      <Typography variant="body2">
+                        <strong>Error:</strong> {loginError || authError}
                       </Typography>
-                    </Divider>
-                    <Box className="auth-button-container">
-                      <Button
-                        variant="outlined"
-                        startIcon={<Login />}
-                        onClick={handleOpenLogin}
-                        size="medium"
-                      >
-                        <Trans i18nKey="signIn" />
-                      </Button>
-                      <Button variant="outlined" onClick={handleOpenRegister} size="medium">
-                        <Trans i18nKey="createAccount" />
-                      </Button>
                     </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
+                  )}
 
-            {/* Secondary Content Area for Desktop */}
-            <Grid size={{ md: 12, lg: 8 }}>
-              {/* Game Guide */}
-              <Card className="unauthenticated-card">
-                <CardContent>
-                  <GameGuide />
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    fullWidth
+                    className="jump-in-button"
+                    size="large"
+                    disabled={loginLoading}
+                    startIcon={loginLoading ? <CircularProgress size={20} /> : undefined}
+                    sx={{
+                      mt: 2,
+                      py: 1.25,
+                      fontSize: '1.1rem',
+                      fontWeight: 600,
+                      touchAction: 'manipulation',
+                      cursor: loginLoading ? 'default' : 'pointer',
+                      userSelect: 'none',
+                      '&:focus': {
+                        outline: '2px solid',
+                        outlineColor: 'primary.main',
+                        outlineOffset: '2px',
+                      },
+                    }}
+                    onClick={async (e) => {
+                      await handleSubmit(e);
+                    }}
+                  >
+                    {loginLoading ? (
+                      <Trans i18nKey="loadingEllipsis" />
+                    ) : hasImport ? (
+                      <Trans i18nKey="import" />
+                    ) : (
+                      <Trans i18nKey="playNow" />
+                    )}
+                  </Button>
+                </Box>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1, textAlign: 'center' }}
+                >
+                  {t('noAccountRequired')}
+                </Typography>
+
+                <Divider sx={{ my: 2 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    <Trans i18nKey="or" />
+                  </Typography>
+                </Divider>
+
+                <Box className="auth-button-container">
+                  <Button variant="text" onClick={handleOpenLogin} size="medium">
+                    <Trans i18nKey="signIn" />
+                  </Button>
+                  <Button variant="text" onClick={handleOpenRegister} size="medium">
+                    <Trans i18nKey="createAccount" />
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        </section>
+
+        <Container maxWidth="lg" component="section" sx={{ mt: 2 }}>
+          <Card className="unauthenticated-card">
+            <CardContent>
+              <GameGuide />
+            </CardContent>
+          </Card>
         </Container>
 
         {/* Footer Language Selector */}
