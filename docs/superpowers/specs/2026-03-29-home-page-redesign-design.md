@@ -92,6 +92,49 @@ All new copy must be added to all 5 translation files (en, es, fr, zh, hi). The 
 - `src/views/GameGuide/styles.css` — updated for new layout
 - `src/locales/*/translation.json` — all 5 language files updated
 
+## UI/UX Guidelines (from UI/UX Pro Max analysis)
+
+### Icons
+
+- Replace emoji icons (current: dice emoji, lock emoji, star emoji) with SVG icons from a consistent icon set (e.g., Lucide or MUI icons). Emojis render inconsistently across platforms.
+
+### Accessibility
+
+- All screenshots must have descriptive `alt` text (e.g., "Game board showing colorful tiles with action categories like Kissing, Alcohol, and Confessions")
+- "Play Now" button and name input must have visible focus rings for keyboard navigation
+- Text contrast minimum 4.5:1 ratio against dark backgrounds — verify with MUI dark theme tokens
+- "No account required" helper text must not be too low contrast (avoid grey-on-dark-grey)
+- Respect `prefers-reduced-motion` if any entrance animations are added
+
+### Performance
+
+- Hero screenshot (`hero-board.webp`) should be eager-loaded (above the fold) — do NOT lazy load it
+- Below-fold screenshots (`setup-wizard.webp`, `action-card.webp`, `custom-tiles.webp`) use `loading="lazy"`
+- All images must declare `width` and `height` attributes (or use `aspect-ratio` in CSS) to prevent Cumulative Layout Shift (CLS)
+- Use `srcset` with multiple sizes for responsive image delivery (e.g., 400w, 800w, 1200w)
+- Images should be compressed to reasonable file sizes (target <150KB per screenshot)
+
+### Layout
+
+- Mobile-first: design for 375px, then scale up to 768px, 1024px, 1440px
+- Use MUI's 8px spacing scale consistently
+- Hero section: name input + button must have minimum 44x44px touch targets
+- "How It Works" section: on desktop, alternating left/right screenshot placement for visual rhythm; on mobile, stacked vertically
+- Screenshots scale with `max-width: 100%; height: auto`
+- Content max-width container on desktop (e.g., `max-width: 1200px`) to maintain readable line lengths
+
+### Interaction
+
+- "Play Now" button should show loading state during form submission (disable + spinner)
+- Hover states on interactive elements with smooth 150-300ms transitions
+- `cursor: pointer` on all clickable elements
+
+### Dark Mode Specifics
+
+- Use MUI semantic color tokens (`theme.palette.background.paper`, `theme.palette.text.primary`) — no hardcoded hex values
+- Screenshot borders/shadows should use subtle elevation to separate from dark background
+- Ensure step numbers/titles in "How It Works" have sufficient contrast against dark surfaces
+
 ## Out of Scope
 
 - Authenticated app layout changes
