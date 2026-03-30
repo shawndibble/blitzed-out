@@ -17,7 +17,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { Language, Login, PersonAdd } from '@mui/icons-material';
+import { Language } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { useCallback, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
@@ -58,7 +58,6 @@ export default function UnauthenticatedApp() {
 
   const [settings, updateSettings] = useSettings();
 
-  // Memoize handlers to prevent unnecessary re-renders
   const handleSubmit = useCallback(
     async (
       event:
@@ -72,13 +71,11 @@ export default function UnauthenticatedApp() {
         setLoginLoading(true);
         setLoginError(null);
 
-        // Update settings first, then login
         await updateSettings({ ...settings, displayName, room });
         await login(displayName);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
-        // Report to Sentry for Firefox mobile users with detailed context
         reportFirefoxMobileAuthError('unauthenticated_app_submit', error as Error, {
           authentication: {
             step: 'unauthenticated_app_submit',
@@ -118,7 +115,6 @@ export default function UnauthenticatedApp() {
     [handleSubmit]
   );
 
-  // Memoize language selection to prevent re-rendering
   const currentLanguage = i18n.resolvedLanguage || 'en';
 
   const handleLanguageChange = useCallback(
@@ -127,11 +123,8 @@ export default function UnauthenticatedApp() {
       setLanguageLoading(true);
 
       try {
-        // Language change will automatically trigger migration via MigrationContext
         await i18n.changeLanguage(newLanguage);
-      } catch (error) {
-        console.error('Error changing language:', error);
-        // Still attempt to change language even if migration fails
+      } catch {
         await i18n.changeLanguage(newLanguage);
       } finally {
         setLanguageLoading(false);
@@ -155,17 +148,41 @@ export default function UnauthenticatedApp() {
       <Navigation room={room} playerList={playerList} />
       <main className="unauthenticated-container gradient-background-vibrant">
         <Container maxWidth="lg" sx={{ pt: 8 }} component="section">
-          <Grid container spacing={4} justifyContent="center" alignItems="stretch">
+          <Grid container spacing={4} justifyContent="center" alignItems="center">
+            {/* Hero Screenshot */}
+            <Grid size={{ xs: 12, md: 6, lg: 7 }}>
+              <Box className="hero-screenshot-container">
+                <Typography component="h1" variant="h4" className="hero-headline">
+                  {t('heroHeadline')}
+                </Typography>
+                <Typography variant="body1" className="hero-subheadline">
+                  {t('heroSubheadline')}
+                </Typography>
+                <img
+                  src="/screenshots/hero-board.webp"
+                  alt={t('heroScreenshotAlt')}
+                  className="hero-screenshot"
+                  loading="eager"
+                  fetchPriority="high"
+                  width={800}
+                  height={500}
+                />
+              </Box>
+            </Grid>
+
             {/* Main Setup Card */}
-            <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+            <Grid size={{ xs: 12, md: 6, lg: 5 }}>
               <Card className="unauthenticated-card main-setup-card">
                 <CardContent>
-                  <h1 className="setup">
-                    <Trans i18nKey="setup" />
-                  </h1>
-                  <Typography className="setup-subtitle" variant="body1">
-                    <Trans i18nKey="setupSubtitle" />
-                  </Typography>
+                  <Box className="mobile-hero-text">
+                    <Typography component="h1" variant="h5" className="hero-headline">
+                      {t('heroHeadline')}
+                    </Typography>
+                    <Typography variant="body1" className="hero-subheadline">
+                      {t('heroSubheadline')}
+                    </Typography>
+                  </Box>
+
                   <Box
                     component="form"
                     method="post"
@@ -184,7 +201,6 @@ export default function UnauthenticatedApp() {
                       margin="normal"
                     />
 
-                    {/* Error Display */}
                     {(loginError || authError) && (
                       <Box
                         sx={{
@@ -208,19 +224,15 @@ export default function UnauthenticatedApp() {
                       className="jump-in-button"
                       size="large"
                       disabled={loginLoading}
-                      startIcon={loginLoading ? <CircularProgress size={20} /> : <PersonAdd />}
+                      startIcon={loginLoading ? <CircularProgress size={20} /> : undefined}
                       sx={{
                         mt: 2,
                         py: 1.25,
                         fontSize: '1.1rem',
                         fontWeight: 600,
-                        // Firefox mobile touch handling
                         touchAction: 'manipulation',
-                        // Ensure button is clickable on all browsers
                         cursor: loginLoading ? 'default' : 'pointer',
-                        // Prevent double-tap zoom on mobile
                         userSelect: 'none',
-                        // Firefox-specific button styles
                         '&:focus': {
                           outline: '2px solid',
                           outlineColor: 'primary.main',
@@ -228,7 +240,6 @@ export default function UnauthenticatedApp() {
                         },
                       }}
                       onClick={async (e) => {
-                        // Explicit click handler for better Firefox mobile support
                         await handleSubmit(e);
                       }}
                     >
@@ -237,39 +248,39 @@ export default function UnauthenticatedApp() {
                       ) : hasImport ? (
                         <Trans i18nKey="import" />
                       ) : (
-                        <Trans i18nKey="anonymousLogin" />
+                        <Trans i18nKey="playNow" />
                       )}
                     </Button>
-                    <Divider sx={{ my: 3 }}>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ fontSize: '0.9rem' }}
-                      >
-                        <Trans i18nKey="or" />
-                      </Typography>
-                    </Divider>
-                    <Box className="auth-button-container">
-                      <Button
-                        variant="outlined"
-                        startIcon={<Login />}
-                        onClick={handleOpenLogin}
-                        size="medium"
-                      >
-                        <Trans i18nKey="signIn" />
-                      </Button>
-                      <Button variant="outlined" onClick={handleOpenRegister} size="medium">
-                        <Trans i18nKey="createAccount" />
-                      </Button>
-                    </Box>
+                  </Box>
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1, textAlign: 'center' }}
+                  >
+                    {t('noAccountRequired')}
+                  </Typography>
+
+                  <Divider sx={{ my: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      <Trans i18nKey="or" />
+                    </Typography>
+                  </Divider>
+
+                  <Box className="auth-button-container">
+                    <Button variant="text" onClick={handleOpenLogin} size="medium">
+                      <Trans i18nKey="signIn" />
+                    </Button>
+                    <Button variant="text" onClick={handleOpenRegister} size="medium">
+                      <Trans i18nKey="createAccount" />
+                    </Button>
                   </Box>
                 </CardContent>
               </Card>
             </Grid>
 
-            {/* Secondary Content Area for Desktop */}
-            <Grid size={{ md: 12, lg: 8 }}>
-              {/* Game Guide */}
+            {/* How It Works - Below the fold */}
+            <Grid size={12}>
               <Card className="unauthenticated-card">
                 <CardContent>
                   <GameGuide />

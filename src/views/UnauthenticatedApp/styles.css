@@ -15,23 +15,45 @@ body.theme-light .unauthenticated-container {
   background: var(--page-gradient);
 }
 
-h1.setup {
-  padding: 0.25rem 0;
+/* Hero section */
+.hero-screenshot-container {
   text-align: center;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  font-size: 1.8rem;
-  color: #22d3ee;
-  letter-spacing: -0.01em;
+}
+
+.hero-screenshot {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--container-border);
+  box-shadow: var(--shadow-lg);
+  margin-top: 1.5rem;
+}
+
+.hero-headline {
+  font-weight: 700;
+  color: var(--color-accent, #22d3ee);
+  letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
-.setup-subtitle {
+body.theme-light .hero-headline {
+  color: var(--color-accent-light, #0891b2);
+}
+
+.hero-subheadline {
+  color: var(--color-white-80);
+  line-height: 1.5;
+  margin-top: 0.75rem;
+}
+
+.hero-screenshot-container .hero-headline,
+.hero-screenshot-container .hero-subheadline {
+  display: none;
+}
+
+.mobile-hero-text {
   text-align: center;
-  color: var(--color-white-70);
-  margin-bottom: 1rem;
-  font-size: 1rem;
-  line-height: 1.4;
+  margin-bottom: 1.5rem;
 }
 
 /* Footer Language Selector */
@@ -52,15 +74,6 @@ h1.setup {
 
 .footer-language-selector:hover {
   opacity: 1;
-}
-
-/* Light mode text adjustments */
-body.theme-light .setup-subtitle {
-  color: var(--color-white-80);
-}
-
-body.theme-light h1.setup {
-  color: #0891b2;
 }
 
 /* Light mode for footer language selector */
@@ -207,17 +220,13 @@ body.theme-light .unauthenticated-card {
     padding: 3rem 0;
   }
 
-  h1.setup {
-    font-size: 1.9rem;
-    margin-bottom: 0.75rem;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
+  .hero-screenshot-container .hero-headline,
+  .hero-screenshot-container .hero-subheadline {
+    display: block;
   }
 
-  .setup-subtitle {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    line-height: 1.3;
+  .mobile-hero-text {
+    display: none;
   }
 
   .main-setup-card {
@@ -239,19 +248,6 @@ body.theme-light .unauthenticated-card {
 }
 
 @media screen and (min-width: 1024px) {
-  h1.setup {
-    font-size: 2.1rem;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin-bottom: 0.75rem;
-  }
-
-  .setup-subtitle {
-    font-size: 1.1rem;
-    line-height: 1.3;
-    margin-bottom: 1rem;
-  }
-
   .main-setup-card {
     padding: 1rem;
   }
@@ -270,14 +266,5 @@ body.theme-light .unauthenticated-card {
   .auth-button-container {
     flex-direction: column;
     gap: 0.5rem;
-  }
-
-  h1.setup {
-    font-size: 1.6rem;
-    padding: 0.25rem 0;
-  }
-
-  .setup-subtitle {
-    font-size: 1rem;
   }
 }
