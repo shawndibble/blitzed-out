@@ -7,6 +7,9 @@
     "noTilesFound": "No tiles found with the selected filters.",
     "showingTiles": "Showing {{shown}} of {{total}} tiles",
     "gameMode": "Game Mode",
+    "preview": {
+      "title": "Generic preview"
+    },
     "placeholderHelp": {
       "title": "Available Placeholders",
       "description": "Use placeholders to create anatomy-inclusive actions that adapt to each player.",
