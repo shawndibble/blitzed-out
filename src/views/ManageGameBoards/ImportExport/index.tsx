@@ -1,11 +1,12 @@
-import { Save, Share } from '@mui/icons-material';
-import { IconButton, TextField, Tooltip } from '@mui/material';
+import { FileDownload, FileUpload, Save, Share } from '@mui/icons-material';
+import { Button, IconButton, TextField, Tooltip } from '@mui/material';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import { useEffect, useState, ChangeEvent, FocusEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { updateBoard } from '@/stores/gameBoard';
 import { DBGameBoard, TileExport } from '@/types/gameBoard';
 import { AlertState } from '@/types';
+import { downloadTextFile, readTextFile } from '@/utils/importExportFiles';
 
 interface ImportExportProps {
   open: boolean;
@@ -115,6 +116,40 @@ export default function ImportExport({
     setTextValue(arrayExport?.join('\n~~\n') || '');
   };
 
+  const downloadBoard = (): void => {
+    if (!textValue.trim()) {
+      setAlert({
+        message: t('enterDataToExport', 'Nothing to download yet.'),
+        type: 'error',
+      });
+      return;
+    }
+
+    const filename = `${(boardTitle || 'game-board').replace(/[^\w-]+/g, '-').toLowerCase()}.txt`;
+    downloadTextFile(textValue, filename);
+  };
+
+  const uploadBoardFile = async (event: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const fileText = await readTextFile(file);
+      setTextValue(fileText);
+      setAlert({
+        message: t('importBoardFileLoaded', 'Import file loaded. Review it, then save.'),
+        type: 'success',
+      });
+    } catch (error) {
+      setAlert({
+        message: `File read failed: ${error instanceof Error ? error.message : String(error)}`,
+        type: 'error',
+      });
+    } finally {
+      event.target.value = '';
+    }
+  };
+
   const changeTitle = (event: ChangeEvent<HTMLInputElement>): void => {
     setBoardTitle(event.target.value);
   };
@@ -148,6 +183,15 @@ export default function ImportExport({
         onChange={changeTitle}
         onBlur={saveTitle}
       />
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
+        <Button variant="outlined" component="label" startIcon={<FileUpload />}>
+          {t('uploadFile', 'Upload file')}
+          <input type="file" accept=".txt,text/plain" hidden onChange={uploadBoardFile} />
+        </Button>
+        <Button variant="outlined" startIcon={<FileDownload />} onClick={downloadBoard}>
+          {t('downloadFile', 'Download file')}
+        </Button>
+      </div>
       <TextField
         sx={{ mt: 2 }}
         multiline

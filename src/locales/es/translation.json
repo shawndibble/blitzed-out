@@ -28,6 +28,11 @@
     }
   },
   "customTilesLabel": "Casillas de Juego",
+  "uploadFile": "Subir archivo",
+  "downloadFile": "Descargar archivo",
+  "importFileLoaded": "Archivo de importación cargado. Revísalo y luego impórtalo.",
+  "importBoardFileLoaded": "Archivo de importación cargado. Revísalo y luego guárdalo.",
+  "enterDataToExport": "No hay nada para descargar todavía.",
   "custom": "Personalizado",
   "default": "Estándar",
   "none": "Ninguna",
