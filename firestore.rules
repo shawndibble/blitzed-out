@@ -70,11 +70,20 @@ service cloud.firestore {
     match /schedule/{scheduleId} {
       allow read: if true; // Public read for game schedules
       allow create: if request.auth != null 
-        && request.resource.data.keys().hasAll(['dateTime', 'url', 'room'])
+        && request.resource.data.keys().hasAll(['dateTime', 'url', 'room', 'createdBy'])
+        && request.resource.data.keys().hasOnly(['dateTime', 'url', 'room', 'createdBy'])
         && request.resource.data.dateTime is timestamp
         && request.resource.data.url is string
-        && request.resource.data.room is string;
-      allow update, delete: if false; // No modifications after creation
+        && request.resource.data.room is string
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dateTime', 'url'])
+        && request.resource.data.dateTime is timestamp
+        && request.resource.data.url is string;
+      allow delete: if request.auth != null
+        && resource.data.createdBy == request.auth.uid;
     }
   }
 }

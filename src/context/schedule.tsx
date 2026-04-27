@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
-import { getSchedule, addSchedule } from '@/services/firebase';
+import { getSchedule, addSchedule, deleteSchedule, updateSchedule } from '@/services/firebase';
 import { DocumentReference, DocumentData } from 'firebase/firestore';
 import dayjs from 'dayjs';
 import { useScheduleStore } from '@/stores/scheduleStore';
@@ -9,16 +9,22 @@ export interface ScheduleItem {
   dateTime: dayjs.Dayjs;
   url: string;
   room: string;
+  createdBy?: string;
   [key: string]: any;
+}
+
+export interface AddScheduleInput {
+  dateTime: Date;
+  url: string;
+  room?: string;
+  createdBy?: string;
 }
 
 export interface ScheduleContextType {
   schedule: ScheduleItem[];
-  addToSchedule: (
-    dateTime: Date,
-    url: string,
-    room?: string
-  ) => Promise<undefined | DocumentReference<DocumentData>>;
+  addToSchedule: (input: AddScheduleInput) => Promise<undefined | DocumentReference<DocumentData>>;
+  updateScheduledGame: (id: string, updates: { dateTime: Date; url: string }) => Promise<void>;
+  deleteScheduledGame: (id: string) => Promise<void>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -30,7 +36,13 @@ interface ScheduleProviderProps {
 }
 
 function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
-  const { schedule, loadSchedule, flushPendingScheduleUpdates } = useScheduleStore();
+  const {
+    schedule,
+    loadSchedule,
+    updateScheduleItem,
+    removeScheduleItem,
+    flushPendingScheduleUpdates,
+  } = useScheduleStore();
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // Optimized schedule update handler
@@ -43,13 +55,14 @@ function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
 
   // Memoized addToSchedule function to prevent unnecessary re-renders
   const memoizedAddToSchedule = useCallback(
-    async (
-      dateTime: Date,
-      url: string,
-      room?: string
-    ): Promise<undefined | DocumentReference<DocumentData>> => {
+    async ({
+      dateTime,
+      url,
+      room,
+      createdBy,
+    }: AddScheduleInput): Promise<undefined | DocumentReference<DocumentData>> => {
       try {
-        const result = await addSchedule(dateTime, url, room);
+        const result = await addSchedule(dateTime, url, room, createdBy);
         // Flush any pending updates after adding
         flushPendingScheduleUpdates();
         return result || undefined;
@@ -59,6 +72,22 @@ function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
       }
     },
     [flushPendingScheduleUpdates]
+  );
+
+  const memoizedUpdateScheduledGame = useCallback(
+    async (id: string, updates: { dateTime: Date; url: string }): Promise<void> => {
+      await updateSchedule(id, updates);
+      updateScheduleItem(id, { ...updates, dateTime: dayjs(updates.dateTime) });
+    },
+    [updateScheduleItem]
+  );
+
+  const memoizedDeleteScheduledGame = useCallback(
+    async (id: string): Promise<void> => {
+      await deleteSchedule(id);
+      removeScheduleItem(id);
+    },
+    [removeScheduleItem]
   );
 
   // Cleanup function for Firebase listener
@@ -92,8 +121,10 @@ function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
     () => ({
       schedule,
       addToSchedule: memoizedAddToSchedule,
+      updateScheduledGame: memoizedUpdateScheduledGame,
+      deleteScheduledGame: memoizedDeleteScheduledGame,
     }),
-    [schedule, memoizedAddToSchedule]
+    [schedule, memoizedAddToSchedule, memoizedUpdateScheduledGame, memoizedDeleteScheduledGame]
   );
 
   return <ScheduleContext.Provider value={value} {...props} />;
