@@ -7,6 +7,9 @@
     "noTilesFound": "चयनित फ़िल्टर के साथ कोई टाइल नहीं मिली।",
     "showingTiles": "{{shown}} में से {{total}} टाइल दिखा रहे हैं",
     "gameMode": "गेम मोड",
+    "preview": {
+      "title": "सामान्य पूर्वावलोकन"
+    },
     "actions": "क्रियाएं",
     "placeholderHelp": {
       "title": "उपलब्ध प्लेसहोल्डर",

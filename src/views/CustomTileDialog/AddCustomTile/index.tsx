@@ -21,6 +21,7 @@ import Accordion from '@/components/Accordion';
 import AccordionDetails from '@/components/Accordion/Details';
 import AccordionSummary from '@/components/Accordion/Summary';
 import CustomGroupDialog from '@/views/CustomGroupDialog';
+import CustomTilePreview from './CustomTilePreview';
 import { CustomGroupPull } from '@/types/customGroups';
 import CustomGroupSelector from '@/components/CustomGroupSelector';
 import { submitCustomAction } from '@/services/firebase';
@@ -431,6 +432,8 @@ export default function AddCustomTile({
                 }
               }}
             />
+
+            <CustomTilePreview action={localTileData.action} settings={settings} />
 
             {/* Placeholder Help Section */}
             <Box sx={{ mb: 2 }}>

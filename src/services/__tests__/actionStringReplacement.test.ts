@@ -41,6 +41,20 @@ describe('actionStringReplacement', () => {
 
       expect(result).toBe('They touches their genitals and chest.');
     });
+
+    it('uses selected gender for anatomy placeholders when provided', () => {
+      const result = actionStringReplacement(
+        '{player} touches {pronoun_possessive} {genital}.',
+        'dom',
+        'TestPlayer',
+        undefined,
+        true,
+        'male',
+        'en'
+      );
+
+      expect(result).toBe('The current player touches his dick.');
+    });
   });
 
   describe('local multiplayer mode', () => {

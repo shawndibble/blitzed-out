@@ -7,6 +7,9 @@
     "noTilesFound": "Aucune tuile trouvée avec les filtres sélectionnés.",
     "showingTiles": "Affichage de {{shown}} sur {{total}} tuiles",
     "gameMode": "Mode de jeu",
+    "preview": {
+      "title": "Aperçu générique"
+    },
     "placeholderHelp": {
       "title": "Espaces Réservés Disponibles",
       "description": "Utilisez des espaces réservés pour créer des actions inclusives d'anatomie qui s'adaptent à chaque joueur.",
