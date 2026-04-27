@@ -7,6 +7,9 @@
     "noTilesFound": "未找到符合所選篩選條件的磁磚。",
     "showingTiles": "顯示 {{shown}} / {{total}} 磁磚",
     "gameMode": "遊戲模式",
+    "preview": {
+      "title": "通用預覽"
+    },
     "placeholderHelp": {
       "title": "可用的占位符",
       "description": "使用占位符創建適應每個玩家的解剖包容性動作。",
