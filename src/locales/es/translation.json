@@ -7,6 +7,9 @@
     "noTilesFound": "No se encontraron fichas con los filtros seleccionados.",
     "showingTiles": "Mostrando {{shown}} de {{total}} fichas",
     "gameMode": "Modo de juego",
+    "preview": {
+      "title": "Vista previa genérica"
+    },
     "placeholderHelp": {
       "title": "Marcadores de Posición Disponibles",
       "description": "Usa marcadores de posición para crear acciones inclusivas de anatomía que se adapten a cada jugador.",
