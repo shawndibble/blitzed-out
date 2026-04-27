@@ -27,6 +27,7 @@ interface ScheduleStore {
   // Actions
   loadSchedule: (schedule: ScheduleItem[]) => void;
   addScheduleItem: (item: ScheduleItem) => void;
+  updateScheduleItem: (id: string, updates: Partial<ScheduleItem>) => void;
   removeScheduleItem: (id: string) => void;
   clearSchedule: () => void;
   setLoading: (loading: boolean) => void;
@@ -121,6 +122,13 @@ export const useScheduleStore = create<ScheduleStore>((set, get) => ({
         },
       };
     }),
+
+  updateScheduleItem: (id, updates) => {
+    set((state) => ({
+      schedule: state.schedule.map((item) => (item.id === id ? { ...item, ...updates } : item)),
+    }));
+    get().invalidateCache();
+  },
 
   flushPendingScheduleUpdates: () => {
     const state = get();

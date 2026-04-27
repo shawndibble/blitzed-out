@@ -1553,16 +1553,42 @@ export function getPerformanceRecommendations(): {
 export async function addSchedule(
   dateTime: Date,
   url: string,
-  room = 'PUBLIC'
-): Promise<DocumentReference<DocumentData> | void> {
+  room = 'PUBLIC',
+  createdBy?: string
+): Promise<DocumentReference<DocumentData>> {
   try {
     return await addDoc(collection(db, 'schedule'), {
       dateTime: Timestamp.fromDate(dateTime),
       url,
       room,
+      createdBy: createdBy || '',
     });
   } catch (error) {
     console.error('Schedule operation failed', error);
-    return;
+    throw error;
+  }
+}
+
+export async function updateSchedule(
+  scheduleId: string,
+  updates: { dateTime: Date; url: string }
+): Promise<void> {
+  try {
+    await updateDoc(doc(db, 'schedule', scheduleId), {
+      dateTime: Timestamp.fromDate(updates.dateTime),
+      url: updates.url,
+    });
+  } catch (error) {
+    console.error('Schedule update failed', error);
+    throw error;
+  }
+}
+
+export async function deleteSchedule(scheduleId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, 'schedule', scheduleId));
+  } catch (error) {
+    console.error('Schedule delete failed', error);
+    throw error;
   }
 }

@@ -28,6 +28,7 @@ import ScheduleItem from './ScheduleItem';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AddIcon from '@mui/icons-material/Add';
 import EventIcon from '@mui/icons-material/Event';
+import useAuth from '@/context/hooks/useAuth';
 
 interface ScheduleProps {
   open: boolean;
@@ -38,7 +39,8 @@ interface ScheduleProps {
 export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.Element {
   const { t } = useTranslation();
   const [alert, setAlert] = useState<string | null>('');
-  const { schedule, addToSchedule } = useSchedule();
+  const { schedule, addToSchedule, updateScheduledGame, deleteScheduledGame } = useSchedule();
+  const { user } = useAuth();
   const twoWeeksFromNow = dayjs().add(2, 'week');
   const theme = useTheme();
 
@@ -46,8 +48,46 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
     setAlert(null);
   }, []);
 
+  const validateScheduleData = useCallback(
+    (dateTime: Date, url: string, currentScheduleId?: string): boolean => {
+      if (!(dateTime instanceof Date) || Number.isNaN(dateTime.getTime())) {
+        setAlert(t('scheduleValidation.selectDateTime'));
+        return false;
+      }
+
+      if (dateTime < dayjs().toDate()) {
+        setAlert(t('scheduleValidation.selectFutureDateTime'));
+        return false;
+      }
+
+      if (
+        schedule.find(
+          (s) =>
+            s.id !== currentScheduleId &&
+            s.dateTime.toDate().toUTCString() === dateTime.toUTCString()
+        )
+      ) {
+        setAlert(t('scheduleValidation.gameAlreadyScheduled'));
+        return false;
+      }
+
+      if (dateTime > twoWeeksFromNow.toDate()) {
+        setAlert(t('scheduleValidation.selectWithinTwoWeeks'));
+        return false;
+      }
+
+      if (url && !url.startsWith('http')) {
+        setAlert(t('scheduleValidation.enterValidUrl'));
+        return false;
+      }
+
+      return true;
+    },
+    [schedule, t, twoWeeksFromNow]
+  );
+
   const scheduleEvent = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const formElements = event.currentTarget as HTMLFormElement;
       const dateTimeInput = formElements.elements.namedItem('date-time') as HTMLInputElement;
@@ -55,37 +95,37 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
       const urlInput = formElements.elements.namedItem('link') as HTMLInputElement;
       const url = urlInput.value;
 
-      if (!dateTime || !(dateTime instanceof Date)) {
-        setAlert(t('scheduleValidation.selectDateTime'));
+      if (!user?.uid) {
+        setAlert(t('authRequired', 'You must be signed in to schedule a game.'));
         return;
       }
 
-      if (dateTime < dayjs().toDate()) {
-        setAlert(t('scheduleValidation.selectFutureDateTime'));
+      if (!validateScheduleData(dateTime, url)) {
         return;
       }
 
-      if (schedule.find((s) => s.dateTime.toDate().toUTCString() === dateTime.toUTCString())) {
-        setAlert(t('scheduleValidation.gameAlreadyScheduled'));
-        return;
-      }
-
-      if (dateTime > twoWeeksFromNow.toDate()) {
-        setAlert(t('scheduleValidation.selectWithinTwoWeeks'));
-        return;
-      }
-
-      if (url && !url.startsWith('http')) {
-        setAlert(t('scheduleValidation.enterValidUrl'));
-        return;
-      }
-
-      addToSchedule(dateTime, url);
+      await addToSchedule({
+        dateTime,
+        url,
+        room: 'PUBLIC',
+        createdBy: user?.uid,
+      });
 
       // Reset form fields
       formElements.reset();
     },
-    [schedule, addToSchedule, twoWeeksFromNow, t]
+    [addToSchedule, t, user?.uid, validateScheduleData]
+  );
+
+  const handleUpdateSchedule = useCallback(
+    async (id: string, updates: { dateTime: Date; url: string }) => {
+      if (!validateScheduleData(updates.dateTime, updates.url, id)) {
+        throw new Error('Invalid schedule update');
+      }
+
+      await updateScheduledGame(id, updates);
+    },
+    [updateScheduledGame, validateScheduleData]
   );
 
   return (
@@ -137,7 +177,12 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                     <Stack spacing={2}>
                       {schedule?.map((game) => (
                         <Paper key={game.id} elevation={1} sx={{ p: 1.5, borderRadius: 1.5 }}>
-                          <ScheduleItem game={game} />
+                          <ScheduleItem
+                            game={game}
+                            currentUserId={user?.uid}
+                            onUpdate={handleUpdateSchedule}
+                            onDelete={deleteScheduledGame}
+                          />
                         </Paper>
                       ))}
                     </Stack>
