@@ -56,4 +56,23 @@ describe('CustomTilePreview', () => {
     );
     expect(screen.queryByText('{player} follows the {dom}')).not.toBeInTheDocument();
   });
+
+  it('uses the selected anatomy setting in preview output', () => {
+    renderWithoutProviders(
+      <CustomTilePreview
+        action="{player} touches {pronoun_possessive} {genital}"
+        settings={{
+          role: 'dom',
+          displayName: 'Alex',
+          room: 'PUBLIC',
+          boardUpdated: false,
+          gameMode: 'local',
+          gender: 'male',
+          locale: 'en',
+        }}
+      />
+    );
+
+    expect(screen.getByText('The current player touches his dick')).toBeInTheDocument();
+  });
 });

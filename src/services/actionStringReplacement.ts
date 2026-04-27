@@ -368,7 +368,14 @@ export default function actionStringReplacement(
     result = result.replace(/{player}/g, PLACEHOLDER_FALLBACKS.player());
     result = result.replace(/{dom}/g, PLACEHOLDER_FALLBACKS.dom());
     result = result.replace(/{sub}/g, PLACEHOLDER_FALLBACKS.sub());
-    result = replaceGenericAnatomyPlaceholders(result, currentLocale);
+
+    if (currentPlayerGender) {
+      const validRole = role === 'sub' || role === 'dom' || role === 'vers' ? role : undefined;
+      result = replaceAnatomyPlaceholders(result, currentPlayerGender, validRole, currentLocale);
+    } else {
+      result = replaceGenericAnatomyPlaceholders(result, currentLocale);
+    }
+
     return capitalizeFirstLetterInCurlyBraces(result);
   }
 
