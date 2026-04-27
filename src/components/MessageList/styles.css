@@ -27,6 +27,25 @@
   z-index: 1000;
 }
 
+.message-jump-to-latest {
+  position: absolute !important;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1002;
+}
+
+.message-jump-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .message-list-scroll {
   flex: 1;
   overflow-y: auto;
