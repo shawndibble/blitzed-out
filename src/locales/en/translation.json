@@ -28,6 +28,11 @@
     }
   },
   "customTilesLabel": "Game Tiles",
+  "uploadFile": "Upload file",
+  "downloadFile": "Download file",
+  "importFileLoaded": "Import file loaded. Review it, then import.",
+  "importBoardFileLoaded": "Import file loaded. Review it, then save.",
+  "enterDataToExport": "Nothing to download yet.",
   "custom": "Custom",
   "default": "Default",
   "none": "None",
