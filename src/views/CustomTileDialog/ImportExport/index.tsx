@@ -25,10 +25,12 @@ import {
   exportCustomData,
   exportDisabledDefaults,
 } from './enhancedImportExport';
+import { FileDownload, FileUpload } from '@mui/icons-material';
 import { useGameSettings } from '@/stores/settingsStore';
 import { getCustomGroups } from '@/stores/customGroups';
 import { submitCustomAction } from '@/services/firebase';
 import { getTiles } from '@/stores/customTiles';
+import { downloadTextFile, readTextFile } from '@/utils/importExportFiles';
 
 export default function ImportExport({
   expanded,
@@ -222,6 +224,42 @@ export default function ImportExport({
     }
   }
 
+  const downloadExport = useCallback(() => {
+    if (!inputValue.trim()) {
+      setSubmitMessage({
+        type: 'error',
+        message: t('enterDataToExport', 'Nothing to download yet.'),
+      });
+      return;
+    }
+
+    downloadTextFile(inputValue, `blitzed-out-${exportScope}-tiles.json`, 'application/json');
+  }, [exportScope, inputValue, setSubmitMessage, t]);
+
+  const uploadImportFile = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      try {
+        const fileText = await readTextFile(file);
+        setInputValue(fileText);
+        setSubmitMessage({
+          type: 'success',
+          message: t('importFileLoaded', 'Import file loaded. Review it, then import.'),
+        });
+      } catch (error) {
+        setSubmitMessage({
+          type: 'error',
+          message: `File read failed: ${error instanceof Error ? error.message : String(error)}`,
+        });
+      } finally {
+        event.target.value = '';
+      }
+    },
+    [setSubmitMessage, t]
+  );
+
   const loadAvailableGroups = useCallback(
     async (signal?: AbortSignal) => {
       try {
@@ -337,9 +375,23 @@ export default function ImportExport({
             sx={{ mb: 2 }}
           />
 
-          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
             <Button variant="contained" onClick={() => importTiles(formDataRef)}>
               {t('import')}
+            </Button>
+
+            <Button variant="outlined" component="label" startIcon={<FileUpload />}>
+              {t('uploadFile', 'Upload file')}
+              <input
+                type="file"
+                accept=".json,application/json"
+                hidden
+                onChange={uploadImportFile}
+              />
+            </Button>
+
+            <Button variant="outlined" startIcon={<FileDownload />} onClick={downloadExport}>
+              {t('downloadFile', 'Download file')}
             </Button>
 
             <CopyToClipboard text={inputValue} />
