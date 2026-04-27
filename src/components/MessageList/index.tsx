@@ -3,8 +3,10 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Button from '@mui/material/Button';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CheckIcon from '@mui/icons-material/Check';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 
 import useAuth from '@/context/hooks/useAuth';
@@ -34,6 +36,7 @@ export default function MessageList({
 
   const [currentTab, setCurrentTab] = useState<number>(0);
   const [filterAnchor, setFilterAnchor] = useState<null | HTMLElement>(null);
+  const [showJumpToLatest, setShowJumpToLatest] = useState(false);
   const { t } = useTranslation();
 
   // Memoize filtered messages directly to avoid creating a new function on each render
@@ -46,42 +49,58 @@ export default function MessageList({
     });
   }, [messages, currentTab]);
 
-  // Scroll to bottom when new messages are added
-  const lastMessageIdRef = useRef<string | null>(null);
+  const isAtBottom = useCallback((element: HTMLDivElement | null) => {
+    if (!element) return true;
+
+    return element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
+  }, []);
+
+  const scrollToLatest = useCallback(() => {
+    if (!containerRef.current) return;
+
+    containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    setShowJumpToLatest(false);
+  }, []);
+
+  // Scroll to bottom when new messages are added and the reader is already near the bottom
+  const lastRenderedMessageIdRef = useRef<string | null>(null);
+  const followLatestRef = useRef(true);
 
   useEffect(() => {
-    const latestMessage = messages[messages.length - 1];
+    const latestMessage = updatedMessages[updatedMessages.length - 1];
     const latestMessageId = latestMessage?.id || null;
 
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    let rafId: number | null = null;
-
-    // Only scroll if this is actually a new message
-    if (latestMessageId && latestMessageId !== lastMessageIdRef.current) {
-      lastMessageIdRef.current = latestMessageId;
-
-      if (containerRef.current) {
-        // Use multiple timing strategies to ensure scroll happens after DOM update
-        const scrollToBottom = () => {
-          if (containerRef.current) {
-            containerRef.current.scrollTop = containerRef.current.scrollHeight;
-          }
-        };
-
-        // Immediate attempt
-        scrollToBottom();
-
-        // Backup attempts with different timing
-        rafId = requestAnimationFrame(scrollToBottom);
-        timeoutId = setTimeout(scrollToBottom, 10);
-      }
+    if (!latestMessageId) {
+      return;
     }
 
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, [messages.length, messages]);
+    // Always land on the latest message the first time the list is populated.
+    if (!lastRenderedMessageIdRef.current) {
+      lastRenderedMessageIdRef.current = latestMessageId;
+      scrollToLatest();
+      return;
+    }
+
+    // Only scroll if this is actually a new message.
+    if (latestMessageId !== lastRenderedMessageIdRef.current) {
+      lastRenderedMessageIdRef.current = latestMessageId;
+
+      if (followLatestRef.current) {
+        scrollToLatest();
+      } else {
+        setShowJumpToLatest(true);
+      }
+    }
+  }, [scrollToLatest, updatedMessages]);
+
+  const handleScroll = useCallback(() => {
+    const atBottom = isAtBottom(containerRef.current);
+    followLatestRef.current = atBottom;
+
+    if (atBottom) {
+      setShowJumpToLatest(false);
+    }
+  }, [isAtBottom]);
 
   const handleFilterClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setFilterAnchor(event.currentTarget);
@@ -105,7 +124,11 @@ export default function MessageList({
 
   return (
     <div className="message-list-container">
-      <div className="message-list-scroll transparent-scrollbar" ref={containerRef}>
+      <div
+        className="message-list-scroll transparent-scrollbar"
+        ref={containerRef}
+        onScroll={handleScroll}
+      >
         <div className="message-list-scroll-content">
           <ul className="message-list">
             {isLoading && updatedMessages.length === 0 ? (
@@ -113,7 +136,7 @@ export default function MessageList({
             ) : (
               updatedMessages.map((x) => {
                 // Memoize isOwnMessage calculation outside render
-                const isOwnMessage = x.uid === user.uid;
+                const isOwnMessage = x.uid === user?.uid;
                 return (
                   <Message
                     key={x.id}
@@ -129,6 +152,24 @@ export default function MessageList({
           </ul>
         </div>
       </div>
+
+      {showJumpToLatest && (
+        <div className="message-jump-status" role="status" aria-live="polite">
+          {t('newMessages', 'New messages')}
+        </div>
+      )}
+
+      {showJumpToLatest && (
+        <Button
+          className="message-jump-to-latest"
+          variant="contained"
+          size="small"
+          onClick={scrollToLatest}
+          startIcon={<KeyboardArrowDownIcon />}
+        >
+          {t('newMessages', 'New messages')}
+        </Button>
+      )}
 
       {/* Filter Button Overlay */}
       <div className="message-filter-header">

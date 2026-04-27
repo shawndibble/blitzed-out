@@ -36,6 +36,7 @@
   "importFileLoaded": "Import file loaded. Review it, then import.",
   "importBoardFileLoaded": "Import file loaded. Review it, then save.",
   "enterDataToExport": "Nothing to download yet.",
+  "newMessages": "New messages",
   "custom": "Custom",
   "default": "Default",
   "none": "None",
