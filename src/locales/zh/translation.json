@@ -28,6 +28,11 @@
     }
   },
   "customTilesLabel": "遊戲磁磚",
+  "uploadFile": "上傳檔案",
+  "downloadFile": "下載檔案",
+  "importFileLoaded": "匯入檔案已載入。請先檢查，再匯入。",
+  "importBoardFileLoaded": "匯入檔案已載入。請先檢查，再儲存。",
+  "enterDataToExport": "目前沒有可下載的內容。",
   "custom": "自訂",
   "default": "預設",
   "none": "無",
