@@ -21,9 +21,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddToCalendarButton from '@/components/AddToCalendarButton';
 import { downloadCalendarEvent } from '@/components/AddToCalendarButton/icsGenerator';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
 
 const getSiteButton = (url: string) => {
   try {
@@ -75,7 +77,7 @@ export default function ScheduleItem({
   const isToday = new Date().toDateString() === date.toDateString();
   const [isEditing, setIsEditing] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [editDateTime, setEditDateTime] = useState(dayjs(date).format('YYYY-MM-DDTHH:mm'));
+  const [editDateTime, setEditDateTime] = useState<Dayjs | null>(dayjs(date));
   const [editUrl, setEditUrl] = useState(game.url || '');
 
   const canManage = Boolean(game.id && currentUserId && game.createdBy === currentUserId);
@@ -85,7 +87,7 @@ export default function ScheduleItem({
     date.getTime() - new Date().getTime() < 24 * 60 * 60 * 1000 && date > new Date();
 
   const handleCancelEdit = () => {
-    setEditDateTime(dayjs(date).format('YYYY-MM-DDTHH:mm'));
+    setEditDateTime(dayjs(date));
     setEditUrl(game.url || '');
     setIsEditing(false);
   };
@@ -95,7 +97,7 @@ export default function ScheduleItem({
 
     try {
       await onUpdate(game.id, {
-        dateTime: dayjs(editDateTime).toDate(),
+        dateTime: editDateTime?.toDate() ?? new Date(NaN),
         url: editUrl,
       });
       setIsEditing(false);
@@ -115,14 +117,25 @@ export default function ScheduleItem({
     return (
       <Grid container spacing={2} alignItems="center">
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField
-            fullWidth
+          <DateTimePicker
             label={t('dateTime')}
-            type="datetime-local"
-            size="small"
             value={editDateTime}
-            onChange={(event) => setEditDateTime(event.target.value)}
-            slotProps={{ inputLabel: { shrink: true } }}
+            onChange={(newValue) => setEditDateTime(newValue)}
+            closeOnSelect={false}
+            disablePast
+            timeSteps={{ minutes: 30 }}
+            sx={{ width: '100%' }}
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                size: 'small',
+              },
+              openPickerButton: {
+                sx: {
+                  color: theme.palette.text.primary,
+                },
+              },
+            }}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>

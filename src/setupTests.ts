@@ -535,11 +535,11 @@ vi.mock('@/context/migration', () => ({
   MigrationProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
-// Mock window.matchMedia (for MUI responsive components)
+// Mock window.matchMedia (for MUI responsive components). Keep this as a plain
+// function so Vitest's mock reset config does not clear the implementation.
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => {
-    // Mock different breakpoints for testing
+  value: (query: string) => {
     const matches = (() => {
       if (query.includes('(max-width: 599.95px)')) return false; // xs
       if (query.includes('(max-width: 899.95px)')) return false; // sm and below
@@ -552,13 +552,13 @@ Object.defineProperty(window, 'matchMedia', {
       matches,
       media: query,
       onchange: null,
-      addListener: vi.fn(), // deprecated
-      removeListener: vi.fn(), // deprecated
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
+      addListener: () => {}, // deprecated
+      removeListener: () => {}, // deprecated
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
     };
-  }),
+  },
 });
 
 // Clean up after each test

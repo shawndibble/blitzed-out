@@ -1,5 +1,5 @@
 import { renderWithoutProviders } from '@/test-utils';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 import { describe, expect, it, vi } from 'vitest';
@@ -60,16 +60,17 @@ describe('ScheduleItem', () => {
 
     await user.click(screen.getByRole('button', { name: /edit scheduled game/i }));
 
-    const dateInput = screen.getByLabelText(/date/i);
     const urlInput = screen.getByLabelText(/camUrl/i);
 
-    fireEvent.change(dateInput, { target: { value: '2030-01-03T21:45' } });
+    await user.click(screen.getByRole('button', { name: /choose date/i }));
+    await user.click(await screen.findByRole('gridcell', { name: /^3$/i }));
+    await user.keyboard('{Escape}');
     await user.clear(urlInput);
     await user.type(urlInput, 'https://example.com/updated');
     await user.click(screen.getByRole('button', { name: /save/i }));
 
     expect(onUpdate).toHaveBeenCalledWith('schedule-1', {
-      dateTime: dayjs('2030-01-03T21:45').toDate(),
+      dateTime: dayjs('2030-01-03T20:30').toDate(),
       url: 'https://example.com/updated',
     });
   });
