@@ -6,6 +6,8 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { sitemapPlugin } from './scripts/sitemap-plugin';
 import { execSync } from 'child_process';
 
+const shouldUploadSentrySourcemaps = process.env.SENTRY_UPLOAD_SOURCEMAPS === 'true';
+
 // Translation bundling plugin
 function translationBundlePlugin() {
   return {
@@ -30,10 +32,14 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler']],
       },
     } as any),
-    sentryVitePlugin({
-      org: 'blitzedout',
-      project: 'javascript-react',
-    }),
+    ...(shouldUploadSentrySourcemaps
+      ? [
+          sentryVitePlugin({
+            org: 'blitzedout',
+            project: 'javascript-react',
+          }),
+        ]
+      : []),
     sitemapPlugin(),
     // Enable both Brotli and Gzip compression
     compression({
@@ -126,7 +132,7 @@ export default defineConfig({
     },
 
     // Target compatible browsers for Safari iOS compatibility
-    target: ['es2018', 'safari14', 'ios14'],
+    target: ['es2018', 'safari15', 'ios15'],
 
     // Enable CSS code splitting for better caching
     cssCodeSplit: true,
