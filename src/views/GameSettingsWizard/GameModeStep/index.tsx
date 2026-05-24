@@ -22,7 +22,7 @@ const cardSx = (selected: boolean) => ({
   cursor: 'pointer',
   border: selected ? '2px solid' : '1px solid',
   borderColor: selected ? 'primary.main' : 'divider',
-  backgroundColor: selected ? 'primary.50' : 'background.paper',
+  backgroundColor: selected ? 'action.selected' : 'background.paper',
   transition: 'all 0.2s ease-in-out',
   height: '100%',
   '&:hover': {

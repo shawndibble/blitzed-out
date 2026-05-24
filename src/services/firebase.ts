@@ -123,11 +123,19 @@ if (
 }
 
 const app = initializeApp(firebaseConfig);
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager(),
-  }),
-});
+let _db: ReturnType<typeof initializeFirestore>;
+try {
+  _db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
+  });
+} catch (e) {
+  // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
+  console.error('Firestore persistence unavailable, using in-memory cache:', e);
+  _db = initializeFirestore(app, {});
+}
+export const db = _db;
 
 // Firestore database initialized
 

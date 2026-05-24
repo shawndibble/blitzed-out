@@ -36,7 +36,8 @@ export default function LocalPlayersStep({
 
   const isValidPlayerCount = players.length >= 2 && players.length <= 4;
   const hasAllNames = players.every((p) => p.name.trim().length > 0);
-  const hasUniqueNames = new Set(players.map((p) => p.name.toLowerCase())).size === players.length;
+  const hasUniqueNames =
+    new Set(players.map((p) => p.name.trim().toLowerCase())).size === players.length;
   const isValid = isValidPlayerCount && hasAllNames && hasUniqueNames;
 
   useEffect(() => {

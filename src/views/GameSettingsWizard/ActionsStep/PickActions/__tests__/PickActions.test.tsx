@@ -74,6 +74,7 @@ describe('PickActions - solo modes', () => {
       isNaked: false,
       room: 'PUBLIC',
       selectedActions: {},
+      boardUpdated: false,
     } as Settings;
 
     render(
@@ -96,6 +97,7 @@ describe('PickActions - solo modes', () => {
       isNaked: false,
       room: 'PUBLIC',
       selectedActions: {},
+      boardUpdated: false,
     } as Settings;
 
     render(
@@ -124,6 +126,7 @@ describe('PickActions - group-play modes (local content)', () => {
       isNaked: false,
       room: 'PRIVATE',
       selectedActions: {},
+      boardUpdated: false,
     } as Settings;
 
     render(
@@ -146,6 +149,7 @@ describe('PickActions - group-play modes (local content)', () => {
       isNaked: true,
       room: 'PRIVATE',
       selectedActions: {},
+      boardUpdated: false,
     } as Settings;
 
     render(
@@ -168,6 +172,7 @@ describe('PickActions - group-play modes (local content)', () => {
       isNaked: false,
       room: 'PRIVATE',
       selectedActions: {},
+      boardUpdated: false,
     } as Settings;
 
     render(
@@ -190,6 +195,7 @@ describe('PickActions - group-play modes (local content)', () => {
       isNaked: true,
       room: 'PRIVATE',
       selectedActions: {},
+      boardUpdated: false,
     } as Settings;
 
     render(

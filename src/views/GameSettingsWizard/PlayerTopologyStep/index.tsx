@@ -172,7 +172,7 @@ export default function PlayerTopologyStep({
                 cursor: card.disabled ? 'not-allowed' : 'pointer',
                 border: card.selected ? '3px solid' : '1px solid',
                 borderColor: card.selected ? 'primary.main' : 'divider',
-                backgroundColor: card.selected ? 'primary.50' : 'background.paper',
+                backgroundColor: card.selected ? 'action.selected' : 'background.paper',
                 opacity: card.disabled ? 0.55 : 1,
                 transition: 'all 0.2s ease-in-out',
                 height: '100%',

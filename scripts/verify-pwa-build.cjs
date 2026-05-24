@@ -19,7 +19,7 @@ assert(
 
 const indexHtml = fs.readFileSync(indexPath, 'utf-8');
 assert(
-  /sw|workbox|registerSW/i.test(indexHtml),
+  /navigator\.serviceWorker\.register|registerSW\(|service-worker\.js|workbox/i.test(indexHtml),
   'Expected dist/index.html to reference SW registration'
 );
 

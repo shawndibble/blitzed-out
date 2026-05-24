@@ -9,7 +9,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { ActionEntry, FormData } from '@/types';
+import { ActionEntry, FormData, VALID_GROUP_TYPES } from '@/types';
 import { ExpandMore, PlayArrow, Tune } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { hasValidSelections, purgedFormData } from './helpers';
@@ -92,12 +92,13 @@ export default function ActionsStep({
   ) => {
     items.forEach((item) => {
       if (actionsList[item]) {
+        const srcType = actionsList[item].type;
+        if (!srcType || !(VALID_GROUP_TYPES as readonly string[]).includes(srcType)) return;
         const presetIntensity = preset.intensities?.[item] || defaultIntensity;
         const availableIntensities = Object.keys(actionsList[item].intensities || {});
         const maxLevel = availableIntensities.length;
-        const type = actionsList[item].type as GroupType;
         targetActions[item] = {
-          type: type as GroupType,
+          type: srcType as GroupType,
           levels: Array.from({ length: Math.min(presetIntensity, maxLevel) }, (_, i) => i + 1),
         };
       }

@@ -64,6 +64,6 @@ Anatomy placeholders: `{genital}` (dick/pussy), `{hole}` (pussy/ass), `{chest}` 
 ## Coding Standards
 
 - Remove unused vars/code entirely. No commenting out.
-- No comments on removed/replaced code.
-- No logging in prod code. Console only for troubleshooting.
+- Avoid adding comments for removed or replaced code.
+- For production, disable logging; reserve console output for troubleshooting.
 - Comments explain WHY not what. Let function/variable names document what.

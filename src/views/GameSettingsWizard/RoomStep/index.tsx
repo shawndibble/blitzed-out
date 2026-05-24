@@ -69,7 +69,7 @@ export default function RoomStep({
         sx={{
           p: 3,
           borderRadius: 2,
-          backgroundColor: 'primary.50',
+          backgroundColor: 'action.hover',
           mb: 2,
         }}
       >

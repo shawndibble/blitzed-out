@@ -27,7 +27,6 @@ interface LocalPlayerSetupProps {
  * Only available in private rooms to maintain social nature of local play
  */
 export default function LocalPlayerSetup({
-  roomId: _roomId,
   isPrivateRoom,
   onComplete,
   onCancel,

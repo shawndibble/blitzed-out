@@ -12,7 +12,8 @@ describe('site.webmanifest', () => {
     expect(manifest.scope).toBe('/');
     expect(manifest.display).toBe('standalone');
     expect(manifest.icons).toHaveLength(2);
-    expect(manifest.icons[0].sizes).toBe('192x192');
-    expect(manifest.icons[1].sizes).toBe('512x512');
+    const sizes = manifest.icons.map((icon: { sizes: string }) => icon.sizes);
+    expect(sizes).toContain('192x192');
+    expect(sizes).toContain('512x512');
   });
 });
