@@ -16,7 +16,7 @@
       "Take off your least favorite piece of clothing currently worn.",
       "{dom} removes a piece of clothing from {sub} using only their teeth.",
       "{dom} removes a piece of clothing from {sub} without using their hands.",
-      "{dom} has {sub} remove a piece of clothing from them."
+      "{dom} has {sub} remove a piece of clothing from {sub}."
     ]
   }
 }
