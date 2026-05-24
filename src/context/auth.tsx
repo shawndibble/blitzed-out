@@ -214,7 +214,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     try {
       const firebase = await loadFirebase();
       const updatedUser = await firebase.updateDisplayName(displayName);
-      setUser(updatedUser);
+      if (updatedUser !== null) {
+        setUser(updatedUser);
+      }
       return updatedUser;
     } catch (err: unknown) {
       const errorMessage = getErrorMessage(err);

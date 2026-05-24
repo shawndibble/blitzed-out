@@ -604,7 +604,7 @@ export async function updateDisplayName(displayName = ''): Promise<User | null> 
     return null;
   } catch (error) {
     console.error('Firebase operation failed', error);
-    return null;
+    return getAuth().currentUser;
   }
 }
 
