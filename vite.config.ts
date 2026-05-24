@@ -2,6 +2,7 @@ import { compression } from 'vite-plugin-compression2';
 import { defineConfig } from 'vite';
 import path from 'path';
 import react from '@vitejs/plugin-react-swc';
+import { VitePWA } from 'vite-plugin-pwa';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { sitemapPlugin } from './scripts/sitemap-plugin';
 import { execSync } from 'child_process';
@@ -41,6 +42,23 @@ export default defineConfig({
         ]
       : []),
     sitemapPlugin(),
+    VitePWA({
+      registerType: 'prompt',
+      injectRegister: 'auto',
+      strategies: 'generateSW',
+      manifest: false,
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png,svg,ico,webmanifest}'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//, /\.(?:mp3|mp4|webm|ogg|wav|flac|aac)$/i],
+        skipWaiting: false,
+        clientsClaim: false,
+      },
+      devOptions: {
+        enabled: false,
+      },
+    }),
     // Enable both Brotli and Gzip compression
     compression({
       algorithms: ['gzip', 'brotliCompress'],

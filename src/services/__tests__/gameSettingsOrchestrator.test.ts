@@ -151,7 +151,7 @@ describe('submitGameSettings', () => {
         gameMode: 'online',
         newBoard,
       });
-      const ctxWithOldBoard = makeCtx({ gameBoard: { tiles: [] } as DBGameBoard });
+      const ctxWithOldBoard = makeCtx({ gameBoard: { tiles: [] } as unknown as DBGameBoard });
       await submitGameSettings(formData, {}, ctxWithOldBoard, deps);
       expect(deps.upsertBoardFn).toHaveBeenCalledWith(
         expect.objectContaining({ tiles: newBoard, isActive: 1 })
