@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { sendRoomSettingsMessage } from '@/views/GameSettings/submitForm';
+import { sendRoomSettingsMessage } from '@/services/roomSettingsService';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';

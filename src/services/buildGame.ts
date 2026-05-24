@@ -112,10 +112,17 @@ function filterTilesByRole(
       return true;
     }
 
+    const hasRolePlaceholder = action.match(/{(dom|sub)}/);
+
     if (role === 'vers') {
-      return (action.includes('{sub}') && action.includes('{dom}')) || action.includes('{player}');
+      return (
+        !hasRolePlaceholder ||
+        (action.includes('{sub}') && action.includes('{dom}')) ||
+        action.includes('{player}')
+      );
     }
-    return !action.match(/{(dom|sub)}/) || action.includes(`{${role}}`);
+
+    return !hasRolePlaceholder || action.includes(`{${role}}`);
   });
 }
 

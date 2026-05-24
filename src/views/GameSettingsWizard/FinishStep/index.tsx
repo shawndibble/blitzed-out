@@ -39,8 +39,7 @@ export default function FinishStep({
   const [yesFinishRange, setYesFinishRange] = useState<boolean>(
     arraysEqual(formData?.finishRange || [], yes)
   );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const submitSettings = useSubmitGameSettings();
+  const { submit: submitSettings, isSubmitting: isLoading } = useSubmitGameSettings();
   const { t } = useTranslation();
   const { id: currentRoom } = useParams<{ id: string }>();
 
@@ -57,37 +56,27 @@ export default function FinishStep({
   }, []);
 
   const handleSubmit = async (): Promise<void> => {
-    setIsLoading(true);
-
     try {
       await submitSettings(formData, actionsList);
 
-      // Check if navigation will occur (room change)
       const willNavigate =
         currentRoom !== undefined && currentRoom?.toUpperCase() !== formData.room?.toUpperCase();
 
       if (typeof close === 'function') {
         if (willNavigate) {
-          // Use flushSync to ensure DOM is properly reconciled before navigation
-          // https://reactjs.org/docs/flush-sync.html - Forces synchronous DOM updates
           // eslint-disable-next-line @eslint-react/dom/no-flush-sync -- Intentional: ensures DOM is reconciled before route change
           flushSync(() => {
             close();
           });
-          // Let the browser paint the close(), then the route change
           await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
         } else {
-          // No navigation, safe to close immediately
           close();
         }
       }
-    } catch (error) {
-      console.error('Error submitting settings:', error);
+    } catch {
       if (typeof close === 'function') {
         close();
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 

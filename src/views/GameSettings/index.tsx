@@ -41,7 +41,7 @@ export default function GameSettings({
   const [openCustomTile, setOpenCustomTile] = useState<boolean>(false);
   const [formData, setFormData] = useSettingsToFormData();
 
-  const submitSettings = useSubmitGameSettings();
+  const { submit: submitSettings } = useSubmitGameSettings();
   const { isLoading, actionsList } = useUnifiedActionList(formData?.gameMode, true);
   const { hasLocalPlayers } = useLocalPlayers();
 

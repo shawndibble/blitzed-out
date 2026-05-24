@@ -212,6 +212,26 @@ describe('buildGameBoard service', () => {
 
       expect(result.metadata.availableTileCount).toBe(1);
     });
+
+    it('should include neutral foreplay tiles for vers role', async () => {
+      const groups = [createGroup('g1', 'confessions', 'foreplay')];
+      const tiles = [createTile(1, 'g1', 1, 'Answer a confession prompt')];
+
+      vi.mocked(getCustomGroups).mockResolvedValue(groups);
+      vi.mocked(getTiles).mockResolvedValue(tiles);
+
+      const settings: Settings = {
+        ...baseSettings,
+        role: 'vers',
+        selectedActions: { confessions: createActionEntry([1], 'foreplay') },
+      };
+
+      const result = await buildGameBoard(settings, 'en', 'local', 2);
+
+      expect(result.metadata.availableTileCount).toBe(1);
+      expect(result.board[1].title).toBe('confessions');
+      expect(result.board[1].description).toBe('Answer a confession prompt');
+    });
   });
 
   describe('Intensity handling', () => {

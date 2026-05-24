@@ -115,7 +115,7 @@ export default function MenuDrawer(): JSX.Element {
     from: string;
     to: string;
   } | null>(null);
-  const submitSettings = useSubmitGameSettings();
+  const { submit: submitSettings } = useSubmitGameSettings();
   const { actionsList } = useUnifiedActionList(gameSettings?.gameMode);
 
   const handleLanguageChange = useCallback(

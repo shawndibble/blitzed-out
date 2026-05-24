@@ -1,18 +1,17 @@
-import type { LocalPlayer, LocalSessionSettings } from '@/types';
 import { Params, useParams } from 'react-router-dom';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
-import { handleUser, sendRoomSettingsMessage } from '@/views/GameSettings/submitForm';
+import {
+  SubmitContext,
+  SubmitDependencies,
+  submitGameSettings,
+} from '@/services/gameSettingsOrchestrator';
+import { handleUser, sendRoomSettingsMessage } from '@/services/roomSettingsService';
 
-import { GameBoardResult } from '@/types/gameBoard';
-import { Message } from '@/types/Message';
 import { Settings } from '@/types/Settings';
 import { getActiveTiles } from '@/stores/customTiles';
-import { VALID_GROUP_TYPES } from '@/types';
-import { isPublicRoom } from '@/helpers/strings';
-import { isValidURL } from '@/helpers/urls';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import useAuth from '@/context/hooks/useAuth';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import useGameBoard from './useGameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useLocalPlayers } from './useLocalPlayers';
@@ -22,69 +21,17 @@ import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import { recordGameStart } from '@/services/playerStatsService';
 
-interface RoomChangeResult {
-  roomChanged: boolean;
-  isPrivateRoom: boolean;
-  privateBoardSizeChanged: boolean;
-}
-function updateRoomBackground(formData: Settings): void {
-  const url = formData.roomBackgroundURL?.trim();
-  if (url !== formData.roomBackgroundURL) {
-    formData.roomBackgroundURL = url || '';
-  }
-  if (formData.roomBackgroundURL && !isValidURL(formData.roomBackgroundURL)) {
-    formData.roomBackgroundURL = ''; // Clear invalid URL
-  }
+export interface GameSettingsSubmitResult {
+  submit: (formData: Settings, actionsList: any) => Promise<void>;
+  isSubmitting: boolean;
+  error: Error | null;
 }
 
-/**
- * Clean form data by removing any action/consumption entries that have been deselected
- * This ensures that the Zustand store doesn't retain stale action selections
- */
-function cleanFormData(formData: Settings): Settings {
-  const cleanedData = { ...formData };
-  const cleanedSelectedActions: Record<string, any> = {};
-
-  // Clean the selectedActions object
-  if (formData.selectedActions) {
-    Object.entries(formData.selectedActions).forEach(([key, entry]) => {
-      if (entry && entry.levels && entry.levels.length > 0) {
-        cleanedSelectedActions[key] = entry;
-      }
-    });
-  }
-
-  // Remove any old root-level action keys (for migration cleanup)
-  Object.keys(cleanedData).forEach((key) => {
-    const entry = cleanedData[key] as any;
-    if (
-      entry &&
-      typeof entry === 'object' &&
-      entry.type &&
-      VALID_GROUP_TYPES.includes(entry.type)
-    ) {
-      delete cleanedData[key];
-    }
-  });
-
-  cleanedData.selectedActions = cleanedSelectedActions;
-
-  // Remove wizard-specific fields that should not persist in settings store
-  // These fields are only used during wizard flow to create local player sessions
-  const wizardFields = ['localPlayersData', 'localPlayerSessionSettings', 'hasLocalPlayers'];
-  wizardFields.forEach((field) => {
-    delete (cleanedData as any)[field];
-  });
-
-  return cleanedData;
-}
-
-export default function useSubmitGameSettings(): (
-  formData: Settings,
-  actionsList: any
-) => Promise<void> {
+export default function useSubmitGameSettings(
+  overrideDeps?: Partial<SubmitDependencies>
+): GameSettingsSubmitResult {
   const { user, updateUser } = useAuth();
-  const { id: room } = useParams<Params>();
+  const { id: currentRoom } = useParams<Params>();
   const { t } = useTranslation();
   const updateGameBoardTiles = useGameBoard();
   const [settings, updateSettings] = useSettings();
@@ -93,144 +40,66 @@ export default function useSubmitGameSettings(): (
   const navigate = useRoomNavigate();
   const { messages } = useMessages();
   const { createLocalSession, hasLocalPlayers } = useLocalPlayers();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  const handleRoomChange = useCallback(
-    (formData: Settings): RoomChangeResult => {
-      // Handle the case where room might be undefined (original logic with safety check)
-      const currentRoomUpper = (room || '')?.toUpperCase();
-      const formDataRoomUpper = (formData.room || '').toUpperCase();
-      const roomChanged = currentRoomUpper !== formDataRoomUpper;
-      const isPrivateRoom = Boolean(formData.room && !isPublicRoom(formData.room));
-      const privateBoardSizeChanged =
-        isPrivateRoom && formData.roomTileCount !== settings?.roomTileCount;
-
-      return { roomChanged, isPrivateRoom, privateBoardSizeChanged };
-    },
-    [room, settings?.roomTileCount]
-  );
-
-  const submitSettings = useCallback(
+  const submit = useCallback(
     async (formData: Settings, actionsList: any): Promise<void> => {
-      const { displayName } = formData;
-      const updatedUser = await handleUser(user, displayName, updateUser);
+      setIsSubmitting(true);
+      setError(null);
 
-      updateRoomBackground(formData);
+      const ctx: SubmitContext = {
+        user,
+        currentRoom,
+        currentRoomTileCount: settings?.roomTileCount,
+        messages,
+        gameBoard,
+        customTiles,
+        hasLocalPlayers,
+        settingsSnapshot: settings,
+      };
 
-      const {
-        settingsBoardUpdated,
-        gameMode,
-        newBoard = [],
-      } = (await updateGameBoardTiles(formData)) as GameBoardResult;
-      const { roomChanged, isPrivateRoom, privateBoardSizeChanged } = handleRoomChange(formData);
+      const deps: SubmitDependencies = {
+        updateUser: (displayName: string) => handleUser(user, displayName, updateUser),
+        updateGameBoardTiles,
+        sendRoomSettingsFn: sendRoomSettingsMessage,
+        upsertBoardFn: upsertBoard,
+        sendGameSettingsFn: sendGameSettingsMessage,
+        createLocalSessionFn: createLocalSession,
+        updateSettingsFn: updateSettings,
+        navigateFn: navigate,
+        translateFn: t,
+        recordGameStartFn: recordGameStart,
+        ...overrideDeps,
+      };
 
-      if (!updatedUser) return;
-
-      if (
-        isPrivateRoom &&
-        (formData.roomUpdated || !messages.find((m: Message) => m.type === 'room'))
-      ) {
-        await sendRoomSettingsMessage(formData, updatedUser);
+      try {
+        await submitGameSettings(formData, actionsList, ctx, deps);
+      } catch (err) {
+        const e = err instanceof Error ? err : new Error('Submission failed');
+        setError(e);
+        throw e;
+      } finally {
+        setIsSubmitting(false);
       }
-
-      if (gameBoard?.tiles !== newBoard) {
-        await upsertBoard({
-          title: t('settingsGenerated'),
-          tiles: newBoard,
-          isActive: 1,
-          gameMode,
-        });
-      }
-
-      const shouldSendGameSettings =
-        (settingsBoardUpdated || roomChanged || privateBoardSizeChanged) &&
-        !messages.some(
-          (m: Message) =>
-            m.type === 'settings' &&
-            m.uid === updatedUser.uid &&
-            Date.now() - (m.timestamp?.toMillis() || 0) < 5000
-        );
-
-      if (shouldSendGameSettings) {
-        await sendGameSettingsMessage({
-          formData,
-          user: updatedUser,
-          customTiles,
-          actionsList,
-          title: 'Settings Generated Board',
-          tiles: newBoard,
-        });
-      }
-
-      // Handle local player session initialization if data exists from wizard
-      // Only create a NEW session if one doesn't already exist (wizard flow)
-      // Do NOT re-create existing sessions when clicking "Update Game"
-      const typedFormData = formData as any; // Use any type to access wizard-specific properties
-
-      // IMPORTANT: Check settings store, not formData, for wizard fields
-      // formData is React state and may be stale after session deletion
-      // Only create session if wizard fields exist in BOTH formData AND settings store
-      const settingsHasWizardFields =
-        'localPlayersData' in settings ||
-        'localPlayerSessionSettings' in settings ||
-        'hasLocalPlayers' in settings;
-
-      if (
-        typedFormData.hasLocalPlayers &&
-        typedFormData.localPlayersData &&
-        typedFormData.localPlayerSessionSettings &&
-        !hasLocalPlayers && // No current session
-        settingsHasWizardFields // Settings also have wizard fields (not stale formData)
-      ) {
-        try {
-          await createLocalSession(
-            formData.room,
-            typedFormData.localPlayersData as LocalPlayer[],
-            typedFormData.localPlayerSessionSettings as LocalSessionSettings
-          );
-        } catch (error) {
-          console.error('Error creating local session:', error);
-          // Don't throw here to prevent blocking the settings save
-        }
-      }
-
-      // Clean the formData to remove any deselected actions/consumptions before storing
-      const cleanedFormData = cleanFormData(formData);
-
-      updateSettings({
-        ...cleanedFormData,
-        boardUpdated: false,
-        roomUpdated: false,
-        gameMode,
-      });
-
-      // Record game start for statistics when board is updated (new game starting)
-      if (settingsBoardUpdated && user?.uid) {
-        recordGameStart(user.uid).catch(() => {
-          // Silently handle - stats are non-critical
-        });
-      }
-
-      navigate(formData.room);
     },
     [
       user,
       updateUser,
-      updateGameBoardTiles,
-      handleRoomChange,
+      currentRoom,
+      settings,
       messages,
       gameBoard,
-      t,
       customTiles,
+      hasLocalPlayers,
+      updateGameBoardTiles,
       updateSettings,
       navigate,
       createLocalSession,
-      hasLocalPlayers,
-      settings,
+      t,
+      overrideDeps,
     ]
   );
 
-  return useCallback(
-    (formData: Settings, actionsList: any) => submitSettings(formData, actionsList),
-    [submitSettings]
-  );
+  return { submit, isSubmitting, error };
 }
