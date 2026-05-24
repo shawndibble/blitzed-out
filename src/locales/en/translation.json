@@ -30,7 +30,7 @@
       "exampleResult": "Mike kisses Jessica on the breasts"
     }
   },
-  "customTilesLabel": "Game Tiles",
+  "customTilesLabel": "Customize Actions",
   "uploadFile": "Upload file",
   "downloadFile": "Download file",
   "importFileLoaded": "Import file loaded. Review it, then import.",
@@ -237,7 +237,7 @@
   "rebuildBoardDescription": "Keep the same settings. New mix of actions.",
   "changeSettings": "Change Settings",
   "changeSettingsDescription": "Open the settings dialog to fully change the game.",
-  "manageTiles": "Manage Game Tiles",
+  "manageTiles": "Manage Custom Actions",
   "group": "Group",
   "action": "Action",
   "tags": "Tags",
@@ -289,17 +289,29 @@
   "importNoChange": "No changes detected. Save failed.",
   "importTitleRequired": "Title is required to save a board.",
   "title": "Title",
-  "ctExplained": "What are Game Tiles?",
+  "ctExplained": "What are Custom Actions?",
   "ctIdeas": "Creative Ideas",
-  "ctAdd": "Add Game Tile",
-  "ctUpdate": "Update Game Tile",
-  "ctSeparatorError": "Make sure that you add a --- on a new line between game tiles and your groups are wrapped in brackets.",
-  "ctGroupError": "Invalid group. Ensure your group matching a format listed in 'Add Game Tiles' and is wrapped in brackets.",
+  "ctAdd": "Add Custom Action",
+  "ctUpdate": "Update Custom Action",
+  "ctSeparatorError": "Make sure that you add a --- on a new line between custom actions and your groups are wrapped in brackets.",
+  "ctGroupError": "Invalid group. Ensure your group matching a format listed in 'Add Custom Actions' and is wrapped in brackets.",
   "ctActionError": "You need to ensure each entry that has a group also has an action",
   "advancedSetup": "Advanced Settings",
   "playingWithPeople": "Are you physically interacting with people?",
   "yesInteracting": "Yes, I am playing with people.",
   "noInteracting": "No, I am playing with myself.",
+  "participationStyle": {
+    "title": "How are you participating?",
+    "subtitle": "Choose whether you are playing solo or interacting with others.",
+    "solo": {
+      "title": "Solo-Sexual",
+      "description": "Actions are just for you. No partner interactions."
+    },
+    "group": {
+      "title": "With Others",
+      "description": "Actions involve partners. Choose intensity below."
+    }
+  },
   "yourRole": "What is your role?",
   "yourGender": "What is your anatomy?",
   "anatomyDescription": "This personalizes action text to match your body",
@@ -447,8 +459,27 @@
   "typeValidationError": "Type must be one of: {{types}}",
   "failedToSaveGroup": "Failed to save group: {{error}}",
   "optionalLinkHelper": "Optional: Link to your stream or meeting",
-  "chooseRoomType": "Choose Your Experience",
-  "roomTypeDescription": "Select the type of room that best fits your playing style.",
+  "chooseRoomType": "Your Private Room",
+  "roomTypeDescription": "Share this code to invite friends, or edit it to join a friend's room.",
+  "playerTopology": {
+    "stepLabel": "Player Setup",
+    "title": "How are you playing?",
+    "subtitle": "Choose your setup first. Room and other settings come next.",
+    "solo": {
+      "title": "Solo",
+      "description": "Play by yourself on this device.",
+      "private": "Play privately"
+    },
+    "shared": {
+      "title": "Shared Device",
+      "description": "Pass one device around with 2–4 local players."
+    },
+    "online": {
+      "title": "Individual Devices",
+      "description": "Each player joins from their own device in a shared private room.",
+      "offlineTooltip": "Individual devices require an internet connection."
+    }
+  },
   "publicRoomBenefit": "For solo online play",
   "privateRoomBenefit": "Solo, couple or group play",
   "selected": "Selected",

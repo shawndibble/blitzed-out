@@ -4,8 +4,8 @@
  */
 export const WIZARD_STEPS = {
   0: 'advanced_settings',
-  1: 'room_setup',
-  2: 'local_players',
+  1: 'player_topology',
+  2: 'player_details',
   3: 'game_mode',
   4: 'actions',
   5: 'finish',

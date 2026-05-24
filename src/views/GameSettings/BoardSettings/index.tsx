@@ -1,6 +1,6 @@
 import { Box, Divider, Grid, SelectChangeEvent, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { isLocalMode, isPublicRoom } from '@/helpers/strings';
 
 import FinishSlider from './FinishSlider';
 import GridItem from '@/components/GridItem';
@@ -25,7 +25,7 @@ export default function BoardSettings({
 }: BoardSettingsProps): JSX.Element {
   const { t } = useTranslation();
   const { hasLocalPlayers } = useLocalPlayerStore();
-  const isLocal = !isOnlineMode(formData.gameMode);
+  const isLocal = isLocalMode(formData.gameMode);
   const shouldShowRoleSelect = !hasLocalPlayers();
 
   // Helper function to check if any options are selected for a given type
@@ -58,11 +58,9 @@ export default function BoardSettings({
       ));
   }
 
-  // go through all entries in formData and update the value if the key contains the word role
   const updateAllRoles = (value: string): Settings => {
     const newFormData = JSON.parse(JSON.stringify(formData));
     Object.keys(newFormData).forEach((key) => {
-      newFormData.role = value;
       if (key.includes('role')) {
         newFormData[key] = value;
       }
@@ -74,7 +72,7 @@ export default function BoardSettings({
     <Box maxWidth="97%">
       <SoloSwitch formData={formData} setFormData={setFormData} />
 
-      {isPublicRoom(formData?.room) && !isOnlineMode(formData.gameMode) && (
+      {isPublicRoom(formData?.room) && isLocalMode(formData.gameMode) && (
         <Grid container alignContent="center" justifyContent="space-evenly">
           <Grid sx={{ py: 3 }}>
             <Typography variant="h5">

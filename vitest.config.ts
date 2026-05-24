@@ -19,7 +19,7 @@ export default mergeConfig(
       // Prevent memory leaks between test runs
       clearMocks: true,
       restoreMocks: true,
-      mockReset: true,
+      resetMocks: true,
       coverage: {
         reporter: ['text', 'json', 'html'],
         exclude: [

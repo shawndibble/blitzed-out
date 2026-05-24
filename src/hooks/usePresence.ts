@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { setMyPresence, startPresenceHeartbeat, removeMyPresence } from '@/services/presence';
 import useAuth from '@/context/hooks/useAuth';
+import { isOffline } from '@/helpers/networkStatus';
 
 export default function usePresence(roomId: string, roomRealtime?: boolean): void {
   const {
@@ -9,9 +10,26 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
 
   const currentRoomRef = useRef<string | null>(null);
   const currentDisplayNameRef = useRef<string>(displayName || '');
+  const [online, setOnline] = useState(!isOffline());
+
+  useEffect(() => {
+    const updateOnline = () => setOnline(!isOffline());
+
+    window.addEventListener('online', updateOnline);
+    window.addEventListener('offline', updateOnline);
+
+    return () => {
+      window.removeEventListener('online', updateOnline);
+      window.removeEventListener('offline', updateOnline);
+    };
+  }, []);
 
   // Set up presence when room or display name changes, then start heartbeat
   useEffect(() => {
+    if (!online) {
+      return;
+    }
+
     let stopHeartbeat: (() => void) | null = null;
     let timeoutId: NodeJS.Timeout | null = null;
     const needsPresenceUpdate =
@@ -51,12 +69,16 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
         stopHeartbeat();
       }
     };
-  }, [roomId, displayName, roomRealtime]);
+  }, [roomId, displayName, roomRealtime, online]);
 
   // Set up cleanup on page unload only
   // Note: We don't call removeMyPresence in the cleanup function because
   // React 18 Strict Mode double-mounts components, which would remove presence immediately
   useEffect(() => {
+    if (!online) {
+      return;
+    }
+
     const handleBeforeUnload = () => {
       removeMyPresence();
     };
@@ -66,5 +88,5 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, []);
+  }, [online]);
 }

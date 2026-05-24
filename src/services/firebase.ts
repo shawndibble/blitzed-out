@@ -22,10 +22,12 @@ import {
   doc,
   getDoc,
   getDocs,
-  getFirestore,
+  initializeFirestore,
   limit,
   onSnapshot,
   orderBy,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   query,
   serverTimestamp,
   startAfter,
@@ -121,7 +123,20 @@ if (
 }
 
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+let _db: ReturnType<typeof initializeFirestore>;
+try {
+  _db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
+  });
+} catch (e) {
+  // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
+  if (import.meta.env.DEV)
+    console.error('Firestore persistence unavailable, using in-memory cache:', e);
+  _db = initializeFirestore(app, {});
+}
+export const db = _db;
 
 // Firestore database initialized
 
@@ -589,7 +604,7 @@ export async function updateDisplayName(displayName = ''): Promise<User | null> 
     return null;
   } catch (error) {
     console.error('Firebase operation failed', error);
-    return null;
+    return getAuth().currentUser;
   }
 }
 

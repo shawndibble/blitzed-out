@@ -11,7 +11,7 @@ export default function RoomQRCode({ roomCode }: RoomQRCodeProps) {
 
   if (!roomCode) return null;
 
-  const roomUrl = `${window.location.origin}/${roomCode}`;
+  const roomUrl = `${window.location.origin}/${roomCode}?step=2`;
 
   return (
     <Box

@@ -211,6 +211,7 @@ export interface FormData {
   localPlayersData?: LocalPlayer[];
   localPlayerSessionSettings?: LocalSessionSettings;
   hasLocalPlayers?: boolean;
+  soloPlay?: boolean;
   selectedActions?: {
     [key: string]: {
       type: GroupType;

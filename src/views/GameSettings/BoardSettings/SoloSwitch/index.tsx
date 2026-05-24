@@ -1,6 +1,6 @@
 import { Help } from '@mui/icons-material';
 import { Stack, Switch, Tooltip, Typography } from '@mui/material';
-import { isOnlineMode } from '@/helpers/strings';
+import { isLocalMode } from '@/helpers/strings';
 import { Trans } from 'react-i18next';
 import { ChangeEvent } from 'react';
 import { Settings } from '@/types/Settings';
@@ -28,7 +28,7 @@ export default function SoloSwitch({ formData, setFormData }: SoloSwitchProps): 
       </Tooltip>
       <Switch
         id="gameMode"
-        checked={!isOnlineMode(formData.gameMode)}
+        checked={isLocalMode(formData.gameMode)}
         onChange={(event: ChangeEvent<HTMLInputElement>) =>
           setFormData({
             ...formData,

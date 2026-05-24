@@ -9,7 +9,7 @@ import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { importActions } from '@/services/dexieActionImport';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/customTiles';
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { getContentGameMode, isLocalMode, isPublicRoom } from '@/helpers/strings';
 import { RoomMessage } from '@/types/Message';
 import { GameBoard } from '@/types/gameBoard';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
@@ -47,7 +47,7 @@ export default function usePrivateRoomMonitor(
   const { user } = useAuth();
 
   const [settings, updateSettings] = useSettings();
-  const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(getContentGameMode(settings?.gameMode)));
   const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState<string>(DEFAULT_DIEM);
   const [roomBgUrl, setRoomBgUrl] = useState<string>('');
@@ -75,7 +75,7 @@ export default function usePrivateRoomMonitor(
           formData: { ...settings, ...messageSettings },
           user,
           customTiles,
-          actionsList: await importActions(i18n.resolvedLanguage, gameMode || 'online'),
+          actionsList: await importActions(i18n.resolvedLanguage, getContentGameMode(gameMode)),
           tiles: newBoard,
           title: t('settingsGenerated'),
         };
@@ -163,7 +163,7 @@ export default function usePrivateRoomMonitor(
       }
 
       // make sure if I am in a public room, I can't send out private room settings.
-      if (isPublicRoom(room) && !isOnlineMode(settings?.gameMode || '')) {
+      if (isPublicRoom(room) && isLocalMode(settings?.gameMode)) {
         return;
       }
 

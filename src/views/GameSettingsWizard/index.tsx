@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import ActionsStep from './ActionsStep';
 import Box from '@mui/material/Box';
@@ -10,12 +10,13 @@ import { FormData } from '@/types';
 import GameModeStep from './GameModeStep';
 import GameSettings from '@/views/GameSettings';
 import LocalPlayersStep from './LocalPlayersStep';
+import PlayerTopologyStep from './PlayerTopologyStep';
 import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
 import { Trans } from 'react-i18next';
-import { isPublicRoom } from '@/helpers/strings';
+import { usesSoloActions } from '@/helpers/strings';
 import { useMigration } from '@/context/migration';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import { useWizardAnalytics } from '@/hooks/useWizardAnalytics';
@@ -26,7 +27,9 @@ interface GameSettingsWizardProps {
 
 export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const { id: room } = useParams<{ id: string }>();
-  const [step, setStep] = useState<number>(1);
+  const [searchParams] = useSearchParams();
+  const joinAtStep = searchParams.get('step') === '2';
+  const [step, setStep] = useState<number>(joinAtStep ? 2 : 1);
   const { isMigrationInProgress, currentLanguageMigrated } = useMigration();
 
   // Simple toggle to force useUnifiedActionList to reload when migration completes
@@ -37,11 +40,14 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   // Track previous migration state to detect transitions
   const prevIsMigrationInProgressRef = useRef(isMigrationInProgress);
 
-  const overrideSettings: Record<string, any> = { room: room || 'PUBLIC' };
+  const overrideSettings: Record<string, any> = {
+    room: room || 'PUBLIC',
+    ...(joinAtStep && { gameMode: 'online' }),
+  };
 
   const [formData, setFormData] = useSettingsToFormData<FormData & Partial<Settings>>(
     {
-      gameMode: 'online',
+      gameMode: 'solo',
       roomRealtime: true,
       actions: [],
       consumption: [],
@@ -82,8 +88,35 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     }
   }, [isMigrationInProgress, currentLanguageMigrated]);
 
+  const isSoloPlay = usesSoloActions(formData.gameMode, formData.soloPlay);
+  const contentGameMode = isSoloPlay ? 'online' : 'local';
+
+  // Clear selected actions when the play context changes (different content becomes available)
+  const prevContentGameMode = useRef(contentGameMode);
+  const prevIsSoloPlay = useRef(isSoloPlay);
+  const prevIsNaked = useRef(formData.isNaked);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const modeChanged =
+      prevContentGameMode.current !== contentGameMode ||
+      prevIsSoloPlay.current !== isSoloPlay ||
+      (contentGameMode === 'local' && prevIsNaked.current !== formData.isNaked);
+
+    if (modeChanged && Object.keys(formData.selectedActions || {}).length > 0) {
+      setFormData((prev) => ({ ...prev, selectedActions: {} }));
+    }
+    prevContentGameMode.current = contentGameMode;
+    prevIsSoloPlay.current = isSoloPlay;
+    prevIsNaked.current = formData.isNaked;
+  }, [contentGameMode, isSoloPlay, formData.isNaked]);
+
   const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(
-    formData.gameMode,
+    contentGameMode,
     true,
     reloadToggle // This will force reload when migration completes
   );
@@ -91,24 +124,10 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   // Include migration state in loading condition
   const isActionsLoadingWithMigration = isActionsLoading || isMigrationInProgress;
 
-  // Compute isPublic once per render
-  const isPublic = isPublicRoom(formData.room);
-
   // Analytics tracking for wizard funnel
   const { trackStepNavigation } = useWizardAnalytics({
     gameMode: formData.gameMode,
-    isPublicRoom: isPublic,
   });
-
-  // Handle step redirects for public rooms without causing DOM insertion errors
-  useLayoutEffect(() => {
-    // Only redirect if we're on a step that's invalid for public rooms
-    if (isPublic && (step === 2 || step === 3)) {
-      queueMicrotask(() => {
-        setStep(4);
-      });
-    }
-  }, [step, isPublic]);
 
   const nextStep = (count?: number): void => {
     const newStep = !Number.isInteger(count) ? step + 1 : step + (count || 1);
@@ -119,17 +138,13 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     setStep(newStep);
   };
 
-  // Guarded step click handler to prevent navigation to invalid steps for public rooms
   const handleStepClick = (targetStep: number): void => {
-    // Prevent advancing to steps 2 or 3 when in public room
-    if (isPublic && (targetStep === 2 || targetStep === 3)) {
-      return;
-    }
+    const normalizedTargetStep = formData.gameMode === 'solo' && targetStep === 2 ? 3 : targetStep;
 
     // Track step navigation
-    trackStepNavigation(step, targetStep);
+    trackStepNavigation(step, normalizedTargetStep);
 
-    setStep(targetStep);
+    setStep(normalizedTargetStep);
   };
 
   const prevStep = (count?: number): void => {
@@ -140,47 +155,46 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const goToAdvanced = (): void => setStep(0);
 
   const goToSetupWizard = (): void => {
-    if (isPublicRoom(formData.room)) {
-      setStep(4);
-    } else if (formData.gameMode === 'online') {
-      setStep(4);
-    } else {
-      setStep(1);
-    }
+    setStep(1);
   };
 
   const renderStep = (): JSX.Element | null => {
-    const isPublic = isPublicRoom(formData.room);
-
     switch (step) {
       case 1:
-        return <RoomStep formData={formData} setFormData={setFormData} nextStep={nextStep} />;
-      case 2:
-        // Never render steps 2 or 3 for public rooms
-        // The useEffect above handles the redirect
-        if (isPublic) {
-          return null;
-        }
         return (
-          <LocalPlayersStep
-            formData={formData}
-            setFormData={setFormData}
-            nextStep={nextStep}
-            prevStep={prevStep}
-          />
+          <PlayerTopologyStep formData={formData} setFormData={setFormData} nextStep={nextStep} />
         );
-      case 3:
-        // Never render steps 2 or 3 for public rooms
-        // The useEffect above handles the redirect
-        if (isPublic) {
-          return null;
+      case 2:
+        if (formData.gameMode === 'online') {
+          return (
+            <RoomStep
+              formData={formData}
+              setFormData={setFormData}
+              nextStep={nextStep}
+              prevStep={prevStep}
+            />
+          );
         }
+
+        if (formData.gameMode === 'local') {
+          return (
+            <LocalPlayersStep
+              formData={formData}
+              setFormData={setFormData}
+              nextStep={nextStep}
+              prevStep={prevStep}
+            />
+          );
+        }
+
+        return null;
+      case 3:
         return (
           <GameModeStep
             formData={formData}
             setFormData={setFormData}
             nextStep={nextStep}
-            prevStep={prevStep}
+            prevStep={formData.gameMode === 'solo' ? () => prevStep(2) : prevStep}
           />
         );
       case 4:
@@ -215,7 +229,11 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   return (
     <Box>
       <Box sx={{ width: '100%', mt: 2, mb: 4 }}>
-        <DynamicStepper currentStep={step} isPublicRoom={isPublic} onStepClick={handleStepClick} />
+        <DynamicStepper
+          currentStep={step}
+          gameMode={formData.gameMode}
+          onStepClick={handleStepClick}
+        />
       </Box>
       {renderStep()}
 

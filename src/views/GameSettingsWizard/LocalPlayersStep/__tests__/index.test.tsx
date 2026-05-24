@@ -1,130 +1,57 @@
-import type { LocalPlayer, LocalSessionSettings } from '@/types';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-
+import { render, screen, fireEvent } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import LocalPlayersStep from '../index';
-import userEvent from '@testing-library/user-event';
 
-// Mock dependencies
-const mockClearLocalSession = vi.fn();
-const mockUseLocalPlayers = {
-  // State
-  session: null,
-  localPlayers: [],
-  currentPlayer: null,
-  currentPlayerIndex: -1,
-  sessionSettings: undefined,
-  error: null,
-  isLoading: false,
-
-  // Computed state
-  hasLocalPlayers: false,
-  isLocalPlayerRoom: false,
-  playerCount: 0,
-  isValidSession: false,
-
-  // Actions
-  createLocalSession: vi.fn(),
-  loadLocalSession: vi.fn(),
-  clearLocalSession: mockClearLocalSession,
-  advanceToNextPlayer: vi.fn(),
-  updateSettings: vi.fn(),
-
-  // Utilities
-  getPlayerByIndex: vi.fn(),
-  getPlayerById: vi.fn(),
-  isPlayerActive: vi.fn(),
-  getNextPlayer: vi.fn(),
-  getPreviousPlayer: vi.fn(),
-
-  // Direct store access
-  setSession: vi.fn(),
-  setError: vi.fn(),
-  setLoading: vi.fn(),
-};
-
-vi.mock('@/hooks/useLocalPlayers', () => ({
-  useLocalPlayers: () => mockUseLocalPlayers,
-}));
-
-const mockLocalPlayerSetupComplete = vi.fn();
-const mockLocalPlayerSetupCancel = vi.fn();
-
-// Create a mock component that can be dynamically controlled
-const mockLocalPlayerSetupComponent = vi.fn();
-
-vi.mock('@/components/LocalPlayerSetup', () => ({
-  default: (props: any) => mockLocalPlayerSetupComponent(props),
-}));
-
-// Default implementation will be set in beforeEach
-
-vi.mock('@/components/ButtonRow', () => ({
-  default: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="button-row">{children}</div>
+vi.mock('@/components/LocalPlayerSetup/PlayerCard', () => ({
+  default: ({ player, onEdit, onDelete }: any) => (
+    <div data-testid={`player-card-${player.id}`}>
+      <span>{player.name}</span>
+      <button onClick={() => onEdit(player)}>Edit</button>
+      <button onClick={() => onDelete(player.id)}>Delete</button>
+    </div>
   ),
 }));
 
-// Mock react-i18next
+vi.mock('@/components/LocalPlayerSetup/PlayerForm', () => ({
+  default: ({ open, onSubmit, onCancel }: any) =>
+    open ? (
+      <div data-testid="player-form">
+        <button
+          onClick={() => onSubmit({ name: 'New Player', role: 'vers', gender: 'non-binary' })}
+        >
+          Submit
+        </button>
+        <button onClick={onCancel}>Cancel Form</button>
+      </div>
+    ) : null,
+}));
+
+vi.mock('@/components/ButtonRow', () => ({
+  default: ({ children }: any) => <div data-testid="button-row">{children}</div>,
+}));
+
 vi.mock('react-i18next', () => ({
-  Trans: ({ i18nKey, children }: { i18nKey?: string; children?: any }) => {
-    const translations: Record<string, string> = {
-      'localPlayersStep.title': 'Local Players Setup',
-      'localPlayersStep.subtitle': 'Set up players for single-device multiplayer',
-      'localPlayersStep.setupOption.title': 'Set Up Local Players',
-      'localPlayersStep.setupOption.description': 'Add players for single-device play',
-      'localPlayersStep.setupOption.button': 'Set Up Players',
-      'localPlayersStep.skipOption.title': 'Skip Local Players',
-      'localPlayersStep.skipOption.description': 'Continue without local players',
-      'localPlayersStep.skipOption.button': 'Skip',
-      'localPlayersStep.currentStatus.hasPlayers': 'You have existing local players',
-      'localPlayersStep.publicRoomMessage':
-        'Local players are not available for public rooms. Continuing...',
-      previous: 'Previous',
-      skip: 'Skip',
-      cancel: 'Cancel',
-    };
-    return <span data-testid={i18nKey}>{children || translations[i18nKey || ''] || i18nKey}</span>;
-  },
+  Trans: ({ i18nKey }: any) => <span data-testid={i18nKey}>{i18nKey}</span>,
   useTranslation: () => ({
-    t: (key: string, defaultValue?: string) => {
-      const translations: Record<string, string> = {
-        'localPlayersStep.publicRoomMessage':
-          'Local players are not available for public rooms. Continuing...',
-        'localPlayersStep.setupOption.button': 'Set Up Players',
-        'localPlayersStep.skipOption.button': 'Skip',
-        previous: 'Previous',
-        skip: 'Skip',
-        cancel: 'Cancel',
-      };
-      return defaultValue || translations[key] || key;
+    t: (key: string, opts?: any) => {
+      if (opts?.count !== undefined) return `count: ${opts.count}`;
+      if (opts?.number !== undefined) return `player_${opts.number}`;
+      return key;
     },
   }),
 }));
 
-// Mock migration context
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
+vi.mock('@mui/icons-material', () => ({
+  Add: () => <span data-testid="add-icon" />,
 }));
 
 describe('LocalPlayersStep', () => {
   const mockSetFormData = vi.fn();
   const mockNextStep = vi.fn();
   const mockPrevStep = vi.fn();
-  let user: ReturnType<typeof userEvent.setup>;
 
   const defaultProps = {
-    formData: {
-      room: 'PRIVATE_ROOM',
-      gameMode: 'local',
-    },
+    formData: { room: 'AB12C', gameMode: 'local' },
     setFormData: mockSetFormData,
     nextStep: mockNextStep,
     prevStep: mockPrevStep,
@@ -132,475 +59,182 @@ describe('LocalPlayersStep', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseLocalPlayers.hasLocalPlayers = false;
-    user = userEvent.setup();
-
-    // Reset mock to default implementation
-    mockLocalPlayerSetupComponent.mockImplementation(
-      ({
-        onComplete,
-        onCancel,
-        initialPlayers,
-        initialSettings,
-        roomId,
-        isPrivateRoom,
-      }: {
-        onComplete: (players: LocalPlayer[], settings: LocalSessionSettings) => void;
-        onCancel: () => void;
-        initialPlayers?: LocalPlayer[];
-        initialSettings?: LocalSessionSettings;
-        roomId: string;
-        isPrivateRoom: boolean;
-      }) => (
-        <div data-testid="local-player-setup">
-          <div data-testid="room-id">{roomId}</div>
-          <div data-testid="is-private-room">{isPrivateRoom.toString()}</div>
-          <div data-testid="initial-players">{JSON.stringify(initialPlayers || [])}</div>
-          <div data-testid="initial-settings">{JSON.stringify(initialSettings || {})}</div>
-          <button
-            onClick={() => {
-              mockLocalPlayerSetupComplete();
-              onComplete(
-                [
-                  {
-                    id: 'player-1',
-                    name: 'Test Player 1',
-                    role: 'dom',
-                    order: 0,
-                    isActive: true,
-                    deviceId: 'device-123',
-                    location: 0,
-                    isFinished: false,
-                  },
-                  {
-                    id: 'player-2',
-                    name: 'Test Player 2',
-                    role: 'sub',
-                    order: 1,
-                    isActive: false,
-                    deviceId: 'device-123',
-                    location: 0,
-                    isFinished: false,
-                  },
-                ],
-                {
-                  showTurnTransitions: true,
-                  enableTurnSounds: true,
-                  showPlayerAvatars: true,
-                }
-              );
-            }}
-          >
-            Complete Setup
-          </button>
-          <button
-            onClick={() => {
-              mockLocalPlayerSetupCancel();
-              onCancel();
-            }}
-          >
-            Cancel Setup
-          </button>
-        </div>
-      )
-    );
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
-  describe('Component Rendering', () => {
-    it('renders the component with basic structure for private rooms', () => {
+  describe('Rendering', () => {
+    it('shows title and subtitle', () => {
       render(<LocalPlayersStep {...defaultProps} />);
-
       expect(screen.getByTestId('localPlayersStep.title')).toBeInTheDocument();
       expect(screen.getByTestId('localPlayersStep.subtitle')).toBeInTheDocument();
-      expect(screen.getByTestId('localPlayersStep.setupOption.title')).toBeInTheDocument();
-      expect(screen.getByTestId('localPlayersStep.skipOption.title')).toBeInTheDocument();
-      expect(screen.getByTestId('localPlayersStep.setupOption.button')).toBeInTheDocument();
-      expect(screen.getByTestId('localPlayersStep.skipOption.button')).toBeInTheDocument();
-      expect(screen.getByTestId('button-row')).toBeInTheDocument();
     });
 
-    it('renders navigation buttons correctly', () => {
+    it('shows empty state when no players', () => {
       render(<LocalPlayersStep {...defaultProps} />);
-
-      expect(screen.getByTestId('previous')).toBeInTheDocument();
-      expect(screen.getByTestId('skip')).toBeInTheDocument();
+      expect(screen.getByTestId('localPlayers.noPlayersYet')).toBeInTheDocument();
+      expect(screen.getByTestId('localPlayers.addFirstPlayer')).toBeInTheDocument();
     });
 
-    it('renders with proper grid layout for options', () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const setupCard = screen
-        .getByTestId('localPlayersStep.setupOption.title')
-        .closest('.MuiCard-root');
-      const skipCard = screen
-        .getByTestId('localPlayersStep.skipOption.title')
-        .closest('.MuiCard-root');
-
-      expect(setupCard).toBeInTheDocument();
-      expect(skipCard).toBeInTheDocument();
-    });
-
-    it('shows current local players status when hasLocalPlayers is true', () => {
-      mockUseLocalPlayers.hasLocalPlayers = true;
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      expect(screen.getByTestId('localPlayersStep.currentStatus.hasPlayers')).toBeInTheDocument();
-    });
-
-    it('does not show local players status when hasLocalPlayers is false', () => {
-      mockUseLocalPlayers.hasLocalPlayers = false;
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      expect(
-        screen.queryByTestId('localPlayersStep.currentStatus.hasPlayers')
-      ).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Public Room Handling', () => {
-    it('shows loading message for public rooms', () => {
-      const publicRoomProps = {
-        ...defaultProps,
-        formData: { ...defaultProps.formData, room: 'PUBLIC' },
-      };
-
-      render(<LocalPlayersStep {...publicRoomProps} />);
-
-      expect(
-        screen.getByText('Local players are not available for public rooms. Continuing...')
-      ).toBeInTheDocument();
-    });
-
-    it('does not show setup options for public rooms', () => {
-      const publicRoomProps = {
-        ...defaultProps,
-        formData: { ...defaultProps.formData, room: 'PUBLIC' },
-      };
-
-      render(<LocalPlayersStep {...publicRoomProps} />);
-
-      expect(screen.queryByTestId('localPlayersStep.setupOption.title')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('localPlayersStep.skipOption.title')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Local Players Setup', () => {
-    it('opens LocalPlayerSetup when setup option is clicked', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-    });
-
-    it('opens LocalPlayerSetup when setup card is clicked', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const setupCard = screen
-        .getByTestId('localPlayersStep.setupOption.title')
-        .closest('.MuiCard-root');
-      if (setupCard) {
-        await user.click(setupCard);
-      }
-
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-    });
-
-    it('passes correct props to LocalPlayerSetup', async () => {
-      const formDataWithPlayers = {
-        ...defaultProps.formData,
-        localPlayersData: [{ id: 'test', name: 'Test Player', role: 'dom' as const }],
-        localPlayerSessionSettings: { showTurnTransitions: true },
-      };
-
-      render(<LocalPlayersStep {...defaultProps} formData={formDataWithPlayers} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      expect(screen.getByTestId('room-id')).toHaveTextContent('PRIVATE_ROOM');
-      expect(screen.getByTestId('is-private-room')).toHaveTextContent('true');
-      expect(screen.getByTestId('initial-players')).toHaveTextContent(
-        JSON.stringify([{ id: 'test', name: 'Test Player', role: 'dom' }])
-      );
-      expect(screen.getByTestId('initial-settings')).toHaveTextContent(
-        JSON.stringify({ showTurnTransitions: true })
-      );
-    });
-
-    it('handles LocalPlayerSetup completion', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      const completeButton = screen.getByText('Complete Setup');
-      await user.click(completeButton);
-
-      expect(mockLocalPlayerSetupComplete).toHaveBeenCalledTimes(1);
-      expect(mockSetFormData).toHaveBeenCalledWith({
+    it('shows player cards when initial players provided', () => {
+      const formData = {
         ...defaultProps.formData,
         localPlayersData: [
           {
-            id: 'player-1',
-            name: 'Test Player 1',
+            id: 'p1',
+            name: 'Alice',
             role: 'dom',
+            gender: 'female',
             order: 0,
             isActive: true,
-            deviceId: 'device-123',
+            deviceId: 'dev',
             location: 0,
             isFinished: false,
           },
           {
-            id: 'player-2',
-            name: 'Test Player 2',
+            id: 'p2',
+            name: 'Bob',
             role: 'sub',
+            gender: 'male',
             order: 1,
             isActive: false,
-            deviceId: 'device-123',
+            deviceId: 'dev',
             location: 0,
             isFinished: false,
           },
         ],
-        localPlayerSessionSettings: {
-          showTurnTransitions: true,
-          enableTurnSounds: true,
-          showPlayerAvatars: true,
-        },
-        hasLocalPlayers: true,
-      });
-      expect(mockNextStep).toHaveBeenCalledTimes(1);
-    });
-
-    it('handles LocalPlayerSetup cancellation', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-
-      const cancelButton = screen.getByText('Cancel Setup');
-      await user.click(cancelButton);
-
-      expect(mockLocalPlayerSetupCancel).toHaveBeenCalledTimes(1);
-      expect(screen.queryByTestId('local-player-setup')).not.toBeInTheDocument();
-    });
-
-    it('clears setup error when starting setup', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      // First open and complete setup to trigger an error
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      const cancelButton = screen.getByText('Cancel Setup');
-      await user.click(cancelButton);
-
-      // Now open setup again - error should be cleared
-      await user.click(setupButton);
-
-      expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Skip Local Players', () => {
-    it('skips local players when skip card is clicked', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const skipCard = screen
-        .getByTestId('localPlayersStep.skipOption.title')
-        .closest('.MuiCard-root');
-      if (skipCard) {
-        await user.click(skipCard);
-      }
-
-      expect(mockSetFormData).toHaveBeenCalledWith(expect.any(Function));
-      expect(mockNextStep).toHaveBeenCalledTimes(1);
-    });
-
-    it('skips local players when navigation skip button is clicked', async () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const skipButton = screen.getByTestId('skip');
-      await user.click(skipButton);
-
-      expect(mockSetFormData).toHaveBeenCalledWith(expect.any(Function));
-      expect(mockNextStep).toHaveBeenCalledTimes(1);
-    });
-
-    it('clears existing local session when skipping and hasLocalPlayers is true', async () => {
-      mockUseLocalPlayers.hasLocalPlayers = true;
-
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const skipButton = screen.getByTestId('skip');
-      await user.click(skipButton);
-
-      expect(mockClearLocalSession).toHaveBeenCalledTimes(1);
-      expect(mockNextStep).toHaveBeenCalledTimes(1);
-    });
-
-    it('sets correct form data when skipping', async () => {
-      const mockSetFormDataFn = vi.fn();
-
-      render(<LocalPlayersStep {...defaultProps} setFormData={mockSetFormDataFn} />);
-
-      const skipButton = screen.getByTestId('skip');
-      await user.click(skipButton);
-
-      expect(mockSetFormDataFn).toHaveBeenCalledWith(expect.any(Function));
-
-      // Test the function passed to setFormData
-      const updateFunction = mockSetFormDataFn.mock.calls[0][0];
-      const result = updateFunction(defaultProps.formData);
-
-      expect(result).toEqual({
-        ...defaultProps.formData,
-        hasLocalPlayers: false,
-        localPlayersData: undefined,
-        localPlayerSessionSettings: undefined,
-        gameMode: 'online', // Should change from 'local' to 'online'
-      });
-    });
-
-    it('preserves non-local gameMode when skipping', async () => {
-      const mockSetFormDataFn = vi.fn();
-      const formDataWithOnlineMode = {
-        ...defaultProps.formData,
-        gameMode: 'online',
       };
+      render(<LocalPlayersStep {...defaultProps} formData={formData} />);
+      expect(screen.getByTestId('player-card-p1')).toBeInTheDocument();
+      expect(screen.getByTestId('player-card-p2')).toBeInTheDocument();
+    });
 
-      render(
-        <LocalPlayersStep
-          {...defaultProps}
-          formData={formDataWithOnlineMode}
-          setFormData={mockSetFormDataFn}
-        />
-      );
-
-      const skipButton = screen.getByTestId('skip');
-      await user.click(skipButton);
-
-      const updateFunction = mockSetFormDataFn.mock.calls[0][0];
-      const result = updateFunction(formDataWithOnlineMode);
-
-      expect(result.gameMode).toBe('online'); // Should remain 'online'
+    it('has Prev and Next buttons', () => {
+      render(<LocalPlayersStep {...defaultProps} />);
+      expect(screen.getByTestId('previous')).toBeInTheDocument();
+      expect(screen.getByTestId('next')).toBeInTheDocument();
     });
   });
 
   describe('Navigation', () => {
-    it('calls prevStep when previous button is clicked', async () => {
+    it('calls prevStep on Previous click', () => {
       render(<LocalPlayersStep {...defaultProps} />);
-
-      const prevButton = screen.getByTestId('previous');
-      await user.click(prevButton);
-
+      fireEvent.click(screen.getByTestId('previous'));
       expect(mockPrevStep).toHaveBeenCalledTimes(1);
     });
 
-    it('has correct button labels', () => {
+    it('Next is disabled with 0 players', () => {
       render(<LocalPlayersStep {...defaultProps} />);
-
-      expect(screen.getByTestId('previous')).toBeInTheDocument();
-      expect(screen.getByTestId('skip')).toBeInTheDocument();
-    });
-  });
-
-  describe('Edge Cases', () => {
-    it('handles undefined formData properties gracefully', () => {
-      const minimalFormData = { room: 'PRIVATE_ROOM' };
-
-      render(<LocalPlayersStep {...defaultProps} formData={minimalFormData} />);
-
-      expect(screen.getByTestId('localPlayersStep.title')).toBeInTheDocument();
+      expect(screen.getByTestId('next').closest('button')).toBeDisabled();
     });
 
-    it('handles empty room string', () => {
-      const formDataWithEmptyRoom = { ...defaultProps.formData, room: '' };
-
-      render(<LocalPlayersStep {...defaultProps} formData={formDataWithEmptyRoom} />);
-
-      // Should still show the choice screen since empty string is not 'PUBLIC'
-      expect(screen.getByTestId('localPlayersStep.title')).toBeInTheDocument();
-    });
-
-    it('handles null formData properties', () => {
-      const formDataWithNulls = {
+    it('Next is disabled with 1 player', () => {
+      const formData = {
         ...defaultProps.formData,
-        localPlayersData: null,
-        localPlayerSessionSettings: null,
+        localPlayersData: [
+          {
+            id: 'p1',
+            name: 'Alice',
+            role: 'dom',
+            gender: 'female',
+            order: 0,
+            isActive: true,
+            deviceId: 'dev',
+            location: 0,
+            isFinished: false,
+          },
+        ],
       };
-
-      render(<LocalPlayersStep {...defaultProps} formData={formDataWithNulls} />);
-
-      expect(screen.getByTestId('localPlayersStep.title')).toBeInTheDocument();
+      render(<LocalPlayersStep {...defaultProps} formData={formData} />);
+      expect(screen.getByTestId('next').closest('button')).toBeDisabled();
     });
 
-    it('uses fallback room ID when room is not provided', async () => {
-      const formDataWithoutRoom = { gameMode: 'local' };
+    it('Next is enabled with 2 players', () => {
+      const formData = {
+        ...defaultProps.formData,
+        localPlayersData: [
+          {
+            id: 'p1',
+            name: 'Alice',
+            role: 'dom',
+            gender: 'female',
+            order: 0,
+            isActive: true,
+            deviceId: 'dev',
+            location: 0,
+            isFinished: false,
+          },
+          {
+            id: 'p2',
+            name: 'Bob',
+            role: 'sub',
+            gender: 'male',
+            order: 1,
+            isActive: false,
+            deviceId: 'dev',
+            location: 0,
+            isFinished: false,
+          },
+        ],
+      };
+      render(<LocalPlayersStep {...defaultProps} formData={formData} />);
+      expect(screen.getByTestId('next').closest('button')).not.toBeDisabled();
+    });
 
-      render(<LocalPlayersStep {...defaultProps} formData={formDataWithoutRoom} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      // Should use 'PRIVATE' as fallback
-      expect(screen.getByTestId('room-id')).toHaveTextContent('PRIVATE');
+    it('clicking Next with valid players calls setFormData and nextStep', () => {
+      const formData = {
+        ...defaultProps.formData,
+        localPlayersData: [
+          {
+            id: 'p1',
+            name: 'Alice',
+            role: 'dom',
+            gender: 'female',
+            order: 0,
+            isActive: true,
+            deviceId: 'dev',
+            location: 0,
+            isFinished: false,
+          },
+          {
+            id: 'p2',
+            name: 'Bob',
+            role: 'sub',
+            gender: 'male',
+            order: 1,
+            isActive: false,
+            deviceId: 'dev',
+            location: 0,
+            isFinished: false,
+          },
+        ],
+      };
+      render(<LocalPlayersStep {...defaultProps} formData={formData} />);
+      fireEvent.click(screen.getByTestId('next').closest('button')!);
+      expect(mockSetFormData).toHaveBeenCalled();
+      expect(mockNextStep).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('Component State Management', () => {
-    it('maintains setup state correctly', async () => {
+  describe('Add Player', () => {
+    it('opens PlayerForm when Add First Player is clicked', () => {
       render(<LocalPlayersStep {...defaultProps} />);
-
-      // Initially should not show setup
-      expect(screen.queryByTestId('local-player-setup')).not.toBeInTheDocument();
-
-      // Open setup
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-      expect(screen.queryByTestId('localPlayersStep.title')).not.toBeInTheDocument();
-
-      // Cancel setup
-      const cancelButton = screen.getByText('Cancel Setup');
-      await user.click(cancelButton);
-
-      expect(screen.queryByTestId('local-player-setup')).not.toBeInTheDocument();
-      expect(screen.getByTestId('localPlayersStep.title')).toBeInTheDocument();
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('has proper ARIA attributes on interactive elements', () => {
-      render(<LocalPlayersStep {...defaultProps} />);
-
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      const skipButton = screen.getByTestId('localPlayersStep.skipOption.button');
-      const prevButton = screen.getByTestId('previous');
-      const navSkipButton = screen.getByTestId('skip');
-
-      expect(setupButton).toBeInTheDocument();
-      expect(skipButton).toBeInTheDocument();
-      expect(prevButton).toBeInTheDocument();
-      expect(navSkipButton).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('localPlayers.addFirstPlayer'));
+      expect(screen.getByTestId('player-form')).toBeInTheDocument();
     });
 
-    it('maintains focus management during state transitions', async () => {
+    it('adds a player after form submit', () => {
       render(<LocalPlayersStep {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('localPlayers.addFirstPlayer'));
+      fireEvent.click(screen.getByText('Submit'));
+      expect(screen.queryByTestId('player-form')).not.toBeInTheDocument();
+      expect(screen.getByText('New Player')).toBeInTheDocument();
+    });
 
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      await user.click(setupButton);
-
-      // Setup component should be focusable
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
+    it('closes form on cancel without adding player', () => {
+      render(<LocalPlayersStep {...defaultProps} />);
+      fireEvent.click(screen.getByTestId('localPlayers.addFirstPlayer'));
+      fireEvent.click(screen.getByText('Cancel Form'));
+      expect(screen.queryByTestId('player-form')).not.toBeInTheDocument();
+      expect(screen.queryByText('New Player')).not.toBeInTheDocument();
     });
   });
 });

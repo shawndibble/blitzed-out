@@ -1,4 +1,4 @@
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
+import { isLocalMode, isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
 
 interface ActionOption {
@@ -56,7 +56,7 @@ export default function validateFormData(
     return isTryingToAppend(withAppend) ? 'appendWithAction' : 'pickSomething';
   }
 
-  if (isPublicRoom(gameOptions.room) && !isOnlineMode(gameOptions.gameMode)) {
+  if (isPublicRoom(gameOptions.room) && isLocalMode(gameOptions.gameMode)) {
     return 'privateRequired';
   }
 

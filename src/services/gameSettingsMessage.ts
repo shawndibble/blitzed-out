@@ -7,7 +7,7 @@ import { TileExport } from '@/types/gameBoard';
 import { User } from '@/types';
 import { getCustomGroupByName } from '@/stores/customGroups';
 import i18next from 'i18next';
-import { isOnlineMode } from '@/helpers/strings';
+import { usesSoloActions } from '@/helpers/strings';
 
 /**
  * Type guard to check if an object has a valid role property
@@ -95,7 +95,7 @@ export async function getSettingsMessage(
       let modifier = null;
       if (variation) {
         modifier = t(variation);
-      } else if (!isOnlineMode(settings.gameMode)) {
+      } else if (!usesSoloActions(settings.gameMode, settings.soloPlay)) {
         modifier = isValidRole(val, actualRole)
           ? (val[actualRole as string] as string)
           : t(actualRole as string);

@@ -1,4 +1,5 @@
 import { getAllAvailableGroups } from '@/stores/customGroups';
+import { getContentGameMode } from '@/helpers/strings';
 import { CustomGroupPull } from '@/types/customGroups';
 
 /**
@@ -41,7 +42,7 @@ export const importActions = async (
   gameMode = 'online'
 ): Promise<Record<string, any>> => {
   try {
-    const groups = await getAllAvailableGroups(locale, gameMode);
+    const groups = await getAllAvailableGroups(locale, getContentGameMode(gameMode));
     return convertDexieGroupsToActions(groups);
   } catch (error) {
     console.error('Error importing actions from Dexie:', error);

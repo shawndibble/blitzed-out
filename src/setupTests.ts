@@ -95,6 +95,9 @@ vi.mock('firebase/auth', () => ({
 
 vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(() => ({})),
+  initializeFirestore: vi.fn(() => ({})),
+  persistentLocalCache: vi.fn(() => ({})),
+  persistentMultipleTabManager: vi.fn(() => ({})),
   collection: vi.fn(),
   doc: vi.fn(),
   addDoc: vi.fn(),
@@ -105,6 +108,8 @@ vi.mock('firebase/firestore', () => ({
   query: vi.fn(),
   where: vi.fn(),
   orderBy: vi.fn(),
+  limit: vi.fn(),
+  startAfter: vi.fn(),
   onSnapshot: vi.fn(),
   serverTimestamp: vi.fn(),
   Timestamp: {

@@ -2,314 +2,158 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import LocalPlayersStep from '../index';
 
-// Mock dependencies
-vi.mock('@/hooks/useLocalPlayers', () => ({
-  useLocalPlayers: vi.fn(),
+vi.mock('@/components/LocalPlayerSetup/PlayerCard', () => ({
+  default: ({ player }: any) => <div data-testid={`player-card-${player.id}`}>{player.name}</div>,
 }));
 
-vi.mock('@/components/LocalPlayerSetup', () => ({
-  default: ({ onComplete, onCancel }: any) => (
-    <div data-testid="local-player-setup">
-      <button onClick={() => onComplete([], {})}>Complete Setup</button>
-      <button onClick={onCancel}>Cancel Setup</button>
-    </div>
-  ),
+vi.mock('@/components/LocalPlayerSetup/PlayerForm', () => ({
+  default: ({ open, onCancel }: any) =>
+    open ? (
+      <div data-testid="player-form">
+        <button onClick={onCancel}>Cancel Form</button>
+      </div>
+    ) : null,
 }));
 
-// Mock translation
+vi.mock('@/components/ButtonRow', () => ({
+  default: ({ children }: any) => <div>{children}</div>,
+}));
+
 vi.mock('react-i18next', () => ({
-  Trans: ({ i18nKey, children }: any) => <span data-testid={i18nKey}>{children || i18nKey}</span>,
+  Trans: ({ i18nKey }: any) => <span data-testid={i18nKey}>{i18nKey}</span>,
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, opts?: any) => {
+      if (opts?.count !== undefined) return `count: ${opts.count}`;
+      if (opts?.number !== undefined) return `player_${opts.number}`;
+      return key;
+    },
   }),
 }));
 
-import { useLocalPlayers } from '@/hooks/useLocalPlayers';
+vi.mock('@mui/icons-material', () => ({
+  Add: () => <span />,
+}));
 
 describe('LocalPlayersStep Navigation and Defaults', () => {
   const mockSetFormData = vi.fn();
   const mockNextStep = vi.fn();
   const mockPrevStep = vi.fn();
 
-  const baseFormData = {
-    room: 'PRIVATE',
-    gameMode: 'local',
-  };
+  const baseFormData = { room: 'AB12C', gameMode: 'local' };
 
-  const mockLocalPlayersHook = {
-    hasLocalPlayers: false,
-    clearLocalSession: vi.fn(),
-  };
+  const twoPlayers = [
+    {
+      id: 'p1',
+      name: 'Alice',
+      role: 'dom',
+      gender: 'female',
+      order: 0,
+      isActive: true,
+      deviceId: 'dev',
+      location: 0,
+      isFinished: false,
+    },
+    {
+      id: 'p2',
+      name: 'Bob',
+      role: 'sub',
+      gender: 'male',
+      order: 1,
+      isActive: false,
+      deviceId: 'dev',
+      location: 0,
+      isFinished: false,
+    },
+  ];
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLocalPlayers as any).mockReturnValue(mockLocalPlayersHook);
   });
 
-  describe('Navigation Consistency', () => {
-    it('should use "Previous" button, not "Back"', () => {
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Should have "Previous" button
-      expect(screen.getByText('previous')).toBeInTheDocument();
-
-      // Should NOT have "Back" button
-      expect(screen.queryByText('back')).not.toBeInTheDocument();
-    });
-
-    it('should call prevStep when Previous button is clicked', () => {
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      fireEvent.click(screen.getByText('previous'));
-      expect(mockPrevStep).toHaveBeenCalled();
-    });
+  it('uses "previous" i18n key, not "back"', () => {
+    render(
+      <LocalPlayersStep
+        formData={baseFormData}
+        setFormData={mockSetFormData}
+        nextStep={mockNextStep}
+        prevStep={mockPrevStep}
+      />
+    );
+    expect(screen.getByTestId('previous')).toBeInTheDocument();
+    expect(screen.queryByTestId('back')).not.toBeInTheDocument();
   });
 
-  describe('Option Layout and Styling', () => {
-    it('should display both local player options with equal styling', () => {
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Both options should be present
-      expect(screen.getByTestId('localPlayersStep.setupOption.title')).toBeInTheDocument();
-      expect(screen.getByTestId('localPlayersStep.skipOption.title')).toBeInTheDocument();
-
-      // No "selected" indicator should be present by default (equal weighting)
-      expect(screen.queryByText('selected')).not.toBeInTheDocument();
-    });
-
-    it('should show both options with consistent styling', () => {
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Both options should be present
-      expect(screen.getByTestId('localPlayersStep.setupOption.title')).toBeInTheDocument();
-      expect(screen.getByTestId('localPlayersStep.skipOption.title')).toBeInTheDocument();
-
-      // Both should have similar button styling (outlined variant)
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      const skipButton = screen.getByTestId('localPlayersStep.skipOption.button');
-
-      expect(setupButton).toBeInTheDocument();
-      expect(skipButton).toBeInTheDocument();
-    });
+  it('Previous button calls prevStep', () => {
+    render(
+      <LocalPlayersStep
+        formData={baseFormData}
+        setFormData={mockSetFormData}
+        nextStep={mockNextStep}
+        prevStep={mockPrevStep}
+      />
+    );
+    fireEvent.click(screen.getByTestId('previous'));
+    expect(mockPrevStep).toHaveBeenCalledTimes(1);
   });
 
-  describe('Option Selection Behavior', () => {
-    it('should navigate to next step when skip option is selected', () => {
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Click the skip button (either card or button)
-      fireEvent.click(screen.getByText('skip'));
-      expect(mockNextStep).toHaveBeenCalled();
-    });
-
-    it('should open setup modal when setup option is selected', () => {
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Click the setup option
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      fireEvent.click(setupButton);
-
-      // Should show the LocalPlayerSetup component
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-    });
+  it('restores existing players from formData', () => {
+    render(
+      <LocalPlayersStep
+        formData={{ ...baseFormData, localPlayersData: twoPlayers }}
+        setFormData={mockSetFormData}
+        nextStep={mockNextStep}
+        prevStep={mockPrevStep}
+      />
+    );
+    expect(screen.getByTestId('player-card-p1')).toBeInTheDocument();
+    expect(screen.getByTestId('player-card-p2')).toBeInTheDocument();
   });
 
-  describe('Local Player Setup Integration', () => {
-    it('should update formData when setup is completed', () => {
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
+  it('Next saves players and session settings to formData', () => {
+    const sessionSettings = {
+      showTurnTransitions: true,
+      enableTurnSounds: false,
+      showPlayerAvatars: true,
+    };
 
-      // Open setup modal
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      fireEvent.click(setupButton);
+    render(
+      <LocalPlayersStep
+        formData={{
+          ...baseFormData,
+          localPlayersData: twoPlayers,
+          localPlayerSessionSettings: sessionSettings,
+        }}
+        setFormData={mockSetFormData}
+        nextStep={mockNextStep}
+        prevStep={mockPrevStep}
+      />
+    );
 
-      // Complete the setup
-      fireEvent.click(screen.getByText('Complete Setup'));
+    fireEvent.click(screen.getByTestId('next').closest('button')!);
 
-      expect(mockSetFormData).toHaveBeenCalledWith({
-        ...baseFormData,
-        localPlayersData: [],
-        localPlayerSessionSettings: {},
-        hasLocalPlayers: true,
-      });
-
-      expect(mockNextStep).toHaveBeenCalled();
+    expect(mockSetFormData).toHaveBeenCalledWith(expect.any(Function));
+    const updater = mockSetFormData.mock.calls[0][0];
+    const result = updater({
+      ...baseFormData,
+      localPlayersData: twoPlayers,
+      localPlayerSessionSettings: sessionSettings,
     });
 
-    it('should close setup modal when cancelled', () => {
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Open setup modal
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      fireEvent.click(setupButton);
-
-      // Should show setup
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-
-      // Cancel the setup
-      fireEvent.click(screen.getByText('Cancel Setup'));
-
-      // Should not show setup anymore
-      expect(screen.queryByTestId('local-player-setup')).not.toBeInTheDocument();
-    });
+    expect(result.hasLocalPlayers).toBe(true);
+    expect(result.localPlayersData).toEqual(twoPlayers);
+    expect(result.localPlayerSessionSettings).toEqual(sessionSettings);
+    expect(mockNextStep).toHaveBeenCalledTimes(1);
   });
 
-  describe('Public Room Handling', () => {
-    it('should auto-skip for public rooms', async () => {
-      const publicRoomFormData = {
-        ...baseFormData,
-        room: 'PUBLIC',
-      };
-
-      render(
-        <LocalPlayersStep
-          formData={publicRoomFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Should automatically call nextStep for public rooms after a short delay
-      await new Promise((resolve) => setTimeout(resolve, 150)); // Wait for the timeout
-      expect(mockNextStep).toHaveBeenCalled();
-    });
-  });
-
-  describe('Existing Local Players Status', () => {
-    it('should show status alert when local players already exist', () => {
-      const mockWithExistingPlayers = {
-        ...mockLocalPlayersHook,
-        hasLocalPlayers: true,
-      };
-
-      (useLocalPlayers as any).mockReturnValue(mockWithExistingPlayers);
-
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Should show the current status alert
-      expect(screen.getByTestId('localPlayersStep.currentStatus.hasPlayers')).toBeInTheDocument();
-    });
-
-    it('should clear existing session when skip is selected', () => {
-      const mockClearSession = vi.fn();
-      const mockWithExistingPlayers = {
-        ...mockLocalPlayersHook,
-        hasLocalPlayers: true,
-        clearLocalSession: mockClearSession,
-      };
-
-      (useLocalPlayers as any).mockReturnValue(mockWithExistingPlayers);
-
-      render(
-        <LocalPlayersStep
-          formData={baseFormData}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Click skip
-      fireEvent.click(screen.getByText('skip'));
-
-      expect(mockClearSession).toHaveBeenCalled();
-      expect(mockNextStep).toHaveBeenCalled();
-    });
-  });
-
-  describe('Data Persistence Preparation', () => {
-    it('should pass initial data to LocalPlayerSetup when available', () => {
-      const formDataWithExistingPlayers = {
-        ...baseFormData,
-        localPlayersData: [
-          { id: 'player1', name: 'Existing Player', role: 'dom', isActive: true, order: 1 },
-        ],
-        localPlayerSessionSettings: {
-          showTurnTransitions: true,
-          enableTurnSounds: false,
-          showPlayerAvatars: true,
-        },
-      };
-
-      render(
-        <LocalPlayersStep
-          formData={formDataWithExistingPlayers}
-          setFormData={mockSetFormData}
-          nextStep={mockNextStep}
-          prevStep={mockPrevStep}
-        />
-      );
-
-      // Open setup modal
-      const setupButton = screen.getByTestId('localPlayersStep.setupOption.button');
-      fireEvent.click(setupButton);
-
-      // The LocalPlayerSetup component should receive the initial data
-      // This is tested through the props passed to the mocked component
-      expect(screen.getByTestId('local-player-setup')).toBeInTheDocument();
-    });
+  it('gracefully handles null/undefined localPlayersData', () => {
+    render(
+      <LocalPlayersStep
+        formData={{ ...baseFormData, localPlayersData: null, localPlayerSessionSettings: null }}
+        setFormData={mockSetFormData}
+        nextStep={mockNextStep}
+        prevStep={mockPrevStep}
+      />
+    );
+    expect(screen.getByTestId('localPlayersStep.title')).toBeInTheDocument();
   });
 });

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAllAvailableGroups, getGroupsWithTiles } from '@/stores/customGroups';
 import { getTileCountsByGroup } from '@/stores/customTiles';
+import { getContentGameMode } from '@/helpers/strings';
 import { GroupedActions } from '@/types/customTiles';
 
 interface UnifiedActionListResult {
@@ -44,14 +45,15 @@ export default function useUnifiedActionList(
 
       try {
         const locale = i18n.resolvedLanguage || 'en';
+        const contentGameMode = getContentGameMode(gameMode);
         let allGroups;
 
         // Get groups based on filtering preference
         if (showOnlyGroupsWithTiles) {
-          allGroups = await getGroupsWithTiles(gameMode);
+          allGroups = await getGroupsWithTiles(contentGameMode);
 
           // Get tile counts for intensity filtering
-          const tileCounts = await getTileCountsByGroup(locale, gameMode, null);
+          const tileCounts = await getTileCountsByGroup(locale, contentGameMode, null);
 
           // Filter intensities to only show those with tiles
           allGroups = allGroups.map((group) => {
@@ -69,7 +71,7 @@ export default function useUnifiedActionList(
             return group;
           });
         } else {
-          allGroups = await getAllAvailableGroups(locale, gameMode);
+          allGroups = await getAllAvailableGroups(locale, contentGameMode);
         }
 
         // Convert groups to unified actions structure

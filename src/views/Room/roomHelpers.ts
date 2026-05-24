@@ -1,4 +1,4 @@
-import { isOnlineMode } from '@/helpers/strings';
+import { isLocalMode } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
 import { HybridPlayer } from '@/hooks/useHybridPlayerList';
 
@@ -10,7 +10,7 @@ import { HybridPlayer } from '@/hooks/useHybridPlayerList';
  * Calculate game mode based on settings
  */
 export function getGameMode(settings: Settings): 'online' | 'local' {
-  return isOnlineMode(settings.gameMode) ? 'online' : 'local';
+  return isLocalMode(settings.gameMode) ? 'local' : 'online';
 }
 
 /**
@@ -51,7 +51,7 @@ export function isRoomReady(
     (!gameBoard ||
       !gameBoard.length ||
       !Object.keys(settings).length ||
-      (room?.toUpperCase() === 'PUBLIC' && !isOnlineMode(gameMode))) &&
+      (room?.toUpperCase() === 'PUBLIC' && isLocalMode(gameMode))) &&
     !isImporting
   );
 }
