@@ -132,7 +132,8 @@ try {
   });
 } catch (e) {
   // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
-  console.error('Firestore persistence unavailable, using in-memory cache:', e);
+  if (import.meta.env.DEV)
+    console.error('Firestore persistence unavailable, using in-memory cache:', e);
   _db = initializeFirestore(app, {});
 }
 export const db = _db;
