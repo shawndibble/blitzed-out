@@ -51,6 +51,8 @@ export interface Settings {
   ambientVolume?: number;
   /** Enable wake lock to prevent screen sleep during gameplay (default: true) */
   wakeLockEnabled?: boolean;
+  /** True = solo-sexual (solo actions only); false = group play (foreplay/sex actions). Applies to online mode only. */
+  soloPlay?: boolean;
   [key: string]: any;
 }
 

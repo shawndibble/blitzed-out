@@ -18,6 +18,7 @@ vi.mock('dexie-react-hooks', () => ({
 vi.mock('@/helpers/strings', () => ({
   isPublicRoom: vi.fn(),
   isOnlineMode: vi.fn(),
+  getContentGameMode: vi.fn((gameMode) => (gameMode === 'local' ? 'local' : 'online')),
 }));
 
 vi.mock('@/stores/settingsStore', () => ({

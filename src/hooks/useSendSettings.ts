@@ -9,7 +9,7 @@ import { Params, useParams } from 'react-router-dom';
 import { getActiveTiles } from '@/stores/customTiles';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveBoard } from '@/stores/gameBoard';
-import { isPublicRoom } from '@/helpers/strings';
+import { getContentGameMode, isPublicRoom } from '@/helpers/strings';
 import { Message, RoomMessage } from '@/types/Message';
 import { DBGameBoard } from '@/types/gameBoard';
 import { User } from '@/types';
@@ -36,7 +36,7 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
   const [settingsSent, setSettingsSent] = useState<boolean>(false);
   const { i18n } = useTranslation();
   const [settings] = useSettings();
-  const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(getContentGameMode(settings?.gameMode)));
   const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
 
   const sendSettings = useCallback(async (): Promise<void> => {
@@ -69,7 +69,10 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
     );
 
     if (!alreadySentSettings && isCompatible) {
-      const actionsList = await importActions(i18n.resolvedLanguage, settings.gameMode);
+      const actionsList = await importActions(
+        i18n.resolvedLanguage,
+        getContentGameMode(settings.gameMode)
+      );
 
       await sendGameSettingsMessage({
         formData,

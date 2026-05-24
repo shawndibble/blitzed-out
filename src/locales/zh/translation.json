@@ -30,7 +30,7 @@
       "exampleResult": "小明親吻小美的乳房"
     }
   },
-  "customTilesLabel": "遊戲磁磚",
+  "customTilesLabel": "自訂動作",
   "uploadFile": "上傳檔案",
   "downloadFile": "下載檔案",
   "importFileLoaded": "匯入檔案已載入。請先檢查，再匯入。",
@@ -236,7 +236,7 @@
   "rebuildBoardDescription": "保持相同設定。新的動作組合。",
   "changeSettings": "變更設定",
   "changeSettingsDescription": "開啟設定對話框以完全變更遊戲。",
-  "manageTiles": "管理遊戲磁磚",
+  "manageTiles": "管理自訂動作",
   "group": "群組",
   "action": "動作",
   "tags": "標籤",
@@ -285,17 +285,29 @@
   "importNoChange": "未檢測到變更。儲存失敗。",
   "importTitleRequired": "儲存遊戲板需要標題。",
   "title": "標題",
-  "ctExplained": "什麼是遊戲磁磚？",
+  "ctExplained": "什麼是自訂動作？",
   "ctIdeas": "創意想法",
-  "ctAdd": "新增遊戲磁磚",
-  "ctUpdate": "更新遊戲磁磚",
-  "ctSeparatorError": "請確保在遊戲磁磚之間的新行上加入 ---，並且您的群組被包在括號中。",
-  "ctGroupError": "無效的群組。請確保您的群組符合「新增遊戲磁磚」中列出的格式並被包在括號中。",
+  "ctAdd": "新增自訂動作",
+  "ctUpdate": "更新自訂動作",
+  "ctSeparatorError": "請確保在自訂動作之間的新行上加入 ---，並且您的群組被包在括號中。",
+  "ctGroupError": "無效的群組。請確保您的群組符合「新增自訂動作」中列出的格式並被包在括號中。",
   "ctActionError": "您需要確保每個有群組的條目也有動作",
   "advancedSetup": "進階設定",
   "playingWithPeople": "您是在與人實際互動嗎？",
   "yesInteracting": "是的，我在與人遊玩。",
   "noInteracting": "不，我在與自己遊玩。",
+  "participationStyle": {
+    "title": "您如何參與？",
+    "subtitle": "選擇您是單獨遊玩還是與他人互動。",
+    "solo": {
+      "title": "自我性愛",
+      "description": "動作僅適用於您自己。沒有伴侶互動。"
+    },
+    "group": {
+      "title": "與他人",
+      "description": "動作涉及伴侶。在下方選擇強度。"
+    }
+  },
   "yourRole": "您的角色是什麼？",
   "yourGender": "您的解剖是什麼？",
   "anatomyDescription": "这将根据您的身体个性化动作文本",
@@ -446,7 +458,26 @@
   "failedToSaveGroup": "儲存群組失敗：{{error}}",
   "optionalLinkHelper": "可選：您的串流或會議鏈接",
   "actionsSelection": "動作選擇",
-  "chooseRoomType": "選擇您的體驗",
+  "chooseRoomType": "您的私人房間",
+  "playerTopology": {
+    "stepLabel": "玩家設置",
+    "title": "您如何遊玩？",
+    "subtitle": "先選擇您的設置，房間設置和其他選項隨後出現。",
+    "solo": {
+      "title": "單人",
+      "description": "在此設備上單獨遊玩。",
+      "private": "私下遊玩"
+    },
+    "shared": {
+      "title": "共享設備",
+      "description": "2–4名本地玩家共用一台設備。"
+    },
+    "online": {
+      "title": "各自設備",
+      "description": "每位玩家從自己的設備加入共享的私人房間。",
+      "offlineTooltip": "各自設備模式需要網路連線。"
+    }
+  },
   "customizeActions": "自定義動作",
   "finishSetup": "完成設置",
   "gameModeSelection": "遊戲模式選擇",
@@ -468,7 +499,7 @@
   "publicRoomBenefit": "適合單人在線遊戲",
   "quickStart": "快速開始",
   "roomSelection": "房間選擇",
-  "roomTypeDescription": "選擇最適合您遊戲風格的房間類型。",
+  "roomTypeDescription": "分享此代碼邀請朋友，或編輯代碼加入朋友的房間。",
   "selected": "已選擇",
   "customizeActionsDesc": "用戶可以在下面微調他們的動作選擇和強度等級。",
   "noOrgasmDesc": "專注於過程，而不是目標",

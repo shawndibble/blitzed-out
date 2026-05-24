@@ -20,6 +20,7 @@ import useRoomNavigate from './useRoomNavigate';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import { recordGameStart } from '@/services/playerStatsService';
+import { getContentGameMode } from '@/helpers/strings';
 
 export interface GameSettingsSubmitResult {
   submit: (formData: Settings, actionsList: any) => Promise<void>;
@@ -35,7 +36,7 @@ export default function useSubmitGameSettings(
   const { t } = useTranslation();
   const updateGameBoardTiles = useGameBoard();
   const [settings, updateSettings] = useSettings();
-  const customTiles = useLiveQuery(() => getActiveTiles(settings?.gameMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(getContentGameMode(settings?.gameMode)));
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();

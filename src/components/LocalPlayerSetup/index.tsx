@@ -27,7 +27,7 @@ interface LocalPlayerSetupProps {
  * Only available in private rooms to maintain social nature of local play
  */
 export default function LocalPlayerSetup({
-  roomId,
+  roomId: _roomId,
   isPrivateRoom,
   onComplete,
   onCancel,
@@ -35,9 +35,6 @@ export default function LocalPlayerSetup({
   initialSettings,
 }: LocalPlayerSetupProps): JSX.Element {
   const { t } = useTranslation();
-
-  // roomId will be used in Phase 2 for session creation - stored for future use
-  console.debug('Setting up local players for room:', roomId);
 
   // Component state for player management
   const [players, setPlayers] = useState<LocalPlayer[]>(initialPlayers);

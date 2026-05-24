@@ -30,7 +30,7 @@
       "exampleResult": "Michel embrasse Jessica sur les seins"
     }
   },
-  "customTilesLabel": "Tuiles de jeu",
+  "customTilesLabel": "Personnaliser les actions",
   "uploadFile": "Téléverser un fichier",
   "downloadFile": "Télécharger le fichier",
   "importFileLoaded": "Fichier d'import chargé. Vérifiez-le, puis importez-le.",
@@ -237,7 +237,7 @@
   "rebuildBoardDescription": "Conservez les mêmes paramètres. Nouveau mélange d'actions.",
   "changeSettings": "Modifier les paramètres",
   "changeSettingsDescription": "Ouvrez la boîte de dialogue des paramètres pour modifier complètement le jeu.",
-  "manageTiles": "Gérer les tuiles de jeu",
+  "manageTiles": "Gérer les actions personnalisées",
   "group": "Groupe",
   "action": "Action",
   "tags": "Tags",
@@ -287,17 +287,29 @@
   "importNoChange": "Aucun changement détecté. Échec de l'enregistrement.",
   "importTitleRequired": "Un titre est requis pour enregistrer un plateau.",
   "title": "Titre",
-  "ctExplained": "Qu'est-ce que les Tuiles de Jeu?",
+  "ctExplained": "Que sont les Actions Personnalisées?",
   "ctIdeas": "Idées Créatives",
-  "ctAdd": "Ajouter des Tuiles de Jeu",
-  "ctUpdate": "Mettre à jour les Tuiles de Jeu",
-  "ctSeparatorError": "Assurez-vous d'ajouter un --- sur une nouvelle ligne entre les tuiles de jeu et que vos groupes sont encadrés par des crochets.",
-  "ctGroupError": "Groupe non valide. Assurez-vous que votre groupe correspond à un format répertorié dans 'Ajouter des Tuiles de Jeu' et est encadré par des crochets.",
+  "ctAdd": "Ajouter une Action Personnalisée",
+  "ctUpdate": "Mettre à jour l'Action Personnalisée",
+  "ctSeparatorError": "Assurez-vous d'ajouter un --- sur une nouvelle ligne entre les actions personnalisées et que vos groupes sont encadrés par des crochets.",
+  "ctGroupError": "Groupe non valide. Assurez-vous que votre groupe correspond à un format répertorié dans 'Ajouter des Actions Personnalisées' et est encadré par des crochets.",
   "ctActionError": "Vous devez vous assurer que chaque entrée ayant un groupe a également une action.",
   "advancedSetup": "Paramètres avancés",
   "playingWithPeople": "Interagissez-vous physiquement avec des gens?",
   "yesInteracting": "Oui, je joue avec des gens.",
   "noInteracting": "Non, je joue avec moi-même.",
+  "participationStyle": {
+    "title": "Comment participez-vous?",
+    "subtitle": "Choisissez si vous jouez seul ou en interaction avec d'autres.",
+    "solo": {
+      "title": "Solo-Sexuel",
+      "description": "Les actions sont uniquement pour vous. Pas d'interactions avec partenaire."
+    },
+    "group": {
+      "title": "Avec D'autres",
+      "description": "Les actions impliquent des partenaires. Choisissez l'intensité ci-dessous."
+    }
+  },
   "yourRole": "Quel est votre rôle?",
   "yourGender": "Quelle est votre anatomie?",
   "anatomyDescription": "Cela personnalise le texte des actions pour votre corps",
@@ -448,7 +460,26 @@
   "failedToSaveGroup": "Échec de l'enregistrement du groupe: {{error}}",
   "optionalLinkHelper": "Optionnel: Lien vers votre diffusion ou réunion",
   "actionsSelection": "Sélection des Actions",
-  "chooseRoomType": "Choisissez Votre Expérience",
+  "chooseRoomType": "Votre Salle Privée",
+  "playerTopology": {
+    "stepLabel": "Configuration des joueurs",
+    "title": "Comment jouez-vous?",
+    "subtitle": "Choisissez d'abord votre configuration. Les paramètres de salle viennent ensuite.",
+    "solo": {
+      "title": "Solo",
+      "description": "Jouez seul sur cet appareil.",
+      "private": "Jouer en privé"
+    },
+    "shared": {
+      "title": "Appareil partagé",
+      "description": "Passez un appareil entre 2–4 joueurs locaux."
+    },
+    "online": {
+      "title": "Appareils individuels",
+      "description": "Chaque joueur rejoint depuis son propre appareil dans une salle privée partagée.",
+      "offlineTooltip": "Les appareils individuels nécessitent une connexion internet."
+    }
+  },
   "customizeActions": "Personnaliser les Actions",
   "finishSetup": "Finaliser la Configuration",
   "gameModeSelection": "Sélection du Mode de Jeu",
@@ -468,7 +499,7 @@
   "publicRoomBenefit": "Pour le jeu solo en ligne",
   "quickStart": "Démarrage Rapide",
   "roomSelection": "Sélection de Salle",
-  "roomTypeDescription": "Sélectionnez le type de salle qui correspond le mieux à votre style de jeu.",
+  "roomTypeDescription": "Partagez ce code pour inviter des amis, ou modifiez-le pour rejoindre la salle d'un ami.",
   "selected": "Sélectionné",
   "presetBodyWorship": "Adoration du Corps",
   "presetControlBreath": "Contrôle de la Respiration",

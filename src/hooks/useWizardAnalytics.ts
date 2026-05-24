@@ -4,7 +4,7 @@ import { getWizardStepName } from '@/views/GameSettingsWizard/stepConfig';
 
 interface UseWizardAnalyticsProps {
   gameMode?: string;
-  isPublicRoom: boolean;
+  isPublicRoom?: boolean;
 }
 
 interface WizardAnalytics {
@@ -17,7 +17,7 @@ interface WizardAnalytics {
  */
 export function useWizardAnalytics({
   gameMode = 'online',
-  isPublicRoom,
+  isPublicRoom = false,
 }: UseWizardAnalyticsProps): WizardAnalytics {
   const getFunnelName = useCallback(() => {
     const roomType = isPublicRoom ? 'public' : 'private';

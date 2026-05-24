@@ -70,8 +70,8 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
       description: 'Create unique actions not in the default list',
       tips: [
         'Think outside the box - what creative activities would make your game more exciting?',
-        'Add themed tiles like "Movie Night Actions" or "Kitchen Adventures"',
-        'Create seasonal tiles for holidays or special occasions',
+        'Add themed tiles like "Dominant Commands" or "Sensory Play" to match your dynamic',
+        'Create scenario tiles with specific dynamics like "Pet Play" or "Roleplay: Strangers"',
         'Design role-play scenarios with specific character actions',
       ],
       color: 'primary',
@@ -108,7 +108,7 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
       title: 'Custom Groups',
       description: 'Create your own tile categories with unique intensities',
       tips: [
-        'Design completely custom groups like "Couples Yoga" or "Adventure Challenges"',
+        'Design groups like "Bondage Basics" or "Sensory Exploration" for specific interests',
         'Set your own intensity progression from gentle to wild',
         'Create themed collections that tell a story or follow a theme',
         'Build niche categories that perfectly match your interests',
@@ -175,24 +175,12 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          fontWeight: 500,
-                          fontSize: isMobile ? '0.9rem' : '1rem',
-                        }}
-                      >
+                      <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
                         {concept.title}
                       </Typography>
                     }
                     secondary={
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontSize: isMobile ? '0.8rem' : '0.85rem',
-                          color: 'text.secondary',
-                        }}
-                      >
+                      <Typography variant="body2" color="text.secondary">
                         {concept.description}
                       </Typography>
                     }
@@ -203,27 +191,9 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
                 </ListItem>
 
                 <Collapse in={expandedBasics[concept.id]} timeout="auto" unmountOnExit>
-                  <Box
-                    sx={{
-                      ml: isMobile ? 4 : 6,
-                      mr: 2,
-                      mb: 1,
-                      p: 1.5,
-                      bgcolor: 'action.selected',
-                      borderRadius: 1,
-                      borderLeft: 3,
-                      borderLeftColor: `${concept.color}.main`,
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontSize: isMobile ? '0.8rem' : '0.85rem',
-                        fontStyle: 'italic',
-                        color: 'text.secondary',
-                      }}
-                    >
-                      💡 {concept.tip}
+                  <Box sx={{ ml: isMobile ? 4 : 6, mr: 2, mb: 1, p: 1.5 }}>
+                    <Typography variant="body2" sx={{ fontStyle: 'italic' }} color="text.secondary">
+                      {concept.tip}
                     </Typography>
                   </Box>
                 </Collapse>
@@ -280,24 +250,12 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
                   </ListItemIcon>
                   <ListItemText
                     primary={
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          fontWeight: 500,
-                          fontSize: isMobile ? '0.9rem' : '1rem',
-                        }}
-                      >
+                      <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
                         {idea.title}
                       </Typography>
                     }
                     secondary={
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontSize: isMobile ? '0.8rem' : '0.85rem',
-                          color: 'text.secondary',
-                        }}
-                      >
+                      <Typography variant="body2" color="text.secondary">
                         {idea.description}
                       </Typography>
                     }
@@ -308,28 +266,16 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
                 </ListItem>
 
                 <Collapse in={expandedIdeas[idea.id]} timeout="auto" unmountOnExit>
-                  <Box
-                    sx={{
-                      ml: isMobile ? 4 : 6,
-                      mr: 2,
-                      mb: 1,
-                      p: 1.5,
-                      bgcolor: 'action.selected',
-                      borderRadius: 1,
-                      borderLeft: 3,
-                      borderLeftColor: `${idea.color}.main`,
-                    }}
-                  >
+                  <Box sx={{ ml: isMobile ? 4 : 6, mr: 2, mb: 1, p: 1.5 }}>
                     {idea.tips.map((tip, tipIndex) => (
                       <Typography
                         key={tipIndex}
                         variant="body2"
+                        color="text.secondary"
                         sx={{
-                          fontSize: isMobile ? '0.8rem' : '0.85rem',
                           fontStyle: tipIndex === 0 ? 'italic' : 'normal',
-                          color: 'text.secondary',
                           mb: tipIndex < idea.tips.length - 1 ? 1 : 0,
-                          '&:before': tipIndex === 0 ? { content: '"💡 "' } : { content: '"• "' },
+                          '&:before': tipIndex !== 0 ? { content: '"• "' } : {},
                         }}
                       >
                         {tip}

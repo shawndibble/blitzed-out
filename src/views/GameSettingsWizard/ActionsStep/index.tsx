@@ -14,6 +14,7 @@ import { ExpandMore, PlayArrow, Tune } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import { hasValidSelections, purgedFormData } from './helpers';
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
+import { usesSoloActions } from '@/helpers/strings';
 import { GroupType } from '@/types';
 import { useEffect, useState } from 'react';
 import type { GroupedActions } from '@/types/customTiles';
@@ -25,7 +26,6 @@ import PickConsumptions from './PickConsumptions/index';
 import { PresetConfig } from '@/types/presets';
 import PresetSelector from './PresetSelector';
 import { Settings } from '@/types/Settings';
-import { isPublicRoom } from '@/helpers/strings';
 
 interface ActionsStepProps {
   formData: FormData & Partial<Settings>;
@@ -78,17 +78,12 @@ export default function ActionsStep({
       label: actionsList[option]?.label,
     }));
 
-  // Determine game mode for preset selection
-  let gameMode: string;
-  if (formData.gameMode === 'online') {
-    gameMode = 'solo';
-  } else if (formData.gameMode === 'local' && !formData.isNaked) {
-    gameMode = 'foreplay';
-  } else {
-    gameMode = 'sex';
-  }
+  const gameMode = usesSoloActions(formData.gameMode, formData.soloPlay)
+    ? 'solo'
+    : formData.isNaked
+      ? 'sex'
+      : 'foreplay';
 
-  // Extract common logic for mapping preset items to selected actions
   const mapPresetItems = (
     items: string[],
     defaultIntensity: number,
@@ -97,13 +92,12 @@ export default function ActionsStep({
   ) => {
     items.forEach((item) => {
       if (actionsList[item]) {
-        // Use preset intensity if available, otherwise use default
         const presetIntensity = preset.intensities?.[item] || defaultIntensity;
-        // Get max available intensity level
         const availableIntensities = Object.keys(actionsList[item].intensities || {});
         const maxLevel = availableIntensities.length;
+        const type = actionsList[item].type as GroupType;
         targetActions[item] = {
-          type: (actionsList[item].type || 'solo') as GroupType,
+          type: type as GroupType,
           levels: Array.from({ length: Math.min(presetIntensity, maxLevel) }, (_, i) => i + 1),
         };
       }
@@ -292,7 +286,7 @@ export default function ActionsStep({
 
       <Box sx={{ mt: 4 }}>
         <ButtonRow>
-          <Button onClick={() => prevStep(isPublicRoom(formData.room) ? 3 : 1)}>
+          <Button onClick={() => prevStep()}>
             <Trans i18nKey="previous" />
           </Button>
           <Button variant="contained" disabled={isNextDisabled} onClick={nextStep} size="large">

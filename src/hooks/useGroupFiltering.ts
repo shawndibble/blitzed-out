@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { getTileCountsByGroup } from '@/stores/customTiles';
+import { getContentGameMode } from '@/helpers/strings';
 import i18next from 'i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 
@@ -35,7 +36,7 @@ export const useContextualGroups = (
   const [internalRefreshTrigger, setInternalRefreshTrigger] = useState(0);
 
   const locale = options.locale || i18next.resolvedLanguage || i18next.language || 'en';
-  const mode = gameMode || 'online';
+  const mode = getContentGameMode(gameMode);
 
   // Combine internal and external refresh triggers
   const combinedRefreshTrigger = (options.refreshTrigger || 0) + internalRefreshTrigger;
@@ -214,39 +215,4 @@ export const useEditorGroupsReactive = (gameMode: string, locale?: string) => {
     error: null,
     isEmpty: groups ? groups.length === 0 : true,
   };
-};
-
-/**
- * Specific hook for tile editor - all groups for selection
- * @deprecated Use useEditorGroupsReactive instead for automatic database change detection
- */
-export const useEditorGroups = (gameMode: string, locale?: string, refreshTrigger?: number) => {
-  return useContextualGroups('editor', gameMode, {
-    includeDefaults: true,
-    locale,
-    refreshTrigger,
-  });
-};
-
-/**
- * Performance-optimized hook with caching
- * @deprecated Caching logic removed to comply with React hooks purity rules.
- * Use useContextualGroups directly instead.
- */
-export const useCachedGroups = (
-  context: GroupFilterContext,
-  gameMode?: string,
-  _cacheTime = 300000 // 5 minutes - unused but kept for API compatibility
-) => {
-  const result = useContextualGroups(context, gameMode, { includeTileCounts: true });
-
-  // Simply return the result with fromCache flag set to false
-  // Caching can be implemented at a higher level if needed
-  return useMemo(
-    () => ({
-      ...result,
-      fromCache: false,
-    }),
-    [result]
-  );
 };

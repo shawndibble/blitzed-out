@@ -1,32 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  Alert,
-  Fade,
-  Grid,
-  Stack,
-} from '@mui/material';
+import { Box, Typography, Alert, Button, Fab } from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
-import LocalPlayerSetup from '@/components/LocalPlayerSetup';
-import { useLocalPlayers } from '@/hooks/useLocalPlayers';
+import PlayerCard from '@/components/LocalPlayerSetup/PlayerCard';
+import PlayerForm from '@/components/LocalPlayerSetup/PlayerForm';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
+import type { PlayerRole } from '@/types/Settings';
 
 interface LocalPlayersStepProps {
-  formData: any; // Using any to avoid type conflicts with Settings intersection
-  setFormData: (data: any) => void; // Using any to avoid type conflicts
+  formData: any;
+  setFormData: React.Dispatch<React.SetStateAction<any>>;
   nextStep: () => void;
   prevStep: () => void;
 }
 
-/**
- * LocalPlayersStep allows users to optionally set up local players for single-device multiplayer
- * Only appears in private rooms and provides option to skip
- */
 export default function LocalPlayersStep({
   formData,
   setFormData,
@@ -34,257 +22,216 @@ export default function LocalPlayersStep({
   prevStep,
 }: LocalPlayersStepProps): JSX.Element {
   const { t } = useTranslation();
-  const { hasLocalPlayers: hasLocalPlayersValue, clearLocalSession } = useLocalPlayers();
 
-  const [isSetupOpen, setIsSetupOpen] = useState(false);
-  const [setupError, setSetupError] = useState<string | null>(null);
+  const [players, setPlayers] = useState<LocalPlayer[]>((formData as any).localPlayersData || []);
+  const [error, setError] = useState<string | null>(null);
+  const [isPlayerFormOpen, setIsPlayerFormOpen] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<LocalPlayer | null>(null);
 
-  // Check if this is a private room
-  const isPrivateRoom = formData.room !== 'PUBLIC';
+  const sessionSettings: LocalSessionSettings = (formData as any).localPlayerSessionSettings || {
+    showTurnTransitions: true,
+    enableTurnSounds: true,
+    showPlayerAvatars: true,
+  };
 
-  const handleStartLocalSetup = useCallback(() => {
-    setIsSetupOpen(true);
-    setSetupError(null);
+  const isValidPlayerCount = players.length >= 2 && players.length <= 4;
+  const hasAllNames = players.every((p) => p.name.trim().length > 0);
+  const hasUniqueNames = new Set(players.map((p) => p.name.toLowerCase())).size === players.length;
+  const isValid = isValidPlayerCount && hasAllNames && hasUniqueNames;
+
+  useEffect(() => {
+    if (players.length < 2) {
+      setError(t('localPlayers.errors.minimumPlayers'));
+    } else if (players.length > 4) {
+      setError(t('localPlayers.errors.maximumPlayers'));
+    } else if (!hasAllNames) {
+      setError(t('localPlayers.errors.emptyNames'));
+    } else if (!hasUniqueNames) {
+      setError(t('localPlayers.errors.duplicateNames'));
+    } else {
+      setError(null);
+    }
+  }, [players, hasAllNames, hasUniqueNames, t]);
+
+  const generatePlayerId = useCallback(() => {
+    return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }, []);
 
-  const handleSkipLocalPlayers = useCallback(() => {
-    // Clear any existing local session
-    if (hasLocalPlayersValue) {
-      clearLocalSession();
-    }
+  const generateDefaultName = useCallback(() => {
+    return t('localPlayers.defaultPlayerName', { number: players.length + 1 });
+  }, [players.length, t]);
 
-    // Explicitly clear all local player configuration to ensure single-player flow
-    setFormData((prev: any) => ({
-      ...prev,
-      hasLocalPlayers: false,
-      localPlayersData: undefined,
-      localPlayerSessionSettings: undefined,
-      // Also ensure we don't have any lingering local mode settings that would skip questions
-      gameMode: prev.gameMode === 'local' ? 'online' : prev.gameMode,
-    }));
+  const addPlayer = useCallback(() => {
+    if (players.length >= 4) return;
+    setEditingPlayer(null);
+    setIsPlayerFormOpen(true);
+  }, [players.length]);
 
-    nextStep();
-  }, [hasLocalPlayersValue, clearLocalSession, nextStep, setFormData]);
+  const removePlayer = useCallback((playerId: string) => {
+    setPlayers((prev) => {
+      const filtered = prev.filter((p) => p.id !== playerId);
+      return filtered.map((player, index) => ({
+        ...player,
+        order: index,
+        isActive: index === 0,
+      }));
+    });
+  }, []);
 
-  const handleLocalSetupComplete = useCallback(
-    async (players: LocalPlayer[], settings: LocalSessionSettings) => {
-      try {
-        // Store local player configuration in form data for later use
-        setFormData({
-          ...formData,
-          localPlayersData: players,
-          localPlayerSessionSettings: settings,
-          hasLocalPlayers: true,
-        });
+  const updatePlayer = useCallback((playerId: string, updates: Partial<LocalPlayer>) => {
+    setPlayers((prev) =>
+      prev.map((player) => (player.id === playerId ? { ...player, ...updates } : player))
+    );
+  }, []);
 
-        setIsSetupOpen(false);
-        nextStep();
-      } catch (error) {
-        setSetupError(
-          error instanceof Error ? error.message : 'Failed to save local player configuration'
-        );
-      }
+  const handlePlayerRoleChange = useCallback(
+    (playerId: string, role: PlayerRole) => {
+      updatePlayer(playerId, { role });
     },
-    [formData, setFormData, nextStep]
+    [updatePlayer]
   );
 
-  const handleLocalSetupCancel = useCallback(() => {
-    setIsSetupOpen(false);
-    setSetupError(null);
+  const handlePlayerEdit = useCallback((player: LocalPlayer) => {
+    setEditingPlayer(player);
+    setIsPlayerFormOpen(true);
   }, []);
 
-  // Auto-advance for non-private rooms, but with a delay to prevent navigation conflicts
-  useEffect(() => {
-    if (!isPrivateRoom) {
-      const timer = setTimeout(() => {
-        nextStep();
-      }, 100); // Small delay to prevent render conflicts
+  const handlePlayerFormSubmit = useCallback(
+    async (playerData: Partial<LocalPlayer>) => {
+      if (editingPlayer) {
+        updatePlayer(editingPlayer.id, playerData);
+      } else {
+        const newPlayer: LocalPlayer = {
+          id: generatePlayerId(),
+          name: playerData.name || generateDefaultName(),
+          role: playerData.role || 'vers',
+          gender: playerData.gender || 'non-binary',
+          order: players.length,
+          isActive: players.length === 0,
+          deviceId: 'current_device',
+          location: 0,
+          isFinished: false,
+          sound: playerData.sound,
+        };
+        setPlayers((prev) => [...prev, newPlayer]);
+      }
+      setIsPlayerFormOpen(false);
+      setEditingPlayer(null);
+    },
+    [editingPlayer, updatePlayer, generatePlayerId, generateDefaultName, players.length]
+  );
 
-      return () => clearTimeout(timer);
-    }
-  }, [isPrivateRoom, nextStep]);
+  const handlePlayerFormCancel = useCallback(() => {
+    setIsPlayerFormOpen(false);
+    setEditingPlayer(null);
+  }, []);
 
-  // If not a private room, show a loading message
-  if (!isPrivateRoom) {
-    return (
-      <Box
-        sx={{
-          minHeight: '200px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant="h6" color="text.secondary">
-          {t(
-            'localPlayersStep.publicRoomMessage',
-            'Local players are not available for public rooms. Continuing...'
-          )}
-        </Typography>
-      </Box>
-    );
-  }
+  const handleNext = useCallback(() => {
+    if (!isValid) return;
+    setFormData((prev: any) => ({
+      ...prev,
+      localPlayersData: players,
+      localPlayerSessionSettings: sessionSettings,
+      hasLocalPlayers: true,
+    }));
+    nextStep();
+  }, [isValid, players, sessionSettings, setFormData, nextStep]);
 
-  // Show the local player setup component when open
-  if (isSetupOpen) {
-    return (
-      <Fade in={true}>
-        <Box>
-          {setupError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {setupError}
-            </Alert>
-          )}
-
-          <LocalPlayerSetup
-            roomId={formData.room || 'PRIVATE'}
-            isPrivateRoom={isPrivateRoom}
-            onComplete={handleLocalSetupComplete}
-            onCancel={handleLocalSetupCancel}
-            initialPlayers={(formData as any).localPlayersData}
-            initialSettings={(formData as any).localPlayerSessionSettings}
-          />
-        </Box>
-      </Fade>
-    );
-  }
-
-  // Show the choice screen
   return (
     <Box sx={{ minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
         <Trans i18nKey="localPlayersStep.title" />
       </Typography>
-
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         <Trans i18nKey="localPlayersStep.subtitle" />
       </Typography>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        {/* Option 1: Set up local players - Now deselected by default */}
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <Card
-            sx={{
-              cursor: 'pointer',
-              border: '1px solid',
-              borderColor: 'divider',
-              backgroundColor: 'background.paper',
-              transition: 'all 0.2s ease-in-out',
-              height: '100%',
-              '&:hover': {
-                borderColor: 'primary.main',
-                transform: 'translateY(-2px)',
-                boxShadow: 2,
-              },
-            }}
-            onClick={handleStartLocalSetup}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Stack spacing={1} alignItems="center" textAlign="center">
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  <Trans i18nKey="localPlayersStep.setupOption.title" />
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    whiteSpace: 'pre-line',
-                    textAlign: 'left',
-                    width: '100%',
-                    lineHeight: 1.8,
-                    mb: 2,
-                  }}
-                >
-                  <Trans i18nKey="localPlayersStep.setupOption.description" />
-                </Typography>
-
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  size="large"
-                  sx={{ mt: 2 }}
-                  data-testid="localPlayersStep.setupOption.button"
-                  onClick={handleStartLocalSetup}
-                >
-                  {t('localPlayersStep.setupOption.button')}
-                </Button>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Option 2: Skip local players - Remove "selected" status but keep it as an option */}
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <Card
-            sx={{
-              cursor: 'pointer',
-              border: '1px solid',
-              borderColor: 'divider',
-              backgroundColor: 'background.paper',
-              transition: 'all 0.2s ease-in-out',
-              height: '100%',
-              '&:hover': {
-                borderColor: 'primary.main',
-                transform: 'translateY(-2px)',
-                boxShadow: 2,
-              },
-            }}
-            onClick={handleSkipLocalPlayers}
-          >
-            <CardContent sx={{ p: 3 }}>
-              <Stack spacing={1} alignItems="center" textAlign="center">
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  <Trans i18nKey="localPlayersStep.skipOption.title" />
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    whiteSpace: 'pre-line',
-                    textAlign: 'left',
-                    width: '100%',
-                    lineHeight: 1.8,
-                    mb: 2,
-                  }}
-                >
-                  <Trans i18nKey="localPlayersStep.skipOption.description" />
-                </Typography>
-
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  size="large"
-                  sx={{ mt: 2 }}
-                  data-testid="localPlayersStep.skipOption.button"
-                  onClick={handleSkipLocalPlayers}
-                >
-                  {t('localPlayersStep.skipOption.button')}
-                </Button>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* Current local player status */}
-      {hasLocalPlayersValue && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          <Typography variant="body2">
-            <Trans i18nKey="localPlayersStep.currentStatus.hasPlayers" />
-          </Typography>
+      {error && (
+        <Alert severity={players.length === 0 ? 'info' : 'error'} sx={{ mb: 2 }}>
+          {error}
         </Alert>
       )}
 
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6">
+            <Trans i18nKey="localPlayers.playersTitle" />
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {t('localPlayers.playersCount', { count: players.length })}
+          </Typography>
+        </Box>
+
+        {players.length === 0 ? (
+          <Box
+            sx={{
+              textAlign: 'center',
+              py: 4,
+              border: '2px dashed',
+              borderColor: 'divider',
+              borderRadius: 1,
+              bgcolor: 'action.hover',
+            }}
+          >
+            <Typography variant="body1" color="text.secondary" gutterBottom>
+              <Trans i18nKey="localPlayers.noPlayersYet" />
+            </Typography>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={addPlayer}>
+              <Trans i18nKey="localPlayers.addFirstPlayer" />
+            </Button>
+          </Box>
+        ) : (
+          <>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {players.map((player, index) => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  index={index}
+                  isActive={player.isActive}
+                  canEdit={true}
+                  canDelete={players.length > 1}
+                  onEdit={handlePlayerEdit}
+                  onDelete={removePlayer}
+                  onRoleChange={handlePlayerRoleChange}
+                />
+              ))}
+            </Box>
+
+            {players.length < 4 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <Fab
+                  size="small"
+                  color="primary"
+                  onClick={addPlayer}
+                  aria-label={t('localPlayers.addFirstPlayer')}
+                >
+                  <AddIcon />
+                </Fab>
+              </Box>
+            )}
+          </>
+        )}
+      </Box>
+
       <Box sx={{ flexGrow: 1 }} />
+
       <ButtonRow>
         <Button onClick={prevStep}>
           <Trans i18nKey="previous" />
         </Button>
-        <Button variant="contained" onClick={handleSkipLocalPlayers}>
-          <Trans i18nKey="skip" />
+        <Button variant="contained" disabled={!isValid} onClick={handleNext}>
+          <Trans i18nKey="next" />
         </Button>
       </ButtonRow>
+
+      <PlayerForm
+        open={isPlayerFormOpen}
+        player={editingPlayer}
+        existingPlayers={players}
+        onSubmit={handlePlayerFormSubmit}
+        onCancel={handlePlayerFormCancel}
+      />
     </Box>
   );
 }

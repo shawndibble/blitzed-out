@@ -7,19 +7,19 @@ import { Trans, useTranslation } from 'react-i18next';
 import AppSettings from './AppSettings';
 import BoardSettings from './BoardSettings';
 import CustomTileDialog from '@/views/CustomTileDialog';
+import GenderSelector from '@/components/GenderSelector';
+import type { PlayerGender } from '@/types/localPlayers';
 import RoomSettings from './RoomSettings';
 import TabPanel from '@/components/TabPanel';
 import ToastAlert from '@/components/ToastAlert';
-import GenderSelector from '@/components/GenderSelector';
 import { a11yProps } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
+import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import { useSettings } from '@/stores/settingsStore';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
-import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import validateFormData from './validateForm';
-import type { PlayerGender } from '@/types/localPlayers';
 
 interface GameSettingsProps {
   closeDialog?: () => void;
@@ -181,7 +181,7 @@ export default function GameSettings({
           )}
           {value === 0 && (
             <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
-              <Trans i18nKey="customTilesLabel">Game Tiles</Trans>
+              <Trans i18nKey="customTilesLabel" />
             </Button>
           )}
         </div>

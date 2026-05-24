@@ -30,7 +30,7 @@
       "exampleResult": "Miguel besa a Jessica en los pechos"
     }
   },
-  "customTilesLabel": "Casillas de Juego",
+  "customTilesLabel": "Personalizar Acciones",
   "uploadFile": "Subir archivo",
   "downloadFile": "Descargar archivo",
   "importFileLoaded": "Archivo de importación cargado. Revísalo y luego impórtalo.",
@@ -237,7 +237,7 @@
   "rebuildBoardDescription": "Mantener la misma configuración con nueva combinación de acciones.",
   "changeSettings": "Cambiar configuración",
   "changeSettingsDescription": "Abre el cuadro de diálogo de Configuración para cambiar los ajustes del juego.",
-  "manageTiles": "Administrar casillas de juego",
+  "manageTiles": "Administrar Acciones Personalizadas",
   "group": "Grupo",
   "action": "Acción",
   "tags": "Etiquetas",
@@ -287,17 +287,29 @@
   "importNoChange": "No se detectaron cambios. Error al guardar.",
   "importTitleRequired": "Se requiere un título para guardar un tablero.",
   "title": "Título",
-  "ctExplained": "¿Qué son las Casillas de Juego?",
+  "ctExplained": "¿Qué son las Acciones Personalizadas?",
   "ctIdeas": "Ideas Creativas",
-  "ctAdd": "Agregar Casillas de Juego",
-  "ctUpdate": "Actualizar Casillas de Juego",
-  "ctSeparatorError": "Asegúrate de agregar --- en una nueva línea entre las casillas de juego, y que tus grupos estén entre corchetes.",
-  "ctGroupError": "Grupo no válido. Asegúrate de que tu grupo coincida con un formato listado en 'Agregar Casillas de Juego' y esté entre corchetes.",
+  "ctAdd": "Agregar Acción Personalizada",
+  "ctUpdate": "Actualizar Acción Personalizada",
+  "ctSeparatorError": "Asegúrate de agregar --- en una nueva línea entre las acciones personalizadas, y que tus grupos estén entre corchetes.",
+  "ctGroupError": "Grupo no válido. Asegúrate de que tu grupo coincida con un formato listado en 'Agregar Acciones Personalizadas' y esté entre corchetes.",
   "ctActionError": "Debes asegurarte de que cada entrada que tenga un grupo también tenga una acción.",
   "advancedSetup": "Configuración avanzada",
   "playingWithPeople": "¿Estás interactuando físicamente con gente?",
   "yesInteracting": "Sí, estoy jugando con gente.",
   "noInteracting": "No, estoy jugando a solas.",
+  "participationStyle": {
+    "title": "¿Cómo participas?",
+    "subtitle": "Elige si juegas solo o interactuando con otros.",
+    "solo": {
+      "title": "Sexual Solitario",
+      "description": "Las acciones son solo para ti. Sin interacciones con pareja."
+    },
+    "group": {
+      "title": "Con Otros",
+      "description": "Las acciones involucran parejas. Elige la intensidad abajo."
+    }
+  },
   "yourRole": "¿Cuál es tu rol?",
   "yourGender": "¿Cuál es tu anatomía?",
   "anatomyDescription": "Esto personaliza el texto de acciones para tu cuerpo",
@@ -448,7 +460,26 @@
   "failedToSaveGroup": "Error al guardar grupo: {{error}}",
   "optionalLinkHelper": "Opcional: Enlace a tu transmisión o reunión",
   "actionsSelection": "Selección de Acciones",
-  "chooseRoomType": "Elige Tu Experiencia",
+  "chooseRoomType": "Tu Sala Privada",
+  "playerTopology": {
+    "stepLabel": "Configuración de jugadores",
+    "title": "¿Cómo vas a jugar?",
+    "subtitle": "Elige tu configuración primero. Los ajustes de sala y otros vienen después.",
+    "solo": {
+      "title": "Solo",
+      "description": "Juega solo en este dispositivo.",
+      "private": "Jugar en privado"
+    },
+    "shared": {
+      "title": "Dispositivo compartido",
+      "description": "Pasa un dispositivo entre 2–4 jugadores locales."
+    },
+    "online": {
+      "title": "Dispositivos individuales",
+      "description": "Cada jugador se une desde su propio dispositivo en una sala privada compartida.",
+      "offlineTooltip": "Los dispositivos individuales requieren conexión a internet."
+    }
+  },
   "customizeActions": "Personalizar Acciones",
   "finishSetup": "Finalizar Configuración",
   "gameModeSelection": "Selección de Modo de Juego",
@@ -468,7 +499,7 @@
   "publicRoomBenefit": "Para juego en solitario en línea",
   "quickStart": "Inicio Rápido",
   "roomSelection": "Selección de Sala",
-  "roomTypeDescription": "Selecciona el tipo de sala que mejor se adapte a tu estilo de juego.",
+  "roomTypeDescription": "Comparte este código para invitar amigos, o edítalo para unirte a la sala de un amigo.",
   "selected": "Seleccionado",
   "presetBodyWorship": "Adoración Corporal",
   "presetControlBreath": "Control de Respiración",

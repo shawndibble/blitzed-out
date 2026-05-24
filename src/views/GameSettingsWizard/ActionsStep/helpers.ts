@@ -1,4 +1,4 @@
-import { isOnlineMode } from '@/helpers/strings';
+import { usesSoloActions } from '@/helpers/strings';
 import { FormData, ActionEntry, Option } from '@/types';
 import { Settings } from '@/types/Settings';
 import { ChangeEvent } from 'react';
@@ -7,13 +7,12 @@ type SetFormDataFunction = React.Dispatch<React.SetStateAction<FormData>>;
 type SetSelectedItemsFunction = React.Dispatch<React.SetStateAction<string[]>>;
 
 const shouldPurgeAction = (formData: FormData, entry: ActionEntry): boolean => {
-  const { gameMode, isNaked } = formData;
-  const isSolo = isOnlineMode(gameMode);
-  return (
-    (isSolo && ['foreplay', 'sex'].includes(entry.type)) ||
-    (!isSolo && isNaked && ['solo', 'foreplay'].includes(entry.type)) ||
-    (!isSolo && !isNaked && ['solo', 'sex'].includes(entry.type))
-  );
+  const { gameMode, isNaked, soloPlay } = formData;
+  const isSolo = usesSoloActions(gameMode, soloPlay);
+
+  if (isSolo) return ['foreplay', 'sex'].includes(entry.type);
+  if (isNaked) return ['solo', 'foreplay'].includes(entry.type);
+  return ['solo', 'sex'].includes(entry.type);
 };
 
 export const purgedFormData = (formData: FormData): FormData => {
@@ -179,11 +178,11 @@ export const handleLevelsChange = (
 export const hasValidSelections = (selectedActions?: Record<string, any>): boolean => {
   return Boolean(
     selectedActions &&
-      Object.keys(selectedActions).some((key) => {
-        const action = selectedActions[key];
-        const hasLevels = action?.levels && action.levels.length > 0;
-        return hasLevels && action?.variation !== 'appendMost';
-      })
+    Object.keys(selectedActions).some((key) => {
+      const action = selectedActions[key];
+      const hasLevels = action?.levels && action.levels.length > 0;
+      return hasLevels && action?.variation !== 'appendMost';
+    })
   );
 };
 

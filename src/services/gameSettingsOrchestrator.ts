@@ -163,17 +163,12 @@ export async function submitGameSettings(
   }
 
   const typedFormData = formData as any;
-  const settingsHasWizardFields =
-    'localPlayersData' in ctx.settingsSnapshot ||
-    'localPlayerSessionSettings' in ctx.settingsSnapshot ||
-    'hasLocalPlayers' in ctx.settingsSnapshot;
 
   if (
     typedFormData.hasLocalPlayers &&
     typedFormData.localPlayersData &&
     typedFormData.localPlayerSessionSettings &&
-    !ctx.hasLocalPlayers &&
-    settingsHasWizardFields
+    !ctx.hasLocalPlayers
   ) {
     try {
       await deps.createLocalSessionFn(

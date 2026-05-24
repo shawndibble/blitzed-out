@@ -1,10 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { isPublicRoom } from '@/helpers/strings';
+import { getContentGameMode, isPublicRoom } from '@/helpers/strings';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import buildGameBoard from '@/services/buildGame';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
-import { isOnlineMode } from '@/helpers/strings';
 import { useCallback } from 'react';
 import { Settings } from '@/types/Settings';
 import { DBGameBoard, GameBoardResult } from '@/types/gameBoard';
@@ -43,13 +42,13 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
 
       // If we are in a public room,
       // then gameMode should update to online, and we need to re-import actions.
-      if (isPublic && !isOnlineMode(gameMode || '')) {
+      if (isPublic && gameMode === 'local') {
         gameMode = 'online';
         // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
         settingsBoardUpdated = true;
       }
 
-      const finalGameMode = gameMode || 'online';
+      const finalGameMode = getContentGameMode(gameMode);
       const locale = i18n.resolvedLanguage || 'en';
       const tileCount = isPublic ? 40 : roomTileCount || 40;
 

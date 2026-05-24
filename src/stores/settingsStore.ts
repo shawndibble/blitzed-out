@@ -6,7 +6,7 @@ import { analyticsTracking } from '@/services/analyticsTracking';
 
 const defaultSettings: Settings = {
   locale: 'en',
-  gameMode: 'online',
+  gameMode: 'solo',
   boardUpdated: false,
   room: 'PUBLIC',
   background: 'color',

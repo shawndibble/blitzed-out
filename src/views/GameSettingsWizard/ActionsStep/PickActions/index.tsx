@@ -1,7 +1,7 @@
 import { Typography, SelectChangeEvent } from '@mui/material';
 import { Trans } from 'react-i18next';
 import IntensityTitle from '../IntensityTitle';
-import { isOnlineMode } from '@/helpers/strings';
+import { usesSoloActions } from '@/helpers/strings';
 import MultiSelect from '@/components/MultiSelect';
 import MultiSelectIntensity from '@/components/MultiSelectIntensity';
 import { handleLevelsChange, populateSelections, updateFormDataWithDefaults } from '../helpers';
@@ -25,15 +25,8 @@ interface PickActionsProps {
 }
 
 const getAction = (formData: Settings): 'sex' | 'foreplay' | 'consumption' | 'solo' => {
-  if (isOnlineMode(formData?.gameMode)) {
-    return 'solo';
-  }
-
-  if (formData.isNaked) {
-    return 'sex';
-  }
-
-  return 'foreplay';
+  if (usesSoloActions(formData?.gameMode, formData?.soloPlay)) return 'solo';
+  return formData.isNaked ? 'sex' : 'foreplay';
 };
 
 export default function PickActions({

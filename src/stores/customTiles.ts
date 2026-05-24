@@ -1,5 +1,6 @@
 import i18next from 'i18next';
 import db from './store';
+import { getContentGameMode } from '@/helpers/strings';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
@@ -168,7 +169,10 @@ export const getTileCountsByGroup = async (
   try {
     // Step 1: Get relevant group IDs first (much smaller dataset - ~15-20 groups vs 4000+ tiles)
     const { getCustomGroups } = await import('./customGroups');
-    const relevantGroups = await getCustomGroups({ locale, gameMode });
+    const relevantGroups = await getCustomGroups({
+      locale,
+      gameMode: getContentGameMode(gameMode),
+    });
     const groupIds = new Set(relevantGroups.map((group) => group.id));
 
     if (groupIds.size === 0) {
@@ -230,7 +234,7 @@ export const getActiveTiles = async (
   if (gameMode || locale) {
     const { getCustomGroups } = await import('./customGroups');
     const groupsQuery: any = {};
-    if (gameMode) groupsQuery.gameMode = gameMode;
+    if (gameMode) groupsQuery.gameMode = getContentGameMode(gameMode);
     if (locale) groupsQuery.locale = currentLocale;
 
     const matchingGroups = await getCustomGroups(groupsQuery);
