@@ -16,8 +16,9 @@ export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'] as const;
 // - 2.2.0: Added body worship group
 // - 2.3.0: Fix syncing issues with custom groups and tiles
 // - 2.4.0: Added clit training category
+// - 2.5.0: Expanded confessions and added would you rather category
 //
-export const MIGRATION_VERSION = '2.4.0';
+export const MIGRATION_VERSION = '2.5.0';
 // ============================================================================
 
 // Configuration keys for localStorage

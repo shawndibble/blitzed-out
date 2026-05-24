@@ -102,6 +102,7 @@ describe('File Parity Validation', () => {
         'tickling.json',
         'titTorture.json',
         'vaping.json',
+        'wouldYouRather.json',
       ].sort();
 
       const languages = getLanguageDirectories();
@@ -156,12 +157,14 @@ describe('File Parity Validation', () => {
         'bodyWorship.json',
         'buttPlay.json',
         'clitTraining.json',
+        'confessions.json',
         'gasMask.json',
         'pissPlay.json',
         'poppers.json',
         'throatTraining.json',
         'titTorture.json',
         'vaping.json',
+        'wouldYouRather.json',
       ].sort();
 
       const languages = getLanguageDirectories();

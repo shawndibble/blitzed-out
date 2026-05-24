@@ -2,12 +2,19 @@
  * Import operations module for handling action file imports and data conversion
  */
 
-import { addCustomGroup, getCustomGroupByName, removeDuplicateGroups } from '@/stores/customGroups';
+import {
+  addCustomGroup,
+  getCustomGroupByName,
+  removeDuplicateGroups,
+  updateCustomGroup,
+} from '@/stores/customGroups';
 import { importCustomTiles, getTiles } from '@/stores/customTiles';
 import { CustomGroupBase } from '@/types/customGroups';
 import { CustomTileBase } from '@/types/customTiles';
 import { ImportResult } from './types';
 import { logError, withErrorHandling, isDuplicateError } from './errorHandling';
+
+type ImportedCustomGroup = CustomGroupBase & { id: string };
 
 /**
  * Retry dynamic import with exponential backoff
@@ -36,7 +43,7 @@ export const importActionFile = async (
   groupName: string,
   locale: string,
   gameMode: string
-): Promise<{ customGroup: CustomGroupBase; customTiles: CustomTileBase[] } | null> => {
+): Promise<{ customGroup: ImportedCustomGroup; customTiles: CustomTileBase[] } | null> => {
   return withErrorHandling(async () => {
     // Import from bundled translation files for better performance with retry
     const bundleFile = await retryImport(
@@ -66,7 +73,7 @@ export const importActionFile = async (
     const deterministicId = createDeterministicGroupId(groupName, locale, gameMode);
 
     // Create the custom group with deterministic ID
-    const customGroup: CustomGroupBase & { id?: string } = {
+    const customGroup: ImportedCustomGroup = {
       id: deterministicId, // Set deterministic ID for sync consistency
       name: groupName,
       label,
@@ -138,15 +145,13 @@ const validateTilesHaveGroupId = (tiles: CustomTileBase[]): void => {
  */
 const getNewTiles = async (
   customTiles: CustomTileBase[],
-  locale: string,
-  gameMode: string,
-  groupName: string
+  groupId: string
 ): Promise<CustomTileBase[]> => {
   try {
     // Validate all tiles have proper group_id
     validateTilesHaveGroupId(customTiles);
 
-    const existingTiles = await getTiles({ locale, gameMode, group: groupName });
+    const existingTiles = await getTiles({ group_id: groupId });
 
     if (!existingTiles || !Array.isArray(existingTiles)) {
       return customTiles; // If no existing tiles, all tiles are new
@@ -161,7 +166,7 @@ const getNewTiles = async (
       );
     });
   } catch (error) {
-    logError('warn', `getNewTiles:${groupName}:${locale}/${gameMode}`, error);
+    logError('warn', `getNewTiles:${groupId}`, error);
     return customTiles; // On error, import all tiles
   }
 };
@@ -200,28 +205,39 @@ export const importGroupsForLocaleAndGameMode = async (
   // Process each group individually to avoid transaction timeouts
   for (const groupName of groupNames) {
     try {
-      // Check if group already exists to prevent duplicates
       const existingGroup = await getCustomGroupByName(groupName, locale, gameMode);
-      if (existingGroup) {
-        continue; // Group already exists, skip
-      }
-
       const result = await importActionFile(groupName, locale, gameMode);
       if (!result) continue;
 
       const { customGroup, customTiles } = result;
+      const targetGroupId = existingGroup?.id || customGroup.id;
+      const tilesForGroup = customTiles.map((tile) => ({
+        ...tile,
+        group_id: targetGroupId,
+      }));
 
       // Process each group in its own transaction to prevent timeouts
       await db.transaction('rw', [db.customGroups, db.customTiles], async () => {
-        // Add the custom group with error handling for duplicates
-        const groupAdded = await addCustomGroupSafely(customGroup);
-        if (groupAdded) {
-          groupsImported++;
+        if (existingGroup) {
+          await updateCustomGroup(existingGroup.id, {
+            label: customGroup.label,
+            intensities: customGroup.intensities,
+            type: customGroup.type,
+            isDefault: true,
+            locale,
+            gameMode,
+          });
+        } else {
+          // Add the custom group with error handling for duplicates
+          const groupAdded = await addCustomGroupSafely(customGroup);
+          if (groupAdded) {
+            groupsImported++;
+          }
         }
 
         // Add the custom tiles if there are any
-        if (customTiles.length > 0) {
-          const newTiles = await getNewTiles(customTiles, locale, gameMode, groupName);
+        if (tilesForGroup.length > 0 && targetGroupId) {
+          const newTiles = await getNewTiles(tilesForGroup, targetGroupId);
           const tilesAdded = await importCustomTilesSafely(newTiles);
           tilesImported += tilesAdded;
         }
