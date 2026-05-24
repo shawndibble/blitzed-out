@@ -8,7 +8,6 @@ import {
   useParams,
 } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
-import { WindowWithAuth } from '../../types/app';
 import { AuthContext } from '../../context/auth';
 import { MessagesProvider } from '../../context/messages';
 import AppSkeleton from '../AppSkeleton';
@@ -35,16 +34,6 @@ function UppercaseRedirect({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const auth = useContext(AuthContext);
-
-  // Make auth context available to the middleware
-  useEffect(() => {
-    if (auth) {
-      (window as unknown as WindowWithAuth).authContext = auth;
-    }
-    return () => {
-      (window as unknown as WindowWithAuth).authContext = null;
-    };
-  }, [auth]);
 
   // Show skeleton during initial auth loading
   if (!auth || auth.initializing) {

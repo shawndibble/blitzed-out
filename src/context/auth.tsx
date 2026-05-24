@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef, ReactNode, useCallback } from 'react';
 import { User } from '@/types';
 import { getErrorMessage } from '@/types/errors';
+import { registerSyncProvider } from '@/services/authBridge';
 import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 import { loadFirebase, preloadFirebase } from '@/utils/lazyFirebase';
 
@@ -369,9 +370,6 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
             }
           }
         });
-
-        // Make auth context available globally for middleware
-        (window as Window & { authContext?: { user: User | null } }).authContext = { user: null };
       } catch (error) {
         console.error('Failed to initialize Firebase auth:', error);
         // Mark as initialized even on error to prevent infinite loading
@@ -400,17 +398,11 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       if (deferTimeoutRef.current) {
         clearTimeout(deferTimeoutRef.current);
       }
-      (window as Window & { authContext?: { user: User | null } }).authContext = undefined;
     };
   }, []);
 
-  // Update global auth context when user changes
-  useEffect(() => {
-    const globalWindow = window as Window & { authContext?: { user: User | null } };
-    if (globalWindow.authContext) {
-      globalWindow.authContext.user = user;
-    }
-  }, [user]);
+  useEffect(() => registerSyncProvider({ user, syncData }), [user, syncData]);
+
   const value = useMemo(
     () => ({
       user,

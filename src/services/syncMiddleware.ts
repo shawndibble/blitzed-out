@@ -1,5 +1,5 @@
 import { Middleware, DBCore, DBCoreTable, DBCoreMutateRequest } from 'dexie';
-import { WindowWithAuth } from '../types/app';
+import { requestSync } from './authBridge';
 
 interface SyncMiddlewareOptions {
   tables: string[];
@@ -57,11 +57,7 @@ export function createSyncMiddleware(
     processSyncQueue(): void {
       if (this.queue.size === 0) return;
 
-      // Only sync if we have an authenticated non-anonymous user
-      const windowWithAuth = window as WindowWithAuth;
-      if (windowWithAuth.authContext?.user && !windowWithAuth.authContext.user.isAnonymous) {
-        windowWithAuth.authContext.syncData();
-      }
+      requestSync();
 
       // Clear the queue and timeouts
       this.queue.clear();
