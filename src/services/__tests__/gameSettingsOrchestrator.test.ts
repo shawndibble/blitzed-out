@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { submitGameSettings, SubmitContext, SubmitDependencies } from '../gameSettingsOrchestrator';
+import {
+  submitGameSettings,
+  planSubmit,
+  SubmitContext,
+  SubmitDependencies,
+} from '../gameSettingsOrchestrator';
 import type { Settings } from '@/types/Settings';
 import type { User } from '@/types';
 import type { Message } from '@/types/Message';
@@ -283,6 +288,197 @@ describe('submitGameSettings', () => {
       const dirtyFormData = makeFormData({ roomBackgroundURL: '  https://example.com/bg.jpg  ' });
       await submitGameSettings(dirtyFormData, {}, ctx, deps);
       expect(dirtyFormData.roomBackgroundURL).toBe('https://example.com/bg.jpg');
+    });
+  });
+});
+
+describe('planSubmit', () => {
+  const mockUser: User = { uid: 'user-1', displayName: 'Alice', isAnonymous: false } as User;
+
+  function makeFormData(overrides: Partial<Settings> = {}): Settings {
+    return {
+      displayName: 'Alice',
+      room: 'PUBLIC',
+      roomTileCount: 40,
+      gameMode: 'online',
+      boardUpdated: false,
+      roomUpdated: false,
+      selectedActions: {},
+      ...overrides,
+    } as Settings;
+  }
+
+  function makeCtx(overrides: Partial<SubmitContext> = {}): SubmitContext {
+    return {
+      user: mockUser,
+      currentRoom: 'PUBLIC',
+      currentRoomTileCount: 40,
+      messages: [],
+      gameBoard: undefined,
+      customTiles: [],
+      hasLocalPlayers: false,
+      settingsSnapshot: makeFormData(),
+      ...overrides,
+    };
+  }
+
+  describe('shouldSendRoomSettings', () => {
+    it('false for public room', () => {
+      const d = planSubmit(makeFormData({ room: 'PUBLIC' }), makeCtx(), {
+        settingsBoardUpdated: false,
+        updatedUser: mockUser,
+      });
+      expect(d.shouldSendRoomSettings).toBe(false);
+    });
+
+    it('true for private room with no prior room message', () => {
+      const d = planSubmit(
+        makeFormData({ room: 'MYROOM' }),
+        makeCtx({ currentRoom: 'MYROOM', messages: [] }),
+        { settingsBoardUpdated: false, updatedUser: mockUser }
+      );
+      expect(d.shouldSendRoomSettings).toBe(true);
+    });
+
+    it('true for private room when roomUpdated is set, even if message exists', () => {
+      const existing = { type: 'room', uid: 'user-1' } as Message;
+      const d = planSubmit(
+        makeFormData({ room: 'MYROOM', roomUpdated: true }),
+        makeCtx({ currentRoom: 'MYROOM', messages: [existing] }),
+        { settingsBoardUpdated: false, updatedUser: mockUser }
+      );
+      expect(d.shouldSendRoomSettings).toBe(true);
+    });
+
+    it('false for private room when message exists and roomUpdated is false', () => {
+      const existing = { type: 'room', uid: 'user-1' } as Message;
+      const d = planSubmit(
+        makeFormData({ room: 'MYROOM', roomUpdated: false }),
+        makeCtx({ currentRoom: 'MYROOM', messages: [existing] }),
+        { settingsBoardUpdated: false, updatedUser: mockUser }
+      );
+      expect(d.shouldSendRoomSettings).toBe(false);
+    });
+  });
+
+  describe('shouldSendGameSettings', () => {
+    it('true when board was updated and no duplicate', () => {
+      const d = planSubmit(makeFormData({ room: 'PUBLIC' }), makeCtx(), {
+        settingsBoardUpdated: true,
+        updatedUser: mockUser,
+        now: 10000,
+      });
+      expect(d.shouldSendGameSettings).toBe(true);
+    });
+
+    it('false when duplicate settings message within 5s', () => {
+      const recent = {
+        type: 'settings',
+        uid: mockUser.uid,
+        timestamp: { toMillis: () => 9000 },
+      } as unknown as Message;
+      const d = planSubmit(makeFormData({ room: 'PUBLIC' }), makeCtx({ messages: [recent] }), {
+        settingsBoardUpdated: true,
+        updatedUser: mockUser,
+        now: 10000,
+      });
+      expect(d.shouldSendGameSettings).toBe(false);
+    });
+
+    it('true when existing message is older than 5s', () => {
+      const old = {
+        type: 'settings',
+        uid: mockUser.uid,
+        timestamp: { toMillis: () => 4000 },
+      } as unknown as Message;
+      const d = planSubmit(makeFormData({ room: 'PUBLIC' }), makeCtx({ messages: [old] }), {
+        settingsBoardUpdated: true,
+        updatedUser: mockUser,
+        now: 10000,
+      });
+      expect(d.shouldSendGameSettings).toBe(true);
+    });
+
+    it('false when no trigger condition (no board update, no room change)', () => {
+      const d = planSubmit(makeFormData({ room: 'PUBLIC' }), makeCtx({ currentRoom: 'PUBLIC' }), {
+        settingsBoardUpdated: false,
+        updatedUser: mockUser,
+      });
+      expect(d.shouldSendGameSettings).toBe(false);
+    });
+  });
+
+  describe('shouldCreateLocalSession', () => {
+    it('false when no wizard fields in formData', () => {
+      const d = planSubmit(makeFormData(), makeCtx(), {
+        settingsBoardUpdated: false,
+        updatedUser: mockUser,
+      });
+      expect(d.shouldCreateLocalSession).toBe(false);
+    });
+
+    it('true when wizard fields present and session not yet created', () => {
+      const d = planSubmit(
+        makeFormData({
+          hasLocalPlayers: true,
+          localPlayersData: [{ name: 'Alice' }],
+          localPlayerSessionSettings: { someField: true },
+        } as any),
+        makeCtx({ hasLocalPlayers: false }),
+        { settingsBoardUpdated: false, updatedUser: mockUser }
+      );
+      expect(d.shouldCreateLocalSession).toBe(true);
+    });
+
+    it('false when session already exists (ctx.hasLocalPlayers = true)', () => {
+      const d = planSubmit(
+        makeFormData({
+          hasLocalPlayers: true,
+          localPlayersData: [{ name: 'Alice' }],
+          localPlayerSessionSettings: {},
+        } as any),
+        makeCtx({ hasLocalPlayers: true }),
+        { settingsBoardUpdated: false, updatedUser: mockUser }
+      );
+      expect(d.shouldCreateLocalSession).toBe(false);
+    });
+  });
+
+  describe('shouldRecordGameStart', () => {
+    it('true when board updated and ctx.user has uid', () => {
+      const d = planSubmit(makeFormData(), makeCtx({ user: mockUser }), {
+        settingsBoardUpdated: true,
+        updatedUser: mockUser,
+      });
+      expect(d.shouldRecordGameStart).toBe(true);
+    });
+
+    it('false when board was not updated', () => {
+      const d = planSubmit(makeFormData(), makeCtx({ user: mockUser }), {
+        settingsBoardUpdated: false,
+        updatedUser: mockUser,
+      });
+      expect(d.shouldRecordGameStart).toBe(false);
+    });
+
+    it('false when ctx.user is null', () => {
+      const d = planSubmit(makeFormData(), makeCtx({ user: null }), {
+        settingsBoardUpdated: true,
+        updatedUser: mockUser,
+      });
+      expect(d.shouldRecordGameStart).toBe(false);
+    });
+  });
+
+  describe('cleanedFormData', () => {
+    it('strips wizard fields', () => {
+      const d = planSubmit(
+        makeFormData({ localPlayersData: [{ name: 'Alice' }], hasLocalPlayers: true } as any),
+        makeCtx(),
+        { settingsBoardUpdated: false, updatedUser: mockUser }
+      );
+      expect(d.cleanedFormData).not.toHaveProperty('localPlayersData');
+      expect(d.cleanedFormData).not.toHaveProperty('hasLocalPlayers');
     });
   });
 });

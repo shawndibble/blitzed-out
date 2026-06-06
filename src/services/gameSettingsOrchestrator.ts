@@ -3,9 +3,15 @@ import type { Settings } from '@/types/Settings';
 import type { GameBoardResult, DBGameBoard, TileExport } from '@/types/gameBoard';
 import type { CustomTilePull } from '@/types/customTiles';
 import type { Message } from '@/types/Message';
+import type { FirebaseGatewayPort } from './ports/FirebaseGatewayPort';
+import type { GamePersistencePort } from './ports/GamePersistencePort';
 import { VALID_GROUP_TYPES } from '@/types';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
+
+export type { FirebaseGatewayPort } from './ports/FirebaseGatewayPort';
+export type { GamePersistencePort, UpsertBoardRecord } from './ports/GamePersistencePort';
+export type { SendGameSettingsOpts } from './ports/FirebaseGatewayPort';
 
 export interface SubmitContext {
   user: User | null;
@@ -18,6 +24,14 @@ export interface SubmitContext {
   settingsSnapshot: Settings;
 }
 
+/** Framework conveniences — Zustand, React Router, i18next. Not external systems. */
+export interface LocalEffects {
+  updateSettings(settings: Partial<Settings>): void;
+  navigate(room: string): void;
+  translate(key: string): string;
+}
+
+/** @deprecated Use FirebaseGatewayPort + GamePersistencePort + LocalEffects instead */
 export interface SubmitDependencies {
   updateUser: (displayName: string) => Promise<User | null>;
   updateGameBoardTiles: (data: Settings) => Promise<GameBoardResult>;
@@ -42,6 +56,17 @@ export interface SubmitDependencies {
   navigateFn: (room: string) => void;
   translateFn: (key: string) => string;
   recordGameStartFn: (uid: string) => Promise<void>;
+}
+
+export interface SubmitDecisions {
+  shouldSendRoomSettings: boolean;
+  shouldSendGameSettings: boolean;
+  shouldCreateLocalSession: boolean;
+  shouldRecordGameStart: boolean;
+  roomChanged: boolean;
+  isPrivateRoom: boolean;
+  privateBoardSizeChanged: boolean;
+  cleanedFormData: Settings;
 }
 
 function updateRoomBackground(formData: Settings): void {
@@ -88,27 +113,73 @@ function cleanFormData(formData: Settings): Settings {
   return cleanedData;
 }
 
-function computeRoomChange(
+/**
+ * Pure decision planner — computes all conditional flags from plain data.
+ * Requires settingsBoardUpdated and updatedUser from upstream async calls.
+ * Testable with zero mocks.
+ */
+export function planSubmit(
   formData: Settings,
-  currentRoom: string | undefined,
-  currentRoomTileCount: number | undefined
-): { roomChanged: boolean; isPrivateRoom: boolean; privateBoardSizeChanged: boolean } {
-  const currentRoomUpper = (currentRoom || '').toUpperCase();
-  const formDataRoomUpper = (formData.room || '').toUpperCase();
-  const roomChanged = currentRoomUpper !== formDataRoomUpper;
+  ctx: SubmitContext,
+  derivedState: {
+    settingsBoardUpdated: boolean;
+    updatedUser: User;
+    now?: number;
+  }
+): SubmitDecisions {
+  const { settingsBoardUpdated, updatedUser, now = Date.now() } = derivedState;
+
+  const currentUpper = (ctx.currentRoom || '').toUpperCase();
+  const formUpper = (formData.room || '').toUpperCase();
+  const roomChanged = currentUpper !== formUpper;
   const isPrivateRoom = Boolean(formData.room && !isPublicRoom(formData.room));
-  const privateBoardSizeChanged = isPrivateRoom && formData.roomTileCount !== currentRoomTileCount;
-  return { roomChanged, isPrivateRoom, privateBoardSizeChanged };
+  const privateBoardSizeChanged =
+    isPrivateRoom && formData.roomTileCount !== ctx.currentRoomTileCount;
+
+  const hasRoomMessage = ctx.messages.some((m) => m.type === 'room');
+  const shouldSendRoomSettings = isPrivateRoom && (!!formData.roomUpdated || !hasRoomMessage);
+
+  const recentDuplicate = ctx.messages.some(
+    (m) =>
+      m.type === 'settings' &&
+      m.uid === updatedUser.uid &&
+      now - (m.timestamp?.toMillis() || 0) < 5000
+  );
+  const triggerCondition = settingsBoardUpdated || roomChanged || privateBoardSizeChanged;
+  const shouldSendGameSettings = triggerCondition && !recentDuplicate;
+
+  const typedFormData = formData as any;
+  const shouldCreateLocalSession = Boolean(
+    typedFormData.hasLocalPlayers &&
+    typedFormData.localPlayersData &&
+    typedFormData.localPlayerSessionSettings &&
+    !ctx.hasLocalPlayers
+  );
+
+  const shouldRecordGameStart = settingsBoardUpdated && Boolean(ctx.user?.uid);
+
+  return {
+    shouldSendRoomSettings,
+    shouldSendGameSettings,
+    shouldCreateLocalSession,
+    shouldRecordGameStart,
+    roomChanged,
+    isPrivateRoom,
+    privateBoardSizeChanged,
+    cleanedFormData: cleanFormData(formData),
+  };
 }
 
-export async function submitGameSettings(
+async function executeSubmit(
   formData: Settings,
   actionsList: any,
   ctx: SubmitContext,
-  deps: SubmitDependencies
+  firebase: FirebaseGatewayPort,
+  persistence: GamePersistencePort,
+  effects: LocalEffects
 ): Promise<void> {
   const { displayName } = formData;
-  const updatedUser = await deps.updateUser(displayName ?? '');
+  const updatedUser = await firebase.updateUser(displayName ?? '');
 
   updateRoomBackground(formData);
 
@@ -116,43 +187,30 @@ export async function submitGameSettings(
     settingsBoardUpdated,
     gameMode,
     newBoard = [],
-  } = (await deps.updateGameBoardTiles(formData)) as GameBoardResult;
-
-  const { roomChanged, isPrivateRoom, privateBoardSizeChanged } = computeRoomChange(
-    formData,
-    ctx.currentRoom,
-    ctx.currentRoomTileCount
-  );
+  } = await persistence.updateGameBoardTiles(formData);
 
   if (!updatedUser) return;
 
-  if (
-    isPrivateRoom &&
-    (formData.roomUpdated || !ctx.messages.find((m: Message) => m.type === 'room'))
-  ) {
-    await deps.sendRoomSettingsFn(formData, updatedUser);
+  const decisions = planSubmit(formData, ctx, {
+    settingsBoardUpdated: Boolean(settingsBoardUpdated),
+    updatedUser,
+  });
+
+  if (decisions.shouldSendRoomSettings) {
+    await firebase.sendRoomSettings(formData, updatedUser);
   }
 
   if (ctx.gameBoard?.tiles !== newBoard) {
-    await deps.upsertBoardFn({
-      title: deps.translateFn('settingsGenerated'),
+    await persistence.upsertBoard({
+      title: effects.translate('settingsGenerated'),
       tiles: newBoard,
       isActive: 1,
       gameMode,
     });
   }
 
-  const shouldSendGameSettings =
-    (settingsBoardUpdated || roomChanged || privateBoardSizeChanged) &&
-    !ctx.messages.some(
-      (m: Message) =>
-        m.type === 'settings' &&
-        m.uid === updatedUser.uid &&
-        Date.now() - (m.timestamp?.toMillis() || 0) < 5000
-    );
-
-  if (shouldSendGameSettings) {
-    await deps.sendGameSettingsFn({
+  if (decisions.shouldSendGameSettings) {
+    await firebase.sendGameSettings({
       formData,
       user: updatedUser,
       customTiles: ctx.customTiles,
@@ -164,14 +222,9 @@ export async function submitGameSettings(
 
   const typedFormData = formData as any;
 
-  if (
-    typedFormData.hasLocalPlayers &&
-    typedFormData.localPlayersData &&
-    typedFormData.localPlayerSessionSettings &&
-    !ctx.hasLocalPlayers
-  ) {
+  if (decisions.shouldCreateLocalSession) {
     try {
-      await deps.createLocalSessionFn(
+      await persistence.createLocalSession(
         formData.room,
         typedFormData.localPlayersData as LocalPlayer[],
         typedFormData.localPlayerSessionSettings as LocalSessionSettings
@@ -181,20 +234,67 @@ export async function submitGameSettings(
     }
   }
 
-  const cleanedFormData = cleanFormData(formData);
-
-  deps.updateSettingsFn({
-    ...cleanedFormData,
+  effects.updateSettings({
+    ...decisions.cleanedFormData,
     boardUpdated: false,
     roomUpdated: false,
     gameMode,
   });
 
-  if (settingsBoardUpdated && ctx.user?.uid) {
-    deps.recordGameStartFn(ctx.user.uid).catch(() => {
+  if (decisions.shouldRecordGameStart && ctx.user?.uid) {
+    persistence.recordGameStart(ctx.user.uid).catch(() => {
       // Stats are non-critical
     });
   }
 
-  deps.navigateFn(formData.room);
+  effects.navigate(formData.room);
+}
+
+/**
+ * Submit game settings.
+ * Preferred: pass FirebaseGatewayPort, GamePersistencePort, LocalEffects.
+ * Legacy: pass SubmitDependencies (4th arg only, no 5th/6th).
+ */
+export async function submitGameSettings(
+  formData: Settings,
+  actionsList: any,
+  ctx: SubmitContext,
+  firebaseOrDeps: FirebaseGatewayPort | SubmitDependencies,
+  persistence?: GamePersistencePort,
+  effects?: LocalEffects
+): Promise<void> {
+  if (persistence && effects) {
+    return executeSubmit(
+      formData,
+      actionsList,
+      ctx,
+      firebaseOrDeps as FirebaseGatewayPort,
+      persistence,
+      effects
+    );
+  }
+
+  // Legacy SubmitDependencies path
+  const deps = firebaseOrDeps as SubmitDependencies;
+  return executeSubmit(
+    formData,
+    actionsList,
+    ctx,
+    {
+      updateUser: deps.updateUser,
+      sendRoomSettings: deps.sendRoomSettingsFn,
+      sendGameSettings: deps.sendGameSettingsFn,
+    },
+    {
+      updateGameBoardTiles: deps.updateGameBoardTiles,
+      upsertBoard: deps.upsertBoardFn,
+      createLocalSession: deps.createLocalSessionFn,
+      recordGameStart: deps.recordGameStartFn,
+    },
+    {
+      updateSettings: deps.updateSettingsFn,
+      navigate: deps.navigateFn,
+      translate: deps.translateFn,
+    }
+  );
 }
