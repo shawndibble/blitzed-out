@@ -24,7 +24,9 @@ function getDeviceId(): string {
   try {
     const existing = localStorage.getItem(DEVICE_ID_KEY);
     if (existing) return existing;
-    const id = crypto.randomUUID();
+    // Reddit's installed_client grant specs device_id as a 20–30 char string;
+    // a hyphen-stripped UUID is 32, so trim to 30.
+    const id = crypto.randomUUID().replace(/-/g, '').slice(0, 30);
     localStorage.setItem(DEVICE_ID_KEY, id);
     return id;
   } catch {
