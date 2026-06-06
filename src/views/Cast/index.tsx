@@ -10,7 +10,7 @@ import RoomBackground from '@/components/RoomBackground';
 import ToastAlert from '@/components/ToastAlert';
 import { Trans } from 'react-i18next';
 import { getAuth } from 'firebase/auth';
-import latestMessageByType from '@/helpers/messages';
+import { latestMessageByType } from '@/helpers/messages';
 import { loginAnonymously } from '@/services/firebase';
 import { t } from 'i18next';
 import useFullscreenStatus from '@/hooks/useFullscreenStatus';

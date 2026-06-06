@@ -4,7 +4,7 @@ import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import { importActions } from '@/services/dexieActionImport';
-import latestMessageByType, { latestMessageBy } from '@/helpers/messages';
+import { latestMessageByType, latestMessageBy } from '@/helpers/messages';
 import { Params, useParams } from 'react-router-dom';
 import { getActiveTiles } from '@/stores/customTiles';
 import { useLiveQuery } from 'dexie-react-hooks';

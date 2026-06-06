@@ -1,26 +1,8 @@
-import { Params, useParams } from 'react-router-dom';
-import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
-import {
-  SubmitContext,
-  SubmitDependencies,
-  submitGameSettings,
-} from '@/services/gameSettingsOrchestrator';
-import { handleUser, sendRoomSettingsMessage } from '@/services/roomSettingsService';
+import { SubmitDependencies, submitGameSettings } from '@/services/gameSettingsOrchestrator';
 
-import { Settings } from '@/types/Settings';
-import { getActiveTiles } from '@/stores/customTiles';
-import sendGameSettingsMessage from '@/services/gameSettingsMessage';
-import useAuth from '@/context/hooks/useAuth';
+import type { Settings } from '@/types/Settings';
 import { useCallback, useState } from 'react';
-import useGameBoard from './useGameBoard';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useLocalPlayers } from './useLocalPlayers';
-import useMessages from '@/context/hooks/useMessages';
-import useRoomNavigate from './useRoomNavigate';
-import { useSettings } from '@/stores/settingsStore';
-import { useTranslation } from 'react-i18next';
-import { recordGameStart } from '@/services/playerStatsService';
-import { getContentGameMode } from '@/helpers/strings';
+import { useGameSettingsWiring } from './useGameSettingsWiring';
 
 export interface GameSettingsSubmitResult {
   submit: (formData: Settings, actionsList: any) => Promise<void>;
@@ -31,16 +13,7 @@ export interface GameSettingsSubmitResult {
 export default function useSubmitGameSettings(
   overrideDeps?: Partial<SubmitDependencies>
 ): GameSettingsSubmitResult {
-  const { user, updateUser } = useAuth();
-  const { id: currentRoom } = useParams<Params>();
-  const { t } = useTranslation();
-  const updateGameBoardTiles = useGameBoard();
-  const [settings, updateSettings] = useSettings();
-  const customTiles = useLiveQuery(() => getActiveTiles(getContentGameMode(settings?.gameMode)));
-  const gameBoard = useLiveQuery(getActiveBoard);
-  const navigate = useRoomNavigate();
-  const { messages } = useMessages();
-  const { createLocalSession, hasLocalPlayers } = useLocalPlayers();
+  const { ctx, deps } = useGameSettingsWiring();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -49,33 +22,8 @@ export default function useSubmitGameSettings(
       setIsSubmitting(true);
       setError(null);
 
-      const ctx: SubmitContext = {
-        user,
-        currentRoom,
-        currentRoomTileCount: settings?.roomTileCount,
-        messages,
-        gameBoard,
-        customTiles,
-        hasLocalPlayers,
-        settingsSnapshot: settings,
-      };
-
-      const deps: SubmitDependencies = {
-        updateUser: (displayName: string) => handleUser(user, displayName, updateUser),
-        updateGameBoardTiles,
-        sendRoomSettingsFn: sendRoomSettingsMessage,
-        upsertBoardFn: upsertBoard,
-        sendGameSettingsFn: sendGameSettingsMessage,
-        createLocalSessionFn: createLocalSession,
-        updateSettingsFn: updateSettings,
-        navigateFn: navigate,
-        translateFn: t,
-        recordGameStartFn: recordGameStart,
-        ...overrideDeps,
-      };
-
       try {
-        await submitGameSettings(formData, actionsList, ctx, deps);
+        await submitGameSettings(formData, actionsList, ctx, { ...deps, ...overrideDeps });
       } catch (err) {
         const e = err instanceof Error ? err : new Error('Submission failed');
         setError(e);
@@ -84,22 +32,7 @@ export default function useSubmitGameSettings(
         setIsSubmitting(false);
       }
     },
-    [
-      user,
-      updateUser,
-      currentRoom,
-      settings,
-      messages,
-      gameBoard,
-      customTiles,
-      hasLocalPlayers,
-      updateGameBoardTiles,
-      updateSettings,
-      navigate,
-      createLocalSession,
-      t,
-      overrideDeps,
-    ]
+    [ctx, deps, overrideDeps]
   );
 
   return { submit, isSubmitting, error };

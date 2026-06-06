@@ -1,10 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Message, MessageType } from '@/types/Message';
-import latestMessageByType, {
+import {
+  filterMessages,
+  filterMessagesByType,
+  latestMessage,
+  latestMessageByType,
   normalSortedMessages,
   orderedMessagesByType,
-  latestMessage,
 } from '@/helpers/messages';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
 
@@ -137,14 +140,7 @@ export const useMessagesStore = create<MessagesStore>()(
       // Selectors - Optimized for performance
       getMessagesByType: (type) => {
         const { messages } = get();
-        // Use a more efficient filter approach for large message arrays
-        const filtered: Message[] = [];
-        for (let i = 0; i < messages.length; i++) {
-          if (messages[i].type === type) {
-            filtered.push(messages[i]);
-          }
-        }
-        return filtered;
+        return filterMessagesByType(messages, type);
       },
 
       getLatestMessage: () => {
@@ -159,14 +155,7 @@ export const useMessagesStore = create<MessagesStore>()(
 
       getFilteredMessages: (predicate) => {
         const { messages } = get();
-        // Use for loop for better performance on large arrays
-        const filtered: Message[] = [];
-        for (let i = 0; i < messages.length; i++) {
-          if (predicate(messages[i])) {
-            filtered.push(messages[i]);
-          }
-        }
-        return filtered;
+        return filterMessages(messages, predicate);
       },
 
       getOrderedMessagesByType: (type, order = 'ASC') => {
