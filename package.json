@@ -4,6 +4,9 @@
   "name": "blitzed-out",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -b master -d dist",

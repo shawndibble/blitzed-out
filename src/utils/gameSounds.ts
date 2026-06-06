@@ -1,5 +1,5 @@
 // Simple game sound utilities following VoiceSelect pattern
-import { getAudioContext } from './audioContext';
+import { getAudioContext } from '@/utils/audioContext';
 
 export interface GameSound {
   id: string;

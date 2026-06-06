@@ -12,11 +12,11 @@ import { AuthContext } from '../../context/auth';
 import { MessagesProvider } from '../../context/messages';
 import AppSkeleton from '../AppSkeleton';
 import { UserListProvider } from '../../context/userList';
-import lazyWithRetry from '../../utils/lazyWithRetry';
+import lazyWithRetry from '@/utils/lazyWithRetry';
 
-const UnauthenticatedApp = lazyWithRetry(() => import('../../views/UnauthenticatedApp'));
-const Cast = lazyWithRetry(() => import('../../views/Cast'));
-const Room = lazyWithRetry(() => import('../../views/Room'));
+const UnauthenticatedApp = lazyWithRetry(() => import('@/views/UnauthenticatedApp'));
+const Cast = lazyWithRetry(() => import('@/views/Cast'));
+const Room = lazyWithRetry(() => import('@/views/Room'));
 
 // Component to ensure the room ID is always uppercase
 function UppercaseRedirect({ children }: { children: React.ReactNode }) {
