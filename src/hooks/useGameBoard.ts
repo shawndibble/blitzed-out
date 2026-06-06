@@ -55,11 +55,10 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
       // Use the new streamlined buildGameBoard function
       const boardResult = await buildGameBoard(formData, locale, finalGameMode, tileCount);
 
-      // Log useful debug information
-      if (boardResult.metadata.missingGroups.length > 0) {
-        console.warn('Missing groups for board building:', boardResult.metadata.missingGroups);
-      }
-
+      // Missing groups are surfaced to the user in settings via ContentWarning
+      // (see useBoardContentWarnings); no need to duplicate that to the console
+      // on every board build — selected groups absent from the current mode are
+      // expected (e.g. local-only groups while in an online room).
       if (boardResult.metadata.tilesWithContent < tileCount / 2) {
         console.warn('Low tile content ratio:', {
           tilesWithContent: boardResult.metadata.tilesWithContent,

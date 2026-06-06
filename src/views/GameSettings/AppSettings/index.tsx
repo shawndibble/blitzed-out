@@ -18,6 +18,7 @@ import LanguageSelect from './LanguageSelect';
 import { AmbientSoundscape, Settings } from '@/types/Settings';
 import VoiceSelect from '@/components/VoiceSelect';
 import { isPublicRoom } from '@/helpers/strings';
+import { isValidURL } from '@/helpers/urls';
 import { useSettings } from '@/stores/settingsStore';
 
 function useDebounce<T extends any[]>(
@@ -91,6 +92,13 @@ export default function AppSettings({
     [settings?.voicePitch, debouncedPitchUpdate]
   );
 
+  // Debounced so the live background only updates once the user pauses typing,
+  // not on every keystroke (each store write re-renders the Room background and
+  // would otherwise fire a request per partial/invalid URL).
+  const debouncedCustomUrlUpdate = useDebounce((urlKey: string, urlValue: string) => {
+    updateSettings({ background: 'custom', [urlKey]: urlValue });
+  }, 400);
+
   const handleBackgroundChange = useCallback(
     (
       backgroundKey: string,
@@ -98,13 +106,23 @@ export default function AppSettings({
       backgroundURLKey?: string,
       backgroundURLValue?: string
     ): void => {
+      // URL-typing path: only commit complete, valid URLs to the store. Partial
+      // values ("http", "https://r") would otherwise render as a broken
+      // background and spawn 404/CORS request storms while the user types.
+      if (backgroundURLKey && typeof backgroundURLValue === 'string' && backgroundURLValue !== '') {
+        if (isValidURL(backgroundURLValue)) {
+          debouncedCustomUrlUpdate(backgroundURLKey, backgroundURLValue);
+        }
+        return;
+      }
+
       const updates: Partial<Settings> = { [backgroundKey]: backgroundValue };
       if (backgroundURLKey && backgroundURLValue !== undefined) {
         updates[backgroundURLKey] = backgroundURLValue;
       }
       updateSettings(updates);
     },
-    [updateSettings]
+    [updateSettings, debouncedCustomUrlUpdate]
   );
 
   const handleAmbientSoundscapeChange = useCallback(

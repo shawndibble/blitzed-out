@@ -208,7 +208,7 @@ describe('useGameBoard', () => {
   });
 
   describe('metadata handling', () => {
-    it('should log warnings for missing groups in non-test environment', async () => {
+    it('does not log missing groups to the console (surfaced in settings UI instead)', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const originalNodeEnv = process.env.NODE_ENV;
       const originalVitest = process.env.VITEST;
@@ -230,9 +230,10 @@ describe('useGameBoard', () => {
 
       await result.current(mockSettings);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Missing groups for board building:', [
-        'nonexistent',
-      ]);
+      expect(consoleSpy).not.toHaveBeenCalledWith(
+        'Missing groups for board building:',
+        expect.anything()
+      );
 
       // Restore environment
       process.env.NODE_ENV = originalNodeEnv;
@@ -274,7 +275,7 @@ describe('useGameBoard', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should log warnings when there are missing groups or low content', async () => {
+    it('logs low content ratio but not missing groups', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const resultWithMissingGroups = {
@@ -291,11 +292,12 @@ describe('useGameBoard', () => {
 
       await result.current(mockSettings);
 
-      // Should log warnings about missing groups and low content ratio
-      expect(consoleSpy).toHaveBeenCalledWith('Missing groups for board building:', [
-        'nonexistent',
-      ]);
+      // Low content is still logged; missing groups is surfaced in the UI only.
       expect(consoleSpy).toHaveBeenCalledWith('Low tile content ratio:', expect.any(Object));
+      expect(consoleSpy).not.toHaveBeenCalledWith(
+        'Missing groups for board building:',
+        expect.anything()
+      );
 
       consoleSpy.mockRestore();
     });

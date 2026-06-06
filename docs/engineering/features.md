@@ -112,7 +112,7 @@ The **Game Settings Wizard** (`src/views/GameSettingsWizard`) walks the user thr
 
 ### Sources & normalization — `src/services/getBackgroundSource.ts`
 
-A user-supplied URL is normalized to something embeddable. Supported families include: direct image/video files; YouTube & Vimeo; Reddit (subreddit slideshows); Giphy/Tenor/Imgur; Google Drive & Dropbox; Twitter/X (via `twitframe` proxy); Discord CDN media; and a range of adult tube sites. Generic URLs fall through with format detection.
+A user-supplied URL is normalized to something embeddable. Supported families include: direct image/video files; YouTube & Vimeo; Giphy/Tenor/Imgur; Google Drive & Dropbox; Twitter/X (via `twitframe` proxy); Discord CDN media; and a range of adult tube sites. Generic URLs fall through with format detection.
 
 ### Rendering — `src/components/DirectMediaHandler`, `src/components/RoomBackground`
 
@@ -121,11 +121,9 @@ A user-supplied URL is normalized to something embeddable. Supported families in
 - **Autoplay** is forced muted to satisfy browser policy; a user-interaction overlay appears if autoplay is still blocked (notably on the cast view).
 - **Supported image formats** (DirectMediaHandler): jpg/jpeg, png, webp, gif, bmp, svg, avif, tiff, heic/heif, jfif.
 
-### Reddit slideshow — `src/services/redditService.ts`, `RedditSlideshow`
+### Reddit slideshow — removed (June 2026)
 
-Fetches a subreddit's JSON, extracts image/gallery URLs, decodes HTML entities, filters to image extensions, and cycles them. Goes through third-party CORS proxies (`r.jina.ai`, `api.allorigins.win`, `corsproxy.io`). ~5-minute cache.
-
-**Why proxies, not a first-party path** (investigated June 2026): Reddit's public `.json` endpoints don't send `Access-Control-Allow-Origin`, so the browser can't read them directly. The two leak-free alternatives are both blocked by Reddit's Nov-2025 [Responsible Builder Policy](https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy): (a) the OAuth API (`oauth.reddit.com`) is CORS-enabled but now requires a **manually-approved app**, which self-service no longer issues and which is rarely granted for personal/NSFW use; (b) a first-party server relay (Cloud Function) fetching the public `.json` egresses from a datacenter IP, which Reddit `403`s. The proxies work because they spread requests across their own (non-datacenter) IPs. **Tradeoff:** the proxy operators see which subreddits a user browses — a real privacy leak (subreddit interest, not identity, since requests are credential-less). Accepted as the only viable path to keep the feature; revisit if Reddit grants API access or ships browser-readable CORS.
+Reddit subreddit slideshows were removed. They had relied on third-party CORS proxies (`r.jina.ai`, `api.allorigins.win`, `corsproxy.io`) because Reddit's public `.json` endpoints send no `Access-Control-Allow-Origin`. As of June 2026 those proxies all return `403`, and the leak-free alternatives are both closed off by Reddit's Nov-2025 [Responsible Builder Policy](https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy): the OAuth API requires a manually-approved app (self-service is disabled, rarely granted for personal/NSFW use), and a first-party Cloud Function relay egresses from a datacenter IP that Reddit `403`s. Verified `403` from `www.reddit.com` **and** `old.reddit.com`, every UA, residential IP included. With no viable browser path, the feature (`redditService`, `RedditSlideshow`, `useRedditFeed`, `ImageSlideshow`) was deleted. Revisit only if Reddit ships browser-readable CORS or grants API access.
 
 ### Room vs app backgrounds — `src/helpers/getPrivateRoomBackground.ts`, `BackgroundSelect`
 
