@@ -1,0 +1,2 @@
+var o={genital:"génital",hole:"trou",chest:"torse",pronoun_subject:"pronom_sujet",pronoun_object:"pronom_objet",pronoun_possessive:"pronom_possessif",pronoun_reflexive:"pronom_réfléchi",player:"joueur",dom:"dominant",sub:"soumis"},e={tokens:o};export{e as default,o as tokens};
+//# sourceMappingURL=placeholders.json-DR7oeQ3S.js.map

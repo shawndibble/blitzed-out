@@ -1,0 +1,2 @@
+var o={genital:"genitales",hole:"agujero",chest:"pecho",pronoun_subject:"pronombre_sujeto",pronoun_object:"pronombre_objeto",pronoun_possessive:"pronombre_posesivo",pronoun_reflexive:"pronombre_reflexivo",player:"jugador",dom:"dominante",sub:"sumiso"},e={tokens:o};export{e as default,o as tokens};
+//# sourceMappingURL=placeholders.json-DQzGf3B9.js.map

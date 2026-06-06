@@ -1,0 +1,2 @@
+var o={genital:"genital",hole:"hole",chest:"chest",pronoun_subject:"pronoun_subject",pronoun_object:"pronoun_object",pronoun_possessive:"pronoun_possessive",pronoun_reflexive:"pronoun_reflexive",player:"player",dom:"dom",sub:"sub"},e={tokens:o};export{e as default,o as tokens};
+//# sourceMappingURL=placeholders.json-CI5rFk3f.js.map

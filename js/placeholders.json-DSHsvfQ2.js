@@ -1,0 +1,2 @@
+var e={genital:"生殖器",hole:"洞",chest:"胸部",pronoun_subject:"代词_主格",pronoun_object:"代词_宾格",pronoun_possessive:"代词_所有格",pronoun_reflexive:"代词_反身",player:"玩家",dom:"支配者",sub:"顺从者"},o={tokens:e};export{o as default,e as tokens};
+//# sourceMappingURL=placeholders.json-DSHsvfQ2.js.map
