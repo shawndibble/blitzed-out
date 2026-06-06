@@ -6,11 +6,10 @@
 - `npm run build` — prod build (includes tsc)
 - `npm run type-check` — tsc no-emit
 - `npm run test:failures` — **USE THIS**: memory-safe, failing only, stops at 10
-- `npm run test:focused` — failing + detail (more memory)
-- `npm run test:memory` — low-memory run
-- `npm run test:run` — all tests once, exit
-- `npm run lint` / `npm run format` — ESLint / Prettier
-- `npm run cleanup:debug` — fail on console.log/debugger
+- `npm run test:ci` — all tests once (dot reporter, stops at 3 failures)
+- `npm test` — Vitest watch mode
+- `npm run lint` / `npm run format` — ESLint (whole project) / Prettier
+- `npm run cleanup:debug` — fail on `console.*` (no-console rule)
 - `npm run deploy` — GitHub Pages (→ master)
 
 **Pre-commit quality**: `npm run type-check && npx eslint src/ && npm run test:failures`
@@ -22,7 +21,7 @@
 
 ## Stack
 
-React 19.x + TypeScript + Vite · MUI v9 (dark mode; avoid hardcoded light colors like `grey.50`) · Zustand (`src/stores/`) + Dexie (IndexedDB) + Firebase sync · i18next (en/es/fr/zh/hi)
+React 19.x + TypeScript + Vite · MUI v9 (dark mode; avoid hardcoded light colors like `grey.50`) · Zustand (`src/stores/`) + Dexie (IndexedDB) + Firebase sync · i18next (en/es/fr/zh/hi/de)
 
 **MUI v9 API notes**: layout props (`display`, `flexDirection`, etc.) go in `sx`. Use `slotProps={{ htmlInput }}` (TextField native input), `slotProps={{ input }}` (TextField MUI input / Switch), `slotProps={{ paper }}` (Dialog), `slotProps={{ list }}` (Menu), `slots={{ transition }}` (Snackbar). No `inputProps`, `InputProps`, `PaperProps`, `MenuListProps`, `BackdropProps`, `TransitionComponent`, or `componentsProps`.
 
@@ -67,6 +66,8 @@ Red → Green → Refactor. Write test first.
 **ALWAYS update all language files**: `src/locales/{en,es,fr,zh,hi,de}/translation.json`
 
 Anatomy placeholders: `{genital}` (dick/pussy), `{hole}` (pussy/ass), `{chest}` (breasts/pecs)
+
+Game content lives in `src/locales/{lang}/{local,online}/*.json` (per-group files, with `dom`/`sub` role labels). After editing these, run `node scripts/bundle-translations.js` to regenerate the `{local,online}-bundle.json` files the app actually loads.
 
 Custom-tile placeholder tokens are stored canonical English; localized aliases (`src/locales/*/placeholders.json`) are normalized to English on save via `placeholderAliasService` and localized back on edit. The gameplay replacement pipeline (`actionStringReplacement`, `anatomyPlaceholderService`) never sees aliases.
 
