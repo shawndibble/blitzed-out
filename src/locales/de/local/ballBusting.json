@@ -1,0 +1,69 @@
+{
+  "label": "Hodenmarter",
+  "type": "sex",
+  "dom": "Schläger/in",
+  "sub": "Empfänger/in",
+  "anatomyRequirement": "penis",
+  "actions": {
+    "Schlagen/Kneifen": [
+      "{dom} gibt {sub} einen leichten Klaps nach dem Würfeln einer beliebigen Person.",
+      "{dom} gibt {sub} 5 Hodenschläge.",
+      "{dom} massiert {sub}'s Hoden für 15 Sekunden.",
+      "{dom} gibt {sub} 10 leichte Hodenklapse.",
+      "{dom} gibt {sub} 3 Hodenschläge.",
+      "{dom} dehnt {sub}'s Hoden für 15 Sekunden.",
+      "{dom} schnipst {sub}'s Hoden für 10 Sekunden.",
+      "{dom} drückt {sub}'s Hoden bis zur nächsten Runde.",
+      "{dom} drückt {sub}'s Hoden für 10 Sekunden.",
+      "{dom} zieht an {sub}'s Hoden.",
+      "{dom} gibt {sub} 2 Hodenschläge.",
+      "{dom} gibt {sub} 2 schnelle Hodenschläge.",
+      "{dom} gibt {sub} einen leichten Klaps nach dem Würfeln für eine volle Runde.",
+      "{sub} hält den Atem 10 Sekunden an, während {dom} Hodenschläge gibt.",
+      "{dom} massiert {sub}'s Hoden für 15 Sekunden.",
+      "{dom} gibt jedem Empfänger/jeder Empfängerin/Switch einen Hodenschlag.",
+      "{sub} erhält von jedem Schläger/jeder Schlägerin/Switch einen Hodenschlag.",
+      "{sub}'s Hoden werden von jedem Schläger/jeder Schlägerin/Switch gedrückt."
+    ],
+    "Schlagen/Quetschen": [
+      "{dom} gibt {sub} 2 Faustschläge auf die Hoden.",
+      "{dom} gibt {sub} 4 Faustschläge auf die Hoden.",
+      "{dom} schlägt {sub} für 10 Sekunden mit Faustschlägen auf die Hoden.",
+      "{dom} gibt {sub} einen harten Hodenschlag.",
+      "{dom} gibt {sub} 5 Hodenschläge.",
+      "{dom} kniet {sub} in die Hoden.",
+      "{dom} quetscht {sub}'s Hoden bis zur nächsten Runde.",
+      "{dom} gibt {sub} 4 harte Hodenschläge.",
+      "{dom} quetscht {sub}'s Hoden.",
+      "{dom} gibt {sub} 1 harten Hodenschlag.",
+      "{dom} gibt {sub} 5 Hodenschläge.",
+      "{dom} schlägt die Hoden jedes Empfängers/jeder Empfängerin/Switch.",
+      "{dom} quetscht die Hoden jedes Empfängers/jeder Empfängerin/Switch.",
+      "{sub} erhält von jedem Schläger/jeder Schlägerin/Switch einen Faustschlag auf die Hoden.",
+      "{sub}'s Hoden werden von jedem Schläger/jeder Schlägerin/Switch gequetscht."
+    ],
+    "Gegenstand benutzen": [
+      "{dom} schlägt {sub}'s Hoden mit einem Gegenstand.",
+      "{dom} quetscht {sub}'s Hoden mit einem Gegenstand.",
+      "{sub}'s Hoden werden von {dom} für 15 Sekunden mit einem Gegenstand geschlagen.",
+      "{dom} gibt {sub} 5 harte Hodenschläge mit einem Gegenstand.",
+      "{dom} schlägt {sub}'s Hoden mit einem Gegenstand, nachdem {sub} für den Rest des Spiels würfelt.",
+      "{dom} gibt {sub} 2 Hodenschläge mit einem Gegenstand.",
+      "{dom} schlägt {sub}'s Hoden für 20 Sekunden mit einem Gegenstand.",
+      "{sub} trägt Hodengewichte bis zur nächsten Hodenmarter-Aktion.",
+      "{dom} gibt {sub} 15 schnelle Hodenschläge mit einem Gegenstand.",
+      "{dom} benutzt einen Gegenstand, um die Hoden jedes Empfängers/jeder Empfängerin/Switch zu schlagen.",
+      "{sub} erhält von jedem Schläger/jeder Schlägerin/Switch einen Hodenschlag mit einem Gegenstand."
+    ],
+    "So Hart Wie Möglich": [
+      "{dom} gibt {sub} 5 der härtesten Hodenschläge mit einem Gegenstand.",
+      "{dom} quetscht {sub}'s Hoden so hart wie möglich.",
+      "{dom} gibt {sub} 20 Sekunden harte Hodenschläge mit einem Gegenstand.",
+      "{dom} zieht für 20 Sekunden hart an {sub}'s Hoden.",
+      "{dom} tritt {sub} in die Hoden.",
+      "{dom} tritt {sub} für 15 Sekunden in die Hoden.",
+      "{dom} drückt {sub}'s Hoden mit dem Fuß.",
+      "{sub}'s Hoden werden von jedem Schläger/jeder Schlägerin/Switch getreten."
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "label": "Alkohol",
+  "type": "consumption",
+  "actions": {
+    "Schluck/Trinken": [
+      "Nimm einen Schluck von deinem Getränk.",
+      "Trink einen Schluck.",
+      "Nimm 2 Schlucke.",
+      "Gib einen Schluck aus.",
+      "Trink einen Schluck."
+    ],
+    "Shots": [
+      "1 Shot.",
+      "Trink 2 Schlucke.",
+      "Gib 1 Shot aus.",
+      "Alle trinken.",
+      "Trink einen Schluck."
+    ],
+    "Runterkippen": [
+      "Trink die Hälfte deines Getränks.",
+      "Kipp dein Getränk runter.",
+      "Trink einen Schluck.",
+      "Trink 2 Shots.",
+      "Lass jemanden sein Getränk runterkippen.",
+      "Gib ein Getränk aus."
+    ]
+  }
+}

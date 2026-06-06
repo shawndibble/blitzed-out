@@ -1,0 +1,35 @@
+{
+  "label": "Vapen",
+  "type": "consumption",
+  "actions": {
+    "Anfänger": [
+      "Nimm einen Zug.",
+      "Nimm einen langen Zug.",
+      "Mach die größte Wolke, die du kannst.",
+      "Nimm 3 Sekunden lang einen Zug.",
+      "Halte den Dampf 3 Sekunden lang an, bevor du ausatmest.",
+      "Versuche, den Dampf durch die Nase auszuatmen.",
+      "Nimm einen Zug und versuche, den Dampf in einer 'O'-Form auszublasen.",
+      "Such dir eine Oberfläche und mach den Wasserfall-Vape-Trick."
+    ],
+    "Fortgeschritten": [
+      "Blas einen Rauchring.",
+      "Atme langsam aus und bilde eine dünne Wolke.",
+      "Nimm 5 Sekunden lang einen Zug.",
+      "Nimm 4–6 Züge.",
+      "Versuche, Dampf durch einen Strohhalm zu blasen.",
+      "Halte den Dampf 5 Sekunden lang an, bevor du ausatmest.",
+      "Mach eine Dampfwolke und drehe sie mit deiner Hand für den Tornado-Trick."
+    ],
+    "Experte": [
+      "Nimm einen Zug, atme aus und versuche, den Rauch wieder einzuatmen.",
+      "Nimm den längsten Zug, den du schaffst.",
+      "Nimm 10 Sekunden lang einen Zug.",
+      "Nimm 8 oder mehr Züge.",
+      "Versuche, den Dampf durch gespitzte Lippen auszuatmen.",
+      "Halte den Dampf 10 Sekunden lang an, bevor du ausatmest.",
+      "Führe den French-Inhale-Dampftrick aus.",
+      "Führe den Bane-Dampftrick aus."
+    ]
+  }
+}

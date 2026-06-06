@@ -18,5 +18,9 @@
   "hi": {
     "label": "हिन्दी",
     "voice": "Google हिन्दी"
+  },
+  "de": {
+    "label": "Deutsch",
+    "voice": "Google Deutsch"
   }
 }

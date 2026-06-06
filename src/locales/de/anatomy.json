@@ -1,0 +1,71 @@
+{
+  "penetrativeKeywords": [
+    "tief",
+    "Kehle",
+    "eindringen",
+    "drinnen",
+    "betritt",
+    "schiebt hinein",
+    "gleitet hinein",
+    "füllt",
+    "dehnt",
+    "nimmt",
+    "reitet",
+    "hüpft auf",
+    "spießt auf"
+  ],
+  "genericAnatomyTerms": {
+    "genital": "Genitalien",
+    "hole": "Loch",
+    "chest": "Brust",
+    "pronoun_subject": "sie",
+    "pronoun_object": "sie",
+    "pronoun_possessive": "ihr",
+    "pronoun_reflexive": "sich selbst"
+  },
+  "anatomyRequirements": {
+    "any": "Universal (alle Spieler)",
+    "penis": "Erfordert männliche Anatomie",
+    "pussy": "Erfordert weibliche Anatomie",
+    "anus": "Universal (alle Spieler)",
+    "breasts": "Erfordert Brüste"
+  },
+  "incompatibilityReasons": {
+    "requiresSpecificAnatomy": "Erfordert spezifische Anatomie ({{requirement}})",
+    "requiresMaleAnatomy": "Erfordert männliche Anatomie",
+    "requiresFemaleAnatomy": "Erfordert weibliche Anatomie",
+    "requiresBreasts": "Erfordert Brüste"
+  },
+  "anatomyMappings": {
+    "male": {
+      "genital": "Schwanz",
+      "hole": "Loch",
+      "chest": "Brust",
+      "pronoun_subject": "er",
+      "pronoun_object": "ihm",
+      "pronoun_possessive": "sein",
+      "pronoun_reflexive": "sich selbst"
+    },
+    "female": {
+      "genital": "Muschi",
+      "hole": "Muschi",
+      "chest": "Brüste",
+      "pronoun_subject": "sie",
+      "pronoun_object": "ihr",
+      "pronoun_possessive": "ihr",
+      "pronoun_reflexive": "sich selbst"
+    },
+    "non-binary": {
+      "genital": "Genitalien",
+      "hole": "Loch",
+      "chest": "Brust",
+      "pronoun_subject": "sie",
+      "pronoun_object": "sie",
+      "pronoun_possessive": "ihr",
+      "pronoun_reflexive": "sich selbst"
+    }
+  },
+  "straponTerms": {
+    "strapon": "Strapon"
+  }
+}

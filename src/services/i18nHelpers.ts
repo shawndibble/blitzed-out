@@ -24,4 +24,8 @@ export const languages: Record<string, { label: string; voice: string }> = {
     label: 'हिन्दी',
     voice: 'Google हिन्दी',
   },
+  de: {
+    label: 'Deutsch',
+    voice: 'Google Deutsch',
+  },
 };

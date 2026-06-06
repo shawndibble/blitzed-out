@@ -1,0 +1,47 @@
+{
+  "label": "Poppers",
+  "type": "consumption",
+  "actions": {
+    "Anfänger": [
+      "1 Zug.",
+      "2 Züge.",
+      "1 tiefer Zug.",
+      "2 Züge.",
+      "3 Züge.",
+      "1 Zug pro Nasenloch.",
+      "2 tiefe Züge.",
+      "1 Zug.",
+      "2 schnelle Züge."
+    ],
+    "Mittelstufe": [
+      "3 Züge.",
+      "4 Züge.",
+      "2 Züge pro Nasenloch.",
+      "1 Mundzug.",
+      "5 Sekunden Mundzug.",
+      "4 Züge.",
+      "5 Sekunden ziehen. 5 Sekunden halten.",
+      "5 schnelle Züge."
+    ],
+    "Fortgeschritten": [
+      "10 Sekunden ziehen. 10 Sekunden halten.",
+      "4 Mundzüge.",
+      "Ziehen und so lange wie möglich halten.",
+      "15 Sekunden mit Poppers-Socke/Maske atmen.",
+      "8 Züge.",
+      "4 Mundzüge.",
+      "6 tiefe Züge.",
+      "3 Züge pro Seite.",
+      "8 Sekunden ziehen. 8 Sekunden halten."
+    ],
+    "Experte": [
+      "10 normale Züge. Nicht halten.",
+      "15 Sekunden ziehen. 10 Sekunden halten.",
+      "So lange wie möglich mit der Poppers-Socke atmen.",
+      "Lunge leeren. Den größten und tiefsten Zug machen, den du kannst.",
+      "Lunge leeren. 10 Sekunden tief ziehen. 10 Sekunden halten. Wiederholen.",
+      "Lunge leeren. 15 Sekunden tief ziehen. 30 Sekunden halten.",
+      "10 Sekunden Socke/Maske ziehen. 10 Sekunden halten."
+    ]
+  }
+}

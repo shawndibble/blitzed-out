@@ -1,0 +1,34 @@
+{
+  "label": "Alkohol",
+  "type": "consumption",
+  "actions": {
+    "Schluck/Trinken": [
+      "Nimm einen Schluck von deinem Getränk.",
+      "Trink einen Schluck.",
+      "Nimm 2 Schlucke.",
+      "Gib jemandem einen Schluck ab.",
+      "Trink einen Schluck.",
+      "Nimm einen Schluck vom Getränk deines Nachbarn.",
+      "Tausche das Getränk mit jemandem."
+    ],
+    "Shots": [
+      "Nimm 1 Shot.",
+      "Trink 2 Schlucke.",
+      "Gib 1 Shot aus.",
+      "Alle trinken.",
+      "Trink einen Schluck.",
+      "Nimm einen Mystery-Shot.",
+      "Nimm einen Shot ohne deine Hände zu benutzen."
+    ],
+    "Herunterstürzen": [
+      "Trink die Hälfte deines Getränks.",
+      "Stürz dein Getränk herunter.",
+      "Trink einen Schluck.",
+      "Nimm 2 Shots.",
+      "Lass jemanden sein Getränk herunterstürzen.",
+      "Gib ein Getränk aus.",
+      "Stürz ein Getränk nach Wahl der Gruppe herunter.",
+      "Stürz dein Getränk herunter, ohne Luft zu holen."
+    ]
+  }
+}

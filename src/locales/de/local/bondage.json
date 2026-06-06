@@ -1,0 +1,38 @@
+{
+  "label": "Bondage",
+  "type": "foreplay",
+  "actions": {
+    "Fesseln": [
+      "{dom} fesselt {sub}'s Handgelenke zusammen.",
+      "{dom} bindet {sub} an ein Möbelstück bis zu {sub}'s nächster Aktion.",
+      "{dom} bindet {sub}'s Handgelenke um den Körper eines anderen Spielers, bis eine Aktion erfordert, dass einer von ihnen befreit wird.",
+      "{dom} fesselt {sub} an ein Möbelstück, bis eine Aktion erfordert, dass sie befreit werden.",
+      "{dom} fesselt {sub} in Schweinefesselung bis zu {sub}'s nächster Aktion.",
+      "{dom} bindet {sub}'s Arme hinter den Rücken bis zu {sub}'s nächster Aktion.",
+      "{dom} bindet {sub}'s Arme an ihre Beine, bis eine Aktion erfordert, dass sie befreit werden.",
+      "{sub} fesselt sich selbst die Handgelenke und gibt den Schlüssel/Freigabemechanismus an einen anderen Spieler.",
+      "{sub} bindet seine eigenen Beine zusammen und lässt einen anderen Spieler die Bewegungsfreiheit weiter einschränken.",
+      "{sub} wird von jedem Dominanten/Switch gleichzeitig für mindestens 60 Sekunden gefesselt.",
+      "{dom} darf so viele unterwürfige/Switch-Spieler wie gewünscht fesseln, bis eine Aktion erfordert, dass sie befreit werden."
+    ],
+    "Sinnesentzug": [
+      "{dom} verblindet {sub} bis zu {sub}'s nächster Aktion.",
+      "{dom} knebelt {sub} bis zu {sub}'s nächster Aktion.",
+      "{dom} verblindet und knebelt {sub} bis zu {sub}'s nächster Aktion.",
+      "{dom} entzieht {sub} einen Sinn, während er einen anderen stimuliert.",
+      "{sub} verblindet sich selbst und lässt einen anderen Spieler ihre Bewegungen führen.",
+      "{sub} knebelt sich selbst und kommuniziert für den Rest des Spiels nonverbal.",
+      "{sub} benutzt Kopfhörer, um sein Gehör zu blockieren, und verlässt sich auf Berührung zur Kommunikation.",
+      "Alle dominanten/Switch-Spieler dürfen {sub} nach Belieben verblindenknebeln/fesseln."
+    ],
+    "Spannung": [
+      "{dom} legt {sub} ein Spannungsseil an.",
+      "{dom} benutzt eine Spreizstange oder ein improvisiertes Gerät an {sub}.",
+      "{dom} bindet {sub} in eine Stressposition bis zu {sub}'s nächster Aktion.",
+      "{sub} legt sich selbst ein Spannungsseil an und lässt einen anderen Spieler es anziehen.",
+      "{sub} trägt eine Spreizstange oder ein anderes Gerät und lässt einen anderen Spieler für die Runde ihre Bewegungen kontrollieren.",
+      "{sub} fesselt sich selbst in eine Stressposition und wartet darauf, dass ein anderer Spieler sie befreit.",
+      "Alle dominanten/Switch-Spieler dürfen {sub} in einer heiklen Position fesseln bis zu {sub}'s nächstem Zug."
+    ]
+  }
+}

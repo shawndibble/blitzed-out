@@ -1,0 +1,36 @@
+{
+  "label": "Gasmaske",
+  "type": "consumption",
+  "actions": {
+    "Anfänger": [
+      "Nimm 3 Atemzüge aus der Flasche über den Schlauch.",
+      "Nimm 6 Atemzüge aus der Flasche über den Schlauch.",
+      "Gib 1 Schüttler Inhalationsmittel auf einen Wattebausch, lege ihn in den Filter und atme 15 Sekunden lang.",
+      "Gib 2 Schüttler Inhalationsmittel auf einen Wattebausch, lege ihn in den Filter und atme 15 Sekunden lang.",
+      "Beschränke die Luftzufuhr für 5 Sekunden.",
+      "Beschränke die Luftzufuhr für 10 Sekunden.",
+      "Atme 60 Sekunden lang tief durch den Filter."
+    ],
+    "Mittelstufe": [
+      "Nimm 7 Atemzüge aus der Flasche über den Schlauch.",
+      "Nimm 10 Atemzüge aus der Flasche über den Schlauch.",
+      "Gib 5 Schüttler Inhalationsmittel auf einen Wattebausch, lege ihn in den Filter und atme 30 Sekunden lang.",
+      "Gib 10 Schüttler Inhalationsmittel auf einen Wattebausch, lege ihn in den Filter und atme 15 Sekunden lang.",
+      "Beschränke die Luftzufuhr für 15 Sekunden.",
+      "Beschränke die Luftzufuhr für 20 Sekunden.",
+      "Atme 90 Sekunden lang tief durch den Filter.",
+      "Atme durch den Filter, so lange du kannst, ohne ihn abzunehmen."
+    ],
+    "Fortgeschritten": [
+      "Nimm 15 Atemzüge aus der Flasche über den Schlauch.",
+      "Nimm 20 Atemzüge aus der Flasche über den Schlauch.",
+      "Gib 10 Schüttler Inhalationsmittel auf einen Wattebausch, lege ihn in den Filter und atme 30 Sekunden lang.",
+      "Gib 15 Schüttler Inhalationsmittel auf einen Wattebausch, lege ihn in den Filter und atme 45 Sekunden lang.",
+      "Beschränke die Luftzufuhr für 30 Sekunden.",
+      "Beschränke die Luftzufuhr für 25 Sekunden.",
+      "Atme 120 Sekunden (2 Minuten) lang tief durch den Filter.",
+      "Atme durch den Filter, so lange du kannst, ohne ihn abzunehmen, und nimm dann 10 tiefe Atemzüge.",
+      "Atme durch den Filter, so lange du kannst, ohne ihn abzunehmen, und nimm dann 20 tiefe Atemzüge."
+    ]
+  }
+}

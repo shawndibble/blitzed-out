@@ -15,6 +15,11 @@
 
 **Pre-commit quality**: `npm run type-check && npx eslint src/ && npm run test:failures`
 
+## Branches
+
+- All changes → `develop`. **NEVER commit to `master`.**
+- `master` is deploy-only — managed by `npm run deploy` and its GitHub Action.
+
 ## Stack
 
 React 19.x + TypeScript + Vite · MUI v9 (dark mode; avoid hardcoded light colors like `grey.50`) · Zustand (`src/stores/`) + Dexie (IndexedDB) + Firebase sync · i18next (en/es/fr/zh/hi)

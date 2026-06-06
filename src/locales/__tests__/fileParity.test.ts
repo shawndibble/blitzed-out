@@ -3,7 +3,7 @@ import fs from 'fs';
 import * as path from 'node:path';
 
 describe('File Parity Validation', () => {
-  const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'];
+  const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi', 'de'];
   const GAME_MODES = ['local', 'online'];
   const LOCALES_DIR = path.join(process.cwd(), 'src', 'locales');
 

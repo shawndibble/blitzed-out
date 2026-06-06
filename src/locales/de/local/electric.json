@@ -1,0 +1,39 @@
+{
+  "label": "Elektrostimulation",
+  "type": "foreplay",
+  "dom": "Anwender/in",
+  "sub": "Empfänger/in",
+  "actions": {
+    "Leicht": [
+      "{dom} legt einen sanften elektrischen Strom an {sub}s Arm an, mithilfe eines TENS-Geräts.",
+      "{dom} benutzt einen Violettstab auf {sub}s Rücken bei niedriger Einstellung.",
+      "{dom} befestigt Elektroden an {sub}s Oberschenkeln und schaltet das Gerät auf die niedrigste Stufe.",
+      "{dom} gibt {sub} eine leichte elektrische Massage auf den Schultern mit einem leitfähigen Handschuh.",
+      "{dom} benutzt einen Elektrostimulationsstift, um leicht über {sub}s Haut zu fahren.",
+      "{dom} befestigt Elektroden an {sub}s Waden und schaltet das Gerät auf eine niedrige Stufe."
+    ],
+    "Mittel": [
+      "{dom} erhöht die Intensität des elektrischen Stroms an {sub}s Arm mithilfe eines TENS-Geräts.",
+      "{dom} benutzt einen Violettstab auf {sub}s Bauch bei mittlerer Einstellung.",
+      "{dom} befestigt Elektroden an {sub}s Brustwarzen und schaltet das Gerät auf eine mittlere Stufe.",
+      "{dom} legt einen elektrischen Strom an {sub}s Gesäß an, mithilfe eines leitfähigen Pads.",
+      "{dom} benutzt einen Elektrostimulationsstift, um {sub}s Muskeln entlangzufahren.",
+      "{dom} befestigt Elektroden an {sub}s Oberarmen und schaltet das Gerät auf eine mittlere Stufe."
+    ],
+    "Hoch": [
+      "{dom} dreht die Intensität des elektrischen Stroms an {sub}s Arm auf die höchste sichere Einstellung, mithilfe eines TENS-Geräts.",
+      "{dom} benutzt einen Violettstab auf {sub}s Genitalien bei hoher Einstellung.",
+      "{dom} befestigt Elektroden an {sub}s Innenschenkeln und schaltet das Gerät auf die höchste sichere Stufe.",
+      "{dom} gibt {sub} eine hochintensive elektrische Massage auf dem Rücken mit einem leitfähigen Handschuh.",
+      "{dom} benutzt einen Elektrostimulationsstift, um {sub}s Nervenbahnen entlangzufahren.",
+      "{dom} befestigt Elektroden an {sub}s unterem Rücken und schaltet das Gerät auf eine hohe Stufe."
+    ],
+    "Anspruchsvoll": [
+      "{dom} benutzt einen Violettstab auf {sub}s Zunge bei niedriger Einstellung.",
+      "{dom} befestigt Elektroden an {sub}s Füßen und schaltet das Gerät auf eine anspruchsvolle, aber sichere Stufe.",
+      "{dom} legt elektrischen Strom an mehrere Körperstellen von {sub} gleichzeitig an, mithilfe mehrerer Geräte.",
+      "{dom} benutzt einen Elektrostimulationsstift, um {sub}s empfindliche Stellen entlangzufahren.",
+      "{dom} befestigt Elektroden an {sub}s Bauch und schaltet das Gerät auf eine anspruchsvolle, aber sichere Stufe."
+    ]
+  }
+}

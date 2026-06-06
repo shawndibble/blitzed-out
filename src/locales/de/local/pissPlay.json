@@ -1,0 +1,35 @@
+{
+  "label": "Wasserspiele",
+  "type": "sex",
+  "dom": "Pisser/in",
+  "sub": "Pissee",
+  "actions": {
+    "In einen Becher pinkeln": [
+      "{sub} trinkt Wasser",
+      "{sub} schluckt Wasser",
+      "{dom} pinkelt in einen Behälter",
+      "{sub} riecht an der eigenen Pisse",
+      "{sub} riecht an {dom}'s Pisse",
+      "{dom} pinkelt in einen Behälter und lässt {sub} ihn halten",
+      "{sub} nimmt einen Schluck Wasser",
+      "{dom} gibt {sub} einen Behälter mit der eigenen Pisse"
+    ],
+    "Angepisst werden": [
+      "{dom} pinkelt auf {sub}'s Körper",
+      "{sub} pinkelt auf den eigenen Körper",
+      "{sub} steckt {pronoun_possessive|sub} {genital|sub} in einen Behälter mit Pisse",
+      "{sub} schluckt Wasser",
+      "{dom} pinkelt auf {sub}'s Gesicht",
+      "{sub} pinkelt auf das eigene Gesicht",
+      "{sub} trinkt Wasser"
+    ],
+    "Trinken": [
+      "{sub} trinkt die eigene Pisse",
+      "{sub} trinkt {dom}'s Pisse aus der Entfernung",
+      "{sub} trinkt {dom}'s Pisse direkt mit dem Mund an der Quelle",
+      "{sub} trinkt Wasser",
+      "{dom} schluckt Wasser, während {sub} zuschaut",
+      "{sub} versucht, in den eigenen Mund zu pinkeln und zu schlucken."
+    ]
+  }
+}

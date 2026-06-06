@@ -1,0 +1,32 @@
+{
+  "label": "Ausziehen",
+  "type": "foreplay",
+  "actions": {
+    "Kleidungsstück": [
+      "{sub} zieht ein Kleidungsstück aus.",
+      "Zieh ein Kleidungsstück deiner Wahl aus.",
+      "{sub} streift ein Kleidungsstück ab.",
+      "Zieh ein Kleidungsstück aus, das du gerade trägst.",
+      "Zieh ein Kleidungsstück aus.",
+      "{dom} wählt einen anderen Spieler aus, der ein Kleidungsstück ablegen soll.",
+      "{dom} zieht {sub} ein Kleidungsstück aus.",
+      "{dom} lässt {sub} ein Kleidungsstück ausziehen.",
+      "Alle ziehen ein Kleidungsstück aus.",
+      "Der Spieler mit den meisten Kleidungsstücken zieht eines aus.",
+      "{sub} zieht sein/ihr Hemd oder Oberteil aus.",
+      "Zieh deine Socken oder Schuhe aus.",
+      "Zieh deine äußerste Kleidungsschicht aus.",
+      "Leg ein Kleidungsstück ab.",
+      "Zieh ein Kleidungsstück aus.",
+      "Zieh das Kleidungsstück deiner Wahl aus.",
+      "Zieh das Kleidungsstück aus, das zuletzt angezogen wurde.",
+      "Zieh dein unbeliebtestes Kleidungsstück aus, das du gerade trägst.",
+      "{dom} zieht {sub} mit den Zähnen ein Kleidungsstück aus.",
+      "{dom} benutzt nur den Mund, um {sub} ein Kleidungsstück auszuziehen.",
+      "{dom} zieht {sub} ein Kleidungsstück aus, ohne die Hände zu benutzen.",
+      "{dom} lässt {sub} ihm/ihr ein Kleidungsstück ausziehen.",
+      "{sub} lässt {dom} ein Kleidungsstück von ihm/ihr auswählen und ausziehen.",
+      "{dom} darf {sub} ein Kleidungsstück ausziehen."
+    ]
+  }
+}
