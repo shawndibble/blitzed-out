@@ -1,14 +1,13 @@
-import React, { useEffect, useMemo, useState, useRef, ReactNode, useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 import { User } from '@/types';
 import { getErrorMessage } from '@/types/errors';
 import { registerSyncProvider } from '@/services/authBridge';
 import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 import { loadFirebase, preloadFirebase } from '@/utils/lazyFirebase';
+import { useAuthSync } from '@/hooks/useAuthSync';
+import type { SyncStatus } from '@/hooks/useAuthSync';
 
-export interface SyncStatus {
-  syncing: boolean;
-  lastSync: Date | null;
-}
+export type { SyncStatus };
 
 export interface AuthContextType {
   user: User | null;
@@ -40,48 +39,15 @@ interface AuthProviderProps {
 
 function AuthProvider(props: AuthProviderProps): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(false); // Changed: false by default for immediate UI
-  const [initializing, setInitializing] = useState<boolean>(true); // New: tracks initial auth check
+  const [loading, setLoading] = useState<boolean>(false);
+  const [initializing, setInitializing] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>({ syncing: false, lastSync: null });
-
-  // Debounce mechanism for sync operations
-  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const deferTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Track if initial auth check is complete
   const authInitializedRef = useRef<boolean>(false);
 
-  // Function to safely perform sync operations with debouncing
-  const performSync = useCallback(
-    async (syncFunction: () => Promise<boolean>): Promise<boolean> => {
-      // Clear any pending sync timeout
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-        syncTimeoutRef.current = null;
-      }
+  const { syncStatus, syncData, intelligentSync: handleIntelligentSync } = useAuthSync(user);
 
-      // Return early if user is not logged in or is anonymous
-      if (!user || user.isAnonymous) return false;
-
-      try {
-        setSyncStatus({ syncing: true, lastSync: syncStatus.lastSync });
-        await syncFunction();
-        setSyncStatus({ syncing: false, lastSync: new Date() });
-        return true;
-      } catch (err: unknown) {
-        console.error('Sync error:', err);
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('An unknown error occurred');
-        }
-        setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
-        return false;
-      }
-    },
-    [user, syncTimeoutRef, setSyncStatus, syncStatus.lastSync, setError]
-  );
   async function login(displayName = ''): Promise<User | null> {
     try {
       setError(null); // Clear any previous errors
@@ -128,7 +94,6 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       const loggedInUser = await firebase.loginWithEmail(email, password);
       setUser(loggedInUser);
 
-      // Sync will happen via onAuthStateChanged
       return loggedInUser;
     } catch (err: unknown) {
       const errorMessage = getErrorMessage(err);
@@ -146,7 +111,6 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       const loggedInUser = await firebase.loginWithGoogle();
       setUser(loggedInUser);
 
-      // Sync will happen via onAuthStateChanged
       return loggedInUser;
     } catch (err: unknown) {
       const errorMessage = getErrorMessage(err);
@@ -192,11 +156,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
         const firebase = await loadFirebase();
         const convertedUser = await firebase.convertAnonymousAccount(email, password);
         setUser(convertedUser);
-
-        // Sync local data to Firebase after conversion
-        const { syncAllDataToFirebase } = await import('@/services/syncService');
-        await performSync(syncAllDataToFirebase);
-
+        await syncData();
         return convertedUser;
       } catch (err) {
         if (err instanceof Error) {
@@ -207,7 +167,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
         setLoading(false);
       }
     },
-    [setLoading, setUser, performSync, setError]
+    [setLoading, setUser, syncData, setError]
   );
 
   async function updateUser(displayName = ''): Promise<User | null> {
@@ -227,13 +187,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
   const logoutUser = useCallback(async (): Promise<void> => {
     try {
-      // Sync data to Firebase before logout if user is not anonymous
       if (user && !user.isAnonymous) {
-        // Add timeout to make sure logout doesn't hang
-        const { syncAllDataToFirebase } = await import('@/services/syncService');
-        const syncPromise = performSync(syncAllDataToFirebase);
         const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 5000, false));
-        await Promise.race([syncPromise, timeoutPromise]);
+        await Promise.race([syncData(), timeoutPromise]);
       }
 
       const firebase = await loadFirebase();
@@ -244,7 +200,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       setError(errorMessage);
       throw err;
     }
-  }, [user, performSync, setUser, setError]);
+  }, [user, syncData, setUser, setError]);
 
   const wipeAllAppDataAndReload = useCallback(async (): Promise<void> => {
     try {
@@ -264,117 +220,30 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     }
   }, [setUser, setError]);
 
-  const syncData = useCallback(async (): Promise<boolean> => {
-    const { syncAllDataToFirebase } = await import('@/services/syncService');
-    return performSync(syncAllDataToFirebase);
-  }, [performSync]);
-
-  const handleIntelligentSync = useCallback(async (): Promise<{
-    success: boolean;
-    conflicts?: string[];
-  }> => {
-    // Don't use performSync wrapper for intelligent sync as it needs custom return type
-    if (!user || user.isAnonymous) {
-      return { success: false, conflicts: ['User not logged in or is anonymous'] };
-    }
-
-    try {
-      setSyncStatus({ syncing: true, lastSync: syncStatus.lastSync });
-      const { intelligentSync } = await import('@/services/syncService');
-      const result = await intelligentSync();
-      setSyncStatus({ syncing: false, lastSync: new Date() });
-      return result;
-    } catch (err: unknown) {
-      console.error('Intelligent sync error:', err);
-      setSyncStatus({ syncing: false, lastSync: syncStatus.lastSync });
-      if (err instanceof Error) {
-        setError(err.message);
-      }
-      return { success: false, conflicts: ['Sync failed due to error'] };
-    }
-  }, [user, syncStatus.lastSync]);
-
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
     let isSubscribed = true;
 
     const initializeAuth = async () => {
       try {
-        // Load Firebase lazily to initialize it
         await loadFirebase();
         const { getAuth } = await import('firebase/auth');
 
-        if (!isSubscribed) return; // Component unmounted
+        if (!isSubscribed) return;
 
         const auth = getAuth();
-        unsubscribe = auth.onAuthStateChanged(async (userData: User | null) => {
-          if (!isSubscribed) return; // Component unmounted
+        unsubscribe = auth.onAuthStateChanged((userData: User | null) => {
+          if (!isSubscribed) return;
 
           setUser(userData || null);
 
-          // Mark initial auth check as complete
           if (!authInitializedRef.current) {
             authInitializedRef.current = true;
             setInitializing(false);
           }
-
-          // If user is logged in and not anonymous, defer sync operations
-          if (userData && !userData.isAnonymous) {
-            // Defer sync to not block UI rendering - use requestIdleCallback or fallback
-            const deferSync = async () => {
-              // Use debounced sync to prevent multiple rapid syncs
-              if (syncTimeoutRef.current) {
-                clearTimeout(syncTimeoutRef.current);
-              }
-
-              syncTimeoutRef.current = setTimeout(async () => {
-                setSyncStatus({ syncing: true, lastSync: null });
-
-                try {
-                  // Load sync services lazily
-                  const { syncDataFromFirebase, startPeriodicSync } =
-                    await import('@/services/syncService');
-
-                  await syncDataFromFirebase();
-                  setSyncStatus({ syncing: false, lastSync: new Date() });
-
-                  // Start periodic sync after initial sync completes
-                  startPeriodicSync();
-                } catch (err) {
-                  console.error('Error syncing from Firebase:', err);
-                  setSyncStatus({ syncing: false, lastSync: null });
-                } finally {
-                  syncTimeoutRef.current = null;
-                }
-              }, 3000); // Increased delay to 3 seconds to ensure UI is fully loaded first
-            };
-
-            if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-              (
-                window as Window & {
-                  requestIdleCallback: (
-                    callback: () => void,
-                    options?: { timeout: number }
-                  ) => void;
-                }
-              ).requestIdleCallback(deferSync, { timeout: 10000 });
-            } else {
-              // Fallback for browsers without requestIdleCallback - wait longer to allow UI to fully load
-              deferTimeoutRef.current = setTimeout(deferSync, 5000);
-            }
-          } else {
-            // User is logged out or anonymous, stop periodic sync
-            try {
-              const { stopPeriodicSync } = await import('@/services/syncService');
-              stopPeriodicSync();
-            } catch (err) {
-              console.warn('Could not load sync service to stop periodic sync:', err);
-            }
-          }
         });
       } catch (error) {
         console.error('Failed to initialize Firebase auth:', error);
-        // Mark as initialized even on error to prevent infinite loading
         if (!authInitializedRef.current) {
           authInitializedRef.current = true;
           setInitializing(false);
@@ -382,24 +251,12 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       }
     };
 
-    // Start Firebase initialization
     initializeAuth();
-
-    // Start preloading Firebase in the background for faster subsequent operations
     preloadFirebase();
 
-    // Clean up function
     return () => {
       isSubscribed = false;
-      if (unsubscribe) {
-        unsubscribe();
-      }
-      if (syncTimeoutRef.current) {
-        clearTimeout(syncTimeoutRef.current);
-      }
-      if (deferTimeoutRef.current) {
-        clearTimeout(deferTimeoutRef.current);
-      }
+      if (unsubscribe) unsubscribe();
     };
   }, []);
 
