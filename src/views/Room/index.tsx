@@ -2,7 +2,6 @@ import './styles.css';
 
 import { Box, CircularProgress } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getSoundById, playSound } from '@/utils/gameSounds';
 import { getGameSessionAnalytics, isRoomReady } from './roomHelpers';
 
 import GameSettingsDialog from '@/components/GameSettingsDialog';
@@ -30,9 +29,7 @@ import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import useUrlImport from '@/hooks/useUrlImport';
 import useWakeLock from '@/hooks/useWakeLock';
-import useMessages from '@/context/hooks/useMessages';
-import useTurnIndicator from '@/hooks/useTurnIndicator';
-import latestMessageByType from '@/helpers/messages';
+import { useTurnTransition } from '@/hooks/useTurnTransition';
 import { analytics } from '@/services/analytics';
 
 import BottomTabs from './BottomTabs';
@@ -70,10 +67,6 @@ export default function Room() {
   // Local player integration for turn transitions and sounds
   const { localPlayers, sessionSettings, currentPlayerIndex, isLocalPlayerRoom } =
     useLocalPlayers();
-  const [showTransition, setShowTransition] = useState(false);
-  const [transitionPlayerName, setTransitionPlayerName] = useState('');
-  const [isTransitionForCurrentUser, setIsTransitionForCurrentUser] = useState(false);
-  const previousPlayerIndexRef = useRef(currentPlayerIndex);
 
   const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
 
@@ -84,84 +77,19 @@ export default function Room() {
     actionCountRef.current += 1;
   }, []);
 
-  // Turn change detection for local players (only in pure local multiplayer mode)
-  useEffect(() => {
-    if (!localPlayers.length || !sessionSettings || !isLocalPlayerRoom) return;
-
-    const currentIndex = currentPlayerIndex ?? 0;
-    const previousIndex = previousPlayerIndexRef.current;
-
-    // Check if turn changed
-    if (currentIndex !== previousIndex && previousIndex !== undefined) {
-      const newCurrentPlayer = localPlayers[currentIndex];
-
-      if (newCurrentPlayer) {
-        // Show turn transition if enabled AND playerDialog is disabled
-        // (to avoid showing both roll dialog and turn transition)
-        if (sessionSettings.showTurnTransitions && !settings.playerDialog) {
-          setTransitionPlayerName(newCurrentPlayer.name);
-          setIsTransitionForCurrentUser(false); // Always show player name for local multiplayer
-          setShowTransition(true);
-        }
-
-        // Play turn sound if enabled and player has a sound
-        if (sessionSettings.enableTurnSounds && newCurrentPlayer.sound) {
-          const sound = getSoundById(newCurrentPlayer.sound);
-          if (sound) {
-            playSound(sound).catch((error) => {
-              console.warn('Failed to play turn sound:', error);
-            });
-          }
-        }
-      }
-    }
-
-    // Update refs
-    previousPlayerIndexRef.current = currentIndex;
-  }, [currentPlayerIndex, localPlayers, sessionSettings, isLocalPlayerRoom, settings.playerDialog]);
-
-  // Multi-device turn transitions (only when others' dialog is disabled)
-  const { messages } = useMessages();
-  const latestActionMessage = latestMessageByType(messages, 'actions');
-  const nextPlayer = useTurnIndicator(latestActionMessage);
-  const previousMessageRef = useRef(latestActionMessage);
-  const previousNextPlayerRef = useRef(nextPlayer);
-
-  useEffect(() => {
-    // Only show transitions for multi-device when NOT in local player room
-    // AND when "show others' dialog" is disabled (so users still get turn awareness)
-    if (isLocalPlayerRoom || !nextPlayer || !latestActionMessage) return;
-
-    const { othersDialog } = settings;
-    if (othersDialog) return; // Skip if others' dialog is enabled
-
-    // Check if this is a new message (different from previous)
-    const isNewMessage = latestActionMessage !== previousMessageRef.current;
-
-    // Only show transition if it's a new message AND nextPlayer changed to be yourself
-    // In multi-device mode, playerDialog only affects YOUR rolls, not the "Your Turn" transition
-    if (isNewMessage && nextPlayer.isSelf && !previousNextPlayerRef.current?.isSelf) {
-      // Show turn transition when it's your turn (multi-device)
-      setTransitionPlayerName(nextPlayer.displayName);
-      setIsTransitionForCurrentUser(true); // Show "Your Turn" for multi-device
-      setShowTransition(true);
-    }
-
-    // Update refs to track changes
-    previousMessageRef.current = latestActionMessage;
-    previousNextPlayerRef.current = nextPlayer;
-  }, [
-    latestActionMessage,
-    nextPlayer?.uid,
-    nextPlayer?.isSelf,
-    nextPlayer?.displayName,
+  const {
+    showTransition,
+    transitionPlayerName,
+    isTransitionForCurrentUser,
+    handleTransitionComplete,
+  } = useTurnTransition({
+    localPlayers,
+    sessionSettings,
+    currentPlayerIndex,
     isLocalPlayerRoom,
-    settings.othersDialog,
-  ]); // Stabilized dependencies with eslint-disable for performance
-
-  const handleTransitionComplete = useCallback(() => {
-    setShowTransition(false);
-  }, []);
+    playerDialog: settings.playerDialog,
+    othersDialog: settings.othersDialog,
+  });
 
   // Use usePlayerMove directly
   const { tile } = usePlayerMove(room, rollValue, gameBoard);
