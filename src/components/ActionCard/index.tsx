@@ -20,6 +20,7 @@ interface ActionCardProps {
   stopAutoClose?: () => void;
   nextPlayer: Player | null;
   isMyMessage?: boolean;
+  isLocalRoom?: boolean;
 }
 
 const AUTO_CLOSE_SECONDS = 20;
@@ -32,6 +33,7 @@ export default function ActionCard({
   stopAutoClose = () => null,
   nextPlayer = null,
   isMyMessage = false,
+  isLocalRoom = false,
 }: ActionCardProps): JSX.Element {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
@@ -227,7 +229,7 @@ export default function ActionCard({
                               textAlign: isMobile ? 'center' : 'right',
                             }}
                           >
-                            {nextPlayer.isSelf ? (
+                            {nextPlayer.isSelf && !isLocalRoom ? (
                               <Trans i18nKey="yourTurn" />
                             ) : (
                               <Trans i18nKey="nextPlayersTurn" values={{ player }} />

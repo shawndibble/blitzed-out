@@ -2,6 +2,12 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ActionCard from './index';
 
+vi.mock('react-i18next', () => ({
+  Trans: ({ i18nKey, values }: { i18nKey: string; values?: Record<string, unknown> }) =>
+    values?.player != null ? `${i18nKey}:${values.player}` : i18nKey,
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }),
+}));
+
 vi.mock('@/hooks/useBreakpoint', () => ({
   default: vi.fn(() => false),
 }));
@@ -72,5 +78,28 @@ describe('ActionCard', () => {
     };
     render(<ActionCard {...defaultProps} nextPlayer={nextPlayer} />);
     expect(screen.getByRole('separator')).toBeInTheDocument();
+  });
+
+  it('names the next player (not "your turn") in shared-device mode', () => {
+    const nextPlayer = {
+      uid: 'local-2',
+      displayName: 'sarah',
+      isSelf: true,
+      isFinished: false,
+    };
+    render(<ActionCard {...defaultProps} nextPlayer={nextPlayer} isLocalRoom />);
+    expect(screen.getByText('nextPlayersTurn:sarah')).toBeInTheDocument();
+    expect(screen.queryByText('yourTurn')).not.toBeInTheDocument();
+  });
+
+  it('shows "your turn" when self is next and not a shared device', () => {
+    const nextPlayer = {
+      uid: '123',
+      displayName: 'NextPerson',
+      isSelf: true,
+      isFinished: false,
+    };
+    render(<ActionCard {...defaultProps} nextPlayer={nextPlayer} />);
+    expect(screen.getByText('yourTurn')).toBeInTheDocument();
   });
 });
