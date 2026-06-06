@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import CastConnectedIcon from '@mui/icons-material/CastConnected';
 import CastIcon from '@mui/icons-material/Cast';
 import { t } from 'i18next';
+import { CAST_NAMESPACE, buildCastUrl, buildLoadMessage } from '@/helpers/cast';
 
 // Global flags to track Cast API state
 window.__castApiInitialized = window.__castApiInitialized || false;
@@ -32,12 +33,8 @@ export default function CastButton(): JSX.Element | null {
   const sendCastMessage = useCallback(
     (session: any) => {
       try {
-        const castUrl = `${window.location.origin}/${room}/cast`;
-
-        session.sendMessage('urn:x-cast:com.blitzedout.app', {
-          type: 'LOAD',
-          url: castUrl,
-        });
+        const castUrl = buildCastUrl(window.location.origin, room ?? '');
+        session.sendMessage(CAST_NAMESPACE, buildLoadMessage(castUrl));
       } catch (error) {
         console.error('Error sending cast message:', error);
       }

@@ -99,3 +99,29 @@ as presence are separate from Firestore persistence and must degrade gracefully 
 Network lost mid-session. Firestore `persistentLocalCache` queues Firestore writes locally and
 syncs on reconnect. Realtime Database features such as presence may be unavailable until network
 returns.
+
+---
+
+## Casting & TV
+
+How a Room's game state is mirrored onto a television. Three distinct pieces, often loosely
+called "the receiver" — they are not the same thing.
+
+### Cast Sender
+
+The control surface in the player's own browser that owns the cast session and tells the TV what
+to show. Today this is Chromecast-specific. A Sender starts/stops a session and pushes the target
+Room to the receiving display. It does not render the game itself.
+
+### Receiver shell
+
+The thin HTML application registered to a casting platform under a vendor-issued application ID,
+hosted outside this repository. Its only job is to receive the Sender's instruction and render the
+in-repo Cast view for the target Room. Platform-specific (a Chromecast receiver is not a Roku channel).
+
+### Cast view
+
+The read-only display of a Room's current state intended for a television: whose turn is next,
+the current action, and the Room background/video. It is the same regardless of which platform
+delivered it, and can also be reached directly by opening the Room's cast URL in a TV browser.
+"Read-only" means it shows state but cannot drive the game (no remote roll).

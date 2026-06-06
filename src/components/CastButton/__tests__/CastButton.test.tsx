@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { BrowserRouter } from 'react-router-dom';
 import CastButton from '../index';
@@ -88,24 +88,19 @@ describe('CastButton Core Functionality', () => {
     });
   });
 
-  describe('Cast Message Functionality', () => {
-    it('should create proper cast URL', async () => {
+  describe('Session control', () => {
+    it('requests a cast session when clicked while not casting', async () => {
       render(
         <TestWrapper>
           <CastButton />
         </TestWrapper>
       );
 
-      await waitFor(() => {
-        expect(screen.getByRole('button')).toBeInTheDocument();
-      });
+      const button = await screen.findByRole('button');
+      fireEvent.click(button);
 
-      // The component should use the room ID from useParams
-      // and create URLs like: ${window.location.origin}/TESTROOM/cast
-      expect(screen.getByRole('button')).toBeInTheDocument();
-
-      // This test verifies the basic structure is working
-      // The actual message sending is tested through integration
+      expect(mockRequestSession).toHaveBeenCalledTimes(1);
+      expect(mockEndCurrentSession).not.toHaveBeenCalled();
     });
   });
 });
