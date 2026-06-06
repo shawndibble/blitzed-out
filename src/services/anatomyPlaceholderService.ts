@@ -112,21 +112,23 @@ export function getAnatomyTerm(
  * @param gender - Player gender
  * @param role - Player role
  * @param locale - Language code
+ * @param isPenetrative - Whether the action penetrates (drives the strapon swap)
  * @returns Appropriate genital term
  *
  * @example
  * ```typescript
- * const term = getGenitalTermForRole('female', 'dom', 'en');
+ * const term = getGenitalTermForRole('female', 'dom', 'en', true);
  * console.log(term); // 'strapon'
  * ```
  */
 export function getGenitalTermForRole(
   gender: PlayerGender | undefined,
   role: PlayerRole | undefined,
-  locale: string
+  locale: string,
+  isPenetrative: boolean
 ): string {
-  // Special case: female dom uses strapon in penetrative contexts
-  if (gender === 'female' && role === 'dom') {
+  // Female doms use a strapon only when the action is penetrative.
+  if (gender === 'female' && role === 'dom' && isPenetrative) {
     const straponTerm = i18next.t('anatomy:straponTerms.strapon', { lng: locale });
     return straponTerm;
   }
@@ -141,6 +143,7 @@ export function getGenitalTermForRole(
  * @param action - Action text with placeholders
  * @param gender - Player gender
  * @param role - Player role
+ * @param isPenetrative - Whether the action penetrates (drives the strapon swap)
  * @param locale - Language code
  * @returns Action text with placeholders replaced
  *
@@ -150,6 +153,7 @@ export function getGenitalTermForRole(
  *   'Touch your {genital} for 30 seconds.',
  *   'male',
  *   'sub',
+ *   false,
  *   'en'
  * );
  * console.log(result); // 'Touch your dick for 30 seconds.'
@@ -159,6 +163,7 @@ export function replaceAnatomyPlaceholders(
   action: string,
   gender: PlayerGender | undefined,
   role: PlayerRole | undefined,
+  isPenetrative: boolean,
   locale: string
 ): string {
   const mappings = getAnatomyMappings(locale, gender);
@@ -166,7 +171,7 @@ export function replaceAnatomyPlaceholders(
 
   // Special handling for {genital} based on role
   if (result.includes('{genital}')) {
-    const genitalTerm = getGenitalTermForRole(gender, role, locale);
+    const genitalTerm = getGenitalTermForRole(gender, role, locale, isPenetrative);
     result = result.replace(/{genital}/g, genitalTerm);
   }
 

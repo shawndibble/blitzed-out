@@ -12,6 +12,16 @@ interface GameTile {
   description: string;
   standalone?: boolean;
   role?: string;
+  penetrative?: boolean;
+}
+
+/**
+ * Resolve a tile's penetrative signal at build time. Strapon substitution is a
+ * default-content feature: only default tiles tagged `penetrative` at import
+ * qualify. Custom tiles never auto-strap.
+ */
+function resolvePenetrative(tile: CustomTilePull): boolean {
+  return !tile.isCustom && (tile.tags?.includes('penetrative') ?? false);
 }
 
 interface BoardBuildResult {
@@ -262,6 +272,7 @@ function buildTileContent(
     description: selectedTile.action,
     standalone: groupSelection.variation === 'standalone',
     role: settings.role || 'sub',
+    penetrative: resolvePenetrative(selectedTile),
   };
 }
 
@@ -275,9 +286,9 @@ function processAppendTiles(
   gameSize: number,
   settings: Settings,
   internals: BuildInternals
-): string {
+): { description: string; penetrative?: boolean } {
   if (mainTile.standalone || !appendGroups.length || !mainTile.description) {
-    return mainTile.description || '';
+    return { description: mainTile.description || '', penetrative: mainTile.penetrative };
   }
 
   const appendTile = buildTileContent(
@@ -292,10 +303,13 @@ function processAppendTiles(
 
   if (appendTile.description) {
     const ensurePunctuation = appendTile.description.trim().replace(/([^.,!?])$/, '$1.');
-    return `${ensurePunctuation} ${mainTile.description}`;
+    return {
+      description: `${ensurePunctuation} ${mainTile.description}`,
+      penetrative: Boolean(mainTile.penetrative || appendTile.penetrative),
+    };
   }
 
-  return mainTile.description;
+  return { description: mainTile.description, penetrative: mainTile.penetrative };
 }
 
 // Build the complete game board
@@ -357,7 +371,7 @@ function buildBoard(
       internals
     );
 
-    const finalDescription = processAppendTiles(
+    const appended = processAppendTiles(
       mainTile,
       appendGroups,
       shuffleBag,
@@ -370,8 +384,9 @@ function buildBoard(
 
     board.push({
       title: mainTile.title,
-      description: finalDescription.trim(),
+      description: appended.description.trim(),
       role: mainTile.role,
+      penetrative: appended.penetrative,
     });
   }
 
@@ -402,7 +417,11 @@ function addStartAndFinishTiles(
 
   return [
     startTile,
-    ...board.map((tile) => ({ title: tile.title, description: tile.description })),
+    ...board.map((tile) => ({
+      title: tile.title,
+      description: tile.description,
+      penetrative: tile.penetrative,
+    })),
     finishTile,
   ];
 }

@@ -13,13 +13,6 @@ const PLACEHOLDER_FALLBACKS = {
 } as const;
 
 /**
- * Load penetrative keywords from translation files
- */
-function loadPenetrativeKeywords(locale: string): string[] {
-  return i18next.t('anatomy.penetrativeKeywords', { lng: locale, returnObjects: true }) as string[];
-}
-
-/**
  * Load generic anatomy terms from translation files
  */
 function loadGenericAnatomyTerms(locale: string): Record<string, string> {
@@ -27,16 +20,6 @@ function loadGenericAnatomyTerms(locale: string): Record<string, string> {
     string,
     string
   >;
-}
-
-/**
- * Detect if action text contains penetrative context
- * Uses localized keywords from translation files
- */
-function isPenetrativeContext(action: string, locale: string): boolean {
-  const lowerAction = action.toLowerCase();
-  const keywords = loadPenetrativeKeywords(locale);
-  return keywords.some((keyword) => lowerAction.includes(keyword));
 }
 
 function capitalizeFirstLetterInCurlyBraces(string: string): string {
@@ -50,19 +33,14 @@ function getContextualAnatomyTerm(
   anatomyType: string,
   gender: PlayerGender | undefined,
   role: string | undefined,
-  action: string,
+  isPenetrative: boolean,
   locale: string
 ): string {
   const anatomyMappings = getAnatomyMappings(locale, gender);
   let term = anatomyMappings[anatomyType as keyof typeof anatomyMappings] as string;
 
-  // Use strapon for female doms in penetrative contexts
-  if (
-    anatomyType === 'genital' &&
-    gender === 'female' &&
-    role === 'dom' &&
-    isPenetrativeContext(action, locale)
-  ) {
+  // Female doms use a strapon only when the action is penetrative.
+  if (anatomyType === 'genital' && gender === 'female' && role === 'dom' && isPenetrative) {
     term = i18next.t('anatomy.straponTerms.strapon', { lng: locale });
   }
 
@@ -158,6 +136,7 @@ function replacePipedAnatomyPlaceholders(
   displayName: string,
   localPlayers: LocalPlayer[],
   roleAssignments: RoleAssignments,
+  isPenetrative: boolean,
   locale: string
 ): string {
   const currentPlayer = localPlayers.find((p) => p.name === displayName);
@@ -184,7 +163,7 @@ function replacePipedAnatomyPlaceholders(
         anatomyType,
         targetPlayer.gender,
         targetPlayer.role,
-        action,
+        isPenetrative,
         locale
       );
     }
@@ -199,6 +178,7 @@ function replacePipedAnatomyPlaceholders(
 function replaceContextualAnatomyPlaceholders(
   action: string,
   roleAssignments: RoleAssignments,
+  isPenetrative: boolean,
   locale: string
 ): string {
   const contextualAnatomyPattern = /\{(dom|sub)\}'s \{(genital|hole|chest|pronoun_\w+)\}/g;
@@ -210,7 +190,7 @@ function replaceContextualAnatomyPlaceholders(
         anatomyType,
         rolePlayer.gender,
         rolePlayer.role,
-        action,
+        isPenetrative,
         locale
       );
       return `{${roleType}}'s ${anatomyTerm}`;
@@ -251,6 +231,7 @@ function replaceLocalMultiplayerPlaceholders(
   role: string,
   displayName: string,
   localPlayers: LocalPlayer[],
+  isPenetrative: boolean,
   locale: string
 ): string {
   let result = action;
@@ -265,18 +246,25 @@ function replaceLocalMultiplayerPlaceholders(
     displayName,
     localPlayers,
     roleAssignments,
+    isPenetrative,
     locale
   );
 
   // Replace contextual anatomy placeholders {role}'s {anatomy}
-  result = replaceContextualAnatomyPlaceholders(result, roleAssignments, locale);
+  result = replaceContextualAnatomyPlaceholders(result, roleAssignments, isPenetrative, locale);
 
   // Replace role placeholders with player names
   result = replaceRolePlaceholders(result, displayName, roleAssignments);
 
   // Replace remaining anatomy placeholders based on current player's gender
   if (currentPlayer) {
-    result = replaceAnatomyPlaceholders(result, currentPlayer.gender, currentPlayer.role, locale);
+    result = replaceAnatomyPlaceholders(
+      result,
+      currentPlayer.gender,
+      currentPlayer.role,
+      isPenetrative,
+      locale
+    );
   }
 
   return result;
@@ -319,6 +307,7 @@ function replaceNonLocalPlaceholders(
   role: string,
   displayName: string,
   currentPlayerGender: PlayerGender | undefined,
+  isPenetrative: boolean,
   locale: string
 ): string {
   // First pass: replace player-specific placeholders with display name
@@ -342,7 +331,13 @@ function replaceNonLocalPlaceholders(
 
   // Replace anatomy placeholders based on current player's gender
   const validRole = role === 'sub' || role === 'dom' || role === 'vers' ? role : undefined;
-  result = replaceAnatomyPlaceholders(result, currentPlayerGender, validRole, locale);
+  result = replaceAnatomyPlaceholders(
+    result,
+    currentPlayerGender,
+    validRole,
+    isPenetrative,
+    locale
+  );
 
   return result;
 }
@@ -358,9 +353,14 @@ export default function actionStringReplacement(
   localPlayers?: LocalPlayer[],
   useGenericPlaceholders?: boolean,
   currentPlayerGender?: PlayerGender,
-  locale?: string
+  locale?: string,
+  penetrative?: boolean
 ): string {
   const currentLocale = locale || i18next.language || 'en';
+  // Strapon substitution is a default-content feature: default tiles are tagged
+  // `penetrative` at import. Custom/unknown tiles never auto-strap (authors write
+  // "strapon" themselves), so an absent flag means non-penetrative.
+  const isPenetrative = penetrative ?? false;
   let result = action;
 
   // Use generic placeholders for GameBoard display
@@ -371,7 +371,13 @@ export default function actionStringReplacement(
 
     if (currentPlayerGender) {
       const validRole = role === 'sub' || role === 'dom' || role === 'vers' ? role : undefined;
-      result = replaceAnatomyPlaceholders(result, currentPlayerGender, validRole, currentLocale);
+      result = replaceAnatomyPlaceholders(
+        result,
+        currentPlayerGender,
+        validRole,
+        isPenetrative,
+        currentLocale
+      );
     } else {
       result = replaceGenericAnatomyPlaceholders(result, currentLocale);
     }
@@ -386,6 +392,7 @@ export default function actionStringReplacement(
       role,
       displayName,
       localPlayers,
+      isPenetrative,
       currentLocale
     );
   } else {
@@ -395,6 +402,7 @@ export default function actionStringReplacement(
       role,
       displayName,
       currentPlayerGender,
+      isPenetrative,
       currentLocale
     );
   }

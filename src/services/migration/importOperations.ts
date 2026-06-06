@@ -35,6 +35,7 @@ const retryImport = async <T>(importFn: () => Promise<T>, retries = 3): Promise<
 import { getActionGroupNames } from './fileDiscovery';
 import { createDeterministicGroupId } from './groupIdMigration';
 import { GAME_MODES, SUPPORTED_LANGUAGES } from './constants';
+import { isPenetrativeDefaultTile } from './penetrativeIntensities';
 
 /**
  * Import a single action file and convert it to a custom group with custom tiles
@@ -94,6 +95,11 @@ export const importActionFile = async (
       const intensity = intensities.find((i) => i.label === intensityName);
       if (!intensity) continue;
 
+      // Tiles in penetrative intensities are tagged so a female dom's {genital}
+      // resolves to a strapon at render time (vs. keyword guessing per locale).
+      const penetrative = isPenetrativeDefaultTile(groupName, intensity.value);
+      const tags = penetrative ? ['default', 'penetrative'] : ['default'];
+
       // Create a tile for each action in this intensity
       for (const action of actionList) {
         if (typeof action === 'string' && action.trim()) {
@@ -101,7 +107,7 @@ export const importActionFile = async (
             group_id: deterministicId, // Assign the deterministic group ID
             intensity: intensity.value,
             action: action.trim(),
-            tags: ['default'], // Mark as default tiles from JSON files
+            tags: [...tags], // Mark as default tiles from JSON files
             isEnabled: 1,
             isCustom: 0, // These are default tiles, not custom
           });
