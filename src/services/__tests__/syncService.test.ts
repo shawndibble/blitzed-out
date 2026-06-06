@@ -6,8 +6,9 @@ import {
 } from '@/stores/customTiles';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { deleteCustomGroup, getCustomGroups, importCustomGroups } from '@/stores/customGroups';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import {
+  subscribeToUserData,
   syncCustomGroupsToFirebase,
   syncCustomTilesToFirebase,
   syncDataFromFirebase,
@@ -255,8 +256,13 @@ describe('syncService', () => {
         ) {
           return [{ id: 100, isEnabled: 1, isCustom: 0 }] as any;
         }
+        // Locally-disabled defaults query (matchesLocal / resetDisabledDefaults):
+        // nothing is disabled locally yet, so the remote set genuinely differs.
+        if (filters?.isCustom === 0 && filters?.isEnabled === 0) {
+          return [];
+        }
         // For applyDisabledDefaults - return all default tiles
-        if (filters?.isCustom === 0 && !filters?.isEnabled) {
+        if (filters?.isCustom === 0) {
           return [
             {
               id: 100,
@@ -774,6 +780,56 @@ describe('syncService', () => {
 
       // Verify disabled defaults are applied to existing default tiles
       expect(updateCustomTile).toHaveBeenCalledWith(300, { isEnabled: 0 });
+    });
+  });
+
+  describe('subscribeToUserData (real-time pull)', () => {
+    let capturedSnapshotHandler: ((snap: any) => void) | null;
+
+    beforeEach(() => {
+      capturedSnapshotHandler = null;
+      vi.mocked(onSnapshot).mockImplementation((_ref: any, next: any) => {
+        capturedSnapshotHandler = next;
+        return () => undefined;
+      });
+      // Empty doc → orchestrator reads it via getDoc; lets us detect a pull.
+      vi.mocked(getDoc).mockResolvedValue({ exists: () => true, data: () => ({}) } as any);
+    });
+
+    it('does not register a listener for anonymous users', () => {
+      vi.mocked(getAuth).mockReturnValue({
+        currentUser: { uid: 'x', isAnonymous: true },
+      } as any);
+      subscribeToUserData();
+      expect(onSnapshot).not.toHaveBeenCalled();
+    });
+
+    it('ignores snapshots from our own pending writes (echo guard)', async () => {
+      subscribeToUserData();
+      expect(onSnapshot).toHaveBeenCalledTimes(1);
+
+      capturedSnapshotHandler?.({
+        metadata: { hasPendingWrites: true },
+        exists: () => true,
+        data: () => ({}),
+      });
+      await Promise.resolve();
+
+      expect(getDoc).not.toHaveBeenCalled();
+    });
+
+    it('pulls on a genuine remote change', async () => {
+      subscribeToUserData();
+
+      capturedSnapshotHandler?.({
+        metadata: { hasPendingWrites: false },
+        exists: () => true,
+        data: () => ({}),
+      });
+      // Allow the async syncDataFromFirebase chain (dynamic import) to settle.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(getDoc).toHaveBeenCalled();
     });
   });
 });

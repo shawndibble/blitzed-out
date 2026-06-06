@@ -8,6 +8,7 @@ export interface DBGameBoard {
   isActive: number;
   tags: string[];
   gameMode: string;
+  updatedAt?: number; // Unix ms; drives last-writer-wins during sync
 }
 
 export interface Tile {

@@ -19,8 +19,8 @@ Companion to [README.md](README.md). A candid, engineering-honest list of curren
 ## Sync, accounts & offline
 
 - **Anonymous accounts are single-device and unrecoverable.** Losing browser storage loses content unless exported. A lightweight "backup code"/email-link recovery for anonymous users would help.
-- **Local Dexie isn't pushed cross-device in real time** — reconciliation is debounce/manual/periodic. Conflict resolution is per-entity merge; concurrent edits on two devices can surprise. Consider last-writer-wins timestamps or CRDT-ish merge for boards/settings.
-- **Online mode degrades hard offline** (rooms/chat/presence/video all need network). Some of this is inherent, but graceful messaging and queued chat could improve UX.
+- **Cross-device sync is real-time + LWW for content, but partial.** A per-user `onSnapshot` listener now pulls changes live, and custom tiles + game boards resolve last-writer-wins via `updatedAt` (see [data-and-sync.md](data-and-sync.md#sync-engine)). Still open: settings and custom groups are excluded from LWW; deletes don't propagate incrementally (no tombstones — `forceSync` only); LWW is client-clock based. A tombstone model and field-level settings merge would close the gaps.
+- **Online mode still needs network for presence/video.** Graceful offline messaging + queued-chat feedback are now in place (offline banner, optimistic pending messages); rooms/presence/video remain inherently network-dependent.
 
 ## Tooling & docs
 

@@ -66,8 +66,11 @@ export class CustomGroupsSync extends SyncBase {
       }
     }
 
-    // Sync the merged result back to Firebase
-    await syncCustomGroupsToFirebase();
+    // Only push back when groups were actually added — otherwise the real-time
+    // listener would echo every pull into a push.
+    if (addedCount > 0) {
+      await syncCustomGroupsToFirebase();
+    }
 
     return this.createSuccessResult(addedCount + localGroups.length);
   }

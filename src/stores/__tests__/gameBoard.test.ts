@@ -161,7 +161,10 @@ describe('gameBoard store', () => {
 
       const result = await addBoard(partialBoard);
 
-      expect(db.gameBoard.add).toHaveBeenCalledWith(partialBoard);
+      expect(db.gameBoard.add).toHaveBeenCalledWith({
+        ...partialBoard,
+        updatedAt: expect.any(Number),
+      });
       expect(result).toBe(newBoardId);
     });
 
@@ -187,6 +190,7 @@ describe('gameBoard store', () => {
       expect(db.gameBoard.update).toHaveBeenCalledWith(mockBoard.id, {
         ...mockBoard,
         ...updatedFields,
+        updatedAt: expect.any(Number),
       });
       expect(result).toBe(updatedRowCount);
     });
@@ -197,7 +201,10 @@ describe('gameBoard store', () => {
 
       const result = await updateBoard(mockBoard);
 
-      expect(db.gameBoard.update).toHaveBeenCalledWith(mockBoard.id, mockBoard);
+      expect(db.gameBoard.update).toHaveBeenCalledWith(mockBoard.id, {
+        ...mockBoard,
+        updatedAt: expect.any(Number),
+      });
       expect(result).toBe(updatedRowCount);
     });
   });
@@ -236,6 +243,7 @@ describe('gameBoard store', () => {
         isActive: 0,
         tags: [],
         gameMode: 'online',
+        updatedAt: expect.any(Number),
       });
     });
 

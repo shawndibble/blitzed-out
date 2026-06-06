@@ -20,6 +20,8 @@ vi.mock('@/services/syncService', () => ({
   startPeriodicSync: () => {},
   stopPeriodicSync: () => {},
   isPeriodicSyncActive: () => false,
+  subscribeToUserData: () => () => {},
+  stopUserDataSubscription: () => {},
 }));
 
 configure({

@@ -69,7 +69,19 @@ Before merging, `syncService.ts` runs a duplicate-tile cleanup to undo a histori
 
 **Conditions:** sync only runs for authenticated, **non-anonymous** users. All cloud data is scoped to `user-data/{uid}` — no cross-user visibility there.
 
-**Multi-device:** logging in with the same account on another device returns the same UID; a sync pulls `user-data/{uid}` into that device's Dexie. Local Dexie isn't auto-pushed between devices instantly — it reconciles on sync (middleware-debounced, manual, or periodic).
+**Multi-device:** logging in with the same account on another device returns the same UID; a sync pulls `user-data/{uid}` into that device's Dexie.
+
+**Real-time pull + last-writer-wins.** Non-anonymous sessions attach an `onSnapshot` listener to `user-data/{uid}` (`subscribeToUserData` in `syncService.ts`, wired in `useAuthSync`), so a change pushed from one device reflects on the others within seconds rather than waiting for the periodic/debounced cycle. Push stays debounced (~2 s). Conflicts resolve last-writer-wins via a per-record `updatedAt` (Unix ms) on custom tiles and game boards (`SyncBase.remoteWins`, strict `>`). The push remains debounced; the listener only pulls.
+
+Loop prevention (push→pull→apply→push) relies on three guards: the snapshot handler skips events with `metadata.hasPendingWrites` (our own writes); an apply-phase suppression flag in `syncMiddleware` (`beginSyncApply`/`endSyncApply`) stops sync-engine Dexie writes from scheduling an echo push; and the entity merges only push back when something actually changed.
+
+**Stated limitations of the LWW/real-time model:**
+
+- **No incremental delete propagation.** The `user-data/{uid}` doc stores arrays with no tombstones, so a tile/board deleted on one device is re-added when another device merges. Deletes only propagate via `forceSync`/full-replace.
+- **Client-clock based.** `updatedAt` is stamped with `Date.now()` at write time; with cross-device clock skew the faster-clock device wins regardless of true edit order.
+- **Settings and custom groups are excluded from LWW.** Settings keep last-sync-wins (whole-object LWW would drop a field on concurrent edits); custom groups remain adds-only on merge (their identity is `name+locale+gameMode` and field edits are rare). Both still reconcile on `forceSync`.
+- **No Dexie schema bump.** `updatedAt` is a non-indexed field; pre-existing rows adopt a timestamp on their next local edit and fall back to legacy (apply-remote) reconciliation until then.
+- **`activateBoard` doesn't bump `updatedAt`** (active-board flips are device-local and don't propagate via LWW).
 
 ---
 
