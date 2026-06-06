@@ -36,8 +36,8 @@
   "ballBusting": {
     "label": "Torture des couilles",
     "type": "sex",
-    "dom": "Dominateur",
-    "sub": "Soumis",
+    "dom": "Ballbuster",
+    "sub": "Receveur",
     "actions": {
       "Claques/Pression": [
         "{dom} donne une petite claque à {sub} après que quelqu'un ait lancé les dés.",
@@ -288,8 +288,8 @@
   "buttPlay": {
     "label": "Sodomie",
     "type": "sex",
-    "dom": "Actif",
-    "sub": "Passif",
+    "dom": "Top",
+    "sub": "Bottom",
     "actions": {
       "Doigt(s)/Anulingus": [
         "{dom} caresse les fesses de {sub}.",
@@ -362,7 +362,7 @@
   "clitTraining": {
     "label": "Entraînement du Clitoris",
     "type": "sex",
-    "dom": "Propriétaire du clitoris",
+    "dom": "Receveur",
     "sub": "Donneur de plaisir",
     "actions": {
       "Toucher Léger": [
@@ -651,7 +651,7 @@
     "label": "Électrostimulation",
     "type": "foreplay",
     "dom": "Contrôleur",
-    "sub": "Récepteur",
+    "sub": "Receveur",
     "actions": {
       "Faible": [
         "{dom} applique un courant électrique doux sur le bras de {sub} à l'aide d'un appareil TENS.",
@@ -918,8 +918,8 @@
   "spanking": {
     "label": "Fessées",
     "type": "sex",
-    "dom": "Donneur",
-    "sub": "Receveur",
+    "dom": "Fesseur",
+    "sub": "Fessé",
     "actions": {
       "Fessées légères": [
         "{dom} donne une fessée légère à {sub} sur chaque fesse.",
@@ -1127,7 +1127,7 @@
   "titTorture": {
     "label": "Torture des tétons",
     "type": "sex",
-    "dom": "Donneur",
+    "dom": "Bourreau",
     "sub": "Receveur",
     "actions": {
       "Pincer/Frotter": [

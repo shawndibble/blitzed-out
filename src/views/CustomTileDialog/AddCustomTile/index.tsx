@@ -25,6 +25,7 @@ import CustomTilePreview from './CustomTilePreview';
 import { CustomGroupPull } from '@/types/customGroups';
 import CustomGroupSelector from '@/components/CustomGroupSelector';
 import { submitCustomAction } from '@/services/firebase';
+import { normalizePlaceholders, localizePlaceholders } from '@/services/placeholderAliasService';
 import { useEditorGroupsReactive } from '@/hooks/useGroupFiltering';
 import { useGameSettings } from '@/stores/settingsStore';
 import { validateCustomTileWithGroups } from '@/services/validationService';
@@ -46,6 +47,10 @@ export default function AddCustomTile({
 }: AddCustomTileProps) {
   const { t } = useTranslation();
   const { settings } = useGameSettings();
+
+  // Localized placeholder token shown on the reference chips, e.g. "{genitales}".
+  // Falls back to the canonical name if the placeholders namespace is unavailable.
+  const tokenLabel = (key: string): string => `{${t(`placeholders:tokens.${key}`, key)}}`;
 
   // Use shared filters for two-way binding with ViewCustomTiles
   const [localTileData, setLocalTileData] = useState<{
@@ -153,11 +158,11 @@ export default function AddCustomTile({
       }
 
       setLocalTileData({
-        action: editTile.action || '',
+        action: localizePlaceholders(editTile.action || '', settings.locale || 'en'),
         tags: editTile.tags || [t('custom')],
       });
     }
-  }, [updateTileId, editTileData, customTiles, groups, t]);
+  }, [updateTileId, editTileData, customTiles, groups, t, settings.locale]);
 
   function tileExists(
     group_id: string,
@@ -216,7 +221,10 @@ export default function AddCustomTile({
     }
 
     const { gameMode, intensity } = sharedFilters;
-    const { action } = localTileData;
+    // Normalize localized placeholder tokens to canonical English before dedup,
+    // validation, Firebase submission, and storage — the gameplay pipeline only
+    // understands canonical tokens.
+    const action = normalizePlaceholders(localTileData.action, settings.locale || 'en');
 
     if (!gameMode || !selectedGroup || !intensity || !action) {
       return setSubmitMessage({
@@ -489,19 +497,19 @@ export default function AddCustomTile({
                   </Typography>
                   <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                     <Chip
-                      label="{player}"
+                      label={tokenLabel('player')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.player')}
                     />
                     <Chip
-                      label="{dom}"
+                      label={tokenLabel('dom')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.dom')}
                     />
                     <Chip
-                      label="{sub}"
+                      label={tokenLabel('sub')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.sub')}
@@ -514,43 +522,43 @@ export default function AddCustomTile({
                   </Typography>
                   <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                     <Chip
-                      label="{genital}"
+                      label={tokenLabel('genital')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.genital')}
                     />
                     <Chip
-                      label="{hole}"
+                      label={tokenLabel('hole')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.hole')}
                     />
                     <Chip
-                      label="{chest}"
+                      label={tokenLabel('chest')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.chest')}
                     />
                     <Chip
-                      label="{pronoun_subject}"
+                      label={tokenLabel('pronoun_subject')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.pronounSubject')}
                     />
                     <Chip
-                      label="{pronoun_object}"
+                      label={tokenLabel('pronoun_object')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.pronounObject')}
                     />
                     <Chip
-                      label="{pronoun_possessive}"
+                      label={tokenLabel('pronoun_possessive')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.pronounPossessive')}
                     />
                     <Chip
-                      label="{pronoun_reflexive}"
+                      label={tokenLabel('pronoun_reflexive')}
                       size="small"
                       sx={{ fontFamily: 'monospace' }}
                       aria-label={t('customTiles.placeholderHelp.pronounReflexive')}

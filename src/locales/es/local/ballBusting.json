@@ -1,8 +1,8 @@
 {
   "label": "Golpes en los testículos",
   "type": "sex",
-  "dom": "Castigador",
-  "sub": "Castigado",
+  "dom": "Castigador/a",
+  "sub": "Castigado/a",
   "actions": {
     "Bofetadas/Apretones": [
       "{dom} da una bofetada suave en los testículos a {sub} después de una tirada.",

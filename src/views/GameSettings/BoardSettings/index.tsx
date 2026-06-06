@@ -4,6 +4,7 @@ import { isLocalMode, isPublicRoom } from '@/helpers/strings';
 
 import FinishSlider from './FinishSlider';
 import GridItem from '@/components/GridItem';
+import { groupUsesRoleTokens } from '@/helpers/actionsFolder';
 import InvisibleAccordionGrid from '@/components/InvisibleAccordionGrid';
 import SelectBoardSetting from './SelectBoardSetting';
 import { Settings } from '@/types/Settings';
@@ -38,24 +39,34 @@ export default function BoardSettings({
       });
   }
 
+  const groupUsesRoles = (option: string): boolean => groupUsesRoleTokens(actionsList[option]);
+
   function settingSelectLists(
     type: 'sex' | 'foreplay' | 'consumption' | 'solo',
     extraProps: Record<string, any> = {}
   ): JSX.Element[] {
-    return Object.keys(actionsList)
-      .filter((option) => actionsList[option]?.type === type)
-      .map((option) => (
-        <GridItem key={option}>
-          <SelectBoardSetting
-            option={option}
-            settings={formData}
-            setSettings={setFormData}
-            actionsFolder={actionsList}
-            type={type}
-            {...extraProps}
-          />
-        </GridItem>
-      ));
+    const wantsRole = !!extraProps.showRole;
+    const options = Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
+
+    // When roles are in play, cluster the role-less groups together (sort stable:
+    // role-bearing first) so the grid doesn't interleave one- and two-dropdown cells.
+    const ordered = wantsRole
+      ? [...options].sort((a, b) => Number(groupUsesRoles(b)) - Number(groupUsesRoles(a)))
+      : options;
+
+    return ordered.map((option) => (
+      <GridItem key={option}>
+        <SelectBoardSetting
+          option={option}
+          settings={formData}
+          setSettings={setFormData}
+          actionsFolder={actionsList}
+          type={type}
+          {...extraProps}
+          showRole={wantsRole && groupUsesRoles(option)}
+        />
+      </GridItem>
+    ));
   }
 
   const updateAllRoles = (value: string): Settings => {

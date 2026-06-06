@@ -1,8 +1,8 @@
 {
   "label": "Azotes",
   "type": "sex",
-  "dom": "Azotador",
-  "sub": "Azotado",
+  "dom": "Azotador/a",
+  "sub": "Azotado/a",
   "actions": {
     "Azotes Suaves": [
       "{dom} da azotes suaves a {sub} en cada nalga.",

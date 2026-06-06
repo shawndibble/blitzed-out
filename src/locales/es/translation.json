@@ -26,7 +26,7 @@
       "pronounPossessive": "Se adapta a la anatomía del jugador (su/su/su)",
       "pronounReflexive": "Se adapta a la anatomía del jugador (sí mismo/sí misma/sí misme)",
       "examples": "Ver Ejemplos",
-      "exampleAction": "{dom} besa a {sub} en el {chest}",
+      "exampleAction": "{dominante} besa a {sumiso} en el {pecho}",
       "exampleResult": "Miguel besa a Jessica en los pechos"
     }
   },
@@ -677,5 +677,6 @@
   "statsCategoriesLanded": "Categorías Aterrizadas",
   "statsBoardCategories": "Categorías del Tablero Jugadas",
   "statsIntensitiesPlayed": "Niveles de Intensidad Jugados",
-  "statsNoData": "Sin estadísticas aún. ¡Comienza a jugar para seguir tu progreso!"
+  "statsNoData": "Sin estadísticas aún. ¡Comienza a jugar para seguir tu progreso!",
+  "siteTagline": "Una Experiencia de Juego de Mesa para Adultos"
 }

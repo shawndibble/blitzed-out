@@ -26,7 +26,7 @@
       "pronounPossessive": "根據玩家解剖調整（他的/她的/他们的）",
       "pronounReflexive": "根據玩家解剖調整（他自己/她自己/他们自己）",
       "examples": "查看示例",
-      "exampleAction": "{dom} 親吻 {sub} 的 {chest}",
+      "exampleAction": "{支配者} 親吻 {顺从者} 的 {胸部}",
       "exampleResult": "小明親吻小美的乳房"
     }
   },
@@ -677,5 +677,6 @@
   "statsCategoriesLanded": "落在的类别",
   "statsBoardCategories": "已玩游戏板类别",
   "statsIntensitiesPlayed": "已玩强度等级",
-  "statsNoData": "暂无统计数据。开始游戏以跟踪您的进度！"
+  "statsNoData": "暂无统计数据。开始游戏以跟踪您的进度！",
+  "siteTagline": "成人桌游体验"
 }

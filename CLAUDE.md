@@ -64,9 +64,11 @@ Red → Green → Refactor. Write test first.
 
 ## i18n
 
-**ALWAYS update all 5 language files**: `src/locales/{en,es,fr,zh,hi}/translation.json`
+**ALWAYS update all language files**: `src/locales/{en,es,fr,zh,hi,de}/translation.json`
 
 Anatomy placeholders: `{genital}` (dick/pussy), `{hole}` (pussy/ass), `{chest}` (breasts/pecs)
+
+Custom-tile placeholder tokens are stored canonical English; localized aliases (`src/locales/*/placeholders.json`) are normalized to English on save via `placeholderAliasService` and localized back on edit. The gameplay replacement pipeline (`actionStringReplacement`, `anatomyPlaceholderService`) never sees aliases.
 
 ## Coding Standards
 

@@ -26,7 +26,7 @@
       "pronounPossessive": "S'adapte à l'anatomie du joueur (son/sa/son)",
       "pronounReflexive": "S'adapte à l'anatomie du joueur (lui-même/elle-même/soi-même)",
       "examples": "Voir les Exemples",
-      "exampleAction": "{dom} embrasse {sub} sur le {chest}",
+      "exampleAction": "{dominant} embrasse {soumis} sur le {torse}",
       "exampleResult": "Michel embrasse Jessica sur les seins"
     }
   },
@@ -677,5 +677,6 @@
   "statsCategoriesLanded": "Catégories Atterries",
   "statsBoardCategories": "Catégories du Plateau Jouées",
   "statsIntensitiesPlayed": "Niveaux d'Intensité Joués",
-  "statsNoData": "Pas encore de statistiques. Commencez à jouer pour suivre votre progression !"
+  "statsNoData": "Pas encore de statistiques. Commencez à jouer pour suivre votre progression !",
+  "siteTagline": "Une Expérience de Jeu de Société pour Adultes"
 }

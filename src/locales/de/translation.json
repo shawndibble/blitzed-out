@@ -26,7 +26,7 @@
       "pronounPossessive": "Passt sich der Anatomie an (sein/ihr/ihr)",
       "pronounReflexive": "Passt sich der Anatomie an (sich selbst/sich selbst/sich selbst)",
       "examples": "Beispiele ansehen",
-      "exampleAction": "{dom} küsst {sub} auf die {chest}",
+      "exampleAction": "{dominant} küsst {devot} auf die {brust}",
       "exampleResult": "Mike küsst Jessica auf die Brüste"
     }
   },
@@ -677,5 +677,6 @@
   "statsCategoriesLanded": "Gelande Kategorien",
   "statsBoardCategories": "Gespielte Spielfeldkategorien",
   "statsIntensitiesPlayed": "Gespielte Intensitätsstufen",
-  "statsNoData": "Noch keine Statistiken. Fange an zu spielen, um deinen Fortschritt zu verfolgen!"
+  "statsNoData": "Noch keine Statistiken. Fange an zu spielen, um deinen Fortschritt zu verfolgen!",
+  "siteTagline": "Ein Brettspiel-Erlebnis für Erwachsene"
 }

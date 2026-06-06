@@ -2,6 +2,7 @@ import { Box, Typography } from '@mui/material';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import actionStringReplacement from '@/services/actionStringReplacement';
+import { normalizePlaceholders } from '@/services/placeholderAliasService';
 import { Settings } from '@/types/Settings';
 
 interface CustomTilePreviewProps {
@@ -19,8 +20,12 @@ export default function CustomTilePreview({
   const preview = useMemo(() => {
     if (!trimmedAction) return '';
 
+    // Author may type tokens in their own language; the replacement pipeline
+    // only understands canonical English tokens.
+    const canonicalAction = normalizePlaceholders(trimmedAction, settings.locale || 'en');
+
     return actionStringReplacement(
-      trimmedAction,
+      canonicalAction,
       settings.role || 'sub',
       '',
       undefined,

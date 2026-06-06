@@ -1,8 +1,8 @@
 {
   "label": "Cosquillas",
   "type": "foreplay",
-  "dom": "Hace cosquillas",
-  "sub": "Cosquilleado",
+  "dom": "Cosquilleador/a",
+  "sub": "Cosquilleado/a",
   "actions": {
     "Ligero": [
       "{dom} frota suavemente su dedo en una zona sensible de {sub}.",

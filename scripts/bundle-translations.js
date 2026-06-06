@@ -20,7 +20,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const LOCALES_DIR = path.join(__dirname, '../src/locales');
-const LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'];
+const LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi', 'de'];
 const GAME_MODES = ['local', 'online'];
 
 /**

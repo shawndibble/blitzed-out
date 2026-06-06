@@ -56,7 +56,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
           <Box
             component="img"
             sx={{ height: 32 }}
-            alt="Blitzed Out Logo"
+            alt={t('siteTagline')}
             src={Logo}
             decoding="async"
             loading="eager"
