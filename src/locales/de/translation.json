@@ -213,6 +213,8 @@
   "alreadyFinished": "Du hast bereits fertig gespielt. Starte neu.",
   "messageInput": "Nachricht eingeben",
   "markdown": "Unterstützt GitHub Markdown und Emojis",
+  "offlineBanner": "Du bist offline — Nachrichten werden gesendet, sobald du wieder verbunden bist.",
+  "messagePending": "Senden…",
   "all": "Alle",
   "setting": "Einrichtung",
   "chat": "Chat",

@@ -212,6 +212,8 @@
   "alreadyFinished": "您已經完成了。重新開始。",
   "messageInput": "輸入訊息",
   "markdown": "支援 GitHub Markdown 和表情符號",
+  "offlineBanner": "您已离线——消息将在重新连接后发送。",
+  "messagePending": "发送中…",
   "all": "全部",
   "setting": "設置",
   "chat": "聊天",

@@ -8,6 +8,10 @@ import { Trans, useTranslation } from 'react-i18next';
 import { Camera, CameraResultType, Photo as CameraPhoto } from '@capacitor/camera';
 import ToastAlert from '@/components/ToastAlert';
 import { Photo } from '@mui/icons-material';
+import { Timestamp } from 'firebase/firestore';
+import { useMessagesStore } from '@/stores/messagesStore';
+import { isOffline } from '@/helpers/networkStatus';
+import { Message } from '@/types/Message';
 
 interface MessageInputProps {
   room: string;
@@ -26,6 +30,7 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
   const [value, setValue] = useState<string>('');
   const [alert, setAlert] = useState<string>('');
   const { t } = useTranslation();
+  const addMessage = useMessagesStore((state) => state.addMessage);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
@@ -33,10 +38,27 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
+    const text = value.trim();
+    if (!text) return;
+
+    // Show the message immediately. Offline sends are queued by Firestore but
+    // never appear in the real query until a server timestamp is assigned, so an
+    // optimistic entry is the only feedback the sender gets until reconnect.
+    const optimisticMessage: Message = {
+      id: `optimistic-${Date.now()}`,
+      uid: user?.uid || '',
+      displayName: user?.displayName || '',
+      text,
+      type: 'chat',
+      timestamp: Timestamp.now(),
+      pending: isOffline(),
+    };
+    addMessage(optimisticMessage);
+
     sendMessage({
       room,
       user,
-      text: value,
+      text,
       type: 'chat',
     });
     setValue('');

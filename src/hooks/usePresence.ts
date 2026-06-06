@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { setMyPresence, startPresenceHeartbeat, removeMyPresence } from '@/services/presence';
 import useAuth from '@/context/hooks/useAuth';
-import { isOffline } from '@/helpers/networkStatus';
+import useOnlineStatus from '@/hooks/useOnlineStatus';
 
 export default function usePresence(roomId: string, roomRealtime?: boolean): void {
   const {
@@ -10,19 +10,7 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
 
   const currentRoomRef = useRef<string | null>(null);
   const currentDisplayNameRef = useRef<string>(displayName || '');
-  const [online, setOnline] = useState(!isOffline());
-
-  useEffect(() => {
-    const updateOnline = () => setOnline(!isOffline());
-
-    window.addEventListener('online', updateOnline);
-    window.addEventListener('offline', updateOnline);
-
-    return () => {
-      window.removeEventListener('online', updateOnline);
-      window.removeEventListener('offline', updateOnline);
-    };
-  }, []);
+  const online = useOnlineStatus();
 
   // Set up presence when room or display name changes, then start heartbeat
   useEffect(() => {
