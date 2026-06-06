@@ -71,4 +71,52 @@ describe('GameBoardsSync last-writer-wins', () => {
 
     expect(upsertBoard).toHaveBeenCalledWith(expect.objectContaining({ title: 'New' }));
   });
+
+  it('keeps the active board device-local: never adopts a remote active flag for an existing board', async () => {
+    // Local board is active; remote copy is newer (content wins) but inactive.
+    vi.mocked(getBoards).mockResolvedValue([
+      { id: 1, title: 'B', tiles: [], isActive: 1, tags: [], gameMode: 'online', updatedAt: 100 },
+    ]);
+    vi.mocked(upsertBoard).mockResolvedValue(1);
+
+    await GameBoardsSync.syncFromFirebase([
+      { title: 'B', tiles: [], isActive: 0, tags: [], gameMode: 'online', updatedAt: 900 },
+    ]);
+
+    expect(upsertBoard).toHaveBeenCalledWith(expect.objectContaining({ isActive: 1 }));
+  });
+
+  it('does not activate a remote-active board when the device already has one active', async () => {
+    vi.mocked(getBoards).mockResolvedValue([
+      { id: 1, title: 'A', tiles: [], isActive: 1, tags: [], gameMode: 'online', updatedAt: 100 },
+    ]);
+    vi.mocked(upsertBoard).mockResolvedValue(2);
+
+    await GameBoardsSync.syncFromFirebase([
+      { title: 'New', tiles: [], isActive: 1, tags: [], gameMode: 'online', updatedAt: 50 },
+    ]);
+
+    expect(upsertBoard).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'New', isActive: 0 })
+    );
+  });
+
+  it('cold-start: adopts the remote-active board once when nothing is active locally', async () => {
+    vi.mocked(getBoards).mockResolvedValue([]);
+    vi.mocked(upsertBoard).mockResolvedValue(1);
+
+    await GameBoardsSync.syncFromFirebase([
+      { title: 'X', tiles: [], isActive: 1, tags: [], gameMode: 'online', updatedAt: 10 },
+      { title: 'Y', tiles: [], isActive: 1, tags: [], gameMode: 'online', updatedAt: 20 },
+    ]);
+
+    expect(upsertBoard).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ title: 'X', isActive: 1 })
+    );
+    expect(upsertBoard).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ title: 'Y', isActive: 0 })
+    );
+  });
 });

@@ -154,6 +154,15 @@ describe('custom-actions', () => {
     );
   });
 
+  it('rejects a grouping over 100 chars', async () => {
+    await assertFails(
+      setDoc(doc(dbAs(UID), 'custom-actions/a1'), {
+        ...validCustomAction(),
+        grouping: 'a'.repeat(101),
+      })
+    );
+  });
+
   it('rejects an extra field (hasOnly)', async () => {
     await assertFails(
       setDoc(doc(dbAs(UID), 'custom-actions/a1'), {
@@ -174,6 +183,15 @@ describe('custom-actions', () => {
 describe('game-boards', () => {
   it('accepts a valid board', async () => {
     await assertSucceeds(setDoc(doc(dbAs(UID), 'game-boards/b1'), validBoard()));
+  });
+
+  it('rejects a title over 200 chars', async () => {
+    await assertFails(
+      setDoc(doc(dbAs(UID), 'game-boards/b1'), {
+        ...validBoard(),
+        title: 'a'.repeat(201),
+      })
+    );
   });
 
   it('rejects a gameBoard over 600000 chars', async () => {
