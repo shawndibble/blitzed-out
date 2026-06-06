@@ -1,4 +1,4 @@
-import { SubmitDependencies, submitGameSettings } from '@/services/gameSettingsOrchestrator';
+import { submitGameSettings } from '@/services/gameSettingsOrchestrator';
 
 import type { Settings } from '@/types/Settings';
 import { useCallback, useState } from 'react';
@@ -10,10 +10,8 @@ export interface GameSettingsSubmitResult {
   error: Error | null;
 }
 
-export default function useSubmitGameSettings(
-  overrideDeps?: Partial<SubmitDependencies>
-): GameSettingsSubmitResult {
-  const { ctx, deps } = useGameSettingsWiring();
+export default function useSubmitGameSettings(): GameSettingsSubmitResult {
+  const { ctx, firebase, persistence, effects } = useGameSettingsWiring();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -23,7 +21,7 @@ export default function useSubmitGameSettings(
       setError(null);
 
       try {
-        await submitGameSettings(formData, actionsList, ctx, { ...deps, ...overrideDeps });
+        await submitGameSettings(formData, actionsList, ctx, firebase, persistence, effects);
       } catch (err) {
         const e = err instanceof Error ? err : new Error('Submission failed');
         setError(e);
@@ -32,7 +30,7 @@ export default function useSubmitGameSettings(
         setIsSubmitting(false);
       }
     },
-    [ctx, deps, overrideDeps]
+    [ctx, effects, firebase, persistence]
   );
 
   return { submit, isSubmitting, error };

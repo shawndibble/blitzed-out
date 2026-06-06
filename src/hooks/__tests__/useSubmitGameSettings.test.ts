@@ -2,7 +2,10 @@ import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Settings } from '@/types/Settings';
-import type { SubmitContext, SubmitDependencies } from '@/services/gameSettingsOrchestrator';
+import type { SubmitContext } from '@/services/gameSettingsOrchestrator';
+import type { FirebaseGatewayPort } from '@/services/ports/FirebaseGatewayPort';
+import type { GamePersistencePort } from '@/services/ports/GamePersistencePort';
+import type { LocalEffects } from '@/services/gameSettingsOrchestrator';
 import type { User } from '@/types';
 import { submitGameSettings } from '@/services/gameSettingsOrchestrator';
 import { useGameSettingsWiring } from '../useGameSettingsWiring';
@@ -24,19 +27,25 @@ const mockCtx: SubmitContext = {
   settingsSnapshot: {} as Settings,
 };
 
-const mockDeps: SubmitDependencies = {
+const mockFirebase: FirebaseGatewayPort = {
   updateUser: vi.fn().mockResolvedValue(mockUser),
+  sendRoomSettings: vi.fn().mockResolvedValue(undefined),
+  sendGameSettings: vi.fn().mockResolvedValue(undefined),
+};
+
+const mockPersistence: GamePersistencePort = {
   updateGameBoardTiles: vi
     .fn()
     .mockResolvedValue({ settingsBoardUpdated: true, gameMode: 'online', newBoard: [] }),
-  sendRoomSettingsFn: vi.fn().mockResolvedValue(undefined),
-  upsertBoardFn: vi.fn().mockResolvedValue(1),
-  sendGameSettingsFn: vi.fn().mockResolvedValue(undefined),
-  createLocalSessionFn: vi.fn().mockResolvedValue(undefined),
-  updateSettingsFn: vi.fn(),
-  navigateFn: vi.fn(),
-  translateFn: vi.fn((k) => k),
-  recordGameStartFn: vi.fn().mockResolvedValue(undefined),
+  upsertBoard: vi.fn().mockResolvedValue(1),
+  createLocalSession: vi.fn().mockResolvedValue(undefined),
+  recordGameStart: vi.fn().mockResolvedValue(undefined),
+};
+
+const mockEffects: LocalEffects = {
+  updateSettings: vi.fn(),
+  navigate: vi.fn(),
+  translate: vi.fn((k) => k),
 };
 
 const mockFormData: Settings = {
@@ -47,7 +56,12 @@ const mockFormData: Settings = {
 
 describe('useSubmitGameSettings', () => {
   beforeEach(() => {
-    vi.mocked(useGameSettingsWiring).mockReturnValue({ ctx: mockCtx, deps: mockDeps });
+    vi.mocked(useGameSettingsWiring).mockReturnValue({
+      ctx: mockCtx,
+      firebase: mockFirebase,
+      persistence: mockPersistence,
+      effects: mockEffects,
+    });
     vi.mocked(submitGameSettings).mockResolvedValue(undefined);
   });
 
@@ -72,7 +86,6 @@ describe('useSubmitGameSettings', () => {
 
     const { result } = renderHook(() => useSubmitGameSettings());
 
-    // Start submit but don't await
     let submitPromise!: Promise<void>;
     act(() => {
       submitPromise = result.current.submit(mockFormData, {});
@@ -154,7 +167,7 @@ describe('useSubmitGameSettings', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('calls submitGameSettings with ctx and deps from wiring', async () => {
+  it('calls submitGameSettings with ctx and port objects from wiring', async () => {
     const actionsList = { someAction: true };
     const { result } = renderHook(() => useSubmitGameSettings());
 
@@ -166,23 +179,9 @@ describe('useSubmitGameSettings', () => {
       mockFormData,
       actionsList,
       mockCtx,
-      expect.objectContaining({ navigateFn: mockDeps.navigateFn })
-    );
-  });
-
-  it('overrideDeps replaces specific dep values', async () => {
-    const customNavigate = vi.fn();
-    const { result } = renderHook(() => useSubmitGameSettings({ navigateFn: customNavigate }));
-
-    await act(async () => {
-      await result.current.submit(mockFormData, {});
-    });
-
-    expect(submitGameSettings).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
-      expect.objectContaining({ navigateFn: customNavigate })
+      mockFirebase,
+      mockPersistence,
+      mockEffects
     );
   });
 });

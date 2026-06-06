@@ -1,10 +1,11 @@
 import { Params, useParams } from 'react-router-dom';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
-import { handleUser, sendRoomSettingsMessage } from '@/services/roomSettingsService';
 
-import type { SubmitContext, SubmitDependencies } from '@/services/gameSettingsOrchestrator';
+import type { SubmitContext, LocalEffects } from '@/services/gameSettingsOrchestrator';
+import type { FirebaseGatewayPort } from '@/services/ports/FirebaseGatewayPort';
+import type { GamePersistencePort } from '@/services/ports/GamePersistencePort';
+import { makeFirebaseGatewayAdapter } from '@/services/adapters/FirebaseGatewayAdapter';
 import { getActiveTiles } from '@/stores/customTiles';
-import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import useAuth from '@/context/hooks/useAuth';
 import useGameBoard from './useGameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -18,7 +19,9 @@ import { getContentGameMode } from '@/helpers/strings';
 
 export interface GameSettingsWiring {
   ctx: SubmitContext;
-  deps: SubmitDependencies;
+  firebase: FirebaseGatewayPort;
+  persistence: GamePersistencePort;
+  effects: LocalEffects;
 }
 
 export function useGameSettingsWiring(): GameSettingsWiring {
@@ -44,18 +47,20 @@ export function useGameSettingsWiring(): GameSettingsWiring {
     settingsSnapshot: settings,
   };
 
-  const deps: SubmitDependencies = {
-    updateUser: (displayName: string) => handleUser(user, displayName, updateUser),
+  const firebase = makeFirebaseGatewayAdapter(user, updateUser);
+
+  const persistence: GamePersistencePort = {
     updateGameBoardTiles,
-    sendRoomSettingsFn: sendRoomSettingsMessage,
-    upsertBoardFn: upsertBoard,
-    sendGameSettingsFn: sendGameSettingsMessage,
-    createLocalSessionFn: createLocalSession,
-    updateSettingsFn: updateSettings,
-    navigateFn: navigate,
-    translateFn: t,
-    recordGameStartFn: recordGameStart,
+    upsertBoard,
+    createLocalSession,
+    recordGameStart,
   };
 
-  return { ctx, deps };
+  const effects: LocalEffects = {
+    updateSettings,
+    navigate,
+    translate: t,
+  };
+
+  return { ctx, firebase, persistence, effects };
 }
