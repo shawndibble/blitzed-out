@@ -228,6 +228,8 @@
   "finish": "FINALIZAR",
   "messages": "Mensajes",
   "close": "Cerrar",
+  "updateAvailable": "Hay una nueva versión disponible",
+  "reload": "Recargar",
   "anotherPlayer": "Otro jugador",
   "theCurrentPlayer": "el jugador actual",
   "aDominant": "un dominante",

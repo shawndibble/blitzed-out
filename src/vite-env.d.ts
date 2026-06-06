@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vite-plugin-pwa/react" />
 
 // Extend the existing Vite ImportMetaEnv with our custom environment variables
 interface ImportMetaEnv {

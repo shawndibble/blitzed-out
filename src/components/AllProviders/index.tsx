@@ -3,6 +3,7 @@ import { MigrationProvider } from '@/context/migration';
 import { ScheduleProvider } from '@/context/schedule';
 import { ThemeProvider } from '@/context/theme';
 import MuiProviders from '@/components/MuiProviders';
+import ReloadPrompt from '@/components/ReloadPrompt';
 
 /**
  * Consolidated providers component to reduce Suspense boundary nesting
@@ -13,7 +14,10 @@ export default function AllProviders({ children }: ProvidersProps) {
     <ThemeProvider>
       <MigrationProvider>
         <ScheduleProvider>
-          <MuiProviders>{children}</MuiProviders>
+          <MuiProviders>
+            {children}
+            <ReloadPrompt />
+          </MuiProviders>
         </ScheduleProvider>
       </MigrationProvider>
     </ThemeProvider>

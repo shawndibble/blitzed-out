@@ -227,6 +227,8 @@
   "finish": "完成",
   "messages": "訊息",
   "close": "關閉",
+  "updateAvailable": "有新版本可用",
+  "reload": "重新載入",
   "anotherPlayer": "另一位玩家",
   "theCurrentPlayer": "當前玩家",
   "aDominant": "一個支配者",
