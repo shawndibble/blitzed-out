@@ -213,6 +213,8 @@
   "alreadyFinished": "Vous avez déjà terminé. Recommencement.",
   "messageInput": "Saisir un message",
   "markdown": "Prend en charge Github Markdown et Emojis",
+  "offlineBanner": "Vous êtes hors ligne — les messages seront envoyés à la reconnexion.",
+  "messagePending": "Envoi…",
   "all": "Tout",
   "setting": "Config",
   "chat": "Chat",

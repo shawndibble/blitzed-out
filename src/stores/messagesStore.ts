@@ -57,9 +57,18 @@ export const useMessagesStore = create<MessagesStore>()(
       loadMessages: (messages) => {
         // Cast messages to proper type since Firebase returns any[]
         const typedMessages = messages as Message[];
-        // Filter out any optimistic messages when loading real messages from Firebase
-        const filteredMessages = typedMessages.filter((msg) => !msg.id?.startsWith('optimistic-'));
-        const sortedMessages = normalSortedMessages(filteredMessages);
+        const realMessages = typedMessages.filter((msg) => !msg.id?.startsWith('optimistic-'));
+
+        // Preserve optimistic messages still awaiting their Firestore counterpart
+        // (offline sends never show up in the real query until the server timestamp
+        // is assigned). Drop each once a real message with the same author+text arrives.
+        const { messages: current } = get();
+        const realKeys = new Set(realMessages.map((msg) => `${msg.uid}|${msg.text}`));
+        const pendingMessages = current.filter(
+          (msg) => msg.id?.startsWith('optimistic-') && !realKeys.has(`${msg.uid}|${msg.text}`)
+        );
+
+        const sortedMessages = normalSortedMessages([...realMessages, ...pendingMessages]);
         set({
           messages: sortedMessages,
           loading: false,

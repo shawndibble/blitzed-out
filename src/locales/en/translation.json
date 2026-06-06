@@ -213,6 +213,8 @@
   "alreadyFinished": "You already finished. Starting over.",
   "messageInput": "Enter a message",
   "markdown": "Supports GitHub Markdown and Emojis",
+  "offlineBanner": "You're offline — messages will send when you reconnect.",
+  "messagePending": "Sending…",
   "all": "All",
   "setting": "Setup",
   "chat": "Chat",

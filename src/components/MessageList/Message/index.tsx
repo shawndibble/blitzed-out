@@ -1,6 +1,7 @@
 import { Box, Button, Chip, IconButton, Popover, Typography } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Trans, useTranslation } from 'react-i18next';
 import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
@@ -69,7 +70,7 @@ export default function Message({
   }, []);
 
   // Destructure common properties
-  const { id, displayName, text, uid, timestamp } = message;
+  const { id, displayName, text, uid, timestamp, pending } = message;
 
   // Then conditionally access type-specific properties using discriminated union
   let boardSize: number | undefined;
@@ -308,10 +309,20 @@ export default function Message({
         <div className="sender">
           <TextAvatar uid={uid} displayName={displayName} size="small" />
           <span className="sender-name">{displayName}</span>
-          <Chip label={ago} size="small" variant="outlined" className="timestamp-chip" />
+          {pending ? (
+            <Chip
+              icon={<ScheduleIcon />}
+              label={t('messagePending')}
+              size="small"
+              variant="outlined"
+              className="timestamp-chip"
+            />
+          ) : (
+            <Chip label={ago} size="small" variant="outlined" className="timestamp-chip" />
+          )}
         </div>
         <div className="message-actions">
-          {!!isOwnMessage && ['media', 'chat'].includes(message.type) && id && (
+          {!!isOwnMessage && !pending && ['media', 'chat'].includes(message.type) && id && (
             <DeleteMessageButton room={room} id={id} />
           )}
         </div>

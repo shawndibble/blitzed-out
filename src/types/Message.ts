@@ -9,6 +9,8 @@ interface BaseMessage {
   text: string;
   displayName: string;
   timestamp: Timestamp;
+  // True for an optimistic message still queued offline / awaiting Firestore confirmation.
+  pending?: boolean;
 }
 
 interface ChatMessage extends BaseMessage {

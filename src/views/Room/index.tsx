@@ -7,6 +7,7 @@ import { getGameSessionAnalytics, isRoomReady } from './roomHelpers';
 import GameSettingsDialog from '@/components/GameSettingsDialog';
 import MessageInput from '@/components/MessageInput';
 import Navigation from '@/views/Navigation';
+import OfflineBanner from '@/components/OfflineBanner';
 import PopupMessage from '@/components/PopupMessage';
 import RollButton, { RollButtonHandle } from './RollButton';
 import { RollValueState } from '@/types/index';
@@ -214,6 +215,7 @@ export default function Room() {
 
   const messagesComponent = (
     <div className="messages-container">
+      <OfflineBanner />
       <MessageList
         room={room}
         isTransparent={isMessageListTransparent}
