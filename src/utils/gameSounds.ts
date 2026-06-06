@@ -1,4 +1,6 @@
 // Simple game sound utilities following VoiceSelect pattern
+import { getAudioContext } from './audioContext';
+
 export interface GameSound {
   id: string;
   name: string;
@@ -275,24 +277,17 @@ export async function playSound(sound: GameSound): Promise<boolean> {
       return false;
     }
 
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) {
+    const audioContext = getAudioContext();
+    if (!audioContext) {
       return false;
     }
 
-    let audioContext: AudioContext;
-    try {
-      audioContext = new AudioContextClass();
-
-      if (audioContext.state === 'suspended') {
-        try {
-          await audioContext.resume();
-        } catch {
-          return false;
-        }
+    if (audioContext.state === 'suspended') {
+      try {
+        await audioContext.resume();
+      } catch {
+        return false;
       }
-    } catch {
-      return false;
     }
 
     if (sound.frequencies && sound.frequencies.length > 1) {
@@ -324,10 +319,6 @@ export async function playSound(sound: GameSound): Promise<boolean> {
 
     oscillator.start();
     oscillator.stop(audioContext.currentTime + sound.duration / 1000);
-
-    setTimeout(() => {
-      audioContext.close();
-    }, sound.duration + 100);
 
     return true;
   } catch {
@@ -371,10 +362,6 @@ async function playMelody(audioContext: AudioContext, sound: GameSound): Promise
       oscillator.start(startTime);
       oscillator.stop(endTime);
     });
-
-    setTimeout(() => {
-      audioContext.close();
-    }, sound.duration + 100);
 
     return true;
   } catch {
