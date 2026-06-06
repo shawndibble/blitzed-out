@@ -27,6 +27,7 @@ import { TileData } from '@/types/viewCustomTiles';
 import { Trans } from 'react-i18next';
 import { ViewCustomTilesProps } from '@/types/customTiles';
 import { getAllAvailableGroups } from '@/stores/customGroups';
+import { localizePlaceholders } from '@/services/placeholderAliasService';
 import { useGameSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 
@@ -279,7 +280,7 @@ export default function ViewCustomTiles({
     return (
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
-          title={action}
+          title={localizePlaceholders(action, settings.locale || 'en')}
           slotProps={{
             title: { variant: 'body1' },
             subheader: { variant: 'body2' },
