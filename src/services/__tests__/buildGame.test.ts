@@ -123,6 +123,31 @@ describe('buildBoardFromData', () => {
     });
   });
 
+  describe('Configurable board size', () => {
+    // Board size is user-configurable via roomTileCount (UI offers 20–70); the
+    // built board must always be tileCount + 2 (start + finish) regardless of size.
+    it.each([20, 30, 40, 50, 60, 70])(
+      'builds a board of %i playable tiles plus start/finish',
+      async (size) => {
+        const groups = [createGroup('g1', 'sized')];
+        // A single role-compatible tile suffices — the shuffle bag repeats to fill.
+        const tiles = [createTile(1, 'g1', 1, 'Action for {sub}')];
+        const settings = {
+          ...baseSettings,
+          role: 'sub' as PlayerRole,
+          selectedActions: { sized: createActionEntry([1], 'sex') },
+        };
+
+        const result = await build(groups, tiles, settings, size);
+
+        expect(result.board).toHaveLength(size + 2);
+        expect(result.board[0].title).toBe('start');
+        expect(result.board[result.board.length - 1].title).toBe('finish');
+        expect(result.metadata.totalTiles).toBe(size + 2);
+      }
+    );
+  });
+
   describe('Metadata', () => {
     it('should include correct metadata', async () => {
       const groups = [createGroup('g1', 'group1'), createGroup('g2', 'group2')];

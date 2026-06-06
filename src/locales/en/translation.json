@@ -157,6 +157,8 @@
   "ruined": "Ruined Orgasm:",
   "cum": "Normal Orgasm:",
   "consumptionWarning": "Warning: You will have a lot of consumption actions (Alcohol, Poppers, Vaping) compared to any other category. Play with care.",
+  "missingGroupsWarning": "Warning: these selected groups have no actions available and won't appear on your board: {{groups}}.",
+  "sparseBoardWarning": "Warning: your current selection fills less than half the board, so many tiles will be empty. Add more groups or intensity levels.",
   "dialog": "Dialog",
   "playerDialog": "Show my roll dialog",
   "othersDialog": "Show other players' roll dialog",

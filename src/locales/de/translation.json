@@ -157,6 +157,8 @@
   "ruined": "Ruinierter Orgasmus:",
   "cum": "Normaler Orgasmus:",
   "consumptionWarning": "Warnung: Du wirst im Vergleich zu anderen Kategorien viele Konsumaktionen (Alkohol, Poppers, Dampfen) haben. Spiel mit Vorsicht.",
+  "missingGroupsWarning": "Warnung: Diese ausgewählten Gruppen haben keine verfügbaren Aktionen und erscheinen nicht auf deinem Spielbrett: {{groups}}.",
+  "sparseBoardWarning": "Warnung: Deine aktuelle Auswahl füllt weniger als die Hälfte des Spielbretts, daher bleiben viele Felder leer. Füge mehr Gruppen oder Intensitätsstufen hinzu.",
   "dialog": "Dialog",
   "playerDialog": "Meinen Würfeldialog anzeigen",
   "othersDialog": "Würfeldialog anderer Spieler anzeigen",

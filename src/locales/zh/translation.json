@@ -160,6 +160,8 @@
   "ruined": "毀掉的高潮：",
   "cum": "正常高潮：",
   "consumptionWarning": "警告：與其他任何類別相比，您將有很多消費動作（酒精、poppers、電子菸）。請小心遊玩。",
+  "missingGroupsWarning": "警告：這些選定的群組沒有可用的動作，不會出現在你的遊戲板上：{{groups}}。",
+  "sparseBoardWarning": "警告：你目前的選擇填不滿一半的遊戲板，許多格子將會是空的。請新增更多群組或強度等級。",
   "dialog": "對話框",
   "playerDialog": "顯示我的擲骰對話框",
   "othersDialog": "顯示其他玩家的擲骰對話框",

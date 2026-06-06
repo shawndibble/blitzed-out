@@ -70,6 +70,8 @@ A player's gender selection (`male` / `female` / `non-binary`) used to personali
 
 A player's role (`dom` / `sub` / `vers`) used to filter and personalize actions. Collected per-player in Shared Device setup. Collected in Individual Devices setup **only when `soloPlay === false`** (group play). Not collected for Solo mode.
 
+A `vers` player takes dom or sub per the action's needs; when an action requires **both** roles, the assignment is a random coin flip per roll **by design** (versatile = either, each time) — see `actionStringReplacement.ts`.
+
 ## Participation Style (`soloPlay`)
 
 Applies to Individual Devices (`online`) mode only. Determines whether the player receives solo-only content or partner-interaction content.

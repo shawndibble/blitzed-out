@@ -8,10 +8,7 @@ Companion to [README.md](README.md). A candid, engineering-honest list of curren
 
 ## Content & gameplay
 
-- **`vers` role and non-binary anatomy resolve heuristically/randomly per roll** — non-deterministic and occasionally surprising. Worth surfacing the resolution to the player or making it configurable.
-- **Empty-tile fallbacks:** if a selected group lacks tiles at a needed intensity, slots can end up sparse. Better authoring-time warnings (the builder already computes "missing groups" metadata — surface it).
-- **Penetrative-context / strap-on detection is keyword-based per locale** — brittle across languages; candidate for a more structured tag on tiles.
-- **Board size assumptions in tests** vs configurable `boardSize` — keep an eye on tests that hardcode sizes.
+- **Penetrative-context / strap-on detection is keyword-based per locale** — `isPenetrativeContext` does substring matching against per-language keyword lists (`anatomy.json` per locale); brittle (no morphology/synonyms, must be maintained in 6 languages). Tiles already carry a `tags[]` field that goes unused here — a structured `penetrative` tag would be more robust. _(Planned as a dedicated follow-up; note there are **two** strapon code paths — the keyword-gated piped path in `actionStringReplacement.ts` and an **ungated** one in `anatomyPlaceholderService.ts` that straps every female dom on bare `{genital}` — so the structured tag must decide whether to gate both.)_
 
 ## Customization & data portability
 
@@ -24,7 +21,6 @@ Companion to [README.md](README.md). A candid, engineering-honest list of curren
 - **Anonymous accounts are single-device and unrecoverable.** Losing browser storage loses content unless exported. A lightweight "backup code"/email-link recovery for anonymous users would help.
 - **Local Dexie isn't pushed cross-device in real time** — reconciliation is debounce/manual/periodic. Conflict resolution is per-entity merge; concurrent edits on two devices can surprise. Consider last-writer-wins timestamps or CRDT-ish merge for boards/settings.
 - **Online mode degrades hard offline** (rooms/chat/presence/video all need network). Some of this is inherent, but graceful messaging and queued chat could improve UX.
-- **Firestore `persistentLocalCache` is slower** than the deprecated API (noted in ADR-0001); acceptable because Dexie is primary, but watch perf on large message histories.
 
 ## Tooling & docs
 
