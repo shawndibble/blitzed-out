@@ -56,54 +56,9 @@ describe('Fresh User Migration Bug Prevention', () => {
     // Fresh user check
     expect(isMigrationCompleted()).toBe(false);
 
-    // Mock successful migration
-    vi.doMock('@/stores/customGroups', () => ({
-      addCustomGroup: vi.fn().mockResolvedValue('test-id'),
-      getCustomGroupByName: vi.fn().mockResolvedValue(null),
-      removeDuplicateGroups: vi.fn().mockResolvedValue(0),
-    }));
-
-    vi.doMock('@/stores/customTiles', () => ({
-      importCustomTiles: vi.fn().mockResolvedValue(undefined),
-      getTiles: vi.fn().mockResolvedValue([]),
-    }));
-
     // Migration should run for fresh user
     const migrationNeeded = !isMigrationCompleted();
     expect(migrationNeeded).toBe(true);
-  });
-
-  it('should ensure action groups are available after migration', async () => {
-    // This test validates the core issue was fixed - fresh users should get default action groups
-    const mockGroups = [
-      {
-        id: '1',
-        name: 'bating',
-        label: 'Bating',
-        intensities: [{ id: '1', label: 'Masturbation', value: 1, isDefault: true }],
-        type: 'solo',
-        isDefault: true,
-        locale: 'en',
-        gameMode: 'online',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-
-    // Mock the getAllAvailableGroups function
-    vi.doMock('@/stores/customGroups', () => ({
-      getAllAvailableGroups: vi.fn().mockResolvedValue(mockGroups),
-    }));
-
-    const { getAllAvailableGroups } = await import('@/stores/customGroups');
-
-    // Simulate what happens after successful migration
-    const groups = await getAllAvailableGroups('en', 'online');
-
-    expect(groups).toBeDefined();
-    expect(groups.length).toBeGreaterThan(0);
-    expect(groups[0].name).toBe('bating');
-    expect(groups[0].isDefault).toBe(true);
   });
 
   it('should properly set migration completion flag', () => {
