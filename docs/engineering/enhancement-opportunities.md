@@ -66,6 +66,5 @@ The full list and priorities are in [security.md](security.md#prioritized-harden
 
 ## Tooling & docs
 
-- **`docs/` is git-ignored** — this documentation and the ADRs don't travel with the repo. Decide whether to track them (`git add -f`) or relocate.
 - **`understand-anything` graph is stale** (commit `3f688ee`). Re-run the analysis to keep the navigation aid current, or stop relying on it.
 - **No automated dependency audit** in the documented workflow — add `npm audit` to CI.

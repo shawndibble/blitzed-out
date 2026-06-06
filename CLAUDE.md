@@ -1,5 +1,22 @@
 # CLAUDE.md
 
+## Engineering Docs
+
+Read these before deep work — they answer "what does the app do / how does it work" faster than re-deriving from source:
+
+- `docs/engineering/README.md` — start here: highlights + capability Q&A (video, custom media, customization, import/export, offline, party sharing, Chromecast/AirPlay/Roku/Fire) + doc map.
+- `docs/engineering/architecture.md` — stack, layers, stores, ports/adapters, build/deploy, PWA.
+- `docs/engineering/features.md` — full feature catalog with key files.
+- `docs/engineering/data-and-sync.md` — Dexie schema, Firebase paths, sync, migration, import/export, offline, accounts.
+- `docs/engineering/security.md` — auth, Firestore/RTDB/Storage rules, functions, secrets, validation, privacy, weaknesses.
+- `docs/engineering/enhancement-opportunities.md` — candid limitations + improvement/hardening backlog.
+- `CONTEXT.md` (repo root) — authoritative domain glossary (topology, room, game mode, anatomy, role, soloPlay).
+- `docs/adr/` — Architecture Decision Records.
+
+Keep these in sync when you change a subsystem. `docs/` is tracked in git.
+
+**`.understand-anything/knowledge-graph.json`** — generated codebase knowledge graph (query via `understand-chat`/`understand-explain` skills). ⚠️ Point-in-time snapshot (commit `3f688ee`); navigation aid only — verify load-bearing facts against live source.
+
 ## Commands
 
 - `npm start` — dev server (Vite). **DO NOT restart** during sessions. Assume running.

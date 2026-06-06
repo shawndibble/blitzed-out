@@ -3,8 +3,6 @@
 > **Audience:** engineers and AI agents working on this codebase.
 > **What this is:** a durable, accurate description of what Blitzed Out _is_, what it _can do today_, and how it _works_. Start here, then drill into the topic files.
 
-> ⚠️ **Heads-up: `docs/` is git-ignored.** The entire `docs/` directory (including these files and the existing ADRs) is listed in `.gitignore`, so nothing here is tracked or shared via git by default. If you want this documentation to travel with the repo, force-add it (`git add -f docs/engineering/`) or move it to a tracked path. See [Doc maintenance](#doc-maintenance).
-
 ---
 
 ## What Blitzed Out is
@@ -101,7 +99,7 @@ These are the questions a user is likely to grill you on. Short answers here; de
 | [security.md](security.md)                                   | Auth, Firestore/RTDB/Storage rules, cloud functions, secrets, input validation, privacy, known weaknesses                   |
 | [enhancement-opportunities.md](enhancement-opportunities.md) | Candid limitations and improvement/hardening opportunities                                                                  |
 
-Related existing docs (also under git-ignored `docs/`):
+Related existing docs:
 
 - [`CONTEXT.md`](../../CONTEXT.md) — domain glossary (topology, room, game mode, anatomy, role, soloPlay). _This one is in the repo root and authoritative for terminology._
 - [`docs/adr/`](../adr/) — Architecture Decision Records (ADR-0001 PWA/offline, ADR-0002 room assignment by topology).
@@ -119,5 +117,5 @@ Related existing docs (also under git-ignored `docs/`):
 ## Doc maintenance
 
 - These docs were written against branch `refactor/architecture-deepening-board-orchestrator`. Re-verify against `develop` if it has advanced.
-- `docs/` is git-ignored (see `.gitignore`). To version these: `git add -f docs/engineering/*.md` or relocate to a tracked directory.
+- `docs/` is tracked in git (it was previously git-ignored; the `docs/` entry was removed from `.gitignore`).
 - When you change a subsystem, update the matching topic doc. Keep capability answers in this README in sync with reality — they're the ones users quote back at you.
