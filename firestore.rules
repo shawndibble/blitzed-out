@@ -1,7 +1,57 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Optional URL: empty string, or an http(s) link, capped in length.
+    function isValidOptionalUrl(url) {
+      return url is string
+        && url.size() <= 2048
+        && (url == '' || url.matches('^https?://.+'));
+    }
+
+    function customActionCreateValid() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['grouping', 'customAction', 'ttl'])
+        && data.keys().hasOnly(['grouping', 'customAction', 'ttl'])
+        && data.grouping is string && data.grouping.size() <= 100
+        && data.customAction is string && data.customAction.size() <= 2000
+        && data.ttl is timestamp;
+    }
+
+    function gameBoardCreateValid() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['title', 'gameBoard', 'settings', 'checksum', 'ttl'])
+        && data.keys().hasOnly(['title', 'gameBoard', 'settings', 'checksum', 'ttl'])
+        && data.title is string && data.title.size() <= 200
+        && data.gameBoard is string && data.gameBoard.size() <= 600000
+        && data.settings is string && data.settings.size() <= 200000
+        && data.checksum is string && data.checksum.size() <= 128
+        && data.ttl is timestamp;
+    }
+
+    function scheduleCreateValid() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['dateTime', 'url', 'room', 'createdBy'])
+        && data.keys().hasOnly(['dateTime', 'url', 'room', 'createdBy'])
+        && data.dateTime is timestamp
+        && isValidOptionalUrl(data.url)
+        && data.room is string && data.room.size() <= 64
+        && data.createdBy == request.auth.uid;
+    }
+
+    function scheduleUpdateValid() {
+      let data = request.resource.data;
+      return resource.data.createdBy == request.auth.uid
+        && data.createdBy == resource.data.createdBy
+        && data.diff(resource.data).affectedKeys().hasOnly(['dateTime', 'url'])
+        && data.dateTime is timestamp
+        && isValidOptionalUrl(data.url);
+    }
+
     // User data - only authenticated users can access their own data
     match /user-data/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -10,24 +60,15 @@ service cloud.firestore {
     // Custom actions - authenticated users can submit, anonymous read
     match /custom-actions/{actionId} {
       allow read: if true; // Public read for game content
-      allow create: if request.auth != null 
-        && request.resource.data.keys().hasAll(['grouping', 'customAction', 'ttl'])
-        && request.resource.data.grouping is string
-        && request.resource.data.customAction is string
-        && request.resource.data.ttl is timestamp;
+      allow create: if isSignedIn() && customActionCreateValid();
       allow update, delete: if false; // No updates/deletes allowed
     }
     
     // Game boards - authenticated users can create, public read with TTL
     match /game-boards/{boardId} {
       allow read: if true; // Public read for sharing boards
-      allow create: if request.auth != null 
-        && request.resource.data.keys().hasAll(['title', 'gameBoard', 'settings', 'checksum', 'ttl'])
-        && request.resource.data.title is string
-        && request.resource.data.gameBoard is string
-        && request.resource.data.checksum is string
-        && request.resource.data.ttl is timestamp;
-      allow update: if request.auth != null 
+      allow create: if isSignedIn() && gameBoardCreateValid();
+      allow update: if isSignedIn()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ttl']);
       allow delete: if false; // Let TTL handle cleanup
     }
@@ -69,20 +110,9 @@ service cloud.firestore {
     // Schedule - authenticated users can create, public read
     match /schedule/{scheduleId} {
       allow read: if true; // Public read for game schedules
-      allow create: if request.auth != null 
-        && request.resource.data.keys().hasAll(['dateTime', 'url', 'room', 'createdBy'])
-        && request.resource.data.keys().hasOnly(['dateTime', 'url', 'room', 'createdBy'])
-        && request.resource.data.dateTime is timestamp
-        && request.resource.data.url is string
-        && request.resource.data.room is string
-        && request.resource.data.createdBy == request.auth.uid;
-      allow update: if request.auth != null
-        && resource.data.createdBy == request.auth.uid
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dateTime', 'url'])
-        && request.resource.data.dateTime is timestamp
-        && request.resource.data.url is string;
-      allow delete: if request.auth != null
+      allow create: if isSignedIn() && scheduleCreateValid();
+      allow update: if isSignedIn() && scheduleUpdateValid();
+      allow delete: if isSignedIn()
         && resource.data.createdBy == request.auth.uid;
     }
   }

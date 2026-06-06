@@ -29,6 +29,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AddIcon from '@mui/icons-material/Add';
 import EventIcon from '@mui/icons-material/Event';
 import useAuth from '@/context/hooks/useAuth';
+import { isValidURL } from '@/helpers/urls';
 
 interface ScheduleProps {
   open: boolean;
@@ -76,7 +77,7 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
         return false;
       }
 
-      if (url && !url.startsWith('http')) {
+      if (url && !isValidURL(url)) {
         setAlert(t('scheduleValidation.enterValidUrl'));
         return false;
       }

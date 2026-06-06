@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isValidURL } from '@/helpers/urls';
+import { isValidURL, MAX_URL_LENGTH } from '@/helpers/urls';
 
 describe('isValidURL', () => {
   describe('Valid URLs', () => {
@@ -251,6 +251,28 @@ describe('isValidURL', () => {
     it('should reject URLs that throw URL constructor errors', () => {
       expect(isValidURL('http:////')).toBe(false);
       expect(isValidURL('https://[invalid-ipv6]/path')).toBe(false);
+    });
+  });
+
+  describe('Length limits', () => {
+    it('should reject URLs longer than MAX_URL_LENGTH', () => {
+      const longUrl = 'https://example.com/' + 'a'.repeat(MAX_URL_LENGTH);
+      expect(longUrl.length).toBeGreaterThan(MAX_URL_LENGTH);
+      expect(isValidURL(longUrl)).toBe(false);
+    });
+
+    it('should accept URLs at or under MAX_URL_LENGTH', () => {
+      const padding = MAX_URL_LENGTH - 'https://example.com/'.length;
+      const url = 'https://example.com/' + 'a'.repeat(padding);
+      expect(url.length).toBe(MAX_URL_LENGTH);
+      expect(isValidURL(url)).toBe(true);
+    });
+
+    it('should measure length after trimming whitespace', () => {
+      const padding = MAX_URL_LENGTH - 'https://example.com/'.length;
+      const url = '   https://example.com/' + 'a'.repeat(padding) + '   ';
+      expect(url.length).toBeGreaterThan(MAX_URL_LENGTH);
+      expect(isValidURL(url)).toBe(true);
     });
   });
 

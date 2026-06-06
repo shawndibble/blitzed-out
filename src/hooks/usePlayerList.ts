@@ -1,10 +1,16 @@
 import { t } from 'i18next';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { orderedMessagesByType } from '@/helpers/messages';
+import { isUserPresent, presenceTimeoutForRoom } from '@/helpers/presence';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useUserListStore } from '@/stores/userListStore';
 import { Message } from '@/types/Message';
+
+// Re-evaluate presence staleness on a timer so players whose heartbeat lapsed
+// drop out even when no store update arrives to trigger a re-render.
+const PRESENCE_TICK_MS = 30_000;
 
 interface Player {
   displayName: string;
@@ -32,13 +38,27 @@ export default function usePlayerList(): Player[] {
   const { user } = useAuth();
   const { messages, isLoading } = useMessages();
   const { onlineUsers } = useUserListStore();
+  const { id: room } = useParams();
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), PRESENCE_TICK_MS);
+    return () => clearInterval(interval);
+  }, []);
 
   const players = useMemo(() => {
     if (isLoading || !user) return [];
 
     const uniqueGameActions = filteredGameMessages(messages);
+    const presenceTimeout = presenceTimeoutForRoom(room);
 
     return Object.values(onlineUsers)
+      .filter(
+        // Keep self regardless; drop others whose heartbeat has gone stale
+        // (killed tab / failed onDisconnect). Idle-but-live tabs keep heartbeating.
+        (userInfo) =>
+          userInfo.uid === user.uid || isUserPresent(userInfo.lastSeen, now, presenceTimeout)
+      )
       .map((userInfo) => {
         // Extract game location from messages
         const userGameMessage = uniqueGameActions.find(
@@ -77,7 +97,7 @@ export default function usePlayerList(): Player[] {
         if (b.status === 'active' && a.status !== 'active') return 1;
         return a.displayName.localeCompare(b.displayName);
       });
-  }, [user, onlineUsers, messages, isLoading]);
+  }, [user, onlineUsers, messages, isLoading, room, now]);
 
   return players;
 }

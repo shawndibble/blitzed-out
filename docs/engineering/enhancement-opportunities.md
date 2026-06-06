@@ -9,7 +9,7 @@ Companion to [README.md](README.md). A candid, engineering-honest list of curren
 ## Media
 
 - **Reddit slideshow depends on third-party CORS proxies** (`r.jina.ai`, `allorigins`, `corsproxy.io`). These are availability and privacy risks; a small first-party proxy/Cloud Function would be more reliable.
-- **No format/host validation on user URLs** before embedding (see [security.md](security.md#content--input-validation)). Both a security and UX issue (broken embeds).
+- **No scheme/host validation on background media URLs** before iframe embedding (see [security.md](security.md#content--input-validation)). Both a security and UX issue (broken embeds). _(Schedule/custom-action/board URLs + string sizes are now validated in rules.)_
 - **Direct-video error handling retries image extensions** — works but is heuristic; a proper content-type probe would be cleaner.
 - **EXIF not stripped** from uploaded images (potential location metadata leak).
 
@@ -52,7 +52,7 @@ Companion to [README.md](README.md). A candid, engineering-honest list of curren
 The full list and priorities are in [security.md](security.md#prioritized-hardening-backlog). Headlines:
 
 1. Scope **RTDB presence reads** and **signaling writes**.
-2. Validate user-supplied URLs and string sizes.
+2. Validate **background media URLs** before iframe embedding. _(Schedule/custom-action/board URL + string-size validation is done.)_
 
 ## Tooling & docs
 
