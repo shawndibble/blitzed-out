@@ -4,11 +4,12 @@ import { AuthContext, AuthProvider } from '../../context/auth';
 import AllProviders from '../AllProviders';
 import RouterSetup from '../RouterSetup';
 import { useAmbientMusic } from '@/services/ambientMusic';
+import useDocumentMeta from '@/hooks/useDocumentMeta';
 
 function AppContent() {
   const auth = useContext(AuthContext);
 
-  // Initialize ambient music based on settings
+  useDocumentMeta();
   useAmbientMusic();
 
   // Show skeleton during auth loading
