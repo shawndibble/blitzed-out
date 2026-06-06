@@ -4,6 +4,10 @@ export interface IceServer {
   credential?: string;
 }
 
+// Mesh topology cap — beyond this, per-peer connection count crashes browsers.
+// For larger groups the UI redirects users to an SFU-based service (Discord/Jitsi/Zoom).
+export const MAX_PEERS = 4;
+
 const METERED_USERNAME = import.meta.env.VITE_METERED_USERNAME;
 const METERED_CREDENTIAL = import.meta.env.VITE_METERED_CREDENTIAL;
 

@@ -1,5 +1,6 @@
 import { Box, Typography, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { MAX_PEERS } from '@/config/webrtc';
 import VideoTile from '../VideoTile';
 
 interface ParticipantData {
@@ -39,7 +40,6 @@ const VideoGrid = ({ participants }: VideoGridProps) => {
     );
   }
 
-  const MAX_PEERS = 4;
   const isAtLimit = participantCount >= MAX_PEERS;
 
   return (

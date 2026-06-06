@@ -33,27 +33,6 @@ Companion to [README.md](README.md). A candid, engineering-honest list of curren
 - **Online mode degrades hard offline** (rooms/chat/presence/video all need network). Some of this is inherent, but graceful messaging and queued chat could improve UX.
 - **Firestore `persistentLocalCache` is slower** than the deprecated API (noted in ADR-0001); acceptable because Dexie is primary, but watch perf on large message histories.
 
-## Realtime / video
-
-- **4-peer cap** on WebRTC — fine for the use case, but a mesh topology won't scale beyond that; an SFU would be needed for larger rooms.
-- **TURN credentials are static in the bundle**. Dynamic per-session credentials would reduce abuse risk.
-- **Signaling cleanup relies on a scheduled function** — if it fails, stale signaling data accumulates (no TTL on RTDB paths).
-
-## Performance
-
-- **Bundle audit tooling exists**: `rollup-plugin-visualizer` is wired into `vite.config.ts`, gated behind `ANALYZE=true npm run build` (writes `bundle-stats.html`, gitignored). Run it periodically as features grow.
-- **Initial JS is code-split.** Routes (`Cast`, `Room`, `UnauthenticatedApp`) and heavy on-demand dialogs (`GameGuide`→react-markdown, `GameStatistics`, `ManageGameBoards`, `Schedule`, `GameSettingsDialog`, `AppSettingsDialog`, `CustomTilesDialog`, `AuthDialog`) load lazily via `lazyWithRetry`. Main entry chunk is ~97 KB gzipped (was ~374 KB before splitting). `dice-box-threejs` (~140 KB gz) is its own chunk, preloaded on idle. Watch for `INEFFECTIVE_DYNAMIC_IMPORT` warnings at build time — a lazy target also imported statically elsewhere won't actually split.
-- **Sounds (~12 MB dicebox files) aren't precached** — first play needs network. The `navigateFallbackDenylist` deliberately excludes audio from the SW precache; selectively runtime-cache the few most-used short dicehit sounds via Workbox if first-play latency matters. (Synthesized UI sounds in `gameSounds.ts` are oscillator-based, no files.)
-- **AudioContext is now a reused singleton** (`audioContext.ts`); `gameSounds.ts` no longer creates/closes a context per sound (avoids the ~6-context browser cap and per-roll latency).
-- **Message store keeps 24h of messages** in localStorage + Zustand, bounded by time not count — large/busy rooms could bloat; consider a hard count cap or windowing.
-
-## Security (cross-reference)
-
-The full list and priorities are in [security.md](security.md#prioritized-hardening-backlog). Headlines:
-
-1. Scope **RTDB presence reads** and **signaling writes**.
-2. Validate **background media URLs** before iframe embedding. _(Schedule/custom-action/board URL + string-size validation is done.)_
-
 ## Tooling & docs
 
 - **No automated dependency audit** in the documented workflow — add `npm audit` to CI.
