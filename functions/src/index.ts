@@ -465,5 +465,3 @@ export const manualCleanupAnonymousAccounts = functions.https.onCall(async (data
     throw new functions.https.HttpsError('internal', 'Failed to cleanup anonymous accounts');
   }
 });
-
-export { redditProxy } from './redditProxy';

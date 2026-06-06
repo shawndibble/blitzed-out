@@ -68,9 +68,7 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 ## Cloud Functions (`functions/src/index.ts`)
 
-8 exported functions: scheduled cleanups (stale users ~5 min, inactive anonymous accounts daily, video-call signaling ~5 min), RTDB presence triggers (`onUserDisconnect`, presence validation), two **callable** admin helpers, and the `redditProxy` HTTP function.
-
-**`redditProxy`** (`functions/src/redditProxy.ts`) — unauthenticated HTTP proxy for Reddit's public JSON feeds. **SSRF-safe by construction:** accepts only `subreddit` (`/^[A-Za-z0-9_]{1,50}$/`), `sort` (`top|hot`), and `after` (Reddit fullname shape); the reddit.com host/path are built server-side, so it can never be pointed at an arbitrary or internal host. CORS is open (`*`) — acceptable precisely because the input is structurally constrained, not a URL. 10 s upstream timeout, 5 min cache header.
+7 exported functions: scheduled cleanups (stale users ~5 min, inactive anonymous accounts daily, video-call signaling ~5 min), RTDB presence triggers (`onUserDisconnect`, presence validation), and two **callable** admin helpers.
 
 **Admin callables** — `manualCleanupStaleUsers` and `manualCleanupAnonymousAccounts`:
 

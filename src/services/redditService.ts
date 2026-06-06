@@ -1,5 +1,7 @@
 // Dedicated service for fetching images from Reddit
 
+import { clearRedditToken, getRedditAccessToken } from '@/services/redditAuth';
+
 export interface RedditFeedConfig {
   subreddit: string;
   maxImages?: number;
@@ -17,45 +19,34 @@ function decodeHtmlEntities(str: string): string {
   return str.replace(/&amp;/g, '&');
 }
 
-// First-party Cloud Function proxy. Replaces the old third-party CORS proxies
-// (r.jina.ai / allorigins / corsproxy.io) which were availability and privacy risks.
-const REDDIT_PROXY_URL = `${
-  import.meta.env.VITE_FIREBASE_FUNCTIONS_URL ||
-  `https://us-central1-${import.meta.env.VITE_FIREBASE_PROJECT_ID}.cloudfunctions.net`
-}/redditProxy`;
-
-function directRedditUrl(subreddit: string, sort: RedditSort, after: string | null): string {
-  const params = new URLSearchParams({ limit: '100', raw_json: '1' });
-  if (sort === 'top') params.set('t', 'year');
-  if (after) params.set('after', after);
-  return `https://www.reddit.com/r/${subreddit}/${sort}.json?${params.toString()}`;
-}
-
-function parseJsonLoose(text: string): any | null {
-  try {
-    return JSON.parse(text);
-  } catch {
-    // Some responses wrap JSON in HTML; extract the outermost object.
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
-    if (start !== -1 && end !== -1 && end > start) {
-      try {
-        return JSON.parse(text.slice(start, end + 1));
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
-}
+// Calls go directly from the user's browser to Reddit's CORS-enabled OAuth API
+// (oauth.reddit.com), authenticated with an app-only token (see redditAuth.ts). This
+// replaced both the old third-party CORS proxies and an interim Cloud Function relay:
+// fetching from the user's own IP avoids the datacenter-IP 403/429s a relay would hit.
+const OAUTH_BASE = 'https://oauth.reddit.com';
 
 const isAbort = (error: unknown): boolean =>
   error instanceof DOMException && error.name === 'AbortError';
 
+function listingUrl(subreddit: string, sort: RedditSort, after: string | null): string {
+  const params = new URLSearchParams({ limit: '100', raw_json: '1' });
+  if (sort === 'top') params.set('t', 'year');
+  if (after) params.set('after', after);
+  return `${OAUTH_BASE}/r/${subreddit}/${sort}?${params.toString()}`;
+}
+
+async function fetchListing(url: string, token: string, signal: AbortSignal): Promise<Response> {
+  return fetch(url, {
+    signal,
+    credentials: 'omit',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 /**
- * Fetches one page of a subreddit's JSON listing. Primary path is the first-party
- * Cloud Function proxy; falls back to a direct reddit.com fetch (e.g. if the function
- * is not yet deployed or is temporarily unavailable). Returns the parsed listing or null.
+ * Fetches one page of a subreddit's listing from Reddit's OAuth API, directly from the
+ * browser. Returns the parsed listing, or null when unauthenticated/unavailable. On a 401
+ * the token is dropped and the request retried once with a fresh token.
  */
 export async function fetchRedditPage(
   subreddit: string,
@@ -63,35 +54,22 @@ export async function fetchRedditPage(
   after: string | null,
   signal: AbortSignal
 ): Promise<any | null> {
-  const proxyParams = new URLSearchParams({ subreddit, sort });
-  if (after) proxyParams.set('after', after);
+  const url = listingUrl(subreddit, sort, after);
 
   try {
-    const resp = await fetch(`${REDDIT_PROXY_URL}?${proxyParams.toString()}`, {
-      signal,
-      credentials: 'omit',
-    });
+    let token = await getRedditAccessToken(signal);
+    if (!token) return null;
+
+    let resp = await fetchListing(url, token, signal);
+    if (resp.status === 401) {
+      clearRedditToken();
+      token = await getRedditAccessToken(signal);
+      if (!token) return null;
+      resp = await fetchListing(url, token, signal);
+    }
+
     if (resp.ok) {
       return await resp.json();
-    }
-  } catch (error) {
-    if (isAbort(error)) throw error;
-  }
-
-  // Fallback: direct fetch. User-Agent is a forbidden header in browsers (silently dropped),
-  // so we rely on Reddit's CORS-enabled JSON endpoints here.
-  try {
-    const resp = await fetch(directRedditUrl(subreddit, sort, after), {
-      signal,
-      credentials: 'omit',
-      mode: 'cors',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
-    });
-    if (resp.ok) {
-      return parseJsonLoose(await resp.text());
     }
   } catch (error) {
     if (isAbort(error)) throw error;
