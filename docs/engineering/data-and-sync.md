@@ -81,7 +81,7 @@ Loop prevention (push→pull→apply→push) relies on three guards: the snapsho
 - **Client-clock based.** `updatedAt` is stamped with `Date.now()` at write time; with cross-device clock skew the faster-clock device wins regardless of true edit order.
 - **Settings and custom groups are excluded from LWW.** Settings keep last-sync-wins (whole-object LWW would drop a field on concurrent edits); custom groups remain adds-only on merge (their identity is `name+locale+gameMode` and field edits are rare). Both still reconcile on `forceSync`.
 - **No Dexie schema bump.** `updatedAt` is a non-indexed field; pre-existing rows adopt a timestamp on their next local edit and fall back to legacy (apply-remote) reconciliation until then.
-- **`activateBoard` doesn't bump `updatedAt`** (active-board flips are device-local and don't propagate via LWW).
+- **The active board is device-local.** `activateBoard` doesn't bump `updatedAt`, and `GameBoardsSync.syncFromFirebase` preserves the local `isActive` flag when it applies a remote board (board _content_ still wins via LWW; the active flag does not). This avoids a switch on one device deactivating another's board, and avoids an active-flip re-stamping `updatedAt` and clobbering a newer remote tile edit. A cold-start device with nothing active adopts the remote-active board once so the user isn't left with no active board.
 
 ---
 

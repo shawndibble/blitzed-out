@@ -22,7 +22,7 @@ If someone asks "what are the main highlights of this tool?", these are the answ
 1. **Personalized adult board game.** Action text adapts to each player's anatomy (`male`/`female`/`non-binary`), role (`dom`/`sub`/`vers`), and selected intensity via a placeholder system (`{genital}`, `{hole}`, `{chest}`, `{dom}`, `{sub}`, `{player}`).
 2. **Three ways to play:** **Solo** (one player/one device), **Shared Device** (2–4 people, one device, pass-and-play), and **Individual Devices** (everyone on their own device in the same online room). See [`CONTEXT.md`](../../CONTEXT.md) for the topology/room/game-mode glossary.
 3. **Deep customization.** Users create their own **custom tiles** and **custom groups**, build and manage **game boards**, pick intensities, and tune a long list of settings.
-4. **Rich media room backgrounds.** Set a room/app background to an image or video from a huge range of sources (direct files, YouTube/Vimeo, Reddit slideshows, many adult tube sites, Giphy/Imgur, Google Drive/Dropbox, etc.).
+4. **Rich media room backgrounds.** Set a room/app background to an image or video from a huge range of sources (direct files, YouTube/Vimeo, many adult tube sites, Giphy/Imgur, Google Drive/Dropbox, etc.).
 5. **Cast to a TV via Chromecast.** A dedicated cast receiver view shows the current action and background on the big screen.
 6. **In-room video calling.** WebRTC peer-to-peer video/audio between players in a room (up to 4 peers), with Firebase used only for signaling.
 7. **Audio:** ambient soundscapes, per-turn notification sounds, and browser text-to-speech that reads actions aloud.
@@ -38,7 +38,7 @@ These are the questions a user is likely to grill you on. Short answers here; de
 
 ### Can I play videos?
 
-**Yes.** Room/app backgrounds support video from a wide range of sources. Direct video files (`.mp4`, `.webm`, `.ogg`, `.mov`) play in a native muted, looping, autoplaying `<video>` element. Everything else (YouTube, Vimeo, Reddit, many adult tube sites, Giphy, Google Drive/Dropbox, Twitter via proxy, etc.) is normalized to an embeddable URL by `src/services/getBackgroundSource.ts` and shown in a sandboxed `<iframe>`. Autoplay is forced muted to satisfy browser autoplay policies; a tap-to-play fallback appears if the browser still blocks it. → [features.md → Media](features.md#media-backgrounds-images-video)
+**Yes.** Room/app backgrounds support video from a wide range of sources. Direct video files (`.mp4`, `.webm`, `.ogg`, `.mov`) play in a native muted, looping, autoplaying `<video>` element. Everything else (YouTube, Vimeo, many adult tube sites, Giphy, Google Drive/Dropbox, Twitter via proxy, etc.) is normalized to an embeddable URL by `src/services/getBackgroundSource.ts` and shown in a sandboxed `<iframe>`. Autoplay is forced muted to satisfy browser autoplay policies; a tap-to-play fallback appears if the browser still blocks it. → [features.md → Media](features.md#media-backgrounds-images-video)
 
 ### Can I load my own images?
 

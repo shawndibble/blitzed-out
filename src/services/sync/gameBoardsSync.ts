@@ -19,6 +19,12 @@ export class GameBoardsSync extends SyncBase {
       // Index local boards by title for last-writer-wins comparison.
       const localBoards = await getBoards();
       const localByTitle = new Map(localBoards.map((board) => [board.title, board]));
+      // The active board is device-local — it is never adopted from a remote
+      // copy, so a switch on one device can't deactivate/clobber another's.
+      // Exception: a cold-start device with nothing active yet adopts the
+      // remote-active board once, so the user isn't left with no active board.
+      const hasActiveLocal = localBoards.some((board) => board.isActive);
+      let coldStartActivated = false;
 
       let importedCount = 0;
       for (const board of gameBoards) {
@@ -30,12 +36,20 @@ export class GameBoardsSync extends SyncBase {
             continue;
           }
 
+          // Keep the device-local active flag; only honor the remote flag for a
+          // brand-new board on a device that has nothing active yet (once).
+          let isActive = local ? local.isActive : 0;
+          if (!local && !hasActiveLocal && !coldStartActivated && board.isActive) {
+            isActive = 1;
+            coldStartActivated = true;
+          }
+
           await upsertBoard({
             title: board.title,
             tiles: board.tiles || [],
             tags: board.tags || [],
             gameMode: board.gameMode || 'online',
-            isActive: board.isActive || 0,
+            isActive,
             updatedAt: board.updatedAt ?? Date.now(),
           });
           importedCount++;
