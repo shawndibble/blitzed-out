@@ -160,6 +160,8 @@
   "ruined": "Orgasmo arruinado:",
   "cum": "Con orgasmo:",
   "consumptionWarning": "Advertencia: Tendrás muchas acciones de consumo (Alcohol, Poppers, Vapeo) en comparación con cualquier otra categoría. Juega con responsabilidad.",
+  "missingGroupsWarning": "Advertencia: estos grupos seleccionados no tienen acciones disponibles y no aparecerán en tu tablero: {{groups}}.",
+  "sparseBoardWarning": "Advertencia: tu selección actual llena menos de la mitad del tablero, por lo que muchas casillas quedarán vacías. Añade más grupos o niveles de intensidad.",
   "dialog": "Diálogo",
   "playerDialog": "Mostrar mi diálogo de tirada",
   "othersDialog": "Mostrar diálogo de tirada de otros jugadores",

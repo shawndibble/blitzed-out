@@ -11,6 +11,7 @@ import { Settings } from '@/types/Settings';
 import SettingsSelect from '@/components/SettingsSelect';
 import SoloSwitch from './SoloSwitch';
 import WarningAlert from './WarningAlert';
+import ContentWarning from './ContentWarning';
 import { useLocalPlayerStore } from '@/stores/localPlayerStore';
 
 interface BoardSettingsProps {
@@ -174,6 +175,7 @@ export default function BoardSettings({
       )}
       <FinishSlider setFormData={setFormData} formData={formData} />
       <WarningAlert formData={formData} />
+      <ContentWarning formData={formData} actionsList={actionsList} />
     </Box>
   );
 }

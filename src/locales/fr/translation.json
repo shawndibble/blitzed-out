@@ -160,6 +160,8 @@
   "ruined": "Déni d'orgasme (ruined):",
   "cum": "Ejaculation:",
   "consumptionWarning": "Attention : Vous aurez beaucoup d'actions de consommation (Alcool, Poppers, Vaping) par rapport à toute autre catégorie. Jouez avec précaution.",
+  "missingGroupsWarning": "Attention : ces groupes sélectionnés n'ont aucune action disponible et n'apparaîtront pas sur votre plateau : {{groups}}.",
+  "sparseBoardWarning": "Attention : votre sélection actuelle remplit moins de la moitié du plateau, donc de nombreuses cases seront vides. Ajoutez plus de groupes ou de niveaux d'intensité.",
   "dialog": "Dialogue",
   "playerDialog": "Afficher mon dialogue de lancer",
   "othersDialog": "Afficher le dialogue de lancer des autres joueurs",
