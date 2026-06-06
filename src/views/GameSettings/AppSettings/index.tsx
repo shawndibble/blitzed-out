@@ -144,25 +144,19 @@ export default function AppSettings({
   return (
     <>
       <LanguageSelect boardUpdated={boardUpdated} />
-
       <Typography variant="h5">
         <Trans i18nKey="dialog" />
       </Typography>
-
       <AppBoolSwitch field="playerDialog" formData={formData} handleSwitch={handleSwitch} />
       <AppBoolSwitch field="othersDialog" formData={formData} handleSwitch={handleSwitch} />
-
       <Divider />
-
       <Typography variant="h5" sx={{ mt: 2 }}>
         <Trans i18nKey="sounds" />
       </Typography>
-
       <AppBoolSwitch field="mySound" formData={formData} handleSwitch={handleSwitch} />
       <AppBoolSwitch field="otherSound" formData={formData} handleSwitch={handleSwitch} />
       <AppBoolSwitch field="chatSound" formData={formData} handleSwitch={handleSwitch} />
       <AppBoolSwitch field="readRoll" formData={formData} handleSwitch={handleSwitch} />
-
       {formData.readRoll && (
         <VoiceSelect
           formData={formData}
@@ -171,17 +165,12 @@ export default function AppSettings({
           onPitchChange={handlePitchChange}
         />
       )}
-
       <AppBoolSwitch field="hapticFeedback" formData={formData} handleSwitch={handleSwitch} />
-
       <Divider />
-
       <Typography variant="h5" sx={{ mt: 2 }}>
         <Trans i18nKey="ambientMusic" />
       </Typography>
-
       <AppBoolSwitch field="ambientMusicEnabled" formData={formData} handleSwitch={handleSwitch} />
-
       {formData.ambientMusicEnabled && (
         <Box sx={{ py: 1 }}>
           <FormControl fullWidth size="small" sx={{ mb: 2 }}>
@@ -199,7 +188,13 @@ export default function AppSettings({
           </FormControl>
 
           <Box sx={{ px: 2 }}>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography
+              variant="body2"
+              gutterBottom
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {t('ambientVolume')}
             </Typography>
             <Box sx={{ px: 1 }}>
@@ -218,13 +213,10 @@ export default function AppSettings({
           </Box>
         </Box>
       )}
-
       <Divider />
-
       <Typography variant="h5" sx={{ mt: 2, textTransform: 'capitalize' }}>
         <Trans i18nKey="misc" />
       </Typography>
-
       <AppBoolSwitch
         field="showDiceAnimation"
         formData={formData}
@@ -238,7 +230,6 @@ export default function AppSettings({
         handleSwitch={handleSwitch}
         defaultValue={true}
       />
-
       <BackgroundSelect
         formData={formData}
         setFormData={setFormData}

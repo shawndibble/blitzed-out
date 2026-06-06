@@ -61,7 +61,14 @@ export default function InvisibleAccordionGrid({
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ px: 0 }}>
-        <Grid container columnSpacing={2} justifyContent="space-evenly" className="columned-grid">
+        <Grid
+          container
+          columnSpacing={2}
+          className="columned-grid"
+          sx={{
+            justifyContent: 'space-evenly',
+          }}
+        >
           {children}
         </Grid>
       </AccordionDetails>

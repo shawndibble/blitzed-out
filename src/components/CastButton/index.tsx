@@ -121,7 +121,7 @@ export default function CastButton(): JSX.Element | null {
           }
         };
 
-        // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener -- Cleanup handled via sessionListenerRef
+        // eslint-disable-next-line @eslint-react/web-api-no-leaked-event-listener -- Cleanup handled via sessionListenerRef
         castContext.addEventListener(
           window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
           handleSessionStateChanged

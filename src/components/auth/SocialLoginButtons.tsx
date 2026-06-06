@@ -38,13 +38,16 @@ export default function SocialLoginButtons({
           {error}
         </Alert>
       )}
-
       <Divider sx={{ mb: 2 }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           <Trans i18nKey="or">OR</Trans>
         </Typography>
       </Divider>
-
       <Button
         fullWidth
         variant="outlined"

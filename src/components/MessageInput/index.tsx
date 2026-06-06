@@ -89,22 +89,24 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
             }
           }}
           required
-          inputProps={{ minLength: 1 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <IconButton type="button" color="primary" onClick={attachFile}>
-                  <Photo />
-                </IconButton>
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton type="submit" color="primary" disabled={value.length < 1}>
-                  <SendIcon />
-                </IconButton>
-              </InputAdornment>
-            ),
+          slotProps={{
+            htmlInput: { minLength: 1 },
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <IconButton type="button" color="primary" onClick={attachFile}>
+                    <Photo />
+                  </IconButton>
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton type="submit" color="primary" disabled={value.length < 1}>
+                    <SendIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
           helperText={<Trans i18nKey="markdown" />}
         />

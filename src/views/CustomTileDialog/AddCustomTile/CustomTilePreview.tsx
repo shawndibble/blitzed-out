@@ -43,7 +43,12 @@ export default function CustomTilePreview({
         bgcolor: 'action.hover',
       }}
     >
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         {t('customTiles.preview.title')}
       </Typography>
       <Typography variant="body2">{preview}</Typography>

@@ -53,7 +53,7 @@ export default function ToastAlert({
         onClose={handleClose}
         action={action}
         anchorOrigin={{ vertical, horizontal }}
-        TransitionComponent={Slide}
+        slots={{ transition: Slide }}
       >
         <Alert
           onClose={!hideCloseButton ? handleClose : undefined}

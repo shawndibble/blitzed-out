@@ -50,7 +50,13 @@ export default function BrokenActionsState({
           {description || t('noActionsAvailableDescription')}
         </Alert>
 
-        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            textAlign: 'center',
+          }}
+        >
           {t('errorPersistsCheckBack')}
         </Typography>
 
@@ -66,7 +72,6 @@ export default function BrokenActionsState({
           {t('resetApp')}
         </Button>
       </Box>
-
       {showNavigation && (
         <Box sx={{ mt: 4 }}>
           <ButtonRow>

@@ -28,9 +28,20 @@ export default function PlayerListOption({
         <Trans i18nKey="playerListOptions" />
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               <Trans i18nKey="realtime" />
             </Typography>
             <Tooltip
@@ -50,7 +61,7 @@ export default function PlayerListOption({
               <Switch
                 checked={!!formData.roomRealtime}
                 onChange={togglePlayerListOption}
-                inputProps={{ 'aria-label': t('playerList') }}
+                slotProps={{ input: { 'aria-label': t('playerList') } }}
               />
             }
             label=""
@@ -58,7 +69,12 @@ export default function PlayerListOption({
           />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               <Trans i18nKey="delayed" />
             </Typography>
             <Tooltip

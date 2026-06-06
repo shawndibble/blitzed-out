@@ -30,14 +30,33 @@ export default function FinishSlider({ formData, setFormData }: FinishSliderProp
         onChange={handleChange}
         valueLabelDisplay="off"
       />
-      <Box display="flex" flexDirection="column" justifyContent="space-between" textAlign="center">
-        <Typography whiteSpace="nowrap">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          textAlign: 'center',
+        }}
+      >
+        <Typography
+          sx={{
+            whiteSpace: 'nowrap',
+          }}
+        >
           <Trans i18nKey="noCum" /> {finishRange[0]}%
         </Typography>
-        <Typography whiteSpace="nowrap">
+        <Typography
+          sx={{
+            whiteSpace: 'nowrap',
+          }}
+        >
           <Trans i18nKey="ruined" /> {finishRange[1] - finishRange[0]}%
         </Typography>
-        <Typography whiteSpace="nowrap">
+        <Typography
+          sx={{
+            whiteSpace: 'nowrap',
+          }}
+        >
           <Trans i18nKey="cum" /> {100 - finishRange[1]}%
         </Typography>
       </Box>

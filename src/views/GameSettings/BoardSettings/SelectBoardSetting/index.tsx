@@ -124,7 +124,13 @@ export default function SelectBoardSetting({
   };
 
   return (
-    <Grid container key={option} justifyContent="center">
+    <Grid
+      container
+      key={option}
+      sx={{
+        justifyContent: 'center',
+      }}
+    >
       <Grid size={gridSize}>{renderMultiSelectIntensity()}</Grid>
       {!!showRole && (
         <Grid size={6}>

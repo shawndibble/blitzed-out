@@ -54,7 +54,13 @@ export default function SoundSelector({
           onChange={handleSelectChange}
         >
           <MenuItem value="">
-            <Box display="flex" alignItems="center" gap={1}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
               <VolumeOff fontSize="small" />
               No sound
             </Box>
@@ -72,7 +78,6 @@ export default function SoundSelector({
           ])}
         </Select>
       </FormControl>
-
       <Tooltip title="Play sample">
         <IconButton
           onClick={handlePlaySample}

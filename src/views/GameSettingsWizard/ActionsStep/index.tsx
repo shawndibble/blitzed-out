@@ -161,11 +161,15 @@ export default function ActionsStep({
           }}
         >
           <CircularProgress size={48} />
-          <Typography variant="h6" color="text.secondary">
+          <Typography
+            variant="h6"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {isMigrationInProgress ? t('migratingDefaultActions') : t('loadingAvailableActions')}
           </Typography>
         </Box>
-
         {/* Navigation buttons - disabled during loading */}
         <Box sx={{ mt: 4 }}>
           <ButtonRow>
@@ -214,7 +218,13 @@ export default function ActionsStep({
             backgroundColor: 'background.default',
           }}
         >
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <PlayArrow />
             <Typography variant="h6">{t('quickStart')}</Typography>
           </Stack>
@@ -229,7 +239,6 @@ export default function ActionsStep({
           />
         </AccordionDetails>
       </Accordion>
-
       {/* Custom Selection Accordion */}
       <Accordion
         expanded={showCustomization}
@@ -257,13 +266,25 @@ export default function ActionsStep({
             backgroundColor: 'background.default',
           }}
         >
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <Tune />
             <Typography variant="h6">{t('customizeActions')}</Typography>
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mb: 2,
+            }}
+          >
             {t('customizeActionsDesc')}
           </Typography>
 
@@ -284,7 +305,6 @@ export default function ActionsStep({
           />
         </AccordionDetails>
       </Accordion>
-
       <Box sx={{ mt: 4 }}>
         <ButtonRow>
           <Button onClick={() => prevStep()}>

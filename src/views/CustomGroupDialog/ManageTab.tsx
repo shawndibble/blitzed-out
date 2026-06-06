@@ -28,7 +28,13 @@ export default function ManageTab({
 
   if (existingGroups.length === 0) {
     return (
-      <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+      <Typography
+        sx={{
+          color: 'text.secondary',
+          textAlign: 'center',
+          py: 4,
+        }}
+      >
         {t('customGroups.noCustomGroupsFound')}
       </Typography>
     );
@@ -46,9 +52,11 @@ export default function ManageTab({
                   <Box component="span" sx={{ display: 'block' }}>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
                       component="span"
-                      sx={{ display: 'block' }}
+                      sx={{
+                        color: 'text.secondary',
+                        display: 'block',
+                      }}
                     >
                       {t('customGroups.intensityLevelsCount', {
                         count: group.intensities.length,
@@ -57,9 +65,12 @@ export default function ManageTab({
                     </Typography>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
                       component="span"
-                      sx={{ display: 'block', mt: 0.5 }}
+                      sx={{
+                        color: 'text.secondary',
+                        display: 'block',
+                        mt: 0.5,
+                      }}
                     >
                       {t('customGroups.customTilesCount', {
                         count: tileCounts[group.id] || 0,

@@ -76,32 +76,26 @@ export default [
       ],
       'no-undef': 'off',
       'no-bitwise': 'off',
-      // Warn on ref naming convention - refs should end with "Ref"
-      '@eslint-react/naming-convention/ref-name': 'warn',
-      // Disable hooks-extra rules that are too strict for existing code
-      '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
       // Warn on leaked event listeners - should have cleanup
-      '@eslint-react/web-api/no-leaked-event-listener': 'warn',
+      '@eslint-react/web-api-no-leaked-event-listener': 'warn',
       // Disable lazy initialization suggestion
       '@eslint-react/prefer-use-state-lazy-initialization': 'off',
       // Disable useContext deprecation warning - React 19 migration concern
       '@eslint-react/no-use-context': 'off',
       // Disable forwardRef deprecation warning - React 19 migration concern
       '@eslint-react/no-forward-ref': 'off',
-      // Warn on useState naming convention - setters should be named setX
-      '@eslint-react/naming-convention/use-state': 'warn',
       // Disable array index key warning - sometimes unavoidable
       '@eslint-react/no-array-index-key': 'off',
       // Warn on leaked timeouts - should have cleanup
-      '@eslint-react/web-api/no-leaked-timeout': 'warn',
+      '@eslint-react/web-api-no-leaked-timeout': 'warn',
       // Disable iframe sandbox warning - needed for embeds
-      '@eslint-react/dom/no-unsafe-iframe-sandbox': 'off',
+      '@eslint-react/dom-no-unsafe-iframe-sandbox': 'off',
       // Disable Context.Provider deprecation warning - React 19 migration concern
       '@eslint-react/no-context-provider': 'off',
       // Warn on unnecessary use prefix - functions without hooks shouldn't use "use" prefix
       '@eslint-react/no-unnecessary-use-prefix': 'warn',
       // Warn on flushSync usage - should be rare
-      '@eslint-react/dom/no-flush-sync': 'warn',
+      '@eslint-react/dom-no-flush-sync': 'warn',
       // Enable createRef warning (except in tests where it's appropriate)
       '@eslint-react/no-create-ref': 'warn',
       // Warn on useless assignments

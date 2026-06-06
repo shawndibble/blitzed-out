@@ -27,7 +27,12 @@ const VideoGrid = ({ participants }: VideoGridProps) => {
           p: 3,
         }}
       >
-        <Typography variant="body1" color="text.secondary">
+        <Typography
+          variant="body1"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {t('videoCall.waitingForOthers')}
         </Typography>
       </Box>

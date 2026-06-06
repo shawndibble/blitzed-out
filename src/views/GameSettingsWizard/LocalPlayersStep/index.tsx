@@ -143,22 +143,31 @@ export default function LocalPlayersStep({
       <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
         <Trans i18nKey="localPlayersStep.title" />
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mb: 3,
+        }}
+      >
         <Trans i18nKey="localPlayersStep.subtitle" />
       </Typography>
-
       {error && (
         <Alert severity={players.length === 0 ? 'info' : 'error'} sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
-
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6">
             <Trans i18nKey="localPlayers.playersTitle" />
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             {t('localPlayers.playersCount', { count: players.length })}
           </Typography>
         </Box>
@@ -174,7 +183,13 @@ export default function LocalPlayersStep({
               bgcolor: 'action.hover',
             }}
           >
-            <Typography variant="body1" color="text.secondary" gutterBottom>
+            <Typography
+              variant="body1"
+              gutterBottom
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               <Trans i18nKey="localPlayers.noPlayersYet" />
             </Typography>
             <Button variant="contained" startIcon={<AddIcon />} onClick={addPlayer}>
@@ -214,9 +229,7 @@ export default function LocalPlayersStep({
           </>
         )}
       </Box>
-
       <Box sx={{ flexGrow: 1 }} />
-
       <ButtonRow>
         <Button onClick={prevStep}>
           <Trans i18nKey="previous" />
@@ -225,7 +238,6 @@ export default function LocalPlayersStep({
           <Trans i18nKey="next" />
         </Button>
       </ButtonRow>
-
       <PlayerForm
         open={isPlayerFormOpen}
         player={editingPlayer}

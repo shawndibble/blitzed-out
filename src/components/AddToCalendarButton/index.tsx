@@ -165,9 +165,11 @@ export default function AddToCalendarButton({
         anchorEl={calendarAnchorEl}
         open={calendarMenuOpen}
         onClose={handleCalendarClose}
-        MenuListProps={{
-          'aria-labelledby': 'calendar-button',
-          dense: true,
+        slotProps={{
+          list: {
+            'aria-labelledby': 'calendar-button',
+            dense: true,
+          },
         }}
       >
         <MenuItem onClick={handleAddToCalendar}>

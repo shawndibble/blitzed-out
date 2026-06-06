@@ -221,7 +221,12 @@ export default function LocalPlayerSetup({
           </Typography>
         }
         subheader={
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+            }}
+          >
             <Trans i18nKey="localPlayers.setupSubtitle" />
           </Typography>
         }
@@ -241,7 +246,12 @@ export default function LocalPlayerSetup({
             <Typography variant="h6">
               <Trans i18nKey="localPlayers.playersTitle" />
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {t('localPlayers.playersCount', { count: players.length })}
             </Typography>
           </Box>
@@ -257,7 +267,13 @@ export default function LocalPlayerSetup({
                 bgcolor: 'action.hover',
               }}
             >
-              <Typography variant="body1" color="text.secondary" gutterBottom>
+              <Typography
+                variant="body1"
+                gutterBottom
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 <Trans i18nKey="localPlayers.noPlayersYet" />
               </Typography>
               <Button variant="contained" startIcon={<AddIcon />} onClick={addPlayer}>
@@ -307,7 +323,6 @@ export default function LocalPlayerSetup({
           </Button>
         </Box>
       </CardContent>
-
       {/* Player Form Dialog */}
       <PlayerForm
         open={isPlayerFormOpen}

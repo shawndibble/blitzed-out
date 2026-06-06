@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { ExpandMore, HelpOutline } from '@mui/icons-material';
+import { ExpandMore, HelpOutlined } from '@mui/icons-material';
 import { FocusEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
@@ -452,7 +452,7 @@ export default function AddCustomTile({
                   p: 0.5,
                 }}
               >
-                <HelpOutline sx={{ mr: 1, color: 'primary.main' }} />
+                <HelpOutlined sx={{ mr: 1, color: 'primary.main' }} />
                 <Typography
                   variant="body2"
                   sx={{ flexGrow: 1, color: 'primary.main', textAlign: 'left' }}
@@ -591,17 +591,20 @@ export default function AddCustomTile({
               onChange={(_event, newValues) => {
                 setLocalTileData({ ...localTileData, tags: newValues as string[] });
               }}
-              renderInput={(params) => {
-                params.inputProps.onKeyDown = handleKeyDown;
-                params.inputProps.onBlur = handleTagInputBlur;
-                return <TextField {...params} label={t('tags')} />;
-              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={t('tags')}
+                  onKeyDown={handleKeyDown}
+                  onBlur={handleTagInputBlur}
+                />
+              )}
               sx={{ pb: 2 }}
               clearOnBlur
               blurOnSelect
               openOnFocus
               disablePortal={false}
-              componentsProps={{
+              slotProps={{
                 popper: {
                   modifiers: [
                     {
@@ -618,10 +621,12 @@ export default function AddCustomTile({
             />
 
             <Box
-              display="flex"
-              flexDirection={{ xs: 'column', sm: 'row' }}
-              justifyContent={{ xs: 'stretch', sm: 'space-evenly' }}
-              gap={1}
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: { xs: 'stretch', sm: 'space-evenly' },
+                gap: 1,
+              }}
             >
               <Button variant="outlined" type="button" onClick={() => setGroupDialogOpen(true)}>
                 {t('manageGroups.title')}
@@ -636,7 +641,6 @@ export default function AddCustomTile({
           </Box>
         </AccordionDetails>
       </Accordion>
-
       {/* Custom Group Management Dialog */}
       <CustomGroupDialog
         open={groupDialogOpen}

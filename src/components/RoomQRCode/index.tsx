@@ -34,7 +34,13 @@ export default function RoomQRCode({ roomCode }: RoomQRCodeProps) {
       >
         <QRCodeSVG value={roomUrl} size={120} level="M" aria-label={t('scanToJoin')} role="img" />
       </Box>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: 'text.secondary',
+          mt: 1,
+        }}
+      >
         {t('scanToJoin')}
       </Typography>
     </Box>

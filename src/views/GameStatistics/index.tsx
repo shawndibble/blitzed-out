@@ -97,7 +97,14 @@ export default function GameStatistics({
         title={<Trans i18nKey="statistics" />}
         isMobile={isMobile}
       >
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: 200,
+          }}
+        >
           <CircularProgress />
         </Box>
       </DialogWrapper>
@@ -247,7 +254,11 @@ export default function GameStatistics({
 
         {!hasPlayedData && (
           <Paper sx={{ p: 3, textAlign: 'center' }} elevation={2}>
-            <Typography color="text.secondary">
+            <Typography
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               <Trans i18nKey="statsNoData" />
             </Typography>
           </Paper>

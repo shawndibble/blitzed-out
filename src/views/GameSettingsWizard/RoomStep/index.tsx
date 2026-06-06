@@ -57,14 +57,25 @@ export default function RoomStep({
 
   return (
     <Box sx={{ m: 1 }}>
-      <Typography variant="h5" gutterBottom textAlign="center">
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          textAlign: 'center',
+        }}
+      >
         <Trans i18nKey="chooseRoomType" />
       </Typography>
-
-      <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+      <Typography
+        variant="body1"
+        sx={{
+          color: 'text.secondary',
+          textAlign: 'center',
+          mb: 3,
+        }}
+      >
         <Trans i18nKey="roomTypeDescription" />
       </Typography>
-
       <Box
         sx={{
           p: 3,
@@ -80,14 +91,16 @@ export default function RoomStep({
           onBlur={handleRoomBlur}
           onKeyDown={handleRoomKeyDown}
           onChange={handleRoomChange}
-          inputProps={{
-            style: {
-              textTransform: 'uppercase',
-              fontFamily: 'monospace',
-              fontSize: '1.25rem',
-              fontWeight: 'bold',
-              textAlign: 'center',
-              letterSpacing: '0.2em',
+          slotProps={{
+            htmlInput: {
+              style: {
+                textTransform: 'uppercase',
+                fontFamily: 'monospace',
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                letterSpacing: '0.2em',
+              },
             },
           }}
           sx={{
@@ -109,7 +122,6 @@ export default function RoomStep({
         />
         <RoomQRCode roomCode={roomInputValue} />
       </Box>
-
       <ButtonRow>
         <Button onClick={prevStep}>
           <Trans i18nKey="previous" />

@@ -12,7 +12,12 @@ export default function StatCard({ value, labelKey }: StatCardProps): JSX.Elemen
       <Typography variant="h4" color="primary" sx={{ fontWeight: 600 }}>
         {value}
       </Typography>
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+        }}
+      >
         <Trans i18nKey={labelKey as never} />
       </Typography>
     </Box>

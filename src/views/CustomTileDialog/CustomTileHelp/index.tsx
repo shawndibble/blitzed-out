@@ -180,7 +180,12 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
                       </Typography>
                     }
                     secondary={
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {concept.description}
                       </Typography>
                     }
@@ -192,7 +197,13 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
 
                 <Collapse in={expandedBasics[concept.id]} timeout="auto" unmountOnExit>
                   <Box sx={{ ml: isMobile ? 4 : 6, mr: 2, mb: 1, p: 1.5 }}>
-                    <Typography variant="body2" sx={{ fontStyle: 'italic' }} color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                        fontStyle: 'italic',
+                      }}
+                    >
                       {concept.tip}
                     </Typography>
                   </Box>
@@ -206,7 +217,6 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
           </List>
         </AccordionDetails>
       </Accordion>
-
       <Accordion
         expanded={expanded === 'help2'}
         onChange={handleChange('help2')}
@@ -255,7 +265,12 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
                       </Typography>
                     }
                     secondary={
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {idea.description}
                       </Typography>
                     }
@@ -271,8 +286,8 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
                       <Typography
                         key={tipIndex}
                         variant="body2"
-                        color="text.secondary"
                         sx={{
+                          color: 'text.secondary',
                           fontStyle: tipIndex === 0 ? 'italic' : 'normal',
                           mb: tipIndex < idea.tips.length - 1 ? 1 : 0,
                           '&:before': tipIndex !== 0 ? { content: '"• "' } : {},

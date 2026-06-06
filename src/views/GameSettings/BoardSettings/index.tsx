@@ -69,11 +69,20 @@ export default function BoardSettings({
   };
 
   return (
-    <Box maxWidth="97%">
+    <Box
+      sx={{
+        maxWidth: '97%',
+      }}
+    >
       <SoloSwitch formData={formData} setFormData={setFormData} />
-
       {isPublicRoom(formData?.room) && isLocalMode(formData.gameMode) && (
-        <Grid container alignContent="center" justifyContent="space-evenly">
+        <Grid
+          container
+          sx={{
+            alignContent: 'center',
+            justifyContent: 'space-evenly',
+          }}
+        >
           <Grid sx={{ py: 3 }}>
             <Typography variant="h5">
               <Trans i18nKey="privateRequired" />
@@ -81,10 +90,15 @@ export default function BoardSettings({
           </Grid>
         </Grid>
       )}
-
       {isLocal ? (
         <>
-          <Grid container columnSpacing={2} justifyContent="space-evenly">
+          <Grid
+            container
+            columnSpacing={2}
+            sx={{
+              justifyContent: 'space-evenly',
+            }}
+          >
             {shouldShowRoleSelect && (
               <GridItem>
                 <SettingsSelect
@@ -126,18 +140,28 @@ export default function BoardSettings({
         </>
       ) : (
         <>
-          <Grid container columnSpacing={2} justifyContent="space-evenly">
+          <Grid
+            container
+            columnSpacing={2}
+            sx={{
+              justifyContent: 'space-evenly',
+            }}
+          >
             {settingSelectLists('consumption', { showVariation: true })}
           </Grid>
           <Divider />
-          <Grid container columnSpacing={2} justifyContent="center">
+          <Grid
+            container
+            columnSpacing={2}
+            sx={{
+              justifyContent: 'center',
+            }}
+          >
             {settingSelectLists('solo')}
           </Grid>
         </>
       )}
-
       <FinishSlider setFormData={setFormData} formData={formData} />
-
       <WarningAlert formData={formData} />
     </Box>
   );

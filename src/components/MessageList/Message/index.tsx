@@ -214,7 +214,6 @@ export default function Message({
             <InfoOutlinedIcon fontSize="small" />
           </IconButton>
         </Box>
-
         {/* Details Popover */}
         <Popover
           open={Boolean(detailsAnchor)}
@@ -236,7 +235,14 @@ export default function Message({
             {message.type === 'settings' && (
               <Box className="system-action-buttons">
                 {isImportable ? (
-                  <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 1,
+                    }}
+                  >
                     <Button
                       component={Link}
                       to={`?importBoard=${gameBoardId}`}
@@ -253,7 +259,12 @@ export default function Message({
                     />
                   </Box>
                 ) : (
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     <Trans i18nKey="incompatibleBoard" />
                   </Typography>
                 )}
@@ -262,7 +273,14 @@ export default function Message({
 
             {message.type === 'room' && (
               <Box className="system-action-buttons">
-                <Box display="flex" justifyContent="space-between" alignItems="center" gap={1}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 1,
+                  }}
+                >
                   <Typography variant="body2">
                     {t('room')}: <strong>{room}</strong>
                   </Typography>
@@ -302,7 +320,12 @@ export default function Message({
         {message.type === 'actions' ? <ActionText text={text} /> : markdownContent}
         {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
         {typeof text === 'string' && text.includes(t('finish')) && isOwnMessage && (
-          <Box textAlign="center" className="message-action-box">
+          <Box
+            className="message-action-box"
+            sx={{
+              textAlign: 'center',
+            }}
+          >
             <Button onClick={() => setIsOpenDialog(true)} variant="outlined" size="small">
               <Typography>{t('playAgain')}</Typography>
             </Button>

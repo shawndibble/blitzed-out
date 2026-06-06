@@ -33,7 +33,13 @@ export default function ValueProposition({
       onClick={onClick}
     >
       <CardContent sx={{ p: 3 }}>
-        <Stack direction="row" spacing={3} alignItems="center">
+        <Stack
+          direction="row"
+          spacing={3}
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
@@ -54,8 +60,19 @@ export default function ValueProposition({
             )}
           </Box>
 
-          <Stack spacing={0.5} flex={1}>
-            <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack
+            spacing={0.5}
+            sx={{
+              flex: 1,
+            }}
+          >
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: 'center',
+              }}
+            >
               <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                 <Trans i18nKey={isPublic ? 'public' : 'private'} />
               </Typography>
@@ -72,7 +89,13 @@ export default function ValueProposition({
                 />
               )}
             </Stack>
-            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '0.95rem' }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'text.secondary',
+                fontSize: '0.95rem',
+              }}
+            >
               <Trans i18nKey={isPublic ? 'publicRoomBenefit' : 'privateRoomBenefit'} />
             </Typography>
           </Stack>

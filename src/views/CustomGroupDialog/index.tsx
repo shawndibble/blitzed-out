@@ -468,7 +468,13 @@ export default function CustomGroupDialog({
       >
         <DialogTitle>
           {t('customGroups.manageCustomGroups')}
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mt: 1,
+            }}
+          >
             {t('customGroups.createNewGroupsDescription')}
           </Typography>
 
@@ -541,7 +547,6 @@ export default function CustomGroupDialog({
           </Button>
         </DialogActions>
       </Dialog>
-
       <DeleteDialog
         open={deleteDialogOpen}
         pendingDeleteGroup={pendingDeleteGroup}

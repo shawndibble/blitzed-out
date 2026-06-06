@@ -227,14 +227,22 @@ export default function UnauthenticatedApp() {
 
                 <Typography
                   variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1, textAlign: 'center' }}
+                  sx={{
+                    color: 'text.secondary',
+                    mt: 1,
+                    textAlign: 'center',
+                  }}
                 >
                   {t('noAccountRequired')}
                 </Typography>
 
                 <Divider sx={{ my: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     <Trans i18nKey="or" />
                   </Typography>
                 </Divider>
@@ -292,7 +300,6 @@ export default function UnauthenticatedApp() {
           </Box>
         </footer>
       </main>
-
       <AuthDialog
         open={authDialogOpen}
         close={() => setAuthDialogOpen(false)}

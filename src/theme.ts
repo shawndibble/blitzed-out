@@ -244,13 +244,15 @@ const createComponents = (_mode: 'light' | 'dark'): ThemeOptions['components'] =
     defaultProps: {
       MenuProps: {
         disableScrollLock: true,
-        BackdropProps: {
-          invisible: true,
-        },
-        PaperProps: {
-          style: {
-            backdropFilter: 'none',
-            WebkitBackdropFilter: 'none',
+        slotProps: {
+          backdrop: {
+            invisible: true,
+          },
+          paper: {
+            style: {
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+            },
           },
         },
       },

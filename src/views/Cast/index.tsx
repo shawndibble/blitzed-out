@@ -190,7 +190,6 @@ export default function Cast() {
         }}
       >
         {!!url && <RoomBackground url={url} isVideo={isVideo} />}
-
         {/* User interaction overlay - only when needed and positioned to not block video controls */}
         {needsUserInteraction && (
           <Box onClick={handleUserInteraction} className="user-interaction-overlay">
@@ -200,12 +199,19 @@ export default function Cast() {
         <Grid
           container
           spacing={0}
-          direction="column"
-          alignItems="center"
-          justifyContent="center"
           className="cast-container cast-grid-container"
+          sx={{
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <Grid container justifyContent="center">
+          <Grid
+            container
+            sx={{
+              justifyContent: 'center',
+            }}
+          >
             <div className="action-box-large responsive-cast-box">
               <Typography variant="h2" className="cast-title">
                 blitzedout.com/{room}
@@ -238,8 +244,18 @@ export default function Cast() {
       }}
     >
       {!!url && <RoomBackground url={url} isVideo={isVideo} />}
-      <Box display="flex" justifyContent="space-between" className="cast-header-bar">
-        <Box flex="1">
+      <Box
+        className="cast-header-bar"
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box
+          sx={{
+            flex: '1',
+          }}
+        >
           {!isCastReceiver && !isFullscreen && isSupported && (
             <Button variant="text" onClick={toggleFullscreen} className="cast-fullscreen-button">
               {t('fullscreen')}
@@ -247,7 +263,13 @@ export default function Cast() {
           )}
         </Box>
 
-        <Box textAlign="center" flex="1" key={nextPlayer?.displayName}>
+        <Box
+          key={nextPlayer?.displayName}
+          sx={{
+            textAlign: 'center',
+            flex: '1',
+          }}
+        >
           {!!nextPlayer?.displayName && (
             <Typography variant="h4" className="cast-next-player">
               <Trans i18nKey="nextPlayersTurn" values={{ player: nextPlayer.displayName }} />
@@ -255,7 +277,13 @@ export default function Cast() {
           )}
         </Box>
 
-        <Box flex="1" textAlign="right" className="text-stroke">
+        <Box
+          className="text-stroke"
+          sx={{
+            flex: '1',
+            textAlign: 'right',
+          }}
+        >
           {activity && (
             <Typography variant="h4" className="cast-room-url">
               blitzedout.com/{room}
@@ -263,17 +291,23 @@ export default function Cast() {
           )}
         </Box>
       </Box>
-
       <Grid
         container
         spacing={0}
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
         className="cast-container cast-grid-container-adjusted"
         key={messages.length}
+        sx={{
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
-        <Grid container justifyContent="center">
+        <Grid
+          container
+          sx={{
+            justifyContent: 'center',
+          }}
+        >
           {activity ? (
             <Grid size={12} className="action-box-responsive responsive-cast-box">
               <Typography variant="h3" className="cast-type-text">
@@ -295,7 +329,6 @@ export default function Cast() {
           )}
         </Grid>
       </Grid>
-
       <ToastAlert open={!!openAlert} close={() => setOpenAlert(false)} hideCloseButton>
         <Typography variant="h5" className="cast-alert-text">
           {alertMessage}

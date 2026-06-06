@@ -142,10 +142,12 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
         fullScreen={isMobile}
         open={open}
         onClose={close}
-        PaperProps={{
-          sx: {
-            maxHeight: '100%',
-            height: '100%',
+        slotProps={{
+          paper: {
+            sx: {
+              maxHeight: '100%',
+              height: '100%',
+            },
           },
         }}
       >
@@ -181,7 +183,12 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
                     {t('tilesCount', { count: board.tiles?.length || 0 })}
                   </Typography>
                 </Box>
-                <Box style={{ marginLeft: 'auto' }} justifyContent="flex-end">
+                <Box
+                  style={{ marginLeft: 'auto' }}
+                  sx={{
+                    justifyContent: 'flex-end',
+                  }}
+                >
                   <Tooltip title={getSwitchTooltip(board)}>
                     <div style={{ display: 'inline-block' }}>
                       <Switch

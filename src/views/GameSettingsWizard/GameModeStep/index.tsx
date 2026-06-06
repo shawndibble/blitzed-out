@@ -92,13 +92,18 @@ export default function GameModeStep({
       <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
         <Trans i18nKey="gameModeSelection" />
       </Typography>
-
       {showParticipationStyle && (
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
             <Trans i18nKey="participationStyle.title" />
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mb: 2,
+            }}
+          >
             <Trans i18nKey="participationStyle.subtitle" />
           </Typography>
           <Grid container spacing={2}>
@@ -118,11 +123,22 @@ export default function GameModeStep({
                   }}
                 >
                   <CardContent sx={{ p: 2.5 }}>
-                    <Stack spacing={1} alignItems="center" textAlign="center">
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        alignItems: 'center',
+                        textAlign: 'center',
+                      }}
+                    >
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {t(opt.titleKey)}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {t(opt.descKey)}
                       </Typography>
                       {opt.selected && (
@@ -136,13 +152,18 @@ export default function GameModeStep({
           </Grid>
         </Box>
       )}
-
       {showGender && (
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 1 }}>
             <Trans i18nKey="yourGender" />
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mb: 2,
+            }}
+          >
             <Trans i18nKey="anatomyDescription" />
           </Typography>
           <Grid container spacing={2}>
@@ -161,7 +182,13 @@ export default function GameModeStep({
                   }}
                 >
                   <CardContent sx={{ p: 2.5 }}>
-                    <Stack spacing={1} alignItems="center" textAlign="center">
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        alignItems: 'center',
+                        textAlign: 'center',
+                      }}
+                    >
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {t(option.labelKey)}
                       </Typography>
@@ -176,7 +203,6 @@ export default function GameModeStep({
           </Grid>
         </Box>
       )}
-
       {showRole && (
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
@@ -198,11 +224,22 @@ export default function GameModeStep({
                   }}
                 >
                   <CardContent sx={{ p: 2.5 }}>
-                    <Stack spacing={1} alignItems="center" textAlign="center">
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        alignItems: 'center',
+                        textAlign: 'center',
+                      }}
+                    >
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                         {t(role.value)}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {role.description}
                       </Typography>
                       {formData.role === role.value && (
@@ -216,7 +253,6 @@ export default function GameModeStep({
           </Grid>
         </Box>
       )}
-
       {showNaked && (
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
@@ -238,11 +274,22 @@ export default function GameModeStep({
                   }}
                 >
                   <CardContent sx={{ p: 3 }}>
-                    <Stack spacing={1} alignItems="center" textAlign="center">
+                    <Stack
+                      spacing={1}
+                      sx={{
+                        alignItems: 'center',
+                        textAlign: 'center',
+                      }}
+                    >
                       <Typography variant="h6" sx={{ fontWeight: 600 }}>
                         {t(mode.title)}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                        }}
+                      >
                         {mode.description}
                       </Typography>
                       {mode.isSelected && (
@@ -256,7 +303,6 @@ export default function GameModeStep({
           </Grid>
         </Box>
       )}
-
       <Box sx={{ flexGrow: 1 }} />
       <ButtonRow>
         <Button onClick={prevStep}>

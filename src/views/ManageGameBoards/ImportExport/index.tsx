@@ -198,31 +198,33 @@ export default function ImportExport({
         fullWidth
         value={textValue}
         onChange={(event: ChangeEvent<HTMLInputElement>) => setTextValue(event.target.value)}
-        InputProps={{
-          endAdornment: (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'sticky',
-                top: 0,
-              }}
-            >
-              <Tooltip title={t('save')}>
-                <IconButton size="small" onClick={importBoard} aria-label={t('save')}>
-                  <Save color="success" />
-                </IconButton>
-              </Tooltip>
-              <CopyToClipboard text={textValue} />
-              <CopyToClipboard
-                text={`${window.location.href}?importBoard=${board.id}`}
-                copiedText={t('copiedLink')}
-                icon={<Share />}
-                tooltip={t('copyShareLink')}
-              />
-            </div>
-          ),
-          sx: { alignItems: 'flex-start' },
+        slotProps={{
+          input: {
+            endAdornment: (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'sticky',
+                  top: 0,
+                }}
+              >
+                <Tooltip title={t('save')}>
+                  <IconButton size="small" onClick={importBoard} aria-label={t('save')}>
+                    <Save color="success" />
+                  </IconButton>
+                </Tooltip>
+                <CopyToClipboard text={textValue} />
+                <CopyToClipboard
+                  text={`${window.location.href}?importBoard=${board.id}`}
+                  copiedText={t('copiedLink')}
+                  icon={<Share />}
+                  tooltip={t('copyShareLink')}
+                />
+              </div>
+            ),
+            sx: { alignItems: 'flex-start' },
+          },
         }}
       />
     </>

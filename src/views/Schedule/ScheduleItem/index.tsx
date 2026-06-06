@@ -115,7 +115,13 @@ export default function ScheduleItem({
 
   if (isEditing) {
     return (
-      <Grid container spacing={2} alignItems="center">
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         <Grid size={{ xs: 12, sm: 6 }}>
           <DateTimePicker
             label={t('dateTime')}
@@ -163,7 +169,13 @@ export default function ScheduleItem({
 
   return (
     <>
-      <Grid container spacing={2} alignItems="center">
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          alignItems: 'center',
+        }}
+      >
         <Grid size={12}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <EventIcon
@@ -172,14 +184,24 @@ export default function ScheduleItem({
               sx={{ opacity: isToday ? 1 : 0.7 }}
             />
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Typography variant="body2" fontWeight={isToday ? 'bold' : 'normal'}>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: isToday ? 'bold' : 'normal',
+                }}
+              >
                 {date.toLocaleString([], {
                   weekday: 'short',
                   month: 'short',
                   day: 'numeric',
                 })}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {date.toLocaleString([], {
                   hour: 'numeric',
                   minute: '2-digit',
@@ -232,8 +254,11 @@ export default function ScheduleItem({
             ) : (
               <Typography
                 variant="body2"
-                color="text.secondary"
-                sx={{ fontStyle: 'italic', fontSize: '0.85rem' }}
+                sx={{
+                  color: 'text.secondary',
+                  fontStyle: 'italic',
+                  fontSize: '0.85rem',
+                }}
               >
                 {t('noLinkProvided')}
               </Typography>

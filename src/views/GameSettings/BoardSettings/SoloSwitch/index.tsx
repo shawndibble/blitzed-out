@@ -12,7 +12,15 @@ interface SoloSwitchProps {
 
 export default function SoloSwitch({ formData, setFormData }: SoloSwitchProps): JSX.Element {
   return (
-    <Stack direction="row" spacing={1} alignItems="center" justifyContent="center" sx={{ mt: 1 }}>
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        mt: 1,
+      }}
+    >
       <Typography>
         <Trans i18nKey="solo" />
       </Typography>
@@ -36,7 +44,7 @@ export default function SoloSwitch({ formData, setFormData }: SoloSwitchProps): 
             boardUpdated: true,
           })
         }
-        inputProps={{ 'aria-label': 'Game Type' }}
+        slotProps={{ input: { 'aria-label': 'Game Type' } }}
       />
       <Typography>
         <Trans i18nKey="gameMode.local" />

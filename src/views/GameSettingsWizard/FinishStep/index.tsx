@@ -64,7 +64,7 @@ export default function FinishStep({
 
       if (typeof close === 'function') {
         if (willNavigate) {
-          // eslint-disable-next-line @eslint-react/dom/no-flush-sync -- Intentional: ensures DOM is reconciled before route change
+          // eslint-disable-next-line @eslint-react/dom-no-flush-sync -- Intentional: ensures DOM is reconciled before route change
           flushSync(() => {
             close();
           });
@@ -100,7 +100,6 @@ export default function FinishStep({
       <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
         <Trans i18nKey="WillYouOrgasm" />
       </Typography>
-
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {orgasmOptions.map((option) => (
           <Grid size={{ xs: 12, sm: 6 }} key={option.id}>
@@ -129,11 +128,22 @@ export default function FinishStep({
               }}
             >
               <CardContent sx={{ p: 3 }}>
-                <Stack spacing={1} alignItems="center" textAlign="center">
+                <Stack
+                  spacing={1}
+                  sx={{
+                    alignItems: 'center',
+                    textAlign: 'center',
+                  }}
+                >
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     {t(option.title)}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {option.description}
                   </Typography>
                   {option.isSelected && (
@@ -145,7 +155,6 @@ export default function FinishStep({
           </Grid>
         ))}
       </Grid>
-
       <Box sx={{ flexGrow: 1 }} />
       <ButtonRow>
         <Button onClick={prevStep} disabled={isLoading}>

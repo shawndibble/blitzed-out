@@ -144,16 +144,30 @@ export default function PlayerTopologyStep({
 
   return (
     <Box sx={{ minHeight: '200px', display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h5" gutterBottom textAlign="center" sx={{ fontWeight: 600, mb: 1 }}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          textAlign: 'center',
+          fontWeight: 600,
+          mb: 1,
+        }}
+      >
         {t('playerTopology.title', 'How are you playing?')}
       </Typography>
-      <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+      <Typography
+        variant="body1"
+        sx={{
+          color: 'text.secondary',
+          textAlign: 'center',
+          mb: 3,
+        }}
+      >
         {t(
           'playerTopology.subtitle',
           'Choose the player setup first. Room settings come next when needed.'
         )}
       </Typography>
-
       <Grid container spacing={2}>
         {cards.map((card) => {
           const content = (
@@ -186,11 +200,23 @@ export default function PlayerTopologyStep({
               }}
             >
               <CardContent sx={{ p: 3, height: '100%' }}>
-                <Stack spacing={1.5} alignItems="center" textAlign="center" sx={{ height: '100%' }}>
+                <Stack
+                  spacing={1.5}
+                  sx={{
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    height: '100%',
+                  }}
+                >
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     {card.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {card.description}
                   </Typography>
                   {card.extra}
@@ -220,9 +246,7 @@ export default function PlayerTopologyStep({
           );
         })}
       </Grid>
-
       <Box sx={{ flexGrow: 1 }} />
-
       <ButtonRow justifyContent="center">
         <Button
           variant="contained"

@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { User } from '@/types';
 import { __resetForTesting, registerSyncProvider, requestSync } from '../authBridge';
 
-const createUser = (isAnonymous = false): User => ({ isAnonymous }) as User;
+const createUser = (isAnonymous = false): User =>
+  ({
+    isAnonymous,
+  }) as User;
 
 describe('authBridge', () => {
   beforeEach(() => {

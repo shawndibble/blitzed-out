@@ -163,8 +163,10 @@ export default function ActionCard({
                         <Typography
                           id="action-card-title"
                           variant="subtitle1"
-                          color="text.secondary"
-                          sx={{ fontWeight: 500 }}
+                          sx={{
+                            color: 'text.secondary',
+                            fontWeight: 500,
+                          }}
                         >
                           {`${title} ${t('for')} ${displayName}`}
                         </Typography>
@@ -176,7 +178,13 @@ export default function ActionCard({
                         <Typography id="action-card-description" variant="h4" sx={{ mb: 1 }}>
                           {description}
                         </Typography>
-                        <Typography variant="caption" display="block" color="text.secondary">
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            display: 'block',
+                            color: 'text.secondary',
+                          }}
+                        >
                           {showAutoCloseText ? (
                             <Trans i18nKey="autoCloseModal" values={{ timeLeft }} />
                           ) : (
@@ -232,7 +240,11 @@ export default function ActionCard({
                       {!!isMyMessage && text.includes(t('finish')) && (
                         <Box sx={{ px: 3, pb: 2 }}>
                           <Divider sx={{ mb: 2 }} />
-                          <Box textAlign="center">
+                          <Box
+                            sx={{
+                              textAlign: 'center',
+                            }}
+                          >
                             <Button onClick={openGameOver} variant="contained" color="primary">
                               <Typography>{t('playAgain')}</Typography>
                             </Button>

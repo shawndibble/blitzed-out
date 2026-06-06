@@ -122,12 +122,17 @@ export default function LocalPlayerSettings({
           {error}
         </Alert>
       )}
-
       {!hasLocalPlayers ? (
         /* No Local Players State */
         <Box sx={{ textAlign: 'center', py: 2 }}>
           <PeopleIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="body1" color="text.secondary" paragraph>
+          <Typography
+            variant="body1"
+            sx={{
+              color: 'text.secondary',
+              mb: 2,
+            }}
+          >
             <Trans i18nKey="localPlayerSettings.noPlayers.description" />
           </Typography>
           <Button
@@ -160,7 +165,12 @@ export default function LocalPlayerSettings({
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    >
                       #{player.order + 1}
                     </Typography>
                     <PlayerGenderAvatar
@@ -168,7 +178,12 @@ export default function LocalPlayerSettings({
                       isActive={player.isActive}
                       size={32}
                     />
-                    <Typography variant="body1" fontWeight={player.isActive ? 'bold' : 'normal'}>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: player.isActive ? 'bold' : 'normal',
+                      }}
+                    >
                       {player.name}
                     </Typography>
                     <Chip label={t(`roles.${player.role}`)} size="small" variant="outlined" />
@@ -204,7 +219,6 @@ export default function LocalPlayerSettings({
               </Button>
             </Box>
           </Box>
-
           {/* Session Settings */}
           {session?.settings && (
             <Box sx={{ mt: 3, p: 2, borderRadius: 1, bgcolor: 'action.hover' }}>

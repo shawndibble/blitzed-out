@@ -69,9 +69,11 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
       <Stack
         direction="row"
         spacing={1}
-        alignItems="center"
-        justifyContent="center"
-        sx={{ width: '100%' }}
+        sx={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+        }}
       >
         <Typography>
           <Trans i18nKey="public" />
@@ -106,7 +108,7 @@ export default function RoomSwitch({ formData, setFormData }: RoomSwitchProps): 
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           onChange={handleChange}
-          inputProps={{ style: { textTransform: 'uppercase' } }}
+          slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
         />
       )}
     </>

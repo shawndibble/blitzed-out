@@ -159,7 +159,12 @@ export default function VoiceSelect({
   if (isLoading) {
     return (
       <Box sx={{ py: 1 }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {t('loadingVoices', 'Loading voices...')}
         </Typography>
       </Box>
@@ -169,7 +174,12 @@ export default function VoiceSelect({
   if (voices.length === 0) {
     return (
       <Box sx={{ py: 1 }}>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+          }}
+        >
           {t('noVoicesAvailable', 'No voices available for this language')}
         </Typography>
       </Box>

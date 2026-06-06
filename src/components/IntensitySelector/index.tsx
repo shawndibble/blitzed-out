@@ -72,7 +72,13 @@ export default function IntensitySelector({
         <InputLabel>{t('intensity')}</InputLabel>
         <Select value="">
           <MenuItem value="" disabled>
-            <Typography color="text.secondary">{t('customGroups.selectGroupFirst')}</Typography>
+            <Typography
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
+              {t('customGroups.selectGroupFirst')}
+            </Typography>
           </MenuItem>
         </Select>
       </FormControl>
@@ -101,7 +107,11 @@ export default function IntensitySelector({
         <InputLabel>{t('intensity')}</InputLabel>
         <Select value="">
           <MenuItem value="" disabled>
-            <Typography color="text.secondary">
+            <Typography
+              sx={{
+                color: 'text.secondary',
+              }}
+            >
               {t('customGroups.noIntensitiesAvailable', { groupName })}
             </Typography>
           </MenuItem>

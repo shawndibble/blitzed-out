@@ -235,7 +235,14 @@ export default function Room() {
     return (
       <>
         <Navigation room={params.id} playerList={hybridPlayerList as any} />
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '50vh',
+          }}
+        >
           <CircularProgress size={48} />
         </Box>
       </>

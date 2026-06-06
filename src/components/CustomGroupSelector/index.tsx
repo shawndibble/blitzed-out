@@ -56,7 +56,11 @@ export default function CustomGroupSelector({
         >
           {filteredGroups.length === 0 ? (
             <MenuItem value="" disabled>
-              <Typography color="text.secondary">
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                }}
+              >
                 {error
                   ? t('customGroups.errorLoadingGroups')
                   : t('customGroups.noGroupsAvailable', { locale, gameMode })}

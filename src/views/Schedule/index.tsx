@@ -141,7 +141,13 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
               }}
             >
               <CalendarMonthIcon color="primary" />
-              <Typography variant="h5" component="span" fontWeight="bold">
+              <Typography
+                variant="h5"
+                component="span"
+                sx={{
+                  fontWeight: 'bold',
+                }}
+              >
                 <Trans i18nKey="schedule" />
               </Typography>
               <CloseIcon close={close} />
@@ -162,7 +168,12 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                   title={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <EventIcon color="primary" />
-                      <Typography variant="h6" fontWeight="bold">
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 'bold',
+                        }}
+                      >
                         {t('upcomingGames')}
                       </Typography>
                     </Box>
@@ -216,7 +227,12 @@ export default function Schedule({ open, close, isMobile }: ScheduleProps): JSX.
                   title={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <AddIcon color="secondary" />
-                      <Typography variant="h6" fontWeight="bold">
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 'bold',
+                        }}
+                      >
                         <Trans i18nKey="scheduleGame" />
                       </Typography>
                     </Box>

@@ -228,8 +228,8 @@ export default function PlayerForm({
       onClose={handleCancel}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: { borderRadius: 2 },
+      slotProps={{
+        paper: { sx: { borderRadius: 2 } },
       }}
     >
       <DialogTitle>
@@ -237,7 +237,6 @@ export default function PlayerForm({
           ? t('localPlayers.form.editPlayerTitle')
           : t('localPlayers.form.addPlayerTitle')}
       </DialogTitle>
-
       <DialogContent>
         {/* Player Preview */}
         <Box
@@ -289,9 +288,7 @@ export default function PlayerForm({
             placeholder={t('localPlayers.form.namePlaceholder')}
             fullWidth
             autoFocus={!isEditMode}
-            inputProps={{
-              maxLength: 20,
-            }}
+            slotProps={{ htmlInput: { maxLength: 20 } }}
           />
 
           {/* Role Field */}
@@ -305,7 +302,12 @@ export default function PlayerForm({
               <MenuItem value="dom">
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Chip label={t('roles.dom')} size="small" color="primary" variant="outlined" />
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {t('localPlayers.form.roleDescriptions.dom')}
                   </Typography>
                 </Box>
@@ -313,7 +315,12 @@ export default function PlayerForm({
               <MenuItem value="sub">
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Chip label={t('roles.sub')} size="small" color="secondary" variant="outlined" />
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {t('localPlayers.form.roleDescriptions.sub')}
                   </Typography>
                 </Box>
@@ -321,7 +328,12 @@ export default function PlayerForm({
               <MenuItem value="vers">
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Chip label={t('roles.vers')} size="small" color="default" variant="outlined" />
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                    }}
+                  >
                     {t('localPlayers.form.roleDescriptions.vers')}
                   </Typography>
                 </Box>
@@ -350,7 +362,6 @@ export default function PlayerForm({
           </Alert>
         </Box>
       </DialogContent>
-
       <DialogActions sx={{ p: 3, pt: 1 }}>
         <Button onClick={handleCancel} disabled={isSubmitting}>
           {t('cancel')}

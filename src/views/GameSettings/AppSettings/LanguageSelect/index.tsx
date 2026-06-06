@@ -67,13 +67,15 @@ export default function LanguageSelect({ boardUpdated }: LanguageSelectProps): J
           endAdornment={loading && <CircularProgress size={20} />}
           MenuProps={{
             disableScrollLock: true,
-            BackdropProps: {
-              invisible: true,
-            },
-            PaperProps: {
-              style: {
-                backdropFilter: 'none',
-                WebkitBackdropFilter: 'none',
+            slotProps: {
+              backdrop: {
+                invisible: true,
+              },
+              paper: {
+                style: {
+                  backdropFilter: 'none',
+                  WebkitBackdropFilter: 'none',
+                },
               },
             },
           }}
