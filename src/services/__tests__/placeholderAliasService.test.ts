@@ -59,6 +59,16 @@ describe('placeholderAliasService', () => {
       expect(replaceTokenNames('no tokens here', reverse(ES_TOKENS))).toBe('no tokens here');
     });
 
+    it('matches mixed-case localized tokens (case-insensitive)', () => {
+      // German-style capitalized nouns, or any casing, still normalize.
+      expect(replaceTokenNames('Toca tus {Genitales}.', reverse(ES_TOKENS))).toBe(
+        'Toca tus {genital}.'
+      );
+      expect(replaceTokenNames('Obedece al {DOMINANTE}.', reverse(ES_TOKENS))).toBe(
+        'Obedece al {dom}.'
+      );
+    });
+
     it('is a no-op for an identity map (en)', () => {
       const identity = Object.fromEntries(Object.keys(ES_TOKENS).map((k) => [k, k]));
       const text = 'Touch your {genital} and {pronoun_possessive} {chest}.';

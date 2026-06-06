@@ -33,7 +33,9 @@ function loadTokenMap(locale: string): Record<string, string> {
  */
 export function replaceTokenNames(text: string, nameMap: Record<string, string>): string {
   return text.replace(/\{([^}|]+)(\|[^}]+)?\}/g, (full, name: string, suffix?: string) => {
-    const mapped = nameMap[name];
+    // Case-insensitive fallback: locales like German capitalize nouns, so an
+    // author may type {Loch}/{Spieler} while the alias map keys are lowercase.
+    const mapped = nameMap[name] ?? nameMap[name.toLowerCase()];
     return mapped ? `{${mapped}${suffix ?? ''}}` : full;
   });
 }
