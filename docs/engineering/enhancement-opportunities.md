@@ -6,15 +6,6 @@ Companion to [README.md](README.md). A candid, engineering-honest list of curren
 
 ---
 
-## Casting & TV
-
-Today only **Chromecast** is integrated (custom receiver `1227B8DE`). Gaps:
-
-- **No AirPlay support.** Apple users can only OS-mirror. Could add `x-webkit-airplay` attributes to `<video>` elements and an AirPlay route picker for Safari, at least for direct-video backgrounds.
-- **No Roku / Fire TV / smart-TV apps.** Options to consider, in rough effort order: (a) document the "open `/<room>/cast` in the TV browser" path in-app; (b) a lightweight Roku/Fire TV channel that just loads the cast URL; (c) DIAL-based launch.
-- **Cast receiver app ID is hardcoded** (`1227B8DE`) and the **receiver HTML is hosted externally** (not in this repo). Document where it lives and how it's registered/updated, or bring it into the repo.
-- **Cast view is read-only.** It shows state but can't drive the game (no remote roll). A richer receiver could show more (chat, video tiles, scores).
-
 ## Media
 
 - **Reddit slideshow depends on third-party CORS proxies** (`r.jina.ai`, `allorigins`, `corsproxy.io`). These are availability and privacy risks; a small first-party proxy/Cloud Function would be more reliable.

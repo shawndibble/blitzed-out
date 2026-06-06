@@ -4,8 +4,7 @@ import '@/types/window';
 import { Box, Button, Divider, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 
-import { ActionCard } from '@/types/cast';
-import { Message } from '@/types/Message';
+import { detectCastEnvironment, parseActionCard } from '@/helpers/cast';
 import RoomBackground from '@/components/RoomBackground';
 import ToastAlert from '@/components/ToastAlert';
 import { Trans } from 'react-i18next';
@@ -20,18 +19,6 @@ import getPrivateRoomBackground from '@/helpers/getPrivateRoomBackground';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 
 const ACTION_TYPE = 'actions';
-
-const actionCard = (lastAction: Message): ActionCard => {
-  const { text, displayName } = lastAction;
-  if (!displayName) return {};
-
-  const splitText = text?.split('\n');
-  const [typeString, activityString] = splitText?.slice(1) || [];
-  const type = typeString?.split(':')[1]?.trim();
-  const activity = activityString?.split(':')[1]?.trim();
-
-  return { displayName, type, activity };
-};
 
 export default function Cast() {
   const { id: room } = useParams<{ id: string }>();
@@ -122,17 +109,12 @@ export default function Cast() {
 
   useEffect(() => {
     // Check if we're running in a Cast receiver environment
-    const isCastEnvironment = window.cast?.framework?.CastReceiverContext;
-    const userAgent = navigator.userAgent;
-    const isChromecast = userAgent.includes('CrKey') || userAgent.includes('TV');
     const isInIframe = window.self !== window.top;
-
-    // More robust detection for cast environment
-    const isActuallyCasting =
-      isCastEnvironment ||
-      isChromecast ||
-      window.location.search.includes('chromecast') ||
-      window.location.search.includes('receiver');
+    const isActuallyCasting = detectCastEnvironment({
+      userAgent: navigator.userAgent,
+      search: window.location.search,
+      hasReceiverContext: !!window.cast?.framework?.CastReceiverContext,
+    });
 
     if (isActuallyCasting) {
       document.body.classList.add('cast-receiver-mode');
@@ -232,7 +214,7 @@ export default function Cast() {
     );
   }
 
-  const { displayName, type, activity } = actionCard(lastAction);
+  const { displayName, type, activity } = parseActionCard(lastAction);
 
   return (
     <Box
