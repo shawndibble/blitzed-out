@@ -6,13 +6,6 @@ Companion to [README.md](README.md). A candid, engineering-honest list of curren
 
 ---
 
-## Media
-
-- **Reddit slideshow depends on third-party CORS proxies** (`r.jina.ai`, `allorigins`, `corsproxy.io`). These are availability and privacy risks; a small first-party proxy/Cloud Function would be more reliable.
-- **No scheme/host validation on background media URLs** before iframe embedding (see [security.md](security.md#content--input-validation)). Both a security and UX issue (broken embeds). _(Schedule/custom-action/board URLs + string sizes are now validated in rules.)_
-- **Direct-video error handling retries image extensions** — works but is heuristic; a proper content-type probe would be cleaner.
-- **EXIF not stripped** from uploaded images (potential location metadata leak).
-
 ## Content & gameplay
 
 - **`vers` role and non-binary anatomy resolve heuristically/randomly per roll** — non-deterministic and occasionally surprising. Worth surfacing the resolution to the player or making it configurable.

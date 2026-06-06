@@ -166,8 +166,9 @@ Routing config: `src/components/RouterSetup`.
 
 ## Cloud Functions (`functions/`)
 
-Node Firebase Functions, 7 exported. Mix of scheduled (Pub/Sub) cleanup jobs and RTDB triggers:
+Node Firebase Functions, 8 exported. Mix of scheduled (Pub/Sub) cleanup jobs, RTDB triggers, and one HTTP proxy:
 
 - Scheduled: stale-user cleanup (~5 min), inactive-anonymous-account cleanup (daily), video-call signaling cleanup (~5 min).
 - Triggers: on user disconnect, presence validation (stamps `lastSeen`).
 - Two **callable** admin helpers (`manualCleanupStaleUsers`, `manualCleanupAnonymousAccounts`) gated on an `admin` custom claim. Details and the security caveats in [security.md](security.md#cloud-functions).
+- **HTTP**: `redditProxy` (`functions/src/redditProxy.ts`) — first-party CORS proxy for Reddit's public JSON, replacing third-party proxies. SSRF-safe (subreddit/sort/after input only; builds the reddit.com URL server-side).

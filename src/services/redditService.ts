@@ -10,27 +10,95 @@ export interface RedditFeedResult {
   source: string;
 }
 
+type RedditSort = 'top' | 'hot';
+
 // Basic HTML entity decoding for Reddit preview URLs
 function decodeHtmlEntities(str: string): string {
   return str.replace(/&amp;/g, '&');
 }
 
-// Multiple proxy services for CORS issues as fallbacks
-// cspell:ignore jina allorigins
-const PROXY_SERVICES = ['r.jina.ai', 'api.allorigins.win/get?url=', 'corsproxy.io/?'];
+// First-party Cloud Function proxy. Replaces the old third-party CORS proxies
+// (r.jina.ai / allorigins / corsproxy.io) which were availability and privacy risks.
+const REDDIT_PROXY_URL = `${
+  import.meta.env.VITE_FIREBASE_FUNCTIONS_URL ||
+  `https://us-central1-${import.meta.env.VITE_FIREBASE_PROJECT_ID}.cloudfunctions.net`
+}/redditProxy`;
 
-const toProxyUrl = (url: string, serviceIndex: number = 0) => {
-  const service = PROXY_SERVICES[serviceIndex];
-  if (service === 'api.allorigins.win/get?url=') {
-    return `https://${service}${encodeURIComponent(url)}`;
+function directRedditUrl(subreddit: string, sort: RedditSort, after: string | null): string {
+  const params = new URLSearchParams({ limit: '100', raw_json: '1' });
+  if (sort === 'top') params.set('t', 'year');
+  if (after) params.set('after', after);
+  return `https://www.reddit.com/r/${subreddit}/${sort}.json?${params.toString()}`;
+}
+
+function parseJsonLoose(text: string): any | null {
+  try {
+    return JSON.parse(text);
+  } catch {
+    // Some responses wrap JSON in HTML; extract the outermost object.
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start !== -1 && end !== -1 && end > start) {
+      try {
+        return JSON.parse(text.slice(start, end + 1));
+      } catch {
+        return null;
+      }
+    }
+    return null;
   }
-  if (service === 'corsproxy.io/?') {
-    return `https://${service}${encodeURIComponent(url)}`;
+}
+
+const isAbort = (error: unknown): boolean =>
+  error instanceof DOMException && error.name === 'AbortError';
+
+/**
+ * Fetches one page of a subreddit's JSON listing. Primary path is the first-party
+ * Cloud Function proxy; falls back to a direct reddit.com fetch (e.g. if the function
+ * is not yet deployed or is temporarily unavailable). Returns the parsed listing or null.
+ */
+export async function fetchRedditPage(
+  subreddit: string,
+  sort: RedditSort,
+  after: string | null,
+  signal: AbortSignal
+): Promise<any | null> {
+  const proxyParams = new URLSearchParams({ subreddit, sort });
+  if (after) proxyParams.set('after', after);
+
+  try {
+    const resp = await fetch(`${REDDIT_PROXY_URL}?${proxyParams.toString()}`, {
+      signal,
+      credentials: 'omit',
+    });
+    if (resp.ok) {
+      return await resp.json();
+    }
+  } catch (error) {
+    if (isAbort(error)) throw error;
   }
-  const withoutScheme = url.replace(/^https?:\/\//, '');
-  const scheme = url.startsWith('https://') ? 'https' : 'http';
-  return `https://${service}/${scheme}://${withoutScheme}`;
-};
+
+  // Fallback: direct fetch. User-Agent is a forbidden header in browsers (silently dropped),
+  // so we rely on Reddit's CORS-enabled JSON endpoints here.
+  try {
+    const resp = await fetch(directRedditUrl(subreddit, sort, after), {
+      signal,
+      credentials: 'omit',
+      mode: 'cors',
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+    });
+    if (resp.ok) {
+      return parseJsonLoose(await resp.text());
+    }
+  } catch (error) {
+    if (isAbort(error)) throw error;
+  }
+
+  return null;
+}
 
 // Reddit-specific fetching logic
 export async function fetchRedditImages(
@@ -39,110 +107,13 @@ export async function fetchRedditImages(
   signal: AbortSignal
 ): Promise<string[]> {
   const collected = new Set<string>();
+  const sorts: RedditSort[] = ['top', 'hot'];
 
-  const endpoints = [
-    // Use Reddit RSS/JSON feeds which are more permissive
-    (a: string | null) =>
-      `https://www.reddit.com/r/${subreddit}/top.json?limit=100&t=year&raw_json=1${a ? `&after=${a}` : ''}`,
-    (a: string | null) =>
-      `https://www.reddit.com/r/${subreddit}/hot.json?limit=100&raw_json=1${a ? `&after=${a}` : ''}`,
-  ];
-
-  const fetchJson = async (url: string): Promise<any | null> => {
-    // Try direct fetch with Reddit-friendly headers
-    try {
-      const resp = await fetch(url, {
-        signal,
-        credentials: 'omit',
-        mode: 'cors',
-        headers: {
-          'User-Agent': 'BlitzedOut/1.0',
-          Accept: 'application/json, text/plain, */*',
-          'Accept-Language': 'en-US,en;q=0.9',
-        },
-      });
-      if (resp.ok) {
-        const text = await resp.text();
-        try {
-          return JSON.parse(text);
-        } catch {
-          // Try to extract JSON from HTML response
-          const start = text.indexOf('{');
-          const end = text.lastIndexOf('}');
-          if (start !== -1 && end !== -1 && end > start) {
-            try {
-              return JSON.parse(text.slice(start, end + 1));
-            } catch {
-              return null;
-            }
-          }
-          return null;
-        }
-      }
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        throw error;
-      }
-    }
-
-    // Try multiple CORS proxy services
-    for (let i = 0; i < PROXY_SERVICES.length; i++) {
-      try {
-        const proxyResp = await fetch(toProxyUrl(url, i), {
-          signal,
-          credentials: 'omit',
-          mode: 'cors',
-          headers: {
-            'User-Agent': 'BlitzedOut/1.0',
-            Accept: 'application/json, text/plain, */*',
-          },
-        });
-
-        if (!proxyResp.ok) continue;
-
-        const text = await proxyResp.text();
-
-        // Handle different proxy response formats
-        let jsonData;
-        try {
-          const parsed = JSON.parse(text);
-          // AllOrigins wraps response in contents property
-          jsonData = parsed.contents ? JSON.parse(parsed.contents) : parsed;
-        } catch {
-          // Try to extract JSON from HTML response
-          const start = text.indexOf('{');
-          const end = text.lastIndexOf('}');
-          if (start !== -1 && end !== -1 && end > start) {
-            try {
-              jsonData = JSON.parse(text.slice(start, end + 1));
-            } catch {
-              continue;
-            }
-          } else {
-            continue;
-          }
-        }
-
-        if (jsonData) {
-          return jsonData;
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          throw error;
-        }
-        continue;
-      }
-    }
-
-    return null;
-  };
-
-  let endpointIndex = 0;
-  while (collected.size < maxCount && endpointIndex < endpoints.length) {
+  let sortIndex = 0;
+  while (collected.size < maxCount && sortIndex < sorts.length) {
     let after: string | null = null;
     for (let page = 0; page < 5 && collected.size < maxCount; page += 1) {
-      const url = endpoints[endpointIndex](after);
-      const json = await fetchJson(url);
+      const json = await fetchRedditPage(subreddit, sorts[sortIndex], after, signal);
       if (!json) break;
 
       const children = json?.data?.children ?? [];
@@ -187,7 +158,7 @@ export async function fetchRedditImages(
 
       if (!after) break;
     }
-    endpointIndex += 1;
+    sortIndex += 1;
   }
 
   return Array.from(collected).slice(0, maxCount);
