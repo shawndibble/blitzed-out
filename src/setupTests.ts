@@ -32,6 +32,7 @@ configure({
 const originalError = console.error;
 const originalLog = console.log;
 const originalWarn = console.warn;
+const originalDebug = console.debug;
 
 beforeEach(() => {
   // Suppress all console.log in tests to reduce noise
@@ -40,27 +41,32 @@ beforeEach(() => {
   // Suppress all console.warn in tests
   console.warn = vi.fn();
 
-  // Suppress specific console.error patterns
+  // Suppress console.debug (dev-only diagnostics, e.g. gallery URL parsing)
+  console.debug = vi.fn();
+
+  // Suppress specific console.error patterns. React 19 dropped the "Warning:"
+  // prefix, so match the stable message fragments rather than the prefix.
+  const SUPPRESSED_ERROR_FRAGMENTS = [
+    'was not wrapped in act',
+    'React does not recognize',
+    'validateDOMNesting',
+    'Unknown event handler property',
+    'No user logged in',
+    'Error syncing',
+    'Missing Firebase environment variables',
+    'Could not extract image ID',
+    'Found tile',
+    'Error during group ID audit',
+    'Error finding existing tile',
+    'Error batch matching tiles',
+    'Unexpected error in test',
+    'Fullscreen API is not supported',
+    'Note: iOS Safari',
+    'Error building game board',
+  ];
   console.error = (...args: any[]) => {
-    if (
-      (typeof args[0] === 'string' &&
-        args[0].includes('Warning: An update to') &&
-        args[0].includes('was not wrapped in act')) ||
-      args[0].includes('Warning: React does not recognize') ||
-      args[0].includes('Warning: validateDOMNesting') ||
-      args[0].includes('Unknown event handler property') ||
-      args[0].includes('No user logged in') ||
-      args[0].includes('Error syncing') ||
-      args[0].includes('Missing Firebase environment variables') ||
-      args[0].includes('Could not extract image ID') ||
-      args[0].includes('Found tile') ||
-      args[0].includes('Error during group ID audit') ||
-      args[0].includes('Error finding existing tile') ||
-      args[0].includes('Error batch matching tiles') ||
-      args[0].includes('Unexpected error in test') ||
-      args[0].includes('Fullscreen API is not supported') ||
-      args[0].includes('Note: iOS Safari')
-    ) {
+    const msg = typeof args[0] === 'string' ? args[0] : '';
+    if (SUPPRESSED_ERROR_FRAGMENTS.some((fragment) => msg.includes(fragment))) {
       return;
     }
     originalError.call(console, ...args);
@@ -574,6 +580,7 @@ afterEach(() => {
   console.error = originalError;
   console.log = originalLog;
   console.warn = originalWarn;
+  console.debug = originalDebug;
   cleanup(); // Clean up DOM between tests
 
   // Note: IndexedDB cleanup removed to prevent conflicts during parallel test execution

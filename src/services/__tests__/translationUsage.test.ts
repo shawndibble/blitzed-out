@@ -101,8 +101,8 @@ describe('Translation Usage Validation', () => {
     }
 
     if (unusedKeys.length > 0) {
-      console.error(`\nUnused translation keys:`);
-      unusedKeys.forEach((key) => console.error(`  - ${key}`));
+      console.warn(`\nUnused translation keys:`);
+      unusedKeys.forEach((key) => console.warn(`  - ${key}`));
     }
 
     // Make this a warning rather than a failure since some unused keys might be intentional
