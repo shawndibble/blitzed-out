@@ -123,7 +123,9 @@ A user-supplied URL is normalized to something embeddable. Supported families in
 
 ### Reddit slideshow — `src/services/redditService.ts`, `RedditSlideshow`
 
-Fetches a subreddit's listing, extracts image/gallery URLs, decodes HTML entities, filters to image extensions, and cycles them. Fetching is **direct from the browser** against Reddit's CORS-enabled OAuth API (`oauth.reddit.com`), authenticated with an app-only ("installed app") token (`redditAuth.ts`, `VITE_REDDIT_CLIENT_ID`). Calling from the user's own IP avoids the datacenter-IP 403/429s a server-side relay would hit; both Reddit's token and data endpoints send `Access-Control-Allow-Origin: *`, so no proxy is needed. ~5-minute cache.
+Fetches a subreddit's JSON, extracts image/gallery URLs, decodes HTML entities, filters to image extensions, and cycles them. Goes through third-party CORS proxies (`r.jina.ai`, `api.allorigins.win`, `corsproxy.io`). ~5-minute cache.
+
+**Why proxies, not a first-party path** (investigated June 2026): Reddit's public `.json` endpoints don't send `Access-Control-Allow-Origin`, so the browser can't read them directly. The two leak-free alternatives are both blocked by Reddit's Nov-2025 [Responsible Builder Policy](https://support.reddithelp.com/hc/en-us/articles/42728983564564-Responsible-Builder-Policy): (a) the OAuth API (`oauth.reddit.com`) is CORS-enabled but now requires a **manually-approved app**, which self-service no longer issues and which is rarely granted for personal/NSFW use; (b) a first-party server relay (Cloud Function) fetching the public `.json` egresses from a datacenter IP, which Reddit `403`s. The proxies work because they spread requests across their own (non-datacenter) IPs. **Tradeoff:** the proxy operators see which subreddits a user browses — a real privacy leak (subreddit interest, not identity, since requests are credential-less). Accepted as the only viable path to keep the feature; revisit if Reddit grants API access or ships browser-readable CORS.
 
 ### Room vs app backgrounds — `src/helpers/getPrivateRoomBackground.ts`, `BackgroundSelect`
 
