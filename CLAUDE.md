@@ -71,6 +71,31 @@ Game content lives in `src/locales/{lang}/{local,online}/*.json` (per-group file
 
 Custom-tile placeholder tokens are stored canonical English; localized aliases (`src/locales/*/placeholders.json`) are normalized to English on save via `placeholderAliasService` and localized back on edit. The gameplay replacement pipeline (`actionStringReplacement`, `anatomyPlaceholderService`) never sees aliases.
 
+## Architecture Patterns
+
+**Ports & Adapters** — for cross-boundary dependencies (i18next singleton, localStorage, Firebase):
+
+- Define a port interface (e.g., `MigrationPort`, `AnatomyLexicon`)
+- Wire via module-level seam (`setMigrationPort`) or factory (`buildLexicon(i18n, locale)`)
+- Tests pass in-memory/literal implementations — no mocking needed
+
+**Pure function + data bundle** — for testable service cores:
+
+- Extract `pureCoreFn(input, context, data)` from impure orchestration; zero external imports
+- Impure wrapper (hook or factory) builds the data bundle and calls the pure fn
+- Test the pure fn with literal fixture objects; no i18next, no Dexie, no React
+
+**Hook-as-DI** — React hooks own external dependencies:
+
+- Hook fetches deps (`useTranslation`, store selectors), builds context, returns a stable resolver via `useCallback`
+- Callers use the hook; raw services are not imported by components
+- `useSyncExternalStore` for non-provider external state (no `Context.Provider` wrapper needed)
+
+**Replace, don't layer** — when deepening a module:
+
+- Delete old shallow unit tests once boundary tests exist; don't keep both
+- Old tests on internals are waste — new tests assert observable behavior at the public interface
+
 ## Coding Standards
 
 - Remove unused vars/code entirely. No commenting out.
