@@ -61,7 +61,10 @@ export function useAuthSync(user: User | null) {
   useEffect(() => {
     if (!user || user.isAnonymous) {
       import('@/services/syncService')
-        .then(({ stopPeriodicSync }) => stopPeriodicSync())
+        .then(({ stopPeriodicSync, stopUserDataSubscription }) => {
+          stopPeriodicSync();
+          stopUserDataSubscription();
+        })
         .catch(() => undefined);
       return;
     }
@@ -72,11 +75,23 @@ export function useAuthSync(user: User | null) {
       syncTimeoutRef.current = setTimeout(async () => {
         setSyncStatus({ syncing: true, lastSync: null });
         try {
-          const { syncDataFromFirebase, startPeriodicSync } =
-            await import('@/services/syncService');
+          const {
+            syncDataFromFirebase,
+            syncAllDataToFirebase,
+            startPeriodicSync,
+            subscribeToUserData,
+          } = await import('@/services/syncService');
           await syncDataFromFirebase();
+          // One-shot push of the merged union after the initial pull. This uploads
+          // local-only content that was never individually pushed (e.g. tiles
+          // created while anonymous, before logging into this account). Loop-safe:
+          // the entity merges only push back on change, so the resulting snapshot
+          // pulls, finds nothing newer, and stops.
+          await syncAllDataToFirebase();
           setSyncStatus({ syncing: false, lastSync: new Date() });
           startPeriodicSync();
+          // Real-time pull: reflect changes from other devices as they happen.
+          subscribeToUserData();
         } catch {
           setSyncStatus({ syncing: false, lastSync: null });
         } finally {
@@ -100,6 +115,9 @@ export function useAuthSync(user: User | null) {
         clearTimeout(deferTimeoutRef.current);
         deferTimeoutRef.current = null;
       }
+      import('@/services/syncService')
+        .then(({ stopUserDataSubscription }) => stopUserDataSubscription())
+        .catch(() => undefined);
     };
   }, [user]);
 

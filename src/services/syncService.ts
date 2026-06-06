@@ -5,7 +5,7 @@ import {
   updateCustomTile,
 } from '@/stores/customTiles';
 import { deleteCustomGroup, getCustomGroups } from '@/stores/customGroups';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
@@ -13,6 +13,7 @@ import { getAuth } from 'firebase/auth';
 import { getBoards } from '@/stores/gameBoard';
 import { getFirestore } from 'firebase/firestore';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { beginSyncApply, endSyncApply } from './syncMiddleware';
 
 // Updated to use inline type instead of separate interface to avoid unused warning
 
@@ -410,7 +411,54 @@ export async function syncDataFromFirebase(
 ): Promise<boolean> {
   // Use the new sync orchestrator for better maintainability
   const { SyncOrchestrator } = await import('./sync/syncOrchestrator');
-  return await SyncOrchestrator.syncFromFirebase(options);
+  // Suppress the sync middleware while applying remote changes so the writes
+  // below don't schedule an echo push back to Firebase.
+  beginSyncApply();
+  try {
+    return await SyncOrchestrator.syncFromFirebase(options);
+  } finally {
+    endSyncApply();
+  }
+}
+
+// Real-time listener over the per-user Firestore document. Pulls remote changes
+// into Dexie as they happen, instead of waiting for the periodic/debounced sync.
+let userDataUnsubscribe: (() => void) | null = null;
+
+export function stopUserDataSubscription(): void {
+  if (userDataUnsubscribe) {
+    userDataUnsubscribe();
+    userDataUnsubscribe = null;
+  }
+}
+
+export function subscribeToUserData(): () => void {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  // Anonymous users don't cloud-sync; nothing to subscribe to.
+  if (!user || user.isAnonymous) {
+    return () => undefined;
+  }
+
+  stopUserDataSubscription();
+
+  const userDocRef = doc(db, 'user-data', user.uid);
+  userDataUnsubscribe = onSnapshot(
+    userDocRef,
+    (snapshot) => {
+      // Skip our own just-written changes — applying them would loop.
+      if (snapshot.metadata.hasPendingWrites) return;
+      if (!snapshot.exists()) return;
+      // Re-read + merge through the orchestrator (served from local cache).
+      void syncDataFromFirebase();
+    },
+    (error) => {
+      console.error('Real-time user-data sync error:', error);
+    }
+  );
+
+  return stopUserDataSubscription;
 }
 
 // Variable to store the interval ID for periodic syncing

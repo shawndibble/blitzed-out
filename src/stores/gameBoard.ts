@@ -16,14 +16,19 @@ export const getBoard = (id: number): Promise<DBGameBoard | undefined> => {
 };
 
 export const addBoard = async (record: Partial<DBGameBoard>): Promise<number | undefined> => {
-  return gameBoard.add(record as DBGameBoard);
+  // Stamp last-writer-wins timestamp; a sync insert may carry the remote one.
+  const updatedAt = record.updatedAt ?? Date.now();
+  return gameBoard.add({ ...record, updatedAt } as DBGameBoard);
 };
 
 export const updateBoard = async (
   board: DBGameBoard,
   record?: Partial<DBGameBoard>
 ): Promise<number> => {
-  return gameBoard.update(board.id as number, { ...board, ...record });
+  // Bump the timestamp on edit, unless the caller (sync applying a remote board)
+  // supplied an explicit one to preserve.
+  const updatedAt = record?.updatedAt ?? Date.now();
+  return gameBoard.update(board.id as number, { ...board, ...record, updatedAt });
 };
 
 export const upsertBoard = async (record: Partial<DBGameBoard>): Promise<number | undefined> => {
@@ -33,6 +38,7 @@ export const upsertBoard = async (record: Partial<DBGameBoard>): Promise<number 
     isActive: record.isActive === undefined ? 1 : record.isActive,
     tags: record.tags || [],
     gameMode: record.gameMode || 'online',
+    updatedAt: record.updatedAt,
   };
 
   // if we have tiles, we should have a title to go with it.

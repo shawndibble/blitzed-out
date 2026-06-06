@@ -27,8 +27,20 @@ customTiles.hook(
         );
       }
     }
+
+    // Stamp last-writer-wins timestamp. Sync inserts carry the remote timestamp;
+    // preserve it so the just-pulled tile doesn't look newer than the source.
+    if ((obj as any).updatedAt === undefined) (obj as any).updatedAt = Date.now();
   }
 );
+
+// Bump the last-writer-wins timestamp on every update, unless the caller
+// (the sync engine applying a remote change) supplied an explicit timestamp.
+customTiles.hook('updating', function (this: any, modifications: any) {
+  if (modifications && !('updatedAt' in modifications)) {
+    return { updatedAt: Date.now() };
+  }
+});
 
 export const importCustomTiles = async (
   record: Partial<CustomTile>[]

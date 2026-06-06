@@ -6,6 +6,7 @@ export interface CustomTileBase {
   tags: string[];
   isEnabled?: number | boolean;
   isCustom: number;
+  updatedAt?: number; // Unix ms; drives last-writer-wins during sync
 }
 
 // CustomTile interface for pushing (id is optional)

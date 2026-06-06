@@ -59,6 +59,24 @@ export class SyncBase {
   }
 
   /**
+   * Last-writer-wins decision for a single entity.
+   *
+   * Strict `>` so that once two devices converge to the same timestamp neither
+   * keeps re-applying (which would loop the real-time listener). Fallbacks when a
+   * timestamp is absent (data written before this feature shipped):
+   * - local stamped, remote not  → keep local (remote is stale, pre-feature)
+   * - remote stamped, local not  → apply remote
+   * - neither stamped            → apply remote (preserves legacy behavior)
+   */
+  static remoteWins(localTs?: number, remoteTs?: number): boolean {
+    const l = typeof localTs === 'number' ? localTs : null;
+    const r = typeof remoteTs === 'number' ? remoteTs : null;
+    if (l !== null && r !== null) return r > l;
+    if (l !== null) return false;
+    return true;
+  }
+
+  /**
    * Create success result
    */
   static createSuccessResult(itemsProcessed = 0): SyncResult {

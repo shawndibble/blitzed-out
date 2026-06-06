@@ -70,10 +70,17 @@ export class CustomTilesSync extends SyncBase {
         const matchResult = await TileMatcher.findExistingTile(tile);
 
         if (matchResult.existingTile) {
-          // Update existing tile if needed (only isEnabled can be synced)
-          if (matchResult.existingTile.isEnabled !== tile.isEnabled) {
-            await updateCustomTile(matchResult.existingTile.id!, {
+          const existing = matchResult.existingTile;
+          // Update existing tile if needed (only isEnabled is synced), and only
+          // when the remote copy wins last-writer-wins. Preserve the remote
+          // timestamp so the applied tile doesn't look newer than its source.
+          if (
+            existing.isEnabled !== tile.isEnabled &&
+            this.remoteWins(existing.updatedAt, tile.updatedAt)
+          ) {
+            await updateCustomTile(existing.id!, {
               isEnabled: tile.isEnabled,
+              updatedAt: tile.updatedAt ?? Date.now(),
             });
             updatedCount++;
           }
@@ -88,8 +95,11 @@ export class CustomTilesSync extends SyncBase {
       }
     }
 
-    // Sync the merged result back to Firebase
-    await syncCustomTilesToFirebase();
+    // Only push the merged result back when something actually changed —
+    // otherwise the real-time listener would echo every pull into a push.
+    if (addedCount + updatedCount > 0) {
+      await syncCustomTilesToFirebase();
+    }
 
     return this.createSuccessResult(addedCount + updatedCount + localTiles.length);
   }
