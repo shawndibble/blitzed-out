@@ -1,7 +1,7 @@
 {
   "label": "Elektrostimulation",
   "type": "foreplay",
-  "dom": "Anwender/in",
+  "dom": "Controller/in",
   "sub": "Empfänger/in",
   "actions": {
     "Leicht": [

@@ -36,8 +36,8 @@
   "ballBusting": {
     "label": "Golpes en los testículos",
     "type": "sex",
-    "dom": "Castigador",
-    "sub": "Castigado",
+    "dom": "Castigador/a",
+    "sub": "Castigado/a",
     "actions": {
       "Bofetadas/Apretones": [
         "{dom} da una bofetada suave en los testículos a {sub} después de una tirada.",
@@ -288,8 +288,8 @@
   "buttPlay": {
     "label": "Juego anal",
     "type": "sex",
-    "dom": "Activo",
-    "sub": "Pasivo",
+    "dom": "Activo/a",
+    "sub": "Pasivo/a",
     "actions": {
       "Dedo(s)": [
         "{dom} frota las nalgas de {sub}.",
@@ -362,8 +362,8 @@
   "clitTraining": {
     "label": "Entrenamiento del Clítoris",
     "type": "sex",
-    "dom": "Dueña del Clítoris",
-    "sub": "Proveedor de Placer",
+    "dom": "Receptor/a",
+    "sub": "Dador/a",
     "actions": {
       "Toque Ligero": [
         "{sub} traza círculos alrededor del {genital} de {dom} con su dedo.",
@@ -650,8 +650,8 @@
   "electric": {
     "label": "Estimulación Eléctrica",
     "type": "foreplay",
-    "dom": "Controlador",
-    "sub": "Receptor",
+    "dom": "Controlador/a",
+    "sub": "Receptor/a",
     "actionDisplayNames": {
       "None": "Ninguna",
       "Light": "Ligero",
@@ -843,8 +843,8 @@
   "pissPlay": {
     "label": "Juegos con Orina",
     "type": "sex",
-    "dom": "Orinador",
-    "sub": "Orinado",
+    "dom": "Orinador/a",
+    "sub": "Orinado/a",
     "actions": {
       "Orinar en un vaso": [
         "{sub} bebe agua",
@@ -925,8 +925,8 @@
   "spanking": {
     "label": "Azotes",
     "type": "sex",
-    "dom": "Azotador",
-    "sub": "Azotado",
+    "dom": "Azotador/a",
+    "sub": "Azotado/a",
     "actions": {
       "Azotes Suaves": [
         "{dom} da azotes suaves a {sub} en cada nalga.",
@@ -1017,8 +1017,8 @@
   "throatTraining": {
     "label": "Entrenamiento de garganta",
     "type": "sex",
-    "dom": "Recibir oral",
-    "sub": "Mamón",
+    "dom": "Receptor/a",
+    "sub": "Dador/a",
     "actions": {
       "Lamer": [
         "{sub} lame el {genital} de {dom}.",
@@ -1077,8 +1077,8 @@
   "tickling": {
     "label": "Cosquillas",
     "type": "foreplay",
-    "dom": "Hace cosquillas",
-    "sub": "Cosquilleado",
+    "dom": "Cosquilleador/a",
+    "sub": "Cosquilleado/a",
     "actions": {
       "Ligero": [
         "{dom} frota suavemente su dedo en una zona sensible de {sub}.",
@@ -1134,8 +1134,8 @@
   "titTorture": {
     "label": "Tortura de pezones",
     "type": "sex",
-    "dom": "Torturador",
-    "sub": "Torturado",
+    "dom": "Torturador/a",
+    "sub": "Receptor/a",
     "actions": {
       "Apretar/Frotar": [
         "{dom} juega con los pezones de {sub}.",

@@ -1,8 +1,8 @@
 {
   "label": "Estimulación Eléctrica",
   "type": "foreplay",
-  "dom": "Controlador",
-  "sub": "Receptor",
+  "dom": "Controlador/a",
+  "sub": "Receptor/a",
   "actionDisplayNames": {
     "None": "Ninguna",
     "Light": "Ligero",

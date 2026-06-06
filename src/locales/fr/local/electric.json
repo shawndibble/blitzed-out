@@ -2,7 +2,7 @@
   "label": "Électrostimulation",
   "type": "foreplay",
   "dom": "Contrôleur",
-  "sub": "Récepteur",
+  "sub": "Receveur",
   "actions": {
     "Faible": [
       "{dom} applique un courant électrique doux sur le bras de {sub} à l'aide d'un appareil TENS.",

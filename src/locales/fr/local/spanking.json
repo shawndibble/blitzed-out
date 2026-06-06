@@ -1,8 +1,8 @@
 {
   "label": "Fessées",
   "type": "sex",
-  "dom": "Donneur",
-  "sub": "Receveur",
+  "dom": "Fesseur",
+  "sub": "Fessé",
   "actions": {
     "Fessées légères": [
       "{dom} donne une fessée légère à {sub} sur chaque fesse.",

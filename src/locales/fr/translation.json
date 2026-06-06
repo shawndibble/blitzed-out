@@ -26,7 +26,7 @@
       "pronounPossessive": "S'adapte à l'anatomie du joueur (son/sa/son)",
       "pronounReflexive": "S'adapte à l'anatomie du joueur (lui-même/elle-même/soi-même)",
       "examples": "Voir les Exemples",
-      "exampleAction": "{dom} embrasse {sub} sur le {chest}",
+      "exampleAction": "{dominant} embrasse {soumis} sur le {torse}",
       "exampleResult": "Michel embrasse Jessica sur les seins"
     }
   },

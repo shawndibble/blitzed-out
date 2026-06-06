@@ -36,7 +36,7 @@
   "ballBusting": {
     "label": "Hodenmarter",
     "type": "sex",
-    "dom": "Schläger/in",
+    "dom": "Ballbuster/in",
     "sub": "Empfänger/in",
     "anatomyRequirement": "penis",
     "actions": {
@@ -364,8 +364,8 @@
   "clitTraining": {
     "label": "Klitoris-Training",
     "type": "sex",
-    "dom": "Empfängerin",
-    "sub": "Geberin",
+    "dom": "Empfänger/in",
+    "sub": "Geber/in",
     "anatomyRequirement": "pussy",
     "actions": {
       "Sanfte Berührung": [
@@ -653,7 +653,7 @@
   "electric": {
     "label": "Elektrostimulation",
     "type": "foreplay",
-    "dom": "Anwender/in",
+    "dom": "Controller/in",
     "sub": "Empfänger/in",
     "actions": {
       "Leicht": [
@@ -839,8 +839,8 @@
   "pissPlay": {
     "label": "Wasserspiele",
     "type": "sex",
-    "dom": "Pisser/in",
-    "sub": "Pissee",
+    "dom": "NS-Aktiv",
+    "sub": "NS-Passiv",
     "actions": {
       "In einen Becher pinkeln": [
         "{sub} trinkt Wasser",
@@ -922,7 +922,7 @@
     "label": "Spanking",
     "type": "sex",
     "dom": "Spanker/in",
-    "sub": "Gespankt/e",
+    "sub": "Spankee",
     "actions": {
       "Leichte Hand": [
         "{dom} klatscht {sub} leicht auf jede Pobacke.",
@@ -1073,8 +1073,8 @@
   "tickling": {
     "label": "Kitzeln",
     "type": "foreplay",
-    "dom": "Kitzelnd/er",
-    "sub": "Gekitzelt/e",
+    "dom": "Kitzelnde/r",
+    "sub": "Gekitzelte/r",
     "actions": {
       "Leicht": [
         "{dom} reibt leicht mit dem Finger an einer kitzligen Stelle von {sub}.",
@@ -1130,7 +1130,7 @@
   "titTorture": {
     "label": "Brustwarzenfolter",
     "type": "sex",
-    "dom": "Peinigende/r",
+    "dom": "Peiniger/in",
     "sub": "Empfänger/in",
     "actions": {
       "Kneifen/Reiben/Lecken": [
