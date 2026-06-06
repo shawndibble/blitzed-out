@@ -148,6 +148,47 @@ describe('buildBoardFromData', () => {
     );
   });
 
+  describe('Penetrative tag resolution', () => {
+    const tileWith = (tags: string[], isCustom = 0): CustomTilePull => ({
+      id: 1,
+      group_id: 'g1',
+      intensity: 1,
+      action: 'Use your {genital}.',
+      tags,
+      isEnabled: 1,
+      isCustom,
+    });
+    const settings: Settings = {
+      ...baseSettings,
+      selectedActions: { pen: createActionEntry([1], 'sex') },
+    };
+
+    it("marks default tile penetrative=true when tagged 'penetrative'", async () => {
+      const result = await build(
+        [createGroup('g1', 'pen')],
+        [tileWith(['default', 'penetrative'])],
+        settings,
+        1
+      );
+      expect(result.board[1].penetrative).toBe(true);
+    });
+
+    it('marks untagged default tile penetrative=false', async () => {
+      const result = await build([createGroup('g1', 'pen')], [tileWith(['default'])], settings, 1);
+      expect(result.board[1].penetrative).toBe(false);
+    });
+
+    it('never marks a custom tile penetrative, even if tagged', async () => {
+      const result = await build(
+        [createGroup('g1', 'pen')],
+        [tileWith(['custom', 'penetrative'], 1)],
+        settings,
+        1
+      );
+      expect(result.board[1].penetrative).toBe(false);
+    });
+  });
+
   describe('Metadata', () => {
     it('should include correct metadata', async () => {
       const groups = [createGroup('g1', 'group1'), createGroup('g2', 'group2')];

@@ -59,7 +59,8 @@ function parseDescription(
   displayName: string,
   localPlayers?: import('@/types/localPlayers').LocalPlayer[],
   gender?: import('@/types/localPlayers').PlayerGender,
-  locale?: string
+  locale?: string,
+  penetrative?: boolean
 ): string {
   if (!text) return '';
   // our finish tile has %, so if we have it, figure out the result.
@@ -72,7 +73,8 @@ function parseDescription(
       localPlayers,
       false,
       gender,
-      locale
+      locale,
+      penetrative
     );
   }
 
@@ -142,7 +144,8 @@ export default function usePlayerMove(
         playerName,
         isInLocalMultiplayerMode && session ? session.players : undefined,
         playerGender,
-        settings.locale
+        settings.locale,
+        newTile.penetrative
       );
 
       if (rollNumber !== -1) {

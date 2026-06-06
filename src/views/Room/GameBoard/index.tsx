@@ -232,7 +232,8 @@ export default function GameBoard({
             localPlayers.length > 0 ? localPlayers : undefined,
             false,
             settings.gender,
-            settings.locale
+            settings.locale,
+            entry.penetrative
           )
         : // replace only letters and numbers with question marks. Remove special characters.
           (entry.description || '').replace(/[^\w\s]/g, '').replace(/[a-zA-Z0-9]/g, '?');

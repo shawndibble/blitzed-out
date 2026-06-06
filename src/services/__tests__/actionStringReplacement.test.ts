@@ -123,7 +123,7 @@ describe('actionStringReplacement', () => {
       expect(result).toBe('Touch your pussy.');
     });
 
-    it('uses strapon for female dom with {genital}', () => {
+    it('uses strapon for female dom on a penetrative tile', () => {
       const femaleDom: LocalPlayer = {
         ...localPlayers[1],
         role: 'dom',
@@ -136,10 +136,37 @@ describe('actionStringReplacement', () => {
         'dom',
         'Sarah',
         players,
-        false
+        false,
+        undefined,
+        'en',
+        true
       );
 
       expect(result).toContain('strapon');
+    });
+
+    it('keeps real anatomy for female dom on a non-penetrative tile (bating regression)', () => {
+      const femaleDom: LocalPlayer = {
+        ...localPlayers[1],
+        role: 'dom',
+        name: 'Sarah',
+      };
+      const players = [femaleDom, localPlayers[0]];
+
+      // A non-penetrative (false) tile keeps real anatomy for a female dom.
+      const result = actionStringReplacement(
+        'Rub your {genital} 30 times, one deep breath each.',
+        'dom',
+        'Sarah',
+        players,
+        false,
+        undefined,
+        'en',
+        false
+      );
+
+      expect(result).toContain('pussy');
+      expect(result).not.toContain('strapon');
     });
 
     it('replaces {hole} placeholder appropriately', () => {
@@ -260,9 +287,43 @@ describe('actionStringReplacement', () => {
       expect(result).toBe('Touch your pussy.');
     });
 
-    it('uses strapon for female dom', () => {
+    it('uses strapon for female dom on a penetrative tile', () => {
       const result = actionStringReplacement(
         'Use your {genital}.',
+        'dom',
+        'Sarah',
+        undefined,
+        false,
+        'female',
+        'en',
+        true
+      );
+
+      expect(result).toBe('Use your strapon.');
+    });
+
+    it('keeps real anatomy for female dom on a non-penetrative tile (bating regression)', () => {
+      // Bare {genital} in solo/remote previously always strapped female doms (path 2,
+      // ungated). With an explicit non-penetrative flag it must stay real anatomy.
+      const result = actionStringReplacement(
+        'Touch your {genital}.',
+        'dom',
+        'Sarah',
+        undefined,
+        false,
+        'female',
+        'en',
+        false
+      );
+
+      expect(result).toBe('Touch your pussy.');
+    });
+
+    it('does not auto-strap when the penetrative flag is omitted (no keyword detection)', () => {
+      // Strapon is a default-content feature; without an explicit flag (custom
+      // tiles) the genital stays real anatomy even if the text reads penetrative.
+      const result = actionStringReplacement(
+        'Push your {genital} deep inside.',
         'dom',
         'Sarah',
         undefined,
@@ -271,7 +332,7 @@ describe('actionStringReplacement', () => {
         'en'
       );
 
-      expect(result).toBe('Use your strapon.');
+      expect(result).toBe('Push your pussy deep inside.');
     });
 
     it('handles undefined gender (defaults to neutral)', () => {

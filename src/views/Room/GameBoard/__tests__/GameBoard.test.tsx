@@ -418,6 +418,7 @@ describe('GameBoard', () => {
         undefined,
         false,
         undefined,
+        undefined,
         undefined
       );
       expect(actionStringReplacement).toHaveBeenCalledWith(
@@ -426,6 +427,7 @@ describe('GameBoard', () => {
         'Test User',
         undefined,
         false,
+        undefined,
         undefined,
         undefined
       );
@@ -458,6 +460,7 @@ describe('GameBoard', () => {
         '',
         undefined,
         false,
+        undefined,
         undefined,
         undefined
       );

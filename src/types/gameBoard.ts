@@ -21,9 +21,13 @@ export interface Tile {
   current: Player | null;
   isTransparent: boolean;
   className: string;
+  // Whether this tile's action penetrates (drives the female-dom strapon swap).
+  // `true`/`false` for classified default tiles; `undefined` for custom/unknown
+  // tiles, which fall back to keyword detection at render time.
+  penetrative?: boolean;
 }
 
-export type TileExport = Pick<Tile, 'title' | 'description'>;
+export type TileExport = Pick<Tile, 'title' | 'description' | 'penetrative'>;
 
 export type GameBoard = TileExport[];
 

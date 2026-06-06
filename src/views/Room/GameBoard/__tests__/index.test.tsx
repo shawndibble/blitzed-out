@@ -327,6 +327,7 @@ describe('GameBoard', () => {
         ]),
         false,
         undefined,
+        undefined,
         undefined
       );
     });
@@ -357,6 +358,7 @@ describe('GameBoard', () => {
         undefined,
         false,
         undefined,
+        undefined,
         undefined
       );
     });
@@ -385,6 +387,7 @@ describe('GameBoard', () => {
         undefined,
         false,
         undefined,
+        undefined,
         undefined
       );
 
@@ -406,6 +409,7 @@ describe('GameBoard', () => {
         undefined,
         false,
         undefined,
+        undefined,
         undefined
       );
 
@@ -426,6 +430,7 @@ describe('GameBoard', () => {
         'Test User',
         undefined,
         false,
+        undefined,
         undefined,
         undefined
       );
@@ -453,6 +458,7 @@ describe('GameBoard', () => {
         undefined,
         false,
         undefined,
+        undefined,
         undefined
       );
 
@@ -463,6 +469,7 @@ describe('GameBoard', () => {
         'Test User',
         undefined,
         false,
+        undefined,
         undefined,
         undefined
       );

@@ -196,7 +196,6 @@ vi.mock('i18next', () => {
       aSubmissive: 'a submissive',
       anotherPlayer: 'another player',
       anatomy: {
-        penetrativeKeywords: ['deep', 'throat', 'penetrate', 'inside', 'enters'],
         genericAnatomyTerms: {
           genital: 'genitals',
           hole: 'hole',
@@ -214,7 +213,6 @@ vi.mock('i18next', () => {
     },
     es: {
       anatomy: {
-        penetrativeKeywords: ['profundo', 'garganta', 'penetrar', 'dentro', 'entra'],
         anatomyMappings: {
           male: {
             genital: 'polla',
@@ -287,7 +285,6 @@ vi.mock('i18next', () => {
     },
     zh: {
       anatomy: {
-        penetrativeKeywords: ['深', '喉', '插入', '里面', '进入'],
         anatomyMappings: {
           male: {
             genital: '鸡巴',
@@ -324,7 +321,6 @@ vi.mock('i18next', () => {
     },
     hi: {
       anatomy: {
-        penetrativeKeywords: ['गहरा', 'गला', 'घुसना', 'अंदर', 'प्रवेश'],
         anatomyMappings: {
           male: {
             genital: 'लिंग',
