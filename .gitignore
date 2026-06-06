@@ -34,7 +34,6 @@
 .env.production.local
 .vscode
 .idea
-docs/
 
 npm-debug.log*
 yarn-debug.log*
