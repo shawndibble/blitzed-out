@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import SimplePeer from 'simple-peer';
 import { getDatabase, ref, onValue, off } from 'firebase/database';
 import { firebaseSignaling, SignalData } from '@/services/firebaseSignaling';
-import { ICE_SERVERS } from '@/config/webrtc';
+import { ICE_SERVERS, MAX_PEERS } from '@/config/webrtc';
 
 const createMediaError = (
   error: unknown
@@ -430,9 +430,6 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       }
 
       lastUserIds = userIds;
-
-      // Limit maximum connections to prevent browser crashes
-      const MAX_PEERS = 4;
 
       // Clean up disconnected peers first
       peers.forEach((peerData, peerId) => {
