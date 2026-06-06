@@ -111,7 +111,19 @@ export default function PlayerTopologyStep({
             <Checkbox
               checked={soloPrivate}
               onClick={(event) => event.stopPropagation()}
-              onChange={(event) => setSoloPrivate(event.target.checked)}
+              onChange={(event) => {
+                const newValue = event.target.checked;
+                setSoloPrivate(newValue);
+                setFormData((prev) =>
+                  prev.gameMode === 'solo'
+                    ? {
+                        ...prev,
+                        room: newValue ? generateRoomCode() : 'PUBLIC',
+                        roomRealtime: !newValue,
+                      }
+                    : prev
+                );
+              }}
             />
           }
           label={t('playerTopology.solo.private', 'Play privately')}
