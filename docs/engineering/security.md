@@ -37,7 +37,7 @@ Companion to [README.md](README.md). Security model, the actual rules in force, 
 **Key weaknesses:**
 
 1. **Room access isn't enforced in rules.** Any authenticated user (including any anonymous user) can read/write **any** room's metadata and read **any** room's messages (`chat-rooms` rules require only `request.auth != null`). The private-room "secret code" is **app-layer obscurity, not a rules-enforced boundary** — an attacker who knows or guesses a room ID can read its chat. For an NSFW app this is a real privacy gap. Hardening: store a members map and check membership in rules.
-2. ~~**`schedule.url` and `custom-actions.customAction` have no size/format validation.**~~ **Resolved** — `firestore.rules` now caps sizes (`schedule.url` ≤2048, `customAction` ≤2000, `gameBoard` ≤600 K, `settings` ≤200 K) and anchors `schedule.url` to `^https?://` (or empty), with `hasOnly` field locks. Covered by `npm run test:rules` (emulator). _Residual:_ background **media** URLs embedded in the iframe are still not scheme/host-validated — see [Content & input validation](#content--input-validation).
+2. ~~**`schedule.url` and `custom-actions.customAction` have no size/format validation.**~~ **Resolved** — `firestore.rules` now caps sizes (`schedule.url` ≤2048, `customAction` ≤2000, `gameBoard` ≤600 K, `settings` ≤200 K) and anchors `schedule.url` to `^https?://` (or empty), with `hasOnly` field locks. Covered by `npm run test:rules` (emulator). Background **media** URLs are also constrained — only an allowlist of known providers reaches the `<iframe>`, and the shared `roomBackgroundURL` is scheme-validated on submit — see [Content & input validation](#content--input-validation).
 
 ---
 
@@ -62,7 +62,7 @@ Top-level defaults deny (`".read": false, ".write": false`) — good baseline. T
 
 ## Storage rules (`storage.rules`)
 
-Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **and** `contentType` matches `image/.*` **and** filename extension in `{jpg,jpeg,png,gif,webp}`. Everything else denied by default. Note SVG is **not** in the allowlist (good — avoids SVG-borne script). Minor residual: image metadata (EXIF) isn't stripped.
+Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **and** `contentType` matches `image/.*` **and** filename extension in `{jpg,jpeg,png,gif,webp}`. Everything else denied by default. Note SVG is **not** in the allowlist (good — avoids SVG-borne script). Uploaded images are re-encoded through a canvas client-side (`src/services/imageProcessing.ts`) before upload, which drops EXIF/metadata (incl. GPS); non-photo formats (gif) pass through untouched to avoid flattening animation.
 
 ---
 
@@ -96,7 +96,7 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 - **Chat markdown** — rendered via `react-markdown` (+ `remark-gfm`, `remark-gemoji`). Safe by default: AST-based, no raw HTML, no `dangerouslySetInnerHTML` in app code. Message text capped at 1000 chars by Firestore rules.
 - **Custom tiles/groups** — `validationService.ts`: name length/charset, reserved-name blocklist, intensity bounds and uniqueness, group references checked. Public `custom-actions`/`game-boards`/`schedule` writes are additionally size-capped and field-locked (`hasOnly`) by `firestore.rules`; the custom-action input is `maxLength`-guarded client-side.
-- **Media URLs** — user-supplied background URLs are normalized then placed into an `<iframe src>` or a CSS `background-image: url(...)`. The iframe is sandboxed (`allow-same-origin allow-scripts allow-presentation`; no `allow-popups`/`allow-top-navigation`). **Residual risk:** arbitrary third-party URLs are embedded with `allow-scripts`, and background URLs aren't scheme/domain-validated → a hostile media host could attempt mischief within the sandbox. Hardening: validate URL scheme/host and consider an allowlist.
+- **Media URLs** — user-supplied background URLs are normalized (`getBackgroundSource.ts`) then placed into an `<iframe src>` or a CSS `background-image: url(...)`. The `<iframe>` path is reached **only** for an allowlist of known providers (`isValidHost` switch — YouTube, Vimeo, Imgur, etc., each rewritten to that provider's embed domain); anything unrecognized falls to `background-image`, never the iframe. The iframe is sandboxed (`allow-same-origin allow-scripts allow-presentation`; no `allow-popups`/`allow-top-navigation`). The shared `roomBackgroundURL` is scheme/length/traversal-validated via `isValidURL` on submit (`gameSettingsOrchestrator.ts`). _Residual:_ the app-only `backgroundURL` (custom app background) is not run through `isValidURL` — lower risk since it's local/self-only and still subject to the provider allowlist.
 - **Display names** — not sanitized before being rendered in messages → possible RTL/zero-width/homograph shenanigans. Low severity; add normalization.
 
 ---
@@ -125,7 +125,6 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 2. **Scope RTDB presence reads** (`users`, `rooms/*/uids`) to auth/own record.
 3. **Scope signaling writes** to the target user (or validate `from`).
 4. **Make admin-callable gating consistent**, add rate limiting.
-5. **Validate background media URLs** (scheme/host allowlist) before iframe embedding. _(Schedule/custom-action/board URL + string-size validation is done — see [Content & input validation](#content--input-validation).)_
-6. Sanitize/normalize display names; add a privacy notice + analytics opt-out.
+5. Sanitize/normalize display names; add a privacy notice + analytics opt-out.
 
 These are tracked alongside other improvements in [enhancement-opportunities.md](enhancement-opportunities.md#security).

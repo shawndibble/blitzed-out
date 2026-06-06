@@ -51,6 +51,7 @@ import {
 import { getDownloadURL, getStorage, ref as storageRef, uploadString } from 'firebase/storage';
 
 import { MessageType } from '@/types/Message';
+import { stripImageMetadata } from '@/services/imageProcessing';
 import { User as UserType } from '@/types';
 import { initializeApp } from 'firebase/app';
 import { sha256 } from 'js-sha256';
@@ -1015,7 +1016,7 @@ interface UploadImageData {
 
 export async function uploadImage({ image, room, user }: UploadImageData): Promise<void> {
   const storage = getStorage();
-  const imageUrl = image.base64String;
+  const imageUrl = await stripImageMetadata(image.base64String, image.format);
   const imageLoc = `/images/${Math.random()}.${image.format}`;
   const imageRef = storageRef(storage, imageLoc);
 

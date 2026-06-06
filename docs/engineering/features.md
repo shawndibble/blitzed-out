@@ -123,7 +123,7 @@ A user-supplied URL is normalized to something embeddable. Supported families in
 
 ### Reddit slideshow — `src/services/redditService.ts`, `RedditSlideshow`
 
-Fetches a subreddit's JSON, extracts image/gallery URLs, decodes HTML entities, filters to image extensions, and cycles them. Uses CORS proxies (`r.jina.ai`, `api.allorigins.win`, `corsproxy.io`) as fallbacks. ~5-minute cache.
+Fetches a subreddit's listing, extracts image/gallery URLs, decodes HTML entities, filters to image extensions, and cycles them. Fetching is **direct from the browser** against Reddit's CORS-enabled OAuth API (`oauth.reddit.com`), authenticated with an app-only ("installed app") token (`redditAuth.ts`, `VITE_REDDIT_CLIENT_ID`). Calling from the user's own IP avoids the datacenter-IP 403/429s a server-side relay would hit; both Reddit's token and data endpoints send `Access-Control-Allow-Origin: *`, so no proxy is needed. ~5-minute cache.
 
 ### Room vs app backgrounds — `src/helpers/getPrivateRoomBackground.ts`, `BackgroundSelect`
 

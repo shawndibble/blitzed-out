@@ -171,3 +171,5 @@ Node Firebase Functions, 7 exported. Mix of scheduled (Pub/Sub) cleanup jobs and
 - Scheduled: stale-user cleanup (~5 min), inactive-anonymous-account cleanup (daily), video-call signaling cleanup (~5 min).
 - Triggers: on user disconnect, presence validation (stamps `lastSeen`).
 - Two **callable** admin helpers (`manualCleanupStaleUsers`, `manualCleanupAnonymousAccounts`) gated on an `admin` custom claim. Details and the security caveats in [security.md](security.md#cloud-functions).
+
+(The Reddit slideshow does **not** use a function — the browser calls Reddit's OAuth API directly; see [features.md](features.md).)
