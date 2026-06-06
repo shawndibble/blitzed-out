@@ -1,102 +1,98 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
 import { PlayerRole, Settings } from '@/types/Settings';
 import { ActionEntry } from '@/types';
-import buildGameBoard from '../buildGame';
-import { getCustomGroups } from '@/stores/customGroups';
-import { getTiles } from '@/stores/customTiles';
+import buildGameBoard, { BoardDataSource, buildBoardFromData } from '../buildGame';
 
 const createActionEntry = (
   levels: number[],
   type: 'solo' | 'foreplay' | 'sex' | 'consumption'
 ): ActionEntry => ({ levels, type });
 
-vi.mock('i18next', () => ({
-  default: {
-    t: vi.fn((key: string) => key),
-  },
-}));
-
-vi.mock('@/helpers/arrays', () => ({
-  cycleArray: vi.fn((arr) => arr),
-  shuffleArray: vi.fn((arr) => [...arr]),
-}));
-
-vi.mock('@/stores/customGroups', () => ({
-  getCustomGroups: vi.fn(),
-}));
-
-vi.mock('@/stores/customTiles', () => ({
-  getTiles: vi.fn(),
-}));
-
-describe('buildGameBoard service', () => {
-  const createGroup = (
-    id: string,
-    name: string,
-    type: 'solo' | 'foreplay' | 'sex' | 'consumption' = 'solo'
-  ): CustomGroupPull => ({
-    id,
-    name,
-    label: name,
-    intensities: [
-      { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
-      { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
-      { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
-    ],
-    type,
-    isDefault: true,
-    locale: 'en',
-    gameMode: 'online',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
-
-  const createTile = (
-    id: number,
-    groupId: string,
-    intensity: number,
-    action: string,
-    isEnabled = 1
-  ): CustomTilePull => ({
-    id,
-    group_id: groupId,
-    intensity,
-    action,
-    tags: [],
-    isEnabled,
-    isCustom: 0,
-  });
-
-  const baseSettings: Settings = {
-    boardUpdated: false,
-    room: 'TEST',
-    role: 'sub',
-    gameMode: 'online',
-    finishRange: [33, 66],
-    selectedActions: {},
+/** Deterministic linear congruential generator for reproducible shuffles. */
+const lcg = (seed: number): (() => number) => {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0x100000000;
   };
+};
 
-  beforeEach(() => {
-    vi.clearAllMocks();
+const identity = (key: string): string => key;
+
+const createGroup = (
+  id: string,
+  name: string,
+  type: 'solo' | 'foreplay' | 'sex' | 'consumption' = 'solo'
+): CustomGroupPull => ({
+  id,
+  name,
+  label: name,
+  intensities: [
+    { id: '1', label: 'intensityLabels.light', value: 1, isDefault: true },
+    { id: '2', label: 'intensityLabels.medium', value: 2, isDefault: true },
+    { id: '3', label: 'intensityLabels.intense', value: 3, isDefault: true },
+  ],
+  type,
+  isDefault: true,
+  locale: 'en',
+  gameMode: 'online',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+});
+
+const createTile = (
+  id: number,
+  groupId: string,
+  intensity: number,
+  action: string,
+  isEnabled = 1
+): CustomTilePull => ({
+  id,
+  group_id: groupId,
+  intensity,
+  action,
+  tags: [],
+  isEnabled,
+  isCustom: 0,
+});
+
+const baseSettings: Settings = {
+  boardUpdated: false,
+  room: 'TEST',
+  role: 'sub',
+  gameMode: 'online',
+  finishRange: [33, 66],
+  selectedActions: {},
+};
+
+// Build the pure core with deterministic randomness and a pass-through translator.
+const build = (
+  groups: CustomGroupPull[],
+  tiles: CustomTilePull[],
+  settings: Settings,
+  tileCount: number,
+  seed = 42
+) =>
+  buildBoardFromData(groups, tiles, settings, tileCount, {
+    translate: identity,
+    random: lcg(seed),
   });
 
+describe('buildBoardFromData', () => {
   describe('Board structure', () => {
     it('should create board with start and finish tiles', async () => {
       const groups = [createGroup('g1', 'test')];
       const tiles = [createTile(1, 'g1', 1, 'Action 1')];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
 
       const settings = {
         ...baseSettings,
         selectedActions: { test: createActionEntry([1], 'sex') },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 3);
+      const result = await build(groups, tiles, settings, 3);
 
       expect(result.board).toHaveLength(5);
       expect(result.board[0].title).toBe('start');
@@ -104,13 +100,26 @@ describe('buildGameBoard service', () => {
     });
 
     it('should return only start and finish when no actions selected', async () => {
-      vi.mocked(getCustomGroups).mockResolvedValue([]);
-      vi.mocked(getTiles).mockResolvedValue([]);
-
-      const result = await buildGameBoard(baseSettings, 'en', 'online', 3);
+      const result = await build([], [], baseSettings, 3);
 
       expect(result.board).toHaveLength(2);
       expect(result.metadata.tilesWithContent).toBe(2);
+    });
+
+    it('should emit the finish-range probability string', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [createTile(1, 'g1', 1, 'Action 1')];
+      const settings = {
+        ...baseSettings,
+        finishRange: [33, 66] as [number, number],
+        selectedActions: { test: createActionEntry([1], 'sex') },
+      };
+
+      const result = await build(groups, tiles, settings, 3);
+      const finishTile = result.board[result.board.length - 1];
+
+      expect(finishTile.title).toBe('finish');
+      expect(finishTile.description).toBe('noCum 33%\r\nruined 33%\r\ncum 34%');
     });
   });
 
@@ -118,9 +127,6 @@ describe('buildGameBoard service', () => {
     it('should include correct metadata', async () => {
       const groups = [createGroup('g1', 'group1'), createGroup('g2', 'group2')];
       const tiles = [createTile(1, 'g1', 1, 'Action 1'), createTile(2, 'g2', 1, 'Action 2')];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
 
       const settings = {
         ...baseSettings,
@@ -130,11 +136,29 @@ describe('buildGameBoard service', () => {
         },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 3);
+      const result = await build(groups, tiles, settings, 3);
 
       expect(result.metadata.totalTiles).toBe(5);
       expect(result.metadata.selectedGroups).toEqual(['group1', 'group2']);
       expect(result.metadata.availableTileCount).toBe(2);
+    });
+
+    it('should populate missingGroups when a selected group is absent', async () => {
+      const groups = [createGroup('g1', 'present')];
+      const tiles = [createTile(1, 'g1', 1, 'Action 1')];
+
+      const settings = {
+        ...baseSettings,
+        selectedActions: {
+          present: createActionEntry([1], 'sex'),
+          absent: createActionEntry([1], 'sex'),
+        },
+      };
+
+      const result = await build(groups, tiles, settings, 3);
+
+      expect(result.metadata.selectedGroups).toEqual(['present', 'absent']);
+      expect(result.metadata.missingGroups).toEqual(['absent']);
     });
   });
 
@@ -150,16 +174,13 @@ describe('buildGameBoard service', () => {
         const groups = [createGroup('g1', 'roleGroup', 'foreplay')];
         const tiles = [createTile(1, 'g1', 1, `Action for ${placeholder}`)];
 
-        vi.mocked(getCustomGroups).mockResolvedValue(groups);
-        vi.mocked(getTiles).mockResolvedValue(tiles);
-
         const settings: Settings = {
           ...baseSettings,
           role,
           selectedActions: { roleGroup: createActionEntry([1], 'sex') },
         };
 
-        const result = await buildGameBoard(settings, 'en', 'online', 2);
+        const result = await build(groups, tiles, settings, 2);
 
         expect(result.metadata.availableTileCount).toBe(expectedCount);
       }
@@ -175,9 +196,6 @@ describe('buildGameBoard service', () => {
         createTile(2, 'g2', 1, 'Consume action'),
       ];
 
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
-
       const settings: Settings = {
         ...baseSettings,
         role: 'vers',
@@ -187,7 +205,7 @@ describe('buildGameBoard service', () => {
         },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 2);
+      const result = await build(groups, tiles, settings, 2);
 
       expect(result.metadata.availableTileCount).toBe(2);
     });
@@ -199,16 +217,13 @@ describe('buildGameBoard service', () => {
         createTile(2, 'g1', 1, 'Action for {sub} only'),
       ];
 
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
-
       const settings: Settings = {
         ...baseSettings,
         role: 'vers',
         selectedActions: { mix: createActionEntry([1], 'sex') },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 2);
+      const result = await build(groups, tiles, settings, 2);
 
       expect(result.metadata.availableTileCount).toBe(1);
     });
@@ -217,16 +232,13 @@ describe('buildGameBoard service', () => {
       const groups = [createGroup('g1', 'confessions', 'foreplay')];
       const tiles = [createTile(1, 'g1', 1, 'Answer a confession prompt')];
 
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
-
       const settings: Settings = {
         ...baseSettings,
         role: 'vers',
         selectedActions: { confessions: createActionEntry([1], 'foreplay') },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'local', 2);
+      const result = await build(groups, tiles, settings, 2);
 
       expect(result.metadata.availableTileCount).toBe(1);
       expect(result.board[1].title).toBe('confessions');
@@ -243,32 +255,46 @@ describe('buildGameBoard service', () => {
         createTile(3, 'g1', 3, 'Intense'),
       ];
 
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
-
       const settings = {
         ...baseSettings,
         selectedActions: { test: createActionEntry([1, 3], 'sex') },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 2);
+      const result = await build(groups, tiles, settings, 2);
 
       expect(result.board).toHaveLength(4);
+    });
+
+    it('should progress intensity from low (first tile) to high (last tile)', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [
+        createTile(1, 'g1', 1, 'I1'),
+        createTile(2, 'g1', 2, 'I2'),
+        createTile(3, 'g1', 3, 'I3'),
+      ];
+
+      const settings = {
+        ...baseSettings,
+        selectedActions: { test: createActionEntry([1, 2, 3], 'sex') },
+      };
+
+      const result = await build(groups, tiles, settings, 12);
+      const content = result.board.slice(1, -1);
+
+      expect(content[0].description).toBe('I1');
+      expect(content[content.length - 1].description).toBe('I3');
     });
 
     it('should fallback to higher intensity when target unavailable', async () => {
       const groups = [createGroup('g1', 'test')];
       const tiles = [createTile(1, 'g1', 2, 'Medium only')];
 
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
-
       const settings = {
         ...baseSettings,
         selectedActions: { test: createActionEntry([1], 'sex') },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 2);
+      const result = await build(groups, tiles, settings, 2);
 
       expect(result.metadata.availableTileCount).toBe(1);
       expect(result.board.length).toBeGreaterThanOrEqual(2);
@@ -278,15 +304,12 @@ describe('buildGameBoard service', () => {
       const groups = [createGroup('g1', 'test')];
       const tiles = [createTile(1, 'g1', 1, 'Light'), createTile(2, 'g1', 3, 'Intense')];
 
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
-
       const settings = {
         ...baseSettings,
         selectedActions: { test: createActionEntry([2], 'sex') },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 2);
+      const result = await build(groups, tiles, settings, 2);
 
       expect(result.metadata.availableTileCount).toBe(2);
     });
@@ -295,46 +318,110 @@ describe('buildGameBoard service', () => {
       const groups = [createGroup('g1', 'empty')];
       const tiles: CustomTilePull[] = [];
 
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
-
       const settings = {
         ...baseSettings,
         selectedActions: { empty: createActionEntry([1], 'sex') },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 2);
+      const result = await build(groups, tiles, settings, 2);
 
       expect(result.board).toHaveLength(2);
       expect(result.metadata.tilesWithContent).toBe(2);
     });
 
-    it('should filter out disabled tiles', async () => {
+    it('should pass through tiles regardless of isEnabled (filtering happens upstream)', async () => {
       const groups = [createGroup('g1', 'test')];
       const tiles = [createTile(1, 'g1', 1, 'Disabled', 0), createTile(2, 'g1', 1, 'Enabled', 1)];
-
-      vi.mocked(getCustomGroups).mockResolvedValue(groups);
-      vi.mocked(getTiles).mockResolvedValue(tiles);
 
       const settings = {
         ...baseSettings,
         selectedActions: { test: createActionEntry([1], 'sex') },
       };
 
-      const result = await buildGameBoard(settings, 'en', 'online', 2);
+      const result = await build(groups, tiles, settings, 2);
 
       expect(result.metadata.availableTileCount).toBe(2);
     });
   });
 
-  describe('Error handling', () => {
-    it('should return empty board on error', async () => {
-      vi.mocked(getCustomGroups).mockRejectedValue(new Error('DB error'));
+  describe('Shuffle bag distribution', () => {
+    it('should use every tile in a bag before repeating any', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [
+        createTile(1, 'g1', 1, 'A'),
+        createTile(2, 'g1', 1, 'B'),
+        createTile(3, 'g1', 1, 'C'),
+      ];
 
-      const result = await buildGameBoard(baseSettings, 'en', 'online', 3);
+      const settings = {
+        ...baseSettings,
+        selectedActions: { test: createActionEntry([1], 'sex') },
+      };
 
-      expect(result.board).toHaveLength(2);
-      expect(result.metadata.availableTileCount).toBe(0);
+      const result = await build(groups, tiles, settings, 3);
+      const descriptions = result.board.slice(1, -1).map((tile) => tile.description);
+
+      expect([...descriptions].sort()).toEqual(['A', 'B', 'C']);
     });
+
+    it('should be reproducible for a fixed seed', async () => {
+      const groups = [createGroup('g1', 'test')];
+      const tiles = [
+        createTile(1, 'g1', 1, 'A'),
+        createTile(2, 'g1', 1, 'B'),
+        createTile(3, 'g1', 1, 'C'),
+      ];
+      const settings = {
+        ...baseSettings,
+        selectedActions: { test: createActionEntry([1], 'sex') },
+      };
+
+      const first = await build(groups, tiles, settings, 3, 7);
+      const second = await build(groups, tiles, settings, 3, 7);
+
+      expect(first.board.map((t) => t.description)).toEqual(second.board.map((t) => t.description));
+    });
+  });
+});
+
+describe('buildGameBoard facade', () => {
+  const dataSourceOf = (groups: CustomGroupPull[], tiles: CustomTilePull[]): BoardDataSource => ({
+    getGroups: async () => groups,
+    fetchTiles: async () => tiles,
+  });
+
+  it('should fetch via the data source and delegate to the core', async () => {
+    const groups = [createGroup('g1', 'test')];
+    const tiles = [createTile(1, 'g1', 1, 'Action 1')];
+    const settings = {
+      ...baseSettings,
+      selectedActions: { test: createActionEntry([1], 'sex') },
+    };
+
+    const result = await buildGameBoard(settings, 'en', 'online', 3, {
+      dataSource: dataSourceOf(groups, tiles),
+      translate: identity,
+    });
+
+    expect(result.board).toHaveLength(5);
+    expect(result.board[0].title).toBe('start');
+    expect(result.metadata.selectedGroups).toEqual(['test']);
+  });
+
+  it('should return an empty board when the data source throws', async () => {
+    const failingSource: BoardDataSource = {
+      getGroups: async () => {
+        throw new Error('DB error');
+      },
+      fetchTiles: async () => [],
+    };
+
+    const result = await buildGameBoard(baseSettings, 'en', 'online', 3, {
+      dataSource: failingSource,
+      translate: identity,
+    });
+
+    expect(result.board).toHaveLength(2);
+    expect(result.metadata.availableTileCount).toBe(0);
   });
 });
