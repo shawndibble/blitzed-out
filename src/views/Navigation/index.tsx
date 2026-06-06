@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { Suspense, useState, useRef } from 'react';
 import { CalendarMonth } from '@mui/icons-material';
 import { AppBar, Badge, Box, IconButton, Portal, Toolbar } from '@mui/material';
 import useSchedule from '@/context/hooks/useSchedule';
@@ -10,8 +10,10 @@ import ThemeToggle from '@/components/ThemeToggle';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
 import { Player } from '@/types/player';
-import Schedule from '@/views/Schedule';
+import lazyWithRetry from '@/utils/lazyWithRetry';
 import MenuDrawer from './MenuDrawer';
+
+const Schedule = lazyWithRetry(() => import('@/views/Schedule'));
 import UserPresenceOverlay from './UserPresenceOverlay';
 import PlayersOnline from './PlayersOnline';
 
@@ -82,11 +84,13 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
             </IconButton>
             {openSchedule && (
               <Portal>
-                <Schedule
-                  open={openSchedule}
-                  close={() => setOpenSchedule(false)}
-                  isMobile={isMobile}
-                />
+                <Suspense fallback={null}>
+                  <Schedule
+                    open={openSchedule}
+                    close={() => setOpenSchedule(false)}
+                    isMobile={isMobile}
+                  />
+                </Suspense>
               </Portal>
             )}
             {playerList.length > 0 && (

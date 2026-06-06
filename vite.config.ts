@@ -4,10 +4,12 @@ import path from 'path';
 import react from '@vitejs/plugin-react-swc';
 import { VitePWA } from 'vite-plugin-pwa';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { sitemapPlugin } from './scripts/sitemap-plugin';
 import { execSync } from 'child_process';
 
 const shouldUploadSentrySourcemaps = process.env.SENTRY_UPLOAD_SOURCEMAPS === 'true';
+const shouldAnalyzeBundle = process.env.ANALYZE === 'true';
 
 // Translation bundling plugin
 function translationBundlePlugin() {
@@ -65,6 +67,17 @@ export default defineConfig({
       exclude: [/\.(br|gz)$/],
       threshold: 1024, // Only compress files > 1KB
     }),
+    // Bundle composition report — opt-in via `ANALYZE=true npm run build`
+    ...(shouldAnalyzeBundle
+      ? [
+          visualizer({
+            filename: 'bundle-stats.html',
+            gzipSize: true,
+            brotliSize: true,
+            template: 'treemap',
+          }),
+        ]
+      : []),
   ],
   server: {
     host: '0.0.0.0', // Allow access from network (including Android emulator)

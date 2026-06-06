@@ -45,26 +45,24 @@ Today only **Chromecast** is integrated (custom receiver `1227B8DE`). Gaps:
 ## Realtime / video
 
 - **4-peer cap** on WebRTC — fine for the use case, but a mesh topology won't scale beyond that; an SFU would be needed for larger rooms.
-- **TURN credentials are static in the bundle** (see security). Dynamic per-session credentials would reduce abuse risk.
+- **TURN credentials are static in the bundle**. Dynamic per-session credentials would reduce abuse risk.
 - **Signaling cleanup relies on a scheduled function** — if it fails, stale signaling data accumulates (no TTL on RTDB paths).
 
 ## Performance
 
-- **Largest JS chunk** is ~159 KB gzipped (per ADR-0001) — fine, but worth periodic bundle audits as features grow.
-- **Sounds (~12 MB) aren't precached** — first play needs network; consider precaching the few most-used short sounds.
-- **Message store keeps 24h of messages** in localStorage + Zustand — large rooms could bloat; consider windowing.
+- **Bundle audit tooling exists**: `rollup-plugin-visualizer` is wired into `vite.config.ts`, gated behind `ANALYZE=true npm run build` (writes `bundle-stats.html`, gitignored). Run it periodically as features grow.
+- **Initial JS is code-split.** Routes (`Cast`, `Room`, `UnauthenticatedApp`) and heavy on-demand dialogs (`GameGuide`→react-markdown, `GameStatistics`, `ManageGameBoards`, `Schedule`, `GameSettingsDialog`, `AppSettingsDialog`, `CustomTilesDialog`, `AuthDialog`) load lazily via `lazyWithRetry`. Main entry chunk is ~97 KB gzipped (was ~374 KB before splitting). `dice-box-threejs` (~140 KB gz) is its own chunk, preloaded on idle. Watch for `INEFFECTIVE_DYNAMIC_IMPORT` warnings at build time — a lazy target also imported statically elsewhere won't actually split.
+- **Sounds (~12 MB dicebox files) aren't precached** — first play needs network. The `navigateFallbackDenylist` deliberately excludes audio from the SW precache; selectively runtime-cache the few most-used short dicehit sounds via Workbox if first-play latency matters. (Synthesized UI sounds in `gameSounds.ts` are oscillator-based, no files.)
+- **AudioContext is now a reused singleton** (`audioContext.ts`); `gameSounds.ts` no longer creates/closes a context per sound (avoids the ~6-context browser cap and per-roll latency).
+- **Message store keeps 24h of messages** in localStorage + Zustand, bounded by time not count — large/busy rooms could bloat; consider a hard count cap or windowing.
 
 ## Security (cross-reference)
 
 The full list and priorities are in [security.md](security.md#prioritized-hardening-backlog). Headlines:
 
-1. Enforce **room membership** in Firestore rules (private rooms are obscurity-only today).
-2. Scope **RTDB presence reads** and **signaling writes**.
-3. **Mask Sentry replay text** (NSFW content currently capturable).
-4. **Rotate TURN creds** and any credential exposed in the 2024 `.env` git history.
-5. Validate user-supplied URLs and string sizes.
+1. Scope **RTDB presence reads** and **signaling writes**.
+2. Validate user-supplied URLs and string sizes.
 
 ## Tooling & docs
 
-- **`understand-anything` graph is stale** (commit `3f688ee`). Re-run the analysis to keep the navigation aid current, or stop relying on it.
 - **No automated dependency audit** in the documented workflow — add `npm audit` to CI.

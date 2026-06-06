@@ -14,33 +14,36 @@ import {
   SelectChangeEvent,
   SvgIcon,
 } from '@mui/material';
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { ReactNode, Suspense, useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useSettings, useSettingsStore } from '@/stores/settingsStore';
 
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import AppSettingsDialog from '@/components/AppSettingsDialog';
-import AuthDialog from '@/components/auth/AuthDialog';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import CustomTileDialog from '@/components/CustomTilesDialog';
 import DialogWrapper from '@/components/DialogWrapper';
-import GameGuide from '@/views/GameGuide';
-import GameSettingsDialog from '@/components/GameSettingsDialog';
-import GameStatistics from '@/views/GameStatistics';
 import InfoIcon from '@mui/icons-material/Info';
 import LanguageChangeModal from '@/components/LanguageChangeModal';
 import LanguageIcon from '@mui/icons-material/Language';
 import LinkIcon from '@mui/icons-material/Link';
 import LogoutIcon from '@mui/icons-material/Logout';
-import ManageGameBoards from '@/views/ManageGameBoards';
 import MenuIcon from '@mui/icons-material/Menu';
-import Schedule from '@/views/Schedule';
 import SettingsIcon from '@mui/icons-material/Settings';
 import TuneIcon from '@mui/icons-material/Tune';
 import TvIcon from '@mui/icons-material/Tv';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import lazyWithRetry from '@/utils/lazyWithRetry';
 import { languages } from '@/services/i18nHelpers';
+
+// Heavy dialogs — loaded on demand when their menu item is opened
+const AppSettingsDialog = lazyWithRetry(() => import('@/components/AppSettingsDialog'));
+const AuthDialog = lazyWithRetry(() => import('@/components/auth/AuthDialog'));
+const CustomTileDialog = lazyWithRetry(() => import('@/components/CustomTilesDialog'));
+const GameGuide = lazyWithRetry(() => import('@/views/GameGuide'));
+const GameSettingsDialog = lazyWithRetry(() => import('@/components/GameSettingsDialog'));
+const GameStatistics = lazyWithRetry(() => import('@/views/GameStatistics'));
+const ManageGameBoards = lazyWithRetry(() => import('@/views/ManageGameBoards'));
+const Schedule = lazyWithRetry(() => import('@/views/Schedule'));
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useParams } from 'react-router-dom';
@@ -381,28 +384,30 @@ export default function MenuDrawer(): JSX.Element {
           </Box>
         </Box>
       </Drawer>
-      {open.settings && renderDialog(GameSettingsDialog, 'settings')}
-      {open.appSettings && renderDialog(AppSettingsDialog, 'appSettings')}
-      {open.about && (
-        <DialogWrapper open={open.about} close={() => toggleDialog('about', false)}>
-          <GameGuide />
-        </DialogWrapper>
-      )}
-      {open.gameBoard && renderDialog(ManageGameBoards, 'gameBoard')}
-      {open.schedule && renderDialog(Schedule, 'schedule')}
-      {open.customTiles && renderDialog(CustomTileDialog, 'customTiles')}
-      {open.linkAccount && renderDialog(AuthDialog, 'linkAccount')}
-      {open.statistics && renderDialog(GameStatistics, 'statistics')}
-      {pendingLanguageChange && (
-        <LanguageChangeModal
-          open={open.languageChange}
-          onClose={handleLanguageModalClose}
-          onRebuildBoard={handleRebuildBoard}
-          onKeepBoard={handleKeepBoard}
-          fromLanguage={pendingLanguageChange.from}
-          toLanguage={pendingLanguageChange.to}
-        />
-      )}
+      <Suspense fallback={null}>
+        {open.settings && renderDialog(GameSettingsDialog, 'settings')}
+        {open.appSettings && renderDialog(AppSettingsDialog, 'appSettings')}
+        {open.about && (
+          <DialogWrapper open={open.about} close={() => toggleDialog('about', false)}>
+            <GameGuide />
+          </DialogWrapper>
+        )}
+        {open.gameBoard && renderDialog(ManageGameBoards, 'gameBoard')}
+        {open.schedule && renderDialog(Schedule, 'schedule')}
+        {open.customTiles && renderDialog(CustomTileDialog, 'customTiles')}
+        {open.linkAccount && renderDialog(AuthDialog, 'linkAccount')}
+        {open.statistics && renderDialog(GameStatistics, 'statistics')}
+        {pendingLanguageChange && (
+          <LanguageChangeModal
+            open={open.languageChange}
+            onClose={handleLanguageModalClose}
+            onRebuildBoard={handleRebuildBoard}
+            onKeepBoard={handleKeepBoard}
+            fromLanguage={pendingLanguageChange.from}
+            toLanguage={pendingLanguageChange.to}
+          />
+        )}
+      </Suspense>
     </>
   );
 }
