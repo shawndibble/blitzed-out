@@ -30,6 +30,9 @@ export function getSiteName(urlString: string): string {
     .replace('.gg', '');
 }
 
+/** Upper bound on accepted URL length. Mirrors the Firestore rules cap on `schedule.url`. */
+export const MAX_URL_LENGTH = 2048;
+
 export function isValidURL(url: string): boolean {
   if (!url || typeof url !== 'string') {
     return false;
@@ -38,6 +41,7 @@ export function isValidURL(url: string): boolean {
   try {
     const trimmed = url.trim();
     if (!trimmed) return false;
+    if (trimmed.length > MAX_URL_LENGTH) return false;
     const parsed = new URL(trimmed);
 
     // Only allow HTTP and HTTPS protocols

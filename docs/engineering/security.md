@@ -24,20 +24,20 @@ Companion to [README.md](README.md). Security model, the actual rules in force, 
 
 ## Firestore rules (`firestore.rules`)
 
-| Path                                | Read                   | Write                                                                                    | Notes                                                   |
-| ----------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `user-data/{uid}`                   | owner only             | owner only                                                                               | `request.auth.uid == uid`. Solid.                       |
-| `custom-actions/{id}`               | public                 | auth create only; field-typed; **no update/delete**                                      | TTL-based cleanup.                                      |
-| `game-boards/{id}`                  | public                 | auth create (field-typed); update limited to `ttl`; no delete                            | Good — restrictive update.                              |
-| `chat-rooms/{roomId}`               | **any auth**           | **any auth**                                                                             | ⚠ Room metadata is not membership-scoped.               |
-| `chat-rooms/{roomId}/messages/{id}` | any auth (read + list) | auth create with `uid == auth.uid`, `text ≤ 1000`, `type` enum; delete own only; no edit | Create validation is good; **read is not room-scoped**. |
-| `rate-limits/{uid}`                 | none                   | none                                                                                     | System-only.                                            |
-| `schedule/{id}`                     | public                 | creator-only create/update/delete; update limited to `dateTime`/`url`                    | `url` stored as a string with **no format validation**. |
+| Path                                | Read                   | Write                                                                                    | Notes                                                        |
+| ----------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `user-data/{uid}`                   | owner only             | owner only                                                                               | `request.auth.uid == uid`. Solid.                            |
+| `custom-actions/{id}`               | public                 | auth create only; field-typed + size-capped; `hasOnly` field lock; **no update/delete**  | TTL-based cleanup.                                           |
+| `game-boards/{id}`                  | public                 | auth create (field-typed + size-capped, `hasOnly`); update limited to `ttl`; no delete   | Good — restrictive update.                                   |
+| `chat-rooms/{roomId}`               | **any auth**           | **any auth**                                                                             | ⚠ Room metadata is not membership-scoped.                    |
+| `chat-rooms/{roomId}/messages/{id}` | any auth (read + list) | auth create with `uid == auth.uid`, `text ≤ 1000`, `type` enum; delete own only; no edit | Create validation is good; **read is not room-scoped**.      |
+| `rate-limits/{uid}`                 | none                   | none                                                                                     | System-only.                                                 |
+| `schedule/{id}`                     | public                 | creator-only create/update/delete; update limited to `dateTime`/`url`                    | `url` scheme/size validated (`^https?://`, ≤2048, empty ok). |
 
 **Key weaknesses:**
 
 1. **Room access isn't enforced in rules.** Any authenticated user (including any anonymous user) can read/write **any** room's metadata and read **any** room's messages (`chat-rooms` rules require only `request.auth != null`). The private-room "secret code" is **app-layer obscurity, not a rules-enforced boundary** — an attacker who knows or guesses a room ID can read its chat. For an NSFW app this is a real privacy gap. Hardening: store a members map and check membership in rules.
-2. **`schedule.url` and `custom-actions.customAction` have no size/format validation** → can store oversized or malicious-looking strings / links. Add `.size()` caps and a URL-scheme check.
+2. ~~**`schedule.url` and `custom-actions.customAction` have no size/format validation.**~~ **Resolved** — `firestore.rules` now caps sizes (`schedule.url` ≤2048, `customAction` ≤2000, `gameBoard` ≤600 K, `settings` ≤200 K) and anchors `schedule.url` to `^https?://` (or empty), with `hasOnly` field locks. Covered by `npm run test:rules` (emulator). _Residual:_ background **media** URLs embedded in the iframe are still not scheme/host-validated — see [Content & input validation](#content--input-validation).
 
 ---
 
@@ -95,7 +95,7 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 ## Content & input validation
 
 - **Chat markdown** — rendered via `react-markdown` (+ `remark-gfm`, `remark-gemoji`). Safe by default: AST-based, no raw HTML, no `dangerouslySetInnerHTML` in app code. Message text capped at 1000 chars by Firestore rules.
-- **Custom tiles/groups** — `validationService.ts`: name length/charset, reserved-name blocklist, intensity bounds and uniqueness, group references checked.
+- **Custom tiles/groups** — `validationService.ts`: name length/charset, reserved-name blocklist, intensity bounds and uniqueness, group references checked. Public `custom-actions`/`game-boards`/`schedule` writes are additionally size-capped and field-locked (`hasOnly`) by `firestore.rules`; the custom-action input is `maxLength`-guarded client-side.
 - **Media URLs** — user-supplied background URLs are normalized then placed into an `<iframe src>` or a CSS `background-image: url(...)`. The iframe is sandboxed (`allow-same-origin allow-scripts allow-presentation`; no `allow-popups`/`allow-top-navigation`). **Residual risk:** arbitrary third-party URLs are embedded with `allow-scripts`, and background URLs aren't scheme/domain-validated → a hostile media host could attempt mischief within the sandbox. Hardening: validate URL scheme/host and consider an allowlist.
 - **Display names** — not sanitized before being rendered in messages → possible RTL/zero-width/homograph shenanigans. Low severity; add normalization.
 
@@ -113,7 +113,8 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 - HTTPS everywhere (GitHub Pages + Firebase); data encrypted at rest by Firebase.
 - Owner-scoped `user-data`; storage default-deny; RTDB top-level default-deny.
-- Message create is field-validated and length-capped; boards/custom-actions are create-only with TTL cleanup.
+- Message create is field-validated and length-capped; boards/custom-actions are create-only with TTL cleanup, size-capped, and field-locked.
+- Firestore rules are covered by emulator-backed tests (`npm run test:rules`).
 - No `eval`/`Function` constructors, no `dangerouslySetInnerHTML` in app code, safe markdown.
 
 ---
@@ -123,10 +124,8 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 1. **Enforce room membership in `chat-rooms` rules** (read + write) — highest-value fix; today private rooms are obscurity-only.
 2. **Scope RTDB presence reads** (`users`, `rooms/*/uids`) to auth/own record.
 3. **Scope signaling writes** to the target user (or validate `from`).
-4. **Enable Sentry text masking** for replays.
-5. **Rotate TURN credentials** and any credential exposed in the 2024 `.env` history window.
-6. **Make admin-callable gating consistent**, add rate limiting.
-7. **Validate background/schedule/custom-action URLs and string sizes.**
-8. Sanitize/normalize display names; add a privacy notice + analytics opt-out.
+4. **Make admin-callable gating consistent**, add rate limiting.
+5. **Validate background media URLs** (scheme/host allowlist) before iframe embedding. _(Schedule/custom-action/board URL + string-size validation is done — see [Content & input validation](#content--input-validation).)_
+6. Sanitize/normalize display names; add a privacy notice + analytics opt-out.
 
 These are tracked alongside other improvements in [enhancement-opportunities.md](enhancement-opportunities.md#security).

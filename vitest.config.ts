@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig, mergeConfig } from 'vite';
+import { configDefaults } from 'vitest/config';
 import viteConfig from './vite.config';
 
 export default mergeConfig(
@@ -9,6 +10,8 @@ export default mergeConfig(
       globals: true,
       environment: 'jsdom',
       setupFiles: ['./src/setupTests.ts'],
+      // Rules tests run under their own Node config + emulator, never here.
+      exclude: [...configDefaults.exclude, 'tests/**'],
       css: true,
       reporters: [
         ['default', { summary: false }], // Replaces deprecated 'basic' reporter

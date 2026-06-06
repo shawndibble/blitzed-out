@@ -430,6 +430,7 @@ export default function AddCustomTile({
               fullWidth
               label={t('action')}
               sx={{ mt: 2, pb: 2 }}
+              slotProps={{ htmlInput: { maxLength: 2000 } }}
               value={localTileData.action}
               onChange={(event) => {
                 setLocalTileData({ ...localTileData, action: event.target.value });
