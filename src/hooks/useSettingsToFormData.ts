@@ -1,5 +1,5 @@
 import useMessages from '@/context/hooks/useMessages';
-import latestMessageByType from '@/helpers/messages';
+import { latestMessageByType } from '@/helpers/messages';
 import { useEffect, useState, Dispatch, SetStateAction, useRef } from 'react';
 import { useSettings } from '@/stores/settingsStore';
 import { RoomMessage } from '@/types/Message';

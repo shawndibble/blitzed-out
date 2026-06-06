@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSoundById, playSound } from '@/utils/gameSounds';
 
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
-import latestMessageByType from '@/helpers/messages';
+import { latestMessageByType } from '@/helpers/messages';
 import useMessages from '@/context/hooks/useMessages';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 

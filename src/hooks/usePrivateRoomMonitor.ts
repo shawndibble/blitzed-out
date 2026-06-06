@@ -1,4 +1,4 @@
-import latestMessageByType from '@/helpers/messages';
+import { latestMessageByType } from '@/helpers/messages';
 import useAuth from '@/context/hooks/useAuth';
 import useGameBoard from '@/hooks/useGameBoard';
 import { useSettings } from '@/stores/settingsStore';

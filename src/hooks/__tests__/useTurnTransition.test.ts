@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
 import type { Player } from '@/types/player';
 import { getSoundById, playSound } from '@/utils/gameSounds';
-import latestMessageByType from '@/helpers/messages';
+import { latestMessageByType } from '@/helpers/messages';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import useMessages from '@/context/hooks/useMessages';
 import { useTurnTransition } from '../useTurnTransition';

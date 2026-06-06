@@ -1,6 +1,6 @@
 import { Message, RoomMessage } from '@/types/Message';
 
-import latestMessageByType from '@/helpers/messages';
+import { latestMessageByType } from '@/helpers/messages';
 import { processBackground } from '@/services/getBackgroundSource';
 
 type ParsedRoom = {
