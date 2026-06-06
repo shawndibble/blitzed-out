@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import ActionCard from '@/components/ActionCard';
 import useSoundAndDialog, { DialogResult } from '@/hooks/useSoundAndDialog';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
+import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import { useTranslation } from 'react-i18next';
 import { Message } from '@/types/Message';
 
@@ -9,6 +10,8 @@ const PopupMessage = (): JSX.Element | null => {
   const { t } = useTranslation();
   const { message, setMessage, isMyMessage }: DialogResult = useSoundAndDialog();
   const nextPlayer = useTurnIndicator(message as Message);
+  const { hasLocalPlayers, isLocalPlayerRoom } = useLocalPlayers();
+  const isLocalRoom = hasLocalPlayers && isLocalPlayerRoom;
 
   // Keep track of the last valid message for exit animation
   const [lastMessage, setLastMessage] = useState<Message | null>(null);
@@ -64,6 +67,7 @@ const PopupMessage = (): JSX.Element | null => {
       stopAutoClose={stopAutoClose}
       nextPlayer={nextPlayer}
       isMyMessage={isMyMessage}
+      isLocalRoom={isLocalRoom}
     />
   );
 };
