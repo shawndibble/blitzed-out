@@ -10,10 +10,17 @@ function vimeo(url: string): string {
 }
 
 function youtube(url: string): string {
-  const youtubeRegex =
-    /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|[^#]*[?&]v=|youtu\.be\/)([^"&?/ ]{11})|^(?:[^"&?/ ]{11})$)/;
-  const match = url.match(youtubeRegex);
-  const videoId = match ? match[1] : '';
+  // youtu.be short links carry the id as the first path segment, not a v= param,
+  // so they need their own match ahead of the youtube.com patterns.
+  const shortMatch = url.match(/youtu\.be\/([^"&?/ ]{11})/);
+  let videoId = shortMatch ? shortMatch[1] : '';
+
+  if (!videoId) {
+    const youtubeRegex =
+      /youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|[^#]*[?&]v=)([^"&?/ ]{11})/;
+    const match = url.match(youtubeRegex);
+    videoId = match ? match[1] : '';
+  }
 
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&autostart=true&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3`;
 }
@@ -27,6 +34,20 @@ function googleDrive(url: string): string {
 }
 
 function dropBox(url: string): string {
+  // Current Dropbox share links are content-based (/scl/fi/<id>/<name>?rlkey=...).
+  // Force in-browser render with raw=1 (dl=1 downloads) while preserving rlkey.
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname.startsWith('/scl/')) {
+      parsed.searchParams.delete('dl');
+      parsed.searchParams.set('raw', '1');
+      return parsed.toString();
+    }
+  } catch {
+    // Fall through to legacy handling below.
+  }
+
+  // Legacy links: /s/<id>/...
   const dropBoxRegex = /dropbox\.com\/s\/([^/]+)/;
   const match = url.match(dropBoxRegex);
   const fileId = match ? match[1] : '';
@@ -106,19 +127,14 @@ function tumblr(url: string): string {
   return url;
 }
 
-function gfycat(url: string): string {
-  // Handle both gfycat.com and redgifs.com
-  const gfycatRegex = /(?:gfycat\.com|redgifs\.com)\/(?:watch\/)?([a-zA-Z0-9]+)/;
-  const match = url.match(gfycatRegex);
+function redgifs(url: string): string {
+  // Gfycat shut down in Sept 2023 (servers wiped); only RedGifs remains.
+  const redgifsRegex = /redgifs\.com\/(?:watch\/)?([a-zA-Z0-9]+)/;
+  const match = url.match(redgifsRegex);
   const gifId = match ? match[1] : '';
 
-  // For Cast compatibility, try direct video URLs
-  if (isValidHost(url, ['redgifs.com'])) {
-    // RedGifs direct video format
-    return `https://files.redgifs.com/${gifId}.mp4`;
-  }
-  // Gfycat direct video format
-  return `https://giant.gfycat.com/${gifId}.mp4`;
+  // RedGifs direct video format.
+  return `https://files.redgifs.com/${gifId}.mp4`;
 }
 
 function redtube(url: string): string {
@@ -364,8 +380,8 @@ export function processBackground(url: string | null | undefined): BackgroundRes
       embedUrl = tumblr(url);
       isVideo = embedUrl ? isDirectVideoUrl(embedUrl) : false;
       break;
-    case isValidHost(url, ['gfycat.com', 'redgifs.com']):
-      embedUrl = gfycat(url);
+    case isValidHost(url, ['redgifs.com']):
+      embedUrl = redgifs(url);
       isVideo = true;
       break;
     case isValidHost(url, ['redtube.com']):

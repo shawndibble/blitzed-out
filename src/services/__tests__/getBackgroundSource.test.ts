@@ -14,13 +14,12 @@ describe('getBackgroundSource', () => {
         );
       });
 
-      it('handles YouTube short URLs (youtu.be) - current behavior', () => {
-        // Note: Current regex doesn't handle youtu.be correctly, returns empty ID
+      it('handles YouTube short URLs (youtu.be)', () => {
         const shortUrl = 'https://youtu.be/dQw4w9WgXcQ';
         const result = processBackground(shortUrl);
         expect(result.isVideo).toBe(true);
         expect(result.url).toBe(
-          'https://www.youtube.com/embed/?autoplay=1&loop=1&autostart=true&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3'
+          'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&autostart=true&mute=1&playsinline=1&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&iv_load_policy=3'
         );
       });
 
@@ -46,12 +45,32 @@ describe('getBackgroundSource', () => {
         expect(result.url).toContain('loop=1');
       });
 
-      it('processes Dropbox URLs correctly', () => {
+      it('processes current Dropbox /scl/ share links with raw=1', () => {
+        const dropboxUrl =
+          'https://www.dropbox.com/scl/fi/abc123/video.mp4?rlkey=xyz789&st=foo&dl=0';
+        const result = processBackground(dropboxUrl);
+
+        expect(result.isVideo).toBe(true);
+        expect(result.url).toContain('/scl/fi/abc123/video.mp4');
+        expect(result.url).toContain('rlkey=xyz789');
+        expect(result.url).toContain('raw=1');
+        expect(result.url).not.toContain('dl=0');
+      });
+
+      it('processes legacy Dropbox /s/ links correctly', () => {
         const dropboxUrl = 'https://www.dropbox.com/s/abc123def456/video.mp4';
         const result = processBackground(dropboxUrl);
 
         expect(result.isVideo).toBe(true);
         expect(result.url).toContain('dropbox.com/s/abc123def456?raw=1');
+      });
+
+      it('processes RedGifs URLs into a direct mp4', () => {
+        const redgifsUrl = 'https://www.redgifs.com/watch/somecodename';
+        const result = processBackground(redgifsUrl);
+
+        expect(result.isVideo).toBe(true);
+        expect(result.url).toBe('https://files.redgifs.com/somecodename.mp4');
       });
 
       it('processes Pornhub URLs correctly', () => {

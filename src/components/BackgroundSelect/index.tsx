@@ -13,6 +13,7 @@ import {
   getBackgroundURLKey,
 } from '@/utils/backgroundUtils';
 
+import SupportedSitesHelp from '@/components/SupportedSitesHelp';
 import { Settings } from '@/types/Settings';
 import { useTranslation } from 'react-i18next';
 
@@ -129,20 +130,16 @@ export default function BackgroundSelect({
         </Select>
       </FormControl>
       {background === 'custom' && (
-        <TextField
-          sx={{ mt: 2 }}
-          label={t('url')}
-          value={formData?.[backgroundURLKey] || ''}
-          fullWidth
-          onChange={handleURLChange}
-          helperText={
-            <>
-              {t('supportedSites')}
-              <br />
-              {t('requiresEmbeddedUrl')}
-            </>
-          }
-        />
+        <>
+          <TextField
+            sx={{ mt: 2 }}
+            label={t('url')}
+            value={formData?.[backgroundURLKey] || ''}
+            fullWidth
+            onChange={handleURLChange}
+          />
+          <SupportedSitesHelp />
+        </>
       )}
     </>
   );

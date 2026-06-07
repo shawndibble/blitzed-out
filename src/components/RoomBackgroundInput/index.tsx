@@ -1,6 +1,7 @@
 import { ChangeEvent } from 'react';
 import { Settings } from '@/types/Settings';
 import { TextField } from '@mui/material';
+import SupportedSitesHelp from '@/components/SupportedSitesHelp';
 import { useTranslation } from 'react-i18next';
 
 interface RoomBackgroundInputProps {
@@ -24,19 +25,21 @@ export default function RoomBackgroundInput({
   };
 
   return (
-    <TextField
-      sx={{ mt: 2 }}
-      label={t('roomBackgroundURL')}
-      value={formData?.roomBackgroundURL || ''}
-      fullWidth
-      onChange={handleURLChange}
-      helperText={t('supportedSites')}
-      placeholder={t('roomBackgroundPlaceholder')}
-      type="url"
-      inputMode="url"
-      autoComplete="off"
-      spellCheck={false}
-      autoCapitalize="none"
-    />
+    <>
+      <TextField
+        sx={{ mt: 2 }}
+        label={t('roomBackgroundURL')}
+        value={formData?.roomBackgroundURL || ''}
+        fullWidth
+        onChange={handleURLChange}
+        placeholder={t('roomBackgroundPlaceholder')}
+        type="url"
+        inputMode="url"
+        autoComplete="off"
+        spellCheck={false}
+        autoCapitalize="none"
+      />
+      <SupportedSitesHelp />
+    </>
   );
 }
