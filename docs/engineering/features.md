@@ -78,7 +78,11 @@ Roles (`dom`/`sub`/`vers`) further filter and personalize. For `vers`, role-ambi
 
 ### Custom tiles — `src/views/CustomTileDialog`
 
-Tabbed dialog to **add**, **view/filter**, and **import/export** tiles. Add form = group selector + intensity + action text + tags. View list filters by gameMode/group/intensity/tag and supports inline edit. Validation requires a non-empty action and a valid `group_id`.
+Accordion dialog to **add**, **view/filter**, **import/export**, and manage **content packs** tiles. Add form = group selector + intensity + action text + tags. View list filters by gameMode/group/intensity/tag and supports inline edit; pack-imported tiles show a "From {pack} v{n}" provenance chip. Validation requires a non-empty action and a valid `group_id`. Disabling a default tile records a first-class `disabledDefaults` entry (not just a row flag) so the choice survives re-seeds and syncs with a tombstone.
+
+### Content packs — `src/views/CustomTileDialog/Packs`, `src/services/contentPacks.ts`
+
+Publish a bundle of your custom tiles + groups to the durable public `content-packs` collection, and share it **by code/link** (`?importPack=<id>`). Recipients preview contents + conflicts, then **Subscribe** (tracks the pack for updates via `packSubscriptions`) or **Import a copy**. Authors republish with an incremented `packVersion`; subscribers poll on open and apply updates (local edits to pack tiles are kept by default — `packDetached`). Unsubscribe soft-removes the pack's tiles. Publishing requires a content-policy consent step; an abuse **report** affordance writes to `reports/{id}`. No public directory yet (deferred behind moderation tooling). See [data-and-sync.md](data-and-sync.md#sharing-by-code--link).
 
 ### Custom groups — `src/views/CustomGroupDialog`
 
@@ -86,7 +90,7 @@ Create/edit/delete groups, choose an intensity template, set `type` and `anatomy
 
 ### Game boards — `src/views/ManageGameBoards`
 
-Maintain multiple saved boards (`gameBoard` store / Dexie). List in accordions, toggle the active board (activating one deactivates the rest), delete with confirmation, create new. Boards can be shared into a room as a Firebase game message.
+Maintain multiple saved boards (`gameBoard` store / Dexie). List in accordions, toggle the active board (activating one deactivates the rest), delete with confirmation, create new. Boards can be shared into a room as a Firebase game message, and **shared by link** via `?importBoard=<id>` (stored in `game-boards`, imported by `useUrlImport`). See [data-and-sync.md](data-and-sync.md#sharing-by-code--link).
 
 ### Settings — `settingsStore` / `src/types/Settings.ts`
 
@@ -157,7 +161,7 @@ Attach a photo to a chat message. On mobile, `@capacitor/camera` (`Camera.getPho
 - **Sender** — `src/components/CastButton`: dynamically loads the Google Cast SDK, initializes with **receiver app ID `1227B8DE`** and namespace **`urn:x-cast:com.blitzedout.app`**, then on connect sends `{ type: 'LOAD', url: <origin>/<room>/cast }`.
 - **Receiver view** — `src/views/Cast` (`/:id/cast`): auto-logs in anonymously, renders the room background (image/video) full-screen, the current action card (player name, type, activity), and the next-player indicator. Detects the cast environment via `CastReceiverContext`, `CrKey`/`TV` in the user agent, or `?chromecast`/`?receiver` query overrides, and applies enhanced muted-autoplay retries.
 - **Fullscreen** — `useFullscreenStatus` (cross-browser prefixes) powers a fullscreen toggle for casting the regular tab to any external display.
-- **No AirPlay / Roku / Fire TV integration** — see [enhancement-opportunities.md](enhancement-opportunities.md#casting--tv). OS-level screen mirroring is the workaround.
+- **No AirPlay / Roku / Fire TV integration.** OS-level screen mirroring is the workaround.
 
 ---
 

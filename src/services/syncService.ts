@@ -87,59 +87,15 @@ export async function clearUserCustomGroups(): Promise<boolean> {
   }
 }
 
-// Helper function to reset disabled defaults back to enabled state before restoring from Firebase
-export async function resetDisabledDefaults(): Promise<boolean> {
-  try {
-    const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
+// Old clients read a flat `disabledDefaults` array (no tombstones) and skip it
+// entirely when it exceeds 100, so we best-effort cap the legacy field there.
+const LEGACY_DISABLED_CAP = 100;
+// The full record set (incl. tombstones) shares the single ~1 MiB `user-data`
+// doc with tiles/groups/boards/settings, so it must stay bounded. Genuine usage
+// is small; exceeding this signals corruption — drop loudly, never silently.
+const DISABLED_V2_MAX = 1000;
 
-    // Filter out tiles without IDs and batch updateCustomTile operations concurrently
-    const validTiles = disabledDefaults.filter((tile) => tile.id);
-    const updatePromises = validTiles.map(
-      (tile) => updateCustomTile(tile.id!, { isEnabled: 1 }) // Reset to enabled state - Firebase will restore the correct disabled state
-    );
-    await Promise.all(updatePromises);
-
-    return true;
-  } catch (error) {
-    console.error('Error resetting disabled default tiles:', error);
-    return false;
-  }
-}
-
-// Helper function to apply disabled defaults from Firebase to existing default tiles
-export async function applyDisabledDefaults(disabledDefaults: CustomTilePull[]): Promise<boolean> {
-  try {
-    // Prefetch all existing default tiles in a single query
-    const allDefaultTiles = await getTiles({ isCustom: 0 });
-
-    // Build an in-memory map keyed by composite key (gameMode|group|intensity|action) for O(1) lookups
-    const defaultTilesMap = new Map<string, number>();
-    allDefaultTiles.forEach((tile) => {
-      const key = `${tile.group_id}|${tile.intensity}|${tile.action}`;
-      defaultTilesMap.set(key, tile.id);
-    });
-
-    // Iterate disabledDefaults and collect update calls only for matched IDs
-    const updatePromises: Promise<number>[] = [];
-    disabledDefaults.forEach((disabledTile) => {
-      const key = `${disabledTile.group_id}|${disabledTile.intensity}|${disabledTile.action}`;
-      const matchedId = defaultTilesMap.get(key);
-
-      if (matchedId) {
-        updatePromises.push(updateCustomTile(matchedId, { isEnabled: 0 }));
-      }
-    });
-
-    // Run updates in a single batch using Promise.all
-    await Promise.all(updatePromises);
-    return true;
-  } catch (error) {
-    console.error('Error applying disabled defaults:', error);
-    return false;
-  }
-}
-
-// Sync custom tiles and disabled defaults to Firebase
+// Sync custom tiles to Firebase (user-created content only).
 export async function syncCustomTilesToFirebase(): Promise<boolean> {
   const auth = getAuth();
   const user = auth.currentUser;
@@ -150,32 +106,12 @@ export async function syncCustomTilesToFirebase(): Promise<boolean> {
   }
 
   try {
-    // Get custom tiles (user-created content)
     const customTiles = await getTiles({ isCustom: 1 });
 
-    // Get disabled default tiles (user disabled these defaults)
-    const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
-
-    // Add validation to prevent uploading excessive disabled defaults
-    const MAX_REASONABLE_DISABLED_DEFAULTS = 100;
-    if (disabledDefaults.length > MAX_REASONABLE_DISABLED_DEFAULTS) {
-      console.warn(
-        `⚠️  Attempting to sync ${disabledDefaults.length} disabled defaults, which seems excessive.`
-      );
-      console.warn(
-        'This may indicate corrupted local data. Limiting to first 100 disabled defaults.'
-      );
-
-      // Limit to first 100 to prevent Firebase corruption
-      disabledDefaults.splice(MAX_REASONABLE_DISABLED_DEFAULTS);
-    }
-
-    // Create a document in Firebase with both custom tiles and disabled defaults
     await setDoc(
       doc(db, 'user-data', user.uid),
       {
         customTiles,
-        disabledDefaults,
         lastUpdated: new Date(),
       },
       { merge: true }
@@ -188,8 +124,11 @@ export async function syncCustomTilesToFirebase(): Promise<boolean> {
   }
 }
 
-// Utility function to clean up corrupted disabled defaults in Firebase
-export async function cleanupCorruptedDisabledDefaults(): Promise<boolean> {
+// Sync disabled defaults to Firebase. Writes two fields into the shared user
+// doc: `disabledDefaultsV2` (full per-record set with tombstones + updatedAt,
+// the source of truth for new clients) and a legacy `disabledDefaults` array
+// (active-only, capped) so pre-V2 clients still converge.
+export async function syncDisabledDefaultsToFirebase(): Promise<boolean> {
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -199,38 +138,39 @@ export async function cleanupCorruptedDisabledDefaults(): Promise<boolean> {
   }
 
   try {
-    // Get only genuinely user-disabled tiles (reasonable count)
-    const disabledDefaults = await getTiles({ isCustom: 0, isEnabled: 0 });
+    const { getAllDisabledRecords } = await import('@/stores/disabledDefaults');
+    let records = await getAllDisabledRecords();
 
-    // If still excessive, something is wrong locally too
-    if (disabledDefaults.length > 100) {
+    if (records.length > DISABLED_V2_MAX) {
+      const dropped = records.length - DISABLED_V2_MAX;
       console.warn(
-        '⚠️  Local disabled defaults count is also excessive. This suggests system-wide data corruption.'
+        `⚠️ ${records.length} disabled-default records exceeds the ${DISABLED_V2_MAX} cap; ` +
+          `dropping ${dropped} from sync. This likely indicates corrupted local data.`
       );
-      console.warn('Consider using the reset disabled defaults function in the app settings.');
-      return false;
+      records = records.slice(0, DISABLED_V2_MAX);
     }
 
-    // Get current Firebase data to preserve other fields
-    const userDocRef = doc(db, 'user-data', user.uid);
-    const userDoc = await getDoc(userDocRef);
-
-    if (!userDoc.exists()) {
-      return true;
+    // Legacy array: active-only, in the shape old clients expect.
+    const legacyActive = records
+      .filter((r) => r.active)
+      .map((r) => ({ group_id: r.group_id, intensity: r.intensity, action: r.action }));
+    if (legacyActive.length > LEGACY_DISABLED_CAP) {
+      legacyActive.splice(LEGACY_DISABLED_CAP);
     }
 
-    const userData = userDoc.data();
-
-    // Update only the disabledDefaults field with the cleaned data
-    await setDoc(userDocRef, {
-      ...userData,
-      disabledDefaults,
-      lastUpdated: new Date(),
-    });
+    await setDoc(
+      doc(db, 'user-data', user.uid),
+      {
+        disabledDefaults: legacyActive,
+        disabledDefaultsV2: records,
+        lastUpdated: new Date(),
+      },
+      { merge: true }
+    );
 
     return true;
   } catch (error) {
-    console.error('❌ Error cleaning up corrupted disabled defaults:', error);
+    console.error('Error syncing disabled defaults:', error);
     return false;
   }
 }
@@ -341,12 +281,44 @@ export async function syncSettingsToFirebase(): Promise<boolean> {
   }
 }
 
+// Sync pack subscriptions to Firebase (full per-record array under user-data).
+export async function syncPackSubscriptionsToFirebase(): Promise<boolean> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    console.error('No user logged in');
+    return false;
+  }
+
+  try {
+    const { getSubscriptions } = await import('@/stores/packSubscriptions');
+    const packSubscriptions = await getSubscriptions();
+
+    await setDoc(
+      doc(db, 'user-data', user.uid),
+      {
+        packSubscriptions,
+        lastUpdated: new Date(),
+      },
+      { merge: true }
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Error syncing pack subscriptions:', error);
+    return false;
+  }
+}
+
 // Sync all data to Firebase
 export async function syncAllDataToFirebase(): Promise<boolean> {
   await syncCustomTilesToFirebase();
+  await syncDisabledDefaultsToFirebase();
   await syncCustomGroupsToFirebase();
   await syncGameBoardsToFirebase();
   await syncSettingsToFirebase();
+  await syncPackSubscriptionsToFirebase();
   return true;
 }
 

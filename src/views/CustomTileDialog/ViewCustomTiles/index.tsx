@@ -12,12 +12,8 @@ import {
   Typography,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import {
-  deleteCustomTile,
-  getPaginatedTiles,
-  getTileCountsByGroup,
-  toggleCustomTile,
-} from '@/stores/customTiles';
+import { deleteCustomTile, getPaginatedTiles, getTileCountsByGroup } from '@/stores/customTiles';
+import { toggleTileEnabled } from '@/stores/disabledDefaults';
 import { useEffect, useState } from 'react';
 
 import { CustomGroupPull } from '@/types/customGroups';
@@ -233,14 +229,14 @@ export default function ViewCustomTiles({
     setTiles(tileData as unknown as TileData);
   }
 
-  async function toggleTile(id: number): Promise<void> {
-    await toggleCustomTile(id);
+  async function toggleTile(tile: TileData['items'][number]): Promise<void> {
+    await toggleTileEnabled(tile as any);
     boardUpdated();
     // Update the tile in the current list without reloading
     setTiles((prev) => ({
       ...prev,
-      items: prev.items.map((tile) =>
-        tile.id === id ? { ...tile, isEnabled: !tile.isEnabled } : tile
+      items: prev.items.map((item) =>
+        item.id === tile.id ? { ...item, isEnabled: !item.isEnabled } : item
       ),
     }));
   }
@@ -276,7 +272,17 @@ export default function ViewCustomTiles({
 
   // No need for client-side filtering - server handles it now
   const tileList = tiles.items?.map((tile) => {
-    const { id, group_id, intensity, action, tags, isEnabled = true, isCustom = true } = tile;
+    const {
+      id,
+      group_id,
+      intensity,
+      action,
+      tags,
+      isEnabled = true,
+      isCustom = true,
+      packName,
+      packVersion,
+    } = tile as typeof tile & { packName?: string; packVersion?: number };
     return (
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
@@ -291,7 +297,7 @@ export default function ViewCustomTiles({
             <>
               <Switch
                 checked={!!isEnabled}
-                onChange={() => id !== undefined && toggleTile(id)}
+                onChange={() => id !== undefined && toggleTile(tile)}
                 slotProps={{ input: { 'aria-label': t('customTiles.toggleTile') } }}
               />
               {!!isCustom && (
@@ -318,6 +324,14 @@ export default function ViewCustomTiles({
           {tags?.map((tag) => (
             <Chip key={tag} label={tag === 'default' ? t('default') : tag} sx={{ m: 0.5 }} />
           ))}
+          {packName && (
+            <Chip
+              color="secondary"
+              variant="outlined"
+              label={t('packs.fromPack', { name: packName, version: packVersion })}
+              sx={{ m: 0.5 }}
+            />
+          )}
         </CardActions>
       </Card>
     );

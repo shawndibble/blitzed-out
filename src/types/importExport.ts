@@ -42,9 +42,18 @@ export interface ExportData {
   };
 }
 
+export interface PackProvenance {
+  packId: string;
+  packVersion: number;
+  packName: string;
+}
+
 export interface ImportOptions {
   validateContent: boolean;
   preserveDisabledDefaults: boolean;
+  // When set, imported tiles/groups are stamped with this pack provenance so the
+  // app can show their source and detect updates.
+  packProvenance?: PackProvenance;
 }
 
 export interface ImportResult {

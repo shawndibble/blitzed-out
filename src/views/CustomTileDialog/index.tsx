@@ -15,6 +15,7 @@ import AddCustomTile from './AddCustomTile';
 import { Close } from '@mui/icons-material';
 import CustomTileHelp from './CustomTileHelp';
 import ImportExport from '@/views/CustomTileDialog/ImportExport';
+import Packs from './Packs';
 import ToastAlert from '@/components/ToastAlert';
 import ViewCustomTiles from './ViewCustomTiles';
 import { importActions } from '@/services/dexieActionImport';
@@ -144,6 +145,15 @@ export default function CustomTileDialog({
           setSubmitMessage={setSubmitMessage}
           bulkImport={bulkImport}
           onImportSuccess={triggerRefresh}
+        />
+
+        <Packs
+          expanded={expanded}
+          handleChange={handleChange}
+          onImported={() => {
+            boardUpdated();
+            triggerRefresh();
+          }}
         />
       </>
     );

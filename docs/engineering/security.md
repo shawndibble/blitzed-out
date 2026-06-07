@@ -126,5 +126,3 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 3. **Scope signaling writes** to the target user (or validate `from`).
 4. **Make admin-callable gating consistent**, add rate limiting.
 5. Sanitize/normalize display names; add a privacy notice + analytics opt-out.
-
-These are tracked alongside other improvements in [enhancement-opportunities.md](enhancement-opportunities.md#security).

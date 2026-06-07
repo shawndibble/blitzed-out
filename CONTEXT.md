@@ -127,3 +127,24 @@ The read-only display of a Room's current state intended for a television: whose
 the current action, and the Room background/video. It is the same regardless of which platform
 delivered it, and can also be reached directly by opening the Room's cast URL in a TV browser.
 "Read-only" means it shows state but cannot drive the game (no remote roll).
+
+---
+
+## Content Pack
+
+A durable, shareable bundle of custom tiles + their groups (optionally disabled-defaults)
+published to the public `content-packs` Firestore collection and shared **by code/link**
+(`?importPack=<id>`). Distinct from a shared **game board** (a `?importBoard=<id>` snapshot of a
+generated board + settings): a pack is reusable source content you subscribe to and update, a
+board is one assembled game. Imported pack tiles carry provenance (`packId`, `packVersion`,
+`packName`) and a `packDetached` flag set when the user locally edits them (which stops
+auto-update). Discovery is by-code only; there is no public directory.
+
+### No-tombstone unsubscribe caveat
+
+The content-sync model has no per-record delete tombstones for tiles (a deleted tile re-appears
+when another device merges, since absence is not a delete signal). So **unsubscribing from a pack
+soft-removes its tiles** (sets `isEnabled: 0`) rather than deleting them — the disabled state
+round-trips under last-writer-wins, whereas a hard delete would resurrect. Disabled **defaults**,
+by contrast, _do_ propagate re-enables: they are first-class `disabledDefaults` records whose
+`active: false` value is an explicit tombstone.

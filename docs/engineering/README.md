@@ -72,7 +72,7 @@ These are the questions a user is likely to grill you on. Short answers here; de
 
 ### What about Apple devices (AirPlay)?
 
-**No first-class support.** There is no AirPlay-specific code. On an iPhone/iPad/Mac you can still **screen-mirror via AirPlay at the OS level** to an Apple TV / AirPlay receiver — the app runs normally in the mirrored view — but the app exposes no AirPlay button and doesn't optimize for it the way it does for Chromecast. → [enhancement-opportunities.md](enhancement-opportunities.md#casting--tv)
+**No first-class support.** There is no AirPlay-specific code. On an iPhone/iPad/Mac you can still **screen-mirror via AirPlay at the OS level** to an Apple TV / AirPlay receiver — the app runs normally in the mirrored view — but the app exposes no AirPlay button and doesn't optimize for it the way it does for Chromecast.
 
 ### Roku? Amazon Fire Stick? Others?
 
@@ -80,24 +80,23 @@ These are the questions a user is likely to grill you on. Short answers here; de
 
 - Open `https://blitzedout.com/<ROOM>/cast` directly in the device's web browser if it has one, **or**
 - Use device-level **screen mirroring / casting** (Miracast, AirPlay, etc.) from a phone/laptop.
-  There is no Roku channel or Fire TV app. → [enhancement-opportunities.md](enhancement-opportunities.md#casting--tv)
+  There is no Roku channel or Fire TV app.
 
 ### Can you tell me what the app can do and what we could improve?
 
-**Yes.** [features.md](features.md) is the full feature catalog (what exists, how it works, key files). [enhancement-opportunities.md](enhancement-opportunities.md) is a candid list of current limitations and improvement/hardening opportunities across features, casting, performance, and security.
+**Yes.** [features.md](features.md) is the full feature catalog (what exists, how it works, key files).
 
 ---
 
 ## Document map
 
-| Doc                                                          | Covers                                                                                                                      |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| **README.md** (this file)                                    | Highlights, capability Q&A, doc map, how to keep docs current                                                               |
-| [architecture.md](architecture.md)                           | Stack, layers, data flow, state management, ports/adapters, build & deploy, PWA                                             |
-| [features.md](features.md)                                   | Full feature catalog: game core, content/placeholder system, customization, media, audio, video call, stats, schedule, i18n |
-| [data-and-sync.md](data-and-sync.md)                         | Dexie schema, Firebase products & paths, sync engine, migration, import/export, offline, accounts                           |
-| [security.md](security.md)                                   | Auth, Firestore/RTDB/Storage rules, cloud functions, secrets, input validation, privacy, known weaknesses                   |
-| [enhancement-opportunities.md](enhancement-opportunities.md) | Candid limitations and improvement/hardening opportunities                                                                  |
+| Doc                                  | Covers                                                                                                                      |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| **README.md** (this file)            | Highlights, capability Q&A, doc map, how to keep docs current                                                               |
+| [architecture.md](architecture.md)   | Stack, layers, data flow, state management, ports/adapters, build & deploy, PWA                                             |
+| [features.md](features.md)           | Full feature catalog: game core, content/placeholder system, customization, media, audio, video call, stats, schedule, i18n |
+| [data-and-sync.md](data-and-sync.md) | Dexie schema, Firebase products & paths, sync engine, migration, import/export, offline, accounts                           |
+| [security.md](security.md)           | Auth, Firestore/RTDB/Storage rules, cloud functions, secrets, input validation, privacy, known weaknesses                   |
 
 Related existing docs:
 

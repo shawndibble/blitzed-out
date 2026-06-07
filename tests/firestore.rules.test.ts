@@ -221,3 +221,147 @@ describe('game-boards', () => {
     );
   });
 });
+
+const validPack = (overrides: Record<string, unknown> = {}) => ({
+  author: UID,
+  authorName: 'Tester',
+  name: 'My Pack',
+  description: 'A pack',
+  gameMode: 'online',
+  locale: 'en',
+  tags: ['fun'],
+  contents: JSON.stringify({ formatVersion: '2.0.0', data: {} }),
+  contentHash: 'sha256-abc',
+  packVersion: 1,
+  formatVersion: '2.0.0',
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
+  ...overrides,
+});
+
+describe('content-packs', () => {
+  it('accepts a valid pack authored by the current user', async () => {
+    await assertSucceeds(setDoc(doc(dbAs(UID), 'content-packs/p1'), validPack()));
+  });
+
+  it('rejects creating a pack owned by someone else', async () => {
+    await assertFails(setDoc(doc(dbAs(UID), 'content-packs/p1'), validPack({ author: OTHER_UID })));
+  });
+
+  it('rejects contents over 600000 chars', async () => {
+    await assertFails(
+      setDoc(doc(dbAs(UID), 'content-packs/p1'), validPack({ contents: 'a'.repeat(600001) }))
+    );
+  });
+
+  it('rejects an empty name', async () => {
+    await assertFails(setDoc(doc(dbAs(UID), 'content-packs/p1'), validPack({ name: '' })));
+  });
+
+  it('rejects an extra field (hasOnly)', async () => {
+    await assertFails(setDoc(doc(dbAs(UID), 'content-packs/p1'), validPack({ extra: 'nope' })));
+  });
+
+  it('allows the author to republish with an increased version', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack());
+    });
+    await assertSucceeds(
+      updateDoc(doc(dbAs(UID), 'content-packs/p1'), {
+        packVersion: 2,
+        contents: JSON.stringify({ formatVersion: '2.0.0', data: { x: 1 } }),
+        contentHash: 'sha256-def',
+        name: 'My Pack',
+        description: 'A pack',
+        tags: ['fun'],
+        authorName: 'Tester',
+        updatedAt: Date.now(),
+      })
+    );
+  });
+
+  it('rejects republish that does not increase the version', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack({ packVersion: 3 }));
+    });
+    await assertFails(
+      updateDoc(doc(dbAs(UID), 'content-packs/p1'), {
+        packVersion: 3,
+        contents: '{}',
+        contentHash: 'sha256-x',
+        name: 'My Pack',
+        description: 'A pack',
+        tags: [],
+        authorName: 'Tester',
+        updatedAt: Date.now(),
+      })
+    );
+  });
+
+  it('rejects republish by a non-author', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack());
+    });
+    await assertFails(
+      updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), {
+        packVersion: 2,
+        contents: '{}',
+        contentHash: 'sha256-x',
+        name: 'My Pack',
+        description: 'A pack',
+        tags: [],
+        authorName: 'Hacker',
+        updatedAt: Date.now(),
+      })
+    );
+  });
+
+  it('allows the author to delete their pack', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack());
+    });
+    const { deleteDoc } = await import('firebase/firestore');
+    await assertSucceeds(deleteDoc(doc(dbAs(UID), 'content-packs/p1')));
+  });
+
+  it('allows an admin to take down any pack', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack());
+    });
+    const { deleteDoc } = await import('firebase/firestore');
+    const adminDb = testEnv.authenticatedContext('admin-1', { admin: true }).firestore();
+    await assertSucceeds(deleteDoc(doc(adminDb, 'content-packs/p1')));
+  });
+
+  it('forbids a non-author non-admin from deleting a pack', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack());
+    });
+    const { deleteDoc } = await import('firebase/firestore');
+    await assertFails(deleteDoc(doc(dbAs(OTHER_UID), 'content-packs/p1')));
+  });
+});
+
+describe('reports', () => {
+  const validReport = () => ({
+    packId: 'p1',
+    reporterUid: UID,
+    reason: 'inappropriate',
+    createdAt: Date.now(),
+  });
+
+  it('accepts a valid report from the reporter', async () => {
+    await assertSucceeds(setDoc(doc(dbAs(UID), 'reports/r1'), validReport()));
+  });
+
+  it('rejects a report spoofing another reporter', async () => {
+    await assertFails(
+      setDoc(doc(dbAs(UID), 'reports/r1'), { ...validReport(), reporterUid: OTHER_UID })
+    );
+  });
+
+  it('forbids reading reports', async () => {
+    const { getDoc } = await import('firebase/firestore');
+    await assertFails(getDoc(doc(dbAs(UID), 'reports/r1')));
+  });
+});

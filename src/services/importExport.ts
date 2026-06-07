@@ -163,20 +163,20 @@ async function processGroupImport(ctx: ImportContext): Promise<void> {
         }
 
         // Update existing group
-        await updateCustomGroup(existingGroup.id, createGroupData(importedGroup));
+        await updateCustomGroup(existingGroup.id, createGroupData(importedGroup, ctx));
         ctx.result.warnings.push(`Updated existing group: ${importedGroup.name}`);
         continue;
       }
 
       // Add new group
-      const newGroupId = await addCustomGroup(createGroupData(importedGroup));
+      const newGroupId = await addCustomGroup(createGroupData(importedGroup, ctx));
       ctx.result.importedGroups++;
 
       // Update context maps for subsequent tile imports
       if (newGroupId) {
         // Create a minimal group object for mapping
         const newGroupData = {
-          ...createGroupData(importedGroup),
+          ...createGroupData(importedGroup, ctx),
           id: newGroupId,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -259,7 +259,7 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
 
           // Update existing tile
           if (existingTile.id !== undefined) {
-            await updateCustomTile(existingTile.id, createTileData(importedTile, groupId));
+            await updateCustomTile(existingTile.id, createTileData(importedTile, groupId, ctx));
             ctx.result.warnings.push(`Updated existing tile: ${importedTile.action}`);
             continue;
           }
@@ -267,7 +267,7 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
 
         // Queue for batch insert
         tilesToAdd.push({
-          data: createTileData(importedTile, groupId),
+          data: createTileData(importedTile, groupId, ctx),
           tile: importedTile,
         });
       } catch (error) {
@@ -360,7 +360,8 @@ async function processDisabledDefaultImport(ctx: ImportContext): Promise<void> {
 }
 
 // Utility functions
-function createGroupData(importedGroup: ExportGroup): CustomGroupBase {
+function createGroupData(importedGroup: ExportGroup, ctx?: ImportContext): CustomGroupBase {
+  const prov = ctx?.options.packProvenance;
   return {
     name: importedGroup.name,
     label: importedGroup.label,
@@ -374,10 +375,12 @@ function createGroupData(importedGroup: ExportGroup): CustomGroupBase {
     isDefault: false,
     locale: importedGroup.locale,
     gameMode: importedGroup.gameMode,
+    ...(prov ? { packId: prov.packId, packVersion: prov.packVersion } : {}),
   };
 }
 
-function createTileData(importedTile: ExportTile, groupId: string) {
+function createTileData(importedTile: ExportTile, groupId: string, ctx?: ImportContext) {
+  const prov = ctx?.options.packProvenance;
   return {
     group_id: groupId,
     intensity: importedTile.intensity,
@@ -385,6 +388,14 @@ function createTileData(importedTile: ExportTile, groupId: string) {
     tags: importedTile.tags,
     isEnabled: importedTile.isEnabled ? 1 : 0,
     isCustom: 1,
+    ...(prov
+      ? {
+          packId: prov.packId,
+          packVersion: prov.packVersion,
+          packName: prov.packName,
+          packDetached: false,
+        }
+      : {}),
   };
 }
 
@@ -575,15 +586,55 @@ export async function analyzeImportConflicts(
     const fullOptions: ImportOptions = {
       validateContent: options.validateContent ?? true,
       preserveDisabledDefaults: options.preserveDisabledDefaults ?? false,
+      packProvenance: options.packProvenance,
     };
 
-    await buildImportContext(importData, fullOptions);
+    const ctx = await buildImportContext(importData, fullOptions);
 
-    return {
+    const result: ConflictAnalysis = {
       groupConflicts: [],
       tileConflicts: [],
       disabledConflicts: [],
     };
+
+    // Group conflicts: an imported group whose name already exists locally.
+    for (const imported of importData.data.customGroups) {
+      const existing = ctx.groupMap.get(imported.name);
+      if (!existing) continue;
+      const existingHash = await generateGroupContentHash(existing);
+      result.groupConflicts.push({
+        existing: await createExportGroup(existing),
+        imported,
+        conflictType: existingHash === imported.contentHash ? 'identical' : 'nameMatch',
+      });
+    }
+
+    // Tile conflicts: an imported tile whose (action, intensity, group) already
+    // exists locally. `contentMatch` flags a local edit — the existing content
+    // differs from the imported one — so the UI can warn before overwriting.
+    for (const imported of importData.data.customTiles) {
+      let groupId = ctx.groupIdMap.get(imported.groupName);
+      if (!groupId) {
+        groupId = createDeterministicGroupId(
+          imported.groupName,
+          imported.locale,
+          imported.gameMode
+        );
+      }
+      const group = ctx.groupMap.get(imported.groupName);
+      const existing = ctx.existingTileMap.get(
+        `${imported.action}_${imported.intensity}_${groupId}`
+      );
+      if (!existing || !group) continue;
+      const existingHash = await generateTileContentHash(existing, group.name);
+      result.tileConflicts.push({
+        existing: await createExportTile(existing, group),
+        imported,
+        conflictType: existingHash === imported.contentHash ? 'identical' : 'contentMatch',
+      });
+    }
+
+    return result;
   } catch (error) {
     throw new ImportExportError('Conflict analysis failed', error);
   }
@@ -610,6 +661,7 @@ export async function importData(
     const fullOptions: ImportOptions = {
       validateContent: options.validateContent ?? true,
       preserveDisabledDefaults: options.preserveDisabledDefaults ?? false,
+      packProvenance: options.packProvenance,
     };
 
     progressCallback?.('Preparing import', 0, 100);

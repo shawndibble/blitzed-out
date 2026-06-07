@@ -52,6 +52,55 @@ service cloud.firestore {
         && isValidOptionalUrl(data.url);
     }
 
+    function contentPackFieldsValid(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.description is string && data.description.size() <= 1000
+        && data.gameMode in ['online', 'solo', 'local']
+        && data.locale is string && data.locale.size() <= 10
+        && data.tags is list && data.tags.size() <= 20
+        && data.contents is string && data.contents.size() <= 600000
+        && data.contentHash is string && data.contentHash.size() <= 128
+        && data.authorName is string && data.authorName.size() <= 100
+        && data.formatVersion is string && data.formatVersion.size() <= 16
+        && data.updatedAt is number;
+    }
+
+    function contentPackCreateValid() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['author', 'authorName', 'name', 'description', 'gameMode',
+          'locale', 'tags', 'contents', 'contentHash', 'packVersion', 'formatVersion',
+          'createdAt', 'updatedAt'])
+        && data.keys().hasAll(['author', 'authorName', 'name', 'description', 'gameMode',
+          'locale', 'tags', 'contents', 'contentHash', 'packVersion', 'formatVersion',
+          'createdAt', 'updatedAt'])
+        && data.author == request.auth.uid
+        && data.packVersion is int && data.packVersion >= 1
+        && data.createdAt is number
+        && contentPackFieldsValid(data);
+    }
+
+    function contentPackUpdateValid() {
+      let data = request.resource.data;
+      return resource.data.author == request.auth.uid       // only the author can republish
+        && data.author == resource.data.author              // author immutable
+        && data.createdAt == resource.data.createdAt         // createdAt immutable
+        && data.packVersion is int
+        && data.packVersion > resource.data.packVersion      // version must increase
+        && data.diff(resource.data).affectedKeys().hasOnly(['name', 'description', 'tags',
+          'contents', 'contentHash', 'packVersion', 'updatedAt', 'authorName'])
+        && contentPackFieldsValid(data);
+    }
+
+    function reportCreateValid() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['packId', 'reporterUid', 'reason', 'createdAt'])
+        && data.keys().hasAll(['packId', 'reporterUid', 'reason', 'createdAt'])
+        && data.packId is string && data.packId.size() <= 128
+        && data.reporterUid == request.auth.uid
+        && data.reason is string && data.reason.size() <= 500
+        && data.createdAt is number;
+    }
+
     // User data - only authenticated users can access their own data
     match /user-data/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -114,6 +163,23 @@ service cloud.firestore {
       allow update: if isSignedIn() && scheduleUpdateValid();
       allow delete: if isSignedIn()
         && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Content packs - durable shareable tile/group bundles. Public read (shared
+    // by code via ?importPack=<id>); only the author can republish (version must
+    // increase) or take down. Admins can take down via the `admin` custom claim.
+    match /content-packs/{packId} {
+      allow read: if true;
+      allow create: if isSignedIn() && contentPackCreateValid();
+      allow update: if isSignedIn() && contentPackUpdateValid();
+      allow delete: if isSignedIn()
+        && (resource.data.author == request.auth.uid || request.auth.token.admin == true);
+    }
+
+    // Abuse reports - any signed-in user can file; only admins read/act (console).
+    match /reports/{reportId} {
+      allow create: if isSignedIn() && reportCreateValid();
+      allow read, update, delete: if false;
     }
   }
 }
