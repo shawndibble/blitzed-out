@@ -161,6 +161,16 @@ export const migrateCurrentLanguage = async (locale?: string): Promise<boolean> 
         }
       }
 
+      // Re-apply disabled-default state to any freshly-seeded tile rows. Newly
+      // imported defaults arrive enabled; the disabled-defaults table is the
+      // source of truth, so this keeps disables surviving a re-seed/recovery.
+      try {
+        const { reconcileDisabledRows } = await import('@/stores/disabledDefaults');
+        await reconcileDisabledRows();
+      } catch (error) {
+        logError('warn', 'reconcileDisabledRows', error);
+      }
+
       // Mark this language as migrated
       markLanguageMigrated(currentLocale);
       return true;

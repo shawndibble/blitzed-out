@@ -16,6 +16,7 @@ import {
 
 import { getAuth } from 'firebase/auth';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { getBoards } from '@/stores/gameBoard';
 
 // Override the global sync service mock for this test file
 vi.mock('@/services/syncService', async () => {
@@ -32,6 +33,18 @@ vi.mock('@/stores/customTiles');
 vi.mock('@/stores/customGroups');
 vi.mock('@/stores/gameBoard');
 vi.mock('@/stores/settingsStore');
+vi.mock('@/stores/disabledDefaults', () => ({
+  mergeRemoteDisabledRecords: vi.fn(async () => 0),
+  reconcileDisabledRows: vi.fn(async () => undefined),
+  getAllDisabledRecords: vi.fn(async () => []),
+}));
+
+import {
+  mergeRemoteDisabledRecords,
+  reconcileDisabledRows,
+  getAllDisabledRecords,
+} from '@/stores/disabledDefaults';
+import { syncDisabledDefaultsToFirebase } from '@/services/syncService';
 
 describe('syncService', () => {
   const mockUser = { uid: 'test-user-123', isAnonymous: false };
@@ -70,7 +83,7 @@ describe('syncService', () => {
   });
 
   describe('syncCustomTilesToFirebase', () => {
-    it('should sync both custom tiles and disabled defaults to Firebase', async () => {
+    it('should sync custom tiles to Firebase (disabled defaults sync separately)', async () => {
       const mockCustomTiles = [
         {
           id: 1,
@@ -85,24 +98,8 @@ describe('syncService', () => {
         },
       ];
 
-      const mockDisabledDefaults = [
-        {
-          id: 2,
-          group_id: 'teasing-group-id',
-          intensity: 1,
-          action: 'Default action',
-          tags: [],
-          isEnabled: 0, // User disabled this default action
-          isCustom: 0,
-          locale: 'en',
-          gameMode: 'online',
-        },
-      ];
-
-      // Mock getTiles to return different results based on filters
       vi.mocked(getTiles).mockImplementation(async (filters: any) => {
         if (filters?.isCustom === 1) return mockCustomTiles;
-        if (filters?.isCustom === 0 && filters?.isEnabled === 0) return mockDisabledDefaults;
         return [];
       });
 
@@ -112,53 +109,42 @@ describe('syncService', () => {
 
       expect(result).toBe(true);
       expect(getTiles).toHaveBeenCalledWith({ isCustom: 1 });
-      expect(getTiles).toHaveBeenCalledWith({ isCustom: 0, isEnabled: 0 });
-      expect(setDoc).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          customTiles: mockCustomTiles,
-          disabledDefaults: mockDisabledDefaults,
-          lastUpdated: expect.any(Date),
-        }),
-        { merge: true }
-      );
+      const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
+      expect(payload.customTiles).toEqual(mockCustomTiles);
+      // Disabled defaults are no longer bundled into the custom-tiles push.
+      expect(payload).not.toHaveProperty('disabledDefaults');
     });
 
-    it('should handle when no disabled defaults exist', async () => {
-      const mockCustomTiles = [
-        {
-          id: 1,
-          group_id: 'custom-group-id',
-          intensity: 1,
-          action: 'Custom action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 1,
-          locale: 'en',
-          gameMode: 'online',
-        },
-      ];
-
-      vi.mocked(getTiles).mockImplementation(async (filters: any) => {
-        if (filters?.isCustom === 1) return mockCustomTiles;
-        if (filters?.isCustom === 0 && filters?.isEnabled === 0) return [];
-        return [];
+    it('writes legacy + V2 disabled-default fields, capping the legacy array at 100', async () => {
+      const records = Array.from({ length: 120 }, (_, i) => ({
+        key: `g1|1|A${i}`,
+        group_id: 'g1',
+        intensity: 1,
+        action: `A${i}`,
+        active: true,
+        updatedAt: 100,
+      }));
+      // Include a tombstone that must NOT appear in the legacy (active-only) array.
+      records.push({
+        key: 'g1|1|T',
+        group_id: 'g1',
+        intensity: 1,
+        action: 'T',
+        active: false,
+        updatedAt: 100,
       });
-
+      vi.mocked(getAllDisabledRecords).mockResolvedValue(records as any);
       vi.mocked(setDoc).mockResolvedValue(undefined);
 
-      const result = await syncCustomTilesToFirebase();
+      const result = await syncDisabledDefaultsToFirebase();
 
       expect(result).toBe(true);
-      expect(setDoc).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          customTiles: mockCustomTiles,
-          disabledDefaults: [],
-          lastUpdated: expect.any(Date),
-        }),
-        { merge: true }
-      );
+      const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
+      // V2 carries the full set (active + tombstones).
+      expect(payload.disabledDefaultsV2).toHaveLength(121);
+      // Legacy carries active-only, capped at 100.
+      expect(payload.disabledDefaults).toHaveLength(100);
+      expect(payload.disabledDefaults.every((d: any) => d.action !== 'T')).toBe(true);
     });
 
     it('should return false when user is not logged in', async () => {
@@ -233,8 +219,13 @@ describe('syncService', () => {
       vi.mocked(getCustomGroups).mockResolvedValue([]);
       vi.mocked(importCustomGroups).mockResolvedValue(undefined);
       vi.mocked(useSettingsStore.getState).mockReturnValue({
+        settings: {},
         updateSettings: vi.fn(),
       } as any);
+      vi.mocked(getBoards).mockResolvedValue([]);
+      // clearAllMocks resets calls, not implementations — reset setDoc so a
+      // rejected mock from an earlier test doesn't leak into the push path.
+      vi.mocked(setDoc).mockResolvedValue(undefined);
     });
 
     it('should restore both custom tiles and disabled defaults from Firebase', async () => {
@@ -278,6 +269,8 @@ describe('syncService', () => {
         return [];
       });
 
+      vi.mocked(mergeRemoteDisabledRecords).mockResolvedValueOnce(1);
+
       const result = await syncDataFromFirebase();
 
       expect(result).toBe(true);
@@ -291,8 +284,14 @@ describe('syncService', () => {
       void id; // Explicitly ignore the id
       expect(addCustomTile).toHaveBeenCalledWith(expectedTile);
 
-      // Should apply disabled defaults to existing default tiles (not add new ones)
-      expect(updateCustomTile).toHaveBeenCalledWith(100, { isEnabled: 0 });
+      // Disabled defaults merge per-record (legacy array converted to records),
+      // then the row flags are reconciled to the table.
+      expect(mergeRemoteDisabledRecords).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ action: 'Default action', active: true }),
+        ])
+      );
+      expect(reconcileDisabledRows).toHaveBeenCalled();
     });
 
     it('should handle case where disabled defaults are not in Firebase data', async () => {
@@ -460,6 +459,8 @@ describe('syncService', () => {
         return [];
       });
 
+      vi.mocked(mergeRemoteDisabledRecords).mockResolvedValueOnce(1);
+
       const result = await syncDataFromFirebase();
 
       expect(result).toBe(true);
@@ -474,11 +475,13 @@ describe('syncService', () => {
       // Should have added the Firebase group alongside existing local groups
       expect(importCustomGroups).toHaveBeenCalled();
 
-      // Verify disabled defaults were reset to enabled before applying Firebase data
-      expect(updateCustomTile).toHaveBeenCalledWith(mockExistingDisabled[0].id, { isEnabled: 1 });
-
-      // Verify Firebase disabled defaults are applied to matching default tiles
-      expect(updateCustomTile).toHaveBeenCalledWith(4, { isEnabled: 0 });
+      // Disabled defaults merge per-record then reconcile row flags.
+      expect(mergeRemoteDisabledRecords).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ action: 'Default action', active: true }),
+        ])
+      );
+      expect(reconcileDisabledRows).toHaveBeenCalled();
     });
 
     it('should preserve user disabled actions during sync', async () => {
@@ -528,12 +531,20 @@ describe('syncService', () => {
         return [];
       });
 
+      vi.mocked(mergeRemoteDisabledRecords).mockResolvedValueOnce(1);
+
       const result = await syncDataFromFirebase();
 
       expect(result).toBe(true);
 
-      // Verify that the disabled default action state is applied to existing default tile
-      expect(updateCustomTile).toHaveBeenCalledWith(200, { isEnabled: 0 });
+      // The disabled default from Firebase is merged as an active record, then
+      // reconciled onto the matching local default row.
+      expect(mergeRemoteDisabledRecords).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ action: 'Default action', active: true }),
+        ])
+      );
+      expect(reconcileDisabledRows).toHaveBeenCalled();
     });
 
     it('should handle missing disabledDefaults field in Firebase data gracefully', async () => {
@@ -569,19 +580,13 @@ describe('syncService', () => {
       };
       vi.mocked(getDoc).mockResolvedValue(mockDoc as any);
 
-      // Mock existing disabled defaults that should be reset
-      vi.mocked(getTiles).mockImplementation(async (filters: any) => {
-        if (filters?.isCustom === 0 && filters?.isEnabled === 0) {
-          return [{ id: 5, isEnabled: 0, isCustom: 0 }] as any;
-        }
-        return [];
-      });
-
       const result = await syncDataFromFirebase();
 
       expect(result).toBe(true);
-      // Should reset existing disabled defaults even if Firebase has none
-      expect(updateCustomTile).toHaveBeenCalledWith(5, { isEnabled: 1 });
+      // An empty remote list is a no-op merge — re-enables now propagate via
+      // tombstones, not via absence — so no rows are touched.
+      expect(mergeRemoteDisabledRecords).toHaveBeenCalledWith([]);
+      expect(reconcileDisabledRows).not.toHaveBeenCalled();
     });
   });
 
@@ -768,6 +773,8 @@ describe('syncService', () => {
         return [];
       });
 
+      vi.mocked(mergeRemoteDisabledRecords).mockResolvedValueOnce(1);
+
       // Test download
       const downloadResult = await syncDataFromFirebase();
       expect(downloadResult).toBe(true);
@@ -778,8 +785,13 @@ describe('syncService', () => {
       void id; // Explicitly ignore the id
       expect(addCustomTile).toHaveBeenCalledWith(expectedTile);
 
-      // Verify disabled defaults are applied to existing default tiles
-      expect(updateCustomTile).toHaveBeenCalledWith(300, { isEnabled: 0 });
+      // Verify disabled defaults are merged into the first-class table + reconciled
+      expect(mergeRemoteDisabledRecords).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ action: 'User disabled this default', active: true }),
+        ])
+      );
+      expect(reconcileDisabledRows).toHaveBeenCalled();
     });
   });
 

@@ -1,68 +1,8 @@
 {
   "version": "1.0.0",
-  "gitCommitHash": "c34786aed103fa255bc577a6dbb81c3b9b75012c",
-  "generatedAt": "2026-06-06T23:46:47.242Z",
+  "gitCommitHash": "42be534b1513fe6b610dbcc3dda67df0a83a8dc2",
+  "generatedAt": "2026-06-07T01:20:17.243Z",
   "files": {
-    ".firebaserc": {
-      "filePath": ".firebaserc",
-      "contentHash": "fc0b0fd882a2f6e38d7b324502e2c39a72646a51c65ceb734f2e094807bbbbc7",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 6,
-      "hasStructuralAnalysis": false
-    },
-    ".gitattributes": {
-      "filePath": ".gitattributes",
-      "contentHash": "e77ea8745f4620b245d6a010cc0972cee23ea160bf8c6507e6e333163c7ab309",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 2,
-      "hasStructuralAnalysis": false
-    },
-    ".husky/pre-commit": {
-      "filePath": ".husky/pre-commit",
-      "contentHash": "a0b65569bf15e6a9804cc4e2822214899cda8ccaef4c9269ae6db2abba611440",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 1,
-      "hasStructuralAnalysis": false
-    },
-    ".nvmrc": {
-      "filePath": ".nvmrc",
-      "contentHash": "68ca3fba3b7e864770cb61aeb306d4bd4354b68ab4dd38450860c5d823e42a53",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 2,
-      "hasStructuralAnalysis": false
-    },
-    ".prettierignore": {
-      "filePath": ".prettierignore",
-      "contentHash": "4b0573af23b74e67bb0de2b4306e0bcd1ca3979fe3c0d81aff49e912b0284fc8",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 15,
-      "hasStructuralAnalysis": false
-    },
-    ".understand-anything/.understandignore": {
-      "filePath": ".understand-anything/.understandignore",
-      "contentHash": "d6015791a28ce2624ab0c3eae961a932ac1e582d6cd051206d38db25f1639678",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 52,
-      "hasStructuralAnalysis": false
-    },
     "eslint.config.js": {
       "filePath": "eslint.config.js",
       "contentHash": "14baa0efd2bff095d4d0ff4b5ed753b8409ff497891e383cd23591317a20ccbb",
@@ -102,16 +42,6 @@
       "totalLines": 117,
       "hasStructuralAnalysis": true
     },
-    "firestore.rules": {
-      "filePath": "firestore.rules",
-      "contentHash": "ae75ac850623d4864e0b38cbf4ed20ae7095c66478080176d16a8189ee52494a",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 120,
-      "hasStructuralAnalysis": false
-    },
     "functions/src/index.ts": {
       "filePath": "functions/src/index.ts",
       "contentHash": "870ae5283840cce091b688114b94860fac1832f3b9089ec7a418c73b9259cabf",
@@ -142,66 +72,6 @@
       ],
       "totalLines": 468,
       "hasStructuralAnalysis": true
-    },
-    "public/CNAME": {
-      "filePath": "public/CNAME",
-      "contentHash": "37a59b6248d68d4c9a61b69764ceb2ec8d9256d178852e19004fe9b600a23c4b",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 1,
-      "hasStructuralAnalysis": false
-    },
-    "public/screenshots/action-card.webp": {
-      "filePath": "public/screenshots/action-card.webp",
-      "contentHash": "e92bac98859cdcdd871dd07c55f53fbaf9b696a9df9d978b34f85111b985cb16",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 53,
-      "hasStructuralAnalysis": false
-    },
-    "public/screenshots/custom-tiles.webp": {
-      "filePath": "public/screenshots/custom-tiles.webp",
-      "contentHash": "3bc560bea1c9179b15ad8100975526ae1fc4672ca256d69a54b51ad14ecdb0a0",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 181,
-      "hasStructuralAnalysis": false
-    },
-    "public/screenshots/hero-board.webp": {
-      "filePath": "public/screenshots/hero-board.webp",
-      "contentHash": "e229302e0cd2ba0f03c6530159984422b3c00327ad46a8db2c92e89397f13222",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 563,
-      "hasStructuralAnalysis": false
-    },
-    "public/screenshots/setup-wizard.webp": {
-      "filePath": "public/screenshots/setup-wizard.webp",
-      "contentHash": "fa021aa7c5b252f3336a31ffae340e51394b7ad37a518c0d250caacc9a3c054f",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 119,
-      "hasStructuralAnalysis": false
-    },
-    "public/site.webmanifest": {
-      "filePath": "public/site.webmanifest",
-      "contentHash": "b790786361fa35ee6ffeba09306e07f712a302dff5619aca4c7fd23181b64dc4",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 36,
-      "hasStructuralAnalysis": false
     },
     "scripts/bundle-translations.js": {
       "filePath": "scripts/bundle-translations.js",
@@ -8476,6 +8346,41 @@
       "totalLines": 104,
       "hasStructuralAnalysis": true
     },
+    "src/hooks/useUrlPackImport.ts": {
+      "filePath": "src/hooks/useUrlPackImport.ts",
+      "contentHash": "12f264b3aa887930acbc2bc29238eef2ada0e9b145cacfac77a7baa4f815dcbc",
+      "functions": [
+        {
+          "name": "useUrlPackImport",
+          "params": [],
+          "returnType": "UrlPackImportResult",
+          "exported": true,
+          "lineCount": 46
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": ["useCallback", "useEffect", "useState"]
+        },
+        {
+          "source": "react-router-dom",
+          "specifiers": ["useSearchParams"]
+        },
+        {
+          "source": "@/services/contentPacks",
+          "specifiers": ["getPack"]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["ContentPackDoc"]
+        }
+      ],
+      "exports": ["useUrlPackImport"],
+      "totalLines": 64,
+      "hasStructuralAnalysis": true
+    },
     "src/hooks/useWakeLock.ts": {
       "filePath": "src/hooks/useWakeLock.ts",
       "contentHash": "67ecff0d0ad3f9db9be06ad0d2bba14550aaa2dfb96e26f101b0790f9b76a3a7",
@@ -8815,6 +8720,59 @@
       "totalLines": 197,
       "hasStructuralAnalysis": true
     },
+    "src/services/__tests__/analyzeImportConflicts.test.ts": {
+      "filePath": "src/services/__tests__/analyzeImportConflicts.test.ts",
+      "contentHash": "7268207eb6712ef6e336917e6fb77fee33c1614464d54b784aa48c76c9c27ebf",
+      "functions": [
+        {
+          "name": "seedGroupAndTile",
+          "params": [],
+          "exported": false,
+          "lineCount": 19
+        },
+        {
+          "name": "exportDoc",
+          "params": ["tileContentHash"],
+          "returnType": "ExportData",
+          "exported": false,
+          "lineCount": 32
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": ["afterEach", "beforeEach", "describe", "expect", "it"]
+        },
+        {
+          "source": "@/stores/store",
+          "specifiers": ["db"]
+        },
+        {
+          "source": "@/stores/customGroups",
+          "specifiers": ["addCustomGroup"]
+        },
+        {
+          "source": "@/stores/customTiles",
+          "specifiers": ["addCustomTile"]
+        },
+        {
+          "source": "../importExport",
+          "specifiers": ["analyzeImportConflicts", "importData"]
+        },
+        {
+          "source": "../contentHashing",
+          "specifiers": ["generateTileContentHash"]
+        },
+        {
+          "source": "@/types/importExport",
+          "specifiers": ["ExportData"]
+        }
+      ],
+      "exports": [],
+      "totalLines": 131,
+      "hasStructuralAnalysis": true
+    },
     "src/services/__tests__/anatomyPlaceholderService.test.ts": {
       "filePath": "src/services/__tests__/anatomyPlaceholderService.test.ts",
       "contentHash": "12f83b7f0ca99be960037d503ea169c9d09bc9651c216b305af09c27f04cefe2",
@@ -8870,6 +8828,33 @@
       ],
       "exports": [],
       "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "src/services/__tests__/buildGame.datasource.test.ts": {
+      "filePath": "src/services/__tests__/buildGame.datasource.test.ts",
+      "contentHash": "6d9f6134df84173366d1b58e48c3cb063e3066767a82f664b22a0575521a62cc",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": ["describe", "expect", "it", "vi", "beforeEach"]
+        },
+        {
+          "source": "../buildGame",
+          "specifiers": ["buildGameBoard"]
+        },
+        {
+          "source": "@/stores/customTiles",
+          "specifiers": ["getTiles"]
+        },
+        {
+          "source": "@/types/Settings",
+          "specifiers": ["Settings"]
+        }
+      ],
+      "exports": [],
+      "totalLines": 28,
       "hasStructuralAnalysis": true
     },
     "src/services/__tests__/buildGame.test.ts": {
@@ -8971,6 +8956,48 @@
       ],
       "exports": [],
       "totalLines": 167,
+      "hasStructuralAnalysis": true
+    },
+    "src/services/__tests__/contentPacks.test.ts": {
+      "filePath": "src/services/__tests__/contentPacks.test.ts",
+      "contentHash": "13dd721ed7c697f618c84d2f2f9ce03ab2fbe5811f3c213af2abba40ed679eaa",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": ["afterEach", "beforeEach", "describe", "expect", "it", "vi"]
+        },
+        {
+          "source": "firebase/firestore",
+          "specifiers": ["addDoc", "collection", "doc", "getDoc", "updateDoc"]
+        },
+        {
+          "source": "firebase/auth",
+          "specifiers": ["getAuth"]
+        },
+        {
+          "source": "../contentPacks",
+          "specifiers": [
+            "buildPackContents",
+            "getPack",
+            "importPack",
+            "parsePack",
+            "publishPack",
+            "republishPack"
+          ]
+        },
+        {
+          "source": "@/services/importExport",
+          "specifiers": ["importData"]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["ContentPackDoc"]
+        }
+      ],
+      "exports": [],
+      "totalLines": 111,
       "hasStructuralAnalysis": true
     },
     "src/services/__tests__/firebase.offline.test.ts": {
@@ -9362,7 +9389,7 @@
     },
     "src/services/__tests__/syncService.test.ts": {
       "filePath": "src/services/__tests__/syncService.test.ts",
-      "contentHash": "868f24bef761d56f0f74362cc8489b32f196818e38962ea942dba2928b8ec830",
+      "contentHash": "2b7db0ae0eb122513769b8472bbbcc493d0bcc241f7692c4cfc1f9fa1594b48e",
       "functions": [],
       "classes": [],
       "imports": [
@@ -9398,10 +9425,22 @@
         {
           "source": "@/stores/settingsStore",
           "specifiers": ["useSettingsStore"]
+        },
+        {
+          "source": "@/stores/disabledDefaults",
+          "specifiers": [
+            "mergeRemoteDisabledRecords",
+            "reconcileDisabledRows",
+            "getAllDisabledRecords"
+          ]
+        },
+        {
+          "source": "@/services/syncService",
+          "specifiers": ["syncDisabledDefaultsToFirebase"]
         }
       ],
       "exports": [],
-      "totalLines": 836,
+      "totalLines": 842,
       "hasStructuralAnalysis": true
     },
     "src/services/__tests__/translationUsage.test.ts": {
@@ -10112,7 +10151,7 @@
     },
     "src/services/buildGame.ts": {
       "filePath": "src/services/buildGame.ts",
-      "contentHash": "4f1f0edf2919f273837d07d8e1ef0e2d77da92aa6acf5b7fff40626a5b015f9f",
+      "contentHash": "3f3502ffb402fff177e9b8f2f9d4f1d7e3c8928b1a7c150cefc8037e15d1c42a",
       "functions": [
         {
           "name": "resolvePenetrative",
@@ -10239,7 +10278,7 @@
         }
       ],
       "exports": ["buildBoardFromData", "buildGameBoard"],
-      "totalLines": 568,
+      "totalLines": 572,
       "hasStructuralAnalysis": true
     },
     "src/services/contentHashing.ts": {
@@ -10315,6 +10354,119 @@
         "generateContentHash"
       ],
       "totalLines": 170,
+      "hasStructuralAnalysis": true
+    },
+    "src/services/contentPacks.ts": {
+      "filePath": "src/services/contentPacks.ts",
+      "contentHash": "f341517c773f052187ede43873198ab8c734a98c33151f946afd0deeef2a0fbd",
+      "functions": [
+        {
+          "name": "buildPackContents",
+          "params": ["options"],
+          "returnType": "Promise<{ contents: string; contentHash: string }>",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "publishPack",
+          "params": ["meta", "contents", "contentHash"],
+          "returnType": "Promise<string>",
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "republishPack",
+          "params": ["packId", "contents", "contentHash", "meta"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "getPack",
+          "params": ["packId"],
+          "returnType": "Promise<ContentPackDoc | undefined>",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "deletePack",
+          "params": ["packId"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "parsePack",
+          "params": ["pack"],
+          "returnType": "ParsedContentPack | undefined",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "importPack",
+          "params": ["pack"],
+          "returnType": "Promise<ImportResult>",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "unsubscribePack",
+          "params": ["packId"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "reportPack",
+          "params": ["packId", "reason"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "firebase/firestore",
+          "specifiers": ["addDoc", "collection", "deleteDoc", "doc", "getDoc", "updateDoc"]
+        },
+        {
+          "source": "firebase/auth",
+          "specifiers": ["getAuth"]
+        },
+        {
+          "source": "js-sha256",
+          "specifiers": ["sha256"]
+        },
+        {
+          "source": "./firebase",
+          "specifiers": ["db"]
+        },
+        {
+          "source": "./importExport",
+          "specifiers": ["exportAllData", "importData"]
+        },
+        {
+          "source": "@/types/importExport",
+          "specifiers": ["ExportData", "ExportOptions", "ImportResult"]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["ContentPackDoc", "ContentPackMeta", "ParsedContentPack"]
+        }
+      ],
+      "exports": [
+        "buildPackContents",
+        "publishPack",
+        "republishPack",
+        "getPack",
+        "deletePack",
+        "parsePack",
+        "importPack",
+        "unsubscribePack",
+        "reportPack"
+      ],
+      "totalLines": 155,
       "hasStructuralAnalysis": true
     },
     "src/services/dataCompletenessChecker.ts": {
@@ -11285,7 +11437,7 @@
     },
     "src/services/importExport.ts": {
       "filePath": "src/services/importExport.ts",
-      "contentHash": "676017a794f739e0baba841f34f2f7ce4a01532f98e87274ea212be3efc60538",
+      "contentHash": "3cf45d7a9f7ae000ec4cac0cdee4fa1b38cdbcd226b903b65f5216f8cf1f2053",
       "functions": [
         {
           "name": "buildImportContext",
@@ -11327,7 +11479,7 @@
           "params": ["ctx"],
           "returnType": "Promise<void>",
           "exported": false,
-          "lineCount": 96
+          "lineCount": 104
         },
         {
           "name": "processDisabledDefaultImport",
@@ -11338,16 +11490,16 @@
         },
         {
           "name": "createGroupData",
-          "params": ["importedGroup"],
+          "params": ["importedGroup", "ctx"],
           "returnType": "CustomGroupBase",
           "exported": false,
-          "lineCount": 16
+          "lineCount": 18
         },
         {
           "name": "createTileData",
-          "params": ["importedTile", "groupId"],
+          "params": ["importedTile", "groupId", "ctx"],
           "exported": false,
-          "lineCount": 10
+          "lineCount": 19
         },
         {
           "name": "isValidImportData",
@@ -11367,14 +11519,14 @@
           "params": ["rawData", "options"],
           "returnType": "Promise<ConflictAnalysis>",
           "exported": true,
-          "lineCount": 33
+          "lineCount": 73
         },
         {
           "name": "importData",
           "params": ["rawData", "options", "progressCallback"],
           "returnType": "Promise<ImportResult>",
           "exported": true,
-          "lineCount": 45
+          "lineCount": 46
         },
         {
           "name": "importFromJson",
@@ -11441,7 +11593,7 @@
         }
       ],
       "exports": ["exportAllData", "analyzeImportConflicts", "importData", "importFromJson"],
-      "totalLines": 644,
+      "totalLines": 704,
       "hasStructuralAnalysis": true
     },
     "src/services/importExport/databaseOperations.ts": {
@@ -12189,7 +12341,7 @@
     },
     "src/services/migration/index.ts": {
       "filePath": "src/services/migration/index.ts",
-      "contentHash": "b67630b7157530940ab6aec462b92c6db6813cf1849fc780a608fbd398aac6a2",
+      "contentHash": "40d8df0a10c7b38fc40970712cfb4480b3f6b4b2d4ac083c7df020f60a9ec5f5",
       "functions": [
         {
           "name": "migrateActionGroups",
@@ -12210,7 +12362,7 @@
           "params": ["locale"],
           "returnType": "Promise<boolean>",
           "exported": true,
-          "lineCount": 55
+          "lineCount": 65
         },
         {
           "name": "migrateRemainingLanguages",
@@ -12325,7 +12477,7 @@
         "runMigrationIfNeeded",
         "forceFreshMigration"
       ],
-      "totalLines": 378,
+      "totalLines": 388,
       "hasStructuralAnalysis": true
     },
     "src/services/migration/penetrativeIntensities.ts": {
@@ -13117,7 +13269,7 @@
     },
     "src/services/sync/__tests__/lww.test.ts": {
       "filePath": "src/services/sync/__tests__/lww.test.ts",
-      "contentHash": "23422c558a559210092dec2e4eb942de4f01e5c8396e96318feae849683a9ec3",
+      "contentHash": "9e434b39e6770b58435fb12267e19e399e10d44b7f6945972395f75710342ec1",
       "functions": [],
       "classes": [],
       "imports": [
@@ -13139,7 +13291,7 @@
         }
       ],
       "exports": [],
-      "totalLines": 115,
+      "totalLines": 123,
       "hasStructuralAnalysis": true
     },
     "src/services/sync/__tests__/tileMatcher.test.ts": {
@@ -13292,23 +13444,23 @@
     },
     "src/services/sync/disabledDefaultsSync.ts": {
       "filePath": "src/services/sync/disabledDefaultsSync.ts",
-      "contentHash": "9704d10a2ca5895c958b59dd46d053823614cdf4fdbf3e132e2a1ea8b3f64cec",
+      "contentHash": "1dd57e17707a0386277f5abe956ec8c82ce500585bdefaa2b8ac9c61832903a7",
       "functions": [
         {
-          "name": "disabledKey",
-          "params": ["tile"],
-          "returnType": "string",
+          "name": "legacyToRecords",
+          "params": ["legacy"],
+          "returnType": "DisabledDefault[]",
           "exported": false,
-          "lineCount": 2
+          "lineCount": 14
         }
       ],
       "classes": [
         {
           "name": "DisabledDefaultsSync",
-          "methods": ["matchesLocal", "syncFromFirebase"],
+          "methods": ["syncFromFirebase"],
           "properties": [],
           "exported": true,
-          "lineCount": 54
+          "lineCount": 29
         }
       ],
       "imports": [
@@ -13317,12 +13469,16 @@
           "specifiers": ["SyncBase"]
         },
         {
-          "source": "../syncService",
-          "specifiers": ["resetDisabledDefaults", "applyDisabledDefaults"]
+          "source": "@/stores/disabledDefaults",
+          "specifiers": ["mergeRemoteDisabledRecords", "reconcileDisabledRows"]
         },
         {
-          "source": "@/stores/customTiles",
-          "specifiers": ["getTiles"]
+          "source": "../syncService",
+          "specifiers": ["syncDisabledDefaultsToFirebase"]
+        },
+        {
+          "source": "@/types/customTiles",
+          "specifiers": ["DisabledDefault"]
         },
         {
           "source": "@/types/sync",
@@ -13330,7 +13486,7 @@
         }
       ],
       "exports": ["DisabledDefaultsSync"],
-      "totalLines": 66,
+      "totalLines": 70,
       "hasStructuralAnalysis": true
     },
     "src/services/sync/gameBoardsSync.ts": {
@@ -13370,12 +13526,51 @@
     },
     "src/services/sync/index.ts": {
       "filePath": "src/services/sync/index.ts",
-      "contentHash": "8487f0e1606cc95f691922bd660ae85397b251b2c7add5e1c6b3e230bd3858bc",
+      "contentHash": "46243d877e4932efb34d82503a46c83e4a710cd14f1958506bf620401e12f7c2",
       "functions": [],
       "classes": [],
       "imports": [],
       "exports": [],
-      "totalLines": 11,
+      "totalLines": 12,
+      "hasStructuralAnalysis": true
+    },
+    "src/services/sync/packSubscriptionsSync.ts": {
+      "filePath": "src/services/sync/packSubscriptionsSync.ts",
+      "contentHash": "9e65e2f8c9ed96c627ea93056e86cb072f13be4a1c085c7ea0c123b094657689",
+      "functions": [],
+      "classes": [
+        {
+          "name": "PackSubscriptionsSync",
+          "methods": ["syncFromFirebase"],
+          "properties": [],
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "imports": [
+        {
+          "source": "./base",
+          "specifiers": ["SyncBase"]
+        },
+        {
+          "source": "@/stores/packSubscriptions",
+          "specifiers": ["mergeRemoteSubscriptions"]
+        },
+        {
+          "source": "../syncService",
+          "specifiers": ["syncPackSubscriptionsToFirebase"]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["PackSubscription"]
+        },
+        {
+          "source": "@/types/sync",
+          "specifiers": ["SyncResult"]
+        }
+      ],
+      "exports": ["PackSubscriptionsSync"],
+      "totalLines": 26,
       "hasStructuralAnalysis": true
     },
     "src/services/sync/settingsSync.ts": {
@@ -13411,7 +13606,7 @@
     },
     "src/services/sync/syncOrchestrator.ts": {
       "filePath": "src/services/sync/syncOrchestrator.ts",
-      "contentHash": "ac2183ff7a0178bc7661359def1dc8568e7f22501fdc0aa703bcd4851c332fb6",
+      "contentHash": "cb4e860c72c8afefb53849ce6c52f50ff89c82cfb770e506a57604b9da1f95e7",
       "functions": [],
       "classes": [
         {
@@ -13422,11 +13617,12 @@
             "syncCustomGroups",
             "syncDisabledDefaults",
             "syncGameBoards",
-            "syncSettings"
+            "syncSettings",
+            "syncPackSubscriptions"
           ],
           "properties": [],
           "exported": true,
-          "lineCount": 120
+          "lineCount": 137
         }
       ],
       "imports": [
@@ -13455,6 +13651,10 @@
           "specifiers": ["GameBoardsSync"]
         },
         {
+          "source": "./packSubscriptionsSync",
+          "specifiers": ["PackSubscriptionsSync"]
+        },
+        {
           "source": "./settingsSync",
           "specifiers": ["SettingsSync"]
         },
@@ -13464,7 +13664,7 @@
         }
       ],
       "exports": ["SyncOrchestrator"],
-      "totalLines": 134,
+      "totalLines": 152,
       "hasStructuralAnalysis": true
     },
     "src/services/sync/tileMatcher.ts": {
@@ -13637,7 +13837,7 @@
     },
     "src/services/syncService.ts": {
       "filePath": "src/services/syncService.ts",
-      "contentHash": "0cee8f56f46fea6888f83e8916cbd42e8871e8fb536bb85607d58bc4217013f1",
+      "contentHash": "74f176ae24b18893c0c600f971c763ec87bf3bc1f6875a7363ab45be68c0b50e",
       "functions": [
         {
           "name": "cleanupDuplicateTiles",
@@ -13654,32 +13854,18 @@
           "lineCount": 14
         },
         {
-          "name": "resetDisabledDefaults",
-          "params": [],
-          "returnType": "Promise<boolean>",
-          "exported": true,
-          "lineCount": 17
-        },
-        {
-          "name": "applyDisabledDefaults",
-          "params": ["disabledDefaults"],
-          "returnType": "Promise<boolean>",
-          "exported": true,
-          "lineCount": 31
-        },
-        {
           "name": "syncCustomTilesToFirebase",
           "params": [],
           "returnType": "Promise<boolean>",
           "exported": true,
-          "lineCount": 47
+          "lineCount": 27
         },
         {
-          "name": "cleanupCorruptedDisabledDefaults",
+          "name": "syncDisabledDefaultsToFirebase",
           "params": [],
           "returnType": "Promise<boolean>",
           "exported": true,
-          "lineCount": 45
+          "lineCount": 46
         },
         {
           "name": "syncCustomGroupsToFirebase",
@@ -13703,11 +13889,18 @@
           "lineCount": 38
         },
         {
+          "name": "syncPackSubscriptionsToFirebase",
+          "params": [],
+          "returnType": "Promise<boolean>",
+          "exported": true,
+          "lineCount": 28
+        },
+        {
           "name": "syncAllDataToFirebase",
           "params": [],
           "returnType": "Promise<boolean>",
           "exported": true,
-          "lineCount": 7
+          "lineCount": 9
         },
         {
           "name": "intelligentSync",
@@ -13811,13 +14004,12 @@
         "deleteAllCustomTiles",
         "cleanupDuplicateTiles",
         "clearUserCustomGroups",
-        "resetDisabledDefaults",
-        "applyDisabledDefaults",
         "syncCustomTilesToFirebase",
-        "cleanupCorruptedDisabledDefaults",
+        "syncDisabledDefaultsToFirebase",
         "syncCustomGroupsToFirebase",
         "syncGameBoardsToFirebase",
         "syncSettingsToFirebase",
+        "syncPackSubscriptionsToFirebase",
         "syncAllDataToFirebase",
         "intelligentSync",
         "syncDataFromFirebase",
@@ -13827,7 +14019,7 @@
         "stopPeriodicSync",
         "isPeriodicSyncActive"
       ],
-      "totalLines": 503,
+      "totalLines": 475,
       "hasStructuralAnalysis": true
     },
     "src/services/textToSpeech.ts": {
@@ -14061,6 +14253,49 @@
       "totalLines": 285,
       "hasStructuralAnalysis": true
     },
+    "src/stores/__tests__/disabledDefaults.test.ts": {
+      "filePath": "src/stores/__tests__/disabledDefaults.test.ts",
+      "contentHash": "fe765eeef9a5797d6149b4fdea60c18bec3ac4ffa26bb0954634586d7ea9818a",
+      "functions": [
+        {
+          "name": "defaultRow",
+          "params": ["id", "group_id", "intensity", "action"],
+          "returnType": "CustomTilePull",
+          "exported": false,
+          "lineCount": 8
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": ["afterEach", "beforeEach", "describe", "expect", "it"]
+        },
+        {
+          "source": "../store",
+          "specifiers": ["db"]
+        },
+        {
+          "source": "../disabledDefaults",
+          "specifiers": [
+            "disableDefaultTile",
+            "enableDefaultTile",
+            "getActiveDisabledKeys",
+            "getAllDisabledRecords",
+            "mergeRemoteDisabledRecords",
+            "reconcileDisabledRows",
+            "disabledKey"
+          ]
+        },
+        {
+          "source": "@/types/customTiles",
+          "specifiers": ["CustomTilePull", "DisabledDefault"]
+        }
+      ],
+      "exports": [],
+      "totalLines": 166,
+      "hasStructuralAnalysis": true
+    },
     "src/stores/__tests__/gameBoard.test.ts": {
       "filePath": "src/stores/__tests__/gameBoard.test.ts",
       "contentHash": "dc79977ad7a7e62d5eac0b0f1b653bc57e0cd0e3c2954ed145600a2394db6d32",
@@ -14157,6 +14392,47 @@
       ],
       "exports": [],
       "totalLines": 67,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/__tests__/packSubscriptions.test.ts": {
+      "filePath": "src/stores/__tests__/packSubscriptions.test.ts",
+      "contentHash": "797875e3943e673196c0c65d09c049990724f2768d9accc55d6636c83e369ffc",
+      "functions": [
+        {
+          "name": "sub",
+          "params": ["packId", "packVersion", "updatedAt"],
+          "returnType": "PackSubscription",
+          "exported": false,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "vitest",
+          "specifiers": ["afterEach", "beforeEach", "describe", "expect", "it"]
+        },
+        {
+          "source": "../store",
+          "specifiers": ["db"]
+        },
+        {
+          "source": "../packSubscriptions",
+          "specifiers": [
+            "getSubscription",
+            "getSubscriptions",
+            "mergeRemoteSubscriptions",
+            "removeSubscription",
+            "upsertSubscription"
+          ]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["PackSubscription"]
+        }
+      ],
+      "exports": [],
+      "totalLines": 69,
       "hasStructuralAnalysis": true
     },
     "src/stores/__tests__/videoCallStore.test.ts": {
@@ -14393,7 +14669,7 @@
     },
     "src/stores/customTiles.ts": {
       "filePath": "src/stores/customTiles.ts",
-      "contentHash": "dc6a47e4b782963f60b95a985c3267f7404d74b83a032e826c5f9e15c221f0d8",
+      "contentHash": "d1f0c4dd7b4c263f3be7b0f89006652b7d611ff654ba3a009b5d4f77511108d9",
       "functions": [
         {
           "name": "importCustomTiles",
@@ -14456,6 +14732,13 @@
           "returnType": "Promise<number>",
           "exported": true,
           "lineCount": 15
+        },
+        {
+          "name": "softRemoveTilesByPackId",
+          "params": ["packId"],
+          "returnType": "Promise<number>",
+          "exported": true,
+          "lineCount": 8
         },
         {
           "name": "deleteAllIsCustomTiles",
@@ -14565,6 +14848,7 @@
         "addCustomTile",
         "updateCustomTile",
         "toggleCustomTile",
+        "softRemoveTilesByPackId",
         "deleteAllIsCustomTiles",
         "deleteCustomTile",
         "countTilesByGroup",
@@ -14575,7 +14859,7 @@
         "deleteCustomTilesByGroupId",
         "getTilesWithGroups"
       ],
-      "totalLines": 441,
+      "totalLines": 455,
       "hasStructuralAnalysis": true
     },
     "src/stores/diceAnimationStore.ts": {
@@ -14591,6 +14875,110 @@
       ],
       "exports": ["useDiceAnimationStore"],
       "totalLines": 14,
+      "hasStructuralAnalysis": true
+    },
+    "src/stores/disabledDefaults.ts": {
+      "filePath": "src/stores/disabledDefaults.ts",
+      "contentHash": "6af17af8da1aa1700310f9463d565044b6a31e29ee20ef00d5c00c971f6fd983",
+      "functions": [
+        {
+          "name": "disabledKey",
+          "params": ["tile"],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "findDefaultRowId",
+          "params": ["ref"],
+          "returnType": "Promise<number | undefined>",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "disableDefaultTile",
+          "params": ["ref"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "enableDefaultTile",
+          "params": ["ref"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "toggleTileEnabled",
+          "params": ["tile"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "getAllDisabledRecords",
+          "params": [],
+          "returnType": "Promise<DisabledDefault[]>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getActiveDisabledRecords",
+          "params": [],
+          "returnType": "Promise<DisabledDefault[]>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getActiveDisabledKeys",
+          "params": [],
+          "returnType": "Promise<Set<string>>",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "reconcileDisabledRows",
+          "params": [],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "mergeRemoteDisabledRecords",
+          "params": ["remote"],
+          "returnType": "Promise<number>",
+          "exported": true,
+          "lineCount": 23
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./store",
+          "specifiers": ["db"]
+        },
+        {
+          "source": "@/types/customTiles",
+          "specifiers": ["DisabledDefault", "CustomTile"]
+        },
+        {
+          "source": "./customTiles",
+          "specifiers": ["toggleCustomTile"]
+        }
+      ],
+      "exports": [
+        "disabledKey",
+        "disableDefaultTile",
+        "enableDefaultTile",
+        "toggleTileEnabled",
+        "getAllDisabledRecords",
+        "getActiveDisabledRecords",
+        "getActiveDisabledKeys",
+        "reconcileDisabledRows",
+        "mergeRemoteDisabledRecords"
+      ],
+      "totalLines": 154,
       "hasStructuralAnalysis": true
     },
     "src/stores/gameBoard.ts": {
@@ -14770,6 +15158,67 @@
       "totalLines": 228,
       "hasStructuralAnalysis": true
     },
+    "src/stores/packSubscriptions.ts": {
+      "filePath": "src/stores/packSubscriptions.ts",
+      "contentHash": "3c719694d40ab1b008fa3972da4856f8fc1e12abf26c51f547cd4c52867bc385",
+      "functions": [
+        {
+          "name": "getSubscriptions",
+          "params": [],
+          "returnType": "Promise<PackSubscription[]>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "getSubscription",
+          "params": ["packId"],
+          "returnType": "Promise<PackSubscription | undefined>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "upsertSubscription",
+          "params": ["sub"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "removeSubscription",
+          "params": ["packId"],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "mergeRemoteSubscriptions",
+          "params": ["remote"],
+          "returnType": "Promise<number>",
+          "exported": true,
+          "lineCount": 23
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./store",
+          "specifiers": ["db"]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["PackSubscription"]
+        }
+      ],
+      "exports": [
+        "getSubscriptions",
+        "getSubscription",
+        "upsertSubscription",
+        "removeSubscription",
+        "mergeRemoteSubscriptions"
+      ],
+      "totalLines": 79,
+      "hasStructuralAnalysis": true
+    },
     "src/stores/scheduleStore.ts": {
       "filePath": "src/stores/scheduleStore.ts",
       "contentHash": "ba373682eb8e5e2354f1e58bd28ff37431576f4cfb8cb47b6aa0bc0f3083a0b0",
@@ -14913,7 +15362,7 @@
     },
     "src/stores/store.ts": {
       "filePath": "src/stores/store.ts",
-      "contentHash": "f26d78cc79143bcc736391ecb90e1edfda59e1fd522cc7b9afaa2a0ce00583c5",
+      "contentHash": "691966950ec01247b66d943325cf44c8be610692506674f8e362f6db3188d1fa",
       "functions": [],
       "classes": [
         {
@@ -14923,13 +15372,15 @@
             "customTiles",
             "gameBoard",
             "customGroups",
+            "disabledDefaults",
+            "packSubscriptions",
             "localPlayerSessions",
             "localPlayerMoves",
             "localPlayerStats",
             "globalPlayerStats"
           ],
           "exported": false,
-          "lineCount": 38
+          "lineCount": 84
         }
       ],
       "imports": [
@@ -14943,7 +15394,7 @@
         },
         {
           "source": "@/types/customTiles",
-          "specifiers": ["CustomTilePull"]
+          "specifiers": ["CustomTilePull", "DisabledDefault"]
         },
         {
           "source": "@/types/gameBoard",
@@ -14952,6 +15403,10 @@
         {
           "source": "@/types/customGroups",
           "specifiers": ["CustomGroupPull"]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["PackSubscription"]
         },
         {
           "source": "@/types/localPlayerDB",
@@ -14964,7 +15419,7 @@
         }
       ],
       "exports": [],
-      "totalLines": 69,
+      "totalLines": 118,
       "hasStructuralAnalysis": true
     },
     "src/stores/userListStore.ts": {
@@ -15421,9 +15876,24 @@
       "totalLines": 62,
       "hasStructuralAnalysis": true
     },
+    "src/types/contentPacks.ts": {
+      "filePath": "src/types/contentPacks.ts",
+      "contentHash": "023f7ecdec6a72d697fcf07c1e643198a8a3adecc12176ac336bab41b25d1300",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "./importExport",
+          "specifiers": ["ExportData"]
+        }
+      ],
+      "exports": [],
+      "totalLines": 66,
+      "hasStructuralAnalysis": true
+    },
     "src/types/customGroups.ts": {
       "filePath": "src/types/customGroups.ts",
-      "contentHash": "15d577c3037b9e755ef18e7e44f8da635fda800c4ff142f71b562e4a9186c118",
+      "contentHash": "b50ca6acc18427be7a7d5ee430ce4ec26bd80e827f975ca98887d37eba5dcd23",
       "functions": [],
       "classes": [],
       "imports": [
@@ -15433,7 +15903,7 @@
         }
       ],
       "exports": ["DEFAULT_INTENSITY_TEMPLATES"],
-      "totalLines": 144,
+      "totalLines": 147,
       "hasStructuralAnalysis": true
     },
     "src/types/customTileDialog.ts": {
@@ -15453,12 +15923,12 @@
     },
     "src/types/customTiles.ts": {
       "filePath": "src/types/customTiles.ts",
-      "contentHash": "8531d7e20e2b82ac1681af76902fbd2dcebc6d3eba92d2e683feb6d5f84a150b",
+      "contentHash": "39588ee24bae4e315a8e7dba454c41200fe10db7fdc544661e3a73f6b09962d2",
       "functions": [],
       "classes": [],
       "imports": [],
       "exports": [],
-      "totalLines": 131,
+      "totalLines": 151,
       "hasStructuralAnalysis": true
     },
     "src/types/customTilesDialog.ts": {
@@ -15691,7 +16161,7 @@
     },
     "src/types/importExport.ts": {
       "filePath": "src/types/importExport.ts",
-      "contentHash": "b488480a5739f4d33768f093ac6875930d008ad3e5aaea8be08fda7af54f3703",
+      "contentHash": "8bed26a4571e38f157c13b917b793c16e4575757a7aef3282e78ddc48b252c90",
       "functions": [],
       "classes": [],
       "imports": [
@@ -15701,7 +16171,7 @@
         }
       ],
       "exports": [],
-      "totalLines": 87,
+      "totalLines": 96,
       "hasStructuralAnalysis": true
     },
     "src/types/index.ts": {
@@ -16895,7 +17365,7 @@
     },
     "src/views/CustomTileDialog/AddCustomTile/index.tsx": {
       "filePath": "src/views/CustomTileDialog/AddCustomTile/index.tsx",
-      "contentHash": "74e12448a5d9caf10e7227ceee2091673fe8870a3b324074a5b7951b6e847328",
+      "contentHash": "84c96fac736655e6133b7d2676bc5158934e60f753d1955d6bd84101f67c9a55",
       "functions": [
         {
           "name": "AddCustomTile",
@@ -16903,7 +17373,7 @@
             "{\n  setSubmitMessage,\n  boardUpdated,\n  customTiles,\n  mappedGroups: _mappedGroups,\n  expanded,\n  handleChange,\n  tagList,\n  updateTileId,\n  setUpdateTileId,\n  editTileData,\n  setEditTileData,\n  sharedFilters,\n  setSharedFilters,\n}"
           ],
           "exported": true,
-          "lineCount": 632
+          "lineCount": 634
         }
       ],
       "classes": [],
@@ -16994,7 +17464,7 @@
         }
       ],
       "exports": ["AddCustomTile"],
-      "totalLines": 665,
+      "totalLines": 667,
       "hasStructuralAnalysis": true
     },
     "src/views/CustomTileDialog/CustomTileHelp/index.tsx": {
@@ -17315,9 +17785,154 @@
       "totalLines": 437,
       "hasStructuralAnalysis": true
     },
+    "src/views/CustomTileDialog/Packs/PackImportDialog.tsx": {
+      "filePath": "src/views/CustomTileDialog/Packs/PackImportDialog.tsx",
+      "contentHash": "8f9ed114a3a644701ebe40f9839355ca1aa9a019ed0e06c906e8d603305c0d28",
+      "functions": [
+        {
+          "name": "PackImportDialog",
+          "params": ["{\n  pack,\n  open,\n  onClose,\n  onImported,\n}"],
+          "exported": true,
+          "lineCount": 122
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@mui/material",
+          "specifiers": [
+            "Alert",
+            "Box",
+            "Button",
+            "Chip",
+            "CircularProgress",
+            "Dialog",
+            "DialogActions",
+            "DialogContent",
+            "DialogTitle",
+            "Stack",
+            "Typography"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": ["useEffect", "useState"]
+        },
+        {
+          "source": "react-i18next",
+          "specifiers": ["useTranslation"]
+        },
+        {
+          "source": "@/services/contentPacks",
+          "specifiers": ["importPack", "parsePack", "reportPack"]
+        },
+        {
+          "source": "@/services/importExport",
+          "specifiers": ["analyzeImportConflicts"]
+        },
+        {
+          "source": "@/stores/packSubscriptions",
+          "specifiers": ["upsertSubscription"]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["ContentPackDoc"]
+        }
+      ],
+      "exports": ["PackImportDialog"],
+      "totalLines": 150,
+      "hasStructuralAnalysis": true
+    },
+    "src/views/CustomTileDialog/Packs/index.tsx": {
+      "filePath": "src/views/CustomTileDialog/Packs/index.tsx",
+      "contentHash": "d990dbe840051bff1743618a611688ccdded219bf209b241b715d3baf5b5eed5",
+      "functions": [
+        {
+          "name": "Packs",
+          "params": ["{ expanded, handleChange, onImported }"],
+          "exported": true,
+          "lineCount": 258
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@mui/material",
+          "specifiers": [
+            "Alert",
+            "Box",
+            "Button",
+            "Checkbox",
+            "Chip",
+            "CircularProgress",
+            "Divider",
+            "FormControlLabel",
+            "IconButton",
+            "Stack",
+            "TextField",
+            "Typography"
+          ]
+        },
+        {
+          "source": "@mui/icons-material",
+          "specifiers": ["Delete", "Inventory", "Publish", "Update"]
+        },
+        {
+          "source": "react",
+          "specifiers": ["useState"]
+        },
+        {
+          "source": "react-i18next",
+          "specifiers": ["useTranslation"]
+        },
+        {
+          "source": "dexie-react-hooks",
+          "specifiers": ["useLiveQuery"]
+        },
+        {
+          "source": "@/components/Accordion",
+          "specifiers": ["Accordion"]
+        },
+        {
+          "source": "@/components/Accordion/Summary",
+          "specifiers": ["AccordionSummary"]
+        },
+        {
+          "source": "@/components/Accordion/Details",
+          "specifiers": ["AccordionDetails"]
+        },
+        {
+          "source": "@/components/CopyToClipboard",
+          "specifiers": ["CopyToClipboard"]
+        },
+        {
+          "source": "./PackImportDialog",
+          "specifiers": ["PackImportDialog"]
+        },
+        {
+          "source": "@/services/contentPacks",
+          "specifiers": ["buildPackContents", "getPack", "publishPack", "unsubscribePack"]
+        },
+        {
+          "source": "@/stores/packSubscriptions",
+          "specifiers": ["getSubscriptions"]
+        },
+        {
+          "source": "@/stores/settingsStore",
+          "specifiers": ["useGameSettings"]
+        },
+        {
+          "source": "@/types/contentPacks",
+          "specifiers": ["ContentPackDoc"]
+        }
+      ],
+      "exports": ["Packs"],
+      "totalLines": 293,
+      "hasStructuralAnalysis": true
+    },
     "src/views/CustomTileDialog/ViewCustomTiles/index.tsx": {
       "filePath": "src/views/CustomTileDialog/ViewCustomTiles/index.tsx",
-      "contentHash": "6c843740f32d4290281da1f69a1ad6f8408d4a919f799228e71697cb8495f371",
+      "contentHash": "a3be0899c834bf0a9253b16c64aba98e908e32383376d795417facc94f43a485",
       "functions": [
         {
           "name": "ViewCustomTiles",
@@ -17325,7 +17940,7 @@
             "{\n  tagList,\n  boardUpdated,\n  mappedGroups,\n  updateTile,\n  refreshTrigger,\n  sharedFilters,\n  setSharedFilters,\n}"
           ],
           "exported": true,
-          "lineCount": 419
+          "lineCount": 437
         }
       ],
       "classes": [],
@@ -17352,12 +17967,11 @@
         },
         {
           "source": "@/stores/customTiles",
-          "specifiers": [
-            "deleteCustomTile",
-            "getPaginatedTiles",
-            "getTileCountsByGroup",
-            "toggleCustomTile"
-          ]
+          "specifiers": ["deleteCustomTile", "getPaginatedTiles", "getTileCountsByGroup"]
+        },
+        {
+          "source": "@/stores/disabledDefaults",
+          "specifiers": ["toggleTileEnabled"]
         },
         {
           "source": "react",
@@ -17405,18 +18019,18 @@
         }
       ],
       "exports": ["ViewCustomTiles"],
-      "totalLines": 453,
+      "totalLines": 467,
       "hasStructuralAnalysis": true
     },
     "src/views/CustomTileDialog/index.tsx": {
       "filePath": "src/views/CustomTileDialog/index.tsx",
-      "contentHash": "d74fe4e1f68cf001a2d35b07ba7dfb4b6ba2c692d03456ec46c4b07557d0533a",
+      "contentHash": "2cbc03f942968d5d418f45d9a7c0a25651c4530346e1bb5a26389699c17aa6aa",
       "functions": [
         {
           "name": "CustomTileDialog",
           "params": ["{\n  boardUpdated,\n  setOpen,\n  open = false,\n}"],
           "exported": true,
-          "lineCount": 207
+          "lineCount": 216
         }
       ],
       "classes": [],
@@ -17473,6 +18087,10 @@
           "specifiers": ["ImportExport"]
         },
         {
+          "source": "./Packs",
+          "specifiers": ["Packs"]
+        },
+        {
           "source": "@/components/ToastAlert",
           "specifiers": ["ToastAlert"]
         },
@@ -17494,7 +18112,7 @@
         }
       ],
       "exports": ["CustomTileDialog"],
-      "totalLines": 231,
+      "totalLines": 241,
       "hasStructuralAnalysis": true
     },
     "src/views/GameGuide/__tests__/GameGuide.test.tsx": {
@@ -21037,13 +21655,13 @@
     },
     "src/views/Room/index.tsx": {
       "filePath": "src/views/Room/index.tsx",
-      "contentHash": "adbdfbbd33b6fda9af199d0c170e0700036ee8517a9ad1db9960d8912303e233",
+      "contentHash": "43e7f98a4455a347d6e0c6cbe91eaa4216518a29dc18455bb827bbe61633638b",
       "functions": [
         {
           "name": "Room",
           "params": [],
           "exported": true,
-          "lineCount": 257
+          "lineCount": 261
         }
       ],
       "classes": [],
@@ -21165,6 +21783,14 @@
           "specifiers": ["useUrlImport"]
         },
         {
+          "source": "@/hooks/useUrlPackImport",
+          "specifiers": ["useUrlPackImport"]
+        },
+        {
+          "source": "@/views/CustomTileDialog/Packs/PackImportDialog",
+          "specifiers": ["PackImportDialog"]
+        },
+        {
           "source": "@/hooks/useWakeLock",
           "specifiers": ["useWakeLock"]
         },
@@ -21202,7 +21828,7 @@
         }
       ],
       "exports": ["Room"],
-      "totalLines": 300,
+      "totalLines": 306,
       "hasStructuralAnalysis": true
     },
     "src/views/Room/roomHelpers.ts": {
@@ -21619,19 +22245,9 @@
       "totalLines": 18,
       "hasStructuralAnalysis": true
     },
-    "storage.rules": {
-      "filePath": "storage.rules",
-      "contentHash": "37b916c7d33db34695973e46a6d5b634e6d30c78372d8fca13af7ff0fd6304b6",
-      "functions": [],
-      "classes": [],
-      "imports": [],
-      "exports": [],
-      "totalLines": 18,
-      "hasStructuralAnalysis": false
-    },
     "tests/firestore.rules.test.ts": {
       "filePath": "tests/firestore.rules.test.ts",
-      "contentHash": "716794a0994695eba5705286fc00c13d0f410d6cda93539ca807f58cbf5b29ba",
+      "contentHash": "50e8492997db07c0814645f185a76a16f0b16315ad0c501f1df50c2bca27d3b3",
       "functions": [
         {
           "name": "dbAs",
@@ -21662,6 +22278,12 @@
           "params": [],
           "exported": false,
           "lineCount": 7
+        },
+        {
+          "name": "validPack",
+          "params": ["overrides"],
+          "exported": false,
+          "lineCount": 16
         }
       ],
       "classes": [],
@@ -21689,7 +22311,7 @@
         }
       ],
       "exports": [],
-      "totalLines": 224,
+      "totalLines": 368,
       "hasStructuralAnalysis": true
     },
     "vite.config.ts": {

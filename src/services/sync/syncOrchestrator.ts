@@ -8,6 +8,7 @@ import { CustomGroupsSync } from './customGroupsSync';
 import { CustomTilesSync } from './customTilesSync';
 import { DisabledDefaultsSync } from './disabledDefaultsSync';
 import { GameBoardsSync } from './gameBoardsSync';
+import { PackSubscriptionsSync } from './packSubscriptionsSync';
 import { SettingsSync } from './settingsSync';
 import { SyncBase } from './base';
 
@@ -36,6 +37,7 @@ export class SyncOrchestrator extends SyncBase {
         this.syncDisabledDefaults(userData),
         this.syncGameBoards(userData),
         this.syncSettings(userData),
+        this.syncPackSubscriptions(userData),
       ];
 
       const results = await Promise.allSettled(syncOperations);
@@ -50,6 +52,7 @@ export class SyncOrchestrator extends SyncBase {
           'Disabled Defaults',
           'Game Boards',
           'Settings',
+          'Pack Subscriptions',
         ];
 
         if (result.status === 'fulfilled') {
@@ -102,11 +105,16 @@ export class SyncOrchestrator extends SyncBase {
   }
 
   /**
-   * Sync disabled defaults with error handling
+   * Sync disabled defaults with error handling. Prefers the per-record
+   * `disabledDefaultsV2` field, falling back to the legacy `disabledDefaults`
+   * array written by pre-V2 clients.
    */
   private static async syncDisabledDefaults(userData: any): Promise<SyncResult> {
-    if (userData.disabledDefaults !== undefined) {
-      return await DisabledDefaultsSync.syncFromFirebase(userData.disabledDefaults || []);
+    if (userData.disabledDefaultsV2 !== undefined || userData.disabledDefaults !== undefined) {
+      return await DisabledDefaultsSync.syncFromFirebase(
+        userData.disabledDefaultsV2,
+        userData.disabledDefaults
+      );
     }
     return this.createSuccessResult(0);
   }
@@ -127,6 +135,16 @@ export class SyncOrchestrator extends SyncBase {
   private static async syncSettings(userData: any): Promise<SyncResult> {
     if (userData.settings !== undefined) {
       return await SettingsSync.syncFromFirebase(userData.settings || {});
+    }
+    return this.createSuccessResult(0);
+  }
+
+  /**
+   * Sync pack subscriptions with error handling
+   */
+  private static async syncPackSubscriptions(userData: any): Promise<SyncResult> {
+    if (userData.packSubscriptions !== undefined) {
+      return await PackSubscriptionsSync.syncFromFirebase(userData.packSubscriptions || []);
     }
     return this.createSuccessResult(0);
   }

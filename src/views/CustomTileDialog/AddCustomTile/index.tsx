@@ -277,7 +277,13 @@ export default function AddCustomTile({
         // store locally for user's board
         await addCustomTile(data);
       } else {
-        await updateCustomTile(updateTileId, data);
+        // Editing a pack-imported tile detaches it so a later pack update won't
+        // overwrite the user's changes. Non-pack tiles are left untouched.
+        const existingTile = Array.isArray(customTiles)
+          ? customTiles.find(({ id }) => id === updateTileId)
+          : undefined;
+        const detach = existingTile?.packId ? { packDetached: true } : {};
+        await updateCustomTile(updateTileId, { ...data, ...detach });
       }
 
       boardUpdated();

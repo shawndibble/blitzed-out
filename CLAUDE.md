@@ -9,7 +9,6 @@ Read these before deep work — they answer "what does the app do / how does it 
 - `docs/engineering/features.md` — full feature catalog with key files.
 - `docs/engineering/data-and-sync.md` — Dexie schema, Firebase paths, sync, migration, import/export, offline, accounts.
 - `docs/engineering/security.md` — auth, Firestore/RTDB/Storage rules, functions, secrets, validation, privacy, weaknesses.
-- `docs/engineering/enhancement-opportunities.md` — candid limitations + improvement/hardening backlog.
 - `CONTEXT.md` (repo root) — authoritative domain glossary (topology, room, game mode, anatomy, role, soloPlay).
 - `docs/adr/` — Architecture Decision Records.
 

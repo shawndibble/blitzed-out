@@ -515,10 +515,14 @@ export async function buildBoardFromData(
   };
 }
 
-/** Default data source wrapping the Dexie-backed stores. */
+/**
+ * Default data source wrapping the Dexie-backed stores. Excludes disabled tiles
+ * (`isEnabled: 0`) here — the pure builder is intentionally enabled-agnostic, so
+ * disabled defaults must be filtered at the source or they leak onto the board.
+ */
 const dexieDataSource: BoardDataSource = {
   getGroups: (opts) => getCustomGroups(opts),
-  fetchTiles: (opts) => getTiles(opts ?? {}),
+  fetchTiles: (opts) => getTiles({ ...(opts ?? {}), isEnabled: 1 }),
 };
 
 /**

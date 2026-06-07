@@ -29,6 +29,8 @@ import usePrivateRoomMonitor from '@/hooks/usePrivateRoomMonitor';
 import { useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import useUrlImport from '@/hooks/useUrlImport';
+import useUrlPackImport from '@/hooks/useUrlPackImport';
+import PackImportDialog from '@/views/CustomTileDialog/Packs/PackImportDialog';
 import useWakeLock from '@/hooks/useWakeLock';
 import { useTurnTransition } from '@/hooks/useTurnTransition';
 import { analytics } from '@/services/analytics';
@@ -122,6 +124,7 @@ export default function Room() {
   }, []);
   const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
+  const { pendingPack, dismiss: dismissPack } = useUrlPackImport();
 
   // Keyboard shortcut: Spacebar to roll
   useEffect(() => {
@@ -294,6 +297,9 @@ export default function Room() {
       >
         {importResult}
       </ToastAlert>
+      {pendingPack && (
+        <PackImportDialog pack={pendingPack} open={!!pendingPack} onClose={dismissPack} />
+      )}
     </>
   );
 }

@@ -7,6 +7,26 @@ export interface CustomTileBase {
   isEnabled?: number | boolean;
   isCustom: number;
   updatedAt?: number; // Unix ms; drives last-writer-wins during sync
+  // Content-pack provenance (set when this tile was imported from a pack)
+  packId?: string; // id of the source content pack (indexed)
+  packVersion?: number; // author publish version at import time
+  packName?: string; // denormalized source pack name for badge display
+  packDetached?: boolean; // true once the user locally edits a pack tile; stops auto-update
+}
+
+/**
+ * First-class record of a disabled default tile. Keyed by the stable content
+ * tuple (group_id|intensity|action) so it survives default-tile re-seeds and
+ * syncs per-record with last-writer-wins. `active: false` is a tombstone
+ * carrying a re-enable across devices (the row-flag model could not).
+ */
+export interface DisabledDefault {
+  key: string; // `${group_id}|${intensity}|${action}` — primary key
+  group_id?: string;
+  intensity: number;
+  action: string;
+  active: boolean; // true = disabled; false = tombstone (re-enabled)
+  updatedAt: number; // Unix ms; drives last-writer-wins during sync
 }
 
 // CustomTile interface for pushing (id is optional)

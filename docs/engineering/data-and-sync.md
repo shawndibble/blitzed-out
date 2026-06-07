@@ -10,15 +10,17 @@ Defined in `src/stores/store.ts` (database name `blitzedOut`). This is the **pri
 
 Tables (with notable indexes):
 
-| Table                 | Stores                                               | Key indexes                                                                                               |
-| --------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `customTiles`         | custom + default action tiles, and disabled defaults | `++id`, `group_id`, `[group_id+intensity+action]`, `intensity`, `action`, `isEnabled`, `tags`, `isCustom` |
-| `customGroups`        | custom + default groups                              | `++id`, `name`, `label`, `locale`, `gameMode`, `isDefault`, `createdAt`, `[name+locale+gameMode]`         |
-| `gameBoard`           | saved board configs                                  | `++id`, `title`, `tiles`, `tags`, `gameMode`, `isActive`                                                  |
-| `localPlayerSessions` | Shared-Device / local session metadata               | `++id`, `sessionId`, `roomId`, `isActive`, `createdAt`, `updatedAt`                                       |
-| `localPlayerMoves`    | per-move log (stats mode)                            | `++id`, `sessionId`, `playerId`, `timestamp`, `sequence`                                                  |
-| `localPlayerStats`    | per-session player stats                             | `++id`, `sessionId`, `playerId`, `lastActive`                                                             |
-| `globalPlayerStats`   | aggregated cross-session stats                       | `++id`, `ownerId`, `lastActive`                                                                           |
+| Table                 | Stores                                                                       | Key indexes                                                                                                         |
+| --------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `customTiles`         | custom + default action tiles (disabled state lives in `disabledDefaults`)   | `++id`, `group_id`, `[group_id+intensity+action]`, `intensity`, `action`, `isEnabled`, `tags`, `isCustom`, `packId` |
+| `customGroups`        | custom + default groups                                                      | `++id`, `name`, `label`, `locale`, `gameMode`, `isDefault`, `createdAt`, `[name+locale+gameMode]`, `packId`         |
+| `disabledDefaults`    | first-class disabled-default records (per content tuple, `active` tombstone) | `&key` (`group_id\|intensity\|action`), `group_id`, `intensity`, `action`, `updatedAt`                              |
+| `packSubscriptions`   | content packs the user subscribed to                                         | `++id`, `packId`, `packVersion`, `subscribedAt`, `updatedAt`                                                        |
+| `gameBoard`           | saved board configs                                                          | `++id`, `title`, `tiles`, `tags`, `gameMode`, `isActive`                                                            |
+| `localPlayerSessions` | Shared-Device / local session metadata                                       | `++id`, `sessionId`, `roomId`, `isActive`, `createdAt`, `updatedAt`                                                 |
+| `localPlayerMoves`    | per-move log (stats mode)                                                    | `++id`, `sessionId`, `playerId`, `timestamp`, `sequence`                                                            |
+| `localPlayerStats`    | per-session player stats                                                     | `++id`, `sessionId`, `playerId`, `lastActive`                                                                       |
+| `globalPlayerStats`   | aggregated cross-session stats                                               | `++id`, `ownerId`, `lastActive`                                                                                     |
 
 The compound indexes (`[group_id+intensity+action]`, `[name+locale+gameMode]`) power fast duplicate detection during import and sync.
 
@@ -35,6 +37,8 @@ Initialized in `src/services/firebase.ts`.
   - `user-data/{uid}` — per-user cloud copy of custom tiles, groups, disabled defaults, boards, settings. **Owner-only** access.
   - `custom-actions/{id}` — crowdsourced shared actions (public read, auth create, TTL cleanup, no update/delete).
   - `game-boards/{id}` — shareable boards (public read, auth create, TTL; updates limited to the `ttl` field).
+  - `content-packs/{id}` — **durable** shareable bundles of custom tiles + groups (public read; author-only create/update/delete; author republish must increase `packVersion`; admin takedown via the `admin` claim). Unlike `custom-actions`/`game-boards`, these have **no TTL** — lifecycle is author-delete + admin-takedown. Shared by code via `?importPack=<id>`.
+  - `reports/{id}` — abuse reports against packs (signed-in create only; admin-only read via console).
   - `chat-rooms/{roomId}` + `/messages/{id}` — room metadata and chat (auth required; message create validated, ≤1000 chars; delete own only; no edits).
   - `schedule/{id}` — scheduled sessions (public read, creator-only create/update/delete).
   - `rate-limits/{uid}` — system-only.
@@ -55,9 +59,10 @@ Per-entity sync under `src/services/sync/`, coordinated by `syncOrchestrator.ts`
 
 - `CustomTilesSync` — merges local and cloud tiles using `TileMatcher` (key = `group_id|intensity|action`); writes the merged set back. `forceSync` replaces local with cloud.
 - `CustomGroupsSync` — merges new groups by `(name, locale, gameMode)`.
-- `DisabledDefaultsSync` — applies the cloud list of disabled default tiles (capped to guard against corruption).
+- `DisabledDefaultsSync` — merges the `disabledDefaults` table **per-record** with last-writer-wins (keyed by the content tuple). Re-enables propagate as `active: false` **tombstones**, so a re-enable on one device reaches the others (the old whole-list-replace could not). The historical 100-record corruption cap is gone; instead the push **bounds** the synced set with a loud warning and writes a legacy active-only `disabledDefaults` array (capped 100) alongside the new `disabledDefaultsV2` records for pre-V2 clients. Row `isEnabled` flags are reconciled from the table (`reconcileDisabledRows`).
 - `GameBoardsSync` — upserts boards (keyed by title).
 - `SettingsSync` — merges settings into the store.
+- `PackSubscriptionsSync` — merges subscribed packs per-record (keyed by `packId`) with last-writer-wins, so a pack imported on one device surfaces its update/unsubscribe controls on the others.
 
 Before merging, `syncService.ts` runs a duplicate-tile cleanup to undo a historical sync bug.
 
@@ -122,6 +127,21 @@ Includes user-created groups and tiles, and optionally your disabled-default lis
 **Import** — builds a mapping context once, then for each item compares content hashes: identical → skip, changed → update, new → add. Tiles batch-insert. Returns counts of imported/skipped groups/tiles + warnings/errors. `analyzeImportConflicts()` previews collisions before committing.
 
 **User-facing:** this is the **backup / restore / share** mechanism — export to a JSON file, hand it to someone (or another device), import it. Reachable from the Custom Tiles dialog's import/export tab.
+
+`analyzeImportConflicts()` is implemented (it previously returned empty arrays): it reports per-group/per-tile collisions, flagging a tile as `contentMatch` when the local copy differs from the imported one — i.e. a local edit an import would overwrite. The pack import preview uses this to warn before applying a pack update.
+
+---
+
+## Sharing (by code / link)
+
+Two share-by-link flows exist, both consumed from the Room view via URL query params:
+
+- **Game boards** (`?importBoard=<id>`) — when a board is activated/published, it is stored in `game-boards/{id}` (`getOrCreateBoard` in `firebase.ts`, SHA-256 dedup, 30-day TTL) and a chat message carries the id. Opening a link with `?importBoard=<id>` is handled by `src/hooks/useUrlImport.ts`: it fetches the board, parses its `gameBoard`/`settings`, and upserts it locally as the active board. Share URLs are built in `MessageList/Message` and `gameSettingsMessage.ts`.
+- **Content packs** (`?importPack=<id>`) — durable bundles of custom tiles + groups published to `content-packs/{id}` (`src/services/contentPacks.ts`, reusing the export/import serialization). `src/hooks/useUrlPackImport.ts` fetches the pack and opens a **preview dialog** (`CustomTileDialog/Packs/PackImportDialog`) showing contents + conflict summary before the user confirms **Subscribe** (records a `packSubscriptions` row, enabling update/unsubscribe) or **Import a copy**. Imported tiles/groups carry pack provenance (`packId`, `packVersion`, `packName`, `packDetached`); `ViewCustomTiles` shows a "From {pack} v{n}" chip. Publishing, importing-by-code, and subscription management live in the **Packs** accordion (`ctPacks`) of the Custom Tiles dialog.
+
+**Versioning:** an author republishes the same pack doc with an incremented `packVersion`; subscribers poll on open (`getPack` + version compare) and can apply the update. **Unsubscribe is a soft-remove** (`isEnabled: 0` on the pack's tiles), never a hard delete — see the no-tombstone caveat in `CONTEXT.md`.
+
+**Discovery is by-code only** — there is no public browsable directory. That is deferred behind moderation tooling (report/takedown + server-side rate-limiting) because packs store explicit user content permanently in a public collection.
 
 ---
 

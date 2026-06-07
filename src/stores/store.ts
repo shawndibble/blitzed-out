@@ -1,8 +1,9 @@
 import { createSyncMiddleware } from '@/services/syncMiddleware';
 import Dexie, { type EntityTable } from 'dexie';
-import { CustomTilePull } from '@/types/customTiles';
+import { CustomTilePull, DisabledDefault } from '@/types/customTiles';
 import { DBGameBoard } from '@/types/gameBoard';
 import { CustomGroupPull } from '@/types/customGroups';
+import { PackSubscription } from '@/types/contentPacks';
 import {
   DBLocalPlayerSession,
   DBLocalPlayerMove,
@@ -14,6 +15,8 @@ class BlitzedOutDatabase extends Dexie {
   customTiles!: EntityTable<CustomTilePull, 'id'>;
   gameBoard!: EntityTable<DBGameBoard, 'id'>;
   customGroups!: EntityTable<CustomGroupPull, 'id'>;
+  disabledDefaults!: EntityTable<DisabledDefault, 'key'>;
+  packSubscriptions!: EntityTable<PackSubscription, 'id'>;
   localPlayerSessions!: EntityTable<DBLocalPlayerSession, 'id'>;
   localPlayerMoves!: EntityTable<DBLocalPlayerMove, 'id'>;
   localPlayerStats!: EntityTable<DBLocalPlayerStats, 'id'>;
@@ -46,6 +49,50 @@ class BlitzedOutDatabase extends Dexie {
       localPlayerStats: '++id, sessionId, playerId, lastActive',
       globalPlayerStats: '++id, ownerId, lastActive',
     });
+
+    // Version 3:
+    //  - Content-pack provenance: index `packId` on tiles + groups; new
+    //    `packSubscriptions` table for subscribed packs.
+    //  - Disabled defaults become first-class records in their own table,
+    //    keyed by the content tuple with a tombstone flag + updatedAt so
+    //    re-enables propagate across devices and survive default re-seeds.
+    this.version(3)
+      .stores({
+        customTiles:
+          '++id, group_id, [group_id+intensity+action], intensity, action, isEnabled, tags, isCustom, packId',
+        gameBoard: '++id, title, tiles, tags, gameMode, isActive',
+        customGroups:
+          '++id, name, label, locale, gameMode, isDefault, createdAt, [name+locale+gameMode], packId',
+        disabledDefaults: '&key, group_id, intensity, action, updatedAt',
+        packSubscriptions: '++id, packId, packVersion, subscribedAt, updatedAt',
+        localPlayerSessions: '++id, sessionId, roomId, isActive, createdAt, updatedAt',
+        localPlayerMoves: '++id, sessionId, playerId, timestamp, sequence',
+        localPlayerStats: '++id, sessionId, playerId, lastActive',
+        globalPlayerStats: '++id, ownerId, lastActive',
+      })
+      .upgrade(async (tx) => {
+        // Seed the new table from existing disabled default rows. Don't touch the
+        // rows themselves — they're already `isEnabled: 0` (correct locally), and
+        // writing them would restamp their `updatedAt` via the updating hook.
+        const now = Date.now();
+        const disabledRows = await tx
+          .table('customTiles')
+          .filter((t: CustomTilePull) => t.isCustom === 0 && Number(t.isEnabled) === 0)
+          .toArray();
+
+        const records: DisabledDefault[] = disabledRows.map((t: CustomTilePull) => ({
+          key: `${t.group_id}|${t.intensity}|${t.action}`,
+          group_id: t.group_id,
+          intensity: t.intensity,
+          action: t.action,
+          active: true,
+          updatedAt: now,
+        }));
+
+        if (records.length > 0) {
+          await tx.table('disabledDefaults').bulkPut(records);
+        }
+      });
   }
 }
 
@@ -57,6 +104,8 @@ db.use(
       'customTiles',
       'gameBoard',
       'customGroups',
+      'disabledDefaults',
+      'packSubscriptions',
       'localPlayerSessions',
       'localPlayerMoves',
       'localPlayerStats',
