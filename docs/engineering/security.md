@@ -126,3 +126,8 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 3. **Scope signaling writes** to the target user (or validate `from`).
 4. **Make admin-callable gating consistent**, add rate limiting.
 5. Sanitize/normalize display names; add a privacy notice + analytics opt-out.
+
+## Known benign console warnings
+
+- **`Cross-Origin-Opener-Policy policy would block the window.closed/window.close call`** — emitted by Chrome during Google sign-in. Firebase's `signInWithPopup` (`src/services/firebase.ts:loginWithGoogle`) polls `popup.closed` / calls `popup.close()` on the cross-origin `accounts.google.com` popup; Chrome warns about this as a heads-up. No COOP/COEP header is set in dev or prod (the site is served from GitHub Pages), so nothing is actually being blocked — auth completes normally. Removing the warning would require switching to `signInWithRedirect`, a UX/behavior change (redirect flow, `getRedirectResult`, Safari-ITP/mobile considerations) deliberately not made for a cosmetic console line.
+- Note: the `headers` block in `firebase.json` (CSP, HSTS, etc.) is **not applied in production** — the app deploys via `gh-pages -b master` (GitHub Pages), not Firebase Hosting. Those headers only take effect if/when the app is served from Firebase Hosting.

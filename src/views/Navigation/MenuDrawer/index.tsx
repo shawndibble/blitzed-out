@@ -91,10 +91,13 @@ export default function MenuDrawer(): JSX.Element {
     statistics: false,
   });
 
-  const toggleDialog = useCallback(
-    (type: string, isOpen: boolean): void => setOpen((prev) => ({ ...prev, [type]: isOpen })),
-    []
-  );
+  const toggleDialog = useCallback((type: string, isOpen: boolean): void => {
+    setOpen((prev) => ({ ...prev, [type]: isOpen }));
+    // Close the drawer when opening a dialog so dialogs don't stack on the open
+    // Drawer — stacked modals leave the trigger IconButton focused under the
+    // aria-hidden #root, which the browser blocks (a11y warning).
+    if (isOpen) setMenuOpen(false);
+  }, []);
 
   const handleWipeData = useCallback(async (): Promise<void> => {
     await wipeAllData();
