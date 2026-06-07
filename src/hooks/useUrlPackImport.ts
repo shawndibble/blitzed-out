@@ -29,15 +29,6 @@ export default function useUrlPackImport(): UrlPackImportResult {
 
   useEffect(() => {
     if (!importPackId) return;
-    // Clear the param immediately so a refresh doesn't re-trigger the import.
-    setParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        next.delete('importPack');
-        return next;
-      },
-      { replace: true }
-    );
 
     let cancelled = false;
     setIsLoading(true);
@@ -49,7 +40,18 @@ export default function useUrlPackImport(): UrlPackImportResult {
         else setFailed(true);
       })
       .finally(() => {
-        if (!cancelled) setIsLoading(false);
+        if (cancelled) return;
+        setIsLoading(false);
+        // Clear the param only after the fetch settles — clearing it earlier
+        // changes importPackId, which would cancel this effect's own request.
+        setParams(
+          (prev) => {
+            const next = new URLSearchParams(prev);
+            next.delete('importPack');
+            return next;
+          },
+          { replace: true }
+        );
       });
 
     return () => {

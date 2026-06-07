@@ -119,12 +119,17 @@ describe('importData pack-tile preservation', () => {
   it('overwrites a non-detached pack tile on update', async () => {
     const groupId = await seedGroupAndTile();
     const existing = await db.customTiles.where('group_id').equals(groupId).first();
-    await db.customTiles.update(existing!.id!, { packId: 'p1', packDetached: false });
+    // Stale local tags that the (empty-tags) imported tile should overwrite.
+    await db.customTiles.update(existing!.id!, {
+      packId: 'p1',
+      packDetached: false,
+      tags: ['stale'],
+    });
 
     await importData(exportDoc('different'), { preserveDisabledDefaults: false });
 
     const after = await db.customTiles.get(existing!.id!);
-    // Same identity (action/intensity/group), content differed → updated in place.
-    expect(after?.action).toBe('Existing action');
+    // Same identity, not detached → the pack version replaces the local content.
+    expect(after?.tags).toEqual([]);
   });
 });

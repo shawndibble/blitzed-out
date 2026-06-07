@@ -128,13 +128,24 @@ export default function Packs({ expanded, handleChange, onImported }: PacksProps
   }
 
   async function handleUpdate(packId: string): Promise<void> {
-    const pack = await getPack(packId);
-    if (pack) setPendingPack(pack);
+    setError(null);
+    try {
+      const pack = await getPack(packId);
+      if (pack) setPendingPack(pack);
+      else setError(t('packs.notFound'));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
   }
 
   async function handleUnsubscribe(packId: string): Promise<void> {
-    await unsubscribePack(packId);
-    onImported?.();
+    setError(null);
+    try {
+      await unsubscribePack(packId);
+      onImported?.();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
   }
 
   const canPublish = name.trim().length > 0 && consent && !publishing;

@@ -16,6 +16,7 @@ import {
 
 import { getAuth } from 'firebase/auth';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { getBoards } from '@/stores/gameBoard';
 
 // Override the global sync service mock for this test file
 vi.mock('@/services/syncService', async () => {
@@ -218,8 +219,13 @@ describe('syncService', () => {
       vi.mocked(getCustomGroups).mockResolvedValue([]);
       vi.mocked(importCustomGroups).mockResolvedValue(undefined);
       vi.mocked(useSettingsStore.getState).mockReturnValue({
+        settings: {},
         updateSettings: vi.fn(),
       } as any);
+      vi.mocked(getBoards).mockResolvedValue([]);
+      // clearAllMocks resets calls, not implementations — reset setDoc so a
+      // rejected mock from an earlier test doesn't leak into the push path.
+      vi.mocked(setDoc).mockResolvedValue(undefined);
     });
 
     it('should restore both custom tiles and disabled defaults from Firebase', async () => {

@@ -10,7 +10,7 @@ vi.mock('@/stores/customGroups', () => ({
   getCustomGroups: vi.fn(async () => []),
 }));
 
-import buildGameBoard from '../buildGame';
+import buildGameBoard from '@/services/buildGame';
 import { getTiles } from '@/stores/customTiles';
 import type { Settings } from '@/types/Settings';
 

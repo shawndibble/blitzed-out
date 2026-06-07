@@ -11,7 +11,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { importPack, parsePack, reportPack } from '@/services/contentPacks';
 import { analyzeImportConflicts } from '@/services/importExport';
@@ -32,7 +32,9 @@ export default function PackImportDialog({
   onImported,
 }: PackImportDialogProps) {
   const { t } = useTranslation();
-  const parsed = parsePack(pack);
+  // Memoize on stable pack identity so the conflict-analysis effect below isn't
+  // retriggered by every parent re-render.
+  const parsed = useMemo(() => parsePack(pack), [pack.id, pack.contents, pack.packVersion]);
   const [conflicts, setConflicts] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +59,9 @@ export default function PackImportDialog({
     return () => {
       cancelled = true;
     };
-  }, [open, parsed, pack]);
+    // `parsed` is memoized on stable pack identity; pack fields read here move with it.
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
+  }, [open, parsed]);
 
   async function handleImport(subscribe: boolean): Promise<void> {
     setBusy(true);

@@ -107,8 +107,19 @@ export async function deletePack(packId: string): Promise<void> {
 /** Parse a pack's serialized contents into an ExportData document. */
 export function parsePack(pack: ContentPackDoc): ParsedContentPack | undefined {
   try {
-    const data = JSON.parse(pack.contents) as ExportData;
-    return { doc: pack, data };
+    const data = JSON.parse(pack.contents);
+    // Validate the ExportData shape before trusting it (mirrors isValidImportData).
+    if (
+      !data ||
+      typeof data !== 'object' ||
+      typeof data.formatVersion !== 'string' ||
+      !data.data ||
+      !Array.isArray(data.data.customGroups) ||
+      !Array.isArray(data.data.customTiles)
+    ) {
+      return undefined;
+    }
+    return { doc: pack, data: data as ExportData };
   } catch (error) {
     console.error('Failed to parse pack contents', error);
     return undefined;

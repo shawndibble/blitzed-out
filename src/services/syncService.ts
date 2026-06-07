@@ -311,15 +311,18 @@ export async function syncPackSubscriptionsToFirebase(): Promise<boolean> {
   }
 }
 
-// Sync all data to Firebase
+// Sync all data to Firebase. Runs every step (so one failure doesn't block the
+// rest) but returns false if any step failed, instead of masking partial failures.
 export async function syncAllDataToFirebase(): Promise<boolean> {
-  await syncCustomTilesToFirebase();
-  await syncDisabledDefaultsToFirebase();
-  await syncCustomGroupsToFirebase();
-  await syncGameBoardsToFirebase();
-  await syncSettingsToFirebase();
-  await syncPackSubscriptionsToFirebase();
-  return true;
+  const results = [
+    await syncCustomTilesToFirebase(),
+    await syncDisabledDefaultsToFirebase(),
+    await syncCustomGroupsToFirebase(),
+    await syncGameBoardsToFirebase(),
+    await syncSettingsToFirebase(),
+    await syncPackSubscriptionsToFirebase(),
+  ];
+  return results.every(Boolean);
 }
 
 // Intelligent sync that handles conflicts - meant for user-initiated sync

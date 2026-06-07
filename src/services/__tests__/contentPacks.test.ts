@@ -17,7 +17,7 @@ import {
   parsePack,
   publishPack,
   republishPack,
-} from '../contentPacks';
+} from '@/services/contentPacks';
 import { importData } from '@/services/importExport';
 import type { ContentPackDoc } from '@/types/contentPacks';
 
