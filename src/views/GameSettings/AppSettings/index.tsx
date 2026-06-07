@@ -255,7 +255,6 @@ export default function AppSettings({
         isPrivateRoom={isPrivateRoom}
         onBackgroundChange={handleBackgroundChange}
       />
-      <Divider />
     </>
   );
 }
