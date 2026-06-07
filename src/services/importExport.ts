@@ -257,6 +257,14 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
             continue;
           }
 
+          // Preserve a locally-edited pack tile: a user edit sets packDetached,
+          // and a pack update must not overwrite those changes.
+          if ((existingTile as { packDetached?: boolean }).packDetached) {
+            ctx.result.skippedItems++;
+            ctx.result.warnings.push(`Kept your edited tile: ${importedTile.action}`);
+            continue;
+          }
+
           // Update existing tile
           if (existingTile.id !== undefined) {
             await updateCustomTile(existingTile.id, createTileData(importedTile, groupId, ctx));

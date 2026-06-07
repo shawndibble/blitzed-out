@@ -10,17 +10,17 @@ Defined in `src/stores/store.ts` (database name `blitzedOut`). This is the **pri
 
 Tables (with notable indexes):
 
-| Table                 | Stores                                                                     | Key indexes                                                                                                         |
-| --------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `customTiles`         | custom + default action tiles (disabled state lives in `disabledDefaults`) | `++id`, `group_id`, `[group_id+intensity+action]`, `intensity`, `action`, `isEnabled`, `tags`, `isCustom`, `packId` |
-| `customGroups`        | custom + default groups                                                    | `++id`, `name`, `label`, `locale`, `gameMode`, `isDefault`, `createdAt`, `[name+locale+gameMode]`, `packId`         |
-| `disabledDefaults`    | first-class disabled-default records (per content tuple, with tombstones)  | `&key` (`group_id\|intensity\|action`), `group_id`, `intensity`, `action`, `active`, `updatedAt`                    |
-| `packSubscriptions`   | content packs the user subscribed to                                       | `++id`, `packId`, `packVersion`, `subscribedAt`, `updatedAt`                                                        |
-| `gameBoard`           | saved board configs                                                        | `++id`, `title`, `tiles`, `tags`, `gameMode`, `isActive`                                                            |
-| `localPlayerSessions` | Shared-Device / local session metadata                                     | `++id`, `sessionId`, `roomId`, `isActive`, `createdAt`, `updatedAt`                                                 |
-| `localPlayerMoves`    | per-move log (stats mode)                                                  | `++id`, `sessionId`, `playerId`, `timestamp`, `sequence`                                                            |
-| `localPlayerStats`    | per-session player stats                                                   | `++id`, `sessionId`, `playerId`, `lastActive`                                                                       |
-| `globalPlayerStats`   | aggregated cross-session stats                                             | `++id`, `ownerId`, `lastActive`                                                                                     |
+| Table                 | Stores                                                                       | Key indexes                                                                                                         |
+| --------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `customTiles`         | custom + default action tiles (disabled state lives in `disabledDefaults`)   | `++id`, `group_id`, `[group_id+intensity+action]`, `intensity`, `action`, `isEnabled`, `tags`, `isCustom`, `packId` |
+| `customGroups`        | custom + default groups                                                      | `++id`, `name`, `label`, `locale`, `gameMode`, `isDefault`, `createdAt`, `[name+locale+gameMode]`, `packId`         |
+| `disabledDefaults`    | first-class disabled-default records (per content tuple, `active` tombstone) | `&key` (`group_id\|intensity\|action`), `group_id`, `intensity`, `action`, `updatedAt`                              |
+| `packSubscriptions`   | content packs the user subscribed to                                         | `++id`, `packId`, `packVersion`, `subscribedAt`, `updatedAt`                                                        |
+| `gameBoard`           | saved board configs                                                          | `++id`, `title`, `tiles`, `tags`, `gameMode`, `isActive`                                                            |
+| `localPlayerSessions` | Shared-Device / local session metadata                                       | `++id`, `sessionId`, `roomId`, `isActive`, `createdAt`, `updatedAt`                                                 |
+| `localPlayerMoves`    | per-move log (stats mode)                                                    | `++id`, `sessionId`, `playerId`, `timestamp`, `sequence`                                                            |
+| `localPlayerStats`    | per-session player stats                                                     | `++id`, `sessionId`, `playerId`, `lastActive`                                                                       |
+| `globalPlayerStats`   | aggregated cross-session stats                                               | `++id`, `ownerId`, `lastActive`                                                                                     |
 
 The compound indexes (`[group_id+intensity+action]`, `[name+locale+gameMode]`) power fast duplicate detection during import and sync.
 

@@ -702,7 +702,7 @@
     "invalidPack": "This pack could not be read.",
     "by": "by",
     "contains": "{{groups}} groups · {{tiles}} tiles",
-    "editConflicts": "{{count}} of your edited tiles would be overwritten. Your edits are kept by default.",
+    "editConflicts": "{{count}} of your tiles overlap this pack. Tiles you have edited are kept; the rest update to this version.",
     "report": "Report",
     "importCopy": "Import a copy",
     "subscribe": "Subscribe",

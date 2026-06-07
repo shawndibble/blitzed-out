@@ -63,7 +63,7 @@ class BlitzedOutDatabase extends Dexie {
         gameBoard: '++id, title, tiles, tags, gameMode, isActive',
         customGroups:
           '++id, name, label, locale, gameMode, isDefault, createdAt, [name+locale+gameMode], packId',
-        disabledDefaults: '&key, group_id, intensity, action, active, updatedAt',
+        disabledDefaults: '&key, group_id, intensity, action, updatedAt',
         packSubscriptions: '++id, packId, packVersion, subscribedAt, updatedAt',
         localPlayerSessions: '++id, sessionId, roomId, isActive, createdAt, updatedAt',
         localPlayerMoves: '++id, sessionId, playerId, timestamp, sequence',

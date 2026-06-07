@@ -702,7 +702,7 @@
     "invalidPack": "Ce pack n’a pas pu être lu.",
     "by": "par",
     "contains": "{{groups}} groupes · {{tiles}} cases",
-    "editConflicts": "{{count}} de vos cases modifiées seraient écrasées. Vos modifications sont conservées par défaut.",
+    "editConflicts": "{{count}} de vos cases correspondent à ce pack. Les cases que vous avez modifiées sont conservées ; les autres passent à cette version.",
     "report": "Signaler",
     "importCopy": "Importer une copie",
     "subscribe": "S’abonner",

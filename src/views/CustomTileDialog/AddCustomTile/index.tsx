@@ -277,7 +277,9 @@ export default function AddCustomTile({
         // store locally for user's board
         await addCustomTile(data);
       } else {
-        await updateCustomTile(updateTileId, data);
+        // A user edit detaches a pack-imported tile so a later pack update won't
+        // overwrite their changes (provenance fields are preserved otherwise).
+        await updateCustomTile(updateTileId, { ...data, packDetached: true });
       }
 
       boardUpdated();

@@ -702,7 +702,7 @@
     "invalidPack": "No se pudo leer este paquete.",
     "by": "por",
     "contains": "{{groups}} grupos · {{tiles}} casillas",
-    "editConflicts": "Se sobrescribirían {{count}} de tus casillas editadas. Tus ediciones se conservan por defecto.",
+    "editConflicts": "{{count}} de tus casillas coinciden con este paquete. Las casillas que has editado se conservan; el resto se actualiza a esta versión.",
     "report": "Denunciar",
     "importCopy": "Importar una copia",
     "subscribe": "Suscribirse",

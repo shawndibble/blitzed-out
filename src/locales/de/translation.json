@@ -702,7 +702,7 @@
     "invalidPack": "Dieses Paket konnte nicht gelesen werden.",
     "by": "von",
     "contains": "{{groups}} Gruppen · {{tiles}} Felder",
-    "editConflicts": "{{count}} deiner bearbeiteten Felder würden überschrieben. Deine Änderungen bleiben standardmäßig erhalten.",
+    "editConflicts": "{{count}} deiner Felder überschneiden sich mit diesem Paket. Von dir bearbeitete Felder bleiben erhalten; der Rest wird auf diese Version aktualisiert.",
     "report": "Melden",
     "importCopy": "Kopie importieren",
     "subscribe": "Abonnieren",

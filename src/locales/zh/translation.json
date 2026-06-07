@@ -702,7 +702,7 @@
     "invalidPack": "无法读取该内容包。",
     "by": "作者",
     "contains": "{{groups}} 个分组 · {{tiles}} 个格子",
-    "editConflicts": "你编辑过的 {{count}} 个格子将被覆盖。默认保留你的编辑。",
+    "editConflicts": "你的 {{count}} 个格子与此内容包重叠。你编辑过的格子会保留，其余将更新到此版本。",
     "report": "举报",
     "importCopy": "导入副本",
     "subscribe": "订阅",

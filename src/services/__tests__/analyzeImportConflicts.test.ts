@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import db from '@/stores/store';
 import { addCustomGroup } from '@/stores/customGroups';
 import { addCustomTile } from '@/stores/customTiles';
-import { analyzeImportConflicts } from '../importExport';
+import { analyzeImportConflicts, importData } from '../importExport';
 import { generateTileContentHash } from '../contentHashing';
 import type { ExportData } from '@/types/importExport';
 
@@ -92,5 +92,39 @@ describe('analyzeImportConflicts', () => {
   it('returns no tile conflicts when nothing matches locally', async () => {
     const analysis = await analyzeImportConflicts(exportDoc('x'));
     expect(analysis.tileConflicts).toHaveLength(0);
+  });
+});
+
+describe('importData pack-tile preservation', () => {
+  it('does NOT overwrite a locally-edited (detached) pack tile', async () => {
+    const groupId = await seedGroupAndTile();
+    // Same identity (action/intensity/group) as the imported tile, but edited
+    // content (tags) and marked detached.
+    const existing = await db.customTiles.where('group_id').equals(groupId).first();
+    await db.customTiles.update(existing!.id!, {
+      packId: 'p1',
+      packDetached: true,
+      tags: ['my-edit'],
+    });
+
+    // Imported tile has the same identity but differing content (empty tags).
+    await importData(exportDoc('different'), { preserveDisabledDefaults: false });
+
+    const after = await db.customTiles.get(existing!.id!);
+    // The user's edit is preserved — not overwritten by the pack version.
+    expect(after?.tags).toEqual(['my-edit']);
+    expect(after?.packDetached).toBe(true);
+  });
+
+  it('overwrites a non-detached pack tile on update', async () => {
+    const groupId = await seedGroupAndTile();
+    const existing = await db.customTiles.where('group_id').equals(groupId).first();
+    await db.customTiles.update(existing!.id!, { packId: 'p1', packDetached: false });
+
+    await importData(exportDoc('different'), { preserveDisabledDefaults: false });
+
+    const after = await db.customTiles.get(existing!.id!);
+    // Same identity (action/intensity/group), content differed → updated in place.
+    expect(after?.action).toBe('Existing action');
   });
 });
