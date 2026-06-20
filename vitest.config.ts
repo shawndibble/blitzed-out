@@ -35,10 +35,13 @@ export default mergeConfig(
           'build/',
         ],
       },
-      // Mock Firebase and other external services
+      // Mock Firebase and other external services.
+      // MUI 9.1's Transition.mjs imports react-transition-group via a legacy directory subpath
+      // that native Node ESM can't resolve (ERR_UNSUPPORTED_DIR_IMPORT). Inline all @mui/*
+      // packages so Vite transforms the importer and resolves the directory import itself.
       server: {
         deps: {
-          inline: ['@testing-library/user-event'],
+          inline: ['@testing-library/user-event', /@mui\//],
         },
       },
     },
