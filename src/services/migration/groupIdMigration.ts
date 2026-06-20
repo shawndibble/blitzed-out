@@ -229,9 +229,11 @@ export async function migrateDefaultGroupIds(): Promise<{
             await updateCustomTile(tile.id!, { group_id: expectedId });
           }
 
-          // Delete the old group and create with new ID
+          // Delete the old group and write the new ID. Use put (upsert) so a concurrent
+          // tab that already wrote expectedId can't collide into a ConstraintError —
+          // expectedId is the stable deterministic id for the same logical group.
           await db.customGroups.delete(group.id);
-          await db.customGroups.add({
+          await db.customGroups.put({
             ...group,
             id: expectedId,
             updatedAt: new Date(),

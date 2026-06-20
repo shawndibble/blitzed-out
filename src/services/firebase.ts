@@ -55,10 +55,7 @@ import { stripImageMetadata } from '@/services/imageProcessing';
 import { User as UserType } from '@/types';
 import { initializeApp } from 'firebase/app';
 import { sha256 } from 'js-sha256';
-import {
-  reportFirefoxMobileAuthError,
-  reportFirefoxMobileConnectivityIssue,
-} from '@/utils/firefoxMobileReporting';
+import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -88,39 +85,6 @@ const missingVars = Object.entries(firebaseConfig)
 if (missingVars.length > 0) {
   console.error('Missing Firebase environment variables', missingVars);
   console.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
-}
-
-// Check if we can reach Firebase (potential uBlock Origin issue)
-const checkFirebaseConnectivity = async () => {
-  try {
-    // Use Firebase Auth REST API endpoint for connectivity check
-    const testUrl = `https://identitytoolkit.googleapis.com/v1/projects/${firebaseConfig.projectId}`;
-    const response = await fetch(testUrl, { method: 'GET' });
-
-    if (!response.ok) {
-      // Report non-OK status as connectivity issue
-      const statusError = new Error(`HTTP ${response.status}: ${response.statusText}`);
-      reportFirefoxMobileConnectivityIssue({
-        testUrl,
-        error: statusError,
-      });
-    }
-    // Only report success if there were previous failures
-  } catch (error) {
-    reportFirefoxMobileConnectivityIssue({
-      testUrl: `https://identitytoolkit.googleapis.com/v1/projects/${firebaseConfig.projectId}`,
-      error: error as Error,
-    });
-  }
-};
-
-// Run connectivity check for Firefox mobile users
-if (
-  navigator.userAgent.toLowerCase().includes('firefox') &&
-  (navigator.userAgent.toLowerCase().includes('mobile') ||
-    navigator.userAgent.toLowerCase().includes('tablet'))
-) {
-  checkFirebaseConnectivity();
 }
 
 const app = initializeApp(firebaseConfig);

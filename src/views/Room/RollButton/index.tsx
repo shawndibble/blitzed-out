@@ -95,13 +95,15 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   const triggerDiceAnimation = useCallback((): void => {
     const roll = calculateDiceRoll(rollCount, diceSide);
 
-    // Record dice roll statistics
+    // Record dice roll statistics. Serialize the writes so the lazy row-creation in
+    // getOrCreateStats can't race itself and produce duplicate stat rows on first roll.
     const ownerId = user?.uid || 'anonymous';
-    if (Array.isArray(roll.values)) {
-      roll.values.forEach((value) => recordDiceRoll(ownerId, value));
-    } else {
-      recordDiceRoll(ownerId, roll.values);
-    }
+    const rolledValues = Array.isArray(roll.values) ? roll.values : [roll.values];
+    void (async () => {
+      for (const value of rolledValues) {
+        await recordDiceRoll(ownerId, value);
+      }
+    })();
 
     // If dice animation is disabled, immediately set the roll value
     if (settings.showDiceAnimation === false) {

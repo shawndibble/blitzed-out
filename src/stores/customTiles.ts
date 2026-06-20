@@ -45,7 +45,10 @@ customTiles.hook('updating', function (this: any, modifications: any) {
 export const importCustomTiles = async (
   record: Partial<CustomTile>[]
 ): Promise<number | undefined> => {
-  const recordData = record.map((tile) => ({ ...tile, isEnabled: 1 }));
+  // Strip any incoming id: customTiles uses a local ++id autoincrement, so a foreign
+  // id (from another device's import) would collide arbitrarily. Let Dexie assign fresh
+  // local ids — same pattern the sync engine uses (removeId + add).
+  const recordData = record.map(({ id: _id, ...tile }) => ({ ...tile, isEnabled: 1 }));
   return await customTiles.bulkAdd(recordData as CustomTile[]);
 };
 
