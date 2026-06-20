@@ -115,37 +115,3 @@ export function reportFirefoxMobileAuthError(
     category: 'firefox_mobile_auth',
   });
 }
-
-export function reportFirefoxMobileConnectivityIssue(details: {
-  testUrl: string;
-  error: Error;
-}): void {
-  if (!isFirefoxMobile()) {
-    return;
-  }
-
-  const context: FirefoxMobileContext = {
-    ...gatherSystemContext(),
-    authentication: {
-      step: 'connectivity_check',
-    },
-    error: {
-      message: details.error.message,
-      stack: details.error.stack,
-    },
-  } as FirefoxMobileContext;
-
-  Sentry.withScope((scope) => {
-    scope.setTag('firefox_mobile_connectivity_error', true);
-    scope.setLevel('warning');
-    scope.setContext('connectivity_test', {
-      testUrl: details.testUrl,
-      ...context,
-    } as any);
-
-    Sentry.captureMessage(
-      `Firefox Mobile Connectivity Issue: Failed to reach ${details.testUrl}. This may indicate uBlock Origin or another adblocker is blocking Firebase.`,
-      'warning'
-    );
-  });
-}

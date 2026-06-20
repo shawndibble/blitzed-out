@@ -264,7 +264,9 @@ export const importCustomGroups = async (
       return fullGroup;
     });
 
-    return await customGroups.bulkAdd(groupsWithAllFields);
+    // bulkPut (upsert) keeps re-imports idempotent. Ids are globally-unique nanoids,
+    // so a matching id is the same logical group — overwriting is correct, not collision.
+    return await customGroups.bulkPut(groupsWithAllFields);
   } catch (error) {
     console.error('Error in importCustomGroups:', error);
     return undefined;

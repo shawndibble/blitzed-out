@@ -18,29 +18,39 @@ function createDefaultStats(): Omit<GlobalPlayerStats, 'id' | 'ownerId'> {
   };
 }
 
+// Atomic read-or-create so concurrent writers (e.g. multi-dice rolls) don't both
+// insert a row for the same ownerId. IndexedDB serializes overlapping-scope rw
+// transactions, so the existence re-check inside the transaction prevents duplicates.
 async function getOrCreateStats(ownerId: string): Promise<GlobalPlayerStats> {
-  const existing = await db.globalPlayerStats.where('ownerId').equals(ownerId).first();
+  return db.transaction('rw', db.globalPlayerStats, async () => {
+    const existing = await db.globalPlayerStats.where('ownerId').equals(ownerId).first();
 
-  if (existing) {
-    return { ...createDefaultStats(), ...existing };
-  }
+    if (existing) {
+      return { ...createDefaultStats(), ...existing };
+    }
 
-  const newStats = { ownerId, ...createDefaultStats() };
-  const id = await db.globalPlayerStats.add(newStats);
-  return { ...newStats, id };
+    const newStats = { ownerId, ...createDefaultStats() };
+    const id = await db.globalPlayerStats.add(newStats);
+    return { ...newStats, id };
+  });
 }
 
 export async function recordDiceRoll(ownerId: string, rollValue: number): Promise<void> {
-  const stats = await getOrCreateStats(ownerId);
+  // Wrap read-modify-write in one transaction so burst rolls (multi-dice) accumulate
+  // correctly instead of clobbering each other. getOrCreateStats' inner rw transaction
+  // joins this one (same scope), so creation stays atomic too.
+  await db.transaction('rw', db.globalPlayerStats, async () => {
+    const stats = await getOrCreateStats(ownerId);
 
-  const newDistribution = { ...stats.diceDistribution };
-  newDistribution[rollValue] = (newDistribution[rollValue] || 0) + 1;
+    const newDistribution = { ...stats.diceDistribution };
+    newDistribution[rollValue] = (newDistribution[rollValue] || 0) + 1;
 
-  await db.globalPlayerStats.update(stats.id!, {
-    diceRollCount: stats.diceRollCount + 1,
-    diceRollSum: stats.diceRollSum + rollValue,
-    diceDistribution: newDistribution,
-    lastActive: Date.now(),
+    await db.globalPlayerStats.update(stats.id!, {
+      diceRollCount: stats.diceRollCount + 1,
+      diceRollSum: stats.diceRollSum + rollValue,
+      diceDistribution: newDistribution,
+      lastActive: Date.now(),
+    });
   });
 }
 
@@ -123,6 +133,10 @@ export async function recordIntensities(ownerId: string, intensities: string[]):
   });
 }
 
+// Read-only — safe to call inside a Dexie liveQuery. Never writes; returns an
+// in-memory default (no id) when no row exists yet. Lazy creation happens only in
+// the record* writers, which run outside the liveQuery context.
 export async function fetchPlayerStats(ownerId: string): Promise<GlobalPlayerStats> {
-  return getOrCreateStats(ownerId);
+  const existing = await db.globalPlayerStats.where('ownerId').equals(ownerId).first();
+  return existing ? { ...createDefaultStats(), ...existing } : { ownerId, ...createDefaultStats() };
 }

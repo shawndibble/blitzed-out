@@ -25,6 +25,11 @@ const IGNORED_ERROR_PATTERNS = [
   /permission denied/i,
   /user denied permission/i,
   /not allowed by the user agent/i,
+  // User navigated away / fetch aborted mid-flight — not actionable
+  /AbortError/i,
+  /the user aborted a request/i,
+  // Rejected promise with no value — nothing to act on (known noisy pattern)
+  /Non-Error promise rejection captured/i,
 ];
 
 /**
