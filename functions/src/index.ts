@@ -1,12 +1,13 @@
-import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions/v1';
 
-import { ListUsersResult, UserRecord } from 'firebase-admin/auth';
+import { applicationDefault, getApps, initializeApp } from 'firebase-admin/app';
+import { getDatabase, ServerValue } from 'firebase-admin/database';
+import { getAuth, ListUsersResult, UserRecord } from 'firebase-admin/auth';
 
 // Initialize Firebase Admin with proper credentials
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
+if (!getApps().length) {
+  initializeApp({
+    credential: applicationDefault(),
     databaseURL: process.env.DATABASE_URL || 'https://blitzed-out-default-rtdb.firebaseio.com/',
   });
 }
@@ -16,7 +17,7 @@ if (!admin.apps.length) {
  * Removes users who haven't updated their lastSeen timestamp in 20 minutes
  */
 export const cleanupStaleUsers = functions.pubsub.schedule('every 5 minutes').onRun(async () => {
-  const db = admin.database();
+  const db = getDatabase();
   const twentyMinutesAgo = Date.now() - 20 * 60 * 1000; // 20 minutes in milliseconds
 
   try {
@@ -109,8 +110,8 @@ export const validateUserPresence = functions.database
 
     // If user data exists but doesn't have lastSeen, add it
     if (!newData.lastSeen) {
-      const db = admin.database();
-      await db.ref(`users/${userId}/lastSeen`).set(admin.database.ServerValue.TIMESTAMP);
+      const db = getDatabase();
+      await db.ref(`users/${userId}/lastSeen`).set(ServerValue.TIMESTAMP);
 
       functions.logger.info(`Added lastSeen timestamp to user ${userId}`);
     }
@@ -132,7 +133,7 @@ export const manualCleanupStaleUsers = functions.https.onCall(async (data, conte
     );
   }
 
-  const db = admin.database();
+  const db = getDatabase();
   const customThresholdMinutes = data.minutes || 20;
   const thresholdTime = Date.now() - customThresholdMinutes * 60 * 1000;
 
@@ -181,7 +182,7 @@ export const manualCleanupStaleUsers = functions.https.onCall(async (data, conte
 export const cleanupInactiveAnonymousAccounts = functions.pubsub
   .schedule('0 0 * * *')
   .onRun(async () => {
-    const auth = admin.auth();
+    const auth = getAuth();
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -260,7 +261,7 @@ export const cleanupInactiveAnonymousAccounts = functions.pubsub
 export const cleanupVideoCallSignaling = functions.pubsub
   .schedule('every 5 minutes')
   .onRun(async () => {
-    const db = admin.database();
+    const db = getDatabase();
     const twoMinutesAgo = Date.now() - 2 * 60 * 1000; // 2 minutes in milliseconds
 
     try {
@@ -397,7 +398,7 @@ export const manualCleanupAnonymousAccounts = functions.https.onCall(async (data
     isAdmin: context.auth?.token?.admin,
   });
 
-  const auth = admin.auth();
+  const auth = getAuth();
   const customThresholdDays = data.days || 30;
   const thresholdDate = new Date();
   thresholdDate.setDate(thresholdDate.getDate() - customThresholdDays);
