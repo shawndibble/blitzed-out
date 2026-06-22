@@ -89,8 +89,8 @@ export const getImportedPackIds = async (): Promise<Set<string>> => {
   try {
     const keys = await customGroups.orderBy('packId').uniqueKeys();
     return new Set(keys.map((k) => String(k)));
-  } catch (error) {
-    console.error('Error in getImportedPackIds:', error);
+  } catch {
+    // No imported packs / index unavailable — fall back to an empty set.
     return new Set();
   }
 };

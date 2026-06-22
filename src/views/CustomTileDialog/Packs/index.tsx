@@ -109,13 +109,16 @@ export default function Packs({
         gameModes: [gameMode],
         groupNames: selectedGroups,
       });
+      // Enforce the anonymous-private constraint at submit time so a publish
+      // fired before the visibility effect settles can't slip through as public.
+      const effectiveVisibility: PackVisibility = isAnonymous ? 'private' : visibility;
       const packId = await publishPack(
         {
           name: name.trim(),
           description: description.trim(),
           gameMode,
           locale,
-          visibility,
+          visibility: effectiveVisibility,
           tags: tags
             .split(',')
             .map((s) => s.trim())

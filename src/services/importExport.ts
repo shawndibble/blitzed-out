@@ -503,9 +503,11 @@ export async function exportAllData(
     const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
 
     // Restrict to a selected set of groups: `groupNames` (multi-select, content
-    // packs) takes precedence, then legacy `singleGroupName`, else all.
+    // packs) takes precedence, then legacy `singleGroupName`, else all. An
+    // explicit `[]` means "select nothing"; only an omitted `groupNames` falls
+    // through to singleGroupName / all relevant groups.
     const groupsToExport =
-      groupNames && groupNames.length > 0
+      groupNames !== undefined
         ? relevantGroups.filter((g) => groupNames.includes(g.name))
         : singleGroupName
           ? relevantGroups.filter((g) => g.name === singleGroupName)

@@ -699,7 +699,7 @@
     "name": "Paketname",
     "description": "Beschreibung",
     "tags": "Tags",
-    "tagsPlaceholder": "Komma, getrennte, Tags",
+    "tagsPlaceholder": "Tags, durch Kommas getrennt",
     "visibility": "Sichtbarkeit",
     "visibilityPublic": "Öffentlich — im Verzeichnis gelistet",
     "visibilityPrivate": "Privat — nur per Link teilen",

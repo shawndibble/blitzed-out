@@ -99,7 +99,7 @@ describe('PackImportDialog (full-dump preview, copy-only)', () => {
     await user.click(screen.getByRole('button', { name: 'packs.import' }));
 
     expect(importPack).toHaveBeenCalledWith(pack);
-    expect(onImported).toHaveBeenCalled();
+    expect(onImported).toHaveBeenCalledWith(pack.name);
     expect(onClose).toHaveBeenCalled();
   });
 });

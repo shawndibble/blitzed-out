@@ -94,17 +94,16 @@ function summarizeContents(contents: string): {
   groupCount: number;
   groupLabels: string[];
 } {
-  try {
-    const parsed = JSON.parse(contents) as ExportData;
-    const groups = parsed.data.customGroups ?? [];
-    return {
-      tileCount: parsed.data.customTiles?.length ?? 0,
-      groupCount: groups.length,
-      groupLabels: groups.map((g) => g.label || g.name),
-    };
-  } catch {
-    return { tileCount: 0, groupCount: 0, groupLabels: [] };
-  }
+  // Intentionally not guarded: a parse/shape failure here means the contents are
+  // broken, and the error must propagate so publishPack/republishPack abort
+  // rather than persist a pack with a zeroed-out summary that fails on import.
+  const parsed = JSON.parse(contents) as ExportData;
+  const groups = parsed.data.customGroups ?? [];
+  return {
+    tileCount: parsed.data.customTiles?.length ?? 0,
+    groupCount: groups.length,
+    groupLabels: groups.map((g) => g.label || g.name),
+  };
 }
 
 /** Publish a new pack (packVersion = 1). Returns the new pack id. */

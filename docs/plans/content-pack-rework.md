@@ -1,6 +1,6 @@
 # Content Pack Rework — Implementation Plan
 
-**Status: complete.** All phases implemented; `type-check`, `eslint src/`, `test:ci` (1426), `test:rules` (39), and `build` green. Two intentional deviations: `singleGroupName` is **kept** on `ExportOptions` (the regular import/export UI still uses it) with `groupNames` added alongside; `analyzeImportConflicts` is **kept** as a service function (it is `ConflictAnalysis`'s only producer, re-exported via `enhancedImportExport`) — only its conflict _UI_ was removed from the import dialog per Phase 8.
+**Status: complete.** All phases implemented; `type-check`, `eslint src/`, `test:ci`, `test:rules`, and `build` green. Two intentional deviations: `singleGroupName` is **kept** on `ExportOptions` (the regular import/export UI still uses it) with `groupNames` added alongside; `analyzeImportConflicts` is **kept** as a service function (it is `ConflictAnalysis`'s only producer, re-exported via `enhancedImportExport`) — only its conflict _UI_ was removed from the import dialog per Phase 8.
 
 Tracking doc for the group-scoped, public-directory, copy-only content-pack rework.
 Design: `CONTEXT.md` (Content Pack section) + `docs/adr/0003-content-pack-directory-and-copy-only-model.md`.

@@ -157,7 +157,14 @@ export default function CustomTileDialog({
           <PackDirectory
             gameMode={lifecycle.sharedFilters.gameMode}
             onGameModeChange={(mode) =>
-              lifecycle.setSharedFilters({ ...lifecycle.sharedFilters, gameMode: mode })
+              // Reset group/intensity so a stale group name from the previous
+              // mode can't point at a group that doesn't exist in the new one.
+              lifecycle.setSharedFilters({
+                ...lifecycle.sharedFilters,
+                gameMode: mode,
+                groupName: '',
+                intensity: '',
+              })
             }
             onImported={handlePackImported}
           />

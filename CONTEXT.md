@@ -154,7 +154,7 @@ within a single `gameMode` + `locale`, published to the `content-packs` Firestor
 payload carries the selected groups' **custom tiles** plus the **custom group definitions** for
 those groups — it does **not** carry default-group tiles (the importer already has them) or
 disabled-default markers. Distinct from a shared **game board** (a `?importBoard=<id>` snapshot of
-a generated board + settings): a pack is reusable source content you subscribe to and update, a
+a generated board + settings): a pack is reusable source content copied into your library, a
 board is one assembled game. **A pack is imported as a one-time copy** into the importer's own
 custom content — there is no subscription, no version propagation, and no auto-update. Imported
 tiles carry a lightweight `packId` + `packName` stamp purely for attribution ("from _X_ by author")
