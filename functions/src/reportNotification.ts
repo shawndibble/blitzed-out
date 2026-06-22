@@ -51,8 +51,9 @@ export const onPackReported = functions
       functions.logger.warn('Failed to load reported pack metadata', { packId, error });
     }
 
+    const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || 'blitzout-49b39';
     const consoleUrl =
-      'https://console.firebase.google.com/project/blitzout-49b39/firestore/data/' +
+      `https://console.firebase.google.com/project/${projectId}/firestore/data/` +
       `~2Fcontent-packs~2F${packId}`;
     const lines = [
       `Pack "${packName}" was reported.`,
