@@ -220,7 +220,9 @@ export function useCustomTileLifecycle({
       const tilesArray = Array.isArray(customTiles) ? customTiles : [];
       return tilesArray.some(
         (tile) =>
-          tile.group_id === groupId && tile.intensity === intensity && tile.action === action
+          tile.group_id === groupId &&
+          tile.intensity === Number(intensity) &&
+          tile.action === action
       );
     },
     [customTiles]

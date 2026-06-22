@@ -156,6 +156,38 @@ describe('useCustomTileLifecycle', () => {
     expect(result.current.tagInputValue).toBe('');
   });
 
+  it('blocks a duplicate when the DB tile.intensity (number) matches the string filter', async () => {
+    // Regression: tile.intensity is a number, sharedFilters.intensity is a string.
+    // A strict `===` never matches, silently disabling duplicate detection.
+    const existing: CustomTilePull[] = [
+      {
+        id: 5,
+        group_id: 'group-1',
+        intensity: 1,
+        action: 'Touch {sub}',
+        tags: ['custom'],
+        isCustom: 1,
+      },
+    ];
+    const { result, setSubmitMessage } = setup(existing);
+    await waitFor(() => expect(result.current.sharedFilters.groupName).toBe('foreplay'));
+    act(() => {
+      result.current.setSharedFilters({
+        gameMode: 'online',
+        groupName: 'foreplay',
+        intensity: '1',
+      });
+    });
+    act(() => result.current.setDraftAction('Touch {sub}'));
+
+    await act(async () => {
+      await result.current.submitTile();
+    });
+
+    expect(addCustomTile).not.toHaveBeenCalled();
+    expect(setSubmitMessage).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+  });
+
   it('submitTile updates an existing tile in edit mode', async () => {
     const existing: CustomTilePull[] = [
       {
