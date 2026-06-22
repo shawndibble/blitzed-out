@@ -1,2 +1,0 @@
-import{Ct as o,rn as s}from"./chunk-DSGKAq8p.js";import{Ct as r}from"./chunk-DI_8Wz1M.js";var t=s();function a({close:s}){return(0,t.jsx)(o,{"aria-label":"close",onClick:s,sx:{position:"absolute",right:8,top:8},children:(0,t.jsx)(r,{})})}export{a as t};
-//# sourceMappingURL=chunk-BJISLyDm.js.map
