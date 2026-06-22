@@ -1,4 +1,4 @@
-import { AddCustomTileProps, CustomTile } from '@/types/customTiles';
+import { AddCustomTileProps } from '@/types/customTiles';
 import {
   Autocomplete,
   Box,
@@ -13,9 +13,8 @@ import {
   Typography,
 } from '@mui/material';
 import { ExpandMore, HelpOutlined } from '@mui/icons-material';
-import { FocusEvent, KeyboardEvent, useEffect, useState } from 'react';
+import { FocusEvent, KeyboardEvent, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
 
 import Accordion from '@/components/Accordion';
 import AccordionDetails from '@/components/Accordion/Details';
@@ -24,172 +23,45 @@ import CustomGroupDialog from '@/views/CustomGroupDialog';
 import CustomTilePreview from './CustomTilePreview';
 import { CustomGroupPull } from '@/types/customGroups';
 import CustomGroupSelector from '@/components/CustomGroupSelector';
-import { submitCustomAction } from '@/services/firebase';
-import { normalizePlaceholders, localizePlaceholders } from '@/services/placeholderAliasService';
-import { useEditorGroupsReactive } from '@/hooks/useGroupFiltering';
 import { useGameSettings } from '@/stores/settingsStore';
-import { validateCustomTileWithGroups } from '@/services/validationService';
 
 export default function AddCustomTile({
-  setSubmitMessage,
-  boardUpdated,
-  customTiles,
-  mappedGroups: _mappedGroups,
+  lifecycle,
   expanded,
   handleChange,
   tagList,
-  updateTileId,
-  setUpdateTileId,
-  editTileData,
-  setEditTileData,
-  sharedFilters,
-  setSharedFilters,
 }: AddCustomTileProps) {
   const { t } = useTranslation();
   const { settings } = useGameSettings();
+
+  const {
+    sharedFilters,
+    setSharedFilters,
+    editTarget,
+    clearEdit,
+    draft,
+    setDraftAction,
+    setDraftTags,
+    addDraftTag,
+    tagInputValue,
+    setTagInputValue,
+    validationMessage,
+    groups,
+    selectedGroup,
+    groupsRefreshTrigger,
+    bumpGroupsRefresh,
+    submitTile,
+  } = lifecycle;
+
+  const updateTileId = editTarget.tileId;
 
   // Localized placeholder token shown on the reference chips, e.g. "{genitales}".
   // Falls back to the canonical name if the placeholders namespace is unavailable.
   const tokenLabel = (key: string): string => `{${t(`placeholders:tokens.${key}`, key)}}`;
 
-  // Use shared filters for two-way binding with ViewCustomTiles
-  const [localTileData, setLocalTileData] = useState<{
-    action: string;
-    tags: string[];
-  }>({
-    action: '',
-    tags: [t('custom')],
-  });
-
-  // UI state for custom group management
+  // UI state local to this view.
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
-  const [validationMessage, setValidationMessage] = useState('');
-  const [groupsRefreshTrigger, setGroupsRefreshTrigger] = useState(0);
   const [placeholderHelpOpen, setPlaceholderHelpOpen] = useState(false);
-
-  // Get groups for current locale/gameMode using shared filters
-  const { groups } = useEditorGroupsReactive(sharedFilters.gameMode, settings.locale || 'en');
-
-  // Auto-select first group if none selected and groups are available (only for new tiles)
-  useEffect(() => {
-    if (!updateTileId && groups.length > 0 && !sharedFilters.groupName) {
-      const firstGroup = groups[0];
-      setSharedFilters({
-        ...sharedFilters,
-        groupName: firstGroup.name,
-        intensity: '',
-      });
-    }
-  }, [updateTileId, groups, sharedFilters, setSharedFilters]); // React to groups and filters changes
-
-  // Find the selected group by name from shared filters
-  const selectedGroup = groups.find((group) => group.name === sharedFilters.groupName);
-
-  // Migration is handled at app level - removed redundant migration call
-
-  // Validate form data with debouncing to prevent excessive re-renders
-  useEffect(() => {
-    const validateForm = async () => {
-      if (!selectedGroup || !sharedFilters.intensity || !localTileData.action) {
-        setValidationMessage('');
-        return;
-      }
-
-      try {
-        const validation = await validateCustomTileWithGroups(
-          {
-            group_id: selectedGroup.id, // Use the selected group's ID
-            intensity: Number(sharedFilters.intensity),
-            action: localTileData.action,
-            tags: localTileData.tags,
-            isCustom: 1,
-          },
-          settings.locale || 'en',
-          sharedFilters.gameMode
-        );
-
-        if (!validation.isValid) {
-          setValidationMessage(validation.errors.join(', '));
-        } else {
-          setValidationMessage('');
-        }
-      } catch {
-        setValidationMessage('');
-      }
-    };
-
-    // Debounce validation to prevent excessive calls while typing
-    // 300ms provides responsive feedback while avoiding excessive validation calls.
-    // This timing is optimal for the lightweight validation operations performed here.
-    const timeoutId = setTimeout(validateForm, 300);
-    return () => clearTimeout(timeoutId);
-  }, [
-    selectedGroup,
-    sharedFilters.intensity,
-    sharedFilters.gameMode,
-    localTileData.action,
-    localTileData.tags,
-    settings.locale,
-  ]);
-
-  // Handle editing a tile
-  useEffect(() => {
-    if (!updateTileId) return;
-
-    // Use editTileData if available (passed from ViewCustomTiles), otherwise fallback to searching customTiles
-    const editTile =
-      editTileData ||
-      (Array.isArray(customTiles) ? customTiles.find(({ id }) => id === updateTileId) : null);
-
-    if (editTile) {
-      // Find the group by ID to get its name for shared filters
-      const tileGroup = groups.find((group) => group.id === editTile.group_id);
-
-      // Only update if values are different to prevent loops
-      const newGroupName = tileGroup?.name || '';
-      const newIntensity = editTile.intensity ? editTile.intensity.toString() : '';
-
-      if (sharedFilters.groupName !== newGroupName || sharedFilters.intensity !== newIntensity) {
-        setSharedFilters({
-          ...sharedFilters,
-          groupName: newGroupName,
-          intensity: newIntensity,
-        });
-      }
-
-      setLocalTileData({
-        action: localizePlaceholders(editTile.action || '', settings.locale || 'en'),
-        tags: editTile.tags || [t('custom')],
-      });
-    }
-  }, [updateTileId, editTileData, customTiles, groups, t, settings.locale]);
-
-  function tileExists(
-    group_id: string,
-    intensity: string | number,
-    newAction: string
-  ): CustomTile | undefined {
-    const tilesArray = Array.isArray(customTiles) ? customTiles : [];
-    return tilesArray.find(
-      (tile) =>
-        tile.group_id === group_id && tile.intensity === intensity && tile.action === newAction
-    );
-  }
-
-  function clear(): void {
-    // Exit edit mode
-    setUpdateTileId(null);
-    setEditTileData?.(undefined);
-
-    // Only clear form fields (action and tags), preserve filters
-    setLocalTileData({
-      action: '',
-      tags: [t('custom')],
-    });
-    setValidationMessage('');
-
-    // Don't reset sharedFilters - user's selected gameMode, group, and intensity should remain
-  }
 
   // Handle custom group creation
   const handleGroupCreated = (group: CustomGroupPull) => {
@@ -199,115 +71,13 @@ export default function AddCustomTile({
       intensity: '', // Reset intensity when group changes
     });
     setGroupDialogOpen(false);
-    // Trigger refresh of groups in selector
-    setGroupsRefreshTrigger((prev) => prev + 1);
+    bumpGroupsRefresh();
   };
 
   // Handle custom group updates/deletions
   const handleGroupUpdated = () => {
-    // Trigger refresh of groups in selector
-    setGroupsRefreshTrigger((prev) => prev + 1);
+    bumpGroupsRefresh();
   };
-
-  async function submitNewTile(): Promise<void> {
-    // Check if there's text in the tag input field and add it to tags
-    const tagInput = document.querySelector('input[name="tags"]') as HTMLInputElement | null;
-    const currentTags = [...localTileData.tags];
-
-    if (tagInput && tagInput.value.trim()) {
-      currentTags.push(tagInput.value.trim());
-      // Clear the input field
-      tagInput.value = '';
-    }
-
-    const { gameMode, intensity } = sharedFilters;
-    // Normalize localized placeholder tokens to canonical English before dedup,
-    // validation, Firebase submission, and storage — the gameplay pipeline only
-    // understands canonical tokens.
-    const action = normalizePlaceholders(localTileData.action, settings.locale || 'en');
-
-    if (!gameMode || !selectedGroup || !intensity || !action) {
-      return setSubmitMessage({
-        message: t('allFieldsRequired', 'All fields are required'),
-        type: 'error',
-      });
-    }
-
-    // Check if validation message exists
-    if (validationMessage) {
-      return setSubmitMessage({
-        message: validationMessage,
-        type: 'error',
-      });
-    }
-
-    if (updateTileId == null && tileExists(selectedGroup.id, intensity, action)) {
-      return setSubmitMessage({ message: t('actionExists'), type: 'error' });
-    }
-
-    const data: CustomTile = {
-      group_id: selectedGroup.id, // Use the selected group's ID
-      intensity: Number(intensity),
-      action,
-      tags: currentTags,
-      isCustom: 1,
-    };
-
-    try {
-      // Validate with custom groups system
-      const validation = await validateCustomTileWithGroups(
-        data,
-        settings.locale || 'en',
-        gameMode
-      );
-
-      if (!validation.isValid) {
-        return setSubmitMessage({
-          message: validation.errors.join(', '),
-          type: 'error',
-        });
-      }
-
-      // send action to firebase for review
-      if (updateTileId === null) {
-        // Create a simple label for Firebase submission
-        const groupLabel = `${selectedGroup.name} - Level ${intensity}`;
-        submitCustomAction(groupLabel, action);
-
-        // store locally for user's board
-        await addCustomTile(data);
-      } else {
-        // Editing a pack-imported tile detaches it so a later pack update won't
-        // overwrite the user's changes. Non-pack tiles are left untouched.
-        const existingTile = Array.isArray(customTiles)
-          ? customTiles.find(({ id }) => id === updateTileId)
-          : undefined;
-        const detach = existingTile?.packId ? { packDetached: true } : {};
-        await updateCustomTile(updateTileId, { ...data, ...detach });
-      }
-
-      boardUpdated();
-
-      // Clear form after successful submission
-      setLocalTileData({
-        action: '',
-        tags: [t('custom')],
-      });
-      setUpdateTileId(null);
-      setEditTileData?.(undefined);
-
-      return setSubmitMessage({
-        message: updateTileId ? t('customUpdated') : t('customAdded'),
-        type: 'success',
-      });
-    } catch (error) {
-      console.error('Error saving custom tile:', error);
-      return setSubmitMessage({
-        message: t('errorSavingTile'),
-        type: 'error',
-      });
-    }
-  }
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
     switch (event.key) {
@@ -316,12 +86,8 @@ export default function AddCustomTile({
         event.preventDefault();
         event.stopPropagation();
         if (event.currentTarget.value.length > 0) {
-          setLocalTileData((prev) => ({
-            ...prev,
-            tags: [...prev.tags, event.currentTarget.value],
-          }));
-          // Clear the input after adding the tag
-          event.currentTarget.value = '';
+          addDraftTag(event.currentTarget.value);
+          setTagInputValue('');
         }
         break;
       }
@@ -331,12 +97,8 @@ export default function AddCustomTile({
 
   const handleTagInputBlur = (event: FocusEvent<HTMLInputElement>): void => {
     if (event.target.value.length > 0) {
-      setLocalTileData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, event.target.value],
-      }));
-      // Clear the input after adding the tag
-      event.target.value = '';
+      addDraftTag(event.target.value);
+      setTagInputValue('');
     }
 
     // Give time for any click events to process before closing dropdown
@@ -437,18 +199,16 @@ export default function AddCustomTile({
               label={t('action')}
               sx={{ mt: 2, pb: 2 }}
               slotProps={{ htmlInput: { maxLength: 2000 } }}
-              value={localTileData.action}
-              onChange={(event) => {
-                setLocalTileData({ ...localTileData, action: event.target.value });
-              }}
+              value={draft.action}
+              onChange={(event) => setDraftAction(event.target.value)}
               onKeyUp={(event) => {
                 if (event.key === 'Enter') {
-                  submitNewTile();
+                  submitTile();
                 }
               }}
             />
 
-            <CustomTilePreview action={localTileData.action} settings={settings} />
+            <CustomTilePreview action={draft.action} settings={settings} />
 
             {/* Placeholder Help Section */}
             <Box sx={{ mb: 2 }}>
@@ -602,9 +362,13 @@ export default function AddCustomTile({
               multiple
               freeSolo
               options={tagList}
-              value={localTileData.tags}
+              value={draft.tags}
               onChange={(_event, newValues) => {
-                setLocalTileData({ ...localTileData, tags: newValues as string[] });
+                setDraftTags(newValues as string[]);
+              }}
+              inputValue={tagInputValue}
+              onInputChange={(_event, newInputValue) => {
+                setTagInputValue(newInputValue);
               }}
               renderInput={(params) => (
                 <TextField
@@ -646,10 +410,10 @@ export default function AddCustomTile({
               <Button variant="outlined" type="button" onClick={() => setGroupDialogOpen(true)}>
                 {t('manageGroups.title')}
               </Button>
-              <Button variant="contained" type="button" onClick={() => clear()}>
+              <Button variant="contained" type="button" onClick={() => clearEdit()}>
                 <Trans i18nKey="clear" />
               </Button>
-              <Button variant="contained" type="button" onClick={submitNewTile}>
+              <Button variant="contained" type="button" onClick={submitTile}>
                 <Trans i18nKey={updateTileId ? 'ctUpdate' : 'ctAdd'} />
               </Button>
             </Box>
