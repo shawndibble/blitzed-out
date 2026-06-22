@@ -3,7 +3,6 @@ import {
   CustomTile,
   CustomTileDialogProps,
   CustomTilePull,
-  SharedFilters,
   SubmitMessage,
 } from '@/types/customTiles';
 import { Box, Dialog, DialogContent, DialogTitle, Divider, Grid, IconButton } from '@mui/material';
@@ -20,6 +19,7 @@ import ToastAlert from '@/components/ToastAlert';
 import ViewCustomTiles from './ViewCustomTiles';
 import { importActions } from '@/services/dexieActionImport';
 import useBreakpoint from '@/hooks/useBreakpoint';
+import { useCustomTileLifecycle } from './hooks/useCustomTileLifecycle';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 export default function CustomTileDialog({
@@ -35,27 +35,12 @@ export default function CustomTileDialog({
     type: 'info',
   });
   const [expanded, setExpanded] = useState<string>('ctAdd');
-  const [tileId, setTileId] = useState<number | null>(null);
-  const [editTileData, setEditTileData] = useState<Partial<CustomTilePull> | undefined>(undefined);
-  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [allGameModeActions, setAllGameModeActions] = useState<AllGameModeActions>({
     online: {},
     local: {},
     solo: {},
   });
   const [isLoadingActions, setIsLoadingActions] = useState<boolean>(true);
-
-  // Shared filter state between AddCustomTile and ViewCustomTiles components
-  const [sharedFilters, setSharedFilters] = useState<SharedFilters>({
-    gameMode: 'online',
-    groupName: '',
-    intensity: '', // Empty string when ViewCustomTiles has 'All'
-  });
-
-  // Create a function to trigger refresh of the ViewCustomTiles component
-  const triggerRefresh = useCallback(() => {
-    setRefreshTrigger((prev) => prev + 1);
-  }, []);
 
   const handleChange = (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
     setExpanded(newExpanded ? panel : '');
@@ -101,6 +86,13 @@ export default function CustomTileDialog({
       : [];
   }, [allTiles]);
 
+  const lifecycle = useCustomTileLifecycle({
+    customTiles: (allTiles as CustomTilePull[]) ?? [],
+    setSubmitMessage,
+    boardUpdated,
+  });
+  const { triggerRefresh } = lifecycle;
+
   const bulkImport = useCallback(
     async (records: CustomTile[]) => {
       await importCustomTiles(records);
@@ -119,22 +111,10 @@ export default function CustomTileDialog({
         <CustomTileHelp expanded={expanded} handleChange={handleChange} />
 
         <AddCustomTile
-          setSubmitMessage={setSubmitMessage}
-          boardUpdated={() => {
-            boardUpdated();
-            triggerRefresh();
-          }}
-          customTiles={allTiles as CustomTilePull[]}
-          mappedGroups={allGameModeActions}
+          lifecycle={lifecycle}
           expanded={expanded}
           handleChange={handleChange}
           tagList={tagList}
-          updateTileId={tileId}
-          setUpdateTileId={setTileId}
-          editTileData={editTileData}
-          setEditTileData={setEditTileData}
-          sharedFilters={sharedFilters}
-          setSharedFilters={setSharedFilters}
         />
 
         <ImportExport
@@ -167,14 +147,13 @@ export default function CustomTileDialog({
             triggerRefresh();
           }}
           mappedGroups={allGameModeActions}
-          updateTile={(id: number, tileData?: any) => {
-            setTileId(id);
-            setEditTileData(tileData);
+          updateTile={(id: number, tileData?: Partial<CustomTilePull>) => {
+            lifecycle.beginEdit(id, tileData);
             setExpanded('ctAdd');
           }}
-          refreshTrigger={refreshTrigger}
-          sharedFilters={sharedFilters}
-          setSharedFilters={setSharedFilters}
+          refreshTrigger={lifecycle.refreshTrigger}
+          sharedFilters={lifecycle.sharedFilters}
+          setSharedFilters={lifecycle.setSharedFilters}
         />
       </Box>
     );

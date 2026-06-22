@@ -1,7 +1,13 @@
 import i18next from 'i18next';
 import type { LocalPlayer } from '@/types/localPlayers';
 import type { PlayerGender } from '@/types/localPlayers';
-import { replaceAnatomyPlaceholders, getAnatomyMappings } from './anatomyPlaceholderService';
+import {
+  replaceAnatomyPlaceholders,
+  getAnatomyTerm,
+  getGenitalTermForRole,
+} from './anatomyPlaceholderService';
+import type { AnatomyPlaceholder } from '@/types/localPlayers';
+import type { PlayerRole } from '@/types/Settings';
 
 const { t } = i18next;
 
@@ -16,7 +22,7 @@ const PLACEHOLDER_FALLBACKS = {
  * Load generic anatomy terms from translation files
  */
 function loadGenericAnatomyTerms(locale: string): Record<string, string> {
-  return i18next.t('anatomy.genericAnatomyTerms', { lng: locale, returnObjects: true }) as Record<
+  return i18next.t('anatomy:genericAnatomyTerms', { lng: locale, returnObjects: true }) as Record<
     string,
     string
   >;
@@ -27,22 +33,21 @@ function capitalizeFirstLetterInCurlyBraces(string: string): string {
 }
 
 /**
- * Get anatomy term with context awareness (e.g., strapon for female doms in penetrative contexts)
+ * Resolve a single anatomy placeholder for a target player, delegating the
+ * gender × role × penetrative × locale decision (incl. the female-dom strapon
+ * rule and the i18next namespace syntax) to anatomyPlaceholderService.
  */
-function getContextualAnatomyTerm(
+function resolveAnatomyTerm(
   anatomyType: string,
   gender: PlayerGender | undefined,
-  role: string | undefined,
+  role: PlayerRole | undefined,
   isPenetrative: boolean,
   locale: string
 ): string {
-  const anatomyMappings = getAnatomyMappings(locale, gender);
-  let term = anatomyMappings[anatomyType as keyof typeof anatomyMappings] as string;
-
-  // Female doms use a strapon only when the action is penetrative.
-  if (anatomyType === 'genital' && gender === 'female' && role === 'dom' && isPenetrative) {
-    term = i18next.t('anatomy.straponTerms.strapon', { lng: locale });
-  }
+  const term =
+    anatomyType === 'genital'
+      ? getGenitalTermForRole(gender, role, locale, isPenetrative)
+      : getAnatomyTerm(locale, gender, anatomyType as AnatomyPlaceholder);
 
   return term || anatomyType;
 }
@@ -159,7 +164,7 @@ function replacePipedAnatomyPlaceholders(
     }
 
     if (targetPlayer) {
-      return getContextualAnatomyTerm(
+      return resolveAnatomyTerm(
         anatomyType,
         targetPlayer.gender,
         targetPlayer.role,
@@ -186,7 +191,7 @@ function replaceContextualAnatomyPlaceholders(
   return action.replace(contextualAnatomyPattern, (match, roleType, anatomyType) => {
     const rolePlayer = roleAssignments[roleType as 'dom' | 'sub'];
     if (rolePlayer) {
-      const anatomyTerm = getContextualAnatomyTerm(
+      const anatomyTerm = resolveAnatomyTerm(
         anatomyType,
         rolePlayer.gender,
         rolePlayer.role,

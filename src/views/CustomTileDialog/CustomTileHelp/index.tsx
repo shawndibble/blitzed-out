@@ -14,7 +14,6 @@ import {
   ExpandMore,
   Extension,
   Lightbulb,
-  Psychology,
   Settings,
   Share,
   Shuffle,
@@ -138,12 +137,9 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
         className="about-accordion"
       >
         <AccordionSummary aria-controls="help1-content" id="help1-header">
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-            <Extension color="primary" />
-            <Typography className="accordion-title">
-              <Trans i18nKey="ctExplained" />
-            </Typography>
-          </Box>
+          <Typography className="accordion-title">
+            <Trans i18nKey="ctExplained" />
+          </Typography>
         </AccordionSummary>
         <AccordionDetails sx={{ p: 0 }}>
           <List dense>
@@ -223,12 +219,9 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
         className="about-accordion"
       >
         <AccordionSummary aria-controls="help2-content" id="help2-header">
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-            <Psychology color="primary" />
-            <Typography className="accordion-title">
-              <Trans i18nKey="ctIdeas" />
-            </Typography>
-          </Box>
+          <Typography className="accordion-title">
+            <Trans i18nKey="ctIdeas" />
+          </Typography>
         </AccordionSummary>
         <AccordionDetails sx={{ p: 0 }}>
           <List dense>

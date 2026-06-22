@@ -119,19 +119,11 @@ export interface ImportExportProps {
 }
 
 export interface AddCustomTileProps {
-  setSubmitMessage: (message: SubmitMessage) => void;
-  boardUpdated: () => void;
-  customTiles: CustomTile[];
-  mappedGroups: AllGameModeActions;
+  /** Shared editor lifecycle (filters, draft, edit target, submit). */
+  lifecycle: import('@/views/CustomTileDialog/hooks/useCustomTileLifecycle').CustomTileLifecycle;
   expanded: string;
   handleChange: (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
   tagList: string[];
-  updateTileId: number | null;
-  setUpdateTileId: (id: number | null) => void;
-  editTileData?: Partial<CustomTilePull>;
-  setEditTileData?: (data: Partial<CustomTilePull> | undefined) => void;
-  sharedFilters: SharedFilters;
-  setSharedFilters: (filters: SharedFilters) => void;
 }
 
 export interface ViewCustomTilesProps {

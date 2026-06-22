@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { Delete, Inventory, Publish, Update } from '@mui/icons-material';
+import { Delete, Publish, Update } from '@mui/icons-material';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -154,10 +154,7 @@ export default function Packs({ expanded, handleChange, onImported }: PacksProps
     <>
       <Accordion expanded={expanded === 'ctPacks'} onChange={handleChange('ctPacks')}>
         <AccordionSummary aria-controls="ctPacks-content" id="ctPacks-header">
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-            <Inventory color="primary" />
-            <Typography className="accordion-title">{t('packs.title')}</Typography>
-          </Box>
+          <Typography className="accordion-title">{t('packs.title')}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Stack spacing={2}>
