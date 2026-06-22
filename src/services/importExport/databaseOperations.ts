@@ -6,17 +6,22 @@ import db from '@/stores/store';
 import { CustomGroupPull } from '@/types/customGroups';
 
 /**
- * Fetch all custom groups regardless of locale or game mode.
- * For export purposes — get everything the user created.
+ * Fetch groups regardless of locale or game mode, for export purposes.
+ *
+ * By default only custom (non-default) groups are returned. Pass
+ * `includeDefaultGroups` when the caller needs default groups too — e.g.
+ * resolving the groups that disabled-default tiles belong to for export stats.
  */
-export async function batchFetchAllGroups(groupNames?: string[]): Promise<CustomGroupPull[]> {
-  // Get all groups first, then filter for custom groups (non-default)
+export async function batchFetchAllGroups(
+  groupNames?: string[],
+  includeDefaultGroups = false
+): Promise<CustomGroupPull[]> {
   const allGroups = await db.customGroups.toArray();
-  const customGroups = allGroups.filter((g) => !g.isDefault);
+  const groups = includeDefaultGroups ? allGroups : allGroups.filter((g) => !g.isDefault);
 
   if (groupNames && groupNames.length > 0) {
-    return customGroups.filter((g) => groupNames.includes(g.name));
+    return groups.filter((g) => groupNames.includes(g.name));
   }
 
-  return customGroups;
+  return groups;
 }

@@ -54,6 +54,23 @@ player topology in the new wizard flow.
 | `'online'` | Individual Devices | PUBLIC or private (user selects)           |
 | `'local'`  | Shared Device      | Always auto-generated private              |
 
+### Three topologies, two content sets
+
+The **wizard/topology** surface has **three** values (`solo` / `online` / `local`) — they pick the room and player layout.
+
+The **content** surface has only **two** game modes: `online` and `local`. Canonical list:
+`GAME_MODES = ['local', 'online']` in `src/services/migration/constants.ts`. These are the only
+modes for which action groups, translation bundles (`{lang}/{online,local}-bundle.json`), custom
+action groups, and content packs exist.
+
+`solo` is **not** a content set. Solo topology reuses `online` content, narrowed by
+`usesSoloActions(gameMode, soloPlay)` (see [Participation Style](#participation-style-soloplay)).
+Anything that builds, seeds, bundles, migrates, or lists **content** must iterate `GAME_MODES`
+(2 modes), never the 3-value topology list — a `solo` content filter is always empty.
+
+> ⚠️ Naming collision: `solo` is also a group **type** (`solo` / `consumption` / `foreplay` /
+> `sex`), unrelated to the `solo` topology. Group type ≠ game mode.
+
 ---
 
 ## Room Realtime (`roomRealtime`)
@@ -132,19 +149,42 @@ delivered it, and can also be reached directly by opening the Room's cast URL in
 
 ## Content Pack
 
-A durable, shareable bundle of custom tiles + their groups (optionally disabled-defaults)
-published to the public `content-packs` Firestore collection and shared **by code/link**
-(`?importPack=<id>`). Distinct from a shared **game board** (a `?importBoard=<id>` snapshot of a
-generated board + settings): a pack is reusable source content you subscribe to and update, a
-board is one assembled game. Imported pack tiles carry provenance (`packId`, `packVersion`,
-`packName`) and a `packDetached` flag set when the user locally edits them (which stops
-auto-update). Discovery is by-code only; there is no public directory.
+A durable, shareable bundle scoped to **one or more selected custom groups** (multi-select; ≥1)
+within a single `gameMode` + `locale`, published to the `content-packs` Firestore collection. The
+payload carries the selected groups' **custom tiles** plus the **custom group definitions** for
+those groups — it does **not** carry default-group tiles (the importer already has them) or
+disabled-default markers. Distinct from a shared **game board** (a `?importBoard=<id>` snapshot of
+a generated board + settings): a pack is reusable source content copied into your library, a
+board is one assembled game. **A pack is imported as a one-time copy** into the importer's own
+custom content — there is no subscription, no version propagation, and no auto-update. Imported
+tiles carry a lightweight `packId` + `packName` stamp purely for attribution ("from _X_ by author")
+and to dedupe re-imports; once copied, they are ordinary custom tiles the importer fully owns. An
+author may edit and **republish** a pack (updating the directory listing), but existing importers
+are never notified and keep their copy unchanged.
 
-### No-tombstone unsubscribe caveat
+### Pack Visibility
 
-The content-sync model has no per-record delete tombstones for tiles (a deleted tile re-appears
-when another device merges, since absence is not a delete signal). So **unsubscribing from a pack
-soft-removes its tiles** (sets `isEnabled: 0`) rather than deleting them — the disabled state
-round-trips under last-writer-wins, whereas a hard delete would resurrect. Disabled **defaults**,
-by contrast, _do_ propagate re-enables: they are first-class `disabledDefaults` records whose
-`active: false` value is an explicit tombstone.
+Every pack has a `visibility` of `private` or `public`. **All packs are importable by code/link**
+(`?importPack=<id>`) regardless of visibility — visibility only governs _discovery_:
+
+- **Private**: unlisted. Importable only by someone who has the code/link. This is the original
+  by-code-only behavior.
+- **Public** (default on publish): additionally appears in the browsable public **directory**.
+  Visibility is flippable after publish (public→private removes from the directory).
+
+### Public Directory
+
+The browsable list of `public` packs. Reverses the original by-code-only model (see ADR). Queried
+by `gameMode` + `locale` (Firestore `where` on indexed fields), sorted newest-first, paginated by
+cursor. Publishing **to the directory** (i.e. publishing public) requires a **permanent
+(non-anonymous) account**; anonymous users may still publish private packs and share by code.
+Moderation is **report + console takedown** (`reportPack` → `reports/` collection → admin deletes
+via Firebase Console); there is no in-app admin UI in v1. Admin = the Firebase Auth `admin` custom
+claim, granted out-of-band.
+
+### Pack Summary
+
+Denormalized fields stored on the pack doc at publish time (`tileCount`, `groupCount`,
+`groupLabels`) so directory cards render without parsing the full `contents` blob, and so the list
+is filterable/searchable server-side. The full per-tile preview (a grid of action cards) parses
+the already-loaded `contents`.

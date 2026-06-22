@@ -201,8 +201,11 @@ export default function AddCustomTile({
               slotProps={{ htmlInput: { maxLength: 2000 } }}
               value={draft.action}
               onChange={(event) => setDraftAction(event.target.value)}
-              onKeyUp={(event) => {
+              onKeyDown={(event) => {
                 if (event.key === 'Enter') {
+                  // The field lives inside a <Box component="form" method="post">;
+                  // block the browser's native submit (full reload) and run ours.
+                  event.preventDefault();
                   submitTile();
                 }
               }}

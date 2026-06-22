@@ -256,9 +256,6 @@ export function useCustomTileLifecycle({
       return;
     }
 
-    // The pending tag has been folded into the committed list — clear the input.
-    setTagInputValue('');
-
     try {
       const validation = await validateCustomTileWithGroups(
         decision.data,
@@ -288,15 +285,18 @@ export function useCustomTileLifecycle({
       boardUpdated();
       triggerRefresh();
 
+      // Persisted successfully — now safe to clear the draft and the pending tag
+      // input. Clearing earlier would lose the user's input on a validation or
+      // save failure.
       setDraft({ action: '', tags: [t('custom')] });
+      setTagInputValue('');
       setEditTarget({ tileId: null, editTileData: undefined });
 
       setSubmitMessage({
         message: decision.isUpdate ? t('customUpdated') : t('customAdded'),
         type: 'success',
       });
-    } catch (error) {
-      console.error('Error saving custom tile:', error);
+    } catch {
       setSubmitMessage({ message: t('errorSavingTile'), type: 'error' });
     }
   }, [

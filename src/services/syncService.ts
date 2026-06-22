@@ -281,36 +281,6 @@ export async function syncSettingsToFirebase(): Promise<boolean> {
   }
 }
 
-// Sync pack subscriptions to Firebase (full per-record array under user-data).
-export async function syncPackSubscriptionsToFirebase(): Promise<boolean> {
-  const auth = getAuth();
-  const user = auth.currentUser;
-
-  if (!user) {
-    console.error('No user logged in');
-    return false;
-  }
-
-  try {
-    const { getSubscriptions } = await import('@/stores/packSubscriptions');
-    const packSubscriptions = await getSubscriptions();
-
-    await setDoc(
-      doc(db, 'user-data', user.uid),
-      {
-        packSubscriptions,
-        lastUpdated: new Date(),
-      },
-      { merge: true }
-    );
-
-    return true;
-  } catch (error) {
-    console.error('Error syncing pack subscriptions:', error);
-    return false;
-  }
-}
-
 // Sync all data to Firebase. Runs every step (so one failure doesn't block the
 // rest) but returns false if any step failed, instead of masking partial failures.
 export async function syncAllDataToFirebase(): Promise<boolean> {
@@ -320,7 +290,6 @@ export async function syncAllDataToFirebase(): Promise<boolean> {
     await syncCustomGroupsToFirebase(),
     await syncGameBoardsToFirebase(),
     await syncSettingsToFirebase(),
-    await syncPackSubscriptionsToFirebase(),
   ];
   return results.every(Boolean);
 }

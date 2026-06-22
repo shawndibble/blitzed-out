@@ -32,7 +32,6 @@ export interface CustomGroupBase {
   gameMode?: string; // Game mode this group applies to
   // Content-pack provenance (set when this group was imported from a pack)
   packId?: string; // id of the source content pack (indexed)
-  packVersion?: number; // author publish version at import time
 }
 
 // Custom group for database push operations (id is optional)

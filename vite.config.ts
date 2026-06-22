@@ -98,11 +98,6 @@ export default defineConfig({
       output: {
         // Add format configuration for better Safari compatibility
         format: 'es',
-        // Ensure proper module declaration for Safari
-        generatedCode: {
-          constBindings: true,
-          objectShorthand: false, // Avoid object shorthand for better compatibility
-        },
         manualChunks: (id) => {
           if (!id.includes('node_modules/')) return;
 

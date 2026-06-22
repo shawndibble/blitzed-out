@@ -7,5 +7,4 @@ export * from './customGroupsSync';
 export * from './disabledDefaultsSync';
 export * from './settingsSync';
 export * from './gameBoardsSync';
-export * from './packSubscriptionsSync';
 export * from './syncOrchestrator';

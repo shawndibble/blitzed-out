@@ -47,14 +47,21 @@ export async function getExportableGroupStats(
 
   const allRelevantGroupIds = new Set([...customGroupIds, ...tilesGroupIds, ...disabledGroupIds]);
 
-  // Get all groups (both custom and default) that have exportable content
-  const allGroups = await batchFetchAllGroups();
+  // Get all groups (both custom and default) that have exportable content —
+  // default groups are needed so disabled-default tiles map to their group.
+  const allGroups = await batchFetchAllGroups(undefined, true);
   const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
 
-  // Deduplicate groups by name, keeping the first occurrence
-  const uniqueGroups = relevantGroups.filter(
-    (group, index, self) => self.findIndex((g) => g.name === group.name) === index
-  );
+  // Deduplicate by name across locale/gameMode variants. When a custom group
+  // and a same-named default group both qualify (now that default groups are
+  // included for their disabled-default tiles), prefer the custom one so the
+  // user's group is never dropped from the export-selection UI.
+  const uniqueGroups = relevantGroups.filter((group, index, self) => {
+    const preferred =
+      self.find((g) => g.name === group.name && !g.isDefault) ??
+      self.find((g) => g.name === group.name);
+    return preferred !== undefined && self.indexOf(preferred) === index;
+  });
 
   const exportableGroups: ExportableGroupStats[] = [];
 

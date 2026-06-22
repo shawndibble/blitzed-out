@@ -3,7 +3,6 @@ import Dexie, { type EntityTable } from 'dexie';
 import { CustomTilePull, DisabledDefault } from '@/types/customTiles';
 import { DBGameBoard } from '@/types/gameBoard';
 import { CustomGroupPull } from '@/types/customGroups';
-import { PackSubscription } from '@/types/contentPacks';
 import {
   DBLocalPlayerSession,
   DBLocalPlayerMove,
@@ -16,7 +15,6 @@ class BlitzedOutDatabase extends Dexie {
   gameBoard!: EntityTable<DBGameBoard, 'id'>;
   customGroups!: EntityTable<CustomGroupPull, 'id'>;
   disabledDefaults!: EntityTable<DisabledDefault, 'key'>;
-  packSubscriptions!: EntityTable<PackSubscription, 'id'>;
   localPlayerSessions!: EntityTable<DBLocalPlayerSession, 'id'>;
   localPlayerMoves!: EntityTable<DBLocalPlayerMove, 'id'>;
   localPlayerStats!: EntityTable<DBLocalPlayerStats, 'id'>;
@@ -93,6 +91,14 @@ class BlitzedOutDatabase extends Dexie {
           await tx.table('disabledDefaults').bulkPut(records);
         }
       });
+
+    // Version 4: Copy-only content packs. Drop the `packSubscriptions` table —
+    // the subscribe/update model is removed; imports are now one-time copies.
+    // Keep the `packId` indexes on tiles/groups (still used for attribution +
+    // re-import dedupe).
+    this.version(4).stores({
+      packSubscriptions: null,
+    });
   }
 }
 
@@ -105,7 +111,6 @@ db.use(
       'gameBoard',
       'customGroups',
       'disabledDefaults',
-      'packSubscriptions',
       'localPlayerSessions',
       'localPlayerMoves',
       'localPlayerStats',
