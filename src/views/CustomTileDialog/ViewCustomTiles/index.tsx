@@ -281,8 +281,7 @@ export default function ViewCustomTiles({
       isEnabled = true,
       isCustom = true,
       packName,
-      packVersion,
-    } = tile as typeof tile & { packName?: string; packVersion?: number };
+    } = tile as typeof tile & { packName?: string };
     return (
       <Card sx={{ my: 2 }} key={id}>
         <CardHeader
@@ -328,7 +327,7 @@ export default function ViewCustomTiles({
             <Chip
               color="secondary"
               variant="outlined"
-              label={t('packs.fromPack', { name: packName, version: packVersion })}
+              label={t('packs.fromPack', { name: packName })}
               sx={{ m: 0.5 }}
             />
           )}

@@ -7,6 +7,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
 } from '@mui/material';
 import {
   Category,
@@ -130,176 +131,171 @@ export default function CustomTileHelp({ expanded, handleChange }: CustomTileHel
   ];
 
   return (
-    <>
-      <Accordion
-        expanded={expanded === 'help1'}
-        onChange={handleChange('help1')}
-        className="about-accordion"
-      >
-        <AccordionSummary aria-controls="help1-content" id="help1-header">
-          <Typography className="accordion-title">
-            <Trans i18nKey="ctExplained" />
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ p: 0 }}>
-          <List dense>
-            {basicConcepts.map((concept, index) => (
-              <Box key={concept.id}>
-                <ListItem
-                  sx={{
-                    cursor: 'pointer',
-                    borderRadius: 1,
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      transform: 'translateX(4px)',
-                      transition: 'all 0.2s ease-in-out',
-                    },
+    <Accordion
+      expanded={expanded === 'help1'}
+      onChange={handleChange('help1')}
+      className="about-accordion"
+    >
+      <AccordionSummary aria-controls="help1-content" id="help1-header">
+        <Typography className="accordion-title">
+          <Trans i18nKey="ctExplained" />
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails sx={{ p: 0 }}>
+        <List dense>
+          {basicConcepts.map((concept, index) => (
+            <Box key={concept.id}>
+              <ListItem
+                sx={{
+                  cursor: 'pointer',
+                  borderRadius: 1,
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    transform: 'translateX(4px)',
                     transition: 'all 0.2s ease-in-out',
-                  }}
-                  onClick={() => toggleBasic(concept.id)}
-                >
-                  <ListItemIcon sx={{ minWidth: isMobile ? 36 : 40 }}>
-                    <Box
-                      sx={{
-                        color: `${concept.color}.main`,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      {concept.icon}
-                    </Box>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
-                        {concept.title}
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: 'text.secondary',
-                        }}
-                      >
-                        {concept.description}
-                      </Typography>
-                    }
-                  />
-                  <IconButton size="small" sx={{ ml: 1 }}>
-                    {expandedBasics[concept.id] ? <ExpandLess /> : <ExpandMore />}
-                  </IconButton>
-                </ListItem>
-
-                <Collapse in={expandedBasics[concept.id]} timeout="auto" unmountOnExit>
-                  <Box sx={{ ml: isMobile ? 4 : 6, mr: 2, mb: 1, p: 1.5 }}>
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+                onClick={() => toggleBasic(concept.id)}
+              >
+                <ListItemIcon sx={{ minWidth: isMobile ? 36 : 40 }}>
+                  <Box
+                    sx={{
+                      color: `${concept.color}.main`,
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {concept.icon}
+                  </Box>
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                      {concept.title}
+                    </Typography>
+                  }
+                  secondary={
                     <Typography
                       variant="body2"
                       sx={{
                         color: 'text.secondary',
-                        fontStyle: 'italic',
                       }}
                     >
-                      {concept.tip}
+                      {concept.description}
                     </Typography>
-                  </Box>
-                </Collapse>
+                  }
+                />
+                <IconButton size="small" sx={{ ml: 1 }}>
+                  {expandedBasics[concept.id] ? <ExpandLess /> : <ExpandMore />}
+                </IconButton>
+              </ListItem>
 
-                {index < basicConcepts.length - 1 && (
-                  <Divider variant="inset" sx={{ ml: isMobile ? 4 : 6 }} />
-                )}
-              </Box>
-            ))}
-          </List>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion
-        expanded={expanded === 'help2'}
-        onChange={handleChange('help2')}
-        className="about-accordion"
-      >
-        <AccordionSummary aria-controls="help2-content" id="help2-header">
-          <Typography className="accordion-title">
-            <Trans i18nKey="ctIdeas" />
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ p: 0 }}>
-          <List dense>
-            {creativeIdeas.map((idea, index) => (
-              <Box key={idea.id}>
-                <ListItem
-                  sx={{
-                    cursor: 'pointer',
-                    borderRadius: 1,
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                      transform: 'translateX(4px)',
-                      transition: 'all 0.2s ease-in-out',
-                    },
+              <Collapse in={expandedBasics[concept.id]} timeout="auto" unmountOnExit>
+                <Box sx={{ ml: isMobile ? 4 : 6, mr: 2, mb: 1, p: 1.5 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    {concept.tip}
+                  </Typography>
+                </Box>
+              </Collapse>
+
+              {index < basicConcepts.length - 1 && (
+                <Divider variant="inset" sx={{ ml: isMobile ? 4 : 6 }} />
+              )}
+            </Box>
+          ))}
+        </List>
+        <Divider />
+        <List
+          dense
+          subheader={
+            <ListSubheader sx={{ bgcolor: 'transparent', lineHeight: '2.5rem', mt: 1 }}>
+              <Typography className="accordion-title">
+                <Trans i18nKey="ctIdeas" />
+              </Typography>
+            </ListSubheader>
+          }
+        >
+          {creativeIdeas.map((idea, index) => (
+            <Box key={idea.id}>
+              <ListItem
+                sx={{
+                  cursor: 'pointer',
+                  borderRadius: 1,
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    transform: 'translateX(4px)',
                     transition: 'all 0.2s ease-in-out',
-                  }}
-                  onClick={() => toggleIdea(idea.id)}
-                >
-                  <ListItemIcon sx={{ minWidth: isMobile ? 36 : 40 }}>
-                    <Box
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+                onClick={() => toggleIdea(idea.id)}
+              >
+                <ListItemIcon sx={{ minWidth: isMobile ? 36 : 40 }}>
+                  <Box
+                    sx={{
+                      color: `${idea.color}.main`,
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {idea.icon}
+                  </Box>
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                      {idea.title}
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography
+                      variant="body2"
                       sx={{
-                        color: `${idea.color}.main`,
-                        display: 'flex',
-                        alignItems: 'center',
+                        color: 'text.secondary',
                       }}
                     >
-                      {idea.icon}
-                    </Box>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
-                        {idea.title}
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: 'text.secondary',
-                        }}
-                      >
-                        {idea.description}
-                      </Typography>
-                    }
-                  />
-                  <IconButton size="small" sx={{ ml: 1 }}>
-                    {expandedIdeas[idea.id] ? <ExpandLess /> : <ExpandMore />}
-                  </IconButton>
-                </ListItem>
+                      {idea.description}
+                    </Typography>
+                  }
+                />
+                <IconButton size="small" sx={{ ml: 1 }}>
+                  {expandedIdeas[idea.id] ? <ExpandLess /> : <ExpandMore />}
+                </IconButton>
+              </ListItem>
 
-                <Collapse in={expandedIdeas[idea.id]} timeout="auto" unmountOnExit>
-                  <Box sx={{ ml: isMobile ? 4 : 6, mr: 2, mb: 1, p: 1.5 }}>
-                    {idea.tips.map((tip, tipIndex) => (
-                      <Typography
-                        key={tipIndex}
-                        variant="body2"
-                        sx={{
-                          color: 'text.secondary',
-                          fontStyle: tipIndex === 0 ? 'italic' : 'normal',
-                          mb: tipIndex < idea.tips.length - 1 ? 1 : 0,
-                          '&:before': tipIndex !== 0 ? { content: '"• "' } : {},
-                        }}
-                      >
-                        {tip}
-                      </Typography>
-                    ))}
-                  </Box>
-                </Collapse>
+              <Collapse in={expandedIdeas[idea.id]} timeout="auto" unmountOnExit>
+                <Box sx={{ ml: isMobile ? 4 : 6, mr: 2, mb: 1, p: 1.5 }}>
+                  {idea.tips.map((tip, tipIndex) => (
+                    <Typography
+                      key={tipIndex}
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                        fontStyle: tipIndex === 0 ? 'italic' : 'normal',
+                        mb: tipIndex < idea.tips.length - 1 ? 1 : 0,
+                        '&:before': tipIndex !== 0 ? { content: '"• "' } : {},
+                      }}
+                    >
+                      {tip}
+                    </Typography>
+                  ))}
+                </Box>
+              </Collapse>
 
-                {index < creativeIdeas.length - 1 && (
-                  <Divider variant="inset" sx={{ ml: isMobile ? 4 : 6 }} />
-                )}
-              </Box>
-            ))}
-          </List>
-        </AccordionDetails>
-      </Accordion>
-    </>
+              {index < creativeIdeas.length - 1 && (
+                <Divider variant="inset" sx={{ ml: isMobile ? 4 : 6 }} />
+              )}
+            </Box>
+          ))}
+        </List>
+      </AccordionDetails>
+    </Accordion>
   );
 }

@@ -7,22 +7,35 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
+  Divider,
+  IconButton,
   Stack,
   Typography,
 } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { Close } from '@mui/icons-material';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { importPack, parsePack, reportPack } from '@/services/contentPacks';
-import { analyzeImportConflicts } from '@/services/importExport';
-import { upsertSubscription } from '@/stores/packSubscriptions';
 import type { ContentPackDoc } from '@/types/contentPacks';
+import type { ExportTile } from '@/types/importExport';
+
+// Ordered easy→intense palette; intensities map to slots by their sorted position
+// so colors stay consistent regardless of the raw `value` numbers a pack uses.
+const INTENSITY_COLORS = [
+  '#4caf50', // green
+  '#26c6da', // cyan
+  '#fdd835', // yellow
+  '#fb8c00', // orange
+  '#ef5350', // red
+  '#ab47bc', // purple
+  '#ec407a', // pink
+];
 
 interface PackImportDialogProps {
   pack: ContentPackDoc;
   open: boolean;
   onClose: () => void;
-  onImported?: () => void;
+  onImported?: (packName: string) => void;
 }
 
 export default function PackImportDialog({
@@ -32,61 +45,41 @@ export default function PackImportDialog({
   onImported,
 }: PackImportDialogProps) {
   const { t } = useTranslation();
-  // Memoize on stable pack identity so the conflict-analysis effect below isn't
-  // retriggered by every parent re-render.
-  const parsed = useMemo(() => parsePack(pack), [pack.id, pack.contents, pack.packVersion]);
-  const [conflicts, setConflicts] = useState<number | null>(null);
+  const parsed = useMemo(() => parsePack(pack), [pack]);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [reported, setReported] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    type: 'success' | 'error' | 'info';
+    message: string;
+  } | null>(null);
 
-  const groupCount = parsed?.data.data.customGroups.length ?? 0;
-  const tileCount = parsed?.data.data.customTiles.length ?? 0;
+  const groups = parsed?.data.data.customGroups ?? [];
+  const tiles = parsed?.data.data.customTiles ?? [];
 
-  useEffect(() => {
-    if (!open || !parsed) return;
-    let cancelled = false;
-    analyzeImportConflicts(pack.contents, {
-      packProvenance: { packId: pack.id, packVersion: pack.packVersion, packName: pack.name },
-    })
-      .then((res) => {
-        if (cancelled) return;
-        // Count only genuine local edits that an import would overwrite.
-        setConflicts(res.tileConflicts.filter((c) => c.conflictType === 'contentMatch').length);
-      })
-      .catch(() => {
-        if (!cancelled) setConflicts(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // `parsed` is memoized on stable pack identity; pack fields read here move with it.
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
-  }, [open, parsed]);
+  // Bucket tiles under their group for the per-group preview sections.
+  const tilesByGroup = useMemo(() => {
+    const map = new Map<string, ExportTile[]>();
+    for (const tile of tiles) {
+      const list = map.get(tile.groupName) ?? [];
+      list.push(tile);
+      map.set(tile.groupName, list);
+    }
+    return map;
+  }, [tiles]);
 
-  async function handleImport(subscribe: boolean): Promise<void> {
+  async function handleImport(): Promise<void> {
     setBusy(true);
-    setError(null);
+    setFeedback(null);
     try {
       const result = await importPack(pack);
       if (!result.success) {
-        setError(result.errors[0] || t('packs.importFailed'));
+        setFeedback({ type: 'error', message: result.errors[0] || t('packs.importFailed') });
         return;
       }
-      if (subscribe) {
-        await upsertSubscription({
-          packId: pack.id,
-          packVersion: pack.packVersion,
-          name: pack.name,
-          authorName: pack.authorName,
-          gameMode: pack.gameMode,
-          locale: pack.locale,
-          subscribedAt: Date.now(),
-        });
-      }
-      onImported?.();
+      onImported?.(pack.name);
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setFeedback({ type: 'error', message: e instanceof Error ? e.message : String(e) });
     } finally {
       setBusy(false);
     }
@@ -95,57 +88,190 @@ export default function PackImportDialog({
   async function handleReport(): Promise<void> {
     try {
       await reportPack(pack.id, 'Reported from import preview');
-      setError(t('packs.reported'));
+      setReported(true);
+      setFeedback({ type: 'success', message: t('packs.reported') });
     } catch {
-      setError(t('packs.reportFailed'));
+      setFeedback({ type: 'error', message: t('packs.reportFailed') });
     }
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{t('packs.importTitle')}</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+          bgcolor: 'background.paper',
+          px: 3,
+          pt: 2.5,
+          pb: 1.5,
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+      >
+        <IconButton
+          aria-label={t('close')}
+          onClick={onClose}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+        >
+          <Close />
+        </IconButton>
+        <Typography variant="h6">{pack.name}</Typography>
+        {pack.authorName && (
+          <Typography variant="body2" color="text.secondary">
+            {t('packs.by')} {pack.authorName}
+          </Typography>
+        )}
+        {pack.description && (
+          <Typography variant="body2" sx={{ mt: 1 }}>
+            {pack.description}
+          </Typography>
+        )}
+        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 1 }}>
+          <Chip size="small" label={t(`gameMode.${pack.gameMode}`)} />
+          <Chip size="small" label={pack.locale} />
+          {pack.tags?.map((tag) => (
+            <Chip key={tag} size="small" variant="outlined" label={tag} />
+          ))}
+        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+          {t('packs.summary', { groups: groups.length, tiles: tiles.length })}
+        </Typography>
+      </Box>
+
       <DialogContent>
         {!parsed ? (
           <Alert severity="error">{t('packs.invalidPack')}</Alert>
         ) : (
-          <Stack spacing={1.5} sx={{ mt: 1 }}>
-            <Typography variant="h6">{pack.name}</Typography>
-            {pack.description && <Typography variant="body2">{pack.description}</Typography>}
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <Chip size="small" label={`v${pack.packVersion}`} />
-              <Chip size="small" label={pack.gameMode} />
-              <Chip size="small" label={pack.locale} />
-              {pack.authorName && (
-                <Chip size="small" label={`${t('packs.by')} ${pack.authorName}`} />
-              )}
-            </Box>
-            <Typography variant="body2" color="text.secondary">
-              {t('packs.contains', { groups: groupCount, tiles: tileCount })}
-            </Typography>
-            {conflicts !== null && conflicts > 0 && (
-              <Alert severity="warning">{t('packs.editConflicts', { count: conflicts })}</Alert>
-            )}
-            {error && <Alert severity="info">{error}</Alert>}
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            {groups.map((group) => {
+              const groupTiles = tilesByGroup.get(group.name) ?? [];
+              // Sort intensities low→high so palette slots run easy→intense.
+              const ordered = [...group.intensities].sort((a, b) => a.value - b.value);
+              const colorByValue = new Map(
+                ordered.map((i, idx) => [i.value, INTENSITY_COLORS[idx % INTENSITY_COLORS.length]])
+              );
+              const countByValue = new Map<number, number>();
+              for (const tile of groupTiles) {
+                countByValue.set(tile.intensity, (countByValue.get(tile.intensity) ?? 0) + 1);
+              }
+              const colorFor = (value: number) => colorByValue.get(value) ?? 'primary.main';
+              const intensityLabel = (value: number) =>
+                group.intensities.find((i) => i.value === value)?.label ?? `L${value}`;
+              return (
+                <Box key={group.name}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'space-between',
+                      gap: 1,
+                      flexWrap: 'wrap',
+                      mb: 1,
+                    }}
+                  >
+                    <Typography variant="subtitle2">{group.label || group.name}</Typography>
+                    {/* Color key: one chip per level with its tile count. */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: 0.5,
+                        flexWrap: 'wrap',
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      {ordered.map((i) => {
+                        const count = countByValue.get(i.value) ?? 0;
+                        const color = colorFor(i.value);
+                        return (
+                          <Chip
+                            key={i.value}
+                            size="small"
+                            variant="outlined"
+                            label={`${i.label} · ${count}`}
+                            sx={{
+                              borderColor: color,
+                              color,
+                              opacity: count === 0 ? 0.5 : 1,
+                              '& .MuiChip-label': { fontWeight: 500 },
+                            }}
+                          />
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                      gap: 1,
+                    }}
+                  >
+                    {groupTiles.map((tile, idx) => {
+                      const color = colorFor(tile.intensity);
+                      return (
+                        <Box
+                          key={`${tile.action}-${idx}`}
+                          sx={{
+                            borderLeft: 3,
+                            borderColor: color,
+                            bgcolor: 'action.hover',
+                            borderRadius: 1,
+                            px: 1.25,
+                            py: 0.75,
+                          }}
+                        >
+                          <Typography variant="body2">{tile.action}</Typography>
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
+                            <Chip
+                              size="small"
+                              variant="outlined"
+                              label={intensityLabel(tile.intensity)}
+                              sx={{ borderColor: color, color }}
+                            />
+                            {tile.tags?.map((tag) => (
+                              <Chip key={tag} size="small" variant="outlined" label={tag} />
+                            ))}
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                  <Divider sx={{ mt: 2 }} />
+                </Box>
+              );
+            })}
           </Stack>
         )}
       </DialogContent>
-      <DialogActions sx={{ flexWrap: 'wrap', gap: 1, px: 3, pb: 2 }}>
-        <Button color="error" onClick={handleReport} disabled={busy} sx={{ mr: 'auto' }}>
-          {t('packs.report')}
-        </Button>
-        <Button onClick={onClose} disabled={busy}>
-          {t('cancel')}
-        </Button>
-        <Button onClick={() => handleImport(false)} disabled={busy || !parsed}>
-          {t('packs.importCopy')}
+
+      {feedback && (
+        <Alert
+          severity={feedback.type}
+          onClose={() => setFeedback(null)}
+          sx={{ mx: 3, mb: 1, borderRadius: 1 }}
+        >
+          {feedback.message}
+        </Alert>
+      )}
+
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button
+          color="error"
+          onClick={handleReport}
+          disabled={busy || reported}
+          sx={{ mr: 'auto' }}
+        >
+          {reported ? t('packs.reportedShort') : t('packs.report')}
         </Button>
         <Button
           variant="contained"
-          onClick={() => handleImport(true)}
+          onClick={handleImport}
           disabled={busy || !parsed}
           startIcon={busy ? <CircularProgress size={16} /> : undefined}
         >
-          {t('packs.subscribe')}
+          {t('packs.import')}
         </Button>
       </DialogActions>
     </Dialog>

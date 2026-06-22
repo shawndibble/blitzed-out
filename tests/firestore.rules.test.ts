@@ -7,7 +7,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { doc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 
 const PROJECT_ID = 'demo-blitzed';
 const UID = 'user-123';
@@ -230,6 +230,10 @@ const validPack = (overrides: Record<string, unknown> = {}) => ({
   gameMode: 'online',
   locale: 'en',
   tags: ['fun'],
+  visibility: 'public',
+  tileCount: 2,
+  groupCount: 1,
+  groupLabels: ['Group 1'],
   contents: JSON.stringify({ formatVersion: '2.0.0', data: {} }),
   contentHash: 'sha256-abc',
   packVersion: 1,
@@ -339,6 +343,53 @@ describe('content-packs', () => {
     });
     const { deleteDoc } = await import('firebase/firestore');
     await assertFails(deleteDoc(doc(dbAs(OTHER_UID), 'content-packs/p1')));
+  });
+
+  it('rejects a create with an invalid visibility', async () => {
+    await assertFails(
+      setDoc(doc(dbAs(UID), 'content-packs/p1'), validPack({ visibility: 'secret' }))
+    );
+  });
+
+  it('lets an anonymous user publish a private pack', async () => {
+    const anon = testEnv
+      .authenticatedContext('anon-1', { firebase: { sign_in_provider: 'anonymous' } })
+      .firestore();
+    await assertSucceeds(
+      setDoc(doc(anon, 'content-packs/p1'), validPack({ author: 'anon-1', visibility: 'private' }))
+    );
+  });
+
+  it('forbids an anonymous user from publishing a public pack', async () => {
+    const anon = testEnv
+      .authenticatedContext('anon-1', { firebase: { sign_in_provider: 'anonymous' } })
+      .firestore();
+    await assertFails(
+      setDoc(doc(anon, 'content-packs/p1'), validPack({ author: 'anon-1', visibility: 'public' }))
+    );
+  });
+
+  it('allows listing public packs and rejects listing private ones', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/pub'), validPack({ visibility: 'public' }));
+      await setDoc(
+        doc(ctx.firestore(), 'content-packs/priv'),
+        validPack({ visibility: 'private' })
+      );
+    });
+    const col = collection(dbAs(UID), 'content-packs');
+    await assertSucceeds(getDocs(query(col, where('visibility', '==', 'public'))));
+    // A list not constrained to public packs is rejected by the rule.
+    await assertFails(getDocs(query(col, where('visibility', '==', 'private'))));
+    await assertFails(getDocs(col));
+  });
+
+  it('still allows fetching a private pack by id (link import)', async () => {
+    const { getDoc } = await import('firebase/firestore');
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack({ visibility: 'private' }));
+    });
+    await assertSucceeds(getDoc(doc(dbAs(OTHER_UID), 'content-packs/p1')));
   });
 });
 

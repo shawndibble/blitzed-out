@@ -81,6 +81,21 @@ export const getCustomGroups = async (
 };
 
 /**
+ * Distinct source-pack ids present in the local library — i.e. which content
+ * packs have already been imported. Uses the indexed `packId` key, so only
+ * groups stamped with provenance contribute.
+ */
+export const getImportedPackIds = async (): Promise<Set<string>> => {
+  try {
+    const keys = await customGroups.orderBy('packId').uniqueKeys();
+    return new Set(keys.map((k) => String(k)));
+  } catch (error) {
+    console.error('Error in getImportedPackIds:', error);
+    return new Set();
+  }
+};
+
+/**
  * Get a single custom group by ID
  */
 export const getCustomGroup = async (id: string): Promise<CustomGroupPull | undefined> => {

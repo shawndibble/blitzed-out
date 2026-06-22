@@ -24,15 +24,27 @@ Companion to [README.md](README.md). Security model, the actual rules in force, 
 
 ## Firestore rules (`firestore.rules`)
 
-| Path                                | Read                   | Write                                                                                    | Notes                                                        |
-| ----------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `user-data/{uid}`                   | owner only             | owner only                                                                               | `request.auth.uid == uid`. Solid.                            |
-| `custom-actions/{id}`               | public                 | auth create only; field-typed + size-capped; `hasOnly` field lock; **no update/delete**  | TTL-based cleanup.                                           |
-| `game-boards/{id}`                  | public                 | auth create (field-typed + size-capped, `hasOnly`); update limited to `ttl`; no delete   | Good — restrictive update.                                   |
-| `chat-rooms/{roomId}`               | **any auth**           | **any auth**                                                                             | ⚠ Room metadata is not membership-scoped.                    |
-| `chat-rooms/{roomId}/messages/{id}` | any auth (read + list) | auth create with `uid == auth.uid`, `text ≤ 1000`, `type` enum; delete own only; no edit | Create validation is good; **read is not room-scoped**.      |
-| `rate-limits/{uid}`                 | none                   | none                                                                                     | System-only.                                                 |
-| `schedule/{id}`                     | public                 | creator-only create/update/delete; update limited to `dateTime`/`url`                    | `url` scheme/size validated (`^https?://`, ≤2048, empty ok). |
+| Path                                | Read                              | Write                                                                                                                                | Notes                                                                                            |
+| ----------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `user-data/{uid}`                   | owner only                        | owner only                                                                                                                           | `request.auth.uid == uid`. Solid.                                                                |
+| `custom-actions/{id}`               | public                            | auth create only; field-typed + size-capped; `hasOnly` field lock; **no update/delete**                                              | TTL-based cleanup.                                                                               |
+| `game-boards/{id}`                  | public                            | auth create (field-typed + size-capped, `hasOnly`); update limited to `ttl`; no delete                                               | Good — restrictive update.                                                                       |
+| `chat-rooms/{roomId}`               | **any auth**                      | **any auth**                                                                                                                         | ⚠ Room metadata is not membership-scoped.                                                        |
+| `chat-rooms/{roomId}/messages/{id}` | any auth (read + list)            | auth create with `uid == auth.uid`, `text ≤ 1000`, `type` enum; delete own only; no edit                                             | Create validation is good; **read is not room-scoped**.                                          |
+| `rate-limits/{uid}`                 | none                              | none                                                                                                                                 | System-only.                                                                                     |
+| `schedule/{id}`                     | public                            | creator-only create/update/delete; update limited to `dateTime`/`url`                                                                | `url` scheme/size validated (`^https?://`, ≤2048, empty ok).                                     |
+| `content-packs/{id}`                | `get` any; `list` **public only** | auth create (field-typed, `hasOnly` lock, `visibility` gated); author-only update (`packVersion` must increase); author/admin delete | `get`-by-id works for any visibility (link import); `list` requires `where(visibility==public)`. |
+| `reports/{id}`                      | none (admin via console)          | auth create only (`reporterUid == auth.uid`, `reason ≤ 500`)                                                                         | Post-moderation: report → console takedown.                                                      |
+
+**Content-pack visibility + public-publish gate:** `list` is restricted to `resource.data.visibility == 'public'`, so directory queries **must** carry `where('visibility','==','public')` or Firestore rejects them — that rejection is what keeps private packs out of the directory (they remain `get`-able by id). Publishing **public** additionally requires a permanent account: `publicVisibilityGated()` allows `visibility == 'private'` for anyone but demands `request.auth.token.firebase.sign_in_provider != 'anonymous'` for public. The four directory/summary fields (`visibility`, `tileCount`, `groupCount`, `groupLabels`) are in the create `hasOnly`/`hasAll` and update `affectedKeys` lists so create, republish, and visibility-flip all pass. Covered by `npm run test:rules`.
+
+**Setting the `admin` claim** (out-of-band; no app code grants it) — run once against the project, e.g. in a Functions shell or a privileged script:
+
+```js
+await admin.auth().setCustomUserClaims(uid, { admin: true });
+```
+
+The holder can then delete reported packs (`content-packs` delete rule) and invoke the admin Cloud Functions; everyone else fails closed.
 
 **Key weaknesses:**
 

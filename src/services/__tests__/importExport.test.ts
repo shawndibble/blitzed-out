@@ -167,6 +167,29 @@ describe('ImportExport Service', () => {
       });
     });
 
+    it('should export only the selected groupNames (content-pack multi-select)', async () => {
+      const groups = [
+        { ...mockGroup, id: 'g-1', name: 'alpha' },
+        { ...mockGroup, id: 'g-2', name: 'beta' },
+        { ...mockGroup, id: 'g-3', name: 'gamma' },
+      ];
+      const tiles = [
+        { ...mockTile, id: 1, group_id: 'g-1', action: 'Alpha action' },
+        { ...mockTile, id: 2, group_id: 'g-2', action: 'Beta action' },
+        { ...mockTile, id: 3, group_id: 'g-3', action: 'Gamma action' },
+      ];
+      vi.mocked(getCustomGroups).mockResolvedValue(groups as any);
+      vi.mocked(getTiles).mockResolvedValue(tiles as any);
+
+      const result = await exportAllData({ groupNames: ['alpha', 'gamma'] });
+      const exportData = JSON.parse(result);
+
+      const exportedGroupNames = exportData.data.customGroups.map((g: any) => g.name).sort();
+      expect(exportedGroupNames).toEqual(['alpha', 'gamma']);
+      const exportedActions = exportData.data.customTiles.map((t: any) => t.action).sort();
+      expect(exportedActions).toEqual(['Alpha action', 'Gamma action']);
+    });
+
     it('should call progress callback if provided', async () => {
       const progressCallback = vi.fn();
 

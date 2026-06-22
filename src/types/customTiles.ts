@@ -7,11 +7,10 @@ export interface CustomTileBase {
   isEnabled?: number | boolean;
   isCustom: number;
   updatedAt?: number; // Unix ms; drives last-writer-wins during sync
-  // Content-pack provenance (set when this tile was imported from a pack)
+  // Content-pack provenance (set when this tile was imported from a pack).
+  // Copy-only model: a lightweight attribution + re-import dedupe stamp only.
   packId?: string; // id of the source content pack (indexed)
-  packVersion?: number; // author publish version at import time
   packName?: string; // denormalized source pack name for badge display
-  packDetached?: boolean; // true once the user locally edits a pack tile; stops auto-update
 }
 
 /**

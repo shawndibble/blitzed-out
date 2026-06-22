@@ -269,20 +269,6 @@ export const toggleCustomTile = async (id: number): Promise<number> => {
   return result;
 };
 
-/**
- * Soft-remove all tiles imported from a pack (set isEnabled: 0). Used on
- * unsubscribe — a hard delete would resurrect via the additive, no-tombstone
- * sync merge, whereas the disabled state round-trips under last-writer-wins.
- */
-export const softRemoveTilesByPackId = async (packId: string): Promise<number> => {
-  try {
-    return await customTiles.where('packId').equals(packId).modify({ isEnabled: 0 });
-  } catch (error) {
-    console.error('Error soft-removing tiles by packId:', error);
-    return 0;
-  }
-};
-
 export async function deleteAllIsCustomTiles(): Promise<boolean> {
   try {
     await db.customTiles.where('isCustom').equals(1).delete();

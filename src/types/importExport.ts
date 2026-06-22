@@ -44,7 +44,6 @@ export interface ExportData {
 
 export interface PackProvenance {
   packId: string;
-  packVersion: number;
   packName: string;
 }
 
@@ -89,6 +88,7 @@ import type { GameMode, SupportedLanguage } from '@/services/migration/constants
 export interface ExportOptions {
   scope: 'all' | 'custom' | 'single' | 'disabled';
   singleGroupName?: string;
+  groupNames?: string[]; // multi-group selection (content packs); supersedes singleGroupName when set
   includeDisabledDefaults: boolean;
   locales?: SupportedLanguage[];
   gameModes?: GameMode[];

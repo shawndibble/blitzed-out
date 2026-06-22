@@ -1,16 +1,34 @@
 /**
- * Content packs: durable, shareable bundles of custom tiles + groups published
- * to the public `content-packs` Firestore collection and imported by others via
- * a `?importPack=<id>` link.
+ * Content packs: durable, shareable bundles of an author's selected custom
+ * groups (their custom tiles + group definitions) published to the
+ * `content-packs` Firestore collection and imported by others via a
+ * `?importPack=<id>` link or, when public, browsed in the directory.
  *
  * Serialization reuses the import/export pipeline (`exportAllData`/`importData`),
- * so a pack's `contents` is exactly an `ExportData` JSON string.
+ * so a pack's `contents` is exactly an `ExportData` JSON string. Imports are a
+ * one-time copy — there is no subscription or auto-update.
  */
-import { addDoc, collection, deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  limit as fbLimit,
+  orderBy,
+  query,
+  startAfter,
+  updateDoc,
+  where,
+  type QueryDocumentSnapshot,
+} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { sha256 } from 'js-sha256';
 import { db } from './firebase';
 import { exportAllData, importData } from './importExport';
+import { getCustomGroups } from '@/stores/customGroups';
+import { getTilesByGroupIds } from '@/stores/customTiles';
 import type { ExportData, ExportOptions, ImportResult } from '@/types/importExport';
 import type { ContentPackDoc, ContentPackMeta, ParsedContentPack } from '@/types/contentPacks';
 
@@ -20,21 +38,73 @@ const FORMAT_VERSION = '2.0.0';
 export interface BuildPackOptions {
   locales?: string[];
   gameModes?: string[];
-  singleGroupName?: string;
+  groupNames: string[];
   includeDisabledDefaults?: boolean;
 }
 
-/** Serialize the user's selected custom content into pack `contents` + hash. */
+export interface PublishableGroup {
+  name: string;
+  label: string;
+  tileCount: number;
+}
+
+/**
+ * Custom groups in the given mode + locale that an author can bundle into a
+ * pack, each with its custom-tile count for the publish multi-select.
+ */
+export async function listPublishableGroups(
+  gameMode: string,
+  locale: string
+): Promise<PublishableGroup[]> {
+  // Groups carry gameMode/locale; tiles are scoped only by group_id, so count
+  // them via group membership (mirrors how exportAllData narrows tiles).
+  const groups = await getCustomGroups({ gameMode, locale, isDefault: false });
+  const tiles = await getTilesByGroupIds(groups.map((g) => g.id));
+  const countByGroupId = new Map<string, number>();
+  for (const tile of tiles) {
+    if (tile.isCustom && tile.group_id) {
+      countByGroupId.set(tile.group_id, (countByGroupId.get(tile.group_id) ?? 0) + 1);
+    }
+  }
+  return groups
+    .map((g) => ({
+      name: g.name,
+      label: g.label || g.name,
+      tileCount: countByGroupId.get(g.id) ?? 0,
+    }))
+    .filter((g) => g.tileCount > 0);
+}
+
+/** Serialize the author's selected custom groups into pack `contents` + hash. */
 export async function buildPackContents(
-  options: BuildPackOptions = {}
+  options: BuildPackOptions
 ): Promise<{ contents: string; contentHash: string }> {
   const contents = await exportAllData({
     locales: options.locales as ExportOptions['locales'],
     gameModes: options.gameModes as ExportOptions['gameModes'],
-    singleGroupName: options.singleGroupName,
+    groupNames: options.groupNames,
     includeDisabledDefaults: options.includeDisabledDefaults ?? false,
   });
   return { contents, contentHash: `sha256-${sha256(contents)}` };
+}
+
+/** Denormalized summary derived from serialized contents, for directory cards. */
+function summarizeContents(contents: string): {
+  tileCount: number;
+  groupCount: number;
+  groupLabels: string[];
+} {
+  try {
+    const parsed = JSON.parse(contents) as ExportData;
+    const groups = parsed.data.customGroups ?? [];
+    return {
+      tileCount: parsed.data.customTiles?.length ?? 0,
+      groupCount: groups.length,
+      groupLabels: groups.map((g) => g.label || g.name),
+    };
+  } catch {
+    return { tileCount: 0, groupCount: 0, groupLabels: [] };
+  }
 }
 
 /** Publish a new pack (packVersion = 1). Returns the new pack id. */
@@ -55,10 +125,12 @@ export async function publishPack(
     gameMode: meta.gameMode,
     locale: meta.locale,
     tags: meta.tags,
+    visibility: meta.visibility,
     contents,
     contentHash,
     packVersion: 1,
     formatVersion: FORMAT_VERSION,
+    ...summarizeContents(contents),
     createdAt: now,
     updatedAt: now,
   });
@@ -79,9 +151,11 @@ export async function republishPack(
     name: meta.name,
     description: meta.description,
     tags: meta.tags,
+    visibility: meta.visibility,
     contents,
     contentHash,
     packVersion: existing.packVersion + 1,
+    ...summarizeContents(contents),
     updatedAt: Date.now(),
     authorName: getAuth().currentUser?.displayName || existing.authorName,
   });
@@ -99,6 +173,43 @@ export async function getPack(packId: string): Promise<ContentPackDoc | undefine
   }
 }
 
+export interface ListPublicPacksOptions {
+  gameMode: string;
+  locale: string;
+  cursor?: QueryDocumentSnapshot;
+  limit?: number;
+}
+
+export interface ListPublicPacksResult {
+  packs: ContentPackDoc[];
+  nextCursor?: QueryDocumentSnapshot;
+}
+
+/**
+ * Page through the public directory, filtered by gameMode + locale, newest
+ * first. The `visibility == 'public'` clause is mandatory — Firestore's `list`
+ * rule rejects any query that omits it. Name/tag substring filtering happens
+ * client-side over the loaded page (full-text search is out of scope for v1).
+ */
+export async function listPublicPacks(
+  options: ListPublicPacksOptions
+): Promise<ListPublicPacksResult> {
+  const pageSize = options.limit ?? 24;
+  const constraints = [
+    where('visibility', '==', 'public'),
+    where('gameMode', '==', options.gameMode),
+    where('locale', '==', options.locale),
+    orderBy('createdAt', 'desc'),
+    ...(options.cursor ? [startAfter(options.cursor)] : []),
+    fbLimit(pageSize),
+  ];
+
+  const snap = await getDocs(query(collection(db, COLLECTION), ...constraints));
+  const packs = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<ContentPackDoc, 'id'>) }));
+  const nextCursor = snap.docs.length === pageSize ? snap.docs[snap.docs.length - 1] : undefined;
+  return { packs, nextCursor };
+}
+
 /** Author/admin delete (takedown). */
 export async function deletePack(packId: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, packId));
@@ -108,7 +219,6 @@ export async function deletePack(packId: string): Promise<void> {
 export function parsePack(pack: ContentPackDoc): ParsedContentPack | undefined {
   try {
     const data = JSON.parse(pack.contents);
-    // Validate the ExportData shape before trusting it (mirrors isValidImportData).
     if (
       !data ||
       typeof data !== 'object' ||
@@ -126,30 +236,15 @@ export function parsePack(pack: ContentPackDoc): ParsedContentPack | undefined {
   }
 }
 
-/**
- * Import a pack's contents into Dexie, stamping provenance so the app can show
- * the source pack and detect future updates.
- */
+/** Import a pack's contents into Dexie as a one-time copy, stamping attribution. */
 export async function importPack(pack: ContentPackDoc): Promise<ImportResult> {
   return importData(pack.contents, {
     preserveDisabledDefaults: true,
     packProvenance: {
       packId: pack.id,
-      packVersion: pack.packVersion,
       packName: pack.name,
     },
   });
-}
-
-/**
- * Unsubscribe from a pack: drop the subscription and soft-remove its tiles
- * (disable rather than delete, so the change survives the no-tombstone sync).
- */
-export async function unsubscribePack(packId: string): Promise<void> {
-  const { removeSubscription } = await import('@/stores/packSubscriptions');
-  const { softRemoveTilesByPackId } = await import('@/stores/customTiles');
-  await softRemoveTilesByPackId(packId);
-  await removeSubscription(packId);
 }
 
 /** File an abuse report against a pack. */

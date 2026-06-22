@@ -14,6 +14,7 @@ import AddCustomTile from './AddCustomTile';
 import { Close } from '@mui/icons-material';
 import CustomTileHelp from './CustomTileHelp';
 import ImportExport from '@/views/CustomTileDialog/ImportExport';
+import PackDirectory from './PackDirectory';
 import Packs from './Packs';
 import ToastAlert from '@/components/ToastAlert';
 import ViewCustomTiles from './ViewCustomTiles';
@@ -102,6 +103,15 @@ export default function CustomTileDialog({
     [boardUpdated, triggerRefresh]
   );
 
+  const handlePackImported = useCallback(
+    (packName: string) => {
+      boardUpdated();
+      triggerRefresh();
+      setSubmitMessage({ message: t('packs.importedToast', { name: packName }), type: 'success' });
+    },
+    [boardUpdated, triggerRefresh, t]
+  );
+
   if (!allTiles || isLoadingActions) return null;
 
   // Render content based on screen size
@@ -130,33 +140,47 @@ export default function CustomTileDialog({
         <Packs
           expanded={expanded}
           handleChange={handleChange}
-          onImported={() => {
-            boardUpdated();
-            triggerRefresh();
-          }}
+          gameMode={lifecycle.sharedFilters.gameMode}
+          onGameModeChange={(mode) =>
+            lifecycle.setSharedFilters({ ...lifecycle.sharedFilters, gameMode: mode })
+          }
+          onImported={handlePackImported}
         />
       </>
     );
 
-    const rightColumnContent = (
-      <Box>
-        <ViewCustomTiles
-          tagList={tagList}
-          boardUpdated={() => {
-            boardUpdated();
-            triggerRefresh();
-          }}
-          mappedGroups={allGameModeActions}
-          updateTile={(id: number, tileData?: Partial<CustomTilePull>) => {
-            lifecycle.beginEdit(id, tileData);
-            setExpanded('ctAdd');
-          }}
-          refreshTrigger={lifecycle.refreshTrigger}
-          sharedFilters={lifecycle.sharedFilters}
-          setSharedFilters={lifecycle.setSharedFilters}
-        />
-      </Box>
-    );
+    // Expanding the Content Packs accordion swaps the right pane to the public
+    // directory; any other panel shows the custom-tile editor.
+    const rightColumnContent =
+      expanded === 'ctPacks' ? (
+        <Box>
+          <PackDirectory
+            gameMode={lifecycle.sharedFilters.gameMode}
+            onGameModeChange={(mode) =>
+              lifecycle.setSharedFilters({ ...lifecycle.sharedFilters, gameMode: mode })
+            }
+            onImported={handlePackImported}
+          />
+        </Box>
+      ) : (
+        <Box>
+          <ViewCustomTiles
+            tagList={tagList}
+            boardUpdated={() => {
+              boardUpdated();
+              triggerRefresh();
+            }}
+            mappedGroups={allGameModeActions}
+            updateTile={(id: number, tileData?: Partial<CustomTilePull>) => {
+              lifecycle.beginEdit(id, tileData);
+              setExpanded('ctAdd');
+            }}
+            refreshTrigger={lifecycle.refreshTrigger}
+            sharedFilters={lifecycle.sharedFilters}
+            setSharedFilters={lifecycle.setSharedFilters}
+          />
+        </Box>
+      );
 
     if (!isSmallScreen) {
       return (

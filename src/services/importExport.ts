@@ -257,14 +257,6 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
             continue;
           }
 
-          // Preserve a locally-edited pack tile: a user edit sets packDetached,
-          // and a pack update must not overwrite those changes.
-          if ((existingTile as { packDetached?: boolean }).packDetached) {
-            ctx.result.skippedItems++;
-            ctx.result.warnings.push(`Kept your edited tile: ${importedTile.action}`);
-            continue;
-          }
-
           // Update existing tile
           if (existingTile.id !== undefined) {
             await updateCustomTile(existingTile.id, createTileData(importedTile, groupId, ctx));
@@ -383,7 +375,7 @@ function createGroupData(importedGroup: ExportGroup, ctx?: ImportContext): Custo
     isDefault: false,
     locale: importedGroup.locale,
     gameMode: importedGroup.gameMode,
-    ...(prov ? { packId: prov.packId, packVersion: prov.packVersion } : {}),
+    ...(prov ? { packId: prov.packId } : {}),
   };
 }
 
@@ -396,14 +388,7 @@ function createTileData(importedTile: ExportTile, groupId: string, ctx?: ImportC
     tags: importedTile.tags,
     isEnabled: importedTile.isEnabled ? 1 : 0,
     isCustom: 1,
-    ...(prov
-      ? {
-          packId: prov.packId,
-          packVersion: prov.packVersion,
-          packName: prov.packName,
-          packDetached: false,
-        }
-      : {}),
+    ...(prov ? { packId: prov.packId, packName: prov.packName } : {}),
   };
 }
 
@@ -424,7 +409,13 @@ export async function exportAllData(
   progressCallback?: ProgressCallback
 ): Promise<string> {
   try {
-    const { includeDisabledDefaults = false, singleGroupName, locales, gameModes } = options;
+    const {
+      includeDisabledDefaults = false,
+      singleGroupName,
+      groupNames,
+      locales,
+      gameModes,
+    } = options;
 
     // Validate filter arrays
     const validatedLocales = locales?.filter((locale) => SUPPORTED_LANGUAGES.includes(locale));
@@ -511,10 +502,14 @@ export async function exportAllData(
 
     const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
 
-    // Filter by single group if specified
-    const groupsToExport = singleGroupName
-      ? relevantGroups.filter((g) => g.name === singleGroupName)
-      : relevantGroups;
+    // Restrict to a selected set of groups: `groupNames` (multi-select, content
+    // packs) takes precedence, then legacy `singleGroupName`, else all.
+    const groupsToExport =
+      groupNames && groupNames.length > 0
+        ? relevantGroups.filter((g) => groupNames.includes(g.name))
+        : singleGroupName
+          ? relevantGroups.filter((g) => g.name === singleGroupName)
+          : relevantGroups;
 
     const groupMap = new Map(groupsToExport.map((g) => [g.id, g]));
     const exportGroupIds = new Set(groupsToExport.map((g) => g.id));

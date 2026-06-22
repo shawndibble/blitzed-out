@@ -276,13 +276,7 @@ export function useCustomTileLifecycle({
         submitCustomAction(groupLabel, action);
         await addCustomTile(decision.data);
       } else {
-        // Editing a pack-imported tile detaches it so a later pack update won't
-        // overwrite the user's changes. Non-pack tiles are left untouched.
-        const existingTile = Array.isArray(customTiles)
-          ? customTiles.find(({ id }) => id === editTarget.tileId)
-          : undefined;
-        const detach = existingTile?.packId ? { packDetached: true } : {};
-        await updateCustomTile(editTarget.tileId as number, { ...decision.data, ...detach });
+        await updateCustomTile(editTarget.tileId as number, decision.data);
       }
 
       boardUpdated();
