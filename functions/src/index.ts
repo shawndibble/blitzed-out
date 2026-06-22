@@ -4,6 +4,8 @@ import { applicationDefault, getApps, initializeApp } from 'firebase-admin/app';
 import { getDatabase, ServerValue } from 'firebase-admin/database';
 import { getAuth, ListUsersResult, UserRecord } from 'firebase-admin/auth';
 
+export { onPackReported } from './reportNotification';
+
 // Initialize Firebase Admin with proper credentials
 if (!getApps().length) {
   initializeApp({
