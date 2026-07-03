@@ -20,6 +20,7 @@ export interface ExportGroup {
 // format 2.1.0; older readers ignore this array.
 export interface ExportGroupExtension {
   groupName: string; // default group's name key (e.g. "ballBusting")
+  groupLabel: string; // display label at export time, for previews
   locale: string;
   gameMode: string;
   addedIntensities: ExportIntensity[];

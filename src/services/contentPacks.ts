@@ -15,6 +15,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  increment,
   limit as fbLimit,
   orderBy,
   query,
@@ -26,14 +27,13 @@ import {
 import { getAuth } from 'firebase/auth';
 import { sha256 } from 'js-sha256';
 import { db } from './firebase';
-import { exportAllData, importData } from './importExport';
+import { exportAllData, importData, EXPORT_FORMAT_VERSION } from './importExport';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTilesByGroupIds } from '@/stores/customTiles';
 import type { ExportData, ExportOptions, ImportResult } from '@/types/importExport';
 import type { ContentPackDoc, ContentPackMeta, ParsedContentPack } from '@/types/contentPacks';
 
 const COLLECTION = 'content-packs';
-const FORMAT_VERSION = '2.0.0';
 
 export interface BuildPackOptions {
   locales?: string[];
@@ -46,6 +46,10 @@ export interface PublishableGroup {
   name: string;
   label: string;
   tileCount: number;
+  /** True when this entry EXTENDS a default group (tiles/levels only). */
+  isExtension: boolean;
+  /** Custom intensity levels the author appended to a default group. */
+  addedIntensityCount: number;
 }
 
 /**
@@ -58,7 +62,7 @@ export async function listPublishableGroups(
 ): Promise<PublishableGroup[]> {
   // Groups carry gameMode/locale; tiles are scoped only by group_id, so count
   // them via group membership (mirrors how exportAllData narrows tiles).
-  const groups = await getCustomGroups({ gameMode, locale, isDefault: false });
+  const groups = await getCustomGroups({ gameMode, locale });
   const tiles = await getTilesByGroupIds(groups.map((g) => g.id));
   const countByGroupId = new Map<string, number>();
   for (const tile of tiles) {
@@ -71,8 +75,12 @@ export async function listPublishableGroups(
       name: g.name,
       label: g.label || g.name,
       tileCount: countByGroupId.get(g.id) ?? 0,
+      isExtension: Boolean(g.isDefault),
+      addedIntensityCount: g.isDefault ? g.intensities.filter((i) => !i.isDefault).length : 0,
     }))
-    .filter((g) => g.tileCount > 0);
+    // Custom groups need custom tiles; default groups qualify once the author
+    // added tiles or intensity levels to them (published as extensions).
+    .filter((g) => (g.isExtension ? g.tileCount > 0 || g.addedIntensityCount > 0 : g.tileCount > 0));
 }
 
 /** Serialize the author's selected custom groups into pack `contents` + hash. */
@@ -93,16 +101,21 @@ function summarizeContents(contents: string): {
   tileCount: number;
   groupCount: number;
   groupLabels: string[];
+  extensionCount: number;
+  extensionLabels: string[];
 } {
   // Intentionally not guarded: a parse/shape failure here means the contents are
   // broken, and the error must propagate so publishPack/republishPack abort
   // rather than persist a pack with a zeroed-out summary that fails on import.
   const parsed = JSON.parse(contents) as ExportData;
   const groups = parsed.data.customGroups ?? [];
+  const extensions = parsed.data.groupExtensions ?? [];
   return {
     tileCount: parsed.data.customTiles?.length ?? 0,
     groupCount: groups.length,
     groupLabels: groups.map((g) => g.label || g.name),
+    extensionCount: extensions.length,
+    extensionLabels: extensions.map((e) => e.groupLabel || e.groupName),
   };
 }
 
@@ -128,7 +141,8 @@ export async function publishPack(
     contents,
     contentHash,
     packVersion: 1,
-    formatVersion: FORMAT_VERSION,
+    formatVersion: EXPORT_FORMAT_VERSION,
+    importCount: 0,
     ...summarizeContents(contents),
     createdAt: now,
     updatedAt: now,
@@ -160,12 +174,24 @@ export async function republishPack(
   });
 }
 
+/** Fill fields that predate-schema docs lack so callers never branch. */
+function normalizePackDoc(id: string, data: Record<string, unknown>): ContentPackDoc {
+  const docData = data as Omit<ContentPackDoc, 'id'>;
+  return {
+    id,
+    ...docData,
+    extensionCount: docData.extensionCount ?? 0,
+    extensionLabels: docData.extensionLabels ?? [],
+    importCount: docData.importCount ?? 0,
+  };
+}
+
 /** Fetch a pack by id (one-shot). */
 export async function getPack(packId: string): Promise<ContentPackDoc | undefined> {
   try {
     const snap = await getDoc(doc(db, COLLECTION, packId));
     if (!snap.exists()) return undefined;
-    return { id: snap.id, ...(snap.data() as Omit<ContentPackDoc, 'id'>) };
+    return normalizePackDoc(snap.id, snap.data());
   } catch (error) {
     console.error('Failed to fetch content pack', error);
     return undefined;
@@ -204,7 +230,7 @@ export async function listPublicPacks(
   ];
 
   const snap = await getDocs(query(collection(db, COLLECTION), ...constraints));
-  const packs = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<ContentPackDoc, 'id'>) }));
+  const packs = snap.docs.map((d) => normalizePackDoc(d.id, d.data()));
   const nextCursor = snap.docs.length === pageSize ? snap.docs[snap.docs.length - 1] : undefined;
   return { packs, nextCursor };
 }
@@ -237,13 +263,20 @@ export function parsePack(pack: ContentPackDoc): ParsedContentPack | undefined {
 
 /** Import a pack's contents into Dexie as a one-time copy, stamping attribution. */
 export async function importPack(pack: ContentPackDoc): Promise<ImportResult> {
-  return importData(pack.contents, {
+  const result = await importData(pack.contents, {
     preserveDisabledDefaults: true,
     packProvenance: {
       packId: pack.id,
       packName: pack.name,
     },
   });
+
+  if (result.success) {
+    // Popularity counter; never let it fail the import (offline, rules, etc).
+    updateDoc(doc(db, COLLECTION, pack.id), { importCount: increment(1) }).catch(() => {});
+  }
+
+  return result;
 }
 
 /** File an abuse report against a pack. */

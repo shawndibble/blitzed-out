@@ -736,6 +736,13 @@
     "directoryTitle": "Public directory",
     "searchPlaceholder": "Search packs by name or tag",
     "directoryEmpty": "No public packs yet for this mode and language.",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "extendsDefault": "Extends built-in group",
+    "extendsGroup": "Extends {{label}}",
+    "addedLevelCount": "+{{count}} levels",
+    "extensionSummary": "{{count}} extensions",
+    "extensionDetail": "{{tiles}} actions · {{levels}} new levels",
+    "newLevelChip": "New level: {{label}}",
+    "importCount": "{{count}} imports"
   }
 }

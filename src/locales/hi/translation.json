@@ -737,6 +737,13 @@
     "directoryTitle": "सार्वजनिक डायरेक्टरी",
     "searchPlaceholder": "नाम या टैग से पैक खोजें",
     "directoryEmpty": "इस मोड और भाषा के लिए अभी कोई सार्वजनिक पैक नहीं है।",
-    "loadMore": "और लोड करें"
+    "loadMore": "और लोड करें",
+    "extendsDefault": "बिल्ट-इन समूह का विस्तार",
+    "extendsGroup": "{{label}} का विस्तार",
+    "addedLevelCount": "+{{count}} स्तर",
+    "extensionSummary": "{{count}} विस्तार",
+    "extensionDetail": "{{tiles}} क्रियाएँ · {{levels}} नए स्तर",
+    "newLevelChip": "नया स्तर: {{label}}",
+    "importCount": "{{count}} आयात"
   }
 }

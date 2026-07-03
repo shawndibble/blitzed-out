@@ -234,6 +234,9 @@ const validPack = (overrides: Record<string, unknown> = {}) => ({
   tileCount: 2,
   groupCount: 1,
   groupLabels: ['Group 1'],
+  extensionCount: 0,
+  extensionLabels: [],
+  importCount: 0,
   contents: JSON.stringify({ formatVersion: '2.0.0', data: {} }),
   contentHash: 'sha256-abc',
   packVersion: 1,
@@ -343,6 +346,59 @@ describe('content-packs', () => {
     });
     const { deleteDoc } = await import('firebase/firestore');
     await assertFails(deleteDoc(doc(dbAs(OTHER_UID), 'content-packs/p1')));
+  });
+
+  it('rejects a create missing the extension summary fields (hasAll)', async () => {
+    const missing = validPack();
+    delete (missing as Record<string, unknown>).extensionCount;
+    delete (missing as Record<string, unknown>).extensionLabels;
+    delete (missing as Record<string, unknown>).importCount;
+    await assertFails(setDoc(doc(dbAs(UID), 'content-packs/p1'), missing));
+  });
+
+  it('rejects a create with a non-zero importCount', async () => {
+    await assertFails(setDoc(doc(dbAs(UID), 'content-packs/p1'), validPack({ importCount: 5 })));
+  });
+
+  it('lets any signed-in user bump importCount by exactly one', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack({ importCount: 7 }));
+    });
+    await assertSucceeds(
+      updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), { importCount: 8 })
+    );
+  });
+
+  it('lets an importer bump a legacy doc without importCount to 1', async () => {
+    const legacy = validPack();
+    delete (legacy as Record<string, unknown>).importCount;
+    delete (legacy as Record<string, unknown>).extensionCount;
+    delete (legacy as Record<string, unknown>).extensionLabels;
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), legacy);
+    });
+    await assertSucceeds(updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), { importCount: 1 }));
+  });
+
+  it('rejects an importCount jump of more than one', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack({ importCount: 7 }));
+    });
+    await assertFails(
+      updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), { importCount: 9 })
+    );
+  });
+
+  it('rejects an importCount bump combined with other field changes', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack({ importCount: 7 }));
+    });
+    await assertFails(
+      updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), {
+        importCount: 8,
+        name: 'Renamed by importer',
+      })
+    );
   });
 
   it('rejects a create with an invalid visibility', async () => {

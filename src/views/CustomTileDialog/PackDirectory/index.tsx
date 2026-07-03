@@ -163,6 +163,10 @@ export default function PackDirectory({
                     </Box>
                     <Typography variant="body2" color="text.secondary">
                       {t('packs.summary', { groups: pack.groupCount, tiles: pack.tileCount })}
+                      {pack.extensionCount > 0 &&
+                        ` · ${t('packs.extensionSummary', { count: pack.extensionCount })}`}
+                      {pack.importCount > 0 &&
+                        ` · ${t('packs.importCount', { count: pack.importCount })}`}
                     </Typography>
                     {pack.tags?.length > 0 && (
                       <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.75 }}>

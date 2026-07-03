@@ -736,6 +736,13 @@
     "directoryTitle": "Öffentliches Verzeichnis",
     "searchPlaceholder": "Pakete nach Name oder Tag suchen",
     "directoryEmpty": "Noch keine öffentlichen Pakete für diesen Modus und diese Sprache.",
-    "loadMore": "Mehr laden"
+    "loadMore": "Mehr laden",
+    "extendsDefault": "Erweitert integrierte Gruppe",
+    "extendsGroup": "Erweitert {{label}}",
+    "addedLevelCount": "+{{count}} Stufen",
+    "extensionSummary": "{{count}} Erweiterungen",
+    "extensionDetail": "{{tiles}} Aktionen · {{levels}} neue Stufen",
+    "newLevelChip": "Neue Stufe: {{label}}",
+    "importCount": "{{count}} Importe"
   }
 }

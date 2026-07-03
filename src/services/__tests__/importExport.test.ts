@@ -387,6 +387,7 @@ describe('ImportExport Service', () => {
           groupExtensions: [
             {
               groupName: 'ballBusting',
+              groupLabel: 'Ball Busting',
               locale: 'en',
               gameMode: 'online',
               addedIntensities: [{ value: 3, label: 'Rubber Bands' }],
@@ -492,6 +493,7 @@ describe('ImportExport Service', () => {
         expect(exported.data.groupExtensions).toEqual([
           {
             groupName: 'ballBusting',
+            groupLabel: 'Ball Busting',
             locale: 'en',
             gameMode: 'online',
             addedIntensities: [{ value: 3, label: 'Rubber Bands' }],

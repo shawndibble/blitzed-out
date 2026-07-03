@@ -67,6 +67,9 @@ const pack: ContentPackDoc = {
   tileCount: 1,
   groupCount: 1,
   groupLabels: ['Group One'],
+  extensionCount: 0,
+  extensionLabels: [],
+  importCount: 0,
   createdAt: 1,
   updatedAt: 1,
 };
@@ -99,7 +102,7 @@ describe('PackImportDialog (full-dump preview, copy-only)', () => {
     await user.click(screen.getByRole('button', { name: 'packs.import' }));
 
     expect(importPack).toHaveBeenCalledWith(pack);
-    expect(onImported).toHaveBeenCalledWith(pack.name);
+    expect(onImported).toHaveBeenCalledWith(pack.name, pack);
     expect(onClose).toHaveBeenCalled();
   });
 });

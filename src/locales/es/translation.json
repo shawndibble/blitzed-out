@@ -736,6 +736,13 @@
     "directoryTitle": "Directorio público",
     "searchPlaceholder": "Buscar paquetes por nombre o etiqueta",
     "directoryEmpty": "Aún no hay paquetes públicos para este modo e idioma.",
-    "loadMore": "Cargar más"
+    "loadMore": "Cargar más",
+    "extendsDefault": "Amplía un grupo integrado",
+    "extendsGroup": "Amplía {{label}}",
+    "addedLevelCount": "+{{count}} niveles",
+    "extensionSummary": "{{count}} ampliaciones",
+    "extensionDetail": "{{tiles}} acciones · {{levels}} niveles nuevos",
+    "newLevelChip": "Nuevo nivel: {{label}}",
+    "importCount": "{{count}} importaciones"
   }
 }

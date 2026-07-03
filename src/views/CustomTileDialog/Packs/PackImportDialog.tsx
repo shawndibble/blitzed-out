@@ -35,7 +35,7 @@ interface PackImportDialogProps {
   pack: ContentPackDoc;
   open: boolean;
   onClose: () => void;
-  onImported?: (packName: string) => void;
+  onImported?: (packName: string, pack: ContentPackDoc) => void;
 }
 
 export default function PackImportDialog({
@@ -55,6 +55,31 @@ export default function PackImportDialog({
 
   const groups = parsed?.data.data.customGroups ?? [];
   const tiles = parsed?.data.data.customTiles ?? [];
+  const declaredExtensions = parsed?.data.data.groupExtensions ?? [];
+
+  // Tiles can target default groups without a matching groupExtensions entry
+  // (e.g. new actions at existing levels). Surface those as synthetic
+  // extension sections so no tile is invisible in the preview.
+  const extensions = useMemo(() => {
+    const covered = new Set([
+      ...groups.map((g) => g.name),
+      ...declaredExtensions.map((e) => e.groupName),
+    ]);
+    const orphanNames = [...new Set(tiles.map((tile) => tile.groupName))].filter(
+      (name) => !covered.has(name)
+    );
+    return [
+      ...declaredExtensions,
+      ...orphanNames.map((name) => ({
+        groupName: name,
+        groupLabel: name,
+        locale: pack.locale,
+        gameMode: pack.gameMode,
+        addedIntensities: [],
+        contentHash: '',
+      })),
+    ];
+  }, [groups, declaredExtensions, tiles, pack.locale, pack.gameMode]);
 
   // Bucket tiles under their group for the per-group preview sections.
   const tilesByGroup = useMemo(() => {
@@ -76,7 +101,7 @@ export default function PackImportDialog({
         setFeedback({ type: 'error', message: result.errors[0] || t('packs.importFailed') });
         return;
       }
-      onImported?.(pack.name);
+      onImported?.(pack.name, pack);
       onClose();
     } catch (e) {
       setFeedback({ type: 'error', message: e instanceof Error ? e.message : String(e) });
@@ -137,6 +162,7 @@ export default function PackImportDialog({
         </Box>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
           {t('packs.summary', { groups: groups.length, tiles: tiles.length })}
+          {extensions.length > 0 && ` · ${t('packs.extensionSummary', { count: extensions.length })}`}
         </Typography>
       </Box>
 
@@ -209,6 +235,110 @@ export default function PackImportDialog({
                     }}
                   >
                     {groupTiles.map((tile, idx) => {
+                      const color = colorFor(tile.intensity);
+                      return (
+                        <Box
+                          key={`${tile.action}-${idx}`}
+                          sx={{
+                            borderLeft: 3,
+                            borderColor: color,
+                            bgcolor: 'action.hover',
+                            borderRadius: 1,
+                            px: 1.25,
+                            py: 0.75,
+                          }}
+                        >
+                          <Typography variant="body2">{tile.action}</Typography>
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
+                            <Chip
+                              size="small"
+                              variant="outlined"
+                              label={intensityLabel(tile.intensity)}
+                              sx={{ borderColor: color, color }}
+                            />
+                            {tile.tags?.map((tag) => (
+                              <Chip key={tag} size="small" variant="outlined" label={tag} />
+                            ))}
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                  <Divider sx={{ mt: 2 }} />
+                </Box>
+              );
+            })}
+
+            {/* Default-group extensions: tiles and/or added levels for groups
+                the importer already has. */}
+            {extensions.map((extension) => {
+              const extensionTiles = tilesByGroup.get(extension.groupName) ?? [];
+              const addedLabelByValue = new Map(
+                extension.addedIntensities.map((i) => [i.value, i.label])
+              );
+              const distinctValues = [
+                ...new Set([
+                  ...extension.addedIntensities.map((i) => i.value),
+                  ...extensionTiles.map((tile) => tile.intensity),
+                ]),
+              ].sort((a, b) => a - b);
+              const colorByValue = new Map(
+                distinctValues.map((value, idx) => [
+                  value,
+                  INTENSITY_COLORS[idx % INTENSITY_COLORS.length],
+                ])
+              );
+              const colorFor = (value: number) => colorByValue.get(value) ?? 'primary.main';
+              const intensityLabel = (value: number) =>
+                addedLabelByValue.get(value) ?? `L${value}`;
+              return (
+                <Box key={`ext-${extension.groupName}`}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      justifyContent: 'space-between',
+                      gap: 1,
+                      flexWrap: 'wrap',
+                      mb: 1,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                      <Typography variant="subtitle2">
+                        {t('packs.extendsGroup', {
+                          label: extension.groupLabel || extension.groupName,
+                        })}
+                      </Typography>
+                      <Chip size="small" variant="outlined" label={t('packs.extendsDefault')} />
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">
+                      {t('packs.extensionDetail', {
+                        tiles: extensionTiles.length,
+                        levels: extension.addedIntensities.length,
+                      })}
+                    </Typography>
+                  </Box>
+                  {extension.addedIntensities.length > 0 && (
+                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mb: 1 }}>
+                      {extension.addedIntensities.map((i) => (
+                        <Chip
+                          key={i.value}
+                          size="small"
+                          variant="outlined"
+                          label={t('packs.newLevelChip', { label: i.label })}
+                          sx={{ borderColor: colorFor(i.value), color: colorFor(i.value) }}
+                        />
+                      ))}
+                    </Box>
+                  )}
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                      gap: 1,
+                    }}
+                  >
+                    {extensionTiles.map((tile, idx) => {
                       const color = colorFor(tile.intensity);
                       return (
                         <Box

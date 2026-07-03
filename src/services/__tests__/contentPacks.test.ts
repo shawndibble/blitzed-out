@@ -9,6 +9,7 @@ vi.mock('@/services/importExport', () => ({
       '{"formatVersion":"2.0.0","data":{"customGroups":[{"name":"g1","label":"Group 1"}],"customTiles":[{"action":"a"},{"action":"b"}],"disabledDefaultTiles":[]}}'
   ),
   importData: vi.fn(async () => ({ success: true, errors: [] })),
+  EXPORT_FORMAT_VERSION: '2.1.0',
 }));
 vi.mock('@/stores/customGroups', () => ({ getCustomGroups: vi.fn(async () => []) }));
 vi.mock('@/stores/customTiles', () => ({ getTilesByGroupIds: vi.fn(async () => []) }));
@@ -143,6 +144,9 @@ describe('contentPacks service', () => {
       tileCount: 2,
       groupCount: 1,
       groupLabels: ['Group 1'],
+      extensionCount: 0,
+      extensionLabels: [],
+      importCount: 0,
       createdAt: 1,
       updatedAt: 1,
     };
@@ -201,14 +205,14 @@ describe('contentPacks service', () => {
     const result = await listPublishableGroups('online', 'en');
 
     // Groups query is scoped by mode+locale (the indexed path); empty groups drop out.
+    // Defaults are included too now — extendable default groups publish as extensions.
     expect(vi.mocked(getCustomGroups)).toHaveBeenCalledWith({
       gameMode: 'online',
       locale: 'en',
-      isDefault: false,
     });
     expect(result).toEqual([
-      { name: 'g1', label: 'Group One', tileCount: 2 },
-      { name: 'g2', label: 'Group Two', tileCount: 1 },
+      { name: 'g1', label: 'Group One', tileCount: 2, isExtension: false, addedIntensityCount: 0 },
+      { name: 'g2', label: 'Group Two', tileCount: 1, isExtension: false, addedIntensityCount: 0 },
     ]);
   });
 

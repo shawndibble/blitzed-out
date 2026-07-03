@@ -260,8 +260,28 @@ export default function Packs({
                         <MenuItem key={g.name} value={g.name}>
                           <Checkbox checked={selectedGroups.includes(g.name)} />
                           <ListItemText
-                            primary={g.label}
-                            secondary={t('packs.groupTileCount', { count: g.tileCount })}
+                            primary={
+                              g.isExtension ? (
+                                <Box
+                                  component="span"
+                                  sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}
+                                >
+                                  {g.label}
+                                  <Chip
+                                    size="small"
+                                    variant="outlined"
+                                    label={t('packs.extendsDefault')}
+                                  />
+                                </Box>
+                              ) : (
+                                g.label
+                              )
+                            }
+                            secondary={
+                              g.isExtension && g.addedIntensityCount > 0
+                                ? `${t('packs.groupTileCount', { count: g.tileCount })} · ${t('packs.addedLevelCount', { count: g.addedIntensityCount })}`
+                                : t('packs.groupTileCount', { count: g.tileCount })
+                            }
                           />
                         </MenuItem>
                       ))}

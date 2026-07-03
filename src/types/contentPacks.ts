@@ -28,6 +28,9 @@ export interface ContentPackDoc {
   tileCount: number;
   groupCount: number;
   groupLabels: string[];
+  extensionCount: number; // default-group extensions bundled in the pack
+  extensionLabels: string[]; // labels of the extended default groups
+  importCount: number; // times imported (popularity; incremented by importers)
   createdAt: number; // Unix ms
   updatedAt: number; // Unix ms
 }

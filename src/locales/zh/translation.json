@@ -736,6 +736,13 @@
     "directoryTitle": "公开目录",
     "searchPlaceholder": "按名称或标签搜索内容包",
     "directoryEmpty": "此模式和语言暂无公开内容包。",
-    "loadMore": "加载更多"
+    "loadMore": "加载更多",
+    "extendsDefault": "扩展内置组",
+    "extendsGroup": "扩展 {{label}}",
+    "addedLevelCount": "+{{count}} 个等级",
+    "extensionSummary": "{{count}} 个扩展",
+    "extensionDetail": "{{tiles}} 个动作 · {{levels}} 个新等级",
+    "newLevelChip": "新等级：{{label}}",
+    "importCount": "{{count}} 次导入"
   }
 }

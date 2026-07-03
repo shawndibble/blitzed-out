@@ -648,6 +648,7 @@ export async function exportAllData(
       if (addedIntensities.length === 0) continue;
       exportExtensions.push({
         groupName: group.name,
+        groupLabel: group.label || group.name,
         locale: group.locale,
         gameMode: group.gameMode,
         addedIntensities,

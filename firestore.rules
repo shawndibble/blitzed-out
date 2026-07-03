@@ -62,6 +62,8 @@ service cloud.firestore {
         && data.tileCount is int && data.tileCount >= 0
         && data.groupCount is int && data.groupCount >= 0
         && data.groupLabels is list && data.groupLabels.size() <= 100
+        && data.extensionCount is int && data.extensionCount >= 0
+        && data.extensionLabels is list && data.extensionLabels.size() <= 100
         && data.contents is string && data.contents.size() <= 600000
         && data.contentHash is string && data.contentHash.size() <= 128
         && data.authorName is string && data.authorName.size() <= 100
@@ -79,19 +81,28 @@ service cloud.firestore {
     function contentPackCreateValid() {
       let data = request.resource.data;
       return data.keys().hasOnly(['author', 'authorName', 'name', 'description', 'gameMode',
-          'locale', 'tags', 'visibility', 'tileCount', 'groupCount', 'groupLabels', 'contents',
+          'locale', 'tags', 'visibility', 'tileCount', 'groupCount', 'groupLabels',
+          'extensionCount', 'extensionLabels', 'importCount', 'contents',
           'contentHash', 'packVersion', 'formatVersion', 'createdAt', 'updatedAt'])
         && data.keys().hasAll(['author', 'authorName', 'name', 'description', 'gameMode',
-          'locale', 'tags', 'visibility', 'tileCount', 'groupCount', 'groupLabels', 'contents',
+          'locale', 'tags', 'visibility', 'tileCount', 'groupCount', 'groupLabels',
+          'extensionCount', 'extensionLabels', 'importCount', 'contents',
           'contentHash', 'packVersion', 'formatVersion', 'createdAt', 'updatedAt'])
         && data.author == request.auth.uid
         && data.packVersion is int && data.packVersion >= 1
+        && data.importCount == 0
         && data.createdAt is number
         && publicVisibilityGated(data)
         && contentPackFieldsValid(data);
     }
 
     function contentPackUpdateValid() {
+      // Either an author republish, or any signed-in user bumping the
+      // popularity counter by exactly one.
+      return contentPackRepublishValid() || contentPackImportCountBump();
+    }
+
+    function contentPackRepublishValid() {
       let data = request.resource.data;
       return resource.data.author == request.auth.uid       // only the author can republish
         && data.author == resource.data.author              // author immutable
@@ -99,10 +110,18 @@ service cloud.firestore {
         && data.packVersion is int
         && data.packVersion > resource.data.packVersion      // version must increase
         && data.diff(resource.data).affectedKeys().hasOnly(['name', 'description', 'tags',
-          'visibility', 'tileCount', 'groupCount', 'groupLabels', 'contents', 'contentHash',
+          'visibility', 'tileCount', 'groupCount', 'groupLabels',
+          'extensionCount', 'extensionLabels', 'contents', 'contentHash',
           'packVersion', 'updatedAt', 'authorName'])
         && publicVisibilityGated(data)
         && contentPackFieldsValid(data);
+    }
+
+    function contentPackImportCountBump() {
+      let data = request.resource.data;
+      return data.diff(resource.data).affectedKeys().hasOnly(['importCount'])
+        && data.importCount is int
+        && data.importCount == resource.data.get('importCount', 0) + 1;
     }
 
     function reportCreateValid() {

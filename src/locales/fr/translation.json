@@ -736,6 +736,13 @@
     "directoryTitle": "Répertoire public",
     "searchPlaceholder": "Rechercher des packs par nom ou étiquette",
     "directoryEmpty": "Aucun pack public pour ce mode et cette langue pour l'instant.",
-    "loadMore": "Charger plus"
+    "loadMore": "Charger plus",
+    "extendsDefault": "Étend un groupe intégré",
+    "extendsGroup": "Étend {{label}}",
+    "addedLevelCount": "+{{count}} niveaux",
+    "extensionSummary": "{{count}} extensions",
+    "extensionDetail": "{{tiles}} actions · {{levels}} nouveaux niveaux",
+    "newLevelChip": "Nouveau niveau : {{label}}",
+    "importCount": "{{count}} importations"
   }
 }
