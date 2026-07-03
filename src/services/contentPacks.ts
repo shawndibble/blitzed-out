@@ -231,9 +231,7 @@ export async function listMyPacks(): Promise<ContentPackDoc[]> {
   const user = getAuth().currentUser;
   if (!user) return [];
   try {
-    const snap = await getDocs(
-      query(collection(db, COLLECTION), where('author', '==', user.uid))
-    );
+    const snap = await getDocs(query(collection(db, COLLECTION), where('author', '==', user.uid)));
     return snap.docs
       .map((d) => normalizePackDoc(d.id, d.data()))
       .sort((a, b) => b.updatedAt - a.updatedAt);
