@@ -273,7 +273,9 @@ export async function importPack(pack: ContentPackDoc): Promise<ImportResult> {
 
   if (result.success) {
     // Popularity counter; never let it fail the import (offline, rules, etc).
-    updateDoc(doc(db, COLLECTION, pack.id), { importCount: increment(1) }).catch(() => {});
+    Promise.resolve(updateDoc(doc(db, COLLECTION, pack.id), { importCount: increment(1) })).catch(
+      () => {}
+    );
   }
 
   return result;
