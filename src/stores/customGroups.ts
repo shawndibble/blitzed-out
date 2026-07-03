@@ -146,8 +146,11 @@ export const addCustomGroup = async (group: CustomGroupBase): Promise<string | u
 
         const id = await customGroups.add(groupWithTimestamp);
 
-        // Track custom group creation (guard to avoid retrying DB writes if analytics fails)
-        analyticsTracking.trackCustomGroupAction('create', group, group.isDefault ?? false);
+        // Only user-authored groups are tracked — default groups are seeded per
+        // user/locale by migration and would drown real signal in GA4.
+        if (!(group.isDefault ?? false)) {
+          analyticsTracking.trackCustomGroupAction('create', group, false);
+        }
 
         return id;
       },
@@ -178,10 +181,13 @@ export const updateCustomGroup = async (
     const group = await customGroups.get(id);
     const result = await customGroups.update(id, updates);
 
-    // Track custom group modification
+    // Track user-authored group modifications only (default groups get
+    // touched by migrations, which isn't user signal)
     if (result > 0 && group) {
       const isDefault = (updates as Partial<CustomGroupBase>).isDefault ?? group.isDefault;
-      analyticsTracking.trackCustomGroupAction('modify', { ...group, ...updates }, isDefault);
+      if (!isDefault) {
+        analyticsTracking.trackCustomGroupAction('modify', { ...group, ...updates }, false);
+      }
     }
 
     return result;
@@ -223,8 +229,10 @@ export const deleteCustomGroup = async (
         const deletedTiles = await deleteCustomTilesByGroupId(id, group.locale, group.gameMode);
         await customGroups.delete(id);
 
-        // Track custom group deletion (best-effort)
-        analyticsTracking.trackCustomGroupAction('delete', group, group.isDefault);
+        // Track custom group deletion (best-effort; user-authored only)
+        if (!group.isDefault) {
+          analyticsTracking.trackCustomGroupAction('delete', group, false);
+        }
 
         return { success: true, tilesDeleted: deletedTiles };
       }
@@ -233,8 +241,10 @@ export const deleteCustomGroup = async (
     // Safe to delete - no tiles or force option used
     await customGroups.delete(id);
 
-    // Track custom group deletion (best-effort)
-    analyticsTracking.trackCustomGroupAction('delete', group, group.isDefault);
+    // Track custom group deletion (best-effort; user-authored only)
+    if (!group.isDefault) {
+      analyticsTracking.trackCustomGroupAction('delete', group, false);
+    }
 
     return { success: true };
   } catch (error) {

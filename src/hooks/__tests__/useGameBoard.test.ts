@@ -165,7 +165,7 @@ describe('useGameBoard', () => {
       expect(gameResult.settingsBoardUpdated).toBe(true);
     });
 
-    it('should use 40 tiles for public rooms regardless of roomTileCount', async () => {
+    it('should respect the user roomTileCount in public rooms', async () => {
       vi.mocked(isPublicRoom).mockReturnValue(true);
 
       const { result } = renderHook(() => useGameBoard());
@@ -173,7 +173,18 @@ describe('useGameBoard', () => {
       const settingsWithLargeTileCount = { ...mockSettings, roomTileCount: 100 };
       await result.current(settingsWithLargeTileCount);
 
-      expect(buildGameBoard).toHaveBeenCalledWith(expect.any(Object), 'en', 'online', 40);
+      expect(buildGameBoard).toHaveBeenCalledWith(expect.any(Object), 'en', 'online', 100);
+    });
+
+    it('should fall back to the default tile count when roomTileCount is unset', async () => {
+      vi.mocked(isPublicRoom).mockReturnValue(true);
+
+      const { result } = renderHook(() => useGameBoard());
+
+      const settingsWithoutTileCount = { ...mockSettings, roomTileCount: undefined };
+      await result.current(settingsWithoutTileCount);
+
+      expect(buildGameBoard).toHaveBeenCalledWith(expect.any(Object), 'en', 'online', 60);
     });
   });
 

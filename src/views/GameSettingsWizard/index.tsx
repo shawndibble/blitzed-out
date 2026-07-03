@@ -14,7 +14,7 @@ import PlayerTopologyStep from './PlayerTopologyStep';
 import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
 import { Trans } from 'react-i18next';
-import { usesSoloActions } from '@/helpers/strings';
+import { isPublicRoom, usesSoloActions } from '@/helpers/strings';
 import { useMigration } from '@/context/migration';
 import { useParams, useSearchParams } from 'react-router-dom';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
@@ -125,25 +125,25 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const isActionsLoadingWithMigration = isActionsLoading || isMigrationInProgress;
 
   // Analytics tracking for wizard funnel
-  const { trackStepNavigation } = useWizardAnalytics({
+  const { trackScreenView } = useWizardAnalytics({
     gameMode: formData.gameMode,
+    isPublicRoom: isPublicRoom(formData.room || 'PUBLIC'),
   });
+
+  // One screen-view per step entered (including the initial screen)
+  useEffect(() => {
+    if (step > 0) {
+      trackScreenView(step);
+    }
+  }, [step, trackScreenView]);
 
   const nextStep = (count?: number): void => {
     const newStep = !Number.isInteger(count) ? step + 1 : step + (count || 1);
-
-    // Track step progression to the destination step
-    trackStepNavigation(step, newStep);
-
     setStep(newStep);
   };
 
   const handleStepClick = (targetStep: number): void => {
     const normalizedTargetStep = formData.gameMode === 'solo' && targetStep === 2 ? 3 : targetStep;
-
-    // Track step navigation
-    trackStepNavigation(step, normalizedTargetStep);
-
     setStep(normalizedTargetStep);
   };
 

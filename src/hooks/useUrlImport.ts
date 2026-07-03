@@ -83,6 +83,10 @@ export default function useUrlImport(
         finalSettings.gameMode = 'online';
       }
 
+      // Adopt the imported board's size so settings and board stay in sync
+      // even when the author's saved settings disagree with the actual tiles.
+      finalSettings.roomTileCount = importedGameBoard.length;
+
       setSettings(finalSettings);
 
       if (alert !== t('updated')) {

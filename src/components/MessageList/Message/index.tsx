@@ -1,3 +1,4 @@
+import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import { Box, Button, Chip, IconButton, Popover, Typography } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -49,7 +50,7 @@ export default function Message({
   message,
   isOwnMessage,
   isTransparent,
-  currentGameBoardSize = 40,
+  currentGameBoardSize = DEFAULT_TILE_COUNT,
   room,
 }: MessageProps): JSX.Element {
   const { t, i18n } = useTranslation();

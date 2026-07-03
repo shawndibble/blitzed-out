@@ -7,6 +7,7 @@ import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
 import { useCallback } from 'react';
 import { Settings } from '@/types/Settings';
 import { DBGameBoard, GameBoardResult } from '@/types/gameBoard';
+import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 
 /**
  * Builds a game board based on the settings provided.
@@ -32,7 +33,7 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
               },
             };
       let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
-      const { roomTileCount = 40, finishRange, room } = formData;
+      const { roomTileCount = DEFAULT_TILE_COUNT, finishRange, room } = formData;
       const isPublic = isPublicRoom(room || '');
 
       if (!data || !finishRange) {
@@ -50,7 +51,7 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
 
       const finalGameMode = getContentGameMode(gameMode);
       const locale = i18n.resolvedLanguage || 'en';
-      const tileCount = isPublic ? 40 : roomTileCount || 40;
+      const tileCount = roomTileCount || DEFAULT_TILE_COUNT;
 
       // Use the new streamlined buildGameBoard function
       const boardResult = await buildGameBoard(formData, locale, finalGameMode, tileCount);
