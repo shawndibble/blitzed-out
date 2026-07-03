@@ -1,21 +1,8 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Stack,
-  Tooltip,
-  Typography,
-  Chip,
-} from '@mui/material';
-import { Trans, useTranslation } from 'react-i18next';
+import { Box, Card, CardContent, Grid, Stack, Tooltip, Typography, Chip } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { customAlphabet } from 'nanoid';
 import { useEffect, useState } from 'react';
 import { isOffline } from '@/helpers/networkStatus';
-import ButtonRow from '@/components/ButtonRow';
 import type { FormData } from '@/types';
 import type { Settings } from '@/types/Settings';
 
@@ -33,9 +20,6 @@ export default function PlayerTopologyStep({
   nextStep,
 }: PlayerTopologyStepProps): JSX.Element {
   const { t } = useTranslation();
-  const [soloPrivate, setSoloPrivate] = useState(
-    formData.gameMode === 'solo' && formData.room !== 'PUBLIC'
-  );
   const [offline, setOffline] = useState(isOffline());
 
   useEffect(() => {
@@ -51,24 +35,22 @@ export default function PlayerTopologyStep({
   }, []);
 
   const selectSolo = () => {
-    setFormData((prev) => ({
-      ...prev,
-      gameMode: 'solo',
-      soloPlay: true,
-      room: soloPrivate ? generateRoomCode() : 'PUBLIC',
-      roomRealtime: soloPrivate ? false : true,
-      hasLocalPlayers: false,
-      localPlayersData: undefined,
-      localPlayerSessionSettings: undefined,
-    }));
-  };
-
-  const handleNext = () => {
-    if (formData.gameMode === 'solo') {
-      nextStep(2);
-    } else {
-      nextStep();
-    }
+    setFormData((prev) => {
+      // Preserve an existing private solo room; default newcomers to PUBLIC.
+      const keepPrivate = prev.gameMode === 'solo' && prev.room !== 'PUBLIC';
+      return {
+        ...prev,
+        gameMode: 'solo',
+        soloPlay: true,
+        room: keepPrivate ? prev.room : 'PUBLIC',
+        roomRealtime: keepPrivate ? false : true,
+        hasLocalPlayers: false,
+        localPlayersData: undefined,
+        localPlayerSessionSettings: undefined,
+      };
+    });
+    // Solo skips the room/local-players screen entirely.
+    nextStep(2);
   };
 
   const selectSharedDevice = () => {
@@ -105,31 +87,6 @@ export default function PlayerTopologyStep({
       description: t('playerTopology.solo.description', 'Play by yourself on this device.'),
       selected: formData.gameMode === 'solo',
       onClick: selectSolo,
-      extra: (
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={soloPrivate}
-              onClick={(event) => event.stopPropagation()}
-              onChange={(event) => {
-                const newValue = event.target.checked;
-                setSoloPrivate(newValue);
-                setFormData((prev) =>
-                  prev.gameMode === 'solo'
-                    ? {
-                        ...prev,
-                        room: newValue ? generateRoomCode() : 'PUBLIC',
-                        roomRealtime: !newValue,
-                      }
-                    : prev
-                );
-              }}
-            />
-          }
-          label={t('playerTopology.solo.private', 'Play privately')}
-          onClick={(event) => event.stopPropagation()}
-        />
-      ),
     },
     {
       id: 'local',
@@ -231,7 +188,6 @@ export default function PlayerTopologyStep({
                   >
                     {card.description}
                   </Typography>
-                  {card.extra}
                   {card.selected && (
                     <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 'auto' }} />
                   )}
@@ -258,17 +214,6 @@ export default function PlayerTopologyStep({
           );
         })}
       </Grid>
-      <Box sx={{ flexGrow: 1 }} />
-      <ButtonRow justifyContent="center">
-        <Button
-          variant="contained"
-          onClick={handleNext}
-          data-testid="next"
-          disabled={!formData.gameMode}
-        >
-          <Trans i18nKey="next" />
-        </Button>
-      </ButtonRow>
     </Box>
   );
 }

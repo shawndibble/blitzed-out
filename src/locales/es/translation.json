@@ -744,5 +744,20 @@
     "extensionDetail": "{{tiles}} acciones · {{levels}} niveles nuevos",
     "newLevelChip": "Nuevo nivel: {{label}}",
     "importCount": "{{count}} importaciones"
+  },
+  "remove": "Quitar",
+  "done": "Listo",
+  "starters": "Para empezar",
+  "spiceLevel": "Nivel de picante",
+  "pickedCount": "{{count}} de {{max}} seleccionados",
+  "pickedCountMax": "Máximo {{max}} — quita uno primero",
+  "levelSheetHint": "Elige los niveles que quieras — no tienen que ser consecutivos.",
+  "levelNumber": "Nivel {{level}}",
+  "spice": {
+    "mild": "Suave",
+    "medium": "Medio",
+    "spicy": "Picante",
+    "filthy": "Sucio",
+    "hint": "Sugiere niveles para los grupos que no hayas personalizado."
   }
 }

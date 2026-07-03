@@ -9,6 +9,8 @@ interface PresetSelectorProps {
   selectedPreset?: string;
   actionsList: Record<string, any>;
   showTitle?: boolean;
+  /** Render as a horizontally scrollable shelf instead of a responsive grid. */
+  horizontal?: boolean;
 }
 
 export default function PresetSelector({
@@ -17,6 +19,7 @@ export default function PresetSelector({
   selectedPreset,
   actionsList,
   showTitle = true,
+  horizontal = false,
 }: PresetSelectorProps) {
   const { t } = useTranslation();
 
@@ -176,9 +179,27 @@ export default function PresetSelector({
         </Typography>
       )}
 
-      <Grid container spacing={2}>
+      <Grid
+        container
+        spacing={2}
+        sx={
+          horizontal
+            ? {
+                flexWrap: 'nowrap',
+                overflowX: 'auto',
+                pb: 1,
+                scrollSnapType: 'x mandatory',
+                '& > *': { scrollSnapAlign: 'start' },
+              }
+            : undefined
+        }
+      >
         {currentPresets.map((preset) => (
-          <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={preset.id}>
+          <Grid
+            size={horizontal ? undefined : { xs: 12, sm: 6, lg: 3 }}
+            key={preset.id}
+            sx={horizontal ? { minWidth: 220, flexShrink: 0 } : undefined}
+          >
             <Card
               sx={{
                 cursor: 'pointer',

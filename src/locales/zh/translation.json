@@ -744,5 +744,20 @@
     "extensionDetail": "{{tiles}} 个动作 · {{levels}} 个新等级",
     "newLevelChip": "新等级：{{label}}",
     "importCount": "{{count}} 次导入"
+  },
+  "remove": "移除",
+  "done": "完成",
+  "starters": "快速开始",
+  "spiceLevel": "辣度",
+  "pickedCount": "已选 {{count}}/{{max}}",
+  "pickedCountMax": "最多 {{max}} 个 — 请先移除一个",
+  "levelSheetHint": "任意选择等级 — 不必连续。",
+  "levelNumber": "等级 {{level}}",
+  "spice": {
+    "mild": "温和",
+    "medium": "适中",
+    "spicy": "火辣",
+    "filthy": "放纵",
+    "hint": "为你未自定义的组推荐等级。"
   }
 }

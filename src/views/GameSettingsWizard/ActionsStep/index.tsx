@@ -1,31 +1,25 @@
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Button,
-  CircularProgress,
-  Divider,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Divider, Typography } from '@mui/material';
 import { ActionEntry, FormData, VALID_GROUP_TYPES } from '@/types';
-import { ExpandMore, PlayArrow, Tune } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
-import { hasValidSelections, purgedFormData } from './helpers';
+import { handleLevelsChange, hasValidSelections, purgedFormData } from './helpers';
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
 import { usesSoloActions } from '@/helpers/strings';
 import { GroupType } from '@/types';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import type { GroupedActions } from '@/types/customTiles';
 
 import ButtonRow from '@/components/ButtonRow';
 import BrokenActionsState from '@/components/BrokenActionsState';
-import PickActions from './PickActions';
-import PickConsumptions from './PickConsumptions/index';
+import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
 import { PresetConfig } from '@/types/presets';
 import PresetSelector from './PresetSelector';
+import SpiceDial, { SpiceLevel, spiceBand } from './SpiceDial';
+import GroupChips from './GroupChips';
+import LevelSheet from './LevelSheet';
 import { Settings } from '@/types/Settings';
+
+const MAX_ACTIONS = 4;
+const MAX_CONSUME = 2;
 
 interface ActionsStepProps {
   formData: FormData & Partial<Settings>;
@@ -49,40 +43,109 @@ export default function ActionsStep({
   const { t } = useTranslation();
   const { isBroken } = useBrokenActionsState(actionsList, isActionsLoading);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
-  const [showCustomization, setShowCustomization] = useState(false);
-  const [showQuickStart, setShowQuickStart] = useState(true);
-  function settingSelectLists(type: string): string[] {
-    return Object.keys(actionsList).filter((option) => actionsList[option]?.type === type);
-  }
+  const [spice, setSpice] = useState<SpiceLevel>('medium');
+  // Groups the user hand-edited (sheet or preset) — the dial never overwrites these.
+  const [customized, setCustomized] = useState<Set<string>>(new Set());
+  const [sheetGroup, setSheetGroup] = useState<string | null>(null);
 
-  // on load, purge invalid actions.
-  useEffect(() => {
-    // purge actions that we shouldn't be able to access.
-    const newFormData = purgedFormData(formData);
-    setFormData(newFormData);
-  }, []);
-
-  // Auto-open accordion if there are selected actions on mount
-  useEffect(() => {
-    const hasSelectedActions =
-      formData.selectedActions && Object.keys(formData.selectedActions).length > 0;
-    if (hasSelectedActions) {
-      setShowCustomization(true);
-      setShowQuickStart(false);
-    }
-  }, []);
-
-  const options = (key: string) =>
-    settingSelectLists(key).map((option) => ({
-      value: option,
-      label: actionsList[option]?.label,
-    }));
-
-  const gameMode = usesSoloActions(formData.gameMode, formData.soloPlay)
+  const actionType = usesSoloActions(formData.gameMode, formData.soloPlay)
     ? 'solo'
     : formData.isNaked
       ? 'sex'
       : 'foreplay';
+
+  // on load, purge invalid actions and protect pre-existing picks from the dial.
+  useEffect(() => {
+    const newFormData = purgedFormData(formData);
+    setFormData(newFormData);
+    setCustomized(new Set(Object.keys(newFormData.selectedActions || {})));
+  }, []);
+
+  const optionsOf = (type: string) =>
+    Object.keys(actionsList)
+      .filter((option) => actionsList[option]?.type === type)
+      .map((option) => ({ value: option, label: actionsList[option]?.label || option }));
+
+  const actionOptions = useMemo(() => optionsOf(actionType), [actionsList, actionType]);
+  const consumptionOptions = useMemo(() => optionsOf('consumption'), [actionsList]);
+
+  const ladderOf = (group: string): number[] => {
+    const intensities = actionsList[group]?.intensities;
+    return intensities
+      ? Object.keys(intensities)
+          .map(Number)
+          .sort((a, b) => a - b)
+      : [1, 2, 3, 4];
+  };
+
+  const selectedOf = (type: string): Record<string, number[]> => {
+    const result: Record<string, number[]> = {};
+    Object.entries(formData.selectedActions || {}).forEach(([key, entry]) => {
+      if ((entry as ActionEntry).type === type) {
+        result[key] = (entry as ActionEntry).levels || [];
+      }
+    });
+    return result;
+  };
+
+  const selectedActionGroups = selectedOf(actionType);
+  const selectedConsumptions = selectedOf('consumption');
+
+  const markCustomized = (group: string) => setCustomized((prev) => new Set(prev).add(group));
+
+  const selectGroup = (group: string, type: 'action' | 'consumption') => {
+    const groupType = type === 'consumption' ? 'consumption' : actionType;
+    const max = type === 'consumption' ? MAX_CONSUME : MAX_ACTIONS;
+    const current = type === 'consumption' ? selectedConsumptions : selectedActionGroups;
+    if (Object.keys(current).length >= max) return;
+
+    const band = spiceBand(spice, ladderOf(group).length);
+    handleLevelsChange(
+      band,
+      group,
+      groupType,
+      setFormData,
+      type === 'consumption' ? (formData.isAppend ? 'appendMost' : 'standalone') : null
+    );
+  };
+
+  const removeGroup = (group: string) => {
+    const entry = formData.selectedActions?.[group] as ActionEntry | undefined;
+    handleLevelsChange([], group, (entry?.type || actionType) as any, setFormData);
+    setCustomized((prev) => {
+      const next = new Set(prev);
+      next.delete(group);
+      return next;
+    });
+  };
+
+  const editLevels = (group: string, levels: number[]) => {
+    const entry = formData.selectedActions?.[group] as ActionEntry | undefined;
+    markCustomized(group);
+    handleLevelsChange(
+      levels,
+      group,
+      (entry?.type || actionType) as any,
+      setFormData,
+      entry?.variation || null
+    );
+  };
+
+  // The dial reseeds every selected group the user hasn't touched.
+  const handleSpiceChange = (newSpice: SpiceLevel) => {
+    setSpice(newSpice);
+    Object.entries(formData.selectedActions || {}).forEach(([group, entry]) => {
+      if (customized.has(group)) return;
+      const typedEntry = entry as ActionEntry;
+      handleLevelsChange(
+        spiceBand(newSpice, ladderOf(group).length),
+        group,
+        typedEntry.type as any,
+        setFormData,
+        typedEntry.variation || null
+      );
+    });
+  };
 
   const mapPresetItems = (
     items: string[],
@@ -105,48 +168,37 @@ export default function ActionsStep({
     });
   };
 
-  // Handle preset selection
+  // Presets are curated combos — applying one replaces the selection and the
+  // dial keeps its hands off those groups afterward.
   const handlePresetSelect = (preset: PresetConfig) => {
     setSelectedPreset(preset.id);
-
-    // Apply preset to form data
     const newSelectedActions: Record<string, ActionEntry> = {};
-
-    // Map preset actions to form data structure (default intensity: 2)
     mapPresetItems(preset.actions, 2, preset, newSelectedActions);
-
-    // Handle consumptions - merge with actions since consumptions are also actions (default intensity: 1)
     mapPresetItems(preset.consumptions, 1, preset, newSelectedActions);
-
     setFormData({
       ...formData,
       selectedActions: newSelectedActions,
     });
-
-    // After selecting a preset, switch to customization view
-    setShowQuickStart(false);
-    setShowCustomization(true);
+    setCustomized(new Set(Object.keys(newSelectedActions)));
   };
 
-  // Handle accordion mutual exclusivity
-  const handleQuickStartChange = (_: React.SyntheticEvent, isExpanded: boolean) => {
-    setShowQuickStart(isExpanded);
-    if (isExpanded) {
-      setShowCustomization(false);
-    }
+  const variationChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const newIsAppend = event.target.checked;
+    const newVariation = newIsAppend ? 'appendMost' : 'standalone';
+    const updatedSelectedActions = { ...(formData.selectedActions as Record<string, ActionEntry>) };
+    Object.keys(selectedConsumptions).forEach((option) => {
+      if (updatedSelectedActions[option]) {
+        updatedSelectedActions[option] = {
+          ...updatedSelectedActions[option],
+          variation: newVariation,
+        };
+      }
+    });
+    setFormData({ ...formData, isAppend: newIsAppend, selectedActions: updatedSelectedActions });
   };
 
-  const handleCustomizationChange = (_: React.SyntheticEvent, isExpanded: boolean) => {
-    setShowCustomization(isExpanded);
-    if (isExpanded) {
-      setShowQuickStart(false);
-    }
-  };
-
-  // Check if user has made selections
   const isNextDisabled = !hasValidSelections(formData.selectedActions);
 
-  // Show loading state when actions are being loaded (now includes migration awareness)
   if (isActionsLoading) {
     return (
       <Box>
@@ -161,16 +213,10 @@ export default function ActionsStep({
           }}
         >
           <CircularProgress size={48} />
-          <Typography
-            variant="h6"
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
+          <Typography variant="h6" sx={{ color: 'text.secondary' }}>
             {isMigrationInProgress ? t('migratingDefaultActions') : t('loadingAvailableActions')}
           </Typography>
         </Box>
-        {/* Navigation buttons - disabled during loading */}
         <Box sx={{ mt: 4 }}>
           <ButtonRow>
             <Button disabled>
@@ -185,126 +231,85 @@ export default function ActionsStep({
     );
   }
 
-  // Show broken state when no actions are available after loading completes
   if (isBroken) {
     return <BrokenActionsState />;
   }
 
+  const sheetEntry = sheetGroup ? (formData.selectedActions?.[sheetGroup] as ActionEntry) : null;
+
   return (
     <Box>
-      {/* Quick Start Accordion */}
-      <Accordion
-        expanded={showQuickStart}
-        onChange={handleQuickStartChange}
-        sx={{
-          backgroundColor: 'background.default',
-          borderTop: 1,
-          borderBottom: 1,
-          borderColor: 'divider',
-          borderLeft: 'none',
-          borderRight: 'none',
-          borderRadius: 0,
-          '&:before': {
-            display: 'none',
-          },
-          boxShadow: 'none',
+      {/* Starters: curated combos in a horizontally scrollable shelf */}
+      <Typography variant="h6" sx={{ mb: 1 }}>
+        {t('starters', 'Starters')}
+      </Typography>
+      <PresetSelector
+        gameMode={actionType}
+        onPresetSelect={handlePresetSelect}
+        selectedPreset={selectedPreset}
+        actionsList={actionsList}
+        showTitle={false}
+        horizontal
+      />
+
+      <Divider sx={{ my: 2 }} />
+
+      <SpiceDial value={spice} onChange={handleSpiceChange} />
+
+      <Box sx={{ mt: 2 }}>
+        <GroupChips
+          title={t('pickActions')}
+          options={actionOptions}
+          selected={selectedActionGroups}
+          customized={customized}
+          max={MAX_ACTIONS}
+          onSelect={(group) => selectGroup(group, 'action')}
+          onEdit={setSheetGroup}
+          onRemove={removeGroup}
+        />
+      </Box>
+
+      {consumptionOptions.length > 0 && (
+        <Box sx={{ mt: 3 }}>
+          <GroupChips
+            title={t('pickConsumptions')}
+            options={consumptionOptions}
+            selected={selectedConsumptions}
+            customized={customized}
+            max={MAX_CONSUME}
+            onSelect={(group) => selectGroup(group, 'consumption')}
+            onEdit={setSheetGroup}
+            onRemove={removeGroup}
+          />
+          {Object.keys(selectedConsumptions).length > 0 && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                <Trans i18nKey="standaloneOrCombine" />
+              </Typography>
+              <YesNoSwitch
+                trueCondition={formData.isAppend}
+                onChange={variationChange}
+                yesLabel="combineWithActions"
+              />
+            </Box>
+          )}
+        </Box>
+      )}
+
+      <LevelSheet
+        open={!!sheetGroup}
+        groupLabel={sheetGroup ? actionsList[sheetGroup]?.label || sheetGroup : ''}
+        availableLevels={sheetGroup ? ladderOf(sheetGroup) : []}
+        intensityNames={(sheetGroup && actionsList[sheetGroup]?.intensities) || {}}
+        selectedLevels={sheetEntry?.levels || []}
+        onChange={(levels) => sheetGroup && editLevels(sheetGroup, levels)}
+        onRemove={() => {
+          if (sheetGroup) removeGroup(sheetGroup);
+          setSheetGroup(null);
         }}
-      >
-        <AccordionSummary
-          expandIcon={<ExpandMore />}
-          aria-controls="quickstart-content"
-          id="quickstart-header"
-          sx={{
-            backgroundColor: 'background.default',
-          }}
-        >
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{
-              alignItems: 'center',
-            }}
-          >
-            <PlayArrow />
-            <Typography variant="h6">{t('quickStart')}</Typography>
-          </Stack>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pb: 1 }}>
-          <PresetSelector
-            gameMode={gameMode}
-            onPresetSelect={handlePresetSelect}
-            selectedPreset={selectedPreset}
-            actionsList={actionsList}
-            showTitle={false}
-          />
-        </AccordionDetails>
-      </Accordion>
-      {/* Custom Selection Accordion */}
-      <Accordion
-        expanded={showCustomization}
-        onChange={handleCustomizationChange}
-        sx={{
-          backgroundColor: 'background.default',
-          borderTop: showQuickStart ? 'none' : 1,
-          borderBottom: 1,
-          borderColor: 'divider',
-          borderLeft: 'none',
-          borderRight: 'none',
-          borderRadius: 0,
-          marginTop: showQuickStart ? -1 : 0,
-          '&:before': {
-            display: 'none',
-          },
-          boxShadow: 'none',
-        }}
-      >
-        <AccordionSummary
-          expandIcon={<ExpandMore />}
-          aria-controls="customization-content"
-          id="customization-header"
-          sx={{
-            backgroundColor: 'background.default',
-          }}
-        >
-          <Stack
-            direction="row"
-            spacing={1}
-            sx={{
-              alignItems: 'center',
-            }}
-          >
-            <Tune />
-            <Typography variant="h6">{t('customizeActions')}</Typography>
-          </Stack>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography
-            variant="body2"
-            sx={{
-              color: 'text.secondary',
-              mb: 2,
-            }}
-          >
-            {t('customizeActionsDesc')}
-          </Typography>
+        onClose={() => setSheetGroup(null)}
+      />
 
-          <PickActions
-            formData={formData}
-            setFormData={setFormData}
-            options={options}
-            actionsList={actionsList}
-          />
-
-          <Divider sx={{ my: 3 }} />
-
-          <PickConsumptions
-            formData={formData}
-            setFormData={setFormData}
-            options={options}
-            actionsList={actionsList}
-          />
-        </AccordionDetails>
-      </Accordion>
       <Box sx={{ mt: 4 }}>
         <ButtonRow>
           <Button onClick={() => prevStep()}>
