@@ -206,6 +206,37 @@ export async function syncCustomGroupsToFirebase(): Promise<boolean> {
   }
 }
 
+// Sync user-appended intensity levels on default groups (small deltas; default
+// groups themselves never sync — each device seeds them locally).
+export async function syncGroupExtensionsToFirebase(): Promise<boolean> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) {
+    console.error('No user logged in');
+    return false;
+  }
+
+  try {
+    const { collectGroupExtensionRecords } = await import('./sync/customGroupExtensionsSync');
+    const customGroupExtensions = await collectGroupExtensionRecords();
+
+    await setDoc(
+      doc(db, 'user-data', user.uid),
+      {
+        customGroupExtensions,
+        lastUpdated: new Date(),
+      },
+      { merge: true }
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Error syncing group extensions:', error);
+    return false;
+  }
+}
+
 // Sync game boards to Firebase
 export async function syncGameBoardsToFirebase(): Promise<boolean> {
   const auth = getAuth();
@@ -288,6 +319,7 @@ export async function syncAllDataToFirebase(): Promise<boolean> {
     await syncCustomTilesToFirebase(),
     await syncDisabledDefaultsToFirebase(),
     await syncCustomGroupsToFirebase(),
+    await syncGroupExtensionsToFirebase(),
     await syncGameBoardsToFirebase(),
     await syncSettingsToFirebase(),
   ];

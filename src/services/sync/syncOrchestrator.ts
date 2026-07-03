@@ -1,6 +1,7 @@
 import type { SyncOptions, SyncResult } from '@/types/sync';
 import { cleanupDuplicateTiles, syncAllDataToFirebase } from '../syncService';
 
+import { CustomGroupExtensionsSync } from './customGroupExtensionsSync';
 import { CustomGroupsSync } from './customGroupsSync';
 /**
  * Main sync orchestrator - coordinates all sync operations
@@ -33,6 +34,7 @@ export class SyncOrchestrator extends SyncBase {
       const syncOperations = [
         this.syncCustomTiles(userData, options),
         this.syncCustomGroups(userData, options),
+        this.syncGroupExtensions(userData),
         this.syncDisabledDefaults(userData),
         this.syncGameBoards(userData),
         this.syncSettings(userData),
@@ -47,6 +49,7 @@ export class SyncOrchestrator extends SyncBase {
         const operationNames = [
           'Custom Tiles',
           'Custom Groups',
+          'Group Extensions',
           'Disabled Defaults',
           'Game Boards',
           'Settings',
@@ -97,6 +100,16 @@ export class SyncOrchestrator extends SyncBase {
   private static async syncCustomGroups(userData: any, options: SyncOptions): Promise<SyncResult> {
     if (userData.customGroups !== undefined) {
       return await CustomGroupsSync.syncFromFirebase(userData.customGroups || [], options);
+    }
+    return this.createSuccessResult(0);
+  }
+
+  /**
+   * Sync appended default-group intensity levels with error handling
+   */
+  private static async syncGroupExtensions(userData: any): Promise<SyncResult> {
+    if (userData.customGroupExtensions !== undefined) {
+      return await CustomGroupExtensionsSync.syncFromFirebase(userData.customGroupExtensions || []);
     }
     return this.createSuccessResult(0);
   }
