@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Card,
+  CardActionArea,
   CardContent,
   CircularProgress,
   Divider,
@@ -216,7 +217,9 @@ export default function ActionsStep({
     if (!pack) return;
 
     const groups = await getCustomGroups({
-      locale: i18n.resolvedLanguage || 'en',
+      // importPack preserves each group's locale from the pack contents, which
+      // can differ from the current UI language.
+      locale: pack.locale || i18n.resolvedLanguage || 'en',
       gameMode: contentGameMode,
       isDefault: false,
     });
@@ -383,18 +386,8 @@ export default function ActionsStep({
       )}
 
       <Card
-        role="button"
-        tabIndex={0}
-        onClick={() => setDirectoryOpen(true)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            setDirectoryOpen(true);
-          }
-        }}
         sx={{
           mt: 3,
-          cursor: 'pointer',
           border: '1px dashed',
           borderColor: 'divider',
           backgroundColor: 'background.default',
@@ -402,17 +395,19 @@ export default function ActionsStep({
           '&:hover': { borderColor: 'primary.main', boxShadow: 1 },
         }}
       >
-        <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 2 }}>
-          <Explore color="primary" />
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              {t('explorePacks', 'Explore community packs')}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {t('explorePacksDesc', 'Add ready-made action sets shared by other players.')}
-            </Typography>
-          </Box>
-        </CardContent>
+        <CardActionArea onClick={() => setDirectoryOpen(true)}>
+          <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 2 }}>
+            <Explore color="primary" />
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                {t('explorePacks', 'Explore community packs')}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {t('explorePacksDesc', 'Add ready-made action sets shared by other players.')}
+              </Typography>
+            </Box>
+          </CardContent>
+        </CardActionArea>
       </Card>
 
       <LevelSheet

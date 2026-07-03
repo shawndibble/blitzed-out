@@ -487,8 +487,7 @@
     "subtitle": "Elige una opción para empezar — podrás ajustarlo todo después.",
     "solo": {
       "title": "Solo yo",
-      "description": "Juega en solitario en este dispositivo.",
-      "private": "Jugar en privado"
+      "description": "Juega en solitario en este dispositivo."
     },
     "shared": {
       "title": "Pasa y juega",

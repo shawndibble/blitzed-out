@@ -486,8 +486,7 @@
     "subtitle": "选择一种方式立即开始 — 之后可随时细调。",
     "solo": {
       "title": "只有我",
-      "description": "在此设备上单人游戏。",
-      "private": "私下遊玩"
+      "description": "在此设备上单人游戏。"
     },
     "shared": {
       "title": "轮流传递",

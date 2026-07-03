@@ -487,8 +487,7 @@
     "subtitle": "Choisissez une option pour vous lancer — tout est ajustable ensuite.",
     "solo": {
       "title": "Juste moi",
-      "description": "Jouez en solo sur cet appareil.",
-      "private": "Jouer en privé"
+      "description": "Jouez en solo sur cet appareil."
     },
     "shared": {
       "title": "Chacun son tour",

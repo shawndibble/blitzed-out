@@ -1,4 +1,5 @@
 import {
+  alpha,
   Box,
   Button,
   Card,
@@ -201,11 +202,21 @@ export default function FinishStep({
             ].map((option) => (
               <Grid size={{ xs: 12, sm: 6 }} key={option.id}>
                 <Card
-                  sx={{
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      option.onSelect();
+                    }
+                  }}
+                  sx={(theme) => ({
                     cursor: 'pointer',
                     border: option.isSelected ? '3px solid' : '1px solid',
                     borderColor: option.isSelected ? 'primary.main' : 'divider',
-                    backgroundColor: option.isSelected ? 'primary.50' : 'background.paper',
+                    backgroundColor: option.isSelected
+                      ? alpha(theme.palette.primary.main, 0.12)
+                      : 'background.paper',
                     transition: 'all 0.2s ease-in-out',
                     height: '100%',
                     transform: option.isSelected ? 'scale(1.02)' : 'scale(1)',
@@ -214,7 +225,7 @@ export default function FinishStep({
                       transform: 'scale(1.02)',
                       boxShadow: 2,
                     },
-                  }}
+                  })}
                   onClick={option.onSelect}
                 >
                   <CardContent sx={{ p: 2 }}>

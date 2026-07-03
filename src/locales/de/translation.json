@@ -487,8 +487,7 @@
     "subtitle": "Wähle eine Option zum Loslegen — alles andere lässt sich später anpassen.",
     "solo": {
       "title": "Nur ich",
-      "description": "Spiele solo auf diesem Gerät.",
-      "private": "Privat spielen"
+      "description": "Spiele solo auf diesem Gerät."
     },
     "shared": {
       "title": "Weitergeben & spielen",

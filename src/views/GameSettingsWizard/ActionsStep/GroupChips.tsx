@@ -1,16 +1,17 @@
-import { Box, Chip, Tooltip, Typography } from '@mui/material';
-import { useEffect, useRef } from 'react';
+import { alpha, Box, Chip, Theme, Tooltip, Typography } from '@mui/material';
+import { Ref, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Option } from '@/types/index';
 
 // Attention pulse for chips that just arrived via a pack import
-const importPulse = {
-  animation: 'groupChipPulse 1.2s ease-in-out 4',
-  '@keyframes groupChipPulse': {
-    '0%, 100%': { boxShadow: '0 0 0 0 rgba(144, 202, 249, 0)' },
-    '50%': { boxShadow: '0 0 0 8px rgba(144, 202, 249, 0.35)' },
-  },
-} as const;
+const importPulse = (theme: Theme) =>
+  ({
+    animation: 'groupChipPulse 1.2s ease-in-out 4',
+    '@keyframes groupChipPulse': {
+      '0%, 100%': { boxShadow: `0 0 0 0 ${alpha(theme.palette.primary.main, 0)}` },
+      '50%': { boxShadow: `0 0 0 8px ${alpha(theme.palette.primary.main, 0.35)}` },
+    },
+  }) as const;
 
 /** Compact human summary of a level selection: [1,2,3] → "1–3", [1,3] → "1,3". */
 export function formatLevels(levels: number[]): string {
@@ -49,31 +50,31 @@ export default function GroupChips({
   onEdit,
   onRemove,
   highlighted,
-}: GroupChipsProps): JSX.Element {
+}: GroupChipsProps) {
   const { t } = useTranslation();
   const selectedCount = Object.keys(selected).length;
   const atCap = selectedCount >= max;
 
   // Bring the first highlighted chip into view so imports are unmissable.
   const firstHighlightedRef = useRef<HTMLDivElement | null>(null);
-  const highlightKey = highlighted && highlighted.size ? [...highlighted].join(',') : '';
+  const firstHighlighted = useMemo(
+    () => options.find((option) => highlighted?.has(option.value))?.value,
+    [options, highlighted]
+  );
   useEffect(() => {
-    if (highlightKey) {
+    if (firstHighlighted) {
       firstHighlightedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [highlightKey]);
+  }, [firstHighlighted]);
 
-  let highlightRefAssigned = false;
   const highlightProps = (
     name: string
-  ): { sx?: typeof importPulse; ref?: React.Ref<HTMLDivElement> } => {
+  ): { sx?: typeof importPulse; ref?: Ref<HTMLDivElement> } => {
     if (!highlighted?.has(name)) return {};
-    const props: { sx: typeof importPulse; ref?: React.Ref<HTMLDivElement> } = { sx: importPulse };
-    if (!highlightRefAssigned) {
-      highlightRefAssigned = true;
-      props.ref = firstHighlightedRef;
-    }
-    return props;
+    return {
+      sx: importPulse,
+      ...(name === firstHighlighted && { ref: firstHighlightedRef }),
+    };
   };
 
   return (
@@ -105,7 +106,7 @@ export default function GroupChips({
                 onClick={() => onEdit(option.value)}
                 onDelete={() => onRemove(option.value)}
                 ref={highlight.ref}
-                sx={{ fontWeight: 600, ...(highlight.sx || {}) }}
+                sx={[{ fontWeight: 600 }, ...(highlight.sx ? [highlight.sx] : [])]}
               />
             );
           }

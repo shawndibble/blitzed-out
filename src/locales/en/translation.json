@@ -487,8 +487,7 @@
     "subtitle": "Pick one to jump in — you can fine-tune everything later.",
     "solo": {
       "title": "Just Me",
-      "description": "Play solo on this device.",
-      "private": "Play privately"
+      "description": "Play solo on this device."
     },
     "shared": {
       "title": "Pass & Play",

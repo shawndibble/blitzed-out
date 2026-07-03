@@ -159,6 +159,7 @@ export async function publishPack(
     group_count: summary.groupCount,
     tile_count: summary.tileCount,
     pack_version: 1,
+    is_republish: 'false',
   });
 
   return ref.id;
@@ -193,6 +194,7 @@ export async function republishPack(
     group_count: summary.groupCount,
     tile_count: summary.tileCount,
     pack_version: existing.packVersion + 1,
+    is_republish: 'true',
   });
 }
 
