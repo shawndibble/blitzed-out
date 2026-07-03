@@ -326,6 +326,30 @@ describe('ImportExport Service', () => {
       expect(result.warnings).toContain('Updated existing group: testGroup');
     });
 
+    it('should never replace a default group record (corruption guard)', async () => {
+      const defaultGroup = {
+        ...mockGroup,
+        id: 'default-group-1',
+        isDefault: true,
+      };
+      vi.mocked(getCustomGroups).mockResolvedValue([defaultGroup]);
+      vi.mocked(batchFetchAllGroups).mockResolvedValue([defaultGroup]);
+      vi.mocked(getTiles).mockResolvedValue([]);
+      vi.mocked(generateGroupContentHash).mockResolvedValue('different-hash');
+
+      const result = await importData(mockExportData);
+
+      expect(updateCustomGroup).not.toHaveBeenCalled();
+      expect(addCustomGroup).not.toHaveBeenCalled();
+      expect(result.warnings).toContain(
+        'Skipped group "testGroup": default groups cannot be replaced by imports'
+      );
+      // The tile targeting the default group still imports.
+      expect(addCustomTile).toHaveBeenCalledWith(
+        expect.objectContaining({ group_id: 'default-group-1', action: 'Test action' })
+      );
+    });
+
     it('should skip tiles for missing groups', async () => {
       // Create import data where the tile references a group that doesn't exist in the import data
       const importDataWithMissingGroup = {

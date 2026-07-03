@@ -153,6 +153,18 @@ async function processGroupImport(ctx: ImportContext): Promise<void> {
     try {
       const existingGroup = ctx.groupMap.get(importedGroup.name);
 
+      if (existingGroup?.isDefault) {
+        // Never let an import replace a default group's record — that would
+        // strip its isDefault flag and rebuild its intensity ladder. Tiles
+        // targeting the group still import; ladder additions travel via
+        // groupExtensions.
+        ctx.result.skippedItems++;
+        ctx.result.warnings.push(
+          `Skipped group "${importedGroup.name}": default groups cannot be replaced by imports`
+        );
+        continue;
+      }
+
       if (existingGroup) {
         const existingHash = await generateGroupContentHash(existingGroup);
 

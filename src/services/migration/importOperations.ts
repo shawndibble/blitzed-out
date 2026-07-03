@@ -9,6 +9,7 @@ import {
   updateCustomGroup,
 } from '@/stores/customGroups';
 import { importCustomTiles, getTiles } from '@/stores/customTiles';
+import { mergeSeedIntensities } from '@/services/intensityMerge';
 import { CustomGroupBase } from '@/types/customGroups';
 import { CustomTileBase } from '@/types/customTiles';
 import { ImportResult } from './types';
@@ -227,7 +228,9 @@ export const importGroupsForLocaleAndGameMode = async (
         if (existingGroup) {
           await updateCustomGroup(existingGroup.id, {
             label: customGroup.label,
-            intensities: customGroup.intensities,
+            // Bundle ladder is canonical, but user-appended (non-default)
+            // intensities must survive re-seeds.
+            intensities: mergeSeedIntensities(customGroup.intensities, existingGroup.intensities),
             type: customGroup.type,
             isDefault: true,
             locale,
