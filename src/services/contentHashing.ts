@@ -84,6 +84,28 @@ export async function generateTileContentHash(
 }
 
 /**
+ * Generates content hash for a default-group extension (appended intensities)
+ */
+export async function generateExtensionContentHash(extension: {
+  groupName: string;
+  gameMode: string;
+  addedIntensities: Array<{ value: number; label: string }>;
+}): Promise<string> {
+  const normalizedIntensities = extension.addedIntensities
+    .map((i) => ({ value: i.value, label: i.label }))
+    .sort((a, b) => a.value - b.value);
+
+  const hashInput = {
+    groupName: extension.groupName,
+    gameMode: extension.gameMode,
+    addedIntensities: normalizedIntensities,
+  };
+
+  const normalizedInput = normalizeForHashing(hashInput);
+  return await generateSHA256(normalizedInput);
+}
+
+/**
  * Generates content hash for a disabled default tile
  */
 export async function generateDisabledDefaultContentHash(

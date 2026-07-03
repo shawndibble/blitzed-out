@@ -16,7 +16,11 @@ const ladder = (values: number[], isDefault = true): CustomGroupIntensity[] =>
 
 describe('appendIntensities', () => {
   it('appends new levels with isDefault false and deterministic ids', () => {
-    const result = appendIntensities(ladder([1, 2, 3, 4]), [{ value: 5, label: 'Extreme' }], 'ballBusting');
+    const result = appendIntensities(
+      ladder([1, 2, 3, 4]),
+      [{ value: 5, label: 'Extreme' }],
+      'ballBusting'
+    );
 
     expect(result.added).toEqual([
       { id: 'ballBusting-ext-5', label: 'Extreme', value: 5, isDefault: false },
@@ -44,41 +48,57 @@ describe('appendIntensities', () => {
   });
 
   it('skips out-of-range and non-integer values', () => {
-    const result = appendIntensities(ladder([1]), [
-      { value: 0, label: 'Zero' },
-      { value: 11, label: 'Eleven' },
-      { value: 2.5, label: 'Half' },
-    ], 'g');
+    const result = appendIntensities(
+      ladder([1]),
+      [
+        { value: 0, label: 'Zero' },
+        { value: 11, label: 'Eleven' },
+        { value: 2.5, label: 'Half' },
+      ],
+      'g'
+    );
 
     expect(result.added).toEqual([]);
     expect(result.skipped.map((s) => s.reason)).toEqual(['outOfRange', 'outOfRange', 'outOfRange']);
   });
 
   it('enforces the 10-level cap, keeping lowest additions first', () => {
-    const result = appendIntensities(ladder([1, 2, 3, 4, 5, 6, 7, 8]), [
-      { value: 10, label: 'Ten' },
-      { value: 9, label: 'Nine' },
-    ], 'g');
+    const result = appendIntensities(
+      ladder([1, 2, 3, 4, 5, 6, 7, 8]),
+      [
+        { value: 10, label: 'Ten' },
+        { value: 9, label: 'Nine' },
+      ],
+      'g'
+    );
 
     expect(result.added.map((i) => i.value)).toEqual([9, 10]);
 
-    const overCap = appendIntensities(ladder([1, 2, 3, 4, 5, 6, 7, 8, 9]), [
-      { value: 10, label: 'Ten' },
-    ], 'g');
+    const overCap = appendIntensities(
+      ladder([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+      [{ value: 10, label: 'Ten' }],
+      'g'
+    );
     expect(overCap.added.map((i) => i.value)).toEqual([10]);
 
-    const full = appendIntensities(ladder([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].slice(0, 10)), [
-      { value: 10, label: 'Ten' },
-    ], 'g');
+    const full = appendIntensities(
+      ladder([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].slice(0, 10)),
+      [{ value: 10, label: 'Ten' }],
+      'g'
+    );
     expect(full.added).toEqual([]);
     expect(full.skipped[0].reason).toBe('duplicate');
   });
 
   it('returns merged ladder sorted by value', () => {
-    const result = appendIntensities(ladder([2, 4]), [
-      { value: 1, label: 'One' },
-      { value: 3, label: 'Three' },
-    ], 'g');
+    const result = appendIntensities(
+      ladder([2, 4]),
+      [
+        { value: 1, label: 'One' },
+        { value: 3, label: 'Three' },
+      ],
+      'g'
+    );
     expect(result.merged.map((i) => i.value)).toEqual([1, 2, 3, 4]);
   });
 });

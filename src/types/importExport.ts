@@ -9,7 +9,20 @@ export interface ExportGroup {
   gameMode: string;
   locale: string;
   type?: string;
+  anatomyRequirement?: string;
   intensities: ExportIntensity[];
+  contentHash: string;
+}
+
+// Append-only delta against a DEFAULT group: new intensity levels only.
+// New tiles for default groups travel as plain ExportTile entries (the tile
+// importer resolves default groups by deterministic id). Introduced in
+// format 2.1.0; older readers ignore this array.
+export interface ExportGroupExtension {
+  groupName: string; // default group's name key (e.g. "ballBusting")
+  locale: string;
+  gameMode: string;
+  addedIntensities: ExportIntensity[];
   contentHash: string;
 }
 
@@ -39,6 +52,7 @@ export interface ExportData {
     customGroups: ExportGroup[];
     customTiles: ExportTile[];
     disabledDefaultTiles: ExportDisabledDefault[];
+    groupExtensions?: ExportGroupExtension[]; // 2.1.0+; absent in older exports
   };
 }
 
@@ -59,6 +73,7 @@ export interface ImportResult {
   success: boolean;
   importedGroups: number;
   importedTiles: number;
+  importedIntensities: number; // intensity levels appended to default groups
   importedDisabledDefaults: number;
   errors: string[];
   warnings: string[];

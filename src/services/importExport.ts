@@ -11,10 +11,13 @@ import {
   generateGroupContentHash,
   generateTileContentHash,
   generateDisabledDefaultContentHash,
+  generateExtensionContentHash,
 } from './contentHashing';
+import { appendIntensities } from './intensityMerge';
 import {
   ExportData,
   ExportGroup,
+  ExportGroupExtension,
   ExportTile,
   ExportDisabledDefault,
   ExportOptions,
@@ -22,10 +25,12 @@ import {
   ImportResult,
   ConflictAnalysis,
 } from '@/types/importExport';
-import type { CustomGroupPull, CustomGroupBase } from '@/types/customGroups';
+import type { CustomGroupPull, CustomGroupBase, AnatomyRequirement } from '@/types/customGroups';
 import type { CustomTile } from '@/types/customTiles';
 
-const EXPORT_FORMAT_VERSION = '2.0.0';
+// 2.1.0 added data.groupExtensions (append-only intensity deltas for default
+// groups). 2.0.0 payloads remain importable; older readers ignore the array.
+export const EXPORT_FORMAT_VERSION = '2.1.0';
 const BATCH_SIZE = 100;
 
 // Enhanced types for better performance and maintainability
@@ -60,15 +65,23 @@ async function buildImportContext(
     success: false,
     importedGroups: 0,
     importedTiles: 0,
+    importedIntensities: 0,
     importedDisabledDefaults: 0,
     skippedItems: 0,
     errors: [],
     warnings: [],
   };
 
-  // Build group mappings once for the entire import operation
-  const locales = [...new Set(importData.data.customGroups.map((g) => g.locale))];
-  const gameModes = [...new Set(importData.data.customGroups.map((g) => g.gameMode))];
+  // Build group mappings once for the entire import operation. Locale/mode
+  // pairs come from every section — a payload may carry only tiles or
+  // extensions targeting default groups, with no customGroups entries.
+  const sections = [
+    ...importData.data.customGroups,
+    ...importData.data.customTiles,
+    ...(importData.data.groupExtensions ?? []),
+  ];
+  const locales = [...new Set(sections.map((s) => s.locale))];
+  const gameModes = [...new Set(sections.map((s) => s.gameMode))];
 
   const allExistingGroups: CustomGroupPull[] = [];
   for (const locale of locales) {
@@ -104,6 +117,7 @@ async function createExportGroup(group: CustomGroupPull): Promise<ExportGroup> {
     gameMode: group.gameMode,
     locale: group.locale,
     type: group.type,
+    ...(group.anatomyRequirement ? { anatomyRequirement: group.anatomyRequirement } : {}),
     intensities: group.intensities.map((i) => ({
       value: i.value,
       label: i.label,
@@ -200,6 +214,77 @@ async function processGroupImport(ctx: ImportContext): Promise<void> {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       ctx.result.errors.push(`Failed to import group ${importedGroup.name}: ${message}`);
+    }
+  }
+}
+
+async function processGroupExtensions(ctx: ImportContext): Promise<void> {
+  for (const extension of ctx.importData.data.groupExtensions ?? []) {
+    try {
+      let group = ctx.groupMap.get(extension.groupName);
+
+      if (!group) {
+        // Same deterministic-id resolution the tile importer uses for
+        // default groups outside the payload's customGroups entries.
+        const calculatedGroupId = createDeterministicGroupId(
+          extension.groupName,
+          extension.locale,
+          extension.gameMode
+        );
+        const allGroups = await getCustomGroups({
+          locale: extension.locale,
+          gameMode: extension.gameMode,
+        });
+        const defaultGroup = allGroups.find((g) => g.id === calculatedGroupId);
+        if (defaultGroup) {
+          group = defaultGroup;
+          ctx.groupMap.set(extension.groupName, defaultGroup);
+          ctx.groupIdMap.set(extension.groupName, defaultGroup.id);
+        }
+      }
+
+      if (!group) {
+        ctx.result.warnings.push(
+          `Skipped extension for missing group: ${extension.groupName} (${extension.locale}/${extension.gameMode})`
+        );
+        continue;
+      }
+
+      if (!group.isDefault) {
+        ctx.result.warnings.push(
+          `Skipped extension for non-default group "${extension.groupName}": custom groups travel as full definitions`
+        );
+        continue;
+      }
+
+      const { merged, added, skipped } = appendIntensities(
+        group.intensities,
+        extension.addedIntensities,
+        group.name
+      );
+
+      for (const skip of skipped) {
+        if (skip.reason === 'duplicate') {
+          // Expected on re-import; not worth a warning.
+          ctx.result.skippedItems++;
+        } else {
+          ctx.result.warnings.push(
+            `Skipped intensity ${skip.value} for ${extension.groupName}: ${skip.reason}`
+          );
+        }
+      }
+
+      if (added.length === 0) continue;
+
+      await updateCustomGroup(group.id, { intensities: merged });
+      ctx.result.importedIntensities += added.length;
+      // Refresh the map so tiles at the new levels pass intensity validation.
+      ctx.groupMap.set(extension.groupName, { ...group, intensities: merged });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      ctx.result.errors.push(
+        `Failed to import extension for ${extension.groupName}: ${message}`
+      );
     }
   }
 }
@@ -384,6 +469,9 @@ function createGroupData(importedGroup: ExportGroup, ctx?: ImportContext): Custo
       isDefault: false,
     })),
     type: importedGroup.type as 'solo' | 'consumption' | 'foreplay' | 'sex' | undefined,
+    ...(importedGroup.anatomyRequirement
+      ? { anatomyRequirement: importedGroup.anatomyRequirement as AnatomyRequirement }
+      : {}),
     isDefault: false,
     locale: importedGroup.locale,
     gameMode: importedGroup.gameMode,
@@ -510,7 +598,20 @@ export async function exportAllData(
     const tilesGroupIds = new Set(allCustomTiles.map((t) => t.group_id).filter(Boolean));
     const disabledGroupIds = new Set(allDisabledDefaults.map((t) => t.group_id).filter(Boolean));
 
-    const allRelevantGroupIds = new Set([...customGroupIds, ...tilesGroupIds, ...disabledGroupIds]);
+    // Default groups the user extended with custom intensity levels are
+    // exportable even when they own no custom tiles yet.
+    const extensionGroupIds = new Set(
+      allGroups
+        .filter((g) => g.isDefault && g.intensities.some((i) => !i.isDefault))
+        .map((g) => g.id)
+    );
+
+    const allRelevantGroupIds = new Set([
+      ...customGroupIds,
+      ...tilesGroupIds,
+      ...disabledGroupIds,
+      ...extensionGroupIds,
+    ]);
 
     const relevantGroups = allGroups.filter((g) => allRelevantGroupIds.has(g.id));
 
@@ -534,6 +635,28 @@ export async function exportAllData(
     const exportGroups: ExportGroup[] = [];
     for (const group of groupsToExport.filter((g) => !g.isDefault)) {
       exportGroups.push(await createExportGroup(group));
+    }
+
+    // Selected default groups export as append-only extensions: just their
+    // custom (non-default) intensity levels. Default ladders and default
+    // tiles never leave the app.
+    const exportExtensions: ExportGroupExtension[] = [];
+    for (const group of groupsToExport.filter((g) => g.isDefault)) {
+      const addedIntensities = group.intensities
+        .filter((i) => !i.isDefault)
+        .map((i) => ({ value: i.value, label: i.label }));
+      if (addedIntensities.length === 0) continue;
+      exportExtensions.push({
+        groupName: group.name,
+        locale: group.locale,
+        gameMode: group.gameMode,
+        addedIntensities,
+        contentHash: await generateExtensionContentHash({
+          groupName: group.name,
+          gameMode: group.gameMode,
+          addedIntensities,
+        }),
+      });
     }
 
     progressCallback?.('Processing custom tiles', 50, 100);
@@ -573,6 +696,7 @@ export async function exportAllData(
         customGroups: exportGroups,
         customTiles: exportTiles,
         disabledDefaultTiles: exportDisabled,
+        ...(exportExtensions.length > 0 ? { groupExtensions: exportExtensions } : {}),
       },
     };
 
@@ -686,6 +810,10 @@ export async function importData(
 
     progressCallback?.('Importing groups', 25, 100);
     await processGroupImport(ctx);
+
+    // Must run before tiles: tiles may target the appended intensity levels.
+    progressCallback?.('Extending default groups', 50, 100);
+    await processGroupExtensions(ctx);
 
     progressCallback?.('Importing tiles', 75, 100);
     await processTileImport(ctx);

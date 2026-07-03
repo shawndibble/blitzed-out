@@ -27,6 +27,7 @@ vi.mock('@/services/contentHashing', () => ({
   generateGroupContentHash: vi.fn(),
   generateTileContentHash: vi.fn(),
   generateDisabledDefaultContentHash: vi.fn(),
+  generateExtensionContentHash: vi.fn(),
 }));
 
 vi.mock('@/services/importExport/databaseOperations', () => ({
@@ -40,6 +41,7 @@ import {
   generateGroupContentHash,
   generateTileContentHash,
   generateDisabledDefaultContentHash,
+  generateExtensionContentHash,
 } from '@/services/contentHashing';
 import { batchFetchAllGroups } from '@/services/importExport/databaseOperations';
 
@@ -114,6 +116,7 @@ describe('ImportExport Service', () => {
     vi.mocked(generateGroupContentHash).mockResolvedValue('mock-hash-group');
     vi.mocked(generateTileContentHash).mockResolvedValue('mock-hash-tile');
     vi.mocked(generateDisabledDefaultContentHash).mockResolvedValue('mock-hash-disabled');
+    vi.mocked(generateExtensionContentHash).mockResolvedValue('mock-hash-extension');
     vi.mocked(addCustomGroup).mockResolvedValue('new-group-id');
     vi.mocked(addCustomTile).mockResolvedValue(1);
   });
@@ -137,7 +140,7 @@ describe('ImportExport Service', () => {
       });
 
       const exportData = JSON.parse(result);
-      expect(exportData.formatVersion).toBe('2.0.0');
+      expect(exportData.formatVersion).toBe('2.1.0');
       expect(exportData.data.customGroups).toHaveLength(1);
       expect(exportData.data.customTiles).toHaveLength(1);
       expect(exportData.data.disabledDefaultTiles).toHaveLength(0);
@@ -350,20 +353,195 @@ describe('ImportExport Service', () => {
       );
     });
 
-    it('should skip tiles for missing groups', async () => {
-      // Create import data where the tile references a group that doesn't exist in the import data
-      const importDataWithMissingGroup = {
+    describe('groupExtensions (2.1.0)', () => {
+      const defaultGroup: CustomGroupPull = {
+        ...mockGroup,
+        id: 'default-group-1',
+        name: 'ballBusting',
+        label: 'Ball Busting',
+        isDefault: true,
+        intensities: [
+          { id: 'bb-1', label: 'Slap/Squeeze', value: 1, isDefault: true },
+          { id: 'bb-2', label: 'Punch/Crush', value: 2, isDefault: true },
+        ],
+      };
+
+      const extensionPayload: ExportData = {
+        formatVersion: '2.1.0',
+        exportedAt: new Date().toISOString(),
+        data: {
+          customGroups: [],
+          customTiles: [
+            {
+              action: 'New tile at appended level',
+              groupName: 'ballBusting',
+              intensity: 3,
+              tags: [],
+              gameMode: 'online',
+              locale: 'en',
+              isEnabled: true,
+              contentHash: 'hash-new-tile',
+            },
+          ],
+          disabledDefaultTiles: [],
+          groupExtensions: [
+            {
+              groupName: 'ballBusting',
+              locale: 'en',
+              gameMode: 'online',
+              addedIntensities: [{ value: 3, label: 'Rubber Bands' }],
+              contentHash: 'hash-ext',
+            },
+          ],
+        },
+      };
+
+      beforeEach(() => {
+        vi.mocked(getCustomGroups).mockResolvedValue([defaultGroup]);
+        vi.mocked(getTiles).mockResolvedValue([]);
+      });
+
+      it('appends intensities to the default group and imports tiles at the new level', async () => {
+        const result = await importData(extensionPayload);
+
+        expect(updateCustomGroup).toHaveBeenCalledWith('default-group-1', {
+          intensities: [
+            expect.objectContaining({ value: 1, isDefault: true }),
+            expect.objectContaining({ value: 2, isDefault: true }),
+            expect.objectContaining({
+              id: 'ballBusting-ext-3',
+              label: 'Rubber Bands',
+              value: 3,
+              isDefault: false,
+            }),
+          ],
+        });
+        expect(result.importedIntensities).toBe(1);
+        // Tile at the appended level passes intensity validation.
+        expect(addCustomTile).toHaveBeenCalledWith(
+          expect.objectContaining({
+            group_id: 'default-group-1',
+            action: 'New tile at appended level',
+            intensity: 3,
+          })
+        );
+        expect(result.importedTiles).toBe(1);
+        expect(result.success).toBe(true);
+      });
+
+      it('is idempotent: re-import with the level already present skips without updating', async () => {
+        const extendedGroup = {
+          ...defaultGroup,
+          intensities: [
+            ...defaultGroup.intensities,
+            { id: 'ballBusting-ext-3', label: 'Rubber Bands', value: 3, isDefault: false },
+          ],
+        };
+        vi.mocked(getCustomGroups).mockResolvedValue([extendedGroup]);
+
+        const result = await importData(extensionPayload);
+
+        expect(updateCustomGroup).not.toHaveBeenCalled();
+        expect(result.importedIntensities).toBe(0);
+        expect(result.success).toBe(true);
+      });
+
+      it('skips extensions targeting non-default groups', async () => {
+        const customNamedGroup = { ...defaultGroup, isDefault: false };
+        vi.mocked(getCustomGroups).mockResolvedValue([customNamedGroup]);
+
+        const result = await importData(extensionPayload);
+
+        expect(updateCustomGroup).not.toHaveBeenCalled();
+        expect(result.warnings).toContain(
+          'Skipped extension for non-default group "ballBusting": custom groups travel as full definitions'
+        );
+      });
+
+      it('skips extensions for missing groups', async () => {
+        vi.mocked(getCustomGroups).mockResolvedValue([]);
+
+        const result = await importData(extensionPayload);
+
+        expect(updateCustomGroup).not.toHaveBeenCalled();
+        expect(result.warnings).toContain(
+          'Skipped extension for missing group: ballBusting (en/online)'
+        );
+      });
+
+      it('exports appended intensities as groupExtensions, never the default ladder', async () => {
+        const extendedGroup = {
+          ...defaultGroup,
+          intensities: [
+            ...defaultGroup.intensities,
+            { id: 'ballBusting-ext-3', label: 'Rubber Bands', value: 3, isDefault: false },
+          ],
+        };
+        vi.mocked(getCustomGroups).mockImplementation((filters?: any) => {
+          if (filters && filters.isDefault === false) return Promise.resolve([]);
+          return Promise.resolve([extendedGroup]);
+        });
+        vi.mocked(getTiles).mockResolvedValue([]);
+
+        const exported = JSON.parse(
+          await exportAllData({ groupNames: ['ballBusting'] })
+        ) as ExportData;
+
+        expect(exported.formatVersion).toBe('2.1.0');
+        expect(exported.data.customGroups).toEqual([]);
+        expect(exported.data.groupExtensions).toEqual([
+          {
+            groupName: 'ballBusting',
+            locale: 'en',
+            gameMode: 'online',
+            addedIntensities: [{ value: 3, label: 'Rubber Bands' }],
+            contentHash: 'mock-hash-extension',
+          },
+        ]);
+      });
+
+      it('omits groupExtensions when no default group carries custom levels', async () => {
+        const exported = JSON.parse(await exportAllData({})) as ExportData;
+        expect(exported.data.groupExtensions).toBeUndefined();
+      });
+    });
+
+    it('should attach tiles from group-less payloads to existing same-named groups', async () => {
+      vi.mocked(getTiles).mockResolvedValue([]);
+      const importDataWithoutGroups = {
         ...mockExportData,
         data: {
           customGroups: [], // No groups in import data
-          customTiles: [mockExportData.data.customTiles[0]], // But has a tile that references testGroup
+          customTiles: [mockExportData.data.customTiles[0]], // Tile references existing testGroup
+          disabledDefaultTiles: [],
+        },
+      };
+
+      const result = await importData(importDataWithoutGroups);
+
+      expect(addCustomTile).toHaveBeenCalledWith(
+        expect.objectContaining({ group_id: 'test-group-1', action: 'Test action' })
+      );
+      expect(result.importedTiles).toBe(1);
+    });
+
+    it('should skip tiles for missing groups', async () => {
+      const importDataWithMissingGroup = {
+        ...mockExportData,
+        data: {
+          customGroups: [],
+          customTiles: [
+            { ...mockExportData.data.customTiles[0], groupName: 'nonexistentGroup' },
+          ],
           disabledDefaultTiles: [],
         },
       };
 
       const result = await importData(importDataWithMissingGroup);
 
-      expect(result.warnings).toContain('Skipped tile for missing group: testGroup (en/online)');
+      expect(result.warnings).toContain(
+        'Skipped tile for missing group: nonexistentGroup (en/online)'
+      );
     });
 
     it('should validate tile intensity against group', async () => {
