@@ -51,6 +51,8 @@ export default function LevelSheet({
       onClose={onClose}
       onOpen={() => {}}
       disableSwipeToOpen
+      // The wizard lives inside a Dialog (modal z-index); lift the sheet above it.
+      sx={{ zIndex: (theme) => theme.zIndex.modal + 1 }}
       slotProps={{
         paper: {
           sx: {

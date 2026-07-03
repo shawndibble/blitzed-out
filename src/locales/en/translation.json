@@ -483,20 +483,19 @@
   "roomTypeDescription": "Share this code to invite friends, or edit it to join a friend's room.",
   "playerTopology": {
     "stepLabel": "Player Setup",
-    "title": "How are you playing?",
-    "subtitle": "Choose your setup first. Room and other settings come next.",
+    "title": "How are you playing tonight?",
+    "subtitle": "Pick one to jump in — you can fine-tune everything later.",
     "solo": {
-      "title": "Solo",
-      "description": "Play by yourself on this device.",
-      "private": "Play privately"
+      "title": "Just Me",
+      "description": "Play solo on this device."
     },
     "shared": {
-      "title": "Shared Device",
-      "description": "Pass one device around with 2–4 local players."
+      "title": "Pass & Play",
+      "description": "One device, 2–4 players, pass it around."
     },
     "online": {
-      "title": "Individual Devices",
-      "description": "Each player joins from their own device in a shared private room.",
+      "title": "Party Room",
+      "description": "Everyone joins from their own phone.",
       "offlineTooltip": "Individual devices require an internet connection."
     }
   },
@@ -749,7 +748,6 @@
   "done": "Done",
   "starters": "Starters",
   "spiceLevel": "Spice level",
-  "pickedCount": "{{count}} of {{max}} selected",
   "pickedCountMax": "Max {{max}} — remove one first",
   "levelSheetHint": "Pick any levels — they don’t have to be in a row.",
   "levelNumber": "Level {{level}}",
@@ -759,5 +757,36 @@
     "spicy": "Spicy",
     "filthy": "Filthy",
     "hint": "Suggests levels for groups you haven’t customized."
-  }
+  },
+  "explorePacks": "Explore community packs",
+  "explorePacksDesc": "Add ready-made action sets shared by other players.",
+  "backToActions": "Back to actions",
+  "packCreator": {
+    "title": "Create a Pack",
+    "editTitle": "Edit pack: {{name}}",
+    "stepContent": "Content",
+    "stepDetails": "Details",
+    "stepPublish": "Publish",
+    "editExisting": "Or update one of your packs",
+    "noGroups": "No publishable groups yet. Create a group, then add a few actions to it.",
+    "newGroup": "New group",
+    "quickAddTile": "Add an action",
+    "addAction": "Add action",
+    "tileAdded": "Action added.",
+    "reviewGroups": "{{count}} groups in this pack",
+    "willBePublic": "Will be listed in the public directory.",
+    "willBePrivate": "Unlisted — only people with the link can import it.",
+    "willBumpVersion": "Publishing updates this pack to version {{version}}",
+    "republish": "Publish update",
+    "tabTeaser": "Bundle your custom groups into a shareable pack with a guided flow.",
+    "openCta": "Create a pack"
+  },
+  "soloPrivacy": {
+    "title": "Where do you want to play?",
+    "publicTitle": "Public room",
+    "publicDesc": "Play in the shared PUBLIC room — see the chat and boards of others.",
+    "privateTitle": "Private room",
+    "privateDesc": "Your own room code — completely to yourself."
+  },
+  "maxSelections": "Maximum selections: {{max}}"
 }

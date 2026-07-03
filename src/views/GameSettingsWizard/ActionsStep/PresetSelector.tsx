@@ -9,8 +9,8 @@ interface PresetSelectorProps {
   selectedPreset?: string;
   actionsList: Record<string, any>;
   showTitle?: boolean;
-  /** Render as a horizontally scrollable shelf instead of a responsive grid. */
-  horizontal?: boolean;
+  /** Compact wrapping grid (2-up on phones): name + contents caption, no chip stack. */
+  compact?: boolean;
 }
 
 export default function PresetSelector({
@@ -19,7 +19,7 @@ export default function PresetSelector({
   selectedPreset,
   actionsList,
   showTitle = true,
-  horizontal = false,
+  compact = false,
 }: PresetSelectorProps) {
   const { t } = useTranslation();
 
@@ -179,27 +179,9 @@ export default function PresetSelector({
         </Typography>
       )}
 
-      <Grid
-        container
-        spacing={2}
-        sx={
-          horizontal
-            ? {
-                flexWrap: 'nowrap',
-                overflowX: 'auto',
-                pb: 1,
-                scrollSnapType: 'x mandatory',
-                '& > *': { scrollSnapAlign: 'start' },
-              }
-            : undefined
-        }
-      >
+      <Grid container spacing={compact ? 1 : 2}>
         {currentPresets.map((preset) => (
-          <Grid
-            size={horizontal ? undefined : { xs: 12, sm: 6, lg: 3 }}
-            key={preset.id}
-            sx={horizontal ? { minWidth: 220, flexShrink: 0 } : undefined}
-          >
+          <Grid size={compact ? { xs: 6, md: 3 } : { xs: 12, sm: 6, lg: 3 }} key={preset.id}>
             <Card
               sx={{
                 cursor: 'pointer',
@@ -218,48 +200,62 @@ export default function PresetSelector({
               }}
               onClick={() => handlePresetClick(preset)}
             >
-              <CardContent sx={{ p: 2.5 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+              <CardContent
+                sx={{ p: compact ? 1.5 : 2.5, '&:last-child': { pb: compact ? 1.5 : 2.5 } }}
+              >
+                <Typography
+                  variant={compact ? 'subtitle1' : 'h6'}
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
+                >
                   {preset.name}
                 </Typography>
 
-                <Box>
-                  {preset.actions.map((action, index) => (
-                    <Chip
-                      key={`action-${index}`}
-                      label={actionsList[action]?.label || action}
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        mr: 0.5,
-                        mb: 0.5,
-                        borderColor: 'primary.main',
-                        color: 'primary.main',
-                        '&:hover': {
-                          backgroundColor: 'primary.50',
-                        },
-                      }}
-                    />
-                  ))}
-                  {preset.consumptions.map((consumption, index) => (
-                    <Chip
-                      key={`consumption-${index}`}
-                      label={actionsList[consumption]?.label || consumption}
-                      size="small"
-                      color="secondary"
-                      variant="outlined"
-                      sx={{
-                        mr: 0.5,
-                        mb: 0.5,
-                        borderColor: 'secondary.main',
-                        color: 'secondary.main',
-                        '&:hover': {
-                          backgroundColor: 'secondary.50',
-                        },
-                      }}
-                    />
-                  ))}
-                </Box>
+                {compact ? (
+                  <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                    {[...preset.actions, ...preset.consumptions]
+                      .map((key) => actionsList[key]?.label || key)
+                      .join(' · ')}
+                  </Typography>
+                ) : (
+                  <Box>
+                    {preset.actions.map((action, index) => (
+                      <Chip
+                        key={`action-${index}`}
+                        label={actionsList[action]?.label || action}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          mr: 0.5,
+                          mb: 0.5,
+                          borderColor: 'primary.main',
+                          color: 'primary.main',
+                          '&:hover': {
+                            backgroundColor: 'primary.50',
+                          },
+                        }}
+                      />
+                    ))}
+                    {preset.consumptions.map((consumption, index) => (
+                      <Chip
+                        key={`consumption-${index}`}
+                        label={actionsList[consumption]?.label || consumption}
+                        size="small"
+                        color="secondary"
+                        variant="outlined"
+                        sx={{
+                          mr: 0.5,
+                          mb: 0.5,
+                          borderColor: 'secondary.main',
+                          color: 'secondary.main',
+                          '&:hover': {
+                            backgroundColor: 'secondary.50',
+                          },
+                        }}
+                      />
+                    ))}
+                  </Box>
+                )}
               </CardContent>
             </Card>
           </Grid>

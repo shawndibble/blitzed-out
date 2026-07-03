@@ -483,20 +483,19 @@
   "chooseRoomType": "Votre Salle Privée",
   "playerTopology": {
     "stepLabel": "Configuration des joueurs",
-    "title": "Comment jouez-vous?",
-    "subtitle": "Choisissez d'abord votre configuration. Les paramètres de salle viennent ensuite.",
+    "title": "Comment jouez-vous ce soir ?",
+    "subtitle": "Choisissez une option pour vous lancer — tout est ajustable ensuite.",
     "solo": {
-      "title": "Solo",
-      "description": "Jouez seul sur cet appareil.",
-      "private": "Jouer en privé"
+      "title": "Juste moi",
+      "description": "Jouez en solo sur cet appareil."
     },
     "shared": {
-      "title": "Appareil partagé",
-      "description": "Passez un appareil entre 2–4 joueurs locaux."
+      "title": "Chacun son tour",
+      "description": "Un appareil, 2–4 joueurs, faites-le passer."
     },
     "online": {
-      "title": "Appareils individuels",
-      "description": "Chaque joueur rejoint depuis son propre appareil dans une salle privée partagée.",
+      "title": "Salle de fête",
+      "description": "Chacun rejoint depuis son propre téléphone.",
       "offlineTooltip": "Les appareils individuels nécessitent une connexion internet."
     }
   },
@@ -749,7 +748,6 @@
   "done": "Terminé",
   "starters": "Pour commencer",
   "spiceLevel": "Niveau de piquant",
-  "pickedCount": "{{count}} sur {{max}} sélectionnés",
   "pickedCountMax": "Maximum {{max}} — retirez-en un d’abord",
   "levelSheetHint": "Choisissez n’importe quels niveaux — pas besoin qu’ils se suivent.",
   "levelNumber": "Niveau {{level}}",
@@ -759,5 +757,36 @@
     "spicy": "Épicé",
     "filthy": "Torride",
     "hint": "Suggère des niveaux pour les groupes non personnalisés."
-  }
+  },
+  "explorePacks": "Explorer les packs de la communauté",
+  "explorePacksDesc": "Ajoutez des ensembles d’actions partagés par d’autres joueurs.",
+  "backToActions": "Retour aux actions",
+  "packCreator": {
+    "title": "Créer un pack",
+    "editTitle": "Modifier le pack : {{name}}",
+    "stepContent": "Contenu",
+    "stepDetails": "Détails",
+    "stepPublish": "Publier",
+    "editExisting": "Ou mettez à jour un de vos packs",
+    "noGroups": "Aucun groupe publiable pour l’instant. Créez un groupe puis ajoutez-y quelques actions.",
+    "newGroup": "Nouveau groupe",
+    "quickAddTile": "Ajouter une action",
+    "addAction": "Ajouter l’action",
+    "tileAdded": "Action ajoutée.",
+    "reviewGroups": "{{count}} groupes dans ce pack",
+    "willBePublic": "Sera listé dans le répertoire public.",
+    "willBePrivate": "Non répertorié — seules les personnes ayant le lien peuvent l’importer.",
+    "willBumpVersion": "La publication passe ce pack en version {{version}}",
+    "republish": "Publier la mise à jour",
+    "tabTeaser": "Regroupez vos groupes personnalisés dans un pack partageable grâce à un flux guidé.",
+    "openCta": "Créer un pack"
+  },
+  "soloPrivacy": {
+    "title": "Où voulez-vous jouer ?",
+    "publicTitle": "Salle publique",
+    "publicDesc": "Jouez dans la salle PUBLIC partagée — voyez le chat et les plateaux des autres.",
+    "privateTitle": "Salle privée",
+    "privateDesc": "Votre propre code de salle — rien que pour vous."
+  },
+  "maxSelections": "Sélections maximum : {{max}}"
 }

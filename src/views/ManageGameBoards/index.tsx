@@ -60,7 +60,10 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     setAlert(alert);
   };
 
-  async function createGameMessage({ title, tiles }: { title: string; tiles: any[] }) {
+  async function createGameMessage(
+    { title, tiles }: { title: string; tiles: any[] },
+    effectiveSettings = settings
+  ) {
     const gameTileTitles = tiles.map(
       ({ title: tileTitle }: { title: string }) => `* ${tileTitle} \n`
     );
@@ -81,7 +84,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     const gameBoard = await getOrCreateBoard({
       title,
       gameBoard: JSON.stringify(tiles) as string,
-      settings: JSON.stringify(settings) as string,
+      settings: JSON.stringify(effectiveSettings) as string,
     });
 
     if (!gameBoard?.id) {
@@ -89,13 +92,13 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     }
 
     await sendMessage({
-      room: settings?.room || 'PUBLIC',
+      room: effectiveSettings?.room || 'PUBLIC',
       user,
       text: message,
       type: 'settings',
       gameBoardId: gameBoard.id,
       boardSize: tiles.length,
-      gameMode: settings?.gameMode,
+      gameMode: effectiveSettings?.gameMode,
     });
   }
 
@@ -108,10 +111,16 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     activateBoard(board.id);
     // Public rooms allow any board size — adopt the board's size so the rest
     // of the app (builder, warnings, sharing) stays in sync with the tiles.
-    if (isPublic && board.tiles?.length && board.tiles.length !== settings?.roomTileCount) {
+    const adoptsSize =
+      isPublic && board.tiles?.length && board.tiles.length !== settings?.roomTileCount;
+    const effectiveSettings = adoptsSize
+      ? { ...settings, roomTileCount: board.tiles.length }
+      : settings;
+    if (adoptsSize) {
       updateSettings({ roomTileCount: board.tiles.length });
     }
-    createGameMessage(board);
+    // Pass the adopted size along so the saved board metadata isn't stale.
+    createGameMessage(board, effectiveSettings);
     setAlert({ message: t('boardEnabled'), type: 'success' });
   };
 

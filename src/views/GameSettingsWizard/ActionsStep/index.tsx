@@ -1,12 +1,25 @@
-import { Box, Button, CircularProgress, Divider, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CircularProgress,
+  Divider,
+  Typography,
+} from '@mui/material';
+import { ArrowBack, Explore } from '@mui/icons-material';
 import { ActionEntry, FormData, VALID_GROUP_TYPES } from '@/types';
 import { Trans, useTranslation } from 'react-i18next';
 import { handleLevelsChange, hasValidSelections, purgedFormData } from './helpers';
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
-import { usesSoloActions } from '@/helpers/strings';
+import { getContentGameMode, usesSoloActions } from '@/helpers/strings';
 import { GroupType } from '@/types';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import type { GroupedActions } from '@/types/customTiles';
+import { getCustomGroups } from '@/stores/customGroups';
+import type { ContentPackDoc } from '@/types/contentPacks';
+import PackDirectory from '@/views/CustomTileDialog/PackDirectory';
 
 import ButtonRow from '@/components/ButtonRow';
 import BrokenActionsState from '@/components/BrokenActionsState';
@@ -29,6 +42,8 @@ interface ActionsStepProps {
   actionsList: GroupedActions;
   isActionsLoading?: boolean;
   isMigrationInProgress?: boolean;
+  /** Force the parent's action list to reload (e.g. after a pack import). */
+  onActionsReload?: () => void;
 }
 
 export default function ActionsStep({
@@ -39,14 +54,20 @@ export default function ActionsStep({
   actionsList,
   isActionsLoading = false,
   isMigrationInProgress = false,
+  onActionsReload,
 }: ActionsStepProps): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isBroken } = useBrokenActionsState(actionsList, isActionsLoading);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [spice, setSpice] = useState<SpiceLevel>('medium');
   // Groups the user hand-edited (sheet or preset) — the dial never overwrites these.
   const [customized, setCustomized] = useState<Set<string>>(new Set());
   const [sheetGroup, setSheetGroup] = useState<string | null>(null);
+  const [directoryOpen, setDirectoryOpen] = useState(false);
+  // Groups that just arrived via a pack import — pulsed briefly for attention.
+  const [recentImports, setRecentImports] = useState<Set<string>>(new Set());
+  const contentGameMode = getContentGameMode(formData.gameMode);
+  const [directoryGameMode, setDirectoryGameMode] = useState<string>(contentGameMode);
 
   const actionType = usesSoloActions(formData.gameMode, formData.soloPlay)
     ? 'solo'
@@ -120,6 +141,11 @@ export default function ActionsStep({
   };
 
   const editLevels = (group: string, levels: number[]) => {
+    // Unchecking every level removes the group — keep `customized` in sync.
+    if (levels.length === 0) {
+      removeGroup(group);
+      return;
+    }
     const entry = formData.selectedActions?.[group] as ActionEntry | undefined;
     markCustomized(group);
     handleLevelsChange(
@@ -182,6 +208,50 @@ export default function ActionsStep({
     setCustomized(new Set(Object.keys(newSelectedActions)));
   };
 
+  // After a pack import: reload the action list and auto-select the pack's
+  // groups (respecting caps) so the payoff is immediate. Imported groups are
+  // matched by the packId stamped during import.
+  const handlePackImported = async (_packName: string, pack?: ContentPackDoc) => {
+    onActionsReload?.();
+    setDirectoryOpen(false);
+    if (!pack) return;
+
+    const groups = await getCustomGroups({
+      // importPack preserves each group's locale from the pack contents, which
+      // can differ from the current UI language.
+      locale: pack.locale || i18n.resolvedLanguage || 'en',
+      gameMode: contentGameMode,
+      isDefault: false,
+    });
+    const justImported = groups.filter((g) => g.packId === pack.id);
+
+    let actionSlots = MAX_ACTIONS - Object.keys(selectedActionGroups).length;
+    let consumeSlots = MAX_CONSUME - Object.keys(selectedConsumptions).length;
+    const arrived: string[] = [];
+    justImported.forEach((group) => {
+      const isConsumption = group.type === 'consumption';
+      if (!isConsumption && group.type !== actionType) return;
+      arrived.push(group.name);
+      if (formData.selectedActions?.[group.name]) return;
+      if (isConsumption ? consumeSlots <= 0 : actionSlots <= 0) return;
+      if (isConsumption) consumeSlots -= 1;
+      else actionSlots -= 1;
+
+      handleLevelsChange(
+        spiceBand(spice, Math.max(1, group.intensities.length)),
+        group.name,
+        (group.type || actionType) as any,
+        setFormData,
+        isConsumption ? (formData.isAppend ? 'appendMost' : 'standalone') : null
+      );
+    });
+
+    if (arrived.length) {
+      setRecentImports(new Set(arrived));
+      setTimeout(() => setRecentImports(new Set()), 6000);
+    }
+  };
+
   const variationChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newIsAppend = event.target.checked;
     const newVariation = newIsAppend ? 'appendMost' : 'standalone';
@@ -237,6 +307,23 @@ export default function ActionsStep({
 
   const sheetEntry = sheetGroup ? (formData.selectedActions?.[sheetGroup] as ActionEntry) : null;
 
+  // Pane swap: browse the community pack directory without leaving the wizard
+  // (no stacked dialog — PackImportDialog is the only overlay).
+  if (directoryOpen) {
+    return (
+      <Box>
+        <Button startIcon={<ArrowBack />} onClick={() => setDirectoryOpen(false)} sx={{ mb: 2 }}>
+          {t('backToActions', 'Back to actions')}
+        </Button>
+        <PackDirectory
+          gameMode={directoryGameMode}
+          onGameModeChange={setDirectoryGameMode}
+          onImported={handlePackImported}
+        />
+      </Box>
+    );
+  }
+
   return (
     <Box>
       {/* Starters: curated combos in a horizontally scrollable shelf */}
@@ -249,7 +336,7 @@ export default function ActionsStep({
         selectedPreset={selectedPreset}
         actionsList={actionsList}
         showTitle={false}
-        horizontal
+        compact
       />
 
       <Divider sx={{ my: 2 }} />
@@ -266,6 +353,7 @@ export default function ActionsStep({
           onSelect={(group) => selectGroup(group, 'action')}
           onEdit={setSheetGroup}
           onRemove={removeGroup}
+          highlighted={recentImports}
         />
       </Box>
 
@@ -280,6 +368,7 @@ export default function ActionsStep({
             onSelect={(group) => selectGroup(group, 'consumption')}
             onEdit={setSheetGroup}
             onRemove={removeGroup}
+            highlighted={recentImports}
           />
           {Object.keys(selectedConsumptions).length > 0 && (
             <Box sx={{ mt: 1 }}>
@@ -295,6 +384,31 @@ export default function ActionsStep({
           )}
         </Box>
       )}
+
+      <Card
+        sx={{
+          mt: 3,
+          border: '1px dashed',
+          borderColor: 'divider',
+          backgroundColor: 'background.default',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': { borderColor: 'primary.main', boxShadow: 1 },
+        }}
+      >
+        <CardActionArea onClick={() => setDirectoryOpen(true)}>
+          <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 2 }}>
+            <Explore color="primary" />
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                {t('explorePacks', 'Explore community packs')}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {t('explorePacksDesc', 'Add ready-made action sets shared by other players.')}
+              </Typography>
+            </Box>
+          </CardContent>
+        </CardActionArea>
+      </Card>
 
       <LevelSheet
         open={!!sheetGroup}

@@ -28,7 +28,7 @@ interface PackDirectoryProps {
   // Game mode is owned by the parent so this pane and the publish form stay in sync.
   gameMode: string;
   onGameModeChange: (mode: string) => void;
-  onImported?: (packName: string) => void;
+  onImported?: (packName: string, pack: ContentPackDoc) => void;
 }
 
 export default function PackDirectory({

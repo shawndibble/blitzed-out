@@ -483,20 +483,19 @@
   "roomTypeDescription": "Teile diesen Code, um Freunde einzuladen, oder bearbeite ihn, um einem Raum eines Freundes beizutreten.",
   "playerTopology": {
     "stepLabel": "Spieler-Einrichtung",
-    "title": "Wie spielst du?",
-    "subtitle": "Wähle zuerst deine Konfiguration. Raum- und andere Einstellungen folgen.",
+    "title": "Wie spielt ihr heute?",
+    "subtitle": "Wähle eine Option zum Loslegen — alles andere lässt sich später anpassen.",
     "solo": {
-      "title": "Solo",
-      "description": "Spiel alleine auf diesem Gerät.",
-      "private": "Privat spielen"
+      "title": "Nur ich",
+      "description": "Spiele solo auf diesem Gerät."
     },
     "shared": {
-      "title": "Gemeinsames Gerät",
-      "description": "Reiche ein Gerät zwischen 2–4 lokalen Spielern weiter."
+      "title": "Weitergeben & spielen",
+      "description": "Ein Gerät, 2–4 Spieler, reihum weitergeben."
     },
     "online": {
-      "title": "Individuelle Geräte",
-      "description": "Jeder Spieler tritt von seinem eigenen Gerät in einem gemeinsamen privaten Raum bei.",
+      "title": "Party-Raum",
+      "description": "Alle treten mit dem eigenen Handy bei.",
       "offlineTooltip": "Individuelle Geräte erfordern eine Internetverbindung."
     }
   },
@@ -749,7 +748,6 @@
   "done": "Fertig",
   "starters": "Starter",
   "spiceLevel": "Schärfegrad",
-  "pickedCount": "{{count}} von {{max}} ausgewählt",
   "pickedCountMax": "Maximal {{max}} — entferne zuerst eine",
   "levelSheetHint": "Wähle beliebige Stufen — sie müssen nicht aufeinander folgen.",
   "levelNumber": "Stufe {{level}}",
@@ -759,5 +757,36 @@
     "spicy": "Scharf",
     "filthy": "Versaut",
     "hint": "Schlägt Stufen für Gruppen vor, die du nicht angepasst hast."
-  }
+  },
+  "explorePacks": "Community-Packs entdecken",
+  "explorePacksDesc": "Füge fertige Aktions-Sets von anderen Spielern hinzu.",
+  "backToActions": "Zurück zu den Aktionen",
+  "packCreator": {
+    "title": "Pack erstellen",
+    "editTitle": "Pack bearbeiten: {{name}}",
+    "stepContent": "Inhalt",
+    "stepDetails": "Details",
+    "stepPublish": "Veröffentlichen",
+    "editExisting": "Oder aktualisiere eines deiner Packs",
+    "noGroups": "Noch keine veröffentlichbaren Gruppen. Erstelle eine Gruppe und füge ihr ein paar Aktionen hinzu.",
+    "newGroup": "Neue Gruppe",
+    "quickAddTile": "Aktion hinzufügen",
+    "addAction": "Aktion hinzufügen",
+    "tileAdded": "Aktion hinzugefügt.",
+    "reviewGroups": "{{count}} Gruppen in diesem Pack",
+    "willBePublic": "Wird im öffentlichen Verzeichnis gelistet.",
+    "willBePrivate": "Ungelistet — nur Personen mit dem Link können es importieren.",
+    "willBumpVersion": "Veröffentlichen aktualisiert dieses Pack auf Version {{version}}",
+    "republish": "Update veröffentlichen",
+    "tabTeaser": "Bündle deine eigenen Gruppen mit einem geführten Ablauf zu einem teilbaren Pack.",
+    "openCta": "Pack erstellen"
+  },
+  "soloPrivacy": {
+    "title": "Wo möchtest du spielen?",
+    "publicTitle": "Öffentlicher Raum",
+    "publicDesc": "Spiele im geteilten PUBLIC-Raum — sieh Chat und Boards der anderen.",
+    "privateTitle": "Privater Raum",
+    "privateDesc": "Dein eigener Raumcode — ganz für dich allein."
+  },
+  "maxSelections": "Maximale Auswahl: {{max}}"
 }

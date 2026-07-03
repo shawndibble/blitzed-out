@@ -1,6 +1,17 @@
-import { Box, Chip, Tooltip, Typography } from '@mui/material';
+import { alpha, Box, Chip, Theme, Tooltip, Typography } from '@mui/material';
+import { Ref, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Option } from '@/types/index';
+
+// Attention pulse for chips that just arrived via a pack import
+const importPulse = (theme: Theme) =>
+  ({
+    animation: 'groupChipPulse 1.2s ease-in-out 4',
+    '@keyframes groupChipPulse': {
+      '0%, 100%': { boxShadow: `0 0 0 0 ${alpha(theme.palette.primary.main, 0)}` },
+      '50%': { boxShadow: `0 0 0 8px ${alpha(theme.palette.primary.main, 0.35)}` },
+    },
+  }) as const;
 
 /** Compact human summary of a level selection: [1,2,3] → "1–3", [1,3] → "1,3". */
 export function formatLevels(levels: number[]): string {
@@ -21,6 +32,8 @@ interface GroupChipsProps {
   onSelect: (name: string) => void;
   onEdit: (name: string) => void;
   onRemove: (name: string) => void;
+  /** Groups to pulse + scroll to (e.g. just imported from a pack). */
+  highlighted?: Set<string>;
 }
 
 /**
@@ -36,10 +49,33 @@ export default function GroupChips({
   onSelect,
   onEdit,
   onRemove,
-}: GroupChipsProps): JSX.Element {
+  highlighted,
+}: GroupChipsProps) {
   const { t } = useTranslation();
   const selectedCount = Object.keys(selected).length;
   const atCap = selectedCount >= max;
+
+  // Bring the first highlighted chip into view so imports are unmissable.
+  const firstHighlightedRef = useRef<HTMLDivElement | null>(null);
+  const firstHighlighted = useMemo(
+    () => options.find((option) => highlighted?.has(option.value))?.value,
+    [options, highlighted]
+  );
+  useEffect(() => {
+    if (firstHighlighted) {
+      firstHighlightedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [firstHighlighted]);
+
+  const highlightProps = (
+    name: string
+  ): { sx?: typeof importPulse; ref?: Ref<HTMLDivElement> } => {
+    if (!highlighted?.has(name)) return {};
+    return {
+      sx: importPulse,
+      ...(name === firstHighlighted && { ref: firstHighlightedRef }),
+    };
+  };
 
   return (
     <Box>
@@ -49,7 +85,7 @@ export default function GroupChips({
           variant="caption"
           sx={{ color: atCap ? 'warning.main' : 'text.secondary', fontWeight: 600 }}
         >
-          {t('pickedCount', { count: selectedCount, max })}
+          {t('maxSelections', { max })}
         </Typography>
       </Box>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -61,6 +97,7 @@ export default function GroupChips({
           if (isSelected) {
             const badge = formatLevels(levels);
             const isCustom = customized.has(option.value);
+            const highlight = highlightProps(option.value);
             return (
               <Chip
                 key={option.value}
@@ -68,11 +105,13 @@ export default function GroupChips({
                 label={`${option.label} · ${badge}${isCustom ? ' ●' : ''}`}
                 onClick={() => onEdit(option.value)}
                 onDelete={() => onRemove(option.value)}
-                sx={{ fontWeight: 600 }}
+                ref={highlight.ref}
+                sx={[{ fontWeight: 600 }, ...(highlight.sx ? [highlight.sx] : [])]}
               />
             );
           }
 
+          const highlight = highlightProps(option.value);
           const chip = (
             <Chip
               key={option.value}
@@ -80,6 +119,8 @@ export default function GroupChips({
               label={option.label}
               disabled={disabled}
               onClick={() => onSelect(option.value)}
+              ref={highlight.ref}
+              sx={highlight.sx}
             />
           );
 

@@ -71,17 +71,21 @@ export async function listPublishableGroups(
       countByGroupId.set(tile.group_id, (countByGroupId.get(tile.group_id) ?? 0) + 1);
     }
   }
-  return groups
-    .map((g) => ({
-      name: g.name,
-      label: g.label || g.name,
-      tileCount: countByGroupId.get(g.id) ?? 0,
-      isExtension: Boolean(g.isDefault),
-      addedIntensityCount: g.isDefault ? g.intensities.filter((i) => !i.isDefault).length : 0,
-    }))
-    // Custom groups need custom tiles; default groups qualify once the author
-    // added tiles or intensity levels to them (published as extensions).
-    .filter((g) => (g.isExtension ? g.tileCount > 0 || g.addedIntensityCount > 0 : g.tileCount > 0));
+  return (
+    groups
+      .map((g) => ({
+        name: g.name,
+        label: g.label || g.name,
+        tileCount: countByGroupId.get(g.id) ?? 0,
+        isExtension: Boolean(g.isDefault),
+        addedIntensityCount: g.isDefault ? g.intensities.filter((i) => !i.isDefault).length : 0,
+      }))
+      // Custom groups need custom tiles; default groups qualify once the author
+      // added tiles or intensity levels to them (published as extensions).
+      .filter((g) =>
+        g.isExtension ? g.tileCount > 0 || g.addedIntensityCount > 0 : g.tileCount > 0
+      )
+  );
 }
 
 /** Serialize the author's selected custom groups into pack `contents` + hash. */
@@ -130,6 +134,7 @@ export async function publishPack(
   if (!user) throw new Error('Must be signed in to publish a pack');
 
   const now = Date.now();
+  const summary = summarizeContents(contents);
   const ref = await addDoc(collection(db, COLLECTION), {
     author: user.uid,
     authorName: user.displayName || 'Anonymous',
@@ -144,17 +149,17 @@ export async function publishPack(
     packVersion: 1,
     formatVersion: EXPORT_FORMAT_VERSION,
     importCount: 0,
-    ...summarizeContents(contents),
+    ...summary,
     createdAt: now,
     updatedAt: now,
   });
 
-  const summary = summarizeContents(contents);
   analytics.trackPackEvent('pack_published', {
     visibility: meta.visibility,
     group_count: summary.groupCount,
     tile_count: summary.tileCount,
     pack_version: 1,
+    is_republish: 'false',
   });
 
   return ref.id;
@@ -170,6 +175,7 @@ export async function republishPack(
   const existing = await getPack(packId);
   if (!existing) throw new Error('Pack not found');
 
+  const summary = summarizeContents(contents);
   await updateDoc(doc(db, COLLECTION, packId), {
     name: meta.name,
     description: meta.description,
@@ -178,17 +184,17 @@ export async function republishPack(
     contents,
     contentHash,
     packVersion: existing.packVersion + 1,
-    ...summarizeContents(contents),
+    ...summary,
     updatedAt: Date.now(),
     authorName: getAuth().currentUser?.displayName || existing.authorName,
   });
 
-  const summary = summarizeContents(contents);
   analytics.trackPackEvent('pack_published', {
     visibility: meta.visibility,
     group_count: summary.groupCount,
     tile_count: summary.tileCount,
     pack_version: existing.packVersion + 1,
+    is_republish: 'true',
   });
 }
 
@@ -294,13 +300,13 @@ export async function importPack(pack: ContentPackDoc): Promise<ImportResult> {
     Promise.resolve(updateDoc(doc(db, COLLECTION, pack.id), { importCount: increment(1) })).catch(
       () => {}
     );
-  }
 
-  analytics.trackPackEvent('pack_imported', {
-    group_count: pack.groupCount,
-    tile_count: pack.tileCount,
-    pack_version: pack.packVersion,
-  });
+    analytics.trackPackEvent('pack_imported', {
+      group_count: pack.groupCount,
+      tile_count: pack.tileCount,
+      pack_version: pack.packVersion,
+    });
+  }
 
   return result;
 }

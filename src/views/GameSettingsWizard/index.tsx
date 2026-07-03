@@ -125,7 +125,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const isActionsLoadingWithMigration = isActionsLoading || isMigrationInProgress;
 
   // Analytics tracking for wizard funnel
-  const { trackScreenView } = useWizardAnalytics({
+  const { trackScreenView, markCompleted } = useWizardAnalytics({
     gameMode: formData.gameMode,
     isPublicRoom: isPublicRoom(formData.room || 'PUBLIC'),
   });
@@ -207,6 +207,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
             actionsList={actionsList}
             isActionsLoading={isActionsLoadingWithMigration}
             isMigrationInProgress={isMigrationInProgress}
+            onActionsReload={() => setReloadToggle((prev) => !prev)}
           />
         );
       case 5:
@@ -217,6 +218,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
             prevStep={prevStep}
             actionsList={actionsList}
             close={close}
+            onCompleted={markCompleted}
           />
         );
       default:

@@ -19,9 +19,50 @@ export interface BaseAnalyticsEvent {
   custom_parameter_3?: string;
   session_id?: string;
   timestamp?: number;
-  // GA4 accepts arbitrary params; keep them primitive so reports stay queryable
-  [key: string]: string | number | boolean | undefined;
 }
+
+// Wizard funnel events (wizard_screen_view / wizard_completed / wizard_abandoned)
+export interface WizardFunnelEvent extends BaseAnalyticsEvent {
+  screen_name?: string;
+  topology?: string;
+  room_type?: string;
+}
+
+// Game lifecycle events (game_started / group_selected / action_rolled / game_finished / game_abandoned)
+export interface GameLifecycleEvent extends BaseAnalyticsEvent {
+  topology?: string;
+  room_type?: string;
+  board_size?: number;
+  roll_count?: number;
+  game_mode?: string;
+  player_count?: number;
+  levels?: string;
+  group_type?: string;
+}
+
+// Content-pack lifecycle events (pack_* family)
+export interface PackLifecycleEvent extends BaseAnalyticsEvent {
+  visibility?: string;
+  group_count?: number;
+  tile_count?: number;
+  pack_version?: number;
+  is_republish?: string;
+}
+
+/**
+ * Everything trackEvent accepts. A closed union (instead of an index
+ * signature) so misspelled GA4 param names fail the excess-property check.
+ */
+export type AnalyticsEventInput =
+  | BaseAnalyticsEvent
+  | SettingsChangeEvent
+  | ActionSelectionEvent
+  | FeatureUsageEvent
+  | GameModeEvent
+  | CustomGroupEvent
+  | WizardFunnelEvent
+  | GameLifecycleEvent
+  | PackLifecycleEvent;
 
 // Specific analytics event types using domain types
 export interface SettingsChangeEvent extends BaseAnalyticsEvent {
