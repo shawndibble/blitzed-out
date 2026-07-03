@@ -62,6 +62,8 @@ Per-entity sync under `src/services/sync/`, coordinated by `syncOrchestrator.ts`
 - `GameBoardsSync` — upserts boards (keyed by title).
 - `SettingsSync` — merges settings into the store.
 
+- `CustomGroupExtensionsSync` — user-appended intensity levels on **default** groups travel as name/locale/gameMode-keyed deltas in a `customGroupExtensions` field (default groups never sync as whole records; each device seeds its own). Pull applies them with the append-only `appendIntensities` merge (`src/services/intensityMerge.ts`) — the same semantics the importer (`groupExtensions` in ExportData 2.1.0) and the locale re-seeder (`mergeSeedIntensities`, which preserves appended levels across `MIGRATION_VERSION` bumps) use. Append-only: removals don't propagate.
+
 Before merging, `syncService.ts` runs a duplicate-tile cleanup to undo a historical sync bug.
 
 **What triggers sync:**
@@ -110,17 +112,20 @@ Code: `src/services/importExport/` (streaming/batched) and `src/services/importE
 
 ```json
 {
-  "formatVersion": "2.0.0",
+  "formatVersion": "2.1.0",
   "exportedAt": "<ISO>",
   "data": {
     "customGroups": [...],
     "customTiles": [...],
-    "disabledDefaultTiles": [...]   // optional
+    "disabledDefaultTiles": [...],  // optional
+    "groupExtensions": [...]        // 2.1.0+: append-only intensity deltas for DEFAULT groups
   }
 }
 ```
 
 Includes user-created groups and tiles, and optionally your disabled-default list. Each item carries a content hash. Scope can be filtered by locale, gameMode, or a single group. Export streams tiles in batches (~100) so memory stays roughly constant regardless of dataset size.
+
+**Default-group extensions (2.1.0).** Custom tiles may target default groups (resolved by deterministic id), and `groupExtensions[]` appends new intensity levels to them ({groupName, groupLabel, locale, gameMode, addedIntensities, contentHash}). Imports never replace a default group's record (a default-named `customGroups` entry warn-skips), and the extension merge is append-only and idempotent by value. Compat: a 2.0.0 payload imports unchanged; an old client importing a 2.1.0 payload ignores `groupExtensions` and warn-skips tiles at the unknown levels.
 
 **Import** — builds a mapping context once, then for each item compares content hashes: identical → skip, changed → update, new → add. Tiles batch-insert. Returns counts of imported/skipped groups/tiles + warnings/errors. `analyzeImportConflicts()` previews collisions before committing.
 

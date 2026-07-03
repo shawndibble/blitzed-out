@@ -25,3 +25,16 @@ The original content-pack feature was deliberately **by-code/link only with no p
 - No data migration is required: the subscription feature has no real users yet, so its table, sync, and provenance fields are simply deleted.
 - Public-directory queries need a Firestore composite index on `visibility` + `gameMode` + `locale` + `createdAt`, and the `allow list` rule must restrict listing to public packs only.
 - True full-text search is out of scope for v1 (Firestore `where` covers equality/array filters via denormalized fields; substring search would need an external index later).
+
+## Amendment (2026-07-03): default-group extensions
+
+Decision 1 is relaxed: a pack may additionally carry **extensions of default
+groups** — the author's custom tiles attached to a default group and/or
+**append-only** custom intensity levels on it (`data.groupExtensions[]` in
+ExportData 2.1.0; `extensionCount`/`extensionLabels` denormalized on the pack
+doc). Default ladders and default tiles still never leave the app, imports
+never replace a default group's record, and the copy-only model is unchanged —
+extensions are one-time-copied deltas, merged idempotently by intensity value
+(`appendIntensities` in `src/services/intensityMerge.ts`). A public
+`importCount` popularity counter also landed on pack docs (create = 0; rules
+allow any signed-in user to bump it by exactly 1).
