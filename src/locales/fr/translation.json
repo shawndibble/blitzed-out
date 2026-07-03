@@ -401,7 +401,21 @@
     "customTilesCount": "{{count}} tuiles personnalisées",
     "levelLabel": "Niveau {{level}}",
     "levelInputLabel": "Étiquette du niveau {{level}}",
-    "errorLoadingGroups": "Erreur lors du chargement des groupes"
+    "errorLoadingGroups": "Erreur lors du chargement des groupes",
+    "extend": "Étendre",
+    "extendGroupTitle": "Étendre {{label}}",
+    "extendGroupDescription": "Ajoutez de nouveaux niveaux d'intensité après l'échelle intégrée. Les niveaux intégrés et les tuiles existantes ne sont jamais modifiés.",
+    "builtInLevels": "Niveaux intégrés",
+    "yourAddedLevels": "Vos niveaux ajoutés",
+    "newLevelPlaceholder": "Nom du nouveau niveau",
+    "addLevel": "Ajouter un niveau",
+    "ladderFull": "Maximum de 10 niveaux atteint",
+    "saveLevels": "Enregistrer les niveaux",
+    "removeLevelBlocked": "Ce niveau contient {{count}} tuiles — supprimez-les d’abord",
+    "extendSaveFailed": "Échec de l'enregistrement des niveaux : {{error}}",
+    "defaultGroupsHeading": "Groupes par défaut",
+    "defaultGroupsDescription": "Les groupes intégrés peuvent être étendus avec vos propres niveaux d'intensité.",
+    "addedLevelsCount": "+{{count}} ajoutés"
   },
   "intensityLabels": {
     "beginner": "Débutant",

@@ -401,7 +401,21 @@
     "customTilesCount": "{{count}} fichas personalizadas",
     "levelLabel": "Nivel {{level}}",
     "levelInputLabel": "Etiqueta del nivel {{level}}",
-    "errorLoadingGroups": "Error al cargar grupos"
+    "errorLoadingGroups": "Error al cargar grupos",
+    "extend": "Ampliar",
+    "extendGroupTitle": "Ampliar {{label}}",
+    "extendGroupDescription": "Añade nuevos niveles de intensidad después de la escala integrada. Los niveles integrados y las fichas existentes nunca cambian.",
+    "builtInLevels": "Niveles integrados",
+    "yourAddedLevels": "Tus niveles añadidos",
+    "newLevelPlaceholder": "Nombre del nuevo nivel",
+    "addLevel": "Añadir nivel",
+    "ladderFull": "Máximo de 10 niveles alcanzado",
+    "saveLevels": "Guardar niveles",
+    "removeLevelBlocked": "Este nivel tiene {{count}} fichas — elimínalas primero",
+    "extendSaveFailed": "Error al guardar los niveles: {{error}}",
+    "defaultGroupsHeading": "Grupos predeterminados",
+    "defaultGroupsDescription": "Los grupos integrados pueden ampliarse con tus propios niveles de intensidad.",
+    "addedLevelsCount": "+{{count}} añadidos"
   },
   "intensityLabels": {
     "beginner": "Principiante",

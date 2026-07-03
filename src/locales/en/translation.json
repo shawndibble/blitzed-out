@@ -403,7 +403,21 @@
     "customTilesCount": "{{count}} custom tiles",
     "levelLabel": "Level {{level}}",
     "levelInputLabel": "Level {{level}} Label",
-    "errorLoadingGroups": "Error loading groups"
+    "errorLoadingGroups": "Error loading groups",
+    "extend": "Extend",
+    "extendGroupTitle": "Extend {{label}}",
+    "extendGroupDescription": "Add new intensity levels after the built-in ladder. Built-in levels and existing tiles are never changed.",
+    "builtInLevels": "Built-in levels",
+    "yourAddedLevels": "Your added levels",
+    "newLevelPlaceholder": "New level name",
+    "addLevel": "Add level",
+    "ladderFull": "Maximum of 10 levels reached",
+    "saveLevels": "Save levels",
+    "removeLevelBlocked": "This level has {{count}} tiles — delete them first",
+    "extendSaveFailed": "Failed to save levels: {{error}}",
+    "defaultGroupsHeading": "Default groups",
+    "defaultGroupsDescription": "Built-in groups can be extended with your own intensity levels.",
+    "addedLevelsCount": "+{{count}} added"
   },
   "intensityLabels": {
     "beginner": "Beginner",

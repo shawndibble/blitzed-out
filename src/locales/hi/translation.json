@@ -402,7 +402,21 @@
     "customTilesCount": "{{count}} कस्टम टाइलें",
     "levelLabel": "स्तर {{level}}",
     "levelInputLabel": "स्तर {{level}} लेबल",
-    "errorLoadingGroups": "ग्रुप लोड करने में त्रुटि"
+    "errorLoadingGroups": "ग्रुप लोड करने में त्रुटि",
+    "extend": "विस्तार करें",
+    "extendGroupTitle": "{{label}} का विस्तार करें",
+    "extendGroupDescription": "बिल्ट-इन स्तरों के बाद नए तीव्रता स्तर जोड़ें। बिल्ट-इन स्तर और मौजूदा टाइलें कभी नहीं बदलतीं।",
+    "builtInLevels": "बिल्ट-इन स्तर",
+    "yourAddedLevels": "आपके जोड़े गए स्तर",
+    "newLevelPlaceholder": "नए स्तर का नाम",
+    "addLevel": "स्तर जोड़ें",
+    "ladderFull": "अधिकतम 10 स्तर हो चुके हैं",
+    "saveLevels": "स्तर सहेजें",
+    "removeLevelBlocked": "इस स्तर में {{count}} टाइलें हैं — पहले उन्हें हटाएँ",
+    "extendSaveFailed": "स्तर सहेजने में विफल: {{error}}",
+    "defaultGroupsHeading": "डिफ़ॉल्ट समूह",
+    "defaultGroupsDescription": "बिल्ट-इन समूहों को आपके अपने तीव्रता स्तरों के साथ विस्तारित किया जा सकता है।",
+    "addedLevelsCount": "+{{count}} जोड़े गए"
   },
   "intensityLabels": {
     "beginner": "शुरुआती",

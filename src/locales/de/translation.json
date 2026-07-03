@@ -403,7 +403,21 @@
     "customTilesCount": "{{count}} benutzerdefinierte Kacheln",
     "levelLabel": "Stufe {{level}}",
     "levelInputLabel": "Bezeichnung für Stufe {{level}}",
-    "errorLoadingGroups": "Fehler beim Laden der Gruppen"
+    "errorLoadingGroups": "Fehler beim Laden der Gruppen",
+    "extend": "Erweitern",
+    "extendGroupTitle": "{{label}} erweitern",
+    "extendGroupDescription": "Füge neue Intensitätsstufen nach der integrierten Skala hinzu. Integrierte Stufen und vorhandene Kacheln werden nie verändert.",
+    "builtInLevels": "Integrierte Stufen",
+    "yourAddedLevels": "Deine hinzugefügten Stufen",
+    "newLevelPlaceholder": "Name der neuen Stufe",
+    "addLevel": "Stufe hinzufügen",
+    "ladderFull": "Maximum von 10 Stufen erreicht",
+    "saveLevels": "Stufen speichern",
+    "removeLevelBlocked": "Diese Stufe hat {{count}} Kacheln — lösche sie zuerst",
+    "extendSaveFailed": "Speichern der Stufen fehlgeschlagen: {{error}}",
+    "defaultGroupsHeading": "Standardgruppen",
+    "defaultGroupsDescription": "Integrierte Gruppen können um eigene Intensitätsstufen erweitert werden.",
+    "addedLevelsCount": "+{{count}} hinzugefügt"
   },
   "intensityLabels": {
     "beginner": "Anfänger",

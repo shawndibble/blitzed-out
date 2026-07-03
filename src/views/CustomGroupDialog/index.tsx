@@ -18,7 +18,11 @@ import {
   CustomGroupPull,
   DEFAULT_INTENSITY_TEMPLATES,
 } from '@/types/customGroups';
-import { validateCustomGroup } from '@/services/validationService';
+import {
+  validateCustomGroup,
+  MAX_INTENSITIES_COUNT,
+  MIN_INTENSITIES_COUNT,
+} from '@/services/validationService';
 import { GroupType, VALID_GROUP_TYPES } from '@/types';
 import {
   addCustomGroup,
@@ -30,6 +34,7 @@ import { countTilesByGroup, deleteCustomTilesByGroup } from '@/stores/customTile
 import CreateEditTab from './CreateEditTab';
 import ManageTab from './ManageTab';
 import DeleteDialog from './DeleteDialog';
+import ExtendDefaultGroupDialog from './ExtendDefaultGroupDialog';
 import { FormState, DialogState } from './types';
 
 // Helper function to find matching template index
@@ -74,6 +79,8 @@ export default function CustomGroupDialog({
 
   // Data state
   const [existingGroups, setExistingGroups] = useState<CustomGroupPull[]>([]);
+  const [defaultGroups, setDefaultGroups] = useState<CustomGroupPull[]>([]);
+  const [extendingGroup, setExtendingGroup] = useState<CustomGroupPull | null>(null);
   const [tileCounts, setTileCounts] = useState<Record<string, number>>({});
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pendingDeleteGroup, setPendingDeleteGroup] = useState<{
@@ -91,6 +98,10 @@ export default function CustomGroupDialog({
         isDefault: false,
       });
       setExistingGroups(customGroups);
+
+      // Default groups can be extended with additional intensity levels.
+      const defaults = await getCustomGroups({ locale, isDefault: true });
+      setDefaultGroups(defaults.sort((a, b) => a.label.localeCompare(b.label)));
 
       // Load tile counts for each custom group across all game modes
       const counts: Record<string, number> = {};
@@ -218,8 +229,7 @@ export default function CustomGroupDialog({
 
   // Add new intensity
   const addIntensity = () => {
-    if (formState.intensityLabels.length >= 5) {
-      // MAX_INTENSITIES_COUNT
+    if (formState.intensityLabels.length >= MAX_INTENSITIES_COUNT) {
       return;
     }
 
@@ -234,8 +244,7 @@ export default function CustomGroupDialog({
 
   // Remove intensity
   const removeIntensity = (index: number) => {
-    if (formState.intensityLabels.length <= 2) {
-      // MIN_INTENSITIES_COUNT
+    if (formState.intensityLabels.length <= MIN_INTENSITIES_COUNT) {
       return;
     }
     setFormState((prev) => ({
@@ -506,10 +515,12 @@ export default function CustomGroupDialog({
           {dialogState.selectedTab === 0 && (
             <ManageTab
               existingGroups={existingGroups}
+              defaultGroups={defaultGroups}
               loadingGroups={dialogState.isLoading}
               tileCounts={tileCounts}
               onEditGroup={handleEditGroup}
               onDeleteGroup={handleDeleteGroup}
+              onExtendGroup={setExtendingGroup}
             />
           )}
 
@@ -552,6 +563,15 @@ export default function CustomGroupDialog({
         pendingDeleteGroup={pendingDeleteGroup}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={confirmDelete}
+      />
+      <ExtendDefaultGroupDialog
+        open={extendingGroup !== null}
+        group={extendingGroup}
+        onClose={() => setExtendingGroup(null)}
+        onSaved={async () => {
+          await reloadGroupsAndCounts();
+          onGroupUpdated?.(null); // Trigger refresh in parent
+        }}
       />
     </>
   );

@@ -18,10 +18,12 @@ export interface DialogState {
 
 export interface ManageTabProps {
   existingGroups: CustomGroupPull[];
+  defaultGroups: CustomGroupPull[];
   loadingGroups: boolean;
   tileCounts: Record<string, number>;
   onEditGroup: (group: CustomGroupPull) => void;
   onDeleteGroup: (groupId: string) => void;
+  onExtendGroup: (group: CustomGroupPull) => void;
 }
 
 export interface CreateEditTabProps {

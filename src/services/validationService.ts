@@ -186,6 +186,43 @@ export const validateGroupIntensities = (intensities: CustomGroupIntensity[]): V
 };
 
 /**
+ * Validate intensity levels a user wants to append to a default group.
+ * Additions are labels only; values are assigned by the caller (next free
+ * slots), so this checks labels and the combined ladder size.
+ */
+export const validateGroupExtension = (
+  existingIntensities: CustomGroupIntensity[],
+  additionLabels: string[]
+): ValidationResult => {
+  const errors: string[] = [];
+
+  if (existingIntensities.length + additionLabels.length > MAX_INTENSITIES_COUNT) {
+    errors.push(`Maximum ${MAX_INTENSITIES_COUNT} intensity levels allowed`);
+  }
+
+  const usedLabels = new Set(existingIntensities.map((i) => i.label.trim().toLowerCase()));
+  additionLabels.forEach((label, index) => {
+    const trimmed = label.trim();
+    if (trimmed.length === 0) {
+      errors.push(`New level ${index + 1} is missing a label`);
+      return;
+    }
+    if (trimmed.length > MAX_INTENSITY_LABEL_LENGTH) {
+      errors.push(
+        `New level "${trimmed}" must be ${MAX_INTENSITY_LABEL_LENGTH} characters or less`
+      );
+    }
+    if (usedLabels.has(trimmed.toLowerCase())) {
+      errors.push(`Intensity label "${trimmed}" is used multiple times`);
+    } else {
+      usedLabels.add(trimmed.toLowerCase());
+    }
+  });
+
+  return { isValid: errors.length === 0, errors };
+};
+
+/**
  * Validate a complete custom group
  */
 export const validateCustomGroup = async (

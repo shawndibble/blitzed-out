@@ -400,7 +400,21 @@
     "customTilesCount": "{{count}} 個自訂磁磚",
     "levelLabel": "等級 {{level}}",
     "levelInputLabel": "等級 {{level}} 標籤",
-    "errorLoadingGroups": "載入群組時出錯"
+    "errorLoadingGroups": "載入群組時出錯",
+    "extend": "扩展",
+    "extendGroupTitle": "扩展 {{label}}",
+    "extendGroupDescription": "在内置等级之后添加新的强度等级。内置等级和现有方块不会被更改。",
+    "builtInLevels": "内置等级",
+    "yourAddedLevels": "你添加的等级",
+    "newLevelPlaceholder": "新等级名称",
+    "addLevel": "添加等级",
+    "ladderFull": "已达到 10 个等级上限",
+    "saveLevels": "保存等级",
+    "removeLevelBlocked": "此等级有 {{count}} 个方块 — 请先删除它们",
+    "extendSaveFailed": "保存等级失败：{{error}}",
+    "defaultGroupsHeading": "默认组",
+    "defaultGroupsDescription": "内置组可以用你自己的强度等级进行扩展。",
+    "addedLevelsCount": "+{{count}} 已添加"
   },
   "intensityLabels": {
     "beginner": "初學者",
