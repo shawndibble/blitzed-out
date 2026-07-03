@@ -28,6 +28,7 @@ import { getAuth } from 'firebase/auth';
 import { sha256 } from 'js-sha256';
 import { db } from './firebase';
 import { exportAllData, importData, EXPORT_FORMAT_VERSION } from './importExport';
+import { analytics } from './analytics';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTilesByGroupIds } from '@/stores/customTiles';
 import type { ExportData, ExportOptions, ImportResult } from '@/types/importExport';
@@ -147,6 +148,15 @@ export async function publishPack(
     createdAt: now,
     updatedAt: now,
   });
+
+  const summary = summarizeContents(contents);
+  analytics.trackPackEvent('pack_published', {
+    visibility: meta.visibility,
+    group_count: summary.groupCount,
+    tile_count: summary.tileCount,
+    pack_version: 1,
+  });
+
   return ref.id;
 }
 
@@ -171,6 +181,14 @@ export async function republishPack(
     ...summarizeContents(contents),
     updatedAt: Date.now(),
     authorName: getAuth().currentUser?.displayName || existing.authorName,
+  });
+
+  const summary = summarizeContents(contents);
+  analytics.trackPackEvent('pack_published', {
+    visibility: meta.visibility,
+    group_count: summary.groupCount,
+    tile_count: summary.tileCount,
+    pack_version: existing.packVersion + 1,
   });
 }
 
@@ -277,6 +295,12 @@ export async function importPack(pack: ContentPackDoc): Promise<ImportResult> {
       () => {}
     );
   }
+
+  analytics.trackPackEvent('pack_imported', {
+    group_count: pack.groupCount,
+    tile_count: pack.tileCount,
+    pack_version: pack.packVersion,
+  });
 
   return result;
 }

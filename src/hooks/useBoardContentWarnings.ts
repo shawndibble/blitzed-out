@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getContentGameMode, isPublicRoom } from '@/helpers/strings';
 import buildGameBoard from '@/services/buildGame';
 import { Settings } from '@/types/Settings';
+import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 
 export interface BoardContentWarnings {
   /** Selected groups that have no available tiles for the current locale/mode. */
@@ -39,7 +40,7 @@ export default function useBoardContentWarnings(formData: Settings): BoardConten
       const isPublic = isPublicRoom(room || '');
       const finalGameMode = getContentGameMode(isPublic ? 'online' : gameMode);
       const locale = i18n.resolvedLanguage || 'en';
-      const tileCount = isPublic ? 40 : roomTileCount || 40;
+      const tileCount = roomTileCount || DEFAULT_TILE_COUNT;
 
       try {
         const { metadata } = await buildGameBoard(formData, locale, finalGameMode, tileCount);

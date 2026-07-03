@@ -23,8 +23,10 @@ import AccordionDetails from '@/components/Accordion/Details';
 import { AddCircle, Delete } from '@mui/icons-material';
 import { t } from 'i18next';
 import { useSettings } from '@/stores/settingsStore';
+import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import useAuth from '@/context/hooks/useAuth';
 import { getOrCreateBoard, sendMessage } from '@/services/firebase';
+import { isPublicRoom } from '@/helpers/strings';
 import { AlertState } from '@/types';
 
 interface GameBoardProps {
@@ -38,8 +40,9 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   const [alert, setAlert] = useState<AlertState | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<number>(0);
   const [expandedElement, setExpandedElement] = useState<number>(0);
-  const settings = useSettings()[0];
+  const [settings, updateSettings] = useSettings();
   const { user } = useAuth();
+  const isPublic = isPublicRoom(settings?.room || 'PUBLIC');
 
   if (!gameBoards) {
     return null;
@@ -103,6 +106,11 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
 
   const enableBoard = (board: any) => {
     activateBoard(board.id);
+    // Public rooms allow any board size — adopt the board's size so the rest
+    // of the app (builder, warnings, sharing) stays in sync with the tiles.
+    if (isPublic && board.tiles?.length && board.tiles.length !== settings?.roomTileCount) {
+      updateSettings({ roomTileCount: board.tiles.length });
+    }
     createGameMessage(board);
     setAlert({ message: t('boardEnabled'), type: 'success' });
   };
@@ -124,11 +132,12 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
   };
 
   const invalidBoard = (board: any) =>
-    !board.tiles || board.tiles.length !== (settings?.roomTileCount || 40);
+    !board.tiles ||
+    (!isPublic && board.tiles.length !== (settings?.roomTileCount || DEFAULT_TILE_COUNT));
 
   const getSwitchTooltip = (board: any) => {
     if (invalidBoard(board)) {
-      return t('boardWrongSize', { size: settings?.roomTileCount || 40 });
+      return t('boardWrongSize', { size: settings?.roomTileCount || DEFAULT_TILE_COUNT });
     }
     if (board.isActive) {
       return t('boardActive');

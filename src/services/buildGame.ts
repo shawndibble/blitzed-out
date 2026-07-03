@@ -1,3 +1,4 @@
+import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
 import { Settings } from '@/types/Settings';
@@ -541,7 +542,7 @@ export default async function buildGameBoard(
   settings: Settings,
   locale: string,
   gameMode: string,
-  tileCount = 40,
+  tileCount = DEFAULT_TILE_COUNT,
   deps: { dataSource?: BoardDataSource; translate?: (key: string) => string } = {}
 ): Promise<BoardBuildResult> {
   const dataSource = deps.dataSource ?? dexieDataSource;

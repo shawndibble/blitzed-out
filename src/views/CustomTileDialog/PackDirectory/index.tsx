@@ -18,6 +18,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
 import PackImportDialog from '../Packs/PackImportDialog';
 import { listPublicPacks } from '@/services/contentPacks';
+import { analytics } from '@/services/analytics';
 import { getImportedPackIds } from '@/stores/customGroups';
 import { useGameSettings } from '@/stores/settingsStore';
 import { GAME_MODES } from '@/services/migration/constants';
@@ -68,6 +69,11 @@ export default function PackDirectory({
     },
     [gameMode, locale, cursor]
   );
+
+  // One directory-view event per mount (not per filter change)
+  useEffect(() => {
+    analytics.trackPackEvent('pack_directory_viewed');
+  }, []);
 
   // Reset and reload whenever the gameMode/locale filter changes.
   useEffect(() => {

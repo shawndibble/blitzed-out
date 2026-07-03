@@ -1,3 +1,4 @@
+import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import Fab from '@mui/material/Fab';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -27,7 +28,7 @@ interface MessageListProps {
 export default function MessageList({
   room,
   isTransparent,
-  currentGameBoardSize = 40,
+  currentGameBoardSize = DEFAULT_TILE_COUNT,
 }: MessageListProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();

@@ -13,9 +13,10 @@ import {
   Typography,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { importPack, parsePack, reportPack } from '@/services/contentPacks';
+import { analytics } from '@/services/analytics';
 import type { ContentPackDoc } from '@/types/contentPacks';
 import type { ExportTile } from '@/types/importExport';
 
@@ -80,6 +81,16 @@ export default function PackImportDialog({
       })),
     ];
   }, [groups, declaredExtensions, tiles, pack.locale, pack.gameMode]);
+
+  // One preview event each time the dialog opens for a pack
+  useEffect(() => {
+    if (open) {
+      analytics.trackPackEvent('pack_previewed', {
+        group_count: pack.groupCount,
+        tile_count: pack.tileCount,
+      });
+    }
+  }, [open, pack.groupCount, pack.tileCount]);
 
   // Bucket tiles under their group for the per-group preview sections.
   const tilesByGroup = useMemo(() => {

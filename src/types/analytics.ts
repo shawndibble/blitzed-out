@@ -19,6 +19,8 @@ export interface BaseAnalyticsEvent {
   custom_parameter_3?: string;
   session_id?: string;
   timestamp?: number;
+  // GA4 accepts arbitrary params; keep them primitive so reports stay queryable
+  [key: string]: string | number | boolean | undefined;
 }
 
 // Specific analytics event types using domain types

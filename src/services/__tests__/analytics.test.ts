@@ -174,6 +174,151 @@ describe('Analytics Service', () => {
     });
   });
 
+  describe('Wizard Funnel Tracking', () => {
+    it('should track wizard screen views with topology context', () => {
+      analytics.trackWizardScreenView('actions', 'solo', 'public');
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'wizard_screen_view',
+        expect.objectContaining({
+          event_category: 'wizard_funnel',
+          event_label: 'actions',
+          screen_name: 'actions',
+          topology: 'solo',
+          room_type: 'public',
+        })
+      );
+    });
+
+    it('should track wizard completion', () => {
+      analytics.trackWizardCompleted('online', 'private', 4);
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'wizard_completed',
+        expect.objectContaining({
+          event_category: 'wizard_funnel',
+          topology: 'online',
+          room_type: 'private',
+          value: 4,
+        })
+      );
+    });
+
+    it('should track wizard abandonment with the last screen seen', () => {
+      analytics.trackWizardAbandoned('room', 'online', 'private');
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'wizard_abandoned',
+        expect.objectContaining({
+          event_category: 'wizard_funnel',
+          event_label: 'room',
+          screen_name: 'room',
+          topology: 'online',
+        })
+      );
+    });
+  });
+
+  describe('Game Lifecycle Tracking', () => {
+    it('should track game start with board context', () => {
+      analytics.trackGameStarted({
+        topology: 'solo',
+        room_type: 'public',
+        group_count: 3,
+        board_size: 60,
+      });
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'game_started',
+        expect.objectContaining({
+          event_category: 'gameplay',
+          topology: 'solo',
+          room_type: 'public',
+          value: 3,
+          board_size: 60,
+        })
+      );
+    });
+
+    it('should track selected groups individually at game start', () => {
+      analytics.trackGroupSelected('ballBusting', [1, 3], 'sex');
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'group_selected',
+        expect.objectContaining({
+          event_category: 'gameplay',
+          event_label: 'ballBusting',
+          levels: '1,3',
+          group_type: 'sex',
+        })
+      );
+    });
+
+    it('should track rolls with a running count', () => {
+      analytics.trackActionRolled(5);
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'action_rolled',
+        expect.objectContaining({
+          event_category: 'gameplay',
+          value: 5,
+        })
+      );
+    });
+
+    it('should track a finished game with roll count and duration', () => {
+      analytics.trackGameFinished(12, 600000, 'online', 2);
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'game_finished',
+        expect.objectContaining({
+          event_category: 'gameplay',
+          roll_count: 12,
+          value: 600000,
+          game_mode: 'online',
+          player_count: 2,
+        })
+      );
+    });
+
+    it('should track an abandoned game with roll count and duration', () => {
+      analytics.trackGameAbandoned(2, 90000, 'solo', 1);
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'game_abandoned',
+        expect.objectContaining({
+          event_category: 'gameplay',
+          roll_count: 2,
+          value: 90000,
+        })
+      );
+    });
+  });
+
+  describe('Content Pack Tracking', () => {
+    it('should track pack lifecycle events by name', () => {
+      analytics.trackPackEvent('pack_imported', { group_count: 2, tile_count: 40 });
+
+      expect(mockGtag).toHaveBeenCalledWith(
+        'event',
+        'pack_imported',
+        expect.objectContaining({
+          event_category: 'content_packs',
+          group_count: 2,
+          tile_count: 40,
+        })
+      );
+    });
+  });
+
   describe('Feature Usage Tracking', () => {
     it('should track feature usage with proper categorization', () => {
       analytics.trackFeatureUsage({

@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { Settings } from '@/types/Settings';
+import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 
 interface GameSpeedProps {
   formData: Settings;
@@ -73,7 +74,7 @@ export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JS
           <Select
             labelId="tile-count-label"
             id="tile-count-select"
-            value={String(formData?.roomTileCount || 40)}
+            value={String(formData?.roomTileCount || DEFAULT_TILE_COUNT)}
             label={t('roomTileCount')}
             onChange={(event: SelectChangeEvent) =>
               setFormData({

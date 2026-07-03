@@ -3,12 +3,14 @@ import { Settings } from '@/types/Settings';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { analyticsTracking } from '@/services/analyticsTracking';
+import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 
 const defaultSettings: Settings = {
   locale: 'en',
   gameMode: 'solo',
   boardUpdated: false,
   room: 'PUBLIC',
+  roomTileCount: DEFAULT_TILE_COUNT,
   background: 'color',
   roomBackground: '',
   selectedActions: {},

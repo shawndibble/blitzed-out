@@ -18,6 +18,9 @@ import { Settings } from '@/types/Settings';
 import { arraysEqual } from '@/helpers/arrays';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import { useParams } from 'react-router-dom';
+import { analytics } from '@/services/analytics';
+import { markWizardCompleted } from '@/hooks/useWizardAnalytics';
+import { isPublicRoom } from '@/helpers/strings';
 
 interface FinishStepProps {
   formData: Settings;
@@ -58,6 +61,13 @@ export default function FinishStep({
   const handleSubmit = async (): Promise<void> => {
     try {
       await submitSettings(formData, actionsList);
+
+      markWizardCompleted();
+      analytics.trackWizardCompleted(
+        formData.gameMode || 'online',
+        isPublicRoom(formData.room || 'PUBLIC') ? 'public' : 'private',
+        Object.keys(formData.selectedActions || {}).length
+      );
 
       const willNavigate =
         currentRoom !== undefined && currentRoom?.toUpperCase() !== formData.room?.toUpperCase();

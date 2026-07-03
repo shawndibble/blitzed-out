@@ -288,14 +288,109 @@ class AnalyticsService {
     });
   }
 
-  // Track feature adoption funnel
-  trackFunnelStep(funnelName: string, step: string, stepNumber: number, success: boolean) {
-    this.trackEvent('funnel_step', {
-      event_category: 'conversion',
-      event_label: funnelName,
-      value: stepNumber,
-      custom_parameter_1: step,
-      custom_parameter_2: success.toString(),
+  // --- Wizard funnel (lifecycle analytics) ---
+
+  trackWizardScreenView(screenName: string, topology: string, roomType: string) {
+    this.trackEvent('wizard_screen_view', {
+      event_category: 'wizard_funnel',
+      event_label: screenName,
+      screen_name: screenName,
+      topology,
+      room_type: roomType,
+    });
+  }
+
+  trackWizardCompleted(topology: string, roomType: string, groupCount: number) {
+    this.trackEvent('wizard_completed', {
+      event_category: 'wizard_funnel',
+      event_label: topology,
+      topology,
+      room_type: roomType,
+      value: groupCount,
+    });
+  }
+
+  trackWizardAbandoned(lastScreenName: string, topology: string, roomType: string) {
+    this.trackEvent('wizard_abandoned', {
+      event_category: 'wizard_funnel',
+      event_label: lastScreenName,
+      screen_name: lastScreenName,
+      topology,
+      room_type: roomType,
+    });
+  }
+
+  // --- Game lifecycle (are they playing? rolling? reaching the end?) ---
+
+  trackGameStarted(params: {
+    topology: string;
+    room_type: string;
+    group_count: number;
+    board_size: number;
+  }) {
+    this.trackEvent('game_started', {
+      event_category: 'gameplay',
+      event_label: params.topology,
+      topology: params.topology,
+      room_type: params.room_type,
+      value: params.group_count,
+      board_size: params.board_size,
+    });
+  }
+
+  trackGroupSelected(groupName: string, levels: number[], groupType: string) {
+    this.trackEvent('group_selected', {
+      event_category: 'gameplay',
+      event_label: groupName,
+      levels: levels.join(','),
+      group_type: groupType,
+    });
+  }
+
+  trackActionRolled(rollCount: number) {
+    this.trackEvent('action_rolled', {
+      event_category: 'gameplay',
+      value: rollCount,
+    });
+  }
+
+  trackGameFinished(rollCount: number, durationMs: number, gameMode: string, playerCount: number) {
+    this.trackEvent('game_finished', {
+      event_category: 'gameplay',
+      event_label: gameMode,
+      roll_count: rollCount,
+      value: durationMs,
+      game_mode: gameMode,
+      player_count: playerCount,
+    });
+  }
+
+  trackGameAbandoned(rollCount: number, durationMs: number, gameMode: string, playerCount: number) {
+    this.trackEvent('game_abandoned', {
+      event_category: 'gameplay',
+      event_label: gameMode,
+      roll_count: rollCount,
+      value: durationMs,
+      game_mode: gameMode,
+      player_count: playerCount,
+    });
+  }
+
+  // --- Content pack lifecycle ---
+
+  trackPackEvent(
+    eventName:
+      | 'pack_directory_viewed'
+      | 'pack_previewed'
+      | 'pack_imported'
+      | 'pack_published'
+      | 'pack_creation_started'
+      | 'pack_creation_completed',
+    params: BaseAnalyticsEvent & Record<string, string | number | undefined> = {}
+  ) {
+    this.trackEvent(eventName, {
+      event_category: 'content_packs',
+      ...params,
     });
   }
 

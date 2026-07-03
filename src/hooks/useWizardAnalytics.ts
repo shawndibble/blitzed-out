@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { analytics } from '@/services/analytics';
 import { getWizardStepName } from '@/views/GameSettingsWizard/stepConfig';
 
@@ -8,38 +8,55 @@ interface UseWizardAnalyticsProps {
 }
 
 interface WizardAnalytics {
-  trackStepNavigation: (currentStep: number, targetStep?: number) => void;
+  trackScreenView: (step: number) => void;
+}
+
+// Module-level so FinishStep (a separate hook instance) can mark completion
+// before the wizard unmounts and the abandonment check runs.
+let wizardCompleted = false;
+
+export function markWizardCompleted(): void {
+  wizardCompleted = true;
 }
 
 /**
- * Custom hook for tracking wizard funnel analytics
- * Handles path-specific funnel tracking without cluttering components
+ * Wizard funnel analytics: one screen-view per step entered, a completion
+ * event when settings are submitted, and an abandonment event (with the last
+ * screen seen) if the wizard unmounts without completing.
  */
 export function useWizardAnalytics({
   gameMode = 'online',
   isPublicRoom = false,
 }: UseWizardAnalyticsProps): WizardAnalytics {
-  const getFunnelName = useCallback(() => {
-    const roomType = isPublicRoom ? 'public' : 'private';
-    return `${gameMode}_${roomType}_setup`;
-  }, [gameMode, isPublicRoom]);
+  const roomType = isPublicRoom ? 'public' : 'private';
+  const lastScreenRef = useRef<string | null>(null);
 
-  const getStepName = useCallback((stepNumber: number): string => {
-    return getWizardStepName(stepNumber);
-  }, []);
+  // Keep current values readable from the unmount cleanup without re-running it
+  const contextRef = useRef({ gameMode, roomType });
+  contextRef.current = { gameMode, roomType };
 
-  const trackStepNavigation = useCallback(
-    (currentStep: number, targetStep?: number) => {
-      const funnelName = getFunnelName();
-      const stepToTrack = targetStep ?? currentStep;
-      const stepName = getStepName(stepToTrack);
-
-      analytics.trackFunnelStep(funnelName, stepName, stepToTrack, true);
+  const trackScreenView = useCallback(
+    (step: number) => {
+      const screenName = getWizardStepName(step);
+      if (screenName === lastScreenRef.current) return;
+      lastScreenRef.current = screenName;
+      analytics.trackWizardScreenView(screenName, gameMode, roomType);
     },
-    [getFunnelName, getStepName]
+    [gameMode, roomType]
   );
 
+  useEffect(() => {
+    wizardCompleted = false;
+    return () => {
+      if (!wizardCompleted && lastScreenRef.current) {
+        const { gameMode: topology, roomType: room } = contextRef.current;
+        analytics.trackWizardAbandoned(lastScreenRef.current, topology, room);
+      }
+      wizardCompleted = false;
+    };
+  }, []);
+
   return {
-    trackStepNavigation,
+    trackScreenView,
   };
 }

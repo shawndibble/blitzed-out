@@ -61,6 +61,8 @@ export default function Room() {
   // Game session tracking
   const sessionStartTimeRef = useRef<number>(Date.now());
   const actionCountRef = useRef<number>(0);
+  const gameStartedRef = useRef<boolean>(false);
+  const gameFinishedRef = useRef<boolean>(false);
 
   // Roll button ref for keyboard shortcuts
   const rollButtonRef = useRef<RollButtonHandle>(null);
@@ -78,6 +80,7 @@ export default function Room() {
     setRollValue({ value: newValue, time: Date.now() });
     // Track action for session analytics
     actionCountRef.current += 1;
+    analytics.trackActionRolled(actionCountRef.current);
   }, []);
 
   const {
@@ -113,6 +116,35 @@ export default function Room() {
     );
   }, [settings, hybridPlayerList, localPlayers.length]);
 
+  // game_started + group_selected: fire once when the board is ready to play
+  useEffect(() => {
+    if (gameStartedRef.current || !gameBoard?.length) return;
+    if (!Object.keys(settings || {}).length) return;
+
+    gameStartedRef.current = true;
+    const selectedActions = settings.selectedActions || {};
+    analytics.trackGameStarted({
+      topology: settings.gameMode || 'unknown',
+      room_type: room.toUpperCase() === 'PUBLIC' ? 'public' : 'private',
+      group_count: Object.keys(selectedActions).length,
+      board_size: gameBoard.length,
+    });
+    Object.entries(selectedActions).forEach(([groupName, entry]) => {
+      analytics.trackGroupSelected(groupName, entry?.levels || [], entry?.type || 'unknown');
+    });
+  }, [gameBoard, settings, room]);
+
+  // game_finished: fires once when the local player lands on the finish tile
+  useEffect(() => {
+    if (gameFinishedRef.current || !gameBoard?.length || actionCountRef.current === 0) return;
+    if (tile?.index === gameBoard.length - 1) {
+      gameFinishedRef.current = true;
+      const duration = Date.now() - sessionStartTimeRef.current;
+      const { gameMode, playerCount } = lastCountsRef.current;
+      analytics.trackGameFinished(actionCountRef.current, duration, gameMode, playerCount);
+    }
+  }, [tile, gameBoard]);
+
   // Track game session on component unmount only
   useEffect(() => {
     const start = sessionStartTimeRef.current;
@@ -120,6 +152,10 @@ export default function Room() {
       const duration = Date.now() - start;
       const { gameMode, playerCount } = lastCountsRef.current;
       analytics.trackGameSession(duration, actionCountRef.current, gameMode, playerCount);
+      // Left mid-game with rolls on the board and never reached the finish tile
+      if (actionCountRef.current > 0 && !gameFinishedRef.current) {
+        analytics.trackGameAbandoned(actionCountRef.current, duration, gameMode, playerCount);
+      }
     };
   }, []);
   const { roller } = usePrivateRoomMonitor(room, gameBoard);

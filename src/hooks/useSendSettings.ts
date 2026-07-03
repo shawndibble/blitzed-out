@@ -20,7 +20,9 @@ function isCompatibleBoard(
   latestRoomMessage?: RoomMessage,
   roomTileCount?: number
 ): boolean {
-  if (!isPrivateRoom && boardSize === 40) return true;
+  // Public rooms allow any board size — only private rooms need boards to
+  // line up with the room's shared tile count.
+  if (!isPrivateRoom) return true;
 
   if (!latestRoomMessage) return false;
 
