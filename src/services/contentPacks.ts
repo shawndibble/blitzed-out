@@ -222,6 +222,25 @@ export async function getPack(packId: string): Promise<ContentPackDoc | undefine
   }
 }
 
+/**
+ * All packs authored by the signed-in user (any visibility), newest first.
+ * The Firestore list rule allows author-scoped queries; sorting stays
+ * client-side to avoid a composite index.
+ */
+export async function listMyPacks(): Promise<ContentPackDoc[]> {
+  const user = getAuth().currentUser;
+  if (!user) return [];
+  try {
+    const snap = await getDocs(query(collection(db, COLLECTION), where('author', '==', user.uid)));
+    return snap.docs
+      .map((d) => normalizePackDoc(d.id, d.data()))
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+  } catch (error) {
+    console.error('Failed to list own content packs', error);
+    return [];
+  }
+}
+
 export interface ListPublicPacksOptions {
   gameMode: string;
   locale: string;

@@ -32,6 +32,7 @@ import {
   buildPackContents,
   getPack,
   importPack,
+  listMyPacks,
   listPublicPacks,
   listPublishableGroups,
   parsePack,
@@ -219,5 +220,30 @@ describe('contentPacks service', () => {
   it('parsePack returns undefined on invalid JSON', () => {
     const bad = { contents: 'not json' } as ContentPackDoc;
     expect(parsePack(bad)).toBeUndefined();
+  });
+
+  describe('listMyPacks', () => {
+    it('queries by author and sorts newest-updated first', async () => {
+      vi.mocked(getDocs).mockResolvedValue({
+        docs: [
+          { id: 'p-old', data: () => ({ name: 'Old', updatedAt: 100, visibility: 'private' }) },
+          { id: 'p-new', data: () => ({ name: 'New', updatedAt: 200, visibility: 'public' }) },
+        ],
+      } as any);
+
+      const packs = await listMyPacks();
+
+      expect(where).toHaveBeenCalledWith('author', '==', 'u1');
+      expect(packs.map((p) => p.id)).toEqual(['p-new', 'p-old']);
+      // normalizePackDoc fills schema-predating fields
+      expect(packs[0].importCount).toBe(0);
+      expect(packs[0].extensionCount).toBe(0);
+    });
+
+    it('returns empty when signed out', async () => {
+      vi.mocked(getAuth).mockReturnValue({ currentUser: null } as any);
+      expect(await listMyPacks()).toEqual([]);
+      expect(getDocs).not.toHaveBeenCalled();
+    });
   });
 });

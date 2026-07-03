@@ -440,6 +440,17 @@ describe('content-packs', () => {
     await assertFails(getDocs(col));
   });
 
+  it('allows authors to list their own packs regardless of visibility', async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), 'content-packs/mine'), validPack({ visibility: 'private' }));
+    });
+    const col = collection(dbAs(UID), 'content-packs');
+    // Author-scoped query is provably safe: every matching doc is the caller's.
+    await assertSucceeds(getDocs(query(col, where('author', '==', UID))));
+    // Listing someone else's packs (unconstrained by visibility) stays rejected.
+    await assertFails(getDocs(query(col, where('author', '==', OTHER_UID))));
+  });
+
   it('still allows fetching a private pack by id (link import)', async () => {
     const { getDoc } = await import('firebase/firestore');
     await testEnv.withSecurityRulesDisabled(async (ctx) => {

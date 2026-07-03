@@ -17,6 +17,7 @@ import lazyWithRetry from '@/utils/lazyWithRetry';
 const UnauthenticatedApp = lazyWithRetry(() => import('@/views/UnauthenticatedApp'));
 const Cast = lazyWithRetry(() => import('@/views/Cast'));
 const Room = lazyWithRetry(() => import('@/views/Room'));
+const PackCreator = lazyWithRetry(() => import('@/views/PackCreator'));
 
 // Component to ensure the room ID is always uppercase
 function UppercaseRedirect({ children }: { children: React.ReactNode }) {
@@ -48,6 +49,10 @@ function AppRoutes() {
     <Suspense fallback={<AppSkeleton />}>
       <Routes>
         <Route path="/" element={<Navigate replace to="/PUBLIC" />} />
+        <Route
+          path="/packs/create"
+          element={auth.user ? <PackCreator /> : <UnauthenticatedApp />}
+        />
         <Route
           path="/:id/cast"
           element={
