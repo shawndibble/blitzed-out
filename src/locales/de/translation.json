@@ -759,5 +759,8 @@
     "spicy": "Scharf",
     "filthy": "Versaut",
     "hint": "Schlägt Stufen für Gruppen vor, die du nicht angepasst hast."
-  }
+  },
+  "explorePacks": "Community-Packs entdecken",
+  "explorePacksDesc": "Füge fertige Aktions-Sets von anderen Spielern hinzu.",
+  "backToActions": "Zurück zu den Aktionen"
 }

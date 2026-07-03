@@ -759,5 +759,8 @@
     "spicy": "Épicé",
     "filthy": "Torride",
     "hint": "Suggère des niveaux pour les groupes non personnalisés."
-  }
+  },
+  "explorePacks": "Explorer les packs de la communauté",
+  "explorePacksDesc": "Ajoutez des ensembles d’actions partagés par d’autres joueurs.",
+  "backToActions": "Retour aux actions"
 }

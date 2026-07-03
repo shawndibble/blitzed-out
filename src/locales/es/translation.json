@@ -759,5 +759,8 @@
     "spicy": "Picante",
     "filthy": "Sucio",
     "hint": "Sugiere niveles para los grupos que no hayas personalizado."
-  }
+  },
+  "explorePacks": "Explora packs de la comunidad",
+  "explorePacksDesc": "Añade conjuntos de acciones creados por otros jugadores.",
+  "backToActions": "Volver a las acciones"
 }

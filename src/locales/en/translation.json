@@ -759,5 +759,8 @@
     "spicy": "Spicy",
     "filthy": "Filthy",
     "hint": "Suggests levels for groups you haven’t customized."
-  }
+  },
+  "explorePacks": "Explore community packs",
+  "explorePacksDesc": "Add ready-made action sets shared by other players.",
+  "backToActions": "Back to actions"
 }

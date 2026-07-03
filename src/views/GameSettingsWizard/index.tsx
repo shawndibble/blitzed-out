@@ -207,6 +207,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
             actionsList={actionsList}
             isActionsLoading={isActionsLoadingWithMigration}
             isMigrationInProgress={isMigrationInProgress}
+            onActionsReload={() => setReloadToggle((prev) => !prev)}
           />
         );
       case 5:

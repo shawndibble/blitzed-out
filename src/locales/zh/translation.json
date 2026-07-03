@@ -759,5 +759,8 @@
     "spicy": "火辣",
     "filthy": "放纵",
     "hint": "为你未自定义的组推荐等级。"
-  }
+  },
+  "explorePacks": "探索社区内容包",
+  "explorePacksDesc": "添加其他玩家分享的现成动作合集。",
+  "backToActions": "返回动作选择"
 }
