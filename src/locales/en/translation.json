@@ -744,5 +744,20 @@
     "extensionDetail": "{{tiles}} actions · {{levels}} new levels",
     "newLevelChip": "New level: {{label}}",
     "importCount": "{{count}} imports"
+  },
+  "remove": "Remove",
+  "done": "Done",
+  "starters": "Starters",
+  "spiceLevel": "Spice level",
+  "pickedCount": "{{count}} of {{max}} selected",
+  "pickedCountMax": "Max {{max}} — remove one first",
+  "levelSheetHint": "Pick any levels — they don’t have to be in a row.",
+  "levelNumber": "Level {{level}}",
+  "spice": {
+    "mild": "Mild",
+    "medium": "Medium",
+    "spicy": "Spicy",
+    "filthy": "Filthy",
+    "hint": "Suggests levels for groups you haven’t customized."
   }
 }

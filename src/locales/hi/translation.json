@@ -745,5 +745,20 @@
     "extensionDetail": "{{tiles}} क्रियाएँ · {{levels}} नए स्तर",
     "newLevelChip": "नया स्तर: {{label}}",
     "importCount": "{{count}} आयात"
+  },
+  "remove": "हटाएं",
+  "done": "हो गया",
+  "starters": "स्टार्टर्स",
+  "spiceLevel": "मसाला स्तर",
+  "pickedCount": "{{max}} में से {{count}} चुने गए",
+  "pickedCountMax": "अधिकतम {{max}} — पहले एक हटाएं",
+  "levelSheetHint": "कोई भी स्तर चुनें — लगातार होना ज़रूरी नहीं।",
+  "levelNumber": "स्तर {{level}}",
+  "spice": {
+    "mild": "हल्का",
+    "medium": "मध्यम",
+    "spicy": "तीखा",
+    "filthy": "बेलगाम",
+    "hint": "जिन समूहों को आपने अनुकूलित नहीं किया, उनके लिए स्तर सुझाता है।"
   }
 }

@@ -3,8 +3,10 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Chip,
   CircularProgress,
+  FormControlLabel,
   Grid,
   Stack,
   Typography,
@@ -12,6 +14,7 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
+import { customAlphabet } from 'nanoid';
 
 import ButtonRow from '@/components/ButtonRow';
 import { Settings } from '@/types/Settings';
@@ -29,6 +32,8 @@ interface FinishStepProps {
   actionsList: Record<string, any>;
   close?: () => void;
 }
+
+const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
 export default function FinishStep({
   formData,
@@ -165,6 +170,25 @@ export default function FinishStep({
           </Grid>
         ))}
       </Grid>
+      {formData.gameMode === 'solo' && (
+        <FormControlLabel
+          sx={{ mb: 2 }}
+          control={
+            <Checkbox
+              checked={formData.room !== 'PUBLIC'}
+              onChange={(event) => {
+                const isPrivate = event.target.checked;
+                setFormData({
+                  ...formData,
+                  room: isPrivate ? generateRoomCode() : 'PUBLIC',
+                  roomRealtime: !isPrivate,
+                });
+              }}
+            />
+          }
+          label={t('playerTopology.solo.private', 'Play privately')}
+        />
+      )}
       <Box sx={{ flexGrow: 1 }} />
       <ButtonRow>
         <Button onClick={prevStep} disabled={isLoading}>

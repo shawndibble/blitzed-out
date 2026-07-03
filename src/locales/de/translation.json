@@ -744,5 +744,20 @@
     "extensionDetail": "{{tiles}} Aktionen · {{levels}} neue Stufen",
     "newLevelChip": "Neue Stufe: {{label}}",
     "importCount": "{{count}} Importe"
+  },
+  "remove": "Entfernen",
+  "done": "Fertig",
+  "starters": "Starter",
+  "spiceLevel": "Schärfegrad",
+  "pickedCount": "{{count}} von {{max}} ausgewählt",
+  "pickedCountMax": "Maximal {{max}} — entferne zuerst eine",
+  "levelSheetHint": "Wähle beliebige Stufen — sie müssen nicht aufeinander folgen.",
+  "levelNumber": "Stufe {{level}}",
+  "spice": {
+    "mild": "Mild",
+    "medium": "Mittel",
+    "spicy": "Scharf",
+    "filthy": "Versaut",
+    "hint": "Schlägt Stufen für Gruppen vor, die du nicht angepasst hast."
   }
 }
