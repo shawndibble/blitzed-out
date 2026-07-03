@@ -206,7 +206,10 @@ service cloud.firestore {
     // down via the `admin` custom claim.
     match /content-packs/{packId} {
       allow get: if true;
-      allow list: if resource.data.visibility == 'public';
+      // Public directory queries, plus authors listing their own packs
+      // (any visibility) for the republish flow.
+      allow list: if resource.data.visibility == 'public'
+        || (isSignedIn() && resource.data.author == request.auth.uid);
       allow create: if isSignedIn() && contentPackCreateValid();
       allow update: if isSignedIn() && contentPackUpdateValid();
       allow delete: if isSignedIn()
