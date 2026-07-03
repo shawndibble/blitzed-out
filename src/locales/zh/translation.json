@@ -482,20 +482,20 @@
   "chooseRoomType": "您的私人房間",
   "playerTopology": {
     "stepLabel": "玩家設置",
-    "title": "您如何遊玩？",
-    "subtitle": "先選擇您的設置，房間設置和其他選項隨後出現。",
+    "title": "今晚怎么玩？",
+    "subtitle": "选择一种方式立即开始 — 之后可随时细调。",
     "solo": {
-      "title": "單人",
-      "description": "在此設備上單獨遊玩。",
+      "title": "只有我",
+      "description": "在此设备上单人游戏。",
       "private": "私下遊玩"
     },
     "shared": {
-      "title": "共享設備",
-      "description": "2–4名本地玩家共用一台設備。"
+      "title": "轮流传递",
+      "description": "一台设备，2–4 名玩家，轮流传递。"
     },
     "online": {
-      "title": "各自設備",
-      "description": "每位玩家從自己的設備加入共享的私人房間。",
+      "title": "派对房间",
+      "description": "每人用自己的手机加入。",
       "offlineTooltip": "各自設備模式需要網路連線。"
     }
   },
@@ -749,7 +749,6 @@
   "done": "完成",
   "starters": "快速开始",
   "spiceLevel": "辣度",
-  "pickedCount": "已选 {{count}}/{{max}}",
   "pickedCountMax": "最多 {{max}} 个 — 请先移除一个",
   "levelSheetHint": "任意选择等级 — 不必连续。",
   "levelNumber": "等级 {{level}}",
@@ -762,5 +761,33 @@
   },
   "explorePacks": "探索社区内容包",
   "explorePacksDesc": "添加其他玩家分享的现成动作合集。",
-  "backToActions": "返回动作选择"
+  "backToActions": "返回动作选择",
+  "packCreator": {
+    "title": "创建内容包",
+    "editTitle": "编辑内容包：{{name}}",
+    "stepContent": "内容",
+    "stepDetails": "详情",
+    "stepPublish": "发布",
+    "editExisting": "或更新你的内容包",
+    "noGroups": "还没有可发布的组。先创建一个组并添加一些动作。",
+    "newGroup": "新建组",
+    "quickAddTile": "添加动作",
+    "addAction": "添加动作",
+    "tileAdded": "动作已添加。",
+    "reviewGroups": "此内容包包含 {{count}} 个组",
+    "willBePublic": "将显示在公共目录中。",
+    "willBePrivate": "不公开 — 只有拥有链接的人才能导入。",
+    "willBumpVersion": "发布后此内容包将更新到版本 {{version}}",
+    "republish": "发布更新",
+    "tabTeaser": "通过引导流程将你的自定义组打包成可分享的内容包。",
+    "openCta": "创建内容包"
+  },
+  "soloPrivacy": {
+    "title": "想在哪里玩？",
+    "publicTitle": "公共房间",
+    "publicDesc": "在共享的 PUBLIC 房间游戏 — 可看到他人的聊天和棋盘。",
+    "privateTitle": "私人房间",
+    "privateDesc": "专属房间代码 — 完全属于你自己。"
+  },
+  "maxSelections": "最多可选：{{max}}"
 }

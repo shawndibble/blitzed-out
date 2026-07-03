@@ -16,6 +16,18 @@ import { waitForMigration } from '@/utils/migrationGuard';
 
 const { customGroups } = db;
 
+// Only user-authored groups are analytics signal — default groups get seeded
+// per user/locale by migration and touched by re-seeds, which would drown
+// real usage data in GA4.
+const trackIfUserAuthored = (
+  action: 'create' | 'modify' | 'delete',
+  group: CustomGroupBase,
+  isDefault: boolean | undefined = group.isDefault
+): void => {
+  if (isDefault ?? false) return;
+  analyticsTracking.trackCustomGroupAction(action, group, false);
+};
+
 // Hook to set default values when creating custom groups
 customGroups.hook(
   'creating',
@@ -146,11 +158,7 @@ export const addCustomGroup = async (group: CustomGroupBase): Promise<string | u
 
         const id = await customGroups.add(groupWithTimestamp);
 
-        // Only user-authored groups are tracked — default groups are seeded per
-        // user/locale by migration and would drown real signal in GA4.
-        if (!(group.isDefault ?? false)) {
-          analyticsTracking.trackCustomGroupAction('create', group, false);
-        }
+        trackIfUserAuthored('create', group);
 
         return id;
       },
@@ -181,13 +189,8 @@ export const updateCustomGroup = async (
     const group = await customGroups.get(id);
     const result = await customGroups.update(id, updates);
 
-    // Track user-authored group modifications only (default groups get
-    // touched by migrations, which isn't user signal)
     if (result > 0 && group) {
-      const isDefault = (updates as Partial<CustomGroupBase>).isDefault ?? group.isDefault;
-      if (!isDefault) {
-        analyticsTracking.trackCustomGroupAction('modify', { ...group, ...updates }, false);
-      }
+      trackIfUserAuthored('modify', { ...group, ...updates }, updates.isDefault ?? group.isDefault);
     }
 
     return result;
@@ -229,10 +232,7 @@ export const deleteCustomGroup = async (
         const deletedTiles = await deleteCustomTilesByGroupId(id, group.locale, group.gameMode);
         await customGroups.delete(id);
 
-        // Track custom group deletion (best-effort; user-authored only)
-        if (!group.isDefault) {
-          analyticsTracking.trackCustomGroupAction('delete', group, false);
-        }
+        trackIfUserAuthored('delete', group);
 
         return { success: true, tilesDeleted: deletedTiles };
       }
@@ -241,10 +241,7 @@ export const deleteCustomGroup = async (
     // Safe to delete - no tiles or force option used
     await customGroups.delete(id);
 
-    // Track custom group deletion (best-effort; user-authored only)
-    if (!group.isDefault) {
-      analyticsTracking.trackCustomGroupAction('delete', group, false);
-    }
+    trackIfUserAuthored('delete', group);
 
     return { success: true };
   } catch (error) {

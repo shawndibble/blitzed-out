@@ -41,8 +41,8 @@ function Harness({
   );
 }
 
-describe('PlayerTopologyStep — one-tap topology cards', () => {
-  it('Solo tap defaults to the PUBLIC room and skips the room step', () => {
+describe('PlayerTopologyStep — topology cards + Next', () => {
+  it('Just Me selects PUBLIC solo; Next skips the room step', () => {
     let latest: Form = {} as Form;
     const nextStep = vi.fn();
     render(
@@ -53,15 +53,31 @@ describe('PlayerTopologyStep — one-tap topology cards', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('Solo'));
+    // Next is disabled until a topology is picked
+    expect(screen.getByTestId('next')).toBeDisabled();
+
+    fireEvent.click(screen.getByText('Just Me'));
     expect(latest.room).toBe('PUBLIC');
     expect(latest.roomRealtime).toBe(true);
     expect(latest.soloPlay).toBe(true);
-    // Solo auto-advances past the room/local-players screen
+    expect(nextStep).not.toHaveBeenCalled();
+  });
+
+  it('Next advances solo past the room/local-players screen', () => {
+    const nextStep = vi.fn();
+    render(
+      <Harness
+        initial={{ gameMode: 'solo', room: 'PUBLIC' } as unknown as Form}
+        onChange={vi.fn()}
+        nextStep={nextStep}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId('next'));
     expect(nextStep).toHaveBeenCalledWith(2);
   });
 
-  it('Solo tap preserves an existing private solo room', () => {
+  it('Just Me preserves an existing private solo room', () => {
     let latest: Form = {} as Form;
     render(
       <Harness
@@ -70,12 +86,12 @@ describe('PlayerTopologyStep — one-tap topology cards', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('Solo'));
+    fireEvent.click(screen.getByText('Just Me'));
     expect(latest.room).toBe('AB12C');
     expect(latest.roomRealtime).toBe(false);
   });
 
-  it('Shared Device tap generates a room code and advances one step', () => {
+  it('Pass & Play selects local mode with a room code; Next advances one step', () => {
     let latest: Form = {} as Form;
     const nextStep = vi.fn();
     render(
@@ -86,26 +102,22 @@ describe('PlayerTopologyStep — one-tap topology cards', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('Shared Device'));
+    fireEvent.click(screen.getByText('Pass & Play'));
     expect(latest.gameMode).toBe('local');
     expect(latest.room).toHaveLength(5);
+
+    fireEvent.click(screen.getByTestId('next'));
     expect(nextStep).toHaveBeenCalledWith();
   });
 
-  it('Individual Devices tap generates a room code and advances one step', () => {
+  it('Party Room selects online mode with a room code', () => {
     let latest: Form = {} as Form;
-    const nextStep = vi.fn();
     render(
-      <Harness
-        initial={{ gameMode: '' } as unknown as Form}
-        onChange={(f) => (latest = f)}
-        nextStep={nextStep}
-      />
+      <Harness initial={{ gameMode: '' } as unknown as Form} onChange={(f) => (latest = f)} />
     );
 
-    fireEvent.click(screen.getByText('Individual Devices'));
+    fireEvent.click(screen.getByText('Party Room'));
     expect(latest.gameMode).toBe('online');
     expect(latest.room).toHaveLength(5);
-    expect(nextStep).toHaveBeenCalledWith();
   });
 });

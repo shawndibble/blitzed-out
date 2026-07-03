@@ -483,20 +483,20 @@
   "chooseRoomType": "Tu Sala Privada",
   "playerTopology": {
     "stepLabel": "Configuración de jugadores",
-    "title": "¿Cómo vas a jugar?",
-    "subtitle": "Elige tu configuración primero. Los ajustes de sala y otros vienen después.",
+    "title": "¿Cómo vais a jugar hoy?",
+    "subtitle": "Elige una opción para empezar — podrás ajustarlo todo después.",
     "solo": {
-      "title": "Solo",
-      "description": "Juega solo en este dispositivo.",
+      "title": "Solo yo",
+      "description": "Juega en solitario en este dispositivo.",
       "private": "Jugar en privado"
     },
     "shared": {
-      "title": "Dispositivo compartido",
-      "description": "Pasa un dispositivo entre 2–4 jugadores locales."
+      "title": "Pasa y juega",
+      "description": "Un dispositivo, 2–4 jugadores, pasadlo entre vosotros."
     },
     "online": {
-      "title": "Dispositivos individuales",
-      "description": "Cada jugador se une desde su propio dispositivo en una sala privada compartida.",
+      "title": "Sala de fiesta",
+      "description": "Cada uno se une desde su propio móvil.",
       "offlineTooltip": "Los dispositivos individuales requieren conexión a internet."
     }
   },
@@ -749,7 +749,6 @@
   "done": "Listo",
   "starters": "Para empezar",
   "spiceLevel": "Nivel de picante",
-  "pickedCount": "{{count}} de {{max}} seleccionados",
   "pickedCountMax": "Máximo {{max}} — quita uno primero",
   "levelSheetHint": "Elige los niveles que quieras — no tienen que ser consecutivos.",
   "levelNumber": "Nivel {{level}}",
@@ -762,5 +761,33 @@
   },
   "explorePacks": "Explora packs de la comunidad",
   "explorePacksDesc": "Añade conjuntos de acciones creados por otros jugadores.",
-  "backToActions": "Volver a las acciones"
+  "backToActions": "Volver a las acciones",
+  "packCreator": {
+    "title": "Crear un pack",
+    "editTitle": "Editar pack: {{name}}",
+    "stepContent": "Contenido",
+    "stepDetails": "Detalles",
+    "stepPublish": "Publicar",
+    "editExisting": "O actualiza uno de tus packs",
+    "noGroups": "Aún no hay grupos publicables. Crea un grupo y añádele algunas acciones.",
+    "newGroup": "Nuevo grupo",
+    "quickAddTile": "Añadir una acción",
+    "addAction": "Añadir acción",
+    "tileAdded": "Acción añadida.",
+    "reviewGroups": "{{count}} grupos en este pack",
+    "willBePublic": "Aparecerá en el directorio público.",
+    "willBePrivate": "Oculto — solo quienes tengan el enlace podrán importarlo.",
+    "willBumpVersion": "Publicar actualiza este pack a la versión {{version}}",
+    "republish": "Publicar actualización",
+    "tabTeaser": "Agrupa tus grupos personalizados en un pack compartible con un flujo guiado.",
+    "openCta": "Crear un pack"
+  },
+  "soloPrivacy": {
+    "title": "¿Dónde quieres jugar?",
+    "publicTitle": "Sala pública",
+    "publicDesc": "Juega en la sala PUBLIC compartida — ve el chat y los tableros de otros.",
+    "privateTitle": "Sala privada",
+    "privateDesc": "Tu propio código de sala — solo para ti."
+  },
+  "maxSelections": "Selecciones máximas: {{max}}"
 }

@@ -63,6 +63,8 @@ export default function ActionsStep({
   const [customized, setCustomized] = useState<Set<string>>(new Set());
   const [sheetGroup, setSheetGroup] = useState<string | null>(null);
   const [directoryOpen, setDirectoryOpen] = useState(false);
+  // Groups that just arrived via a pack import — pulsed briefly for attention.
+  const [recentImports, setRecentImports] = useState<Set<string>>(new Set());
   const contentGameMode = getContentGameMode(formData.gameMode);
   const [directoryGameMode, setDirectoryGameMode] = useState<string>(contentGameMode);
 
@@ -138,6 +140,11 @@ export default function ActionsStep({
   };
 
   const editLevels = (group: string, levels: number[]) => {
+    // Unchecking every level removes the group — keep `customized` in sync.
+    if (levels.length === 0) {
+      removeGroup(group);
+      return;
+    }
     const entry = formData.selectedActions?.[group] as ActionEntry | undefined;
     markCustomized(group);
     handleLevelsChange(
@@ -217,10 +224,12 @@ export default function ActionsStep({
 
     let actionSlots = MAX_ACTIONS - Object.keys(selectedActionGroups).length;
     let consumeSlots = MAX_CONSUME - Object.keys(selectedConsumptions).length;
+    const arrived: string[] = [];
     justImported.forEach((group) => {
-      if (formData.selectedActions?.[group.name]) return;
       const isConsumption = group.type === 'consumption';
       if (!isConsumption && group.type !== actionType) return;
+      arrived.push(group.name);
+      if (formData.selectedActions?.[group.name]) return;
       if (isConsumption ? consumeSlots <= 0 : actionSlots <= 0) return;
       if (isConsumption) consumeSlots -= 1;
       else actionSlots -= 1;
@@ -233,6 +242,11 @@ export default function ActionsStep({
         isConsumption ? (formData.isAppend ? 'appendMost' : 'standalone') : null
       );
     });
+
+    if (arrived.length) {
+      setRecentImports(new Set(arrived));
+      setTimeout(() => setRecentImports(new Set()), 6000);
+    }
   };
 
   const variationChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -319,7 +333,7 @@ export default function ActionsStep({
         selectedPreset={selectedPreset}
         actionsList={actionsList}
         showTitle={false}
-        horizontal
+        compact
       />
 
       <Divider sx={{ my: 2 }} />
@@ -336,6 +350,7 @@ export default function ActionsStep({
           onSelect={(group) => selectGroup(group, 'action')}
           onEdit={setSheetGroup}
           onRemove={removeGroup}
+          highlighted={recentImports}
         />
       </Box>
 
@@ -350,6 +365,7 @@ export default function ActionsStep({
             onSelect={(group) => selectGroup(group, 'consumption')}
             onEdit={setSheetGroup}
             onRemove={removeGroup}
+            highlighted={recentImports}
           />
           {Object.keys(selectedConsumptions).length > 0 && (
             <Box sx={{ mt: 1 }}>

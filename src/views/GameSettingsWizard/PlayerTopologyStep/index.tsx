@@ -1,5 +1,16 @@
-import { Box, Card, CardContent, Grid, Stack, Tooltip, Typography, Chip } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  Stack,
+  Tooltip,
+  Typography,
+  Chip,
+} from '@mui/material';
+import { Trans, useTranslation } from 'react-i18next';
+import ButtonRow from '@/components/ButtonRow';
 import { customAlphabet } from 'nanoid';
 import { useEffect, useState } from 'react';
 import { isOffline } from '@/helpers/networkStatus';
@@ -36,8 +47,8 @@ export default function PlayerTopologyStep({
 
   const selectSolo = () => {
     setFormData((prev) => {
-      // Preserve an existing private solo room; default newcomers to PUBLIC.
-      const keepPrivate = prev.gameMode === 'solo' && prev.room !== 'PUBLIC';
+      // Preserve an existing private solo room; a missing/empty room is public.
+      const keepPrivate = prev.gameMode === 'solo' && !!prev.room && prev.room !== 'PUBLIC';
       return {
         ...prev,
         gameMode: 'solo',
@@ -49,8 +60,15 @@ export default function PlayerTopologyStep({
         localPlayerSessionSettings: undefined,
       };
     });
+  };
+
+  const handleNext = () => {
     // Solo skips the room/local-players screen entirely.
-    nextStep(2);
+    if (formData.gameMode === 'solo') {
+      nextStep(2);
+    } else {
+      nextStep();
+    }
   };
 
   const selectSharedDevice = () => {
@@ -61,7 +79,6 @@ export default function PlayerTopologyStep({
       room: generateRoomCode(),
       roomRealtime: false,
     }));
-    nextStep();
   };
 
   const selectIndividualDevices = () => {
@@ -77,34 +94,30 @@ export default function PlayerTopologyStep({
       localPlayersData: undefined,
       localPlayerSessionSettings: undefined,
     }));
-    nextStep();
   };
 
   const cards = [
     {
       id: 'solo',
-      title: t('playerTopology.solo.title', 'Solo'),
-      description: t('playerTopology.solo.description', 'Play by yourself on this device.'),
+      title: t('playerTopology.solo.title', 'Just Me'),
+      description: t('playerTopology.solo.description', 'Play solo on this device.'),
       selected: formData.gameMode === 'solo',
       onClick: selectSolo,
     },
     {
       id: 'local',
-      title: t('playerTopology.shared.title', 'Shared Device'),
+      title: t('playerTopology.shared.title', 'Pass & Play'),
       description: t(
         'playerTopology.shared.description',
-        'Pass one device around with 2-4 local players.'
+        'One device, 2-4 players, pass it around.'
       ),
       selected: formData.gameMode === 'local',
       onClick: selectSharedDevice,
     },
     {
       id: 'online',
-      title: t('playerTopology.online.title', 'Individual Devices'),
-      description: t(
-        'playerTopology.online.description',
-        'Each player joins from their own phone, tablet, or computer.'
-      ),
+      title: t('playerTopology.online.title', 'Party Room'),
+      description: t('playerTopology.online.description', 'Everyone joins from their own phone.'),
       selected: formData.gameMode === 'online',
       disabled: offline,
       onClick: selectIndividualDevices,
@@ -122,7 +135,7 @@ export default function PlayerTopologyStep({
           mb: 1,
         }}
       >
-        {t('playerTopology.title', 'How are you playing?')}
+        {t('playerTopology.title', 'How are you playing tonight?')}
       </Typography>
       <Typography
         variant="body1"
@@ -132,10 +145,7 @@ export default function PlayerTopologyStep({
           mb: 3,
         }}
       >
-        {t(
-          'playerTopology.subtitle',
-          'Choose the player setup first. Room settings come next when needed.'
-        )}
+        {t('playerTopology.subtitle', 'Pick one to jump in — you can fine-tune everything later.')}
       </Typography>
       <Grid container spacing={2}>
         {cards.map((card) => {
@@ -214,6 +224,18 @@ export default function PlayerTopologyStep({
           );
         })}
       </Grid>
+      <Box sx={{ flexGrow: 1 }} />
+      <ButtonRow justifyContent="center">
+        <Button
+          variant="contained"
+          onClick={handleNext}
+          data-testid="next"
+          disabled={!formData.gameMode}
+          size="large"
+        >
+          <Trans i18nKey="next" />
+        </Button>
+      </ButtonRow>
     </Box>
   );
 }

@@ -17,6 +17,7 @@ import ToastAlert from '@/components/ToastAlert';
 import TurnTransition from '@/components/TurnTransition';
 import clsx from 'clsx';
 import { getActiveBoard } from '@/stores/gameBoard';
+import { isPublicRoom } from '@/helpers/strings';
 import getBackgroundSource from '@/services/getBackgroundSource';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import useHybridPlayerList from '@/hooks/useHybridPlayerList';
@@ -125,7 +126,7 @@ export default function Room() {
     const selectedActions = settings.selectedActions || {};
     analytics.trackGameStarted({
       topology: settings.gameMode || 'unknown',
-      room_type: room.toUpperCase() === 'PUBLIC' ? 'public' : 'private',
+      room_type: isPublicRoom(room) ? 'public' : 'private',
       group_count: Object.keys(selectedActions).length,
       board_size: gameBoard.length,
     });

@@ -304,16 +304,20 @@ describe('Analytics Service', () => {
   });
 
   describe('Content Pack Tracking', () => {
-    it('should track pack lifecycle events by name', () => {
-      analytics.trackPackEvent('pack_imported', { group_count: 2, tile_count: 40 });
+    it.each([
+      ['pack_imported', { group_count: 2, tile_count: 40 }],
+      ['pack_published', { visibility: 'public', group_count: 3, tile_count: 12 }],
+      ['pack_directory_viewed', {}],
+      ['pack_previewed', { group_count: 1, tile_count: 5 }],
+    ] as const)('should track %s with the content_packs category', (eventName, params) => {
+      analytics.trackPackEvent(eventName, params);
 
       expect(mockGtag).toHaveBeenCalledWith(
         'event',
-        'pack_imported',
+        eventName,
         expect.objectContaining({
           event_category: 'content_packs',
-          group_count: 2,
-          tile_count: 40,
+          ...params,
         })
       );
     });

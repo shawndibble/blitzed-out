@@ -1,12 +1,13 @@
 import { ActionEntry } from '@/types';
 import { CustomGroupIntensity } from '@/types/customGroups';
 import {
-  BaseAnalyticsEvent,
+  AnalyticsEventInput,
   SettingsChangeEvent,
   ActionSelectionEvent,
   FeatureUsageEvent,
   GameModeEvent,
   CustomGroupEvent,
+  PackLifecycleEvent,
   PlayerRole,
   ThemeMode,
   GroupType,
@@ -61,7 +62,7 @@ class AnalyticsService {
   }
 
   // Generic event tracking
-  private trackEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
+  private trackEvent(eventName: string, parameters: AnalyticsEventInput = {}) {
     if (!this.canTrack()) return;
 
     // Add session context to all events for better user journey analysis
@@ -264,7 +265,7 @@ class AnalyticsService {
   }
 
   // Track custom events with parameters
-  trackCustomEvent(eventName: string, parameters: BaseAnalyticsEvent = {}) {
+  trackCustomEvent(eventName: string, parameters: AnalyticsEventInput = {}) {
     this.trackEvent(eventName, parameters);
   }
 
@@ -354,8 +355,14 @@ class AnalyticsService {
     });
   }
 
-  trackGameFinished(rollCount: number, durationMs: number, gameMode: string, playerCount: number) {
-    this.trackEvent('game_finished', {
+  private trackGameEnd(
+    eventName: 'game_finished' | 'game_abandoned',
+    rollCount: number,
+    durationMs: number,
+    gameMode: string,
+    playerCount: number
+  ) {
+    this.trackEvent(eventName, {
       event_category: 'gameplay',
       event_label: gameMode,
       roll_count: rollCount,
@@ -365,15 +372,12 @@ class AnalyticsService {
     });
   }
 
+  trackGameFinished(rollCount: number, durationMs: number, gameMode: string, playerCount: number) {
+    this.trackGameEnd('game_finished', rollCount, durationMs, gameMode, playerCount);
+  }
+
   trackGameAbandoned(rollCount: number, durationMs: number, gameMode: string, playerCount: number) {
-    this.trackEvent('game_abandoned', {
-      event_category: 'gameplay',
-      event_label: gameMode,
-      roll_count: rollCount,
-      value: durationMs,
-      game_mode: gameMode,
-      player_count: playerCount,
-    });
+    this.trackGameEnd('game_abandoned', rollCount, durationMs, gameMode, playerCount);
   }
 
   // --- Content pack lifecycle ---
@@ -386,7 +390,7 @@ class AnalyticsService {
       | 'pack_published'
       | 'pack_creation_started'
       | 'pack_creation_completed',
-    params: BaseAnalyticsEvent & Record<string, string | number | undefined> = {}
+    params: PackLifecycleEvent = {}
   ) {
     this.trackEvent(eventName, {
       event_category: 'content_packs',
