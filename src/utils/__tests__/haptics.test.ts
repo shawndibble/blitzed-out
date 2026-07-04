@@ -1,21 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach, MockedFunction } from 'vitest';
-import { haptic } from 'ios-haptics';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { isHapticSupported, vibrate } from '../haptics';
-
-vi.mock('ios-haptics', () => {
-  const mockFn = vi.fn() as MockedFunction<() => void> & {
-    error: MockedFunction<() => void>;
-    confirm: MockedFunction<() => void>;
-  };
-  mockFn.error = vi.fn();
-  mockFn.confirm = vi.fn();
-  return { haptic: mockFn };
-});
-
-const mockedHaptic = haptic as unknown as MockedFunction<() => void> & {
-  error: MockedFunction<() => void>;
-  confirm: MockedFunction<() => void>;
-};
 
 describe('haptics', () => {
   let originalNavigator: Navigator;
@@ -30,6 +14,7 @@ describe('haptics', () => {
       value: originalNavigator,
       writable: true,
     });
+    vi.useRealTimers();
   });
 
   describe('isHapticSupported', () => {
@@ -75,26 +60,72 @@ describe('haptics', () => {
   });
 
   describe('vibrate', () => {
-    it('calls haptic once for short pattern', () => {
-      vibrate('short');
-      expect(mockedHaptic).toHaveBeenCalledTimes(1);
-    });
-
-    it('calls haptic twice for medium pattern', () => {
-      vibrate('medium');
-      expect(mockedHaptic).toHaveBeenCalledTimes(2);
-    });
-
-    it('calls haptic.error for warning pattern', () => {
-      vibrate('warning');
-      expect(mockedHaptic.error).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not throw when haptic fails', () => {
-      mockedHaptic.mockImplementationOnce(() => {
-        throw new Error('Haptic failed');
+    it('vibrates once for short pattern', () => {
+      const vibrateMock = vi.fn();
+      Object.defineProperty(global, 'navigator', {
+        value: { vibrate: vibrateMock, userAgent: '' },
+        writable: true,
       });
+      vibrate('short');
+      expect(vibrateMock).toHaveBeenCalledWith([50]);
+    });
 
+    it('uses a longer sequence for medium pattern', () => {
+      const vibrateMock = vi.fn();
+      Object.defineProperty(global, 'navigator', {
+        value: { vibrate: vibrateMock, userAgent: '' },
+        writable: true,
+      });
+      vibrate('medium');
+      expect(vibrateMock).toHaveBeenCalledWith([50, 70, 50]);
+    });
+
+    it('uses the longest sequence for warning pattern', () => {
+      const vibrateMock = vi.fn();
+      Object.defineProperty(global, 'navigator', {
+        value: { vibrate: vibrateMock, userAgent: '' },
+        writable: true,
+      });
+      vibrate('warning');
+      expect(vibrateMock).toHaveBeenCalledWith([50, 70, 50, 70, 50]);
+    });
+
+    it('falls back to the iOS switch-checkbox trick when vibrate is unavailable', () => {
+      vi.useFakeTimers();
+      Object.defineProperty(global, 'navigator', {
+        value: { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4)' },
+        writable: true,
+      });
+      const clickSpy = vi.spyOn(HTMLElement.prototype, 'click');
+      vibrate('warning');
+      vi.runAllTimers();
+      expect(clickSpy).toHaveBeenCalledTimes(3);
+      clickSpy.mockRestore();
+    });
+
+    it('does nothing on unsupported platforms', () => {
+      vi.useFakeTimers();
+      Object.defineProperty(global, 'navigator', {
+        value: { userAgent: 'Mozilla/5.0 (Windows NT 10.0)' },
+        writable: true,
+      });
+      const clickSpy = vi.spyOn(HTMLElement.prototype, 'click');
+      vibrate('short');
+      vi.runAllTimers();
+      expect(clickSpy).not.toHaveBeenCalled();
+      clickSpy.mockRestore();
+    });
+
+    it('does not throw when vibrate fails', () => {
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          vibrate: () => {
+            throw new Error('Vibrate failed');
+          },
+          userAgent: '',
+        },
+        writable: true,
+      });
       expect(() => vibrate('short')).not.toThrow();
     });
   });
