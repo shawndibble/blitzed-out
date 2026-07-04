@@ -166,5 +166,48 @@ describe('contentReadiness', () => {
       await waitForContentReady('en', { trigger: false });
       expect(serviceMocks.ensureLanguageMigrated).not.toHaveBeenCalled();
     });
+
+    it('does not hang on a malformed lock record (no parseable startedAt)', async () => {
+      vi.useFakeTimers();
+      // Legacy/corrupt lock: inProgress with no startedAt — statusManager's
+      // stale-cleanup can never expire it, so the guard must not wait on it.
+      localStorage.setItem(
+        'blitzed-out-migration-in-progress',
+        JSON.stringify({ inProgress: true })
+      );
+
+      let done = false;
+      const pending = waitForContentReady('en', { trigger: false }).then(() => {
+        done = true;
+      });
+
+      await vi.advanceTimersByTimeAsync(1000);
+      await pending;
+
+      expect(done).toBe(true);
+    });
+
+    it('caps total cross-tab wait even when a lock keeps refreshing its startedAt', async () => {
+      vi.useFakeTimers();
+      setLanguageMigrationInProgress('en', true);
+      // Adversarial lock that always looks fresh: rewrite startedAt each poll.
+      const refresher = setInterval(() => {
+        localStorage.setItem(
+          'blitzed-out-current-language-migration',
+          JSON.stringify({ inProgress: true, language: 'en', startedAt: new Date().toISOString() })
+        );
+      }, 25);
+
+      let done = false;
+      const pending = waitForContentReady('en', { trigger: false }).then(() => {
+        done = true;
+      });
+
+      await vi.advanceTimersByTimeAsync(MIGRATION_TIMEOUT + 1000);
+      clearInterval(refresher);
+      await pending;
+
+      expect(done).toBe(true);
+    });
   });
 });

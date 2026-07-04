@@ -54,9 +54,11 @@ const inFlight = new Map<string, Promise<void>>();
 const failedLocales = new Map<string, string>();
 
 let appStartTracked = false;
-let integrityChecked = false;
+let integrityCheck: Promise<void> | null = null;
 
-const currentLocale = (): string => i18next.resolvedLanguage || 'en';
+// Same fallback chain as the guarded queries (contentLibrary/customGroups) —
+// a mismatch would seed one locale while the query filters by another.
+const currentLocale = (): string => i18next.resolvedLanguage || i18next.language || 'en';
 
 function computePhase(locale: string): { phase: ContentReadinessPhase; error: string | null } {
   if (isCurrentLanguageMigrationCompleted(locale)) return { phase: 'ready', error: null };
@@ -149,7 +151,11 @@ function seedingLockDeadline(locale: string): number | null {
   for (const [active, key] of locks) {
     if (!active) continue;
     const startedAt = Date.parse(readLock(key)?.startedAt ?? '');
-    const lockDeadline = (Number.isNaN(startedAt) ? now : startedAt) + MIGRATION_TIMEOUT;
+    // A lock without a parseable startedAt can never be stale-cleaned by
+    // statusManager either — treat it as already expired rather than waiting
+    // on a record that will outlive every cap.
+    if (Number.isNaN(startedAt)) continue;
+    const lockDeadline = startedAt + MIGRATION_TIMEOUT;
     if (lockDeadline > now && (deadline === null || lockDeadline > deadline)) {
       deadline = lockDeadline;
     }
@@ -160,7 +166,11 @@ function seedingLockDeadline(locale: string): number | null {
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 async function waitForCrossTabSeeding(locale: string): Promise<void> {
-  while (seedingLockDeadline(locale) !== null) {
+  // Hard total cap independent of per-lock deadlines (the deleted
+  // migrationGuard had one): no lock state, however malformed or refreshed,
+  // may hold every caller hostage past one timeout window.
+  const cap = Date.now() + MIGRATION_TIMEOUT;
+  while (seedingLockDeadline(locale) !== null && Date.now() < cap) {
     await sleep(LOCK_POLL_INTERVAL);
     // Seeding may have started in this tab meanwhile — join it.
     const pending = inFlight.get(locale);
@@ -228,17 +238,22 @@ async function trackAppStartOnce(): Promise<void> {
  * "complete" over an empty Dexie would make the fast path lie forever, so
  * reset the status and let seeding re-run.
  */
-async function verifyIntegrityOnce(): Promise<void> {
-  if (integrityChecked) return;
-  integrityChecked = true;
-  try {
-    const { verifyMigrationIntegrity, fixMigrationStatusCorruption } =
-      await import('@/services/migrationService');
-    const intact = await verifyMigrationIntegrity(currentLocale(), 'online');
-    if (!intact) fixMigrationStatusCorruption();
-  } catch {
-    // Non-blocking: seeding proceeds against whatever status remains.
+function verifyIntegrityOnce(): Promise<void> {
+  // Memoize the promise, not a flag: a second init during an in-flight check
+  // must wait for the corruption reset, or it seeds against the lying status.
+  if (!integrityCheck) {
+    integrityCheck = (async () => {
+      try {
+        const { verifyMigrationIntegrity, fixMigrationStatusCorruption } =
+          await import('@/services/migrationService');
+        const intact = await verifyMigrationIntegrity(currentLocale(), 'online');
+        if (!intact) fixMigrationStatusCorruption();
+      } catch {
+        // Non-blocking: seeding proceeds against whatever status remains.
+      }
+    })();
   }
+  return integrityCheck;
 }
 
 /**
@@ -289,6 +304,6 @@ export function __resetContentReadinessForTests(): void {
   inFlight.clear();
   failedLocales.clear();
   appStartTracked = false;
-  integrityChecked = false;
+  integrityCheck = null;
   useMigrationStatus.setState(computePhase(currentLocale()));
 }

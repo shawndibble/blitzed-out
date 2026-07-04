@@ -27,6 +27,9 @@ vi.mock('@/stores/contentLibrary', () => ({ getActiveTiles: vi.fn(async () => []
 // The hook resolves both live queries through useLiveQuery; feed it the board
 // for the getActiveBoard querier and mode-fresh tile arrays otherwise, so a
 // contentMode switch produces a new customTiles reference (as it would live).
+// Known limitation: this mock ignores the deps array, so it pins the
+// settingsSent guard but NOT the [contentMode] resubscription itself — that
+// stale-querier behavior lives in dexie-react-hooks, not code we own.
 vi.mock('dexie-react-hooks', () => ({
   useLiveQuery: vi.fn((querier: () => unknown) =>
     querier === getActiveBoard ? mockBoard : [{ id: 1, action: 'tile' }]
