@@ -356,7 +356,12 @@ export default function Room() {
       <ToastAlert
         type={packToast?.type || 'error'}
         open={!!packToast}
-        close={() => setPackToast(null)}
+        close={() => {
+          setPackToast(null);
+          // Also clear the hook's `failed` flag, else the effect re-fires the
+          // error toast on the next re-render (e.g. a language switch).
+          dismissPack();
+        }}
       >
         {packToast?.message}
       </ToastAlert>

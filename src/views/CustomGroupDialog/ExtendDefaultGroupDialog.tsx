@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -49,7 +49,10 @@ export default function ExtendDefaultGroupDialog({
 }: ExtendDefaultGroupDialogProps) {
   const { t } = useTranslation();
 
-  const [newLabels, setNewLabels] = useState<string[]>([]);
+  // Each row carries a stable id so removing one never shifts another's key
+  // (array-index keys break focus/DOM identity on filter).
+  const [newLabels, setNewLabels] = useState<{ id: string; label: string }[]>([]);
+  const labelIdCounter = useRef(0);
   const [removedValues, setRemovedValues] = useState<Set<number>>(new Set());
   const [tileCountByValue, setTileCountByValue] = useState<Record<number, number>>({});
   const [errors, setErrors] = useState<string[]>([]);
@@ -106,11 +109,14 @@ export default function ExtendDefaultGroupDialog({
 
   const handleAdd = () => {
     if (ladderFull) return;
-    setNewLabels((prev) => [...prev, '']);
+    setNewLabels((prev) => [...prev, { id: `nl-${labelIdCounter.current++}`, label: '' }]);
   };
 
   const handleSave = async () => {
-    const validation = validateGroupExtension(keptLevels, newLabels);
+    const validation = validateGroupExtension(
+      keptLevels,
+      newLabels.map((entry) => entry.label)
+    );
     if (!validation.isValid) {
       setErrors(validation.errors);
       return;
@@ -122,10 +128,9 @@ export default function ExtendDefaultGroupDialog({
       // gap left by a removed level. Append-only sync merges by value, so
       // reusing a freed value lets two devices bind the same value to
       // different labels — a permanent, unresolvable divergence.
-      let nextValue = highestValue + 1;
-      const additions = newLabels.map((label) => ({
-        value: nextValue++,
-        label: label.trim(),
+      const additions = newLabels.map((entry, index) => ({
+        value: highestValue + index + 1,
+        label: entry.label.trim(),
       }));
 
       const { merged, added, skipped } = appendIntensities(keptLevels, additions, group.name);
@@ -223,12 +228,14 @@ export default function ExtendDefaultGroupDialog({
           );
         })}
 
-        {newLabels.map((label, index) => (
-          <Box key={`new-${index}`} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+        {newLabels.map((entry) => (
+          <Box key={entry.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <TextField
-              value={label}
+              value={entry.label}
               onChange={(e) =>
-                setNewLabels((prev) => prev.map((l, i) => (i === index ? e.target.value : l)))
+                setNewLabels((prev) =>
+                  prev.map((l) => (l.id === entry.id ? { ...l, label: e.target.value } : l))
+                )
               }
               placeholder={t('customGroups.newLevelPlaceholder')}
               size="small"
@@ -238,7 +245,7 @@ export default function ExtendDefaultGroupDialog({
             <IconButton
               size="small"
               aria-label="remove new level"
-              onClick={() => setNewLabels((prev) => prev.filter((_, i) => i !== index))}
+              onClick={() => setNewLabels((prev) => prev.filter((l) => l.id !== entry.id))}
               color="error"
             >
               <DeleteIcon fontSize="small" />

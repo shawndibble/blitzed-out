@@ -48,7 +48,10 @@ interface ImportContext {
 // mixed payload's last section clobber the first, misdirecting extensions and
 // tiles onto the wrong group's ladder. Key by the full identity instead.
 function groupKey(name: string, locale: string, gameMode: string): string {
-  return `${name}|${locale}|${gameMode}`;
+  // Raw import JSON isn't constrained to known locale/gameMode enums here, and
+  // group names are user-authored, so a plain `|` join could be ambiguous
+  // (e.g. name "a|b" vs locale "b"). JSON-encode for a collision-proof key.
+  return JSON.stringify([name, locale, gameMode]);
 }
 
 interface ProgressCallback {
