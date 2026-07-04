@@ -48,7 +48,7 @@ export default function usePrivateRoomMonitor(
 
   const [settings, updateSettings] = useSettings();
   const contentMode = useContentMode();
-  const customTiles = useLiveQuery(() => getActiveTiles(contentMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(contentMode), [contentMode]);
   const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState<string>(DEFAULT_DIEM);
   const [roomBgUrl, setRoomBgUrl] = useState<string>('');

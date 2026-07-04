@@ -30,7 +30,7 @@ export function useGameSettingsWiring(): GameSettingsWiring {
   const updateGameBoardTiles = useGameBoard();
   const [settings, updateSettings] = useSettings();
   const contentMode = useContentMode();
-  const customTiles = useLiveQuery(() => getActiveTiles(contentMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(contentMode), [contentMode]);
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();

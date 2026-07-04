@@ -39,7 +39,7 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
   const { i18n } = useTranslation();
   const [settings] = useSettings();
   const contentMode = useContentMode();
-  const customTiles = useLiveQuery(() => getActiveTiles(contentMode));
+  const customTiles = useLiveQuery(() => getActiveTiles(contentMode), [contentMode]);
   const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
 
   const sendSettings = useCallback(async (): Promise<void> => {
