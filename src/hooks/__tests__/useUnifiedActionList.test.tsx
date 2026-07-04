@@ -31,21 +31,6 @@ vi.mock('@/stores/customTiles', () => ({
   getTileCountsByGroup: vi.fn(),
 }));
 
-// Mock migration context
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    isHealthy: true,
-    recoveryAttempted: false,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-    forceRecovery: vi.fn(),
-  }),
-}));
-
 describe('useUnifiedActionList - Core Functionality', () => {
   beforeEach(() => {
     vi.clearAllMocks();

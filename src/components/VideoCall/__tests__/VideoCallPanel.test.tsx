@@ -2,17 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import VideoCallPanel from '../VideoCallPanel';
 
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-}));
-
 vi.mock('@/stores/videoCallStore', () => ({
   useVideoCallStore: (selector: any) => {
     const state = {

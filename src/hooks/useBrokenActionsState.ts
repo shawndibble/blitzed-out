@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { GroupedActions } from '@/types/customTiles';
-import { useMigration } from '@/context/migration';
+import { useMigrationStatus } from '@/services/migration/contentReadiness';
 
 interface UseBrokenActionsStateReturn {
   isBroken: boolean;
@@ -8,38 +8,24 @@ interface UseBrokenActionsStateReturn {
 }
 
 /**
- * Custom hook to detect when the actions list is in a broken state.
- * A broken state occurs when loading is complete, migration is finished,
- * but no actions are available.
+ * Detect when the actions list is genuinely broken: loading finished, content
+ * for the current locale is ready, yet no actions exist. Seeding suppresses
+ * broken (content is still arriving); degraded suppresses broken too — a
+ * transient seeding failure must never route users to the wipe-data screen.
  */
 export default function useBrokenActionsState(
   actionsList: GroupedActions,
   isLoading: boolean
 ): UseBrokenActionsStateReturn {
-  const { isMigrationInProgress, currentLanguageMigrated } = useMigration();
+  const { phase } = useMigrationStatus();
 
   return useMemo(() => {
-    // Don't show broken state if currently loading actions
-    if (isLoading) {
+    if (isLoading || phase !== 'ready') {
       return { isBroken: false, hasNoActions: false };
     }
 
-    // Don't show broken state if migration is still in progress
-    if (isMigrationInProgress) {
-      return { isBroken: false, hasNoActions: false };
-    }
-
-    // Don't show broken state if current language hasn't finished migrating
-    if (!currentLanguageMigrated) {
-      return { isBroken: false, hasNoActions: false };
-    }
-
-    // Check if we have no actions available
     const hasNoActions = !actionsList || Object.keys(actionsList).length === 0;
 
-    // Only consider it broken if all loading/migration is complete but no actions available
-    const isBroken = hasNoActions;
-
-    return { isBroken, hasNoActions };
-  }, [actionsList, isLoading, isMigrationInProgress, currentLanguageMigrated]);
+    return { isBroken: hasNoActions, hasNoActions };
+  }, [actionsList, isLoading, phase]);
 }

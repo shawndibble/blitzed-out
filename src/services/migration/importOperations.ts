@@ -8,7 +8,7 @@ import {
   removeDuplicateGroups,
   updateCustomGroup,
 } from '@/stores/customGroups';
-import { importCustomTiles, getTiles } from '@/stores/customTiles';
+import { importCustomTiles, getTilesUnguarded } from '@/stores/customTiles';
 import { mergeSeedIntensities } from '@/services/intensityMerge';
 import { CustomGroupBase } from '@/types/customGroups';
 import { CustomTileBase } from '@/types/customTiles';
@@ -158,7 +158,9 @@ const getNewTiles = async (
     // Validate all tiles have proper group_id
     validateTilesHaveGroupId(customTiles);
 
-    const existingTiles = await getTiles({ group_id: groupId });
+    // Unguarded core: the readiness guard would deadlock here — this runs
+    // inside the seeding whose completion the guard waits on.
+    const existingTiles = await getTilesUnguarded({ group_id: groupId });
 
     if (!existingTiles || !Array.isArray(existingTiles)) {
       return customTiles; // If no existing tiles, all tiles are new

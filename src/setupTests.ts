@@ -531,17 +531,12 @@ vi.mock('@mui/icons-material', () => {
   );
 });
 
-// Mock migration context
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-  MigrationProvider: ({ children }: { children: React.ReactNode }) => children,
+// Mock content readiness (seeded-content gate). Plain functions, not vi.fn(),
+// so vi.clearAllMocks in afterEach cannot wipe the implementations.
+vi.mock('@/services/migration/contentReadiness', () => ({
+  waitForContentReady: () => Promise.resolve(),
+  initContentReadiness: () => () => {},
+  useMigrationStatus: () => ({ phase: 'ready', error: null, retry: () => Promise.resolve() }),
 }));
 
 // Mock window.matchMedia (for MUI responsive components). Keep this as a plain

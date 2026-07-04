@@ -5,7 +5,7 @@ import type { ContentGameMode } from '@/types/Settings';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
 import { retryOnCursorError } from '@/utils/dbRecovery';
-import { waitForMigration } from '@/utils/migrationGuard';
+import { waitForContentReady } from '@/services/migration/contentReadiness';
 import { normalizePlaceholders } from '@/services/placeholderAliasService';
 
 const { customTiles } = db;
@@ -111,12 +111,16 @@ const createFilteredQuery = (filters: Partial<CustomTileFilters>) => {
   return query;
 };
 
-export const getTiles = async (
+/**
+ * Unguarded query core. Seeding internals (migration importOperations) MUST
+ * use this instead of getTiles: the public guard awaits content readiness,
+ * and a migration awaiting itself would deadlock (previously a latent 30s
+ * lock-spin inside the seeding 'rw' transaction).
+ */
+export const getTilesUnguarded = async (
   filters: Omit<CustomTileFilters, 'page' | 'limit' | 'paginated'> = {}
 ): Promise<CustomTilePull[]> => {
   try {
-    await waitForMigration();
-
     return await retryOnCursorError(
       db,
       async () => {
@@ -124,13 +128,25 @@ export const getTiles = async (
         return await query.toArray();
       },
       (message: string, error?: Error) => {
-        console.error(`Error in getTiles: ${message}`, error);
+        console.error(`Error in getTilesUnguarded: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in getTiles:', error);
+    console.error('Final error in getTilesUnguarded:', error);
     return [];
   }
+};
+
+/**
+ * UI-facing tile query. Waits for content readiness but never initiates
+ * seeding (trigger: false): sync paths — a first-login cloud pull — must not
+ * start seeding, and liveQuery callers fast-path synchronously once seeded.
+ */
+export const getTiles = async (
+  filters: Omit<CustomTileFilters, 'page' | 'limit' | 'paginated'> = {}
+): Promise<CustomTilePull[]> => {
+  await waitForContentReady(filters.locale, { trigger: false });
+  return getTilesUnguarded(filters);
 };
 
 export const getPaginatedTiles = async (
@@ -178,6 +194,8 @@ export const getTileCountsByGroup = async (
   tags: string[] | string | null = null
 ): Promise<Record<string, { count: number; intensities: Record<number, number> }>> => {
   try {
+    await waitForContentReady(locale);
+
     // Step 1: Get relevant group IDs first (much smaller dataset - ~15-20 groups vs 4000+ tiles)
     const { getCustomGroups } = await import('./customGroups');
     const relevantGroups = await getCustomGroups({

@@ -12,7 +12,7 @@ import i18next from 'i18next';
 import { nanoid } from 'nanoid';
 import { retryOnCursorError } from '@/utils/dbRecovery';
 import { analyticsTracking } from '@/services/analyticsTracking';
-import { waitForMigration } from '@/utils/migrationGuard';
+import { waitForContentReady } from '@/services/migration/contentReadiness';
 
 const { customGroups } = db;
 
@@ -444,7 +444,9 @@ export const getAllAvailableGroups = async (
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
   try {
-    await waitForMigration();
+    // Key readiness on the locale ARGUMENT, not the current language — a
+    // caller asking for another locale's groups needs THAT locale seeded.
+    await waitForContentReady(locale);
 
     // Ensure database is ready before any operations (skip in test environment)
     if (typeof db.isOpen === 'function' && !db.isOpen()) {
@@ -492,6 +494,10 @@ export const getAllAvailableGroups = async (
  */
 export const getGroupsWithTiles = async (gameMode = 'online'): Promise<CustomGroupPull[]> => {
   try {
+    // Wizard-critical: on a fresh install the first read must resolve
+    // post-seeding, or the actions step renders an empty directory.
+    await waitForContentReady();
+
     return await retryOnCursorError(
       db,
       async () => {

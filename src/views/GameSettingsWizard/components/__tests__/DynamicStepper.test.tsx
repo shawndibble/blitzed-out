@@ -22,17 +22,6 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-}));
-
 vi.mock('@mui/material', async () => {
   const actual = await vi.importActual('@mui/material');
   return {

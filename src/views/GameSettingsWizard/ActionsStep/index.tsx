@@ -13,6 +13,7 @@ import { ActionEntry, FormData, VALID_GROUP_TYPES } from '@/types';
 import { Trans, useTranslation } from 'react-i18next';
 import { handleLevelsChange, hasValidSelections, purgedFormData } from './helpers';
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
+import { useMigrationStatus } from '@/services/migration/contentReadiness';
 import { usesSoloActions } from '@/helpers/strings';
 import { deriveContentMode } from '@/stores/settingsStore';
 import type { ContentGameMode } from '@/types/Settings';
@@ -43,7 +44,6 @@ interface ActionsStepProps {
   prevStep: (count?: number) => void;
   actionsList: GroupedActions;
   isActionsLoading?: boolean;
-  isMigrationInProgress?: boolean;
   /** Force the parent's action list to reload (e.g. after a pack import). */
   onActionsReload?: () => void;
 }
@@ -55,10 +55,10 @@ export default function ActionsStep({
   prevStep,
   actionsList,
   isActionsLoading = false,
-  isMigrationInProgress = false,
   onActionsReload,
 }: ActionsStepProps): JSX.Element {
   const { t, i18n } = useTranslation();
+  const { phase } = useMigrationStatus();
   const { isBroken } = useBrokenActionsState(actionsList, isActionsLoading);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [spice, setSpice] = useState<SpiceLevel>('medium');
@@ -302,7 +302,7 @@ export default function ActionsStep({
         >
           <CircularProgress size={48} />
           <Typography variant="h6" sx={{ color: 'text.secondary' }}>
-            {isMigrationInProgress ? t('migratingDefaultActions') : t('loadingAvailableActions')}
+            {phase === 'seeding' ? t('migratingDefaultActions') : t('loadingAvailableActions')}
           </Typography>
         </Box>
         <Box sx={{ mt: 4 }}>

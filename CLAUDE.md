@@ -46,27 +46,14 @@ React 19.x + TypeScript + Vite · MUI v9 (dark mode; avoid hardcoded light color
 - Components: own dir + `index.tsx`
 - Types: `src/types/index.ts` (main), feature-specific files
 - Firebase: `src/services/firebase.ts`
-- Migration: `src/context/migration.tsx`
+- Content readiness (seeding gate): `src/services/migration/contentReadiness.ts`
 - Path alias: `@/*` → `src/*`
 
 ## Testing
 
 Framework: Vitest + React Testing Library. Mocks in `src/__mocks__/`.
 
-**MigrationProvider mock** (add when test errors with `useMigration must be used within MigrationProvider`):
-
-```typescript
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-}));
-```
+**Content readiness** (`@/services/migration/contentReadiness`) is mocked globally in `setupTests.ts` (waitForContentReady resolved, phase `'ready'`) — no per-file migration mock needed.
 
 ## MCP Servers
 

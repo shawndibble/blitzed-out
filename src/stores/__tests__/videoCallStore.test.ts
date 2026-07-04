@@ -15,17 +15,6 @@ vi.mock('@/services/firebaseSignaling', () => ({
   },
 }));
 
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-}));
-
 vi.mock('firebase/database', () => ({
   getDatabase: vi.fn(() => ({})),
   ref: vi.fn(() => ({})),
