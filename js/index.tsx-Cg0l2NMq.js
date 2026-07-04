@@ -1,0 +1,2 @@
+import{on as n}from"./chunk-D_8Y-XpK.js";import{s as o}from"./chunk-MGD3TRjG.js";import{n as s,t}from"./chunk-CFBjv0w_2.js";var a=n();function e({open:n,close:e=null}){const[i]=t(),{isLoading:r,actionsList:l}=o(null==i?void 0:i.gameMode);return r?null:(0,a.jsx)(s,{setOpen:e||(()=>{}),boardUpdated:()=>null,actionsList:l,open:n})}export{e as default};
+//# sourceMappingURL=index.tsx-Cg0l2NMq.js.map
