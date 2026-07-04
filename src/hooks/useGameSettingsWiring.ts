@@ -12,10 +12,9 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useLocalPlayers } from './useLocalPlayers';
 import useMessages from '@/context/hooks/useMessages';
 import useRoomNavigate from './useRoomNavigate';
-import { useSettings } from '@/stores/settingsStore';
+import { useContentMode, useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import { recordGameStart } from '@/services/playerStatsService';
-import { getContentGameMode } from '@/helpers/strings';
 
 export interface GameSettingsWiring {
   ctx: SubmitContext;
@@ -30,7 +29,8 @@ export function useGameSettingsWiring(): GameSettingsWiring {
   const { t } = useTranslation();
   const updateGameBoardTiles = useGameBoard();
   const [settings, updateSettings] = useSettings();
-  const customTiles = useLiveQuery(() => getActiveTiles(getContentGameMode(settings?.gameMode)));
+  const contentMode = useContentMode();
+  const customTiles = useLiveQuery(() => getActiveTiles(contentMode));
   const gameBoard = useLiveQuery(getActiveBoard);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();

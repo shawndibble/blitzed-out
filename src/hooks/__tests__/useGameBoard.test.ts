@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { isOnlineMode, isPublicRoom } from '@/helpers/strings';
 
 import { DBGameBoard } from '@/types/gameBoard';
 import { Settings } from '@/types/Settings';
@@ -15,14 +14,10 @@ vi.mock('dexie-react-hooks', () => ({
   useLiveQuery: vi.fn(),
 }));
 
-vi.mock('@/helpers/strings', () => ({
-  isPublicRoom: vi.fn(),
-  isOnlineMode: vi.fn(),
-  getContentGameMode: vi.fn((gameMode) => (gameMode === 'local' ? 'local' : 'online')),
-}));
-
-vi.mock('@/stores/settingsStore', () => ({
-  __esModule: true,
+// Keep the real pure seam functions (deriveContentMode, enforceTopologyRoomInvariant);
+// only the React settings hook is stubbed.
+vi.mock('@/stores/settingsStore', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/stores/settingsStore')>()),
   useSettings: vi.fn(),
 }));
 
@@ -92,8 +87,6 @@ describe('useGameBoard', () => {
     // Setup default mocks
     vi.mocked(useLiveQuery).mockReturnValue(mockGameBoard);
     vi.mocked(useSettings).mockReturnValue([mockSettings, updateSettingsMock]);
-    vi.mocked(isPublicRoom).mockReturnValue(false);
-    vi.mocked(isOnlineMode).mockReturnValue(true);
     vi.mocked(buildGameBoard).mockResolvedValue(mockBoardResult);
     vi.mocked(upsertBoard).mockResolvedValue(1);
   });
@@ -153,12 +146,13 @@ describe('useGameBoard', () => {
 
   describe('public room handling', () => {
     it('should switch to online mode for public rooms', async () => {
-      vi.mocked(isPublicRoom).mockReturnValue(true);
-      vi.mocked(isOnlineMode).mockReturnValue(false);
-
       const { result } = renderHook(() => useGameBoard());
 
-      const settingsWithOfflineMode = { ...mockSettings, gameMode: 'local' as const };
+      const settingsWithOfflineMode = {
+        ...mockSettings,
+        gameMode: 'local' as const,
+        room: 'PUBLIC',
+      };
       const gameResult = await result.current(settingsWithOfflineMode);
 
       expect(gameResult.gameMode).toBe('online');
@@ -166,22 +160,22 @@ describe('useGameBoard', () => {
     });
 
     it('should respect the user roomTileCount in public rooms', async () => {
-      vi.mocked(isPublicRoom).mockReturnValue(true);
-
       const { result } = renderHook(() => useGameBoard());
 
-      const settingsWithLargeTileCount = { ...mockSettings, roomTileCount: 100 };
+      const settingsWithLargeTileCount = { ...mockSettings, room: 'PUBLIC', roomTileCount: 100 };
       await result.current(settingsWithLargeTileCount);
 
       expect(buildGameBoard).toHaveBeenCalledWith(expect.any(Object), 'en', 'online', 100);
     });
 
     it('should fall back to the default tile count when roomTileCount is unset', async () => {
-      vi.mocked(isPublicRoom).mockReturnValue(true);
-
       const { result } = renderHook(() => useGameBoard());
 
-      const settingsWithoutTileCount = { ...mockSettings, roomTileCount: undefined };
+      const settingsWithoutTileCount = {
+        ...mockSettings,
+        room: 'PUBLIC',
+        roomTileCount: undefined,
+      };
       await result.current(settingsWithoutTileCount);
 
       expect(buildGameBoard).toHaveBeenCalledWith(expect.any(Object), 'en', 'online', 60);

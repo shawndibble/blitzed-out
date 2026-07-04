@@ -52,16 +52,17 @@ export default function CustomTileDialog({
     async function loadAllGameModeActions() {
       setIsLoadingActions(true);
       try {
-        const [onlineActions, localActions, soloActions] = await Promise.all([
+        const [onlineActions, localActions] = await Promise.all([
           importActions(i18n.resolvedLanguage, 'online'),
           importActions(i18n.resolvedLanguage, 'local'),
-          importActions(i18n.resolvedLanguage, 'solo'),
         ]);
 
         setAllGameModeActions({
           online: onlineActions,
           local: localActions,
-          solo: soloActions,
+          // solo topology has no content set of its own — legacy import records
+          // stamped gameMode 'solo' resolve against online content.
+          solo: onlineActions,
         });
       } catch (error) {
         console.error('Error loading game mode actions:', error);

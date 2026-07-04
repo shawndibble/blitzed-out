@@ -48,8 +48,7 @@ import { validateCustomTileWithGroups } from '@/services/validationService';
 import { normalizePlaceholders } from '@/services/placeholderAliasService';
 import { analytics } from '@/services/analytics';
 import useAuth from '@/context/hooks/useAuth';
-import { useGameSettings } from '@/stores/settingsStore';
-import { getContentGameMode } from '@/helpers/strings';
+import { deriveContentMode, useGameSettings } from '@/stores/settingsStore';
 import { GAME_MODES } from '@/services/migration/constants';
 import type { ContentPackDoc, PackVisibility } from '@/types/contentPacks';
 import type { CustomTile } from '@/types/customTiles';
@@ -194,7 +193,7 @@ export default function PackCreator() {
   const locale = editingPack?.locale || settings.locale || 'en';
 
   const [step, setStep] = useState(0);
-  const [gameMode, setGameMode] = useState<string>(getContentGameMode(settings.gameMode));
+  const [gameMode, setGameMode] = useState<string>(deriveContentMode(settings.gameMode));
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

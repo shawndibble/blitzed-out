@@ -37,18 +37,6 @@ export function isPublicRoom(room?: string): boolean {
   return room?.toUpperCase() === 'PUBLIC';
 }
 
-export function getContentGameMode(gameMode?: string): 'online' | 'local' {
-  return gameMode === 'local' ? 'local' : 'online';
-}
-
-export function isOnlineMode(gameMode: string): boolean {
-  return gameMode === 'online';
-}
-
-export function usesSoloContent(gameMode?: GameMode | string): boolean {
-  return getContentGameMode(gameMode) === 'online';
-}
-
 export function usesSoloActions(gameMode?: GameMode | string, soloPlay?: boolean): boolean {
   if (gameMode === 'solo') return true;
   if (gameMode === 'online') return soloPlay !== false;

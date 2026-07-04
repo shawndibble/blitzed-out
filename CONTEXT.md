@@ -68,6 +68,16 @@ action groups, and content packs exist.
 Anything that builds, seeds, bundles, migrates, or lists **content** must iterate `GAME_MODES`
 (2 modes), never the 3-value topology list — a `solo` content filter is always empty.
 
+The content surface has its own type, `ContentGameMode` (`'online' | 'local'`, in
+`src/types/Settings.ts`). The topology→content mapping lives at **one seam**:
+`deriveContentMode` / `useContentMode` in `src/stores/settingsStore.ts`. Content consumers
+(stores, `buildGameBoard`, `importActions`, pack queries) take `ContentGameMode` parameters and
+never re-derive it; the compiler rejects a raw topology value.
+
+**Topology-room invariant** (ADR-0002): Shared Device (`local`) always plays in a private room,
+so `local` + PUBLIC is invalid. `enforceTopologyRoomInvariant` (settingsStore) repairs it by
+promoting to `online` — applied on every settings write and to staged wizard/board form data.
+
 > ⚠️ Naming collision: `solo` is also a group **type** (`solo` / `consumption` / `foreplay` /
 > `sex`), unrelated to the `solo` topology. Group type ≠ game mode.
 

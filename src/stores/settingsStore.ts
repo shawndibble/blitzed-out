@@ -1,9 +1,32 @@
 import { ActionEntry } from '@/types';
-import { Settings } from '@/types/Settings';
+import { ContentGameMode, GameMode, Settings } from '@/types/Settings';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { analyticsTracking } from '@/services/analyticsTracking';
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
+import { isPublicRoom } from '@/helpers/strings';
+
+/**
+ * Map the 3-value player topology to the 2-value content set. `solo` topology
+ * reuses `online` content (see CONTEXT.md "Three topologies, two content sets").
+ * This is the only place that mapping lives — content consumers take
+ * `ContentGameMode` and must not re-derive it.
+ */
+export const deriveContentMode = (gameMode?: GameMode | string): ContentGameMode =>
+  gameMode === 'local' ? 'local' : 'online';
+
+/**
+ * ADR-0002: Shared Device (`local`) always plays in an auto-generated private
+ * room, so `local` + PUBLIC is an invalid pairing. Repair it by promoting to
+ * `online`, matching the long-standing public-room behavior. Applied on every
+ * settings write and to staged wizard/board form data before use.
+ */
+export function enforceTopologyRoomInvariant<T extends Partial<Settings>>(settings: T): T {
+  if (settings.gameMode === 'local' && isPublicRoom(settings.room)) {
+    return { ...settings, gameMode: 'online' };
+  }
+  return settings;
+}
 
 const defaultSettings: Settings = {
   locale: 'en',
@@ -39,7 +62,7 @@ export const useSettingsStore = create<SettingsStore>()(
       updateSettings: (partial) =>
         set((state) => {
           const oldSettings = state.settings;
-          const newSettings = { ...oldSettings, ...partial };
+          const newSettings = enforceTopologyRoomInvariant({ ...oldSettings, ...partial });
 
           // Track setting changes using centralized service
           Object.entries(partial).forEach(([key, newValue]) => {
@@ -139,6 +162,10 @@ export const useSettingsStore = create<SettingsStore>()(
     }
   )
 );
+
+/** The current content set, derived from persisted topology. */
+export const useContentMode = (): ContentGameMode =>
+  useSettingsStore((state) => deriveContentMode(state.settings.gameMode));
 
 // Compatibility hook for useLocalStorage('gameSettings') pattern
 export const useSettings = (): [Settings, (partial: Partial<Settings>) => void] => {

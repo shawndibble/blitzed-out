@@ -1,11 +1,12 @@
 import i18next from 'i18next';
 import db from './store';
-import { getContentGameMode } from '@/helpers/strings';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
+import { ContentGameMode } from '@/types/Settings';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
 import { retryOnCursorError } from '@/utils/dbRecovery';
 import { waitForMigration } from '@/utils/migrationGuard';
+import { normalizePlaceholders } from '@/services/placeholderAliasService';
 
 const { customTiles } = db;
 
@@ -156,7 +157,7 @@ export const getPaginatedTiles = async (
  */
 export const getTileCountsByGroup = async (
   locale = 'en',
-  gameMode = 'online',
+  gameMode: ContentGameMode = 'online',
   tags: string[] | string | null = null
 ): Promise<Record<string, { count: number; intensities: Record<number, number> }>> => {
   try {
@@ -164,7 +165,7 @@ export const getTileCountsByGroup = async (
     const { getCustomGroups } = await import('./customGroups');
     const relevantGroups = await getCustomGroups({
       locale,
-      gameMode: getContentGameMode(gameMode),
+      gameMode,
     });
     const groupIds = new Set(relevantGroups.map((group) => group.id));
 
@@ -215,7 +216,7 @@ export const getTileCountsByGroup = async (
 };
 
 export const getActiveTiles = async (
-  gameMode: string | null = null,
+  gameMode: ContentGameMode | null = null,
   locale: string | null = null
 ): Promise<CustomTilePull[]> => {
   const currentLocale = locale || i18next.resolvedLanguage || i18next.language || 'en';
@@ -227,7 +228,7 @@ export const getActiveTiles = async (
   if (gameMode || locale) {
     const { getCustomGroups } = await import('./customGroups');
     const groupsQuery: any = {};
-    if (gameMode) groupsQuery.gameMode = getContentGameMode(gameMode);
+    if (gameMode) groupsQuery.gameMode = gameMode;
     if (locale) groupsQuery.locale = currentLocale;
 
     const matchingGroups = await getCustomGroups(groupsQuery);
@@ -239,9 +240,22 @@ export const getActiveTiles = async (
   return allEnabledTiles;
 };
 
+/**
+ * Storage invariant: tile actions hold canonical English placeholder tokens
+ * only (see placeholderAliasService). Enforced here at intake so every write
+ * path — dialogs, pack import, file import, cloud sync — inherits the rule.
+ * Idempotent on already-canonical text, so callers that normalize earlier
+ * (for validation/dedup against stored tiles) are unaffected.
+ */
+const withCanonicalPlaceholders = <T extends Partial<CustomTile>>(record: T): T => {
+  if (typeof record.action !== 'string' || !record.action) return record;
+  const locale = i18next.resolvedLanguage || i18next.language || 'en';
+  return { ...record, action: normalizePlaceholders(record.action, locale) };
+};
+
 export const addCustomTile = async (record: Partial<CustomTile>): Promise<number | undefined> => {
   return await customTiles.add({
-    ...record,
+    ...withCanonicalPlaceholders(record),
     isEnabled: 1,
   } as CustomTile);
 };
@@ -250,7 +264,7 @@ export const updateCustomTile = async (
   id: number,
   record: Partial<CustomTile>
 ): Promise<number> => {
-  return await customTiles.update(id, record);
+  return await customTiles.update(id, withCanonicalPlaceholders(record));
 };
 
 export const toggleCustomTile = async (id: number): Promise<number> => {

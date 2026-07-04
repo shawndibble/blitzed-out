@@ -85,7 +85,7 @@ Anatomy placeholders: `{genital}` (dick/pussy), `{hole}` (pussy/ass), `{chest}` 
 
 Game content lives in `src/locales/{lang}/{local,online}/*.json` (per-group files, with `dom`/`sub` role labels). After editing these, run `node scripts/bundle-translations.js` to regenerate the `{local,online}-bundle.json` files the app actually loads.
 
-Custom-tile placeholder tokens are stored canonical English; localized aliases (`src/locales/*/placeholders.json`) are normalized to English on save via `placeholderAliasService` and localized back on edit. The gameplay replacement pipeline (`actionStringReplacement`, `anatomyPlaceholderService`) never sees aliases.
+Custom-tile placeholder tokens are stored canonical English; localized aliases (`src/locales/*/placeholders.json`) are normalized to English via `placeholderAliasService` and localized back on edit. The customTiles store enforces this at intake (`addCustomTile`/`updateCustomTile` normalize idempotently), so every write path inherits the invariant; dialogs additionally normalize early for validation/dedup. The gameplay replacement pipeline (`actionStringReplacement`, `anatomyPlaceholderService`) never sees aliases.
 
 ## Architecture Patterns
 

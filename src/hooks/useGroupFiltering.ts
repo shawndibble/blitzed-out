@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import { getTileCountsByGroup } from '@/stores/customTiles';
-import { getContentGameMode } from '@/helpers/strings';
+import { deriveContentMode } from '@/stores/settingsStore';
 import i18next from 'i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 
@@ -36,7 +36,7 @@ export const useContextualGroups = (
   const [internalRefreshTrigger, setInternalRefreshTrigger] = useState(0);
 
   const locale = options.locale || i18next.resolvedLanguage || i18next.language || 'en';
-  const mode = getContentGameMode(gameMode);
+  const mode = deriveContentMode(gameMode);
 
   // Combine internal and external refresh triggers
   const combinedRefreshTrigger = (options.refreshTrigger || 0) + internalRefreshTrigger;

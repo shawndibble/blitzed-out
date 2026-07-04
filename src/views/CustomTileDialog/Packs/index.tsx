@@ -18,13 +18,14 @@ import AccordionDetails from '@/components/Accordion/Details';
 import PackImportDialog from './PackImportDialog';
 import { getPack } from '@/services/contentPacks';
 import type { ContentPackDoc } from '@/types/contentPacks';
+import type { ContentGameMode } from '@/types/Settings';
 
 interface PacksProps {
   expanded: string;
   handleChange: (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => void;
   // Game mode is owned by the parent so this tab and the directory pane stay in sync.
-  gameMode: string;
-  onGameModeChange: (mode: string) => void;
+  gameMode: ContentGameMode;
+  onGameModeChange: (mode: ContentGameMode) => void;
   onImported?: (packName: string, pack?: ContentPackDoc) => void;
 }
 

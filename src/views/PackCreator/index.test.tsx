@@ -6,9 +6,7 @@ import PackCreator from './index';
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, arg?: any) =>
-      typeof arg === 'object' && arg !== null
-        ? `${key}:${JSON.stringify(arg)}`
-        : (arg ?? key),
+      typeof arg === 'object' && arg !== null ? `${key}:${JSON.stringify(arg)}` : (arg ?? key),
   }),
   Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
 }));
@@ -33,7 +31,13 @@ vi.mock('@/services/contentPacks', () => ({
   getPack: vi.fn(async () => undefined),
   listMyPacks: () => mockListMyPacks(),
   listPublishableGroups: vi.fn(async () => [
-    { name: 'myGroup', label: 'My Group', tileCount: 5, isExtension: false, addedIntensityCount: 0 },
+    {
+      name: 'myGroup',
+      label: 'My Group',
+      tileCount: 5,
+      isExtension: false,
+      addedIntensityCount: 0,
+    },
   ]),
   parsePack: vi.fn(() => undefined),
   publishPack: (meta: { visibility: string; name: string }) => mockPublish(meta),
@@ -57,7 +61,9 @@ vi.mock('@/context/hooks/useAuth', () => ({
   default: () => mockAuth,
 }));
 
-vi.mock('@/stores/settingsStore', () => ({
+vi.mock('@/stores/settingsStore', async (importOriginal) => ({
+  // Real pure seam functions (deriveContentMode); only the React hook is stubbed.
+  ...(await importOriginal<typeof import('@/stores/settingsStore')>()),
   useGameSettings: () => ({ settings: { locale: 'en', gameMode: 'solo', room: 'PUBLIC' } }),
 }));
 

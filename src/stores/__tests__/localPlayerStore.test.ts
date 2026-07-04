@@ -1,13 +1,16 @@
-import type { LocalPlayer, LocalSessionSettings } from '@/types';
+import type { DBLocalPlayerSession, LocalPlayer, LocalPlayerSession } from '@/types';
 import { act, renderHook } from '@testing-library/react';
 /**
  * @vitest-environment jsdom
  */
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
+import db from '@/stores/store';
+import { localPlayerService } from '@/services/localPlayerService';
 import { useLocalPlayerStore } from '../localPlayerStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 
-// Mock the local player service
+// Service seam — the store delegates session lifecycle to this service.
 vi.mock('@/services/localPlayerService', () => ({
   localPlayerService: {
     createSession: vi.fn(),
@@ -17,72 +20,78 @@ vi.mock('@/services/localPlayerService', () => ({
   },
 }));
 
-// Mock the database
-vi.mock('@/stores/store', () => ({
-  default: {
-    localPlayerSessions: {
-      where: vi.fn(),
-      add: vi.fn(),
-    },
-  },
-}));
-
-// Mock the settings store
+// The store only reads getState() for wizard-field cleanup on clearSession.
 vi.mock('@/stores/settingsStore', () => ({
   useSettingsStore: {
-    getState: vi.fn(() => ({
-      settings: { gameMode: 'online' as const, room: 'PUBLIC', boardUpdated: false },
-      updateSettings: vi.fn(),
-      setLocale: vi.fn(),
-      resetSettings: vi.fn(),
-      updateSelectedAction: vi.fn(),
-      removeSelectedAction: vi.fn(),
-      clearSelectedActions: vi.fn(),
-      getSelectedActionsByType: vi.fn(),
-    })),
+    getState: vi.fn(),
   },
 }));
 
+const mockPlayers: LocalPlayer[] = [
+  {
+    id: 'player-1',
+    name: 'Player One',
+    role: 'sub',
+    order: 0,
+    isActive: true,
+    deviceId: 'device-123',
+    location: 0,
+    isFinished: false,
+    sound: '',
+    gender: 'non-binary',
+  },
+  {
+    id: 'player-2',
+    name: 'Player Two',
+    role: 'dom',
+    order: 1,
+    isActive: false,
+    deviceId: 'device-123',
+    location: 0,
+    isFinished: false,
+    sound: '',
+    gender: 'non-binary',
+  },
+];
+
+const mockSettings = {
+  showTurnTransitions: true,
+  enableTurnSounds: true,
+  showPlayerAvatars: true,
+};
+
+function buildSession(overrides: Partial<LocalPlayerSession> = {}): LocalPlayerSession {
+  return {
+    id: 'test-session',
+    roomId: 'TEST-ROOM',
+    players: mockPlayers,
+    currentPlayerIndex: 0,
+    isActive: true,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    settings: mockSettings,
+    ...overrides,
+  };
+}
+
+function toDbRow(session: LocalPlayerSession): DBLocalPlayerSession {
+  const { id, ...rest } = session;
+  return { sessionId: id, ...rest };
+}
+
 describe('LocalPlayerStore', () => {
-  let mockPlayers: LocalPlayer[];
-  let mockSettings: LocalSessionSettings;
-
-  beforeEach(() => {
-    mockPlayers = [
-      {
-        id: 'player-1',
-        name: 'Player One',
-        role: 'sub',
-        order: 0,
-        isActive: true,
-        deviceId: 'device-123',
-        location: 0,
-        isFinished: false,
-        sound: '',
-        gender: 'non-binary',
-      },
-      {
-        id: 'player-2',
-        name: 'Player Two',
-        role: 'dom',
-        order: 1,
-        isActive: false,
-        deviceId: 'device-123',
-        location: 0,
-        isFinished: false,
-        sound: '',
-        gender: 'non-binary',
-      },
-    ];
-
-    mockSettings = {
-      showTurnTransitions: true,
-      enableTurnSounds: true,
-      showPlayerAvatars: true,
-    };
-
-    // Clear all mocks before each test
+  beforeEach(async () => {
     vi.clearAllMocks();
+
+    vi.mocked(useSettingsStore.getState).mockReturnValue({
+      settings: { gameMode: 'online' as const, room: 'PUBLIC', boardUpdated: false },
+      updateSettings: vi.fn(),
+    } as any);
+
+    // The zustand store is a module-level singleton — reset it between tests.
+    useLocalPlayerStore.setState({ session: null, error: null, isLoading: false });
+
+    await db.localPlayerSessions.clear();
   });
 
   describe('Initial State', () => {
@@ -101,17 +110,7 @@ describe('LocalPlayerStore', () => {
   describe('Basic Actions', () => {
     test('should set session correctly', () => {
       const { result } = renderHook(() => useLocalPlayerStore());
-
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
+      const mockSession = buildSession();
 
       act(() => {
         result.current.setSession(mockSession);
@@ -121,20 +120,9 @@ describe('LocalPlayerStore', () => {
       expect(result.current.error).toBeNull();
     });
 
-    test('should clear session correctly', () => {
+    test('should clear session correctly', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
-
-      // Set a session first
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
+      const mockSession = buildSession();
 
       act(() => {
         result.current.setSession(mockSession);
@@ -142,8 +130,8 @@ describe('LocalPlayerStore', () => {
 
       expect(result.current.session).toStrictEqual(mockSession);
 
-      act(() => {
-        result.current.clearSession();
+      await act(async () => {
+        await result.current.clearSession();
       });
 
       expect(result.current.session).toBeNull();
@@ -182,19 +170,8 @@ describe('LocalPlayerStore', () => {
     test('hasLocalPlayers should return true for active session with players', () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
       act(() => {
-        result.current.setSession(mockSession);
+        result.current.setSession(buildSession());
       });
 
       expect(result.current.hasLocalPlayers()).toBe(true);
@@ -203,19 +180,8 @@ describe('LocalPlayerStore', () => {
     test('hasLocalPlayers should return false for inactive session', () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: false, // Inactive
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
       act(() => {
-        result.current.setSession(mockSession);
+        result.current.setSession(buildSession({ isActive: false }));
       });
 
       expect(result.current.hasLocalPlayers()).toBe(false);
@@ -224,19 +190,8 @@ describe('LocalPlayerStore', () => {
     test('isLocalPlayerRoom should return true for active session', () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
       act(() => {
-        result.current.setSession(mockSession);
+        result.current.setSession(buildSession());
       });
 
       expect(result.current.isLocalPlayerRoom()).toBe(true);
@@ -245,65 +200,29 @@ describe('LocalPlayerStore', () => {
     test('getCurrentPlayer should return current active player', () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 1, // Second player
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
       act(() => {
-        result.current.setSession(mockSession);
+        result.current.setSession(buildSession({ currentPlayerIndex: 1 }));
       });
 
-      const currentPlayer = result.current.getCurrentPlayer();
-      expect(currentPlayer).toStrictEqual(mockPlayers[1]);
+      expect(result.current.getCurrentPlayer()).toStrictEqual(mockPlayers[1]);
     });
 
     test('getCurrentPlayer should return null for invalid index', () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 99, // Invalid index
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
       act(() => {
-        result.current.setSession(mockSession);
+        result.current.setSession(buildSession({ currentPlayerIndex: 99 }));
       });
 
-      const currentPlayer = result.current.getCurrentPlayer();
-      expect(currentPlayer).toBeNull();
+      expect(result.current.getCurrentPlayer()).toBeNull();
     });
   });
 
   describe('Async Actions', () => {
     test('initSession should handle success', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
+      const mockSession = buildSession();
 
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
-      // Mock the service
-      const { localPlayerService } = await import('@/services/localPlayerService');
       vi.mocked(localPlayerService.createSession).mockResolvedValue(mockSession);
 
       await act(async () => {
@@ -318,8 +237,6 @@ describe('LocalPlayerStore', () => {
     test('initSession should handle errors', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      // Mock the service to throw an error
-      const { localPlayerService } = await import('@/services/localPlayerService');
       vi.mocked(localPlayerService.createSession).mockRejectedValue(new Error('Creation failed'));
 
       await act(async () => {
@@ -333,20 +250,8 @@ describe('LocalPlayerStore', () => {
 
     test('loadSession should handle success', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
+      const mockSession = buildSession();
 
-      const mockSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
-      // Mock the service
-      const { localPlayerService } = await import('@/services/localPlayerService');
       vi.mocked(localPlayerService.getSession).mockResolvedValue(mockSession);
 
       await act(async () => {
@@ -360,30 +265,13 @@ describe('LocalPlayerStore', () => {
 
     test('nextLocalPlayer should handle success', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
+      const initialSession = buildSession();
+      const updatedSession = buildSession({ currentPlayerIndex: 1 });
 
-      const initialSession = {
-        id: 'test-session',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
-      const updatedSession = {
-        ...initialSession,
-        currentPlayerIndex: 1, // Advanced to next player
-      };
-
-      // Set initial session
       act(() => {
         result.current.setSession(initialSession);
       });
 
-      // Mock the service
-      const { localPlayerService } = await import('@/services/localPlayerService');
       vi.mocked(localPlayerService.advanceLocalTurn).mockResolvedValue(mockPlayers[1]);
       vi.mocked(localPlayerService.getSession).mockResolvedValue(updatedSession);
 
@@ -399,11 +287,6 @@ describe('LocalPlayerStore', () => {
     test('nextLocalPlayer should handle no active session', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      // Ensure we start with no session
-      await act(async () => {
-        await result.current.clearSession();
-      });
-
       expect(result.current.session).toBeNull();
 
       await act(async () => {
@@ -416,80 +299,51 @@ describe('LocalPlayerStore', () => {
   });
 
   describe('Session Persistence', () => {
-    test('clearSession should delete session from Dexie database', async () => {
+    test('clearSession should delete all sessions for the room from Dexie', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
+      const mockSession = buildSession({ id: 'test-session-123' });
 
-      const mockSession = {
-        id: 'test-session-123',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
+      // Seed the current session, a stale session for the same room, and an
+      // unrelated room's session that must survive the clear.
+      await db.localPlayerSessions.bulkAdd([
+        toDbRow(mockSession),
+        toDbRow(buildSession({ id: 'stale-session', roomId: 'TEST-ROOM' })),
+        toDbRow(buildSession({ id: 'other-session', roomId: 'OTHER-ROOM' })),
+      ]);
 
-      // Set a session first
       act(() => {
         result.current.setSession(mockSession);
       });
 
-      expect(result.current.session).toStrictEqual(mockSession);
-
-      // Mock database delete chain
-      const mockDelete = vi.fn().mockResolvedValue(undefined);
-      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-
-      const db = await import('@/stores/store');
-      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
-
-      // Clear the session
       await act(async () => {
         await result.current.clearSession();
       });
 
-      // Verify session was cleared
       expect(result.current.session).toBeNull();
       expect(result.current.error).toBeNull();
 
-      // Verify database delete was called for the room (not just session ID)
-      expect(mockWhere).toHaveBeenCalledWith('roomId');
-      expect(mockEquals).toHaveBeenCalledWith('TEST-ROOM');
-      expect(mockDelete).toHaveBeenCalled();
+      expect(await db.localPlayerSessions.where('roomId').equals('TEST-ROOM').count()).toBe(0);
+      expect(await db.localPlayerSessions.where('roomId').equals('OTHER-ROOM').count()).toBe(1);
     });
 
     test('clearSession should handle database deletion errors gracefully', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      const mockSession = {
-        id: 'test-session-456',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
       act(() => {
-        result.current.setSession(mockSession);
+        result.current.setSession(buildSession({ id: 'test-session-456' }));
       });
 
-      // Mock database delete to fail
-      const mockDelete = vi.fn().mockRejectedValue(new Error('Database error'));
-      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-
-      const db = await import('@/stores/store');
-      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
-
-      // Clear should still succeed even if database delete fails
-      await act(async () => {
-        await result.current.clearSession();
+      const whereSpy = vi.spyOn(db.localPlayerSessions, 'where').mockImplementation(() => {
+        throw new Error('Database error');
       });
+
+      try {
+        await act(async () => {
+          await result.current.clearSession();
+        });
+      } finally {
+        whereSpy.mockRestore();
+      }
 
       expect(result.current.session).toBeNull();
       expect(result.current.error).toBeNull();
@@ -498,10 +352,8 @@ describe('LocalPlayerStore', () => {
     test('clearSession should handle null session gracefully', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      // Ensure no session exists
       expect(result.current.session).toBeNull();
 
-      // Clear should not throw
       await act(async () => {
         await result.current.clearSession();
       });
@@ -513,57 +365,27 @@ describe('LocalPlayerStore', () => {
     test('clearSession should remove wizard fields from settings store', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      const mockSession = {
-        id: 'test-session-789',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
       act(() => {
-        result.current.setSession(mockSession);
+        result.current.setSession(buildSession({ id: 'test-session-789' }));
       });
 
-      // Mock settings store with wizard fields
       const mockUpdateSettings = vi.fn();
-      const mockSettingsWithWizardFields = {
-        gameMode: 'local' as const,
-        room: 'TEST',
-        boardUpdated: false,
-        localPlayersData: [{ id: '1', name: 'Test' }],
-        localPlayerSessionSettings: { showTurnTransitions: true },
-        hasLocalPlayers: true,
-      };
-
-      const { useSettingsStore } = await import('@/stores/settingsStore');
       vi.mocked(useSettingsStore.getState).mockReturnValue({
-        settings: mockSettingsWithWizardFields,
+        settings: {
+          gameMode: 'local' as const,
+          room: 'TEST',
+          boardUpdated: false,
+          localPlayersData: [{ id: '1', name: 'Test' }],
+          localPlayerSessionSettings: { showTurnTransitions: true },
+          hasLocalPlayers: true,
+        },
         updateSettings: mockUpdateSettings,
-        setLocale: vi.fn(),
-        resetSettings: vi.fn(),
-        updateSelectedAction: vi.fn(),
-        removeSelectedAction: vi.fn(),
-        clearSelectedActions: vi.fn(),
-        getSelectedActionsByType: vi.fn(),
-      });
+      } as any);
 
-      // Mock database delete
-      const mockDelete = vi.fn().mockResolvedValue(undefined);
-      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-      const db = await import('@/stores/store');
-      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
-
-      // Clear session
       await act(async () => {
         await result.current.clearSession();
       });
 
-      // Verify wizard fields were removed from settings
       expect(mockUpdateSettings).toHaveBeenCalled();
       const updatedSettings = mockUpdateSettings.mock.calls[0][0];
       expect(updatedSettings).not.toHaveProperty('localPlayersData');
@@ -576,54 +398,20 @@ describe('LocalPlayerStore', () => {
     test('clearSession should not call updateSettings if no wizard fields present', async () => {
       const { result } = renderHook(() => useLocalPlayerStore());
 
-      const mockSession = {
-        id: 'test-session-999',
-        roomId: 'TEST-ROOM',
-        players: mockPlayers,
-        currentPlayerIndex: 0,
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        settings: mockSettings,
-      };
-
       act(() => {
-        result.current.setSession(mockSession);
+        result.current.setSession(buildSession({ id: 'test-session-999' }));
       });
 
-      // Mock settings store WITHOUT wizard fields
       const mockUpdateSettings = vi.fn();
-      const mockCleanSettings = {
-        gameMode: 'local' as const,
-        room: 'TEST',
-        boardUpdated: false,
-      };
-
-      const { useSettingsStore } = await import('@/stores/settingsStore');
       vi.mocked(useSettingsStore.getState).mockReturnValue({
-        settings: mockCleanSettings,
+        settings: { gameMode: 'local' as const, room: 'TEST', boardUpdated: false },
         updateSettings: mockUpdateSettings,
-        setLocale: vi.fn(),
-        resetSettings: vi.fn(),
-        updateSelectedAction: vi.fn(),
-        removeSelectedAction: vi.fn(),
-        clearSelectedActions: vi.fn(),
-        getSelectedActionsByType: vi.fn(),
-      });
+      } as any);
 
-      // Mock database delete
-      const mockDelete = vi.fn().mockResolvedValue(undefined);
-      const mockEquals = vi.fn().mockReturnValue({ delete: mockDelete });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-      const db = await import('@/stores/store');
-      vi.mocked(db.default.localPlayerSessions.where).mockImplementation(mockWhere);
-
-      // Clear session
       await act(async () => {
         await result.current.clearSession();
       });
 
-      // Verify updateSettings was NOT called since no wizard fields exist
       expect(mockUpdateSettings).not.toHaveBeenCalled();
     });
   });

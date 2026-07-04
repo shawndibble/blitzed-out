@@ -1,4 +1,5 @@
 import { isDexieDataComplete } from '@/services/dataCompletenessChecker';
+import type { ContentGameMode } from '@/types/Settings';
 import i18n from '@/i18n';
 
 export interface MigrationHealthReport {
@@ -74,7 +75,7 @@ const updateHealthState = (
  */
 export const checkMigrationHealth = async (
   locale?: string,
-  gameMode: string = 'online'
+  gameMode: ContentGameMode = 'online'
 ): Promise<MigrationHealthReport> => {
   const targetLocale = locale || i18n.resolvedLanguage || i18n.language || 'en';
   const key = `${targetLocale}-${gameMode}`;
@@ -295,7 +296,7 @@ export const forceCompleteMigrationReset = (): boolean => {
 export const getMigrationHealthSummary = async (): Promise<string> => {
   try {
     const locales = ['en', 'es', 'fr', 'zh', 'hi'];
-    const gameModes = ['online', 'local'];
+    const gameModes: ContentGameMode[] = ['online', 'local'];
 
     let summary = 'Migration Health Summary:\n';
     let totalChecked = 0;

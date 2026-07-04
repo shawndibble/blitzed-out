@@ -22,6 +22,7 @@ import TileCategorySelection from '@/components/TileCategorySelection';
 import { TileData } from '@/types/viewCustomTiles';
 import { Trans } from 'react-i18next';
 import { ViewCustomTilesProps } from '@/types/customTiles';
+import type { ContentGameMode } from '@/types/Settings';
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { localizePlaceholders } from '@/services/placeholderAliasService';
 import { useGameSettings } from '@/stores/settingsStore';
@@ -365,7 +366,7 @@ export default function ViewCustomTiles({
           groups={groups}
           mappedGroups={mappedGroups}
           dexieGroups={dexieGroups}
-          onGameModeChange={(value: string) => {
+          onGameModeChange={(value: ContentGameMode) => {
             const newFilters = {
               gameMode: value,
               groupName: '',

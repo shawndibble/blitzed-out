@@ -13,7 +13,9 @@ import { ActionEntry, FormData, VALID_GROUP_TYPES } from '@/types';
 import { Trans, useTranslation } from 'react-i18next';
 import { handleLevelsChange, hasValidSelections, purgedFormData } from './helpers';
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
-import { getContentGameMode, usesSoloActions } from '@/helpers/strings';
+import { usesSoloActions } from '@/helpers/strings';
+import { deriveContentMode } from '@/stores/settingsStore';
+import type { ContentGameMode } from '@/types/Settings';
 import { GroupType } from '@/types';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import type { GroupedActions } from '@/types/customTiles';
@@ -66,8 +68,8 @@ export default function ActionsStep({
   const [directoryOpen, setDirectoryOpen] = useState(false);
   // Groups that just arrived via a pack import — pulsed briefly for attention.
   const [recentImports, setRecentImports] = useState<Set<string>>(new Set());
-  const contentGameMode = getContentGameMode(formData.gameMode);
-  const [directoryGameMode, setDirectoryGameMode] = useState<string>(contentGameMode);
+  const contentGameMode = deriveContentMode(formData.gameMode);
+  const [directoryGameMode, setDirectoryGameMode] = useState<ContentGameMode>(contentGameMode);
 
   const actionType = usesSoloActions(formData.gameMode, formData.soloPlay)
     ? 'solo'

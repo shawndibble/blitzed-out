@@ -58,4 +58,12 @@ export interface Settings {
 
 export type GameMode = 'solo' | 'online' | 'local';
 
+/**
+ * The two content sets that action groups, bundles, custom tiles, and packs
+ * exist for. `solo` topology reuses `online` content — see CONTEXT.md
+ * "Three topologies, two content sets". Derive via `deriveContentMode`
+ * (settingsStore); never widen this back to GameMode.
+ */
+export type ContentGameMode = 'online' | 'local';
+
 export type PlayerRole = 'sub' | 'dom' | 'vers';

@@ -1,7 +1,6 @@
 import { latestMessageByType } from '@/helpers/messages';
 import useAuth from '@/context/hooks/useAuth';
 import useGameBoard from '@/hooks/useGameBoard';
-import { useSettings } from '@/stores/settingsStore';
 import useMessages from '@/context/hooks/useMessages';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +8,8 @@ import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { importActions } from '@/services/dexieActionImport';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/customTiles';
-import { getContentGameMode, isLocalMode, isPublicRoom } from '@/helpers/strings';
+import { deriveContentMode, useContentMode, useSettings } from '@/stores/settingsStore';
+import { isLocalMode, isPublicRoom } from '@/helpers/strings';
 import { RoomMessage } from '@/types/Message';
 import { GameBoard } from '@/types/gameBoard';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
@@ -47,7 +47,8 @@ export default function usePrivateRoomMonitor(
   const { user } = useAuth();
 
   const [settings, updateSettings] = useSettings();
-  const customTiles = useLiveQuery(() => getActiveTiles(getContentGameMode(settings?.gameMode)));
+  const contentMode = useContentMode();
+  const customTiles = useLiveQuery(() => getActiveTiles(contentMode));
   const { messages, isLoading } = useMessages();
   const [roller, setRoller] = useState<string>(DEFAULT_DIEM);
   const [roomBgUrl, setRoomBgUrl] = useState<string>('');
@@ -75,7 +76,7 @@ export default function usePrivateRoomMonitor(
           formData: { ...settings, ...messageSettings },
           user,
           customTiles,
-          actionsList: await importActions(i18n.resolvedLanguage, getContentGameMode(gameMode)),
+          actionsList: await importActions(i18n.resolvedLanguage, deriveContentMode(gameMode)),
           tiles: newBoard,
           title: t('settingsGenerated'),
         };
