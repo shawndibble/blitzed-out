@@ -76,7 +76,10 @@ never re-derive it; the compiler rejects a raw topology value.
 
 **Topology-room invariant** (ADR-0002): Shared Device (`local`) always plays in a private room,
 so `local` + PUBLIC is invalid. `enforceTopologyRoomInvariant` (settingsStore) repairs it by
-promoting to `online` — applied on every settings write and to staged wizard/board form data.
+promoting to `online` — applied to staged board/wizard form data (useGameBoard,
+useBoardContentWarnings) where a repair also triggers a rebuild. Deliberately **not** applied on
+every store write: a transient PUBLIC visit (login from the root URL) must not silently rewrite
+the persisted Shared Device topology.
 
 > ⚠️ Naming collision: `solo` is also a group **type** (`solo` / `consumption` / `foreplay` /
 > `sex`), unrelated to the `solo` topology. Group type ≠ game mode.

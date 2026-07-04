@@ -43,13 +43,30 @@ customTiles.hook('updating', function (this: any, modifications: any) {
   }
 });
 
+/**
+ * Storage invariant: tile actions hold canonical English placeholder tokens
+ * only (see placeholderAliasService). Enforced at every Dexie write path —
+ * dialogs, pack import, file import, bulk paste import, cloud sync — and
+ * idempotent on already-canonical text. Exported so identity-sensitive flows
+ * (sync matching, import dedup) can canonicalize the incoming side before
+ * comparing against stored (canonical) tiles.
+ */
+export const canonicalizeTileAction = <T extends Partial<CustomTile>>(record: T): T => {
+  if (typeof record.action !== 'string' || !record.action) return record;
+  const locale = i18next.resolvedLanguage || i18next.language || 'en';
+  return { ...record, action: normalizePlaceholders(record.action, locale) };
+};
+
 export const importCustomTiles = async (
   record: Partial<CustomTile>[]
 ): Promise<number | undefined> => {
   // Strip any incoming id: customTiles uses a local ++id autoincrement, so a foreign
   // id (from another device's import) would collide arbitrarily. Let Dexie assign fresh
   // local ids — same pattern the sync engine uses (removeId + add).
-  const recordData = record.map(({ id: _id, ...tile }) => ({ ...tile, isEnabled: 1 }));
+  const recordData = record.map(({ id: _id, ...tile }) => ({
+    ...canonicalizeTileAction(tile),
+    isEnabled: 1,
+  }));
   return await customTiles.bulkAdd(recordData as CustomTile[]);
 };
 
@@ -240,22 +257,9 @@ export const getActiveTiles = async (
   return allEnabledTiles;
 };
 
-/**
- * Storage invariant: tile actions hold canonical English placeholder tokens
- * only (see placeholderAliasService). Enforced here at intake so every write
- * path — dialogs, pack import, file import, cloud sync — inherits the rule.
- * Idempotent on already-canonical text, so callers that normalize earlier
- * (for validation/dedup against stored tiles) are unaffected.
- */
-const withCanonicalPlaceholders = <T extends Partial<CustomTile>>(record: T): T => {
-  if (typeof record.action !== 'string' || !record.action) return record;
-  const locale = i18next.resolvedLanguage || i18next.language || 'en';
-  return { ...record, action: normalizePlaceholders(record.action, locale) };
-};
-
 export const addCustomTile = async (record: Partial<CustomTile>): Promise<number | undefined> => {
   return await customTiles.add({
-    ...withCanonicalPlaceholders(record),
+    ...canonicalizeTileAction(record),
     isEnabled: 1,
   } as CustomTile);
 };
@@ -264,7 +268,7 @@ export const updateCustomTile = async (
   id: number,
   record: Partial<CustomTile>
 ): Promise<number> => {
-  return await customTiles.update(id, withCanonicalPlaceholders(record));
+  return await customTiles.update(id, canonicalizeTileAction(record));
 };
 
 export const toggleCustomTile = async (id: number): Promise<number> => {

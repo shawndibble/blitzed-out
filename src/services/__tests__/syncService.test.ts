@@ -1,5 +1,6 @@
 import {
   addCustomTile,
+  canonicalizeTileAction,
   deleteAllIsCustomTiles,
   getTiles,
   updateCustomTile,
@@ -54,6 +55,8 @@ describe('syncService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getAuth).mockReturnValue(mockAuth as any);
+    // Auto-mocked module: restore the identity behavior the sync path relies on.
+    vi.mocked(canonicalizeTileAction).mockImplementation((record) => record);
 
     // Suppress expected console.error messages during tests
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((message: string) => {

@@ -18,8 +18,11 @@ export const deriveContentMode = (gameMode?: GameMode | string): ContentGameMode
 /**
  * ADR-0002: Shared Device (`local`) always plays in an auto-generated private
  * room, so `local` + PUBLIC is an invalid pairing. Repair it by promoting to
- * `online`, matching the long-standing public-room behavior. Applied on every
- * settings write and to staged wizard/board form data before use.
+ * `online`, matching the long-standing public-room behavior. Applied to staged
+ * board/wizard form data (useGameBoard, useBoardContentWarnings) where a repair
+ * also triggers a board rebuild — NOT on every store write: a transient visit
+ * to PUBLIC (e.g. login from the root URL) must not silently rewrite the
+ * user's persisted Shared Device topology.
  */
 export function enforceTopologyRoomInvariant<T extends Partial<Settings>>(settings: T): T {
   if (settings.gameMode === 'local' && isPublicRoom(settings.room)) {
@@ -62,7 +65,7 @@ export const useSettingsStore = create<SettingsStore>()(
       updateSettings: (partial) =>
         set((state) => {
           const oldSettings = state.settings;
-          const newSettings = enforceTopologyRoomInvariant({ ...oldSettings, ...partial });
+          const newSettings = { ...oldSettings, ...partial };
 
           // Track setting changes using centralized service
           Object.entries(partial).forEach(([key, newValue]) => {

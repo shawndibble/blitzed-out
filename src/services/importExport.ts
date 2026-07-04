@@ -1,5 +1,6 @@
 import { getCustomGroups, addCustomGroup, updateCustomGroup } from '@/stores/customGroups';
 import { getTiles, addCustomTile, updateCustomTile } from '@/stores/customTiles';
+import { normalizePlaceholders } from './placeholderAliasService';
 import { createDeterministicGroupId } from './migration/groupIdMigration';
 import {
   SUPPORTED_LANGUAGES,
@@ -365,7 +366,16 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
           continue;
         }
 
-        const tileKey = `${importedTile.action}_${importedTile.intensity}_${groupId}`;
+        // Stored tiles are canonical (intake normalization), so the identity
+        // key must canonicalize the file's action too — an older export can
+        // carry localized alias tokens, keyed by the tile's own locale —
+        // or every re-import of the same file inserts a duplicate.
+        const canonicalTile = {
+          ...importedTile,
+          action: normalizePlaceholders(importedTile.action, importedTile.locale),
+        };
+
+        const tileKey = `${canonicalTile.action}_${importedTile.intensity}_${groupId}`;
         const existingTile = ctx.existingTileMap.get(tileKey);
 
         if (existingTile) {
@@ -379,7 +389,7 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
 
           // Update existing tile
           if (existingTile.id !== undefined) {
-            await updateCustomTile(existingTile.id, createTileData(importedTile, groupId, ctx));
+            await updateCustomTile(existingTile.id, createTileData(canonicalTile, groupId, ctx));
             ctx.result.warnings.push(`Updated existing tile: ${importedTile.action}`);
             continue;
           }
@@ -387,7 +397,7 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
 
         // Queue for batch insert
         tilesToAdd.push({
-          data: createTileData(importedTile, groupId, ctx),
+          data: createTileData(canonicalTile, groupId, ctx),
           tile: importedTile,
         });
       } catch (error) {
