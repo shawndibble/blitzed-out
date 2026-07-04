@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getAllAvailableGroups, getGroupsWithTiles } from '@/stores/customGroups';
-import { getTileCountsByGroup } from '@/stores/customTiles';
+import { getAllAvailableGroups } from '@/stores/customGroups';
+import { getGroupsWithTiles, getTileCountsByGroup } from '@/stores/contentLibrary';
 import { deriveContentMode } from '@/stores/settingsStore';
 import { GroupedActions } from '@/types/customTiles';
 

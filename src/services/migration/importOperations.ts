@@ -2,12 +2,8 @@
  * Import operations module for handling action file imports and data conversion
  */
 
-import {
-  addCustomGroup,
-  getCustomGroupByName,
-  removeDuplicateGroups,
-  updateCustomGroup,
-} from '@/stores/customGroups';
+import { addCustomGroup, getCustomGroupByName, updateCustomGroup } from '@/stores/customGroups';
+import { removeDuplicateGroups } from '@/stores/contentLibrary';
 import { importCustomTiles, getTilesUnguarded } from '@/stores/customTiles';
 import { mergeSeedIntensities } from '@/services/intensityMerge';
 import { CustomGroupBase } from '@/types/customGroups';

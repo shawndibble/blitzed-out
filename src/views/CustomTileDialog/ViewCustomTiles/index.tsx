@@ -12,7 +12,8 @@ import {
   Typography,
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { deleteCustomTile, getPaginatedTiles, getTileCountsByGroup } from '@/stores/customTiles';
+import { deleteCustomTile, getPaginatedTiles } from '@/stores/customTiles';
+import { getTileCountsByGroup } from '@/stores/contentLibrary';
 import { toggleTileEnabled } from '@/stores/disabledDefaults';
 import { useEffect, useState } from 'react';
 

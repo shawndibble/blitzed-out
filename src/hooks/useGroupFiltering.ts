@@ -1,8 +1,8 @@
-import { getCustomGroups, getGroupsWithTiles } from '@/stores/customGroups';
+import { getCustomGroups } from '@/stores/customGroups';
 import { useEffect, useMemo, useState } from 'react';
 
 import { CustomGroupPull } from '@/types/customGroups';
-import { getTileCountsByGroup } from '@/stores/customTiles';
+import { getGroupsWithTiles, getTileCountsByGroup } from '@/stores/contentLibrary';
 import { deriveContentMode } from '@/stores/settingsStore';
 import i18next from 'i18next';
 import { useLiveQuery } from 'dexie-react-hooks';

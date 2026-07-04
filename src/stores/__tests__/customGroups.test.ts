@@ -1,7 +1,6 @@
 import { CustomGroupBase } from '@/types/customGroups';
 import {
   addCustomGroup,
-  deleteCustomGroup,
   getAllAvailableGroups,
   getCustomGroup,
   getGroupIntensities,
@@ -35,16 +34,6 @@ const buildGroup = (overrides: Partial<CustomGroupBase> = {}): CustomGroupBase =
   isDefault: false,
   ...overrides,
 });
-
-const seedTile = (groupId: string, action = 'Test action') =>
-  db.customTiles.add({
-    group_id: groupId,
-    intensity: 1,
-    action,
-    tags: [],
-    isCustom: 1,
-    isEnabled: 1,
-  });
 
 describe('customGroups store', () => {
   beforeEach(async () => {
@@ -109,62 +98,6 @@ describe('customGroups store', () => {
     });
   });
 
-  describe('deleteCustomGroup', () => {
-    it('deletes a group with no tiles', async () => {
-      const id = await addCustomGroup(buildGroup());
-
-      const result = await deleteCustomGroup(id!);
-
-      expect(result.success).toBe(true);
-      expect(await getCustomGroup(id!)).toBeUndefined();
-    });
-
-    it('fails when the group is not found', async () => {
-      const result = await deleteCustomGroup('missing-id');
-
-      expect(result).toEqual({ success: false, error: 'Group not found' });
-    });
-
-    it('refuses to delete a group that has tiles', async () => {
-      const id = await addCustomGroup(buildGroup());
-      await seedTile(id!);
-      await seedTile(id!, 'Another action');
-
-      const result = await deleteCustomGroup(id!);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('2 associated tiles');
-      expect(await getCustomGroup(id!)).toBeDefined();
-      expect(await db.customTiles.where('group_id').equals(id!).count()).toBe(2);
-    });
-
-    it('cascadeDelete removes the group and its tiles, sparing other groups', async () => {
-      const id = await addCustomGroup(buildGroup());
-      const otherId = await addCustomGroup(buildGroup({ name: 'otherGroup' }));
-      await seedTile(id!);
-      await seedTile(id!, 'Another action');
-      await seedTile(otherId!, 'Unrelated action');
-
-      const result = await deleteCustomGroup(id!, { cascadeDelete: true });
-
-      expect(result).toEqual({ success: true, tilesDeleted: 2 });
-      expect(await getCustomGroup(id!)).toBeUndefined();
-      expect(await db.customTiles.where('group_id').equals(id!).count()).toBe(0);
-      expect(await db.customTiles.where('group_id').equals(otherId!).count()).toBe(1);
-    });
-
-    it('force deletes the group but leaves its tiles', async () => {
-      const id = await addCustomGroup(buildGroup());
-      await seedTile(id!);
-
-      const result = await deleteCustomGroup(id!, { force: true });
-
-      expect(result.success).toBe(true);
-      expect(await getCustomGroup(id!)).toBeUndefined();
-      expect(await db.customTiles.where('group_id').equals(id!).count()).toBe(1);
-    });
-  });
-
   describe('getAllAvailableGroups', () => {
     it('returns only groups matching locale and gameMode, sorted by name', async () => {
       await addCustomGroup(buildGroup({ name: 'zebra' }));
@@ -185,14 +118,15 @@ describe('customGroups store', () => {
       expect(result).toEqual([]);
     });
 
-    it('collapses duplicate names within a locale/gameMode and prunes the extras', async () => {
+    it('collapses duplicate names within a locale/gameMode in the returned list', async () => {
       await addCustomGroup(buildGroup());
       await addCustomGroup(buildGroup());
 
       const result = await getAllAvailableGroups('en', 'online');
 
+      // In-memory dedupe only — DB pruning is contentLibrary.removeDuplicateGroups' job.
       expect(result.map((g) => g.name)).toEqual(['testGroup']);
-      expect(await db.customGroups.where('name').equals('testGroup').count()).toBe(1);
+      expect(await db.customGroups.where('name').equals('testGroup').count()).toBe(2);
     });
   });
 

@@ -24,13 +24,9 @@ import {
   MIN_INTENSITIES_COUNT,
 } from '@/services/validationService';
 import { GroupType, VALID_GROUP_TYPES } from '@/types';
-import {
-  addCustomGroup,
-  updateCustomGroup,
-  deleteCustomGroup,
-  getCustomGroups,
-} from '@/stores/customGroups';
-import { countTilesByGroup, deleteCustomTilesByGroup } from '@/stores/customTiles';
+import { addCustomGroup, updateCustomGroup, getCustomGroups } from '@/stores/customGroups';
+import { deleteGroup } from '@/stores/contentLibrary';
+import { countTilesByGroupId } from '@/stores/customTiles';
 import CreateEditTab from './CreateEditTab';
 import ManageTab from './ManageTab';
 import DeleteDialog from './DeleteDialog';
@@ -103,14 +99,12 @@ export default function CustomGroupDialog({
       const defaults = await getCustomGroups({ locale, isDefault: true });
       setDefaultGroups(defaults.sort((a, b) => a.label.localeCompare(b.label)));
 
-      // Load tile counts for each custom group across all game modes
+      // Load tile counts per group id (ids are unique across modes, so a
+      // single id-keyed count already covers online and local tiles)
       const counts: Record<string, number> = {};
       await Promise.all(
         customGroups.map(async (group) => {
-          // Count tiles for this group across both online and local modes
-          const onlineCount = await countTilesByGroup(group.name, locale, 'online');
-          const localCount = await countTilesByGroup(group.name, locale, 'local');
-          counts[group.id] = onlineCount + localCount;
+          counts[group.id] = await countTilesByGroupId(group.id);
         })
       );
       setTileCounts(counts);
@@ -341,18 +335,13 @@ export default function CustomGroupDialog({
   const confirmDelete = async () => {
     if (!pendingDeleteGroup) return;
 
-    const { id, tileCount } = pendingDeleteGroup;
-    const group = existingGroups.find((g) => g.id === id);
-    if (!group) return;
-
     try {
-      // First delete all associated custom tiles
-      if (tileCount > 0) {
-        await deleteCustomTilesByGroup(group.name, locale, gameMode);
+      // Cascade: the group and its tiles go in one transactional delete
+      const result = await deleteGroup(pendingDeleteGroup.id, { cascadeDelete: true });
+      if (!result.success) {
+        console.error('Error deleting group:', result.error);
+        return;
       }
-
-      // Then delete the group
-      await deleteCustomGroup(id);
 
       // Reload groups and tile counts
       await reloadGroupsAndCounts();
@@ -360,8 +349,6 @@ export default function CustomGroupDialog({
       // Notify parent if needed
       onGroupUpdated?.(null); // Trigger refresh in parent
       // Groups will refresh automatically via reactive hooks
-    } catch (error) {
-      console.error('Error deleting group:', error);
     } finally {
       setDeleteDialogOpen(false);
       setPendingDeleteGroup(null);

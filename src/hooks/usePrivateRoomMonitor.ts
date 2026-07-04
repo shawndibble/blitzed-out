@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { importActions } from '@/services/dexieActionImport';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getActiveTiles } from '@/stores/customTiles';
+import { getActiveTiles } from '@/stores/contentLibrary';
 import { deriveContentMode, useContentMode, useSettings } from '@/stores/settingsStore';
 import { isLocalMode, isPublicRoom } from '@/helpers/strings';
 import { RoomMessage } from '@/types/Message';

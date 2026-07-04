@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 
 import { CustomGroupPull } from '@/types/customGroups';
-import { getAllAvailableGroups, getGroupsWithTiles } from '@/stores/customGroups';
-import { getTileCountsByGroup } from '@/stores/customTiles';
+import { getAllAvailableGroups } from '@/stores/customGroups';
+import { getGroupsWithTiles, getTileCountsByGroup } from '@/stores/contentLibrary';
 import useUnifiedActionList from '../useUnifiedActionList';
 
 // Mock i18next
@@ -23,11 +23,11 @@ vi.mock('react-i18next', () => ({
 // Mock customGroups store
 vi.mock('@/stores/customGroups', () => ({
   getAllAvailableGroups: vi.fn(),
-  getGroupsWithTiles: vi.fn(),
 }));
 
-// Mock customTiles store
-vi.mock('@/stores/customTiles', () => ({
+// Mock contentLibrary join layer
+vi.mock('@/stores/contentLibrary', () => ({
+  getGroupsWithTiles: vi.fn(),
   getTileCountsByGroup: vi.fn(),
 }));
 

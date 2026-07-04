@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { importActions } from '@/services/dexieActionImport';
 import { latestMessageByType, latestMessageBy } from '@/helpers/messages';
 import { Params, useParams } from 'react-router-dom';
-import { getActiveTiles } from '@/stores/customTiles';
+import { getActiveTiles } from '@/stores/contentLibrary';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveBoard } from '@/stores/gameBoard';
 import { isPublicRoom } from '@/helpers/strings';

@@ -3,8 +3,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 
 import { CustomGroupPull } from '@/types/customGroups';
 import CustomGroupSelector from '../index';
-import { getCustomGroups, getGroupsWithTiles } from '@/stores/customGroups';
-import { getTileCountsByGroup } from '@/stores/customTiles';
+import { getCustomGroups } from '@/stores/customGroups';
 import { useEditorGroupsReactive } from '@/hooks/useGroupFiltering';
 
 // Mock the translation hook
@@ -27,12 +26,6 @@ vi.mock('react-i18next', () => ({
 vi.mock('@/stores/customGroups', () => ({
   getAllAvailableGroups: vi.fn(),
   getCustomGroups: vi.fn(),
-  getGroupsWithTiles: vi.fn(),
-}));
-
-// Mock the customTiles store
-vi.mock('@/stores/customTiles', () => ({
-  getTileCountsByGroup: vi.fn(),
 }));
 
 // Mock the useEditorGroupsReactive hook
@@ -88,8 +81,6 @@ describe('CustomGroupSelector', () => {
 
     // Set up default mock implementations
     vi.mocked(getCustomGroups).mockResolvedValue(mockGroups);
-    vi.mocked(getGroupsWithTiles).mockResolvedValue(mockGroups);
-    vi.mocked(getTileCountsByGroup).mockResolvedValue({});
   });
 
   afterEach(() => {

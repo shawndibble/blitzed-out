@@ -154,7 +154,7 @@ export const migrateCurrentLanguage = async (locale?: string): Promise<boolean> 
       // Clean up duplicates for current language
       for (const gameMode of gameModes) {
         try {
-          const { removeDuplicateGroups } = await import('@/stores/customGroups');
+          const { removeDuplicateGroups } = await import('@/stores/contentLibrary');
           await removeDuplicateGroups(currentLocale, gameMode);
         } catch (error) {
           logError('warn', `cleanup:${currentLocale}/${gameMode}`, error);
@@ -218,7 +218,7 @@ export const migrateRemainingLanguages = async (excludeLocale?: string): Promise
 
         // Clean up duplicates
         for (const gameMode of gameModes) {
-          const { removeDuplicateGroups } = await import('@/stores/customGroups');
+          const { removeDuplicateGroups } = await import('@/stores/contentLibrary');
           await removeDuplicateGroups(locale, gameMode);
         }
 
