@@ -118,7 +118,7 @@ vi.mock('firebase/firestore', () => ({
   orderBy: vi.fn(),
   limit: vi.fn(),
   startAfter: vi.fn(),
-  onSnapshot: vi.fn(),
+  onSnapshot: vi.fn(() => vi.fn()),
   serverTimestamp: vi.fn(),
   Timestamp: {
     now: vi.fn(() => ({ seconds: Date.now() / 1000, nanoseconds: 0 })),
@@ -132,7 +132,7 @@ vi.mock('firebase/database', () => ({
   push: vi.fn(),
   set: vi.fn(),
   remove: vi.fn(),
-  onValue: vi.fn(),
+  onValue: vi.fn(() => vi.fn()),
   onChildAdded: vi.fn(),
   onDisconnect: vi.fn(() => ({
     remove: vi.fn(),

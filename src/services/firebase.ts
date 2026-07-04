@@ -13,7 +13,6 @@ import {
 import {
   DocumentData,
   DocumentReference,
-  QueryDocumentSnapshot,
   QuerySnapshot,
   Timestamp,
   addDoc,
@@ -30,7 +29,6 @@ import {
   persistentMultipleTabManager,
   query,
   serverTimestamp,
-  startAfter,
   updateDoc,
   where,
 } from 'firebase/firestore';
@@ -423,140 +421,56 @@ export function setMyPresence({
   });
 }
 
+/**
+ * Subscribe to the presence list for a room. Returns the RTDB unsubscribe
+ * function, or undefined when no room is given.
+ */
 export function getUserList(
   roomId: string | null | undefined,
   callback: (data: Record<string, unknown>) => void,
-  existingData: Record<string, unknown> = {},
-  options: {
-    enableCache?: boolean;
-    enableDebounce?: boolean;
-  } = {}
+  existingData: Record<string, unknown> = {}
 ): (() => void) | undefined {
   if (!roomId) return undefined;
 
-  const { enableCache = true, enableDebounce = true } = options;
-
   const roomUpper = roomId.toUpperCase();
-  const queryKey = getCacheKey('userList', roomUpper);
-  const startTime = Date.now();
+  const database = getDatabase(app);
+  const usersRef = ref(database, 'users');
 
-  // Check cache first with smart cache validation
-  if (enableCache) {
-    const cached = queryCache.get(queryKey);
-    if (cached && isValidCache(cached, queryKey)) {
-      // Update cache access count for smart eviction
-      cached.queryCount++;
-      queryCache.set(queryKey, cached);
+  return onValue(
+    usersRef,
+    (snap: DataSnapshot) => {
+      const allUsers = snap.val() as Record<string, any> | null;
 
-      updateQueryMetrics(queryKey, Date.now() - startTime, true);
-
-      // Still apply the existing data comparison logic
-      const dataString = Object.keys(cached.data as Record<string, unknown>)
-        .sort()
-        .join(',');
-      const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
-      if (dataString !== existingString) {
-        callback(cached.data as Record<string, unknown>);
+      if (!allUsers) {
+        callback({});
+        return;
       }
-      return () => {}; // Return empty cleanup function for cached results
-    }
-  }
 
-  let unsubscribe: (() => void) | undefined;
-
-  const executeQuery = async () => {
-    let networkError = false;
-
-    try {
-      // Use connection pooling for optimal Firebase performance
-      await acquireConnection();
-
-      const database = getDatabase(app);
-      const usersRef = ref(database, 'users');
-
-      unsubscribe = onValue(
-        usersRef,
-        (snap: DataSnapshot) => {
-          const queryEndTime = Date.now();
-          const latency = queryEndTime - startTime;
-          const allUsers = snap.val() as Record<string, any> | null;
-
-          if (!allUsers) {
-            callback({});
-            return;
-          }
-
-          // Filter users by room and convert to expected format
-          const roomUsers: Record<string, unknown> = {};
-          Object.entries(allUsers).forEach(([uid, userData]) => {
-            if (userData.room === roomUpper) {
-              roomUsers[uid] = {
-                displayName: userData.displayName,
-                uid: uid,
-                lastSeen: userData.lastSeen ? new Date(userData.lastSeen) : new Date(),
-                isAnonymous: userData.isAnonymous,
-                joinedAt: userData.joinedAt ? new Date(userData.joinedAt) : new Date(),
-                room: userData.room,
-              };
-            }
-          });
-
-          const data = roomUsers;
-
-          // Update cache with enhanced metadata
-          if (enableCache) {
-            evictOldCacheEntries(); // Prevent memory bloat
-
-            const priority = getCachePriority(queryKey);
-            queryCache.set(queryKey, {
-              data,
-              timestamp: queryEndTime,
-              queryCount: 1,
-              priority,
-            });
-          }
-
-          updateQueryMetrics(queryKey, latency, false, networkError);
-
-          // to prevent an endless loop, see if our new data matches the existing stuff.
-          // can't compare two arrays directly, but we can compare two strings.
-          const dataString = Object.keys(data).sort().join(',');
-          const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
-          if (dataString !== existingString) callback(data);
-        },
-        (error) => {
-          networkError = true;
-          console.error('getUserList error', error);
-          updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
+      // Filter users by room and convert to expected format
+      const roomUsers: Record<string, unknown> = {};
+      Object.entries(allUsers).forEach(([uid, userData]) => {
+        if (userData.room === roomUpper) {
+          roomUsers[uid] = {
+            displayName: userData.displayName,
+            uid: uid,
+            lastSeen: userData.lastSeen ? new Date(userData.lastSeen) : new Date(),
+            isAnonymous: userData.isAnonymous,
+            joinedAt: userData.joinedAt ? new Date(userData.joinedAt) : new Date(),
+            room: userData.room,
+          };
         }
-      );
-    } catch (error) {
-      networkError = true;
-      console.error('getUserList connection error', error);
-      updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
-    } finally {
-      releaseConnection();
-    }
-  };
+      });
 
-  // Apply smart debouncing based on priority
-  if (enableDebounce) {
-    debounceQuery(queryKey, executeQuery);
-    // Return a cleanup function that clears both debounce and unsubscribe
-    return () => {
-      const timeout = queryDebounceMap.get(queryKey);
-      if (timeout) {
-        clearTimeout(timeout);
-        queryDebounceMap.delete(queryKey);
-      }
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  } else {
-    executeQuery();
-    return unsubscribe;
-  }
+      // to prevent an endless loop, see if our new data matches the existing stuff.
+      // can't compare two arrays directly, but we can compare two strings.
+      const dataString = Object.keys(roomUsers).sort().join(',');
+      const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
+      if (dataString !== existingString) callback(roomUsers);
+    },
+    (error) => {
+      console.error('getUserList error', error);
+    }
+  );
 }
 
 export async function updateDisplayName(displayName = ''): Promise<User | null> {
@@ -666,246 +580,7 @@ export async function getBoard(id: string): Promise<DocumentData | undefined> {
 
 let lastMessage: Record<string, unknown> = {};
 
-// Enhanced query optimization with smart caching and debouncing
-interface QueryCache {
-  data: unknown;
-  timestamp: number;
-  lastVisible?: QueryDocumentSnapshot<DocumentData>;
-  queryCount: number; // Track access frequency for smart eviction
-  priority: 'high' | 'medium' | 'low'; // Cache priority based on usage patterns
-}
-
-interface ConnectionPool {
-  activeConnections: number;
-  maxConnections: number;
-  connectionQueue: Array<() => void>;
-}
-
-// Advanced cache configuration
-const queryCache = new Map<string, QueryCache>();
-const queryDebounceMap = new Map<string, ReturnType<typeof setTimeout>>();
-// Priority query queue for future advanced scheduling (currently unused)
-
-// Optimized cache settings for 60-80% performance improvement
-const CACHE_TTL = 15000; // Reduced to 15 seconds for fresher data
-const PRIORITY_CACHE_TTL = 5000; // 5 seconds for high-priority queries
-const DEBOUNCE_DELAY = 150; // Reduced to 150ms for faster response
-const PRIORITY_DEBOUNCE_DELAY = 50; // 50ms for high-priority queries
 const DEFAULT_LIMIT = 50;
-const MAX_CACHE_SIZE = 100; // Prevent memory bloat
-
-// Connection pooling for optimal Firebase performance
-const connectionPool: ConnectionPool = {
-  activeConnections: 0,
-  maxConnections: 15, // Optimal for Firebase concurrent connections
-  connectionQueue: [],
-};
-
-// Enhanced performance monitoring with detailed analytics
-interface QueryMetrics {
-  queryCount: number;
-  totalLatency: number;
-  cacheHits: number;
-  lastQueryTime: number;
-  avgLatency: number;
-  p95Latency: number; // 95th percentile latency tracking
-  connectionPoolHits: number;
-  networkErrors: number;
-  latencyHistory: number[]; // Keep last 20 latencies for percentile calculation
-}
-
-const queryMetrics = new Map<string, QueryMetrics>();
-
-function updateQueryMetrics(
-  queryKey: string,
-  latency: number,
-  fromCache: boolean,
-  networkError: boolean = false
-): void {
-  const existing = queryMetrics.get(queryKey) || {
-    queryCount: 0,
-    totalLatency: 0,
-    cacheHits: 0,
-    lastQueryTime: 0,
-    avgLatency: 0,
-    p95Latency: 0,
-    connectionPoolHits: 0,
-    networkErrors: 0,
-    latencyHistory: [],
-  };
-
-  existing.queryCount++;
-  existing.totalLatency += latency;
-  existing.lastQueryTime = Date.now();
-  existing.avgLatency = existing.totalLatency / existing.queryCount;
-
-  // Track latency history for percentile calculation (keep last 20)
-  existing.latencyHistory.push(latency);
-  if (existing.latencyHistory.length > 20) {
-    existing.latencyHistory.shift();
-  }
-
-  // Calculate 95th percentile
-  if (existing.latencyHistory.length >= 5) {
-    const sorted = [...existing.latencyHistory].sort((a, b) => a - b);
-    const p95Index = Math.floor(sorted.length * 0.95);
-    existing.p95Latency = sorted[p95Index];
-  }
-
-  if (fromCache) {
-    existing.cacheHits++;
-  }
-
-  if (networkError) {
-    existing.networkErrors++;
-  }
-
-  queryMetrics.set(queryKey, existing);
-}
-
-// Smart cache management functions
-function getCachePriority(queryKey: string): 'high' | 'medium' | 'low' {
-  if (queryKey.includes('messages')) return 'high'; // Messages are frequently accessed
-  if (queryKey.includes('userList')) return 'medium'; // User list moderate priority
-  return 'low'; // Schedule and other queries
-}
-
-function getCacheTTL(priority: 'high' | 'medium' | 'low'): number {
-  switch (priority) {
-    case 'high':
-      return PRIORITY_CACHE_TTL;
-    case 'medium':
-      return CACHE_TTL;
-    case 'low':
-      return CACHE_TTL * 2; // 30 seconds for low priority
-  }
-}
-
-function getDebounceDelay(priority: 'high' | 'medium' | 'low'): number {
-  switch (priority) {
-    case 'high':
-      return PRIORITY_DEBOUNCE_DELAY;
-    case 'medium':
-      return DEBOUNCE_DELAY;
-    case 'low':
-      return DEBOUNCE_DELAY * 2; // 300ms for low priority
-  }
-}
-
-// Enhanced cache eviction strategy
-function evictOldCacheEntries(): void {
-  if (queryCache.size <= MAX_CACHE_SIZE) return;
-
-  const entries = Array.from(queryCache.entries());
-  // Sort by priority (low first) and then by timestamp (oldest first) and access count (least accessed first)
-  entries.sort(([, a], [, b]) => {
-    const priorityOrder = { low: 0, medium: 1, high: 2 };
-    const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
-    if (priorityDiff !== 0) return priorityDiff;
-
-    const accessDiff = a.queryCount - b.queryCount;
-    if (accessDiff !== 0) return accessDiff;
-
-    return a.timestamp - b.timestamp;
-  });
-
-  // Remove 20% of entries (starting with lowest priority, least accessed, oldest)
-  const entriesToRemove = Math.ceil(queryCache.size * 0.2);
-  for (let i = 0; i < entriesToRemove; i++) {
-    queryCache.delete(entries[i][0]);
-  }
-}
-
-// Connection pool management
-function acquireConnection(): Promise<void> {
-  return new Promise((resolve) => {
-    if (connectionPool.activeConnections < connectionPool.maxConnections) {
-      connectionPool.activeConnections++;
-      resolve();
-    } else {
-      connectionPool.connectionQueue.push(() => {
-        connectionPool.activeConnections++;
-        resolve();
-      });
-    }
-  });
-}
-
-function releaseConnection(): void {
-  connectionPool.activeConnections--;
-
-  if (connectionPool.connectionQueue.length > 0) {
-    const nextCallback = connectionPool.connectionQueue.shift();
-    if (nextCallback) {
-      nextCallback();
-    }
-  }
-}
-
-export function getQueryPerformanceMetrics(): Record<
-  string,
-  QueryMetrics & { cacheHitRate: number; errorRate: number; connectionPoolUtilization: number }
-> {
-  const result: Record<
-    string,
-    QueryMetrics & { cacheHitRate: number; errorRate: number; connectionPoolUtilization: number }
-  > = {};
-
-  queryMetrics.forEach((metrics, key) => {
-    result[key] = {
-      ...metrics,
-      cacheHitRate: metrics.queryCount > 0 ? (metrics.cacheHits / metrics.queryCount) * 100 : 0,
-      errorRate: metrics.queryCount > 0 ? (metrics.networkErrors / metrics.queryCount) * 100 : 0,
-      connectionPoolUtilization:
-        (connectionPool.activeConnections / connectionPool.maxConnections) * 100,
-    };
-  });
-
-  return result;
-}
-
-function getCacheKey(
-  collection: string,
-  roomId?: string | null,
-  additionalParams?: string
-): string {
-  return `${collection}:${roomId || 'global'}:${additionalParams || ''}`;
-}
-
-function isValidCache(cache: QueryCache, queryKey: string): boolean {
-  const priority = getCachePriority(queryKey);
-  const ttl = getCacheTTL(priority);
-  return Date.now() - cache.timestamp < ttl;
-}
-
-function debounceQuery<T extends unknown[]>(
-  queryKey: string,
-  queryFn: (...args: T) => void,
-  ...args: T
-): void {
-  const priority = getCachePriority(queryKey);
-  const debounceDelay = getDebounceDelay(priority);
-  const existingTimeout = queryDebounceMap.get(queryKey);
-
-  if (existingTimeout) {
-    clearTimeout(existingTimeout);
-  }
-
-  const timeout = setTimeout(async () => {
-    try {
-      // Use connection pooling for optimal performance
-      await acquireConnection();
-      queryFn(...args);
-    } catch (error) {
-      console.error('Query execution error', error);
-    } finally {
-      releaseConnection();
-      queryDebounceMap.delete(queryKey);
-    }
-  }, debounceDelay);
-
-  queryDebounceMap.set(queryKey, timeout);
-}
 
 interface SendMessageOptions {
   room?: string | null;
@@ -1002,29 +677,20 @@ export async function uploadImage({ image, room, user }: UploadImageData): Promi
 
 export function getMessages(
   roomId: string | null | undefined,
-  callback: (messages: Array<Record<string, unknown>>) => void,
-  options: {
-    limitCount?: number;
-    startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
-    enableCache?: boolean;
-    enableDebounce?: boolean;
-  } = {}
+  callback: (messages: Array<Record<string, unknown>>) => void
 ): (() => void) | undefined {
   if (!roomId) return undefined;
 
   const auth = getAuth();
 
-  // Wait for authentication before proceeding
+  // Firestore rules require an authenticated user, so defer the query until sign-in completes
   if (!auth.currentUser) {
-    // Return a function that sets up auth listener and then executes query
     let unsubscribeAuth: (() => void) | undefined;
     let unsubscribeQuery: (() => void) | undefined;
 
     unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
-        // User is now authenticated, proceed with the query
-        unsubscribeQuery = executeGetMessages(roomId, callback, options);
-        // Clean up auth listener
+        unsubscribeQuery = executeGetMessages(roomId, callback);
         if (unsubscribeAuth) {
           unsubscribeAuth();
           unsubscribeAuth = undefined;
@@ -1032,502 +698,74 @@ export function getMessages(
       }
     });
 
-    // Return cleanup function
     return () => {
       if (unsubscribeAuth) unsubscribeAuth();
       if (unsubscribeQuery) unsubscribeQuery();
     };
   }
 
-  // User is already authenticated, proceed normally
-  return executeGetMessages(roomId, callback, options);
+  return executeGetMessages(roomId, callback);
 }
 
 function executeGetMessages(
   roomId: string,
-  callback: (messages: Array<Record<string, unknown>>) => void,
-  options: {
-    limitCount?: number;
-    startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
-    enableCache?: boolean;
-    enableDebounce?: boolean;
-  } = {}
-): (() => void) | undefined {
-  const {
-    limitCount = DEFAULT_LIMIT,
-    startAfterDoc,
-    enableCache = true,
-    enableDebounce = true,
-  } = options;
-
+  callback: (messages: Array<Record<string, unknown>>) => void
+): () => void {
   const roomUpper = roomId.toUpperCase();
-  const queryKey = getCacheKey('messages', roomUpper, `limit:${limitCount}`);
-  const startTime = Date.now();
 
-  // Check cache first with smart cache validation
-  if (enableCache) {
-    const cached = queryCache.get(queryKey);
-    if (cached && isValidCache(cached, queryKey)) {
-      // Update cache access count for smart eviction
-      cached.queryCount++;
-      queryCache.set(queryKey, cached);
+  // 3-hour window balances chat history depth against Firestore read volume
+  const timeWindow = new Date();
+  timeWindow.setHours(timeWindow.getHours() - 3);
 
-      updateQueryMetrics(queryKey, Date.now() - startTime, true);
-      callback(cached.data as Array<Record<string, unknown>>);
-      return () => {}; // Return empty unsubscribe function for cached results
-    }
-  }
+  const messagesQuery = query(
+    collection(db, 'chat-rooms', roomUpper, 'messages'),
+    where('timestamp', '>', timeWindow),
+    orderBy('timestamp', 'desc'),
+    limit(DEFAULT_LIMIT)
+  );
 
-  const executeQuery = () => {
-    let networkError = false;
-    let unsubscribe: (() => void) | undefined;
-
-    try {
-      // Use connection pooling for optimal Firebase performance
-      acquireConnection();
-
-      // Enhanced time window - use 3 hours for better performance vs data freshness balance
-      const timeWindow = new Date();
-      timeWindow.setHours(timeWindow.getHours() - 3);
-
-      let baseQuery = query(
-        collection(db, 'chat-rooms', roomUpper, 'messages'),
-        where('timestamp', '>', timeWindow),
-        orderBy('timestamp', 'desc'),
-        limit(limitCount)
-      );
-
-      // Add pagination if startAfterDoc is provided
-      if (startAfterDoc) {
-        baseQuery = query(
-          collection(db, 'chat-rooms', roomUpper, 'messages'),
-          where('timestamp', '>', timeWindow),
-          orderBy('timestamp', 'desc'),
-          startAfter(startAfterDoc),
-          limit(limitCount)
-        );
-      }
-
-      unsubscribe = onSnapshot(
-        baseQuery,
-        (querySnapshot: QuerySnapshot<DocumentData>) => {
-          const queryEndTime = Date.now();
-          const latency = queryEndTime - startTime;
-
-          const messages = querySnapshot.docs.map((document) => ({
-            id: document.id,
-            ...document.data(),
-          }));
-
-          // Update cache with enhanced metadata
-          if (enableCache && messages.length > 0) {
-            evictOldCacheEntries(); // Prevent memory bloat
-
-            const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-            const priority = getCachePriority(queryKey);
-
-            queryCache.set(queryKey, {
-              data: messages,
-              timestamp: queryEndTime,
-              lastVisible,
-              queryCount: 1,
-              priority,
-            });
-          }
-
-          updateQueryMetrics(queryKey, latency, false, networkError);
-          callback(messages);
-        },
-        (error) => {
-          networkError = true;
-          console.error('getMessages error', error);
-          updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
-        }
-      );
-
-      return unsubscribe;
-    } catch (error) {
-      networkError = true;
-      console.error('getMessages connection error', error);
-      updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
-      return () => {};
-    } finally {
-      releaseConnection();
-    }
-  };
-
-  // Apply smart debouncing based on priority
-  if (enableDebounce) {
-    let deferredUnsubscribe: (() => void) | undefined;
-
-    debounceQuery(queryKey, () => {
-      deferredUnsubscribe = executeQuery();
-    });
-
-    return () => {
-      const timeout = queryDebounceMap.get(queryKey);
-      if (timeout) {
-        clearTimeout(timeout);
-        queryDebounceMap.delete(queryKey);
-      }
-      if (deferredUnsubscribe) {
-        deferredUnsubscribe();
-      }
-    };
-  }
-
-  return executeQuery();
-}
-
-// Enhanced pagination helper for messages
-export function getMessagesWithPagination(
-  roomId: string | null | undefined,
-  callback: (
-    messages: Array<Record<string, unknown>>,
-    lastVisible?: QueryDocumentSnapshot<DocumentData>
-  ) => void,
-  limitCount: number = DEFAULT_LIMIT,
-  startAfterDoc?: QueryDocumentSnapshot<DocumentData>
-): (() => void) | undefined {
-  if (!roomId) return undefined;
-
-  return getMessages(
-    roomId,
-    (messages) => {
-      const cached = queryCache.get(
-        getCacheKey('messages', roomId.toUpperCase(), `limit:${limitCount}`)
-      );
-      callback(messages, cached?.lastVisible);
+  return onSnapshot(
+    messagesQuery,
+    (querySnapshot: QuerySnapshot<DocumentData>) => {
+      const messages = querySnapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data(),
+      }));
+      callback(messages);
     },
-    {
-      limitCount,
-      startAfterDoc,
-      enableCache: true,
-      enableDebounce: true,
+    (error) => {
+      console.error('getMessages error', error);
     }
   );
 }
 
 export function getSchedule(
-  callback: (schedule: Array<Record<string, unknown>>) => void,
-  options: {
-    limitCount?: number;
-    startAfterDoc?: QueryDocumentSnapshot<DocumentData>;
-    enableCache?: boolean;
-    enableDebounce?: boolean;
-  } = {}
+  callback: (schedule: Array<Record<string, unknown>>) => void
 ): () => void {
-  const {
-    limitCount = DEFAULT_LIMIT,
-    startAfterDoc,
-    enableCache = true,
-    enableDebounce = true,
-  } = options;
+  // 5-minute lookback keeps games that just started visible as "current"
+  const currentTime = new Date();
+  currentTime.setMinutes(currentTime.getMinutes() - 5);
 
-  const queryKey = getCacheKey('schedule', null, `limit:${limitCount}`);
-  const startTime = Date.now();
-
-  // Check cache first with smart cache validation
-  if (enableCache) {
-    const cached = queryCache.get(queryKey);
-    if (cached && isValidCache(cached, queryKey)) {
-      // Update cache access count for smart eviction
-      cached.queryCount++;
-      queryCache.set(queryKey, cached);
-
-      updateQueryMetrics(queryKey, Date.now() - startTime, true);
-      callback(cached.data as Array<Record<string, unknown>>);
-      return () => {}; // Return empty unsubscribe function for cached results
-    }
-  }
-
-  const executeQuery = async (): Promise<() => void> => {
-    let networkError = false;
-    let unsubscribe: (() => void) | undefined;
-
-    try {
-      // Use connection pooling for optimal Firebase performance
-      await acquireConnection();
-
-      // Enhanced time filtering - include current games (5 minutes buffer)
-      const currentTime = new Date();
-      currentTime.setMinutes(currentTime.getMinutes() - 5);
-
-      let baseQuery = query(
-        collection(db, 'schedule'),
-        where('dateTime', '>', currentTime),
-        orderBy('dateTime', 'asc'),
-        limit(limitCount)
-      );
-
-      // Add pagination if startAfterDoc is provided
-      if (startAfterDoc) {
-        baseQuery = query(
-          collection(db, 'schedule'),
-          where('dateTime', '>', currentTime),
-          orderBy('dateTime', 'asc'),
-          startAfter(startAfterDoc),
-          limit(limitCount)
-        );
-      }
-
-      unsubscribe = onSnapshot(
-        baseQuery,
-        (querySnapshot: QuerySnapshot<DocumentData>) => {
-          const queryEndTime = Date.now();
-          const latency = queryEndTime - startTime;
-
-          const schedule = querySnapshot.docs.map((document) => ({
-            id: document.id,
-            ...document.data(),
-          }));
-
-          // Update cache with enhanced metadata
-          if (enableCache && schedule.length > 0) {
-            evictOldCacheEntries(); // Prevent memory bloat
-
-            const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-            const priority = getCachePriority(queryKey);
-
-            queryCache.set(queryKey, {
-              data: schedule,
-              timestamp: queryEndTime,
-              lastVisible,
-              queryCount: 1,
-              priority,
-            });
-          }
-
-          updateQueryMetrics(queryKey, latency, false, networkError);
-          callback(schedule);
-        },
-        (error) => {
-          networkError = true;
-          console.error('getSchedule error', error);
-          updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
-        }
-      );
-
-      return unsubscribe || (() => {});
-    } catch (error) {
-      networkError = true;
-      console.error('getSchedule connection error', error);
-      updateQueryMetrics(queryKey, Date.now() - startTime, false, true);
-      return () => {};
-    } finally {
-      releaseConnection();
-    }
-  };
-
-  // Apply smart debouncing based on priority
-  if (enableDebounce) {
-    let deferredUnsubscribe: (() => void) | undefined;
-
-    debounceQuery(queryKey, async () => {
-      deferredUnsubscribe = await executeQuery();
-    });
-
-    return () => {
-      const timeout = queryDebounceMap.get(queryKey);
-      if (timeout) {
-        clearTimeout(timeout);
-        queryDebounceMap.delete(queryKey);
-      }
-      if (deferredUnsubscribe) {
-        deferredUnsubscribe();
-      }
-    };
-  }
-
-  const result = executeQuery();
-  return result instanceof Promise ? () => {} : result;
-}
-
-// Enhanced pagination helper for schedule
-export function getScheduleWithPagination(
-  callback: (
-    schedule: Array<Record<string, unknown>>,
-    lastVisible?: QueryDocumentSnapshot<DocumentData>
-  ) => void,
-  limitCount: number = DEFAULT_LIMIT,
-  startAfterDoc?: QueryDocumentSnapshot<DocumentData>
-): () => void {
-  return getSchedule(
-    (schedule) => {
-      const cached = queryCache.get(getCacheKey('schedule', null, `limit:${limitCount}`));
-      callback(schedule, cached?.lastVisible);
-    },
-    {
-      limitCount,
-      startAfterDoc,
-      enableCache: true,
-      enableDebounce: true,
-    }
-  );
-}
-
-// Utility function to clear query cache (useful for testing or memory management)
-export function clearQueryCache(pattern?: string): void {
-  if (pattern) {
-    Array.from(queryCache.keys())
-      .filter((key) => key.includes(pattern))
-      .forEach((key) => queryCache.delete(key));
-  } else {
-    queryCache.clear();
-  }
-}
-
-// Enhanced utility function to get comprehensive cache stats
-export function getCacheStats(): {
-  totalCachedQueries: number;
-  cacheSize: number;
-  oldestCacheEntry: number | null;
-  newestCacheEntry: number | null;
-  memoryUsageEstimate: number;
-  cachesByPriority: { high: number; medium: number; low: number };
-  averageQueryCount: number;
-  connectionPoolStats: {
-    activeConnections: number;
-    maxConnections: number;
-    queueLength: number;
-    utilizationPercentage: number;
-  };
-} {
-  const timestamps = Array.from(queryCache.values()).map((cache) => cache.timestamp);
-  const cacheValues = Array.from(queryCache.values());
-
-  // Calculate cache distribution by priority
-  const priorityStats = cacheValues.reduce(
-    (acc, cache) => {
-      acc[cache.priority]++;
-      return acc;
-    },
-    { high: 0, medium: 0, low: 0 }
+  const scheduleQuery = query(
+    collection(db, 'schedule'),
+    where('dateTime', '>', currentTime),
+    orderBy('dateTime', 'asc'),
+    limit(DEFAULT_LIMIT)
   );
 
-  // Estimate memory usage (rough calculation)
-  const memoryUsageEstimate = cacheValues.reduce((total, cache) => {
-    return total + JSON.stringify(cache.data).length * 2; // Rough bytes estimate
-  }, 0);
-
-  // Calculate average query count
-  const averageQueryCount =
-    cacheValues.length > 0
-      ? cacheValues.reduce((sum, cache) => sum + cache.queryCount, 0) / cacheValues.length
-      : 0;
-
-  return {
-    totalCachedQueries: queryCache.size,
-    cacheSize: queryCache.size,
-    oldestCacheEntry: timestamps.length > 0 ? Math.min(...timestamps) : null,
-    newestCacheEntry: timestamps.length > 0 ? Math.max(...timestamps) : null,
-    memoryUsageEstimate,
-    cachesByPriority: priorityStats,
-    averageQueryCount,
-    connectionPoolStats: {
-      activeConnections: connectionPool.activeConnections,
-      maxConnections: connectionPool.maxConnections,
-      queueLength: connectionPool.connectionQueue.length,
-      utilizationPercentage:
-        (connectionPool.activeConnections / connectionPool.maxConnections) * 100,
+  return onSnapshot(
+    scheduleQuery,
+    (querySnapshot: QuerySnapshot<DocumentData>) => {
+      const schedule = querySnapshot.docs.map((document) => ({
+        id: document.id,
+        ...document.data(),
+      }));
+      callback(schedule);
     },
-  };
-}
-
-// Add new performance optimization utilities
-export function optimizeCache(): {
-  entriesEvicted: number;
-  memoryFreed: number;
-  newCacheSize: number;
-} {
-  const beforeSize = queryCache.size;
-  const beforeMemory = Array.from(queryCache.values()).reduce((total, cache) => {
-    return total + JSON.stringify(cache.data).length * 2;
-  }, 0);
-
-  evictOldCacheEntries();
-
-  const afterSize = queryCache.size;
-  const afterMemory = Array.from(queryCache.values()).reduce((total, cache) => {
-    return total + JSON.stringify(cache.data).length * 2;
-  }, 0);
-
-  return {
-    entriesEvicted: beforeSize - afterSize,
-    memoryFreed: beforeMemory - afterMemory,
-    newCacheSize: afterSize,
-  };
-}
-
-// Get performance recommendations based on current metrics
-export function getPerformanceRecommendations(): {
-  recommendations: string[];
-  overallScore: number;
-  issues: string[];
-} {
-  const metrics = getQueryPerformanceMetrics();
-  const cacheStats = getCacheStats();
-  const recommendations: string[] = [];
-  const issues: string[] = [];
-  let overallScore = 100;
-
-  // Analyze cache hit rates
-  const avgCacheHitRate =
-    Object.values(metrics).reduce((sum, metric) => sum + metric.cacheHitRate, 0) /
-      Object.keys(metrics).length || 0;
-
-  if (avgCacheHitRate < 50) {
-    recommendations.push('Increase cache TTL for better hit rates');
-    issues.push('Low cache hit rate detected');
-    overallScore -= 20;
-  }
-
-  // Analyze connection pool utilization
-  if (cacheStats.connectionPoolStats.utilizationPercentage > 80) {
-    recommendations.push('Consider increasing connection pool size');
-    issues.push('High connection pool utilization');
-    overallScore -= 15;
-  }
-
-  // Analyze error rates
-  const avgErrorRate =
-    Object.values(metrics).reduce((sum, metric) => sum + metric.errorRate, 0) /
-      Object.keys(metrics).length || 0;
-
-  if (avgErrorRate > 5) {
-    recommendations.push('Investigate network errors and add retry logic');
-    issues.push('High error rate detected');
-    overallScore -= 25;
-  }
-
-  // Analyze latency
-  const avgLatency =
-    Object.values(metrics).reduce((sum, metric) => sum + metric.avgLatency, 0) /
-      Object.keys(metrics).length || 0;
-
-  if (avgLatency > 1000) {
-    recommendations.push('Optimize query structures and indexes');
-    issues.push('High average latency detected');
-    overallScore -= 20;
-  }
-
-  // Memory usage recommendations
-  if (cacheStats.memoryUsageEstimate > 10 * 1024 * 1024) {
-    // 10MB
-    recommendations.push('Consider reducing cache size or implementing more aggressive eviction');
-    issues.push('High memory usage detected');
-    overallScore -= 10;
-  }
-
-  if (recommendations.length === 0) {
-    recommendations.push('Performance is optimal!');
-  }
-
-  return {
-    recommendations,
-    overallScore: Math.max(0, overallScore),
-    issues,
-  };
+    (error) => {
+      console.error('getSchedule error', error);
+    }
+  );
 }
 
 export async function addSchedule(

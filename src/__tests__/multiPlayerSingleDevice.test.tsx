@@ -48,7 +48,6 @@ vi.mock('@/stores/userListStore', () => ({
 vi.mock('@/services/firebase', () => ({
   sendMessage: vi.fn(),
   getMessages: vi.fn(() => vi.fn()),
-  getMessagesWithPagination: vi.fn(() => vi.fn()),
 }));
 
 // Mock i18next
