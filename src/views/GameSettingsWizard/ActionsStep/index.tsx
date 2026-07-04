@@ -187,11 +187,14 @@ export default function ActionsStep({
         const srcType = actionsList[item].type;
         if (!srcType || !(VALID_GROUP_TYPES as readonly string[]).includes(srcType)) return;
         const presetIntensity = preset.intensities?.[item] || defaultIntensity;
-        const availableIntensities = Object.keys(actionsList[item].intensities || {});
-        const maxLevel = availableIntensities.length;
+        // Slice actual sorted intensity VALUES, not 1..k positions, so sparse
+        // ladders don't select phantom levels (mirrors spiceBand).
+        const availableValues = Object.keys(actionsList[item].intensities || {})
+          .map(Number)
+          .sort((a, b) => a - b);
         targetActions[item] = {
           type: srcType as GroupType,
-          levels: Array.from({ length: Math.min(presetIntensity, maxLevel) }, (_, i) => i + 1),
+          levels: availableValues.slice(0, Math.min(presetIntensity, availableValues.length)),
         };
       }
     });

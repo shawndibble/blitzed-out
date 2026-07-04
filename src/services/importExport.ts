@@ -410,12 +410,21 @@ async function processDisabledDefaultImport(ctx: ImportContext): Promise<void> {
   // Process disabled default tiles by setting them to disabled in the database
   for (const disabledTile of ctx.importData.data.disabledDefaultTiles) {
     try {
-      // ExportDisabledDefault carries no locale; recover it from the matching
-      // imported group (same name+gameMode), falling back to 'en'.
-      const importedGroup = ctx.importData.data.customGroups.find(
-        (g) => g.name === disabledTile.groupName && g.gameMode === disabledTile.gameMode
-      );
-      const groupLocale = importedGroup?.locale || 'en';
+      // ExportDisabledDefault carries no locale. A disabled DEFAULT group is
+      // never in customGroups, so recover its locale from any sibling section
+      // that does carry one (its extension entry or one of its tiles), same
+      // name + gameMode, before falling back to 'en'.
+      const groupLocale =
+        ctx.importData.data.customGroups.find(
+          (g) => g.name === disabledTile.groupName && g.gameMode === disabledTile.gameMode
+        )?.locale ||
+        (ctx.importData.data.groupExtensions ?? []).find(
+          (e) => e.groupName === disabledTile.groupName && e.gameMode === disabledTile.gameMode
+        )?.locale ||
+        ctx.importData.data.customTiles.find(
+          (tl) => tl.groupName === disabledTile.groupName && tl.gameMode === disabledTile.gameMode
+        )?.locale ||
+        'en';
       const key = groupKey(disabledTile.groupName, groupLocale, disabledTile.gameMode);
       let groupId = ctx.groupIdMap.get(key);
 

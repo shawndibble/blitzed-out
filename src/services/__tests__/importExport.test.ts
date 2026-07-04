@@ -1127,6 +1127,72 @@ describe('ImportExport Service', () => {
         expect((onlineCall![1] as any).intensities.map((i: any) => i.value)).toEqual([1, 2, 3]);
         expect((localCall![1] as any).intensities.map((i: any) => i.value)).toEqual([1, 2, 4]);
       });
+
+      it('disables a non-en default tile by recovering locale from the extension entry', async () => {
+        const frGroup: CustomGroupPull = {
+          id: 'bb-fr-online',
+          name: 'ballBusting',
+          label: 'Coups aux testicules',
+          intensities: [{ id: 'd1', label: 'N1', value: 1, isDefault: true }],
+          type: 'sex',
+          isDefault: true,
+          locale: 'fr',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        vi.mocked(getCustomGroups).mockImplementation((filters: any) =>
+          Promise.resolve(filters?.locale === 'fr' ? [frGroup] : [])
+        );
+        // Context build queries by group_id (custom tiles) → none; the disable
+        // lookup queries by isCustom:0 + action → the default tile to disable.
+        vi.mocked(getTiles).mockImplementation((f: any) =>
+          Promise.resolve(
+            f?.isCustom === 0 && f?.action
+              ? ([{ id: 99, action: 'Frapper', intensity: 1, isEnabled: 1 }] as any)
+              : []
+          )
+        );
+
+        const payload: ExportData = {
+          formatVersion: '2.1.0',
+          exportedAt: new Date().toISOString(),
+          data: {
+            customGroups: [],
+            customTiles: [],
+            disabledDefaultTiles: [
+              {
+                action: 'Frapper',
+                groupName: 'ballBusting',
+                intensity: 1,
+                gameMode: 'online',
+                contentHash: 'h',
+              },
+            ],
+            // Provides the fr locale the disabled-default entry lacks.
+            groupExtensions: [
+              {
+                groupName: 'ballBusting',
+                groupLabel: 'Coups',
+                locale: 'fr',
+                gameMode: 'online',
+                addedIntensities: [],
+                contentHash: 'hx',
+              },
+            ],
+          },
+        };
+
+        await importData(payload, { preserveDisabledDefaults: true });
+
+        // The fr default tile (id 99) is disabled — proof the locale resolved to
+        // 'fr', not the forced 'en' that would have missed the group entirely.
+        expect(vi.mocked(updateCustomTile)).toHaveBeenCalledWith(
+          99,
+          expect.objectContaining({ isEnabled: 0 })
+        );
+      });
     });
   });
 });

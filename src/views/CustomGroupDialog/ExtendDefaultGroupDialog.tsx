@@ -22,7 +22,11 @@ import type { CustomGroupPull, CustomGroupIntensity } from '@/types/customGroups
 import { updateCustomGroup } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
 import { appendIntensities } from '@/services/intensityMerge';
-import { validateGroupExtension, MAX_INTENSITIES_COUNT } from '@/services/validationService';
+import {
+  validateGroupExtension,
+  MAX_INTENSITIES_COUNT,
+  MAX_INTENSITY_VALUE,
+} from '@/services/validationService';
 
 export interface ExtendDefaultGroupDialogProps {
   open: boolean;
@@ -93,7 +97,12 @@ export default function ExtendDefaultGroupDialog({
   ].sort((a, b) => a.value - b.value);
 
   const totalLevels = keptLevels.length + newLabels.length;
-  const ladderFull = totalLevels >= MAX_INTENSITIES_COUNT;
+  // Two independent ceilings: the level COUNT cap, and the VALUE cap — since
+  // values are allocated strictly above the current highest (never reusing a
+  // freed gap), the next value must still fit within MAX_INTENSITY_VALUE.
+  const highestValue = keptLevels.reduce((max, i) => Math.max(max, i.value), 0);
+  const valueCeilingReached = highestValue + newLabels.length >= MAX_INTENSITY_VALUE;
+  const ladderFull = totalLevels >= MAX_INTENSITIES_COUNT || valueCeilingReached;
 
   const handleAdd = () => {
     if (ladderFull) return;
@@ -113,13 +122,19 @@ export default function ExtendDefaultGroupDialog({
       // gap left by a removed level. Append-only sync merges by value, so
       // reusing a freed value lets two devices bind the same value to
       // different labels — a permanent, unresolvable divergence.
-      let nextValue = keptLevels.reduce((max, i) => Math.max(max, i.value), 0) + 1;
+      let nextValue = highestValue + 1;
       const additions = newLabels.map((label) => ({
         value: nextValue++,
         label: label.trim(),
       }));
 
-      const { merged } = appendIntensities(keptLevels, additions, group.name);
+      const { merged, added, skipped } = appendIntensities(keptLevels, additions, group.name);
+      // Never report success while silently dropping a level (e.g. a value that
+      // would exceed MAX_INTENSITY_VALUE). Surface it instead of closing.
+      if (skipped.length > 0 || added.length !== newLabels.length) {
+        setErrors([t('customGroups.ladderFull')]);
+        return;
+      }
       await updateCustomGroup(group.id, { intensities: merged });
       onSaved({ ...group, intensities: merged });
       onClose();
