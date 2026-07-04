@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -22,7 +22,11 @@ import type { CustomGroupPull, CustomGroupIntensity } from '@/types/customGroups
 import { updateCustomGroup } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
 import { appendIntensities } from '@/services/intensityMerge';
-import { validateGroupExtension, MAX_INTENSITIES_COUNT } from '@/services/validationService';
+import {
+  validateGroupExtension,
+  MAX_INTENSITIES_COUNT,
+  MAX_INTENSITY_VALUE,
+} from '@/services/validationService';
 
 export interface ExtendDefaultGroupDialogProps {
   open: boolean;
@@ -45,7 +49,10 @@ export default function ExtendDefaultGroupDialog({
 }: ExtendDefaultGroupDialogProps) {
   const { t } = useTranslation();
 
-  const [newLabels, setNewLabels] = useState<string[]>([]);
+  // Each row carries a stable id so removing one never shifts another's key
+  // (array-index keys break focus/DOM identity on filter).
+  const [newLabels, setNewLabels] = useState<{ id: string; label: string }[]>([]);
+  const labelIdCounter = useRef(0);
   const [removedValues, setRemovedValues] = useState<Set<number>>(new Set());
   const [tileCountByValue, setTileCountByValue] = useState<Record<number, number>>({});
   const [errors, setErrors] = useState<string[]>([]);
@@ -93,15 +100,23 @@ export default function ExtendDefaultGroupDialog({
   ].sort((a, b) => a.value - b.value);
 
   const totalLevels = keptLevels.length + newLabels.length;
-  const ladderFull = totalLevels >= MAX_INTENSITIES_COUNT;
+  // Two independent ceilings: the level COUNT cap, and the VALUE cap — since
+  // values are allocated strictly above the current highest (never reusing a
+  // freed gap), the next value must still fit within MAX_INTENSITY_VALUE.
+  const highestValue = keptLevels.reduce((max, i) => Math.max(max, i.value), 0);
+  const valueCeilingReached = highestValue + newLabels.length >= MAX_INTENSITY_VALUE;
+  const ladderFull = totalLevels >= MAX_INTENSITIES_COUNT || valueCeilingReached;
 
   const handleAdd = () => {
     if (ladderFull) return;
-    setNewLabels((prev) => [...prev, '']);
+    setNewLabels((prev) => [...prev, { id: `nl-${labelIdCounter.current++}`, label: '' }]);
   };
 
   const handleSave = async () => {
-    const validation = validateGroupExtension(keptLevels, newLabels);
+    const validation = validateGroupExtension(
+      keptLevels,
+      newLabels.map((entry) => entry.label)
+    );
     if (!validation.isValid) {
       setErrors(validation.errors);
       return;
@@ -109,16 +124,22 @@ export default function ExtendDefaultGroupDialog({
 
     setIsSaving(true);
     try {
-      // Assign the lowest free values to the new levels, in row order.
-      const taken = new Set(keptLevels.map((i) => i.value));
-      const additions = newLabels.map((label) => {
-        let value = 1;
-        while (taken.has(value)) value++;
-        taken.add(value);
-        return { value, label: label.trim() };
-      });
+      // Allocate strictly above the current highest value, never reusing a
+      // gap left by a removed level. Append-only sync merges by value, so
+      // reusing a freed value lets two devices bind the same value to
+      // different labels — a permanent, unresolvable divergence.
+      const additions = newLabels.map((entry, index) => ({
+        value: highestValue + index + 1,
+        label: entry.label.trim(),
+      }));
 
-      const { merged } = appendIntensities(keptLevels, additions, group.name);
+      const { merged, added, skipped } = appendIntensities(keptLevels, additions, group.name);
+      // Never report success while silently dropping a level (e.g. a value that
+      // would exceed MAX_INTENSITY_VALUE). Surface it instead of closing.
+      if (skipped.length > 0 || added.length !== newLabels.length) {
+        setErrors([t('customGroups.ladderFull')]);
+        return;
+      }
       await updateCustomGroup(group.id, { intensities: merged });
       onSaved({ ...group, intensities: merged });
       onClose();
@@ -207,15 +228,14 @@ export default function ExtendDefaultGroupDialog({
           );
         })}
 
-        {newLabels.map((label, index) => (
-          <Box
-            key={`new-${index}`}
-            sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}
-          >
+        {newLabels.map((entry) => (
+          <Box key={entry.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <TextField
-              value={label}
+              value={entry.label}
               onChange={(e) =>
-                setNewLabels((prev) => prev.map((l, i) => (i === index ? e.target.value : l)))
+                setNewLabels((prev) =>
+                  prev.map((l) => (l.id === entry.id ? { ...l, label: e.target.value } : l))
+                )
               }
               placeholder={t('customGroups.newLevelPlaceholder')}
               size="small"
@@ -225,7 +245,7 @@ export default function ExtendDefaultGroupDialog({
             <IconButton
               size="small"
               aria-label="remove new level"
-              onClick={() => setNewLabels((prev) => prev.filter((_, i) => i !== index))}
+              onClick={() => setNewLabels((prev) => prev.filter((l) => l.id !== entry.id))}
               color="error"
             >
               <DeleteIcon fontSize="small" />

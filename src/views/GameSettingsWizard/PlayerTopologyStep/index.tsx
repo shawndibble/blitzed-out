@@ -72,28 +72,37 @@ export default function PlayerTopologyStep({
   };
 
   const selectSharedDevice = () => {
-    setFormData((prev) => ({
-      ...prev,
-      gameMode: 'local',
-      soloPlay: false,
-      room: generateRoomCode(),
-      roomRealtime: false,
-    }));
+    setFormData((prev) => {
+      // Re-tapping the already-selected card must not mint a fresh code — the
+      // user may have already shared it. Only generate when there's no usable
+      // room code for this mode yet.
+      const keepRoom = prev.gameMode === 'local' && !!prev.room && prev.room !== 'PUBLIC';
+      return {
+        ...prev,
+        gameMode: 'local',
+        soloPlay: false,
+        room: keepRoom ? prev.room : generateRoomCode(),
+        roomRealtime: false,
+      };
+    });
   };
 
   const selectIndividualDevices = () => {
     if (offline) return;
 
-    setFormData((prev) => ({
-      ...prev,
-      gameMode: 'online',
-      soloPlay: true,
-      room: generateRoomCode(),
-      roomRealtime: false,
-      hasLocalPlayers: false,
-      localPlayersData: undefined,
-      localPlayerSessionSettings: undefined,
-    }));
+    setFormData((prev) => {
+      const keepRoom = prev.gameMode === 'online' && !!prev.room && prev.room !== 'PUBLIC';
+      return {
+        ...prev,
+        gameMode: 'online',
+        soloPlay: true,
+        room: keepRoom ? prev.room : generateRoomCode(),
+        roomRealtime: false,
+        hasLocalPlayers: false,
+        localPlayersData: undefined,
+        localPlayerSessionSettings: undefined,
+      };
+    });
   };
 
   const cards = [

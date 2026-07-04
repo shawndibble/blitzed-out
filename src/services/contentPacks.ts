@@ -316,9 +316,16 @@ export async function importPack(pack: ContentPackDoc): Promise<ImportResult> {
 
   if (result.success) {
     // Popularity counter; never let it fail the import (offline, rules, etc).
-    Promise.resolve(updateDoc(doc(db, COLLECTION, pack.id), { importCount: increment(1) })).catch(
-      () => {}
-    );
+    // Wrapped in an async IIFE so a synchronous throw from updateDoc (e.g. a
+    // bad ref) is caught too — a bare Promise.resolve(updateDoc(...)) would let
+    // a sync throw escape the .catch and reject the import.
+    void (async () => {
+      try {
+        await updateDoc(doc(db, COLLECTION, pack.id), { importCount: increment(1) });
+      } catch {
+        // Best-effort; ignore.
+      }
+    })();
 
     analytics.trackPackEvent('pack_imported', {
       group_count: pack.groupCount,

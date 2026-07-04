@@ -38,12 +38,24 @@ describe('appendIntensities', () => {
     expect(result.merged.slice(0, 2)).toEqual(snapshot);
   });
 
-  it('skips duplicate values (idempotent re-import)', () => {
+  it('skips duplicate values with the same label (idempotent re-import)', () => {
     const existing = [...ladder([1, 2]), ...ladder([3], false)];
-    const result = appendIntensities(existing, [{ value: 3, label: 'Again' }], 'g');
+    // Same value AND same label as the existing level 3 → a true no-op.
+    const result = appendIntensities(existing, [{ value: 3, label: 'Level 3' }], 'g');
 
     expect(result.added).toEqual([]);
     expect(result.skipped).toEqual([{ value: 3, reason: 'duplicate' }]);
+    expect(result.merged).toEqual([...existing].sort((a, b) => a.value - b.value));
+  });
+
+  it('flags a value collision when the label differs (mislabel risk)', () => {
+    const existing = [...ladder([1, 2]), ...ladder([3], false)];
+    // Same value 3 but a DIFFERENT label: the incoming level means something
+    // else. It must not be silently swallowed as a duplicate.
+    const result = appendIntensities(existing, [{ value: 3, label: 'Brutal' }], 'g');
+
+    expect(result.added).toEqual([]);
+    expect(result.skipped).toEqual([{ value: 3, reason: 'valueConflict' }]);
     expect(result.merged).toEqual([...existing].sort((a, b) => a.value - b.value));
   });
 
@@ -83,7 +95,7 @@ describe('appendIntensities', () => {
 
     const full = appendIntensities(
       ladder([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].slice(0, 10)),
-      [{ value: 10, label: 'Ten' }],
+      [{ value: 10, label: 'Level 10' }],
       'g'
     );
     expect(full.added).toEqual([]);

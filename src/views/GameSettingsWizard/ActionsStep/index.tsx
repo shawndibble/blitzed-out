@@ -120,7 +120,7 @@ export default function ActionsStep({
     const current = type === 'consumption' ? selectedConsumptions : selectedActionGroups;
     if (Object.keys(current).length >= max) return;
 
-    const band = spiceBand(spice, ladderOf(group).length);
+    const band = spiceBand(spice, ladderOf(group));
     handleLevelsChange(
       band,
       group,
@@ -147,14 +147,17 @@ export default function ActionsStep({
       return;
     }
     const entry = formData.selectedActions?.[group] as ActionEntry | undefined;
+    // Derive the type from the group's own definition first: after an
+    // uncheck-all the entry is gone, and falling back to `actionType` would
+    // re-add a consumption group as a main-board action group. The definition
+    // is authoritative regardless of the entry's presence.
+    const groupType = (actionsList[group]?.type || entry?.type || actionType) as any;
+    const variation =
+      groupType === 'consumption'
+        ? entry?.variation || (formData.isAppend ? 'appendMost' : 'standalone')
+        : entry?.variation || null;
     markCustomized(group);
-    handleLevelsChange(
-      levels,
-      group,
-      (entry?.type || actionType) as any,
-      setFormData,
-      entry?.variation || null
-    );
+    handleLevelsChange(levels, group, groupType, setFormData, variation);
   };
 
   // The dial reseeds every selected group the user hasn't touched.
@@ -164,7 +167,7 @@ export default function ActionsStep({
       if (customized.has(group)) return;
       const typedEntry = entry as ActionEntry;
       handleLevelsChange(
-        spiceBand(newSpice, ladderOf(group).length),
+        spiceBand(newSpice, ladderOf(group)),
         group,
         typedEntry.type as any,
         setFormData,
@@ -184,11 +187,14 @@ export default function ActionsStep({
         const srcType = actionsList[item].type;
         if (!srcType || !(VALID_GROUP_TYPES as readonly string[]).includes(srcType)) return;
         const presetIntensity = preset.intensities?.[item] || defaultIntensity;
-        const availableIntensities = Object.keys(actionsList[item].intensities || {});
-        const maxLevel = availableIntensities.length;
+        // Slice actual sorted intensity VALUES, not 1..k positions, so sparse
+        // ladders don't select phantom levels (mirrors spiceBand).
+        const availableValues = Object.keys(actionsList[item].intensities || {})
+          .map(Number)
+          .sort((a, b) => a - b);
         targetActions[item] = {
           type: srcType as GroupType,
-          levels: Array.from({ length: Math.min(presetIntensity, maxLevel) }, (_, i) => i + 1),
+          levels: availableValues.slice(0, Math.min(presetIntensity, availableValues.length)),
         };
       }
     });
@@ -216,6 +222,13 @@ export default function ActionsStep({
     setDirectoryOpen(false);
     if (!pack) return;
 
+    // The wizard's action list is scoped to the UI language. A pack authored in
+    // another locale imports fine, but its groups never appear in this list, so
+    // auto-selecting them would silently consume cap slots with no visible chip
+    // and leave the built board short. Import + reload only on a locale mismatch.
+    const uiLocale = i18n.resolvedLanguage || 'en';
+    if ((pack.locale || uiLocale) !== uiLocale) return;
+
     const groups = await getCustomGroups({
       // importPack preserves each group's locale from the pack contents, which
       // can differ from the current UI language.
@@ -238,7 +251,10 @@ export default function ActionsStep({
       else actionSlots -= 1;
 
       handleLevelsChange(
-        spiceBand(spice, Math.max(1, group.intensities.length)),
+        spiceBand(
+          spice,
+          group.intensities.map((i) => i.value)
+        ),
         group.name,
         (group.type || actionType) as any,
         setFormData,
