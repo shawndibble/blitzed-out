@@ -109,14 +109,15 @@ export default function ExtendDefaultGroupDialog({
 
     setIsSaving(true);
     try {
-      // Assign the lowest free values to the new levels, in row order.
-      const taken = new Set(keptLevels.map((i) => i.value));
-      const additions = newLabels.map((label) => {
-        let value = 1;
-        while (taken.has(value)) value++;
-        taken.add(value);
-        return { value, label: label.trim() };
-      });
+      // Allocate strictly above the current highest value, never reusing a
+      // gap left by a removed level. Append-only sync merges by value, so
+      // reusing a freed value lets two devices bind the same value to
+      // different labels — a permanent, unresolvable divergence.
+      let nextValue = keptLevels.reduce((max, i) => Math.max(max, i.value), 0) + 1;
+      const additions = newLabels.map((label) => ({
+        value: nextValue++,
+        label: label.trim(),
+      }));
 
       const { merged } = appendIntensities(keptLevels, additions, group.name);
       await updateCustomGroup(group.id, { intensities: merged });
@@ -208,10 +209,7 @@ export default function ExtendDefaultGroupDialog({
         })}
 
         {newLabels.map((label, index) => (
-          <Box
-            key={`new-${index}`}
-            sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}
-          >
+          <Box key={`new-${index}`} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <TextField
               value={label}
               onChange={(e) =>

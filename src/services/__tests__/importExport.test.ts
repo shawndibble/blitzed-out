@@ -532,9 +532,7 @@ describe('ImportExport Service', () => {
         ...mockExportData,
         data: {
           customGroups: [],
-          customTiles: [
-            { ...mockExportData.data.customTiles[0], groupName: 'nonexistentGroup' },
-          ],
+          customTiles: [{ ...mockExportData.data.customTiles[0], groupName: 'nonexistentGroup' }],
           disabledDefaultTiles: [],
         },
       };
@@ -1050,6 +1048,84 @@ describe('ImportExport Service', () => {
         expect(group2?.exportCount.customTiles).toBe(1); // One custom tile
         expect(group2?.exportCount.disabledDefaults).toBe(1); // One disabled default
         expect(group2?.exportCount.total).toBe(3); // Total matches sum
+      });
+    });
+
+    describe('composite-key group resolution (mixed locale/gameMode payloads)', () => {
+      it('routes same-named extensions to the correct gameMode group', async () => {
+        const onlineGroup: CustomGroupPull = {
+          id: 'bb-en-online',
+          name: 'ballBusting',
+          label: 'Ball Busting',
+          intensities: [
+            { id: 'd1', label: 'L1', value: 1, isDefault: true },
+            { id: 'd2', label: 'L2', value: 2, isDefault: true },
+          ],
+          type: 'sex',
+          isDefault: true,
+          locale: 'en',
+          gameMode: 'online',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        const localGroup: CustomGroupPull = {
+          ...onlineGroup,
+          id: 'bb-en-local',
+          gameMode: 'local',
+        };
+
+        vi.mocked(getCustomGroups).mockImplementation((filters: any) =>
+          Promise.resolve(
+            filters?.gameMode === 'local'
+              ? [localGroup]
+              : filters?.gameMode === 'online'
+                ? [onlineGroup]
+                : []
+          )
+        );
+        vi.mocked(getTiles).mockResolvedValue([]);
+
+        const payload: ExportData = {
+          formatVersion: '2.1.0',
+          exportedAt: new Date().toISOString(),
+          data: {
+            customGroups: [],
+            customTiles: [],
+            disabledDefaultTiles: [],
+            groupExtensions: [
+              {
+                groupName: 'ballBusting',
+                groupLabel: 'Ball Busting',
+                locale: 'en',
+                gameMode: 'online',
+                addedIntensities: [{ value: 3, label: 'Online Extra' }],
+                contentHash: 'h1',
+              },
+              {
+                groupName: 'ballBusting',
+                groupLabel: 'Ball Busting',
+                locale: 'en',
+                gameMode: 'local',
+                addedIntensities: [{ value: 4, label: 'Local Extra' }],
+                contentHash: 'h2',
+              },
+            ],
+          },
+        };
+
+        await importData(payload);
+
+        const onlineCall = vi
+          .mocked(updateCustomGroup)
+          .mock.calls.find((c) => c[0] === 'bb-en-online');
+        const localCall = vi
+          .mocked(updateCustomGroup)
+          .mock.calls.find((c) => c[0] === 'bb-en-local');
+
+        expect(onlineCall).toBeDefined();
+        expect(localCall).toBeDefined();
+        expect((onlineCall![1] as any).intensities.map((i: any) => i.value)).toEqual([1, 2, 3]);
+        expect((localCall![1] as any).intensities.map((i: any) => i.value)).toEqual([1, 2, 4]);
       });
     });
   });

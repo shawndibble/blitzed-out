@@ -25,12 +25,16 @@ interface GameSettingsProps {
   closeDialog?: () => void;
   initialTab?: number;
   onOpenSetupWizard?: () => void;
+  /** Fires after a successful settings submit; lets the wizard mark the funnel
+   * complete so finishing via Advanced Setup isn't logged as an abandonment. */
+  onCompleted?: (groupCount: number) => void;
 }
 
 export default function GameSettings({
   closeDialog,
   initialTab = 0,
   onOpenSetupWizard,
+  onCompleted,
 }: GameSettingsProps): JSX.Element {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -65,13 +69,15 @@ export default function GameSettings({
 
       await submitSettings(formData, actionsList);
 
+      onCompleted?.(Object.keys(gameOptions.selectedActions || {}).length);
+
       if (typeof closeDialog === 'function') {
         closeDialog();
       }
 
       return null;
     },
-    [formData, actionsList, t, setAlert, submitSettings, closeDialog]
+    [formData, actionsList, t, setAlert, submitSettings, closeDialog, onCompleted]
   );
 
   const handleBlur = useCallback(

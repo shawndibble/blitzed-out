@@ -226,7 +226,14 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     }
   };
 
-  if (step === 0) return <GameSettings closeDialog={close} onOpenSetupWizard={goToSetupWizard} />;
+  if (step === 0)
+    return (
+      <GameSettings
+        closeDialog={close}
+        onOpenSetupWizard={goToSetupWizard}
+        onCompleted={markCompleted}
+      />
+    );
 
   return (
     <Box>

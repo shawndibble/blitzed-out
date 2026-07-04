@@ -111,13 +111,16 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     activateBoard(board.id);
     // Public rooms allow any board size — adopt the board's size so the rest
     // of the app (builder, warnings, sharing) stays in sync with the tiles.
+    // board.tiles includes the start + finish tiles, but roomTileCount is a
+    // content count, so subtract those two before adopting.
+    const contentTileCount = board.tiles?.length ? Math.max(0, board.tiles.length - 2) : 0;
     const adoptsSize =
-      isPublic && board.tiles?.length && board.tiles.length !== settings?.roomTileCount;
+      isPublic && board.tiles?.length && contentTileCount !== settings?.roomTileCount;
     const effectiveSettings = adoptsSize
-      ? { ...settings, roomTileCount: board.tiles.length }
+      ? { ...settings, roomTileCount: contentTileCount }
       : settings;
     if (adoptsSize) {
-      updateSettings({ roomTileCount: board.tiles.length });
+      updateSettings({ roomTileCount: contentTileCount });
     }
     // Pass the adopted size along so the saved board metadata isn't stale.
     createGameMessage(board, effectiveSettings);

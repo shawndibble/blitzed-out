@@ -42,9 +42,10 @@ import {
   publishPack,
   republishPack,
 } from '@/services/contentPacks';
-import { addCustomTile } from '@/stores/customTiles';
+import { addCustomTile, getTiles } from '@/stores/customTiles';
 import { getCustomGroups } from '@/stores/customGroups';
 import { validateCustomTileWithGroups } from '@/services/validationService';
+import { normalizePlaceholders } from '@/services/placeholderAliasService';
 import { analytics } from '@/services/analytics';
 import useAuth from '@/context/hooks/useAuth';
 import { useGameSettings } from '@/stores/settingsStore';
@@ -63,7 +64,8 @@ function buildShareLink(packId: string): string {
 /** Minimal inline tile author so a blank-start pack never needs another dialog. */
 function QuickTileAdd({ locale, gameMode }: { locale: string; gameMode: string }) {
   const { t } = useTranslation();
-  const groups = useLiveQuery(() => getCustomGroups({ locale, gameMode }), [locale, gameMode]) ?? [];
+  const groups =
+    useLiveQuery(() => getCustomGroups({ locale, gameMode }), [locale, gameMode]) ?? [];
   const [open, setOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [intensity, setIntensity] = useState<number | ''>('');
@@ -78,16 +80,26 @@ function QuickTileAdd({ locale, gameMode }: { locale: string; gameMode: string }
     setSaving(true);
     setFeedback(null);
     try {
+      // Mirror the canonical author path: normalize localized placeholder
+      // tokens to canonical English before validation, dedup, and storage.
+      const normalizedAction = normalizePlaceholders(action.trim(), locale);
       const tile = {
         group_id: group.id,
         intensity: Number(intensity),
-        action: action.trim(),
+        action: normalizedAction,
         tags: [],
         isCustom: 1,
       } as CustomTile;
       const result = await validateCustomTileWithGroups(tile, locale, gameMode);
       if (!result.isValid) {
         setFeedback({ ok: false, message: result.errors.join(' ') });
+        return;
+      }
+      // Reject a duplicate (same group + intensity + action) rather than
+      // silently writing a second identical tile.
+      const existing = await getTiles({ group_id: group.id, intensity: Number(intensity) });
+      if (existing.some((existingTile) => existingTile.action === normalizedAction)) {
+        setFeedback({ ok: false, message: t('actionExists') });
         return;
       }
       await addCustomTile(tile);
@@ -175,7 +187,11 @@ export default function PackCreator() {
   const editId = searchParams.get('edit');
   const { settings } = useGameSettings();
   const { user, isAnonymous } = useAuth();
-  const locale = settings.locale || 'en';
+  const [editingPack, setEditingPack] = useState<ContentPackDoc | null>(null);
+  // When republishing, the pack's own locale is authoritative — a pack authored
+  // in another language must not be re-serialized under the current UI language
+  // (that would export empty contents). New packs use the UI locale.
+  const locale = editingPack?.locale || settings.locale || 'en';
 
   const [step, setStep] = useState(0);
   const [gameMode, setGameMode] = useState<string>(getContentGameMode(settings.gameMode));
@@ -183,10 +199,7 @@ export default function PackCreator() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
-  const [visibility, setVisibility] = useState<PackVisibility>(
-    isAnonymous ? 'private' : 'public'
-  );
-  const [editingPack, setEditingPack] = useState<ContentPackDoc | null>(null);
+  const [visibility, setVisibility] = useState<PackVisibility>(isAnonymous ? 'private' : 'public');
   const [myPacks, setMyPacks] = useState<ContentPackDoc[]>([]);
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -219,7 +232,13 @@ export default function PackCreator() {
     setTags((pack.tags || []).join(', '));
     setVisibility(isAnonymous ? 'private' : pack.visibility);
     const parsed = parsePack(pack);
-    const packGroupNames = (parsed?.data.data.customGroups || []).map((g) => g.name);
+    // Extensions-only packs carry no customGroups entry for the default groups
+    // they extend — seed those names too or the republish selection comes up
+    // empty and the extensions are dropped.
+    const packGroupNames = [
+      ...(parsed?.data.data.customGroups || []).map((g) => g.name),
+      ...(parsed?.data.data.groupExtensions || []).map((e) => e.groupName),
+    ];
     setSelectedGroups(packGroupNames);
     setShareLink(null);
     setStep(0);
@@ -290,7 +309,11 @@ export default function PackCreator() {
     navigate(`/${settings.room || 'PUBLIC'}`);
   };
 
-  const steps = [t('packCreator.stepContent'), t('packCreator.stepDetails'), t('packCreator.stepPublish')];
+  const steps = [
+    t('packCreator.stepContent'),
+    t('packCreator.stepDetails'),
+    t('packCreator.stepPublish'),
+  ];
   const nextDisabled =
     (step === 0 && selectedGroups.length === 0) || (step === 1 && name.trim().length === 0);
 
@@ -459,7 +482,9 @@ export default function PackCreator() {
               {isAnonymous ? (
                 <FormHelperText>{t('packs.anonymousPrivateOnly')}</FormHelperText>
               ) : (
-                visibility === 'public' && <FormHelperText>{t('packs.publicHelper')}</FormHelperText>
+                visibility === 'public' && (
+                  <FormHelperText>{t('packs.publicHelper')}</FormHelperText>
+                )
               )}
             </FormControl>
           </Stack>
@@ -489,7 +514,8 @@ export default function PackCreator() {
               {visibility === 'public' && !isAnonymous
                 ? t('packCreator.willBePublic')
                 : t('packCreator.willBePrivate')}
-              {editingPack && ` · ${t('packCreator.willBumpVersion', { version: editingPack.packVersion + 1 })}`}
+              {editingPack &&
+                ` · ${t('packCreator.willBumpVersion', { version: editingPack.packVersion + 1 })}`}
             </Typography>
             {shareLink ? (
               <Alert severity="success" sx={{ wordBreak: 'break-all' }}>

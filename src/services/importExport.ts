@@ -35,12 +35,20 @@ const BATCH_SIZE = 100;
 
 // Enhanced types for better performance and maintainability
 interface ImportContext {
-  groupMap: Map<string, CustomGroupPull>; // groupName -> group
-  groupIdMap: Map<string, string>; // groupName -> groupId
+  groupMap: Map<string, CustomGroupPull>; // groupKey -> group
+  groupIdMap: Map<string, string>; // groupKey -> groupId
   existingTileMap: Map<string, CustomTile>; // action+intensity+groupId -> tile
   result: ImportResult;
   importData: ExportData;
   options: ImportOptions;
+}
+
+// Default group names repeat across locales AND game modes (en/local vs
+// en/online both have "ballBusting"). Keying group maps by name alone lets a
+// mixed payload's last section clobber the first, misdirecting extensions and
+// tiles onto the wrong group's ladder. Key by the full identity instead.
+function groupKey(name: string, locale: string, gameMode: string): string {
+  return `${name}|${locale}|${gameMode}`;
 }
 
 interface ProgressCallback {
@@ -91,8 +99,12 @@ async function buildImportContext(
     }
   }
 
-  const groupMap = new Map(allExistingGroups.map((g) => [g.name, g]));
-  const groupIdMap = new Map(allExistingGroups.map((g) => [g.name, g.id]));
+  const groupMap = new Map(
+    allExistingGroups.map((g) => [groupKey(g.name, g.locale, g.gameMode), g])
+  );
+  const groupIdMap = new Map(
+    allExistingGroups.map((g) => [groupKey(g.name, g.locale, g.gameMode), g.id])
+  );
 
   // Pre-load existing tiles for conflict detection
   const existingTileMap = new Map<string, CustomTile>();
@@ -165,7 +177,8 @@ async function createExportDisabled(
 async function processGroupImport(ctx: ImportContext): Promise<void> {
   for (const importedGroup of ctx.importData.data.customGroups) {
     try {
-      const existingGroup = ctx.groupMap.get(importedGroup.name);
+      const key = groupKey(importedGroup.name, importedGroup.locale, importedGroup.gameMode);
+      const existingGroup = ctx.groupMap.get(key);
 
       if (existingGroup?.isDefault) {
         // Never let an import replace a default group's record — that would
@@ -208,8 +221,8 @@ async function processGroupImport(ctx: ImportContext): Promise<void> {
           updatedAt: new Date(),
         } as CustomGroupPull;
 
-        ctx.groupMap.set(importedGroup.name, newGroupData);
-        ctx.groupIdMap.set(importedGroup.name, newGroupId);
+        ctx.groupMap.set(key, newGroupData);
+        ctx.groupIdMap.set(key, newGroupId);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -221,7 +234,8 @@ async function processGroupImport(ctx: ImportContext): Promise<void> {
 async function processGroupExtensions(ctx: ImportContext): Promise<void> {
   for (const extension of ctx.importData.data.groupExtensions ?? []) {
     try {
-      let group = ctx.groupMap.get(extension.groupName);
+      const key = groupKey(extension.groupName, extension.locale, extension.gameMode);
+      let group = ctx.groupMap.get(key);
 
       if (!group) {
         // Same deterministic-id resolution the tile importer uses for
@@ -238,8 +252,8 @@ async function processGroupExtensions(ctx: ImportContext): Promise<void> {
         const defaultGroup = allGroups.find((g) => g.id === calculatedGroupId);
         if (defaultGroup) {
           group = defaultGroup;
-          ctx.groupMap.set(extension.groupName, defaultGroup);
-          ctx.groupIdMap.set(extension.groupName, defaultGroup.id);
+          ctx.groupMap.set(key, defaultGroup);
+          ctx.groupIdMap.set(key, defaultGroup.id);
         }
       }
 
@@ -267,6 +281,13 @@ async function processGroupExtensions(ctx: ImportContext): Promise<void> {
         if (skip.reason === 'duplicate') {
           // Expected on re-import; not worth a warning.
           ctx.result.skippedItems++;
+        } else if (skip.reason === 'valueConflict') {
+          // Safety-relevant: the pack's level N differs in meaning from the
+          // existing level N. It is not applied, and any pack tiles at this
+          // intensity will inherit the EXISTING label — warn loudly.
+          ctx.result.warnings.push(
+            `Intensity level ${skip.value} for "${extension.groupName}" already exists with a different label; the pack's level was not applied, and its tiles at this level will use your existing label.`
+          );
         } else {
           ctx.result.warnings.push(
             `Skipped intensity ${skip.value} for ${extension.groupName}: ${skip.reason}`
@@ -279,12 +300,10 @@ async function processGroupExtensions(ctx: ImportContext): Promise<void> {
       await updateCustomGroup(group.id, { intensities: merged });
       ctx.result.importedIntensities += added.length;
       // Refresh the map so tiles at the new levels pass intensity validation.
-      ctx.groupMap.set(extension.groupName, { ...group, intensities: merged });
+      ctx.groupMap.set(key, { ...group, intensities: merged });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      ctx.result.errors.push(
-        `Failed to import extension for ${extension.groupName}: ${message}`
-      );
+      ctx.result.errors.push(`Failed to import extension for ${extension.groupName}: ${message}`);
     }
   }
 }
@@ -301,8 +320,9 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
 
     for (const importedTile of batch) {
       try {
-        let groupId = ctx.groupIdMap.get(importedTile.groupName);
-        let group = ctx.groupMap.get(importedTile.groupName);
+        const key = groupKey(importedTile.groupName, importedTile.locale, importedTile.gameMode);
+        let groupId = ctx.groupIdMap.get(key);
+        let group = ctx.groupMap.get(key);
 
         // If group not found, try to calculate the ID for default groups
         if (!groupId || !group) {
@@ -324,8 +344,8 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
             groupId = calculatedGroupId;
             group = defaultGroup;
             // Add to maps for future lookups in this import session
-            ctx.groupIdMap.set(importedTile.groupName, groupId);
-            ctx.groupMap.set(importedTile.groupName, group);
+            ctx.groupIdMap.set(key, groupId);
+            ctx.groupMap.set(key, group);
           } else {
             ctx.result.warnings.push(
               `Skipped tile for missing group: ${importedTile.groupName} (${importedTile.locale}/${importedTile.gameMode})`
@@ -390,16 +410,17 @@ async function processDisabledDefaultImport(ctx: ImportContext): Promise<void> {
   // Process disabled default tiles by setting them to disabled in the database
   for (const disabledTile of ctx.importData.data.disabledDefaultTiles) {
     try {
-      let groupId = ctx.groupIdMap.get(disabledTile.groupName);
+      // ExportDisabledDefault carries no locale; recover it from the matching
+      // imported group (same name+gameMode), falling back to 'en'.
+      const importedGroup = ctx.importData.data.customGroups.find(
+        (g) => g.name === disabledTile.groupName && g.gameMode === disabledTile.gameMode
+      );
+      const groupLocale = importedGroup?.locale || 'en';
+      const key = groupKey(disabledTile.groupName, groupLocale, disabledTile.gameMode);
+      let groupId = ctx.groupIdMap.get(key);
 
       // If group not found, try to calculate the ID for default groups
       if (!groupId) {
-        // Find the locale from the corresponding imported group, fallback to 'en'
-        const importedGroup = ctx.importData.data.customGroups.find(
-          (g) => g.name === disabledTile.groupName && g.gameMode === disabledTile.gameMode
-        );
-        const groupLocale = importedGroup?.locale || 'en';
-
         // Calculate deterministic ID for default groups using correct locale
         const calculatedGroupId = createDeterministicGroupId(
           disabledTile.groupName,
@@ -417,8 +438,8 @@ async function processDisabledDefaultImport(ctx: ImportContext): Promise<void> {
         if (defaultGroup) {
           groupId = calculatedGroupId;
           // Add to map for future lookups in this import session
-          ctx.groupIdMap.set(disabledTile.groupName, groupId);
-          ctx.groupMap.set(disabledTile.groupName, defaultGroup);
+          ctx.groupIdMap.set(key, groupId);
+          ctx.groupMap.set(key, defaultGroup);
         } else {
           ctx.result.warnings.push(
             `Skipped disabled default for missing group: ${disabledTile.groupName}`
@@ -645,7 +666,12 @@ export async function exportAllData(
       const addedIntensities = group.intensities
         .filter((i) => !i.isDefault)
         .map((i) => ({ value: i.value, label: i.label }));
-      if (addedIntensities.length === 0) continue;
+      // A default group can contribute custom tiles at EXISTING levels without
+      // adding any new intensity level. Emit an entry for those too (empty
+      // addedIntensities) so the pack summary's extension count/labels match the
+      // actual contents; skip only default groups that contribute nothing.
+      const hasExportedTiles = allCustomTiles.some((t) => t.group_id === group.id);
+      if (addedIntensities.length === 0 && !hasExportedTiles) continue;
       exportExtensions.push({
         groupName: group.name,
         groupLabel: group.label || group.name,
@@ -741,7 +767,9 @@ export async function analyzeImportConflicts(
 
     // Group conflicts: an imported group whose name already exists locally.
     for (const imported of importData.data.customGroups) {
-      const existing = ctx.groupMap.get(imported.name);
+      const existing = ctx.groupMap.get(
+        groupKey(imported.name, imported.locale, imported.gameMode)
+      );
       if (!existing) continue;
       const existingHash = await generateGroupContentHash(existing);
       result.groupConflicts.push({
@@ -755,7 +783,8 @@ export async function analyzeImportConflicts(
     // exists locally. `contentMatch` flags a local edit — the existing content
     // differs from the imported one — so the UI can warn before overwriting.
     for (const imported of importData.data.customTiles) {
-      let groupId = ctx.groupIdMap.get(imported.groupName);
+      const key = groupKey(imported.groupName, imported.locale, imported.gameMode);
+      let groupId = ctx.groupIdMap.get(key);
       if (!groupId) {
         groupId = createDeterministicGroupId(
           imported.groupName,
@@ -763,7 +792,7 @@ export async function analyzeImportConflicts(
           imported.gameMode
         );
       }
-      const group = ctx.groupMap.get(imported.groupName);
+      const group = ctx.groupMap.get(key);
       const existing = ctx.existingTileMap.get(
         `${imported.action}_${imported.intensity}_${groupId}`
       );

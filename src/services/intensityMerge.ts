@@ -17,7 +17,11 @@ export interface IntensityAddition {
 
 export interface IntensitySkip {
   value: number;
-  reason: 'duplicate' | 'overCap' | 'outOfRange';
+  // 'duplicate' — same value AND same label already present (expected on
+  // re-import). 'valueConflict' — same value but a DIFFERENT label: the
+  // incoming level means something else and was NOT applied, so tiles at this
+  // value will carry the existing label (a mislabel risk callers must surface).
+  reason: 'duplicate' | 'valueConflict' | 'overCap' | 'outOfRange';
 }
 
 export interface IntensityMergeResult {
@@ -41,6 +45,7 @@ export function appendIntensities(
   groupName: string
 ): IntensityMergeResult {
   const takenValues = new Set(existing.map((i) => i.value));
+  const labelByValue = new Map(existing.map((i) => [i.value, i.label]));
   const added: CustomGroupIntensity[] = [];
   const skipped: IntensitySkip[] = [];
 
@@ -55,7 +60,14 @@ export function appendIntensities(
       continue;
     }
     if (takenValues.has(addition.value)) {
-      skipped.push({ value: addition.value, reason: 'duplicate' });
+      const existingLabel = labelByValue.get(addition.value);
+      skipped.push({
+        value: addition.value,
+        reason:
+          existingLabel !== undefined && existingLabel !== addition.label
+            ? 'valueConflict'
+            : 'duplicate',
+      });
       continue;
     }
     if (existing.length + added.length >= MAX_INTENSITIES_COUNT) {
@@ -63,6 +75,7 @@ export function appendIntensities(
       continue;
     }
     takenValues.add(addition.value);
+    labelByValue.set(addition.value, addition.label);
     added.push({
       id: extensionIntensityId(groupName, addition.value),
       label: addition.label,

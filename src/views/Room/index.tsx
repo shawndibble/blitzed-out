@@ -161,7 +161,16 @@ export default function Room() {
   }, []);
   const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
-  const { pendingPack, dismiss: dismissPack } = useUrlPackImport();
+  const { pendingPack, failed: packFailed, dismiss: dismissPack } = useUrlPackImport();
+  // Surface share-link pack import outcomes — the fetch strips the `?importPack`
+  // param either way, so a silent failure or success leaves no trace otherwise.
+  const [packToast, setPackToast] = useState<{ type: 'success' | 'error'; message: string } | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (packFailed) setPackToast({ type: 'error', message: t('packs.importFailed') });
+  }, [packFailed, t]);
 
   // Keyboard shortcut: Spacebar to roll
   useEffect(() => {
@@ -335,8 +344,22 @@ export default function Room() {
         {importResult}
       </ToastAlert>
       {pendingPack && (
-        <PackImportDialog pack={pendingPack} open={!!pendingPack} onClose={dismissPack} />
+        <PackImportDialog
+          pack={pendingPack}
+          open={!!pendingPack}
+          onClose={dismissPack}
+          onImported={(name) =>
+            setPackToast({ type: 'success', message: t('packs.importedToast', { name }) })
+          }
+        />
       )}
+      <ToastAlert
+        type={packToast?.type || 'error'}
+        open={!!packToast}
+        close={() => setPackToast(null)}
+      >
+        {packToast?.message}
+      </ToastAlert>
     </>
   );
 }

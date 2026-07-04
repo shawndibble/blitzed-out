@@ -85,7 +85,9 @@ export default function useUrlImport(
 
       // Adopt the imported board's size so settings and board stay in sync
       // even when the author's saved settings disagree with the actual tiles.
-      finalSettings.roomTileCount = importedGameBoard.length;
+      // roomTileCount is a CONTENT count; the board array also holds the start
+      // and finish tiles, so subtract those two.
+      finalSettings.roomTileCount = Math.max(0, importedGameBoard.length - 2);
 
       setSettings(finalSettings);
 

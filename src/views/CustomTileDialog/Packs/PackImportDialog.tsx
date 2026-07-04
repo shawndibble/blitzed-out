@@ -59,8 +59,9 @@ export default function PackImportDialog({
   const declaredExtensions = parsed?.data.data.groupExtensions ?? [];
 
   // Tiles can target default groups without a matching groupExtensions entry
-  // (e.g. new actions at existing levels). Surface those as synthetic
-  // extension sections so no tile is invisible in the preview.
+  // (e.g. new actions at existing levels). The exporter now emits an entry for
+  // every contributing default group, so this only fires for packs published
+  // before that fix — a backward-compat net so no tile is invisible.
   const extensions = useMemo(() => {
     const covered = new Set([
       ...groups.map((g) => g.name),
@@ -173,7 +174,8 @@ export default function PackImportDialog({
         </Box>
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
           {t('packs.summary', { groups: groups.length, tiles: tiles.length })}
-          {extensions.length > 0 && ` · ${t('packs.extensionSummary', { count: extensions.length })}`}
+          {extensions.length > 0 &&
+            ` · ${t('packs.extensionSummary', { count: extensions.length })}`}
         </Typography>
       </Box>
 
@@ -300,8 +302,7 @@ export default function PackImportDialog({
                 ])
               );
               const colorFor = (value: number) => colorByValue.get(value) ?? 'primary.main';
-              const intensityLabel = (value: number) =>
-                addedLabelByValue.get(value) ?? `L${value}`;
+              const intensityLabel = (value: number) => addedLabelByValue.get(value) ?? `L${value}`;
               return (
                 <Box key={`ext-${extension.groupName}`}>
                   <Box
