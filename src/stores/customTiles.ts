@@ -1,7 +1,7 @@
 import i18next from 'i18next';
 import db from './store';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
-import { ContentGameMode } from '@/types/Settings';
+import type { ContentGameMode } from '@/types/Settings';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
 import { Collection, Table } from 'dexie';
 import { retryOnCursorError } from '@/utils/dbRecovery';

@@ -13,11 +13,11 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useCallback, useMemo } from 'react';
 
 import { CustomGroupPull } from '@/types/customGroups';
-import { ContentGameMode, GameMode } from '@/types/Settings';
+import type { ContentGameMode } from '@/types/Settings';
 import groupActionsFolder from '@/helpers/actionsFolder';
 
 interface TileCategorySelectionProps {
-  gameMode: GameMode | string;
+  gameMode: ContentGameMode;
   groupFilter: string;
   intensityFilter: number | string;
   groups: ProcessedGroups;
@@ -46,8 +46,8 @@ export default function TileCategorySelection({
   const { t } = useTranslation();
 
   const mappedGroupsFolder = useMemo(() => {
-    if (!mappedGroups?.[gameMode as GameMode]) return [];
-    const folder = groupActionsFolder(mappedGroups[gameMode as GameMode]);
+    if (!mappedGroups?.[gameMode]) return [];
+    const folder = groupActionsFolder(mappedGroups[gameMode]);
     return Array.isArray(folder) ? (folder as MappedGroup[]) : [];
   }, [mappedGroups, gameMode]);
 

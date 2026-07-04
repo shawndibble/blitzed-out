@@ -32,10 +32,16 @@ export class CustomTilesSync extends SyncBase {
 
       const localTiles = await getTiles({ isCustom: 1 });
       for (const tile of localTiles) {
-        const canonical = canonicalizeTileAction(tile);
-        if (canonical.action !== tile.action && tile.id !== undefined) {
-          await updateCustomTile(tile.id, { action: canonical.action });
-          tile.action = canonical.action;
+        try {
+          const canonical = canonicalizeTileAction(tile);
+          if (canonical.action !== tile.action && tile.id !== undefined) {
+            await updateCustomTile(tile.id, { action: canonical.action });
+            tile.action = canonical.action;
+          }
+        } catch (error) {
+          // One bad row must not abort the whole sync (same per-tile isolation
+          // as mergeConflicts/replaceLocal).
+          console.error('Error canonicalizing legacy local tile:', tile, error);
         }
       }
 
