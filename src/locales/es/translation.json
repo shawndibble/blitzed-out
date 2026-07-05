@@ -850,12 +850,14 @@
   "playerListUpdates": "Actualización de jugadores",
   "playerListUpdatesCaption": "Tiempo real para grupos en línea; Diferido para jugar en persona",
   "roomBackground": "Fondo de sala",
-  "roomBackgroundCaption": "Todos lo ven — YouTube, Giphy, Imgur…",
+  "roomBackgroundCaption": "Todos lo ven — salvo que elijan su propio fondo de aplicación",
   "finishOptions": "Opciones de final",
   "rollsPerGame": "≈ {{count}} tiradas por partida con {{dice}}",
   "roomDiceCaption": "Dados más pequeños = avance más lento por el tablero",
   "actionsBannerSolo": "Jugando en solitario — grupos de juego individual, sin roles.",
   "actionsBannerTogether": "Jugando con otros — elige tu rol por grupo para que las acciones apunten a la persona correcta.",
   "actionsBannerSharedDevice": "Dispositivo compartido — sin selectores de rol: el rol de cada jugador viene de la configuración de jugadores en Sala y jugadores.",
-  "enabledCount_one": "{{count}} activado"
+  "enabledCount_one": "{{count}} activado",
+  "backgroundUsesRoom": "Mostrando el fondo compartido de esta sala.",
+  "editRoomBackground": "Edítalo en Sala y jugadores"
 }

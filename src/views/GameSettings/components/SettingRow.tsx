@@ -56,6 +56,12 @@ export function SettingRow({ label, description, children }: SettingRowProps): J
           gap: 1,
           flexShrink: 0,
           justifyContent: 'flex-end',
+          // Row controls stay compact like the approved design, regardless of
+          // each control's MUI default sizing.
+          '& .MuiToggleButton-root': { py: 0.4, px: 1.4, fontSize: '0.75rem' },
+          '& .MuiButton-root': { py: 0.4, px: 1.4, fontSize: '0.78rem' },
+          '& .MuiSelect-select': { py: 0.6, fontSize: '0.85rem' },
+          '& .MuiInputBase-input': { py: 0.6, fontSize: '0.85rem' },
         }}
       >
         {children}

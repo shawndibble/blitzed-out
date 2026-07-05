@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import SizePaceSection from '../SizePaceSection';
@@ -29,22 +29,18 @@ describe('SizePaceSection', () => {
     setFormData.mockClear();
   });
 
-  it('accepts granular tile counts, not just 10-step increments', () => {
-    render(<SizePaceSection formData={makeFormData({})} setFormData={setFormData} />);
-
-    const slider = screen.getByRole('slider', { name: 'roomTileCount' });
-    fireEvent.change(slider, { target: { value: 47 } });
-
-    const next = setFormData.mock.calls[0][0];
-    expect(next.roomTileCount).toBe(47);
-    expect(next.roomUpdated).toBe(true);
-  });
-
-  it('works in a public room — board size is board scope, not room scope', () => {
+  it('offers board sizes in steps of 5 and works in a public room', async () => {
     render(
       <SizePaceSection formData={makeFormData({ room: 'PUBLIC' })} setFormData={setFormData} />
     );
-    expect(screen.getByRole('slider', { name: 'roomTileCount' })).toBeEnabled();
+
+    await user.click(screen.getByRole('combobox', { name: 'roomTileCount' }));
+    expect(screen.getByRole('option', { name: 'tilesCount:45' })).toBeInTheDocument();
+    await user.click(screen.getByRole('option', { name: 'tilesCount:45' }));
+
+    const next = setFormData.mock.calls[0][0];
+    expect(next.roomTileCount).toBe(45);
+    expect(next.roomUpdated).toBe(true);
   });
 
   it('shows the roll estimate for the current size and dice', () => {
@@ -56,7 +52,6 @@ describe('SizePaceSection', () => {
     );
     // 60 tiles / 3.5 avg per 1d6 roll = 17
     expect(screen.getByText('rollsPerGame:17')).toBeInTheDocument();
-    expect(screen.getByText('tilesCount:60')).toBeInTheDocument();
   });
 
   it('changing dice updates form data', async () => {

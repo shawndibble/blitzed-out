@@ -850,12 +850,14 @@
   "playerListUpdates": "玩家列表更新",
   "playerListUpdatesCaption": "线上团体用实时；线下面对面用延迟",
   "roomBackground": "房间背景",
-  "roomBackgroundCaption": "所有人可见 — YouTube、Giphy、Imgur…",
+  "roomBackgroundCaption": "所有人可见 — 除非他们选择自己的应用背景",
   "finishOptions": "结束选项",
   "rollsPerGame": "≈ 每局 {{count}} 次掷骰（{{dice}}）",
   "roomDiceCaption": "骰子越小 = 在棋盘上前进越慢",
   "actionsBannerSolo": "单人游戏 — 自娱动作组，无需角色。",
   "actionsBannerTogether": "与他人一起 — 为每组选择你的角色，让动作指向正确的人。",
   "actionsBannerSharedDevice": "共用设备 — 此处无角色选择：每位玩家的角色来自“房间与玩家”中的玩家设置。",
-  "enabledCount_one": "已启用 {{count}} 个"
+  "enabledCount_one": "已启用 {{count}} 个",
+  "backgroundUsesRoom": "正在显示此房间的共享背景。",
+  "editRoomBackground": "在“房间与玩家”中编辑"
 }

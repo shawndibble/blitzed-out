@@ -850,12 +850,14 @@
   "playerListUpdates": "Player list updates",
   "playerListUpdatesCaption": "Realtime for online groups; Delayed for in-person",
   "roomBackground": "Room background",
-  "roomBackgroundCaption": "Everyone sees it — YouTube, Giphy, Imgur…",
+  "roomBackgroundCaption": "Everyone sees it — unless they choose their own app background",
   "finishOptions": "Finish options",
   "rollsPerGame": "≈ {{count}} rolls per game at {{dice}}",
   "roomDiceCaption": "Smaller dice = slower crawl across the board",
   "actionsBannerSolo": "Playing solo — self-play action groups, no roles needed.",
   "actionsBannerTogether": "Playing with others — pick your role per group so actions target the right person.",
   "actionsBannerSharedDevice": "Shared device — no role pickers here: each player's role comes from the player setup in Room & players.",
-  "enabledCount_one": "{{count}} enabled"
+  "enabledCount_one": "{{count}} enabled",
+  "backgroundUsesRoom": "Showing this room's shared background.",
+  "editRoomBackground": "Edit it in Room & players"
 }

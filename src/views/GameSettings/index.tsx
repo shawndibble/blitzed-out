@@ -8,18 +8,19 @@ import {
   Container,
   IconButton,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
-import { FocusEvent, FormEvent, JSX, ReactNode, useCallback, useState } from 'react';
+import { FocusEvent, FormEvent, JSX, ReactNode, useCallback, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import ActionsSection from './sections/ActionsSection';
 import CustomTileDialog from '@/views/CustomTileDialog';
 import DisplaySection from './sections/DisplaySection';
-import GenderSelector from '@/components/GenderSelector';
 import JumpNav, { JumpNavEntry } from './components/JumpNav';
 import ModeBar from './components/ModeBar';
 import RoomSection from './sections/RoomSection';
@@ -81,6 +82,12 @@ export default function GameSettings(): JSX.Element {
   const { isLoading, actionsList } = useUnifiedActionList(contentGameMode, true);
   const { hasLocalPlayers } = useLocalPlayers();
 
+  // Mode switches reload the action catalog; only the very first load blanks
+  // the page. Later reloads keep the page up (the picker briefly shows the
+  // previous catalog instead of a loading flash).
+  const hasLoadedOnceRef = useRef(false);
+  if (!isLoading) hasLoadedOnceRef.current = true;
+
   const boardUpdated = (): void => updateSettings({ ...settings, boardUpdated: true });
 
   const enabledActionCount = Object.keys(formData.selectedActions || {}).length;
@@ -134,7 +141,7 @@ export default function GameSettings(): JSX.Element {
     [setFormData]
   );
 
-  if (!formData.room || isLoading) {
+  if (!formData.room || (isLoading && !hasLoadedOnceRef.current)) {
     return (
       <Box sx={{ p: 4 }}>
         <Typography variant="h2">
@@ -216,12 +223,21 @@ export default function GameSettings(): JSX.Element {
                     />
                   </SettingRow>
                   <SettingRow label={t('anatomy', 'Anatomy')} description={t('anatomyCaption')}>
-                    <Box sx={{ width: { xs: '100%', sm: 260 } }}>
-                      <GenderSelector
-                        selectedGender={formData.gender || 'non-binary'}
-                        onGenderChange={handleGenderChange}
-                      />
-                    </Box>
+                    <ToggleButtonGroup
+                      size="small"
+                      exclusive
+                      value={formData.gender || 'non-binary'}
+                      onChange={(_, value: PlayerGender | null) => {
+                        if (value) handleGenderChange(value);
+                      }}
+                      aria-label={t('anatomy', 'Anatomy')}
+                    >
+                      <ToggleButton value="male">{t('localPlayers.gender.male')}</ToggleButton>
+                      <ToggleButton value="female">{t('localPlayers.gender.female')}</ToggleButton>
+                      <ToggleButton value="non-binary">
+                        {t('localPlayers.gender.nonBinary')}
+                      </ToggleButton>
+                    </ToggleButtonGroup>
                   </SettingRow>
                 </SettingGroup>
               </Box>

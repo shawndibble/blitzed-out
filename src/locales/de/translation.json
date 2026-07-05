@@ -850,12 +850,14 @@
   "playerListUpdates": "Spielerlisten-Updates",
   "playerListUpdatesCaption": "Echtzeit für Online-Gruppen; Verzögert für Spiel vor Ort",
   "roomBackground": "Raumhintergrund",
-  "roomBackgroundCaption": "Alle sehen ihn — YouTube, Giphy, Imgur…",
+  "roomBackgroundCaption": "Alle sehen ihn — außer sie wählen einen eigenen App-Hintergrund",
   "finishOptions": "Finish-Optionen",
   "rollsPerGame": "≈ {{count}} Würfe pro Spiel mit {{dice}}",
   "roomDiceCaption": "Kleinere Würfel = langsameres Vorankommen auf dem Brett",
   "actionsBannerSolo": "Solo-Spiel — Selbstspiel-Gruppen, keine Rollen nötig.",
   "actionsBannerTogether": "Spiel mit anderen — wähle pro Gruppe deine Rolle, damit Aktionen die richtige Person treffen.",
   "actionsBannerSharedDevice": "Geteiltes Gerät — keine Rollenauswahl: Die Rolle jedes Spielers kommt aus der Spieler-Einrichtung unter Raum & Spieler.",
-  "enabledCount_one": "{{count}} aktiviert"
+  "enabledCount_one": "{{count}} aktiviert",
+  "backgroundUsesRoom": "Zeigt den geteilten Hintergrund dieses Raums.",
+  "editRoomBackground": "Bearbeiten unter Raum & Spieler"
 }

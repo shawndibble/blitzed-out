@@ -18,12 +18,6 @@ const SCOPE_LABEL_KEYS: Record<SettingsScope, string> = {
   me: 'scopeMe',
 };
 
-const SCOPE_HINT_KEYS: Record<SettingsScope, string> = {
-  room: 'scopeRoomHint',
-  board: 'scopeBoardHint',
-  me: 'scopeMeHint',
-};
-
 interface SettingsSectionProps {
   id: string;
   scope: SettingsScope;
@@ -114,12 +108,7 @@ export default function SettingsSection({
             {summary}
           </Typography>
         )}
-        <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {t(SCOPE_HINT_KEYS[scope])}
-          </Typography>
-          {action}
-        </Box>
+        {action && <Box sx={{ ml: 'auto' }}>{action}</Box>}
       </Box>
       {children}
     </Box>

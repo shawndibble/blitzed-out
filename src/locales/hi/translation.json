@@ -851,12 +851,14 @@
   "playerListUpdates": "खिलाड़ी सूची अपडेट",
   "playerListUpdatesCaption": "ऑनलाइन समूहों के लिए रीयलटाइम; आमने-सामने के लिए विलंबित",
   "roomBackground": "कमरे की पृष्ठभूमि",
-  "roomBackgroundCaption": "सभी देखते हैं — YouTube, Giphy, Imgur…",
+  "roomBackgroundCaption": "सभी देखते हैं — जब तक वे अपनी ऐप पृष्ठभूमि नहीं चुनते",
   "finishOptions": "समापन विकल्प",
   "rollsPerGame": "≈ प्रति गेम {{count}} चालें ({{dice}})",
   "roomDiceCaption": "छोटे पासे = बोर्ड पर धीमी प्रगति",
   "actionsBannerSolo": "अकेले खेल रहे हैं — स्व-खेल समूह, भूमिकाओं की ज़रूरत नहीं।",
   "actionsBannerTogether": "दूसरों के साथ खेल रहे हैं — हर समूह के लिए अपनी भूमिका चुनें ताकि एक्शन सही व्यक्ति पर लागू हों।",
   "actionsBannerSharedDevice": "साझा डिवाइस — यहाँ भूमिका चयन नहीं: हर खिलाड़ी की भूमिका कमरा और खिलाड़ी में खिलाड़ी सेटअप से आती है।",
-  "enabledCount_one": "{{count}} चालू"
+  "enabledCount_one": "{{count}} चालू",
+  "backgroundUsesRoom": "इस कमरे की साझा पृष्ठभूमि दिखाई जा रही है।",
+  "editRoomBackground": "कमरा और खिलाड़ी में संपादित करें"
 }

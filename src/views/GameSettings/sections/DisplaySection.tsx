@@ -1,6 +1,7 @@
 import {
   Box,
   CircularProgress,
+  Link,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -143,7 +144,30 @@ export default function DisplaySection({
       </SettingGroup>
 
       <SettingGroup>
-        <SettingRow label={t('background')} description={t('backgroundCaption')}>
+        <SettingRow
+          label={t('background')}
+          description={
+            background === 'useRoomBackground' ? (
+              <>
+                {t('backgroundUsesRoom')}{' '}
+                <Link
+                  component="button"
+                  type="button"
+                  variant="caption"
+                  onClick={() =>
+                    document
+                      .getElementById('section-room')
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                >
+                  {t('editRoomBackground')}
+                </Link>
+              </>
+            ) : (
+              t('backgroundCaption')
+            )
+          }
+        >
           <Select
             size="small"
             value={backgroundOptions[background] ? background : 'color'}
