@@ -1,9 +1,9 @@
-import { getCustomGroups, getGroupsWithTiles } from '@/stores/customGroups';
+import { getCustomGroups } from '@/stores/customGroups';
 import { useEffect, useMemo, useState } from 'react';
 
 import { CustomGroupPull } from '@/types/customGroups';
-import { getTileCountsByGroup } from '@/stores/customTiles';
-import { getContentGameMode } from '@/helpers/strings';
+import { getGroupsWithTiles, getTileCountsByGroup } from '@/stores/contentLibrary';
+import { deriveContentMode } from '@/stores/settingsStore';
 import i18next from 'i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 
@@ -36,7 +36,7 @@ export const useContextualGroups = (
   const [internalRefreshTrigger, setInternalRefreshTrigger] = useState(0);
 
   const locale = options.locale || i18next.resolvedLanguage || i18next.language || 'en';
-  const mode = getContentGameMode(gameMode);
+  const mode = deriveContentMode(gameMode);
 
   // Combine internal and external refresh triggers
   const combinedRefreshTrigger = (options.refreshTrigger || 0) + internalRefreshTrigger;
@@ -55,7 +55,7 @@ export const useContextualGroups = (
           case 'setup':
           case 'advanced':
             // Only groups that have tiles
-            groupsData = await getGroupsWithTiles(mode);
+            groupsData = await getGroupsWithTiles(mode, locale);
             break;
 
           case 'manage':

@@ -135,7 +135,7 @@ export default function MenuDrawer(): JSX.Element {
       setLanguageLoading(true);
 
       try {
-        // Language change will automatically trigger migration via MigrationContext
+        // Language change automatically triggers content seeding (contentReadiness languageChanged listener)
         await i18n.changeLanguage(newLanguage);
         setLocale(newLanguage);
 
@@ -158,7 +158,7 @@ export default function MenuDrawer(): JSX.Element {
         toggleDialog('languageChange', true);
       } catch (error) {
         if (import.meta.env.DEV) console.error('Error changing language:', error);
-        // Still attempt to change language even if migration fails
+        // Still attempt to change language even if seeding fails
         await i18n.changeLanguage(newLanguage);
         setLocale(newLanguage);
 

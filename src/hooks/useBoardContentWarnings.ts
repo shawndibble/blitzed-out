@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { getContentGameMode, isPublicRoom } from '@/helpers/strings';
+import { deriveContentMode, enforceTopologyRoomInvariant } from '@/stores/settingsStore';
 import buildGameBoard from '@/services/buildGame';
 import { Settings } from '@/types/Settings';
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
@@ -37,8 +37,9 @@ export default function useBoardContentWarnings(formData: Settings): BoardConten
 
     let cancelled = false;
     const handle = setTimeout(async () => {
-      const isPublic = isPublicRoom(room || '');
-      const finalGameMode = getContentGameMode(isPublic ? 'online' : gameMode);
+      const finalGameMode = deriveContentMode(
+        enforceTopologyRoomInvariant({ gameMode, room }).gameMode
+      );
       const locale = i18n.resolvedLanguage || 'en';
       const tileCount = roomTileCount || DEFAULT_TILE_COUNT;
 

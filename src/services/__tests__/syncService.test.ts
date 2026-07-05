@@ -1,11 +1,13 @@
 import {
   addCustomTile,
+  canonicalizeTileAction,
   deleteAllIsCustomTiles,
   getTiles,
   updateCustomTile,
 } from '@/stores/customTiles';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { deleteCustomGroup, getCustomGroups, importCustomGroups } from '@/stores/customGroups';
+import { getCustomGroups, importCustomGroups } from '@/stores/customGroups';
+import { deleteGroup } from '@/stores/contentLibrary';
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import {
   subscribeToUserData,
@@ -31,6 +33,7 @@ vi.mock('firebase/firestore');
 // Mock stores
 vi.mock('@/stores/customTiles');
 vi.mock('@/stores/customGroups');
+vi.mock('@/stores/contentLibrary');
 vi.mock('@/stores/gameBoard');
 vi.mock('@/stores/settingsStore');
 vi.mock('@/stores/disabledDefaults', () => ({
@@ -54,6 +57,8 @@ describe('syncService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getAuth).mockReturnValue(mockAuth as any);
+    // Auto-mocked module: restore the identity behavior the sync path relies on.
+    vi.mocked(canonicalizeTileAction).mockImplementation((record) => record);
 
     // Suppress expected console.error messages during tests
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation((message: string) => {
@@ -215,7 +220,7 @@ describe('syncService', () => {
       vi.mocked(getTiles).mockResolvedValue([]);
       vi.mocked(addCustomTile).mockResolvedValue(1);
       vi.mocked(updateCustomTile).mockResolvedValue(1);
-      vi.mocked(deleteCustomGroup).mockResolvedValue({ success: true });
+      vi.mocked(deleteGroup).mockResolvedValue({ success: true });
       vi.mocked(getCustomGroups).mockResolvedValue([]);
       vi.mocked(importCustomGroups).mockResolvedValue(undefined);
       vi.mocked(useSettingsStore.getState).mockReturnValue({
@@ -471,7 +476,7 @@ describe('syncService', () => {
       expect(addCustomTile).toHaveBeenCalled();
 
       // Verify merge approach: custom groups are merged, not deleted (preserves local data)
-      expect(deleteCustomGroup).not.toHaveBeenCalled();
+      expect(deleteGroup).not.toHaveBeenCalled();
       // Should have added the Firebase group alongside existing local groups
       expect(importCustomGroups).toHaveBeenCalled();
 

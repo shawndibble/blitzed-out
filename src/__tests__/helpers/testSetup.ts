@@ -1,18 +1,5 @@
 import { vi } from 'vitest';
 
-export const setupMigrationContextMock = () => {
-  vi.mock('@/context/migration', () => ({
-    useMigration: () => ({
-      currentLanguageMigrated: true,
-      isMigrationInProgress: false,
-      isMigrationCompleted: true,
-      error: null,
-      triggerMigration: vi.fn(),
-      ensureLanguageMigrated: vi.fn(),
-    }),
-  }));
-};
-
 export const setupFirebaseMock = () => {
   const mockRealtimeDatabase = {
     ref: vi.fn((path: string) => ({

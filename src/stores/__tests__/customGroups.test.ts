@@ -1,17 +1,19 @@
-import { CustomGroupBase, CustomGroupPull } from '@/types/customGroups';
+import { CustomGroupBase } from '@/types/customGroups';
 import {
   addCustomGroup,
-  deleteCustomGroup,
   getAllAvailableGroups,
+  getCustomGroup,
   getGroupIntensities,
+  isGroupNameUnique,
   updateCustomGroup,
 } from '../customGroups';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Import the mocked database
+// Real Dexie (fake-indexeddb) — sync middleware no-ops without an auth provider.
 import db from '../store';
 
-// Mock i18next
+// Isolate the real i18next singleton: the creating hook reads the current
+// language to default a group's locale.
 vi.mock('i18next', () => ({
   default: {
     resolvedLanguage: 'en',
@@ -19,234 +21,135 @@ vi.mock('i18next', () => ({
   },
 }));
 
-// Mock nanoid
-vi.mock('nanoid', () => ({
-  nanoid: () => 'test-id-123',
-}));
-
-// Mock customTiles for cascade delete functionality
-vi.mock('./customTiles', () => ({
-  countTilesByGroupId: vi.fn(() => Promise.resolve(0)),
-  deleteCustomTilesByGroupId: vi.fn(() => Promise.resolve(0)),
-}));
-
-// Mock the database with proper chaining - defined at module level for hoisting
-vi.mock('../store', () => {
-  const createMockCollection = () => {
-    const mockCollection = {
-      filter: vi.fn(),
-      toArray: vi.fn(),
-      first: vi.fn(),
-    };
-    // Make filter return itself for chaining
-    mockCollection.filter.mockReturnValue(mockCollection);
-    mockCollection.toArray.mockResolvedValue([]);
-    mockCollection.first.mockResolvedValue(undefined);
-    return mockCollection;
-  };
-
-  const createMockWhere = () => {
-    const mockWhere = {
-      equals: vi.fn(),
-      and: vi.fn(),
-      first: vi.fn(),
-      count: vi.fn(),
-    };
-    // Make methods return themselves for chaining
-    mockWhere.equals.mockReturnValue(mockWhere);
-    mockWhere.and.mockReturnValue(mockWhere);
-    mockWhere.first.mockResolvedValue(undefined);
-    mockWhere.count.mockResolvedValue(0);
-    return mockWhere;
-  };
-
-  return {
-    default: {
-      customGroups: {
-        add: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-        clear: vi.fn(),
-        bulkAdd: vi.fn(),
-        get: vi.fn(),
-        where: vi.fn(() => createMockWhere()),
-        toArray: vi.fn(),
-        toCollection: vi.fn(() => createMockCollection()),
-        hook: vi.fn(),
-      },
-      customTiles: {
-        hook: vi.fn(() => vi.fn()), // Mock hook to return a function
-        add: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-        clear: vi.fn(),
-        where: vi.fn(() => createMockWhere()),
-        toArray: vi.fn(),
-        toCollection: vi.fn(() => createMockCollection()),
-      },
-    },
-  };
+const buildGroup = (overrides: Partial<CustomGroupBase> = {}): CustomGroupBase => ({
+  name: 'testGroup',
+  label: 'Test Group',
+  intensities: [
+    { id: '1', label: 'Beginner', value: 1, isDefault: false },
+    { id: '2', label: 'Advanced', value: 2, isDefault: false },
+  ],
+  type: 'solo',
+  locale: 'en',
+  gameMode: 'online',
+  isDefault: false,
+  ...overrides,
 });
 
-const mockDb = db as any;
-
 describe('customGroups store', () => {
-  const mockGroup: CustomGroupBase = {
-    name: 'testGroup',
-    label: 'Test Group',
-    intensities: [
-      { id: '1', label: 'Beginner', value: 1, isDefault: false },
-      { id: '2', label: 'Advanced', value: 2, isDefault: false },
-    ],
-    type: 'solo',
-    locale: 'en',
-    gameMode: 'online',
-    isDefault: false,
-  };
-
-  const mockGroupPull: CustomGroupPull = {
-    ...mockGroup,
-    id: 'test-id-123',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    isDefault: false,
-    locale: 'en',
-    gameMode: 'online',
-  };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
+  beforeEach(async () => {
+    await db.customGroups.clear();
+    await db.customTiles.clear();
   });
 
   describe('addCustomGroup', () => {
-    it('should add a new custom group successfully', async () => {
-      vi.mocked(mockDb.customGroups.add).mockResolvedValue('test-id-123');
+    it('persists the group and returns its id', async () => {
+      const id = await addCustomGroup(buildGroup());
 
-      const result = await addCustomGroup(mockGroup);
+      expect(id).toEqual(expect.any(String));
+      const stored = await getCustomGroup(id!);
+      expect(stored).toMatchObject({
+        name: 'testGroup',
+        label: 'Test Group',
+        locale: 'en',
+        gameMode: 'online',
+        isDefault: false,
+      });
+      expect(stored?.intensities).toHaveLength(2);
+      expect(stored?.createdAt).toBeInstanceOf(Date);
+      expect(stored?.updatedAt).toBeInstanceOf(Date);
+    });
 
-      expect(result).toBe('test-id-123');
-      expect(mockDb.customGroups.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...mockGroup,
-          createdAt: expect.any(Date),
-          updatedAt: expect.any(Date),
-        })
-      );
+    it('fills id, locale, gameMode, and isDefault defaults via the creating hook', async () => {
+      const bare = {
+        name: 'bareGroup',
+        label: 'Bare',
+        intensities: [],
+      } as unknown as CustomGroupBase;
+
+      const id = await addCustomGroup(bare);
+
+      const stored = await getCustomGroup(id!);
+      expect(stored).toMatchObject({
+        locale: 'en',
+        gameMode: 'online',
+        isDefault: false,
+      });
+      expect(stored?.id).toEqual(expect.any(String));
     });
   });
 
   describe('updateCustomGroup', () => {
-    it('should update an existing custom group successfully', async () => {
-      vi.mocked(mockDb.customGroups.update).mockResolvedValue(1);
+    it('updates fields and bumps updatedAt', async () => {
+      const id = await addCustomGroup(buildGroup());
+      const before = await getCustomGroup(id!);
 
-      await updateCustomGroup('test-id-123', mockGroup);
+      const result = await updateCustomGroup(id!, { label: 'Renamed Group' });
 
-      expect(mockDb.customGroups.update).toHaveBeenCalledWith('test-id-123', mockGroup);
+      expect(result).toBe(1);
+      const after = await getCustomGroup(id!);
+      expect(after?.label).toBe('Renamed Group');
+      expect(after?.updatedAt.getTime()).toBeGreaterThanOrEqual(before!.updatedAt.getTime());
     });
-  });
 
-  describe('deleteCustomGroup', () => {
-    it('should delete a custom group successfully', async () => {
-      // Mock get to return a group
-      vi.mocked(mockDb.customGroups.get).mockResolvedValue({
-        id: 'test-id-123',
-        name: 'test-group',
-        label: 'Test Group',
-        locale: 'en',
-        gameMode: 'online',
-        intensities: [],
-        isDefault: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      vi.mocked(mockDb.customGroups.delete).mockResolvedValue(undefined);
+    it('returns 0 when the group does not exist', async () => {
+      const result = await updateCustomGroup('missing-id', { label: 'Nope' });
 
-      const result = await deleteCustomGroup('test-id-123');
-
-      expect(result.success).toBe(true);
-      expect(mockDb.customGroups.get).toHaveBeenCalledWith('test-id-123');
-      expect(mockDb.customGroups.delete).toHaveBeenCalledWith('test-id-123');
+      expect(result).toBe(0);
     });
   });
 
   describe('getAllAvailableGroups', () => {
-    it('should get all groups for locale and gameMode', async () => {
-      const expectedGroups = [mockGroupPull];
-      // Set up the mock to return the expected groups
-      const mockCollection = {
-        filter: vi.fn().mockReturnThis(),
-        toArray: vi.fn().mockResolvedValue(expectedGroups),
-        first: vi.fn().mockResolvedValue(undefined),
-      };
-      vi.mocked(mockDb.customGroups.toCollection).mockReturnValue(mockCollection);
+    it('returns only groups matching locale and gameMode, sorted by name', async () => {
+      await addCustomGroup(buildGroup({ name: 'zebra' }));
+      await addCustomGroup(buildGroup({ name: 'alpha' }));
+      await addCustomGroup(buildGroup({ name: 'spanish', locale: 'es' }));
+      await addCustomGroup(buildGroup({ name: 'localMode', gameMode: 'local' }));
 
       const result = await getAllAvailableGroups('en', 'online');
 
-      expect(result).toEqual(expectedGroups);
-      expect(mockDb.customGroups.toCollection).toHaveBeenCalled();
-      expect(mockCollection.filter).toHaveBeenCalledTimes(4); // removeDuplicateGroups (2) + getCustomGroups (2)
+      expect(result.map((g) => g.name)).toEqual(['alpha', 'zebra']);
     });
 
-    it('should handle empty results', async () => {
-      const mockCollection = mockDb.customGroups.toCollection();
-      vi.mocked(mockCollection.toArray).mockResolvedValue([]);
+    it('returns an empty array when nothing matches', async () => {
+      await addCustomGroup(buildGroup());
 
       const result = await getAllAvailableGroups('fr', 'local');
 
       expect(result).toEqual([]);
     });
 
-    it('should handle errors when fetching fails', async () => {
-      const error = new Error('Fetch failed');
-      const mockCollection = mockDb.customGroups.toCollection();
-      vi.mocked(mockCollection.toArray).mockRejectedValue(error);
+    it('collapses duplicate names within a locale/gameMode in the returned list', async () => {
+      await addCustomGroup(buildGroup());
+      await addCustomGroup(buildGroup());
 
-      await expect(getAllAvailableGroups('en', 'online')).resolves.toEqual([]);
+      const result = await getAllAvailableGroups('en', 'online');
+
+      // In-memory dedupe only — DB pruning is contentLibrary.removeDuplicateGroups' job.
+      expect(result.map((g) => g.name)).toEqual(['testGroup']);
+      expect(await db.customGroups.where('name').equals('testGroup').count()).toBe(2);
     });
   });
 
   describe('getGroupIntensities', () => {
-    it('should get intensities for a specific group', async () => {
-      // Set up the mock to return the expected group
-      const mockWhere = {
-        equals: vi.fn().mockReturnThis(),
-        and: vi.fn().mockReturnThis(),
-        first: vi.fn().mockResolvedValue(mockGroupPull),
-      };
-      vi.mocked(mockDb.customGroups.where).mockReturnValue(mockWhere);
+    it('returns intensities for the matching name, locale, and gameMode', async () => {
+      const group = buildGroup();
+      await addCustomGroup(group);
 
       const result = await getGroupIntensities('testGroup', 'en', 'online');
 
-      expect(result).toEqual(mockGroup.intensities);
-      expect(mockDb.customGroups.where).toHaveBeenCalledWith('name');
-      expect(mockWhere.equals).toHaveBeenCalledWith('testGroup');
+      expect(result).toEqual(group.intensities);
     });
 
-    it('should return empty array when group not found', async () => {
-      const mockWhere = mockDb.customGroups.where('name');
-      vi.mocked(mockWhere.first).mockResolvedValue(undefined);
+    it('returns an empty array when the group is not found', async () => {
+      await addCustomGroup(buildGroup());
 
-      const result = await getGroupIntensities('nonexistent', 'en', 'online');
-
-      expect(result).toEqual([]);
+      expect(await getGroupIntensities('nonexistent', 'en', 'online')).toEqual([]);
+      expect(await getGroupIntensities('testGroup', 'es', 'online')).toEqual([]);
+      expect(await getGroupIntensities('testGroup', 'en', 'local')).toEqual([]);
     });
 
-    it('should handle errors when fetching intensities fails', async () => {
-      const error = new Error('Fetch intensities failed');
-      const mockWhere = mockDb.customGroups.where('name');
-      vi.mocked(mockWhere.first).mockRejectedValue(error);
-
-      await expect(getGroupIntensities('testGroup', 'en', 'online')).resolves.toEqual([]);
-    });
-
-    it('should return empty array when group has no intensities', async () => {
-      const groupWithoutIntensities = { ...mockGroupPull, intensities: [] };
-      const mockWhere = mockDb.customGroups.where('name');
-      vi.mocked(mockWhere.first).mockResolvedValue(groupWithoutIntensities);
+    it('returns an empty array when the group has no intensities', async () => {
+      await addCustomGroup(buildGroup({ intensities: [] }));
 
       const result = await getGroupIntensities('testGroup', 'en', 'online');
 
@@ -254,31 +157,26 @@ describe('customGroups store', () => {
     });
   });
 
-  describe('hooks functionality', () => {
-    it('should set default values when creating', () => {
-      // This tests the Dexie hooks that are defined in the store
-      // The hooks are tested indirectly through the add operation
-      const groupWithoutDefaults = {
-        name: 'test',
-        label: 'Test',
-        intensities: [],
-      };
+  describe('isGroupNameUnique', () => {
+    it('is false when a group with the same name, locale, and gameMode exists', async () => {
+      await addCustomGroup(buildGroup());
 
-      // Mock the hook behavior
-      const hookResult = {
-        ...groupWithoutDefaults,
-        id: 'test-id-123',
-        locale: 'en',
-        gameMode: 'online',
-        isDefault: false,
-        createdAt: expect.any(Date),
-        updatedAt: expect.any(Date),
-      };
+      expect(await isGroupNameUnique('testGroup', 'en', 'online')).toBe(false);
+    });
 
-      expect(hookResult.id).toBe('test-id-123');
-      expect(hookResult.locale).toBe('en');
-      expect(hookResult.gameMode).toBe('online');
-      expect(hookResult.isDefault).toBe(false);
+    it('is true for the same name in a different locale or gameMode', async () => {
+      await addCustomGroup(buildGroup());
+
+      expect(await isGroupNameUnique('testGroup', 'es', 'online')).toBe(true);
+      expect(await isGroupNameUnique('testGroup', 'en', 'local')).toBe(true);
+      expect(await isGroupNameUnique('freshName', 'en', 'online')).toBe(true);
+    });
+
+    it('is true when the match is the group being edited (excludeId)', async () => {
+      const id = await addCustomGroup(buildGroup());
+
+      expect(await isGroupNameUnique('testGroup', 'en', 'online', id)).toBe(true);
+      expect(await isGroupNameUnique('testGroup', 'en', 'online', 'other-id')).toBe(false);
     });
   });
 });

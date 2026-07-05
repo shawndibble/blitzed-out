@@ -52,7 +52,6 @@ Common test setup and utilities.
 
 **Functions**:
 
-- `setupMigrationContextMock()` - Mock migration context (REQUIRED)
 - `setupFirebaseMock()` - Mock Firebase Realtime Database
 - `advanceTime(ms)` - Fast-forward timers for long call testing
 - `setupTestTimers()` - Enable fake timers
@@ -85,17 +84,8 @@ test('2+ hour call', async () => {
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { setupMediaDevicesMocks } from '@/__mocks__/mediaDevices';
 
-// REQUIRED: Migration context mock
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-}));
+// Content readiness (@/services/migration/contentReadiness) is mocked globally
+// in setupTests.ts — no per-file migration mock is needed.
 
 describe('My Test Suite', () => {
   beforeEach(() => {

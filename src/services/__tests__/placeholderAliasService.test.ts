@@ -5,6 +5,12 @@ import {
   normalizePlaceholders,
   localizePlaceholders,
 } from '../placeholderAliasService';
+import enPlaceholders from '@/locales/en/placeholders.json';
+import esPlaceholders from '@/locales/es/placeholders.json';
+import frPlaceholders from '@/locales/fr/placeholders.json';
+import dePlaceholders from '@/locales/de/placeholders.json';
+import zhPlaceholders from '@/locales/zh/placeholders.json';
+import hiPlaceholders from '@/locales/hi/placeholders.json';
 
 // Spanish canonical -> localized token map (single source of truth in JSON at runtime)
 const ES_TOKENS: Record<string, string> = {
@@ -109,6 +115,46 @@ describe('placeholderAliasService', () => {
       const text = 'Touch your {genital}.';
       expect(normalizePlaceholders(text, 'en')).toBe(text);
       expect(localizePlaceholders(text, 'en')).toBe(text);
+    });
+  });
+
+  // The customTiles intake normalizes on every write, so text normalized once
+  // (by a dialog, pack import, or sync) passes through again. That is only safe
+  // if canonical tokens are fixed points of every shipped locale's alias map.
+  describe('canonical stability across shipped locales (intake idempotency)', () => {
+    const shipped: Record<string, Record<string, string>> = {
+      en: enPlaceholders.tokens,
+      es: esPlaceholders.tokens,
+      fr: frPlaceholders.tokens,
+      de: dePlaceholders.tokens,
+      zh: zhPlaceholders.tokens,
+      hi: hiPlaceholders.tokens,
+    };
+
+    function mockLocale(tokens: Record<string, string>) {
+      vi.spyOn(i18next, 't').mockImplementation(((key: string, opts?: any) => {
+        if (key === 'placeholders:tokens' && opts?.returnObjects) return tokens;
+        return key;
+      }) as typeof i18next.t);
+    }
+
+    it.each(Object.keys(shipped))('normalize leaves canonical text unchanged for %s', (locale) => {
+      const tokens = shipped[locale];
+      mockLocale(tokens);
+      const canonicalText = Object.keys(tokens)
+        .map((name) => `{${name}}`)
+        .join(' ');
+      expect(normalizePlaceholders(canonicalText, locale)).toBe(canonicalText);
+    });
+
+    it.each(Object.keys(shipped))('normalize is idempotent for localized text in %s', (locale) => {
+      const tokens = shipped[locale];
+      mockLocale(tokens);
+      const localizedText = Object.values(tokens)
+        .map((name) => `{${name}}`)
+        .join(' ');
+      const once = normalizePlaceholders(localizedText, locale);
+      expect(normalizePlaceholders(once, locale)).toBe(once);
     });
   });
 });

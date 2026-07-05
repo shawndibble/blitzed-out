@@ -1,3 +1,5 @@
+import type { ContentGameMode } from '@/types/Settings';
+
 // Base CustomTile interface (for pushing)
 export interface CustomTileBase {
   group_id?: string; // New foreign key field
@@ -89,7 +91,7 @@ export interface SubmitMessage {
 
 // Shared filter state for synchronization between AddCustomTile and ViewCustomTiles
 export interface SharedFilters {
-  gameMode: string;
+  gameMode: ContentGameMode;
   groupName: string; // Group name for filter synchronization (ViewCustomTiles uses names)
   intensity: string; // Empty string when ViewCustomTiles has 'All'
 }

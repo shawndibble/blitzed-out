@@ -1,5 +1,6 @@
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { importActions } from '@/services/dexieActionImport';
+import type { ContentGameMode } from '@/types/Settings';
 
 export interface DataCompletenessReport {
   isComplete: boolean;
@@ -24,7 +25,7 @@ export interface DataCompletenessReport {
  */
 export const checkDataCompleteness = async (
   locale = 'en',
-  gameMode = 'online'
+  gameMode: ContentGameMode = 'online'
 ): Promise<DataCompletenessReport> => {
   const report: DataCompletenessReport = {
     isComplete: false,
@@ -124,7 +125,10 @@ export const checkDataCompleteness = async (
  * Quick check if Dexie data is complete without detailed analysis
  * This is optimized for performance and can be used for frequent checks
  */
-export const isDexieDataComplete = async (locale = 'en', gameMode = 'online'): Promise<boolean> => {
+export const isDexieDataComplete = async (
+  locale = 'en',
+  gameMode: ContentGameMode = 'online'
+): Promise<boolean> => {
   try {
     // Quick check: compare group counts first
     const [expectedGroups, dexieGroups] = await Promise.all([
@@ -164,7 +168,7 @@ export const isDexieDataComplete = async (locale = 'en', gameMode = 'online'): P
  */
 export const getDataCompletenessSummary = async (
   locale = 'en',
-  gameMode = 'online'
+  gameMode: ContentGameMode = 'online'
 ): Promise<string> => {
   try {
     const report = await checkDataCompleteness(locale, gameMode);

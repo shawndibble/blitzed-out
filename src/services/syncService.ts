@@ -4,7 +4,8 @@ import {
   getTiles,
   updateCustomTile,
 } from '@/stores/customTiles';
-import { deleteCustomGroup, getCustomGroups } from '@/stores/customGroups';
+import { getCustomGroups } from '@/stores/customGroups';
+import { deleteGroup } from '@/stores/contentLibrary';
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 
 import { CustomGroupPull } from '@/types/customGroups';
@@ -76,8 +77,12 @@ export async function clearUserCustomGroups(): Promise<boolean> {
   try {
     const userGroups = await getCustomGroups({ isDefault: false });
 
-    // Convert serial deleteCustomGroup calls to concurrent operations
-    const deletePromises = userGroups.map((group) => deleteCustomGroup(group.id));
+    // Deliberately NOT cascadeDelete: deleteGroup refuses tile-owning groups,
+    // which is load-bearing here. The re-import that follows strips incoming
+    // ids and re-adds tiles under fresh local ids, so cascading would destroy
+    // tiles the pull cannot faithfully restore. A refused delete still counts
+    // as success — the group is about to be overwritten by the cloud copy.
+    const deletePromises = userGroups.map((group) => deleteGroup(group.id));
     await Promise.all(deletePromises);
 
     return true;

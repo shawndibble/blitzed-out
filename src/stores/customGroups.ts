@@ -12,7 +12,7 @@ import i18next from 'i18next';
 import { nanoid } from 'nanoid';
 import { retryOnCursorError } from '@/utils/dbRecovery';
 import { analyticsTracking } from '@/services/analyticsTracking';
-import { waitForMigration } from '@/utils/migrationGuard';
+import { waitForContentReady } from '@/services/migration/contentReadiness';
 
 const { customGroups } = db;
 
@@ -27,6 +27,14 @@ const trackIfUserAuthored = (
   if (isDefault ?? false) return;
   analyticsTracking.trackCustomGroupAction(action, group, false);
 };
+
+/**
+ * Post-commit analytics hook for contentLibrary.deleteGroup. Lives here so the
+ * user-authored gate (default groups are seeded noise, never GA4 signal) stays
+ * next to the create/modify tracking that enforces the same rule.
+ */
+export const trackGroupDeleted = (group: CustomGroupBase): void =>
+  trackIfUserAuthored('delete', group);
 
 // Hook to set default values when creating custom groups
 customGroups.hook(
@@ -201,56 +209,6 @@ export const updateCustomGroup = async (
 };
 
 /**
- * Delete a custom group with cascading delete protection
- * Prevents deletion if tiles exist, unless forced
- */
-export const deleteCustomGroup = async (
-  id: string,
-  options: { force?: boolean; cascadeDelete?: boolean } = {}
-): Promise<{ success: boolean; tilesDeleted?: number; error?: string }> => {
-  try {
-    const { countTilesByGroupId, deleteCustomTilesByGroupId } = await import('./customTiles');
-
-    // Check if group has associated tiles
-    const group = await customGroups.get(id);
-    if (!group) {
-      return { success: false, error: 'Group not found' };
-    }
-
-    const tileCount = await countTilesByGroupId(id, group.locale, group.gameMode);
-
-    if (tileCount > 0) {
-      if (!options.force && !options.cascadeDelete) {
-        return {
-          success: false,
-          error: `Cannot delete group "${group.name}". It has ${tileCount} associated tiles. Use force or cascadeDelete option.`,
-        };
-      }
-
-      if (options.cascadeDelete) {
-        // Delete all associated tiles first
-        const deletedTiles = await deleteCustomTilesByGroupId(id, group.locale, group.gameMode);
-        await customGroups.delete(id);
-
-        trackIfUserAuthored('delete', group);
-
-        return { success: true, tilesDeleted: deletedTiles };
-      }
-    }
-
-    // Safe to delete - no tiles or force option used
-    await customGroups.delete(id);
-
-    trackIfUserAuthored('delete', group);
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error in deleteCustomGroup:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-  }
-};
-
-/**
  * Delete all custom groups (useful for migrations and testing)
  */
 export const deleteAllCustomGroups = async (): Promise<boolean> => {
@@ -359,77 +317,6 @@ export const isGroupNameUnique = async (
 };
 
 /**
- * Get all custom groups for the current locale and game mode
- */
-export const getCurrentGroups = async (gameMode?: string): Promise<CustomGroupPull[]> => {
-  const currentLocale = i18next.resolvedLanguage || i18next.language || 'en';
-  return getCustomGroups({
-    locale: currentLocale,
-    gameMode: gameMode || 'online',
-  });
-};
-
-/**
- * Get default and custom groups combined for display in selectors
- */
-/**
- * Remove duplicate groups from the database
- * Keeps the first occurrence of each group name per locale/gameMode
- */
-export const removeDuplicateGroups = async (
-  locale = 'en',
-  gameMode = 'online'
-): Promise<number> => {
-  try {
-    const allGroups = await getCustomGroups({ locale, gameMode });
-    const groupsByName = new Map<string, CustomGroupPull[]>();
-
-    // Group by name
-    allGroups.forEach((group) => {
-      const existing = groupsByName.get(group.name) || [];
-      existing.push(group);
-      groupsByName.set(group.name, existing);
-    });
-
-    let removedCount = 0;
-
-    // Remove duplicates (keep the first, remove the rest)
-    for (const [, groups] of groupsByName) {
-      if (groups.length > 1) {
-        // Sort by creation date to keep the oldest
-        groups.sort((a, b) => {
-          try {
-            const aTime =
-              a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
-            const bTime =
-              b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
-            return aTime - bTime;
-          } catch (error) {
-            // If date parsing fails, fall back to createdAt comparison for deterministic ordering
-            console.warn(
-              'Date parsing failed in removeDuplicateGroups, using createdAt fallback:',
-              error
-            );
-            return a.createdAt.getTime() - b.createdAt.getTime();
-          }
-        });
-
-        // Remove all but the first
-        for (let i = 1; i < groups.length; i++) {
-          await deleteCustomGroup(groups[i].id);
-          removedCount++;
-        }
-      }
-    }
-
-    return removedCount;
-  } catch (error) {
-    console.error('Error in removeDuplicateGroups:', error);
-    return 0;
-  }
-};
-
-/**
  * Force recreate default groups with proper intensities from action files
  * This is useful when intensities need to be updated
  */
@@ -444,18 +331,13 @@ export const getAllAvailableGroups = async (
   gameMode = 'online'
 ): Promise<CustomGroupPull[]> => {
   try {
-    await waitForMigration();
+    // Key readiness on the locale ARGUMENT, not the current language — a
+    // caller asking for another locale's groups needs THAT locale seeded.
+    await waitForContentReady(locale);
 
     // Ensure database is ready before any operations (skip in test environment)
     if (typeof db.isOpen === 'function' && !db.isOpen()) {
       await db.open();
-    }
-
-    // Clean up any existing duplicates first (but skip if cursor error)
-    try {
-      await removeDuplicateGroups(locale, gameMode);
-    } catch (duplicateError) {
-      console.warn('Skipping duplicate removal due to database error:', duplicateError);
     }
 
     // Get all groups for this locale/gameMode from Dexie
@@ -481,48 +363,6 @@ export const getAllAvailableGroups = async (
       );
     }
 
-    return [];
-  }
-};
-
-/**
- * Get all groups that have associated tiles (both default and custom groups)
- * Returns groups that actually have tiles created for them, regardless of whether they're default or custom
- * Used by setup wizard and other contexts that need groups with tiles
- */
-export const getGroupsWithTiles = async (gameMode = 'online'): Promise<CustomGroupPull[]> => {
-  try {
-    return await retryOnCursorError(
-      db,
-      async () => {
-        // Import the new efficient function
-        const { getTilesByGroupIds } = await import('./customTiles');
-
-        // Get all groups for this locale/gameMode (both default and custom)
-        const allGroups = await getCurrentGroups(gameMode);
-
-        // Extract group IDs for efficient tile lookup
-        const groupIds = allGroups.map((group) => group.id);
-
-        // Get tiles for these specific group IDs only (no locale/gameMode filtering)
-        const tilesForGroups = await getTilesByGroupIds(groupIds);
-
-        // Get unique group IDs that actually have tiles
-        const groupIdsWithTiles = new Set(
-          tilesForGroups.map((tile) => tile.group_id).filter(Boolean)
-        );
-
-        // Filter groups to only include those that have tiles
-        const groupsWithTiles = allGroups.filter((group) => groupIdsWithTiles.has(group.id));
-
-        return groupsWithTiles;
-      },
-      (message: string, error?: Error) => {
-        console.error(`Error in getGroupsWithTiles: ${message}`, error);
-      }
-    );
-  } catch (error) {
-    console.error('Final error in getGroupsWithTiles:', error);
     return [];
   }
 };

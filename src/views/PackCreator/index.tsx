@@ -48,8 +48,8 @@ import { validateCustomTileWithGroups } from '@/services/validationService';
 import { normalizePlaceholders } from '@/services/placeholderAliasService';
 import { analytics } from '@/services/analytics';
 import useAuth from '@/context/hooks/useAuth';
-import { useGameSettings } from '@/stores/settingsStore';
-import { getContentGameMode } from '@/helpers/strings';
+import { deriveContentMode, useGameSettings } from '@/stores/settingsStore';
+import type { ContentGameMode } from '@/types/Settings';
 import { GAME_MODES } from '@/services/migration/constants';
 import type { ContentPackDoc, PackVisibility } from '@/types/contentPacks';
 import type { CustomTile } from '@/types/customTiles';
@@ -194,7 +194,7 @@ export default function PackCreator() {
   const locale = editingPack?.locale || settings.locale || 'en';
 
   const [step, setStep] = useState(0);
-  const [gameMode, setGameMode] = useState<string>(getContentGameMode(settings.gameMode));
+  const [gameMode, setGameMode] = useState<ContentGameMode>(deriveContentMode(settings.gameMode));
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -226,7 +226,8 @@ export default function PackCreator() {
 
   const enterEditMode = (pack: ContentPackDoc) => {
     setEditingPack(pack);
-    setGameMode(pack.gameMode);
+    // Legacy pack docs may carry gameMode 'solo' (a topology, not a content set).
+    setGameMode(deriveContentMode(pack.gameMode));
     setName(pack.name);
     setDescription(pack.description);
     setTags((pack.tags || []).join(', '));

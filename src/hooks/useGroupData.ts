@@ -2,8 +2,9 @@
  * Custom hook for managing group data operations
  */
 import { useState, useCallback, useEffect } from 'react';
-import { getCustomGroups, deleteCustomGroup } from '@/stores/customGroups';
-import { countTilesByGroup, deleteCustomTilesByGroup } from '@/stores/customTiles';
+import { getCustomGroups } from '@/stores/customGroups';
+import { deleteGroup as deleteContentGroup } from '@/stores/contentLibrary';
+import { countTilesByGroupId } from '@/stores/customTiles';
 import type { CustomGroupPull } from '@/types/customGroups';
 
 interface GroupDataState {
@@ -49,14 +50,12 @@ export function useGroupData(locale: string): [GroupDataState, GroupDataActions]
       });
       setExistingGroups(customGroups);
 
-      // Load tile counts for each custom group across all game modes
+      // Load tile counts per group id (ids are unique across modes, so a
+      // single id-keyed count already covers online and local tiles)
       const counts: Record<string, number> = {};
       await Promise.all(
         customGroups.map(async (group) => {
-          // Count tiles for this group across both online and local modes
-          const onlineCount = await countTilesByGroup(group.name, locale, 'online');
-          const localCount = await countTilesByGroup(group.name, locale, 'local');
-          counts[group.id] = onlineCount + localCount;
+          counts[group.id] = await countTilesByGroupId(group.id);
         })
       );
       setTileCounts(counts);
@@ -72,22 +71,18 @@ export function useGroupData(locale: string): [GroupDataState, GroupDataActions]
     async (groupId: string) => {
       if (!pendingDeleteGroup) return;
 
-      try {
-        // Delete all tiles associated with this group first
-        await deleteCustomTilesByGroup(pendingDeleteGroup.name);
-
-        // Then delete the group itself
-        await deleteCustomGroup(groupId);
-
-        // Reload the groups list
-        await reloadGroupsAndCounts();
-
-        // Close the delete dialog
-        setDeleteDialogOpen(false);
-        setPendingDeleteGroup(null);
-      } catch (error) {
-        console.error('Error deleting group:', error);
+      const result = await deleteContentGroup(groupId, { cascadeDelete: true });
+      if (!result.success) {
+        console.error('Error deleting group:', result.error);
+        return;
       }
+
+      // Reload the groups list
+      await reloadGroupsAndCounts();
+
+      // Close the delete dialog
+      setDeleteDialogOpen(false);
+      setPendingDeleteGroup(null);
     },
     [pendingDeleteGroup, reloadGroupsAndCounts]
   );

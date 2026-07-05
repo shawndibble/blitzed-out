@@ -8,17 +8,6 @@ vi.mock('i18next', () => ({
   },
 }));
 
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigration: vi.fn(),
-  }),
-}));
-
 describe('Tile-Group Normalization Validation', () => {
   it('should validate that type definitions support group_id field', () => {
     // Test the type definition includes the new group_id field

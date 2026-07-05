@@ -13,17 +13,17 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useCallback, useMemo } from 'react';
 
 import { CustomGroupPull } from '@/types/customGroups';
-import { GameMode } from '@/types/Settings';
+import type { ContentGameMode } from '@/types/Settings';
 import groupActionsFolder from '@/helpers/actionsFolder';
 
 interface TileCategorySelectionProps {
-  gameMode: GameMode | string;
+  gameMode: ContentGameMode;
   groupFilter: string;
   intensityFilter: number | string;
   groups: ProcessedGroups;
   mappedGroups: AllGameModeActions;
   dexieGroups?: Record<string, CustomGroupPull>;
-  onGameModeChange: (value: string) => void;
+  onGameModeChange: (value: ContentGameMode) => void;
   onGroupChange: (value: string) => void;
   onIntensityChange: (value: string | number) => void;
   hideAll?: boolean;
@@ -46,8 +46,8 @@ export default function TileCategorySelection({
   const { t } = useTranslation();
 
   const mappedGroupsFolder = useMemo(() => {
-    if (!mappedGroups?.[gameMode as GameMode]) return [];
-    const folder = groupActionsFolder(mappedGroups[gameMode as GameMode]);
+    if (!mappedGroups?.[gameMode]) return [];
+    const folder = groupActionsFolder(mappedGroups[gameMode]);
     return Array.isArray(folder) ? (folder as MappedGroup[]) : [];
   }, [mappedGroups, gameMode]);
 
@@ -109,7 +109,7 @@ export default function TileCategorySelection({
           value={gameMode}
           label={t('customTiles.gameMode', 'Game Mode')}
           onChange={(e) => {
-            onGameModeChange(e.target.value);
+            onGameModeChange(e.target.value as ContentGameMode);
           }}
           slotProps={{
             input: { 'aria-label': t('customTiles.gameMode', 'Game Mode') },

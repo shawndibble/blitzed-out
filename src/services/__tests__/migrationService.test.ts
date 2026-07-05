@@ -30,6 +30,9 @@ const mockLocalStorage = (() => {
 vi.mock('@/stores/customGroups', () => ({
   addCustomGroup: vi.fn(),
   getCustomGroupByName: vi.fn(),
+}));
+
+vi.mock('@/stores/contentLibrary', () => ({
   removeDuplicateGroups: vi.fn(),
 }));
 

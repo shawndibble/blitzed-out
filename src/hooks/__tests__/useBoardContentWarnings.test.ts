@@ -5,11 +5,6 @@ import { Settings } from '@/types/Settings';
 import buildGameBoard from '@/services/buildGame';
 import useBoardContentWarnings from '../useBoardContentWarnings';
 
-vi.mock('@/helpers/strings', () => ({
-  isPublicRoom: vi.fn(() => false),
-  getContentGameMode: vi.fn((gameMode) => (gameMode === 'local' ? 'local' : 'online')),
-}));
-
 vi.mock('@/services/buildGame', () => ({
   default: vi.fn(),
 }));

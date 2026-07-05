@@ -1,166 +1,99 @@
 import { renderHook } from '@testing-library/react';
 import useBrokenActionsState from '../useBrokenActionsState';
 import { GroupedActions } from '@/types/customTiles';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ContentReadinessPhase } from '@/services/migration/contentReadiness';
 
-// Mock the migration context
-vi.mock('@/context/migration', () => ({
-  useMigration: vi.fn(() => ({
-    isMigrationInProgress: false,
-    currentLanguageMigrated: true,
-    isMigrationCompleted: true,
-    error: null,
-    isHealthy: true,
-    recoveryAttempted: false,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-    forceRecovery: vi.fn(),
-  })),
+const mockStatus = vi.hoisted(() => ({
+  phase: 'ready' as ContentReadinessPhase,
+  error: null as string | null,
 }));
 
+vi.mock('@/services/migration/contentReadiness', () => ({
+  useMigrationStatus: () => ({ ...mockStatus, retry: () => Promise.resolve() }),
+  waitForContentReady: () => Promise.resolve(),
+  initContentReadiness: () => () => {},
+}));
+
+const someActions: GroupedActions = {
+  testAction: {
+    label: 'Test Action',
+    type: 'action',
+    actions: { None: [] },
+    intensities: {},
+  },
+};
+
 describe('useBrokenActionsState', () => {
-  it('should return not broken when loading', () => {
-    const actionsList: GroupedActions = {};
-    const isLoading = true;
+  beforeEach(() => {
+    mockStatus.phase = 'ready';
+    mockStatus.error = null;
+  });
 
-    const { result } = renderHook(() => useBrokenActionsState(actionsList, isLoading));
+  it('returns not broken while loading', () => {
+    const { result } = renderHook(() => useBrokenActionsState({}, true));
 
     expect(result.current.isBroken).toBe(false);
     expect(result.current.hasNoActions).toBe(false);
   });
 
-  it('should return broken when not loading and actionsList is empty', () => {
-    const actionsList: GroupedActions = {};
-    const isLoading = false;
-
-    const { result } = renderHook(() => useBrokenActionsState(actionsList, isLoading));
+  it('returns broken when ready, not loading, and actionsList is empty', () => {
+    const { result } = renderHook(() => useBrokenActionsState({}, false));
 
     expect(result.current.isBroken).toBe(true);
     expect(result.current.hasNoActions).toBe(true);
   });
 
-  it('should return broken when not loading and actionsList is null/undefined', () => {
-    const actionsList = null as any;
-    const isLoading = false;
-
-    const { result } = renderHook(() => useBrokenActionsState(actionsList, isLoading));
+  it('returns broken when ready, not loading, and actionsList is null/undefined', () => {
+    const { result } = renderHook(() => useBrokenActionsState(null as any, false));
 
     expect(result.current.isBroken).toBe(true);
     expect(result.current.hasNoActions).toBe(true);
   });
 
-  it('should return not broken when not loading and actionsList has actions', () => {
-    const actionsList: GroupedActions = {
-      testAction: {
-        label: 'Test Action',
-        type: 'action',
-        actions: { None: [] },
-        intensities: {},
-      },
-    };
-    const isLoading = false;
-
-    const { result } = renderHook(() => useBrokenActionsState(actionsList, isLoading));
+  it('returns not broken when ready and actions exist', () => {
+    const { result } = renderHook(() => useBrokenActionsState(someActions, false));
 
     expect(result.current.isBroken).toBe(false);
     expect(result.current.hasNoActions).toBe(false);
   });
 
-  it('should update when actionsList changes', () => {
+  it('updates when actionsList changes', () => {
     const { result, rerender } = renderHook(
       ({ actionsList, isLoading }) => useBrokenActionsState(actionsList, isLoading),
-      {
-        initialProps: {
-          actionsList: {} as GroupedActions,
-          isLoading: false,
-        },
-      }
+      { initialProps: { actionsList: {} as GroupedActions, isLoading: false } }
     );
 
-    // Initially broken
     expect(result.current.isBroken).toBe(true);
 
-    // Add actions and rerender
-    rerender({
-      actionsList: {
-        testAction: {
-          label: 'Test Action',
-          type: 'action',
-          actions: { None: [] },
-          intensities: {},
-        },
-      },
-      isLoading: false,
-    });
+    rerender({ actionsList: someActions, isLoading: false });
 
-    // Should no longer be broken
     expect(result.current.isBroken).toBe(false);
   });
 
-  it('should return not broken when migration is in progress', async () => {
-    const { useMigration } = vi.mocked(await import('@/context/migration'));
-    useMigration.mockReturnValue({
-      isMigrationInProgress: true, // Migration in progress
-      currentLanguageMigrated: false,
-      isMigrationCompleted: false,
-      error: null,
-      isHealthy: true,
-      recoveryAttempted: false,
-      triggerMigration: vi.fn(),
-      ensureLanguageMigrated: vi.fn(),
-      forceRecovery: vi.fn(),
-    });
+  it('suppresses broken while seeding', () => {
+    mockStatus.phase = 'seeding';
 
-    const actionsList: GroupedActions = {};
-    const isLoading = false;
-
-    const { result } = renderHook(() => useBrokenActionsState(actionsList, isLoading));
+    const { result } = renderHook(() => useBrokenActionsState({}, false));
 
     expect(result.current.isBroken).toBe(false);
     expect(result.current.hasNoActions).toBe(false);
   });
 
-  it('should return not broken when current language migration is incomplete', async () => {
-    const { useMigration } = vi.mocked(await import('@/context/migration'));
-    useMigration.mockReturnValue({
-      isMigrationInProgress: false,
-      currentLanguageMigrated: false, // Current language not migrated yet
-      isMigrationCompleted: false,
-      error: null,
-      isHealthy: true,
-      recoveryAttempted: false,
-      triggerMigration: vi.fn(),
-      ensureLanguageMigrated: vi.fn(),
-      forceRecovery: vi.fn(),
-    });
+  it('suppresses broken when degraded — transient seeding failure must not route to the wipe-data screen', () => {
+    mockStatus.phase = 'degraded';
+    mockStatus.error = 'Content seeding failed for "en"';
 
-    const actionsList: GroupedActions = {};
-    const isLoading = false;
-
-    const { result } = renderHook(() => useBrokenActionsState(actionsList, isLoading));
+    const { result } = renderHook(() => useBrokenActionsState({}, false));
 
     expect(result.current.isBroken).toBe(false);
     expect(result.current.hasNoActions).toBe(false);
   });
 
-  it('should return broken only when migration is complete and no actions available', async () => {
-    const { useMigration } = vi.mocked(await import('@/context/migration'));
-    useMigration.mockReturnValue({
-      isMigrationInProgress: false,
-      currentLanguageMigrated: true, // Migration complete
-      isMigrationCompleted: true,
-      error: null,
-      isHealthy: true,
-      recoveryAttempted: false,
-      triggerMigration: vi.fn(),
-      ensureLanguageMigrated: vi.fn(),
-      forceRecovery: vi.fn(),
-    });
+  it('reports broken only when phase is ready and no actions are available', () => {
+    mockStatus.phase = 'ready';
 
-    const actionsList: GroupedActions = {};
-    const isLoading = false;
-
-    const { result } = renderHook(() => useBrokenActionsState(actionsList, isLoading));
+    const { result } = renderHook(() => useBrokenActionsState({}, false));
 
     expect(result.current.isBroken).toBe(true);
     expect(result.current.hasNoActions).toBe(true);

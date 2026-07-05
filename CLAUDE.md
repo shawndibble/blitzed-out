@@ -46,27 +46,14 @@ React 19.x + TypeScript + Vite · MUI v9 (dark mode; avoid hardcoded light color
 - Components: own dir + `index.tsx`
 - Types: `src/types/index.ts` (main), feature-specific files
 - Firebase: `src/services/firebase.ts`
-- Migration: `src/context/migration.tsx`
+- Content readiness (seeding gate): `src/services/migration/contentReadiness.ts`
 - Path alias: `@/*` → `src/*`
 
 ## Testing
 
 Framework: Vitest + React Testing Library. Mocks in `src/__mocks__/`.
 
-**MigrationProvider mock** (add when test errors with `useMigration must be used within MigrationProvider`):
-
-```typescript
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-}));
-```
+**Content readiness** (`@/services/migration/contentReadiness`) is mocked globally in `setupTests.ts` (waitForContentReady resolved, phase `'ready'`) — no per-file migration mock needed.
 
 ## MCP Servers
 
@@ -85,7 +72,7 @@ Anatomy placeholders: `{genital}` (dick/pussy), `{hole}` (pussy/ass), `{chest}` 
 
 Game content lives in `src/locales/{lang}/{local,online}/*.json` (per-group files, with `dom`/`sub` role labels). After editing these, run `node scripts/bundle-translations.js` to regenerate the `{local,online}-bundle.json` files the app actually loads.
 
-Custom-tile placeholder tokens are stored canonical English; localized aliases (`src/locales/*/placeholders.json`) are normalized to English on save via `placeholderAliasService` and localized back on edit. The gameplay replacement pipeline (`actionStringReplacement`, `anatomyPlaceholderService`) never sees aliases.
+Custom-tile placeholder tokens are stored canonical English; localized aliases (`src/locales/*/placeholders.json`) are normalized to English via `placeholderAliasService` and localized back on edit. The customTiles store enforces this at intake (`addCustomTile`/`updateCustomTile` normalize idempotently), so every write path inherits the invariant; dialogs additionally normalize early for validation/dedup. The gameplay replacement pipeline (`actionStringReplacement`, `anatomyPlaceholderService`) never sees aliases.
 
 ## Architecture Patterns
 

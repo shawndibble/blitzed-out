@@ -1,6 +1,9 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getContentGameMode, isPublicRoom } from '@/helpers/strings';
-import { useSettings } from '@/stores/settingsStore';
+import {
+  deriveContentMode,
+  enforceTopologyRoomInvariant,
+  useSettings,
+} from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import buildGameBoard from '@/services/buildGame';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
@@ -34,22 +37,21 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
             };
       let { gameMode, boardUpdated: settingsBoardUpdated } = formData;
       const { roomTileCount = DEFAULT_TILE_COUNT, finishRange, room } = formData;
-      const isPublic = isPublicRoom(room || '');
 
       if (!data || !finishRange) {
         // still loading data.
         return { gameMode };
       }
 
-      // If we are in a public room,
-      // then gameMode should update to online, and we need to re-import actions.
-      if (isPublic && gameMode === 'local') {
-        gameMode = 'online';
-        // this is async, so we need the boardUpdated & updatedDataFolder as separate entities.
+      // Staged form data must satisfy the topology-room invariant before we
+      // build or persist; a repair means actions need re-importing.
+      const guarded = enforceTopologyRoomInvariant({ gameMode, room });
+      if (guarded.gameMode !== gameMode) {
+        gameMode = guarded.gameMode;
         settingsBoardUpdated = true;
       }
 
-      const finalGameMode = getContentGameMode(gameMode);
+      const finalGameMode = deriveContentMode(gameMode);
       const locale = i18n.resolvedLanguage || 'en';
       const tileCount = roomTileCount || DEFAULT_TILE_COUNT;
 

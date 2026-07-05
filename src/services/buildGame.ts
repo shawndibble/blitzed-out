@@ -1,7 +1,7 @@
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
-import { Settings } from '@/types/Settings';
+import { ContentGameMode, Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
@@ -533,7 +533,8 @@ const dexieDataSource: BoardDataSource = {
  *
  * @param settings Game settings including selectedActions
  * @param locale Current locale for internationalization
- * @param gameMode Current game mode (online, local, solo)
+ * @param gameMode Content game mode ('online' | 'local') — callers derive it
+ *   from topology via `deriveContentMode` (settingsStore)
  * @param tileCount Total number of tiles to generate (excluding start/finish)
  * @param deps Optional `dataSource`/`translate` overrides
  * @returns Promise containing the built board and metadata
@@ -541,7 +542,7 @@ const dexieDataSource: BoardDataSource = {
 export default async function buildGameBoard(
   settings: Settings,
   locale: string,
-  gameMode: string,
+  gameMode: ContentGameMode,
   tileCount = DEFAULT_TILE_COUNT,
   deps: { dataSource?: BoardDataSource; translate?: (key: string) => string } = {}
 ): Promise<BoardBuildResult> {

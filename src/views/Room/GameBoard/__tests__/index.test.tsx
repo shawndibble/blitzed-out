@@ -48,17 +48,6 @@ vi.mock('./TokenAnimationLayer', () => ({
   )),
 }));
 
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-}));
-
 vi.mock('framer-motion', () => ({
   motion: {
     div: React.forwardRef<any, any>((props, ref) => {

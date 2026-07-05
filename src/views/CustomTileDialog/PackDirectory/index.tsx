@@ -23,11 +23,12 @@ import { getImportedPackIds } from '@/stores/customGroups';
 import { useGameSettings } from '@/stores/settingsStore';
 import { GAME_MODES } from '@/services/migration/constants';
 import type { ContentPackDoc } from '@/types/contentPacks';
+import type { ContentGameMode } from '@/types/Settings';
 
 interface PackDirectoryProps {
   // Game mode is owned by the parent so this pane and the publish form stay in sync.
-  gameMode: string;
-  onGameModeChange: (mode: string) => void;
+  gameMode: ContentGameMode;
+  onGameModeChange: (mode: ContentGameMode) => void;
   onImported?: (packName: string, pack: ContentPackDoc) => void;
 }
 

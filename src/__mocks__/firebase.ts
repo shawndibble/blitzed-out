@@ -183,7 +183,6 @@ export const stopPeriodicSync = vi.fn();
 
 // Message service functions
 export const getMessages = vi.fn(() => vi.fn());
-export const getMessagesWithPagination = vi.fn(() => vi.fn());
 export const sendMessage = vi.fn().mockResolvedValue(undefined);
 export const getSchedule = vi.fn(() => vi.fn());
 export const addSchedule = vi.fn().mockResolvedValue({ id: 'mock-schedule-id' });
@@ -211,7 +210,6 @@ export default {
   startPeriodicSync,
   stopPeriodicSync,
   getMessages,
-  getMessagesWithPagination,
   sendMessage,
   getSchedule,
   addSchedule,

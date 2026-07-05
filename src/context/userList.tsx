@@ -123,10 +123,7 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
 
     cleanup();
 
-    // Disable debouncing for user list - we need real-time updates for presence
-    const unsubscribe = getUserList(room, handleUserUpdate, onlineUsersRef.current, {
-      enableDebounce: false,
-    });
+    const unsubscribe = getUserList(room, handleUserUpdate, onlineUsersRef.current);
     unsubscribeRef.current = unsubscribe || null;
 
     return cleanup;

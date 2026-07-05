@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 
 import { CustomGroupPull } from '@/types/customGroups';
-import { getAllAvailableGroups, getGroupsWithTiles } from '@/stores/customGroups';
-import { getTileCountsByGroup } from '@/stores/customTiles';
+import { getAllAvailableGroups } from '@/stores/customGroups';
+import { getGroupsWithTiles, getTileCountsByGroup } from '@/stores/contentLibrary';
 import useUnifiedActionList from '../useUnifiedActionList';
 
 // Mock i18next
@@ -23,27 +23,12 @@ vi.mock('react-i18next', () => ({
 // Mock customGroups store
 vi.mock('@/stores/customGroups', () => ({
   getAllAvailableGroups: vi.fn(),
+}));
+
+// Mock contentLibrary join layer
+vi.mock('@/stores/contentLibrary', () => ({
   getGroupsWithTiles: vi.fn(),
-}));
-
-// Mock customTiles store
-vi.mock('@/stores/customTiles', () => ({
   getTileCountsByGroup: vi.fn(),
-}));
-
-// Mock migration context
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    isHealthy: true,
-    recoveryAttempted: false,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-    forceRecovery: vi.fn(),
-  }),
 }));
 
 describe('useUnifiedActionList - Core Functionality', () => {

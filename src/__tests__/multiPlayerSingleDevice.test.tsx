@@ -10,18 +10,6 @@ import { ReactNode } from 'react';
 import { MessagesProvider } from '@/context/messages';
 import { AuthProvider } from '@/context/auth';
 
-// Mock migration context
-vi.mock('@/context/migration', () => ({
-  useMigration: () => ({
-    currentLanguageMigrated: true,
-    isMigrationInProgress: false,
-    isMigrationCompleted: true,
-    error: null,
-    triggerMigration: vi.fn(),
-    ensureLanguageMigrated: vi.fn(),
-  }),
-}));
-
 // Mock authentication
 vi.mock('@/context/hooks/useAuth', () => ({
   default: () => ({
@@ -48,7 +36,6 @@ vi.mock('@/stores/userListStore', () => ({
 vi.mock('@/services/firebase', () => ({
   sendMessage: vi.fn(),
   getMessages: vi.fn(() => vi.fn()),
-  getMessagesWithPagination: vi.fn(() => vi.fn()),
 }));
 
 // Mock i18next

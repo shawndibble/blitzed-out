@@ -8,408 +8,261 @@ import {
   updateBoard,
   upsertBoard,
 } from '../gameBoard';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DBGameBoard } from '@/types/gameBoard';
 import db from '../store';
 
-// Mock the database
-vi.mock('../store', () => ({
-  default: {
-    gameBoard: {
-      orderBy: vi.fn(() => ({
-        toArray: vi.fn(),
-      })),
-      where: vi.fn(() => ({
-        equals: vi.fn(() => ({
-          first: vi.fn(),
-          modify: vi.fn(),
-        })),
-      })),
-      get: vi.fn(),
-      add: vi.fn(),
-      update: vi.fn(),
-      bulkPut: vi.fn(),
-      delete: vi.fn(),
-      toArray: vi.fn(),
-    },
-    transaction: vi.fn(),
-  },
-}));
+const board = (overrides: Partial<DBGameBoard> = {}): DBGameBoard => ({
+  title: 'Test Board',
+  tiles: [
+    { title: 'Start', description: 'Game start' },
+    { title: 'Action 1', description: 'Test action 1' },
+    { title: 'Finish', description: 'Game finish' },
+  ],
+  isActive: 0,
+  tags: [],
+  gameMode: 'online',
+  ...overrides,
+});
 
 describe('gameBoard store', () => {
-  const mockBoard: DBGameBoard = {
-    id: 1,
-    title: 'Test Board',
-    tiles: [
-      { title: 'Start', description: 'Game start' },
-      { title: 'Action 1', description: 'Test action 1' },
-      { title: 'Finish', description: 'Game finish' },
-    ],
-    isActive: 1,
-    tags: ['test'],
-    gameMode: 'online',
-  };
-
-  const mockBoards: DBGameBoard[] = [
-    mockBoard,
-    {
-      id: 2,
-      title: 'Inactive Board',
-      tiles: [],
-      isActive: 0,
-      tags: [],
-      gameMode: 'offline',
-    },
-  ];
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
+  beforeEach(async () => {
+    await db.gameBoard.clear();
   });
 
   describe('getBoards', () => {
-    it('should return all boards ordered by title', async () => {
-      const mockToArray = vi.fn().mockResolvedValue(mockBoards);
-      const mockOrderBy = vi.fn().mockReturnValue({ toArray: mockToArray });
-
-      vi.mocked(db.gameBoard.orderBy).mockReturnValue(mockOrderBy('title') as any);
+    it('returns all boards ordered by title', async () => {
+      await db.gameBoard.bulkAdd([
+        board({ title: 'Charlie' }),
+        board({ title: 'Alpha' }),
+        board({ title: 'Bravo' }),
+      ]);
 
       const result = await getBoards();
 
-      expect(db.gameBoard.orderBy).toHaveBeenCalledWith('title');
-      expect(mockToArray).toHaveBeenCalled();
-      expect(result).toEqual(mockBoards);
+      expect(result.map((b) => b.title)).toEqual(['Alpha', 'Bravo', 'Charlie']);
     });
 
-    it('should handle empty boards array', async () => {
-      const mockToArray = vi.fn().mockResolvedValue([]);
-      const mockOrderBy = vi.fn().mockReturnValue({ toArray: mockToArray });
-
-      vi.mocked(db.gameBoard.orderBy).mockReturnValue(mockOrderBy('title') as any);
-
-      const result = await getBoards();
-
-      expect(result).toEqual([]);
+    it('returns an empty array when there are no boards', async () => {
+      await expect(getBoards()).resolves.toEqual([]);
     });
   });
 
   describe('getActiveBoard', () => {
-    it('should return the active board', async () => {
-      const mockFirst = vi.fn().mockResolvedValue(mockBoard);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-
-      vi.mocked(db.gameBoard.where).mockReturnValue(mockWhere('isActive') as any);
+    it('returns the board with isActive set', async () => {
+      await db.gameBoard.bulkAdd([
+        board({ title: 'Inactive' }),
+        board({ title: 'Active', isActive: 1 }),
+      ]);
 
       const result = await getActiveBoard();
 
-      expect(db.gameBoard.where).toHaveBeenCalledWith('isActive');
-      expect(mockEquals).toHaveBeenCalledWith(1);
-      expect(mockFirst).toHaveBeenCalled();
-      expect(result).toEqual(mockBoard);
+      expect(result?.title).toBe('Active');
+      expect(result?.isActive).toBe(1);
     });
 
-    it('should return empty object when no active board exists', async () => {
-      const mockFirst = vi.fn().mockResolvedValue(undefined);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
+    it('returns undefined when no board is active', async () => {
+      await db.gameBoard.add(board({ title: 'Inactive' }));
 
-      vi.mocked(db.gameBoard.where).mockReturnValue(mockWhere('isActive') as any);
-
-      const result = await getActiveBoard();
-
-      expect(result).toBeUndefined();
+      await expect(getActiveBoard()).resolves.toBeUndefined();
     });
   });
 
   describe('getBoard', () => {
-    it('should return board by id', async () => {
-      vi.mocked(db.gameBoard.get).mockResolvedValue(mockBoard);
+    it('returns a board by id', async () => {
+      const id = (await db.gameBoard.add(board({ title: 'Lookup' }))) as number;
 
-      const result = await getBoard(1);
+      const result = await getBoard(id);
 
-      expect(db.gameBoard.get).toHaveBeenCalledWith(1);
-      expect(result).toEqual(mockBoard);
+      expect(result?.id).toBe(id);
+      expect(result?.title).toBe('Lookup');
     });
 
-    it('should return undefined for non-existent board', async () => {
-      vi.mocked(db.gameBoard.get).mockResolvedValue(undefined);
-
-      const result = await getBoard(999);
-
-      expect(db.gameBoard.get).toHaveBeenCalledWith(999);
-      expect(result).toBeUndefined();
+    it('returns undefined for a non-existent id', async () => {
+      await expect(getBoard(999)).resolves.toBeUndefined();
     });
   });
 
   describe('addBoard', () => {
-    it('should add a new board and return its id', async () => {
-      const newBoardId = 3;
-      vi.mocked(db.gameBoard.add).mockResolvedValue(newBoardId);
+    it('adds a board, returns its id, and stamps updatedAt', async () => {
+      const before = Date.now();
+      const id = await addBoard(board({ title: 'New Board' }));
+      const after = Date.now();
 
-      const partialBoard: Partial<DBGameBoard> = {
-        title: 'New Board',
-        tiles: [],
-        isActive: 0,
-        tags: [],
-        gameMode: 'online',
-      };
-
-      const result = await addBoard(partialBoard);
-
-      expect(db.gameBoard.add).toHaveBeenCalledWith({
-        ...partialBoard,
-        updatedAt: expect.any(Number),
-      });
-      expect(result).toBe(newBoardId);
+      expect(id).toEqual(expect.any(Number));
+      const saved = await db.gameBoard.get(id as number);
+      expect(saved?.title).toBe('New Board');
+      expect(saved?.updatedAt).toBeGreaterThanOrEqual(before);
+      expect(saved?.updatedAt).toBeLessThanOrEqual(after);
     });
 
-    it('should handle add failure', async () => {
-      vi.mocked(db.gameBoard.add).mockRejectedValue(new Error('Add failed'));
+    it('preserves a caller-supplied updatedAt', async () => {
+      const id = await addBoard(board({ title: 'Synced Board', updatedAt: 12345 }));
 
-      const partialBoard: Partial<DBGameBoard> = {
-        title: 'New Board',
-      };
-
-      await expect(addBoard(partialBoard)).rejects.toThrow('Add failed');
+      const saved = await db.gameBoard.get(id as number);
+      expect(saved?.updatedAt).toBe(12345);
     });
   });
 
   describe('updateBoard', () => {
-    it('should update an existing board', async () => {
-      const updatedRowCount = 1;
-      vi.mocked(db.gameBoard.update).mockResolvedValue(updatedRowCount);
+    it('applies updated fields and stamps a fresh updatedAt', async () => {
+      const id = (await db.gameBoard.add(board({ title: 'Original', updatedAt: 1 }))) as number;
+      const existing = (await db.gameBoard.get(id)) as DBGameBoard;
 
-      const updatedFields = { title: 'Updated Title' };
-      const result = await updateBoard(mockBoard, updatedFields);
+      const before = Date.now();
+      const updatedRows = await updateBoard(existing, { title: 'Updated Title' });
+      const after = Date.now();
 
-      expect(db.gameBoard.update).toHaveBeenCalledWith(mockBoard.id, {
-        ...mockBoard,
-        ...updatedFields,
-        updatedAt: expect.any(Number),
-      });
-      expect(result).toBe(updatedRowCount);
+      expect(updatedRows).toBe(1);
+      const saved = await db.gameBoard.get(id);
+      expect(saved?.title).toBe('Updated Title');
+      expect(saved?.updatedAt).toBeGreaterThanOrEqual(before);
+      expect(saved?.updatedAt).toBeLessThanOrEqual(after);
     });
 
-    it('should update board without additional record', async () => {
-      const updatedRowCount = 1;
-      vi.mocked(db.gameBoard.update).mockResolvedValue(updatedRowCount);
+    it('stamps updatedAt even without an updated-fields record', async () => {
+      const id = (await db.gameBoard.add(board({ title: 'Original', updatedAt: 1 }))) as number;
+      const existing = (await db.gameBoard.get(id)) as DBGameBoard;
 
-      const result = await updateBoard(mockBoard);
+      const before = Date.now();
+      await updateBoard(existing);
 
-      expect(db.gameBoard.update).toHaveBeenCalledWith(mockBoard.id, {
-        ...mockBoard,
-        updatedAt: expect.any(Number),
-      });
-      expect(result).toBe(updatedRowCount);
+      const saved = await db.gameBoard.get(id);
+      expect(saved?.updatedAt).toBeGreaterThanOrEqual(before);
+    });
+
+    it('preserves a caller-supplied updatedAt', async () => {
+      const id = (await db.gameBoard.add(board({ title: 'Original', updatedAt: 1 }))) as number;
+      const existing = (await db.gameBoard.get(id)) as DBGameBoard;
+
+      await updateBoard(existing, { title: 'Remote Title', updatedAt: 999 });
+
+      const saved = await db.gameBoard.get(id);
+      expect(saved?.title).toBe('Remote Title');
+      expect(saved?.updatedAt).toBe(999);
     });
   });
 
   describe('upsertBoard', () => {
-    it('should create new board when title does not exist', async () => {
-      const newBoardId = 3;
-      const mockFirst = vi.fn().mockResolvedValue(undefined);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-
-      vi.mocked(db.gameBoard.where).mockReturnValue(mockWhere('title') as any);
-      vi.mocked(db.gameBoard.add).mockResolvedValue(newBoardId);
-
-      // Mock transaction
-      // @ts-expect-error Mock implementation with simplified callback signature
-      vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
-        // @ts-expect-error Mock callback execution without proper typing
-        return await callback();
+    it('creates a new board when the title does not exist', async () => {
+      const id = await upsertBoard({
+        title: 'Brand New',
+        tiles: [{ title: 'Start', description: 'Go' }],
+        isActive: 0,
+        tags: ['fresh'],
+        gameMode: 'offline',
       });
 
-      const newBoard = {
-        title: 'New Board',
-        tiles: [],
-        isActive: 0,
-        tags: [],
-        gameMode: 'online',
-      };
-
-      const result = await upsertBoard(newBoard);
-
-      expect(result).toBe(newBoardId);
-      expect(db.gameBoard.add).toHaveBeenCalledWith({
-        title: 'New Board',
-        tiles: [],
-        isActive: 0,
-        tags: [],
-        gameMode: 'online',
-        updatedAt: expect.any(Number),
-      });
+      expect(id).toEqual(expect.any(Number));
+      const saved = await db.gameBoard.get(id as number);
+      expect(saved?.title).toBe('Brand New');
+      expect(saved?.tiles).toHaveLength(1);
+      expect(saved?.tags).toEqual(['fresh']);
+      expect(saved?.gameMode).toBe('offline');
+      expect(saved?.updatedAt).toEqual(expect.any(Number));
     });
 
-    it('should update existing board when title exists', async () => {
-      const mockModify = vi.fn().mockResolvedValue(1);
-      const mockFirst = vi.fn().mockResolvedValue(mockBoard);
-      const mockEquals = vi.fn().mockReturnValue({ first: mockFirst, modify: mockModify });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
+    it('updates the existing board when the title already exists', async () => {
+      const existingId = (await db.gameBoard.add(board({ title: 'Test Board' }))) as number;
 
-      vi.mocked(db.gameBoard.where).mockReturnValue(mockWhere('title') as any);
-      vi.mocked(db.gameBoard.update).mockResolvedValue(1);
-
-      // Mock transaction
-      // @ts-expect-error Mock implementation with simplified callback signature
-      vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
-        // @ts-expect-error Mock callback execution without proper typing
-        return await callback();
-      });
-
-      const updateData = {
+      const id = await upsertBoard({
         title: 'Test Board',
+        isActive: 0,
         tiles: [{ title: 'New Tile', description: 'New description' }],
-      };
-
-      const result = await upsertBoard(updateData);
-
-      expect(result).toBe(mockBoard.id);
-      expect(db.gameBoard.update).toHaveBeenCalled();
-    });
-
-    it('should deactivate all boards when isActive is true', async () => {
-      const mockFirst = vi.fn().mockResolvedValue(undefined);
-      const mockModify = vi.fn().mockResolvedValue(1);
-      const mockEquals = vi.fn().mockReturnValue({ modify: mockModify });
-      const mockWhere = vi.fn().mockReturnValue({ equals: mockEquals });
-
-      // Mock for both title lookup and isActive deactivation
-      vi.mocked(db.gameBoard.where).mockImplementation((field) => {
-        // @ts-expect-error Mock conditional return type based on field parameter
-        if (field === 'title') {
-          return { equals: vi.fn().mockReturnValue({ first: mockFirst }) };
-        }
-        return mockWhere(field);
       });
 
-      vi.mocked(db.gameBoard.add).mockResolvedValue(3);
-
-      // Mock transaction
-      // @ts-expect-error Mock implementation with simplified callback signature
-      vi.mocked(db.transaction).mockImplementation(async (mode, table, callback) => {
-        // @ts-expect-error Mock callback execution without proper typing
-        return await callback();
-      });
-
-      const newBoard = {
-        title: 'Active Board',
-        tiles: [],
-        isActive: 1,
-        tags: [],
-        gameMode: 'online',
-      };
-
-      await upsertBoard(newBoard);
-
-      expect(mockEquals).toHaveBeenCalledWith(1);
-      expect(mockModify).toHaveBeenCalledWith({ isActive: 0 });
+      expect(id).toBe(existingId);
+      const boards = await db.gameBoard.toArray();
+      expect(boards).toHaveLength(1);
+      expect(boards[0].tiles).toEqual([{ title: 'New Tile', description: 'New description' }]);
     });
 
-    it('should return undefined when no title and no tiles', async () => {
-      const result = await upsertBoard({});
+    it('deactivates all other boards when the upserted board is active', async () => {
+      await db.gameBoard.bulkAdd([
+        board({ title: 'Old Active', isActive: 1 }),
+        board({ title: 'Old Inactive' }),
+      ]);
+
+      const id = await upsertBoard({ title: 'New Active', isActive: 1 });
+
+      const boards = await db.gameBoard.toArray();
+      const active = boards.filter((b) => b.isActive === 1);
+      expect(active).toHaveLength(1);
+      expect(active[0].id).toBe(id);
+      expect(active[0].title).toBe('New Active');
+    });
+
+    it('keeps a single active board when upserting over an existing title as active', async () => {
+      await db.gameBoard.bulkAdd([
+        board({ title: 'Old Active', isActive: 1 }),
+        board({ title: 'Target' }),
+      ]);
+
+      await upsertBoard({ title: 'Target', isActive: 1 });
+
+      const boards = await db.gameBoard.toArray();
+      const active = boards.filter((b) => b.isActive === 1);
+      expect(active).toHaveLength(1);
+      expect(active[0].title).toBe('Target');
+    });
+
+    it('rejects tiles without a title and stores nothing', async () => {
+      const result = await upsertBoard({
+        tiles: [{ title: 'Orphan', description: 'No board title' }],
+      });
 
       expect(result).toBeUndefined();
+      await expect(db.gameBoard.count()).resolves.toBe(0);
     });
 
-    it('should return undefined when title is empty and tiles exist', async () => {
+    it('rejects an empty title when tiles are present', async () => {
       const result = await upsertBoard({
         title: '',
-        tiles: [{ title: 'Test', description: 'Test' }],
+        tiles: [{ title: 'Orphan', description: 'No board title' }],
       });
 
       expect(result).toBeUndefined();
+      await expect(db.gameBoard.count()).resolves.toBe(0);
     });
   });
 
   describe('activateBoard', () => {
-    it('should activate specified board and deactivate others', async () => {
-      vi.mocked(db.gameBoard.toArray).mockResolvedValue(mockBoards);
-      // @ts-expect-error Mock return value type mismatch with actual bulkPut return
-      vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([1, 2]);
+    it('activates the target board and deactivates all others', async () => {
+      const ids = (await db.gameBoard.bulkAdd(
+        [
+          board({ title: 'First', isActive: 1 }),
+          board({ title: 'Second' }),
+          board({ title: 'Third', isActive: 1 }),
+        ],
+        { allKeys: true }
+      )) as number[];
 
-      await activateBoard(2);
+      await activateBoard(ids[1]);
 
-      expect(db.gameBoard.toArray).toHaveBeenCalled();
-      expect(db.gameBoard.bulkPut).toHaveBeenCalledWith([
-        { ...mockBoards[0], isActive: 0 },
-        { ...mockBoards[1], isActive: 1 },
-      ]);
+      const boards = await getBoards();
+      expect(boards.find((b) => b.id === ids[1])?.isActive).toBe(1);
+      expect(boards.filter((b) => b.isActive === 1)).toHaveLength(1);
     });
 
-    it('should handle empty boards array', async () => {
-      vi.mocked(db.gameBoard.toArray).mockResolvedValue([]);
-      // @ts-expect-error Mock return value type mismatch with actual bulkPut return
-      vi.mocked(db.gameBoard.bulkPut).mockResolvedValue([]);
-
+    it('does nothing when there are no boards', async () => {
       await activateBoard(1);
 
-      expect(db.gameBoard.bulkPut).toHaveBeenCalledWith([]);
+      await expect(db.gameBoard.count()).resolves.toBe(0);
     });
   });
 
   describe('deleteBoard', () => {
-    it('should delete board by id', async () => {
-      vi.mocked(db.gameBoard.delete).mockResolvedValue();
+    it('removes the board with the given id', async () => {
+      const ids = (await db.gameBoard.bulkAdd(
+        [board({ title: 'Keep' }), board({ title: 'Remove' })],
+        { allKeys: true }
+      )) as number[];
 
-      await deleteBoard(1);
+      await deleteBoard(ids[1]);
 
-      expect(db.gameBoard.delete).toHaveBeenCalledWith(1);
-    });
-
-    it('should handle delete failure gracefully', async () => {
-      vi.mocked(db.gameBoard.delete).mockRejectedValue(new Error('Delete failed'));
-
-      await expect(deleteBoard(1)).rejects.toThrow('Delete failed');
-    });
-  });
-
-  describe('performance and scalability', () => {
-    it('should handle large number of boards', async () => {
-      const largeBoards = Array.from({ length: 1000 }, (_, i) => ({
-        id: i + 1,
-        title: `Board ${i + 1}`,
-        tiles: [],
-        isActive: 0,
-        tags: [],
-        gameMode: 'online',
-      }));
-
-      const mockToArray = vi.fn().mockResolvedValue(largeBoards);
-      const mockOrderBy = vi.fn().mockReturnValue({ toArray: mockToArray });
-
-      vi.mocked(db.gameBoard.orderBy).mockReturnValue(mockOrderBy('title') as any);
-
-      const result = await getBoards();
-
-      expect(result).toHaveLength(1000);
-      expect(result[0].title).toBe('Board 1');
-    });
-
-    it('should handle boards with large tile arrays', async () => {
-      const largeBoard: DBGameBoard = {
-        id: 1,
-        title: 'Large Board',
-        tiles: Array.from({ length: 1000 }, (_, i) => ({
-          title: `Tile ${i + 1}`,
-          description: `Description for tile ${i + 1}`,
-        })),
-        isActive: 1,
-        tags: [],
-        gameMode: 'online',
-      };
-
-      vi.mocked(db.gameBoard.get).mockResolvedValue(largeBoard);
-
-      const result = await getBoard(1);
-
-      expect(result?.tiles).toHaveLength(1000);
+      const boards = await getBoards();
+      expect(boards.map((b) => b.title)).toEqual(['Keep']);
     });
   });
 });

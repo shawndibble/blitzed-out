@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getAllAvailableGroups, getGroupsWithTiles } from '@/stores/customGroups';
-import { getTileCountsByGroup } from '@/stores/customTiles';
-import { getContentGameMode } from '@/helpers/strings';
+import { getAllAvailableGroups } from '@/stores/customGroups';
+import { getGroupsWithTiles, getTileCountsByGroup } from '@/stores/contentLibrary';
+import { deriveContentMode } from '@/stores/settingsStore';
 import { GroupedActions } from '@/types/customTiles';
 
 interface UnifiedActionListResult {
@@ -45,7 +45,7 @@ export default function useUnifiedActionList(
 
       try {
         const locale = i18n.resolvedLanguage || 'en';
-        const contentGameMode = getContentGameMode(gameMode);
+        const contentGameMode = deriveContentMode(gameMode);
         let allGroups;
 
         // Get groups based on filtering preference

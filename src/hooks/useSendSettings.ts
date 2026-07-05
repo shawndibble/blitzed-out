@@ -1,15 +1,15 @@
 import { useEffect, useState, useCallback } from 'react';
 import { sendRoomSettingsMessage } from '@/services/roomSettingsService';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
-import { useSettings } from '@/stores/settingsStore';
+import { useContentMode, useSettings } from '@/stores/settingsStore';
 import { useTranslation } from 'react-i18next';
 import { importActions } from '@/services/dexieActionImport';
 import { latestMessageByType, latestMessageBy } from '@/helpers/messages';
 import { Params, useParams } from 'react-router-dom';
-import { getActiveTiles } from '@/stores/customTiles';
+import { getActiveTiles } from '@/stores/contentLibrary';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveBoard } from '@/stores/gameBoard';
-import { getContentGameMode, isPublicRoom } from '@/helpers/strings';
+import { isPublicRoom } from '@/helpers/strings';
 import { Message, RoomMessage } from '@/types/Message';
 import { DBGameBoard } from '@/types/gameBoard';
 import { User } from '@/types';
@@ -38,7 +38,8 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
   const [settingsSent, setSettingsSent] = useState<boolean>(false);
   const { i18n } = useTranslation();
   const [settings] = useSettings();
-  const customTiles = useLiveQuery(() => getActiveTiles(getContentGameMode(settings?.gameMode)));
+  const contentMode = useContentMode();
+  const customTiles = useLiveQuery(() => getActiveTiles(contentMode), [contentMode]);
   const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
 
   const sendSettings = useCallback(async (): Promise<void> => {
@@ -71,10 +72,7 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
     );
 
     if (!alreadySentSettings && isCompatible) {
-      const actionsList = await importActions(
-        i18n.resolvedLanguage,
-        getContentGameMode(settings.gameMode)
-      );
+      const actionsList = await importActions(i18n.resolvedLanguage, contentMode);
 
       await sendGameSettingsMessage({
         formData,

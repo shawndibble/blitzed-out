@@ -15,7 +15,6 @@ import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
 import { Trans } from 'react-i18next';
 import { isPublicRoom, usesSoloActions } from '@/helpers/strings';
-import { useMigration } from '@/context/migration';
 import { useParams, useSearchParams } from 'react-router-dom';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
@@ -30,15 +29,11 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const [searchParams] = useSearchParams();
   const joinAtStep = searchParams.get('step') === '2';
   const [step, setStep] = useState<number>(joinAtStep ? 2 : 1);
-  const { isMigrationInProgress, currentLanguageMigrated } = useMigration();
 
-  // Simple toggle to force useUnifiedActionList to reload when migration completes
+  // Forces useUnifiedActionList to reload (e.g. after a pack import). Seeding
+  // needs no reload hack: getGroupsWithTiles/getTileCountsByGroup await
+  // content readiness, so the first read already resolves post-seeding.
   const [reloadToggle, setReloadToggle] = useState(false);
-
-  // One-shot guard to prevent multiple reload triggers
-  const hasReloadedRef = useRef(false);
-  // Track previous migration state to detect transitions
-  const prevIsMigrationInProgressRef = useRef(isMigrationInProgress);
 
   const overrideSettings: Record<string, any> = {
     room: room || 'PUBLIC',
@@ -59,34 +54,6 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     },
     overrideSettings
   );
-
-  // Toggle when migration completes to force reload (with one-shot guard)
-  useEffect(() => {
-    const prevIsMigrationInProgress = prevIsMigrationInProgressRef.current;
-
-    if (prevIsMigrationInProgress !== isMigrationInProgress) {
-      // Only trigger reload on transition from migration in-progress → finished
-      if (
-        prevIsMigrationInProgress === true &&
-        isMigrationInProgress === false &&
-        currentLanguageMigrated &&
-        !hasReloadedRef.current
-      ) {
-        queueMicrotask(() => {
-          setReloadToggle((prev) => !prev);
-        });
-        hasReloadedRef.current = true;
-      }
-
-      // Reset the guard when a new migration starts so reload can happen again
-      if (isMigrationInProgress && hasReloadedRef.current) {
-        hasReloadedRef.current = false;
-      }
-
-      // Update previous state for next render
-      prevIsMigrationInProgressRef.current = isMigrationInProgress;
-    }
-  }, [isMigrationInProgress, currentLanguageMigrated]);
 
   const isSoloPlay = usesSoloActions(formData.gameMode, formData.soloPlay);
   const contentGameMode = isSoloPlay ? 'online' : 'local';
@@ -118,11 +85,8 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(
     contentGameMode,
     true,
-    reloadToggle // This will force reload when migration completes
+    reloadToggle // Forces reload after pack imports
   );
-
-  // Include migration state in loading condition
-  const isActionsLoadingWithMigration = isActionsLoading || isMigrationInProgress;
 
   // Analytics tracking for wizard funnel
   const { trackScreenView, markCompleted } = useWizardAnalytics({
@@ -205,8 +169,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
             nextStep={nextStep}
             prevStep={prevStep}
             actionsList={actionsList}
-            isActionsLoading={isActionsLoadingWithMigration}
-            isMigrationInProgress={isMigrationInProgress}
+            isActionsLoading={isActionsLoading}
             onActionsReload={() => setReloadToggle((prev) => !prev)}
           />
         );

@@ -94,13 +94,13 @@ Loop prevention (push→pull→apply→push) relies on three guards: the snapsho
 
 Purpose: seed Dexie from bundled JSON action files, **once per language**, so gameplay content is available offline forever after.
 
-- Provider: `src/context/migration.tsx` (debounced on language change).
+- Gate: `src/services/migration/contentReadiness.ts` — `waitForContentReady(locale)` guards the UI-facing store entry points (`getTiles`, `getAllAvailableGroups`, `getGroupsWithTiles`, `getTileCountsByGroup`); `initContentReadiness()` (called from `AllProviders`, after auth) seeds on startup and on debounced language change; `useMigrationStatus()` exposes `phase: 'seeding' | 'ready' | 'degraded'` plus `retry()`.
 - Services: `src/services/migration/*`, `migrationService.ts`.
-- Flow: on language select, check a localStorage flag; if not yet migrated, load that language's bundled actions → insert into `customTiles` + `customGroups` → mark complete.
+- Flow: on language select, check a localStorage flag; if not yet migrated, load that language's bundled actions → insert into `customTiles` + `customGroups` → mark complete. Guarded callers self-trigger seeding once per locale per session; failures resolve degraded (never reject).
 - **Deterministic group IDs** so the same group maps to the same ID across imports/migrations.
-- **Health & recovery:** `migrationHealthChecker.ts` / `syncRecoveryService.ts` detect corruption (e.g. defaults missing, too few tiles) on startup and force a fresh migration; recovery status tracked in localStorage.
+- **Corruption recovery:** on init, `verifyMigrationIntegrity` detects "localStorage says complete but Dexie is empty" and resets status so seeding re-runs.
 
-> Tests that touch components needing migration must mock `@/context/migration` — see `CLAUDE.md` for the standard mock.
+> `@/services/migration/contentReadiness` is mocked globally in `setupTests.ts`; tests need no per-file migration mock.
 
 ---
 

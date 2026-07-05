@@ -3,7 +3,12 @@ import type { SyncOptions, SyncResult } from '@/types/sync';
  * Custom tiles synchronization logic
  * Updated to use group_id-based matching for improved sync reliability
  */
-import { addCustomTile, getTiles, updateCustomTile } from '@/stores/customTiles';
+import {
+  addCustomTile,
+  canonicalizeTileAction,
+  getTiles,
+  updateCustomTile,
+} from '@/stores/customTiles';
 import { deleteAllCustomTiles, syncCustomTilesToFirebase } from '../syncService';
 
 import type { CustomTilePull } from '@/types/customTiles';
@@ -19,7 +24,26 @@ export class CustomTilesSync extends SyncBase {
     options: SyncOptions
   ): Promise<SyncResult> {
     try {
+      // Tile identity (TileMatcher) compares raw action text, and stored tiles
+      // are canonical (intake normalization). Canonicalize the remote side and
+      // sweep any legacy alias rows locally, or the same tile in two forms
+      // mints a duplicate on every merge cycle.
+      firebaseTiles = firebaseTiles.map((tile) => canonicalizeTileAction(tile));
+
       const localTiles = await getTiles({ isCustom: 1 });
+      for (const tile of localTiles) {
+        try {
+          const canonical = canonicalizeTileAction(tile);
+          if (canonical.action !== tile.action && tile.id !== undefined) {
+            await updateCustomTile(tile.id, { action: canonical.action });
+            tile.action = canonical.action;
+          }
+        } catch (error) {
+          // One bad row must not abort the whole sync (same per-tile isolation
+          // as mergeConflicts/replaceLocal).
+          console.error('Error canonicalizing legacy local tile:', tile, error);
+        }
+      }
 
       // Smart conflict resolution
       if (firebaseTiles.length === 0 && localTiles.length > 0 && !options.forceSync) {
