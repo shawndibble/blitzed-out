@@ -1,0 +1,2 @@
+import"./chunk-B0KcLgl5.js";import"./chunk-CYl75L_D.js";function t(t,e,r){const a=`default-${e}-${r}-${t}`;let n=0;for(let o=0;o<a.length;o++)n=(n<<5)-n+a.charCodeAt(o),n&=n;return`default_${e}_${r}_${t}_${Math.abs(n).toString(16).padStart(8,"0")}`.slice(0,50)}export{t};
+//# sourceMappingURL=chunk-B7mf2ryI2.js.map
