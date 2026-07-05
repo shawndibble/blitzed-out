@@ -80,11 +80,10 @@ export const getTileCountsByGroup = async (
       return {};
     }
 
-    let relevantTiles: CustomTilePull[] = [];
-    for (const groupId of groupIds) {
-      const tilesInGroup = await db.customTiles.where('group_id').equals(groupId).toArray();
-      relevantTiles.push(...tilesInGroup);
-    }
+    let relevantTiles: CustomTilePull[] = await db.customTiles
+      .where('group_id')
+      .anyOf([...groupIds])
+      .toArray();
 
     if (tags) {
       const tagsArray = Array.isArray(tags) ? tags : [tags];
@@ -241,27 +240,21 @@ export const removeDuplicateGroups = async (
     for (const [, groups] of groupsByName) {
       if (groups.length > 1) {
         // Sort by creation date to keep the oldest
+        // Sort by creation date to keep the oldest; unparseable dates sort as
+        // NaN (stable order preserved by comparator returning NaN → treated 0).
         groups.sort((a, b) => {
-          try {
-            const aTime =
-              a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
-            const bTime =
-              b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
-            return aTime - bTime;
-          } catch (error) {
-            console.warn(
-              'Date parsing failed in removeDuplicateGroups, using createdAt fallback:',
-              error
-            );
-            return a.createdAt.getTime() - b.createdAt.getTime();
-          }
+          const aTime =
+            a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+          const bTime =
+            b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+          return aTime - bTime;
         });
 
         for (let i = 1; i < groups.length; i++) {
-          await deleteGroup(groups[i].id);
-          // Quirk pinned by tests: increments even when deleteGroup refused a
-          // tile-owning duplicate, so this counts attempts, not removals.
-          removedCount++;
+          const result = await deleteGroup(groups[i].id);
+          // Count actual removals only — a tile-owning duplicate is refused
+          // by design (migration dedupe must never destroy seeded tiles).
+          if (result.success) removedCount++;
         }
       }
     }

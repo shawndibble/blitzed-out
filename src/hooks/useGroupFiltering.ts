@@ -55,7 +55,7 @@ export const useContextualGroups = (
           case 'setup':
           case 'advanced':
             // Only groups that have tiles
-            groupsData = await getGroupsWithTiles(mode);
+            groupsData = await getGroupsWithTiles(mode, locale);
             break;
 
           case 'manage':

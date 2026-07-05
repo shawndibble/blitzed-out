@@ -27,6 +27,7 @@ import {
   BACKGROUND_MIGRATION_IN_PROGRESS_KEY,
   MIGRATION_TIMEOUT,
   MIGRATION_KEY,
+  GAME_MODES,
 } from './constants';
 import {
   isCurrentLanguageMigrationCompleted,
@@ -246,8 +247,13 @@ function verifyIntegrityOnce(): Promise<void> {
       try {
         const { verifyMigrationIntegrity, fixMigrationStatusCorruption } =
           await import('@/services/migrationService');
-        const intact = await verifyMigrationIntegrity(currentLocale(), 'online');
-        if (!intact) fixMigrationStatusCorruption();
+        // Integrity is per game mode; corruption in either content set must
+        // reset the status or the fast path lies forever.
+        const locale = currentLocale();
+        const results = await Promise.all(
+          GAME_MODES.map((mode) => verifyMigrationIntegrity(locale, mode))
+        );
+        if (results.some((intact) => !intact)) fixMigrationStatusCorruption();
       } catch {
         // Non-blocking: seeding proceeds against whatever status remains.
       }

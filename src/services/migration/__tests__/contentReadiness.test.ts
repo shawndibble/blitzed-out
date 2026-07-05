@@ -20,7 +20,11 @@ import {
   markLanguageMigrated,
   setLanguageMigrationInProgress,
 } from '@/services/migration/statusManager';
-import { MIGRATION_TIMEOUT } from '@/services/migration/constants';
+import {
+  MIGRATION_TIMEOUT,
+  MIGRATION_IN_PROGRESS_KEY,
+  CURRENT_LANGUAGE_MIGRATION_KEY,
+} from '@/services/migration/constants';
 
 const flushMicrotasks = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
@@ -171,10 +175,7 @@ describe('contentReadiness', () => {
       vi.useFakeTimers();
       // Legacy/corrupt lock: inProgress with no startedAt — statusManager's
       // stale-cleanup can never expire it, so the guard must not wait on it.
-      localStorage.setItem(
-        'blitzed-out-migration-in-progress',
-        JSON.stringify({ inProgress: true })
-      );
+      localStorage.setItem(MIGRATION_IN_PROGRESS_KEY, JSON.stringify({ inProgress: true }));
 
       let done = false;
       const pending = waitForContentReady('en', { trigger: false }).then(() => {
@@ -193,7 +194,7 @@ describe('contentReadiness', () => {
       // Adversarial lock that always looks fresh: rewrite startedAt each poll.
       const refresher = setInterval(() => {
         localStorage.setItem(
-          'blitzed-out-current-language-migration',
+          CURRENT_LANGUAGE_MIGRATION_KEY,
           JSON.stringify({ inProgress: true, language: 'en', startedAt: new Date().toISOString() })
         );
       }, 25);

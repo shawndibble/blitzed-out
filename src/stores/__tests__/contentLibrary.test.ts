@@ -150,9 +150,9 @@ describe('contentLibrary', () => {
 
       const removed = await removeDuplicateGroups('en', 'online');
 
-      // Quirk pinned as-is: the returned count includes refused deletions
-      // (it reports attempts, not removals). Callers ignore the value.
-      expect(removed).toBe(1);
+      // The refused deletion is not counted: the return value reports actual
+      // removals, and the tile-owning duplicate survives by design.
+      expect(removed).toBe(0);
       expect(await db.customGroups.get('older')).toBeDefined();
       expect(await db.customGroups.get('newer')).toBeDefined();
       expect(await db.customTiles.where('group_id').equals('newer').count()).toBe(1);
