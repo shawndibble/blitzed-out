@@ -146,7 +146,7 @@ describe('FinishStep — game length toggle', () => {
     expect(latest.roomTileCount).toBe(20);
   });
 
-  it('snaps a persisted non-bucket tile count onto the nearest bucket', () => {
+  it('leaves a persisted non-bucket tile count untouched (no preset selected)', () => {
     let latest: Settings = {} as Settings;
     render(
       <Harness
@@ -162,8 +162,10 @@ describe('FinishStep — game length toggle', () => {
       />
     );
 
-    // Mount normalizes 60 → nearest bucket (70) so the toggle isn't blank.
-    expect(latest.roomTileCount).toBe(70);
-    expect(screen.getByText(/Long/).closest('button')).toHaveAttribute('aria-pressed', 'true');
+    // Existing custom board size is preserved; no preset is forced on mount.
+    expect(latest.roomTileCount).toBe(60);
+    expect(screen.getByText(/Short/).closest('button')).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText(/Medium/).closest('button')).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByText(/Long/).closest('button')).toHaveAttribute('aria-pressed', 'false');
   });
 });

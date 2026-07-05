@@ -34,26 +34,17 @@ interface FinishStepProps {
 
 const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
-/** Board-length quick picks surfaced in the wizard (tile counts). */
+/**
+ * Board-length quick picks surfaced in the wizard (tile counts). Advanced
+ * settings keep a granular tile control; these are the simple fast-lane presets.
+ * A persisted value outside this set (e.g. 60 from advanced) is left untouched —
+ * the toggle simply shows no preset selected until the user picks one.
+ */
 const TILE_BUCKETS = [
   { value: 20, labelKey: 'gameLength.short', fallback: 'Short' },
   { value: 45, labelKey: 'gameLength.medium', fallback: 'Medium' },
   { value: 70, labelKey: 'gameLength.long', fallback: 'Long' },
 ] as const;
-
-/**
- * Snap an arbitrary tile count to the closest quick-pick bucket so the toggle
- * always has a selection — existing users persist values (e.g. 60) that aren't
- * buckets, and a blank ToggleButtonGroup reads as broken.
- */
-function nearestBucket(tileCount?: number): number {
-  const target = tileCount ?? 45;
-  return TILE_BUCKETS.reduce<number>(
-    (best, bucket) =>
-      Math.abs(bucket.value - target) < Math.abs(best - target) ? bucket.value : best,
-    TILE_BUCKETS[0].value
-  );
-}
 
 export default function FinishStep({
   formData,
@@ -77,9 +68,6 @@ export default function FinishStep({
     let newData = {
       ...formData,
       boardUpdated: true,
-      // Snap persisted tile counts (e.g. 60 from advanced settings) onto a
-      // quick-pick bucket so the Game Length toggle reflects reality.
-      roomTileCount: nearestBucket(formData.roomTileCount),
     };
     if (!yesFinishRange || !arraysEqual(formData.finishRange || [], no)) {
       newData.finishRange = no;
@@ -197,14 +185,14 @@ export default function FinishStep({
       <ToggleButtonGroup
         exclusive
         color="primary"
-        value={nearestBucket(formData.roomTileCount)}
+        value={formData.roomTileCount ?? null}
         onChange={(_event, value: number | null) => {
           if (value != null) {
             setFormData({ ...formData, roomTileCount: value, boardUpdated: true });
           }
         }}
         aria-label={t('gameLength.title', 'Game length')}
-        sx={{ mb: 1 }}
+        sx={{ mb: 1, flexWrap: 'wrap' }}
       >
         {TILE_BUCKETS.map((bucket) => (
           <ToggleButton key={bucket.value} value={bucket.value} sx={{ px: 3 }}>
@@ -240,7 +228,7 @@ export default function FinishStep({
               }
             }}
             aria-label={t('soloPrivacy.title', 'Where do you want to play?')}
-            sx={{ mb: 1 }}
+            sx={{ mb: 1, flexWrap: 'wrap' }}
           >
             <ToggleButton value="public" sx={{ px: 3 }}>
               {t('soloPrivacy.publicTitle', 'Public room')}
