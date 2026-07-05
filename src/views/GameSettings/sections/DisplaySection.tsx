@@ -1,12 +1,19 @@
-import { Card, CardContent } from '@mui/material';
-import { ChangeEvent, JSX, useCallback, useRef } from 'react';
+import {
+  Box,
+  CircularProgress,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Switch,
+  TextField,
+} from '@mui/material';
+import { ChangeEvent, JSX, useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import AppBoolSwitch from '../AppSettings/AppBoolSwitch';
-import BackgroundSelect from '@/components/BackgroundSelect';
-import LanguageSelect from '../AppSettings/LanguageSelect';
+import { SettingGroup, SettingRow } from '../components/SettingRow';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
+import { languages } from '@/services/i18nHelpers';
 import { Settings } from '@/types/Settings';
 import { useSettings } from '@/stores/settingsStore';
 
@@ -36,88 +43,133 @@ export default function DisplaySection({
   setFormData,
   boardUpdated,
 }: DisplaySectionProps): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [, updateSettings] = useSettings();
+  const [language, setLanguage] = useState<string>(i18n.resolvedLanguage || 'en');
+  const [languageLoading, setLanguageLoading] = useState(false);
+
   const isPrivateRoom = Boolean(formData.room && !isPublicRoom(formData.room));
   const withOthers = formData.gameMode === 'online';
+  const background = formData.background || 'color';
 
-  const backgrounds: Record<string, string> = {
-    useRoomBackground: t('useRoomBackground'),
-    color: t('color'),
-    gray: t('gray'),
-    'metronome.gif': t('hypnoDick'),
-    'pink-spiral.gif': t('pinkSpiral'),
-    custom: t('customURL'),
+  const backgroundOptions: Record<string, string> = {};
+  if (isPrivateRoom) backgroundOptions.useRoomBackground = t('useRoomBackground');
+  backgroundOptions.color = t('color');
+  backgroundOptions.gray = t('gray');
+  backgroundOptions['metronome.gif'] = t('hypnoDick');
+  backgroundOptions['pink-spiral.gif'] = t('pinkSpiral');
+  backgroundOptions.custom = t('customURL');
+
+  const boolSwitch = (field: string, defaultValue = false): JSX.Element => (
+    <Switch
+      checked={(formData[field] as boolean | undefined) ?? defaultValue}
+      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [field]: event.target.checked });
+        updateSettings({ [field]: event.target.checked });
+      }}
+      slotProps={{ input: { 'aria-label': t(field) } }}
+    />
+  );
+
+  const changeLanguage = async (value: string): Promise<void> => {
+    setLanguageLoading(true);
+    setLanguage(value);
+    try {
+      // Language change automatically triggers content re-seeding
+      // (contentReadiness languageChanged listener), then the board rebuilds.
+      await i18n.changeLanguage(value);
+      boardUpdated();
+    } catch {
+      await i18n.changeLanguage(value);
+      boardUpdated();
+    } finally {
+      setLanguageLoading(false);
+    }
   };
 
-  const handleSwitch = useCallback(
-    (event: ChangeEvent<HTMLInputElement>, field: string): void => {
-      setFormData({ ...formData, [field]: event.target.checked });
-      updateSettings({ [field]: event.target.checked });
-    },
-    [formData, setFormData, updateSettings]
-  );
+  const handleBackgroundSelect = (event: SelectChangeEvent<string>): void => {
+    const value = event.target.value;
+    setFormData({ ...formData, background: value });
+    if (value !== 'custom') updateSettings({ background: value });
+  };
 
-  // Debounced so the live background only updates once the user pauses typing,
-  // not on every keystroke.
-  const debouncedCustomUrlUpdate = useDebounce((urlKey: string, urlValue: string) => {
-    updateSettings({ background: 'custom', [urlKey]: urlValue });
+  // Only commit complete, valid URLs; partial values would render as a broken
+  // background and spawn request storms while the user types.
+  const debouncedCustomUrlUpdate = useDebounce((urlValue: string) => {
+    updateSettings({ background: 'custom', backgroundURL: urlValue });
   }, 400);
 
-  const handleBackgroundChange = useCallback(
-    (
-      backgroundKey: string,
-      backgroundValue: string,
-      backgroundURLKey?: string,
-      backgroundURLValue?: string
-    ): void => {
-      // Only commit complete, valid URLs; partial values would render as a
-      // broken background and spawn request storms while the user types.
-      if (backgroundURLKey && typeof backgroundURLValue === 'string' && backgroundURLValue !== '') {
-        if (isValidURL(backgroundURLValue)) {
-          debouncedCustomUrlUpdate(backgroundURLKey, backgroundURLValue);
-        }
-        return;
-      }
-
-      const updates: Partial<Settings> = { [backgroundKey]: backgroundValue };
-      if (backgroundURLKey && backgroundURLValue !== undefined) {
-        updates[backgroundURLKey] = backgroundURLValue;
-      }
-      updateSettings(updates);
-    },
-    [updateSettings, debouncedCustomUrlUpdate]
-  );
+  const handleCustomUrlChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const url = event.target.value;
+    setFormData({ ...formData, background: 'custom', backgroundURL: url });
+    if (url && isValidURL(url)) debouncedCustomUrlUpdate(url);
+  };
 
   return (
-    <Card variant="outlined">
-      <CardContent>
-        <LanguageSelect boardUpdated={boardUpdated} />
-        <AppBoolSwitch field="playerDialog" formData={formData} handleSwitch={handleSwitch} />
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <SettingGroup>
+        <SettingRow label={t('language')} description={t('languageCaption')}>
+          <Select
+            size="small"
+            value={language}
+            disabled={languageLoading}
+            onChange={(event: SelectChangeEvent<string>) => changeLanguage(event.target.value)}
+            aria-label={t('language')}
+            endAdornment={languageLoading && <CircularProgress size={16} sx={{ mr: 2 }} />}
+          >
+            {Object.entries(languages).map(([key, obj]) => (
+              <MenuItem value={key} key={key}>
+                {(obj as { label: string }).label}
+              </MenuItem>
+            ))}
+          </Select>
+        </SettingRow>
+      </SettingGroup>
+
+      <SettingGroup>
+        <SettingRow label={t('playerDialog')} description={t('playerDialogCaption')}>
+          {boolSwitch('playerDialog')}
+        </SettingRow>
         {withOthers && (
-          <AppBoolSwitch field="othersDialog" formData={formData} handleSwitch={handleSwitch} />
+          <SettingRow label={t('othersDialog')}>{boolSwitch('othersDialog')}</SettingRow>
         )}
-        <AppBoolSwitch
-          field="showDiceAnimation"
-          formData={formData}
-          handleSwitch={handleSwitch}
-          defaultValue={true}
-        />
-        <AppBoolSwitch field="hideBoardActions" formData={formData} handleSwitch={handleSwitch} />
-        <AppBoolSwitch
-          field="wakeLockEnabled"
-          formData={formData}
-          handleSwitch={handleSwitch}
-          defaultValue={true}
-        />
-        <BackgroundSelect
-          formData={formData}
-          setFormData={setFormData}
-          backgrounds={backgrounds}
-          isPrivateRoom={isPrivateRoom}
-          onBackgroundChange={handleBackgroundChange}
-        />
-      </CardContent>
-    </Card>
+        <SettingRow label={t('showDiceAnimation')}>
+          {boolSwitch('showDiceAnimation', true)}
+        </SettingRow>
+        <SettingRow label={t('hideBoardActions')} description={t('hideBoardActionsCaption')}>
+          {boolSwitch('hideBoardActions')}
+        </SettingRow>
+        <SettingRow label={t('wakeLockEnabled')}>{boolSwitch('wakeLockEnabled', true)}</SettingRow>
+      </SettingGroup>
+
+      <SettingGroup>
+        <SettingRow label={t('background')} description={t('backgroundCaption')}>
+          <Select
+            size="small"
+            value={backgroundOptions[background] ? background : 'color'}
+            onChange={handleBackgroundSelect}
+            aria-label={t('background')}
+          >
+            {Object.entries(backgroundOptions).map(([value, label]) => (
+              <MenuItem key={value} value={value}>
+                {label}
+              </MenuItem>
+            ))}
+          </Select>
+        </SettingRow>
+        {background === 'custom' && (
+          <SettingRow label={t('url')}>
+            <TextField
+              size="small"
+              value={formData.backgroundURL || ''}
+              onChange={handleCustomUrlChange}
+              placeholder="https://example.com/background.gif"
+              sx={{ width: { xs: '100%', sm: 280 } }}
+              slotProps={{ htmlInput: { 'aria-label': t('url') } }}
+            />
+          </SettingRow>
+        )}
+      </SettingGroup>
+    </Box>
   );
 }

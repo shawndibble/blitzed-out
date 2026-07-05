@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 import { Trans } from 'react-i18next';
 import CloseIcon from '@/components/CloseIcon';
-import useBreakpoint from '@/hooks/useBreakpoint';
 import { useSearchParams } from 'react-router-dom';
 import GameSettings from '@/views/GameSettings';
 
@@ -14,10 +13,7 @@ interface AppSettingsDialogProps {
 export default function AppSettingsDialog({
   open,
   close,
-  isMobile = false,
 }: AppSettingsDialogProps): JSX.Element | null {
-  const breakpointResult = useBreakpoint();
-  const isSmallScreen = isMobile || breakpointResult;
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');
 
@@ -25,8 +21,9 @@ export default function AppSettingsDialog({
     return null;
   }
 
+  // Advanced settings is a full page, not a modal, at every breakpoint.
   return (
-    <Dialog fullScreen={isSmallScreen} open={open} onClose={close ?? undefined} maxWidth="md">
+    <Dialog fullScreen open={open} onClose={close ?? undefined}>
       <DialogTitle>
         <Trans i18nKey="gameSettingsHeading" />
         {typeof close === 'function' && <CloseIcon close={close} />}

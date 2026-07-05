@@ -22,9 +22,15 @@ import { useWizardAnalytics } from '@/hooks/useWizardAnalytics';
 
 interface GameSettingsWizardProps {
   close?: () => void;
+  /** Fired when the advanced settings page (step 0) opens or closes, so the
+   * host dialog can switch to a full-screen, page-like presentation. */
+  onAdvancedActiveChange?: (active: boolean) => void;
 }
 
-export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
+export default function GameSettingsWizard({
+  close,
+  onAdvancedActiveChange,
+}: GameSettingsWizardProps) {
   const { id: room } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const joinAtStep = searchParams.get('step') === '2';
@@ -93,6 +99,10 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     gameMode: formData.gameMode,
     isPublicRoom: isPublicRoom(formData.room || 'PUBLIC'),
   });
+
+  useEffect(() => {
+    onAdvancedActiveChange?.(step === 0);
+  }, [step, onAdvancedActiveChange]);
 
   // One screen-view per step entered (including the initial screen)
   useEffect(() => {

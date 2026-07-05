@@ -16,6 +16,7 @@ import { customAlphabet } from 'nanoid';
 import { ChangeEvent, FocusEvent, JSX, KeyboardEvent, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
+import { SettingGroup, SettingRow } from '../components/SettingRow';
 import LocalPlayerSettings from '../LocalPlayerSettings';
 import PlayerListOption from '../RoomSettings/PlayerListOption';
 import RoomBackgroundInput from '@/components/RoomBackgroundInput';
@@ -79,70 +80,62 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
       onChange={(event: ChangeEvent<HTMLInputElement>) => {
         event.target.value = event.target.value.toUpperCase();
       }}
-      slotProps={{ htmlInput: { style: { textTransform: 'uppercase' }, maxLength: 12 } }}
+      slotProps={{
+        htmlInput: {
+          style: { textTransform: 'uppercase', fontFamily: 'monospace', letterSpacing: '0.1em' },
+          maxLength: 12,
+        },
+      }}
+      sx={{ width: 140 }}
     />
   );
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {gameMode === 'solo' && (
-        <Card variant="outlined">
-          <CardContent>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-              <Typography sx={{ fontWeight: 600 }}>{t('roomType')}</Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary', flex: 1, minWidth: 180 }}>
-                {t('roomTypeSoloHint')}
-              </Typography>
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                <Typography
-                  variant="body2"
-                  sx={{ color: isPublic ? 'text.primary' : 'text.secondary' }}
-                >
-                  <Trans i18nKey="public" />
-                </Typography>
-                <Switch
-                  checked={!isPublic}
-                  onChange={togglePublicPrivate}
-                  slotProps={{ input: { 'aria-label': t('roomType') } }}
-                />
-                <Typography
-                  variant="body2"
-                  sx={{ color: isPublic ? 'text.secondary' : 'text.primary' }}
-                >
-                  <Trans i18nKey="private" />
-                </Typography>
-              </Stack>
-            </Stack>
-            {!isPublic && <Box sx={{ mt: 2 }}>{roomCodeField}</Box>}
-          </CardContent>
-        </Card>
+        <SettingGroup>
+          <SettingRow label={t('roomType')} description={t('roomTypeSoloHint')}>
+            <Typography
+              variant="body2"
+              sx={{ color: isPublic ? 'text.primary' : 'text.secondary' }}
+            >
+              <Trans i18nKey="public" />
+            </Typography>
+            <Switch
+              checked={!isPublic}
+              onChange={togglePublicPrivate}
+              slotProps={{ input: { 'aria-label': t('roomType') } }}
+            />
+            <Typography
+              variant="body2"
+              sx={{ color: isPublic ? 'text.secondary' : 'text.primary' }}
+            >
+              <Trans i18nKey="private" />
+            </Typography>
+          </SettingRow>
+          {!isPublic && <SettingRow label={t('privateRoom')}>{roomCodeField}</SettingRow>}
+        </SettingGroup>
       )}
 
       {gameMode === 'online' && (
-        <Card variant="outlined">
-          <CardContent>
-            <Typography sx={{ fontWeight: 600, mb: 0.5 }}>{t('privateRoom')}</Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-              {t('alwaysPrivateRoomHint')}
-            </Typography>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-              {roomCodeField}
-              <Tooltip title={copied ? t('roomCodeCopied') : t('copyRoomCode')}>
-                <IconButton onClick={copyRoomCode} aria-label={t('copyRoomCode')}>
-                  <ContentCopyIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<RefreshIcon />}
-                onClick={() => setRoom(generateRoomCode())}
-              >
-                {t('newRoomCode')}
-              </Button>
-            </Stack>
-          </CardContent>
-        </Card>
+        <SettingGroup>
+          <SettingRow label={t('privateRoom')} description={t('alwaysPrivateRoomHint')}>
+            {roomCodeField}
+            <Tooltip title={copied ? t('roomCodeCopied') : t('copyRoomCode')}>
+              <IconButton onClick={copyRoomCode} aria-label={t('copyRoomCode')}>
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={() => setRoom(generateRoomCode())}
+            >
+              {t('newRoomCode')}
+            </Button>
+          </SettingRow>
+        </SettingGroup>
       )}
 
       {gameMode === 'local' && (
@@ -152,7 +145,7 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
           </Typography>
           <Card variant="outlined">
             <CardContent>
-              <Typography sx={{ fontWeight: 600, mb: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
                 {t('localPlayerSettings.title')}
               </Typography>
               <LocalPlayerSettings roomId={formData.room} isPrivateRoom={!isPublic} />
@@ -170,15 +163,17 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
       )}
 
       {gameMode !== 'local' && isPublic ? (
-        <Box sx={{ opacity: 0.5 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+        <Stack sx={{ opacity: 0.55, px: 0.5 }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {t('roomBackgroundLocked')}
           </Typography>
-        </Box>
+        </Stack>
       ) : (
         <Card variant="outlined">
           <CardContent>
-            <Typography sx={{ fontWeight: 600, mb: 1 }}>{t('visualSettings')}</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+              {t('visualSettings')}
+            </Typography>
             <RoomBackgroundInput formData={formData} setFormData={setFormData} />
           </CardContent>
         </Card>
