@@ -54,15 +54,6 @@ export interface GridItemProps {
   xl?: number;
 }
 
-export interface InvisibleAccordionGridProps {
-  children: React.ReactNode;
-  title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  defaultExpanded?: boolean;
-  className?: string;
-  id?: string;
-}
-
 export interface MessageProps {
   message: {
     id: string;

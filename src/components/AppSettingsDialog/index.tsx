@@ -32,10 +32,7 @@ export default function AppSettingsDialog({
         {typeof close === 'function' && <CloseIcon close={close} />}
       </DialogTitle>
       <DialogContent>
-        <GameSettings
-          closeDialog={typeof close === 'function' ? close : undefined}
-          initialTab={2} // Open directly to App Settings tab (index 2)
-        />
+        <GameSettings closeDialog={typeof close === 'function' ? close : undefined} />
       </DialogContent>
     </Dialog>
   );
