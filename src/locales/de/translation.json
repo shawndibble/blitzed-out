@@ -859,5 +859,12 @@
   "actionsBannerSharedDevice": "Geteiltes Gerät — keine Rollenauswahl: Die Rolle jedes Spielers kommt aus der Spieler-Einrichtung unter Raum & Spieler.",
   "enabledCount_one": "{{count}} aktiviert",
   "backgroundUsesRoom": "Zeigt den geteilten Hintergrund dieses Raums.",
-  "editRoomBackground": "Bearbeiten unter Raum & Spieler"
+  "editRoomBackground": "Bearbeiten unter Raum & Spieler",
+  "addPlayer": "Spieler hinzufügen",
+  "minPlayersHint": "Mindestens {{count}} Spieler sind nötig, bevor das Spiel starten kann.",
+  "editPlayer": "{{name}} bearbeiten",
+  "removePlayer": "{{name}} entfernen",
+  "movePlayerUp": "{{name}} nach oben",
+  "movePlayerDown": "{{name}} nach unten",
+  "localPlayersSaveError": "Spieler konnten nicht gespeichert werden — bitte erneut versuchen."
 }

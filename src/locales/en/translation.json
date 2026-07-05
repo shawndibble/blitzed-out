@@ -859,5 +859,12 @@
   "actionsBannerSharedDevice": "Shared device — no role pickers here: each player's role comes from the player setup in Room & players.",
   "enabledCount_one": "{{count}} enabled",
   "backgroundUsesRoom": "Showing this room's shared background.",
-  "editRoomBackground": "Edit it in Room & players"
+  "editRoomBackground": "Edit it in Room & players",
+  "addPlayer": "Add player",
+  "minPlayersHint": "At least {{count}} players are needed before the game can start.",
+  "editPlayer": "Edit {{name}}",
+  "removePlayer": "Remove {{name}}",
+  "movePlayerUp": "Move {{name}} up",
+  "movePlayerDown": "Move {{name}} down",
+  "localPlayersSaveError": "Couldn't save players — try again."
 }

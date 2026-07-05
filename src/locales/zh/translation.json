@@ -859,5 +859,12 @@
   "actionsBannerSharedDevice": "共用设备 — 此处无角色选择：每位玩家的角色来自“房间与玩家”中的玩家设置。",
   "enabledCount_one": "已启用 {{count}} 个",
   "backgroundUsesRoom": "正在显示此房间的共享背景。",
-  "editRoomBackground": "在“房间与玩家”中编辑"
+  "editRoomBackground": "在“房间与玩家”中编辑",
+  "addPlayer": "添加玩家",
+  "minPlayersHint": "至少需要 {{count}} 名玩家才能开始游戏。",
+  "editPlayer": "编辑{{name}}",
+  "removePlayer": "移除{{name}}",
+  "movePlayerUp": "上移{{name}}",
+  "movePlayerDown": "下移{{name}}",
+  "localPlayersSaveError": "无法保存玩家 — 请重试。"
 }

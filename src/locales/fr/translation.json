@@ -859,5 +859,12 @@
   "actionsBannerSharedDevice": "Appareil partagé — pas de sélecteur de rôle : le rôle de chaque joueur vient de la configuration des joueurs dans Salon et joueurs.",
   "enabledCount_one": "{{count}} activé",
   "backgroundUsesRoom": "Affiche le fond partagé de ce salon.",
-  "editRoomBackground": "Modifiez-le dans Salon et joueurs"
+  "editRoomBackground": "Modifiez-le dans Salon et joueurs",
+  "addPlayer": "Ajouter un joueur",
+  "minPlayersHint": "Il faut au moins {{count}} joueurs pour commencer la partie.",
+  "editPlayer": "Modifier {{name}}",
+  "removePlayer": "Retirer {{name}}",
+  "movePlayerUp": "Monter {{name}}",
+  "movePlayerDown": "Descendre {{name}}",
+  "localPlayersSaveError": "Impossible d'enregistrer les joueurs — réessayez."
 }

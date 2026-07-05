@@ -859,5 +859,12 @@
   "actionsBannerSharedDevice": "Dispositivo compartido — sin selectores de rol: el rol de cada jugador viene de la configuración de jugadores en Sala y jugadores.",
   "enabledCount_one": "{{count}} activado",
   "backgroundUsesRoom": "Mostrando el fondo compartido de esta sala.",
-  "editRoomBackground": "Edítalo en Sala y jugadores"
+  "editRoomBackground": "Edítalo en Sala y jugadores",
+  "addPlayer": "Añadir jugador",
+  "minPlayersHint": "Se necesitan al menos {{count}} jugadores para empezar la partida.",
+  "editPlayer": "Editar a {{name}}",
+  "removePlayer": "Quitar a {{name}}",
+  "movePlayerUp": "Subir a {{name}}",
+  "movePlayerDown": "Bajar a {{name}}",
+  "localPlayersSaveError": "No se pudieron guardar los jugadores — inténtalo de nuevo."
 }

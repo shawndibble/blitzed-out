@@ -1,8 +1,6 @@
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Switch,
   TextField,
   ToggleButton,
@@ -16,7 +14,7 @@ import { ChangeEvent, FocusEvent, JSX, KeyboardEvent, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { SettingGroup, SettingRow } from '../components/SettingRow';
-import LocalPlayerSettings from '../LocalPlayerSettings';
+import LocalPlayersRows from './LocalPlayersRows';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
 import { Settings } from '@/types/Settings';
@@ -149,14 +147,7 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {t('sharedDeviceRoomHint')}
           </Typography>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-                {t('localPlayerSettings.title')}
-              </Typography>
-              <LocalPlayerSettings roomId={formData.room} isPrivateRoom={!isPublic} />
-            </CardContent>
-          </Card>
+          <LocalPlayersRows roomId={formData.room} />
         </>
       )}
 

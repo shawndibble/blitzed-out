@@ -10,8 +10,8 @@ vi.mock('react-i18next', () => ({
   Trans: ({ i18nKey }: any) => <span>{i18nKey}</span>,
 }));
 
-vi.mock('../../LocalPlayerSettings', () => ({
-  default: () => <div data-testid="local-player-settings" />,
+vi.mock('../LocalPlayersRows', () => ({
+  default: () => <div data-testid="local-players-rows" />,
 }));
 
 const makeFormData = (overrides: Partial<Settings>): Settings =>
@@ -35,7 +35,7 @@ describe('RoomSection', () => {
     it('shows the public/private toggle — the only mode where the choice exists', () => {
       render(<RoomSection formData={makeFormData({})} setFormData={setFormData} />);
       expect(screen.getByRole('switch', { name: 'roomType' })).toBeInTheDocument();
-      expect(screen.queryByTestId('local-player-settings')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('local-players-rows')).not.toBeInTheDocument();
       expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
     });
 
@@ -102,7 +102,7 @@ describe('RoomSection', () => {
       expect(screen.queryByRole('switch', { name: 'roomType' })).not.toBeInTheDocument();
       expect(screen.queryByText('alwaysPrivateRoomHint')).not.toBeInTheDocument();
       expect(screen.getByText('sharedDeviceRoomHint')).toBeInTheDocument();
-      expect(screen.getByTestId('local-player-settings')).toBeInTheDocument();
+      expect(screen.getByTestId('local-players-rows')).toBeInTheDocument();
       expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
       expect(screen.getByRole('textbox', { name: 'roomBackground' })).toBeInTheDocument();
     });
