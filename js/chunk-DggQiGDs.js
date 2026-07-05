@@ -1,2 +1,0 @@
-var n=null;function t(t){return n=t,()=>{n=null}}function u(){if((null==n?void 0:n.user)&&!n.user.isAnonymous)try{n.syncData().catch(()=>{})}catch(t){}}export{u as n,t};
-//# sourceMappingURL=chunk-DggQiGDs.js.map
