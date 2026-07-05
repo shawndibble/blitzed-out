@@ -164,11 +164,7 @@ export default function PackDirectory({
                         {t('packs.by')} {pack.authorName}
                       </Typography>
                     )}
-                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', my: 0.75 }}>
-                      <Chip size="small" label={t(`gameMode.${pack.gameMode}`)} />
-                      <Chip size="small" label={pack.locale} />
-                    </Box>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
                       {t('packs.summary', { groups: pack.groupCount, tiles: pack.tileCount })}
                       {pack.extensionCount > 0 &&
                         ` · ${t('packs.extensionSummary', { count: pack.extensionCount })}`}
