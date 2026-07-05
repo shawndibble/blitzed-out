@@ -781,6 +781,13 @@
     "tabTeaser": "Regroupez vos groupes personnalisés dans un pack partageable grâce à un flux guidé.",
     "openCta": "Créer un pack"
   },
+  "gameLength": {
+    "title": "Durée du jeu",
+    "short": "Courte",
+    "medium": "Moyenne",
+    "long": "Longue",
+    "helper": "Choisissez le nombre de cases de votre plateau : un plateau plus long signifie une partie plus longue."
+  },
   "soloPrivacy": {
     "title": "Où voulez-vous jouer ?",
     "publicTitle": "Salle publique",

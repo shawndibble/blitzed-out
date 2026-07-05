@@ -781,6 +781,13 @@
     "tabTeaser": "Agrupa tus grupos personalizados en un pack compartible con un flujo guiado.",
     "openCta": "Crear un pack"
   },
+  "gameLength": {
+    "title": "Duración del juego",
+    "short": "Corta",
+    "medium": "Media",
+    "long": "Larga",
+    "helper": "Elige cuántas casillas tiene tu tablero: un tablero más largo significa una partida más larga."
+  },
   "soloPrivacy": {
     "title": "¿Dónde quieres jugar?",
     "publicTitle": "Sala pública",

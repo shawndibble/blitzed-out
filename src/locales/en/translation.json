@@ -781,6 +781,13 @@
     "tabTeaser": "Bundle your custom groups into a shareable pack with a guided flow.",
     "openCta": "Create a pack"
   },
+  "gameLength": {
+    "title": "Game length",
+    "short": "Short",
+    "medium": "Medium",
+    "long": "Long",
+    "helper": "Choose how many tiles your board has — a longer board means a longer game."
+  },
   "soloPrivacy": {
     "title": "Where do you want to play?",
     "publicTitle": "Public room",

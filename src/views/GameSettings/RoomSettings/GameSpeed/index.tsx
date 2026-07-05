@@ -33,7 +33,7 @@ export default function GameSpeed({ formData, setFormData }: GameSpeedProps): JS
     ? Math.floor(formData.roomTileCount / diceRollAverage[formData.roomDice || '1d6'])
     : 16;
 
-  const tileMenuItem = Array.from({ length: 7 }, (_, i) => (i + 2) * 10).map((tileCount) => (
+  const tileMenuItem = [20, 30, 40, 45, 50, 60, 70, 80].map((tileCount) => (
     <MenuItem key={tileCount} value={tileCount}>
       {tileCount}
     </MenuItem>

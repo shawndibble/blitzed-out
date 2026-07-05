@@ -781,6 +781,13 @@
     "tabTeaser": "通过引导流程将你的自定义组打包成可分享的内容包。",
     "openCta": "创建内容包"
   },
+  "gameLength": {
+    "title": "游戏时长",
+    "short": "短",
+    "medium": "中",
+    "long": "长",
+    "helper": "选择你的棋盘有多少格子——棋盘越长，游戏时间越长。"
+  },
   "soloPrivacy": {
     "title": "想在哪里玩？",
     "publicTitle": "公共房间",

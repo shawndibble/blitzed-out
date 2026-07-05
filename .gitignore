@@ -56,3 +56,6 @@ database-debug.log
 
 # Bundle analyzer output
 bundle-stats.html
+
+# Multi-agent coordination scratch file (never committed)
+COMMS.md
