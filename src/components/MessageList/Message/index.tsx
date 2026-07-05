@@ -6,6 +6,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Trans, useTranslation } from 'react-i18next';
 import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
+import { isPublicRoom } from '@/helpers/strings';
 import { useCallback, useMemo, useState } from 'react';
 
 import ActionText from './actionText';
@@ -83,7 +84,10 @@ export default function Message({
     gameBoardId = message.gameBoardId;
   }
 
-  const isImportable = message.type === 'settings' && boardSize === currentGameBoardSize;
+  // Public rooms adopt the imported board's size (see useUrlImport), so any
+  // shared board is importable there. Private rooms still require a size match.
+  const isImportable =
+    message.type === 'settings' && (isPublicRoom(room) || boardSize === currentGameBoardSize);
 
   // Memoize import board URL construction
   const importBoardUrl = useMemo(() => {
