@@ -3,7 +3,6 @@ import { ContentGameMode, GameMode, Settings } from '@/types/Settings';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { analyticsTracking } from '@/services/analyticsTracking';
-import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import { isPublicRoom } from '@/helpers/strings';
 
 /**
@@ -36,7 +35,9 @@ const defaultSettings: Settings = {
   gameMode: 'solo',
   boardUpdated: false,
   room: 'PUBLIC',
-  roomTileCount: DEFAULT_TILE_COUNT,
+  // Fresh installs start on the wizard's Medium board length. DEFAULT_TILE_COUNT
+  // (60) remains the code-level fallback for callers that read an unset value.
+  roomTileCount: 45,
   background: 'color',
   roomBackground: '',
   selectedActions: {},

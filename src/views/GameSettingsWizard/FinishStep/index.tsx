@@ -1,5 +1,4 @@
 import {
-  alpha,
   Box,
   Button,
   Card,
@@ -8,6 +7,8 @@ import {
   CircularProgress,
   Grid,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
@@ -33,6 +34,27 @@ interface FinishStepProps {
 
 const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
+/** Board-length quick picks surfaced in the wizard (tile counts). */
+const TILE_BUCKETS = [
+  { value: 20, labelKey: 'gameLength.short', fallback: 'Short' },
+  { value: 45, labelKey: 'gameLength.medium', fallback: 'Medium' },
+  { value: 70, labelKey: 'gameLength.long', fallback: 'Long' },
+] as const;
+
+/**
+ * Snap an arbitrary tile count to the closest quick-pick bucket so the toggle
+ * always has a selection — existing users persist values (e.g. 60) that aren't
+ * buckets, and a blank ToggleButtonGroup reads as broken.
+ */
+function nearestBucket(tileCount?: number): number {
+  const target = tileCount ?? 45;
+  return TILE_BUCKETS.reduce<number>(
+    (best, bucket) =>
+      Math.abs(bucket.value - target) < Math.abs(best - target) ? bucket.value : best,
+    TILE_BUCKETS[0].value
+  );
+}
+
 export default function FinishStep({
   formData,
   setFormData,
@@ -55,6 +77,9 @@ export default function FinishStep({
     let newData = {
       ...formData,
       boardUpdated: true,
+      // Snap persisted tile counts (e.g. 60 from advanced settings) onto a
+      // quick-pick bucket so the Game Length toggle reflects reality.
+      roomTileCount: nearestBucket(formData.roomTileCount),
     };
     if (!yesFinishRange || !arraysEqual(formData.finishRange || [], no)) {
       newData.finishRange = no;
@@ -88,6 +113,8 @@ export default function FinishStep({
       }
     }
   };
+
+  const isPublicRoomSelected = !formData.room || formData.room === 'PUBLIC';
 
   const orgasmOptions = [
     {
@@ -164,87 +191,72 @@ export default function FinishStep({
           </Grid>
         ))}
       </Grid>
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+        {t('gameLength.title', 'Game length')}
+      </Typography>
+      <ToggleButtonGroup
+        exclusive
+        color="primary"
+        value={nearestBucket(formData.roomTileCount)}
+        onChange={(_event, value: number | null) => {
+          if (value != null) {
+            setFormData({ ...formData, roomTileCount: value, boardUpdated: true });
+          }
+        }}
+        aria-label={t('gameLength.title', 'Game length')}
+        sx={{ mb: 1 }}
+      >
+        {TILE_BUCKETS.map((bucket) => (
+          <ToggleButton key={bucket.value} value={bucket.value} sx={{ px: 3 }}>
+            {t(bucket.labelKey, bucket.fallback)} · {bucket.value}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+      <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4 }}>
+        {t('gameLength.helper', 'A longer board means a longer game.')}
+      </Typography>
+
       {formData.gameMode === 'solo' && (
         <>
-          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+          <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
             {t('soloPrivacy.title', 'Where do you want to play?')}
           </Typography>
-          <Grid container spacing={2} sx={{ mb: 4 }}>
-            {[
-              {
-                id: 'public',
-                isSelected: !formData.room || formData.room === 'PUBLIC',
-                title: t('soloPrivacy.publicTitle', 'Public room'),
-                description: t(
+          <ToggleButtonGroup
+            exclusive
+            color="primary"
+            value={isPublicRoomSelected ? 'public' : 'private'}
+            onChange={(_event, value: 'public' | 'private' | null) => {
+              if (value === 'public') {
+                setFormData({ ...formData, room: 'PUBLIC', roomRealtime: true });
+              } else if (value === 'private') {
+                setFormData({
+                  ...formData,
+                  room:
+                    formData.room && formData.room !== 'PUBLIC'
+                      ? formData.room
+                      : generateRoomCode(),
+                  roomRealtime: false,
+                });
+              }
+            }}
+            aria-label={t('soloPrivacy.title', 'Where do you want to play?')}
+            sx={{ mb: 1 }}
+          >
+            <ToggleButton value="public" sx={{ px: 3 }}>
+              {t('soloPrivacy.publicTitle', 'Public room')}
+            </ToggleButton>
+            <ToggleButton value="private" sx={{ px: 3 }}>
+              {t('soloPrivacy.privateTitle', 'Private room')}
+            </ToggleButton>
+          </ToggleButtonGroup>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4 }}>
+            {isPublicRoomSelected
+              ? t(
                   'soloPrivacy.publicDesc',
                   'Play in the shared PUBLIC room — see the chat and boards of others.'
-                ),
-                onSelect: () => setFormData({ ...formData, room: 'PUBLIC', roomRealtime: true }),
-              },
-              {
-                id: 'private',
-                isSelected: !!formData.room && formData.room !== 'PUBLIC',
-                title: t('soloPrivacy.privateTitle', 'Private room'),
-                description: t(
-                  'soloPrivacy.privateDesc',
-                  'Your own room code — completely to yourself.'
-                ),
-                onSelect: () =>
-                  setFormData({
-                    ...formData,
-                    room:
-                      formData.room && formData.room !== 'PUBLIC'
-                        ? formData.room
-                        : generateRoomCode(),
-                    roomRealtime: false,
-                  }),
-              },
-            ].map((option) => (
-              <Grid size={{ xs: 12, sm: 6 }} key={option.id}>
-                <Card
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      option.onSelect();
-                    }
-                  }}
-                  sx={(theme) => ({
-                    cursor: 'pointer',
-                    border: option.isSelected ? '3px solid' : '1px solid',
-                    borderColor: option.isSelected ? 'primary.main' : 'divider',
-                    backgroundColor: option.isSelected
-                      ? alpha(theme.palette.primary.main, 0.12)
-                      : 'background.paper',
-                    transition: 'all 0.2s ease-in-out',
-                    height: '100%',
-                    transform: option.isSelected ? 'scale(1.02)' : 'scale(1)',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      transform: 'scale(1.02)',
-                      boxShadow: 2,
-                    },
-                  })}
-                  onClick={option.onSelect}
-                >
-                  <CardContent sx={{ p: 2 }}>
-                    <Stack spacing={0.5} sx={{ alignItems: 'center', textAlign: 'center' }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        {option.title}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        {option.description}
-                      </Typography>
-                      {option.isSelected && (
-                        <Chip label={t('selected')} color="primary" size="small" sx={{ mt: 0.5 }} />
-                      )}
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                )
+              : t('soloPrivacy.privateDesc', 'Your own room code — completely to yourself.')}
+          </Typography>
         </>
       )}
       <Box sx={{ flexGrow: 1 }} />
