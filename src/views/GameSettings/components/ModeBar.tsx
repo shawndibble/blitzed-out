@@ -27,10 +27,14 @@ export default function ModeBar({ formData, setFormData }: ModeBarProps): JSX.El
     if (!mode || mode === formData.gameMode) return;
 
     const needsPrivateRoom = mode !== 'solo' && isPublicRoom(formData.room);
+    // First visit to With Others defaults to partnered play; an explicit
+    // participation choice is remembered across mode switches.
+    const needsParticipationDefault = mode === 'online' && formData.soloPlay === undefined;
     setFormData({
       ...formData,
       gameMode: mode,
       ...(needsPrivateRoom && { room: generateRoomCode() }),
+      ...(needsParticipationDefault && { soloPlay: false }),
       boardUpdated: true,
     });
   };
@@ -38,15 +42,12 @@ export default function ModeBar({ formData, setFormData }: ModeBarProps): JSX.El
   return (
     <Box
       sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 3,
         display: 'flex',
         alignItems: 'center',
         gap: 2,
         flexWrap: 'wrap',
         py: 1,
-        px: { xs: 1, sm: 2 },
+        px: { xs: 2, sm: 3 },
         bgcolor: 'background.paper',
         borderBottom: 1,
         borderColor: 'divider',

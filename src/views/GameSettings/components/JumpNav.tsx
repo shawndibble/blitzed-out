@@ -14,6 +14,8 @@ interface JumpNavProps {
   entries: JumpNavEntry[];
   /** Mobile chips must expand a collapsed section before scrolling to it. */
   onNavigate: (id: string) => void;
+  /** Sticky offset for the desktop rail (page header + mode bar height). */
+  railTop?: number;
 }
 
 const SCOPE_ORDER: SettingsScope[] = ['room', 'board', 'me'];
@@ -24,11 +26,11 @@ const SCOPE_GROUP_KEYS: Record<SettingsScope, string> = {
 };
 
 /**
- * Section navigation for the single-page settings: a sticky scope-grouped
- * rail with scroll-spy on desktop, a sticky horizontal chip row on mobile.
- * Both jump within the one scrolling page — no pane switching.
+ * Section navigation for the single-page settings: a scope-grouped rail with
+ * scroll-spy on desktop, a horizontal chip row on mobile (positioned by the
+ * page's sticky header stack). Both jump within the one scrolling page.
  */
-export default function JumpNav({ entries, onNavigate }: JumpNavProps): JSX.Element {
+export default function JumpNav({ entries, onNavigate, railTop = 120 }: JumpNavProps): JSX.Element {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
   const [activeId, setActiveId] = useState<string>(entries[0]?.id ?? '');
@@ -43,14 +45,29 @@ export default function JumpNav({ entries, onNavigate }: JumpNavProps): JSX.Elem
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
         if (visible[0]) setActiveId(visible[0].target.id);
       },
-      { rootMargin: '-30% 0px -60% 0px' }
+      { rootMargin: '-25% 0px -60% 0px' }
     );
 
     entries.forEach(({ id }) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
-    return () => observer.disconnect();
+
+    // The last section may never climb into the observer band; when the page
+    // is scrolled to the bottom, it is the active one by definition.
+    const onScroll = (): void => {
+      const scrolledToBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
+      if (scrolledToBottom && entries.length > 0) {
+        setActiveId(entries[entries.length - 1].id);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', onScroll);
+    };
   }, [entries, isMobile]);
 
   const navigate = (id: string): void => {
@@ -62,14 +79,11 @@ export default function JumpNav({ entries, onNavigate }: JumpNavProps): JSX.Elem
     return (
       <Box
         sx={{
-          position: 'sticky',
-          top: 48,
-          zIndex: 2,
           display: 'flex',
           gap: 0.75,
           overflowX: 'auto',
           py: 1,
-          px: 1,
+          px: 2,
           bgcolor: 'background.paper',
           borderBottom: 1,
           borderColor: 'divider',
@@ -83,10 +97,7 @@ export default function JumpNav({ entries, onNavigate }: JumpNavProps): JSX.Elem
             size="small"
             onClick={() => navigate(id)}
             variant={activeId === id ? 'filled' : 'outlined'}
-            sx={{
-              flexShrink: 0,
-              '& .MuiChip-label': { display: 'flex', alignItems: 'center', gap: 0.75 },
-            }}
+            sx={{ flexShrink: 0 }}
             icon={
               <Box
                 component="span"
@@ -111,7 +122,7 @@ export default function JumpNav({ entries, onNavigate }: JumpNavProps): JSX.Elem
       component="nav"
       sx={{
         position: 'sticky',
-        top: 56,
+        top: railTop,
         alignSelf: 'flex-start',
         minWidth: 190,
         pr: 1,

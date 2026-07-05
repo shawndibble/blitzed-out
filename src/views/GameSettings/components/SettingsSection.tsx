@@ -30,6 +30,8 @@ interface SettingsSectionProps {
   title: string;
   /** Extra summary text next to the title (e.g. enabled count). */
   summary?: string;
+  /** Optional control rendered on the section header (e.g. an Add button). */
+  action?: ReactNode;
   expanded: boolean;
   onExpandedChange: (id: string, expanded: boolean) => void;
   children: ReactNode;
@@ -44,6 +46,7 @@ export default function SettingsSection({
   scope,
   title,
   summary,
+  action,
   expanded,
   onExpandedChange,
   children,
@@ -89,7 +92,12 @@ export default function SettingsSection({
             )}
           </Box>
         </AccordionSummary>
-        <AccordionDetails sx={{ pt: 0 }}>{children}</AccordionDetails>
+        <AccordionDetails sx={{ pt: 0 }}>
+          {action && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>{action}</Box>
+          )}
+          {children}
+        </AccordionDetails>
       </Accordion>
     );
   }
@@ -106,9 +114,12 @@ export default function SettingsSection({
             {summary}
           </Typography>
         )}
-        <Typography variant="caption" sx={{ color: 'text.secondary', ml: 'auto' }}>
-          {t(SCOPE_HINT_KEYS[scope])}
-        </Typography>
+        <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {t(SCOPE_HINT_KEYS[scope])}
+          </Typography>
+          {action}
+        </Box>
       </Box>
       {children}
     </Box>

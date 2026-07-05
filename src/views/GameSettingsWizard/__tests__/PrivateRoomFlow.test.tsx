@@ -1,4 +1,4 @@
-import { MemoryRouter, useParams } from 'react-router-dom';
+import { MemoryRouter, useLocation, useParams } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -239,21 +239,21 @@ describe('GameSettingsWizard - Topology-first flow', () => {
   });
 
   describe('Advanced Settings Integration', () => {
-    it('navigates to advanced settings (step 0) and returns to step 1', async () => {
-      renderWithRouter(<GameSettingsWizard close={mockClose} />);
+    it('navigates to the advanced settings page route', async () => {
+      render(
+        <MemoryRouter initialEntries={['/AB12C']}>
+          <GameSettingsWizard close={mockClose} />
+          <LocationProbe />
+        </MemoryRouter>
+      );
 
       await user.click(screen.getAllByTestId('advancedSetup')[0]);
-      expect(screen.getByTestId('game-settings')).toBeInTheDocument();
-
-      await user.click(screen.getByText('Back to Wizard'));
-      expect(screen.getByTestId('player-topology-step')).toBeInTheDocument();
-    });
-
-    it('calls close when closing from advanced settings', async () => {
-      renderWithRouter(<GameSettingsWizard close={mockClose} />);
-      await user.click(screen.getAllByTestId('advancedSetup')[0]);
-      await user.click(screen.getByText('Close Settings'));
-      expect(mockClose).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('location-probe')).toHaveTextContent('/AB12C/settings');
     });
   });
 });
+
+function LocationProbe() {
+  const location = useLocation();
+  return <div data-testid="location-probe">{location.pathname}</div>;
+}

@@ -14,14 +14,6 @@ vi.mock('../../LocalPlayerSettings', () => ({
   default: () => <div data-testid="local-player-settings" />,
 }));
 
-vi.mock('../../RoomSettings/PlayerListOption', () => ({
-  default: () => <div data-testid="player-list-option" />,
-}));
-
-vi.mock('@/components/RoomBackgroundInput', () => ({
-  default: () => <div data-testid="room-background-input" />,
-}));
-
 const makeFormData = (overrides: Partial<Settings>): Settings =>
   ({
     gameMode: 'solo',
@@ -44,7 +36,7 @@ describe('RoomSection', () => {
       render(<RoomSection formData={makeFormData({})} setFormData={setFormData} />);
       expect(screen.getByRole('switch', { name: 'roomType' })).toBeInTheDocument();
       expect(screen.queryByTestId('local-player-settings')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('player-list-option')).not.toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
     });
 
     it('flipping to private generates a room code', async () => {
@@ -64,7 +56,7 @@ describe('RoomSection', () => {
     it('locks room background behind a private room in a public room', () => {
       render(<RoomSection formData={makeFormData({})} setFormData={setFormData} />);
       expect(screen.getByText('roomBackgroundLocked')).toBeInTheDocument();
-      expect(screen.queryByTestId('room-background-input')).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: 'roomBackground' })).not.toBeInTheDocument();
     });
   });
 
@@ -78,9 +70,10 @@ describe('RoomSection', () => {
       );
       expect(screen.queryByRole('switch', { name: 'roomType' })).not.toBeInTheDocument();
       expect(screen.getByText('alwaysPrivateRoomHint')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'copyRoomCode' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /newRoomCode/ })).toBeInTheDocument();
-      expect(screen.getByTestId('player-list-option')).toBeInTheDocument();
+      expect(screen.getByRole('group', { name: 'playerListUpdates' })).toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: 'roomBackground' })).toBeInTheDocument();
     });
 
     it('New code generates a fresh private room', async () => {
@@ -110,8 +103,8 @@ describe('RoomSection', () => {
       expect(screen.queryByText('alwaysPrivateRoomHint')).not.toBeInTheDocument();
       expect(screen.getByText('sharedDeviceRoomHint')).toBeInTheDocument();
       expect(screen.getByTestId('local-player-settings')).toBeInTheDocument();
-      expect(screen.queryByTestId('player-list-option')).not.toBeInTheDocument();
-      expect(screen.getByTestId('room-background-input')).toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
+      expect(screen.getByRole('textbox', { name: 'roomBackground' })).toBeInTheDocument();
     });
   });
 });

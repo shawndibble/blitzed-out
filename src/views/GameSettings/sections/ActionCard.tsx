@@ -1,7 +1,6 @@
 import {
   Box,
   Card,
-  CardContent,
   Chip,
   IconButton,
   MenuItem,
@@ -39,9 +38,10 @@ const TYPE_LABEL_KEYS: Record<string, string> = {
 };
 
 /**
- * One enabled action group in the loadout: named intensity chips, variation
- * for consumption, per-group role in With Others. All levels stay visible
- * (wrap, never scroll) so the enabled state is glanceable.
+ * One enabled action group in the loadout: name + type tag + remove on the
+ * first line, named intensity chips (with the consumption variation inline)
+ * on the second, role toggle on a third in With Others. All levels stay
+ * visible — wrap, never scroll — so the enabled state is glanceable.
  */
 export default function ActionCard({
   groupKey,
@@ -76,106 +76,96 @@ export default function ActionCard({
   ];
 
   return (
-    <Card variant="outlined" sx={{ opacity: unavailable ? 0.55 : 1 }}>
-      <CardContent sx={{ '&:last-child': { pb: 2 } }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography sx={{ fontWeight: 600, minWidth: 0, flex: 1 }}>{label}</Typography>
-          {group?.type && (
-            <Chip
-              label={t(TYPE_LABEL_KEYS[group.type] ?? group.type)}
-              size="small"
-              variant="outlined"
-              sx={{ height: 20, fontSize: '0.65rem', color: 'text.secondary' }}
-            />
-          )}
-          <Tooltip title={t('removeAction', { label })}>
-            <IconButton
-              size="small"
-              onClick={() => onRemove(groupKey)}
-              aria-label={t('removeAction', { label })}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        {unavailable ? (
-          <Typography variant="caption" sx={{ color: 'warning.main' }}>
-            {t('notAvailableInMode')}
-          </Typography>
-        ) : (
-          <>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1.25 }}>
-              {availableLevels.map((level) => {
-                const selected = selectedLevels.includes(level);
-                return (
-                  <Chip
-                    key={level}
-                    label={intensities[level]}
-                    onClick={() => toggleLevel(level)}
-                    color={selected ? 'primary' : 'default'}
-                    variant={selected ? 'filled' : 'outlined'}
-                    sx={{ height: 30 }}
-                  />
-                );
-              })}
-            </Box>
-            {selectedLevels.length === 0 && (
-              <Typography
-                variant="caption"
-                sx={{ color: 'warning.main', display: 'block', mt: 0.75 }}
-              >
-                {t('noLevelsSelected')}
-              </Typography>
-            )}
-
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', mt: 1.5 }}>
-              {group?.type === 'consumption' && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                    {t('variation')}
-                  </Typography>
-                  <Select
-                    size="small"
-                    value={entry.variation || 'standalone'}
-                    onChange={(event: SelectChangeEvent<string>) =>
-                      onFieldChange(groupKey, 'variation', event.target.value)
-                    }
-                    aria-label={`${label} ${t('variation')}`}
-                  >
-                    <MenuItem value="standalone">{t('standalone')}</MenuItem>
-                    <MenuItem value="appendSome">{t('appendSome')}</MenuItem>
-                    <MenuItem value="appendMost">{t('appendMost')}</MenuItem>
-                  </Select>
-                </Box>
-              )}
-
-              {showRole && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                    {t('role')}
-                  </Typography>
-                  <ToggleButtonGroup
-                    size="small"
-                    exclusive
-                    value={entry.role || 'sub'}
-                    onChange={(_, value: string | null) => {
-                      if (value) onFieldChange(groupKey, 'role', value);
-                    }}
-                    aria-label={`${label} ${t('role')}`}
-                  >
-                    {roleOptions.map(({ value, label: roleLabel }) => (
-                      <ToggleButton key={value} value={value}>
-                        {roleLabel}
-                      </ToggleButton>
-                    ))}
-                  </ToggleButtonGroup>
-                </Box>
-              )}
-            </Box>
-          </>
+    <Card variant="outlined" sx={{ opacity: unavailable ? 0.55 : 1, px: 1.75, py: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, minWidth: 0, flex: 1 }}>
+          {label}
+        </Typography>
+        {group?.type && (
+          <Chip
+            label={t(TYPE_LABEL_KEYS[group.type] ?? group.type)}
+            size="small"
+            variant="outlined"
+            sx={{ height: 20, fontSize: '0.65rem', color: 'text.secondary' }}
+          />
         )}
-      </CardContent>
+        <Tooltip title={t('removeAction', { label })}>
+          <IconButton
+            size="small"
+            onClick={() => onRemove(groupKey)}
+            aria-label={t('removeAction', { label })}
+            sx={{ mr: -0.5 }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      {unavailable ? (
+        <Typography variant="caption" sx={{ color: 'warning.main' }}>
+          {t('notAvailableInMode')}
+        </Typography>
+      ) : (
+        <>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.75, mt: 1 }}>
+            {availableLevels.map((level) => {
+              const selected = selectedLevels.includes(level);
+              return (
+                <Chip
+                  key={level}
+                  label={intensities[level]}
+                  onClick={() => toggleLevel(level)}
+                  color={selected ? 'primary' : 'default'}
+                  variant={selected ? 'filled' : 'outlined'}
+                  sx={{ height: 28 }}
+                />
+              );
+            })}
+            {group?.type === 'consumption' && (
+              <Select
+                size="small"
+                value={entry.variation || 'standalone'}
+                onChange={(event: SelectChangeEvent<string>) =>
+                  onFieldChange(groupKey, 'variation', event.target.value)
+                }
+                aria-label={`${label} ${t('variation')}`}
+                sx={{ ml: 0.5, fontSize: '0.8rem', '& .MuiSelect-select': { py: 0.5 } }}
+              >
+                <MenuItem value="standalone">{t('standalone')}</MenuItem>
+                <MenuItem value="appendSome">{t('appendSome')}</MenuItem>
+                <MenuItem value="appendMost">{t('appendMost')}</MenuItem>
+              </Select>
+            )}
+          </Box>
+          {selectedLevels.length === 0 && (
+            <Typography variant="caption" sx={{ color: 'warning.main', display: 'block', mt: 0.5 }}>
+              {t('noLevelsSelected')}
+            </Typography>
+          )}
+          {showRole && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1.25 }}>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {t('role')}
+              </Typography>
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={entry.role || 'sub'}
+                onChange={(_, value: string | null) => {
+                  if (value) onFieldChange(groupKey, 'role', value);
+                }}
+                aria-label={`${label} ${t('role')}`}
+              >
+                {roleOptions.map(({ value, label: roleLabel }) => (
+                  <ToggleButton key={value} value={value} sx={{ py: 0.25, px: 1.25 }}>
+                    {roleLabel}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+          )}
+        </>
+      )}
     </Card>
   );
 }

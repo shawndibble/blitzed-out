@@ -3,14 +3,13 @@ import {
   Button,
   Card,
   CardContent,
-  IconButton,
-  Stack,
   Switch,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Tooltip,
   Typography,
 } from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { customAlphabet } from 'nanoid';
 import { ChangeEvent, FocusEvent, JSX, KeyboardEvent, useState } from 'react';
@@ -18,9 +17,8 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { SettingGroup, SettingRow } from '../components/SettingRow';
 import LocalPlayerSettings from '../LocalPlayerSettings';
-import PlayerListOption from '../RoomSettings/PlayerListOption';
-import RoomBackgroundInput from '@/components/RoomBackgroundInput';
 import { isPublicRoom } from '@/helpers/strings';
+import { isValidURL } from '@/helpers/urls';
 import { Settings } from '@/types/Settings';
 
 const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
@@ -38,6 +36,7 @@ interface RoomSectionProps {
 export default function RoomSection({ formData, setFormData }: RoomSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
+  const [backgroundDraft, setBackgroundDraft] = useState(formData.roomBackgroundURL || '');
 
   const isPublic = isPublicRoom(formData.room);
   const gameMode = formData.gameMode;
@@ -64,10 +63,16 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
     }
   };
 
+  const commitBackgroundURL = (value: string): void => {
+    const url = value.trim();
+    if (url === '' || isValidURL(url)) {
+      setFormData({ ...formData, roomBackgroundURL: url, roomUpdated: true });
+    }
+  };
+
   const roomCodeField = (
     <TextField
       size="small"
-      label={t('privateRoom')}
       defaultValue={isPublic ? '' : formData.room}
       key={formData.room}
       onBlur={(event: FocusEvent<HTMLInputElement>) => commitRoomFromInput(event.target.value)}
@@ -84,9 +89,10 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
         htmlInput: {
           style: { textTransform: 'uppercase', fontFamily: 'monospace', letterSpacing: '0.1em' },
           maxLength: 12,
+          'aria-label': t('privateRoom'),
         },
       }}
-      sx={{ width: 140 }}
+      sx={{ width: 120 }}
     />
   );
 
@@ -121,10 +127,10 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
         <SettingGroup>
           <SettingRow label={t('privateRoom')} description={t('alwaysPrivateRoomHint')}>
             {roomCodeField}
-            <Tooltip title={copied ? t('roomCodeCopied') : t('copyRoomCode')}>
-              <IconButton onClick={copyRoomCode} aria-label={t('copyRoomCode')}>
-                <ContentCopyIcon fontSize="small" />
-              </IconButton>
+            <Tooltip describeChild title={copied ? t('roomCodeCopied') : t('copyRoomCode')}>
+              <Button size="small" variant="outlined" onClick={copyRoomCode}>
+                {t('copy')}
+              </Button>
             </Tooltip>
             <Button
               size="small"
@@ -154,29 +160,55 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
         </>
       )}
 
-      {gameMode === 'online' && (
-        <Card variant="outlined">
-          <CardContent>
-            <PlayerListOption formData={formData} setFormData={setFormData} />
-          </CardContent>
-        </Card>
+      {(gameMode !== 'solo' || !isPublic) && (
+        <SettingGroup>
+          {gameMode === 'online' && (
+            <SettingRow label={t('playerListUpdates')} description={t('playerListUpdatesCaption')}>
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={formData.roomRealtime === false ? 'delayed' : 'realtime'}
+                onChange={(_, value: string | null) => {
+                  if (!value) return;
+                  setFormData({
+                    ...formData,
+                    roomRealtime: value === 'realtime',
+                    roomUpdated: true,
+                  });
+                }}
+                aria-label={t('playerListUpdates')}
+              >
+                <ToggleButton value="realtime">{t('realtime')}</ToggleButton>
+                <ToggleButton value="delayed">{t('delayed')}</ToggleButton>
+              </ToggleButtonGroup>
+            </SettingRow>
+          )}
+          <SettingRow label={t('roomBackground')} description={t('roomBackgroundCaption')}>
+            <TextField
+              size="small"
+              value={backgroundDraft}
+              placeholder="https://i.imgur.com/example.gif"
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setBackgroundDraft(event.target.value)
+              }
+              onBlur={() => commitBackgroundURL(backgroundDraft)}
+              onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  commitBackgroundURL(backgroundDraft);
+                }
+              }}
+              sx={{ width: { xs: '100%', sm: 260 } }}
+              slotProps={{ htmlInput: { 'aria-label': t('roomBackground') } }}
+            />
+          </SettingRow>
+        </SettingGroup>
       )}
 
-      {gameMode !== 'local' && isPublic ? (
-        <Stack sx={{ opacity: 0.55, px: 0.5 }}>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {t('roomBackgroundLocked')}
-          </Typography>
-        </Stack>
-      ) : (
-        <Card variant="outlined">
-          <CardContent>
-            <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-              {t('visualSettings')}
-            </Typography>
-            <RoomBackgroundInput formData={formData} setFormData={setFormData} />
-          </CardContent>
-        </Card>
+      {gameMode === 'solo' && isPublic && (
+        <Typography variant="caption" sx={{ color: 'text.secondary', px: 0.5, opacity: 0.7 }}>
+          {t('roomBackgroundLocked')}
+        </Typography>
       )}
     </Box>
   );

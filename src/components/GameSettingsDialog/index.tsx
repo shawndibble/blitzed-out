@@ -1,5 +1,4 @@
 import { Dialog, DialogContent, DialogTitle } from '@mui/material';
-import { useState } from 'react';
 
 import CloseIcon from '@/components/CloseIcon';
 import GameSettingsWizard from '@/views/GameSettingsWizard';
@@ -19,30 +18,19 @@ export default function GameSettingsDialog({
   const isMobile = useBreakpoint();
   const [queryParams] = useSearchParams();
   const hasImport = !!queryParams.get('importBoard');
-  // Advanced settings is a full page, not a modal; the compact wizard steps
-  // keep the dialog presentation on desktop.
-  const [advancedActive, setAdvancedActive] = useState(false);
 
   if (hasImport) {
     return null;
   }
 
   return (
-    <Dialog
-      fullScreen={isMobile || advancedActive}
-      open={open}
-      onClose={close ?? undefined}
-      maxWidth="md"
-    >
+    <Dialog fullScreen={isMobile} open={open} onClose={close ?? undefined} maxWidth="md">
       <DialogTitle>
         <Trans i18nKey="gameSettingsHeading" />
         {typeof close === 'function' && <CloseIcon close={close} />}
       </DialogTitle>
       <DialogContent>
-        <GameSettingsWizard
-          close={typeof close === 'function' ? close : undefined}
-          onAdvancedActiveChange={setAdvancedActive}
-        />
+        <GameSettingsWizard close={typeof close === 'function' ? close : undefined} />
       </DialogContent>
     </Dialog>
   );

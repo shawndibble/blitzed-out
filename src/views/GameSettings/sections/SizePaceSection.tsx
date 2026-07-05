@@ -1,19 +1,8 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Slider,
-  Typography,
-} from '@mui/material';
+import { Box, Card, MenuItem, Select, SelectChangeEvent, Slider, Typography } from '@mui/material';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { SettingGroup, SettingRow } from '../components/SettingRow';
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import { Settings } from '@/types/Settings';
 
@@ -47,22 +36,17 @@ export default function SizePaceSection({
   const rollEstimate = Math.floor(tileCount / (DICE_ROLL_AVERAGE[dice] ?? 3.5));
 
   return (
-    <Card variant="outlined">
-      <CardContent>
-        <Box sx={{ px: 1 }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-            {t('roomTileCount')}
-          </Typography>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Card variant="outlined" sx={{ px: 2, py: 1.5 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          {t('roomTileCount')}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, mt: 0.5 }}>
           <Slider
             value={tileCount}
             min={MIN_TILES}
             max={MAX_TILES}
             step={1}
-            marks={[
-              { value: MIN_TILES, label: String(MIN_TILES) },
-              { value: DEFAULT_TILE_COUNT, label: String(DEFAULT_TILE_COUNT) },
-              { value: MAX_TILES, label: String(MAX_TILES) },
-            ]}
             valueLabelDisplay="auto"
             onChange={(_, value) =>
               setFormData({
@@ -73,42 +57,56 @@ export default function SizePaceSection({
               })
             }
             aria-label={t('roomTileCount')}
+            sx={{ flex: 1 }}
           />
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'primary.main',
+              fontWeight: 600,
+              fontVariantNumeric: 'tabular-nums',
+              minWidth: 64,
+              textAlign: 'right',
+            }}
+          >
+            {t('tilesCount', { count: tileCount })}
+          </Typography>
         </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            color: 'text.secondary',
+            fontSize: '0.7rem',
+            fontVariantNumeric: 'tabular-nums',
+          }}
+        >
+          <span>{MIN_TILES}</span>
+          <span>{t('rollsPerGame', { count: rollEstimate, dice })}</span>
+          <span>{MAX_TILES}</span>
+        </Box>
+      </Card>
 
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap', mt: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel id="dice-select-label">{t('roomDice')}</InputLabel>
-            <Select
-              labelId="dice-select-label"
-              value={dice}
-              label={t('roomDice')}
-              onChange={(event: SelectChangeEvent<string>) =>
-                setFormData({
-                  ...formData,
-                  roomDice: event.target.value,
-                  roomUpdated: true,
-                })
-              }
-            >
-              <MenuItem value="1d4">1d4</MenuItem>
-              <MenuItem value="1d6">1d6</MenuItem>
-              <MenuItem value="2d4">2d4</MenuItem>
-            </Select>
-          </FormControl>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {t('averageRolls')}
-            </Typography>
-            <Chip
-              label={rollEstimate}
-              color="primary"
-              variant="outlined"
-              sx={{ fontWeight: 'bold', fontVariantNumeric: 'tabular-nums' }}
-            />
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+      <SettingGroup>
+        <SettingRow label={t('roomDice')} description={t('roomDiceCaption')}>
+          <Select
+            size="small"
+            value={dice}
+            onChange={(event: SelectChangeEvent<string>) =>
+              setFormData({
+                ...formData,
+                roomDice: event.target.value,
+                roomUpdated: true,
+              })
+            }
+            aria-label={t('roomDice')}
+          >
+            <MenuItem value="1d4">1d4</MenuItem>
+            <MenuItem value="1d6">1d6</MenuItem>
+            <MenuItem value="2d4">2d4</MenuItem>
+          </Select>
+        </SettingRow>
+      </SettingGroup>
+    </Box>
   );
 }

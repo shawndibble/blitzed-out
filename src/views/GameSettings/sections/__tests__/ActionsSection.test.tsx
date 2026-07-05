@@ -2,8 +2,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { useState } from 'react';
+
 import ActionsSection from '../ActionsSection';
 import type { Settings } from '@/types/Settings';
+
+type HarnessProps = Omit<Parameters<typeof ActionsSection>[0], 'pickerOpen' | 'onPickerOpenChange'>;
+
+function Harness(props: HarnessProps) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  return <ActionsSection {...props} pickerOpen={pickerOpen} onPickerOpenChange={setPickerOpen} />;
+}
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -72,7 +81,7 @@ describe('ActionsSection (loadout)', () => {
 
   it('shows only enabled groups as cards, not the whole catalog', () => {
     render(
-      <ActionsSection
+      <Harness
         formData={makeFormData({
           selectedActions: { alcohol: { type: 'consumption', levels: [1, 2] } },
         })}
@@ -87,18 +96,14 @@ describe('ActionsSection (loadout)', () => {
 
   it('shows an empty state when nothing is enabled', () => {
     render(
-      <ActionsSection
-        formData={makeFormData({})}
-        setFormData={setFormData}
-        actionsList={ACTIONS_LIST}
-      />
+      <Harness formData={makeFormData({})} setFormData={setFormData} actionsList={ACTIONS_LIST} />
     );
     expect(screen.getByText('noActionsEnabled')).toBeInTheDocument();
   });
 
   it('toggling an intensity chip updates the group levels', async () => {
     render(
-      <ActionsSection
+      <Harness
         formData={makeFormData({
           selectedActions: { alcohol: { type: 'consumption', levels: [1] } },
         })}
@@ -115,7 +120,7 @@ describe('ActionsSection (loadout)', () => {
 
   it('shows a per-group role toggle for role-bearing groups in With Others group play', () => {
     render(
-      <ActionsSection
+      <Harness
         formData={makeFormData({
           selectedActions: {
             buttPlay: { type: 'sex', levels: [1] },
@@ -135,7 +140,7 @@ describe('ActionsSection (loadout)', () => {
 
   it('hides role toggles on a shared device — roles come from player setup', () => {
     render(
-      <ActionsSection
+      <Harness
         formData={makeFormData({
           gameMode: 'local',
           selectedActions: { buttPlay: { type: 'sex', levels: [1] } },
@@ -145,16 +150,12 @@ describe('ActionsSection (loadout)', () => {
       />
     );
     expect(screen.queryByRole('button', { name: 'Top' })).not.toBeInTheDocument();
-    expect(screen.getByText('sharedDeviceActionsHint')).toBeInTheDocument();
+    expect(screen.getByText('actionsBannerSharedDevice')).toBeInTheDocument();
   });
 
   it('participation toggle appears only in With Others and writes soloPlay', async () => {
     render(
-      <ActionsSection
-        formData={makeFormData({})}
-        setFormData={setFormData}
-        actionsList={ACTIONS_LIST}
-      />
+      <Harness formData={makeFormData({})} setFormData={setFormData} actionsList={ACTIONS_LIST} />
     );
     await user.click(screen.getByRole('button', { name: 'participationSolo' }));
     expect(setFormData.mock.calls[0][0].soloPlay).toBe(true);
@@ -162,7 +163,7 @@ describe('ActionsSection (loadout)', () => {
 
   it('marks an enabled group unavailable when the mode no longer offers it', () => {
     render(
-      <ActionsSection
+      <Harness
         formData={makeFormData({
           gameMode: 'solo',
           soloPlay: true,
@@ -178,7 +179,7 @@ describe('ActionsSection (loadout)', () => {
   describe('add actions picker', () => {
     it('lists only not-yet-enabled groups for the current participation', async () => {
       render(
-        <ActionsSection
+        <Harness
           formData={makeFormData({
             selectedActions: { alcohol: { type: 'consumption', levels: [1] } },
           })}
@@ -198,11 +199,7 @@ describe('ActionsSection (loadout)', () => {
 
     it('search filters the catalog', async () => {
       render(
-        <ActionsSection
-          formData={makeFormData({})}
-          setFormData={setFormData}
-          actionsList={ACTIONS_LIST}
-        />
+        <Harness formData={makeFormData({})} setFormData={setFormData} actionsList={ACTIONS_LIST} />
       );
       await user.click(screen.getByRole('button', { name: /addActions/ }));
       await user.type(screen.getByRole('textbox', { name: 'searchActions' }), 'kiss');
@@ -214,11 +211,7 @@ describe('ActionsSection (loadout)', () => {
 
     it('adding a group preselects its first intensity level', async () => {
       render(
-        <ActionsSection
-          formData={makeFormData({})}
-          setFormData={setFormData}
-          actionsList={ACTIONS_LIST}
-        />
+        <Harness formData={makeFormData({})} setFormData={setFormData} actionsList={ACTIONS_LIST} />
       );
       await user.click(screen.getByRole('button', { name: /addActions/ }));
       await user.click(within(screen.getByRole('dialog')).getByText('Kissing'));
@@ -229,7 +222,7 @@ describe('ActionsSection (loadout)', () => {
 
     it('offers solo groups instead of partnered ones when everyone plays solo', async () => {
       render(
-        <ActionsSection
+        <Harness
           formData={makeFormData({ soloPlay: true })}
           setFormData={setFormData}
           actionsList={ACTIONS_LIST}
@@ -246,7 +239,7 @@ describe('ActionsSection (loadout)', () => {
   describe('remove with undo', () => {
     it('removing a group deletes it and offers undo', async () => {
       render(
-        <ActionsSection
+        <Harness
           formData={makeFormData({
             selectedActions: { alcohol: { type: 'consumption', levels: [1] } },
           })}

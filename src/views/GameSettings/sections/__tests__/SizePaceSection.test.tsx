@@ -6,7 +6,10 @@ import SizePaceSection from '../SizePaceSection';
 import type { Settings } from '@/types/Settings';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, opts?: Record<string, unknown>) =>
+      opts && 'count' in opts ? `${key}:${opts.count}` : key,
+  }),
 }));
 
 const makeFormData = (overrides: Partial<Settings>): Settings =>
@@ -52,7 +55,8 @@ describe('SizePaceSection', () => {
       />
     );
     // 60 tiles / 3.5 avg per 1d6 roll = 17
-    expect(screen.getByText('17')).toBeInTheDocument();
+    expect(screen.getByText('rollsPerGame:17')).toBeInTheDocument();
+    expect(screen.getByText('tilesCount:60')).toBeInTheDocument();
   });
 
   it('changing dice updates form data', async () => {

@@ -36,7 +36,6 @@ import lazyWithRetry from '@/utils/lazyWithRetry';
 import { languages } from '@/services/i18nHelpers';
 
 // Heavy dialogs — loaded on demand when their menu item is opened
-const AppSettingsDialog = lazyWithRetry(() => import('@/components/AppSettingsDialog'));
 const AuthDialog = lazyWithRetry(() => import('@/components/auth/AuthDialog'));
 const CustomTileDialog = lazyWithRetry(() => import('@/components/CustomTilesDialog'));
 const GameGuide = lazyWithRetry(() => import('@/views/GameGuide'));
@@ -46,7 +45,7 @@ const ManageGameBoards = lazyWithRetry(() => import('@/views/ManageGameBoards'))
 const Schedule = lazyWithRetry(() => import('@/views/Schedule'));
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 
@@ -72,6 +71,7 @@ interface DialogState {
 
 export default function MenuDrawer(): JSX.Element {
   const { id: room } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user, wipeAllData, isAnonymous } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
@@ -277,7 +277,7 @@ export default function MenuDrawer(): JSX.Element {
         key: 'appSettings',
         title: <Trans i18nKey="appSettings" />,
         icon: <TuneIcon />,
-        onClick: () => toggleDialog('appSettings', true),
+        onClick: () => navigate(`/${(room || 'PUBLIC').toUpperCase()}/settings`),
       });
       items.unshift({
         key: 'settings',
@@ -301,7 +301,7 @@ export default function MenuDrawer(): JSX.Element {
       });
     }
     return items;
-  }, [user, room, isAnonymous, discordIcon, handleWipeData, toggleDialog]);
+  }, [user, room, isAnonymous, discordIcon, handleWipeData, toggleDialog, navigate]);
 
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
     <ListItem key={key} disablePadding onClick={onClick}>
@@ -389,7 +389,6 @@ export default function MenuDrawer(): JSX.Element {
       </Drawer>
       <Suspense fallback={null}>
         {open.settings && renderDialog(GameSettingsDialog, 'settings')}
-        {open.appSettings && renderDialog(AppSettingsDialog, 'appSettings')}
         {open.about && (
           <DialogWrapper open={open.about} close={() => toggleDialog('about', false)}>
             <GameGuide />
