@@ -7,7 +7,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { JSX, useCallback, useEffect, useState } from 'react';
+import { Dispatch, JSX, SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SettingRow } from '../components/SettingRow';
@@ -26,7 +26,7 @@ const nearestPitchPreset = (pitch: number): string =>
 
 interface VoiceRowsProps {
   formData: Settings;
-  setFormData: (data: Settings) => void;
+  setFormData: Dispatch<SetStateAction<Settings>>;
   onVoiceChange: (voiceName: string) => void;
   onPitchChange: (pitch: number) => void;
 }
@@ -46,12 +46,15 @@ export default function VoiceRows({
   const selectedVoice = formData.voicePreference || '';
   const selectedPitch = formData.voicePitch ?? 1.0;
 
+  // Functional update keeps this callback stable (no formData dependency) so
+  // the voice-loading effect below only re-runs when the selected voice
+  // actually changes — not on every unrelated GameSettings edit.
   const handleVoiceChange = useCallback(
     (voiceName: string): void => {
-      setFormData({ ...formData, voicePreference: voiceName });
+      setFormData((prev) => ({ ...prev, voicePreference: voiceName }));
       onVoiceChange(voiceName);
     },
-    [formData, setFormData, onVoiceChange]
+    [setFormData, onVoiceChange]
   );
 
   useEffect(() => {
@@ -109,7 +112,7 @@ export default function VoiceRows({
   const handlePitchPreset = (_: unknown, preset: string | null): void => {
     if (!preset) return;
     const pitch = PITCH_PRESETS[preset];
-    setFormData({ ...formData, voicePitch: pitch });
+    setFormData((prev) => ({ ...prev, voicePitch: pitch }));
     onPitchChange(pitch);
   };
 

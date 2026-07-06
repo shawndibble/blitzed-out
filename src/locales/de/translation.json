@@ -864,5 +864,6 @@
   "movePlayerUp": "{{name}} nach oben",
   "movePlayerDown": "{{name}} nach unten",
   "localPlayersSaveError": "Spieler konnten nicht gespeichert werden — bitte erneut versuchen.",
+  "settingsSaveError": "Einstellungen konnten nicht gespeichert werden — bitte erneut versuchen.",
   "buildingBoard": "Brett wird erstellt…"
 }

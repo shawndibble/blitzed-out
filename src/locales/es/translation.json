@@ -864,5 +864,6 @@
   "movePlayerUp": "Subir a {{name}}",
   "movePlayerDown": "Bajar a {{name}}",
   "localPlayersSaveError": "No se pudieron guardar los jugadores — inténtalo de nuevo.",
+  "settingsSaveError": "No se pudo guardar la configuración — inténtalo de nuevo.",
   "buildingBoard": "Creando el tablero…"
 }

@@ -43,7 +43,11 @@ export default function FinishRangeRow({
         onChange={handleChange}
         valueLabelDisplay="auto"
         valueLabelFormat={(value) => `${value}%`}
-        aria-label={t('finishOptions')}
+        getAriaLabel={(index) =>
+          index === 0
+            ? `${t('finishOptions')} — ${t('noCum')} / ${t('ruined')}`
+            : `${t('finishOptions')} — ${t('ruined')} / ${t('cum')}`
+        }
         sx={{
           mt: 0.5,
           '& .MuiSlider-rail': {

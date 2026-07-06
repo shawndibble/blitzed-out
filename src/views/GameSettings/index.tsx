@@ -15,7 +15,16 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
-import { FocusEvent, FormEvent, JSX, ReactNode, useCallback, useRef, useState } from 'react';
+import {
+  FocusEvent,
+  FormEvent,
+  JSX,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { customAlphabet } from 'nanoid';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -90,7 +99,9 @@ export default function GameSettings(): JSX.Element {
   // the page. Later reloads keep the page up (the picker briefly shows the
   // previous catalog instead of a loading flash).
   const hasLoadedOnceRef = useRef(false);
-  if (!isLoading) hasLoadedOnceRef.current = true;
+  useEffect(() => {
+    if (!isLoading) hasLoadedOnceRef.current = true;
+  }, [isLoading]);
 
   // The URL is the source of truth for the room the user is actually in;
   // formData.room is only the pending choice until Update. Toggles and mode
@@ -135,8 +146,12 @@ export default function GameSettings(): JSX.Element {
         return null;
       }
 
-      await submitSettings(formData, actionsList);
-      returnToRoom();
+      try {
+        await submitSettings(formData, actionsList);
+        returnToRoom();
+      } catch {
+        setAlert(t('settingsSaveError'));
+      }
       return null;
     },
     [formData, actionsList, t, setAlert, submitSettings, returnToRoom]

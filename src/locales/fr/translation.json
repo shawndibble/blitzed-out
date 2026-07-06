@@ -864,5 +864,6 @@
   "movePlayerUp": "Monter {{name}}",
   "movePlayerDown": "Descendre {{name}}",
   "localPlayersSaveError": "Impossible d'enregistrer les joueurs — réessayez.",
+  "settingsSaveError": "Impossible d'enregistrer les paramètres — réessayez.",
   "buildingBoard": "Création du plateau…"
 }

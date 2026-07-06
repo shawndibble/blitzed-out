@@ -32,7 +32,7 @@ interface LocalPlayersRowsProps {
  */
 export default function LocalPlayersRows({ roomId }: LocalPlayersRowsProps): JSX.Element {
   const { t } = useTranslation();
-  const { localPlayers, sessionSettings, createLocalSession, clearLocalSession } =
+  const { localPlayers, sessionSettings, createLocalSession, clearLocalSession, updateSettings } =
     useLocalPlayers();
 
   // Draft mirrors the stored session; edits below the minimum player count
@@ -101,7 +101,13 @@ export default function LocalPlayersRows({ roomId }: LocalPlayersRowsProps): JSX
   };
 
   const handleSettingChange = (key: keyof LocalSessionSettings, value: boolean): void => {
-    persist(draft, { ...settings, [key]: value });
+    // Settings-only change: patch the existing session so the active player and
+    // turn index survive. createLocalSession would recreate the session and
+    // reset them. With no session yet (below the minimum), there is nothing to
+    // patch — the switch is inert until players are added.
+    if (draft.length >= MIN_PLAYERS) {
+      updateSettings({ ...settings, [key]: value });
+    }
   };
 
   return (

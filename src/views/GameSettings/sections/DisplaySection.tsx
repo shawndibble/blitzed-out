@@ -75,6 +75,7 @@ export default function DisplaySection({
   );
 
   const changeLanguage = async (value: string): Promise<void> => {
+    const previousLanguage = language;
     setLanguageLoading(true);
     setLanguage(value);
     try {
@@ -83,8 +84,8 @@ export default function DisplaySection({
       await i18n.changeLanguage(value);
       boardUpdated();
     } catch {
-      await i18n.changeLanguage(value);
-      boardUpdated();
+      // Switch failed — keep the previous language so the Select reflects reality.
+      setLanguage(previousLanguage);
     } finally {
       setLanguageLoading(false);
     }

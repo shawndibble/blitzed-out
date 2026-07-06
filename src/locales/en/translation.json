@@ -864,5 +864,6 @@
   "movePlayerUp": "Move {{name}} up",
   "movePlayerDown": "Move {{name}} down",
   "localPlayersSaveError": "Couldn't save players — try again.",
+  "settingsSaveError": "Couldn't save settings — try again.",
   "buildingBoard": "Building board…"
 }

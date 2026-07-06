@@ -79,7 +79,23 @@ export default function AddActionsDialog({
   }, [candidates]);
 
   return (
-    <Dialog open={open} onClose={onClose} fullScreen={isMobile} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullScreen={isMobile}
+      fullWidth
+      maxWidth="sm"
+      slotProps={{
+        transition: {
+          // The dialog stays mounted between visits; clear the previous
+          // search/filter once it has closed so reopening starts fresh.
+          onExited: () => {
+            setQuery('');
+            setTypeFilter('all');
+          },
+        },
+      }}
+    >
       <DialogTitle>{t('addActions')}</DialogTitle>
       <DialogContent sx={{ pt: 1 }}>
         <TextField

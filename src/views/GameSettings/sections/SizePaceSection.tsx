@@ -36,7 +36,10 @@ export default function SizePaceSection({
 }: SizePaceSectionProps): JSX.Element {
   const { t } = useTranslation();
 
-  const tileCount = formData.roomTileCount || DEFAULT_TILE_COUNT;
+  const storedTileCount = formData.roomTileCount || DEFAULT_TILE_COUNT;
+  // The Select can only show an in-range option; the rolls estimate must use
+  // the same displayed value or the description contradicts the dropdown.
+  const tileCount = TILE_OPTIONS.includes(storedTileCount) ? storedTileCount : DEFAULT_TILE_COUNT;
   const dice = formData.roomDice || '1d6';
   const rollEstimate = Math.floor(tileCount / (DICE_ROLL_AVERAGE[dice] ?? 3.5));
 
@@ -48,7 +51,7 @@ export default function SizePaceSection({
       >
         <Select
           size="small"
-          value={String(TILE_OPTIONS.includes(tileCount) ? tileCount : DEFAULT_TILE_COUNT)}
+          value={String(tileCount)}
           onChange={(event: SelectChangeEvent<string>) =>
             setFormData({
               ...formData,

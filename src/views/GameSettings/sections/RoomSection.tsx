@@ -78,9 +78,6 @@ export default function RoomSection({
           commitRoomFromInput((event.target as HTMLInputElement).value);
         }
       }}
-      onChange={(event: ChangeEvent<HTMLInputElement>) => {
-        event.target.value = event.target.value.toUpperCase();
-      }}
       slotProps={{
         htmlInput: {
           style: { textTransform: 'uppercase', fontFamily: 'monospace', letterSpacing: '0.1em' },

@@ -21,8 +21,8 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../../BoardSettings/FinishSlider', () => ({
-  default: () => <div data-testid="finish-slider" />,
+vi.mock('../FinishRangeRow', () => ({
+  default: () => <div data-testid="finish-range-row" />,
 }));
 vi.mock('../../BoardSettings/WarningAlert', () => ({
   default: () => <div data-testid="warning-alert" />,

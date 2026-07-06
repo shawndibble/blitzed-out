@@ -1,5 +1,5 @@
 import { Box, MenuItem, Select, SelectChangeEvent, Slider, Switch } from '@mui/material';
-import { ChangeEvent, JSX, useCallback, useRef } from 'react';
+import { ChangeEvent, Dispatch, JSX, SetStateAction, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SettingGroup, SettingRow } from '../components/SettingRow';
@@ -23,7 +23,7 @@ function useDebounce<T extends any[]>(
 
 interface SoundSectionProps {
   formData: Settings;
-  setFormData: (data: Settings) => void;
+  setFormData: Dispatch<SetStateAction<Settings>>;
 }
 
 /** Personal audio preferences: roll/chat sounds, TTS voice, haptics, ambient music. */

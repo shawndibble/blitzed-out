@@ -864,5 +864,6 @@
   "movePlayerUp": "上移{{name}}",
   "movePlayerDown": "下移{{name}}",
   "localPlayersSaveError": "无法保存玩家 — 请重试。",
+  "settingsSaveError": "无法保存设置 — 请重试。",
   "buildingBoard": "正在生成棋盘…"
 }
