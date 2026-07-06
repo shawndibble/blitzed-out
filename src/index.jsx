@@ -50,6 +50,15 @@ if (typeof window !== 'undefined' && !window.importShim) {
         logger.warn('Dynamic import/method resolution failed:', { message: errorMsg, reason });
         event.preventDefault(); // Prevent the error from showing in console as unhandled
       }
+
+      // iOS Safari rejects Web Audio resume()/start() with InvalidStateError
+      // ("Failed to start the audio device") when the audio session is in a
+      // silent/interrupted state. Benign — playback silently skips. Howler
+      // (via use-sound) resumes the AudioContext in a detached promise, so this
+      // rejection can't be caught at the call site.
+      if (errorMsg.includes('Failed to start the audio device')) {
+        event.preventDefault();
+      }
     }
   });
 }
