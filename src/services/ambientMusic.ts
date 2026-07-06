@@ -52,18 +52,24 @@ class AmbientMusicService {
     const buffer = await this.loadSoundscape(soundscape);
     if (!buffer) return;
 
-    this.gainNode = ctx.createGain();
-    this.gainNode.gain.value = volume;
-    this.gainNode.connect(ctx.destination);
+    try {
+      this.gainNode = ctx.createGain();
+      this.gainNode.gain.value = volume;
+      this.gainNode.connect(ctx.destination);
 
-    this.sourceNode = ctx.createBufferSource();
-    this.sourceNode.buffer = buffer;
-    this.sourceNode.loop = true;
-    this.sourceNode.connect(this.gainNode);
-    this.sourceNode.start(0);
+      this.sourceNode = ctx.createBufferSource();
+      this.sourceNode.buffer = buffer;
+      this.sourceNode.loop = true;
+      this.sourceNode.connect(this.gainNode);
+      // iOS Safari can throw InvalidStateError ("Failed to start the audio
+      // device") when the audio session can't start (silent mode / interrupted).
+      this.sourceNode.start(0);
 
-    this.currentSoundscape = soundscape;
-    this.isPlaying = true;
+      this.currentSoundscape = soundscape;
+      this.isPlaying = true;
+    } catch {
+      this.stop();
+    }
   }
 
   stop(): void {
@@ -112,7 +118,7 @@ export function useAmbientMusic() {
 
   useEffect(() => {
     if (ambientMusicEnabled && effectiveSoundscape) {
-      ambientMusic.play(effectiveSoundscape, effectiveVolume);
+      ambientMusic.play(effectiveSoundscape, effectiveVolume).catch(() => {});
     } else {
       ambientMusic.stop();
     }

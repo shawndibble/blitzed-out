@@ -112,6 +112,18 @@ describe('AmbientMusicService', () => {
     const { ambientMusic } = await import('../ambientMusic');
     expect(() => ambientMusic.stop()).not.toThrow();
   });
+
+  // iOS Safari throws InvalidStateError ("Failed to start the audio device")
+  // from sourceNode.start(); play() must swallow it, not reject.
+  it('play should not reject when start throws InvalidStateError', async () => {
+    mockSourceNode.start.mockImplementationOnce(() => {
+      throw new DOMException('Failed to start the audio device', 'InvalidStateError');
+    });
+
+    const { ambientMusic } = await import('../ambientMusic');
+    await expect(ambientMusic.play('lounge', 0.3)).resolves.toBeUndefined();
+    expect(ambientMusic.getIsPlaying()).toBe(false);
+  });
 });
 
 describe('useAmbientMusic hook', () => {
