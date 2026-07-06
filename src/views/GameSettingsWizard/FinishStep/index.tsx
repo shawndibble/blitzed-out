@@ -192,7 +192,7 @@ export default function FinishStep({
           }
         }}
         aria-label={t('gameLength.title', 'Game length')}
-        sx={{ mb: 1, flexWrap: 'wrap' }}
+        sx={{ mb: 4, flexWrap: 'wrap', display: 'flex', justifyContent: 'center' }}
       >
         {TILE_BUCKETS.map((bucket) => (
           <ToggleButton key={bucket.value} value={bucket.value} sx={{ px: 3 }}>
@@ -200,9 +200,6 @@ export default function FinishStep({
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
-      <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4 }}>
-        {t('gameLength.helper', 'A longer board means a longer game.')}
-      </Typography>
 
       {formData.gameMode === 'solo' && (
         <>
@@ -228,7 +225,7 @@ export default function FinishStep({
               }
             }}
             aria-label={t('soloPrivacy.title', 'Where do you want to play?')}
-            sx={{ mb: 1, flexWrap: 'wrap' }}
+            sx={{ mb: 4, flexWrap: 'wrap', display: 'flex', justifyContent: 'center' }}
           >
             <ToggleButton value="public" sx={{ px: 3 }}>
               {t('soloPrivacy.publicTitle', 'Public room')}
@@ -237,14 +234,6 @@ export default function FinishStep({
               {t('soloPrivacy.privateTitle', 'Private room')}
             </ToggleButton>
           </ToggleButtonGroup>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 4 }}>
-            {isPublicRoomSelected
-              ? t(
-                  'soloPrivacy.publicDesc',
-                  'Play in the shared PUBLIC room — see the chat and boards of others.'
-                )
-              : t('soloPrivacy.privateDesc', 'Your own room code — completely to yourself.')}
-          </Typography>
         </>
       )}
       <Box sx={{ flexGrow: 1 }} />

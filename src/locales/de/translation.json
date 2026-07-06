@@ -785,15 +785,12 @@
     "title": "Spieldauer",
     "short": "Kurz",
     "medium": "Mittel",
-    "long": "Lang",
-    "helper": "Wähle, wie viele Felder dein Board hat – ein längeres Board bedeutet ein längeres Spiel."
+    "long": "Lang"
   },
   "soloPrivacy": {
     "title": "Wo möchtest du spielen?",
     "publicTitle": "Öffentlicher Raum",
-    "publicDesc": "Spiele im geteilten PUBLIC-Raum — sieh Chat und Boards der anderen.",
-    "privateTitle": "Privater Raum",
-    "privateDesc": "Dein eigener Raumcode — ganz für dich allein."
+    "privateTitle": "Privater Raum"
   },
   "maxSelections": "Maximale Auswahl: {{max}}",
   "playing": "Spielweise",

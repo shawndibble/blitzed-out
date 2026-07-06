@@ -785,15 +785,12 @@
     "title": "游戏时长",
     "short": "短",
     "medium": "中",
-    "long": "长",
-    "helper": "选择你的棋盘有多少格子——棋盘越长，游戏时间越长。"
+    "long": "长"
   },
   "soloPrivacy": {
     "title": "想在哪里玩？",
     "publicTitle": "公共房间",
-    "publicDesc": "在共享的 PUBLIC 房间游戏 — 可看到他人的聊天和棋盘。",
-    "privateTitle": "私人房间",
-    "privateDesc": "专属房间代码 — 完全属于你自己。"
+    "privateTitle": "私人房间"
   },
   "maxSelections": "最多可选：{{max}}",
   "playing": "游戏方式",

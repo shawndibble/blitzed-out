@@ -785,15 +785,12 @@
     "title": "Durée du jeu",
     "short": "Courte",
     "medium": "Moyenne",
-    "long": "Longue",
-    "helper": "Choisissez le nombre de cases de votre plateau : un plateau plus long signifie une partie plus longue."
+    "long": "Longue"
   },
   "soloPrivacy": {
     "title": "Où voulez-vous jouer ?",
     "publicTitle": "Salle publique",
-    "publicDesc": "Jouez dans la salle PUBLIC partagée — voyez le chat et les plateaux des autres.",
-    "privateTitle": "Salle privée",
-    "privateDesc": "Votre propre code de salle — rien que pour vous."
+    "privateTitle": "Salle privée"
   },
   "maxSelections": "Sélections maximum : {{max}}",
   "playing": "Mode de jeu",

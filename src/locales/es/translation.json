@@ -785,15 +785,12 @@
     "title": "Duración del juego",
     "short": "Corta",
     "medium": "Media",
-    "long": "Larga",
-    "helper": "Elige cuántas casillas tiene tu tablero: un tablero más largo significa una partida más larga."
+    "long": "Larga"
   },
   "soloPrivacy": {
     "title": "¿Dónde quieres jugar?",
     "publicTitle": "Sala pública",
-    "publicDesc": "Juega en la sala PUBLIC compartida — ve el chat y los tableros de otros.",
-    "privateTitle": "Sala privada",
-    "privateDesc": "Tu propio código de sala — solo para ti."
+    "privateTitle": "Sala privada"
   },
   "maxSelections": "Selecciones máximas: {{max}}",
   "playing": "Jugando",

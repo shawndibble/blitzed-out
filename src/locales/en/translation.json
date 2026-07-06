@@ -785,15 +785,12 @@
     "title": "Game length",
     "short": "Short",
     "medium": "Medium",
-    "long": "Long",
-    "helper": "Choose how many tiles your board has — a longer board means a longer game."
+    "long": "Long"
   },
   "soloPrivacy": {
     "title": "Where do you want to play?",
     "publicTitle": "Public room",
-    "publicDesc": "Play in the shared PUBLIC room — see the chat and boards of others.",
-    "privateTitle": "Private room",
-    "privateDesc": "Your own room code — completely to yourself."
+    "privateTitle": "Private room"
   },
   "maxSelections": "Maximum selections: {{max}}",
   "playing": "Playing",
