@@ -40,6 +40,10 @@ export default defineConfig({
           sentryVitePlugin({
             org: 'blitzedout',
             project: 'javascript-react',
+            // Injects module metadata so thirdPartyErrorFilterIntegration can
+            // tell app frames from third-party frames. Without it, every frame
+            // looks third-party and all stack-traced errors get dropped.
+            applicationKey: 'blitzed-out',
           }),
         ]
       : []),

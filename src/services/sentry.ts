@@ -142,10 +142,13 @@ export function initializeSentry(): void {
         createRoutesFromChildren,
         matchRoutes,
       }),
-      // Filter out third-party errors (browser extensions, injected scripts)
+      // Filter out third-party errors (browser extensions, injected scripts).
+      // filterKeys must match applicationKey in sentryVitePlugin (vite.config.ts).
+      // 'exclusively' so app errors surfacing through third-party frames
+      // (gtag callbacks, extension wrappers) still get reported.
       Sentry.thirdPartyErrorFilterIntegration({
-        filterKeys: ['blitzed-out'], // Add your app identifier
-        behaviour: 'drop-error-if-contains-third-party-frames',
+        filterKeys: ['blitzed-out'],
+        behaviour: 'drop-error-if-exclusively-contains-third-party-frames',
       }),
     ],
 
