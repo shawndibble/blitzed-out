@@ -7,11 +7,21 @@ import { useState } from 'react';
 import ActionsSection from '../ActionsSection';
 import type { Settings } from '@/types/Settings';
 
-type HarnessProps = Omit<Parameters<typeof ActionsSection>[0], 'pickerOpen' | 'onPickerOpenChange'>;
+type HarnessProps = Omit<
+  Parameters<typeof ActionsSection>[0],
+  'pickerOpen' | 'onPickerOpenChange' | 'onManageCustomTiles'
+> & { onManageCustomTiles?: () => void };
 
-function Harness(props: HarnessProps) {
+function Harness({ onManageCustomTiles = () => {}, ...props }: HarnessProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
-  return <ActionsSection {...props} pickerOpen={pickerOpen} onPickerOpenChange={setPickerOpen} />;
+  return (
+    <ActionsSection
+      {...props}
+      pickerOpen={pickerOpen}
+      onPickerOpenChange={setPickerOpen}
+      onManageCustomTiles={onManageCustomTiles}
+    />
+  );
 }
 
 vi.mock('react-i18next', () => ({

@@ -203,7 +203,7 @@ export default function GameSettings(): JSX.Element {
           borderColor: 'divider',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: { xs: 1, sm: 2 }, py: 1 }}>
+        <Container maxWidth="lg" sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
           <IconButton onClick={returnToRoom} aria-label={t('back', 'Back')}>
             <ArrowBackIcon />
           </IconButton>
@@ -227,7 +227,7 @@ export default function GameSettings(): JSX.Element {
           >
             <Trans i18nKey={isSubmitting ? 'buildingBoard' : 'update'} />
           </Button>
-        </Box>
+        </Container>
         <ModeBar formData={formData} setFormData={setFormData} getPrivateRoom={getPrivateRoom} />
         {isMobile && <JumpNav entries={SECTIONS} onNavigate={handleNavigate} />}
       </Box>
@@ -316,6 +316,7 @@ export default function GameSettings(): JSX.Element {
                 actionsList={actionsList}
                 pickerOpen={actionsPickerOpen}
                 onPickerOpenChange={setActionsPickerOpen}
+                onManageCustomTiles={() => setOpenCustomTile(true)}
               />
             </SettingsSection>
 
@@ -353,18 +354,7 @@ export default function GameSettings(): JSX.Element {
               />
             </SettingsSection>
 
-            <Box
-              sx={{
-                display: 'flex',
-                gap: 1,
-                mt: 3,
-                flexDirection: { xs: 'column', sm: 'row' },
-                justifyContent: 'space-between',
-              }}
-            >
-              <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
-                <Trans i18nKey="customTilesLabel" />
-              </Button>
+            <Box sx={{ display: 'flex', mt: 3, justifyContent: 'flex-end' }}>
               <Button
                 variant="contained"
                 type="submit"
