@@ -171,6 +171,20 @@ describe('ActionsSection (loadout)', () => {
     expect(setFormData.mock.calls[0][0].soloPlay).toBe(true);
   });
 
+  it('the manage custom actions button invokes onManageCustomTiles', async () => {
+    const onManageCustomTiles = vi.fn();
+    render(
+      <Harness
+        formData={makeFormData({})}
+        setFormData={setFormData}
+        actionsList={ACTIONS_LIST}
+        onManageCustomTiles={onManageCustomTiles}
+      />
+    );
+    await user.click(screen.getByRole('button', { name: /customTilesLabel/ }));
+    expect(onManageCustomTiles).toHaveBeenCalledTimes(1);
+  });
+
   it('marks an enabled group unavailable when the mode no longer offers it', () => {
     render(
       <Harness
