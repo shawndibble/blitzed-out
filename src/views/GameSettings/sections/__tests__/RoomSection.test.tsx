@@ -52,12 +52,6 @@ describe('RoomSection', () => {
       await user.click(screen.getByRole('switch', { name: 'roomType' }));
       expect(setFormData.mock.calls[0][0].room).toBe('PUBLIC');
     });
-
-    it('locks room background behind a private room in a public room', () => {
-      render(<RoomSection formData={makeFormData({})} setFormData={setFormData} />);
-      expect(screen.getByText('roomBackgroundLocked')).toBeInTheDocument();
-      expect(screen.queryByRole('textbox', { name: 'roomBackground' })).not.toBeInTheDocument();
-    });
   });
 
   describe('with others (online)', () => {
@@ -73,7 +67,6 @@ describe('RoomSection', () => {
       expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /newRoomCode/ })).toBeInTheDocument();
       expect(screen.getByRole('group', { name: 'playerListUpdates' })).toBeInTheDocument();
-      expect(screen.getByRole('textbox', { name: 'roomBackground' })).toBeInTheDocument();
     });
 
     it('New code generates a fresh private room', async () => {
@@ -104,7 +97,6 @@ describe('RoomSection', () => {
       expect(screen.getByText('sharedDeviceRoomHint')).toBeInTheDocument();
       expect(screen.getByTestId('local-players-rows')).toBeInTheDocument();
       expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
-      expect(screen.getByRole('textbox', { name: 'roomBackground' })).toBeInTheDocument();
     });
   });
 });

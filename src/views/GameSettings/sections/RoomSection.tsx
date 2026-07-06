@@ -16,7 +16,6 @@ import { Trans, useTranslation } from 'react-i18next';
 import { SettingGroup, SettingRow } from '../components/SettingRow';
 import LocalPlayersRows from './LocalPlayersRows';
 import { isPublicRoom } from '@/helpers/strings';
-import { isValidURL } from '@/helpers/urls';
 import { Settings } from '@/types/Settings';
 
 const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
@@ -34,7 +33,6 @@ interface RoomSectionProps {
 export default function RoomSection({ formData, setFormData }: RoomSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
-  const [backgroundDraft, setBackgroundDraft] = useState(formData.roomBackgroundURL || '');
 
   const isPublic = isPublicRoom(formData.room);
   const gameMode = formData.gameMode;
@@ -58,13 +56,6 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Clipboard unavailable (permissions/insecure context); the code stays visible to copy manually.
-    }
-  };
-
-  const commitBackgroundURL = (value: string): void => {
-    const url = value.trim();
-    if (url === '' || isValidURL(url)) {
-      setFormData({ ...formData, roomBackgroundURL: url, roomUpdated: true });
     }
   };
 
@@ -151,55 +142,28 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
         </>
       )}
 
-      {(gameMode !== 'solo' || !isPublic) && (
+      {gameMode === 'online' && (
         <SettingGroup>
-          {gameMode === 'online' && (
-            <SettingRow label={t('playerListUpdates')} description={t('playerListUpdatesCaption')}>
-              <ToggleButtonGroup
-                size="small"
-                exclusive
-                value={formData.roomRealtime === false ? 'delayed' : 'realtime'}
-                onChange={(_, value: string | null) => {
-                  if (!value) return;
-                  setFormData({
-                    ...formData,
-                    roomRealtime: value === 'realtime',
-                    roomUpdated: true,
-                  });
-                }}
-                aria-label={t('playerListUpdates')}
-              >
-                <ToggleButton value="realtime">{t('realtime')}</ToggleButton>
-                <ToggleButton value="delayed">{t('delayed')}</ToggleButton>
-              </ToggleButtonGroup>
-            </SettingRow>
-          )}
-          <SettingRow label={t('roomBackground')} description={t('roomBackgroundCaption')}>
-            <TextField
+          <SettingRow label={t('playerListUpdates')} description={t('playerListUpdatesCaption')}>
+            <ToggleButtonGroup
               size="small"
-              value={backgroundDraft}
-              placeholder="https://i.imgur.com/example.gif"
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                setBackgroundDraft(event.target.value)
-              }
-              onBlur={() => commitBackgroundURL(backgroundDraft)}
-              onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault();
-                  commitBackgroundURL(backgroundDraft);
-                }
+              exclusive
+              value={formData.roomRealtime === false ? 'delayed' : 'realtime'}
+              onChange={(_, value: string | null) => {
+                if (!value) return;
+                setFormData({
+                  ...formData,
+                  roomRealtime: value === 'realtime',
+                  roomUpdated: true,
+                });
               }}
-              sx={{ width: { xs: '100%', sm: 260 } }}
-              slotProps={{ htmlInput: { 'aria-label': t('roomBackground') } }}
-            />
+              aria-label={t('playerListUpdates')}
+            >
+              <ToggleButton value="realtime">{t('realtime')}</ToggleButton>
+              <ToggleButton value="delayed">{t('delayed')}</ToggleButton>
+            </ToggleButtonGroup>
           </SettingRow>
         </SettingGroup>
-      )}
-
-      {gameMode === 'solo' && isPublic && (
-        <Typography variant="caption" sx={{ color: 'text.secondary', px: 0.5, opacity: 0.7 }}>
-          {t('roomBackgroundLocked')}
-        </Typography>
       )}
     </Box>
   );

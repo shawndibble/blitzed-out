@@ -859,7 +859,7 @@
   "actionsBannerTogether": "दूसरों के साथ खेल रहे हैं — हर समूह के लिए अपनी भूमिका चुनें ताकि एक्शन सही व्यक्ति पर लागू हों।",
   "actionsBannerSharedDevice": "साझा डिवाइस — यहाँ भूमिका चयन नहीं: हर खिलाड़ी की भूमिका कमरा और खिलाड़ी में खिलाड़ी सेटअप से आती है।",
   "enabledCount_one": "{{count}} चालू",
-  "backgroundUsesRoom": "इस कमरे की साझा पृष्ठभूमि दिखाई जा रही है।",
+  "backgroundUsesRoom": "नीचे सेट की गई साझा कमरे की पृष्ठभूमि दिखाई जा रही है।",
   "editRoomBackground": "कमरा और खिलाड़ी में संपादित करें",
   "addPlayer": "खिलाड़ी जोड़ें",
   "minPlayersHint": "खेल शुरू करने के लिए कम से कम {{count}} खिलाड़ी चाहिए।",
@@ -867,5 +867,6 @@
   "removePlayer": "{{name}} हटाएँ",
   "movePlayerUp": "{{name}} ऊपर करें",
   "movePlayerDown": "{{name}} नीचे करें",
-  "localPlayersSaveError": "खिलाड़ी सहेजे नहीं जा सके — फिर से कोशिश करें।"
+  "localPlayersSaveError": "खिलाड़ी सहेजे नहीं जा सके — फिर से कोशिश करें।",
+  "buildingBoard": "बोर्ड बन रहा है…"
 }

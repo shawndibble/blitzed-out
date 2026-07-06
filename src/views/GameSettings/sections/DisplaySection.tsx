@@ -1,17 +1,18 @@
 import {
   Box,
+  Chip,
   CircularProgress,
-  Link,
   MenuItem,
   Select,
   SelectChangeEvent,
   Switch,
   TextField,
 } from '@mui/material';
-import { ChangeEvent, JSX, useCallback, useRef, useState } from 'react';
+import { ChangeEvent, JSX, KeyboardEvent, useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SettingGroup, SettingRow } from '../components/SettingRow';
+import { SCOPE_COLORS } from '../components/scopeColors';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
 import { languages } from '@/services/i18nHelpers';
@@ -48,6 +49,7 @@ export default function DisplaySection({
   const [, updateSettings] = useSettings();
   const [language, setLanguage] = useState<string>(i18n.resolvedLanguage || 'en');
   const [languageLoading, setLanguageLoading] = useState(false);
+  const [roomBackgroundDraft, setRoomBackgroundDraft] = useState(formData.roomBackgroundURL || '');
 
   const isPrivateRoom = Boolean(formData.room && !isPublicRoom(formData.room));
   const withOthers = formData.gameMode === 'online';
@@ -106,6 +108,15 @@ export default function DisplaySection({
     if (url && isValidURL(url)) debouncedCustomUrlUpdate(url);
   };
 
+  // Shared with the whole room (room scope), co-located here so both
+  // backgrounds are decided in one place.
+  const commitRoomBackgroundURL = (value: string): void => {
+    const url = value.trim();
+    if (url === '' || isValidURL(url)) {
+      setFormData({ ...formData, roomBackgroundURL: url, roomUpdated: true });
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <SettingGroup>
@@ -147,25 +158,7 @@ export default function DisplaySection({
         <SettingRow
           label={t('background')}
           description={
-            background === 'useRoomBackground' ? (
-              <>
-                {t('backgroundUsesRoom')}{' '}
-                <Link
-                  component="button"
-                  type="button"
-                  variant="caption"
-                  onClick={() =>
-                    document
-                      .getElementById('section-room')
-                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                  }
-                >
-                  {t('editRoomBackground')}
-                </Link>
-              </>
-            ) : (
-              t('backgroundCaption')
-            )
+            background === 'useRoomBackground' ? t('backgroundUsesRoom') : t('backgroundCaption')
           }
         >
           <Select
@@ -190,6 +183,46 @@ export default function DisplaySection({
               placeholder="https://example.com/background.gif"
               sx={{ width: { xs: '100%', sm: 280 } }}
               slotProps={{ htmlInput: { 'aria-label': t('url') } }}
+            />
+          </SettingRow>
+        )}
+        {isPrivateRoom && (
+          <SettingRow
+            label={
+              <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                {t('roomBackground')}
+                <Chip
+                  label={t('scopeRoom')}
+                  size="small"
+                  sx={{
+                    color: SCOPE_COLORS.room,
+                    bgcolor: `${SCOPE_COLORS.room}20`,
+                    fontSize: '0.6rem',
+                    height: 18,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                  }}
+                />
+              </Box>
+            }
+            description={t('roomBackgroundCaption')}
+          >
+            <TextField
+              size="small"
+              value={roomBackgroundDraft}
+              placeholder="https://i.imgur.com/example.gif"
+              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+                setRoomBackgroundDraft(event.target.value)
+              }
+              onBlur={() => commitRoomBackgroundURL(roomBackgroundDraft)}
+              onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  commitRoomBackgroundURL(roomBackgroundDraft);
+                }
+              }}
+              sx={{ width: { xs: '100%', sm: 260 } }}
+              slotProps={{ htmlInput: { 'aria-label': t('roomBackground') } }}
             />
           </SettingRow>
         )}

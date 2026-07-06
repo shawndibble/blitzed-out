@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Container,
   IconButton,
   TextField,
@@ -71,7 +72,7 @@ export default function GameSettings(): JSX.Element {
     'section-actions': true,
   });
 
-  const { submit: submitSettings } = useSubmitGameSettings();
+  const { submit: submitSettings, isSubmitting } = useSubmitGameSettings();
 
   // Partnered play draws from the local content set; solo participation from
   // the online set. Passing gameMode directly would hand With Others the solo
@@ -189,8 +190,13 @@ export default function GameSettings(): JSX.Element {
             />
           )}
           <Box sx={{ flex: 1 }} />
-          <Button variant="contained" type="submit">
-            <Trans i18nKey="update" />
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : undefined}
+          >
+            <Trans i18nKey={isSubmitting ? 'buildingBoard' : 'update'} />
           </Button>
         </Box>
         <ModeBar formData={formData} setFormData={setFormData} />
@@ -326,8 +332,15 @@ export default function GameSettings(): JSX.Element {
               <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
                 <Trans i18nKey="customTilesLabel" />
               </Button>
-              <Button variant="contained" type="submit">
-                <Trans i18nKey="update" />
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={isSubmitting}
+                startIcon={
+                  isSubmitting ? <CircularProgress size={16} color="inherit" /> : undefined
+                }
+              >
+                <Trans i18nKey={isSubmitting ? 'buildingBoard' : 'update'} />
               </Button>
             </Box>
           </Box>
