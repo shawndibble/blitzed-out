@@ -8,14 +8,13 @@ import DynamicStepper from './components/DynamicStepper';
 import FinishStep from './FinishStep';
 import { FormData } from '@/types';
 import GameModeStep from './GameModeStep';
-import GameSettings from '@/views/GameSettings';
 import LocalPlayersStep from './LocalPlayersStep';
 import PlayerTopologyStep from './PlayerTopologyStep';
 import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
 import { Trans } from 'react-i18next';
 import { isPublicRoom, usesSoloActions } from '@/helpers/strings';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import { useWizardAnalytics } from '@/hooks/useWizardAnalytics';
@@ -25,6 +24,7 @@ interface GameSettingsWizardProps {
 }
 
 export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
+  const navigate = useNavigate();
   const { id: room } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const joinAtStep = searchParams.get('step') === '2';
@@ -116,10 +116,8 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     setStep(step - (count || 1));
   };
 
-  const goToAdvanced = (): void => setStep(0);
-
-  const goToSetupWizard = (): void => {
-    setStep(1);
+  const goToAdvanced = (): void => {
+    navigate(`/${(formData.room || room || 'PUBLIC').toUpperCase()}/settings`);
   };
 
   const renderStep = (): JSX.Element | null => {
@@ -188,15 +186,6 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
         return null;
     }
   };
-
-  if (step === 0)
-    return (
-      <GameSettings
-        closeDialog={close}
-        onOpenSetupWizard={goToSetupWizard}
-        onCompleted={markCompleted}
-      />
-    );
 
   return (
     <Box>

@@ -18,6 +18,7 @@ const UnauthenticatedApp = lazyWithRetry(() => import('@/views/UnauthenticatedAp
 const Cast = lazyWithRetry(() => import('@/views/Cast'));
 const Room = lazyWithRetry(() => import('@/views/Room'));
 const PackCreator = lazyWithRetry(() => import('@/views/PackCreator'));
+const GameSettings = lazyWithRetry(() => import('@/views/GameSettings'));
 
 // Component to ensure the room ID is always uppercase
 function UppercaseRedirect({ children }: { children: React.ReactNode }) {
@@ -60,6 +61,18 @@ function AppRoutes() {
               <UserListProvider>
                 <MessagesProvider>
                   <Cast />
+                </MessagesProvider>
+              </UserListProvider>
+            </UppercaseRedirect>
+          }
+        />
+        <Route
+          path="/:id/settings"
+          element={
+            <UppercaseRedirect>
+              <UserListProvider>
+                <MessagesProvider>
+                  {auth.user ? <GameSettings /> : <UnauthenticatedApp />}
                 </MessagesProvider>
               </UserListProvider>
             </UppercaseRedirect>

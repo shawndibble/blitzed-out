@@ -1,19 +1,49 @@
 import './styles.css';
 
-import { Alert, Box, Button, Tab, Tabs, TextField, Typography } from '@mui/material';
-import { FocusEvent, FormEvent, JSX, KeyboardEvent, ReactNode, useCallback, useState } from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Container,
+  IconButton,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
+import {
+  FocusEvent,
+  FormEvent,
+  JSX,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { customAlphabet } from 'nanoid';
 import { Trans, useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import AppSettings from './AppSettings';
-import BoardSettings from './BoardSettings';
+import ActionsSection from './sections/ActionsSection';
 import CustomTileDialog from '@/views/CustomTileDialog';
-import GenderSelector from '@/components/GenderSelector';
-import type { PlayerGender } from '@/types/localPlayers';
-import RoomSettings from './RoomSettings';
-import TabPanel from '@/components/TabPanel';
+import DisplaySection from './sections/DisplaySection';
+import JumpNav, { JumpNavEntry } from './components/JumpNav';
+import ModeBar from './components/ModeBar';
+import RoomSection from './sections/RoomSection';
+import SettingsSection from './components/SettingsSection';
+import SizePaceSection from './sections/SizePaceSection';
+import SoundSection from './sections/SoundSection';
 import ToastAlert from '@/components/ToastAlert';
-import { a11yProps } from '@/helpers/strings';
+import { SettingGroup, SettingRow } from './components/SettingRow';
+import type { PlayerGender } from '@/types/localPlayers';
+import { isPublicRoom, usesSoloActions } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
+import useBreakpoint from '@/hooks/useBreakpoint';
 import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import { useSettings } from '@/stores/settingsStore';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
@@ -21,44 +51,93 @@ import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import validateFormData from './validateForm';
 
-interface GameSettingsProps {
-  closeDialog?: () => void;
-  initialTab?: number;
-  onOpenSetupWizard?: () => void;
-  /** Fires after a successful settings submit; lets the wizard mark the funnel
-   * complete so finishing via Advanced Setup isn't logged as an abandonment. */
-  onCompleted?: (groupCount: number) => void;
-}
+const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
-export default function GameSettings({
-  closeDialog,
-  initialTab = 0,
-  onOpenSetupWizard,
-  onCompleted,
-}: GameSettingsProps): JSX.Element {
+const SECTIONS: JumpNavEntry[] = [
+  { id: 'section-room', labelKey: 'sectionRoomPlayers', scope: 'room' },
+  { id: 'section-actions', labelKey: 'sectionActions', scope: 'board' },
+  { id: 'section-size-pace', labelKey: 'sectionSizePace', scope: 'board' },
+  { id: 'section-sound', labelKey: 'sectionSoundVoice', scope: 'me' },
+  { id: 'section-display', labelKey: 'sectionDisplayLanguage', scope: 'me' },
+];
+
+/**
+ * Advanced settings page (route: /:id/settings). One scrollable page, all
+ * settings, grouped by scope (Room — everyone / Game board / Only me). A
+ * sticky header (Update top-right) and global play-style mode bar span the
+ * full width; a jump-rail (desktop) or chip row (mobile) navigates within
+ * the page. Mobile sections collapse so the catalog stays short.
+ */
+export default function GameSettings(): JSX.Element {
+  const { id: roomParam } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
+  const isMobile = useBreakpoint();
 
   const [settings, updateSettings] = useSettings();
-  const [value, setValue] = useState<number>(initialTab);
   const [alert, setAlert] = useState<string | null>(null);
   const [openCustomTile, setOpenCustomTile] = useState<boolean>(false);
+  const [actionsPickerOpen, setActionsPickerOpen] = useState(false);
   const [formData, setFormData] = useSettingsToFormData();
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    'section-actions': true,
+  });
 
-  const { submit: submitSettings } = useSubmitGameSettings();
-  const { isLoading, actionsList } = useUnifiedActionList(formData?.gameMode, true);
+  const { submit: submitSettings, isSubmitting } = useSubmitGameSettings();
+
+  // Partnered play draws from the local content set; solo participation from
+  // the online set. Passing gameMode directly would hand With Others the solo
+  // catalog (the wizard derives content the same way).
+  const contentGameMode = usesSoloActions(formData.gameMode, formData.soloPlay)
+    ? 'online'
+    : 'local';
+  const { isLoading, actionsList } = useUnifiedActionList(contentGameMode, true);
   const { hasLocalPlayers } = useLocalPlayers();
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number): void => {
-    setValue(newValue);
-  };
+  // Mode switches reload the action catalog; only the very first load blanks
+  // the page. Later reloads keep the page up (the picker briefly shows the
+  // previous catalog instead of a loading flash).
+  const hasLoadedOnceRef = useRef(false);
+  useEffect(() => {
+    if (!isLoading) hasLoadedOnceRef.current = true;
+  }, [isLoading]);
+
+  // The URL is the source of truth for the room the user is actually in;
+  // formData.room is only the pending choice until Update. Toggles and mode
+  // switches restore the current private room from the URL — a fresh code is
+  // generated once per visit, and only when coming from the public room.
+  const generatedRoomRef = useRef<string | null>(null);
+  const getPrivateRoom = useCallback((): string => {
+    if (roomParam && !isPublicRoom(roomParam)) return roomParam.toUpperCase();
+    generatedRoomRef.current ??= generateRoomCode();
+    return generatedRoomRef.current;
+  }, [roomParam]);
 
   const boardUpdated = (): void => updateSettings({ ...settings, boardUpdated: true });
+
+  const enabledActionCount = Object.keys(formData.selectedActions || {}).length;
+
+  const returnToRoom = useCallback((): void => {
+    navigate(`/${(formData.room || roomParam || 'PUBLIC').toUpperCase()}`);
+  }, [navigate, formData.room, roomParam]);
+
+  const handleExpandedChange = useCallback((id: string, expanded: boolean): void => {
+    setExpandedSections((previous) => ({ ...previous, [id]: expanded }));
+  }, []);
+
+  const handleNavigate = useCallback((id: string): void => {
+    setExpandedSections((previous) => ({ ...previous, [id]: true }));
+    // Let the accordion expand before measuring the scroll target.
+    requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, []);
 
   const handleSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>): Promise<null> => {
       event.preventDefault();
-      const { displayName, ...gameOptions } = formData; // we don't want to validate the displayName
+      const { displayName, ...gameOptions } = formData;
       void displayName; // Intentionally excluded from validation
 
       const validationMessage = validateFormData(gameOptions, actionsList);
@@ -67,55 +146,34 @@ export default function GameSettings({
         return null;
       }
 
-      await submitSettings(formData, actionsList);
-
-      onCompleted?.(Object.keys(gameOptions.selectedActions || {}).length);
-
-      if (typeof closeDialog === 'function') {
-        closeDialog();
+      try {
+        await submitSettings(formData, actionsList);
+        returnToRoom();
+      } catch {
+        setAlert(t('settingsSaveError'));
       }
-
       return null;
     },
-    [formData, actionsList, t, setAlert, submitSettings, closeDialog, onCompleted]
+    [formData, actionsList, t, setAlert, submitSettings, returnToRoom]
   );
 
-  const handleBlur = useCallback(
+  const handleDisplayNameBlur = useCallback(
     (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        displayName: event.target.value,
-      }));
+      setFormData((prevFormData) => ({ ...prevFormData, displayName: event.target.value }));
     },
     [setFormData]
-  );
-
-  const onEnterKey = useCallback(
-    (event: KeyboardEvent<HTMLInputElement>): void => {
-      if (event.key === 'Enter') {
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          displayName: (event.target as HTMLInputElement).value,
-        }));
-        handleSubmit(event as unknown as FormEvent<HTMLFormElement>);
-      }
-    },
-    [handleSubmit, setFormData]
   );
 
   const handleGenderChange = useCallback(
     (gender: PlayerGender): void => {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        gender,
-      }));
+      setFormData((prevFormData) => ({ ...prevFormData, gender }));
     },
     [setFormData]
   );
 
-  if (!formData.room || isLoading) {
+  if (!formData.room || (isLoading && !hasLoadedOnceRef.current)) {
     return (
-      <Box>
+      <Box sx={{ p: 4 }}>
         <Typography variant="h2">
           <Trans i18nKey="loading" />
           ...
@@ -128,73 +186,200 @@ export default function GameSettings({
   }
 
   return (
-    <Box component="form" method="post" onSubmit={handleSubmit} className="settings-box">
-      {hasLocalPlayers && (
-        <Alert severity="info" sx={{ mt: 2, mb: 2 }}>
-          <Trans i18nKey="localPlayerMode.activeNotice" />
-        </Alert>
-      )}
-
-      {!hasLocalPlayers && (
-        <>
-          <TextField
-            fullWidth
-            id="displayName"
-            label={t('displayName')}
-            defaultValue={user?.displayName || formData.displayName || ''}
-            required
-            autoFocus
-            onBlur={handleBlur}
-            onKeyDown={onEnterKey}
-            margin="normal"
-          />
-
-          <Box sx={{ mt: 2, mb: 2 }}>
-            <GenderSelector
-              selectedGender={formData.gender || 'non-binary'}
-              onGenderChange={handleGenderChange}
+    <Box
+      component="form"
+      method="post"
+      onSubmit={handleSubmit}
+      sx={{ minHeight: '100vh', bgcolor: 'background.default' }}
+    >
+      {/* Sticky header stack: title bar + mode bar (+ chip nav on mobile), full width */}
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          bgcolor: 'background.default',
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: { xs: 1, sm: 2 }, py: 1 }}>
+          <IconButton onClick={returnToRoom} aria-label={t('back', 'Back')}>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h6" component="h1" sx={{ fontWeight: 600 }}>
+            <Trans i18nKey="gameSettingsHeading" />
+          </Typography>
+          {!isPublicRoom(formData.room) && (
+            <Chip
+              label={formData.room}
+              size="small"
+              variant="outlined"
+              sx={{ fontFamily: 'monospace', letterSpacing: '0.08em' }}
             />
-          </Box>
-        </>
-      )}
-
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleTabChange} aria-label={t('gameSettings')} centered>
-          <Tab label={t('gameboard')} {...a11yProps(0)} />
-          <Tab label={t('room')} {...a11yProps(1)} />
-          <Tab label={t('application')} {...a11yProps(2)} />
-        </Tabs>
+          )}
+          <Box sx={{ flex: 1 }} />
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : undefined}
+          >
+            <Trans i18nKey={isSubmitting ? 'buildingBoard' : 'update'} />
+          </Button>
+        </Box>
+        <ModeBar formData={formData} setFormData={setFormData} getPrivateRoom={getPrivateRoom} />
+        {isMobile && <JumpNav entries={SECTIONS} onNavigate={handleNavigate} />}
       </Box>
 
-      <TabPanel value={value} index={0} style={{ p: 0 }}>
-        <BoardSettings formData={formData} setFormData={setFormData} actionsList={actionsList} />
-      </TabPanel>
+      <Container maxWidth="lg" sx={{ pb: 8, pt: 2 }}>
+        {hasLocalPlayers && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <Trans i18nKey="localPlayerMode.activeNotice" />
+          </Alert>
+        )}
 
-      <TabPanel value={value} index={1} style={{ p: 0, pt: 1 }}>
-        <RoomSettings formData={formData} setFormData={setFormData} />
-      </TabPanel>
+        <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
+          {!isMobile && <JumpNav entries={SECTIONS} onNavigate={handleNavigate} railTop={128} />}
 
-      <TabPanel value={value} index={2} style={{ p: 0, pt: 1 }}>
-        <AppSettings formData={formData} setFormData={setFormData} boardUpdated={boardUpdated} />
-      </TabPanel>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            {!hasLocalPlayers && (
+              <Box sx={{ mb: 3 }}>
+                <SettingGroup>
+                  <SettingRow label={t('displayName')}>
+                    <TextField
+                      size="small"
+                      id="displayName"
+                      defaultValue={user?.displayName || formData.displayName || ''}
+                      required
+                      onBlur={handleDisplayNameBlur}
+                      sx={{ width: { xs: '100%', sm: 220 } }}
+                      slotProps={{ htmlInput: { 'aria-label': t('displayName') } }}
+                    />
+                  </SettingRow>
+                  <SettingRow label={t('anatomy', 'Anatomy')} description={t('anatomyCaption')}>
+                    <ToggleButtonGroup
+                      size="small"
+                      exclusive
+                      value={formData.gender || 'non-binary'}
+                      onChange={(_, value: PlayerGender | null) => {
+                        if (value) handleGenderChange(value);
+                      }}
+                      aria-label={t('anatomy', 'Anatomy')}
+                    >
+                      <ToggleButton value="male">{t('localPlayers.gender.male')}</ToggleButton>
+                      <ToggleButton value="female">{t('localPlayers.gender.female')}</ToggleButton>
+                      <ToggleButton value="non-binary">
+                        {t('localPlayers.gender.nonBinary')}
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </SettingRow>
+                </SettingGroup>
+              </Box>
+            )}
 
-      <div className="flex-buttons">
-        <div className="left-buttons">
-          {onOpenSetupWizard && (
-            <Button variant="outlined" type="button" onClick={onOpenSetupWizard}>
-              <Trans i18nKey="setupWizard.title" />
-            </Button>
-          )}
-          {value === 0 && (
-            <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
-              <Trans i18nKey="customTilesLabel" />
-            </Button>
-          )}
-        </div>
-        <Button variant="contained" type="submit">
-          <Trans i18nKey="update" />
-        </Button>
-      </div>
+            <SettingsSection
+              id="section-room"
+              scope="room"
+              title={t('sectionRoomPlayers')}
+              expanded={!!expandedSections['section-room']}
+              onExpandedChange={handleExpandedChange}
+            >
+              <RoomSection
+                formData={formData}
+                setFormData={setFormData}
+                getPrivateRoom={getPrivateRoom}
+              />
+            </SettingsSection>
+
+            <SettingsSection
+              id="section-actions"
+              scope="board"
+              title={t('sectionActions')}
+              summary={t('enabledCount', { count: enabledActionCount })}
+              action={
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setActionsPickerOpen(true)}
+                >
+                  {t('add', 'Add')}
+                </Button>
+              }
+              expanded={!!expandedSections['section-actions']}
+              onExpandedChange={handleExpandedChange}
+            >
+              <ActionsSection
+                formData={formData}
+                setFormData={setFormData}
+                actionsList={actionsList}
+                pickerOpen={actionsPickerOpen}
+                onPickerOpenChange={setActionsPickerOpen}
+              />
+            </SettingsSection>
+
+            <SettingsSection
+              id="section-size-pace"
+              scope="board"
+              title={t('sectionSizePace')}
+              expanded={!!expandedSections['section-size-pace']}
+              onExpandedChange={handleExpandedChange}
+            >
+              <SizePaceSection formData={formData} setFormData={setFormData} />
+            </SettingsSection>
+
+            <SettingsSection
+              id="section-sound"
+              scope="me"
+              title={t('sectionSoundVoice')}
+              expanded={!!expandedSections['section-sound']}
+              onExpandedChange={handleExpandedChange}
+            >
+              <SoundSection formData={formData} setFormData={setFormData} />
+            </SettingsSection>
+
+            <SettingsSection
+              id="section-display"
+              scope="me"
+              title={t('sectionDisplayLanguage')}
+              expanded={!!expandedSections['section-display']}
+              onExpandedChange={handleExpandedChange}
+            >
+              <DisplaySection
+                formData={formData}
+                setFormData={setFormData}
+                boardUpdated={boardUpdated}
+              />
+            </SettingsSection>
+
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 1,
+                mt: 3,
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'space-between',
+              }}
+            >
+              <Button variant="outlined" type="button" onClick={() => setOpenCustomTile(true)}>
+                <Trans i18nKey="customTilesLabel" />
+              </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={isSubmitting}
+                startIcon={
+                  isSubmitting ? <CircularProgress size={16} color="inherit" /> : undefined
+                }
+              >
+                <Trans i18nKey={isSubmitting ? 'buildingBoard' : 'update'} />
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Container>
+
       {openCustomTile && (
         <CustomTileDialog
           open={openCustomTile}
