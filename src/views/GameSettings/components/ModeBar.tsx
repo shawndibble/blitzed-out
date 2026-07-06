@@ -1,15 +1,15 @@
 import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { customAlphabet } from 'nanoid';
 import { isPublicRoom } from '@/helpers/strings';
 import { GameMode, Settings } from '@/types/Settings';
 import { JSX } from 'react';
 
-const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
-
 interface ModeBarProps {
   formData: Settings;
   setFormData: (data: Settings) => void;
+  /** Supplies the room to join when a group mode needs one: the user's last
+   * private room if they have one this visit, else a fresh code. */
+  getPrivateRoom: () => string;
 }
 
 /**
@@ -20,7 +20,11 @@ interface ModeBarProps {
  * mode from a public room generates a private room on the spot — the Room
  * section states the result instead of asking.
  */
-export default function ModeBar({ formData, setFormData }: ModeBarProps): JSX.Element {
+export default function ModeBar({
+  formData,
+  setFormData,
+  getPrivateRoom,
+}: ModeBarProps): JSX.Element {
   const { t } = useTranslation();
 
   const applyMode = (_: unknown, mode: GameMode | null): void => {
@@ -33,7 +37,7 @@ export default function ModeBar({ formData, setFormData }: ModeBarProps): JSX.El
     setFormData({
       ...formData,
       gameMode: mode,
-      ...(needsPrivateRoom && { room: generateRoomCode() }),
+      ...(needsPrivateRoom && { room: getPrivateRoom() }),
       ...(needsParticipationDefault && { soloPlay: false }),
       boardUpdated: true,
     });

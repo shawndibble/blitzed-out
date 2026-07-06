@@ -23,6 +23,9 @@ const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 interface RoomSectionProps {
   formData: Settings;
   setFormData: (data: Settings) => void;
+  /** Last private room this visit (or a fresh code) — toggling back to
+   * private restores it instead of generating a new one. */
+  getPrivateRoom: () => string;
 }
 
 /**
@@ -30,7 +33,11 @@ interface RoomSectionProps {
  * Solo; With Others always plays in a private room (the code card is the
  * control), and Shared Device's room is an implementation detail with no UI.
  */
-export default function RoomSection({ formData, setFormData }: RoomSectionProps): JSX.Element {
+export default function RoomSection({
+  formData,
+  setFormData,
+  getPrivateRoom,
+}: RoomSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
@@ -42,7 +49,7 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
   };
 
   const togglePublicPrivate = (event: ChangeEvent<HTMLInputElement>): void => {
-    setRoom(event.target.checked ? generateRoomCode() : 'PUBLIC');
+    setRoom(event.target.checked ? getPrivateRoom() : 'PUBLIC');
   };
 
   const commitRoomFromInput = (value: string): void => {

@@ -16,6 +16,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 import { FocusEvent, FormEvent, JSX, ReactNode, useCallback, useRef, useState } from 'react';
+import { customAlphabet } from 'nanoid';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -40,6 +41,8 @@ import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import validateFormData from './validateForm';
+
+const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
 const SECTIONS: JumpNavEntry[] = [
   { id: 'section-room', labelKey: 'sectionRoomPlayers', scope: 'room' },
@@ -88,6 +91,17 @@ export default function GameSettings(): JSX.Element {
   // previous catalog instead of a loading flash).
   const hasLoadedOnceRef = useRef(false);
   if (!isLoading) hasLoadedOnceRef.current = true;
+
+  // The URL is the source of truth for the room the user is actually in;
+  // formData.room is only the pending choice until Update. Toggles and mode
+  // switches restore the current private room from the URL — a fresh code is
+  // generated once per visit, and only when coming from the public room.
+  const generatedRoomRef = useRef<string | null>(null);
+  const getPrivateRoom = useCallback((): string => {
+    if (roomParam && !isPublicRoom(roomParam)) return roomParam.toUpperCase();
+    generatedRoomRef.current ??= generateRoomCode();
+    return generatedRoomRef.current;
+  }, [roomParam]);
 
   const boardUpdated = (): void => updateSettings({ ...settings, boardUpdated: true });
 
@@ -199,7 +213,7 @@ export default function GameSettings(): JSX.Element {
             <Trans i18nKey={isSubmitting ? 'buildingBoard' : 'update'} />
           </Button>
         </Box>
-        <ModeBar formData={formData} setFormData={setFormData} />
+        <ModeBar formData={formData} setFormData={setFormData} getPrivateRoom={getPrivateRoom} />
         {isMobile && <JumpNav entries={SECTIONS} onNavigate={handleNavigate} />}
       </Box>
 
@@ -256,7 +270,11 @@ export default function GameSettings(): JSX.Element {
               expanded={!!expandedSections['section-room']}
               onExpandedChange={handleExpandedChange}
             >
-              <RoomSection formData={formData} setFormData={setFormData} />
+              <RoomSection
+                formData={formData}
+                setFormData={setFormData}
+                getPrivateRoom={getPrivateRoom}
+              />
             </SettingsSection>
 
             <SettingsSection

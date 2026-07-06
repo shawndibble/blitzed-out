@@ -25,30 +25,51 @@ const makeFormData = (overrides: Partial<Settings>): Settings =>
 
 describe('RoomSection', () => {
   const setFormData = vi.fn();
+  const getPrivateRoom = vi.fn(() => 'REST0');
   const user = userEvent.setup();
 
   beforeEach(() => {
     setFormData.mockClear();
+    getPrivateRoom.mockClear();
   });
 
   describe('solo mode', () => {
     it('shows the public/private toggle — the only mode where the choice exists', () => {
-      render(<RoomSection formData={makeFormData({})} setFormData={setFormData} />);
+      render(
+        <RoomSection
+          formData={makeFormData({})}
+          setFormData={setFormData}
+          getPrivateRoom={getPrivateRoom}
+        />
+      );
       expect(screen.getByRole('switch', { name: 'roomType' })).toBeInTheDocument();
       expect(screen.queryByTestId('local-players-rows')).not.toBeInTheDocument();
       expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
     });
 
-    it('flipping to private generates a room code', async () => {
-      render(<RoomSection formData={makeFormData({})} setFormData={setFormData} />);
+    it('flipping to private restores or generates via getPrivateRoom', async () => {
+      render(
+        <RoomSection
+          formData={makeFormData({})}
+          setFormData={setFormData}
+          getPrivateRoom={getPrivateRoom}
+        />
+      );
       await user.click(screen.getByRole('switch', { name: 'roomType' }));
 
       const next = setFormData.mock.calls[0][0];
-      expect(next.room).toMatch(/^[1-9A-HJ-NP-Z]{5}$/);
+      expect(next.room).toBe('REST0');
+      expect(getPrivateRoom).toHaveBeenCalledTimes(1);
     });
 
     it('flipping a private room to public sets PUBLIC', async () => {
-      render(<RoomSection formData={makeFormData({ room: 'KHLOE' })} setFormData={setFormData} />);
+      render(
+        <RoomSection
+          formData={makeFormData({ room: 'KHLOE' })}
+          setFormData={setFormData}
+          getPrivateRoom={getPrivateRoom}
+        />
+      );
       await user.click(screen.getByRole('switch', { name: 'roomType' }));
       expect(setFormData.mock.calls[0][0].room).toBe('PUBLIC');
     });
@@ -60,6 +81,7 @@ describe('RoomSection', () => {
         <RoomSection
           formData={makeFormData({ gameMode: 'online', room: 'KHLOE' })}
           setFormData={setFormData}
+          getPrivateRoom={getPrivateRoom}
         />
       );
       expect(screen.queryByRole('switch', { name: 'roomType' })).not.toBeInTheDocument();
@@ -74,6 +96,7 @@ describe('RoomSection', () => {
         <RoomSection
           formData={makeFormData({ gameMode: 'online', room: 'KHLOE' })}
           setFormData={setFormData}
+          getPrivateRoom={getPrivateRoom}
         />
       );
       await user.click(screen.getByRole('button', { name: /newRoomCode/ }));
@@ -90,6 +113,7 @@ describe('RoomSection', () => {
         <RoomSection
           formData={makeFormData({ gameMode: 'local', room: 'KHLOE' })}
           setFormData={setFormData}
+          getPrivateRoom={getPrivateRoom}
         />
       );
       expect(screen.queryByRole('switch', { name: 'roomType' })).not.toBeInTheDocument();
