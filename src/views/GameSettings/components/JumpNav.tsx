@@ -1,4 +1,12 @@
-import { Box, Chip, List, ListItemButton, ListItemText, ListSubheader } from '@mui/material';
+import {
+  Box,
+  Chip,
+  Container,
+  List,
+  ListItemButton,
+  ListItemText,
+  ListSubheader,
+} from '@mui/material';
 import { JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -77,41 +85,34 @@ export default function JumpNav({ entries, onNavigate, railTop = 120 }: JumpNavP
 
   if (isMobile) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 0.75,
-          overflowX: 'auto',
-          py: 1,
-          px: 2,
-          bgcolor: 'background.paper',
-          borderBottom: 1,
-          borderColor: 'divider',
-          scrollbarWidth: 'none',
-        }}
-      >
-        {entries.map(({ id, labelKey, scope }) => (
-          <Chip
-            key={id}
-            label={t(labelKey)}
-            size="small"
-            onClick={() => navigate(id)}
-            variant={activeId === id ? 'filled' : 'outlined'}
-            sx={{ flexShrink: 0 }}
-            icon={
-              <Box
-                component="span"
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  bgcolor: SCOPE_COLORS[scope],
-                  ml: 1,
-                }}
-              />
-            }
-          />
-        ))}
+      <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
+        <Container
+          maxWidth="lg"
+          sx={{ display: 'flex', gap: 0.75, overflowX: 'auto', py: 1, scrollbarWidth: 'none' }}
+        >
+          {entries.map(({ id, labelKey, scope }) => (
+            <Chip
+              key={id}
+              label={t(labelKey)}
+              size="small"
+              onClick={() => navigate(id)}
+              variant={activeId === id ? 'filled' : 'outlined'}
+              sx={{ flexShrink: 0 }}
+              icon={
+                <Box
+                  component="span"
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: SCOPE_COLORS[scope],
+                    ml: 1,
+                  }}
+                />
+              }
+            />
+          ))}
+        </Container>
       </Box>
     );
   }

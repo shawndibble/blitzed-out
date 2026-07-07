@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import { JSX, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -28,6 +29,8 @@ interface ActionsSectionProps {
   /** Picker visibility is lifted so the page header's "+ Add" can open it too. */
   pickerOpen: boolean;
   onPickerOpenChange: (open: boolean) => void;
+  /** Opens the custom-tile manager; the dialog lives on the settings page. */
+  onManageCustomTiles: () => void;
 }
 
 /**
@@ -41,6 +44,7 @@ export default function ActionsSection({
   actionsList,
   pickerOpen,
   onPickerOpenChange,
+  onManageCustomTiles,
 }: ActionsSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [removed, setRemoved] = useState<{ key: string; entry: ActionEntry } | null>(null);
@@ -183,21 +187,31 @@ export default function ActionsSection({
         );
       })}
 
-      <Button
-        fullWidth
-        startIcon={<AddIcon />}
-        onClick={() => onPickerOpenChange(true)}
-        sx={{
-          border: '1px dashed',
-          borderColor: 'primary.main',
-          borderRadius: 2,
-          py: 1.1,
-          opacity: 0.9,
-        }}
-      >
-        {t('addActions')}
-        {catalogRemaining > 0 && ` · ${t('moreAvailable', { count: catalogRemaining })}`}
-      </Button>
+      <Box sx={{ display: 'flex', gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+        <Button
+          startIcon={<AddIcon />}
+          onClick={() => onPickerOpenChange(true)}
+          sx={{
+            flex: 1,
+            border: '1px dashed',
+            borderColor: 'primary.main',
+            borderRadius: 2,
+            py: 1.1,
+            opacity: 0.9,
+          }}
+        >
+          {t('addActions')}
+          {catalogRemaining > 0 && ` · ${t('moreAvailable', { count: catalogRemaining })}`}
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<EditIcon />}
+          onClick={onManageCustomTiles}
+          sx={{ flexShrink: 0 }}
+        >
+          {t('customTilesLabel')}
+        </Button>
+      </Box>
 
       <FinishRangeRow formData={formData} setFormData={setFormData} />
       <WarningAlert formData={formData} />

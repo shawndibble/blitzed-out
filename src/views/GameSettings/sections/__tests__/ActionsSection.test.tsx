@@ -7,11 +7,21 @@ import { useState } from 'react';
 import ActionsSection from '../ActionsSection';
 import type { Settings } from '@/types/Settings';
 
-type HarnessProps = Omit<Parameters<typeof ActionsSection>[0], 'pickerOpen' | 'onPickerOpenChange'>;
+type HarnessProps = Omit<
+  Parameters<typeof ActionsSection>[0],
+  'pickerOpen' | 'onPickerOpenChange' | 'onManageCustomTiles'
+> & { onManageCustomTiles?: () => void };
 
-function Harness(props: HarnessProps) {
+function Harness({ onManageCustomTiles = () => {}, ...props }: HarnessProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
-  return <ActionsSection {...props} pickerOpen={pickerOpen} onPickerOpenChange={setPickerOpen} />;
+  return (
+    <ActionsSection
+      {...props}
+      pickerOpen={pickerOpen}
+      onPickerOpenChange={setPickerOpen}
+      onManageCustomTiles={onManageCustomTiles}
+    />
+  );
 }
 
 vi.mock('react-i18next', () => ({
@@ -159,6 +169,20 @@ describe('ActionsSection (loadout)', () => {
     );
     await user.click(screen.getByRole('button', { name: 'participationSolo' }));
     expect(setFormData.mock.calls[0][0].soloPlay).toBe(true);
+  });
+
+  it('the manage custom actions button invokes onManageCustomTiles', async () => {
+    const onManageCustomTiles = vi.fn();
+    render(
+      <Harness
+        formData={makeFormData({})}
+        setFormData={setFormData}
+        actionsList={ACTIONS_LIST}
+        onManageCustomTiles={onManageCustomTiles}
+      />
+    );
+    await user.click(screen.getByRole('button', { name: /customTilesLabel/ }));
+    expect(onManageCustomTiles).toHaveBeenCalledTimes(1);
   });
 
   it('marks an enabled group unavailable when the mode no longer offers it', () => {

@@ -1,4 +1,4 @@
-import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Box, Container, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { isPublicRoom } from '@/helpers/strings';
 import { GameMode, Settings } from '@/types/Settings';
@@ -44,42 +44,35 @@ export default function ModeBar({
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2,
-        flexWrap: 'wrap',
-        py: 1,
-        px: { xs: 2, sm: 3 },
-        bgcolor: 'background.paper',
-        borderBottom: 1,
-        borderColor: 'divider',
-      }}
-    >
-      <Typography
-        variant="overline"
-        sx={{ color: 'text.secondary', lineHeight: 1, letterSpacing: '0.1em' }}
+    <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
+      <Container
+        maxWidth="lg"
+        sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', py: 1 }}
       >
-        {t('playing')}
-      </Typography>
-      <ToggleButtonGroup
-        value={formData.gameMode}
-        exclusive
-        size="small"
-        onChange={applyMode}
-        aria-label={t('playing')}
-      >
-        <ToggleButton value="solo">{t('solo')}</ToggleButton>
-        <ToggleButton value="online">{t('playStyleWithOthers')}</ToggleButton>
-        <ToggleButton value="local">{t('playStyleSharedDevice')}</ToggleButton>
-      </ToggleButtonGroup>
-      <Typography
-        variant="caption"
-        sx={{ color: 'text.secondary', display: { xs: 'none', md: 'block' } }}
-      >
-        {t('modeBarHint')}
-      </Typography>
+        <Typography
+          variant="overline"
+          sx={{ color: 'text.secondary', lineHeight: 1, letterSpacing: '0.1em' }}
+        >
+          {t('playing')}
+        </Typography>
+        <ToggleButtonGroup
+          value={formData.gameMode}
+          exclusive
+          size="small"
+          onChange={applyMode}
+          aria-label={t('playing')}
+        >
+          <ToggleButton value="solo">{t('solo')}</ToggleButton>
+          <ToggleButton value="online">{t('playStyleWithOthers')}</ToggleButton>
+          <ToggleButton value="local">{t('playStyleSharedDevice')}</ToggleButton>
+        </ToggleButtonGroup>
+        <Typography
+          variant="caption"
+          sx={{ color: 'text.secondary', display: { xs: 'none', md: 'block' } }}
+        >
+          {t('modeBarHint')}
+        </Typography>
+      </Container>
     </Box>
   );
 }
