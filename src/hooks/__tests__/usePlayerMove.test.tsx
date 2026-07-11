@@ -291,7 +291,7 @@ describe('usePlayerMove', () => {
   });
 
   describe('already finished tile', () => {
-    it('should clamp to finish tile when rolling a number >= board length while already finished', async () => {
+    it('should stay on the finish tile when rolling a number >= board length while already finished', async () => {
       mockPlayerLocation.current = 3; // on the finish tile (last index of 4-tile board)
 
       const rollValue: RollValueState = {
@@ -310,9 +310,31 @@ describe('usePlayerMove', () => {
         });
       });
 
-      // Board must not freeze: message still includes a valid in-bounds tile.
       const sentText = mockSendMessage.mock.calls[0][0].text;
-      expect(sentText).toMatch(/#[1-4]:/);
+      expect(sentText).toMatch(/#4:/);
+    });
+
+    it('should stay on the finish tile (not move backward) when rolling a number smaller than lastTile while already finished', async () => {
+      mockPlayerLocation.current = 3; // on the finish tile (last index of 4-tile board)
+
+      const rollValue: RollValueState = {
+        value: 1, // smaller than lastTile (3) - must not be treated as an absolute position
+        time: Date.now(),
+      };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => {
+        expect(mockSendMessage).toHaveBeenCalledWith({
+          room: mockRoomId,
+          user: expect.any(Object),
+          text: expect.stringContaining('Already Finished'),
+          type: 'actions',
+        });
+      });
+
+      const sentText = mockSendMessage.mock.calls[0][0].text;
+      expect(sentText).toMatch(/#4:/);
     });
   });
 

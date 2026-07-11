@@ -36,18 +36,20 @@ interface PlayerMoveResult {
   playerList: Player[];
 }
 
+// Lines look like "Label 42%" (buildGame.ts joins label + percent with a space,
+// not a colon) so pull the trailing non-negative number off each line instead of
+// splitting on ': '.
+const FINISH_LINE_MATCH = /^(.*?)[\s:]+(\d+)$/;
+
 function getFinishResult(textArray: string[]): string {
   // if we have %, we are on the finish tile. Let's get a random result.
-  // Lines look like "Label 42%" (buildGame.ts joins label + percent with a space,
-  // not a colon) so pull the trailing number off each line instead of splitting on ': '.
   const finishValues = textArray
     .filter((n) => n)
     .map((line) => {
-      const match = line.trim().match(/^(.*?)[\s:]+(-?\d+)$/);
+      const match = line.trim().match(FINISH_LINE_MATCH);
       return match ? [match[1], match[2]] : [line.trim(), '0'];
     });
 
-  // process weighted random finish result.
   const weightedArray: number[] = [];
   finishValues.forEach(([, percent], index) => {
     const weight = Number(percent);
@@ -273,11 +275,11 @@ export default function usePlayerMove(
         currentLocation = 0;
       }
 
-      // restart game if we roll and are on the last tile.
+      // already finished: stay on the last tile regardless of roll (use -1 to restart).
       if (currentLocation === lastTile) {
         return {
           preMessage: `${t('alreadyFinished')}\n`,
-          newLocation: Math.min(rollNumber, lastTile),
+          newLocation: lastTile,
         };
       }
 
