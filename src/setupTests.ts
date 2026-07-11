@@ -36,7 +36,13 @@ const originalLog = console.log;
 const originalWarn = console.warn;
 const originalDebug = console.debug;
 
+// Unexpected (non-suppressed) console.error calls from the test currently running.
+// Populated by the console.error override below, checked and cleared in afterEach.
+let unexpectedErrors: any[][] = [];
+
 beforeEach(() => {
+  unexpectedErrors = [];
+
   // Suppress all console.log in tests to reduce noise
   console.log = vi.fn();
 
@@ -68,10 +74,14 @@ beforeEach(() => {
   ];
   console.error = (...args: any[]) => {
     const msg = typeof args[0] === 'string' ? args[0] : '';
+    originalError.call(console, ...args);
     if (SUPPRESSED_ERROR_FRAGMENTS.some((fragment) => msg.includes(fragment))) {
       return;
     }
-    originalError.call(console, ...args);
+    // Tests that expect an error path should assert on it via a local
+    // `vi.spyOn(console, 'error').mockImplementation(...)`, which replaces
+    // this override for the duration of that test.
+    unexpectedErrors.push(args);
   };
 });
 
@@ -578,4 +588,11 @@ afterEach(() => {
 
   // Note: IndexedDB cleanup removed to prevent conflicts during parallel test execution
   // Each test that uses IndexedDB should handle its own cleanup or use mocks
+
+  // Fail the test if it logged an unexpected console.error. Expected-error
+  // paths should assert via a local `vi.spyOn(console, 'error')`.
+  if (unexpectedErrors.length > 0) {
+    const messages = unexpectedErrors.map((args) => args.map(String).join(' ')).join('\n');
+    throw new Error(`Unexpected console.error call(s) during test:\n${messages}`);
+  }
 });

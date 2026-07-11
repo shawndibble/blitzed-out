@@ -71,6 +71,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 describe('CastButton Core Functionality', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRequestSession.mockResolvedValue({});
     window.__castApiInitialized = true;
   });
 

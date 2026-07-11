@@ -215,6 +215,7 @@ describe('contentLibrary', () => {
     });
 
     it('rolls back the tile deletes when the group delete fails mid-transaction', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const id = await addCustomGroup(buildGroup());
       await seedTile(id!);
       await seedTile(id!, { action: 'Another action' });
@@ -229,6 +230,7 @@ describe('contentLibrary', () => {
       } finally {
         db.customGroups.hook('deleting').unsubscribe(boom);
       }
+      expect(errorSpy).toHaveBeenCalled();
 
       expect(await db.customGroups.get(id!)).toBeDefined();
       expect(await db.customTiles.where('group_id').equals(id!).count()).toBe(2);
