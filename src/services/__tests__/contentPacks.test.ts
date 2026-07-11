@@ -218,8 +218,10 @@ describe('contentPacks service', () => {
   });
 
   it('parsePack returns undefined on invalid JSON', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const bad = { contents: 'not json' } as ContentPackDoc;
     expect(parsePack(bad)).toBeUndefined();
+    expect(errorSpy).toHaveBeenCalled();
   });
 
   describe('listMyPacks', () => {
