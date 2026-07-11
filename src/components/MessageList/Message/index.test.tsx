@@ -56,3 +56,39 @@ describe('Message settings import compatibility', () => {
     expect(importLink()).toBeTruthy();
   });
 });
+
+function finishMessage(): MessageType {
+  return {
+    id: 'm2',
+    type: 'actions',
+    uid: 'author-1',
+    displayName: 'Author',
+    text: '#40: finish\naction: cum',
+    timestamp: { toDate: () => new Date(0) } as Timestamp,
+  };
+}
+
+describe('Message finish (game over)', () => {
+  it('shows a play-again button on my own finish message that opens the game-over screen', () => {
+    render(
+      <Message message={finishMessage()} isOwnMessage currentGameBoardSize={40} room="PUBLIC" />
+    );
+
+    const button = screen.getByRole('button', { name: /playAgain/i });
+    fireEvent.click(button);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it("shows no play-again button on another player's finish message", () => {
+    render(
+      <Message
+        message={finishMessage()}
+        isOwnMessage={false}
+        currentGameBoardSize={40}
+        room="PUBLIC"
+      />
+    );
+
+    expect(screen.queryByRole('button', { name: /playAgain/i })).not.toBeInTheDocument();
+  });
+});

@@ -15,7 +15,14 @@ const PopupMessage = (): JSX.Element | null => {
 
   // Keep track of the last valid message for exit animation
   const [lastMessage, setLastMessage] = useState<Message | null>(null);
+  // Ownership captured when the message was displayed, so a later roll by
+  // someone else can't flip what the open card renders.
+  const [lastIsMyMessage, setLastIsMyMessage] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+
+  // The game-over screen requires an explicit choice; while it is showing,
+  // other players' rolls must not replace or close it.
+  const isGameOverShowing = isOpen && lastIsMyMessage && !!lastMessage?.text?.includes(t('finish'));
 
   // Update last message when we get a valid new message
   useEffect(() => {
@@ -23,12 +30,14 @@ const PopupMessage = (): JSX.Element | null => {
       message &&
       typeof message === 'object' &&
       message.text &&
-      !message.text.includes(t('start'))
+      !message.text.includes(t('start')) &&
+      !isGameOverShowing
     ) {
       setLastMessage(message);
+      setLastIsMyMessage(isMyMessage);
       setIsOpen(true);
     }
-  }, [message, t]);
+  }, [message, t, isMyMessage, isGameOverShowing]);
 
   // handle timeout of ActionCard
   const timeoutIdRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -66,7 +75,7 @@ const PopupMessage = (): JSX.Element | null => {
       handleClose={closeActionCard}
       stopAutoClose={stopAutoClose}
       nextPlayer={nextPlayer}
-      isMyMessage={isMyMessage}
+      isMyMessage={lastIsMyMessage}
       isLocalRoom={isLocalRoom}
     />
   );

@@ -25,8 +25,8 @@ vi.mock('@/hooks/useCountdown', () => ({
   }),
 }));
 
-vi.mock('@/components/GameOverDialog', () => ({
-  default: () => null,
+vi.mock('@/components/GameOverScreen', () => ({
+  default: ({ open }: { open: boolean }) => (open ? <div data-testid="game-over-screen" /> : null),
 }));
 
 vi.mock('@/components/CountDownButtonModal', () => ({
@@ -101,5 +101,31 @@ describe('ActionCard', () => {
     };
     render(<ActionCard {...defaultProps} nextPlayer={nextPlayer} />);
     expect(screen.getByText('yourTurn')).toBeInTheDocument();
+  });
+
+  describe('finish tile (game over)', () => {
+    const finishProps = {
+      ...defaultProps,
+      text: '#40: finish\naction: ruined',
+      isMyMessage: true,
+    };
+
+    it('renders the game-over screen instead of the action card', () => {
+      render(<ActionCard {...finishProps} />);
+      expect(screen.getByTestId('game-over-screen')).toBeInTheDocument();
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    });
+
+    it('stops the auto-close timer', () => {
+      const stopAutoClose = vi.fn();
+      render(<ActionCard {...finishProps} stopAutoClose={stopAutoClose} />);
+      expect(stopAutoClose).toHaveBeenCalled();
+    });
+
+    it("shows the normal card for another player's finish", () => {
+      render(<ActionCard {...finishProps} isMyMessage={false} />);
+      expect(screen.queryByTestId('game-over-screen')).not.toBeInTheDocument();
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    });
   });
 });

@@ -40,7 +40,7 @@ export function SettingRow({ label, description, children }: SettingRowProps): J
       }}
     >
       <Box sx={{ minWidth: 0, flex: '1 1 200px' }}>
-        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        <Typography variant="body2" component="div" sx={{ fontWeight: 600 }}>
           {label}
         </Typography>
         {description && (

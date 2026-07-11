@@ -6,13 +6,14 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Trans, useTranslation } from 'react-i18next';
 import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
-import { isPublicRoom } from '@/helpers/strings';
+import { extractAction, isPublicRoom } from '@/helpers/strings';
 import { useCallback, useMemo, useState } from 'react';
 
 import ActionText from './actionText';
 import CopyToClipboard from '@/components/CopyToClipboard';
 import DeleteMessageButton from '@/components/DeleteMessageButton';
-import GameOverDialog from '@/components/GameOverDialog';
+import GameOverScreen from '@/components/GameOverScreen';
+import { resolveFinishOutcome } from '@/helpers/finishOutcome';
 import { Link } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import { Message as MessageType, Base64ImageObject } from '@/types/Message';
@@ -345,7 +346,15 @@ export default function Message({
             <Button onClick={() => setIsOpenDialog(true)} variant="outlined" size="small">
               <Typography>{t('playAgain')}</Typography>
             </Button>
-            <GameOverDialog isOpen={isOpenDialog} close={closeDialog} />
+            <GameOverScreen
+              open={isOpenDialog}
+              outcome={resolveFinishOutcome(extractAction(text), {
+                cum: t('cum'),
+                ruined: t('ruined'),
+                noCum: t('noCum'),
+              })}
+              close={closeDialog}
+            />
           </Box>
         )}
       </div>
