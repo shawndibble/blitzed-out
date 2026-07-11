@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Box, Button, Divider, LinearProgress, Paper, Portal, Typography } from '@mui/material';
+import { Box, Divider, LinearProgress, Paper, Portal, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { extractAction, extractTime } from '@/helpers/strings';
 import CloseIcon from '@/components/CloseIcon';
 import CountDownButtonModal from '@/components/CountDownButtonModal';
-import GameOverDialog from '@/components/GameOverDialog';
+import GameOverScreen from '@/components/GameOverScreen';
+import { resolveFinishOutcome } from '@/helpers/finishOutcome';
 import { Player } from '@/types/player';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import useCountdown from '@/hooks/useCountdown';
@@ -37,7 +38,6 @@ export default function ActionCard({
 }: ActionCardProps): JSX.Element {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
-  const [isGameOverOpen, setIsGameOverOpen] = useState<boolean>(false);
   const [showAutoCloseText, setShowAutoCloseText] = useState<boolean>(true);
   const playCardSound = useCardSound();
 
@@ -47,11 +47,19 @@ export default function ActionCard({
   const { timeLeft, togglePause } = useCountdown(AUTO_CLOSE_SECONDS, false);
   const player = nextPlayer?.displayName;
 
+  const isGameOver = !!isMyMessage && text.includes(t('finish'));
+
   useEffect(() => {
     if (open) {
       playCardSound();
     }
   }, [open, playCardSound]);
+
+  useEffect(() => {
+    if (open && isGameOver) {
+      stopAutoClose();
+    }
+  }, [open, isGameOver, stopAutoClose]);
 
   const preventClose = useCallback(() => {
     togglePause();
@@ -59,16 +67,16 @@ export default function ActionCard({
     setShowAutoCloseText(false);
   }, [togglePause, stopAutoClose]);
 
-  const openGameOver = useCallback(() => {
-    preventClose();
-    setIsGameOverOpen(true);
-  }, [preventClose]);
-
-  const closeGameOver = useCallback(() => {
-    setIsGameOverOpen(false);
-  }, []);
-
   const cardVariants = getCardVariants();
+
+  if (isGameOver) {
+    const outcome = resolveFinishOutcome(description, {
+      cum: t('cum'),
+      ruined: t('ruined'),
+      noCum: t('noCum'),
+    });
+    return <GameOverScreen open={open} outcome={outcome} close={handleClose} />;
+  }
 
   return (
     <>
@@ -238,22 +246,6 @@ export default function ActionCard({
                         </Box>
                       )}
 
-                      {/* Play Again button */}
-                      {!!isMyMessage && text.includes(t('finish')) && (
-                        <Box sx={{ px: 3, pb: 2 }}>
-                          <Divider sx={{ mb: 2 }} />
-                          <Box
-                            sx={{
-                              textAlign: 'center',
-                            }}
-                          >
-                            <Button onClick={openGameOver} variant="contained" color="primary">
-                              <Typography>{t('playAgain')}</Typography>
-                            </Button>
-                          </Box>
-                        </Box>
-                      )}
-
                       {/* Progress bar at bottom */}
                       <Box sx={{ px: 3, pb: 2 }}>
                         <LinearProgress
@@ -277,7 +269,6 @@ export default function ActionCard({
           )}
         </AnimatePresence>
       </Portal>
-      <GameOverDialog isOpen={isGameOverOpen} close={closeGameOver} />
     </>
   );
 }
