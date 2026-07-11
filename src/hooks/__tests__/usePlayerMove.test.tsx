@@ -33,11 +33,13 @@ vi.mock('@/stores/settingsStore', () => ({
 }));
 
 // Mock player list
+const { mockPlayerLocation } = vi.hoisted(() => ({ mockPlayerLocation: { current: 1 } }));
+
 vi.mock('../usePlayerList', () => ({
   default: () => [
     {
       isSelf: true,
-      location: 1,
+      location: mockPlayerLocation.current,
       displayName: 'TestUser',
     },
   ],
@@ -121,6 +123,7 @@ describe('usePlayerMove', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockPlayerLocation.current = 1;
     mockSendMessage.mockResolvedValue({
       id: 'test-message-id',
     } as any);
@@ -252,6 +255,64 @@ describe('usePlayerMove', () => {
           type: 'actions',
         });
       });
+    });
+  });
+
+  describe('landing on finish tile', () => {
+    it('should not crash on the real finish-tile description format (space-separated, no colon)', async () => {
+      mockPlayerLocation.current = 2; // one tile before finish
+
+      const finishBoard: TileExport[] = [
+        { title: 'Start', description: 'Welcome to the game!' },
+        { title: 'Action 1', description: '{player} does something fun.' },
+        { title: 'Action 2', description: '{player} takes a drink.' },
+        {
+          title: 'Finish',
+          description: 'No Orgasm 100%\r\nRuined Orgasm 0%\r\nNormal Orgasm 0%',
+        },
+      ];
+
+      const rollValue: RollValueState = {
+        value: 1, // moves from tile #3 to tile #4 (Finish)
+        time: Date.now(),
+      };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, finishBoard));
+
+      await waitFor(() => {
+        expect(mockSendMessage).toHaveBeenCalledWith({
+          room: mockRoomId,
+          user: expect.any(Object),
+          text: expect.stringContaining('#4: Finish'),
+          type: 'actions',
+        });
+      });
+    });
+  });
+
+  describe('already finished tile', () => {
+    it('should clamp to finish tile when rolling a number >= board length while already finished', async () => {
+      mockPlayerLocation.current = 3; // on the finish tile (last index of 4-tile board)
+
+      const rollValue: RollValueState = {
+        value: 5, // bigger than gameBoard.length (4)
+        time: Date.now(),
+      };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => {
+        expect(mockSendMessage).toHaveBeenCalledWith({
+          room: mockRoomId,
+          user: expect.any(Object),
+          text: expect.stringContaining('Already Finished'),
+          type: 'actions',
+        });
+      });
+
+      // Board must not freeze: message still includes a valid in-bounds tile.
+      const sentText = mockSendMessage.mock.calls[0][0].text;
+      expect(sentText).toMatch(/#[1-4]:/);
     });
   });
 
