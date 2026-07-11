@@ -74,10 +74,10 @@ beforeEach(() => {
   ];
   console.error = (...args: any[]) => {
     const msg = typeof args[0] === 'string' ? args[0] : '';
-    originalError.call(console, ...args);
     if (SUPPRESSED_ERROR_FRAGMENTS.some((fragment) => msg.includes(fragment))) {
       return;
     }
+    originalError.call(console, ...args);
     // Tests that expect an error path should assert on it via a local
     // `vi.spyOn(console, 'error').mockImplementation(...)`, which replaces
     // this override for the duration of that test.
