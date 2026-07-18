@@ -38,7 +38,7 @@ export default function VoiceRows({
   onVoiceChange,
   onPitchChange,
 }: VoiceRowsProps): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { speak } = useTTS();
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -76,7 +76,7 @@ export default function VoiceRows({
           voicesToUse.length > 0 &&
           (!selectedVoice || !voicesToUse.some((voice) => voice.name === selectedVoice))
         ) {
-          const preferredVoice = await tts.getPreferredVoiceAsync();
+          const preferredVoice = await tts.getPreferredVoiceAsync(i18n.language?.split('-')[0]);
           if (!mounted) return;
           const fallback = voicesToUse.some((voice) => voice.name === preferredVoice)
             ? (preferredVoice as string)
@@ -94,7 +94,7 @@ export default function VoiceRows({
     return () => {
       mounted = false;
     };
-  }, [selectedVoice, handleVoiceChange]);
+  }, [selectedVoice, handleVoiceChange, i18n.language]);
 
   const playSample = async (): Promise<void> => {
     const voiceToPlay = selectedVoice || voices[0]?.name;
