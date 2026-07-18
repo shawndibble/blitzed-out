@@ -6,11 +6,14 @@ import { useRef, useState } from 'react';
 interface RollOptionsMenuProps {
   selectedRoll: string;
   handleMenuItemClick: (value: string) => void;
+  /** Hands-Free is Solo + Shared Device only — see CONTEXT.md "Hands-Free". */
+  showHandsFree?: boolean;
 }
 
 const RollOptionsMenu = ({
   selectedRoll,
   handleMenuItemClick,
+  showHandsFree = false,
 }: RollOptionsMenuProps): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -30,13 +33,13 @@ const RollOptionsMenu = ({
   };
 
   const options = new Map<string, string>();
-  options
-    .set('restart', t('restart'))
-    .set('manual', t('manual'))
-    .set('30', t('auto30'))
-    .set('60', t('auto60'))
-    .set('90', t('auto90'))
-    .set('custom', t('setTimer'));
+  options.set('restart', t('restart')).set('manual', t('manual')).set('autoRoll', t('autoRoll'));
+  if (showHandsFree) {
+    options.set('handsFree', t('handsFree'));
+  }
+
+  const isSelected = (key: string): boolean =>
+    key === 'autoRoll' ? ['30', '60', '90', 'custom'].includes(selectedRoll) : key === selectedRoll;
 
   return (
     <>
@@ -52,7 +55,7 @@ const RollOptionsMenu = ({
         <ArrowDropUp />
       </Button>
       <Popper
-        sx={{ zIndex: 1 }}
+        sx={(theme) => ({ zIndex: theme.zIndex.tooltip + 1 })}
         open={open}
         anchorEl={anchorEl}
         transition
@@ -67,7 +70,7 @@ const RollOptionsMenu = ({
                   {Array.from(options).map(([key, option]) => (
                     <MenuItem
                       key={key}
-                      selected={key === selectedRoll}
+                      selected={isSelected(key)}
                       onClick={() => handleMenuItemClick(key)}
                     >
                       {option}

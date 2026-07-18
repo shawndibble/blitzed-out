@@ -1,15 +1,18 @@
-import { Casino } from '@mui/icons-material';
+import { Casino, Pause, PlayArrow } from '@mui/icons-material';
 import { Button, ButtonGroup, Tooltip } from '@mui/material';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { forwardRef, useCallback, useEffect, useState, useRef, useImperativeHandle } from 'react';
 import { useTranslation } from 'react-i18next';
 import './styles.css';
 import useCountdown from '@/hooks/useCountdown';
+import useWakeLock from '@/hooks/useWakeLock';
 import RollOptionsMenu from '../RollOptionsMenu';
-import CustomTimerDialog from '../CustomTimerDialog';
+import HandsFreeDialog from '@/views/Room/HandsFreeDialog';
+import AutoRollDialog from '@/views/Room/AutoRollDialog';
 import OnboardingWrapper from './OnboardingWrapper';
 import { analytics } from '@/services/analytics';
 import DiceRoller from '@/components/DiceRoller';
+import { isHandsFreeAvailable, resolveHandsFreeRange } from '@/helpers/handsFree';
 import { useSettings } from '@/stores/settingsStore';
 import { useDiceAnimationStore } from '@/stores/diceAnimationStore';
 import { vibrate } from '@/utils/haptics';
@@ -66,7 +69,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   ref
 ) {
   const { t } = useTranslation();
-  const [settings] = useSettings();
+  const [settings, updateSettings] = useSettings();
   const isMobile = useBreakpoint();
   const { user } = useAuth();
   const setAnimationSoundPlayed = useDiceAnimationStore((state) => state.setAnimationSoundPlayed);
@@ -74,14 +77,53 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   const [selectedRoll, setSelectedRoll] = useState<string>('manual');
   const [autoTime, setAutoTime] = useState<number>(0);
   const [rollText, setRollText] = useState<string>(t('roll'));
-  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(autoTime);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const handsFreeActive = Boolean(settings.handsFree) && isHandsFreeAvailable(settings.gameMode);
+  // Hands-free waits for the spoken action to finish before the next countdown ticks.
+  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(
+    autoTime,
+    true,
+    undefined,
+    useCallback(
+      () => handsFreeActive && Boolean(window.speechSynthesis?.speaking),
+      [handsFreeActive]
+    )
+  );
+  const [isHandsFreeDialogOpen, setIsHandsFreeDialogOpen] = useState<boolean>(false);
+  const [isAutoRollDialogOpen, setIsAutoRollDialogOpen] = useState<boolean>(false);
   const [timerSettings, setTimerSettings] = useState<TimerSettings>({
     isRange: false,
     min: 30,
     max: 120,
   });
   const [pendingRoll, setPendingRoll] = useState<PendingRoll | null>(null);
+
+  // The screen must not sleep while hands-free is driving the game.
+  useWakeLock(handsFreeActive && !isPaused);
+
+  const isPausedRef = useRef(isPaused);
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
+  const selectedRollRef = useRef(selectedRoll);
+  useEffect(() => {
+    selectedRollRef.current = selectedRoll;
+  }, [selectedRoll]);
+
+  // Sync the transport with the persisted hands-free settings.
+  useEffect(() => {
+    if (handsFreeActive) {
+      const range = resolveHandsFreeRange(settings.handsFreePreset);
+      const initial = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+      setSelectedRoll('handsFree');
+      setTimerSettings({ isRange: true, min: range.min, max: range.max });
+      setAutoTime(initial);
+      setTimeLeft(initial);
+      if (!isPausedRef.current) togglePause();
+    } else if (selectedRollRef.current === 'handsFree') {
+      if (!isPausedRef.current) togglePause();
+      setSelectedRoll('manual');
+    }
+  }, [handsFreeActive, settings.handsFreePreset, setTimeLeft, togglePause]);
 
   const componentMountTimeRef = useRef<number>(0);
   const interactionCountRef = useRef<number>(0);
@@ -178,37 +220,44 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
         return;
       }
 
-      setSelectedRoll(String(key));
-
-      if (key === 'custom') {
-        setIsDialogOpen(true);
+      if (key === 'handsFree') {
+        setIsHandsFreeDialogOpen(true);
         return;
       }
+
+      if (key === 'autoRoll') {
+        setIsAutoRollDialogOpen(true);
+        return;
+      }
+
+      // Picking any manual/timer option is an explicit exit from hands-free.
+      if (settings.handsFree) {
+        updateSettings({ handsFree: false });
+      }
+
+      setSelectedRoll(String(key));
 
       if (isNumeric(key)) {
         if (!isPaused) togglePause();
         const numericKey = Number(key);
         setAutoTime(numericKey);
         setTimeLeft(numericKey);
+        // A fixed cadence overrides any leftover custom/hands-free range.
+        setTimerSettings({ isRange: false, min: numericKey, max: numericKey });
       }
     },
-    [isPaused, setTimeLeft, togglePause, setRollValue]
+    [isPaused, setTimeLeft, togglePause, setRollValue, settings.handsFree, updateSettings]
   );
 
-  const handleDialogClose = (): void => {
-    setIsDialogOpen(false);
-  };
-
-  const handleDialogSubmit = (
-    time: number,
-    settings: Partial<TimerSettings> = { isRange: false }
-  ): void => {
+  const handleAutoRollCustom = (time: number, custom: Partial<TimerSettings>): void => {
+    if (settings.handsFree) {
+      updateSettings({ handsFree: false });
+    }
     if (!isPaused) togglePause();
     setAutoTime(time);
     setTimeLeft(time);
-    setTimerSettings({ ...timerSettings, ...settings });
+    setTimerSettings({ ...timerSettings, ...custom });
     setSelectedRoll('custom');
-    setIsDialogOpen(false);
   };
 
   useEffect(() => {
@@ -281,35 +330,51 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   return (
     <>
       <OnboardingWrapper className="dice-roller">
-        <Tooltip
-          title={t('pressSpacebarToRoll')}
-          placement="top"
-          disableHoverListener={isMobile}
-          disableFocusListener={isMobile}
-          disableTouchListener
-        >
-          <ButtonGroup variant="contained">
+        <ButtonGroup variant="contained">
+          <Tooltip
+            title={t('pressSpacebarToRoll')}
+            placement="top"
+            disableHoverListener={isMobile}
+            disableFocusListener={isMobile}
+            disableTouchListener
+          >
             <Button
-              aria-label={t('roll')}
+              aria-label={handsFreeActive ? (isPaused ? t('play') : t('pause')) : t('roll')}
+              aria-pressed={handsFreeActive ? !isPaused : undefined}
               aria-keyshortcuts="Space"
               onClick={handleClick}
               disabled={isDisabled}
               size="large"
             >
-              <Casino sx={{ mr: 1 }} />
+              {handsFreeActive ? (
+                isPaused ? (
+                  <PlayArrow sx={{ mr: 1 }} />
+                ) : (
+                  <Pause sx={{ mr: 1 }} />
+                )
+              ) : (
+                <Casino sx={{ mr: 1 }} />
+              )}
               {rollText}
             </Button>
-            <RollOptionsMenu
-              selectedRoll={selectedRoll}
-              handleMenuItemClick={handleMenuItemClick}
-            />
-          </ButtonGroup>
-        </Tooltip>
+          </Tooltip>
+          <RollOptionsMenu
+            selectedRoll={selectedRoll}
+            handleMenuItemClick={handleMenuItemClick}
+            showHandsFree={isHandsFreeAvailable(settings.gameMode)}
+          />
+        </ButtonGroup>
       </OnboardingWrapper>
-      <CustomTimerDialog
-        isOpen={isDialogOpen}
-        onClose={handleDialogClose}
-        onSubmit={handleDialogSubmit}
+      <HandsFreeDialog
+        open={isHandsFreeDialogOpen}
+        onClose={() => setIsHandsFreeDialogOpen(false)}
+      />
+      <AutoRollDialog
+        open={isAutoRollDialogOpen}
+        onClose={() => setIsAutoRollDialogOpen(false)}
+        onSelectFixed={(seconds) => handleMenuItemClick(String(seconds))}
+        onSelectCustom={handleAutoRollCustom}
+        selected={isNumeric(selectedRoll) || selectedRoll === 'custom' ? selectedRoll : undefined}
       />
       {pendingRoll && (
         <DiceRoller

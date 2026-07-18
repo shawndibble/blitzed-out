@@ -117,6 +117,19 @@ Action type filtering (`shouldPurgeAction`) and preset selection both use `usesS
 
 ---
 
+## Hands-Free
+
+Hands-free play mode: the game rolls automatically on a user-configured cadence and reads each
+action aloud (text-to-speech). When Hands-Free is enabled, the roll control becomes a play/pause
+transport with a countdown; when disabled, the normal manual roll button shows. Configured from
+the roll menu via a quick-config (enable, preset cadence, voice). "Hands-Free" is the single
+user-facing name for what was previously two independent settings: the read-my-rolls TTS option
+(`readRoll`) and the auto-roll timer. Available in Solo and Shared Device topology; Individual
+Devices (online) keeps the raw settings only. The quick-config is a convenience surface over the
+same global settings — not a separate state.
+
+---
+
 ## Offline vs Temporarily Offline
 
 ### Offline (fully offline)

@@ -1,7 +1,10 @@
 // Simple Text-to-Speech service using browser voices only
+import { languages } from './i18nHelpers';
+
 export interface VoiceOption {
   name: string;
   displayName: string;
+  lang: string;
 }
 
 export class TTSService {
@@ -50,13 +53,31 @@ export class TTSService {
     return browserVoices.map((voice) => ({
       name: voice.name,
       displayName: `${voice.name} (${voice.lang})`,
+      lang: voice.lang,
     }));
   }
 
-  // Get the first available voice (async version)
-  async getPreferredVoiceAsync(): Promise<string | null> {
+  // Best-matching voice for a locale (e.g. i18n's active language), falling
+  // back to the first available voice when there's no hint or no match.
+  async getPreferredVoiceAsync(localeHint?: string): Promise<string | null> {
     const voices = await this.getAvailableVoicesAsync();
-    return voices.length > 0 ? voices[0].name : null;
+    if (voices.length === 0) return null;
+
+    if (localeHint) {
+      const exactName = languages[localeHint]?.voice;
+      const exactMatch = exactName && voices.find((voice) => voice.name === exactName);
+      if (exactMatch) return exactMatch.name;
+
+      const byLang = voices.filter((voice) =>
+        voice.lang.toLowerCase().startsWith(localeHint.toLowerCase())
+      );
+      if (byLang.length > 0) {
+        const google = byLang.find((voice) => voice.name.includes('Google'));
+        return (google ?? byLang[0]).name;
+      }
+    }
+
+    return voices[0].name;
   }
 
   // Speak text with specified voice
