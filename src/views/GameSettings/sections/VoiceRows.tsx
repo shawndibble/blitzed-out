@@ -7,7 +7,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { Dispatch, JSX, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { Dispatch, JSX, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SettingRow } from '../components/SettingRow';
@@ -46,11 +46,17 @@ export default function VoiceRows({
   const selectedVoice = formData.voicePreference || '';
   const selectedPitch = formData.voicePitch ?? 1.0;
 
+  // Tracks whether the current voice was auto-picked (so it can keep following
+  // locale changes) or manually chosen (so it never gets silently overridden).
+  const manuallySelectedRef = useRef<boolean>(Boolean(formData.voicePreference));
+  const lastAutoLocaleRef = useRef<string | undefined>(undefined);
+
   // Functional update keeps this callback stable (no formData dependency) so
   // the voice-loading effect below only re-runs when the selected voice
   // actually changes — not on every unrelated GameSettings edit.
   const handleVoiceChange = useCallback(
-    (voiceName: string): void => {
+    (voiceName: string, isManual: boolean = true): void => {
+      manuallySelectedRef.current = isManual;
       setFormData((prev) => ({ ...prev, voicePreference: voiceName }));
       onVoiceChange(voiceName);
     },
@@ -59,6 +65,7 @@ export default function VoiceRows({
 
   useEffect(() => {
     let mounted = true;
+    const localeHint = i18n.language?.split('-')[0];
 
     const loadVoices = async (): Promise<void> => {
       try {
@@ -72,16 +79,22 @@ export default function VoiceRows({
         const voicesToUse = googleVoices.length > 0 ? googleVoices : availableVoices;
         setVoices(voicesToUse);
 
-        if (
-          voicesToUse.length > 0 &&
-          (!selectedVoice || !voicesToUse.some((voice) => voice.name === selectedVoice))
-        ) {
-          const preferredVoice = await tts.getPreferredVoiceAsync(i18n.language?.split('-')[0]);
+        // Re-run auto-selection when there's no valid voice yet, or when the
+        // locale changed since the last auto-pick — but never override a
+        // voice the user picked manually.
+        const needsAutoSelect =
+          !selectedVoice || !voicesToUse.some((voice) => voice.name === selectedVoice);
+        const shouldFollowLocale =
+          !manuallySelectedRef.current && lastAutoLocaleRef.current !== localeHint;
+
+        if (voicesToUse.length > 0 && (needsAutoSelect || shouldFollowLocale)) {
+          const preferredVoice = await tts.getPreferredVoiceAsync(localeHint);
           if (!mounted) return;
           const fallback = voicesToUse.some((voice) => voice.name === preferredVoice)
             ? (preferredVoice as string)
             : voicesToUse[0].name;
-          handleVoiceChange(fallback);
+          lastAutoLocaleRef.current = localeHint;
+          handleVoiceChange(fallback, false);
         }
       } catch {
         // Voice list unavailable; the rows below render an explanatory message.

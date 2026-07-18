@@ -41,14 +41,15 @@ describe('HandsFreeDialog', () => {
     );
   });
 
-  it('disabling only clears handsFree', () => {
+  it('disabling restores the pre-enable readRoll value', () => {
     mockSettings.handsFree = true;
     mockSettings.handsFreePreset = 'quick';
+    mockSettings.readRoll = false;
     render(<HandsFreeDialog open onClose={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('switch'));
 
-    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false });
+    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false, readRoll: false });
   });
 
   it('keeps an existing preset when re-enabling', () => {

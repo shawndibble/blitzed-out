@@ -101,9 +101,13 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   useWakeLock(handsFreeActive && !isPaused);
 
   const isPausedRef = useRef(isPaused);
-  isPausedRef.current = isPaused;
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
   const selectedRollRef = useRef(selectedRoll);
-  selectedRollRef.current = selectedRoll;
+  useEffect(() => {
+    selectedRollRef.current = selectedRoll;
+  }, [selectedRoll]);
 
   // Sync the transport with the persisted hands-free settings.
   useEffect(() => {
@@ -238,6 +242,8 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
         const numericKey = Number(key);
         setAutoTime(numericKey);
         setTimeLeft(numericKey);
+        // A fixed cadence overrides any leftover custom/hands-free range.
+        setTimerSettings({ isRange: false, min: numericKey, max: numericKey });
       }
     },
     [isPaused, setTimeLeft, togglePause, setRollValue, settings.handsFree, updateSettings]
@@ -333,7 +339,8 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
             disableTouchListener
           >
             <Button
-              aria-label={t('roll')}
+              aria-label={handsFreeActive ? (isPaused ? t('play') : t('pause')) : t('roll')}
+              aria-pressed={handsFreeActive ? !isPaused : undefined}
               aria-keyshortcuts="Space"
               onClick={handleClick}
               disabled={isDisabled}

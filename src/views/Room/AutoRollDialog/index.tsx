@@ -68,12 +68,10 @@ export default function AutoRollDialog({
 
   const getNumberInputSlotProps = (endAdornment?: ReactNode) =>
     ({
-      input: {
-        endAdornment,
-        inputProps: {
-          inputMode: 'numeric' as const,
-          pattern: '[0-9]*' as const,
-        },
+      input: { endAdornment },
+      htmlInput: {
+        inputMode: 'numeric' as const,
+        pattern: '[0-9]*' as const,
       },
     }) as const;
 
@@ -86,41 +84,43 @@ export default function AutoRollDialog({
 
   const handleCustomSubmit = (): void => {
     if (isRangeMode) {
-      let min = Number.parseInt(String(minTime), 10);
-      let max = Number.parseInt(String(maxTime), 10);
+      let min = Number.parseFloat(String(minTime));
+      let max = Number.parseFloat(String(maxTime));
 
-      if (Number.isNaN(min)) {
-        min = isMinutes ? 1 : MIN_SECONDS;
-        setMinTime(min);
-      } else if (!isMinutes && min < MIN_SECONDS) {
-        min = MIN_SECONDS;
-      }
-
-      if (Number.isNaN(max) || max < min) {
-        max = min;
-        setMaxTime(max);
-      } else if (max === 0) {
-        max = 180;
-        setMaxTime(max);
-      }
-
+      // Convert to seconds before clamping so the MIN_SECONDS floor (and the
+      // "max===0 means unset" fallback) apply uniformly regardless of unit.
       if (isMinutes) {
         min *= 60;
         max *= 60;
       }
 
+      if (Number.isNaN(min) || min < MIN_SECONDS) {
+        min = MIN_SECONDS;
+      }
+
+      if (Number.isNaN(max) || max < min) {
+        max = min;
+      } else if (max === 0) {
+        max = 180;
+      }
+
+      min = Math.round(min);
+      max = Math.round(max);
+
       const randomTime = Math.floor(Math.random() * (max - min + 1)) + min;
       onSelectCustom(randomTime, { isRange: true, min, max });
     } else {
-      let time = Number.parseInt(String(customTime), 10);
-      if (Number.isNaN(time)) {
-        time = isMinutes ? 1 : MIN_SECONDS;
-        setCustomTime(time);
-      } else if (isMinutes) {
+      let time = Number.parseFloat(String(customTime));
+
+      if (isMinutes) {
         time *= 60;
-      } else if (time < MIN_SECONDS) {
+      }
+
+      if (Number.isNaN(time) || time < MIN_SECONDS) {
         time = MIN_SECONDS;
       }
+
+      time = Math.round(time);
       onSelectCustom(time, { isRange: false, min: time, max: time });
     }
     onClose();
