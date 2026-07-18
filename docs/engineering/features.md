@@ -29,6 +29,7 @@ A board is an ordered list of tiles with three kinds:
 - **DiceRoller** (`src/components/DiceRoller`) renders 3D physics dice (`@3d-dice/dice-box-threejs`) in a full-screen portal, takes a notation like `1d6`, and fires `onComplete(total)`. `diceAnimationStore` debounces the roll sound so it doesn't double-fire.
 - **Turn order** (`useTurnIndicator`, `TurnIndicator`, `TurnTransition`): active (non-finished) players are sorted by display name into a stable order; the next player is `(currentIndex + 1) % activeCount`. `TurnTransition` shows a brief whose-turn overlay; `TurnIndicator` shows a toast.
 - **Wake lock:** `wakeLockEnabled` setting holds the Screen Wake Lock so the device doesn't sleep mid-game.
+- **Hands-Free** (`src/views/Room/HandsFreeDialog`, `src/helpers/handsFree.ts`): named packaging of `readRoll` TTS + the auto-roll timer. Roll menu → quick-config (enable, cadence presets Quick 30–60s / Standard 1–2m / Extended 2–5m, voice); enabled turns the roll button into a play/pause transport with countdown. Solo + Shared Device only (consent hazard auto-rolling at AFK players online). Countdown holds while TTS speaks; wake lock held while playing. See CONTEXT.md "Hands-Free".
 
 ### Action display & game over
 
