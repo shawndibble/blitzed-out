@@ -3,6 +3,9 @@ import { LocalSessionSettings, PlayerGender } from './localPlayers';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
+/** Cadence presets for Hands-Free play (see CONTEXT.md "Hands-Free"). */
+export type HandsFreePreset = 'quick' | 'standard' | 'extended';
+
 export type AmbientSoundscape = 'lounge' | 'intimate' | 'party';
 
 export interface Settings {
@@ -53,6 +56,10 @@ export interface Settings {
   wakeLockEnabled?: boolean;
   /** True = solo-sexual (solo actions only); false = group play (foreplay/sex actions). Applies to online mode only. */
   soloPlay?: boolean;
+  /** Hands-Free play: auto-roll + spoken actions. Solo and Shared Device only. */
+  handsFree?: boolean;
+  /** Hands-Free roll cadence preset */
+  handsFreePreset?: HandsFreePreset;
   [key: string]: any;
 }
 

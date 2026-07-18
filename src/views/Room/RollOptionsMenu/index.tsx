@@ -6,11 +6,14 @@ import { useRef, useState } from 'react';
 interface RollOptionsMenuProps {
   selectedRoll: string;
   handleMenuItemClick: (value: string) => void;
+  /** Hands-Free is Solo + Shared Device only — see CONTEXT.md "Hands-Free". */
+  showHandsFree?: boolean;
 }
 
 const RollOptionsMenu = ({
   selectedRoll,
   handleMenuItemClick,
+  showHandsFree = false,
 }: RollOptionsMenuProps): JSX.Element => {
   const [open, setOpen] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -37,6 +40,9 @@ const RollOptionsMenu = ({
     .set('60', t('auto60'))
     .set('90', t('auto90'))
     .set('custom', t('setTimer'));
+  if (showHandsFree) {
+    options.set('handsFree', t('handsFree'));
+  }
 
   return (
     <>
