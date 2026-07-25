@@ -173,9 +173,14 @@ describe('getBackgroundSource', () => {
             isVideo: false,
           },
           {
+            // isVideo stays true for .gif specifically: RoomBackground's own
+            // direct-video list includes gif, so this routes to
+            // DirectMediaHandler, which infers 'image' and (crucially) keeps
+            // its onError retry ladder — imgur's own extension guess is
+            // often wrong, and that ladder is the only recovery for it.
             url: 'https://i.imgur.com/def456.gif',
             expectedUrl: 'https://i.imgur.com/def456.gif',
-            isVideo: false,
+            isVideo: true,
           },
           {
             url: 'https://imgur.com/xyz789.webp',

@@ -315,14 +315,22 @@ function isDirectVideoUrl(url: string): boolean {
   return /\.(mp4|webm|ogg|mov)(\?.*)?$/.test(url);
 }
 
-// imgur() can resolve to any extension in its own allow-list (mp4, mov, avi,
-// webm, mkv, flv, wmv, jpg, jpeg, png, gif, webp, bmp, tiff, svg — see the
-// allow-list inside imgur() above), which is wider than isDirectVideoUrl's
-// generic set. isVideo has to be derived from that final resolved extension,
-// not inherited from the switch's isVideo=true default, or every imgur IMAGE
-// (jpg/png/gif/webp/...) gets mis-flagged as a video.
-function isImgurVideoExtension(url: string): boolean {
-  return /\.(mp4|mov|avi|webm|mkv|flv|wmv)(\?.*)?$/i.test(url);
+// isVideo is a ROUTING decision (RoomBackground: DirectMediaHandler+<video> vs
+// plain CSS backgroundImage), not a strict media-type claim — imgur() can
+// resolve to any extension in its own allow-list (mp4, mov, avi, webm, mkv,
+// flv, wmv, jpg, jpeg, png, gif, webp, bmp, tiff, svg — see the allow-list
+// inside imgur() above), wider than isDirectVideoUrl's generic set, and it
+// used to inherit the switch's isVideo=true default unconditionally, so every
+// imgur IMAGE (jpg/png/webp/...) got routed as if it were a video.
+// .gif is deliberately kept true (not merely "actual video" extensions):
+// RoomBackground's own isDirectVideo list includes gif, so isVideo=true
+// routes it to DirectMediaHandler, which both correctly infers 'image' for
+// display AND retains its onError retry ladder (jpg→png→gif→jpeg→webp) —
+// imgur's own extension guess is often wrong, and that ladder is the only
+// error recovery for it. Flipping gif to false would render it as a plain,
+// unrecoverable CSS background instead.
+function imgurRoutesAsVideo(url: string): boolean {
+  return /\.(mp4|mov|avi|webm|mkv|flv|wmv|gif)(\?.*)?$/i.test(url);
 }
 
 function isDiscordMediaUrl(url: string): boolean {
@@ -374,7 +382,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
       break;
     case isValidHost(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
-      isVideo = embedUrl ? isImgurVideoExtension(embedUrl) : false;
+      isVideo = embedUrl ? imgurRoutesAsVideo(embedUrl) : false;
       break;
     case isValidHost(url, ['tenor.com']): {
       const tenorResult = tenor(url);

@@ -127,7 +127,7 @@ A user-supplied URL is normalized to something embeddable. Supported families in
 - **Everything else:** sandboxed `<iframe>` (`allow="autoplay; fullscreen; encrypted-media; picture-in-picture"`, `sandbox="allow-same-origin allow-scripts allow-presentation"`).
 - **Autoplay** is forced muted to satisfy browser policy; a user-interaction overlay appears if autoplay is still blocked (notably on the cast view).
 - **Supported image formats** (DirectMediaHandler): jpg/jpeg, png, webp, gif, bmp, svg, avif, tiff, heic/heif, jfif.
-- **Imgur** URLs resolve to a final URL with a normalized extension (`.gifv` → `.mp4`, etc.); `isVideo` is derived from that final extension (`mp4`/`mov`/`avi`/`webm`/`mkv`/`flv`/`wmv` are video, everything else — including `.gif` — is not), not inherited from a default.
+- **Imgur** URLs resolve to a final URL with a normalized extension (`.gifv` → `.mp4`, etc.); `isVideo` is derived from that final extension, not inherited from a default. `isVideo` here is a **routing** flag, not a strict media-type claim: `mp4`/`mov`/`avi`/`webm`/`mkv`/`flv`/`wmv` are true (genuine video), and `gif` is also kept true so it still routes through `DirectMediaHandler` and keeps its `onError` retry ladder (imgur's own extension guess is often wrong); all other image extensions (`jpg`/`png`/`webp`/...) are false and render as a plain CSS background.
 - All CSS `background-image: url(...)` in this feature (`RoomBackground`, `DirectMediaHandler`) go through `src/helpers/cssUrl.ts`, which strips control characters and escapes quotes.
 
 ### Reddit slideshow — removed (June 2026)

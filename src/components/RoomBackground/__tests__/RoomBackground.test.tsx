@@ -374,6 +374,24 @@ describe('RoomBackground', () => {
       expect(screen.queryByTitle('video')).not.toBeInTheDocument();
       expect(container.querySelector('video')).not.toBeInTheDocument();
     });
+
+    // Unlike other imgur image extensions, .gif is deliberately kept
+    // isVideo=true by getBackgroundSource (see imgurRoutesAsVideo), so it
+    // still reaches DirectMediaHandler and keeps its onError retry ladder.
+    // This pins that routing so a future "just treat gif like every other
+    // image extension" edit shows up here as a failing test.
+    it('routes an imgur .gif with isVideo=true through DirectMediaHandler, not a plain background image', () => {
+      const imgurGifUrl = 'https://i.imgur.com/def456.gif';
+      render(<RoomBackground url={imgurGifUrl} isVideo={true} />);
+
+      const container = screen.getByRole('presentation');
+      const imageBackground = container.querySelector('.image-background');
+      expect(imageBackground).toBeInTheDocument();
+      expect(imageBackground).toHaveStyle(`background-image: url(${imgurGifUrl})`);
+      // The direct CSS backgroundImage path (not DirectMediaHandler) is unused here.
+      expect(container).toHaveStyle('background-image: none');
+      expect(screen.queryByTitle('video')).not.toBeInTheDocument();
+    });
   });
 
   describe('Color/Gray background detection', () => {
@@ -393,6 +411,30 @@ describe('RoomBackground', () => {
       render(<RoomBackground url="https://example.com/image.jpg" isVideo={false} />);
       const container = screen.getByRole('presentation');
       expect(container).not.toHaveClass('default-background');
+    });
+
+    // Regression test for the substring-match bug this component used to have:
+    // url?.includes('/color') / url?.includes('/gray') matched any URL whose
+    // TEXT happened to contain those words, not just the built-in-theme
+    // sentinels — e.g. a real imgur URL ending in "graysky.jpg" was misread as
+    // the "gray" theme and rendered no background image at all. Exact-matching
+    // 'color'/'gray' (now safe because both entry points short-circuit those
+    // sentinels to their literal values before any URL reaches this component)
+    // fixes it.
+    it('renders a real image URL whose text contains the word "gray" as an image, not the default theme', () => {
+      const imgurUrl = 'https://i.imgur.com/graysky.jpg';
+      render(<RoomBackground url={imgurUrl} isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).not.toHaveClass('default-background');
+      expect(container).toHaveStyle(`background-image: url(${imgurUrl})`);
+    });
+
+    it('renders a real image URL whose text contains the word "color" as an image, not the default theme', () => {
+      const imageUrl = 'https://example.com/discolored.png';
+      render(<RoomBackground url={imageUrl} isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).not.toHaveClass('default-background');
+      expect(container).toHaveStyle(`background-image: url(${imageUrl})`);
     });
   });
 
