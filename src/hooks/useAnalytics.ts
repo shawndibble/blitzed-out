@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { analyticsTracking } from '@/services/analyticsTracking';
 import { CustomGroupIntensity } from '@/types/customGroups';
 import { FeatureCategory, InteractionType, GroupType } from '@/types/analytics';
@@ -93,28 +93,4 @@ export const useAnalytics = () => {
     ]
   );
   return api;
-};
-
-/**
- * HOC for automatic component usage tracking
- */
-export const withAnalytics = <P extends object>(
-  Component: React.ComponentType<P>,
-  componentName: string,
-  trackMount: boolean = false
-): React.ComponentType<P> => {
-  const WrappedComponent = (props: P) => {
-    const { trackFeature } = useAnalytics();
-
-    useEffect(() => {
-      if (trackMount) {
-        trackFeature(`component_mount_${componentName}`, 'ui', 'use');
-      }
-    }, [trackFeature]);
-
-    return React.createElement(Component, props);
-  };
-
-  WrappedComponent.displayName = `withAnalytics(${Component.displayName || Component.name || 'Component'})`;
-  return React.memo(WrappedComponent) as React.ComponentType<P>;
 };
