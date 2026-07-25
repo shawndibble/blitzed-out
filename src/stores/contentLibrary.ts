@@ -11,6 +11,7 @@
 import i18next from 'i18next';
 
 import db from './store';
+import { actionUsesRoleTokens } from '@/helpers/actionsFolder';
 import { getCustomGroups, trackGroupDeleted } from './customGroups';
 import { getTilesByGroupIds } from './customTiles';
 import type { ContentGameMode } from '@/types/Settings';
@@ -63,12 +64,18 @@ export const getGroupsWithTiles = async (
  * Tile counts and intensity distributions keyed by group id. Counts ALL tiles
  * — disabled and default (isCustom: 0) rows included — because callers use it
  * to describe the library, not the active game.
+ *
+ * Also reports whether any of the group's tiles reference a {dom}/{sub} role.
+ * This is the only query that already holds every relevant tile's action text,
+ * so the check is free here and impossible anywhere cheaper.
  */
 export const getTileCountsByGroup = async (
   locale = 'en',
   gameMode: ContentGameMode = 'online',
   tags: string[] | string | null = null
-): Promise<Record<string, { count: number; intensities: Record<number, number> }>> => {
+): Promise<
+  Record<string, { count: number; intensities: Record<number, number>; usesRoleTokens?: boolean }>
+> => {
   try {
     await waitForContentReady(locale);
 
@@ -93,16 +100,23 @@ export const getTileCountsByGroup = async (
     }
 
     return relevantTiles.reduce<
-      Record<string, { count: number; intensities: Record<number, number> }>
+      Record<
+        string,
+        { count: number; intensities: Record<number, number>; usesRoleTokens?: boolean }
+      >
     >((groups, tile) => {
       const groupKey = tile.group_id as string;
       if (!groups[groupKey]) {
         groups[groupKey] = {
           count: 0,
           intensities: {},
+          usesRoleTokens: false,
         };
       }
       groups[groupKey].count++;
+      if (!groups[groupKey].usesRoleTokens && actionUsesRoleTokens(tile.action)) {
+        groups[groupKey].usesRoleTokens = true;
+      }
 
       const intensity = Number(tile.intensity);
       if (!groups[groupKey].intensities[intensity]) {

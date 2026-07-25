@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { GroupedActions } from '@/types/customTiles';
-import groupActionsFolder, { groupUsesRoleTokens } from '../actionsFolder';
+import groupActionsFolder, { actionUsesRoleTokens } from '../actionsFolder';
 
 // Mock the translation
 vi.mock('i18next', () => ({
@@ -77,34 +77,32 @@ describe('groupActionsFolder', () => {
   });
 });
 
-describe('groupUsesRoleTokens', () => {
-  const make = (actions?: Record<string, unknown>): GroupedActions[string] => ({
-    label: 'X',
-    actions: actions as GroupedActions[string]['actions'],
-  });
-
+// Replaces the old group-shaped `groupUsesRoleTokens`: it inspected a catalog
+// whose action arrays are always empty by design, so it could never return true
+// and the role picker never appeared. Detection now runs per raw tile action, in
+// the one query that holds the text.
+describe('actionUsesRoleTokens', () => {
   it('detects a bare {dom} or {sub} token', () => {
-    expect(groupUsesRoleTokens(make({ L: ['{dom} spanks {sub}.'] }))).toBe(true);
-    expect(groupUsesRoleTokens(make({ L: ['{sub} kneels.'] }))).toBe(true);
+    expect(actionUsesRoleTokens('{dom} spanks {sub}.')).toBe(true);
+    expect(actionUsesRoleTokens('{sub} kneels.')).toBe(true);
   });
 
   it('detects piped tokens and pipe targets', () => {
-    expect(groupUsesRoleTokens(make({ L: ['Lick {genital|dom}.'] }))).toBe(true);
-    expect(groupUsesRoleTokens(make({ L: ['{dom|self} watches.'] }))).toBe(true);
+    expect(actionUsesRoleTokens('Lick {genital|dom}.')).toBe(true);
+    expect(actionUsesRoleTokens('{dom|self} watches.')).toBe(true);
   });
 
   it('returns false for role-less question groups', () => {
-    expect(groupUsesRoleTokens(make({ L: ['What is your favorite color?'] }))).toBe(false);
-    expect(groupUsesRoleTokens(make({ L: ['Would you rather A or B?'] }))).toBe(false);
+    expect(actionUsesRoleTokens('What is your favorite color?')).toBe(false);
+    expect(actionUsesRoleTokens('Would you rather A or B?')).toBe(false);
   });
 
-  it('returns false when actions are missing or empty', () => {
-    expect(groupUsesRoleTokens(make(undefined))).toBe(false);
-    expect(groupUsesRoleTokens(make({ L: [] }))).toBe(false);
-    expect(groupUsesRoleTokens(undefined)).toBe(false);
+  it('returns false for missing or empty text', () => {
+    expect(actionUsesRoleTokens(undefined)).toBe(false);
+    expect(actionUsesRoleTokens('')).toBe(false);
   });
 
   it('does not match unrelated tokens like {player}', () => {
-    expect(groupUsesRoleTokens(make({ L: ['{player} does a thing.'] }))).toBe(false);
+    expect(actionUsesRoleTokens('{player} does a thing.')).toBe(false);
   });
 });

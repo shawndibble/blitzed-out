@@ -63,6 +63,12 @@ export interface GroupedActions {
       [key: string]: any;
     };
     intensities?: Record<number, string>;
+    /** Any tile in this group names a {dom}/{sub} role, so a role picker applies. */
+    usesRoleTokens?: boolean;
+    /** This group's own wording for the dominant side, e.g. Butt Play's "Top". */
+    dom?: string;
+    /** This group's own wording for the submissive side, e.g. Butt Play's "Bottom". */
+    sub?: string;
   };
 }
 

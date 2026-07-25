@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { SCOPE_COLORS, SettingsScope } from './scopeColors';
 
 const SCOPE_LABEL_KEYS: Record<SettingsScope, string> = {
+  setup: 'scopeSetup',
   room: 'scopeRoom',
   board: 'scopeBoard',
   me: 'scopeMe',
@@ -17,7 +18,7 @@ interface SettingsSectionProps {
   summary?: string;
   /** Optional control rendered on the section header (e.g. an Add button). */
   action?: ReactNode;
-  /** Extra px of scroll-margin, for sections landing under PlayingCard's sticky footprint. */
+  /** Extra px of scroll-margin, for sections landing under a sticky footprint. */
   scrollOffsetExtra?: number;
   children: ReactNode;
 }

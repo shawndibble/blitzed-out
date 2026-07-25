@@ -3,12 +3,21 @@ import { JSX, ReactNode } from 'react';
 
 interface SettingGroupProps {
   children: ReactNode;
+  /**
+   * Accent color for this card's own border, to mark it as load-bearing. Recolors
+   * the existing outline rather than adding a second frame around it — a wrapper
+   * would read as a card inside a card.
+   */
+  accent?: string;
 }
 
 /** A card of related setting rows, divided hairlines between rows. */
-export function SettingGroup({ children }: SettingGroupProps): JSX.Element {
+export function SettingGroup({ children, accent }: SettingGroupProps): JSX.Element {
   return (
-    <Card variant="outlined">
+    <Card
+      variant="outlined"
+      sx={accent ? { borderColor: accent, borderWidth: 2, bgcolor: `${accent}0d` } : undefined}
+    >
       <Stack divider={<Divider />}>{children}</Stack>
     </Card>
   );
@@ -16,17 +25,29 @@ export function SettingGroup({ children }: SettingGroupProps): JSX.Element {
 
 interface SettingRowProps {
   label: ReactNode;
-  /** One-line consequence or clarification under the label. */
+  /**
+   * One line under the label. For a row whose answer changes what happens, pass
+   * a description that changes with the selection: stating the consequence of
+   * the current answer explains the control better than a help popover listing
+   * every option, and it needs no tap to read.
+   */
   description?: ReactNode;
   /** The control, rendered on the right. */
   children?: ReactNode;
+  /** Indents the row to read as a sub-question of the row above it. */
+  nested?: boolean;
 }
 
 /**
  * One setting: label (+ optional description) on the left, control on the
  * right. The uniform row anatomy of the whole settings page.
  */
-export function SettingRow({ label, description, children }: SettingRowProps): JSX.Element {
+export function SettingRow({
+  label,
+  description,
+  children,
+  nested = false,
+}: SettingRowProps): JSX.Element {
   return (
     <Box
       sx={{
@@ -37,6 +58,12 @@ export function SettingRow({ label, description, children }: SettingRowProps): J
         flexWrap: 'wrap',
         px: 2,
         py: 1.5,
+        ...(nested && {
+          pl: 4,
+          borderLeft: 2,
+          borderLeftColor: 'divider',
+          ml: 2,
+        }),
       }}
     >
       <Box sx={{ minWidth: 0, flex: '1 1 200px' }}>

@@ -19,16 +19,26 @@ export const deriveContentMode = (gameMode?: GameMode | string): ContentGameMode
 
 /**
  * ADR-0002: Shared Device (`local`) always plays in an auto-generated private
- * room, so `local` + PUBLIC is an invalid pairing. Repair it by promoting to
- * `online`, matching the long-standing public-room behavior. Applied to staged
+ * room, so `local` + PUBLIC is an invalid pairing. Applied to staged
  * board/wizard form data (useGameBoard, useBoardContentWarnings) where a repair
  * also triggers a board rebuild — NOT on every store write: a transient visit
  * to PUBLIC (e.g. login from the root URL) must not silently rewrite the
  * user's persisted Shared Device topology.
+ *
+ * Repairs to `solo`. PUBLIC is Solo-only, so promoting `local` to `online` (the
+ * original behavior) swapped one invalid pairing for another — and `usePresence`
+ * force-removes a player on disconnect in PUBLIC, which for a group topology
+ * corrupts turn order. `solo` is the only truthful repair: the user is standing
+ * in PUBLIC, which can host neither several players on one device nor a group,
+ * and rewriting the room they are actually in would be the larger surprise.
+ *
+ * Applies to `online` as well as `local`, because `online` + PUBLIC is reachable
+ * on its own: a join link (`/PUBLIC?step=2`) sets `gameMode: 'online'` while the
+ * room stays PUBLIC (GameSettingsWizard `overrideSettings`).
  */
 export function enforceTopologyRoomInvariant<T extends Partial<Settings>>(settings: T): T {
-  if (settings.gameMode === 'local' && isPublicRoom(settings.room)) {
-    return { ...settings, gameMode: 'online' };
+  if (settings.gameMode !== 'solo' && settings.gameMode && isPublicRoom(settings.room)) {
+    return { ...settings, gameMode: 'solo' };
   }
   return settings;
 }

@@ -145,7 +145,11 @@ describe('useGameBoard', () => {
   });
 
   describe('public room handling', () => {
-    it('should switch to online mode for public rooms', async () => {
+    // PUBLIC is Solo-only, so repairing local+PUBLIC to `online` swapped one
+    // invalid pairing for another — and `online` in PUBLIC gets force-removed
+    // on disconnect (usePresence), corrupting a group's turn order. `solo` is
+    // the only valid repair: PUBLIC cannot host several players on one device.
+    it('repairs shared device in a public room to solo, not online', async () => {
       const { result } = renderHook(() => useGameBoard());
 
       const settingsWithOfflineMode = {
@@ -155,8 +159,23 @@ describe('useGameBoard', () => {
       };
       const gameResult = await result.current(settingsWithOfflineMode);
 
-      expect(gameResult.gameMode).toBe('online');
+      expect(gameResult.gameMode).toBe('solo');
       expect(gameResult.settingsBoardUpdated).toBe(true);
+    });
+
+    // Reachable on its own: a join link (/PUBLIC?step=2) sets gameMode 'online'
+    // while the room stays PUBLIC. Left alone, usePresence would force-remove
+    // group players on disconnect and corrupt turn order.
+    it('repairs online in a public room to solo as well', async () => {
+      const { result } = renderHook(() => useGameBoard());
+
+      const gameResult = await result.current({
+        ...mockSettings,
+        gameMode: 'online' as const,
+        room: 'PUBLIC',
+      });
+
+      expect(gameResult.gameMode).toBe('solo');
     });
 
     it('should respect the user roomTileCount in public rooms', async () => {

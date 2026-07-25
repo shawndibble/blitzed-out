@@ -125,6 +125,8 @@ export interface ActionEntry {
   type: GroupType;
   levels?: number[];
   variation?: string;
+  /** Per-group role for partnered play: which side the tiles address. */
+  role?: string;
   [key: string]: unknown;
 }
 

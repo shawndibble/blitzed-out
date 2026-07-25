@@ -1,12 +1,4 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Snackbar,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Snackbar, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { JSX, useMemo, useState } from 'react';
@@ -17,7 +9,6 @@ import AddActionsDialog from './AddActionsDialog';
 import ContentWarning from '../BoardSettings/ContentWarning';
 import FinishRangeRow from './FinishRangeRow';
 import WarningAlert from '../BoardSettings/WarningAlert';
-import { groupUsesRoleTokens } from '@/helpers/actionsFolder';
 import { usesSoloActions } from '@/helpers/strings';
 import { ActionEntry } from '@/types';
 import { Settings } from '@/types/Settings';
@@ -26,9 +17,6 @@ interface ActionsSectionProps {
   formData: Settings;
   setFormData: (data: Settings) => void;
   actionsList: Record<string, any>;
-  /** Picker visibility is lifted so the page header's "+ Add" can open it too. */
-  pickerOpen: boolean;
-  onPickerOpenChange: (open: boolean) => void;
   /** Opens the custom-tile manager; the dialog lives on the settings page. */
   onManageCustomTiles: () => void;
 }
@@ -42,12 +30,11 @@ export default function ActionsSection({
   formData,
   setFormData,
   actionsList,
-  pickerOpen,
-  onPickerOpenChange,
   onManageCustomTiles,
 }: ActionsSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [removed, setRemoved] = useState<{ key: string; entry: ActionEntry } | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const soloActions = usesSoloActions(formData.gameMode, formData.soloPlay);
   const pickableTypes = useMemo(
@@ -125,11 +112,6 @@ export default function ActionsSection({
     setRemoved(null);
   };
 
-  const handleParticipationChange = (_: unknown, value: string | null): void => {
-    if (!value) return;
-    setFormData({ ...formData, soloPlay: value === 'solo', boardUpdated: true });
-  };
-
   const modeBannerKey =
     formData.gameMode === 'local'
       ? 'actionsBannerSharedDevice'
@@ -139,24 +121,10 @@ export default function ActionsSection({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-      {formData.gameMode === 'online' && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {t('participation')}
-          </Typography>
-          <ToggleButtonGroup
-            size="small"
-            exclusive
-            value={soloActions ? 'solo' : 'together'}
-            onChange={handleParticipationChange}
-            aria-label={t('participation')}
-          >
-            <ToggleButton value="together">{t('participationTogether')}</ToggleButton>
-            <ToggleButton value="solo">{t('participationSolo')}</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      )}
-
+      {/* Participation used to be chosen here, three sections below the control
+          that decided whether it applied at all — so it read as appearing out
+          of nowhere. It now lives with the setup questions; this banner is the
+          consequence, stated, not a control. */}
       <Alert severity="info" variant="outlined" sx={{ py: 0.25 }}>
         {t(modeBannerKey)}
       </Alert>
@@ -179,7 +147,7 @@ export default function ActionsSection({
             group={group ?? { label: groupKey }}
             entry={entry}
             unavailable={unavailable}
-            showRole={formData.gameMode === 'online' && !soloActions && groupUsesRoleTokens(group)}
+            showRole={formData.gameMode === 'online' && !soloActions && !!group?.usesRoleTokens}
             onLevelsChange={handleLevelsChange}
             onFieldChange={handleFieldChange}
             onRemove={handleRemove}
@@ -193,7 +161,7 @@ export default function ActionsSection({
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
         <Button
           startIcon={<AddIcon />}
-          onClick={() => onPickerOpenChange(true)}
+          onClick={() => setPickerOpen(true)}
           sx={{
             flex: 1,
             border: '1px dashed',
@@ -220,7 +188,7 @@ export default function ActionsSection({
 
       <AddActionsDialog
         open={pickerOpen}
-        onClose={() => onPickerOpenChange(false)}
+        onClose={() => setPickerOpen(false)}
         availableGroups={availableGroups}
         enabledKeys={enabledKeys}
         onAdd={handleAdd}

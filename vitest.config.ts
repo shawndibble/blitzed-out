@@ -11,7 +11,10 @@ export default mergeConfig(
       environment: 'jsdom',
       setupFiles: ['./src/setupTests.ts'],
       // Rules tests run under their own Node config + emulator, never here.
-      exclude: [...configDefaults.exclude, 'tests/**'],
+      // `.claude/worktrees/**` holds live git worktrees of this same repo; without
+      // excluding it a run from the repo root collects a duplicate copy of every
+      // test file per worktree and reports failures against stale code.
+      exclude: [...configDefaults.exclude, 'tests/**', '**/.claude/worktrees/**'],
       css: true,
       reporters: [
         ['default', { summary: false }], // Replaces deprecated 'basic' reporter

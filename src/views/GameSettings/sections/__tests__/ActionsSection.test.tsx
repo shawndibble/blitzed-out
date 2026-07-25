@@ -2,26 +2,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { useState } from 'react';
-
 import ActionsSection from '../ActionsSection';
 import type { Settings } from '@/types/Settings';
 
-type HarnessProps = Omit<
-  Parameters<typeof ActionsSection>[0],
-  'pickerOpen' | 'onPickerOpenChange' | 'onManageCustomTiles'
-> & { onManageCustomTiles?: () => void };
+// The picker's open state lives inside ActionsSection again, now that the page
+// header no longer has its own duplicate "+ Add" button to open it.
+type HarnessProps = Omit<Parameters<typeof ActionsSection>[0], 'onManageCustomTiles'> & {
+  onManageCustomTiles?: () => void;
+};
 
 function Harness({ onManageCustomTiles = () => {}, ...props }: HarnessProps) {
-  const [pickerOpen, setPickerOpen] = useState(false);
-  return (
-    <ActionsSection
-      {...props}
-      pickerOpen={pickerOpen}
-      onPickerOpenChange={setPickerOpen}
-      onManageCustomTiles={onManageCustomTiles}
-    />
-  );
+  return <ActionsSection {...props} onManageCustomTiles={onManageCustomTiles} />;
 }
 
 vi.mock('react-i18next', () => ({
@@ -42,12 +33,19 @@ vi.mock('../../BoardSettings/ContentWarning', () => ({
 }));
 vi.mock('@/hooks/useBreakpoint', () => ({ default: () => false }));
 
+// Shaped like what useUnifiedActionList really produces: `actions` keyed by
+// intensity label with EMPTY arrays — the catalog never carries tile text.
+// Role-bearing-ness therefore arrives as the `usesRoleTokens` flag, computed
+// where the text does exist (getTileCountsByGroup). Fixtures that inlined action
+// strings made this component look like it could detect roles itself; it can't,
+// and in production it never did.
 const ACTIONS_LIST = {
   alcohol: {
     label: 'Alcohol',
     type: 'consumption',
     intensities: { 1: 'Sip/Drink', 2: 'Shots', 3: 'Chug' },
-    actions: { 'Sip/Drink': ['Take a sip'] },
+    actions: { 'Sip/Drink': [], Shots: [], Chug: [] },
+    usesRoleTokens: false,
   },
   buttPlay: {
     label: 'Butt Play',
@@ -55,19 +53,22 @@ const ACTIONS_LIST = {
     dom: 'Top',
     sub: 'Bottom',
     intensities: { 1: 'Finger(s)/Rimmed', 2: 'Fucking' },
-    actions: { 'Finger(s)/Rimmed': ['{dom} rubs {sub}.'] },
+    actions: { 'Finger(s)/Rimmed': [], Fucking: [] },
+    usesRoleTokens: true,
   },
   kissing: {
     label: 'Kissing',
     type: 'foreplay',
     intensities: { 1: 'Gentle Kisses', 2: 'Deep Kisses' },
-    actions: { 'Gentle Kisses': ['Kiss gently'] },
+    actions: { 'Gentle Kisses': [], 'Deep Kisses': [] },
+    usesRoleTokens: false,
   },
   bating: {
     label: 'Bating',
     type: 'solo',
     intensities: { 1: 'Masturbation', 2: 'Edging' },
-    actions: { Masturbation: ['Stroke'] },
+    actions: { Masturbation: [], Edging: [] },
+    usesRoleTokens: false,
   },
 };
 
@@ -146,7 +147,9 @@ describe('ActionsSection (loadout)', () => {
     expect(next.boardUpdated).toBe(true);
   });
 
-  it('shows a per-group role toggle for role-bearing groups in With Others group play', () => {
+  // Role is a select, matching the consumption variation select — same kind of
+  // per-group qualifier, so the same control.
+  it('shows a per-group role select only for role-bearing groups in With Others', () => {
     render(
       <Harness
         formData={makeFormData({
@@ -159,14 +162,41 @@ describe('ActionsSection (loadout)', () => {
         actionsList={ACTIONS_LIST}
       />
     );
-    // buttPlay's actions use {dom}/{sub} tokens; kissing's don't.
-    expect(screen.getByRole('button', { name: 'Top' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Bottom' })).toBeInTheDocument();
-    const roleGroups = screen.getAllByRole('group', { name: /role/ });
-    expect(roleGroups).toHaveLength(1);
+    // buttPlay carries {dom}/{sub} tokens (usesRoleTokens); kissing doesn't.
+    const roleSelects = screen.getAllByRole('combobox', { name: /role/ });
+    expect(roleSelects).toHaveLength(1);
+    expect(roleSelects[0]).toHaveTextContent('Bottom');
   });
 
-  it('hides role toggles on a shared device — roles come from player setup', () => {
+  it('uses the group’s own role wording when it supplies one', () => {
+    render(
+      <Harness
+        formData={makeFormData({ selectedActions: { buttPlay: { type: 'sex', levels: [1] } } })}
+        setFormData={setFormData}
+        actionsList={ACTIONS_LIST}
+      />
+    );
+    // Butt Play labels its sides Top/Bottom rather than Dominant/Submissive.
+    expect(screen.getByRole('combobox', { name: /role/ })).toHaveTextContent('Bottom');
+  });
+
+  it('writes the chosen role onto the group entry', async () => {
+    render(
+      <Harness
+        formData={makeFormData({ selectedActions: { buttPlay: { type: 'sex', levels: [1] } } })}
+        setFormData={setFormData}
+        actionsList={ACTIONS_LIST}
+      />
+    );
+    await user.click(screen.getByRole('combobox', { name: /role/ }));
+    await user.click(screen.getByRole('option', { name: 'Top' }));
+
+    const next = setFormData.mock.calls[0][0];
+    expect(next.selectedActions.buttPlay.role).toBe('dom');
+    expect(next.boardUpdated).toBe(true);
+  });
+
+  it('hides the role select on a shared device — roles come from player setup', () => {
     render(
       <Harness
         formData={makeFormData({
@@ -177,16 +207,19 @@ describe('ActionsSection (loadout)', () => {
         actionsList={ACTIONS_LIST}
       />
     );
-    expect(screen.queryByRole('button', { name: 'Top' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: /role/ })).not.toBeInTheDocument();
     expect(screen.getByText('actionsBannerSharedDevice')).toBeInTheDocument();
   });
 
-  it('participation toggle appears only in With Others and writes soloPlay', async () => {
+  // Participation is chosen in the setup section now (see SetupSection.test),
+  // not here. This section only states the consequence.
+  it('offers no participation control of its own', () => {
     render(
       <Harness formData={makeFormData({})} setFormData={setFormData} actionsList={ACTIONS_LIST} />
     );
-    await user.click(screen.getByRole('button', { name: 'participationSolo' }));
-    expect(setFormData.mock.calls[0][0].soloPlay).toBe(true);
+    expect(screen.queryByRole('group', { name: 'participation' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'participationSolo' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'participationTogether' })).not.toBeInTheDocument();
   });
 
   it('the manage custom actions button invokes onManageCustomTiles', async () => {

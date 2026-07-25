@@ -30,7 +30,11 @@ interface SoundSectionProps {
 export default function SoundSection({ formData, setFormData }: SoundSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [settings, updateSettings] = useSettings();
-  const withOthers = formData.gameMode === 'online';
+  // Another player's message can only ever arrive from a different auth uid,
+  // and Shared Device players all share one — so `local` is the only mode where
+  // these two provably cannot fire. Gating them on `online` hid them from Solo
+  // in the PUBLIC room, where they are very much live (useSoundAndDialog).
+  const othersCanAppear = formData.gameMode !== 'local';
 
   const boolSwitch = (field: string, defaultValue = false): JSX.Element => (
     <Switch
@@ -70,7 +74,9 @@ export default function SoundSection({ formData, setFormData }: SoundSectionProp
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <SettingGroup>
         <SettingRow label={t('mySound')}>{boolSwitch('mySound')}</SettingRow>
-        {withOthers && <SettingRow label={t('otherSound')}>{boolSwitch('otherSound')}</SettingRow>}
+        {othersCanAppear && (
+          <SettingRow label={t('otherSound')}>{boolSwitch('otherSound')}</SettingRow>
+        )}
         <SettingRow label={t('chatSound')}>{boolSwitch('chatSound')}</SettingRow>
         <SettingRow label={t('hapticFeedback')}>{boolSwitch('hapticFeedback')}</SettingRow>
       </SettingGroup>
