@@ -3,6 +3,7 @@ import { getDatabase } from 'firebase/database';
 import {
   DocumentData,
   DocumentReference,
+  QueryDocumentSnapshot,
   QuerySnapshot,
   Timestamp,
   addDoc,
@@ -36,10 +37,8 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
-import { getDownloadURL, getStorage, ref as storageRef, uploadString } from 'firebase/storage';
-
+import dayjs from 'dayjs';
 import { MessageType } from '@/types/Message';
-import { stripImageMetadata } from '@/services/imageProcessing';
 import { User as UserType } from '@/types';
 import { initializeApp } from 'firebase/app';
 import { sha256 } from 'js-sha256';
@@ -378,7 +377,14 @@ export async function submitCustomAction(grouping: string, customAction: string)
   }
 }
 
-async function getBoardByContent(checksum: string): Promise<DocumentData | null> {
+/** A stored shared board, identified the only way callers ever use it. */
+export interface StoredBoard {
+  id: string;
+}
+
+async function getBoardByContent(
+  checksum: string
+): Promise<QueryDocumentSnapshot<DocumentData> | null> {
   const q = query(collection(db, 'game-boards'), where('checksum', '==', checksum));
   const snapshot = await getDocs(q);
   if (snapshot.size) {
@@ -397,7 +403,7 @@ export async function getOrCreateBoard({
   title,
   gameBoard,
   settings,
-}: BoardData): Promise<DocumentData | undefined> {
+}: BoardData): Promise<StoredBoard | undefined> {
   if (!title) {
     return;
   }
@@ -406,14 +412,18 @@ export async function getOrCreateBoard({
     const checksum = sha256(gameBoard);
     const board = await getBoardByContent(checksum);
     if (board) {
-      // update the ttl for another 30 days.
+      // Content already published — keep it alive another 30 days.
       await updateDoc(board.ref, {
         ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      }); // 30 days
+      });
 
-      return board;
+      return { id: board.id };
     }
-    return await storeBoard({ title, gameBoard, settings, checksum });
+    const created = await storeBoard({ title, gameBoard, settings, checksum });
+    // Both branches now return the same thing. They used to hand back a
+    // QueryDocumentSnapshot and a DocumentReference under one declared type,
+    // which only survived because `.id` happens to exist on both.
+    return created ? { id: created.id } : undefined;
   } catch (error) {
     console.error('Firebase operation failed', error);
   }
@@ -457,7 +467,12 @@ export async function getBoard(id: string): Promise<DocumentData | undefined> {
   }
 }
 
-let lastMessage: Record<string, unknown> = {};
+// Guards against a double submit (double-click, re-fired effect), NOT against a
+// user genuinely repeating themselves — so it expires. It used to be an
+// uncleared module global compared without any timestamp, which silently and
+// permanently dropped every later copy of a message text in a room.
+const DUPLICATE_WINDOW_MS = 3000;
+let lastSend: { fingerprint: string; at: number } | null = null;
 
 const DEFAULT_LIMIT = 50;
 
@@ -490,13 +505,13 @@ export async function sendMessage({
     return;
   }
 
-  const newMessage = { room, user: user.uid, text, type, ...rest };
-  if (JSON.stringify(newMessage) === JSON.stringify(lastMessage)) {
-    return; // Duplicate message detected. Not sending.
-  }
-  lastMessage = newMessage;
-
   const now = Date.now();
+  const fingerprint = JSON.stringify({ room, user: user.uid, text, type, ...rest });
+  if (lastSend?.fingerprint === fingerprint && now - lastSend.at < DUPLICATE_WINDOW_MS) {
+    return; // Same message twice in a moment — a double submit.
+  }
+  lastSend = { fingerprint, at: now };
+
   const roomName = room?.toUpperCase() || 'PUBLIC';
 
   try {
@@ -519,39 +534,6 @@ export async function sendMessage({
 
 export async function deleteMessage(room: string, messageId: string): Promise<void> {
   return deleteDoc(doc(db, 'chat-rooms', room.toUpperCase(), 'messages', messageId));
-}
-
-interface ImageData {
-  base64String: string;
-  format: string;
-}
-
-interface UploadImageData {
-  image: ImageData;
-  room: string | null | undefined;
-  user: UserType;
-}
-
-export async function uploadImage({ image, room, user }: UploadImageData): Promise<void> {
-  const storage = getStorage();
-  const imageUrl = await stripImageMetadata(image.base64String, image.format);
-  const imageLoc = `/images/${Math.random()}.${image.format}`;
-  const imageRef = storageRef(storage, imageLoc);
-
-  try {
-    const uploadResult = await uploadString(imageRef, imageUrl, 'base64');
-    const downloadURL = await getDownloadURL(uploadResult.ref);
-
-    await sendMessage({
-      room,
-      user,
-      text: '',
-      type: 'media',
-      image: downloadURL,
-    });
-  } catch (error) {
-    console.error('Error uploading image', error);
-  }
 }
 
 export function getMessages(
@@ -618,6 +600,17 @@ function executeGetMessages(
   );
 }
 
+/**
+ * `dateTime` is stored as a Firestore Timestamp and consumed as a Dayjs
+ * (`ScheduleItem.dateTime`) — `scheduleStore` calls `isAfter`, the row view
+ * calls `toDate`. Convert here so one representation crosses the boundary.
+ */
+function toScheduleItem(id: string, data: DocumentData): Record<string, unknown> {
+  const { dateTime, ...rest } = data;
+  const asDate = dateTime && typeof dateTime.toDate === 'function' ? dateTime.toDate() : dateTime;
+  return { id, ...rest, dateTime: dayjs(asDate) };
+}
+
 export function getSchedule(
   callback: (schedule: Array<Record<string, unknown>>) => void
 ): () => void {
@@ -635,10 +628,9 @@ export function getSchedule(
   return onSnapshot(
     scheduleQuery,
     (querySnapshot: QuerySnapshot<DocumentData>) => {
-      const schedule = querySnapshot.docs.map((document) => ({
-        id: document.id,
-        ...document.data(),
-      }));
+      const schedule = querySnapshot.docs.map((document) =>
+        toScheduleItem(document.id, document.data())
+      );
       callback(schedule);
     },
     (error) => {
