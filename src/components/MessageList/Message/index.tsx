@@ -199,7 +199,7 @@ export default function Message({
           >
             <InfoOutlinedIcon fontSize="small" />
           </IconButton>
-          <Box sx={{ flex: 1, minWidth: 0, ml: 0.5 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography variant="body2" component="span" sx={{ lineHeight: 1.2 }}>
               <strong>{displayName}</strong> {systemSummary}
             </Typography>
