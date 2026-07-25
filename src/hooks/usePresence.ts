@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { setMyPresence, startPresenceHeartbeat, removeMyPresence } from '@/services/presence';
+import { setMyPresence, startPresenceHeartbeat, removeMyPresence } from '@/services/roomPresence';
 import useAuth from '@/context/hooks/useAuth';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 

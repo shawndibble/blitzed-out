@@ -1,6 +1,10 @@
 /**
  * Characterization tests for the realtime subscription functions in
- * src/services/firebase.ts: getUserList, getMessages, getSchedule.
+ * src/services/firebase.ts: getMessages, getSchedule.
+ *
+ * (getUserList's characterization tests live in
+ * src/services/__tests__/roomPresence.test.ts -- that reader moved to
+ * src/services/roomPresence.ts, the sole owner of the RTDB presence shape.)
  *
  * These pin down the externally observable caller contract (query shape,
  * callback payload shape, unsubscribe behavior) so the internal query-cache /
@@ -17,10 +21,9 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { getMessages, getSchedule, getUserList } from '@/services/firebase';
+import { getMessages, getSchedule } from '@/services/firebase';
 
 const h = vi.hoisted(() => ({
-  onValue: vi.fn(),
   onSnapshot: vi.fn(),
   collection: vi.fn((_db: unknown, ...pathSegments: string[]) => ({ pathSegments })),
   query: vi.fn((...parts: unknown[]) => ({ parts })),
@@ -36,17 +39,6 @@ const h = vi.hoisted(() => ({
     currentUser: null as { uid: string } | null,
     onAuthStateChanged: vi.fn(),
   },
-}));
-
-vi.mock('firebase/database', () => ({
-  getDatabase: vi.fn(() => ({})),
-  ref: vi.fn((_db: unknown, path: string) => ({ path })),
-  push: vi.fn(() => ({ key: 'mock-key' })),
-  set: vi.fn(),
-  remove: vi.fn(),
-  onValue: h.onValue,
-  onChildAdded: vi.fn(),
-  onDisconnect: vi.fn(() => ({ remove: vi.fn(), set: vi.fn() })),
 }));
 
 vi.mock('firebase/firestore', () => ({
@@ -87,13 +79,10 @@ vi.mock('firebase/auth', () => ({
   EmailAuthProvider: { credential: vi.fn() },
 }));
 
-type RtdbSnapshot = { val: () => unknown };
 type FirestoreSnapshot = { docs: Array<{ id: string; data: () => Record<string, unknown> }> };
 
-let rtdbCallback: ((snap: RtdbSnapshot) => void) | undefined;
 let snapshotCallback: ((snap: FirestoreSnapshot) => void) | undefined;
 let authCallback: ((user: { uid: string } | null) => void) | undefined;
-const rtdbUnsubscribe = vi.fn();
 const firestoreUnsubscribe = vi.fn();
 const authUnsubscribe = vi.fn();
 
@@ -105,14 +94,9 @@ async function flush(ms = 500): Promise<void> {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.useFakeTimers();
-  rtdbCallback = undefined;
   snapshotCallback = undefined;
   authCallback = undefined;
   h.auth.currentUser = null;
-  h.onValue.mockImplementation((_ref: unknown, onNext: (snap: RtdbSnapshot) => void) => {
-    rtdbCallback = onNext;
-    return rtdbUnsubscribe;
-  });
   h.onSnapshot.mockImplementation((_query: unknown, onNext: (snap: FirestoreSnapshot) => void) => {
     snapshotCallback = onNext;
     return firestoreUnsubscribe;
@@ -125,96 +109,6 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
-});
-
-describe('getUserList', () => {
-  it('returns a cleanup function that invokes the underlying RTDB unsubscribe', async () => {
-    const cleanup = getUserList('ul-unsub', vi.fn());
-
-    expect(typeof cleanup).toBe('function');
-    await flush();
-    expect(h.onValue).toHaveBeenCalledTimes(1);
-
-    cleanup?.();
-    expect(rtdbUnsubscribe).toHaveBeenCalledTimes(1);
-  });
-
-  it('filters a multi-room snapshot down to the requested room and shapes each user', async () => {
-    const callback = vi.fn();
-    getUserList('ul-filter', callback);
-    await flush();
-
-    rtdbCallback?.({
-      val: () => ({
-        alice: {
-          room: 'UL-FILTER',
-          displayName: 'Alice',
-          isAnonymous: false,
-          lastSeen: 1_000,
-          joinedAt: 500,
-        },
-        bob: { room: 'OTHER-ROOM', displayName: 'Bob', isAnonymous: true },
-      }),
-    });
-
-    expect(callback).toHaveBeenCalledTimes(1);
-    expect(callback).toHaveBeenCalledWith({
-      alice: {
-        displayName: 'Alice',
-        uid: 'alice',
-        lastSeen: new Date(1_000),
-        isAnonymous: false,
-        joinedAt: new Date(500),
-        room: 'UL-FILTER',
-      },
-    });
-  });
-
-  it('invokes the callback with an empty object for a null snapshot', async () => {
-    const callback = vi.fn();
-    getUserList('ul-null', callback);
-    await flush();
-
-    rtdbCallback?.({ val: () => null });
-
-    expect(callback).toHaveBeenCalledWith({});
-  });
-
-  it('suppresses the callback when the user set matches existingData', async () => {
-    const callback = vi.fn();
-    getUserList('ul-same', callback, { alice: {} });
-    await flush();
-
-    rtdbCallback?.({
-      val: () => ({ alice: { room: 'UL-SAME', displayName: 'Alice', isAnonymous: false } }),
-    });
-
-    expect(callback).not.toHaveBeenCalled();
-  });
-
-  it('delivers the callback when the user set differs from existingData', async () => {
-    const callback = vi.fn();
-    getUserList('ul-diff', callback, { bob: {} });
-    await flush();
-
-    rtdbCallback?.({
-      val: () => ({ alice: { room: 'UL-DIFF', displayName: 'Alice', isAnonymous: false } }),
-    });
-
-    expect(callback).toHaveBeenCalledTimes(1);
-  });
-
-  it('returns undefined and never subscribes for a falsy roomId', async () => {
-    const callback = vi.fn();
-
-    expect(getUserList(null, callback)).toBeUndefined();
-    expect(getUserList(undefined, callback)).toBeUndefined();
-    expect(getUserList('', callback)).toBeUndefined();
-
-    await flush();
-    expect(h.onValue).not.toHaveBeenCalled();
-    expect(callback).not.toHaveBeenCalled();
-  });
 });
 
 describe('getMessages', () => {

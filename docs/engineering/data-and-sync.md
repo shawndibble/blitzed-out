@@ -42,8 +42,7 @@ Initialized in `src/services/firebase.ts`.
   - `schedule/{id}` — scheduled sessions (public read, creator-only create/update/delete).
   - `rate-limits/{uid}` — system-only.
 - **Realtime Database** — presence and WebRTC signaling:
-  - `users/{uid}` — presence (`displayName`, `room`, `isAnonymous`, `lastSeen`).
-  - `rooms/{roomId}/uids/{uid}/{connectionId}` — per-room connection list.
+  - `users/{uid}` — presence (`displayName`, `room`, `isAnonymous`, `lastSeen`). Owned end-to-end (write + read) by `src/services/roomPresence.ts`.
   - `video-calls/{roomId}/{users,offers,answers,ice-candidates}` — WebRTC signaling.
 - **Storage** — `/images/{id}.{ext}` for chat photos (auth, ≤5 MB, `image/*`, extension allowlist).
 - **Functions** — cleanup jobs + presence triggers (see [architecture.md](architecture.md#cloud-functions-functions) and [security.md](security.md#cloud-functions)).
