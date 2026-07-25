@@ -167,6 +167,7 @@ describe('getBackgroundSource', () => {
           { url: 'https://imgur.com/abc123.png', expectedUrl: 'https://i.imgur.com/abc123.png' },
           { url: 'https://i.imgur.com/def456.gif', expectedUrl: 'https://i.imgur.com/def456.gif' },
           { url: 'https://imgur.com/xyz789.webp', expectedUrl: 'https://i.imgur.com/xyz789.webp' },
+          { url: 'https://imgur.com/uvw321.mov', expectedUrl: 'https://i.imgur.com/uvw321.mov' },
         ];
 
         testCases.forEach(({ url, expectedUrl }) => {
@@ -198,6 +199,17 @@ describe('getBackgroundSource', () => {
         // Discord image URLs should be handled by the isDiscordMediaUrl case
         expect(result.isVideo).toBe(false); // Discord images are not videos
         expect(result.url).toBe(discordImageUrl); // URL should be returned as-is
+      });
+
+      it('processes Giphy URLs into a direct .gif with isVideo:true as a routing flag', () => {
+        const giphyUrl = 'https://giphy.com/gifs/some-title-abc123XYZ';
+        const result = processBackground(giphyUrl);
+
+        expect(result.url).toBe('https://media.giphy.com/media/abc123XYZ/giphy.gif');
+        // isVideo is always true for Giphy (see giphy()'s comment in
+        // getBackgroundSource.ts) — a routing flag so RoomBackground sends
+        // this to DirectMediaHandler, not a claim that the .gif is a video.
+        expect(result.isVideo).toBe(true);
       });
     });
 

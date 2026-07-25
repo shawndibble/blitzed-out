@@ -80,6 +80,22 @@ describe('RoomBackground', () => {
       const container = screen.getByRole('presentation');
       expect(container).toHaveStyle('background-image: none');
     });
+
+    // Guards the cssUrl(url) hardening added to this component: an unescaped
+    // double quote in the URL would otherwise break out of the CSS url("...")
+    // string. This does not assert an exact serialized string (browsers/jsdom
+    // normalize CSSOM quoting) — it asserts the property is set and the raw
+    // quote character is not present unescaped in the computed style.
+    it('safely renders a background URL containing a double quote', () => {
+      const imageUrl = 'https://example.com/image".jpg';
+      render(<RoomBackground url={imageUrl} isVideo={false} />);
+
+      const container = screen.getByRole('presentation');
+      const computed = getComputedStyle(container).backgroundImage;
+      expect(computed).not.toBe('');
+      expect(computed).not.toBe('none');
+      expect(computed).toContain('example.com');
+    });
   });
 
   describe('Video background rendering', () => {
@@ -343,19 +359,45 @@ describe('RoomBackground', () => {
     });
   });
 
+  describe('imgur isVideo (preexisting quirk, out of scope)', () => {
+    // getBackgroundSource hardcodes isVideo=true for every imgur URL,
+    // including plain images (a preexisting quirk this card does not fix).
+    // Because .jpg isn't a direct-video extension, that mis-flagged pair
+    // routes to the iframe branch rather than a <video> or a CSS
+    // background-image — i.e. an imgur JPEG renders as an iframe. Pinned here
+    // so a future change to this coupling is visible and intentional.
+    it('renders a non-video imgur extension paired with isVideo=true as an iframe', () => {
+      const imgurJpgUrl = 'https://i.imgur.com/graysky.jpg';
+      render(<RoomBackground url={imgurJpgUrl} isVideo={true} />);
+
+      const iframe = screen.getByTitle('video');
+      expect(iframe).toBeInTheDocument();
+      expect(iframe).toHaveAttribute('src', imgurJpgUrl);
+      expect(screen.queryByRole('presentation')?.querySelector('video')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Giphy routing', () => {
+    // giphy() always resolves to a real .gif and getBackgroundSource hardcodes
+    // isVideo:true for it purely as a routing flag (see GIF_ROUTES_TO_DIRECT_
+    // MEDIA_REGEX in DirectMediaHandler, which this component's isDirectVideo
+    // check is derived from). Pins that a Giphy background renders through
+    // DirectMediaHandler as an image, not the generic <iframe> branch — the
+    // exact rendering a future "drop gif from the routing regex" edit would break.
+    it('renders a Giphy .gif with isVideo=true through DirectMediaHandler as an image, not an iframe', () => {
+      const giphyUrl = 'https://media.giphy.com/media/abc123XYZ/giphy.gif';
+      render(<RoomBackground url={giphyUrl} isVideo={true} />);
+
+      const container = screen.getByRole('presentation');
+      const imageBackground = container.querySelector('.image-background');
+      expect(imageBackground).toBeInTheDocument();
+      expect(imageBackground).toHaveStyle(`background-image: url(${giphyUrl})`);
+      expect(container).toHaveStyle('background-image: none');
+      expect(screen.queryByTitle('video')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Color/Gray background detection', () => {
-    it('shows default background for color URLs', () => {
-      render(<RoomBackground url="/images/color" isVideo={false} />);
-      const container = screen.getByRole('presentation');
-      expect(container).toHaveClass('default-background');
-    });
-
-    it('shows default background for gray URLs', () => {
-      render(<RoomBackground url="/images/gray" isVideo={false} />);
-      const container = screen.getByRole('presentation');
-      expect(container).toHaveClass('default-background');
-    });
-
     it('shows default background for simple "color" string', () => {
       render(<RoomBackground url="color" isVideo={false} />);
       const container = screen.getByRole('presentation');
@@ -372,6 +414,35 @@ describe('RoomBackground', () => {
       render(<RoomBackground url="https://example.com/image.jpg" isVideo={false} />);
       const container = screen.getByRole('presentation');
       expect(container).not.toHaveClass('default-background');
+    });
+
+    // Regression test for the substring-match bug this component used to have:
+    // url?.includes('/color') / url?.includes('/gray') matched any URL whose
+    // TEXT happened to contain those words, not just the built-in-theme
+    // sentinels — e.g. a real imgur URL ending in "graysky.jpg" was misread as
+    // the "gray" theme and rendered no background image at all. Exact-matching
+    // 'color'/'gray' (now safe because both entry points short-circuit those
+    // sentinels to their literal values before any URL reaches this component)
+    // fixes it.
+    it('renders a real image URL whose text contains the word "gray" as an image, not the default theme', () => {
+      const imgurUrl = 'https://i.imgur.com/graysky.jpg';
+      render(<RoomBackground url={imgurUrl} isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).not.toHaveClass('default-background');
+      expect(container).toHaveStyle(`background-image: url(${imgurUrl})`);
+    });
+
+    // NOTE: the old substring check was url?.includes('/color') (leading
+    // slash required), so a filename like "discolored.png" never actually
+    // matched it — "/discolored.png" has no "/color" substring. This URL's
+    // path ("/colorful-sunset.png") does start with "/color", so it genuinely
+    // reproduces the bug: reverting the exact-match fix turns this test red.
+    it('renders a real image URL whose text contains the word "color" as an image, not the default theme', () => {
+      const imageUrl = 'https://example.com/colorful-sunset.png';
+      render(<RoomBackground url={imageUrl} isVideo={false} />);
+      const container = screen.getByRole('presentation');
+      expect(container).not.toHaveClass('default-background');
+      expect(container).toHaveStyle(`background-image: url(${imageUrl})`);
     });
   });
 

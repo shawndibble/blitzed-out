@@ -104,6 +104,14 @@ function tenor(url: string): { url: string; isVideo: boolean } {
   };
 }
 
+// giphy() always resolves to a real .gif URL (see return below), so unlike
+// imgur's isVideo (derived from a resolved extension that varies), giphy's
+// isVideo:true in the switch below is a single, honest, always-gif case: it
+// exists purely to ROUTE the URL to RoomBackground's DirectMediaHandler
+// branch instead of a generic <iframe> (see GIF_ROUTES_TO_DIRECT_MEDIA_REGEX
+// in DirectMediaHandler, which RoomBackground's routing check is derived
+// from) — DirectMediaHandler then correctly infers 'image' for a .gif and
+// renders it as a CSS background, not a <video>.
 function giphy(url: string): string {
   const giphyRegex = /giphy\.com\/gifs\/[^/]*-([a-zA-Z0-9]+)/;
   const match = url.match(giphyRegex);
@@ -373,6 +381,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
     }
     case isValidHost(url, ['giphy.com']):
       embedUrl = giphy(url);
+      // Routing flag, not a media-type claim — see the comment on giphy() above.
       isVideo = true;
       break;
     case isValidHost(url, ['tumblr.com', 'media.tumblr.com']) ||

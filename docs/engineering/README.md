@@ -44,7 +44,7 @@ These are the questions a user is likely to grill you on. Short answers here; de
 
 **Yes, two ways.**
 
-1. **By URL** — paste any image/video URL as a room or app background (`RoomBackgroundInput`, `BackgroundSelect`).
+1. **By URL** — paste any image/video URL as a room or app background (`DisplaySection`, `BackgroundSelect`).
 2. **By upload** — attach a photo to a chat message. On mobile this uses the device camera/library via Capacitor Camera; the image is uploaded to **Firebase Storage** (`/images/{id}.{ext}`, 5 MB max, images only) and shared in the room. → [features.md → Media](features.md#media-backgrounds-images-video)
 
 ### How can I customize the app?

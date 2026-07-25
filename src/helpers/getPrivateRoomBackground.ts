@@ -40,12 +40,20 @@ export default function getPrivateRoomBackground(messages: Message[]): Backgroun
       backgroundInput = roomBackgroundURL;
     }
 
+    // Built-in theme sentinels never carry real media and must not reach
+    // processBackground: its default case runs them through getURLPath,
+    // which would turn 'color' into the real (404) path '/images/color'.
+    // Short-circuiting here — before any URL processing — is also what
+    // keeps this check an exact match instead of a substring test that
+    // would blank real URLs containing the words "color"/"gray".
+    if (backgroundInput === 'color' || backgroundInput === 'gray') {
+      return { isVideo: false, url: '' };
+    }
+
     const backgroundSource = processBackground(backgroundInput);
     isVideo = !!backgroundSource.isVideo;
     if (backgroundSource.url) url = backgroundSource.url;
   }
-
-  if (['color', 'gray'].some((color) => url.includes(color))) url = '';
 
   return { isVideo, url };
 }
