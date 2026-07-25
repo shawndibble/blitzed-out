@@ -11,8 +11,14 @@ import { ScheduleProvider } from '@/context/schedule';
 import darkTheme from '@/theme';
 import { vi } from 'vitest';
 
-// Mock the Firebase services and context providers
-vi.mock('@/services/firebase');
+// Mock the Firebase services and context providers. One concern per mock: the
+// old single `@/services/firebase` mock also stubbed syncService.
+vi.mock('@/services/firebase/app');
+vi.mock('@/services/firebase/auth');
+vi.mock('@/services/firebase/chat');
+vi.mock('@/services/firebase/boards');
+vi.mock('@/services/firebase/schedule');
+vi.mock('@/services/firebase/customActions');
 vi.mock('@/services/syncService');
 
 // Create a custom render function that includes providers

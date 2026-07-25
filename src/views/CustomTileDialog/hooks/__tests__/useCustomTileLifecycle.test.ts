@@ -46,7 +46,7 @@ vi.mock('@/stores/customTiles', () => ({
   addCustomTile: (...args: unknown[]) => addCustomTile(args[0]),
   updateCustomTile: (...args: unknown[]) => updateCustomTile(args[0], args[1]),
 }));
-vi.mock('@/services/firebase', () => ({
+vi.mock('@/services/firebase/customActions', () => ({
   submitCustomAction: (...args: unknown[]) => submitCustomAction(args[0], args[1]),
 }));
 vi.mock('@/services/validationService', () => ({

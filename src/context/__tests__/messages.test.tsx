@@ -1,4 +1,4 @@
-import * as firebaseService from '@/services/firebase';
+import * as firebaseService from '@/services/firebase/chat';
 
 import { Message, MessageType } from '@/types/Message';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -13,7 +13,7 @@ import useMessages from '../hooks/useMessages';
 import { useMessagesStore } from '@/stores/messagesStore';
 
 // Mock the firebase service
-vi.mock('@/services/firebase', () => ({
+vi.mock('@/services/firebase/chat', () => ({
   getMessages: vi.fn(),
 }));
 

@@ -7,7 +7,9 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { addSchedule, getOrCreateBoard, getSchedule, sendMessage } from '@/services/firebase';
+import { getOrCreateBoard } from '@/services/firebase/boards';
+import { sendMessage } from '@/services/firebase/chat';
+import { addSchedule, getSchedule } from '@/services/firebase/schedule';
 import type { User } from '@/types';
 
 const h = vi.hoisted(() => ({

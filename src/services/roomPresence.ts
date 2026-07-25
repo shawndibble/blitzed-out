@@ -1,4 +1,4 @@
-import { getRealtimeDb } from '@/services/firebase';
+import { getRealtimeDb } from '@/services/firebase/app';
 import { DataSnapshot, get, onDisconnect, onValue, ref, remove, set } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 

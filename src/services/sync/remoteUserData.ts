@@ -9,7 +9,7 @@
  * in the app's own vocabulary and reads/writes the snapshot once per cycle.
  */
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/services/firebase';
+import { db } from '@/services/firebase/app';
 import { getTiles } from '@/stores/customTiles';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getAllDisabledRecords } from '@/stores/disabledDefaults';

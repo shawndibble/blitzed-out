@@ -8,7 +8,7 @@
  */
 import { doc, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { db } from './firebase';
+import { db } from '@/services/firebase/app';
 import { beginSyncApply, endSyncApply } from './syncMiddleware';
 import { collectLocalUserData, writeRemoteUserData } from './sync/remoteUserData';
 import { cleanupDuplicateTiles, clearUserCustomGroups } from './sync/localCleanup';

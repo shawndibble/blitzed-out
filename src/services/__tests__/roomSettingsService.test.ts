@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { sendRoomSettingsMessage } from '@/services/roomSettingsService';
-import { sendMessage } from '@/services/firebase';
+import { sendMessage } from '@/services/firebase/chat';
 import type { Settings } from '@/types/Settings';
 import type { User } from '@/types';
 
-vi.mock('@/services/firebase', () => ({
+vi.mock('@/services/firebase/chat', () => ({
   sendMessage: vi.fn().mockResolvedValue(undefined),
 }));
 

@@ -1,4 +1,4 @@
-import * as firebaseService from '@/services/firebase';
+import * as firebaseService from '@/services/firebase/chat';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -9,7 +9,7 @@ import usePlayerMove from '../usePlayerMove';
 import { makeTurnFields } from '@/__tests__/fixtures/turnFields.fixtures';
 
 // Mock Firebase service
-vi.mock('@/services/firebase', () => ({
+vi.mock('@/services/firebase/chat', () => ({
   sendMessage: vi.fn(),
 }));
 

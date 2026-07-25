@@ -3,16 +3,16 @@
  * This removes Firebase from the critical path for better initial page load performance
  */
 
-let firebasePromise: Promise<typeof import('@/services/firebase')> | null = null;
+let firebasePromise: Promise<typeof import('@/services/firebase/auth')> | null = null;
 let firebaseLoaded = false;
 
 /**
  * Retry dynamic import with exponential backoff
  */
-const importWithRetry = async (retries = 3): Promise<typeof import('@/services/firebase')> => {
+const importWithRetry = async (retries = 3): Promise<typeof import('@/services/firebase/auth')> => {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      return await import('@/services/firebase');
+      return await import('@/services/firebase/auth');
     } catch (error) {
       if (attempt === retries) throw error;
 

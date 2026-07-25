@@ -105,7 +105,7 @@ describe('Firebase Authentication Service', () => {
         resetPassword,
         convertAnonymousAccount,
         logout,
-      } = await import('../firebase');
+      } = await import('../firebase/auth');
 
       // Test that all functions are available
       expect(typeof loginAnonymously).toBe('function');
@@ -119,7 +119,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should call Firebase auth functions with correct parameters', async () => {
-      const { loginAnonymously } = await import('../firebase');
+      const { loginAnonymously } = await import('../firebase/auth');
       const { getAuth, signInAnonymously, updateProfile } = await import('firebase/auth');
 
       // Setup mocks
@@ -139,7 +139,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle anonymous login without display name', async () => {
-      const { loginAnonymously } = await import('../firebase');
+      const { loginAnonymously } = await import('../firebase/auth');
       const { signInAnonymously, updateProfile } = await import('firebase/auth');
 
       // @ts-expect-error Mock assignment to readonly property for testing
@@ -154,7 +154,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle email registration', async () => {
-      const { registerWithEmail } = await import('../firebase');
+      const { registerWithEmail } = await import('../firebase/auth');
 
       mockCreateUserWithEmailAndPassword.mockResolvedValue({ user: mockUser });
       mockUpdateProfile.mockResolvedValue(undefined);
@@ -171,7 +171,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle email login', async () => {
-      const { loginWithEmail } = await import('../firebase');
+      const { loginWithEmail } = await import('../firebase/auth');
 
       mockSignInWithEmailAndPassword.mockResolvedValue({ user: mockUser });
 
@@ -186,7 +186,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle Google login', async () => {
-      const { loginWithGoogle } = await import('../firebase');
+      const { loginWithGoogle } = await import('../firebase/auth');
 
       mockSignInWithPopup.mockResolvedValue({ user: mockUser });
 
@@ -198,7 +198,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle password reset', async () => {
-      const { resetPassword } = await import('../firebase');
+      const { resetPassword } = await import('../firebase/auth');
 
       mockSendPasswordResetEmail.mockResolvedValue(undefined);
 
@@ -209,7 +209,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle account conversion', async () => {
-      const { convertAnonymousAccount } = await import('../firebase');
+      const { convertAnonymousAccount } = await import('../firebase/auth');
 
       // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockAnonymousUser;
@@ -228,7 +228,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle display name update', async () => {
-      const { updateDisplayName } = await import('../firebase');
+      const { updateDisplayName } = await import('../firebase/auth');
 
       const updatedUser = { ...mockUser, displayName: 'Updated Name' };
       // @ts-expect-error Mock assignment to readonly property for testing
@@ -242,7 +242,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle logout', async () => {
-      const { logout } = await import('../firebase');
+      const { logout } = await import('../firebase/auth');
 
       mockSignOut.mockResolvedValue(undefined);
 
@@ -253,7 +253,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      const { loginAnonymously } = await import('../firebase');
+      const { loginAnonymously } = await import('../firebase/auth');
       const { AuthError } = await import('@/types/errors');
 
       mockSignInAnonymously.mockRejectedValue(new Error('Sign in failed'));
@@ -263,7 +263,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should return null when no current user exists for updateDisplayName', async () => {
-      const { updateDisplayName } = await import('../firebase');
+      const { updateDisplayName } = await import('../firebase/auth');
 
       mockAuth.currentUser = null;
 
@@ -274,7 +274,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should throw error when converting non-anonymous account', async () => {
-      const { convertAnonymousAccount } = await import('../firebase');
+      const { convertAnonymousAccount } = await import('../firebase/auth');
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       // @ts-expect-error Mock assignment to readonly property for testing
@@ -288,7 +288,7 @@ describe('Firebase Authentication Service', () => {
     });
 
     it('should throw error when converting account without logged in user', async () => {
-      const { convertAnonymousAccount } = await import('../firebase');
+      const { convertAnonymousAccount } = await import('../firebase/auth');
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockAuth.currentUser = null;

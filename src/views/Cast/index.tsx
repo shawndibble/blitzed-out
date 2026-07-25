@@ -12,7 +12,7 @@ import ToastAlert from '@/components/ToastAlert';
 import { Trans } from 'react-i18next';
 import { getAuth } from 'firebase/auth';
 import { latestMessageByType } from '@/helpers/messages';
-import { loginAnonymously } from '@/services/firebase';
+import { loginAnonymously } from '@/services/firebase/auth';
 import { t } from 'i18next';
 import useFullscreenStatus from '@/hooks/useFullscreenStatus';
 import useMessages from '@/context/hooks/useMessages';

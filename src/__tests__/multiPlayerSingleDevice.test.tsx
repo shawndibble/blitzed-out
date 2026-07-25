@@ -33,7 +33,7 @@ vi.mock('@/stores/userListStore', () => ({
 }));
 
 // Mock firebase
-vi.mock('@/services/firebase', () => ({
+vi.mock('@/services/firebase/chat', () => ({
   sendMessage: vi.fn(),
   getMessages: vi.fn(() => vi.fn()),
 }));

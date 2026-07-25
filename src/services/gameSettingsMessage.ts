@@ -1,5 +1,6 @@
 import { DocumentData, DocumentReference } from 'firebase/firestore';
-import { getOrCreateBoard, sendMessage } from './firebase';
+import { getOrCreateBoard } from '@/services/firebase/boards';
+import { sendMessage } from '@/services/firebase/chat';
 
 import { CustomTilePull, GroupedActions } from '@/types/customTiles';
 import { Settings } from '@/types/Settings';

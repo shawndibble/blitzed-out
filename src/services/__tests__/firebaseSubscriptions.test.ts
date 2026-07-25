@@ -21,7 +21,8 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { getMessages, getSchedule } from '@/services/firebase';
+import { getMessages } from '@/services/firebase/chat';
+import { getSchedule } from '@/services/firebase/schedule';
 
 const h = vi.hoisted(() => ({
   onSnapshot: vi.fn(),

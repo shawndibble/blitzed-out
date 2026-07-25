@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('firebase/firestore');
 vi.mock('firebase/auth');
-vi.mock('@/services/firebase', () => ({ db: {} }));
+vi.mock('@/services/firebase/app', () => ({ db: {} }));
 vi.mock('@/services/importExport', () => ({
   exportAllData: vi.fn(
     async () =>
