@@ -343,6 +343,25 @@ describe('RoomBackground', () => {
     });
   });
 
+  describe('imgur isVideo coupling (characterizes getBackgroundSource bug)', () => {
+    // processBackground() currently hardcodes isVideo=true for every imgur
+    // URL, including plain images. Because .jpg isn't in this component's own
+    // video-extension list, that mis-flagged pair routes to the iframe branch
+    // rather than either a <video> or a CSS backgroundImage — i.e. an imgur
+    // JPEG renders as an iframe today. This test pins that so the fix in
+    // getBackgroundSource.ts (imgur isVideo derived from the final extension)
+    // is a visible, intentional behaviour change rather than an accident.
+    it('renders a non-video imgur extension paired with isVideo=true as an iframe', () => {
+      const imgurJpgUrl = 'https://i.imgur.com/graysky.jpg';
+      render(<RoomBackground url={imgurJpgUrl} isVideo={true} />);
+
+      const iframe = screen.getByTitle('video');
+      expect(iframe).toBeInTheDocument();
+      expect(iframe).toHaveAttribute('src', imgurJpgUrl);
+      expect(screen.queryByRole('presentation')?.querySelector('video')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Color/Gray background detection', () => {
     it('shows default background for color URLs', () => {
       render(<RoomBackground url="/images/color" isVideo={false} />);
