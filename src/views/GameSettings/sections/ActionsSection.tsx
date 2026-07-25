@@ -187,7 +187,10 @@ export default function ActionsSection({
         );
       })}
 
-      <Box sx={{ display: 'flex', gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+      <WarningAlert formData={formData} />
+      <ContentWarning formData={formData} actionsList={actionsList} />
+
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
         <Button
           startIcon={<AddIcon />}
           onClick={() => onPickerOpenChange(true)}
@@ -214,8 +217,6 @@ export default function ActionsSection({
       </Box>
 
       <FinishRangeRow formData={formData} setFormData={setFormData} />
-      <WarningAlert formData={formData} />
-      <ContentWarning formData={formData} actionsList={actionsList} />
 
       <AddActionsDialog
         open={pickerOpen}

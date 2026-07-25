@@ -2,6 +2,10 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import LocalPlayersStep from '../index';
 
+vi.mock('@/hooks/useLocalPlayers', () => ({
+  useLocalPlayers: vi.fn(() => ({ localPlayers: [], session: null })),
+}));
+
 vi.mock('@/components/LocalPlayerSetup/PlayerCard', () => ({
   default: ({ player, onEdit, onDelete }: any) => (
     <div data-testid={`player-card-${player.id}`}>

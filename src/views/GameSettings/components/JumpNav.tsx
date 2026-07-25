@@ -20,9 +20,9 @@ export interface JumpNavEntry {
 
 interface JumpNavProps {
   entries: JumpNavEntry[];
-  /** Mobile chips must expand a collapsed section before scrolling to it. */
+  /** Scrolls the page to the target section — nothing to expand, sections are always open. */
   onNavigate: (id: string) => void;
-  /** Sticky offset for the desktop rail (page header + mode bar height). */
+  /** Sticky offset for the desktop rail (page header height). */
   railTop?: number;
 }
 
@@ -34,18 +34,19 @@ const SCOPE_GROUP_KEYS: Record<SettingsScope, string> = {
 };
 
 /**
- * Section navigation for the single-page settings: a scope-grouped rail with
- * scroll-spy on desktop, a horizontal chip row on mobile (positioned by the
- * page's sticky header stack). Both jump within the one scrolling page.
+ * Section navigation for the single-page settings: a scope-grouped rail
+ * (desktop) or a horizontal chip row (mobile), both scroll-spied against the
+ * one scrolling page — the active section highlights as it comes into view,
+ * not just on tap.
  */
-export default function JumpNav({ entries, onNavigate, railTop = 120 }: JumpNavProps): JSX.Element {
+// The rail only ever renders on desktop (mobile gets the chip row instead),
+// so this matches desktop's header height alone — no mobile chip row to add.
+export default function JumpNav({ entries, onNavigate, railTop = 72 }: JumpNavProps): JSX.Element {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
   const [activeId, setActiveId] = useState<string>(entries[0]?.id ?? '');
 
   useEffect(() => {
-    if (isMobile) return;
-
     const observer = new IntersectionObserver(
       (observed) => {
         const visible = observed
@@ -76,7 +77,17 @@ export default function JumpNav({ entries, onNavigate, railTop = 120 }: JumpNavP
       observer.disconnect();
       window.removeEventListener('scroll', onScroll);
     };
-  }, [entries, isMobile]);
+  }, [entries]);
+
+  // The mobile chip row scrolls horizontally; when scroll-spy (or a tap)
+  // changes the active chip, keep it in view instead of leaving it scrolled
+  // off to one side.
+  useEffect(() => {
+    if (!isMobile) return;
+    document
+      .querySelector(`[data-jump-chip="${activeId}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+  }, [activeId, isMobile]);
 
   const navigate = (id: string): void => {
     setActiveId(id);
@@ -93,6 +104,7 @@ export default function JumpNav({ entries, onNavigate, railTop = 120 }: JumpNavP
           {entries.map(({ id, labelKey, scope }) => (
             <Chip
               key={id}
+              data-jump-chip={id}
               label={t(labelKey)}
               size="small"
               onClick={() => navigate(id)}

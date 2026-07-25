@@ -79,7 +79,12 @@ function updateRoomBackground(formData: Settings): void {
   }
 }
 
-function cleanFormData(formData: Settings): Settings {
+/**
+ * Strips wizard-only staging fields and empty selectedActions entries.
+ * Exported so callers merging in-progress form data into persisted settings
+ * (e.g. the wizard's jump to Advanced) reuse the same rules as a real submit.
+ */
+export function cleanFormData(formData: Settings): Settings {
   const cleanedData = { ...formData };
   const cleanedSelectedActions: Record<string, any> = {};
 
@@ -149,11 +154,13 @@ export function planSubmit(
   const shouldSendGameSettings = triggerCondition && !recentDuplicate;
 
   const typedFormData = formData as any;
+  // Fires whether or not a session already exists: createLocalSession is a
+  // safe upsert (LocalPlayersRows.tsx calls it on every player edit while a
+  // session is active), and a wizard rerun mid-game must persist edited names.
   const shouldCreateLocalSession = Boolean(
     typedFormData.hasLocalPlayers &&
     typedFormData.localPlayersData &&
-    typedFormData.localPlayerSessionSettings &&
-    !ctx.hasLocalPlayers
+    typedFormData.localPlayerSessionSettings
   );
 
   const shouldRecordGameStart = settingsBoardUpdated && Boolean(ctx.user?.uid);

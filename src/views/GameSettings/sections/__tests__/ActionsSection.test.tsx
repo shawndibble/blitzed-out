@@ -104,6 +104,24 @@ describe('ActionsSection (loadout)', () => {
     expect(screen.queryByText('Kissing')).not.toBeInTheDocument();
   });
 
+  it('renders content warnings above the Add actions button and Finish options, not below them', () => {
+    const { container } = render(
+      <Harness formData={makeFormData({})} setFormData={setFormData} actionsList={ACTIONS_LIST} />
+    );
+    const order = Array.from(
+      container.querySelectorAll(
+        '[data-testid="warning-alert"], [data-testid="content-warning"], [data-testid="finish-range-row"]'
+      )
+    ).map((el) => el.getAttribute('data-testid'));
+    expect(order).toEqual(['warning-alert', 'content-warning', 'finish-range-row']);
+
+    const addButton = screen.getByText(/addActions/);
+    const warningAlert = screen.getByTestId('warning-alert');
+    expect(
+      warningAlert.compareDocumentPosition(addButton) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
   it('shows an empty state when nothing is enabled', () => {
     render(
       <Harness formData={makeFormData({})} setFormData={setFormData} actionsList={ACTIONS_LIST} />

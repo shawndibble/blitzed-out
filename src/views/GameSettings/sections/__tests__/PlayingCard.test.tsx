@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import ModeBar from '../ModeBar';
+import PlayingCard from '../PlayingCard';
 import type { Settings } from '@/types/Settings';
 
 vi.mock('react-i18next', () => ({
@@ -16,7 +16,7 @@ const baseFormData = {
   selectedActions: {},
 } as unknown as Settings;
 
-describe('ModeBar', () => {
+describe('PlayingCard', () => {
   const setFormData = vi.fn();
   const getPrivateRoom = vi.fn(() => 'REST0');
   const user = userEvent.setup();
@@ -26,10 +26,15 @@ describe('ModeBar', () => {
     getPrivateRoom.mockClear();
   });
 
-  it('renders the three play styles with the current mode selected', () => {
+  it('renders the title and the three play styles with the current mode selected', () => {
     render(
-      <ModeBar formData={baseFormData} setFormData={setFormData} getPrivateRoom={getPrivateRoom} />
+      <PlayingCard
+        formData={baseFormData}
+        setFormData={setFormData}
+        getPrivateRoom={getPrivateRoom}
+      />
     );
+    expect(screen.getByText('playing')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'solo' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: 'playStyleWithOthers' })).toHaveAttribute(
       'aria-pressed',
@@ -38,9 +43,25 @@ describe('ModeBar', () => {
     expect(screen.getByRole('button', { name: 'playStyleSharedDevice' })).toBeInTheDocument();
   });
 
+  it('is positioned sticky so it stays visible while scrolling past it', () => {
+    const { container } = render(
+      <PlayingCard
+        formData={baseFormData}
+        setFormData={setFormData}
+        getPrivateRoom={getPrivateRoom}
+      />
+    );
+    const wrapper = container.firstElementChild as HTMLElement;
+    expect(wrapper).toHaveStyle({ position: 'sticky' });
+  });
+
   it('switching to With Others from a public room generates a private room', async () => {
     render(
-      <ModeBar formData={baseFormData} setFormData={setFormData} getPrivateRoom={getPrivateRoom} />
+      <PlayingCard
+        formData={baseFormData}
+        setFormData={setFormData}
+        getPrivateRoom={getPrivateRoom}
+      />
     );
     await user.click(screen.getByRole('button', { name: 'playStyleWithOthers' }));
 
@@ -54,7 +75,11 @@ describe('ModeBar', () => {
 
   it('switching to Shared Device from a public room generates a private room', async () => {
     render(
-      <ModeBar formData={baseFormData} setFormData={setFormData} getPrivateRoom={getPrivateRoom} />
+      <PlayingCard
+        formData={baseFormData}
+        setFormData={setFormData}
+        getPrivateRoom={getPrivateRoom}
+      />
     );
     await user.click(screen.getByRole('button', { name: 'playStyleSharedDevice' }));
 
@@ -65,7 +90,7 @@ describe('ModeBar', () => {
 
   it('keeps the existing private room when switching modes', async () => {
     render(
-      <ModeBar
+      <PlayingCard
         formData={{ ...baseFormData, room: 'KHLOE' }}
         setFormData={setFormData}
         getPrivateRoom={getPrivateRoom}
@@ -81,9 +106,43 @@ describe('ModeBar', () => {
 
   it('re-selecting the current mode does nothing', async () => {
     render(
-      <ModeBar formData={baseFormData} setFormData={setFormData} getPrivateRoom={getPrivateRoom} />
+      <PlayingCard
+        formData={baseFormData}
+        setFormData={setFormData}
+        getPrivateRoom={getPrivateRoom}
+      />
     );
     await user.click(screen.getByRole('button', { name: 'solo' }));
     expect(setFormData).not.toHaveBeenCalled();
+  });
+
+  describe('info popover', () => {
+    it('does not show the explainer until the info button is opened', () => {
+      render(
+        <PlayingCard
+          formData={baseFormData}
+          setFormData={setFormData}
+          getPrivateRoom={getPrivateRoom}
+        />
+      );
+      expect(screen.queryByText('modeBarHint')).not.toBeInTheDocument();
+      expect(screen.queryByText('playersDevicesSoloDesc')).not.toBeInTheDocument();
+    });
+
+    it('shows the hint and what each of the three options means when opened', async () => {
+      render(
+        <PlayingCard
+          formData={baseFormData}
+          setFormData={setFormData}
+          getPrivateRoom={getPrivateRoom}
+        />
+      );
+      await user.click(screen.getByRole('button', { name: 'playersDevicesInfoLabel' }));
+
+      expect(screen.getByText('modeBarHint')).toBeInTheDocument();
+      expect(screen.getByText('playersDevicesSoloDesc')).toBeInTheDocument();
+      expect(screen.getByText('playersDevicesWithOthersDesc')).toBeInTheDocument();
+      expect(screen.getByText('playersDevicesSharedDeviceDesc')).toBeInTheDocument();
+    });
   });
 });

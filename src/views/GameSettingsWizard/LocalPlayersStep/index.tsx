@@ -5,8 +5,15 @@ import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
 import PlayerCard from '@/components/LocalPlayerSetup/PlayerCard';
 import PlayerForm from '@/components/LocalPlayerSetup/PlayerForm';
+import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import type { LocalPlayer, LocalSessionSettings } from '@/types';
 import type { PlayerRole } from '@/types/Settings';
+
+const DEFAULT_SESSION_SETTINGS: LocalSessionSettings = {
+  showTurnTransitions: true,
+  enableTurnSounds: true,
+  showPlayerAvatars: true,
+};
 
 interface LocalPlayersStepProps {
   formData: any;
@@ -22,17 +29,26 @@ export default function LocalPlayersStep({
   prevStep,
 }: LocalPlayersStepProps): JSX.Element {
   const { t } = useTranslation();
+  const { localPlayers, session } = useLocalPlayers();
 
-  const [players, setPlayers] = useState<LocalPlayer[]>((formData as any).localPlayersData || []);
+  // Reopening the wizard mid-game must rebuild from the live session (same
+  // players, same ids) so location/turn survive on Finish — an empty start
+  // here forces full re-entry, which then recreates every player fresh at
+  // location 0. A session for a different room (or none at all) is ignored.
+  const liveRoomPlayers =
+    session?.roomId?.toUpperCase() === (formData.room || '').toUpperCase() ? localPlayers : [];
+
+  const [players, setPlayers] = useState<LocalPlayer[]>(
+    (formData as any).localPlayersData || liveRoomPlayers
+  );
   const [error, setError] = useState<string | null>(null);
   const [isPlayerFormOpen, setIsPlayerFormOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<LocalPlayer | null>(null);
 
-  const sessionSettings: LocalSessionSettings = (formData as any).localPlayerSessionSettings || {
-    showTurnTransitions: true,
-    enableTurnSounds: true,
-    showPlayerAvatars: true,
-  };
+  const sessionSettings: LocalSessionSettings =
+    (formData as any).localPlayerSessionSettings ||
+    (liveRoomPlayers.length > 0 && session?.settings) ||
+    DEFAULT_SESSION_SETTINGS;
 
   const isValidPlayerCount = players.length >= 2 && players.length <= 4;
   const hasAllNames = players.every((p) => p.name.trim().length > 0);

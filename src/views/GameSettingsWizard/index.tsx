@@ -15,6 +15,9 @@ import { Settings } from '@/types/Settings';
 import { Trans } from 'react-i18next';
 import { isPublicRoom, usesSoloActions } from '@/helpers/strings';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { cleanFormData } from '@/services/gameSettingsOrchestrator';
+import { useLocalPlayers } from '@/hooks/useLocalPlayers';
+import { useSettings } from '@/stores/settingsStore';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import { useWizardAnalytics } from '@/hooks/useWizardAnalytics';
@@ -28,7 +31,14 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const { id: room } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const joinAtStep = searchParams.get('step') === '2';
-  const [step, setStep] = useState<number>(joinAtStep ? 2 : 1);
+  // Set by goToAdvanced before navigating away, so returning from Advanced
+  // Settings resumes at the step the user left, instead of restarting at 1.
+  const resumeStepParam = Number(searchParams.get('resumeStep'));
+  const resumeStep =
+    Number.isInteger(resumeStepParam) && resumeStepParam >= 1 && resumeStepParam <= 5
+      ? resumeStepParam
+      : undefined;
+  const [step, setStep] = useState<number>(resumeStep ?? (joinAtStep ? 2 : 1));
 
   // Forces useUnifiedActionList to reload (e.g. after a pack import). Seeding
   // needs no reload hack: getGroupsWithTiles/getTileCountsByGroup await
@@ -116,8 +126,38 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     setStep(step - (count || 1));
   };
 
-  const goToAdvanced = (): void => {
-    navigate(`/${(formData.room || room || 'PUBLIC').toUpperCase()}/settings`);
+  const [, updateSettings] = useSettings();
+  const { createLocalSession } = useLocalPlayers();
+
+  const goToAdvanced = async (): Promise<void> => {
+    // Advanced re-derives its form data from persisted settings on mount; without
+    // this merge, any picks made here but not yet submitted (no Finish step reached)
+    // are silently discarded.
+    updateSettings(cleanFormData(formData as Settings));
+
+    // Local players live in their own session store, not settings — Advanced's
+    // roster reads from there, so a Shared Device pick staged here (Next
+    // clicked past LocalPlayersStep) also needs persisting or it arrives empty.
+    const typedFormData = formData as any;
+    if (
+      typedFormData.hasLocalPlayers &&
+      typedFormData.localPlayersData &&
+      typedFormData.localPlayerSessionSettings
+    ) {
+      try {
+        await createLocalSession(
+          (formData.room || room || 'PUBLIC').toUpperCase(),
+          typedFormData.localPlayersData,
+          typedFormData.localPlayerSessionSettings
+        );
+      } catch {
+        // Non-blocking — same tolerance as the real submit path
+      }
+    }
+
+    // resumeStep round-trips through Advanced's own back button so returning
+    // here lands back on this exact step instead of restarting the wizard.
+    navigate(`/${(formData.room || room || 'PUBLIC').toUpperCase()}/settings?resumeStep=${step}`);
   };
 
   const renderStep = (): JSX.Element | null => {

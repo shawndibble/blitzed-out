@@ -27,13 +27,15 @@ import {
 } from 'react';
 import { customAlphabet } from 'nanoid';
 import { Trans, useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import { buildActionsScopeSummary } from './actionsScopeSummary';
+import { buildReturnToRoomUrl } from './returnToRoomUrl';
 import ActionsSection from './sections/ActionsSection';
 import CustomTileDialog from '@/views/CustomTileDialog';
 import DisplaySection from './sections/DisplaySection';
 import JumpNav, { JumpNavEntry } from './components/JumpNav';
-import ModeBar from './components/ModeBar';
+import PlayingCard from './sections/PlayingCard';
 import RoomSection from './sections/RoomSection';
 import SettingsSection from './components/SettingsSection';
 import SizePaceSection from './sections/SizePaceSection';
@@ -54,6 +56,7 @@ import validateFormData from './validateForm';
 const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
 const SECTIONS: JumpNavEntry[] = [
+  { id: 'section-general', labelKey: 'sectionGeneral', scope: 'room' },
   { id: 'section-room', labelKey: 'sectionRoomPlayers', scope: 'room' },
   { id: 'section-actions', labelKey: 'sectionActions', scope: 'board' },
   { id: 'section-size-pace', labelKey: 'sectionSizePace', scope: 'board' },
@@ -63,14 +66,18 @@ const SECTIONS: JumpNavEntry[] = [
 
 /**
  * Advanced settings page (route: /:id/settings). One scrollable page, all
- * settings, grouped by scope (Room — everyone / Game board / Only me). A
- * sticky header (Update top-right) and global play-style mode bar span the
- * full width; a jump-rail (desktop) or chip row (mobile) navigates within
- * the page. Mobile sections collapse so the catalog stays short.
+ * settings, grouped by scope (Room — everyone / Game board / Only me). The
+ * General section leads with identity (display name, anatomy) and play-style
+ * (Playing) together. A sticky header (Update top-right) spans the full
+ * width; a jump-rail (desktop) or
+ * chip row (mobile) navigates within the page. Every section stays open —
+ * nothing collapses on either breakpoint.
  */
 export default function GameSettings(): JSX.Element {
   const { id: roomParam } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const resumeStep = searchParams.get('resumeStep');
   const { user } = useAuth();
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
@@ -80,18 +87,14 @@ export default function GameSettings(): JSX.Element {
   const [openCustomTile, setOpenCustomTile] = useState<boolean>(false);
   const [actionsPickerOpen, setActionsPickerOpen] = useState(false);
   const [formData, setFormData] = useSettingsToFormData();
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    'section-actions': true,
-  });
 
   const { submit: submitSettings, isSubmitting } = useSubmitGameSettings();
 
   // Partnered play draws from the local content set; solo participation from
   // the online set. Passing gameMode directly would hand With Others the solo
   // catalog (the wizard derives content the same way).
-  const contentGameMode = usesSoloActions(formData.gameMode, formData.soloPlay)
-    ? 'online'
-    : 'local';
+  const isSoloActionsScope = usesSoloActions(formData.gameMode, formData.soloPlay);
+  const contentGameMode = isSoloActionsScope ? 'online' : 'local';
   const { isLoading, actionsList } = useUnifiedActionList(contentGameMode, true);
   const { hasLocalPlayers } = useLocalPlayers();
 
@@ -119,19 +122,12 @@ export default function GameSettings(): JSX.Element {
   const enabledActionCount = Object.keys(formData.selectedActions || {}).length;
 
   const returnToRoom = useCallback((): void => {
-    navigate(`/${(formData.room || roomParam || 'PUBLIC').toUpperCase()}`);
-  }, [navigate, formData.room, roomParam]);
-
-  const handleExpandedChange = useCallback((id: string, expanded: boolean): void => {
-    setExpandedSections((previous) => ({ ...previous, [id]: expanded }));
-  }, []);
+    const room = (formData.room || roomParam || 'PUBLIC').toUpperCase();
+    navigate(buildReturnToRoomUrl(room, resumeStep));
+  }, [navigate, formData.room, roomParam, resumeStep]);
 
   const handleNavigate = useCallback((id: string): void => {
-    setExpandedSections((previous) => ({ ...previous, [id]: true }));
-    // Let the accordion expand before measuring the scroll target.
-    requestAnimationFrame(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
   const handleSubmit = useCallback(
@@ -192,7 +188,7 @@ export default function GameSettings(): JSX.Element {
       onSubmit={handleSubmit}
       sx={{ minHeight: '100vh', bgcolor: 'background.default' }}
     >
-      {/* Sticky header stack: title bar + mode bar (+ chip nav on mobile), full width */}
+      {/* Sticky header stack: title bar (+ chip nav on mobile), full width */}
       <Box
         sx={{
           position: 'sticky',
@@ -228,7 +224,6 @@ export default function GameSettings(): JSX.Element {
             <Trans i18nKey={isSubmitting ? 'buildingBoard' : 'update'} />
           </Button>
         </Container>
-        <ModeBar formData={formData} setFormData={setFormData} getPrivateRoom={getPrivateRoom} />
         {isMobile && <JumpNav entries={SECTIONS} onNavigate={handleNavigate} />}
       </Box>
 
@@ -240,50 +235,59 @@ export default function GameSettings(): JSX.Element {
         )}
 
         <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
-          {!isMobile && <JumpNav entries={SECTIONS} onNavigate={handleNavigate} railTop={128} />}
+          {!isMobile && <JumpNav entries={SECTIONS} onNavigate={handleNavigate} />}
 
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            {!hasLocalPlayers && (
-              <Box sx={{ mb: 3 }}>
-                <SettingGroup>
-                  <SettingRow label={t('displayName')}>
-                    <TextField
-                      size="small"
-                      id="displayName"
-                      defaultValue={user?.displayName || formData.displayName || ''}
-                      required
-                      onBlur={handleDisplayNameBlur}
-                      sx={{ width: { xs: '100%', sm: 220 } }}
-                      slotProps={{ htmlInput: { 'aria-label': t('displayName') } }}
-                    />
-                  </SettingRow>
-                  <SettingRow label={t('anatomy', 'Anatomy')} description={t('anatomyCaption')}>
-                    <ToggleButtonGroup
-                      size="small"
-                      exclusive
-                      value={formData.gender || 'non-binary'}
-                      onChange={(_, value: PlayerGender | null) => {
-                        if (value) handleGenderChange(value);
-                      }}
-                      aria-label={t('anatomy', 'Anatomy')}
-                    >
-                      <ToggleButton value="male">{t('localPlayers.gender.male')}</ToggleButton>
-                      <ToggleButton value="female">{t('localPlayers.gender.female')}</ToggleButton>
-                      <ToggleButton value="non-binary">
-                        {t('localPlayers.gender.nonBinary')}
-                      </ToggleButton>
-                    </ToggleButtonGroup>
-                  </SettingRow>
-                </SettingGroup>
-              </Box>
-            )}
+            <SettingsSection id="section-general" scope="room" title={t('sectionGeneral')}>
+              {!hasLocalPlayers && (
+                <Box sx={{ mb: 2 }}>
+                  <SettingGroup>
+                    <SettingRow label={t('displayName')}>
+                      <TextField
+                        size="small"
+                        id="displayName"
+                        defaultValue={user?.displayName || formData.displayName || ''}
+                        required
+                        onBlur={handleDisplayNameBlur}
+                        sx={{ width: { xs: '100%', sm: 220 } }}
+                        slotProps={{ htmlInput: { 'aria-label': t('displayName') } }}
+                      />
+                    </SettingRow>
+                    <SettingRow label={t('anatomy', 'Anatomy')} description={t('anatomyCaption')}>
+                      <ToggleButtonGroup
+                        size="small"
+                        exclusive
+                        value={formData.gender || 'non-binary'}
+                        onChange={(_, value: PlayerGender | null) => {
+                          if (value) handleGenderChange(value);
+                        }}
+                        aria-label={t('anatomy', 'Anatomy')}
+                      >
+                        <ToggleButton value="male">{t('localPlayers.gender.male')}</ToggleButton>
+                        <ToggleButton value="female">
+                          {t('localPlayers.gender.female')}
+                        </ToggleButton>
+                        <ToggleButton value="non-binary">
+                          {t('localPlayers.gender.nonBinary')}
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </SettingRow>
+                  </SettingGroup>
+                </Box>
+              )}
+            </SettingsSection>
+
+            <PlayingCard
+              formData={formData}
+              setFormData={setFormData}
+              getPrivateRoom={getPrivateRoom}
+            />
 
             <SettingsSection
               id="section-room"
               scope="room"
               title={t('sectionRoomPlayers')}
-              expanded={!!expandedSections['section-room']}
-              onExpandedChange={handleExpandedChange}
+              scrollOffsetExtra={72}
             >
               <RoomSection
                 formData={formData}
@@ -296,7 +300,8 @@ export default function GameSettings(): JSX.Element {
               id="section-actions"
               scope="board"
               title={t('sectionActions')}
-              summary={t('enabledCount', { count: enabledActionCount })}
+              scrollOffsetExtra={72}
+              summary={buildActionsScopeSummary(t, enabledActionCount, isSoloActionsScope)}
               action={
                 <Button
                   size="small"
@@ -307,8 +312,6 @@ export default function GameSettings(): JSX.Element {
                   {t('add', 'Add')}
                 </Button>
               }
-              expanded={!!expandedSections['section-actions']}
-              onExpandedChange={handleExpandedChange}
             >
               <ActionsSection
                 formData={formData}
@@ -324,8 +327,7 @@ export default function GameSettings(): JSX.Element {
               id="section-size-pace"
               scope="board"
               title={t('sectionSizePace')}
-              expanded={!!expandedSections['section-size-pace']}
-              onExpandedChange={handleExpandedChange}
+              scrollOffsetExtra={72}
             >
               <SizePaceSection formData={formData} setFormData={setFormData} />
             </SettingsSection>
@@ -334,8 +336,7 @@ export default function GameSettings(): JSX.Element {
               id="section-sound"
               scope="me"
               title={t('sectionSoundVoice')}
-              expanded={!!expandedSections['section-sound']}
-              onExpandedChange={handleExpandedChange}
+              scrollOffsetExtra={72}
             >
               <SoundSection formData={formData} setFormData={setFormData} />
             </SettingsSection>
@@ -344,8 +345,7 @@ export default function GameSettings(): JSX.Element {
               id="section-display"
               scope="me"
               title={t('sectionDisplayLanguage')}
-              expanded={!!expandedSections['section-display']}
-              onExpandedChange={handleExpandedChange}
+              scrollOffsetExtra={72}
             >
               <DisplaySection
                 formData={formData}

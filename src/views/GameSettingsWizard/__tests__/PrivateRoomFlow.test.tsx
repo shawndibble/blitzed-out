@@ -1,6 +1,6 @@
 import { MemoryRouter, useLocation, useParams } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GameMode } from '@/types/Settings';
 import GameSettingsWizard from '../index';
@@ -20,6 +20,16 @@ vi.mock('@/hooks/useSettingsToFormData', () => ({
 
 const mockUseSettingsToFormData = vi.mocked(useSettingsToFormData);
 const mockUseParams = vi.mocked(useParams);
+
+const mockUpdateSettings = vi.fn();
+vi.mock('@/stores/settingsStore', () => ({
+  useSettings: () => [{}, mockUpdateSettings],
+}));
+
+const mockCreateLocalSession = vi.fn().mockResolvedValue(undefined);
+vi.mock('@/hooks/useLocalPlayers', () => ({
+  useLocalPlayers: () => ({ createLocalSession: mockCreateLocalSession }),
+}));
 
 const mockUseUnifiedActionList = {
   actionsList: [{ id: 'action1', text: 'Test Action 1' }],
@@ -250,10 +260,110 @@ describe('GameSettingsWizard - Topology-first flow', () => {
       await user.click(screen.getAllByTestId('advancedSetup')[0]);
       expect(screen.getByTestId('location-probe')).toHaveTextContent('/AB12C/settings');
     });
+
+    it('merges the in-progress wizard picks into persisted settings before navigating, so Advanced does not discard them', async () => {
+      const wizardFormData = {
+        ...localFormData,
+        gameMode: 'local' as GameMode,
+        selectedActions: { kissing: { type: 'foreplay', levels: [1] } },
+      } as any;
+      mockUseSettingsToFormData.mockReturnValue([wizardFormData, mockSetFormData]);
+
+      render(
+        <MemoryRouter initialEntries={['/AB12C']}>
+          <GameSettingsWizard close={mockClose} />
+        </MemoryRouter>
+      );
+
+      await user.click(screen.getAllByTestId('advancedSetup')[0]);
+
+      expect(mockUpdateSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          gameMode: 'local',
+          selectedActions: { kissing: { type: 'foreplay', levels: [1] } },
+        })
+      );
+    });
+
+    it('carries the current step in the URL so returning from Advanced resumes here, not step 1', async () => {
+      render(
+        <MemoryRouter initialEntries={['/AB12C']}>
+          <GameSettingsWizard close={mockClose} />
+          <LocationProbe />
+        </MemoryRouter>
+      );
+
+      await user.click(screen.getByText('Step 3'));
+      await user.click(screen.getAllByTestId('advancedSetup')[0]);
+
+      expect(screen.getByTestId('location-probe')).toHaveTextContent(
+        '/AB12C/settings?resumeStep=3'
+      );
+    });
+
+    it('resumes at the step encoded in resumeStep when reopened from Advanced', () => {
+      render(
+        <MemoryRouter initialEntries={['/AB12C?resumeStep=3']}>
+          <GameSettingsWizard close={mockClose} />
+        </MemoryRouter>
+      );
+
+      expect(screen.getByTestId('current-step')).toHaveTextContent('3');
+      expect(screen.getByTestId('game-mode-step')).toBeInTheDocument();
+    });
+
+    it('ignores an out-of-range resumeStep and falls back to step 1', () => {
+      render(
+        <MemoryRouter initialEntries={['/AB12C?resumeStep=99']}>
+          <GameSettingsWizard close={mockClose} />
+        </MemoryRouter>
+      );
+
+      expect(screen.getByTestId('current-step')).toHaveTextContent('1');
+    });
+
+    it('persists staged local players before jumping to Advanced, so the roster is not empty there', async () => {
+      const wizardFormData = {
+        ...localFormData,
+        gameMode: 'local' as GameMode,
+        hasLocalPlayers: true,
+        localPlayersData: [{ id: 'p1', name: 'Alice', role: 'dom', location: 0 }],
+        localPlayerSessionSettings: { showTurnTransitions: true, enableTurnSounds: true },
+      } as any;
+      mockUseSettingsToFormData.mockReturnValue([wizardFormData, mockSetFormData]);
+
+      render(
+        <MemoryRouter initialEntries={['/AB12C']}>
+          <GameSettingsWizard close={mockClose} />
+        </MemoryRouter>
+      );
+
+      await user.click(screen.getAllByTestId('advancedSetup')[0]);
+
+      await waitFor(() => {
+        expect(mockCreateLocalSession).toHaveBeenCalledWith(
+          'AB12C',
+          wizardFormData.localPlayersData,
+          wizardFormData.localPlayerSessionSettings
+        );
+      });
+    });
+
+    it('does not attempt to persist a local session when no local players are staged', async () => {
+      render(
+        <MemoryRouter initialEntries={['/AB12C']}>
+          <GameSettingsWizard close={mockClose} />
+        </MemoryRouter>
+      );
+
+      await user.click(screen.getAllByTestId('advancedSetup')[0]);
+
+      expect(mockCreateLocalSession).not.toHaveBeenCalled();
+    });
   });
 });
 
 function LocationProbe() {
   const location = useLocation();
-  return <div data-testid="location-probe">{location.pathname}</div>;
+  return <div data-testid="location-probe">{location.pathname + location.search}</div>;
 }

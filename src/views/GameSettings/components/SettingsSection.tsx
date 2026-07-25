@@ -1,15 +1,6 @@
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Chip,
-  Typography,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Box, Chip, Typography } from '@mui/material';
 import { JSX, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import useBreakpoint from '@/hooks/useBreakpoint';
 import { SCOPE_COLORS, SettingsScope } from './scopeColors';
 
 const SCOPE_LABEL_KEYS: Record<SettingsScope, string> = {
@@ -26,14 +17,15 @@ interface SettingsSectionProps {
   summary?: string;
   /** Optional control rendered on the section header (e.g. an Add button). */
   action?: ReactNode;
-  expanded: boolean;
-  onExpandedChange: (id: string, expanded: boolean) => void;
+  /** Extra px of scroll-margin, for sections landing under PlayingCard's sticky footprint. */
+  scrollOffsetExtra?: number;
   children: ReactNode;
 }
 
 /**
- * One settings section. Desktop: a plain block in the single scrolling page.
- * Mobile: a collapsed accordion so the full catalog stays about a screen tall.
+ * One settings section: a plain, always-open block in the single scrolling
+ * page — same treatment on mobile and desktop. JumpNav's chip row (mobile)
+ * / rail (desktop) is the sole navigation aid; nothing collapses.
  */
 export default function SettingsSection({
   id,
@@ -41,12 +33,10 @@ export default function SettingsSection({
   title,
   summary,
   action,
-  expanded,
-  onExpandedChange,
+  scrollOffsetExtra = 0,
   children,
 }: SettingsSectionProps): JSX.Element {
   const { t } = useTranslation();
-  const isMobile = useBreakpoint();
   const scopeColor = SCOPE_COLORS[scope];
 
   const scopeChip = (
@@ -64,40 +54,19 @@ export default function SettingsSection({
     />
   );
 
-  if (isMobile) {
-    return (
-      <Accordion
-        id={id}
-        expanded={expanded}
-        onChange={(_, isExpanded) => onExpandedChange(id, isExpanded)}
-        disableGutters
-        sx={{ scrollMarginTop: 96, '&::before': { display: 'none' }, mb: 1, borderRadius: 2 }}
-      >
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
-            {scopeChip}
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              {title}
-            </Typography>
-            {summary && (
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {summary}
-              </Typography>
-            )}
-          </Box>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pt: 0 }}>
-          {action && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>{action}</Box>
-          )}
-          {children}
-        </AccordionDetails>
-      </Accordion>
-    );
-  }
-
   return (
-    <Box id={id} component="section" sx={{ scrollMarginTop: 72, mb: 4 }}>
+    // Mobile's sticky header stack (title bar + JumpNav chip row) is taller
+    // than desktop's (title bar only) — scrollMarginTop must clear each.
+    // scrollOffsetExtra additionally clears PlayingCard's own sticky footprint
+    // for every section rendered below it.
+    <Box
+      id={id}
+      component="section"
+      sx={{
+        scrollMarginTop: { xs: 96 + scrollOffsetExtra, sm: 72 + scrollOffsetExtra },
+        mb: 4,
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5, flexWrap: 'wrap', mb: 1 }}>
         {scopeChip}
         <Typography variant="h6" component="h3">

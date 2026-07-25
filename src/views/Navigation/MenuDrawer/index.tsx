@@ -45,7 +45,7 @@ const ManageGameBoards = lazyWithRetry(() => import('@/views/ManageGameBoards'))
 const Schedule = lazyWithRetry(() => import('@/views/Schedule'));
 import { useAuth } from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 
@@ -72,6 +72,7 @@ interface DialogState {
 export default function MenuDrawer(): JSX.Element {
   const { id: room } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, wipeAllData, isAnonymous } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
@@ -80,7 +81,10 @@ export default function MenuDrawer(): JSX.Element {
   const gameSettings = useSettings()[0];
 
   const [open, setOpen] = useState<DialogState>({
-    settings: false,
+    // Returning from Advanced Settings with a resumeStep means the wizard
+    // was open before navigating away — reopen it rather than losing that
+    // state, since this dialog's local open/closed state resets on remount.
+    settings: Boolean(searchParams.get('resumeStep')),
     gameBoard: false,
     about: false,
     schedule: false,

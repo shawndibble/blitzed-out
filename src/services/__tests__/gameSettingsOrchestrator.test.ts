@@ -205,16 +205,22 @@ describe('submitGameSettings', () => {
       );
     });
 
-    it('does NOT create a session when one already exists (hasLocalPlayers = true)', async () => {
+    it('recreates the session when re-run mid-game (hasLocalPlayers = true) so edited names persist', async () => {
       const localPlayers = [{ name: 'Alice' }];
+      const sessionSettings = {};
       const wizardFormData = makeFormData({
         hasLocalPlayers: true,
         localPlayersData: localPlayers,
-        localPlayerSessionSettings: {},
+        localPlayerSessionSettings: sessionSettings,
+        room: 'MYROOM',
       } as any);
-      const ctxWithSession = makeCtx({ hasLocalPlayers: true });
+      const ctxWithSession = makeCtx({ hasLocalPlayers: true, currentRoom: 'MYROOM' });
       await submitGameSettings(wizardFormData, {}, ctxWithSession, deps);
-      expect(deps.createLocalSessionFn).not.toHaveBeenCalled();
+      expect(deps.createLocalSessionFn).toHaveBeenCalledWith(
+        'MYROOM',
+        localPlayers,
+        sessionSettings
+      );
     });
   });
 
@@ -430,7 +436,7 @@ describe('planSubmit', () => {
       expect(d.shouldCreateLocalSession).toBe(true);
     });
 
-    it('false when session already exists (ctx.hasLocalPlayers = true)', () => {
+    it('true even when session already exists (ctx.hasLocalPlayers = true) — wizard rerun mid-game must update names', () => {
       const d = planSubmit(
         makeFormData({
           hasLocalPlayers: true,
@@ -440,7 +446,7 @@ describe('planSubmit', () => {
         makeCtx({ hasLocalPlayers: true }),
         { settingsBoardUpdated: false, updatedUser: mockUser }
       );
-      expect(d.shouldCreateLocalSession).toBe(false);
+      expect(d.shouldCreateLocalSession).toBe(true);
     });
   });
 
