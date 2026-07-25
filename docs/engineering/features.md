@@ -127,6 +127,8 @@ A user-supplied URL is normalized to something embeddable. Supported families in
 - **Everything else:** sandboxed `<iframe>` (`allow="autoplay; fullscreen; encrypted-media; picture-in-picture"`, `sandbox="allow-same-origin allow-scripts allow-presentation"`).
 - **Autoplay** is forced muted to satisfy browser policy; a user-interaction overlay appears if autoplay is still blocked (notably on the cast view).
 - **Supported image formats** (DirectMediaHandler): jpg/jpeg, png, webp, gif, bmp, svg, avif, tiff, heic/heif, jfif.
+- **Imgur** URLs resolve to a final URL with a normalized extension (`.gifv` → `.mp4`, etc.); `isVideo` is derived from that final extension (`mp4`/`mov`/`avi`/`webm`/`mkv`/`flv`/`wmv` are video, everything else — including `.gif` — is not), not inherited from a default.
+- All CSS `background-image: url(...)` in this feature (`RoomBackground`, `DirectMediaHandler`) go through `src/helpers/cssUrl.ts`, which strips control characters and escapes quotes.
 
 ### Reddit slideshow — removed (June 2026)
 
@@ -136,6 +138,7 @@ Reddit subreddit slideshows were removed. They had relied on third-party CORS pr
 
 - **App background:** a per-user setting (`background: 'custom' + backgroundURL`).
 - **Room background:** stored in the room's `room`-type message; applied for users who opt into "use room background." **Private rooms** can carry a room background; **public rooms** fall back to default color tiles.
+- **Built-in theme contract:** `'color'` and `'gray'` are sentinels, not URLs — they select the app's built-in tile theme rather than any media. Both public entry points (`getBackgroundSource`, `getPrivateRoomBackground`) short-circuit these two literal values to their final result (`{url: '', isVideo: false}` for the Cast/private-room path; `{url: 'color' | 'gray', isVideo: false}` for the Room path) **before** the value is ever passed to `processBackground`. Do not let a sentinel reach `processBackground` — its `default:` branch runs unrecognized strings through `getURLPath`, which would turn `'color'` into the real-looking (and 404-ing) path `/images/color`. Consumers should match these sentinels with an exact string comparison (`url === 'color'`), never a substring test (`url.includes('color')`) — a substring test also matches real media URLs whose text happens to contain the word "color" or "gray" (e.g. `.../graysky.jpg`), which is a bug this contract exists to prevent from recurring.
 
 ### Uploaded images — `src/components/MessageInput`, `uploadImage` (`firebase.ts:1016`)
 
