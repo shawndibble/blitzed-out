@@ -207,7 +207,7 @@ export async function getSettingsMessage(
   return message;
 }
 
-function exportSettings(formData: Settings): Record<string, any> {
+export function exportSettings(formData: Settings): Record<string, any> {
   const newSettings: Record<string, any> = {};
   Object.entries(formData).forEach(([settingKey, settingValue]) => {
     // list of settings to not export and thus not import.
@@ -222,6 +222,13 @@ function exportSettings(formData: Settings): Record<string, any> {
       'playerDialog',
       'readRoll',
       'hideBoardActions',
+      // Hands-Free is a personal TTS/auto-roll preference (see CONTEXT.md
+      // "Hands-Free"); importing it would silently force auto-roll + TTS on
+      // for a recipient who never opted in, and readRollBeforeHandsFree is
+      // the private memo behind it.
+      'handsFree',
+      'handsFreePreset',
+      'readRollBeforeHandsFree',
     ];
     // don't export personal settings nor room specific settings.
     if (!personalSettings.includes(settingKey) && !settingKey.startsWith('room')) {

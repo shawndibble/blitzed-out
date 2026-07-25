@@ -4,8 +4,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import RollButton from '@/views/Room/RollButton';
 import type { Settings } from '@/types/Settings';
 
-const updateSettings = vi.fn();
 let mockSettings: Partial<Settings>;
+// Writes through to mockSettings so re-renders observe the settings changes a
+// click just made — real behaviour, not a call-history-only stub.
+const updateSettings = vi.fn((partial: Partial<Settings>) => {
+  mockSettings = { ...mockSettings, ...partial };
+});
 
 vi.mock('@/stores/settingsStore', () => {
   const state = () => ({ settings: mockSettings, updateSettings });
@@ -103,13 +107,68 @@ describe('RollButton hands-free integration', () => {
     expect(screen.queryByText('handsFree')).not.toBeInTheDocument();
   });
 
-  it('switching to manual rolling turns hands-free off', () => {
+  it('switching to manual rolling turns hands-free off and restores readRoll to false when no memo exists', () => {
     mockSettings.handsFree = true;
+    mockSettings.readRoll = true;
     renderRollButton();
     openOptionsMenu();
 
     fireEvent.click(screen.getByText('manual'));
 
-    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false });
+    // Single combined write: no leaked intermediate `{ handsFree: false }` state
+    // with `readRoll` still forced on.
+    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false, readRoll: false });
+    expect(updateSettings).toHaveBeenCalledTimes(1);
+  });
+
+  it('switching to manual rolling restores readRoll: true when the memo says TTS was on before Hands-Free', () => {
+    mockSettings.handsFree = true;
+    mockSettings.readRoll = true;
+    mockSettings.readRollBeforeHandsFree = true;
+    renderRollButton();
+    openOptionsMenu();
+
+    fireEvent.click(screen.getByText('manual'));
+
+    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false, readRoll: true });
+  });
+
+  it('exits hands-free via a fixed cadence (Auto-Roll dialog) with exactly one pause transition', async () => {
+    mockSettings.handsFree = true;
+    mockSettings.handsFreePreset = 'quick';
+    mockSettings.readRollBeforeHandsFree = true;
+    renderRollButton();
+
+    // Start the hands-free transport running (paused -> playing).
+    fireEvent.click(screen.getByRole('button', { name: 'play' }));
+    expect(await screen.findByText(/pause \(\d+\)/)).toBeInTheDocument();
+
+    openOptionsMenu();
+    fireEvent.click(screen.getByText('autoRoll'));
+    fireEvent.click(screen.getByText('shortAuto30'));
+
+    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false, readRoll: true });
+    // Exactly one net pause transition (running -> paused at 30s): if the
+    // ref-sync effect ordering in RollButton regresses, this fires a second
+    // togglePause and the transport is wrongly left running instead.
+    expect(await screen.findByText('play (30)')).toBeInTheDocument();
+  });
+
+  it('exits hands-free via the custom timer route with exactly one pause transition', async () => {
+    mockSettings.handsFree = true;
+    mockSettings.handsFreePreset = 'quick';
+    mockSettings.readRollBeforeHandsFree = true;
+    renderRollButton();
+
+    fireEvent.click(screen.getByRole('button', { name: 'play' }));
+    expect(await screen.findByText(/pause \(\d+\)/)).toBeInTheDocument();
+
+    openOptionsMenu();
+    fireEvent.click(screen.getByText('autoRoll'));
+    fireEvent.click(screen.getByText('customOption'));
+    fireEvent.click(screen.getByText('set'));
+
+    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false, readRoll: true });
+    expect(await screen.findByText('play (30)')).toBeInTheDocument();
   });
 });

@@ -177,6 +177,16 @@ user-facing name for what was previously two independent settings: the read-my-r
 Devices (online) keeps the raw settings only. The quick-config is a convenience surface over the
 same global settings — not a separate state.
 
+Enabling forces `readRoll` on; disabling must restore whatever it was before, which needs a
+two-key invariant `updateSettings` (a shallow key/value writer) can't enforce on its own. Every
+enable/disable path — the roll-menu quick-config, switching to manual rolling, picking a fixed or
+custom auto-roll cadence — goes through `useHandsFree` (`src/hooks/useHandsFree.ts`), the single
+mediator. It stores the pre-enable `readRoll` value in the `readRollBeforeHandsFree` settings
+field (not a component ref/state), so the memo survives a remount — e.g. a page reload while
+Hands-Free is already on doesn't recapture the forced-`true` value as if it were the user's
+original preference. `handsFree`, `handsFreePreset`, and `readRollBeforeHandsFree` are personal
+preferences and are excluded from board export/import (`gameSettingsMessage.ts`).
+
 ---
 
 ## Offline vs Temporarily Offline
