@@ -25,66 +25,62 @@ const makeFormData = (overrides: Partial<Settings>): Settings =>
 
 describe('RoomSection', () => {
   const setFormData = vi.fn();
-  const getPrivateRoom = vi.fn(() => 'REST0');
   const user = userEvent.setup();
 
   beforeEach(() => {
     setFormData.mockClear();
-    getPrivateRoom.mockClear();
   });
 
-  describe('solo mode', () => {
-    it('shows the public/private toggle — the only mode where the choice exists', () => {
-      render(
-        <RoomSection
-          formData={makeFormData({})}
-          setFormData={setFormData}
-          getPrivateRoom={getPrivateRoom}
-        />
-      );
-      expect(screen.getByRole('switch', { name: 'roomType' })).toBeInTheDocument();
+  // Room type is decided by "Who else is playing?" in the setup section. A
+  // second control for the same decision is what made the page feel like it
+  // asked the same thing twice.
+  it.each([
+    ['solo in public', { gameMode: 'solo', room: 'PUBLIC' }],
+    ['solo in private', { gameMode: 'solo', room: 'KHLOE' }],
+    ['online', { gameMode: 'online', room: 'KHLOE' }],
+    ['shared device', { gameMode: 'local', room: 'KHLOE' }],
+  ])('never offers a public/private toggle — %s', (_label, overrides) => {
+    render(
+      <RoomSection
+        formData={makeFormData(overrides as Partial<Settings>)}
+        setFormData={setFormData}
+      />
+    );
+    expect(screen.queryByRole('switch', { name: 'roomType' })).not.toBeInTheDocument();
+  });
+
+  describe('solo in the public room', () => {
+    it('states the consequence and offers no room plumbing', () => {
+      render(<RoomSection formData={makeFormData({})} setFormData={setFormData} />);
+      expect(screen.getByText('publicRoomHint')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'copy' })).not.toBeInTheDocument();
       expect(screen.queryByTestId('local-players-rows')).not.toBeInTheDocument();
       expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
     });
+  });
 
-    it('flipping to private restores or generates via getPrivateRoom', async () => {
-      render(
-        <RoomSection
-          formData={makeFormData({})}
-          setFormData={setFormData}
-          getPrivateRoom={getPrivateRoom}
-        />
-      );
-      await user.click(screen.getByRole('switch', { name: 'roomType' }));
-
-      const next = setFormData.mock.calls[0][0];
-      expect(next.room).toBe('REST0');
-      expect(getPrivateRoom).toHaveBeenCalledTimes(1);
+  describe('solo in a private room', () => {
+    it('shows the shareable code with a solo-specific reason', () => {
+      render(<RoomSection formData={makeFormData({ room: 'KHLOE' })} setFormData={setFormData} />);
+      expect(screen.getByText('privateRoomSoloHint')).toBeInTheDocument();
+      expect(screen.queryByText('alwaysPrivateRoomHint')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument();
     });
 
-    it('flipping a private room to public sets PUBLIC', async () => {
-      render(
-        <RoomSection
-          formData={makeFormData({ room: 'KHLOE' })}
-          setFormData={setFormData}
-          getPrivateRoom={getPrivateRoom}
-        />
-      );
-      await user.click(screen.getByRole('switch', { name: 'roomType' }));
-      expect(setFormData.mock.calls[0][0].room).toBe('PUBLIC');
+    it('has no player-list-updates row — nobody else is expected', () => {
+      render(<RoomSection formData={makeFormData({ room: 'KHLOE' })} setFormData={setFormData} />);
+      expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
     });
   });
 
-  describe('with others (online)', () => {
-    it('shows the room code card instead of a public/private toggle', () => {
+  describe('friends on their own devices (online)', () => {
+    it('shows the room code card with the share-it reason', () => {
       render(
         <RoomSection
           formData={makeFormData({ gameMode: 'online', room: 'KHLOE' })}
           setFormData={setFormData}
-          getPrivateRoom={getPrivateRoom}
         />
       );
-      expect(screen.queryByRole('switch', { name: 'roomType' })).not.toBeInTheDocument();
       expect(screen.getByText('alwaysPrivateRoomHint')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'copy' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /newRoomCode/ })).toBeInTheDocument();
@@ -96,7 +92,6 @@ describe('RoomSection', () => {
         <RoomSection
           formData={makeFormData({ gameMode: 'online', room: 'KHLOE' })}
           setFormData={setFormData}
-          getPrivateRoom={getPrivateRoom}
         />
       );
       await user.click(screen.getByRole('button', { name: /newRoomCode/ }));
@@ -113,11 +108,10 @@ describe('RoomSection', () => {
         <RoomSection
           formData={makeFormData({ gameMode: 'local', room: 'KHLOE' })}
           setFormData={setFormData}
-          getPrivateRoom={getPrivateRoom}
         />
       );
-      expect(screen.queryByRole('switch', { name: 'roomType' })).not.toBeInTheDocument();
       expect(screen.queryByText('alwaysPrivateRoomHint')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'copy' })).not.toBeInTheDocument();
       expect(screen.getByText('sharedDeviceRoomHint')).toBeInTheDocument();
       expect(screen.getByTestId('local-players-rows')).toBeInTheDocument();
       expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();

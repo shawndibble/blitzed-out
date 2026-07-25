@@ -11,6 +11,7 @@ import { JSX, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { SCOPE_COLORS, SettingsScope } from './scopeColors';
+import { groupEntriesByScopeRun } from './jumpNavGroups';
 
 export interface JumpNavEntry {
   id: string;
@@ -26,8 +27,8 @@ interface JumpNavProps {
   railTop?: number;
 }
 
-const SCOPE_ORDER: SettingsScope[] = ['room', 'board', 'me'];
 const SCOPE_GROUP_KEYS: Record<SettingsScope, string> = {
+  setup: 'scopeSetupGroup',
   room: 'scopeRoomGroup',
   board: 'scopeBoardGroup',
   me: 'scopeMeGroup',
@@ -141,11 +142,10 @@ export default function JumpNav({ entries, onNavigate, railTop = 72 }: JumpNavPr
         pr: 1,
       }}
     >
-      {SCOPE_ORDER.map((scope) => {
-        const scopeEntries = entries.filter((entry) => entry.scope === scope);
-        if (!scopeEntries.length) return null;
+      {groupEntriesByScopeRun(entries).map((scopeEntries) => {
+        const scope = scopeEntries[0].scope;
         return (
-          <Box key={scope}>
+          <Box key={`${scope}-${scopeEntries[0].id}`}>
             <ListSubheader
               disableSticky
               sx={{

@@ -52,7 +52,9 @@ export default function DisplaySection({
   const [roomBackgroundDraft, setRoomBackgroundDraft] = useState(formData.roomBackgroundURL || '');
 
   const isPrivateRoom = Boolean(formData.room && !isPublicRoom(formData.room));
-  const withOthers = formData.gameMode === 'online';
+  // See SoundSection: `local` is the only mode where another player's message
+  // cannot appear, so it is the only honest place to hide this.
+  const othersCanAppear = formData.gameMode !== 'local';
   const background = formData.background || 'color';
 
   const backgroundOptions: Record<string, string> = {};
@@ -143,7 +145,7 @@ export default function DisplaySection({
         <SettingRow label={t('playerDialog')} description={t('playerDialogCaption')}>
           {boolSwitch('playerDialog')}
         </SettingRow>
-        {withOthers && (
+        {othersCanAppear && (
           <SettingRow label={t('othersDialog')}>{boolSwitch('othersDialog')}</SettingRow>
         )}
         <SettingRow label={t('showDiceAnimation')}>

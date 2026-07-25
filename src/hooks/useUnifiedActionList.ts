@@ -8,6 +8,17 @@ import { GroupedActions } from '@/types/customTiles';
 interface UnifiedActionListResult {
   actionsList: GroupedActions;
   isLoading: boolean;
+  /**
+   * The `gameMode` the current `actionsList` was loaded for, or undefined
+   * before the first load settles.
+   *
+   * A consumer that reacts to a mode change cannot use `isLoading` alone:
+   * `setIsLoading(true)` happens inside this hook's effect, so on the render
+   * immediately after the mode changes, `isLoading` is still the previous
+   * `false` while `actionsList` is still the previous mode's catalog. Compare
+   * against this instead of guessing.
+   */
+  loadedGameMode?: string;
 }
 
 /**
@@ -26,6 +37,7 @@ export default function useUnifiedActionList(
   const { i18n } = useTranslation();
   const [actionsList, setActionsList] = useState<GroupedActions>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadedGameMode, setLoadedGameMode] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +46,7 @@ export default function useUnifiedActionList(
       if (!gameMode) {
         if (!cancelled) {
           setActionsList({});
+          setLoadedGameMode(undefined);
           setIsLoading(false);
         }
         return;
@@ -103,6 +116,7 @@ export default function useUnifiedActionList(
 
         if (!cancelled) {
           setActionsList(unifiedActions);
+          setLoadedGameMode(gameMode);
         }
       } catch (error) {
         console.error('Error loading unified actions:', {
@@ -112,9 +126,12 @@ export default function useUnifiedActionList(
           showOnlyGroupsWithTiles,
         });
 
-        // Set empty object on error to prevent UI breaks
+        // Set empty object on error to prevent UI breaks. `loadedGameMode`
+        // stays unset so consumers don't mistake a failed load for a real
+        // catalog that happens to contain nothing.
         if (!cancelled) {
           setActionsList({});
+          setLoadedGameMode(undefined);
         }
       } finally {
         if (!cancelled) {
@@ -130,5 +147,5 @@ export default function useUnifiedActionList(
     };
   }, [gameMode, i18n.resolvedLanguage, showOnlyGroupsWithTiles, refreshKey]);
 
-  return { actionsList, isLoading };
+  return { actionsList, isLoading, loadedGameMode };
 }

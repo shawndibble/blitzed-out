@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Switch,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -10,8 +9,8 @@ import {
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { customAlphabet } from 'nanoid';
-import { ChangeEvent, FocusEvent, JSX, KeyboardEvent, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { FocusEvent, JSX, KeyboardEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { SettingGroup, SettingRow } from '../components/SettingRow';
 import LocalPlayersRows from './LocalPlayersRows';
@@ -23,21 +22,17 @@ const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 interface RoomSectionProps {
   formData: Settings;
   setFormData: (data: Settings) => void;
-  /** Last private room this visit (or a fresh code) — toggling back to
-   * private restores it instead of generating a new one. */
-  getPrivateRoom: () => string;
 }
 
 /**
- * Room settings, rendered per play style. Room type is only a real choice in
- * Solo; With Others always plays in a private room (the code card is the
- * control), and Shared Device's room is an implementation detail with no UI.
+ * Room settings, rendered per play style — consequences only.
+ *
+ * Room *type* is no longer decided here: "Who else is playing?" in the setup
+ * section decides it, and this section used to carry a second Public/Private
+ * switch for the same choice. What remains is what follows from that answer —
+ * the code to share, the roster, and how the player list refreshes.
  */
-export default function RoomSection({
-  formData,
-  setFormData,
-  getPrivateRoom,
-}: RoomSectionProps): JSX.Element {
+export default function RoomSection({ formData, setFormData }: RoomSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
@@ -46,10 +41,6 @@ export default function RoomSection({
 
   const setRoom = (room: string): void => {
     setFormData({ ...formData, room: room.toUpperCase(), boardUpdated: true });
-  };
-
-  const togglePublicPrivate = (event: ChangeEvent<HTMLInputElement>): void => {
-    setRoom(event.target.checked ? getPrivateRoom() : 'PUBLIC');
   };
 
   const commitRoomFromInput = (value: string): void => {
@@ -91,34 +82,20 @@ export default function RoomSection({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {gameMode === 'solo' && (
-        <SettingGroup>
-          <SettingRow label={t('roomType')} description={t('roomTypeSoloHint')}>
-            <Typography
-              variant="body2"
-              sx={{ color: isPublic ? 'text.primary' : 'text.secondary' }}
-            >
-              <Trans i18nKey="public" />
-            </Typography>
-            <Switch
-              checked={!isPublic}
-              onChange={togglePublicPrivate}
-              slotProps={{ input: { 'aria-label': t('roomType') } }}
-            />
-            <Typography
-              variant="body2"
-              sx={{ color: isPublic ? 'text.secondary' : 'text.primary' }}
-            >
-              <Trans i18nKey="private" />
-            </Typography>
-          </SettingRow>
-          {!isPublic && <SettingRow label={t('privateRoom')}>{roomCodeField}</SettingRow>}
-        </SettingGroup>
+      {gameMode === 'solo' && isPublic && (
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {t('publicRoomHint')}
+        </Typography>
       )}
 
-      {gameMode === 'online' && (
+      {/* Same card whether the private room is yours alone or shared with
+          friends — only the caption differs, because only the reason differs. */}
+      {!isPublic && gameMode !== 'local' && (
         <SettingGroup>
-          <SettingRow label={t('privateRoom')} description={t('alwaysPrivateRoomHint')}>
+          <SettingRow
+            label={t('privateRoom')}
+            description={t(gameMode === 'online' ? 'alwaysPrivateRoomHint' : 'privateRoomSoloHint')}
+          >
             {roomCodeField}
             <Tooltip describeChild title={copied ? t('roomCodeCopied') : t('copyRoomCode')}>
               <Button size="small" variant="outlined" onClick={copyRoomCode}>

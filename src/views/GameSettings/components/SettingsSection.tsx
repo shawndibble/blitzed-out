@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { SCOPE_COLORS, SettingsScope } from './scopeColors';
 
 const SCOPE_LABEL_KEYS: Record<SettingsScope, string> = {
+  setup: 'scopeSetup',
   room: 'scopeRoom',
   board: 'scopeBoard',
   me: 'scopeMe',
@@ -17,8 +18,14 @@ interface SettingsSectionProps {
   summary?: string;
   /** Optional control rendered on the section header (e.g. an Add button). */
   action?: ReactNode;
-  /** Extra px of scroll-margin, for sections landing under PlayingCard's sticky footprint. */
+  /** Extra px of scroll-margin, for sections landing under a sticky footprint. */
   scrollOffsetExtra?: number;
+  /**
+   * Draws the scope accent around the section body. Used for the setup
+   * questions, which drive every section below them and so must not be
+   * skipped — the emphasis replaces the sticky bar they used to need.
+   */
+  emphasis?: boolean;
   children: ReactNode;
 }
 
@@ -34,6 +41,7 @@ export default function SettingsSection({
   summary,
   action,
   scrollOffsetExtra = 0,
+  emphasis = false,
   children,
 }: SettingsSectionProps): JSX.Element {
   const { t } = useTranslation();
@@ -79,7 +87,21 @@ export default function SettingsSection({
         )}
         {action && <Box sx={{ ml: 'auto' }}>{action}</Box>}
       </Box>
-      {children}
+      {emphasis ? (
+        <Box
+          sx={{
+            border: 2,
+            borderColor: scopeColor,
+            borderRadius: 2,
+            p: 1,
+            bgcolor: `${scopeColor}0d`,
+          }}
+        >
+          {children}
+        </Box>
+      ) : (
+        children
+      )}
     </Box>
   );
 }

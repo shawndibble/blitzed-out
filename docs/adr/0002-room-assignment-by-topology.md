@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — 2026-05-23
+Accepted — 2026-05-23. **Amended 2026-07-25** (see [Amendment](#amendment-2026-07-25)).
 
 ## Context
 
@@ -35,6 +35,7 @@ Firebase `persistentLocalCache` queues any writes when offline and syncs on reco
 ### Individual Devices
 
 Always requires explicit room selection (PUBLIC or private). Disabled when offline.
+**Superseded — see the [Amendment](#amendment-2026-07-25): Individual Devices is always private.**
 
 ## Rationale
 
@@ -58,3 +59,31 @@ view.
 - Individual Devices remains the only topology that requires network at setup time.
 - A shared-device session started offline will sync its room to Firebase once connection
   returns — the room code is real and durable.
+
+---
+
+## Amendment (2026-07-25)
+
+### PUBLIC is Solo-only
+
+Individual Devices does **not** offer a PUBLIC/private choice. **PUBLIC is reserved for Solo
+players**; both Individual Devices and Shared Device always play in a Private Room. The original
+"explicit room selection (PUBLIC or private)" above was never implemented that way and is now
+formally superseded.
+
+Two things depend on this and would break if it were relaxed:
+
+- `usePresence` uses `removeOnDisconnect: roomRealtime || isPublicRoom(room)`. Force-removing a
+  player on disconnect is correct for a lone solo player, but for a group topology it would drop
+  players on an ordinary tab switch and corrupt turn order.
+- The Advanced Settings setup questions derive topology from the answers rather than asking for it,
+  so an invalid pairing has to be unreachable, not merely discouraged (see CONTEXT.md
+  "Setup Questions").
+
+### `local` + PUBLIC repairs to `solo`, not `online`
+
+`enforceTopologyRoomInvariant` previously promoted `local` + PUBLIC to `online`. Given the rule
+above, that swapped one invalid pairing for another and produced precisely the group-in-PUBLIC state
+the presence override cannot tolerate. It now repairs to `solo`: PUBLIC cannot host several players
+sharing one device, and the user is standing in PUBLIC, so rewriting their topology is a smaller
+surprise than rewriting the room they are in.

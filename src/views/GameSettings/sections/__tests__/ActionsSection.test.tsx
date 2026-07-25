@@ -181,12 +181,15 @@ describe('ActionsSection (loadout)', () => {
     expect(screen.getByText('actionsBannerSharedDevice')).toBeInTheDocument();
   });
 
-  it('participation toggle appears only in With Others and writes soloPlay', async () => {
+  // Participation is chosen in the setup section now (see SetupSection.test),
+  // not here. This section only states the consequence.
+  it('offers no participation control of its own', () => {
     render(
       <Harness formData={makeFormData({})} setFormData={setFormData} actionsList={ACTIONS_LIST} />
     );
-    await user.click(screen.getByRole('button', { name: 'participationSolo' }));
-    expect(setFormData.mock.calls[0][0].soloPlay).toBe(true);
+    expect(screen.queryByRole('group', { name: 'participation' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'participationSolo' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'participationTogether' })).not.toBeInTheDocument();
   });
 
   it('the manage custom actions button invokes onManageCustomTiles', async () => {

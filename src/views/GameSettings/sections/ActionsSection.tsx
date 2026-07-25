@@ -1,12 +1,4 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Snackbar,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from '@mui/material';
+import { Alert, Box, Button, Snackbar, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import { JSX, useMemo, useState } from 'react';
@@ -125,11 +117,6 @@ export default function ActionsSection({
     setRemoved(null);
   };
 
-  const handleParticipationChange = (_: unknown, value: string | null): void => {
-    if (!value) return;
-    setFormData({ ...formData, soloPlay: value === 'solo', boardUpdated: true });
-  };
-
   const modeBannerKey =
     formData.gameMode === 'local'
       ? 'actionsBannerSharedDevice'
@@ -139,24 +126,10 @@ export default function ActionsSection({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-      {formData.gameMode === 'online' && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {t('participation')}
-          </Typography>
-          <ToggleButtonGroup
-            size="small"
-            exclusive
-            value={soloActions ? 'solo' : 'together'}
-            onChange={handleParticipationChange}
-            aria-label={t('participation')}
-          >
-            <ToggleButton value="together">{t('participationTogether')}</ToggleButton>
-            <ToggleButton value="solo">{t('participationSolo')}</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      )}
-
+      {/* Participation used to be chosen here, three sections below the control
+          that decided whether it applied at all — so it read as appearing out
+          of nowhere. It now lives with the setup questions; this banner is the
+          consequence, stated, not a control. */}
       <Alert severity="info" variant="outlined" sx={{ py: 0.25 }}>
         {t(modeBannerKey)}
       </Alert>
