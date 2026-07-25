@@ -6,6 +6,25 @@ interface DirectMediaHandlerProps {
   url: string | null;
 }
 
+// The routing contract between this component and RoomBackground: these are
+// the extensions RoomBackground treats as "definitely direct media" (as
+// opposed to a generic embeddable <iframe> URL). Exported so RoomBackground
+// imports this instead of re-declaring its own copy of the list. NOTE: this
+// is not the same set inferMediaType below uses to pick 'video' vs 'image' —
+// inferMediaType has its own image-extension list and defaults to 'video',
+// which stays independent so extensionless URLs keep classifying as video.
+export const DIRECT_MEDIA_VIDEO_EXTENSIONS_REGEX = /\.(mp4|webm|ogg|mov)(\?.*)?$/i;
+
+// Giphy backgrounds (see giphy() in getBackgroundSource.ts) always resolve to
+// a real .gif URL and are given isVideo:true purely so RoomBackground routes
+// them to DirectMediaHandler instead of a generic <iframe> — inferMediaType
+// below then correctly classifies the .gif as an image. RoomBackground's
+// routing check must keep unioning this with
+// DIRECT_MEDIA_VIDEO_EXTENSIONS_REGEX, or Giphy backgrounds silently fall
+// through to an unstyled <iframe> (the exact bug class this constant exists
+// to prevent).
+export const GIF_ROUTES_TO_DIRECT_MEDIA_REGEX = /\.gif(\?.*)?$/i;
+
 const inferMediaType = (u: string | null): 'video' | 'image' => {
   if (!u) return 'video';
   // Treat image formats as images (including GIFs and modern formats)

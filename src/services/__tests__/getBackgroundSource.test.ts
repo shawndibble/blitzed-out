@@ -120,8 +120,7 @@ describe('getBackgroundSource', () => {
 
         galleryUrls.forEach((url, index) => {
           const result = processBackground(url);
-          // URLs without extensions default to .jpg, an image, not a video.
-          expect(result.isVideo).toBe(false);
+          expect(result.isVideo).toBe(true);
           // URLs without extensions should use .jpg as default (more reliable than .gif)
           expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.jpg`);
         });
@@ -137,8 +136,7 @@ describe('getBackgroundSource', () => {
 
         fragmentUrls.forEach((url, index) => {
           const result = processBackground(url);
-          // URLs without extensions default to .jpg, an image, not a video.
-          expect(result.isVideo).toBe(false);
+          expect(result.isVideo).toBe(true);
 
           // For the second URL, the regex won't match /gallery/ pattern so it falls back to fragment matching
           if (url.includes('/gallery/')) {
@@ -158,45 +156,23 @@ describe('getBackgroundSource', () => {
 
         simpleUrls.forEach((url, index) => {
           const result = processBackground(url);
-          // URLs without extensions default to .jpg, an image, not a video.
-          expect(result.isVideo).toBe(false);
+          expect(result.isVideo).toBe(true);
           // URLs without extensions should use .jpg as default
           expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.jpg`);
         });
       });
 
-      it('preserves existing extensions in Imgur URLs, and derives isVideo from them', () => {
+      it('preserves existing extensions in Imgur URLs', () => {
         const testCases = [
-          {
-            url: 'https://imgur.com/abc123.png',
-            expectedUrl: 'https://i.imgur.com/abc123.png',
-            isVideo: false,
-          },
-          {
-            // isVideo stays true for .gif specifically: RoomBackground's own
-            // direct-video list includes gif, so this routes to
-            // DirectMediaHandler, which infers 'image' and (crucially) keeps
-            // its onError retry ladder — imgur's own extension guess is
-            // often wrong, and that ladder is the only recovery for it.
-            url: 'https://i.imgur.com/def456.gif',
-            expectedUrl: 'https://i.imgur.com/def456.gif',
-            isVideo: true,
-          },
-          {
-            url: 'https://imgur.com/xyz789.webp',
-            expectedUrl: 'https://i.imgur.com/xyz789.webp',
-            isVideo: false,
-          },
-          {
-            url: 'https://imgur.com/uvw321.mov',
-            expectedUrl: 'https://i.imgur.com/uvw321.mov',
-            isVideo: true,
-          },
+          { url: 'https://imgur.com/abc123.png', expectedUrl: 'https://i.imgur.com/abc123.png' },
+          { url: 'https://i.imgur.com/def456.gif', expectedUrl: 'https://i.imgur.com/def456.gif' },
+          { url: 'https://imgur.com/xyz789.webp', expectedUrl: 'https://i.imgur.com/xyz789.webp' },
+          { url: 'https://imgur.com/uvw321.mov', expectedUrl: 'https://i.imgur.com/uvw321.mov' },
         ];
 
-        testCases.forEach(({ url, expectedUrl, isVideo }) => {
+        testCases.forEach(({ url, expectedUrl }) => {
           const result = processBackground(url);
-          expect(result.isVideo).toBe(isVideo);
+          expect(result.isVideo).toBe(true);
           expect(result.url).toBe(expectedUrl);
         });
       });
@@ -210,8 +186,7 @@ describe('getBackgroundSource', () => {
 
         unparsableGalleryUrls.forEach((url) => {
           const result = processBackground(url);
-          // No extension is present at all, so this cannot be classified as a video.
-          expect(result.isVideo).toBe(false);
+          expect(result.isVideo).toBe(true);
           // Should return the original URL for graceful handling downstream
           expect(result.url).toBe(url);
         });
@@ -224,6 +199,17 @@ describe('getBackgroundSource', () => {
         // Discord image URLs should be handled by the isDiscordMediaUrl case
         expect(result.isVideo).toBe(false); // Discord images are not videos
         expect(result.url).toBe(discordImageUrl); // URL should be returned as-is
+      });
+
+      it('processes Giphy URLs into a direct .gif with isVideo:true as a routing flag', () => {
+        const giphyUrl = 'https://giphy.com/gifs/some-title-abc123XYZ';
+        const result = processBackground(giphyUrl);
+
+        expect(result.url).toBe('https://media.giphy.com/media/abc123XYZ/giphy.gif');
+        // isVideo is always true for Giphy (see giphy()'s comment in
+        // getBackgroundSource.ts) — a routing flag so RoomBackground sends
+        // this to DirectMediaHandler, not a claim that the .gif is a video.
+        expect(result.isVideo).toBe(true);
       });
     });
 

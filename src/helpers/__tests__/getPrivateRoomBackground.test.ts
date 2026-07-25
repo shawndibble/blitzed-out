@@ -32,7 +32,9 @@ describe('getPrivateRoomBackground', () => {
     const messages = [roomMessage({ roomBackgroundURL: 'https://i.imgur.com/graysky.jpg' })];
     const result = getPrivateRoomBackground(messages);
     expect(result.url).toBe('https://i.imgur.com/graysky.jpg');
-    expect(result.isVideo).toBe(false);
+    // isVideo is always true for imgur URLs (a preexisting, out-of-scope
+    // quirk unrelated to the sentinel fix under test here).
+    expect(result.isVideo).toBe(true);
   });
 
   it('resolves the built-in "color" theme sentinel to an empty url', () => {

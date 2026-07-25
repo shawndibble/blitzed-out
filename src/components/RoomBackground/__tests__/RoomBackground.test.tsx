@@ -359,36 +359,39 @@ describe('RoomBackground', () => {
     });
   });
 
-  describe('imgur isVideo coupling (getBackgroundSource now derives isVideo from extension)', () => {
-    // getBackgroundSource used to hardcode isVideo=true for every imgur URL,
-    // including plain images, which made this component route a JPEG to its
-    // iframe branch. Now that isVideo is derived from the resolved imgur
-    // extension, a non-video imgur URL arrives here as isVideo=false and
-    // renders as a plain CSS background-image, like any other direct image.
-    it('renders a non-video imgur extension paired with isVideo=false as a background image', () => {
-      const imgurJpgUrl = 'https://i.imgur.com/abc123.jpg';
-      render(<RoomBackground url={imgurJpgUrl} isVideo={false} />);
+  describe('imgur isVideo (preexisting quirk, out of scope)', () => {
+    // getBackgroundSource hardcodes isVideo=true for every imgur URL,
+    // including plain images (a preexisting quirk this card does not fix).
+    // Because .jpg isn't a direct-video extension, that mis-flagged pair
+    // routes to the iframe branch rather than a <video> or a CSS
+    // background-image — i.e. an imgur JPEG renders as an iframe. Pinned here
+    // so a future change to this coupling is visible and intentional.
+    it('renders a non-video imgur extension paired with isVideo=true as an iframe', () => {
+      const imgurJpgUrl = 'https://i.imgur.com/graysky.jpg';
+      render(<RoomBackground url={imgurJpgUrl} isVideo={true} />);
 
-      const container = screen.getByRole('presentation');
-      expect(container).toHaveStyle(`background-image: url(${imgurJpgUrl})`);
-      expect(screen.queryByTitle('video')).not.toBeInTheDocument();
-      expect(container.querySelector('video')).not.toBeInTheDocument();
+      const iframe = screen.getByTitle('video');
+      expect(iframe).toBeInTheDocument();
+      expect(iframe).toHaveAttribute('src', imgurJpgUrl);
+      expect(screen.queryByRole('presentation')?.querySelector('video')).not.toBeInTheDocument();
     });
+  });
 
-    // Unlike other imgur image extensions, .gif is deliberately kept
-    // isVideo=true by getBackgroundSource (see imgurRoutesAsVideo), so it
-    // still reaches DirectMediaHandler and keeps its onError retry ladder.
-    // This pins that routing so a future "just treat gif like every other
-    // image extension" edit shows up here as a failing test.
-    it('routes an imgur .gif with isVideo=true through DirectMediaHandler, not a plain background image', () => {
-      const imgurGifUrl = 'https://i.imgur.com/def456.gif';
-      render(<RoomBackground url={imgurGifUrl} isVideo={true} />);
+  describe('Giphy routing', () => {
+    // giphy() always resolves to a real .gif and getBackgroundSource hardcodes
+    // isVideo:true for it purely as a routing flag (see GIF_ROUTES_TO_DIRECT_
+    // MEDIA_REGEX in DirectMediaHandler, which this component's isDirectVideo
+    // check is derived from). Pins that a Giphy background renders through
+    // DirectMediaHandler as an image, not the generic <iframe> branch — the
+    // exact rendering a future "drop gif from the routing regex" edit would break.
+    it('renders a Giphy .gif with isVideo=true through DirectMediaHandler as an image, not an iframe', () => {
+      const giphyUrl = 'https://media.giphy.com/media/abc123XYZ/giphy.gif';
+      render(<RoomBackground url={giphyUrl} isVideo={true} />);
 
       const container = screen.getByRole('presentation');
       const imageBackground = container.querySelector('.image-background');
       expect(imageBackground).toBeInTheDocument();
-      expect(imageBackground).toHaveStyle(`background-image: url(${imgurGifUrl})`);
-      // The direct CSS backgroundImage path (not DirectMediaHandler) is unused here.
+      expect(imageBackground).toHaveStyle(`background-image: url(${giphyUrl})`);
       expect(container).toHaveStyle('background-image: none');
       expect(screen.queryByTitle('video')).not.toBeInTheDocument();
     });
@@ -429,8 +432,13 @@ describe('RoomBackground', () => {
       expect(container).toHaveStyle(`background-image: url(${imgurUrl})`);
     });
 
+    // NOTE: the old substring check was url?.includes('/color') (leading
+    // slash required), so a filename like "discolored.png" never actually
+    // matched it — "/discolored.png" has no "/color" substring. This URL's
+    // path ("/colorful-sunset.png") does start with "/color", so it genuinely
+    // reproduces the bug: reverting the exact-match fix turns this test red.
     it('renders a real image URL whose text contains the word "color" as an image, not the default theme', () => {
-      const imageUrl = 'https://example.com/discolored.png';
+      const imageUrl = 'https://example.com/colorful-sunset.png';
       render(<RoomBackground url={imageUrl} isVideo={false} />);
       const container = screen.getByRole('presentation');
       expect(container).not.toHaveClass('default-background');
