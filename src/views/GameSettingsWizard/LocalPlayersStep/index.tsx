@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Box, Typography, Alert, Button, Fab } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
@@ -41,7 +41,6 @@ export default function LocalPlayersStep({
   const [players, setPlayers] = useState<LocalPlayer[]>(
     (formData as any).localPlayersData || liveRoomPlayers
   );
-  const [error, setError] = useState<string | null>(null);
   const [isPlayerFormOpen, setIsPlayerFormOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<LocalPlayer | null>(null);
 
@@ -56,19 +55,17 @@ export default function LocalPlayersStep({
     new Set(players.map((p) => p.name.trim().toLowerCase())).size === players.length;
   const isValid = isValidPlayerCount && hasAllNames && hasUniqueNames;
 
-  useEffect(() => {
-    if (players.length < 2) {
-      setError(t('localPlayers.errors.minimumPlayers'));
-    } else if (players.length > 4) {
-      setError(t('localPlayers.errors.maximumPlayers'));
-    } else if (!hasAllNames) {
-      setError(t('localPlayers.errors.emptyNames'));
-    } else if (!hasUniqueNames) {
-      setError(t('localPlayers.errors.duplicateNames'));
-    } else {
-      setError(null);
-    }
-  }, [players, hasAllNames, hasUniqueNames, t]);
+  // Derived the same way isValid is above — no need for a separate effect.
+  let error: string | null = null;
+  if (players.length < 2) {
+    error = t('localPlayers.errors.minimumPlayers');
+  } else if (players.length > 4) {
+    error = t('localPlayers.errors.maximumPlayers');
+  } else if (!hasAllNames) {
+    error = t('localPlayers.errors.emptyNames');
+  } else if (!hasUniqueNames) {
+    error = t('localPlayers.errors.duplicateNames');
+  }
 
   const generatePlayerId = useCallback(() => {
     return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

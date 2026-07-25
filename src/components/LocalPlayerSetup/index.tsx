@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, Typography, Box, Button, Alert, Fab } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { Trans, useTranslation } from 'react-i18next';
@@ -37,8 +37,7 @@ export default function LocalPlayerSetup({
 
   // Component state for player management
   const [players, setPlayers] = useState<LocalPlayer[]>(initialPlayers);
-  const [isValid, setIsValid] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Player form state
@@ -54,43 +53,31 @@ export default function LocalPlayerSetup({
     }
   );
 
-  // Validation logic
-  const validateSetup = useCallback(() => {
+  // Validation is a pure function of `players` — derive it during render
+  // instead of syncing via an effect (players is already seeded from
+  // initialPlayers in useState above, so no separate mount sync is needed).
+  const { isValid, error: validationError } = useMemo(() => {
     const isValidPlayerCount = players.length >= 2 && players.length <= 4;
     const hasAllNames = players.every((player) => player.name.trim().length > 0);
     const hasUniqueNames =
       new Set(players.map((p) => p.name.toLowerCase())).size === players.length;
-
     const valid = isValidPlayerCount && hasAllNames && hasUniqueNames;
-    setIsValid(valid);
 
-    // Set appropriate error message
+    let validationMessage: string | null = null;
     if (players.length < 2) {
-      setError(t('localPlayers.errors.minimumPlayers'));
+      validationMessage = t('localPlayers.errors.minimumPlayers');
     } else if (players.length > 4) {
-      setError(t('localPlayers.errors.maximumPlayers'));
+      validationMessage = t('localPlayers.errors.maximumPlayers');
     } else if (!hasAllNames) {
-      setError(t('localPlayers.errors.emptyNames'));
+      validationMessage = t('localPlayers.errors.emptyNames');
     } else if (!hasUniqueNames) {
-      setError(t('localPlayers.errors.duplicateNames'));
-    } else {
-      setError(null);
+      validationMessage = t('localPlayers.errors.duplicateNames');
     }
 
-    return valid;
+    return { isValid: valid, error: validationMessage };
   }, [players, t]);
 
-  // Initialize players state only once when component mounts
-  useEffect(() => {
-    if (initialPlayers.length > 0) {
-      setPlayers(initialPlayers);
-    }
-  }, []);
-
-  // Update validation when players change
-  useEffect(() => {
-    validateSetup();
-  }, [validateSetup]);
+  const error = submissionError ?? validationError;
 
   // Helper functions for player management
   const generatePlayerId = useCallback(() => {
@@ -177,20 +164,22 @@ export default function LocalPlayerSetup({
 
   // Handle completion
   const handleComplete = useCallback(async () => {
-    if (!validateSetup()) return;
+    if (!isValid) return;
 
     setIsLoading(true);
-    setError(null);
+    setSubmissionError(null);
 
     try {
       // Call parent completion handler with players and settings
       await onComplete(players, sessionSettings);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('localPlayers.errors.sessionCreation'));
+      setSubmissionError(
+        err instanceof Error ? err.message : t('localPlayers.errors.sessionCreation')
+      );
     } finally {
       setIsLoading(false);
     }
-  }, [players, sessionSettings, validateSetup, onComplete, t]);
+  }, [isValid, players, sessionSettings, onComplete, t]);
 
   // Handle cancellation
   const handleCancel = useCallback(() => {

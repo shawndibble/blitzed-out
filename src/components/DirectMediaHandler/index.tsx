@@ -18,7 +18,10 @@ function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
   const [mediaType, setMediaType] = useState<'video' | 'image'>(() => inferMediaType(url));
   const [currentUrl, setCurrentUrl] = useState(url);
 
-  // Reset state when URL prop changes
+  // Resetting on url change is this component's own contract (tested
+  // directly, independent of any parent-supplied key) — the onError
+  // handlers below locally override currentUrl/mediaType, so a genuinely
+  // new url must explicitly re-sync both, not just reset via remount.
   useEffect(() => {
     setCurrentUrl(url);
     setMediaType(inferMediaType(url));

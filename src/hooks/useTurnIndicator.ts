@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import useHybridPlayerList, { type HybridPlayer } from './useHybridPlayerList';
 import { Player } from '@/types/player';
 
@@ -17,7 +17,6 @@ function convertHybridPlayerToPlayer(hybridPlayer: HybridPlayer): Player {
 }
 
 export default function useTurnIndicator(message?: Message): Player | null {
-  const [turnIndicator, setTurnIndicator] = useState<Player | null>(null);
   const hybridPlayers = useHybridPlayerList();
 
   // Create a stable representation of players to prevent infinite loops
@@ -32,25 +31,19 @@ export default function useTurnIndicator(message?: Message): Player | null {
     return message ? `${message.uid}-${message.displayName || ''}` : null;
   }, [message]);
 
-  useEffect(() => {
-    if (!message) {
-      setTurnIndicator(null);
-      return;
-    }
+  // Pure derivation of hybridPlayers + message — compute directly instead of
+  // syncing via an effect. messageHash/playersHash (not the raw objects) are
+  // the deps so an unstable-identity-but-same-content prop doesn't force a
+  // recompute.
+  const turnIndicator = useMemo<Player | null>(() => {
+    if (!message) return null;
 
     // Single player or not enough players for turns
-    if (hybridPlayers.length <= 1) {
-      setTurnIndicator(null);
-      return;
-    }
+    if (hybridPlayers.length <= 1) return null;
 
     // Filter out finished players
     const stillPlaying = hybridPlayers.filter((player) => !player.isFinished);
-
-    if (stillPlaying.length <= 1) {
-      setTurnIndicator(null);
-      return;
-    }
+    if (stillPlaying.length <= 1) return null;
 
     // Sort players by displayName for consistent turn order across all devices
     // This ensures all devices calculate the same turn sequence
@@ -84,8 +77,8 @@ export default function useTurnIndicator(message?: Message): Player | null {
     const nextHybridPlayer = stableTurnOrder[nextIndex];
 
     // Convert to Player format for the indicator
-    const nextPlayer = convertHybridPlayerToPlayer(nextHybridPlayer);
-    setTurnIndicator(nextPlayer);
+    return convertHybridPlayerToPlayer(nextHybridPlayer);
+    // eslint-disable-next-line @eslint-react/exhaustive-deps -- messageHash/playersHash intentionally replace message/hybridPlayers as deps (see comment above)
   }, [messageHash, playersHash]);
 
   return turnIndicator;
