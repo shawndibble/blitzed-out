@@ -38,25 +38,6 @@ export function useAuthSync(user: User | null) {
     return performSync(syncAllDataToFirebase);
   }, [performSync]);
 
-  const intelligentSync = useCallback(async (): Promise<{
-    success: boolean;
-    conflicts?: string[];
-  }> => {
-    if (!user || user.isAnonymous) {
-      return { success: false, conflicts: ['User not logged in or is anonymous'] };
-    }
-    try {
-      setSyncStatus((prev) => ({ syncing: true, lastSync: prev.lastSync }));
-      const { intelligentSync: runIntelligentSync } = await import('@/services/syncService');
-      const result = await runIntelligentSync();
-      setSyncStatus({ syncing: false, lastSync: new Date() });
-      return result;
-    } catch {
-      setSyncStatus((prev) => ({ syncing: false, lastSync: prev.lastSync }));
-      return { success: false, conflicts: ['Sync failed due to error'] };
-    }
-  }, [user]);
-
   // Start or stop sync lifecycle when user changes
   useEffect(() => {
     if (!user || user.isAnonymous) {
@@ -121,5 +102,5 @@ export function useAuthSync(user: User | null) {
     };
   }, [user]);
 
-  return { syncStatus, syncData, intelligentSync };
+  return { syncStatus, syncData };
 }

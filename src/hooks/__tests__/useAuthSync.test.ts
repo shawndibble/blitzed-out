@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { User } from '@/types';
 import {
-  intelligentSync as intelligentSyncService,
   startPeriodicSync,
   stopPeriodicSync,
   syncAllDataToFirebase,
@@ -24,7 +23,6 @@ describe('useAuthSync', () => {
     vi.mocked(syncAllDataToFirebase).mockResolvedValue(true);
     vi.mocked(startPeriodicSync).mockReturnValue(true);
     vi.mocked(stopPeriodicSync).mockReturnValue(true);
-    vi.mocked(intelligentSyncService).mockResolvedValue({ success: true });
   });
 
   afterEach(() => {
@@ -128,30 +126,6 @@ describe('useAuthSync', () => {
 
     expect(returned!).toBe(false);
     expect(syncAllDataToFirebase).not.toHaveBeenCalled();
-  });
-
-  it('intelligentSync delegates to syncService and returns result', async () => {
-    const { result } = renderHook(() => useAuthSync(makeUser()));
-
-    let syncResult: { success: boolean; conflicts?: string[] };
-    await act(async () => {
-      syncResult = await result.current.intelligentSync();
-    });
-
-    expect(intelligentSyncService).toHaveBeenCalledTimes(1);
-    expect(syncResult!).toEqual({ success: true });
-  });
-
-  it('intelligentSync returns failure without calling service for null user', async () => {
-    const { result } = renderHook(() => useAuthSync(null));
-
-    let syncResult: { success: boolean; conflicts?: string[] };
-    await act(async () => {
-      syncResult = await result.current.intelligentSync();
-    });
-
-    expect(intelligentSyncService).not.toHaveBeenCalled();
-    expect(syncResult!.success).toBe(false);
   });
 
   it('stops sync and clears timers on unmount', async () => {

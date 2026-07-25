@@ -2,8 +2,6 @@
  * Base utilities for sync operations
  */
 import { getAuth } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/services/firebase';
 import type { SyncResult } from '@/types/sync';
 
 export const SYNC_DELAY_MS = 50;
@@ -21,14 +19,6 @@ export class SyncBase {
     }
 
     return user;
-  }
-
-  /**
-   * Get user document from Firebase
-   */
-  static async getUserDocument(userId: string) {
-    const userDocRef = doc(db, 'user-data', userId);
-    return await getDoc(userDocRef);
   }
 
   /**
@@ -79,10 +69,11 @@ export class SyncBase {
   /**
    * Create success result
    */
-  static createSuccessResult(itemsProcessed = 0): SyncResult {
+  static createSuccessResult(itemsProcessed = 0, changed = false): SyncResult {
     return {
       success: true,
       itemsProcessed,
+      changed,
     };
   }
 }

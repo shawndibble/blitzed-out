@@ -53,22 +53,26 @@ Security rules for each are documented in [security.md](security.md).
 
 ## Sync engine
 
-Per-entity sync under `src/services/sync/`, coordinated by `syncOrchestrator.ts`. The orchestrator reads/writes the per-user Firestore document `user-data/{uid}` and runs entity syncs in parallel:
+**The `user-data/{uid}` document has one owner: `src/services/sync/remoteUserData.ts`.** It is the only module that knows the document's field names, its dual legacy/V2 disabled-defaults encoding, and its size caps; it exposes `readRemoteUserData` (one `getDoc`, decoded into the app's own vocabulary), `collectLocalUserData` (this device's whole snapshot), and `writeRemoteUserData` (one `setDoc` merge). A section decoded as `undefined` means the document does not carry it, which the merges must not confuse with "present but emptied".
 
-- `CustomTilesSync` — merges local and cloud tiles using `TileMatcher` (key = `group_id|intensity|action`); writes the merged set back. `forceSync` replaces local with cloud.
+One cycle = **one read, then one write if anything changed** (`syncOrchestrator.ts`). Entity merges report `changed` rather than pushing themselves — a push per entity used to race the other merges, publish a half-merged document, and echo back through the real-time listener. `gameBoards` is omitted from a write when this device has none, so a board-less device cannot blank another's.
+
+Per-entity merge policy lives under `src/services/sync/`, and the orchestrator runs the merges in parallel:
+
+- `CustomTilesSync` — merges local and cloud tiles using `TileMatcher` (key = `group_id|intensity|action`). `forceSync` replaces local with cloud.
 - `CustomGroupsSync` — merges new groups by `(name, locale, gameMode)`.
-- `DisabledDefaultsSync` — merges the `disabledDefaults` table **per-record** with last-writer-wins (keyed by the content tuple). Re-enables propagate as `active: false` **tombstones**, so a re-enable on one device reaches the others (the old whole-list-replace could not). The historical 100-record corruption cap is gone; instead the push **bounds** the synced set with a loud warning and writes a legacy active-only `disabledDefaults` array (capped 100) alongside the new `disabledDefaultsV2` records for pre-V2 clients. Row `isEnabled` flags are reconciled from the table (`reconcileDisabledRows`).
+- `DisabledDefaultsSync` — merges the `disabledDefaults` table **per-record** with last-writer-wins (keyed by the content tuple). Re-enables propagate as `active: false` **tombstones**, so a re-enable on one device reaches the others (the old whole-list-replace could not). Row `isEnabled` flags are reconciled from the table (`reconcileDisabledRows`). The wire encoding is the owner's business: it writes a legacy active-only `disabledDefaults` array (capped 100) alongside the `disabledDefaultsV2` records for pre-V2 clients, bounds the record set at 1000 with a loud warning, and on read prefers V2 — up-converting a legacy-only document so the merge only ever sees records.
 - `GameBoardsSync` — upserts boards (keyed by title).
 - `SettingsSync` — merges settings into the store.
 
 - `CustomGroupExtensionsSync` — user-appended intensity levels on **default** groups travel as name/locale/gameMode-keyed deltas in a `customGroupExtensions` field (default groups never sync as whole records; each device seeds its own). Pull applies them with the append-only `appendIntensities` merge (`src/services/intensityMerge.ts`) — the same semantics the importer (`groupExtensions` in ExportData 2.1.0) and the locale re-seeder (`mergeSeedIntensities`, which preserves appended levels across `MIGRATION_VERSION` bumps) use. Append-only: removals don't propagate.
 
-Before merging, `syncService.ts` runs a duplicate-tile cleanup to undo a historical sync bug.
+Before merging, the orchestrator runs a duplicate-tile cleanup (`sync/localCleanup.ts`) to undo a historical sync bug. `syncService.ts` above all this decides only _when_ a cycle runs (login push, pull, periodic, real-time listener).
 
 **What triggers sync:**
 
 1. **Automatic** — Dexie write → middleware → debounced `requestSync()`.
-2. **Manual** — user-initiated sync from the auth/account UI.
+2. **Manual** — `syncData()` from the auth context (a full push). There is no conflict-preview flow: `intelligentSync`, which refused to sync whenever both sides were merely non-empty, had no UI consumer and was deleted — the LWW merges it bypassed are strictly better behaved.
 3. **Periodic** — optional ~5-minute interval.
 
 **Conditions:** sync only runs for authenticated, **non-anonymous** users. All cloud data is scoped to `user-data/{uid}` — no cross-user visibility there.
@@ -77,7 +81,7 @@ Before merging, `syncService.ts` runs a duplicate-tile cleanup to undo a histori
 
 **Real-time pull + last-writer-wins.** Non-anonymous sessions attach an `onSnapshot` listener to `user-data/{uid}` (`subscribeToUserData` in `syncService.ts`, wired in `useAuthSync`), so a change pushed from one device reflects on the others within seconds rather than waiting for the periodic/debounced cycle. Push stays debounced (~2 s). Conflicts resolve last-writer-wins via a per-record `updatedAt` (Unix ms) on custom tiles and game boards (`SyncBase.remoteWins`, strict `>`). The push remains debounced; the listener only pulls.
 
-Loop prevention (push→pull→apply→push) relies on three guards: the snapshot handler skips events with `metadata.hasPendingWrites` (our own writes); an apply-phase suppression flag in `syncMiddleware` (`beginSyncApply`/`endSyncApply`) stops sync-engine Dexie writes from scheduling an echo push; and the entity merges only push back when something actually changed.
+Loop prevention (push→pull→apply→push) relies on three guards: the snapshot handler skips events with `metadata.hasPendingWrites` (our own writes); an apply-phase suppression flag in `syncMiddleware` (`beginSyncApply`/`endSyncApply`) stops sync-engine Dexie writes from scheduling an echo push; and a cycle publishes only when a merge reported a change.
 
 **Stated limitations of the LWW/real-time model:**
 

@@ -1,5 +1,5 @@
 import type { SyncOptions, SyncResult } from '@/types/sync';
-import { clearUserCustomGroups, syncCustomGroupsToFirebase } from '../syncService';
+import { clearUserCustomGroups } from './localCleanup';
 /**
  * Custom groups synchronization logic
  */
@@ -20,9 +20,9 @@ export class CustomGroupsSync extends SyncBase {
       const localGroups = await getCustomGroups({ isDefault: false });
 
       // Smart conflict resolution
+      // Cloud has nothing, this device does: the cycle's single push publishes it.
       if (firebaseGroups.length === 0 && localGroups.length > 0 && !options.forceSync) {
-        await syncCustomGroupsToFirebase();
-        return this.createSuccessResult(localGroups.length);
+        return this.createSuccessResult(localGroups.length, true);
       }
 
       if (firebaseGroups.length > 0 && localGroups.length > 0 && !options.forceSync) {
@@ -66,13 +66,7 @@ export class CustomGroupsSync extends SyncBase {
       }
     }
 
-    // Only push back when groups were actually added — otherwise the real-time
-    // listener would echo every pull into a push.
-    if (addedCount > 0) {
-      await syncCustomGroupsToFirebase();
-    }
-
-    return this.createSuccessResult(addedCount + localGroups.length);
+    return this.createSuccessResult(addedCount + localGroups.length, addedCount > 0);
   }
 
   /**

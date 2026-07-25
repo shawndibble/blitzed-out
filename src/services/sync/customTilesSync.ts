@@ -9,7 +9,7 @@ import {
   getTiles,
   updateCustomTile,
 } from '@/stores/customTiles';
-import { deleteAllCustomTiles, syncCustomTilesToFirebase } from '../syncService';
+import { deleteAllCustomTiles } from './localCleanup';
 
 import type { CustomTilePull } from '@/types/customTiles';
 import { SyncBase } from './base';
@@ -46,9 +46,9 @@ export class CustomTilesSync extends SyncBase {
       }
 
       // Smart conflict resolution
+      // Cloud has nothing, this device does: the cycle's single push publishes it.
       if (firebaseTiles.length === 0 && localTiles.length > 0 && !options.forceSync) {
-        await syncCustomTilesToFirebase();
-        return this.createSuccessResult(localTiles.length);
+        return this.createSuccessResult(localTiles.length, true);
       }
 
       if (firebaseTiles.length > 0 && localTiles.length > 0 && !options.forceSync) {
@@ -119,13 +119,12 @@ export class CustomTilesSync extends SyncBase {
       }
     }
 
-    // Only push the merged result back when something actually changed —
-    // otherwise the real-time listener would echo every pull into a push.
-    if (addedCount + updatedCount > 0) {
-      await syncCustomTilesToFirebase();
-    }
-
-    return this.createSuccessResult(addedCount + updatedCount + localTiles.length);
+    // Report the change instead of pushing here: a push per entity raced the
+    // other merges and echoed every pull back through the real-time listener.
+    return this.createSuccessResult(
+      addedCount + updatedCount + localTiles.length,
+      addedCount + updatedCount > 0
+    );
   }
 
   /**

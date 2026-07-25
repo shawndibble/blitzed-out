@@ -11,8 +11,7 @@ import { deleteGroup } from '@/stores/contentLibrary';
 import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import {
   subscribeToUserData,
-  syncCustomGroupsToFirebase,
-  syncCustomTilesToFirebase,
+  syncAllDataToFirebase,
   syncDataFromFirebase,
 } from '@/services/syncService';
 
@@ -47,7 +46,6 @@ import {
   reconcileDisabledRows,
   getAllDisabledRecords,
 } from '@/stores/disabledDefaults';
-import { syncDisabledDefaultsToFirebase } from '@/services/syncService';
 
 describe('syncService', () => {
   const mockUser = { uid: 'test-user-123', isAnonymous: false };
@@ -81,43 +79,86 @@ describe('syncService', () => {
       id: 'test-user-123',
       path: 'user-data/test-user-123',
     } as any);
+
+    // One write per cycle means every push collects every section, so these
+    // sources must answer in all describes, not just the pull ones. Set them
+    // here rather than in the factory: the CI config resets mock
+    // implementations between tests.
+    vi.mocked(getTiles).mockResolvedValue([]);
+    vi.mocked(getCustomGroups).mockResolvedValue([]);
+    vi.mocked(setDoc).mockResolvedValue(undefined);
+    vi.mocked(getBoards).mockResolvedValue([]);
+    vi.mocked(getAllDisabledRecords).mockResolvedValue([]);
+    vi.mocked(mergeRemoteDisabledRecords).mockResolvedValue(0);
+    vi.mocked(reconcileDisabledRows).mockResolvedValue(undefined);
+    vi.mocked(useSettingsStore.getState).mockReturnValue({
+      settings: {},
+      updateSettings: vi.fn(),
+    } as any);
   });
 
   afterEach(() => {
     consoleErrorSpy?.mockRestore();
   });
 
-  describe('syncCustomTilesToFirebase', () => {
-    it('should sync custom tiles to Firebase (disabled defaults sync separately)', async () => {
-      const mockCustomTiles = [
-        {
-          id: 1,
-          group_id: 'custom-group-id',
-          intensity: 1,
-          action: 'Custom action',
-          tags: [],
-          isEnabled: 1,
-          isCustom: 1,
-          locale: 'en',
-          gameMode: 'online',
-        },
-      ];
+  describe('syncAllDataToFirebase (one write per push)', () => {
+    const mockCustomTiles = [
+      {
+        id: 1,
+        group_id: 'custom-group-id',
+        intensity: 1,
+        action: 'Custom action',
+        tags: [],
+        isEnabled: 1,
+        isCustom: 1,
+        locale: 'en',
+        gameMode: 'online',
+      },
+    ];
 
-      vi.mocked(getTiles).mockImplementation(async (filters: any) => {
-        if (filters?.isCustom === 1) return mockCustomTiles;
-        return [];
-      });
-
+    it('publishes every section in a single merge write', async () => {
+      const mockUserGroups = [{ id: 1, name: 'My Custom Group', isDefault: false, locale: 'en' }];
+      vi.mocked(getTiles).mockImplementation(async (filters: any) =>
+        filters?.isCustom === 1 ? (mockCustomTiles as any) : []
+      );
+      vi.mocked(getCustomGroups).mockImplementation(async (filters: any) =>
+        filters?.isDefault === false ? (mockUserGroups as any) : []
+      );
+      vi.mocked(getBoards).mockResolvedValue([{ title: 'Board', tiles: [], isActive: 1 }] as any);
+      vi.mocked(useSettingsStore.getState).mockReturnValue({
+        settings: { locale: 'en', localPlayers: [{ name: 'device only' }], gone: undefined },
+        updateSettings: vi.fn(),
+      } as any);
       vi.mocked(setDoc).mockResolvedValue(undefined);
 
-      const result = await syncCustomTilesToFirebase();
+      const result = await syncAllDataToFirebase();
 
       expect(result).toBe(true);
-      expect(getTiles).toHaveBeenCalledWith({ isCustom: 1 });
-      const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
+      // The whole point of the card: six sequential writes became one.
+      expect(setDoc).toHaveBeenCalledTimes(1);
+      const [, payload, options] = vi.mocked(setDoc).mock.calls[0] as any[];
+      expect(options).toEqual({ merge: true });
       expect(payload.customTiles).toEqual(mockCustomTiles);
-      // Disabled defaults are no longer bundled into the custom-tiles push.
-      expect(payload).not.toHaveProperty('disabledDefaults');
+      expect(payload.customGroups).toEqual(mockUserGroups);
+      expect(payload.customGroupExtensions).toEqual([]);
+      expect(payload.disabledDefaultsV2).toEqual([]);
+      expect(payload.disabledDefaults).toEqual([]);
+      expect(payload.gameBoards).toHaveLength(1);
+      expect(payload.lastUpdated).toBeInstanceOf(Date);
+      // Device-local and undefined settings never leave the device.
+      expect(payload.settings).toEqual({ locale: 'en' });
+    });
+
+    it("omits gameBoards when this device has none, so it cannot blank another device's", async () => {
+      vi.mocked(getTiles).mockResolvedValue([]);
+      vi.mocked(getCustomGroups).mockResolvedValue([]);
+      vi.mocked(getBoards).mockResolvedValue([]);
+      vi.mocked(setDoc).mockResolvedValue(undefined);
+
+      await syncAllDataToFirebase();
+
+      const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
+      expect(payload).not.toHaveProperty('gameBoards');
     });
 
     it('writes legacy + V2 disabled-default fields, capping the legacy array at 100', async () => {
@@ -138,10 +179,12 @@ describe('syncService', () => {
         active: false,
         updatedAt: 100,
       });
+      vi.mocked(getTiles).mockResolvedValue([]);
+      vi.mocked(getCustomGroups).mockResolvedValue([]);
       vi.mocked(getAllDisabledRecords).mockResolvedValue(records as any);
       vi.mocked(setDoc).mockResolvedValue(undefined);
 
-      const result = await syncDisabledDefaultsToFirebase();
+      const result = await syncAllDataToFirebase();
 
       expect(result).toBe(true);
       const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
@@ -152,10 +195,34 @@ describe('syncService', () => {
       expect(payload.disabledDefaults.every((d: any) => d.action !== 'T')).toBe(true);
     });
 
+    it('drops disabled-default records above the V2 cap, loudly', async () => {
+      const records = Array.from({ length: 1005 }, (_, i) => ({
+        key: `g1|1|A${i}`,
+        group_id: 'g1',
+        intensity: 1,
+        action: `A${i}`,
+        active: false,
+        updatedAt: 100,
+      }));
+      vi.mocked(getTiles).mockResolvedValue([]);
+      vi.mocked(getCustomGroups).mockResolvedValue([]);
+      vi.mocked(getAllDisabledRecords).mockResolvedValue(records as any);
+      vi.mocked(setDoc).mockResolvedValue(undefined);
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await syncAllDataToFirebase();
+
+      const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
+      expect(payload.disabledDefaultsV2).toHaveLength(1000);
+      expect(warnSpy).toHaveBeenCalled();
+
+      warnSpy.mockRestore();
+    });
+
     it('should return false when user is not logged in', async () => {
       vi.mocked(getAuth).mockReturnValue({ currentUser: null } as any);
 
-      const result = await syncCustomTilesToFirebase();
+      const result = await syncAllDataToFirebase();
 
       expect(result).toBe(false);
       expect(getTiles).not.toHaveBeenCalled();
@@ -164,16 +231,33 @@ describe('syncService', () => {
 
     it('should handle Firebase errors gracefully', async () => {
       vi.mocked(getTiles).mockResolvedValue([]);
+      vi.mocked(getCustomGroups).mockResolvedValue([]);
       vi.mocked(setDoc).mockRejectedValue(new Error('Firebase error'));
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await syncCustomTilesToFirebase();
+      const result = await syncAllDataToFirebase();
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Error syncing custom tiles:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith('Error syncing data to Firebase:', expect.any(Error));
 
       consoleSpy.mockRestore();
+    });
+
+    it('pushes only user-created groups, never default ones', async () => {
+      vi.mocked(getTiles).mockResolvedValue([]);
+      vi.mocked(getCustomGroups).mockImplementation(async (filters: any) =>
+        filters?.isDefault === false
+          ? ([{ id: 1, name: 'Mine', isDefault: false }] as any)
+          : ([{ id: 9, name: 'Default', isDefault: true, intensities: [] }] as any)
+      );
+      vi.mocked(setDoc).mockResolvedValue(undefined);
+
+      await syncAllDataToFirebase();
+
+      expect(getCustomGroups).toHaveBeenCalledWith({ isDefault: false });
+      const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
+      expect(payload.customGroups).toEqual([{ id: 1, name: 'Mine', isDefault: false }]);
     });
   });
 
@@ -297,6 +381,92 @@ describe('syncService', () => {
         ])
       );
       expect(reconcileDisabledRows).toHaveBeenCalled();
+    });
+
+    it('publishes once after every merge, never per entity', async () => {
+      // Local content plus different remote content forces the merge path, which
+      // used to push from inside each entity sync — three writes racing.
+      vi.mocked(getDoc).mockResolvedValue({
+        exists: () => true,
+        data: () => ({
+          customTiles: [
+            {
+              id: 9,
+              group_id: 'remote-group-id',
+              intensity: 1,
+              action: 'Remote action',
+              tags: [],
+              isEnabled: 1,
+              isCustom: 1,
+            },
+          ],
+          customGroups: [],
+        }),
+      } as any);
+      vi.mocked(getTiles).mockImplementation(async (filters: any) =>
+        filters?.isCustom === 1
+          ? ([
+              {
+                id: 1,
+                group_id: 'local-group-id',
+                intensity: 1,
+                action: 'Local action',
+                isCustom: 1,
+              },
+            ] as any)
+          : []
+      );
+
+      const result = await syncDataFromFirebase();
+
+      expect(result).toBe(true);
+      expect(addCustomTile).toHaveBeenCalled();
+      expect(setDoc).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps extension records for groups this device has not seeded', async () => {
+      // CustomGroupExtensionsSync skips an unknown group expecting the record to
+      // survive in the cloud; a blind local snapshot would delete it.
+      const unseeded = {
+        groupName: 'ballBusting',
+        locale: 'de',
+        gameMode: 'local',
+        intensities: [{ value: 5, label: 'Brutal' }],
+      };
+      vi.mocked(getDoc).mockResolvedValue({
+        exists: () => true,
+        data: () => ({
+          customTiles: [],
+          customGroupExtensions: [unseeded],
+        }),
+      } as any);
+      // Local content with an empty cloud tiles list forces the cycle to publish.
+      vi.mocked(getTiles).mockImplementation(async (filters: any) =>
+        filters?.isCustom === 1
+          ? ([{ id: 1, group_id: 'g', intensity: 1, action: 'Local', isCustom: 1 }] as any)
+          : []
+      );
+
+      const result = await syncDataFromFirebase();
+
+      expect(result).toBe(true);
+      const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
+      expect(payload.customGroupExtensions).toEqual([unseeded]);
+    });
+
+    it('does not push when no merge changed anything', async () => {
+      vi.mocked(getDoc).mockResolvedValue({
+        exists: () => true,
+        data: () => ({ customTiles: [], customGroups: [], disabledDefaultsV2: [], settings: {} }),
+      } as any);
+      vi.mocked(getTiles).mockResolvedValue([]);
+      vi.mocked(getCustomGroups).mockResolvedValue([]);
+
+      const result = await syncDataFromFirebase();
+
+      expect(result).toBe(true);
+      // A no-op pull that pushed would echo straight back through the listener.
+      expect(setDoc).not.toHaveBeenCalled();
     });
 
     it('should handle case where disabled defaults are not in Firebase data', async () => {
@@ -595,86 +765,6 @@ describe('syncService', () => {
     });
   });
 
-  describe('syncCustomGroupsToFirebase', () => {
-    it('should sync only user-created groups, not default groups', async () => {
-      const mockUserGroups = [
-        {
-          id: 1,
-          title: 'My Custom Group',
-          isDefault: false,
-          locale: 'en',
-        },
-        {
-          id: 2,
-          title: 'Another Custom Group',
-          isDefault: false,
-          locale: 'en',
-        },
-      ];
-
-      // Mock getCustomGroups to return user groups when isDefault: false filter is applied
-      vi.mocked(getCustomGroups).mockImplementation(async (filters: any) => {
-        if (filters?.isDefault === false) return mockUserGroups as any;
-        return [];
-      });
-
-      vi.mocked(setDoc).mockResolvedValue(undefined);
-
-      const result = await syncCustomGroupsToFirebase();
-
-      expect(result).toBe(true);
-      expect(getCustomGroups).toHaveBeenCalledWith({ isDefault: false });
-      expect(setDoc).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          customGroups: mockUserGroups,
-          lastUpdated: expect.any(Date),
-        }),
-        { merge: true }
-      );
-    });
-
-    it('should handle empty user groups correctly', async () => {
-      vi.mocked(getCustomGroups).mockResolvedValue([]);
-      vi.mocked(setDoc).mockResolvedValue(undefined);
-
-      const result = await syncCustomGroupsToFirebase();
-
-      expect(result).toBe(true);
-      expect(setDoc).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          customGroups: [],
-          lastUpdated: expect.any(Date),
-        }),
-        { merge: true }
-      );
-    });
-
-    it('should return false when user is not logged in', async () => {
-      vi.mocked(getAuth).mockReturnValue({ currentUser: null } as any);
-
-      const result = await syncCustomGroupsToFirebase();
-
-      expect(result).toBe(false);
-      expect(getCustomGroups).not.toHaveBeenCalled();
-    });
-
-    it('should handle Firebase errors gracefully', async () => {
-      vi.mocked(getCustomGroups).mockResolvedValue([]);
-      vi.mocked(setDoc).mockRejectedValue(new Error('Firebase error'));
-
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      const result = await syncCustomGroupsToFirebase();
-
-      expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Error syncing custom groups:', expect.any(Error));
-
-      consoleSpy.mockRestore();
-    });
-  });
-
   describe('integration scenarios', () => {
     it('should handle complete login workflow without data loss', async () => {
       // Simulate user workflow:
@@ -721,7 +811,7 @@ describe('syncService', () => {
       vi.mocked(setDoc).mockResolvedValue(undefined);
 
       // Test upload
-      const uploadResult = await syncCustomTilesToFirebase();
+      const uploadResult = await syncAllDataToFirebase();
       expect(uploadResult).toBe(true);
 
       // Mock the download (when user logs back in)

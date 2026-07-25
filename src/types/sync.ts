@@ -11,6 +11,12 @@ export interface SyncResult {
   itemsProcessed?: number;
   conflicts?: string[];
   errors?: string[];
+  /**
+   * The merge altered local state (or local content the cloud lacks was found),
+   * so the cycle owes the cloud one push. Entity merges never push themselves —
+   * the orchestrator publishes once, after every merge has finished.
+   */
+  changed?: boolean;
 }
 
 export interface SyncConflictResolution {
@@ -30,9 +36,4 @@ export interface ConflictInfo {
   localCount: number;
   remoteCount: number;
   description: string;
-}
-
-export interface IntelligentSyncResult {
-  success: boolean;
-  conflicts: string[];
 }
