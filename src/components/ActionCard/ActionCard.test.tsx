@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ActionCard from './index';
+import { makeTurnFields } from '@/__tests__/fixtures/turnFields.fixtures';
 
 vi.mock('react-i18next', () => ({
   Trans: ({ i18nKey, values }: { i18nKey: string; values?: Record<string, unknown> }) =>
@@ -37,6 +38,7 @@ describe('ActionCard', () => {
   const defaultProps = {
     open: true,
     text: '#1: Test Tile\nAction: Take a drink',
+    turn: makeTurnFields({ location: 0, title: 'Test Tile', description: 'Take a drink' }),
     displayName: 'TestPlayer',
     handleClose: vi.fn(),
     stopAutoClose: vi.fn(),
@@ -107,6 +109,12 @@ describe('ActionCard', () => {
     const finishProps = {
       ...defaultProps,
       text: '#40: finish\naction: ruined',
+      turn: makeTurnFields({
+        location: 39,
+        title: 'finish',
+        description: 'ruined',
+        finished: true,
+      }),
       isMyMessage: true,
     };
 

@@ -1,19 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@/test-utils';
 import ActionCard from '../index';
-import type { TurnFields } from '@/types/Message';
-
-function makeTurn(overrides: Partial<TurnFields> = {}): TurnFields {
-  return {
-    kind: 'normal',
-    roll: 2,
-    location: 6,
-    title: 'Spanking',
-    description: '10 swats',
-    finished: false,
-    ...overrides,
-  };
-}
+import { makeTurnFields as makeTurn } from '@/__tests__/fixtures/turnFields.fixtures';
 
 describe('ActionCard', () => {
   it('reconstructs the #N: title header and shows the description from turn fields', () => {

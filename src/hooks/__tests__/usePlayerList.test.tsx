@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import usePlayerList from '@/hooks/usePlayerList';
 import type { Message } from '@/types/Message';
+import { makeTurnFields } from '@/__tests__/fixtures/turnFields.fixtures';
 
 const BASE = 1_700_000_000_000;
 const MIN = 60_000;
@@ -102,14 +103,13 @@ describe('usePlayerList turn fields', () => {
         // structured field should drive isFinished (defect 3 fix).
         text: 'लुढ़का: 3\n#40: समाप्त\nक्रिया: बधाई हो',
         timestamp: { toDate: () => new Date(BASE) } as Message['timestamp'],
-        turn: {
-          kind: 'normal',
+        turn: makeTurnFields({
           roll: 3,
           location: 39,
           title: 'समाप्त',
           description: 'बधाई हो',
           finished: true,
-        },
+        }),
       },
     ];
 
