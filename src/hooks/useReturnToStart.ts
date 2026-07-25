@@ -3,6 +3,7 @@ import { Params, useParams } from 'react-router-dom';
 import { sendMessage } from '@/services/firebase';
 import { useCallback } from 'react';
 import useAuth from '@/context/hooks/useAuth';
+import { TurnFields } from '@/types/Message';
 
 export default function useReturnToStart(): () => Promise<void> {
   const { t } = useTranslation();
@@ -11,13 +12,23 @@ export default function useReturnToStart(): () => Promise<void> {
 
   const send = useCallback(async (): Promise<void> => {
     if (!user) return;
-    const message = `${t('restartingGame')}\n#1: ${t('start')}\n${t('action')}: ${t('start')}`;
+    const title = t('start');
+    const message = `${t('restartingGame')}\n#1: ${title}\n${t('action')}: ${title}`;
+    const turn: TurnFields = {
+      kind: 'restart',
+      roll: null,
+      location: 0,
+      title,
+      description: title,
+      finished: false,
+    };
 
     await sendMessage({
       room,
       user,
       text: message,
       type: 'actions',
+      turn,
     });
   }, [room, user, t]);
 

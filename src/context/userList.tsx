@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
 import { Params, useParams } from 'react-router-dom';
 import { useShallow } from 'zustand/react/shallow';
-import { getUserList } from '@/services/firebase';
+import { getUserList } from '@/services/roomPresence';
 import { useUserListStore } from '@/stores/userListStore';
 
 export interface OnlineUser {
@@ -42,11 +42,6 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
   const onlineUsers = useUserListStore((s) => s.onlineUsers);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const prevRoomRef = useRef<string | undefined>(undefined);
-  const onlineUsersRef = useRef(onlineUsers);
-
-  useEffect(() => {
-    onlineUsersRef.current = onlineUsers;
-  }, [onlineUsers]);
 
   const handleUserUpdateRef = useRef<(newUsers: Record<string, unknown> | null) => void>(() => {});
 
@@ -123,7 +118,7 @@ function UserListProvider(props: UserListProviderProps): JSX.Element {
 
     cleanup();
 
-    const unsubscribe = getUserList(room, handleUserUpdate, onlineUsersRef.current);
+    const unsubscribe = getUserList(room, handleUserUpdate);
     unsubscribeRef.current = unsubscribe || null;
 
     return cleanup;

@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocalPlayers } from './useLocalPlayers';
 import usePlayerList from './usePlayerList';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { orderedMessagesByType } from '@/helpers/messages';
+import { getTurnFields } from '@/helpers/actionTurn';
+import { isActionsMessage } from '@/types/Message';
 import type { PlayerGender } from '@/types/localPlayers';
 
 interface BasePlayer {
@@ -36,6 +39,7 @@ export type HybridPlayer = LocalPlayerExtended | RemotePlayer;
  * Always ensures at least the current user is shown
  */
 export default function useHybridPlayerList(): HybridPlayer[] {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const remotePlayerList = usePlayerList();
   const { localPlayers, hasLocalPlayers, isLocalPlayerRoom } = useLocalPlayers();
@@ -80,12 +84,11 @@ export default function useHybridPlayerList(): HybridPlayer[] {
       const lastAction = userActions.find((m) => m.uid === user.uid);
       let location = 0;
 
-      if (lastAction?.text) {
-        const match = lastAction.text.match(/#(\d+):/);
-        if (match) {
-          // Messages show 1-indexed position, convert to 0-indexed for GameBoard
-          location = Math.max(0, Number(match[1]) - 1);
-        }
+      if (lastAction && isActionsMessage(lastAction)) {
+        location = getTurnFields(lastAction, {
+          finishWord: t('finish'),
+          startWord: t('start'),
+        }).location;
       }
 
       remotePlayersTyped.push({
@@ -101,7 +104,7 @@ export default function useHybridPlayerList(): HybridPlayer[] {
     }
 
     return remotePlayersTyped;
-  }, [user, remotePlayerList, localPlayers, hasLocalPlayers, isLocalPlayerRoom, messages]);
+  }, [user, remotePlayerList, localPlayers, hasLocalPlayers, isLocalPlayerRoom, messages, t]);
 
   return hybridPlayerList;
 }

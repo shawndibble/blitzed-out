@@ -23,7 +23,7 @@ function Harness({
 }: {
   initial: Form;
   onChange: (f: Form) => void;
-  nextStep?: (count?: number) => void;
+  nextStep?: () => void;
 }) {
   const [formData, setFormData] = useState<Form>(initial);
   return (
@@ -63,7 +63,7 @@ describe('PlayerTopologyStep — topology cards + Next', () => {
     expect(nextStep).not.toHaveBeenCalled();
   });
 
-  it('Next advances solo past the room/local-players screen', () => {
+  it('Next calls the plain step advancer — the flow module, not this component, decides solo skips step 2', () => {
     const nextStep = vi.fn();
     render(
       <Harness
@@ -74,7 +74,7 @@ describe('PlayerTopologyStep — topology cards + Next', () => {
     );
 
     fireEvent.click(screen.getByTestId('next'));
-    expect(nextStep).toHaveBeenCalledWith(2);
+    expect(nextStep).toHaveBeenCalledWith();
   });
 
   it('Just Me preserves an existing private solo room', () => {

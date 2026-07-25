@@ -300,32 +300,4 @@ describe('Firebase Authentication Service', () => {
       consoleSpy.mockRestore();
     });
   });
-
-  describe('getUserList', () => {
-    it('should return a function when called with valid parameters', async () => {
-      // Simple test to verify getUserList returns unsubscribe function
-      // This prevents regression of infinite loop bug where no cleanup was possible
-      const { getUserList } = await import('../firebase');
-
-      const callback = vi.fn();
-      const result = getUserList('TEST_ROOM', callback);
-
-      // The key fix: getUserList should return a cleanup function
-      // Before the fix, it returned void, making cleanup impossible
-      expect(typeof result).toBe('function');
-
-      // Verify the unsubscribe function is callable and safe to execute
-      expect(() => result?.()).not.toThrow();
-    });
-
-    it('should return undefined for invalid roomId to prevent unnecessary listeners', async () => {
-      const { getUserList } = await import('../firebase');
-
-      const callback = vi.fn();
-
-      expect(getUserList(null, callback)).toBeUndefined();
-      expect(getUserList(undefined, callback)).toBeUndefined();
-      expect(getUserList('', callback)).toBeUndefined();
-    });
-  });
 });

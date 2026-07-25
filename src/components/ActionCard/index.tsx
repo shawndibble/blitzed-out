@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Box, Divider, LinearProgress, Paper, Portal, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { extractAction, extractTime } from '@/helpers/strings';
+import { extractTime } from '@/helpers/strings';
 import CloseIcon from '@/components/CloseIcon';
 import CountDownButtonModal from '@/components/CountDownButtonModal';
 import GameOverScreen from '@/components/GameOverScreen';
 import { resolveFinishOutcome } from '@/helpers/finishOutcome';
 import { Player } from '@/types/player';
+import { TurnFields } from '@/types/Message';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import useCountdown from '@/hooks/useCountdown';
 import { useCardSound } from '@/hooks/useCardSound';
@@ -16,6 +17,7 @@ import { getCardVariants } from './animations';
 interface ActionCardProps {
   open: boolean;
   text?: string;
+  turn?: TurnFields;
   displayName?: string;
   handleClose: () => void;
   stopAutoClose?: () => void;
@@ -29,6 +31,7 @@ const AUTO_CLOSE_SECONDS = 20;
 export default function ActionCard({
   open,
   text = '',
+  turn,
   displayName = '',
   handleClose,
   stopAutoClose = () => null,
@@ -41,13 +44,13 @@ export default function ActionCard({
   const [showAutoCloseText, setShowAutoCloseText] = useState<boolean>(true);
   const playCardSound = useCardSound();
 
-  const title = text?.match(/#\d*:.*(?=\n)/gs);
-  const description = extractAction(text) || '';
+  const title = turn ? `#${turn.location + 1}: ${turn.title}` : '';
+  const description = turn?.description ?? '';
   const numbers = extractTime(text, t('seconds'));
   const { timeLeft, togglePause } = useCountdown(AUTO_CLOSE_SECONDS, false);
   const player = nextPlayer?.displayName;
 
-  const isGameOver = !!isMyMessage && text.includes(t('finish'));
+  const isGameOver = !!isMyMessage && !!turn?.finished;
 
   useEffect(() => {
     if (open) {

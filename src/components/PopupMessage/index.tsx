@@ -4,7 +4,8 @@ import useSoundAndDialog, { DialogResult } from '@/hooks/useSoundAndDialog';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
 import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import { useTranslation } from 'react-i18next';
-import { Message } from '@/types/Message';
+import { isActionsMessage, Message } from '@/types/Message';
+import { getTurnFields } from '@/helpers/actionTurn';
 
 const PopupMessage = (): JSX.Element | null => {
   const { t } = useTranslation();
@@ -20,22 +21,24 @@ const PopupMessage = (): JSX.Element | null => {
   const [lastIsMyMessage, setLastIsMyMessage] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
+  const lastMessageTurn =
+    lastMessage && isActionsMessage(lastMessage)
+      ? getTurnFields(lastMessage, { finishWord: t('finish'), startWord: t('start') })
+      : undefined;
+
   // The game-over screen requires an explicit choice; while it is showing,
   // other players' rolls must not replace or close it.
-  const isGameOverShowing = isOpen && lastIsMyMessage && !!lastMessage?.text?.includes(t('finish'));
+  const isGameOverShowing = isOpen && lastIsMyMessage && !!lastMessageTurn?.finished;
 
   // Update last message when we get a valid new message
   useEffect(() => {
-    if (
-      message &&
-      typeof message === 'object' &&
-      message.text &&
-      !message.text.includes(t('start')) &&
-      !isGameOverShowing
-    ) {
-      setLastMessage(message);
-      setLastIsMyMessage(isMyMessage);
-      setIsOpen(true);
+    if (message && typeof message === 'object' && message.text && isActionsMessage(message)) {
+      const fields = getTurnFields(message, { finishWord: t('finish'), startWord: t('start') });
+      if (fields.kind !== 'restart' && !isGameOverShowing) {
+        setLastMessage(message);
+        setLastIsMyMessage(isMyMessage);
+        setIsOpen(true);
+      }
     }
   }, [message, t, isMyMessage, isGameOverShowing]);
 
@@ -70,6 +73,7 @@ const PopupMessage = (): JSX.Element | null => {
   return (
     <ActionCard
       text={lastMessage.text}
+      turn={lastMessageTurn}
       displayName={lastMessage.displayName}
       open={isOpen}
       handleClose={closeActionCard}

@@ -60,14 +60,13 @@ Top-level defaults deny (`".read": false, ".write": false`) — good baseline. T
 | Path                                                | Read                                              | Write                              | Notes                                                       |
 | --------------------------------------------------- | ------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------- |
 | `users` / `users/{uid}`                             | **public (`true`)**                               | owner only (`auth.uid == $userId`) | ⚠ All presence records globally readable. Writes validated. |
-| `rooms/{roomId}/uids/{uid}/{connId}`                | **public (`true`)**                               | owner only                         | Presence/connection list world-readable.                    |
 | `video-calls/{roomId}`                              | `auth != null`                                    | —                                  |                                                             |
 | `…/users/{uid}`                                     | `auth != null`                                    | owner only                         | Validated.                                                  |
 | `…/offers \| answers \| ice-candidates/{targetUid}` | **only the target** (`auth.uid == $targetUserId`) | **any auth (`auth != null`)**      | Read is correctly scoped; write is open.                    |
 
 **Key weaknesses:**
 
-1. **Presence is world-readable** (`users/.read: true`, `rooms/.../uids` read `true`): anyone can enumerate display names, which room each user is in, and `lastSeen`. Privacy gap for an adult app. Hardening: scope reads to authenticated users / own record.
+1. **Presence is world-readable** (`users/.read: true`): anyone can enumerate display names, which room each user is in, and `lastSeen`. Privacy gap for an adult app. Hardening: scope reads to authenticated users / own record.
 2. **Signaling writes aren't scoped to the target** (`offers/answers/ice-candidates` write = `auth != null`). A malicious authed user can spam bogus offers/answers/candidates into another user's signaling path. Impact is limited (reads _are_ target-scoped, so they can't intercept responses), but it enables signaling-channel griefing. Hardening: require `auth.uid == $targetUserId` or validate the `from` field.
 
 ---
@@ -134,7 +133,7 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 ## Prioritized hardening backlog
 
 1. **Enforce room membership in `chat-rooms` rules** (read + write) — highest-value fix; today private rooms are obscurity-only.
-2. **Scope RTDB presence reads** (`users`, `rooms/*/uids`) to auth/own record.
+2. **Scope RTDB presence reads** (`users`) to auth/own record.
 3. **Scope signaling writes** to the target user (or validate `from`).
 4. **Make admin-callable gating consistent**, add rate limiting.
 5. Sanitize/normalize display names; add a privacy notice + analytics opt-out.

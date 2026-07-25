@@ -17,8 +17,27 @@ interface ChatMessage extends BaseMessage {
   type: 'chat';
 }
 
-interface ActionsMessage extends BaseMessage {
+/**
+ * A single dice turn, carried as named fields rather than parsed back out of
+ * the display string. `roll` is null for a restart (no dice were rolled).
+ * `location` is 0-indexed. `finished` is true whenever the player is sitting
+ * on the last tile after this turn (whether they just landed there or were
+ * already there and rolled again).
+ */
+export interface TurnFields {
+  kind: 'normal' | 'restart' | 'alreadyFinished';
+  roll: number | null;
+  location: number;
+  title: string;
+  description: string;
+  finished: boolean;
+}
+
+export interface ActionsMessage extends BaseMessage {
   type: 'actions';
+  // Optional: absent on messages written before this field shipped — see
+  // helpers/actionTurn.ts's decodeLegacyActionText for the back-compat path.
+  turn?: TurnFields;
 }
 
 interface SettingsMessage extends BaseMessage {
@@ -52,3 +71,7 @@ interface MediaMessage extends BaseMessage {
 }
 
 export type Message = ChatMessage | ActionsMessage | SettingsMessage | RoomMessage | MediaMessage;
+
+export function isActionsMessage(message: Message): message is ActionsMessage {
+  return message.type === 'actions';
+}

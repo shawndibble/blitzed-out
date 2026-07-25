@@ -4,7 +4,9 @@ import '@/types/window';
 import { Box, Button, Divider, Grid, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 
-import { detectCastEnvironment, parseActionCard } from '@/helpers/cast';
+import { detectCastEnvironment } from '@/helpers/cast';
+import { getTurnFields } from '@/helpers/actionTurn';
+import { isActionsMessage } from '@/types/Message';
 import RoomBackground from '@/components/RoomBackground';
 import ToastAlert from '@/components/ToastAlert';
 import { Trans } from 'react-i18next';
@@ -209,7 +211,13 @@ export default function Cast() {
     );
   }
 
-  const { displayName, type, activity } = parseActionCard(lastAction);
+  const displayName = lastAction.displayName;
+  const turnFields =
+    displayName && isActionsMessage(lastAction)
+      ? getTurnFields(lastAction, { finishWord: t('finish'), startWord: t('start') })
+      : undefined;
+  const type = turnFields?.title;
+  const activity = turnFields?.description;
 
   return (
     <Box

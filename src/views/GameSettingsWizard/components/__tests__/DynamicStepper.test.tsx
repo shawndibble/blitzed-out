@@ -6,22 +6,6 @@ import DynamicStepper from '../DynamicStepper';
 import darkTheme from '@/theme';
 import userEvent from '@testing-library/user-event';
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback?: string) => {
-      const translations: Record<string, string> = {
-        'playerTopology.stepLabel': 'Player Setup',
-        roomSelection: 'Room Selection',
-        'localPlayersStep.title': 'Local Players',
-        gameModeSelection: 'Game Mode Selection',
-        actionsSelection: 'Actions Selection',
-        finishSetup: 'Finish Setup',
-      };
-      return translations[key] || fallback || key;
-    },
-  }),
-}));
-
 vi.mock('@mui/material', async () => {
   const actual = await vi.importActual('@mui/material');
   return {
@@ -36,11 +20,32 @@ const renderWithTheme = (ui: React.ReactElement) => {
   return render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
 };
 
+// DynamicStepper is purely presentational: it draws whatever step list and
+// active index it's given. Which steps exist for a topology, and the
+// wizardStep <-> stepper-index mapping, are wizardFlow.ts's job — covered by
+// wizardFlow.test.ts (the list) and WizardFlowGuard.test.tsx (the render-based
+// binding between what the stepper shows and what the router mounts).
 describe('DynamicStepper', () => {
   const mockOnStepClick = vi.fn();
 
+  const fourSteps = [
+    { label: 'Player Setup', wizardStep: 1 },
+    { label: 'Game Mode Selection', wizardStep: 3 },
+    { label: 'Actions Selection', wizardStep: 4 },
+    { label: 'Finish Setup', wizardStep: 5 },
+  ];
+
+  const fiveSteps = [
+    { label: 'Player Setup', wizardStep: 1 },
+    { label: 'Local Players', wizardStep: 2 },
+    { label: 'Game Mode Selection', wizardStep: 3 },
+    { label: 'Actions Selection', wizardStep: 4 },
+    { label: 'Finish Setup', wizardStep: 5 },
+  ];
+
   const defaultProps = {
-    currentStep: 1,
+    steps: fourSteps,
+    activeStep: 0,
     onStepClick: mockOnStepClick,
   };
 
@@ -58,172 +63,81 @@ describe('DynamicStepper', () => {
     });
 
     it('renders with required props only (no onStepClick)', () => {
-      renderWithTheme(<DynamicStepper currentStep={1} />);
+      renderWithTheme(<DynamicStepper steps={fourSteps} activeStep={0} />);
 
       expect(document.querySelector('.MuiStepper-root')).toBeInTheDocument();
     });
 
-    it('displays proper step organization and layout', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} />);
+    it('renders exactly one MuiStep per entry in the steps prop', () => {
+      renderWithTheme(<DynamicStepper {...defaultProps} steps={fiveSteps} />);
 
-      const stepper = document.querySelector('.MuiStepper-root');
-      expect(stepper).toBeInTheDocument();
-      expect(stepper).toHaveClass('MuiStepper-horizontal');
+      expect(document.querySelectorAll('.MuiStep-root')).toHaveLength(5);
+    });
+
+    it('renders the given labels in order', () => {
+      renderWithTheme(<DynamicStepper {...defaultProps} steps={fiveSteps} />);
+
+      const labels = Array.from(document.querySelectorAll('.MuiStepLabel-label')).map(
+        (el) => el.textContent
+      );
+      expect(labels).toEqual([
+        'Player Setup',
+        'Local Players',
+        'Game Mode Selection',
+        'Actions Selection',
+        'Finish Setup',
+      ]);
     });
   });
 
-  describe('Game Mode Configuration', () => {
-    describe('Solo / Default (4 steps)', () => {
-      it('displays 4 steps when gameMode is solo', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="solo" />);
+  describe('Active step highlighting', () => {
+    it('marks the entry at activeStep as active', () => {
+      renderWithTheme(<DynamicStepper {...defaultProps} steps={fiveSteps} activeStep={1} />);
 
-        const steps = document.querySelectorAll('.MuiStep-root');
-        expect(steps).toHaveLength(4);
-      });
-
-      it('displays 4 steps when gameMode is undefined', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} />);
-
-        const steps = document.querySelectorAll('.MuiStep-root');
-        expect(steps).toHaveLength(4);
-      });
-
-      it('shows correct step labels for solo mode', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="solo" />);
-
-        expect(screen.getByText('Player Setup')).toBeInTheDocument();
-        expect(screen.getByText('Game Mode Selection')).toBeInTheDocument();
-        expect(screen.getByText('Actions Selection')).toBeInTheDocument();
-        expect(screen.getByText('Finish Setup')).toBeInTheDocument();
-      });
-
-      it('does not show Local Players or Room Selection in solo mode', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="solo" />);
-
-        expect(screen.queryByText('Local Players')).not.toBeInTheDocument();
-        expect(screen.queryByText('Room Selection')).not.toBeInTheDocument();
-      });
+      const activeLabel = document.querySelector('.MuiStepLabel-label.Mui-active');
+      expect(activeLabel).toHaveTextContent('Local Players');
     });
 
-    describe('Local Mode (5 steps)', () => {
-      it('displays 5 steps when gameMode is local', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
+    it('marks no step active when activeStep is -1 (not-found sentinel)', () => {
+      renderWithTheme(<DynamicStepper {...defaultProps} activeStep={-1} />);
 
-        const steps = document.querySelectorAll('.MuiStep-root');
-        expect(steps).toHaveLength(5);
-      });
-
-      it('shows correct step labels for local mode', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
-
-        expect(screen.getByText('Player Setup')).toBeInTheDocument();
-        expect(screen.getByText('Local Players')).toBeInTheDocument();
-        expect(screen.getByText('Game Mode Selection')).toBeInTheDocument();
-        expect(screen.getByText('Actions Selection')).toBeInTheDocument();
-        expect(screen.getByText('Finish Setup')).toBeInTheDocument();
-      });
-
-      it('does not show Room Selection in local mode', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
-
-        expect(screen.queryByText('Room Selection')).not.toBeInTheDocument();
-      });
+      expect(document.querySelectorAll('.MuiStepLabel-label.Mui-active')).toHaveLength(0);
     });
 
-    describe('Online Mode (5 steps)', () => {
-      it('displays 5 steps when gameMode is online', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="online" />);
+    it('does not crash when activeStep is out of bounds', () => {
+      renderWithTheme(<DynamicStepper {...defaultProps} activeStep={99} />);
 
-        const steps = document.querySelectorAll('.MuiStep-root');
-        expect(steps).toHaveLength(5);
-      });
-
-      it('shows correct step labels for online mode', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="online" />);
-
-        expect(screen.getByText('Player Setup')).toBeInTheDocument();
-        expect(screen.getByText('Room Selection')).toBeInTheDocument();
-        expect(screen.getByText('Game Mode Selection')).toBeInTheDocument();
-        expect(screen.getByText('Actions Selection')).toBeInTheDocument();
-        expect(screen.getByText('Finish Setup')).toBeInTheDocument();
-      });
-
-      it('does not show Local Players in online mode', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="online" />);
-
-        expect(screen.queryByText('Local Players')).not.toBeInTheDocument();
-      });
-    });
-
-    describe('Step count changes with gameMode', () => {
-      it('updates step count when gameMode changes', () => {
-        const { rerender } = renderWithTheme(<DynamicStepper {...defaultProps} gameMode="solo" />);
-
-        let steps = document.querySelectorAll('.MuiStep-root');
-        expect(steps).toHaveLength(4);
-
-        rerender(<DynamicStepper {...defaultProps} gameMode="local" />);
-        steps = document.querySelectorAll('.MuiStep-root');
-        expect(steps).toHaveLength(5);
-
-        rerender(<DynamicStepper {...defaultProps} gameMode="solo" />);
-        steps = document.querySelectorAll('.MuiStep-root');
-        expect(steps).toHaveLength(4);
-      });
+      expect(document.querySelector('.MuiStepper-root')).toBeInTheDocument();
+      expect(document.querySelectorAll('.MuiStepLabel-label.Mui-active')).toHaveLength(0);
     });
   });
 
-  describe('Step Navigation', () => {
-    it('highlights current step correctly for local mode', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" currentStep={2} />);
-
-      const steps = document.querySelectorAll('.MuiStep-root');
-      expect(steps).toHaveLength(5);
-      expect(steps[1]).toBeInTheDocument();
-      expect(screen.getByText('Local Players')).toBeInTheDocument();
-    });
-
-    it('calls onStepClick with wizard step 2 when Local Players step is clicked', async () => {
+  describe('Step click handling', () => {
+    it('calls onStepClick with the wizardStep of the clicked entry, not the DOM index', async () => {
       const user = userEvent.setup();
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
+      renderWithTheme(<DynamicStepper {...defaultProps} steps={fiveSteps} />);
 
       await user.click(screen.getByText('Local Players'));
-
       expect(mockOnStepClick).toHaveBeenCalledWith(2);
-    });
-
-    it('calls onStepClick with wizard step 2 when Room Selection step is clicked', async () => {
-      const user = userEvent.setup();
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="online" />);
-
-      await user.click(screen.getByText('Room Selection'));
-
-      expect(mockOnStepClick).toHaveBeenCalledWith(2);
-    });
-
-    it('does not call onStepClick when callback is not provided', async () => {
-      const user = userEvent.setup();
-      renderWithTheme(<DynamicStepper currentStep={1} gameMode="local" />);
-
-      await user.click(screen.getByText('Player Setup'));
-
-      expect(mockOnStepClick).not.toHaveBeenCalled();
-    });
-
-    it('handles multiple step clicks correctly for local mode', async () => {
-      const user = userEvent.setup();
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
-
-      await user.click(screen.getByText('Player Setup'));
-      expect(mockOnStepClick).toHaveBeenCalledWith(1);
-
-      await user.click(screen.getByText('Actions Selection'));
-      expect(mockOnStepClick).toHaveBeenCalledWith(4);
 
       await user.click(screen.getByText('Finish Setup'));
       expect(mockOnStepClick).toHaveBeenCalledWith(5);
+    });
 
-      expect(mockOnStepClick).toHaveBeenCalledTimes(3);
+    it('does not call onStepClick when the callback is not provided', async () => {
+      const user = userEvent.setup();
+      renderWithTheme(<DynamicStepper steps={fourSteps} activeStep={0} />);
+
+      await user.click(screen.getByText('Player Setup'));
+      expect(mockOnStepClick).not.toHaveBeenCalled();
+    });
+
+    it('shows default cursor when onStepClick is not provided', () => {
+      renderWithTheme(<DynamicStepper steps={fourSteps} activeStep={0} />);
+
+      document
+        .querySelectorAll('.MuiStepLabel-root')
+        .forEach((label) => expect(label).toHaveStyle({ cursor: 'default' }));
     });
   });
 
@@ -234,7 +148,7 @@ describe('DynamicStepper', () => {
       });
 
       it('shows step labels on desktop', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
+        renderWithTheme(<DynamicStepper {...defaultProps} steps={fiveSteps} />);
 
         expect(screen.getByText('Player Setup')).toBeInTheDocument();
         expect(screen.getByText('Local Players')).toBeInTheDocument();
@@ -253,10 +167,7 @@ describe('DynamicStepper', () => {
 
         const stepLabels = document.querySelectorAll('.MuiStepLabel-label');
         expect(stepLabels.length).toBeGreaterThan(0);
-
-        stepLabels.forEach((label) => {
-          expect(label).not.toHaveStyle({ display: 'none' });
-        });
+        stepLabels.forEach((label) => expect(label).not.toHaveStyle({ display: 'none' }));
       });
     });
 
@@ -269,9 +180,7 @@ describe('DynamicStepper', () => {
         renderWithTheme(<DynamicStepper {...defaultProps} />);
 
         const stepLabels = document.querySelectorAll('.MuiStepLabel-label');
-        stepLabels.forEach((label) => {
-          expect(label).toHaveStyle({ display: 'none' });
-        });
+        stepLabels.forEach((label) => expect(label).toHaveStyle({ display: 'none' }));
       });
 
       it('does not use alternative label layout on mobile', () => {
@@ -280,19 +189,10 @@ describe('DynamicStepper', () => {
         const stepper = document.querySelector('.MuiStepper-root');
         expect(stepper).not.toHaveClass('MuiStepper-alternativeLabel');
       });
-
-      it('applies mobile-specific styling', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} />);
-
-        const stepLabels = document.querySelectorAll('.MuiStepLabel-label');
-        stepLabels.forEach((label) => {
-          expect(label).toHaveStyle({ display: 'none' });
-        });
-      });
     });
 
     describe('Media Query Integration', () => {
-      it('calls useMediaQuery with correct breakpoint', () => {
+      it('calls useMediaQuery with the expected breakpoint', () => {
         renderWithTheme(<DynamicStepper {...defaultProps} />);
 
         expect(mockUseMediaQuery).toHaveBeenCalled();
@@ -303,329 +203,57 @@ describe('DynamicStepper', () => {
         const { rerender } = renderWithTheme(<DynamicStepper {...defaultProps} />);
 
         mockUseMediaQuery.mockReturnValue(false);
-        rerender(<DynamicStepper {...defaultProps} />);
-
-        let stepLabels = document.querySelectorAll('.MuiStepLabel-label');
-        stepLabels.forEach((label) => {
-          expect(label).not.toHaveStyle({ display: 'none' });
-        });
+        rerender(
+          <ThemeProvider theme={darkTheme}>
+            <DynamicStepper {...defaultProps} />
+          </ThemeProvider>
+        );
+        document
+          .querySelectorAll('.MuiStepLabel-label')
+          .forEach((label) => expect(label).not.toHaveStyle({ display: 'none' }));
 
         mockUseMediaQuery.mockReturnValue(true);
-        rerender(<DynamicStepper {...defaultProps} />);
-
-        stepLabels = document.querySelectorAll('.MuiStepLabel-label');
-        stepLabels.forEach((label) => {
-          expect(label).toHaveStyle({ display: 'none' });
-        });
-      });
-    });
-  });
-
-  describe('User Interactions', () => {
-    describe('Step Click Handling', () => {
-      it('shows pointer cursor when onStepClick is provided', async () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} />);
-
-        const stepLabels = document.querySelectorAll('.MuiStepLabel-root');
-        expect(stepLabels.length).toBeGreaterThan(0);
-
-        const firstLabel = stepLabels[0] as HTMLElement;
-        firstLabel.click();
-
-        expect(mockOnStepClick).toHaveBeenCalled();
-      });
-
-      it('shows default cursor when onStepClick is not provided', () => {
-        renderWithTheme(<DynamicStepper currentStep={1} />);
-
-        const stepLabels = document.querySelectorAll('.MuiStepLabel-root');
-        stepLabels.forEach((label) => {
-          expect(label).toHaveStyle({ cursor: 'default' });
-        });
-      });
-
-      it('applies hover styles when onStepClick is provided', () => {
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
-
-        const stepLabels = document.querySelectorAll('.MuiStepLabel-root');
-        expect(stepLabels.length).toBeGreaterThan(0);
-
-        stepLabels.forEach((label) => {
-          (label as HTMLElement).click();
-        });
-
-        expect(mockOnStepClick).toHaveBeenCalledTimes(stepLabels.length);
-      });
-
-      it('executes callback with correct parameters for local mode', async () => {
-        const user = userEvent.setup();
-        renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" currentStep={1} />);
-
-        await user.click(screen.getByText('Player Setup'));
-        expect(mockOnStepClick).toHaveBeenLastCalledWith(1);
-
-        await user.click(screen.getByText('Local Players'));
-        expect(mockOnStepClick).toHaveBeenLastCalledWith(2);
-
-        await user.click(screen.getByText('Game Mode Selection'));
-        expect(mockOnStepClick).toHaveBeenLastCalledWith(3);
-
-        await user.click(screen.getByText('Actions Selection'));
-        expect(mockOnStepClick).toHaveBeenLastCalledWith(4);
-
-        await user.click(screen.getByText('Finish Setup'));
-        expect(mockOnStepClick).toHaveBeenLastCalledWith(5);
-      });
-    });
-
-    describe('Interactive Behavior', () => {
-      it('maintains interactivity across different currentStep values', async () => {
-        const user = userEvent.setup();
-        const { rerender } = renderWithTheme(
-          <DynamicStepper {...defaultProps} gameMode="local" currentStep={1} />
+        rerender(
+          <ThemeProvider theme={darkTheme}>
+            <DynamicStepper {...defaultProps} />
+          </ThemeProvider>
         );
-
-        await user.click(screen.getByText('Actions Selection'));
-        expect(mockOnStepClick).toHaveBeenCalledWith(4);
-
-        rerender(<DynamicStepper {...defaultProps} gameMode="local" currentStep={3} />);
-
-        await user.click(screen.getByText('Finish Setup'));
-        expect(mockOnStepClick).toHaveBeenCalledWith(5);
-      });
-
-      it('handles rapid clicks appropriately', async () => {
-        const user = userEvent.setup();
-        renderWithTheme(<DynamicStepper {...defaultProps} />);
-
-        const playerSetupStep = screen.getByText('Player Setup');
-
-        await user.click(playerSetupStep);
-        await user.click(playerSetupStep);
-        await user.click(playerSetupStep);
-
-        expect(mockOnStepClick).toHaveBeenCalledTimes(3);
-        expect(mockOnStepClick).toHaveBeenCalledWith(1);
+        document
+          .querySelectorAll('.MuiStepLabel-label')
+          .forEach((label) => expect(label).toHaveStyle({ display: 'none' }));
       });
     });
   });
 
-  describe('Translation Integration', () => {
-    it('uses correct translation keys for step labels in local mode', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
+  describe('Stability across prop changes', () => {
+    it('rerenders cleanly as steps and activeStep change', () => {
+      const { rerender } = renderWithTheme(<DynamicStepper {...defaultProps} steps={fiveSteps} />);
 
-      expect(screen.getByText('Player Setup')).toBeInTheDocument();
-      expect(screen.getByText('Local Players')).toBeInTheDocument();
-      expect(screen.getByText('Game Mode Selection')).toBeInTheDocument();
-      expect(screen.getByText('Actions Selection')).toBeInTheDocument();
-      expect(screen.getByText('Finish Setup')).toBeInTheDocument();
-    });
-
-    it('converts translation results to strings', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} />);
-
-      const stepElements = document.querySelectorAll('.MuiStepLabel-label');
-      stepElements.forEach((element) => {
-        expect(element.textContent).toBeTruthy();
-        expect(typeof element.textContent).toBe('string');
-      });
-    });
-
-    it('handles translation fallbacks gracefully', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} />);
-
-      expect(document.querySelector('.MuiStepper-root')).toBeInTheDocument();
-    });
-
-    it('applies localization support for all step labels in online mode', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="online" />);
-
-      const expectedLabels = [
-        'Player Setup',
-        'Room Selection',
-        'Game Mode Selection',
-        'Actions Selection',
-        'Finish Setup',
-      ];
-
-      expectedLabels.forEach((label) => {
-        expect(screen.getByText(label)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Edge Cases', () => {
-    it('handles invalid currentStep values', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} currentStep={-1} />);
-
-      expect(document.querySelector('.MuiStepper-root')).toBeInTheDocument();
-
-      const activeSteps = document.querySelectorAll('.MuiStep-root.Mui-active');
-      expect(activeSteps).toHaveLength(0);
-    });
-
-    it('handles boundary step indices correctly', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" currentStep={1} />);
-      let steps = document.querySelectorAll('.MuiStep-root');
-      expect(steps[0]).toBeInTheDocument();
-
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" currentStep={5} />);
-      steps = document.querySelectorAll('.MuiStep-root');
-      expect(steps[4]).toBeInTheDocument();
-
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="solo" currentStep={5} />);
-      steps = document.querySelectorAll('.MuiStep-root');
-      expect(steps[3]).toBeInTheDocument();
-    });
-
-    it('handles step index out of bounds', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} currentStep={10} />);
-
-      expect(document.querySelector('.MuiStepper-root')).toBeInTheDocument();
-      const activeSteps = document.querySelectorAll('.MuiStep-root.Mui-active');
-      expect(activeSteps).toHaveLength(0);
-    });
-
-    it('handles prop combinations correctly', () => {
-      const combinations = [
-        { currentStep: 1, gameMode: 'solo' as const, onStepClick: undefined },
-        { currentStep: 5, gameMode: 'local' as const, onStepClick: mockOnStepClick },
-        { currentStep: 3, gameMode: 'online' as const, onStepClick: mockOnStepClick },
-        { currentStep: 2, gameMode: 'local' as const, onStepClick: undefined },
-      ];
-
-      combinations.forEach((props, index) => {
-        const { rerender } = renderWithTheme(<DynamicStepper {...props} />);
-
-        expect(document.querySelector('.MuiStepper-root')).toBeInTheDocument();
-
-        if (index < combinations.length - 1) {
-          rerender(<DynamicStepper {...combinations[index + 1]} />);
-        }
-      });
-    });
-
-    it('maintains component stability with frequent prop changes', () => {
-      const { rerender } = renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
-
-      for (let i = 1; i <= 5; i++) {
-        rerender(<DynamicStepper {...defaultProps} gameMode="local" currentStep={i} />);
+      for (let activeStep = 0; activeStep < fiveSteps.length; activeStep++) {
+        rerender(
+          <ThemeProvider theme={darkTheme}>
+            <DynamicStepper {...defaultProps} steps={fiveSteps} activeStep={activeStep} />
+          </ThemeProvider>
+        );
         expect(document.querySelector('.MuiStepper-root')).toBeInTheDocument();
       }
 
-      rerender(<DynamicStepper {...defaultProps} gameMode="solo" />);
-      expect(document.querySelectorAll('.MuiStep-root')).toHaveLength(4);
-
-      rerender(<DynamicStepper {...defaultProps} gameMode="local" />);
-      expect(document.querySelectorAll('.MuiStep-root')).toHaveLength(5);
-    });
-  });
-
-  describe('Styling and Accessibility', () => {
-    it('applies correct stepper orientation', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} />);
-
-      const stepper = document.querySelector('.MuiStepper-root');
-      expect(stepper).toBeInTheDocument();
-    });
-
-    it('maintains accessibility attributes for steps', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
-
-      const steps = document.querySelectorAll('.MuiStep-root');
-      steps.forEach((step) => {
-        expect(step).toBeInTheDocument();
-
-        const stepLabel = step.querySelector('.MuiStepLabel-root');
-        expect(stepLabel).toBeInTheDocument();
-      });
-    });
-
-    it('applies conditional styling based on interactivity', () => {
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" />);
-
-      const stepLabels = document.querySelectorAll('.MuiStepLabel-root');
-      expect(stepLabels.length).toBeGreaterThan(0);
-
-      stepLabels.forEach((label) => {
-        (label as HTMLElement).click();
-      });
-
-      expect(mockOnStepClick).toHaveBeenCalledTimes(stepLabels.length);
-    });
-
-    it('handles mobile-specific accessibility', () => {
-      mockUseMediaQuery.mockReturnValue(true);
-      renderWithTheme(<DynamicStepper {...defaultProps} />);
-
-      const stepper = document.querySelector('.MuiStepper-root');
-      expect(stepper).toBeInTheDocument();
-    });
-
-    it('maintains accessibility during gameMode transitions', () => {
-      const { rerender } = renderWithTheme(<DynamicStepper {...defaultProps} gameMode="solo" />);
-
-      let stepper = document.querySelector('.MuiStepper-root');
-      expect(stepper).toBeInTheDocument();
-
-      rerender(<DynamicStepper {...defaultProps} gameMode="local" />);
-      stepper = document.querySelector('.MuiStepper-root');
-      expect(stepper).toBeInTheDocument();
-    });
-  });
-
-  describe('GameSettingsWizard Integration Scenarios', () => {
-    it('handles wizard step navigation patterns for local mode workflow', async () => {
-      const user = userEvent.setup();
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="local" currentStep={2} />);
-
-      expect(screen.getByText('Player Setup')).toBeInTheDocument();
-      expect(screen.getByText('Local Players')).toBeInTheDocument();
-      expect(screen.getByText('Actions Selection')).toBeInTheDocument();
-      expect(screen.getByText('Finish Setup')).toBeInTheDocument();
-
-      await user.click(screen.getByText('Player Setup'));
-      expect(mockOnStepClick).toHaveBeenCalledWith(1);
-
-      await user.click(screen.getByText('Finish Setup'));
-      expect(mockOnStepClick).toHaveBeenCalledWith(5);
-    });
-
-    it('handles wizard step navigation patterns for online mode workflow', async () => {
-      const user = userEvent.setup();
-      renderWithTheme(<DynamicStepper {...defaultProps} gameMode="online" currentStep={2} />);
-
-      const expectedSteps = [
-        { label: 'Player Setup', wizardStep: 1 },
-        { label: 'Room Selection', wizardStep: 2 },
-        { label: 'Game Mode Selection', wizardStep: 3 },
-        { label: 'Actions Selection', wizardStep: 4 },
-        { label: 'Finish Setup', wizardStep: 5 },
-      ];
-
-      expectedSteps.forEach(({ label }) => {
-        expect(screen.getByText(label)).toBeInTheDocument();
-      });
-
-      for (const { label, wizardStep } of expectedSteps) {
-        await user.click(screen.getByText(label));
-        expect(mockOnStepClick).toHaveBeenCalledWith(wizardStep);
-      }
-    });
-
-    it('maintains step consistency during formData updates', () => {
-      const { rerender } = renderWithTheme(
-        <DynamicStepper {...defaultProps} gameMode="local" currentStep={2} />
+      rerender(
+        <ThemeProvider theme={darkTheme}>
+          <DynamicStepper {...defaultProps} steps={fourSteps} />
+        </ThemeProvider>
       );
+      expect(document.querySelectorAll('.MuiStep-root')).toHaveLength(4);
+    });
+  });
 
-      let steps = document.querySelectorAll('.MuiStep-root');
-      expect(steps[1]).toBeInTheDocument();
+  describe('Accessibility', () => {
+    it('every step has a StepLabel', () => {
+      renderWithTheme(<DynamicStepper {...defaultProps} steps={fiveSteps} />);
 
-      rerender(<DynamicStepper {...defaultProps} gameMode="online" currentStep={2} />);
-
-      steps = document.querySelectorAll('.MuiStep-root');
-      expect(steps).toHaveLength(5);
-      expect(steps[1]).toBeInTheDocument();
+      document.querySelectorAll('.MuiStep-root').forEach((step) => {
+        expect(step.querySelector('.MuiStepLabel-root')).toBeInTheDocument();
+      });
     });
   });
 });

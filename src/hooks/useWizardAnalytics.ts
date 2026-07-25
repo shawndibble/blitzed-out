@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { analytics } from '@/services/analytics';
-import { getWizardStepName } from '@/views/GameSettingsWizard/stepConfig';
+import { stepAnalyticsName } from '@/views/GameSettingsWizard/wizardFlow';
 
 interface UseWizardAnalyticsProps {
   gameMode?: string;
@@ -33,7 +33,7 @@ export function useWizardAnalytics({
 
   const trackScreenView = useCallback(
     (step: number) => {
-      const screenName = getWizardStepName(step);
+      const screenName = stepAnalyticsName(step);
       if (screenName === lastScreenRef.current) return;
       lastScreenRef.current = screenName;
       analytics.trackWizardScreenView(screenName, gameMode, roomType);

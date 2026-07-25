@@ -23,11 +23,6 @@ export function a11yProps(index: number | string): {
   };
 }
 
-export function extractAction(message?: string): string | undefined {
-  const textLines = message?.split(/\r?\n/) || [];
-  return textLines[textLines.length - 1]?.split(':')[1];
-}
-
 export function extractTime(string: string, timeValue: string): string[] | undefined {
   const reg = new RegExp(`\\d+\\s${timeValue}`, 'g');
   return string.match(reg)?.filter((value, index, array) => array.indexOf(value) === index);

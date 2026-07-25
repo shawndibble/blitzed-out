@@ -6,7 +6,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Trans, useTranslation } from 'react-i18next';
 import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
-import { extractAction, isPublicRoom } from '@/helpers/strings';
+import { isPublicRoom } from '@/helpers/strings';
 import { useCallback, useMemo, useState } from 'react';
 
 import ActionText from './actionText';
@@ -14,9 +14,10 @@ import CopyToClipboard from '@/components/CopyToClipboard';
 import DeleteMessageButton from '@/components/DeleteMessageButton';
 import GameOverScreen from '@/components/GameOverScreen';
 import { resolveFinishOutcome } from '@/helpers/finishOutcome';
+import { getTurnFields } from '@/helpers/actionTurn';
 import { Link } from 'react-router-dom';
 import Markdown from 'react-markdown';
-import { Message as MessageType, Base64ImageObject } from '@/types/Message';
+import { Message as MessageType, Base64ImageObject, isActionsMessage } from '@/types/Message';
 import ShareIcon from '@mui/icons-material/Share';
 import TextAvatar from '@/components/TextAvatar';
 import clsx from 'clsx';
@@ -158,6 +159,12 @@ export default function Message({
     if (!text || text.trim() === '') return null;
     return <Markdown remarkPlugins={[remarkGfm, remarkGemoji]}>{text}</Markdown>;
   }, [text, message.type]);
+
+  // Named turn fields for an actions message; undefined for every other type.
+  const actionTurn = useMemo(() => {
+    if (!isActionsMessage(message)) return undefined;
+    return getTurnFields(message, { finishWord: t('finish'), startWord: t('start') });
+  }, [message, t]);
 
   // Generate smart summary for system messages
   const systemSummary = useMemo(() => {
@@ -336,7 +343,7 @@ export default function Message({
       <div className="message-message">
         {message.type === 'actions' ? <ActionText text={text} /> : markdownContent}
         {!!imageSrc && <img src={imageSrc} alt="uploaded by user" />}
-        {typeof text === 'string' && text.includes(t('finish')) && isOwnMessage && (
+        {!!actionTurn?.finished && isOwnMessage && (
           <Box
             className="message-action-box"
             sx={{
@@ -348,7 +355,7 @@ export default function Message({
             </Button>
             <GameOverScreen
               open={isOpenDialog}
-              outcome={resolveFinishOutcome(extractAction(text), {
+              outcome={resolveFinishOutcome(actionTurn.description, {
                 cum: t('cum'),
                 ruined: t('ruined'),
                 noCum: t('noCum'),

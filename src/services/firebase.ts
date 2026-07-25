@@ -1,15 +1,5 @@
 import { AuthError, createStandardError, getFirebaseErrorMessage } from '@/types/errors';
-import {
-  DataSnapshot,
-  ThenableReference,
-  getDatabase,
-  onDisconnect,
-  onValue,
-  push,
-  ref,
-  remove,
-  set,
-} from 'firebase/database';
+import { getDatabase } from 'firebase/database';
 import {
   DocumentData,
   DocumentReference,
@@ -102,6 +92,12 @@ try {
 export const db = _db;
 
 // Firestore database initialized
+
+// Realtime Database accessor for modules (e.g. roomPresence.ts) that need it
+// but don't have access to the module-private `app` instance.
+export function getRealtimeDb(): ReturnType<typeof getDatabase> {
+  return getDatabase(app);
+}
 
 export async function loginAnonymously(displayName = ''): Promise<User | null> {
   try {
@@ -354,123 +350,6 @@ export async function wipeAllAppData(): Promise<void> {
     console.error('Error wiping app data:', error);
     throw error;
   }
-}
-
-interface PresenceOptions {
-  newRoom: string | null;
-  oldRoom: string | null;
-  newDisplayName: string;
-  oldDisplayName: string;
-  removeOnDisconnect?: boolean;
-}
-
-export function setMyPresence({
-  newRoom,
-  oldRoom,
-  newDisplayName,
-  oldDisplayName,
-  removeOnDisconnect = true,
-}: PresenceOptions): void {
-  const database = getDatabase(app);
-  const auth = getAuth();
-  const uid = auth.currentUser?.uid;
-
-  // Default to 'PUBLIC' if room is null/undefined
-  const newRoomName = newRoom?.toUpperCase() || 'PUBLIC';
-  const oldRoomName = oldRoom?.toUpperCase() || 'PUBLIC';
-
-  // Only proceed if we have a valid uid
-  if (!uid) {
-    console.warn('Cannot set presence: User not authenticated');
-    return;
-  }
-
-  const newRoomConnectionsRef = ref(database, `rooms/${newRoomName}/uids/${uid}`);
-  const oldRoomConnectionsRef = ref(database, `rooms/${oldRoomName}/uids/${uid}`);
-  const connectedRef = ref(database, '.info/connected');
-
-  let newRef: ThenableReference;
-  let oldRef: ThenableReference;
-
-  onValue(connectedRef, (snap) => {
-    if (snap.val() === true) {
-      // We're connected (or reconnected)!
-      newRef = push(newRoomConnectionsRef);
-      oldRef = push(oldRoomConnectionsRef);
-
-      if (oldRoomName !== newRoomName || oldDisplayName !== newDisplayName) {
-        remove(oldRoomConnectionsRef);
-      }
-
-      // When I disconnect, remove this device
-      if (removeOnDisconnect) {
-        onDisconnect(oldRef).remove();
-        onDisconnect(newRef).remove();
-      }
-
-      // Add this device to my connections list
-      // this value could contain info about the device or a timestamp too
-      set(newRef, { displayName: newDisplayName, lastActive: Date.now() });
-    }
-  });
-
-  document.addEventListener('beforeunload', () => {
-    // Browser is about to be closed, manually trigger disconnect
-    if (oldRef) remove(oldRef);
-    if (newRef) remove(newRef);
-  });
-}
-
-/**
- * Subscribe to the presence list for a room. Returns the RTDB unsubscribe
- * function, or undefined when no room is given.
- */
-export function getUserList(
-  roomId: string | null | undefined,
-  callback: (data: Record<string, unknown>) => void,
-  existingData: Record<string, unknown> = {}
-): (() => void) | undefined {
-  if (!roomId) return undefined;
-
-  const roomUpper = roomId.toUpperCase();
-  const database = getDatabase(app);
-  const usersRef = ref(database, 'users');
-
-  return onValue(
-    usersRef,
-    (snap: DataSnapshot) => {
-      const allUsers = snap.val() as Record<string, any> | null;
-
-      if (!allUsers) {
-        callback({});
-        return;
-      }
-
-      // Filter users by room and convert to expected format
-      const roomUsers: Record<string, unknown> = {};
-      Object.entries(allUsers).forEach(([uid, userData]) => {
-        if (userData.room === roomUpper) {
-          roomUsers[uid] = {
-            displayName: userData.displayName,
-            uid: uid,
-            lastSeen: userData.lastSeen ? new Date(userData.lastSeen) : new Date(),
-            isAnonymous: userData.isAnonymous,
-            joinedAt: userData.joinedAt ? new Date(userData.joinedAt) : new Date(),
-            room: userData.room,
-          };
-        }
-      });
-
-      // to prevent an endless loop, see if our new data matches the existing stuff.
-      // can't compare two arrays directly, but we can compare two strings.
-      const dataString = Object.keys(roomUsers).sort().join(',');
-      const existingString = existingData ? Object.keys(existingData).sort().join(',') : '';
-      if (dataString !== existingString) callback(roomUsers);
-    },
-    (error) => {
-      console.error('getUserList error', error);
-    }
-  );
 }
 
 export async function updateDisplayName(displayName = ''): Promise<User | null> {

@@ -3,10 +3,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { orderedMessagesByType } from '@/helpers/messages';
 import { isUserPresent, presenceTimeoutForRoom } from '@/helpers/presence';
+import { getTurnFields } from '@/helpers/actionTurn';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useUserListStore } from '@/stores/userListStore';
-import { Message } from '@/types/Message';
+import { isActionsMessage, Message } from '@/types/Message';
 
 // Re-evaluate presence staleness on a timer so players whose heartbeat lapsed
 // drop out even when no store update arrives to trigger a re-render.
@@ -60,31 +61,19 @@ export default function usePlayerList(): Player[] {
           userInfo.uid === user.uid || isUserPresent(userInfo.lastSeen, now, presenceTimeout)
       )
       .map((userInfo) => {
-        // Extract game location from messages
-        const userGameMessage = uniqueGameActions.find(
-          (message) => message.uid === userInfo.uid
-        )?.text;
-
-        const locationRegEx = /(?:#)[\d]*(?=:)/gs;
-        let currentLocation = 0;
-
-        if (userGameMessage && userGameMessage.match(locationRegEx)) {
-          const match = userGameMessage.match(locationRegEx);
-          if (match && match[0]) {
-            currentLocation = Number(match[0].replace('#', ''));
-          }
-        }
-
-        // Messages show 1-indexed position, convert to 0-indexed for GameBoard
-        const location = currentLocation > 0 ? currentLocation - 1 : currentLocation;
-        const isFinished = Boolean(userGameMessage?.includes(t('finish')));
+        // Extract game location/finish state from this player's last action message.
+        const userGameMessage = uniqueGameActions.find((message) => message.uid === userInfo.uid);
+        const turn =
+          userGameMessage && isActionsMessage(userGameMessage)
+            ? getTurnFields(userGameMessage, { finishWord: t('finish'), startWord: t('start') })
+            : undefined;
 
         return {
           displayName: userInfo.displayName || 'Unknown',
           uid: userInfo.uid,
           isSelf: userInfo.uid === user.uid,
-          location: userInfo.gameState?.location || location,
-          isFinished: userInfo.gameState?.isFinished || isFinished,
+          location: turn?.location ?? 0,
+          isFinished: turn?.finished ?? false,
           status: userInfo.status || 'away',
           lastActivity: userInfo.lastSeen || new Date(0),
         };
