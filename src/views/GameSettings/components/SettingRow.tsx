@@ -1,16 +1,23 @@
-import { Box, Card, Divider, IconButton, Popover, Stack, Typography } from '@mui/material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutlineOutlined';
-import { JSX, MouseEvent, ReactNode, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Box, Card, Divider, Stack, Typography } from '@mui/material';
+import { JSX, ReactNode } from 'react';
 
 interface SettingGroupProps {
   children: ReactNode;
+  /**
+   * Accent color for this card's own border, to mark it as load-bearing. Recolors
+   * the existing outline rather than adding a second frame around it — a wrapper
+   * would read as a card inside a card.
+   */
+  accent?: string;
 }
 
 /** A card of related setting rows, divided hairlines between rows. */
-export function SettingGroup({ children }: SettingGroupProps): JSX.Element {
+export function SettingGroup({ children, accent }: SettingGroupProps): JSX.Element {
   return (
-    <Card variant="outlined">
+    <Card
+      variant="outlined"
+      sx={accent ? { borderColor: accent, borderWidth: 2, bgcolor: `${accent}0d` } : undefined}
+    >
       <Stack divider={<Divider />}>{children}</Stack>
     </Card>
   );
@@ -18,14 +25,13 @@ export function SettingGroup({ children }: SettingGroupProps): JSX.Element {
 
 interface SettingRowProps {
   label: ReactNode;
-  /** One-line consequence or clarification under the label. */
-  description?: ReactNode;
   /**
-   * Long-form explanation of every option, behind a `?` next to the label.
-   * The inline `description` states the current consequence and stays short;
-   * this carries the detail that would otherwise make the row tall.
+   * One line under the label. For a row whose answer changes what happens, pass
+   * a description that changes with the selection: stating the consequence of
+   * the current answer explains the control better than a help popover listing
+   * every option, and it needs no tap to read.
    */
-  help?: ReactNode;
+  description?: ReactNode;
   /** The control, rendered on the right. */
   children?: ReactNode;
   /** Indents the row to read as a sub-question of the row above it. */
@@ -39,13 +45,9 @@ interface SettingRowProps {
 export function SettingRow({
   label,
   description,
-  help,
   children,
   nested = false,
 }: SettingRowProps): JSX.Element {
-  const { t } = useTranslation();
-  const [helpAnchor, setHelpAnchor] = useState<HTMLElement | null>(null);
-
   return (
     <Box
       sx={{
@@ -65,33 +67,8 @@ export function SettingRow({
       }}
     >
       <Box sx={{ minWidth: 0, flex: '1 1 200px' }}>
-        <Typography
-          variant="body2"
-          component="div"
-          sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.5 }}
-        >
+        <Typography variant="body2" component="div" sx={{ fontWeight: 600 }}>
           {label}
-          {help && (
-            <>
-              <IconButton
-                size="small"
-                aria-label={t('setupHelpLabel')}
-                onClick={(event: MouseEvent<HTMLElement>) => setHelpAnchor(event.currentTarget)}
-              >
-                <HelpOutlineIcon fontSize="inherit" />
-              </IconButton>
-              <Popover
-                open={Boolean(helpAnchor)}
-                anchorEl={helpAnchor}
-                onClose={() => setHelpAnchor(null)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-              >
-                <Stack spacing={1} sx={{ p: 2, maxWidth: 340 }}>
-                  {help}
-                </Stack>
-              </Popover>
-            </>
-          )}
         </Typography>
         {description && (
           <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>

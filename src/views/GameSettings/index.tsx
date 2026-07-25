@@ -38,7 +38,7 @@ import DisplaySection from './sections/DisplaySection';
 import JumpNav, { JumpNavEntry } from './components/JumpNav';
 import RoomSection from './sections/RoomSection';
 import SetupSection from './sections/SetupSection';
-import { carrySelectedActions } from './setupQuestions';
+import { carrySelectedActions, hasRoomSettings } from './setupQuestions';
 import SettingsSection from './components/SettingsSection';
 import SizePaceSection from './sections/SizePaceSection';
 import SoundSection from './sections/SoundSection';
@@ -58,14 +58,9 @@ import validateFormData from './validateForm';
 
 const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
-/**
- * Page order, which the jump rail follows exactly. "You" sits second despite
- * being only-me scope: it is identity, which belongs beside the setup
- * questions rather than with the device preferences at the bottom.
- */
+/** Page order, which the jump rail follows exactly. */
 const SECTIONS: JumpNavEntry[] = [
   { id: 'section-setup', labelKey: 'sectionSetup', scope: 'setup' },
-  { id: 'section-you', labelKey: 'sectionYou', scope: 'me' },
   { id: 'section-room', labelKey: 'sectionRoomPlayers', scope: 'room' },
   { id: 'section-actions', labelKey: 'sectionActions', scope: 'board' },
   { id: 'section-size-pace', labelKey: 'sectionSizePace', scope: 'board' },
@@ -113,13 +108,14 @@ export default function GameSettings(): JSX.Element {
   const { hasLocalPlayers } = useLocalPlayers();
 
   // Identity is per-player in Shared Device (the roster collects each player's
-  // own name, anatomy and role), so the You section has nothing to offer there.
-  // Gated on the chosen topology, not on whether a roster exists yet —
-  // otherwise the moot rows linger until the first player is added.
+  // own name, anatomy and role), so it has nothing to offer there. Gated on the
+  // chosen topology, not on whether a roster exists yet — otherwise the moot
+  // rows linger until the first player is added.
   const isSharedDevice = formData.gameMode === 'local';
-  const sections = isSharedDevice
-    ? SECTIONS.filter((section) => section.id !== 'section-you')
-    : SECTIONS;
+  const showRoomSection = hasRoomSettings(formData.gameMode, formData.room);
+  const sections = showRoomSection
+    ? SECTIONS
+    : SECTIONS.filter((section) => section.id !== 'section-room');
 
   // Mode switches reload the action catalog; only the very first load blanks
   // the page. Later reloads keep the page up (the picker briefly shows the
@@ -326,17 +322,21 @@ export default function GameSettings(): JSX.Element {
           {!isMobile && <JumpNav entries={sections} onNavigate={handleNavigate} />}
 
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <SettingsSection id="section-setup" scope="setup" title={t('sectionSetup')} emphasis>
+            <SettingsSection id="section-setup" scope="setup" title={t('sectionSetup')}>
               <SetupSection
                 formData={formData}
                 setFormData={setFormData}
                 getPrivateRoom={getPrivateRoom}
               />
-            </SettingsSection>
 
-            {!isSharedDevice && (
-              <SettingsSection id="section-you" scope="me" title={t('sectionYou')}>
-                <Box sx={{ mb: 2 }}>
+              {!isSharedDevice && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography
+                    variant="overline"
+                    sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}
+                  >
+                    {t('sectionYou')}
+                  </Typography>
                   <SettingGroup>
                     <SettingRow label={t('displayName')}>
                       <TextField
@@ -370,12 +370,14 @@ export default function GameSettings(): JSX.Element {
                     </SettingRow>
                   </SettingGroup>
                 </Box>
+              )}
+            </SettingsSection>
+
+            {showRoomSection && (
+              <SettingsSection id="section-room" scope="room" title={t('sectionRoomPlayers')}>
+                <RoomSection formData={formData} setFormData={setFormData} />
               </SettingsSection>
             )}
-
-            <SettingsSection id="section-room" scope="room" title={t('sectionRoomPlayers')}>
-              <RoomSection formData={formData} setFormData={setFormData} />
-            </SettingsSection>
 
             <SettingsSection
               id="section-actions"

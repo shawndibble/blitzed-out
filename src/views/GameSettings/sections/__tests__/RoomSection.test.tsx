@@ -50,12 +50,16 @@ describe('RoomSection', () => {
   });
 
   describe('solo in the public room', () => {
-    it('states the consequence and offers no room plumbing', () => {
-      render(<RoomSection formData={makeFormData({})} setFormData={setFormData} />);
-      expect(screen.getByText('publicRoomHint')).toBeInTheDocument();
+    // The page drops the whole section in this case (hasRoomSettings), so this
+    // asserts there is genuinely nothing here to justify a heading.
+    it('renders nothing at all', () => {
+      const { container } = render(
+        <RoomSection formData={makeFormData({})} setFormData={setFormData} />
+      );
       expect(screen.queryByRole('button', { name: 'copy' })).not.toBeInTheDocument();
       expect(screen.queryByTestId('local-players-rows')).not.toBeInTheDocument();
       expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
+      expect(container.textContent).toBe('');
     });
   });
 

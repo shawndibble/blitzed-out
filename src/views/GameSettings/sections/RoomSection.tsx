@@ -82,12 +82,6 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      {gameMode === 'solo' && isPublic && (
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {t('publicRoomHint')}
-        </Typography>
-      )}
-
       {/* Same card whether the private room is yours alone or shared with
           friends — only the caption differs, because only the reason differs. */}
       {!isPublic && gameMode !== 'local' && (

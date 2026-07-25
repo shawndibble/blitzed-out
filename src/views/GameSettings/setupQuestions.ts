@@ -50,6 +50,20 @@ export function resolveSetupAnswers(
   return { gameMode: 'solo', room: privateRoom() };
 }
 
+/**
+ * Whether Room & players has anything to offer, so the page can drop the
+ * section (and its jump-nav entry) rather than render a heading over nothing.
+ *
+ * Mirrors what `RoomSection` actually renders: the private-room code card
+ * (private, non-local), the roster (local), and player-list updates (online).
+ * That leaves exactly one empty combination — Solo in the public room, where
+ * the room is not yours to configure and there is no roster. What the public
+ * room means is already stated by the company answer that put you there.
+ */
+export function hasRoomSettings(gameMode: GameMode | undefined, room: string): boolean {
+  return !((gameMode ?? 'solo') === 'solo' && isPublicRoom(room));
+}
+
 /** Only the shape `carrySelectedActions` needs from a loaded action catalog. */
 interface CatalogGroup {
   type?: string;

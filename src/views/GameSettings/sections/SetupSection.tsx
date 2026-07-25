@@ -1,4 +1,4 @@
-import { Box, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +9,7 @@ import {
   deriveSetupAnswers,
   resolveSetupAnswers,
 } from '../setupQuestions';
+import { SCOPE_COLORS } from '../components/scopeColors';
 import { Settings } from '@/types/Settings';
 
 interface SetupSectionProps {
@@ -34,6 +35,11 @@ interface SetupSectionProps {
  * is the only answer where it is a real choice; every other answer forces its
  * content set. It used to live three sections down in Actions, which is why it
  * appeared to come out of nowhere.
+ *
+ * Every row explains itself through a caption that changes with the selection,
+ * stating the consequence of the answer you actually gave. That replaced a help
+ * popover per row: listing every option costs a tap and then repeats what the
+ * buttons already say.
  */
 export default function SetupSection({
   formData,
@@ -52,26 +58,20 @@ export default function SetupSection({
     setFormData({ ...formData, gameMode, room, boardUpdated: true });
   };
 
-  const helpLine = (label: string, body: string): JSX.Element => (
-    <Typography variant="body2" key={label}>
-      <Box component="span" sx={{ fontWeight: 600 }}>
-        {label}
-      </Box>
-      {` — ${body}`}
-    </Typography>
-  );
+  const companyDescKey =
+    answers.company === 'strangers'
+      ? 'setupCompanyDescStrangers'
+      : answers.company === 'friends'
+        ? 'setupCompanyDescFriends'
+        : 'setupCompanyDescNoOne';
 
   return (
-    <SettingGroup>
+    <SettingGroup accent={SCOPE_COLORS.setup}>
       <SettingRow
         label={t('setupDeviceQuestion')}
-        description={
-          answers.device === 'several' ? t('setupDeviceDescSeveral') : t('setupDeviceDescJustMe')
-        }
-        help={[
-          helpLine(t('setupDeviceJustMe'), t('setupDeviceHelpJustMe')),
-          helpLine(t('setupDeviceSeveral'), t('setupDeviceHelpSeveral')),
-        ]}
+        description={t(
+          answers.device === 'several' ? 'setupDeviceDescSeveral' : 'setupDeviceDescJustMe'
+        )}
       >
         <ToggleButtonGroup
           exclusive
@@ -89,21 +89,7 @@ export default function SetupSection({
           around forces a private room with no outsiders, so the question has
           no answer to give. Room & players states the resulting room as fact. */}
       {answers.device === 'justMe' && (
-        <SettingRow
-          label={t('setupCompanyQuestion')}
-          description={t(
-            answers.company === 'strangers'
-              ? 'setupCompanyDescStrangers'
-              : answers.company === 'friends'
-                ? 'setupCompanyDescFriends'
-                : 'setupCompanyDescNoOne'
-          )}
-          help={[
-            helpLine(t('setupCompanyNoOne'), t('setupCompanyHelpNoOne')),
-            helpLine(t('setupCompanyStrangers'), t('setupCompanyHelpStrangers')),
-            helpLine(t('setupCompanyFriends'), t('setupCompanyHelpFriends')),
-          ]}
-        >
+        <SettingRow label={t('setupCompanyQuestion')} description={t(companyDescKey)}>
           <ToggleButtonGroup
             exclusive
             size="small"
@@ -122,11 +108,12 @@ export default function SetupSection({
         <SettingRow
           nested
           label={t('setupParticipationQuestion')}
-          description={t('setupParticipationDesc')}
-          help={[
-            helpLine(t('setupParticipationJustMe'), t('setupParticipationHelpJustMe')),
-            helpLine(t('setupParticipationPartner'), t('setupParticipationHelpPartner')),
-          ]}
+          // Both captions end on the same caveat: soloPlay is per-player, so
+          // this only ever changes your own tiles. That is the correction to the
+          // old "Everyone plays solo" label, so it must not be tucked away.
+          description={t(
+            soloPlay ? 'setupParticipationDescJustMe' : 'setupParticipationDescPartner'
+          )}
         >
           <ToggleButtonGroup
             exclusive
