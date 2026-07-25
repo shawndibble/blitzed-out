@@ -21,7 +21,6 @@ const makeFormData = (overrides: Partial<Settings>): Settings =>
 
 describe('SetupSection', () => {
   const setFormData = vi.fn();
-  const onParticipationChange = vi.fn();
   const getPrivateRoom = vi.fn(() => 'REST0');
   const user = userEvent.setup();
 
@@ -31,13 +30,11 @@ describe('SetupSection', () => {
         formData={makeFormData(overrides)}
         setFormData={setFormData}
         getPrivateRoom={getPrivateRoom}
-        onParticipationChange={onParticipationChange}
       />
     );
 
   beforeEach(() => {
     setFormData.mockClear();
-    onParticipationChange.mockClear();
     getPrivateRoom.mockClear();
   });
 
@@ -100,14 +97,16 @@ describe('SetupSection', () => {
       );
     });
 
-    it('reports the change instead of writing soloPlay itself', async () => {
+    it('writes soloPlay like any other answer', async () => {
       setup({ gameMode: 'online', room: 'KHLOE' });
       await user.click(screen.getByRole('button', { name: 'setupParticipationPartner' }));
 
-      // The page owns the write, because the action catalog has to reload
-      // before the existing selection can be re-pointed at it.
-      expect(onParticipationChange).toHaveBeenCalledWith(false);
-      expect(setFormData).not.toHaveBeenCalled();
+      // Re-pointing the action selection is driven by the resulting content-mode
+      // change, not by this control — the device and company answers change the
+      // content mode too, so the page watches the mode rather than the toggle.
+      const next = setFormData.mock.calls[0][0];
+      expect(next.soloPlay).toBe(false);
+      expect(next.boardUpdated).toBe(true);
     });
   });
 

@@ -129,12 +129,18 @@ export default function GameSettings(): JSX.Element {
     if (!isLoading) hasLoadedOnceRef.current = true;
   }, [isLoading]);
 
-  // Flipping participation swaps the content catalog, and the two catalogs
-  // share group keys with the same label but different types and different
-  // action text ("Bating" is self-play online and partnered locally). Carrying
-  // the selection untouched would silently rewrite the board; so the selection
-  // is re-pointed at the new catalog once it arrives. Snapshotted at flip time
-  // because the labels of dropped groups only exist in the outgoing catalog.
+  // The two content catalogs share group keys with the same label but different
+  // types and different action text ("Bating" is self-play online and partnered
+  // locally), so carrying a selection across a catalog change would silently
+  // rewrite the board. The selection is therefore re-pointed at the new catalog
+  // once it arrives.
+  //
+  // Keyed on `contentGameMode` itself, not on the participation control: the
+  // content mode also flips from the device and company answers (Shared Device
+  // forces partnered content, the public room forces solo), so wiring this to
+  // one toggle left the same silent rewrite reachable from the rows either side
+  // of it — and left dropped groups behind as zombie cards keyed by their raw
+  // group name.
   const pendingCarryRef = useRef<{
     targetMode: string;
     selection: Record<string, ActionEntry>;
@@ -142,23 +148,24 @@ export default function GameSettings(): JSX.Element {
   } | null>(null);
   const [droppedLabels, setDroppedLabels] = useState<string[]>([]);
 
-  const handleParticipationChange = useCallback(
-    (soloPlay: boolean): void => {
-      const targetMode = deriveParticipationContentMode(formData.gameMode, soloPlay);
-      if (targetMode !== contentGameMode) {
-        const selection = formData.selectedActions ?? {};
-        pendingCarryRef.current = {
-          targetMode,
-          selection,
-          labels: Object.fromEntries(
-            Object.keys(selection).map((key) => [key, actionsList[key]?.label ?? key])
-          ),
-        };
-      }
-      setFormData((prevFormData) => ({ ...prevFormData, soloPlay, boardUpdated: true }));
-    },
-    [formData.gameMode, formData.selectedActions, actionsList, contentGameMode, setFormData]
-  );
+  // Snapshot on the render the mode changes, while `actionsList` is still the
+  // outgoing catalog — the labels of groups about to be dropped exist nowhere
+  // else, since by definition they are absent from the incoming one.
+  const carriedContentModeRef = useRef(contentGameMode);
+  useEffect(() => {
+    if (carriedContentModeRef.current === contentGameMode) return;
+    carriedContentModeRef.current = contentGameMode;
+
+    const selection = formData.selectedActions ?? {};
+    if (!Object.keys(selection).length) return;
+    pendingCarryRef.current = {
+      targetMode: contentGameMode,
+      selection,
+      labels: Object.fromEntries(
+        Object.keys(selection).map((key) => [key, actionsList[key]?.label ?? key])
+      ),
+    };
+  }, [contentGameMode, formData.selectedActions, actionsList]);
 
   useEffect(() => {
     const pending = pendingCarryRef.current;
@@ -324,7 +331,6 @@ export default function GameSettings(): JSX.Element {
                 formData={formData}
                 setFormData={setFormData}
                 getPrivateRoom={getPrivateRoom}
-                onParticipationChange={handleParticipationChange}
               />
             </SettingsSection>
 

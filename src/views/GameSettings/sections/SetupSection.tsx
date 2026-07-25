@@ -17,9 +17,6 @@ interface SetupSectionProps {
   /** Supplies the room to join when one is needed: the user's private room
    * this visit if they have one, else a fresh code. */
   getPrivateRoom: () => string;
-  /** Fired when the participation answer changes, so the owner of the action
-   * catalog can re-point the selection once the new catalog loads. */
-  onParticipationChange: (soloPlay: boolean) => void;
 }
 
 /**
@@ -42,7 +39,6 @@ export default function SetupSection({
   formData,
   setFormData,
   getPrivateRoom,
-  onParticipationChange,
 }: SetupSectionProps): JSX.Element {
   const { t } = useTranslation();
 
@@ -137,7 +133,8 @@ export default function SetupSection({
             size="small"
             value={soloPlay ? 'justMe' : 'partner'}
             onChange={(_, value: string | null) =>
-              value && onParticipationChange(value === 'justMe')
+              value &&
+              setFormData({ ...formData, soloPlay: value === 'justMe', boardUpdated: true })
             }
             aria-label={t('setupParticipationQuestion')}
           >
