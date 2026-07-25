@@ -3,7 +3,6 @@
  */
 
 import { addCustomGroup, getCustomGroupByName, updateCustomGroup } from '@/stores/customGroups';
-import { removeDuplicateGroups } from '@/stores/contentLibrary';
 import { importCustomTiles, getTilesUnguarded } from '@/stores/customTiles';
 import { mergeSeedIntensities } from '@/services/intensityMerge';
 import { CustomGroupBase } from '@/types/customGroups';
@@ -30,8 +29,7 @@ const retryImport = async <T>(importFn: () => Promise<T>, retries = 3): Promise<
   throw new Error('All import attempts failed');
 };
 import { getActionGroupNames } from './fileDiscovery';
-import { createDeterministicGroupId } from './groupIdMigration';
-import { GAME_MODES, SUPPORTED_LANGUAGES } from './constants';
+import { createDeterministicGroupId } from '@/services/deterministicGroupId';
 import { isPenetrativeDefaultTile } from './penetrativeIntensities';
 
 /**
@@ -259,30 +257,4 @@ export const importGroupsForLocaleAndGameMode = async (
   }
 
   return { groupsImported, tilesImported };
-};
-
-/**
- * Clean up duplicate groups across all locales and game modes
- */
-export const cleanupDuplicateGroups = async (): Promise<number> => {
-  const result = await withErrorHandling(
-    async () => {
-      const locales = SUPPORTED_LANGUAGES;
-      let totalDuplicatesRemoved = 0;
-
-      for (const locale of locales) {
-        const gameModes = GAME_MODES;
-        for (const gameMode of gameModes) {
-          const duplicatesRemoved = await removeDuplicateGroups(locale, gameMode);
-          totalDuplicatesRemoved += duplicatesRemoved;
-        }
-      }
-
-      return totalDuplicatesRemoved;
-    },
-    'cleanupDuplicateGroups',
-    0
-  );
-
-  return result !== null ? result : 0;
 };

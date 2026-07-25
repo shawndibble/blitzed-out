@@ -95,9 +95,10 @@ Loop prevention (push→pull→apply→push) relies on three guards: the snapsho
 Purpose: seed Dexie from bundled JSON action files, **once per language**, so gameplay content is available offline forever after.
 
 - Gate: `src/services/migration/contentReadiness.ts` — `waitForContentReady(locale)` guards the UI-facing store entry points (`getTiles`, `getAllAvailableGroups`, `getGroupsWithTiles`, `getTileCountsByGroup`); `initContentReadiness()` (called from `AllProviders`, after auth) seeds on startup and on debounced language change; `useMigrationStatus()` exposes `phase: 'seeding' | 'ready' | 'degraded'` plus `retry()`.
-- Services: `src/services/migration/*`, `migrationService.ts`.
-- Flow: on language select, check a localStorage flag; if not yet migrated, load that language's bundled actions → insert into `customTiles` + `customGroups` → mark complete. Guarded callers self-trigger seeding once per locale per session; failures resolve degraded (never reject).
-- **Deterministic group IDs** so the same group maps to the same ID across imports/migrations.
+- Services: `src/services/migration/*`.
+- Flow: on language select, check a localStorage flag; if not yet migrated, load that language's bundled actions → insert into `customTiles` + `customGroups` → mark complete. Guarded callers self-trigger seeding once per locale per session; failures resolve degraded (never reject). Only the current locale is ever seeded — there is no background pre-seed of other languages.
+- **Deterministic group IDs** (`src/services/deterministicGroupId.ts`) so the same group maps to the same ID across imports/migrations. It's a Dexie primary key that also syncs to Firebase, so its output format is pinned by a literal-value test — do not change the algorithm without a data migration plan.
+- `MIGRATION_VERSION` (`src/services/migration/constants.ts`) no longer forces a reseed on bump — the version-change orchestration that once cleared status on upgrade had no live caller and was removed. A version bump today is documentation only.
 - **Corruption recovery:** on init, `verifyMigrationIntegrity` detects "localStorage says complete but Dexie is empty" and resets status so seeding re-runs.
 
 > `@/services/migration/contentReadiness` is mocked globally in `setupTests.ts`; tests need no per-file migration mock.

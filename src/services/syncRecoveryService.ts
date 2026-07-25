@@ -6,7 +6,7 @@
  * and trigger recovery through migration system.
  */
 
-import { forceFreshMigration } from '@/services/migrationService';
+import { forceFreshMigration } from '@/services/migration';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
 import { safeLocalStorage } from '@/services/migration/errorHandling';

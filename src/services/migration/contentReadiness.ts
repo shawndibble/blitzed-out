@@ -8,8 +8,8 @@
  * Resolution order (deliberate, see guard fast-path note below):
  *   1. completion status (synchronous localStorage read) → resolve immediately
  *   2. in-memory per-locale registry (seeding in flight in THIS tab) → await it
- *   3. cross-tab lock poll over the three migration lock keys, capped at
- *      MIGRATION_TIMEOUT past the lock's startedAt → then re-check status
+ *   3. cross-tab lock poll over the current-language migration lock, capped
+ *      at MIGRATION_TIMEOUT past the lock's startedAt → then re-check status
  *   4. not started → self-trigger seeding once per locale per session
  *      (failures memoized per locale; retry() is the only re-attempt path)
  *   5. failure → resolve anyway (degraded). This promise never rejects.
@@ -21,19 +21,11 @@
 
 import i18next from 'i18next';
 import { create } from 'zustand';
-import {
-  MIGRATION_IN_PROGRESS_KEY,
-  CURRENT_LANGUAGE_MIGRATION_KEY,
-  BACKGROUND_MIGRATION_IN_PROGRESS_KEY,
-  MIGRATION_TIMEOUT,
-  MIGRATION_KEY,
-  GAME_MODES,
-} from './constants';
+import { CURRENT_LANGUAGE_MIGRATION_KEY, MIGRATION_TIMEOUT, GAME_MODES } from './constants';
 import {
   isCurrentLanguageMigrationCompleted,
-  isMigrationInProgress,
   isLanguageMigrationInProgress,
-  isBackgroundMigrationInProgress,
+  hasSeededAnyLocale,
 } from './statusManager';
 
 const LANGUAGE_CHANGE_DEBOUNCE = 300;
@@ -56,6 +48,13 @@ const failedLocales = new Map<string, string>();
 
 let appStartTracked = false;
 let integrityCheck: Promise<void> | null = null;
+
+// Captured at module load — before anything in this session can seed. A
+// lazy read here would let a guarded store read (contentLibrary,
+// customGroups, customTiles) win a race against initContentReadiness's own
+// effect and seed content first, which would flip a brand-new user to
+// 'returning' (the same class of bug this snapshot exists to fix, inverted).
+const wasReturningAtStartup: boolean = hasSeededAnyLocale();
 
 // Same fallback chain as the guarded queries (contentLibrary/customGroups) —
 // a mismatch would seed one locale while the query filters by another.
@@ -101,7 +100,7 @@ function ensureSeeded(locale: string): Promise<void> {
 
   const run = (async () => {
     try {
-      const { ensureLanguageMigrated } = await import('@/services/migrationService');
+      const { ensureLanguageMigrated } = await import('@/services/migration');
       const success = await ensureLanguageMigrated(locale);
       if (!success) {
         failedLocales.set(locale, `Content seeding failed for "${locale}"`);
@@ -136,32 +135,23 @@ const readLock = (key: string): LockRecord | null => {
 };
 
 /**
- * Latest deadline (lock startedAt + MIGRATION_TIMEOUT) across the three active
- * migration locks, or null when no lock is active or all are past their cap —
- * a crashed tab's abandoned lock must not make every caller wait.
+ * Deadline (lock startedAt + MIGRATION_TIMEOUT) for the current-language
+ * migration lock — the only migration lock any live code path still writes
+ * (setLanguageMigrationInProgress) — or null when the lock isn't held or is
+ * past its cap. A crashed tab's abandoned lock must not make every caller
+ * wait.
  */
 function seedingLockDeadline(locale: string): number | null {
-  const locks: Array<[boolean, string]> = [
-    [isMigrationInProgress(), MIGRATION_IN_PROGRESS_KEY],
-    [isLanguageMigrationInProgress(locale), CURRENT_LANGUAGE_MIGRATION_KEY],
-    [isBackgroundMigrationInProgress(), BACKGROUND_MIGRATION_IN_PROGRESS_KEY],
-  ];
+  if (!isLanguageMigrationInProgress(locale)) return null;
 
   const now = Date.now();
-  let deadline: number | null = null;
-  for (const [active, key] of locks) {
-    if (!active) continue;
-    const startedAt = Date.parse(readLock(key)?.startedAt ?? '');
-    // A lock without a parseable startedAt can never be stale-cleaned by
-    // statusManager either — treat it as already expired rather than waiting
-    // on a record that will outlive every cap.
-    if (Number.isNaN(startedAt)) continue;
-    const lockDeadline = startedAt + MIGRATION_TIMEOUT;
-    if (lockDeadline > now && (deadline === null || lockDeadline > deadline)) {
-      deadline = lockDeadline;
-    }
-  }
-  return deadline;
+  const startedAt = Date.parse(readLock(CURRENT_LANGUAGE_MIGRATION_KEY)?.startedAt ?? '');
+  // A lock without a parseable startedAt can never be stale-cleaned by
+  // statusManager either — treat it as already expired rather than waiting
+  // on a record that will outlive every cap.
+  if (Number.isNaN(startedAt)) return null;
+  const deadline = startedAt + MIGRATION_TIMEOUT;
+  return deadline > now ? deadline : null;
 }
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -226,7 +216,7 @@ async function trackAppStartOnce(): Promise<void> {
   if (appStartTracked) return;
   appStartTracked = true;
   try {
-    const userType: 'new' | 'returning' = localStorage.getItem(MIGRATION_KEY) ? 'returning' : 'new';
+    const userType: 'new' | 'returning' = wasReturningAtStartup ? 'returning' : 'new';
     const { analytics } = await import('@/services/analytics');
     analytics.trackAppStart(performance.now(), userType);
   } catch {
@@ -246,7 +236,7 @@ function verifyIntegrityOnce(): Promise<void> {
     integrityCheck = (async () => {
       try {
         const { verifyMigrationIntegrity, fixMigrationStatusCorruption } =
-          await import('@/services/migrationService');
+          await import('./validationUtils');
         // Integrity is per game mode; corruption in either content set must
         // reset the status or the fast path lies forever.
         const locale = currentLocale();

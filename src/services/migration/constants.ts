@@ -33,13 +33,7 @@ export const BACKGROUND_MIGRATION_IN_PROGRESS_KEY = 'blitzed-out-background-migr
 
 // Timeout configurations (in milliseconds)
 export const MIGRATION_TIMEOUT = 30 * 1000; // 30 seconds
-export const BACKGROUND_MIGRATION_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 export const STALE_LOCK_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-
-// Delay configurations
-export const BACKGROUND_MIGRATION_DELAY = 10; // 10ms between operations
-export const QUEUE_BACKGROUND_MIGRATION_DELAY = 1000; // 1 second
-export const IDLE_CALLBACK_TIMEOUT = 5000; // 5 seconds
 
 // Game modes
 export const GAME_MODES = ['local', 'online'] as const;
