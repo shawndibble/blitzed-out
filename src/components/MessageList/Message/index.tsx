@@ -1,9 +1,7 @@
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import { Box, Button, Chip, IconButton, Popover, Typography } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ScheduleIcon from '@mui/icons-material/Schedule';
-import SettingsIcon from '@mui/icons-material/Settings';
 import { Trans, useTranslation } from 'react-i18next';
 import { generateSystemSummary, isSystemMessageLikelyToWrap } from '@/utils/messageUtils';
 import { isPublicRoom } from '@/helpers/strings';
@@ -193,16 +191,14 @@ export default function Message({
         data-testid={`message-${id}`}
       >
         <Box component="div" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <Box
-            component="span"
-            sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}
+          <IconButton
+            size="small"
+            onClick={handleDetailsClick}
+            aria-label="View details"
+            data-testid={`details-button-${id}`}
           >
-            {message.type === 'settings' ? (
-              <SettingsIcon fontSize="small" />
-            ) : (
-              <HomeIcon fontSize="small" />
-            )}
-          </Box>
+            <InfoOutlinedIcon fontSize="small" />
+          </IconButton>
           <Box sx={{ flex: 1, minWidth: 0, ml: 0.5 }}>
             <Typography variant="body2" component="span" sx={{ lineHeight: 1.2 }}>
               <strong>{displayName}</strong> {systemSummary}
@@ -219,14 +215,6 @@ export default function Message({
               {ago}
             </Typography>
           </Box>
-          <IconButton
-            size="small"
-            onClick={handleDetailsClick}
-            aria-label="View details"
-            data-testid={`details-button-${id}`}
-          >
-            <InfoOutlinedIcon fontSize="small" />
-          </IconButton>
         </Box>
         {/* Details Popover */}
         <Popover
