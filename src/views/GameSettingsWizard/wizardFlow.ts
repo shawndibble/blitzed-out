@@ -32,12 +32,17 @@ const playerTopologyStep: WizardStepEntry = {
   analyticsName: 'player_topology',
 };
 
+// One GA4 screen ('player_details') covers both wizardStep-2 components
+// (RoomStep for online, LocalPlayersStep for local) — written once here so
+// roomStep/localPlayersStep can't drift apart into two different names.
+const STEP_2_ANALYTICS_NAME = 'player_details';
+
 const roomStep: WizardStepEntry = {
   id: 'room',
   wizardStep: 2,
   labelKey: 'roomSelection',
   labelFallback: 'Room Selection',
-  analyticsName: 'player_details',
+  analyticsName: STEP_2_ANALYTICS_NAME,
 };
 
 const localPlayersStep: WizardStepEntry = {
@@ -45,7 +50,7 @@ const localPlayersStep: WizardStepEntry = {
   wizardStep: 2,
   labelKey: 'localPlayersStep.title',
   labelFallback: 'Local Players',
-  analyticsName: 'player_details',
+  analyticsName: STEP_2_ANALYTICS_NAME,
 };
 
 const gameModeStep: WizardStepEntry = {
@@ -85,18 +90,22 @@ const WIZARD_FLOW: Record<GameMode, WizardStepEntry[]> = {
 
 /**
  * Analytics screen names by wizard step number, independent of topology.
- * Step 0 is Advanced Settings — entered before the wizard proper, so it has
- * no step-list entry, but keeps an analytics name for parity with the
- * previous stepConfig.ts table.
+ * Derived from WIZARD_FLOW's step entries so `analyticsName` on each entry is
+ * the only place a step's analytics name is defined — no second table to keep
+ * in sync by hand. Step 0 is Advanced Settings — entered before the wizard
+ * proper, so it has no step-list entry and is added explicitly.
  */
-const ANALYTICS_NAMES: Record<number, string> = {
-  0: 'advanced_settings',
-  1: 'player_topology',
-  2: 'player_details',
-  3: 'game_mode',
-  4: 'actions',
-  5: 'finish',
-};
+function buildAnalyticsNames(): Record<number, string> {
+  const names: Record<number, string> = { 0: 'advanced_settings' };
+  for (const steps of Object.values(WIZARD_FLOW)) {
+    for (const entry of steps) {
+      names[entry.wizardStep] = entry.analyticsName;
+    }
+  }
+  return names;
+}
+
+const ANALYTICS_NAMES: Record<number, string> = buildAnalyticsNames();
 
 /** The ordered step list for a topology. Unknown/empty gameMode falls back to solo's list. */
 export function stepsFor(gameMode: GameMode | undefined): WizardStepEntry[] {

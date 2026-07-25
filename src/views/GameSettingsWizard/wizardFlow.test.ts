@@ -77,6 +77,47 @@ describe('wizardFlow — stepAnalyticsName', () => {
   ])('step %i -> %s (byte-identical to the old stepConfig.ts table)', (step, expected) => {
     expect(stepAnalyticsName(step)).toBe(expected);
   });
+
+  it.each(['solo', 'local', 'online'] as const)(
+    'is single-sourced: for every %s step entry, stepAnalyticsName(entry.wizardStep) matches entry.analyticsName',
+    (mode) => {
+      for (const entry of stepsFor(mode)) {
+        expect(stepAnalyticsName(entry.wizardStep)).toBe(entry.analyticsName);
+      }
+    }
+  );
+
+  // stepAnalyticsName is topology-independent, same as the pre-refactor
+  // getWizardStepName(step) — so every (topology, step) pair must resolve to
+  // the same name develop emits today, INCLUDING pairs not in that topology's
+  // step list. (solo, 2) is the load-bearing case: solo's list has no
+  // wizardStep-2 entry, but step 2 is still reachable in production via a
+  // bookmarked/shared `?resumeStep=2` URL against a persisted
+  // `gameMode: 'solo'` (see index.tsx's renderStep case 2 guard), so
+  // trackScreenView(2) can fire with gameMode 'solo'. It must still emit
+  // 'player_details', not fall through to the `step_2` default.
+  it.each([
+    ['solo', 1, 'player_topology'],
+    ['solo', 2, 'player_details'],
+    ['solo', 3, 'game_mode'],
+    ['solo', 4, 'actions'],
+    ['solo', 5, 'finish'],
+    ['local', 1, 'player_topology'],
+    ['local', 2, 'player_details'],
+    ['local', 3, 'game_mode'],
+    ['local', 4, 'actions'],
+    ['local', 5, 'finish'],
+    ['online', 1, 'player_topology'],
+    ['online', 2, 'player_details'],
+    ['online', 3, 'game_mode'],
+    ['online', 4, 'actions'],
+    ['online', 5, 'finish'],
+  ] as const)(
+    '(%s, step %i) -> %s regardless of topology (matches develop’s topology-independent getWizardStepName)',
+    (_mode, step, expected) => {
+      expect(stepAnalyticsName(step)).toBe(expected);
+    }
+  );
 });
 
 describe('wizardFlow — nextStepAfter / prevStepBefore', () => {
