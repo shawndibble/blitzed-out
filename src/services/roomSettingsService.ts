@@ -15,7 +15,7 @@ function getRoomSettingsMessage(settings: Partial<Settings>): string {
       return;
     }
     if (key === 'roomRealtime') {
-      message += `* ${t('playerList')}: ${val ? t('delayed') : t('realtime')}\r\n`;
+      message += `* ${t('playerList')}: ${val ? t('realtime') : t('delayed')}\r\n`;
       return;
     }
     if (val !== '') {
