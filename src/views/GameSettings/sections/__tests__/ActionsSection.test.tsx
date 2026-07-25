@@ -2,26 +2,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { useState } from 'react';
-
 import ActionsSection from '../ActionsSection';
 import type { Settings } from '@/types/Settings';
 
-type HarnessProps = Omit<
-  Parameters<typeof ActionsSection>[0],
-  'pickerOpen' | 'onPickerOpenChange' | 'onManageCustomTiles'
-> & { onManageCustomTiles?: () => void };
+// The picker's open state lives inside ActionsSection again, now that the page
+// header no longer has its own duplicate "+ Add" button to open it.
+type HarnessProps = Omit<Parameters<typeof ActionsSection>[0], 'onManageCustomTiles'> & {
+  onManageCustomTiles?: () => void;
+};
 
 function Harness({ onManageCustomTiles = () => {}, ...props }: HarnessProps) {
-  const [pickerOpen, setPickerOpen] = useState(false);
-  return (
-    <ActionsSection
-      {...props}
-      pickerOpen={pickerOpen}
-      onPickerOpenChange={setPickerOpen}
-      onManageCustomTiles={onManageCustomTiles}
-    />
-  );
+  return <ActionsSection {...props} onManageCustomTiles={onManageCustomTiles} />;
 }
 
 vi.mock('react-i18next', () => ({
@@ -42,12 +33,19 @@ vi.mock('../../BoardSettings/ContentWarning', () => ({
 }));
 vi.mock('@/hooks/useBreakpoint', () => ({ default: () => false }));
 
+// Shaped like what useUnifiedActionList really produces: `actions` keyed by
+// intensity label with EMPTY arrays — the catalog never carries tile text.
+// Role-bearing-ness therefore arrives as the `usesRoleTokens` flag, computed
+// where the text does exist (getTileCountsByGroup). Fixtures that inlined action
+// strings made this component look like it could detect roles itself; it can't,
+// and in production it never did.
 const ACTIONS_LIST = {
   alcohol: {
     label: 'Alcohol',
     type: 'consumption',
     intensities: { 1: 'Sip/Drink', 2: 'Shots', 3: 'Chug' },
-    actions: { 'Sip/Drink': ['Take a sip'] },
+    actions: { 'Sip/Drink': [], Shots: [], Chug: [] },
+    usesRoleTokens: false,
   },
   buttPlay: {
     label: 'Butt Play',
@@ -55,19 +53,22 @@ const ACTIONS_LIST = {
     dom: 'Top',
     sub: 'Bottom',
     intensities: { 1: 'Finger(s)/Rimmed', 2: 'Fucking' },
-    actions: { 'Finger(s)/Rimmed': ['{dom} rubs {sub}.'] },
+    actions: { 'Finger(s)/Rimmed': [], Fucking: [] },
+    usesRoleTokens: true,
   },
   kissing: {
     label: 'Kissing',
     type: 'foreplay',
     intensities: { 1: 'Gentle Kisses', 2: 'Deep Kisses' },
-    actions: { 'Gentle Kisses': ['Kiss gently'] },
+    actions: { 'Gentle Kisses': [], 'Deep Kisses': [] },
+    usesRoleTokens: false,
   },
   bating: {
     label: 'Bating',
     type: 'solo',
     intensities: { 1: 'Masturbation', 2: 'Edging' },
-    actions: { Masturbation: ['Stroke'] },
+    actions: { Masturbation: [], Edging: [] },
+    usesRoleTokens: false,
   },
 };
 

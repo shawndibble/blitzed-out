@@ -60,6 +60,10 @@ export default function useUnifiedActionList(
         const locale = i18n.resolvedLanguage || 'en';
         const contentGameMode = deriveContentMode(gameMode);
         let allGroups;
+        // Which groups have tile text that names a {dom}/{sub} role, so the UI
+        // can offer a role picker only where one would do something. Only the
+        // tile-count query sees action text; this catalog never carries it.
+        let roleTokenGroupIds = new Set<string>();
 
         // Get groups based on filtering preference
         if (showOnlyGroupsWithTiles) {
@@ -69,6 +73,12 @@ export default function useUnifiedActionList(
           const tileCounts = await getTileCountsByGroup(locale, contentGameMode, null);
 
           // Filter intensities to only show those with tiles
+          roleTokenGroupIds = new Set(
+            Object.entries(tileCounts ?? {})
+              .filter(([, counts]) => counts.usesRoleTokens)
+              .map(([groupId]) => groupId)
+          );
+
           allGroups = allGroups.map((group) => {
             if (tileCounts?.[group.id]?.intensities) {
               const availableIntensityValues = Object.keys(tileCounts[group.id].intensities).map(
@@ -111,6 +121,7 @@ export default function useUnifiedActionList(
             type: group.type || 'action',
             actions,
             intensities,
+            usesRoleTokens: roleTokenGroupIds.has(group.id),
           };
         }
 

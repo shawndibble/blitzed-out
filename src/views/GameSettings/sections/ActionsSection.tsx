@@ -9,7 +9,6 @@ import AddActionsDialog from './AddActionsDialog';
 import ContentWarning from '../BoardSettings/ContentWarning';
 import FinishRangeRow from './FinishRangeRow';
 import WarningAlert from '../BoardSettings/WarningAlert';
-import { groupUsesRoleTokens } from '@/helpers/actionsFolder';
 import { usesSoloActions } from '@/helpers/strings';
 import { ActionEntry } from '@/types';
 import { Settings } from '@/types/Settings';
@@ -18,9 +17,6 @@ interface ActionsSectionProps {
   formData: Settings;
   setFormData: (data: Settings) => void;
   actionsList: Record<string, any>;
-  /** Picker visibility is lifted so the page header's "+ Add" can open it too. */
-  pickerOpen: boolean;
-  onPickerOpenChange: (open: boolean) => void;
   /** Opens the custom-tile manager; the dialog lives on the settings page. */
   onManageCustomTiles: () => void;
 }
@@ -34,12 +30,11 @@ export default function ActionsSection({
   formData,
   setFormData,
   actionsList,
-  pickerOpen,
-  onPickerOpenChange,
   onManageCustomTiles,
 }: ActionsSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [removed, setRemoved] = useState<{ key: string; entry: ActionEntry } | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const soloActions = usesSoloActions(formData.gameMode, formData.soloPlay);
   const pickableTypes = useMemo(
@@ -152,7 +147,7 @@ export default function ActionsSection({
             group={group ?? { label: groupKey }}
             entry={entry}
             unavailable={unavailable}
-            showRole={formData.gameMode === 'online' && !soloActions && groupUsesRoleTokens(group)}
+            showRole={formData.gameMode === 'online' && !soloActions && !!group?.usesRoleTokens}
             onLevelsChange={handleLevelsChange}
             onFieldChange={handleFieldChange}
             onRemove={handleRemove}
@@ -166,7 +161,7 @@ export default function ActionsSection({
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
         <Button
           startIcon={<AddIcon />}
-          onClick={() => onPickerOpenChange(true)}
+          onClick={() => setPickerOpen(true)}
           sx={{
             flex: 1,
             border: '1px dashed',
@@ -193,7 +188,7 @@ export default function ActionsSection({
 
       <AddActionsDialog
         open={pickerOpen}
-        onClose={() => onPickerOpenChange(false)}
+        onClose={() => setPickerOpen(false)}
         availableGroups={availableGroups}
         enabledKeys={enabledKeys}
         onAdd={handleAdd}

@@ -63,6 +63,8 @@ export interface GroupedActions {
       [key: string]: any;
     };
     intensities?: Record<number, string>;
+    /** Any tile in this group names a {dom}/{sub} role, so a role picker applies. */
+    usesRoleTokens?: boolean;
   };
 }
 

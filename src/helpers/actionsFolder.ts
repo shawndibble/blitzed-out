@@ -16,19 +16,18 @@ import { camelToPascal } from '@/helpers/strings';
 const ROLE_TOKEN_PATTERN = /[{|](dom|sub)[}|]/;
 
 /**
- * Whether a group's action text references a {dom}/{sub} role.
+ * Whether one action's text references a {dom}/{sub} role, and so is worth
+ * offering a role selector for.
  *
- * Pure-question groups (e.g. confessions, would-you-rather) never reference a
- * role, so a role selector for them is meaningless and should be hidden.
+ * Pure-question groups (confessions, would-you-rather) never reference a role
+ * even though they are partnered content, so type alone is not a safe proxy.
+ * Applied to raw tile rows in `getTileCountsByGroup`, which is the only place
+ * that already holds the action text — the settings page's own catalog builds
+ * empty action arrays by design, so any group-shaped check against it is
+ * permanently false.
  */
-export function groupUsesRoleTokens(group?: GroupedActions[string]): boolean {
-  const actions = group?.actions;
-  if (!actions) return false;
-  return Object.values(actions).some(
-    (level) =>
-      Array.isArray(level) &&
-      level.some((action) => typeof action === 'string' && ROLE_TOKEN_PATTERN.test(action))
-  );
+export function actionUsesRoleTokens(action?: string): boolean {
+  return typeof action === 'string' && ROLE_TOKEN_PATTERN.test(action);
 }
 
 export default function groupActionsFolder(actionsFolder: GroupedActions): MappedGroup[] {

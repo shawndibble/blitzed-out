@@ -15,7 +15,6 @@ import {
   Typography,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AddIcon from '@mui/icons-material/Add';
 import {
   FocusEvent,
   FormEvent,
@@ -58,9 +57,15 @@ import validateFormData from './validateForm';
 
 const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
-/** Page order, which the jump rail follows exactly. */
+/**
+ * Page order, which the jump rail follows exactly. "You" is setup-scoped rather
+ * than only-me: it is identity you establish alongside the questions, and
+ * scoping it to only-me put a second "Only me" group in the rail, far from where
+ * the section actually sits.
+ */
 const SECTIONS: JumpNavEntry[] = [
   { id: 'section-setup', labelKey: 'sectionSetup', scope: 'setup' },
+  { id: 'section-you', labelKey: 'sectionYou', scope: 'setup' },
   { id: 'section-room', labelKey: 'sectionRoomPlayers', scope: 'room' },
   { id: 'section-actions', labelKey: 'sectionActions', scope: 'board' },
   { id: 'section-size-pace', labelKey: 'sectionSizePace', scope: 'board' },
@@ -94,7 +99,6 @@ export default function GameSettings(): JSX.Element {
   const [settings, updateSettings] = useSettings();
   const [alert, setAlert] = useState<string | null>(null);
   const [openCustomTile, setOpenCustomTile] = useState<boolean>(false);
-  const [actionsPickerOpen, setActionsPickerOpen] = useState(false);
   const [formData, setFormData] = useSettingsToFormData();
 
   const { submit: submitSettings, isSubmitting } = useSubmitGameSettings();
@@ -113,9 +117,11 @@ export default function GameSettings(): JSX.Element {
   // rows linger until the first player is added.
   const isSharedDevice = formData.gameMode === 'local';
   const showRoomSection = hasRoomSettings(formData.gameMode, formData.room);
-  const sections = showRoomSection
-    ? SECTIONS
-    : SECTIONS.filter((section) => section.id !== 'section-room');
+  const hiddenSectionIds = [
+    ...(isSharedDevice ? ['section-you'] : []),
+    ...(showRoomSection ? [] : ['section-room']),
+  ];
+  const sections = SECTIONS.filter((section) => !hiddenSectionIds.includes(section.id));
 
   // Mode switches reload the action catalog; only the very first load blanks
   // the page. Later reloads keep the page up (the picker briefly shows the
@@ -328,50 +334,42 @@ export default function GameSettings(): JSX.Element {
                 setFormData={setFormData}
                 getPrivateRoom={getPrivateRoom}
               />
-
-              {!isSharedDevice && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography
-                    variant="overline"
-                    sx={{ color: 'text.secondary', display: 'block', mb: 0.5 }}
-                  >
-                    {t('sectionYou')}
-                  </Typography>
-                  <SettingGroup>
-                    <SettingRow label={t('displayName')}>
-                      <TextField
-                        size="small"
-                        id="displayName"
-                        defaultValue={user?.displayName || formData.displayName || ''}
-                        required
-                        onBlur={handleDisplayNameBlur}
-                        sx={{ width: { xs: '100%', sm: 220 } }}
-                        slotProps={{ htmlInput: { 'aria-label': t('displayName') } }}
-                      />
-                    </SettingRow>
-                    <SettingRow label={t('anatomy', 'Anatomy')} description={t('anatomyCaption')}>
-                      <ToggleButtonGroup
-                        size="small"
-                        exclusive
-                        value={formData.gender || 'non-binary'}
-                        onChange={(_, value: PlayerGender | null) => {
-                          if (value) handleGenderChange(value);
-                        }}
-                        aria-label={t('anatomy', 'Anatomy')}
-                      >
-                        <ToggleButton value="male">{t('localPlayers.gender.male')}</ToggleButton>
-                        <ToggleButton value="female">
-                          {t('localPlayers.gender.female')}
-                        </ToggleButton>
-                        <ToggleButton value="non-binary">
-                          {t('localPlayers.gender.nonBinary')}
-                        </ToggleButton>
-                      </ToggleButtonGroup>
-                    </SettingRow>
-                  </SettingGroup>
-                </Box>
-              )}
             </SettingsSection>
+
+            {!isSharedDevice && (
+              <SettingsSection id="section-you" scope="setup" title={t('sectionYou')}>
+                <SettingGroup>
+                  <SettingRow label={t('displayName')}>
+                    <TextField
+                      size="small"
+                      id="displayName"
+                      defaultValue={user?.displayName || formData.displayName || ''}
+                      required
+                      onBlur={handleDisplayNameBlur}
+                      sx={{ width: { xs: '100%', sm: 220 } }}
+                      slotProps={{ htmlInput: { 'aria-label': t('displayName') } }}
+                    />
+                  </SettingRow>
+                  <SettingRow label={t('anatomy', 'Anatomy')} description={t('anatomyCaption')}>
+                    <ToggleButtonGroup
+                      size="small"
+                      exclusive
+                      value={formData.gender || 'non-binary'}
+                      onChange={(_, value: PlayerGender | null) => {
+                        if (value) handleGenderChange(value);
+                      }}
+                      aria-label={t('anatomy', 'Anatomy')}
+                    >
+                      <ToggleButton value="male">{t('localPlayers.gender.male')}</ToggleButton>
+                      <ToggleButton value="female">{t('localPlayers.gender.female')}</ToggleButton>
+                      <ToggleButton value="non-binary">
+                        {t('localPlayers.gender.nonBinary')}
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </SettingRow>
+                </SettingGroup>
+              </SettingsSection>
+            )}
 
             {showRoomSection && (
               <SettingsSection id="section-room" scope="room" title={t('sectionRoomPlayers')}>
@@ -384,23 +382,11 @@ export default function GameSettings(): JSX.Element {
               scope="board"
               title={t('sectionActions')}
               summary={buildActionsScopeSummary(t, enabledActionCount, isSoloActionsScope)}
-              action={
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() => setActionsPickerOpen(true)}
-                >
-                  {t('add', 'Add')}
-                </Button>
-              }
             >
               <ActionsSection
                 formData={formData}
                 setFormData={setFormData}
                 actionsList={actionsList}
-                pickerOpen={actionsPickerOpen}
-                onPickerOpenChange={setActionsPickerOpen}
                 onManageCustomTiles={() => setOpenCustomTile(true)}
               />
             </SettingsSection>

@@ -106,6 +106,30 @@ describe('contentLibrary', () => {
       expect(counts[id!].intensities).toEqual({ 1: 2, 2: 1 });
     });
 
+    // The settings page's role picker keys off this flag. It used to be derived
+    // from the catalog's action text, which that catalog never carries — so the
+    // picker never appeared for any group. Asserted here, at the only layer that
+    // holds the text.
+    it('flags a group whose tiles reference a {dom}/{sub} role', async () => {
+      const id = await addCustomGroup(buildGroup());
+      await seedTile(id!, { action: 'A plain instruction.' });
+      await seedTile(id!, { action: '{dom} spanks {sub}.' });
+
+      const counts = await getTileCountsByGroup('en', 'online');
+
+      expect(counts[id!].usesRoleTokens).toBe(true);
+    });
+
+    it('leaves a role-less group unflagged, so it gets no dead role picker', async () => {
+      const id = await addCustomGroup(buildGroup());
+      await seedTile(id!, { action: 'What is your favorite color?' });
+      await seedTile(id!, { action: '{player} answers honestly.' });
+
+      const counts = await getTileCountsByGroup('en', 'online');
+
+      expect(counts[id!].usesRoleTokens).toBe(false);
+    });
+
     it('filters by tag when tags are provided', async () => {
       const id = await addCustomGroup(buildGroup());
       await seedTile(id!, { action: 'tagged', tags: ['kink'] });
