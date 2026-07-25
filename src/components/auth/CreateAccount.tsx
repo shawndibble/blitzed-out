@@ -1,7 +1,7 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { registerWithEmail } from '@/services/firebase';
+import { registerWithEmail } from '@/services/firebase/auth';
 
 interface CreateAccountProps {
   onSuccess?: () => void;

@@ -45,7 +45,7 @@ React 19.x + TypeScript + Vite · MUI v9 (dark mode; avoid hardcoded light color
 
 - Components: own dir + `index.tsx`
 - Types: `src/types/index.ts` (main), feature-specific files
-- Firebase: `src/services/firebase.ts`
+- Firebase: `src/services/firebase/` — one module per concern (`app` owns init + the SDK handles, then `auth`, `chat`, `boards`, `schedule`, `customActions`). Import the concern, never a barrel; there isn't one.
 - Content readiness (seeding gate): `src/services/migration/contentReadiness.ts`
 - Path alias: `@/*` → `src/*`
 

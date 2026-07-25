@@ -26,7 +26,7 @@ import {
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { sha256 } from 'js-sha256';
-import { db } from './firebase';
+import { db } from '@/services/firebase/app';
 import { exportAllData, importData, EXPORT_FORMAT_VERSION } from './importExport';
 import { readPackPayload } from './packPayload';
 import { analytics } from './analytics';

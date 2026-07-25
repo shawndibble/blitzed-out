@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect } from 'react';
 import { Params, useParams } from 'react-router-dom';
-import { getMessages } from '@/services/firebase';
+import { getMessages } from '@/services/firebase/chat';
 import { Message } from '@/types/Message';
 import { useMessagesStore } from '@/stores/messagesStore';
 

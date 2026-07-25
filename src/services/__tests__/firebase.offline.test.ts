@@ -81,7 +81,7 @@ describe('firebase offline persistence', () => {
   });
 
   it('initializes Firestore with persistentLocalCache', async () => {
-    await import('@/services/firebase');
+    await import('@/services/firebase/app');
 
     expect(mockInitializeFirestore).toHaveBeenCalledOnce();
     expect(mockPersistentLocalCache).toHaveBeenCalledOnce();
@@ -89,7 +89,7 @@ describe('firebase offline persistence', () => {
   });
 
   it('passes persistentLocalCache result to initializeFirestore', async () => {
-    await import('@/services/firebase');
+    await import('@/services/firebase/app');
 
     const [, options] = mockInitializeFirestore.mock.calls[0] as unknown as [
       unknown,

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Divider, Typography, Alert, CircularProgress } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
-import { loginWithGoogle } from '@/services/firebase';
+import { loginWithGoogle } from '@/services/firebase/auth';
 import { Trans } from 'react-i18next';
 import { t } from 'i18next';
 

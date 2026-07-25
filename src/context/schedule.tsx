@@ -1,5 +1,10 @@
 import React, { useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
-import { getSchedule, addSchedule, deleteSchedule, updateSchedule } from '@/services/firebase';
+import {
+  addSchedule,
+  deleteSchedule,
+  getSchedule,
+  updateSchedule,
+} from '@/services/firebase/schedule';
 import { DocumentReference, DocumentData } from 'firebase/firestore';
 import dayjs from 'dayjs';
 import { useScheduleStore } from '@/stores/scheduleStore';

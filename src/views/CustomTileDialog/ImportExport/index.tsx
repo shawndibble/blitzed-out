@@ -23,7 +23,7 @@ import { batchFetchAllGroups } from '@/services/importExport/databaseOperations'
 import { FileDownload, FileUpload } from '@mui/icons-material';
 import { useGameSettings } from '@/stores/settingsStore';
 import { getCustomGroups } from '@/stores/customGroups';
-import { submitCustomAction } from '@/services/firebase';
+import { submitCustomAction } from '@/services/firebase/customActions';
 import { getTiles } from '@/stores/customTiles';
 import { downloadTextFile, readTextFile } from '@/utils/importExportFiles';
 

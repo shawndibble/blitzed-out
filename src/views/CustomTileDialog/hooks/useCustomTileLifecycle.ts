@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CustomTile, CustomTilePull, SharedFilters, SubmitMessage } from '@/types/customTiles';
 import { CustomGroupPull } from '@/types/customGroups';
 import { addCustomTile, updateCustomTile } from '@/stores/customTiles';
-import { submitCustomAction } from '@/services/firebase';
+import { submitCustomAction } from '@/services/firebase/customActions';
 import { normalizePlaceholders, localizePlaceholders } from '@/services/placeholderAliasService';
 import { useEditorGroupsReactive } from '@/hooks/useGroupFiltering';
 import { useGameSettings } from '@/stores/settingsStore';

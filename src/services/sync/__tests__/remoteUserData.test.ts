@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/services/firebase', () => ({ db: {} }));
+vi.mock('@/services/firebase/app', () => ({ db: {} }));
 vi.mock('firebase/firestore', () => ({
   doc: vi.fn(),
   getDoc: vi.fn(),

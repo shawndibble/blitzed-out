@@ -1,4 +1,4 @@
-import * as firebaseService from '@/services/firebase';
+import * as firebaseService from '@/services/firebase/chat';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
@@ -6,7 +6,7 @@ import { renderHook } from '@testing-library/react';
 import useReturnToStart from '../useReturnToStart';
 import { makeTurnFields } from '@/__tests__/fixtures/turnFields.fixtures';
 
-vi.mock('@/services/firebase', () => ({
+vi.mock('@/services/firebase/chat', () => ({
   sendMessage: vi.fn(),
 }));
 
