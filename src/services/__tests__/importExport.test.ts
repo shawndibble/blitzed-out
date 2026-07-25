@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  exportAllData,
-  importData,
-  analyzeImportConflicts,
-  importFromJson,
-} from '@/services/importExport';
+import { exportAllData, importData, analyzeImportConflicts } from '@/services/importExport';
 import { getExportableGroupStats } from '@/services/importExport/exportService';
 import type { ExportData } from '@/types/importExport';
 import type { CustomGroupPull } from '@/types/customGroups';
@@ -794,12 +789,11 @@ describe('ImportExport Service', () => {
     });
   });
 
-  describe('importFromJson', () => {
-    it('should be an alias for importData with JSON string', async () => {
+  describe('importData from a JSON string', () => {
+    it('accepts the serialized payload the file/textarea paths carry', async () => {
       vi.mocked(getCustomGroups).mockResolvedValue([]);
 
-      const jsonString = JSON.stringify(mockExportData);
-      const result = await importFromJson(jsonString);
+      const result = await importData(JSON.stringify(mockExportData));
 
       expect(result.success).toBe(true);
     });

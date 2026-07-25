@@ -108,7 +108,17 @@ Purpose: seed Dexie from bundled JSON action files, **once per language**, so ga
 
 ## Import/Export
 
-Code: `src/services/importExport/` (streaming/batched) and `src/services/importExport.ts`. README with rationale and perf numbers: `src/services/importExport/README.md`.
+Code: `src/services/importExport.ts` (export/import pipeline) and `src/services/importExport/` (export-selection stats for the UI).
+
+**The payload has one reader: `src/services/packPayload.ts`.** `ExportData` is the wire format for
+both file import/export and content packs, and every consumer goes through `readPackPayload()` rather
+than reaching into the record: it validates the shape once (no second validator anywhere), defaults
+the sections a 2.0.0 payload omits, buckets tiles by group, names every group the payload touches
+(including default groups a pre-2.1.0 payload reveals only through its tiles), recovers the locale a
+`disabledDefaultTiles` entry lacks, and derives tile identity. Identity is the load-bearing one:
+stored actions are canonical, so a payload's action is canonicalized (`placeholderAliasService`)
+before it is keyed — the import preview and the import itself call the same function, so they cannot
+disagree about what a tile is.
 
 **Export** — produces a versioned JSON document:
 
@@ -125,7 +135,7 @@ Code: `src/services/importExport/` (streaming/batched) and `src/services/importE
 }
 ```
 
-Includes user-created groups and tiles, and optionally your disabled-default list. Each item carries a content hash. Scope can be filtered by locale, gameMode, or a single group. Export streams tiles in batches (~100) so memory stays roughly constant regardless of dataset size.
+Includes user-created groups and tiles, and optionally your disabled-default list. Each item carries a content hash. Filters: locale, gameMode, a single group (`singleGroupName`) or a multi-select (`groupNames`, used by content packs), plus `scope` — `all` / `custom` / `single` / `disabled` — which decides the sections the document carries and is read inside `exportAllData` (a caller that passes no `scope` keeps driving sections through `includeDisabledDefaults`). Export streams tiles in batches (~100) so memory stays roughly constant regardless of dataset size.
 
 **Default-group extensions (2.1.0).** Custom tiles may target default groups (resolved by deterministic id), and `groupExtensions[]` appends new intensity levels to them ({groupName, groupLabel, locale, gameMode, addedIntensities, contentHash}). Imports never replace a default group's record (a default-named `customGroups` entry warn-skips), and the extension merge is append-only and idempotent by value. Compat: a 2.0.0 payload imports unchanged; an old client importing a 2.1.0 payload ignores `groupExtensions` and warn-skips tiles at the unknown levels.
 
@@ -133,7 +143,7 @@ Includes user-created groups and tiles, and optionally your disabled-default lis
 
 **User-facing:** this is the **backup / restore / share** mechanism — export to a JSON file, hand it to someone (or another device), import it. Reachable from the Custom Tiles dialog's import/export tab.
 
-`analyzeImportConflicts()` is implemented (it previously returned empty arrays): it reports per-group/per-tile collisions, flagging a tile as `contentMatch` when the local copy differs from the imported one — i.e. a local edit an import would overwrite. The pack import preview uses this to warn before applying a pack update.
+`analyzeImportConflicts()` reports per-group/per-tile collisions, flagging a tile as `contentMatch` when the local copy differs from the imported one — i.e. a local edit an import would overwrite. **It currently has no production caller** — the conflict UI was removed from the import dialog when packs became copy-only, and `PackImportDialog` shows a full-dump preview instead. It keys tiles through `packPayload`, exactly as the importer does, so anything that wires a preview back up agrees with what the import will do; until then it is a service function with tests and no users.
 
 ---
 

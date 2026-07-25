@@ -13,42 +13,49 @@ const importPack = vi.fn(async (_pack: ContentPackDoc) => ({
 }));
 const reportPack = vi.fn(async (_packId: string, _reason: string) => undefined);
 
-vi.mock('@/services/contentPacks', () => ({
-  importPack: (pack: ContentPackDoc) => importPack(pack),
-  reportPack: (packId: string, reason: string) => reportPack(packId, reason),
-  parsePack: (pack: ContentPackDoc) => ({
-    doc: pack,
-    data: {
-      formatVersion: '2.0.0',
-      exportedAt: '',
-      data: {
-        customGroups: [
-          {
-            name: 'g1',
-            label: 'Group One',
-            gameMode: 'online',
-            locale: 'en',
-            intensities: [{ value: 1, label: 'Light' }],
-            contentHash: 'h',
-          },
-        ],
-        customTiles: [
-          {
-            action: 'Do the thing',
-            groupName: 'g1',
-            intensity: 1,
-            tags: ['spicy'],
-            gameMode: 'online',
-            locale: 'en',
-            isEnabled: true,
-            contentHash: 'h',
-          },
-        ],
-        disabledDefaultTiles: [],
-      },
+// Only the Firebase-backed calls are stubbed; the preview reads its pack
+// through the real payload reader, off the fixture `contents` below.
+vi.mock('@/services/contentPacks', async () => {
+  const { readPackPayload } = await import('@/services/packPayload');
+  return {
+    importPack: (pack: ContentPackDoc) => importPack(pack),
+    reportPack: (packId: string, reason: string) => reportPack(packId, reason),
+    parsePack: (pack: ContentPackDoc) => {
+      const payload = readPackPayload(pack.contents);
+      return payload ? { doc: pack, payload } : undefined;
     },
-  }),
-}));
+  };
+});
+
+const PACK_CONTENTS = JSON.stringify({
+  formatVersion: '2.0.0',
+  exportedAt: '',
+  data: {
+    customGroups: [
+      {
+        name: 'g1',
+        label: 'Group One',
+        gameMode: 'online',
+        locale: 'en',
+        intensities: [{ value: 1, label: 'Light' }],
+        contentHash: 'h',
+      },
+    ],
+    customTiles: [
+      {
+        action: 'Do the thing',
+        groupName: 'g1',
+        intensity: 1,
+        tags: ['spicy'],
+        gameMode: 'online',
+        locale: 'en',
+        isEnabled: true,
+        contentHash: 'h',
+      },
+    ],
+    disabledDefaultTiles: [],
+  },
+});
 
 const pack: ContentPackDoc = {
   id: 'p1',
@@ -60,7 +67,7 @@ const pack: ContentPackDoc = {
   locale: 'en',
   tags: ['fun'],
   visibility: 'public',
-  contents: '{}',
+  contents: PACK_CONTENTS,
   contentHash: 'sha256-x',
   packVersion: 1,
   formatVersion: '2.0.0',

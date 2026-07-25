@@ -18,7 +18,6 @@ import { useTranslation } from 'react-i18next';
 import { importPack, parsePack, reportPack } from '@/services/contentPacks';
 import { analytics } from '@/services/analytics';
 import type { ContentPackDoc } from '@/types/contentPacks';
-import type { ExportTile } from '@/types/importExport';
 
 // Ordered easy→intense palette; intensities map to slots by their sorted position
 // so colors stay consistent regardless of the raw `value` numbers a pack uses.
@@ -54,34 +53,11 @@ export default function PackImportDialog({
     message: string;
   } | null>(null);
 
-  const groups = parsed?.data.data.customGroups ?? [];
-  const tiles = parsed?.data.data.customTiles ?? [];
-  const declaredExtensions = parsed?.data.data.groupExtensions ?? [];
-
-  // Tiles can target default groups without a matching groupExtensions entry
-  // (e.g. new actions at existing levels). The exporter now emits an entry for
-  // every contributing default group, so this only fires for packs published
-  // before that fix — a backward-compat net so no tile is invisible.
-  const extensions = useMemo(() => {
-    const covered = new Set([
-      ...groups.map((g) => g.name),
-      ...declaredExtensions.map((e) => e.groupName),
-    ]);
-    const orphanNames = [...new Set(tiles.map((tile) => tile.groupName))].filter(
-      (name) => !covered.has(name)
-    );
-    return [
-      ...declaredExtensions,
-      ...orphanNames.map((name) => ({
-        groupName: name,
-        groupLabel: name,
-        locale: pack.locale,
-        gameMode: pack.gameMode,
-        addedIntensities: [],
-        contentHash: '',
-      })),
-    ];
-  }, [groups, declaredExtensions, tiles, pack.locale, pack.gameMode]);
+  const groups = parsed?.payload.groups ?? [];
+  const tiles = parsed?.payload.tiles ?? [];
+  // Includes default groups a legacy pack reveals only through its tiles, so no
+  // tile is invisible in the preview.
+  const extensions = useMemo(() => parsed?.payload.extendedGroups() ?? [], [parsed]);
 
   // One preview event each time the dialog opens for a pack
   useEffect(() => {
@@ -93,16 +69,7 @@ export default function PackImportDialog({
     }
   }, [open, pack.groupCount, pack.tileCount]);
 
-  // Bucket tiles under their group for the per-group preview sections.
-  const tilesByGroup = useMemo(() => {
-    const map = new Map<string, ExportTile[]>();
-    for (const tile of tiles) {
-      const list = map.get(tile.groupName) ?? [];
-      list.push(tile);
-      map.set(tile.groupName, list);
-    }
-    return map;
-  }, [tiles]);
+  const tilesForGroup = (groupName: string) => parsed?.payload.tilesByGroup(groupName) ?? [];
 
   async function handleImport(): Promise<void> {
     setBusy(true);
@@ -185,7 +152,7 @@ export default function PackImportDialog({
         ) : (
           <Stack spacing={2} sx={{ mt: 1 }}>
             {groups.map((group) => {
-              const groupTiles = tilesByGroup.get(group.name) ?? [];
+              const groupTiles = tilesForGroup(group.name);
               // Sort intensities low→high so palette slots run easy→intense.
               const ordered = [...group.intensities].sort((a, b) => a.value - b.value);
               const colorByValue = new Map(
@@ -285,7 +252,7 @@ export default function PackImportDialog({
             {/* Default-group extensions: tiles and/or added levels for groups
                 the importer already has. */}
             {extensions.map((extension) => {
-              const extensionTiles = tilesByGroup.get(extension.groupName) ?? [];
+              const extensionTiles = tilesForGroup(extension.groupName);
               const addedLabelByValue = new Map(
                 extension.addedIntensities.map((i) => [i.value, i.label])
               );

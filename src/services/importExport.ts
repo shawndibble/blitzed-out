@@ -15,6 +15,7 @@ import {
   generateExtensionContentHash,
 } from './contentHashing';
 import { appendIntensities } from './intensityMerge';
+import { readPackPayload, storedTileIdentityKey, type PackPayload } from './packPayload';
 import {
   ExportData,
   ExportGroup,
@@ -40,7 +41,7 @@ interface ImportContext {
   groupIdMap: Map<string, string>; // groupKey -> groupId
   existingTileMap: Map<string, CustomTile>; // action+intensity+groupId -> tile
   result: ImportResult;
-  importData: ExportData;
+  payload: PackPayload;
   options: ImportOptions;
 }
 
@@ -70,7 +71,7 @@ class ImportExportError extends Error {
 }
 
 async function buildImportContext(
-  importData: ExportData,
+  payload: PackPayload,
   options: ImportOptions
 ): Promise<ImportContext> {
   const result: ImportResult = {
@@ -87,11 +88,7 @@ async function buildImportContext(
   // Build group mappings once for the entire import operation. Locale/mode
   // pairs come from every section — a payload may carry only tiles or
   // extensions targeting default groups, with no customGroups entries.
-  const sections = [
-    ...importData.data.customGroups,
-    ...importData.data.customTiles,
-    ...(importData.data.groupExtensions ?? []),
-  ];
+  const sections = [...payload.groups, ...payload.tiles, ...payload.extensions];
   const locales = [...new Set(sections.map((s) => s.locale))];
   const gameModes = [...new Set(sections.map((s) => s.gameMode))];
 
@@ -115,12 +112,11 @@ async function buildImportContext(
   for (const group of allExistingGroups) {
     const tiles = await getTiles({ group_id: group.id });
     for (const tile of tiles) {
-      const key = `${tile.action}_${tile.intensity}_${group.id}`;
-      existingTileMap.set(key, tile);
+      existingTileMap.set(storedTileIdentityKey(tile.action, tile.intensity, group.id), tile);
     }
   }
 
-  return { groupMap, groupIdMap, existingTileMap, result, importData, options };
+  return { groupMap, groupIdMap, existingTileMap, result, payload, options };
 }
 
 // Export utilities
@@ -179,7 +175,7 @@ async function createExportDisabled(
 
 // Import processing
 async function processGroupImport(ctx: ImportContext): Promise<void> {
-  for (const importedGroup of ctx.importData.data.customGroups) {
+  for (const importedGroup of ctx.payload.groups) {
     try {
       const key = groupKey(importedGroup.name, importedGroup.locale, importedGroup.gameMode);
       const existingGroup = ctx.groupMap.get(key);
@@ -236,7 +232,7 @@ async function processGroupImport(ctx: ImportContext): Promise<void> {
 }
 
 async function processGroupExtensions(ctx: ImportContext): Promise<void> {
-  for (const extension of ctx.importData.data.groupExtensions ?? []) {
+  for (const extension of ctx.payload.extensions) {
     try {
       const key = groupKey(extension.groupName, extension.locale, extension.gameMode);
       let group = ctx.groupMap.get(key);
@@ -315,8 +311,8 @@ async function processGroupExtensions(ctx: ImportContext): Promise<void> {
 async function processTileImport(ctx: ImportContext): Promise<void> {
   // Batch tile imports for better performance
   const tileBatches: ExportTile[][] = [];
-  for (let i = 0; i < ctx.importData.data.customTiles.length; i += BATCH_SIZE) {
-    tileBatches.push(ctx.importData.data.customTiles.slice(i, i + BATCH_SIZE));
+  for (let i = 0; i < ctx.payload.tiles.length; i += BATCH_SIZE) {
+    tileBatches.push(ctx.payload.tiles.slice(i, i + BATCH_SIZE));
   }
 
   for (const batch of tileBatches) {
@@ -366,17 +362,17 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
           continue;
         }
 
-        // Stored tiles are canonical (intake normalization), so the identity
-        // key must canonicalize the file's action too — an older export can
-        // carry localized alias tokens, keyed by the tile's own locale —
-        // or every re-import of the same file inserts a duplicate.
+        // Stored tiles are canonical (intake normalization), so the action the
+        // file carries has to be canonicalized before it is written or keyed —
+        // an older export can carry localized alias tokens.
         const canonicalTile = {
           ...importedTile,
           action: normalizePlaceholders(importedTile.action, importedTile.locale),
         };
 
-        const tileKey = `${canonicalTile.action}_${importedTile.intensity}_${groupId}`;
-        const existingTile = ctx.existingTileMap.get(tileKey);
+        const existingTile = ctx.existingTileMap.get(
+          storedTileIdentityKey(canonicalTile.action, importedTile.intensity, groupId)
+        );
 
         if (existingTile) {
           const existingHash = await generateTileContentHash(existingTile, group.name);
@@ -421,23 +417,9 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
 
 async function processDisabledDefaultImport(ctx: ImportContext): Promise<void> {
   // Process disabled default tiles by setting them to disabled in the database
-  for (const disabledTile of ctx.importData.data.disabledDefaultTiles) {
+  for (const disabledTile of ctx.payload.disabledDefaults) {
     try {
-      // ExportDisabledDefault carries no locale. A disabled DEFAULT group is
-      // never in customGroups, so recover its locale from any sibling section
-      // that does carry one (its extension entry or one of its tiles), same
-      // name + gameMode, before falling back to 'en'.
-      const groupLocale =
-        ctx.importData.data.customGroups.find(
-          (g) => g.name === disabledTile.groupName && g.gameMode === disabledTile.gameMode
-        )?.locale ||
-        (ctx.importData.data.groupExtensions ?? []).find(
-          (e) => e.groupName === disabledTile.groupName && e.gameMode === disabledTile.gameMode
-        )?.locale ||
-        ctx.importData.data.customTiles.find(
-          (tl) => tl.groupName === disabledTile.groupName && tl.gameMode === disabledTile.gameMode
-        )?.locale ||
-        'en';
+      const groupLocale = ctx.payload.entryLocale(disabledTile.groupName, disabledTile.gameMode);
       const key = groupKey(disabledTile.groupName, groupLocale, disabledTile.gameMode);
       let groupId = ctx.groupIdMap.get(key);
 
@@ -535,30 +517,19 @@ function createTileData(importedTile: ExportTile, groupId: string, ctx?: ImportC
   };
 }
 
-function isValidImportData(data: any): data is ExportData {
-  return (
-    data &&
-    typeof data === 'object' &&
-    data.formatVersion &&
-    data.data &&
-    Array.isArray(data.data.customGroups) &&
-    Array.isArray(data.data.customTiles)
-  );
-}
-
 // Public API
 export async function exportAllData(
   options: Partial<ExportOptions> = {},
   progressCallback?: ProgressCallback
 ): Promise<string> {
   try {
-    const {
-      includeDisabledDefaults = false,
-      singleGroupName,
-      groupNames,
-      locales,
-      gameModes,
-    } = options;
+    const { scope, singleGroupName, groupNames, locales, gameModes } = options;
+
+    // A declared scope decides which sections the payload carries — callers that
+    // pass none keep driving the sections through their own options.
+    const emitOwnContent = scope !== 'disabled';
+    const includeDisabledDefaults =
+      scope !== undefined ? scope !== 'custom' : (options.includeDisabledDefaults ?? false);
 
     // Validate filter arrays
     const validatedLocales = locales?.filter((locale) => SUPPORTED_LANGUAGES.includes(locale));
@@ -676,7 +647,7 @@ export async function exportAllData(
 
     // Process groups for export - only custom groups
     const exportGroups: ExportGroup[] = [];
-    for (const group of groupsToExport.filter((g) => !g.isDefault)) {
+    for (const group of emitOwnContent ? groupsToExport.filter((g) => !g.isDefault) : []) {
       exportGroups.push(await createExportGroup(group));
     }
 
@@ -712,9 +683,9 @@ export async function exportAllData(
 
     // Process custom tiles - only those belonging to groups we're exporting
     const exportTiles: ExportTile[] = [];
-    const customTilesToExport = allCustomTiles.filter(
-      (t) => t.group_id && exportGroupIds.has(t.group_id)
-    );
+    const customTilesToExport = emitOwnContent
+      ? allCustomTiles.filter((t) => t.group_id && exportGroupIds.has(t.group_id))
+      : [];
 
     for (const tile of customTilesToExport) {
       const group = groupMap.get(tile.group_id!);
@@ -761,15 +732,8 @@ export async function analyzeImportConflicts(
   options: Partial<ImportOptions> = {}
 ): Promise<ConflictAnalysis> {
   try {
-    let importData: ExportData;
-
-    if (typeof rawData === 'string') {
-      importData = JSON.parse(rawData);
-    } else {
-      importData = rawData;
-    }
-
-    if (!isValidImportData(importData)) {
+    const payload = readPackPayload(rawData);
+    if (!payload) {
       throw new ImportExportError('Invalid import data format');
     }
 
@@ -779,7 +743,7 @@ export async function analyzeImportConflicts(
       packProvenance: options.packProvenance,
     };
 
-    const ctx = await buildImportContext(importData, fullOptions);
+    const ctx = await buildImportContext(payload, fullOptions);
 
     const result: ConflictAnalysis = {
       groupConflicts: [],
@@ -788,7 +752,7 @@ export async function analyzeImportConflicts(
     };
 
     // Group conflicts: an imported group whose name already exists locally.
-    for (const imported of importData.data.customGroups) {
+    for (const imported of payload.groups) {
       const existing = ctx.groupMap.get(
         groupKey(imported.name, imported.locale, imported.gameMode)
       );
@@ -804,7 +768,7 @@ export async function analyzeImportConflicts(
     // Tile conflicts: an imported tile whose (action, intensity, group) already
     // exists locally. `contentMatch` flags a local edit — the existing content
     // differs from the imported one — so the UI can warn before overwriting.
-    for (const imported of importData.data.customTiles) {
+    for (const imported of payload.tiles) {
       const key = groupKey(imported.groupName, imported.locale, imported.gameMode);
       let groupId = ctx.groupIdMap.get(key);
       if (!groupId) {
@@ -815,9 +779,9 @@ export async function analyzeImportConflicts(
         );
       }
       const group = ctx.groupMap.get(key);
-      const existing = ctx.existingTileMap.get(
-        `${imported.action}_${imported.intensity}_${groupId}`
-      );
+      // The importer's identity key, not a re-derivation of it: the preview
+      // cannot disagree with what the import will actually do.
+      const existing = ctx.existingTileMap.get(payload.tileIdentityKey(imported, groupId));
       if (!existing || !group) continue;
       const existingHash = await generateTileContentHash(existing, group.name);
       result.tileConflicts.push({
@@ -839,15 +803,8 @@ export async function importData(
   progressCallback?: ProgressCallback
 ): Promise<ImportResult> {
   try {
-    let importData: ExportData;
-
-    if (typeof rawData === 'string') {
-      importData = JSON.parse(rawData);
-    } else {
-      importData = rawData;
-    }
-
-    if (!isValidImportData(importData)) {
+    const payload = readPackPayload(rawData);
+    if (!payload) {
       throw new ImportExportError('Invalid import data format');
     }
 
@@ -858,7 +815,7 @@ export async function importData(
     };
 
     progressCallback?.('Preparing import', 0, 100);
-    const ctx = await buildImportContext(importData, fullOptions);
+    const ctx = await buildImportContext(payload, fullOptions);
 
     progressCallback?.('Importing groups', 25, 100);
     await processGroupImport(ctx);
@@ -870,7 +827,7 @@ export async function importData(
     progressCallback?.('Importing tiles', 75, 100);
     await processTileImport(ctx);
 
-    if (fullOptions.preserveDisabledDefaults && importData.data.disabledDefaultTiles.length > 0) {
+    if (fullOptions.preserveDisabledDefaults && payload.disabledDefaults.length > 0) {
       progressCallback?.('Importing disabled defaults', 85, 100);
       await processDisabledDefaultImport(ctx);
     }
@@ -882,11 +839,4 @@ export async function importData(
   } catch (error) {
     throw new ImportExportError('Import failed', error);
   }
-}
-
-export async function importFromJson(
-  jsonString: string,
-  options: Partial<ImportOptions> = {}
-): Promise<ImportResult> {
-  return importData(jsonString, options);
 }

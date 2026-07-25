@@ -218,10 +218,24 @@ describe('contentPacks service', () => {
   });
 
   it('parsePack returns undefined on invalid JSON', () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const bad = { contents: 'not json' } as ContentPackDoc;
     expect(parsePack(bad)).toBeUndefined();
-    expect(errorSpy).toHaveBeenCalled();
+  });
+
+  it('parsePack exposes the payload reader for valid contents', () => {
+    const good = {
+      contents: JSON.stringify({
+        formatVersion: '2.1.0',
+        exportedAt: 'now',
+        data: { customGroups: [], customTiles: [], disabledDefaultTiles: [] },
+      }),
+    } as ContentPackDoc;
+    expect(parsePack(good)?.payload.counts).toEqual({
+      groups: 0,
+      tiles: 0,
+      extensions: 0,
+      disabledDefaults: 0,
+    });
   });
 
   describe('listMyPacks', () => {
