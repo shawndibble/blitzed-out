@@ -143,7 +143,7 @@ Includes user-created groups and tiles, and optionally your disabled-default lis
 
 **User-facing:** this is the **backup / restore / share** mechanism — export to a JSON file, hand it to someone (or another device), import it. Reachable from the Custom Tiles dialog's import/export tab.
 
-`analyzeImportConflicts()` is implemented (it previously returned empty arrays): it reports per-group/per-tile collisions, flagging a tile as `contentMatch` when the local copy differs from the imported one — i.e. a local edit an import would overwrite. The pack import preview uses this to warn before applying a pack update.
+`analyzeImportConflicts()` reports per-group/per-tile collisions, flagging a tile as `contentMatch` when the local copy differs from the imported one — i.e. a local edit an import would overwrite. **It currently has no production caller** — the conflict UI was removed from the import dialog when packs became copy-only, and `PackImportDialog` shows a full-dump preview instead. It keys tiles through `packPayload`, exactly as the importer does, so anything that wires a preview back up agrees with what the import will do; until then it is a service function with tests and no users.
 
 ---
 

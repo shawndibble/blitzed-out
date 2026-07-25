@@ -371,7 +371,7 @@ async function processTileImport(ctx: ImportContext): Promise<void> {
         };
 
         const existingTile = ctx.existingTileMap.get(
-          ctx.payload.tileIdentityKey(importedTile, groupId)
+          storedTileIdentityKey(canonicalTile.action, importedTile.intensity, groupId)
         );
 
         if (existingTile) {
