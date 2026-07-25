@@ -47,8 +47,3 @@ export const getDayjsWithLocale = (date: Date, language: string) => {
   const dayjsLocale = getDayjsLocale(language);
   return dayjs(date).locale(dayjsLocale);
 };
-
-// Backward compatibility aliases (deprecated - use dayjs versions)
-export const setMomentLocale = setDayjsLocale;
-export const getMomentWithLocale = getDayjsWithLocale;
-export const getMomentLocale = getDayjsLocale;

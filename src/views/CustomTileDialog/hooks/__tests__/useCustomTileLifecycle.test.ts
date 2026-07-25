@@ -214,4 +214,32 @@ describe('useCustomTileLifecycle', () => {
     expect(updateCustomTile.mock.calls[0][0]).toBe(9);
     expect(addCustomTile).not.toHaveBeenCalled();
   });
+
+  it('submitTile does not stamp packDetached onto a pack-imported tile', async () => {
+    const existing: CustomTilePull[] = [
+      {
+        id: 9,
+        group_id: 'group-2',
+        intensity: 2,
+        action: 'old',
+        tags: ['custom'],
+        isCustom: 1,
+        packId: 'pack-1',
+        packName: 'Starter Pack',
+      },
+    ];
+    const { result } = setup(existing);
+    act(() => {
+      result.current.beginEdit(9, existing[0]);
+    });
+    await waitFor(() => expect(result.current.sharedFilters.groupName).toBe('oral'));
+    act(() => result.current.setDraftAction('new action'));
+
+    await act(async () => {
+      await result.current.submitTile();
+    });
+
+    expect(updateCustomTile).toHaveBeenCalledTimes(1);
+    expect(updateCustomTile.mock.calls[0][1]).not.toHaveProperty('packDetached');
+  });
 });

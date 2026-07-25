@@ -62,16 +62,6 @@ export function ThemeProvider({ children, defaultMode = 'system' }: ThemeProvide
     setThemeMode(newMode);
   };
 
-  // No longer needed - useMediaQuery with noSsr handles initialization properly
-
-  // Listen for system theme changes and update if in system mode
-  useEffect(() => {
-    if (themeMode === 'system') {
-      // Theme will automatically update due to resolvedThemeMode dependency
-      // System theme preference changed: prefersDarkMode ? 'dark' : 'light'
-    }
-  }, [prefersDarkMode, themeMode]);
-
   // Provide smooth transition classes to body
   useEffect(() => {
     const body = document.body;
@@ -114,31 +104,4 @@ export function useTheme(): ThemeContextValue {
   }
 
   return context;
-}
-
-/**
- * Hook to get just the theme mode and setter (lighter alternative)
- */
-// eslint-disable-next-line react-refresh/only-export-components
-export function useThemeMode(): [ThemeMode, (mode: ThemeMode) => void] {
-  const { themeMode, setThemeMode } = useTheme();
-  return [themeMode, setThemeMode];
-}
-
-/**
- * Hook to get the resolved theme mode (always 'light' or 'dark')
- */
-// eslint-disable-next-line react-refresh/only-export-components
-export function useResolvedThemeMode(): 'light' | 'dark' {
-  const { resolvedThemeMode } = useTheme();
-  return resolvedThemeMode;
-}
-
-/**
- * Hook for theme toggle functionality
- */
-// eslint-disable-next-line react-refresh/only-export-components
-export function useThemeToggle(): () => void {
-  const { toggleTheme } = useTheme();
-  return toggleTheme;
 }
