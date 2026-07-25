@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { getGroupsWithTiles, getTileCountsByGroup } from '@/stores/contentLibrary';
 import { deriveContentMode } from '@/stores/settingsStore';
+import { getGroupRoleLabels } from '@/services/groupRoleLabels';
 import { GroupedActions } from '@/types/customTiles';
 
 interface UnifiedActionListResult {
@@ -97,6 +98,11 @@ export default function useUnifiedActionList(
           allGroups = await getAllAvailableGroups(locale, contentGameMode);
         }
 
+        // Per-group role wording (Top/Bottom, Buster/Bustee, …). Never persisted
+        // to Dexie by the seeder, so it comes straight from the locale bundle;
+        // groups without bespoke wording simply aren't in the map.
+        const roleLabels = await getGroupRoleLabels(locale, contentGameMode);
+
         // Convert groups to unified actions structure
         const unifiedActions: GroupedActions = {};
 
@@ -122,6 +128,7 @@ export default function useUnifiedActionList(
             actions,
             intensities,
             usesRoleTokens: roleTokenGroupIds.has(group.id),
+            ...roleLabels[group.name],
           };
         }
 
