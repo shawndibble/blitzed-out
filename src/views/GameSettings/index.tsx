@@ -116,7 +116,7 @@ export default function GameSettings(): JSX.Element {
   // chosen topology, not on whether a roster exists yet — otherwise the moot
   // rows linger until the first player is added.
   const isSharedDevice = formData.gameMode === 'local';
-  const showRoomSection = hasRoomSettings(formData.gameMode, formData.room);
+  const showRoomSection = hasRoomSettings(formData.room);
   const hiddenSectionIds = [
     ...(isSharedDevice ? ['section-you'] : []),
     ...(showRoomSection ? [] : ['section-room']),

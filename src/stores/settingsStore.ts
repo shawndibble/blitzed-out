@@ -25,15 +25,19 @@ export const deriveContentMode = (gameMode?: GameMode | string): ContentGameMode
  * to PUBLIC (e.g. login from the root URL) must not silently rewrite the
  * user's persisted Shared Device topology.
  *
- * Repairs to `solo`, not `online`. PUBLIC is Solo-only, so promoting to
- * `online` swapped one invalid pairing for another (`online` + PUBLIC) — and
- * `usePresence` force-removes a player on disconnect in PUBLIC, which for a
- * group topology corrupts turn order. `solo` is the only truthful repair: the
- * user is standing in PUBLIC, which cannot host several players on one device,
+ * Repairs to `solo`. PUBLIC is Solo-only, so promoting `local` to `online` (the
+ * original behavior) swapped one invalid pairing for another — and `usePresence`
+ * force-removes a player on disconnect in PUBLIC, which for a group topology
+ * corrupts turn order. `solo` is the only truthful repair: the user is standing
+ * in PUBLIC, which can host neither several players on one device nor a group,
  * and rewriting the room they are actually in would be the larger surprise.
+ *
+ * Applies to `online` as well as `local`, because `online` + PUBLIC is reachable
+ * on its own: a join link (`/PUBLIC?step=2`) sets `gameMode: 'online'` while the
+ * room stays PUBLIC (GameSettingsWizard `overrideSettings`).
  */
 export function enforceTopologyRoomInvariant<T extends Partial<Settings>>(settings: T): T {
-  if (settings.gameMode === 'local' && isPublicRoom(settings.room)) {
+  if (settings.gameMode !== 'solo' && settings.gameMode && isPublicRoom(settings.room)) {
     return { ...settings, gameMode: 'solo' };
   }
   return settings;

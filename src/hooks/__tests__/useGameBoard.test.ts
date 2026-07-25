@@ -163,6 +163,21 @@ describe('useGameBoard', () => {
       expect(gameResult.settingsBoardUpdated).toBe(true);
     });
 
+    // Reachable on its own: a join link (/PUBLIC?step=2) sets gameMode 'online'
+    // while the room stays PUBLIC. Left alone, usePresence would force-remove
+    // group players on disconnect and corrupt turn order.
+    it('repairs online in a public room to solo as well', async () => {
+      const { result } = renderHook(() => useGameBoard());
+
+      const gameResult = await result.current({
+        ...mockSettings,
+        gameMode: 'online' as const,
+        room: 'PUBLIC',
+      });
+
+      expect(gameResult.gameMode).toBe('solo');
+    });
+
     it('should respect the user roomTileCount in public rooms', async () => {
       const { result } = renderHook(() => useGameBoard());
 

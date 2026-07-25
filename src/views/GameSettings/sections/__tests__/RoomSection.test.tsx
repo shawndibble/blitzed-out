@@ -106,6 +106,22 @@ describe('RoomSection', () => {
     });
   });
 
+  // Reachable via a join link (/PUBLIC?step=2) before enforceTopologyRoomInvariant
+  // repairs it. PUBLIC forces real-time presence, so the toggle would be inert.
+  describe('online stranded in the public room', () => {
+    it('renders nothing — no code card, and no inert player-list toggle', () => {
+      const { container } = render(
+        <RoomSection
+          formData={makeFormData({ gameMode: 'online', room: 'PUBLIC' })}
+          setFormData={setFormData}
+        />
+      );
+      expect(screen.queryByRole('group', { name: 'playerListUpdates' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'copy' })).not.toBeInTheDocument();
+      expect(container.textContent).toBe('');
+    });
+  });
+
   describe('shared device (local)', () => {
     it('hides all room plumbing and shows player setup instead', () => {
       render(

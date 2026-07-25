@@ -841,7 +841,7 @@
   "sectionSoundVoice": "Ton & Stimme",
   "sectionDisplayLanguage": "Anzeige & Sprache",
   "alwaysPrivateRoomHint": "Teile diesen Code, damit Freunde von ihren Geräten beitreten können.",
-  "sharedDeviceRoomHint": "Ein Gerät herumzugeben spielt in seinem eigenen privaten Bereich — nichts einzurichten oder zu teilen.",
+  "sharedDeviceRoomHint": "Beim Herumgeben eines Geräts spielt ihr in einem eigenen privaten Bereich — es gibt nichts einzurichten oder zu teilen.",
   "roomBackgroundLocked": "Der Raumhintergrund erfordert einen privaten Raum.",
   "copyRoomCode": "Raumcode kopieren",
   "newRoomCode": "Neuer Code",

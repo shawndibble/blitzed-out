@@ -100,35 +100,24 @@ describe('resolveSetupAnswers', () => {
 });
 
 describe('hasRoomSettings', () => {
-  it('is empty for solo in the public room — nothing to configure, no roster', () => {
-    expect(hasRoomSettings('solo', 'PUBLIC')).toBe(false);
+  it('is empty in the public room — nothing to configure, no roster', () => {
+    expect(hasRoomSettings('PUBLIC')).toBe(false);
   });
 
   it('treats a lowercase public room the same', () => {
-    expect(hasRoomSettings('solo', 'public')).toBe(false);
+    expect(hasRoomSettings('public')).toBe(false);
   });
 
-  it('has the code card for solo in a private room', () => {
-    expect(hasRoomSettings('solo', 'ABC12')).toBe(true);
+  it('has something to show in any private room', () => {
+    expect(hasRoomSettings('ABC12')).toBe(true);
   });
 
-  it('has the code card and player-list row for online', () => {
-    expect(hasRoomSettings('online', 'ABC12')).toBe(true);
-  });
-
-  it('has the roster for shared device', () => {
-    expect(hasRoomSettings('local', 'ABC12')).toBe(true);
-  });
-
-  it('defaults a missing gameMode to solo', () => {
-    expect(hasRoomSettings(undefined, 'PUBLIC')).toBe(false);
-    expect(hasRoomSettings(undefined, 'ABC12')).toBe(true);
-  });
-
-  // online should never be in PUBLIC (ADR-0002), but if it somehow is, the
-  // player-list row is still real — don't hide a live control on a bad state.
-  it('keeps the section for online even in PUBLIC', () => {
-    expect(hasRoomSettings('online', 'PUBLIC')).toBe(true);
+  // online + PUBLIC is invalid (ADR-0002) but reachable via a join link before
+  // the invariant repair runs. It has nothing to show either: no code card in a
+  // public room, no roster, and PUBLIC forces real-time presence so the
+  // player-list toggle would be inert.
+  it('is empty for a public room whatever the topology claims', () => {
+    expect(hasRoomSettings('PUBLIC')).toBe(false);
   });
 });
 

@@ -89,6 +89,18 @@ describe('SetupSection', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('reads a stored partnered choice back', () => {
+      setup({ gameMode: 'online', room: 'KHLOE', soloPlay: false });
+      expect(screen.getByRole('button', { name: 'setupParticipationPartner' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+      expect(screen.getByRole('button', { name: 'setupParticipationJustMe' })).toHaveAttribute(
+        'aria-pressed',
+        'false'
+      );
+    });
+
     it('defaults to just-me when nothing is stored', () => {
       setup({ gameMode: 'online', room: 'KHLOE' });
       expect(screen.getByRole('button', { name: 'setupParticipationJustMe' })).toHaveAttribute(

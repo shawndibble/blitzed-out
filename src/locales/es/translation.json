@@ -841,7 +841,7 @@
   "sectionSoundVoice": "Sonido y voz",
   "sectionDisplayLanguage": "Pantalla e idioma",
   "alwaysPrivateRoomHint": "Comparte este código para que tus amigos se unan desde sus dispositivos.",
-  "sharedDeviceRoomHint": "Pasar un solo dispositivo se juega en su propio espacio privado: nada que configurar ni compartir.",
+  "sharedDeviceRoomHint": "Al pasar un solo dispositivo, se juega en un espacio privado propio: no hay nada que configurar ni compartir.",
   "roomBackgroundLocked": "El fondo de sala requiere una sala privada.",
   "copyRoomCode": "Copiar código de sala",
   "newRoomCode": "Nuevo código",

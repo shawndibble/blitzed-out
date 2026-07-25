@@ -117,7 +117,11 @@ export default function RoomSection({ formData, setFormData }: RoomSectionProps)
         </>
       )}
 
-      {gameMode === 'online' && (
+      {/* PUBLIC forces real-time presence regardless of this setting
+          (`usePresence`: removeOnDisconnect = roomRealtime || isPublicRoom), so
+          the toggle would do nothing there. online+PUBLIC is invalid but
+          reachable via a join link before the invariant repair runs. */}
+      {gameMode === 'online' && !isPublic && (
         <SettingGroup>
           <SettingRow label={t('playerListUpdates')} description={t('playerListUpdatesCaption')}>
             <ToggleButtonGroup

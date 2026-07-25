@@ -2,7 +2,6 @@ import { isPublicRoom } from '@/helpers/strings';
 import type { ActionEntry } from '@/types';
 import type { GameMode } from '@/types/Settings';
 
-/** Who is using this one physical device. */
 export type DeviceSharing = 'justMe' | 'several';
 
 /** Who else is in the game. Only meaningful when DeviceSharing is 'justMe'. */
@@ -55,13 +54,19 @@ export function resolveSetupAnswers(
  * section (and its jump-nav entry) rather than render a heading over nothing.
  *
  * Mirrors what `RoomSection` actually renders: the private-room code card
- * (private, non-local), the roster (local), and player-list updates (online).
- * That leaves exactly one empty combination — Solo in the public room, where
- * the room is not yours to configure and there is no roster. What the public
- * room means is already stated by the company answer that put you there.
+ * (private, non-local), the roster (local), and player-list updates (online in a
+ * private room). Every one of those needs a private room or a local roster, so a
+ * public room leaves nothing behind — the room is not yours to configure, there
+ * is no roster, and PUBLIC forces real-time presence regardless of the
+ * player-list setting. What the public room means is already stated by the
+ * company answer that put you there.
+ *
+ * Keys on the room alone, not the topology. Only Solo may legitimately be in
+ * PUBLIC, but `online` + PUBLIC is reachable via a join link and has just as
+ * little to show, so the room is the honest predicate.
  */
-export function hasRoomSettings(gameMode: GameMode | undefined, room: string): boolean {
-  return !((gameMode ?? 'solo') === 'solo' && isPublicRoom(room));
+export function hasRoomSettings(room: string): boolean {
+  return !isPublicRoom(room);
 }
 
 /** Only the shape `carrySelectedActions` needs from a loaded action catalog. */
