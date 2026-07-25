@@ -9,6 +9,9 @@ Architectural decisions live in `docs/adr/`.
 
 How players are physically distributed across devices. Determined at setup before any other configuration.
 
+Topology is a **derived** value, not a thing the user picks directly. It is never a single question,
+because it answers two independent ones — see [Setup Questions](#setup-questions).
+
 ### Solo
 
 One player, one device. Topology label for solo play. By default, solo uses the PUBLIC room;
@@ -21,8 +24,40 @@ online and offline. Does not use a reserved `LOCAL` room.
 
 ### Individual Devices
 
-Two or more players, each on their own device. Always requires a room (public or private).
-Unavailable when offline.
+Two or more players, each on their own device. Always plays in a **private** room — PUBLIC is
+reserved for Solo players. Unavailable when offline.
+
+---
+
+## Setup Questions
+
+The two questions a player actually answers. Topology and Room are **derived** from the pair —
+neither is chosen directly.
+
+### Device Sharing
+
+Who is using this one physical device. Two answers: **just me**, or **several of us passing it
+around** (2–4 players taking turns on one screen).
+
+### Session Company
+
+Who else is in the game. Three answers: **no one**, **strangers** (the PUBLIC room), or **friends
+I invite with a code** (a Private Room).
+
+Only meaningful when Device Sharing is "just me" — passing one device around always implies a
+Private Room with no outsiders.
+
+### Derivation
+
+| Device Sharing | Session Company | Topology           | Room    |
+| -------------- | --------------- | ------------------ | ------- |
+| just me        | no one          | Solo               | private |
+| just me        | strangers       | Solo               | PUBLIC  |
+| just me        | friends by code | Individual Devices | private |
+| several of us  | (n/a)           | Shared Device      | private |
+
+[Participation Style](#participation-style-soloplay) is a sub-question of exactly one row —
+_just me + friends by code_ — because every other row forces its content set.
 
 ---
 
@@ -32,7 +67,8 @@ An identifier that scopes Firebase messages, presence, and sync. Users navigate 
 
 ### PUBLIC Room
 
-The shared room for solo and individual-devices players who want to play alongside strangers. Room ID: `"PUBLIC"`.
+The shared room for **Solo** players who want to play alongside strangers. Room ID: `"PUBLIC"`.
+Solo-only: both Shared Device and Individual Devices always play in a Private Room.
 
 ### Private Room
 
@@ -51,7 +87,7 @@ player topology in the new wizard flow.
 | Value      | Player Topology    | Room                                       |
 | ---------- | ------------------ | ------------------------------------------ |
 | `'solo'`   | Solo (one player)  | PUBLIC (default) or auto-generated private |
-| `'online'` | Individual Devices | PUBLIC or private (user selects)           |
+| `'online'` | Individual Devices | Always private (PUBLIC is Solo-only)       |
 | `'local'`  | Shared Device      | Always auto-generated private              |
 
 ### Three topologies, two content sets
@@ -106,12 +142,25 @@ A `vers` player takes dom or sub per the action's needs; when an action requires
 
 Applies to Individual Devices (`online`) mode only. Determines whether the player receives solo-only content or partner-interaction content.
 
+**Per-player, not per-room.** `soloPlay` is each player's own setting and is never read from any
+other player. In one Individual Devices session, you can be solo-sexual while the couple beside you
+plays partnered — both are correct simultaneously. Any wording implying it governs everyone
+("everyone plays solo") is false.
+
 | Value            | Meaning                                        | Sections shown in GameModeStep |
 | ---------------- | ---------------------------------------------- | ------------------------------ |
 | `true` (default) | Solo-sexual — actions are for the player alone | Anatomy only                   |
 | `false`          | Group play — actions involve partners          | Anatomy + Role + Naked/Clothed |
 
 Defaults to `true` (solo-sexual) to preserve backward compatibility with existing settings. Not applicable to Solo or Shared Device topology.
+
+### Colliding group keys
+
+The two content sets share group **keys** with the same label but different types and different
+action text — `bating` is a `solo` group online and a `sex` group locally, both labeled "Bating".
+Changing Participation therefore reinterprets an already-chosen group rather than invalidating it.
+Groups with a counterpart carry across (intensity levels carried positionally, clamped to what the
+counterpart offers); groups with no counterpart are dropped.
 
 Action type filtering (`shouldPurgeAction`) and preset selection both use `usesSoloActions(gameMode, soloPlay)` to determine whether to show solo vs. foreplay/sex content.
 
