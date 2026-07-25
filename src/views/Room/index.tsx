@@ -60,7 +60,10 @@ export default function Room() {
   useWakeLock(settings.wakeLockEnabled ?? true);
 
   // Game session tracking
-  const sessionStartTimeRef = useRef<number>(Date.now());
+  // useRef has no lazy-initializer form (unlike useState), so use useState's
+  // lazy initializer to capture mount time once — the setter is never
+  // called, so this never triggers a re-render, same as a ref.
+  const [sessionStartTime] = useState<number>(() => Date.now());
   const actionCountRef = useRef<number>(0);
   const gameStartedRef = useRef<boolean>(false);
   const gameFinishedRef = useRef<boolean>(false);
@@ -140,15 +143,15 @@ export default function Room() {
     if (gameFinishedRef.current || !gameBoard?.length || actionCountRef.current === 0) return;
     if (tile?.index === gameBoard.length - 1) {
       gameFinishedRef.current = true;
-      const duration = Date.now() - sessionStartTimeRef.current;
+      const duration = Date.now() - sessionStartTime;
       const { gameMode, playerCount } = lastCountsRef.current;
       analytics.trackGameFinished(actionCountRef.current, duration, gameMode, playerCount);
     }
-  }, [tile, gameBoard]);
+  }, [tile, gameBoard, sessionStartTime]);
 
   // Track game session on component unmount only
   useEffect(() => {
-    const start = sessionStartTimeRef.current;
+    const start = sessionStartTime;
     return () => {
       const duration = Date.now() - start;
       const { gameMode, playerCount } = lastCountsRef.current;
@@ -158,7 +161,7 @@ export default function Room() {
         analytics.trackGameAbandoned(actionCountRef.current, duration, gameMode, playerCount);
       }
     };
-  }, []);
+  }, [sessionStartTime]);
   const { roller } = usePrivateRoomMonitor(room, gameBoard);
   const [importResult, clearImportResult, isImporting] = useUrlImport(settings, setSettings as any);
   const { pendingPack, failed: packFailed, dismiss: dismissPack } = useUrlPackImport();

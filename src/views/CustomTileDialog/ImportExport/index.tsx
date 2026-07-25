@@ -60,7 +60,7 @@ export default function ImportExport({
       };
     }[]
   >([]);
-  const [groupIdMap, setGroupIdMap] = useState<Map<string, string>>(new Map());
+  const [groupIdMap, setGroupIdMap] = useState<Map<string, string>>(() => new Map());
 
   // Helper function to format export count breakdown
   const formatExportBreakdown = (exportCount: {

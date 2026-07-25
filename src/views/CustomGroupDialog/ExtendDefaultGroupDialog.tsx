@@ -52,8 +52,8 @@ export default function ExtendDefaultGroupDialog({
   // Each row carries a stable id so removing one never shifts another's key
   // (array-index keys break focus/DOM identity on filter).
   const [newLabels, setNewLabels] = useState<{ id: string; label: string }[]>([]);
-  const labelIdCounter = useRef(0);
-  const [removedValues, setRemovedValues] = useState<Set<number>>(new Set());
+  const labelIdCounterRef = useRef(0);
+  const [removedValues, setRemovedValues] = useState<Set<number>>(() => new Set());
   const [tileCountByValue, setTileCountByValue] = useState<Record<number, number>>({});
   const [errors, setErrors] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -109,7 +109,7 @@ export default function ExtendDefaultGroupDialog({
 
   const handleAdd = () => {
     if (ladderFull) return;
-    setNewLabels((prev) => [...prev, { id: `nl-${labelIdCounter.current++}`, label: '' }]);
+    setNewLabels((prev) => [...prev, { id: `nl-${labelIdCounterRef.current++}`, label: '' }]);
   };
 
   const handleSave = async () => {

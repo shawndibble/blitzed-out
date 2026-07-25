@@ -31,7 +31,7 @@ export default function PlayerTopologyStep({
   nextStep,
 }: PlayerTopologyStepProps): JSX.Element {
   const { t } = useTranslation();
-  const [offline, setOffline] = useState(isOffline());
+  const [offline, setOffline] = useState(() => isOffline());
 
   useEffect(() => {
     const updateOffline = () => setOffline(isOffline());

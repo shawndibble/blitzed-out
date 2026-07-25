@@ -116,7 +116,7 @@ export default function usePlayerMove(
     className: '',
   });
 
-  const [tile, setTile] = useState<Tile>(
+  const [tile, setTile] = useState<Tile>(() =>
     gameBoard[0] ? convertToTile(gameBoard[0], 0) : convertToTile({ title: '', description: '' }, 0)
   );
   const lastTile = total - 1;

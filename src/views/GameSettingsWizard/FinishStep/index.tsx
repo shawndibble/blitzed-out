@@ -56,7 +56,7 @@ export default function FinishStep({
 }: FinishStepProps): JSX.Element {
   const no: [number, number] = [100, 100];
   const yes: [number, number] = [0, 0];
-  const [yesFinishRange, setYesFinishRange] = useState<boolean>(
+  const [yesFinishRange, setYesFinishRange] = useState<boolean>(() =>
     arraysEqual(formData?.finishRange || [], yes)
   );
   const { submit: submitSettings, isSubmitting: isLoading } = useSubmitGameSettings();

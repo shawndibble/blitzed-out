@@ -42,7 +42,7 @@ export function useGroupForm(
   const [type, setType] = useState('');
   const [localGameMode, setLocalGameMode] = useState(initialGameMode);
   const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(1);
-  const [intensityLabels, setIntensityLabels] = useState<string[]>([
+  const [intensityLabels, setIntensityLabels] = useState<string[]>(() => [
     t('intensityLabels.beginner'),
     t('intensityLabels.intermediate'),
     t('intensityLabels.advanced'),

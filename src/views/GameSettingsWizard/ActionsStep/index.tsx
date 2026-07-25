@@ -28,7 +28,8 @@ import BrokenActionsState from '@/components/BrokenActionsState';
 import YesNoSwitch from '@/components/GameForm/YesNoSwitch';
 import { PresetConfig } from '@/types/presets';
 import PresetSelector from './PresetSelector';
-import SpiceDial, { SpiceLevel, spiceBand } from './SpiceDial';
+import SpiceDial from './SpiceDial';
+import { SpiceLevel, spiceBand } from './spiceBand';
 import GroupChips from './GroupChips';
 import LevelSheet from './LevelSheet';
 import { Settings } from '@/types/Settings';
@@ -62,11 +63,11 @@ export default function ActionsStep({
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [spice, setSpice] = useState<SpiceLevel>('medium');
   // Groups the user hand-edited (sheet or preset) — the dial never overwrites these.
-  const [customized, setCustomized] = useState<Set<string>>(new Set());
+  const [customized, setCustomized] = useState<Set<string>>(() => new Set());
   const [sheetGroup, setSheetGroup] = useState<string | null>(null);
   const [directoryOpen, setDirectoryOpen] = useState(false);
   // Groups that just arrived via a pack import — pulsed briefly for attention.
-  const [recentImports, setRecentImports] = useState<Set<string>>(new Set());
+  const [recentImports, setRecentImports] = useState<Set<string>>(() => new Set());
   // Match actionType's derivation below: With Others (online + soloPlay:false)
   // needs the local bundle's foreplay/sex packs/groups, not the online bundle.
   const contentGameMode: ContentGameMode = usesSoloActions(formData.gameMode, formData.soloPlay)

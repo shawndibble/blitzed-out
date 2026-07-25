@@ -69,27 +69,27 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   const contentGameMode = isSoloPlay ? 'online' : 'local';
 
   // Clear selected actions when the play context changes (different content becomes available)
-  const prevContentGameMode = useRef(contentGameMode);
-  const prevIsSoloPlay = useRef(isSoloPlay);
-  const prevIsNaked = useRef(formData.isNaked);
-  const isFirstRender = useRef(true);
+  const prevContentGameModeRef = useRef(contentGameMode);
+  const prevIsSoloPlayRef = useRef(isSoloPlay);
+  const prevIsNakedRef = useRef(formData.isNaked);
+  const isFirstRenderRef = useRef(true);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
       return;
     }
     const modeChanged =
-      prevContentGameMode.current !== contentGameMode ||
-      prevIsSoloPlay.current !== isSoloPlay ||
-      (contentGameMode === 'local' && prevIsNaked.current !== formData.isNaked);
+      prevContentGameModeRef.current !== contentGameMode ||
+      prevIsSoloPlayRef.current !== isSoloPlay ||
+      (contentGameMode === 'local' && prevIsNakedRef.current !== formData.isNaked);
 
     if (modeChanged && Object.keys(formData.selectedActions || {}).length > 0) {
       setFormData((prev) => ({ ...prev, selectedActions: {} }));
     }
-    prevContentGameMode.current = contentGameMode;
-    prevIsSoloPlay.current = isSoloPlay;
-    prevIsNaked.current = formData.isNaked;
+    prevContentGameModeRef.current = contentGameMode;
+    prevIsSoloPlayRef.current = isSoloPlay;
+    prevIsNakedRef.current = formData.isNaked;
   }, [contentGameMode, isSoloPlay, formData.isNaked]);
 
   const { actionsList, isLoading: isActionsLoading } = useUnifiedActionList(

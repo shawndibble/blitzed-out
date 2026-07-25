@@ -53,7 +53,7 @@ export default function CustomGroupDialog({
   const { t } = useTranslation();
 
   // Consolidated state management
-  const [formState, setFormState] = useState<FormState>({
+  const [formState, setFormState] = useState<FormState>(() => ({
     label: '',
     type: '',
     localGameMode: gameMode,
@@ -63,7 +63,7 @@ export default function CustomGroupDialog({
       t('intensityLabels.intermediate'),
       t('intensityLabels.advanced'),
     ],
-  });
+  }));
 
   const [dialogState, setDialogState] = useState<DialogState>({
     selectedTab: 0,

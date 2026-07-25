@@ -15,7 +15,7 @@ const inferMediaType = (u: string | null): 'video' | 'image' => {
 };
 
 function DirectMediaHandler({ url }: DirectMediaHandlerProps) {
-  const [mediaType, setMediaType] = useState<'video' | 'image'>(inferMediaType(url));
+  const [mediaType, setMediaType] = useState<'video' | 'image'>(() => inferMediaType(url));
   const [currentUrl, setCurrentUrl] = useState(url);
 
   // Reset state when URL prop changes

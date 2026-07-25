@@ -63,12 +63,12 @@ export default function PlayerForm({
   const { t } = useTranslation();
 
   // Form state
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormData>(() => ({
     name: '',
     role: 'vers',
     gender: 'non-binary',
     sound: getRandomSound().id,
-  });
+  }));
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);

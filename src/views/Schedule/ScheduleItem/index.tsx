@@ -74,16 +74,24 @@ export default function ScheduleItem({
   const theme = useTheme();
   const { t } = useTranslation();
   const date = game.dateTime.toDate();
+  // Deliberately re-evaluated against wall-clock "now" every render (not
+  // frozen at mount via state) — a schedule list re-rendering across
+  // midnight, or while this card is upcoming, must reflect the current
+  // moment, not a stale one captured whenever this component happened to
+  // first mount.
+  // eslint-disable-next-line @eslint-react/purity
   const isToday = new Date().toDateString() === date.toDateString();
   const [isEditing, setIsEditing] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [editDateTime, setEditDateTime] = useState<Dayjs | null>(dayjs(date));
+  const [editDateTime, setEditDateTime] = useState<Dayjs | null>(() => dayjs(date));
   const [editUrl, setEditUrl] = useState(game.url || '');
 
   const canManage = Boolean(game.id && currentUserId && game.createdBy === currentUserId);
 
-  // Calculate if the game is upcoming (within the next 24 hours)
+  // Calculate if the game is upcoming (within the next 24 hours) — same
+  // intentional live re-evaluation as isToday above.
   const isUpcoming =
+    // eslint-disable-next-line @eslint-react/purity
     date.getTime() - new Date().getTime() < 24 * 60 * 60 * 1000 && date > new Date();
 
   const handleCancelEdit = () => {

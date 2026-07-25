@@ -76,7 +76,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [selectedRoll, setSelectedRoll] = useState<string>('manual');
   const [autoTime, setAutoTime] = useState<number>(0);
-  const [rollText, setRollText] = useState<string>(t('roll'));
+  const [rollText, setRollText] = useState<string>(() => t('roll'));
   const handsFreeActive = Boolean(settings.handsFree) && isHandsFreeAvailable(settings.gameMode);
   // Hands-free waits for the spoken action to finish before the next countdown ticks.
   const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(

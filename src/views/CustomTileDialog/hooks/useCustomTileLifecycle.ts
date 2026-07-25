@@ -96,7 +96,7 @@ export function useCustomTileLifecycle({
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const triggerRefresh = useCallback(() => setRefreshTrigger((prev) => prev + 1), []);
 
-  const [draft, setDraft] = useState<TileDraft>({ action: '', tags: [t('custom')] });
+  const [draft, setDraft] = useState<TileDraft>(() => ({ action: '', tags: [t('custom')] }));
   const [tagInputValue, setTagInputValue] = useState('');
   const [validationMessage, setValidationMessage] = useState('');
   const [groupsRefreshTrigger, setGroupsRefreshTrigger] = useState(0);

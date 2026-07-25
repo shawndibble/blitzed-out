@@ -2,6 +2,7 @@ import { alpha, Box, Chip, Theme, Tooltip, Typography } from '@mui/material';
 import { Ref, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Option } from '@/types/index';
+import { formatLevels } from './formatLevels';
 
 // Attention pulse for chips that just arrived via a pack import
 const importPulse = (theme: Theme) =>
@@ -12,16 +13,6 @@ const importPulse = (theme: Theme) =>
       '50%': { boxShadow: `0 0 0 8px ${alpha(theme.palette.primary.main, 0.35)}` },
     },
   }) as const;
-
-/** Compact human summary of a level selection: [1,2,3] → "1–3", [1,3] → "1,3". */
-export function formatLevels(levels: number[]): string {
-  if (!levels.length) return '';
-  const sorted = [...levels].sort((a, b) => a - b);
-  const isContiguous = sorted.every((lvl, i) => i === 0 || lvl === sorted[i - 1] + 1);
-  if (sorted.length === 1) return String(sorted[0]);
-  if (isContiguous) return `${sorted[0]}–${sorted[sorted.length - 1]}`;
-  return sorted.join(',');
-}
 
 interface GroupChipsProps {
   title: string;
@@ -67,9 +58,7 @@ export default function GroupChips({
     }
   }, [firstHighlighted]);
 
-  const highlightProps = (
-    name: string
-  ): { sx?: typeof importPulse; ref?: Ref<HTMLDivElement> } => {
+  const highlightProps = (name: string): { sx?: typeof importPulse; ref?: Ref<HTMLDivElement> } => {
     if (!highlighted?.has(name)) return {};
     return {
       sx: importPulse,

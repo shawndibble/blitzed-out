@@ -194,7 +194,9 @@ export default function PackCreator() {
   const locale = editingPack?.locale || settings.locale || 'en';
 
   const [step, setStep] = useState(0);
-  const [gameMode, setGameMode] = useState<ContentGameMode>(deriveContentMode(settings.gameMode));
+  const [gameMode, setGameMode] = useState<ContentGameMode>(() =>
+    deriveContentMode(settings.gameMode)
+  );
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

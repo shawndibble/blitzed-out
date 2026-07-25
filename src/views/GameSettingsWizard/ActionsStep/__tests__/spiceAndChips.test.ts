@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { spiceBand } from '../SpiceDial';
-import { formatLevels } from '../GroupChips';
+import { spiceBand } from '../spiceBand';
+import { formatLevels } from '../formatLevels';
 
 describe('spiceBand', () => {
   it('always selects at least the lowest level', () => {
