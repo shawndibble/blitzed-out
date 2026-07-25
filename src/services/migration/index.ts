@@ -1,119 +1,34 @@
 /**
- * Main migration service that orchestrates all migration modules
+ * Live seeding path for default content: migrate the current language on
+ * demand, and let recovery force a fresh reseed.
  *
- * This is the refactored migration service broken down into focused modules:
+ * This is the surviving surface of what used to be a broader migration
+ * orchestrator (see git history for migrateActionGroups / runMigrationIfNeeded
+ * / migrateRemainingLanguages and friends): those functions had no callers
+ * left once the current-locale seeding path below replaced them, so they
+ * and their supporting statusManager/versionManager exports were deleted
+ * rather than kept as dead weight.
+ *
  * - types: Type definitions and interfaces
  * - constants: Configuration and constant values
  * - errorHandling: Centralized error handling patterns
  * - statusManager: localStorage-based migration tracking
- * - versionManager: Version checking and updates
  * - fileDiscovery: Dynamic file and locale discovery
  * - importOperations: File importing and data conversion
  * - validationUtils: Integrity checks and validation
  */
 
+import { MIGRATION_TIMEOUT, GAME_MODES } from './constants';
 import {
-  MIGRATION_TIMEOUT,
-  BACKGROUND_MIGRATION_DELAY,
-  QUEUE_BACKGROUND_MIGRATION_DELAY,
-  IDLE_CALLBACK_TIMEOUT,
-  SUPPORTED_LANGUAGES,
-  GAME_MODES,
-} from './constants';
-import {
-  isMigrationInProgress,
-  setMigrationInProgress,
   isLanguageMigrationInProgress,
   setLanguageMigrationInProgress,
-  isBackgroundMigrationInProgress,
-  setBackgroundMigrationInProgress,
-  markMigrationComplete,
   markLanguageMigrated,
-  markBackgroundMigrationInProgress,
-  isMigrationCompleted,
   isCurrentLanguageMigrationCompleted,
-  getMigrationStatus,
   resetMigrationStatus,
 } from './statusManager';
-import { checkAndHandleVersionChange } from './versionManager';
 import { getCurrentLanguage } from './fileDiscovery';
-import { importGroupsForLocaleAndGameMode, cleanupDuplicateGroups } from './importOperations';
-import { withErrorHandling, logError, safeLocalStorage } from './errorHandling';
-
-// Re-export types for external consumption
-export type {
-  MigrationStatus,
-  BackgroundMigrationStatus,
-  ImportResult,
-  VersionCheckResult,
-  MigrationStatusSnapshot,
-} from './types';
-
-// Re-export key functions that are used by external components
-export {
-  isMigrationCompleted,
-  isCurrentLanguageMigrationCompleted,
-  getMigrationStatus,
-  resetMigrationStatus,
-} from './statusManager';
-
-export { checkAndHandleVersionChange } from './versionManager';
-export { verifyMigrationIntegrity, fixMigrationStatusCorruption } from './validationUtils';
-
-/**
- * Main migration function with dynamic discovery
- */
-export const migrateActionGroups = async (): Promise<boolean> => {
-  const result = await withErrorHandling(
-    async () => {
-      // Get available locales
-      const locales = SUPPORTED_LANGUAGES;
-
-      for (const locale of locales) {
-        // Use known game modes
-        const gameModes = GAME_MODES;
-
-        for (const gameMode of gameModes) {
-          try {
-            await importGroupsForLocaleAndGameMode(locale, gameMode);
-          } catch (error) {
-            logError('error', `migrateActionGroups:${locale}/${gameMode}`, error);
-          }
-        }
-      }
-
-      // Clean up any duplicates that might exist from previous migrations
-      await cleanupDuplicateGroups();
-
-      markMigrationComplete();
-      return true;
-    },
-    'migrateActionGroups',
-    false
-  );
-
-  return result !== null ? result : false;
-};
-
-/**
- * Clean up duplicate groups across all locales and game modes
- * Can be called independently of migration
- */
-export const cleanupDuplicatesIfNeeded = async (): Promise<number> => {
-  const result = await withErrorHandling(
-    async () => {
-      const status = getMigrationStatus();
-      if (status.main?.completed || status.background?.completedLanguages?.length) {
-        return await cleanupDuplicateGroups();
-      }
-      return 0;
-    },
-    'cleanupDuplicatesIfNeeded',
-    0
-  );
-
-  return result !== null ? result : 0;
-};
+import { importGroupsForLocaleAndGameMode } from './importOperations';
+import { logError } from './errorHandling';
 
 /**
  * Migration function for current language only (fast path)
@@ -185,89 +100,6 @@ export const migrateCurrentLanguage = async (locale?: string): Promise<boolean> 
 };
 
 /**
- * Background migration for remaining languages
- */
-export const migrateRemainingLanguages = async (excludeLocale?: string): Promise<void> => {
-  try {
-    // Prevent concurrent background migrations
-    if (isBackgroundMigrationInProgress()) {
-      return;
-    }
-
-    setBackgroundMigrationInProgress(true);
-    const currentLocale = excludeLocale || (await getCurrentLanguage());
-    markBackgroundMigrationInProgress(true);
-
-    const allLocales = SUPPORTED_LANGUAGES;
-    const remainingLocales = allLocales.filter((locale) => locale !== currentLocale);
-
-    for (const locale of remainingLocales) {
-      // Check if already migrated
-      if (isCurrentLanguageMigrationCompleted(locale)) {
-        continue;
-      }
-
-      try {
-        const gameModes = GAME_MODES;
-
-        for (const gameMode of gameModes) {
-          await importGroupsForLocaleAndGameMode(locale, gameMode);
-          // Add small delay to prevent blocking the main thread
-          await new Promise((resolve) => setTimeout(resolve, BACKGROUND_MIGRATION_DELAY));
-        }
-
-        // Clean up duplicates
-        for (const gameMode of gameModes) {
-          const { removeDuplicateGroups } = await import('@/stores/contentLibrary');
-          await removeDuplicateGroups(locale, gameMode);
-        }
-
-        markLanguageMigrated(locale);
-      } catch (error) {
-        logError('warn', `migrateRemainingLanguages:${locale}`, error);
-        // Continue with other languages even if one fails
-      }
-    }
-
-    markBackgroundMigrationInProgress(false);
-
-    // Check if all languages are now migrated
-    const { BACKGROUND_MIGRATION_KEY } = await import('./constants');
-    const bgStatus = safeLocalStorage.getJSON(BACKGROUND_MIGRATION_KEY);
-    const completedLanguages = new Set((bgStatus as any)?.completedLanguages || []);
-    const allLanguagesCompleted = SUPPORTED_LANGUAGES.every((lang) => completedLanguages.has(lang));
-
-    if (allLanguagesCompleted) {
-      markMigrationComplete(); // Mark full migration as complete
-    }
-  } catch (error) {
-    logError('error', 'migrateRemainingLanguages', error);
-    markBackgroundMigrationInProgress(false);
-    setBackgroundMigrationInProgress(false);
-  } finally {
-    setBackgroundMigrationInProgress(false);
-  }
-};
-
-/**
- * Queue background migration for remaining languages
- */
-export const queueBackgroundMigration = (excludeLocale?: string): void => {
-  try {
-    if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(() => migrateRemainingLanguages(excludeLocale), {
-        timeout: IDLE_CALLBACK_TIMEOUT,
-      });
-    } else {
-      // Fallback for browsers without requestIdleCallback
-      setTimeout(() => migrateRemainingLanguages(excludeLocale), QUEUE_BACKGROUND_MIGRATION_DELAY);
-    }
-  } catch (error) {
-    logError('error', 'queueBackgroundMigration', error);
-  }
-};
-
-/**
  * Force migration for a specific language (useful when switching languages)
  */
 export const ensureLanguageMigrated = async (locale: string): Promise<boolean> => {
@@ -297,58 +129,9 @@ export const ensureLanguageMigrated = async (locale: string): Promise<boolean> =
 };
 
 /**
- * Run migration if needed (optimized for current language first)
- */
-export const runMigrationIfNeeded = async (): Promise<boolean> => {
-  try {
-    // Check for version changes first
-    const { versionChanged } = checkAndHandleVersionChange();
-    if (versionChanged) {
-      // Version changed, force fresh migration
-    }
-
-    const currentLocale = await getCurrentLanguage();
-
-    // Check if the current language is already migrated
-    if (isCurrentLanguageMigrationCompleted(currentLocale)) {
-      return true;
-    }
-
-    // Prevent concurrent migrations
-    if (isMigrationInProgress()) {
-      await waitForMigrationCompletion(() => isMigrationInProgress(), 'main migration');
-      // Re-check if migration is now completed
-      return (
-        isMigrationCompleted() || isCurrentLanguageMigrationCompleted(await getCurrentLanguage())
-      );
-    }
-
-    setMigrationInProgress(true);
-
-    try {
-      // Fast path: migrate current language only
-      const success = await migrateCurrentLanguage(currentLocale);
-
-      if (success) {
-        // Queue background migration for other languages
-        queueBackgroundMigration(currentLocale);
-      }
-
-      return success;
-    } finally {
-      setMigrationInProgress(false);
-    }
-  } catch (error) {
-    logError('error', 'runMigrationIfNeeded', error);
-    setMigrationInProgress(false);
-    // Graceful fallback: allow app to continue even if migration fails
-    logError('warn', 'Migration failed but app will continue with existing data', null);
-    return false;
-  }
-};
-
-/**
- * Developer utility: Force a fresh migration by clearing all data
+ * Developer/recovery utility: force a fresh migration by clearing all
+ * migration status and the seeded content tables. Used by
+ * syncRecoveryService to rebuild after detected data-loss corruption.
  */
 export const forceFreshMigration = async (): Promise<void> => {
   try {

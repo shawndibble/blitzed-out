@@ -6,7 +6,7 @@ import {
   wasUserAffectedBySync,
 } from '../syncRecoveryService';
 
-import { forceFreshMigration } from '@/services/migrationService';
+import { forceFreshMigration } from '@/services/migration';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
 import { safeLocalStorage } from '@/services/migration/errorHandling';
@@ -14,7 +14,7 @@ import { safeLocalStorage } from '@/services/migration/errorHandling';
 // Mock dependencies
 vi.mock('@/stores/customTiles');
 vi.mock('@/stores/customGroups');
-vi.mock('@/services/migrationService');
+vi.mock('@/services/migration');
 vi.mock('@/utils/logger');
 
 // Mock safeLocalStorage

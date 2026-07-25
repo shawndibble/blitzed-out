@@ -20,7 +20,8 @@ describe('trackAppStart user-type cohort (module-eval snapshot)', () => {
   afterEach(() => {
     vi.resetModules();
     vi.doUnmock('@/services/analytics');
-    vi.doUnmock('@/services/migrationService');
+    vi.doUnmock('@/services/migration');
+    vi.doUnmock('@/services/migration/validationUtils');
     localStorage.clear();
   });
 
@@ -30,8 +31,10 @@ describe('trackAppStart user-type cohort (module-eval snapshot)', () => {
 
     const trackAppStart = vi.fn();
     vi.doMock('@/services/analytics', () => ({ analytics: { trackAppStart } }));
-    vi.doMock('@/services/migrationService', () => ({
+    vi.doMock('@/services/migration', () => ({
       ensureLanguageMigrated: vi.fn().mockResolvedValue(true),
+    }));
+    vi.doMock('@/services/migration/validationUtils', () => ({
       verifyMigrationIntegrity: vi.fn().mockResolvedValue(true),
       fixMigrationStatusCorruption: vi.fn(),
     }));
@@ -58,8 +61,10 @@ describe('trackAppStart user-type cohort (module-eval snapshot)', () => {
 
     const trackAppStart = vi.fn();
     vi.doMock('@/services/analytics', () => ({ analytics: { trackAppStart } }));
-    vi.doMock('@/services/migrationService', () => ({
+    vi.doMock('@/services/migration', () => ({
       ensureLanguageMigrated: vi.fn().mockResolvedValue(true),
+    }));
+    vi.doMock('@/services/migration/validationUtils', () => ({
       verifyMigrationIntegrity: vi.fn().mockResolvedValue(true),
       fixMigrationStatusCorruption: vi.fn(),
     }));
@@ -85,11 +90,13 @@ describe('trackAppStart user-type cohort (module-eval snapshot)', () => {
     vi.doMock('@/services/analytics', () => ({ analytics: { trackAppStart } }));
 
     const statusManager = await import('@/services/migration/statusManager');
-    vi.doMock('@/services/migrationService', () => ({
+    vi.doMock('@/services/migration', () => ({
       ensureLanguageMigrated: vi.fn(async (locale: string) => {
         statusManager.markLanguageMigrated(locale);
         return true;
       }),
+    }));
+    vi.doMock('@/services/migration/validationUtils', () => ({
       verifyMigrationIntegrity: vi.fn().mockResolvedValue(true),
       fixMigrationStatusCorruption: vi.fn(),
     }));

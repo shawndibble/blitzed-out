@@ -12,45 +12,8 @@ import {
   STALE_LOCK_TIMEOUT,
   SUPPORTED_LANGUAGES,
 } from './constants';
-import {
-  MigrationStatus,
-  BackgroundMigrationStatus,
-  MigrationLockStatus,
-  LanguageMigrationStatus,
-  MigrationStatusSnapshot,
-} from './types';
+import { MigrationStatus, BackgroundMigrationStatus, LanguageMigrationStatus } from './types';
 import { safeLocalStorage, logError } from './errorHandling';
-
-/**
- * Check if main migration is in progress
- */
-export const isMigrationInProgress = (): boolean => {
-  const status = safeLocalStorage.getJSON<MigrationLockStatus>(MIGRATION_IN_PROGRESS_KEY);
-  if (!status) return false;
-
-  // Auto-cleanup stale locks
-  if (Date.now() - new Date(status.startedAt).getTime() > STALE_LOCK_TIMEOUT) {
-    safeLocalStorage.removeItem(MIGRATION_IN_PROGRESS_KEY);
-    return false;
-  }
-
-  return status.inProgress;
-};
-
-/**
- * Set main migration progress status
- */
-export const setMigrationInProgress = (inProgress: boolean): void => {
-  if (inProgress) {
-    const status: MigrationLockStatus = {
-      inProgress: true,
-      startedAt: new Date().toISOString(),
-    };
-    safeLocalStorage.setJSON(MIGRATION_IN_PROGRESS_KEY, status);
-  } else {
-    safeLocalStorage.removeItem(MIGRATION_IN_PROGRESS_KEY);
-  }
-};
 
 /**
  * Check if language migration is in progress
@@ -96,51 +59,6 @@ export const setLanguageMigrationInProgress = (locale: string, inProgress: boole
 };
 
 /**
- * Check if background migration is in progress
- */
-export const isBackgroundMigrationInProgress = (): boolean => {
-  const status = safeLocalStorage.getJSON<MigrationLockStatus>(
-    BACKGROUND_MIGRATION_IN_PROGRESS_KEY
-  );
-  if (!status) return false;
-
-  // Auto-cleanup stale locks (longer timeout for background operations)
-  if (Date.now() - new Date(status.startedAt).getTime() > STALE_LOCK_TIMEOUT * 2) {
-    safeLocalStorage.removeItem(BACKGROUND_MIGRATION_IN_PROGRESS_KEY);
-    return false;
-  }
-
-  return status.inProgress;
-};
-
-/**
- * Set background migration progress status
- */
-export const setBackgroundMigrationInProgress = (inProgress: boolean): void => {
-  if (inProgress) {
-    const status: MigrationLockStatus = {
-      inProgress: true,
-      startedAt: new Date().toISOString(),
-    };
-    safeLocalStorage.setJSON(BACKGROUND_MIGRATION_IN_PROGRESS_KEY, status);
-  } else {
-    safeLocalStorage.removeItem(BACKGROUND_MIGRATION_IN_PROGRESS_KEY);
-  }
-};
-
-/**
- * Mark migration as completed
- */
-export const markMigrationComplete = (): void => {
-  const status: MigrationStatus = {
-    version: MIGRATION_VERSION,
-    completed: true,
-    completedAt: new Date(),
-  };
-  safeLocalStorage.setJSON(MIGRATION_KEY, status);
-};
-
-/**
  * Mark a specific language as migrated in background status
  */
 export const markLanguageMigrated = (locale: string): void => {
@@ -158,38 +76,6 @@ export const markLanguageMigrated = (locale: string): void => {
   bgStatus.completedLanguages = Array.from(completedSet);
 
   safeLocalStorage.setJSON(BACKGROUND_MIGRATION_KEY, bgStatus);
-};
-
-/**
- * Mark background migration as in progress
- */
-export const markBackgroundMigrationInProgress = (inProgress: boolean): void => {
-  const bgStatus = safeLocalStorage.getJSON<BackgroundMigrationStatus>(
-    BACKGROUND_MIGRATION_KEY
-  ) || {
-    version: MIGRATION_VERSION,
-    completedLanguages: [],
-    inProgress: false,
-  };
-
-  bgStatus.inProgress = inProgress;
-  if (inProgress) {
-    bgStatus.startedAt = new Date();
-  } else {
-    bgStatus.completedAt = new Date();
-  }
-
-  safeLocalStorage.setJSON(BACKGROUND_MIGRATION_KEY, bgStatus);
-};
-
-/**
- * Check if migration has been completed
- */
-export const isMigrationCompleted = (): boolean => {
-  const status = safeLocalStorage.getJSON<MigrationStatus>(MIGRATION_KEY);
-  if (!status) return false;
-
-  return status.completed && status.version === MIGRATION_VERSION;
 };
 
 /**
@@ -215,7 +101,11 @@ export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => 
     return true;
   }
 
-  // Fallback: check if full migration is complete AND all languages are done
+  // Fallback: check if full migration is complete AND all languages are done.
+  // MIGRATION_KEY is never written by any live path (its sole writer was the
+  // deleted markMigrationComplete/dead orchestration); this branch is inert
+  // on any install created after that path stopped running, but real
+  // installs may still carry a legacy value, so the read stays.
   const status = safeLocalStorage.getJSON<MigrationStatus>(MIGRATION_KEY);
   if (status && status.completed && status.version === MIGRATION_VERSION) {
     // Only return true if this is a full migration (not just current language)
@@ -227,16 +117,6 @@ export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => 
   }
 
   return false;
-};
-
-/**
- * Get migration status for debugging
- */
-export const getMigrationStatus = (): MigrationStatusSnapshot => {
-  return {
-    main: safeLocalStorage.getJSON<MigrationStatus>(MIGRATION_KEY),
-    background: safeLocalStorage.getJSON<BackgroundMigrationStatus>(BACKGROUND_MIGRATION_KEY),
-  };
 };
 
 /**

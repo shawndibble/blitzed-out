@@ -8,9 +8,9 @@ vi.unmock('@/services/migration/contentReadiness');
 
 // Force '@/i18n' (and its react-i18next/language-detector chain) to resolve
 // as a static import up front. The seeding path reaches it only through a
-// dynamic import (contentReadiness -> migrationService -> migration/index ->
-// fileDiscovery -> '@/i18n'); triggering that resolution for the first time
-// from inside a dynamic import races Vitest's SSR module transform.
+// dynamic import (contentReadiness -> migration/index -> fileDiscovery ->
+// '@/i18n'); triggering that resolution for the first time from inside a
+// dynamic import races Vitest's SSR module transform.
 import '@/i18n';
 
 import {
@@ -22,6 +22,7 @@ import {
   setLanguageMigrationInProgress,
 } from '@/services/migration/statusManager';
 import { CURRENT_LANGUAGE_MIGRATION_KEY } from '@/services/migration/constants';
+import { migrateCurrentLanguage } from '@/services/migration';
 import db from '@/stores/store';
 
 describe('fresh install seeding (real Dexie + real bundles)', () => {
@@ -77,5 +78,24 @@ describe('fresh install seeding (real Dexie + real bundles)', () => {
 
     expect(elapsed).toBeLessThan(5000);
     expect(isCurrentLanguageMigrationCompleted('en')).toBe(true);
+  }, 15000);
+
+  it('seeding the same locale concurrently from two callers does not duplicate groups', async () => {
+    // The lock reduction (contentReadiness now polls only the
+    // current-language-migration lock) makes cross-tab double-seeding
+    // possible in a way the old three-lock guard also allowed; the safety
+    // property this relies on is that migrateCurrentLanguage itself is
+    // idempotent per locale, not that only one caller ever runs it.
+    const [first, second] = await Promise.all([
+      migrateCurrentLanguage('en'),
+      migrateCurrentLanguage('en'),
+    ]);
+
+    expect(first).toBe(true);
+    expect(second).toBe(true);
+
+    const groups = await db.customGroups.where('locale').equals('en').toArray();
+    const names = groups.map((g) => `${g.name}:${g.gameMode}`);
+    expect(new Set(names).size).toBe(names.length);
   }, 15000);
 });

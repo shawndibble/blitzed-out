@@ -1,7 +1,7 @@
 import { getCustomGroups, addCustomGroup, updateCustomGroup } from '@/stores/customGroups';
 import { getTiles, addCustomTile, updateCustomTile } from '@/stores/customTiles';
 import { normalizePlaceholders } from './placeholderAliasService';
-import { createDeterministicGroupId } from './migration/groupIdMigration';
+import { createDeterministicGroupId } from './deterministicGroupId';
 import {
   SUPPORTED_LANGUAGES,
   GAME_MODES,

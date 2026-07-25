@@ -5,11 +5,14 @@ vi.unmock('@/services/migration/contentReadiness');
 
 const serviceMocks = vi.hoisted(() => ({
   ensureLanguageMigrated: vi.fn(),
+}));
+const validationMocks = vi.hoisted(() => ({
   verifyMigrationIntegrity: vi.fn(),
   fixMigrationStatusCorruption: vi.fn(),
 }));
 
-vi.mock('@/services/migrationService', () => serviceMocks);
+vi.mock('@/services/migration', () => serviceMocks);
+vi.mock('@/services/migration/validationUtils', () => validationMocks);
 
 import {
   waitForContentReady,
@@ -20,11 +23,7 @@ import {
   markLanguageMigrated,
   setLanguageMigrationInProgress,
 } from '@/services/migration/statusManager';
-import {
-  MIGRATION_TIMEOUT,
-  MIGRATION_IN_PROGRESS_KEY,
-  CURRENT_LANGUAGE_MIGRATION_KEY,
-} from '@/services/migration/constants';
+import { MIGRATION_TIMEOUT, CURRENT_LANGUAGE_MIGRATION_KEY } from '@/services/migration/constants';
 
 const flushMicrotasks = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
@@ -33,8 +32,8 @@ describe('contentReadiness', () => {
     localStorage.clear();
     __resetContentReadinessForTests();
     serviceMocks.ensureLanguageMigrated.mockReset();
-    serviceMocks.verifyMigrationIntegrity.mockResolvedValue(true);
-    serviceMocks.fixMigrationStatusCorruption.mockReset();
+    validationMocks.verifyMigrationIntegrity.mockReset().mockResolvedValue(true);
+    validationMocks.fixMigrationStatusCorruption.mockReset();
   });
 
   afterEach(() => {
@@ -173,9 +172,9 @@ describe('contentReadiness', () => {
 
     it('does not hang on a malformed lock record (no parseable startedAt)', async () => {
       vi.useFakeTimers();
-      // Legacy/corrupt lock: inProgress with no startedAt — statusManager's
+      // Legacy/corrupt lock: locales set with no startedAt — statusManager's
       // stale-cleanup can never expire it, so the guard must not wait on it.
-      localStorage.setItem(MIGRATION_IN_PROGRESS_KEY, JSON.stringify({ inProgress: true }));
+      localStorage.setItem(CURRENT_LANGUAGE_MIGRATION_KEY, JSON.stringify({ locales: ['en'] }));
 
       let done = false;
       const pending = waitForContentReady('en', { trigger: false }).then(() => {
