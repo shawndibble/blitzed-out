@@ -14,7 +14,7 @@ vi.mock('dexie-react-hooks', () => ({
   useLiveQuery: vi.fn(),
 }));
 
-// Keep the real pure seam functions (deriveContentMode, enforceTopologyRoomInvariant);
+// Keep the real pure seam functions (enforceTopologyRoomInvariant);
 // only the React settings hook is stubbed.
 vi.mock('@/stores/settingsStore', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/stores/settingsStore')>()),

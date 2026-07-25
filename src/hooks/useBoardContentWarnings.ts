@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { enforceTopologyRoomInvariant } from '@/stores/settingsStore';
-import { usesSoloActions } from '@/helpers/strings';
+import { deriveParticipationContentMode } from '@/helpers/strings';
 import buildGameBoard from '@/services/buildGame';
 import { Settings } from '@/types/Settings';
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
@@ -38,10 +38,8 @@ export default function useBoardContentWarnings(formData: Settings): BoardConten
 
     let cancelled = false;
     const handle = setTimeout(async () => {
-      // Content bundle follows participation style, not raw topology — see
-      // matching comment in useGameBoard.ts.
       const repairedGameMode = enforceTopologyRoomInvariant({ gameMode, room }).gameMode;
-      const finalGameMode = usesSoloActions(repairedGameMode, soloPlay) ? 'online' : 'local';
+      const finalGameMode = deriveParticipationContentMode(repairedGameMode, soloPlay);
       const locale = i18n.resolvedLanguage || 'en';
       const tileCount = roomTileCount || DEFAULT_TILE_COUNT;
 

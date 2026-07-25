@@ -43,7 +43,7 @@ import SoundSection from './sections/SoundSection';
 import ToastAlert from '@/components/ToastAlert';
 import { SettingGroup, SettingRow } from './components/SettingRow';
 import type { PlayerGender } from '@/types/localPlayers';
-import { isPublicRoom, usesSoloActions } from '@/helpers/strings';
+import { deriveParticipationContentMode, isPublicRoom, usesSoloActions } from '@/helpers/strings';
 import useAuth from '@/context/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useLocalPlayers } from '@/hooks/useLocalPlayers';
@@ -94,7 +94,7 @@ export default function GameSettings(): JSX.Element {
   // the online set. Passing gameMode directly would hand With Others the solo
   // catalog (the wizard derives content the same way).
   const isSoloActionsScope = usesSoloActions(formData.gameMode, formData.soloPlay);
-  const contentGameMode = isSoloActionsScope ? 'online' : 'local';
+  const contentGameMode = deriveParticipationContentMode(formData.gameMode, formData.soloPlay);
   const { isLoading, actionsList } = useUnifiedActionList(contentGameMode, true);
   const { hasLocalPlayers } = useLocalPlayers();
 

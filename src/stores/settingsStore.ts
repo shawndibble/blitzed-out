@@ -6,10 +6,13 @@ import { analyticsTracking } from '@/services/analyticsTracking';
 import { isPublicRoom } from '@/helpers/strings';
 
 /**
- * Map the 3-value player topology to the 2-value content set. `solo` topology
- * reuses `online` content (see CONTEXT.md "Three topologies, two content sets").
- * This is the only place that mapping lives — content consumers take
- * `ContentGameMode` and must not re-derive it.
+ * Map the 3-value player topology to the 2-value content set, ignoring
+ * participation style. `solo` topology reuses `online` content (see
+ * CONTEXT.md "Three topologies, two content sets"). Content consumers take
+ * `ContentGameMode` and must not reconstruct this ternary inline — but if a
+ * consumer also needs `soloPlay` awareness (e.g. "With Others" needing the
+ * local bundle's foreplay/sex groups), use `deriveParticipationContentMode`
+ * (helpers/strings.ts) instead of this function.
  */
 export const deriveContentMode = (gameMode?: GameMode | string): ContentGameMode =>
   gameMode === 'local' ? 'local' : 'online';

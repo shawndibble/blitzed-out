@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { enforceTopologyRoomInvariant, useSettings } from '@/stores/settingsStore';
-import { usesSoloActions } from '@/helpers/strings';
+import { deriveParticipationContentMode } from '@/helpers/strings';
 import { useTranslation } from 'react-i18next';
 import buildGameBoard from '@/services/buildGame';
 import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
@@ -48,11 +48,7 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
         settingsBoardUpdated = true;
       }
 
-      // Content bundle follows participation style, not raw topology: "With
-      // Others" (online + soloPlay:false) needs the local bundle's
-      // foreplay/sex groups, which the online bundle doesn't have. Matches
-      // the picker's own derivation (GameSettings/index.tsx).
-      const finalGameMode = usesSoloActions(gameMode, soloPlay) ? 'online' : 'local';
+      const finalGameMode = deriveParticipationContentMode(gameMode, soloPlay);
       const locale = i18n.resolvedLanguage || 'en';
       const tileCount = roomTileCount || DEFAULT_TILE_COUNT;
 

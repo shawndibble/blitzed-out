@@ -13,7 +13,7 @@ import PlayerTopologyStep from './PlayerTopologyStep';
 import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
 import { Trans } from 'react-i18next';
-import { isPublicRoom, usesSoloActions } from '@/helpers/strings';
+import { deriveParticipationContentMode, isPublicRoom, usesSoloActions } from '@/helpers/strings';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { cleanFormData } from '@/services/gameSettingsOrchestrator';
 import { useLocalPlayers } from '@/hooks/useLocalPlayers';
@@ -66,7 +66,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
   );
 
   const isSoloPlay = usesSoloActions(formData.gameMode, formData.soloPlay);
-  const contentGameMode = isSoloPlay ? 'online' : 'local';
+  const contentGameMode = deriveParticipationContentMode(formData.gameMode, formData.soloPlay);
 
   // Clear selected actions when the play context changes (different content becomes available)
   const prevContentGameModeRef = useRef(contentGameMode);

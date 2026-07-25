@@ -1,4 +1,4 @@
-import type { GameMode } from '@/types/Settings';
+import type { ContentGameMode, GameMode } from '@/types/Settings';
 
 export function camelToPascal(text?: string): string {
   const word = text?.replace(/([A-Z])/g, ' $1').trim();
@@ -45,4 +45,19 @@ export function usesSoloActions(gameMode?: GameMode | string, soloPlay?: boolean
 
 export function isLocalMode(gameMode?: GameMode | string): boolean {
   return gameMode === 'local';
+}
+
+/**
+ * Content bundle for a participation style, not just raw topology: "With
+ * Others" (online + soloPlay:false) needs the local bundle's foreplay/sex
+ * groups, which the online bundle doesn't have (see CONTEXT.md
+ * "Participation Style"). Unlike `deriveContentMode` (settingsStore.ts),
+ * which maps topology alone, this is the one seam for any content consumer
+ * that also cares about soloPlay — don't reconstruct this ternary inline.
+ */
+export function deriveParticipationContentMode(
+  gameMode?: GameMode | string,
+  soloPlay?: boolean
+): ContentGameMode {
+  return usesSoloActions(gameMode, soloPlay) ? 'online' : 'local';
 }
