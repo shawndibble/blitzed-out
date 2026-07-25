@@ -20,11 +20,6 @@ import { ImportResult } from '@/types/importExport';
 import { exportAllData, importData } from '@/services/importExport';
 import { getExportableGroupStats } from '@/services/importExport/exportService';
 import { batchFetchAllGroups } from '@/services/importExport/databaseOperations';
-import {
-  exportSingleGroup,
-  exportCustomData,
-  exportDisabledDefaults,
-} from './enhancedImportExport';
 import { FileDownload, FileUpload } from '@mui/icons-material';
 import { useGameSettings } from '@/stores/settingsStore';
 import { getCustomGroups } from '@/stores/customGroups';
@@ -90,33 +85,18 @@ export default function ImportExport({
   const exportData = useCallback(
     async (signal?: AbortSignal) => {
       try {
-        let exportedData: string;
-        const locale = settings.locale || 'en';
-        const gameMode = settings.gameMode || 'online';
-
-        switch (exportScope) {
-          case 'single':
-            if (!singleGroup) {
-              setSubmitMessage({
-                message: t('errors.selectGroupToExport'),
-                type: 'error',
-              });
-              return;
-            }
-            exportedData = await exportSingleGroup(singleGroup, locale, gameMode);
-            break;
-          case 'custom':
-            exportedData = await exportCustomData(locale, gameMode);
-            break;
-          case 'disabled':
-            exportedData = await exportDisabledDefaults(locale, gameMode);
-            break;
-          default: // 'all'
-            exportedData = await exportAllData({
-              includeDisabledDefaults: true,
-            });
-            break;
+        if (exportScope === 'single' && !singleGroup) {
+          setSubmitMessage({
+            message: t('errors.selectGroupToExport'),
+            type: 'error',
+          });
+          return;
         }
+
+        const exportedData = await exportAllData({
+          scope: exportScope,
+          ...(exportScope === 'single' ? { singleGroupName: singleGroup } : {}),
+        });
 
         if (signal?.aborted) return;
 
@@ -134,7 +114,7 @@ export default function ImportExport({
         });
       }
     },
-    [exportScope, singleGroup, settings.locale, settings.gameMode, setSubmitMessage, t]
+    [exportScope, singleGroup, setSubmitMessage, t]
   );
 
   async function importTiles(formRef: React.RefObject<HTMLFormElement | null>) {

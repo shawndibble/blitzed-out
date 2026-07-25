@@ -523,13 +523,13 @@ export async function exportAllData(
   progressCallback?: ProgressCallback
 ): Promise<string> {
   try {
-    const {
-      includeDisabledDefaults = false,
-      singleGroupName,
-      groupNames,
-      locales,
-      gameModes,
-    } = options;
+    const { scope, singleGroupName, groupNames, locales, gameModes } = options;
+
+    // A declared scope decides which sections the payload carries — callers that
+    // pass none keep driving the sections through their own options.
+    const emitOwnContent = scope !== 'disabled';
+    const includeDisabledDefaults =
+      scope !== undefined ? scope !== 'custom' : (options.includeDisabledDefaults ?? false);
 
     // Validate filter arrays
     const validatedLocales = locales?.filter((locale) => SUPPORTED_LANGUAGES.includes(locale));
@@ -647,7 +647,7 @@ export async function exportAllData(
 
     // Process groups for export - only custom groups
     const exportGroups: ExportGroup[] = [];
-    for (const group of groupsToExport.filter((g) => !g.isDefault)) {
+    for (const group of emitOwnContent ? groupsToExport.filter((g) => !g.isDefault) : []) {
       exportGroups.push(await createExportGroup(group));
     }
 
@@ -683,9 +683,9 @@ export async function exportAllData(
 
     // Process custom tiles - only those belonging to groups we're exporting
     const exportTiles: ExportTile[] = [];
-    const customTilesToExport = allCustomTiles.filter(
-      (t) => t.group_id && exportGroupIds.has(t.group_id)
-    );
+    const customTilesToExport = emitOwnContent
+      ? allCustomTiles.filter((t) => t.group_id && exportGroupIds.has(t.group_id))
+      : [];
 
     for (const tile of customTilesToExport) {
       const group = groupMap.get(tile.group_id!);
@@ -839,11 +839,4 @@ export async function importData(
   } catch (error) {
     throw new ImportExportError('Import failed', error);
   }
-}
-
-export async function importFromJson(
-  jsonString: string,
-  options: Partial<ImportOptions> = {}
-): Promise<ImportResult> {
-  return importData(jsonString, options);
 }
