@@ -6,13 +6,12 @@
  * push, pull, periodic, real-time listener); the merge policy lives in
  * `sync/*Sync.ts` and the encoding in the owner.
  */
-import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { db } from './firebase';
 import { beginSyncApply, endSyncApply } from './syncMiddleware';
 import { collectLocalUserData, writeRemoteUserData } from './sync/remoteUserData';
 import { cleanupDuplicateTiles, clearUserCustomGroups } from './sync/localCleanup';
-
-const db = getFirestore();
 
 export { cleanupDuplicateTiles, clearUserCustomGroups };
 export { deleteAllCustomTiles } from './sync/localCleanup';

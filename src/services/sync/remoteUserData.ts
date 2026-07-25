@@ -151,8 +151,24 @@ export async function collectLocalUserData(): Promise<LocalUserData> {
   };
 }
 
-/** Publish the snapshot in a single merge write. */
-export async function writeRemoteUserData(uid: string, local: LocalUserData): Promise<void> {
+function extensionKey(record: GroupExtensionRecord): string {
+  return JSON.stringify([record.groupName, record.locale, record.gameMode]);
+}
+
+/**
+ * Publish the snapshot in a single merge write.
+ *
+ * `remote`, when the caller already holds the cloud snapshot, keeps extension
+ * records for groups this device has not seeded (a locale it never loaded, or an
+ * older app version). `CustomGroupExtensionsSync` skips those on pull expecting
+ * them to survive in the cloud until the group exists, and a blind local
+ * snapshot would delete them.
+ */
+export async function writeRemoteUserData(
+  uid: string,
+  local: LocalUserData,
+  remote?: RemoteUserData | null
+): Promise<void> {
   let records = local.disabledDefaults;
   if (records.length > DISABLED_V2_MAX) {
     const dropped = records.length - DISABLED_V2_MAX;
@@ -170,12 +186,20 @@ export async function writeRemoteUserData(uid: string, local: LocalUserData): Pr
     legacyActive.splice(LEGACY_DISABLED_CAP);
   }
 
+  const knownExtensions = new Set(local.groupExtensions.map(extensionKey));
+  const groupExtensions = [
+    ...local.groupExtensions,
+    ...(remote?.groupExtensions ?? []).filter(
+      (record) => record && !knownExtensions.has(extensionKey(record))
+    ),
+  ];
+
   await setDoc(
     userDoc(uid),
     {
       customTiles: local.customTiles,
       customGroups: local.customGroups,
-      customGroupExtensions: local.groupExtensions,
+      customGroupExtensions: groupExtensions,
       disabledDefaults: legacyActive,
       disabledDefaultsV2: records,
       // A device with no boards must not blank another device's — an empty

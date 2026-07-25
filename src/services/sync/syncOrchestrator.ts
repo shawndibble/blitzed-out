@@ -35,7 +35,7 @@ export class SyncOrchestrator extends SyncBase {
 
       // No cloud document yet: this device's snapshot becomes the baseline.
       if (!remote) {
-        return await this.publish(user.uid);
+        return await this.publish(user.uid, remote);
       }
 
       // Clean up any duplicate tiles first
@@ -69,7 +69,7 @@ export class SyncOrchestrator extends SyncBase {
 
       // One write per cycle, after every merge has settled — a mid-merge push
       // published a half-merged document and echoed back through the listener.
-      if (changed && !(await this.publish(user.uid))) {
+      if (changed && !(await this.publish(user.uid, remote))) {
         totalSuccess = false;
       }
 
@@ -80,9 +80,9 @@ export class SyncOrchestrator extends SyncBase {
     }
   }
 
-  private static async publish(uid: string): Promise<boolean> {
+  private static async publish(uid: string, remote?: RemoteUserData | null): Promise<boolean> {
     try {
-      await writeRemoteUserData(uid, await collectLocalUserData());
+      await writeRemoteUserData(uid, await collectLocalUserData(), remote);
       return true;
     } catch (error) {
       console.error('Error publishing user data:', error);

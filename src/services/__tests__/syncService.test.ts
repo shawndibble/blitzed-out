@@ -424,6 +424,36 @@ describe('syncService', () => {
       expect(setDoc).toHaveBeenCalledTimes(1);
     });
 
+    it('keeps extension records for groups this device has not seeded', async () => {
+      // CustomGroupExtensionsSync skips an unknown group expecting the record to
+      // survive in the cloud; a blind local snapshot would delete it.
+      const unseeded = {
+        groupName: 'ballBusting',
+        locale: 'de',
+        gameMode: 'local',
+        intensities: [{ value: 5, label: 'Brutal' }],
+      };
+      vi.mocked(getDoc).mockResolvedValue({
+        exists: () => true,
+        data: () => ({
+          customTiles: [],
+          customGroupExtensions: [unseeded],
+        }),
+      } as any);
+      // Local content with an empty cloud tiles list forces the cycle to publish.
+      vi.mocked(getTiles).mockImplementation(async (filters: any) =>
+        filters?.isCustom === 1
+          ? ([{ id: 1, group_id: 'g', intensity: 1, action: 'Local', isCustom: 1 }] as any)
+          : []
+      );
+
+      const result = await syncDataFromFirebase();
+
+      expect(result).toBe(true);
+      const payload = vi.mocked(setDoc).mock.calls[0][1] as any;
+      expect(payload.customGroupExtensions).toEqual([unseeded]);
+    });
+
     it('does not push when no merge changed anything', async () => {
       vi.mocked(getDoc).mockResolvedValue({
         exists: () => true,
