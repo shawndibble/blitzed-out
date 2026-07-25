@@ -1,46 +1,49 @@
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { CustomGroupPull } from '@/types/customGroups';
+import { GroupedActions } from '@/types/customTiles';
 import { ContentGameMode } from '@/types/Settings';
 
 /**
- * Convert Dexie custom groups to the format expected by the old importActions function
+ * The settings catalog: Dexie groups → the `{ label, type, actions, intensities }`
+ * shape every consumer of an actions list expects.
+ *
+ * `actions` carries a key per level (empty arrays — the text lives in
+ * customTiles) and `intensities` maps a level VALUE to its label. Consumers must
+ * read `intensities`: action-key position is not a level number, and a sparse
+ * ladder (a group whose levels are 1, 2, 4) makes the two disagree.
  */
-export const convertDexieGroupsToActions = (groups: CustomGroupPull[]): Record<string, any> => {
-  const actions: Record<string, any> = {};
+export const convertDexieGroupsToActions = (groups: CustomGroupPull[]): GroupedActions => {
+  const catalog: GroupedActions = {};
 
   for (const group of groups) {
-    // Convert the group to the expected format
-    const actionObj: any = {
+    const actions: Record<string, string[]> = {};
+    const intensities: Record<number, string> = {};
+
+    [...(group.intensities ?? [])]
+      .sort((a, b) => a.value - b.value)
+      .forEach((intensity) => {
+        actions[intensity.label] = [];
+        intensities[intensity.value] = intensity.label;
+      });
+
+    catalog[group.name] = {
       label: group.label || group.name,
       type: group.type || 'action',
-      actions: {
-        None: [], // Always include None as it's expected
-      },
+      actions,
+      intensities,
     };
-
-    // Convert intensities to actions format
-    if (group.intensities && Array.isArray(group.intensities)) {
-      for (const intensity of group.intensities) {
-        // For now, create empty arrays for each intensity
-        // The actual actions would come from custom tiles
-        actionObj.actions[intensity.label] = [];
-      }
-    }
-
-    actions[group.name] = actionObj;
   }
 
-  return actions;
+  return catalog;
 };
 
 /**
- * Replacement for importActions from importLocales.ts
- * Gets actions from Dexie instead of JSON files
+ * Load the settings catalog for a locale/game mode from Dexie.
  */
 export const importActions = async (
   locale = 'en',
   gameMode: ContentGameMode = 'online'
-): Promise<Record<string, any>> => {
+): Promise<GroupedActions> => {
   try {
     const groups = await getAllAvailableGroups(locale, gameMode);
     return convertDexieGroupsToActions(groups);
