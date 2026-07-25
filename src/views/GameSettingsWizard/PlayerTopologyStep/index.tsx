@@ -20,7 +20,7 @@ import type { Settings } from '@/types/Settings';
 interface PlayerTopologyStepProps {
   formData: FormData & Partial<Settings>;
   setFormData: React.Dispatch<React.SetStateAction<FormData & Partial<Settings>>>;
-  nextStep: (count?: number) => void;
+  nextStep: () => void;
 }
 
 const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
@@ -60,15 +60,6 @@ export default function PlayerTopologyStep({
         localPlayerSessionSettings: undefined,
       };
     });
-  };
-
-  const handleNext = () => {
-    // Solo skips the room/local-players screen entirely.
-    if (formData.gameMode === 'solo') {
-      nextStep(2);
-    } else {
-      nextStep();
-    }
   };
 
   const selectSharedDevice = () => {
@@ -237,7 +228,7 @@ export default function PlayerTopologyStep({
       <ButtonRow justifyContent="center">
         <Button
           variant="contained"
-          onClick={handleNext}
+          onClick={() => nextStep()}
           data-testid="next"
           disabled={!formData.gameMode}
           size="large"

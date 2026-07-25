@@ -8,7 +8,7 @@ import { Settings } from '@/types/Settings';
 interface RoomStepProps {
   formData: Settings;
   setFormData: (data: Settings) => void;
-  nextStep: (step: number) => void;
+  nextStep: () => void;
   prevStep: () => void;
 }
 
@@ -126,7 +126,7 @@ export default function RoomStep({
         <Button onClick={prevStep}>
           <Trans i18nKey="previous" />
         </Button>
-        <Button variant="contained" onClick={() => nextStep(1)} size="large">
+        <Button variant="contained" onClick={() => nextStep()} size="large">
           <Trans i18nKey="next" />
         </Button>
       </ButtonRow>

@@ -41,7 +41,7 @@ interface ActionsStepProps {
   formData: FormData & Partial<Settings>;
   setFormData: React.Dispatch<React.SetStateAction<FormData & Partial<Settings>>>;
   nextStep: () => void;
-  prevStep: (count?: number) => void;
+  prevStep: () => void;
   actionsList: GroupedActions;
   isActionsLoading?: boolean;
   /** Force the parent's action list to reload (e.g. after a pack import). */

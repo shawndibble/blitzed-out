@@ -1,45 +1,28 @@
 import { Step, StepLabel, Stepper, useMediaQuery, useTheme } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import type { GameMode } from '@/types/Settings';
 
-interface DynamicStepperProps {
-  currentStep: number;
-  gameMode?: GameMode;
-  onStepClick?: (step: number) => void;
+export interface DynamicStepperStep {
+  label: string;
+  wizardStep: number;
 }
 
-export default function DynamicStepper({
-  currentStep,
-  gameMode,
-  onStepClick,
-}: DynamicStepperProps) {
-  const { t } = useTranslation();
+interface DynamicStepperProps {
+  steps: DynamicStepperStep[];
+  activeStep: number;
+  onStepClick?: (wizardStep: number) => void;
+}
+
+/**
+ * Purely presentational: draws a stepper for whatever step list and active
+ * index it's given. Which steps exist for a topology, and which one is
+ * active, are the caller's concern (see wizardFlow.ts) — this component owns
+ * no flow-graph knowledge.
+ */
+export default function DynamicStepper({ steps, activeStep, onStepClick }: DynamicStepperProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const resolvedGameMode = gameMode ?? 'solo';
-
-  const playerDetailsStep =
-    resolvedGameMode === 'local'
-      ? { label: String(t('localPlayersStep.title', 'Local Players')), wizardStep: 2 }
-      : { label: String(t('roomSelection', 'Room Selection')), wizardStep: 2 };
-
-  const steps = [
-    { label: String(t('playerTopology.stepLabel', 'Player Setup')), wizardStep: 1 },
-    ...(resolvedGameMode === 'solo' ? [] : [playerDetailsStep]),
-    { label: String(t('gameModeSelection', 'Game Mode Selection')), wizardStep: 3 },
-    { label: String(t('actionsSelection', 'Actions Selection')), wizardStep: 4 },
-    { label: String(t('finishSetup', 'Finish Setup')), wizardStep: 5 },
-  ];
-
-  // Find which stepper step corresponds to current wizard step
-  const activeStep = steps.findIndex((step) => step.wizardStep === currentStep);
-
   const handleStepClick = (stepperIndex: number) => {
-    if (onStepClick) {
-      const wizardStep = steps[stepperIndex].wizardStep;
-      onStepClick(wizardStep);
-    }
+    onStepClick?.(steps[stepperIndex].wizardStep);
   };
 
   return (
@@ -56,7 +39,7 @@ export default function DynamicStepper({
       }}
     >
       {steps.map((step, index) => (
-        <Step key={index}>
+        <Step key={step.wizardStep}>
           <StepLabel
             onClick={() => handleStepClick(index)}
             sx={{

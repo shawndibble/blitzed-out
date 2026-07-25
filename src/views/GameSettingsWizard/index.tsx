@@ -12,7 +12,7 @@ import LocalPlayersStep from './LocalPlayersStep';
 import PlayerTopologyStep from './PlayerTopologyStep';
 import RoomStep from './RoomStep';
 import { Settings } from '@/types/Settings';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { deriveParticipationContentMode, isPublicRoom, usesSoloActions } from '@/helpers/strings';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { cleanFormData } from '@/services/gameSettingsOrchestrator';
@@ -21,12 +21,14 @@ import { useSettings } from '@/stores/settingsStore';
 import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import { useWizardAnalytics } from '@/hooks/useWizardAnalytics';
+import { nextStepAfter, prevStepBefore, stepsFor } from './wizardFlow';
 
 interface GameSettingsWizardProps {
   close?: () => void;
 }
 
 export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id: room } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -111,19 +113,18 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     }
   }, [step, trackScreenView]);
 
-  const nextStep = (count?: number): void => {
-    const newStep = !Number.isInteger(count) ? step + 1 : step + (count || 1);
-    setStep(newStep);
+  // Solo skips wizard step 2 entirely — nextStep/prevStep consult the flow
+  // graph for this topology instead of adding/subtracting a count.
+  const nextStep = (): void => {
+    setStep((current) => nextStepAfter(formData.gameMode, current));
   };
 
   const handleStepClick = (targetStep: number): void => {
-    const normalizedTargetStep = formData.gameMode === 'solo' && targetStep === 2 ? 3 : targetStep;
-    setStep(normalizedTargetStep);
+    setStep(targetStep);
   };
 
-  const prevStep = (count?: number): void => {
-    if (!Number.isInteger(count)) return setStep(step - 1);
-    setStep(step - (count || 1));
+  const prevStep = (): void => {
+    setStep((current) => prevStepBefore(formData.gameMode, current));
   };
 
   const [, updateSettings] = useSettings();
@@ -196,7 +197,7 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
             formData={formData}
             setFormData={setFormData}
             nextStep={nextStep}
-            prevStep={formData.gameMode === 'solo' ? () => prevStep(2) : prevStep}
+            prevStep={prevStep}
           />
         );
       case 4:
@@ -227,12 +228,19 @@ export default function GameSettingsWizard({ close }: GameSettingsWizardProps) {
     }
   };
 
+  const flowSteps = stepsFor(formData.gameMode);
+  const stepperSteps = flowSteps.map((entry) => ({
+    label: String(t(entry.labelKey, entry.labelFallback)),
+    wizardStep: entry.wizardStep,
+  }));
+  const activeStep = flowSteps.findIndex((entry) => entry.wizardStep === step);
+
   return (
     <Box>
       <Box sx={{ width: '100%', mt: 2, mb: 4 }}>
         <DynamicStepper
-          currentStep={step}
-          gameMode={formData.gameMode}
+          steps={stepperSteps}
+          activeStep={activeStep}
           onStepClick={handleStepClick}
         />
       </Box>

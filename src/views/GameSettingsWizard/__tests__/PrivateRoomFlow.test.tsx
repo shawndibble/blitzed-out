@@ -47,7 +47,6 @@ vi.mock('@/helpers/strings', async (importOriginal) => {
 vi.mock('../PlayerTopologyStep', () => ({
   default: (props: any) => (
     <div data-testid="player-topology-step">
-      <button onClick={() => props.nextStep(2)}>Next from Topology (skip 2)</button>
       <button onClick={() => props.nextStep()}>Next from Topology</button>
     </div>
   ),
@@ -56,7 +55,7 @@ vi.mock('../PlayerTopologyStep', () => ({
 vi.mock('../RoomStep', () => ({
   default: (props: any) => (
     <div data-testid="room-step">
-      <button onClick={() => props.nextStep(1)}>Next from Room</button>
+      <button onClick={() => props.nextStep()}>Next from Room</button>
       <button onClick={() => props.prevStep()}>Previous from Room</button>
     </div>
   ),
@@ -102,10 +101,10 @@ const mockDynamicStepper = vi.fn();
 vi.mock('../components/DynamicStepper', () => ({
   default: (props: any) => {
     mockDynamicStepper(props);
+    const currentWizardStep = props.steps?.[props.activeStep]?.wizardStep ?? '';
     return (
       <div data-testid="dynamic-stepper">
-        <div data-testid="current-step">{props.currentStep}</div>
-        <div data-testid="game-mode">{props.gameMode}</div>
+        <div data-testid="current-step">{currentWizardStep}</div>
         <button onClick={() => props.onStepClick?.(1)}>Step 1</button>
         <button onClick={() => props.onStepClick?.(2)}>Step 2</button>
         <button onClick={() => props.onStepClick?.(3)}>Step 3</button>
@@ -167,10 +166,18 @@ describe('GameSettingsWizard - Topology-first flow', () => {
       expect(screen.getByTestId('current-step')).toHaveTextContent('1');
     });
 
-    it('passes gameMode to DynamicStepper', () => {
+    it('builds a 5-step list for local gameMode, including the Local Players step', () => {
       renderWithRouter(<GameSettingsWizard />);
       expect(mockDynamicStepper).toHaveBeenCalledWith(
-        expect.objectContaining({ gameMode: 'local' })
+        expect.objectContaining({
+          steps: [
+            expect.objectContaining({ wizardStep: 1 }),
+            expect.objectContaining({ wizardStep: 2, label: 'Local Players' }),
+            expect.objectContaining({ wizardStep: 3 }),
+            expect.objectContaining({ wizardStep: 4 }),
+            expect.objectContaining({ wizardStep: 5 }),
+          ],
+        })
       );
     });
   });
@@ -199,13 +206,13 @@ describe('GameSettingsWizard - Topology-first flow', () => {
   });
 
   describe('Solo gameMode — skips step 2', () => {
-    it('goes from step 1 to step 3 when solo is selected (nextStep(2))', async () => {
+    it('goes from step 1 to step 3 when solo is selected, via the wizard flow graph', async () => {
       const soloFormData = { ...localFormData, gameMode: 'solo' as GameMode };
       mockUseSettingsToFormData.mockReturnValue([soloFormData, mockSetFormData]);
 
       renderWithRouter(<GameSettingsWizard />);
 
-      await user.click(screen.getByText('Next from Topology (skip 2)'));
+      await user.click(screen.getByText('Next from Topology'));
       expect(screen.getByTestId('game-mode-step')).toBeInTheDocument();
       expect(screen.getByTestId('current-step')).toHaveTextContent('3');
     });
