@@ -7,7 +7,7 @@ const { setMyPresenceMock, startPresenceHeartbeatMock, removeMyPresenceMock } = 
   removeMyPresenceMock: vi.fn(),
 }));
 
-vi.mock('@/services/presence', () => ({
+vi.mock('@/services/roomPresence', () => ({
   setMyPresence: setMyPresenceMock,
   startPresenceHeartbeat: startPresenceHeartbeatMock,
   removeMyPresence: removeMyPresenceMock,

@@ -1,4 +1,4 @@
-import * as firebase from '@/services/firebase';
+import * as roomPresence from '@/services/roomPresence';
 
 import { UserListContext, UserListProvider } from '../userList';
 import { act, renderHook, waitFor } from '@testing-library/react';
@@ -7,8 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useContext } from 'react';
 import { useUserListStore } from '@/stores/userListStore';
 
-// Mock Firebase
-vi.mock('@/services/firebase', () => ({
+// Mock room presence
+vi.mock('@/services/roomPresence', () => ({
   getUserList: vi.fn(),
 }));
 
@@ -45,8 +45,8 @@ describe('UserListProvider', () => {
       error: null,
     } as any);
 
-    // Setup Firebase mock
-    vi.mocked(firebase.getUserList).mockImplementation(mockGetUserList);
+    // Setup room presence mock
+    vi.mocked(roomPresence.getUserList).mockImplementation(mockGetUserList);
   });
 
   afterEach(() => {
@@ -156,6 +156,72 @@ describe('UserListProvider', () => {
       // Should not cause additional listener setups
       expect(mockGetUserList).toHaveBeenCalledTimes(1);
       expect(mockSetUsers).toHaveBeenCalledTimes(10);
+    });
+  });
+
+  describe('Provider Remount / Stale Baseline', () => {
+    it('subscribes with only (room, callback) -- no baseline argument is passed', async () => {
+      mockGetUserList.mockImplementation((_room, callback) => {
+        callback({});
+        return vi.fn();
+      });
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <UserListProvider>{children}</UserListProvider>
+      );
+
+      renderHook(() => useContext(UserListContext), { wrapper });
+
+      await waitFor(() => {
+        expect(mockGetUserList).toHaveBeenCalledTimes(1);
+      });
+
+      expect(mockGetUserList).toHaveBeenCalledWith('TEST_ROOM', expect.any(Function));
+      expect(mockGetUserList.mock.calls[0]).toHaveLength(2);
+    });
+
+    it('delivers an update even when the store already holds a populated roster (provider remount)', async () => {
+      // Simulates RouterSetup mounting a fresh UserListProvider (e.g. navigating
+      // to /{ROOM}/settings) while the store still holds the previous roster --
+      // the reader must not suppress the first snapshot because a stale
+      // "existingData" baseline no longer exists to compare against.
+      vi.mocked(useUserListStore).mockReturnValue({
+        onlineUsers: {
+          staleUser: { displayName: 'Stale', uid: 'staleUser', lastSeen: new Date() },
+        },
+        setUsers: mockSetUsers,
+        setRoom: mockSetRoom,
+        clearUsers: mockClearUsers,
+        flushPendingUpdates: mockFlushPendingUpdates,
+        loading: false,
+        error: null,
+      } as any);
+
+      let firebaseCallback: ((data: Record<string, unknown>) => void) | null = null;
+      mockGetUserList.mockImplementation((_room, callback) => {
+        firebaseCallback = callback;
+        return vi.fn();
+      });
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <UserListProvider>{children}</UserListProvider>
+      );
+
+      renderHook(() => useContext(UserListContext), { wrapper });
+
+      await waitFor(() => {
+        expect(mockGetUserList).toHaveBeenCalledTimes(1);
+      });
+
+      // Same key set as the pre-existing "stale" roster -- under the old
+      // existingData-comparison behavior this would have been suppressed.
+      act(() => {
+        firebaseCallback?.({
+          staleUser: { displayName: 'Stale', uid: 'staleUser', lastSeen: new Date() },
+        });
+      });
+
+      expect(mockSetUsers).toHaveBeenCalledTimes(1);
     });
   });
 
