@@ -10,7 +10,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { JSX, useState } from 'react';
+import { JSX, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import VoiceRows from '@/views/GameSettings/sections/VoiceRows';
@@ -48,12 +48,16 @@ export default function HandsFreeDialog({ open, onClose }: HandsFreeDialogProps)
 
   const enabled = Boolean(settings.handsFree);
   const preset = settings.handsFreePreset ?? DEFAULT_HANDS_FREE_PRESET;
+  // Hands-Free forces readRoll on; remember what it was so disabling can restore it
+  // instead of leaving TTS silently stuck on.
+  const readRollBeforeEnableRef = useRef<boolean>(Boolean(settings.readRoll));
 
   const handleToggle = (checked: boolean): void => {
     if (checked) {
+      readRollBeforeEnableRef.current = Boolean(settings.readRoll);
       updateSettings({ handsFree: true, handsFreePreset: preset, readRoll: true });
     } else {
-      updateSettings({ handsFree: false });
+      updateSettings({ handsFree: false, readRoll: readRollBeforeEnableRef.current });
     }
     analytics.trackFeatureUsage({
       feature_name: 'hands_free',

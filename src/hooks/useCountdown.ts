@@ -17,7 +17,9 @@ export default function useCountdown(
   const [timeLeft, setTimeLeft] = useState<number>(normalizedStartSeconds);
   const [isPaused, setIsPaused] = useState<boolean>(startPaused);
   const holdWhileRef = useRef(holdWhile);
-  holdWhileRef.current = holdWhile;
+  useEffect(() => {
+    holdWhileRef.current = holdWhile;
+  }, [holdWhile]);
 
   const togglePause = useCallback((): void => setIsPaused((prev) => !prev), []);
 
