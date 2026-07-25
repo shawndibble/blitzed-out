@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { deriveContentMode, enforceTopologyRoomInvariant } from '@/stores/settingsStore';
+import { enforceTopologyRoomInvariant } from '@/stores/settingsStore';
+import { usesSoloActions } from '@/helpers/strings';
 import buildGameBoard from '@/services/buildGame';
 import { Settings } from '@/types/Settings';
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
@@ -25,7 +26,7 @@ export default function useBoardContentWarnings(formData: Settings): BoardConten
   const { i18n } = useTranslation();
   const [warnings, setWarnings] = useState<BoardContentWarnings>(EMPTY);
 
-  const { roomTileCount, finishRange, room, gameMode, role, selectedActions } = formData;
+  const { roomTileCount, finishRange, room, gameMode, role, selectedActions, soloPlay } = formData;
 
   useEffect(() => {
     // Mirror useGameBoard's loading guard: nothing to evaluate yet. Reset
@@ -37,9 +38,10 @@ export default function useBoardContentWarnings(formData: Settings): BoardConten
 
     let cancelled = false;
     const handle = setTimeout(async () => {
-      const finalGameMode = deriveContentMode(
-        enforceTopologyRoomInvariant({ gameMode, room }).gameMode
-      );
+      // Content bundle follows participation style, not raw topology — see
+      // matching comment in useGameBoard.ts.
+      const repairedGameMode = enforceTopologyRoomInvariant({ gameMode, room }).gameMode;
+      const finalGameMode = usesSoloActions(repairedGameMode, soloPlay) ? 'online' : 'local';
       const locale = i18n.resolvedLanguage || 'en';
       const tileCount = roomTileCount || DEFAULT_TILE_COUNT;
 
@@ -60,7 +62,16 @@ export default function useBoardContentWarnings(formData: Settings): BoardConten
       clearTimeout(handle);
     };
     // eslint-disable-next-line @eslint-react/exhaustive-deps -- pin the content-driving fields; formData object ref changes each render
-  }, [roomTileCount, finishRange, room, gameMode, role, selectedActions, i18n.resolvedLanguage]);
+  }, [
+    roomTileCount,
+    finishRange,
+    room,
+    gameMode,
+    role,
+    selectedActions,
+    soloPlay,
+    i18n.resolvedLanguage,
+  ]);
 
   return warnings;
 }

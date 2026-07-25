@@ -308,6 +308,17 @@ describe('useGameBoard', () => {
     });
   });
 
+  describe('With Others content mode (gameMode: online, soloPlay: false)', () => {
+    it('builds against the local content bundle so foreplay/sex selections survive', async () => {
+      const { result } = renderHook(() => useGameBoard());
+
+      const settingsWithOthers = { ...mockSettings, gameMode: 'online' as const, soloPlay: false };
+      await result.current(settingsWithOthers);
+
+      expect(buildGameBoard).toHaveBeenCalledWith(expect.any(Object), 'en', 'local', 40);
+    });
+  });
+
   describe('selectedActions merging', () => {
     it('should merge selectedActions from settings and data', async () => {
       const { result } = renderHook(() => useGameBoard());

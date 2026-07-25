@@ -70,6 +70,17 @@ describe('useBoardContentWarnings', () => {
     expect(result.current.lowContent).toBe(false);
   });
 
+  it('builds against the local content bundle for With Others (online + soloPlay:false)', async () => {
+    mockedBuild.mockResolvedValue(buildResult() as never);
+
+    const withOthers = { ...baseSettings, gameMode: 'online' as const, soloPlay: false };
+    renderHook(() => useBoardContentWarnings(withOthers));
+
+    await waitFor(() =>
+      expect(mockedBuild).toHaveBeenCalledWith(expect.any(Object), 'en', 'local', 40)
+    );
+  });
+
   it('does not build while settings are still loading (no finishRange)', async () => {
     const loading = { ...baseSettings, finishRange: undefined } as unknown as Settings;
 
