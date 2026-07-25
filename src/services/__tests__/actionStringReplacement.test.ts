@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import actionStringReplacement from '../actionStringReplacement';
+import { sequenceSource, setRandomSource } from '../random';
 import type { LocalPlayer } from '@/types/localPlayers';
 
 // Use the global i18next mock from setupTests.ts which has anatomy data
@@ -255,6 +256,66 @@ describe('actionStringReplacement', () => {
       const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', players, false);
 
       expect(result).toContain('Pat');
+    });
+
+    describe('the vers coin-flip, now that it has a seam', () => {
+      const versPlayer: LocalPlayer = {
+        id: '5',
+        name: 'Pat',
+        gender: 'male',
+        role: 'vers',
+        order: 4,
+        isActive: false,
+        deviceId: 'device1',
+        location: 0,
+        isFinished: false,
+      };
+      let restore: (() => void) | undefined;
+
+      afterEach(() => {
+        restore?.();
+        restore = undefined;
+      });
+
+      it('gives the vers player dom when the coin lands under half', () => {
+        restore = setRandomSource(sequenceSource([0.49]));
+
+        const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', [
+          versPlayer,
+          ...localPlayers,
+        ]);
+
+        // CONTEXT.md calls this by design; until the seam existed nothing could
+        // verify the design, only that a name appeared somewhere.
+        expect(result).toBe('Pat touches Jessica.');
+      });
+
+      it('gives the vers player sub when the coin lands at or above half', () => {
+        restore = setRandomSource(sequenceSource([0.5]));
+
+        const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', [
+          versPlayer,
+          ...localPlayers,
+        ]);
+
+        expect(result).toBe('Mike touches Pat.');
+      });
+
+      it('leaves a role token literal when the roster cannot fill it (known gap)', () => {
+        restore = setRandomSource(sequenceSource([0.5]));
+        const subOnly = localPlayers.filter((p) => p.role === 'sub');
+
+        const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', [
+          versPlayer,
+          ...subOnly,
+        ]);
+
+        // The vers player took sub, and nobody on the roster can be dom, so the
+        // raw token reaches the player. Pinned as-is: hiding it would mean
+        // choosing a fallback (name the only other player? use "a dominant"?),
+        // which is a content decision, not a refactor.
+        expect(result).toBe('{dom} touches Pat.');
+      });
     });
   });
 

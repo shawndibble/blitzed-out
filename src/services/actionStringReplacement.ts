@@ -1,4 +1,5 @@
 import i18next from 'i18next';
+import { chance, nextRandom, randomOf } from '@/services/random';
 import type { LocalPlayer } from '@/types/localPlayers';
 import type { PlayerGender } from '@/types/localPlayers';
 import {
@@ -100,7 +101,8 @@ function determineRoleAssignments(
   } else if (role === 'vers' && currentPlayer) {
     // Vers player randomly chooses role
     if (needsDom && needsSub) {
-      const shouldTakeDom = Math.random() < 0.5;
+      // Coin-flip by design (CONTEXT.md): a vers player takes either role.
+      const shouldTakeDom = chance();
       if (shouldTakeDom) {
         roleAssignments.dom = currentPlayer;
       } else {
@@ -157,7 +159,7 @@ function replacePipedAnatomyPlaceholders(
     } else if (targetRole === 'other') {
       const otherPlayers = localPlayers.filter((p) => p.name !== displayName);
       if (otherPlayers.length > 0) {
-        targetPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
+        targetPlayer = randomOf(otherPlayers) ?? targetPlayer;
       }
     } else {
       targetPlayer = roleAssignments[targetRole as 'dom' | 'sub'];
@@ -279,7 +281,7 @@ function replaceLocalMultiplayerPlaceholders(
  * Replace player name in non-local modes
  */
 function replaceWithPlayerName(string: string, role: string, displayName: string): string {
-  const chance = Math.random();
+  const roll = nextRandom();
   const hasBothDomAndSub = string.includes('{dom}') && string.includes('{sub}');
   const isVers = role === 'vers';
 
@@ -291,8 +293,8 @@ function replaceWithPlayerName(string: string, role: string, displayName: string
     if (!hasBothDomAndSub && isVers && isDomOrSub) return true;
 
     if (hasBothDomAndSub && isVers) {
-      const isDomMatchWithChance = match === '{dom}' && chance < 0.5;
-      const isSubMatchWithChance = match === '{sub}' && chance >= 0.5;
+      const isDomMatchWithChance = match === '{dom}' && roll < 0.5;
+      const isSubMatchWithChance = match === '{sub}' && roll >= 0.5;
       return isDomMatchWithChance || isSubMatchWithChance;
     }
 

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { sendMessage } from '@/services/firebase/chat';
 import useAuth from '@/context/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
-import usePlayerList from './usePlayerList';
 import { Tile, TileExport } from '@/types/gameBoard';
 import { useSettings } from '@/stores/settingsStore';
 import { useLocalPlayers } from './useLocalPlayers';
@@ -14,6 +13,8 @@ import { Timestamp } from 'firebase/firestore';
 import useMessages from '@/context/hooks/useMessages';
 import { orderedMessagesByType } from '@/helpers/messages';
 import { getTurnFields } from '@/helpers/actionTurn';
+import { pickFinishResult } from '@/helpers/finishResult';
+import { isUsableRoll, resolveLocation } from '@/helpers/turnLocation';
 import { useStatsTracking } from '@/hooks/useStatsTracking';
 
 interface RollValue {
@@ -27,41 +28,8 @@ interface LocationResult {
   kind: TurnFields['kind'];
 }
 
-interface Player {
-  isSelf: boolean;
-  location: number;
-  [key: string]: any;
-}
-
 interface PlayerMoveResult {
   tile: Tile;
-  playerList: Player[];
-}
-
-// Lines look like "Label 42%" (buildGame.ts joins label + percent with a space,
-// not a colon) so pull the trailing non-negative number off each line instead of
-// splitting on ': '.
-const FINISH_LINE_MATCH = /^(.*?)[\s:]+(\d+)$/;
-
-function getFinishResult(textArray: string[]): string {
-  // if we have %, we are on the finish tile. Let's get a random result.
-  const finishValues = textArray
-    .filter((n) => n)
-    .map((line) => {
-      const match = line.trim().match(FINISH_LINE_MATCH);
-      return match ? [match[1], match[2]] : [line.trim(), '0'];
-    });
-
-  const weightedArray: number[] = [];
-  finishValues.forEach(([, percent], index) => {
-    const weight = Number(percent);
-    if (!weight) return;
-    weightedArray.push(...Array(weight).fill(index));
-  });
-
-  const result = weightedArray[Math.floor(Math.random() * weightedArray.length)];
-
-  return finishValues[result]?.[0] || '';
 }
 
 function parseDescription(
@@ -89,7 +57,7 @@ function parseDescription(
     );
   }
 
-  return getFinishResult(textArray);
+  return pickFinishResult(textArray);
 }
 
 export default function usePlayerMove(
@@ -100,7 +68,6 @@ export default function usePlayerMove(
   const { user } = useAuth();
   const { t } = useTranslation();
   const [settings] = useSettings();
-  const playerList = usePlayerList();
   const { currentPlayer, hasLocalPlayers, isLocalPlayerRoom, advanceToNextPlayer, session } =
     useLocalPlayers();
   const addMessage = useMessagesStore((state) => state.addMessage);
@@ -245,73 +212,45 @@ export default function usePlayerMove(
     ]
   );
 
-  // Grab the new location.
-  // In some instances, we also want to add a message with said location.
+  // Where a roll takes this player, plus the wording a non-ordinary turn needs.
+  // The rules themselves live in `helpers/turnLocation` — pure, no React.
   const getNewLocation = useCallback(
     (rollNumber: number): LocationResult => {
-      // Validate rollNumber is a valid number
-      if (typeof rollNumber !== 'number' || isNaN(rollNumber)) {
+      if (!isUsableRoll(rollNumber)) {
         console.warn('Invalid rollNumber detected, ignoring move:', rollNumber);
-        return { newLocation: 0, kind: 'normal' }; // Return current position (no movement)
+        return { newLocation: 0, kind: 'normal' };
       }
 
-      // -1 is used to restart the game.
-      if (rollNumber === -1) {
-        return {
-          preMessage: `${t('restartingGame')}\n`,
-          newLocation: 0,
-          kind: 'restart',
-        };
-      }
-
-      // Get current location from local player if in local multiplayer mode, otherwise from remote player
+      // A local player's position is authoritative for that player; everyone
+      // else's — including this device's own remote player — is derived from
+      // their newest action message, which is exactly what the roster reads too.
       const isInLocalMultiplayerMode = hasLocalPlayers && isLocalPlayerRoom;
-      let currentLocation = 0; // Default to starting position
+      let currentLocation = 0;
 
       if (isInLocalMultiplayerMode && currentPlayer) {
-        // Ensure location is a valid number for local players
-        currentLocation = typeof currentPlayer.location === 'number' ? currentPlayer.location : 0;
-      } else {
-        // Use remote player location or default to 0
-        const selfPlayer = playerList.find((p) => p.isSelf);
-        if (selfPlayer) {
-          currentLocation = selfPlayer.location || 0;
-        } else if (user?.uid) {
-          // Fallback: get location from messages if playerList is empty
-          const userActions = orderedMessagesByType(messages, 'actions', 'DESC');
-          const lastAction = userActions.find((m) => m.uid === user.uid);
-          if (lastAction && isActionsMessage(lastAction)) {
-            currentLocation = getTurnFields(lastAction, {
-              finishWord: t('finish'),
-              startWord: t('start'),
-            }).location;
-          }
+        currentLocation = isUsableRoll(currentPlayer.location) ? currentPlayer.location : 0;
+      } else if (user?.uid) {
+        const userActions = orderedMessagesByType(messages, 'actions', 'DESC');
+        const lastAction = userActions.find((m) => m.uid === user.uid);
+        if (lastAction && isActionsMessage(lastAction)) {
+          currentLocation = getTurnFields(lastAction, {
+            finishWord: t('finish'),
+            startWord: t('start'),
+          }).location;
         }
       }
 
-      // Validate currentLocation is a number
-      if (typeof currentLocation !== 'number' || isNaN(currentLocation)) {
-        console.warn('Invalid currentLocation detected, defaulting to 0:', currentLocation);
-        currentLocation = 0;
-      }
+      const { newLocation, kind } = resolveLocation({ rollNumber, currentLocation, lastTile });
 
-      // already finished: stay on the last tile regardless of roll (use -1 to restart).
-      if (currentLocation === lastTile) {
-        return {
-          preMessage: `${t('alreadyFinished')}\n`,
-          newLocation: lastTile,
-          kind: 'alreadyFinished',
-        };
+      if (kind === 'restart') {
+        return { preMessage: `${t('restartingGame')}\n`, newLocation, kind };
       }
-
-      const newLocation = rollNumber + currentLocation;
-      // If we move past finish, move to finish instead.
-      if (newLocation >= lastTile) {
-        return { newLocation: lastTile, kind: 'normal' };
+      if (kind === 'alreadyFinished') {
+        return { preMessage: `${t('alreadyFinished')}\n`, newLocation, kind };
       }
-      return { newLocation, kind: 'normal' };
+      return { newLocation, kind };
     },
-    [t, playerList, lastTile, hasLocalPlayers, isLocalPlayerRoom, currentPlayer, user, messages]
+    [t, lastTile, hasLocalPlayers, isLocalPlayerRoom, currentPlayer, user, messages]
   );
 
   useEffect(() => {
@@ -426,5 +365,5 @@ export default function usePlayerMove(
     settings.selectedActions,
   ]);
 
-  return { tile, playerList };
+  return { tile };
 }
