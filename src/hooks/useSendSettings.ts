@@ -33,7 +33,11 @@ function isCompatibleBoard(
   return boardSize === roomTileCount;
 }
 
-export default function useSendSettings(user: User, messages: Message[], isLoading: boolean): void {
+export default function useSendSettings(
+  user: User | null,
+  messages: Message[],
+  isLoading: boolean
+): void {
   const { id: room } = useParams<Params>();
   const [settingsSent, setSettingsSent] = useState<boolean>(false);
   const { i18n } = useTranslation();
@@ -43,7 +47,14 @@ export default function useSendSettings(user: User, messages: Message[], isLoadi
   const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
 
   const sendSettings = useCallback(async (): Promise<void> => {
-    if (!settings || isLoading || settingsSent || !board?.tiles?.length || room === undefined) {
+    if (
+      !user ||
+      !settings ||
+      isLoading ||
+      settingsSent ||
+      !board?.tiles?.length ||
+      room === undefined
+    ) {
       return;
     }
 

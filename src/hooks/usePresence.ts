@@ -4,9 +4,8 @@ import useAuth from '@/context/hooks/useAuth';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 
 export default function usePresence(roomId: string, roomRealtime?: boolean): void {
-  const {
-    user: { displayName },
-  } = useAuth();
+  const { user } = useAuth();
+  const displayName = user?.displayName;
 
   const currentRoomRef = useRef<string | null>(null);
   const currentDisplayNameRef = useRef<string>(displayName || '');
