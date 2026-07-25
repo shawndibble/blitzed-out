@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import usePlayerList from '@/hooks/usePlayerList';
+import type { Message } from '@/types/Message';
+import { makeTurnFields } from '@/__tests__/fixtures/turnFields.fixtures';
 
 const BASE = 1_700_000_000_000;
 const MIN = 60_000;
@@ -9,6 +11,7 @@ const h = vi.hoisted(() => ({
   onlineUsers: {} as Record<string, unknown>,
   user: { uid: 'self', displayName: 'Me' } as { uid: string; displayName: string } | null,
   room: 'PUBLIC' as string | undefined,
+  messages: [] as Message[],
 }));
 
 vi.mock('@/stores/userListStore', () => ({
@@ -16,7 +19,7 @@ vi.mock('@/stores/userListStore', () => ({
 }));
 vi.mock('@/context/hooks/useAuth', () => ({ default: () => ({ user: h.user }) }));
 vi.mock('@/context/hooks/useMessages', () => ({
-  default: () => ({ messages: [], isLoading: false }),
+  default: () => ({ messages: h.messages, isLoading: false }),
 }));
 vi.mock('react-router-dom', () => ({ useParams: () => ({ id: h.room }) }));
 
@@ -33,6 +36,7 @@ beforeEach(() => {
   h.user = { uid: 'self', displayName: 'Me' };
   h.onlineUsers = {};
   h.room = 'PUBLIC';
+  h.messages = [];
 });
 
 afterEach(() => {
@@ -83,5 +87,56 @@ describe('usePlayerList presence filtering', () => {
       vi.advanceTimersByTime(30_000);
     });
     expect(uids(result)).toEqual(['self']);
+  });
+});
+
+describe('usePlayerList turn fields', () => {
+  it('reads location and finished from a carried turn field, not the display text', () => {
+    h.onlineUsers = { self: user('self', BASE), a: user('a', BASE) };
+    h.messages = [
+      {
+        id: 'm1',
+        uid: 'a',
+        displayName: 'a',
+        type: 'actions',
+        // The text is in a locale the reader doesn't share; only the
+        // structured field should drive isFinished (defect 3 fix).
+        text: 'लुढ़का: 3\n#40: समाप्त\nक्रिया: बधाई हो',
+        timestamp: { toDate: () => new Date(BASE) } as Message['timestamp'],
+        turn: makeTurnFields({
+          roll: 3,
+          location: 39,
+          title: 'समाप्त',
+          description: 'बधाई हो',
+          finished: true,
+        }),
+      },
+    ];
+
+    const { result } = renderHook(() => usePlayerList());
+    const other = result.current.find((p) => p.uid === 'a');
+
+    expect(other?.location).toBe(39);
+    expect(other?.isFinished).toBe(true);
+  });
+
+  it('falls back to legacy text decoding when a message carries no turn field', () => {
+    h.onlineUsers = { self: user('self', BASE), a: user('a', BASE) };
+    h.messages = [
+      {
+        id: 'm1',
+        uid: 'a',
+        displayName: 'a',
+        type: 'actions',
+        text: '#12: Spanking\naction: spank yourself',
+        timestamp: { toDate: () => new Date(BASE) } as Message['timestamp'],
+      },
+    ];
+
+    const { result } = renderHook(() => usePlayerList());
+    const other = result.current.find((p) => p.uid === 'a');
+
+    expect(other?.location).toBe(11);
+    expect(other?.isFinished).toBe(false);
   });
 });

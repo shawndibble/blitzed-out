@@ -9,10 +9,11 @@ import { useSettings } from '@/stores/settingsStore';
 import { useLocalPlayers } from './useLocalPlayers';
 import { localPlayerService } from '@/services/localPlayerService';
 import { useMessagesStore } from '@/stores/messagesStore';
-import { Message } from '@/types/Message';
+import { isActionsMessage, Message, TurnFields } from '@/types/Message';
 import { Timestamp } from 'firebase/firestore';
 import useMessages from '@/context/hooks/useMessages';
 import { orderedMessagesByType } from '@/helpers/messages';
+import { getTurnFields } from '@/helpers/actionTurn';
 import { useStatsTracking } from '@/hooks/useStatsTracking';
 
 interface RollValue {
@@ -23,6 +24,7 @@ interface RollValue {
 interface LocationResult {
   preMessage?: string;
   newLocation: number;
+  kind: TurnFields['kind'];
 }
 
 interface Player {
@@ -129,6 +131,7 @@ export default function usePlayerMove(
       newTile: TileExport,
       rollNumber: number,
       newLocation: number,
+      kind: TurnFields['kind'],
       preMessage?: string
     ): Promise<void> => {
       if (!newTile) {
@@ -160,11 +163,22 @@ export default function usePlayerMove(
         newTile.penetrative
       );
 
+      const title = newTile.title || t('unknownTile');
+
       if (rollNumber !== -1) {
         message += `${t('roll')}: ${rollNumber}\n`;
       }
-      message += `#${newLocation + 1}: ${newTile.title || t('unknownTile')}\n`;
+      message += `#${newLocation + 1}: ${title}\n`;
       message += `${t('action')}: ${description}`;
+
+      const turn: TurnFields = {
+        kind,
+        roll: rollNumber === -1 ? null : rollNumber,
+        location: newLocation,
+        title,
+        description,
+        finished: kind === 'alreadyFinished' || newLocation === lastTile,
+      };
 
       // Send message with the player's name (local player name or user display name)
       const messageUser =
@@ -185,6 +199,7 @@ export default function usePlayerMove(
         text: messageText,
         type: 'actions',
         timestamp: Timestamp.now(),
+        turn,
       };
 
       // Add message to store immediately for instant UI feedback
@@ -195,6 +210,7 @@ export default function usePlayerMove(
         user: messageUser,
         text: messageText,
         type: 'actions' as const,
+        turn,
       };
 
       // Send to Firebase (real message will replace optimistic when received)
@@ -225,6 +241,7 @@ export default function usePlayerMove(
       advanceToNextPlayer,
       session,
       addMessage,
+      lastTile,
     ]
   );
 
@@ -235,7 +252,7 @@ export default function usePlayerMove(
       // Validate rollNumber is a valid number
       if (typeof rollNumber !== 'number' || isNaN(rollNumber)) {
         console.warn('Invalid rollNumber detected, ignoring move:', rollNumber);
-        return { newLocation: 0 }; // Return current position (no movement)
+        return { newLocation: 0, kind: 'normal' }; // Return current position (no movement)
       }
 
       // -1 is used to restart the game.
@@ -243,6 +260,7 @@ export default function usePlayerMove(
         return {
           preMessage: `${t('restartingGame')}\n`,
           newLocation: 0,
+          kind: 'restart',
         };
       }
 
@@ -262,12 +280,11 @@ export default function usePlayerMove(
           // Fallback: get location from messages if playerList is empty
           const userActions = orderedMessagesByType(messages, 'actions', 'DESC');
           const lastAction = userActions.find((m) => m.uid === user.uid);
-          if (lastAction?.text) {
-            const match = lastAction.text.match(/#(\d+):/);
-            if (match) {
-              // Messages show 1-indexed position, convert to 0-indexed
-              currentLocation = Number(match[1]) - 1;
-            }
+          if (lastAction && isActionsMessage(lastAction)) {
+            currentLocation = getTurnFields(lastAction, {
+              finishWord: t('finish'),
+              startWord: t('start'),
+            }).location;
           }
         }
       }
@@ -283,15 +300,16 @@ export default function usePlayerMove(
         return {
           preMessage: `${t('alreadyFinished')}\n`,
           newLocation: lastTile,
+          kind: 'alreadyFinished',
         };
       }
 
       const newLocation = rollNumber + currentLocation;
       // If we move past finish, move to finish instead.
       if (newLocation >= lastTile) {
-        return { newLocation: lastTile };
+        return { newLocation: lastTile, kind: 'normal' };
       }
-      return { newLocation };
+      return { newLocation, kind: 'normal' };
     },
     [t, playerList, lastTile, hasLocalPlayers, isLocalPlayerRoom, currentPlayer, user, messages]
   );
@@ -323,7 +341,7 @@ export default function usePlayerMove(
 
     lastRollTimeRef.current = currentTime;
 
-    const { preMessage, newLocation } = getNewLocation(rollNumber);
+    const { preMessage, newLocation, kind } = getNewLocation(rollNumber);
 
     // Validate the new location
     if (typeof newLocation !== 'number' || isNaN(newLocation)) {
@@ -382,9 +400,11 @@ export default function usePlayerMove(
       }
 
       // send our message.
-      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, preMessage).catch(() => {
-        // Silently handle message send failures
-      });
+      handleTextOutput(gameBoard[newLocation], rollNumber, newLocation, kind, preMessage).catch(
+        () => {
+          // Silently handle message send failures
+        }
+      );
     } else {
       console.error(
         `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}, tile exists:`,

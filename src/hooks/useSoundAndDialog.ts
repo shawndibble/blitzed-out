@@ -5,11 +5,11 @@ import messageSound from '@/sounds/message.mp3';
 import dayjs from 'dayjs';
 import useSound from 'use-sound';
 import speak from '@/services/textToSpeech';
-import { extractAction } from '@/helpers/strings';
+import { getTurnFields } from '@/helpers/actionTurn';
 import useAuth from '@/context/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
-import { Message } from '@/types/Message';
+import { isActionsMessage, Message } from '@/types/Message';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
 import { setDayjsLocale } from '@/helpers/momentLocale';
 import { vibrate } from '@/utils/haptics';
@@ -22,7 +22,7 @@ export interface DialogResult {
 }
 
 export default function useSoundAndDialog(): DialogResult {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { messages } = useMessages();
   const [popupMessage, setPopupMessage] = useState<Message | false>(false);
@@ -114,9 +114,12 @@ export default function useSoundAndDialog(): DialogResult {
       }
     }
 
-    if (speakTextCondition) {
-      const text = extractAction(latestMessage?.text);
-      speakText(text);
+    if (speakTextCondition && latestMessage && isActionsMessage(latestMessage)) {
+      const fields = getTurnFields(latestMessage, {
+        finishWord: t('finish'),
+        startWord: t('start'),
+      });
+      speakText(fields.description);
     }
 
     if (playMessageSoundCondition) {
@@ -137,6 +140,7 @@ export default function useSoundAndDialog(): DialogResult {
     speakText,
     hapticFeedback,
     showPlayerDialog,
+    t,
   ]);
 
   return {

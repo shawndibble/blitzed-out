@@ -6,6 +6,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { RollValueState } from '@/types/index';
 import { TileExport } from '@/types/gameBoard';
 import usePlayerMove from '../usePlayerMove';
+import { makeTurnFields } from '@/__tests__/fixtures/turnFields.fixtures';
 
 // Mock Firebase service
 vi.mock('@/services/firebase', () => ({
@@ -143,15 +144,17 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.objectContaining({
-            uid: 'test-user',
-            displayName: 'TestUser',
-          }),
-          text: expect.stringContaining('Roll: 2'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.objectContaining({
+              uid: 'test-user',
+              displayName: 'TestUser',
+            }),
+            text: expect.stringContaining('Roll: 2'),
+            type: 'actions',
+          })
+        );
       });
     });
 
@@ -164,12 +167,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('#3: Action 2'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('#3: Action 2'),
+            type: 'actions',
+          })
+        );
       });
     });
 
@@ -182,12 +187,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('Action: TestUser TestUser takes a drink.'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('Action: TestUser TestUser takes a drink.'),
+            type: 'actions',
+          })
+        );
       });
     });
 
@@ -248,12 +255,44 @@ describe('usePlayerMove', () => {
 
       // Should move to finish tile (last tile)
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('#4: Finish'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('#4: Finish'),
+            type: 'actions',
+          })
+        );
+      });
+    });
+  });
+
+  describe('turn fields (colon-bearing description, defect 1)', () => {
+    it('carries the full description in turn.description even when it contains a colon', async () => {
+      mockPlayerLocation.current = 0;
+
+      const colonBoard: TileExport[] = [
+        { title: 'Start', description: 'Welcome!' },
+        { title: 'Action 1', description: 'बात करो: कुछ बोलो' },
+        { title: 'Action 2', description: 'more' },
+        { title: 'Finish', description: 'Game over!' },
+      ];
+
+      const rollValue: RollValueState = {
+        value: 1,
+        time: Date.now(),
+      };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, colonBoard));
+
+      await waitFor(() => {
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            turn: expect.objectContaining({
+              description: expect.stringContaining('TestUser बात करो: कुछ बोलो'),
+            }),
+          })
+        );
       });
     });
   });
@@ -280,12 +319,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, finishBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('#4: Finish'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('#4: Finish'),
+            type: 'actions',
+          })
+        );
       });
     });
   });
@@ -302,12 +343,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('Already Finished'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('Already Finished'),
+            type: 'actions',
+          })
+        );
       });
 
       const sentText = mockSendMessage.mock.calls[0][0].text;
@@ -325,12 +368,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('Already Finished'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('Already Finished'),
+            type: 'actions',
+          })
+        );
       });
 
       const sentText = mockSendMessage.mock.calls[0][0].text;
@@ -348,13 +393,148 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('Restarting Game'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('Restarting Game'),
+            type: 'actions',
+          })
+        );
       });
+    });
+  });
+
+  // Producer-side coverage: every field the consumers (usePlayerList,
+  // ActionCard) assume is present is asserted here against the real emitted
+  // `turn`, using the same fixture builder the consumer tests use. A future
+  // change to the encoder that silently drops/renames a field, or gets
+  // `finished`/`kind` wrong, fails here first.
+  describe('turn fields (producer): kind and finished for every path', () => {
+    it('emits kind "normal" and finished:false for an ordinary non-finishing roll', async () => {
+      mockPlayerLocation.current = 1; // Action 1
+      const rollValue: RollValueState = { value: 1, time: Date.now() };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => expect(mockSendMessage).toHaveBeenCalled());
+
+      const { turn } = mockSendMessage.mock.calls[0][0];
+      expect(turn).toStrictEqual(
+        makeTurnFields({
+          kind: 'normal',
+          roll: 1,
+          location: 2,
+          title: 'Action 2',
+          description: 'TestUser TestUser takes a drink.',
+          finished: false,
+        })
+      );
+    });
+
+    it('emits kind "normal" and finished:true when a normal roll lands exactly on the last tile', async () => {
+      mockPlayerLocation.current = 1;
+      const rollValue: RollValueState = { value: 2, time: Date.now() }; // 1 + 2 === lastTile (3)
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => expect(mockSendMessage).toHaveBeenCalled());
+
+      const { turn } = mockSendMessage.mock.calls[0][0];
+      expect(turn).toStrictEqual(
+        makeTurnFields({
+          kind: 'normal',
+          roll: 2,
+          location: 3,
+          title: 'Finish',
+          description: 'TestUser Game over!',
+          finished: true,
+        })
+      );
+    });
+
+    it('emits kind "alreadyFinished" and finished:true, carrying the actual roll (not null)', async () => {
+      mockPlayerLocation.current = 3; // already on the last tile
+      const rollValue: RollValueState = { value: 5, time: Date.now() };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => expect(mockSendMessage).toHaveBeenCalled());
+
+      const { turn } = mockSendMessage.mock.calls[0][0];
+      expect(turn).toStrictEqual(
+        makeTurnFields({
+          kind: 'alreadyFinished',
+          roll: 5,
+          location: 3,
+          title: 'Finish',
+          description: 'TestUser Game over!',
+          finished: true,
+        })
+      );
+    });
+
+    it('emits kind "restart" with roll:null, location:0, finished:false', async () => {
+      const rollValue: RollValueState = { value: -1, time: Date.now() };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => expect(mockSendMessage).toHaveBeenCalled());
+
+      const { turn } = mockSendMessage.mock.calls[0][0];
+      expect(turn).toStrictEqual(
+        makeTurnFields({
+          kind: 'restart',
+          roll: null,
+          location: 0,
+          title: 'Start',
+          description: 'TestUser Welcome to the game!',
+          finished: false,
+        })
+      );
+    });
+  });
+
+  // Characterization: the persisted `text` must stay byte-identical to
+  // develop's pre-refactor encoder output. Optimistic-message dedup and every
+  // pre-migration message in Firestore depend on this string not changing.
+  describe('encoder text is byte-identical to develop (characterization)', () => {
+    it('normal roll', async () => {
+      mockPlayerLocation.current = 1;
+      const rollValue: RollValueState = { value: 1, time: Date.now() };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => expect(mockSendMessage).toHaveBeenCalled());
+
+      expect(mockSendMessage.mock.calls[0][0].text).toBe(
+        'Roll: 1\n#3: Action 2\nAction: TestUser TestUser takes a drink.'
+      );
+    });
+
+    it('restart', async () => {
+      const rollValue: RollValueState = { value: -1, time: Date.now() };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => expect(mockSendMessage).toHaveBeenCalled());
+
+      expect(mockSendMessage.mock.calls[0][0].text).toBe(
+        'Restarting Game\n#1: Start\nAction: TestUser Welcome to the game!'
+      );
+    });
+
+    it('already finished', async () => {
+      mockPlayerLocation.current = 3;
+      const rollValue: RollValueState = { value: 5, time: Date.now() };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
+
+      await waitFor(() => expect(mockSendMessage).toHaveBeenCalled());
+
+      expect(mockSendMessage.mock.calls[0][0].text).toBe(
+        'Already Finished\nRoll: 5\n#4: Finish\nAction: TestUser Game over!'
+      );
     });
   });
 });
