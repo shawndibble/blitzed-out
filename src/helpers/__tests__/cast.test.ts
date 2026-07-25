@@ -1,23 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  CAST_NAMESPACE,
-  buildCastUrl,
-  buildLoadMessage,
-  detectCastEnvironment,
-  parseActionCard,
-} from '../cast';
-import { Message } from '@/types/Message';
-
-const makeMessage = (over: Partial<Message> = {}): Message =>
-  ({
-    id: 'm1',
-    type: 'actions',
-    uid: 'user1',
-    timestamp: '2026-06-06T00:00:00.000Z',
-    displayName: 'Alex',
-    text: 'Rolled a 3\nType: Spanking\nActivity: 10 swats',
-    ...over,
-  }) as Message;
+import { CAST_NAMESPACE, buildCastUrl, buildLoadMessage, detectCastEnvironment } from '../cast';
 
 describe('buildCastUrl', () => {
   it('joins origin and room into the cast route', () => {
@@ -43,28 +25,6 @@ describe('buildLoadMessage', () => {
 
   it('exposes the app cast namespace', () => {
     expect(CAST_NAMESPACE).toBe('urn:x-cast:com.blitzedout.app');
-  });
-});
-
-describe('parseActionCard', () => {
-  it('extracts displayName, type, and activity from a structured action message', () => {
-    expect(parseActionCard(makeMessage())).toEqual({
-      displayName: 'Alex',
-      type: 'Spanking',
-      activity: '10 swats',
-    });
-  });
-
-  it('returns an empty card when there is no displayName', () => {
-    expect(parseActionCard(makeMessage({ displayName: undefined }))).toEqual({});
-  });
-
-  it('tolerates a message missing the type/activity lines', () => {
-    expect(parseActionCard(makeMessage({ text: 'Rolled a 3' }))).toEqual({
-      displayName: 'Alex',
-      type: undefined,
-      activity: undefined,
-    });
   });
 });
 

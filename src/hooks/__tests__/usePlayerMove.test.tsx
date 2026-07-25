@@ -143,15 +143,17 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.objectContaining({
-            uid: 'test-user',
-            displayName: 'TestUser',
-          }),
-          text: expect.stringContaining('Roll: 2'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.objectContaining({
+              uid: 'test-user',
+              displayName: 'TestUser',
+            }),
+            text: expect.stringContaining('Roll: 2'),
+            type: 'actions',
+          })
+        );
       });
     });
 
@@ -164,12 +166,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('#3: Action 2'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('#3: Action 2'),
+            type: 'actions',
+          })
+        );
       });
     });
 
@@ -182,12 +186,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('Action: TestUser TestUser takes a drink.'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('Action: TestUser TestUser takes a drink.'),
+            type: 'actions',
+          })
+        );
       });
     });
 
@@ -248,12 +254,44 @@ describe('usePlayerMove', () => {
 
       // Should move to finish tile (last tile)
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('#4: Finish'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('#4: Finish'),
+            type: 'actions',
+          })
+        );
+      });
+    });
+  });
+
+  describe('turn fields (colon-bearing description, defect 1)', () => {
+    it('carries the full description in turn.description even when it contains a colon', async () => {
+      mockPlayerLocation.current = 0;
+
+      const colonBoard: TileExport[] = [
+        { title: 'Start', description: 'Welcome!' },
+        { title: 'Action 1', description: 'बात करो: कुछ बोलो' },
+        { title: 'Action 2', description: 'more' },
+        { title: 'Finish', description: 'Game over!' },
+      ];
+
+      const rollValue: RollValueState = {
+        value: 1,
+        time: Date.now(),
+      };
+
+      renderHook(() => usePlayerMove(mockRoomId, rollValue, colonBoard));
+
+      await waitFor(() => {
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            turn: expect.objectContaining({
+              description: expect.stringContaining('TestUser बात करो: कुछ बोलो'),
+            }),
+          })
+        );
       });
     });
   });
@@ -280,12 +318,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, finishBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('#4: Finish'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('#4: Finish'),
+            type: 'actions',
+          })
+        );
       });
     });
   });
@@ -302,12 +342,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('Already Finished'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('Already Finished'),
+            type: 'actions',
+          })
+        );
       });
 
       const sentText = mockSendMessage.mock.calls[0][0].text;
@@ -325,12 +367,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('Already Finished'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('Already Finished'),
+            type: 'actions',
+          })
+        );
       });
 
       const sentText = mockSendMessage.mock.calls[0][0].text;
@@ -348,12 +392,14 @@ describe('usePlayerMove', () => {
       renderHook(() => usePlayerMove(mockRoomId, rollValue, mockGameBoard));
 
       await waitFor(() => {
-        expect(mockSendMessage).toHaveBeenCalledWith({
-          room: mockRoomId,
-          user: expect.any(Object),
-          text: expect.stringContaining('Restarting Game'),
-          type: 'actions',
-        });
+        expect(mockSendMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            room: mockRoomId,
+            user: expect.any(Object),
+            text: expect.stringContaining('Restarting Game'),
+            type: 'actions',
+          })
+        );
       });
     });
   });
