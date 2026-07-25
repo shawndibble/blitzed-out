@@ -147,7 +147,9 @@ describe('ActionsSection (loadout)', () => {
     expect(next.boardUpdated).toBe(true);
   });
 
-  it('shows a per-group role toggle for role-bearing groups in With Others group play', () => {
+  // Role is a select, matching the consumption variation select — same kind of
+  // per-group qualifier, so the same control.
+  it('shows a per-group role select only for role-bearing groups in With Others', () => {
     render(
       <Harness
         formData={makeFormData({
@@ -160,14 +162,41 @@ describe('ActionsSection (loadout)', () => {
         actionsList={ACTIONS_LIST}
       />
     );
-    // buttPlay's actions use {dom}/{sub} tokens; kissing's don't.
-    expect(screen.getByRole('button', { name: 'Top' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Bottom' })).toBeInTheDocument();
-    const roleGroups = screen.getAllByRole('group', { name: /role/ });
-    expect(roleGroups).toHaveLength(1);
+    // buttPlay carries {dom}/{sub} tokens (usesRoleTokens); kissing doesn't.
+    const roleSelects = screen.getAllByRole('combobox', { name: /role/ });
+    expect(roleSelects).toHaveLength(1);
+    expect(roleSelects[0]).toHaveTextContent('Bottom');
   });
 
-  it('hides role toggles on a shared device — roles come from player setup', () => {
+  it('uses the group’s own role wording when it supplies one', () => {
+    render(
+      <Harness
+        formData={makeFormData({ selectedActions: { buttPlay: { type: 'sex', levels: [1] } } })}
+        setFormData={setFormData}
+        actionsList={ACTIONS_LIST}
+      />
+    );
+    // Butt Play labels its sides Top/Bottom rather than Dominant/Submissive.
+    expect(screen.getByRole('combobox', { name: /role/ })).toHaveTextContent('Bottom');
+  });
+
+  it('writes the chosen role onto the group entry', async () => {
+    render(
+      <Harness
+        formData={makeFormData({ selectedActions: { buttPlay: { type: 'sex', levels: [1] } } })}
+        setFormData={setFormData}
+        actionsList={ACTIONS_LIST}
+      />
+    );
+    await user.click(screen.getByRole('combobox', { name: /role/ }));
+    await user.click(screen.getByRole('option', { name: 'Top' }));
+
+    const next = setFormData.mock.calls[0][0];
+    expect(next.selectedActions.buttPlay.role).toBe('dom');
+    expect(next.boardUpdated).toBe(true);
+  });
+
+  it('hides the role select on a shared device — roles come from player setup', () => {
     render(
       <Harness
         formData={makeFormData({
@@ -178,7 +207,7 @@ describe('ActionsSection (loadout)', () => {
         actionsList={ACTIONS_LIST}
       />
     );
-    expect(screen.queryByRole('button', { name: 'Top' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: /role/ })).not.toBeInTheDocument();
     expect(screen.getByText('actionsBannerSharedDevice')).toBeInTheDocument();
   });
 

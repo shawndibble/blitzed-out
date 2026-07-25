@@ -6,8 +6,6 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  ToggleButton,
-  ToggleButtonGroup,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -30,6 +28,13 @@ interface ActionCardProps {
   onRemove: (groupKey: string) => void;
 }
 
+/** Shared by the per-group qualifier selects, so they read as one control type. */
+const inlineSelectSx = {
+  ml: 0.5,
+  fontSize: '0.8rem',
+  '& .MuiSelect-select': { py: 0.5 },
+} as const;
+
 const TYPE_LABEL_KEYS: Record<string, string> = {
   consumption: 'consumption',
   foreplay: 'foreplay',
@@ -39,9 +44,10 @@ const TYPE_LABEL_KEYS: Record<string, string> = {
 
 /**
  * One enabled action group in the loadout: name + type tag + remove on the
- * first line, named intensity chips (with the consumption variation inline)
- * on the second, role toggle on a third in With Others. All levels stay
- * visible — wrap, never scroll — so the enabled state is glanceable.
+ * first line, then named intensity chips with the group's qualifier select
+ * inline after them — variation for consumption, role for role-bearing groups
+ * in With Others. All levels stay visible — wrap, never scroll — so the enabled
+ * state is glanceable.
  */
 export default function ActionCard({
   groupKey,
@@ -129,11 +135,32 @@ export default function ActionCard({
                   onFieldChange(groupKey, 'variation', event.target.value)
                 }
                 aria-label={`${label} ${t('variation')}`}
-                sx={{ ml: 0.5, fontSize: '0.8rem', '& .MuiSelect-select': { py: 0.5 } }}
+                sx={inlineSelectSx}
               >
                 <MenuItem value="standalone">{t('standalone')}</MenuItem>
                 <MenuItem value="appendSome">{t('appendSome')}</MenuItem>
                 <MenuItem value="appendMost">{t('appendMost')}</MenuItem>
+              </Select>
+            )}
+            {/* Same inline treatment as the consumption variation select: a
+                per-group qualifier belongs beside the levels it qualifies, not on
+                a row of its own. Consumption groups never carry role tokens, so
+                the two never appear together. */}
+            {showRole && (
+              <Select
+                size="small"
+                value={entry.role || 'sub'}
+                onChange={(event: SelectChangeEvent<string>) =>
+                  onFieldChange(groupKey, 'role', event.target.value)
+                }
+                aria-label={`${label} ${t('role')}`}
+                sx={inlineSelectSx}
+              >
+                {roleOptions.map(({ value, label: roleLabel }) => (
+                  <MenuItem key={value} value={value}>
+                    {roleLabel}
+                  </MenuItem>
+                ))}
               </Select>
             )}
           </Box>
@@ -141,28 +168,6 @@ export default function ActionCard({
             <Typography variant="caption" sx={{ color: 'warning.main', display: 'block', mt: 0.5 }}>
               {t('noLevelsSelected')}
             </Typography>
-          )}
-          {showRole && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1.25 }}>
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                {t('role')}
-              </Typography>
-              <ToggleButtonGroup
-                size="small"
-                exclusive
-                value={entry.role || 'sub'}
-                onChange={(_, value: string | null) => {
-                  if (value) onFieldChange(groupKey, 'role', value);
-                }}
-                aria-label={`${label} ${t('role')}`}
-              >
-                {roleOptions.map(({ value, label: roleLabel }) => (
-                  <ToggleButton key={value} value={value} sx={{ py: 0.25, px: 1.25 }}>
-                    {roleLabel}
-                  </ToggleButton>
-                ))}
-              </ToggleButtonGroup>
-            </Box>
           )}
         </>
       )}
