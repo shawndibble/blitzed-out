@@ -26,7 +26,6 @@ import {
   CURRENT_LANGUAGE_MIGRATION_KEY,
   BACKGROUND_MIGRATION_IN_PROGRESS_KEY,
   MIGRATION_TIMEOUT,
-  MIGRATION_KEY,
   GAME_MODES,
 } from './constants';
 import {
@@ -34,6 +33,7 @@ import {
   isMigrationInProgress,
   isLanguageMigrationInProgress,
   isBackgroundMigrationInProgress,
+  hasSeededAnyLocale,
 } from './statusManager';
 
 const LANGUAGE_CHANGE_DEBOUNCE = 300;
@@ -56,6 +56,13 @@ const failedLocales = new Map<string, string>();
 
 let appStartTracked = false;
 let integrityCheck: Promise<void> | null = null;
+
+// Captured at module load — before anything in this session can seed. A
+// lazy read here would let a guarded store read (contentLibrary,
+// customGroups, customTiles) win a race against initContentReadiness's own
+// effect and seed content first, which would flip a brand-new user to
+// 'returning' (the same class of bug this snapshot exists to fix, inverted).
+const wasReturningAtStartup: boolean = hasSeededAnyLocale();
 
 // Same fallback chain as the guarded queries (contentLibrary/customGroups) —
 // a mismatch would seed one locale while the query filters by another.
@@ -226,7 +233,7 @@ async function trackAppStartOnce(): Promise<void> {
   if (appStartTracked) return;
   appStartTracked = true;
   try {
-    const userType: 'new' | 'returning' = localStorage.getItem(MIGRATION_KEY) ? 'returning' : 'new';
+    const userType: 'new' | 'returning' = wasReturningAtStartup ? 'returning' : 'new';
     const { analytics } = await import('@/services/analytics');
     analytics.trackAppStart(performance.now(), userType);
   } catch {

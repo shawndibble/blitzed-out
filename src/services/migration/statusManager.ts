@@ -193,6 +193,18 @@ export const isMigrationCompleted = (): boolean => {
 };
 
 /**
+ * Whether any locale has ever been seeded on this device. Used as the
+ * app-start analytics cohort signal ("has seeded content before", a
+ * deliberate stand-in for "has used the app before" — the two diverge only
+ * for a user who cleared/never populated Dexie while keeping localStorage,
+ * which is not a case worth a second predicate).
+ */
+export const hasSeededAnyLocale = (): boolean => {
+  const bgStatus = safeLocalStorage.getJSON<BackgroundMigrationStatus>(BACKGROUND_MIGRATION_KEY);
+  return !!bgStatus && bgStatus.completedLanguages.length > 0;
+};
+
+/**
  * Check if current language migration has been completed
  */
 export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => {
