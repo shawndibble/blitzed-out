@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ExpandMore, HelpOutlined } from '@mui/icons-material';
-import { FocusEvent, KeyboardEvent, useState } from 'react';
+import { FocusEvent, KeyboardEvent, useLayoutEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import Accordion from '@/components/Accordion';
@@ -23,7 +23,33 @@ import CustomGroupDialog from '@/views/CustomGroupDialog';
 import CustomTilePreview from './CustomTilePreview';
 import { CustomGroupPull } from '@/types/customGroups';
 import CustomGroupSelector from '@/components/CustomGroupSelector';
+import { insertPlaceholderToken } from './insertPlaceholderToken';
+import { localizePlaceholders } from '@/services/placeholderAliasService';
+import { MAX_ACTION_LENGTH } from '@/services/validationService';
+import { AnatomyPlaceholder } from '@/types/localPlayers';
 import { useGameSettings } from '@/stores/settingsStore';
+
+interface TokenChip {
+  token: string;
+  /** camelCase key under customTiles.placeholderHelp (tokens are snake_case). */
+  helpKey: string;
+}
+
+const ROLE_TOKENS: TokenChip[] = [
+  { token: 'player', helpKey: 'player' },
+  { token: 'dom', helpKey: 'dom' },
+  { token: 'sub', helpKey: 'sub' },
+];
+
+const ANATOMY_TOKENS: (TokenChip & { token: AnatomyPlaceholder })[] = [
+  { token: 'genital', helpKey: 'genital' },
+  { token: 'hole', helpKey: 'hole' },
+  { token: 'chest', helpKey: 'chest' },
+  { token: 'pronoun_subject', helpKey: 'pronounSubject' },
+  { token: 'pronoun_object', helpKey: 'pronounObject' },
+  { token: 'pronoun_possessive', helpKey: 'pronounPossessive' },
+  { token: 'pronoun_reflexive', helpKey: 'pronounReflexive' },
+];
 
 export default function AddCustomTile({
   lifecycle,
@@ -55,13 +81,93 @@ export default function AddCustomTile({
 
   const updateTileId = editTarget.tileId;
 
-  // Localized placeholder token shown on the reference chips, e.g. "{genitales}".
-  // Falls back to the canonical name if the placeholders namespace is unavailable.
-  const tokenLabel = (key: string): string => `{${t(`placeholders:tokens.${key}`, key)}}`;
+  // Chips show — and insert — the token in the same locale the save path
+  // normalizes from (settings.locale), so a chip can never write an alias
+  // that normalizePlaceholders would leave uncanonicalized. Unknown locale
+  // maps degrade to canonical English, which is what the pipeline wants anyway.
+  const locale = settings.locale || 'en';
+  const tokenLabel = (key: string): string => localizePlaceholders(`{${key}}`, locale);
 
   // UI state local to this view.
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [placeholderHelpOpen, setPlaceholderHelpOpen] = useState(false);
+  const [insertBlocked, setInsertBlocked] = useState(false);
+
+  const actionInputRef = useRef<HTMLInputElement | null>(null);
+  // Caret/selection snapshot for when the action field is *not* focused at
+  // insert time: touch browsers drop focus before the chip's click handler
+  // runs, and a keyboard-activated chip holds focus itself.
+  const lastSelectionRef = useRef<[number, number] | null>(null);
+  // Caret to restore once React commits the inserted token; null = nothing pending.
+  const pendingCaretRef = useRef<number | null>(null);
+
+  // True when some *other* text field holds focus.
+  const otherFieldHasFocus = (element: Element | null): boolean =>
+    element !== null &&
+    element !== actionInputRef.current &&
+    (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA');
+
+  const restoreCaret = (caret: number): void => {
+    const input = actionInputRef.current;
+    if (!input) return;
+    lastSelectionRef.current = [caret, caret];
+    // Focus belongs to whatever text field the author is actually in; stealing
+    // it would blur the tags input and commit a half-typed tag.
+    if (!otherFieldHasFocus(document.activeElement)) input.focus({ preventScroll: true });
+    if (document.activeElement === input) input.setSelectionRange(caret, caret);
+  };
+
+  // The action field is controlled, so the browser resets the caret to the end
+  // on commit. Reapply the intended caret after that commit, not during the click.
+  // No dep array: an insertion that leaves the text byte-identical must not
+  // strand a pending caret for some later, unrelated render to apply.
+  useLayoutEffect(() => {
+    const caret = pendingCaretRef.current;
+    if (caret === null) return;
+    pendingCaretRef.current = null;
+    restoreCaret(caret);
+  });
+
+  const insertToken = (key: string): void => {
+    const input = actionInputRef.current;
+    const focused = input !== null && document.activeElement === input;
+    const selection = focused
+      ? ([input.selectionStart, input.selectionEnd] as [number | null, number | null])
+      : lastSelectionRef.current;
+    const { text, caret, clamped } = insertPlaceholderToken(
+      draft.action,
+      selection?.[0] ?? null,
+      selection?.[1] ?? null,
+      tokenLabel(key),
+      MAX_ACTION_LENGTH
+    );
+
+    setInsertBlocked(clamped);
+    if (text === draft.action) {
+      // Nothing changed (clamped, or the selection already held this token), so
+      // the layout effect will not fire — put the caret back from here.
+      restoreCaret(caret);
+      return;
+    }
+
+    pendingCaretRef.current = caret;
+    setDraftAction(text);
+  };
+
+  const renderTokenChip = ({ token, helpKey }: TokenChip) => (
+    <Chip
+      key={token}
+      component="button"
+      type="button"
+      label={tokenLabel(token)}
+      size="small"
+      sx={{ fontFamily: 'monospace' }}
+      aria-label={`${tokenLabel(token)} — ${t(`customTiles.placeholderHelp.${helpKey}`)}`}
+      // Keep focus (and therefore the caret) in the action field on mouse click.
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={() => insertToken(token)}
+    />
+  );
 
   // Handle custom group creation
   const handleGroupCreated = (group: CustomGroupPull) => {
@@ -198,9 +304,19 @@ export default function AddCustomTile({
               fullWidth
               label={t('action')}
               sx={{ mt: 2, pb: 2 }}
-              slotProps={{ htmlInput: { maxLength: 2000 } }}
+              slotProps={{ htmlInput: { maxLength: MAX_ACTION_LENGTH } }}
+              inputRef={actionInputRef}
               value={draft.action}
-              onChange={(event) => setDraftAction(event.target.value)}
+              onChange={(event) => {
+                if (insertBlocked) setInsertBlocked(false);
+                setDraftAction(event.target.value);
+              }}
+              onBlur={(event) => {
+                // Snapshot the caret before focus leaves — a chip tap on touch
+                // devices blurs the field before its click handler runs.
+                const input = event.currentTarget;
+                lastSelectionRef.current = [input.selectionStart ?? 0, input.selectionEnd ?? 0];
+              }}
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
                   // The field lives inside a <Box component="form" method="post">;
@@ -257,33 +373,32 @@ export default function AddCustomTile({
                     borderLeftColor: 'primary.main',
                   }}
                 >
-                  <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+                  <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
                     {t('customTiles.placeholderHelp.description')}
                   </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ mb: 2, display: 'block', color: 'primary.main' }}
+                  >
+                    {t('customTiles.placeholderHelp.clickToInsert')}
+                  </Typography>
+                  {insertBlocked && (
+                    <Typography
+                      variant="caption"
+                      role="alert"
+                      sx={{ mb: 2, display: 'block' }}
+                      color="error"
+                    >
+                      {t('customTiles.placeholderHelp.insertTooLong')}
+                    </Typography>
+                  )}
 
                   {/* Role Placeholders */}
                   <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
                     {t('customTiles.placeholderHelp.rolePlaceholders')}
                   </Typography>
                   <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    <Chip
-                      label={tokenLabel('player')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.player')}
-                    />
-                    <Chip
-                      label={tokenLabel('dom')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.dom')}
-                    />
-                    <Chip
-                      label={tokenLabel('sub')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.sub')}
-                    />
+                    {ROLE_TOKENS.map(renderTokenChip)}
                   </Box>
 
                   {/* Anatomy Placeholders */}
@@ -291,48 +406,7 @@ export default function AddCustomTile({
                     {t('customTiles.placeholderHelp.anatomyPlaceholders')}
                   </Typography>
                   <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                    <Chip
-                      label={tokenLabel('genital')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.genital')}
-                    />
-                    <Chip
-                      label={tokenLabel('hole')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.hole')}
-                    />
-                    <Chip
-                      label={tokenLabel('chest')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.chest')}
-                    />
-                    <Chip
-                      label={tokenLabel('pronoun_subject')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.pronounSubject')}
-                    />
-                    <Chip
-                      label={tokenLabel('pronoun_object')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.pronounObject')}
-                    />
-                    <Chip
-                      label={tokenLabel('pronoun_possessive')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.pronounPossessive')}
-                    />
-                    <Chip
-                      label={tokenLabel('pronoun_reflexive')}
-                      size="small"
-                      sx={{ fontFamily: 'monospace' }}
-                      aria-label={t('customTiles.placeholderHelp.pronounReflexive')}
-                    />
+                    {ANATOMY_TOKENS.map(renderTokenChip)}
                   </Box>
 
                   {/* Example */}

@@ -59,6 +59,8 @@ Action text contains tokens replaced at gameplay time:
 
 Pipeline: `actionStringReplacement.ts` orchestrates replacement; `anatomyPlaceholderService.ts` resolves anatomy terms by gender/role/locale; `anatomyFilterService.ts` decides which actions are compatible with a player's anatomy.
 
+**Tap-to-insert:** the "Available Placeholders" panel in `AddCustomTile` renders each bare token (the 10 keys in `locales/*/placeholders.json` — not piped `{genital|dom}` or possessive forms, which are still typed by hand) as a clickable chip. Clicking one splices the token into the action field at the last known caret (end of text if the field was never touched) via the pure `AddCustomTile/insertPlaceholderToken.ts` — spacing-aware, selection-replacing, capped at `MAX_ACTION_LENGTH`. Chips label and insert via `localizePlaceholders(token, settings.locale)`, i.e. the same locale the save path normalizes from, so a chip can never author an alias that `normalizePlaceholders` would leave uncanonicalized.
+
 **Localized placeholder aliases:** custom-tile placeholders are **stored canonical-English**. Authors may type localized aliases (`src/locales/*/placeholders.json`); `placeholderAliasService.ts` normalizes them to English on save and localizes them back on edit. The gameplay replacement pipeline never sees aliases — only canonical English. (Per `CLAUDE.md`.)
 
 ### Content filtering by mode/role

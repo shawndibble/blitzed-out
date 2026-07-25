@@ -13,6 +13,8 @@
     "placeholderHelp": {
       "title": "Marcadores de Posición Disponibles",
       "description": "Usa marcadores de posición para crear acciones inclusivas de anatomía que se adapten a cada jugador.",
+      "clickToInsert": "Toca un marcador para añadirlo a tu acción.",
+      "insertTooLong": "La acción alcanzó su longitud máxima: borra algo de texto para añadir un marcador.",
       "rolePlaceholders": "Marcadores de Rol",
       "anatomyPlaceholders": "Marcadores de Anatomía",
       "player": "El nombre del jugador actual",

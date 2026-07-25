@@ -12,6 +12,7 @@ import { t } from 'i18next';
 export const MAX_GROUP_NAME_LENGTH = 50;
 export const MAX_GROUP_LABEL_LENGTH = 100;
 export const MAX_INTENSITY_LABEL_LENGTH = 50;
+export const MAX_ACTION_LENGTH = 2000;
 export const MIN_INTENSITY_VALUE = 1;
 export const MAX_INTENSITY_VALUE = 10;
 export const MIN_INTENSITIES_COUNT = 1;

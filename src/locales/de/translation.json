@@ -13,6 +13,8 @@
     "placeholderHelp": {
       "title": "Verfügbare Platzhalter",
       "description": "Verwende Platzhalter, um anatomisch inklusive Aktionen zu erstellen, die sich an jeden Spieler anpassen.",
+      "clickToInsert": "Tippe auf einen Platzhalter, um ihn deiner Aktion hinzuzufügen.",
+      "insertTooLong": "Die Aktion hat ihre maximale Länge erreicht — lösche Text, um einen Platzhalter hinzuzufügen.",
       "rolePlaceholders": "Rollen-Platzhalter",
       "anatomyPlaceholders": "Anatomie-Platzhalter",
       "player": "Der Name des aktuellen Spielers",

@@ -13,6 +13,8 @@
     "placeholderHelp": {
       "title": "Available Placeholders",
       "description": "Use placeholders to create anatomy-inclusive actions that adapt to each player.",
+      "clickToInsert": "Tap a placeholder to add it to your action.",
+      "insertTooLong": "Action is at its maximum length — remove some text to add a placeholder.",
       "rolePlaceholders": "Role Placeholders",
       "anatomyPlaceholders": "Anatomy Placeholders",
       "player": "The current player's name",

@@ -13,6 +13,8 @@
     "placeholderHelp": {
       "title": "可用的占位符",
       "description": "使用占位符創建適應每個玩家的解剖包容性動作。",
+      "clickToInsert": "点击占位符即可将其添加到你的动作中。",
+      "insertTooLong": "动作已达到最大长度——请删除部分文字后再添加占位符。",
       "rolePlaceholders": "角色占位符",
       "anatomyPlaceholders": "解剖占位符",
       "player": "當前玩家的名字",

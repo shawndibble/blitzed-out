@@ -13,6 +13,8 @@
     "placeholderHelp": {
       "title": "Espaces Réservés Disponibles",
       "description": "Utilisez des espaces réservés pour créer des actions inclusives d'anatomie qui s'adaptent à chaque joueur.",
+      "clickToInsert": "Touchez un espace réservé pour l’ajouter à votre action.",
+      "insertTooLong": "L’action a atteint sa longueur maximale — supprimez du texte pour ajouter un espace réservé.",
       "rolePlaceholders": "Espaces Réservés de Rôle",
       "anatomyPlaceholders": "Espaces Réservés Anatomiques",
       "player": "Le nom du joueur actuel",
