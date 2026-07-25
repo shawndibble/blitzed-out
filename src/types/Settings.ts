@@ -60,6 +60,12 @@ export interface Settings {
   handsFree?: boolean;
   /** Hands-Free roll cadence preset */
   handsFreePreset?: HandsFreePreset;
+  /**
+   * readRoll value to restore when Hands-Free is disabled. Hands-Free forces
+   * readRoll on while active; this memo has to be a settings field (not a
+   * component ref) so it survives remount — see CONTEXT.md "Hands-Free".
+   */
+  readRollBeforeHandsFree?: boolean;
   [key: string]: any;
 }
 

@@ -10,16 +10,12 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { JSX, useRef, useState } from 'react';
+import { JSX, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import VoiceRows from '@/views/GameSettings/sections/VoiceRows';
-import { analytics } from '@/services/analytics';
-import {
-  DEFAULT_HANDS_FREE_PRESET,
-  HANDS_FREE_PRESETS,
-  HandsFreePreset,
-} from '@/helpers/handsFree';
+import { HANDS_FREE_PRESETS, HandsFreePreset } from '@/helpers/handsFree';
+import useHandsFree from '@/hooks/useHandsFree';
 import { useSettings } from '@/stores/settingsStore';
 import { Settings } from '@/types/Settings';
 
@@ -45,30 +41,11 @@ export default function HandsFreeDialog({ open, onClose }: HandsFreeDialogProps)
   // VoiceRows needs a staged Settings object; voice changes flow to the store
   // through the onVoiceChange/onPitchChange callbacks.
   const [voiceForm, setVoiceForm] = useState<Settings>(settings as Settings);
-
-  const enabled = Boolean(settings.handsFree);
-  const preset = settings.handsFreePreset ?? DEFAULT_HANDS_FREE_PRESET;
-  // Hands-Free forces readRoll on; remember what it was so disabling can restore it
-  // instead of leaving TTS silently stuck on.
-  const readRollBeforeEnableRef = useRef<boolean>(Boolean(settings.readRoll));
-
-  const handleToggle = (checked: boolean): void => {
-    if (checked) {
-      readRollBeforeEnableRef.current = Boolean(settings.readRoll);
-      updateSettings({ handsFree: true, handsFreePreset: preset, readRoll: true });
-    } else {
-      updateSettings({ handsFree: false, readRoll: readRollBeforeEnableRef.current });
-    }
-    analytics.trackFeatureUsage({
-      feature_name: 'hands_free',
-      feature_category: 'settings',
-      interaction_type: checked ? 'enable' : 'disable',
-    });
-  };
+  const { enabled, preset, toggle, setPreset } = useHandsFree();
 
   const handlePreset = (_: unknown, value: HandsFreePreset | null): void => {
     if (!value) return;
-    updateSettings({ handsFreePreset: value });
+    setPreset(value);
   };
 
   return (
@@ -83,7 +60,7 @@ export default function HandsFreeDialog({ open, onClose }: HandsFreeDialogProps)
           <Typography>{t('handsFreeEnable', 'Enable Hands-Free')}</Typography>
           <Switch
             checked={enabled}
-            onChange={(event) => handleToggle(event.target.checked)}
+            onChange={(event) => toggle(event.target.checked)}
             slotProps={{ input: { 'aria-label': t('handsFreeEnable', 'Enable Hands-Free') } }}
           />
         </Box>

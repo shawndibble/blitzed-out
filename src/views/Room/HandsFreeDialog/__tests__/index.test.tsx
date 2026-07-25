@@ -35,6 +35,7 @@ describe('HandsFreeDialog', () => {
       handsFree: true,
       handsFreePreset: 'standard',
       readRoll: true,
+      readRollBeforeHandsFree: false,
     });
     expect(trackFeatureUsage).toHaveBeenCalledWith(
       expect.objectContaining({ feature_name: 'hands_free', interaction_type: 'enable' })
@@ -45,11 +46,41 @@ describe('HandsFreeDialog', () => {
     mockSettings.handsFree = true;
     mockSettings.handsFreePreset = 'quick';
     mockSettings.readRoll = false;
+    mockSettings.readRollBeforeHandsFree = false;
     render(<HandsFreeDialog open onClose={vi.fn()} />);
 
     fireEvent.click(screen.getByRole('switch'));
 
     expect(updateSettings).toHaveBeenCalledWith({ handsFree: false, readRoll: false });
+  });
+
+  it('a fresh mount with Hands-Free already on does not treat the forced readRoll as the pre-enable value', () => {
+    // Simulates a page reload while Hands-Free is on: readRoll is already
+    // forced true and there is no in-memory memo of what it was before
+    // (readRollBeforeHandsFree unset). A ref captured at mount would wrongly
+    // read this forced-true value as "the user's original preference" and
+    // "restore" it on disable, leaving TTS permanently stuck on. The durable
+    // settings-field memo must fall back to false instead.
+    mockSettings.handsFree = true;
+    mockSettings.handsFreePreset = 'quick';
+    mockSettings.readRoll = true;
+    render(<HandsFreeDialog open onClose={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('switch'));
+
+    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false, readRoll: false });
+  });
+
+  it('a fresh mount honors an explicit pre-enable memo even though readRoll is forced true', () => {
+    mockSettings.handsFree = true;
+    mockSettings.handsFreePreset = 'quick';
+    mockSettings.readRoll = true;
+    mockSettings.readRollBeforeHandsFree = true;
+    render(<HandsFreeDialog open onClose={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('switch'));
+
+    expect(updateSettings).toHaveBeenCalledWith({ handsFree: false, readRoll: true });
   });
 
   it('keeps an existing preset when re-enabling', () => {

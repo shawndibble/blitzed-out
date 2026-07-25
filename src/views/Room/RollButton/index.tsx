@@ -13,6 +13,7 @@ import OnboardingWrapper from './OnboardingWrapper';
 import { analytics } from '@/services/analytics';
 import DiceRoller from '@/components/DiceRoller';
 import { isHandsFreeAvailable, resolveHandsFreeRange } from '@/helpers/handsFree';
+import useHandsFree from '@/hooks/useHandsFree';
 import { useSettings } from '@/stores/settingsStore';
 import { useDiceAnimationStore } from '@/stores/diceAnimationStore';
 import { vibrate } from '@/utils/haptics';
@@ -69,7 +70,8 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   ref
 ) {
   const { t } = useTranslation();
-  const [settings, updateSettings] = useSettings();
+  const [settings] = useSettings();
+  const { disable: disableHandsFree } = useHandsFree();
   const isMobile = useBreakpoint();
   const { user } = useAuth();
   const setAnimationSoundPlayed = useDiceAnimationStore((state) => state.setAnimationSoundPlayed);
@@ -232,7 +234,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
 
       // Picking any manual/timer option is an explicit exit from hands-free.
       if (settings.handsFree) {
-        updateSettings({ handsFree: false });
+        disableHandsFree();
       }
 
       setSelectedRoll(String(key));
@@ -246,12 +248,12 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
         setTimerSettings({ isRange: false, min: numericKey, max: numericKey });
       }
     },
-    [isPaused, setTimeLeft, togglePause, setRollValue, settings.handsFree, updateSettings]
+    [isPaused, setTimeLeft, togglePause, setRollValue, settings.handsFree, disableHandsFree]
   );
 
   const handleAutoRollCustom = (time: number, custom: Partial<TimerSettings>): void => {
     if (settings.handsFree) {
-      updateSettings({ handsFree: false });
+      disableHandsFree();
     }
     if (!isPaused) togglePause();
     setAutoTime(time);
