@@ -28,10 +28,11 @@ import { getAuth } from 'firebase/auth';
 import { sha256 } from 'js-sha256';
 import { db } from './firebase';
 import { exportAllData, importData, EXPORT_FORMAT_VERSION } from './importExport';
+import { readPackPayload } from './packPayload';
 import { analytics } from './analytics';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTilesByGroupIds } from '@/stores/customTiles';
-import type { ExportData, ExportOptions, ImportResult } from '@/types/importExport';
+import type { ExportOptions, ImportResult } from '@/types/importExport';
 import type { ContentPackDoc, ContentPackMeta, ParsedContentPack } from '@/types/contentPacks';
 
 const COLLECTION = 'content-packs';
@@ -109,16 +110,18 @@ function summarizeContents(contents: string): {
   extensionCount: number;
   extensionLabels: string[];
 } {
-  // Intentionally not guarded: a parse/shape failure here means the contents are
-  // broken, and the error must propagate so publishPack/republishPack abort
-  // rather than persist a pack with a zeroed-out summary that fails on import.
-  const parsed = JSON.parse(contents) as ExportData;
-  const groups = parsed.data.customGroups ?? [];
-  const extensions = parsed.data.groupExtensions ?? [];
+  // Broken contents must abort publishPack/republishPack rather than persist a
+  // pack with a zeroed-out summary that then fails on import.
+  const payload = readPackPayload(contents);
+  if (!payload) throw new Error('Pack contents are not a readable payload');
+
+  // Counted the way the import preview counts them, so a directory card and the
+  // dialog it opens can never disagree.
+  const extensions = payload.extendedGroups();
   return {
-    tileCount: parsed.data.customTiles?.length ?? 0,
-    groupCount: groups.length,
-    groupLabels: groups.map((g) => g.label || g.name),
+    tileCount: payload.counts.tiles,
+    groupCount: payload.counts.groups,
+    groupLabels: payload.groups.map((g) => g.label || g.name),
     extensionCount: extensions.length,
     extensionLabels: extensions.map((e) => e.groupLabel || e.groupName),
   };
@@ -283,25 +286,10 @@ export async function deletePack(packId: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, packId));
 }
 
-/** Parse a pack's serialized contents into an ExportData document. */
+/** Read a pack's serialized contents; `undefined` when they are not a payload. */
 export function parsePack(pack: ContentPackDoc): ParsedContentPack | undefined {
-  try {
-    const data = JSON.parse(pack.contents);
-    if (
-      !data ||
-      typeof data !== 'object' ||
-      typeof data.formatVersion !== 'string' ||
-      !data.data ||
-      !Array.isArray(data.data.customGroups) ||
-      !Array.isArray(data.data.customTiles)
-    ) {
-      return undefined;
-    }
-    return { doc: pack, data: data as ExportData };
-  } catch (error) {
-    console.error('Failed to parse pack contents', error);
-    return undefined;
-  }
+  const payload = readPackPayload(pack.contents);
+  return payload ? { doc: pack, payload } : undefined;
 }
 
 /** Import a pack's contents into Dexie as a one-time copy, stamping attribution. */

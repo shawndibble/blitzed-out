@@ -236,13 +236,9 @@ export default function PackCreator() {
     setVisibility(isAnonymous ? 'private' : pack.visibility);
     const parsed = parsePack(pack);
     // Extensions-only packs carry no customGroups entry for the default groups
-    // they extend — seed those names too or the republish selection comes up
-    // empty and the extensions are dropped.
-    const packGroupNames = [
-      ...(parsed?.data.data.customGroups || []).map((g) => g.name),
-      ...(parsed?.data.data.groupExtensions || []).map((e) => e.groupName),
-    ];
-    setSelectedGroups(packGroupNames);
+    // they extend — the payload names every group it touches, so the republish
+    // selection never comes up empty and drops them.
+    setSelectedGroups(parsed?.payload.touchedGroupNames() ?? []);
     setShareLink(null);
     setStep(0);
   };

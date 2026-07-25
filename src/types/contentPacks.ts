@@ -4,7 +4,7 @@
 // groups (their custom tiles + group defs), stored in the `content-packs`
 // Firestore collection. Packs are imported as a one-time copy — by code/link
 // (`?importPack=<id>`) for any pack, or from the public directory when `public`.
-import type { ExportData } from './importExport';
+import type { PackPayload } from '@/services/packPayload';
 
 /** A pack's discovery scope: `public` is directory-listed, `private` is unlisted. */
 export type PackVisibility = 'public' | 'private';
@@ -45,8 +45,8 @@ export interface ContentPackMeta {
   visibility: PackVisibility;
 }
 
-/** Parsed pack ready to preview/import (contents deserialized). */
+/** Parsed pack ready to preview/import (contents read through the payload reader). */
 export interface ParsedContentPack {
   doc: ContentPackDoc;
-  data: ExportData;
+  payload: PackPayload;
 }
