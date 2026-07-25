@@ -191,10 +191,13 @@ describe('contentReadiness', () => {
       vi.useFakeTimers();
       setLanguageMigrationInProgress('en', true);
       // Adversarial lock that always looks fresh: rewrite startedAt each poll.
+      // Shape must match LanguageMigrationStatus (locales + startedAt) or
+      // isLanguageMigrationInProgress stops recognising the lock entirely,
+      // which would make this test pass for the wrong reason.
       const refresher = setInterval(() => {
         localStorage.setItem(
           CURRENT_LANGUAGE_MIGRATION_KEY,
-          JSON.stringify({ inProgress: true, language: 'en', startedAt: new Date().toISOString() })
+          JSON.stringify({ locales: ['en'], startedAt: new Date().toISOString() })
         );
       }, 25);
 

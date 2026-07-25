@@ -81,9 +81,12 @@ export const markLanguageMigrated = (locale: string): void => {
 /**
  * Whether any locale has ever been seeded on this device. Used as the
  * app-start analytics cohort signal ("has seeded content before", a
- * deliberate stand-in for "has used the app before" — the two diverge only
- * for a user who cleared/never populated Dexie while keeping localStorage,
- * which is not a case worth a second predicate).
+ * deliberate stand-in for "has used the app before"). Diverges from that in
+ * two directions: a user who cleared/never populated Dexie while keeping
+ * localStorage reads as "seeded" when they aren't; a returning user whose
+ * corrupted status was reset by fixMigrationStatusCorruption reads as
+ * "never seeded" until the next migration completes. Neither is worth a
+ * second predicate.
  */
 export const hasSeededAnyLocale = (): boolean => {
   const bgStatus = safeLocalStorage.getJSON<BackgroundMigrationStatus>(BACKGROUND_MIGRATION_KEY);
