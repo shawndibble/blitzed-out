@@ -15,7 +15,6 @@ import { handleLevelsChange, hasValidSelections, purgedFormData } from './helper
 import useBrokenActionsState from '@/hooks/useBrokenActionsState';
 import { useMigrationStatus } from '@/services/migration/contentReadiness';
 import { usesSoloActions } from '@/helpers/strings';
-import { deriveContentMode } from '@/stores/settingsStore';
 import type { ContentGameMode } from '@/types/Settings';
 import { GroupType } from '@/types';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
@@ -68,7 +67,11 @@ export default function ActionsStep({
   const [directoryOpen, setDirectoryOpen] = useState(false);
   // Groups that just arrived via a pack import — pulsed briefly for attention.
   const [recentImports, setRecentImports] = useState<Set<string>>(new Set());
-  const contentGameMode = deriveContentMode(formData.gameMode);
+  // Match actionType's derivation below: With Others (online + soloPlay:false)
+  // needs the local bundle's foreplay/sex packs/groups, not the online bundle.
+  const contentGameMode: ContentGameMode = usesSoloActions(formData.gameMode, formData.soloPlay)
+    ? 'online'
+    : 'local';
   const [directoryGameMode, setDirectoryGameMode] = useState<ContentGameMode>(contentGameMode);
 
   const actionType = usesSoloActions(formData.gameMode, formData.soloPlay)

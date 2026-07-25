@@ -8,8 +8,8 @@ import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { importActions } from '@/services/dexieActionImport';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { getActiveTiles } from '@/stores/contentLibrary';
-import { deriveContentMode, useContentMode, useSettings } from '@/stores/settingsStore';
-import { isLocalMode, isPublicRoom } from '@/helpers/strings';
+import { useContentMode, useSettings } from '@/stores/settingsStore';
+import { isLocalMode, isPublicRoom, usesSoloActions } from '@/helpers/strings';
 import { RoomMessage } from '@/types/Message';
 import { GameBoard } from '@/types/gameBoard';
 import { parseMessageTimestamp } from '@/helpers/timestamp';
@@ -71,12 +71,18 @@ export default function usePrivateRoomMonitor(
 
       try {
         const { gameMode, newBoard } = await updateGameBoardTiles(messageSettings);
+        const mergedFormData = { ...settings, ...messageSettings };
 
         const message: any = {
-          formData: { ...settings, ...messageSettings },
+          formData: mergedFormData,
           user,
           customTiles,
-          actionsList: await importActions(i18n.resolvedLanguage, deriveContentMode(gameMode)),
+          // Match useGameBoard's own derivation so the rebuilt-board message
+          // lists the same groups the board was actually built from.
+          actionsList: await importActions(
+            i18n.resolvedLanguage,
+            usesSoloActions(gameMode, mergedFormData.soloPlay) ? 'online' : 'local'
+          ),
           tiles: newBoard,
           title: t('settingsGenerated'),
         };
