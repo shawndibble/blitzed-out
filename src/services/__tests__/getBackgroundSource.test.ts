@@ -120,7 +120,8 @@ describe('getBackgroundSource', () => {
 
         galleryUrls.forEach((url, index) => {
           const result = processBackground(url);
-          expect(result.isVideo).toBe(true);
+          // URLs without extensions default to .jpg, an image, not a video.
+          expect(result.isVideo).toBe(false);
           // URLs without extensions should use .jpg as default (more reliable than .gif)
           expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.jpg`);
         });
@@ -136,7 +137,8 @@ describe('getBackgroundSource', () => {
 
         fragmentUrls.forEach((url, index) => {
           const result = processBackground(url);
-          expect(result.isVideo).toBe(true);
+          // URLs without extensions default to .jpg, an image, not a video.
+          expect(result.isVideo).toBe(false);
 
           // For the second URL, the regex won't match /gallery/ pattern so it falls back to fragment matching
           if (url.includes('/gallery/')) {
@@ -156,22 +158,40 @@ describe('getBackgroundSource', () => {
 
         simpleUrls.forEach((url, index) => {
           const result = processBackground(url);
-          expect(result.isVideo).toBe(true);
+          // URLs without extensions default to .jpg, an image, not a video.
+          expect(result.isVideo).toBe(false);
           // URLs without extensions should use .jpg as default
           expect(result.url).toBe(`https://i.imgur.com/${expectedIds[index]}.jpg`);
         });
       });
 
-      it('preserves existing extensions in Imgur URLs', () => {
+      it('preserves existing extensions in Imgur URLs, and derives isVideo from them', () => {
         const testCases = [
-          { url: 'https://imgur.com/abc123.png', expectedUrl: 'https://i.imgur.com/abc123.png' },
-          { url: 'https://i.imgur.com/def456.gif', expectedUrl: 'https://i.imgur.com/def456.gif' },
-          { url: 'https://imgur.com/xyz789.webp', expectedUrl: 'https://i.imgur.com/xyz789.webp' },
+          {
+            url: 'https://imgur.com/abc123.png',
+            expectedUrl: 'https://i.imgur.com/abc123.png',
+            isVideo: false,
+          },
+          {
+            url: 'https://i.imgur.com/def456.gif',
+            expectedUrl: 'https://i.imgur.com/def456.gif',
+            isVideo: false,
+          },
+          {
+            url: 'https://imgur.com/xyz789.webp',
+            expectedUrl: 'https://i.imgur.com/xyz789.webp',
+            isVideo: false,
+          },
+          {
+            url: 'https://imgur.com/uvw321.mov',
+            expectedUrl: 'https://i.imgur.com/uvw321.mov',
+            isVideo: true,
+          },
         ];
 
-        testCases.forEach(({ url, expectedUrl }) => {
+        testCases.forEach(({ url, expectedUrl, isVideo }) => {
           const result = processBackground(url);
-          expect(result.isVideo).toBe(true);
+          expect(result.isVideo).toBe(isVideo);
           expect(result.url).toBe(expectedUrl);
         });
       });
@@ -185,7 +205,8 @@ describe('getBackgroundSource', () => {
 
         unparsableGalleryUrls.forEach((url) => {
           const result = processBackground(url);
-          expect(result.isVideo).toBe(true);
+          // No extension is present at all, so this cannot be classified as a video.
+          expect(result.isVideo).toBe(false);
           // Should return the original URL for graceful handling downstream
           expect(result.url).toBe(url);
         });

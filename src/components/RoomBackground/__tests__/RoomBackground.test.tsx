@@ -343,22 +343,20 @@ describe('RoomBackground', () => {
     });
   });
 
-  describe('imgur isVideo coupling (characterizes getBackgroundSource bug)', () => {
-    // processBackground() currently hardcodes isVideo=true for every imgur
-    // URL, including plain images. Because .jpg isn't in this component's own
-    // video-extension list, that mis-flagged pair routes to the iframe branch
-    // rather than either a <video> or a CSS backgroundImage — i.e. an imgur
-    // JPEG renders as an iframe today. This test pins that so the fix in
-    // getBackgroundSource.ts (imgur isVideo derived from the final extension)
-    // is a visible, intentional behaviour change rather than an accident.
-    it('renders a non-video imgur extension paired with isVideo=true as an iframe', () => {
-      const imgurJpgUrl = 'https://i.imgur.com/graysky.jpg';
-      render(<RoomBackground url={imgurJpgUrl} isVideo={true} />);
+  describe('imgur isVideo coupling (getBackgroundSource now derives isVideo from extension)', () => {
+    // getBackgroundSource used to hardcode isVideo=true for every imgur URL,
+    // including plain images, which made this component route a JPEG to its
+    // iframe branch. Now that isVideo is derived from the resolved imgur
+    // extension, a non-video imgur URL arrives here as isVideo=false and
+    // renders as a plain CSS background-image, like any other direct image.
+    it('renders a non-video imgur extension paired with isVideo=false as a background image', () => {
+      const imgurJpgUrl = 'https://i.imgur.com/abc123.jpg';
+      render(<RoomBackground url={imgurJpgUrl} isVideo={false} />);
 
-      const iframe = screen.getByTitle('video');
-      expect(iframe).toBeInTheDocument();
-      expect(iframe).toHaveAttribute('src', imgurJpgUrl);
-      expect(screen.queryByRole('presentation')?.querySelector('video')).not.toBeInTheDocument();
+      const container = screen.getByRole('presentation');
+      expect(container).toHaveStyle(`background-image: url(${imgurJpgUrl})`);
+      expect(screen.queryByTitle('video')).not.toBeInTheDocument();
+      expect(container.querySelector('video')).not.toBeInTheDocument();
     });
   });
 

@@ -315,6 +315,16 @@ function isDirectVideoUrl(url: string): boolean {
   return /\.(mp4|webm|ogg|mov)(\?.*)?$/.test(url);
 }
 
+// imgur() can resolve to any extension in its own allow-list (mp4, mov, avi,
+// webm, mkv, flv, wmv, jpg, jpeg, png, gif, webp, bmp, tiff, svg — see the
+// allow-list inside imgur() above), which is wider than isDirectVideoUrl's
+// generic set. isVideo has to be derived from that final resolved extension,
+// not inherited from the switch's isVideo=true default, or every imgur IMAGE
+// (jpg/png/gif/webp/...) gets mis-flagged as a video.
+function isImgurVideoExtension(url: string): boolean {
+  return /\.(mp4|mov|avi|webm|mkv|flv|wmv)(\?.*)?$/i.test(url);
+}
+
 function isDiscordMediaUrl(url: string): boolean {
   return isValidHost(url, ['media.discordapp.net', 'cdn.discordapp.com']) && !isDirectVideoUrl(url);
 }
@@ -364,6 +374,7 @@ export function processBackground(url: string | null | undefined): BackgroundRes
       break;
     case isValidHost(url, ['imgur.com', 'i.imgur.com']):
       embedUrl = imgur(url);
+      isVideo = embedUrl ? isImgurVideoExtension(embedUrl) : false;
       break;
     case isValidHost(url, ['tenor.com']): {
       const tenorResult = tenor(url);
