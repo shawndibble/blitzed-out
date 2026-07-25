@@ -165,12 +165,7 @@ export default function Cast() {
 
   if (!lastAction) {
     return (
-      <Box
-        className="flex-column cast-main-container"
-        style={{
-          backgroundImage: !isVideo && url ? `url(${url})` : 'none',
-        }}
-      >
+      <Box className="flex-column cast-main-container">
         {!!url && <RoomBackground url={url} isVideo={isVideo} />}
         {/* User interaction overlay - only when needed and positioned to not block video controls */}
         {needsUserInteraction && (
@@ -221,7 +216,6 @@ export default function Cast() {
       className="flex-column cast-main-container"
       onClick={needsUserInteraction ? handleUserInteraction : undefined}
       style={{
-        backgroundImage: !isVideo && url ? `url(${url})` : 'none',
         cursor: needsUserInteraction ? 'pointer' : 'default',
       }}
     >
