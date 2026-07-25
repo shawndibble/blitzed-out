@@ -126,6 +126,15 @@ export default function GameSettings(): JSX.Element {
     navigate(buildReturnToRoomUrl(room, resumeStep));
   }, [navigate, formData.room, roomParam, resumeStep]);
 
+  // A completed Update always shows the finished game — never resume the
+  // wizard, even if Advanced was reached via its "Advanced Setup" link (which
+  // left resumeStep in the URL for the Back button to carry). Only Back
+  // (returnToRoom, above) means "resume where I left off".
+  const goToRoomAfterSave = useCallback((): void => {
+    const room = (formData.room || roomParam || 'PUBLIC').toUpperCase();
+    navigate(buildReturnToRoomUrl(room, null));
+  }, [navigate, formData.room, roomParam]);
+
   const handleNavigate = useCallback((id: string): void => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
@@ -144,13 +153,13 @@ export default function GameSettings(): JSX.Element {
 
       try {
         await submitSettings(formData, actionsList);
-        returnToRoom();
+        goToRoomAfterSave();
       } catch {
         setAlert(t('settingsSaveError'));
       }
       return null;
     },
-    [formData, actionsList, t, setAlert, submitSettings, returnToRoom]
+    [formData, actionsList, t, setAlert, submitSettings, goToRoomAfterSave]
   );
 
   const handleDisplayNameBlur = useCallback(
