@@ -64,6 +64,7 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     { title, tiles }: { title: string; tiles: any[] },
     effectiveSettings = settings
   ) {
+    if (!user) return;
     const gameTileTitles = tiles.map(
       ({ title: tileTitle }: { title: string }) => `* ${tileTitle} \n`
     );

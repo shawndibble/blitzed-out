@@ -38,6 +38,7 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
+    if (!user) return;
     const text = value.trim();
     if (!text) return;
 
@@ -65,6 +66,7 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
   };
 
   const attachFile = async () => {
+    if (!user) return '';
     let image: CameraPhoto | '';
     try {
       image = await Camera.getPhoto({

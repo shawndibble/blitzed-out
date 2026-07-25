@@ -135,6 +135,9 @@ export default function usePlayerMove(
         console.error('Tile not found at location:', newLocation);
         return;
       }
+      if (!user) {
+        return;
+      }
       let message = '';
 
       // Determine which player name to use - local player if in local multiplayer mode, otherwise user

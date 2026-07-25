@@ -124,7 +124,7 @@ the persisted Shared Device topology.
 
 ## Room Realtime (`roomRealtime`)
 
-Controls presence update behavior for Individual Devices sessions. `true` = real-time (auto-disconnect on page leave). `false` = delayed (20-min server-side cleanup). User-facing option surfaced in Advanced Settings within the Individual Devices room selection step. Not relevant for Solo or Shared Device.
+Controls presence cleanup behavior for Individual Devices sessions, via `src/hooks/usePresence.ts`. `true` = real-time: Firebase `onDisconnect` removes the player the instant their tab/connection drops. `false` = delayed: the player lingers until the client-side staleness filter (`src/helpers/presence.ts`, 3 min PUBLIC / 5 min private) drops them from the roster, or the 20-min server-side cleanup function reaps the underlying record, whichever comes first. PUBLIC rooms always behave as real-time regardless of this setting. User-facing option surfaced in Advanced Settings within the Individual Devices room selection step (`RoomSection`). Not relevant for Solo or Shared Device.
 
 ---
 

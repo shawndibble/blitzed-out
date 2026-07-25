@@ -10,6 +10,7 @@ export default function useReturnToStart(): () => Promise<void> {
   const { user } = useAuth();
 
   const send = useCallback(async (): Promise<void> => {
+    if (!user) return;
     const message = `${t('restartingGame')}\n#1: ${t('start')}\n${t('action')}: ${t('start')}`;
 
     await sendMessage({

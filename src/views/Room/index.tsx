@@ -53,7 +53,7 @@ export default function Room() {
   const [isVideoSidebarOpen, setIsVideoSidebarOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(320);
 
-  usePresence(room);
+  usePresence(room, settings.roomRealtime);
 
   // Keeps the screen awake so gameplay controls and connections aren't interrupted
   // (Chromium-based browsers; controlled by settings.wakeLockEnabled)
