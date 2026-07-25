@@ -314,13 +314,22 @@ describe('getUserList', () => {
     expect(callback).not.toHaveBeenCalled();
   });
 
-  // Inverted: the old firebase.ts#getUserList took a 3rd `existingData` param
-  // and suppressed the callback when Object.keys(newData).sort().join(',')
-  // matched Object.keys(existingData).sort().join(','). That comparison is
-  // gone -- there is no 3rd parameter at all, and every snapshot is delivered,
-  // including a repeat of the exact same key set (the case that used to be
-  // suppressed and, worse, stayed suppressed for the rest of a session after
-  // any provider remount left a stale non-empty baseline in place).
+  // The old firebase.ts#getUserList took a 3rd `existingData` param, frozen for
+  // the lifetime of one subscription, and suppressed the callback whenever
+  // Object.keys(newData).sort().join(',') matched Object.keys(existingData).sort().join(',').
+  // That parameter is gone -- getUserList.length is 2, not 3 (see below).
+  //
+  // Note on what this specific test does and doesn't pin: with the deleted
+  // parameter defaulting to `{}`, a *fresh* 2-arg subscription against a
+  // populated room never matched that default baseline, so repeating the
+  // same key set on a brand-new subscription was never actually suppressed
+  // by the old code either -- the historical bug only fired when a *caller*
+  // supplied a non-empty baseline (UserListProvider's remount path; see
+  // src/context/__tests__/userListRemount.test.tsx for that reproduction,
+  // and the "room empties" test below for the one single-subscription shape
+  // that the old default *did* suppress). This test instead guards against a
+  // plausible future regression: a closure-local "only fire on key-set
+  // change" memo added directly inside getUserList to cut down re-renders.
   it('delivers every snapshot to the caller, including a repeat of the same key set', async () => {
     const { getUserList } = await import('../roomPresence');
     const callback = vi.fn();
@@ -337,16 +346,52 @@ describe('getUserList', () => {
     expect(callback).toHaveBeenCalledTimes(3);
   });
 
+  // Same rationale as the repeat test above: identical keys, different
+  // `lastSeen` values, on one continuously-running subscription. Guards
+  // against a closure-local memo that dedupes by key set only.
+  it('delivers the callback again on a lastSeen-only change (identical keys, different values)', async () => {
+    const { getUserList } = await import('../roomPresence');
+    const callback = vi.fn();
+    getUserList('ul-lastseen', callback);
+
+    rtdbCallback?.({
+      val: () => ({
+        alice: { room: 'UL-LASTSEEN', displayName: 'Alice', isAnonymous: false, lastSeen: 1_000 },
+      }),
+    });
+    rtdbCallback?.({
+      val: () => ({
+        alice: { room: 'UL-LASTSEEN', displayName: 'Alice', isAnonymous: false, lastSeen: 2_000 },
+      }),
+    });
+
+    expect(callback).toHaveBeenCalledTimes(2);
+    expect(callback).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ alice: expect.objectContaining({ lastSeen: new Date(2_000) }) })
+    );
+  });
+
+  // This is the one single-subscription shape the *historical* 3-arg
+  // default (`existingData = {}`) actually suppressed: Object.keys({}) is ''
+  // and an emptied room's roomUsers is also `{}` -> both key-strings are ''
+  // -> the old guard matched and swallowed the emptied-room callback even
+  // though nothing was ever passed explicitly. Two emissions on one 2-arg
+  // subscription: populated, then emptied.
   it('delivers an empty roster when the room empties, even though the global users node is still populated', async () => {
     const { getUserList } = await import('../roomPresence');
     const callback = vi.fn();
     getUserList('ul-emptied', callback);
 
     rtdbCallback?.({
+      val: () => ({ alice: { room: 'UL-EMPTIED', displayName: 'Alice', isAnonymous: false } }),
+    });
+    rtdbCallback?.({
       val: () => ({ alice: { room: 'OTHER-ROOM', displayName: 'Alice', isAnonymous: false } }),
     });
 
-    expect(callback).toHaveBeenCalledWith({});
+    expect(callback).toHaveBeenCalledTimes(2);
+    expect(callback).toHaveBeenNthCalledWith(2, {});
   });
 
   it('only takes (roomId, callback) -- no baseline parameter exists on the signature', async () => {
