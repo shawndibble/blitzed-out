@@ -79,10 +79,11 @@ export class SyncBase {
   /**
    * Create success result
    */
-  static createSuccessResult(itemsProcessed = 0): SyncResult {
+  static createSuccessResult(itemsProcessed = 0, changed = false): SyncResult {
     return {
       success: true,
       itemsProcessed,
+      changed,
     };
   }
 }

@@ -12,10 +12,6 @@ import 'fake-indexeddb/auto';
 // Mock syncService to prevent auth context errors - must be before other imports
 vi.mock('@/services/syncService', () => ({
   syncDataFromFirebase: () => Promise.resolve(true),
-  syncCustomTilesToFirebase: () => Promise.resolve(true),
-  syncCustomGroupsToFirebase: () => Promise.resolve(true),
-  syncGameBoardsToFirebase: () => Promise.resolve(true),
-  syncSettingsToFirebase: () => Promise.resolve(true),
   syncAllDataToFirebase: () => Promise.resolve(true),
   startPeriodicSync: () => {},
   stopPeriodicSync: () => {},

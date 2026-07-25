@@ -25,7 +25,6 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   wipeAllData: () => Promise<void>;
   syncData: () => Promise<boolean>;
-  intelligentSync: () => Promise<{ success: boolean; conflicts?: string[] }>;
   isAnonymous: boolean;
 }
 
@@ -46,7 +45,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   // Track if initial auth check is complete
   const authInitializedRef = useRef<boolean>(false);
 
-  const { syncStatus, syncData, intelligentSync: handleIntelligentSync } = useAuthSync(user);
+  const { syncStatus, syncData } = useAuthSync(user);
 
   async function login(displayName = ''): Promise<User | null> {
     try {
@@ -279,7 +278,6 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       logout: logoutUser,
       wipeAllData: wipeAllAppDataAndReload,
       syncData,
-      intelligentSync: handleIntelligentSync,
       isAnonymous: user?.isAnonymous || false,
     }),
     [
@@ -292,7 +290,6 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       logoutUser,
       wipeAllAppDataAndReload,
       syncData,
-      handleIntelligentSync,
     ]
   );
 

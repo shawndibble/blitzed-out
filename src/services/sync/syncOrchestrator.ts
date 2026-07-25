@@ -1,71 +1,77 @@
+/**
+ * Coordinates one sync cycle: read the cloud snapshot once, run every entity
+ * merge against it, then publish once if anything changed.
+ *
+ * The document itself belongs to `remoteUserData`; nothing here knows its field
+ * names, and nothing below here writes to it.
+ */
 import type { SyncOptions, SyncResult } from '@/types/sync';
-import { cleanupDuplicateTiles, syncAllDataToFirebase } from '../syncService';
+import type { RemoteUserData } from './remoteUserData';
+import { collectLocalUserData, readRemoteUserData, writeRemoteUserData } from './remoteUserData';
+import { cleanupDuplicateTiles } from './localCleanup';
 
 import { CustomGroupExtensionsSync } from './customGroupExtensionsSync';
 import { CustomGroupsSync } from './customGroupsSync';
-/**
- * Main sync orchestrator - coordinates all sync operations
- */
 import { CustomTilesSync } from './customTilesSync';
 import { DisabledDefaultsSync } from './disabledDefaultsSync';
 import { GameBoardsSync } from './gameBoardsSync';
 import { SettingsSync } from './settingsSync';
 import { SyncBase } from './base';
 
+const OPERATION_NAMES = [
+  'Custom Tiles',
+  'Custom Groups',
+  'Group Extensions',
+  'Disabled Defaults',
+  'Game Boards',
+  'Settings',
+];
+
 export class SyncOrchestrator extends SyncBase {
-  /**
-   * Main sync function - refactored from the original syncDataFromFirebase
-   */
   static async syncFromFirebase(options: SyncOptions = {}): Promise<boolean> {
     try {
       const user = this.getAuthenticatedUser();
-      const userDoc = await this.getUserDocument(user.uid);
+      const remote = await readRemoteUserData(user.uid);
 
-      if (!userDoc.exists()) {
-        return await syncAllDataToFirebase();
+      // No cloud document yet: this device's snapshot becomes the baseline.
+      if (!remote) {
+        return await this.publish(user.uid);
       }
-
-      const userData = userDoc.data();
 
       // Clean up any duplicate tiles first
       await cleanupDuplicateTiles();
 
       // Run all sync operations in parallel for better performance
-      const syncOperations = [
-        this.syncCustomTiles(userData, options),
-        this.syncCustomGroups(userData, options),
-        this.syncGroupExtensions(userData),
-        this.syncDisabledDefaults(userData),
-        this.syncGameBoards(userData),
-        this.syncSettings(userData),
-      ];
+      const results = await Promise.allSettled([
+        this.syncCustomTiles(remote, options),
+        this.syncCustomGroups(remote, options),
+        this.syncGroupExtensions(remote),
+        this.syncDisabledDefaults(remote),
+        this.syncGameBoards(remote),
+        this.syncSettings(remote),
+      ]);
 
-      const results = await Promise.allSettled(syncOperations);
-
-      // Check if all operations succeeded
       let totalSuccess = true;
+      let changed = false;
 
       results.forEach((result, index) => {
-        const operationNames = [
-          'Custom Tiles',
-          'Custom Groups',
-          'Group Extensions',
-          'Disabled Defaults',
-          'Game Boards',
-          'Settings',
-        ];
-
         if (result.status === 'fulfilled') {
-          const syncResult = result.value;
-          if (!syncResult.success) {
+          if (!result.value.success) {
             totalSuccess = false;
-            console.error(`❌ ${operationNames[index]} sync failed:`, syncResult.errors);
+            console.error(`❌ ${OPERATION_NAMES[index]} sync failed:`, result.value.errors);
           }
+          changed = changed || Boolean(result.value.changed);
         } else {
           totalSuccess = false;
-          console.error(`❌ ${operationNames[index]} sync rejected:`, result.reason);
+          console.error(`❌ ${OPERATION_NAMES[index]} sync rejected:`, result.reason);
         }
       });
+
+      // One write per cycle, after every merge has settled — a mid-merge push
+      // published a half-merged document and echoed back through the listener.
+      if (changed && !(await this.publish(user.uid))) {
+        totalSuccess = false;
+      }
 
       return totalSuccess;
     } catch (error) {
@@ -74,78 +80,59 @@ export class SyncOrchestrator extends SyncBase {
     }
   }
 
-  /**
-   * Sync custom tiles with error handling
-   */
-  private static async syncCustomTiles(userData: any, options: SyncOptions): Promise<SyncResult> {
-    if (userData.customTiles !== undefined) {
-      const tiles = userData.customTiles || [];
-
-      // Check if any are actually disabled defaults (this shouldn't happen)
-      const invalidTiles = tiles.filter((tile: any) => tile.isCustom === 0);
-      if (invalidTiles.length > 0) {
-        console.warn(
-          `⚠️ Found ${invalidTiles.length} default tiles in customTiles field - data corruption detected`
-        );
-      }
-
-      return await CustomTilesSync.syncFromFirebase(tiles, options);
+  private static async publish(uid: string): Promise<boolean> {
+    try {
+      await writeRemoteUserData(uid, await collectLocalUserData());
+      return true;
+    } catch (error) {
+      console.error('Error publishing user data:', error);
+      return false;
     }
-    return this.createSuccessResult(0);
   }
 
-  /**
-   * Sync custom groups with error handling
-   */
-  private static async syncCustomGroups(userData: any, options: SyncOptions): Promise<SyncResult> {
-    if (userData.customGroups !== undefined) {
-      return await CustomGroupsSync.syncFromFirebase(userData.customGroups || [], options);
-    }
-    return this.createSuccessResult(0);
-  }
+  private static async syncCustomTiles(
+    remote: RemoteUserData,
+    options: SyncOptions
+  ): Promise<SyncResult> {
+    if (remote.customTiles === undefined) return this.createSuccessResult(0);
 
-  /**
-   * Sync appended default-group intensity levels with error handling
-   */
-  private static async syncGroupExtensions(userData: any): Promise<SyncResult> {
-    if (userData.customGroupExtensions !== undefined) {
-      return await CustomGroupExtensionsSync.syncFromFirebase(userData.customGroupExtensions || []);
-    }
-    return this.createSuccessResult(0);
-  }
-
-  /**
-   * Sync disabled defaults with error handling. Prefers the per-record
-   * `disabledDefaultsV2` field, falling back to the legacy `disabledDefaults`
-   * array written by pre-V2 clients.
-   */
-  private static async syncDisabledDefaults(userData: any): Promise<SyncResult> {
-    if (userData.disabledDefaultsV2 !== undefined || userData.disabledDefaults !== undefined) {
-      return await DisabledDefaultsSync.syncFromFirebase(
-        userData.disabledDefaultsV2,
-        userData.disabledDefaults
+    const tiles = remote.customTiles;
+    // Disabled defaults live in their own field; one here means corrupt data.
+    const invalidTiles = tiles.filter((tile: any) => tile.isCustom === 0);
+    if (invalidTiles.length > 0) {
+      console.warn(
+        `⚠️ Found ${invalidTiles.length} default tiles in customTiles field - data corruption detected`
       );
     }
-    return this.createSuccessResult(0);
+
+    return await CustomTilesSync.syncFromFirebase(tiles, options);
   }
 
-  /**
-   * Sync game boards with error handling
-   */
-  private static async syncGameBoards(userData: any): Promise<SyncResult> {
-    if (userData.gameBoards !== undefined) {
-      return await GameBoardsSync.syncFromFirebase(userData.gameBoards);
-    }
-    return this.createSuccessResult(0);
+  private static async syncCustomGroups(
+    remote: RemoteUserData,
+    options: SyncOptions
+  ): Promise<SyncResult> {
+    if (remote.customGroups === undefined) return this.createSuccessResult(0);
+    return await CustomGroupsSync.syncFromFirebase(remote.customGroups, options);
   }
 
-  /**
-   * Sync settings with error handling
-   */
-  private static async syncSettings(userData: any): Promise<SyncResult> {
-    if (userData.settings !== undefined) {
-      return await SettingsSync.syncFromFirebase(userData.settings || {});
-    }
-    return this.createSuccessResult(0);
+  private static async syncGroupExtensions(remote: RemoteUserData): Promise<SyncResult> {
+    if (remote.groupExtensions === undefined) return this.createSuccessResult(0);
+    return await CustomGroupExtensionsSync.syncFromFirebase(remote.groupExtensions);
+  }
+
+  private static async syncDisabledDefaults(remote: RemoteUserData): Promise<SyncResult> {
+    if (remote.disabledDefaults === undefined) return this.createSuccessResult(0);
+    return await DisabledDefaultsSync.syncFromFirebase(remote.disabledDefaults);
+  }
+
+  private static async syncGameBoards(remote: RemoteUserData): Promise<SyncResult> {
+    if (remote.gameBoards === undefined) return this.createSuccessResult(0);
+    return await GameBoardsSync.syncFromFirebase(remote.gameBoards);
+  }
+
+  private static async syncSettings(remote: RemoteUserData): Promise<SyncResult> {
+    if (remote.settings === undefined) return this.createSuccessResult(0);
+    return await SettingsSync.syncFromFirebase(remote.settings);
   }
 }
