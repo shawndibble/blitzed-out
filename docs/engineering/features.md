@@ -141,9 +141,11 @@ Reddit subreddit slideshows were removed. They had relied on third-party CORS pr
 - **Room background:** stored in the room's `room`-type message; applied for users who opt into "use room background." **Private rooms** can carry a room background; **public rooms** fall back to default color tiles.
 - **Built-in theme contract:** `'color'` and `'gray'` are sentinels, not URLs — they select the app's built-in tile theme rather than any media. Both public entry points (`getBackgroundSource`, `getPrivateRoomBackground`) short-circuit these two literal values to their final result (`{url: '', isVideo: false}` for the Cast/private-room path; `{url: 'color' | 'gray', isVideo: false}` for the Room path) **before** the value is ever passed to `processBackground`. Do not let a sentinel reach `processBackground` — its `default:` branch runs unrecognized strings through `getURLPath`, which would turn `'color'` into the real-looking (and 404-ing) path `/images/color`. Consumers should match these sentinels with an exact string comparison (`url === 'color'`), never a substring test (`url.includes('color')`) — a substring test also matches real media URLs whose text happens to contain the word "color" or "gray" (e.g. `.../graysky.jpg`), which is a bug this contract exists to prevent from recurring.
 
-### Uploaded images — `src/components/MessageInput`, `uploadImage` (`firebase.ts:1016`)
+### Attached images — `src/components/MessageInput`
 
-Attach a photo to a chat message. On mobile, `@capacitor/camera` (`Camera.getPhoto`, base64, ~90% quality) captures it; a **5 MB** client cap is enforced. Images upload to **Firebase Storage** at `/images/{id}.{ext}` (rules: auth required, ≤5 MB, `image/*`, extension allowlist). Shared as `type: 'media'` messages.
+Attach a photo to a chat message. On mobile, `@capacitor/camera` (`Camera.getPhoto`, base64, ~90% quality) captures it; a **5 MB** client cap is enforced. The photo travels **inside the message** as `{ base64String, format }` (`type: 'media'`) and `MessageList/Message` renders it from that object — there is no Firebase Storage upload on this path. The Storage helper that used to do one (`uploadImage`) had no callers and was deleted; the Storage rules (auth required, ≤5 MB, `image/*`, extension allowlist) remain in place but nothing writes there.
+
+⚠️ **Known mismatch:** the client cap is 5 MB while a Firestore document is capped at ~1 MiB, so a large photo fails the write. Either re-wire this path to Storage or lower the cap — it is a product call, not yet made.
 
 ---
 
@@ -174,7 +176,7 @@ Attach a photo to a chat message. On mobile, `@capacitor/camera` (`Camera.getPho
 
 ## Messaging / chat — `src/stores/messagesStore`, `MessageList`, `MessageInput`
 
-Real-time messages backed by Firestore, mirrored into `messagesStore` (dedupes optimistic/duplicate IDs, sorts, clears entries >24h on rehydrate). Message `type ∈ {chat, actions, settings, room, media}`. List supports tab filtering (All/Settings/Chat/Actions) and jump-to-latest. Chat text is rendered with `react-markdown` (+ GFM + gemoji) — safe by default, no raw HTML. Photo attachments via the Storage flow above.
+Real-time messages backed by Firestore, mirrored into `messagesStore` (dedupes optimistic/duplicate IDs, sorts, clears entries >24h on rehydrate). Message `type ∈ {chat, actions, settings, room, media}`. List supports tab filtering (All/Settings/Chat/Actions) and jump-to-latest. Chat text is rendered with `react-markdown` (+ GFM + gemoji) — safe by default, no raw HTML. Photo attachments travel in the message (see above). `sendMessage` drops a message identical to the previous one **within 3 s**, which absorbs a double submit; it used to compare against an uncleared module global with no timestamp, so the second identical message in a room was dropped for the rest of the session.
 
 ---
 
