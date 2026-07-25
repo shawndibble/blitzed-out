@@ -1,7 +1,7 @@
 import { DocumentData, DocumentReference } from 'firebase/firestore';
 import { getOrCreateBoard, sendMessage } from './firebase';
 
-import { CustomTilePull } from '@/types/customTiles';
+import { CustomTilePull, GroupedActions } from '@/types/customTiles';
 import { Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
 import { User } from '@/types';
@@ -10,37 +10,31 @@ import i18next from 'i18next';
 import { usesSoloActions } from '@/helpers/strings';
 
 /**
- * Type guard to check if an object has a valid role property
- * @param obj - The object to check
- * @param role - The role key to look for
- * @returns true if obj is an object and has the role property
+ * A group's own wording for a role — Butt Play's "Top"/"Bottom", Ball Busting's
+ * "Buster"/"Bustee". Only the two sides carry bespoke wording (see
+ * `GroupRoleLabels`), so `vers` (Switch) always falls back to the generic label.
  */
-function isValidRole(obj: unknown, role: unknown): obj is Record<string, unknown> {
-  return obj !== null && typeof obj === 'object' && typeof role === 'string' && role in obj;
-}
-
-interface ActionsList {
-  [key: string]: {
-    label: string;
-    actions: Record<string, any>;
-    [key: string]: any;
-  };
+function groupRoleWording(group: GroupedActions[string], role: string): string | undefined {
+  if (role === 'dom') return group?.dom;
+  if (role === 'sub') return group?.sub;
+  return undefined;
 }
 
 async function getCustomTileCount(
   settings: Settings,
   customTiles: CustomTilePull[] | null | undefined,
-  actionsList: ActionsList
+  actionsList: GroupedActions
 ): Promise<number> {
   // Use selectedActions structure only
   const actionEntries = settings.selectedActions || {};
 
-  const settingsDataFolder = Object.entries(actionsList)
-    .filter(([key]) => actionEntries[key])
-    .reduce<Record<string, string[]>>((acc, [key, value]) => {
-      const levels = actionEntries[key].levels || [];
-      const actionKeys = Object.keys(value.actions);
-      acc[key] = levels.map((level) => actionKeys[level]).filter(Boolean);
+  // Selected level VALUES per group. Indexing `actions` by level would be off
+  // by one (keys are positions, levels are 1-based) and wrong outright for a
+  // sparse ladder.
+  const selectedLevelsByGroup = Object.keys(actionsList)
+    .filter((key) => actionEntries[key])
+    .reduce<Record<string, number[]>>((acc, key) => {
+      acc[key] = actionEntries[key].levels || [];
       return acc;
     }, {});
 
@@ -58,8 +52,7 @@ async function getCustomTileCount(
       const groupName = groupIdToName.get(entry.group_id || '');
       if (!groupName) return false;
 
-      const intensityArray = settingsDataFolder[groupName];
-      return intensityArray && intensityArray.length >= Number(entry.intensity);
+      return !!selectedLevelsByGroup[groupName]?.includes(Number(entry.intensity));
     }) || [];
 
   return usedCustomTiles.length;
@@ -68,7 +61,7 @@ async function getCustomTileCount(
 export async function getSettingsMessage(
   settings: Settings,
   customTiles: CustomTilePull[] | null | undefined,
-  actionsList: ActionsList,
+  actionsList: GroupedActions,
   reason?: string
 ): Promise<string> {
   const { t } = i18next;
@@ -96,9 +89,7 @@ export async function getSettingsMessage(
       if (variation) {
         modifier = t(variation);
       } else if (!usesSoloActions(settings.gameMode, settings.soloPlay)) {
-        modifier = isValidRole(val, actualRole)
-          ? (val[actualRole as string] as string)
-          : t(actualRole as string);
+        modifier = groupRoleWording(val, actualRole as string) ?? t(actualRole as string);
       }
 
       if (modifier) {
@@ -107,28 +98,13 @@ export async function getSettingsMessage(
 
       message += '\r\n';
 
-      // Get intensity names for selected levels
+      // Level VALUE → label. Never fall back to the position of a key in
+      // `actions`: a sparse ladder makes position and level disagree, and the
+      // catalog used to prepend a phantom level, which named every selected
+      // level one step too low.
       const intensityNames = val?.intensities || {};
       levels.forEach((level: number) => {
-        let levelName = intensityNames[level];
-
-        // If no intensity name found, try to get it from the actions object
-        if (!levelName && val?.actions && typeof val.actions === 'object') {
-          const actionKeys = Object.keys(val.actions);
-          // Action keys are ordered, with level corresponding to index
-          // Level 1 = index 0
-          const actionIndex = level - 1; // Convert 1-based level to 0-based index
-          if (actionIndex >= 0 && actionIndex < actionKeys.length) {
-            levelName = actionKeys[actionIndex];
-          }
-        }
-
-        // Final fallback to Level X
-        if (!levelName) {
-          levelName = `Level ${level}`;
-        }
-
-        message += `* ${levelName}\r\n`;
+        message += `* ${intensityNames[level] || `Level ${level}`}\r\n`;
       });
       message += '\r\n';
     }
@@ -242,7 +218,7 @@ interface SendMessageOptions {
   title: string;
   formData: Settings;
   user: User;
-  actionsList: ActionsList;
+  actionsList: GroupedActions;
   tiles: TileExport[];
   customTiles?: CustomTilePull[];
   reason?: string;

@@ -4,6 +4,7 @@ import { getAllAvailableGroups } from '@/stores/customGroups';
 import { getGroupsWithTiles, getTileCountsByGroup } from '@/stores/contentLibrary';
 import { deriveContentMode } from '@/stores/settingsStore';
 import { getGroupRoleLabels } from '@/services/groupRoleLabels';
+import { convertDexieGroupsToActions } from '@/services/dexieActionImport';
 import { GroupedActions } from '@/types/customTiles';
 
 interface UnifiedActionListResult {
@@ -103,30 +104,13 @@ export default function useUnifiedActionList(
         // groups without bespoke wording simply aren't in the map.
         const roleLabels = await getGroupRoleLabels(locale, contentGameMode);
 
-        // Convert groups to unified actions structure
-        const unifiedActions: GroupedActions = {};
+        // One catalog builder for every actions list, so the settings UI and the
+        // room's settings message can never disagree on level numbering.
+        const unifiedActions = convertDexieGroupsToActions(allGroups);
 
         for (const group of allGroups) {
-          const actions: Record<string, string[]> = {};
-
-          const intensities: Record<number, string> = {};
-
-          // Build intensities map from group data
-          if (group.intensities && Array.isArray(group.intensities)) {
-            group.intensities
-              .sort((a, b) => a.value - b.value)
-              .forEach((intensity) => {
-                actions[intensity.label] = [];
-                intensities[intensity.value] = intensity.label;
-              });
-          }
-
-          // Ensure each group has a proper label for Quick Start display
           unifiedActions[group.name] = {
-            label: group.label || group.name,
-            type: group.type || 'action',
-            actions,
-            intensities,
+            ...unifiedActions[group.name],
             usesRoleTokens: roleTokenGroupIds.has(group.id),
             ...roleLabels[group.name],
           };

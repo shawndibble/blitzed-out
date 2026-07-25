@@ -78,11 +78,7 @@ export const checkDataCompleteness = async (
       };
 
       if (expectedGroup?.actions) {
-        // Count expected intensities (excluding 'None')
-        const expectedIntensityKeys = Object.keys(expectedGroup.actions).filter(
-          (key) => key !== 'None'
-        );
-        groupDetail.expectedIntensities = expectedIntensityKeys.length;
+        groupDetail.expectedIntensities = Object.keys(expectedGroup.actions).length;
       }
 
       if (dexieGroup) {
