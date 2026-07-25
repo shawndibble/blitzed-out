@@ -77,11 +77,12 @@ export default function ActionsStep({
       ? 'sex'
       : 'foreplay';
 
-  // on load, purge invalid actions and protect pre-existing picks from the dial.
+  // on load, purge invalid actions. Pre-existing selections (resumed wizard
+  // state, defaults) start OUT of `customized` so the dial can still retune
+  // them — only a hand-edit (LevelSheet) or preset marks a group protected.
   useEffect(() => {
     const newFormData = purgedFormData(formData);
     setFormData(newFormData);
-    setCustomized(new Set(Object.keys(newFormData.selectedActions || {})));
   }, []);
 
   const optionsOf = (type: string) =>
