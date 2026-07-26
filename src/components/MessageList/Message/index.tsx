@@ -232,7 +232,21 @@ export default function Message({
           data-testid={`details-popover-${id}`}
         >
           <Box className="system-details-popover">
-            <div className="system-details-content">{markdownContent}</div>
+            <div className="system-details-content">
+              {/* Floats onto the heading line the markdown renders first, so the
+                  board's size reads as part of the title row. Comes from the
+                  message metadata, which every shared board carries. */}
+              {message.type === 'settings' && !!boardSize && (
+                <Typography
+                  variant="body2"
+                  className="system-details-size"
+                  data-testid={`board-size-${id}`}
+                >
+                  {t('tilesCount', { count: boardSize })}
+                </Typography>
+              )}
+              {markdownContent}
+            </div>
 
             {message.type === 'settings' && (
               <Box className="system-action-buttons">
@@ -256,7 +270,8 @@ export default function Message({
                     </Button>
                     <CopyToClipboard
                       text={importBoardUrl || ''}
-                      copiedText={t('copiedLink')}
+                      copiedText={t('copiedBoardLink')}
+                      tooltip={t('copyBoardLink')}
                       icon={<ShareIcon />}
                     />
                   </Box>
@@ -288,7 +303,8 @@ export default function Message({
                   </Typography>
                   <CopyToClipboard
                     text={window.location.href}
-                    copiedText={t('copiedLink')}
+                    copiedText={t('copiedRoomLink')}
+                    tooltip={t('copyRoomLink')}
                     icon={<ShareIcon />}
                   />
                 </Box>

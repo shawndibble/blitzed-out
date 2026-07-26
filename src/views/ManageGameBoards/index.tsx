@@ -80,7 +80,17 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
     // get finishRange from the last tile.
     const finishRange = getFinishRange(tiles);
     if (finishRange && finishRange.length === 3) {
-      message += `* ${t('finishSlider')} ${finishRange[0]}  | ${finishRange[1]} | ${finishRange[2]}`;
+      // Same label-then-sublist shape the settings message uses, so both render
+      // the same way in the details popover. The finish tile writes its
+      // percentages in this order (see `addStartAndFinishTiles`).
+      const outcomes = [t('noCum') as string, t('ruined') as string, t('cum') as string]
+        .map((label, index) => ({ label: label.replace(':', ''), percent: finishRange[index] }))
+        .filter(({ percent }) => parseInt(percent, 10) > 0);
+
+      message += `* ${t('finishSlider')} \n\n`;
+      outcomes.forEach(({ label, percent }) => {
+        message += `  - ${label} ${percent} \n`;
+      });
     }
 
     const gameBoard = await getOrCreateBoard({
