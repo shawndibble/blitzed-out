@@ -21,7 +21,7 @@
     "test:timing": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=verbose --config=vitest.ci.config.ts",
     "test:rules": "PATH=\"$(brew --prefix openjdk 2>/dev/null)/bin:$PATH\" firebase emulators:exec --only firestore --project demo-blitzed 'vitest run --config=vitest.rules.config.ts'",
     "type-check": "tsc --noEmit",
-    "cleanup:debug": "eslint --rule 'no-console: error' src/",
+    "cleanup:debug": "eslint src/ --ignore-pattern '**/*.test.ts' --ignore-pattern '**/*.test.tsx' --ignore-pattern '**/__tests__/**' --ignore-pattern 'src/setupTests.ts' --rule 'no-console: error'",
     "cleanup:comments": "eslint --rule 'no-warning-comments: [error, { terms: [todo, fixme, hack, bug], location: anywhere }]' src/",
     "validate:placeholders": "node scripts/validate-placeholders.cjs",
     "verify:pwa-build": "node scripts/verify-pwa-build.cjs"

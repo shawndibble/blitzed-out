@@ -4,6 +4,7 @@
  * These live below the sync modules rather than in `syncService` so the entity
  * syncs can use them without importing their own caller.
  */
+import { logger } from '@/utils/logger';
 import {
   deleteAllIsCustomTiles,
   deleteCustomTile,
@@ -54,7 +55,7 @@ export async function cleanupDuplicateTiles(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('Error cleaning up duplicate tiles:', error);
+    logger.error('Error cleaning up duplicate tiles:', error);
     return false;
   }
 }
@@ -74,7 +75,7 @@ export async function clearUserCustomGroups(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('Error deleting user custom groups:', error);
+    logger.error('Error deleting user custom groups:', error);
     return false;
   }
 }

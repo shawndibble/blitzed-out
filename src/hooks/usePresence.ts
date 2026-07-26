@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useEffect, useRef } from 'react';
 import { setMyPresence, startPresenceHeartbeat, removeMyPresence } from '@/services/roomPresence';
 import useAuth from '@/hooks/useAuth';
@@ -42,7 +43,7 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
           }
         })
         .catch((error) => {
-          console.error('Failed to set presence:', error);
+          logger.error('Failed to set presence:', error);
         });
     } else if (roomId && !stopHeartbeat) {
       stopHeartbeat = startPresenceHeartbeat();

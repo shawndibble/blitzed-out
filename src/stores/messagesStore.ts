@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Message, MessageType } from '@/types/Message';
@@ -191,7 +192,7 @@ export const useMessagesStore = create<MessagesStore>()(
               try {
                 const messageTime = parseMessageTimestamp(msg.timestamp);
                 if (!messageTime) {
-                  console.warn(
+                  logger.warn(
                     `Failed to parse timestamp for message ${msg.id}:`,
                     typeof msg.timestamp,
                     msg.timestamp
@@ -202,7 +203,7 @@ export const useMessagesStore = create<MessagesStore>()(
                 return messageTime > twentyFourHoursAgo;
               } catch (error) {
                 // Log specific error messages for debugging
-                console.warn(
+                logger.warn(
                   `Failed to parse message timestamp for message ID ${msg.id}:`,
                   (error as Error).message
                 );

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // Minimal auth context for initial load - no Firebase imports
@@ -36,7 +37,7 @@ export function MinimalAuthProvider({ children }: MinimalAuthProviderProps) {
         );
       } catch (error) {
         // Handle SecurityError in iOS Safari private browsing or restricted contexts
-        console.warn(
+        logger.warn(
           'Authentication check failed due to storage restrictions (e.g., private browsing mode):',
           error
         );

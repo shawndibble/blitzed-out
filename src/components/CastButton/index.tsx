@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { IconButton, Tooltip } from '@mui/material';
 import { Params, useParams } from 'react-router-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -36,7 +37,7 @@ export default function CastButton(): JSX.Element | null {
         const castUrl = buildCastUrl(window.location.origin, room ?? '');
         session.sendMessage(CAST_NAMESPACE, buildLoadMessage(castUrl));
       } catch (error) {
-        console.error('Error sending cast message:', error);
+        logger.error('Error sending cast message:', error);
       }
     },
     [room]
@@ -70,7 +71,7 @@ export default function CastButton(): JSX.Element | null {
         setCastReady(true);
         setupSessionListener();
       } catch (error) {
-        console.error('Error initializing Cast API:', error);
+        logger.error('Error initializing Cast API:', error);
       }
     };
 
@@ -127,7 +128,7 @@ export default function CastButton(): JSX.Element | null {
         // Store reference only after successful registration for cleanup
         sessionListenerRef.current = handleSessionStateChanged;
       } catch (error) {
-        console.error('Error setting up session listener:', error);
+        logger.error('Error setting up session listener:', error);
       }
     };
 
@@ -152,7 +153,7 @@ export default function CastButton(): JSX.Element | null {
         };
         script.onerror = () => {
           window.__castScriptLoading = false;
-          console.error('Failed to load Cast SDK');
+          logger.error('Failed to load Cast SDK');
         };
         document.head.appendChild(script);
       }
@@ -177,7 +178,7 @@ export default function CastButton(): JSX.Element | null {
   // Function to toggle casting
   const toggleCasting = () => {
     if (!castReady) {
-      console.warn('Cast API not ready yet');
+      logger.warn('Cast API not ready yet');
       return;
     }
 
@@ -209,10 +210,10 @@ export default function CastButton(): JSX.Element | null {
         if (castContext) {
           castContext
             .requestSession()
-            .catch((error: Error) => console.error('Error requesting cast session:', error));
+            .catch((error: Error) => logger.error('Error requesting cast session:', error));
         }
       } catch (error) {
-        console.error('Error requesting cast session:', error);
+        logger.error('Error requesting cast session:', error);
       }
     }
   };

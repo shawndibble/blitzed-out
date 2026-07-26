@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { changeLocale } from '@/services/locale';
 import {
   Box,
@@ -149,7 +150,7 @@ export default function MenuDrawer(): JSX.Element {
         setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
         toggleDialog('languageChange', true);
       } catch (error) {
-        if (import.meta.env.DEV) console.error('Error changing language:', error);
+        if (import.meta.env.DEV) logger.error('Error changing language:', error);
         // Seeding failed, but the switch itself should still land. Retry through
         // the same path rather than a hand-rolled copy of it.
         await changeLocale(newLanguage, { waitForPropagation: true }).catch(() => undefined);
@@ -171,7 +172,7 @@ export default function MenuDrawer(): JSX.Element {
           // Use the complete settings submission flow to rebuild board and generate message
           await submitSettings({ ...gameSettings, boardUpdated: true }, actionsList);
         } catch (error) {
-          if (import.meta.env.DEV) console.error('Error rebuilding board:', error);
+          if (import.meta.env.DEV) logger.error('Error rebuilding board:', error);
           // Fallback to simple board update
           updateSettings({ boardUpdated: true });
         }

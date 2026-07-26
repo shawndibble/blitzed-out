@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { latestMessageByType } from '@/helpers/messages';
 import useAuth from '@/hooks/useAuth';
 import useGameBoard from '@/hooks/useGameBoard';
@@ -149,7 +150,7 @@ export default function usePrivateRoomMonitor(
         }
       }
     } catch (error) {
-      console.error('Error processing room message:', error);
+      logger.error('Error processing room message:', error);
     }
   }, [messages, isLoading, room, user, gameBoard, rebuildGameBoard]);
 
@@ -199,7 +200,7 @@ export default function usePrivateRoomMonitor(
         setRoomBgUrl(settings.roomBackgroundURL);
       }
     } catch (error) {
-      console.error('Error in room change effect:', error);
+      logger.error('Error in room change effect:', error);
     }
   }, [room, settings, gameBoard, messages, isLoading, debouncedRoomChanged]);
 

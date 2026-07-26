@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useState, useEffect, useMemo } from 'react';
 import {
   FormControl,
@@ -41,7 +42,7 @@ export default function IntensitySelector({
         const groupIntensities = await getGroupIntensities(groupName, locale, gameMode);
         setIntensities(groupIntensities);
       } catch (error) {
-        console.error('Error loading group intensities:', error);
+        logger.error('Error loading group intensities:', error);
         setIntensities([]);
       } finally {
         setLoading(false);

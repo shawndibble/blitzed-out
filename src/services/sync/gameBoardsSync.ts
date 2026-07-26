@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import type { DBGameBoard } from '@/types/gameBoard';
 import { SyncBase } from './base';
 import type { SyncResult } from '@/types/sync';
@@ -54,7 +55,7 @@ export class GameBoardsSync extends SyncBase {
           });
           importedCount++;
         } catch (error) {
-          console.error('Error importing game board:', board, error);
+          logger.error('Error importing game board:', board, error);
         }
       }
 

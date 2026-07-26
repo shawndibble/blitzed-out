@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import {
   Box,
   Card,
@@ -115,7 +116,7 @@ export default function ViewCustomTiles({
           }
         }
       } catch (error) {
-        console.error('Error loading groups and counts:', error);
+        logger.error('Error loading groups and counts:', error);
       } finally {
         setLoading(false);
       }
@@ -169,7 +170,7 @@ export default function ViewCustomTiles({
           }, 300);
         }
       } catch (error) {
-        console.error('Error loading tiles:', error);
+        logger.error('Error loading tiles:', error);
         if (isMounted) {
           setLoading(false);
         }

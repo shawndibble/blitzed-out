@@ -1,6 +1,7 @@
 /**
  * Base utilities for sync operations
  */
+import { logger } from '@/utils/logger';
 import { getAuth } from 'firebase/auth';
 import type { SyncResult } from '@/types/sync';
 
@@ -41,7 +42,7 @@ export class SyncBase {
    * Handle sync operation errors consistently
    */
   static handleSyncError(operation: string, error: unknown): SyncResult {
-    console.error(`Error in ${operation}:`, error);
+    logger.error(`Error in ${operation}:`, error);
     return {
       success: false,
       errors: [error instanceof Error ? error.message : String(error)],

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { getRealtimeDb } from '@/services/firebase/app';
 import { DataSnapshot, get, onDisconnect, onValue, ref, remove, set } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
@@ -93,7 +94,7 @@ export async function setMyPresence({
       }
     }
   } catch (error) {
-    console.error('Error setting user presence:', error);
+    logger.error('Error setting user presence:', error);
     throw error;
   }
 }
@@ -126,7 +127,7 @@ export async function updatePresenceHeartbeat(): Promise<void> {
       await set(userRef, updatedData);
     }
   } catch (error) {
-    console.error('Error updating presence heartbeat:', error);
+    logger.error('Error updating presence heartbeat:', error);
   }
 }
 
@@ -147,7 +148,7 @@ export async function removeMyPresence(): Promise<void> {
   try {
     await remove(userRef);
   } catch (error) {
-    console.error('Error removing user presence:', error);
+    logger.error('Error removing user presence:', error);
   }
 }
 
@@ -211,7 +212,7 @@ export function getUserList(
       callback(roomUsers);
     },
     (error) => {
-      console.error('getUserList error', error);
+      logger.error('getUserList error', error);
     }
   );
 }

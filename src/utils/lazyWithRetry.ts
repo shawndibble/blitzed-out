@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { lazy, ComponentType } from 'react';
 
 /**
@@ -24,7 +25,7 @@ export const createRetryableLazy = (
           error instanceof TypeError &&
           error.message.includes('Failed to fetch dynamically imported module')
         ) {
-          console.warn(`Dynamic import failed (attempt ${attempt}/${retries}):`, error.message);
+          logger.warn(`Dynamic import failed (attempt ${attempt}/${retries}):`, error.message);
 
           if (attempt < retries) {
             // Wait before retrying with exponential backoff
@@ -32,7 +33,7 @@ export const createRetryableLazy = (
             return attemptImport(attempt + 1);
           } else {
             // Final attempt failed, trigger a page reload as fallback
-            console.error('All dynamic import attempts failed. Reloading page...');
+            logger.error('All dynamic import attempts failed. Reloading page...');
             if (!sessionStorage.getItem('dynamic_import_reload_attempted')) {
               sessionStorage.setItem('dynamic_import_reload_attempted', '1');
               setTimeout(() => window.location.reload(), 100);

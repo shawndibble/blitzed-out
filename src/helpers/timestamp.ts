@@ -3,6 +3,7 @@
  * @param timestamp - The timestamp to parse (Firebase Timestamp, string, number, object, or Date)
  * @returns Date object if parsing succeeds, null if it fails
  */
+import { logger } from '@/utils/logger';
 export function parseMessageTimestamp(timestamp: any): Date | null {
   if (!timestamp) {
     return null;
@@ -43,11 +44,11 @@ export function parseMessageTimestamp(timestamp: any): Date | null {
       return timestamp;
     } else {
       // Log the actual timestamp value for debugging
-      console.warn('Unsupported timestamp format:', typeof timestamp, timestamp);
+      logger.warn('Unsupported timestamp format:', typeof timestamp, timestamp);
       throw new Error(`Unsupported timestamp format: ${typeof timestamp}`);
     }
   } catch (error) {
-    console.warn('Failed to parse timestamp:', error);
+    logger.warn('Failed to parse timestamp:', error);
     return null;
   }
 }

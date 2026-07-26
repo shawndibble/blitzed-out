@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import {
   AllGameModeActions,
   CustomTile,
@@ -65,7 +66,7 @@ export default function CustomTileDialog({
           solo: onlineActions,
         });
       } catch (error) {
-        console.error('Error loading game mode actions:', error);
+        logger.error('Error loading game mode actions:', error);
       } finally {
         setIsLoadingActions(false);
       }

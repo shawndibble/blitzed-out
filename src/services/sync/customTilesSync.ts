@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import type { SyncOptions, SyncResult } from '@/types/sync';
 /**
  * Custom tiles synchronization logic
@@ -41,7 +42,7 @@ export class CustomTilesSync extends SyncBase {
         } catch (error) {
           // One bad row must not abort the whole sync (same per-tile isolation
           // as mergeConflicts/replaceLocal).
-          console.error('Error canonicalizing legacy local tile:', tile, error);
+          logger.error('Error canonicalizing legacy local tile:', tile, error);
         }
       }
 
@@ -79,13 +80,13 @@ export class CustomTilesSync extends SyncBase {
       try {
         // Only process actual custom tiles (isCustom: 1)
         if (tile.isCustom !== 1) {
-          console.warn(`Skipping non-custom tile in custom tiles sync: ${tile.action}`);
+          logger.warn(`Skipping non-custom tile in custom tiles sync: ${tile.action}`);
           continue;
         }
 
         // Validate tile has group_id (required for new sync system)
         if (!tile.group_id || !tile.group_id.trim()) {
-          console.error(
+          logger.error(
             `Tile missing group_id during sync: ${tile.action} (group_id: ${tile.group_id})`
           );
           throw new Error(`All tiles must have group_id for sync. Tile: ${tile.action}`);
@@ -115,7 +116,7 @@ export class CustomTilesSync extends SyncBase {
           addedCount++;
         }
       } catch (error) {
-        console.error('Error merging custom tile:', tile, error);
+        logger.error('Error merging custom tile:', tile, error);
       }
     }
 
@@ -140,13 +141,13 @@ export class CustomTilesSync extends SyncBase {
       try {
         // Only process actual custom tiles (isCustom: 1)
         if (tile.isCustom !== 1) {
-          console.warn(`Skipping non-custom tile in custom tiles sync: ${tile.action}`);
+          logger.warn(`Skipping non-custom tile in custom tiles sync: ${tile.action}`);
           continue;
         }
 
         // Validate tile has group_id (required for new sync system)
         if (!tile.group_id || !tile.group_id.trim()) {
-          console.error(
+          logger.error(
             `Tile missing group_id during import: ${tile.action} (group_id: ${tile.group_id})`
           );
           throw new Error(`All tiles must have group_id for sync. Tile: ${tile.action}`);
@@ -160,7 +161,7 @@ export class CustomTilesSync extends SyncBase {
           importedCount++;
         }
       } catch (error) {
-        console.error('Error importing custom tile:', tile, error);
+        logger.error('Error importing custom tile:', tile, error);
       }
     }
 

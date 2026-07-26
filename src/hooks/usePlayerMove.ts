@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sendMessage } from '@/services/firebase/chat';
@@ -102,7 +103,7 @@ export default function usePlayerMove(
       preMessage?: string
     ): Promise<void> => {
       if (!newTile) {
-        console.error('Tile not found at location:', newLocation);
+        logger.error('Tile not found at location:', newLocation);
         return;
       }
       if (!user) {
@@ -272,7 +273,7 @@ export default function usePlayerMove(
       currentTime <= lastRollTimeRef.current
     ) {
       if (typeof rollNumber !== 'number' || isNaN(rollNumber)) {
-        console.warn('Invalid rollNumber in useEffect:', rollNumber, 'rollValue:', rollValue);
+        logger.warn('Invalid rollNumber in useEffect:', rollNumber, 'rollValue:', rollValue);
       }
       return;
     }
@@ -283,7 +284,7 @@ export default function usePlayerMove(
 
     // Validate the new location
     if (typeof newLocation !== 'number' || isNaN(newLocation)) {
-      console.error('Invalid newLocation calculated:', newLocation, 'rollNumber:', rollNumber);
+      logger.error('Invalid newLocation calculated:', newLocation, 'rollNumber:', rollNumber);
       return;
     }
 
@@ -344,7 +345,7 @@ export default function usePlayerMove(
         }
       );
     } else {
-      console.error(
+      logger.error(
         `Invalid location or missing tile: ${newLocation}, gameBoard length: ${gameBoard.length}, tile exists:`,
         !!gameBoard[newLocation]
       );

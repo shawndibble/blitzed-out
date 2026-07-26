@@ -25,7 +25,7 @@ Keep these in sync when you change a subsystem. `docs/` is tracked in git.
 - `npm run test:ci` — all tests once (dot reporter, stops at 3 failures)
 - `npm test` — Vitest watch mode
 - `npm run lint` / `npm run format` — ESLint (whole project) / Prettier
-- `npm run cleanup:debug` — fail on `console.*` (no-console rule)
+- `npm run cleanup:debug` — fail on `console.*` in production sources (tests exempt). `no-console` is also on in `eslint.config.js`, so `npm run lint` catches it too
 - `npm run deploy` — GitHub Pages (→ master)
 
 **Pre-commit quality**: `npm run type-check && npx eslint src/ && npm run test:failures`
@@ -110,5 +110,5 @@ Custom-tile placeholder tokens are stored canonical English; localized aliases (
 
 - Remove unused vars/code entirely. No commenting out.
 - Avoid adding comments for removed or replaced code.
-- For production, disable logging; reserve console output for troubleshooting.
+- **Log through `logger` (`@/utils/logger`), never `console.*`.** It is the app's only console writer and is silent in production. Direct console calls are a lint error outside tests. `logger` deliberately does NOT forward to Sentry: these calls pass the payload that failed (tiles, chat messages, display names), which is user-authored intimate content — crash reporting happens at the boundary instead.
 - Comments explain WHY not what. Let function/variable names document what.

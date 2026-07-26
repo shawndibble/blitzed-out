@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { getURLPath } from '@/helpers/urls';
 import { isPublicRoom } from '@/helpers/strings';
 
@@ -202,7 +203,7 @@ function imgur(url: string): string {
     }
   } catch (error) {
     // If URL parsing fails, skip Discord proxy check for security
-    console.debug('URL parsing failed for Discord proxy check:', error);
+    logger.debug('URL parsing failed for Discord proxy check:', error);
   }
 
   // Check if URL is already a direct i.imgur.com link with parameters or extension and return unchanged
@@ -216,7 +217,7 @@ function imgur(url: string): string {
       // If it's a bare i.imgur.com URL without extension or parameters, continue processing
     }
   } catch (error) {
-    console.debug('URL parsing failed for direct link check:', error);
+    logger.debug('URL parsing failed for direct link check:', error);
   }
 
   // Validate that this is actually an Imgur URL for security
@@ -226,7 +227,7 @@ function imgur(url: string): string {
     isImgur = parsed.host === 'imgur.com' || parsed.host === 'i.imgur.com';
   } catch (error) {
     // If URL parsing failed, skip processing for security
-    console.debug('URL parsing failed for Imgur processing:', error);
+    logger.debug('URL parsing failed for Imgur processing:', error);
     return '';
   }
 
@@ -256,7 +257,7 @@ function imgur(url: string): string {
         imgurId = pathMatch[1];
       } else {
         // If we can't extract an ID, return the original URL for graceful handling
-        console.debug('Could not extract image ID from gallery URL, returning original:', url);
+        logger.debug('Could not extract image ID from gallery URL, returning original:', url);
         return url;
       }
     }
@@ -333,7 +334,7 @@ function isValidHost(url: string, allowedHosts: string[]): boolean {
     return allowedHosts.some((host) => parsed.host === host || parsed.host.endsWith('.' + host));
   } catch (error) {
     // If URL parsing fails, reject for security
-    console.debug('URL parsing failed in isValidHost, rejecting for security:', error);
+    logger.debug('URL parsing failed in isValidHost, rejecting for security:', error);
     return false;
   }
 }

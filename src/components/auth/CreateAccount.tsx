@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
@@ -38,7 +39,7 @@ export default function CreateAccount({
       await registerWithEmail(email?.trim(), password, displayName?.trim());
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      console.error('Registration error:', err);
+      logger.error('Registration error:', err);
       setError(err.message || 'Failed to create account');
     } finally {
       setLoading(false);

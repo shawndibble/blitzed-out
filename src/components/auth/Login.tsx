@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
@@ -31,7 +32,7 @@ export default function Login({
       await loginWithEmail(email, password);
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      console.error('Login error:', err);
+      logger.error('Login error:', err);
       setError(err.message || 'Failed to sign in');
     } finally {
       setLoading(false);

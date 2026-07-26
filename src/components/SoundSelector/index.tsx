@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import {
   FormControl,
   InputLabel,
@@ -31,10 +32,10 @@ export default function SoundSelector({
       try {
         const success = await playSound(sound);
         if (!success) {
-          console.error('Failed to play sound');
+          logger.error('Failed to play sound');
         }
       } catch (error) {
-        console.error('Failed to play sound:', error);
+        logger.error('Failed to play sound:', error);
       }
     }
   };

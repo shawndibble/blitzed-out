@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { tts } from './tts';
 
 export default async function speak(
@@ -8,7 +9,7 @@ export default async function speak(
   try {
     await tts.speak(message, voicePreference, pitch);
   } catch (error) {
-    console.error('TTS failed:', error);
+    logger.error('TTS failed:', error);
     // Don't throw - just log the error to maintain backward compatibility
   }
 }

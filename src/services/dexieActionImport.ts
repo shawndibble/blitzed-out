@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { CustomGroupPull } from '@/types/customGroups';
 import { GroupedActions } from '@/types/customTiles';
@@ -48,7 +49,7 @@ export const importActions = async (
     const groups = await getAllAvailableGroups(locale, gameMode);
     return convertDexieGroupsToActions(groups);
   } catch (error) {
-    console.error('Error importing actions from Dexie:', error);
+    logger.error('Error importing actions from Dexie:', error);
     return {};
   }
 };

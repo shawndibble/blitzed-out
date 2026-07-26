@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { currentLocale } from '@/services/locale';
 import { Collection, Table } from 'dexie';
 import {
@@ -91,11 +92,11 @@ export const getCustomGroups = async (
         return arrayData.sort((a, b) => a.name.localeCompare(b.name));
       },
       (message: string, error?: Error) => {
-        console.error(`Error in getCustomGroups: ${message}`, error);
+        logger.error(`Error in getCustomGroups: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in getCustomGroups:', error);
+    logger.error('Final error in getCustomGroups:', error);
     return [];
   }
 };
@@ -122,7 +123,7 @@ export const getCustomGroup = async (id: string): Promise<CustomGroupPull | unde
   try {
     return await customGroups.get(id);
   } catch (error) {
-    console.error('Error in getCustomGroup:', error);
+    logger.error('Error in getCustomGroup:', error);
     return undefined;
   }
 };
@@ -142,7 +143,7 @@ export const getCustomGroupByName = async (
       .and((group) => group.locale === locale && group.gameMode === gameMode)
       .first();
   } catch (error) {
-    console.error('Error in getCustomGroupByName:', error);
+    logger.error('Error in getCustomGroupByName:', error);
     return undefined;
   }
 };
@@ -171,11 +172,11 @@ export const addCustomGroup = async (group: CustomGroupBase): Promise<string | u
         return id;
       },
       (message: string, error?: Error) => {
-        console.error(`Error in addCustomGroup: ${message}`, error);
+        logger.error(`Error in addCustomGroup: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in addCustomGroup:', error);
+    logger.error('Final error in addCustomGroup:', error);
     return undefined;
   }
 };
@@ -203,7 +204,7 @@ export const updateCustomGroup = async (
 
     return result;
   } catch (error) {
-    console.error('Error in updateCustomGroup:', error);
+    logger.error('Error in updateCustomGroup:', error);
     return 0;
   }
 };
@@ -216,7 +217,7 @@ export const deleteAllCustomGroups = async (): Promise<boolean> => {
     await customGroups.clear();
     return true;
   } catch (error) {
-    console.error('Error deleting all custom groups:', error);
+    logger.error('Error deleting all custom groups:', error);
     return false;
   }
 };
@@ -248,7 +249,7 @@ export const importCustomGroups = async (
     // so a matching id is the same logical group — overwriting is correct, not collision.
     return await customGroups.bulkPut(groupsWithAllFields);
   } catch (error) {
-    console.error('Error in importCustomGroups:', error);
+    logger.error('Error in importCustomGroups:', error);
     return undefined;
   }
 };
@@ -274,7 +275,7 @@ export const createDefaultGroups = async (
     // Return empty array - migration will handle creating groups
     return [];
   } catch (error) {
-    console.error('Error creating default groups:', error);
+    logger.error('Error creating default groups:', error);
     return [];
   }
 };
@@ -291,7 +292,7 @@ export const getGroupIntensities = async (
     const group = await getCustomGroupByName(groupName, locale, gameMode);
     return group?.intensities || [];
   } catch (error) {
-    console.error('Error in getGroupIntensities:', error);
+    logger.error('Error in getGroupIntensities:', error);
     return [];
   }
 };
@@ -311,7 +312,7 @@ export const isGroupNameUnique = async (
     if (excludeId && existingGroup.id === excludeId) return true;
     return false;
   } catch (error) {
-    console.error('Error in isGroupNameUnique:', error);
+    logger.error('Error in isGroupNameUnique:', error);
     return false;
   }
 };
@@ -350,7 +351,7 @@ export const getAllAvailableGroups = async (
 
     return uniqueGroups;
   } catch (error) {
-    console.error('❌ getAllAvailableGroups: Database error', {
+    logger.error('❌ getAllAvailableGroups: Database error', {
       locale,
       gameMode,
       error,
@@ -358,7 +359,7 @@ export const getAllAvailableGroups = async (
 
     // If it's a cursor error, provide better error context
     if (error instanceof Error && error.message.includes('cursor')) {
-      console.warn(
+      logger.warn(
         'Database cursor error in getAllAvailableGroups, returning empty array to prevent crash'
       );
     }
@@ -383,7 +384,7 @@ export const getActionGroupsForMode = async (
     const groups = await getCustomGroups({ locale, gameMode, isDefault: true });
     return groups.map((g) => g.name).sort();
   } catch (error) {
-    console.error('Error getting action groups for mode:', error);
+    logger.error('Error getting action groups for mode:', error);
     return [];
   }
 };
@@ -397,7 +398,7 @@ export const getAllActionGroupNames = async (): Promise<string[]> => {
     const groupNames = [...new Set(groups.map((g) => g.name))].sort();
     return groupNames;
   } catch (error) {
-    console.error('Error getting all action group names:', error);
+    logger.error('Error getting all action group names:', error);
     return [];
   }
 };
@@ -439,7 +440,7 @@ export const getGroupAvailability = async (): Promise<
         groupData.gameModes.add(group.gameMode);
         groupData.combinations.push({ locale: group.locale, gameMode: group.gameMode });
       } else {
-        console.error(`Unexpected error: group data not found for group: ${group.name}`);
+        logger.error(`Unexpected error: group data not found for group: ${group.name}`);
       }
     });
 
@@ -452,7 +453,7 @@ export const getGroupAvailability = async (): Promise<
       }))
       .sort((a, b) => a.groupName.localeCompare(b.groupName));
   } catch (error) {
-    console.error('Error getting group availability:', error);
+    logger.error('Error getting group availability:', error);
     return [];
   }
 };

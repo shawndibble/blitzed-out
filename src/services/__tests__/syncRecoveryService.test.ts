@@ -10,6 +10,7 @@ import { forceFreshMigration } from '@/services/migration';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
 import { safeLocalStorage } from '@/services/migration/errorHandling';
+import { logger } from '@/utils/logger';
 
 // Mock dependencies
 vi.mock('@/stores/customTiles');
@@ -133,7 +134,7 @@ describe('syncRecoveryService', () => {
 
       expect(result).toBe(false);
       expect(forceFreshMigration).not.toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         expect.stringContaining('[Sync Recovery] Error detecting corruption:'),
         expect.any(Error)
       );
@@ -153,7 +154,7 @@ describe('syncRecoveryService', () => {
       const result = await runSyncRecovery();
 
       expect(result).toBe(false);
-      expect(console.error).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         expect.stringContaining('[Sync Recovery] Error during recovery:'),
         expect.any(Error)
       );

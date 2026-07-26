@@ -8,6 +8,7 @@
 
 // Safari IndexedDB stabilization delays (in milliseconds)
 // Safari requires time for IndexedDB to stabilize after connection loss
+import { logger as appLogger } from '@/utils/logger';
 const SAFARI_IDB_STABILIZE_DELAY_MS = 100;
 // Additional delay after reopening to ensure connection is stable before retry
 const SAFARI_IDB_POST_OPEN_DELAY_MS = 50;
@@ -141,7 +142,7 @@ export async function retryOnCursorError<T>(
   const log =
     logger ||
     ((message: string, error?: Error) => {
-      console.error(message, error);
+      appLogger.error(message, error);
     });
 
   try {

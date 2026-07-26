@@ -6,6 +6,7 @@
  * and trigger recovery through migration system.
  */
 
+import { logger } from '@/utils/logger';
 import { forceFreshMigration } from '@/services/migration';
 import { getCustomGroups } from '@/stores/customGroups';
 import { getTiles } from '@/stores/customTiles';
@@ -61,7 +62,7 @@ export async function runSyncRecovery(): Promise<boolean> {
         return false;
       }
     } catch (error) {
-      console.error('[Sync Recovery] Error during recovery:', error);
+      logger.error('[Sync Recovery] Error during recovery:', error);
       return false;
     } finally {
       // Clear the in-flight promise so future calls can run
@@ -100,7 +101,7 @@ async function detectDatabaseCorruption(): Promise<boolean> {
 
     // Analysis for debugging in development
     if (process.env.NODE_ENV === 'development') {
-      console.debug('[Sync Recovery] Corruption analysis:', {
+      logger.debug('[Sync Recovery] Corruption analysis:', {
         defaultGroups: defaultGroups.length,
         totalTiles: totalTileCount,
         enabledDefaults: enabledDefaults.length,
@@ -112,7 +113,7 @@ async function detectDatabaseCorruption(): Promise<boolean> {
     // If 2 or more indicators, likely corrupted
     return corruptionScore >= 2;
   } catch (error) {
-    console.error('[Sync Recovery] Error detecting corruption:', error);
+    logger.error('[Sync Recovery] Error detecting corruption:', error);
     return false; // Don't trigger recovery if we can't detect properly
   }
 }

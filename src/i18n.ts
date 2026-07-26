@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import i18next, { InitOptions } from 'i18next';
 
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -67,7 +68,7 @@ i18n
                 Array.isArray(i18n.options.supportedLngs) &&
                 i18n.options.supportedLngs.includes(lang)
               ) {
-                i18n.loadLanguages(lang).catch(console.warn);
+                i18n.loadLanguages(lang).catch(logger.warn);
               }
             });
           },
@@ -82,7 +83,7 @@ i18n
               Array.isArray(i18n.options.supportedLngs) &&
               i18n.options.supportedLngs.includes(lang)
             ) {
-              i18n.loadLanguages(lang).catch(console.warn);
+              i18n.loadLanguages(lang).catch(logger.warn);
             }
           });
         }, LANGUAGE_PRELOAD_TIMEOUT); // Load other languages after timeout
@@ -92,6 +93,6 @@ i18n
     // Delay language preloading to prioritize app startup
     scheduleLanguagePreloading();
   })
-  .catch(console.error);
+  .catch(logger.error);
 
 export default i18n;

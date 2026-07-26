@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import type { SyncOptions, SyncResult } from '@/types/sync';
 import { clearUserCustomGroups } from './localCleanup';
 /**
@@ -62,7 +63,7 @@ export class CustomGroupsSync extends SyncBase {
           addedCount++;
         }
       } catch (error) {
-        console.error('Error merging custom group:', group, error);
+        logger.error('Error merging custom group:', group, error);
       }
     }
 
@@ -82,7 +83,7 @@ export class CustomGroupsSync extends SyncBase {
 
       return this.createSuccessResult(firebaseGroups.length);
     } catch (error) {
-      console.error('Error importing custom groups:', error);
+      logger.error('Error importing custom groups:', error);
       return this.handleSyncError('groups import', error);
     }
   }

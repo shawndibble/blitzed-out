@@ -5,6 +5,7 @@
  * The document itself belongs to `remoteUserData`; nothing here knows its field
  * names, and nothing below here writes to it.
  */
+import { logger } from '@/utils/logger';
 import type { SyncOptions, SyncResult } from '@/types/sync';
 import type { RemoteUserData } from './remoteUserData';
 import { collectLocalUserData, readRemoteUserData, writeRemoteUserData } from './remoteUserData';
@@ -58,12 +59,12 @@ export class SyncOrchestrator extends SyncBase {
         if (result.status === 'fulfilled') {
           if (!result.value.success) {
             totalSuccess = false;
-            console.error(`❌ ${OPERATION_NAMES[index]} sync failed:`, result.value.errors);
+            logger.error(`❌ ${OPERATION_NAMES[index]} sync failed:`, result.value.errors);
           }
           changed = changed || Boolean(result.value.changed);
         } else {
           totalSuccess = false;
-          console.error(`❌ ${OPERATION_NAMES[index]} sync rejected:`, result.reason);
+          logger.error(`❌ ${OPERATION_NAMES[index]} sync rejected:`, result.reason);
         }
       });
 
@@ -75,7 +76,7 @@ export class SyncOrchestrator extends SyncBase {
 
       return totalSuccess;
     } catch (error) {
-      console.error('Error in sync orchestrator:', error);
+      logger.error('Error in sync orchestrator:', error);
       return false;
     }
   }
@@ -85,7 +86,7 @@ export class SyncOrchestrator extends SyncBase {
       await writeRemoteUserData(uid, await collectLocalUserData(), remote);
       return true;
     } catch (error) {
-      console.error('Error publishing user data:', error);
+      logger.error('Error publishing user data:', error);
       return false;
     }
   }
@@ -100,7 +101,7 @@ export class SyncOrchestrator extends SyncBase {
     // Disabled defaults live in their own field; one here means corrupt data.
     const invalidTiles = tiles.filter((tile: any) => tile.isCustom === 0);
     if (invalidTiles.length > 0) {
-      console.warn(
+      logger.warn(
         `⚠️ Found ${invalidTiles.length} default tiles in customTiles field - data corruption detected`
       );
     }

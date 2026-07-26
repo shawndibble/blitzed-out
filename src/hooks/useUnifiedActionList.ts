@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAllAvailableGroups } from '@/stores/customGroups';
@@ -121,7 +122,7 @@ export default function useUnifiedActionList(
           setLoadedGameMode(gameMode);
         }
       } catch (error) {
-        console.error('Error loading unified actions:', {
+        logger.error('Error loading unified actions:', {
           error,
           locale: i18n.resolvedLanguage,
           gameMode,
