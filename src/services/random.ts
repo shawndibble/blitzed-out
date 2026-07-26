@@ -8,7 +8,21 @@
  */
 export type RandomSource = () => number;
 
-let source: RandomSource = Math.random;
+/**
+ * Drawn from the platform CSPRNG rather than `Math.random`. Gameplay does not
+ * need cryptographic strength, but this file is the single source for every
+ * random value in the app, and one of its consumers substitutes text the scanner
+ * reads as a security context (`js/insecure-randomness`). A uniform draw from
+ * `getRandomValues` costs nothing here and keeps the seam above suspicion.
+ */
+function platformRandom(): number {
+  const buffer = new Uint32Array(1);
+  globalThis.crypto.getRandomValues(buffer);
+  // 2**32 divisor keeps the result in [0, 1), matching Math.random's range.
+  return buffer[0] / 4_294_967_296;
+}
+
+let source: RandomSource = platformRandom;
 
 /** A float in [0, 1). */
 export function nextRandom(): number {
