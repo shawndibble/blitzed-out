@@ -93,14 +93,26 @@ describe('onLocaleChange', () => {
 });
 
 describe('the shipped language list', () => {
-  it('matches i18next config and the locale directories', async () => {
+  it('matches the locale directories on disk and the language registry', async () => {
     const { SUPPORTED_LANGUAGES } = await import('@/services/migration/constants');
     const languages = (await import('@/locales/languages.json')).default;
 
+    // The directories are the ground truth: a locale exists when its files do.
+    // (i18n.ts is not imported here — importing it boots i18next, backends and
+    // detectors as a side effect.) Keep i18n.ts's `supportedLngs` in step by hand;
+    // CLAUDE.md lists all three places a new language must be added.
+    const onDisk = Object.keys(
+      import.meta.glob('/src/locales/*/translation.json', { eager: false })
+    )
+      .map((path) => path.split('/')[3])
+      .sort();
+
+    expect(onDisk.length).toBeGreaterThan(0);
+    expect([...SUPPORTED_LANGUAGES].sort()).toEqual(onDisk);
+    expect(Object.keys(languages).sort()).toEqual(onDisk);
     // German shipped in i18n.ts, in src/locales/de and in languages.json, but not
-    // here — so export/pack locale filters and browser detection silently treated
-    // German as unsupported. Keep the lists tied together.
-    expect([...SUPPORTED_LANGUAGES].sort()).toEqual(Object.keys(languages).sort());
+    // in SUPPORTED_LANGUAGES — so export/pack locale filters and browser
+    // detection silently treated German as unsupported.
     expect(SUPPORTED_LANGUAGES).toContain('de');
   });
 });

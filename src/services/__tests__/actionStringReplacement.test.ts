@@ -333,6 +333,45 @@ describe('actionStringReplacement', () => {
     });
   });
 
+  describe('the vers coin-flip outside local multiplayer', () => {
+    let restore: (() => void) | undefined;
+
+    afterEach(() => {
+      restore?.();
+      restore = undefined;
+    });
+
+    it('names the vers player as dom when the coin lands under half', () => {
+      restore = setRandomSource(sequenceSource([0.49]));
+
+      const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat');
+
+      // Outside local multiplayer the other role has no roster to draw from, so
+      // it falls back to the generic term rather than leaking a raw token.
+      expect(result).toBe('Pat touches another player.');
+    });
+
+    it('names the vers player as sub when the coin lands at or above half', () => {
+      restore = setRandomSource(sequenceSource([0.5]));
+
+      const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat');
+
+      expect(result).toBe('Another player touches Pat.');
+    });
+
+    it('reuses one draw for both role checks in a single action', () => {
+      // Two draws would let {dom} and {sub} both resolve to the same player, or
+      // neither: the second value decides the second check.
+      restore = setRandomSource(sequenceSource([0.49, 0.5]));
+
+      const result = actionStringReplacement('{dom} rewards {sub}.', 'vers', 'Pat');
+
+      // 0.49 makes Pat the dom. A second draw (0.5) would also make {sub} match,
+      // naming Pat twice.
+      expect(result).toBe('Pat rewards another player.');
+    });
+  });
+
   describe('online/solo mode', () => {
     it('replaces anatomy placeholders with provided gender (male)', () => {
       const result = actionStringReplacement(

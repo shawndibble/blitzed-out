@@ -1,8 +1,8 @@
 /**
  * Private room codes.
  *
- * The alphabet excludes 0/O/1/I so a code read aloud or typed from a screenshot
- * can't land in the wrong room. Four surfaces used to declare this generator
+ * The alphabet excludes 0, O and I so a code read aloud or typed from a
+ * screenshot can't land in the wrong room. Four surfaces used to declare this generator
  * verbatim — the wizard's topology and finish steps, the settings page and its
  * room section — which is four places for the alphabet to drift.
  */

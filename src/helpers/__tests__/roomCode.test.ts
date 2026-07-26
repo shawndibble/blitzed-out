@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ROOM_CODE_LENGTH, generateRoomCode } from '../roomCode';
+import { generateRoomCode } from '../roomCode';
 
 describe('generateRoomCode', () => {
   it('produces a five-character code', () => {
-    expect(generateRoomCode()).toHaveLength(ROOM_CODE_LENGTH);
+    // The literal, not the constant: five characters is what users type and what
+    // every share link already in the wild carries.
+    expect(generateRoomCode()).toHaveLength(5);
   });
 
   it('never emits the characters users mistype when sharing a code', () => {

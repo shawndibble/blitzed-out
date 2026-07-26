@@ -217,10 +217,9 @@ export default function usePlayerMove(
   // The rules themselves live in `helpers/turnLocation` — pure, no React.
   const getNewLocation = useCallback(
     (rollNumber: number): LocationResult => {
-      if (!isUsableRoll(rollNumber)) {
-        return { newLocation: 0, kind: 'normal' };
-      }
-
+      // An unusable roll is resolveLocation's business: it answers with the
+      // position the player already occupies, which needs that position read
+      // first — so no early return here.
       // A local player's position is authoritative for that player; everyone
       // else's — including this device's own remote player — is derived from
       // their newest action message, which is exactly what the roster reads too.

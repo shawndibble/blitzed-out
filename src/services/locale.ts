@@ -12,6 +12,7 @@
  * owns the mirror, so it cannot go stale by construction.
  */
 import i18next from 'i18next';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from './migration/constants';
 
 export const FALLBACK_LOCALE = 'en';
@@ -76,9 +77,6 @@ export async function changeLocale(
   const propagated = options.waitForPropagation ? awaitLanguageChanged() : Promise.resolve();
 
   await i18next.changeLanguage(next);
-  // Import lazily: the settings store pulls in Dexie, and this module is read by
-  // services that must not drag persistence in behind them.
-  const { useSettingsStore } = await import('@/stores/settingsStore');
   useSettingsStore.getState().setLocale(currentLocale());
 
   await propagated;

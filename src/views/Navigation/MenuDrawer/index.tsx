@@ -151,12 +151,17 @@ export default function MenuDrawer(): JSX.Element {
         toggleDialog('languageChange', true);
       } catch (error) {
         if (import.meta.env.DEV) logger.error('Error changing language:', error);
-        // Seeding failed, but the switch itself should still land. Retry through
-        // the same path rather than a hand-rolled copy of it.
-        await changeLocale(newLanguage, { waitForPropagation: true }).catch(() => undefined);
+        // Seeding failed, but the switch itself may still land. Retry through the
+        // same path — and only announce the change if the retry actually applied
+        // it, or the dialog would offer to rebuild for a language we're not in.
+        const applied = await changeLocale(newLanguage, { waitForPropagation: true })
+          .then((locale) => locale === newLanguage)
+          .catch(() => false);
 
-        setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
-        toggleDialog('languageChange', true);
+        if (applied) {
+          setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
+          toggleDialog('languageChange', true);
+        }
       } finally {
         setLanguageLoading(false);
       }
