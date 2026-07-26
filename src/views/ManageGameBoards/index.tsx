@@ -88,8 +88,11 @@ export default function GameBoard({ open, close, isMobile }: GameBoardProps) {
         .filter(({ percent }) => parseInt(percent, 10) > 0);
 
       message += `* ${t('finishSlider')} \n\n`;
+      // A lone surviving outcome is the only thing that can happen, so its
+      // percentage says nothing.
+      const showPercent = outcomes.length > 1;
       outcomes.forEach(({ label, percent }) => {
-        message += `  - ${label} ${percent} \n`;
+        message += `  - ${showPercent ? `${label} ${percent}` : label} \n`;
       });
     }
 
