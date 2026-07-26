@@ -159,11 +159,10 @@ export async function getSettingsMessage(
       (option): option is { percent: number; text: string } => option !== null
     );
 
-    if (activeOptions.length === 1 && activeOptions[0].percent === 100) {
-      // Single option at 100% - show inline without bullets
-      message += `* ${t('finishSlider')} ${activeOptions[0].text.replace(':', '')} \r\n`;
-    } else if (activeOptions.length > 0) {
-      // Multiple options or single option not at 100% - show with bullets
+    // One outcome or three, the shape stays label-then-sublist: the reader sees
+    // the same layout either way, and a lone 100% outcome doesn't render as a
+    // wide inline row next to the pills around it.
+    if (activeOptions.length > 0) {
       message += `* ${t('finishSlider')} \r\n\r\n`;
 
       activeOptions.forEach((option) => {

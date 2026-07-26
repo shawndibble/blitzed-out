@@ -57,6 +57,34 @@ describe('Message settings import compatibility', () => {
   });
 });
 
+describe('Message settings share button', () => {
+  // A bare share icon next to "Import this board" reads as "copy to clipboard"
+  // with no hint of WHAT it copies; the label names the board link.
+  it('names what the share button copies', () => {
+    renderAndOpenDetails(settingsMessage(40), 40, 'PUBLIC');
+
+    expect(screen.getByRole('button', { name: 'copyBoardLink' })).toBeInTheDocument();
+  });
+});
+
+describe('Message settings board size', () => {
+  // The size is what tells a player whether a shared board fits their room, so
+  // it belongs in the popover title row rather than only in the import check.
+  it('names the tile count in the details popover', () => {
+    renderAndOpenDetails(settingsMessage(40), 40, 'PUBLIC');
+
+    expect(screen.getByTestId('board-size-m1')).toBeInTheDocument();
+  });
+
+  it('omits the tile count when the message carries no board size', () => {
+    const sizeless = { ...settingsMessage(40), boardSize: undefined } as unknown as MessageType;
+
+    renderAndOpenDetails(sizeless, 40, 'PUBLIC');
+
+    expect(screen.queryByTestId('board-size-m1')).not.toBeInTheDocument();
+  });
+});
+
 function finishMessage(): MessageType {
   return {
     id: 'm2',

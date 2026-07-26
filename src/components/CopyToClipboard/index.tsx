@@ -22,6 +22,9 @@ export default function CopyToClipboard({
 
   const copyText = copiedText || t('copied');
   const buttonIcon = icon || <ContentCopy />;
+  // The icon alone says nothing about WHAT gets copied, so whatever the caller
+  // named in the tooltip is also the button's accessible name.
+  const label = typeof tooltip === 'string' ? tooltip : t('copyToClipboard');
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -33,7 +36,9 @@ export default function CopyToClipboard({
   return (
     <>
       <Tooltip title={tooltip || t('copyToClipboard')}>
-        <IconButton onClick={handleCopy}>{buttonIcon}</IconButton>
+        <IconButton onClick={handleCopy} aria-label={label}>
+          {buttonIcon}
+        </IconButton>
       </Tooltip>
       <ToastAlert open={open} close={handleClose} type="success">
         {copyText}

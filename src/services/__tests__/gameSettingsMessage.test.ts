@@ -83,6 +83,54 @@ describe('getSettingsMessage', () => {
     expect(message).toContain('customTilesLabel: 2');
   });
 
+  describe('finish options', () => {
+    const withFinishRange = (finishRange: [number, number]): Settings =>
+      ({
+        gameMode: 'solo',
+        boardUpdated: false,
+        room: 'PUBLIC',
+        finishRange,
+        selectedActions: { throatTraining: { type: 'solo', levels: [1] } },
+      }) as Settings;
+
+    const catalog = () => convertDexieGroupsToActions([throatTraining]);
+
+    // A lone outcome used to print inline ("Finish options: cum"), which reads as
+    // a wide row beside the pills the popover renders every other value as.
+    it('lists a single 100% outcome as a sublist, same as three outcomes', async () => {
+      const message = await getSettingsMessage(withFinishRange([0, 0]), [], catalog());
+
+      expect(message).toContain('* finishSlider \r\n\r\n');
+      expect(message).toContain('  - cum \r\n');
+    });
+
+    it('names each outcome with its percentage when the range is split', async () => {
+      const message = await getSettingsMessage(withFinishRange([30, 50]), [], catalog());
+
+      expect(message).toContain('  - noCum 30% \r\n');
+      expect(message).toContain('  - ruined 20% \r\n');
+      expect(message).toContain('  - cum 50% \r\n');
+    });
+  });
+
+  it('sends nothing when no groups are selected', async () => {
+    const settings = {
+      gameMode: 'solo',
+      boardUpdated: false,
+      room: 'PUBLIC',
+      finishRange: [0, 0],
+      selectedActions: {},
+    } as unknown as Settings;
+
+    const message = await getSettingsMessage(
+      settings,
+      [],
+      convertDexieGroupsToActions([throatTraining])
+    );
+
+    expect(message).toBe('');
+  });
+
   describe('role wording', () => {
     const partnered = {
       throatTraining: { ...convertDexieGroupsToActions([throatTraining]).throatTraining },
