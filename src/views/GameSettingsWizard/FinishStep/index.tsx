@@ -1,3 +1,4 @@
+import { generateRoomCode } from '@/helpers/roomCode';
 import {
   Box,
   Button,
@@ -14,7 +15,6 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { customAlphabet } from 'nanoid';
 
 import ButtonRow from '@/components/ButtonRow';
 import { Settings } from '@/types/Settings';
@@ -31,8 +31,6 @@ interface FinishStepProps {
   /** Wizard funnel: called with the selected-group count on successful submit. */
   onCompleted?: (groupCount: number) => void;
 }
-
-const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
 /**
  * Board-length quick picks surfaced in the wizard (tile counts). Advanced
