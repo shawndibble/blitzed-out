@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sendMessage } from '@/services/firebase/chat';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import { Tile, TileExport } from '@/types/gameBoard';
 import { useSettings } from '@/stores/settingsStore';

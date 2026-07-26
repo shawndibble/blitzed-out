@@ -46,7 +46,7 @@ import { SettingGroup, SettingRow } from './components/SettingRow';
 import type { ActionEntry } from '@/types';
 import type { PlayerGender } from '@/types/localPlayers';
 import { deriveParticipationContentMode, isPublicRoom, usesSoloActions } from '@/helpers/strings';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import { useSettings } from '@/stores/settingsStore';

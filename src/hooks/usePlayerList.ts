@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { orderedMessagesByType } from '@/helpers/messages';
 import { isUserPresent, presenceTimeoutForRoom } from '@/helpers/presence';
 import { getTurnFields } from '@/helpers/actionTurn';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useUserListStore } from '@/stores/userListStore';
 import { isActionsMessage, Message } from '@/types/Message';

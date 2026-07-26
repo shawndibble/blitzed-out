@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { setMyPresence, startPresenceHeartbeat, removeMyPresence } from '@/services/roomPresence';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import useOnlineStatus from '@/hooks/useOnlineStatus';
 
 export default function usePresence(roomId: string, roomRealtime?: boolean): void {

@@ -6,7 +6,7 @@ import type { FirebaseGatewayPort } from '@/services/ports/FirebaseGatewayPort';
 import type { GamePersistencePort } from '@/services/ports/GamePersistencePort';
 import { makeFirebaseGatewayAdapter } from '@/services/adapters/FirebaseGatewayAdapter';
 import { getActiveTiles } from '@/stores/contentLibrary';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import useGameBoard from './useGameBoard';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useLocalPlayers } from './useLocalPlayers';

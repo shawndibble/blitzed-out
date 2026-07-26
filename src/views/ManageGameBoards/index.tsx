@@ -24,7 +24,7 @@ import { AddCircle, Delete } from '@mui/icons-material';
 import { t } from 'i18next';
 import { useSettings } from '@/stores/settingsStore';
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import { getOrCreateBoard } from '@/services/firebase/boards';
 import { sendMessage } from '@/services/firebase/chat';
 import { isPublicRoom } from '@/helpers/strings';

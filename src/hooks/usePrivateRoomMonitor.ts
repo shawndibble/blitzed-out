@@ -1,5 +1,5 @@
 import { latestMessageByType } from '@/helpers/messages';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import useGameBoard from '@/hooks/useGameBoard';
 import useMessages from '@/context/hooks/useMessages';
 import { useEffect, useState, useCallback, useRef } from 'react';

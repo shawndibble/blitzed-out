@@ -5,7 +5,7 @@ import MessageList from './index';
 
 let messages: Array<{ id: string; uid: string; text: string; type: string }> = [];
 
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => ({
     user: { uid: 'owner-1' },
   }),

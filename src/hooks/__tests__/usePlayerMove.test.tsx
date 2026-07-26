@@ -14,7 +14,7 @@ vi.mock('@/services/firebase/chat', () => ({
 }));
 
 // Mock auth context
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => ({
     user: {
       uid: 'test-user',

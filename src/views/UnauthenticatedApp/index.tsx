@@ -25,7 +25,7 @@ import GameGuide from '@/views/GameGuide';
 import Navigation from '@/views/Navigation';
 import { languages } from '@/services/i18nHelpers';
 import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import { changeLocale } from '@/services/locale';
 import usePlayerList from '@/hooks/usePlayerList';
 import { useSettings } from '@/stores/settingsStore';
