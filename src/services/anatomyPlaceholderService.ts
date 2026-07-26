@@ -57,7 +57,7 @@ function loadAnatomyMappingsForLocale(locale: string): LocaleAnatomyMappings {
  * @example
  * ```typescript
  * const mapping = getAnatomyMappings('en', 'male');
- * logger.log(mapping.genital); // 'dick'
+ * logger.debug(mapping.genital); // 'dick'
  * ```
  */
 export function getAnatomyMappings(locale: string, gender?: PlayerGender): AnatomyMapping {
@@ -94,7 +94,7 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
  * @example
  * ```typescript
  * const term = getAnatomyTerm('en', 'female', 'chest');
- * logger.log(term); // 'breasts'
+ * logger.debug(term); // 'breasts'
  * ```
  */
 export function getAnatomyTerm(
@@ -119,7 +119,7 @@ export function getAnatomyTerm(
  * @example
  * ```typescript
  * const term = getGenitalTermForRole('female', 'dom', 'en', true);
- * logger.log(term); // 'strapon'
+ * logger.debug(term); // 'strapon'
  * ```
  */
 export function getGenitalTermForRole(
@@ -157,7 +157,7 @@ export function getGenitalTermForRole(
  *   false,
  *   'en'
  * );
- * logger.log(result); // 'Touch your dick for 30 seconds.'
+ * logger.debug(result); // 'Touch your dick for 30 seconds.'
  * ```
  */
 export function replaceAnatomyPlaceholders(
