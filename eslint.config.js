@@ -109,6 +109,13 @@ export default [
       'no-console': 'error',
     },
   },
+  // Build scripts and other node-side tooling: the terminal IS their output.
+  {
+    files: ['scripts/**/*.{js,ts}', '*.config.{js,ts}', 'functions/**/*.{js,ts}'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
   // Test file overrides
   {
     files: ['**/*.test.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}', 'src/setupTests.ts'],
