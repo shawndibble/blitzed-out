@@ -131,6 +131,13 @@ Concrete examples:
 
 When adding logic, prefer: **fetch at the edge → pure transform in the middle → write at the edge.** It keeps the testable surface large.
 
+Companion patterns:
+
+- **Wiring a port:** module-level seam (`setMigrationPort`) or factory (`buildLexicon(i18n, locale)`). Tests pass in-memory/literal implementations — no mocking framework needed.
+- **Pure function + data bundle:** extract `pureCoreFn(input, context, data)` with zero external imports; an impure wrapper (hook or factory) builds the data bundle and calls it. Test the pure fn with literal fixtures — no i18next, Dexie, or React.
+- **Hook-as-DI:** React hooks own external dependencies — the hook fetches deps (`useTranslation`, store selectors), builds the context, and returns a stable resolver via `useCallback`. Components use the hook; they never import raw services. `useSyncExternalStore` covers non-provider external state without a `Context.Provider` wrapper.
+- **Replace, don't layer:** when deepening a module, delete old shallow unit tests once boundary tests exist. Tests on internals are waste — new tests assert observable behavior at the public interface.
+
 ---
 
 ## Routing & key screens
