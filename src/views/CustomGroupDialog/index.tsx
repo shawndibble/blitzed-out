@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
@@ -109,7 +110,7 @@ export default function CustomGroupDialog({
       );
       setTileCounts(counts);
     } catch (error) {
-      console.error('Error reloading groups:', error);
+      logger.error('Error reloading groups:', error);
     }
   }, [locale]);
 
@@ -122,7 +123,7 @@ export default function CustomGroupDialog({
       try {
         await reloadGroupsAndCounts();
       } catch (error) {
-        console.error('Error loading groups:', error);
+        logger.error('Error loading groups:', error);
       } finally {
         setDialogState((prev) => ({ ...prev, isLoading: false }));
       }
@@ -339,7 +340,7 @@ export default function CustomGroupDialog({
       // Cascade: the group and its tiles go in one transactional delete
       const result = await deleteGroup(pendingDeleteGroup.id, { cascadeDelete: true });
       if (!result.success) {
-        console.error('Error deleting group:', result.error);
+        logger.error('Error deleting group:', result.error);
         return;
       }
 
@@ -411,7 +412,7 @@ export default function CustomGroupDialog({
       resetEditingState();
       onClose();
     } catch (error) {
-      console.error('Error saving custom group:', error);
+      logger.error('Error saving custom group:', error);
       setDialogState((prev) => ({
         ...prev,
         validation: {

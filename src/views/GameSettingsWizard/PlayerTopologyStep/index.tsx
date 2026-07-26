@@ -1,3 +1,4 @@
+import { generateRoomCode } from '@/helpers/roomCode';
 import {
   Box,
   Button,
@@ -11,7 +12,6 @@ import {
 } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import ButtonRow from '@/components/ButtonRow';
-import { customAlphabet } from 'nanoid';
 import { useEffect, useState } from 'react';
 import { isOffline } from '@/helpers/networkStatus';
 import type { FormData } from '@/types';
@@ -22,8 +22,6 @@ interface PlayerTopologyStepProps {
   setFormData: React.Dispatch<React.SetStateAction<FormData & Partial<Settings>>>;
   nextStep: () => void;
 }
-
-const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
 export default function PlayerTopologyStep({
   formData,

@@ -1,3 +1,4 @@
+import { generateRoomCode } from '@/helpers/roomCode';
 import {
   Box,
   Button,
@@ -8,7 +9,6 @@ import {
   Typography,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { customAlphabet } from 'nanoid';
 import { FocusEvent, JSX, KeyboardEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,8 +16,6 @@ import { SettingGroup, SettingRow } from '../components/SettingRow';
 import LocalPlayersRows from './LocalPlayersRows';
 import { isPublicRoom } from '@/helpers/strings';
 import { Settings } from '@/types/Settings';
-
-const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
 interface RoomSectionProps {
   formData: Settings;

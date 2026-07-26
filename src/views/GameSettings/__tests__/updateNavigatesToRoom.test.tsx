@@ -19,7 +19,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('@mui/icons-material/ArrowBack', () => ({ default: () => <span /> }));
 vi.mock('@mui/icons-material/Add', () => ({ default: () => <span /> }));
 
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => ({ user: { displayName: 'Tester' } }),
 }));
 vi.mock('@/hooks/useBreakpoint', () => ({ default: () => false }));

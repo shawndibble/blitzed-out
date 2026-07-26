@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import useSound from 'use-sound';
 import speak from '@/services/textToSpeech';
 import { getTurnFields } from '@/helpers/actionTurn';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import { useTranslation } from 'react-i18next';
 import { isActionsMessage, Message } from '@/types/Message';

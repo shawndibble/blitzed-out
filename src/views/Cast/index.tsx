@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import './styles.css';
 import '@/types/window';
 
@@ -44,7 +45,7 @@ export default function Cast() {
 
     if (!auth.currentUser) {
       loginAnonymously('Cast Viewer').catch((error) => {
-        console.error('Anonymous login failed:', error);
+        logger.error('Anonymous login failed:', error);
       });
     }
   }, [room]);
@@ -159,7 +160,7 @@ export default function Cast() {
     const videos = document.querySelectorAll('video');
     videos.forEach((video) => {
       if (video.paused) {
-        video.play().catch(console.error);
+        video.play().catch(logger.error);
       }
     });
     setNeedsUserInteraction(false);

@@ -13,7 +13,7 @@ vi.mock('@/services/roomPresence', () => ({
   removeMyPresence: removeMyPresenceMock,
 }));
 
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => ({ user: { displayName: 'Tester' } }),
 }));
 

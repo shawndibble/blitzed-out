@@ -1,3 +1,5 @@
+import { logger } from '@/utils/logger';
+import { changeLocale } from '@/services/locale';
 import {
   Box,
   Drawer,
@@ -119,7 +121,7 @@ export default function MenuDrawer(): JSX.Element {
     []
   );
 
-  const { setLocale, updateSettings } = useSettingsStore();
+  const { updateSettings } = useSettingsStore();
   const [languageLoading, setLanguageLoading] = useState(false);
   const [pendingLanguageChange, setPendingLanguageChange] = useState<{
     from: string;
@@ -139,54 +141,32 @@ export default function MenuDrawer(): JSX.Element {
       setLanguageLoading(true);
 
       try {
-        // Language change automatically triggers content seeding (contentReadiness languageChanged listener)
-        await i18n.changeLanguage(newLanguage);
-        setLocale(newLanguage);
-
-        // Wait for i18n to fully propagate using the languageChanged event
-        await new Promise((resolve) => {
-          const onLanguageChanged = () => {
-            i18n.off('languageChanged', onLanguageChanged);
-            resolve(undefined);
-          };
-          i18n.on('languageChanged', onLanguageChanged);
-          // Fallback timeout in case event doesn't fire
-          setTimeout(() => {
-            i18n.off('languageChanged', onLanguageChanged);
-            resolve(undefined);
-          }, 500);
-        });
+        // Language change automatically triggers content seeding (contentReadiness
+        // languageChanged listener). changeLocale owns the persisted mirror and
+        // the propagation wait, so both branches here can't drift apart.
+        await changeLocale(newLanguage, { waitForPropagation: true });
 
         // Set pending change and show modal in new language
         setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
         toggleDialog('languageChange', true);
       } catch (error) {
-        if (import.meta.env.DEV) console.error('Error changing language:', error);
-        // Still attempt to change language even if seeding fails
-        await i18n.changeLanguage(newLanguage);
-        setLocale(newLanguage);
+        if (import.meta.env.DEV) logger.error('Error changing language:', error);
+        // Seeding failed, but the switch itself may still land. Retry through the
+        // same path — and only announce the change if the retry actually applied
+        // it, or the dialog would offer to rebuild for a language we're not in.
+        const applied = await changeLocale(newLanguage, { waitForPropagation: true })
+          .then((locale) => locale === newLanguage)
+          .catch(() => false);
 
-        // Wait for i18n to fully propagate using the languageChanged event
-        await new Promise((resolve) => {
-          const onLanguageChanged = () => {
-            i18n.off('languageChanged', onLanguageChanged);
-            resolve(undefined);
-          };
-          i18n.on('languageChanged', onLanguageChanged);
-          // Fallback timeout in case event doesn't fire
-          setTimeout(() => {
-            i18n.off('languageChanged', onLanguageChanged);
-            resolve(undefined);
-          }, 500);
-        });
-
-        setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
-        toggleDialog('languageChange', true);
+        if (applied) {
+          setPendingLanguageChange({ from: currentLanguage, to: newLanguage });
+          toggleDialog('languageChange', true);
+        }
       } finally {
         setLanguageLoading(false);
       }
     },
-    [i18n, setLocale, toggleDialog]
+    [i18n, toggleDialog]
   );
 
   const handleBoardRebuildDecision = useCallback(
@@ -197,7 +177,7 @@ export default function MenuDrawer(): JSX.Element {
           // Use the complete settings submission flow to rebuild board and generate message
           await submitSettings({ ...gameSettings, boardUpdated: true }, actionsList);
         } catch (error) {
-          if (import.meta.env.DEV) console.error('Error rebuilding board:', error);
+          if (import.meta.env.DEV) logger.error('Error rebuilding board:', error);
           // Fallback to simple board update
           updateSettings({ boardUpdated: true });
         }

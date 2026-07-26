@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import actionStringReplacement from '@/services/actionStringReplacement';
 import GameTile from './GameTile';
 import TokenAnimationLayer, {

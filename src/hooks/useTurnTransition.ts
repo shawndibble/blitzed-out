@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSoundById, playSound } from '@/utils/gameSounds';
 
@@ -57,7 +58,7 @@ export function useTurnTransition({
           const sound = getSoundById(newCurrentPlayer.sound);
           if (sound) {
             playSound(sound).catch((error) => {
-              console.warn('Failed to play turn sound:', error);
+              logger.warn('Failed to play turn sound:', error);
             });
           }
         }

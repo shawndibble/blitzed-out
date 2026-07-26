@@ -10,7 +10,7 @@ vi.mock('@/hooks/useGameBoard', () => ({
   default: () => updateGameBoardTilesMock,
 }));
 
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => ({ user: { uid: 'me', displayName: 'Me' } }),
 }));
 

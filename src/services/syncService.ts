@@ -6,6 +6,7 @@
  * push, pull, periodic, real-time listener); the merge policy lives in
  * `sync/*Sync.ts` and the encoding in the owner.
  */
+import { logger } from '@/utils/logger';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db } from '@/services/firebase/app';
@@ -25,7 +26,7 @@ export async function syncAllDataToFirebase(): Promise<boolean> {
   const user = getAuth().currentUser;
 
   if (!user) {
-    console.error('No user logged in');
+    logger.error('No user logged in');
     return false;
   }
 
@@ -33,7 +34,7 @@ export async function syncAllDataToFirebase(): Promise<boolean> {
     await writeRemoteUserData(user.uid, await collectLocalUserData());
     return true;
   } catch (error) {
-    console.error('Error syncing data to Firebase:', error);
+    logger.error('Error syncing data to Firebase:', error);
     return false;
   }
 }
@@ -86,7 +87,7 @@ export function subscribeToUserData(): () => void {
       void syncDataFromFirebase();
     },
     (error) => {
-      console.error('Real-time user-data sync error:', error);
+      logger.error('Real-time user-data sync error:', error);
     }
   );
 

@@ -1,3 +1,4 @@
+import { generateRoomCode } from '@/helpers/roomCode';
 import './styles.css';
 
 import {
@@ -25,7 +26,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { customAlphabet } from 'nanoid';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
@@ -46,7 +46,7 @@ import { SettingGroup, SettingRow } from './components/SettingRow';
 import type { ActionEntry } from '@/types';
 import type { PlayerGender } from '@/types/localPlayers';
 import { deriveParticipationContentMode, isPublicRoom, usesSoloActions } from '@/helpers/strings';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { useLocalPlayers } from '@/hooks/useLocalPlayers';
 import { useSettings } from '@/stores/settingsStore';
@@ -54,8 +54,6 @@ import useSettingsToFormData from '@/hooks/useSettingsToFormData';
 import useSubmitGameSettings from '@/hooks/useSubmitGameSettings';
 import useUnifiedActionList from '@/hooks/useUnifiedActionList';
 import validateFormData from './validateForm';
-
-const generateRoomCode = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 5);
 
 /**
  * Page order, which the jump rail follows exactly. "You" is setup-scoped rather

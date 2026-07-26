@@ -14,7 +14,7 @@ vi.mock('@/services/firebase/chat', () => ({
 }));
 
 // Mock auth context
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => ({
     user: {
       uid: 'test-user',
@@ -33,18 +33,9 @@ vi.mock('@/stores/settingsStore', () => ({
   ],
 }));
 
-// Mock player list
+// A remote player's position is read from their newest action message — the hook
+// no longer mounts the roster hook to learn it.
 const { mockPlayerLocation } = vi.hoisted(() => ({ mockPlayerLocation: { current: 1 } }));
-
-vi.mock('../usePlayerList', () => ({
-  default: () => [
-    {
-      isSelf: true,
-      location: mockPlayerLocation.current,
-      displayName: 'TestUser',
-    },
-  ],
-}));
 
 // Mock local players
 vi.mock('../useLocalPlayers', () => ({
@@ -93,10 +84,28 @@ vi.mock('@/stores/messagesStore', () => ({
   useMessagesStore: () => vi.fn(),
 }));
 
-// Mock messages context
+// Mock messages context: one prior action message placing this user at
+// `mockPlayerLocation.current`, which is how the hook learns where they stand.
 vi.mock('@/context/hooks/useMessages', () => ({
   default: () => ({
-    messages: [],
+    messages: [
+      {
+        id: 'prior-turn',
+        uid: 'test-user',
+        displayName: 'TestUser',
+        text: 'prior turn',
+        type: 'actions',
+        timestamp: { toDate: () => new Date(1000), seconds: 1, nanoseconds: 0 },
+        turn: {
+          kind: 'normal',
+          roll: 1,
+          location: mockPlayerLocation.current,
+          title: 'Prior',
+          description: 'Prior action',
+          finished: false,
+        },
+      },
+    ],
     loading: false,
   }),
 }));

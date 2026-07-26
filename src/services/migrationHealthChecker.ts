@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { isDexieDataComplete } from '@/services/dataCompletenessChecker';
 import type { ContentGameMode } from '@/types/Settings';
 import i18n from '@/i18n';
@@ -36,7 +37,7 @@ const getHealthState = (): MigrationHealthState => {
     const stored = localStorage.getItem(HEALTH_CHECK_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (error) {
-    console.warn('Failed to load migration health state:', error);
+    logger.warn('Failed to load migration health state:', error);
     return {};
   }
 };
@@ -65,7 +66,7 @@ const updateHealthState = (
 
     localStorage.setItem(HEALTH_CHECK_KEY, JSON.stringify(state));
   } catch (error) {
-    console.warn('Failed to update migration health state:', error);
+    logger.warn('Failed to update migration health state:', error);
   }
 };
 
@@ -158,7 +159,7 @@ export const checkMigrationHealth = async (
 
     return report;
   } catch (error) {
-    console.error('Migration health check failed:', error);
+    logger.error('Migration health check failed:', error);
 
     // Increment failure count
     const newFailureCount = currentState.failureCount + 1;
@@ -204,7 +205,7 @@ const checkMigrationStatusFromStorage = (): 'completed' | 'failed' | 'incomplete
 
     return 'incomplete';
   } catch (error) {
-    console.warn('Failed to check migration status from storage:', error);
+    logger.warn('Failed to check migration status from storage:', error);
     return 'incomplete';
   }
 };
@@ -232,7 +233,7 @@ export const recoverFromFailedMigration = async (
       try {
         localStorage.removeItem(key);
       } catch (error) {
-        console.warn(`Failed to remove ${key}:`, error);
+        logger.warn(`Failed to remove ${key}:`, error);
         hasErrors = true;
       }
     });
@@ -245,7 +246,7 @@ export const recoverFromFailedMigration = async (
         lastValidation: new Date(0).toISOString(), // Force revalidation
       });
     } catch (error) {
-      console.warn('Failed to update health state:', error);
+      logger.warn('Failed to update health state:', error);
       hasErrors = true;
     }
 
@@ -255,7 +256,7 @@ export const recoverFromFailedMigration = async (
 
     return true;
   } catch (error) {
-    console.error('Migration recovery failed:', error);
+    logger.error('Migration recovery failed:', error);
     return false;
   }
 };
@@ -279,13 +280,13 @@ export const forceCompleteMigrationReset = (): boolean => {
       try {
         localStorage.removeItem(key);
       } catch (error) {
-        console.warn(`Failed to remove ${key}:`, error);
+        logger.warn(`Failed to remove ${key}:`, error);
       }
     });
 
     return true;
   } catch (error) {
-    console.error('Complete migration reset failed:', error);
+    logger.error('Complete migration reset failed:', error);
     return false;
   }
 };

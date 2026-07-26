@@ -4,6 +4,7 @@
  * Owns both directions of a room's messages, including the send-duplicate guard
  * and the read window (3 hours, newest 50).
  */
+import { logger } from '@/utils/logger';
 import {
   DocumentData,
   DocumentReference,
@@ -55,7 +56,7 @@ export async function sendMessage({
     message += allowedTypes.join(', ');
     message += ` but got ${type}`;
 
-    console.error('Type validation error', message);
+    logger.error('Type validation error', message);
     return;
   }
 
@@ -85,7 +86,7 @@ export async function sendMessage({
 
     return docRef;
   } catch (error) {
-    console.error('Failed to send message', error);
+    logger.error('Failed to send message', error);
     return;
   }
 }
@@ -153,7 +154,7 @@ function executeGetMessages(
       callback(messages);
     },
     (error) => {
-      console.error('getMessages error', error);
+      logger.error('getMessages error', error);
     }
   );
 }

@@ -1,7 +1,8 @@
+import { logger } from '@/utils/logger';
 import { useState, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import { sendMessage } from '@/services/firebase/chat';
 import './styles.css';
 import { Trans, useTranslation } from 'react-i18next';
@@ -75,7 +76,7 @@ export default function MessageInput({ room, isTransparent }: MessageInputProps)
         resultType: CameraResultType.Base64,
       });
     } catch (error) {
-      console.warn('Failed to take photo:', false, error);
+      logger.warn('Failed to take photo:', false, error);
       return '';
     }
 

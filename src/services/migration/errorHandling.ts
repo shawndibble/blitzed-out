@@ -1,6 +1,7 @@
 /**
  * Centralized error handling utilities for the migration service
  */
+import { logger } from '@/utils/logger';
 
 export type ErrorLevel = 'debug' | 'warn' | 'error';
 
@@ -17,9 +18,9 @@ export const logError = (
   const logMessage = `[Migration ${context}] ${errorMessage}`;
 
   if (details) {
-    console[level](logMessage, details);
+    logger[level](logMessage, details);
   } else {
-    console[level](logMessage);
+    logger[level](logMessage);
   }
 };
 

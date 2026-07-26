@@ -1,4 +1,5 @@
-import i18next from 'i18next';
+import { logger } from '@/utils/logger';
+import { currentLocale } from '@/services/locale';
 import db from './store';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
@@ -22,7 +23,7 @@ customTiles.hook(
       // Only enforce group_id for custom tiles (isCustom: 1) during sync operations
       // Default tiles from JSON imports (isCustom: 0) can be imported without group_id initially
       if (obj.isCustom === 1) {
-        console.warn(
+        logger.warn(
           `Custom tile missing group_id (sync may fail): ${obj.action} (group_id: ${obj.group_id})`
         );
       }
@@ -52,7 +53,7 @@ customTiles.hook('updating', function (this: any, modifications: any) {
  */
 export const canonicalizeTileAction = <T extends Partial<CustomTile>>(record: T): T => {
   if (typeof record.action !== 'string' || !record.action) return record;
-  const locale = i18next.resolvedLanguage || i18next.language || 'en';
+  const locale = currentLocale();
   return { ...record, action: normalizePlaceholders(record.action, locale) };
 };
 
@@ -127,11 +128,11 @@ export const getTilesUnguarded = async (
         return await query.toArray();
       },
       (message: string, error?: Error) => {
-        console.error(`Error in getTilesUnguarded: ${message}`, error);
+        logger.error(`Error in getTilesUnguarded: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in getTilesUnguarded:', error);
+    logger.error('Final error in getTilesUnguarded:', error);
     return [];
   }
 };
@@ -171,7 +172,7 @@ export const getPaginatedTiles = async (
       totalPages: Math.ceil(count / limit),
     };
   } catch (error) {
-    console.error('Error in getPaginatedTiles:', error);
+    logger.error('Error in getPaginatedTiles:', error);
     return {
       items: [],
       total: 0,
@@ -217,7 +218,7 @@ export async function deleteAllIsCustomTiles(): Promise<boolean> {
     await db.customTiles.where('isCustom').equals(1).delete();
     return true;
   } catch (error) {
-    console.error('Error deleting custom tiles:', error);
+    logger.error('Error deleting custom tiles:', error);
     return false;
   }
 }
@@ -242,11 +243,11 @@ export const getTilesByGroupId = async (
         return await customTiles.where('group_id').equals(groupId).toArray();
       },
       (message: string, error?: Error) => {
-        console.error(`Error in getTilesByGroupId: ${message}`, error);
+        logger.error(`Error in getTilesByGroupId: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in getTilesByGroupId:', error);
+    logger.error('Final error in getTilesByGroupId:', error);
     return [];
   }
 };
@@ -267,11 +268,11 @@ export const getTilesByGroupIds = async (groupIds: string[]): Promise<CustomTile
         return await customTiles.where('group_id').anyOf(groupIds).toArray();
       },
       (message: string, error?: Error) => {
-        console.error(`Error in getTilesByGroupIds: ${message}`, error);
+        logger.error(`Error in getTilesByGroupIds: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in getTilesByGroupIds:', error);
+    logger.error('Final error in getTilesByGroupIds:', error);
     return [];
   }
 };
@@ -287,7 +288,7 @@ export const countTilesByGroupId = async (
   try {
     return await customTiles.where('group_id').equals(groupId).count();
   } catch (error) {
-    console.error('Error counting tiles by group ID:', error);
+    logger.error('Error counting tiles by group ID:', error);
     return 0;
   }
 };

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import React, { useCallback, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 import { User } from '@/types';
 import { getErrorMessage } from '@/types/errors';
@@ -242,7 +243,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
           }
         });
       } catch (error) {
-        console.error('Failed to initialize Firebase auth:', error);
+        logger.error('Failed to initialize Firebase auth:', error);
         if (!authInitializedRef.current) {
           authInitializedRef.current = true;
           setInitializing(false);

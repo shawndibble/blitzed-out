@@ -136,7 +136,9 @@ A player's gender selection (`male` / `female` / `non-binary`) used to personali
 
 A player's role (`dom` / `sub` / `vers`) used to filter and personalize actions. Collected per-player in Shared Device setup. Collected in Individual Devices setup **only when `soloPlay === false`** (group play). Not collected for Solo mode.
 
-A `vers` player takes dom or sub per the action's needs; when an action requires **both** roles, the assignment is a random coin flip per roll **by design** (versatile = either, each time) — see `actionStringReplacement.ts`.
+A `vers` player takes dom or sub per the action's needs; when an action requires **both** roles, the assignment is a random coin flip per roll **by design** (versatile = either, each time) — see `actionStringReplacement.ts`. The flip draws from the `services/random` seam, so the design is verified by test rather than asserted here.
+
+**Known gap:** when the roster cannot fill the other role (e.g. a `vers` player who flips to sub with no `dom` and no second `vers` present), the unfilled token reaches the player as literal `{dom}`. Choosing a fallback — name the only other player, or drop to the generic "a dominant" — is a content decision that has not been made.
 
 ## Participation Style (`soloPlay`)
 

@@ -102,14 +102,28 @@ export default [
       'no-useless-assignment': 'warn',
       // Warn on errors without cause chain
       'preserve-caught-error': 'warn',
+      // Application code logs through `utils/logger`, which is silent in
+      // production by design. Direct console calls only appeared to be
+      // production-safe because terser's drop_console erased them at build time
+      // — the rule lived in the bundler config, not in the source.
+      'no-console': 'error',
+    },
+  },
+  // Build scripts and other node-side tooling: the terminal IS their output.
+  {
+    files: ['scripts/**/*.{js,ts}', '*.config.{js,ts}', 'functions/**/*.{js,ts}'],
+    rules: {
+      'no-console': 'off',
     },
   },
   // Test file overrides
   {
-    files: ['**/*.test.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
+    files: ['**/*.test.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}', 'src/setupTests.ts'],
     rules: {
       // createRef is appropriate in test files for testing refs
       '@eslint-react/no-create-ref': 'off',
+      // Tests print diagnostics and assert on console output directly.
+      'no-console': 'off',
     },
   },
   eslintConfigPrettier,

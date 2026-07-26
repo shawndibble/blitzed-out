@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { getAllAvailableGroups } from '@/stores/customGroups';
 import { importActions } from '@/services/dexieActionImport';
 import type { ContentGameMode } from '@/types/Settings';
@@ -42,7 +43,7 @@ export const checkDataCompleteness = async (
     try {
       expectedGroups = await importActions(locale, gameMode);
     } catch (error) {
-      console.warn(`Could not load expected actions for ${locale}/${gameMode}:`, error);
+      logger.warn(`Could not load expected actions for ${locale}/${gameMode}:`, error);
       // If we can't load expected data, we can't validate completeness
       return report;
     }
@@ -55,7 +56,7 @@ export const checkDataCompleteness = async (
     try {
       dexieGroups = await getAllAvailableGroups(locale, gameMode);
     } catch (error) {
-      console.warn(`Could not load Dexie groups for ${locale}/${gameMode}:`, error);
+      logger.warn(`Could not load Dexie groups for ${locale}/${gameMode}:`, error);
       return report;
     }
 
@@ -112,7 +113,7 @@ export const checkDataCompleteness = async (
 
     return report;
   } catch (error) {
-    console.error('Error in checkDataCompleteness:', error);
+    logger.error('Error in checkDataCompleteness:', error);
     return report;
   }
 };
@@ -154,7 +155,7 @@ export const isDexieDataComplete = async (
     // Basic validation passed
     return true;
   } catch (error) {
-    console.error('Error in isDexieDataComplete:', error);
+    logger.error('Error in isDexieDataComplete:', error);
     return false;
   }
 };

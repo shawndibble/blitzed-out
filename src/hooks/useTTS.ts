@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useState, useCallback, useEffect } from 'react';
 import { tts } from '@/services/tts';
 
@@ -45,7 +46,7 @@ export const useTTS = (): UseTTSReturn => {
         setError(errorMessage);
         setIsPlaying(false);
         setIsLoading(false);
-        console.error('TTS Error:', err);
+        logger.error('TTS Error:', err);
       }
     },
     [stop]

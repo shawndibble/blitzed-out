@@ -8,6 +8,7 @@
  * bounded, and which sections may be written as empty. Everything above it works
  * in the app's own vocabulary and reads/writes the snapshot once per cycle.
  */
+import { logger } from '@/utils/logger';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/services/firebase/app';
 import { getTiles } from '@/stores/customTiles';
@@ -172,7 +173,7 @@ export async function writeRemoteUserData(
   let records = local.disabledDefaults;
   if (records.length > DISABLED_V2_MAX) {
     const dropped = records.length - DISABLED_V2_MAX;
-    console.warn(
+    logger.warn(
       `⚠️ ${records.length} disabled-default records exceeds the ${DISABLED_V2_MAX} cap; ` +
         `dropping ${dropped} from sync. This likely indicates corrupted local data.`
     );

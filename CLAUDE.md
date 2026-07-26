@@ -13,7 +13,7 @@
 - `npm run type-check` — tsc no-emit
 - `npm run build` — prod build (includes tsc)
 - `npm run lint` / `npm run format` — ESLint (whole project) / Prettier
-- `npm run cleanup:debug` — fail on `console.*` (no-console rule)
+- `npm run cleanup:debug` — fail on `console.*` in production sources (tests, `scripts/`, configs exempt). `no-console` is an error in `eslint.config.js` too, so `npm run lint` catches it as well
 - `npm run deploy` — GitHub Pages (→ master)
 
 **Pre-commit check**: `npm run type-check && npx eslint src/ && npm run test:failures`
@@ -28,6 +28,8 @@ React 19.x + TypeScript + Vite · MUI v9 · Zustand (`src/stores/`) + Dexie (Ind
 ## i18n
 
 - Adding/changing UI strings → update **all six** files: `src/locales/{en,es,fr,zh,hi,de}/translation.json`.
+- Reading the current locale → `currentLocale()` from `src/services/locale.ts`; changing it → `changeLocale()`. That module is the single seam: it owns the `resolvedLanguage`-vs-`language` normalisation and updates the persisted `settings.locale` mirror, which is why every language switch must go through it.
+- Adding a language → **three** places, or gates keyed on the wrong one silently exclude it: `i18n.ts`'s `supportedLngs`, `SUPPORTED_LANGUAGES` in `services/migration/constants.ts`, and `src/locales/languages.json`. `services/__tests__/locale.test.ts` holds the last two to the locale directories on disk.
 - Editing game content (`src/locales/{lang}/{local,online}/*.json`) → run `node scripts/bundle-translations.js` after; the app loads the generated `{local,online}-bundle.json` files, not the per-group files.
 - Anatomy placeholders: `{genital}` (dick/pussy), `{hole}` (pussy/ass), `{chest}` (breasts/pecs).
 - Touching custom-tile placeholders/aliases? Read `docs/engineering/features.md` § "Localized placeholder aliases" first — tokens are stored canonical English; the customTiles store normalizes at intake.
@@ -55,7 +57,7 @@ React 19.x + TypeScript + Vite · MUI v9 · Zustand (`src/stores/`) + Dexie (Ind
 
 - Remove unused code entirely — no commenting out, no comments about removed/replaced code.
 - Comments explain WHY, not what. Let names document what.
-- No `console.*` in production code; reserve console output for troubleshooting.
+- Log through `logger` (`@/utils/logger`), never `console.*` — it is the app's only console writer and is silent in production. Direct console calls are a lint error outside tests and build scripts. `logger` deliberately does **not** forward to Sentry: these calls pass the payload that failed (tiles, chat messages, display names), which is user-authored intimate content; crash reporting happens at the boundary instead.
 
 ## Engineering Docs
 

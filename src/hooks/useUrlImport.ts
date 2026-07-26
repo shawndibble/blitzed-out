@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { getBoard } from '@/services/firebase/boards';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +37,7 @@ export default function useUrlImport(
       const gameBoard = JSON.parse(gameBoardString);
       return Array.isArray(gameBoard) ? gameBoard : null;
     } catch (error) {
-      console.warn('Failed to parse game board JSON:', false, error);
+      logger.warn('Failed to parse game board JSON:', false, error);
       return null;
     }
   }, []);
@@ -45,7 +46,7 @@ export default function useUrlImport(
     try {
       return settingsString ? JSON.parse(settingsString) : {};
     } catch (error) {
-      console.warn('Failed to parse settings JSON:', false, error);
+      logger.warn('Failed to parse settings JSON:', false, error);
       return {};
     }
   }, []);

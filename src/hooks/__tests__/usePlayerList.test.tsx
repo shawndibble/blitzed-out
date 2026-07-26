@@ -17,7 +17,7 @@ const h = vi.hoisted(() => ({
 vi.mock('@/stores/userListStore', () => ({
   useUserListStore: () => ({ onlineUsers: h.onlineUsers }),
 }));
-vi.mock('@/context/hooks/useAuth', () => ({ default: () => ({ user: h.user }) }));
+vi.mock('@/hooks/useAuth', () => ({ default: () => ({ user: h.user }) }));
 vi.mock('@/context/hooks/useMessages', () => ({
   default: () => ({ messages: h.messages, isLoading: false }),
 }));

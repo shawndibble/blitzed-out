@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import React, { useMemo, useEffect, useCallback, ReactNode, useRef } from 'react';
 import {
   addSchedule,
@@ -72,7 +73,7 @@ function ScheduleProvider(props: ScheduleProviderProps): JSX.Element {
         flushPendingScheduleUpdates();
         return result || undefined;
       } catch (error) {
-        console.error('Error adding to schedule:', error);
+        logger.error('Error adding to schedule:', error);
         throw error;
       }
     },

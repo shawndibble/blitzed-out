@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useState, useEffect, useCallback } from 'react';
 
 interface FullscreenStatusResult {
@@ -114,7 +115,7 @@ export default function useFullscreenStatus(): FullscreenStatusResult {
   const toggleFullscreen = useCallback((): void => {
     // Early return if fullscreen is not supported
     if (!isSupported) {
-      console.warn('Fullscreen API is not supported on this device/browser (likely iOS Safari)');
+      logger.warn('Fullscreen API is not supported on this device/browser (likely iOS Safari)');
       return;
     }
 
@@ -123,16 +124,16 @@ export default function useFullscreenStatus(): FullscreenStatusResult {
     if (currentFullscreenElement == null) {
       // Enter fullscreen
       requestFullscreen(document.documentElement).catch((err) => {
-        console.error('Error attempting to enable fullscreen:', err);
+        logger.error('Error attempting to enable fullscreen:', err);
         // Additional context for iOS Safari users
         if (navigator.userAgent.includes('Safari') && navigator.userAgent.includes('Mobile')) {
-          console.warn('Note: iOS Safari does not support the Fullscreen API');
+          logger.warn('Note: iOS Safari does not support the Fullscreen API');
         }
       });
     } else {
       // Exit fullscreen
       exitFullscreen().catch((err) => {
-        console.error('Error attempting to exit fullscreen:', err);
+        logger.error('Error attempting to exit fullscreen:', err);
       });
     }
   }, [isSupported]);

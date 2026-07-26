@@ -4,6 +4,7 @@
  * Every other module reaches Firestore through the `db` exported here, so there
  * is no second route to the SDK and no second app instance.
  */
+import { logger } from '@/utils/logger';
 import { getDatabase } from 'firebase/database';
 import {
   initializeFirestore,
@@ -38,8 +39,8 @@ const missingVars = Object.entries(firebaseConfig)
   .map(([key]) => key);
 
 if (missingVars.length > 0) {
-  console.error('Missing Firebase environment variables', missingVars);
-  console.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
+  logger.error('Missing Firebase environment variables', missingVars);
+  logger.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
 const app = initializeApp(firebaseConfig);
@@ -53,7 +54,7 @@ try {
 } catch (e) {
   // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
   if (import.meta.env.DEV)
-    console.error('Firestore persistence unavailable, using in-memory cache:', e);
+    logger.error('Firestore persistence unavailable, using in-memory cache:', e);
   _db = initializeFirestore(app, {});
 }
 export const db = _db;

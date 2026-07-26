@@ -8,6 +8,7 @@
  * so a pack's `contents` is exactly an `ExportData` JSON string. Imports are a
  * one-time copy — there is no subscription or auto-update.
  */
+import { logger } from '@/utils/logger';
 import {
   addDoc,
   collection,
@@ -220,7 +221,7 @@ export async function getPack(packId: string): Promise<ContentPackDoc | undefine
     if (!snap.exists()) return undefined;
     return normalizePackDoc(snap.id, snap.data());
   } catch (error) {
-    console.error('Failed to fetch content pack', error);
+    logger.error('Failed to fetch content pack', error);
     return undefined;
   }
 }
@@ -239,7 +240,7 @@ export async function listMyPacks(): Promise<ContentPackDoc[]> {
       .map((d) => normalizePackDoc(d.id, d.data()))
       .sort((a, b) => b.updatedAt - a.updatedAt);
   } catch (error) {
-    console.error('Failed to list own content packs', error);
+    logger.error('Failed to list own content packs', error);
     return [];
   }
 }

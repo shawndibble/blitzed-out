@@ -11,7 +11,7 @@ import { MessagesProvider } from '@/context/messages';
 import { AuthProvider } from '@/context/auth';
 
 // Mock authentication
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => ({
     user: {
       uid: 'test-user',

@@ -2,6 +2,7 @@
  * Account lifecycle: sign-in, registration, anonymous upgrade, sign-out, and the
  * full local-data wipe that accompanies a reset.
  */
+import { logger } from '@/utils/logger';
 import { AuthError, createStandardError, getFirebaseErrorMessage } from '@/types/errors';
 import {
   EmailAuthProvider,
@@ -66,7 +67,7 @@ export async function registerWithEmail(
     await updateProfile(userCredential.user, { displayName });
     return userCredential.user;
   } catch (error) {
-    console.error('Registration error', error);
+    logger.error('Registration error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'REGISTRATION_FAILED',
@@ -81,7 +82,7 @@ export async function loginWithEmail(email: string, password: string): Promise<U
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
-    console.error('Email login error', error);
+    logger.error('Email login error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'EMAIL_LOGIN_FAILED',
@@ -97,7 +98,7 @@ export async function loginWithGoogle(): Promise<User> {
     const userCredential = await signInWithPopup(auth, provider);
     return userCredential.user;
   } catch (error) {
-    console.error('Google login error', error);
+    logger.error('Google login error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'GOOGLE_LOGIN_FAILED',
@@ -112,7 +113,7 @@ export async function resetPassword(email: string): Promise<boolean> {
     await sendPasswordResetEmail(auth, email);
     return true;
   } catch (error) {
-    console.error('Password reset error', error);
+    logger.error('Password reset error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'PASSWORD_RESET_FAILED',
@@ -135,7 +136,7 @@ export async function convertAnonymousAccount(email: string, password: string): 
       throw new Error('User is not anonymous or not logged in');
     }
   } catch (error) {
-    console.error('Account conversion error', error);
+    logger.error('Account conversion error', error);
     throw new AuthError(
       getFirebaseErrorMessage(error),
       'ACCOUNT_CONVERSION_FAILED',
@@ -150,7 +151,7 @@ export async function logout(): Promise<boolean> {
     await signOut(auth);
     return true;
   } catch (error) {
-    console.error('Firebase operation failed', error);
+    logger.error('Firebase operation failed', error);
     throw error;
   }
 }
@@ -184,7 +185,7 @@ export async function wipeAllAppData(): Promise<void> {
       try {
         localStorage.removeItem(key);
       } catch (error) {
-        console.warn(`Failed to remove localStorage key: ${key}`, error);
+        logger.warn(`Failed to remove localStorage key: ${key}`, error);
       }
     });
 
@@ -196,7 +197,7 @@ export async function wipeAllAppData(): Promise<void> {
         try {
           localStorage.removeItem(key);
         } catch (error) {
-          console.warn(`Failed to remove localStorage key: ${key}`, error);
+          logger.warn(`Failed to remove localStorage key: ${key}`, error);
         }
       }
     });
@@ -205,7 +206,7 @@ export async function wipeAllAppData(): Promise<void> {
     try {
       sessionStorage.clear();
     } catch (error) {
-      console.warn('Failed to clear sessionStorage', error);
+      logger.warn('Failed to clear sessionStorage', error);
     }
 
     // Clear IndexedDB via Dexie
@@ -215,7 +216,7 @@ export async function wipeAllAppData(): Promise<void> {
       db.close();
       await db.delete();
     } catch (error) {
-      console.warn('Failed to clear IndexedDB', error);
+      logger.warn('Failed to clear IndexedDB', error);
     }
 
     // Clear cookies comprehensively by trying multiple path and domain combinations
@@ -267,7 +268,7 @@ export async function wipeAllAppData(): Promise<void> {
       });
     });
   } catch (error) {
-    console.error('Error wiping app data:', error);
+    logger.error('Error wiping app data:', error);
     throw error;
   }
 }
@@ -281,7 +282,7 @@ export async function updateDisplayName(displayName = ''): Promise<User | null> 
     }
     return null;
   } catch (error) {
-    console.error('Firebase operation failed', error);
+    logger.error('Firebase operation failed', error);
     return getAuth().currentUser;
   }
 }

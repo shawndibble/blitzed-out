@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { enforceTopologyRoomInvariant, useSettings } from '@/stores/settingsStore';
 import { deriveParticipationContentMode } from '@/helpers/strings';
@@ -60,7 +61,7 @@ export default function useGameBoard(): (data: Settings) => Promise<GameBoardRes
       // on every board build — selected groups absent from the current mode are
       // expected (e.g. local-only groups while in an online room).
       if (boardResult.metadata.tilesWithContent < tileCount / 2) {
-        console.warn('Low tile content ratio:', {
+        logger.warn('Low tile content ratio:', {
           tilesWithContent: boardResult.metadata.tilesWithContent,
           totalTiles: boardResult.metadata.totalTiles,
           availableTileCount: boardResult.metadata.availableTileCount,

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTilePull } from '@/types/customTiles';
@@ -556,7 +557,7 @@ export default async function buildGameBoard(
 
     return await buildBoardFromData(groups, tiles, settings, tileCount, { translate });
   } catch (error) {
-    console.error('Error building game board:', error);
+    logger.error('Error building game board:', error);
 
     // Return empty board on error
     return {

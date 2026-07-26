@@ -3,12 +3,12 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import useHybridPlayerList, { isLocalPlayer, isRemotePlayer } from '../useHybridPlayerList';
 import { useLocalPlayers } from '../useLocalPlayers';
 import usePlayerList from '../usePlayerList';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 
 // Mock dependencies
 vi.mock('../useLocalPlayers');
 vi.mock('../usePlayerList');
-vi.mock('@/context/hooks/useAuth');
+vi.mock('@/hooks/useAuth');
 vi.mock('@/context/hooks/useMessages', () => ({
   default: () => ({
     messages: [],

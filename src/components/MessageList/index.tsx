@@ -10,7 +10,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
 import useSendSettings from '@/hooks/useSendSettings';
 import { useTranslation } from 'react-i18next';

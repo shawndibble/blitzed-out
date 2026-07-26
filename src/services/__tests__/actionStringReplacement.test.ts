@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import actionStringReplacement from '../actionStringReplacement';
+import { sequenceSource, setRandomSource } from '../random';
 import type { LocalPlayer } from '@/types/localPlayers';
 
 // Use the global i18next mock from setupTests.ts which has anatomy data
@@ -255,6 +256,119 @@ describe('actionStringReplacement', () => {
       const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', players, false);
 
       expect(result).toContain('Pat');
+    });
+
+    describe('the vers coin-flip, now that it has a seam', () => {
+      const versPlayer: LocalPlayer = {
+        id: '5',
+        name: 'Pat',
+        gender: 'male',
+        role: 'vers',
+        order: 4,
+        isActive: false,
+        deviceId: 'device1',
+        location: 0,
+        isFinished: false,
+      };
+      let restore: (() => void) | undefined;
+
+      afterEach(() => {
+        restore?.();
+        restore = undefined;
+      });
+
+      it('gives the vers player dom when the coin lands under half', () => {
+        restore = setRandomSource(sequenceSource([0.49]));
+
+        const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', [
+          versPlayer,
+          ...localPlayers,
+        ]);
+
+        // CONTEXT.md calls this by design; until the seam existed nothing could
+        // verify the design, only that a name appeared somewhere.
+        expect(result).toBe('Pat touches Jessica.');
+      });
+
+      it('gives the vers player sub when the coin lands at or above half', () => {
+        restore = setRandomSource(sequenceSource([0.5]));
+
+        const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', [
+          versPlayer,
+          ...localPlayers,
+        ]);
+
+        expect(result).toBe('Mike touches Pat.');
+      });
+
+      it('does not consume a draw when there is no coin-flip to make', () => {
+        restore = setRandomSource(sequenceSource([0.49, 0.5]));
+
+        // A {player}-only action needs no flip. If it drew anyway, the next
+        // action's flip would land on the wrong value.
+        actionStringReplacement('{player} stretches.', 'vers', 'Pat', undefined);
+        const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', [
+          versPlayer,
+          ...localPlayers,
+        ]);
+
+        expect(result).toBe('Pat touches Jessica.');
+      });
+
+      it('leaves a role token literal when the roster cannot fill it (known gap)', () => {
+        restore = setRandomSource(sequenceSource([0.5]));
+        const subOnly = localPlayers.filter((p) => p.role === 'sub');
+
+        const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', [
+          versPlayer,
+          ...subOnly,
+        ]);
+
+        // The vers player took sub, and nobody on the roster can be dom, so the
+        // raw token reaches the player. Pinned as-is: hiding it would mean
+        // choosing a fallback (name the only other player? use "a dominant"?),
+        // which is a content decision, not a refactor.
+        expect(result).toBe('{dom} touches Pat.');
+      });
+    });
+  });
+
+  describe('the vers coin-flip outside local multiplayer', () => {
+    let restore: (() => void) | undefined;
+
+    afterEach(() => {
+      restore?.();
+      restore = undefined;
+    });
+
+    it('names the vers player as dom when the coin lands under half', () => {
+      restore = setRandomSource(sequenceSource([0.49]));
+
+      const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat');
+
+      // Outside local multiplayer the other role has no roster to draw from, so
+      // it falls back to the generic term rather than leaking a raw token.
+      expect(result).toBe('Pat touches another player.');
+    });
+
+    it('names the vers player as sub when the coin lands at or above half', () => {
+      restore = setRandomSource(sequenceSource([0.5]));
+
+      const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat');
+
+      expect(result).toBe('Another player touches Pat.');
+    });
+
+    it('reuses one draw for both role checks in a single action', () => {
+      // Two draws would let {dom} and {sub} both resolve to the same player, or
+      // neither: the second value decides the second check.
+      restore = setRandomSource(sequenceSource([0.49, 0.5]));
+
+      const result = actionStringReplacement('{dom} rewards {sub}.', 'vers', 'Pat');
+
+      // 0.49 makes Pat the dom. A second draw (0.5) would also make {sub} match,
+      // naming Pat twice.
+      expect(result).toBe('Pat rewards another player.');
     });
   });
 

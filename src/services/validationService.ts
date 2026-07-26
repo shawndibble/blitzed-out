@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { ValidationResult, CustomGroupBase, CustomGroupIntensity } from '@/types/customGroups';
 import { VALID_GROUP_TYPES } from '@/types';
 import { CustomTile } from '@/types/customTiles';
@@ -270,7 +271,7 @@ export const validateCustomGroup = async (
       }
     } catch (error) {
       warnings.push('Could not verify group name uniqueness');
-      console.warn(
+      logger.warn(
         'Failed to check group name uniqueness:',
         error instanceof Error ? error.message : 'Unknown error'
       );

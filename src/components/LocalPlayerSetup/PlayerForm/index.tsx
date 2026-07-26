@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { useState, useCallback, useEffect } from 'react';
 import {
   Dialog,
@@ -176,7 +177,7 @@ export default function PlayerForm({
 
       await onSubmit(playerData);
     } catch (error) {
-      console.error('Error submitting player form:', error);
+      logger.error('Error submitting player form:', error);
       // Keep form open on error
     } finally {
       setIsSubmitting(false);

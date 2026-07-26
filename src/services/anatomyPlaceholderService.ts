@@ -8,6 +8,7 @@
  * @module anatomyPlaceholderService
  */
 
+import { logger } from '@/utils/logger';
 import type { AnatomyPlaceholder, PlayerGender } from '@/types/localPlayers';
 
 import type { PlayerRole } from '@/types/Settings';
@@ -56,7 +57,7 @@ function loadAnatomyMappingsForLocale(locale: string): LocaleAnatomyMappings {
  * @example
  * ```typescript
  * const mapping = getAnatomyMappings('en', 'male');
- * console.log(mapping.genital); // 'dick'
+ * logger.debug(mapping.genital); // 'dick'
  * ```
  */
 export function getAnatomyMappings(locale: string, gender?: PlayerGender): AnatomyMapping {
@@ -70,7 +71,7 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
 
   // If mapping is undefined, use generic anatomy terms from translations as fallback
   if (!mapping) {
-    console.warn(`No anatomy mapping found for locale: ${locale}, gender: ${genderKey}`);
+    logger.warn(`No anatomy mapping found for locale: ${locale}, gender: ${genderKey}`);
     const genericTerms = i18next.t('anatomy:genericAnatomyTerms', {
       lng: locale,
       returnObjects: true,
@@ -93,7 +94,7 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
  * @example
  * ```typescript
  * const term = getAnatomyTerm('en', 'female', 'chest');
- * console.log(term); // 'breasts'
+ * logger.debug(term); // 'breasts'
  * ```
  */
 export function getAnatomyTerm(
@@ -118,7 +119,7 @@ export function getAnatomyTerm(
  * @example
  * ```typescript
  * const term = getGenitalTermForRole('female', 'dom', 'en', true);
- * console.log(term); // 'strapon'
+ * logger.debug(term); // 'strapon'
  * ```
  */
 export function getGenitalTermForRole(
@@ -156,7 +157,7 @@ export function getGenitalTermForRole(
  *   false,
  *   'en'
  * );
- * console.log(result); // 'Touch your dick for 30 seconds.'
+ * logger.debug(result); // 'Touch your dick for 30 seconds.'
  * ```
  */
 export function replaceAnatomyPlaceholders(

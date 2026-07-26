@@ -4,6 +4,7 @@
  *
  * Owns both directions, and returns domain values — never a Firestore class.
  */
+import { logger } from '@/utils/logger';
 import {
   DocumentData,
   DocumentReference,
@@ -68,7 +69,7 @@ export async function getOrCreateBoard({
     // which only survived because `.id` happens to exist on both.
     return created ? { id: created.id } : undefined;
   } catch (error) {
-    console.error('Firebase operation failed', error);
+    logger.error('Firebase operation failed', error);
   }
 }
 
@@ -91,7 +92,7 @@ async function storeBoard({
       ttl: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     });
   } catch (error) {
-    console.error('Firebase operation failed', error);
+    logger.error('Firebase operation failed', error);
     return undefined;
   }
 }
@@ -105,7 +106,7 @@ export async function getBoard(id: string): Promise<DocumentData | undefined> {
     }
     return undefined;
   } catch (error) {
-    console.error('Firebase operation failed', error);
+    logger.error('Firebase operation failed', error);
     return undefined;
   }
 }

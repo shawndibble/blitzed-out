@@ -28,7 +28,7 @@ import ScheduleItem from './ScheduleItem';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AddIcon from '@mui/icons-material/Add';
 import EventIcon from '@mui/icons-material/Event';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import { isValidURL } from '@/helpers/urls';
 
 interface ScheduleProps {

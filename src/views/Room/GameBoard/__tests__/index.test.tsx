@@ -7,10 +7,10 @@ import GameBoard from '../index';
 import { Settings } from '@/types/Settings';
 import { TileExport } from '@/types/gameBoard';
 import actionStringReplacement from '@/services/actionStringReplacement';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 
 // Mock dependencies
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: vi.fn(() => ({
     user: null,
     signInWithGoogle: vi.fn(),

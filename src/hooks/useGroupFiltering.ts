@@ -1,7 +1,7 @@
+import { currentLocale } from '@/services/locale';
 import { getCustomGroups } from '@/stores/customGroups';
 import { useMemo } from 'react';
 
-import i18next from 'i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 /**
@@ -9,7 +9,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
  * Automatically detects database changes without manual refresh triggers
  */
 export const useEditorGroupsReactive = (gameMode: string, locale?: string) => {
-  const resolvedLocale = locale || i18next.resolvedLanguage || i18next.language || 'en';
+  const resolvedLocale = locale || currentLocale();
 
   // Use Dexie's useLiveQuery to automatically detect database changes
   const groups = useLiveQuery(

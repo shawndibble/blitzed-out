@@ -6,7 +6,7 @@ import { languages } from '@/services/i18nHelpers';
 const mockLogin = vi.fn();
 const mockUser = null;
 
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => ({
     login: mockLogin,
     user: mockUser,

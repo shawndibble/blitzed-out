@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { DocumentData, DocumentReference } from 'firebase/firestore';
 import { getOrCreateBoard } from '@/services/firebase/boards';
 import { sendMessage } from '@/services/firebase/chat';
@@ -126,7 +127,7 @@ export async function getSettingsMessage(
           const groupLabel = groupData?.label || customGroup.groupName;
           message += `* ${groupLabel}: Level ${customGroup.intensity} (Custom)\r\n`;
         } catch (error) {
-          console.error(`Error loading custom group ${customGroup.groupName}:`, error);
+          logger.error(`Error loading custom group ${customGroup.groupName}:`, error);
           // Fallback to using groupName as label
           message += `* ${customGroup.groupName}: Level ${customGroup.intensity} (Custom)\r\n`;
         }

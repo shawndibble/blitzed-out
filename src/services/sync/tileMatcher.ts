@@ -5,6 +5,7 @@
  * for improved sync reliability and performance.
  */
 
+import { logger } from '@/utils/logger';
 import { getTiles } from '@/stores/customTiles';
 import type { CustomTilePull, CustomTileBase } from '@/types/customTiles';
 
@@ -75,7 +76,7 @@ export class TileMatcher {
         matchKey: this.createKey(tile),
       };
     } catch (error) {
-      console.error('Error finding existing tile:', error);
+      logger.error('Error finding existing tile:', error);
       throw error;
     }
   }
@@ -131,7 +132,7 @@ export class TileMatcher {
           });
         }
       } catch (error) {
-        console.error(`Error batch matching tiles for group ${groupId}:`, error);
+        logger.error(`Error batch matching tiles for group ${groupId}:`, error);
 
         // Fall back to individual matching for this group
         for (const tile of groupTiles) {
@@ -139,7 +140,7 @@ export class TileMatcher {
             const result = await this.findExistingTile(tile);
             results.set(this.createKey(tile), result);
           } catch (individualError) {
-            console.error(`Error matching individual tile:`, individualError);
+            logger.error(`Error matching individual tile:`, individualError);
           }
         }
       }

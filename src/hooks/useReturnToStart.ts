@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Params, useParams } from 'react-router-dom';
 import { sendMessage } from '@/services/firebase/chat';
 import { useCallback } from 'react';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import { TurnFields } from '@/types/Message';
 
 export default function useReturnToStart(): () => Promise<void> {

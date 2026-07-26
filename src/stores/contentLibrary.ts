@@ -8,7 +8,8 @@
  * Read paths stay liveQuery-compatible: waitForContentReady's completed
  * fast-path is synchronous, and no other non-Dexie promise is awaited.
  */
-import i18next from 'i18next';
+import { logger } from '@/utils/logger';
+import { currentLocale } from '@/services/locale';
 
 import db from './store';
 import { actionUsesRoleTokens } from '@/helpers/actionsFolder';
@@ -39,7 +40,7 @@ export const getGroupsWithTiles = async (
     return await retryOnCursorError(
       db,
       async () => {
-        const resolvedLocale = locale || i18next.resolvedLanguage || i18next.language || 'en';
+        const resolvedLocale = locale || currentLocale();
         const allGroups = await getCustomGroups({ locale: resolvedLocale, gameMode });
 
         const groupIds = allGroups.map((group) => group.id);
@@ -51,11 +52,11 @@ export const getGroupsWithTiles = async (
         return allGroups.filter((group) => groupIdsWithTiles.has(group.id));
       },
       (message: string, error?: Error) => {
-        console.error(`Error in getGroupsWithTiles: ${message}`, error);
+        logger.error(`Error in getGroupsWithTiles: ${message}`, error);
       }
     );
   } catch (error) {
-    console.error('Final error in getGroupsWithTiles:', error);
+    logger.error('Final error in getGroupsWithTiles:', error);
     return [];
   }
 };
@@ -127,7 +128,7 @@ export const getTileCountsByGroup = async (
       return groups;
     }, {});
   } catch (error) {
-    console.error('Error in getTileCountsByGroup:', error);
+    logger.error('Error in getTileCountsByGroup:', error);
     return {};
   }
 };
@@ -224,7 +225,7 @@ export const deleteGroup = async (
 
     return result;
   } catch (error) {
-    console.error('Error in deleteGroup:', error);
+    logger.error('Error in deleteGroup:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 };
@@ -275,7 +276,7 @@ export const removeDuplicateGroups = async (
 
     return removedCount;
   } catch (error) {
-    console.error('Error in removeDuplicateGroups:', error);
+    logger.error('Error in removeDuplicateGroups:', error);
     return 0;
   }
 };

@@ -1,4 +1,5 @@
 import { Casino, Pause, PlayArrow } from '@mui/icons-material';
+import { randomInt } from '@/services/random';
 import { Button, ButtonGroup, Tooltip } from '@mui/material';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { forwardRef, useCallback, useEffect, useState, useRef, useImperativeHandle } from 'react';
@@ -52,7 +53,7 @@ function calculateDiceRoll(rollCount: string, diceSide: string): PendingRoll {
   const values: number[] = [];
 
   for (let i = 0; i < count; i += 1) {
-    values.push(Math.floor(Math.random() * sides) + 1);
+    values.push(randomInt(1, sides));
   }
 
   const total = values.reduce((sum, val) => sum + val, 0);
@@ -115,7 +116,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   useEffect(() => {
     if (handsFreeActive) {
       const range = resolveHandsFreeRange(settings.handsFreePreset);
-      const initial = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+      const initial = randomInt(range.min, range.max);
       setSelectedRoll('handsFree');
       setTimerSettings({ isRange: true, min: range.min, max: range.max });
       setAutoTime(initial);
@@ -286,7 +287,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
 
       if (timerSettings.isRange) {
         const { min, max } = timerSettings;
-        newTime = Math.floor(Math.random() * (max - min + 1)) + min;
+        newTime = randomInt(min, max);
       } else {
         newTime = autoTime;
       }

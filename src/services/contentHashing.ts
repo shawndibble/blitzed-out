@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { CustomGroupPull } from '@/types/customGroups';
 import { CustomTile } from '@/types/customTiles';
 
@@ -142,7 +143,7 @@ export async function validateContentHash(
     case 'tile':
       // For tiles, we need the group name - this should be provided in the validation context
       if (!item.groupName) {
-        console.warn('Missing groupName for tile hash validation');
+        logger.warn('Missing groupName for tile hash validation');
         return false;
       }
       actualHash = await generateTileContentHash(item, item.groupName);

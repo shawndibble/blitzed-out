@@ -47,7 +47,7 @@ import { getCustomGroups } from '@/stores/customGroups';
 import { validateCustomTileWithGroups } from '@/services/validationService';
 import { normalizePlaceholders } from '@/services/placeholderAliasService';
 import { analytics } from '@/services/analytics';
-import useAuth from '@/context/hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 import { deriveContentMode, useGameSettings } from '@/stores/settingsStore';
 import type { ContentGameMode } from '@/types/Settings';
 import { GAME_MODES } from '@/services/migration/constants';

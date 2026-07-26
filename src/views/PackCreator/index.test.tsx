@@ -57,7 +57,7 @@ vi.mock('@/views/CustomGroupDialog', () => ({
 }));
 
 const mockAuth = { user: { uid: 'u1' }, isAnonymous: true };
-vi.mock('@/context/hooks/useAuth', () => ({
+vi.mock('@/hooks/useAuth', () => ({
   default: () => mockAuth,
 }));
 

@@ -4,6 +4,7 @@
  * Owns the representation of `dateTime` in both directions — a Firestore
  * Timestamp on the wire, a Dayjs everywhere above.
  */
+import { logger } from '@/utils/logger';
 import {
   DocumentData,
   DocumentReference,
@@ -60,7 +61,7 @@ export function getSchedule(
       callback(schedule);
     },
     (error) => {
-      console.error('getSchedule error', error);
+      logger.error('getSchedule error', error);
     }
   );
 }
@@ -79,7 +80,7 @@ export async function addSchedule(
       createdBy: createdBy || '',
     });
   } catch (error) {
-    console.error('Schedule operation failed', error);
+    logger.error('Schedule operation failed', error);
     throw error;
   }
 }
@@ -94,7 +95,7 @@ export async function updateSchedule(
       url: updates.url,
     });
   } catch (error) {
-    console.error('Schedule update failed', error);
+    logger.error('Schedule update failed', error);
     throw error;
   }
 }
@@ -103,7 +104,7 @@ export async function deleteSchedule(scheduleId: string): Promise<void> {
   try {
     await deleteDoc(doc(db, 'schedule', scheduleId));
   } catch (error) {
-    console.error('Schedule delete failed', error);
+    logger.error('Schedule delete failed', error);
     throw error;
   }
 }
