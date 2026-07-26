@@ -1,3 +1,4 @@
+import { currentLocale } from '@/services/locale';
 import { Collection, Table } from 'dexie';
 import {
   CustomGroup,
@@ -8,7 +9,6 @@ import {
 } from '@/types/customGroups';
 
 import db from './store';
-import i18next from 'i18next';
 import { nanoid } from 'nanoid';
 import { retryOnCursorError } from '@/utils/dbRecovery';
 import { analyticsTracking } from '@/services/analyticsTracking';
@@ -41,7 +41,7 @@ customGroups.hook(
   'creating',
   function (this: any, _primKey: string | undefined, obj: CustomGroup, _transaction: any) {
     if (!obj.id) obj.id = nanoid();
-    if (obj.locale === undefined) obj.locale = i18next.resolvedLanguage || i18next.language || 'en';
+    if (obj.locale === undefined) obj.locale = currentLocale();
     if (obj.gameMode === undefined) obj.gameMode = 'online';
     if (obj.isDefault === undefined) obj.isDefault = false;
     const now = new Date();

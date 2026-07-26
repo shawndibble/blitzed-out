@@ -8,7 +8,7 @@
  * Read paths stay liveQuery-compatible: waitForContentReady's completed
  * fast-path is synchronous, and no other non-Dexie promise is awaited.
  */
-import i18next from 'i18next';
+import { currentLocale } from '@/services/locale';
 
 import db from './store';
 import { actionUsesRoleTokens } from '@/helpers/actionsFolder';
@@ -39,7 +39,7 @@ export const getGroupsWithTiles = async (
     return await retryOnCursorError(
       db,
       async () => {
-        const resolvedLocale = locale || i18next.resolvedLanguage || i18next.language || 'en';
+        const resolvedLocale = locale || currentLocale();
         const allGroups = await getCustomGroups({ locale: resolvedLocale, gameMode });
 
         const groupIds = allGroups.map((group) => group.id);

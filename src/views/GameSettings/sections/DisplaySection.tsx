@@ -16,6 +16,7 @@ import { SCOPE_COLORS } from '../components/scopeColors';
 import { isPublicRoom } from '@/helpers/strings';
 import { isValidURL } from '@/helpers/urls';
 import { languages } from '@/services/i18nHelpers';
+import { changeLocale } from '@/services/locale';
 import { Settings } from '@/types/Settings';
 import { useSettings } from '@/stores/settingsStore';
 
@@ -83,7 +84,9 @@ export default function DisplaySection({
     try {
       // Language change automatically triggers content re-seeding
       // (contentReadiness languageChanged listener), then the board rebuilds.
-      await i18n.changeLanguage(value);
+      // changeLocale keeps the persisted locale mirror in step; calling
+      // i18n.changeLanguage directly here is what stranded its readers.
+      await changeLocale(value);
       boardUpdated();
     } catch {
       // Switch failed — keep the previous language so the Select reflects reality.

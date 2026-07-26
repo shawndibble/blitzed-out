@@ -3,7 +3,11 @@
  */
 
 // Supported languages for migration
-export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi'] as const;
+// Must match i18n.ts's `supportedLngs` and the directories under src/locales.
+// German shipped without being added here, so every gate keyed on this list —
+// export/pack locale filtering, browser-language detection — treated a German
+// user as unsupported. `locale.test.ts` pins the three lists together.
+export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi', 'de'] as const;
 
 // ============================================================================
 // MIGRATION VERSION CONFIGURATION

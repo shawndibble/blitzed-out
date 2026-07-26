@@ -1,4 +1,4 @@
-import i18next from 'i18next';
+import { currentLocale } from '@/services/locale';
 import db from './store';
 import { CustomTile, CustomTilePull } from '@/types/customTiles';
 import { CustomTileFilters, PaginatedResult } from '@/types/dexieTypes';
@@ -52,7 +52,7 @@ customTiles.hook('updating', function (this: any, modifications: any) {
  */
 export const canonicalizeTileAction = <T extends Partial<CustomTile>>(record: T): T => {
   if (typeof record.action !== 'string' || !record.action) return record;
-  const locale = i18next.resolvedLanguage || i18next.language || 'en';
+  const locale = currentLocale();
   return { ...record, action: normalizePlaceholders(record.action, locale) };
 };
 

@@ -26,6 +26,7 @@ import Navigation from '@/views/Navigation';
 import { languages } from '@/services/i18nHelpers';
 import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 import useAuth from '@/context/hooks/useAuth';
+import { changeLocale } from '@/services/locale';
 import usePlayerList from '@/hooks/usePlayerList';
 import { useSettings } from '@/stores/settingsStore';
 
@@ -122,12 +123,12 @@ export default function UnauthenticatedApp() {
       setLanguageLoading(true);
 
       try {
-        await i18n.changeLanguage(newLanguage);
+        await changeLocale(newLanguage);
       } finally {
         setLanguageLoading(false);
       }
     },
-    [i18n]
+    []
   );
 
   const languageMenuItems = useMemo(
