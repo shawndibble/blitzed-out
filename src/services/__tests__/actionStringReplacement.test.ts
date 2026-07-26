@@ -301,6 +301,20 @@ describe('actionStringReplacement', () => {
         expect(result).toBe('Mike touches Pat.');
       });
 
+      it('does not consume a draw when there is no coin-flip to make', () => {
+        restore = setRandomSource(sequenceSource([0.49, 0.5]));
+
+        // A {player}-only action needs no flip. If it drew anyway, the next
+        // action's flip would land on the wrong value.
+        actionStringReplacement('{player} stretches.', 'vers', 'Pat', undefined);
+        const result = actionStringReplacement('{dom} touches {sub}.', 'vers', 'Pat', [
+          versPlayer,
+          ...localPlayers,
+        ]);
+
+        expect(result).toBe('Pat touches Jessica.');
+      });
+
       it('leaves a role token literal when the roster cannot fill it (known gap)', () => {
         restore = setRandomSource(sequenceSource([0.5]));
         const subOnly = localPlayers.filter((p) => p.role === 'sub');

@@ -281,9 +281,13 @@ function replaceLocalMultiplayerPlaceholders(
  * Replace player name in non-local modes
  */
 function replaceWithPlayerName(string: string, role: string, displayName: string): string {
-  const roll = nextRandom();
   const hasBothDomAndSub = string.includes('{dom}') && string.includes('{sub}');
   const isVers = role === 'vers';
+
+  // Drawn lazily and once: an action with no vers coin-flip to make must not
+  // consume randomness, or every caller's draw sequence shifts under it.
+  let coin: number | undefined;
+  const versCoin = (): number => (coin ??= nextRandom());
 
   function shouldReplace(match: string): boolean {
     if (match === '{player}') return true;
@@ -293,8 +297,8 @@ function replaceWithPlayerName(string: string, role: string, displayName: string
     if (!hasBothDomAndSub && isVers && isDomOrSub) return true;
 
     if (hasBothDomAndSub && isVers) {
-      const isDomMatchWithChance = match === '{dom}' && roll < 0.5;
-      const isSubMatchWithChance = match === '{sub}' && roll >= 0.5;
+      const isDomMatchWithChance = match === '{dom}' && versCoin() < 0.5;
+      const isSubMatchWithChance = match === '{sub}' && versCoin() >= 0.5;
       return isDomMatchWithChance || isSubMatchWithChance;
     }
 

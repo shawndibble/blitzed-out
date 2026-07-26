@@ -217,7 +217,6 @@ export default function usePlayerMove(
   const getNewLocation = useCallback(
     (rollNumber: number): LocationResult => {
       if (!isUsableRoll(rollNumber)) {
-        console.warn('Invalid rollNumber detected, ignoring move:', rollNumber);
         return { newLocation: 0, kind: 'normal' };
       }
 

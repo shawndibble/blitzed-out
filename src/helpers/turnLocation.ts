@@ -21,9 +21,12 @@ export interface RollInput {
   lastTile: number;
 }
 
-/** A roll the board cannot interpret leaves the player where they are. */
+/**
+ * A roll the board can act on. Rejects NaN and both infinities: `Infinity`
+ * arithmetic would otherwise resolve to the finish tile and declare the game won.
+ */
 export function isUsableRoll(rollNumber: unknown): rollNumber is number {
-  return typeof rollNumber === 'number' && !Number.isNaN(rollNumber);
+  return typeof rollNumber === 'number' && Number.isFinite(rollNumber);
 }
 
 export function resolveLocation({
@@ -31,15 +34,17 @@ export function resolveLocation({
   currentLocation,
   lastTile,
 }: RollInput): RollResolution {
+  const from = isUsableRoll(currentLocation) ? currentLocation : 0;
+
+  // An uninterpretable roll must not move anyone. Returning tile 0 here would
+  // send a player mid-board back to the start.
   if (!isUsableRoll(rollNumber)) {
-    return { newLocation: 0, kind: 'normal' };
+    return { newLocation: from, kind: 'normal' };
   }
 
   if (rollNumber === -1) {
     return { newLocation: 0, kind: 'restart' };
   }
-
-  const from = isUsableRoll(currentLocation) ? currentLocation : 0;
 
   // Already home: stay put whatever the roll says (restart with -1 instead), so
   // a later roll can neither move backwards nor re-trigger the finish.

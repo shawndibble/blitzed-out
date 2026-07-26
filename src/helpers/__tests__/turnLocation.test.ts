@@ -45,14 +45,15 @@ describe('resolveLocation', () => {
     });
   });
 
-  it('treats an unusable roll as no movement', () => {
-    expect(resolveLocation({ rollNumber: NaN, currentLocation: 7, lastTile: LAST })).toEqual({
-      newLocation: 0,
-      kind: 'normal',
-    });
-    expect(
-      resolveLocation({ rollNumber: 'x' as unknown as number, currentLocation: 7, lastTile: LAST })
-    ).toEqual({ newLocation: 0, kind: 'normal' });
+  it('leaves the player where they stand on an unusable roll', () => {
+    for (const rollNumber of [NaN, Infinity, -Infinity, 'x' as unknown as number]) {
+      // Not tile 0: sending a mid-board player back to the start would be a
+      // silent restart, and Infinity would otherwise resolve to the finish tile.
+      expect(resolveLocation({ rollNumber, currentLocation: 7, lastTile: LAST })).toEqual({
+        newLocation: 7,
+        kind: 'normal',
+      });
+    }
   });
 
   it('treats an unusable current location as the start', () => {
@@ -66,6 +67,8 @@ describe('resolveLocation', () => {
     expect(isUsableRoll(0)).toBe(true);
     expect(isUsableRoll(-1)).toBe(true);
     expect(isUsableRoll(NaN)).toBe(false);
+    expect(isUsableRoll(Infinity)).toBe(false);
+    expect(isUsableRoll(-Infinity)).toBe(false);
     expect(isUsableRoll(undefined)).toBe(false);
     expect(isUsableRoll('3')).toBe(false);
   });
