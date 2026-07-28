@@ -1,0 +1,2 @@
+import{o as r}from"./chunk-iuO8RvI4.js";import{r as t}from"./chunk-CtypbpkR.js";import{t as o}from"./chunk-OAZ33DPY.js";var s=r(t(),1);function n(){const r=(0,s.useContext)(o);if(void 0===r)throw new Error("useAuth must be used within an AuthProvider");return r}export{n as t};
+//# sourceMappingURL=chunk-DCdmiXrr.js.map
