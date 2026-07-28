@@ -21,6 +21,11 @@
 export const PENETRATIVE_INTENSITIES: Record<string, number[]> = {
   buttPlay: [2, 3],
   throatTraining: [2, 3, 4],
+  // clitTraining is deliberately absent even though its value 3 is literally
+  // "Penetration". This manifest exists to swap a *dom's* {genital} for a
+  // strapon, and in clitTraining the {dom} slot is the person being
+  // penetrated — listing it would hand a female dom a strapon she is not
+  // wearing. The group's own content addresses anatomy directly instead.
 };
 
 /** Whether a default tile (group + intensity value) should carry the penetrative tag. */

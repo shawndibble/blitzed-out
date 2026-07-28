@@ -18,8 +18,12 @@ describe('penetrative intensity manifest', () => {
 
   it('treats unlisted groups (e.g. bating, clitTraining) as never penetrative', () => {
     expect(isPenetrativeDefaultTile('bating', 2)).toBe(false);
+    // clitTraining value 3 *is* "Penetration", and still must not be listed:
+    // the manifest swaps a dom's genital for a strapon, but here the {dom}
+    // slot is the receiver. See PENETRATIVE_INTENSITIES.
     expect(isPenetrativeDefaultTile('clitTraining', 3)).toBe(false);
     expect(PENETRATIVE_INTENSITIES.bating).toBeUndefined();
+    expect(PENETRATIVE_INTENSITIES.clitTraining).toBeUndefined();
   });
 });
 
@@ -37,6 +41,17 @@ describe('importActionFile penetrative tagging (real en/local bundle)', () => {
     tiles
       .filter((t) => t.intensity === 1)
       .forEach((t) => expect(t.tags).not.toContain('penetrative'));
+  });
+
+  it("carries a group's anatomyRequirement through seeding", async () => {
+    // The seeder builds each group row from an explicit field list, so a bundle
+    // key it doesn't name is dropped. clitTraining declares 'pussy'.
+    const gated = await importActionFile('clitTraining', 'en', 'local');
+    expect(gated?.customGroup.anatomyRequirement).toBe('pussy');
+
+    // Groups that declare nothing must stay undefined rather than gaining a default.
+    const ungated = await importActionFile('bating', 'en', 'local');
+    expect(ungated?.customGroup.anatomyRequirement).toBeUndefined();
   });
 
   it('never tags bating tiles penetrative', async () => {

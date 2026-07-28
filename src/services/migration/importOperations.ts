@@ -56,6 +56,10 @@ export const importActionFile = async (
     const label = actionFile.label || groupName;
     const type = actionFile.type || 'action';
     const actions = actionFile.actions || {};
+    // Carried through deliberately: the seeder builds this row from an explicit
+    // field list, so a bundle key not named here is silently dropped. Several
+    // groups declare an anatomy requirement and used to lose it at the door.
+    const anatomyRequirement = actionFile.anatomyRequirement;
 
     // Convert actions object to intensities array
     const intensities = Object.keys(actions).map((intensityName, index) => ({
@@ -75,6 +79,7 @@ export const importActionFile = async (
       label,
       intensities,
       type,
+      ...(anatomyRequirement ? { anatomyRequirement } : {}),
       isDefault: true,
       locale,
       gameMode,
@@ -284,6 +289,7 @@ export const importGroupsForLocaleAndGameMode = async (
             // intensities must survive re-seeds.
             intensities: mergeSeedIntensities(customGroup.intensities, existingGroup.intensities),
             type: customGroup.type,
+            anatomyRequirement: customGroup.anatomyRequirement,
             isDefault: true,
             locale,
             gameMode,

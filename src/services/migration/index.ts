@@ -80,7 +80,12 @@ export const migrateCurrentLanguage = async (locale?: string): Promise<boolean> 
       // imported defaults arrive enabled; the disabled-defaults table is the
       // source of truth, so this keeps disables surviving a re-seed/recovery.
       try {
-        const { reconcileDisabledRows } = await import('@/stores/disabledDefaults');
+        const { rekeyMovedDisabledRecords, reconcileDisabledRows } =
+          await import('@/stores/disabledDefaults');
+        // Must run first: reconcile re-enables anything it cannot match, so a
+        // record stranded by a tier re-order has to be re-keyed before then or
+        // the player's choice is silently reverted.
+        await rekeyMovedDisabledRecords();
         await reconcileDisabledRows();
       } catch (error) {
         logError('warn', 'reconcileDisabledRows', error);
