@@ -22,8 +22,8 @@ export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi', 'de'] as const
 // - 2.4.0: Added clit training category
 // - 2.5.0: Expanded confessions and added would you rather category
 // - 2.6.0: Penetrative tag on default tiles + clit training oral intensity
-// - 2.7.0: Oral Play intensity renames, {tip} anatomy placeholder, stale
-//          default-tile pruning
+// - 2.7.0: Throat Training group/intensity renames, {tip} anatomy placeholder,
+//          stale default-tile pruning
 //
 export const MIGRATION_VERSION = '2.7.0';
 // ============================================================================

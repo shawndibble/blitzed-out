@@ -186,12 +186,13 @@ describe('fresh install seeding (real Dexie + real bundles)', () => {
       expect(await db.customTiles.count()).toBe(before);
     }, 15000);
 
-    it('renames the Oral Play intensity ladder in place', async () => {
+    it('renames the group and its intensity ladder in place', async () => {
       await migrateCurrentLanguage('en');
       const group = await throatTrainingGroup();
 
       // An older bundle's labels, at the same positional values.
       await db.customGroups.update(group!.id, {
+        label: 'Oral Play',
         intensities: group!.intensities.map((i) =>
           i.value === 2 ? { ...i, label: 'Oral (Penetrative)' } : i
         ),
@@ -201,6 +202,7 @@ describe('fresh install seeding (real Dexie + real bundles)', () => {
       await migrateCurrentLanguage('en');
 
       const updated = await throatTrainingGroup();
+      expect(updated!.label).toBe('Throat Training');
       expect(updated!.intensities.find((i) => i.value === 2)?.label).toBe('Sucking');
     }, 15000);
   });
