@@ -57,7 +57,11 @@ Action text contains tokens replaced at gameplay time:
 - **Anatomy:** `{genital}` (dick/pussy, strap-on for a female dom in penetrative context), `{tip}` (tip/clit, strap-on tip under the same rule), `{hole}` (ass/pussy), `{chest}` (breasts/pecs), plus pronoun tokens.
 - **Role/target:** `{dom}`, `{sub}`, `{player}`, with piped variants like `{genital|dom}` and possessives like `{dom}'s {genital}`.
 
-The token list is declared once as `ANATOMY_PLACEHOLDERS` in `src/types/localPlayers.ts`; the `AnatomyPlaceholder` type, `getSupportedPlaceholders()`, and all three token regexes (bare, piped, possessive) derive from it. Adding a token means editing that array and adding the term to each `locales/*/anatomy.json` — no pattern edits.
+The token list is declared once as `ANATOMY_PLACEHOLDERS` in `src/types/localPlayers.ts`; the `AnatomyPlaceholder` type, `getSupportedPlaceholders()`, all three token regexes (bare, piped, possessive), and the authoring UI's chip list derive from it. **No pattern edits** are ever needed. A new token is that array plus locale data in three files, per locale:
+
+1. `locales/*/anatomy.json` — the term under `genericAnatomyTerms` and all three `anatomyMappings` genders. Add a `straponTerms` entry too if the token should follow `{genital}` onto a strap-on (see `STRAPON_TERM_KEYS`).
+2. `locales/*/placeholders.json` — the localized token _name_, so authors can type it in their own language (`placeholderAliasService` normalizes it to canonical English on save).
+3. `locales/*/translation.json` — a `customTiles.placeholderHelp.<camelCaseKey>` string, plus the matching entry in `ANATOMY_HELP_KEYS` (`AddCustomTile/index.tsx`). That map is a `Record<AnatomyPlaceholder, string>`, so a missing entry is a type error rather than a chip that silently never renders.
 
 Pipeline: `actionStringReplacement.ts` orchestrates replacement; `anatomyPlaceholderService.ts` resolves anatomy terms by gender/role/locale; `anatomyFilterService.ts` decides which actions are compatible with a player's anatomy.
 

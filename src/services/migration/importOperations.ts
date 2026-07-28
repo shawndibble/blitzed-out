@@ -211,6 +211,26 @@ const getStaleDefaultTileIds = (
 };
 
 /**
+ * Delete the stale defaults, swallowing any failure.
+ *
+ * This runs inside the group's `rw` transaction, so an unguarded throw would
+ * abort it and roll back the label/intensity renames and the tile inserts that
+ * already succeeded. A group carrying one superseded action is a far better
+ * outcome than a group that never got re-seeded at all.
+ */
+const pruneStaleDefaultsSafely = async (
+  bundleTiles: CustomTileBase[],
+  existingTiles: CustomTilePull[],
+  groupId: string
+): Promise<void> => {
+  try {
+    await deleteTilesByIds(getStaleDefaultTileIds(bundleTiles, existingTiles));
+  } catch (error) {
+    logError('warn', `pruneStaleDefaults:${groupId}`, error);
+  }
+};
+
+/**
  * Import custom tiles with duplicate handling
  */
 const importCustomTilesSafely = async (tiles: CustomTileBase[]): Promise<number> => {
@@ -288,7 +308,7 @@ export const importGroupsForLocaleAndGameMode = async (
           // failed bulkAdd, and pruning after that would shrink the group with
           // nothing put in its place, on a locale already marked complete.
           if (newTiles.length === 0 || tilesAdded > 0) {
-            await deleteTilesByIds(getStaleDefaultTileIds(tilesForGroup, existingTiles));
+            await pruneStaleDefaultsSafely(tilesForGroup, existingTiles, targetGroupId);
           }
         }
       });

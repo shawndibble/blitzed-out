@@ -93,12 +93,7 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
   // If mapping is undefined, use generic anatomy terms from translations as fallback
   if (!mapping) {
     logger.warn(`No anatomy mapping found for locale: ${locale}, gender: ${genderKey}`);
-    const genericTerms = i18next.t('anatomy:genericAnatomyTerms', {
-      lng: locale,
-      returnObjects: true,
-    }) as AnatomyMapping;
-
-    return genericTerms;
+    return getGenericAnatomyTerms(locale) as AnatomyMapping;
   }
 
   return mapping;

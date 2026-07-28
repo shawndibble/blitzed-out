@@ -8,6 +8,7 @@ vi.unmock('@/services/migration/contentReadiness');
 import '@/i18n';
 
 const insert = vi.hoisted(() => ({ shouldFail: false }));
+const prune = vi.hoisted(() => ({ shouldFail: false }));
 
 // The prune deletes seeded defaults the bundle no longer carries. It must not
 // run when the replacement insert failed — importCustomTilesSafely swallows a
@@ -20,6 +21,10 @@ vi.mock('@/stores/customTiles', async (importOriginal) => {
       insert.shouldFail
         ? Promise.reject(new Error('QuotaExceededError'))
         : actual.importCustomTiles(...args),
+    deleteTilesByIds: (...args: Parameters<typeof actual.deleteTilesByIds>) =>
+      prune.shouldFail
+        ? Promise.reject(new Error('DatabaseClosedError'))
+        : actual.deleteTilesByIds(...args),
   };
 });
 
@@ -31,6 +36,7 @@ import db from '@/stores/store';
 describe('pruning stale defaults', () => {
   beforeEach(async () => {
     insert.shouldFail = false;
+    prune.shouldFail = false;
     localStorage.clear();
     __resetContentReadinessForTests();
     await db.customGroups.clear();
@@ -82,6 +88,31 @@ describe('pruning stale defaults', () => {
     // otherwise shrink with no replacement, on a locale marked complete.
     expect(await db.customTiles.get(staleId)).toBeDefined();
     expect(await db.customTiles.count()).toBe(countBefore);
+  }, 20000);
+
+  it('still applies the group renames when the prune itself fails', async () => {
+    await migrateCurrentLanguage('en');
+    const { groupId } = await seedStaleTile();
+
+    // Older bundle's label at the same positional value, so the re-seed has a
+    // rename to apply alongside the prune.
+    const group = await db.customGroups.get(groupId);
+    await db.customGroups.update(groupId, {
+      label: 'Oral Play',
+      intensities: group!.intensities.map((i) =>
+        i.value === 2 ? { ...i, label: 'Oral (Penetrative)' } : i
+      ),
+    });
+
+    prune.shouldFail = true;
+    pretendSeededOnOlderVersion();
+    await migrateCurrentLanguage('en');
+
+    // The prune shares the group's rw transaction, so an unguarded throw would
+    // roll the renames back with it.
+    const updated = await db.customGroups.get(groupId);
+    expect(updated!.label).toBe('Throat Training');
+    expect(updated!.intensities.find((i) => i.value === 2)?.label).toBe('Sucking');
   }, 20000);
 
   it('removes the stale tile on a healthy re-seed', async () => {
