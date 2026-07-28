@@ -103,6 +103,48 @@ export async function getActiveDisabledKeys(): Promise<Set<string>> {
 }
 
 /**
+ * Follow disabled records whose action moved to a different intensity.
+ *
+ * The key carries the positional intensity, so re-ordering a group's tiers
+ * strands every record for an action that changed rung — and because
+ * `reconcileDisabledRows` re-enables anything it can't match, the player's
+ * choice is silently reverted. A *reworded* action is unrecoverable (nothing
+ * relates the old text to the new), but a *moved* one is: same `group_id`, same
+ * `action`, new `intensity`. Re-key those, drop the strays.
+ *
+ * Idempotent — a record already pointing at a live row is left alone.
+ */
+export async function rekeyMovedDisabledRecords(): Promise<number> {
+  const records = await disabledDefaults.filter((r) => r.active === true).toArray();
+  if (!records.length) return 0;
+
+  const defaultRows = await customTiles.filter((t) => t.isCustom === 0).toArray();
+  const liveKeys = new Set(defaultRows.map(disabledKey));
+  const byGroupAndAction = new Map(
+    defaultRows.map((row) => [`${row.group_id}|${row.action}`, row.intensity])
+  );
+
+  let moved = 0;
+  for (const record of records) {
+    if (liveKeys.has(record.key)) continue;
+
+    const intensity = byGroupAndAction.get(`${record.group_id}|${record.action}`);
+    if (intensity === undefined || intensity === record.intensity) continue;
+
+    // Insert under the new key before removing the old one, so a failure
+    // between the two leaves the record findable rather than lost.
+    await disabledDefaults.put({
+      ...record,
+      key: disabledKey({ ...record, intensity }),
+      intensity,
+    });
+    await disabledDefaults.delete(record.key);
+    moved++;
+  }
+  return moved;
+}
+
+/**
  * Sole writer of default-row `isEnabled`, derived from the table. Called after
  * a sync pull (and available after migration). Default tile rows that match an
  * active record become disabled; everything else default becomes enabled. Custom
