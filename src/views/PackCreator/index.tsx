@@ -233,8 +233,14 @@ export default function PackCreator() {
   // gates it on the token's sign_in_provider), so keep the selection honest —
   // then honour the request as soon as the session qualifies.
   useEffect(() => {
-    if (!hasPermanentProvider) setVisibility('private');
-    else if (publicRequested) setVisibility('public');
+    if (!hasPermanentProvider) {
+      setVisibility('private');
+    } else if (publicRequested) {
+      setVisibility('public');
+      // One-shot: consuming the request stops a later provider re-read from
+      // overriding a private choice the author made after upgrading.
+      setPublicRequested(false);
+    }
   }, [hasPermanentProvider, publicRequested]);
 
   // Signing into a different account leaves the loaded pack owned by someone

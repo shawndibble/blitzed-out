@@ -295,10 +295,12 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   // half-linked session recovers the truth instead of inheriting the lie.
   const [tokenProviderPermanent, setTokenProviderPermanent] = useState<boolean | null>(null);
   useEffect(() => {
-    if (!user) {
-      setTokenProviderPermanent(null);
-      return;
-    }
+    // Drop the previous user's answer first, for *any* change of user: a
+    // permanent → anonymous switch (no sign-out, so no null tick) would
+    // otherwise keep reading `true` across the async gap and offer a
+    // permanent-only capability to a guest session.
+    setTokenProviderPermanent(null);
+    if (!user) return;
     let cancelled = false;
     user
       .getIdTokenResult()

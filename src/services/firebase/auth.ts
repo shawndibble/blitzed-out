@@ -9,6 +9,7 @@ import {
   AuthError,
   createStandardError,
   getFirebaseErrorMessage,
+  isAlreadyLinkedToThisUser,
   isIdentityTakenError,
 } from '@/types/errors';
 import {
@@ -132,6 +133,11 @@ function requireAnonymousUser(): User {
 }
 
 function conversionError(error: unknown): AuthError {
+  // Already linked to *this* user: the uid never changes, so the "already
+  // taken" copy would lie and only the session needs finishing.
+  if (isAlreadyLinkedToThisUser(error)) {
+    return toAuthError(error, ACCOUNT_LINKED_NEEDS_SIGNIN);
+  }
   const taken = isIdentityTakenError(error);
   return toAuthError(
     error,

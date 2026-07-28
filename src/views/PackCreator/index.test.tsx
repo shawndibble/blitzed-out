@@ -183,6 +183,36 @@ describe('PackCreator', () => {
     expect(mockPublish.mock.calls[0][0].visibility).toBe('public');
   });
 
+  it('does not re-force public after the author chooses private', async () => {
+    renderCreator();
+
+    fireEvent.click(await screen.findByText('My Group'));
+    fireEvent.click(screen.getByText('next'));
+    fireEvent.change(screen.getByLabelText('packs.name'), { target: { value: 'Party Pack' } });
+    fireEvent.click(screen.getByText('packs.signInToPublish'));
+    fireEvent.click(await screen.findByText('finish-link'));
+    await screen.findByText('packs.publicHelper');
+
+    // Deliberate downgrade after the upgrade.
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    fireEvent.click(await screen.findByRole('option', { name: 'packs.visibilityPrivate' }));
+
+    // Force the provider signal to churn the way a token re-read does (it drops
+    // to null on any user change), re-running the effect on both values.
+    mockAuth.hasPermanentProvider = false;
+    fireEvent.change(screen.getByLabelText('packs.name'), { target: { value: 'Party Pack v2' } });
+    mockAuth.hasPermanentProvider = true;
+    fireEvent.change(screen.getByLabelText('packs.name'), { target: { value: 'Party Pack v3' } });
+
+    // The consumed request must not resurrect public.
+    fireEvent.click(screen.getByText('next'));
+    await screen.findByText('packCreator.willBePrivate');
+    fireEvent.click(screen.getByText('packs.publish'));
+
+    await waitFor(() => expect(mockPublish).toHaveBeenCalled());
+    expect(mockPublish.mock.calls[0][0].visibility).toBe('private');
+  });
+
   it('keeps public off the table when a link left the session half-upgraded', async () => {
     renderCreator();
 
