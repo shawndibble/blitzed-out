@@ -5,6 +5,7 @@ import type { PlayerGender } from '@/types/localPlayers';
 import {
   replaceAnatomyPlaceholders,
   getRoleAwareAnatomyTerm,
+  getGenericAnatomyTerms,
   anatomyTokenPattern,
   ANATOMY_TOKEN_ALTERNATION,
 } from './anatomyPlaceholderService';
@@ -19,16 +20,6 @@ const PLACEHOLDER_FALLBACKS = {
   sub: () => t('aSubmissive'),
   anotherPlayer: () => t('anotherPlayer'),
 } as const;
-
-/**
- * Load generic anatomy terms from translation files
- */
-function loadGenericAnatomyTerms(locale: string): Record<string, string> {
-  return i18next.t('anatomy:genericAnatomyTerms', { lng: locale, returnObjects: true }) as Record<
-    string,
-    string
-  >;
-}
 
 function capitalizeFirstLetterInCurlyBraces(string: string): string {
   return string.replace(/(?:^|\.\s|!\s)(\w)/g, (match) => match.toUpperCase());
@@ -54,13 +45,13 @@ const contextualAnatomyPattern = new RegExp(
  * Used for GameBoard preview display
  */
 function replaceGenericAnatomyPlaceholders(action: string, locale: string): string {
-  const genericTerms = loadGenericAnatomyTerms(locale);
+  const genericTerms = getGenericAnatomyTerms(locale);
 
   // Piped tokens resolve here too: the board preview has no players to aim a
   // `|dom` at, and leaving it unmatched would print the raw token on the tile.
   return action.replace(
     anatomyTokenPattern(),
-    (match, placeholder: string) => genericTerms[placeholder] || match
+    (match, placeholder: AnatomyPlaceholder) => genericTerms[placeholder] || match
   );
 }
 
@@ -143,7 +134,7 @@ function replacePipedAnatomyPlaceholders(
   locale: string
 ): string {
   const currentPlayer = localPlayers.find((p) => p.name === displayName);
-  const genericTerms = loadGenericAnatomyTerms(locale);
+  const genericTerms = getGenericAnatomyTerms(locale);
 
   return action.replace(pipedAnatomyPattern, (_match, anatomyType, targetRole) => {
     let targetPlayer: LocalPlayer | undefined;
@@ -173,7 +164,7 @@ function replacePipedAnatomyPlaceholders(
       );
     }
 
-    return genericTerms[anatomyType] || anatomyType;
+    return genericTerms[anatomyType as AnatomyPlaceholder] || anatomyType;
   });
 }
 

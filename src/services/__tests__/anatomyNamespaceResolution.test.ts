@@ -91,6 +91,33 @@ describe('anatomy namespace resolution (production resolvers, faithful i18next)'
     }
   });
 
+  // {tip} follows {genital} onto the strapon, so it needs the same key-leakage
+  // guard in every locale — a missing straponTerms.tip renders the raw key.
+  it('resolves a non-empty, non-key strapon tip term in every locale', () => {
+    for (const lng of ['en', 'es', 'fr', 'zh', 'hi', 'de']) {
+      const term = getRoleAwareAnatomyTerm('tip', 'female', 'dom', lng, true);
+      expect(term).not.toBe('anatomy.straponTerms.tip');
+      expect(term).not.toBe('anatomy:straponTerms.tip');
+      expect(term.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('resolves a real tip term for every gender and locale', () => {
+    for (const lng of ['en', 'es', 'fr', 'zh', 'hi', 'de']) {
+      for (const gender of ['male', 'female', 'non-binary'] as const) {
+        const term = getRoleAwareAnatomyTerm('tip', gender, 'sub', lng, false);
+        // A missing mapping surfaces as the namespaced key or an empty string.
+        expect(term).not.toContain('anatomy');
+        expect(term.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('distinguishes the tip by anatomy in English', () => {
+    expect(getRoleAwareAnatomyTerm('tip', 'male', 'sub', 'en', false)).toBe('tip');
+    expect(getRoleAwareAnatomyTerm('tip', 'female', 'sub', 'en', false)).toBe('clit');
+  });
+
   it('end-to-end: female dom penetrative {genital} renders strapon through actionStringReplacement', () => {
     const result = actionStringReplacement(
       'Use your {genital}.',

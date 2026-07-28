@@ -4,6 +4,13 @@
 
 Accepted — 2026-07-25
 
+> **Amended 2026-07-27.** The Context below rests on the seed gate ignoring `MIGRATION_VERSION`; that
+> is no longer true. `isCurrentLanguageMigrationCompleted` now voids completions recorded against an
+> older version, so a bump does re-seed existing devices (see `docs/engineering/data-and-sync.md`).
+> The decision stands on its own merits — presentation-only, locale-specific, non-user-editable
+> content still belongs in the bundle, and reading it there avoids a Dexie column and a sync path —
+> but "a seed-time fix cannot reach existing players" is no longer the reason to prefer it.
+
 ## Context
 
 Nine default action groups define their own wording for the two sides of a partnered action:

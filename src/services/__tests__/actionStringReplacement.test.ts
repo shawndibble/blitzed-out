@@ -482,6 +482,36 @@ describe('actionStringReplacement', () => {
   });
 
   describe('online/solo mode', () => {
+    // Solo and online know exactly one body: the reader's. A pipe aimed at
+    // anyone else must not answer with it.
+    it('keeps a |dom token neutral when the reader is the sub', () => {
+      const result = actionStringReplacement(
+        '{dom} rubs {genital|dom} on {sub}.',
+        'sub',
+        'Alex',
+        undefined,
+        false,
+        'female',
+        'en'
+      );
+
+      expect(result).toBe('Another player rubs genitals on Alex.');
+    });
+
+    it("uses the reader's anatomy for a |dom token when the reader is the dom", () => {
+      const result = actionStringReplacement(
+        '{dom} rubs {genital|dom} on {sub}.',
+        'dom',
+        'Alex',
+        undefined,
+        false,
+        'female',
+        'en'
+      );
+
+      expect(result).toBe('Alex rubs pussy on another player.');
+    });
+
     it('replaces anatomy placeholders with provided gender (male)', () => {
       const result = actionStringReplacement(
         'Touch your {genital}.',

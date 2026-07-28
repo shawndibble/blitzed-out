@@ -105,16 +105,19 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
 }
 
 /**
- * The gender-neutral term for a placeholder — used where no specific player
+ * The gender-neutral terms for a locale — what to say where no specific player
  * can be identified.
  */
-export function getGenericAnatomyTerm(locale: string, placeholder: AnatomyPlaceholder): string {
-  const terms = i18next.t('anatomy:genericAnatomyTerms', {
+export function getGenericAnatomyTerms(locale: string): Partial<AnatomyMapping> {
+  return i18next.t('anatomy:genericAnatomyTerms', {
     lng: locale,
     returnObjects: true,
   }) as Partial<AnatomyMapping>;
+}
 
-  return terms?.[placeholder] || placeholder;
+/** The gender-neutral term for a single placeholder. */
+export function getGenericAnatomyTerm(locale: string, placeholder: AnatomyPlaceholder): string {
+  return getGenericAnatomyTerms(locale)?.[placeholder] || placeholder;
 }
 
 /**
@@ -215,10 +218,16 @@ export function replaceAnatomyPlaceholders(
   return action.replace(
     anatomyTokenPattern(),
     (match, placeholder: AnatomyPlaceholder, pipeTarget?: string) => {
-      // `|other` names a player this path cannot identify — solo and online have
-      // no roster. Borrowing the reader's anatomy would assert something false,
-      // so the neutral term stands in.
-      if (pipeTarget === 'other') return getGenericAnatomyTerm(locale, placeholder);
+      // This path knows one player: the reader. A pipe aimed at anyone else —
+      // `|other`, or a `|dom`/`|sub` slot the reader does not fill — names
+      // somebody whose body it cannot know, and answering with the reader's
+      // anatomy would assert something false about them. The neutral term is
+      // the only honest answer. (Local multiplayer resolves these against the
+      // real roster before reaching here, so it never hits this branch.)
+      const namesSomeoneElse =
+        pipeTarget === 'other' ||
+        ((pipeTarget === 'dom' || pipeTarget === 'sub') && pipeTarget !== role);
+      if (namesSomeoneElse) return getGenericAnatomyTerm(locale, placeholder);
 
       return getRoleAwareAnatomyTerm(placeholder, gender, role, locale, isPenetrative) || match;
     }
