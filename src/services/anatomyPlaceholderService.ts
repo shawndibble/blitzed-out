@@ -9,16 +9,29 @@
  */
 
 import { logger } from '@/utils/logger';
+import { ANATOMY_PLACEHOLDERS } from '@/types/localPlayers';
 import type { AnatomyPlaceholder, PlayerGender } from '@/types/localPlayers';
 
 import type { PlayerRole } from '@/types/Settings';
 import i18next from 'i18next';
 
 /**
+ * `genital|tip|hole|…` — the alternation body shared by every anatomy token
+ * pattern. Exported so callers building their own token syntax (piped and
+ * possessive forms in actionStringReplacement) stay in step with this list.
+ */
+export const ANATOMY_TOKEN_ALTERNATION = ANATOMY_PLACEHOLDERS.join('|');
+
+/** Matches a bare `{token}` for any supported anatomy placeholder. */
+const bareTokenPattern = (): RegExp => new RegExp(`\\{(${ANATOMY_TOKEN_ALTERNATION})\\}`, 'g');
+
+/**
  * Anatomy term mapping for a specific gender
  */
 export interface AnatomyMapping {
   genital: string;
+  /** The most sensitive spot on the genital: glans for a dick, clit for a pussy. */
+  tip: string;
   hole: string;
   chest: string;
   pronoun_subject: string;
@@ -107,35 +120,46 @@ export function getAnatomyTerm(
 }
 
 /**
- * Special handling for female dom with genital placeholder
- * In penetrative contexts, female doms use strapons
+ * Placeholders whose term is worn rather than owned when a female dom penetrates:
+ * the strapon replaces the genital, and its own tip replaces the clit.
+ */
+const STRAPON_TERM_KEYS: Partial<Record<AnatomyPlaceholder, string>> = {
+  genital: 'strapon',
+  tip: 'tip',
+};
+
+/**
+ * Resolve an anatomy term for a player acting in a given role.
+ * In penetrative contexts, female doms use strapons.
  *
+ * @param placeholder - Anatomy placeholder to resolve
  * @param gender - Player gender
- * @param role - Player role
+ * @param role - Role the player takes in this action
  * @param locale - Language code
  * @param isPenetrative - Whether the action penetrates (drives the strapon swap)
- * @returns Appropriate genital term
+ * @returns Appropriate anatomy term
  *
  * @example
  * ```typescript
- * const term = getGenitalTermForRole('female', 'dom', 'en', true);
+ * const term = getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'en', true);
  * logger.debug(term); // 'strapon'
  * ```
  */
-export function getGenitalTermForRole(
+export function getRoleAwareAnatomyTerm(
+  placeholder: AnatomyPlaceholder,
   gender: PlayerGender | undefined,
   role: PlayerRole | undefined,
   locale: string,
   isPenetrative: boolean
 ): string {
+  const straponKey = STRAPON_TERM_KEYS[placeholder];
+
   // Female doms use a strapon only when the action is penetrative.
-  if (gender === 'female' && role === 'dom' && isPenetrative) {
-    const straponTerm = i18next.t('anatomy:straponTerms.strapon', { lng: locale });
-    return straponTerm;
+  if (straponKey && gender === 'female' && role === 'dom' && isPenetrative) {
+    return i18next.t(`anatomy:straponTerms.${straponKey}`, { lng: locale });
   }
 
-  // Standard genital term
-  return getAnatomyTerm(locale, gender, 'genital');
+  return getAnatomyTerm(locale, gender, placeholder);
 }
 
 /**
@@ -167,31 +191,11 @@ export function replaceAnatomyPlaceholders(
   isPenetrative: boolean,
   locale: string
 ): string {
-  const mappings = getAnatomyMappings(locale, gender);
-  let result = action;
-
-  // Special handling for {genital} based on role
-  if (result.includes('{genital}')) {
-    const genitalTerm = getGenitalTermForRole(gender, role, locale, isPenetrative);
-    result = result.replace(/{genital}/g, genitalTerm);
-  }
-
-  // Replace all anatomy and pronoun placeholders using a single pattern
-  const placeholderMap: Record<string, string> = {
-    hole: mappings.hole,
-    chest: mappings.chest,
-    pronoun_subject: mappings.pronoun_subject,
-    pronoun_object: mappings.pronoun_object,
-    pronoun_possessive: mappings.pronoun_possessive,
-    pronoun_reflexive: mappings.pronoun_reflexive,
-  };
-
-  result = result.replace(
-    /{(hole|chest|pronoun_subject|pronoun_object|pronoun_possessive|pronoun_reflexive)}/g,
-    (_, placeholder) => placeholderMap[placeholder] || placeholder
+  return action.replace(
+    bareTokenPattern(),
+    (match, placeholder: AnatomyPlaceholder) =>
+      getRoleAwareAnatomyTerm(placeholder, gender, role, locale, isPenetrative) || match
   );
-
-  return result;
 }
 
 /**
@@ -200,15 +204,7 @@ export function replaceAnatomyPlaceholders(
  * @returns Array of placeholder names
  */
 export function getSupportedPlaceholders(): AnatomyPlaceholder[] {
-  return [
-    'genital',
-    'hole',
-    'chest',
-    'pronoun_subject',
-    'pronoun_object',
-    'pronoun_possessive',
-    'pronoun_reflexive',
-  ];
+  return [...ANATOMY_PLACEHOLDERS];
 }
 
 /**
@@ -224,7 +220,5 @@ export function getSupportedPlaceholders(): AnatomyPlaceholder[] {
  * ```
  */
 export function hasAnatomyPlaceholders(text: string): boolean {
-  const placeholderPattern =
-    /{(genital|hole|chest|pronoun_subject|pronoun_object|pronoun_possessive|pronoun_reflexive)}/;
-  return placeholderPattern.test(text);
+  return bareTokenPattern().test(text);
 }

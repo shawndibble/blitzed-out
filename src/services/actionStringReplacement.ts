@@ -4,8 +4,8 @@ import type { LocalPlayer } from '@/types/localPlayers';
 import type { PlayerGender } from '@/types/localPlayers';
 import {
   replaceAnatomyPlaceholders,
-  getAnatomyTerm,
-  getGenitalTermForRole,
+  getRoleAwareAnatomyTerm,
+  ANATOMY_TOKEN_ALTERNATION,
 } from './anatomyPlaceholderService';
 import type { AnatomyPlaceholder } from '@/types/localPlayers';
 import type { PlayerRole } from '@/types/Settings';
@@ -34,24 +34,19 @@ function capitalizeFirstLetterInCurlyBraces(string: string): string {
 }
 
 /**
- * Resolve a single anatomy placeholder for a target player, delegating the
- * gender × role × penetrative × locale decision (incl. the female-dom strapon
- * rule and the i18next namespace syntax) to anatomyPlaceholderService.
+ * `{genital|dom}` — an anatomy token aimed at a specific player.
+ * `{dom}'s {genital}` — the possessive form, where the owning role precedes.
+ * Both derive their token list from anatomyPlaceholderService so a new token
+ * needs no edit here.
  */
-function resolveAnatomyTerm(
-  anatomyType: string,
-  gender: PlayerGender | undefined,
-  role: PlayerRole | undefined,
-  isPenetrative: boolean,
-  locale: string
-): string {
-  const term =
-    anatomyType === 'genital'
-      ? getGenitalTermForRole(gender, role, locale, isPenetrative)
-      : getAnatomyTerm(locale, gender, anatomyType as AnatomyPlaceholder);
-
-  return term || anatomyType;
-}
+const pipedAnatomyPattern = new RegExp(
+  `\\{(${ANATOMY_TOKEN_ALTERNATION})\\|(dom|sub|other|self)\\}`,
+  'g'
+);
+const contextualAnatomyPattern = new RegExp(
+  `\\{(dom|sub)\\}'s \\{(${ANATOMY_TOKEN_ALTERNATION})\\}`,
+  'g'
+);
 
 /**
  * Replace generic anatomy placeholders with neutral terms
@@ -149,10 +144,11 @@ function replacePipedAnatomyPlaceholders(
   const currentPlayer = localPlayers.find((p) => p.name === displayName);
   const genericTerms = loadGenericAnatomyTerms(locale);
 
-  const pipedAnatomyPattern = /\{(genital|hole|chest|pronoun_\w+)\|(dom|sub|other|self)\}/g;
-
   return action.replace(pipedAnatomyPattern, (_match, anatomyType, targetRole) => {
     let targetPlayer: LocalPlayer | undefined;
+    // A |dom or |sub pipe names the slot the player fills in this action; the
+    // player's configured role only stands in when the pipe doesn't name one.
+    let slotRole: PlayerRole | undefined;
 
     if (targetRole === 'self') {
       targetPlayer = currentPlayer;
@@ -163,15 +159,16 @@ function replacePipedAnatomyPlaceholders(
       }
     } else {
       targetPlayer = roleAssignments[targetRole as 'dom' | 'sub'];
+      slotRole = targetRole as PlayerRole;
     }
 
     if (targetPlayer) {
-      return resolveAnatomyTerm(
-        anatomyType,
+      return getRoleAwareAnatomyTerm(
+        anatomyType as AnatomyPlaceholder,
         targetPlayer.gender,
-        targetPlayer.role,
-        isPenetrative,
-        locale
+        slotRole ?? targetPlayer.role,
+        locale,
+        isPenetrative
       );
     }
 
@@ -188,17 +185,16 @@ function replaceContextualAnatomyPlaceholders(
   isPenetrative: boolean,
   locale: string
 ): string {
-  const contextualAnatomyPattern = /\{(dom|sub)\}'s \{(genital|hole|chest|pronoun_\w+)\}/g;
-
   return action.replace(contextualAnatomyPattern, (match, roleType, anatomyType) => {
     const rolePlayer = roleAssignments[roleType as 'dom' | 'sub'];
     if (rolePlayer) {
-      const anatomyTerm = resolveAnatomyTerm(
-        anatomyType,
+      // roleType, not rolePlayer.role: a vers player cast as {dom} straps on.
+      const anatomyTerm = getRoleAwareAnatomyTerm(
+        anatomyType as AnatomyPlaceholder,
         rolePlayer.gender,
-        rolePlayer.role,
-        isPenetrative,
-        locale
+        roleType as PlayerRole,
+        locale,
+        isPenetrative
       );
       return `{${roleType}}'s ${anatomyTerm}`;
     }
@@ -311,6 +307,22 @@ function replaceWithPlayerName(string: string, role: string, displayName: string
 }
 
 /**
+ * Work out which role slot the current player took, given the action before and
+ * after name substitution. Non-vers players take their own role; a vers player's
+ * slot is whichever token the coin flip consumed.
+ */
+function inferSlotRole(action: string, result: string, role: string): PlayerRole | undefined {
+  if (role === 'dom' || role === 'sub') return role;
+  if (role !== 'vers') return undefined;
+
+  const tookDom = action.includes('{dom}') && !result.includes('{dom}');
+  const tookSub = action.includes('{sub}') && !result.includes('{sub}');
+  if (tookDom && !tookSub) return 'dom';
+  if (tookSub && !tookDom) return 'sub';
+  return undefined;
+}
+
+/**
  * Handle non-local mode placeholder replacement
  */
 function replaceNonLocalPlaceholders(
@@ -323,6 +335,11 @@ function replaceNonLocalPlaceholders(
 ): string {
   // First pass: replace player-specific placeholders with display name
   let result = replaceWithPlayerName(action, role, displayName);
+
+  // Which slot the player ended up in — a vers player's coin flip is only
+  // observable as the token that vanished, and the strapon rule keys off the
+  // slot, not the configured role.
+  const slotRole = inferSlotRole(action, result, role);
 
   // Check if the player's name was successfully inserted
   const hasPlayerName = result.includes(displayName);
@@ -341,14 +358,7 @@ function replaceNonLocalPlaceholders(
   result = result.replace(/{(dom|sub)}/g, PLACEHOLDER_FALLBACKS.anotherPlayer());
 
   // Replace anatomy placeholders based on current player's gender
-  const validRole = role === 'sub' || role === 'dom' || role === 'vers' ? role : undefined;
-  result = replaceAnatomyPlaceholders(
-    result,
-    currentPlayerGender,
-    validRole,
-    isPenetrative,
-    locale
-  );
+  result = replaceAnatomyPlaceholders(result, currentPlayerGender, slotRole, isPenetrative, locale);
 
   return result;
 }

@@ -3,7 +3,7 @@
  */
 
 import { addCustomGroup, getCustomGroupByName, updateCustomGroup } from '@/stores/customGroups';
-import { importCustomTiles, getTilesUnguarded } from '@/stores/customTiles';
+import { importCustomTiles, getTilesUnguarded, deleteTilesByIds } from '@/stores/customTiles';
 import { mergeSeedIntensities } from '@/services/intensityMerge';
 import { CustomGroupBase } from '@/types/customGroups';
 import { CustomTileBase } from '@/types/customTiles';
@@ -175,6 +175,41 @@ const getNewTiles = async (
 };
 
 /**
+ * Ids of this group's seeded default tiles that the bundle no longer contains.
+ *
+ * Seeding is append-only and dedupes on exact action text, so rewording a
+ * default action would otherwise ship the new tile and keep the old one — both
+ * live in the same group forever. Only tiles this seeder created are eligible:
+ * anything the player authored (`isCustom`) or that lacks the `default` tag is
+ * left alone, even when its text is absent from the bundle.
+ */
+const getStaleDefaultTileIds = async (
+  bundleTiles: CustomTileBase[],
+  groupId: string
+): Promise<number[]> => {
+  try {
+    const existingTiles = await getTilesUnguarded({ group_id: groupId });
+    if (!existingTiles?.length) return [];
+
+    const bundleKeys = new Set(bundleTiles.map((tile) => `${tile.intensity}::${tile.action}`));
+
+    return existingTiles
+      .filter(
+        (tile) =>
+          tile.isCustom !== 1 &&
+          tile.tags?.includes('default') &&
+          !bundleKeys.has(`${tile.intensity}::${tile.action}`)
+      )
+      .map((tile) => tile.id)
+      .filter((id): id is number => typeof id === 'number');
+  } catch (error) {
+    // A failed prune is cosmetic; never let it abort the seed.
+    logError('warn', `getStaleDefaultTileIds:${groupId}`, error);
+    return [];
+  }
+};
+
+/**
  * Import custom tiles with duplicate handling
  */
 const importCustomTilesSafely = async (tiles: CustomTileBase[]): Promise<number> => {
@@ -245,6 +280,10 @@ export const importGroupsForLocaleAndGameMode = async (
           const newTiles = await getNewTiles(tilesForGroup, targetGroupId);
           const tilesAdded = await importCustomTilesSafely(newTiles);
           tilesImported += tilesAdded;
+
+          // Drop defaults the bundle dropped or reworded, so a reworded action
+          // replaces its predecessor instead of doubling it.
+          await deleteTilesByIds(await getStaleDefaultTileIds(tilesForGroup, targetGroupId));
         }
       });
     } catch (error) {

@@ -146,6 +146,71 @@ describe('actionStringReplacement', () => {
       expect(result).toContain('strapon');
     });
 
+    describe('the {tip} placeholder', () => {
+      it('resolves to the clit for a female player', () => {
+        const result = actionStringReplacement(
+          "{sub} sucks {dom}'s {tip}.",
+          'sub',
+          'Mike',
+          [
+            { ...localPlayers[1], role: 'dom' },
+            { ...localPlayers[0], role: 'sub' },
+          ],
+          false
+        );
+
+        expect(result).toBe("Mike sucks Jessica's clit.");
+      });
+
+      it('resolves to the tip for a male player', () => {
+        const result = actionStringReplacement(
+          "{sub} sucks {dom}'s {tip}.",
+          'sub',
+          'Jessica',
+          localPlayers,
+          false
+        );
+
+        expect(result).toBe("Jessica sucks Mike's tip.");
+      });
+
+      it('follows the genital onto the strapon for a penetrative female dom', () => {
+        const femaleDom: LocalPlayer = { ...localPlayers[1], role: 'dom', name: 'Sarah' };
+        const result = actionStringReplacement(
+          "{sub} licks {dom}'s {tip}.",
+          'sub',
+          'Mike',
+          [femaleDom, { ...localPlayers[0], role: 'sub' }],
+          false,
+          undefined,
+          'en',
+          true
+        );
+
+        expect(result).toBe("Mike licks Sarah's tip.");
+      });
+    });
+
+    it('straps on a vers player cast as the dom of a penetrative tile', () => {
+      // The slot the action assigns, not the player's configured role, decides:
+      // a vers player standing in as {dom} used to keep real anatomy.
+      const versFemale: LocalPlayer = { ...localPlayers[1], role: 'vers', name: 'Sarah' };
+      const maleSub: LocalPlayer = { ...localPlayers[0], role: 'sub' };
+
+      const result = actionStringReplacement(
+        "{sub} takes {dom}'s {genital} in their mouth.",
+        'sub',
+        'Mike',
+        [versFemale, maleSub],
+        false,
+        undefined,
+        'en',
+        true
+      );
+
+      expect(result).toBe("Mike takes Sarah's strapon in their mouth.");
+    });
+
     it('keeps real anatomy for female dom on a non-penetrative tile (bating regression)', () => {
       const femaleDom: LocalPlayer = {
         ...localPlayers[1],

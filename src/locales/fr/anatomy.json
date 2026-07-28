@@ -1,6 +1,7 @@
 {
   "genericAnatomyTerms": {
     "genital": "organes génitaux",
+    "tip": "bout",
     "hole": "trou",
     "chest": "torse",
     "pronoun_subject": "iel",
@@ -24,6 +25,7 @@
   "anatomyMappings": {
     "male": {
       "genital": "bite",
+      "tip": "gland",
       "hole": "trou",
       "chest": "torse",
       "pronoun_subject": "il",
@@ -33,6 +35,7 @@
     },
     "female": {
       "genital": "chatte",
+      "tip": "clito",
       "hole": "chatte",
       "chest": "seins",
       "pronoun_subject": "elle",
@@ -42,6 +45,7 @@
     },
     "non-binary": {
       "genital": "organes génitaux",
+      "tip": "bout",
       "hole": "trou",
       "chest": "torse",
       "pronoun_subject": "iel",
@@ -51,6 +55,7 @@
     }
   },
   "straponTerms": {
-    "strapon": "gode-ceinture"
+    "strapon": "gode-ceinture",
+    "tip": "bout"
   }
 }

@@ -228,6 +228,16 @@ export const deleteCustomTile = async (id: number): Promise<void> => {
 };
 
 /**
+ * Bulk-remove tiles by local id. Seeding uses this to drop default tiles whose
+ * bundle text was reworded: seeding is otherwise append-only and dedupes on
+ * exact action text, so a rewritten default would leave its stale twin in play.
+ */
+export const deleteTilesByIds = async (ids: number[]): Promise<void> => {
+  if (!ids.length) return;
+  await customTiles.bulkDelete(ids);
+};
+
+/**
  * NEW: Get tiles by group ID (normalized approach)
  * This uses the new group_id foreign key for better performance
  */

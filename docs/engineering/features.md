@@ -54,10 +54,14 @@ This is the heart of the personalization.
 
 Action text contains tokens replaced at gameplay time:
 
-- **Anatomy:** `{genital}` (dick/pussy, strap-on for a female dom in penetrative context), `{hole}` (ass/pussy), `{chest}` (breasts/pecs), plus pronoun tokens.
+- **Anatomy:** `{genital}` (dick/pussy, strap-on for a female dom in penetrative context), `{tip}` (tip/clit, strap-on tip under the same rule), `{hole}` (ass/pussy), `{chest}` (breasts/pecs), plus pronoun tokens.
 - **Role/target:** `{dom}`, `{sub}`, `{player}`, with piped variants like `{genital|dom}` and possessives like `{dom}'s {genital}`.
 
+The token list is declared once as `ANATOMY_PLACEHOLDERS` in `src/types/localPlayers.ts`; the `AnatomyPlaceholder` type, `getSupportedPlaceholders()`, and all three token regexes (bare, piped, possessive) derive from it. Adding a token means editing that array and adding the term to each `locales/*/anatomy.json` — no pattern edits.
+
 Pipeline: `actionStringReplacement.ts` orchestrates replacement; `anatomyPlaceholderService.ts` resolves anatomy terms by gender/role/locale; `anatomyFilterService.ts` decides which actions are compatible with a player's anatomy.
+
+**Role is the slot, not the setting.** The strap-on swap keys off the role a player fills in _this_ action (`{dom}`/`{sub}`), not their configured role — otherwise a `vers` player cast as the dom keeps real anatomy on a penetrative tile. Local mode reads the slot from the piped/possessive token; online and solo infer it from which token name substitution consumed (`inferSlotRole`).
 
 **Tap-to-insert:** the "Available Placeholders" panel in `AddCustomTile` renders each bare token (the 10 keys in `locales/*/placeholders.json` — not piped `{genital|dom}` or possessive forms, which are still typed by hand) as a clickable chip. Clicking one splices the token into the action field at the last known caret (end of text if the field was never touched) via the pure `AddCustomTile/insertPlaceholderToken.ts` — spacing-aware, selection-replacing, capped at `MAX_ACTION_LENGTH`. Chips label and insert via `localizePlaceholders(token, settings.locale)`, i.e. the same locale the save path normalizes from, so a chip can never author an alias that `normalizePlaceholders` would leave uncanonicalized.
 

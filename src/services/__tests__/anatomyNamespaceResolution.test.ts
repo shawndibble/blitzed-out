@@ -18,7 +18,7 @@ import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import i18next, { type InitOptions } from 'i18next';
 
 import actionStringReplacement from '../actionStringReplacement';
-import { getGenitalTermForRole } from '../anatomyPlaceholderService';
+import { getRoleAwareAnatomyTerm } from '../anatomyPlaceholderService';
 
 import enAnatomy from '@/locales/en/anatomy.json';
 import esAnatomy from '@/locales/es/anatomy.json';
@@ -72,19 +72,19 @@ afterAll(() => {
 
 describe('anatomy namespace resolution (production resolvers, faithful i18next)', () => {
   it('female dom + penetrative genital resolves to the real strapon term, not the literal key', () => {
-    const term = getGenitalTermForRole('female', 'dom', 'en', true);
+    const term = getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'en', true);
     expect(term).toBe('strapon');
     expect(term).not.toBe('anatomy.straponTerms.strapon');
   });
 
   it('resolves the localized strapon term in es/fr', () => {
-    expect(getGenitalTermForRole('female', 'dom', 'es', true)).toBe('arnés');
-    expect(getGenitalTermForRole('female', 'dom', 'fr', true)).toBe('gode-ceinture');
+    expect(getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'es', true)).toBe('arnés');
+    expect(getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'fr', true)).toBe('gode-ceinture');
   });
 
   it('resolves a non-empty, non-key strapon term in zh/hi/de', () => {
     for (const lng of ['zh', 'hi', 'de']) {
-      const term = getGenitalTermForRole('female', 'dom', lng, true);
+      const term = getRoleAwareAnatomyTerm('genital', 'female', 'dom', lng, true);
       expect(term).not.toBe('anatomy.straponTerms.strapon');
       expect(term).not.toBe('anatomy:straponTerms.strapon');
       expect(term.length).toBeGreaterThan(0);
@@ -106,6 +106,6 @@ describe('anatomy namespace resolution (production resolvers, faithful i18next)'
   });
 
   it('non-penetrative female dom keeps real anatomy (no over-strapping)', () => {
-    expect(getGenitalTermForRole('female', 'dom', 'en', false)).toBe('pussy');
+    expect(getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'en', false)).toBe('pussy');
   });
 });

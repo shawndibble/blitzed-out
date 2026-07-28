@@ -1,6 +1,7 @@
 {
   "genericAnatomyTerms": {
     "genital": "Genitalien",
+    "tip": "Spitze",
     "hole": "Loch",
     "chest": "Brust",
     "pronoun_subject": "sie",
@@ -24,6 +25,7 @@
   "anatomyMappings": {
     "male": {
       "genital": "Schwanz",
+      "tip": "Eichel",
       "hole": "Loch",
       "chest": "Brust",
       "pronoun_subject": "er",
@@ -33,6 +35,7 @@
     },
     "female": {
       "genital": "Muschi",
+      "tip": "Kitzler",
       "hole": "Muschi",
       "chest": "Brüste",
       "pronoun_subject": "sie",
@@ -42,6 +45,7 @@
     },
     "non-binary": {
       "genital": "Genitalien",
+      "tip": "Spitze",
       "hole": "Loch",
       "chest": "Brust",
       "pronoun_subject": "sie",
@@ -51,6 +55,7 @@
     }
   },
   "straponTerms": {
-    "strapon": "Strapon"
+    "strapon": "Strapon",
+    "tip": "Spitze"
   }
 }

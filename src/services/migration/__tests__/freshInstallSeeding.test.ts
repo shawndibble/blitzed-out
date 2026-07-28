@@ -21,7 +21,10 @@ import {
   isCurrentLanguageMigrationCompleted,
   setLanguageMigrationInProgress,
 } from '@/services/migration/statusManager';
-import { CURRENT_LANGUAGE_MIGRATION_KEY } from '@/services/migration/constants';
+import {
+  BACKGROUND_MIGRATION_KEY,
+  CURRENT_LANGUAGE_MIGRATION_KEY,
+} from '@/services/migration/constants';
 import { migrateCurrentLanguage } from '@/services/migration';
 import db from '@/stores/store';
 
@@ -98,4 +101,95 @@ describe('fresh install seeding (real Dexie + real bundles)', () => {
     const names = groups.map((g) => `${g.name}:${g.gameMode}`);
     expect(new Set(names).size).toBe(names.length);
   }, 15000);
+
+  describe('upgrading a device that already seeded an older bundle', () => {
+    // Everything here goes through the real gate rather than clearing
+    // localStorage: a fresh install proves nothing about reachability, and
+    // reachability is the whole point of the version bump.
+    const throatTrainingGroup = () =>
+      db.customGroups
+        .filter((g) => g.name === 'throatTraining' && g.gameMode === 'local' && g.locale === 'en')
+        .first();
+
+    const pretendSeededOnOlderVersion = () => {
+      const status = JSON.parse(localStorage.getItem(BACKGROUND_MIGRATION_KEY)!);
+      localStorage.setItem(
+        BACKGROUND_MIGRATION_KEY,
+        JSON.stringify({ ...status, version: '2.6.0' })
+      );
+    };
+
+    it('re-seeds when the stored status predates the current MIGRATION_VERSION', async () => {
+      await migrateCurrentLanguage('en');
+      expect(isCurrentLanguageMigrationCompleted('en')).toBe(true);
+
+      pretendSeededOnOlderVersion();
+
+      expect(isCurrentLanguageMigrationCompleted('en')).toBe(false);
+    }, 15000);
+
+    it('drops a default tile whose action the bundle no longer contains', async () => {
+      await migrateCurrentLanguage('en');
+      const group = await throatTrainingGroup();
+      expect(group).toBeDefined();
+
+      // Stand in for a reworded default: text this device seeded from an older
+      // bundle, which the current bundle no longer has.
+      const staleId = await db.customTiles.add({
+        group_id: group!.id,
+        intensity: 1,
+        action: "{sub} plays with the tip of {dom}'s {genital}.",
+        tags: ['default'],
+        isEnabled: 1,
+        isCustom: 0,
+      } as any);
+
+      pretendSeededOnOlderVersion();
+      await migrateCurrentLanguage('en');
+
+      expect(await db.customTiles.get(staleId)).toBeUndefined();
+      // The replacement the bundle does carry survives the same pass.
+      const replacement = await db.customTiles
+        .filter((t) => t.action === "{sub} plays with {dom}'s {tip}.")
+        .first();
+      expect(replacement).toBeDefined();
+    }, 15000);
+
+    it('keeps a player-authored tile the bundle never had', async () => {
+      await migrateCurrentLanguage('en');
+      const group = await throatTrainingGroup();
+
+      const customId = await db.customTiles.add({
+        group_id: group!.id,
+        intensity: 1,
+        action: 'Something the player wrote themselves.',
+        tags: ['custom'],
+        isEnabled: 1,
+        isCustom: 1,
+      } as any);
+
+      pretendSeededOnOlderVersion();
+      await migrateCurrentLanguage('en');
+
+      expect(await db.customTiles.get(customId)).toBeDefined();
+    }, 15000);
+
+    it('renames the Oral Play intensity ladder in place', async () => {
+      await migrateCurrentLanguage('en');
+      const group = await throatTrainingGroup();
+
+      // An older bundle's labels, at the same positional values.
+      await db.customGroups.update(group!.id, {
+        intensities: group!.intensities.map((i) =>
+          i.value === 2 ? { ...i, label: 'Oral (Penetrative)' } : i
+        ),
+      });
+
+      pretendSeededOnOlderVersion();
+      await migrateCurrentLanguage('en');
+
+      const updated = await throatTrainingGroup();
+      expect(updated!.intensities.find((i) => i.value === 2)?.label).toBe('Sucking');
+    }, 15000);
+  });
 });

@@ -31,7 +31,7 @@ React 19.x + TypeScript + Vite · MUI v9 · Zustand (`src/stores/`) + Dexie (Ind
 - Reading the current locale → `currentLocale()` from `src/services/locale.ts`; changing it → `changeLocale()`. That module is the single seam: it owns the `resolvedLanguage`-vs-`language` normalisation and updates the persisted `settings.locale` mirror, which is why every language switch must go through it.
 - Adding a language → **three** places, or gates keyed on the wrong one silently exclude it: `i18n.ts`'s `supportedLngs`, `SUPPORTED_LANGUAGES` in `services/migration/constants.ts`, and `src/locales/languages.json`. `services/__tests__/locale.test.ts` holds the last two to the locale directories on disk.
 - Editing game content (`src/locales/{lang}/{local,online}/*.json`) → run `node scripts/bundle-translations.js` after; the app loads the generated `{local,online}-bundle.json` files, not the per-group files.
-- Anatomy placeholders: `{genital}` (dick/pussy), `{hole}` (pussy/ass), `{chest}` (breasts/pecs).
+- Anatomy placeholders: `{genital}` (dick/pussy), `{tip}` (tip/clit), `{hole}` (pussy/ass), `{chest}` (breasts/pecs). The token list lives once in `ANATOMY_PLACEHOLDERS` (`src/types/localPlayers.ts`) — every pattern and the `AnatomyPlaceholder` type derive from it, so a new token is that array plus a term in each `anatomy.json`.
 - Touching custom-tile placeholders/aliases? Read `docs/engineering/features.md` § "Localized placeholder aliases" first — tokens are stored canonical English; the customTiles store normalizes at intake.
 
 ## Code Layout

@@ -62,20 +62,22 @@ export const setLanguageMigrationInProgress = (locale: string, inProgress: boole
  * Mark a specific language as migrated in background status
  */
 export const markLanguageMigrated = (locale: string): void => {
-  const bgStatus = safeLocalStorage.getJSON<BackgroundMigrationStatus>(
-    BACKGROUND_MIGRATION_KEY
-  ) || {
-    version: MIGRATION_VERSION,
-    completedLanguages: [],
-    inProgress: false,
-  };
+  const stored = safeLocalStorage.getJSON<BackgroundMigrationStatus>(BACKGROUND_MIGRATION_KEY);
 
-  // Use Set to ensure uniqueness and atomic update
-  const completedSet = new Set(bgStatus.completedLanguages);
+  // Completions recorded against an older MIGRATION_VERSION are void: the
+  // bundles they seeded from are gone, so every locale owes a re-seed. Carry
+  // the list forward only while the version matches.
+  const completedSet = new Set(
+    stored?.version === MIGRATION_VERSION ? stored.completedLanguages : []
+  );
   completedSet.add(locale);
-  bgStatus.completedLanguages = Array.from(completedSet);
 
-  safeLocalStorage.setJSON(BACKGROUND_MIGRATION_KEY, bgStatus);
+  safeLocalStorage.setJSON(BACKGROUND_MIGRATION_KEY, {
+    ...stored,
+    version: MIGRATION_VERSION,
+    completedLanguages: Array.from(completedSet),
+    inProgress: stored?.inProgress ?? false,
+  });
 };
 
 /**
@@ -95,12 +97,23 @@ export const hasSeededAnyLocale = (): boolean => {
 
 /**
  * Check if current language migration has been completed
+ *
+ * Version-sensitive: a `MIGRATION_VERSION` bump invalidates every recorded
+ * completion, so bundle content that changed (reworded actions, renamed
+ * intensity labels, pruned defaults) reaches devices that already seeded.
+ * Re-seeding is idempotent — `getNewTiles` skips tiles already present and
+ * `mergeSeedIntensities` keeps user-appended levels — so the cost of a bump is
+ * one extra pass over the current locale's groups, not a content reset.
  */
 export const isCurrentLanguageMigrationCompleted = (locale: string): boolean => {
   // Check background migration status for specific language
   const bgStatus = safeLocalStorage.getJSON<BackgroundMigrationStatus>(BACKGROUND_MIGRATION_KEY);
 
-  if (bgStatus && bgStatus.completedLanguages.includes(locale)) {
+  if (
+    bgStatus &&
+    bgStatus.version === MIGRATION_VERSION &&
+    bgStatus.completedLanguages.includes(locale)
+  ) {
     return true;
   }
 
