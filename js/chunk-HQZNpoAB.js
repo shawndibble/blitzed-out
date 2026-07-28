@@ -1,0 +1,2 @@
+var n=null,t=!1;function e(){if(!n){const t=window.AudioContext||window.webkitAudioContext;if(!t)return null;n=new t}return n}async function r(){const n=e();if(!n)return!1;if("suspended"===n.state)try{return await n.resume(),!0}catch(t){return!1}return"running"===n.state}function o(){if(t)return;const n=async()=>{t=!0,await r()};["touchstart","touchend","mousedown","keydown","click"].forEach(t=>{document.addEventListener(t,n,{passive:!0,once:!0})})}export{o as n,r,e as t};
+//# sourceMappingURL=chunk-HQZNpoAB.js.map
