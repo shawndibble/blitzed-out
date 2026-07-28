@@ -1,0 +1,608 @@
+{
+  "formatVersion": "2.1.0",
+  "exportedAt": "2026-07-28T13:56:17.000Z",
+  "data": {
+    "customGroups": [
+      {
+        "name": "oralAnyAnatomy",
+        "label": "Oral Play (Any Anatomy)",
+        "gameMode": "local",
+        "locale": "en",
+        "type": "sex",
+        "anatomyRequirement": "any",
+        "intensities": [
+          {
+            "value": 1,
+            "label": "Warm Up"
+          },
+          {
+            "value": 2,
+            "label": "Tongue Work"
+          },
+          {
+            "value": 3,
+            "label": "Focused"
+          },
+          {
+            "value": 4,
+            "label": "Relentless"
+          }
+        ],
+        "contentHash": "sha256-c218c34b363861c97fe3e23ac2fd5719edb0da44e33abdf7db218be872c2d0df"
+      }
+    ],
+    "customTiles": [
+      {
+        "action": "{sub} kisses their way up {dom}'s thighs, stopping just short of {pronoun_possessive|dom} {genital|dom}.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-97256bb481e21536782f84ee572adce8436ba73a5274dfd8c004e9a29adae92c"
+      },
+      {
+        "action": "{sub} breathes warm air over {dom}'s {genital|dom} for 15 seconds without making contact.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-4dde977d67e0a9a15f26d00cc8bcf21b7edbdc5a8fb9b6e3a81d4048f257dd64"
+      },
+      {
+        "action": "{sub} mouths {dom} through whatever clothing is still in the way, for 30 seconds.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-09aea57692b275f463b45132b06bdca4a3eb640422e6cb6c657a3e848d6025d5"
+      },
+      {
+        "action": "{sub} licks everywhere except {dom}'s {tip|dom} for 30 seconds.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-dedd75bf53572094ea4c986804a800fe02ba065531e0e57fa58b3de1285cfed6"
+      },
+      {
+        "action": "{sub} traces one slow circle around {dom}'s {tip|dom}, then stops and waits.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-0fb3cfdafaabcb32d9edba397e5621a887efe60687a86cdcb18af0ff22d7dcb5"
+      },
+      {
+        "action": "{sub} kisses {dom}'s {genital|dom} once, softly, then waits for permission to continue.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-19cfdef7b81b0c9eb3e717e9baf71e1ab6ae35afd0658157412982ad06199462"
+      },
+      {
+        "action": "{dom} decides how close {sub} is allowed to get. {sub} holds exactly that distance for 20 seconds.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-df31e57a7ce54c5830992b9244ec4a53c781854bf2535709152caafeb57d0882"
+      },
+      {
+        "action": "{sub} nuzzles {dom}'s {genital|dom} with their lips and cheek — no tongue.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-de49aa038a68a35b36aaa0e98e1c7a190682bb103ad47fe85bd1c2a3ddbf612e"
+      },
+      {
+        "action": "{dom} picks a word. {sub} may not begin until {dom} says it.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-ba0f127de1ad79273dedf1d352f8e966b6027ad59b2e40e7cb049ae18a11c53c"
+      },
+      {
+        "action": "{sub} uses nothing but their breath on {dom} until {dom} asks out loud for more.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-3340e6e1c9f3e41943b01c0eef5aaf9fee8544c1870cb756e968edf2f128958c"
+      },
+      {
+        "action": "{sub} kisses {dom}'s {chest|dom}, then works down slowly, taking a full minute to arrive.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-61328dcde63d1d99adadff92124339de083e2f44ce0d1fd9cf1c25a28ed55244"
+      },
+      {
+        "action": "{dom} holds {sub} just out of reach for as long as {dom} likes.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 1,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-16df3fb75db5214de8262fc72399911df7a33890d81121d5a235d5f97868daf5"
+      },
+      {
+        "action": "{sub} licks {dom}'s {genital|dom} in slow, broad strokes for 30 seconds.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-9f64c8a7c564e385a5f39b5844484ae1c56b42ebe5656e918bd47496798ddd4b"
+      },
+      {
+        "action": "{sub} flutters their tongue rapidly over {dom}'s {tip|dom}.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-3943cdec37b228c1a7e49f6e37237ff9060d562f7a4e67a5664dc3fecae167f1"
+      },
+      {
+        "action": "{sub} traces the alphabet on {dom}'s {tip|dom} with their tongue.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-73e95934cd0db9fcbe2de1749cc5ce50b7dc281d857bafdc9becdbd323d19e63"
+      },
+      {
+        "action": "{sub} alternates ten slow licks with ten fast ones.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-23d5d4d1d16dc905e7617fef3466a4316b913b38b05e94492081bcb26344a176"
+      },
+      {
+        "action": "{sub} keeps their tongue flat and completely still while {dom} moves against it.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-268c8672f7f936a33089567892a03ec3bb6664b1d73a774a50dc2f66b9fb9cb4"
+      },
+      {
+        "action": "{sub} works {dom}'s {genital|dom} with their tongue for 45 seconds, hands behind their back.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-8facd04348f44813a7475235a602cdf4e500bfac55162f1c455d41922a7be927"
+      },
+      {
+        "action": "{sub} seals their lips around {dom}'s {tip|dom} and sucks gently.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-87fc942c34015221b10cc718ed34a4b8b817c8ea5bbcb42142f121cb69ba8112"
+      },
+      {
+        "action": "{sub} licks {dom} from as low as {dom} allows all the way up to {pronoun_possessive|dom} {tip|dom}.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-8d6553479a590949f15a03934e94d6dcd367e1114a2847282f9eebc4ca6caeb3"
+      },
+      {
+        "action": "{sub} hums while going down on {dom} for 20 seconds.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-b47d0167e41683646726e5b509173a3955f3e70da6de23809553d754d11a3912"
+      },
+      {
+        "action": "{sub} switches between tongue and lips every 10 seconds for a full minute.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-b2771dfb69f02155ffcc47a929c7589afa2abc51604d004753558134738c640c"
+      },
+      {
+        "action": "{dom} rates the last 30 seconds out of ten. {sub} tries again and aims higher.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-c3a998c6f037ec430952bafcc0ec99ffc8e524ece7f142b199425ea0cac08726"
+      },
+      {
+        "action": "{sub} goes down on {dom} with their eyes closed, taking direction only from {pronoun_possessive|dom} voice.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-3ef2d61496928525a991bd3cf90a7e91472719dd50481f2cb3ebd0df3bbddab9"
+      },
+      {
+        "action": "{sub} spends 30 seconds on {dom}'s {tip|dom} and 30 anywhere else {dom} wants.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 2,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-7a29775f12625e48cc298eccd40b31b89b70ea5071fa9b82d835d66a7961e787"
+      },
+      {
+        "action": "{sub} gives {dom} steady, direct attention for 60 seconds — no teasing, no pauses.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-9ffcdb1bbbc06f458e1bf5576c4e920c2f558ec89fad6138fe10f02162db9c4b"
+      },
+      {
+        "action": "{sub} uses their mouth on {dom}'s {tip|dom} and one hand wherever {dom} asks for it.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-66385752cc151cb699f0a052b70c681c367f9ce8a8ac577d0ac2af01ba521894"
+      },
+      {
+        "action": "{dom} calls out a pace. {sub} matches it exactly for a minute.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-ce731a5e52911b09be3129fd2fc3e91626574ee85f77270e1fd4c7c2bdfc69a0"
+      },
+      {
+        "action": "{sub} keeps going until {dom} has to ask them to ease off.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-365654e85d836574227574283d8549c5f7e775ed9236452c900cec65cb103575"
+      },
+      {
+        "action": "{dom} holds {sub} where {dom} wants them and uses {sub}'s mouth for 30 seconds.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-04a4a0eff587166a19b4567efb09f1b69ff5bce70738632ea5fa639c4f96070f"
+      },
+      {
+        "action": "{sub} brings {dom} close, stops, waits a count of ten, and starts again. Twice.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-e3aa118b166d04229b8a6d82089870cacf7c01acff9d462d9a6cf25606edb3d2"
+      },
+      {
+        "action": "{sub} works {dom} with mouth and fingers together for 90 seconds.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-33ce206f62ce2efaed5fd9637ebd6f8fc4f142d55dc511a20a31eec98a58c170"
+      },
+      {
+        "action": "{sub} does not change rhythm or stop until {dom}'s next turn.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-d07e1cd001ba8bd11a3700fa79262094df9276c6347d6948eb6d879872cf5fe5"
+      },
+      {
+        "action": "{dom} picks any position. {sub} holds it and keeps going for two minutes.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-35468484b23b5408e9d80a62632327d42b3b6842212c82620ec7a04a0671e17c"
+      },
+      {
+        "action": "{sub} keeps eye contact with {dom} the entire time.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-e77bb42a2fd6450ae6f44d05898b96454382a8d0d2293ee1d88664fd4e31e480"
+      },
+      {
+        "action": "{sub} goes down on {dom} while {dom} tries not to make a sound.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-c92733a71330f84ac7c519c9fd16fe8d9984ae1ff44af3297ada7f4c90b75eb2"
+      },
+      {
+        "action": "{dom} guides {sub}'s head with both hands for a minute; {sub} stays passive.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-31b3381cc5acd39b88e25b4d9ad0b3f13c3bf1904eaf43e30fba7c60f5cf9f8c"
+      },
+      {
+        "action": "{sub} spends two minutes on {dom} and may never use the same motion twice in a row.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-5f2c1c42fc2b17e217baa8fdd0f010095966bf38c9ad680397d9ecb30f81a699"
+      },
+      {
+        "action": "{sub} works slowly up and down {dom}'s {genital|dom} — base to {pronoun_possessive|dom} {tip|dom}, ten full passes.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-63766f6146f4bd27c5ea895aa908fa080d702ab9206384561b6cb536e1c154f6"
+      },
+      {
+        "action": "{dom} sets the rhythm against {sub}'s mouth. {sub} stays still and takes it.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-b52d68bd07766c35949a4c1f209d34c51fda54c373d8dda221844bc1f83262bf"
+      },
+      {
+        "action": "{dom} decides how deep and how fast. {sub} holds exactly that rhythm for a minute.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-f326ef9ad877dafcb754cfa484b103c3a60e6ca4dc1f2c5302cf763654910993"
+      },
+      {
+        "action": "{sub} makes one full pass per breath {dom} takes, for a minute.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 3,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-9c3b164859d17ecb969c09deb2a17327a01f6882ec2e7a6813f239f6a09527ff"
+      },
+      {
+        "action": "{sub} edges {dom} three times with their mouth, stopping the moment {dom} says so.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-182bbbc4a6ff31ab0f36dfba83411384862b217f4630bf509ef153e575771d9c"
+      },
+      {
+        "action": "{sub} keeps going for five straight minutes. {dom} is not allowed to call it off.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-ed44df381b266a3abe992a9f43c68fe603b0c31aa2cd9b90aa3c54804cfa8b22"
+      },
+      {
+        "action": "{sub} carries on for thirty seconds after {dom} finishes.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-7b5466d91637244d921ae5c9cb68610808e76dcc3d58c8e4b9bdef77e08d78b6"
+      },
+      {
+        "action": "{dom} chooses two players. Both use their mouths on {dom} at once.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-b3a870cc701f21c1e591c7d85992c493922e21675d7f53f6963d01a1cad2b5ab"
+      },
+      {
+        "action": "{dom} counts to sixty out loud. Any stumble and {sub} starts the count over.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-446eb9a83dac9b3600b1c1d4c2ae04f733ccb9dda703573606d2e9bd9be2e1ff"
+      },
+      {
+        "action": "{sub} alternates gentle and relentless every 15 seconds until {dom} taps out.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-cfde862c66b28746218a6b179fcd2c90866ec83b1bd9673d192cf05947031f30"
+      },
+      {
+        "action": "{sub} keeps {dom} right at the edge for as long as {dom} can stand it.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-ef3b5d16a9b28a8d93fba055ba577ac14610ac814c185d18ca56169ed76935f7"
+      },
+      {
+        "action": "Every player takes a turn going down on {dom} for 45 seconds each.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-883e0d9811f6ec57efa5c4d9ab24763835bbfe8335f46c5fa9dcd937fe5211de"
+      },
+      {
+        "action": "{sub} goes down on {dom} through {dom}'s next two turns.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-2c87878002a8d83b75729329321eb909da521ad63099032182f103776e9426a0"
+      },
+      {
+        "action": "Two players compete to see who can make {dom} lose composure first.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-37ad927e36e85ee9328fad22301b8949b517e44958299b782ba00a9e30575470"
+      },
+      {
+        "action": "{sub} finishes {dom} with their mouth, however long it takes.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-bf1cfa2c841410db3a254aff02e9d407e9cb203f93f4dfef874c76474539ead9"
+      },
+      {
+        "action": "{dom} names the one thing {dom} wants most. {sub} does only that until {dom} is done.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-0703cbfdf70a8a1dc11b5e63fe26aa6db138e9574cdd6d09c45f7448597d5cd5"
+      },
+      {
+        "action": "{dom} rocks against {sub}'s mouth for 30 seconds. {sub} may not pull away.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-edc4456817d938ac3707380fa707e9b77c5dff62a51056a68bb9b3c34766eac4"
+      },
+      {
+        "action": "In and out, slow — twenty counts. {dom} calls the depth, {sub} never breaks the count.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-a40444729ad171cb4f176b60fb792686962ab36d0b6cdc1de76ba1cbeb9238cb"
+      },
+      {
+        "action": "{sub} keeps a steady in-and-out rhythm on {dom} until {dom}'s next turn — no changes, no breaks.",
+        "groupName": "oralAnyAnatomy",
+        "intensity": 4,
+        "tags": [],
+        "gameMode": "local",
+        "locale": "en",
+        "isEnabled": true,
+        "contentHash": "sha256-d640de87315d71ba2989a5177feb35b61a7c677c05cebb15abb8aca1923b63d3"
+      }
+    ],
+    "disabledDefaultTiles": []
+  }
+}
