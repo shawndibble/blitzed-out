@@ -110,6 +110,9 @@ export default function CreateAccount({
         name="displayName"
         autoComplete="name"
         autoFocus
+        // firestore.rules caps a pack's authorName at 100 chars; an over-long
+        // name here would reject every publish with permission-denied.
+        slotProps={{ htmlInput: { maxLength: 100 } }}
         value={displayName}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setDisplayName(e.target.value)}
       />

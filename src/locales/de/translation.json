@@ -902,5 +902,6 @@
   "accountExistsUseSignIn": "Mit dieser E-Mail existiert schon ein Konto. Melde dich stattdessen dort an — deine gespeicherten Aktionen bleiben auf diesem Gerät, aber als Gast veröffentlichte Pakete bleiben beim Gastkonto.",
   "signInInstead": "Stattdessen anmelden",
   "signInSwitchesAccount": "Beim Anmelden wechselst du zu diesem Konto. Deine gespeicherten Aktionen bleiben auf diesem Gerät, aber als Gast veröffentlichte Pakete bleiben beim Gastkonto.",
-  "accountLinkedFinishSignIn": "Dein Konto wurde erstellt, aber diese Sitzung muss noch angemeldet werden. Melde dich an, um abzuschließen — deine Daten bleiben beim selben Konto."
+  "accountLinkedFinishSignIn": "Dein Konto wurde erstellt, aber diese Sitzung muss noch angemeldet werden. Melde dich an, um abzuschließen — deine Daten bleiben beim selben Konto.",
+  "googleAccountExistsUseSignIn": "Dieses Google-Konto gehört hier schon zu einem anderen Konto. Melde dich stattdessen dort an — deine gespeicherten Aktionen bleiben auf diesem Gerät, aber als Gast veröffentlichte Pakete bleiben beim Gastkonto."
 }

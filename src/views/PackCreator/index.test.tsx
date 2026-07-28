@@ -58,7 +58,7 @@ vi.mock('@/views/CustomGroupDialog', () => ({
   default: () => null,
 }));
 
-const mockAuth = { user: { uid: 'u1' }, isAnonymous: true };
+const mockAuth = { user: { uid: 'u1' }, isAnonymous: true, hasPermanentProvider: false };
 vi.mock('@/hooks/useAuth', () => ({
   default: () => mockAuth,
 }));
@@ -78,6 +78,7 @@ vi.mock('@/components/auth/AuthDialog', () => ({
         <button
           onClick={() => {
             mockAuth.isAnonymous = false;
+            mockAuth.hasPermanentProvider = true;
             onSuccess?.('linked');
           }}
         >
@@ -86,11 +87,21 @@ vi.mock('@/components/auth/AuthDialog', () => ({
         <button
           onClick={() => {
             mockAuth.isAnonymous = false;
+            mockAuth.hasPermanentProvider = true;
             mockAuth.user = { uid: 'other-user' };
             onSuccess?.('signedIn');
           }}
         >
           finish-signin
+        </button>
+        {/* A link whose re-auth failed: Firebase flips isAnonymous, the token
+            provider stays anonymous, and the dialog reports no success. */}
+        <button
+          onClick={() => {
+            mockAuth.isAnonymous = false;
+          }}
+        >
+          half-link
         </button>
       </div>
     ) : null,
@@ -114,6 +125,7 @@ describe('PackCreator', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.isAnonymous = true;
+    mockAuth.hasPermanentProvider = false;
     mockAuth.user = { uid: 'u1' };
     mockListMyPacks.mockResolvedValue([]);
   });
@@ -176,30 +188,44 @@ describe('PackCreator', () => {
     expect(mockPublish.mock.calls[0][0].visibility).toBe('public');
   });
 
-  it('re-offers the account prompt when the server rejects a public publish', async () => {
-    // The client can believe an account is permanent while its token still
-    // carries the anonymous provider (a link whose re-auth failed). The server
-    // is the authority, so its rejection has to lead somewhere.
-    mockAuth.isAnonymous = false;
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    mockPublish.mockRejectedValueOnce(
-      Object.assign(new Error('Missing or insufficient permissions'), {
-        code: 'permission-denied',
-      })
-    );
-
+  it('keeps public off the table when a link left the session half-upgraded', async () => {
     renderCreator();
 
     fireEvent.click(await screen.findByText('My Group'));
     fireEvent.click(screen.getByText('next'));
-    // Permanent account: no prompt until the server says otherwise.
-    expect(screen.queryByText('packs.signInToPublish')).toBeNull();
+    fireEvent.click(screen.getByText('packs.signInToPublish'));
+
+    // isAnonymous flips, but the token still carries the anonymous provider.
+    fireEvent.click(await screen.findByText('half-link'));
     fireEvent.change(screen.getByLabelText('packs.name'), { target: { value: 'Party Pack' } });
+
+    // The prompt stays, and the publish is forced private rather than offering
+    // a capability the rules would reject.
+    expect(screen.getByText('packs.signInToPublish')).toBeInTheDocument();
     fireEvent.click(screen.getByText('next'));
+    await screen.findByText('packCreator.willBePrivate');
     fireEvent.click(screen.getByText('packs.publish'));
 
-    await screen.findByText('packs.signInToPublish');
-    consoleSpy.mockRestore();
+    await waitFor(() => expect(mockPublish).toHaveBeenCalled());
+    expect(mockPublish.mock.calls[0][0].visibility).toBe('private');
+  });
+
+  it('honours the public request even if the dialog is dismissed after the upgrade', async () => {
+    renderCreator();
+
+    fireEvent.click(await screen.findByText('My Group'));
+    fireEvent.click(screen.getByText('next'));
+    fireEvent.change(screen.getByLabelText('packs.name'), { target: { value: 'Party Pack' } });
+    fireEvent.click(screen.getByText('packs.signInToPublish'));
+
+    // Upgrade lands, then the dialog is dismissed without reporting success.
+    await screen.findByText('half-link');
+    mockAuth.isAnonymous = false;
+    mockAuth.hasPermanentProvider = true;
+    fireEvent.click(screen.getByLabelText('close'));
+
+    fireEvent.click(screen.getByText('next'));
+    await screen.findByText('packCreator.willBePublic');
   });
 
   it('stops republishing a pack owned by the account that was signed out of', async () => {

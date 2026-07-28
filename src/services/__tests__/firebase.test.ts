@@ -242,6 +242,30 @@ describe('Firebase Authentication Service', () => {
       expect(result.uid).toBe(mockAnonymousUser.uid);
     });
 
+    it('completes the upgrade even when the display-name write fails', async () => {
+      const { convertAnonymousAccount } = await import('../firebase/auth');
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      // @ts-expect-error Mock assignment to readonly property for testing
+      mockAuth.currentUser = mockAnonymousUser;
+      mockEmailAuthProvider.credential.mockReturnValue({ providerId: 'password' });
+      const linkedUser = { ...mockUser, displayName: 'Anonymous User' };
+      mockLinkWithCredential.mockResolvedValue({ user: linkedUser });
+      mockSignInWithEmailAndPassword.mockResolvedValue({ user: linkedUser });
+      // Cosmetic write fails after the session is already established.
+      mockUpdateProfile.mockRejectedValue(new Error('network blip'));
+
+      const result = await convertAnonymousAccount(
+        'test@example.com',
+        'password123',
+        'Permanent Name'
+      );
+
+      // Must not report a half-linked account: the upgrade did land.
+      expect(result).toEqual(linkedUser);
+      consoleSpy.mockRestore();
+    });
+
     it('applies a changed display name after conversion', async () => {
       const { convertAnonymousAccount } = await import('../firebase/auth');
 

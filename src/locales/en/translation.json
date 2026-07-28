@@ -902,5 +902,6 @@
   "accountExistsUseSignIn": "An account with this email already exists. Sign in to it instead — your saved actions stay on this device, but packs you published as a guest stay with the guest account.",
   "signInInstead": "Sign in instead",
   "signInSwitchesAccount": "Signing in switches to that account. Your saved actions stay on this device, but packs you published as a guest stay with the guest account.",
-  "accountLinkedFinishSignIn": "Your account was created, but this session still needs to be signed in. Sign in to finish — your data stays with the same account."
+  "accountLinkedFinishSignIn": "Your account was created, but this session still needs to be signed in. Sign in to finish — your data stays with the same account.",
+  "googleAccountExistsUseSignIn": "That Google account already belongs to another account here. Sign in to it instead — your saved actions stay on this device, but packs you published as a guest stay with the guest account."
 }

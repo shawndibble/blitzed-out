@@ -902,5 +902,6 @@
   "accountExistsUseSignIn": "该邮箱已有账户。请直接登录该账户 — 你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。",
   "signInInstead": "改为登录",
   "signInSwitchesAccount": "登录会切换到该账户。你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。",
-  "accountLinkedFinishSignIn": "账户已创建，但当前会话仍需登录。请登录以完成 — 你的数据仍属于同一个账户。"
+  "accountLinkedFinishSignIn": "账户已创建，但当前会话仍需登录。请登录以完成 — 你的数据仍属于同一个账户。",
+  "googleAccountExistsUseSignIn": "该 Google 账户已属于此处的另一个账户。请直接登录该账户 — 你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。"
 }

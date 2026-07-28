@@ -135,7 +135,6 @@ const IDENTITY_TAKEN_CODES = [
   'auth/email-already-in-use',
   'auth/credential-already-in-use',
   'auth/account-exists-with-different-credential',
-  'auth/provider-already-linked',
 ];
 
 export function isIdentityTakenError(error: unknown): boolean {
@@ -154,6 +153,15 @@ export function isAccountExistsError(error: unknown): boolean {
  * would fail. Recovered by signing in, which keeps the uid.
  */
 export const ACCOUNT_LINKED_NEEDS_SIGNIN = 'ACCOUNT_LINKED_NEEDS_SIGNIN';
+
+/**
+ * `provider-already-linked` says *this* user already holds the provider, so the
+ * uid does not change and the "already taken" warning would be a lie — the fix
+ * is the same sign-in that finishes any half-linked session.
+ */
+export function isAlreadyLinkedToThisUser(error: unknown): boolean {
+  return getErrorCode(error) === 'auth/provider-already-linked';
+}
 
 export function isLinkedNeedsSignInError(error: unknown): boolean {
   return getErrorCode(error) === ACCOUNT_LINKED_NEEDS_SIGNIN;

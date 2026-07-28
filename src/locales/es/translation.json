@@ -902,5 +902,6 @@
   "accountExistsUseSignIn": "Ya existe una cuenta con este correo. Inicia sesión en ella — tus acciones guardadas permanecen en este dispositivo, pero los paquetes que publicaste como invitado se quedan con la cuenta de invitado.",
   "signInInstead": "Iniciar sesión en su lugar",
   "signInSwitchesAccount": "Al iniciar sesión cambiarás a esa cuenta. Tus acciones guardadas permanecen en este dispositivo, pero los paquetes que publicaste como invitado se quedan con la cuenta de invitado.",
-  "accountLinkedFinishSignIn": "Tu cuenta se creó, pero esta sesión aún necesita iniciar sesión. Inicia sesión para terminar — tus datos permanecen en la misma cuenta."
+  "accountLinkedFinishSignIn": "Tu cuenta se creó, pero esta sesión aún necesita iniciar sesión. Inicia sesión para terminar — tus datos permanecen en la misma cuenta.",
+  "googleAccountExistsUseSignIn": "Esa cuenta de Google ya pertenece a otra cuenta aquí. Inicia sesión en ella — tus acciones guardadas permanecen en este dispositivo, pero los paquetes que publicaste como invitado se quedan con la cuenta de invitado."
 }

@@ -3,7 +3,12 @@ import { Box, Button, Divider, Typography, Alert, CircularProgress } from '@mui/
 import GoogleIcon from '@mui/icons-material/Google';
 import { Trans } from 'react-i18next';
 import { t } from 'i18next';
-import { getErrorMessage, isAccountExistsError, isLinkedNeedsSignInError } from '@/types/errors';
+import {
+  getErrorMessage,
+  isAccountExistsError,
+  isAlreadyLinkedToThisUser,
+  isLinkedNeedsSignInError,
+} from '@/types/errors';
 import useAuth from '@/hooks/useAuth';
 import type { AuthOutcome } from './AuthDialog';
 
@@ -41,7 +46,9 @@ export default function SocialLoginButtons({
     } catch (err: unknown) {
       if (isAccountExistsError(err)) {
         setSignInOnly('exists');
-      } else if (isLinkedNeedsSignInError(err)) {
+      } else if (isLinkedNeedsSignInError(err) || isAlreadyLinkedToThisUser(err)) {
+        // Already linked to *this* user: the uid is unchanged, only the session
+        // is unfinished, so the same sign-in resolves it.
         setSignInOnly('linked');
       } else {
         setError(getErrorMessage(err));
@@ -59,8 +66,18 @@ export default function SocialLoginButtons({
         </Alert>
       )}
       {signInOnly && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          {signInOnly === 'linked' ? t('accountLinkedFinishSignIn') : t('accountExistsUseSignIn')}
+        <Alert
+          severity="warning"
+          sx={{ mb: 2 }}
+          action={
+            <Button color="inherit" size="small" onClick={handleGoogleLogin} disabled={loading}>
+              {t('signInInstead')}
+            </Button>
+          }
+        >
+          {signInOnly === 'linked'
+            ? t('accountLinkedFinishSignIn')
+            : t('googleAccountExistsUseSignIn')}
         </Alert>
       )}
       <Divider sx={{ mb: 2 }}>

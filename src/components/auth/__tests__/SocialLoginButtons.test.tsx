@@ -75,10 +75,25 @@ describe('SocialLoginButtons', () => {
 
     fireEvent.click(screen.getByText('Link with Google'));
 
-    await screen.findByText('accountExistsUseSignIn');
-    fireEvent.click(screen.getByText('Sign in with Google'));
+    // Google-specific copy: no email was ever typed on this path.
+    await screen.findByText('googleAccountExistsUseSignIn');
+    // The offer is an action, not just a relabelled button.
+    fireEvent.click(screen.getByText('signInInstead'));
 
     await waitFor(() => expect(mockAuth.loginGoogle).toHaveBeenCalled());
     expect(onSuccess).toHaveBeenCalledWith('signedIn');
+  });
+
+  it('treats a provider already linked to this user as an unfinished session', async () => {
+    // The uid does not change here, so the "already taken" warning would lie.
+    mockAuth.linkGoogle.mockRejectedValue(
+      Object.assign(new Error('already linked'), { code: 'auth/provider-already-linked' })
+    );
+    render(<SocialLoginButtons isLinking />);
+
+    fireEvent.click(screen.getByText('Link with Google'));
+
+    await screen.findByText('accountLinkedFinishSignIn');
+    expect(screen.queryByText('googleAccountExistsUseSignIn')).toBeNull();
   });
 });

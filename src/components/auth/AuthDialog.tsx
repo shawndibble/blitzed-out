@@ -26,12 +26,16 @@ interface AuthDialogProps {
 export default function AuthDialog({
   open,
   close,
-  initialView = 'login',
+  initialView,
   onSuccess,
 }: AuthDialogProps): JSX.Element {
-  const [currentView, setCurrentView] = useState<AuthView>(initialView);
-  const [prefillEmail, setPrefillEmail] = useState<string>('');
   const { isAnonymous } = useAuth();
+  // A guest opening this dialog wants to keep their content, which is the
+  // register/link path — the sign-in form would move them to another account.
+  const [currentView, setCurrentView] = useState<AuthView>(
+    initialView ?? (isAnonymous ? 'register' : 'login')
+  );
+  const [prefillEmail, setPrefillEmail] = useState<string>('');
   const { t } = useTranslation();
 
   const handleSuccess = (outcome: AuthOutcome) => {
@@ -40,7 +44,9 @@ export default function AuthDialog({
   };
 
   const showLogin = (email?: string) => {
-    if (email) setPrefillEmail(email);
+    // Always overwrite: keeping a previously-offered address would prefill the
+    // login form with an unrelated email.
+    setPrefillEmail(email ?? '');
     setCurrentView('login');
   };
 
@@ -75,11 +81,17 @@ export default function AuthDialog({
       {currentView === 'reset' && <ResetPasswordForm onToggleForm={setCurrentView} />}
 
       {currentView === 'register' && (
-        <CreateAccount
-          onSwitchToLogin={showLogin}
-          onSuccess={handleSuccess}
-          isAnonymous={isAnonymous}
-        />
+        <>
+          <CreateAccount
+            onSwitchToLogin={showLogin}
+            onSuccess={handleSuccess}
+            isAnonymous={isAnonymous}
+          />
+          {/* The Google *linking* path lives here too: a guest sent straight to
+              this view would otherwise have to detour through the sign-in form,
+              which warns that signing in abandons their guest content. */}
+          <SocialLoginButtons onSuccess={handleSuccess} isLinking={isAnonymous} />
+        </>
       )}
     </DialogWrapper>
   );

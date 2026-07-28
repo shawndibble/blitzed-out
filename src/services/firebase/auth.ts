@@ -187,15 +187,22 @@ export async function convertAnonymousAccount(
   } catch (error) {
     throw conversionError(error);
   }
+  let reauthenticated: Awaited<ReturnType<typeof signInWithEmailAndPassword>>;
   try {
-    const reauthenticated = await signInWithEmailAndPassword(auth, email, password);
-    if (displayName && displayName !== reauthenticated.user.displayName) {
-      await updateProfile(reauthenticated.user, { displayName });
-    }
-    return reauthenticated.user;
+    reauthenticated = await signInWithEmailAndPassword(auth, email, password);
   } catch (error) {
     throw postLinkSignInError(error);
   }
+  // The upgrade is complete at this point. A failed display-name write is
+  // cosmetic and must not report the account as half-linked.
+  if (displayName && displayName !== reauthenticated.user.displayName) {
+    try {
+      await updateProfile(reauthenticated.user, { displayName });
+    } catch (error) {
+      logger.error('Display name update after conversion failed', error);
+    }
+  }
+  return reauthenticated.user;
 }
 
 /**

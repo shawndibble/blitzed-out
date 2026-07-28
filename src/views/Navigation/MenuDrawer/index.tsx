@@ -75,7 +75,7 @@ export default function MenuDrawer(): JSX.Element {
   const { id: room } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, wipeAllData, isAnonymous } = useAuth();
+  const { user, wipeAllData, isAnonymous, hasPermanentProvider } = useAuth();
   const isMobile = useBreakpoint();
   const { i18n } = useTranslation();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -269,7 +269,10 @@ export default function MenuDrawer(): JSX.Element {
         icon: <SettingsIcon />,
         onClick: () => toggleDialog('settings', true),
       });
-      if (isAnonymous) {
+      // Also offered when a link landed but its session did not: `isAnonymous`
+      // reads false there, and this is the only durable way back to finishing
+      // the sign-in.
+      if (isAnonymous || !hasPermanentProvider) {
         items.push({
           key: 'linkAccount',
           title: <Trans i18nKey="linkAccount" />,
@@ -285,7 +288,16 @@ export default function MenuDrawer(): JSX.Element {
       });
     }
     return items;
-  }, [user, room, isAnonymous, discordIcon, handleWipeData, toggleDialog, navigate]);
+  }, [
+    user,
+    room,
+    isAnonymous,
+    hasPermanentProvider,
+    discordIcon,
+    handleWipeData,
+    toggleDialog,
+    navigate,
+  ]);
 
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
     <ListItem key={key} disablePadding onClick={onClick}>
