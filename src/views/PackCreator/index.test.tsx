@@ -66,20 +66,15 @@ vi.mock('@/hooks/useAuth', () => ({
 // Stand-in for the real dialog: one button per outcome, so the tests drive the
 // creator's reaction to an upgrade without exercising Firebase.
 vi.mock('@/components/auth/AuthDialog', () => ({
-  default: ({
-    open,
-    onSuccess,
-  }: {
-    open: boolean;
-    onSuccess?: (outcome: 'linked' | 'signedIn') => void;
-  }) =>
+  default: ({ open, onSuccess }: { open: boolean; onSuccess?: (user: { uid: string }) => void }) =>
     open ? (
       <div>
         <button
           onClick={() => {
             mockAuth.isAnonymous = false;
             mockAuth.hasPermanentProvider = true;
-            onSuccess?.('linked');
+            // Same uid: the credential linked in place.
+            onSuccess?.({ uid: mockAuth.user.uid });
           }}
         >
           finish-link
@@ -89,7 +84,7 @@ vi.mock('@/components/auth/AuthDialog', () => ({
             mockAuth.isAnonymous = false;
             mockAuth.hasPermanentProvider = true;
             mockAuth.user = { uid: 'other-user' };
-            onSuccess?.('signedIn');
+            onSuccess?.({ uid: 'other-user' });
           }}
         >
           finish-signin

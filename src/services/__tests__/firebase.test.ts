@@ -288,7 +288,6 @@ describe('Firebase Authentication Service', () => {
       const { convertAnonymousAccount } = await import('../firebase/auth');
       const { ACCOUNT_EXISTS, isAccountExistsError } = await import('@/types/errors');
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockAnonymousUser;
       mockEmailAuthProvider.credential.mockReturnValue({ providerId: 'password' });
@@ -304,7 +303,6 @@ describe('Firebase Authentication Service', () => {
       expect(error.code).toBe(ACCOUNT_EXISTS);
       expect(isAccountExistsError(error)).toBe(true);
       expect(mockSignInWithEmailAndPassword).not.toHaveBeenCalled();
-      consoleSpy.mockRestore();
     });
 
     it('reports a failed post-link sign-in distinctly from a failed link', async () => {
@@ -360,7 +358,6 @@ describe('Firebase Authentication Service', () => {
       const { linkWithPopup } = await import('firebase/auth');
       const { ACCOUNT_EXISTS } = await import('@/types/errors');
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockAnonymousUser;
       vi.mocked(linkWithPopup).mockRejectedValue(
@@ -370,6 +367,27 @@ describe('Firebase Authentication Service', () => {
       const error = await linkGoogleAccount().catch((e) => e);
 
       expect(error.code).toBe(ACCOUNT_EXISTS);
+    });
+
+    it('treats a Google link with no usable credential as an unfinished session', async () => {
+      const { linkGoogleAccount } = await import('../firebase/auth');
+      const { linkWithPopup, signInWithCredential, GoogleAuthProvider } =
+        await import('firebase/auth');
+      const { ACCOUNT_LINKED_NEEDS_SIGNIN } = await import('@/types/errors');
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      // @ts-expect-error Mock assignment to readonly property for testing
+      mockAuth.currentUser = mockAnonymousUser;
+      vi.mocked(linkWithPopup).mockResolvedValue({ user: mockUser } as any);
+      // Link landed, but there is nothing to re-authenticate with — so the
+      // session still carries the anonymous provider and must not be reported
+      // as a completed upgrade.
+      vi.mocked(GoogleAuthProvider.credentialFromResult).mockReturnValue(null);
+
+      const error = await linkGoogleAccount().catch((e) => e);
+
+      expect(error.code).toBe(ACCOUNT_LINKED_NEEDS_SIGNIN);
+      expect(signInWithCredential).not.toHaveBeenCalled();
       consoleSpy.mockRestore();
     });
 
@@ -419,31 +437,31 @@ describe('Firebase Authentication Service', () => {
       expect(result).toBe(null);
     });
 
-    it('should throw error when converting non-anonymous account', async () => {
+    it('steers a non-anonymous session to a sign-in rather than linking again', async () => {
       const { convertAnonymousAccount } = await import('../firebase/auth');
+      const { ACCOUNT_LINKED_NEEDS_SIGNIN } = await import('@/types/errors');
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockUser; // Not anonymous
 
-      await expect(convertAnonymousAccount('test@example.com', 'password123')).rejects.toThrow(
-        'User is not anonymous or not logged in'
+      // Covers the half-linked retry: linking again would mint a second
+      // account, so the recovery code is the honest answer.
+      const error = await convertAnonymousAccount('test@example.com', 'password123').catch(
+        (e) => e
       );
 
-      consoleSpy.mockRestore();
+      expect(error.code).toBe(ACCOUNT_LINKED_NEEDS_SIGNIN);
+      expect(mockLinkWithCredential).not.toHaveBeenCalled();
     });
 
     it('should throw error when converting account without logged in user', async () => {
       const { convertAnonymousAccount } = await import('../firebase/auth');
 
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockAuth.currentUser = null;
 
       await expect(convertAnonymousAccount('test@example.com', 'password123')).rejects.toThrow(
         'User is not anonymous or not logged in'
       );
-
-      consoleSpy.mockRestore();
     });
   });
 });

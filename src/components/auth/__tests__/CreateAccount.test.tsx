@@ -19,6 +19,7 @@ const mockAuth = {
     isAnonymous: boolean;
   } | null,
   isAnonymous: true,
+  hasPermanentProvider: false,
   register: vi.fn(async () => ({ uid: 'new-1' })),
   convertToRegistered: vi.fn(async () => ({ uid: 'anon-1' })),
 };
@@ -37,6 +38,7 @@ describe('CreateAccount', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.isAnonymous = true;
+    mockAuth.hasPermanentProvider = false;
     mockAuth.user = { uid: 'anon-1', displayName: 'Guest Name', isAnonymous: true };
     mockAuth.convertToRegistered.mockResolvedValue({ uid: 'anon-1' });
   });
@@ -58,7 +60,7 @@ describe('CreateAccount', () => {
       'Guest Name'
     );
     expect(mockAuth.register).not.toHaveBeenCalled();
-    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith('linked'));
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith({ uid: 'anon-1' }));
   });
 
   it('registers normally when there is no anonymous account to upgrade', async () => {
@@ -73,7 +75,7 @@ describe('CreateAccount', () => {
 
     await waitFor(() => expect(mockAuth.register).toHaveBeenCalled());
     expect(mockAuth.convertToRegistered).not.toHaveBeenCalled();
-    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith('signedIn'));
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledWith({ uid: 'new-1' }));
   });
 
   it('offers to sign in instead when the email already has an account', async () => {
@@ -106,6 +108,33 @@ describe('CreateAccount', () => {
     await screen.findByText('accountLinkedFinishSignIn');
     fireEvent.click(screen.getByText('signInInstead'));
     expect(onSwitchToLogin).toHaveBeenCalledWith('half@example.com');
+  });
+
+  it('still performs the upgrade when no success handler is attached', async () => {
+    // Guards the optional-call trap: `onSuccess?.(await link())` would skip the
+    // link entirely whenever the caller passes no handler.
+    render(<CreateAccount onSwitchToLogin={vi.fn()} isAnonymous />);
+
+    fillForm();
+    fireEvent.click(screen.getByText('linkAccount'));
+
+    await waitFor(() => expect(mockAuth.convertToRegistered).toHaveBeenCalled());
+  });
+
+  it('refuses to register a second account for a half-linked session', async () => {
+    // Link landed, re-auth did not: Firebase flipped isAnonymous, but the token
+    // provider is still anonymous. Registering here would abandon the account
+    // that was just linked to this uid.
+    mockAuth.isAnonymous = false;
+    mockAuth.hasPermanentProvider = false;
+    render(<CreateAccount onSwitchToLogin={vi.fn()} />);
+
+    fillForm();
+    fireEvent.click(screen.getByText('createAccount'));
+
+    expect(screen.getByText('accountLinkedFinishSignIn')).toBeInTheDocument();
+    expect(mockAuth.register).not.toHaveBeenCalled();
+    expect(mockAuth.convertToRegistered).not.toHaveBeenCalled();
   });
 
   it('shows an ordinary error without the sign-in offer', async () => {

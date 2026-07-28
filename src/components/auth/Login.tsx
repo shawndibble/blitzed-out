@@ -4,10 +4,10 @@ import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mu
 import { Trans, useTranslation } from 'react-i18next';
 import { getErrorMessage } from '@/types/errors';
 import useAuth from '@/hooks/useAuth';
-import type { AuthOutcome } from './AuthDialog';
+import type { User } from '@/types';
 
 interface LoginProps {
-  onSuccess?: (outcome: AuthOutcome) => void;
+  onSuccess?: (user: User) => void;
   onSwitchToRegister: () => void;
   onSwitchToForgotPassword: () => void;
   /** Anonymous session: signing in moves to that account rather than linking. */
@@ -35,8 +35,10 @@ export default function Login({
     setLoading(true);
 
     try {
-      await loginEmail(email, password);
-      onSuccess?.('signedIn');
+      // Awaited separately: an optional call skips its arguments when no
+      // handler is passed, which would silently skip the sign-in itself.
+      const authedUser = await loginEmail(email, password);
+      onSuccess?.(authedUser);
     } catch (err: unknown) {
       logger.error('Login error:', err);
       setError(getErrorMessage(err));

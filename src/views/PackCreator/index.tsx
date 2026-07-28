@@ -26,13 +26,12 @@ import {
   Typography,
 } from '@mui/material';
 import { Add, ArrowBack, Close, Edit, Publish } from '@mui/icons-material';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 import CopyToClipboard from '@/components/CopyToClipboard';
-import type { AuthOutcome } from '@/components/auth/AuthDialog';
 import CustomGroupDialog from '@/views/CustomGroupDialog';
 import {
   buildPackContents,
@@ -55,6 +54,7 @@ import type { ContentGameMode } from '@/types/Settings';
 import { GAME_MODES } from '@/services/migration/constants';
 import type { ContentPackDoc, PackVisibility } from '@/types/contentPacks';
 import type { CustomTile } from '@/types/customTiles';
+import type { User } from '@/types';
 
 // Loaded on demand: the account dialog pulls in the whole auth surface.
 const AuthDialog = lazyWithRetry(() => import('@/components/auth/AuthDialog'));
@@ -246,8 +246,13 @@ export default function PackCreator() {
     }
   }, [editingPack, user]);
 
+  // The uid we started from, so the analytics label reflects what actually
+  // happened rather than what the dialog believed it did.
+  const uidBeforeAuth = useRef<string | null>(null);
+
   const openAuthPrompt = () => {
     analytics.trackPackEvent('pack_auth_prompt_clicked');
+    uidBeforeAuth.current = user?.uid ?? null;
     // Clicking the prompt *is* the request to go public. Recording it here
     // rather than on success means dismissing the dialog mid-flight cannot
     // swallow a completed upgrade and quietly leave the pack private.
@@ -255,8 +260,10 @@ export default function PackCreator() {
     setAuthDialogOpen(true);
   };
 
-  const handleAuthSuccess = (outcome: AuthOutcome) => {
-    analytics.trackPackEvent('pack_auth_upgraded', { auth_method: outcome });
+  const handleAuthSuccess = (authedUser: User) => {
+    analytics.trackPackEvent('pack_auth_upgraded', {
+      auth_method: authedUser.uid === uidBeforeAuth.current ? 'linked' : 'signedIn',
+    });
     setError(null);
     setAuthDialogOpen(false);
   };

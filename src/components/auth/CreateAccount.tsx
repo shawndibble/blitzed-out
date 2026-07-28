@@ -2,12 +2,13 @@ import { logger } from '@/utils/logger';
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { getErrorMessage, isAccountExistsError, isLinkedNeedsSignInError } from '@/types/errors';
+import { getErrorMessage } from '@/types/errors';
 import useAuth from '@/hooks/useAuth';
-import type { AuthOutcome } from './AuthDialog';
+import type { User } from '@/types';
+import SignInFallbackAlert, { signInFallbackFor, type SignInFallback } from './SignInFallbackAlert';
 
 interface CreateAccountProps {
-  onSuccess?: (outcome: AuthOutcome) => void;
+  onSuccess?: (user: User) => void;
   onSwitchToLogin: (email?: string) => void;
   isAnonymous?: boolean;
 }
@@ -18,7 +19,7 @@ export default function CreateAccount({
   isAnonymous = false,
 }: CreateAccountProps): JSX.Element {
   const { t } = useTranslation();
-  const { user, register, convertToRegistered } = useAuth();
+  const { user, hasPermanentProvider, register, convertToRegistered } = useAuth();
   // A guest already has a display name (their in-game name) and it is what
   // public packs are attributed to, so carry it over instead of asking twice.
   const [displayName, setDisplayName] = useState<string>(user?.displayName ?? '');
@@ -26,48 +27,45 @@ export default function CreateAccount({
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
-  // Both reasons resolve the same way — sign in — but say different things:
-  // 'exists' means the email was never ours, 'linked' means it is ours now and
-  // only the session needs finishing.
-  const [signInOffer, setSignInOffer] = useState<{
-    email: string;
-    reason: 'exists' | 'linked';
-  } | null>(null);
+  const [fallback, setFallback] = useState<SignInFallback | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
-    setSignInOffer(null);
+    setFallback(null);
 
     if (password !== confirmPassword) {
       setError(t('passwordsDoNotMatch'));
       return;
     }
 
+    // A link that landed without its re-auth leaves a permanent account on this
+    // uid while `isAnonymous` reads false. Registering again from here would
+    // mint a second account and abandon the one just linked.
+    if (user && !isAnonymous && !hasPermanentProvider) {
+      setFallback('linked');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      if (isAnonymous) {
-        // Link, never register: a fresh account would strand everything the
-        // guest already published under their old uid.
-        await convertToRegistered(email.trim(), password, displayName.trim());
-        onSuccess?.('linked');
-      } else {
-        await register(email.trim(), password, displayName.trim());
-        onSuccess?.('signedIn');
-      }
+      // Link, never register, while there is a guest account to keep: a fresh
+      // account would strand everything they already published.
+      // Awaited on its own line: `onSuccess?.(await …)` would skip the call
+      // entirely whenever no handler is passed, since an optional call does not
+      // evaluate its arguments.
+      const authedUser = isAnonymous
+        ? await convertToRegistered(email.trim(), password, displayName.trim())
+        : await register(email.trim(), password, displayName.trim());
+      onSuccess?.(authedUser);
     } catch (err: unknown) {
-      // Linking cannot succeed against an identity that already belongs to
-      // another account — signing into it is the only way forward, and that is
-      // an ordinary outcome rather than a failure worth logging.
-      if (isAccountExistsError(err)) {
-        setSignInOffer({ email: email.trim(), reason: 'exists' });
-      } else if (isLinkedNeedsSignInError(err)) {
-        // The account was created; only the session is unfinished. Steering
-        // them to sign in is mandatory, not a nicety — the half-upgraded
-        // session reads as permanent while its token still says anonymous.
-        setSignInOffer({ email: email.trim(), reason: 'linked' });
+      // A collision or an unfinished session is an ordinary branch the UI
+      // recovers from, not a failure worth logging.
+      const reason = signInFallbackFor(err);
+      if (reason) {
+        setFallback(reason);
       } else {
         logger.error('Registration error:', err);
         setError(getErrorMessage(err));
@@ -85,20 +83,12 @@ export default function CreateAccount({
         </Alert>
       )}
 
-      {signInOffer && (
-        <Alert
-          severity="warning"
-          sx={{ mb: 2 }}
-          action={
-            <Button color="inherit" size="small" onClick={() => onSwitchToLogin(signInOffer.email)}>
-              {t('signInInstead')}
-            </Button>
-          }
-        >
-          {signInOffer.reason === 'linked'
-            ? t('accountLinkedFinishSignIn')
-            : t('accountExistsUseSignIn')}
-        </Alert>
+      {fallback && (
+        <SignInFallbackAlert
+          fallback={fallback}
+          existsMessageKey="accountExistsUseSignIn"
+          onSignIn={() => onSwitchToLogin(email.trim())}
+        />
       )}
 
       <TextField

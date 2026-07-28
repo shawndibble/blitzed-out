@@ -29,6 +29,16 @@ import {
 } from 'firebase/auth';
 import { reportFirefoxMobileAuthError } from '@/utils/firefoxMobileReporting';
 
+/**
+ * Every failure in this module surfaces as an AuthError carrying a stable code.
+ * `logLabel` is omitted for outcomes the UI recovers from — a collision is an
+ * ordinary branch, not a fault worth a log line.
+ */
+function toAuthError(error: unknown, code: string, logLabel?: string): AuthError {
+  if (logLabel) logger.error(logLabel, error);
+  return new AuthError(getFirebaseErrorMessage(error), code, createStandardError(error));
+}
+
 export async function loginAnonymously(displayName = ''): Promise<User | null> {
   try {
     const auth = getAuth();
@@ -57,11 +67,7 @@ export async function loginAnonymously(displayName = ''): Promise<User | null> {
       },
     });
 
-    throw new AuthError(
-      getFirebaseErrorMessage(error),
-      'ANONYMOUS_LOGIN_FAILED',
-      createStandardError(error)
-    );
+    throw toAuthError(error, 'ANONYMOUS_LOGIN_FAILED');
   }
 }
 
@@ -76,12 +82,7 @@ export async function registerWithEmail(
     await updateProfile(userCredential.user, { displayName });
     return userCredential.user;
   } catch (error) {
-    logger.error('Registration error', error);
-    throw new AuthError(
-      getFirebaseErrorMessage(error),
-      'REGISTRATION_FAILED',
-      createStandardError(error)
-    );
+    throw toAuthError(error, 'REGISTRATION_FAILED', 'Registration error');
   }
 }
 
@@ -91,12 +92,7 @@ export async function loginWithEmail(email: string, password: string): Promise<U
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
-    logger.error('Email login error', error);
-    throw new AuthError(
-      getFirebaseErrorMessage(error),
-      'EMAIL_LOGIN_FAILED',
-      createStandardError(error)
-    );
+    throw toAuthError(error, 'EMAIL_LOGIN_FAILED', 'Email login error');
   }
 }
 
@@ -107,12 +103,7 @@ export async function loginWithGoogle(): Promise<User> {
     const userCredential = await signInWithPopup(auth, provider);
     return userCredential.user;
   } catch (error) {
-    logger.error('Google login error', error);
-    throw new AuthError(
-      getFirebaseErrorMessage(error),
-      'GOOGLE_LOGIN_FAILED',
-      createStandardError(error)
-    );
+    throw toAuthError(error, 'GOOGLE_LOGIN_FAILED', 'Google login error');
   }
 }
 
@@ -122,29 +113,30 @@ export async function resetPassword(email: string): Promise<boolean> {
     await sendPasswordResetEmail(auth, email);
     return true;
   } catch (error) {
-    logger.error('Password reset error', error);
-    throw new AuthError(
-      getFirebaseErrorMessage(error),
-      'PASSWORD_RESET_FAILED',
-      createStandardError(error)
-    );
+    throw toAuthError(error, 'PASSWORD_RESET_FAILED', 'Password reset error');
   }
 }
 
 function requireAnonymousUser(): User {
   const user = getAuth().currentUser;
-  if (!user?.isAnonymous) {
+  if (!user) {
     throw new AuthError('User is not anonymous or not logged in', 'ACCOUNT_CONVERSION_FAILED');
+  }
+  if (!user.isAnonymous) {
+    // Nothing left to link: either this session is already permanent, or a link
+    // landed and only its re-auth is missing. Both resolve by signing in, never
+    // by linking again — so report the code whose recovery says exactly that.
+    throw new AuthError('Linking requires an anonymous session', ACCOUNT_LINKED_NEEDS_SIGNIN);
   }
   return user;
 }
 
 function conversionError(error: unknown): AuthError {
-  logger.error('Account conversion error', error);
-  return new AuthError(
-    getFirebaseErrorMessage(error),
-    isIdentityTakenError(error) ? ACCOUNT_EXISTS : 'ACCOUNT_CONVERSION_FAILED',
-    createStandardError(error)
+  const taken = isIdentityTakenError(error);
+  return toAuthError(
+    error,
+    taken ? ACCOUNT_EXISTS : 'ACCOUNT_CONVERSION_FAILED',
+    taken ? undefined : 'Account conversion error'
   );
 }
 
@@ -156,12 +148,7 @@ function conversionError(error: unknown): AuthError {
  * available and then get rejected.
  */
 function postLinkSignInError(error: unknown): AuthError {
-  logger.error('Post-link sign-in error', error);
-  return new AuthError(
-    getFirebaseErrorMessage(error),
-    ACCOUNT_LINKED_NEEDS_SIGNIN,
-    createStandardError(error)
-  );
+  return toAuthError(error, ACCOUNT_LINKED_NEEDS_SIGNIN, 'Post-link sign-in error');
 }
 
 /**

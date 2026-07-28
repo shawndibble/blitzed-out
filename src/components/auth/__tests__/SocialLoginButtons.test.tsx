@@ -9,8 +9,8 @@ import SocialLoginButtons from '../SocialLoginButtons';
 
 vi.mock('react-i18next', () => ({
   Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
+  useTranslation: () => ({ t: (key: string, fallback?: string) => fallback ?? key }),
 }));
-vi.mock('i18next', () => ({ t: (key: string, fallback?: string) => fallback ?? key }));
 vi.mock('@mui/icons-material/Google', () => ({ default: () => null }));
 
 const mockAuth = {
@@ -36,7 +36,7 @@ describe('SocialLoginButtons', () => {
 
     await waitFor(() => expect(mockAuth.linkGoogle).toHaveBeenCalled());
     expect(mockAuth.loginGoogle).not.toHaveBeenCalled();
-    expect(onSuccess).toHaveBeenCalledWith('linked');
+    expect(onSuccess).toHaveBeenCalledWith({ uid: 'anon-1' });
   });
 
   it('signs in with Google when there is no account to upgrade', async () => {
@@ -47,7 +47,7 @@ describe('SocialLoginButtons', () => {
 
     await waitFor(() => expect(mockAuth.loginGoogle).toHaveBeenCalled());
     expect(mockAuth.linkGoogle).not.toHaveBeenCalled();
-    expect(onSuccess).toHaveBeenCalledWith('signedIn');
+    expect(onSuccess).toHaveBeenCalledWith({ uid: 'g-1' });
   });
 
   it('offers a plain sign-in when the link landed but the session did not', async () => {
@@ -63,7 +63,7 @@ describe('SocialLoginButtons', () => {
     fireEvent.click(screen.getByText('Sign in with Google'));
 
     await waitFor(() => expect(mockAuth.loginGoogle).toHaveBeenCalled());
-    expect(onSuccess).toHaveBeenCalledWith('signedIn');
+    expect(onSuccess).toHaveBeenCalledWith({ uid: 'g-1' });
   });
 
   it('offers a plain sign-in when the Google account already exists', async () => {
@@ -81,7 +81,7 @@ describe('SocialLoginButtons', () => {
     fireEvent.click(screen.getByText('signInInstead'));
 
     await waitFor(() => expect(mockAuth.loginGoogle).toHaveBeenCalled());
-    expect(onSuccess).toHaveBeenCalledWith('signedIn');
+    expect(onSuccess).toHaveBeenCalledWith({ uid: 'g-1' });
   });
 
   it('treats a provider already linked to this user as an unfinished session', async () => {

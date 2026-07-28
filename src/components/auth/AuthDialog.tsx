@@ -6,21 +6,20 @@ import { useAuth } from '@/hooks/useAuth';
 import DialogWrapper from '../DialogWrapper';
 import ResetPasswordForm from './ResetPasswordForm';
 import { useTranslation } from 'react-i18next';
+import type { User } from '@/types';
 
 export type AuthView = 'login' | 'register' | 'reset';
-
-/**
- * How the session ended up authenticated: `linked` kept the anonymous uid,
- * `signedIn` moved to a different account. Callers that hold per-uid state
- * (the pack creator's loaded pack) need to tell these apart.
- */
-export type AuthOutcome = 'linked' | 'signedIn';
 
 interface AuthDialogProps {
   open: boolean;
   close: () => void;
   initialView?: AuthView;
-  onSuccess?: (outcome: AuthOutcome) => void;
+  /**
+   * The account the session ended up on. Callers holding per-uid state compare
+   * it with the uid they started from — which is the honest signal, unlike a
+   * self-reported "linked"/"signed in" label that recovery paths get wrong.
+   */
+  onSuccess?: (user: User) => void;
 }
 
 export default function AuthDialog({
@@ -38,8 +37,8 @@ export default function AuthDialog({
   const [prefillEmail, setPrefillEmail] = useState<string>('');
   const { t } = useTranslation();
 
-  const handleSuccess = (outcome: AuthOutcome) => {
-    onSuccess?.(outcome);
+  const handleSuccess = (user: User) => {
+    onSuccess?.(user);
     close();
   };
 
@@ -55,7 +54,9 @@ export default function AuthDialog({
       case 'login':
         return isAnonymous ? t('linkAccount') : t('signIn');
       case 'register':
-        return t('createAccount');
+        // For a guest this form links their existing account rather than
+        // creating a separate one — same wording as the sign-in view.
+        return isAnonymous ? t('linkAccount') : t('createAccount');
       case 'reset':
         return t('resetPassword');
       default:
