@@ -5,6 +5,7 @@ import type { PlayerGender } from '@/types/localPlayers';
 import {
   replaceAnatomyPlaceholders,
   getRoleAwareAnatomyTerm,
+  anatomyTokenPattern,
   ANATOMY_TOKEN_ALTERNATION,
 } from './anatomyPlaceholderService';
 import type { AnatomyPlaceholder } from '@/types/localPlayers';
@@ -53,14 +54,14 @@ const contextualAnatomyPattern = new RegExp(
  * Used for GameBoard preview display
  */
 function replaceGenericAnatomyPlaceholders(action: string, locale: string): string {
-  let result = action;
   const genericTerms = loadGenericAnatomyTerms(locale);
 
-  Object.entries(genericTerms).forEach(([placeholder, term]) => {
-    result = result.replace(new RegExp(`\\{${placeholder}\\}`, 'g'), term);
-  });
-
-  return result;
+  // Piped tokens resolve here too: the board preview has no players to aim a
+  // `|dom` at, and leaving it unmatched would print the raw token on the tile.
+  return action.replace(
+    anatomyTokenPattern(),
+    (match, placeholder: string) => genericTerms[placeholder] || match
+  );
 }
 
 /**

@@ -22,8 +22,16 @@ import i18next from 'i18next';
  */
 export const ANATOMY_TOKEN_ALTERNATION = ANATOMY_PLACEHOLDERS.join('|');
 
-/** Matches a bare `{token}` for any supported anatomy placeholder. */
-const bareTokenPattern = (): RegExp => new RegExp(`\\{(${ANATOMY_TOKEN_ALTERNATION})\\}`, 'g');
+/**
+ * Matches `{token}` and `{token|role}` for any supported anatomy placeholder.
+ *
+ * The pipe target is captured but optional on purpose: only local multiplayer
+ * can resolve a pipe to a specific player, and every other path (solo, online,
+ * board preview) still has to render the token as *something* rather than leak
+ * the raw `{genital|dom}` into the UI.
+ */
+export const anatomyTokenPattern = (): RegExp =>
+  new RegExp(`\\{(${ANATOMY_TOKEN_ALTERNATION})(?:\\|(dom|sub|other|self))?\\}`, 'g');
 
 /**
  * Anatomy term mapping for a specific gender
@@ -94,6 +102,19 @@ export function getAnatomyMappings(locale: string, gender?: PlayerGender): Anato
   }
 
   return mapping;
+}
+
+/**
+ * The gender-neutral term for a placeholder — used where no specific player
+ * can be identified.
+ */
+export function getGenericAnatomyTerm(locale: string, placeholder: AnatomyPlaceholder): string {
+  const terms = i18next.t('anatomy:genericAnatomyTerms', {
+    lng: locale,
+    returnObjects: true,
+  }) as Partial<AnatomyMapping>;
+
+  return terms?.[placeholder] || placeholder;
 }
 
 /**
@@ -192,9 +213,15 @@ export function replaceAnatomyPlaceholders(
   locale: string
 ): string {
   return action.replace(
-    bareTokenPattern(),
-    (match, placeholder: AnatomyPlaceholder) =>
-      getRoleAwareAnatomyTerm(placeholder, gender, role, locale, isPenetrative) || match
+    anatomyTokenPattern(),
+    (match, placeholder: AnatomyPlaceholder, pipeTarget?: string) => {
+      // `|other` names a player this path cannot identify — solo and online have
+      // no roster. Borrowing the reader's anatomy would assert something false,
+      // so the neutral term stands in.
+      if (pipeTarget === 'other') return getGenericAnatomyTerm(locale, placeholder);
+
+      return getRoleAwareAnatomyTerm(placeholder, gender, role, locale, isPenetrative) || match;
+    }
   );
 }
 
@@ -220,5 +247,5 @@ export function getSupportedPlaceholders(): AnatomyPlaceholder[] {
  * ```
  */
 export function hasAnatomyPlaceholders(text: string): boolean {
-  return bareTokenPattern().test(text);
+  return anatomyTokenPattern().test(text);
 }

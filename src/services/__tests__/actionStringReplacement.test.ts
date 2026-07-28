@@ -56,6 +56,35 @@ describe('actionStringReplacement', () => {
 
       expect(result).toBe('The current player touches his dick.');
     });
+
+    it('resolves piped tokens instead of printing them raw on the tile', () => {
+      // The board preview has no players to aim a |dom at; an unmatched token
+      // used to reach the tile verbatim.
+      const result = actionStringReplacement(
+        "{dom} presses {pronoun_possessive|dom} {genital|dom} against {sub}'s face.",
+        'sub',
+        'TestPlayer',
+        undefined,
+        true
+      );
+
+      expect(result).toBe("A dominant presses their genitals against a submissive's face.");
+    });
+
+    it('resolves piped tokens raw-free when a gender is selected too', () => {
+      const result = actionStringReplacement(
+        'Touch {genital|dom} and {chest|other}.',
+        'dom',
+        'TestPlayer',
+        undefined,
+        true,
+        'male',
+        'en'
+      );
+
+      // |dom is the reader here; |other names nobody this path can identify.
+      expect(result).toBe('Touch dick and chest.');
+    });
   });
 
   describe('local multiplayer mode', () => {
@@ -189,6 +218,21 @@ describe('actionStringReplacement', () => {
 
         expect(result).toBe("Mike licks Sarah's tip.");
       });
+    });
+
+    it('resolves a |dom token against the dom, not against whoever is reading', () => {
+      // A bare {genital} borrows the reader's anatomy. English hides that
+      // behind the "{dom}'s {genital}" possessive form, but no other language
+      // has that word order — hence the pipe.
+      const result = actionStringReplacement(
+        "{sub} wets all of {dom}'s {genital|dom}.",
+        'sub',
+        'Jessica',
+        localPlayers,
+        false
+      );
+
+      expect(result).toBe("Jessica wets all of Mike's dick.");
     });
 
     it('straps on a vers player cast as the dom of a penetrative tile', () => {

@@ -13,9 +13,9 @@
       "{dom} presses {pronoun_possessive|dom} {genital|dom} against {sub}'s face several times.",
       "{sub} licks {dom}'s {genital} thoroughly.",
       "{sub} plays with {dom}'s {tip} for 15 seconds.",
-      "{sub} wets {dom}'s whole {genital} with their tongue.",
+      "{sub} wets {dom}'s whole {genital|dom} with their tongue.",
       "{sub} must lick {genital|other} as many times as possible before their next turn.",
-      "{dom} has every oral giver/switch lick their {genital}."
+      "{dom} has every oral giver/switch lick their {genital|dom}."
     ],
     "Sucking": [
       "{sub} gives oral to {dom} for 10 seconds.",
@@ -32,7 +32,7 @@
       "{sub} 69s with a player.",
       "{sub} must give oral to as many players as possible before their next turn.",
       "{dom} has every oral giver/switch give them oral one at a time.",
-      "{dom} has every oral giver/switch pleasure their {genital} simultaneously."
+      "{dom} has every oral giver/switch pleasure their {genital|dom} simultaneously."
     ],
     "Deepthroat": [
       "{sub} pleasures {dom} with deep oral for 5 seconds.",
