@@ -232,8 +232,9 @@
   "clitTraining": {
     "label": "Entraînement du Clitoris",
     "type": "solo",
+    "anatomyRequirement": "pussy",
     "actions": {
-      "Toucher léger": [
+      "Toucher Léger": [
         "Trace des cercles autour de ton clitoris avec ton doigt.",
         "Caresse doucement ton clitoris avec une plume ou un tissu doux.",
         "Utilise le bout des doigts pour effleurer à peine ton clitoris pendant 10 secondes.",
@@ -244,7 +245,7 @@
         "Reste parfaitement immobile en touchant à peine ton clitoris pendant 15 secondes.",
         "Alterne entre toucher légèrement et t'éloigner de ton clitoris."
       ],
-      "Stimulation directe": [
+      "Stimulation Directe": [
         "Frotte ton clitoris en cercles lents pendant 15 secondes.",
         "Applique une pression constante sur ton clitoris pendant 10 secondes.",
         "Tapote ton clitoris de façon répétée avec des doigts humides.",

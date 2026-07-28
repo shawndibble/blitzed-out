@@ -87,9 +87,11 @@ interface CatalogGroup {
  * target's type; groups absent from it are dropped and reported so the caller
  * can say so out loud.
  *
- * Levels are positional indices, and the tiers don't always line up
- * (partnered `clitTraining` inserts "Oral" at position 2), so they carry
- * positionally and clamp to what the target actually offers.
+ * Levels are positional indices, and the tiers don't always line up between a
+ * group's solo and partnered catalogs, so they carry positionally and clamp to
+ * what the target actually offers. Positional carry is only safe while the two
+ * ladders mean the same thing rung for rung — see the consent note in
+ * docs/engineering/data-and-sync.md before reordering a default group's tiers.
  */
 export function carrySelectedActions(
   selected: Record<string, ActionEntry>,

@@ -18,8 +18,12 @@ describe('penetrative intensity manifest', () => {
 
   it('treats unlisted groups (e.g. bating, clitTraining) as never penetrative', () => {
     expect(isPenetrativeDefaultTile('bating', 2)).toBe(false);
+    // clitTraining value 3 *is* "Penetration", and still must not be listed:
+    // the manifest swaps a dom's genital for a strapon, but here the {dom}
+    // slot is the receiver. See PENETRATIVE_INTENSITIES.
     expect(isPenetrativeDefaultTile('clitTraining', 3)).toBe(false);
     expect(PENETRATIVE_INTENSITIES.bating).toBeUndefined();
+    expect(PENETRATIVE_INTENSITIES.clitTraining).toBeUndefined();
   });
 });
 
