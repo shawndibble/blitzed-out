@@ -24,8 +24,10 @@ export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi', 'de'] as const
 // - 2.6.0: Penetrative tag on default tiles + clit training oral intensity
 // - 2.7.0: Throat Training group/intensity renames, {tip} anatomy placeholder,
 //          stale default-tile pruning
+// - 2.8.0: Clit Training ladder rework — Oral merged away, Penetration added,
+//          Endurance Challenge replaced by Overstimulation
 //
-export const MIGRATION_VERSION = '2.7.0';
+export const MIGRATION_VERSION = '2.8.0';
 // ============================================================================
 
 // Configuration keys for localStorage

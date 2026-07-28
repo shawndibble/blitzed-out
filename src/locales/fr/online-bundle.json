@@ -233,7 +233,7 @@
     "label": "Entraînement du Clitoris",
     "type": "solo",
     "actions": {
-      "Toucher Léger": [
+      "Toucher léger": [
         "Trace des cercles autour de ton clitoris avec ton doigt.",
         "Caresse doucement ton clitoris avec une plume ou un tissu doux.",
         "Utilise le bout des doigts pour effleurer à peine ton clitoris pendant 10 secondes.",
@@ -244,7 +244,7 @@
         "Reste parfaitement immobile en touchant à peine ton clitoris pendant 15 secondes.",
         "Alterne entre toucher légèrement et t'éloigner de ton clitoris."
       ],
-      "Stimulation Directe": [
+      "Stimulation directe": [
         "Frotte ton clitoris en cercles lents pendant 15 secondes.",
         "Applique une pression constante sur ton clitoris pendant 10 secondes.",
         "Tapote ton clitoris de façon répétée avec des doigts humides.",
@@ -255,6 +255,16 @@
         "Reste silencieuse en te donnant une stimulation intense du clitoris.",
         "Stimule ton clitoris en effectuant une autre tâche."
       ],
+      "Pénétration": [
+        "Enfonce un doigt lentement et ne bouge plus pendant dix secondes.",
+        "Recourbe deux doigts vers le haut et garde-les là trente secondes.",
+        "Alterne dix mouvements peu profonds et dix profonds.",
+        "Ajoute un doigt à la fois et arrête quand tu en as assez.",
+        "Utilise un jouet lentement pendant une minute sans toucher ton clito.",
+        "Doigts à l’intérieur, pouce sur le clito : une minute.",
+        "Reste complètement immobile en toi pendant vingt secondes.",
+        "Bouge sur ta propre main au rythme que tu veux pendant une minute."
+      ],
       "Concentration intense": [
         "Applique une pression intense sur ton clitoris pendant 30 secondes.",
         "Reste immobile en tapotant rapidement ton clitoris.",
@@ -263,16 +273,22 @@
         "Utilise un mouvement rapide sur ton clitoris sans arrêter.",
         "Alterne entre stimulation intense et arrêt complet.",
         "Maintiens la concentration pendant la stimulation intense du clitoris.",
-        "Utilise un vibrateur sur réglage élevé pendant 45 secondes."
-      ],
-      "Défi d'Endurance": [
+        "Utilise un vibrateur sur réglage élevé pendant 45 secondes.",
         "Stimule ton clitoris continuellement pendant 5 minutes sans finir.",
         "Amène-toi au bord 3 fois avant d'arrêter.",
+        "Amène-toi au bord de façon répétée jusqu'à ce que tu supplies pour la libération.",
+        "Utilise un minuteur et stimule ton clitoris pendant toute la durée sans permission de finir."
+      ],
+      "Surstimulation": [
         "Endure une stimulation alternée intense et douce du clitoris pendant 3 minutes.",
         "Stimule ton clitoris en complétant un autre défi.",
         "Applique une stimulation d'intensité maximale du clitoris aussi longtemps que tu peux supporter.",
-        "Amène-toi au bord de façon répétée jusqu'à ce que tu supplies pour la libération.",
-        "Utilise un minuteur et stimule ton clitoris pendant toute la durée sans permission de finir."
+        "Ne t'arrête pas quand tu as fini. Trente secondes de plus.",
+        "Garde le vibromasseur en place et ne le bouge pas.",
+        "Amène-toi à un second orgasme sans aucune pause.",
+        "Continue une minute entière au-delà du moment où tu t'arrêterais.",
+        "Vibromasseur à fond, et reste aussi silencieuse que possible.",
+        "Compte tes orgasmes à voix haute et arrête au troisième."
       ]
     }
   },
