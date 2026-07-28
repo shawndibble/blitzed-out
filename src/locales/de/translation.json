@@ -756,7 +756,8 @@
     "extensionSummary": "{{count}} Erweiterungen",
     "extensionDetail": "{{tiles}} Aktionen · {{levels}} neue Stufen",
     "newLevelChip": "Neue Stufe: {{label}}",
-    "importCount": "{{count}} Importe"
+    "importCount": "{{count}} Importe",
+    "signInToPublish": "Anmelden oder Konto erstellen"
   },
   "remove": "Entfernen",
   "done": "Fertig",
@@ -793,7 +794,8 @@
     "willBumpVersion": "Veröffentlichen aktualisiert dieses Pack auf Version {{version}}",
     "republish": "Update veröffentlichen",
     "tabTeaser": "Bündle deine eigenen Gruppen mit einem geführten Ablauf zu einem teilbaren Pack.",
-    "openCta": "Pack erstellen"
+    "openCta": "Pack erstellen",
+    "newAccountOwnership": "Du bist mit einem anderen Konto angemeldet — dies wird als neues Paket veröffentlicht."
   },
   "gameLength": {
     "title": "Spieldauer",
@@ -897,5 +899,8 @@
   "movePlayerDown": "{{name}} nach unten",
   "localPlayersSaveError": "Spieler konnten nicht gespeichert werden — bitte erneut versuchen.",
   "settingsSaveError": "Einstellungen konnten nicht gespeichert werden — bitte erneut versuchen.",
-  "buildingBoard": "Brett wird erstellt…"
+  "buildingBoard": "Brett wird erstellt…",
+  "accountExistsUseSignIn": "Mit dieser E-Mail existiert schon ein Konto. Melde dich stattdessen dort an — deine gespeicherten Aktionen bleiben auf diesem Gerät, aber als Gast veröffentlichte Pakete bleiben beim Gastkonto.",
+  "signInInstead": "Stattdessen anmelden",
+  "signInSwitchesAccount": "Beim Anmelden wechselst du zu diesem Konto. Deine gespeicherten Aktionen bleiben auf diesem Gerät, aber als Gast veröffentlichte Pakete bleiben beim Gastkonto."
 }

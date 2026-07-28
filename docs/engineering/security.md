@@ -11,6 +11,8 @@ Companion to [README.md](README.md). Security model, the actual rules in force, 
 `src/services/firebase/auth.ts`, `src/services/authBridge.ts`, `src/components/auth/*`, `src/context/auth.tsx`.
 
 - **Anonymous** (`signInAnonymously`) is the default path; **email/password** and **Google** are available; anonymous → registered upgrade via `linkWithCredential` preserves UID.
+- **The upgrade re-signs in on purpose.** Linking alone leaves the session's `firebase.sign_in_provider` claim as `'anonymous'`, and that claim is what `publicVisibilityGated()` reads — so `convertAnonymousAccount` / `linkGoogleAccount` immediately sign in again with the credential they just linked (`signInWithEmailAndPassword`, or `signInWithCredential` reusing the popup's OAuth credential, so no second popup). Same UID, provider claim now `password`/`google.com`, and **no `signOut`** — a null `user` would unmount route-gated screens mid-flow (`RouterSetup` gates `/packs/create` on `auth.user`).
+- Linking against an email or Google account that already exists cannot succeed; those Firebase codes are normalized to the `ACCOUNT_EXISTS` code (`isAccountExistsError`) so the UI can offer a plain sign-in instead, which **changes UID** and leaves guest-published packs behind.
 - Auth state via `onAuthStateChanged`; logout clears auth, and a wipe path clears all local storage/IndexedDB/cookies.
 
 **Weaknesses / hardening:**

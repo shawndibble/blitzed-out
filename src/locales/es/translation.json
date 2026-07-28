@@ -756,7 +756,8 @@
     "extensionSummary": "{{count}} ampliaciones",
     "extensionDetail": "{{tiles}} acciones · {{levels}} niveles nuevos",
     "newLevelChip": "Nuevo nivel: {{label}}",
-    "importCount": "{{count}} importaciones"
+    "importCount": "{{count}} importaciones",
+    "signInToPublish": "Inicia sesión o crea una cuenta"
   },
   "remove": "Quitar",
   "done": "Listo",
@@ -793,7 +794,8 @@
     "willBumpVersion": "Publicar actualiza este pack a la versión {{version}}",
     "republish": "Publicar actualización",
     "tabTeaser": "Agrupa tus grupos personalizados en un pack compartible con un flujo guiado.",
-    "openCta": "Crear un pack"
+    "openCta": "Crear un pack",
+    "newAccountOwnership": "Has iniciado sesión con otra cuenta, así que esto se publicará como un paquete nuevo."
   },
   "gameLength": {
     "title": "Duración del juego",
@@ -897,5 +899,8 @@
   "movePlayerDown": "Bajar a {{name}}",
   "localPlayersSaveError": "No se pudieron guardar los jugadores — inténtalo de nuevo.",
   "settingsSaveError": "No se pudo guardar la configuración — inténtalo de nuevo.",
-  "buildingBoard": "Creando el tablero…"
+  "buildingBoard": "Creando el tablero…",
+  "accountExistsUseSignIn": "Ya existe una cuenta con este correo. Inicia sesión en ella — tus acciones guardadas permanecen en este dispositivo, pero los paquetes que publicaste como invitado se quedan con la cuenta de invitado.",
+  "signInInstead": "Iniciar sesión en su lugar",
+  "signInSwitchesAccount": "Al iniciar sesión cambiarás a esa cuenta. Tus acciones guardadas permanecen en este dispositivo, pero los paquetes que publicaste como invitado se quedan con la cuenta de invitado."
 }

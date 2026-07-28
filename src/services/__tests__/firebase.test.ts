@@ -11,9 +11,14 @@ vi.mock('firebase/auth', () => ({
   updateProfile: vi.fn(),
   sendPasswordResetEmail: vi.fn(),
   linkWithCredential: vi.fn(),
-  GoogleAuthProvider: vi.fn(function GoogleAuthProvider() {
-    return {};
-  }),
+  linkWithPopup: vi.fn(),
+  signInWithCredential: vi.fn(),
+  GoogleAuthProvider: Object.assign(
+    vi.fn(function GoogleAuthProvider() {
+      return {};
+    }),
+    { credentialFromResult: vi.fn() }
+  ),
   EmailAuthProvider: {
     credential: vi.fn(),
   },
@@ -208,14 +213,18 @@ describe('Firebase Authentication Service', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle account conversion', async () => {
+    it('links the credential and then re-signs in so the provider claim is refreshed', async () => {
       const { convertAnonymousAccount } = await import('../firebase/auth');
 
       // @ts-expect-error Mock assignment to readonly property for testing
       mockAuth.currentUser = mockAnonymousUser;
       const mockCredential = { providerId: 'password' };
       mockEmailAuthProvider.credential.mockReturnValue(mockCredential);
-      mockLinkWithCredential.mockResolvedValue({ user: mockUser });
+      // Linking keeps the uid; the re-auth is what flips the session's
+      // sign_in_provider away from 'anonymous' for Firestore rules.
+      const linkedUser = { ...mockUser, uid: mockAnonymousUser.uid };
+      mockLinkWithCredential.mockResolvedValue({ user: linkedUser });
+      mockSignInWithEmailAndPassword.mockResolvedValue({ user: linkedUser });
 
       const result = await convertAnonymousAccount('test@example.com', 'password123');
 
@@ -224,7 +233,95 @@ describe('Firebase Authentication Service', () => {
         'password123'
       );
       expect(mockLinkWithCredential).toHaveBeenCalledWith(mockAnonymousUser, mockCredential);
-      expect(result).toEqual(mockUser);
+      expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+        mockAuth,
+        'test@example.com',
+        'password123'
+      );
+      expect(mockSignOut).not.toHaveBeenCalled();
+      expect(result.uid).toBe(mockAnonymousUser.uid);
+    });
+
+    it('applies a changed display name after conversion', async () => {
+      const { convertAnonymousAccount } = await import('../firebase/auth');
+
+      // @ts-expect-error Mock assignment to readonly property for testing
+      mockAuth.currentUser = mockAnonymousUser;
+      mockEmailAuthProvider.credential.mockReturnValue({ providerId: 'password' });
+      const linkedUser = { ...mockUser, displayName: 'Anonymous User' };
+      mockLinkWithCredential.mockResolvedValue({ user: linkedUser });
+      mockSignInWithEmailAndPassword.mockResolvedValue({ user: linkedUser });
+      mockUpdateProfile.mockResolvedValue(undefined);
+
+      await convertAnonymousAccount('test@example.com', 'password123', 'Permanent Name');
+
+      expect(mockUpdateProfile).toHaveBeenCalledWith(linkedUser, {
+        displayName: 'Permanent Name',
+      });
+    });
+
+    it('flags an existing-account collision with the ACCOUNT_EXISTS code', async () => {
+      const { convertAnonymousAccount } = await import('../firebase/auth');
+      const { ACCOUNT_EXISTS, isAccountExistsError } = await import('@/types/errors');
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      // @ts-expect-error Mock assignment to readonly property for testing
+      mockAuth.currentUser = mockAnonymousUser;
+      mockEmailAuthProvider.credential.mockReturnValue({ providerId: 'password' });
+      const collision = Object.assign(new Error('already in use'), {
+        code: 'auth/email-already-in-use',
+      });
+      mockLinkWithCredential.mockRejectedValue(collision);
+
+      const error = await convertAnonymousAccount('test@example.com', 'password123').catch(
+        (e) => e
+      );
+
+      expect(error.code).toBe(ACCOUNT_EXISTS);
+      expect(isAccountExistsError(error)).toBe(true);
+      expect(mockSignInWithEmailAndPassword).not.toHaveBeenCalled();
+      consoleSpy.mockRestore();
+    });
+
+    it('links Google in place and re-signs in with the popup credential', async () => {
+      const { linkGoogleAccount } = await import('../firebase/auth');
+      const { linkWithPopup, signInWithCredential, GoogleAuthProvider } =
+        await import('firebase/auth');
+
+      // @ts-expect-error Mock assignment to readonly property for testing
+      mockAuth.currentUser = mockAnonymousUser;
+      const linkedUser = { ...mockUser, uid: mockAnonymousUser.uid };
+      const popupResult = { user: linkedUser };
+      const oauthCredential = { providerId: 'google.com' };
+      vi.mocked(linkWithPopup).mockResolvedValue(popupResult as any);
+      vi.mocked(GoogleAuthProvider.credentialFromResult).mockReturnValue(oauthCredential as any);
+      vi.mocked(signInWithCredential).mockResolvedValue({ user: linkedUser } as any);
+
+      const result = await linkGoogleAccount();
+
+      expect(linkWithPopup).toHaveBeenCalledTimes(1);
+      // The popup's own credential is reused — no second popup.
+      expect(mockSignInWithPopup).not.toHaveBeenCalled();
+      expect(signInWithCredential).toHaveBeenCalledWith(mockAuth, oauthCredential);
+      expect(result.uid).toBe(mockAnonymousUser.uid);
+    });
+
+    it('flags a Google account already tied to another user', async () => {
+      const { linkGoogleAccount } = await import('../firebase/auth');
+      const { linkWithPopup } = await import('firebase/auth');
+      const { ACCOUNT_EXISTS } = await import('@/types/errors');
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      // @ts-expect-error Mock assignment to readonly property for testing
+      mockAuth.currentUser = mockAnonymousUser;
+      vi.mocked(linkWithPopup).mockRejectedValue(
+        Object.assign(new Error('already in use'), { code: 'auth/credential-already-in-use' })
+      );
+
+      const error = await linkGoogleAccount().catch((e) => e);
+
+      expect(error.code).toBe(ACCOUNT_EXISTS);
+      consoleSpy.mockRestore();
     });
 
     it('should handle display name update', async () => {

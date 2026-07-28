@@ -3,7 +3,13 @@
  * full local-data wipe that accompanies a reset.
  */
 import { logger } from '@/utils/logger';
-import { AuthError, createStandardError, getFirebaseErrorMessage } from '@/types/errors';
+import {
+  ACCOUNT_EXISTS,
+  AuthError,
+  createStandardError,
+  getFirebaseErrorMessage,
+  isIdentityTakenError,
+} from '@/types/errors';
 import {
   EmailAuthProvider,
   GoogleAuthProvider,
@@ -11,8 +17,10 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   linkWithCredential,
+  linkWithPopup,
   sendPasswordResetEmail,
   signInAnonymously,
+  signInWithCredential,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
@@ -122,26 +130,68 @@ export async function resetPassword(email: string): Promise<boolean> {
   }
 }
 
-// Function to convert anonymous account to permanent account
-export async function convertAnonymousAccount(email: string, password: string): Promise<User> {
+function requireAnonymousUser(): User {
+  const user = getAuth().currentUser;
+  if (!user?.isAnonymous) {
+    throw new AuthError('User is not anonymous or not logged in', 'ACCOUNT_CONVERSION_FAILED');
+  }
+  return user;
+}
+
+function conversionError(error: unknown): AuthError {
+  logger.error('Account conversion error', error);
+  return new AuthError(
+    getFirebaseErrorMessage(error),
+    isIdentityTakenError(error) ? ACCOUNT_EXISTS : 'ACCOUNT_CONVERSION_FAILED',
+    createStandardError(error)
+  );
+}
+
+/**
+ * Upgrade the anonymous account in place, preserving its uid so content it
+ * already published stays reachable.
+ *
+ * Linking alone is not enough: the session's `sign_in_provider` claim stays
+ * 'anonymous', and Firestore rules gate public pack publishing on that claim.
+ * Signing in with the credential we just linked re-mints the token as
+ * 'password' on the same uid — and because we never sign out, `user` never goes
+ * null, so a caller mid-flow (the pack creator) is not unmounted.
+ */
+export async function convertAnonymousAccount(
+  email: string,
+  password: string,
+  displayName = ''
+): Promise<User> {
+  const user = requireAnonymousUser();
   try {
     const auth = getAuth();
-    const user = auth.currentUser;
-
-    if (user?.isAnonymous) {
-      const credential = EmailAuthProvider.credential(email, password);
-      const result = await linkWithCredential(user, credential);
-      return result.user;
-    } else {
-      throw new Error('User is not anonymous or not logged in');
+    const credential = EmailAuthProvider.credential(email, password);
+    await linkWithCredential(user, credential);
+    const reauthenticated = await signInWithEmailAndPassword(auth, email, password);
+    if (displayName && displayName !== reauthenticated.user.displayName) {
+      await updateProfile(reauthenticated.user, { displayName });
     }
+    return reauthenticated.user;
   } catch (error) {
-    logger.error('Account conversion error', error);
-    throw new AuthError(
-      getFirebaseErrorMessage(error),
-      'ACCOUNT_CONVERSION_FAILED',
-      createStandardError(error)
-    );
+    throw conversionError(error);
+  }
+}
+
+/**
+ * Google equivalent of {@link convertAnonymousAccount}. The popup's own OAuth
+ * credential is reused for the re-auth, so the user is never prompted twice.
+ */
+export async function linkGoogleAccount(): Promise<User> {
+  const user = requireAnonymousUser();
+  try {
+    const auth = getAuth();
+    const result = await linkWithPopup(user, new GoogleAuthProvider());
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    if (!credential) return result.user;
+    const reauthenticated = await signInWithCredential(auth, credential);
+    return reauthenticated.user;
+  } catch (error) {
+    throw conversionError(error);
   }
 }
 

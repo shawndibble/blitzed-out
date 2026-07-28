@@ -47,6 +47,8 @@ export interface PackLifecycleEvent extends BaseAnalyticsEvent {
   tile_count?: number;
   pack_version?: number;
   is_republish?: string;
+  /** How a guest became a permanent account: 'linked' | 'signedIn'. */
+  auth_method?: string;
 }
 
 /**
@@ -104,11 +106,7 @@ export interface CustomGroupEvent extends BaseAnalyticsEvent {
 
 // Union type for all analytics events
 export type AnalyticsEvent =
-  | SettingsChangeEvent
-  | ActionSelectionEvent
-  | FeatureUsageEvent
-  | GameModeEvent
-  | CustomGroupEvent;
+  SettingsChangeEvent | ActionSelectionEvent | FeatureUsageEvent | GameModeEvent | CustomGroupEvent;
 
 // Re-export commonly used domain types for convenience
 export type { GameMode, PlayerRole, ThemeMode, GroupType };

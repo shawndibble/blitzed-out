@@ -123,6 +123,31 @@ export const FIREBASE_ERROR_MESSAGES: Record<string, string> = {
 };
 
 /**
+ * Raised when an anonymous account cannot be upgraded because the email or
+ * social identity already belongs to another account. The only recovery is a
+ * plain sign-in (which changes uid), so callers need to tell this apart from a
+ * generic failure to offer that choice.
+ */
+export const ACCOUNT_EXISTS = 'ACCOUNT_EXISTS';
+
+/** Firebase codes that mean the identity is already attached to another user. */
+const IDENTITY_TAKEN_CODES = [
+  'auth/email-already-in-use',
+  'auth/credential-already-in-use',
+  'auth/account-exists-with-different-credential',
+  'auth/provider-already-linked',
+];
+
+export function isIdentityTakenError(error: unknown): boolean {
+  const code = getErrorCode(error);
+  return !!code && IDENTITY_TAKEN_CODES.includes(code);
+}
+
+export function isAccountExistsError(error: unknown): boolean {
+  return getErrorCode(error) === ACCOUNT_EXISTS;
+}
+
+/**
  * Converts Firebase error to user-friendly message
  */
 export function getFirebaseErrorMessage(error: unknown): string {

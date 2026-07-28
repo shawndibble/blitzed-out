@@ -32,6 +32,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 import CopyToClipboard from '@/components/CopyToClipboard';
+import AuthDialog, { type AuthOutcome } from '@/components/auth/AuthDialog';
 import CustomGroupDialog from '@/views/CustomGroupDialog';
 import {
   buildPackContents,
@@ -204,6 +205,9 @@ export default function PackCreator() {
   const [visibility, setVisibility] = useState<PackVisibility>(isAnonymous ? 'private' : 'public');
   const [myPacks, setMyPacks] = useState<ContentPackDoc[]>([]);
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [publicRequested, setPublicRequested] = useState(false);
+  const [ownershipChanged, setOwnershipChanged] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -215,9 +219,39 @@ export default function PackCreator() {
     analytics.trackPackEvent('pack_creation_started');
   }, []);
 
+  // Anonymous accounts cannot publish publicly (firestore.rules gates it on the
+  // token's sign_in_provider), so keep the selection honest — then honour the
+  // request the moment the account stops being anonymous.
   useEffect(() => {
     if (isAnonymous) setVisibility('private');
-  }, [isAnonymous]);
+    else if (publicRequested) setVisibility('public');
+  }, [isAnonymous, publicRequested]);
+
+  // Signing into a different account leaves the loaded pack owned by someone
+  // else; republishing it would be rejected, so carry the draft on as a new pack.
+  useEffect(() => {
+    if (editingPack && user && editingPack.author !== user.uid) {
+      setEditingPack(null);
+      setOwnershipChanged(true);
+    }
+  }, [editingPack, user]);
+
+  const openAuthPrompt = () => {
+    analytics.trackPackEvent('pack_auth_prompt_clicked');
+    setAuthDialogOpen(true);
+  };
+
+  const handleAuthSuccess = (outcome: AuthOutcome) => {
+    analytics.trackPackEvent('pack_auth_upgraded', { auth_method: outcome });
+    setPublicRequested(true);
+    setAuthDialogOpen(false);
+  };
+
+  const signInPrompt = (
+    <Button size="small" onClick={openAuthPrompt}>
+      {t('packs.signInToPublish')}
+    </Button>
+  );
 
   // Republish path: my published packs are editable starting points.
   useEffect(() => {
@@ -240,6 +274,7 @@ export default function PackCreator() {
     // selection never comes up empty and drops them.
     setSelectedGroups(parsed?.payload.touchedGroupNames() ?? []);
     setShareLink(null);
+    setOwnershipChanged(false);
     setStep(0);
   };
 
@@ -343,6 +378,12 @@ export default function PackCreator() {
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
+          </Alert>
+        )}
+
+        {ownershipChanged && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {t('packCreator.newAccountOwnership')}
           </Alert>
         )}
 
@@ -479,7 +520,10 @@ export default function PackCreator() {
                 <MenuItem value="private">{t('packs.visibilityPrivate')}</MenuItem>
               </Select>
               {isAnonymous ? (
-                <FormHelperText>{t('packs.anonymousPrivateOnly')}</FormHelperText>
+                <>
+                  <FormHelperText>{t('packs.anonymousPrivateOnly')}</FormHelperText>
+                  {signInPrompt}
+                </>
               ) : (
                 visibility === 'public' && (
                   <FormHelperText>{t('packs.publicHelper')}</FormHelperText>
@@ -516,6 +560,7 @@ export default function PackCreator() {
               {editingPack &&
                 ` · ${t('packCreator.willBumpVersion', { version: editingPack.packVersion + 1 })}`}
             </Typography>
+            {isAnonymous && signInPrompt}
             {shareLink ? (
               <Alert severity="success" sx={{ wordBreak: 'break-all' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -571,6 +616,16 @@ export default function PackCreator() {
           <Box />
         )}
       </Box>
+
+      {/* Rendered here so authenticating never unmounts the wizard's draft. */}
+      {authDialogOpen && (
+        <AuthDialog
+          open={authDialogOpen}
+          close={() => setAuthDialogOpen(false)}
+          initialView="register"
+          onSuccess={handleAuthSuccess}
+        />
+      )}
 
       <CustomGroupDialog
         open={groupDialogOpen}

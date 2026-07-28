@@ -1,6 +1,8 @@
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { parsePack, republishPack } from '@/services/contentPacks';
+import { analytics } from '@/services/analytics';
 import PackCreator from './index';
 
 vi.mock('react-i18next', () => ({
@@ -61,6 +63,39 @@ vi.mock('@/hooks/useAuth', () => ({
   default: () => mockAuth,
 }));
 
+// Stand-in for the real dialog: one button per outcome, so the tests drive the
+// creator's reaction to an upgrade without exercising Firebase.
+vi.mock('@/components/auth/AuthDialog', () => ({
+  default: ({
+    open,
+    onSuccess,
+  }: {
+    open: boolean;
+    onSuccess?: (outcome: 'linked' | 'signedIn') => void;
+  }) =>
+    open ? (
+      <div>
+        <button
+          onClick={() => {
+            mockAuth.isAnonymous = false;
+            onSuccess?.('linked');
+          }}
+        >
+          finish-link
+        </button>
+        <button
+          onClick={() => {
+            mockAuth.isAnonymous = false;
+            mockAuth.user = { uid: 'other-user' };
+            onSuccess?.('signedIn');
+          }}
+        >
+          finish-signin
+        </button>
+      </div>
+    ) : null,
+}));
+
 vi.mock('@/stores/settingsStore', async (importOriginal) => ({
   // Real pure seam functions (deriveContentMode); only the React hook is stubbed.
   ...(await importOriginal<typeof import('@/stores/settingsStore')>()),
@@ -79,6 +114,8 @@ describe('PackCreator', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.isAnonymous = true;
+    mockAuth.user = { uid: 'u1' };
+    mockListMyPacks.mockResolvedValue([]);
   });
 
   it('walks content → details → publish and forces private for anonymous users', async () => {
@@ -107,5 +144,73 @@ describe('PackCreator', () => {
 
     // Share link surfaces after publish
     await screen.findByText(/importPack=pack-123/);
+  });
+
+  it('lets an anonymous author upgrade in place and publishes publicly afterwards', async () => {
+    renderCreator();
+
+    fireEvent.click(await screen.findByText('My Group'));
+    fireEvent.click(screen.getByText('next'));
+
+    // Details step offers the upgrade next to the disabled Public option.
+    expect(screen.getByText('packs.signInToPublish')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('packs.name'), { target: { value: 'Party Pack' } });
+    fireEvent.click(screen.getByText('next'));
+
+    // Publish step repeats the offer — the last moment it matters.
+    fireEvent.click(screen.getByText('packs.signInToPublish'));
+    expect(analytics.trackPackEvent).toHaveBeenCalledWith('pack_auth_prompt_clicked');
+
+    fireEvent.click(screen.getByText('finish-link'));
+
+    // Dialog closed, visibility switched to public without leaving the step.
+    await waitFor(() => expect(screen.queryByText('finish-link')).toBeNull());
+    await screen.findByText('packCreator.willBePublic');
+    expect(analytics.trackPackEvent).toHaveBeenCalledWith('pack_auth_upgraded', {
+      auth_method: 'linked',
+    });
+
+    fireEvent.click(screen.getByText('packs.publish'));
+
+    await waitFor(() => expect(mockPublish).toHaveBeenCalled());
+    expect(mockPublish.mock.calls[0][0].visibility).toBe('public');
+  });
+
+  it('stops republishing a pack owned by the account that was signed out of', async () => {
+    mockListMyPacks.mockResolvedValue([
+      {
+        id: 'p1',
+        author: 'u1',
+        name: 'Old Pack',
+        description: 'desc',
+        tags: ['party'],
+        visibility: 'private',
+        gameMode: 'online',
+        locale: 'en',
+        packVersion: 3,
+      },
+    ]);
+    vi.mocked(parsePack).mockReturnValue({
+      payload: { touchedGroupNames: () => ['myGroup'] },
+    } as never);
+
+    renderCreator();
+
+    fireEvent.click(await screen.findByText('Old Pack'));
+    fireEvent.click(await screen.findByText('next'));
+
+    fireEvent.click(screen.getByText('packs.signInToPublish'));
+    fireEvent.click(screen.getByText('finish-signin'));
+
+    // The loaded pack belongs to the previous uid, so republishing is off.
+    await screen.findByText('packCreator.newAccountOwnership');
+    expect(screen.getByLabelText('packs.name')).toHaveValue('Old Pack');
+
+    fireEvent.click(screen.getByText('next'));
+    fireEvent.click(screen.getByText('packs.publish'));
+
+    await waitFor(() => expect(mockPublish).toHaveBeenCalled());
+    expect(republishPack).not.toHaveBeenCalled();
+    expect(mockPublish.mock.calls[0][0].visibility).toBe('public');
   });
 });

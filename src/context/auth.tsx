@@ -22,7 +22,8 @@ export interface AuthContextType {
   register: (email: string, password: string, displayName: string) => Promise<User>;
   updateUser: (displayName?: string) => Promise<User | null>;
   forgotPassword: (email: string) => Promise<boolean>;
-  convertToRegistered: (email: string, password: string) => Promise<User>;
+  convertToRegistered: (email: string, password: string, displayName?: string) => Promise<User>;
+  linkGoogle: () => Promise<User>;
   logout: () => Promise<void>;
   wipeAllData: () => Promise<void>;
   syncData: () => Promise<boolean>;
@@ -150,11 +151,11 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   }
 
   const convertToRegistered = useCallback(
-    async (email: string, password: string): Promise<User> => {
+    async (email: string, password: string, displayName?: string): Promise<User> => {
       try {
         setLoading(true);
         const firebase = await loadFirebase();
-        const convertedUser = await firebase.convertAnonymousAccount(email, password);
+        const convertedUser = await firebase.convertAnonymousAccount(email, password, displayName);
         setUser(convertedUser);
         await syncData();
         return convertedUser;
@@ -169,6 +170,24 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     },
     [setLoading, setUser, syncData, setError]
   );
+
+  const linkGoogle = useCallback(async (): Promise<User> => {
+    try {
+      setLoading(true);
+      const firebase = await loadFirebase();
+      const linkedUser = await firebase.linkGoogleAccount();
+      setUser(linkedUser);
+      await syncData();
+      return linkedUser;
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setLoading, setUser, syncData, setError]);
 
   async function updateUser(displayName = ''): Promise<User | null> {
     try {
@@ -276,6 +295,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       updateUser,
       forgotPassword,
       convertToRegistered,
+      linkGoogle,
       logout: logoutUser,
       wipeAllData: wipeAllAppDataAndReload,
       syncData,
@@ -288,6 +308,7 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       error,
       syncStatus,
       convertToRegistered,
+      linkGoogle,
       logoutUser,
       wipeAllAppDataAndReload,
       syncData,

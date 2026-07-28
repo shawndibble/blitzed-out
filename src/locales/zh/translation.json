@@ -756,7 +756,8 @@
     "extensionSummary": "{{count}} 个扩展",
     "extensionDetail": "{{tiles}} 个动作 · {{levels}} 个新等级",
     "newLevelChip": "新等级：{{label}}",
-    "importCount": "{{count}} 次导入"
+    "importCount": "{{count}} 次导入",
+    "signInToPublish": "登录或创建账户"
   },
   "remove": "移除",
   "done": "完成",
@@ -793,7 +794,8 @@
     "willBumpVersion": "发布后此内容包将更新到版本 {{version}}",
     "republish": "发布更新",
     "tabTeaser": "通过引导流程将你的自定义组打包成可分享的内容包。",
-    "openCta": "创建内容包"
+    "openCta": "创建内容包",
+    "newAccountOwnership": "你已登录另一个账户，因此这将作为新的内容包发布。"
   },
   "gameLength": {
     "title": "游戏时长",
@@ -897,5 +899,8 @@
   "movePlayerDown": "下移{{name}}",
   "localPlayersSaveError": "无法保存玩家 — 请重试。",
   "settingsSaveError": "无法保存设置 — 请重试。",
-  "buildingBoard": "正在生成棋盘…"
+  "buildingBoard": "正在生成棋盘…",
+  "accountExistsUseSignIn": "该邮箱已有账户。请直接登录该账户 — 你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。",
+  "signInInstead": "改为登录",
+  "signInSwitchesAccount": "登录会切换到该账户。你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。"
 }
