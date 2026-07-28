@@ -43,6 +43,17 @@ describe('importActionFile penetrative tagging (real en/local bundle)', () => {
       .forEach((t) => expect(t.tags).not.toContain('penetrative'));
   });
 
+  it("carries a group's anatomyRequirement through seeding", async () => {
+    // The seeder builds each group row from an explicit field list, so a bundle
+    // key it doesn't name is dropped. clitTraining declares 'pussy'.
+    const gated = await importActionFile('clitTraining', 'en', 'local');
+    expect(gated?.customGroup.anatomyRequirement).toBe('pussy');
+
+    // Groups that declare nothing must stay undefined rather than gaining a default.
+    const ungated = await importActionFile('bating', 'en', 'local');
+    expect(ungated?.customGroup.anatomyRequirement).toBeUndefined();
+  });
+
   it('never tags bating tiles penetrative', async () => {
     const result = await importActionFile('bating', 'en', 'local');
     expect(result).not.toBeNull();
