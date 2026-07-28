@@ -732,7 +732,6 @@
     "visibilityPrivate": "Private — share by link only",
     "publicHelper": "Public packs appear in the directory and can be reported and removed.",
     "anonymousPrivateOnly": "Create a permanent account to publish public packs. Anonymous accounts can still share private packs by link.",
-    "publicNeedsAccount": "Link your account to publish public packs.",
     "publish": "Publish pack",
     "fromPack": "From {{name}}",
     "invalidPack": "This pack could not be read.",
@@ -756,7 +755,8 @@
     "extensionSummary": "{{count}} extensions",
     "extensionDetail": "{{tiles}} actions · {{levels}} new levels",
     "newLevelChip": "New level: {{label}}",
-    "importCount": "{{count}} imports"
+    "importCount": "{{count}} imports",
+    "signInToPublish": "Sign in or create an account"
   },
   "remove": "Remove",
   "done": "Done",
@@ -793,7 +793,8 @@
     "willBumpVersion": "Publishing updates this pack to version {{version}}",
     "republish": "Publish update",
     "tabTeaser": "Bundle your custom groups into a shareable pack with a guided flow.",
-    "openCta": "Create a pack"
+    "openCta": "Create a pack",
+    "newAccountOwnership": "You are signed in as a different account, so this will publish as a new pack."
   },
   "gameLength": {
     "title": "Game length",
@@ -897,5 +898,10 @@
   "movePlayerDown": "Move {{name}} down",
   "localPlayersSaveError": "Couldn't save players — try again.",
   "settingsSaveError": "Couldn't save settings — try again.",
-  "buildingBoard": "Building board…"
+  "buildingBoard": "Building board…",
+  "accountExistsUseSignIn": "An account with this email already exists. Sign in to it instead — your saved actions stay on this device, but packs you published as a guest stay with the guest account.",
+  "signInInstead": "Sign in instead",
+  "signInSwitchesAccount": "Signing in switches to that account. Your saved actions stay on this device, but packs you published as a guest stay with the guest account.",
+  "accountLinkedFinishSignIn": "Your account was created, but this session still needs to be signed in. Sign in to finish — your data stays with the same account.",
+  "googleAccountExistsUseSignIn": "That Google account already belongs to another account here. Sign in to it instead — your saved actions stay on this device, but packs you published as a guest stay with the guest account."
 }

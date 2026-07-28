@@ -192,7 +192,7 @@ Architecture decided in [ADR-0001](../adr/0001-pwa-offline-support.md).
 
 - **Anonymous (default):** instant entry; full access to solo/local; can join online rooms. Data persists per browser via UID + Dexie. **Risk:** clearing browser storage loses an anonymous identity (no recovery) unless content was exported or the account was upgraded.
 - **Email/password & Google:** permanent accounts; enable cloud sync of `user-data/{uid}`.
-- **Upgrade:** anonymous → registered via `linkWithCredential` keeps the same UID, so synced + local data carries over.
+- **Upgrade:** anonymous → registered via `linkWithCredential` keeps the same UID, so synced + local data carries over. The upgrade then re-signs in with the freshly linked credential to refresh the `sign_in_provider` claim public pack publishing is gated on (see [security.md](security.md#authentication)). Offered inline where it is needed — the pack creator's visibility step and publish step — so the wizard's draft is never abandoned to go find the account dialog.
 - **Logout** clears auth but not Dexie. A full **wipe** path clears localStorage, sessionStorage, IndexedDB, and cookies.
 - **Cross-device sync** only for non-anonymous accounts (sync gate). Anonymous users are single-device by nature.
 

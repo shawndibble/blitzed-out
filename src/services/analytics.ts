@@ -389,7 +389,9 @@ class AnalyticsService {
       | 'pack_imported'
       | 'pack_published'
       | 'pack_creation_started'
-      | 'pack_creation_completed',
+      | 'pack_creation_completed'
+      | 'pack_auth_prompt_clicked'
+      | 'pack_auth_upgraded',
     params: PackLifecycleEvent = {}
   ) {
     this.trackEvent(eventName, {

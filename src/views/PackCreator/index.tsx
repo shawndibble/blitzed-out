@@ -26,7 +26,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Add, ArrowBack, Close, Edit, Publish } from '@mui/icons-material';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -42,6 +42,7 @@ import {
   publishPack,
   republishPack,
 } from '@/services/contentPacks';
+import lazyWithRetry from '@/utils/lazyWithRetry';
 import { addCustomTile, getTiles } from '@/stores/customTiles';
 import { getCustomGroups } from '@/stores/customGroups';
 import { validateCustomTileWithGroups } from '@/services/validationService';
@@ -53,6 +54,10 @@ import type { ContentGameMode } from '@/types/Settings';
 import { GAME_MODES } from '@/services/migration/constants';
 import type { ContentPackDoc, PackVisibility } from '@/types/contentPacks';
 import type { CustomTile } from '@/types/customTiles';
+import type { User } from '@/types';
+
+// Loaded on demand: the account dialog pulls in the whole auth surface.
+const AuthDialog = lazyWithRetry(() => import('@/components/auth/AuthDialog'));
 
 function buildShareLink(packId: string): string {
   const url = new URL(window.location.origin);
@@ -186,12 +191,16 @@ export default function PackCreator() {
   const [searchParams] = useSearchParams();
   const editId = searchParams.get('edit');
   const { settings } = useGameSettings();
-  const { user, isAnonymous } = useAuth();
+  const { user, hasPermanentProvider } = useAuth();
   const [editingPack, setEditingPack] = useState<ContentPackDoc | null>(null);
+  // Survives dropping edit mode on purpose: the selected group names belong to
+  // the pack's locale, so re-deriving the locale from the UI language would
+  // resolve none of them and export an empty pack.
+  const [draftLocale, setDraftLocale] = useState<string | null>(null);
   // When republishing, the pack's own locale is authoritative — a pack authored
   // in another language must not be re-serialized under the current UI language
   // (that would export empty contents). New packs use the UI locale.
-  const locale = editingPack?.locale || settings.locale || 'en';
+  const locale = editingPack?.locale || draftLocale || settings.locale || 'en';
 
   const [step, setStep] = useState(0);
   const [gameMode, setGameMode] = useState<ContentGameMode>(() =>
@@ -201,9 +210,14 @@ export default function PackCreator() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
-  const [visibility, setVisibility] = useState<PackVisibility>(isAnonymous ? 'private' : 'public');
+  const [visibility, setVisibility] = useState<PackVisibility>(
+    hasPermanentProvider ? 'public' : 'private'
+  );
   const [myPacks, setMyPacks] = useState<ContentPackDoc[]>([]);
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [publicRequested, setPublicRequested] = useState(false);
+  const [ownershipChanged, setOwnershipChanged] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -215,9 +229,56 @@ export default function PackCreator() {
     analytics.trackPackEvent('pack_creation_started');
   }, []);
 
+  // Only a permanent-provider session may publish publicly (firestore.rules
+  // gates it on the token's sign_in_provider), so keep the selection honest —
+  // then honour the request as soon as the session qualifies.
   useEffect(() => {
-    if (isAnonymous) setVisibility('private');
-  }, [isAnonymous]);
+    if (!hasPermanentProvider) {
+      setVisibility('private');
+    } else if (publicRequested) {
+      setVisibility('public');
+      // One-shot: consuming the request stops a later provider re-read from
+      // overriding a private choice the author made after upgrading.
+      setPublicRequested(false);
+    }
+  }, [hasPermanentProvider, publicRequested]);
+
+  // Signing into a different account leaves the loaded pack owned by someone
+  // else; republishing it would be rejected, so carry the draft on as a new pack.
+  useEffect(() => {
+    if (editingPack && user && editingPack.author !== user.uid) {
+      setEditingPack(null);
+      setOwnershipChanged(true);
+    }
+  }, [editingPack, user]);
+
+  // The uid we started from, so the analytics label reflects what actually
+  // happened rather than what the dialog believed it did.
+  const uidBeforeAuth = useRef<string | null>(null);
+
+  const openAuthPrompt = () => {
+    analytics.trackPackEvent('pack_auth_prompt_clicked');
+    uidBeforeAuth.current = user?.uid ?? null;
+    // Clicking the prompt *is* the request to go public. Recording it here
+    // rather than on success means dismissing the dialog mid-flight cannot
+    // swallow a completed upgrade and quietly leave the pack private.
+    setPublicRequested(true);
+    setAuthDialogOpen(true);
+  };
+
+  const handleAuthSuccess = (authedUser: User) => {
+    analytics.trackPackEvent('pack_auth_upgraded', {
+      auth_method: authedUser.uid === uidBeforeAuth.current ? 'linked' : 'signedIn',
+    });
+    setError(null);
+    setAuthDialogOpen(false);
+  };
+
+  const signInPrompt = (
+    <Button size="small" onClick={openAuthPrompt}>
+      {t('packs.signInToPublish')}
+    </Button>
+  );
 
   // Republish path: my published packs are editable starting points.
   useEffect(() => {
@@ -233,13 +294,15 @@ export default function PackCreator() {
     setName(pack.name);
     setDescription(pack.description);
     setTags((pack.tags || []).join(', '));
-    setVisibility(isAnonymous ? 'private' : pack.visibility);
+    setVisibility(hasPermanentProvider ? pack.visibility : 'private');
     const parsed = parsePack(pack);
     // Extensions-only packs carry no customGroups entry for the default groups
     // they extend — the payload names every group it touches, so the republish
     // selection never comes up empty and drops them.
     setSelectedGroups(parsed?.payload.touchedGroupNames() ?? []);
+    setDraftLocale(pack.locale);
     setShareLink(null);
+    setOwnershipChanged(false);
     setStep(0);
   };
 
@@ -271,8 +334,8 @@ export default function PackCreator() {
         gameModes: [gameMode],
         groupNames: selectedGroups,
       });
-      // Enforce anonymous-private at submit time, not just in the UI.
-      const effectiveVisibility: PackVisibility = isAnonymous ? 'private' : visibility;
+      // Enforce provider-gated private at submit time, not just in the UI.
+      const effectiveVisibility: PackVisibility = hasPermanentProvider ? visibility : 'private';
       const meta = {
         name: name.trim(),
         description: description.trim(),
@@ -343,6 +406,12 @@ export default function PackCreator() {
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
+          </Alert>
+        )}
+
+        {ownershipChanged && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            {t('packCreator.newAccountOwnership')}
           </Alert>
         )}
 
@@ -473,13 +542,16 @@ export default function PackCreator() {
                 label={t('packs.visibility')}
                 onChange={(e) => setVisibility(e.target.value as PackVisibility)}
               >
-                <MenuItem value="public" disabled={isAnonymous}>
+                <MenuItem value="public" disabled={!hasPermanentProvider}>
                   {t('packs.visibilityPublic')}
                 </MenuItem>
                 <MenuItem value="private">{t('packs.visibilityPrivate')}</MenuItem>
               </Select>
-              {isAnonymous ? (
-                <FormHelperText>{t('packs.anonymousPrivateOnly')}</FormHelperText>
+              {!hasPermanentProvider ? (
+                <>
+                  <FormHelperText>{t('packs.anonymousPrivateOnly')}</FormHelperText>
+                  {signInPrompt}
+                </>
               ) : (
                 visibility === 'public' && (
                   <FormHelperText>{t('packs.publicHelper')}</FormHelperText>
@@ -510,12 +582,13 @@ export default function PackCreator() {
               </Stack>
             </Box>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {visibility === 'public' && !isAnonymous
+              {visibility === 'public' && hasPermanentProvider
                 ? t('packCreator.willBePublic')
                 : t('packCreator.willBePrivate')}
               {editingPack &&
                 ` · ${t('packCreator.willBumpVersion', { version: editingPack.packVersion + 1 })}`}
             </Typography>
+            {!hasPermanentProvider && signInPrompt}
             {shareLink ? (
               <Alert severity="success" sx={{ wordBreak: 'break-all' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -571,6 +644,18 @@ export default function PackCreator() {
           <Box />
         )}
       </Box>
+
+      {/* Rendered here so authenticating never unmounts the wizard's draft. */}
+      {authDialogOpen && (
+        <Suspense fallback={null}>
+          <AuthDialog
+            open={authDialogOpen}
+            close={() => setAuthDialogOpen(false)}
+            initialView="register"
+            onSuccess={handleAuthSuccess}
+          />
+        </Suspense>
+      )}
 
       <CustomGroupDialog
         open={groupDialogOpen}

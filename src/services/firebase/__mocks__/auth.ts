@@ -26,5 +26,6 @@ export const registerWithEmail = vi.fn().mockResolvedValue(mockUser);
 export const updateDisplayName = vi.fn().mockResolvedValue(mockUser);
 export const resetPassword = vi.fn().mockResolvedValue(undefined);
 export const convertAnonymousAccount = vi.fn().mockResolvedValue(mockUser);
+export const linkGoogleAccount = vi.fn().mockResolvedValue(mockUser);
 export const logout = vi.fn().mockResolvedValue(undefined);
 export const wipeAllAppData = vi.fn().mockResolvedValue(undefined);

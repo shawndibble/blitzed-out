@@ -2,13 +2,17 @@ import { logger } from '@/utils/logger';
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { loginWithEmail } from '@/services/firebase/auth';
+import { getErrorMessage } from '@/types/errors';
+import useAuth from '@/hooks/useAuth';
+import type { User } from '@/types';
 
 interface LoginProps {
-  onSuccess?: () => void;
+  onSuccess?: (user: User) => void;
   onSwitchToRegister: () => void;
   onSwitchToForgotPassword: () => void;
+  /** Anonymous session: signing in moves to that account rather than linking. */
   isLinking?: boolean;
+  initialEmail?: string;
 }
 
 export default function Login({
@@ -16,9 +20,11 @@ export default function Login({
   onSwitchToRegister,
   onSwitchToForgotPassword,
   isLinking = false,
+  initialEmail = '',
 }: LoginProps): JSX.Element {
   const { t } = useTranslation();
-  const [email, setEmail] = useState<string>('');
+  const { loginEmail } = useAuth();
+  const [email, setEmail] = useState<string>(initialEmail);
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,11 +35,13 @@ export default function Login({
     setLoading(true);
 
     try {
-      await loginWithEmail(email, password);
-      if (onSuccess) onSuccess();
-    } catch (err: any) {
+      // Awaited separately: an optional call skips its arguments when no
+      // handler is passed, which would silently skip the sign-in itself.
+      const authedUser = await loginEmail(email, password);
+      onSuccess?.(authedUser);
+    } catch (err: unknown) {
       logger.error('Login error:', err);
-      setError(err.message || 'Failed to sign in');
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -73,14 +81,14 @@ export default function Login({
         onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
       />
 
+      {isLinking && (
+        <Typography variant="caption" sx={{ display: 'block', mt: 1, color: 'text.secondary' }}>
+          {t('signInSwitchesAccount')}
+        </Typography>
+      )}
+
       <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>
-        {loading ? (
-          <CircularProgress size={24} />
-        ) : isLinking ? (
-          <Trans i18nKey="linkAccount">Link Account</Trans>
-        ) : (
-          <Trans i18nKey="signIn" />
-        )}
+        {loading ? <CircularProgress size={24} /> : <Trans i18nKey="signIn" />}
       </Button>
 
       <Typography align="center">

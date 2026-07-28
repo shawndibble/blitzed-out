@@ -22,11 +22,20 @@ export interface AuthContextType {
   register: (email: string, password: string, displayName: string) => Promise<User>;
   updateUser: (displayName?: string) => Promise<User | null>;
   forgotPassword: (email: string) => Promise<boolean>;
-  convertToRegistered: (email: string, password: string) => Promise<User>;
+  convertToRegistered: (email: string, password: string, displayName?: string) => Promise<User>;
+  linkGoogle: () => Promise<User>;
   logout: () => Promise<void>;
   wipeAllData: () => Promise<void>;
   syncData: () => Promise<boolean>;
   isAnonymous: boolean;
+  /**
+   * Whether the *session* was established with a permanent provider, read from
+   * the ID token's `signInProvider`. Distinct from `!isAnonymous`, which Firebase
+   * flips the moment a credential links — before the session is re-established.
+   * Anything the server gates on the provider claim (public pack publishing,
+   * `firestore.rules`) must key on this, or the UI offers what the rules reject.
+   */
+  hasPermanentProvider: boolean;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -150,11 +159,11 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
   }
 
   const convertToRegistered = useCallback(
-    async (email: string, password: string): Promise<User> => {
+    async (email: string, password: string, displayName?: string): Promise<User> => {
       try {
         setLoading(true);
         const firebase = await loadFirebase();
-        const convertedUser = await firebase.convertAnonymousAccount(email, password);
+        const convertedUser = await firebase.convertAnonymousAccount(email, password, displayName);
         setUser(convertedUser);
         await syncData();
         return convertedUser;
@@ -169,6 +178,24 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
     },
     [setLoading, setUser, syncData, setError]
   );
+
+  const linkGoogle = useCallback(async (): Promise<User> => {
+    try {
+      setLoading(true);
+      const firebase = await loadFirebase();
+      const linkedUser = await firebase.linkGoogleAccount();
+      setUser(linkedUser);
+      await syncData();
+      return linkedUser;
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [setLoading, setUser, syncData, setError]);
 
   async function updateUser(displayName = ''): Promise<User | null> {
     try {
@@ -262,6 +289,34 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
 
   useEffect(() => registerSyncProvider({ user, syncData }), [user, syncData]);
 
+  // Read the provider off the ID token rather than trusting `isAnonymous`: a
+  // link whose re-auth failed leaves those two disagreeing, and the token is
+  // what the rules see. Re-read on every user change, so a reload of a
+  // half-linked session recovers the truth instead of inheriting the lie.
+  const [tokenProviderPermanent, setTokenProviderPermanent] = useState<boolean | null>(null);
+  useEffect(() => {
+    // Drop the previous user's answer first, for *any* change of user: a
+    // permanent → anonymous switch (no sign-out, so no null tick) would
+    // otherwise keep reading `true` across the async gap and offer a
+    // permanent-only capability to a guest session.
+    setTokenProviderPermanent(null);
+    if (!user) return;
+    let cancelled = false;
+    user
+      .getIdTokenResult()
+      .then((result) => {
+        if (!cancelled) setTokenProviderPermanent(result.signInProvider !== 'anonymous');
+      })
+      .catch(() => {
+        // Unreadable token: fall back to the coarse flag rather than locking
+        // a legitimate account out of its permanent-only features.
+        if (!cancelled) setTokenProviderPermanent(!user.isAnonymous);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   const value = useMemo(
     () => ({
       user,
@@ -276,10 +331,14 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       updateUser,
       forgotPassword,
       convertToRegistered,
+      linkGoogle,
       logout: logoutUser,
       wipeAllData: wipeAllAppDataAndReload,
       syncData,
       isAnonymous: user?.isAnonymous || false,
+      // Until the token read resolves, defer to the coarse flag so the UI does
+      // not flicker a permanent account back to guest on every sign-in.
+      hasPermanentProvider: tokenProviderPermanent ?? !(user?.isAnonymous ?? true),
     }),
     [
       user,
@@ -287,7 +346,9 @@ function AuthProvider(props: AuthProviderProps): JSX.Element {
       initializing,
       error,
       syncStatus,
+      tokenProviderPermanent,
       convertToRegistered,
+      linkGoogle,
       logoutUser,
       wipeAllAppDataAndReload,
       syncData,

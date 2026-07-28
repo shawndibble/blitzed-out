@@ -732,7 +732,6 @@
     "visibilityPrivate": "私密 — 仅通过链接分享",
     "publicHelper": "公开内容包会显示在目录中，并且可能被举报和移除。",
     "anonymousPrivateOnly": "创建永久账户以发布公开内容包。匿名账户仍可通过链接分享私密内容包。",
-    "publicNeedsAccount": "关联你的账户以发布公开内容包。",
     "publish": "发布内容包",
     "fromPack": "来自 {{name}}",
     "invalidPack": "无法读取此内容包。",
@@ -756,7 +755,8 @@
     "extensionSummary": "{{count}} 个扩展",
     "extensionDetail": "{{tiles}} 个动作 · {{levels}} 个新等级",
     "newLevelChip": "新等级：{{label}}",
-    "importCount": "{{count}} 次导入"
+    "importCount": "{{count}} 次导入",
+    "signInToPublish": "登录或创建账户"
   },
   "remove": "移除",
   "done": "完成",
@@ -793,7 +793,8 @@
     "willBumpVersion": "发布后此内容包将更新到版本 {{version}}",
     "republish": "发布更新",
     "tabTeaser": "通过引导流程将你的自定义组打包成可分享的内容包。",
-    "openCta": "创建内容包"
+    "openCta": "创建内容包",
+    "newAccountOwnership": "你已登录另一个账户，因此这将作为新的内容包发布。"
   },
   "gameLength": {
     "title": "游戏时长",
@@ -897,5 +898,10 @@
   "movePlayerDown": "下移{{name}}",
   "localPlayersSaveError": "无法保存玩家 — 请重试。",
   "settingsSaveError": "无法保存设置 — 请重试。",
-  "buildingBoard": "正在生成棋盘…"
+  "buildingBoard": "正在生成棋盘…",
+  "accountExistsUseSignIn": "该邮箱已有账户。请直接登录该账户 — 你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。",
+  "signInInstead": "改为登录",
+  "signInSwitchesAccount": "登录会切换到该账户。你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。",
+  "accountLinkedFinishSignIn": "账户已创建，但当前会话仍需登录。请登录以完成 — 你的数据仍属于同一个账户。",
+  "googleAccountExistsUseSignIn": "该 Google 账户已属于此处的另一个账户。请直接登录该账户 — 你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。"
 }

@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Box, Button, Divider, Typography, Alert, CircularProgress } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
-import { loginWithGoogle } from '@/services/firebase/auth';
-import { Trans } from 'react-i18next';
-import { t } from 'i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import { getErrorMessage } from '@/types/errors';
+import useAuth from '@/hooks/useAuth';
+import type { User } from '@/types';
+import SignInFallbackAlert, { signInFallbackFor, type SignInFallback } from './SignInFallbackAlert';
 
 interface SocialLoginButtonsProps {
-  onSuccess?: () => void;
+  onSuccess?: (user: User) => void;
   isLinking?: boolean;
 }
 
@@ -14,18 +16,32 @@ export default function SocialLoginButtons({
   onSuccess,
   isLinking = false,
 }: SocialLoginButtonsProps): JSX.Element {
+  const { t } = useTranslation();
+  const { loginGoogle, linkGoogle } = useAuth();
   const [error, setError] = useState<string>('');
+  const [fallback, setFallback] = useState<SignInFallback | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // Once a fallback is set, linking is off the table and this button becomes a
+  // plain sign-in — which is also what the fallback Alert's action triggers.
+  const linkable = isLinking && fallback === null;
 
   const handleGoogleLogin = async () => {
     setError('');
     setLoading(true);
 
     try {
-      await loginWithGoogle();
-      if (onSuccess) onSuccess();
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+      // Awaited separately: an optional call skips its arguments when no
+      // handler is passed, which would silently skip the sign-in itself.
+      const authedUser = linkable ? await linkGoogle() : await loginGoogle();
+      onSuccess?.(authedUser);
+    } catch (err: unknown) {
+      const reason = signInFallbackFor(err);
+      if (reason) {
+        setFallback(reason);
+      } else {
+        setError(getErrorMessage(err));
+      }
     } finally {
       setLoading(false);
     }
@@ -37,6 +53,14 @@ export default function SocialLoginButtons({
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
+      )}
+      {fallback && (
+        <SignInFallbackAlert
+          fallback={fallback}
+          existsMessageKey="googleAccountExistsUseSignIn"
+          onSignIn={handleGoogleLogin}
+          disabled={loading}
+        />
       )}
       <Divider sx={{ mb: 2 }}>
         <Typography
@@ -60,7 +84,7 @@ export default function SocialLoginButtons({
       >
         {loading ? (
           <CircularProgress size={24} />
-        ) : isLinking ? (
+        ) : linkable ? (
           t('linkWithGoogle', 'Link with Google')
         ) : (
           t('signInWithGoogle', 'Sign in with Google')
