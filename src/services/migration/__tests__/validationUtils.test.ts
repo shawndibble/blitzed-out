@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { verifyMigrationIntegrity, fixMigrationStatusCorruption } from '../validationUtils';
-import { BACKGROUND_MIGRATION_KEY, MIGRATION_KEY } from '../constants';
+import { BACKGROUND_MIGRATION_KEY, MIGRATION_KEY, MIGRATION_VERSION } from '../constants';
 import * as statusManager from '../statusManager';
 
 // Only the true external boundary (Dexie-backed store) is mocked. statusManager
@@ -12,11 +12,14 @@ vi.mock('@/stores/customGroups', () => ({
 
 import { getAllAvailableGroups } from '@/stores/customGroups';
 
+// Complete *on the current version* — a stored version older than
+// MIGRATION_VERSION reads as incomplete by design, which would make these
+// integrity tests short-circuit before reaching the store.
 const setBackgroundMigrationComplete = (locale: string) => {
   localStorage.setItem(
     BACKGROUND_MIGRATION_KEY,
     JSON.stringify({
-      version: '2.6.0',
+      version: MIGRATION_VERSION,
       completedLanguages: [locale],
       inProgress: false,
     })

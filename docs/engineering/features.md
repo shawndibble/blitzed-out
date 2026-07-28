@@ -54,12 +54,20 @@ This is the heart of the personalization.
 
 Action text contains tokens replaced at gameplay time:
 
-- **Anatomy:** `{genital}` (dick/pussy, strap-on for a female dom in penetrative context), `{hole}` (ass/pussy), `{chest}` (breasts/pecs), plus pronoun tokens.
+- **Anatomy:** `{genital}` (dick/pussy, strap-on for a female dom in penetrative context), `{tip}` (tip/clit, strap-on tip under the same rule), `{hole}` (ass/pussy), `{chest}` (breasts/pecs), plus pronoun tokens.
 - **Role/target:** `{dom}`, `{sub}`, `{player}`, with piped variants like `{genital|dom}` and possessives like `{dom}'s {genital}`.
+
+The token list is declared once as `ANATOMY_PLACEHOLDERS` in `src/types/localPlayers.ts`; the `AnatomyPlaceholder` type, `getSupportedPlaceholders()`, all three token regexes (bare, piped, possessive), and the authoring UI's chip list derive from it. **No pattern edits** are ever needed. A new token is that array plus locale data in three files, per locale:
+
+1. `locales/*/anatomy.json` — the term under `genericAnatomyTerms` and all three `anatomyMappings` genders. Add a `straponTerms` entry too if the token should follow `{genital}` onto a strap-on (see `STRAPON_TERM_KEYS`).
+2. `locales/*/placeholders.json` — the localized token _name_, so authors can type it in their own language (`placeholderAliasService` normalizes it to canonical English on save).
+3. `locales/*/translation.json` — a `customTiles.placeholderHelp.<camelCaseKey>` string, plus the matching entry in `ANATOMY_HELP_KEYS` (`AddCustomTile/index.tsx`). That map is a `Record<AnatomyPlaceholder, string>`, so a missing entry is a type error rather than a chip that silently never renders.
 
 Pipeline: `actionStringReplacement.ts` orchestrates replacement; `anatomyPlaceholderService.ts` resolves anatomy terms by gender/role/locale; `anatomyFilterService.ts` decides which actions are compatible with a player's anatomy.
 
-**Tap-to-insert:** the "Available Placeholders" panel in `AddCustomTile` renders each bare token (the 10 keys in `locales/*/placeholders.json` — not piped `{genital|dom}` or possessive forms, which are still typed by hand) as a clickable chip. Clicking one splices the token into the action field at the last known caret (end of text if the field was never touched) via the pure `AddCustomTile/insertPlaceholderToken.ts` — spacing-aware, selection-replacing, capped at `MAX_ACTION_LENGTH`. Chips label and insert via `localizePlaceholders(token, settings.locale)`, i.e. the same locale the save path normalizes from, so a chip can never author an alias that `normalizePlaceholders` would leave uncanonicalized.
+**Role is the slot, not the setting.** The strap-on swap keys off the role a player fills in _this_ action (`{dom}`/`{sub}`), not their configured role — otherwise a `vers` player cast as the dom keeps real anatomy on a penetrative tile. Local mode reads the slot from the piped/possessive token; online and solo infer it from which token name substitution consumed (`inferSlotRole`).
+
+**Tap-to-insert:** the "Available Placeholders" panel in `AddCustomTile` renders each bare token (the 11 keys in `locales/*/placeholders.json` — not piped `{genital|dom}` or possessive forms, which are still typed by hand) as a clickable chip. Clicking one splices the token into the action field at the last known caret (end of text if the field was never touched) via the pure `AddCustomTile/insertPlaceholderToken.ts` — spacing-aware, selection-replacing, capped at `MAX_ACTION_LENGTH`. Chips label and insert via `localizePlaceholders(token, settings.locale)`, i.e. the same locale the save path normalizes from, so a chip can never author an alias that `normalizePlaceholders` would leave uncanonicalized.
 
 **Localized placeholder aliases:** custom-tile placeholders are **stored canonical-English**. Authors may type localized aliases (`src/locales/*/placeholders.json`); `placeholderAliasService.ts` normalizes them to English and localizes them back on edit. The customTiles store enforces this at intake (`addCustomTile`/`updateCustomTile` normalize idempotently), so every write path inherits the invariant; dialogs additionally normalize early for validation/dedup. The gameplay replacement pipeline (`actionStringReplacement`, `anatomyPlaceholderService`) never sees aliases — only canonical English.
 

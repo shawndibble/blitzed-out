@@ -7,17 +7,23 @@ import { PlayerRole } from './Settings';
 export type PlayerGender = 'male' | 'female' | 'non-binary';
 
 /**
- * Anatomy placeholder types supported in action text
- * These placeholders are replaced based on player gender
+ * Anatomy placeholder tokens supported in action text, replaced based on player
+ * gender. Single source of truth: the type, the runtime list, and every token
+ * pattern in the replacement pipeline derive from this array, so adding a token
+ * here plus a term in each `anatomy.json` is the whole code change.
  */
-export type AnatomyPlaceholder =
-  | 'genital'
-  | 'hole'
-  | 'chest'
-  | 'pronoun_subject'
-  | 'pronoun_object'
-  | 'pronoun_possessive'
-  | 'pronoun_reflexive';
+export const ANATOMY_PLACEHOLDERS = [
+  'genital',
+  'tip',
+  'hole',
+  'chest',
+  'pronoun_subject',
+  'pronoun_object',
+  'pronoun_possessive',
+  'pronoun_reflexive',
+] as const;
+
+export type AnatomyPlaceholder = (typeof ANATOMY_PLACEHOLDERS)[number];
 
 /**
  * Core local player interface for single-device multiplayer

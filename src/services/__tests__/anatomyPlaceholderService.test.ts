@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getAnatomyMappings,
   getAnatomyTerm,
-  getGenitalTermForRole,
+  getRoleAwareAnatomyTerm,
   replaceAnatomyPlaceholders,
   hasAnatomyPlaceholders,
   getSupportedPlaceholders,
@@ -87,39 +87,39 @@ describe('anatomyPlaceholderService', () => {
     });
   });
 
-  describe('getGenitalTermForRole', () => {
+  describe('getRoleAwareAnatomyTerm', () => {
     it('returns strapon for female dom in a penetrative action', () => {
-      const term = getGenitalTermForRole('female', 'dom', 'en', true);
+      const term = getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'en', true);
       expect(term).toBe('strapon');
     });
 
     it('returns pussy for female dom in a non-penetrative action', () => {
-      const term = getGenitalTermForRole('female', 'dom', 'en', false);
+      const term = getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'en', false);
       expect(term).toBe('pussy');
     });
 
     it('returns dick for male dom', () => {
-      const term = getGenitalTermForRole('male', 'dom', 'en', true);
+      const term = getRoleAwareAnatomyTerm('genital', 'male', 'dom', 'en', true);
       expect(term).toBe('dick');
     });
 
     it('returns pussy for female sub', () => {
-      const term = getGenitalTermForRole('female', 'sub', 'en', true);
+      const term = getRoleAwareAnatomyTerm('genital', 'female', 'sub', 'en', true);
       expect(term).toBe('pussy');
     });
 
     it('returns genitals for non-binary', () => {
-      const term = getGenitalTermForRole('non-binary', 'dom', 'en', true);
+      const term = getRoleAwareAnatomyTerm('genital', 'non-binary', 'dom', 'en', true);
       expect(term).toBe('genitals');
     });
 
     it('returns localized strapon for female dom in Spanish', () => {
-      const term = getGenitalTermForRole('female', 'dom', 'es', true);
+      const term = getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'es', true);
       expect(term).toBe('arnés');
     });
 
     it('returns localized strapon for female dom in French', () => {
-      const term = getGenitalTermForRole('female', 'dom', 'fr', true);
+      const term = getRoleAwareAnatomyTerm('genital', 'female', 'dom', 'fr', true);
       expect(term).toBe('gode-ceinture');
     });
   });
@@ -283,14 +283,16 @@ describe('anatomyPlaceholderService', () => {
     it('returns all supported placeholders', () => {
       const placeholders = getSupportedPlaceholders();
 
-      expect(placeholders).toContain('genital');
-      expect(placeholders).toContain('hole');
-      expect(placeholders).toContain('chest');
-      expect(placeholders).toContain('pronoun_subject');
-      expect(placeholders).toContain('pronoun_object');
-      expect(placeholders).toContain('pronoun_possessive');
-      expect(placeholders).toContain('pronoun_reflexive');
-      expect(placeholders).toHaveLength(7);
+      expect(placeholders).toEqual([
+        'genital',
+        'tip',
+        'hole',
+        'chest',
+        'pronoun_subject',
+        'pronoun_object',
+        'pronoun_possessive',
+        'pronoun_reflexive',
+      ]);
     });
   });
 

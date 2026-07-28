@@ -1,6 +1,7 @@
 {
   "genericAnatomyTerms": {
     "genital": "生殖器",
+    "tip": "顶端",
     "hole": "洞",
     "chest": "胸部",
     "pronoun_subject": "他们",
@@ -24,6 +25,7 @@
   "anatomyMappings": {
     "male": {
       "genital": "鸡巴",
+      "tip": "龟头",
       "hole": "洞",
       "chest": "胸部",
       "pronoun_subject": "他",
@@ -33,6 +35,7 @@
     },
     "female": {
       "genital": "阴道",
+      "tip": "阴蒂",
       "hole": "阴道",
       "chest": "乳房",
       "pronoun_subject": "她",
@@ -42,6 +45,7 @@
     },
     "non-binary": {
       "genital": "生殖器",
+      "tip": "顶端",
       "hole": "洞",
       "chest": "胸部",
       "pronoun_subject": "他们",
@@ -51,6 +55,7 @@
     }
   },
   "straponTerms": {
-    "strapon": "绑带假阳具"
+    "strapon": "绑带假阳具",
+    "tip": "顶端"
   }
 }

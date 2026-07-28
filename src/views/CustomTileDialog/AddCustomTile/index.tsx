@@ -26,7 +26,7 @@ import CustomGroupSelector from '@/components/CustomGroupSelector';
 import { insertPlaceholderToken } from './insertPlaceholderToken';
 import { localizePlaceholders } from '@/services/placeholderAliasService';
 import { MAX_ACTION_LENGTH } from '@/services/validationService';
-import { AnatomyPlaceholder } from '@/types/localPlayers';
+import { ANATOMY_PLACEHOLDERS, AnatomyPlaceholder } from '@/types/localPlayers';
 import { useGameSettings } from '@/stores/settingsStore';
 
 interface TokenChip {
@@ -41,15 +41,23 @@ const ROLE_TOKENS: TokenChip[] = [
   { token: 'sub', helpKey: 'sub' },
 ];
 
-const ANATOMY_TOKENS: (TokenChip & { token: AnatomyPlaceholder })[] = [
-  { token: 'genital', helpKey: 'genital' },
-  { token: 'hole', helpKey: 'hole' },
-  { token: 'chest', helpKey: 'chest' },
-  { token: 'pronoun_subject', helpKey: 'pronounSubject' },
-  { token: 'pronoun_object', helpKey: 'pronounObject' },
-  { token: 'pronoun_possessive', helpKey: 'pronounPossessive' },
-  { token: 'pronoun_reflexive', helpKey: 'pronounReflexive' },
-];
+// One chip per ANATOMY_PLACEHOLDERS entry — the Record key makes a new token a
+// type error here until it gets a chip and a placeholderHelp string, rather
+// than silently missing from the panel.
+const ANATOMY_HELP_KEYS: Record<AnatomyPlaceholder, string> = {
+  genital: 'genital',
+  tip: 'tip',
+  hole: 'hole',
+  chest: 'chest',
+  pronoun_subject: 'pronounSubject',
+  pronoun_object: 'pronounObject',
+  pronoun_possessive: 'pronounPossessive',
+  pronoun_reflexive: 'pronounReflexive',
+};
+
+const ANATOMY_TOKENS: (TokenChip & { token: AnatomyPlaceholder })[] = ANATOMY_PLACEHOLDERS.map(
+  (token) => ({ token, helpKey: ANATOMY_HELP_KEYS[token] })
+);
 
 export default function AddCustomTile({
   lifecycle,

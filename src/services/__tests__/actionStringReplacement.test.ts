@@ -56,6 +56,35 @@ describe('actionStringReplacement', () => {
 
       expect(result).toBe('The current player touches his dick.');
     });
+
+    it('resolves piped tokens instead of printing them raw on the tile', () => {
+      // The board preview has no players to aim a |dom at; an unmatched token
+      // used to reach the tile verbatim.
+      const result = actionStringReplacement(
+        "{dom} presses {pronoun_possessive|dom} {genital|dom} against {sub}'s face.",
+        'sub',
+        'TestPlayer',
+        undefined,
+        true
+      );
+
+      expect(result).toBe("A dominant presses their genitals against a submissive's face.");
+    });
+
+    it('resolves piped tokens raw-free when a gender is selected too', () => {
+      const result = actionStringReplacement(
+        'Touch {genital|dom} and {chest|other}.',
+        'dom',
+        'TestPlayer',
+        undefined,
+        true,
+        'male',
+        'en'
+      );
+
+      // |dom is the reader here; |other names nobody this path can identify.
+      expect(result).toBe('Touch dick and chest.');
+    });
   });
 
   describe('local multiplayer mode', () => {
@@ -144,6 +173,86 @@ describe('actionStringReplacement', () => {
       );
 
       expect(result).toContain('strapon');
+    });
+
+    describe('the {tip} placeholder', () => {
+      it('resolves to the clit for a female player', () => {
+        const result = actionStringReplacement(
+          "{sub} sucks {dom}'s {tip}.",
+          'sub',
+          'Mike',
+          [
+            { ...localPlayers[1], role: 'dom' },
+            { ...localPlayers[0], role: 'sub' },
+          ],
+          false
+        );
+
+        expect(result).toBe("Mike sucks Jessica's clit.");
+      });
+
+      it('resolves to the tip for a male player', () => {
+        const result = actionStringReplacement(
+          "{sub} sucks {dom}'s {tip}.",
+          'sub',
+          'Jessica',
+          localPlayers,
+          false
+        );
+
+        expect(result).toBe("Jessica sucks Mike's tip.");
+      });
+
+      it('follows the genital onto the strapon for a penetrative female dom', () => {
+        const femaleDom: LocalPlayer = { ...localPlayers[1], role: 'dom', name: 'Sarah' };
+        const result = actionStringReplacement(
+          "{sub} licks {dom}'s {tip}.",
+          'sub',
+          'Mike',
+          [femaleDom, { ...localPlayers[0], role: 'sub' }],
+          false,
+          undefined,
+          'en',
+          true
+        );
+
+        expect(result).toBe("Mike licks Sarah's tip.");
+      });
+    });
+
+    it('resolves a |dom token against the dom, not against whoever is reading', () => {
+      // A bare {genital} borrows the reader's anatomy. English hides that
+      // behind the "{dom}'s {genital}" possessive form, but no other language
+      // has that word order — hence the pipe.
+      const result = actionStringReplacement(
+        "{sub} wets all of {dom}'s {genital|dom}.",
+        'sub',
+        'Jessica',
+        localPlayers,
+        false
+      );
+
+      expect(result).toBe("Jessica wets all of Mike's dick.");
+    });
+
+    it('straps on a vers player cast as the dom of a penetrative tile', () => {
+      // The slot the action assigns, not the player's configured role, decides:
+      // a vers player standing in as {dom} used to keep real anatomy.
+      const versFemale: LocalPlayer = { ...localPlayers[1], role: 'vers', name: 'Sarah' };
+      const maleSub: LocalPlayer = { ...localPlayers[0], role: 'sub' };
+
+      const result = actionStringReplacement(
+        "{sub} takes {dom}'s {genital} in their mouth.",
+        'sub',
+        'Mike',
+        [versFemale, maleSub],
+        false,
+        undefined,
+        'en',
+        true
+      );
+
+      expect(result).toBe("Mike takes Sarah's strapon in their mouth.");
     });
 
     it('keeps real anatomy for female dom on a non-penetrative tile (bating regression)', () => {
@@ -373,6 +482,36 @@ describe('actionStringReplacement', () => {
   });
 
   describe('online/solo mode', () => {
+    // Solo and online know exactly one body: the reader's. A pipe aimed at
+    // anyone else must not answer with it.
+    it('keeps a |dom token neutral when the reader is the sub', () => {
+      const result = actionStringReplacement(
+        '{dom} rubs {genital|dom} on {sub}.',
+        'sub',
+        'Alex',
+        undefined,
+        false,
+        'female',
+        'en'
+      );
+
+      expect(result).toBe('Another player rubs genitals on Alex.');
+    });
+
+    it("uses the reader's anatomy for a |dom token when the reader is the dom", () => {
+      const result = actionStringReplacement(
+        '{dom} rubs {genital|dom} on {sub}.',
+        'dom',
+        'Alex',
+        undefined,
+        false,
+        'female',
+        'en'
+      );
+
+      expect(result).toBe('Alex rubs pussy on another player.');
+    });
+
     it('replaces anatomy placeholders with provided gender (male)', () => {
       const result = actionStringReplacement(
         'Touch your {genital}.',

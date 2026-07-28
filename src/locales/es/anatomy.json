@@ -1,6 +1,7 @@
 {
   "genericAnatomyTerms": {
     "genital": "genitales",
+    "tip": "punto sensible",
     "hole": "agujero",
     "chest": "pecho",
     "pronoun_subject": "elle",
@@ -24,6 +25,7 @@
   "anatomyMappings": {
     "male": {
       "genital": "polla",
+      "tip": "capullo",
       "hole": "agujero",
       "chest": "pecho",
       "pronoun_subject": "él",
@@ -33,6 +35,7 @@
     },
     "female": {
       "genital": "coño",
+      "tip": "clítoris",
       "hole": "coño",
       "chest": "pechos",
       "pronoun_subject": "ella",
@@ -42,6 +45,7 @@
     },
     "non-binary": {
       "genital": "genitales",
+      "tip": "punto sensible",
       "hole": "agujero",
       "chest": "pecho",
       "pronoun_subject": "elle",
@@ -51,6 +55,7 @@
     }
   },
   "straponTerms": {
-    "strapon": "arnés"
+    "strapon": "arnés",
+    "tip": "glande"
   }
 }

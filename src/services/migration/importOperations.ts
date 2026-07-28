@@ -3,10 +3,10 @@
  */
 
 import { addCustomGroup, getCustomGroupByName, updateCustomGroup } from '@/stores/customGroups';
-import { importCustomTiles, getTilesUnguarded } from '@/stores/customTiles';
+import { importCustomTiles, getTilesUnguarded, deleteTilesByIds } from '@/stores/customTiles';
 import { mergeSeedIntensities } from '@/services/intensityMerge';
 import { CustomGroupBase } from '@/types/customGroups';
-import { CustomTileBase } from '@/types/customTiles';
+import { CustomTileBase, CustomTilePull } from '@/types/customTiles';
 import { ImportResult } from './types';
 import { logError, withErrorHandling, isDuplicateError } from './errorHandling';
 
@@ -142,12 +142,18 @@ const validateTilesHaveGroupId = (tiles: CustomTileBase[]): void => {
 };
 
 /**
- * Filter out existing tiles to prevent duplicates using group_id-based matching
+ * Split the bundle's tiles into the ones this group doesn't have yet, returning
+ * the rows already stored alongside them.
+ *
+ * The stored rows come back because the prune needs exactly this set: querying
+ * for them again would be a second unindexed walk of `customTiles`
+ * (`createFilteredQuery` filters `group_id` in memory), once per group, on
+ * every device that re-seeds.
  */
 const getNewTiles = async (
   customTiles: CustomTileBase[],
   groupId: string
-): Promise<CustomTileBase[]> => {
+): Promise<{ newTiles: CustomTileBase[]; existingTiles: CustomTilePull[] }> => {
   try {
     // Validate all tiles have proper group_id
     validateTilesHaveGroupId(customTiles);
@@ -157,10 +163,10 @@ const getNewTiles = async (
     const existingTiles = await getTilesUnguarded({ group_id: groupId });
 
     if (!existingTiles || !Array.isArray(existingTiles)) {
-      return customTiles; // If no existing tiles, all tiles are new
+      return { newTiles: customTiles, existingTiles: [] };
     }
 
-    return customTiles.filter((tile) => {
+    const newTiles = customTiles.filter((tile) => {
       return !existingTiles.some(
         (existing) =>
           existing.group_id === tile.group_id &&
@@ -168,9 +174,59 @@ const getNewTiles = async (
           existing.action === tile.action
       );
     });
+
+    return { newTiles, existingTiles };
   } catch (error) {
     logError('warn', `getNewTiles:${groupId}`, error);
-    return customTiles; // On error, import all tiles
+    // Import everything, prune nothing: an empty roster of stored rows is the
+    // one value that cannot cause the caller to delete something.
+    return { newTiles: customTiles, existingTiles: [] };
+  }
+};
+
+/**
+ * Ids of this group's seeded default tiles that the bundle no longer contains.
+ *
+ * Seeding is append-only and dedupes on exact action text, so rewording a
+ * default action would otherwise ship the new tile and keep the old one — both
+ * live in the same group forever. Only tiles this seeder created are eligible:
+ * anything the player authored (`isCustom`) or that lacks the `default` tag is
+ * left alone, even when its text is absent from the bundle.
+ */
+const getStaleDefaultTileIds = (
+  bundleTiles: CustomTileBase[],
+  existingTiles: CustomTilePull[]
+): number[] => {
+  const bundleKeys = new Set(bundleTiles.map((tile) => `${tile.intensity}::${tile.action}`));
+
+  return existingTiles
+    .filter(
+      (tile) =>
+        tile.isCustom !== 1 &&
+        tile.tags?.includes('default') &&
+        !bundleKeys.has(`${tile.intensity}::${tile.action}`)
+    )
+    .map((tile) => tile.id)
+    .filter((id): id is number => typeof id === 'number');
+};
+
+/**
+ * Delete the stale defaults, swallowing any failure.
+ *
+ * This runs inside the group's `rw` transaction, so an unguarded throw would
+ * abort it and roll back the label/intensity renames and the tile inserts that
+ * already succeeded. A group carrying one superseded action is a far better
+ * outcome than a group that never got re-seeded at all.
+ */
+const pruneStaleDefaultsSafely = async (
+  bundleTiles: CustomTileBase[],
+  existingTiles: CustomTilePull[],
+  groupId: string
+): Promise<void> => {
+  try {
+    await deleteTilesByIds(getStaleDefaultTileIds(bundleTiles, existingTiles));
+  } catch (error) {
+    logError('warn', `pruneStaleDefaults:${groupId}`, error);
   }
 };
 
@@ -242,9 +298,18 @@ export const importGroupsForLocaleAndGameMode = async (
 
         // Add the custom tiles if there are any
         if (tilesForGroup.length > 0 && targetGroupId) {
-          const newTiles = await getNewTiles(tilesForGroup, targetGroupId);
+          const { newTiles, existingTiles } = await getNewTiles(tilesForGroup, targetGroupId);
           const tilesAdded = await importCustomTilesSafely(newTiles);
           tilesImported += tilesAdded;
+
+          // Drop defaults the bundle dropped or reworded, so a reworded action
+          // replaces its predecessor instead of doubling it — but only once the
+          // replacement is actually stored. importCustomTilesSafely swallows a
+          // failed bulkAdd, and pruning after that would shrink the group with
+          // nothing put in its place, on a locale already marked complete.
+          if (newTiles.length === 0 || tilesAdded > 0) {
+            await pruneStaleDefaultsSafely(tilesForGroup, existingTiles, targetGroupId);
+          }
         }
       });
     } catch (error) {

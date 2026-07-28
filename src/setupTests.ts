@@ -164,202 +164,29 @@ vi.mock('react-router-dom', async () => {
 });
 
 // Mock i18next
-vi.mock('i18next', () => {
-  const anatomyMappingsEn = {
-    male: {
-      genital: 'dick',
-      hole: 'hole',
-      chest: 'chest',
-      pronoun_subject: 'he',
-      pronoun_object: 'him',
-      pronoun_possessive: 'his',
-      pronoun_reflexive: 'himself',
-    },
-    female: {
-      genital: 'pussy',
-      hole: 'pussy',
-      chest: 'breasts',
-      pronoun_subject: 'she',
-      pronoun_object: 'her',
-      pronoun_possessive: 'her',
-      pronoun_reflexive: 'herself',
-    },
-    'non-binary': {
-      genital: 'genitals',
-      hole: 'hole',
-      chest: 'chest',
-      pronoun_subject: 'they',
-      pronoun_object: 'them',
-      pronoun_possessive: 'their',
-      pronoun_reflexive: 'themselves',
-    },
-  };
+vi.mock('i18next', async () => {
+  // The anatomy namespace is loaded from the real locale files rather than
+  // hand-copied: a mirrored copy silently drifts from src/locales, and every
+  // token added there would otherwise resolve to undefined under test.
+  const { SUPPORTED_LANGUAGES } = await import('@/services/migration/constants');
+
+  const anatomyByLocale = Object.fromEntries(
+    await Promise.all(
+      SUPPORTED_LANGUAGES.map(async (lng) => [
+        lng,
+        { anatomy: (await import(`./locales/${lng}/anatomy.json`)).default },
+      ])
+    )
+  );
 
   const mockTranslationsByLocale: any = {
+    ...anatomyByLocale,
     en: {
       theCurrentPlayer: 'the current player',
       aDominant: 'a dominant',
       aSubmissive: 'a submissive',
       anotherPlayer: 'another player',
-      anatomy: {
-        genericAnatomyTerms: {
-          genital: 'genitals',
-          hole: 'hole',
-          chest: 'chest',
-          pronoun_subject: 'they',
-          pronoun_object: 'them',
-          pronoun_possessive: 'their',
-          pronoun_reflexive: 'themselves',
-        },
-        anatomyMappings: anatomyMappingsEn,
-        straponTerms: {
-          strapon: 'strapon',
-        },
-      },
-    },
-    es: {
-      anatomy: {
-        anatomyMappings: {
-          male: {
-            genital: 'polla',
-            hole: 'agujero',
-            chest: 'pecho',
-            pronoun_subject: 'él',
-            pronoun_object: 'él',
-            pronoun_possessive: 'su',
-            pronoun_reflexive: 'sí mismo',
-          },
-          female: {
-            genital: 'coño',
-            hole: 'coño',
-            chest: 'pechos',
-            pronoun_subject: 'ella',
-            pronoun_object: 'ella',
-            pronoun_possessive: 'su',
-            pronoun_reflexive: 'sí misma',
-          },
-          'non-binary': {
-            genital: 'genitales',
-            hole: 'agujero',
-            chest: 'pecho',
-            pronoun_subject: 'elle',
-            pronoun_object: 'elle',
-            pronoun_possessive: 'su',
-            pronoun_reflexive: 'sí misme',
-          },
-        },
-        straponTerms: {
-          strapon: 'arnés',
-        },
-      },
-    },
-    fr: {
-      anatomy: {
-        anatomyMappings: {
-          male: {
-            genital: 'bite',
-            hole: 'trou',
-            chest: 'torse',
-            pronoun_subject: 'il',
-            pronoun_object: 'lui',
-            pronoun_possessive: 'son',
-            pronoun_reflexive: 'lui-même',
-          },
-          female: {
-            genital: 'chatte',
-            hole: 'chatte',
-            chest: 'seins',
-            pronoun_subject: 'elle',
-            pronoun_object: 'elle',
-            pronoun_possessive: 'sa',
-            pronoun_reflexive: 'elle-même',
-          },
-          'non-binary': {
-            genital: 'organes génitaux',
-            hole: 'trou',
-            chest: 'torse',
-            pronoun_subject: 'iel',
-            pronoun_object: 'iel',
-            pronoun_possessive: 'son',
-            pronoun_reflexive: 'soi-même',
-          },
-        },
-        straponTerms: {
-          strapon: 'gode-ceinture',
-        },
-      },
-    },
-    zh: {
-      anatomy: {
-        anatomyMappings: {
-          male: {
-            genital: '鸡巴',
-            hole: '洞',
-            chest: '胸部',
-            pronoun_subject: '他',
-            pronoun_object: '他',
-            pronoun_possessive: '他的',
-            pronoun_reflexive: '他自己',
-          },
-          female: {
-            genital: '阴蒂',
-            hole: '阴道',
-            chest: '乳房',
-            pronoun_subject: '她',
-            pronoun_object: '她',
-            pronoun_possessive: '她的',
-            pronoun_reflexive: '她自己',
-          },
-          'non-binary': {
-            genital: '生殖器',
-            hole: '洞',
-            chest: '胸部',
-            pronoun_subject: '他们',
-            pronoun_object: '他们',
-            pronoun_possessive: '他们的',
-            pronoun_reflexive: '他们自己',
-          },
-        },
-        straponTerms: {
-          strapon: '假阳具',
-        },
-      },
-    },
-    hi: {
-      anatomy: {
-        anatomyMappings: {
-          male: {
-            genital: 'लिंग',
-            hole: 'छेद',
-            chest: 'छाती',
-            pronoun_subject: 'वह',
-            pronoun_object: 'उसे',
-            pronoun_possessive: 'उसका',
-            pronoun_reflexive: 'स्वयं',
-          },
-          female: {
-            genital: 'योनि',
-            hole: 'योनि',
-            chest: 'स्तन',
-            pronoun_subject: 'वह',
-            pronoun_object: 'उसे',
-            pronoun_possessive: 'उसका',
-            pronoun_reflexive: 'स्वयं',
-          },
-          'non-binary': {
-            genital: 'जननांग',
-            hole: 'छेद',
-            chest: 'छाती',
-            pronoun_subject: 'वे',
-            pronoun_object: 'उन्हें',
-            pronoun_possessive: 'उनका',
-            pronoun_reflexive: 'स्वयं',
-          },
-        },
-        straponTerms: {
-          strapon: 'स्ट्रैपऑन',
-        },
-      },
+      ...anatomyByLocale.en,
     },
   };
 

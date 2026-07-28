@@ -1,6 +1,7 @@
 {
   "genericAnatomyTerms": {
     "genital": "genitals",
+    "tip": "tip",
     "hole": "hole",
     "chest": "chest",
     "pronoun_subject": "they",
@@ -24,6 +25,7 @@
   "anatomyMappings": {
     "male": {
       "genital": "dick",
+      "tip": "tip",
       "hole": "hole",
       "chest": "chest",
       "pronoun_subject": "he",
@@ -33,6 +35,7 @@
     },
     "female": {
       "genital": "pussy",
+      "tip": "clit",
       "hole": "pussy",
       "chest": "breasts",
       "pronoun_subject": "she",
@@ -42,6 +45,7 @@
     },
     "non-binary": {
       "genital": "genitals",
+      "tip": "tip",
       "hole": "hole",
       "chest": "chest",
       "pronoun_subject": "they",
@@ -51,6 +55,7 @@
     }
   },
   "straponTerms": {
-    "strapon": "strapon"
+    "strapon": "strapon",
+    "tip": "tip"
   }
 }

@@ -1,23 +1,23 @@
 {
-  "label": "Oralspiele",
+  "label": "Kehlentraining",
   "type": "sex",
   "dom": "Empfänger/in",
   "sub": "Geber/in",
   "actions": {
     "Lecken": [
       "{sub} leckt {dom}'s {genital}.",
-      "{sub} spielt mit der Spitze von {dom}'s {genital}.",
+      "{sub} spielt mit {dom}'s {tip}.",
       "{sub} badet {dom}'s {genital} mit der Zunge.",
-      "{sub} saugt an der Spitze von {dom}'s {genital}.",
+      "{sub} saugt an {dom}'s {tip}.",
       "{sub} umfährt {dom}'s {genital} mit der Zunge.",
       "{dom} drückt {pronoun_possessive|dom} {genital|dom} mehrmals gegen {sub}'s Gesicht.",
       "{sub} leckt {dom}'s {genital} gründlich.",
-      "{sub} spielt 15 Sekunden lang mit der Spitze von {dom}'s {genital}.",
-      "{sub} benetzt {dom}'s ganzes {genital} mit der Zunge.",
+      "{sub} spielt 15 Sekunden lang mit {dom}'s {tip}.",
+      "{sub} benetzt {dom}'s ganzes {genital|dom} mit der Zunge.",
       "{sub} muss {genital|other} so oft wie möglich lecken, bevor sie an der Reihe sind.",
-      "{dom} lässt alle Oral-Geber/Switcher {pronoun_possessive|dom} {genital} lecken."
+      "{dom} lässt alle Oral-Geber/Switcher {pronoun_possessive|dom} {genital|dom} lecken."
     ],
-    "Oral (Penetrativ)": [
+    "Blasen": [
       "{sub} befriedigt {dom} 10 Sekunden lang oral.",
       "{sub} hält {dom}'s {genital} im Mund, bis {sub} wieder an der Reihe ist.",
       "{dom} stößt in {sub}'s Mund.",
@@ -25,14 +25,14 @@
       "{sub} befriedigt {dom} zwischen kurzen Atemzügen oral. x10. | Runter, Hoch, Atmen. Wiederholen.",
       "{sub} gibt eine Show, wie {pronoun_subject|sub} {dom} oral befriedigt.",
       "{dom} stößt rhythmisch in {sub}'s Mund.",
-      "{sub} spielt während des Oralverkehrs mit der Zungenspitze an der Spitze von {dom}'s {genital}.",
-      "{sub} konzentriert sich 30 Sekunden lang auf die Spitze von {dom}'s {genital}.",
+      "{sub} spielt während des Oralverkehrs mit der Zungenspitze an {dom}'s {tip}.",
+      "{sub} konzentriert sich 30 Sekunden lang auf {dom}'s {tip}.",
       "{sub} befriedigt jeden Spieler oral, bevor {pronoun_subject|sub} wieder an der Reihe ist.",
       "{dom} stößt 30 Sekunden lang in den Mund jedes Spielers.",
       "{sub} macht 69 mit einem Spieler.",
       "{sub} muss so viele Spieler wie möglich oral befriedigen, bevor {pronoun_subject|sub} wieder an der Reihe ist.",
       "{dom} lässt jeden Oral-Geber/Switcher nacheinander {pronoun_object|dom} oral befriedigen.",
-      "{dom} lässt alle Oral-Geber/Switcher {pronoun_possessive|dom} {genital} gleichzeitig stimulieren."
+      "{dom} lässt alle Oral-Geber/Switcher {pronoun_possessive|dom} {genital|dom} gleichzeitig stimulieren."
     ],
     "Tiefes Blasen": [
       "{sub} befriedigt {dom} 5 Sekunden lang mit tiefem Oralsex.",
