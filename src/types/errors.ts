@@ -148,6 +148,18 @@ export function isAccountExistsError(error: unknown): boolean {
 }
 
 /**
+ * The credential linked but the follow-up sign-in did not. The account exists
+ * and owns the original uid, yet the session still carries the anonymous
+ * sign-in provider — so anything gated on that claim (public pack publishing)
+ * would fail. Recovered by signing in, which keeps the uid.
+ */
+export const ACCOUNT_LINKED_NEEDS_SIGNIN = 'ACCOUNT_LINKED_NEEDS_SIGNIN';
+
+export function isLinkedNeedsSignInError(error: unknown): boolean {
+  return getErrorCode(error) === ACCOUNT_LINKED_NEEDS_SIGNIN;
+}
+
+/**
  * Converts Firebase error to user-friendly message
  */
 export function getFirebaseErrorMessage(error: unknown): string {

@@ -26,13 +26,13 @@ import {
   Typography,
 } from '@mui/material';
 import { Add, ArrowBack, Close, Edit, Publish } from '@mui/icons-material';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 import CopyToClipboard from '@/components/CopyToClipboard';
-import AuthDialog, { type AuthOutcome } from '@/components/auth/AuthDialog';
+import type { AuthOutcome } from '@/components/auth/AuthDialog';
 import CustomGroupDialog from '@/views/CustomGroupDialog';
 import {
   buildPackContents,
@@ -43,10 +43,12 @@ import {
   publishPack,
   republishPack,
 } from '@/services/contentPacks';
+import lazyWithRetry from '@/utils/lazyWithRetry';
 import { addCustomTile, getTiles } from '@/stores/customTiles';
 import { getCustomGroups } from '@/stores/customGroups';
 import { validateCustomTileWithGroups } from '@/services/validationService';
 import { normalizePlaceholders } from '@/services/placeholderAliasService';
+import { getErrorCode } from '@/types/errors';
 import { analytics } from '@/services/analytics';
 import useAuth from '@/hooks/useAuth';
 import { deriveContentMode, useGameSettings } from '@/stores/settingsStore';
@@ -54,6 +56,9 @@ import type { ContentGameMode } from '@/types/Settings';
 import { GAME_MODES } from '@/services/migration/constants';
 import type { ContentPackDoc, PackVisibility } from '@/types/contentPacks';
 import type { CustomTile } from '@/types/customTiles';
+
+// Loaded on demand: the account dialog pulls in the whole auth surface.
+const AuthDialog = lazyWithRetry(() => import('@/components/auth/AuthDialog'));
 
 function buildShareLink(packId: string): string {
   const url = new URL(window.location.origin);
@@ -207,6 +212,7 @@ export default function PackCreator() {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [publicRequested, setPublicRequested] = useState(false);
+  const [publicBlocked, setPublicBlocked] = useState(false);
   const [ownershipChanged, setOwnershipChanged] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [shareLink, setShareLink] = useState<string | null>(null);
@@ -244,8 +250,14 @@ export default function PackCreator() {
   const handleAuthSuccess = (outcome: AuthOutcome) => {
     analytics.trackPackEvent('pack_auth_upgraded', { auth_method: outcome });
     setPublicRequested(true);
+    setPublicBlocked(false);
+    setError(null);
     setAuthDialogOpen(false);
   };
+
+  // Offered while the account cannot publish publicly — either it is still
+  // anonymous, or the server just said so despite the client believing otherwise.
+  const showSignInPrompt = isAnonymous || publicBlocked;
 
   const signInPrompt = (
     <Button size="small" onClick={openAuthPrompt}>
@@ -333,6 +345,12 @@ export default function PackCreator() {
       });
       setShareLink(buildShareLink(packId));
     } catch (e) {
+      // A rejected public publish means the session is not permanent as far as
+      // the rules are concerned, whatever the client thinks — re-offer the
+      // account prompt instead of leaving a bare permission error.
+      if (visibility === 'public' && getErrorCode(e) === 'permission-denied') {
+        setPublicBlocked(true);
+      }
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setPublishing(false);
@@ -519,7 +537,7 @@ export default function PackCreator() {
                 </MenuItem>
                 <MenuItem value="private">{t('packs.visibilityPrivate')}</MenuItem>
               </Select>
-              {isAnonymous ? (
+              {showSignInPrompt ? (
                 <>
                   <FormHelperText>{t('packs.anonymousPrivateOnly')}</FormHelperText>
                   {signInPrompt}
@@ -560,7 +578,7 @@ export default function PackCreator() {
               {editingPack &&
                 ` · ${t('packCreator.willBumpVersion', { version: editingPack.packVersion + 1 })}`}
             </Typography>
-            {isAnonymous && signInPrompt}
+            {showSignInPrompt && signInPrompt}
             {shareLink ? (
               <Alert severity="success" sx={{ wordBreak: 'break-all' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -619,12 +637,14 @@ export default function PackCreator() {
 
       {/* Rendered here so authenticating never unmounts the wizard's draft. */}
       {authDialogOpen && (
-        <AuthDialog
-          open={authDialogOpen}
-          close={() => setAuthDialogOpen(false)}
-          initialView="register"
-          onSuccess={handleAuthSuccess}
-        />
+        <Suspense fallback={null}>
+          <AuthDialog
+            open={authDialogOpen}
+            close={() => setAuthDialogOpen(false)}
+            initialView="register"
+            onSuccess={handleAuthSuccess}
+          />
+        </Suspense>
       )}
 
       <CustomGroupDialog

@@ -4,7 +4,7 @@
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ACCOUNT_EXISTS, AuthError } from '@/types/errors';
+import { ACCOUNT_EXISTS, ACCOUNT_LINKED_NEEDS_SIGNIN, AuthError } from '@/types/errors';
 import SocialLoginButtons from '../SocialLoginButtons';
 
 vi.mock('react-i18next', () => ({
@@ -47,6 +47,22 @@ describe('SocialLoginButtons', () => {
 
     await waitFor(() => expect(mockAuth.loginGoogle).toHaveBeenCalled());
     expect(mockAuth.linkGoogle).not.toHaveBeenCalled();
+    expect(onSuccess).toHaveBeenCalledWith('signedIn');
+  });
+
+  it('offers a plain sign-in when the link landed but the session did not', async () => {
+    mockAuth.linkGoogle.mockRejectedValue(
+      new AuthError('Network error', ACCOUNT_LINKED_NEEDS_SIGNIN)
+    );
+    const onSuccess = vi.fn();
+    render(<SocialLoginButtons onSuccess={onSuccess} isLinking />);
+
+    fireEvent.click(screen.getByText('Link with Google'));
+
+    await screen.findByText('accountLinkedFinishSignIn');
+    fireEvent.click(screen.getByText('Sign in with Google'));
+
+    await waitFor(() => expect(mockAuth.loginGoogle).toHaveBeenCalled());
     expect(onSuccess).toHaveBeenCalledWith('signedIn');
   });
 

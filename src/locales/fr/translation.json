@@ -732,7 +732,6 @@
     "visibilityPrivate": "Privé — partager par lien uniquement",
     "publicHelper": "Les packs publics apparaissent dans le répertoire et peuvent être signalés et supprimés.",
     "anonymousPrivateOnly": "Créez un compte permanent pour publier des packs publics. Les comptes anonymes peuvent partager des packs privés par lien.",
-    "publicNeedsAccount": "Liez votre compte pour publier des packs publics.",
     "publish": "Publier le pack",
     "fromPack": "De {{name}}",
     "invalidPack": "Ce pack n'a pas pu être lu.",
@@ -902,5 +901,6 @@
   "buildingBoard": "Création du plateau…",
   "accountExistsUseSignIn": "Un compte existe déjà avec cette adresse e-mail. Connectez-vous à ce compte — vos actions enregistrées restent sur cet appareil, mais les packs publiés en tant qu'invité restent liés au compte invité.",
   "signInInstead": "Se connecter à la place",
-  "signInSwitchesAccount": "La connexion vous fait passer à ce compte. Vos actions enregistrées restent sur cet appareil, mais les packs publiés en tant qu'invité restent liés au compte invité."
+  "signInSwitchesAccount": "La connexion vous fait passer à ce compte. Vos actions enregistrées restent sur cet appareil, mais les packs publiés en tant qu'invité restent liés au compte invité.",
+  "accountLinkedFinishSignIn": "Votre compte a été créé, mais cette session doit encore être connectée. Connectez-vous pour terminer — vos données restent sur le même compte."
 }

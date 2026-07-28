@@ -4,7 +4,7 @@
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ACCOUNT_EXISTS, AuthError } from '@/types/errors';
+import { ACCOUNT_EXISTS, ACCOUNT_LINKED_NEEDS_SIGNIN, AuthError } from '@/types/errors';
 import CreateAccount from '../CreateAccount';
 
 vi.mock('react-i18next', () => ({
@@ -90,6 +90,22 @@ describe('CreateAccount', () => {
     fireEvent.click(screen.getByText('signInInstead'));
     // Hands the typed email to the login view so they do not retype it.
     expect(onSwitchToLogin).toHaveBeenCalledWith('taken@example.com');
+  });
+
+  it('steers to sign-in when the link landed but the session did not', async () => {
+    mockAuth.convertToRegistered.mockRejectedValue(
+      new AuthError('Too many login attempts', ACCOUNT_LINKED_NEEDS_SIGNIN)
+    );
+    const onSwitchToLogin = vi.fn();
+    render(<CreateAccount onSwitchToLogin={onSwitchToLogin} isAnonymous />);
+
+    fillForm({ email: 'half@example.com' });
+    fireEvent.click(screen.getByText('linkAccount'));
+
+    // Distinct copy: the account exists now, only the session is unfinished.
+    await screen.findByText('accountLinkedFinishSignIn');
+    fireEvent.click(screen.getByText('signInInstead'));
+    expect(onSwitchToLogin).toHaveBeenCalledWith('half@example.com');
   });
 
   it('shows an ordinary error without the sign-in offer', async () => {

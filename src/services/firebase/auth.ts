@@ -5,6 +5,7 @@
 import { logger } from '@/utils/logger';
 import {
   ACCOUNT_EXISTS,
+  ACCOUNT_LINKED_NEEDS_SIGNIN,
   AuthError,
   createStandardError,
   getFirebaseErrorMessage,
@@ -148,6 +149,22 @@ function conversionError(error: unknown): AuthError {
 }
 
 /**
+ * The link landed but the re-auth did not. Reported separately because the
+ * account now exists: retrying the link would fail, and the fix is a sign-in.
+ * Left unresolved, `user.isAnonymous` reads false while the token still says
+ * 'anonymous', which is exactly the mismatch that makes a public publish look
+ * available and then get rejected.
+ */
+function postLinkSignInError(error: unknown): AuthError {
+  logger.error('Post-link sign-in error', error);
+  return new AuthError(
+    getFirebaseErrorMessage(error),
+    ACCOUNT_LINKED_NEEDS_SIGNIN,
+    createStandardError(error)
+  );
+}
+
+/**
  * Upgrade the anonymous account in place, preserving its uid so content it
  * already published stays reachable.
  *
@@ -163,17 +180,21 @@ export async function convertAnonymousAccount(
   displayName = ''
 ): Promise<User> {
   const user = requireAnonymousUser();
+  const auth = getAuth();
   try {
-    const auth = getAuth();
     const credential = EmailAuthProvider.credential(email, password);
     await linkWithCredential(user, credential);
+  } catch (error) {
+    throw conversionError(error);
+  }
+  try {
     const reauthenticated = await signInWithEmailAndPassword(auth, email, password);
     if (displayName && displayName !== reauthenticated.user.displayName) {
       await updateProfile(reauthenticated.user, { displayName });
     }
     return reauthenticated.user;
   } catch (error) {
-    throw conversionError(error);
+    throw postLinkSignInError(error);
   }
 }
 
@@ -183,15 +204,22 @@ export async function convertAnonymousAccount(
  */
 export async function linkGoogleAccount(): Promise<User> {
   const user = requireAnonymousUser();
+  const auth = getAuth();
+  let result: Awaited<ReturnType<typeof linkWithPopup>>;
   try {
-    const auth = getAuth();
-    const result = await linkWithPopup(user, new GoogleAuthProvider());
+    result = await linkWithPopup(user, new GoogleAuthProvider());
+  } catch (error) {
+    throw conversionError(error);
+  }
+  try {
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    if (!credential) return result.user;
+    if (!credential) {
+      throw new Error('Google link returned no credential to re-authenticate with');
+    }
     const reauthenticated = await signInWithCredential(auth, credential);
     return reauthenticated.user;
   } catch (error) {
-    throw conversionError(error);
+    throw postLinkSignInError(error);
   }
 }
 

@@ -3,7 +3,7 @@ import { Box, Button, Divider, Typography, Alert, CircularProgress } from '@mui/
 import GoogleIcon from '@mui/icons-material/Google';
 import { Trans } from 'react-i18next';
 import { t } from 'i18next';
-import { getErrorMessage, isAccountExistsError } from '@/types/errors';
+import { getErrorMessage, isAccountExistsError, isLinkedNeedsSignInError } from '@/types/errors';
 import useAuth from '@/hooks/useAuth';
 import type { AuthOutcome } from './AuthDialog';
 
@@ -18,12 +18,13 @@ export default function SocialLoginButtons({
 }: SocialLoginButtonsProps): JSX.Element {
   const { loginGoogle, linkGoogle } = useAuth();
   const [error, setError] = useState<string>('');
-  const [alreadyLinked, setAlreadyLinked] = useState<boolean>(false);
+  // 'exists': the Google account owns its own user, so linking is off the table.
+  // 'linked': the link landed but the session did not — signing in finishes it.
+  // Either way a plain sign-in is the only route forward.
+  const [signInOnly, setSignInOnly] = useState<'exists' | 'linked' | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Once the Google account turns out to own its own user, linking is off the
-  // table and the only route forward is a plain sign-in into that account.
-  const linkable = isLinking && !alreadyLinked;
+  const linkable = isLinking && signInOnly === null;
 
   const handleGoogleLogin = async () => {
     setError('');
@@ -39,7 +40,9 @@ export default function SocialLoginButtons({
       }
     } catch (err: unknown) {
       if (isAccountExistsError(err)) {
-        setAlreadyLinked(true);
+        setSignInOnly('exists');
+      } else if (isLinkedNeedsSignInError(err)) {
+        setSignInOnly('linked');
       } else {
         setError(getErrorMessage(err));
       }
@@ -55,9 +58,9 @@ export default function SocialLoginButtons({
           {error}
         </Alert>
       )}
-      {alreadyLinked && (
+      {signInOnly && (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          {t('accountExistsUseSignIn')}
+          {signInOnly === 'linked' ? t('accountLinkedFinishSignIn') : t('accountExistsUseSignIn')}
         </Alert>
       )}
       <Divider sx={{ mb: 2 }}>

@@ -2,7 +2,7 @@ import { logger } from '@/utils/logger';
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { Box, Button, TextField, Typography, Alert, CircularProgress } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
-import { getErrorMessage, isAccountExistsError } from '@/types/errors';
+import { getErrorMessage, isAccountExistsError, isLinkedNeedsSignInError } from '@/types/errors';
 import useAuth from '@/hooks/useAuth';
 import type { AuthOutcome } from './AuthDialog';
 
@@ -26,13 +26,19 @@ export default function CreateAccount({
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
-  const [takenEmail, setTakenEmail] = useState<string>('');
+  // Both reasons resolve the same way — sign in — but say different things:
+  // 'exists' means the email was never ours, 'linked' means it is ours now and
+  // only the session needs finishing.
+  const [signInOffer, setSignInOffer] = useState<{
+    email: string;
+    reason: 'exists' | 'linked';
+  } | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
-    setTakenEmail('');
+    setSignInOffer(null);
 
     if (password !== confirmPassword) {
       setError(t('passwordsDoNotMatch'));
@@ -56,7 +62,12 @@ export default function CreateAccount({
       // another account — signing into it is the only way forward, and that is
       // an ordinary outcome rather than a failure worth logging.
       if (isAccountExistsError(err)) {
-        setTakenEmail(email.trim());
+        setSignInOffer({ email: email.trim(), reason: 'exists' });
+      } else if (isLinkedNeedsSignInError(err)) {
+        // The account was created; only the session is unfinished. Steering
+        // them to sign in is mandatory, not a nicety — the half-upgraded
+        // session reads as permanent while its token still says anonymous.
+        setSignInOffer({ email: email.trim(), reason: 'linked' });
       } else {
         logger.error('Registration error:', err);
         setError(getErrorMessage(err));
@@ -74,17 +85,19 @@ export default function CreateAccount({
         </Alert>
       )}
 
-      {takenEmail && (
+      {signInOffer && (
         <Alert
           severity="warning"
           sx={{ mb: 2 }}
           action={
-            <Button color="inherit" size="small" onClick={() => onSwitchToLogin(takenEmail)}>
+            <Button color="inherit" size="small" onClick={() => onSwitchToLogin(signInOffer.email)}>
               {t('signInInstead')}
             </Button>
           }
         >
-          {t('accountExistsUseSignIn')}
+          {signInOffer.reason === 'linked'
+            ? t('accountLinkedFinishSignIn')
+            : t('accountExistsUseSignIn')}
         </Alert>
       )}
 

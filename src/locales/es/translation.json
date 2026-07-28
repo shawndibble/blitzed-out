@@ -732,7 +732,6 @@
     "visibilityPrivate": "Privado — compartir solo por enlace",
     "publicHelper": "Los paquetes públicos aparecen en el directorio y pueden ser reportados y eliminados.",
     "anonymousPrivateOnly": "Crea una cuenta permanente para publicar paquetes públicos. Las cuentas anónimas pueden compartir paquetes privados por enlace.",
-    "publicNeedsAccount": "Vincula tu cuenta para publicar paquetes públicos.",
     "publish": "Publicar paquete",
     "fromPack": "De {{name}}",
     "invalidPack": "No se pudo leer este paquete.",
@@ -902,5 +901,6 @@
   "buildingBoard": "Creando el tablero…",
   "accountExistsUseSignIn": "Ya existe una cuenta con este correo. Inicia sesión en ella — tus acciones guardadas permanecen en este dispositivo, pero los paquetes que publicaste como invitado se quedan con la cuenta de invitado.",
   "signInInstead": "Iniciar sesión en su lugar",
-  "signInSwitchesAccount": "Al iniciar sesión cambiarás a esa cuenta. Tus acciones guardadas permanecen en este dispositivo, pero los paquetes que publicaste como invitado se quedan con la cuenta de invitado."
+  "signInSwitchesAccount": "Al iniciar sesión cambiarás a esa cuenta. Tus acciones guardadas permanecen en este dispositivo, pero los paquetes que publicaste como invitado se quedan con la cuenta de invitado.",
+  "accountLinkedFinishSignIn": "Tu cuenta se creó, pero esta sesión aún necesita iniciar sesión. Inicia sesión para terminar — tus datos permanecen en la misma cuenta."
 }

@@ -732,7 +732,6 @@
     "visibilityPrivate": "私密 — 仅通过链接分享",
     "publicHelper": "公开内容包会显示在目录中，并且可能被举报和移除。",
     "anonymousPrivateOnly": "创建永久账户以发布公开内容包。匿名账户仍可通过链接分享私密内容包。",
-    "publicNeedsAccount": "关联你的账户以发布公开内容包。",
     "publish": "发布内容包",
     "fromPack": "来自 {{name}}",
     "invalidPack": "无法读取此内容包。",
@@ -902,5 +901,6 @@
   "buildingBoard": "正在生成棋盘…",
   "accountExistsUseSignIn": "该邮箱已有账户。请直接登录该账户 — 你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。",
   "signInInstead": "改为登录",
-  "signInSwitchesAccount": "登录会切换到该账户。你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。"
+  "signInSwitchesAccount": "登录会切换到该账户。你保存的动作仍留在此设备上，但以访客身份发布的内容包会留在访客账户中。",
+  "accountLinkedFinishSignIn": "账户已创建，但当前会话仍需登录。请登录以完成 — 你的数据仍属于同一个账户。"
 }

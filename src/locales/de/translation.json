@@ -732,7 +732,6 @@
     "visibilityPrivate": "Privat — nur per Link teilen",
     "publicHelper": "Öffentliche Pakete erscheinen im Verzeichnis und können gemeldet und entfernt werden.",
     "anonymousPrivateOnly": "Erstelle ein dauerhaftes Konto, um öffentliche Pakete zu veröffentlichen. Anonyme Konten können private Pakete per Link teilen.",
-    "publicNeedsAccount": "Verknüpfe dein Konto, um öffentliche Pakete zu veröffentlichen.",
     "publish": "Paket veröffentlichen",
     "fromPack": "Aus {{name}}",
     "invalidPack": "Dieses Paket konnte nicht gelesen werden.",
@@ -902,5 +901,6 @@
   "buildingBoard": "Brett wird erstellt…",
   "accountExistsUseSignIn": "Mit dieser E-Mail existiert schon ein Konto. Melde dich stattdessen dort an — deine gespeicherten Aktionen bleiben auf diesem Gerät, aber als Gast veröffentlichte Pakete bleiben beim Gastkonto.",
   "signInInstead": "Stattdessen anmelden",
-  "signInSwitchesAccount": "Beim Anmelden wechselst du zu diesem Konto. Deine gespeicherten Aktionen bleiben auf diesem Gerät, aber als Gast veröffentlichte Pakete bleiben beim Gastkonto."
+  "signInSwitchesAccount": "Beim Anmelden wechselst du zu diesem Konto. Deine gespeicherten Aktionen bleiben auf diesem Gerät, aber als Gast veröffentlichte Pakete bleiben beim Gastkonto.",
+  "accountLinkedFinishSignIn": "Dein Konto wurde erstellt, aber diese Sitzung muss noch angemeldet werden. Melde dich an, um abzuschließen — deine Daten bleiben beim selben Konto."
 }

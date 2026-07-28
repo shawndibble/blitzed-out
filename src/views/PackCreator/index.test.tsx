@@ -161,7 +161,7 @@ describe('PackCreator', () => {
     fireEvent.click(screen.getByText('packs.signInToPublish'));
     expect(analytics.trackPackEvent).toHaveBeenCalledWith('pack_auth_prompt_clicked');
 
-    fireEvent.click(screen.getByText('finish-link'));
+    fireEvent.click(await screen.findByText('finish-link'));
 
     // Dialog closed, visibility switched to public without leaving the step.
     await waitFor(() => expect(screen.queryByText('finish-link')).toBeNull());
@@ -174,6 +174,32 @@ describe('PackCreator', () => {
 
     await waitFor(() => expect(mockPublish).toHaveBeenCalled());
     expect(mockPublish.mock.calls[0][0].visibility).toBe('public');
+  });
+
+  it('re-offers the account prompt when the server rejects a public publish', async () => {
+    // The client can believe an account is permanent while its token still
+    // carries the anonymous provider (a link whose re-auth failed). The server
+    // is the authority, so its rejection has to lead somewhere.
+    mockAuth.isAnonymous = false;
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockPublish.mockRejectedValueOnce(
+      Object.assign(new Error('Missing or insufficient permissions'), {
+        code: 'permission-denied',
+      })
+    );
+
+    renderCreator();
+
+    fireEvent.click(await screen.findByText('My Group'));
+    fireEvent.click(screen.getByText('next'));
+    // Permanent account: no prompt until the server says otherwise.
+    expect(screen.queryByText('packs.signInToPublish')).toBeNull();
+    fireEvent.change(screen.getByLabelText('packs.name'), { target: { value: 'Party Pack' } });
+    fireEvent.click(screen.getByText('next'));
+    fireEvent.click(screen.getByText('packs.publish'));
+
+    await screen.findByText('packs.signInToPublish');
+    consoleSpy.mockRestore();
   });
 
   it('stops republishing a pack owned by the account that was signed out of', async () => {
@@ -200,7 +226,7 @@ describe('PackCreator', () => {
     fireEvent.click(await screen.findByText('next'));
 
     fireEvent.click(screen.getByText('packs.signInToPublish'));
-    fireEvent.click(screen.getByText('finish-signin'));
+    fireEvent.click(await screen.findByText('finish-signin'));
 
     // The loaded pack belongs to the previous uid, so republishing is off.
     await screen.findByText('packCreator.newAccountOwnership');

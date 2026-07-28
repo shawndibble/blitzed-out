@@ -732,7 +732,6 @@
     "visibilityPrivate": "Private — share by link only",
     "publicHelper": "Public packs appear in the directory and can be reported and removed.",
     "anonymousPrivateOnly": "Create a permanent account to publish public packs. Anonymous accounts can still share private packs by link.",
-    "publicNeedsAccount": "Link your account to publish public packs.",
     "publish": "Publish pack",
     "fromPack": "From {{name}}",
     "invalidPack": "This pack could not be read.",
@@ -902,5 +901,6 @@
   "buildingBoard": "Building board…",
   "accountExistsUseSignIn": "An account with this email already exists. Sign in to it instead — your saved actions stay on this device, but packs you published as a guest stay with the guest account.",
   "signInInstead": "Sign in instead",
-  "signInSwitchesAccount": "Signing in switches to that account. Your saved actions stay on this device, but packs you published as a guest stay with the guest account."
+  "signInSwitchesAccount": "Signing in switches to that account. Your saved actions stay on this device, but packs you published as a guest stay with the guest account.",
+  "accountLinkedFinishSignIn": "Your account was created, but this session still needs to be signed in. Sign in to finish — your data stays with the same account."
 }

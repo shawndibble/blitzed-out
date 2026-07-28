@@ -283,6 +283,31 @@ describe('Firebase Authentication Service', () => {
       consoleSpy.mockRestore();
     });
 
+    it('reports a failed post-link sign-in distinctly from a failed link', async () => {
+      const { convertAnonymousAccount } = await import('../firebase/auth');
+      const { ACCOUNT_LINKED_NEEDS_SIGNIN, isLinkedNeedsSignInError } =
+        await import('@/types/errors');
+
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      // @ts-expect-error Mock assignment to readonly property for testing
+      mockAuth.currentUser = mockAnonymousUser;
+      mockEmailAuthProvider.credential.mockReturnValue({ providerId: 'password' });
+      mockLinkWithCredential.mockResolvedValue({ user: mockUser });
+      // The link landed; only the re-auth failed. The account now exists, so
+      // retrying the link is wrong — the caller must steer to a sign-in.
+      mockSignInWithEmailAndPassword.mockRejectedValue(
+        Object.assign(new Error('too many attempts'), { code: 'auth/too-many-requests' })
+      );
+
+      const error = await convertAnonymousAccount('test@example.com', 'password123').catch(
+        (e) => e
+      );
+
+      expect(error.code).toBe(ACCOUNT_LINKED_NEEDS_SIGNIN);
+      expect(isLinkedNeedsSignInError(error)).toBe(true);
+      consoleSpy.mockRestore();
+    });
+
     it('links Google in place and re-signs in with the popup credential', async () => {
       const { linkGoogleAccount } = await import('../firebase/auth');
       const { linkWithPopup, signInWithCredential, GoogleAuthProvider } =
