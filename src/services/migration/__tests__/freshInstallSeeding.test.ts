@@ -174,6 +174,18 @@ describe('fresh install seeding (real Dexie + real bundles)', () => {
       expect(await db.customTiles.get(customId)).toBeDefined();
     }, 15000);
 
+    it('leaves groups the bundle did not change alone', async () => {
+      // The prune runs for every group on every re-seed, not just the one
+      // whose content moved.
+      await migrateCurrentLanguage('en');
+      const before = await db.customTiles.count();
+
+      pretendSeededOnOlderVersion();
+      await migrateCurrentLanguage('en');
+
+      expect(await db.customTiles.count()).toBe(before);
+    }, 15000);
+
     it('renames the Oral Play intensity ladder in place', async () => {
       await migrateCurrentLanguage('en');
       const group = await throatTrainingGroup();
