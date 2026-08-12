@@ -13,7 +13,7 @@ Companion to [README.md](README.md). This is the "how the system is built" view.
 | Client state       | Zustand 5 (`src/stores/`)                                                                                    |
 | Local persistence  | Dexie 4 over IndexedDB (`src/stores/store.ts`) + `dexie-react-hooks`                                         |
 | Cloud              | Firebase 12: Auth, Firestore, Realtime Database, Storage, Cloud Functions                                    |
-| Realtime media     | `simple-peer` (WebRTC) signalled over Firebase RTDB                                                          |
+| Realtime media     | native `RTCPeerConnection` (perfect negotiation) behind `services/peerTransport.ts`, signalled over RTDB     |
 | i18n               | i18next + `react-i18next`, lazy resources, 6 locales; `services/locale.ts` is the seam                       |
 | Routing            | `react-router-dom` 7                                                                                         |
 | Errors/telemetry   | Sentry (`@sentry/react`), custom analytics wrapper                                                           |

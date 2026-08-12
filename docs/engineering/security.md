@@ -71,9 +71,12 @@ Top-level defaults deny (`".read": false, ".write": false`) — good baseline. T
 **Key weaknesses:**
 
 1. **Presence is world-readable** (`users/.read: true`): anyone can enumerate display names, which room each user is in, and `lastSeen`. Privacy gap for an adult app. Hardening: scope reads to authenticated users / own record.
-2. **Signaling writes aren't scoped to the target** (`offers/answers/ice-candidates` write = `auth != null`). A malicious authed user can spam bogus offers/answers/candidates into another user's signaling path. Impact is limited (reads _are_ target-scoped, so they can't intercept responses), but it enables signaling-channel griefing. Hardening: require `auth.uid == $targetUserId` or validate the `from` field.
+2. **Signaling writes aren't scoped to the target** (`offers/answers/ice-candidates` write = `auth != null`). A malicious authed user can spam bogus offers/answers/candidates into another user's signaling path. Impact on _confidentiality_ is limited (reads _are_ target-scoped, so they can't intercept responses), but it enables signaling-channel griefing. Note the write cannot simply be narrowed to `auth.uid == $targetUserId`: signaling requires writing **into the other party's** inbox, and under perfect negotiation both sides may write offers. Hardening is a `from`-field validation on push plus an owner-only delete.
+3. **Any authed user can wipe another room's signaling queues** — the same `auth != null` write, exercised as a delete. `.validate` only runs against `newData`, and a delete has no `newData`, so the `from == auth.uid` check cannot reject it. Any signed-in stranger who knows a room ID can therefore clear `offers/answers/ice-candidates` for its participants: a trivial call-breaking DoS, distinct from the spam-in case above. Asserted as current behaviour (and marked ⚠) in `tests/database.rules.spec.ts`. Hardening: require `newData.exists()` for writes below the inbox and restrict deletes to the owning uid.
 
-**Fixed 2026-08:** `video-calls/$roomId` previously carried `".read": "auth != null"`. RTDB read grants cascade downward and **cannot be revoked by a stricter rule on a child**, so the per-target reads on `offers`/`answers`/`ice-candidates` were dead code and any authenticated user could read every room's signaling traffic. The ancestor grant is gone; reads are now granted only on `users` (the roster, which every participant needs) and per-target under the three signaling nodes. There is no RTDB rules test harness — `npm run test:rules` covers Firestore only — so **changes here must be checked by grepping every `video-calls/` read path in `src/`**.
+**Fixed 2026-08:** `video-calls/$roomId` previously carried `".read": "auth != null"`. RTDB read grants cascade downward and **cannot be revoked by a stricter rule on a child**, so the per-target reads on `offers`/`answers`/`ice-candidates` were dead code and any authenticated user could read every room's signaling traffic. The ancestor grant is gone; reads are now granted only on `users` (the roster, which every participant needs) and per-target under the three signaling nodes.
+
+**RTDB rules are now covered by tests:** `npm run test:rules:db` runs `tests/database.rules.spec.ts` against the `database` emulator (`vitest.database.rules.config.ts`; the emulator is declared in `firebase.json` on port **9002**, because 9000 is commonly taken by `php-fpm`). The suite opens with a canary that fails if the ruleset loaded permissive _or_ deny-everything, and it was mutation-checked by temporarily re-introducing the cascading-read regression above — which produced exactly the 6 expected failures. Rules the suite records as ⚠ are asserted **as they currently behave**, not as they should; see weaknesses 2 and 3.
 
 ---
 
@@ -87,7 +90,11 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 9 exported functions: scheduled cleanups (stale users ~5 min, inactive anonymous accounts daily, video-call signaling + stale roster entries ~5 min), RTDB presence triggers (`onUserDisconnect`, presence validation), a pack-report notification, two **callable** admin helpers, and `getTurnCredentials`.
 
-**`getTurnCredentials`** — mints Cloudflare TURN credentials (2h TTL, 10s upstream budget, 30s function timeout so a hung call returns a real error rather than a platform timeout with no CORS headers) from the `CLOUDFLARE_TURN_TOKEN` secret. Not admin-gated: any signed-in caller may use it, but only for a room where they already hold a `video-calls/{roomId}/users/{uid}` presence node. That check is the spend control — relay bandwidth bills to us and anonymous guest accounts are free to create, so `context.auth` alone would gate nothing. **No App Check and no rate limit**: a caller who joins a room can still mint repeatedly. Hardening: App Check, plus a per-uid rate limit.
+**`getTurnCredentials`** — mints Cloudflare TURN credentials (2h TTL, 10s upstream budget, 30s function timeout so a hung call returns a real error rather than a platform timeout with no CORS headers) from the `CLOUDFLARE_TURN_TOKEN` secret. Not admin-gated: any signed-in caller may use it, but only for a room where they already hold a `video-calls/{roomId}/users/{uid}` presence node. That check is the first spend control — relay bandwidth bills to us and anonymous guest accounts are free to create, so `context.auth` alone would gate nothing.
+
+**Per-uid rate limit** (`functions/src/rateLimit.ts`): **60 mints per 10-minute window**, enforced after the presence check and before any Cloudflare call. `rate-limits/{uid}` holds one document per user with a `{ count, windowStartedAt }` bucket per action; the collection is `allow read, write: if false` in `firestore.rules`, so only the admin SDK touches it. Read-decide-write runs in a transaction — a bare `FieldValue.increment` would make the write atomic but not the _decision_. Blocked calls write nothing and raise `resource-exhausted` with `retryAfterMs`. Two deliberate choices: the quota is **generous** (steady state is ~1 mint per tab per 110 min; the worst legitimate case, a full retry storm across all 4 peers, is 24 mints in ~57s) because a false block breaks webcam calls, and the gate **fails open** if Firestore is unavailable, so a Firestore blip cannot take video down globally. Note what this does _not_ do: one credential relays unlimited bytes for its 2h TTL, so the cap bounds how widely an account can redistribute credentials, not bandwidth.
+
+**App Check is staged but inert** (`functions/src/appCheck.ts`): `APP_CHECK_ENFORCED = false`, with a soft observer that logs when a verified token arrives. Enforcement must not be switched on until reCAPTCHA v3 is registered in the Firebase console **and** the client calls `initializeAppCheck` — otherwise every `getTurnCredentials` call 403s and webcam breaks. The `ttl` field on rate-limit docs is likewise inert until a TTL policy is configured on the collection. Order: register reCAPTCHA → App Check (leave Unenforced) → add a debug token for local dev → ship client wiring → confirm the observer logs for real traffic → flip the constant and redeploy the callable.
 
 **Admin callables** — `manualCleanupStaleUsers` and `manualCleanupAnonymousAccounts`:
 
@@ -133,7 +140,8 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 - HTTPS everywhere (GitHub Pages + Firebase); data encrypted at rest by Firebase.
 - Owner-scoped `user-data`; storage default-deny; RTDB top-level default-deny.
 - Message create is field-validated and length-capped; boards/custom-actions are create-only with TTL cleanup, size-capped, and field-locked.
-- Firestore rules are covered by emulator-backed tests (`npm run test:rules`).
+- Firestore **and** RTDB rules are covered by emulator-backed tests (`npm run test:rules`, `npm run test:rules:db`).
+- `getTurnCredentials` is presence-gated and rate-limited per uid; the Cloudflare token stays in Secret Manager.
 - No `eval`/`Function` constructors, no `dangerouslySetInnerHTML` in app code, safe markdown.
 
 ---
@@ -142,9 +150,11 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 1. **Enforce room membership in `chat-rooms` rules** (read + write) — highest-value fix; today private rooms are obscurity-only.
 2. **Scope RTDB presence reads** (`users`) to auth/own record.
-3. **Scope signaling writes** to the target user (or validate `from`).
-4. **Make admin-callable gating consistent**, add rate limiting.
-5. Sanitize/normalize display names; add a privacy notice + analytics opt-out.
+3. **Stop authed strangers deleting a room's signaling inboxes** (require `newData.exists()`; owner-only delete) — a one-line DoS today, now pinned by a rules test.
+4. **Validate `from` on signaling writes** (the write itself must stay open — both parties write into each other's inboxes).
+5. **Finish App Check on `getTurnCredentials`**: console setup + client `initializeAppCheck`, then flip `APP_CHECK_ENFORCED`.
+6. **Make admin-callable gating consistent**; extend the per-uid limiter to the other callables (`appCheckRuntimeOptions()` and `enforceRateLimit` are reusable).
+7. Sanitize/normalize display names; add a privacy notice + analytics opt-out (GA4 loads unconditionally today, with no consent gate and no policy in the repo).
 
 ## Known benign console warnings
 
