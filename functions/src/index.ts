@@ -284,8 +284,13 @@ export const cleanupInactiveAnonymousAccounts = functions.pubsub
  * Scheduled function to clean up stale video call signaling data
  * Runs every 5 minutes and removes offers, answers, and ICE candidates older than 2 minutes
  */
-export const cleanupVideoCallSignaling = functions.pubsub
-  .schedule('every 5 minutes')
+export const cleanupVideoCallSignaling = functions
+  // Ghost pruning re-reads each candidate in its own transaction, so the round
+  // trips scale with ghost count. The default 60s would abandon the sweep
+  // mid-pass, and it always restarts at the first room, so rooms late in
+  // iteration order would never be reached.
+  .runWith({ timeoutSeconds: 300 })
+  .pubsub.schedule('every 5 minutes')
   .onRun(async () => {
     const db = getDatabase();
     const twoMinutesAgo = Date.now() - 2 * 60 * 1000; // 2 minutes in milliseconds
@@ -362,14 +367,26 @@ export const cleanupVideoCallSignaling = functions.pubsub
           }
         }
 
-        // Check if room has any active users
-        const hasActiveUsers = roomData.users && Object.keys(roomData.users).length > 0;
+        // The local copy says the room is empty, but it descends from the one
+        // up-front read of `video-calls` and this loop has been awaiting its way
+        // through the rooms since — a user who joined a ghost-only room in the
+        // meantime is not in it. Deciding the delete from that copy would wipe
+        // their presence and their queued offers, which surfaces to them as the
+        // original bug: their own preview and nobody else. Re-read inside a
+        // transaction so an occupied room is spared, whatever the snapshot said.
+        if (!roomData.users || Object.keys(roomData.users).length === 0) {
+          const { committed } = await db
+            .ref(`video-calls/${roomId}`)
+            .transaction((current: any) => {
+              if (current === null) return undefined; // already gone
+              if (current.users && Object.keys(current.users).length > 0) return undefined;
+              return null;
+            });
 
-        // If no active users, delete the entire room
-        if (!hasActiveUsers) {
-          await db.ref(`video-calls/${roomId}`).remove();
-          functions.logger.info(`Removed empty video call room: ${roomId}`);
-          totalCleaned++;
+          if (committed) {
+            functions.logger.info(`Removed empty video call room: ${roomId}`);
+            totalCleaned++;
+          }
           continue;
         }
 

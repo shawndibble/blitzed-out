@@ -1,12 +1,16 @@
 import { CandidateTypes, selectCandidateTypes } from '@/services/candidatePair';
-import type { PeerSignal, PeerTransport, PeerTransportOptions } from '@/services/peerTransport';
+import type {
+  PeerSignal,
+  PeerTransport,
+  PeerTransportOptions,
+} from '@/services/ports/PeerTransportPort';
 import { logger } from '@/utils/logger';
 
 interface OfferDecision {
   /** True when this side is mid-offer or otherwise not ready to take one. */
   polite: boolean;
   makingOffer: boolean;
-  signalingState: string;
+  signalingState: RTCSignalingState;
   settingRemoteAnswer: boolean;
   type: 'offer' | 'answer';
 }

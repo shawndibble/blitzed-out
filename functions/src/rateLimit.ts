@@ -116,15 +116,31 @@ export async function consumeRateLimit(
 }
 
 /**
+ * Transaction failures that mean *this uid is hammering its own counter*, rather
+ * than Firestore being unwell. Every call for one uid contends on one document,
+ * so a burst is precisely what exhausts the transaction's internal retries.
+ */
+const CONTENTION_CODES = new Set(['aborted', 'failed-precondition', 'deadline-exceeded']);
+
+function isContention(error: unknown): boolean {
+  const code = (error as { code?: unknown })?.code;
+  return (
+    typeof code === 'string' && CONTENTION_CODES.has(code.replace(/^\d+\s+/, '').toLowerCase())
+  );
+}
+
+/**
  * Rate-limit gate for a callable: throws `resource-exhausted` when the caller is
  * over quota, returns normally otherwise.
  *
- * **Fails open.** If Firestore itself is unavailable this allows the call. The
- * guard exists to bound a spend risk; letting it become an availability risk of
- * its own would be a strictly worse trade — a Firestore blip would otherwise
- * turn every TURN mint into an error and take webcam down globally, which is the
- * failure this whole branch exists to stop happening again. Only a *successful*
- * over-quota evaluation blocks.
+ * **Fails open on infrastructure, closed on contention.** A Firestore outage must
+ * not turn every TURN mint into an error and take webcam down globally — that is
+ * the failure this whole branch exists to stop repeating — so an unavailable
+ * backend allows the call. Contention is the opposite case: it is *caused* by the
+ * burst being limited, and failing open there would make the bypass rate climb
+ * with attack parallelism, which is exactly backwards. Blocking is cheap for a
+ * real user because `resolveIceServers` falls back to the bundled relay on any
+ * mint failure, so a false block costs relay quality, never the call.
  */
 export async function enforceRateLimit(
   uid: string,
@@ -135,6 +151,14 @@ export async function enforceRateLimit(
   try {
     decision = await consumeRateLimit(uid, action, policy);
   } catch (error) {
+    if (isContention(error)) {
+      functions.logger.warn('Rate limit contention; blocking the call', { uid, action });
+      throw new functions.https.HttpsError(
+        'resource-exhausted',
+        'Too many requests. Try again shortly.',
+        { retryAfterMs: policy.windowMs }
+      );
+    }
     functions.logger.warn('Rate limit check failed; allowing the call', { uid, action, error });
     return;
   }

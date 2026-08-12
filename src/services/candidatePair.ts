@@ -5,8 +5,8 @@
  * whether relay capacity is the reason a user cannot see anyone.
  */
 export interface CandidateTypes {
-  local?: string;
-  remote?: string;
+  local?: RTCIceCandidateType;
+  remote?: RTCIceCandidateType;
 }
 
 interface StatsLike {
@@ -42,8 +42,13 @@ export function selectCandidateTypes(stats: StatsLike): CandidateTypes | null {
   const remoteId = selected.remoteCandidateId;
 
   return {
-    local: typeof localId === 'string' ? (stats.get(localId)?.candidateType as string) : undefined,
+    local:
+      typeof localId === 'string'
+        ? (stats.get(localId)?.candidateType as RTCIceCandidateType | undefined)
+        : undefined,
     remote:
-      typeof remoteId === 'string' ? (stats.get(remoteId)?.candidateType as string) : undefined,
+      typeof remoteId === 'string'
+        ? (stats.get(remoteId)?.candidateType as RTCIceCandidateType | undefined)
+        : undefined,
   };
 }

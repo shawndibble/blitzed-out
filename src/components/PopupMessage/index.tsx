@@ -43,7 +43,7 @@ const PopupMessage = (): JSX.Element | null => {
   }, [message, t, isMyMessage, isGameOverShowing]);
 
   // handle timeout of ActionCard
-  const timeoutIdRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timeoutIdRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (message) {

@@ -3,8 +3,27 @@ import { getDatabase, ref, onValue, off } from 'firebase/database';
 import { firebaseSignaling, SignalData } from '@/services/firebaseSignaling';
 import { ICE_SERVERS, IceServer, MAX_PEERS } from '@/config/webrtc';
 import { resolveIceServers } from '@/services/iceServers';
-import { createPeerTransport, PeerSignal, PeerTransport } from '@/services/peerTransport';
+import {
+  PeerSignal,
+  PeerTransport,
+  PeerTransportFactory,
+} from '@/services/ports/PeerTransportPort';
+import { createNativePeerTransport } from '@/services/adapters/NativePeerTransportAdapter';
 import { logger } from '@/utils/logger';
+
+let peerTransportFactory: PeerTransportFactory = createNativePeerTransport;
+
+/**
+ * Swap the transport a dialled peer is built from. Tests pass a literal fake and
+ * drive the port's callbacks directly; nothing in the app calls this.
+ */
+export function setPeerTransportFactory(factory: PeerTransportFactory): void {
+  peerTransportFactory = factory;
+}
+
+export function resetPeerTransportFactory(): void {
+  peerTransportFactory = createNativePeerTransport;
+}
 
 /** How often the peer map is reconciled against the room roster. */
 export const RECONCILE_INTERVAL_MS = 3000;
@@ -220,7 +239,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       dropPeer(targetUserId, { retry: true });
     };
 
-    const peer = createPeerTransport({
+    const peer = peerTransportFactory({
       polite,
       label: targetUserId,
       localStream,

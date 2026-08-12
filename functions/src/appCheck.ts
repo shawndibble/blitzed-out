@@ -14,8 +14,8 @@ import { CallableContext } from 'firebase-functions/v1/https';
  *   3. The client does not initialize App Check, so it sends no token at all.
  *
  * Turning enforcement on before those land would reject 100% of traffic and take
- * webcam down. So the code path exists, the switch is here, and it is off. See
- * the checklist at the bottom of this file.
+ * webcam down. So the code path exists, the switch is here, and it is off. The
+ * steps to enable it are in `docs/engineering/security.md` § Cloud Functions.
  */
 
 /**
@@ -54,32 +54,3 @@ export function observeAppCheck(context: CallableContext, callableName: string):
     });
   }
 }
-
-/*
- * ── Checklist to enable ────────────────────────────────────────────────────────
- *
- * 1. reCAPTCHA v3 site registration
- *    https://www.google.com/recaptcha/admin → Create → reCAPTCHA v3 → add the
- *    domains (blitzedout.com, plus localhost for dev). Keep the **secret key**;
- *    the site key is public and goes in the client.
- *
- * 2. Register the web app with App Check
- *    Firebase console → Build → App Check → Apps → the web app → reCAPTCHA v3 →
- *    paste the secret key → Save. Leave every API's enforcement at *Unenforced*.
- *
- * 3. Debug token for local dev
- *    Firebase console → App Check → Apps → web app → ⋮ → Manage debug tokens.
- *    Add the token the browser console prints on first run with
- *    `self.FIREBASE_APPCHECK_DEBUG_TOKEN = true` set before `initializeAppCheck`.
- *
- * 4. Client wiring (src/services/firebase/app.ts — not in this package)
- *    initializeAppCheck(app, {
- *      provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
- *      isTokenAutoRefreshEnabled: true,
- *    });
- *    Ship it and confirm the "App Check token verified" log line above appears
- *    for real traffic across a release cycle.
- *
- * 5. Only then: set APP_CHECK_ENFORCED to true above and
- *    `firebase deploy --only functions:getTurnCredentials`.
- */

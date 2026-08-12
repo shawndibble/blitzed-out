@@ -2,8 +2,11 @@
  * @vitest-environment jsdom
  */
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { createNativePeerTransport, shouldIgnoreOffer } from '@/services/nativePeerTransport';
-import type { PeerTransport, PeerTransportEvents } from '@/services/peerTransport';
+import {
+  createNativePeerTransport,
+  shouldIgnoreOffer,
+} from '@/services/adapters/NativePeerTransportAdapter';
+import type { PeerTransport, PeerTransportEvents } from '@/services/ports/PeerTransportPort';
 
 /**
  * A connection with the parts of the RTCPeerConnection state machine the
@@ -375,6 +378,25 @@ describe('native peer transport', () => {
       expect(transport.closed).toBe(true);
     });
 
+    // The store's `dropPeer` removes the peer from its map, calls `close()`, and
+    // re-enters through `onClosed` — which only terminates because the callback
+    // has already run by the time `close()` returns. A deferred `onClosed` would
+    // book a second retry for one failure and make a `closed` peer observable in
+    // the store's map, so the timing is contract, not implementation detail.
+    test('reports the close synchronously, before close() returns', () => {
+      const { transport, events } = open();
+      let closedWhileClosing = false;
+
+      (events.onClosed as ReturnType<typeof vi.fn>).mockImplementation(() => {
+        closedWhileClosing = transport.closed;
+      });
+
+      transport.close();
+
+      expect(events.onClosed).toHaveBeenCalledTimes(1);
+      expect(closedWhileClosing).toBe(true);
+    });
+
     test('ignores signals that arrive after closing', async () => {
       const { transport, pc } = open();
 
@@ -452,7 +474,7 @@ describe('shouldIgnoreOffer', () => {
   const base = {
     polite: false,
     makingOffer: false,
-    signalingState: 'stable',
+    signalingState: 'stable' as RTCSignalingState,
     settingRemoteAnswer: false,
     type: 'offer' as const,
   };
@@ -462,7 +484,7 @@ describe('shouldIgnoreOffer', () => {
   });
 
   test('only the impolite peer ignores a collision', () => {
-    const collision = { ...base, signalingState: 'have-local-offer' };
+    const collision = { ...base, signalingState: 'have-local-offer' as RTCSignalingState };
 
     expect(shouldIgnoreOffer({ ...collision, polite: false })).toBe(true);
     expect(shouldIgnoreOffer({ ...collision, polite: true })).toBe(false);
@@ -478,15 +500,19 @@ describe('shouldIgnoreOffer', () => {
     expect(
       shouldIgnoreOffer({
         ...base,
-        signalingState: 'have-local-offer',
+        signalingState: 'have-local-offer' as RTCSignalingState,
         settingRemoteAnswer: true,
       })
     ).toBe(false);
   });
 
   test('an answer is never ignored', () => {
-    expect(shouldIgnoreOffer({ ...base, type: 'answer', signalingState: 'have-local-offer' })).toBe(
-      false
-    );
+    expect(
+      shouldIgnoreOffer({
+        ...base,
+        type: 'answer',
+        signalingState: 'have-local-offer' as RTCSignalingState,
+      })
+    ).toBe(false);
   });
 });

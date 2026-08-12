@@ -10,6 +10,8 @@ import {
   RETRY_MAX_MS,
   ROSTER_STALE_MS,
   liveRoster,
+  resetPeerTransportFactory,
+  setPeerTransportFactory,
   useVideoCallStore,
 } from '../videoCallStore';
 import { MAX_PEERS } from '@/config/webrtc';
@@ -32,44 +34,41 @@ vi.mock('@/services/firebaseSignaling', () => ({
   },
 }));
 
-vi.mock('@/services/peerTransport', () => {
-  /** Event names as the transport used to expose them, mapped to port callbacks. */
-  const CALLBACKS: Record<string, string> = {
-    signal: 'onSignal',
-    stream: 'onStream',
-    connect: 'onConnected',
-    close: 'onClosed',
-    error: 'onError',
-    iceStateChange: 'onIceStateChange',
-  };
+/** Event names as the transport used to expose them, mapped to port callbacks. */
+const CALLBACKS: Record<string, string> = {
+  signal: 'onSignal',
+  stream: 'onStream',
+  connect: 'onConnected',
+  close: 'onClosed',
+  error: 'onError',
+  iceStateChange: 'onIceStateChange',
+};
 
-  class FakeTransport {
-    closed = false;
-    accept = vi.fn();
-    replaceLocalTracks = vi.fn();
-    candidateTypes = vi.fn(async () => null);
-    options: any;
+/** A literal stand-in for the transport, driven through the port's callbacks. */
+class FakeTransport {
+  closed = false;
+  accept = vi.fn();
+  replaceLocalTracks = vi.fn();
+  candidateTypes = vi.fn(async () => null);
+  options: any;
 
-    constructor(options: any) {
-      this.options = options;
-      harness.peers.push(this);
-    }
-
-    emit(event: string, ...args: any[]) {
-      this.options.events[CALLBACKS[event]]?.(...args);
-    }
-
-    // Must fire onClosed synchronously and exactly once: `dropPeer` re-enters
-    // through it, and a second pass would book a second retry for one failure.
-    close = vi.fn(() => {
-      if (this.closed) return;
-      this.closed = true;
-      this.emit('close');
-    });
+  constructor(options: any) {
+    this.options = options;
+    harness.peers.push(this);
   }
 
-  return { createPeerTransport: (options: any) => new FakeTransport(options) };
-});
+  emit(event: string, ...args: any[]) {
+    this.options.events[CALLBACKS[event]]?.(...args);
+  }
+
+  // Must fire onClosed synchronously and exactly once: `dropPeer` re-enters
+  // through it, and a second pass would book a second retry for one failure.
+  close = vi.fn(() => {
+    if (this.closed) return;
+    this.closed = true;
+    this.emit('close');
+  });
+}
 
 vi.mock('firebase/database', () => ({
   getDatabase: vi.fn(() => ({})),
@@ -107,6 +106,7 @@ describe('VideoCallStore', () => {
     vi.useFakeTimers();
     harness.rosterListeners.length = 0;
     harness.peers.length = 0;
+    setPeerTransportFactory((options) => new FakeTransport(options) as never);
 
     // Re-arm after clearAllMocks: the store awaits these, so a bare vi.fn()
     // returning undefined fails on `.catch` rather than on the assertion.
@@ -167,6 +167,7 @@ describe('VideoCallStore', () => {
       });
     }
     vi.useRealTimers();
+    resetPeerTransportFactory();
   });
 
   describe('Initial State', () => {

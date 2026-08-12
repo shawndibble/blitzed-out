@@ -22,7 +22,7 @@ interface ScheduleStore {
   _cache: ScheduleCache;
   _performanceMetrics: PerformanceMetrics;
   _pendingUpdates: ScheduleItem[];
-  _batchTimeout: NodeJS.Timeout | null;
+  _batchTimeout: ReturnType<typeof setTimeout> | null;
 
   // Actions
   loadSchedule: (schedule: ScheduleItem[]) => void;

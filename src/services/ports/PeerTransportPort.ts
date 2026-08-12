@@ -1,6 +1,5 @@
 import { IceServer } from '@/config/webrtc';
 import { CandidateTypes } from '@/services/candidatePair';
-import { createNativePeerTransport } from '@/services/nativePeerTransport';
 
 /**
  * One leg of the mesh, as the call store needs it.
@@ -29,7 +28,7 @@ export interface PeerTransportEvents {
    */
   onClosed: () => void;
   onError: (error: Error) => void;
-  onIceStateChange: (state: string) => void;
+  onIceStateChange: (state: RTCIceConnectionState) => void;
 }
 
 export interface PeerTransportOptions {
@@ -62,9 +61,3 @@ export interface PeerTransport {
 }
 
 export type PeerTransportFactory = (options: PeerTransportOptions) => PeerTransport;
-
-/**
- * The seam. Tests replace this module; production wiring picks the adapter.
- */
-export const createPeerTransport: PeerTransportFactory = (options) =>
-  createNativePeerTransport(options);

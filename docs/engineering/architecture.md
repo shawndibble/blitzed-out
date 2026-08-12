@@ -128,6 +128,7 @@ Concrete examples:
 
 - **`buildGame.ts`** separates the Dexie fetch from a pure board transform — the board-building algorithm is a pure function over fetched tiles, so it's unit-testable without a database.
 - **`gameSettingsOrchestrator.ts`** exposes a pure `planSubmit` that decides what to do on settings submit, with the side-effecting parts pushed to the edges.
+- **`ports/PeerTransportPort.ts`** declares one leg of the WebRTC mesh — signal in, signal/stream/state out — with `adapters/NativePeerTransportAdapter.ts` implementing it over `RTCPeerConnection`. The split is what keeps `videoCallStore`'s policy (dial, retry, `MAX_PEERS`, timeouts) testable without a WebRTC stack: `setPeerTransportFactory` is the module seam, and the store tests pass a literal fake through it.
 
 When adding logic, prefer: **fetch at the edge → pure transform in the middle → write at the edge.** It keeps the testable surface large.
 
@@ -178,4 +179,4 @@ Node Firebase Functions, 9 exported. Mix of scheduled (Pub/Sub) cleanup jobs, RT
 - Scheduled: stale-user cleanup (~5 min), inactive-anonymous-account cleanup (daily), video-call signaling cleanup (~5 min, also prunes roster entries idle 10 min).
 - Triggers: on user disconnect, presence validation (stamps `lastSeen`), pack-report notification.
 - Two **callable** admin helpers (`manualCleanupStaleUsers`, `manualCleanupAnonymousAccounts`) gated on an `admin` custom claim.
-- `getTurnCredentials` — mints short-lived Cloudflare TURN credentials for a caller who already holds a roster slot in the room they name. Details and the security caveats in [security.md](security.md#cloud-functions).
+- `getTurnCredentials` — mints short-lived Cloudflare TURN credentials for a caller who already holds a roster slot in the room they name, rate-limited per uid (App Check staged but inert). Details, quota numbers and the security caveats in [security.md](security.md#cloud-functions).

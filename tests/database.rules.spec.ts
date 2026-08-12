@@ -195,7 +195,16 @@ describe('video-calls roster (users)', () => {
   // membership check — a signed-in user who never joined can enumerate any
   // room's participants (and, via functions' cleanup shape, their timestamps).
   it('lets an authenticated non-participant read any room roster', async () => {
-    await assertSucceeds(get(ref(dbAs('stranger'), 'video-calls/OTHER-ROOM/users')));
+    // Seeded, so this proves enumeration of real participants rather than a
+    // successful read of an empty path.
+    await testEnv.withSecurityRulesDisabled((context) =>
+      set(ref(context.database(), `video-calls/OTHER-ROOM/users/${OTHER_UID}`), validPresence())
+    );
+
+    const snapshot = await assertSucceeds(
+      get(ref(dbAs('stranger'), 'video-calls/OTHER-ROOM/users'))
+    );
+    expect(Object.keys(snapshot.val())).toEqual([OTHER_UID]);
   });
 
   it('denies an unauthenticated roster read', async () => {
