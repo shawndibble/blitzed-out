@@ -1,2 +1,0 @@
-import{o as r}from"./chunk-iuO8RvI4.js";import{r as o}from"./chunk-CtypbpkR.js";import{t as s}from"./chunk-CBL75aIf.js";var t=r(o(),1);function n(){const r=t.useContext(s);if(!r)throw new Error("MessagesContext's value is undefined.");return r}export{n as t};
-//# sourceMappingURL=chunk-DtIBsAcI.js.map

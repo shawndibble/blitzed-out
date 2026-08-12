@@ -1,0 +1,2 @@
+var e=["development","test"].includes("production");function o(o,n){var r;(e||function(){try{return"undefined"!=typeof window&&("1"===new URLSearchParams(window.location.search).get("debug")||"true"===window.localStorage.getItem("debug"))}catch(e){return!1}}())&&(null!==(r=console[o])&&void 0!==r?r:console.log)(...n)}var n={debug:(...e)=>o("debug",e),info:(...e)=>o("info",e),warn:(...e)=>o("warn",e),error:(...e)=>o("error",e)};export{n as t};
+//# sourceMappingURL=chunk-S6B3YpRz.js.map
