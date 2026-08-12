@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import SimplePeer from 'simple-peer';
 import { getDatabase, ref, onValue, off } from 'firebase/database';
 import { firebaseSignaling, SignalData } from '@/services/firebaseSignaling';
-import { ICE_SERVERS, MAX_PEERS } from '@/config/webrtc';
+import { ICE_SERVERS, IceServer, MAX_PEERS } from '@/config/webrtc';
+import { resolveIceServers } from '@/services/iceServers';
 import { logger } from '@/utils/logger';
 
 /** How often the peer map is reconciled against the room roster. */
@@ -102,6 +103,8 @@ export interface VideoCallError {
 export interface VideoCallState {
   localStream: MediaStream | null;
   peers: Map<string, PeerConnection>;
+  /** Resolved once per call; short-lived relay credentials when the backend mints them. */
+  iceServers: IceServer[];
   /** User ids the signalling roster currently reports as present in the room. */
   roster: string[];
   peerRetries: Map<string, RetryState>;
@@ -136,6 +139,7 @@ export interface VideoCallState {
 export const useVideoCallStore = create<VideoCallState>((set, get) => ({
   localStream: null,
   peers: new Map(),
+  iceServers: ICE_SERVERS,
   roster: [],
   peerRetries: new Map(),
   isMuted: false,
@@ -168,6 +172,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
 
     set({
       localStream: stream,
+      iceServers: await resolveIceServers(),
       isInitialized: true,
       isCallActive: true,
       roster: [],
@@ -201,7 +206,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     const { isInitialized, userId, localStream } = get();
     if (!isInitialized || !userId || !localStream) return;
 
-    const { roster, peers } = get();
+    const { roster, peers, iceServers } = get();
 
     // Prune first, so departed participants release their MAX_PEERS slot before
     // we decide who still needs dialling.
@@ -232,7 +237,10 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
         break;
       }
 
-      nextPeers.set(otherUserId, openPeer(otherUserId, userId < otherUserId, localStream));
+      nextPeers.set(
+        otherUserId,
+        openPeer(otherUserId, userId < otherUserId, localStream, iceServers)
+      );
     }
 
     if (nextPeers.size !== livePeers.size) {
@@ -478,14 +486,15 @@ async function logSelectedCandidatePair(
 function openPeer(
   targetUserId: string,
   initiator: boolean,
-  localStream: MediaStream
+  localStream: MediaStream,
+  iceServers: IceServer[]
 ): PeerConnection {
   const peer = new SimplePeer({
     initiator,
     stream: localStream,
     trickle: true,
     config: {
-      iceServers: ICE_SERVERS,
+      iceServers,
       bundlePolicy: 'max-bundle',
       rtcpMuxPolicy: 'require',
       iceCandidatePoolSize: 0,
@@ -582,7 +591,7 @@ function openPeer(
 }
 
 function handleSignal(data: SignalData): void {
-  const { peers, userId: currentUserId, localStream } = useVideoCallStore.getState();
+  const { peers, userId: currentUserId, localStream, iceServers } = useVideoCallStore.getState();
   if (data.from === currentUserId || !localStream) {
     return;
   }
@@ -591,7 +600,10 @@ function handleSignal(data: SignalData): void {
 
   if (data.type === 'offer' && data.sdp) {
     if (!peerConnection) {
-      peerConnection = { ...openPeer(data.from, false, localStream), lastProcessedOffer: data.sdp };
+      peerConnection = {
+        ...openPeer(data.from, false, localStream, iceServers),
+        lastProcessedOffer: data.sdp,
+      };
       const nextPeers = new Map(peers);
       nextPeers.set(data.from, peerConnection);
       useVideoCallStore.setState({ peers: nextPeers });

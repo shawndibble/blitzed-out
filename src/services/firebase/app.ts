@@ -6,6 +6,7 @@
  */
 import { logger } from '@/utils/logger';
 import { getDatabase } from 'firebase/database';
+import { getFunctions } from 'firebase/functions';
 import {
   initializeFirestore,
   persistentLocalCache,
@@ -65,4 +66,10 @@ export const db = _db;
 // but don't have access to the module-private `app` instance.
 export function getRealtimeDb(): ReturnType<typeof getDatabase> {
   return getDatabase(app);
+}
+
+// Callable-functions accessor. Bound to `app` rather than the default instance so
+// callers never depend on this module having been imported for its side effects.
+export function getFunctionsClient(): ReturnType<typeof getFunctions> {
+  return getFunctions(app);
 }

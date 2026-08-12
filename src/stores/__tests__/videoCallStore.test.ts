@@ -74,6 +74,14 @@ vi.mock('firebase/database', () => ({
   off: vi.fn(),
 }));
 
+const MINTED_ICE_SERVERS = [
+  { urls: 'turns:turn.example:5349?transport=tcp', username: 'minted', credential: 'short-lived' },
+];
+
+vi.mock('@/services/iceServers', () => ({
+  resolveIceServers: vi.fn(async () => MINTED_ICE_SERVERS),
+}));
+
 /** Drive the RTDB roster listener the store registered during `initialize`. */
 function publishRoster(userIds: string[]) {
   const value = Object.fromEntries(userIds.map((id) => [id, { status: 'online' }]));
@@ -427,6 +435,18 @@ describe('VideoCallStore', () => {
       });
       return result;
     }
+
+    // Bundled credentials are harvestable and capped; the peer must be built with
+    // the short-lived set the backend minted, not the fallback baked into the app.
+    test('builds peers with the ICE servers resolved at join time', async () => {
+      await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+
+      expect(harness.peers[0].options.config.iceServers).toEqual(MINTED_ICE_SERVERS);
+    });
 
     test('opens a peer for every other participant on the roster', async () => {
       const result = await joinRoom();

@@ -5,6 +5,7 @@ import { getDatabase, ServerValue } from 'firebase-admin/database';
 import { getAuth, ListUsersResult, UserRecord } from 'firebase-admin/auth';
 
 export { onPackReported } from './reportNotification';
+export { getTurnCredentials } from './turnCredentials';
 
 // Initialize Firebase Admin with proper credentials
 if (!getApps().length) {

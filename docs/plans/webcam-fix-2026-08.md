@@ -93,16 +93,63 @@ Reachable path: mobile only, `VideoControls` hang-up → call. Narrow, but real 
 TURN is part of ICE. It is not replaceable — some connections physically cannot go P2P. The only
 question is who supplies relay bandwidth.
 
-| Provider                     | Free tier                      | Transports                         | Creds                   | Notes                                                                                     |
-| ---------------------------- | ------------------------------ | ---------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------- |
-| **Metered** (current)        | **20 GB/mo**                   | UDP/TCP/TLS on 80/443              | static, baked in bundle | Quota is the suspected failure.                                                           |
-| **Cloudflare Realtime TURN** | **1,000 GB/mo**, then $0.05/GB | UDP + TLS. **No TCP** (no RFC6062) | API-generated, ≤48h TTL | 50× the free bandwidth. Shared with their SFU tier. `stun.cloudflare.com` free/unlimited. |
-| Self-host coturn             | server cost only               | all                                | any                     | Full control, ops burden, needs a static IP + TLS cert.                                   |
+| Provider                     | Free tier                      | Transports                     | Creds                   | Notes                                                                                     |
+| ---------------------------- | ------------------------------ | ------------------------------ | ----------------------- | ----------------------------------------------------------------------------------------- |
+| **Metered** (current)        | **20 GB/mo**                   | UDP/TCP/TLS on 80/443          | static, baked in bundle | Quota is the suspected failure.                                                           |
+| **Cloudflare Realtime TURN** | **1,000 GB/mo**, then $0.05/GB | UDP, TCP, TLS (`turns:…:5349`) | API-generated, ≤48h TTL | 50× the free bandwidth. Shared with their SFU tier. `stun.cloudflare.com` free/unlimited. |
+| Self-host coturn             | server cost only               | all                            | any                     | Full control, ops burden, needs a static IP + TLS cert.                                   |
 
 **Recommendation: Cloudflare Realtime TURN.** 50× the headroom, and short-lived credentials fix
-the harvestable-static-creds issue already flagged in `docs/engineering/security.md:104`. Requires
-a small Firebase callable function to mint creds — we already have a Functions deployment.
-Keep Metered as a secondary ICE entry for its TCP transport, which Cloudflare lacks.
+the harvestable-static-creds issue already flagged in `docs/engineering/security.md`. Cloudflare's
+generated list covers UDP, TCP and TLS (`turns:…:5349?transport=tcp`), so it needs no help on
+transport coverage; the "no TCP" line in their FAQ refers to RFC 6062 TURN-TCP **relaying to the
+peer**, not to the client↔server transport. Metered stays as the bundled fallback for when the
+minting call fails.
+
+### Setting up Cloudflare TURN
+
+Credentials are minted server-side because the API token that generates them must never ship in
+the bundle. `functions/src/turnCredentials.ts` (callable `getTurnCredentials`) does that; the
+client resolves through `src/services/iceServers.ts`, which caches until 10 minutes before expiry
+and falls back to the bundled relay on any failure.
+
+1. **Cloudflare dashboard → Realtime → TURN → Create.** Note the **TURN Key ID** and the **API
+   token** it shows once. Key ID for this account: `9412188e6651449f97f28621fe04bac9`.
+2. **Store the token as a Firebase secret** (Secret Manager — never a plain env var):
+
+   ```bash
+   firebase functions:secrets:set CLOUDFLARE_TURN_TOKEN
+   # paste the API token at the prompt
+   ```
+
+3. **Set the key ID** as a normal env var in `functions/.env` (it is an identifier, not a secret):
+
+   ```
+   CLOUDFLARE_TURN_KEY_ID=9412188e6651449f97f28621fe04bac9
+   ```
+
+4. **Deploy:**
+
+   ```bash
+   firebase deploy --only functions:getTurnCredentials
+   ```
+
+5. **Verify** — the function should return an `iceServers` array. In the browser console on a
+   signed-in session:
+
+   ```js
+   const { getFunctions, httpsCallable } = await import('firebase/functions');
+   await httpsCallable(getFunctions(), 'getTurnCredentials')();
+   ```
+
+   Then paste one of the returned `turn:`/`turns:` URLs with its username/credential into the
+   [trickle-ICE test page](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/)
+   and confirm `relay` candidates appear.
+
+If either variable is missing the function fails closed and logs an error; the client keeps
+working on the bundled Metered relay, so a misconfiguration degrades rather than breaks. That also
+means a silent misconfiguration looks like "everything is fine" — check the function's logs after
+deploying, and check the candidate-pair lines the client now logs.
 
 ## Transport options (should we drop simple-peer?)
 
