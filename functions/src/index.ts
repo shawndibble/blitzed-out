@@ -294,7 +294,10 @@ export const cleanupVideoCallSignaling = functions.pubsub
           const ghosts: { [key: string]: null } = {};
           Object.entries(roomData.users).forEach(([userId, presence]: [string, any]) => {
             const lastSeen = presence?.lastSeen ?? presence?.joinedAt;
-            if (typeof lastSeen === 'number' && lastSeen < staleRosterCutoff) {
+            // No usable timestamp means an entry nothing can ever age out. Those
+            // are the ones that survive indefinitely and consume mesh slots, so
+            // treat a missing timestamp as expired rather than as "keep forever".
+            if (typeof lastSeen !== 'number' || lastSeen < staleRosterCutoff) {
               ghosts[`video-calls/${roomId}/users/${userId}`] = null;
               // Also drop locally: the `hasActiveUsers` check below reads this.
               delete roomData.users[userId];

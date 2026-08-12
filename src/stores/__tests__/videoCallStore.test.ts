@@ -8,6 +8,8 @@ import {
   MAX_RETRY_ATTEMPTS,
   RECONCILE_INTERVAL_MS,
   RETRY_MAX_MS,
+  ROSTER_STALE_MS,
+  liveRoster,
   useVideoCallStore,
 } from '../videoCallStore';
 import { MAX_PEERS } from '@/config/webrtc';
@@ -86,7 +88,9 @@ vi.mock('@/services/iceServers', () => ({
 
 /** Drive the RTDB roster listener the store registered during `initialize`. */
 function publishRoster(userIds: string[]) {
-  const value = Object.fromEntries(userIds.map((id) => [id, { status: 'online' }]));
+  const value = Object.fromEntries(
+    userIds.map((id) => [id, { status: 'online', lastSeen: Date.now() }])
+  );
   harness.rosterListeners.forEach((listener) => listener({ val: () => value }));
 }
 
@@ -465,6 +469,82 @@ describe('VideoCallStore', () => {
       });
 
       expect(firebaseSignaling.heartbeat).not.toHaveBeenCalled();
+    });
+  });
+
+  // Observed in production: /PUBLIC held nine dead roster entries, and four is
+  // enough to consume every mesh slot and lock real participants out entirely.
+  describe('Ghost roster entries', () => {
+    const FRESH = { lastSeen: 1_000_000 };
+
+    test('drops entries older than the stale threshold', () => {
+      const roster = liveRoster(
+        { alive: FRESH, ghost: { lastSeen: 1_000_000 - ROSTER_STALE_MS - 1 } },
+        1_000_000
+      );
+
+      expect(roster).toEqual(['alive']);
+    });
+
+    // These are the entries that survive forever: nothing can age out a
+    // timestamp that was never written.
+    test('drops entries with no usable timestamp', () => {
+      const roster = liveRoster({ alive: FRESH, ghost: { status: 'online' } }, 1_000_000);
+
+      expect(roster).toEqual(['alive']);
+    });
+
+    test('falls back to joinedAt for clients that predate the heartbeat', () => {
+      const roster = liveRoster({ old: { joinedAt: 999_000 } }, 1_000_000);
+
+      expect(roster).toEqual(['old']);
+    });
+
+    // When more participants are present than MAX_PEERS allows, slots should go
+    // to whoever is most likely still there.
+    test('orders the freshest participants first', () => {
+      const roster = liveRoster(
+        {
+          stale: { lastSeen: 900_000 },
+          freshest: { lastSeen: 999_999 },
+          mid: { lastSeen: 950_000 },
+        },
+        1_000_000
+      );
+
+      expect(roster).toEqual(['freshest', 'mid', 'stale']);
+    });
+
+    test('handles a missing or malformed snapshot', () => {
+      expect(liveRoster(null)).toEqual([]);
+      expect(liveRoster('nonsense')).toEqual([]);
+    });
+
+    test('a room full of ghosts still leaves room to dial a live participant', async () => {
+      const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+
+      act(() => {
+        const ghosts = Object.fromEntries(
+          ['g1', 'g2', 'g3', 'g4', 'g5'].map((id) => [
+            id,
+            { lastSeen: Date.now() - ROSTER_STALE_MS - 1 },
+          ])
+        );
+        harness.rosterListeners.forEach((listener) =>
+          listener({
+            val: () => ({
+              ...ghosts,
+              self: { lastSeen: Date.now() },
+              zed: { lastSeen: Date.now() },
+            }),
+          })
+        );
+      });
+
+      expect([...result.current.peers.keys()]).toEqual(['zed']);
     });
   });
 

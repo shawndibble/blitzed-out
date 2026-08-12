@@ -18,6 +18,12 @@ const RETRY_BASE_MS = 4000;
 export const RETRY_MAX_MS = 15_000;
 /** How long an in-flight offer blocks a competing one from restarting negotiation. */
 const OFFER_LOCK_MS = 1000;
+/**
+ * A roster entry older than this is treated as a ghost and never dialled. Well
+ * clear of the 30s heartbeat so a throttled background tab is not mistaken for
+ * one, and matches the server-side prune threshold.
+ */
+export const ROSTER_STALE_MS = 10 * 60 * 1000;
 
 const MEDIA_CONSTRAINTS: MediaStreamConstraints = {
   video: {
@@ -223,8 +229,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     const usersRef = ref(database, `video-calls/${roomId}/users`);
 
     onValue(usersRef, (snapshot) => {
-      const users = snapshot.val();
-      set({ roster: users ? Object.keys(users) : [] });
+      set({ roster: liveRoster(snapshot.val()) });
       get().reconcilePeers();
     });
 
@@ -469,6 +474,33 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     set({ error: null });
   },
 }));
+
+/**
+ * Reduce a presence snapshot to participants worth dialling, freshest first.
+ *
+ * The roster cannot be taken at face value. Ghosts accumulate whenever a client
+ * dies without its socket closing, and a room only needs four of them to consume
+ * every mesh slot and lock real participants out entirely — observed in `/PUBLIC`
+ * with nine dead entries. Server-side pruning is a backstop that runs every five
+ * minutes at best; this makes the client immune in the meantime.
+ *
+ * Sorting matters as much as filtering: when more participants are present than
+ * MAX_PEERS allows, the slots should go to whoever is most likely still there.
+ */
+export function liveRoster(users: unknown, now: number = Date.now()): string[] {
+  if (!users || typeof users !== 'object') return [];
+
+  return Object.entries(users as Record<string, { lastSeen?: unknown; joinedAt?: unknown }>)
+    .map(([userId, presence]) => {
+      const seen = presence?.lastSeen ?? presence?.joinedAt;
+      // No usable timestamp means a presence node we cannot reason about; treat
+      // it as expired rather than letting it hold a slot forever.
+      return { userId, seen: typeof seen === 'number' ? seen : 0 };
+    })
+    .filter(({ seen }) => now - seen < ROSTER_STALE_MS)
+    .sort((a, b) => b.seen - a.seen)
+    .map(({ userId }) => userId);
+}
 
 function startHeartbeat(): number {
   return window.setInterval(() => {
