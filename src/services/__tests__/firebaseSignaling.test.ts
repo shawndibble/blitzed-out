@@ -48,7 +48,8 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
 
       expect(mockRef).toHaveBeenCalled();
       expect(mockRef.mock.calls.some((call) => call[1]?.includes('video-calls'))).toBe(true);
@@ -59,7 +60,8 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
 
       expect(mockSet).toHaveBeenCalledWith(
         expect.anything(),
@@ -74,7 +76,8 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
 
       expect(mockOnDisconnect).toHaveBeenCalled();
     });
@@ -85,7 +88,8 @@ describe('firebaseSignaling', () => {
       const userId = 'user-123';
       const onSignal = vi.fn();
 
-      firebaseSignaling.initialize(roomId, userId, onSignal);
+      firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(onSignal);
 
       expect(mockOnValue).toHaveBeenCalled();
     });
@@ -99,7 +103,8 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const offer = { type: 'offer' as const, sdp: 'test-sdp' };
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendOffer(targetUserId, offer);
 
       expect(mockPush).toHaveBeenCalledWith(
@@ -131,7 +136,8 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const answer = { type: 'answer' as const, sdp: 'test-sdp' };
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendAnswer(targetUserId, answer);
 
       expect(mockPush).toHaveBeenCalledWith(
@@ -163,7 +169,8 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const candidate = { candidate: 'test-candidate', sdpMLineIndex: 0 };
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendIceCandidate(targetUserId, candidate);
 
       expect(mockPush).toHaveBeenCalledWith(
@@ -193,7 +200,8 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
       expect(mockOff).toHaveBeenCalled();
@@ -213,7 +221,8 @@ describe('firebaseSignaling', () => {
     test('removes the presence node so the user stops occupying a roster slot', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      firebaseSignaling.claim('test-room', 'user-123');
+      firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
       expect(writesTo('video-calls/test-room/users/user-123')).toContainEqual([
@@ -227,7 +236,8 @@ describe('firebaseSignaling', () => {
       const cancel = vi.fn().mockResolvedValue(undefined);
       mockOnDisconnect.mockReturnValue({ remove: vi.fn().mockResolvedValue(undefined), cancel });
 
-      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      firebaseSignaling.claim('test-room', 'user-123');
+      firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
       expect(cancel).toHaveBeenCalled();
@@ -241,7 +251,8 @@ describe('firebaseSignaling', () => {
     test('refreshes lastSeen on the presence node', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      firebaseSignaling.claim('test-room', 'user-123');
+      firebaseSignaling.listen(vi.fn());
       mockSet.mockClear();
       await firebaseSignaling.heartbeat();
 
@@ -255,7 +266,8 @@ describe('firebaseSignaling', () => {
     test('rewrites the whole presence node so a deleted one is restored', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      firebaseSignaling.claim('test-room', 'user-123');
+      firebaseSignaling.listen(vi.fn());
       mockSet.mockClear();
       await firebaseSignaling.heartbeat();
 
@@ -270,7 +282,8 @@ describe('firebaseSignaling', () => {
     test('preserves the original joinedAt across heartbeats', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      firebaseSignaling.claim('test-room', 'user-123');
+      firebaseSignaling.listen(vi.fn());
       const [[, joined]] = writesTo('video-calls/test-room/users/user-123');
       await firebaseSignaling.heartbeat();
 

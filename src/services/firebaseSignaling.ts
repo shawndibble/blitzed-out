@@ -36,7 +36,12 @@ class FirebaseSignalingService {
   private userId: string | null = null;
   private processedCandidates: Set<string> = new Set();
 
-  initialize(roomId: string, userId: string, onSignal: (data: SignalData) => void) {
+  /**
+   * Claim a roster slot. Separate from `listen` because minting TURN credentials
+   * requires presence to exist first, and that call must not run while signals
+   * are already arriving — see `listen`.
+   */
+  claim(roomId: string, userId: string): Promise<void> {
     this.userId = userId;
     this.roomId = roomId;
     const database = getDatabase();
@@ -44,10 +49,25 @@ class FirebaseSignalingService {
 
     this.joinedAt = Date.now();
     this.presenceRef = ref(database, `video-calls/${roomId}/users/${userId}`);
-    this.setPresent(true);
 
     this.presenceOnDisconnect = onDisconnect(this.presenceRef);
     this.presenceOnDisconnect.remove();
+
+    return this.setPresent(true);
+  }
+
+  /**
+   * Start consuming signals. Attach only once the caller can act on them:
+   * `onChildAdded` replays every queued offer the instant it binds, and an offer
+   * dropped here is gone — the sender does not learn it was ignored and will not
+   * retry until its own 30s connect timeout expires.
+   */
+  listen(onSignal: (data: SignalData) => void) {
+    const { roomId, userId } = this;
+    if (!roomId || !userId) {
+      throw new Error('Signaling not initialized');
+    }
+    const database = getDatabase();
 
     this.offersRef = ref(database, `video-calls/${roomId}/offers/${userId}`);
     onChildAdded(this.offersRef, (snapshot) => {

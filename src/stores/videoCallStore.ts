@@ -195,12 +195,9 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       return;
     }
 
-    // Signalling first: minting TURN credentials requires the caller to already
-    // hold a roster slot, which is what claiming presence creates.
-    firebaseSignaling.initialize(roomId, userId, handleSignal);
-    await firebaseSignaling.setPresent(true);
-
-    const iceServers = await resolveIceServers(roomId);
+    // Claiming the roster slot is a single RTDB write, and minting TURN
+    // credentials requires it to exist first.
+    await firebaseSignaling.claim(roomId, userId);
 
     if (superseded()) {
       stopTracks(stream);
@@ -208,9 +205,12 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       return;
     }
 
+    // Open on the bundled relay. Minting credentials is a Cloud Function call
+    // that cold-starts in seconds, and awaiting it here put that latency between
+    // the user tapping the call button and seeing anything at all.
     set({
       localStream: stream,
-      iceServers,
+      iceServers: ICE_SERVERS,
       isInitialized: true,
       isCallActive: true,
       roster: [],
@@ -228,11 +228,21 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       get().reconcilePeers();
     });
 
+    // Last: onChildAdded replays every queued offer the moment it binds, and
+    // handleSignal can only act on one once the state above exists.
+    firebaseSignaling.listen(handleSignal);
+
     set({
       heartbeatInterval: startHeartbeat(),
       reconcileInterval: window.setInterval(() => {
         get().reconcilePeers();
       }, RECONCILE_INTERVAL_MS),
+    });
+
+    // Upgrade to short-lived credentials in the background. Peers already dialled
+    // keep the bundled relay; anything reconciled afterwards uses the minted set.
+    resolveIceServers(roomId).then((iceServers) => {
+      if (!superseded()) set({ iceServers });
     });
   },
 
@@ -676,11 +686,13 @@ function handleSignal(data: SignalData): void {
   if (data.type === 'offer' && data.sdp) {
     if (!peerConnection) {
       // Signalling rules let any authenticated user push an offer into anyone's
-      // queue, and `from` is client-supplied. Without these checks a single
-      // account could force unbounded peer construction in any room.
+      // queue, and `from` is client-supplied, so cap peer construction. The
+      // roster check only applies once the roster has actually loaded: RTDB
+      // delivers it asynchronously, and rejecting during that window discards a
+      // legitimate offer the sender will not resend until its 30s timeout.
       const { roster } = useVideoCallStore.getState();
-      if (!roster.includes(data.from) || peers.size >= MAX_PEERS) {
-        logger.warn('[videocall] Ignoring offer from outside the roster', data.from);
+      if (peers.size >= MAX_PEERS || (roster.length > 0 && !roster.includes(data.from))) {
+        logger.warn('[videocall] Ignoring unexpected offer', data.from);
         return;
       }
 

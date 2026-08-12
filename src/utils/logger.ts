@@ -18,8 +18,27 @@ type Level = 'debug' | 'info' | 'warn' | 'error';
 
 const isDevelopment = ['development', 'test'].includes(import.meta.env.MODE);
 
+/**
+ * Opt-in escape hatch for diagnosing a live session: `?debug=1`, or
+ * `localStorage.setItem('debug', 'true')` to survive reloads.
+ *
+ * Production silence is right by default, but it also means a user reporting a
+ * broken call can produce no evidence at all, and some failures only happen on
+ * their network. This keeps the data on their machine — unlike routing logs to a
+ * third party, which is a separate decision this deliberately does not make.
+ */
+function debugEnabled(): boolean {
+  try {
+    if (typeof window === 'undefined') return false;
+    if (new URLSearchParams(window.location.search).has('debug')) return true;
+    return window.localStorage.getItem('debug') === 'true';
+  } catch {
+    return false;
+  }
+}
+
 function emit(level: Level, args: unknown[]): void {
-  if (!isDevelopment) return;
+  if (!isDevelopment && !debugEnabled()) return;
 
   // The one sanctioned console call in the app; everything else routes here.
   // eslint-disable-next-line no-console
