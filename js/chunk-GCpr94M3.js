@@ -1,0 +1,2 @@
+var e=["development","test"].includes("production"),o=["0","false","off","no"];function n(n,r){var t;(e||function(){try{if("undefined"==typeof window)return!1;const e=new URLSearchParams(window.location.search).get("debug");return null!==e?!o.includes(e.toLowerCase()):"true"===window.localStorage.getItem("debug")}catch(e){return!1}}())&&(null!==(t=console[n])&&void 0!==t?t:console.log)(...r)}var r={debug:(...e)=>n("debug",e),info:(...e)=>n("info",e),warn:(...e)=>n("warn",e),error:(...e)=>n("error",e)};export{r as t};
+//# sourceMappingURL=chunk-GCpr94M3.js.map
