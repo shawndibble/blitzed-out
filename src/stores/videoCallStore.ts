@@ -16,6 +16,8 @@ export const CONNECT_TIMEOUT_MS = 30_000;
 export const MAX_RETRY_ATTEMPTS = 5;
 const RETRY_BASE_MS = 4000;
 export const RETRY_MAX_MS = 15_000;
+/** How long an in-flight offer blocks a competing one from restarting negotiation. */
+const OFFER_LOCK_MS = 1000;
 
 const MEDIA_CONSTRAINTS: MediaStreamConstraints = {
   video: {
@@ -84,9 +86,11 @@ export interface PeerConnection {
   senderStream: MediaStream;
   /** The local tracks currently attached to this peer's senders. */
   senderTracks: MediaStreamTrack[];
-  lastProcessedOffer?: string; // Track last offer SDP to prevent duplicates
-  lastProcessedAnswer?: string; // Track last answer SDP to prevent duplicates
-  processingOffer?: boolean; // Lock to prevent concurrent offer processing
+  // Glare guards: simple-peer renegotiates freely and the signalling queue can
+  // replay, so the same SDP arriving twice must not restart negotiation.
+  lastProcessedOffer?: string;
+  lastProcessedAnswer?: string;
+  processingOffer?: boolean;
 }
 
 export interface RetryState {
@@ -136,6 +140,13 @@ export interface VideoCallState {
   reconcilePeers: () => void;
 }
 
+/**
+ * Guards `initialize` against concurrent callers and against a `cleanup()` that
+ * lands while it is still awaiting. Null means no call is being set up or held.
+ */
+let generationCounter = 0;
+let activeGeneration: number | null = null;
+
 export const useVideoCallStore = create<VideoCallState>((set, get) => ({
   localStream: null,
   peers: new Map(),
@@ -153,10 +164,18 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
   error: null,
 
   initialize: async (roomId: string, userId: string) => {
-    const { isInitialized } = get();
-    if (isInitialized) {
+    // Three components can call this (VideoCallProvider, VideoSidebar,
+    // VideoControls) and it awaits twice before `isInitialized` flips, so the
+    // flag alone gates nothing. The generation token also catches a `cleanup()`
+    // that lands mid-await, which would otherwise leave a listener and two
+    // intervals running that nothing holds a handle to.
+    if (get().isInitialized || activeGeneration !== null) {
       return;
     }
+
+    const generation = ++generationCounter;
+    activeGeneration = generation;
+    const superseded = () => activeGeneration !== generation;
 
     set({ error: null });
 
@@ -166,13 +185,32 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     } catch (error) {
       const mediaError = createMediaError(error);
       logger.warn('[videocall] getUserMedia failed', mediaError.type, error);
+      if (!superseded()) activeGeneration = null;
       set({ error: mediaError });
+      return;
+    }
+
+    if (superseded()) {
+      stopTracks(stream);
+      return;
+    }
+
+    // Signalling first: minting TURN credentials requires the caller to already
+    // hold a roster slot, which is what claiming presence creates.
+    firebaseSignaling.initialize(roomId, userId, handleSignal);
+    await firebaseSignaling.setPresent(true);
+
+    const iceServers = await resolveIceServers(roomId);
+
+    if (superseded()) {
+      stopTracks(stream);
+      firebaseSignaling.cleanup();
       return;
     }
 
     set({
       localStream: stream,
-      iceServers: await resolveIceServers(),
+      iceServers,
       isInitialized: true,
       isCallActive: true,
       roster: [],
@@ -180,8 +218,6 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       roomId,
       userId,
     });
-
-    firebaseSignaling.initialize(roomId, userId, handleSignal);
 
     const database = getDatabase();
     const usersRef = ref(database, `video-calls/${roomId}/users`);
@@ -193,9 +229,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     });
 
     set({
-      heartbeatInterval: window.setInterval(() => {
-        firebaseSignaling.heartbeat();
-      }, HEARTBEAT_INTERVAL_MS),
+      heartbeatInterval: startHeartbeat(),
       reconcileInterval: window.setInterval(() => {
         get().reconcilePeers();
       }, RECONCILE_INTERVAL_MS),
@@ -219,12 +253,22 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       }
     });
 
+    // A participant who exhausted their retries is no longer in `peers`, so the
+    // loop above cannot reach them. Without this their spent budget outlives
+    // their departure and they are never dialled again, even after rejoining.
+    const staleRetries = [...get().peerRetries.keys()].filter((id) => !roster.includes(id));
+    if (staleRetries.length > 0) {
+      const nextRetries = new Map(get().peerRetries);
+      staleRetries.forEach((id) => nextRetries.delete(id));
+      set({ peerRetries: nextRetries });
+    }
+
     const now = Date.now();
-    const { peers: livePeers, peerRetries } = get();
-    const nextPeers = new Map(livePeers);
+    const { peerRetries } = get();
 
     for (const otherUserId of roster) {
-      if (otherUserId === userId || nextPeers.has(otherUserId)) continue;
+      const livePeers = get().peers;
+      if (otherUserId === userId || livePeers.has(otherUserId)) continue;
 
       const retry = peerRetries.get(otherUserId);
       if (retry && retry.attempts >= MAX_RETRY_ATTEMPTS) continue;
@@ -232,23 +276,24 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
 
       // Only live connections count toward the cap. Participants parked at their
       // retry ceiling hold no slot, or one unreachable user would starve the rest.
-      if (nextPeers.size >= MAX_PEERS) {
+      if (livePeers.size >= MAX_PEERS) {
         logger.warn('[videocall] Peer limit reached, not dialling', otherUserId);
         break;
       }
 
-      nextPeers.set(
-        otherUserId,
-        openPeer(otherUserId, userId < otherUserId, localStream, iceServers)
-      );
-    }
-
-    if (nextPeers.size !== livePeers.size) {
-      set({ peers: nextPeers });
+      // Committed one at a time against freshly-read state: a peer that fails
+      // during construction tears itself down through `dropPeer`, and a batched
+      // write built before the loop would resurrect it with no retry booked.
+      const connection = openPeer(otherUserId, userId < otherUserId, localStream, iceServers);
+      set({ peers: new Map(get().peers).set(otherUserId, connection) });
     }
   },
 
   cleanup: () => {
+    // Invalidates any `initialize` still awaiting, so it abandons its stream
+    // rather than installing listeners and intervals after the teardown.
+    activeGeneration = null;
+
     const { localStream, peers, heartbeatInterval, reconcileInterval, roomId } = get();
 
     if (localStream) {
@@ -330,13 +375,22 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
   },
 
   disconnectCall: () => {
-    const { localStream } = get();
+    const { localStream, heartbeatInterval } = get();
     if (!localStream) return;
 
     stopTracks(localStream);
 
+    // Hanging up gives the roster slot back. Signalling stays up so the call can
+    // be resumed, but a hung-up participant that kept its slot would occupy one
+    // of everyone else's four connections while sending nothing.
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+    }
+    firebaseSignaling.setPresent(false);
+
     set({
       localStream: null,
+      heartbeatInterval: null,
       isCallActive: false,
       isMuted: false,
       isVideoOff: false,
@@ -384,9 +438,17 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       nextPeers.set(peerId, { ...peerData, senderTracks: attached });
     });
 
+    firebaseSignaling.setPresent(true);
+
+    const { heartbeatInterval: existingHeartbeat } = get();
+    if (existingHeartbeat) {
+      clearInterval(existingHeartbeat);
+    }
+
     set({
       peers: nextPeers,
       localStream: stream,
+      heartbeatInterval: startHeartbeat(),
       isCallActive: true,
       isMuted: false,
       isVideoOff: false,
@@ -397,6 +459,12 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     set({ error: null });
   },
 }));
+
+function startHeartbeat(): number {
+  return window.setInterval(() => {
+    firebaseSignaling.heartbeat();
+  }, HEARTBEAT_INTERVAL_MS);
+}
 
 function stopTracks(stream: MediaStream | null | undefined): void {
   stream?.getTracks().forEach((track) => {
@@ -442,6 +510,11 @@ function dropPeer(targetUserId: string, { retry }: { retry: boolean }): void {
   }
 }
 
+/** simple-peer exposes no accessor for the underlying connection. */
+function peerConnectionOf(peer: SimplePeer.Instance): RTCPeerConnection | undefined {
+  return (peer as unknown as { _pc?: RTCPeerConnection })._pc;
+}
+
 function clearRetries(targetUserId: string): void {
   const { peerRetries } = useVideoCallStore.getState();
   if (!peerRetries.has(targetUserId)) return;
@@ -460,18 +533,28 @@ async function logSelectedCandidatePair(
   peer: SimplePeer.Instance,
   targetUserId: string
 ): Promise<void> {
-  const pc = (peer as unknown as { _pc?: RTCPeerConnection })._pc;
+  const pc = peerConnectionOf(peer);
   if (!pc?.getStats) return;
 
   try {
     const stats = await pc.getStats();
-    let selected: any;
+
+    // Several pairs can sit at `succeeded` while only one is nominated, and
+    // `selected` is legacy Firefox. Taking the first match logs `host` for calls
+    // that are actually relaying — inverting the one measurement worth having.
+    let transportPairId: string | undefined;
+    let nominated: any;
+    let fallback: any;
     stats.forEach((report: any) => {
-      if (selected) return;
-      if (report.type === 'candidate-pair' && (report.selected || report.state === 'succeeded')) {
-        selected = report;
+      if (report.type === 'transport' && report.selectedCandidatePairId) {
+        transportPairId = report.selectedCandidatePairId;
+      } else if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+        if (report.nominated || report.selected) nominated ??= report;
+        fallback ??= report;
       }
     });
+
+    const selected = (transportPairId && stats.get(transportPairId)) || nominated || fallback;
     if (!selected) return;
 
     logger.info('[videocall] Connected', targetUserId, {
@@ -532,7 +615,7 @@ function openPeer(
       stopTracks(peerData.stream);
     }
 
-    // Limit video tracks to reduce memory usage
+    // A renegotiation can leave a superseded video track decoding in the background.
     const videoTracks = remoteStream.getVideoTracks();
     if (videoTracks.length > 1) {
       videoTracks.slice(1).forEach((track) => track.stop());
@@ -543,41 +626,33 @@ function openPeer(
     useVideoCallStore.setState({ peers: nextPeers });
   });
 
-  peer.on('error', (error) => {
-    logger.warn('[videocall] Peer error', targetUserId, error);
-    clearTimeout(connectionTimeout);
-    dropPeer(targetUserId, { retry: true });
-  });
-
-  peer.on('close', () => {
-    logger.debug('[videocall] Peer closed', targetUserId);
-    clearTimeout(connectionTimeout);
-    dropPeer(targetUserId, { retry: true });
-  });
-
-  peer.on('connect', () => {
+  const onConnected = () => {
     clearTimeout(connectionTimeout);
     clearRetries(targetUserId);
     logSelectedCandidatePair(peer, targetUserId);
-  });
+  };
+
+  const onLost = (reason: string, detail?: unknown) => {
+    logger.warn('[videocall] Peer lost', targetUserId, reason, detail);
+    clearTimeout(connectionTimeout);
+    dropPeer(targetUserId, { retry: true });
+  };
+
+  peer.on('error', (error) => onLost('error', error));
+  peer.on('close', () => onLost('closed'));
+  peer.on('connect', onConnected);
 
   const connectionTimeout = setTimeout(() => {
-    if (!peer.destroyed) {
-      logger.warn('[videocall] Peer never connected, retrying', targetUserId);
-      dropPeer(targetUserId, { retry: true });
-    }
+    if (!peer.destroyed) onLost('never connected');
   }, CONNECT_TIMEOUT_MS);
 
   peer.on('iceStateChange', (iceConnectionState: string) => {
     logger.debug('[videocall] ICE state', targetUserId, iceConnectionState);
 
     if (iceConnectionState === 'connected' || iceConnectionState === 'completed') {
-      clearTimeout(connectionTimeout);
-      clearRetries(targetUserId);
-      logSelectedCandidatePair(peer, targetUserId);
+      onConnected();
     } else if (iceConnectionState === 'failed') {
-      clearTimeout(connectionTimeout);
-      dropPeer(targetUserId, { retry: true });
+      onLost('ICE failed');
     }
   });
 
@@ -600,6 +675,15 @@ function handleSignal(data: SignalData): void {
 
   if (data.type === 'offer' && data.sdp) {
     if (!peerConnection) {
+      // Signalling rules let any authenticated user push an offer into anyone's
+      // queue, and `from` is client-supplied. Without these checks a single
+      // account could force unbounded peer construction in any room.
+      const { roster } = useVideoCallStore.getState();
+      if (!roster.includes(data.from) || peers.size >= MAX_PEERS) {
+        logger.warn('[videocall] Ignoring offer from outside the roster', data.from);
+        return;
+      }
+
       peerConnection = {
         ...openPeer(data.from, false, localStream, iceServers),
         lastProcessedOffer: data.sdp,
@@ -618,20 +702,14 @@ function handleSignal(data: SignalData): void {
         }
       }, 100);
     } else if (!peerConnection.initiator && !peerConnection.peer.destroyed) {
-      // Check if we're already processing an offer
       if (peerConnection.processingOffer) {
         return;
       }
-
-      // Check if this is the exact same offer we already processed
       if (peerConnection.lastProcessedOffer === data.sdp) {
         return;
       }
 
-      const pc = (peerConnection.peer as any)._pc;
-      const iceConnectionState = pc?.iceConnectionState;
-
-      // Ignore offers if we're actively connecting or already connected
+      const iceConnectionState = peerConnectionOf(peerConnection.peer)?.iceConnectionState;
       if (
         iceConnectionState === 'checking' ||
         iceConnectionState === 'connected' ||
@@ -639,8 +717,6 @@ function handleSignal(data: SignalData): void {
       ) {
         return;
       }
-
-      // Only accept offers if connection is new, disconnected, or failed
       if (
         iceConnectionState !== 'new' &&
         iceConnectionState !== 'disconnected' &&
@@ -649,8 +725,6 @@ function handleSignal(data: SignalData): void {
       ) {
         return;
       }
-
-      // Set processing lock
       peerConnection.processingOffer = true;
       peerConnection.lastProcessedOffer = data.sdp;
       const nextPeers = new Map(peers);
@@ -659,8 +733,6 @@ function handleSignal(data: SignalData): void {
 
       try {
         peerConnection.peer.signal({ type: 'offer', sdp: data.sdp });
-
-        // Release lock after a short delay to allow processing
         setTimeout(() => {
           const current = useVideoCallStore.getState().peers;
           const entry = current.get(data.from);
@@ -669,7 +741,7 @@ function handleSignal(data: SignalData): void {
             released.set(data.from, { ...entry, processingOffer: false });
             useVideoCallStore.setState({ peers: released });
           }
-        }, 1000); // 1 second lock
+        }, OFFER_LOCK_MS);
       } catch (error) {
         logger.warn('[videocall] Failed to apply offer', data.from, error);
         const released = new Map(useVideoCallStore.getState().peers);
@@ -679,20 +751,14 @@ function handleSignal(data: SignalData): void {
     }
   } else if (data.type === 'answer' && data.sdp && peerConnection) {
     if (peerConnection.initiator && !peerConnection.peer.destroyed) {
-      // Check if this is the exact same answer we already processed
       if (peerConnection.lastProcessedAnswer === data.sdp) {
         return;
       }
 
-      const pc = (peerConnection.peer as any)._pc;
-      const iceConnectionState = pc?.iceConnectionState;
-
-      // Ignore answers if we're already connected
+      const iceConnectionState = peerConnectionOf(peerConnection.peer)?.iceConnectionState;
       if (iceConnectionState === 'connected' || iceConnectionState === 'completed') {
         return;
       }
-
-      // Store this answer as processed before signaling
       peerConnection.lastProcessedAnswer = data.sdp;
       const nextPeers = new Map(peers);
       nextPeers.set(data.from, peerConnection);

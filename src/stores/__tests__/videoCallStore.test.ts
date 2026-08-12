@@ -24,6 +24,7 @@ vi.mock('@/services/firebaseSignaling', () => ({
     sendAnswer: vi.fn(),
     sendIceCandidate: vi.fn(),
     heartbeat: vi.fn().mockResolvedValue(undefined),
+    setPresent: vi.fn().mockResolvedValue(undefined),
     cleanup: vi.fn(),
   },
 }));
@@ -389,6 +390,45 @@ describe('VideoCallStore', () => {
     });
   });
 
+  describe('Initialize concurrency', () => {
+    // Three components can call initialize, and it awaits twice before
+    // isInitialized flips — so the flag alone gates nothing.
+    test('a second concurrent call does not build a second call session', async () => {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await Promise.all([
+          result.current.initialize('test-room', 'self'),
+          result.current.initialize('test-room', 'self'),
+        ]);
+      });
+
+      expect(firebaseSignaling.initialize).toHaveBeenCalledTimes(1);
+    });
+
+    // cleanup() landing mid-await would otherwise leave a roster listener and
+    // two intervals running that nothing holds a handle to.
+    test('abandons setup when cleanup lands while it is still awaiting', async () => {
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        const pending = result.current.initialize('test-room', 'self');
+        result.current.cleanup();
+        await pending;
+      });
+
+      expect(result.current.isInitialized).toBe(false);
+      expect(mockVideoTrack.stop).toHaveBeenCalled();
+
+      await act(async () => {
+        vi.advanceTimersByTime(RECONCILE_INTERVAL_MS * 3);
+      });
+
+      expect(harness.peers.length).toBe(0);
+    });
+  });
+
   describe('Presence Heartbeat', () => {
     test('refreshes presence on an interval so the server prune does not evict a live caller', async () => {
       const { firebaseSignaling } = await import('@/services/firebaseSignaling');
@@ -634,6 +674,53 @@ describe('VideoCallStore', () => {
 
       expect(result.current.peers.size).toBe(MAX_PEERS);
       expect(result.current.peers.has('b')).toBe(false);
+    });
+
+    // A participant at their retry ceiling is not in `peers`, so the prune loop
+    // cannot reach them. If their spent budget outlives them, rejoining the room
+    // never gets them dialled again.
+    test('forgets the retry budget of a participant who left', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+
+      for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS; attempt += 1) {
+        act(() => {
+          harness.peers[harness.peers.length - 1].emit('error', new Error('ICE failed'));
+        });
+        await act(async () => {
+          vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+        });
+      }
+      expect(result.current.peers.has('zed')).toBe(false);
+
+      act(() => {
+        publishRoster(['self']);
+      });
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+
+      expect(result.current.peers.has('zed')).toBe(true);
+    });
+
+    // Signalling rules let any authenticated user push an offer into anyone's
+    // queue, and `from` is client-supplied.
+    test('ignores an offer from someone who is not on the roster', async () => {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      const result = await joinRoom();
+      const onSignal = vi.mocked(firebaseSignaling.initialize).mock.calls[0][2];
+
+      act(() => {
+        publishRoster(['self']);
+      });
+      act(() => {
+        onSignal({ type: 'offer', from: 'intruder', sdp: 'v=0', timestamp: 1 });
+      });
+
+      expect(result.current.peers.size).toBe(0);
     });
 
     test('stops reconciling after cleanup', async () => {

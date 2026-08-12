@@ -13,7 +13,7 @@ export interface MintedCredentials {
 export const TURN_CACHE_SLACK_MS = 10 * 60 * 1000;
 
 interface ResolverPorts {
-  mintCredentials: () => Promise<MintedCredentials>;
+  mintCredentials: (roomId: string) => Promise<MintedCredentials>;
   /** Relay bundled with the client, used when minting is unavailable. */
   fallback: IceServer[];
   now: () => number;
@@ -30,13 +30,14 @@ interface ResolverPorts {
 export function createIceServerResolver({ mintCredentials, fallback, now }: ResolverPorts) {
   let cached: MintedCredentials | null = null;
 
-  return async function resolveIceServers(): Promise<IceServer[]> {
+  // Credentials are account-wide, so a set minted for one room serves the next.
+  return async function resolveIceServers(roomId: string): Promise<IceServer[]> {
     if (cached && cached.expiresAt - TURN_CACHE_SLACK_MS > now()) {
       return cached.iceServers;
     }
 
     try {
-      const minted = await mintCredentials();
+      const minted = await mintCredentials(roomId);
 
       if (!minted?.iceServers?.length) {
         logger.warn('[ice] TURN provider returned no servers; using bundled relay');
@@ -55,12 +56,12 @@ export function createIceServerResolver({ mintCredentials, fallback, now }: Reso
 }
 
 export const resolveIceServers = createIceServerResolver({
-  mintCredentials: async () => {
-    const callable = httpsCallable<unknown, MintedCredentials>(
+  mintCredentials: async (roomId: string) => {
+    const callable = httpsCallable<{ roomId: string }, MintedCredentials>(
       getFunctionsClient(),
       'getTurnCredentials'
     );
-    const { data } = await callable();
+    const { data } = await callable({ roomId });
     return data;
   },
   fallback: ICE_SERVERS,

@@ -286,10 +286,9 @@ export const cleanupVideoCallSignaling = functions.pubsub
       for (const roomId of roomIds) {
         const roomData = videoCallRooms[roomId];
 
-        // Clients drop off the roster via onDisconnect, which only fires when the
-        // socket dies. A crashed tab or a suspended phone can leave a ghost behind,
-        // and every ghost occupies one of the four mesh slots real callers need.
-        // The threshold is well clear of the client's 30s heartbeat so a throttled
+        // A crashed tab leaves a ghost: onDisconnect only fires when the socket
+        // dies, and every ghost holds one of the four mesh slots real callers need.
+        // Cutoff sits well clear of the client's 30s heartbeat so a throttled
         // background tab is never mistaken for a departure.
         if (roomData.users) {
           const ghosts: { [key: string]: null } = {};
@@ -297,6 +296,7 @@ export const cleanupVideoCallSignaling = functions.pubsub
             const lastSeen = presence?.lastSeen ?? presence?.joinedAt;
             if (typeof lastSeen === 'number' && lastSeen < staleRosterCutoff) {
               ghosts[`video-calls/${roomId}/users/${userId}`] = null;
+              // Also drop locally: the `hasActiveUsers` check below reads this.
               delete roomData.users[userId];
             }
           });

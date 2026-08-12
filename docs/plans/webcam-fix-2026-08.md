@@ -77,9 +77,16 @@ Reachable path: mobile only, `VideoControls` hang-up → call. Narrow, but real 
    `cleanupVideoCallSignaling`.
 4. `replaceTrack()` on reconnect; hold the local stream in store state, not a closure.
 5. Log through `logger`: ICE state transitions, and after connect `pc.getStats()` →
-   selected candidate pair `local/remoteCandidateType`. `relay` vs `srflx`/`host` answers the
-   TURN question for every real user, permanently. Connection metadata, not user content —
-   safe under the CLAUDE.md `logger` constraint.
+   selected candidate pair `local/remoteCandidateType`. `relay` vs `srflx`/`host` is the
+   measurement that settles root cause #1. Connection metadata, not user content — safe under
+   the CLAUDE.md `logger` constraint.
+
+   **Open decision — this is dev-only today.** `logger` returns early unless `MODE` is
+   `development`/`test`, so these lines reach a developer's console and nobody else. Answering
+   the TURN question _for real users_ needs the candidate types reported at the Sentry boundary
+   (`src/services/sentry.ts`), which is a deliberate privacy call, not a `logger` change: it
+   sends new data to a third party. Connection metadata carries no user-authored content, so
+   it is defensible — but it needs an explicit yes, and it is not wired up.
 
 **Manual checks (5 min, browser):**
 
@@ -93,11 +100,11 @@ Reachable path: mobile only, `VideoControls` hang-up → call. Narrow, but real 
 TURN is part of ICE. It is not replaceable — some connections physically cannot go P2P. The only
 question is who supplies relay bandwidth.
 
-| Provider                     | Free tier                      | Transports                     | Creds                   | Notes                                                                                     |
-| ---------------------------- | ------------------------------ | ------------------------------ | ----------------------- | ----------------------------------------------------------------------------------------- |
-| **Metered** (current)        | **20 GB/mo**                   | UDP/TCP/TLS on 80/443          | static, baked in bundle | Quota is the suspected failure.                                                           |
-| **Cloudflare Realtime TURN** | **1,000 GB/mo**, then $0.05/GB | UDP, TCP, TLS (`turns:…:5349`) | API-generated, ≤48h TTL | 50× the free bandwidth. Shared with their SFU tier. `stun.cloudflare.com` free/unlimited. |
-| Self-host coturn             | server cost only               | all                            | any                     | Full control, ops burden, needs a static IP + TLS cert.                                   |
+| Provider                     | Free tier                      | Transports                     | Creds                   | Notes                                                                                                                                                                                                 |
+| ---------------------------- | ------------------------------ | ------------------------------ | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Metered** (current)        | **20 GB/mo**                   | UDP + TCP on 80/443, no TLS    | static, baked in bundle | Quota is the suspected failure. Their credential API returns exactly five entries for `global.relay.metered.ca` and none is `turns:`; the TLS host is the separate `staticauth.openrelay.metered.ca`. |
+| **Cloudflare Realtime TURN** | **1,000 GB/mo**, then $0.05/GB | UDP, TCP, TLS (`turns:…:5349`) | API-generated, ≤48h TTL | 50× the free bandwidth. Shared with their SFU tier. `stun.cloudflare.com` free/unlimited.                                                                                                             |
+| Self-host coturn             | server cost only               | all                            | any                     | Full control, ops burden, needs a static IP + TLS cert.                                                                                                                                               |
 
 **Recommendation: Cloudflare Realtime TURN.** 50× the headroom, and short-lived credentials fix
 the harvestable-static-creds issue already flagged in `docs/engineering/security.md`. Cloudflare's

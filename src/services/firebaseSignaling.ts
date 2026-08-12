@@ -31,6 +31,7 @@ class FirebaseSignalingService {
   private iceCandidatesRef: any = null;
   private presenceRef: any = null;
   private presenceOnDisconnect: any = null;
+  private joinedAt: number | null = null;
   private roomId: string | null = null;
   private userId: string | null = null;
   private processedCandidates: Set<string> = new Set();
@@ -41,13 +42,9 @@ class FirebaseSignalingService {
     const database = getDatabase();
     this.roomRef = ref(database, `video-calls/${roomId}`);
 
-    const now = Date.now();
+    this.joinedAt = Date.now();
     this.presenceRef = ref(database, `video-calls/${roomId}/users/${userId}`);
-    set(this.presenceRef, {
-      joinedAt: now,
-      lastSeen: now,
-      status: 'online',
-    });
+    this.setPresent(true);
 
     this.presenceOnDisconnect = onDisconnect(this.presenceRef);
     this.presenceOnDisconnect.remove();
@@ -186,20 +183,39 @@ class FirebaseSignalingService {
   }
 
   /**
+   * Claim or release a roster slot.
+   *
+   * Claiming rewrites the whole node rather than touching `lastSeen` alone. A
+   * socket blip fires the armed `onDisconnect` and deletes the node; the SDK
+   * re-arms it but never rewrites the data, and a lone `lastSeen` child would
+   * then fail the rule's `hasChildren(['joinedAt','status'])` — leaving the user
+   * invisible on every roster for the rest of the call.
+   */
+  async setPresent(present: boolean): Promise<void> {
+    if (!this.presenceRef) return;
+
+    try {
+      if (present) {
+        this.joinedAt ??= Date.now();
+        await set(this.presenceRef, {
+          joinedAt: this.joinedAt,
+          lastSeen: Date.now(),
+          status: 'online',
+        });
+      } else {
+        await set(this.presenceRef, null);
+      }
+    } catch (error) {
+      logger.warn('[signaling] Presence write failed', present, error);
+    }
+  }
+
+  /**
    * Refresh the roster timestamp. `cleanupVideoCallSignaling` evicts entries that
    * have gone stale, and `joinedAt` alone would evict anyone still in a long call.
    */
   async heartbeat(): Promise<void> {
-    if (!this.roomId || !this.userId) return;
-
-    const database = getDatabase();
-    const lastSeenRef = ref(database, `video-calls/${this.roomId}/users/${this.userId}/lastSeen`);
-
-    try {
-      await set(lastSeenRef, Date.now());
-    } catch (error) {
-      logger.warn('[signaling] Presence heartbeat failed', error);
-    }
+    await this.setPresent(true);
   }
 
   cleanup() {
@@ -228,11 +244,10 @@ class FirebaseSignalingService {
     // the room spends a MAX_PEERS slot dialling a phantom that will never answer.
     if (this.presenceRef) {
       this.presenceOnDisconnect?.cancel?.();
-      Promise.resolve(set(this.presenceRef, null)).catch((error) => {
-        logger.warn('[signaling] Failed to remove presence node', error);
-      });
+      this.setPresent(false);
       this.presenceRef = null;
       this.presenceOnDisconnect = null;
+      this.joinedAt = null;
     }
 
     this.processedCandidates.clear();

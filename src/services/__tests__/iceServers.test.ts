@@ -29,7 +29,7 @@ describe('resolveIceServers', () => {
       expiresAt: 2_000_000,
     }));
 
-    await expect(resolve()).resolves.toEqual(CLOUDFLARE_SERVERS);
+    await expect(resolve('test-room')).resolves.toEqual(CLOUDFLARE_SERVERS);
   });
 
   // Losing the minting endpoint must not take relay away entirely — that is the
@@ -39,21 +39,21 @@ describe('resolveIceServers', () => {
       throw new Error('function unavailable');
     });
 
-    await expect(resolve()).resolves.toEqual(FALLBACK);
+    await expect(resolve('test-room')).resolves.toEqual(FALLBACK);
   });
 
   test('falls back when the provider returns nothing usable', async () => {
     const resolve = resolverWith(async () => ({ iceServers: [], expiresAt: 2_000_000 }));
 
-    await expect(resolve()).resolves.toEqual(FALLBACK);
+    await expect(resolve('test-room')).resolves.toEqual(FALLBACK);
   });
 
   test('reuses minted credentials until they near expiry', async () => {
     const mint = vi.fn(async () => ({ iceServers: CLOUDFLARE_SERVERS, expiresAt: 9_000_000 }));
     const resolve = resolverWith(mint);
 
-    await resolve();
-    await resolve();
+    await resolve('test-room');
+    await resolve('test-room');
 
     expect(mint).toHaveBeenCalledTimes(1);
   });
@@ -64,9 +64,9 @@ describe('resolveIceServers', () => {
     const mint = vi.fn(async () => ({ iceServers: CLOUDFLARE_SERVERS, expiresAt }));
     const resolve = resolverWith(mint, () => clock);
 
-    await resolve();
+    await resolve('test-room');
     clock = expiresAt - TURN_CACHE_SLACK_MS + 1;
-    await resolve();
+    await resolve('test-room');
 
     expect(mint).toHaveBeenCalledTimes(2);
   });
@@ -80,7 +80,7 @@ describe('resolveIceServers', () => {
       .mockResolvedValue({ iceServers: CLOUDFLARE_SERVERS, expiresAt: 9_000_000 });
     const resolve = resolverWith(mint);
 
-    await expect(resolve()).resolves.toEqual(FALLBACK);
-    await expect(resolve()).resolves.toEqual(CLOUDFLARE_SERVERS);
+    await expect(resolve('test-room')).resolves.toEqual(FALLBACK);
+    await expect(resolve('test-room')).resolves.toEqual(CLOUDFLARE_SERVERS);
   });
 });

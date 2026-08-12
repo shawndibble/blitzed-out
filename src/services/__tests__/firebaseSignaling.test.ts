@@ -245,8 +245,37 @@ describe('firebaseSignaling', () => {
       mockSet.mockClear();
       await firebaseSignaling.heartbeat();
 
-      const [[, value]] = writesTo('video-calls/test-room/users/user-123/lastSeen');
-      expect(typeof value).toBe('number');
+      const [[, value]] = writesTo('video-calls/test-room/users/user-123');
+      expect(typeof value.lastSeen).toBe('number');
+    });
+
+    // A socket blip fires the armed onDisconnect and deletes the node. Writing
+    // lastSeen alone would then fail the rule's hasChildren check, leaving the
+    // user invisible on every roster for the rest of the call.
+    test('rewrites the whole presence node so a deleted one is restored', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      mockSet.mockClear();
+      await firebaseSignaling.heartbeat();
+
+      const [[, value]] = writesTo('video-calls/test-room/users/user-123');
+      expect(value).toEqual({
+        joinedAt: expect.any(Number),
+        lastSeen: expect.any(Number),
+        status: 'online',
+      });
+    });
+
+    test('preserves the original joinedAt across heartbeats', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      const [[, joined]] = writesTo('video-calls/test-room/users/user-123');
+      await firebaseSignaling.heartbeat();
+
+      const writes = writesTo('video-calls/test-room/users/user-123');
+      expect(writes[writes.length - 1][1].joinedAt).toBe(joined.joinedAt);
     });
 
     test('is a no-op before initialization', async () => {

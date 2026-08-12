@@ -1,21 +1,22 @@
 import * as functions from 'firebase-functions/v1';
+import { getDatabase } from 'firebase-admin/database';
 
 /**
- * Mints short-lived Cloudflare TURN credentials for a signed-in caller.
+ * Mints short-lived Cloudflare TURN credentials.
  *
- * TURN credentials cannot live in the client bundle: whatever ships there is
- * harvestable and bills to us until it is rotated by hand. Cloudflare issues
- * time-boxed credentials instead, but only to a caller holding the account API
- * token — which is why this has to be a server call at all.
- *
- * Requires the CLOUDFLARE_TURN_TOKEN secret. CLOUDFLARE_TURN_KEY_ID selects the
- * TURN key; it is an identifier, not a secret, so it is a plain env var.
+ * Anything in the client bundle is harvestable and bills to us until rotated by
+ * hand; Cloudflare issues time-boxed credentials, but only to a holder of the
+ * account API token — hence a server call. Needs the CLOUDFLARE_TURN_TOKEN
+ * secret plus CLOUDFLARE_TURN_KEY_ID (an identifier, so a plain env var).
  */
 
 const CLOUDFLARE_TURN_API = 'https://rtc.live.cloudflare.com/v1/turn/keys';
 
-/** Long enough to outlast any realistic call, short enough that a leak expires. */
-const CREDENTIAL_TTL_SECONDS = 12 * 60 * 60;
+/**
+ * Long enough to outlast a call, short enough that a harvested credential is
+ * worth little. Clients re-mint automatically as expiry approaches.
+ */
+const CREDENTIAL_TTL_SECONDS = 2 * 60 * 60;
 
 interface CloudflareIceServer {
   urls: string | string[];
@@ -35,11 +36,30 @@ function toIceServerArray(payload: unknown): CloudflareIceServer[] {
 
 export const getTurnCredentials = functions
   .runWith({ secrets: ['CLOUDFLARE_TURN_TOKEN'] })
-  .https.onCall(async (_data, context) => {
+  .https.onCall(async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
         'unauthenticated',
         'Sign in before requesting TURN credentials'
+      );
+    }
+
+    // Anonymous guest accounts are free to create, so authentication alone is
+    // not a spend control — relay bandwidth is billed to us. Requiring the
+    // caller to already hold a roster slot ties every credential to a real call.
+    const roomId = typeof data?.roomId === 'string' ? data.roomId : '';
+    if (!roomId || !/^[A-Za-z0-9_-]{1,64}$/.test(roomId)) {
+      throw new functions.https.HttpsError('invalid-argument', 'A valid roomId is required');
+    }
+
+    const presence = await getDatabase()
+      .ref(`video-calls/${roomId}/users/${context.auth.uid}`)
+      .once('value');
+
+    if (!presence.exists()) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'Join the call before requesting TURN credentials'
       );
     }
 

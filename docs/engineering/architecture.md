@@ -107,7 +107,7 @@ Two persistence tiers:
 | `localPlayerStore.ts`   | Active Shared-Device session (players, current turn index).                                                                                               |
 | `messagesStore.ts`      | Chat + action + settings messages (mirrors Firestore; dedupes; 24h TTL).                                                                                  |
 | `userListStore.ts`      | Online users / presence in the current room.                                                                                                              |
-| `videoCallStore.ts`     | WebRTC peer connections, local/remote streams, mute/camera toggles.                                                                                       |
+| `videoCallStore.ts`     | WebRTC peers + roster reconciliation and retry budgets, resolved ICE servers, local/remote streams, mute/camera toggles.                                  |
 | `diceAnimationStore.ts` | Debounce flag so dice-roll sound doesn't double-play.                                                                                                     |
 | `scheduleStore.ts`      | Scheduled game sessions (batched updates, cached).                                                                                                        |
 | `store.ts`              | Dexie database definition + sync middleware wiring (not a Zustand store).                                                                                 |
@@ -173,8 +173,9 @@ Routing config: `src/components/RouterSetup`.
 
 ## Cloud Functions (`functions/`)
 
-Node Firebase Functions, 7 exported. Mix of scheduled (Pub/Sub) cleanup jobs and RTDB triggers:
+Node Firebase Functions, 9 exported. Mix of scheduled (Pub/Sub) cleanup jobs, RTDB triggers, and callables:
 
-- Scheduled: stale-user cleanup (~5 min), inactive-anonymous-account cleanup (daily), video-call signaling cleanup (~5 min).
-- Triggers: on user disconnect, presence validation (stamps `lastSeen`).
-- Two **callable** admin helpers (`manualCleanupStaleUsers`, `manualCleanupAnonymousAccounts`) gated on an `admin` custom claim. Details and the security caveats in [security.md](security.md#cloud-functions).
+- Scheduled: stale-user cleanup (~5 min), inactive-anonymous-account cleanup (daily), video-call signaling cleanup (~5 min, also prunes roster entries idle 10 min).
+- Triggers: on user disconnect, presence validation (stamps `lastSeen`), pack-report notification.
+- Two **callable** admin helpers (`manualCleanupStaleUsers`, `manualCleanupAnonymousAccounts`) gated on an `admin` custom claim.
+- `getTurnCredentials` — mints short-lived Cloudflare TURN credentials for a caller who already holds a roster slot in the room they name. Details and the security caveats in [security.md](security.md#cloud-functions).
